@@ -1,76 +1,89 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 11/25] xen: Xen SMP guest support
-Date: Wed, 25 Apr 2007 11:45:32 -0700
-Message-ID: <462FA1CC.5010002@goop.org>
-References: <20070423215638.563901986@goop.org> <20070423215711.197402369@goop.org> <200704251124.48445.ak@suse.de>
+From: "Zachary Queen" <jrdunmor@keynet.net>
+Subject: Of whom dovray
+Date: Thu, 26 Apr 1990 03:17:38 +0800
+Message-ID: <001b01b478a3$c274e890$0019deec@chinese07b4993>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992899AbXDYSpA@vger.kernel.org>
-In-Reply-To: <200704251124.48445.ak@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Benjamin LaHaise <bcrl@kvack.org>, Ingo Molnar <mingo@redhat.com>
+Content-Type: multipart/mixed; boundary="===============5721913916263664823=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
->   
->>  #ifdef CONFIG_X86_LOCAL_APIC
->>  static unsigned long xen_apic_read(unsigned long reg)
->>     
->
-> Can't you just make them all NULL? Crashing here should be correct.
->   
+--===============5721913916263664823==
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0018_01B478A3.C274E890"
 
-No.  The APIC setup code does at least one unconditional read to get the
-APIC version before deciding the APIC is disabled/not present.  In my
-testing that's the only access to the APIC which happens under Xen, but
-it wouldn't surprise me if there were other stray accesses with
-different configurations (like the P4_THERMAL stuff).
+------=_NextPart_000_0018_01B478A3.C274E890
+Content-Type: text/plain;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
->> +#ifdef CONFIG_SMP
->> +static const struct smp_ops xen_smp_ops __initdata = {
->>     
->
-> Why __initdata? 
->   
 
-It gets copied into the real smp_ops early on, so it isn't needed after
-that.
 
->> +/* VCPUs are single-cored, and have no siblings */
->> +static void set_cpu_sibling_map(int cpu)
->>     
->
-> Can you put this somewhere generic and use it everywhere? Don't want
-> duplication of this code.
->   
 
-OK.
 
-> Strange check?
->   
+This gem is really movable!
 
-Er, yes, that does look odd.
 
->> +
->> + * We need to reload %cr3 since the page tables may be going
->> + * away from under us..
->> + */
->> +static inline void leave_mm (unsigned long cpu)
->> +{
->> +#ifdef CONFIG_SMP
->> +	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
->> +		BUG();
->> +	cpu_clear(cpu, per_cpu(cpu_tlbstate, cpu).active_mm->cpu_vm_mask);
->> +#endif
->> +	load_cr3(swapper_pg_dir);
->>  }
->>     
->
-> Should be out of line
->   
+Sea.rch for: CHVCCurrent: $0.65 1 Day Target price: $1.5Market: =
+bullish..
 
-OK.
+500%+ profit (short term)!!!
 
-    J
+
+
+See the news, virtualization, call your broker...
+
+
+------=_NextPart_000_0018_01B478A3.C274E890
+Content-Type: text/html;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1250">
+<META content=3D"MSHTML 6.00.2462.2869" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#6600FF size=3D=
+3D4><FONT size=3D2><STRONG>This gem is really =
+movable!!</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#CC0000 size=3D=
+3>Sea.rch for: <b>CHVC</b><br>Current: $0.65 <br>1 Day Target price: =
+$1.5<br>Market: bullish!!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000066 size=3D4>500%+ =
+profit (short term)..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#003399 size=3D2>See =
+the news, virtualization, call your broker!!!</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0018_01B478A3.C274E890--
+
+--===============5721913916263664823==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============5721913916263664823==--
