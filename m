@@ -1,134 +1,94 @@
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 3/8] Allow a kernel to not be in ring 0.
-Date: Sat, 5 Aug 2006 01:40:01 -0400
-Message-ID: <200608050143_MC3-1-C721-98E2@compuserve.com>
+From: Adrian Bunk <bunk@stusta.de>
+Subject: Re: A proposal - binary
+Date: Sat, 5 Aug 2006 12:42:55 +0200
+Message-ID: <20060805104255.GR25692@stusta.de>
+References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com> <20060804183448.GE11244@sequoia.sous-sol.org> <44D3B0F0.2010409@vmware.com> <1154726800.23655.273.camel@localhost.localdomain> <1154740485.3683.161.camel@mulgrave.il.steeleye.com> <44D42E7D.70101@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751455AbWHEKnB@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
+In-Reply-To: <44D42E7D.70101@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Zachary Amsden <zach@vmware.com>
-Cc: virtualization <virtualization@lists.osdl.org>, Xen-devel <xen-devel@lists.xensource.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>, Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, pazke@donpac.ru, Andi Kleen <ak@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In-Reply-To: <44D41DEF.7040301@vmware.com>
+On Fri, Aug 04, 2006 at 10:37:01PM -0700, Zachary Amsden wrote:
+> James Bottomley wrote:
+>...
+> >2) A gateway page or vDSO provided by the hypervisor to the kernel.
+> >This is the problematic piece, because the vDSO is de-facto linked into
+> >the kernel and as such becomes subject to the prevailing developer
+> >interpretation as being a derivative work by being linked in.  As Arjan
+> >pointed out, this can be avoided as long as the gateway page itself is
+> >GPL ... we could even create mechanisms like we use today for module
+> >licensing by having a tag in the VMI describing the licensing of the
+> >gateway page, so the kernel could be made only to load gateway pages
+> >that promise they're available under the GPL.
+> 
+> Yes, this is what prompted my whole module rant.  The interesting thing 
+> is - Linux may link to the hypervisor vDSO.  But it may not link back 
+> into Linux.  This is where the line becomes very gray, as Theodore 
+> mentioned earlier.  Is it a license violation for a GPL app to link 
+> against a non-GPL library?  Surely, the other way around is a problem, 
 
-On Fri, 04 Aug 2006 21:26:23 -0700, Zachary Amsden wrote:
->
-> These changes look great.  Ack-ed.
+I don't see the grey area.
 
-I re-did it as a patch on top of the original so it's easier to see
-what I changed.  Also added macros for table indicator.
+Assuming non-GPL and not GPL compatible (e.g. 3 clause BSD is non-GPL 
+but compatible):
 
+Unless all people holding a copyright on the GPL app agreed that this 
+linking is OK, it is considered a licence violation.
 
+That's why you often see licence statements like the following:
 
+"In addition, as a special exception, the Free Software Foundation
+gives permission to link the code of its release of Wget with the
+OpenSSL project's "OpenSSL" library (or with modified versions of it
+that use the same license as the "OpenSSL" library), and distribute
+the linked executables.  You must obey the GNU General Public License
+in all respects for all of the code used other than "OpenSSL".  If you
+modify this file, you may extend this exception to your version of the
+file, but you are not obligated to do so.  If you do not wish to do
+so, delete this exception statement from your version."
 
-Clean up of patch for letting kernel run other than ring 0:
+> unless the library has been made explicitly LGPL.  But if GPL apps can 
+> link to non-GPL libraries, what stops GPL kernels from linking to 
+> non-GPL modules?  This is where I think things become more interpretive 
+> than well defined.  And that is why it is important for us to get kernel 
+> developers feedback on exactly what that definition is.
+>...
 
-a. Add some comments about the SEGMENT_IS_*_CODE() macros.
-b. Add a USER_RPL macro.  (Code was comparing a value to a mask
-   in some places and to the magic number 3 in other places.)
-c. Add macros for table indicator field and use them.
-d. Change the entry.S tests for LDT stack segment to use the macros.
+Some kernel developers (and some lawyers) consider all kernel modules 
+with not GPL compatible licences illegal - similar to the case of 
+linking a GPL app with a non-GPL library.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-Acked-by: Zachary Amsden <zach@vmware.com>
+Quoting Novell [1]:
 
- arch/i386/kernel/entry.S   |    6 +++---
- include/asm-i386/ptrace.h  |    4 ++--
- include/asm-i386/segment.h |   17 ++++++++++++-----
- 3 files changed, 17 insertions(+), 10 deletions(-)
+"Most developers of the kernel community consider non-GPL kernel
+modules to be infringing on their copyright. Novell does respect this
+position, and will no longer distribute non-GPL kernel modules as part 
+of future products. Novell is working with vendors to find alternative
+ways to provide the functionality that was previously only available
+with non-GPL kernel modules."
 
---- 2.6.18-rc3-32.orig/arch/i386/kernel/entry.S
-+++ 2.6.18-rc3-32/arch/i386/kernel/entry.S
-@@ -230,7 +230,7 @@ check_userspace:
- 	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
- 	movb CS(%esp), %al
- 	andl $(VM_MASK | SEGMENT_RPL_MASK), %eax
--	cmpl $SEGMENT_RPL_MASK, %eax
-+	cmpl $USER_RPL, %eax
- 	jb resume_kernel		# not returning to v8086 or userspace
- ENTRY(resume_userspace)
-  	cli				# make sure we don't miss an interrupt
-@@ -368,8 +368,8 @@ restore_all:
- 	# See comments in process.c:copy_thread() for details.
- 	movb OLDSS(%esp), %ah
- 	movb CS(%esp), %al
--	andl $(VM_MASK | (4 << 8) | 3), %eax
--	cmpl $((4 << 8) | 3), %eax
-+	andl $(VM_MASK | (SEGMENT_TI_MASK << 8) | SEGMENT_RPL_MASK), %eax
-+	cmpl $((SEGMENT_LDT << 8) | USER_RPL), %eax
- 	CFI_REMEMBER_STATE
- 	je ldt_ss			# returning to user-space with LDT SS
- restore_nocheck:
---- 2.6.18-rc3-32.orig/include/asm-i386/ptrace.h
-+++ 2.6.18-rc3-32/include/asm-i386/ptrace.h
-@@ -74,11 +74,11 @@ extern void send_sigtrap(struct task_str
-  */
- static inline int user_mode(struct pt_regs *regs)
- {
--	return (regs->xcs & SEGMENT_RPL_MASK) =3D=3D 3;
-+	return (regs->xcs & SEGMENT_RPL_MASK) =3D=3D USER_RPL;
- }
- static inline int user_mode_vm(struct pt_regs *regs)
- {
--	return (((regs->xcs & SEGMENT_RPL_MASK) | (regs->eflags & VM_MASK)) >=3D =
-3);
-+	return ((regs->xcs & SEGMENT_RPL_MASK) | (regs->eflags & VM_MASK)) >=3D U=
-SER_RPL;
- }
- #define instruction_pointer(regs) ((regs)->eip)
- #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
---- 2.6.18-rc3-32.orig/include/asm-i386/segment.h
-+++ 2.6.18-rc3-32/include/asm-i386/segment.h
-@@ -83,10 +83,9 @@
- =
+And considering the number of people having a copyright on parts of the 
+kernel, there's noone except a court who can tell what is OK and what is 
+not (and even a court decision is not binding for courts in other 
+countries).
 
- #define GDT_SIZE (GDT_ENTRIES * 8)
- =
+> Zach
 
--/*
-- * Some tricky tests to match code segments after a fault
-- */
-+/* Matches __KERNEL_CS and __USER_CS (they must be 2 entries apart) */
- #define SEGMENT_IS_FLAT_CODE(x)  (((x) & 0xec) =3D=3D GDT_ENTRY_KERNEL_CS =
-* 8)
-+/* Matches PNP_CS32 and PNP_CS16 (they must be consecutive) */
- #define SEGMENT_IS_PNP_CODE(x)   (((x) & 0xf4) =3D=3D GDT_ENTRY_PNPBIOS_BA=
-SE * 8)
- =
+cu
+Adrian
 
- /* Simple and small GDT entries for booting only */
-@@ -118,8 +117,16 @@
-  */
- #define IDT_ENTRIES 256
- =
+[1] http://lists.opensuse.org/archive/opensuse-announce/2006-Feb/0004.html
 
--/* Bottom three bits of xcs give the ring privilege level */
--#define SEGMENT_RPL_MASK 0x3
-+/* Bottom two bits of selector give the ring privilege level */
-+#define SEGMENT_RPL_MASK	0x3
-+/* Bit 2 is table indicator (LDT/GDT) */
-+#define SEGMENT_TI_MASK		0x4
-+
-+/* User mode is privilege level 3 */
-+#define USER_RPL		0x3
-+/* LDT segment has TI set, GDT has it cleared */
-+#define SEGMENT_LDT		0x4
-+#define SEGMENT_GDT		0x0
- =
+-- 
 
- #define get_kernel_rpl()  0
- #endif
--- =
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
 
-Chuck
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
