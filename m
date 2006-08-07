@@ -1,44 +1,37 @@
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native ops
-Date: Mon, 7 Aug 2006 11:40:00 +0300
-Message-ID: <20060807084000.GA3802@rhun.haifa.ibm.com>
-References: <1154925835.21647.29.camel@localhost.localdomain>
-	<200608070730.17813.ak@muc.de>
-	<1154930669.7642.12.camel@localhost.localdomain>
-	<200608070817.42074.ak@muc.de>
-	<20060807062705.GB4979@rhun.haifa.ibm.com>
-	<Pine.LNX.4.61.0608070934030.12594@yvahk01.tjqt.qr>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH] Slight cleanups for x86 ring macros (against rc3-mm2)
+Date: Mon, 7 Aug 2006 10:51:52 +0200
+Message-ID: <200608071051.52727.ak@muc.de>
+References: <1154925522.21647.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751172AbWHGIwF@vger.kernel.org>
+In-Reply-To: <1154925522.21647.25.camel@localhost.localdomain>
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0608070934030.12594@yvahk01.tjqt.qr>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: virtualization@lists.osdl.org
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 07, 2006 at 09:34:43AM +0200, Jan Engelhardt wrote:
-> =
+On Monday 07 August 2006 06:38, Rusty Russell wrote:
+> Clean up of patch for letting kernel run other than ring 0:
+> 
+> a. Add some comments about the SEGMENT_IS_*_CODE() macros.
+> b. Add a USER_RPL macro.  (Code was comparing a value to a mask
+>    in some places and to the magic number 3 in other places.)
+> c. Add macros for table indicator field and use them.
+> d. Change the entry.S tests for LDT stack segment to use the macros.
 
-> >baremetal.h seems appropriate.
-> =
+If you submit a patch that actually applies I would apply it :)
 
-> <vanilla.h>, in hommage to "vanilla kernel".
+Applying patch patches/slight-cleanups-for-x86-ring-macros-against-rc3-mm2
+patching file arch/i386/kernel/entry.S
+Hunk #1 FAILED at 237.
+Hunk #2 succeeded at 367 (offset -7 lines).
+1 out of 2 hunks FAILED -- rejects in file arch/i386/kernel/entry.S
+patching file include/asm-i386/ptrace.h
+patch: **** malformed patch at line 52: 3);
 
-I think most people use 'vanilla' to mean 'mainline', as in Linus's
-kernel, so I find 'baremetal' (as opposed to 'virtualized') more
-appropriate but... since this thread has all of the characteristics of
-your favorite bike-shed, I'll bow out of it now :-)
-
-Cheers,
-Muli
+-Andi
