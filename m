@@ -1,47 +1,47 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native
- ops
-Date: Sun, 06 Aug 2006 23:23:49 -0700
-Message-ID: <44D6DC75.90203@goop.org>
-References: <1154925835.21647.29.camel@localhost.localdomain> <200608070730.17813.ak@muc.de> <44D6D315.2030907@goop.org> <200608070802.40614.ak@muc.de>
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native ops
+Date: Mon, 7 Aug 2006 09:27:05 +0300
+Message-ID: <20060807062705.GB4979@rhun.haifa.ibm.com>
+References: <1154925835.21647.29.camel@localhost.localdomain>
+	<200608070730.17813.ak@muc.de>
+	<1154930669.7642.12.camel@localhost.localdomain>
+	<200608070817.42074.ak@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751110AbWHGGXw@vger.kernel.org>
-In-Reply-To: <200608070802.40614.ak@muc.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Disposition: inline
+In-Reply-To: <200608070817.42074.ak@muc.de>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
->> so it would be  
->> nice to use one of the other serializing instructions in this case.
->>     
->
-> You would first need to find one that works in ring 3. On x86-64 it is 
-> used in the gettimeoday vsyscall in ring 3 to synchronize the TSC and 
-> afaik John was about to implement that for i386 too.
->   
+> On Monday 07 August 2006 08:04, Rusty Russell wrote:
+> > On Mon, 2006-08-07 at 07:30 +0200, Andi Kleen wrote:
+> > > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > > > --- /dev/null
+> > > > +++ b/include/asm-i386/no_paravirt.h
+> > > =
 
-Well, that's really usermode code, so I don't think we'd necessarily 
-touch it at all.  It's not the same problem as the (single, at the 
-moment) ring 0 use.
+> > > I can't say I like the name. After all that should be the normal
+> > > case for a long time now ... native? normal? bareiron?
+> > =
 
-> BTW another issue that I haven't checked but we will need to make
-> this also an alternative() for another case - it is faily important
-> to patch it out on Intel systems with a synchronized TSC where it is
-> fairly expensive. That is also not done yet on i386, but will be 
-> likely once vsyscall gettimeofday is implemented.
->
-> So basically you would need double patching. Ugly.
->   
+> > Yeah, I don't like it much either.  native.h doesn't say what the
+> > alternative is.  native_paravirt.h is kind of contradictory.
 
-Yeah.  I guess the cleanest way to do that is do the paravirt 
-substitution, and then nop it out later if it isn't needed in the vsyscall.
+baremetal.h seems appropriate.
 
-> I would recommend to keep it out of para ops.
-
-It's hardly a big deal either way.  There's only one in-kernel use of it.
-
-    J
+Cheers,
+Muli
