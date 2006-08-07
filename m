@@ -1,47 +1,44 @@
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native ops
-Date: Mon, 7 Aug 2006 09:27:05 +0300
-Message-ID: <20060807062705.GB4979@rhun.haifa.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 3/4] x86 paravirt_ops: implementation of paravirt_ops
+Date: Mon, 07 Aug 2006 17:27:27 +1000
+Message-ID: <1154935648.7642.29.camel@localhost.localdomain>
 References: <1154925835.21647.29.camel@localhost.localdomain>
-	<200608070730.17813.ak@muc.de>
-	<1154930669.7642.12.camel@localhost.localdomain>
-	<200608070817.42074.ak@muc.de>
+	 <200608070739.33428.ak@muc.de>
+	 <1154931222.7642.21.camel@localhost.localdomain>
+	 <200608070820.09059.ak@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline
-In-Reply-To: <200608070817.42074.ak@muc.de>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751127AbWHGH1b@vger.kernel.org>
+In-Reply-To: <200608070820.09059.ak@muc.de>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On Monday 07 August 2006 08:04, Rusty Russell wrote:
-> > On Mon, 2006-08-07 at 07:30 +0200, Andi Kleen wrote:
-> > > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > > > --- /dev/null
-> > > > +++ b/include/asm-i386/no_paravirt.h
-> > > =
+On Mon, 2006-08-07 at 08:20 +0200, Andi Kleen wrote:
+> > > I think I would prefer to patch always. Is there a particular
+> > > reason you can't do that?
+> > 
+> > We could patch all the indirect calls into direct calls, but I don't
+> > think it's worth bothering: most simply don't matter.
+> 
+> I still think it would be better to patch always.
 
-> > > I can't say I like the name. After all that should be the normal
-> > > case for a long time now ... native? normal? bareiron?
-> > =
+Actually, I just figured out a neat way to do this without having to
+handle all the cases by hand.  I'll try it and get back to you...
 
-> > Yeah, I don't like it much either.  native.h doesn't say what the
-> > alternative is.  native_paravirt.h is kind of contradictory.
+> > Each backend wants a different patch, so alternative() doesn't cut it.
+> > We could look at generalizing alternative() I guess, but it works fine
+> > so I didn't want to touch it.
+> 
+> You could at least use a common function (with the replacement passed
+> in as argument) for lock prefixes and your stuff
 
-baremetal.h seems appropriate.
+I don't want to rule out patching based on location (reg lifetime etc),
+but there's definitely room for combining these two.  Good point.
 
-Cheers,
-Muli
+Thanks!
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
