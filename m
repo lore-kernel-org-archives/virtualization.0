@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 3/4] x86 paravirt_ops: implementation of paravirt_ops
-Date: Sun, 06 Aug 2006 22:56:30 -0700
-Message-ID: <44D6D60E.5080507@goop.org>
-References: <1154925835.21647.29.camel@localhost.localdomain>	<1154925943.21647.32.camel@localhost.localdomain>	<1154926048.21647.35.camel@localhost.localdomain>
-	<200608070739.33428.ak@muc.de>
+Subject: Re: [PATCH 4/4] x86 paravirt_ops: binary patching infrastructure
+Date: Sun, 06 Aug 2006 22:56:26 -0700
+Message-ID: <44D6D60A.5040108@goop.org>
+References: <1154925835.21647.29.camel@localhost.localdomain>	<1154926048.21647.35.camel@localhost.localdomain>	<1154926114.21647.38.camel@localhost.localdomain>
+	<200608070738.13768.ak@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <200608070739.33428.ak@muc.de>
+In-Reply-To: <200608070738.13768.ak@muc.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -23,37 +23,34 @@ Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Linux Kernel M
 List-Id: virtualization@lists.linuxfoundation.org
 
 Andi Kleen wrote:
-> On Monday 07 August 2006 06:47, Rusty Russell wrote:
->   =
+>>  =
 
->> This patch does the dumbest possible replacement of paravirtualized
->> instructions: calls through a "paravirt_ops" structure.  Currently
->> these are function implementations of native hardware: hypervisors
->> will override the ops structure with their own variants.
+>> +#ifdef CONFIG_PARAVIRT
+>> +void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch=
+ *end)
 >>     =
 
 >
-> You should call it HAL - that would make it clearer what it is.
->   =
+> It would be better to merge this with the existing LOCK prefix patching
+> or perhaps the normal alternative() patcher (is there any particular
+> reason you can't use it?)
+>
+> Three alternative patching mechanisms just seems to be too many
 
+The difference is that every hypervisor wants its own patched =
 
-I've always found the term "HAL" to be vague to the point of =
+instruction sequence, which may require a specialized patching =
 
-meaningless.  What would it mean in this case:  "hypervisor abstraction =
+mechanism.  If you're simply patching in calls, then it isn't a big =
 
-layer"?  It certainly doesn't attempt abstract all hardware.
+deal, but you may also want to patch in real inlined code for some =
 
-> I think I would prefer to patch always. Is there a particular
-> reason you can't do that?
->   =
+operations (like sti/cli equivalents).  The alternatives are to allow =
 
+each backend to deal with its own patching (perhaps with common =
 
-Some calls just don't need patching; an indirect call is fast enough, =
+functions abstracted out as they appear), or have a common set of =
 
-and simple.  But I can't think of a good reason to not patch patchable =
-
-calls, other than for debugging perhaps (easier to place one breakpoint =
-
-than one per inline site).
+patching machinery which can deal with all users.  The former seems simpler.
 
     J
