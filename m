@@ -1,37 +1,59 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native
- ops
-Date: Sun, 06 Aug 2006 22:43:49 -0700
-Message-ID: <44D6D315.2030907@goop.org>
-References: <1154925835.21647.29.camel@localhost.localdomain> <200608070730.17813.ak@muc.de>
+Subject: Re: [PATCH 3/4] x86 paravirt_ops: implementation of paravirt_ops
+Date: Sun, 06 Aug 2006 22:56:30 -0700
+Message-ID: <44D6D60E.5080507@goop.org>
+References: <1154925835.21647.29.camel@localhost.localdomain>	<1154925943.21647.32.camel@localhost.localdomain>	<1154926048.21647.35.camel@localhost.localdomain>
+	<200608070739.33428.ak@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751080AbWHGFnn@vger.kernel.org>
-In-Reply-To: <200608070730.17813.ak@muc.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <200608070739.33428.ak@muc.de>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Andi Kleen wrote:
->> +/* Stop speculative execution */
->> +static inline void sync_core(void)
->> +{
->> +	unsigned int eax = 1, ebx, ecx, edx;
->> +	__cpuid(&eax, &ebx, &ecx, &edx);
->> +}
->>     
->
-> Actually I don't think this one should be para virtualized at all.
-> I don't see any reason at all why a hypervisor should trap it and it
-> is very time critical. I would recommend you move it back into the 
-> normal files without hooks.
->   
+> On Monday 07 August 2006 06:47, Rusty Russell wrote:
+>   =
 
-When VT/AMDV is enabled, cpuid could cause a vm exit, so it would be 
-nice to use one of the other serializing instructions in this case.  For 
-the default implementation, it should probably be an explicit 
-asm("cpuid") to make it clear that we don't want any paravirtualized cpuid.
+>> This patch does the dumbest possible replacement of paravirtualized
+>> instructions: calls through a "paravirt_ops" structure.  Currently
+>> these are function implementations of native hardware: hypervisors
+>> will override the ops structure with their own variants.
+>>     =
+
+>
+> You should call it HAL - that would make it clearer what it is.
+>   =
+
+
+I've always found the term "HAL" to be vague to the point of =
+
+meaningless.  What would it mean in this case:  "hypervisor abstraction =
+
+layer"?  It certainly doesn't attempt abstract all hardware.
+
+> I think I would prefer to patch always. Is there a particular
+> reason you can't do that?
+>   =
+
+
+Some calls just don't need patching; an indirect call is fast enough, =
+
+and simple.  But I can't think of a good reason to not patch patchable =
+
+calls, other than for debugging perhaps (easier to place one breakpoint =
+
+than one per inline site).
 
     J
