@@ -1,41 +1,34 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 4/4] x86 paravirt_ops: binary patching infrastructure
-Date: Mon, 07 Aug 2006 15:14:59 +1000
-Message-ID: <1154927700.7642.1.camel@localhost.localdomain>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native
+ ops
+Date: Sun, 06 Aug 2006 22:22:10 -0700
+Message-ID: <44D6CE02.4020303@goop.org>
 References: <1154925835.21647.29.camel@localhost.localdomain>
-	 <1154925943.21647.32.camel@localhost.localdomain>
-	 <1154926048.21647.35.camel@localhost.localdomain>
-	 <1154926114.21647.38.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751041AbWHGFPE@vger.kernel.org>
-In-Reply-To: <1154926114.21647.38.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751068AbWHGFWF@vger.kernel.org>
+In-Reply-To: <1154925835.21647.29.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, Chris Wright <chrisw@sous-sol.org>, virtualization <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Chris Wright <chrisw@sous-sol.org>, virtualization <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-And a trivial warning fix on that last one when !CONFIG_PARAVIRT.
+Rusty Russell wrote:
+> (Andrew, please sit these in the -mm tree for cooking)
+>
+> Create a paravirt.h header for (almost) all the critical operations
+> which need to be replaced with hypervisor calls.
+>
+> For the moment, this simply includes no_paravirt.h, where all the
+> native implementations now live.
+>   
 
-struct paravirt_patch is only defined for CONFIG_PARAVIRT, so we
-declare the (unused) __start and __stop section markers as char, which
-causes a warning when we pass them to the dummy apply_paravirt.
+Sorry, but I have to say these are not yet ready for -mm.  While they're 
+better than before (I can successfully boot), the machine locks up when 
+I start X, and I wouldn't have any confidence in running with this stuff 
+enabled.  I'd prefer these weren't in -mm until we somewhat confident 
+one could run with CONFIG_PARAVIRT on all the time (ie, think it could 
+be default on, even if it isn't).
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
---- working-2.6.18-rc3-mm2/arch/i386/kernel/alternative.c.~1~	2006-08-07 14:33:13.000000000 +1000
-+++ working-2.6.18-rc3-mm2/arch/i386/kernel/alternative.c	2006-08-07 15:08:21.000000000 +1000
-@@ -369,7 +369,7 @@
- extern struct paravirt_patch __start_parainstructions[],
- 	__stop_parainstructions[];
- #else
--void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
-+void apply_paravirt(void *start, void *end)
- {
- }
- extern char __start_parainstructions[], __stop_parainstructions[];
-
-
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+    J
