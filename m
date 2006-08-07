@@ -1,44 +1,26 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 3/4] x86 paravirt_ops: implementation of paravirt_ops
-Date: Mon, 07 Aug 2006 17:27:27 +1000
-Message-ID: <1154935648.7642.29.camel@localhost.localdomain>
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native
+ ops
+Date: Mon, 7 Aug 2006 09:34:43 +0200 (MEST)
+Message-ID: <Pine.LNX.4.61.0608070934030.12594@yvahk01.tjqt.qr>
 References: <1154925835.21647.29.camel@localhost.localdomain>
-	 <200608070739.33428.ak@muc.de>
-	 <1154931222.7642.21.camel@localhost.localdomain>
-	 <200608070820.09059.ak@muc.de>
+ <200608070730.17813.ak@muc.de> <1154930669.7642.12.camel@localhost.localdomain>
+ <200608070817.42074.ak@muc.de> <20060807062705.GB4979@rhun.haifa.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751127AbWHGH1b@vger.kernel.org>
-In-Reply-To: <200608070820.09059.ak@muc.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751141AbWHGHkj@vger.kernel.org>
+In-Reply-To: <20060807062705.GB4979@rhun.haifa.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2006-08-07 at 08:20 +0200, Andi Kleen wrote:
-> > > I think I would prefer to patch always. Is there a particular
-> > > reason you can't do that?
-> > 
-> > We could patch all the indirect calls into direct calls, but I don't
-> > think it's worth bothering: most simply don't matter.
-> 
-> I still think it would be better to patch always.
 
-Actually, I just figured out a neat way to do this without having to
-handle all the cases by hand.  I'll try it and get back to you...
+>baremetal.h seems appropriate.
 
-> > Each backend wants a different patch, so alternative() doesn't cut it.
-> > We could look at generalizing alternative() I guess, but it works fine
-> > so I didn't want to touch it.
-> 
-> You could at least use a common function (with the replacement passed
-> in as argument) for lock prefixes and your stuff
+<vanilla.h>, in hommage to "vanilla kernel".
 
-I don't want to rule out patching based on location (reg lifetime etc),
-but there's definitely room for combining these two.  Good point.
 
-Thanks!
-Rusty.
+
+Jan Engelhardt
 -- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
