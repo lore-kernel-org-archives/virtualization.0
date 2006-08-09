@@ -1,14 +1,14 @@
-From: Andi Kleen <ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: Patch: use .pushsection/.popsection
-Date: Wed, 9 Aug 2006 08:26:21 +0200
-Message-ID: <200608090826.21157.ak@suse.de>
+Date: Tue, 08 Aug 2006 23:33:27 -0700
+Message-ID: <44D981B7.6050704@goop.org>
 References: <44D97A62.9020106@vmware.com> <44D97C03.9080709@goop.org>
+	<200608090826.21157.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <44D97C03.9080709@goop.org>
-Content-Disposition: inline
+In-Reply-To: <200608090826.21157.ak@suse.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,21 +18,38 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 09 August 2006 08:09, Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
-> > I think this might fix the X bug...
-> I just posted an equivalent patch to Andi Kleen/AKPM/LKML.  I haven't =
+Andi Kleen wrote:
+> I have already merged it.
+>
+> But in theory all code should run fine in .fixup, so it shouldn't
+> actually unbreak anything.
+>   =
 
-> tested to see if it actually helps yet, but it certainly makes entry.o =
 
-> look a lot cleaner.
+No, it makes actual broken code without this:
 
-I have already merged it.
+#define RESTORE_REGS	\
+	RESTORE_INT_REGS; \
+1:	popl %ds;	\
+	CFI_ADJUST_CFA_OFFSET -4;\
+	/*CFI_RESTORE ds;*/\
+2:	popl %es;	\
+	CFI_ADJUST_CFA_OFFSET -4;\
+	/*CFI_RESTORE es;*/\
+.section .fixup,"ax";	\
+3:	movl $0,(%esp);	\
+	jmp 1b;		\
+4:	movl $0,(%esp);	\
+	jmp 2b;		\
+.previous;		\
+...
 
-But in theory all code should run fine in .fixup, so it shouldn't
-actually unbreak anything.
+Those jmp 1b's look a lot like infinite loops if 1: is in the same =
 
--Andi
+section as 3:.
+
+    J
