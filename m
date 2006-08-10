@@ -1,14 +1,16 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Chris Wright <chrisw@sous-sol.org>
 Subject: Re: EXPORT_SYMBOL_GPL(paravirt_ops);
-Date: Thu, 10 Aug 2006 12:11:07 -0700
-Message-ID: <44DB84CA.6040900@vmware.com>
+Date: Thu, 10 Aug 2006 12:40:58 -0700
+Message-ID: <20060810194058.GK2654@sequoia.sous-sol.org>
 References: <44DB73F5.5040009@goop.org>
 	<20060810183250.GJ2654@sequoia.sous-sol.org>
+	<44DB84CA.6040900@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20060810183250.GJ2654@sequoia.sous-sol.org>
+Content-Disposition: inline
+In-Reply-To: <44DB84CA.6040900@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,36 +20,25 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
-> * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
->   =
+* Zachary Amsden (zach@vmware.com) wrote:
+> EXPORT_SYMBOL_GPL is still possible - if you patch over every op in =
 
->> This pretty much has to be EXPORT_SYMBOL(), otherwise we just required =
+> paravirt_ops.  Then only the paravirt modules need to be GPL, not all =
 
->> all modules to be GPL...
->>     =
+> modules.
 
->
-> muwhahaha
->
-> The plan is working...
->
-> Yeah, I agree.  We had to do similar for LSM.
->
-> thanks,
-> -chris
->
->   =
+Problem is the pervasive nature.  So any old module that was doing
+local_irq_disable() will need access to the paravirt_ops structure via
 
+local_irq_disable() -> raw_local_irq_disable -> paravirt_ops.irq_disable()
 
-EXPORT_SYMBOL_GPL is still possible - if you patch over every op in =
+IOW, all modules need paravirt_ops access, otherwise non-GPL modules
+will fail to load with "Unknown symbol paravirt_ops."  We can't make an
+interface change like that.
 
-paravirt_ops.  Then only the paravirt modules need to be GPL, not all =
-
-modules.
-
-Zach
+thanks,
+-chris
