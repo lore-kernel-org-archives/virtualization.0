@@ -1,25 +1,29 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] paravirt.h
-Date: Thu, 10 Aug 2006 19:35:05 +1000
-Message-ID: <1155202505.18420.5.camel@localhost.localdomain>
+Subject: Re: [PATCH] paravirt.h
+Date: Thu, 10 Aug 2006 20:10:03 +1000
+Message-ID: <1155204603.18420.9.camel@localhost.localdomain>
+References: <1155202505.18420.5.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751445AbWHJJfQ@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161141AbWHJKKM@vger.kernel.org>
+In-Reply-To: <1155202505.18420.5.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@muc.de>
-Cc: virtualization <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, virtualization <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This version over last version:
-(1) Gets rid of the no_paravirt.h header and leaves native ops in place
-(with some reshuffling to keep then under one #ifdef).
-(2) Fixes the "X crashes with CONFIG_PARAVIRT=y" bug.
-(3) Puts __ex_table entry in paravirt iret.
+On Thu, 2006-08-10 at 19:35 +1000, Rusty Russell wrote:
+> This version over last version:
+> (1) Gets rid of the no_paravirt.h header and leaves native ops in place
+> (with some reshuffling to keep then under one #ifdef).
+> (2) Fixes the "X crashes with CONFIG_PARAVIRT=y" bug.
+> (3) Puts __ex_table entry in paravirt iret.
 
-Another followup patch implements binary patching...
-Rusty.
-===
+Gurp... that was old version.  This version removes the explicit "save
+flags and disable irqs" op (the binary patching patches it as one, but
+there's little point having a short-cut through the slow path).
+
 Create a paravirt.h header for all the critical operations which need
 to be replaced with hypervisor calls, and include that instead of
 defining native operations, when CONFIG_PARAVIRT.
@@ -35,9 +39,9 @@ register-based ABI is used, to make inlining assember easier.
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
-===================================================================
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
+diff -r 9ba3e9489d2d arch/i386/Kconfig
+--- a/arch/i386/Kconfig	Thu Aug 10 18:46:26 2006 +1000
++++ b/arch/i386/Kconfig	Thu Aug 10 18:46:26 2006 +1000
 @@ -179,6 +179,17 @@ config X86_ES7000
  	  should say N here.
  
@@ -56,9 +60,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  
  config ACPI_SRAT
  	bool
-===================================================================
---- a/arch/i386/kernel/Makefile
-+++ b/arch/i386/kernel/Makefile
+diff -r 9ba3e9489d2d arch/i386/kernel/Makefile
+--- a/arch/i386/kernel/Makefile	Thu Aug 10 18:46:26 2006 +1000
++++ b/arch/i386/kernel/Makefile	Thu Aug 10 18:46:26 2006 +1000
 @@ -40,6 +40,7 @@ obj-$(CONFIG_HPET_TIMER) 	+= hpet.o
  obj-$(CONFIG_HPET_TIMER) 	+= hpet.o
  obj-$(CONFIG_K8_NB)		+= k8.o
@@ -67,9 +71,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  
  EXTRA_AFLAGS   := -traditional
  
-===================================================================
---- a/arch/i386/kernel/asm-offsets.c
-+++ b/arch/i386/kernel/asm-offsets.c
+diff -r 9ba3e9489d2d arch/i386/kernel/asm-offsets.c
+--- a/arch/i386/kernel/asm-offsets.c	Thu Aug 10 18:46:26 2006 +1000
++++ b/arch/i386/kernel/asm-offsets.c	Thu Aug 10 18:46:26 2006 +1000
 @@ -74,4 +74,11 @@ void foo(void)
  	DEFINE(VDSO_PRELINK, VDSO_PRELINK);
  
@@ -82,9 +86,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 +	OFFSET(PARAVIRT_read_cr0, paravirt_ops, read_cr0);
 +#endif
  }
-===================================================================
---- a/arch/i386/kernel/entry.S
-+++ b/arch/i386/kernel/entry.S
+diff -r 9ba3e9489d2d arch/i386/kernel/entry.S
+--- a/arch/i386/kernel/entry.S	Thu Aug 10 18:46:26 2006 +1000
++++ b/arch/i386/kernel/entry.S	Thu Aug 10 18:46:26 2006 +1000
 @@ -76,13 +76,6 @@ NT_MASK		= 0x00004000
  NT_MASK		= 0x00004000
  VM_MASK		= 0x00020000
@@ -119,9 +123,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  KPROBE_ENTRY(int3)
  	RING0_INT_FRAME
  	pushl $-1			# mark this as an int
-===================================================================
---- a/include/asm-i386/desc.h
-+++ b/include/asm-i386/desc.h
+diff -r 9ba3e9489d2d include/asm-i386/desc.h
+--- a/include/asm-i386/desc.h	Thu Aug 10 18:46:26 2006 +1000
++++ b/include/asm-i386/desc.h	Thu Aug 10 18:46:26 2006 +1000
 @@ -64,6 +64,9 @@ static inline void pack_gate(__u32 *a, _
  #define DESCTYPE_DPL3	0x60	/* DPL-3 */
  #define DESCTYPE_S	0x10	/* !system */
@@ -140,9 +144,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  
  static inline void _set_gate(int gate, unsigned int type, void *addr, unsigned short seg)
  {
-===================================================================
---- a/include/asm-i386/irqflags.h
-+++ b/include/asm-i386/irqflags.h
+diff -r 9ba3e9489d2d include/asm-i386/irqflags.h
+--- a/include/asm-i386/irqflags.h	Thu Aug 10 18:46:26 2006 +1000
++++ b/include/asm-i386/irqflags.h	Thu Aug 10 18:46:26 2006 +1000
 @@ -10,6 +10,9 @@
  #ifndef _ASM_IRQFLAGS_H
  #define _ASM_IRQFLAGS_H
@@ -216,9 +220,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  #endif /* __ASSEMBLY__ */
  
  /*
-===================================================================
---- a/include/asm-i386/msr.h
-+++ b/include/asm-i386/msr.h
+diff -r 9ba3e9489d2d include/asm-i386/msr.h
+--- a/include/asm-i386/msr.h	Thu Aug 10 18:46:26 2006 +1000
++++ b/include/asm-i386/msr.h	Thu Aug 10 18:46:26 2006 +1000
 @@ -1,5 +1,9 @@
  #ifndef __ASM_MSR_H
  #define __ASM_MSR_H
@@ -237,9 +241,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  
  /* symbolic names for some interesting MSRs */
  /* Intel defined MSRs. */
-===================================================================
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
+diff -r 9ba3e9489d2d include/asm-i386/processor.h
+--- a/include/asm-i386/processor.h	Thu Aug 10 18:46:26 2006 +1000
++++ b/include/asm-i386/processor.h	Thu Aug 10 18:46:26 2006 +1000
 @@ -143,6 +143,9 @@ static inline void detect_ht(struct cpui
  #define X86_EFLAGS_VIP	0x00100000 /* Virtual Interrupt Pending */
  #define X86_EFLAGS_ID	0x00200000 /* CPUID detection flag */
@@ -319,9 +323,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  /* Forward declaration, a strange C thing */
  struct task_struct;
  struct mm_struct;
-===================================================================
---- a/include/asm-i386/segment.h
-+++ b/include/asm-i386/segment.h
+diff -r 9ba3e9489d2d include/asm-i386/segment.h
+--- a/include/asm-i386/segment.h	Thu Aug 10 18:46:26 2006 +1000
++++ b/include/asm-i386/segment.h	Thu Aug 10 18:46:26 2006 +1000
 @@ -128,5 +128,7 @@
  #define SEGMENT_LDT		0x4
  #define SEGMENT_GDT		0x0
@@ -330,9 +334,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  #define get_kernel_rpl()  0
  #endif
 +#endif
-===================================================================
---- a/include/asm-i386/spinlock.h
-+++ b/include/asm-i386/spinlock.h
+diff -r 9ba3e9489d2d include/asm-i386/spinlock.h
+--- a/include/asm-i386/spinlock.h	Thu Aug 10 18:46:26 2006 +1000
++++ b/include/asm-i386/spinlock.h	Thu Aug 10 18:46:26 2006 +1000
 @@ -17,8 +17,12 @@
   * (the type definitions are in asm/spinlock_types.h)
   */
@@ -346,9 +350,9 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  
  #define __raw_spin_is_locked(x) \
  		(*(volatile signed char *)(&(x)->slock) <= 0)
-===================================================================
---- a/include/asm-i386/system.h
-+++ b/include/asm-i386/system.h
+diff -r 9ba3e9489d2d include/asm-i386/system.h
+--- a/include/asm-i386/system.h	Thu Aug 10 18:46:26 2006 +1000
++++ b/include/asm-i386/system.h	Thu Aug 10 18:46:26 2006 +1000
 @@ -82,6 +82,9 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
  #define savesegment(seg, value) \
  	asm volatile("mov %%" #seg ",%0":"=rm" (value))
@@ -385,10 +389,10 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
  
  static inline unsigned long get_limit(unsigned long segment)
  {
-===================================================================
---- /dev/null
-+++ b/arch/i386/kernel/paravirt.c
-@@ -0,0 +1,375 @@
+diff -r 9ba3e9489d2d arch/i386/kernel/paravirt.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/arch/i386/kernel/paravirt.c	Thu Aug 10 19:45:51 2006 +1000
+@@ -0,0 +1,367 @@
 +/*  Paravirtualization interfaces
 +    Copyright (C) 2006 Rusty Russell IBM Corporation
 +
@@ -544,13 +548,6 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 +{
 +	unsigned long f;
 +	__asm__ __volatile__("pushfl ; popl %0":"=g" (f): /* no input */);
-+	return f;
-+}
-+
-+static fastcall unsigned long nopara_save_fl_irq_disable(void)
-+{
-+	unsigned long f;
-+	__asm__ __volatile__("pushfl ; popl %0; cli":"=g" (f): : "memory");
 +	return f;
 +}
 +
@@ -737,7 +734,6 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 +	.write_cr4 = nopara_write_cr4,
 +	.save_fl = nopara_save_fl,
 +	.restore_fl = nopara_restore_fl,
-+	.save_fl_irq_disable = nopara_save_fl_irq_disable,
 +	.irq_disable = nopara_irq_disable,
 +	.irq_enable = nopara_irq_enable,
 +	.safe_halt = nopara_safe_halt,
@@ -764,10 +760,10 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 +	.iret = nopara_iret,
 +};
 +EXPORT_SYMBOL_GPL(paravirt_ops);
-===================================================================
---- /dev/null
-+++ b/include/asm-i386/paravirt.h
-@@ -0,0 +1,219 @@
+diff -r 9ba3e9489d2d include/asm-i386/paravirt.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/include/asm-i386/paravirt.h	Thu Aug 10 19:45:25 2006 +1000
+@@ -0,0 +1,223 @@
 +#ifndef __ASM_PARAVIRT_H
 +#define __ASM_PARAVIRT_H
 +/* Various instructions on x86 need to be replaced for
@@ -894,7 +890,11 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 +
 +static inline unsigned long __raw_local_irq_save(void)
 +{
-+	return paravirt_ops.save_fl_irq_disable();
++	unsigned long flags = paravirt_ops.save_fl();
++
++	paravirt_ops.irq_disable();
++
++	return flags;
 +}
 +
 +static inline void raw_safe_halt(void)
