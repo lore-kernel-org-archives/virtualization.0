@@ -1,76 +1,99 @@
 From: Zachary Amsden <zach@vmware.com>
-Subject: [PATCH 6/9] 00mm9 optimize ptep establish for pae.patch
-Date: Fri, 11 Aug 2006 02:20:09 -0700
-Message-ID: <200608110920.k7B9K9nn023354@zach-dev.vmware.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750976AbWHKJUO@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 7/9] 00mma remove set pte atomic.patch
+Date: Fri, 11 Aug 2006 02:20:46 -0700
+Message-ID: <200608110920.k7B9Kkod023360@zach-dev.vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>Zachary Amsden <zach@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The ptep_establish macro is only used on user-level PTEs, for P->P mapping
-changes.  Since these always happen under protection of the pagetable lock, the
-strong synchronization of a 64-bit cmpxchg is not needed, in fact, not
-even a lock prefix needs to be used.  We can simply instead clear the P-bit,
-followed by a normal set.  The write ordering is still important to avoid the
-possibility of the TLB snooping a partially written PTE and getting a bad
-mapping installed.
+Now that ptep_establish has a definition in PAE i386 3-level paging code,
+the only paging model which is insane enough to have multi-word hardware
+PTEs which are not efficient to set atomically, we can remove the ghost
+of set_pte_atomic from other architectures which falesly duplicated it,
+and remove all knowledge of it from the generic pgtable code.
+
+set_pte_atomic is now a private pte operator which is specific to i386
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-===================================================================
---- a/include/asm-i386/pgtable-2level.h
-+++ b/include/asm-i386/pgtable-2level.h
-@@ -16,6 +16,7 @@
- #define set_pte(pteptr, pteval) (*(pteptr) = pteval)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-frv/pgtable.h
++++ b/include/asm-frv/pgtable.h
+@@ -175,8 +175,6 @@ do {							\
+ 	asm volatile("dcf %M0" :: "U"(*pteptr));	\
+ } while(0)
  #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
- #define set_pte_atomic(pteptr, pteval) set_pte(pteptr,pteval)
-+#define set_pte_present(mm,addr,ptep,pteval) set_pte_at(mm,addr,ptep,pteval)
- #define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
- 
- #define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } while (0)
-===================================================================
+-
+-#define set_pte_atomic(pteptr, pteval)		set_pte((pteptr), (pteval))
+ =
+
+ /*
+  * pgd_offset() returns a (pgd_t *)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-generic/pgtable.h
++++ b/include/asm-generic/pgtable.h
+@@ -13,19 +13,11 @@
+  * Note: the old pte is known to not be writable, so we don't need to
+  * worry about dirty bits etc getting lost.
+  */
+-#ifndef __HAVE_ARCH_SET_PTE_ATOMIC
+ #define ptep_establish(__vma, __address, __ptep, __entry)		\
+ do {				  					\
+ 	set_pte_at((__vma)->vm_mm, (__address), __ptep, __entry);	\
+ 	flush_tlb_page(__vma, __address);				\
+ } while (0)
+-#else /* __HAVE_ARCH_SET_PTE_ATOMIC */
+-#define ptep_establish(__vma, __address, __ptep, __entry)		\
+-do {				  					\
+-	set_pte_atomic(__ptep, __entry);				\
+-	flush_tlb_page(__vma, __address);				\
+-} while (0)
+-#endif /* __HAVE_ARCH_SET_PTE_ATOMIC */
+ #endif
+ =
+
+ #ifndef __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/pgtable-3level.h
 +++ b/include/asm-i386/pgtable-3level.h
-@@ -57,6 +57,21 @@ static inline void set_pte(pte_t *ptep, 
- 	ptep->pte_low = pte.pte_low;
+@@ -73,7 +73,6 @@ static inline void set_pte_present(struc
+ 	ptep->pte_low =3D pte.pte_low;
  }
- #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
-+
-+/*
-+ * Since this is only called on user PTEs, and the page fault handler
-+ * must handle the already racy situation of simultaneous page faults,
-+ * we are justified in merely clearing the PTE present bit, followed
-+ * by a set.  The ordering here is important.
-+ */
-+static inline void set_pte_present(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte)
-+{
-+	ptep->pte_low = 0;
-+	smp_wmb();
-+	ptep->pte_high = pte.pte_high;
-+	smp_wmb();
-+	ptep->pte_low = pte.pte_low;
-+}
- 
- #define __HAVE_ARCH_SET_PTE_ATOMIC
+ =
+
+-#define __HAVE_ARCH_SET_PTE_ATOMIC
  #define set_pte_atomic(pteptr,pteval) \
-===================================================================
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -269,6 +269,17 @@ do {									\
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- 
-+/*
-+ * Rules for using ptep_establish: the pte MUST be a user pte, and
-+ * must be a present->present transition.
-+ */
-+#define __HAVE_ARCH_PTEP_ESTABLISH
-+#define ptep_establish(vma, address, ptep, pteval)			\
-+do {									\
-+	set_pte_present((vma)->vm_mm, address, ptep, pteval);		\
-+	flush_tlb_page(vma, address);					\
-+} while (0)
+ 		set_64bit((unsigned long long *)(pteptr),pte_val(pteval))
+ #define set_pmd(pmdptr,pmdval) \
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-m32r/pgtable-2level.h
++++ b/include/asm-m32r/pgtable-2level.h
+@@ -44,7 +44,7 @@ static inline int pgd_present(pgd_t pgd)
+  */
+ #define set_pte(pteptr, pteval) (*(pteptr) =3D pteval)
+ #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
+-#define set_pte_atomic(pteptr, pteval)	set_pte(pteptr, pteval)
 +
- #define __HAVE_ARCH_PTEP_CLEAR_DIRTY_FLUSH
- #define ptep_clear_flush_dirty(vma, address, ptep)			\
- ({									\
+ /*
+  * (pmds are folded into pgds so this doesnt get actually called,
+  * but the define is needed for a generic inline function.)
