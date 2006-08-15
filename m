@@ -1,19 +1,11 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: EXPORT_SYMBOL_GPL(paravirt_ops);
-Date: Sun, 13 Aug 2006 11:40:03 -0600
-Message-ID: <m18xlswn4c.fsf@ebiederm.dsl.xmission.com>
-References: <44DB73F5.5040009@goop.org>
-	<20060810183250.GJ2654@sequoia.sous-sol.org>
-	<44DB84CA.6040900@vmware.com>
-	<20060810194058.GK2654@sequoia.sous-sol.org>
-	<44DB95DF.8010805@vmware.com>
-	<20060810205505.GM2654@sequoia.sous-sol.org>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Proposed interface change
+Date: Tue, 15 Aug 2006 01:44:54 -0700
+Message-ID: <44E18986.40900@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20060810205505.GM2654@sequoia.sous-sol.org> (Chris Wright's
-	message of "Thu, 10 Aug 2006 13:55:05 -0700")
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -23,28 +15,54 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Virtualization Mailing List <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright <chrisw@sous-sol.org> writes:
+I would like to propose an interface change to the following =
 
-> * Zachary Amsden (zach@vmware.com) wrote:
->> But my point is that if you patch everything in the paravirt_ops struct, =
+paravirt-ops calls:
 
->> no module other than the paravirt_ops backend code needs paravirt_ops =
+        void (fastcall *write_ldt_entry)(void *dt, int entrynum, u64 entry);
+        void (fastcall *write_gdt_entry)(void *dt, int entrynum, u64 entry);
+        void (fastcall *write_idt_entry)(void *dt, int entrynum, u64 entry);
 
->> access, so paravirt_ops can still be GPL only.  The problem is you would =
 
->> need to patch everything.
->
-> Oh, I see what you mean, yes.  There was some discussion of that,
-> basically run through generic patch, then ->patch() or some such.
+Can we consolidate the dt and entrynum parameters and just pass =
 
-There is another solution.  You can simply make the users of paravirt_ops
-that aren't important enough to patch static functions in the kernel.
+dt+entrynum*8?  I don't know if this makes things harder for the Xen =
 
-That plus the removal from the callers that always get patched should
-make the GPL export safe.
+case, but I seem to distantly recall that we used to pass a pure pointer =
 
-Eric
+- actually we used to have a pure post-update call, but changed the =
+
+interface to accommodate Xen.  When we did that, the interface changed =
+
+to take the new descriptor value as a parameter, as a raw write to the =
+
+GDT / LDT would not be allowed.  And during that step, the new entrynum =
+
+parameter was added.
+
+Since it's fairly easy to merely subtract the entry offset from the =
+
+descriptor base, and descriptor tables are virtually mapped, obtaining =
+
+the page number, if it is required, is still a very easy task.  I =
+
+believe we added the entrynum field so the page number could be =
+
+computed, but I just don't remember why, and don't see any reason for it =
+
+now.
+
+So I propose changing the convention here to eliminate the entrynum =
+
+field, thus allowing all the parameters to fit within the fastcall =
+
+convention, which affords us three registers.  The primary motivation =
+
+being, the call to write_gdt_entry is on the fast path in context switch.
+
+Any objections?
+
+Zach
