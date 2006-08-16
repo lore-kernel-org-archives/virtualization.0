@@ -1,12 +1,12 @@
-From: "Christian Limpach" <Christian.Limpach@xensource.com>
-Subject: RE: Proposed interface change
-Date: Tue, 15 Aug 2006 03:28:34 -0700
-Message-ID: <BBC437B5B077FF46935BA1D8C9A2172A92C802@exch2.ad.xensource.com>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: [PATCH] remove overwrite_paravirt_ops
+Date: Wed, 16 Aug 2006 08:51:37 -0700
+Message-ID: <20060816155137.GU10348@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-class: urn:content-classes:message
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -16,87 +16,53 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>
+To: Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> I would like to propose an interface change to the following =
+It's not used, and we can be explicit in a paravirt_ops about which native
+pieces are preferred, so it's not needed.  Also, the loop is a bit dodgy
+(works ok, since sizeof(unsigned int) is 4 on x86, but...)  Before I
+commit, any objections?
 
-> paravirt-ops calls:
-> =
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
 
->         void (fastcall *write_ldt_entry)(void *dt, int =
+diff -r ea8912509a0e arch/i386/kernel/paravirt.c
+--- a/arch/i386/kernel/paravirt.c	Wed Aug 16 09:49:27 2006 -0400
++++ b/arch/i386/kernel/paravirt.c	Wed Aug 16 11:34:12 2006 -0400
+@@ -402,18 +402,6 @@ static void __init default_banner(void)
+ {
+ 	printk(KERN_INFO "Booting paravirtualized kernel on %s\n",
+ 	       paravirt_ops.name);
+-}
+-
+-/* Overwrite ops struct with non-NULL ops entries from this struct. */
+-void overwrite_paravirt_ops(const struct paravirt_ops *ops)
+-{
+-	unsigned int i;
+-	void **src =3D (void **)ops, **dst =3D (void **)&paravirt_ops;
+-
+-	for (i =3D 0; i < sizeof(struct paravirt_ops) / 4; i++) {
+-		if (src[i])
+-			dst[i] =3D src[i];
+-	}
+ }
+ =
 
-> entrynum, u64 entry);
->         void (fastcall *write_gdt_entry)(void *dt, int =
+ static int __init print_banner(void)
+diff -r ea8912509a0e include/asm-i386/paravirt.h
+--- a/include/asm-i386/paravirt.h	Wed Aug 16 09:49:27 2006 -0400
++++ b/include/asm-i386/paravirt.h	Wed Aug 16 11:34:48 2006 -0400
+@@ -110,9 +110,6 @@ struct paravirt_ops
+ 		__attribute__((__section__(".paravirtprobe"))) =3D fn
+ =
 
-> entrynum, u64 entry);
->         void (fastcall *write_idt_entry)(void *dt, int =
+ extern struct paravirt_ops paravirt_ops;
+-
+-/* Overwrite ops struct with non-NULL ops entries from this struct. */
+-void overwrite_paravirt_ops(const struct paravirt_ops *ops);
+ =
 
-> entrynum, u64 entry);
-> =
-
-> =
-
-> Can we consolidate the dt and entrynum parameters and just pass =
-
-> dt+entrynum*8?  I don't know if this makes things harder for the Xen =
-
-> case, but I seem to distantly recall that we used to pass a =
-
-> pure pointer =
-
-> - actually we used to have a pure post-update call, but changed the =
-
-> interface to accommodate Xen.  When we did that, the =
-
-> interface changed =
-
-> to take the new descriptor value as a parameter, as a raw =
-
-> write to the =
-
-> GDT / LDT would not be allowed.  And during that step, the =
-
-> new entrynum =
-
-> parameter was added.
-
-This is fine for GDT and LDT updates, the Xen hypercalls take a machine
-address which can be computed from the virtual address.
-
-> Since it's fairly easy to merely subtract the entry offset from the =
-
-> descriptor base, and descriptor tables are virtually mapped, =
-
-> obtaining =
-
-> the page number, if it is required, is still a very easy task.
-
-How do you do that if you don't know the base address?  If you knew the
-base address, then why would you pass it in in the first place?
-
-> I believe we added the entrynum field so the page number could be =
-
-> computed, but I just don't remember why, and don't see any =
-
-> reason for it now.
-
-I think it was added to allow us to use the Xen interface for updating
-the virtual trap table.
-
-> So I propose changing the convention here to eliminate the entrynum =
-
-> field, thus allowing all the parameters to fit within the fastcall =
-
-> convention, which affords us three registers.  The primary motivation =
-
-> being, the call to write_gdt_entry is on the fast path in =
-
-> context switch.
-
-I think this change is ok for GDT/LDT, I think for IDT it would be a
-move in the wrong direction.  It would still work in the IDT case
-because the base address is known (idt_table), but the whole interface
-feels quite awkward and not very generic.
-
-    Christian
+ /* Non-paravirtualized implementations of various operations for
+    back-ends which don't need their own version. */
