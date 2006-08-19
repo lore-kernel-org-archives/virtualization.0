@@ -1,63 +1,43 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: proposed interface change for setting the ldt
-Date: Fri, 18 Aug 2006 13:23:22 -0700
-Message-ID: <44E621BA.6090001@vmware.com>
-References: <44E599A3.6020907@goop.org>
+From: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [PATCH] paravirt.h
+Date: Sat, 19 Aug 2006 03:21:33 +0200
+Message-ID: <20060819012133.GH7813@stusta.de>
+References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <44E599A3.6020907@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422709AbWHSBVf@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <44DB7596.6010503@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, virtualization <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> A better interface for us would be simply:
->
->     set_ldt(const struct desc_struct *ldt, int num_entries);
->
-> since this maps directly to the appropriate Xen hypercall.  If you =
+On Thu, Aug 10, 2006 at 11:06:14AM -0700, Jeremy Fitzhardinge wrote:
+> Rusty Russell wrote:
+> >+EXPORT_SYMBOL_GPL(paravirt_ops);
+> >  
+> This should probably be EXPORT_SYMBOL(), otherwise pretty much every 
+> driver module will need to be GPL...
 
-> still want to implement it by plugging the LDT descriptor into the GDT =
+These are Linux specific operations.
 
-> and then lldt, then there's no reason you can't implement it that way.
->
-> Thoughts?
+Without an _GPL you are in the grey area where courts have to decide 
+whether a module using this would be a derived work according to 
+copyright law in $country_of_the_court and therefore has to be GPL.
 
-This interface doesn't work for anything other than Xen.  It is =
+With the _GPL, everything is clear without any lawyers involved.
 
-impossible to implement it without specific knowledge of kernel =
+>    J
 
-internals, since it doesn't provide the GDT selector for the LDT.  Now =
+cu
+Adrian
 
-everything that looks like real hardware needs to move the knowledge of =
+-- 
 
-the LDT structure into paravirt-ops, and it has no clear calling =
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
 
-convention, so you've now got to reason about SMP preemption correctness =
-
-inside the paravirt-op, instead of at the higher level where it should =
-
-be done.
-
-This is an example of one place where Xen has broken the x86 =
-
-architecture in favor of a simpler implementation of the hypervisor, but =
-
-a radical change to the kernel.  It is one of the reasons why XenoLinux =
-
-as implemented is unable to boot on native hardware.  I would strongly =
-
-prefer if we didn't introduce this ugliness into paravirt-ops.
-
-Zach
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
