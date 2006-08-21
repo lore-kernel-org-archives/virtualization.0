@@ -1,52 +1,69 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] paravirt.h
-Date: Sun, 20 Aug 2006 10:50:01 +0200 (CEST)
-Message-ID: <Pine.LNX.4.62.0608201047520.4809@pademelon.sonytel.be>
-References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org>
- <20060819012133.GH7813@stusta.de> <44E67B6E.10706@goop.org>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: proposed interface change for setting the ldt
+Date: Sun, 20 Aug 2006 22:01:49 -0700
+Message-ID: <44E93E3D.7060203@vmware.com>
+References: <44E599A3.6020907@goop.org> <44E621BA.6090001@vmware.com>	
+	<44E679ED.6010300@goop.org> <44E681B8.3020804@vmware.com>	
+	<20060819032249.GB10348@sequoia.sous-sol.org>
+	<44E68857.6040806@vmware.com>
+	<1155961927.9203.19.camel@localhost.localdomain>
+	<44E701B2.8050005@goop.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751684AbWHTI6b@vger.kernel.org>
-In-Reply-To: <44E67B6E.10706@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <44E701B2.8050005@goop.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, virtualization <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 19 Aug 2006, Jeremy Fitzhardinge wrote:
-> Adrian Bunk wrote:
-> > These are Linux specific operations.
-> > 
-> > Without an _GPL you are in the grey area where courts have to decide whether
-> > a module using this would be a derived work according to copyright law in
-> > $country_of_the_court and therefore has to be GPL.
-> > 
-> > With the _GPL, everything is clear without any lawyers involved.
-> >   
-> 
-> Hardly.  The _GPL is a hint as to the intent of the author, but it is no more
-> than a hint.
-> 
-> My intent here (and I think the intent of the other authors) is not to cause
-> breakage of things which currently work, so the _GPL is not appropriate for
-> that reason.  Paravirt_ops is a restatement of many interfaces which already
-> exist in Linux in a non-_GPL form, so making the structure _GPL is effectively
+Jeremy Fitzhardinge wrote:
+> Rusty Russell wrote:
+>> It sounds fine to me, although I'd like to see the patch.  I don't have
+>> anything against higher-level abstractions, if it helps any hypervisor,
+>> as long as it doesn't warp the kernel code.  And if most hypervisors and
+>> native break it down the same way, well, we can always create helpers.
+>>   =
 
-My copy of linux-2.6.18-rc4/COPYING doesn't mention anything about these
-`non-_GPL' interfaces. It does mention `normal system calls', but AFAIK symbols
-exported to modules are not syscalls.
+>
+> Doing it this way does save a lot of complexity in the Xen case, which =
 
-> relicensing them.
+> would otherwise have to:
+>
+>   1. unpack the descriptor
+>   2. if it's an LDT, save it off in a per-cpu structure
+>   3. when load_ldt_desc is called, look up the structure, extract the
+>      base+size of the ldt, and make a hypercall to set the ldt
+>
+> vs
+>
+>   1. set the ldt
 
-That's a pretty strong statement...
+This way works for us as well, but my opinion is - Xen deliberately =
 
-Gr{oetje,eeting}s,
+broke the x86 interface here, for no strong reason.  In an ideal world, =
 
-						Geert
+we shouldn't have to change Linux to work around that, nor should other =
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+hypervisors have to live with the consequences of that decision.  So I =
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+believe the onus is on Xen to fix the problem in their layer, not the =
+
+other way around.  But I have no problem adapting to this way of doing =
+
+things for now, since this is not performance critical, and LDT is =
+
+barely used in Linux anyway, even then, mostly by unsupported =
+
+applications in a paravirtualized world.
+
+Zach
