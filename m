@@ -1,45 +1,55 @@
 From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [PATCH] paravirt.h
-Date: Tue, 22 Aug 2006 10:16:32 -0700
-Message-ID: <44EB3BF0.3040805@vmware.com>
-References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org> <1156254965.27114.17.camel@localhost.localdomain> <200608221544.26989.ak@muc.de>
+Date: Tue, 22 Aug 2006 10:36:35 -0700
+Message-ID: <44EB40A3.50700@vmware.com>
+References: <1155202505.18420.5.camel@localhost.localdomain> <200608221550.57603.ak@muc.de> <20060822142519.GX11651@stusta.de> <200608221654.10558.ak@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932189AbWHVRQe@vger.kernel.org>
-In-Reply-To: <200608221544.26989.ak@muc.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751403AbWHVRgh@vger.kernel.org>
+In-Reply-To: <200608221654.10558.ak@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Arjan van de Ven <arjan@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Andi Kleen wrote:
-> I don't see why paravirt ops is that much more sensitive
-> than most other kernel code. 
->
+> On Tuesday 22 August 2006 16:25, Adrian Bunk wrote:
 >   
->> It would be a lot safer if we could have the struct paravirt_ops in
->> protected read-only const memory space, set it up in the core kernel
->> early on in boot when we play "guess todays hypervisor" and then make
->> sure it stays in read only (even to kernel) space.
+>> On Tue, Aug 22, 2006 at 03:50:57PM +0200, Andi Kleen wrote:
+>>     
+>>>> this would need a "const after boot" section; which is really not hard
+>>>> to make and probably useful for a lot more things.... todo++
+>>>>         
+>>> except for anything that needs tlb entries in user space. And it only gives you
+>>> false sense of security. --todo
+>>>       
+>> What's the alternative?
 >>     
 >
-> By default we don't make anything read only because that would
-> mess up the 2MB kernel mapping.
->
-> In general i don't think making select code in the kernel
-> read only is a good idea, because as long as you don't
-> protect everything including stacks etc. there will be always
-> attack points where supposedly protected code relies 
-> on unprotected state. If someone can write to kernel
-> memory you already lost.
->
-> And it adds TLB pressure.
+> The alternative is to not protect it, since protecting it doesn't
+> offer any significant additional security over not protecting it.
 >   
 
-And it doesn't work for VMI or lhype, both of which might modify 
-paravirt_ops way later in the boot process, when loaded as a module.  
-Where did this conversation come from?  I don't see it on any list I'm 
-subscribed to.
+Didn't someone point out yet that if you are vulnerable to someone 
+loading a kernel module of their choosing, you lose, plain and simple?  
+You don't need paravirt-ops to implement a rootkit, and it doesn't make 
+it any easier, and write protecting it is totally useless.  How do you 
+think VMware runs on Linux?  It takes over the hardware entirely, loads 
+a hypervisor, and starts running in a completely different world.  And 
+it doesn't even need to use a single _GPL'd export to do that.
+
+Write protection is great as a debug option to find accidental memory 
+corruptions.  It is useless as a technique to prevent subversion.  Um 
+hello, you're already at CPL-0.  Just rewrite the page tables already.
+
+>> Change it from a struct to a compile time choice?
+>>     
+>
+> One of the design goals of paravirt-ops was to allow single binaries
+> that run on both native hardware and on hypervisors. So that would
+> be a non starter.
+
+Strongly agree.
 
 Zach
