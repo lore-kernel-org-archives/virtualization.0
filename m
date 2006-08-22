@@ -1,59 +1,35 @@
-From: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH] paravirt.h
-Date: Tue, 22 Aug 2006 16:25:19 +0200
-Message-ID: <20060822142519.GX11651@stusta.de>
-References: <1155202505.18420.5.camel@localhost.localdomain>
-	<1156254965.27114.17.camel@localhost.localdomain>
-	<1156254322.2976.55.camel@laptopd505.fenrus.org>
-	<200608221550.57603.ak@muc.de>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1 of 1] x86_64: Put .note.* sections into a
+	PT_NOTE segment in vmlinux
+Date: Tue, 22 Aug 2006 16:48:58 +0200
+Message-ID: <200608221648.58080.ak@suse.de>
+References: <1156256777.5091.93.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <1156256777.5091.93.camel@localhost.localdomain>
 Content-Disposition: inline
-In-Reply-To: <200608221550.57603.ak@muc.de>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Arjan van de Ven <arjan@infradead.org>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Ian Campbell <Ian.Campbell@xensource.com>
+Cc: Andrew Morton <akpm@osdl.org>, Xen-devel <xen-devel@lists.xensource.com>, Jeremy Fitzhardinge <jeremy@xensource.com>, Virtualization <virtualization@lists.osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Christoph Lameter <clameter@sgi.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 22, 2006 at 03:50:57PM +0200, Andi Kleen wrote:
-> =
+On Tuesday 22 August 2006 16:26, Ian Campbell wrote:
+> This patch updates x86_64 linker script to pack any .note.* sections
+> into a PT_NOTE segment in the output file.
 
-> > this would need a "const after boot" section; which is really not hard
-> > to make and probably useful for a lot more things.... todo++
-> =
+Thanks added.
 
-> except for anything that needs tlb entries in user space. And it only giv=
-es you
-> false sense of security. --todo
+-Andi
 
-What's the alternative?
-
-Change it from a struct to a compile time choice?
-This should address both the security concerns and your tlb issues at =
-
-the price of runtime flexibility.
-
-> -Andi
-
-cu
-Adrian
-
--- =
-
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+P.S.: 2-3 paragraphs description would have been enough, but that is fine
+too.
