@@ -1,13 +1,14 @@
 From: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH 1/2] paravirt.h header
-Date: Tue, 22 Aug 2006 11:06:35 +0200
-Message-ID: <20060822110635.d9072621.ak@muc.de>
+Subject: Re: [PATCH 2/2] paravirt inline patching
+Date: Tue, 22 Aug 2006 11:14:48 +0200
+Message-ID: <20060822111448.a9cdfe68.ak@muc.de>
 References: <1156226116.26898.8.camel@localhost.localdomain>
+	<1156227152.26898.11.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1156226116.26898.8.camel@localhost.localdomain>
+In-Reply-To: <1156227152.26898.11.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -21,20 +22,34 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 22 Aug 2006 15:55:15 +1000
+On Tue, 22 Aug 2006 16:12:32 +1000
 Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-> OK, this is the revised paravirt.h (Andi has seen this before), then the
-> second is the binary patching stuff.  More things get added to the
-> paravirt struct in future patches, but this basic stuff hasn't changed
-> for some time.
 
-Thanks. I plan to revisit this after the .19 merge is done.
-Currently there is too much noise in the tree and even your =
+> It turns out that the most called ops, by several orders of magnitude,
+> are the interrupt manipulation ops.  These are obvious candidates for
+> patching, so mark them up and create infrastructure for it.
+> =
 
-tree seems to be still changing too quickly.
+> The method used is that the ops structure has a patch function, which
+> is called for each place which needs to be patched: this returns a
+> number of instructions (the rest are NOP-padded).
+> =
 
-The patch looks reasonable, except that you still have far too many
-of these nasty __s around asm and volatile.
+> Usually we can spare a register (%eax) for the binary patched code to
+> use, but in a couple of critical places in entry.S we can't: we make
+> the clobbers explicit at the call site, and manually clobber the
+> allowed registers in debug mode as an extra check.
+
+Looks good to me.
+
+> +
+> +	/* Sync in case we patched this coming "sti" last. */
+> +	sync_core();
+
+I guess this needs more comments -- in particular that it is =
+
+only safe because the other CPUs are not executing any of this
+yet and preempt does synchronize anyways.
 
 -Andi
