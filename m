@@ -1,39 +1,37 @@
-From: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] paravirt.h
-Date: Tue, 22 Aug 2006 16:54:10 +0200
-Message-ID: <200608221654.10558.ak@muc.de>
-References: <1155202505.18420.5.camel@localhost.localdomain> <200608221550.57603.ak@muc.de> <20060822142519.GX11651@stusta.de>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1 of 1] x86_64: Put .note.* sections into a
+	PT_NOTE segment in vmlinux II
+Date: Tue, 22 Aug 2006 16:59:18 +0200
+Message-ID: <200608221659.18896.ak@suse.de>
+References: <1156256777.5091.93.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932268AbWHVOyz@vger.kernel.org>
-In-Reply-To: <20060822142519.GX11651@stusta.de>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <1156256777.5091.93.camel@localhost.localdomain>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.osdl.org
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Arjan van de Ven <arjan@infradead.org>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Ian Campbell <Ian.Campbell@xensource.com>
+Cc: Andrew Morton <akpm@osdl.org>, Xen-devel <xen-devel@lists.xensource.com>, Jeremy Fitzhardinge <jeremy@xensource.com>, Virtualization <virtualization@lists.osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Christoph Lameter <clameter@sgi.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 22 August 2006 16:25, Adrian Bunk wrote:
-> On Tue, Aug 22, 2006 at 03:50:57PM +0200, Andi Kleen wrote:
-> > 
-> > > this would need a "const after boot" section; which is really not hard
-> > > to make and probably useful for a lot more things.... todo++
-> > 
-> > except for anything that needs tlb entries in user space. And it only gives you
-> > false sense of security. --todo
-> 
-> What's the alternative?
+On Tuesday 22 August 2006 16:26, Ian Campbell wrote:
+> This patch updates x86_64 linker script to pack any .note.* sections
+> into a PT_NOTE segment in the output file.
 
-The alternative is to not protect it, since protecting it doesn't
-offer any significant additional security over not protecting it.
 
-> 
-> Change it from a struct to a compile time choice?
+Sorry I tried to apply it, but at least 2.6.18rc4 mainline (which my tree
+is based on) doesn't have a NOTES macro so it doesn't link
 
-One of the design goals of paravirt-ops was to allow single binaries
-that run on both native hardware and on hypervisors. So that would
-be a non starter.
+I dropped the NOTES addition for now, presumably it will need to be readded
+later.
 
 -Andi
