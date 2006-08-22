@@ -1,55 +1,37 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [PATCH] paravirt.h
-Date: Tue, 22 Aug 2006 10:36:35 -0700
-Message-ID: <44EB40A3.50700@vmware.com>
-References: <1155202505.18420.5.camel@localhost.localdomain> <200608221550.57603.ak@muc.de> <20060822142519.GX11651@stusta.de> <200608221654.10558.ak@muc.de>
+Date: Tue, 22 Aug 2006 19:35:03 +0100
+Message-ID: <1156271703.27114.32.camel@localhost.localdomain>
+References: <1155202505.18420.5.camel@localhost.localdomain>
+	<200608221550.57603.ak@muc.de> <20060822142519.GX11651@stusta.de>
+	<200608221654.10558.ak@muc.de>  <44EB40A3.50700@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751403AbWHVRgh@vger.kernel.org>
-In-Reply-To: <200608221654.10558.ak@muc.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Arjan van de Ven <arjan@infradead.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <44EB40A3.50700@vmware.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Arjan van de Ven <arjan@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> On Tuesday 22 August 2006 16:25, Adrian Bunk wrote:
->   
->> On Tue, Aug 22, 2006 at 03:50:57PM +0200, Andi Kleen wrote:
->>     
->>>> this would need a "const after boot" section; which is really not hard
->>>> to make and probably useful for a lot more things.... todo++
->>>>         
->>> except for anything that needs tlb entries in user space. And it only gives you
->>> false sense of security. --todo
->>>       
->> What's the alternative?
->>     
->
-> The alternative is to not protect it, since protecting it doesn't
-> offer any significant additional security over not protecting it.
->   
+Ar Maw, 2006-08-22 am 10:36 -0700, ysgrifennodd Zachary Amsden:
+> Write protection is great as a debug option to find accidental memory =
 
-Didn't someone point out yet that if you are vulnerable to someone 
-loading a kernel module of their choosing, you lose, plain and simple?  
-You don't need paravirt-ops to implement a rootkit, and it doesn't make 
-it any easier, and write protecting it is totally useless.  How do you 
-think VMware runs on Linux?  It takes over the hardware entirely, loads 
-a hypervisor, and starts running in a completely different world.  And 
-it doesn't even need to use a single _GPL'd export to do that.
+> corruptions.  It is useless as a technique to prevent subversion.  Um =
 
-Write protection is great as a debug option to find accidental memory 
-corruptions.  It is useless as a technique to prevent subversion.  Um 
-hello, you're already at CPL-0.  Just rewrite the page tables already.
+> hello, you're already at CPL-0.  Just rewrite the page tables already.
 
->> Change it from a struct to a compile time choice?
->>     
->
-> One of the design goals of paravirt-ops was to allow single binaries
-> that run on both native hardware and on hypervisors. So that would
-> be a non starter.
+That depends upon how clever you are.  However if you want to load a
+hypervisor under a running kernel and from it then you need an updatable
+paravirt_ops.
 
-Strongly agree.
-
-Zach
+Alan
