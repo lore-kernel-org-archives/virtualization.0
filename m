@@ -1,78 +1,38 @@
-From: Ian Campbell <Ian.Campbell@xensource.com>
-Subject: [PATCH 1/5] ELFNOTES: use a preprocessor macro to define the
-	ELFNOTE helper
-Date: Wed, 23 Aug 2006 16:09:27 +0100
-Message-ID: <1156345767.12949.121.camel@localhost.localdomain>
+From: Ian Campbell <Ian.Campbell@XenSource.com>
+Subject: Re: [PATCH] Translate asm version of ELFNOTE macro into
+	preprocessor macro
+Date: Wed, 23 Aug 2006 16:14:34 +0100
+Message-ID: <1156346074.12949.129.camel@localhost.localdomain>
+References: <1156333761.12949.35.camel@localhost.localdomain>
+	 <44EC6B12.4060909@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964971AbWHWPOc@vger.kernel.org>
+In-Reply-To: <44EC6B12.4060909@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, Virtualization <virtualization@lists.osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>, "Eric W. Biederman" <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are a bunch of issues with defining elf notes using assembler
-macros, as described here:
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D115633393226158&w=3D2
+On Wed, 2006-08-23 at 07:49 -0700, Jeremy Fitzhardinge wrote:
+> Ian Campbell wrote:
+> > The first is that older gas does not support :varargs in .macro
+> > definitions (in my testing 2.17 does while 2.15 does not, I don't know
+> > when it became supported). The Changes file says binutils >= 2.12 so I
+> > think we need to avoid using it. There are no other uses in mainline or
+> > -mm. Old gas appears to just ignore it so you get "too many arguments"
+> > type errors.
+> >   
+> OK, seems reasonable.  Eric Biederman solved this by having NOTE/ENDNOTE 
+> (or something like that) in his "bzImage with ELF header" patch, but I 
+> don't remember it being used in any way which is incompatible with using 
+> a CPP macro.
 
-Therefore I replaced it with a pre-processor macro.
+I can't find that patch, does NOTE/ENDNOTE just do the push/pop .note
+section?
 
-This is a new patch, it should fit into the series anywhere after the
--mm patch. It's been submitted to Andrew M so hopefully it'll get picked
-up for next -mm.
+That would solve the problem with the first argument of the macro being
+a string but the final argument could still be for .asciz note contents.
 
-Signed-off-by: Ian Campbell <ian.campbell@xensource.com>
-
-
-diff -r 4b7cd997c08f include/linux/elfnote.h
---- a/include/linux/elfnote.h	Wed Aug 23 11:48:46 2006 +0100
-+++ b/include/linux/elfnote.h	Wed Aug 23 12:44:27 2006 +0100
-@@ -31,22 +31,24 @@
- /*
-  * Generate a structure with the same shape as Elf{32,64}_Nhdr (which
-  * turn out to be the same size and shape), followed by the name and
-- * desc data with appropriate padding.  The 'desc' argument includes
-- * the assembler pseudo op defining the type of the data: .asciz
-- * "hello, world"
-+ * desc data with appropriate padding.  The 'desctype' argument is the
-+ * assembler pseudo op defining the type of the data e.g. .asciz while
-+ * 'descdata' is the data itself e.g.  "hello, world".
-+ *
-+ * e.g. ELFNOTE(XYZCo, 42, .asciz, "forty-two")
-+ *      ELFNOTE(XYZCo, 12, .long, 0xdeadbeef)
-  */
--.macro ELFNOTE name type desc:vararg
--.pushsection ".note.\name"
--  .align 4
--  .long 2f - 1f			/* namesz */
--  .long 4f - 3f			/* descsz */
--  .long \type
--1:.asciz "\name"
--2:.align 4
--3:\desc
--4:.align 4
--.popsection
--.endm
-+#define ELFNOTE(name, type, desctype, descdata)	\
-+.pushsection .note.name			;	\
-+  .align 4				;	\
-+  .long 2f - 1f		/* namesz */	;	\
-+  .long 4f - 3f		/* descsz */	;	\
-+  .long type				;	\
-+1:.asciz "name"				;	\
-+2:.align 4				;	\
-+3:desctype descdata			;	\
-+4:.align 4				;	\
-+.popsection				;
- #else	/* !__ASSEMBLER__ */
- #include <linux/elf.h>
- /*
+Ian.
