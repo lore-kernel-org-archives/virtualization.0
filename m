@@ -1,68 +1,52 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [PATCH] paravirt.h
-Date: Wed, 23 Aug 2006 11:55:31 +1000
-Message-ID: <1156298131.12015.42.camel@localhost.localdomain>
-References: <1155202505.18420.5.camel@localhost.localdomain>
-	<44DB7596.6010503@goop.org>
-	<1156254965.27114.17.camel@localhost.localdomain>
-	<200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>
-	<1156271386.2976.102.camel@laptopd505.fenrus.org>
-	<1156275004.27114.34.camel@localhost.localdomain>
-	<44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com>
-	<p73y7tg7cg7.fsf@verdi.suse.de>  <44EB7F0C.60402@vmware.com>
+Date: Tue, 22 Aug 2006 19:12:11 -0700
+Message-ID: <44EBB97B.9030707@vmware.com>
+References: <1155202505.18420.5.camel@localhost.localdomain>	 <44DB7596.6010503@goop.org>	 <1156254965.27114.17.camel@localhost.localdomain>	 <200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>	 <1156271386.2976.102.camel@laptopd505.fenrus.org>	 <1156275004.27114.34.camel@localhost.localdomain>	 <44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com>	 <p73y7tg7cg7.fsf@verdi.suse.de>  <44EB7F0C.60402@vmware.com> <1156298131.12015.42.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <44EB7F0C.60402@vmware.com>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arjan van de Ven <arjan@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932277AbWHWCMN@vger.kernel.org>
+In-Reply-To: <1156298131.12015.42.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arjan van de Ven <arjan@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2006-08-22 at 15:02 -0700, Zachary Amsden wrote:
-> Well, I don't think anything is sufficient for a preemptible kernel.  I =
+Rusty Russell wrote:
+> On Tue, 2006-08-22 at 15:02 -0700, Zachary Amsden wrote:
+>   
+>> Well, I don't think anything is sufficient for a preemptible kernel.  I 
+>> think that's just plain not going to work.  You could have a kernel 
+>> thread that got preempted in a paravirt-op patch point
+>>     
+>
+> Patching over the 6 native cases is actually not that bad: they're
+> listed below (each one has trailing noops).
+>
+> 	cli
+> 	sti
+> 	push %eax; popf
+> 	pushf; pop %eax
+> 	pushf; pop %eax; cli
+> 	iret
+> 	sti; sysexit
+>
+> If you're at the first insn you don't have to do anything, since you're
+> about to replace that code.  If you're in the noops, you can just
+> advance EIP to the end.  You can't be preempted between sti and sysexit,
+> since we only use that when interrupts are already disabled.  And
+> reversing either "push %eax" or "pushf; pop %eax" is fairly easy.
+>
+> Depending on your hypervisor, you might need to catch those threads who
+> are currently doing the paravirt_ops function calls, as well.  This
+> introduces more (and more complex) cases.
+>   
 
-> think that's just plain not going to work.  You could have a kernel =
+Yes, but the problem gets far worse.  You don't need to worry about just 
+those.  You need to worry about all that C code that runs in the native 
+paravirt-ops as well, because you could have preempted it in the middle 
+of a callout.  And the paravirt_ops code isn't isolated in a separate 
+section (though it well could be).
 
-> thread that got preempted in a paravirt-op patch point
-
-Patching over the 6 native cases is actually not that bad: they're
-listed below (each one has trailing noops).
-
-	cli
-	sti
-	push %eax; popf
-	pushf; pop %eax
-	pushf; pop %eax; cli
-	iret
-	sti; sysexit
-
-If you're at the first insn you don't have to do anything, since you're
-about to replace that code.  If you're in the noops, you can just
-advance EIP to the end.  You can't be preempted between sti and sysexit,
-since we only use that when interrupts are already disabled.  And
-reversing either "push %eax" or "pushf; pop %eax" is fairly easy.
-
-Depending on your hypervisor, you might need to catch those threads who
-are currently doing the paravirt_ops function calls, as well.  This
-introduces more (and more complex) cases.
-
-That all said, I've long speculated about a stop_machine which schedules
-all the preempted threads, to ensure every thread is in a happy
-unpreempt place.  This would involve scheduler hacks, but would allow us
-to remove the preempt_disable() calls around try_module_get() and any
-other areas which use stop_machine as the write side of locking.
-
-Rusty.
--- =
-
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+Zach
