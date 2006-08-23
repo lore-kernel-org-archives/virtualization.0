@@ -1,7 +1,7 @@
 From: Ian Campbell <Ian.Campbell@xensource.com>
-Subject: [PATCH 4/5] XEN: Remove __xen_guest section
-Date: Wed, 23 Aug 2006 16:09:45 +0100
-Message-ID: <1156345785.12949.126.camel@localhost.localdomain>
+Subject: [PATCH 0/5] Update ELFNOTEs and use them in Xen header.
+Date: Wed, 23 Aug 2006 16:09:19 +0100
+Message-ID: <1156345759.12949.120.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -19,70 +19,24 @@ To: Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>
 Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-With a suitably recent xen the __xen_guest string is no longer required
-so remove it. See the caveat in 0/5 though!
+Hi,
 
-Should be merged into 024-head.patch
+I've just committed ELF notes support to Xen unstable. It should become
+public once changeset 11239:58b5141c8309 passes through regression
+testing and into the public tree.
 
-Signed-off-by: Ian Campbell <ian.campbell@xensource.com>
+The patches which follow update the paravirt tree to define the notes.
+Some of them should be merged with existing patches others are
+completely new. I've made a note in the intro to the individual patches.
 
-diff -r 82192f4547ab arch/i386/paravirt-xen/xen-head.S
---- a/arch/i386/paravirt-xen/xen-head.S	Wed Aug 23 15:15:18 2006 +0100
-+++ b/arch/i386/paravirt-xen/xen-head.S	Wed Aug 23 15:16:01 2006 +0100
-@@ -3,7 +3,7 @@
- =
+There is one caveat which is that shadow mode for paravirt guests seems
+to be a little broken at the current tip of xen-unstable so you may want
+to stick where you are for now and not apply patch #4 (the one which
+removes __xen_guest from the header). The rest of the series is fine to
+apply whether you update or not.
 
- #include <linux/elfnote.h>
- #include <xen/interface/elfnote.h>
--	=
+Sorry for the lack of References: from the patches to this mail, I'm
+doing this manually. If anyone has any pointers to a decent patchbomb
+script I'm all ears ;-)
 
-+
- #define VIRT_ENTRY_OFFSET	0x1000
- .org VIRT_ENTRY_OFFSET
- ENTRY(startup_xen)
-@@ -20,43 +20,7 @@ 1:	jmp 1b	# should never return
- .org HYPERCALL_PAGE_OFFSET
- ENTRY(hypercall_page)
- .skip 0x1000
--
- 	=
-
--/*
-- * __xen_guest information
-- */
--.macro utoa value
-- .if (\value) < 0 || (\value) >=3D 0x10
--	utoa (((\value)>>4)&0x0fffffff)
-- .endif
-- .if ((\value) & 0xf) < 10
--  .byte '0' + ((\value) & 0xf)
-- .else
--  .byte 'A' + ((\value) & 0xf) - 10
-- .endif
--.endm
--	=
-
--.section __xen_guest
--	.ascii	"GUEST_OS=3Dlinux,GUEST_VER=3D2.6"
--	.ascii	",XEN_VER=3Dxen-3.0"
--	.ascii	",VIRT_BASE=3D0x"
--		utoa __PAGE_OFFSET
--	.ascii	",ELF_PADDR_OFFSET=3D0x0"
--	.ascii	",VIRT_ENTRY=3D0x"
--		utoa (__PAGE_OFFSET + __PHYSICAL_START + VIRT_ENTRY_OFFSET)
--	.ascii	",HYPERCALL_PAGE=3D0x"
--		utoa ((__PHYSICAL_START+HYPERCALL_PAGE_OFFSET)>>PAGE_SHIFT)
--	.ascii	",FEATURES=3D!writable_page_tables"
--	.ascii		 "|!auto_translated_physmap"
--#ifdef CONFIG_X86_PAE
--	.ascii	",PAE=3Dyes"
--#else
--	.ascii	",PAE=3Dno"
--#endif
--	.ascii	",LOADER=3Dgeneric"
--	.byte	0
--.previous
--
- 	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,       .asciz, "linux")
- 	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,  .asciz, "2.6")
- 	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,    .asciz, "xen-3.0")
+Ian.
