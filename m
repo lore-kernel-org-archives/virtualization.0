@@ -1,52 +1,37 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Arjan van de Ven <arjan@infradead.org>
 Subject: Re: [PATCH] paravirt.h
-Date: Tue, 22 Aug 2006 19:12:11 -0700
-Message-ID: <44EBB97B.9030707@vmware.com>
-References: <1155202505.18420.5.camel@localhost.localdomain>	 <44DB7596.6010503@goop.org>	 <1156254965.27114.17.camel@localhost.localdomain>	 <200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>	 <1156271386.2976.102.camel@laptopd505.fenrus.org>	 <1156275004.27114.34.camel@localhost.localdomain>	 <44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com>	 <p73y7tg7cg7.fsf@verdi.suse.de>  <44EB7F0C.60402@vmware.com> <1156298131.12015.42.camel@localhost.localdomain>
+Date: Wed, 23 Aug 2006 09:56:28 +0200
+Message-ID: <1156319788.2829.12.camel@laptopd505.fenrus.org>
+References: <1155202505.18420.5.camel@localhost.localdomain>
+	 <44DB7596.6010503@goop.org>
+	 <1156254965.27114.17.camel@localhost.localdomain>
+	 <200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>
+	 <1156271386.2976.102.camel@laptopd505.fenrus.org>
+	 <1156275004.27114.34.camel@localhost.localdomain>
+	 <44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com>
+	 <p73y7tg7cg7.fsf@verdi.suse.de>  <44EB7F0C.60402@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932277AbWHWCMN@vger.kernel.org>
-In-Reply-To: <1156298131.12015.42.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751456AbWHWH4p@vger.kernel.org>
+In-Reply-To: <44EB7F0C.60402@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arjan van de Ven <arjan@infradead.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Tue, 2006-08-22 at 15:02 -0700, Zachary Amsden wrote:
->   
->> Well, I don't think anything is sufficient for a preemptible kernel.  I 
->> think that's just plain not going to work.  You could have a kernel 
->> thread that got preempted in a paravirt-op patch point
->>     
->
-> Patching over the 6 native cases is actually not that bad: they're
-> listed below (each one has trailing noops).
->
-> 	cli
-> 	sti
-> 	push %eax; popf
-> 	pushf; pop %eax
-> 	pushf; pop %eax; cli
-> 	iret
-> 	sti; sysexit
->
-> If you're at the first insn you don't have to do anything, since you're
-> about to replace that code.  If you're in the noops, you can just
-> advance EIP to the end.  You can't be preempted between sti and sysexit,
-> since we only use that when interrupts are already disabled.  And
-> reversing either "push %eax" or "pushf; pop %eax" is fairly easy.
->
-> Depending on your hypervisor, you might need to catch those threads who
-> are currently doing the paravirt_ops function calls, as well.  This
-> introduces more (and more complex) cases.
->   
 
-Yes, but the problem gets far worse.  You don't need to worry about just 
-those.  You need to worry about all that C code that runs in the native 
-paravirt-ops as well, because you could have preempted it in the middle 
-of a callout.  And the paravirt_ops code isn't isolated in a separate 
-section (though it well could be).
+> Since this code is so rather, um, custom, I was going to reimplement 
+> stop_machine in the module.
 
-Zach
+that sounds like a big mistake. I assume you want your VMI module to be
+part of mainline for one.
+
+And this is the sort of thing that if we want to support it, we better
+support it inside the main kernel, eg provide an api to modules to use
+it, rather than having each module hack their own....
+
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
