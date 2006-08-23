@@ -1,54 +1,54 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH] paravirt.h
-Date: Tue, 22 Aug 2006 15:02:52 -0700
-Message-ID: <44EB7F0C.60402@vmware.com>
-References: <1155202505.18420.5.camel@localhost.localdomain>	<44DB7596.6010503@goop.org>	<1156254965.27114.17.camel@localhost.localdomain>	<200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>	<1156271386.2976.102.camel@laptopd505.fenrus.org>	<1156275004.27114.34.camel@localhost.localdomain>	<44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com> <p73y7tg7cg7.fsf@verdi.suse.de>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/2] paravirt.h header
+Date: Wed, 23 Aug 2006 11:20:07 +1000
+Message-ID: <1156296008.12015.8.camel@localhost.localdomain>
+References: <1156226116.26898.8.camel@localhost.localdomain>
+	<20060822110635.d9072621.ak@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751306AbWHVWCz@vger.kernel.org>
-In-Reply-To: <p73y7tg7cg7.fsf@verdi.suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20060822110635.d9072621.ak@muc.de>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> Zachary Amsden <zach@vmware.com> writes:
->   
->> That is a really nasty problem.  You need a synchronization primitive
->> which guarantees a flat stack, so you can't do it in the interrupt
->> handler as I have tried to do.  I'll bang my head on it awhile.  In
->> the meantime, were there ever any solutions to the syscall patching
->> problem that might lend me a clue as to what to do (or not to do, or
->> impossible?).
->>     
->
-> stop_machine_run() solves the problem I think. It is currently not 
-> exported though. I don't think there's anything in there that couldn't
-> be reimplemented in a module, but then we could also just export it
-> if there's a useful user.
->   
+On Tue, 2006-08-22 at 11:06 +0200, Andi Kleen wrote:
+> On Tue, 22 Aug 2006 15:55:15 +1000
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> =
 
-Well, I don't think anything is sufficient for a preemptible kernel.  I 
-think that's just plain not going to work.  You could have a kernel 
-thread that got preempted in a paravirt-op patch point, and making all 
-the patch points non-preempt is probably a non-starter (either +12 bytes 
-each or no native inlining).  Finding out after the fact that you have a 
-kernel thread that was preempted in a patch point is very hard work, but 
-it is possible.  The fixing it up is where you need to take liberties 
-with reality.
+> > OK, this is the revised paravirt.h (Andi has seen this before), then the
+> > second is the binary patching stuff.  More things get added to the
+> > paravirt struct in future patches, but this basic stuff hasn't changed
+> > for some time.
+> =
 
-stop_machine_run() is almost what I want, but even that is not 
-sufficient.  You also need to disable NMIs and debug traps, which is 
-pretty hairy, but doable.  The problem with stop_machine_run() is that I 
-don't just want the kernel to halt running on remote CPUs, I want the 
-kernel on all CPUs to actually do something simultaneously - the entry 
-into paravirt mode requires a hypervisor call on each CPU, and 
-stop_machine() doesn't provide a facility to fire a callback on each CPU 
-from the stopmachine state.
+> Thanks. I plan to revisit this after the .19 merge is done.
+> Currently there is too much noise in the tree and even your =
 
-Since this code is so rather, um, custom, I was going to reimplement 
-stop_machine in the module.
+> tree seems to be still changing too quickly.
+> =
 
-Zach
+> The patch looks reasonable, except that you still have far too many
+> of these nasty __s around asm and volatile.
+
+Yes, the correct one I sent out later only has __ in two hunks (old code
+which I moved): I will go through later and remove them all as a
+separate patch if this annoys you.  AFAICT, everything under #ifdef
+__KERNEL__ can be de-underscored without any ill effects.
+
+Thanks,
+Rusty.
+-- =
+
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
