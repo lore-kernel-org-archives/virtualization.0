@@ -1,54 +1,55 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/2] paravirt.h header
-Date: Wed, 23 Aug 2006 11:20:07 +1000
-Message-ID: <1156296008.12015.8.camel@localhost.localdomain>
-References: <1156226116.26898.8.camel@localhost.localdomain>
-	<20060822110635.d9072621.ak@muc.de>
+Subject: Re: [PATCH] paravirt.h
+Date: Wed, 23 Aug 2006 11:35:40 +1000
+Message-ID: <1156296940.12015.25.camel@localhost.localdomain>
+References: <1155202505.18420.5.camel@localhost.localdomain>
+	 <44DB7596.6010503@goop.org>
+	 <1156254965.27114.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20060822110635.d9072621.ak@muc.de>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, virtualization <virtualization@lists.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932153AbWHWBfn@vger.kernel.org>
+In-Reply-To: <1156254965.27114.17.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, virtualization <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2006-08-22 at 11:06 +0200, Andi Kleen wrote:
-> On Tue, 22 Aug 2006 15:55:15 +1000
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> =
+On Tue, 2006-08-22 at 14:56 +0100, Alan Cox wrote:
+> Ar Iau, 2006-08-10 am 11:06 -0700, ysgrifennodd Jeremy Fitzhardinge:
+> > Rusty Russell wrote:
+> > > +EXPORT_SYMBOL_GPL(paravirt_ops);
+> > >   
+> > This should probably be EXPORT_SYMBOL(), otherwise pretty much every 
+> > driver module will need to be GPL...
+> 
+> It would be nice not to export it at all or to protect it, paravirt_ops
+> is a rootkit authors dream ticket. I'm opposed to paravirt_ops until it
+> is properly protected, its an unpleasantly large security target if not.
+> 
+> It would be a lot safer if we could have the struct paravirt_ops in
+> protected read-only const memory space, set it up in the core kernel
+> early on in boot when we play "guess todays hypervisor" and then make
+> sure it stays in read only (even to kernel) space.
+> 
+> Once you can't patch it then the worries about rootkits and patching it
+> that might make people want it particularly to be _GPL should mostly go
+> away too.
 
-> > OK, this is the revised paravirt.h (Andi has seen this before), then the
-> > second is the binary patching stuff.  More things get added to the
-> > paravirt struct in future patches, but this basic stuff hasn't changed
-> > for some time.
-> =
+I am writing a test hypervisor interface in a module, so this is a
+feature not a bug.
 
-> Thanks. I plan to revisit this after the .19 merge is done.
-> Currently there is too much noise in the tree and even your =
+We can certainly move it to some read-protected page, but then the
+module will simply unprotect it and alter it.
 
-> tree seems to be still changing too quickly.
-> =
+Now, discarding the patching information makes life harder, but you can
+simply scan the text segments to find them again, or just trap when they
+happen and patch dynamically (but this won't work for pushf and popf, if
+you care about them).
 
-> The patch looks reasonable, except that you still have far too many
-> of these nasty __s around asm and volatile.
+I realize that the virtualizing-root-kit is a sexy idea, I'm just not
+sure that paravirt_ops an effective place to be looking for a solution.
 
-Yes, the correct one I sent out later only has __ in two hunks (old code
-which I moved): I will go through later and remove them all as a
-separate patch if this annoys you.  AFAICT, everything under #ifdef
-__KERNEL__ can be de-underscored without any ill effects.
-
-Thanks,
 Rusty.
--- =
-
+-- 
 Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
