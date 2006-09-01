@@ -1,17 +1,16 @@
 From: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [patch 1/9] Guest page hinting: unused / free pages.
-Date: Fri, 01 Sep 2006 09:10:09 -0700
-Message-ID: <1157127009.28577.109.camel@localhost.localdomain>
-References: <20060901110908.GB15684@skybase>
-	<1157124821.28577.88.camel@localhost.localdomain>
-	<1157125420.21733.28.camel@localhost>
-	<1157126162.28577.104.camel@localhost.localdomain>
-	<1157126716.21733.45.camel@localhost>
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+Date: Fri, 01 Sep 2006 09:18:03 -0700
+Message-ID: <1157127483.28577.117.camel@localhost.localdomain>
+References: <20060901110948.GD15684@skybase>
+	<1157122667.28577.69.camel@localhost.localdomain>
+	<1157124674.21733.13.camel@localhost> <44F8563B.3050505@shadowen.org>
+	<1157126640.21733.43.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1157126716.21733.45.camel@localhost>
+In-Reply-To: <1157126640.21733.43.camel@localhost>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,29 +21,41 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: schwidefsky@de.ibm.com
-Cc: akpm@osdl.org, virtualization@lists.osdl.org, frankeh@watson.ibm.com, rhim@cc.gateh.edu, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, virtualization@lists.osdl.org, frankeh@watson.ibm.com, nickpiggin@yahoo.com.au, Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2006-09-01 at 18:05 +0200, Martin Schwidefsky wrote:
-> On Fri, 2006-09-01 at 08:56 -0700, Dave Hansen wrote:
-> > > This question did come up already. arch_free_page() is done before the
-> > > PageReserved() check so it isn't suitable for stable/unused state
-> > > transitions. You can argue that arch_free_page() should be moved but =
-who
-> > > knows what the architecture defined function is supposed to do?
-> > > page_set_stable/page_set_unused on the other hand have a clearly defi=
-ned
-> > > meaning. =
+On Fri, 2006-09-01 at 18:04 +0200, Martin Schwidefsky wrote:
+> 1) The page-is-discarded (PG_discarded) bit is set for pages that have
+> been recognized as removed by the host. The page needs to be removed
+> from the page cache while there are still page references floating
+> around. To prevent multiple removals from the page cache the discarded
+> bit is needed.
 
-> > =
+OK, so the page has data in it, and is in the page cache.  The
+hypervisor kills the page, gives the notification to the kernel that the
+page has gone away, and the kernel marks PG_discarded.  There still
+might be active references to the page.
 
-> > With a patch set this large, I think it would at least be a nice thing
-> > to go through and review the other architectures' uses.
-> =
+So, is the problem trying to communicate with the reference holders that
+the page is no longer valid?  How is this fundamentally different from
+page truncating?
 
-> There is only one user right now: UML.
+> 2) The page-state-change (PG_state_change) bit is required to prevent
+> that an make_stable "overtakes" a make_volatile. In order to make a page
+> volatile a number of conditions are check. After this is done the state
+> change will be done. The critical section is the code that performs the
+> checks up to the instruction that does the state change. No make_stable
+> may be done in between. The granularity is per page, to use a global
+> lock like a spinlock would severly limit the scalability for large smp
+> systems.
 
-Then it should be awfully easy to go figure out what they are doing and
-coordinate by using the same functions, right? ;)
+How about doing it in the NUMA node?  Or the mem_section?  Or, even a
+bit in the mem_map[] for the area guarding the 'struct page' itself?
+Even a hashed table of locks based on the page address.  You just need
+something that allows _some_ level of concurrency.  You certainly never
+have a number of CPUs which is anywhere close to the number of 'struct
+page's in the system.
+
+Let me think more about (3).
 
 -- Dave
