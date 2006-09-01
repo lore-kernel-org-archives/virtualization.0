@@ -1,10 +1,10 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 6/9] Guest page hinting: writable page table entries.
-Date: Fri, 1 Sep 2006 13:10:46 +0200
-Message-ID: <20060901111046.GG15684@skybase>
+Subject: [patch 9/9] Guest page hinting: full s390 support.
+Date: Fri, 1 Sep 2006 13:11:33 +0200
+Message-ID: <20060901111133.GJ15684@skybase>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751478AbWIALKw@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751490AbWIALLm@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
@@ -15,289 +15,383 @@ From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 From: Hubertus Franke <frankeh@watson.ibm.com>
 From: Himanshu Raj <rhim@cc.gatech.edu>
 
-[patch 6/9] Guest page hinting: writable page table entries.
+[patch 9/9] Guest page hinting: full s390 support.
 
-The volatile state for page cache and swap cache pages requires that
-the host system needs to be able to determine if a volatile page is
-dirty before removing it. This excludes almost all platforms from using
-the scheme. What is needed is a way to distinguish between pages that
-are purely read-ony and pages that might get written to. This allows
-platforms with per-pte dirty bits to use the scheme and platforms with
-per-page dirty bits a small optimization.
+s390 uses the milli-coded ESSA instruction to set the page state. The
+page state is formed by four guest page states called block usage states
+and three host page states called block content states.
 
-Whenever a writable pte is created a check is added that allows to
-move the page into the correct state. This needs to be done before
-the writable pte is established. To avoid unnecessary state transitions
-and the need for a counter, a new page flag PG_writable is added. Only
-the creation of the first writable pte will do a page state change.
-Even if all the writable ptes pointing to a page are removed again,
-the page stays in the safe state until all read-only users of the page
-have unmapped it as well. Only then is the PG_writable bit reset.
+The guest states are:
+ - stable (S): there is essential content in the page
+ - unused (U): there is no useful content and any access to the page will
+   cause an addressing exception
+ - volatile (V): there is useful content in the page. The host system is
+   allowed to discard the content anytime, but has to deliver a discard
+   fault with the absolute address of the page if the guest tries to
+   access it.
+ - potential volatile (P): the page has useful content. The host system
+   is allowed to discard the content after it has checked the dirty bit
+   of the page. It has to deliver a discard fault with the absolute
+   address of the page if the guest tries to access it.
 
-The state a page needs to have if a writable pte is present depends
-on the platform. A platform with per-pte dirty bits wants to move the
-page into stable state, a platform with per-page dirty bits like s390
-can decide to move the page into a special state that requires the host
-system to check the dirty bit before discarding a page.
+The host states are:
+ - resident: the page is present in real memory.
+ - preserved: the page is not present in real memory but the content is
+   preserved elsewhere by the machine, e.g. on the paging device.
+ - zero: the page is not present in real memory. The content of the page
+   is logically-zero.
+
+There are 12 combinations of guest and host state, currently only 8 are
+valid page states:
+ Sr: a stable, resident page.
+ Sp: a stable, preserved page.
+ Sz: a stable, logically zero page. A page filled with zeroes will be
+     allocated on first access.
+ Ur: an unused but resident page. The host could make it Uz anytime but
+     it doesn't have to.
+ Uz: an unused, logically zero page.
+ Vr: a volatile, resident page. The guest can access it normally.
+ Vz: a volatile, logically zero page. This is a discarded page. The host
+     will deliver a discard fault for any access to the page.
+ Pr: a potential volatile, resident page. The guest can access it normally.
+
+The remaining 4 combinations can't occur:
+ Up: an unused, preserved page. If the host tries to get rid of a Ur page
+     it will remove it without writing the page content to disk and set
+     the page to Uz.
+ Vp: a volatile, preserved page. If the host picks a Vp page for eviction
+     it will discard it and set the page state to Vz.
+ Pp: a potential volatile, preserved page. There are two cases for page out:
+     1) the page is dirty then the host will preserved the page and set it
+     to Sp or 2) the page is clean then the host will discard it and set the
+     page state to Vz.
+ Pz: a potential volatile, logically zero page. The host system will always
+     use Vz instead of Pz.
+
+The state transitions (a diagram would be nicer but that is too hard
+to do in ascii art...):
+{Ur,Sr,Vr,Pr}: a resident page will change its block usage state if the
+     guest requests it with page_set_{unused,stable,volatile}.
+{Uz,Sz,Vz}: a logically zero page will change its block usage state if the
+     guest requests it with page_set_{unused,stable,volatile}. The
+     guest can't create the Pz state, the state will be Vz instead.
+Ur -> Uz: the host system can remove an unused, resident page from memory
+Sz -> Sr: on first access a stable, logically zero page will become resident
+Sr -> Sp: the host system can swap a stable page to disk
+Sp -> Sr: a guest access to a Sp page forces the host to retrieve it
+Vr -> Vz: the host can discard a volatile page
+Sp -> Uz: a page preserved by the host will be removed if the guest sets 
+     the block usage state to unused.
+Sp -> Vz: a page preserved by the host will be discarded if the guest sets
+     the block usage state to volatile.
+Pr -> Sp: the host can move a page from Pr to Sp if it discovers that the
+     page is dirty while trying to discard the page. Instead it is swapped
+     to disk. 
+Pr -> Vz: the host can discard a Pr page. The Pz state is replaced by the
+     Vz state.
+
+For potential volatile pages there is one more pitfall. The transfer of
+the hardware dirty bit to the software dirty bit needs to make sure that
+the page gets into the stable state before the hardware dirty bit is
+cleared. The primitive page_test_and_clear_dirty is split into
+page_test_dirty and page_clear_dirty to be able to place a
+page_make_stable call between them.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- fs/exec.c                   |    6 +++--
- include/linux/page-flags.h  |    5 ++++
- include/linux/page-states.h |   25 +++++++++++++++++++++-
- mm/fremap.c                 |    1 
- mm/memory.c                 |    5 ++++
- mm/mprotect.c               |    1 
- mm/page-discard.c           |   49 +++++++++++++++++++++++++++++++++++++++++++-
- mm/page_alloc.c             |    3 +-
- mm/rmap.c                   |    1 
- 9 files changed, 91 insertions(+), 5 deletions(-)
+ arch/s390/Kconfig              |    5 ++
+ arch/s390/kernel/traps.c       |    4 ++
+ arch/s390/mm/fault.c           |   73 +++++++++++++++++++++++++++++++++++++++++
+ include/asm-generic/pgtable.h  |   11 +++++-
+ include/asm-s390/page-states.h |   39 +++++++++++++++++++++
+ include/asm-s390/pgtable.h     |   17 ++++++---
+ include/linux/page-flags.h     |    8 ++--
+ mm/rmap.c                      |   12 ++++++
+ 8 files changed, 156 insertions(+), 13 deletions(-)
 
-diff -urpN linux-2.6/fs/exec.c linux-2.6-patched/fs/exec.c
---- linux-2.6/fs/exec.c	2006-09-01 12:49:30.000000000 +0200
-+++ linux-2.6-patched/fs/exec.c	2006-09-01 12:50:24.000000000 +0200
-@@ -307,6 +307,7 @@ void install_arg_page(struct vm_area_str
+diff -urpN linux-2.6/arch/s390/Kconfig linux-2.6-patched/arch/s390/Kconfig
+--- linux-2.6/arch/s390/Kconfig	2006-09-01 12:49:36.000000000 +0200
++++ linux-2.6-patched/arch/s390/Kconfig	2006-09-01 12:50:25.000000000 +0200
+@@ -463,8 +463,13 @@ config KEXEC
+ 	  current kernel, and to start another kernel.  It is like a reboot
+ 	  but is independent of hardware/microcode support.
+ 
++config PAGE_DISCARD_LIST
++	bool
++	default n
++
+ config PAGE_STATES
+ 	bool "Enable support for guest page hinting."
++	select PAGE_DISCARD_LIST
+ 
+ endmenu
+ 
+diff -urpN linux-2.6/arch/s390/kernel/traps.c linux-2.6-patched/arch/s390/kernel/traps.c
+--- linux-2.6/arch/s390/kernel/traps.c	2006-09-01 12:49:25.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/traps.c	2006-09-01 12:50:25.000000000 +0200
+@@ -65,6 +65,7 @@ extern void pfault_interrupt(struct pt_r
+ static ext_int_info_t ext_int_pfault;
+ #endif
+ extern pgm_check_handler_t do_monitor_call;
++extern pgm_check_handler_t do_discard_fault;
+ 
+ #define stack_pointer ({ void **sp; asm("la %0,0(15)" : "=&d" (sp)); sp; })
+ 
+@@ -734,6 +735,9 @@ void __init trap_init(void)
+         pgm_check_table[0x1C] = &space_switch_exception;
+         pgm_check_table[0x1D] = &hfp_sqrt_exception;
+ 	pgm_check_table[0x40] = &do_monitor_call;
++#if defined(CONFIG_PAGE_STATES)
++	pgm_check_table[0x1a] = &do_discard_fault;
++#endif
+ 
+ 	if (MACHINE_IS_VM) {
+ #ifdef CONFIG_PFAULT
+diff -urpN linux-2.6/arch/s390/mm/fault.c linux-2.6-patched/arch/s390/mm/fault.c
+--- linux-2.6/arch/s390/mm/fault.c	2006-09-01 12:49:25.000000000 +0200
++++ linux-2.6-patched/arch/s390/mm/fault.c	2006-09-01 12:50:25.000000000 +0200
+@@ -19,6 +19,7 @@
+ #include <linux/ptrace.h>
+ #include <linux/mman.h>
+ #include <linux/mm.h>
++#include <linux/pagemap.h>
+ #include <linux/smp.h>
+ #include <linux/smp_lock.h>
+ #include <linux/init.h>
+@@ -31,6 +32,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/kdebug.h>
++#include <asm/io.h>
+ 
+ #ifndef CONFIG_64BIT
+ #define __FAIL_ADDR_MASK 0x7ffff000
+@@ -515,3 +517,74 @@ pfault_interrupt(struct pt_regs *regs, _
+ }
+ #endif
+ 
++#if defined(CONFIG_PAGE_STATES)
++
++static int __init nocmm2(char *str)
++{
++	machine_flags &= ~MACHINE_HAS_ESSA;
++	return 1;
++}
++
++__setup("nocmm2", nocmm2);
++
++static inline void fixup_user_copy(struct pt_regs *regs,
++				   unsigned long address, unsigned short rx)
++{
++	const struct exception_table_entry *fixup;
++	unsigned long kaddr;
++
++	kaddr = (regs->gprs[rx >> 12] + (rx & 0xfff)) & __FAIL_ADDR_MASK;
++	if (virt_to_phys((void *) kaddr) != address)
++		return;
++
++	fixup = search_exception_tables(regs->psw.addr & PSW_ADDR_INSN);
++	if (fixup)
++		regs->psw.addr = fixup->fixup | PSW_ADDR_AMODE;
++	else
++		die("discard fault", regs, SIGSEGV);
++}
++
++/*
++ * Discarded pages with a page_count() of zero are placed on
++ * the page_discarded_list until all cpus have been at
++ * least once in enabled code. That closes the race of page
++ * free vs. discard faults.
++ */
++void do_discard_fault(struct pt_regs *regs, unsigned long error_code)
++{
++	unsigned long address;
++	struct page *page;
++
++	/*
++	 * get the real address that caused the block validity
++	 * exception.
++	 */
++	address = S390_lowcore.trans_exc_code & __FAIL_ADDR_MASK;
++	page = pfn_to_page(address >> PAGE_SHIFT);
++
++	/*
++	 * Check for the special case of a discard fault in
++	 * copy_{from,to}_user. User copy is done using the
++	 * two special instructions mvcp/mvcs.
++	 */
++	if (!(regs->psw.mask & PSW_MASK_PSTATE)) {
++		switch (*(unsigned char *) regs->psw.addr) {
++		case 0xda:	/* mvcp */
++			fixup_user_copy(regs, address,
++					*(__u16 *)(regs->psw.addr + 2));
++			break;
++		case 0xdb:	/* mvcs */
++			fixup_user_copy(regs, address,
++					*(__u16 *)(regs->psw.addr + 4));
++			break;
++		default:
++			break;
++		}
++	}
++
++	if (likely(get_page_unless_zero(page))) {
++		local_irq_enable();
++		page_discard(page);
++	}
++}
++#endif
+diff -urpN linux-2.6/include/asm-generic/pgtable.h linux-2.6-patched/include/asm-generic/pgtable.h
+--- linux-2.6/include/asm-generic/pgtable.h	2006-09-01 12:49:31.000000000 +0200
++++ linux-2.6-patched/include/asm-generic/pgtable.h	2006-09-01 12:50:25.000000000 +0200
+@@ -139,8 +139,15 @@ static inline void ptep_set_wrprotect(st
+ #define pte_same(A,B)	(pte_val(A) == pte_val(B))
+ #endif
+ 
+-#ifndef __HAVE_ARCH_PAGE_TEST_AND_CLEAR_DIRTY
+-#define page_test_and_clear_dirty(page) (0)
++#ifndef __HAVE_ARCH_PAGE_TEST_DIRTY
++#define page_test_dirty(page)		(0)
++#endif
++
++#ifndef __HAVE_ARCH_PAGE_CLEAR_DIRTY
++#define page_clear_dirty(page)		do { } while (0)
++#endif
++
++#ifndef __HAVE_ARCH_PAGE_TEST_DIRTY
+ #define pte_maybe_dirty(pte)		pte_dirty(pte)
+ #else
+ #define pte_maybe_dirty(pte)		(1)
+diff -urpN linux-2.6/include/asm-s390/page-states.h linux-2.6-patched/include/asm-s390/page-states.h
+--- linux-2.6/include/asm-s390/page-states.h	2006-09-01 12:49:36.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/page-states.h	2006-09-01 12:50:25.000000000 +0200
+@@ -33,6 +33,22 @@ extern struct page *mem_map;
+ 	_rc; \
+ })
+ 
++static inline int page_host_discards(void)
++{
++	return MACHINE_HAS_ESSA;
++}
++
++static inline int page_discarded(struct page *page)
++{
++	int state;
++
++	if (!MACHINE_HAS_ESSA)
++		return 0;
++	state = page_essa(page, ESSA_GET_STATE);
++	return (state & ESSA_USTATE_MASK) == ESSA_USTATE_VOLATILE &&
++		(state & ESSA_CSTATE_MASK) == ESSA_CSTATE_ZERO;
++}
++
+ static inline void page_set_unused(struct page *page, int order)
  {
- 	struct mm_struct *mm = vma->vm_mm;
- 	pte_t * pte;
-+	pte_t pte_val;
- 	spinlock_t *ptl;
- 
- 	if (unlikely(anon_vma_prepare(vma)))
-@@ -322,8 +323,9 @@ void install_arg_page(struct vm_area_str
- 	}
- 	inc_mm_counter(mm, anon_rss);
- 	lru_cache_add_active(page);
--	set_pte_at(mm, address, pte, pte_mkdirty(pte_mkwrite(mk_pte(
--					page, vma->vm_page_prot))));
-+	pte_val = pte_mkdirty(pte_mkwrite(mk_pte(page, vma->vm_page_prot)));
-+	page_check_writable(page, pte_val);
-+	set_pte_at(mm, address, pte, pte_val);
- 	page_add_new_anon_rmap(page, vma, address);
- 	pte_unmap_unlock(pte, ptl);
- 
-diff -urpN linux-2.6/include/linux/page-flags.h linux-2.6-patched/include/linux/page-flags.h
---- linux-2.6/include/linux/page-flags.h	2006-09-01 12:50:23.000000000 +0200
-+++ linux-2.6-patched/include/linux/page-flags.h	2006-09-01 12:50:24.000000000 +0200
-@@ -107,6 +107,7 @@
- 
- #define PG_state_change		21	/* HV page state is changing. */
- #define PG_discarded		22	/* HV page has been discarded. */
-+#define PG_writable		23	/* HV page is mapped writable. */
+ 	int i;
+@@ -52,4 +68,27 @@ static inline void page_set_stable(struc
+ 	for (i = 0; i < (1 << order); i++)
+ 		page_essa(page + i, ESSA_SET_STABLE);
+ }
++
++static inline void page_set_volatile(struct page *page, int writable)
++{
++	if (!MACHINE_HAS_ESSA)
++		return;
++	if (writable)
++		page_essa(page, ESSA_SET_PVOLATILE);
++	else
++		page_essa(page, ESSA_SET_VOLATILE);
++}
++
++static inline int page_set_stable_if_present(struct page *page)
++{
++	int rc;
++
++	if (!MACHINE_HAS_ESSA || PageReserved(page))
++		return 1;
++
++	rc = page_essa(page, ESSA_SET_STABLE_IF_NOT_DISCARDED);
++	return (rc & ESSA_USTATE_MASK) != ESSA_USTATE_VOLATILE ||
++		(rc & ESSA_CSTATE_MASK) != ESSA_CSTATE_ZERO;
++}
++
+ #endif /* _ASM_S390_PAGE_STATES_H */
+diff -urpN linux-2.6/include/asm-s390/pgtable.h linux-2.6-patched/include/asm-s390/pgtable.h
+--- linux-2.6/include/asm-s390/pgtable.h	2006-09-01 12:49:32.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/pgtable.h	2006-09-01 12:50:25.000000000 +0200
+@@ -604,14 +604,18 @@ ptep_establish(struct vm_area_struct *vm
+  * should therefore only be called if it is not mapped in any
+  * address space.
+  */
+-#define page_test_and_clear_dirty(_page)				  \
++#define page_test_dirty(_page)						  \
+ ({									  \
+ 	struct page *__page = (_page);					  \
+ 	unsigned long __physpage = __pa((__page-mem_map) << PAGE_SHIFT);  \
+-	int __skey = page_get_storage_key(__physpage);			  \
+-	if (__skey & _PAGE_CHANGED)					  \
+-		page_set_storage_key(__physpage, __skey & ~_PAGE_CHANGED);\
+-	(__skey & _PAGE_CHANGED);					  \
++	(page_get_storage_key(__physpage) & _PAGE_CHANGED);		  \
++})
++
++#define page_clear_dirty(_page)						  \
++({									  \
++	struct page *__page = (_page);					  \
++	unsigned long __physpage = __pa((__page-mem_map) << PAGE_SHIFT);  \
++	page_set_storage_key(__physpage, PAGE_DEFAULT_KEY);		  \
+ })
  
  /*
-  * Manipulation of page state flags
-@@ -267,6 +268,10 @@
- #define TestSetPageDiscarded(page) \
- 		test_and_set_bit(PG_discarded, &(page)->flags)
+@@ -801,7 +805,8 @@ static inline pte_t mk_swap_pte(unsigned
+ #define __HAVE_ARCH_PTEP_CLEAR_FLUSH
+ #define __HAVE_ARCH_PTEP_SET_WRPROTECT
+ #define __HAVE_ARCH_PTE_SAME
+-#define __HAVE_ARCH_PAGE_TEST_AND_CLEAR_DIRTY
++#define __HAVE_ARCH_PAGE_TEST_DIRTY
++#define __HAVE_ARCH_PAGE_CLEAR_DIRTY
+ #define __HAVE_ARCH_PAGE_TEST_AND_CLEAR_YOUNG
+ #include <asm-generic/pgtable.h>
  
-+#define PageWritable(page) test_bit(PG_writable, &(page)->flags)
-+#define SetPageWritable(page) set_bit(PG_writable, &(page)->flags)
-+#define ClearPageWritable(page) clear_bit(PG_writable, &(page)->flags)
-+
- struct page;	/* forward declaration */
- 
- int test_clear_page_dirty(struct page *page);
-diff -urpN linux-2.6/include/linux/page-states.h linux-2.6-patched/include/linux/page-states.h
---- linux-2.6/include/linux/page-states.h	2006-09-01 12:50:23.000000000 +0200
-+++ linux-2.6-patched/include/linux/page-states.h	2006-09-01 12:50:24.000000000 +0200
-@@ -40,7 +40,7 @@
- #define page_host_discards()			(0)
- #define page_set_unused(_page,_order)		do { } while (0)
- #define page_set_stable(_page,_order)		do { } while (0)
--#define page_set_volatile(_page)		do { } while (0)
-+#define page_set_volatile(_page,_writable)	do { } while (0)
- #define page_set_stable_if_present(_page)	(1)
- #define page_discarded(_page)			(0)
- 
-@@ -63,6 +63,12 @@
-  *     from the LRU list and the radix tree of its mapping.
-  *     page_discard uses page_unmap_all to remove all page table
-  *     entries for a page.
-+ * - page_check_writable:
-+ *     Checks if the page states needs to be adapted because a new
-+ *     writable page table entry refering to the page is established.
-+ * - page_reset_writable:
-+ *     Resets the page state after the last writable page table entry
-+ *     refering to the page has been removed.
-  */
- extern void page_unmap_all(struct page *page);
- extern void page_discard(struct page *page);
-@@ -84,4 +90,21 @@ static inline void page_make_volatile(st
- 		__page_make_volatile(page, offset);
- }
- 
-+static inline void page_check_writable(struct page *page, pte_t pte)
-+{
-+	extern void __page_check_writable(struct page *, pte_t);
-+	if (!page_host_discards() || !pte_write(pte) ||
-+	    test_bit(PG_writable, &page->flags))
-+		return;
-+	__page_check_writable(page, pte);
-+}
-+
-+static inline void page_reset_writable(struct page *page)
-+{
-+	extern void __page_reset_writable(struct page *);
-+	if (!page_host_discards() || !test_bit(PG_writable, &page->flags))
-+		return;
-+	__page_reset_writable(page);
-+}
-+
- #endif /* _LINUX_PAGE_STATES_H */
-diff -urpN linux-2.6/mm/fremap.c linux-2.6-patched/mm/fremap.c
---- linux-2.6/mm/fremap.c	2006-09-01 12:49:33.000000000 +0200
-+++ linux-2.6-patched/mm/fremap.c	2006-09-01 12:50:24.000000000 +0200
-@@ -80,6 +80,7 @@ int install_page(struct mm_struct *mm, s
- 
- 	flush_icache_page(vma, page);
- 	pte_val = mk_pte(page, prot);
-+	page_check_writable(page, pte_val);
- 	set_pte_at(mm, addr, pte, pte_val);
- 	page_add_file_rmap(page);
- 	update_mmu_cache(vma, addr, pte_val);
-diff -urpN linux-2.6/mm/memory.c linux-2.6-patched/mm/memory.c
---- linux-2.6/mm/memory.c	2006-09-01 12:50:24.000000000 +0200
-+++ linux-2.6-patched/mm/memory.c	2006-09-01 12:50:24.000000000 +0200
-@@ -1558,6 +1558,7 @@ static int do_wp_page(struct mm_struct *
- 		flush_cache_page(vma, address, pte_pfn(orig_pte));
- 		entry = pte_mkyoung(orig_pte);
- 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+		page_check_writable(old_page, entry);
- 		ptep_set_access_flags(vma, address, page_table, entry, 1);
- 		update_mmu_cache(vma, address, entry);
- 		lazy_mmu_prot_update(entry);
-@@ -1607,6 +1608,7 @@ gotten:
- 		flush_cache_page(vma, address, pte_pfn(orig_pte));
- 		entry = mk_pte(new_page, vma->vm_page_prot);
- 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+		page_check_writable(new_page, entry);
- 		lazy_mmu_prot_update(entry);
- 		ptep_establish(vma, address, page_table, entry);
- 		update_mmu_cache(vma, address, entry);
-@@ -2055,6 +2057,7 @@ static int do_swap_page(struct mm_struct
- 	}
- 
- 	flush_icache_page(vma, page);
-+	page_check_writable(page, pte);
- 	set_pte_at(mm, address, page_table, pte);
- 	page_add_anon_rmap(page, vma, address);
- 
-@@ -2117,6 +2120,7 @@ static int do_anonymous_page(struct mm_s
- 
- 		entry = mk_pte(page, vma->vm_page_prot);
- 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+		page_check_writable(page, entry);
- 
- 		page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
- 		if (!pte_none(*page_table))
-@@ -2268,6 +2272,7 @@ retry:
- 		entry = mk_pte(new_page, vma->vm_page_prot);
- 		if (write_access)
- 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+		page_check_writable(new_page, entry);
- 		set_pte_at(mm, address, page_table, entry);
- 		if (anon) {
- 			inc_mm_counter(mm, anon_rss);
-diff -urpN linux-2.6/mm/mprotect.c linux-2.6-patched/mm/mprotect.c
---- linux-2.6/mm/mprotect.c	2006-09-01 12:49:33.000000000 +0200
-+++ linux-2.6-patched/mm/mprotect.c	2006-09-01 12:50:24.000000000 +0200
-@@ -52,6 +52,7 @@ static void change_pte_range(struct mm_s
- 			 */
- 			if (dirty_accountable && pte_dirty(ptent))
- 				ptent = pte_mkwrite(ptent);
-+			page_check_writable(pte_page(ptent), ptent);
- 			set_pte_at(mm, addr, pte, ptent);
- 			lazy_mmu_prot_update(ptent);
- #ifdef CONFIG_MIGRATION
-diff -urpN linux-2.6/mm/page_alloc.c linux-2.6-patched/mm/page_alloc.c
---- linux-2.6/mm/page_alloc.c	2006-09-01 12:50:23.000000000 +0200
-+++ linux-2.6-patched/mm/page_alloc.c	2006-09-01 12:50:24.000000000 +0200
-@@ -615,7 +615,8 @@ static int prep_new_page(struct page *pa
- 
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error | 1 << PG_readahead |
- 			1 << PG_referenced | 1 << PG_arch_1 |
--			1 << PG_fs_misc | 1 << PG_mappedtodisk);
-+			1 << PG_fs_misc | 1 << PG_mappedtodisk |
-+			1 << PG_writable );
- 	set_page_private(page, 0);
- 	set_page_refcounted(page);
- 	kernel_map_pages(page, 1 << order, 1);
-diff -urpN linux-2.6/mm/page-discard.c linux-2.6-patched/mm/page-discard.c
---- linux-2.6/mm/page-discard.c	2006-09-01 12:50:24.000000000 +0200
-+++ linux-2.6-patched/mm/page-discard.c	2006-09-01 12:50:24.000000000 +0200
-@@ -81,7 +81,7 @@ void __page_make_volatile(struct page *p
- 	preempt_disable();
- 	if (!TestSetPageStateChange(page)) {
- 		if (__page_discardable(page, offset))
--			page_set_volatile(page);
-+			page_set_volatile(page, PageWritable(page));
- 		ClearPageStateChange(page);
- 	}
- 	preempt_enable();
-@@ -117,6 +117,53 @@ int __page_make_stable(struct page *page
- EXPORT_SYMBOL(__page_make_stable);
- 
- /**
-+ * __page_check_writable() - check page state for new writable pte
-+ *
-+ * @page: the page the new writable pte refers to
-+ * @pte: the new writable pte
-+ */
-+void __page_check_writable(struct page *page, pte_t pte)
-+{
-+	preempt_disable();
-+	while (TestSetPageStateChange(page))
-+		cpu_relax();
-+
-+	if (!PageWritable(page)) {
-+		if (__page_discardable(page, 2))
-+			page_set_volatile(page, 1);
-+		else
-+			/*
-+			 * If two processes create a write mapping at the
-+			 * same time __page_discardable will return
-+			 * false but the page IS in volatile state.
-+			 * We have to take care about the dirty bit so the
-+			 * only option left is to make the page stable.
-+			 */
-+			page_set_stable_if_present(page);
-+		SetPageWritable(page);
-+	}
-+	ClearPageStateChange(page);
-+	preempt_enable();
-+}
-+EXPORT_SYMBOL(__page_check_writable);
-+
-+/**
-+ * __page_reset_writable() - clear the PageWritable bit
-+ *
-+ * @page: the page
-+ */
-+void __page_reset_writable(struct page *page)
-+{
-+	preempt_disable();
-+	if (!TestSetPageStateChange(page)) {
-+		ClearPageWritable(page);
-+		ClearPageStateChange(page);
-+	}
-+	preempt_enable();
-+}
-+EXPORT_SYMBOL(__page_reset_writable);
-+
-+/**
-  * __page_discard() - remove a discarded page from the cache
-  *
-  * @page: the page
+diff -urpN linux-2.6/include/linux/page-flags.h linux-2.6-patched/include/linux/page-flags.h
+--- linux-2.6/include/linux/page-flags.h	2006-09-01 12:50:25.000000000 +0200
++++ linux-2.6-patched/include/linux/page-flags.h	2006-09-01 12:50:25.000000000 +0200
+@@ -135,10 +135,10 @@
+ #define PageUptodate(page)	test_bit(PG_uptodate, &(page)->flags)
+ #ifdef CONFIG_S390
+ #define SetPageUptodate(_page) \
+-	do {								      \
+-		struct page *__page = (_page);				      \
+-		if (!test_and_set_bit(PG_uptodate, &__page->flags))	      \
+-			page_test_and_clear_dirty(_page);		      \
++	do {								  \
++		struct page *__page = (_page);				  \
++		if (!test_and_set_bit(PG_uptodate, &__page->flags))	  \
++			page_clear_dirty(_page);			  \
+ 	} while (0)
+ #else
+ #define SetPageUptodate(page)	set_bit(PG_uptodate, &(page)->flags)
 diff -urpN linux-2.6/mm/rmap.c linux-2.6-patched/mm/rmap.c
---- linux-2.6/mm/rmap.c	2006-09-01 12:50:24.000000000 +0200
-+++ linux-2.6-patched/mm/rmap.c	2006-09-01 12:50:24.000000000 +0200
-@@ -600,6 +600,7 @@ void page_remove_rmap(struct page *page)
+--- linux-2.6/mm/rmap.c	2006-09-01 12:50:25.000000000 +0200
++++ linux-2.6-patched/mm/rmap.c	2006-09-01 12:50:25.000000000 +0200
+@@ -594,8 +594,18 @@ void page_remove_rmap(struct page *page)
+ 		 * Leaving it set also helps swapoff to reinstate ptes
+ 		 * faster for those pages still in swapcache.
+ 		 */
+-		if (page_test_and_clear_dirty(page))
++		if (page_test_dirty(page)) {
++			BUG_ON(!page_make_stable(page));
++			/*
++			 * We decremented the mapcount so we now have an
++			 * extra reference for the page. That prevents
++			 * page_make_volatile from making the page
++			 * volatile again while the dirty bit is in
++			 * transit.
++			 */
++			page_clear_dirty(page);
  			set_page_dirty(page);
++		}
  		__dec_zone_page_state(page,
  				PageAnon(page) ? NR_ANON_PAGES : NR_FILE_MAPPED);
-+		page_reset_writable(page);
- 	}
- }
- 
+ 		page_reset_writable(page);
