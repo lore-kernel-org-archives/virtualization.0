@@ -1,10 +1,10 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 4/9] Guest page hinting: volatile swap cache.
-Date: Fri, 1 Sep 2006 13:10:06 +0200
-Message-ID: <20060901111006.GE15684@skybase>
+Subject: [patch 2/9] Guest page hinting: unused / free pages on s390.
+Date: Fri, 1 Sep 2006 13:09:29 +0200
+Message-ID: <20060901110929.GC15684@skybase>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751476AbWIALKO@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751465AbWIALJe@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
@@ -15,349 +15,278 @@ From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 From: Hubertus Franke <frankeh@watson.ibm.com>
 From: Himanshu Raj <rhim@cc.gatech.edu>
 
-[patch 4/9] Guest page hinting: volatile swap cache.
+[patch 2/9] Guest page hinting: unused / free pages on s390.
 
-The volatile page state can be used for anonymous pages as well, if
-they have been added to the swap cache and the swap write is finished.
-The tricky bit is in free_swap_and_cache. The call to find_get_page
-dead-locks with the discard handler. If the page has been discarded
-find_get_page will try to remove it. To do that it needs the page table
-lock of all mappers but one is held by the caller of free_swap_and_cache.
-A special variant of find_get_page is needed that does not check the
-page state and returns a page reference even if the page is discarded.
-The second pitfall is that the page needs to be made stable before the
-swap slot gets freed. If the page cannot be made stable because it has
-been discarded the swap slot may not be freed because it is still
-needed to reload the discarded page from the swap device.
+s390 uses the milli-coded ESSA instruction to set the page state. The
+page state is formed by four guest page states called block usage states
+and three host page states called block content states.
+
+This patch uses none of the host states and only two of the guest states:
+ - stable (S): there is essential content in the page
+ - unused (U): there is no usefull content and any access to the page will
+   cause an addressing exception.
+
+Since the access of unused pages causes addressing exceptions we need
+to take care with /dev/mem. The copy_{from_to}_user functions need to
+be able to cope with addressing exceptions for the kernel address space.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- include/linux/pagemap.h |    7 ++++++
- include/linux/swap.h    |    5 ++++
- mm/filemap.c            |   19 ++++++++++++++++++
- mm/memory.c             |   12 +++++++++--
- mm/page-discard.c       |   26 ++++++++++++++++---------
- mm/rmap.c               |   49 ++++++++++++++++++++++++++++++++++++++++++++----
- mm/swap_state.c         |   24 ++++++++++++++++++++++-
- mm/swapfile.c           |   29 ++++++++++++++++++++++------
- 8 files changed, 149 insertions(+), 22 deletions(-)
+ arch/s390/Kconfig              |    3 ++
+ arch/s390/kernel/head64.S      |   10 +++++++
+ arch/s390/lib/uaccess.S        |   18 ++++++++-----
+ arch/s390/lib/uaccess64.S      |   18 ++++++++-----
+ include/asm-s390/page-states.h |   55 +++++++++++++++++++++++++++++++++++++++++
+ include/asm-s390/setup.h       |    1 
+ 6 files changed, 93 insertions(+), 12 deletions(-)
 
-diff -urpN linux-2.6/include/linux/pagemap.h linux-2.6-patched/include/linux/pagemap.h
---- linux-2.6/include/linux/pagemap.h	2006-09-01 12:50:23.000000000 +0200
-+++ linux-2.6-patched/include/linux/pagemap.h	2006-09-01 12:50:23.000000000 +0200
-@@ -85,6 +85,13 @@ unsigned find_get_pages_contig(struct ad
- unsigned find_get_pages_tag(struct address_space *mapping, pgoff_t *index,
- 			int tag, unsigned int nr_pages, struct page **pages);
+diff -urpN linux-2.6/arch/s390/Kconfig linux-2.6-patched/arch/s390/Kconfig
+--- linux-2.6/arch/s390/Kconfig	2006-09-01 12:49:25.000000000 +0200
++++ linux-2.6-patched/arch/s390/Kconfig	2006-09-01 12:49:36.000000000 +0200
+@@ -463,6 +463,9 @@ config KEXEC
+ 	  current kernel, and to start another kernel.  It is like a reboot
+ 	  but is independent of hardware/microcode support.
  
-+#if defined(CONFIG_PAGE_STATES)
-+extern struct page * find_get_page_nodiscard(struct address_space *mapping,
-+					     unsigned long index);
-+#else
-+#define find_get_page_nodiscard(mapping, index) find_get_page(mapping, index)
-+#endif
++config PAGE_STATES
++	bool "Enable support for guest page hinting."
 +
- /*
-  * Returns locked page at given index in given cache, creating it if needed.
-  */
-diff -urpN linux-2.6/include/linux/swap.h linux-2.6-patched/include/linux/swap.h
---- linux-2.6/include/linux/swap.h	2006-09-01 12:49:32.000000000 +0200
-+++ linux-2.6-patched/include/linux/swap.h	2006-09-01 12:50:23.000000000 +0200
-@@ -229,6 +229,7 @@ extern struct address_space swapper_spac
- extern void show_swap_cache_info(void);
- extern int add_to_swap(struct page *, gfp_t);
- extern void __delete_from_swap_cache(struct page *);
-+extern void __delete_from_swap_cache_nocheck(struct page *);
- extern void delete_from_swap_cache(struct page *);
- extern int move_to_swap_cache(struct page *, swp_entry_t);
- extern int move_from_swap_cache(struct page *, unsigned long,
-@@ -345,6 +346,10 @@ static inline void __delete_from_swap_ca
- {
- }
+ endmenu
  
-+static inline void __delete_from_swap_cache_nocheck(struct page *page)
-+{
-+}
+ source "net/Kconfig"
+diff -urpN linux-2.6/arch/s390/kernel/head64.S linux-2.6-patched/arch/s390/kernel/head64.S
+--- linux-2.6/arch/s390/kernel/head64.S	2006-09-01 12:49:25.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/head64.S	2006-09-01 12:49:36.000000000 +0200
+@@ -240,6 +240,16 @@ startup_continue:
+ 	oi	7(%r12),0x80		# set IDTE flag
+ 0:
+ 
++#
++# find out if we have the ESSA instruction
++#
++	la	%r1,0f-.LPG1(%r13)	# set program check address
++	stg	%r1,__LC_PGM_NEW_PSW+8
++	lghi	%r1,0
++	.long	0xb9ab0001		# essa get state
++	oi	6(%r12),0x01		# set ESSA flag
++0:
 +
- static inline void delete_from_swap_cache(struct page *page)
- {
- }
-diff -urpN linux-2.6/mm/filemap.c linux-2.6-patched/mm/filemap.c
---- linux-2.6/mm/filemap.c	2006-09-01 12:50:23.000000000 +0200
-+++ linux-2.6-patched/mm/filemap.c	2006-09-01 12:50:23.000000000 +0200
-@@ -602,6 +602,25 @@ int __probe_page(struct address_space *m
- 	return !! radix_tree_lookup(&mapping->page_tree, offset);
- }
+         lpswe .Lentry-.LPG1(13)         # jump to _stext in primary-space,
+                                         # virtual and never return ...
+         .align 16
+diff -urpN linux-2.6/arch/s390/lib/uaccess64.S linux-2.6-patched/arch/s390/lib/uaccess64.S
+--- linux-2.6/arch/s390/lib/uaccess64.S	2006-09-01 12:49:25.000000000 +0200
++++ linux-2.6-patched/arch/s390/lib/uaccess64.S	2006-09-01 12:49:36.000000000 +0200
+@@ -20,14 +20,14 @@
+ __copy_from_user_asm:
+ 	slgr	%r0,%r0
+ 0:	mvcp	0(%r3,%r2),0(%r4),%r0
+-	jnz	1f
++7:	jnz	1f
+ 	slgr	%r2,%r2
+ 	br	%r14
+ 1:	la	%r2,256(%r2)
+ 	la	%r4,256(%r4)
+ 	aghi	%r3,-256
+ 2:	mvcp	0(%r3,%r2),0(%r4),%r0
+-	jnz	1b
++8:	jnz	1b
+ 3:	slgr	%r2,%r2
+ 	br	%r14
+ 4:	lghi	%r0,-4096
+@@ -39,13 +39,16 @@ __copy_from_user_asm:
+ 	jnh	6f		# no, the current page faulted
+ 	# move with the reduced length which is < 256
+ 5:	mvcp	0(%r5,%r2),0(%r4),%r0
+-	slgr	%r3,%r5
++9:	slgr	%r3,%r5
+ 6:	lgr	%r2,%r3
+ 	br	%r14
+         .section __ex_table,"a"
+ 	.quad	0b,4b
+ 	.quad	2b,4b
+ 	.quad	5b,6b
++	.quad	7b,6b
++	.quad	8b,6b
++	.quad	9b,6b
+         .previous
  
-+#if defined(CONFIG_PAGE_STATES)
+         .align 4
+@@ -55,14 +58,14 @@ __copy_from_user_asm:
+ __copy_to_user_asm:
+ 	slgr	%r0,%r0
+ 0:	mvcs	0(%r3,%r4),0(%r2),%r0
+-	jnz	1f
++7:	jnz	1f
+ 	slgr	%r2,%r2
+ 	br	%r14
+ 1:	la	%r2,256(%r2)
+ 	la	%r4,256(%r4)
+ 	aghi	%r3,-256
+ 2:	mvcs	0(%r3,%r4),0(%r2),%r0
+-	jnz	1b
++8:	jnz	1b
+ 3:	slgr	%r2,%r2
+ 	br	%r14
+ 4:	lghi	%r0,-4096
+@@ -74,13 +77,16 @@ __copy_to_user_asm:
+ 	jnh	6f		# no, the current page faulted
+ 	# move with the reduced length which is < 256
+ 5:	mvcs	0(%r5,%r4),0(%r2),%r0
+-	slgr	%r3,%r5
++9:	slgr	%r3,%r5
+ 6:	lgr	%r2,%r3
+ 	br	%r14
+         .section __ex_table,"a"
+ 	.quad	0b,4b
+ 	.quad	2b,4b
+ 	.quad	5b,6b
++	.quad	7b,6b
++	.quad	8b,6b
++	.quad	9b,6b
+         .previous
+ 
+         .align 4
+diff -urpN linux-2.6/arch/s390/lib/uaccess.S linux-2.6-patched/arch/s390/lib/uaccess.S
+--- linux-2.6/arch/s390/lib/uaccess.S	2006-09-01 12:49:25.000000000 +0200
++++ linux-2.6-patched/arch/s390/lib/uaccess.S	2006-09-01 12:49:36.000000000 +0200
+@@ -20,14 +20,14 @@
+ __copy_from_user_asm:
+ 	slr	%r0,%r0
+ 0:	mvcp	0(%r3,%r2),0(%r4),%r0
+-	jnz	1f
++7:	jnz	1f
+ 	slr	%r2,%r2
+ 	br	%r14
+ 1:	la	%r2,256(%r2)
+ 	la	%r4,256(%r4)
+ 	ahi	%r3,-256
+ 2:	mvcp	0(%r3,%r2),0(%r4),%r0
+-	jnz	1b
++8:	jnz	1b
+ 3:	slr	%r2,%r2
+ 	br	%r14
+ 4:	lhi	%r0,-4096
+@@ -39,13 +39,16 @@ __copy_from_user_asm:
+ 	jnh	6f		# no, the current page faulted
+ 	# move with the reduced length which is < 256
+ 5:	mvcp	0(%r5,%r2),0(%r4),%r0
+-	slr	%r3,%r5
++9:	slr	%r3,%r5
+ 6:	lr	%r2,%r3
+ 	br	%r14
+         .section __ex_table,"a"
+ 	.long	0b,4b
+ 	.long	2b,4b
+ 	.long	5b,6b
++	.long	7b,6b
++	.long	8b,6b
++	.long	9b,6b
+         .previous
+ 
+         .align 4
+@@ -55,14 +58,14 @@ __copy_from_user_asm:
+ __copy_to_user_asm:
+ 	slr	%r0,%r0
+ 0:	mvcs	0(%r3,%r4),0(%r2),%r0
+-	jnz	1f
++7:	jnz	1f
+ 	slr	%r2,%r2
+ 	br	%r14
+ 1:	la	%r2,256(%r2)
+ 	la	%r4,256(%r4)
+ 	ahi	%r3,-256
+ 2:	mvcs	0(%r3,%r4),0(%r2),%r0
+-	jnz	1b
++8:	jnz	1b
+ 3:	slr	%r2,%r2
+ 	br	%r14
+ 4:	lhi	%r0,-4096
+@@ -74,13 +77,16 @@ __copy_to_user_asm:
+ 	jnh	6f		# no, the current page faulted
+ 	# move with the reduced length which is < 256
+ 5:	mvcs	0(%r5,%r4),0(%r2),%r0
+-	slr	%r3,%r5
++9:	slr	%r3,%r5
+ 6:	lr	%r2,%r3
+ 	br	%r14
+         .section __ex_table,"a"
+ 	.long	0b,4b
+ 	.long	2b,4b
+ 	.long	5b,6b
++	.long	7b,6b
++	.long	8b,6b
++	.long	9b,6b
+         .previous
+ 
+         .align 4
+diff -urpN linux-2.6/include/asm-s390/page-states.h linux-2.6-patched/include/asm-s390/page-states.h
+--- linux-2.6/include/asm-s390/page-states.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/page-states.h	2006-09-01 12:49:36.000000000 +0200
+@@ -0,0 +1,55 @@
++#ifndef _ASM_S390_PAGE_STATES_H
++#define _ASM_S390_PAGE_STATES_H
 +
-+struct page * find_get_page_nodiscard(struct address_space *mapping,
-+				      unsigned long offset)
-+{
-+	struct page *page;
++#define ESSA_GET_STATE			0
++#define ESSA_SET_STABLE			1
++#define ESSA_SET_UNUSED			2
++#define ESSA_SET_VOLATILE		3
++#define ESSA_SET_PVOLATILE		4
++#define ESSA_SET_STABLE_MAKE_RESIDENT	5
++#define ESSA_SET_STABLE_IF_NOT_DISCARDED	6
 +
-+	read_lock_irq(&mapping->tree_lock);
-+	page = radix_tree_lookup(&mapping->page_tree, offset);
-+	if (page)
-+		page_cache_get(page);
-+	read_unlock_irq(&mapping->tree_lock);
-+	return page;
-+}
++#define ESSA_USTATE_MASK		0x0c
++#define ESSA_USTATE_STABLE		0x00
++#define ESSA_USTATE_UNUSED		0x04
++#define ESSA_USTATE_PVOLATILE		0x08
++#define ESSA_USTATE_VOLATILE		0x0c
 +
-+EXPORT_SYMBOL(find_get_page_nodiscard);
++#define ESSA_CSTATE_MASK		0x03
++#define ESSA_CSTATE_RESIDENT		0x00
++#define ESSA_CSTATE_PRESERVED		0x02
++#define ESSA_CSTATE_ZERO		0x03
 +
-+#endif
++extern struct page *mem_map;
 +
- /*
-  * Here we just do not bother to grab the page, it's meaningless anyway.
-  */
-diff -urpN linux-2.6/mm/memory.c linux-2.6-patched/mm/memory.c
---- linux-2.6/mm/memory.c	2006-09-01 12:50:23.000000000 +0200
-+++ linux-2.6-patched/mm/memory.c	2006-09-01 12:50:23.000000000 +0200
-@@ -2064,8 +2064,16 @@ static int do_swap_page(struct mm_struct
- 	unlock_page(page);
- 
- 	if (write_access) {
--		if (do_wp_page(mm, vma, address,
--				page_table, pmd, ptl, pte) == VM_FAULT_OOM)
-+		int rc = do_wp_page(mm, vma, address, page_table,
-+				    pmd, ptl, pte);
-+		if (page_host_discards() && rc == VM_FAULT_MAJOR)
-+			/*
-+			 * A discard removed the page, and do_wp_page called
-+			 * page_discard which removed the pte as well.
-+			 * handle_pte_fault needs to be repeated.
-+			 */
-+			ret = VM_FAULT_MINOR;
-+		else if (rc == VM_FAULT_OOM)
- 			ret = VM_FAULT_OOM;
- 		goto out;
- 	}
-diff -urpN linux-2.6/mm/page-discard.c linux-2.6-patched/mm/page-discard.c
---- linux-2.6/mm/page-discard.c	2006-09-01 12:50:23.000000000 +0200
-+++ linux-2.6-patched/mm/page-discard.c	2006-09-01 12:50:23.000000000 +0200
-@@ -17,6 +17,7 @@
- #include <linux/module.h>
- #include <linux/spinlock.h>
- #include <linux/buffer_head.h>
-+#include <linux/swap.h>
- 
- #include "internal.h"
- 
-@@ -32,7 +33,8 @@ static inline int __page_discardable(str
- 	 */
- 	if (PageDirty(page) || PageReserved(page) || PageWriteback(page) ||
- 	    PageLocked(page) || PagePrivate(page) || PageDiscarded(page) ||
--	    !PageUptodate(page) || !PageLRU(page) || PageAnon(page))
-+	    !PageUptodate(page) || !PageLRU(page) ||
-+	    (PageAnon(page) && !PageSwapCache(page)))
- 		return 0;
- 
- 	/*
-@@ -149,15 +151,21 @@ static void __page_discard(struct page *
- 	}
- 	spin_unlock_irq(&zone->lru_lock);
- 
--	/* We can't handle swap cache pages (yet). */
--	BUG_ON(PageSwapCache(page));
--
--	/* Remove page from page cache. */
-+	/* Remove page from page cache/swap cache. */
-  	mapping = page->mapping;
--	write_lock_irq(&mapping->tree_lock);
--	__remove_from_page_cache_nocheck(page);
--	write_unlock_irq(&mapping->tree_lock);
--	__put_page(page);
-+	if (PageSwapCache(page)) {
-+		swp_entry_t entry = { .val = page_private(page) };
-+		write_lock_irq(&swapper_space.tree_lock);
-+		__delete_from_swap_cache_nocheck(page);
-+		write_unlock_irq(&swapper_space.tree_lock);
-+		swap_free(entry);
-+		page_cache_release(page);
-+	} else {
-+		write_lock_irq(&mapping->tree_lock);
-+		__remove_from_page_cache_nocheck(page);
-+		write_unlock_irq(&mapping->tree_lock);
-+ 		__put_page(page);
-+	}
- }
- 
- /**
-diff -urpN linux-2.6/mm/rmap.c linux-2.6-patched/mm/rmap.c
---- linux-2.6/mm/rmap.c	2006-09-01 12:50:23.000000000 +0200
-+++ linux-2.6-patched/mm/rmap.c	2006-09-01 12:50:23.000000000 +0200
-@@ -537,6 +537,7 @@ void page_add_anon_rmap(struct page *pag
- 	if (atomic_inc_and_test(&page->_mapcount))
- 		__page_set_anon_rmap(page, vma, address);
- 	/* else checking page index and mapping is racy */
-+	page_make_volatile(page, 1);
- }
- 
- /*
-@@ -934,13 +935,13 @@ int try_to_unmap(struct page *page, int 
- #if defined(CONFIG_PAGE_STATES)
- 
- /**
-- * page_unmap_all - removes all mappings of a page
-+ * page_unmap_file - removes all mappings of a file page
-  *
-  * @page: the page which mapping in the vma should be struck down
-  *
-  * the caller needs to hold page lock
-  */
--void page_unmap_all(struct page* page)
-+static void page_unmap_file(struct page* page)
- {
- 	struct address_space *mapping = page_mapping(page);
- 	pgoff_t pgoff = page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT);
-@@ -948,8 +949,6 @@ void page_unmap_all(struct page* page)
- 	struct prio_tree_iter iter;
- 	unsigned long address;
- 
--	BUG_ON(!PageLocked(page) || PageReserved(page) || PageAnon(page));
--
- 	spin_lock(&mapping->i_mmap_lock);
- 	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, pgoff, pgoff) {
- 		address = vma_address(page, vma);
-@@ -978,4 +977,46 @@ out:
- 	spin_unlock(&mapping->i_mmap_lock);
- }
- 
-+/**
-+ * page_unmap_anon - removes all mappings of an anonymous page
-+ *
-+ * @page: the page which mapping in the vma should be struck down
-+ *
-+ * the caller needs to hold page lock
++/*
++ * ESSA <rc-reg>,<page-address-reg>,<command-immediate>
 + */
-+static void page_unmap_anon(struct page* page)
-+{
-+	struct anon_vma *anon_vma;
-+	struct vm_area_struct *vma;
-+	unsigned long address;
++#define page_essa(_page,_command) ({		       \
++	int _rc; \
++	asm volatile(".insn rrf,0xb9ab0000,%0,%1,%2,0" \
++		     : "=&d" (_rc) : "a" (((_page)-mem_map)<<PAGE_SHIFT), \
++		       "i" (_command)); \
++	_rc; \
++})
 +
-+	anon_vma = page_lock_anon_vma(page);
-+	if (!anon_vma)
++static inline void page_set_unused(struct page *page, int order)
++{
++	int i;
++
++	if (!MACHINE_HAS_ESSA)
 +		return;
-+	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
-+		address = vma_address(page, vma);
-+		if (address == -EFAULT)
-+			continue;
-+		BUG_ON(try_to_unmap_one(page, vma, address, 0) == SWAP_FAIL);
-+	}
-+	spin_unlock(&anon_vma->lock);
++	for (i = 0; i < (1 << order); i++)
++		page_essa(page + i, ESSA_SET_UNUSED);
 +}
 +
-+/**
-+ * page_unmap_all - removes all mappings of a page
-+ *
-+ * @page: the page which mapping in the vma should be struck down
-+ *
-+ * the caller needs to hold page lock
-+ */
-+void page_unmap_all(struct page *page)
++static inline void page_set_stable(struct page *page, int order)
 +{
-+	BUG_ON(!PageLocked(page) || PageReserved(page));
++	int i;
 +
-+	if (PageAnon(page))
-+		page_unmap_anon(page);
-+	else
-+		page_unmap_file(page);
++	if (!MACHINE_HAS_ESSA)
++		return;
++	for (i = 0; i < (1 << order); i++)
++		page_essa(page + i, ESSA_SET_STABLE);
 +}
-+
- #endif
-diff -urpN linux-2.6/mm/swapfile.c linux-2.6-patched/mm/swapfile.c
---- linux-2.6/mm/swapfile.c	2006-09-01 12:49:33.000000000 +0200
-+++ linux-2.6-patched/mm/swapfile.c	2006-09-01 12:50:23.000000000 +0200
-@@ -369,9 +369,11 @@ int remove_exclusive_swap_page(struct pa
- 		/* Recheck the page count with the swapcache lock held.. */
- 		write_lock_irq(&swapper_space.tree_lock);
- 		if ((page_count(page) == 2) && !PageWriteback(page)) {
--			__delete_from_swap_cache(page);
--			SetPageDirty(page);
--			retval = 1;
-+			if (likely(page_make_stable(page))) {
-+				__delete_from_swap_cache(page);
-+				SetPageDirty(page);
-+				retval = 1;
-+			}
- 		}
- 		write_unlock_irq(&swapper_space.tree_lock);
- 	}
-@@ -400,7 +402,13 @@ void free_swap_and_cache(swp_entry_t ent
- 	p = swap_info_get(entry);
- 	if (p) {
- 		if (swap_entry_free(p, swp_offset(entry)) == 1) {
--			page = find_get_page(&swapper_space, entry.val);
-+			/*
-+			 * Use find_get_page_nodiscard to avoid the deadlock
-+			 * on the swap_lock and the page table lock if the
-+			 * page has been discarded.
-+			 */
-+			page = find_get_page_nodiscard(&swapper_space,
-+						       entry.val);
- 			if (page && unlikely(TestSetPageLocked(page))) {
- 				page_cache_release(page);
- 				page = NULL;
-@@ -417,8 +425,17 @@ void free_swap_and_cache(swp_entry_t ent
- 		/* Also recheck PageSwapCache after page is locked (above) */
- 		if (PageSwapCache(page) && !PageWriteback(page) &&
- 					(one_user || vm_swap_full())) {
--			delete_from_swap_cache(page);
--			SetPageDirty(page);
-+			/*
-+			 * The caller of free_swap_and_cache holds a
-+			 * page table lock for this page. A discarded
-+			 * page can not be removed at this point. To be
-+			 * able to reload the page from swap the swap
-+			 * slot may not be freed.
-+			 */
-+			if (likely(page_make_stable(page))) {
-+				delete_from_swap_cache(page);
-+				SetPageDirty(page);
-+			}
- 		}
- 		unlock_page(page);
- 		page_cache_release(page);
-diff -urpN linux-2.6/mm/swap_state.c linux-2.6-patched/mm/swap_state.c
---- linux-2.6/mm/swap_state.c	2006-09-01 12:49:33.000000000 +0200
-+++ linux-2.6-patched/mm/swap_state.c	2006-09-01 12:50:23.000000000 +0200
-@@ -124,7 +124,7 @@ int add_to_swap_cache(struct page *page,
-  * This must be called only on pages that have
-  * been verified to be in the swap cache.
-  */
--void __delete_from_swap_cache(struct page *page)
-+void inline __delete_from_swap_cache_nocheck(struct page *page)
- {
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(!PageSwapCache(page));
-@@ -139,6 +139,28 @@ void __delete_from_swap_cache(struct pag
- 	INC_CACHE_INFO(del_total);
- }
++#endif /* _ASM_S390_PAGE_STATES_H */
+diff -urpN linux-2.6/include/asm-s390/setup.h linux-2.6-patched/include/asm-s390/setup.h
+--- linux-2.6/include/asm-s390/setup.h	2006-09-01 12:49:32.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/setup.h	2006-09-01 12:49:36.000000000 +0200
+@@ -39,6 +39,7 @@ extern unsigned long machine_flags;
+ #define MACHINE_IS_P390		(machine_flags & 4)
+ #define MACHINE_HAS_MVPG	(machine_flags & 16)
+ #define MACHINE_HAS_IDTE	(machine_flags & 128)
++#define MACHINE_HAS_ESSA	(machine_flags & 256)
  
-+void __delete_from_swap_cache(struct page *page)
-+{
-+	/*
-+	 * Check if the discard fault handler already removed
-+	 * the page from the page cache. If not set the discard
-+	 * bit in the page flags to prevent double page free if
-+	 * a discard fault is racing with normal page free.
-+	 */
-+	if (page_host_discards() && TestSetPageDiscarded(page))
-+		return;
-+
-+	__delete_from_swap_cache_nocheck(page);
-+
-+	/*
-+	 * Check the hardware page state and clear the discard
-+	 * bit in the page flags only if the page is not
-+	 * discarded.
-+	 */
-+	if (page_host_discards() && !page_discarded(page))
-+		ClearPageDiscarded(page);
-+}
-+
- /**
-  * add_to_swap - allocate swap space for a page
-  * @page: page we want to move to swap
+ #ifndef __s390x__
+ #define MACHINE_HAS_IEEE	(machine_flags & 2)
