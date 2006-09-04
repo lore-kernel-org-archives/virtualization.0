@@ -1,7 +1,7 @@
-From: Dave Hansen <haveblue@us.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
-Date: Fri, 01 Sep 2006 11:41:46 -0700
-Message-ID: <1157136106.18728.27.camel@localhost.localdomain>
+Date: Mon, 04 Sep 2006 13:21:23 +0200
+Message-ID: <1157368883.5078.24.camel@localhost>
 References: <20060901110948.GD15684@skybase>
 	 <1157122667.28577.69.camel@localhost.localdomain>
 	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
@@ -16,60 +16,61 @@ References: <20060901110948.GD15684@skybase>
 	 <1157133841.21733.79.camel@localhost>
 	 <1157135024.18728.19.camel@localhost.localdomain>
 	 <1157135504.21733.83.camel@localhost>
+	 <1157136106.18728.27.camel@localhost.localdomain>
+Reply-To: schwidefsky@de.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750749AbWIASmF@vger.kernel.org>
-In-Reply-To: <1157135504.21733.83.camel@localhost>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964775AbWIDLV1@vger.kernel.org>
+In-Reply-To: <1157136106.18728.27.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: schwidefsky@de.ibm.com
+To: Dave Hansen <haveblue@us.ibm.com>
 Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2006-09-01 at 20:31 +0200, Martin Schwidefsky wrote:
-> On Fri, 2006-09-01 at 11:23 -0700, Dave Hansen wrote:
-> > OK, and there's no other workable solution to exclude each other from
-> > running at the same time than a bit in page->flags?
-> > 
-> > It seems like that hashed lock (or lock in mem_map[]) we were talking
-> > about earlier might be applicable here, too.
+On Fri, 2006-09-01 at 11:41 -0700, Dave Hansen wrote:
+> While something like the following wouldn't be scalable, it would
+> functionally work, right?
 > 
-> The indication which page has already been removed from the page cache
-> by a discard fault is by definition per-page.
+> +static void __page_discard(struct page *page)
+> +{
+> +       spin_lock(discard_lock);
+> ...
+> +       spin_unlock(discard_lock);
+> +}
+> 
+> +void __delete_from_swap_cache(struct page *page)
+> +{
+> +       spin_lock(discard_lock);
+> ...
+> +       spin_unlock(discard_lock);
+> +}
+> 
+> +void __remove_from_page_cache(struct page *page)
+> +{
+> +       spin_lock(discard_lock);
+> ...
+> +       spin_unlock(discard_lock);
+> +}
 
-Right.  So having a single bit that was set and cleared wouldn't work
-because it could get interpreted incorrectly for multiple pages.  But,
-what about a lock?
+Any kind of locking won't work. You need the information that a page has
+been discarded until the page has been freed. Only then the fact that
+the page has been discarded may enter nirvana. Any kind of lock needs to
+be freed again to allow the next discard fault to happen. Since you
+don't when the last page reference is returned you cannot hold the lock
+until the page is free.
 
-> The situation is different
-> compared to the one with PG_state_change which is used to protect
-> critical sections. After the cpu left the critical section the bit can
-> be clear again. The discard bit cannot be cleared until the page really
-> has been freed.
+-- 
+blue skies,
+  Martin.
 
-While something like the following wouldn't be scalable, it would
-functionally work, right?
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
-+static void __page_discard(struct page *page)
-+{
-+	spin_lock(discard_lock);
-...
-+	spin_unlock(discard_lock);
-+}
-
-+void __delete_from_swap_cache(struct page *page)
-+{
-+	spin_lock(discard_lock);
-...
-+	spin_unlock(discard_lock);
-+}
-
-+void __remove_from_page_cache(struct page *page)
-+{
-+	spin_lock(discard_lock);
-...
-+	spin_unlock(discard_lock);
-+}
+"Reality continues to ruin my life." - Calvin.
 
 
--- Dave
+
+-- 
+VGER BF report: H 0
