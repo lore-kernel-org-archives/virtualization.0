@@ -1,101 +1,87 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
-Date: Thu, 14 Sep 2006 10:56:39 +0200
-Message-ID: <1158224199.18478.22.camel@localhost>
-References: <20060901110948.GD15684@skybase>  <45084C2E.4060203@vmware.com>
+Subject: Re: [patch 5/9] Guest page hinting: mlocked pages.
+Date: Thu, 14 Sep 2006 10:59:15 +0200
+Message-ID: <1158224355.18478.26.camel@localhost>
+References: <20060901111022.GF15684@skybase>  <4508AEB9.4080409@vmware.com>
 Reply-To: schwidefsky@de.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751480AbWINI4n@vger.kernel.org>
-In-Reply-To: <45084C2E.4060203@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <4508AEB9.4080409@vmware.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Zachary Amsden <zach@vmware.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rhim@cc.gateh.edu
+Cc: akpm@osdl.org, virtualization@lists.osdl.org, frankeh@watson.ibm.com, rhim@cc.gateh.edu, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2006-09-13 at 11:21 -0700, Zachary Amsden wrote:
+On Wed, 2006-09-13 at 18:22 -0700, Zachary Amsden wrote:
 > Martin Schwidefsky wrote:
-> > The code added by this patch uses the volatile state for all page cache
-> > pages, even for pages which are referenced by writable ptes. The host
-> > needs to be able to check the dirty state of the pages. Since the host
-> > doesn't know where the page table entries of the guest are located,
-> > the volatile state as introduced by this patch is only usable on
-> > architectures with per-page dirty bits (s390 only). For per-pte dirty
-> > bit architectures some additional code is needed.
-> >   
-> 
-> What do you mean by per-page dirty bits.  Do you mean per-page dirty 
-> bits in hardware (s390), in software (Linux), or maintained by the 
-> hypervisor?
+> > diff -urpN linux-2.6/mm/memory.c linux-2.6-patched/mm/memory.c
+> > --- linux-2.6/mm/memory.c	2006-09-01 12:50:24.000000000 +0200
+> > +++ linux-2.6-patched/mm/memory.c	2006-09-01 12:50:24.000000000 +0200
+> > @@ -2523,6 +2523,31 @@ int make_pages_present(unsigned long add
+> >  	BUG_ON(addr >=3D end);
+> >  	BUG_ON(end > vma->vm_end);
+> >  	len =3D (end+PAGE_SIZE-1)/PAGE_SIZE-addr/PAGE_SIZE;
+> > +
+> > +	if (page_host_discards() && (vma->vm_flags & VM_LOCKED)) {
+> > +		int rlen =3D len;
+> > +		ret =3D 0;
+> > +		while (rlen > 0) {
+> > +			struct page *page_refs[32];
+> > +			int chunk, cret, i;
+> > +
+> > +			chunk =3D rlen < 32 ? rlen : 32;
+> > +			cret =3D get_user_pages(current, current->mm, addr,
+> > +					      chunk, write, 0,
+> > +					      page_refs, NULL);
+> > +			if (cret > 0) {
+> > +				for (i =3D 0; i < cret; i++)
+> > +					page_cache_release(page_refs[i]);
+> > +				ret +=3D cret;
+> > +			}
+> > +			if (cret < chunk)
+> > +				return ret ? : cret;
+> > +			addr +=3D 32*PAGE_SIZE;
+> > +			rlen -=3D 32;
+> > +		}
+> > +		return ret =3D=3D len ? 0 : -1;
+> > +	}
+> > +
+> >  	ret =3D get_user_pages(current, current->mm, addr,
+> >  			len, write, 0, NULL, NULL);
+> >  	if (ret < 0)
+> >   =
 
-s390 has something called a storage key. There is one for each page. In
-a virtualized system there is one for each virtual page. The dirty and
-referenced bit for each page is kept in the storage key and not in the
-pte. On s390 the pte has nothing to do with dirty/referenced.
-If your hardware allows you to have dirty bits per page instead of per
-pte then you can query the dirty bit from the host without needing
-access to all the ptes.
+> =
 
-> > The interesting question is where to put the state transitions between
-> > the volatile and the stable state. The simple solution is the make a
-> > page stable whenever a lookup is done or a page reference is derived
-> > from a page table entry. Attempts to make pages volatile are added at
-> > strategic points. Now what are the conditions that prevent a page from
-> > being made volatile? There are 10 conditions:
-> > 1) The page is reserved. Some sort of special page.
-> > 2) The page is marked dirty in the struct page. The page content is
-> >    more recent than the data on the backing device. The host cannot
-> >    access the linux internal dirty bit so the page needs to be stable.
-> > 3) The page is in writeback. The page content is needed for i/o.
-> > 4) The page is locked. Someone has exclusive access to the page.
-> >   
-> 
-> I'll tend to agree from a heuristical performance point of view, but I 
-> don't see any reason that a locked page can't be made volatile from a 
-> correctness perspective.
+> This seems like a bit of unneeded complexity.  Since you've already =
 
-Interesting. Usually there is an additional page reference for a locked
-page so it probably won't make a difference. I'm not sure if all "users"
-of locked pages can deal with volatile pages, I'll have to check.
+> changed get_user_pages, why not add a follow flag to release the page =
 
-> > 5) The page is anonymous. Swap cache support needs additional code.
-> > 6) The page has no mapping. No backing, the page cannot be recreated.
-> > 7) The page is not uptodate.
-> > 8) The page has private information. try_to_release_page can fail,
-> >    e.g. in case the private information is journaling data. The discard
-> >    fault need to be able to remove the page.
-> > 9) The page is already discarded.
-> > 10) The page map count is not equal to the page reference count - 1.
-> >    The discard fault handler can remove the page cache reference and
-> >    all mappers of a page. It cannot remove the page reference for any
-> >    other user of the page.
-> >   
-> 
-> Does s390 use per physical page permission bits separate from the PTEs?  
+> cache, and simply pass it to get_user_pages, instead of trying to fetch =
 
-Yes.
+> the page list back.  In particular, write and force arguments to =
 
-> Because I don't see how you can generate a discard fault otherwise 
-> unless you know where the page table entries of the guest are located, 
-> which you already said you don't.  Or perhaps I'm misunderstanding the 
-> meaning of discard fault - I'm taking it to mean a fault which happens 
-> on access to a volatile page that was discarded by the hypervisor - thus 
-> requiring a refresh of all mapping PTEs?
+> get_user_pages look very ripe for combining into a flags field.  Sure, =
 
-The discard fault happens on access to a volatile that has been
-discarded. An important property of the s390 architecture comes into
-play here: there are two page tables, a guest page table and a host page
-table. What the guest perceives as its "physical" memory is in virtual
-storage for the host. An address resolution has to walk two pages
-tables, if a pte is invalid in either table you get a fault. A guest
-fault if the invalid pte is in the guest table and a host fault if it is
-in the host table. That gives s390 a simple method to implement
-discarded pages: the hypervisor just unmaps the page from the host table
-and changes the state of the guest page. I can see that you will have a
-much harder time to implement this on i386.
+> get_user_pages now has a bit more work to do, but it is already a =
 
--- 
+> monster, and I think it would keep make_page_present much cleaner.
+
+That makes sense. If we combine write and force the additional flag we
+need won't hurt. I'll add this to my to-do list.
+
+-- =
+
 blue skies,
   Martin.
 
