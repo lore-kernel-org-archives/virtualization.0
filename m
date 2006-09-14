@@ -1,65 +1,46 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Xen status
-Date: Wed, 13 Sep 2006 23:35:59 -0700
-Message-ID: <4508F84F.2060802@goop.org>
-References: <45088D19.5070801@goop.org>
-	<20060914015915.GP10348@sequoia.sous-sol.org>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 0/9] Guest page hinting: cover sheet.
+Date: Thu, 14 Sep 2006 10:36:23 +0200
+Message-ID: <1158222983.18478.6.camel@localhost>
+References: <20060901110836.GA15684@skybase>  <45084524.9090609@vmware.com>
+Reply-To: schwidefsky@de.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20060914015915.GP10348@sequoia.sous-sol.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Ian Campbell <Ian.Campbell@XenSource.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751459AbWINIg1@vger.kernel.org>
+In-Reply-To: <45084524.9090609@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rhim@cc.gateh.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
->> With these in place, things are getting fairly far, but not to =
+On Wed, 2006-09-13 at 10:51 -0700, Zachary Amsden wrote:
+> > Only difference of this patch-set compare to the one posted on linux-mm
+> > is that this patch-set is against 2.6.18-rc5-mm1. To go back to Andrews
+> > question: is this useful for anybody else in addition to s390
+> 
+> Yes, it is useful for VMware as well.  I am looking through the patches 
+> now, and it looks as if they are useful without any changes needed.
 
->> usermode.  It often gets as far as trying to mount root, but it fails; I =
+That is good news. The current list of changes we are considering is
+1) provide batched state transitions for state changes to unused on page
+free, from unused to stable on page allocation and to volatile for
+page/swap cache pages. Details are still under discussion but I think it
+is doable.
+2) Get rid of the PG_state_change page flags bit. Use a hashed lock on
+the page index instead
+3) Get rid of page_host_discards() by defining PageDiscarded() and
+friends conditional on CONFIG_PAGE_STATES.
 
->> haven't investigated that yet.  But it also frequently crashes before =
+If you can think of anything else that would help wiht the VMware
+implementation let me know.
 
->> then, depending on when it gets an interrupt.  I'm trying to work out =
+-- 
+blue skies,
+  Martin.
 
->> what's happening here, but the symptom is eip =3D=3D 0x00000001 (!).
->>     =
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
->
-> Haven't seen that one.
->   =
-
-
-Yeah, it looks like something is going amiss in interrupt delivery.  =
-
-Maybe something to do with interrupt stacks...
-
-I never saw anything strange relating to timer events, but perhaps this =
-
-is a manifestation of that problem.
-
-> Essentially all the local hacks I have are for debugging.  There was
-> one bit which was just for apic clock setup.
-
-I think I worked around that by masking off the ACPI bit in CPUID.
-
->   But the symptom w/out that was a hang, not a crash. =
-
-Yes, I'm past that one.
-
->  They're also on a remote machine that
-> has apparently died.  Re-tooling locally ATM.
->   =
-
-That sucks.
-
-    J
+"Reality continues to ruin my life." - Calvin.
