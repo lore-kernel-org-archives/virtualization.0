@@ -1,13 +1,14 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [patch 5/9] Guest page hinting: mlocked pages.
-Date: Wed, 13 Sep 2006 18:22:01 -0700
-Message-ID: <4508AEB9.4080409@vmware.com>
-References: <20060901111022.GF15684@skybase>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: Re: Xen status
+Date: Wed, 13 Sep 2006 18:59:15 -0700
+Message-ID: <20060914015915.GP10348@sequoia.sous-sol.org>
+References: <45088D19.5070801@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20060901111022.GF15684@skybase>
+Content-Disposition: inline
+In-Reply-To: <45088D19.5070801@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -17,63 +18,44 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: akpm@osdl.org, virtualization@lists.osdl.org, frankeh@watson.ibm.com, rhim@cc.gateh.edu, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, Ian Campbell <Ian.Campbell@XenSource.com>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Martin Schwidefsky wrote:
-> diff -urpN linux-2.6/mm/memory.c linux-2.6-patched/mm/memory.c
-> --- linux-2.6/mm/memory.c	2006-09-01 12:50:24.000000000 +0200
-> +++ linux-2.6-patched/mm/memory.c	2006-09-01 12:50:24.000000000 +0200
-> @@ -2523,6 +2523,31 @@ int make_pages_present(unsigned long add
->  	BUG_ON(addr >=3D end);
->  	BUG_ON(end > vma->vm_end);
->  	len =3D (end+PAGE_SIZE-1)/PAGE_SIZE-addr/PAGE_SIZE;
-> +
-> +	if (page_host_discards() && (vma->vm_flags & VM_LOCKED)) {
-> +		int rlen =3D len;
-> +		ret =3D 0;
-> +		while (rlen > 0) {
-> +			struct page *page_refs[32];
-> +			int chunk, cret, i;
-> +
-> +			chunk =3D rlen < 32 ? rlen : 32;
-> +			cret =3D get_user_pages(current, current->mm, addr,
-> +					      chunk, write, 0,
-> +					      page_refs, NULL);
-> +			if (cret > 0) {
-> +				for (i =3D 0; i < cret; i++)
-> +					page_cache_release(page_refs[i]);
-> +				ret +=3D cret;
-> +			}
-> +			if (cret < chunk)
-> +				return ret ? : cret;
-> +			addr +=3D 32*PAGE_SIZE;
-> +			rlen -=3D 32;
-> +		}
-> +		return ret =3D=3D len ? 0 : -1;
-> +	}
-> +
->  	ret =3D get_user_pages(current, current->mm, addr,
->  			len, write, 0, NULL, NULL);
->  	if (ret < 0)
->   =
+* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
+> Well, the PDA stuff took a bit longer to settle down than I would have =
 
+> hoped, but it seems fairly sound now.
+> =
 
-This seems like a bit of unneeded complexity.  Since you've already =
+> I just committed the changes needed to make Xen happy with the PDA, =
 
-changed get_user_pages, why not add a follow flag to release the page =
+> which means making sure an appropriate GDT is set up early enough.
+> =
 
-cache, and simply pass it to get_user_pages, instead of trying to fetch =
+> I also seem to have avoided most of the APIC issues under Xen by simply =
 
-the page list back.  In particular, write and force arguments to =
+> making the cpuid not report the presence of an APIC.
+> =
 
-get_user_pages look very ripe for combining into a flags field.  Sure, =
+> With these in place, things are getting fairly far, but not to =
 
-get_user_pages now has a bit more work to do, but it is already a =
+> usermode.  It often gets as far as trying to mount root, but it fails; I =
 
-monster, and I think it would keep make_page_present much cleaner.
+> haven't investigated that yet.  But it also frequently crashes before =
 
-Zach
+> then, depending on when it gets an interrupt.  I'm trying to work out =
 
-Zach
+> what's happening here, but the symptom is eip =3D=3D 0x00000001 (!).
+
+Haven't seen that one.
+
+> Chris, what local hacks do you have in your tree?
+
+Essentially all the local hacks I have are for debugging.  There was
+one bit which was just for apic clock setup.  But the symptom w/out
+that was a hang, not a crash.  They're also on a remote machine that
+has apparently died.  Re-tooling locally ATM.
+
+thanks,
+-chris
