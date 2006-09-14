@@ -1,92 +1,42 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 5/9] Guest page hinting: mlocked pages.
-Date: Thu, 14 Sep 2006 10:59:15 +0200
-Message-ID: <1158224355.18478.26.camel@localhost>
-References: <20060901111022.GF15684@skybase>  <4508AEB9.4080409@vmware.com>
-Reply-To: schwidefsky@de.ibm.com
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+Date: Thu, 14 Sep 2006 02:23:38 -0700
+Message-ID: <45091F9A.5020805@vmware.com>
+References: <20060901110948.GD15684@skybase>  <45084C2E.4060203@vmware.com> <1158224199.18478.22.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <4508AEB9.4080409@vmware.com>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: akpm@osdl.org, virtualization@lists.osdl.org, frankeh@watson.ibm.com, rhim@cc.gateh.edu, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751502AbWINJXk@vger.kernel.org>
+In-Reply-To: <1158224199.18478.22.camel@localhost>
+Sender: linux-kernel-owner@vger.kernel.org
+To: schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rhim@cc.gateh.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2006-09-13 at 18:22 -0700, Zachary Amsden wrote:
-> Martin Schwidefsky wrote:
-> > diff -urpN linux-2.6/mm/memory.c linux-2.6-patched/mm/memory.c
-> > --- linux-2.6/mm/memory.c	2006-09-01 12:50:24.000000000 +0200
-> > +++ linux-2.6-patched/mm/memory.c	2006-09-01 12:50:24.000000000 +0200
-> > @@ -2523,6 +2523,31 @@ int make_pages_present(unsigned long add
-> >  	BUG_ON(addr >=3D end);
-> >  	BUG_ON(end > vma->vm_end);
-> >  	len =3D (end+PAGE_SIZE-1)/PAGE_SIZE-addr/PAGE_SIZE;
-> > +
-> > +	if (page_host_discards() && (vma->vm_flags & VM_LOCKED)) {
-> > +		int rlen =3D len;
-> > +		ret =3D 0;
-> > +		while (rlen > 0) {
-> > +			struct page *page_refs[32];
-> > +			int chunk, cret, i;
-> > +
-> > +			chunk =3D rlen < 32 ? rlen : 32;
-> > +			cret =3D get_user_pages(current, current->mm, addr,
-> > +					      chunk, write, 0,
-> > +					      page_refs, NULL);
-> > +			if (cret > 0) {
-> > +				for (i =3D 0; i < cret; i++)
-> > +					page_cache_release(page_refs[i]);
-> > +				ret +=3D cret;
-> > +			}
-> > +			if (cret < chunk)
-> > +				return ret ? : cret;
-> > +			addr +=3D 32*PAGE_SIZE;
-> > +			rlen -=3D 32;
-> > +		}
-> > +		return ret =3D=3D len ? 0 : -1;
-> > +	}
-> > +
-> >  	ret =3D get_user_pages(current, current->mm, addr,
-> >  			len, write, 0, NULL, NULL);
-> >  	if (ret < 0)
-> >   =
+Martin Schwidefsky wrote
+> The discard fault happens on access to a volatile that has been
+> discarded. An important property of the s390 architecture comes into
+> play here: there are two page tables, a guest page table and a host page
+> table. What the guest perceives as its "physical" memory is in virtual
+> storage for the host. An address resolution has to walk two pages
+> tables, if a pte is invalid in either table you get a fault. A guest
+> fault if the invalid pte is in the guest table and a host fault if it is
+>   
 
-> =
+Yes, I'm familiar with that trick.  Wasn't sure if you had it in 
+hardware or not.
 
-> This seems like a bit of unneeded complexity.  Since you've already =
+> in the host table. That gives s390 a simple method to implement
+> discarded pages: the hypervisor just unmaps the page from the host table
+> and changes the state of the guest page. I can see that you will have a
+> much harder time to implement this on i386.
+>   
 
-> changed get_user_pages, why not add a follow flag to release the page =
+Nah, I think we'll do just fine.
 
-> cache, and simply pass it to get_user_pages, instead of trying to fetch =
+Thanks for the info - based on this, I think we can probably use the 
+volatile page / swap cache changes as well for VMware, also pretty much 
+unchanged.  Sorry to take so long to look at these patches, BTW - I was 
+on holiday for two weeks.
 
-> the page list back.  In particular, write and force arguments to =
-
-> get_user_pages look very ripe for combining into a flags field.  Sure, =
-
-> get_user_pages now has a bit more work to do, but it is already a =
-
-> monster, and I think it would keep make_page_present much cleaner.
-
-That makes sense. If we combine write and force the additional flag we
-need won't hurt. I'll add this to my to-do list.
-
--- =
-
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
+Zach
