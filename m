@@ -1,15 +1,16 @@
 From: Chris Wright <chrisw@sous-sol.org>
 Subject: Re: Per-cpu patches on top of PDA stuff...
-Date: Tue, 19 Sep 2006 14:03:34 -0700
-Message-ID: <20060919210334.GB7474@sequoia.sous-sol.org>
+Date: Tue, 19 Sep 2006 14:08:20 -0700
+Message-ID: <20060919210820.GC7474@sequoia.sous-sol.org>
 References: <1158635617.21726.8.camel@localhost.localdomain>
-	<450FA6FB.9020100@goop.org>
+	<20060919203757.GA7474@sequoia.sous-sol.org>
+	<451055AC.4050407@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
 Content-Disposition: inline
-In-Reply-To: <450FA6FB.9020100@goop.org>
+In-Reply-To: <451055AC.4050407@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -20,51 +21,23 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, virtualization <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@muc.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@muc.de>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> Rusty Russell wrote:
-> > 	The first patch simply changes the GDTs to be a straight per-cpu
-> > variable.  I notice that you did a similar thing with your patches, but
-> > this is simpler and avoids wasting space in the UP case.  It's a bit
-> > tricky since we've never referred to per-cpu vars from asm before, but
-> > since we're only referring to the pre-setup versions, it's ok.
+> Chris Wright wrote:
+> > Seems you or Jeremy pushed an unmerged head to the queue.  Please don't
+> > do that, it makes life going forward a mess.  I'm merging it, will push
+> > the result so best double check it.
 > =
 
-> The current mechanism was specifically introduced by James Bottomley a =
+> I don't think we should merge it now.  There are enough other things =
 
-> while back; I guess to deal with Voyager strangeness.
+> broken before adding more complexity.
 
-Yes, he reverted some changes because voyager boot cpu may not be cpu 0.
-
-> As far as setting up the PDA in head.S goes, it turns out to be very =
-
-> easy without having to access any per-cpu data, since the whole CPU =
-
-> bringup stuff depends on static variables anyway.
-> =
-
-> > 	The second patch changes gs to be the per-cpu offset, and by
-> > implication, avoids using it altogether on UP.  This avoids a special
-> > "pda" structure, instead allowing all per-cpu variables to be accessed
-> > this way.  It avoids __thread, which I gave up after creating a horribly
-> > complicated patch which still didn't quite work, and was no more
-> > efficient if we want the kernel to run under Xen anyway.
-> >
-> > I really think this is the way to go, and I'll start work on merging
-> > now.
-> =
-
-> Hm, now is not really a good time.  I'm still trying to get Xen =
-
-> basically working, and the percpu PDA stuff isn't really necessary for =
-
-> that.  The PDA stuff was enough of a problem in itself...
-
-I agree.  We're right in the middle of the last bit of Xen bring up.
-PDA is not strictly needed, and destabilizing for this would be counter
-productive.
+No, I just mean merge in the queue (which means I'll drop the series
+changes that Rusty made, otherwise it should have zero overlap).
+Otherwise mercurial gets unhappy with unmerged heads.
 
 thanks,
 -chris
