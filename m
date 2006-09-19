@@ -1,38 +1,50 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
-Date: Mon, 18 Sep 2006 10:08:17 +0200
-Message-ID: <1158566897.5728.2.camel@localhost>
-References: <200609151352_MC3-1-CB54-526A@compuserve.com>
-Reply-To: schwidefsky@de.ibm.com
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Per-cpu patches on top of PDA stuff...
+Date: Tue, 19 Sep 2006 13:13:37 +1000
+Message-ID: <1158635617.21726.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965539AbWIRIIW@vger.kernel.org>
-In-Reply-To: <200609151352_MC3-1-CB54-526A@compuserve.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Zachary Amsden <zach@vmware.com>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>, virtualization <virtualization@lists.osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2006-09-15 at 13:50 -0400, Chuck Ebbert wrote:
-> > I wonder which trick you use, since there is only one page table one
-> > i386 I can only imagine that you are tracking all page tables of the
-> > guest.
-> 
-> AMD K8 with the SVM feature has host and guest page tables and
-> address-space identifiers for the guests so their global TLB flushes
-> can be limited to their own address space...
+Hi Jeremy, all,
 
-Yeah, I know about the nested page tables on K8. But VMware will not
-restrict themselves to K8 only, so they need a clever way to implement
-shadow page tables on i386 chips without this feature.
+	Sorry this took so long, spent last week in Japan at OSDL conf then
+netconf.  After several false starts, I ended up with a very simple
+implementation, which clashes significantly with your work since then
+8(.  I've pushed the patches anyway, but it's going to be significant
+work for me to re-merge them, so I wanted your feedback first.
 
--- 
-blue skies,
-  Martin.
+	The first patch simply changes the GDTs to be a straight per-cpu
+variable.  I notice that you did a similar thing with your patches, but
+this is simpler and avoids wasting space in the UP case.  It's a bit
+tricky since we've never referred to per-cpu vars from asm before, but
+since we're only referring to the pre-setup versions, it's ok.
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+	The second patch changes gs to be the per-cpu offset, and by
+implication, avoids using it altogether on UP.  This avoids a special
+"pda" structure, instead allowing all per-cpu variables to be accessed
+this way.  It avoids __thread, which I gave up after creating a horribly
+complicated patch which still didn't quite work, and was no more
+efficient if we want the kernel to run under Xen anyway.
 
-"Reality continues to ruin my life." - Calvin.
+I really think this is the way to go, and I'll start work on merging
+now.
+
+Cheers!
+Rusty.
+-- =
+
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
