@@ -1,19 +1,18 @@
-From: Andi Kleen <ak@muc.de>
+From: James Bottomley <James.Bottomley@SteelEye.com>
 Subject: Re: Per-cpu patches on top of PDA stuff...
-Date: 20 Sep 2006 19:49:27 +0200
-Message-ID: <20060920174927.GA56061@muc.de>
+Date: Wed, 20 Sep 2006 14:10:31 -0400
+Message-ID: <1158775832.9633.115.camel@mulgrave.il.steeleye.com>
 References: <1158635617.21726.8.camel@localhost.localdomain>
 	<20060920160905.GA47657@muc.de>
 	<1158768906.9633.63.camel@mulgrave.il.steeleye.com>
 	<200609201822.13488.ak@muc.de>
 	<1158770537.9633.82.camel@mulgrave.il.steeleye.com>
+	<20060920174927.GA56061@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Date: Wed, 20 Sep 2006 19:49:27 +0200
-Content-Disposition: inline
-In-Reply-To: <1158770537.9633.82.camel@mulgrave.il.steeleye.com>
+In-Reply-To: <20060920174927.GA56061@muc.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -23,24 +22,21 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andi Kleen <ak@muc.de>
 Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 20, 2006 at 12:42:17PM -0400, James Bottomley wrote:
-> On Wed, 2006-09-20 at 18:22 +0200, Andi Kleen wrote:
-> > Well that's your problem then. Just add the remapping array.
-> =
+On Wed, 2006-09-20 at 19:49 +0200, Andi Kleen wrote:
+> Because it makes it easier to write other code? We don't really
+> want any unnecessary limiting assumptions in arch/i386 just because
+> of some obscure machine with one user.
 
-> I don't see why I should be the one to add unnecessary obfuscation.
-> Using the current ID scheme, the user always knows exactly where to find
-> CPU<n> in the chassis (and they are separately installable and
-> removable).  Why should I make up a new identity scheme that would have
-> no relation to the hardware?
+Really?  I don't see it that way.  I did a lot of work back in 2000/2001
+to break x86 of its remapped CPU assumptions ... it's been operating
+nicely for 6 years, I don't see a reason to break it now.
 
-Because it makes it easier to write other code? We don't really
-want any unnecessary limiting assumptions in arch/i386 just because
-of some obscure machine with one user.
+Also, as we enter the era of hotplug CPUs, when a non voyager x86 system
+tells you CPU3 is overheating, how to you find out exactly which CPU to
+hot unplug?
 
-
--Andi
+James
