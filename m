@@ -1,15 +1,16 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: paravirt_ops xen booting
-Date: Tue, 19 Sep 2006 18:45:06 -0700
-Message-ID: <45109D22.8020401@vmware.com>
-References: <20060920001110.GD7474@sequoia.sous-sol.org>
-	<45108BB3.7020306@vmware.com>
-	<20060920010226.GG21145@sequoia.sous-sol.org>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: Per-cpu patches on top of PDA stuff...
+Date: Wed, 20 Sep 2006 09:00:17 +0200
+Message-ID: <200609200900.17193.ak@muc.de>
+References: <1158635617.21726.8.camel@localhost.localdomain>
+	<450FA6FB.9020100@goop.org>
+	<1158710822.2480.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20060920010226.GG21145@sequoia.sous-sol.org>
+In-Reply-To: <1158710822.2480.14.camel@localhost.localdomain>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,21 +20,19 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+To: virtualization@lists.osdl.org
+Cc: Andrew Morton <akpm@osdl.org>, James.Bottomley@steeleye.com, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
->> Should we just allow paravirt to disable soft watchdog?  It really =
 
->> doesn't make a lot of sense for paravirt - it should be the hypervisor's =
+> Seems that we can't assume boot CPU =3D=3D 0.  I think I've removed the t=
+wo
+> places where I assumed that, but will need testing.
 
->> responsibility, and it can break easily across discontinuous time jumps.
->>     =
+boot CPU =3D=3D 0 should be true. You just can't assume anything about its
+APIC ID, but we decouple APIC ID and logical processor id anyways.
 
->
-> Sorry, I meant soft lockup detection.
->   =
+Another issue is that with CPU hotunplug CPU #0 might disappear at some
+point later.
 
-
-So did I  ;)
+-Andi
