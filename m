@@ -1,16 +1,16 @@
-From: Andi Kleen <ak@muc.de>
+From: James Bottomley <James.Bottomley@SteelEye.com>
 Subject: Re: Per-cpu patches on top of PDA stuff...
-Date: Wed, 20 Sep 2006 09:00:17 +0200
-Message-ID: <200609200900.17193.ak@muc.de>
+Date: Wed, 20 Sep 2006 08:54:28 -0400
+Message-ID: <1158756868.9633.0.camel@mulgrave.il.steeleye.com>
 References: <1158635617.21726.8.camel@localhost.localdomain>
 	<450FA6FB.9020100@goop.org>
 	<1158710822.2480.14.camel@localhost.localdomain>
+	<200609200900.17193.ak@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1158710822.2480.14.camel@localhost.localdomain>
-Content-Disposition: inline
+In-Reply-To: <200609200900.17193.ak@muc.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -20,19 +20,16 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
-Cc: Andrew Morton <akpm@osdl.org>, James.Bottomley@steeleye.com, Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, 2006-09-20 at 09:00 +0200, Andi Kleen wrote:
+> boot CPU =3D=3D 0 should be true. You just can't assume anything about its
+> APIC ID, but we decouple APIC ID and logical processor id anyways.
 
-> Seems that we can't assume boot CPU =3D=3D 0.  I think I've removed the t=
-wo
-> places where I assumed that, but will need testing.
+No, it is not.  Voyager has fixed and immutable CPU IDs dependent on CPU
+position in the system.  If CPU 0 is missing or logically deconfigured,
+the boot CPU is definitely non zero.
 
-boot CPU =3D=3D 0 should be true. You just can't assume anything about its
-APIC ID, but we decouple APIC ID and logical processor id anyways.
-
-Another issue is that with CPU hotunplug CPU #0 might disappear at some
-point later.
-
--Andi
+James
