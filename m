@@ -1,12 +1,19 @@
-From: "Philip Begay" <peggy.croonen@pandora.be>
-Subject: WEDNESDAY.HBID.those with an
-Date: Wed, 20 Sep 2006 17:20:07 +0000 (UTC)
-Message-ID: <01c6dcd8$d6c94880$6c822ecf@peggy.croonen>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: Per-cpu patches on top of PDA stuff...
+Date: 20 Sep 2006 19:49:27 +0200
+Message-ID: <20060920174927.GA56061@muc.de>
+References: <1158635617.21726.8.camel@localhost.localdomain>
+	<20060920160905.GA47657@muc.de>
+	<1158768906.9633.63.camel@mulgrave.il.steeleye.com>
+	<200609201822.13488.ak@muc.de>
+	<1158770537.9633.82.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Date: Wed, 20 Sep 2006 17:18:50 0000
+Date: Wed, 20 Sep 2006 19:49:27 +0200
+Content-Disposition: inline
+In-Reply-To: <1158770537.9633.82.camel@mulgrave.il.steeleye.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -16,63 +23,24 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-__________________STOCK A LERT************************
+On Wed, Sep 20, 2006 at 12:42:17PM -0400, James Bottomley wrote:
+> On Wed, 2006-09-20 at 18:22 +0200, Andi Kleen wrote:
+> > Well that's your problem then. Just add the remapping array.
+> =
+
+> I don't see why I should be the one to add unnecessary obfuscation.
+> Using the current ID scheme, the user always knows exactly where to find
+> CPU<n> in the chassis (and they are separately installable and
+> removable).  Why should I make up a new identity scheme that would have
+> no relation to the hardware?
+
+Because it makes it easier to write other code? We don't really
+want any unnecessary limiting assumptions in arch/i386 just because
+of some obscure machine with one user.
 
 
-HOT BRANDS INC (HBID)
-
-
-Stock Symbol: HBID
-
-
-Current price: 0.35$
-Target price: 0.9$
-
-
-
-IS MOMENTUM STARTING TO BUILD FOR THIS STOCK? LOOK AT THE ACTION WEDNESDAY.=
- WILL THURSDAY BE HUGE?
-
-
-RECENT NEWS: Go Read the Full Story Now!
-
-Gold & Silver Minerals, LLC Initiates Report on Nevada Mineral Property
-
-
-
-Las Vegas, NV- (OTC:HBID.PK) =96 Gold & Silver Minerals, a Nevada corporati=
-on (the =93Company=94) trading as Hot Brands, =
-
-
-Inc., today announced that it has retained an experienced geologist to prep=
-are an evaluation of a mineral property =
-
-
-offered to the Company.  The evaluation will be detailed in a format simila=
-r to that of the National Instrument 43-101 =
-
-
-Technical Report common in the industry.  National Instrument 43-101 provid=
-es strict standards of disclosure for mineral =
-
-
-projects.  A NI43-101 report is written usually by a geologist or mining en=
-gineer, who has experience in valuing mineral =
-
-
-deposits and mining projects. We expect the report to be completed and avai=
-lable mid-September.
-
-
-
-
-
-
-THE ALERT IS FOR WEDNESDAY!
-
-Don't miss that chance.
-
-______________________________________________________________
+-Andi
