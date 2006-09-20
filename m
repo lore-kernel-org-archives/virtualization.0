@@ -1,14 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Per-cpu patches on top of PDA stuff...
-Date: Wed, 20 Sep 2006 10:07:02 +1000
-Message-ID: <1158710822.2480.14.camel@localhost.localdomain>
-References: <1158635617.21726.8.camel@localhost.localdomain>
-	<450FA6FB.9020100@goop.org>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: paravirt_ops xen booting
+Date: Tue, 19 Sep 2006 17:11:10 -0700
+Message-ID: <20060920001110.GD7474@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <450FA6FB.9020100@goop.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,49 +16,18 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, virtualization <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, James.Bottomley@steeleye.com, Andi Kleen <ak@muc.de>
+To: Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>, Nivedita Singhvi <niv@us.ibm.com>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2006-09-19 at 01:14 -0700, Jeremy Fitzhardinge wrote:
-> Rusty Russell wrote:
-> > 	The first patch simply changes the GDTs to be a straight per-cpu
-> > variable.  I notice that you did a similar thing with your patches, but
-> > this is simpler and avoids wasting space in the UP case.  It's a bit
-> > tricky since we've never referred to per-cpu vars from asm before, but
-> > since we're only referring to the pre-setup versions, it's ok.
-> >   =
+Just a note to let you know we've got domU booting with paravirt_ops
+XenoLinux.  There's still some minor cleanups to do:
 
-> =
+- soft watchdog firing
+- inconsistent device probing
+- console on tty1
 
-> The current mechanism was specifically introduced by James Bottomley a =
+Then onto smp support, and removing the rest of the limitations
+of the current patchset.
 
-> while back; I guess to deal with Voyager strangeness.
-
-(James CC'd).  I dislike the gratuitous copy: we have three gdts, the
-boot GDT, the master GDT (cpu_gdt_table), then the per-cpu GDT.  Using
-the per-cpu mechanisms already in place makes it simple, avoids manual
-allocation, and the extra master GDT.  The extra GDT is particularly
-embarrassing on UP, which doesn't want a per-cpu GDT anyway...
-
-Seems that we can't assume boot CPU =3D=3D 0.  I think I've removed the two
-places where I assumed that, but will need testing.
-
-> Hm, now is not really a good time.  I'm still trying to get Xen =
-
-> basically working, and the percpu PDA stuff isn't really necessary for =
-
-> that.  The PDA stuff was enough of a problem in itself...
-> =
-
-> Also, the PDA patches are in -mm, so that's probably a better base for =
-
-> your patches.
-
-Yes, it turned out to be easier to go straight to -mm anyway.  I'll redo
-them as Andi requested....
-
-Rusty.
--- =
-
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+thanks,
+-chris
