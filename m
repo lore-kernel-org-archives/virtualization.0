@@ -1,18 +1,16 @@
-From: James Bottomley <James.Bottomley@SteelEye.com>
+From: Andi Kleen <ak@muc.de>
 Subject: Re: Per-cpu patches on top of PDA stuff...
-Date: Wed, 20 Sep 2006 12:15:06 -0400
-Message-ID: <1158768906.9633.63.camel@mulgrave.il.steeleye.com>
+Date: Wed, 20 Sep 2006 18:22:13 +0200
+Message-ID: <200609201822.13488.ak@muc.de>
 References: <1158635617.21726.8.camel@localhost.localdomain>
-	<450FA6FB.9020100@goop.org>
-	<1158710822.2480.14.camel@localhost.localdomain>
-	<200609200900.17193.ak@muc.de>
-	<1158756868.9633.0.camel@mulgrave.il.steeleye.com>
 	<20060920160905.GA47657@muc.de>
+	<1158768906.9633.63.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20060920160905.GA47657@muc.de>
+In-Reply-To: <1158768906.9633.63.camel@mulgrave.il.steeleye.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,17 +20,22 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>
+To: virtualization@lists.osdl.org
+Cc: James Bottomley <James.Bottomley@steeleye.com>, Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2006-09-20 at 18:09 +0200, Andi Kleen wrote:
-> As APIC ID (hard_smp_processor_id()) possible, but surely not as linux lo=
-gical
->  processor id (smp_processor_id()). That always starts with 0 and goes up.
+On Wednesday 20 September 2006 18:15, James Bottomley wrote:
+> On Wed, 2006-09-20 at 18:09 +0200, Andi Kleen wrote:
+> > As APIC ID (hard_smp_processor_id()) possible, but surely not as linux =
+logical
+> >  processor id (smp_processor_id()). That always starts with 0 and goes =
+up.
+> =
 
-Voyager is not APIC based.  The SMP hal is constructed so there's no
-such thing as processor translation.  hard and soft processor IDs return
-the same thing.
+> Voyager is not APIC based.  The SMP hal is constructed so there's no
+> such thing as processor translation.  hard and soft processor IDs return
+> the same thing.
 
-James
+Well that's your problem then. Just add the remapping array.
+
+-Andi
