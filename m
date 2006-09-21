@@ -1,19 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Per-cpu patches on top of PDA stuff...
-Date: Thu, 21 Sep 2006 18:54:14 +1000
-Message-ID: <1158828854.3627.11.camel@localhost.localdomain>
-References: <1158635617.21726.8.camel@localhost.localdomain>
-	<20060920160905.GA47657@muc.de>
-	<1158768906.9633.63.camel@mulgrave.il.steeleye.com>
-	<200609201822.13488.ak@muc.de>
-	<1158770537.9633.82.camel@mulgrave.il.steeleye.com>
-	<20060920174927.GA56061@muc.de>
-	<1158775832.9633.115.camel@mulgrave.il.steeleye.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: paravirt_ops.safe_halt vs .halt?
+Date: Thu, 21 Sep 2006 12:30:06 -0700
+Message-ID: <4512E83E.80402@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1158775832.9633.115.camel@mulgrave.il.steeleye.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -23,26 +15,14 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>, virtualization@lists.osdl.org
+To: Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2006-09-20 at 14:10 -0400, James Bottomley wrote:
-> On Wed, 2006-09-20 at 19:49 +0200, Andi Kleen wrote:
-> > Because it makes it easier to write other code? We don't really
-> > want any unnecessary limiting assumptions in arch/i386 just because
-> > of some obscure machine with one user.
-> =
+What's paravirt_ops.halt for?  Is it the non-safe equivalent to =
 
-> Really?  I don't see it that way.  I did a lot of work back in 2000/2001
-> to break x86 of its remapped CPU assumptions ... it's been operating
-> nicely for 6 years, I don't see a reason to break it now.
+safe_halt, or is it intended for shutting down the machine?  It doesn't =
 
-I agree with James, it's just that I can't test it.  I'll send you my
-patch set when I'm done, please test...
+seem to be used anywhere.
 
-Thanks!
-Rusty.
--- =
-
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+    J
