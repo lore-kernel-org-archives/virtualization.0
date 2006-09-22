@@ -1,126 +1,60 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 7/7] (Optional) implement current as a per-cpu var
-Date: Fri, 22 Sep 2006 22:01:42 +1000
-Message-ID: <1158926502.26261.20.camel@localhost.localdomain>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
+Date: 22 Sep 2006 14:32:15 +0200
+Message-ID: <20060922123215.GA98728@muc.de>
 References: <1158925861.26261.3.camel@localhost.localdomain>
-	 <1158925997.26261.6.camel@localhost.localdomain>
-	 <1158926106.26261.8.camel@localhost.localdomain>
-	 <1158926215.26261.11.camel@localhost.localdomain>
-	 <1158926308.26261.14.camel@localhost.localdomain>
-	 <1158926386.26261.17.camel@localhost.localdomain>
-	 <1158926451.26261.18.camel@localhost.localdomain>
+	<1158925997.26261.6.camel@localhost.localdomain>
+	<1158926106.26261.8.camel@localhost.localdomain>
+	<1158926215.26261.11.camel@localhost.localdomain>
+	<1158926308.26261.14.camel@localhost.localdomain>
+	<1158926386.26261.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932330AbWIVMBq@vger.kernel.org>
-In-Reply-To: <1158926451.26261.18.camel@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Date: Fri, 22 Sep 2006 14:32:15 +0200
+Content-Disposition: inline
+In-Reply-To: <1158926386.26261.17.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization <virtualization@lists.osdl.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This implements current as a per-cpu variable.  The generic code
-expects it in thread_info still, so I don't remove it from there, but
-reducing current from 9 bytes/3 insns to 6 bytes/1 insn is a nice
-micro-optimization.
+BTW I changed my copy sorry. I redid the early PDA support
+to not be in assembler.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+On Fri, Sep 22, 2006 at 09:59:45PM +1000, Rusty Russell wrote:
+> This patch actually uses the gs register to implement the per-cpu
+> sections.  It's fairly straightforward: the gs segment starts at the
+> per-cpu offset for the particular cpu (or 0, in very early boot).  =
 
-Index: ak-fresh/arch/i386/kernel/setup.c
-===================================================================
---- ak-fresh.orig/arch/i386/kernel/setup.c	2006-09-22 17:03:49.000000000 +1000
-+++ ak-fresh/arch/i386/kernel/setup.c	2006-09-22 17:04:29.000000000 +1000
-@@ -148,6 +148,9 @@
- 
- unsigned char __initdata boot_params[PARAM_SIZE];
- 
-+DEFINE_PER_CPU(struct task_struct *, current_task) = &init_task;
-+EXPORT_PER_CPU_SYMBOL(current_task);
-+
- static struct resource data_resource = {
- 	.name	= "Kernel data",
- 	.start	= 0,
-Index: ak-fresh/arch/i386/kernel/smpboot.c
-===================================================================
---- ak-fresh.orig/arch/i386/kernel/smpboot.c	2006-09-22 17:04:18.000000000 +1000
-+++ ak-fresh/arch/i386/kernel/smpboot.c	2006-09-22 17:04:29.000000000 +1000
-@@ -598,12 +598,13 @@
- 	 * We don't actually need to load the full TSS,
- 	 * basically just the stack pointer and the eip.
- 	 */
--
-+	/* Can't use current until setup_percpu_for_this_cpu */
- 	asm volatile(
- 		"movl %0,%%esp\n\t"
- 		"jmp *%1"
- 		:
--		:"r" (current->thread.esp),"r" (current->thread.eip));
-+		:"r" (current_thread_info()->task->thread.esp),
-+		 "r" (current_thread_info()->task->thread.eip));
- }
- 
- extern struct {
-@@ -946,6 +947,8 @@
- 	if (IS_ERR(idle))
- 		panic("failed fork for CPU %d", cpu);
- 	idle->thread.eip = (unsigned long) start_secondary;
-+	per_cpu(current_task, cpu) = idle;
-+
- 	/* start_eip had better be page-aligned! */
- 	start_eip = setup_trampoline();
- 
-Index: ak-fresh/include/asm-i386/current.h
-===================================================================
---- ak-fresh.orig/include/asm-i386/current.h	2006-09-22 17:02:46.000000000 +1000
-+++ ak-fresh/include/asm-i386/current.h	2006-09-22 17:04:29.000000000 +1000
-@@ -1,15 +1,10 @@
- #ifndef _I386_CURRENT_H
- #define _I386_CURRENT_H
- 
-+#include <asm/percpu.h>
- #include <linux/thread_info.h>
- 
--struct task_struct;
--
--static __always_inline struct task_struct * get_current(void)
--{
--	return current_thread_info()->task;
--}
-- 
--#define current get_current()
-+DECLARE_PER_CPU(struct task_struct *, current_task);
-+#define current x86_read_percpu(current_task)
- 
- #endif /* !(_I386_CURRENT_H) */
-Index: ak-fresh/arch/i386/kernel/process.c
-===================================================================
---- ak-fresh.orig/arch/i386/kernel/process.c	2006-09-22 17:02:46.000000000 +1000
-+++ ak-fresh/arch/i386/kernel/process.c	2006-09-22 17:04:30.000000000 +1000
-@@ -669,6 +669,7 @@
- 	if (unlikely(prev->fs | next->fs))
- 		loadsegment(fs, next->fs);
- 
-+	x86_write_percpu(current_task, next_p);
- 
- 	/*
- 	 * Restore IOPL if needed.
-Index: ak-fresh/arch/i386/kernel/cpu/common.c
-===================================================================
---- ak-fresh.orig/arch/i386/kernel/cpu/common.c	2006-09-22 17:04:18.000000000 +1000
-+++ ak-fresh/arch/i386/kernel/cpu/common.c	2006-09-22 17:05:25.000000000 +1000
-@@ -597,9 +597,10 @@
-  */
- void __cpuinit cpu_init(void)
- {
--	unsigned int cpu = current->thread_info->cpu;
-+	/* Careful: can't use current() or smp_processor_id() yet! */
-+	unsigned int cpu = current_thread_info()->cpu;
- 	struct tss_struct * t = &per_cpu(init_tss, cpu);
--	struct thread_struct *thread = &current->thread;
-+	struct thread_struct *thread = &per_cpu(current_task, cpu)->thread;
- 	struct desc_struct *gdt;
- 	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
- 
+> =
 
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+> We also implement x86_64-inspired (via Jeremy Fitzhardinge) per-cpu
+> accesses where a general lvalue isn't needed.  These
+> single-instruction accesses are slightly more efficient, plus (being a
+> single insn) are atomic wrt. preemption so we can use them to
+> implement cpu_local_inc etc.
+
+The problem is nobody uses cpu_local_inc() etc :/ And it is difficult
+to use in generic code because of the usual preemption issues =
+
+(and being slower on other archs in many cases compared to preempt disabling
+around larger block of code) =
+
+
+Without that it is the same code as Jeremy's variant
+%gs memory reference + another reference with offset as far as I can see.
+
+So while it looks nice I don't think it will have advantages. Or did
+i miss something?
+
+-Andi
