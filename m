@@ -1,29 +1,49 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Andi Kleen <ak@muc.de>
 Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
-Date: Fri, 22 Sep 2006 15:43:49 -0700
-Message-ID: <45146725.4070109@goop.org>
-References: <1158925861.26261.3.camel@localhost.localdomain> <1158925997.26261.6.camel@localhost.localdomain> <1158926106.26261.8.camel@localhost.localdomain> <1158926215.26261.11.camel@localhost.localdomain> <1158926308.26261.14.camel@localhost.localdomain> <1158926386.26261.17.camel@localhost.localdomain> <20060922123215.GA98728@muc.de>
+Date: Sat, 23 Sep 2006 01:52:43 +0200
+Message-ID: <200609230152.43713.ak@muc.de>
+References: <1158925861.26261.3.camel@localhost.localdomain> <20060922123215.GA98728@muc.de> <45146725.4070109@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965249AbWIVWnv@vger.kernel.org>
-In-Reply-To: <20060922123215.GA98728@muc.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964950AbWIVXxB@vger.kernel.org>
+In-Reply-To: <45146725.4070109@goop.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
+To: virtualization@lists.osdl.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> BTW I changed my copy sorry. I redid the early PDA support
-> to not be in assembler.
+On Saturday 23 September 2006 00:43, Jeremy Fitzhardinge wrote:
+> Andi Kleen wrote:
+> > BTW I changed my copy sorry. I redid the early PDA support
+> > to not be in assembler.
+> 
+> I went to the trouble of making the PDA completely set up before any C 
+> code ran.  
 
-I went to the trouble of making the PDA completely set up before any C 
-code ran.  Did you undo that?
+Yes, but your patch never applied to anything even remotely 
+looking like the code in my tree. I got so frustrated that
+I ended up reimplementing it in a cleaner way.
 
-Andrew mentioned that people have various hacks which hook into mcount, 
-and want to use current/smp_processor_id, which means that that they 
-have to work from the first function prologue.
-It also simplifies things to get all that set up ASAP so there's no 
-bootstrap dependency problem.
+Now head.S calls i386_start_kernel() and that calls pda_init()
+without any additional assembly code or other special cases etc. 
 
-    J
+This is very similar to how x86-64 works.
+
+> which means that that they 
+> have to work from the first function prologue.
+
+I mainly did it to fix lockdep.
+
+I used to do mcount hacks myself, but you typically need
+a few special annotations for those anyways so I am not too 
+concerned about them.
+
+> It also simplifies things to get all that set up ASAP so there's no 
+> bootstrap dependency problem.
+
+Yes no argument on that.
+
+-Andi
