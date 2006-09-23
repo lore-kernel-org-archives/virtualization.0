@@ -1,63 +1,43 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Andi Kleen <ak@muc.de>
 Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
-Date: Sat, 23 Sep 2006 14:51:15 +1000
-Message-ID: <1158987075.26261.79.camel@localhost.localdomain>
-References: <1158925861.26261.3.camel@localhost.localdomain>
-	 <1158925997.26261.6.camel@localhost.localdomain>
-	 <1158926106.26261.8.camel@localhost.localdomain>
-	 <1158926215.26261.11.camel@localhost.localdomain>
-	 <1158926308.26261.14.camel@localhost.localdomain>
-	 <1158926386.26261.17.camel@localhost.localdomain>
-	 <20060922123215.GA98728@muc.de>
+Date: 23 Sep 2006 10:13:37 +0200
+Message-ID: <20060923081337.GA10534@muc.de>
+References: <1158925861.26261.3.camel@localhost.localdomain> <1158925997.26261.6.camel@localhost.localdomain> <1158926106.26261.8.camel@localhost.localdomain> <1158926215.26261.11.camel@localhost.localdomain> <1158926308.26261.14.camel@localhost.localdomain> <1158926386.26261.17.camel@localhost.localdomain> <4514663E.5050707@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750955AbWIWEvT@vger.kernel.org>
-In-Reply-To: <20060922123215.GA98728@muc.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751050AbWIWINk@vger.kernel.org>
+Date: Sat, 23 Sep 2006 10:13:37 +0200
+Content-Disposition: inline
+In-Reply-To: <4514663E.5050707@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2006-09-22 at 14:32 +0200, Andi Kleen wrote:
-> BTW I changed my copy sorry. I redid the early PDA support
-> to not be in assembler.
+> >+
+> >+	/* Set up GDT entry for 16bit stack */
+> >+	stk16_off = (u32)&per_cpu(cpu_16bit_stack, cpu);
+> >+	gdt = per_cpu(cpu_gdt_table, cpu);
+> >+	*(__u64 *)(&gdt[GDT_ENTRY_ESPFIX_SS]) |=
+> >+		((((__u64)stk16_off) << 16) & 0x000000ffffff0000ULL) |
+> >+		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
+> >+		(CPU_16BIT_STACK_SIZE - 1);
+> >  
 > 
-> On Fri, Sep 22, 2006 at 09:59:45PM +1000, Rusty Russell wrote:
-> > This patch actually uses the gs register to implement the per-cpu
-> > sections.  It's fairly straightforward: the gs segment starts at the
-> > per-cpu offset for the particular cpu (or 0, in very early boot).  
-> > 
-> > We also implement x86_64-inspired (via Jeremy Fitzhardinge) per-cpu
-> > accesses where a general lvalue isn't needed.  These
-> > single-instruction accesses are slightly more efficient, plus (being a
-> > single insn) are atomic wrt. preemption so we can use them to
-> > implement cpu_local_inc etc.
+> This should use pack_descriptor().  I'd never got around to changing it, 
+> but it really should.
+
+I fixed it now in the original patch
+
+> >+	/* Complete percpu area setup early, before calling printk(),
+> >+	   since it may end up using it indirectly. */
+> >+	setup_percpu_for_this_cpu(cpu);
+> >+
+> >  
 > 
-> The problem is nobody uses cpu_local_inc() etc :/ And it is difficult
-> to use in generic code because of the usual preemption issues 
-> (and being slower on other archs in many cases compared to preempt disabling
-> around larger block of code) 
+> I managed to get all this done in head.S before going into C code; is 
+> that not still possible?  Or is there a later patch to do this.
 
-True, they were primarily designed for the SNMP counters in networking
-(as per your comment in snmp.h).  They're now dynamic per-cpu pointers,
-which adds a new wrinkle though 8(
+Why write in assembler what you can write in C?
 
-> Without that it is the same code as Jeremy's variant
-> %gs memory reference + another reference with offset as far as I can see.
-> 
-> So while it looks nice I don't think it will have advantages. Or did
-> i miss something?
-
-Mainly that it makes more sense to use the existing per-cpu concept than
-introduce another kind of per-cpu var within a special structure, but
-it's also more efficient (see other post).  Hopefully it will spark
-interest in making dynamic-percpu pointers use the same offset scheme,
-now x86 will experience the benefits.
-
-And we might even get a third user of local_t!
-
-Cheers,
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+-Andi
