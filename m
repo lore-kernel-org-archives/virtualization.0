@@ -1,20 +1,25 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 7/7] (Optional) implement current as a per-cpu var
-Date: Mon, 25 Sep 2006 15:29:00 +1000
-Message-ID: <1159162141.26986.46.camel@localhost.localdomain>
+Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
+Date: Mon, 25 Sep 2006 16:03:52 +1000
+Message-ID: <1159164232.26986.59.camel@localhost.localdomain>
 References: <1158925861.26261.3.camel@localhost.localdomain>
 	<1158925997.26261.6.camel@localhost.localdomain>
 	<1158926106.26261.8.camel@localhost.localdomain>
 	<1158926215.26261.11.camel@localhost.localdomain>
 	<1158926308.26261.14.camel@localhost.localdomain>
 	<1158926386.26261.17.camel@localhost.localdomain>
-	<1158926451.26261.18.camel@localhost.localdomain>
-	<1158926502.26261.20.camel@localhost.localdomain>
+	<4514663E.5050707@goop.org>
+	<1158985882.26261.60.camel@localhost.localdomain>
+	<45172AC8.2070701@goop.org>
+	<1159146974.26986.30.camel@localhost.localdomain>
+	<45173287.8070204@goop.org>
+	<1159152678.26986.38.camel@localhost.localdomain>
+	<45176865.7020300@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1158926502.26261.20.camel@localhost.localdomain>
+In-Reply-To: <45176865.7020300@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -24,106 +29,48 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization <virtualization@lists.osdl.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@muc.de>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2006-09-22 at 22:01 +1000, Rusty Russell wrote:
-> This implements current as a per-cpu variable.
+On Sun, 2006-09-24 at 22:25 -0700, Jeremy Fitzhardinge wrote:
+> The %gs:per_cpu__foo addressing mode still calculates =
 
-Again, revised for updated 5/7: we no longer need to avoid using current
-early on.
+> 0xbcef00+0xc0433800, which is still a subtraction.  My essential point =
 
-This implements current as a per-cpu variable.  The generic code
-expects it in thread_info still, so I don't remove it from there, but
-reducing current from 9 bytes/3 insns to 6 bytes/1 insn is a nice
-micro-optimization.
+> is that *all* kernel addresses (=3Dkernel symbols) are negative, so using =
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> them as an offset from a segment base (any segment base) is a =
 
-Index: ak-fresh/arch/i386/kernel/setup.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ak-fresh.orig/arch/i386/kernel/setup.c	2006-09-25 15:02:33.000000000 +1=
-000
-+++ ak-fresh/arch/i386/kernel/setup.c	2006-09-25 15:06:31.000000000 +1000
-@@ -148,6 +148,9 @@
+> subtraction, which requires a 4G limit.
+
+I don't think so.  There's *never* address subtraction, there's
+sometimes 32 bit wrap (glibc uses this to effect subtraction, sure).
+But there's no wrap here.
+
+To test, I changed the following:
+
+--- smpboot.c.~8~	2006-09-25 15:51:50.000000000 +1000
++++ smpboot.c	2006-09-25 16:00:36.000000000 +1000
+@@ -926,8 +926,9 @@
+ 					      unsigned long per_cpu_off)
+ {
+ 	unsigned limit, flags;
++	extern char __per_cpu_end[];
  =
 
- unsigned char __initdata boot_params[PARAM_SIZE];
+-	limit =3D (1 << 20);
++	limit =3D PAGE_ALIGN((long)__per_cpu_end) >> PAGE_SHIFT;
+ 	flags =3D 0x8;		/* 4k granularity */
  =
 
-+DEFINE_PER_CPU(struct task_struct *, current_task) =3D &init_task;
-+EXPORT_PER_CPU_SYMBOL(current_task);
-+
- static struct resource data_resource =3D {
- 	.name	=3D "Kernel data",
- 	.start	=3D 0,
-Index: ak-fresh/arch/i386/kernel/smpboot.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ak-fresh.orig/arch/i386/kernel/smpboot.c	2006-09-25 15:02:51.000000000 =
-+1000
-+++ ak-fresh/arch/i386/kernel/smpboot.c	2006-09-25 15:06:31.000000000 +1000
-@@ -972,6 +972,7 @@
- 	if (IS_ERR(idle))
- 		panic("failed fork for CPU %d", cpu);
- 	idle->thread.eip =3D (unsigned long) start_secondary;
-+	per_cpu(current_task, cpu) =3D idle;
- =
+ 	/* present read-write data segment */
 
-  	setup_percpu(cpu);
-  	booting_cpu_gdt_desc_ptr =3D &per_cpu(cpu_gdt_descr, cpu);
-Index: ak-fresh/include/asm-i386/current.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ak-fresh.orig/include/asm-i386/current.h	2006-09-25 15:02:33.000000000 =
-+1000
-+++ ak-fresh/include/asm-i386/current.h	2006-09-25 15:06:31.000000000 +1000
-@@ -1,15 +1,10 @@
- #ifndef _I386_CURRENT_H
- #define _I386_CURRENT_H
- =
 
-+#include <asm/percpu.h>
- #include <linux/thread_info.h>
- =
+Works fine...
 
--struct task_struct;
--
--static __always_inline struct task_struct * get_current(void)
--{
--	return current_thread_info()->task;
--}
-- =
-
--#define current get_current()
-+DECLARE_PER_CPU(struct task_struct *, current_task);
-+#define current x86_read_percpu(current_task)
- =
-
- #endif /* !(_I386_CURRENT_H) */
-Index: ak-fresh/arch/i386/kernel/process.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ak-fresh.orig/arch/i386/kernel/process.c	2006-09-25 15:02:33.000000000 =
-+1000
-+++ ak-fresh/arch/i386/kernel/process.c	2006-09-25 15:06:31.000000000 +1000
-@@ -669,6 +669,7 @@
- 	if (unlikely(prev->fs | next->fs))
- 		loadsegment(fs, next->fs);
- =
-
-+	x86_write_percpu(current_task, next_p);
- =
-
- 	/*
- 	 * Restore IOPL if needed.
-
+Hope that clarifies!
+Rusty.
 -- =
 
 Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
