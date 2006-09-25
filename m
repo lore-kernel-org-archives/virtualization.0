@@ -1,61 +1,69 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
-Date: Mon, 25 Sep 2006 11:20:53 +1000
-Message-ID: <1159147253.26986.34.camel@localhost.localdomain>
-References: <1158925861.26261.3.camel@localhost.localdomain>
-	<1158925997.26261.6.camel@localhost.localdomain>
-	<1158926106.26261.8.camel@localhost.localdomain>
-	<1158926215.26261.11.camel@localhost.localdomain>
-	<1158926308.26261.14.camel@localhost.localdomain>
-	<1158926386.26261.17.camel@localhost.localdomain>
-	<4514663E.5050707@goop.org> <20060923081337.GA10534@muc.de>
-	<45172BCE.4010708@goop.org>
+Date: Sun, 24 Sep 2006 18:36:07 -0700
+Message-ID: <45173287.8070204@goop.org>
+References: <1158925861.26261.3.camel@localhost.localdomain>	 <1158925997.26261.6.camel@localhost.localdomain>	 <1158926106.26261.8.camel@localhost.localdomain>	 <1158926215.26261.11.camel@localhost.localdomain>	 <1158926308.26261.14.camel@localhost.localdomain>	 <1158926386.26261.17.camel@localhost.localdomain>	 <4514663E.5050707@goop.org>	 <1158985882.26261.60.camel@localhost.localdomain>	 <45172AC8.2070701@goop.org> <1159146974.26986.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45172BCE.4010708@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964781AbWIYBgE@vger.kernel.org>
+In-Reply-To: <1159146974.26986.30.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Andi Kleen <ak@muc.de>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2006-09-24 at 18:07 -0700, Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> >> I managed to get all this done in head.S before going into C code; is =
+Rusty Russell wrote:
+> 	You're thinking of it in a convoluted way, by converting to offsets
+> from the per-cpu section, then converting it back.  How about this
+> explanation: the local cpu's versions are offset from where the compiler
+> thinks they are by __per_cpu_offset[cpu].  We set the segment base to
+> __per_cpu_offset[cpu], so "%gs:per_cpu__foo" gets us straight to the
+> local cpu version.  __per_cpu_offset[cpu] is always positive (kernel
+> image sits at bottom of kernel address space).
+>   
 
-> >> that not still possible?  Or is there a later patch to do this.
-> >>     =
+We're talking kernel virtual addresses, so the physical load address 
+doesn't matter, of course.
 
-> >
-> > Why write in assembler what you can write in C?
-> >   =
+So, take this kernel I have here as an explicit example:
 
-> This stuff is very basic, and you could consider it as being part of the =
+$ nm -n vmlinux
+[...]
+c0431100 A __per_cpu_start
+[...]
+c0433800 D per_cpu__cpu_gdt_descr
+c0433880 D per_cpu__cpu_tlbstate
 
-> kernel's C runtime model, and therefore can be expected to be available =
 
-> everywhere.  In particular, the use of current is so prevalent that you =
+And say that this CPU has its percpu data allocated at 0xc100000.
 
-> really can't call anything without having the PDA set up.
+So, in this case the %gs base will be loaded with 0xc100000-0xc0431100 = 
+0x4bccef00
+The offset of per_cpu__cpu_gdt_descr is 0xc0433800, so 
+%gs:per_cpu__cpu_gdt_descr will compute 0x4bccef00+0xc0433800 to get the 
+final linear address.  Since 0xc0433800 is negative, this is actually a 
+subtraction, and it therefore requires the segment to have a 4G limit.  
+Which makes Xen sad.
 
-Yeah, I agree with Jeremy.  It's nice if we can just use it everywhere,
-and he kindly explained to me that secondary CPUs we can do most of it
-before the CPU bringup (ie. in C): we just have to load the gs register
-in asm AFAICT.
+>>   Especially since "__per_cpu_start" is actually very 
+>> large, and so this scheme pretty much relies on being able to wrap 
+>> around the segment limit, and will be very bad for Xen.
+>>     
+>
+> __per_cpu_start is large, yes.  But there's no reason to use it in
+> address calculation.  The second half of your statement is not correct.
+>   
 
-I'll produce a patch, so we can see what we're talking about...
+__per_cpu_start is added to all per_cpu__* addresses.
 
-Thanks!
-Rusty.
--- =
+>> An alternative is to put the "-__per_cpu_start" into the addressing mode 
+>> when constructing the address of the per-cpu variable.
+>>     
+>
+> I think you're thinking of TLS relocations?  I don't use them...
+>   
 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+No, but this is just as bad.
+
+    J
