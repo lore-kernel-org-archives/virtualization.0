@@ -1,13 +1,13 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: pv_ops smp support
-Date: Thu, 19 Oct 2006 16:34:02 -0700
-Message-ID: <45380B6A.3030104@vmware.com>
-References: <453805BF.80301@goop.org>
+Date: Thu, 19 Oct 2006 16:48:45 -0700
+Message-ID: <45380EDD.2070809@goop.org>
+References: <453805BF.80301@goop.org> <45380B6A.3030104@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <453805BF.80301@goop.org>
+In-Reply-To: <45380B6A.3030104@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -17,38 +17,37 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Zachary Amsden <zach@vmware.com>
 Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> I'm looking at adding Xen SMP support, so I'm trying to work out what =
+Zachary Amsden wrote:
+> 1) What do you plan to do to address per-cpu data structures?
 
-> pv_ops we need, and how to cut into the existing smp stuff.
->
-> So at first pass, it looks like we need 6-8 new pv_ops for SMP, which =
+Er, what's there at the moment, more or less.  The main thing is that =
 
-> isn't very appealing.
->
-> Any thoughts about how to come up with a more elegant interface?  I'm =
+the secondary CPU get the PDA set up (init gdt and %gs) before anyone =
 
-> digging through smpboot.c and friends, but there's a lot of goo in =
+wants to use it (which is generally the first use of smp_processor_id() =
 
-> there...
+or current). At some point we'll probably fold the PDA and PER_CPU =
 
-Most of the goo is apic related goo, which can be conveniently be tucked =
+together.  Xen can more or less completely initialize the VCPU state =
 
-out of the way by just ignoring or putting in appropriate hooks.  Before =
+before it is brought up, so there's little or no need for any kind of =
 
-we try to dissect this into operations, I think there are two bigger =
+bootstrap code.
 
-fundamental questions you need to answer -
+> 2) What is your remote TLB shootdown model?
 
-1) What do you plan to do to address per-cpu data structures?
-2) What is your remote TLB shootdown model?
+Xen has a hypercall to shoot down a set of CPU's TLBs, so it doesn't =
 
-Both of these could have major impacts on how you want to carve up smp.c =
+need to do an IPI (we'll need to extend the flush_tlb interface to make =
 
-and smpboot.c.
+good use of this).  It will still need IPIs for reschedule and remote =
 
-Zach
+function calls or course.
+
+> Both of these could have major impacts on how you want to carve up =
+
+> smp.c and smpboot.c.
