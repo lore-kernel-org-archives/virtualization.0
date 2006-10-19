@@ -1,61 +1,77 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Handling PCI/ROM space
-Date: Wed, 18 Oct 2006 15:24:38 -0700
-Message-ID: <4536A9A6.8040604@goop.org>
-References: <45369FD4.3030303@goop.org> <4536A734.7030904@vmware.com>
+From: Zachary Amsden <zach@vmware.com>
+Subject: [PATCH] Fix potential interrupts during alternative patching [was
+ Re: [RFC] Avoid PIT SMP lockups]
+Date: Thu, 19 Oct 2006 01:00:55 -0700
+Message-ID: <453730B7.3040906@vmware.com>
+References: <1160170736.6140.31.camel@localhost.localdomain> <453404F6.5040202@vmware.com> <200610170121.51492.caglar@pardus.org.tr> <200610171505.53576.caglar@pardus.org.tr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <4536A734.7030904@vmware.com>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------010003010107080908020307"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422804AbWJSIA4@vger.kernel.org>
+In-Reply-To: <200610171505.53576.caglar@pardus.org.tr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: caglar@pardus.org.tr, Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> Probably a config file difference - GOBIOS vs GODIRECT.
+This is a multi-part message in MIME format.
+--------------010003010107080908020307
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+S.Çağlar Onur wrote:
+> 17 Eki 2006 Sal 01:21 tarihinde, S.Çağlar Onur şunları yazmıştı: 
+>   
+>> 17 Eki 2006 Sal 01:17 tarihinde, Zachary Amsden şunları yazmıştı:
+>>     
+>>> My nasty quick patch might not apply - the only tree I've got is a very
+>>> hacked 2.6.18-rc6-mm1+local-patches thing, but the fix should be obvious
+>>> enough.
+>>>       
+>> Ok, I'll test and report back...
+>>     
 >
-> These patches look fine, although is there a more general solution?  =
+> Both 2.6.18 and 2.6.18.1 boots without any problem (and of course without 
+> noreplacement workarund) with that patch.
+>
+> Cheers
+>   
 
-> Like bypassing the whole PCI ROM probing entirely?  We don't really =
+So this patch is an obvious bugfix - please apply, and to stable as 
+well. I'm not sure when this broke, but taking interrupts in the middle 
+of self modifying code is not a pretty sight.
 
-> want to use the PCI ROM here either, although we have a slightly worse =
+Zach
 
-> problem - the pages are mapped and do have a PCI ROM.  Perhaps =
+--------------010003010107080908020307
+Content-Type: text/plain;
+ name="hotfix-alternative-irq-safety.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="hotfix-alternative-irq-safety.patch"
 
-> paravirt-ops should be able to flip a global switch to disable this =
-
-> (perhaps already there?).
-
-There's a pci_probe variable, which has a bitmask of which PCI access =
-
-methods to use; if you mask out PCI_PROBE_BIOS then it won't bother.  I =
-
-considered doing this, but it wasn't clear to me where this actually get =
-
-set up (it's a bit diffuse), and whether to add a new pv_op hook =
-
-intercept this.
-
-I also thought that we don't necessarily want to unconditionally disable =
-
-PCI access for paravirt guests since even an unprivileged guest may have =
-
-a raw device exported to it, and we don't want to add too many special =
-
-cases when dom0 is migrated to operate in the pv_op world.  So it seemed =
-
-more correct to actually allow the probe but deal with unmapped pci ROM =
-
-space.
-
-    J
+SW50ZXJydXB0cyBtdXN0IGJlIGRpc2FibGVkIGR1cmluZyBhbHRlcm5hdGl2ZSBpbnN0cnVj
+dGlvbiBwYXRjaGluZy4KT24gc3lzdGVtcyB3aXRoIGhpZ2ggdGltZXIgSVJRIHJhdGVzLCBv
+ciB3aGVuIHJ1bm5pbmcgaW4gYW4gZW11bGF0b3IsCnRpbWluZyBkaWZmZXJlbmNlcyBjYW4g
+cmVzdWx0IGluIHJhbmRvbSBrZXJuZWwgcGFuaWNzIGJlY2F1c2Ugb2YKcnVubmluZyBwYXJ0
+aWFsbHkgcGF0Y2hlZCBpbnN0cnVjdGlvbnMuICBUaGlzIGRvZXNuJ3QgeWV0IGZpeCBOTUlz
+LAp3aGljaCByZXF1aXJlcyBleHRyaWNhdGluZyB0aGUgcGF0Y2ggY29kZSBmcm9tIHRoZSBs
+YXRlIGJ1ZyBjaGVja2luZwphbmQgaXMgbG9naWNhbGx5IHNlcGFyYXRlIChhbmQgYWxzbyBs
+ZXNzIGxpa2VseSB0byBjYXVzZSBwcm9ibGVtcykuCgpTaWduZWQtb2ZmLWJ5OiBaYWNoYXJ5
+IEFtc2RlbiA8emFjaEB2bXdhcmUuY29tPgoKCmRpZmYgLXIgNzczYWMwZWJmZWI0IGFyY2gv
+aTM4Ni9rZXJuZWwvYWx0ZXJuYXRpdmUuYwotLS0gYS9hcmNoL2kzODYva2VybmVsL2FsdGVy
+bmF0aXZlLmMJV2VkIE9jdCAxOCAwNjowMzo1NiAyMDA2IC0wNzAwCisrKyBiL2FyY2gvaTM4
+Ni9rZXJuZWwvYWx0ZXJuYXRpdmUuYwlXZWQgT2N0IDE4IDA2OjA3OjAzIDIwMDYgLTA3MDAK
+QEAgLTM0NCw2ICszNDQsNyBAQCB2b2lkIGFsdGVybmF0aXZlc19zbXBfc3dpdGNoKGludCBz
+bXApCiAKIHZvaWQgX19pbml0IGFsdGVybmF0aXZlX2luc3RydWN0aW9ucyh2b2lkKQogewor
+CXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAJaWYgKG5vX3JlcGxhY2VtZW50KSB7CiAJCXByaW50
+ayhLRVJOX0lORk8gIihTTVAtKWFsdGVybmF0aXZlcyB0dXJuZWQgb2ZmXG4iKTsKIAkJZnJl
+ZV9pbml0X3BhZ2VzKCJTTVAgYWx0ZXJuYXRpdmVzIiwKQEAgLTM1MSw2ICszNTIsOCBAQCB2
+b2lkIF9faW5pdCBhbHRlcm5hdGl2ZV9pbnN0cnVjdGlvbnModm9pCiAJCQkJKHVuc2lnbmVk
+IGxvbmcpX19zbXBfYWx0X2VuZCk7CiAJCXJldHVybjsKIAl9CisKKwlsb2NhbF9pcnFfc2F2
+ZShmbGFncyk7CiAJYXBwbHlfYWx0ZXJuYXRpdmVzKF9fYWx0X2luc3RydWN0aW9ucywgX19h
+bHRfaW5zdHJ1Y3Rpb25zX2VuZCk7CiAKIAkvKiBzd2l0Y2ggdG8gcGF0Y2gtb25jZS1hdC1i
+b290dGltZS1vbmx5IG1vZGUgYW5kIGZyZWUgdGhlCkBAIC0zODYsNCArMzg5LDUgQEAgdm9p
+ZCBfX2luaXQgYWx0ZXJuYXRpdmVfaW5zdHJ1Y3Rpb25zKHZvaQogCQlhbHRlcm5hdGl2ZXNf
+c21wX3N3aXRjaCgwKTsKIAl9CiAjZW5kaWYKLX0KKwlsb2NhbF9pcnFfcmVzdG9yZShmbGFn
+cyk7Cit9Cg==
+--------------010003010107080908020307--
