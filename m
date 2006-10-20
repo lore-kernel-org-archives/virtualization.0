@@ -1,14 +1,15 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: pv_ops smp support
-Date: Thu, 19 Oct 2006 21:08:10 -0700
-Message-ID: <45384BAA.5070303@goop.org>
+Date: Thu, 19 Oct 2006 21:48:27 -0700
+Message-ID: <4538551B.9080009@vmware.com>
 References: <453805BF.80301@goop.org> <45380B6A.3030104@vmware.com>
 	<45380EDD.2070809@goop.org> <4538121E.7090607@vmware.com>
+	<45384BAA.5070303@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <4538121E.7090607@vmware.com>
+In-Reply-To: <45384BAA.5070303@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,54 +19,59 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> No, I don't mean the Linux PDA - how do you access the Xen PDA?  Or =
+Jeremy Fitzhardinge wrote:
+>
+>> I think you might want to optimize this a bit more, however, since in =
 
-> have they conjoined somehow?
+>> some cases you will issue implicit shootdown IPIs during a pte update =
 
-You could put it that way I guess.  There's a generic Linux PDA; a =
+>> hypercall.
+>
+> Not that I've seen, at least none that doesn't also exist in baseline.
 
-paravirt patch adds a union for pv use, and a Xen patch adds a =
+But if Xen uses direct page tables, the update to a page table through a =
 
-Xen-specific element to that union.  That's how it has been from the =
+hypercall can cause other CPUs with that direct page table loaded to =
 
-start, so there wasn't really anything to conjoin (there was never a Xen =
+require an invalidation.  <Pauses>.  Never mind, I see that you don't =
 
-PDA per se).
+require an immediate invalidation.  Instead, you use page type =
 
-> So your invalidate "IPI" is actually a hypercall, and you can use the =
+enforcement to guarantee that page remappings can not be used to subvert =
 
-> existing flush_tlb interface for the most part.  You just need a =
+hypervisor protection, and would either disallow or issue TLB =
 
-> paravirt-op then for the IPI itself, which takes a CPU mask - and this =
+invalidations on page type changes from PT to writable pages.  In that =
 
-> seems to match nicely onto your hypercall.
-Yep.  There are calls for flushing the whole tlb, and for just a page; =
+case, the guest must use TLB shootdown to guarantee correctness, but no =
 
-both take CPU masks.
+extra TLB shootdowns are required to guarantee hypervisor security, as I =
 
-> I think you might want to optimize this a bit more, however, since in =
+had feared.
 
-> some cases you will issue implicit shootdown IPIs during a pte update =
+>
+>> This seems much cleaner than designing the shootdown semantic =
 
-> hypercall.
+>> directly into such PTE updates, which is I believe what some of the =
 
-Not that I've seen, at least none that doesn't also exist in baseline.
+>> older Xen patches did, although I could have misread them.
+>
+> I was starting on SMP with the idea that it would be relatively =
 
-> This seems much cleaner than designing the shootdown semantic directly =
+> isolated and simple, but it seems I should probably do the MMU stuff =
 
-> into such PTE updates, which is I believe what some of the older Xen =
+> first to see what impact it has on SMP.
 
-> patches did, although I could have misread them.
+I think I was imagining some complications which really don't exist, but =
 
-I was starting on SMP with the idea that it would be relatively isolated =
+it certainly doesn't hurt to consider the Xen MMU interfaces as you iron =
 
-and simple, but it seems I should probably do the MMU stuff first to see =
+out the SMP issues.
 
-what impact it has on SMP.
+So perhaps SMP will be more straightforward than I expected.
 
-    J
+Zach
