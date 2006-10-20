@@ -1,11 +1,14 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: [PATCH 2/5] Interrupts subarch cleanup.patch
-Date: Thu, 19 Oct 2006 17:09:22 -0700
-Message-ID: <200610200009.k9K09M68027564@zach-dev.vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: pv_ops smp support
+Date: Thu, 19 Oct 2006 21:08:10 -0700
+Message-ID: <45384BAA.5070303@goop.org>
+References: <453805BF.80301@goop.org> <45380B6A.3030104@vmware.com>
+	<45380EDD.2070809@goop.org> <4538121E.7090607@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <4538121E.7090607@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -15,236 +18,54 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-A brave attempt to be rid of an unnecessary subarch hook and clean things
-up a bit.  First, all subarches use IRQ-2 as a cascade IRQ.  So do that in
-the common code.  Second, there is no need for a pre_intr_init_hook.  We
-can set up the interrupt gates at any time, as this doesn't touch any
-real hardware, just the processor gates.  Now the subarch code still needs
-to setup the appropriate irq descriptors, fill in any custom interrupt
-gates, and initialize controllers, but it can do that all at once.
+Zachary Amsden wrote:
+> No, I don't mean the Linux PDA - how do you access the Xen PDA?  Or =
 
-This removes the need for a pre_intr_init_hook.  The fpu_irq change is
-a nop - it just looks nicer.
+> have they conjoined somehow?
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+You could put it that way I guess.  There's a generic Linux PDA; a =
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/i8259.c
-+++ b/arch/i386/kernel/i8259.c
-@@ -347,7 +347,18 @@ static irqreturn_t math_error_irq(int cp
-  * New motherboards sometimes make IRQ 13 be a PCI interrupt,
-  * so allow interrupt sharing.
-  */
--static struct irqaction fpu_irq =3D { math_error_irq, 0, CPU_MASK_NONE, "f=
-pu", NULL, NULL };
-+static struct irqaction fpu_irq =3D {
-+	.handler =3D	math_error_irq,
-+	.name =3D		"fpu"
-+};
-+
-+/*
-+ * Most legacy systems want to cascade IRQ2 to slave PIC
-+ */
-+static struct irqaction cascade_action =3D {
-+	.handler =3D 	no_action,
-+	.name =3D		"cascade",
-+};
- =
+paravirt patch adds a union for pv use, and a Xen patch adds a =
 
- void __init init_ISA_irqs (void)
- {
-@@ -382,9 +393,6 @@ void __init native_init_IRQ(void)
- {
- 	int i;
- =
+Xen-specific element to that union.  That's how it has been from the =
 
--	/* all the set up before the call gates are initialised */
--	pre_intr_init_hook();
--
- 	/*
- 	 * Cover the whole vector space, no vector can escape
- 	 * us. (some of these will be overridden and become
-@@ -398,10 +406,16 @@ void __init native_init_IRQ(void)
- 			set_intr_gate(vector, interrupt[i]);
- 	}
- =
+start, so there wasn't really anything to conjoin (there was never a Xen =
 
--	/* setup after call gates are initialised (usually add in
--	 * the architecture specific gates)
-+	/*
-+	 * setup after interrupt gates are initialised (usually add in
-+	 * the architecture specific gates) and initialize controllers
- 	 */
- 	intr_init_hook();
-+#ifdef CONFIG_X86_LOCAL_APIC
-+	apic_intr_init();
-+#endif
-+	if (!acpi_ioapic)
-+		setup_irq(2, &cascade_action);
- =
+PDA per se).
 
- 	/*
- 	 * Set the clock to HZ Hz, we already have a valid
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mach-default/setup.c
-+++ b/arch/i386/mach-default/setup.c
-@@ -18,24 +18,6 @@
- =
+> So your invalidate "IPI" is actually a hypercall, and you can use the =
 
- int no_broadcast=3DDEFAULT_SEND_IPI;
- =
+> existing flush_tlb interface for the most part.  You just need a =
 
--/**
-- * pre_intr_init_hook - initialisation prior to setting up interrupt vecto=
-rs
-- *
-- * Description:
-- *	Perform any necessary interrupt initialisation prior to setting up
-- *	the "ordinary" interrupt call gates.  For legacy reasons, the ISA
-- *	interrupts should be initialised here if the machine emulates a PC
-- *	in any way.
-- **/
--void __init pre_intr_init_hook(void)
--{
--	init_ISA_irqs();
--}
--
--/*
-- * IRQ2 is cascade interrupt to second interrupt controller
-- */
--static struct irqaction irq2 =3D { no_action, 0, CPU_MASK_NONE, "cascade",=
- NULL, NULL};
- =
+> paravirt-op then for the IPI itself, which takes a CPU mask - and this =
 
- /**
-  * intr_init_hook - post gate setup interrupt initialisation
-@@ -43,17 +25,13 @@ static struct irqaction irq2 =3D { no_acti
-  * Description:
-  *	Fill in any interrupts that may have been left out by the general
-  *	init_IRQ() routine.  interrupts having to do with the machine rather
-- *	than the devices on the I/O bus (like APIC interrupts in intel MP
-- *	systems) are started here.
-+ *	than the devices on the I/O bus are started here.  For legacy reasons,
-+ *	the ISA interrupts should be initialised here if the machine emulates
-+ *	a PC in any way.
-  **/
- void __init intr_init_hook(void)
- {
--#ifdef CONFIG_X86_LOCAL_APIC
--	apic_intr_init();
--#endif
--
--	if (!acpi_ioapic)
--		setup_irq(2, &irq2);
-+	init_ISA_irqs();
- }
- =
+> seems to match nicely onto your hypercall.
+Yep.  There are calls for flushing the whole tlb, and for just a page; =
 
- /**
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mach-visws/setup.c
-+++ b/arch/i386/mach-visws/setup.c
-@@ -96,16 +96,9 @@ void __init visws_get_board_type_and_rev
- 		"unknown")), visws_board_rev);
- }
- =
+both take CPU masks.
 
--void __init pre_intr_init_hook(void)
-+void __init intr_init_hook(void)
- {
- 	init_VISWS_APIC_irqs();
--}
--
--void __init intr_init_hook(void)
--{
--#ifdef CONFIG_X86_LOCAL_APIC
--	apic_intr_init();
--#endif
- }
- =
+> I think you might want to optimize this a bit more, however, since in =
 
- void __init pre_setup_arch_hook()
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mach-visws/visws_apic.c
-+++ b/arch/i386/mach-visws/visws_apic.c
-@@ -261,12 +261,6 @@ static struct irqaction master_action =3D =
+> some cases you will issue implicit shootdown IPIs during a pte update =
 
- 	.name =3D		"PIIX4-8259",
- };
- =
+> hypercall.
 
--static struct irqaction cascade_action =3D {
--	.handler =3D 	no_action,
--	.name =3D		"cascade",
--};
--
--
- void init_VISWS_APIC_irqs(void)
- {
- 	int i;
-@@ -297,5 +291,4 @@ void init_VISWS_APIC_irqs(void)
- 	}
- =
+Not that I've seen, at least none that doesn't also exist in baseline.
 
- 	setup_irq(CO_IRQ_8259, &master_action);
--	setup_irq(2, &cascade_action);
--}
-+}
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mach-voyager/setup.c
-+++ b/arch/i386/mach-voyager/setup.c
-@@ -10,23 +10,12 @@
- #include <asm/io.h>
- #include <asm/setup.h>
- =
+> This seems much cleaner than designing the shootdown semantic directly =
 
--void __init pre_intr_init_hook(void)
-+void __init intr_init_hook(void)
- {
- 	init_ISA_irqs();
--}
--
--/*
-- * IRQ2 is cascade interrupt to second interrupt controller
-- */
--static struct irqaction irq2 =3D { no_action, 0, CPU_MASK_NONE, "cascade",=
- NULL, NULL};
--
--void __init intr_init_hook(void)
--{
- #ifdef CONFIG_SMP
- 	smp_intr_init();
- #endif
--
--	setup_irq(2, &irq2);
- }
- =
+> into such PTE updates, which is I believe what some of the older Xen =
 
- void __init pre_setup_arch_hook(void)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/arch_hooks.h
-+++ b/include/asm-i386/arch_hooks.h
-@@ -18,7 +18,6 @@ extern irqreturn_t timer_interrupt(int i
- =
+> patches did, although I could have misread them.
 
- /* these are the defined hooks */
- extern void intr_init_hook(void);
--extern void pre_intr_init_hook(void);
- extern void pre_setup_arch_hook(void);
- extern void trap_init_hook(void);
- extern void time_init_hook(void);
+I was starting on SMP with the idea that it would be relatively isolated =
+
+and simple, but it seems I should probably do the MMU stuff first to see =
+
+what impact it has on SMP.
+
+    J
