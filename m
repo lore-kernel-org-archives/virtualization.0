@@ -1,85 +1,92 @@
 From: Zachary Amsden <zach@vmware.com>
-Subject: Re: pv_ops smp support
-Date: Thu, 19 Oct 2006 17:02:38 -0700
-Message-ID: <4538121E.7090607@vmware.com>
-References: <453805BF.80301@goop.org> <45380B6A.3030104@vmware.com>
-	<45380EDD.2070809@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45380EDD.2070809@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Subject: [PATCH 1/5] Skip timer works.patch
+Date: Thu, 19 Oct 2006 17:09:22 -0700
+Message-ID: <200610200009.k9K09MrS027558@zach-dev.vmware.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946738AbWJTAJZ@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->> 1) What do you plan to do to address per-cpu data structures?
->
-> Er, what's there at the moment, more or less.  The main thing is that =
+Add a way to disable the timer IRQ routing check via a boot option.  The
+VMI timer code uses this to avoid triggering the pester Mingo code, which
+probes for some very unusual and broken motherboard routings.  It fires
+100% of the time when using a paravirtual delay mechanism instead of
+using a realtime delay, since there is no elapsed real time, and the 4 timer
+IRQs have not yet been delivered.
 
-> the secondary CPU get the PDA set up (init gdt and %gs) before anyone =
+In addition, it is entirely possible, though improbable, that this bug
+could surface on real hardware which picks a particularly bad time to enter
+SMM mode, causing a long latency during one of the timer IRQs.
 
-> wants to use it (which is generally the first use of =
+While here, make check_timer be __init.
 
-> smp_processor_id() or current). At some point we'll probably fold the =
+Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-> PDA and PER_CPU together.  Xen can more or less completely initialize =
-
-> the VCPU state before it is brought up, so there's little or no need =
-
-> for any kind of bootstrap code.
-
-No, I don't mean the Linux PDA - how do you access the Xen PDA?  Or have =
-
-they conjoined somehow?
-
-
-
->> 2) What is your remote TLB shootdown model?
->
-> Xen has a hypercall to shoot down a set of CPU's TLBs, so it doesn't =
-
-> need to do an IPI (we'll need to extend the flush_tlb interface to =
-
-> make good use of this).  It will still need IPIs for reschedule and =
-
-> remote function calls or course.
-
-So your invalidate "IPI" is actually a hypercall, and you can use the =
-
-existing flush_tlb interface for the most part.  You just need a =
-
-paravirt-op then for the IPI itself, which takes a CPU mask - and this =
-
-seems to match nicely onto your hypercall.  I think you might want to =
-
-optimize this a bit more, however, since in some cases you will issue =
-
-implicit shootdown IPIs during a pte update hypercall.
-
-This might require some reworking of the MMU interfaces in paravirt-ops =
-
-to accomodate providing such a record, and perhaps adding a function to =
-
-flush the tlb_gather interface so that pte updates which have such =
-
-properties can record the shootdown.
-
-This seems much cleaner than designing the shootdown semantic directly =
-
-into such PTE updates, which is I believe what some of the older Xen =
-
-patches did, although I could have misread them.
-
-Zach
+===================================================================
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -603,8 +603,6 @@ and is between 256 and 4096 characters. 
+ 
+ 	hugepages=	[HW,IA-32,IA-64] Maximal number of HugeTLB pages.
+ 
+-	noirqbalance	[IA-32,SMP,KNL] Disable kernel irq balancing
+-
+ 	i8042.direct	[HW] Put keyboard port into non-translated mode
+ 	i8042.dumbkbd	[HW] Pretend that controller can only read data from
+ 			     keyboard and cannot control its state
+@@ -1060,8 +1058,13 @@ and is between 256 and 4096 characters. 
+ 			in certain environments such as networked servers or
+ 			real-time systems.
+ 
++	noirqbalance	[IA-32,SMP,KNL] Disable kernel irq balancing
++
+ 	noirqdebug	[IA-32] Disables the code which attempts to detect and
+ 			disable unhandled interrupt sources.
++
++	noirqtest	[IA-32,APIC] Disables the code which tests for broken
++			timer IRQ sources.
+ 
+ 	noisapnp	[ISAPNP] Disables ISA PnP code.
+ 
+===================================================================
+--- a/arch/i386/kernel/io_apic.c
++++ b/arch/i386/kernel/io_apic.c
+@@ -1864,6 +1864,15 @@ static void __init setup_ioapic_ids_from
+ static void __init setup_ioapic_ids_from_mpc(void) { }
+ #endif
+ 
++int timer_irq_really_works __initdata;
++int __init irqtest_disable(char *str)
++{
++	timer_irq_really_works = 1;
++	return 1;
++}
++
++__setup("noirqtest", irqtest_disable);
++
+ /*
+  * There is a nasty bug in some older SMP boards, their mptable lies
+  * about the timer IRQ. We do the following to work around the situation:
+@@ -1872,9 +1881,12 @@ static void __init setup_ioapic_ids_from
+  *	- if this function detects that timer IRQs are defunct, then we fall
+  *	  back to ISA timer IRQs
+  */
+-static int __init timer_irq_works(void)
++int __init timer_irq_works(void)
+ {
+ 	unsigned long t1 = jiffies;
++
++	if (timer_irq_really_works)
++		return 1;
+ 
+ 	local_irq_enable();
+ 	/* Let ten ticks pass... */
+@@ -2146,7 +2158,7 @@ int timer_uses_ioapic_pin_0;
+  * is so screwy.  Thanks to Brian Perkins for testing/hacking this beast
+  * fanatically on his truly buggy board.
+  */
+-static inline void check_timer(void)
++static inline void __init check_timer(void)
+ {
+ 	int apic1, pin1, apic2, pin2;
+ 	int vector;
