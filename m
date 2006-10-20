@@ -1,49 +1,61 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] Fix potential interrupts during alternative patching [was Re: [RFC] Avoid PIT SMP lockups]
-Date: Thu, 19 Oct 2006 22:25:47 -0700
-Message-ID: <20061020052546.GC8881@kroah.com>
-References: <1160170736.6140.31.camel@localhost.localdomain> <453404F6.5040202@vmware.com> <200610170121.51492.caglar@pardus.org.tr> <200610171505.53576.caglar@pardus.org.tr> <453730B7.3040906@vmware.com>
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Subject: Re: [PATCH] Fix potential interrupts during alternative patching =?utf-8?q?=5Bwas=09Re=3A_=5BRFC=5D_Avoid_PIT_SMP?= lockups]
+Date: Fri, 20 Oct 2006 13:36:05 +0300
+Message-ID: <200610201336.05760.caglar@pardus.org.tr>
+References: <1160170736.6140.31.camel@localhost.localdomain> <45373C1D.9080808@goop.org> <45373E92.1070200@vmware.com>
+Reply-To: caglar@pardus.org.tr
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751680AbWJTF4j@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <453730B7.3040906@vmware.com>
+Content-Type: multipart/signed;
+  boundary="nextPart3185532.zcL0iRfIK5";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422940AbWJTKgI@vger.kernel.org>
+In-Reply-To: <45373E92.1070200@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Zachary Amsden <zach@vmware.com>
-Cc: caglar@pardus.org.tr, Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 19, 2006 at 01:00:55AM -0700, Zachary Amsden wrote:
-> S.??a??lar Onur wrote:
-> >17 Eki 2006 Sal 01:21 tarihinde, S.??a??lar Onur ??unlar?? yazm????t??: 
-> >  
-> >>17 Eki 2006 Sal 01:17 tarihinde, Zachary Amsden ??unlar?? yazm????t??:
-> >>    
-> >>>My nasty quick patch might not apply - the only tree I've got is a very
-> >>>hacked 2.6.18-rc6-mm1+local-patches thing, but the fix should be obvious
-> >>>enough.
-> >>>      
-> >>Ok, I'll test and report back...
-> >>    
+--nextPart3185532.zcL0iRfIK5
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+19 Eki 2006 Per 12:00 tarihinde, Zachary Amsden =C5=9Funlar=C4=B1 yazm=C4=
+=B1=C5=9Ft=C4=B1:=20
+> Jeremy Fitzhardinge wrote:
+> > Zachary Amsden wrote:
+> >> So this patch is an obvious bugfix - please apply, and to stable as
+> >> well. I'm not sure when this broke, but taking interrupts in the
+> >> middle of self modifying code is not a pretty sight.
 > >
-> >Both 2.6.18 and 2.6.18.1 boots without any problem (and of course without 
-> >noreplacement workarund) with that patch.
-> >
-> >Cheers
-> >  
-> 
-> So this patch is an obvious bugfix - please apply, and to stable as 
-> well. I'm not sure when this broke, but taking interrupts in the middle 
-> of self modifying code is not a pretty sight.
+> > I had actually seen this when I built the Xen paravirt kernel with SMP
+> > on, but I assumed it was something in the pv_ops tree rather than
+> > mainline...
+>
+> Very likely to show up in qemu as well, if you use that.
 
-Please send -stable patches to stable@kernel.org, not to me directly (we
-are a team and hand off ownership to each other, by sending it to the
-alias it makes sure that nothing gets lots in our individual mail
-boxes.)
+I can confirm qemu and virtual pc 2004 gaves same exception without that=20
+patch.
 
-Also, please let stable know when this is upstream, we don't want to
-apply it before then.
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
-thanks,
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
 
-greg k-h
+--nextPart3185532.zcL0iRfIK5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFOKaVy7E6i0LKo6YRArzkAKCQfTN4WielKDQm9n3Qhipz6ZpPRwCgkBpp
+79gu9E0X8s6Nh81NyePN6/M=
+=xl1Z
+-----END PGP SIGNATURE-----
+
+--nextPart3185532.zcL0iRfIK5--
