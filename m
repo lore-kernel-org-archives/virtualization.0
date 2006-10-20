@@ -1,77 +1,49 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: pv_ops smp support
-Date: Thu, 19 Oct 2006 21:48:27 -0700
-Message-ID: <4538551B.9080009@vmware.com>
-References: <453805BF.80301@goop.org> <45380B6A.3030104@vmware.com>
-	<45380EDD.2070809@goop.org> <4538121E.7090607@vmware.com>
-	<45384BAA.5070303@goop.org>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Fix potential interrupts during alternative patching [was Re: [RFC] Avoid PIT SMP lockups]
+Date: Thu, 19 Oct 2006 22:25:47 -0700
+Message-ID: <20061020052546.GC8881@kroah.com>
+References: <1160170736.6140.31.camel@localhost.localdomain> <453404F6.5040202@vmware.com> <200610170121.51492.caglar@pardus.org.tr> <200610171505.53576.caglar@pardus.org.tr> <453730B7.3040906@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45384BAA.5070303@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751680AbWJTF4j@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <453730B7.3040906@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: caglar@pardus.org.tr, Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
->
->> I think you might want to optimize this a bit more, however, since in =
+On Thu, Oct 19, 2006 at 01:00:55AM -0700, Zachary Amsden wrote:
+> S.??a??lar Onur wrote:
+> >17 Eki 2006 Sal 01:21 tarihinde, S.??a??lar Onur ??unlar?? yazm????t??: 
+> >  
+> >>17 Eki 2006 Sal 01:17 tarihinde, Zachary Amsden ??unlar?? yazm????t??:
+> >>    
+> >>>My nasty quick patch might not apply - the only tree I've got is a very
+> >>>hacked 2.6.18-rc6-mm1+local-patches thing, but the fix should be obvious
+> >>>enough.
+> >>>      
+> >>Ok, I'll test and report back...
+> >>    
+> >
+> >Both 2.6.18 and 2.6.18.1 boots without any problem (and of course without 
+> >noreplacement workarund) with that patch.
+> >
+> >Cheers
+> >  
+> 
+> So this patch is an obvious bugfix - please apply, and to stable as 
+> well. I'm not sure when this broke, but taking interrupts in the middle 
+> of self modifying code is not a pretty sight.
 
->> some cases you will issue implicit shootdown IPIs during a pte update =
+Please send -stable patches to stable@kernel.org, not to me directly (we
+are a team and hand off ownership to each other, by sending it to the
+alias it makes sure that nothing gets lots in our individual mail
+boxes.)
 
->> hypercall.
->
-> Not that I've seen, at least none that doesn't also exist in baseline.
+Also, please let stable know when this is upstream, we don't want to
+apply it before then.
 
-But if Xen uses direct page tables, the update to a page table through a =
+thanks,
 
-hypercall can cause other CPUs with that direct page table loaded to =
-
-require an invalidation.  <Pauses>.  Never mind, I see that you don't =
-
-require an immediate invalidation.  Instead, you use page type =
-
-enforcement to guarantee that page remappings can not be used to subvert =
-
-hypervisor protection, and would either disallow or issue TLB =
-
-invalidations on page type changes from PT to writable pages.  In that =
-
-case, the guest must use TLB shootdown to guarantee correctness, but no =
-
-extra TLB shootdowns are required to guarantee hypervisor security, as I =
-
-had feared.
-
->
->> This seems much cleaner than designing the shootdown semantic =
-
->> directly into such PTE updates, which is I believe what some of the =
-
->> older Xen patches did, although I could have misread them.
->
-> I was starting on SMP with the idea that it would be relatively =
-
-> isolated and simple, but it seems I should probably do the MMU stuff =
-
-> first to see what impact it has on SMP.
-
-I think I was imagining some complications which really don't exist, but =
-
-it certainly doesn't hurt to consider the Xen MMU interfaces as you iron =
-
-out the SMP issues.
-
-So perhaps SMP will be more straightforward than I expected.
-
-Zach
+greg k-h
