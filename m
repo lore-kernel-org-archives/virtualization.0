@@ -1,50 +1,61 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 1/4] Prep for paravirt: Be careful about touching BIOS address space
-Date: Fri, 27 Oct 2006 13:30:01 +0200
-Message-ID: <20061027113001.GB8095@elf.ucw.cz>
-References: <1161920325.17807.29.camel@localhost.localdomain> <1161920535.17807.33.camel@localhost.localdomain>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+Date: 27 Oct 2006 16:56:50 +0200
+Message-ID: <20061027145650.GA37582@muc.de>
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946410AbWJ0LaW@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Date: Fri, 27 Oct 2006 16:56:50 +0200
 Content-Disposition: inline
-In-Reply-To: <1161920535.17807.33.camel@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
+In-Reply-To: <200610200009.k9K09MrS027558@zach-dev.vmware.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi!
+On Thu, Oct 19, 2006 at 05:09:22PM -0700, Zachary Amsden wrote:
+> Add a way to disable the timer IRQ routing check via a boot option.  The
+> VMI timer code uses this to avoid triggering the pester Mingo code, which
+> probes for some very unusual and broken motherboard routings.  It fires
+> 100% of the time when using a paravirtual delay mechanism instead of
+> using a realtime delay, since there is no elapsed real time, and the 4 ti=
+mer
+> IRQs have not yet been delivered.
 
-> (Andrew had already taken that last one, I meant to send this)
-> 
-> Subject: Be careful about touching BIOS address space
-> 
-> BIOS ROM areas may not be mapped into the guest address space, so be careful
-> when touching those addresses to make sure they appear to be mapped.
-> 
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> 
-> ===================================================================
-> --- a/arch/i386/kernel/setup.c
-> +++ b/arch/i386/kernel/setup.c
-> @@ -270,7 +270,14 @@ static struct resource standard_io_resou
->  	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
->  } };
->  
-> -#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
-> +static inline int romsignature(const unsigned char *x)
-> +{
-> +     unsigned short sig;
-> +     int ret = 0;
-> +     if (__get_user(sig, (const unsigned short *)x) == 0)
-> +	  ret = (sig == 0xaa55);
+You mean paravirtualized udelay will not actually wait? =
 
-Indentation is b0rken here.
 
-And... is get_user right primitive for accessing area that may not be
-there?
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+This implies that you can't ever use any real timer in that kind of guest,
+right?
+
+> =
+
+> In addition, it is entirely possible, though improbable, that this bug
+> could surface on real hardware which picks a particularly bad time to ent=
+er
+> SMM mode, causing a long latency during one of the timer IRQs.
+
+We already have a no timer check option. But:
+
+> =
+
+> While here, make check_timer be __init.
+
+So how is this supposed to work? The hypervisor would always pass that =
+
+option?  If yes that would seem rather hackish to me. We should probably
+instead probe in some way if we have the required timer hardware.
+The paravirt kernel should know anyways it is paravirt and that it doesn't
+need to probe for flakey hardware.
+
+-Andi
