@@ -1,235 +1,28 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 4/4] Prep for paravirt: rearrange processor.h
-Date: Fri, 27 Oct 2006 13:46:40 +1000
-Message-ID: <1161920801.17807.41.camel@localhost.localdomain>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH 1/4] Prep for paravirt: move pagetable includes.
+Date: Fri, 27 Oct 2006 03:30:48 -0700
+Message-ID: <4541DFD8.6010106@vmware.com>
 References: <1161920325.17807.29.camel@localhost.localdomain>
-	 <1161920535.17807.33.camel@localhost.localdomain>
-	 <1161920622.17807.36.camel@localhost.localdomain>
-	 <1161920728.17807.39.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946150AbWJ0Dqo@vger.kernel.org>
-In-Reply-To: <1161920728.17807.39.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946369AbWJ0Kau@vger.kernel.org>
+In-Reply-To: <1161920325.17807.29.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch simply moves processor.h functions around, to group all the
-ones which paravirt will override together (for one big ifdef).  No
-code changes.
+Rusty Russell wrote:
+> Move header includes for the nopud / nopmd types to the location of the
+> actual pte / pgd type definitions.  This allows generic 4-level page
+> type code to be written before the split 2/3 level page table headers are
+> included.
+>
+> Signed-off-by: Zachary Amsden <zach@vmware.com>
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>   
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+I sent this one out previously .. I think it is already in a subsystem tree.
 
-===================================================================
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -145,58 +145,6 @@ static inline void detect_ht(struct cpui
- 		: "0" (*eax), "2" (*ecx));
- }
- 
--/*
-- * Generic CPUID function
-- * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-- * resulting in stale register contents being returned.
-- */
--static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
--{
--	*eax = op;
--	*ecx = 0;
--	__cpuid(eax, ebx, ecx, edx);
--}
--
--/* Some CPUID calls want 'count' to be placed in ecx */
--static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
--			       int *edx)
--{
--	*eax = op;
--	*ecx = count;
--	__cpuid(eax, ebx, ecx, edx);
--}
--
--/*
-- * CPUID functions returning a single datum
-- */
--static inline unsigned int cpuid_eax(unsigned int op)
--{
--	unsigned int eax, ebx, ecx, edx;
--
--	cpuid(op, &eax, &ebx, &ecx, &edx);
--	return eax;
--}
--static inline unsigned int cpuid_ebx(unsigned int op)
--{
--	unsigned int eax, ebx, ecx, edx;
--
--	cpuid(op, &eax, &ebx, &ecx, &edx);
--	return ebx;
--}
--static inline unsigned int cpuid_ecx(unsigned int op)
--{
--	unsigned int eax, ebx, ecx, edx;
--
--	cpuid(op, &eax, &ebx, &ecx, &edx);
--	return ecx;
--}
--static inline unsigned int cpuid_edx(unsigned int op)
--{
--	unsigned int eax, ebx, ecx, edx;
--
--	cpuid(op, &eax, &ebx, &ecx, &edx);
--	return edx;
--}
- 
- #define load_cr3(pgdir) write_cr3(__pa(pgdir))
- 
-@@ -493,16 +428,6 @@ struct thread_struct {
- 	.io_bitmap	= { [ 0 ... IO_BITMAP_LONGS] = ~0 },		\
- }
- 
--static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
--{
--	tss->esp0 = thread->esp0;
--	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
--	if (unlikely(tss->ss1 != thread->sysenter_cs)) {
--		tss->ss1 = thread->sysenter_cs;
--		wrmsr(MSR_IA32_SYSENTER_CS, thread->sysenter_cs, 0);
--	}
--}
--
- #define start_thread(regs, new_eip, new_esp) do {		\
- 	__asm__("movl %0,%%fs": :"r" (0));			\
- 	regs->xgs = 0;						\
-@@ -515,33 +440,6 @@ static inline void load_esp0(struct tss_
- 	regs->esp = new_esp;					\
- } while (0)
- 
--/*
-- * These special macros can be used to get or set a debugging register
-- */
--#define get_debugreg(var, register)				\
--		__asm__("movl %%db" #register ", %0"		\
--			:"=r" (var))
--#define set_debugreg(value, register)			\
--		__asm__("movl %0,%%db" #register		\
--			: /* no output */			\
--			:"r" (value))
--
--/*
-- * Set IOPL bits in EFLAGS from given mask
-- */
--static inline void set_iopl_mask(unsigned mask)
--{
--	unsigned int reg;
--	__asm__ __volatile__ ("pushfl;"
--			      "popl %0;"
--			      "andl %1, %0;"
--			      "orl %2, %0;"
--			      "pushl %0;"
--			      "popfl"
--				: "=&r" (reg)
--				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
--}
--
- /* Forward declaration, a strange C thing */
- struct task_struct;
- struct mm_struct;
-@@ -632,6 +530,97 @@ static inline void rep_nop(void)
- }
- 
- #define cpu_relax()	rep_nop()
-+
-+static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
-+{
-+	tss->esp0 = thread->esp0;
-+
-+	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
-+	if (unlikely(tss->ss1 != thread->sysenter_cs)) {
-+		tss->ss1 = thread->sysenter_cs;
-+		wrmsr(MSR_IA32_SYSENTER_CS, thread->sysenter_cs, 0);
-+	}
-+}
-+
-+/*
-+ * These special macros can be used to get or set a debugging register
-+ */
-+#define get_debugreg(var, register)				\
-+		__asm__("movl %%db" #register ", %0"		\
-+			:"=r" (var))
-+#define set_debugreg(value, register)			\
-+		__asm__("movl %0,%%db" #register		\
-+			: /* no output */			\
-+			:"r" (value))
-+
-+/*
-+ * Set IOPL bits in EFLAGS from given mask
-+ */
-+static inline void set_iopl_mask(unsigned mask)
-+{
-+	unsigned int reg;
-+	__asm__ __volatile__ ("pushfl;"
-+			      "popl %0;"
-+			      "andl %1, %0;"
-+			      "orl %2, %0;"
-+			      "pushl %0;"
-+			      "popfl"
-+				: "=&r" (reg)
-+				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
-+}
-+
-+/*
-+ * Generic CPUID function
-+ * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-+ * resulting in stale register contents being returned.
-+ */
-+static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
-+{
-+	*eax = op;
-+	*ecx = 0;
-+	__cpuid(eax, ebx, ecx, edx);
-+}
-+
-+/* Some CPUID calls want 'count' to be placed in ecx */
-+static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
-+			       int *edx)
-+{
-+	*eax = op;
-+	*ecx = count;
-+	__cpuid(eax, ebx, ecx, edx);
-+}
-+
-+/*
-+ * CPUID functions returning a single datum
-+ */
-+static inline unsigned int cpuid_eax(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return eax;
-+}
-+static inline unsigned int cpuid_ebx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return ebx;
-+}
-+static inline unsigned int cpuid_ecx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return ecx;
-+}
-+static inline unsigned int cpuid_edx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return edx;
-+}
- 
- /* generic versions from gas */
- #define GENERIC_NOP1	".byte 0x90\n"
+Zach
