@@ -1,60 +1,139 @@
 From: Chris Wright <chrisw@sous-sol.org>
-Subject: [PATCH 5/7] Allow disabling legacy power management modes with paravirt kernels
-Date: Sat, 28 Oct 2006 00:00:05 -0700
-Message-ID: <20061029024606.930028000@sous-sol.org>
+Subject: [PATCH 3/7] More generic paravirtualization entry point.
+Date: Sat, 28 Oct 2006 00:00:03 -0700
+Message-ID: <20061029024605.950760000@sous-sol.org>
 References: <20061029024504.760769000@sous-sol.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964959AbWJ2Cqw@vger.kernel.org>
-Content-Disposition: inline; filename=016-power-management-bypass.patch
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964946AbWJ2CpF@vger.kernel.org>
+Content-Disposition: inline; filename=011-paravirt-head.S.patch
 Sender: linux-kernel-owner@vger.kernel.org
 To: akpm@osdl.org, ak@muc.de
 Cc: Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Two legacy power management modes are much easier to just explicitly disable
-when running in paravirtualized mode - neither APM nor PnP is still relevant.
-The status of ACPI is still debatable, and noacpi is still a common enough
-boot parameter that it is not necessary to explicitly disable ACPI.
+1) Each hypervisor writes a probe function to detect whether we are
+   running under that hypervisor.  paravirt_probe() registers this
+   function.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+2) If vmlinux is booted with ring != 0, we call all the probe
+   functions (with registers except %esp intact) in link order: the
+   winner will not return.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Zachary Amsden <zach@vmware.com>
 
 ---
- arch/i386/kernel/apm.c     |    3 ++-
- drivers/pnp/pnpbios/core.c |    3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/i386/kernel/Makefile      |    2 ++
+ arch/i386/kernel/head.S        |   33 +++++++++++++++++++++++++++++++++
+ arch/i386/kernel/paravirt.c    |    6 +++++-
+ arch/i386/kernel/vmlinux.lds.S |    6 ++++++
+ include/asm-i386/paravirt.h    |    5 +++++
+ 5 files changed, 51 insertions(+), 1 deletion(-)
 
---- linux-2.6-pv.orig/arch/i386/kernel/apm.c
-+++ linux-2.6-pv/arch/i386/kernel/apm.c
-@@ -231,6 +231,7 @@
- #include <asm/uaccess.h>
- #include <asm/desc.h>
- #include <asm/i8253.h>
-+#include <asm/paravirt.h>
+--- linux-2.6-pv.orig/arch/i386/kernel/Makefile
++++ linux-2.6-pv/arch/i386/kernel/Makefile
+@@ -39,6 +39,8 @@ obj-$(CONFIG_VM86)		+= vm86.o
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+ obj-$(CONFIG_HPET_TIMER) 	+= hpet.o
+ obj-$(CONFIG_K8_NB)		+= k8.o
++
++# Make sure this is linked after any other paravirt_ops structs: see head.S
+ obj-$(CONFIG_PARAVIRT)		+= paravirt.o
  
- #include "io_ports.h"
+ EXTRA_AFLAGS   := -traditional
+--- linux-2.6-pv.orig/arch/i386/kernel/head.S
++++ linux-2.6-pv/arch/i386/kernel/head.S
+@@ -55,6 +55,12 @@
+  */
+ ENTRY(startup_32)
  
-@@ -2191,7 +2192,7 @@ static int __init apm_init(void)
- 
- 	dmi_check_system(apm_dmi_table);
- 
--	if (apm_info.bios.version == 0) {
-+	if (apm_info.bios.version == 0 || paravirt_enabled()) {
- 		printk(KERN_INFO "apm: BIOS not found.\n");
- 		return -ENODEV;
- 	}
---- linux-2.6-pv.orig/drivers/pnp/pnpbios/core.c
-+++ linux-2.6-pv/drivers/pnp/pnpbios/core.c
-@@ -530,7 +530,8 @@ static int __init pnpbios_init(void)
- 	if (check_legacy_ioport(PNPBIOS_BASE))
- 		return -ENODEV;
++#ifdef CONFIG_PARAVIRT
++        movl %cs, %eax
++        testl $0x3, %eax
++        jnz startup_paravirt
++#endif
++
+ /*
+  * Set segments to known values.
+  */
+@@ -486,6 +492,33 @@ ignore_int:
  #endif
--	if (pnpbios_disabled || dmi_check_system(pnpbios_dmi_table)) {
-+	if (pnpbios_disabled || dmi_check_system(pnpbios_dmi_table) ||
-+	    paravirt_enabled()) {
- 		printk(KERN_INFO "PnPBIOS: Disabled\n");
- 		return -ENODEV;
- 	}
+ 	iret
+ 
++#ifdef CONFIG_PARAVIRT
++startup_paravirt:
++	cld
++ 	movl $(init_thread_union+THREAD_SIZE),%esp
++
++	/* We take pains to preserve all the regs. */
++	pushl	%edx
++	pushl	%ecx
++	pushl	%eax
++
++	/* paravirt.o is last in link, and that probe fn never returns */
++	pushl	$__start_paravirtprobe
++1:
++	movl	0(%esp), %eax
++	pushl	(%eax)
++	movl	8(%esp), %eax
++	call	*(%esp)
++	popl	%eax
++
++	movl	4(%esp), %eax
++	movl	8(%esp), %ecx
++	movl	12(%esp), %edx
++
++	addl	$4, (%esp)
++	jmp	1b
++#endif
++
+ /*
+  * Real beginning of normal "text" segment
+  */
+--- linux-2.6-pv.orig/arch/i386/kernel/paravirt.c
++++ linux-2.6-pv/arch/i386/kernel/paravirt.c
+@@ -392,7 +392,11 @@ static int __init print_banner(void)
+ 	return 0;
+ }
+ core_initcall(print_banner);
+- 
++
++/* We simply declare start_kernel to be the paravirt probe of last resort. */
++asmlinkage void __init start_kernel(void);
++paravirt_probe(start_kernel);
++  
+ struct paravirt_ops paravirt_ops = {
+ 	.name = "bare hardware",
+ 	.paravirt_enabled = 0,
+--- linux-2.6-pv.orig/arch/i386/kernel/vmlinux.lds.S
++++ linux-2.6-pv/arch/i386/kernel/vmlinux.lds.S
+@@ -60,6 +60,12 @@ SECTIONS
+ 	CONSTRUCTORS
+ 	} :data
+ 
++  __start_paravirtprobe = .;
++  .paravirtprobe : AT(ADDR(.paravirtprobe) - LOAD_OFFSET) {
++	*(.paravirtprobe)
++  }
++  __stop_paravirtprobe = .;
++
+   . = ALIGN(4096);
+   __nosave_begin = .;
+   .data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) { *(.data.nosave) }
+--- linux-2.6-pv.orig/include/asm-i386/paravirt.h
++++ linux-2.6-pv/include/asm-i386/paravirt.h
+@@ -120,6 +120,11 @@ struct paravirt_ops
+ 	void (fastcall *iret)(void);
+ };
+ 
++/* Mark a paravirt probe function. */
++#define paravirt_probe(fn)						\
++	static void (*__paravirtprobe_##fn)(void) __attribute_used__	\
++		__attribute__((__section__(".paravirtprobe"))) = fn
++
+ extern struct paravirt_ops paravirt_ops;
+ 
+ #define paravirt_enabled() (paravirt_ops.paravirt_enabled)
 
 --
