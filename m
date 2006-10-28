@@ -1,139 +1,60 @@
 From: Chris Wright <chrisw@sous-sol.org>
-Subject: [PATCH 3/7] More generic paravirtualization entry point.
-Date: Sat, 28 Oct 2006 00:00:03 -0700
-Message-ID: <20061029024605.950760000@sous-sol.org>
+Subject: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt kernels
+Date: Sat, 28 Oct 2006 00:00:04 -0700
+Message-ID: <20061029024606.496399000@sous-sol.org>
 References: <20061029024504.760769000@sous-sol.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964946AbWJ2CpF@vger.kernel.org>
-Content-Disposition: inline; filename=011-paravirt-head.S.patch
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964948AbWJ2Cpn@vger.kernel.org>
+Content-Disposition: inline; filename=015-disable-bug-checking.patch
 Sender: linux-kernel-owner@vger.kernel.org
 To: akpm@osdl.org, ak@muc.de
 Cc: Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-1) Each hypervisor writes a probe function to detect whether we are
-   running under that hypervisor.  paravirt_probe() registers this
-   function.
+Allow selected bug checks to be skipped by paravirt kernels.  The two most
+important are the F00F workaround (which is either done by the hypervisor,
+or not required), and the 'hlt' instruction check, which can break under
+some hypervisors.
 
-2) If vmlinux is booted with ring != 0, we call all the probe
-   functions (with registers except %esp intact) in link order: the
-   winner will not return.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Zachary Amsden <zach@vmware.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Zachary Amsden <zach@vmware.com>
 
 ---
- arch/i386/kernel/Makefile      |    2 ++
- arch/i386/kernel/head.S        |   33 +++++++++++++++++++++++++++++++++
- arch/i386/kernel/paravirt.c    |    6 +++++-
- arch/i386/kernel/vmlinux.lds.S |    6 ++++++
- include/asm-i386/paravirt.h    |    5 +++++
- 5 files changed, 51 insertions(+), 1 deletion(-)
+ arch/i386/kernel/cpu/intel.c |    2 +-
+ include/asm-i386/bugs.h      |    4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- linux-2.6-pv.orig/arch/i386/kernel/Makefile
-+++ linux-2.6-pv/arch/i386/kernel/Makefile
-@@ -39,6 +39,8 @@ obj-$(CONFIG_VM86)		+= vm86.o
- obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
- obj-$(CONFIG_HPET_TIMER) 	+= hpet.o
- obj-$(CONFIG_K8_NB)		+= k8.o
-+
-+# Make sure this is linked after any other paravirt_ops structs: see head.S
- obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+--- linux-2.6-pv.orig/arch/i386/kernel/cpu/intel.c
++++ linux-2.6-pv/arch/i386/kernel/cpu/intel.c
+@@ -107,7 +107,7 @@ static void __cpuinit init_intel(struct 
+ 	 * Note that the workaround only should be initialized once...
+ 	 */
+ 	c->f00f_bug = 0;
+-	if ( c->x86 == 5 ) {
++	if (!paravirt_enabled() && c->x86 == 5) {
+ 		static int f00f_workaround_enabled = 0;
  
- EXTRA_AFLAGS   := -traditional
---- linux-2.6-pv.orig/arch/i386/kernel/head.S
-+++ linux-2.6-pv/arch/i386/kernel/head.S
-@@ -55,6 +55,12 @@
-  */
- ENTRY(startup_32)
+ 		c->f00f_bug = 1;
+--- linux-2.6-pv.orig/include/asm-i386/bugs.h
++++ linux-2.6-pv/include/asm-i386/bugs.h
+@@ -21,6 +21,7 @@
+ #include <asm/processor.h>
+ #include <asm/i387.h>
+ #include <asm/msr.h>
++#include <asm/paravirt.h>
  
-+#ifdef CONFIG_PARAVIRT
-+        movl %cs, %eax
-+        testl $0x3, %eax
-+        jnz startup_paravirt
-+#endif
-+
- /*
-  * Set segments to known values.
-  */
-@@ -486,6 +492,33 @@ ignore_int:
- #endif
- 	iret
+ static int __init no_halt(char *s)
+ {
+@@ -91,6 +92,9 @@ static void __init check_fpu(void)
  
-+#ifdef CONFIG_PARAVIRT
-+startup_paravirt:
-+	cld
-+ 	movl $(init_thread_union+THREAD_SIZE),%esp
+ static void __init check_hlt(void)
+ {
++	if (paravirt_enabled())
++		return;
 +
-+	/* We take pains to preserve all the regs. */
-+	pushl	%edx
-+	pushl	%ecx
-+	pushl	%eax
-+
-+	/* paravirt.o is last in link, and that probe fn never returns */
-+	pushl	$__start_paravirtprobe
-+1:
-+	movl	0(%esp), %eax
-+	pushl	(%eax)
-+	movl	8(%esp), %eax
-+	call	*(%esp)
-+	popl	%eax
-+
-+	movl	4(%esp), %eax
-+	movl	8(%esp), %ecx
-+	movl	12(%esp), %edx
-+
-+	addl	$4, (%esp)
-+	jmp	1b
-+#endif
-+
- /*
-  * Real beginning of normal "text" segment
-  */
---- linux-2.6-pv.orig/arch/i386/kernel/paravirt.c
-+++ linux-2.6-pv/arch/i386/kernel/paravirt.c
-@@ -392,7 +392,11 @@ static int __init print_banner(void)
- 	return 0;
- }
- core_initcall(print_banner);
-- 
-+
-+/* We simply declare start_kernel to be the paravirt probe of last resort. */
-+asmlinkage void __init start_kernel(void);
-+paravirt_probe(start_kernel);
-+  
- struct paravirt_ops paravirt_ops = {
- 	.name = "bare hardware",
- 	.paravirt_enabled = 0,
---- linux-2.6-pv.orig/arch/i386/kernel/vmlinux.lds.S
-+++ linux-2.6-pv/arch/i386/kernel/vmlinux.lds.S
-@@ -60,6 +60,12 @@ SECTIONS
- 	CONSTRUCTORS
- 	} :data
- 
-+  __start_paravirtprobe = .;
-+  .paravirtprobe : AT(ADDR(.paravirtprobe) - LOAD_OFFSET) {
-+	*(.paravirtprobe)
-+  }
-+  __stop_paravirtprobe = .;
-+
-   . = ALIGN(4096);
-   __nosave_begin = .;
-   .data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) { *(.data.nosave) }
---- linux-2.6-pv.orig/include/asm-i386/paravirt.h
-+++ linux-2.6-pv/include/asm-i386/paravirt.h
-@@ -120,6 +120,11 @@ struct paravirt_ops
- 	void (fastcall *iret)(void);
- };
- 
-+/* Mark a paravirt probe function. */
-+#define paravirt_probe(fn)						\
-+	static void (*__paravirtprobe_##fn)(void) __attribute_used__	\
-+		__attribute__((__section__(".paravirtprobe"))) = fn
-+
- extern struct paravirt_ops paravirt_ops;
- 
- #define paravirt_enabled() (paravirt_ops.paravirt_enabled)
+ 	printk(KERN_INFO "Checking 'hlt' instruction... ");
+ 	if (!boot_cpu_data.hlt_works_ok) {
+ 		printk("disabled\n");
 
 --
