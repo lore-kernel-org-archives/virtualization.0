@@ -1,48 +1,43 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/7] header and stubs for paravirtualizing critical operations
-Date: Sun, 29 Oct 2006 08:40:07 -0800
-Message-ID: <200610290840.08231.ak@suse.de>
-References: <20061029024504.760769000@sous-sol.org> <20061029024603.317829000@sous-sol.org>
+From: Don Mullis <dwm@meer.net>
+Subject: Re: [PATCH 1/4] Prep for paravirt: Be careful about touching BIOS
+	address space
+Date: Sun, 29 Oct 2006 12:01:09 -0800
+Message-ID: <1162152070.23311.27.camel@localhost.localdomain>
+References: <1161920325.17807.29.camel@localhost.localdomain>
+	 <1161920535.17807.33.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965291AbWJ2Qmv@vger.kernel.org>
-In-Reply-To: <20061029024603.317829000@sous-sol.org>
-Content-Disposition: inline
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751887AbWJ2UH5@vger.kernel.org>
+In-Reply-To: <1161920535.17807.33.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.osdl.org
-Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de, linux-kernel@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Rusty Russell wrote:
+> @@ -301,7 +302,7 @@ static struct pci_raw_ops pci_bios_acces
+>  
+>  static struct pci_raw_ops * __devinit pci_find_bios(void)
+>  {
+> -	union bios32 *check;
+> +	union bios32 *check, sig;
 
-Can you add a high level comment to entry.S what paravirt mode
-is all about and perhaps a quick cheat sheet on the macros?
+This "sig" definition has no references, and is shadowed by the definition below.
 
-> +/* SMP boot always wants to use real time delay to allow sufficient time
-> for + * the APs to come online */
-> +#define USE_REAL_TIME_DELAY
+> @@ -314,6 +315,10 @@ static struct pci_raw_ops * __devinit pc
+>  	for (check = (union bios32 *) __va(0xe0000);
+>  	     check <= (union bios32 *) __va(0xffff0);
+>  	     ++check) {
+> +		long sig;
+> +		if (__get_user(sig, &check->fields.signature))
 
-That's ugly. Can't you call different wait functions for that case instead?
+But, no complaint from gcc.  Trying to elicit a complaint by configuring
+CC_OPTIMIZE_FOR_SIZE='n' breaks the build with:
 
-> +#ifdef CONFIG_PARAVIRT
-> +#include <asm/paravirt.h>
-> +#else
-> +static inline void init_IRQ(void)
-> +{
-> +	native_init_IRQ();
-> +}
-> +#endif /* CONFIG_PARAVIRT */
+  include/asm/desc.h: In function 'set_ldt':
+  include/asm/desc.h:92: error: implicit declaration of function 'write_gdt_entry'
 
-You could probably avoid a lot of ifdefs by strategic use of 
-__attribute__((weak))
+See reply to "[PATCH 3/4]" for a fix.
 
-> +#ifdef CONFIG_PARAVIRT
-> +#include <asm/paravirt.h>
-> +#else
-
-This is probably a good candidate for rename to native + wrapper
-macros too. Otherwise we'll always have to hack two different
-places later.
-
--Andi
+DM
