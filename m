@@ -1,43 +1,123 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Re: [PATCH 3/4] Prep for paravirt: desc.h clearer
-	parameter names, some code motion
-Date: Mon, 30 Oct 2006 11:05:50 +1100
-Message-ID: <1162166750.9802.6.camel@localhost.localdomain>
+Subject: Re: [PATCH 1/4] Prep for paravirt: Be careful about touching BIOS
+	address space
+Date: Mon, 30 Oct 2006 13:35:01 +1100
+Message-ID: <1162175701.9802.24.camel@localhost.localdomain>
 References: <1161920325.17807.29.camel@localhost.localdomain>
-	 <1161920728.17807.39.camel@localhost.localdomain>
-	 <1162152071.23311.28.camel@localhost.localdomain>
-	 <200610291306.36148.ak@suse.de>
-	 <1162158259.23311.35.camel@localhost.localdomain>
+	 <1161920535.17807.33.camel@localhost.localdomain>
+	 <20061027113001.GB8095@elf.ucw.cz> <45427ABD.6070407@goop.org>
+	 <20061027144157.f23fcf89.akpm@osdl.org> <4542DD84.3070006@goop.org>
+	 <20061027215037.cd69b2a3.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030464AbWJ3AFy@vger.kernel.org>
-In-Reply-To: <1162158259.23311.35.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030486AbWJ3CfH@vger.kernel.org>
+In-Reply-To: <20061027215037.cd69b2a3.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Don Mullis <dwm@meer.net>
-Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Pavel Machek <pavel@ucw.cz>, virtualization <virtualization@lists.osdl.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2006-10-29 at 13:44 -0800, Don Mullis wrote:
-> On Sun, 2006-10-29 at 13:06 -0800, Andi Kleen wrote:
-> > On Sunday 29 October 2006 12:01, Don Mullis wrote:
-> > > Fix build where CONFIG_CC_OPTIMIZE_FOR_SIZE is not set.
-> > >
-> > > Tested by build and boot.
-> > 
-> > What error does that fix?
+On Fri, 2006-10-27 at 21:50 -0700, Andrew Morton wrote:
+> On Fri, 27 Oct 2006 21:33:08 -0700
+> Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 > 
-> The build aborts with:
+> > Andrew Morton wrote:
+> > > It'd be better to use include/linux/uaccess.h:probe_kernel_address() for
+> > > this operation.
+> > >   
+> > Ah, yes, that was the precedent I was thinking of,
 > 
->   include/asm/desc.h: In function 'set_ldt':
->   include/asm/desc.h:92: error: implicit declaration of function 'write_gdt_entry'
+> We've done open-coded __get_user() in various places in the past.  The difference with
+> probe_kernel_address() is that it doesn't get deadlocked on mmap_sem().
 > 
-> The patch is a follow-on to my earlier reply to "[PATCH 1/4]".
+> >  but I guess it would 
+> > be better to just use it directly.  It's a relatively new interface, 
+> > isn't it?
+> 
+> Yeah.  New enough that nobody's tried using it on non-x86 ;) It needs
+> to do set_fs(KERNEL_DS).
 
-Yes, I caught this immediately after I sent; I sent the fix straight to
-akpm, as I didn't expect anyone else to be applying the patches.
+And the function name is misleading: it really does get a value, not
+merely probe an address.  And the arguments are reversed from
+__get_user, just to add fun.
 
-The patch was the same as yours.
+Andrew, please replace
+prep-for-paravirt-be-careful-about-touching-bios-warning-fix.patch
 
-Thanks!
-Rusty.
+Subject: Be careful about touching BIOS address space
+
+BIOS ROM areas may not be mapped into the guest address space, so be careful
+when touching those addresses to make sure they appear to be mapped.
+
+At Andrew's request, fix probe_kernel_address for non-x86.
+
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (modified)
+
+diff -r 9a6c8ceba677 arch/i386/kernel/setup.c
+--- a/arch/i386/kernel/setup.c	Mon Oct 30 11:34:30 2006 +1100
++++ b/arch/i386/kernel/setup.c	Mon Oct 30 13:15:33 2006 +1100
+@@ -47,6 +47,7 @@
+ #include <linux/crash_dump.h>
+ #include <linux/dmi.h>
+ #include <linux/pfn.h>
++#include <linux/uaccess.h>
+ 
+ #include <video/edid.h>
+ 
+@@ -270,7 +271,14 @@ static struct resource standard_io_resou
+ 	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+ } };
+ 
+-#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
++static inline int romsignature(const unsigned char *x)
++{
++     unsigned short sig;
++     int ret = 0;
++     if (probe_kernel_address((const unsigned short *)x, sig) == 0)
++	  ret = (sig == 0xaa55);
++     return ret;
++}
+ 
+ static int __init romchecksum(unsigned char *rom, unsigned long length)
+ {
+diff -r 9a6c8ceba677 arch/i386/pci/pcbios.c
+--- a/arch/i386/pci/pcbios.c	Mon Oct 30 11:34:30 2006 +1100
++++ b/arch/i386/pci/pcbios.c	Mon Oct 30 13:15:02 2006 +1100
+@@ -5,6 +5,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <linux/uaccess.h>
+ #include "pci.h"
+ #include "pci-functions.h"
+ 
+@@ -314,6 +315,10 @@ static struct pci_raw_ops * __devinit pc
+ 	for (check = (union bios32 *) __va(0xe0000);
+ 	     check <= (union bios32 *) __va(0xffff0);
+ 	     ++check) {
++		long sig;
++		if (probe_kernel_address(&check->fields.signature, sig))
++			continue;
++
+ 		if (check->fields.signature != BIOS32_SIGNATURE)
+ 			continue;
+ 		length = check->fields.length * 16;
+diff -r 9a6c8ceba677 include/linux/uaccess.h
+--- a/include/linux/uaccess.h	Mon Oct 30 11:34:30 2006 +1100
++++ b/include/linux/uaccess.h	Mon Oct 30 13:10:39 2006 +1100
+@@ -34,10 +34,13 @@ static inline unsigned long __copy_from_
+ #define probe_kernel_address(addr, retval)		\
+ 	({						\
+ 		long ret;				\
++		mm_segment_t old_fs = get_fs();		\
+ 							\
++		set_fs(KERNEL_DS);			\
+ 		inc_preempt_count();			\
+ 		ret = __get_user(retval, addr);		\
+ 		dec_preempt_count();			\
++		set_fs(old_fs);				\
+ 		ret;					\
+ 	})
+ 
