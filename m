@@ -1,123 +1,287 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/4] Prep for paravirt: Be careful about touching BIOS
-	address space
-Date: Mon, 30 Oct 2006 13:35:01 +1100
-Message-ID: <1162175701.9802.24.camel@localhost.localdomain>
-References: <1161920325.17807.29.camel@localhost.localdomain>
-	 <1161920535.17807.33.camel@localhost.localdomain>
-	 <20061027113001.GB8095@elf.ucw.cz> <45427ABD.6070407@goop.org>
-	 <20061027144157.f23fcf89.akpm@osdl.org> <4542DD84.3070006@goop.org>
-	 <20061027215037.cd69b2a3.akpm@osdl.org>
+Subject: Re: [PATCH 6/7] Add APIC accessors to paravirt-ops.
+Date: Mon, 30 Oct 2006 14:28:55 +1100
+Message-ID: <1162178936.9802.34.camel@localhost.localdomain>
+References: <20061029024504.760769000@sous-sol.org>
+	<20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030486AbWJ3CfH@vger.kernel.org>
-In-Reply-To: <20061027215037.cd69b2a3.akpm@osdl.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Pavel Machek <pavel@ucw.cz>, virtualization <virtualization@lists.osdl.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <200610290831.21062.ak@suse.de>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2006-10-27 at 21:50 -0700, Andrew Morton wrote:
-> On Fri, 27 Oct 2006 21:33:08 -0700
-> Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> 
-> > Andrew Morton wrote:
-> > > It'd be better to use include/linux/uaccess.h:probe_kernel_address() for
-> > > this operation.
-> > >   
-> > Ah, yes, that was the precedent I was thinking of,
-> 
-> We've done open-coded __get_user() in various places in the past.  The difference with
-> probe_kernel_address() is that it doesn't get deadlocked on mmap_sem().
-> 
-> >  but I guess it would 
-> > be better to just use it directly.  It's a relatively new interface, 
-> > isn't it?
-> 
-> Yeah.  New enough that nobody's tried using it on non-x86 ;) It needs
-> to do set_fs(KERNEL_DS).
+On Sun, 2006-10-29 at 08:31 -0800, Andi Kleen wrote:
+> It would be nicer if you renamed the functions in apic.h to native_apic_*
+> and then do
 
-And the function name is misleading: it really does get a value, not
-merely probe an address.  And the arguments are reversed from
-__get_user, just to add fun.
+...
 
-Andrew, please replace
-prep-for-paravirt-be-careful-about-touching-bios-warning-fix.patch
+> This might apply to at least some of the other paravirt ops too.
 
-Subject: Be careful about touching BIOS address space
+Yes.  I've done the obvious candidates below (as well as responding to
+some of your other points).  Many ops are one-liners, and I don't want
+to cause too much additional churn.
 
-BIOS ROM areas may not be mapped into the guest address space, so be careful
-when touching those addresses to make sure they appear to be mapped.
+Cheers!
+Rusty.
 
-At Andrew's request, fix probe_kernel_address for non-x86.
+Subject: Paravirtualization Kleenups
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (modified)
+1) Add "cheatsheet" comments to entry.S about macros.
+2) Use weak alias for init_IRQ -> native_init_IRQ in !CONFIG_PARAVIRT case.
+   This removes an #ifdef.
+3) Use shiny new start_kernel.h rather than another declaration.
+4) Avoid duplication in paravirt.c: rename set_ldt to native_set_ldt,
+   and use macro in !PARAVIRT case.
+5) Same trick for apic ops.
 
-diff -r 9a6c8ceba677 arch/i386/kernel/setup.c
---- a/arch/i386/kernel/setup.c	Mon Oct 30 11:34:30 2006 +1100
-+++ b/arch/i386/kernel/setup.c	Mon Oct 30 13:15:33 2006 +1100
-@@ -47,6 +47,7 @@
- #include <linux/crash_dump.h>
- #include <linux/dmi.h>
- #include <linux/pfn.h>
-+#include <linux/uaccess.h>
- 
- #include <video/edid.h>
- 
-@@ -270,7 +271,14 @@ static struct resource standard_io_resou
- 	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
- } };
- 
--#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
-+static inline int romsignature(const unsigned char *x)
-+{
-+     unsigned short sig;
-+     int ret = 0;
-+     if (probe_kernel_address((const unsigned short *)x, sig) == 0)
-+	  ret = (sig == 0xaa55);
-+     return ret;
-+}
- 
- static int __init romchecksum(unsigned char *rom, unsigned long length)
- {
-diff -r 9a6c8ceba677 arch/i386/pci/pcbios.c
---- a/arch/i386/pci/pcbios.c	Mon Oct 30 11:34:30 2006 +1100
-+++ b/arch/i386/pci/pcbios.c	Mon Oct 30 13:15:02 2006 +1100
-@@ -5,6 +5,7 @@
- #include <linux/pci.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/uaccess.h>
- #include "pci.h"
- #include "pci-functions.h"
- 
-@@ -314,6 +315,10 @@ static struct pci_raw_ops * __devinit pc
- 	for (check = (union bios32 *) __va(0xe0000);
- 	     check <= (union bios32 *) __va(0xffff0);
- 	     ++check) {
-+		long sig;
-+		if (probe_kernel_address(&check->fields.signature, sig))
-+			continue;
+There are other cases where we could use a renaming+macro similar
+trick to avoid duplication, but they're generally one-liners.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff -r ea3bae5ebb37 arch/i386/kernel/entry.S
+--- a/arch/i386/kernel/entry.S	Mon Oct 30 11:37:19 2006 +1100
++++ b/arch/i386/kernel/entry.S	Mon Oct 30 11:48:34 2006 +1100
+@@ -52,6 +52,19 @@
+ #include <asm/percpu.h>
+ #include <asm/dwarf2.h>
+ #include "irq_vectors.h"
 +
- 		if (check->fields.signature != BIOS32_SIGNATURE)
- 			continue;
- 		length = check->fields.length * 16;
-diff -r 9a6c8ceba677 include/linux/uaccess.h
---- a/include/linux/uaccess.h	Mon Oct 30 11:34:30 2006 +1100
-+++ b/include/linux/uaccess.h	Mon Oct 30 13:10:39 2006 +1100
-@@ -34,10 +34,13 @@ static inline unsigned long __copy_from_
- #define probe_kernel_address(addr, retval)		\
- 	({						\
- 		long ret;				\
-+		mm_segment_t old_fs = get_fs();		\
- 							\
-+		set_fs(KERNEL_DS);			\
- 		inc_preempt_count();			\
- 		ret = __get_user(retval, addr);		\
- 		dec_preempt_count();			\
-+		set_fs(old_fs);				\
- 		ret;					\
- 	})
- 
++/*
++ * We use macros for low-level operations which need to be overridden
++ * for paravirtualization.  The following will never clobber any registers:
++ *   INTERRUPT_RETURN (aka. "iret")
++ *   GET_CR0_INTO_EAX (aka. "movl %cr0, %eax")
++ *   ENABLE_INTERRUPTS_SYSEXIT (aka "sti; sysexit").
++ *
++ * For DISABLE_INTERRUPTS/ENABLE_INTERRUPTS (aka "cli"/"sti"), you must
++ * specify what registers can be overwritten (CLBR_NONE, CLBR_EAX/EDX/ECX/=
+ANY).
++ * Allowing a register to be clobbered can shrink the paravirt replacement
++ * enough to patch inline, increasing performance.
++ */
+ =
+
+ #define nr_syscalls ((syscall_table_size)/4)
+ =
+
+diff -r ea3bae5ebb37 arch/i386/kernel/i8259.c
+--- a/arch/i386/kernel/i8259.c	Mon Oct 30 11:37:19 2006 +1100
++++ b/arch/i386/kernel/i8259.c	Mon Oct 30 11:57:55 2006 +1100
+@@ -392,6 +392,9 @@ void __init init_ISA_irqs (void)
+ 	}
+ }
+ =
+
++/* Overridden in paravirt.c */
++void init_IRQ(void) __attribute__((weak, alias("native_init_IRQ")));
++
+ void __init native_init_IRQ(void)
+ {
+ 	int i;
+diff -r ea3bae5ebb37 arch/i386/kernel/paravirt.c
+--- a/arch/i386/kernel/paravirt.c	Mon Oct 30 11:37:19 2006 +1100
++++ b/arch/i386/kernel/paravirt.c	Mon Oct 30 12:31:48 2006 +1100
+@@ -19,6 +19,7 @@
+ #include <linux/module.h>
+ #include <linux/efi.h>
+ #include <linux/bcd.h>
++#include <linux/start_kernel.h>
+ =
+
+ #include <asm/bug.h>
+ #include <asm/paravirt.h>
+@@ -135,6 +136,11 @@ static fastcall void native_set_debugreg
+ 	}
+ }
+ =
+
++void init_IRQ(void)
++{
++	paravirt_ops.init_IRQ();
++}
++
+ static fastcall void native_clts(void)
+ {
+ 	asm volatile ("clts");
+@@ -296,22 +302,6 @@ static fastcall void native_load_tr_desc
+ 	asm volatile("ltr %w0"::"q" (GDT_ENTRY_TSS*8));
+ }
+ =
+
+-static fastcall void native_set_ldt(const void *addr, unsigned int entries)
+-{
+-	if (likely(entries =3D=3D 0))
+-		__asm__ __volatile__("lldt %w0"::"q" (0));
+-	else {
+-		unsigned cpu =3D smp_processor_id();
+-		__u32 a, b;
+-
+-		pack_descriptor(&a, &b, (unsigned long)addr,
+-				entries * sizeof(struct desc_struct) - 1,
+-				DESCTYPE_LDT, 0);
+-		write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, a, b);
+-		__asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8));
+-	} =
+
+-}
+-
+ static fastcall void native_load_gdt(const struct Xgt_desc_struct *dtr)
+ {
+ 	asm volatile("lgdt %0"::"m" (*dtr));
+@@ -385,26 +375,6 @@ static fastcall void native_io_delay(voi
+ 	asm volatile("outb %al,$0x80");
+ }
+ =
+
+-#ifdef CONFIG_X86_LOCAL_APIC
+-/*
+- * Basic functions for reading and writing APIC registers
+- */
+-static fastcall void native_apic_write(unsigned long reg, unsigned long v)
+-{
+-	*((volatile unsigned long *)(APIC_BASE+reg)) =3D v;
+-}
+-
+-static fastcall void native_apic_write_atomic(unsigned long reg, unsigned =
+long v)
+-{
+-	xchg((volatile unsigned long *)(APIC_BASE+reg), v);
+-}
+-
+-static fastcall unsigned long native_apic_read(unsigned long reg)
+-{
+-	return *((volatile unsigned long *)(APIC_BASE+reg));
+-}
+-#endif /* CONFIG_X86_LOCAL_APIC */
+-
+ static fastcall void native_flush_tlb(void)
+ {
+ 	__native_flush_tlb();
+@@ -508,7 +478,6 @@ core_initcall(print_banner);
+ core_initcall(print_banner);
+ =
+
+ /* We simply declare start_kernel to be the paravirt probe of last resort.=
+ */
+-asmlinkage void __init start_kernel(void);
+ paravirt_probe(start_kernel);
+   =
+
+ struct paravirt_ops paravirt_ops =3D {
+diff -r ea3bae5ebb37 include/asm-i386/apic.h
+--- a/include/asm-i386/apic.h	Mon Oct 30 11:37:19 2006 +1100
++++ b/include/asm-i386/apic.h	Mon Oct 30 12:41:07 2006 +1100
+@@ -40,21 +40,27 @@ extern void generic_apic_probe(void);
+ #ifdef CONFIG_PARAVIRT
+ #include <asm/paravirt.h>
+ #else
+-static __inline void apic_write(unsigned long reg, unsigned long v)
++#define apic_write native_apic_write
++#define apic_write_atomic native_apic_write_atomic
++#define apic_read native_apic_read
++#endif
++
++static __inline fastcall void native_apic_write(unsigned long reg,
++						unsigned long v)
+ {
+ 	*((volatile unsigned long *)(APIC_BASE+reg)) =3D v;
+ }
+ =
+
+-static __inline void apic_write_atomic(unsigned long reg, unsigned long v)
++static __inline fastcall void native_apic_write_atomic(unsigned long reg,
++						       unsigned long v)
+ {
+ 	xchg((volatile unsigned long *)(APIC_BASE+reg), v);
+ }
+ =
+
+-static __inline unsigned long apic_read(unsigned long reg)
++static __inline fastcall unsigned long native_apic_read(unsigned long reg)
+ {
+ 	return *((volatile unsigned long *)(APIC_BASE+reg));
+ }
+-#endif
+ =
+
+ static __inline__ void apic_wait_icr_idle(void)
+ {
+diff -r ea3bae5ebb37 include/asm-i386/desc.h
+--- a/include/asm-i386/desc.h	Mon Oct 30 11:37:19 2006 +1100
++++ b/include/asm-i386/desc.h	Mon Oct 30 12:40:20 2006 +1100
+@@ -92,7 +92,11 @@ static inline void write_dt_entry(void *
+ 	lp[1] =3D entry_high;
+ }
+ =
+
+-static inline void set_ldt(void *addr, unsigned int entries)
++#define set_ldt native_set_ldt
++#endif /* CONFIG_PARAVIRT */
++
++static inline fastcall void native_set_ldt(const void *addr,
++					   unsigned int entries)
+ {
+ 	if (likely(entries =3D=3D 0))
+ 		__asm__ __volatile__("lldt %w0"::"q" (0));
+@@ -107,7 +111,6 @@ static inline void set_ldt(void *addr, u
+ 		__asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8));
+ 	}
+ }
+-#endif /* CONFIG_PARAVIRT */
+ =
+
+ static inline void _set_gate(int gate, unsigned int type, void *addr, unsi=
+gned short seg)
+ {
+diff -r ea3bae5ebb37 include/asm-i386/irq.h
+--- a/include/asm-i386/irq.h	Mon Oct 30 11:37:19 2006 +1100
++++ b/include/asm-i386/irq.h	Mon Oct 30 12:01:31 2006 +1100
+@@ -41,14 +41,7 @@ extern void fixup_irqs(cpumask_t map);
+ extern void fixup_irqs(cpumask_t map);
+ #endif
+ =
+
++void init_IRQ(void);
+ void __init native_init_IRQ(void);
+-#ifdef CONFIG_PARAVIRT
+-#include <asm/paravirt.h>
+-#else
+-static inline void init_IRQ(void)
+-{
+-	native_init_IRQ();
+-}
+-#endif /* CONFIG_PARAVIRT */
+ =
+
+ #endif /* _ASM_IRQ_H */
+diff -r ea3bae5ebb37 include/asm-i386/paravirt.h
+--- a/include/asm-i386/paravirt.h	Mon Oct 30 11:37:19 2006 +1100
++++ b/include/asm-i386/paravirt.h	Mon Oct 30 12:18:58 2006 +1100
+@@ -153,11 +153,6 @@ extern struct paravirt_ops paravirt_ops;
+ extern struct paravirt_ops paravirt_ops;
+ =
+
+ #define paravirt_enabled() (paravirt_ops.paravirt_enabled)
+-
+-static inline void init_IRQ(void)
+-{
+-	paravirt_ops.init_IRQ();
+-}
+ =
+
+ static inline void load_esp0(struct tss_struct *tss,
+ 			     struct thread_struct *thread)
