@@ -1,25 +1,54 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 6/7] Add APIC accessors to paravirt-ops.
-Date: Mon, 30 Oct 2006 15:55:04 -0800
-Message-ID: <20061030235504.GB5881@sequoia.sous-sol.org>
-References: <20061029024504.760769000@sous-sol.org> <20061030231132.GA98768@muc.de> <20061030234215.GA5881@sequoia.sous-sol.org> <200610310046.01388.ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Is this a typo?
+Date: Mon, 30 Oct 2006 15:58:12 -0800
+Message-ID: <45469194.7030306@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932474AbWJ3XxT@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <200610310046.01388.ak@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Andi Kleen (ak@suse.de) wrote:
-> I haven't tried it myself (my laptop was on battery all the time
-> and I didn't want to drain it with a full rebuild ;-), there was just a report
-> that it didn't work. Or maybe that was with an old patch. If it works it's fine.
+static pmd_t * __init one_md_table_init(pgd_t *pgd)
+{
+	pud_t *pud;
+	pmd_t *pmd_table;
+		=
 
-Ah yes, I see the report, (it's against a patch that has been redone),
-but I'll double check.
+#ifdef CONFIG_X86_PAE
+	pmd_table =3D (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+	paravirt_alloc_pmd(__pa(page_table) >> PAGE_SHIFT);
+                                ^^^^^^^^^^ pmd_table?
+	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
+	pud =3D pud_offset(pgd, 0);
+	if (pmd_table !=3D pmd_offset(pud, 0)) =
 
-thanks,
--chris
+		BUG();
+#else
+	pud =3D pud_offset(pgd, 0);
+	pmd_table =3D pmd_offset(pud, 0);
+#endif
+
+	return pmd_table;
+}
+
+
+Also, did you anticipate that these paravirt_alloc_* functions would be =
+
+useful for Xen to maintain the "pagetable pages must be RO" constraint?  =
+
+Or do you think that will need to be done in a second pass (which is how =
+
+it seems to me).
+
+    J
