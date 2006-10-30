@@ -1,28 +1,23 @@
 From: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH 6/7] Add APIC accessors to paravirt-ops.
-Date: 31 Oct 2006 00:11:32 +0100
-Message-ID: <20061030231132.GA98768@muc.de>
-References: <20061029024504.760769000@sous-sol.org> <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de> <1162178936.9802.34.camel@localhost.localdomain>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+Date: 31 Oct 2006 00:12:51 +0100
+Message-ID: <20061030231251.GB98768@muc.de>
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com> <200610271416.12548.ak@suse.de> <4546669F.8020706@vmware.com> <20061030225016.GA95732@muc.de> <45468620.5060805@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161359AbWJ3XLj@vger.kernel.org>
-Date: Tue, 31 Oct 2006 00:11:32 +0100
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161401AbWJ3XMx@vger.kernel.org>
+Date: Tue, 31 Oct 2006 00:12:51 +0100
 Content-Disposition: inline
-In-Reply-To: <1162178936.9802.34.camel@localhost.localdomain>
+In-Reply-To: <45468620.5060805@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, linux-kernel@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Subject: Paravirtualization Kleenups
+> That is the one that can panic, for now.  Fixing the paravirtualized 
+> case is easy, but we can't assume paravirtualization just yet.
 
-Thanks. 
-
-Chris, can you please merge those into the original patchkit? 
-
-I could do it myself, but then retransmits from Chris would be difficult
-if anything else would need to be changed.
-
-Also fixing that !-Os compile error in the original patches would be good.
+Hmm, this means standard vmware boot is not reliable unless that magic option
+is set?   That doesn't sound good.  
 
 -Andi
