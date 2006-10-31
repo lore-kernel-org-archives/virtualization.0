@@ -1,48 +1,81 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Is this a typo?
-Date: Mon, 30 Oct 2006 16:12:28 -0800
-Message-ID: <454694EC.5040700@goop.org>
-References: <45469194.7030306@goop.org>
-	<20061031000612.GC5881@sequoia.sous-sol.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 6/7] Add APIC accessors to paravirt-ops.
+Date: Tue, 31 Oct 2006 12:45:54 +1100
+Message-ID: <1162259155.26676.16.camel@localhost.localdomain>
+References: <20061029024504.760769000@sous-sol.org>
+	 <20061030231132.GA98768@muc.de>
+	 <20061030234215.GA5881@sequoia.sous-sol.org>
+	 <200610310046.01388.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20061031000612.GC5881@sequoia.sous-sol.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965172AbWJaBqF@vger.kernel.org>
+In-Reply-To: <200610310046.01388.ak@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
-> * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
->   =
+On Tue, 2006-10-31 at 00:46 +0100, Andi Kleen wrote:
+> On Tuesday 31 October 2006 00:42, Chris Wright wrote:
+> 
+> > > I could do it myself, but then retransmits from Chris would be difficult
+> > > if anything else would need to be changed.
+> > > 
+> > > Also fixing that !-Os compile error in the original patches would be good.
+> > 
+> > Hmm, builds fine here.  If you have a .config and/or error message I'll
+> > fix it up.
+> 
+> I haven't tried it myself (my laptop was on battery all the time
+> and I didn't want to drain it with a full rebuild ;-), there was just a report
+> that it didn't work. Or maybe that was with an old patch. If it works it's fine.
 
->> static pmd_t * __init one_md_table_init(pgd_t *pgd)
->> {
->> 	pud_t *pud;
->> 	pmd_t *pmd_table;
->> 		=
+The -Os thing was a red herring.  It was a brokenpatch in the original 4
+which for which I immediately sent a fixup to akpm.  Here it is again
+below:
 
->> #ifdef CONFIG_X86_PAE
->> 	pmd_table =3D (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
->> 	paravirt_alloc_pmd(__pa(page_table) >> PAGE_SHIFT);
->>                                ^^^^^^^^^^ pmd_table?
->>     =
+==
+Move write_dt_entry back: moving it up breaks compile.
 
->
-> Weird, that should be fixed already
->   =
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-
-I haven't updated in a little while, so maybe I'm looking at stale stuff.
-
-    J
+===================================================================
+--- a/include/asm-i386/desc.h
++++ b/include/asm-i386/desc.h
+@@ -78,6 +78,17 @@ static inline void load_TLS(struct threa
+ #undef C
+ }
+ 
++#define write_ldt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
++#define write_gdt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
++#define write_idt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
++
++static inline void write_dt_entry(void *dt, int entry, u32 entry_low, u32 entry_high)
++{
++	u32 *lp = (u32 *)((char *)dt + entry*8);
++	lp[0] = entry_low;
++	lp[1] = entry_high;
++}
++
+ static inline void set_ldt(void *addr, unsigned int entries)
+ {
+ 	if (likely(entries == 0))
+@@ -92,17 +103,6 @@ static inline void set_ldt(void *addr, u
+ 		write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, low, high);
+ 		__asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8));
+ 	}
+-}
+-
+-#define write_ldt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
+-#define write_gdt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
+-#define write_idt_entry(dt, entry, low, high) write_dt_entry(dt,entry,low,high)
+-
+-static inline void write_dt_entry(void *dt, int entry, u32 entry_low, u32 entry_high)
+-{
+-	u32 *lp = (u32 *)((char *)dt + entry*8);
+-	lp[0] = entry_low;
+-	lp[1] = entry_high;
+ }
+ 
+ static inline void _set_gate(int gate, unsigned int type, void *addr, unsigned short seg)
