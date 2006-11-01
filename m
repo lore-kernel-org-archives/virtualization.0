@@ -1,40 +1,35 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] paravirt build fix
-Date: Wed, 01 Nov 2006 14:40:36 -0800
-Message-ID: <45492264.4040009@goop.org>
-References: <Pine.LNX.4.44.0611011724300.31378-100000@redline.boston.redhat.com>
+From: Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt kernels
+Date: Wed, 1 Nov 2006 17:40:19 -0500
+Message-ID: <20061101224019.GA10577@redhat.com>
+References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org> <20061101121753.GA2205@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0611011724300.31378-100000@redline.boston.redhat.com>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: James Morris <jmorris@redhat.com>
-Cc: virtualization@lists.osdl.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752529AbWKAWlj@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20061101121753.GA2205@elf.ucw.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-James Morris wrote:
-> Currently, 020-paravirt-xen.patch contains inconsistent declarations for =
-a =
+On Wed, Nov 01, 2006 at 01:17:53PM +0100, Pavel Machek wrote:
 
-> bunch of native_read/write functions.  This patch updates the declaration=
-s =
+ > > +++ linux-2.6-pv/arch/i386/kernel/cpu/intel.c
+ > > @@ -107,7 +107,7 @@ static void __cpuinit init_intel(struct 
+ > >  	 * Note that the workaround only should be initialized once...
+ > >  	 */
+ > >  	c->f00f_bug = 0;
+ > > -	if ( c->x86 == 5 ) {
+ > > +	if (!paravirt_enabled() && c->x86 == 5) {
+ > 
+ > I'd do x86==5 check first... pentiums are not common any more.
 
-> to use unsigned long for register values.
->
-> Signed-off-by: James Morris <jmorris@redhat.com>
->   =
+It's not like paravirt_enabled will be common-case either,
+and is this isn't exactly a performance critical piece of code,
+it doesn't really matter which way around the checks are done.
 
-Thanks.  I'd already gone through and fixed those up locally, and was =
+	Dave
 
-about to push them out.
-
-    J
+-- 
+http://www.codemonkey.org.uk
