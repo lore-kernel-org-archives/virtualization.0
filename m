@@ -1,39 +1,25 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt kernels
-Date: Wed, 1 Nov 2006 13:17:53 +0100
-Message-ID: <20061101121753.GA2205@elf.ucw.cz>
-References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for paravirtualizing critical operations
+Date: Wed, 1 Nov 2006 18:27:48 +0100
+Message-ID: <200611011827.49108.ak@suse.de>
+References: <20061029024504.760769000@sous-sol.org> <1162376827.23462.5.camel@localhost.localdomain> <1162377928.23744.4.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946838AbWKAMSJ@vger.kernel.org>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946951AbWKAR2T@vger.kernel.org>
+In-Reply-To: <1162377928.23744.4.camel@laptopd505.fenrus.org>
 Content-Disposition: inline
-In-Reply-To: <20061029024606.496399000@sous-sol.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: akpm@osdl.org, ak@muc.de, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat 2006-10-28 00:00:04, Chris Wright wrote:
-> Allow selected bug checks to be skipped by paravirt kernels.  The two most
-> important are the F00F workaround (which is either done by the hypervisor,
-> or not required), and the 'hlt' instruction check, which can break under
-> some hypervisors.
+On Wednesday 01 November 2006 11:45, Arjan van de Ven wrote:
 
-How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
-innocent to me.
+> this is a lot of infrastructure... do we have more than 1 user of this
+> yet that wants to get merged in mainline?
 
-> --- linux-2.6-pv.orig/arch/i386/kernel/cpu/intel.c
-> +++ linux-2.6-pv/arch/i386/kernel/cpu/intel.c
-> @@ -107,7 +107,7 @@ static void __cpuinit init_intel(struct 
->  	 * Note that the workaround only should be initialized once...
->  	 */
->  	c->f00f_bug = 0;
-> -	if ( c->x86 == 5 ) {
-> +	if (!paravirt_enabled() && c->x86 == 5) {
+AFAIK xen, vmi, lhype (and native ops).
 
-I'd do x86==5 check first... pentiums are not common any more.
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-Andi
