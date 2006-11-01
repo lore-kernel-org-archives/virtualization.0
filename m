@@ -1,25 +1,72 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for paravirtualizing critical operations
-Date: Wed, 1 Nov 2006 18:27:48 +0100
-Message-ID: <200611011827.49108.ak@suse.de>
-References: <20061029024504.760769000@sous-sol.org> <1162376827.23462.5.camel@localhost.localdomain> <1162377928.23744.4.camel@laptopd505.fenrus.org>
+From: James Morris <jmorris@redhat.com>
+Subject: [PATCH] paravirt build fix
+Date: Wed, 1 Nov 2006 17:28:31 -0500 (EST)
+Message-ID: <Pine.LNX.4.44.0611011724300.31378-100000@redline.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946951AbWKAR2T@vger.kernel.org>
-In-Reply-To: <1162377928.23744.4.camel@laptopd505.fenrus.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 01 November 2006 11:45, Arjan van de Ven wrote:
+Currently, 020-paravirt-xen.patch contains inconsistent declarations for a =
 
-> this is a lot of infrastructure... do we have more than 1 user of this
-> yet that wants to get merged in mainline?
+bunch of native_read/write functions.  This patch updates the declarations =
 
-AFAIK xen, vmi, lhype (and native ops).
+to use unsigned long for register values.
 
--Andi
+Signed-off-by: James Morris <jmorris@redhat.com>
+
+---
+
+ include/asm-i386/paravirt.h |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
+
+diff -purN -X dontdiff linux-pv-2.6.o/include/asm-i386/paravirt.h linux-pv-=
+2.6.x/include/asm-i386/paravirt.h
+--- linux-pv-2.6.o/include/asm-i386/paravirt.h	2006-11-01 16:46:50.00000000=
+0 -0500
++++ linux-pv-2.6.x/include/asm-i386/paravirt.h	2006-11-01 16:57:47.00000000=
+0 -0500
+@@ -176,18 +176,18 @@ extern struct paravirt_ops paravirt_ops;
+    back-ends which don't need their own version. */
+ fastcall void native_clts(void);
+ =
+
+-fastcall unsigned int native_read_cr0(void);
+-fastcall void native_write_cr0(unsigned int val);
++fastcall unsigned long native_read_cr0(void);
++fastcall void native_write_cr0(unsigned long val);
+ =
+
+-fastcall unsigned int native_read_cr2(void);
+-fastcall void native_write_cr2(unsigned int val);
++fastcall unsigned long native_read_cr2(void);
++fastcall void native_write_cr2(unsigned long val);
+ =
+
+-fastcall unsigned int native_read_cr3(void);
+-fastcall void native_write_cr3(unsigned int val);
++fastcall unsigned long native_read_cr3(void);
++fastcall void native_write_cr3(unsigned long val);
+ =
+
+-fastcall unsigned int native_read_cr4(void);
+-fastcall unsigned int native_read_cr4_safe(void);
+-fastcall void native_write_cr4(unsigned int val);
++fastcall unsigned long native_read_cr4(void);
++fastcall unsigned long native_read_cr4_safe(void);
++fastcall void native_write_cr4(unsigned long val);
+ =
+
+ fastcall void native_wbinvd(void);
+ =
