@@ -1,53 +1,39 @@
-From: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
-	paravirtualizing critical operations
-Date: Wed, 01 Nov 2006 11:45:25 +0100
-Message-ID: <1162377928.23744.4.camel@laptopd505.fenrus.org>
-References: <20061029024504.760769000@sous-sol.org>
-	<20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
-	<1162178936.9802.34.camel@localhost.localdomain>
-	<20061030231132.GA98768@muc.de>
-	<1162376827.23462.5.camel@localhost.localdomain>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt kernels
+Date: Wed, 1 Nov 2006 13:17:53 +0100
+Message-ID: <20061101121753.GA2205@elf.ucw.cz>
+References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1162376827.23462.5.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, akpm@osdl.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946838AbWKAMSJ@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20061029024606.496399000@sous-sol.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: akpm@osdl.org, ak@muc.de, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2006-11-01 at 21:27 +1100, Rusty Russell wrote:
-> Create a paravirt.h header for all the critical operations which need
-> to be replaced with hypervisor calls, and include that instead of
-> defining native operations, when CONFIG_PARAVIRT.
-> =
+On Sat 2006-10-28 00:00:04, Chris Wright wrote:
+> Allow selected bug checks to be skipped by paravirt kernels.  The two most
+> important are the F00F workaround (which is either done by the hypervisor,
+> or not required), and the 'hlt' instruction check, which can break under
+> some hypervisors.
 
-> This patch does the dumbest possible replacement of paravirtualized
-> instructions: calls through a "paravirt_ops" structure.  Currently
-> these are function implementations of native hardware: hypervisors
-> will override the ops structure with their own variants.
-> =
+How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
+innocent to me.
 
-> All the pv-ops functions are declared "fastcall" so that a specific
-> register-based ABI is used, to make inlining assember easier.
+> --- linux-2.6-pv.orig/arch/i386/kernel/cpu/intel.c
+> +++ linux-2.6-pv/arch/i386/kernel/cpu/intel.c
+> @@ -107,7 +107,7 @@ static void __cpuinit init_intel(struct 
+>  	 * Note that the workaround only should be initialized once...
+>  	 */
+>  	c->f00f_bug = 0;
+> -	if ( c->x86 == 5 ) {
+> +	if (!paravirt_enabled() && c->x86 == 5) {
 
+I'd do x86==5 check first... pentiums are not common any more.
 
-this is a lot of infrastructure... do we have more than 1 user of this
-yet that wants to get merged in mainline?
-
-
--- =
-
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwa=
-rekit.org
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
