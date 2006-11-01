@@ -1,36 +1,53 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
-	paravirtualizing critical operations
-Date: Thu, 02 Nov 2006 10:32:51 +1100
-Message-ID: <1162423971.6848.1.camel@localhost.localdomain>
-References: <20061029024504.760769000@sous-sol.org>
-	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
-	 <1162178936.9802.34.camel@localhost.localdomain>
-	 <20061030231132.GA98768@muc.de>
-	 <1162376827.23462.5.camel@localhost.localdomain>
-	 <1162377928.23744.4.camel@laptopd505.fenrus.org>
+From: James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH] fix boot crash when freeing initrd memory
+Date: Wed, 1 Nov 2006 18:34:43 -0500 (EST)
+Message-ID: <Pine.LNX.4.44.0611011831450.1490-100000@redline.boston.redhat.com>
+References: <Pine.LNX.4.44.0611011821410.1110-100000@redline.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752568AbWKAXc5@vger.kernel.org>
-In-Reply-To: <1162377928.23744.4.camel@laptopd505.fenrus.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0611011821410.1110-100000@redline.boston.redhat.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2006-11-01 at 11:45 +0100, Arjan van de Ven wrote:
-> On Wed, 2006-11-01 at 21:27 +1100, Rusty Russell wrote:
-> > Create a paravirt.h header for all the critical operations which need
-> > to be replaced with hypervisor calls, and include that instead of
-> > defining native operations, when CONFIG_PARAVIRT.
-> this is a lot of infrastructure... do we have more than 1 user of this
-> yet that wants to get merged in mainline?
+On Wed, 1 Nov 2006, James Morris wrote:
 
-Yep.  Xen and VMI both have patches on top of this pending merge.  I
-also have a toy hypervisor "lhype" based on this, but it's not ready for
-mainline.  (It seems people expect consoles to do *input* as well as
-output).
+> > Is this booting native or under Xen?  I put the BUG_ON in there since i=
+f =
 
-Cheers,
-Rusty.
+> > it isn't page-aligned, freeing the page would seem to be freeing =
+
+> > something else unexpectedly...  I think ChrisW was triggering this =
+
+> > BUG_ON at one point, but I don't think we've worked out what's going on =
+
+> > here.
+> =
+
+> This is booting native, with patches applied but nothing selected (no Xen=
+, =
+
+> VMI or lhype).
+
+Here's what it's trying to free:
+
+free_init_pages: what=3Dc02aef98 begin=3D4158582784 end=3D4160683928
+
+(in hex, begin & end are 0xf7def000 and 0xf7eff98)
+
+
+-- =
+
+James Morris
+<jmorris@redhat.com>
