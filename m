@@ -1,48 +1,36 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt
- kernels
-Date: Thu, 02 Nov 2006 03:04:50 -0800
-Message-ID: <4549D0D2.6050309@vmware.com>
-References: <20061029024504.760769000@sous-sol.org> <20061029024606.496399000@sous-sol.org> <20061101121753.GA2205@elf.ucw.cz> <45492CBC.8020501@vmware.com> <20061102102059.GB1990@elf.ucw.cz>
+From: Andrew Morton <akpm@osdl.org>
+Subject: warnings in rc4-mm2
+Date: Thu, 2 Nov 2006 15:25:07 -0800
+Message-ID: <20061102152507.70ab4dd2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752042AbWKBLEv@vger.kernel.org>
-In-Reply-To: <20061102102059.GB1990@elf.ucw.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Pavel Machek wrote:
->>> How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
->>> innocent to me.
->>>  
->>>       
->> Not if you use tickless timers that don't generate interrupts to unhalt 
->> you, or if you delay ticks until the next scheduled timeout and you 
->> haven't yet scheduled any timeout.  Both are likely in a hypervisor.
->>     
->
-> Well.. but you are working around problem, instead of fixing it.
->
-> Tickless kernels are possible on normal machines, too.
->
-> Please fix it properly... probably by requesting timer 10msec in
-> advance or something.
-> 									Pavel
->   
 
-Well, I agree in spirit, but there is something to be said for keeping 
-the code less complicated by removing these workarounds for broken 
-processors.  Preferably, we could remove the hlt check entirely, but 
-then those people with these broken processors would not get the 
-expected behavior of stalling during boot - that is the expected 
-behavior of failure, correct?  In any case, I added this workaround for 
-the case when running under Xen.  I would rather not add a dependence on 
-timer scheduling to legacy bug checking code when the number of timer 
-sources and tickless variations available is proliferating and the 
-number of legacy processors that would even need this check is rapidly 
-approaching zero.
+i386 allmodconfig
 
-Zach
+arch/i386/power/cpu.c: In function '__save_processor_state':
+arch/i386/power/cpu.c:29: warning: passing argument 1 of 'paravirt_ops.stor=
+e_gdt' from incompatible pointer type
+arch/i386/power/cpu.c:30: warning: passing argument 1 of 'paravirt_ops.stor=
+e_idt' from incompatible pointer type
+arch/i386/power/cpu.c: In function '__restore_processor_state':
+arch/i386/power/cpu.c:102: warning: passing argument 1 of 'paravirt_ops.loa=
+d_gdt' from incompatible pointer type
+arch/i386/power/cpu.c:103: warning: passing argument 1 of 'paravirt_ops.loa=
+d_idt' from incompatible pointer type
+arch/i386/kernel/paravirt.c:481: warning: initialization from incompatible =
+pointer type
