@@ -1,29 +1,62 @@
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for paravirtualizing critical operations
-Date: Thu, 2 Nov 2006 07:44:03 +0000 (UTC)
-Message-ID: <slrnekj8qv.2in.olecom@flower.upol.cz>
-References: <20061029024504.760769000@sous-sol.org> <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de> <1162178936.9802.34.camel@localhost.localdomain> <20061030231132.GA98768@muc.de> <1162376827.23462.5.camel@localhost.localdomain> <20061101231313.4c91a9a9.akpm@osdl.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752712AbWKBHoY@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.osdl.org
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 4/7] Allow selected bug checks to be skipped by paravirt
+	kernels
+Date: Thu, 2 Nov 2006 11:20:59 +0100
+Message-ID: <20061102102059.GB1990@elf.ucw.cz>
+References: <20061029024504.760769000@sous-sol.org>
+	<20061029024606.496399000@sous-sol.org>
+	<20061101121753.GA2205@elf.ucw.cz> <45492CBC.8020501@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Disposition: inline
+In-Reply-To: <45492CBC.8020501@vmware.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, ak@muc.de, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2006-11-02, Andrew Morton wrote:
-> This patch breaks `make headers_check' in mysterious ways:
->
->   CHECK   include/linux/netfilter_ipv4/ip_conntrack_tcp.h
->   CHECK   include/linux/netfilter_ipv4/ip_conntrack_sctp.h
->   CHECK   include/linux/netfilter_ipv4/ip_conntrack_protocol.h
->   CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper_h323_types.h
->   CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper_h323_asn1.h
->   CHECK   include/linux/netfilter_ipv4/ip_conntrack_helper.h
-> make[2]: *** [/usr/src/devel/usr/include/asm/.check.setup.h] Error 1
-> make[2]: *** Waiting for unfinished jobs....
-> make[1]: *** [asm-i386] Error 2
-> make[1]: *** Waiting for unfinished jobs....
-> make: *** [headers_check] Error 2
+Hi!
 
-It seems like missing
-"header-y += paravirt.h" in the "include/asm-i386/Kbuild".
-____
+> >>Allow selected bug checks to be skipped by paravirt kernels.  The two m=
+ost
+> >>important are the F00F workaround (which is either done by the hypervis=
+or,
+> >>or not required), and the 'hlt' instruction check, which can break under
+> >>some hypervisors.
+> >>    =
+
+> >
+> >How can hlt check break? It is hlt;hlt;hlt, IIRC, that looks fairly
+> >innocent to me.
+> >  =
+
+> =
+
+> Not if you use tickless timers that don't generate interrupts to unhalt =
+
+> you, or if you delay ticks until the next scheduled timeout and you =
+
+> haven't yet scheduled any timeout.  Both are likely in a hypervisor.
+
+Well.. but you are working around problem, instead of fixing it.
+
+Tickless kernels are possible on normal machines, too.
+
+Please fix it properly... probably by requesting timer 10msec in
+advance or something.
+									Pavel
+-- =
+
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
