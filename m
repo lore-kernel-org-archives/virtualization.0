@@ -1,82 +1,38 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [PATCH 2/7] paravirtualization: Patch inline replacements for
-	common paravirt operations.
-Date: Thu, 02 Nov 2006 11:47:04 +1100
-Message-ID: <1162428424.6848.14.camel@localhost.localdomain>
-References: <20061029024504.760769000@sous-sol.org>
-	<20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
-	<1162178936.9802.34.camel@localhost.localdomain>
-	<20061030231132.GA98768@muc.de>
-	<1162376827.23462.5.camel@localhost.localdomain>
-	<1162376894.23462.7.camel@localhost.localdomain>
-	<20061101152715.f1f94d5c.akpm@osdl.org>
+ common paravirt operations.
+Date: Wed, 01 Nov 2006 16:54:00 -0800
+Message-ID: <454941A8.6000601@vmware.com>
+References: <20061029024504.760769000@sous-sol.org>	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>	 <1162178936.9802.34.camel@localhost.localdomain>	 <20061030231132.GA98768@muc.de>	 <1162376827.23462.5.camel@localhost.localdomain>	 <1162376894.23462.7.camel@localhost.localdomain>	 <20061101152715.f1f94d5c.akpm@osdl.org> <1162428424.6848.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20061101152715.f1f94d5c.akpm@osdl.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752324AbWKBAyE@vger.kernel.org>
+In-Reply-To: <1162428424.6848.14.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2006-11-01 at 15:27 -0800, Andrew Morton wrote:
-> On Wed, 01 Nov 2006 21:28:13 +1100
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > +#ifdef CONFIG_DEBUG_KERNEL
-> > +		/* Deliberately clobber regs using "not %reg" to find bugs. */
-> =
+Rusty Russell wrote:
+> On Wed, 2006-11-01 at 15:27 -0800, Andrew Morton wrote:
+>   
+>> On Wed, 01 Nov 2006 21:28:13 +1100
+>> Rusty Russell <rusty@rustcorp.com.au> wrote:
+>>     
+>>> +#ifdef CONFIG_DEBUG_KERNEL
+>>> +		/* Deliberately clobber regs using "not %reg" to find bugs. */
+>>>       
+>> That would be considered to be abusive of CONFIG_DEBUG_KERNEL.  A
+>> CONFIG_DEBUG_PARAVIRT which depends on CONFIG_DEBUG_KERNEL would be more
+>> harmonious.
+>>     
+>
+> I wasn't sure.  Making a config option for what is a one-liner seemed
+> overkill.
+>   
 
-> That would be considered to be abusive of CONFIG_DEBUG_KERNEL.  A
-> CONFIG_DEBUG_PARAVIRT which depends on CONFIG_DEBUG_KERNEL would be more
-> harmonious.
+I have further stuff in my vmi-debug patch that can use 
+CONFIG_DEBUG_PARAVIRT as well :)
 
-I wasn't sure.  Making a config option for what is a one-liner seemed
-overkill.
-
-=3D=3D
-
-Don't abuse CONFIG_DEBUG_KERNEL, add CONFIG_DEBUG_PARAVIRT.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff -r 2707c89d72f0 arch/i386/Kconfig.debug
---- a/arch/i386/Kconfig.debug	Thu Nov 02 10:14:50 2006 +1100
-+++ b/arch/i386/Kconfig.debug	Thu Nov 02 11:41:20 2006 +1100
-@@ -87,4 +87,14 @@ config DOUBLEFAULT
-           option saves about 4k and might cause you much additional grey
-           hair.
- =
-
-+config DEBUG_PARAVIRT
-+	bool "Enable some paravirtualization debugging"
-+	default y
-+	depends on PARAVIRT && DEBUG_KERNEL
-+	help
-+	  Currently deliberately clobbers regs which are allowed to be
-+	  clobbered in inlined paravirt hooks, even in native mode.
-+	  If turning this off solves a problem, then DISABLE_INTERRUPTS() or
-+	  ENABLE_INTERRUPTS() is lying about what registers can be clobbered.
-+
- endmenu
-diff -r 2707c89d72f0 arch/i386/kernel/alternative.c
---- a/arch/i386/kernel/alternative.c	Thu Nov 02 10:14:50 2006 +1100
-+++ b/arch/i386/kernel/alternative.c	Thu Nov 02 11:36:54 2006 +1100
-@@ -359,7 +359,7 @@ void apply_paravirt(struct paravirt_patc
- =
-
- 		used =3D paravirt_ops.patch(p->instrtype, p->clobbers, p->instr,
- 					  p->len);
--#ifdef CONFIG_DEBUG_KERNEL
-+#ifdef CONFIG_DEBUG_PARAVIRT
- 		/* Deliberately clobber regs using "not %reg" to find bugs. */
- 		for (i =3D 0; i < 3; i++) {
- 			if (p->len - used >=3D 2 && (p->clobbers & (1 << i))) {
+Zach
