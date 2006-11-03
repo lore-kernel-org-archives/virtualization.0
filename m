@@ -1,89 +1,126 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
-	paravirtualizing critical operations
-Date: Fri, 3 Nov 2006 03:56:53 +0100
-Message-ID: <200611030356.54074.ak@suse.de>
-References: <20061029024504.760769000@sous-sol.org>
-	<20061030231132.GA98768@muc.de>
-	<1162376827.23462.5.camel@localhost.localdomain>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for	paravirtualizing
+ critical operations
+Date: Fri, 03 Nov 2006 12:35:03 -0800
+Message-ID: <454BA7F7.8030205@vmware.com>
+References: <20061029024504.760769000@sous-sol.org>	<20061030231132.GA98768@muc.de>	<1162376827.23462.5.camel@localhost.localdomain> <200611030356.54074.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1162376827.23462.5.camel@localhost.localdomain>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932090AbWKCUfG@vger.kernel.org>
+In-Reply-To: <200611030356.54074.ak@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkbmVzZGF5IDAxIE5vdmVtYmVyIDIwMDYgMTE6MjcsIFJ1c3R5IFJ1c3NlbGwgd3JvdGU6
-Cj4gQ3JlYXRlIGEgcGFyYXZpcnQuaCBoZWFkZXIgZm9yIGFsbCB0aGUgY3JpdGljYWwgb3BlcmF0
-aW9ucyB3aGljaCBuZWVkCj4gdG8gYmUgcmVwbGFjZWQgd2l0aCBoeXBlcnZpc29yIGNhbGxzLCBh
-bmQgaW5jbHVkZSB0aGF0IGluc3RlYWQgb2YKPiBkZWZpbmluZyBuYXRpdmUgb3BlcmF0aW9ucywg
-d2hlbiBDT05GSUdfUEFSQVZJUlQuCgpIbW0sIGRpZCB0aGlzIGFsbCBldmVyIGNvbXBpbGUgaW4g
-bWFpbmxpbmU/IEkgaGFkIHRvIGRvIGEgZmV3IG1lcmdlcwphbmQgaW4gdGhlIGVuZCBpIGdldAoK
-L2hvbWUvbHNyYy9xdWlsdC9saW51eC9rZXJuZWwvc3BpbmxvY2suYzogSW4gZnVuY3Rpb24g4oCY
-X3NwaW5fbG9ja19pcnFzYXZl4oCZOgppbmNsdWRlMi9hc20vc3BpbmxvY2suaDo1OTogZXJyb3I6
-IGludmFsaWQgJ2FzbSc6IG9wZXJhbmQgbnVtYmVyIG1pc3NpbmcgYWZ0ZXIgJQotbGV0dGVyCmlu
-Y2x1ZGUyL2FzbS9zcGlubG9jay5oOjU5OiBlcnJvcjogaW52YWxpZCAnYXNtJzogb3BlcmFuZCBu
-dW1iZXIgbWlzc2luZyBhZnRlciAlCi1sZXR0ZXIKaW5jbHVkZTIvYXNtL3NwaW5sb2NrLmg6NTk6
-IGVycm9yOiBpbnZhbGlkICdhc20nOiBvcGVyYW5kIG51bWJlciBtaXNzaW5nIGFmdGVyICUKLWxl
-dHRlcgppbmNsdWRlMi9hc20vc3BpbmxvY2suaDo1OTogZXJyb3I6IGludmFsaWQgJ2FzbSc6IG9w
-ZXJhbmQgbnVtYmVyIG1pc3NpbmcgYWZ0ZXIgJQotbGV0dGVyCmluY2x1ZGUyL2FzbS9zcGlubG9j
-ay5oOjU5OiBlcnJvcjogaW52YWxpZCAnYXNtJzogb3BlcmFuZCBudW1iZXIgbWlzc2luZyBhZnRl
-ciAlCi1sZXR0ZXIKaW5jbHVkZTIvYXNtL3NwaW5sb2NrLmg6NTk6IGVycm9yOiBpbnZhbGlkICdh
-c20nOiBvcGVyYW5kIG51bWJlciBtaXNzaW5nIGFmdGVyICUKLWxldHRlcgppbmNsdWRlMi9hc20v
-c3BpbmxvY2suaDo1OTogZXJyb3I6IGludmFsaWQgJ2FzbSc6IG9wZXJhbmQgbnVtYmVyIG1pc3Np
-bmcgYWZ0ZXIgJQotbGV0dGVyCmluY2x1ZGUyL2FzbS9zcGlubG9jay5oOjU5OiBlcnJvcjogaW52
-YWxpZCAnYXNtJzogb3BlcmFuZCBudW1iZXIgbWlzc2luZyBhZnRlciAlCi1sZXR0ZXIKe3N0YW5k
-YXJkIGlucHV0fTogQXNzZW1ibGVyIG1lc3NhZ2VzOgp7c3RhbmRhcmQgaW5wdXR9OjU5MzogRXJy
-b3I6IHVuZGVmaW5lZCBzeW1ib2wgYHBhcmF2aXJ0X29wcycgaW4gb3BlcmF0aW9uCntzdGFuZGFy
-ZCBpbnB1dH06NTkzOiBFcnJvcjogdW5kZWZpbmVkIHN5bWJvbCBgUEFSQVZJUlRfaXJxX2VuYWJs
-ZScgaW4gb3BlcmF0aW9uCntzdGFuZGFyZCBpbnB1dH06NjA1OiBFcnJvcjogdW5kZWZpbmVkIHN5
-bWJvbCBgcGFyYXZpcnRfb3BzJyBpbiBvcGVyYXRpb24Ke3N0YW5kYXJkIGlucHV0fTo2MDU6IEVy
-cm9yOiB1bmRlZmluZWQgc3ltYm9sIGBQQVJBVklSVF9pcnFfZGlzYWJsZScgaW4gb3BlcmF0aW8K
-bgoKYW5kIGxvdHMgb2YgbmV3IHdhcm5pbmdzIGxpa2UKCi9ob21lL2xzcmMvcXVpbHQvbGludXgv
-YXJjaC9pMzg2L2tlcm5lbC90cmFwcy5jOiBJbiBmdW5jdGlvbiDigJhzZXRfaW50cl9nYXRl4oCZ
-OgovaG9tZS9sc3JjL3F1aWx0L2xpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvdHJhcHMuYzoxMTY1OiB3
-YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdAppb24gb2YgZnVuY3Rpb24g4oCYX3NldF9nYXRl4oCZ
-Ci9ob21lL2xzcmMvcXVpbHQvbGludXgvYXJjaC9pMzg2L2tlcm5lbC9jcHUvY29tbW9uLmM6IElu
-IGZ1bmN0aW9uIOKAmF9jcHVfaW5pdOKAmToKL2hvbWUvbHNyYy9xdWlsdC9saW51eC9hcmNoL2kz
-ODYva2VybmVsL2NwdS9jb21tb24uYzo3NTQ6IHdhcm5pbmc6IGltcGxpY2l0IGRlY2wKYXJhdGlv
-biBvZiBmdW5jdGlvbiDigJhfX3NldF90c3NfZGVzY+KAmQovaG9tZS9sc3JjL3F1aWx0L2xpbnV4
-L2FyY2gvaTM4Ni9rZXJuZWwvY3B1L21jaGVjay9wNC5jOiBJbiBmdW5jdGlvbiDigJhpbnRlbF9t
-YWNoCmluZV9jaGVja+KAmToKL2hvbWUvbHNyYy9xdWlsdC9saW51eC9hcmNoL2kzODYva2VybmVs
-L2NwdS9tY2hlY2svcDQuYzoxNTg6IHdhcm5pbmc6IOKAmGRiZy5lYXjigJkgCm1heSBiZSB1c2Vk
-IHVuaW5pdGlhbGl6ZWQgaW4gdGhpcyBmdW5jdGlvbgovaG9tZS9sc3JjL3F1aWx0L2xpbnV4L2Fy
-Y2gvaTM4Ni9rZXJuZWwvY3B1L21jaGVjay9wNC5jOjE1ODogd2FybmluZzog4oCYZGJnLmVieOKA
-mSAKbWF5IGJlIHVzZWQgdW5pbml0aWFsaXplZCBpbiB0aGlzIGZ1bmN0aW9uCi9ob21lL2xzcmMv
-cXVpbHQvbGludXgvYXJjaC9pMzg2L2tlcm5lbC9jcHUvbWNoZWNrL3A0LmM6MTU4OiB3YXJuaW5n
-OiDigJhkYmcuZWN44oCZIAptYXkgYmUgdXNlZCB1bmluaXRpYWxpemVkIGluIHRoaXMgZnVuY3Rp
-b24KL2hvbWUvbHNyYy9xdWlsdC9saW51eC9hcmNoL2kzODYva2VybmVsL2NwdS9tY2hlY2svcDQu
-YzoxNTg6IHdhcm5pbmc6IOKAmGRiZy5lZHjigJkgCm1heSBiZSB1c2VkIHVuaW5pdGlhbGl6ZWQg
-aW4gdGhpcyBmdW5jdGlvbgovaG9tZS9sc3JjL3F1aWx0L2xpbnV4L2FyY2gvaTM4Ni9rZXJuZWwv
-Y3B1L21jaGVjay9wNC5jOjE1ODogd2FybmluZzog4oCYZGJnLmVzaeKAmSAKbWF5IGJlIHVzZWQg
-dW5pbml0aWFsaXplZCBpbiB0aGlzIGZ1bmN0aW9uCi9ob21lL2xzcmMvcXVpbHQvbGludXgvYXJj
-aC9pMzg2L2tlcm5lbC9jcHUvbWNoZWNrL3A0LmM6MTU4OiB3YXJuaW5nOiDigJhkYmcuZWRp4oCZ
-IAptYXkgYmUgdXNlZCB1bmluaXRpYWxpemVkIGluIHRoaXMgZnVuY3Rpb24KL2hvbWUvbHNyYy9x
-dWlsdC9saW51eC9hcmNoL2kzODYva2VybmVsL2NwdS9tY2hlY2svcDQuYzoxNTg6IHdhcm5pbmc6
-IOKAmGRiZy5lYnDigJkgCm1heSBiZSB1c2VkIHVuaW5pdGlhbGl6ZWQgaW4gdGhpcyBmdW5jdGlv
-bgovaG9tZS9sc3JjL3F1aWx0L2xpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvY3B1L21jaGVjay9wNC5j
-OjE1ODogd2FybmluZzog4oCYZGJnLmVzcOKAmSAKbWF5IGJlIHVzZWQgdW5pbml0aWFsaXplZCBp
-biB0aGlzIGZ1bmN0aW9uCi9ob21lL2xzcmMvcXVpbHQvbGludXgvYXJjaC9pMzg2L2tlcm5lbC9j
-cHUvbWNoZWNrL3A0LmM6MTU4OiB3YXJuaW5nOiDigJhkYmcuZWZsYWcKc+KAmSBtYXkgYmUgdXNl
-ZCB1bmluaXRpYWxpemVkIGluIHRoaXMgZnVuY3Rpb24KL2hvbWUvbHNyYy9xdWlsdC9saW51eC9h
-cmNoL2kzODYva2VybmVsL2NwdS9tY2hlY2svcDQuYzoxNTg6IHdhcm5pbmc6IOKAmGRiZy5laXDi
-gJkgCm1heSBiZSB1c2VkIHVuaW5pdGlhbGl6ZWQgaW4gdGhpcyBmdW5jdGlvbgoKClRoaXMgaXMg
-d2l0aCBpMzg2IGRlZmNvbmZpZyArIENPTkZJR19QQVJBVklSVAoKLUFuZGkKCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZwpodHRwczovL2xpc3RzLm9zZGwu
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24K
+Andi Kleen wrote:
+> On Wednesday 01 November 2006 11:27, Rusty Russell wrote:
+>  =20
+>> Create a paravirt.h header for all the critical operations which nee=
+d
+>> to be replaced with hypervisor calls, and include that instead of
+>> defining native operations, when CONFIG_PARAVIRT.
+>>    =20
+>
+> Hmm, did this all ever compile in mainline? I had to do a few merges
+> and in the end i get
+>
+> /home/lsrc/quilt/linux/kernel/spinlock.c: In function =E2=80=98_spin_=
+lock_irqsave=E2=80=99:
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number miss=
+ing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number miss=
+ing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number miss=
+ing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number miss=
+ing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number miss=
+ing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number miss=
+ing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number miss=
+ing after %
+> -letter
+> include2/asm/spinlock.h:59: error: invalid 'asm': operand number miss=
+ing after %
+> -letter
+> {standard input}: Assembler messages:
+> {standard input}:593: Error: undefined symbol `paravirt_ops' in opera=
+tion
+> {standard input}:593: Error: undefined symbol `PARAVIRT_irq_enable' i=
+n operation
+> {standard input}:605: Error: undefined symbol `paravirt_ops' in opera=
+tion
+> {standard input}:605: Error: undefined symbol `PARAVIRT_irq_disable' =
+in operatio
+> n
+>  =20
+
+Not seeing that here (on 2.6.19-rc2-mm2 with gcc 4.0.2).
+
+> and lots of new warnings like
+>
+> /home/lsrc/quilt/linux/arch/i386/kernel/traps.c: In function =E2=80=98=
+set_intr_gate=E2=80=99:
+> /home/lsrc/quilt/linux/arch/i386/kernel/traps.c:1165: warning: implic=
+it declarat
+> ion of function =E2=80=98_set_gate=E2=80=99
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/common.c: In function =E2=
+=80=98_cpu_init=E2=80=99:
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/common.c:754: warning: im=
+plicit decl
+> aration of function =E2=80=98__set_tss_desc'
+>  =20
+
+Sounds like desc.h got reordered.  Somewhere, there was a broken patch=20
+once that did this, I thought we fixed that.
+
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c: In function =
+=E2=80=98intel_mach
+> ine_check=E2=80=99:
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.eax=E2=80=99=20
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.ebx=E2=80=99=20
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.ecx=E2=80=99=20
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.edx=E2=80=99=20
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.esi=E2=80=99=20
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.edi=E2=80=99=20
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.ebp=E2=80=99=20
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.esp=E2=80=99=20
+> may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.eflag
+> s=E2=80=99 may be used uninitialized in this function
+> /home/lsrc/quilt/linux/arch/i386/kernel/cpu/mcheck/p4.c:158: warning:=
+ =E2=80=98dbg.eip=E2=80=99=20
+> may be used uninitialized in this function
+>  =20
+
+Those appear to be valid warnings, with or without paravirt, due to the=
+=20
+tacky glued inline oddity of intel_get_extended_msrs.
+
+Zach
