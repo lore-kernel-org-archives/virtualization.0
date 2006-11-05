@@ -1,8 +1,8 @@
-From: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
-	paravirtualizing critical operations
-Date: Sat, 4 Nov 2006 22:18:03 -0800
-Message-ID: <20061104221803.3871c3d3.akpm@osdl.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs
+	for	paravirtualizing critical operations
+Date: Sun, 05 Nov 2006 17:21:25 +1100
+Message-ID: <1162707685.29777.53.camel@localhost.localdomain>
 References: <20061029024504.760769000@sous-sol.org>
 	<200611032209.40235.ak@suse.de>
 	<1162701815.29777.6.camel@localhost.localdomain>
@@ -22,14 +22,10 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org, akpm@osdl.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 5 Nov 2006 06:46:15 +0100
-Andi Kleen <ak@suse.de> wrote:
-
-> =
-
+On Sun, 2006-11-05 at 06:46 +0100, Andi Kleen wrote:
 > > Andi, the patches work against Andrew's tree, and he's merged them in
 > > rc4-mm2.  There are a few warnings to clean up, but it seems basically
 > > sound.
@@ -48,12 +44,15 @@ ine
 
 > That's a possible strategy, but only if you want to keep it as a mm-only
 > toy forever.
-> =
 
+Andi, it's been simpler for us to get the code into Andrew's tree, in
+nice bit-size pieces.  We've had trouble every time we've tried to get
+stuff into your tree.  In addition, Andrew's tree gives the code
+exposure and testing.
 
-They're in my regular list-of-thing-to-spam-maintainers-with, so we can
-transfer them as-is next week sometime.
+If Andrew says we have to get those patches into mainline through you,
+then I'll spend all that time re-spinning the patches for you from the
+-mm tree until they go in.  It doesn't seem like a good use of anyone's
+time though.
 
-It would be better to sort out the various warnings and any other nasties f=
-irst
-though.
+Rusty.
