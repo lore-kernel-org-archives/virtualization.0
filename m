@@ -1,14 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] Fix 'arch/i386/kernel/alternative.c:355: warning: unused
-	variable 'i''
-Date: Sun, 05 Nov 2006 17:05:43 +1100
-Message-ID: <1162706743.29777.37.camel@localhost.localdomain>
-References: <1162706575.29777.33.camel@localhost.localdomain>
+From: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
+	paravirtualizing critical operations
+Date: Sat, 4 Nov 2006 22:18:03 -0800
+Message-ID: <20061104221803.3871c3d3.akpm@osdl.org>
+References: <20061029024504.760769000@sous-sol.org>
+	<200611032209.40235.ak@suse.de>
+	<1162701815.29777.6.camel@localhost.localdomain>
+	<200611050646.15334.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1162706575.29777.33.camel@localhost.localdomain>
+In-Reply-To: <200611050646.15334.ak@suse.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,46 +21,39 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization <virtualization@lists.osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix warning about "unused variable i" when CONFIG_PARAVIRT enabled and
-CONFIG_DEBUG_PARAVIRT disabled.
+On Sun, 5 Nov 2006 06:46:15 +0100
+Andi Kleen <ak@suse.de> wrote:
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> =
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdi=
-ff --minimal linux-2.6.19-rc4-mm2/arch/i386/kernel/alternative.c working-2.=
-6.19-rc4-mm2-warnings/arch/i386/kernel/alternative.c
---- linux-2.6.19-rc4-mm2/arch/i386/kernel/alternative.c	2006-11-05 15:35:24=
-.000000000 +1100
-+++ working-2.6.19-rc4-mm2-warnings/arch/i386/kernel/alternative.c	2006-11-=
-05 16:04:38.000000000 +1100
-@@ -352,7 +352,6 @@ void alternatives_smp_switch(int smp)
- void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *e=
-nd)
- {
- 	struct paravirt_patch *p;
--	int i;
- =
+> > Andi, the patches work against Andrew's tree, and he's merged them in
+> > rc4-mm2.  There are a few warnings to clean up, but it seems basically
+> > sound.
+> > =
 
- 	for (p =3D start; p < end; p++) {
- 		unsigned int used;
-@@ -360,6 +359,8 @@ void apply_paravirt(struct paravirt_patc
- 		used =3D paravirt_ops.patch(p->instrtype, p->clobbers, p->instr,
- 					  p->len);
- #ifdef CONFIG_DEBUG_PARAVIRT
-+		{
-+		int i;
- 		/* Deliberately clobber regs using "not %reg" to find bugs. */
- 		for (i =3D 0; i < 3; i++) {
- 			if (p->len - used >=3D 2 && (p->clobbers & (1 << i))) {
-@@ -368,6 +369,7 @@ void apply_paravirt(struct paravirt_patc
- 				used +=3D 2;
- 			}
- 		}
-+		}
- #endif
- 		/* Pad the rest with nops */
- 		nop_out(p->instr + used, p->len - used);
+> > At this point I our think time is better spent on beating those patches
+> > up, rather than going back and figuring out why they don't work in your
+> > tree.
+> =
+
+> My tree is basically mainline as base. Sure if you don't care about mainl=
+ine
+> merges we can ignore it there and keep it forever in -mm* until Andrew
+> gets tired of it?
+> =
+
+> That's a possible strategy, but only if you want to keep it as a mm-only
+> toy forever.
+> =
+
+
+They're in my regular list-of-thing-to-spam-maintainers-with, so we can
+transfer them as-is next week sometime.
+
+It would be better to sort out the various warnings and any other nasties f=
+irst
+though.
