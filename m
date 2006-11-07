@@ -1,13 +1,13 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: how set_pte_at()'s vaddr and ptep args relate
-Date: Tue, 07 Nov 2006 14:19:30 -0800
-Message-ID: <45510672.4000301@vmware.com>
-References: <4550E512.1020706@goop.org>
+Date: Tue, 07 Nov 2006 14:38:55 -0800
+Message-ID: <45510AFF.3040304@goop.org>
+References: <4550E512.1020706@goop.org> <45510672.4000301@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <4550E512.1020706@goop.org>
+In-Reply-To: <45510672.4000301@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -17,90 +17,71 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Zachary Amsden <zach@vmware.com>
 Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Hi Zach,
+Zachary Amsden wrote:
+>> ie, the vaddr and the ptep bear no relationship to each other.  Is =
+
+>> this a bug in kunmap_atomic (it shouldn't try to clear the pte for =
+
+>> lowmem addresses), or should set_pte_at's implementation be able to =
+
+>> cope with this.
 >
-> I'm wondering what the interface requirements of set_pte_at()'s "addr" =
+> Ok, that is really strange, but it seems harmless.
 
-> and "ptep" args are.  I presume that in general the ptep points to the =
+Well, it kills Xen.  It ends up zeroing the pte for vaddr, ignoring the =
 
-> pte entry which corresponds to the vaddr, but is this necessarily the =
+ptep; in my case, it meant that get_zeroed_page ends up returning an =
 
-> case?
+unmapped address.  I just pushed a patch to fix this (into the repo, not =
 
-Yes, it must pass a pointer to the PTE in ptep.  The "addr" field must =
+upstream).
 
-match the linear address of the mapping changed by the pte - the address =
+> None that I'm aware of.  The interface here is supposed to be passing =
 
-you would invlpg if required.
+> the "addr" field as the linear address whose mapping in the current =
 
-> For example, it is valid to pass a non-highmem page kmap_atomic(), =
+> address space is changing, and the "ptep" field as a pointer to the PTE.
 
-> which will simply return a direct pointer to the page.
+You mean for the mm that's passed in?
+
+>> Also, it would be useful for Xen to have a set_pte_at_sync, which =
+
+>> also does a TLB flush if necessary, since we can do that in a single =
+
+>> operation.
 >
-> kunmap_atomic() takes this address, as well as the kmap slot index, =
+> We could either add new operators or use a flags field which passes a =
 
-> and ends up calling:
->
->    set_pte_at(&init_mm, lowmem_vaddr, kmap_ptep, 0);
->
-> ie, the vaddr and the ptep bear no relationship to each other.  Is =
+> "defer this update and piggyback on the next TLB flush" hint - which =
 
-> this a bug in kunmap_atomic (it shouldn't try to clear the pte for =
+> is how the Xen VMI interface worked.
 
-> lowmem addresses), or should set_pte_at's implementation be able to =
+Do you mean by queuing updates to then submit them all in a single =
 
-> cope with this.
+batched hypercall?  Or something else?  That sort of batching certainly =
 
-Ok, that is really strange, but it seems harmless.
+works for Xen.
 
->
-> Certainly at the moment, having mismatched ptep and vaddr makes the =
+I guess _sync and "may batch" are opposite senses of the same thing; if =
 
-> interface useless for Xen, since it will use one or the other =
+you don't sync the tlb, then I presume any pagetable update is =
 
-> depending on whether we modifying the current pagetable or not, and it =
+effectively deferred until the tlb sync.  Though isn't there some rule =
 
-> assume they correspond to the same thing.
->
-> For now I've changed kunmap_atomic() to only clear the kmap pte for =
+about not needing to do an explicit tlb flush if you're increasing the =
 
-> mapped high page addresses, but I'm wondering what other places might =
+access permissions on a page (since the tlb miss/fault will rewalk the =
 
-> use set_pte_at in this way.
+pagetable before actually deciding to raise an exception)?
 
-None that I'm aware of.  The interface here is supposed to be passing =
+> I haven't really dealt with the HIGHMEM_PTE case thoroughly yet - do =
 
-the "addr" field as the linear address whose mapping in the current =
+> we want to bother with that?
 
-address space is changing, and the "ptep" field as a pointer to the PTE.
+I'm planning a patch to get rid of them altogether.
 
-> Also, it would be useful for Xen to have a set_pte_at_sync, which also =
-
-> does a TLB flush if necessary, since we can do that in a single =
-
-> operation.
-
-We could either add new operators or use a flags field which passes a =
-
-"defer this update and piggyback on the next TLB flush" hint - which is =
-
-how the Xen VMI interface worked.
-
-In any case, the address field and hints / operators here are supposed =
-
-to be liberal enough to accommodate using LA hints to update currently =
-
-mapped PTEs and piggyback the flush, and if they are not, it is a bug or =
-
-an oversight.
-
-I haven't really dealt with the HIGHMEM_PTE case thoroughly yet - do we =
-
-want to bother with that?
-
-Zach
+    J
