@@ -1,16 +1,14 @@
-From: Andi Kleen <ak@muc.de>
+From: Andrew Morton <akpm@osdl.org>
 Subject: Re: [PATCH] Fix CONFIG_PARAVIRT for 2.6.19-rc5-mm1
-Date: 9 Nov 2006 08:31:58 +0100
-Message-ID: <20061109073158.GB11760@muc.de>
+Date: Wed, 8 Nov 2006 23:39:04 -0800
+Message-ID: <20061108233904.e631c7c6.akpm@osdl.org>
 References: <1163034102.15681.6.camel@localhost.localdomain>
-	<20061108172014.b4bcea17.akpm@osdl.org>
+	<200611090812.37599.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Date: Thu, 9 Nov 2006 08:31:58 +0100
-Content-Disposition: inline
-In-Reply-To: <20061108172014.b4bcea17.akpm@osdl.org>
+In-Reply-To: <200611090812.37599.ak@suse.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -20,40 +18,28 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization <virtualization@lists.osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andi Kleen <ak@muc.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 08, 2006 at 05:20:14PM -0800, Andrew Morton wrote:
-> On Thu, 09 Nov 2006 12:01:42 +1100
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> =
+On Thu, 9 Nov 2006 08:12:37 +0100
+Andi Kleen <ak@suse.de> wrote:
 
+> On Thursday 09 November 2006 02:01, Rusty Russell wrote:
 > > OK, at least two patches got dropped on the way from the mm tree to
 > > Andi's tree: the desc.h cleanup, and the processor.h rearrangement.
-> > Merging into Andi's tree without these patches must have been a
-> > nightmare 8(
-> > =
-
-> > Andi then tried to fix it with x86_64-mm-paravirt-compile.patch but then
-> > it didn't boot so he disabled it in x86_64-mm-paravirt-broken.patch  =
-
-> > =
-
-> > This patch undoes those two patches and rearranges processor.h correctly
-> > so the kernel compiles and boots with CONFIG_PARAVIRT.  Andi's
-> > "paravirt-compile" patch also cleans up the spinlock header, which is
-> > good but should probably be patched separately.
 > =
 
-> Fun.  Andi, I have a mountain of fixes against your tree.  Whatever you
-> do, don't change anything!  I'll get it all sent over later today.
+> Can you please resend the patchkit with these patches included?
+> =
 
-I think for the paravirt ops stuff it would be best to respin it -- e.g.
-let Rusty submit a new clean patchkit. That's much better than trying
-to add lots of fixup patches. =
+> (and any further changes folded in into the respective patches) =
+
+> =
 
 
-I'll go through the other patches.
+argh.
 
--Andi
+I'll do it.
+
+I wish you didn't rename patches.
