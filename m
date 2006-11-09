@@ -1,13 +1,18 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: how set_pte_at()'s vaddr and ptep args relate
-Date: Thu, 09 Nov 2006 01:15:49 -0800
-Message-ID: <4552F1C5.9060800@vmware.com>
-References: <C178974F.4076%Keir.Fraser@cl.cam.ac.uk>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH] Fix CONFIG_PARAVIRT for 2.6.19-rc5-mm1
+Date: 9 Nov 2006 15:11:09 +0100
+Message-ID: <20061109141109.GA63791@muc.de>
+References: <1163034102.15681.6.camel@localhost.localdomain>
+	<200611090812.37599.ak@suse.de>
+	<20061108233904.e631c7c6.akpm@osdl.org>
+	<20061109000939.7a48851f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <C178974F.4076%Keir.Fraser@cl.cam.ac.uk>
+Date: Thu, 9 Nov 2006 15:11:09 +0100
+Content-Disposition: inline
+In-Reply-To: <20061109000939.7a48851f.akpm@osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -17,86 +22,52 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Keir Fraser wrote:
-> On 8/11/06 11:25 pm, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
->
->   =
+On Thu, Nov 09, 2006 at 12:09:39AM -0800, Andrew Morton wrote:
+> On Wed, 8 Nov 2006 23:39:04 -0800
+> Andrew Morton <akpm@osdl.org> wrote:
+> =
 
->> Keir Fraser wrote:
->>     =
+> > > Can you please resend the patchkit with these patches included?
+> > > =
 
->>> Another
->>> factoid I discovered at the same meeting is that the CPU may cache part=
-ial
->>> page walks. So, for example, just because you 'detach' a page table fro=
-m a
->>> page-directory entry, doesn't mean that page table won't be accessed on
->>> future hardware TLB fills.
->>>       =
+> > > (and any further changes folded in into the respective patches) =
 
+> > > =
 
-Yes.  The rule is, if you change a mapping at any level, your results of =
+> > =
 
-using any descendants of that mapping for memory access are undefined =
+> > argh.
+> > =
 
-unless you have flushed the mappings you are trying to use.
+> > I'll do it.
+> =
 
->> Do you know if these intermediate TLB entries are level-sensitive?  Ie,
->> if you have a linear pagetable mapping where the pagetable points back
->> to itself, will that result in multiple TLB entries for the pmd pages
->> (pmd as pmd, and pmd as pte)?
->>     =
+> OK, all done.
+> =
 
->
-> I think so. I can't think why the CPU would bother to disallow this. It d=
-oes
-> mean you have to be careful when changing page-directory entries that your
-> linear mapping (if you have one) doesn't go stale.
->   =
+> I kept prep-for-paravirt-be-careful-about-touching-bios.patch (below)
+> separate, because it's dependent on
+> x86_64-mm-i386-create-e820.c-to-handle-standard-io-mem-resources.patch.  =
+It
+> could be folded into one of the other patches I guess.
+> =
 
+> So I have:
+> =
 
-No, as long as the pmd is only mapped in one linear address, there is =
+> paravirt-i386-header-and-stubs-for-paravirtualisation.patch
+> paravirt-i386-patch-inline-replacements-for.patch
+> paravirt-i386-more-generic-paravirtualization.patch
+> paravirt-i386-allow-selected-bug-checks-to-be.patch
+> paravirt-i386-allow-disabling-legacy-power.patch
+> paravirt-i386-add-apic-accessors-to-paravirt-ops.patch
+> paravirt-i386-add-mmu-virtualization-to.patch
+> prep-for-paravirt-be-careful-about-touching-bios.patch
 
-only one TLB entry for it.  You can't mix large pages and circular =
+Thanks. Where can I get them?
 
-pagetables, so you can't have a pmd as pmd level TLB mapping in addition =
-
-to a pmd as pte level mapping.  Thinking of it as pmd as pmd  / pmd as =
-
-pte level mapping is confusing.  It is better to think of it in terms of =
-
-physical page walks during TLB fills and virtual walks during circular =
-
-mapping access.
-
-You do need to issue appropriate page invalidations after changing =
-
-page-directory level mappings for the page tables.  If you update PDEs =
-
-and you use a circular mapping of page tables, then you may need to =
-
-issue invlpg's for the page tables that may have been disconnected or =
-
-changed.  This is for your consistency, not the TLB consistency.  The =
-
-TLB will fetch new mappings from physical space, and knows nothing about =
-
-your circular mapping.  So a PDE update to an entire 4M/2M range could =
-
-require multiple flushes - one or more to invalidate mappings of =
-
-underlying PTEs that have changed, and one to invalidate the mapping of =
-
-the circularly mapped page table itself.
-
-Of course, depending on the context and your consistency requirements, =
-
-some or all of these flushes may be redundant or subsumed by subsequent =
-
-flushes.
-
-Zach
+-Andi
