@@ -1,11 +1,14 @@
-From: James Morris <jmorris@redhat.com>
-Subject: [PATCH] lhype: compilation fix for PKMAP_BASE reference
-Date: Mon, 13 Nov 2006 17:28:43 -0500 (EST)
-Message-ID: <Pine.LNX.4.44.0611131726100.24957-100000@redline.boston.redhat.com>
+From: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc5-mm2: warnings in MODPOST and later
+Date: Tue, 14 Nov 2006 15:09:02 -0800
+Message-ID: <20061114150902.f772c75c.akpm@osdl.org>
+References: <20061114014125.dd315fff.akpm@osdl.org>
+	<20061114225622.GO22565@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20061114225622.GO22565@stusta.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -15,26 +18,61 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.osdl.org
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-I get a compilation error with an undefined reference to PKMAP_BASE (on a
-fairly standard x86 box).  This patch include asm/highmem.h, where the
-macro is defined.  Please apply.
+On Tue, 14 Nov 2006 23:56:22 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-Signed-off-by: James Morris <jmorris@redhat.com>
+> Since people were recently complaining about too many warnings:
+> Here is a list of the warnings I'm getting in MODPOST and later.
+> =
 
----
+> Since the warnings by far exceed the 100kB limit of linux-kernel (sic), =
 
-diff -r 2f39210c8792 drivers/lhype/init.c
---- a/drivers/lhype/init.c	Mon Nov 13 17:16:49 2006 -0500
-+++ b/drivers/lhype/init.c	Mon Nov 13 17:23:38 2006 -0500
-@@ -8,6 +8,7 @@
- #include <linux/vmalloc.h>
- #include <linux/proc_fs.h>
- #include <linux/file.h>
-+#include <asm/highmem.h>
- #include <asm/lhype.h>
- #include <asm/paravirt.h>
- #include <asm/desc.h>
+> I had to attach them compressed.
+> =
+
+> With the exception of the "drivers/ide/pci/atiixp:FFFF05", none of these =
+
+> warnings is present in Linus' tree.
+
+yes, lots of new section mismatch warnings.
+
+A large number of them are due to the paravirt patches:
+
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .parains=
+tructions between '__start_parainstructions' (at offset 0xc0458470) and '__=
+stop_parainstructions'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .parains=
+tructions between '__start_parainstructions' (at offset 0xc0458478) and '__=
+stop_parainstructions'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .parains=
+tructions between '__start_parainstructions' (at offset 0xc0458480) and '__=
+stop_parainstructions'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .parains=
+tructions between '__start_parainstructions' (at offset 0xc0458488) and '__=
+stop_parainstructions'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .parains=
+tructions between '__start_parainstructions' (at offset 0xc0458490) and '__=
+stop_parainstructions'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .parains=
+tructions between '__start_parainstructions' (at offset 0xc0458498) and '__=
+stop_parainstructions'
+WARNING: vmlinux - Section mismatch: reference to .init.text: from .parains=
+tructions between '__start_parainstructions' (at offset 0xc04584a0) and '__=
+stop_parainstructions'
+WARNING: Can't handle masks in drivers/ata/ahci:FFFF05
+WARNING: drivers/ata/pata_legacy.o - Section mismatch: reference to .init.t=
+ext: from .parainstructions after '' (at offset 0x18)
+WARNING: drivers/ata/pata_legacy.o - Section mismatch: reference to .init.t=
+ext: from .parainstructions after '' (at offset 0x20)
+WARNING: drivers/ata/pata_legacy.o - Section mismatch: reference to .init.t=
+ext: from .parainstructions after '' (at offset 0x28)
+WARNING: drivers/ata/pata_qdi.o - Section mismatch: reference to .init.text=
+: from .parainstructions after '' (at offset 0x0)
+WARNING: drivers/ata/pata_qdi.o - Section mismatch: reference to .init.text=
+: from .parainstructions after '' (at offset 0x8)
+
+but there are others too.
