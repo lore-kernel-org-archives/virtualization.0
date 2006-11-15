@@ -1,17 +1,11 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH 1/5] Skip timer works.patch
-Date: Wed, 15 Nov 2006 00:21:00 -0800
-Message-ID: <455ACDEC.7010808@vmware.com>
-References: <200610200009.k9K09MrS027558@zach-dev.vmware.com>
-	<20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com>
-	<200610271416.12548.ak@suse.de> <4546669F.8020706@vmware.com>
-	<20061030225016.GA95732@muc.de>
-	<20061115080323.GK1397@sequoia.sous-sol.org>
+From: James Morris <jmorris@redhat.com>
+Subject: [PATCH] lhype: Add LFS support to lhype_add for disk images
+Date: Wed, 15 Nov 2006 12:29:49 -0500 (EST)
+Message-ID: <Pine.LNX.4.44.0611151227410.26032-100000@redline.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20061115080323.GK1397@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -21,54 +15,28 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
-> * Andi Kleen (ak@muc.de) wrote:
->   =
+This patch allows lhype_add to open disk image files larger than 2GB.
 
->> On Mon, Oct 30, 2006 at 12:54:55PM -0800, Zachary Amsden wrote:
->>     =
+Please apply.
 
->>> Andi Kleen wrote:
->>>       =
+Signed-off-by: James Morris <jmorris@redhat.com>
 
->>>> no_timer_check. But it's only there on x86-64 in mainline - although t=
-here
->>>> were some patches to add it to i386 too.
->>>>  =
+---
 
->>>>         =
+diff -r 82d084b15417 drivers/lhype/lhype_add.c
+--- a/drivers/lhype/lhype_add.c	Wed Nov 15 00:58:18 2006 -0500
++++ b/drivers/lhype/lhype_add.c	Wed Nov 15 01:01:35 2006 -0500
+@@ -329,7 +329,7 @@ static int set_up_block_device(const cha
+ 	struct stat st;
+ 	int fd;
+ =
 
->>> I can rename to match the x86-64 name.
->>>       =
-
->> I will do that in my tree.
->>     =
-
->
-> Looks like this one might have been lost.  Here's the renamed version
-> (it's against 2.6.19-rc5-mm2, which should have your tree in it).
->
-> thanks,
-> -chris
->   =
-
-
-Thanks Chris, this is definitely a required patch for us.
-
-I'm a little worried after seeing failures to apply and missed patches =
-
-that we could have other things missing from the upstream path.  Is =
-
-there an easy way for us to look at diffs between the trees?  Just a =
-
-diff on arch/i386 and include/asm-i386 would tell me wonders, no matter =
-
-how much extra activity has gone on there.
-
-Namaste,
-
-Zach
+-	fd =3D open(name, O_RDWR, 0);
++	fd =3D open(name, O_RDWR|O_LARGEFILE, 0);
+ 	if (fd < 0)
+ 		err(1, "Opening %s", name);
+ =
