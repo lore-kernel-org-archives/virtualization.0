@@ -1,11 +1,19 @@
-From: James Morris <jmorris@redhat.com>
-Subject: [PATCH] lhype: Add LFS support to lhype_add for disk images
-Date: Wed, 15 Nov 2006 12:29:49 -0500 (EST)
-Message-ID: <Pine.LNX.4.44.0611151227410.26032-100000@redline.boston.redhat.com>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+Date: Wed, 15 Nov 2006 14:40:53 -0800
+Message-ID: <20061115224053.GO1397@sequoia.sous-sol.org>
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com>
+	<20061027145650.GA37582@muc.de> <45425976.3090508@vmware.com>
+	<200610271416.12548.ak@suse.de> <4546669F.8020706@vmware.com>
+	<20061030225016.GA95732@muc.de>
+	<20061115080323.GK1397@sequoia.sous-sol.org>
+	<455ACDEC.7010808@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Disposition: inline
+In-Reply-To: <455ACDEC.7010808@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -15,28 +23,24 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch allows lhype_add to open disk image files larger than 2GB.
+* Zachary Amsden (zach@vmware.com) wrote:
+> I'm a little worried after seeing failures to apply and missed patches =
 
-Please apply.
+> that we could have other things missing from the upstream path.  Is =
 
-Signed-off-by: James Morris <jmorris@redhat.com>
+> there an easy way for us to look at diffs between the trees?  Just a =
 
----
+> diff on arch/i386 and include/asm-i386 would tell me wonders, no matter =
 
-diff -r 82d084b15417 drivers/lhype/lhype_add.c
---- a/drivers/lhype/lhype_add.c	Wed Nov 15 00:58:18 2006 -0500
-+++ b/drivers/lhype/lhype_add.c	Wed Nov 15 01:01:35 2006 -0500
-@@ -329,7 +329,7 @@ static int set_up_block_device(const cha
- 	struct stat st;
- 	int fd;
- =
+> how much extra activity has gone on there.
 
--	fd =3D open(name, O_RDWR, 0);
-+	fd =3D open(name, O_RDWR|O_LARGEFILE, 0);
- 	if (fd < 0)
- 		err(1, "Opening %s", name);
- =
+Last night I rebased against 2.6.15-mm2.  I'm adding four patches that
+Andrew sent Andi last night.  I'll rediff and see what (if anything) is
+outstanding.
+
+thanks,
+-chris
