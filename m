@@ -1,27 +1,91 @@
-From: "Chuck Short" <zulcss@gmail.com>
-Subject: Question
-Date: Fri, 17 Nov 2006 14:53:53 -0500
-Message-ID: <27c823430611171153o46b1f13es99e73389dff451eb@mail.gmail.com>
+From: john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
+	paravirtualizing critical operations
+Date: Fri, 17 Nov 2006 18:08:06 -0800
+Message-ID: <1163815686.5374.12.camel@localhost.localdomain>
+References: <20061029024504.760769000@sous-sol.org>
+	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
+	 <1162178936.9802.34.camel@localhost.localdomain>
+	 <20061030231132.GA98768@muc.de>
+	 <1162376827.23462.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753771AbWKRCIP@vger.kernel.org>
+In-Reply-To: <1162376827.23462.5.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, akpm@osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+On Wed, 2006-11-01 at 21:27 +1100, Rusty Russell wrote:
+> Create a paravirt.h header for all the critical operations which need
+> to be replaced with hypervisor calls, and include that instead of
+> defining native operations, when CONFIG_PARAVIRT.
+> 
+> This patch does the dumbest possible replacement of paravirtualized
+> instructions: calls through a "paravirt_ops" structure.  Currently
+> these are function implementations of native hardware: hypervisors
+> will override the ops structure with their own variants.
+> 
+[snip]
 
-I was wondering if the paravirt patches is actually usuable with Xen yet.
+> +struct paravirt_ops paravirt_ops = {
+> +	.name = "bare hardware",
+[snip]
+> +	.get_wallclock = native_get_wallclock,
+> +	.set_wallclock = native_set_wallclock,
 
-Thanks
-chuck
+[snip]
+
+> --- /dev/null
+> +++ b/include/asm-i386/time.h
+> @@ -0,0 +1,41 @@
+> +#ifndef _ASMi386_TIME_H
+> +#define _ASMi386_TIME_H
+> +
+> +#include <linux/efi.h>
+> +#include "mach_time.h"
+> +
+> +static inline unsigned long native_get_wallclock(void)
+> +{
+> +	unsigned long retval;
+> +
+> +	if (efi_enabled)
+> +		retval = efi_get_time();
+> +	else
+> +		retval = mach_get_cmos_time();
+> +
+> +	return retval;
+> +}
+> +
+> +static inline int native_set_wallclock(unsigned long nowtime)
+> +{
+> +	int retval;
+> +
+> +	if (efi_enabled)
+> +		retval = efi_set_rtc_mmss(nowtime);
+> +	else
+> +		retval = mach_set_rtc_mmss(nowtime);
+> +
+> +	return retval;
+> +}
+> +
+> +#ifdef CONFIG_PARAVIRT
+> +#include <asm/paravirt.h>
+> +#else /* !CONFIG_PARAVIRT */
+> +
+> +#define get_wallclock() native_get_wallclock()
+> +#define set_wallclock(x) native_set_wallclock(x)
+
+
+Could a better name then "get/set_wallclock" be used here? Its too vague
+and would be easily confused with do_set/gettimeofday() functions.
+
+My suggestion would be to use "persistent_clock" to describe the
+battery-backed CMOS/hardware clock. (I assume that is what you intend
+this paravirt_op to be, rather then get the high-resolution system
+timeofday)
+
+thanks
+-john
