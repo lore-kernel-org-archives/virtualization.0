@@ -1,16 +1,16 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
-Date: Sat, 09 Dec 2006 02:18:26 -0800
-Message-ID: <457A8D72.4090909@goop.org>
+Date: Sat, 09 Dec 2006 02:25:08 -0800
+Message-ID: <457A8F04.40308@vmware.com>
 References: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S936590AbWLIKSd@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S967195AbWLIKZM@vger.kernel.org>
 In-Reply-To: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au, zach@vmware.com
+Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au, jeremy@goop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Randy Dunlap wrote:
@@ -59,9 +59,9 @@ Randy Dunlap wrote:
 >  	help
 >  	  Paravirtualization is a way of running multiple instances of
 >  	  Linux on the same machine, under a hypervisor.  This option
+>
+>
+> ---
+>
 >   
-
-ACK.  At some point paravirt may subsume subarches, but for now it is
-only supported on standard PC-style hardware.
-
-    J
+Acked-by: Zachary Amsden <zach@vmware.com>
