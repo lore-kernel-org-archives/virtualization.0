@@ -1,24 +1,24 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Chris Wright <chrisw@sous-sol.org>
 Subject: Re: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
-Date: Sat, 09 Dec 2006 02:25:08 -0800
-Message-ID: <457A8F04.40308@vmware.com>
+Date: Sat, 9 Dec 2006 13:45:18 -0800
+Message-ID: <20061209214518.GW1397@sequoia.sous-sol.org>
 References: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S967195AbWLIKZM@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758067AbWLIVlQ@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au, jeremy@goop.org
+Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au, jeremy@goop.org, zach@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Randy Dunlap wrote:
+* Randy Dunlap (randy.dunlap@oracle.com) wrote:
 > From: Randy Dunlap <randy.dunlap@oracle.com>
->
+> 
 > Since Voyager and Visual WS already define ARCH_SETUP,
 > it looks like PARAVIRT shouldn't be offered for them.
->
+> 
 > In file included from arch/i386/kernel/setup.c:63:
 > include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
 > In file included from include/asm/msr.h:5,
@@ -43,25 +43,7 @@ Randy Dunlap wrote:
 >                  from include/linux/sched.h:46,
 >                  from arch/i386/kernel/setup.c:26:
 > include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
->
+> 
 > Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> ---
->  arch/i386/Kconfig |    1 +
->  1 file changed, 1 insertion(+)
->
-> --- linux-2.6.19-git13.orig/arch/i386/Kconfig
-> +++ linux-2.6.19-git13/arch/i386/Kconfig
-> @@ -190,6 +190,7 @@ endchoice
->  config PARAVIRT
->  	bool "Paravirtualization support (EXPERIMENTAL)"
->  	depends on EXPERIMENTAL
-> +	depends on !(X86_VISWS || X86_VOYAGER)
->  	help
->  	  Paravirtualization is a way of running multiple instances of
->  	  Linux on the same machine, under a hypervisor.  This option
->
->
-> ---
->
->   
-Acked-by: Zachary Amsden <zach@vmware.com>
+
+Acked-by: Chris Wright <chrisw@sous-sol.org>
