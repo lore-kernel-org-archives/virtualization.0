@@ -1,49 +1,61 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Compile error with !CONFIG_PARAVIRT
-Date: Fri, 08 Dec 2006 05:36:20 -0800
-Message-ID: <45796A54.6050903@vmware.com>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
+Date: Sat, 9 Dec 2006 01:51:31 -0800
+Message-ID: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Virtualization Mailing List <virtualization@lists.osdl.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966995AbWLIJvb@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au, jeremy@goop.org, zach@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-FYI - I was working on some changes, and just noticed this with =
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-!CONFIG_PARAVIRT.
+Since Voyager and Visual WS already define ARCH_SETUP,
+it looks like PARAVIRT shouldn't be offered for them.
 
-  CC      arch/i386/kernel/alternative.o
-arch/i386/kernel/alternative.c:436: error: ?apply_paravirt? undeclared =
+In file included from arch/i386/kernel/setup.c:63:
+include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
+In file included from include/asm/msr.h:5,
+                 from include/asm/processor.h:17,
+                 from include/asm/thread_info.h:16,
+                 from include/linux/thread_info.h:21,
+                 from include/linux/preempt.h:9,
+                 from include/linux/spinlock.h:49,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:46,
+                 from arch/i386/kernel/setup.c:26:
+include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
+In file included from arch/i386/kernel/setup.c:63:
+include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
+In file included from include/asm/msr.h:5,
+                 from include/asm/processor.h:17,
+                 from include/asm/thread_info.h:16,
+                 from include/linux/thread_info.h:21,
+                 from include/linux/preempt.h:9,
+                 from include/linux/spinlock.h:49,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:46,
+                 from arch/i386/kernel/setup.c:26:
+include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
 
-here (not in a function)
-arch/i386/kernel/alternative.c:436: warning: type defaults to ?int? in =
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ arch/i386/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-declaration of ?apply_paravirt?
-arch/i386/kernel/alternative.c:437: error: ?__start_parainstructions? =
+--- linux-2.6.19-git13.orig/arch/i386/Kconfig
++++ linux-2.6.19-git13/arch/i386/Kconfig
+@@ -190,6 +190,7 @@ endchoice
+ config PARAVIRT
+ 	bool "Paravirtualization support (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
++	depends on !(X86_VISWS || X86_VOYAGER)
+ 	help
+ 	  Paravirtualization is a way of running multiple instances of
+ 	  Linux on the same machine, under a hypervisor.  This option
 
-undeclared here (not in a function)
-arch/i386/kernel/alternative.c:437: warning: type defaults to ?int? in =
 
-declaration of ?__start_parainstructions?
-arch/i386/kernel/alternative.c:438: error: ?__stop_parainstructions? =
-
-undeclared here (not in a function)
-arch/i386/kernel/alternative.c:438: warning: type defaults to ?int? in =
-
-declaration of ?__stop_parainstructions?
-make[1]: *** [arch/i386/kernel/alternative.o] Error 1
-make: *** [arch/i386/kernel] Error 2
-
-Any takers, or should I wait till Chris finishes rebasing against -git?
-
-Zach
+---
