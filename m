@@ -1,49 +1,60 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH] no paravirt for X86_VOYAGER or X86_VISWS
-Date: Sat, 9 Dec 2006 13:45:18 -0800
-Message-ID: <20061209214518.GW1397@sequoia.sous-sol.org>
-References: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Section mismatch in parainstructions
+Date: Sun, 10 Dec 2006 15:58:21 -0800
+Message-ID: <20061210155821.d2c5dfa5.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758067AbWLIVlQ@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20061209015131.fc19aeb3.randy.dunlap@oracle.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, akpm <akpm@osdl.org>, chrisw@sous-sol.org, rusty@rustcorp.com.au, jeremy@goop.org, zach@vmware.com
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: virtualization@lists.osdl.org
+Cc: akpm <akpm@osdl.org>, sam@ravnborg.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Randy Dunlap (randy.dunlap@oracle.com) wrote:
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> Since Voyager and Visual WS already define ARCH_SETUP,
-> it looks like PARAVIRT shouldn't be offered for them.
-> 
-> In file included from arch/i386/kernel/setup.c:63:
-> include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
-> In file included from include/asm/msr.h:5,
->                  from include/asm/processor.h:17,
->                  from include/asm/thread_info.h:16,
->                  from include/linux/thread_info.h:21,
->                  from include/linux/preempt.h:9,
->                  from include/linux/spinlock.h:49,
->                  from include/linux/capability.h:45,
->                  from include/linux/sched.h:46,
->                  from arch/i386/kernel/setup.c:26:
-> include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
-> In file included from arch/i386/kernel/setup.c:63:
-> include/asm-i386/mach-visws/setup_arch.h:8:1: warning: "ARCH_SETUP" redefined
-> In file included from include/asm/msr.h:5,
->                  from include/asm/processor.h:17,
->                  from include/asm/thread_info.h:16,
->                  from include/linux/thread_info.h:21,
->                  from include/linux/preempt.h:9,
->                  from include/linux/spinlock.h:49,
->                  from include/linux/capability.h:45,
->                  from include/linux/sched.h:46,
->                  from arch/i386/kernel/setup.c:26:
-> include/asm/paravirt.h:163:1: warning: this is the location of the previous definition
-> 
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 
-Acked-by: Chris Wright <chrisw@sous-sol.org>
+Is it OK for section .parainstructions to reference
+exit.text?
+
+I'm seeing:
+
+WARNING: drivers/net/hamradio/scc.o - Section mismatch: reference to .exit.=
+text: from .parainstructions after '' (at offset 0x0)
+WARNING: drivers/net/hamradio/scc.o - Section mismatch: reference to .exit.=
+text: from .parainstructions after '' (at offset 0x8)
+
+If that's OK, we need a small patch to modpost, as below.
+
+---
+~Randy
+From: Randy Dunlap <randy.dunlap@oracle.com>
+
+Section .parainstructions should not warn about section mismatches.
+
+WARNING: drivers/net/hamradio/scc.o - Section mismatch: reference to .exit.=
+text: from .parainstructions after '' (at offset 0x0)
+WARNING: drivers/net/hamradio/scc.o - Section mismatch: reference to .exit.=
+text: from .parainstructions after '' (at offset 0x8)
+
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ scripts/mod/modpost.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- linux-2.6.19-git17.orig/scripts/mod/modpost.c
++++ linux-2.6.19-git17/scripts/mod/modpost.c
+@@ -997,6 +997,7 @@ static int exit_section_ref_ok(const cha
+ 		"__bug_table", /* used by powerpc for BUG() */
+ 		".exitcall.exit",
+ 		".eh_frame",
++		".parainstructions",
+ 		".stab",
+ 		"__ex_table",
+ 		".fixup",
