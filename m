@@ -1,7 +1,7 @@
 From: Zachary Amsden <zach@vmware.com>
-Subject: [PATCH 2/5] Paravirt cpu batching.patch
-Date: Tue, 12 Dec 2006 14:34:35 -0800
-Message-ID: <200612122234.kBCMYZD1023321@zach-dev.vmware.com>
+Subject: [PATCH 1/5] Paravirt page alloc.patch
+Date: Tue, 12 Dec 2006 14:34:28 -0800
+Message-ID: <200612122234.kBCMYSgh023315@zach-dev.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -18,188 +18,251 @@ Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The VMI ROM has a mode where hypercalls can be queued and batched.  This tu=
-rns
-out to be a significant win during context switch, but must be done at a
-specific point before side effects to CPU state are visible to subsequent
-instructions.  This is similar to the MMU batching hooks already provided.
-The same hooks could be used by the Xen backend to implement a context swit=
-ch
-multicall.
-
-To explain a bit more about lazy modes in the paravirt patches, basically, =
-the
-idea is that only one of lazy CPU or MMU mode can be active at any given ti=
-me.
-Lazy MMU mode is similar to this lazy CPU mode, and allows for batching of
-multiple PTE updates (say, inside a remap loop), but to avoid keeping some =
-kind
-of state machine about when to flush cpu or mmu updates, we just allow one =
-or
-the other to be active.  Although there is no real reason a more comprehens=
-ive
-scheme could not be implemented, there is also no demonstrated need for this
-extra complexity.
+The VMI backend uses explicit page type notification to track shadow
+page tables.  The allocation of page table roots is especially tricky.
+We want to clone the root for non-PAE mode while it is protected under
+the pgd lock.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-diff -r 320f0d4d2280 arch/i386/kernel/paravirt.c
---- a/arch/i386/kernel/paravirt.c	Tue Dec 12 13:50:50 2006 -0800
-+++ b/arch/i386/kernel/paravirt.c	Tue Dec 12 13:50:53 2006 -0800
-@@ -545,6 +545,7 @@ struct paravirt_ops paravirt_ops =3D {
- 	.apic_write_atomic =3D native_apic_write_atomic,
- 	.apic_read =3D native_apic_read,
- #endif
-+	.set_lazy_mode =3D (void *)native_nop,
- =
-
- 	.flush_tlb_user =3D native_flush_tlb,
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -545,6 +545,12 @@ struct paravirt_ops paravirt_ops =3D {
  	.flush_tlb_kernel =3D native_flush_tlb_global,
-diff -r 320f0d4d2280 arch/i386/kernel/process.c
---- a/arch/i386/kernel/process.c	Tue Dec 12 13:50:50 2006 -0800
-+++ b/arch/i386/kernel/process.c	Tue Dec 12 13:50:53 2006 -0800
-@@ -665,6 +665,37 @@ struct task_struct fastcall * __switch_t
- 	load_TLS(next, cpu);
+ 	.flush_tlb_single =3D native_flush_tlb_single,
  =
 
- 	/*
-+	 * Restore IOPL if needed.
-+	 */
-+	if (unlikely(prev->iopl !=3D next->iopl))
-+		set_iopl_mask(next->iopl);
++	.alloc_pt =3D (void *)native_nop,
++	.alloc_pd =3D (void *)native_nop,
++	.alloc_pd_clone =3D (void *)native_nop,
++	.release_pt =3D (void *)native_nop,
++	.release_pd =3D (void *)native_nop,
 +
-+	/*
-+	 * Now maybe handle debug registers and/or IO bitmaps
-+	 */
-+	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
-+	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)))
-+		__switch_to_xtra(next_p, tss);
-+
-+	/*
-+	 * Leave lazy mode, flushing any hypercalls made here.
-+	 * This must be done before restoring TLS segments so
-+	 * the GDT and LDT are properly updated, and must be
-+	 * done before math_state_restore, so the TS bit is up
-+	 * to date.
-+	 */
-+	arch_leave_lazy_cpu_mode();
-+
-+	disable_tsc(prev_p, next_p);
-+
-+	/* If the task has used fpu the last 5 timeslices, just do a full
-+	 * restore of the math state immediately to avoid the trap; the
-+	 * chances of needing FPU soon are obviously high now
-+	 */
-+	if (next_p->fpu_counter > 5)
-+		math_state_restore();
-+
-+	/*
- 	 * Restore %fs if needed.
- 	 *
- 	 * Glibc normally makes %fs be zero.
-@@ -673,22 +704,6 @@ struct task_struct fastcall * __switch_t
- 		loadsegment(fs, next->fs);
- =
+ 	.set_pte =3D native_set_pte,
+ 	.set_pte_at =3D native_set_pte_at,
+ 	.set_pmd =3D native_set_pmd,
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -62,6 +62,7 @@ static pmd_t * __init one_md_table_init(
+ 		=
 
- 	write_pda(pcurrent, next_p);
--
--	/*
--	 * Now maybe handle debug registers and/or IO bitmaps
--	 */
--	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
--	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)))
--		__switch_to_xtra(next_p, tss);
--
--	disable_tsc(prev_p, next_p);
--
--	/* If the task has used fpu the last 5 timeslices, just do a full
--	 * restore of the math state immediately to avoid the trap; the
--	 * chances of needing FPU soon are obviously high now
--	 */
--	if (next_p->fpu_counter > 5)
--		math_state_restore();
- =
+ #ifdef CONFIG_X86_PAE
+ 	pmd_table =3D (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++	paravirt_alloc_pd(__pa(pmd_table) >> PAGE_SHIFT);
+ 	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
+ 	pud =3D pud_offset(pgd, 0);
+ 	if (pmd_table !=3D pmd_offset(pud, 0)) =
 
- 	return prev_p;
- }
-diff -r 320f0d4d2280 include/asm-generic/pgtable.h
---- a/include/asm-generic/pgtable.h	Tue Dec 12 13:50:50 2006 -0800
-+++ b/include/asm-generic/pgtable.h	Tue Dec 12 13:50:53 2006 -0800
-@@ -183,6 +183,19 @@ static inline void ptep_set_wrprotect(st
+@@ -82,6 +83,7 @@ static pte_t * __init one_page_table_ini
+ {
+ 	if (pmd_none(*pmd)) {
+ 		pte_t *page_table =3D (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++		paravirt_alloc_pt(__pa(page_table) >> PAGE_SHIFT);
+ 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+ 		if (page_table !=3D pte_offset_kernel(pmd, 0))
+ 			BUG();	=
+
+@@ -347,6 +349,8 @@ static void __init pagetable_init (void)
+ 	/* Init entries of the first-level page table to the zero page */
+ 	for (i =3D 0; i < PTRS_PER_PGD; i++)
+ 		set_pgd(pgd_base + i, __pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
++#else
++	paravirt_alloc_pd(__pa(swapper_pg_dir) >> PAGE_SHIFT);
  #endif
  =
 
- /*
-+ * A facility to provide batching of the reload of page tables with the
-+ * actual context switch code for paravirtualized guests.  By convention,
-+ * only one of the lazy modes (CPU, MMU) should be active at any given
-+ * time, entry should never be nested, and entry and exits should always
-+ * be paired.  This is for sanity of maintaining and reasoning about the
-+ * kernel code.
-+ */
-+#ifndef __HAVE_ARCH_ENTER_LAZY_CPU_MODE
-+#define arch_enter_lazy_cpu_mode()	do {} while (0)
-+#define arch_leave_lazy_cpu_mode()	do {} while (0)
+ 	/* Enable PSE if available */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/mm/pageattr.c
++++ b/arch/i386/mm/pageattr.c
+@@ -60,6 +60,7 @@ static struct page *split_large_page(uns
+ 	address =3D __pa(address);
+ 	addr =3D address & LARGE_PAGE_MASK; =
+
+ 	pbase =3D (pte_t *)page_address(base);
++	paravirt_alloc_pt(page_to_pfn(base));
+ 	for (i =3D 0; i < PTRS_PER_PTE; i++, addr +=3D PAGE_SIZE) {
+                set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
+                                           addr =3D=3D address ? prot : ref=
+_prot));
+@@ -166,6 +167,7 @@ __change_page_attr(struct page *page, pg
+ 	if (!PageReserved(kpte_page)) {
+ 		if (cpu_has_pse && (page_private(kpte_page) =3D=3D 0)) {
+ 			ClearPagePrivate(kpte_page);
++			paravirt_release_pt(page_to_pfn(kpte_page));
+ 			list_add(&kpte_page->lru, &df_list);
+ 			revert_page(kpte_page, address);
+ 		}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/mm/pgtable.c
++++ b/arch/i386/mm/pgtable.c
+@@ -245,8 +245,14 @@ void pgd_ctor(void *pgd, kmem_cache_t *c
+ 	clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
+ 			swapper_pg_dir + USER_PTRS_PER_PGD,
+ 			KERNEL_PGD_PTRS);
++
+ 	if (PTRS_PER_PMD > 1)
+ 		return;
++
++	/* must happen under lock */
++	paravirt_alloc_pd_clone(__pa(pgd) >> PAGE_SHIFT,
++			__pa(swapper_pg_dir) >> PAGE_SHIFT,
++			USER_PTRS_PER_PGD, PTRS_PER_PGD - USER_PTRS_PER_PGD);
+ =
+
+ 	pgd_list_add(pgd);
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+@@ -257,6 +263,7 @@ void pgd_dtor(void *pgd, kmem_cache_t *c
+ {
+ 	unsigned long flags; /* can be called from interrupt context */
+ =
+
++	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
+ 	spin_lock_irqsave(&pgd_lock, flags);
+ 	pgd_list_del(pgd);
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+@@ -274,13 +281,18 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 		pmd_t *pmd =3D kmem_cache_alloc(pmd_cache, GFP_KERNEL);
+ 		if (!pmd)
+ 			goto out_oom;
++		paravirt_alloc_pd(__pa(pmd) >> PAGE_SHIFT);
+ 		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
+ 	}
+ 	return pgd;
+ =
+
+ out_oom:
+-	for (i--; i >=3D 0; i--)
+-		kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i])-1));
++	for (i--; i >=3D 0; i--) {
++		pgd_t pgdent =3D pgd[i];
++		void* pmd =3D (void *)__va(pgd_val(pgdent)-1);
++		paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
++		kmem_cache_free(pmd_cache, pmd);
++	}
+ 	kmem_cache_free(pgd_cache, pgd);
+ 	return NULL;
+ }
+@@ -291,8 +303,12 @@ void pgd_free(pgd_t *pgd)
+ =
+
+ 	/* in the PAE case user pgd entries are overwritten before usage */
+ 	if (PTRS_PER_PMD > 1)
+-		for (i =3D 0; i < USER_PTRS_PER_PGD; ++i)
+-			kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i])-1));
++		for (i =3D 0; i < USER_PTRS_PER_PGD; ++i) {
++			pgd_t pgdent =3D pgd[i];
++			void* pmd =3D (void *)__va(pgd_val(pgdent)-1);
++			paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
++			kmem_cache_free(pmd_cache, pmd);
++		}
+ 	/* in the non-PAE case, free_pgtables() clears user pgd entries */
+ 	kmem_cache_free(pgd_cache, pgd);
+ }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -126,6 +126,12 @@ struct paravirt_ops
+ 	void (fastcall *flush_tlb_user)(void);
+ 	void (fastcall *flush_tlb_kernel)(void);
+ 	void (fastcall *flush_tlb_single)(u32 addr);
++
++	void (fastcall *alloc_pt)(u32 pfn);
++	void (fastcall *alloc_pd)(u32 pfn);
++	void (fastcall *alloc_pd_clone)(u32 pfn, u32 clonepfn, u32 start, u32 cou=
+nt);
++	void (fastcall *release_pt)(u32 pfn);
++	void (fastcall *release_pd)(u32 pfn);
+ =
+
+ 	void (fastcall *set_pte)(pte_t *ptep, pte_t pteval);
+ 	void (fastcall *set_pte_at)(struct mm_struct *mm, u32 addr, pte_t *ptep, =
+pte_t pteval);
+@@ -325,6 +331,14 @@ static __inline unsigned long apic_read(
+ #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
+ #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
+ =
+
++#define paravirt_alloc_pt(pfn) paravirt_ops.alloc_pt(pfn)
++#define paravirt_release_pt(pfn) paravirt_ops.release_pt(pfn)
++
++#define paravirt_alloc_pd(pfn) paravirt_ops.alloc_pd(pfn)
++#define paravirt_alloc_pd_clone(pfn, clonepfn, start, count) \
++	paravirt_ops.alloc_pd_clone(pfn, clonepfn, start, count)
++#define paravirt_release_pd(pfn) paravirt_ops.release_pd(pfn)
++
+ static inline void set_pte(pte_t *ptep, pte_t pteval)
+ {
+ 	paravirt_ops.set_pte(ptep, pteval);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgalloc.h
++++ b/include/asm-i386/pgalloc.h
+@@ -5,13 +5,31 @@
+ #include <linux/threads.h>
+ #include <linux/mm.h>		/* for struct page */
+ =
+
+-#define pmd_populate_kernel(mm, pmd, pte) \
+-		set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++#else
++#define paravirt_alloc_pt(pfn) do { } while (0)
++#define paravirt_alloc_pd(pfn) do { } while (0)
++#define paravirt_alloc_pd(pfn) do { } while (0)
++#define paravirt_alloc_pd_clone(pfn, clonepfn, start, count) do { } while =
+(0)
++#define paravirt_release_pt(pfn) do { } while (0)
++#define paravirt_release_pd(pfn) do { } while (0)
 +#endif
 +
-+/*
-  * When walking page tables, get the address of the next boundary,
-  * or the end address of the range if that comes earlier.  Although no
-  * vma end wraps to 0, rounded up __boundary may wrap to 0 throughout.
-diff -r 320f0d4d2280 include/asm-i386/paravirt.h
---- a/include/asm-i386/paravirt.h	Tue Dec 12 13:50:50 2006 -0800
-+++ b/include/asm-i386/paravirt.h	Tue Dec 12 13:50:53 2006 -0800
-@@ -146,6 +146,8 @@ struct paravirt_ops
- 	void (fastcall *pmd_clear)(pmd_t *pmdp);
- #endif
++#define pmd_populate_kernel(mm, pmd, pte)			\
++do {								\
++	paravirt_alloc_pt(__pa(pte) >> PAGE_SHIFT);		\
++	set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)));		\
++} while (0)
  =
 
-+	void (fastcall *set_lazy_mode)(int mode);
+ #define pmd_populate(mm, pmd, pte) 				\
++do {								\
++	paravirt_alloc_pt(page_to_pfn(pte));			\
+ 	set_pmd(pmd, __pmd(_PAGE_TABLE +			\
+ 		((unsigned long long)page_to_pfn(pte) <<	\
+-			(unsigned long long) PAGE_SHIFT)))
++			(unsigned long long) PAGE_SHIFT)));	\
++} while (0)
 +
- 	/* These two are jmp to, not actually called. */
- 	void (fastcall *irq_enable_sysexit)(void);
- 	void (fastcall *iret)(void);
-@@ -386,6 +388,19 @@ static inline void pmd_clear(pmd_t *pmdp
+ /*
+  * Allocate and free page tables.
+  */
+@@ -32,7 +50,11 @@ static inline void pte_free(struct page =
+
  }
- #endif
  =
 
-+/* Lazy mode for batching updates / context switch */
-+#define PARAVIRT_LAZY_NONE 0
-+#define PARAVIRT_LAZY_MMU  1
-+#define PARAVIRT_LAZY_CPU  2
-+
-+#define  __HAVE_ARCH_ENTER_LAZY_CPU_MODE
-+#define arch_enter_lazy_cpu_mode() paravirt_ops.set_lazy_mode(PARAVIRT_LAZ=
-Y_CPU)
-+#define arch_leave_lazy_cpu_mode() paravirt_ops.set_lazy_mode(PARAVIRT_LAZ=
-Y_NONE)
-+
-+#define  __HAVE_ARCH_ENTER_LAZY_MMU_MODE
-+#define arch_enter_lazy_mmu_mode() paravirt_ops.set_lazy_mode(PARAVIRT_LAZ=
-Y_MMU)
-+#define arch_leave_lazy_mmu_mode() paravirt_ops.set_lazy_mode(PARAVIRT_LAZ=
-Y_NONE)
-+
- /* These all sit in the .parainstructions section to tell us what to patch=
-. */
- struct paravirt_patch {
- 	u8 *instr; 		/* original instructions */
-diff -r 320f0d4d2280 kernel/sched.c
---- a/kernel/sched.c	Tue Dec 12 13:50:50 2006 -0800
-+++ b/kernel/sched.c	Tue Dec 12 13:50:53 2006 -0800
-@@ -1833,6 +1833,13 @@ context_switch(struct rq *rq, struct tas
- 	struct mm_struct *mm =3D next->mm;
- 	struct mm_struct *oldmm =3D prev->active_mm;
  =
 
-+	/*
-+	 * For paravirt, this is coupled with an exit in switch_to to
-+	 * combine the page table reload and the switch backend into
-+	 * one hypercall.
-+	 */
-+	arch_enter_lazy_cpu_mode();
-+
- 	if (!mm) {
- 		next->active_mm =3D oldmm;
- 		atomic_inc(&oldmm->mm_count);
+-#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
++#define __pte_free_tlb(tlb,pte) 					\
++do {									\
++	paravirt_release_pt(page_to_pfn(pte));				\
++	tlb_remove_page((tlb),(pte));					\
++} while (0)
+ =
+
+ #ifdef CONFIG_X86_PAE
+ /*
