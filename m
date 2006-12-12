@@ -1,23 +1,43 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Andi Kleen <ak@suse.de>
 Subject: Re: Why disable vdso by default with CONFIG_PARAVIRT?
-Date: Mon, 11 Dec 2006 17:49:34 -0800
-Message-ID: <457E0AAE.7080509@goop.org>
-References: <457E0460.4030107@goop.org> <457E08FE.6050600@vmware.com> <457E097C.5030208@goop.org> <457E0A03.3020704@vmware.com>
+Date: Tue, 12 Dec 2006 04:02:19 +0100
+Message-ID: <200612120402.19958.ak@suse.de>
+References: <457E0460.4030107@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750861AbWLLBuJ@vger.kernel.org>
-In-Reply-To: <457E0A03.3020704@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@suse.de>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <457E0460.4030107@goop.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> It's not for us or Xen.  Perhaps it came from lhype?  
+On Tuesday 12 December 2006 02:22, Jeremy Fitzhardinge wrote:
+> What problem do they cause together?  There's certainly no problem with
+> Xen+vdso
 
-(I suspect it came from Andi's fevered brain.)  If lhype can't deal with
-vdso, it can turn it off for itself - but I don't think its a problem
-for lhype.
+This was the change which finally got my test system (with an older
+SUSE 9.0 based user land to boot).  With paravirt older glibc's ld.so =
 
-    J
+otherwise throws assertation failures because it somehow can't deal with =
+
+the new placement. This only happens with paravirt enabled.
+
+Binary compatibility is important.
+
+> (in fact, its actually very useful so that it picks up the
+> right libc with Xen-friendly TLS).
+
+AFAIK libc selection comes from the aux vector, not the vdso.
+
+-Andi
