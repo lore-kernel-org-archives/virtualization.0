@@ -1,13 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Why disable vdso by default with CONFIG_PARAVIRT?
-Date: Wed, 13 Dec 2006 10:22:08 +1100
-Message-ID: <1165965728.30004.21.camel@localhost.localdomain>
-References: <457E0460.4030107@goop.org>  <200612120402.19958.ak@suse.de>
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 2/5] Paravirt cpu batching.patch
+Date: Tue, 12 Dec 2006 18:49:57 -0500
+Message-ID: <200612121853_MC3-1-D4D2-191A@compuserve.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <200612120402.19958.ak@suse.de>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -17,39 +16,33 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@suse.de>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2006-12-12 at 04:02 +0100, Andi Kleen wrote:
-> On Tuesday 12 December 2006 02:22, Jeremy Fitzhardinge wrote:
-> > What problem do they cause together?  There's certainly no problem with
-> > Xen+vdso
-> =
+In-Reply-To: <20061212225430.GC10475@sequoia.sous-sol.org>
 
-> This was the change which finally got my test system (with an older
-> SUSE 9.0 based user land to boot).  With paravirt older glibc's ld.so =
+On Tue, 12 Dec 2006 14:54:30 -0800, Chros Wright wrote:
 
-> otherwise throws assertation failures because it somehow can't deal with =
+> > --- a/arch/i386/kernel/process.c    Tue Dec 12 13:50:50 2006 -0800
+> > +++ b/arch/i386/kernel/process.c    Tue Dec 12 13:50:53 2006 -0800
+> > @@ -665,6 +665,37 @@ struct task_struct fastcall * __switch_t
+> >     load_TLS(next, cpu);
+> >  =
 
-> the new placement. This only happens with paravirt enabled.
-> =
+> >     /*
+> > +    * Restore IOPL if needed.
+> > +    */
+> > +   if (unlikely(prev->iopl !=3D next->iopl))
+> > +           set_iopl_mask(next->iopl);
+>
+> Small sidenote that this bit undoes a recent change from Chuck Ebbert, wh=
+ich
+> killed iopl_mask update via hypervisor.
 
-> Binary compatibility is important.
+This whole thing needs a proper fix IMO.  I posted something a while back
+but Andi didn't like it, I guess.
 
-Yes, this goes back to the original COMPAT_VDSO config option, months
-ago.  FC1's buggy glibc couldn't handle the vdso being in an unusual
-place, and (over my objections) the COMPAT_VDSO option was introduced.
-Seems like SuSE 9.0 is similarly effected.
+-- =
 
-I don't have a system which has this problem (and, at the end of a
-modem, I'm unlikely to get one soon).  But I would suggest that
-COMPAT_VDSO should be rewritten: catch the segv from init (presumably in
-around the old vdso 0xFFFF0000 addr?), printk a message, turn vdso off
-and re-exec init.
-
-That should make everyone happy.  Now, someone who can repro this please
-code it up!
-
-Thanks!
-Rusty.
+MBTI: IXTP
