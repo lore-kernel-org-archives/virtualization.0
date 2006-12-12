@@ -1,14 +1,15 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Andi Kleen <ak@suse.de>
 Subject: Re: Why disable vdso by default with CONFIG_PARAVIRT?
-Date: Tue, 12 Dec 2006 02:23:09 -0800
-Message-ID: <457E830D.6010801@goop.org>
-References: <457E0460.4030107@goop.org> <200612120402.19958.ak@suse.de>
-	<457E5144.7020406@goop.org> <200612120827.56363.ak@suse.de>
+Date: Tue, 12 Dec 2006 13:01:08 +0100
+Message-ID: <200612121301.08444.ak@suse.de>
+References: <457E0460.4030107@goop.org> <200612120827.56363.ak@suse.de>
+	<457E830D.6010801@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <200612120827.56363.ak@suse.de>
+In-Reply-To: <457E830D.6010801@goop.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,49 +19,22 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> It needs COMPAT_VDSO
->
-> [which is basically COMPAT_NO_OLD_GLIBC and imho always
-> was a big mistake to have a config anyways -- one shouldn't gamble
-> with binary compatibility so lightly] =
+On Tuesday 12 December 2006 11:23, Jeremy Fitzhardinge wrote:
 
->   =
+> Will your system boot with vdso=3D0 on the kernel command line?
 
+Sure, it's the same as what I did by default.
 
-It's unfortunate; there's a fundamental address space clash, and there's
-no nice resolution.
+> Presumably it will boot paravirt-native without it (since native makes
+> no claims on the address space), so its something you could put in your
+> Xen config file, no?
 
-Will your system boot with vdso=3D0 on the kernel command line? =
+I don't think being incompatible to old binaries is a sensible default. That
+is why I changed the wrong default. If paravirt ops cannot supply
+a compatible vdso it has to do without one.
 
-Presumably it will boot paravirt-native without it (since native makes
-no claims on the address space), so its something you could put in your
-Xen config file, no?
-
-> Hmm, i had assumed it used the same mechanism as the CPU optimized
-> libcs -- and that comes from the aux vector AT_PLATFORM.  =
-
->   =
-
-
-There's some magic that involves a .note segment in the vdso itself, and
-a ld.so.conf entry which maps the string in there ("nosegneg") to a
-pseudo-hardware capability, and ld.so uses the result of that to look
-for more places for libraries.  I don't really understand how all the
-pieces fit together.
-
-> Why does it not boot? At least in the past nosegneg was only a optimizati=
-on
-> to avoid some unnecessary traps to the hypervisor, but it should handle i=
-t.
-> Has that changed?
->   =
-
-
-No, but my (very stripped down) test system has no other libraries.
-
-    J
+-Andi
