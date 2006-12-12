@@ -1,7 +1,7 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: Why disable vdso by default with CONFIG_PARAVIRT?
-Date: Mon, 11 Dec 2006 22:28:42 -0800
-Message-ID: <457E4C1A.4000905@vmware.com>
+Date: Mon, 11 Dec 2006 22:50:44 -0800
+Message-ID: <457E5144.7020406@goop.org>
 References: <457E0460.4030107@goop.org> <200612120402.19958.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -22,14 +22,6 @@ Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Andi Kleen wrote:
-> On Tuesday 12 December 2006 02:22, Jeremy Fitzhardinge wrote:
->   =
-
->> What problem do they cause together?  There's certainly no problem with
->> Xen+vdso
->>     =
-
->
 > This was the change which finally got my test system (with an older
 > SUSE 9.0 based user land to boot).  With paravirt older glibc's ld.so =
 
@@ -41,18 +33,21 @@ Andi Kleen wrote:
 >   =
 
 
-Yes, but the old placement of the vdso is incompatible with paravirt =
+So the SUSE 9 libc needs COMPAT_VDSO, or it just can't deal with the
+vdso moving around?  Can it deal with the current kernel's mobile vdso?
 
-guests.  The only solution I can think of to keep compatibility is to =
+>> (in fact, its actually very useful so that it picks up the
+>> right libc with Xen-friendly TLS).
+>>     =
 
-dynamically place the vdso during boot, but this is complex and =
+>
+> AFAIK libc selection comes from the aux vector, not the vdso.
 
-introduces an indirection penalty to the fast sysenter syscall path =
+No, it seems to be done by adding a .note segment to the vdso share
+object.  Without the vdso, my Xen test system doesn't boot because it
+can't find the nosegneg versions of the libraries (it doesn't seem to
+know where to look).  I'm not sure how all this stuff fits together. =
 
-(unless we make that a dynamic patch).
+But the auxv is supposed to point to the vdso...
 
-What should we do to fix this?  Breaking compatibility for paravirt =
-
-compilation is certainly the easiest thing to do.
-
-Zach
+    J
