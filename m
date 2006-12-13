@@ -1,7 +1,7 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [PATCH 2/5] Paravirt cpu batching.patch
-Date: Tue, 12 Dec 2006 16:30:44 -0800
-Message-ID: <457F49B4.5000801@goop.org>
+Date: Tue, 12 Dec 2006 16:38:57 -0800
+Message-ID: <457F4BA1.4010700@vmware.com>
 References: <200612121853_MC3-1-D4D2-191A@compuserve.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -18,15 +18,40 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Chuck Ebbert wrote:
+> In-Reply-To: <20061212225430.GC10475@sequoia.sous-sol.org>
+>
+> On Tue, 12 Dec 2006 14:54:30 -0800, Chros Wright wrote:
+>
+>   =
+
+>>> --- a/arch/i386/kernel/process.c    Tue Dec 12 13:50:50 2006 -0800
+>>> +++ b/arch/i386/kernel/process.c    Tue Dec 12 13:50:53 2006 -0800
+>>> @@ -665,6 +665,37 @@ struct task_struct fastcall * __switch_t
+>>>     load_TLS(next, cpu);
+>>>  =
+
+>>>     /*
+>>> +    * Restore IOPL if needed.
+>>> +    */
+>>> +   if (unlikely(prev->iopl !=3D next->iopl))
+>>> +           set_iopl_mask(next->iopl);
+>>>       =
+
+>> Small sidenote that this bit undoes a recent change from Chuck Ebbert, w=
+hich
+>> killed iopl_mask update via hypervisor.
+>>     =
+
+>
 > This whole thing needs a proper fix IMO.  I posted something a while back
 > but Andi didn't like it, I guess.
 >   =
 
 
-What's a quick summary of the issue again?
+We can handle this one with an #ifdef CONFIG_PARAVIRT, though.
 
-    J
+Zach
