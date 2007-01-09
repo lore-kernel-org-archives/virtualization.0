@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: lhype booting debootstrapped debian image over nfsroot,
-	partial success
-Date: Tue, 09 Jan 2007 17:34:16 +1100
-Message-ID: <1168324456.19646.104.camel@localhost.localdomain>
-References: <20070107224644.GA1521@outpost.ds9a.nl>
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: Re: [PATCH] x86_64 paravirt_ops port
+Date: Tue, 9 Jan 2007 09:14:23 -0200
+Message-ID: <20070109111423.GB5193@redhat.com>
+References: <20070108140826.GA1624@redhat.com>
+	<1168297540.19646.40.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070107224644.GA1521@outpost.ds9a.nl>
+Content-Disposition: inline
+In-Reply-To: <1168297540.19646.40.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,29 +19,21 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: bert hubert <bert.hubert@netherlabs.nl>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2007-01-07 at 23:46 +0100, bert hubert wrote:
-> When it does work, things sort of work, but it looks like timing is
-> seriously off:
+ =
+
+> There's one critical bug which will stop it from booting reliably:
+> > +    Based on i386 work by Rusty Russel.
 > =
 
-> intel:~# uptime
->  01:52:22 up -24855 days, -3:-14,  1 user,  load average: nan, nan, 0.03
-> =
+Thanks for the tip, Rusty. In fact, I fixed that, and the random crashes
+disappeared. ;-)
 
-> The clock appears to run around 5 times too slow.
+-- =
 
-OK, a one-character typo meant I was returning "usec" not "sec" through
-the "get_wallclock" hypercall.  Hence time was completely random; I'm
-amazed it booted!
-
-I've also made the guest use the TSC, and now time runs at normal speed.
-ssh still does not install due to lack of randomness; the next patch
-will fix this (the host will tell us which devices are capable of
-supplying randomness, ie. not ones connecting to other guests).
-
-Thanks!
-Rusty.
+Glauber de Oliveira Costa
+Red Hat Inc.
+"Free as in Freedom"
