@@ -1,15 +1,11 @@
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: Re: [PATCH] x86_64 paravirt_ops port
-Date: Tue, 9 Jan 2007 09:14:23 -0200
-Message-ID: <20070109111423.GB5193@redhat.com>
-References: <20070108140826.GA1624@redhat.com>
-	<1168297540.19646.40.camel@localhost.localdomain>
+From: Gerd Hoffmann <kraxel@suse.de>
+Subject: more build errors ...
+Date: Tue, 09 Jan 2007 12:25:56 +0100
+Message-ID: <45A37BC4.6060303@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline
-In-Reply-To: <1168297540.19646.40.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,21 +15,26 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.osdl.org
+To: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
- =
+  Hi,
 
-> There's one critical bug which will stop it from booting reliably:
-> > +    Based on i386 work by Rusty Russel.
-> =
+Get these now:
 
-Thanks for the tip, Rusty. In fact, I fixed that, and the random crashes
-disappeared. ;-)
+this one with non-pae builds:
+
+  arch/i386/kernel/built-in.o: In function `APIC_init_uniprocessor':
+  (.init.text+0x6357): undefined reference to `setup_boot_clock'
+
+this on both pae and non-pae (CONFIG_MAGIC_SYSRQ=3Dy):
+
+  drivers/built-in.o: In function `xencons_rx':
+  (.text+0x17f09): undefined reference to `sysrq_enabled'
+
+cheers,
+  Gerd
 
 -- =
 
-Glauber de Oliveira Costa
-Red Hat Inc.
-"Free as in Freedom"
+Gerd Hoffmann <kraxel@suse.de>
