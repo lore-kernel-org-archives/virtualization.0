@@ -1,13 +1,11 @@
-From: James Morris <jmorris@namei.org>
-Subject: Re: APIC clock setup dependent on PAE ?
-Date: Wed, 10 Jan 2007 09:52:50 -0500 (EST)
-Message-ID: <Pine.LNX.4.64.0701100952320.9615@d.namei>
-References: <Pine.LNX.4.64.0701100933220.8582@d.namei>
+From: Gerd Hoffmann <kraxel@suse.de>
+Subject: paravirt & xen & SMP
+Date: Wed, 10 Jan 2007 16:23:26 +0100
+Message-ID: <45A504EE.5050409@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0701100933220.8582@d.namei>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -17,21 +15,27 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+To: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 10 Jan 2007, James Morris wrote:
+  Hi,
 
-> Why are these APIC clock init hooks dependent on CONFIG_X86_PAE ?
+Anyone has this working?  Looks like there is a chicken-and-egg issue
+with pda setup:
 
-And should it perhaps be
+  * xen_load_gdt() uses multicalls, thus depends on cpu-specific
+    variables (per-cpu mc buffer) which in turn requires pda being
+    setup already.
+  * pda setup can't be done before xen_load_gdt() ...
 
-#ifdef CONFIG_X86_LOCAL_APIC'd ?
+Next question while looking at xen_load_gdt(): why does it use
+multicalls in the first place?  Seems that function puts only one
+hypercall into the multicall array, so there is no obvious point in
+using multicalls ...
 
+cheers,
+  Gerd
 
-
-- James
 -- =
 
-James Morris
-<jmorris@namei.org>
+Gerd Hoffmann <kraxel@suse.de>
