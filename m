@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: paravirt & xen & SMP
-Date: Wed, 10 Jan 2007 10:48:17 -0800
-Message-ID: <45A534F1.90609@goop.org>
-References: <45A504EE.5050409@suse.de>
+Subject: Re: Oops
+Date: Wed, 10 Jan 2007 11:38:06 -0800
+Message-ID: <45A5409E.50507@goop.org>
+References: <45A399D7.3090205@suse.de> <45A41B60.3070500@goop.org>
+	<45A4A0C7.5050405@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45A504EE.5050409@suse.de>
+In-Reply-To: <45A4A0C7.5050405@suse.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,27 +23,20 @@ Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Gerd Hoffmann wrote:
-> Anyone has this working?  Looks like there is a chicken-and-egg issue
-> with pda setup:
+> config is attached.
 >
->   * xen_load_gdt() uses multicalls, thus depends on cpu-specific
->     variables (per-cpu mc buffer) which in turn requires pda being
->     setup already.
->   * pda setup can't be done before xen_load_gdt() ...
+> It faults in fork syscall, down in pgd_walk().  It finds a pmd entry
+> pointing to a machine page where the mfn_to_pfn translation returns -1
+> aka 0xffffffff.  Trying to find a struct page for that one doesn't work .=
+..
 >   =
 
 
-Good point.  I haven't done any SMP work yet, so if anything works at
-all it is pure luck.
+Hm, that's interesting but curious.  Hm, the mapping is in userspace? =
 
-> Next question while looking at xen_load_gdt(): why does it use
-> multicalls in the first place?  Seems that function puts only one
-> hypercall into the multicall array, so there is no obvious point in
-> using multicalls ...
->   =
+How did userspace get a foreign/special mapping?
 
-
-I think you're right; I probably converted it when I swept through and
-did the others without really thinking about the bootstrap consequences.
+Is this the very first fork()?  Nothing should be mapped down there at
+all, so maybe there's a bug in initial pagetable setup.
 
     J
