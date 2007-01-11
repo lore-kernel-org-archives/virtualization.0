@@ -1,15 +1,13 @@
 From: Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: Oops
-Date: Thu, 11 Jan 2007 15:12:19 +0100
-Message-ID: <45A645C3.2060802@suse.de>
-References: <45A399D7.3090205@suse.de> <45A41B60.3070500@goop.org>
-	<45A4A0C7.5050405@suse.de> <45A4C014.9030909@suse.de>
-	<45A55E29.2090207@goop.org>
+Subject: Re: paravirt & xen & SMP
+Date: Thu, 11 Jan 2007 15:41:43 +0100
+Message-ID: <45A64CA7.80209@suse.de>
+References: <45A504EE.5050409@suse.de> <45A534F1.90609@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45A55E29.2090207@goop.org>
+In-Reply-To: <45A534F1.90609@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -24,53 +22,44 @@ Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Jeremy Fitzhardinge wrote:
->> Looks like a slot-3 pmd got reused for slot-0, with some stale entries
->> for the hypervisor hole in there for some reason ...
->>
->> quick and dirty sledge hammer fix:
->>
->> --- paravirt-2.6.20-rc4-hg691.orig/arch/i386/paravirt-xen/enlighten.c
->> +++ paravirt-2.6.20-rc4-hg691/arch/i386/paravirt-xen/enlighten.c
->> @@ -522,6 +522,7 @@ static fastcall void xen_alloc_pd(u32 pf
->>  static fastcall void xen_release_pd(u32 pfn)
->>  {
->>         make_lowmem_page_readwrite(__va(PFN_PHYS(pfn)));
->> +       memset(__va(PFN_PHYS(pfn)), 0, PAGE_SIZE);
->>  }
->>
->>  static fastcall void xen_release_pt(u32 pfn)
->>   =
-
+>> Next question while looking at xen_load_gdt(): why does it use
+>> multicalls in the first place?  Seems that function puts only one
+>> hypercall into the multicall array, so there is no obvious point in
+>> using multicalls ...
 > =
 
-> Does this work?
-> =
+> I think you're right; I probably converted it when I swept through and
+> did the others without really thinking about the bootstrap consequences.
 
-> diff -r 252f3ed87072 arch/i386/mm/pgtable.c
-> --- a/arch/i386/mm/pgtable.c    Mon Jan 08 16:57:56 2007 -0800
-> +++ b/arch/i386/mm/pgtable.c    Wed Jan 10 13:13:40 2007 -0800
-> @@ -265,6 +265,7 @@ static void pgd_ctor(pgd_t *pgd)
->                                         swapper_pg_dir + USER_PTRS_PER_PG=
-D,
->                                         KERNEL_PGD_PTRS);
->                 } else {
-> +                       memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
->                         spin_lock_irqsave(&pgd_lock, flags);
->                         pgd_list_add(pgd);
->                         spin_unlock_irqrestore(&pgd_lock, flags);
+Well, after reading the code a bit more it seems the intention is to
+call the function in a row with others, have stuff queued up (in case
+lazy_mode =3D=3D PARAVIRT_LAZY_CPU is set) and update everything in one go
+then.  I don't think that makes sense for that function as it isn't
+performance-critical.  It is called on boot and cpu bringup (well, not
+yet) only, right?
 
-Didn't try (yet), but I don't think so.  It's not the pgd which is
-broken, but the pmd.  And I think this way:
+We have a simliar issue for xen_write_gdt_entry() btw, it calls
+mc_flush() which doesn't work too.  I've fixed it that way:
 
-  (1) pmd is created
-  (2) pmd is taken out of the slabcache and used for the kernel/xen
-      address space (i.e. slot-3 in the PAE pgd).
-  (3) xen fills in the page table entries for the hypervisor hole
-  (4) pmd released and put back into the slab cache.
-  (5) pmd gets reused, but for userspace addresses this time (pgd
-      slot 0-2).
-  (6) xen_pin() finds the stale entries for the hypervisor hole
-  =3D=3D> Oops.
+@@ -761,7 +762,13 @@ static asmlinkage void __init xen_start_
+        /* set up PDA descriptor */
+        pack_descriptor(&low, &high, (unsigned)&boot_pda,
+sizeof(boot_pda)-1,
+                        0x80 | DESCTYPE_S | 0x02, 0);
++#if 0
+        xen_write_gdt_entry(cpu_gdt_table, GDT_ENTRY_PDA, low, high);
++#else
++       if (HYPERVISOR_update_descriptor(virt_to_machine(cpu_gdt_table +
+GDT_ENTRY_PDA).maddr,
++                                        (u64)high << 32 | low))
++               BUG();
++#endif
+
+        /* set up %gs and init Xen parts of the PDA */
+        asm volatile("mov %0, %%gs" : : "r" (__KERNEL_PDA) : "memory");
+
+[ gna, thunderbird isn't great for sending patches inline, you should
+  get the idea though ... ]
 
 cheers,
   Gerd
