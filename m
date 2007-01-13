@@ -1,63 +1,43 @@
-From: Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: Oops
-Date: Fri, 12 Jan 2007 09:31:19 +0100
-Message-ID: <45A74757.5030101@suse.de>
-References: <45A399D7.3090205@suse.de> <45A41B60.3070500@goop.org>
-	<45A4A0C7.5050405@suse.de> <45A4C014.9030909@suse.de>
-	<45A4E4A0.5060800@suse.de>
-	<20070110235232.GE19575@sequoia.sous-sol.org>
-	<45A65B7C.6050503@suse.de>
-	<1168570436.31891.16.camel@localhost.localdomain>
-	<20070112042343.GZ10475@sequoia.sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070112042343.GZ10475@sequoia.sous-sol.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [patch 00/20] XEN-paravirt: Xen guest implementation
+	for paravirt_ops interface
+Date: Fri, 12 Jan 2007 17:45:39 -0800
+Message-ID: <20070113014539.408244126@goop.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> diff -r e1974f36aa13 arch/i386/kernel/setup.c
-> --- a/arch/i386/kernel/setup.c	Wed Jan 10 18:19:52 2007 -0800
-> +++ b/arch/i386/kernel/setup.c	Thu Jan 11 18:32:22 2007 -0800
-[ ... ]
-> @@ -643,7 +646,7 @@ void __init setup_arch(char **cmdline_p)
->  =
+This patch series implements the Linux Xen guest in terms of the
+paravirt-ops interface.  The features in implemented this patch series
+are:
+ * domU only
+ * UP only (most code is SMP-safe, but there's no way to create a new vcpu)
+ * writable pagetables, with late pinning/early unpinning
+   (no shadow pagetable support)
+ * supports both PAE and non-PAE modes
+ * xen console
+ * virtual block device (blockfront)
 
->  #ifdef CONFIG_VT
->  #if defined(CONFIG_VGA_CONSOLE)
-> -	if (!efi_enabled || (efi_mem_type(0xa0000) !=3D EFI_CONVENTIONAL_MEMORY=
-))
-> +	if (vgacon_enabled && (!efi_enabled || (efi_mem_type(0xa0000) !=3D EFI_=
-CONVENTIONAL_MEMORY)))
->  		conswitchp =3D &vga_con;
->  #elif defined(CONFIG_DUMMY_CONSOLE)
->  	conswitchp =3D &dummy_con;
-[ ... ]
+(Netfront needs a bit of updating, and will be in a separate patch later.)
 
-Approach looks fine to me, please put into the paravirt patch queue.
+The patch series is in two parts:
 
-Well, maybe we can make the efi stuff just set vgacon_disabled too to
-make the whole thing more readable.
+1-11: cleanups to the core kernel, either to fix outright problems,
+      or to add appropriate hooks for Xen
+12-20: the Xen guest implementation itself
 
-Hmm, one more thing:  I think we should set conswitchp to dummy_con in
-case vgacon is disabled.  Otherwise the vt subsystem isn't initialized
-at all and we'll have problems making fbcon+pvfb work later on ...
+I've tried to make each patch as self-explanatory as possible.  The
+series is based on 2.6.20-rc4-mm1.
 
-cheers,
-
-  Gerd
-
--- =
-
-Gerd Hoffmann <kraxel@suse.de>
+Thanks,
+	J
+-- 
