@@ -1,14 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 11/20] XEN-paravirt: Add apply_to_page_range() which applies a
-	function to a pte range.
-Date: Fri, 12 Jan 2007 17:45:50 -0800
-Message-ID: <20070113014648.210731977@goop.org>
+Subject: [patch 18/20] XEN-paravirt: Add Xen driver utility functions.
+Date: Fri, 12 Jan 2007 17:45:57 -0800
+Message-ID: <20070113014649.046041214@goop.org>
 References: <20070113014539.408244126@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=apply-to-page-range.patch
+Content-Disposition: inline; filename=xen-driver-util.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,160 +18,140 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new mm function apply_to_page_range() which applies a given
-function to every pte in a given virtual address range in a given mm
-structure. This is a generic alternative to cut-and-pasting the Linux
-idiomatic pagetable walking code in every place that a sequence of
-PTEs must be accessed.
+Allocate/destroy a 'vmalloc' VM area: alloc_vm_area and free_vm_area
+The alloc function ensures that page tables are constructed for the
+region of kernel virtual address space and mapped into init_mm.
 
-Although this interface is intended to be useful in a wide range of
-situations, it is currently used specifically by several Xen
-subsystems, for example: to ensure that pagetables have been allocated
-for a virtual address range, and to construct batched special
-pagetable update requests to map I/O memory (in ioremap()).
+Lock an area so that PTEs are accessible in the current address space:
+lock_vm_area and unlock_vm_area
+The lock function prevents context switches to a lazy mm that doesn't
+have the area mapped into its page tables.  It also ensures that the
+page tables are mapped into the current mm by causing the page fault
+handler to copy the page directory pointers from init_mm into the
+current mm.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Christoph Lameter <clameter@sgi.com>
-
+Cc: "Jan Beulich" <JBeulich@novell.com>
 ---
- include/linux/mm.h |    5 ++
- mm/memory.c        |   94 ++++++++++++++++++++++++++++++++++++++++++++++++=
-++++
- 2 files changed, 99 insertions(+)
+
+ drivers/xen/Makefile      |    2 +
+ drivers/xen/util.c        |   70 +++++++++++++++++++++++++++++++++++++++++=
++++++
+ include/xen/driver_util.h |   16 ++++++++++
+ 3 files changed, 88 insertions(+)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1130,6 +1130,11 @@ struct page *follow_page(struct vm_area_
- =
-
- unsigned long __follow_page(void *vaddr);
- =
-
-+typedef int (*pte_fn_t)(pte_t *pte, struct page *pmd_page, unsigned long a=
-ddr,
-+			void *data);
-+extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
-+			       unsigned long size, pte_fn_t fn, void *data);
+--- a/drivers/xen/Makefile
++++ b/drivers/xen/Makefile
+@@ -1,2 +1,4 @@ obj-y	+=3D core/
++obj-y	+=3D util.o
 +
- #ifdef CONFIG_PROC_FS
- void vm_stat_account(struct mm_struct *, unsigned long, struct file *, lon=
-g);
- #else
+ obj-y	+=3D core/
+ obj-y	+=3D console/
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1414,6 +1414,100 @@ int remap_pfn_range(struct vm_area_struc
- }
- EXPORT_SYMBOL(remap_pfn_range);
- =
-
-+static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
+--- /dev/null
++++ b/drivers/xen/util.c
+@@ -0,0 +1,69 @@
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/vmalloc.h>
++#include <asm/uaccess.h>
++#include <xen/driver_util.h>
++
++static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *=
+data)
 +{
-+	pte_t *pte;
-+	int err;
-+	struct page *pmd_page;
-+	spinlock_t *ptl;
-+
-+	pte =3D (mm =3D=3D &init_mm) ?
-+		pte_alloc_kernel(pmd, addr) :
-+		pte_alloc_map_lock(mm, pmd, addr, &ptl);
-+	if (!pte)
-+		return -ENOMEM;
-+
-+	BUG_ON(pmd_huge(*pmd));
-+
-+	pmd_page =3D pmd_page(*pmd);
-+
-+	do {
-+		err =3D fn(pte, pmd_page, addr, data);
-+		if (err)
-+			break;
-+	} while (pte++, addr +=3D PAGE_SIZE, addr !=3D end);
-+
-+	if (mm !=3D &init_mm)
-+		pte_unmap_unlock(pte-1, ptl);
-+	return err;
++	/* apply_to_page_range() does all the hard work. */
++	return 0;
 +}
 +
-+static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
++struct vm_struct *alloc_vm_area(unsigned long size)
 +{
-+	pmd_t *pmd;
-+	unsigned long next;
-+	int err;
++	struct vm_struct *area;
 +
-+	pmd =3D pmd_alloc(mm, pud, addr);
-+	if (!pmd)
-+		return -ENOMEM;
-+	do {
-+		next =3D pmd_addr_end(addr, end);
-+		err =3D apply_to_pte_range(mm, pmd, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pmd++, addr =3D next, addr !=3D end);
-+	return err;
++	area =3D get_vm_area(size, VM_IOREMAP);
++	if (area =3D=3D NULL)
++		return NULL;
++
++	/*
++	 * This ensures that page tables are constructed for this region
++	 * of kernel virtual address space and mapped into init_mm.
++	 */
++	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
++				area->size, f, NULL)) {
++		free_vm_area(area);
++		return NULL;
++	}
++
++	return area;
 +}
++EXPORT_SYMBOL_GPL(alloc_vm_area);
 +
-+static int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
++void free_vm_area(struct vm_struct *area)
 +{
-+	pud_t *pud;
-+	unsigned long next;
-+	int err;
-+
-+	pud =3D pud_alloc(mm, pgd, addr);
-+	if (!pud)
-+		return -ENOMEM;
-+	do {
-+		next =3D pud_addr_end(addr, end);
-+		err =3D apply_to_pmd_range(mm, pud, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pud++, addr =3D next, addr !=3D end);
-+	return err;
++	struct vm_struct *ret;
++	ret =3D remove_vm_area(area->addr);
++	BUG_ON(ret !=3D area);
++	kfree(area);
 +}
++EXPORT_SYMBOL_GPL(free_vm_area);
 +
-+/*
-+ * Scan a region of virtual memory, filling in page tables as necessary
-+ * and calling a provided function on each leaf page table.
-+ */
-+int apply_to_page_range(struct mm_struct *mm, unsigned long addr,
-+			unsigned long size, pte_fn_t fn, void *data)
++void lock_vm_area(struct vm_struct *area)
 +{
-+	pgd_t *pgd;
-+	unsigned long next;
-+	unsigned long end =3D addr + size;
-+	int err;
++	unsigned long i;
++	char c;
 +
-+	BUG_ON(addr >=3D end);
-+	pgd =3D pgd_offset(mm, addr);
-+	do {
-+		next =3D pgd_addr_end(addr, end);
-+		err =3D apply_to_pud_range(mm, pgd, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pgd++, addr =3D next, addr !=3D end);
-+	return err;
++	/*
++	 * Prevent context switch to a lazy mm that doesn't have this area
++	 * mapped into its page tables.
++	 */
++	preempt_disable();
++
++	/*
++	 * Ensure that the page tables are mapped into the current mm. The
++	 * page-fault path will copy the page directory pointers from init_mm.
++	 */
++	for (i =3D 0; i < area->size; i +=3D PAGE_SIZE)
++		(void)__get_user(c, (char __user *)area->addr + i);
 +}
-+EXPORT_SYMBOL_GPL(apply_to_page_range);
++EXPORT_SYMBOL_GPL(lock_vm_area);
 +
- /*
-  * handle_pte_fault chooses page fault handler according to an entry
-  * which was read non-atomically.  Before making any commitment, on
++void unlock_vm_area(struct vm_struct *area)
++{
++	preempt_enable();
++}
++EXPORT_SYMBOL_GPL(unlock_vm_area);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/include/xen/driver_util.h
+@@ -0,0 +1,15 @@
++
++#ifndef __ASM_XEN_DRIVER_UTIL_H__
++#define __ASM_XEN_DRIVER_UTIL_H__
++
++#include <linux/vmalloc.h>
++
++/* Allocate/destroy a 'vmalloc' VM area. */
++extern struct vm_struct *alloc_vm_area(unsigned long size);
++extern void free_vm_area(struct vm_struct *area);
++
++/* Lock an area so that PTEs are accessible in the current address space. =
+*/
++extern void lock_vm_area(struct vm_struct *area);
++extern void unlock_vm_area(struct vm_struct *area);
++
++#endif /* __ASM_XEN_DRIVER_UTIL_H__ */
 
 -- =
