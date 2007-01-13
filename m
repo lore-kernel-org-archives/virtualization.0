@@ -1,99 +1,132 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 08/20] XEN-paravirt: paravirt pgd allocation alignment
-Date: Fri, 12 Jan 2007 17:45:47 -0800
-Message-ID: <20070113014647.898074336@goop.org>
+Subject: [patch 13/20] XEN-paravirt: Xen: Add config options and disable unsupported config options.
+Date: Fri, 12 Jan 2007 17:45:52 -0800
+Message-ID: <20070113014648.416236390@goop.org>
 References: <20070113014539.408244126@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=pgd-alignment.patch
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422810AbXAMXMM@vger.kernel.org>
+Content-Disposition: inline; filename=xen-config.patch
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andrew Morton <akpm@osdl.org>
-Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chris@sous-sol.org>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+The XEN config option enables the Xen paravirt_ops interface, which is
+installed when the kernel finds itself running under Xen. (By some
+as-yet fully defined mechanism, implemented in a future patch.)
+
+Xen is no longer a sub-architecture, so the X86_XEN subarch config
+option has gone.
+
+The disabled config options are:
+- PREEMPT: Xen doesn't support it
+- HZ: set to 100Hz for now, to cut down on VCPU context switch rate.
+  This will be adapted to use tickless later.
+- kexec: not yet supported
+
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chris Wright <chris@sous-sol.org>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -573,6 +573,7 @@ struct paravirt_ops paravirt_ops =3D {
- 	.paravirt_enabled =3D 0,
- 	.kernel_rpl =3D 0,
- 	.shared_kernel_pmd =3D 1,	/* Only used when CONFIG_X86_PAE is set */
-+	.pgd_alignment =3D sizeof(pgd_t) * PTRS_PER_PGD,
- =
+---
+ arch/i386/Kconfig              |    8 +++++---
+ arch/i386/Kconfig.debug        |    1 +
+ arch/i386/paravirt-xen/Kconfig |   17 +++++++++++++++++
+ kernel/Kconfig.hz              |    4 ++--
+ kernel/Kconfig.preempt         |    1 +
+ 5 files changed, 26 insertions(+), 5 deletions(-)
 
-  	.patch =3D native_patch,
- 	.banner =3D default_banner,
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/init.c
-+++ b/arch/i386/mm/init.c
-@@ -745,7 +745,7 @@ void __init pgtable_cache_init(void)
- 	}
- 	pgd_cache =3D kmem_cache_create("pgd",
- 				      PTRS_PER_PGD*sizeof(pgd_t),
--				      PTRS_PER_PGD*sizeof(pgd_t),
-+				      PGD_ALIGNMENT,
- 				      0, NULL, NULL);
- 	if (!pgd_cache)
- 		panic("pgtable_cache_init(): Cannot create pgd cache");
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -33,9 +33,12 @@ struct mm_struct;
- struct mm_struct;
- struct paravirt_ops
- {
-+ 	int paravirt_enabled;
- 	unsigned int kernel_rpl;
+===================================================================
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -192,6 +192,8 @@ config PARAVIRT
+ 	  under a hypervisor, improving performance significantly.
+ 	  However, when run without a hypervisor the kernel is
+ 	  theoretically slower.  If in doubt, say N.
 +
- 	int shared_kernel_pmd;
-- 	int paravirt_enabled;
-+	int pgd_alignment;
++source "arch/i386/paravirt-xen/Kconfig"
+ 
+ config ACPI_SRAT
+ 	bool
+@@ -298,12 +300,12 @@ config X86_UP_IOAPIC
+ 
+ config X86_LOCAL_APIC
+ 	bool
+-	depends on X86_UP_APIC || ((X86_VISWS || SMP) && !X86_VOYAGER) || X86_GENERICARCH
++	depends on X86_UP_APIC || (((X86_VISWS || SMP) && !X86_VOYAGER) || X86_GENERICARCH)
+ 	default y
+ 
+ config X86_IO_APIC
+ 	bool
+-	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER)) || X86_GENERICARCH
++	depends on X86_UP_IOAPIC || ((SMP && !(X86_VISWS || X86_VOYAGER)) || X86_GENERICARCH)
+ 	default y
+ 
+ config X86_VISWS_APIC
+@@ -743,6 +745,7 @@ source kernel/Kconfig.hz
+ 
+ config KEXEC
+ 	bool "kexec system call"
++	depends on !XEN
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+===================================================================
+--- a/arch/i386/Kconfig.debug
++++ b/arch/i386/Kconfig.debug
+@@ -79,6 +79,7 @@ config DOUBLEFAULT
+ config DOUBLEFAULT
+ 	default y
+ 	bool "Enable doublefault exception handler" if EMBEDDED
++	depends on !XEN
+ 	help
+           This option allows trapping of rare doublefault exceptions that
+           would otherwise cause a system to silently reboot. Disabling this
+===================================================================
+--- /dev/null
++++ b/arch/i386/paravirt-xen/Kconfig
+@@ -0,0 +1,10 @@
++#
++# This Kconfig describes xen options
++#
 +
- 	const char *name;
- =
++config XEN
++	bool "Enable support for Xen hypervisor"
++	depends PARAVIRT
++	default y
++	help
++	  This is the Linux Xen port.
+===================================================================
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -3,7 +3,7 @@
+ #
+ 
+ choice
+-	prompt "Timer frequency"
++	prompt "Timer frequency" if !XEN
+ 	default HZ_250
+ 	help
+ 	 Allows the configuration of the timer frequency. It is customary
+@@ -49,7 +49,7 @@ endchoice
+ 
+ config HZ
+ 	int
+-	default 100 if HZ_100
++	default 100 if HZ_100 || XEN
+ 	default 250 if HZ_250
+ 	default 300 if HZ_300
+ 	default 1000 if HZ_1000
+===================================================================
+--- a/kernel/Kconfig.preempt
++++ b/kernel/Kconfig.preempt
+@@ -35,6 +35,7 @@ config PREEMPT_VOLUNTARY
+ 
+ config PREEMPT
+ 	bool "Preemptible Kernel (Low-Latency Desktop)"
++	depends on !XEN
+ 	help
+ 	  This option reduces the latency of the kernel by making
+ 	  all kernel code (that is not executing in a critical section)
 
- 	/*
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -270,6 +270,12 @@ static inline void vmalloc_sync_all(void
- #define pte_update_defer(mm, addr, ptep)	do { } while (0)
- #endif
- =
-
-+#ifdef CONFIG_PARAVIRT
-+#define PGD_ALIGNMENT	(paravirt_ops.pgd_alignment)
-+#else
-+#define PGD_ALIGNMENT	(sizeof(pgd_t) * PTRS_PER_PGD)
-+#endif
-+
- /*
-  * We only update the dirty/accessed state if we set
-  * the dirty bit by hand in the kernel, since the hardware
-
--- =
+-- 
