@@ -1,10 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 04/20] XEN-paravirt: paravirt pagetable init
-Date: Fri, 12 Jan 2007 17:45:43 -0800
-Message-ID: <20070113014647.487710773@goop.org>
+Subject: [patch 03/20] XEN-paravirt: paravirt: page-table
+	accessors
+Date: Fri, 12 Jan 2007 17:45:42 -0800
+Message-ID: <20070113014647.376622753@goop.org>
 References: <20070113014539.408244126@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=paravirt-memory-init.patch
+Content-Disposition: inline; filename=paravirt-pte-accessors.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -17,14 +18,12 @@ To: Andrew Morton <akpm@osdl.org>
 Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Chris Wright <chris@sous-sol.org>, Andi Kleen <ak@muc.de>, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add paravirt hooks into the initial pagetable setup.  In the native
-case, the kernel builds itself a new initial pagetable from scratch.
-In the Xen case, the kernel starts with a pagetable provided by the
-hypervisor, which is used as the prototype for the kernel-generated
-pagetable.  The hooks added in this patch allow either mode of
-operation without having special cases (the main change to the
-pagetable construction logic is a testing to make sure a pagetable
-slot is actually empty before populating it).
+Add a set of accessors to pack, unpack and modify page table entries
+(at all levels).  This allows a paravirt implementation to control the
+contents of pgd/pmd/pte entries.  For example, Xen uses this to
+convert the (pseudo-)physical address into a machine address when
+populating a pagetable entry, and converting back to pphys address
+when an entry is read.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Cc: Chris Wright <chris@sous-sol.org>
@@ -33,320 +32,482 @@ Cc: Andi Kleen <ak@muc.de>
 Cc: Andrew Morton <akpm@osdl.org>
 Cc: Rusty Russell <rusty@rustcorp.com.au>
 
+--
+ arch/i386/kernel/paravirt.c       |  113 +++++++++++++++++++++++++++++++++----
+ arch/i386/kernel/vmlinux.lds.S    |    3 
+ include/asm-i386/page.h           |   18 ++++-
+ include/asm-i386/paravirt.h       |   68 +++++++++++++++++++++-
+ include/asm-i386/pgtable-2level.h |    5 -
+ include/asm-i386/pgtable-3level.h |   27 ++++----
+ 6 files changed, 199 insertions(+), 35 deletions(-)
+
 ===================================================================
---- a/arch/i386/kernel/paravirt.c +++ b/arch/i386/kernel/paravirt.c @@
--379,6 +379,43 @@ static fastcall void native_io_delay(voi
- {
- 	asm volatile("outb %al,$0x80");
- }
-+
-+void native_pagetable_setup_start(pgd_t *base)
-+{
-+#ifdef CONFIG_X86_PAE
-+	int i;
-+
-+	/*
-+	 * Init entries of the first-level page table to the
-+	 * zero page, if they haven't already been set up.
-+	 *
-+	 * In a normal native boot, we'll be running on a
-+	 * pagetable rooted in swapper_pg_dir, but not in PAE
-+	 * mode, so this will end up clobbering the mappings
-+	 * for the lower 24Mbytes of the address space,
-+	 * without affecting the kernel address space.
-+	 */
-+	for (i = 0; i < USER_PTRS_PER_PGD; i++)
-+		set_pgd(&base[i],
-+			__pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
-+	memset(&base[USER_PTRS_PER_PGD], 0, sizeof(pgd_t));
-+#endif
-+}
-+
-+void native_pagetable_setup_done(pgd_t *base)
-+{
-+#ifdef CONFIG_X86_PAE
-+	/*
-+	 * Add low memory identity-mappings - SMP needs it when
-+	 * starting up on an AP from real-mode. In the non-PAE
-+	 * case we already have these mappings through head.S.
-+	 * All user-space mappings are explicitly cleared after
-+	 * SMP startup.
-+	 */
-+	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
-+#endif
-+}
-+
- 
- static fastcall void native_flush_tlb(void)
- {
-@@ -627,6 +664,9 @@ struct paravirt_ops paravirt_ops = {
- #endif
- 	.set_lazy_mode = (void *)native_nop,
- 
-+	.pagetable_setup_start = native_pagetable_setup_start,
-+	.pagetable_setup_done = native_pagetable_setup_done,
-+
- 	.flush_tlb_user = native_flush_tlb,
- 	.flush_tlb_kernel = native_flush_tlb_global,
- 	.flush_tlb_single = native_flush_tlb_single,
-===================================================================
---- a/arch/i386/mm/init.c
-+++ b/arch/i386/mm/init.c
-@@ -42,6 +42,7 @@
- #include <asm/tlb.h>
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -34,7 +34,7 @@
  #include <asm/tlbflush.h>
- #include <asm/sections.h>
-+#include <asm/paravirt.h>
  
- unsigned int __VMALLOC_RESERVE = 128 << 20;
- 
-@@ -62,6 +63,8 @@ static pmd_t * __init one_md_table_init(
- 		
- #ifdef CONFIG_X86_PAE
- 	pmd_table = (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-+	memset(pmd_table, 0, PAGE_SIZE);
-+
- 	paravirt_alloc_pd(__pa(pmd_table) >> PAGE_SHIFT);
- 	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
- 	pud = pud_offset(pgd, 0);
-@@ -83,12 +86,11 @@ static pte_t * __init one_page_table_ini
+ /* nop stub */
+-static void native_nop(void)
++void native_nop(void)
  {
- 	if (pmd_none(*pmd)) {
- 		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-+		memset(page_table, 0, PAGE_SIZE);
-+
- 		paravirt_alloc_pt(__pa(page_table) >> PAGE_SHIFT);
- 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
--		if (page_table != pte_offset_kernel(pmd, 0))
--			BUG();	
--
--		return page_table;
-+		BUG_ON(page_table != pte_offset_kernel(pmd, 0));
- 	}
- 	
- 	return pte_offset_kernel(pmd, 0);
-@@ -119,7 +121,7 @@ static void __init page_table_range_init
- 	pgd = pgd_base + pgd_idx;
- 
- 	for ( ; (pgd_idx < PTRS_PER_PGD) && (vaddr != end); pgd++, pgd_idx++) {
--		if (pgd_none(*pgd)) 
-+		if (!(pgd_val(*pgd) & _PAGE_PRESENT)) 
- 			one_md_table_init(pgd);
- 		pud = pud_offset(pgd, vaddr);
- 		pmd = pmd_offset(pud, vaddr);
-@@ -158,7 +160,11 @@ static void __init kernel_physical_mappi
- 	pfn = 0;
- 
- 	for (; pgd_idx < PTRS_PER_PGD; pgd++, pgd_idx++) {
--		pmd = one_md_table_init(pgd);
-+		if (!(pgd_val(*pgd) & _PAGE_PRESENT))
-+			pmd = one_md_table_init(pgd);
-+		else
-+			pmd = pmd_offset(pud_offset(pgd, PAGE_OFFSET), PAGE_OFFSET);
-+
- 		if (pfn >= max_low_pfn)
- 			continue;
- 		for (pmd_idx = 0; pmd_idx < PTRS_PER_PMD && pfn < max_low_pfn; pmd++, pmd_idx++) {
-@@ -167,20 +173,26 @@ static void __init kernel_physical_mappi
- 			/* Map with big pages if possible, otherwise create normal page tables. */
- 			if (cpu_has_pse) {
- 				unsigned int address2 = (pfn + PTRS_PER_PTE - 1) * PAGE_SIZE + PAGE_OFFSET + PAGE_SIZE-1;
--
--				if (is_kernel_text(address) || is_kernel_text(address2))
--					set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
--				else
--					set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
-+				if (!pmd_present(*pmd)) {
-+					if (is_kernel_text(address) || is_kernel_text(address2))
-+						set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
-+					else
-+						set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
-+				}
- 				pfn += PTRS_PER_PTE;
- 			} else {
- 				pte = one_page_table_init(pmd);
- 
--				for (pte_ofs = 0; pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn; pte++, pfn++, pte_ofs++) {
--						if (is_kernel_text(address))
--							set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
--						else
--							set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
-+				for (pte_ofs = 0; 
-+				     pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn;
-+				     pte++, pfn++, pte_ofs++, address += PAGE_SIZE) {
-+					if (pte_present(*pte))
-+						continue;
-+
-+					if (is_kernel_text(address))
-+						set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
-+					else
-+						set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
- 				}
- 			}
- 		}
-@@ -337,19 +349,32 @@ extern void __init remap_numa_kva(void);
- #define remap_numa_kva() do {} while (0)
- #endif
- 
-+/* 
-+ * Build a proper pagetable for the kernel mappings.  Up until this
-+ * point, we've been running on some set of pagetables constructed by
-+ * the boot process.
-+ *
-+ * If we're booting on native hardware, this will be a pagetable
-+ * constructed in arch/i386/kernel/head.S, and not running in PAE mode
-+ * (even if we'll end up running in PAE).  The root of the pagetable
-+ * will be swapper_pg_dir.
-+ *
-+ * If we're booting paravirtualized under a hypervisor, then there are
-+ * more options: we may already be running PAE, and the pagetable may
-+ * or may not be based in swapper_pg_dir.  In any case,
-+ * paravirt_pagetable_setup_start() will set up swapper_pg_dir
-+ * appropriately for the rest of the initialization to work.
-+ *
-+ * In general, pagetable_init() assumes that the pagetable may already
-+ * be partially populated, and so it avoids stomping on any existing
-+ * mappings.
-+ */
- static void __init pagetable_init (void)
- {
--	unsigned long vaddr;
-+	unsigned long vaddr, end;
- 	pgd_t *pgd_base = swapper_pg_dir;
- 
--#ifdef CONFIG_X86_PAE
--	int i;
--	/* Init entries of the first-level page table to the zero page */
--	for (i = 0; i < PTRS_PER_PGD; i++)
--		set_pgd(pgd_base + i, __pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
--#else
--	paravirt_alloc_pd(__pa(swapper_pg_dir) >> PAGE_SHIFT);
--#endif
-+	paravirt_pagetable_setup_start(pgd_base);
- 
- 	/* Enable PSE if available */
- 	if (cpu_has_pse) {
-@@ -371,20 +396,12 @@ static void __init pagetable_init (void)
- 	 * created - mappings will be set by set_fixmap():
- 	 */
- 	vaddr = __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
--	page_table_range_init(vaddr, 0, pgd_base);
-+	end = (FIXADDR_TOP + PMD_SIZE - 1) & PMD_MASK;
-+	page_table_range_init(vaddr, end, pgd_base);
- 
- 	permanent_kmaps_init(pgd_base);
- 
--#ifdef CONFIG_X86_PAE
--	/*
--	 * Add low memory identity-mappings - SMP needs it when
--	 * starting up on an AP from real-mode. In the non-PAE
--	 * case we already have these mappings through head.S.
--	 * All user-space mappings are explicitly cleared after
--	 * SMP startup.
--	 */
--	set_pgd(&pgd_base[0], pgd_base[USER_PTRS_PER_PGD]);
--#endif
-+	paravirt_pagetable_setup_done(pgd_base);
  }
  
- #if defined(CONFIG_SOFTWARE_SUSPEND) || defined(CONFIG_ACPI_SLEEP)
+@@ -400,38 +400,74 @@ static fastcall void native_flush_tlb_si
+ }
+ 
+ #ifndef CONFIG_X86_PAE
+-static fastcall void native_set_pte(pte_t *ptep, pte_t pteval)
++fastcall void native_set_pte(pte_t *ptep, pte_t pteval)
+ {
+ 	*ptep = pteval;
+ }
+ 
+-static fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pteval)
++fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pteval)
+ {
+ 	*ptep = pteval;
+ }
+ 
+-static fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
++fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
+ {
+ 	*pmdp = pmdval;
+ }
+ 
++fastcall unsigned long native_pte_val(pte_t pte)
++{
++	return pte.pte_low;
++}
++
++fastcall unsigned long native_pmd_val(pmd_t pmd)
++{
++	BUG();
++	return 0;
++}
++
++fastcall unsigned long native_pgd_val(pgd_t pgd)
++{
++	return pgd.pgd;
++}
++
++fastcall pte_t native_make_pte(unsigned long pte)
++{
++	return (pte_t){ pte };
++}
++
++fastcall pmd_t native_make_pmd(unsigned long pmd)
++{
++	BUG();
++}
++
++fastcall pgd_t native_make_pgd(unsigned long pgd)
++{
++	return (pgd_t){ pgd };
++}
++
++fastcall pte_t native_ptep_get_and_clear(pte_t *ptep)
++{
++	return __pte(xchg(&(ptep)->pte_low, 0));
++}
++
+ #else /* CONFIG_X86_PAE */
+ 
+-static fastcall void native_set_pte(pte_t *ptep, pte_t pte)
++fastcall void native_set_pte(pte_t *ptep, pte_t pte)
+ {
+ 	ptep->pte_high = pte.pte_high;
+ 	smp_wmb();
+ 	ptep->pte_low = pte.pte_low;
+ }
+ 
+-static fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte)
++fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte)
+ {
+ 	ptep->pte_high = pte.pte_high;
+ 	smp_wmb();
+ 	ptep->pte_low = pte.pte_low;
+ }
+ 
+-static fastcall void native_set_pte_present(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte)
++fastcall void native_set_pte_present(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte)
+ {
+ 	ptep->pte_low = 0;
+ 	smp_wmb();
+@@ -440,34 +476,76 @@ static fastcall void native_set_pte_pres
+ 	ptep->pte_low = pte.pte_low;
+ }
+ 
+-static fastcall void native_set_pte_atomic(pte_t *ptep, pte_t pteval)
++fastcall void native_set_pte_atomic(pte_t *ptep, pte_t pteval)
+ {
+ 	set_64bit((unsigned long long *)ptep,pte_val(pteval));
+ }
+ 
+-static fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
++fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
+ {
+ 	set_64bit((unsigned long long *)pmdp,pmd_val(pmdval));
+ }
+ 
+-static fastcall void native_set_pud(pud_t *pudp, pud_t pudval)
++fastcall void native_set_pud(pud_t *pudp, pud_t pudval)
+ {
+ 	*pudp = pudval;
+ }
+ 
+-static fastcall void native_pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
++fastcall void native_pte_clear(struct mm_struct *mm, u32 addr, pte_t *ptep)
+ {
+ 	ptep->pte_low = 0;
+ 	smp_wmb();
+ 	ptep->pte_high = 0;
+ }
+ 
+-static fastcall void native_pmd_clear(pmd_t *pmd)
++fastcall void native_pmd_clear(pmd_t *pmd)
+ {
+ 	u32 *tmp = (u32 *)pmd;
+ 	*tmp = 0;
+ 	smp_wmb();
+ 	*(tmp + 1) = 0;
++}
++
++fastcall unsigned long long native_pte_val(pte_t pte)
++{
++	return pte.pte_low | ((unsigned long long)pte.pte_high << 32);
++}
++
++fastcall unsigned long long native_pmd_val(pmd_t pmd)
++{
++	return pmd.pmd;
++}
++
++fastcall unsigned long long native_pgd_val(pgd_t pgd)
++{
++	return pgd.pgd;
++}
++
++fastcall pte_t native_make_pte(unsigned long long pte)
++{
++	return (pte_t){ pte };
++}
++
++fastcall pmd_t native_make_pmd(unsigned long long pmd)
++{
++	return (pmd_t){ pmd };
++}
++
++fastcall pgd_t native_make_pgd(unsigned long long pgd)
++{
++	return (pgd_t){ pgd };
++}
++
++fastcall pte_t native_ptep_get_and_clear(pte_t *ptep)
++{
++	pte_t res;
++
++	/* xchg acts as a barrier before the setting of the high bits */
++	res.pte_low = xchg(&ptep->pte_low, 0);
++	res.pte_high = ptep->pte_high;
++	ptep->pte_high = 0;
++
++	return res;
+ }
+ #endif /* CONFIG_X86_PAE */
+ 
+@@ -564,6 +642,9 @@ struct paravirt_ops paravirt_ops = {
+ 	.set_pmd = native_set_pmd,
+ 	.pte_update = (void *)native_nop,
+ 	.pte_update_defer = (void *)native_nop,
++
++	.ptep_get_and_clear = native_ptep_get_and_clear,
++
+ #ifdef CONFIG_X86_PAE
+ 	.set_pte_atomic = native_set_pte_atomic,
+ 	.set_pte_present = native_set_pte_present,
+@@ -572,6 +653,14 @@ struct paravirt_ops paravirt_ops = {
+ 	.pmd_clear = native_pmd_clear,
+ #endif
+ 
++	.pte_val = native_pte_val,
++	.pmd_val = native_pmd_val,
++	.pgd_val = native_pgd_val,
++
++	.make_pte = native_make_pte,
++	.make_pmd = native_make_pmd,
++	.make_pgd = native_make_pgd,
++
+ 	.irq_enable_sysexit = native_irq_enable_sysexit,
+ 	.iret = native_iret,
+ 
+===================================================================
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -21,6 +21,9 @@
+ #include <asm/page.h>
+ #include <asm/cache.h>
+ #include <asm/boot.h>
++
++#undef ENTRY
++#undef ALIGN
+ 
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+ OUTPUT_ARCH(i386)
+===================================================================
+--- a/include/asm-i386/page.h
++++ b/include/asm-i386/page.h
+@@ -11,7 +11,6 @@
+ 
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+-
+ 
+ #ifdef CONFIG_X86_USE_3DNOW
+ 
+@@ -48,9 +47,11 @@ typedef struct { unsigned long long pmd;
+ typedef struct { unsigned long long pmd; } pmd_t;
+ typedef struct { unsigned long long pgd; } pgd_t;
+ typedef struct { unsigned long long pgprot; } pgprot_t;
++#ifndef CONFIG_PARAVIRT
+ #define pmd_val(x)	((x).pmd)
+ #define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
+ #define __pmd(x) ((pmd_t) { (x) } )
++#endif	/* CONFIG_PARAVIRT */
+ #define HPAGE_SHIFT	21
+ #include <asm-generic/pgtable-nopud.h>
+ #else
+@@ -58,7 +59,9 @@ typedef struct { unsigned long pgd; } pg
+ typedef struct { unsigned long pgd; } pgd_t;
+ typedef struct { unsigned long pgprot; } pgprot_t;
+ #define boot_pte_t pte_t /* or would you rather have a typedef */
++#ifndef CONFIG_PARAVIRT
+ #define pte_val(x)	((x).pte_low)
++#endif
+ #define HPAGE_SHIFT	22
+ #include <asm-generic/pgtable-nopmd.h>
+ #endif
+@@ -71,12 +74,14 @@ typedef struct { unsigned long pgprot; }
+ #define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
+ #endif
+ 
++#define pgprot_val(x)	((x).pgprot)
++#define __pgprot(x)	((pgprot_t) { (x) } )
++
++#ifndef CONFIG_PARAVIRT
+ #define pgd_val(x)	((x).pgd)
+-#define pgprot_val(x)	((x).pgprot)
+-
+ #define __pte(x) ((pte_t) { (x) } )
+ #define __pgd(x) ((pgd_t) { (x) } )
+-#define __pgprot(x)	((pgprot_t) { (x) } )
++#endif
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+@@ -143,6 +148,11 @@ extern int page_is_ram(unsigned long pag
+ #include <asm-generic/memory_model.h>
+ #include <asm-generic/page.h>
+ 
++#ifdef CONFIG_PARAVIRT
++/* After pte_t, etc, have been defined */
++#include <asm/paravirt.h>
++#endif
++
+ #define __HAVE_ARCH_GATE_AREA 1
+ #endif /* __KERNEL__ */
+ 
 ===================================================================
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -49,6 +49,9 @@ struct paravirt_ops
- 	void (*arch_setup)(void);
- 	char *(*memory_setup)(void);
- 	void (*init_IRQ)(void);
+@@ -25,6 +25,8 @@
+ #define CLBR_ANY 0x7
+ 
+ #ifndef __ASSEMBLY__
++#include <linux/types.h>
 +
-+	void (*pagetable_setup_start)(pgd_t *pgd_base);
-+	void (*pagetable_setup_done)(pgd_t *pgd_base);
- 
- 	void (*banner)(void);
- 
-@@ -185,6 +188,8 @@ struct paravirt_ops
- 
- extern struct paravirt_ops paravirt_ops;
- 
-+void native_pagetable_setup_start(pgd_t *pgd);
+ struct thread_struct;
+ struct Xgt_desc_struct;
+ struct tss_struct;
+@@ -140,12 +142,31 @@ struct paravirt_ops
+ 	void (fastcall *set_pmd)(pmd_t *pmdp, pmd_t pmdval);
+ 	void (fastcall *pte_update)(struct mm_struct *mm, u32 addr, pte_t *ptep);
+ 	void (fastcall *pte_update_defer)(struct mm_struct *mm, u32 addr, pte_t *ptep);
++
++	pte_t (fastcall *ptep_get_and_clear)(pte_t *ptep);
 +
  #ifdef CONFIG_X86_PAE
- fastcall unsigned long long native_pte_val(pte_t);
- fastcall unsigned long long native_pmd_val(pmd_t);
-@@ -389,6 +394,17 @@ static inline void setup_secondary_clock
- }
+ 	void (fastcall *set_pte_atomic)(pte_t *ptep, pte_t pteval);
+-	void (fastcall *set_pte_present)(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte);
++	void (fastcall *set_pte_present)(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte);
+ 	void (fastcall *set_pud)(pud_t *pudp, pud_t pudval);
+-	void (fastcall *pte_clear)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
++	void (fastcall *pte_clear)(struct mm_struct *mm, u32 addr, pte_t *ptep);
+ 	void (fastcall *pmd_clear)(pmd_t *pmdp);
++
++	unsigned long long (fastcall *pte_val)(pte_t);
++	unsigned long long (fastcall *pmd_val)(pmd_t);
++	unsigned long long (fastcall *pgd_val)(pgd_t);
++
++	pte_t (fastcall *make_pte)(unsigned long long pte);
++	pmd_t (fastcall *make_pmd)(unsigned long long pmd);
++	pgd_t (fastcall *make_pgd)(unsigned long long pgd);
++#else  /* !CONFIG_X86_PAE */
++	unsigned long (fastcall *pte_val)(pte_t);
++	unsigned long (fastcall *pmd_val)(pmd_t);
++	unsigned long (fastcall *pgd_val)(pgd_t);
++
++	pte_t (fastcall *make_pte)(unsigned long pte);
++	pmd_t (fastcall *make_pmd)(unsigned long pmd);
++	pgd_t (fastcall *make_pgd)(unsigned long pgd);
  #endif
  
-+static inline void paravirt_pagetable_setup_start(pgd_t *base)
-+{
-+	if (paravirt_ops.pagetable_setup_start)
-+		(*paravirt_ops.pagetable_setup_start)(base);
-+}
-+
-+static inline void paravirt_pagetable_setup_done(pgd_t *base)
-+{
-+	if (paravirt_ops.pagetable_setup_done)
-+		(*paravirt_ops.pagetable_setup_done)(base);
-+}
+ 	void (fastcall *set_lazy_mode)(int mode);
+@@ -163,6 +184,24 @@ struct paravirt_ops
+ 		__attribute__((__section__(".paravirtprobe"))) = fn
  
- fastcall void native_set_pte(pte_t *ptep, pte_t pteval);
- fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pteval);
-@@ -615,5 +631,43 @@ 772:;						\
- 	call *paravirt_ops+PARAVIRT_read_cr0
+ extern struct paravirt_ops paravirt_ops;
++
++#ifdef CONFIG_X86_PAE
++fastcall unsigned long long native_pte_val(pte_t);
++fastcall unsigned long long native_pmd_val(pmd_t);
++fastcall unsigned long long native_pgd_val(pgd_t);
++
++fastcall pte_t native_make_pte(unsigned long long pte);
++fastcall pmd_t native_make_pmd(unsigned long long pmd);
++fastcall pgd_t native_make_pgd(unsigned long long pgd);
++#else
++fastcall unsigned long native_pte_val(pte_t);
++fastcall unsigned long native_pmd_val(pmd_t);
++fastcall unsigned long native_pgd_val(pgd_t);
++
++fastcall pte_t native_make_pte(unsigned long pte);
++fastcall pmd_t native_make_pmd(unsigned long pmd);
++fastcall pgd_t native_make_pgd(unsigned long pgd);
++#endif
  
- #endif /* __ASSEMBLY__ */
-+#else  /* !CONFIG_PARAVIRT */
-+#include <asm/pgtable.h>
+ #define paravirt_enabled() (paravirt_ops.paravirt_enabled)
+ 
+@@ -215,6 +254,8 @@ static inline void __cpuid(unsigned int 
+ #define read_cr4() paravirt_ops.read_cr4()
+ #define read_cr4_safe(x) paravirt_ops.read_cr4_safe()
+ #define write_cr4(x) paravirt_ops.write_cr4(x)
 +
-+static inline void paravirt_pagetable_setup_start(pgd_t *base)
-+{
++#define raw_ptep_get_and_clear(xp)	(paravirt_ops.ptep_get_and_clear(xp))
+ 
+ static inline void raw_safe_halt(void)
+ {
+@@ -297,6 +338,17 @@ static inline void halt(void)
+ 	(paravirt_ops.write_idt_entry((dt), (entry), (low), (high)))
+ #define set_iopl_mask(mask) (paravirt_ops.set_iopl_mask(mask))
+ 
++#define __pte(x)	paravirt_ops.make_pte(x)
++#define __pgd(x)	paravirt_ops.make_pgd(x)
++
++#define pte_val(x)	paravirt_ops.pte_val(x)
++#define pgd_val(x)	paravirt_ops.pgd_val(x)
++
 +#ifdef CONFIG_X86_PAE
-+	int i;
-+
-+	/*
-+	 * Init entries of the first-level page table to the
-+	 * zero page, if they haven't already been set up.
-+	 *
-+	 * In a normal native boot, we'll be running on a
-+	 * pagetable rooted in swapper_pg_dir, but not in PAE
-+	 * mode, so this will end up clobbering the mappings
-+	 * for the lower 24Mbytes of the address space,
-+	 * without affecting the kernel address space.
-+	 */
-+	for (i = 0; i < USER_PTRS_PER_PGD; i++)
-+		set_pgd(&base[i],
-+			__pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
-+	memset(&base[USER_PTRS_PER_PGD], 0, sizeof(pgd_t));
++#define __pmd(x)	paravirt_ops.make_pmd(x)
++#define pmd_val(x)	paravirt_ops.pmd_val(x)
 +#endif
-+}
 +
-+static inline void paravirt_pagetable_setup_done(pgd_t *base)
-+{
-+#ifdef CONFIG_X86_PAE
-+	/*
-+	 * Add low memory identity-mappings - SMP needs it when
-+	 * starting up on an AP from real-mode. In the non-PAE
-+	 * case we already have these mappings through head.S.
-+	 * All user-space mappings are explicitly cleared after
-+	 * SMP startup.
-+	 */
-+	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
-+#endif
-+}
- #endif /* CONFIG_PARAVIRT */
- #endif	/* __ASM_PARAVIRT_H */
+ /* The paravirtualized I/O functions */
+ static inline void slow_down_io(void) {
+ 	paravirt_ops.io_delay();
+@@ -336,6 +388,18 @@ static inline void setup_secondary_clock
+ 	paravirt_ops.setup_secondary_clock();
+ }
+ #endif
++
++
++fastcall void native_set_pte(pte_t *ptep, pte_t pteval);
++fastcall void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pteval);
++fastcall void native_set_pmd(pmd_t *pmdp, pmd_t pmdval);
++fastcall void native_set_pte_present(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte);
++fastcall void native_set_pte_atomic(pte_t *ptep, pte_t pteval);
++fastcall void native_set_pud(pud_t *pudp, pud_t pudval);
++fastcall void native_pte_clear(struct mm_struct *mm, u32 addr, pte_t *ptep);
++fastcall void native_pmd_clear(pmd_t *pmd);
++fastcall pte_t native_ptep_get_and_clear(pte_t *ptep);
++void native_nop(void);
+ 
+ #ifdef CONFIG_SMP
+ static inline void startup_ipi_hook(int phys_apicid, unsigned long start_eip,
 ===================================================================
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -15,7 +15,10 @@
- #include <asm/processor.h>
- #include <asm/fixmap.h>
- #include <linux/threads.h>
-+
-+#ifdef CONFIG_PARAVIRT		/* guarded to prevent cyclic dependency */
- #include <asm/paravirt.h>
-+#endif
+--- a/include/asm-i386/pgtable-2level.h
++++ b/include/asm-i386/pgtable-2level.h
+@@ -15,6 +15,7 @@
+ #define set_pte(pteptr, pteval) (*(pteptr) = pteval)
+ #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
+ #define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
++#define raw_ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
+ #endif
  
- #ifndef _I386_BITOPS_H
- #include <asm/bitops.h>
+ #define set_pte_atomic(pteptr, pteval) set_pte(pteptr,pteval)
+@@ -23,11 +24,9 @@
+ #define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } while (0)
+ #define pmd_clear(xp)	do { set_pmd(xp, __pmd(0)); } while (0)
+ 
+-#define raw_ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
+-
+ #define pte_page(x)		pfn_to_page(pte_pfn(x))
+ #define pte_none(x)		(!(x).pte_low)
+-#define pte_pfn(x)		((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
++#define pte_pfn(x)		(pte_val(x) >> PAGE_SHIFT)
+ #define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ #define pfn_pmd(pfn, prot)	__pmd(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ 
+===================================================================
+--- a/include/asm-i386/pgtable-3level.h
++++ b/include/asm-i386/pgtable-3level.h
+@@ -98,6 +98,18 @@ static inline void pmd_clear(pmd_t *pmd)
+ 	smp_wmb();
+ 	*(tmp + 1) = 0;
+ }
++
++static inline pte_t raw_ptep_get_and_clear(pte_t *ptep)
++{
++	pte_t res;
++
++	/* xchg acts as a barrier before the setting of the high bits */
++	res.pte_low = xchg(&ptep->pte_low, 0);
++	res.pte_high = ptep->pte_high;
++	ptep->pte_high = 0;
++
++	return res;
++}
+ #endif
+ 
+ /*
+@@ -119,18 +131,6 @@ static inline void pud_clear (pud_t * pu
+ #define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
+ 			pmd_index(address))
+ 
+-static inline pte_t raw_ptep_get_and_clear(pte_t *ptep)
+-{
+-	pte_t res;
+-
+-	/* xchg acts as a barrier before the setting of the high bits */
+-	res.pte_low = xchg(&ptep->pte_low, 0);
+-	res.pte_high = ptep->pte_high;
+-	ptep->pte_high = 0;
+-
+-	return res;
+-}
+-
+ #define __HAVE_ARCH_PTE_SAME
+ static inline int pte_same(pte_t a, pte_t b)
+ {
+@@ -146,8 +146,7 @@ static inline int pte_none(pte_t pte)
+ 
+ static inline unsigned long pte_pfn(pte_t pte)
+ {
+-	return (pte.pte_low >> PAGE_SHIFT) |
+-		(pte.pte_high << (32 - PAGE_SHIFT));
++	return pte_val(pte) >> PAGE_SHIFT;
+ }
+ 
+ extern unsigned long long __supported_pte_mask;
 
 -- 
