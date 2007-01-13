@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 10/20] XEN-paravirt: mm lifetime hooks
-Date: Fri, 12 Jan 2007 17:45:49 -0800
-Message-ID: <20070113014648.102890184@goop.org>
+Subject: [patch 11/20] XEN-paravirt: Add apply_to_page_range() which applies a
+	function to a pte range.
+Date: Fri, 12 Jan 2007 17:45:50 -0800
+Message-ID: <20070113014648.210731977@goop.org>
 References: <20070113014539.408244126@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=mm-lifetime-hooks.patch
+Content-Disposition: inline; filename=apply-to-page-range.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,174 +19,160 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andrew Morton <akpm@osdl.org>
-Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chris@sous-sol.org>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add hooks to allow a paravirt implementation to track the lifetime of
-an mm.  Unfortunately dup_mmap and exit_mmap are in generic code, so
-we need to #ifdef CONFIG_PARAVIRT.
+Add a new mm function apply_to_page_range() which applies a given
+function to every pte in a given virtual address range in a given mm
+structure. This is a generic alternative to cut-and-pasting the Linux
+idiomatic pagetable walking code in every place that a sequence of
+PTEs must be accessed.
 
+Although this interface is intended to be useful in a wide range of
+situations, it is currently used specifically by several Xen
+subsystems, for example: to ensure that pagetables have been allocated
+for a virtual address range, and to construct batched special
+pagetable update requests to map I/O memory (in ioremap()).
+
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chris Wright <chris@sous-sol.org>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Christoph Lameter <clameter@sgi.com>
 
---
- arch/i386/kernel/paravirt.c    |    4 ++++
- include/asm-i386/mmu_context.h |    8 ++++++--
- include/asm-i386/paravirt.h    |   38 ++++++++++++++++++++++++++++++++++++=
-++
- kernel/fork.c                  |    3 +++
- mm/mmap.c                      |    4 ++++
- 5 files changed, 55 insertions(+), 2 deletions(-)
+---
+ include/linux/mm.h |    5 ++
+ mm/memory.c        |   94 ++++++++++++++++++++++++++++++++++++++++++++++++=
+++++
+ 2 files changed, 99 insertions(+)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -706,6 +706,10 @@ struct paravirt_ops paravirt_ops =3D {
- 	.irq_enable_sysexit =3D native_irq_enable_sysexit,
- 	.iret =3D native_iret,
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1130,6 +1130,11 @@ struct page *follow_page(struct vm_area_
  =
 
-+	.dup_mmap =3D (void *)native_nop,
-+	.exit_mmap =3D (void *)native_nop,
-+	.activate_mm =3D (void *)native_nop,
+ unsigned long __follow_page(void *vaddr);
+ =
+
++typedef int (*pte_fn_t)(pte_t *pte, struct page *pmd_page, unsigned long a=
+ddr,
++			void *data);
++extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
++			       unsigned long size, pte_fn_t fn, void *data);
 +
- 	.startup_ipi_hook =3D (void *)native_nop,
- };
- =
-
+ #ifdef CONFIG_PROC_FS
+ void vm_stat_account(struct mm_struct *, unsigned long, struct file *, lon=
+g);
+ #else
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -5,6 +5,7 @@
- #include <asm/atomic.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-+#include <asm/paravirt.h>
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1414,6 +1414,100 @@ int remap_pfn_range(struct vm_area_struc
+ }
+ EXPORT_SYMBOL(remap_pfn_range);
  =
 
++static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
++{
++	pte_t *pte;
++	int err;
++	struct page *pmd_page;
++	spinlock_t *ptl;
++
++	pte =3D (mm =3D=3D &init_mm) ?
++		pte_alloc_kernel(pmd, addr) :
++		pte_alloc_map_lock(mm, pmd, addr, &ptl);
++	if (!pte)
++		return -ENOMEM;
++
++	BUG_ON(pmd_huge(*pmd));
++
++	pmd_page =3D pmd_page(*pmd);
++
++	do {
++		err =3D fn(pte, pmd_page, addr, data);
++		if (err)
++			break;
++	} while (pte++, addr +=3D PAGE_SIZE, addr !=3D end);
++
++	if (mm !=3D &init_mm)
++		pte_unmap_unlock(pte-1, ptl);
++	return err;
++}
++
++static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
++{
++	pmd_t *pmd;
++	unsigned long next;
++	int err;
++
++	pmd =3D pmd_alloc(mm, pud, addr);
++	if (!pmd)
++		return -ENOMEM;
++	do {
++		next =3D pmd_addr_end(addr, end);
++		err =3D apply_to_pte_range(mm, pmd, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pmd++, addr =3D next, addr !=3D end);
++	return err;
++}
++
++static int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
++{
++	pud_t *pud;
++	unsigned long next;
++	int err;
++
++	pud =3D pud_alloc(mm, pgd, addr);
++	if (!pud)
++		return -ENOMEM;
++	do {
++		next =3D pud_addr_end(addr, end);
++		err =3D apply_to_pmd_range(mm, pud, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pud++, addr =3D next, addr !=3D end);
++	return err;
++}
++
++/*
++ * Scan a region of virtual memory, filling in page tables as necessary
++ * and calling a provided function on each leaf page table.
++ */
++int apply_to_page_range(struct mm_struct *mm, unsigned long addr,
++			unsigned long size, pte_fn_t fn, void *data)
++{
++	pgd_t *pgd;
++	unsigned long next;
++	unsigned long end =3D addr + size;
++	int err;
++
++	BUG_ON(addr >=3D end);
++	pgd =3D pgd_offset(mm, addr);
++	do {
++		next =3D pgd_addr_end(addr, end);
++		err =3D apply_to_pud_range(mm, pgd, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pgd++, addr =3D next, addr !=3D end);
++	return err;
++}
++EXPORT_SYMBOL_GPL(apply_to_page_range);
++
  /*
-  * Used for LDT copy/destruction.
-@@ -65,7 +66,10 @@ static inline void switch_mm(struct mm_s
- #define deactivate_mm(tsk, mm)			\
- 	asm("movl %0,%%gs": :"r" (0));
- =
-
--#define activate_mm(prev, next) \
--	switch_mm((prev),(next),NULL)
-+#define activate_mm(prev, next)				\
-+	do {						\
-+		paravirt_activate_mm(prev, next);	\
-+		switch_mm((prev),(next),NULL);		\
-+	} while(0);
- =
-
- #endif
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -126,6 +126,12 @@ struct paravirt_ops
- 	void (fastcall *io_delay)(void);
- 	void (*const_udelay)(unsigned long loops);
- =
-
-+	void (fastcall *activate_mm)(struct mm_struct *prev,
-+				     struct mm_struct *next);
-+	void (fastcall *dup_mmap)(struct mm_struct *oldmm, =
-
-+				  struct mm_struct *mm);
-+	void (fastcall *exit_mmap)(struct mm_struct *mm);
-+
- #ifdef CONFIG_X86_LOCAL_APIC
- 	void (fastcall *apic_write)(unsigned long reg, unsigned long v);
- 	void (fastcall *apic_write_atomic)(unsigned long reg, unsigned long v);
-@@ -429,6 +435,23 @@ static inline void startup_ipi_hook(int =
-
- }
- #endif
- =
-
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
-+{
-+	paravirt_ops.activate_mm(prev, next);
-+}
-+
-+static inline void paravirt_dup_mmap(struct mm_struct *oldmm,
-+				     struct mm_struct *mm)
-+{
-+	paravirt_ops.dup_mmap(oldmm, mm);
-+}
-+
-+static inline void paravirt_exit_mmap(struct mm_struct *mm)
-+{
-+	paravirt_ops.exit_mmap(mm);
-+}
-+
- #define __flush_tlb() paravirt_ops.flush_tlb_user()
- #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
- #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
-@@ -673,5 +696,20 @@ static inline void paravirt_pagetable_se
- 	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
- #endif
- }
-+
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
-+{
-+}
-+
-+static inline void paravirt_dup_mmap(struct mm_struct *oldmm,
-+				     struct mm_struct *mm)
-+{
-+}
-+
-+static inline void paravirt_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif /* CONFIG_PARAVIRT */
- #endif	/* __ASM_PARAVIRT_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -287,6 +287,9 @@ static inline int dup_mmap(struct mm_str
- 		if (retval)
- 			goto out;
- 	}
-+#ifdef CONFIG_PARAVIRT
-+	paravirt_dup_mmap(oldmm, mm);
-+#endif
- 	retval =3D 0;
- out:
- 	up_write(&mm->mmap_sem);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1969,6 +1969,10 @@ void exit_mmap(struct mm_struct *mm)
- 	struct vm_area_struct *vma =3D mm->mmap;
- 	unsigned long nr_accounted =3D 0;
- 	unsigned long end;
-+
-+#ifdef CONFIG_PARAVIRT
-+	paravirt_exit_mmap(mm);
-+#endif
- =
-
- 	lru_add_drain();
- 	flush_cache_mm(mm);
+  * handle_pte_fault chooses page fault handler according to an entry
+  * which was read non-atomically.  Before making any commitment, on
 
 -- =
