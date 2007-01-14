@@ -1,35 +1,75 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 09/20] XEN-paravirt: dont export paravirt_ops
-	structure, do individual functions
-Date: Sun, 14 Jan 2007 11:57:56 +1100
-Message-ID: <1168736276.8692.9.camel@localhost.localdomain>
+From: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch 20/20] XEN-paravirt: Add Xen virtual block device
+	driver.
+Date: Sat, 13 Jan 2007 17:07:28 -0800
+Message-ID: <1168736848.3123.352.camel@laptopd505.fenrus.org>
 References: <20070113014539.408244126@goop.org>
-	<20070113014648.000988681@goop.org>
+	 <20070113014649.256179743@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070113014648.000988681@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750956AbXANBHu@vger.kernel.org>
+In-Reply-To: <20070113014649.256179743@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-01-12 at 17:45 -0800, Jeremy Fitzhardinge wrote:
-> Wrap the paravirt_ops members we want to export in wrapper functions.
+> +#include "../../../arch/i386/paravirt-xen/events.h"
+> +#include "../../../arch/i386/paravirt-xen/xen-page.h"
 
-Andrew, the removal of paravirt_ops export here will break kvm.  Feel
-free to re-add "EXPORT_SYMBOL_GPL(paravirt_ops)" at the bottom of
-arch/i386/kernel/paravirt.c; I'm working on a cleaner way for modules
-like kvm / lguest (which want to use the native versions directly
-anyway).
+this shows the headers are clearly in the wrong place...
+> +
+> +	err = xenbus_printf(xbt, dev->nodename,
+> +			    "ring-ref","%u", info->ring_ref);
 
-Thanks,
-Rusty.
+why do you need your own printf?
+
+> +static inline int GET_ID_FROM_FREELIST(
+
+does this really need screaming?
+
+
+> +
+> +int blkif_ioctl(struct inode *inode, struct file *filep,
+> +		unsigned command, unsigned long argument)
+> +{
+> +	int i;
+> +
+> +	DPRINTK_IOCTL("command: 0x%x, argument: 0x%lx, dev: 0x%04x\n",
+> +		      command, (long)argument, inode->i_rdev);
+> +
+> +	switch (command) {
+> +	case CDROMMULTISESSION:
+> +		DPRINTK("FIXME: support multisession CDs later\n");
+> +		for (i = 0; i < sizeof(struct cdrom_multisession); i++)
+> +			if (put_user(0, (char __user *)(argument + i)))
+> +				return -EFAULT;
+> +		return 0;
+> +
+> +	default:
+> +		/*printk(KERN_ALERT "ioctl %08x not supported by Xen blkdev\n",
+> +		  command);*/
+> +		return -EINVAL; /* same return as native Linux */
+> +	}
+
+eh so you implement no ioctls.. why then implement the ioctl method at
+all?
+
+
+> +static struct xenbus_driver blkfront = {
+> +	.name = "vbd",
+> +	.owner = THIS_MODULE,
+> +	.ids = blkfront_ids,
+> +	.probe = blkfront_probe,
+> +	.remove = blkfront_remove,
+> +	.resume = blkfront_resume,
+> +	.otherend_changed = backend_changed,
+> +};
+
+this can be const
+
+> +
+> +#define DPRINTK(_f, _a...) pr_debug(_f, ## _a)
+
+why this silly abstraction? Just use pr_debug in the code directly
