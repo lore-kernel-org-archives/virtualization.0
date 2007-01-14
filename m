@@ -1,25 +1,35 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 16/20] XEN-paravirt: Add the Xen virtual console driver.
-Date: Sat, 13 Jan 2007 16:35:40 -0800
-Message-ID: <45A97ADC.7010700@goop.org>
-References: <20070113014539.408244126@goop.org>	<20070113014648.767777869@goop.org> <20070114003752.27a5cac4@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch 09/20] XEN-paravirt: dont export paravirt_ops
+	structure, do individual functions
+Date: Sun, 14 Jan 2007 11:57:56 +1100
+Message-ID: <1168736276.8692.9.camel@localhost.localdomain>
+References: <20070113014539.408244126@goop.org>
+	<20070113014648.000988681@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750846AbXANAfq@vger.kernel.org>
-In-Reply-To: <20070114003752.27a5cac4@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Chris Wright <chrisw@sous-sol.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20070113014648.000988681@goop.org>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Alan wrote:
-> Andrew: No objection to this tty stuff being merged provided the bugs
-> noted above (not worried about the sign stuff) are fixed before it goes
-> on to Linus.
->   
+On Fri, 2007-01-12 at 17:45 -0800, Jeremy Fitzhardinge wrote:
+> Wrap the paravirt_ops members we want to export in wrapper functions.
 
-Thanks for the comments.  I'll see if I can put together a fixup patch
-before LCA, but possibly not.
+Andrew, the removal of paravirt_ops export here will break kvm.  Feel
+free to re-add "EXPORT_SYMBOL_GPL(paravirt_ops)" at the bottom of
+arch/i386/kernel/paravirt.c; I'm working on a cleaner way for modules
+like kvm / lguest (which want to use the native versions directly
+anyway).
 
-    J
+Thanks,
+Rusty.
