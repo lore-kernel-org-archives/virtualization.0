@@ -1,50 +1,37 @@
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [patch 20/20] XEN-paravirt: Add Xen virtual block
- device driver.
-Date: Sun, 14 Jan 2007 12:37:46 +0000
-Message-ID: <C1CFD49A.7286%Keir.Fraser@cl.cam.ac.uk>
-References: <Pine.LNX.4.61.0701141202050.26276@yvahk01.tjqt.qr>
+From: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [Xen-devel] [patch 07/20] XEN-paravirt: paravirt shared
+	kernel pmd flag
+Date: Mon, 15 Jan 2007 08:59:01 +0000
+Message-ID: <45AB5065.76E4.0078.0@novell.com>
+References: <20070113014539.408244126@goop.org>
+	<20070113014647.796412179@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <Pine.LNX.4.61.0701141202050.26276@yvahk01.tjqt.qr>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20070113014647.796412179@goop.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chris@sous-sol.org>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 14/1/07 11:05 am, "Jan Engelhardt" <jengelh@linux01.gwdg.de> wrote:
+>>> Jeremy Fitzhardinge <jeremy@goop.org> 13.01.07 02:45 >>>
+>Xen does not allow guests to have the kernel pmd shared between page
+>tables, so parameterize pgtable.c to allow both modes of operation.
 
->> The block device frontend driver allows the kernel to access block
->> devices exported exported by a virtual machine containing a physical
->> block device driver.
-> 
-> Is this significantly different from ubd/hostfs that it actually warrants a
-> reinvention?
+I don't think the change to vmalloc_sync_all in this patch is necessary -
+the mechanism exists solely for dealing with modular users of the die
+notifier in the NMI case. Since there's no NMI visible to guests, I don't
+think the mechanism is necessary; it could even be completely
+circumvented for paravirtual guests.
 
-It is certainly unlike hostfs because hostfs provides file-level access to
-host storage, not block-level. It's unlike both ubd and hostfs in that both
-of those (I believe) make significant use of the syscall interface (and so
-assume they run in a process on a Linux host). Also our driver appears to be
-lower level, pushing more responsibility for features like CoW into the VMM.
-Arguably that's a more generically reusable and flexible strategy although
-it requires more VMM run-time support (which a Xen system provides).
-
->> + (void)xenbus_switch_state(info->xbdev, XenbusStateConnected);
-> 
-> Cast remove, if xenbus_switch_state does not have __must_check.
-> Also elsewhere.
-
-Okay, we should certainly follow the general rule here.
-
- Thanks,
- Keir
+Jan
