@@ -1,13 +1,13 @@
 From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [patch 16/20] XEN-paravirt: Add the Xen virtual console driver.
-Date: Mon, 15 Jan 2007 13:03:14 +0000
-Message-ID: <20070115130314.GA4272@ucw.cz>
-References: <20070113014539.408244126@goop.org> <20070113014648.767777869@goop.org>
+Subject: Re: [patch 17/20] XEN-paravirt: Add Xen grant table support
+Date: Mon, 15 Jan 2007 13:05:56 +0000
+Message-ID: <20070115130556.GB4272@ucw.cz>
+References: <20070113014539.408244126@goop.org> <20070113014648.925356430@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932482AbXAQPgv@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932489AbXAQPg4@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20070113014648.767777869@goop.org>
+In-Reply-To: <20070113014648.925356430@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Chris Wright <chrisw@sous-sol.org>
@@ -15,26 +15,18 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Hi!
 
-> This provides a bootstrap and ongoing emergency console which is
-> intended to be available from very early during boot and at all times
-> thereafter, in contrast with alternatives such as UDP-based syslogd,
-> or logging in via ssh. The protocol is based on a simple shared-memory
-> ring buffer.
-> 
-> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> 
-> ---
->  arch/i386/kernel/early_printk.c    |    2 
->  arch/i386/paravirt-xen/enlighten.c |    3 
->  drivers/Makefile                   |    3 
->  drivers/xen/Makefile               |    1 
+>  drivers/xen/core/Makefile |    2
+>  drivers/xen/core/gnttab.c |  422 ++++++++++++++++++++++++++++++++++++++++++++++
+>  include/xen/gnttab.h      |  105 +++++++++++
+>  3 files changed, 528 insertions(+), 1 deletion(-)
+...
+> ===================================================================
+> --- /dev/null
+> +++ b/drivers/xen/core/grant_table.c
 
-You have drivers/xen... so maybe arch/i386/xen is easier to type?
-arch/i386/paravirt/xen would make some sense, too, but it looks too
-deep to me.
+What is going on? Diffstat does not seem to match the diff.
 
-							Pavel
+
+						Pavel
 -- 
 Thanks for all the (sleeping) penguins.
