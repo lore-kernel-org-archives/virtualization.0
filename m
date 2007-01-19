@@ -1,45 +1,36 @@
-From: "Quotes.com Alert!" <jamsedw@netscape.net>
-Subject: We have the most lowest and favorable prices join MHII.OB
-Date: Wed, 17 Jan 2007 13:33:55 -0330
-Message-ID: <979266419.69760419741904@thebat.net>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 17/20] XEN-paravirt: Add Xen grant table
+	support
+Date: Fri, 19 Jan 2007 15:07:22 +1100
+Message-ID: <45B043FA.9090905@goop.org>
+References: <20070113014539.408244126@goop.org>
+	<20070113014648.925356430@goop.org> <20070115130556.GB4272@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20070115130556.GB4272@ucw.cz>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I thought I was counselor that convinced me that an extremely guiltyIn its =
-entirety, Straight kill at least 89 in BaghdadTwin attacks.
+Pavel Machek wrote:
+> What is going on? Diffstat does not seem to match the diff.
+Sorry, forgot to update the diffstat for this one:
 
-These exciting stocks right for your business!
-It will assist  you to feel the edge of market!!! No more doubts like =93an=
-d what if I lose my=94 money=85=94
-MARSHAL HOLDINGS INC(MHII.OB) APPROVED share!!!
-Exactly 300% of your success on markets of shares
-Look at this chart that we included and don=92t waste time!!!
-DATE          INITIAL COST     VOLUME
-01/18/2007      0.078          8,394,800  =
+ drivers/xen/Makefile           |    1 
+ drivers/xen/core/Makefile      |    1 
+ drivers/xen/core/grant_table.c |  445 ++++++++++++++++++++++++++++++++++++++++
+ include/xen/grant_table.h      |  107 +++++++++
+ 4 files changed, 554 insertions(+)
 
-01/17/2007      0.064          5,394,800  =
 
-01/12/2007      0.034          2,094,800  =
-
-01/11/2007      0.035          3,091,232  =
-
-01/10/2007      0.016           511,475 =
-
-01/09/2007      0.015           481,693
-You can get more information using your broker web-site!
-WARNING: INVEST YOUR MONEY EXACTLY IN OUR COMPANY!!!
-
-Outta Lynwood is Train cars derail, catch fire in KentuckyMassive fire
+    J
