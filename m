@@ -1,26 +1,35 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 16/20] XEN-paravirt: Add the Xen virtual console driver.
-Date: Fri, 19 Jan 2007 15:11:36 +1100
-Message-ID: <45B044F8.1080904@goop.org>
-References: <20070113014539.408244126@goop.org> <20070113014648.767777869@goop.org> <20070115130314.GA4272@ucw.cz>
+From: "Adrian Mccarver" <shepekirst@bankofthesierra.com>
+Subject: Re: ED419
+Date: Fri, 26 Jan 2007 07:45:31 +0100
+Message-ID: <01c74115$92e79e40$0201a8c0@Become>
+Reply-To: Adrian Mccarver <shepekirst@bankofthesierra.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964819AbXASELp@vger.kernel.org>
-In-Reply-To: <20070115130314.GA4272@ucw.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Chris Wright <chrisw@sous-sol.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Augusto Koenig <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Pavel Machek wrote:
-> You have drivers/xen... so maybe arch/i386/xen is easier to type?
-> arch/i386/paravirt/xen would make some sense, too, but it looks too
-> deep to me.
+Good day,
 
-I think the exact placement of these files needs a bit of work.  I don't
-much care about xen/ vs paravirt/xen vs paravirt-xen/, but placement of
-headers needs a bit more thought.  lhype, er, lguest and vmi are in
-kernel/, but I think it would be nice to put them near Xen.
+Via_zgra  $1, 80
+Cia_zlis  $3, 00
+Levi_ztra $3, 35
 
-    J
+http://www.printeryml*.com
+
+( Important! Remove "*" to make the link working )
+
+--
+finished, moths were fluttering low over the table, and the warm air was
+perfumed with the smells of grass and honeysuckle. Harry was feeling
+extremely well fed and at peace with the world as he watched several
