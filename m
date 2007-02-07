@@ -1,12 +1,11 @@
-From: Strelenko Yuri A <strel@ioc.ac.ru>
-Subject: Slackware-11.0, Kernel-2.6.20, lguest-137.patch : compiling problem
-Date: Wed, 7 Feb 2007 17:44:31 +0300
-Message-ID: <20070207174431.61f285cd@nmr3.ioc.ac.ru>
-Reply-To: strel@ioc.ac.ru
+From: "Arpan Bejarano" <Marla'sBuber's@hap.org>
+Subject: Marla'sBuber's wrote: Would you ...
+Date: Wed, 7 Feb 2007 18:14:49 +0000 (UTC)
+Message-ID: <854B92GXI22_MC39S_ZP6IO3@hap.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============0641876333=="
 Return-path: <virtualization-bounces@lists.osdl.org>
+Date: Wed, 7 Feb 2007 18:12:50 +0180
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -16,45 +15,62 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+To: virtualization@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Please, explain me, what is the problem in compiling kernel-2.6.20
-patched with lguest-137.patch in Slackware-11.0:
+--===============0641876333==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+X-MIME-Autoconverted: from 8bit to quoted-printable by smtp.osdl.org id l17ICumA012236
 
-  LD [M]  drivers/kvm/kvm-intel.o
-  LD [M]  drivers/kvm/kvm-amd.o
-  CC      drivers/lguest/lguest_bus.o
-  LD      drivers/lguest/built-in.o
-  AS [M]  drivers/lguest/hypervisor.o
-drivers/lguest/hypervisor.S: Assembler messages:
-drivers/lguest/hypervisor.S:162: Error: bad expression
-drivers/lguest/hypervisor.S:162: Error: missing ')'
-drivers/lguest/hypervisor.S:162: Error: junk at end of line, first
-unrecognized character is `2' drivers/lguest/hypervisor.S:162: Error:
-bad expression drivers/lguest/hypervisor.S:162: Error: missing ')'
-drivers/lguest/hypervisor.S:162: Error: junk at end of line, first
-unrecognized character is `2'
-   and so on ....
+At the time HPGI is preparing for the gold extraction.=20
+A lot of experts are working on the field and are making preparations for
+operative and active working.=20
 
-	With best wishes and kind regards, Yuri Strelenko.
+=93We are delighted with the acquisition of Orion and we feel the propert=
+y has=20
+excellent potential to produce results that will exceed our expectations,=
+=94=20
+commented Ted Pomerleau, President and Chairman of Hemisphere Gold.
 
--- =
+as we have said the State Department also noted that Suriname's efforts
+in recent years to liberalize economic policy created new possibilities=20
+for U.S. exports and investments.=20
+More over in the situation of changeable global economy more countries
+start to buy gold for their reserves.But what is important is that a star=
+t has been
+made in buying in the market.
+New information from HPGI will be in the near future.
+Also company are starting to hire staff for mine gold region.
+Underplay is our style (HPGI)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Dr. Yuri A. Strelenko	=
 
-N.D.Zelinsky Institute of Organic Chemistry
-Leninsky prospect 47,119991 Moscow, Russia =
 
-Tel    :      (7-095) 135 9094
-Fax    :      (7-095) 135 5328
-e-mail :      strel@ioc.ac.ru =
 
-www    :      http://nmr.ioc.ac.ru
-GPG-Key: http://nmr.ioc.ac.ru/Staff/StrelenkoYA/GnuPG/Strelenko.gpg
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+
+
+
+
+
+
+yoxji33rzt6sparm8t5cigua08y5o
+7B777A717F7974456E79337871746C6E79666E666E7371787874693377
+V877RN5E2IU6C3VT2Q83JJ75GLAORV7XC7NTSZZH
+
+
+
+
+
+--===============0641876333==
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/virtualization
+
+--===============0641876333==--
