@@ -1,15 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Slackware-11.0, Kernel-2.6.20, lguest-137.patch : compiling
-	problem
-Date: Thu, 08 Feb 2007 11:48:24 +1100
-Message-ID: <1170895704.11736.31.camel@localhost.localdomain>
-References: <20070207174431.61f285cd@nmr3.ioc.ac.ru>
-	<1170892466.11736.26.camel@localhost.localdomain>
+From: "Babji Baxa" <lindenmenstruate@hansongalleries.com>
+Subject: Solar energy investment
+Date: Thu, 8 Feb 2007 22:47:02 +0000 (UTC)
+Message-ID: <544KCSI5S4E_5ENBB_RVXWUR@hansongalleries.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1170892466.11736.26.camel@localhost.localdomain>
+Date: Thu, 8 Feb 2007 22:45:55 +0360
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,15 +16,59 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: strel@ioc.ac.ru
-Cc: virtualization@lists.osdl.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-02-08 at 10:54 +1100, Rusty Russell wrote:
-> Perhaps I accidentally used a new gas feature?
+Good news from QCPC give you the real alternative to hit the jackpot. =
 
-OK, I grabbed slackware 11's binutils, and !=3D wasn't valid in .if
-expressions in binutils 2.15.  "<>" is more portable.
+QCPC is a company with far-sighted aims.
 
-Fixed and pushed: thanks for the report!
-Rusty.
+QCPC strategy is to diversify within the power supply marketplace =
+
+and build strong, niche oriented operations around the globe. =
+
+QCPC take a long-term view of business, focusing on growth and overall =
+
+evolution of our subsidiaries over a number of years.
+
+
+Company has chosen one of solar power producer. =
+
+
+As you know oil prices are growing up higer and higer!
+A great amount of electricity generating plants uses oil-products.
+May be your domestic electrical power supplier or heat register works by us=
+ing oil-products.
+High technologies of solar extraction  also are very effective in bad light=
+ or sun and the accumulating
+energy can be saved inside special batteries. That is why we can talk about=
+ full energy-independent house.
+
+In century of high technologies we can't imagine town life without energy.  =
+
+A lot of states in the USA has enough reserve of solar power to generate ne=
+eded =
+
+electric energy. Furthermore the President realizes the important role of t=
+his policy and =
+
+allocated $1 Billion to Renewable Energy.
+
+U.S. Department of Energy FY 08 budget includes $179 million for the Presid=
+ent's Initiative.
+Particularly Solar America Initiative - $148 million;
+
+This company is at the right time and place now. They have chosen promising=
+ line of activity for your =
+
+share investments and we negotiated a contract with Samlex America, which h=
+as manufactured and distributed power supply products to more than 90 count=
+ries worldwide since 1991.
+Pathfinding product designs, strict quality control, and responsible after =
+sales service provide customers with high quality power conversion products=
+ at extremely competitive prices.
+
+Because of this news the prices of the QCPC stocks are about to grow up. =
+
+QCPC's financial condition is steady now. An overall market and economic si=
+tuation are also can better affect the performance of  the QCPC's shares.
