@@ -1,7 +1,7 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: Paravirt-ops VMI / Xen / lrustyvisor merge status
-Date: Thu, 08 Feb 2007 22:24:56 -0800
-Message-ID: <45CC13B8.7040303@goop.org>
+Date: Fri, 09 Feb 2007 17:44:28 +1100
+Message-ID: <1171003468.2718.10.camel@localhost.localdomain>
 References: <45CC0672.7090201@vmware.com>
 	<1171000474.2718.8.camel@localhost.localdomain>
 	<45CC10B7.2060100@vmware.com>
@@ -23,18 +23,15 @@ To: Zachary Amsden <zach@vmware.com>
 Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> I think the only other open issue we had was how to cleanly do the
-> sysenter disable for Xen.  We want it on for sure, and so does native,
+On Thu, 2007-02-08 at 22:12 -0800, Zachary Amsden wrote:
+> I think the only other open issue we had was how to cleanly do the =
+
+> sysenter disable for Xen.  We want it on for sure, and so does native, =
+
 > but Xen needs to disable it.
 
-You want sysenter as the preferred way of getting into the kernel?
+I disable it too: you simply make sure cpuid says it doesn't have SEP
+and it's all good...
 
->   This could be tied into some nosegneg stuff, I can't remember
-> exactly if they were separate patches or what happened to the nosegneg
-> stuff.  Presumedly, Xen still needs that as well?
-
-Yep.  At the moment it's a note compiled into the vsyscall .so
-controlled by CONFIG_XEN.
-
-    J
+A little confused,
+Rusty.
