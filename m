@@ -1,97 +1,215 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/10] lguest: Export symbols for lguest as a module
-Date: Fri, 09 Feb 2007 20:15:13 +1100
-Message-ID: <1171012513.2718.32.camel@localhost.localdomain>
+Subject: [PATCH 3/10] lguest: Expose get_futex_key, get_key_refs and
+	drop_key_refs.
+Date: Fri, 09 Feb 2007 20:17:18 +1100
+Message-ID: <1171012638.2718.36.camel@localhost.localdomain>
 References: <1171012296.2718.26.camel@localhost.localdomain>
 	 <1171012458.2718.30.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946240AbXBIJQO@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946239AbXBIJSI@vger.kernel.org>
 In-Reply-To: <1171012458.2718.30.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-lguest does some fairly lowlevel things to support a host, which
-normal modules don't need:
+Name: Expose get_futex_key, get_key_refs and drop_key_refs.
 
-math_state_restore:
-	When the guest triggers a Device Not Available fault, we need
-	to be able to restore the FPU
+lguest uses the convenient futex infrastructure for inter-domain I/O,
+so expose get_futex_key, get_key_refs (renamed get_futex_key_refs) and
+drop_key_refs (renamed drop_futex_key_refs).  Also means we need to
+expose the union that these use.
 
-tsc_khz:
-	Simplest way of telling the guest how to interpret the TSC
-	counter.
-
-__put_task_struct:
-	We need to hold a reference to another task for inter-guest
-	I/O, and put_task_struct() is an inline function which calls
-	__put_task_struct.
-
-access_process_vm:
-	We need to access another task for inter-guest I/O.
-
-map_vm_area & __get_vm_area:
-	We need to map the switcher shim (ie. monitor) at 0xFFC01000.
+No code changes.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
 ===================================================================
---- a/arch/i386/kernel/traps.c
-+++ b/arch/i386/kernel/traps.c
-@@ -1054,6 +1054,7 @@ asmlinkage void math_state_restore(void)
- 	thread->status |= TS_USEDFPU;	/* So we fnsave on switch_to() */
- 	tsk->fpu_counter++;
- }
-+EXPORT_SYMBOL_GPL(math_state_restore);
+--- a/include/linux/futex.h
++++ b/include/linux/futex.h
+@@ -100,6 +100,35 @@ extern int
+ extern int
+ handle_futex_death(u32 __user *uaddr, struct task_struct *curr, int pi);
  
- #ifndef CONFIG_MATH_EMULATION
- 
++/*
++ * Futexes are matched on equal values of this key.
++ * The key type depends on whether it's a shared or private mapping.
++ * Don't rearrange members without looking at hash_futex().
++ *
++ * offset is aligned to a multiple of sizeof(u32) (== 4) by definition.
++ * We set bit 0 to indicate if it's an inode-based key.
++ */
++union futex_key {
++	struct {
++		unsigned long pgoff;
++		struct inode *inode;
++		int offset;
++	} shared;
++	struct {
++		unsigned long address;
++		struct mm_struct *mm;
++		int offset;
++	} private;
++	struct {
++		unsigned long word;
++		void *ptr;
++		int offset;
++	} both;
++};
++int get_futex_key(u32 __user *uaddr, union futex_key *key);
++void get_futex_key_refs(union futex_key *key);
++void drop_futex_key_refs(union futex_key *key);
++
+ #ifdef CONFIG_FUTEX
+ extern void exit_robust_list(struct task_struct *curr);
+ extern void exit_pi_state_list(struct task_struct *curr);
 ===================================================================
---- a/arch/i386/kernel/tsc.c
-+++ b/arch/i386/kernel/tsc.c
-@@ -475,3 +475,4 @@ static int __init init_tsc_clocksource(v
- }
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -48,37 +48,12 @@
+ #include <linux/pagemap.h>
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
++#include <linux/module.h>
+ #include <asm/futex.h>
  
- module_init(init_tsc_clocksource);
-+EXPORT_SYMBOL_GPL(tsc_khz);
-===================================================================
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -126,6 +126,7 @@ void __put_task_struct(struct task_struc
- 	if (!profile_handoff_task(tsk))
- 		free_task(tsk);
- }
-+EXPORT_SYMBOL_GPL(__put_task_struct);
+ #include "rtmutex_common.h"
  
- void __init fork_init(unsigned long mempages)
+ #define FUTEX_HASHBITS (CONFIG_BASE_SMALL ? 4 : 8)
+-
+-/*
+- * Futexes are matched on equal values of this key.
+- * The key type depends on whether it's a shared or private mapping.
+- * Don't rearrange members without looking at hash_futex().
+- *
+- * offset is aligned to a multiple of sizeof(u32) (== 4) by definition.
+- * We set bit 0 to indicate if it's an inode-based key.
+- */
+-union futex_key {
+-	struct {
+-		unsigned long pgoff;
+-		struct inode *inode;
+-		int offset;
+-	} shared;
+-	struct {
+-		unsigned long address;
+-		struct mm_struct *mm;
+-		int offset;
+-	} private;
+-	struct {
+-		unsigned long word;
+-		void *ptr;
+-		int offset;
+-	} both;
+-};
+ 
+ /*
+  * Priority Inheritance state:
+@@ -175,7 +150,7 @@ static inline int match_futex(union fute
+  *
+  * Should be called with &current->mm->mmap_sem but NOT any spinlocks.
+  */
+-static int get_futex_key(u32 __user *uaddr, union futex_key *key)
++int get_futex_key(u32 __user *uaddr, union futex_key *key)
  {
-===================================================================
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -2692,3 +2692,4 @@ int access_process_vm(struct task_struct
- 
- 	return buf - old_buf;
- }
-+EXPORT_SYMBOL_GPL(access_process_vm);
-===================================================================
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -159,6 +159,7 @@ int map_vm_area(struct vm_struct *area, 
- 	flush_cache_vmap((unsigned long) area->addr, end);
+ 	unsigned long address = (unsigned long)uaddr;
+ 	struct mm_struct *mm = current->mm;
+@@ -246,6 +221,7 @@ static int get_futex_key(u32 __user *uad
+ 	}
  	return err;
  }
-+EXPORT_SYMBOL_GPL(map_vm_area);
++EXPORT_SYMBOL_GPL(get_futex_key);
  
- static struct vm_struct *__get_vm_area_node(unsigned long size, unsigned long flags,
- 					    unsigned long start, unsigned long end,
-@@ -237,6 +238,7 @@ struct vm_struct *__get_vm_area(unsigned
+ /*
+  * Take a reference to the resource addressed by a key.
+@@ -254,7 +230,7 @@ static int get_futex_key(u32 __user *uad
+  * NOTE: mmap_sem MUST be held between get_futex_key() and calling this
+  * function, if it is called at all.  mmap_sem keeps key->shared.inode valid.
+  */
+-static inline void get_key_refs(union futex_key *key)
++inline void get_futex_key_refs(union futex_key *key)
  {
- 	return __get_vm_area_node(size, flags, start, end, -1, GFP_KERNEL);
+ 	if (key->both.ptr != 0) {
+ 		if (key->both.offset & 1)
+@@ -263,12 +239,13 @@ static inline void get_key_refs(union fu
+ 			atomic_inc(&key->private.mm->mm_count);
+ 	}
  }
-+EXPORT_SYMBOL_GPL(__get_vm_area);
++EXPORT_SYMBOL_GPL(get_futex_key_refs);
  
- /**
-  *	get_vm_area  -  reserve a contingous kernel virtual area
+ /*
+  * Drop a reference to the resource addressed by a key.
+  * The hash bucket spinlock must not be held.
+  */
+-static void drop_key_refs(union futex_key *key)
++void drop_futex_key_refs(union futex_key *key)
+ {
+ 	if (key->both.ptr != 0) {
+ 		if (key->both.offset & 1)
+@@ -277,6 +254,7 @@ static void drop_key_refs(union futex_ke
+ 			mmdrop(key->private.mm);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(drop_futex_key_refs);
+ 
+ static inline int get_futex_value_locked(u32 *dest, u32 __user *from)
+ {
+@@ -871,7 +849,7 @@ static int futex_requeue(u32 __user *uad
+ 				this->lock_ptr = &hb2->lock;
+ 			}
+ 			this->key = key2;
+-			get_key_refs(&key2);
++			get_futex_key_refs(&key2);
+ 			drop_count++;
+ 
+ 			if (ret - nr_wake >= nr_requeue)
+@@ -884,9 +862,9 @@ out_unlock:
+ 	if (hb1 != hb2)
+ 		spin_unlock(&hb2->lock);
+ 
+-	/* drop_key_refs() must be called outside the spinlocks. */
++	/* drop_futex_key_refs() must be called outside the spinlocks. */
+ 	while (--drop_count >= 0)
+-		drop_key_refs(&key1);
++		drop_futex_key_refs(&key1);
+ 
+ out:
+ 	up_read(&current->mm->mmap_sem);
+@@ -904,7 +882,7 @@ queue_lock(struct futex_q *q, int fd, st
+ 
+ 	init_waitqueue_head(&q->waiters);
+ 
+-	get_key_refs(&q->key);
++	get_futex_key_refs(&q->key);
+ 	hb = hash_futex(&q->key);
+ 	q->lock_ptr = &hb->lock;
+ 
+@@ -923,7 +901,7 @@ queue_unlock(struct futex_q *q, struct f
+ queue_unlock(struct futex_q *q, struct futex_hash_bucket *hb)
+ {
+ 	spin_unlock(&hb->lock);
+-	drop_key_refs(&q->key);
++	drop_futex_key_refs(&q->key);
+ }
+ 
+ /*
+@@ -978,7 +956,7 @@ static int unqueue_me(struct futex_q *q)
+ 		ret = 1;
+ 	}
+ 
+-	drop_key_refs(&q->key);
++	drop_futex_key_refs(&q->key);
+ 	return ret;
+ }
+ 
+@@ -997,7 +975,7 @@ static void unqueue_me_pi(struct futex_q
+ 
+ 	spin_unlock(&hb->lock);
+ 
+-	drop_key_refs(&q->key);
++	drop_futex_key_refs(&q->key);
+ }
+ 
+ static int futex_wait(u32 __user *uaddr, u32 val, unsigned long time)
