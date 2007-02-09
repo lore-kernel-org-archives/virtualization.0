@@ -1,41 +1,34 @@
-From: Len Brown <lenb@kernel.org>
-Subject: Re: [PATCH 6c/10] lguest: the guest code
-Date: Fri, 9 Feb 2007 12:49:57 -0500
-Message-ID: <200702091249.58204.lenb@kernel.org>
-References: <1171012296.2718.26.camel@localhost.localdomain> <200702091206.31797.lenb@kernel.org> <Pine.LNX.4.64.0702091212360.9007@d.namei>
+From: James Morris <jmorris@namei.org>
+Subject: Re: [PATCH 4 of 7]  lguest: Config and headers
+Date: Fri, 9 Feb 2007 13:15:28 -0500 (EST)
+Message-ID: <Pine.LNX.4.64.0702091304090.9927@d.namei>
+References: <1171033146.2718.157.camel@localhost.localdomain>
+ <1171033383.2718.163.camel@localhost.localdomain>
+ <1171033436.2718.165.camel@localhost.localdomain>
+ <1171033484.2718.167.camel@localhost.localdomain>
+ <1171033741.2718.172.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992461AbXBIRva@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0702091212360.9007@d.namei>
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992439AbXBISPc@vger.kernel.org>
+In-Reply-To: <1171033741.2718.172.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: James Morris <jmorris@namei.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, virtualization <virtualization@lists.osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 09 February 2007 12:14, James Morris wrote:
-> On Fri, 9 Feb 2007, Len Brown wrote:
->=20
-> > On Friday 09 February 2007 05:57, Rusty Russell wrote:
-> >=20
-> > > +#ifdef CONFIG_ACPI
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0acpi_disabled =3D 1;
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0acpi_ht =3D 0;
-> > > +#endif
-> >=20
-> > If this is hard-coded to have ACPI disabled, why isn't it enforced =
-at build-time?
->=20
-> This is being disabled in the guest kernel only.  The host and guest=20
-> kernels are expected to be the same build.
+On Sat, 10 Feb 2007, Rusty Russell wrote:
 
-Okay, but better to use disable_acpi()
-indeed, since this would be the first code not already inside CONFIG_AC=
-PI
-to invoke disable_acpi(), we could define the inline as empty and you c=
-ould
-then scratch the #ifdef too.
+> +/* 64k ought to be enough for anybody! */
+> +#define HYPERVISOR_MAP_ORDER 16
+> +#define HYPERVISOR_PAGES ((1 << HYPERVISOR_MAP_ORDER)/PAGE_SIZE)
 
-cheers,
--Len
+I think it'd be better to go back to defining HYPERVISOR_SIZE then derive 
+the map order from that via get_order(), as it should be 4 instead of 16; 
+and this code is now both implying PAGE_SIZE while also using it for 
+calculations. 
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
