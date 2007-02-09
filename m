@@ -1,322 +1,574 @@
-From: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH 6/10] lguest code: the little linux hypervisor.
-Date: Fri, 9 Feb 2007 11:09:19 +0100
-Message-ID: <200702091109.20061.ak@muc.de>
-References: <1171012296.2718.26.camel@localhost.localdomain> <1171012761.2718.40.camel@localhost.localdomain> <1171012827.2718.42.camel@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 6a/10] lguest: Config and headers
+Date: Fri, 09 Feb 2007 21:55:24 +1100
+Message-ID: <1171018524.2718.58.camel@localhost.localdomain>
+References: <1171012296.2718.26.camel@localhost.localdomain>
+	 <1171012458.2718.30.camel@localhost.localdomain>
+	 <1171012693.2718.37.camel@localhost.localdomain>
+	 <1171012761.2718.40.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946291AbXBIKK1@vger.kernel.org>
-In-Reply-To: <1171012827.2718.42.camel@localhost.localdomain>
-Content-Disposition: inline
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752338AbXBIK4T@vger.kernel.org>
+In-Reply-To: <1171012761.2718.40.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.osdl.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Paul Mackerras <paulus@samba.org>
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Stephen Rothwell <sfr@canb.auug.org.au>, Paul Mackerras <paulus@samba.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 09 February 2007 10:20, Rusty Russell wrote:
-> This is the core of lguest: both the guest code (always compiled in to
-> the image so it can boot under lguest), and the host code (lg.ko).
-> 
-> There is only one config prompt at the moment: lguest is currently
-> designed to run exactly the same guest and host kernels so we can
-> frob the ABI freely.
-> 
-> Unfortunately, we don't have the build infrastructure for "private"
-> asm-offsets.h files, so there's a not-so-neat include in
-> arch/i386/kernel/asm-offsets.c.
-
-Ask the kbuild people to fix that? 
-
-It indeed looks ugly.
-
-I bet Xen et.al. could make good use of that too.
-
-> +# This links the hypervisor in the right place and turns it into a C array.
-> +$(obj)/hypervisor-raw: $(obj)/hypervisor.o
-> +	@$(LD) -static -Tdata=`printf %#x $$(($(HYPE_ADDR)))` -Ttext=`printf %#x $$(($(HYPE_ADDR)+$(HYPE_DATA_SIZE)))` -o $@ $< && $(OBJCOPY) -O binary $@
-> +$(obj)/hypervisor-blob.c: $(obj)/hypervisor-raw
-> +	@od -tx1 -An -v $< | sed -e 's/^ /0x/' -e 's/$$/,/' -e 's/ /,0x/g' > $@
-
-an .S file with .incbin is more efficient and simpler
-(note it has to be an separate .S file, otherwise icecream/distcc break) 
-
-It won't allow to show off any sed skills, but I guess we can live with that ;-)
-
-
-> +static struct vm_struct *hypervisor_vma;
-> +static int cpu_had_pge;
-> +static struct {
-> +	unsigned long offset;
-> +	unsigned short segment;
-> +} lguest_entry;
-> +struct page *hype_pages; /* Contiguous pages. */
-
-Statics? looks funky.  Why only a single hypervisor_vma?
-
-> +struct lguest lguests[MAX_LGUEST_GUESTS];
-> +DECLARE_MUTEX(lguest_lock);
-> +
-> +/* IDT entries are at start of hypervisor. */
-> +const unsigned long *__lguest_default_idt_entries(void)
-> +{
-> +	return (void *)HYPE_ADDR;
-> +}
-> +
-> +/* Next is switch_to_guest */
-> +static void *__lguest_switch_to_guest(void)
-> +{
-> +	return (void *)HYPE_ADDR + HYPE_DATA_SIZE;
-> +}
-> +
-> +/* Then we use everything else to hold guest state. */
-> +struct lguest_state *__lguest_states(void)
-> +{
-> +	return (void *)HYPE_ADDR + sizeof(hypervisor_blob);
-
-This cries for asm_offsets.h too, doesn't it? 
-
-> +}
-> +
-> +static __init int map_hypervisor(void)
-> +{
-> +	unsigned int i;
-> +	int err;
-> +	struct page *pages[HYPERVISOR_PAGES], **pagep = pages;
-> +
-> +	hype_pages = alloc_pages(GFP_KERNEL|__GFP_ZERO,
-> +				 get_order(HYPERVISOR_SIZE));
-
-Wasteful because of the rounding. Probably wants reintroduction
-of alloc_pages_exact()
-
-
-> +
-> +static __exit void unmap_hypervisor(void)
-> +{
-> +	vunmap(hypervisor_vma->addr);
-> +	__free_pages(hype_pages, get_order(HYPERVISOR_SIZE));
-
-Shouldn't you clean up the GDTs too? 
-
-> +}
-> +
-> +/* IN/OUT insns: enough to get us past boot-time probing. */
-> +static int emulate_insn(struct lguest *lg)
-> +{
-> +	u8 insn;
-> +	unsigned int insnlen = 0, in = 0, shift = 0;
-> +	unsigned long physaddr = guest_pa(lg, lg->state->regs.eip);
-> +
-> +	/* This only works for addresses in linear mapping... */
-> +	if (lg->state->regs.eip < lg->page_offset)
-> +		return 0;
-
-Shouldn't there be a printk here?
-
-> +/* Saves exporting idt_table from kernel */
-> +static struct desc_struct *get_idt_table(void)
-> +{
-> +	struct Xgt_desc_struct idt;
-> +
-> +	asm("sidt %0":"=m" (idt));
-
-Nasty, but ok.
-
-> +	return (void *)idt.address;
-> +}
-> +
-> +extern asmlinkage void math_state_restore(void);
-
-No externs in .c files
-
-> +
-> +/* Trap page resets this when it reloads gs. */
-> +static int new_gfp_eip(struct lguest *lg, struct lguest_regs *regs)
-> +{
-> +	u32 eip;
-> +	get_user(eip, &lg->lguest_data->gs_gpf_eip);
-> +	if (eip == regs->eip)
-> +		return 0;
-> +	put_user(regs->eip, &lg->lguest_data->gs_gpf_eip);
-
-No fault checking? 
-
-lhread/write use probably also needs to be double checked that a malicious
-guest can't put the kernel into a loop.
-
-> +	return 1;
-> +}
-> +
-> +static void set_ts(unsigned int guest_ts)
-> +{
-> +	u32 cr0;
-> +	if (guest_ts) {
-> +		asm("movl %%cr0,%0":"=r" (cr0));
-> +		if (!(cr0 & 8))
-> +			asm("movl %0,%%cr0": :"r" (cr0|8));
-> +	}
-
-We have macros and defines for this in standard headers.
-\
-> +	while (!lg->dead) {
-> +		unsigned int cr2 = 0; /* Damn gcc */
-> +
-> +		/* Hypercalls first: we might have been out to userspace */
-> +		if (do_async_hcalls(lg))
-> +			goto pending_dma;
-> +
-> +		if (regs->trapnum == LGUEST_TRAP_ENTRY) {
-> +			/* Only do hypercall once. */
-> +			regs->trapnum = 255;
-> +			if (hypercall(lg, regs))
-> +				goto pending_dma;
-> +		}
-> +
-> +		if (signal_pending(current))
-> +			return -EINTR
-
-Probably needs freezer checking here somewhere.
-
-> ; 
-> +		maybe_do_interrupt(lg);
-> +
-> +		if (lg->dead)
-> +			break;
-> +
-> +		if (lg->halted) {
-> +			set_current_state(TASK_INTERRUPTIBLE);
-> +			schedule_timeout(1);
-
-1?  And what is that good for anyways?
-
-> +				/* FIXME: If it's reloading %gs in a loop? */
-
-Yes what then? Have you tried it?
-
-In general i miss printks when things go wrong. Do you expect
-all users to have a gdbstub ready? @)
-
-> +pending_dma:
-> +	put_user(lg->pending_dma, (unsigned long *)user);
-> +	put_user(lg->pending_addr, (unsigned long *)user+1);
-
-error checking? How do you avoid loops?
-
-
-> +	if (cpu_has_pge) { /* We have a broader idea of "global". */
-> +		cpu_had_pge = 1;
-> +		on_each_cpu(adjust_pge, 0, 0, 1);
-
-cpu hotplug? 
-
-> +		clear_bit(X86_FEATURE_PGE, boot_cpu_data.x86_capability);
-> +	}
-> +	return 0;
-> +}
-> 
-> +	case LHCALL_CRASH: {
-> +		char msg[128];
-> +		lhread(lg, msg, regs->edx, sizeof(msg));
-> +		msg[sizeof(msg)-1] = '\0';
-
-Might be safer to vet for isprint here
-
-> +#define log(...)					\
-> +	do {						\
-> +		mm_segment_t oldfs = get_fs();		\
-> +		char buf[100];				\
-
-At least older gccs will accumulate the bufs in a function, eventually possibly blowing
-the stack. Better use a function.
-
-
-> +	/* If they're halted, we re-enable interrupts. */
-> +	if (lg->halted) {
-> +		/* Re-enable interrupts. */
-> +		put_user(512, &lg->lguest_data->irq_enabled);
-
-interesting magic number
-
-> +	/* Ignore NMI, doublefault, hypercall, spurious interrupt. */
-> +	if (i == 2 || i == 8 || i == 15 || i == LGUEST_TRAP_ENTRY)
-> +		return;
-> +	/* FIXME: We should handle debug and int3 */
-> +	else if (i == 1 || i == 3)
-> +		return;
-> +	/* We intercept page fault, general protection fault and fpu missing */
-> +	else if (i == 13)
-> +		copy_trap(lg, &lg->gpf_trap, &d);
-> +	else if (i == 14)
-> +		copy_trap(lg, &lg->page_trap, &d);
-> +	else if (i == 7)
-> +		copy_trap(lg, &lg->fpu_trap, &d);
-> +	/* Other traps go straight to guest. */
-> +	else if (i < FIRST_EXTERNAL_VECTOR || i == SYSCALL_VECTOR)
-> +		setup_idt(lg, i, &d);
-> +	/* A virtual interrupt */
-> +	else if (i < FIRST_EXTERNAL_VECTOR + LGUEST_IRQS)
-> +		copy_trap(lg, &lg->interrupt[i-FIRST_EXTERNAL_VECTOR], &d);\
-
-switch is not cool enough anymore?
-
->
-> +	down(&lguest_lock);
-
-i suspect mutexes are the new way to do this
-
-> +	down_read(&current->mm->mmap_sem);
-> +	if (get_futex_key((u32 __user *)addr, &key) != 0) {
-> +		kill_guest(lg, "bad dma address %#lx", addr);
-> +		goto unlock;
-
-Risky? Use probe_kernel_address et.al.?
-
-> +#if 0
-> +/* FIXME: Use asm-offsets here... */
-
-Remove?
-
-> +extern int mce_disabled;
-
-tststs
-
-> +
-> +/* FIXME: Update iff tsc rate changes. */
-
-It does.
-
-
-> +static fastcall void lguest_cpuid(unsigned int *eax, unsigned int *ebx,
-> +				 unsigned int *ecx, unsigned int *edx)
-> +{
-> +	int is_feature = (*eax == 1);
-> +
-> +	asm volatile ("cpuid"
-> +		      : "=a" (*eax),
-> +			"=b" (*ebx),
-> +			"=c" (*ecx),
-> +			"=d" (*edx)
-> +		      : "0" (*eax), "2" (*ecx));
-
-What's wrong with the standard cpuid*() macros?
-
-> +	extern struct Xgt_desc_struct cpu_gdt_descr;
-> +	extern struct i386_pda boot_pda;
-
-No externs in .c
-
-> +
-> +	paravirt_ops.name = "lguest";
-
-Can you just statically initialize this and then copy over? 
-
-> +	asm volatile ("mov %0, %%gs" : : "r" (__KERNEL_PDA) : "memory");
-
-This will be %fs soon.
-
-
-... haven't read everything else. the IO driver earlier was also not very closely looked at.
-
--Andi
+[ Part 6 was too big, so posting in four parts ]
+
+Unfortunately, we don't have the build infrastructure for "private"
+asm-offsets.h files, so there's a not-so-neat include in
+arch/i386/kernel/asm-offsets.c.
+
+The four headers are:
+asm/lguest.h:
+	Things the guest needs to know (hypercall numbers, etc).
+asm/lguest_device.h:
+	Things lguest devices need to know (lguest bus registration)
+asm/lguest_user.h:
+	Things that the lguest userspace utility needs (/dev/lguest
+	and some devices)
+arch/i386/lguest/lg.h:
+	Internal header for the lg module (which consists of 8 files).
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+===================================================================
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -226,6 +226,27 @@ config ES7000_CLUSTERED_APIC
+ 	depends on SMP && X86_ES7000 && MPENTIUMIII
+ 
+ source "arch/i386/Kconfig.cpu"
++
++config LGUEST
++	tristate "Linux hypervisor example code"
++	depends on X86 && PARAVIRT && EXPERIMENTAL && !X86_PAE
++	select LGUEST_GUEST
++	select HVC_DRIVER
++	---help---
++	  This is a very simple module which allows you to run
++	  multiple instances of the same Linux kernel, using the
++	  "lguest" command found in the Documentation/lguest directory.
++	  Note that "lguest" is pronounced to rhyme with "fell quest",
++	  not "rustyvisor".  See Documentation/lguest/lguest.txt.
++
++	  If unsure, say N.  If curious, say M.  If masochistic, say Y.
++
++config LGUEST_GUEST
++	bool
++	help
++	  The guest needs code built-in, even if the host has lguest
++	  support as a module.  The drivers are tiny, so we build them
++	  in too.
+ 
+ config HPET_TIMER
+ 	bool "HPET Timer Support"
+===================================================================
+--- a/arch/i386/kernel/asm-offsets.c
++++ b/arch/i386/kernel/asm-offsets.c
+@@ -16,6 +16,10 @@
+ #include <asm/thread_info.h>
+ #include <asm/elf.h>
+ #include <asm/pda.h>
++#ifdef CONFIG_LGUEST_GUEST
++#include <asm/lguest.h>
++#include "../lguest/lg.h"
++#endif
+ 
+ #define DEFINE(sym, val) \
+         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+@@ -111,4 +115,19 @@ void foo(void)
+ 	OFFSET(PARAVIRT_iret, paravirt_ops, iret);
+ 	OFFSET(PARAVIRT_read_cr0, paravirt_ops, read_cr0);
+ #endif
++
++#ifdef CONFIG_LGUEST_GUEST
++	BLANK();
++	OFFSET(LGUEST_DATA_irq_enabled, lguest_data, irq_enabled);
++	OFFSET(LGUEST_STATE_host_stackptr, lguest_state, host.stackptr);
++	OFFSET(LGUEST_STATE_host_pgdir, lguest_state, host.pgdir);
++	OFFSET(LGUEST_STATE_host_gdt, lguest_state, host.gdt);
++	OFFSET(LGUEST_STATE_host_idt, lguest_state, host.idt);
++	OFFSET(LGUEST_STATE_regs, lguest_state, regs);
++	OFFSET(LGUEST_STATE_gdt, lguest_state, gdt);
++	OFFSET(LGUEST_STATE_idt, lguest_state, idt);
++	OFFSET(LGUEST_STATE_gdt_table, lguest_state, gdt_table);
++	OFFSET(LGUEST_STATE_trapnum, lguest_state, regs.trapnum);
++	OFFSET(LGUEST_STATE_errcode, lguest_state, regs.errcode);
++#endif
+ }
+===================================================================
+--- /dev/null
++++ b/include/asm-i386/lguest.h
+@@ -0,0 +1,86 @@
++/* Things the lguest guest needs to know. */
++#ifndef _ASM_LGUEST_H
++#define _ASM_LGUEST_H
++
++#define LGUEST_MAGIC_EBP 0x4C687970
++#define LGUEST_MAGIC_EDI 0x652D4D65
++#define LGUEST_MAGIC_ESI 0xFFFFFFFF
++
++#define LHCALL_FLUSH_ASYNC	0
++#define LHCALL_LGUEST_INIT	1
++#define LHCALL_CRASH		2
++#define LHCALL_LOAD_GDT		3
++#define LHCALL_NEW_PGTABLE	4
++#define LHCALL_FLUSH_TLB	5
++#define LHCALL_LOAD_IDT_ENTRY	6
++#define LHCALL_SET_STACK	7
++#define LHCALL_TS		8
++#define LHCALL_TIMER_READ	9
++#define LHCALL_TIMER_START	10
++#define LHCALL_HALT		11
++#define LHCALL_GET_WALLCLOCK	12
++#define LHCALL_BIND_DMA		13
++#define LHCALL_SEND_DMA		14
++#define LHCALL_SET_PTE		15
++#define LHCALL_SET_UNKNOWN_PTE	16
++#define LHCALL_SET_PUD		17
++#define LHCALL_LOAD_TLS		18
++
++#define LGUEST_TRAP_ENTRY 0x1F
++
++static inline unsigned long
++hcall(unsigned long call,
++      unsigned long arg1, unsigned long arg2, unsigned long arg3)
++{
++	asm volatile("int $" __stringify(LGUEST_TRAP_ENTRY)
++		     : "=a"(call)
++		     : "a"(call), "d"(arg1), "b"(arg2), "c"(arg3) 
++		     : "memory");
++	return call;
++}
++
++void async_hcall(unsigned long call,
++		 unsigned long arg1, unsigned long arg2, unsigned long arg3);
++
++#define LGUEST_IRQS 32
++
++#define LHCALL_RING_SIZE 64
++struct hcall_ring
++{
++	u32 eax, edx, ebx, ecx;
++};
++
++/* All the good stuff happens here: guest registers it with LGUEST_INIT */
++struct lguest_data
++{
++/* Fields which change during running: */
++	/* 512 == enabled (same as eflags) */
++	unsigned int irq_enabled;
++	/* Blocked interrupts. */
++	DECLARE_BITMAP(interrupts, LGUEST_IRQS); 
++
++	/* Last (userspace) address we got a GPF & reloaded gs. */
++	unsigned int gs_gpf_eip;
++
++	/* Virtual address of page fault. */
++	unsigned long cr2;
++
++	/* Async hypercall ring.  0xFF == done, 0 == pending. */
++	u8 hcall_status[LHCALL_RING_SIZE];
++	struct hcall_ring hcalls[LHCALL_RING_SIZE];
++			
++/* Fields initialized by the hypervisor at boot: */
++	/* Memory not to try to access */
++	unsigned long reserve_mem;
++	/* ID of this guest (used by network driver to set ethernet address) */
++	u16 guestid;
++	/* Multiplier for TSC clock. */
++	u32 clock_mult;
++
++/* Fields initialized by the guest at boot: */
++	/* Instruction range to suppress interrupts even if enabled */
++	unsigned long noirq_start, noirq_end;
++};
++extern struct lguest_data lguest_data;
++extern struct lguest_device_desc *lguest_devices; /* Just past max_pfn */
++#endif	/* _ASM_LGUEST_H */
+===================================================================
+--- /dev/null
++++ b/include/asm-i386/lguest_device.h
+@@ -0,0 +1,31 @@
++#ifndef _ASM_LGUEST_DEVICE_H
++#define _ASM_LGUEST_DEVICE_H
++/* Everything you need to know about lguest devices. */
++#include <linux/device.h>
++#include <asm/lguest.h>
++#include <asm/lguest_user.h>
++
++struct lguest_device {
++	/* Unique busid, and index into lguest_page->devices[] */
++	/* By convention, each device can use irq index+1 if it wants to. */
++	unsigned int index;
++
++	struct device dev;
++
++	/* Driver can hang data off here. */
++	void *private;
++};
++
++struct lguest_driver {
++	const char *name;
++	struct module *owner;
++	u16 device_type;
++	int (*probe)(struct lguest_device *dev);
++	void (*remove)(struct lguest_device *dev);
++
++	struct device_driver drv;
++};
++
++extern int register_lguest_driver(struct lguest_driver *drv);
++extern void unregister_lguest_driver(struct lguest_driver *drv);
++#endif /* _ASM_LGUEST_DEVICE_H */
+===================================================================
+--- /dev/null
++++ b/include/asm-i386/lguest_user.h
+@@ -0,0 +1,86 @@
++#ifndef _ASM_LGUEST_USER
++#define _ASM_LGUEST_USER
++/* Everything the "lguest" userspace program needs to know. */
++/* They can register up to 32 arrays of lguest_dma. */
++#define LGUEST_MAX_DMA		32
++/* At most we can dma 16 lguest_dma in one op. */
++#define LGUEST_MAX_DMA_SECTIONS	16
++
++/* How many devices?  Assume each one wants up to two dma arrays per device. */
++#define LGUEST_MAX_DEVICES (LGUEST_MAX_DMA/2)
++
++struct lguest_dma
++{
++	/* 0 if free to be used, filled by hypervisor. */
++ 	u32 used_len;
++	u32 addr[LGUEST_MAX_DMA_SECTIONS];
++	u16 len[LGUEST_MAX_DMA_SECTIONS];
++};
++
++/* This is found at address 0. */
++struct lguest_boot_info
++{
++	u32 max_pfn;
++	u32 initrd_size;
++	char cmdline[256];
++};
++
++struct lguest_block_page
++{
++	/* 0 is a read, 1 is a write. */
++	int type;
++	u32 sector; 	/* Offset in device = sector * 512. */
++	u32 bytes;	/* Length expected to be read/written in bytes */
++	/* 0 = pending, 1 = done, 2 = done, error */
++	int result;
++	u32 num_sectors; /* Disk length = num_sectors * 512 */
++};
++
++/* There is a shared page of these. */
++struct lguest_net
++{
++	union {
++		unsigned char mac[6];
++		struct {
++			u8 promisc;
++			u8 pad;
++			u16 guestid;
++		};
++	};
++};
++
++/* lguest_device_desc->type */
++#define LGUEST_DEVICE_T_CONSOLE	1
++#define LGUEST_DEVICE_T_NET	2
++#define LGUEST_DEVICE_T_BLOCK	3
++
++/* lguest_device_desc->status.  256 and above are device specific. */
++#define LGUEST_DEVICE_S_ACKNOWLEDGE	1 /* We have seen device. */
++#define LGUEST_DEVICE_S_DRIVER		2 /* We have found a driver */
++#define LGUEST_DEVICE_S_DRIVER_OK	4 /* Driver says OK! */
++#define LGUEST_DEVICE_S_REMOVED		8 /* Device has gone away. */
++#define LGUEST_DEVICE_S_REMOVED_ACK	16 /* Driver has been told. */
++#define LGUEST_DEVICE_S_FAILED		128 /* Something actually failed */
++
++#define LGUEST_NET_F_NOCSUM		0x4000 /* Don't bother checksumming */
++#define LGUEST_DEVICE_F_RANDOMNESS	0x8000 /* IRQ is fairly random */
++
++/* We have a page of these descriptors in the lguest_device page. */
++struct lguest_device_desc {
++	u16 type;
++	u16 features;
++	u16 status;
++	u16 num_pages;
++	u32 pfn;
++};
++
++/* Write command first word is a request. */
++enum lguest_req
++{
++	LHREQ_INITIALIZE, /* + pfnlimit, pgdir, start, pageoffset */
++	LHREQ_GETDMA, /* + addr (returns &lguest_dma, irq in ->used_len) */
++	LHREQ_IRQ, /* + irq */
++};
++
++
++#endif /* _ASM_LGUEST_USER */
+===================================================================
+--- /dev/null
++++ b/arch/i386/lguest/lg.h
+@@ -0,0 +1,253 @@
++#ifndef _LGUEST_H
++#define _LGUEST_H
++
++#include <asm/desc.h>
++/* 64k ought to be enough for anybody! */
++#define HYPERVISOR_SIZE 65536
++#define HYPERVISOR_PAGES (HYPERVISOR_SIZE/PAGE_SIZE)
++
++#define GDT_ENTRY_LGUEST_CS	10
++#define GDT_ENTRY_LGUEST_DS	11
++#define LGUEST_CS		(GDT_ENTRY_LGUEST_CS * 8)
++#define LGUEST_DS		(GDT_ENTRY_LGUEST_DS * 8)
++
++#ifndef __ASSEMBLY__
++#include <linux/types.h>
++#include <linux/init.h>
++#include <linux/stringify.h>
++#include <linux/binfmts.h>
++#include <linux/futex.h>
++#include <asm/lguest.h>
++#include <asm/lguest_user.h>
++#include <asm/semaphore.h>
++#include "irq_vectors.h"
++
++#define GUEST_DPL 1
++
++struct lguest_regs
++{
++	/* Manually saved part. */
++	u32 cr3;
++	u32 ebx, ecx, edx;
++	u32 esi, edi, ebp;
++	u32 gs;
++	u32 eax;
++	u32 fs, ds, es;
++	u32 trapnum, errcode;
++	/* Trap pushed part */
++	u32 eip;
++	u32 cs;
++	u32 eflags;
++	u32 esp;
++	u32 ss;
++};
++
++__exit void free_pagetables(void);
++__init int init_pagetables(struct page *hype_pages);
++
++/* Full 4G segment descriptors, suitable for CS and DS. */
++#define FULL_EXEC_SEGMENT ((struct desc_struct){0x0000ffff, 0x00cf9b00}) 
++#define FULL_SEGMENT ((struct desc_struct){0x0000ffff, 0x00cf9300}) 
++
++/* Simplified version of IDT. */
++struct host_trap
++{
++	unsigned long addr;
++	int disable_interrupts;
++};
++
++struct lguest_dma_info
++{
++	struct list_head list;
++	union futex_key key;
++	unsigned long dmas;
++	u16 next_dma;
++	u16 num_dmas;
++	u16 guestid;
++	u8 interrupt; 	/* 0 when not registered */
++};
++
++struct pgdir
++{
++	u32 cr3;
++	u32 *pgdir;
++};
++
++/* The private info the thread maintains about the guest. */
++struct lguest
++{
++	struct lguest_state *state;
++	struct lguest_data __user *lguest_data;
++	struct task_struct *tsk;
++	struct mm_struct *mm; 	/* == tsk->mm, but that becomes NULL on exit */
++	u16 guestid;
++	u32 pfn_limit;
++	u32 page_offset;
++	u32 cr2;
++	int timer_on;
++	int halted;
++	int ts;
++	u32 gpf_eip;
++	u32 last_timer;
++	u32 next_hcall;
++	u16 tls_limits[GDT_ENTRY_TLS_ENTRIES];
++
++	/* We keep a small number of these. */
++	u32 pgdidx;
++	struct pgdir pgdirs[4];
++	void *trap_page;
++
++	/* Cached wakeup: we hold a reference to this task. */
++	struct task_struct *wake;
++
++	unsigned long noirq_start, noirq_end;
++	int dma_is_pending;
++	unsigned long pending_dma; /* struct lguest_dma */
++	unsigned long pending_addr; /* address they're sending to */
++
++	unsigned int stack_pages;
++
++	struct lguest_dma_info dma[LGUEST_MAX_DMA];
++
++	/* Dead? */
++	const char *dead;
++
++	/* We intercept page fault (demand shadow paging & cr2 saving)
++	   protection fault (in/out emulation, TLS handling) and
++	   device not available (TS handling). */
++	struct host_trap page_trap, gpf_trap, fpu_trap;
++
++	/* Virtual interrupts */
++	DECLARE_BITMAP(irqs_pending, LGUEST_IRQS);
++	struct host_trap interrupt[LGUEST_IRQS];
++};
++
++extern struct page *hype_pages; /* Contiguous pages. */
++extern struct lguest lguests[];
++extern struct semaphore lguest_lock;
++
++/* core.c: */
++/* Entry points in hypervisor */
++const unsigned long *__lguest_default_idt_entries(void);
++struct lguest_state *__lguest_states(void);
++u32 lhread_u32(struct lguest *lg, u32 addr);
++void lhwrite_u32(struct lguest *lg, u32 val, u32 addr);
++void lhread(struct lguest *lg, void *buf, u32 addr, unsigned bytes);
++void lhwrite(struct lguest *lg, u32 addr, const void *buf, unsigned bytes);
++int lguest_address_ok(const struct lguest *lg, unsigned long addr);
++int run_guest(struct lguest *lg, char *__user user);
++int find_free_guest(void);
++
++/* interrupts_and_traps.c: */
++void maybe_do_interrupt(struct lguest *lg);
++int reflect_trap(struct lguest *lg, const struct host_trap *trap, int has_err);
++void check_bug_kill(struct lguest *lg);
++void load_guest_idt_entry(struct lguest *lg, unsigned int i, u32 low, u32 hi);
++
++/* segments.c: */
++void load_guest_gdt(struct lguest *lg, u32 table, u32 num);
++void guest_load_tls(struct lguest *lg,
++		    const struct desc_struct __user *tls_array);
++
++int init_guest_pagetable(struct lguest *lg, u32 pgtable);
++void free_guest_pagetable(struct lguest *lg);
++void guest_new_pagetable(struct lguest *lg, u32 pgtable);
++void guest_set_pud(struct lguest *lg, unsigned long cr3, u32 i);
++void guest_pagetable_clear_all(struct lguest *lg);
++void guest_pagetable_flush_user(struct lguest *lg);
++void guest_set_pte(struct lguest *lg, unsigned long cr3,
++		   unsigned long vaddr, u32 val);
++void map_trap_page(struct lguest *info);
++int demand_page(struct lguest *info, u32 cr2, int write);
++void pin_stack_pages(struct lguest *lg);
++
++int lguest_device_init(void);
++void lguest_device_remove(void);
++void lguest_io_init(void);
++u32 bind_dma(struct lguest *lg,
++	     unsigned long addr, unsigned long udma, u16 numdmas,u8 interrupt);
++int send_dma(struct lguest *info, unsigned long addr,
++	     unsigned long udma);
++void release_all_dma(struct lguest *lg);
++unsigned long get_dma_buffer(struct lguest *lg, unsigned long addr,
++			     unsigned long *interrupt);
++
++void set_wakeup_process(struct lguest *lg, struct task_struct *p);
++int do_async_hcalls(struct lguest *info);
++int hypercall(struct lguest *info, struct lguest_regs *regs);
++
++#define kill_guest(lg, fmt...)					\
++do {								\
++	if (!(lg)->dead) {					\
++		(lg)->dead = kasprintf(GFP_ATOMIC, fmt);	\
++		if (!(lg)->dead)				\
++			(lg)->dead = (void *)1;			\
++	}							\
++} while(0)
++
++static inline unsigned long guest_pa(struct lguest *lg, unsigned long vaddr)
++{
++	return vaddr - lg->page_offset;
++}
++
++/* Hardware-defined TSS structure. */
++struct x86_tss
++{
++	unsigned short	back_link,__blh;
++	unsigned long	esp0;
++	unsigned short	ss0,__ss0pad;
++	unsigned long	esp1;
++	unsigned short	ss1,__ss1pad;
++	unsigned long	esp2;
++	unsigned short	ss2,__ss2pad;
++	unsigned long	cr3;
++	unsigned long	eip;
++	unsigned long	eflags;
++	unsigned long	eax,ecx,edx,ebx;
++	unsigned long	esp; /* We actually use this one to save esp. */
++	unsigned long	ebp;
++	unsigned long	esi;
++	unsigned long	edi;
++	unsigned short	es, __espad;
++	unsigned short	cs, __cspad;
++	unsigned short	ss, __sspad;
++	unsigned short	ds, __dspad;
++	unsigned short	fs, __fspad;
++	unsigned short	gs, __gspad;
++	unsigned short	ldt, __ldtpad;
++	unsigned short	trace, io_bitmap_base;
++};
++
++int fixup_gdt_table(struct desc_struct *gdt, unsigned int num,
++		    struct lguest_regs *regs, struct x86_tss *tss);
++
++struct lguest_host_state
++{
++	struct Xgt_desc_struct	gdt;
++	struct Xgt_desc_struct	idt;
++	unsigned long		pgdir;
++	unsigned long		stackptr;
++};
++
++/* This sits in the high-mapped shim. */
++struct lguest_state
++{
++	/* Task struct. */
++	struct x86_tss tss;
++
++	/* Gate descriptor table. */
++	struct Xgt_desc_struct gdt;
++	struct desc_struct gdt_table[GDT_ENTRIES];
++
++	/* Interrupt descriptor table. */
++	struct Xgt_desc_struct idt;
++	struct desc_struct idt_table[IDT_ENTRIES];
++
++	/* Host state we store while the guest runs. */
++	struct lguest_host_state host;
++
++	/* This is the stack on which we push our regs. */
++	struct lguest_regs regs;
++};
++#endif	/* __ASSEMBLY__ */
++#endif	/* _LGUEST_H */
