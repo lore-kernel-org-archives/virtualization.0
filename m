@@ -1,32 +1,28 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 6/10] lguest code: the little linux hypervisor.
-Date: Sat, 10 Feb 2007 02:23:19 +1100
-Message-ID: <1171034599.2718.190.camel@localhost.localdomain>
-References: <1171012296.2718.26.camel@localhost.localdomain>
-	 <1171012761.2718.40.camel@localhost.localdomain>
-	 <1171012827.2718.42.camel@localhost.localdomain>
-	 <200702091109.20061.ak@muc.de>
-	 <1171024771.2718.129.camel@localhost.localdomain>
-	 <20070209141728.GA26749@uranus.ravnborg.org>
+From: Len Brown <lenb@kernel.org>
+Subject: Re: [PATCH 6c/10] lguest: the guest code
+Date: Fri, 9 Feb 2007 12:06:31 -0500
+Message-ID: <200702091206.31797.lenb@kernel.org>
+References: <1171012296.2718.26.camel@localhost.localdomain> <1171018590.2718.60.camel@localhost.localdomain> <1171018674.2718.63.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946521AbXBIPYG@vger.kernel.org>
-In-Reply-To: <20070209141728.GA26749@uranus.ravnborg.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992436AbXBIRIG@vger.kernel.org>
+In-Reply-To: <1171018674.2718.63.camel@localhost.localdomain>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-02-09 at 15:17 +0100, Sam Ravnborg wrote:
-> I do not quite see what you ask for.
-> Care to try to describe the problem a bit then I may look at it sometime.
-> 
-> [Heading for vacation in a few hours so no prompt reply]
+On Friday 09 February 2007 05:57, Rusty Russell wrote:
 
-I'd like my own, private "asm-offsets.h".  In this case, in
-arch/i386/lguest/.  I guess it's a matter of extracting the core of the
-asm-offsets.h magic and generalizing it.
+> +#ifdef CONFIG_ACPI
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0acpi_disabled =3D 1;
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0acpi_ht =3D 0;
+> +#endif
 
-Have a good break!
-Rusty.
+If this is hard-coded to have ACPI disabled, why isn't it enforced at b=
+uild-time?
+
+thanks,
+-Len
