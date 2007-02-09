@@ -1,24 +1,57 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Use correct macros in raid code, not raw asm
-Date: Thu, 08 Feb 2007 17:43:34 -0800
-Message-ID: <45CBD1C6.1020403@zytor.com>
-References: <1167348861.30506.46.camel@localhost.localdomain>	<20061228155659.462eaa9c.akpm@osdl.org>	<1167350803.30506.49.camel@localhost.localdomain>	<20061229111355.GA82929@muc.de>	<45CBCC72.6080409@zytor.com> <17867.53342.333989.501336@notabene.brown>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Paravirt-ops VMI / Xen / lrustyvisor merge status
+Date: Thu, 08 Feb 2007 21:28:18 -0800
+Message-ID: <45CC0672.7090201@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946000AbXBIBoK@vger.kernel.org>
-In-Reply-To: <17867.53342.333989.501336@notabene.brown>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Neil Brown <neilb@suse.de>
-Cc: Andi Kleen <ak@muc.de>, Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Andi Kleen <ak@suse.de>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Neil Brown wrote:
-> 
-> So does this look right (no, I haven't compiled it yet)
-> 
+So, as 2.6.21-rc1 is approaching, what is the upstream merge status for =
 
-No, the whole raid6_*_save_t should be removed.  I'll try to have a 
-patch for you later.
+the paravirt-ops backends?  I believe VMI is in Andi's tree, plus or =
 
-	-hpa
+minus some bugfixes that are still being whittled in, but Andi, do you =
+
+think the VMI code is in good shape for merging?
+
+It would be nice for everyone to clarify their upstream plans - is the =
+
+goal still to get Xen and lguest merged for the next kernel release?
+
+Rusty, you mentioned you had a patchset to push, when do you expect to =
+
+have it ready?
+
+Chris / Jeremy - perhaps I missed it, but I haven't seen updated Xen =
+
+paravirt-ops patches go out yet - is 2.6.21 still the merge target?
+
+I don't want to be pushy, but I do want our code to get merged, and =
+
+time's a ticking.  I think we're all in good shape, but the sooner the =
+
+code all gets merged the sooner we can tackle the remaining cleanup / =
+
+polishing tasks.  One of which is separating the paravirt-ops into GPL =
+
+and non-GPL exports, which we need consensus on where the line is, but =
+
+can't really achieve it until everyone is happy with the finalized set =
+
+of paravirt-ops.  Any patch that tries to do this now would just cause =
+
+rejects later and slow all of our merges.
+
+Zach
