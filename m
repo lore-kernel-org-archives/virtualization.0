@@ -1,31 +1,53 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 6/10] lguest code: the little linux hypervisor.
-Date: Fri, 09 Feb 2007 14:29:12 -0800 (PST)
-Message-ID: <20070209.142912.38710040.davem@davemloft.net>
-References: <1171018812.2718.66.camel@localhost.localdomain>
-	<45CC5771.1070309@vmware.com>
-	<200702091250.06482.ak@muc.de>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 4 of 7]  lguest: Config and headers
+Date: Sat, 10 Feb 2007 10:41:55 +1100
+Message-ID: <1171064515.15356.10.camel@localhost.localdomain>
+References: <1171033146.2718.157.camel@localhost.localdomain>
+	 <1171033383.2718.163.camel@localhost.localdomain>
+	 <1171033436.2718.165.camel@localhost.localdomain>
+	 <1171033484.2718.167.camel@localhost.localdomain>
+	 <1171033741.2718.172.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0702091304090.9927@d.namei>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1423343AbXBIW3P@vger.kernel.org>
-In-Reply-To: <200702091250.06482.ak@muc.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752558AbXBIXmm@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0702091304090.9927@d.namei>
 Sender: linux-kernel-owner@vger.kernel.org
-To: ak@muc.de
-Cc: virtualization@lists.osdl.org, zach@vmware.com, rusty@rustcorp.com.au, paulus@samba.org, sfr@canb.auug.org.au, akpm@linux-foundation.org, linux-kernel@vger.kernel.org
+To: James Morris <jmorris@namei.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 9 Feb 2007 12:50:06 +0100
-
+On Fri, 2007-02-09 at 13:15 -0500, James Morris wrote:
+> On Sat, 10 Feb 2007, Rusty Russell wrote:
 > 
-> > Yes, it is a bit, umm, innovative.  If it is going to be kept, even if 
-> > just for devel logging, you should disable interrupts around it.  
-> > Changing segments is not a normal thing to do.
+> > +/* 64k ought to be enough for anybody! */
+> > +#define HYPERVISOR_MAP_ORDER 16
+> > +#define HYPERVISOR_PAGES ((1 << HYPERVISOR_MAP_ORDER)/PAGE_SIZE)
 > 
-> Actually that wouldn't be needed because interrupts are not allowed to do any 
-> user accesses. And contrary to the name it doesn't actually change
-> the segment registers, only state used by *_user.
+> I think it'd be better to go back to defining HYPERVISOR_SIZE then derive 
+> the map order from that via get_order(), as it should be 4 instead of 16; 
+> and this code is now both implying PAGE_SIZE while also using it for 
+> calculations. 
 
-That's right and we use this construct all throughout the
-syscall compatibility layer for 64-bit platforms.
+Well it was the use of get_order() which triggered Andi's alarm bells,
+so I went back to deriving it.  This code is correct, however.
+
+get_order() is one of those classic functions only a kernel coder could
+love.  Look how lovingly it has been optimized:
+
+#define get_order(n)							\
+(									\
+	__builtin_constant_p(n) ?					\
+	((n < (1UL << PAGE_SHIFT)) ? 0 : ilog2(n) - PAGE_SHIFT) :	\
+	__get_order(n, PAGE_SHIFT)					\
+ )
+
+All that time spent, yet no consideration that it should be called
+"get_page_order()" or some name which hints that the divide by page size
+is happening.  It's even documented in the comment above, so someone
+thought it needed explaining.  Too bad they chose to explain it instead
+of actually clarifying it. 8(
+
+Cheers,
+Rusty.
