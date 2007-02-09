@@ -1,53 +1,67 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 4 of 7]  lguest: Config and headers
-Date: Sat, 10 Feb 2007 10:41:55 +1100
-Message-ID: <1171064515.15356.10.camel@localhost.localdomain>
-References: <1171033146.2718.157.camel@localhost.localdomain>
-	 <1171033383.2718.163.camel@localhost.localdomain>
-	 <1171033436.2718.165.camel@localhost.localdomain>
-	 <1171033484.2718.167.camel@localhost.localdomain>
-	 <1171033741.2718.172.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0702091304090.9927@d.namei>
+Subject: [PATCH 11/10] lguest: use disable_acpi()
+Date: Sat, 10 Feb 2007 10:48:08 +1100
+Message-ID: <1171064888.15356.14.camel@localhost.localdomain>
+References: <1171012296.2718.26.camel@localhost.localdomain>
+	 <200702091206.31797.lenb@kernel.org>
+	 <Pine.LNX.4.64.0702091212360.9007@d.namei>
+	 <200702091249.58204.lenb@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752558AbXBIXmm@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0702091304090.9927@d.namei>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752576AbXBIXs4@vger.kernel.org>
+In-Reply-To: <200702091249.58204.lenb@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: James Morris <jmorris@namei.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.osdl.org>
+To: Len Brown <lenb@kernel.org>
+Cc: James Morris <jmorris@namei.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-02-09 at 13:15 -0500, James Morris wrote:
-> On Sat, 10 Feb 2007, Rusty Russell wrote:
+On Fri, 2007-02-09 at 12:49 -0500, Len Brown wrote:
+> On Friday 09 February 2007 12:14, James Morris wrote:
+> > This is being disabled in the guest kernel only.  The host and guest 
+> > kernels are expected to be the same build.
 > 
-> > +/* 64k ought to be enough for anybody! */
-> > +#define HYPERVISOR_MAP_ORDER 16
-> > +#define HYPERVISOR_PAGES ((1 << HYPERVISOR_MAP_ORDER)/PAGE_SIZE)
-> 
-> I think it'd be better to go back to defining HYPERVISOR_SIZE then derive 
-> the map order from that via get_order(), as it should be 4 instead of 16; 
-> and this code is now both implying PAGE_SIZE while also using it for 
-> calculations. 
+> Okay, but better to use disable_acpi()
+> indeed, since this would be the first code not already inside CONFIG_ACPI
+> to invoke disable_acpi(), we could define the inline as empty and you could
+> then scratch the #ifdef too.
 
-Well it was the use of get_order() which triggered Andi's alarm bells,
-so I went back to deriving it.  This code is correct, however.
+Thanks Len!
 
-get_order() is one of those classic functions only a kernel coder could
-love.  Look how lovingly it has been optimized:
+This applies on top of that series.
 
-#define get_order(n)							\
-(									\
-	__builtin_constant_p(n) ?					\
-	((n < (1UL << PAGE_SHIFT)) ? 0 : ilog2(n) - PAGE_SHIFT) :	\
-	__get_order(n, PAGE_SHIFT)					\
- )
+== 
+Len Brown <lenb@kernel.org> said:
+> Okay, but better to use disable_acpi()
+> indeed, since this would be the first code not already inside CONFIG_ACPI
+> to invoke disable_acpi(), we could define the inline as empty and you could
+> then scratch the #ifdef too.
 
-All that time spent, yet no consideration that it should be called
-"get_page_order()" or some name which hints that the divide by page size
-is happening.  It's even documented in the comment above, so someone
-thought it needed explaining.  Too bad they chose to explain it instead
-of actually clarifying it. 8(
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Cheers,
-Rusty.
+diff -r 85363b87e20b arch/i386/lguest/lguest.c
+--- a/arch/i386/lguest/lguest.c	Sat Feb 10 01:52:37 2007 +1100
++++ b/arch/i386/lguest/lguest.c	Sat Feb 10 10:28:36 2007 +1100
+@@ -555,10 +555,7 @@ static __attribute_used__ __init void lg
+ 	mce_disabled = 1;
+ #endif
+ 
+-#ifdef CONFIG_ACPI
+-	acpi_disabled = 1;
+-	acpi_ht = 0;
+-#endif
++	disable_acpi();
+ 	if (boot->initrd_size) {
+ 		/* We stash this at top of memory. */
+ 		INITRD_START = boot->max_pfn*PAGE_SIZE - boot->initrd_size;
+diff -r 85363b87e20b include/asm-i386/acpi.h
+--- a/include/asm-i386/acpi.h	Sat Feb 10 01:52:37 2007 +1100
++++ b/include/asm-i386/acpi.h	Sat Feb 10 10:43:43 2007 +1100
+@@ -127,6 +127,7 @@ extern int acpi_irq_balance_set(char *st
+ #define acpi_ioapic 0
+ static inline void acpi_noirq_set(void) { }
+ static inline void acpi_disable_pci(void) { }
++static inline void disable_acpi(void) { }
+ 
+ #endif	/* !CONFIG_ACPI */
+ 
