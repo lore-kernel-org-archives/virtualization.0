@@ -1,43 +1,37 @@
-From: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH 2/10] lguest: Export symbols for lguest as a module
-Date: 9 Feb 2007 14:58:55 +0100
-Message-ID: <20070209135855.GC18080@muc.de>
-References: <1171012296.2718.26.camel@localhost.localdomain> <1171012458.2718.30.camel@localhost.localdomain> <1171012513.2718.32.camel@localhost.localdomain> <200702091032.44547.ak@muc.de> <1171022766.2718.94.camel@localhost.localdomain>
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH 6/10] lguest code: the little linux hypervisor.
+Date: Fri, 9 Feb 2007 15:17:28 +0100
+Message-ID: <20070209141728.GA26749@uranus.ravnborg.org>
+References: <1171012296.2718.26.camel@localhost.localdomain> <1171012761.2718.40.camel@localhost.localdomain> <1171012827.2718.42.camel@localhost.localdomain> <200702091109.20061.ak@muc.de> <1171024771.2718.129.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946467AbXBIN66@vger.kernel.org>
-Date: Fri, 9 Feb 2007 14:58:55 +0100
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946472AbXBIORN@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1171022766.2718.94.camel@localhost.localdomain>
+In-Reply-To: <1171024771.2718.129.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 09, 2007 at 11:06:06PM +1100, Rusty Russell wrote:
-> On Fri, 2007-02-09 at 10:32 +0100, Andi Kleen wrote:
-> > On Friday 09 February 2007 10:15, Rusty Russell wrote:
+On Fri, Feb 09, 2007 at 11:39:31PM +1100, Rusty Russell wrote:
+> On Fri, 2007-02-09 at 11:09 +0100, Andi Kleen wrote:
+> > On Friday 09 February 2007 10:20, Rusty Russell wrote:
+> > > Unfortunately, we don't have the build infrastructure for "private"
+> > > asm-offsets.h files, so there's a not-so-neat include in
+> > > arch/i386/kernel/asm-offsets.c.
 > > 
-> > > tsc_khz:
-> > > 	Simplest way of telling the guest how to interpret the TSC
-> > > 	counter.
+> > Ask the kbuild people to fix that? 
 > > 
+> > It indeed looks ugly.
 > > 
-> > Are you sure this will work with varying TSC frequencies? 
+> > I bet Xen et.al. could make good use of that too.
 > 
-> I'm actually quite sure it doesn't (there's a FIXME in the lguest code).
-> Given the debate over how useful the TSC was, I originally didn't use
-> it, but (1) it's simple, and (2) when it doesn't change, it's pretty
-> accurate.
+> Yes.   I originally had the constants #defined in the header and a whole
+> heap of BUILD_BUG_ON(XYZ_offset != offsetof(xyz)) in my module, which
+> was even uglier (but at least contained in my code).
+I do not quite see what you ask for.
+Care to try to describe the problem a bit then I may look at it sometime.
 
-But when it changes users become pretty unhappy
+[Heading for vacation in a few hours so no prompt reply]
 
-> 
-> > In general you should get this from cpufreq.
-> 
-> Hmm, ok, I'll bite: how?  Time is a mystery I've avoided so far 8)
-
-the old x86-64 time.c (before -mm) has a example in #ifdef CONFIG_CPUFREQ
-
-
--Andi
+	Sam
