@@ -1,44 +1,40 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Paravirt-ops VMI / Xen / lrustyvisor merge status
-Date: Fri, 09 Feb 2007 19:46:14 +1100
-Message-ID: <1171010774.2718.23.camel@localhost.localdomain>
-References: <45CC0672.7090201@vmware.com>
-	<1171000474.2718.8.camel@localhost.localdomain>
-	<200702090835.04666.ak@suse.de>
+Subject: [PATCH 0/10] lguest
+Date: Fri, 09 Feb 2007 20:11:36 +1100
+Message-ID: <1171012296.2718.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <200702090835.04666.ak@suse.de>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@suse.de>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946238AbXBIJMV@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-02-09 at 08:35 +0100, Andi Kleen wrote:
-> > I'm just doing the final file moving now (everything in
-> > arch/i386/lguest), expect to send out something within 48 hours (I need
-> > to sync up to latest git tree, too).
-> =
+This patch series is against 2.6.20; some things are in flux, so there
+might be issues as other things flow into the latest -git tree.
 
-> Hmm, how much baking did it get yet outside rustylabs? Has it been much =
+From the documentation:
 
-> externally tested at all? =
+Lguest is designed to be a minimal hypervisor for the Linux kernel, for
+Linux developers and users to experiment with virtualization with the
+minimum of complexity.  Nonetheless, it should have sufficient
+features to make it useful for specific tasks, and, of course, you are
+encouraged to fork and enhance it.
 
+Features:
 
-Judging from the bug reports, I have some users 8)
+- Kernel module which runs in a normal kernel.
+- Simple I/O model for communication.
+- Simple program to create new guests.
+- Logo contains cute puppies: http://lguest.ozlabs.org
 
-> Also I don't think there hasn't been any review yet. Perhaps it's a little
-> late now.
+Developer features:
 
-We'll see.  It's pretty self-contained, though.
+- Fun to hack on.
+- No ABI: being tied to a specific kernel anyway, you can change
+anything.
+- Many opportunities for improvement or feature implementation.
 
-Rusty.
+Cheers!
+Rusty
