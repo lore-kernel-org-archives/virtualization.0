@@ -1,15 +1,13 @@
-From: Andi Kleen <ak@suse.de>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: Paravirt-ops VMI / Xen / lrustyvisor merge status
-Date: Fri, 9 Feb 2007 08:35:04 +0100
-Message-ID: <200702090835.04666.ak@suse.de>
-References: <45CC0672.7090201@vmware.com>
-	<1171000474.2718.8.camel@localhost.localdomain>
+Date: Thu, 08 Feb 2007 23:35:07 -0800
+Message-ID: <45CC242B.4010909@vmware.com>
+References: <45CC0672.7090201@vmware.com> <200702090821.48478.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1171000474.2718.8.camel@localhost.localdomain>
-Content-Disposition: inline
+In-Reply-To: <200702090821.48478.ak@suse.de>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,21 +17,40 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Andi Kleen wrote:
+> On Friday 09 February 2007 06:28, Zachary Amsden wrote:
+>   =
 
-> I'm just doing the final file moving now (everything in
-> arch/i386/lguest), expect to send out something within 48 hours (I need
-> to sync up to latest git tree, too).
+>> So, as 2.6.21-rc1 is approaching, what is the upstream merge status for =
 
-Hmm, how much baking did it get yet outside rustylabs? Has it been much =
+>> the paravirt-ops backends?  I believe VMI is in Andi's tree, plus or =
 
-externally tested at all? =
+>> minus some bugfixes that are still being whittled in, but Andi, do you =
+
+>> think the VMI code is in good shape for merging?
+>>     =
+
+>
+> I don't know in what shape it is in as it hasn't been tested by me.
+> From the looks it looks reasonable enough for merging. But I didn't like
+> some of your recent updates.
+>   =
 
 
-Also I don't think there hasn't been any review yet. Perhaps it's a little
-late now.
+If you think any of them can be done cleaner, let me know and I will =
 
--Andi
+redo the patches.
+
+The USE_REAL_TIME_DELAY stuff is really ugly, and mostly a hack.  You =
+
+can drop it.  Our fix should be to not let the virtual hardware drive =
+
+the physical hardware that fast, or to recognize the panic state in =
+
+delay loops and start respecting instead of ignoring delay.
+
+Zach
