@@ -1,74 +1,33 @@
-From: "Babji Baxa" <lindenmenstruate@hansongalleries.com>
-Subject: Solar energy investment
-Date: Thu, 8 Feb 2007 22:47:02 +0000 (UTC)
-Message-ID: <544KCSI5S4E_5ENBB_RVXWUR@hansongalleries.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Use correct macros in raid code, not raw asm
+Date: Thu, 08 Feb 2007 17:20:50 -0800
+Message-ID: <45CBCC72.6080409@zytor.com>
+References: <1167348861.30506.46.camel@localhost.localdomain> <20061228155659.462eaa9c.akpm@osdl.org> <1167350803.30506.49.camel@localhost.localdomain> <20061229111355.GA82929@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-Date: Thu, 8 Feb 2007 22:45:55 +0360
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1945951AbXBIBVW@vger.kernel.org>
+In-Reply-To: <20061229111355.GA82929@muc.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@muc.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>, Neil Brown <neilb@suse.de>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>Neil Brown <neilb@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Good news from QCPC give you the real alternative to hit the jackpot. =
+Andi Kleen wrote:
+>> The code looks like it's designed to be included from userspace for
+>> testing; as it compiles without this include (and has no other
+>> includes), I chose not to add it.
+>>
+>> Linus makes a good point, but someone who actually knows the code
+>> should, y'know, test it and stuff...
+> 
+> It should use kernel_fpu_begin() imho. If someone wants to test
+> it in user space again they can add dummy definitions of that
+> to their user space  header.
 
-QCPC is a company with far-sighted aims.
+I hadn't seen this thread until now, when Neil pointed me to the thread.
 
-QCPC strategy is to diversify within the power supply marketplace =
+Using kernel_fpu_begin() ... kernel_fpu_end() is probably indeed the 
+best option.
 
-and build strong, niche oriented operations around the globe. =
-
-QCPC take a long-term view of business, focusing on growth and overall =
-
-evolution of our subsidiaries over a number of years.
-
-
-Company has chosen one of solar power producer. =
-
-
-As you know oil prices are growing up higer and higer!
-A great amount of electricity generating plants uses oil-products.
-May be your domestic electrical power supplier or heat register works by us=
-ing oil-products.
-High technologies of solar extraction  also are very effective in bad light=
- or sun and the accumulating
-energy can be saved inside special batteries. That is why we can talk about=
- full energy-independent house.
-
-In century of high technologies we can't imagine town life without energy.  =
-
-A lot of states in the USA has enough reserve of solar power to generate ne=
-eded =
-
-electric energy. Furthermore the President realizes the important role of t=
-his policy and =
-
-allocated $1 Billion to Renewable Energy.
-
-U.S. Department of Energy FY 08 budget includes $179 million for the Presid=
-ent's Initiative.
-Particularly Solar America Initiative - $148 million;
-
-This company is at the right time and place now. They have chosen promising=
- line of activity for your =
-
-share investments and we negotiated a contract with Samlex America, which h=
-as manufactured and distributed power supply products to more than 90 count=
-ries worldwide since 1991.
-Pathfinding product designs, strict quality control, and responsible after =
-sales service provide customers with high quality power conversion products=
- at extremely competitive prices.
-
-Because of this news the prices of the QCPC stocks are about to grow up. =
-
-QCPC's financial condition is steady now. An overall market and economic si=
-tuation are also can better affect the performance of  the QCPC's shares.
+	-hpa
