@@ -1,108 +1,128 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 4 of 7]  lguest: Config and headers
-Date: Sat, 10 Feb 2007 20:33:37 +1100
-Message-ID: <1171100017.15356.21.camel@localhost.localdomain>
-References: <1171033146.2718.157.camel@localhost.localdomain>
-	 <1171033383.2718.163.camel@localhost.localdomain>
-	 <1171033436.2718.165.camel@localhost.localdomain>
-	 <1171033484.2718.167.camel@localhost.localdomain>
-	 <1171033741.2718.172.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0702091304090.9927@d.namei>
-	 <1171064515.15356.10.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0702092243170.13855@d.namei>
+Subject: Re: [PATCH 2/10] lguest: Export symbols for lguest as a module
+Date: Sat, 10 Feb 2007 22:39:32 +1100
+Message-ID: <1171107572.15356.29.camel@localhost.localdomain>
+References: <1171012296.2718.26.camel@localhost.localdomain>
+	 <1171012458.2718.30.camel@localhost.localdomain>
+	 <1171012513.2718.32.camel@localhost.localdomain>
+	 <200702091032.44547.ak@muc.de>
+	 <1171022766.2718.94.camel@localhost.localdomain>
+	 <20070209135855.GC18080@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752188AbXBJJeY@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0702092243170.13855@d.namei>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752286AbXBJLkS@vger.kernel.org>
+In-Reply-To: <20070209135855.GC18080@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: James Morris <jmorris@namei.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.osdl.org>
+To: Andi Kleen <ak@muc.de>
+Cc: virtualization@lists.osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-02-09 at 22:45 -0500, James Morris wrote:
-> On Sat, 10 Feb 2007, Rusty Russell wrote:
+On Fri, 2007-02-09 at 14:58 +0100, Andi Kleen wrote:
+> On Fri, Feb 09, 2007 at 11:06:06PM +1100, Rusty Russell wrote:
+> > On Fri, 2007-02-09 at 10:32 +0100, Andi Kleen wrote:
+> > > Are you sure this will work with varying TSC frequencies? 
+> > 
+> > I'm actually quite sure it doesn't (there's a FIXME in the lguest code).
+> > Given the debate over how useful the TSC was, I originally didn't use
+> > it, but (1) it's simple, and (2) when it doesn't change, it's pretty
+> > accurate.
 > 
-> > Well it was the use of get_order() which triggered Andi's alarm bells,
-> > so I went back to deriving it.  This code is correct, however.
-> 
-> +       hype_pages = alloc_pages(GFP_KERNEL|__GFP_ZERO, HYPERVISOR_MAP_ORDER);
-> +       if (!hype_pages)
-> +               return -ENOMEM;
-> 
-> This will try and allocate 2^16 pages.  I guess we need a 
-> HYPERVISOR_PAGE_ORDER ?
+> But when it changes users become pretty unhappy
 
-Fuck a brick, you're right.  Worked here tho 8)  There's a moral here
-somewhere about futzing with perfectly working code after midnight, I'm
-sure.
+True.  Simplest fix is below.  There are several time issues on the TODO
+list, and I will simply add this one.
 
-Name: Don't allocate 2^16 pages in lg.ko
+Thanks!
+Rusty.
 
-Code cleanup which avoided use of get_order() resulted in a thinko: we
-allocated 65536 pages instead of 65536 bytes.  Thanks to James Morris
-for pointing this out (twice!).
+lguest: Don't use the TSC in guest.
+
+Andi complained that lguest guests don't deal with host TSC speed
+changing.  Close this can of worms by not using the TSC in the guest.
+Later on we could do something clever when we overhaul this to deal
+with stolen time (also on the TODO list).
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-diff -r 3bcbcc7c7659 arch/i386/lguest/core.c
---- a/arch/i386/lguest/core.c	Sat Feb 10 10:44:25 2007 +1100
-+++ b/arch/i386/lguest/core.c	Sat Feb 10 20:26:03 2007 +1100
-@@ -24,8 +24,8 @@ static char __initdata hypervisor_blob[]
- #include "hypervisor-blob.c"
+===================================================================
+--- a/arch/i386/kernel/tsc.c
++++ b/arch/i386/kernel/tsc.c
+@@ -475,4 +475,3 @@ static int __init init_tsc_clocksource(v
+ }
+ 
+ module_init(init_tsc_clocksource);
+-EXPORT_SYMBOL_GPL(tsc_khz);
+===================================================================
+--- a/arch/i386/lguest/hypercalls.c
++++ b/arch/i386/lguest/hypercalls.c
+@@ -18,7 +18,6 @@
+ #include <linux/uaccess.h>
+ #include <linux/syscalls.h>
+ #include <linux/mm.h>
+-#include <linux/clocksource.h>
+ #include <asm/lguest.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+@@ -179,8 +178,6 @@ int hypercall(struct lguest *lg, struct 
+ 		/* We reserve the top pgd entry. */
+ 		put_user(4U*1024*1024, &lg->lguest_data->reserve_mem);
+ 		put_user(lg->guestid, &lg->lguest_data->guestid);
+-		put_user(clocksource_khz2mult(tsc_khz, 22),
+-			 &lg->lguest_data->clock_mult);
+ 		return 0;
+ 	}
+ 	pending = do_hcall(lg, regs);
+===================================================================
+--- a/arch/i386/lguest/lguest.c
++++ b/arch/i386/lguest/lguest.c
+@@ -25,7 +25,6 @@
+ #include <linux/screen_info.h>
+ #include <linux/irq.h>
+ #include <linux/interrupt.h>
+-#include <linux/clocksource.h>
+ #include <asm/paravirt.h>
+ #include <asm/lguest.h>
+ #include <asm/lguest_user.h>
+@@ -138,29 +137,10 @@ static struct notifier_block paniced = {
+ 	.notifier_call = lguest_panic
  };
  
--#define MAX_LGUEST_GUESTS						\
--	(((1 << HYPERVISOR_MAP_ORDER) - sizeof(hypervisor_blob))	\
-+#define MAX_LGUEST_GUESTS						  \
-+	(((PAGE_SIZE << HYPERVISOR_PAGE_ORDER) - sizeof(hypervisor_blob)) \
- 	 / sizeof(struct lguest_state))
- 
- static struct vm_struct *hypervisor_vma;
-@@ -62,12 +62,12 @@ static __init int map_hypervisor(void)
- 	int err;
- 	struct page *pages[HYPERVISOR_PAGES], **pagep = pages;
- 
--	hype_pages = alloc_pages(GFP_KERNEL|__GFP_ZERO, HYPERVISOR_MAP_ORDER);
-+	hype_pages = alloc_pages(GFP_KERNEL|__GFP_ZERO, HYPERVISOR_PAGE_ORDER);
- 	if (!hype_pages)
- 		return -ENOMEM;
- 
--	hypervisor_vma = __get_vm_area(1 << HYPERVISOR_MAP_ORDER, VM_ALLOC,
--				       HYPE_ADDR, VMALLOC_END);
-+	hypervisor_vma = __get_vm_area(PAGE_SIZE << HYPERVISOR_PAGE_ORDER,
-+				       VM_ALLOC, HYPE_ADDR, VMALLOC_END);
- 	if (!hypervisor_vma) {
- 		err = -ENOMEM;
- 		printk("lguest: could not map hypervisor pages high\n");
-@@ -100,14 +100,14 @@ free_vma:
- free_vma:
- 	vunmap(hypervisor_vma->addr);
- free_pages:
--	__free_pages(hype_pages, HYPERVISOR_MAP_ORDER);
-+	__free_pages(hype_pages, HYPERVISOR_PAGE_ORDER);
- 	return err;
- }
- 
- static __exit void unmap_hypervisor(void)
+-static cycle_t lguest_clock_read(void)
+-{
+-	/* FIXME: This is just the native one.  Account stolen time! */
+-	return paravirt_ops.read_tsc();
+-}
+-
+-/* FIXME: Update iff tsc rate changes. */
+-static struct clocksource lguest_clock = {
+-	.name			= "lguest",
+-	.rating			= 400,
+-	.read			= lguest_clock_read,
+-	.mask			= CLOCKSOURCE_MASK(64),
+-	.mult			= 0, /* to be set */
+-	.shift			= 22,
+-	.is_continuous		= 1,
+-};
+-
+ static char *lguest_memory_setup(void)
  {
- 	vunmap(hypervisor_vma->addr);
--	__free_pages(hype_pages, HYPERVISOR_MAP_ORDER);
-+	__free_pages(hype_pages, HYPERVISOR_PAGE_ORDER);
- }
+ 	/* We do these here because lockcheck barfs if before start_kernel */
+ 	atomic_notifier_chain_register(&panic_notifier_list, &paniced);
+-	lguest_clock.mult = lguest_data.clock_mult;
+-	clocksource_register(&lguest_clock);
  
- /* IN/OUT insns: enough to get us past boot-time probing. */
-diff -r 3bcbcc7c7659 arch/i386/lguest/lg.h
---- a/arch/i386/lguest/lg.h	Sat Feb 10 10:44:25 2007 +1100
-+++ b/arch/i386/lguest/lg.h	Sat Feb 10 20:27:54 2007 +1100
-@@ -3,8 +3,8 @@
+ 	e820.nr_map = 0;
+ 	add_memory_region(0, PFN_PHYS(boot->max_pfn), E820_RAM);
+===================================================================
+--- a/include/asm-i386/lguest.h
++++ b/include/asm-i386/lguest.h
+@@ -74,8 +74,6 @@ struct lguest_data
+ 	unsigned long reserve_mem;
+ 	/* ID of this guest (used by network driver to set ethernet address) */
+ 	u16 guestid;
+-	/* Multiplier for TSC clock. */
+-	u32 clock_mult;
  
- #include <asm/desc.h>
- /* 64k ought to be enough for anybody! */
--#define HYPERVISOR_MAP_ORDER 16
--#define HYPERVISOR_PAGES ((1 << HYPERVISOR_MAP_ORDER)/PAGE_SIZE)
-+#define HYPERVISOR_PAGE_ORDER (16 - PAGE_SHIFT)
-+#define HYPERVISOR_PAGES (1 << HYPERVISOR_PAGE_ORDER)
- 
- #define GDT_ENTRY_LGUEST_CS	10
- #define GDT_ENTRY_LGUEST_DS	11
+ /* Fields initialized by the guest at boot: */
+ 	/* Instruction range to suppress interrupts even if enabled */
