@@ -1,31 +1,45 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH 5/7] cleanup: Rename cpu_gdt_descr and remove extern	declaration
- from smpboot.c
-Date: Mon, 12 Feb 2007 01:16:44 -0800
-Message-ID: <45D0307C.1040302@vmware.com>
-References: <1171251120.10409.2.camel@localhost.localdomain>	 <1171251185.10409.4.camel@localhost.localdomain>	 <1171251258.10409.7.camel@localhost.localdomain>	 <1171251335.10409.10.camel@localhost.localdomain> <1171251406.10409.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964804AbXBLJQq@vger.kernel.org>
-In-Reply-To: <1171251406.10409.13.camel@localhost.localdomain>
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: [q] kbuild for private asm-offsets (Re: [PATCH 6/10] lguest code: the little linux hypervisor.)
+Date: Mon, 12 Feb 2007 14:34:19 +0100
+Message-ID: <E1HGbJz-0003Lc-6h@flower>
+References: <1171012296.2718.26.camel@localhost.localdomain> <1171012761.2718.40.camel@localhost.localdomain> <1171012827.2718.42.camel@localhost.localdomain> <200702091109.20061.ak@muc.de> <1171024771.2718.129.camel@localhost.localdomain> <20070209141728.GA26749@uranus.ravnborg.org> <1171034599.2718.190.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964907AbXBLN0K@vger.kernel.org>
+In-Reply-To: <1171034599.2718.190.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, Paul Mackerras <paulus@samba.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> When I implemented the DECLARE_PER_CPU(var) macros, I was careful that
-> people couldn't use "var" in a non-percpu context, by prepending
-> percpu__.  I never considered that this would allow them to overload
-> the same name for a per-cpu and a non-percpu variable.
+> From: Rusty Russell
+> Newsgroups: gmane.linux.kernel,gmane.linux.kernel.virtualization
+> Subject: Re: [PATCH 6/10] lguest code: the little linux hypervisor.
+> Date: Sat, 10 Feb 2007 02:23:19 +1100
+
+Hallo, Rusty, guys.
+
+> On Fri, 2007-02-09 at 15:17 +0100, Sam Ravnborg wrote:
+>> I do not quite see what you ask for.
+>> Care to try to describe the problem a bit then I may look at it sometime.
+>> 
+>> [Heading for vacation in a few hours so no prompt reply]
 >
-> It is only one of many horrors in the i386 boot code, but let's rename
-> the non-perpcu cpu_gdt_descr to early_gdt_descr (not boot_gdt_descr,
-> that's something else...)
->   
+> I'd like my own, private "asm-offsets.h".  In this case, in
+> arch/i386/lguest/.  I guess it's a matter of extracting the core of the
+> asm-offsets.h magic and generalizing it.
+>
+> Have a good break!
+> Rusty.
 
-Finally, someone not just noticed, but fixed it!  Thank you Rusty.  Was 
-on my todo list, but never bubbled up.
+If you will have time for newbie, to explain in a few words, what is it need
+for (whole idea, or key detail), and, maybe, why it is generated so ... interestingly:
 
-Acked-by: Zachary Amsden <zach@vmware.com>
+            asm-offsets.c -> *.s -> *.h
+ (but this looks like interconnecting C and assembler, obviously)
+
+I will glad to help providing solution maybe somewhat earlier (well, i'm
+trying to understand whole building process, if that matters).
+
+.... And, of course, if this q isn't dumb.
+
+Thanks.
+____
