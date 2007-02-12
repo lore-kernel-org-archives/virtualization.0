@@ -1,128 +1,77 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/10] lguest: Export symbols for lguest as a module
-Date: Sat, 10 Feb 2007 22:39:32 +1100
-Message-ID: <1171107572.15356.29.camel@localhost.localdomain>
-References: <1171012296.2718.26.camel@localhost.localdomain>
-	 <1171012458.2718.30.camel@localhost.localdomain>
-	 <1171012513.2718.32.camel@localhost.localdomain>
-	 <200702091032.44547.ak@muc.de>
-	 <1171022766.2718.94.camel@localhost.localdomain>
-	 <20070209135855.GC18080@muc.de>
+Subject: [PATCH 1/7] cleanup: paravirt unhandled fallthrough
+Date: Mon, 12 Feb 2007 14:32:00 +1100
+Message-ID: <1171251120.10409.2.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752286AbXBJLkS@vger.kernel.org>
-In-Reply-To: <20070209135855.GC18080@muc.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932569AbXBLDcr@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, Andi Kleen <ak@muc.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-02-09 at 14:58 +0100, Andi Kleen wrote:
-> On Fri, Feb 09, 2007 at 11:06:06PM +1100, Rusty Russell wrote:
-> > On Fri, 2007-02-09 at 10:32 +0100, Andi Kleen wrote:
-> > > Are you sure this will work with varying TSC frequencies? 
-> > 
-> > I'm actually quite sure it doesn't (there's a FIXME in the lguest code).
-> > Given the debate over how useful the TSC was, I originally didn't use
-> > it, but (1) it's simple, and (2) when it doesn't change, it's pretty
-> > accurate.
-> 
-> But when it changes users become pretty unhappy
+The current code simply calls "start_kernel" directly if we're under a
+hypervisor and no paravirt_ops backend wants us, because paravirt.c
+registers that as a backend.
 
-True.  Simplest fix is below.  There are several time issues on the TODO
-list, and I will simply add this one.
+This was always a vain hope; start_kernel won't get far without setup.
+It's also impossible for paravirt_ops backends which don't sit in the
+arch/i386/kernel directory: they can't link before paravirt.o anyway.
 
-Thanks!
-Rusty.
-
-lguest: Don't use the TSC in guest.
-
-Andi complained that lguest guests don't deal with host TSC speed
-changing.  Close this can of worms by not using the TSC in the guest.
-Later on we could do something clever when we overhaul this to deal
-with stolen time (also on the TODO list).
+Keep it simple: if we pass all the registered paravirt probes, BUG().
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-===================================================================
---- a/arch/i386/kernel/tsc.c
-+++ b/arch/i386/kernel/tsc.c
-@@ -475,4 +475,3 @@ static int __init init_tsc_clocksource(v
+diff -r 4fb7fc327801 arch/i386/kernel/Makefile
+--- a/arch/i386/kernel/Makefile	Mon Feb 12 12:37:01 2007 +1100
++++ b/arch/i386/kernel/Makefile	Mon Feb 12 12:55:00 2007 +1100
+@@ -41,8 +41,6 @@ obj-$(CONFIG_KWATCH)		+= debugreg.o kwat
+ obj-$(CONFIG_KWATCH)		+= debugreg.o kwatch.o
+ 
+ obj-$(CONFIG_VMI)		+= vmi.o vmitime.o
+-
+-# Make sure this is linked after any other paravirt_ops structs: see head.S
+ obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+ 
+ EXTRA_AFLAGS   := -traditional
+diff -r 4fb7fc327801 arch/i386/kernel/head.S
+--- a/arch/i386/kernel/head.S	Mon Feb 12 12:37:01 2007 +1100
++++ b/arch/i386/kernel/head.S	Mon Feb 12 12:54:19 2007 +1100
+@@ -513,10 +513,11 @@ startup_paravirt:
+ 	pushl	%ecx
+ 	pushl	%eax
+ 
+-	/* paravirt.o is last in link, and that probe fn never returns */
+ 	pushl	$__start_paravirtprobe
+ 1:
+ 	movl	0(%esp), %eax
++	cmpl	$__stop_paravirtprobe, %eax
++	je	unhandled_paravirt
+ 	pushl	(%eax)
+ 	movl	8(%esp), %eax
+ 	call	*(%esp)
+@@ -528,6 +529,10 @@ 1:
+ 
+ 	addl	$4, (%esp)
+ 	jmp	1b
++
++unhandled_paravirt:
++	/* Nothing wanted us: we're screwed. */ 
++	ud2
+ #endif
+ 
+ /*
+diff -r 4fb7fc327801 arch/i386/kernel/paravirt.c
+--- a/arch/i386/kernel/paravirt.c	Mon Feb 12 12:37:01 2007 +1100
++++ b/arch/i386/kernel/paravirt.c	Mon Feb 12 12:54:19 2007 +1100
+@@ -481,9 +481,6 @@ static int __init print_banner(void)
+ 	return 0;
  }
- 
- module_init(init_tsc_clocksource);
--EXPORT_SYMBOL_GPL(tsc_khz);
-===================================================================
---- a/arch/i386/lguest/hypercalls.c
-+++ b/arch/i386/lguest/hypercalls.c
-@@ -18,7 +18,6 @@
- #include <linux/uaccess.h>
- #include <linux/syscalls.h>
- #include <linux/mm.h>
--#include <linux/clocksource.h>
- #include <asm/lguest.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-@@ -179,8 +178,6 @@ int hypercall(struct lguest *lg, struct 
- 		/* We reserve the top pgd entry. */
- 		put_user(4U*1024*1024, &lg->lguest_data->reserve_mem);
- 		put_user(lg->guestid, &lg->lguest_data->guestid);
--		put_user(clocksource_khz2mult(tsc_khz, 22),
--			 &lg->lguest_data->clock_mult);
- 		return 0;
- 	}
- 	pending = do_hcall(lg, regs);
-===================================================================
---- a/arch/i386/lguest/lguest.c
-+++ b/arch/i386/lguest/lguest.c
-@@ -25,7 +25,6 @@
- #include <linux/screen_info.h>
- #include <linux/irq.h>
- #include <linux/interrupt.h>
--#include <linux/clocksource.h>
- #include <asm/paravirt.h>
- #include <asm/lguest.h>
- #include <asm/lguest_user.h>
-@@ -138,29 +137,10 @@ static struct notifier_block paniced = {
- 	.notifier_call = lguest_panic
- };
- 
--static cycle_t lguest_clock_read(void)
--{
--	/* FIXME: This is just the native one.  Account stolen time! */
--	return paravirt_ops.read_tsc();
--}
+ core_initcall(print_banner);
 -
--/* FIXME: Update iff tsc rate changes. */
--static struct clocksource lguest_clock = {
--	.name			= "lguest",
--	.rating			= 400,
--	.read			= lguest_clock_read,
--	.mask			= CLOCKSOURCE_MASK(64),
--	.mult			= 0, /* to be set */
--	.shift			= 22,
--	.is_continuous		= 1,
--};
--
- static char *lguest_memory_setup(void)
- {
- 	/* We do these here because lockcheck barfs if before start_kernel */
- 	atomic_notifier_chain_register(&panic_notifier_list, &paniced);
--	lguest_clock.mult = lguest_data.clock_mult;
--	clocksource_register(&lguest_clock);
+-/* We simply declare start_kernel to be the paravirt probe of last resort. */
+-paravirt_probe(start_kernel);
  
- 	e820.nr_map = 0;
- 	add_memory_region(0, PFN_PHYS(boot->max_pfn), E820_RAM);
-===================================================================
---- a/include/asm-i386/lguest.h
-+++ b/include/asm-i386/lguest.h
-@@ -74,8 +74,6 @@ struct lguest_data
- 	unsigned long reserve_mem;
- 	/* ID of this guest (used by network driver to set ethernet address) */
- 	u16 guestid;
--	/* Multiplier for TSC clock. */
--	u32 clock_mult;
- 
- /* Fields initialized by the guest at boot: */
- 	/* Instruction range to suppress interrupts even if enabled */
+ struct paravirt_ops paravirt_ops = {
+ 	.name = "bare hardware",
