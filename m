@@ -1,45 +1,41 @@
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: [q] kbuild for private asm-offsets (Re: [PATCH 6/10] lguest code: the little linux hypervisor.)
-Date: Mon, 12 Feb 2007 14:34:19 +0100
-Message-ID: <E1HGbJz-0003Lc-6h@flower>
-References: <1171012296.2718.26.camel@localhost.localdomain> <1171012761.2718.40.camel@localhost.localdomain> <1171012827.2718.42.camel@localhost.localdomain> <200702091109.20061.ak@muc.de> <1171024771.2718.129.camel@localhost.localdomain> <20070209141728.GA26749@uranus.ravnborg.org> <1171034599.2718.190.camel@localhost.localdomain>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964907AbXBLN0K@vger.kernel.org>
-In-Reply-To: <1171034599.2718.190.camel@localhost.localdomain>
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: [PATCH 7/8] lguest: trivial guest block driver
+Date: Mon, 12 Feb 2007 16:01:25 +0100
+Message-ID: <20070212150125.GM3999@kernel.dk>
+References: <1171251965.10409.28.camel@localhost.localdomain> <1171252113.10409.30.camel@localhost.localdomain> <1171252219.10409.33.camel@localhost.localdomain> <1171252321.10409.36.camel@localhost.localdomain> <1171252405.10409.39.camel@localhost.localdomain> <1171252474.10409.42.camel@localhost.localdomain> <20070212044339.GJ3685@kernel.dk> <1171258034.10409.54.camel@localhost.localdomain> <20070212053204.GB3999@kernel.dk> <1171264167.10409.62.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964954AbXBLPBW@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1171264167.10409.62.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Rusty Russell
-> Newsgroups: gmane.linux.kernel,gmane.linux.kernel.virtualization
-> Subject: Re: [PATCH 6/10] lguest code: the little linux hypervisor.
-> Date: Sat, 10 Feb 2007 02:23:19 +1100
+On Mon, Feb 12 2007, Rusty Russell wrote:
+> On Mon, 2007-02-12 at 06:32 +0100, Jens Axboe wrote:
+> > On Mon, Feb 12 2007, Rusty Russell wrote:
+> > > On Mon, 2007-02-12 at 05:43 +0100, Jens Axboe wrote:
+> > > > Here you map the entire request (lets call that segment A..Z), but
+> > > > end_request() only completes the first chunk of the request. So
+> > > > elv_next_request() will retrieve the same request again, and you'll then
+> > > > map B..Z and repeat that transfer. So unless I'm missing some other part
+> > > > here (just read it over quickly), you are re-doing large parts of a
+> > > > merged request several times.
+> 
+> virtbench before:
+> 	Time to read from disk (256 kB): 18654562 nsec
+> After:
+> 	Time to read from disk (256 kB): 8018468 nsec
+> 
+> Thanks Jens!!
 
-Hallo, Rusty, guys.
+My pleasure, it's not often you get to make that big a performance
+improvement with just a little few lines of change :-)
 
-> On Fri, 2007-02-09 at 15:17 +0100, Sam Ravnborg wrote:
->> I do not quite see what you ask for.
->> Care to try to describe the problem a bit then I may look at it sometime.
->> 
->> [Heading for vacation in a few hours so no prompt reply]
->
-> I'd like my own, private "asm-offsets.h".  In this case, in
-> arch/i386/lguest/.  I guess it's a matter of extracting the core of the
-> asm-offsets.h magic and generalizing it.
->
-> Have a good break!
-> Rusty.
+I guess you'll take changes to make this driver queuing as well? It's
+pretty important for good guest io performance as well.
 
-If you will have time for newbie, to explain in a few words, what is it need
-for (whole idea, or key detail), and, maybe, why it is generated so ... interestingly:
-
-            asm-offsets.c -> *.s -> *.h
- (but this looks like interconnecting C and assembler, obviously)
-
-I will glad to help providing solution maybe somewhat earlier (well, i'm
-trying to understand whole building process, if that matters).
-
-.... And, of course, if this q isn't dumb.
-
-Thanks.
-____
+-- 
+Jens Axboe
