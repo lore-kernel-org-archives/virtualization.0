@@ -1,46 +1,83 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 4/7] cleanup: Move mce_disabled to asm/mce.h
-Date: Mon, 12 Feb 2007 14:35:35 +1100
-Message-ID: <1171251335.10409.10.camel@localhost.localdomain>
+Subject: [PATCH 5/7] cleanup: Rename cpu_gdt_descr and remove extern
+	declaration from smpboot.c
+Date: Mon, 12 Feb 2007 14:36:45 +1100
+Message-ID: <1171251406.10409.13.camel@localhost.localdomain>
 References: <1171251120.10409.2.camel@localhost.localdomain>
 	 <1171251185.10409.4.camel@localhost.localdomain>
 	 <1171251258.10409.7.camel@localhost.localdomain>
+	 <1171251335.10409.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932947AbXBLDgZ@vger.kernel.org>
-In-Reply-To: <1171251258.10409.7.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932951AbXBLDhb@vger.kernel.org>
+In-Reply-To: <1171251335.10409.10.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, Paul Mackerras <paulus@samba.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allows external actors to disable mce.
+When I implemented the DECLARE_PER_CPU(var) macros, I was careful that
+people couldn't use "var" in a non-percpu context, by prepending
+percpu__.  I never considered that this would allow them to overload
+the same name for a per-cpu and a non-percpu variable.
+
+It is only one of many horrors in the i386 boot code, but let's rename
+the non-perpcu cpu_gdt_descr to early_gdt_descr (not boot_gdt_descr,
+that's something else...)
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
 ===================================================================
---- a/arch/i386/kernel/cpu/mcheck/mce.h
-+++ b/arch/i386/kernel/cpu/mcheck/mce.h
-@@ -1,4 +1,5 @@
- #include <linux/init.h>
-+#include <asm/mce.h>
+--- a/arch/i386/kernel/head.S
++++ b/arch/i386/kernel/head.S
+@@ -309,7 +309,7 @@ 2:	movl %cr0,%eax
  
- void amd_mcheck_init(struct cpuinfo_x86 *c);
- void intel_p4_mcheck_init(struct cpuinfo_x86 *c);
-@@ -9,6 +10,5 @@ void winchip_mcheck_init(struct cpuinfo_
- /* Call the installed machine check handler for this CPU setup. */
- extern fastcall void (*machine_check_vector)(struct pt_regs *, long error_code);
+ 	call check_x87
+ 	call setup_pda
+-	lgdt cpu_gdt_descr
++	lgdt early_gdt_descr
+ 	lidt idt_descr
+ 	ljmp $(__KERNEL_CS),$1f
+ 1:	movl $(__KERNEL_DS),%eax	# reload all the segment registers
+@@ -365,7 +365,7 @@ setup_pda:
+ 	movl start_pda, %eax
  
--extern int mce_disabled;
- extern int nr_mce_banks;
+ 	/* slot the PDA address into the GDT */
+-	mov cpu_gdt_descr+2, %ecx
++	mov early_gdt_descr+2, %ecx
+ 	mov %ax, (__KERNEL_PDA+0+2)(%ecx)		/* base & 0x0000ffff */
+ 	shr $16, %eax
+ 	mov %al, (__KERNEL_PDA+4+0)(%ecx)		/* base & 0x00ff0000 */
+@@ -588,7 +588,7 @@ idt_descr:
+ 
+ # boot GDT descriptor (later on used by CPU#0):
+ 	.word 0				# 32 bit align gdt_desc.address
+-ENTRY(cpu_gdt_descr)
++ENTRY(early_gdt_descr)
+ 	.word GDT_ENTRIES*8-1
+ 	.long cpu_gdt_table
  
 ===================================================================
---- a/include/asm-i386/mce.h
-+++ b/include/asm-i386/mce.h
-@@ -3,3 +3,5 @@ extern void mcheck_init(struct cpuinfo_x
- #else
- #define mcheck_init(c) do {} while(0)
- #endif
-+
-+extern int mce_disabled;
+--- a/arch/i386/kernel/smpboot.c
++++ b/arch/i386/kernel/smpboot.c
+@@ -619,7 +619,6 @@ extern struct {
+ 	unsigned short ss;
+ } stack_start;
+ extern struct i386_pda *start_pda;
+-extern struct Xgt_desc_struct cpu_gdt_descr;
+ 
+ #ifdef CONFIG_NUMA
+ 
+===================================================================
+--- a/include/asm-i386/desc.h
++++ b/include/asm-i386/desc.h
+@@ -22,7 +22,7 @@ struct Xgt_desc_struct {
+ 
+ extern struct Xgt_desc_struct idt_descr;
+ DECLARE_PER_CPU(struct Xgt_desc_struct, cpu_gdt_descr);
+-
++extern struct Xgt_desc_struct early_gdt_descr;
+ 
+ static inline struct desc_struct *get_cpu_gdt_table(unsigned int cpu)
+ {
