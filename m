@@ -1,67 +1,29 @@
-From: "Cosmin Belizaire" <hirohitodrinking@crowleyauto.com>
-Subject: BOO write: Today's prognosis...
-Date: Mon, 12 Feb 2007 16:38:39 +0300
-Message-ID: <01c74ec4$3fde0560$6c822ecf@hirohitodrinking>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: [q] kbuild for private asm-offsets (Re: [PATCH 6/10] lguest code: the little linux hypervisor.)
+Date: 12 Feb 2007 18:24:13 +0100
+Message-ID: <20070212172413.GA40274@muc.de>
+References: <1171012296.2718.26.camel@localhost.localdomain> <1171012761.2718.40.camel@localhost.localdomain> <1171012827.2718.42.camel@localhost.localdomain> <200702091109.20061.ak@muc.de> <1171024771.2718.129.camel@localhost.localdomain> <20070209141728.GA26749@uranus.ravnborg.org> <1171034599.2718.190.camel@localhost.localdomain> <E1HGbJz-0003Lc-6h@flower>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1092690795=="
-Return-path: <virtualization-bounces@lists.osdl.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965021AbXBLRYR@vger.kernel.org>
+Date: Mon, 12 Feb 2007 18:24:13 +0100
+Content-Disposition: inline
+In-Reply-To: <E1HGbJz-0003Lc-6h@flower>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>, virtualization@lists.osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============1092690795==
-Content-Type: text/plain;
-	charset="windows-1250"
-Content-Transfer-Encoding: 7bit
+> If you will have time for newbie, to explain in a few words, what is it need
+> for (whole idea, or key detail), and, maybe, why it is generated so ... interestingly:
+> 
+>             asm-offsets.c -> *.s -> *.h
+>  (but this looks like interconnecting C and assembler, obviously)
+> 
+> I will glad to help providing solution maybe somewhat earlier (well, i'm
+> trying to understand whole building process, if that matters).
 
-Glad to see you, gentlemen.
-I think all of you have already seen the results of the last market day.
+The problem is trying to figure out what needs to be done to get
+multiple asm-offsets.h.
 
-And today we give you the best stock at the best price for today.
-The Company has released news on friday. 
-Here it is (read full version on your favorite news site)
-
--
-Marshall Holdings International, Inc. Announces Subsidiary 3rd Quarter Results Over 1.5 Million, an Increase of 147%
-
-Marshall Holdings International, Inc. (MHII) announced that the 3rd quarter financials for its wholly owned subsidiary are final. Marshall Distributing 3rd quarter revenues resulted in an increase of 147% over the same period in 2005. The total revenues for the quarter were excess of 1.5 million.
-"The Company continues to grow and once again exceeded all expectations", said Jamie Plante, CFO." 
--
-
-
-Friday last result -> 0.021 (+ 23.52%) 
-Friday High on 0.024 (+ 41 %)
-With the news like that Monday expectations-> more then 0.040 (+ 90.47 %) 
-
-You absolutly know for a certainty which ones are real or not.
-This one is real.
-The Campaign has just started. More information will be soon.
-To Grab MHII - is the first thing to do.
-
-
-7B777A717F7974456E79337871746C6E79666E666E7371787874693377
-caizeir
-
-
-
-
---===============1092690795==
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.osdl.org
-https://lists.osdl.org/mailman/listinfo/virtualization
-
---===============1092690795==--
+-Andi
