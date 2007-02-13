@@ -1,92 +1,86 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 5/8] lguest: trivial guest network driver
-Date: Tue, 13 Feb 2007 13:15:18 +1100
-Message-ID: <1171332919.19842.74.camel@localhost.localdomain>
-References: <1171251406.10409.13.camel@localhost.localdomain>
-	 <1171251471.10409.15.camel@localhost.localdomain>
-	 <1171251578.10409.17.camel@localhost.localdomain>
-	 <1171251698.10409.20.camel@localhost.localdomain>
-	 <1171251770.10409.23.camel@localhost.localdomain>
-	 <1171251894.10409.26.camel@localhost.localdomain>
-	 <1171251965.10409.28.camel@localhost.localdomain>
-	 <1171252113.10409.30.camel@localhost.localdomain>
-	 <1171252219.10409.33.camel@localhost.localdomain>
-	 <1171252321.10409.36.camel@localhost.localdomain>
-	 <20070212155553.GA15627@gondor.apana.org.au>
+Subject: Re: porting lguest to x86_64
+Date: Tue, 13 Feb 2007 13:17:29 +1100
+Message-ID: <1171333049.19842.78.camel@localhost.localdomain>
+References: <1171301371.4290.48.camel@localhost.localdomain>
+	<1171328567.19842.53.camel@localhost.localdomain>
+	<20070213013411.GA8965@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933131AbXBMCQK@vger.kernel.org>
-In-Reply-To: <20070212155553.GA15627@gondor.apana.org.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, jgarzik <jgarzik@pobox.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20070213013411.GA8965@redhat.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Glauber de Oliveira Costa <gcosta@redhat.com>
+Cc: virtualization <virtualization@lists.osdl.org>, Andi Kleen <ak@muc.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-02-13 at 02:55 +1100, Herbert Xu wrote:
-> On Mon, Feb 12, 2007 at 02:52:01PM +1100, Rusty Russell wrote:
-> >
-> > +static void skb_to_dma(const struct sk_buff *skb, unsigned int len,
-> > +		       struct lguest_dma *dma)
-> > +{
-> > +	unsigned int i, seg;
-> > +
-> > +	for (i = seg = 0; i < len; seg++, i += rest_of_page(skb->data + i)) {
-> 
-> The length field from the skb covers the fragmented parts as well.
-> So you don't want to use it as the boundary for the loop over the
-> skb header data.  As it is, if the skb has fragments, the first
-> loop will try to read them off the header.
+On Mon, 2007-02-12 at 23:34 -0200, Glauber de Oliveira Costa wrote:
+> On Tue, Feb 13, 2007 at 12:02:47PM +1100, Rusty Russell wrote:
+> > Yeah, sorry about that.  My very initial intention was to have x86-64
+> > and PowerPC ports, but since the code is so arch-specific I decided that
+> > it didn't make much sense at this point, so hence the move.
+> =
 
-Good spotting!  This function needs to be passed skb_headlen(skb),
-rather than skb->len.  Patch is below (I renamed the parameter as well,
-for clarity).
+> Steven Roasted forgot to mention that simplicity was not the main reason
+> why we choosed lguest to pick up with. For me at least, the puppies were =
+the
+> very and true reason.
 
-It's fascinating why this "worked".  Firstly, for inter-guest
-communication, I am not calculating checksums, nor checking them.
-Secondly, for guest->host, I turn off hw checksumming so the kernel
-disables SG and this code is never executed.  Thirdly, for virtbench's
-inter-guest sendfile test does not check the data received is actually
-correct.  Finally, while we end up producing a packet which is larger
-than skb->len of 1514, the DMA receive buffer for the other guest is
-only 1514 bytes, so the result of the transfer is 1514 (==skb->len), so
-no error reported by the driver.
+8)
 
-==
-lguest network driver fix: handle scatter-gather packets correctly
+> Other than that, our first attempt already put it in a separate drivers/x=
+86_64
+> directory. As Steven pointed out, there will probably be too few overlap =
 
-Thanks to Herbert Xu for noticing the bug: "len" here is skb_headlen(),
-not skb->len.  Renamed the function to clarify, too.
+> between architectures. IMHO, the move to arch/<arch>/lguest is very
+> sane.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Indeed.
 
-diff -r ed6484d145a4 drivers/net/lguest_net.c
---- a/drivers/net/lguest_net.c	Tue Feb 13 11:30:39 2007 +1100
-+++ b/drivers/net/lguest_net.c	Tue Feb 13 12:07:15 2007 +1100
-@@ -59,14 +59,14 @@ static unsigned long peer_addr(struct lg
- 	return info->peer_phys + 4 * peernum;
- }
- 
--static void skb_to_dma(const struct sk_buff *skb, unsigned int len,
-+static void skb_to_dma(const struct sk_buff *skb, unsigned int headlen,
- 		       struct lguest_dma *dma)
- {
- 	unsigned int i, seg;
- 
--	for (i = seg = 0; i < len; seg++, i += rest_of_page(skb->data + i)) {
-+	for (i = seg = 0; i < headlen; seg++, i += rest_of_page(skb->data+i)) {
- 		dma->addr[seg] = virt_to_phys(skb->data + i);
--		dma->len[seg] = min((unsigned)(len - i),
-+		dma->len[seg] = min((unsigned)(headlen - i),
- 				    rest_of_page(skb->data + i));
- 	}
- 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++, seg++) {
-@@ -90,7 +90,7 @@ static void transfer_packet(struct net_d
- 	struct lguestnet_info *info = dev->priv;
- 	struct lguest_dma dma;
- 
--	skb_to_dma(skb, skb->len, &dma);
-+	skb_to_dma(skb, skb_headlen(skb), &dma);
- 	pr_debug("xfer length %04x (%u)\n", htons(skb->len), skb->len);
- 
- 	hcall(LHCALL_SEND_DMA, peer_addr(info,peernum), __pa(&dma),0);
+> > A few general points:
+> > 1) The entire point of the paravirt_ops infrastructure is to allow a
+> > single kernel to adapt to different hypervisors at runtime.  This is a
+> > real feature which should not be ignored, IMHO.  Also, the "modprobe and
+> > go" model of host kernels is extremely attractive.  So changing
+> > PAGE_OFFSET or what segments the kernel uses is not the trivial matter
+> > it would otherwise be.
+> Although they are not included yet in mainline (for 64-bit), we think tha=
+t =
+
+> relocatable kernel capabilities would help a lot in this. Besides, we
+> don't plan to move PAGE_OFFSET for the host, but rather for the guest,
+> which needs to have compiled-in provisions anyway.
+
+If you talk to distributions, they want the guest and host kernels to be
+the same.  The overhead of including lguest support is under 5k, which
+is why it's always compiled in, even in the host kernel.  I currently
+don't allow the guest drivers as modules, because they're only 9k, but I
+could.
+
+A universal kernel is a really, really good idea.  You can make most of
+the lguest-specific code __init, too...
+
+> > 2) I would start really simple: no guest SMP, for example.  I would also
+> > look hard at stealing KVM's mmu code: lguest's is much simpler, *but*
+> > that's because it's only a simple 2-level.
+> =
+
+> I would agree with you, if having guest SMPs were a hard matter. I think
+> it is not. The current read-in-a-loop could be replicated in user space
+> threads, each of which running a different vcpu. =
+
+
+Sure, it's easy, *but* it's a good idea to get the basics done first,
+and this is a very easy thing to cut.
+
+Good luck!
+Rusty.
