@@ -1,50 +1,33 @@
-From: Len Brown <lenb@kernel.org>
-Subject: Re: [PATCH 7/7] cleanup: make disable_acpi() valid w/o CONFIG_ACPI
-Date: Tue, 13 Feb 2007 00:09:36 -0500
-Message-ID: <200702130009.36987.lenb@kernel.org>
-References: <1171251120.10409.2.camel@localhost.localdomain> <1171251471.10409.15.camel@localhost.localdomain> <1171251578.10409.17.camel@localhost.localdomain>
+From: Gerd Hoffmann <kraxel@suse.de>
+Subject: [rfc/patch] use hvc for xen console
+Date: Tue, 13 Feb 2007 11:36:14 +0100
+Message-ID: <45D1949E.1000809@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161025AbXBMFLE@vger.kernel.org>
-In-Reply-To: <1171251578.10409.17.camel@localhost.localdomain>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, Len Brown <len.brown@intel.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Virtualization Mailing List <virtualization@lists.osdl.org>, Xen devel list <xen-devel@lists.xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Applied.
+  Hi,
 
-thanks,
--Len
+Here is a patch (on top of the paravirt patch queue) which makes xen
+guests use the hvc_console.c infrastructure for the console, thereby
+greatly reducing the amount console code.  xvc0 is gone too, hvc0 is
+used instead.
 
-On Sunday 11 February 2007 22:39, Rusty Russell wrote:
-> Len Brown <lenb@kernel.org> said:
-> > Okay, but better to use disable_acpi()
-> > indeed, since this would be the first code not already inside CONFIG_ACPI
-> > to invoke disable_acpi(), we could define the inline as empty and you could
-> > then scratch the #ifdef too.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> 
-> ===================================================================
-> --- a/include/asm-i386/acpi.h
-> +++ b/include/asm-i386/acpi.h
-> @@ -127,6 +127,7 @@ extern int acpi_irq_balance_set(char *st
->  #define acpi_ioapic 0
->  static inline void acpi_noirq_set(void) { }
->  static inline void acpi_disable_pci(void) { }
-> +static inline void disable_acpi(void) { }
->  
->  #endif	/* !CONFIG_ACPI */
->  
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+cheers,
+  Gerd
+
+-- =
+
+Gerd Hoffmann <kraxel@suse.de>
