@@ -1,59 +1,45 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 00/21] Xen-paravirt: Xen guest implementation
-	for paravirt_ops interface
-Date: Tue, 13 Feb 2007 14:17:29 -0800
-Message-ID: <20070213221729.772002682@goop.org>
-Return-path: <xen-devel-bounces@lists.xensource.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Subject: [patch 01/21] Xen-paravirt: Fix typo in sync_constant_test_bit()s
+	name.
+Date: Tue, 13 Feb 2007 14:17:30 -0800
+Message-ID: <20070213221829.373551120@goop.org>
+References: <20070213221729.772002682@goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Disposition: inline; filename=fix-sync-bitops.patch
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org
+Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Andi,
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-This patch series implements the Linux Xen guest in terms of the
-paravirt-ops interface.  The features in implemented this patch series
-are:
- * domU only
- * UP only (most code is SMP-safe, but there's no way to create a new vcpu)
- * writable pagetables, with late pinning/early unpinning
-   (no shadow pagetable support)
- * supports both PAE and non-PAE modes
- * xen console
- * virtual block device (blockfront)
- * virtual network device (netfront)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/sync_bitops.h
++++ b/include/asm-i386/sync_bitops.h
+@@ -130,7 +130,7 @@ static inline int sync_test_and_change_b
+ 	return oldbit;
+ }
+ =
 
-The patch series is in two parts:
+-static __always_inline int sync_const_test_bit(int nr, const volatile unsi=
+gned long *addr)
++static __always_inline int sync_constant_test_bit(int nr, const volatile u=
+nsigned long *addr)
+ {
+ 	return ((1UL << (nr & 31)) &
+ 		(((const volatile unsigned int *)addr)[nr >> 5])) !=3D 0;
 
-1-12: cleanups to the core kernel, either to fix outright problems,
-      or to add appropriate hooks for Xen
-13-21: the Xen guest implementation itself
-
-I've tried to make each patch as self-explanatory as possible.  The
-series is based on 2.6.20 + Andi Kleen's firstfloor patches, specifically:
-	page-allocation-hooks-for-vmi-backend
-	paravirt-cpu-batching.patch
-	iopl-handling-for-paravirt-guests
-	smp-boot-hook-for-paravirt
-	vmi-backend-for-paravirt-ops
-	vmi-timer
-
-Changes since the previous posting:
-- made vga not crash when vga hardware isn't present
-- cleaned up sign issues in xen-console
-- cleaned up mm-lifetime hooks
-- blockfront cleanups
-- other stuff
-
-Thanks,
-	J
-
-
--- 
+-- =
