@@ -1,54 +1,80 @@
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: [PATCH 7/8] lguest: trivial guest block driver
-Date: Tue, 13 Feb 2007 01:44:08 +0100
-Message-ID: <20070213004408.GB3641@kernel.dk>
-References: <1171252219.10409.33.camel@localhost.localdomain> <1171252321.10409.36.camel@localhost.localdomain> <1171252405.10409.39.camel@localhost.localdomain> <1171252474.10409.42.camel@localhost.localdomain> <20070212044339.GJ3685@kernel.dk> <1171258034.10409.54.camel@localhost.localdomain> <20070212053204.GB3999@kernel.dk> <1171264167.10409.62.camel@localhost.localdomain> <20070212150125.GM3999@kernel.dk> <1171326305.19842.36.camel@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: porting lguest to x86_64
+Date: Tue, 13 Feb 2007 12:02:47 +1100
+Message-ID: <1171328567.19842.53.camel@localhost.localdomain>
+References: <1171301371.4290.48.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030601AbXBMAnt@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1171326305.19842.36.camel@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <1171301371.4290.48.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: virtualization <virtualization@lists.osdl.org>, Andi Kleen <ak@muc.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 13 2007, Rusty Russell wrote:
-> On Mon, 2007-02-12 at 16:01 +0100, Jens Axboe wrote:
-> > On Mon, Feb 12 2007, Rusty Russell wrote:
-> > > Thanks Jens!!
-> > 
-> > My pleasure, it's not often you get to make that big a performance
-> > improvement with just a little few lines of change :-)
-> 
-> *cough* I deliberately leave these low hanging fruit in lguest to
-> encourage people to hack on it.  Really.  *cough*
+On Mon, 2007-02-12 at 12:29 -0500, Steven Rostedt wrote:
+> Hi all,
+> =
 
-:-)
+> Glauber and I have been looking into porting lguest over to the x86_64.
+> We've spent the last couple of weeks just trying lguest out and seeing
+> how far we can "force" it over to x86_64. This was more of just a
+> learning experience to get our feet wet in lguest since we are still
+> very green at it.  I also notice that lguest moves very fast (we were
+> still working on drivers/lguest when I now see it has moved to
+> arch/i386/lguest).
 
-> > I guess you'll take changes to make this driver queuing as well? It's
-> > pretty important for good guest io performance as well.
-> 
-> The question is whether the guest or host should queue.  If you have
-> multiple guests sharing a disk in the hose, I would think that the host
-> is better off queuing.  And this would seem to be the common case.
+Yeah, sorry about that.  My very initial intention was to have x86-64
+and PowerPC ports, but since the code is so arch-specific I decided that
+it didn't make much sense at this point, so hence the move.
 
-You want queuing in the host, since for queuing to make a performance
-difference it needs to be propagated all the way down to the device. But
-you can't get queuing at the host level if the guest device doesn't
-allow it, you'd be serializing anyway. Well for writes you can, but not
-synchronous requests.
+Plus, being in a single directory gives it that nice self-contained
+feeling which makes upstream inclusion easier.
 
-Basically allow as much to be sent to the host as possible.
+Now, at some point that decision might well be reversed...
 
-> On my todo list is:
-> 1) Implement write barriers, (-> fsync in the host)
-> 2) Make the host userspace program (lguest) async rather than blocking,
-> 3) Allow multiple outstanding requests.
-> 
-> Then it should be useful for other hypervisors.
+> Anyway, we've decided that the work we have done so far was just a
+> learning prototype and have thrown it out for some better ideas. But
+> before getting too deep into coding, we want to ask the giants of lguest
+> for their ideas, and their thoughts on what we want.
 
-I completely agree with your prioritized list.
+Well, there are many ways to write this.  Yours is very different,
+that's for sure!
 
--- 
-Jens Axboe
+A few general points:
+1) The entire point of the paravirt_ops infrastructure is to allow a
+single kernel to adapt to different hypervisors at runtime.  This is a
+real feature which should not be ignored, IMHO.  Also, the "modprobe and
+go" model of host kernels is extremely attractive.  So changing
+PAGE_OFFSET or what segments the kernel uses is not the trivial matter
+it would otherwise be.
+
+2) I would start really simple: no guest SMP, for example.  I would also
+look hard at stealing KVM's mmu code: lguest's is much simpler, *but*
+that's because it's only a simple 2-level.
+
+3) The purpose of the high-loaded switcher code in lguest is to switch
+the world back in a place where it can't be reached by the guest, due to
+segment limits.  While this is not generally possible on x86-64, Andi
+and Zach pointed out to me that a very similar approach is: use a
+read-only page for this code, and a rw page to save & restore state.
+When you go SMP for guests, you need a different page for each virtual
+CPU of course, but that's later.  I haven't completely thought this
+through, but it should work.
+
+One benefit of this approach is that it *will* be v. v. similar to
+32-bit lguest.  In fact, 32-bit lguest could probably be changed to use
+the same technique without any real harm; indeed, it solves the problem
+of 4G segments very nicely.... hm....
+
+Cheers!
+Rusty.
