@@ -1,36 +1,30 @@
-From: Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: vgacon disable again
-Date: Tue, 13 Feb 2007 12:18:45 +0100
-Message-ID: <45D19E95.7030501@suse.de>
-References: <45D198CA.7050306@suse.de>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 5/8] lguest: trivial guest network driver
+Date: Wed, 14 Feb 2007 01:06:00 +1100
+Message-ID: <20070213140600.GA24711@gondor.apana.org.au>
+References: <1171251578.10409.17.camel@localhost.localdomain> <1171251698.10409.20.camel@localhost.localdomain> <1171251770.10409.23.camel@localhost.localdomain> <1171251894.10409.26.camel@localhost.localdomain> <1171251965.10409.28.camel@localhost.localdomain> <1171252113.10409.30.camel@localhost.localdomain> <1171252219.10409.33.camel@localhost.localdomain> <1171252321.10409.36.camel@localhost.localdomain> <20070212155553.GA15627@gondor.apana.org.au> <1171332919.19842.74.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45D198CA.7050306@suse.de>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750718AbXBMOG5@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1171332919.19842.74.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, jgarzik <jgarzik@pobox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gerd Hoffmann wrote:
->   Hi,
-> =
+On Tue, Feb 13, 2007 at 01:15:18PM +1100, Rusty Russell wrote:
+> 
+> Good spotting!  This function needs to be passed skb_headlen(skb),
+> rather than skb->len.  Patch is below (I renamed the parameter as well,
+> for clarity).
 
-> The much easier fix is this one ;)
+How about just dropping that parameter and using skb_headlen(skb)
+directly?
 
-Oh, and it obsoletes vgacon-fix-zero-size.patch btw ...
-
-cheers,
-  Gerd
-
--- =
-
-Gerd Hoffmann <kraxel@suse.de>
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
