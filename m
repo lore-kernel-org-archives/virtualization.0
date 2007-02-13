@@ -1,41 +1,39 @@
 From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [patch 06/21] Xen-paravirt: remove ctor for pgd cache
-Date: Tue, 13 Feb 2007 14:39:52 -0800
-Message-ID: <45D23E38.1030607@vmware.com>
-References: <20070213221729.772002682@goop.org> <20070213221829.929261125@goop.org>
+Subject: Re: [patch 13/21] Xen-paravirt: Add nosegneg capability
+ to the vsyscall page notes
+Date: Tue, 13 Feb 2007 14:45:43 -0800
+Message-ID: <45D23F97.5040907@vmware.com>
+References: <20070213221729.772002682@goop.org>
+	<20070213221830.466651996@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751372AbXBMWjz@vger.kernel.org>
-In-Reply-To: <20070213221829.929261125@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20070213221830.466651996@goop.org>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Jeremy Fitzhardinge wrote:
->  
-> @@ -261,10 +261,12 @@ void pgd_ctor(void *pgd, struct kmem_cac
->  	spin_unlock_irqrestore(&pgd_lock, flags);
->  }
->  
-> -/* never called when PTRS_PER_PMD > 1 */
-> -void pgd_dtor(void *pgd, struct kmem_cache *cache, unsigned long unused)
-> +static void pgd_dtor(pgd_t *pgd)
->  {
->  	unsigned long flags; /* can be called from interrupt context */
-> +
-> +	if (PTRS_PER_PMD == 1)
-> +		return;
->  
->  	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
->  	spin_lock_irqsave(&pgd_lock, flags);
+> Add the "nosegneg" fake capabilty to the vsyscall page notes. This is
+> used by the runtime linker to select a glibc version which then
+> disables negative-offset accesses to the thread-local segment via
+> %gs. These accesses require emulation in Xen (because segments are
+> truncated to protect the hypervisor address space) and avoiding them
+> provides a measurable performance boost.
 >   
 
-
-Acked, with exceptions.  This bit breaks VMI.  The paravirt_release_pd 
-must happen unconditionally.  But I would rather fix it after patches 
-get applied just to make sure the entire allocation / deallocation order 
-constraints are intact.
+I don't like this because now a kernel compiled with both CONFIG_XEN and 
+CONFIG_VMI has "nosegneg" turned on.  We don't actually require this for 
+performance or correctness, so it would be nice to be able to 
+dynamically turn it off instead of having it forced.
 
 Zach
