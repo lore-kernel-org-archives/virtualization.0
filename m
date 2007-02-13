@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 07/21] Xen-paravirt: Allow paravirt backend to choose kernel
-	PMD sharing
-Date: Tue, 13 Feb 2007 14:17:36 -0800
-Message-ID: <20070213221830.007593294@goop.org>
+Subject: [patch 10/21] Xen-paravirt: Name: dont export paravirt_ops structure,
+	do individual functions
+Date: Tue, 13 Feb 2007 14:17:39 -0800
+Message-ID: <20070213221830.238235953@goop.org>
 References: <20070213221729.772002682@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=shared-kernel-pmd.patch
+Content-Disposition: inline; filename=no-paravirt_ops-export.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,243 +22,181 @@ To: Andi Kleen <ak@muc.de>
 Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen does not allow guests to have the kernel pmd shared between page
-tables, so parameterize pgtable.c to allow both modes of operation.
+Wrap the paravirt_ops members we want to export in wrapper functions.
+Since we binary-patch the critical ones, this doesn't make a speed
+impact.
 
+I moved drm_follow_page into the core, to avoid having to wrap the
+various pte ops.  Unlining kernel_fpu_end and using that in the RAID6
+code would remove the need to export clts/read_cr0/write_cr0 too.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
---
- arch/i386/kernel/paravirt.c            |    1 =
-
- arch/i386/mm/fault.c                   |    6 +--
- arch/i386/mm/pageattr.c                |    2 -
- arch/i386/mm/pgtable.c                 |   61 +++++++++++++++++++---------=
----
- include/asm-i386/page.h                |    7 ++-
- include/asm-i386/paravirt.h            |    1 =
-
- include/asm-i386/pgtable-2level-defs.h |    2 +
- include/asm-i386/pgtable-2level.h      |    2 -
- include/asm-i386/pgtable-3level-defs.h |    6 +++
- include/asm-i386/pgtable-3level.h      |   16 ++------
- include/asm-i386/pgtable.h             |    7 +++
- 11 files changed, 68 insertions(+), 43 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -572,6 +572,7 @@ struct paravirt_ops paravirt_ops =3D {
- 	.name =3D "bare hardware",
- 	.paravirt_enabled =3D 0,
- 	.kernel_rpl =3D 0,
-+	.shared_kernel_pmd =3D 1,	/* Only used when CONFIG_X86_PAE is set */
- =
-
-  	.patch =3D native_patch,
- 	.banner =3D default_banner,
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/fault.c
-+++ b/arch/i386/mm/fault.c
-@@ -616,8 +616,7 @@ do_sigbus:
- 	force_sig_info_fault(SIGBUS, BUS_ADRERR, address, tsk);
+@@ -596,6 +596,123 @@ static int __init print_banner(void)
+ 	return 0;
  }
- =
-
--#ifndef CONFIG_X86_PAE
--void vmalloc_sync_all(void)
-+void _vmalloc_sync_all(void)
- {
- 	/*
- 	 * Note that races in the updates of insync and start aren't
-@@ -628,6 +627,8 @@ void vmalloc_sync_all(void)
- 	static DECLARE_BITMAP(insync, PTRS_PER_PGD);
- 	static unsigned long start =3D TASK_SIZE;
- 	unsigned long address;
+ core_initcall(print_banner);
 +
-+	BUG_ON(SHARED_KERNEL_PMD);
++unsigned long paravirt_save_flags(void)
++{
++	return paravirt_ops.save_fl();
++}
++EXPORT_SYMBOL(paravirt_save_flags);
++
++void paravirt_restore_flags(unsigned long flags)
++{
++	paravirt_ops.restore_fl(flags);
++}
++EXPORT_SYMBOL(paravirt_restore_flags);
++
++void paravirt_irq_disable(void)
++{
++	paravirt_ops.irq_disable();
++}
++EXPORT_SYMBOL(paravirt_irq_disable);
++
++void paravirt_irq_enable(void)
++{
++	paravirt_ops.irq_enable();
++}
++EXPORT_SYMBOL(paravirt_irq_enable);
++
++void paravirt_io_delay(void)
++{
++	paravirt_ops.io_delay();
++}
++EXPORT_SYMBOL(paravirt_io_delay);
++
++void paravirt_const_udelay(unsigned long loops)
++{
++	paravirt_ops.const_udelay(loops);
++}
++EXPORT_SYMBOL(paravirt_const_udelay);
++
++u64 paravirt_read_msr(unsigned int msr, int *err)
++{
++	return paravirt_ops.read_msr(msr, err);
++}
++EXPORT_SYMBOL(paravirt_read_msr);
++
++int paravirt_write_msr(unsigned int msr, u64 val)
++{
++	return paravirt_ops.write_msr(msr, val);
++}
++EXPORT_SYMBOL(paravirt_write_msr);
++
++u64 paravirt_read_tsc(void)
++{
++	return paravirt_ops.read_tsc();
++}
++EXPORT_SYMBOL(paravirt_read_tsc);
++
++int paravirt_enabled(void)
++{
++	return paravirt_ops.paravirt_enabled;
++}
++EXPORT_SYMBOL(paravirt_enabled);
++
++void clts(void)
++{
++	paravirt_ops.clts();
++}
++EXPORT_SYMBOL(clts);
++
++unsigned long read_cr0(void)
++{
++	return paravirt_ops.read_cr0();
++}
++EXPORT_SYMBOL_GPL(read_cr0);
++
++void write_cr0(unsigned long cr0)
++{
++	paravirt_ops.write_cr0(cr0);
++}
++EXPORT_SYMBOL_GPL(write_cr0);
++
++void wbinvd(void)
++{
++	paravirt_ops.wbinvd();
++}
++EXPORT_SYMBOL(wbinvd);
++
++void raw_safe_halt(void)
++{
++	paravirt_ops.safe_halt();
++}
++EXPORT_SYMBOL_GPL(raw_safe_halt);
++
++void halt(void)
++{
++	paravirt_ops.safe_halt();
++}
++EXPORT_SYMBOL_GPL(halt);
++
++#ifdef CONFIG_X86_LOCAL_APIC
++void apic_write(unsigned long reg, unsigned long v)
++{
++	paravirt_ops.apic_write(reg,v);
++}
++EXPORT_SYMBOL_GPL(apic_write);
++
++unsigned long apic_read(unsigned long reg)
++{
++	return paravirt_ops.apic_read(reg);
++}
++EXPORT_SYMBOL_GPL(apic_read);
++#endif
++
++void __cpuid(unsigned int *eax, unsigned int *ebx,
++	     unsigned int *ecx, unsigned int *edx)
++{
++	paravirt_ops.cpuid(eax, ebx, ecx, edx);
++}
++EXPORT_SYMBOL(__cpuid);
  =
 
- 	BUILD_BUG_ON(TASK_SIZE & ~PGDIR_MASK);
- 	for (address =3D start; address >=3D TASK_SIZE; address +=3D PGDIR_SIZE) {
-@@ -651,4 +652,3 @@ void vmalloc_sync_all(void)
- 			start =3D address + PGDIR_SIZE;
- 	}
- }
--#endif
+ /* We simply declare start_kernel to be the paravirt probe of last resort.=
+ */
+ paravirt_probe(start_kernel);
+@@ -712,11 +829,3 @@ struct paravirt_ops paravirt_ops =3D {
+ =
+
+ 	.startup_ipi_hook =3D (void *)native_nop,
+ };
+-
+-/*
+- * NOTE: CONFIG_PARAVIRT is experimental and the paravirt_ops
+- * semantics are subject to change. Hence we only do this
+- * internal-only export of this, until it gets sorted out and
+- * all lowlevel CPU ops used by modules are separately exported.
+- */
+-EXPORT_SYMBOL_GPL(paravirt_ops);
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/pageattr.c
-+++ b/arch/i386/mm/pageattr.c
-@@ -91,7 +91,7 @@ static void set_pmd_pte(pte_t *kpte, uns
- 	unsigned long flags;
+--- a/include/asm-i386/delay.h
++++ b/include/asm-i386/delay.h
+@@ -17,9 +17,9 @@ extern void __delay(unsigned long loops)
+ extern void __delay(unsigned long loops);
  =
 
- 	set_pte_atomic(kpte, pte); 	/* change init_mm */
--	if (PTRS_PER_PMD > 1)
-+	if (SHARED_KERNEL_PMD)
- 		return;
+ #if defined(CONFIG_PARAVIRT) && !defined(USE_REAL_TIME_DELAY)
+-#define udelay(n) paravirt_ops.const_udelay((n) * 0x10c7ul)
++#define udelay(n) paravirt_const_udelay((n) * 0x10c7ul)
  =
 
- 	spin_lock_irqsave(&pgd_lock, flags);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/pgtable.c
-+++ b/arch/i386/mm/pgtable.c
-@@ -241,31 +241,42 @@ static void pgd_ctor(pgd_t *pgd)
- 	unsigned long flags;
+-#define ndelay(n) paravirt_ops.const_udelay((n) * 5ul)
++#define ndelay(n) paravirt_const_udelay((n) * 5ul)
  =
 
- 	if (PTRS_PER_PMD =3D=3D 1) {
-+		/* !PAE, no pagetable sharing */
- 		memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
-+
-+		clone_pgd_range(pgd + USER_PTRS_PER_PGD,
-+				swapper_pg_dir + USER_PTRS_PER_PGD,
-+				KERNEL_PGD_PTRS);
-+
- 		spin_lock_irqsave(&pgd_lock, flags);
--	}
--
--	clone_pgd_range(pgd + USER_PTRS_PER_PGD,
--			swapper_pg_dir + USER_PTRS_PER_PGD,
--			KERNEL_PGD_PTRS);
--
--	if (PTRS_PER_PMD > 1)
--		return;
--
--	/* must happen under lock */
--	paravirt_alloc_pd_clone(__pa(pgd) >> PAGE_SHIFT,
--			__pa(swapper_pg_dir) >> PAGE_SHIFT,
--			USER_PTRS_PER_PGD, PTRS_PER_PGD - USER_PTRS_PER_PGD);
--
--	pgd_list_add(pgd);
--	spin_unlock_irqrestore(&pgd_lock, flags);
-+
-+		/* must happen under lock */
-+		paravirt_alloc_pd_clone(__pa(pgd) >> PAGE_SHIFT,
-+					__pa(swapper_pg_dir) >> PAGE_SHIFT,
-+					USER_PTRS_PER_PGD,
-+					PTRS_PER_PGD - USER_PTRS_PER_PGD);
-+
-+		pgd_list_add(pgd);
-+		spin_unlock_irqrestore(&pgd_lock, flags);
-+	} else {
-+		/* PAE, PMD may be shared */
-+		if (SHARED_KERNEL_PMD) {
-+			clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
-+					swapper_pg_dir + USER_PTRS_PER_PGD,
-+					KERNEL_PGD_PTRS);
-+		} else {
-+			spin_lock_irqsave(&pgd_lock, flags);
-+			pgd_list_add(pgd);
-+			spin_unlock_irqrestore(&pgd_lock, flags);
-+		}
-+	}
- }
- =
-
- static void pgd_dtor(pgd_t *pgd)
- {
- 	unsigned long flags; /* can be called from interrupt context */
- =
-
--	if (PTRS_PER_PMD =3D=3D 1)
-+	if (SHARED_KERNEL_PMD)
- 		return;
- =
-
- 	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
-@@ -279,19 +290,25 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
- 	int i;
- 	pgd_t *pgd =3D kmem_cache_alloc(pgd_cache, GFP_KERNEL);
- =
-
--	if (pgd)
-+	if (likely(pgd))
- 		pgd_ctor(pgd);
- =
-
--	if (PTRS_PER_PMD =3D=3D 1 || !pgd)
-+	if (PTRS_PER_PMD =3D=3D 1 || unlikely(!pgd))
- 		return pgd;
- =
-
--	for (i =3D 0; i < USER_PTRS_PER_PGD; ++i) {
-+	for (i =3D 0; i < (SHARED_KERNEL_PMD ? USER_PTRS_PER_PGD : PTRS_PER_PGD);=
- ++i) {
- 		pmd_t *pmd =3D kmem_cache_alloc(pmd_cache, GFP_KERNEL);
--		if (!pmd)
-+		if (unlikely(!pmd))
- 			goto out_oom;
-+
-+		if (i >=3D USER_PTRS_PER_PGD)
-+			memcpy(pmd, (void *)pgd_page_vaddr(swapper_pg_dir[i]),
-+			       sizeof(pmd_t) * PTRS_PER_PMD);
-+
- 		paravirt_alloc_pd(__pa(pmd) >> PAGE_SHIFT);
- 		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
- 	}
-+
- 	return pgd;
- =
-
- out_oom:
-@@ -312,7 +329,7 @@ void pgd_free(pgd_t *pgd)
- =
-
- 	/* in the PAE case user pgd entries are overwritten before usage */
- 	if (PTRS_PER_PMD > 1)
--		for (i =3D 0; i < USER_PTRS_PER_PGD; ++i) {
-+		for (i =3D 0; i < (SHARED_KERNEL_PMD ? USER_PTRS_PER_PGD : PTRS_PER_PGD)=
-; ++i) {
- 			pgd_t pgdent =3D pgd[i];
- 			void* pmd =3D (void *)__va(pgd_val(pgdent)-1);
- 			paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/page.h
-+++ b/include/asm-i386/page.h
-@@ -50,21 +50,23 @@ typedef struct { unsigned long long pgpr
- #ifndef CONFIG_PARAVIRT
- #define pmd_val(x)	((x).pmd)
- #define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
-+#define __pte(x) ((pte_t) { .pte_low =3D (x), .pte_high =3D ((x) >> 32) } )
- #define __pmd(x) ((pmd_t) { (x) } )
- #endif	/* CONFIG_PARAVIRT */
- #define HPAGE_SHIFT	21
- #include <asm-generic/pgtable-nopud.h>
--#else
-+#else  /* !CONFIG_X86_PAE */
- typedef struct { unsigned long pte_low; } pte_t;
- typedef struct { unsigned long pgd; } pgd_t;
- typedef struct { unsigned long pgprot; } pgprot_t;
- #define boot_pte_t pte_t /* or would you rather have a typedef */
- #ifndef CONFIG_PARAVIRT
-+#define __pte(x) ((pte_t) { (x) })
- #define pte_val(x)	((x).pte_low)
- #endif
- #define HPAGE_SHIFT	22
- #include <asm-generic/pgtable-nopmd.h>
--#endif
-+#endif	/* CONFIG_X86_PAE */
- #define PTE_MASK	PAGE_MASK
- =
-
- #ifdef CONFIG_HUGETLB_PAGE
-@@ -79,7 +81,6 @@ typedef struct { unsigned long pgprot; }
- =
-
- #ifndef CONFIG_PARAVIRT
- #define pgd_val(x)	((x).pgd)
--#define __pte(x) ((pte_t) { (x) } )
- #define __pgd(x) ((pgd_t) { (x) } )
- #endif
+ #else /* !PARAVIRT || USE_REAL_TIME_DELAY */
  =
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -266,125 +204,361 @@ Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -34,6 +34,7 @@ struct paravirt_ops
- struct paravirt_ops
- {
- 	unsigned int kernel_rpl;
-+	int shared_kernel_pmd;
-  	int paravirt_enabled;
- 	const char *name;
+@@ -218,8 +218,6 @@ fastcall pgd_t native_make_pgd(unsigned =
+
+ fastcall pgd_t native_make_pgd(unsigned long pgd);
+ #endif
  =
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable-2level-defs.h
-+++ b/include/asm-i386/pgtable-2level-defs.h
-@@ -1,5 +1,7 @@
- #ifndef _I386_PGTABLE_2LEVEL_DEFS_H
- #define _I386_PGTABLE_2LEVEL_DEFS_H
-+
-+#define SHARED_KERNEL_PMD	0
+-#define paravirt_enabled() (paravirt_ops.paravirt_enabled)
+-
+ static inline void load_esp0(struct tss_struct *tss,
+ 			     struct thread_struct *thread)
+ {
+@@ -243,11 +241,8 @@ static inline void do_time_init(void)
+ }
+ =
+
+ /* The paravirtualized CPUID instruction. */
+-static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
+-			   unsigned int *ecx, unsigned int *edx)
+-{
+-	paravirt_ops.cpuid(eax, ebx, ecx, edx);
+-}
++void __cpuid(unsigned int *eax, unsigned int *ebx,
++	     unsigned int *ecx, unsigned int *edx);
  =
 
  /*
-  * traditional i386 two-level paging structure:
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable-2level.h
-+++ b/include/asm-i386/pgtable-2level.h
-@@ -66,6 +66,4 @@ static inline int pte_exec_kernel(pte_t =
+  * These special macros can be used to get or set a debugging register
+@@ -255,11 +250,6 @@ static inline void __cpuid(unsigned int =
 
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
+ #define get_debugreg(var, reg) var =3D paravirt_ops.get_debugreg(reg)
+ #define set_debugreg(val, reg) paravirt_ops.set_debugreg(reg, val)
  =
 
--void vmalloc_sync_all(void);
+-#define clts() paravirt_ops.clts()
 -
- #endif /* _I386_PGTABLE_2LEVEL_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable-3level-defs.h
-+++ b/include/asm-i386/pgtable-3level-defs.h
-@@ -1,5 +1,11 @@
- #ifndef _I386_PGTABLE_3LEVEL_DEFS_H
- #define _I386_PGTABLE_3LEVEL_DEFS_H
-+
-+#ifdef CONFIG_PARAVIRT
-+#define SHARED_KERNEL_PMD	(paravirt_ops.shared_kernel_pmd)
-+#else
-+#define SHARED_KERNEL_PMD	1
+-#define read_cr0() paravirt_ops.read_cr0()
+-#define write_cr0(x) paravirt_ops.write_cr0(x)
+-
+ #define read_cr2() paravirt_ops.read_cr2()
+ #define write_cr2(x) paravirt_ops.write_cr2(x)
+ =
+
+@@ -272,62 +262,51 @@ static inline void __cpuid(unsigned int =
+
+ =
+
+ #define raw_ptep_get_and_clear(xp)	(paravirt_ops.ptep_get_and_clear(xp))
+ =
+
+-static inline void raw_safe_halt(void)
+-{
+-	paravirt_ops.safe_halt();
+-}
+-
+-static inline void halt(void)
+-{
+-	paravirt_ops.safe_halt();
+-}
+-#define wbinvd() paravirt_ops.wbinvd()
+-
+ #define get_kernel_rpl()  (paravirt_ops.kernel_rpl)
+ =
+
+ #define rdmsr(msr,val1,val2) do {				\
+ 	int _err;						\
+-	u64 _l =3D paravirt_ops.read_msr(msr,&_err);		\
++	u64 _l =3D paravirt_read_msr(msr,&_err);			\
+ 	val1 =3D (u32)_l;						\
+ 	val2 =3D _l >> 32;					\
+ } while(0)
+ =
+
+ #define wrmsr(msr,val1,val2) do {				\
+ 	u64 _l =3D ((u64)(val2) << 32) | (val1);			\
+-	paravirt_ops.write_msr((msr), _l);			\
++	paravirt_write_msr((msr), _l);				\
+ } while(0)
+ =
+
+ #define rdmsrl(msr,val) do {					\
+ 	int _err;						\
+-	val =3D paravirt_ops.read_msr((msr),&_err);		\
++	val =3D paravirt_read_msr((msr),&_err);			\
+ } while(0)
+ =
+
+-#define wrmsrl(msr,val) (paravirt_ops.write_msr((msr),(val)))
++#define wrmsrl(msr,val) (paravirt_write_msr((msr),(val)))
+ #define wrmsr_safe(msr,a,b) ({					\
+ 	u64 _l =3D ((u64)(b) << 32) | (a);			\
+-	paravirt_ops.write_msr((msr),_l);			\
++	paravirt_write_msr((msr),_l);				\
+ })
+ =
+
+ /* rdmsr with exception handling */
+ #define rdmsr_safe(msr,a,b) ({					\
+ 	int _err;						\
+-	u64 _l =3D paravirt_ops.read_msr(msr,&_err);		\
++	u64 _l =3D paravirt_read_msr(msr,&_err);			\
+ 	(*a) =3D (u32)_l;						\
+ 	(*b) =3D _l >> 32;					\
+ 	_err; })
+ =
+
+ #define rdtsc(low,high) do {					\
+-	u64 _l =3D paravirt_ops.read_tsc();			\
++	u64 _l =3D paravirt_read_tsc();				\
+ 	low =3D (u32)_l;						\
+ 	high =3D _l >> 32;					\
+ } while(0)
+ =
+
+ #define rdtscl(low) do {					\
+-	u64 _l =3D paravirt_ops.read_tsc();			\
++	u64 _l =3D paravirt_read_tsc();				\
+ 	low =3D (int)_l;						\
+ } while(0)
+ =
+
+-#define rdtscll(val) (val =3D paravirt_ops.read_tsc())
++#define rdtscll(val) (val =3D paravirt_read_tsc())
+ =
+
+ #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
+ =
+
+@@ -364,35 +343,10 @@ static inline void halt(void)
+ #define pmd_val(x)	paravirt_ops.pmd_val(x)
+ #endif
+ =
+
+-/* The paravirtualized I/O functions */
+-static inline void slow_down_io(void) {
+-	paravirt_ops.io_delay();
+-#ifdef REALLY_SLOW_IO
+-	paravirt_ops.io_delay();
+-	paravirt_ops.io_delay();
+-	paravirt_ops.io_delay();
+-#endif
+-}
+-
+ #ifdef CONFIG_X86_LOCAL_APIC
+ /*
+  * Basic functions accessing APICs.
+  */
+-static inline void apic_write(unsigned long reg, unsigned long v)
+-{
+-	paravirt_ops.apic_write(reg,v);
+-}
+-
+-static inline void apic_write_atomic(unsigned long reg, unsigned long v)
+-{
+-	paravirt_ops.apic_write_atomic(reg,v);
+-}
+-
+-static inline unsigned long apic_read(unsigned long reg)
+-{
+-	return paravirt_ops.apic_read(reg);
+-}
+-
+ static inline void setup_boot_clock(void)
+ {
+ 	paravirt_ops.setup_boot_clock();
+@@ -489,6 +443,46 @@ static inline void pte_update_defer(stru
+ 	paravirt_ops.pte_update_defer(mm, addr, ptep);
+ }
+ =
+
++/* These are the functions exported to modules. */
++int paravirt_enabled(void);
++unsigned long paravirt_save_flags(void);
++void paravirt_restore_flags(unsigned long flags);
++void paravirt_irq_disable(void);
++void paravirt_irq_enable(void);
++void paravirt_const_udelay(unsigned long loops);
++u64 paravirt_read_msr(unsigned int msr, int *err);
++int paravirt_write_msr(unsigned int msr, u64 val);
++u64 paravirt_read_tsc(void);
++void raw_safe_halt(void);
++void halt(void);
++void wbinvd(void);
++void paravirt_io_delay(void);
++static inline void slow_down_io(void) {
++	paravirt_io_delay();
++#ifdef REALLY_SLOW_IO
++	paravirt_io_delay();
++	paravirt_io_delay();
++	paravirt_io_delay();
 +#endif
- =
-
- /*
-  * PGDIR_SHIFT determines what a top-level page table entry can map
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable-3level.h
-+++ b/include/asm-i386/pgtable-3level.h
-@@ -153,20 +153,14 @@ extern unsigned long long __supported_pt
- =
-
- static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
- {
--	pte_t pte;
--
--	pte.pte_high =3D (page_nr >> (32 - PAGE_SHIFT)) | \
--					(pgprot_val(pgprot) >> 32);
--	pte.pte_high &=3D (__supported_pte_mask >> 32);
--	pte.pte_low =3D ((page_nr << PAGE_SHIFT) | pgprot_val(pgprot)) & \
--							__supported_pte_mask;
--	return pte;
-+	return __pte((((unsigned long long)page_nr << PAGE_SHIFT) | =
-
-+		      pgprot_val(pgprot)) & __supported_pte_mask);
- }
- =
-
- static inline pmd_t pfn_pmd(unsigned long page_nr, pgprot_t pgprot)
- {
--	return __pmd((((unsigned long long)page_nr << PAGE_SHIFT) | \
--			pgprot_val(pgprot)) & __supported_pte_mask);
-+	return __pmd((((unsigned long long)page_nr << PAGE_SHIFT) |
-+		      pgprot_val(pgprot)) & __supported_pte_mask);
- }
- =
-
- /*
-@@ -186,6 +180,4 @@ static inline pmd_t pfn_pmd(unsigned lon
- =
-
- #define __pmd_free_tlb(tlb, x)		do { } while (0)
- =
-
--#define vmalloc_sync_all() ((void)0)
--
- #endif /* _I386_PGTABLE_3LEVEL_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -239,6 +239,13 @@ static inline pte_t pte_mkwrite(pte_t pt
- static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |=3D _PAGE_RW; =
-return pte; }
- static inline pte_t pte_mkhuge(pte_t pte)	{ (pte).pte_low |=3D _PAGE_PSE; =
-return pte; }
- =
-
-+extern void _vmalloc_sync_all(void);
-+static inline void vmalloc_sync_all(void)
-+{
-+	if (!SHARED_KERNEL_PMD)
-+		_vmalloc_sync_all();
 +}
 +
++#ifdef CONFIG_X86_LOCAL_APIC
++/*
++ * Basic functions accessing APICs.
++ */
++void apic_write(unsigned long reg, unsigned long v);
++static inline void apic_write_atomic(unsigned long reg, unsigned long v)
++{
++	paravirt_ops.apic_write_atomic(reg,v);
++}
++unsigned long apic_read(unsigned long reg);
++#endif
++
++/* These will be unexported once raid6 is fixed... */
++void clts(void);
++unsigned long read_cr0(void);
++void write_cr0(unsigned long);
++
  #ifdef CONFIG_X86_PAE
- # include <asm/pgtable-3level.h>
+ static inline void set_pte_atomic(pte_t *ptep, pte_t pteval)
+ {
+@@ -551,42 +545,38 @@ static inline unsigned long __raw_local_
+ 	unsigned long f;
+ =
+
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1;"
++					   "call paravirt_save_flags;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
+-			     : "=3Da"(f): "m"(paravirt_ops.save_fl)
+-			     : "memory", "cc");
++			     : "=3Da"(f) : : "memory", "cc");
+ 	return f;
+ }
+ =
+
+ static inline void raw_local_irq_restore(unsigned long f)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1;"
++					   "call paravirt_restore_flags;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
+-			     : "=3Da"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
+-			     : "memory", "cc");
++			     : "=3Da"(f) : "0"(f) : "memory", "cc");
+ }
+ =
+
+ static inline void raw_local_irq_disable(void)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%0;"
++					   "call paravirt_irq_disable;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_disable)
+-			     : "memory", "eax", "cc");
++			     : : : "memory", "eax", "cc");
+ }
+ =
+
+ static inline void raw_local_irq_enable(void)
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%0;"
++					   "call paravirt_irq_enable;"
+ 					   "popl %%edx; popl %%ecx",
+ 					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_enable)
+-			     : "memory", "eax", "cc");
++			     : : : "memory", "eax", "cc");
+ }
+ =
+
+ static inline unsigned long __raw_local_irq_save(void)
+@@ -594,15 +584,13 @@ static inline unsigned long __raw_local_
+ 	unsigned long f;
+ =
+
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1; pushl %%eax;"
+-					   "call *%2; popl %%eax;"
+-					   "popl %%edx; popl %%ecx",
++					   "call paravirt_save_flags;"
++					   "pushl %%eax;"
++					   "call paravirt_irq_disable;"
++					   "popl %%eax;popl %%edx; popl %%ecx",
+ 					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
+ 					  CLBR_NONE)
+-			     : "=3Da"(f)
+-			     : "m" (paravirt_ops.save_fl),
+-			       "m" (paravirt_ops.irq_disable)
+-			     : "memory", "cc");
++			     : "=3Da"(f) : : "memory", "cc");
+ 	return f;
+ }
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/linux/irqflags.h
++++ b/include/linux/irqflags.h
+@@ -74,11 +74,11 @@
+ #endif /* CONFIG_TRACE_IRQFLAGS_SUPPORT */
+ =
+
+ #ifdef CONFIG_TRACE_IRQFLAGS_SUPPORT
+-#define safe_halt()						\
+-	do {							\
+-		trace_hardirqs_on();				\
+-		raw_safe_halt();				\
+-	} while (0)
++static inline void safe_halt(void)
++{
++	trace_hardirqs_on();
++	raw_safe_halt();
++}
+ =
+
+ #define local_save_flags(flags)		raw_local_save_flags(flags)
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1129,6 +1129,8 @@ struct page *follow_page(struct vm_area_
+ #define FOLL_GET	0x04	/* do get_page on page */
+ #define FOLL_ANON	0x08	/* give ZERO_PAGE if no pgtable */
+ =
+
++unsigned long __follow_page(void *vaddr);
++
+ #ifdef CONFIG_PROC_FS
+ void vm_stat_account(struct mm_struct *, unsigned long, struct file *, lon=
+g);
  #else
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -976,6 +976,17 @@ no_page_table:
+ 	return page;
+ }
+ =
+
++/* You don't want to use this function.  It's for drm_memory.c. */
++unsigned long __follow_page(void *vaddr)
++{
++	pgd_t *pgd =3D pgd_offset_k((unsigned long)vaddr);
++	pud_t *pud =3D pud_offset(pgd, (unsigned long)vaddr);
++	pmd_t *pmd =3D pmd_offset(pud, (unsigned long)vaddr);
++	pte_t *ptep =3D pte_offset_kernel(pmd, (unsigned long)vaddr);
++	return pte_pfn(*ptep) << PAGE_SHIFT;
++}
++EXPORT_SYMBOL_GPL(__follow_page);
++
+ int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+ 		unsigned long start, int len, int write, int force,
+ 		struct page **pages, struct vm_area_struct **vmas)
 
 -- =
