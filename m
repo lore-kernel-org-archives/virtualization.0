@@ -1,14 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 09/21] Xen-paravirt: add hooks to intercept mm creation and
-	destruction
-Date: Tue, 13 Feb 2007 14:17:38 -0800
-Message-ID: <20070213221830.159330386@goop.org>
+Subject: [patch 06/21] Xen-paravirt: remove ctor for pgd cache
+Date: Tue, 13 Feb 2007 14:17:35 -0800
+Message-ID: <20070213221829.929261125@goop.org>
 References: <20070213221729.772002682@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=mm-lifetime-hooks.patch
+Content-Disposition: inline; filename=remove-pgd-ctor.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,179 +21,117 @@ To: Andi Kleen <ak@muc.de>
 Cc: Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add hooks to allow a paravirt implementation to track the lifetime of
-an mm.
+Remove the ctor for the pgd cache.  There's no point in having the
+cache machinery do this via an indirect call when all pgd are freed in
+the one place anyway.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
---
- arch/i386/kernel/paravirt.c    |    4 ++++
- include/asm-i386/mmu_context.h |    8 ++++++--
- include/asm-i386/paravirt.h    |   38 ++++++++++++++++++++++++++++++++++++=
-++
- kernel/fork.c                  |    3 +++
- mm/mmap.c                      |    4 ++++
- 5 files changed, 55 insertions(+), 2 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -706,6 +706,10 @@ struct paravirt_ops paravirt_ops =3D {
- 	.irq_enable_sysexit =3D native_irq_enable_sysexit,
- 	.iret =3D native_iret,
- =
-
-+	.dup_mmap =3D (void *)native_nop,
-+	.exit_mmap =3D (void *)native_nop,
-+	.activate_mm =3D (void *)native_nop,
-+
- 	.startup_ipi_hook =3D (void *)native_nop,
- };
- =
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -5,6 +5,7 @@
- #include <asm/atomic.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-+#include <asm/paravirt.h>
- =
-
- /*
-  * Used for LDT copy/destruction.
-@@ -65,7 +66,10 @@ static inline void switch_mm(struct mm_s
- #define deactivate_mm(tsk, mm)			\
- 	asm("movl %0,%%fs": :"r" (0));
- =
-
--#define activate_mm(prev, next) \
--	switch_mm((prev),(next),NULL)
-+#define activate_mm(prev, next)				\
-+	do {						\
-+		arch_activate_mm(prev, next);		\
-+		switch_mm((prev),(next),NULL);		\
-+	} while(0);
- =
-
- #endif
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -126,6 +126,12 @@ struct paravirt_ops
- 	void (fastcall *io_delay)(void);
- 	void (*const_udelay)(unsigned long loops);
- =
-
-+	void (fastcall *activate_mm)(struct mm_struct *prev,
-+				     struct mm_struct *next);
-+	void (fastcall *dup_mmap)(struct mm_struct *oldmm, =
-
-+				  struct mm_struct *mm);
-+	void (fastcall *exit_mmap)(struct mm_struct *mm);
-+
- #ifdef CONFIG_X86_LOCAL_APIC
- 	void (fastcall *apic_write)(unsigned long reg, unsigned long v);
- 	void (fastcall *apic_write_atomic)(unsigned long reg, unsigned long v);
-@@ -429,6 +435,24 @@ static inline void paravirt_pagetable_se
- 		(*paravirt_ops.pagetable_setup_done)(base);
- }
- =
-
-+#define __HAVE_ARCH_MM_LIFETIME
-+static inline void arch_activate_mm(struct mm_struct *prev,
-+				    struct mm_struct *next)
-+{
-+	paravirt_ops.activate_mm(prev, next);
-+}
-+
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+	paravirt_ops.dup_mmap(oldmm, mm);
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+	paravirt_ops.exit_mmap(mm);
-+}
-+
- #define __flush_tlb() paravirt_ops.flush_tlb_user()
- #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
- #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
-@@ -673,5 +697,20 @@ static inline void paravirt_pagetable_se
- 	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
- #endif
- }
-+
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
-+{
-+}
-+
-+static inline void paravirt_dup_mmap(struct mm_struct *oldmm,
-+				     struct mm_struct *mm)
-+{
-+}
-+
-+static inline void paravirt_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif /* CONFIG_PARAVIRT */
- #endif	/* __ASM_PARAVIRT_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -374,6 +374,12 @@ struct mm_struct {
- 	rwlock_t		ioctx_list_lock;
- 	struct kioctx		*ioctx_list;
- };
-+
-+#ifndef __HAVE_ARCH_MM_LIFETIME
-+#define arch_activate_mm(prev, next)	do {} while(0)
-+#define arch_dup_mmap(oldmm, mm)	do {} while(0)
-+#define arch_exit_mmap(mm)		do {} while(0)
-+#endif
- =
-
- struct sighand_struct {
- 	atomic_t		count;
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -286,6 +286,7 @@ static inline int dup_mmap(struct mm_str
- 		if (retval)
- 			goto out;
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -739,11 +739,9 @@ void __init pgtable_cache_init(void)
+ 			panic("pgtable_cache_init(): cannot create pmd cache");
  	}
-+	arch_dup_mmap(oldmm, mm);
- 	retval =3D 0;
- out:
- 	up_write(&mm->mmap_sem);
+ 	pgd_cache =3D kmem_cache_create("pgd",
+-				PTRS_PER_PGD*sizeof(pgd_t),
+-				PTRS_PER_PGD*sizeof(pgd_t),
+-				0,
+-				pgd_ctor,
+-				PTRS_PER_PMD =3D=3D 1 ? pgd_dtor : NULL);
++				      PTRS_PER_PGD*sizeof(pgd_t),
++				      PTRS_PER_PGD*sizeof(pgd_t),
++				      0, NULL, NULL);
+ 	if (!pgd_cache)
+ 		panic("pgtable_cache_init(): Cannot create pgd cache");
+ }
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1976,6 +1976,8 @@ void exit_mmap(struct mm_struct *mm)
- 	struct vm_area_struct *vma =3D mm->mmap;
- 	unsigned long nr_accounted =3D 0;
- 	unsigned long end;
-+
-+	arch_exit_mmap(mm);
+--- a/arch/i386/mm/pgtable.c
++++ b/arch/i386/mm/pgtable.c
+@@ -236,7 +236,7 @@ static inline void pgd_list_del(pgd_t *p
+ 		set_page_private(next, (unsigned long)pprev);
+ }
  =
 
- 	lru_add_drain();
- 	flush_cache_mm(mm);
+-void pgd_ctor(void *pgd, struct kmem_cache *cache, unsigned long unused)
++static void pgd_ctor(pgd_t *pgd)
+ {
+ 	unsigned long flags;
+ =
+
+@@ -245,7 +245,7 @@ void pgd_ctor(void *pgd, struct kmem_cac
+ 		spin_lock_irqsave(&pgd_lock, flags);
+ 	}
+ =
+
+-	clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
++	clone_pgd_range(pgd + USER_PTRS_PER_PGD,
+ 			swapper_pg_dir + USER_PTRS_PER_PGD,
+ 			KERNEL_PGD_PTRS);
+ =
+
+@@ -261,10 +261,12 @@ void pgd_ctor(void *pgd, struct kmem_cac
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+ }
+ =
+
+-/* never called when PTRS_PER_PMD > 1 */
+-void pgd_dtor(void *pgd, struct kmem_cache *cache, unsigned long unused)
++static void pgd_dtor(pgd_t *pgd)
+ {
+ 	unsigned long flags; /* can be called from interrupt context */
++
++	if (PTRS_PER_PMD =3D=3D 1)
++		return;
+ =
+
+ 	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
+ 	spin_lock_irqsave(&pgd_lock, flags);
+@@ -276,6 +278,9 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ {
+ 	int i;
+ 	pgd_t *pgd =3D kmem_cache_alloc(pgd_cache, GFP_KERNEL);
++
++	if (pgd)
++		pgd_ctor(pgd);
+ =
+
+ 	if (PTRS_PER_PMD =3D=3D 1 || !pgd)
+ 		return pgd;
+@@ -296,6 +301,7 @@ out_oom:
+ 		paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
+ 		kmem_cache_free(pmd_cache, pmd);
+ 	}
++	pgd_dtor(pgd);
+ 	kmem_cache_free(pgd_cache, pgd);
+ 	return NULL;
+ }
+@@ -313,5 +319,6 @@ void pgd_free(pgd_t *pgd)
+ 			kmem_cache_free(pmd_cache, pmd);
+ 		}
+ 	/* in the non-PAE case, free_pgtables() clears user pgd entries */
++	pgd_dtor(pgd);
+ 	kmem_cache_free(pgd_cache, pgd);
+ }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -41,8 +41,6 @@ extern struct page *pgd_list;
+ extern struct page *pgd_list;
+ =
+
+ void pmd_ctor(void *, struct kmem_cache *, unsigned long);
+-void pgd_ctor(void *, struct kmem_cache *, unsigned long);
+-void pgd_dtor(void *, struct kmem_cache *, unsigned long);
+ void pgtable_cache_init(void);
+ void paging_init(void);
+ =
+
 
 -- =
