@@ -1,43 +1,28 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [patch 10/21] Xen-paravirt: Name: dont export
- paravirt_ops structure, do individual functions
-Date: Tue, 13 Feb 2007 17:18:21 -0800
-Message-ID: <45D2635D.9070205@vmware.com>
-References: <20070213221729.772002682@goop.org>
-	<20070213221830.238235953@goop.org>
-	<45D260A2.4010200@vmware.com> <45D262DC.2020008@goop.org>
+From: Dan Hecht <dhecht@vmware.com>
+Subject: Re: [patch 05/21] Xen-paravirt: paravirt_ops: allocate a fixmap slot
+Date: Tue, 13 Feb 2007 17:23:41 -0800
+Message-ID: <45D2649D.4080508@vmware.com>
+References: <20070213221729.772002682@goop.org> <20070213221829.845132535@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <45D262DC.2020008@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751486AbXBNBYO@vger.kernel.org>
+In-Reply-To: <20070213221829.845132535@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->   
->> This turned out really hideous looking to me.  Can't we split the
->> struct into GPL'd and non-GPL'd functions instead?  We still have the
->> same granularity, and none of this function call to an indirect
->> function call nonsense. 
->>     
->
-> It's not pretty, but I think having paravirt_ops and paravirt_ops_gpl
-> would be worse.  I'd be sympathetic to the idea of splitting
-> paravirt_ops up by function groupings, but splitting it by license seems
-> like a maintenance headache with no real upside.  Besides, patching will
-> solve everything (tm).
->   
+On 02/13/2007 02:17 PM, Jeremy Fitzhardinge wrote:
+> Allocate a fixmap slot for use by a paravirt_ops implementation.  Xen
+> uses this to map the hypervisor's shared info page, which doesn't have
+> a pseudo-physical page number, and therefore can't be mapped
+> ordinarily.
+> 
 
-Ok.  As long as we plan on patching CR2 and CR0 / clts accessors for FPU 
-save during context switch and page fault paths in the future.
+Why doesn't Xen allocate the shared_info page from the pseudo-physical 
+space?  Doesn't it already have to steal pages from the pseudo-physical 
+space for e.g. initial page tables, console, etc?  Why not do the same 
+for shared_info, and then you don't need a reserve the fixmap slot.
+
+Dan
