@@ -1,17 +1,16 @@
 From: ebiederm@xmission.com (Eric W. Biederman)
 Subject: Re: [patch 16/21] Xen-paravirt: Add code into head.S to handle being
 	booted by Xen
-Date: Wed, 14 Feb 2007 13:10:42 -0700
-Message-ID: <m1zm7gpkjh.fsf@ebiederm.dsl.xmission.com>
+Date: Wed, 14 Feb 2007 13:33:13 -0700
+Message-ID: <m1sld8pjhy.fsf@ebiederm.dsl.xmission.com>
 References: <20070213221729.772002682@goop.org>
-	<20070213221830.707197267@goop.org> <20070213235424.GA1908@muc.de>
-	<45D35ABE.1050504@goop.org>
+	<20070213221830.707197267@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45D35ABE.1050504@goop.org> (Jeremy Fitzhardinge's message of
-	"Wed, 14 Feb 2007 10:53:50 -0800")
+In-Reply-To: <20070213221830.707197267@goop.org> (Jeremy Fitzhardinge's
+	message of "Tue, 13 Feb 2007 14:17:45 -0800")
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,88 +21,112 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Ian Campbell <Ian.Campbell@XenSource.com>, linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
-> Andi Kleen wrote:
->>> +#ifdef CONFIG_XEN
->>> +#include "../xen/xen-head.S"
->>> +#endif
->>>     =
+There need to be alignment directives for the page aligned chunks.
 
->>
->> Can this really not be linked separately? =
+Placing the page aligned chunks in a special section is nice in that
+it ensures the linker packs everything tightly but should be
+completely unnecessary if the alignment is correct.
 
->
-> I did a patch to do this (attached).  In principle it should be pretty
-> simple, but I think I'm running into toolchain issues.  If I link
-> xen-head.S separately (with appropriate headers added), it compiles OK
-> and contains the right notes, but they don't appear in the final vmlinux
-> properly.  The note segment and section are there, but no tools will
-> parse them as notes:
->
-> : ezr:pts/1; readelf -n vmlinux =
+>  =
 
-> : ezr:pts/1; ../../unstable/tools/xcutils/readnotes vmlinux =
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- a/arch/i386/kernel/head.S
+> +++ b/arch/i386/kernel/head.S
+> @@ -519,6 +519,10 @@ 1:
+>  	jmp	1b
+>  #endif
+>  =
 
-> : ezr:pts/1; readelf -l vmlinux =
+> +#ifdef CONFIG_XEN
+> +#include "../xen/xen-head.S"
+> +#endif
+> +	=
 
->
-> Elf file type is EXEC (Executable file)
-> Entry point 0x2e1f70
-> There are 3 program headers, starting at offset 52
->
-> Program Headers:
->   Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
->   LOAD           0x001000 0xc0100000 0x00100000 0x2a8920 0x2a8920 R E 0x1=
-000
->   LOAD           0x2aa000 0xc03a9000 0x003a9000 0x5f085 0xaf000 RWE 0x1000
->   NOTE           0x26d2910 0x00239010 0x00239010 0x000e8 0x00000 R   0x4
->
->  Section to Segment mapping:
->   Segment Sections...
->    00 .text .text.head __ex_table .rodata .pci_fixup __ksymtab __ksymtab_=
-gpl
-> __kcrctab __kcrctab_gpl __ksymtab_strings __param __bug_table
->    01 .data .paravirtprobe .data_nosave .data.page_aligned
-> .data.cacheline_aligned .data.read_mostly .data.init_task .init.text .ini=
-t.data
-> .init.setup .initcall.init .con_initcall.init .altinstructions
-> .altinstr_replacement .parainstructions .exit.text .init.ramfs .bss
->    02     .notes =
+>  /*
+>   * Real beginning of normal "text" segment
+>   */
+> @@ -528,7 +532,7 @@ ENTRY(_stext)
+>  /*
+>   * BSS section
+>   */
+> -.section ".bss.page_aligned","w"
+> +.section ".bss.page_aligned"
+>  ENTRY(swapper_pg_dir)
+>  	.fill 1024,4,0
+>  ENTRY(empty_zero_page)
+> @@ -598,7 +602,8 @@ ENTRY(boot_gdt_table)
+>  /*
+>   * The Global Descriptor Table contains 28 quadwords, per-CPU.
+>   */
+> -	.align L1_CACHE_BYTES
+> +	.section ".data.page_aligned"
+> +	.align PAGE_SIZE_asm
+>  ENTRY(cpu_gdt_table)
+>  	.quad 0x0000000000000000	/* NULL descriptor */
+>  	.quad 0x0000000000000000	/* 0x0b reserved */
+> @@ -647,3 +652,6 @@ ENTRY(cpu_gdt_table)
+>  	.quad 0x0000000000000000	/* 0xf0 - unused */
+>  	.quad 0x0000000000000000 /* 0xf8 - GDT entry 31: double-fault TSS */
+>  =
 
-> : ezr:pts/1; objdump -j .notes -s vmlinux =
+> +	/* Be sure this is zeroed to avoid false validations in Xen */
+> +	.fill PAGE_SIZE_asm / 8 - GDT_ENTRIES,8,0
+> +	.previous
 
->
-> vmlinux:     file format elf32-i386
->
-> Contents of section .notes:
->  239010 04000000 06000000 06000000 58656e00  ............Xen.
->  239020 6c696e75 78000000 04000000 04000000  linux...........
->  239030 07000000 58656e00 322e3600 04000000  ....Xen.2.6.....
->  239040 08000000 05000000 58656e00 78656e2d  ........Xen.xen-
->  239050 332e3000 04000000 04000000 03000000  3.0.............
->  239060 58656e00 000000c0 04000000 04000000  Xen.............
->  239070 01000000 58656e00 c80710c0 04000000  ....Xen.........
->  239080 04000000 02000000 58656e00 00b040c0  ........Xen...@.
->  239090 04000000 2a000000 0a000000 58656e00  ....*.......Xen.
->  2390a0 21777269 7461626c 655f7061 67655f74  !writable_page_t
->  2390b0 61626c65 737c7061 655f7067 6469725f  ables|pae_pgdir_
->  2390c0 61626f76 655f3467 62000000 04000000  above_4gb.......
->  2390d0 04000000 09000000 58656e00 79657300  ........Xen.yes.
->  2390e0 04000000 08000000 08000000 58656e00  ............Xen.
->  2390f0 67656e65 72696300                    generic.        =
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- a/arch/i386/kernel/vmlinux.lds.S
+> +++ b/arch/i386/kernel/vmlinux.lds.S
+> @@ -93,6 +93,7 @@ SECTIONS
+>  =
 
->
->
-> I can't see what the problem is here, but it looks like a toolchain
-> problem to me (I'm using binutils-2.17.50.0.6-2.fc6).
+>    . =3D ALIGN(4096);
+>    .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
+> +	*(.data.page_aligned)
+>  	*(.data.idt)
+>    }
+>  =
 
-Well I did a little by hand parsing and the not I parsed looked ok.
 
-How does the output differ from a what you get when xen-head.S is
-included?
+> --- /dev/null
+> +++ b/arch/i386/xen/xen-head.S
+> @@ -0,0 +1,29 @@
+> +/* Xen-specific pieces of head.S, intended to be included in the right
+> +	place in head.S */
+> +
+> +#include <linux/elfnote.h>
+> +#include <asm/boot.h>
+> +#include <xen/interface/elfnote.h>
+> +
+> +ENTRY(startup_xen)
+> +	movl %esi,xen_start_info
+> +	jmp startup_paravirt
+> +	=
 
-Eric
+> +.pushsection ".bss.page_aligned"
+> +ENTRY(hypercall_page)
+> +	.skip 0x1000
+> +.popsection
+> +
+> +	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,       .asciz, "linux")
+> +	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,  .asciz, "2.6")
+> +	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,    .asciz, "xen-3.0")
+> +	ELFNOTE(Xen, XEN_ELFNOTE_VIRT_BASE,      .long,  __PAGE_OFFSET)
+> +	ELFNOTE(Xen, XEN_ELFNOTE_ENTRY,          .long,  startup_xen)
+> +	ELFNOTE(Xen, XEN_ELFNOTE_HYPERCALL_PAGE, .long,  hypercall_page)
+> + ELFNOTE(Xen, XEN_ELFNOTE_FEATURES, .asciz,
+> "!writable_page_tables|pae_pgdir_above_4gb")
+> +#ifdef CONFIG_X86_PAE
+> +	ELFNOTE(Xen, XEN_ELFNOTE_PAE_MODE,       .asciz, "yes")
+> +#else
+> +	ELFNOTE(Xen, XEN_ELFNOTE_PAE_MODE,       .asciz, "no")
+> +#endif
+> +	ELFNOTE(Xen, XEN_ELFNOTE_LOADER,         .asciz, "generic")
