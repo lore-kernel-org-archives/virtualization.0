@@ -1,34 +1,30 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: vgacon disable again
-Date: Wed, 14 Feb 2007 02:52:35 -0800
-Message-ID: <45D2E9F3.5080808@goop.org>
-References: <45D198CA.7050306@suse.de> <45D19E95.7030501@suse.de>
-	<45D233A9.7030802@goop.org> <45D2C34E.60806@suse.de>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 5/8] lguest: trivial guest network driver
+Date: Thu, 15 Feb 2007 00:57:10 +1100
+Message-ID: <20070214135710.GA2894@gondor.apana.org.au>
+References: <1171251770.10409.23.camel@localhost.localdomain> <1171251894.10409.26.camel@localhost.localdomain> <1171251965.10409.28.camel@localhost.localdomain> <1171252113.10409.30.camel@localhost.localdomain> <1171252219.10409.33.camel@localhost.localdomain> <1171252321.10409.36.camel@localhost.localdomain> <20070212155553.GA15627@gondor.apana.org.au> <1171332919.19842.74.camel@localhost.localdomain> <20070213140600.GA24711@gondor.apana.org.au> <1171428475.19842.102.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45D2C34E.60806@suse.de>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Gerd Hoffmann <kraxel@suse.de>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932283AbXBNN5y@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1171428475.19842.102.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, jgarzik <jgarzik@pobox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gerd Hoffmann wrote:
-> Yes, it is.  Otherwise it oopses as soon as something is printed on
-> /dev/tty<any>. =
+On Wed, Feb 14, 2007 at 03:47:55PM +1100, Rusty Russell wrote:
+> 
+> It's also used to generate dma structs for outgoing packets.  In that
+> case, skb_headlen() == 0:
 
->   =
+I see, in that case you're guaranteed to have no fragments.
+Still it feels a bit weird to have a length field that only
+applies to the header part.
 
-
-OK, I'll add your other patch to the series.
-
-    J
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
