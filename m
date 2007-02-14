@@ -1,49 +1,56 @@
-From: Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: vgacon disable again
-Date: Wed, 14 Feb 2007 09:07:42 +0100
-Message-ID: <45D2C34E.60806@suse.de>
-References: <45D198CA.7050306@suse.de> <45D19E95.7030501@suse.de>
-	<45D233A9.7030802@goop.org>
+From: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [patch 05/21] Xen-paravirt: paravirt_ops:
+	allocate a fixmap slot
+Date: Wed, 14 Feb 2007 08:37:26 +0000
+Message-ID: <45D2D856.76E4.0078.0@novell.com>
+References: <20070213221729.772002682@goop.org>
+	<20070213221829.845132535@goop.org> <45D2649D.4080508@vmware.com>
+	<45D26797.5090600@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45D233A9.7030802@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <45D26797.5090600@goop.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, Dan Hecht <dhecht@vmware.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Gerd Hoffmann wrote:
->> Oh, and it obsoletes vgacon-fix-zero-size.patch btw ...
->>   =
+>>> Jeremy Fitzhardinge <jeremy@goop.org> 14.02.07 02:36 >>>
+>Dan Hecht wrote:
+>> Why doesn't Xen allocate the shared_info page from the pseudo-physical
+>> space?  Doesn't it already have to steal pages from the
+>> pseudo-physical space for e.g. initial page tables, console, etc?  Why
+>> not do the same for shared_info, and then you don't need a reserve the
+>> fixmap slot.
+>
+>Unlike the pagetable pages or the console page, the shared info page
+>doesn't have a pseudo-physical address, so in order to map it we need to
+>directly construct a pte containing the mfn for that page.  Inserting
+>this mapping into the fixmap space seems like the easiest way to do
+>this.  It's not like a fixmap slot costs anything.
 
-> =
+Otoh there are many fixmap slots not used under Xen, perhaps it would
+be possible to use one of those... One slot certainly doesn't cost a lot,
+but many (like the IO-APIC group) may already matter, especially on
+PAE systems with lots of memory). Consequently, if these can't be
+squeezed out as needed, re-using would seem more appropriate than
+adding.
+(I would certainly favor [conditionally] removing them, but can't easily
+see how to do this under CONFIG_PARAVIRT. Background being that
+we've already been hit by those [namely the LAPIC one] remaining
+present, hence the build not being able to detect that accesses to the
+LAPIC page can't work. While no such access was ever left in the base
+kernel, modules are more susceptible to this, and in our case it was
+the [native, i.e. pre-xenoprof] oprofile driver that had been forgotten
+to be disabled.)
 
-> Well, I think the zero-size allocation oops is a bug anyway.  But is it
-> really necessary to disable VGA beyond that?
-
-Yes, it is.  Otherwise it oopses as soon as something is printed on
-/dev/tty<any>.  Quite early at boot with "console=3Dtty1", otherwise as
-soon as /sbin/getty starts on /dev/tty1.  Oh, and the reason is it
-thinks it has an EGA card with 0 lines and 0 columns because we never
-ran the real-mode boot code and thus SCREEN_INFO isn't initialized.  The
-0x0 screen probably leads to the zero-sized buffer you are catching in
-that patch.
-
-cheers,
-
-  Gerd
-
--- =
-
-Gerd Hoffmann <kraxel@suse.de>
+Jan
