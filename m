@@ -1,37 +1,60 @@
-From: Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: [patch 05/21] Xen-paravirt: paravirt_ops: allocate a fixmap slot
-Date: Wed, 14 Feb 2007 09:43:49 +0100
-Message-ID: <45D2CBC5.90809@suse.de>
-References: <20070213221729.772002682@goop.org>	<20070213221829.845132535@goop.org>	<45D2649D.4080508@vmware.com> <45D26797.5090600@goop.org> <45D27534.1070608@vmware.com>
+From: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [patch 16/21] Xen-paravirt: Add code into
+	head.S to handle being booted by Xen
+Date: Wed, 14 Feb 2007 08:56:09 +0000
+Message-ID: <45D2DCB9.76E4.0078.0@novell.com>
+References: <20070213221729.772002682@goop.org>
+	<20070213221830.707197267@goop.org> <20070213235424.GA1908@muc.de>
+	<45D25A56.1000706@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751022AbXBNIoN@vger.kernel.org>
-In-Reply-To: <45D27534.1070608@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Hecht <dhecht@vmware.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <45D25A56.1000706@goop.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dan Hecht wrote:
-> Right.  But that is only because Xen decides to allocate the page from 
-> the (machine) physical space, rather than from the pseudo-physical 
-> space.  My question is: why doesn't Xen allocate shared_info from the 
-> pseudo-physical space?
+>>> @@ -528,7 +532,7 @@ ENTRY(_stext)
+>>>  /*
+>>>   * BSS section
+>>>   */
+>>> -.section ".bss.page_aligned","w"
+>>> +.section ".bss.page_aligned"
+>>>     
+>>
+>> Why? 
+>>   
+>
+>I got complaints about section attribute mismatches without it.
 
-Historical reasons ...
+Then perhaps ... "aw" is meant?
 
-> If it had, then this page wouldn't need to be 
-> treated specially.  I'm not sure, but I seem to remember on 64-bit 
-> Xen/XenLinux allocated shared_info from pseudo-physical space already...
+>>> +fastcall unsigned long long xen_pgd_val(pgd_t pgd)
+>>> +{
+>>> +	unsigned long long ret = pgd.pgd;
+>>> +	if (ret)
+>>> +		ret = machine_to_phys(XMADDR(ret)).paddr | 1;
+>>>     
+>>
+>> Why can they be 0 here anyways?
+>>
+>> Normally they are all considered undefined when not present
+>>   
+>
+>Not sure.
 
-Yep, the ia64 port which came later handles some things differently,
-specifically some "magic" pages are allocated more clever ;)
+This should probably get sync-ed up with the page table handling changes
+submitted to xen-devel yesterday. Using zero/non-zero tests in contexts
+like this was always broken; should check for _PAGE_PRESENT.
 
-Changing that for x86 would break existing guests though.
-
-cheers,
-  Gerd
-
--- 
-Gerd Hoffmann <kraxel@suse.de>
+Jan
