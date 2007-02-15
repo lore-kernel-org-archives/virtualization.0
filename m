@@ -1,41 +1,63 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 5/8] lguest: trivial guest network driver
-Date: Thu, 15 Feb 2007 10:00:09 +1100
-Message-ID: <1171494009.19842.185.camel@localhost.localdomain>
-References: <1171251770.10409.23.camel@localhost.localdomain>
-	 <1171251894.10409.26.camel@localhost.localdomain>
-	 <1171251965.10409.28.camel@localhost.localdomain>
-	 <1171252113.10409.30.camel@localhost.localdomain>
-	 <1171252219.10409.33.camel@localhost.localdomain>
-	 <1171252321.10409.36.camel@localhost.localdomain>
-	 <20070212155553.GA15627@gondor.apana.org.au>
-	 <1171332919.19842.74.camel@localhost.localdomain>
-	 <20070213140600.GA24711@gondor.apana.org.au>
-	 <1171428475.19842.102.camel@localhost.localdomain>
-	 <20070214135710.GA2894@gondor.apana.org.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 15/21] Xen-paravirt: Add Xen interface
+	header files
+Date: Wed, 14 Feb 2007 16:10:50 -0800
+Message-ID: <45D3A50A.9090303@goop.org>
+References: <20070213221729.772002682@goop.org>	<20070213221830.619562494@goop.org>
+	<m1k5ykpiwv.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964805AbXBNXA6@vger.kernel.org>
-In-Reply-To: <20070214135710.GA2894@gondor.apana.org.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.osdl.org>, jgarzik <jgarzik@pobox.com>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <m1k5ykpiwv.fsf@ebiederm.dsl.xmission.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-02-15 at 00:57 +1100, Herbert Xu wrote:
-> On Wed, Feb 14, 2007 at 03:47:55PM +1100, Rusty Russell wrote:
-> > 
-> > It's also used to generate dma structs for outgoing packets.  In that
-> > case, skb_headlen() == 0:
-> 
-> I see, in that case you're guaranteed to have no fragments.
-> Still it feels a bit weird to have a length field that only
-> applies to the header part.
+Eric W. Biederman wrote:
+> Jeremy Fitzhardinge <jeremy@goop.org> writes:
+>
+>   
+>> Add Xen interface header files. These are taken fairly directly from
+>> the Xen tree and hence the style is not entirely in accordance with
+>> Linux guidelines. There is a tension between fitting with Linux coding
+>> rules and ease of maintenance.
+>>
+>> Define macros and inline functions for doing hypercalls into the
+>> hypervisor.
+>>
+>> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+>> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+>> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+>> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+>>
+>>
+>> --
+>>  include/asm-i386/hypercall.h          |  416 +++++++++++++++++++++++++++++
+>>  include/asm-i386/hypervisor.h         |   72 +++++
+>>     
+>
+> Are hypercall.h and hypervisor.h generic or are they Xen specific.
+> If they are Xen specific (as it appears) then are inappropriately
+> named.
+>   
 
-Indeed.  In future if I want to create fragmented skbs for receive
-(large MTU support), I would actually set skb->len and skb->datalen and
-then could avoid the extra argument.
+Thanks for the reminder; I've been meaning to move/rename these.
 
-Cheers,
-Rusty.
+>>  include/xen/interface/arch-x86_32.h   |  187 +++++++++++++
+>>     
+> Why isn't this file include-asm-i386/xen/arch-x86_32.h ?
+>   
+
+Those files are more or less directly copied from the Xen tree, and its
+easier if they don't drift too far in name and directory structure.
+
+    J
