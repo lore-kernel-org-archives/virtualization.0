@@ -1,15 +1,17 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 15/21] Xen-paravirt: Add Xen interface
-	header files
-Date: Wed, 14 Feb 2007 16:10:50 -0800
-Message-ID: <45D3A50A.9090303@goop.org>
-References: <20070213221729.772002682@goop.org>	<20070213221830.619562494@goop.org>
-	<m1k5ykpiwv.fsf@ebiederm.dsl.xmission.com>
+Subject: Re: [patch 16/21] Xen-paravirt: Add code into head.S to
+ handle being booted by Xen
+Date: Wed, 14 Feb 2007 16:13:24 -0800
+Message-ID: <45D3A5A4.7080804@goop.org>
+References: <20070213221729.772002682@goop.org>	<20070213221830.707197267@goop.org>
+	<20070213235424.GA1908@muc.de>	<45D35ABE.1050504@goop.org>
+	<m1zm7gpkjh.fsf@ebiederm.dsl.xmission.com>	<45D3740A.4080600@goop.org>
+	<m17iukphxr.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <m1k5ykpiwv.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m17iukphxr.fsf@ebiederm.dsl.xmission.com>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -19,45 +21,27 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org
+Cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Ian Campbell <Ian.Campbell@XenSource.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Eric W. Biederman wrote:
-> Jeremy Fitzhardinge <jeremy@goop.org> writes:
->
->   
->> Add Xen interface header files. These are taken fairly directly from
->> the Xen tree and hence the style is not entirely in accordance with
->> Linux guidelines. There is a tension between fitting with Linux coding
->> rules and ease of maintenance.
->>
->> Define macros and inline functions for doing hypercalls into the
->> hypervisor.
->>
->> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
->> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
->> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
->> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
->>
->>
->> --
->>  include/asm-i386/hypercall.h          |  416 +++++++++++++++++++++++++++++
->>  include/asm-i386/hypervisor.h         |   72 +++++
->>     
->
-> Are hypercall.h and hypervisor.h generic or are they Xen specific.
-> If they are Xen specific (as it appears) then are inappropriately
-> named.
+> Ok.  If that is all this may be a difference that makes no difference.
+> binutils has a bad habit of looking at sections (which are fully
+> optional) instead of segments on ET_EXEC and ET_DYN objects.  Only
+> ET_REL objects (.o files) are required to have sections.
 >   
 
-Thanks for the reminder; I've been meaning to move/rename these.
+The Xen domain loader will have to be changed to deal with that, which
+isn't too much of a problem.
 
->>  include/xen/interface/arch-x86_32.h   |  187 +++++++++++++
->>     
-> Why isn't this file include-asm-i386/xen/arch-x86_32.h ?
+My main concern is the randomness of it, and whether it will fail in
+some more harmful way on other versions of binutils.
+
+> So I recommend for testing write a 100 line program that includes
+> elf.h and reads out the note segment.  If all is well we can split
+> this code out.
 >   
 
-Those files are more or less directly copied from the Xen tree, and its
-easier if they don't drift too far in name and directory structure.
+The Xen readnotes utility is essentially that.  I'll hack it.
 
     J
