@@ -1,26 +1,36 @@
 From: Keir Fraser <keir@xensource.com>
 Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options and
- disableunsupported config options.
+	disableunsupported config options.
 Date: Fri, 16 Feb 2007 11:03:06 +0000
-Message-ID: <C1FB3FEA.98F7%keir__40315.8746230931$1171623826$gmane$org@xensource.com>
+Message-ID: <C1FB3FEA.98F7%keir__9819.23458534784$1171623939$gmane$org@xensource.com>
 References: <20070216025452.d25e3545.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932244AbXBPLDM@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
 In-Reply-To: <20070216025452.d25e3545.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, Ian Pratt <Ian.Pratt@xensource.com>, virtualization@lists.osdl.org, Steven Hand <steven.hand@cl.cam.ac.uk>, Christian Limpach <Christian.Limpach@xensource.com>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Steven Hand <steven.hand@cl.cam.ac.uk>, Ian Pratt <Ian.Pratt@xensource.com>, Christian Limpach <Christian.Limpach@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 16/2/07 10:54, "Andrew Morton" <akpm@linux-foundation.org> wrote:
 
-> OK, you're screwed.  I agree that the process freezer is the way out of that
+> OK, you're screwed.  I agree that the process freezer is the way out of t=
+hat
 > one.
-> 
-> Ingo said that he's clocked the freezer at a few milliseconds.  But if it's
+> =
+
+> Ingo said that he's clocked the freezer at a few milliseconds.  But if it=
+'s
 > any higher than that it'll need to get sped up once we convert cpu hotplug
 > to use it.
 
