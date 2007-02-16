@@ -1,15 +1,15 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [patch 10/21] Xen-paravirt: add hooks to intercept mm creation
-	and destruction
-Date: Thu, 15 Feb 2007 22:34:09 -0800
-Message-ID: <20070215223409.eea8f1e3.akpm@linux-foundation.org>
+Subject: Re: [patch 11/21] Xen-paravirt: Add apply_to_page_range() which
+	applies a function to a pte range.
+Date: Thu, 15 Feb 2007 22:37:27 -0800
+Message-ID: <20070215223727.6819f962.akpm@linux-foundation.org>
 References: <20070216022449.739760547@goop.org>
-	<20070216022531.267584466@goop.org>
+	<20070216022531.344125142@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070216022531.267584466@goop.org>
+In-Reply-To: <20070216022531.344125142@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -20,131 +20,29 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, Christoph Lameter <clameter@sgi.com>, Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 15 Feb 2007 18:24:59 -0800 Jeremy Fitzhardinge <jeremy@goop.org> wr=
+On Thu, 15 Feb 2007 18:25:00 -0800 Jeremy Fitzhardinge <jeremy@goop.org> wr=
 ote:
 
-> Add hooks to allow a paravirt implementation to track the lifetime of
-> an mm.
+> Add a new mm function apply_to_page_range() which applies a given
+> function to every pte in a given virtual address range in a given mm
+> structure. This is a generic alternative to cut-and-pasting the Linux
+> idiomatic pagetable walking code in every place that a sequence of
+> PTEs must be accessed.
 > =
 
-> --- a/arch/i386/kernel/paravirt.c
-> +++ b/arch/i386/kernel/paravirt.c
-> @@ -706,6 +706,10 @@ struct paravirt_ops paravirt_ops =3D {
->  	.irq_enable_sysexit =3D native_irq_enable_sysexit,
->  	.iret =3D native_iret,
->  =
+> Although this interface is intended to be useful in a wide range of
+> situations, it is currently used specifically by several Xen
+> subsystems, for example: to ensure that pagetables have been allocated
+> for a virtual address range, and to construct batched special
+> pagetable update requests to map I/O memory (in ioremap()).
 
-> +	.dup_mmap =3D (void *)native_nop,
-> +	.exit_mmap =3D (void *)native_nop,
-> +	.activate_mm =3D (void *)native_nop,
-> +
->  	.startup_ipi_hook =3D (void *)native_nop,
->  };
+There was some discussion about this sort of thing last week.  The
+consensus was that it's better to run the callback against a whole pmd's
+worth of ptes, mainly to amortise the callback's cost (a lot).
 
-eww.  I suppose there's a good reason for the casting.
-
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- a/include/asm-i386/mmu_context.h
-> +++ b/include/asm-i386/mmu_context.h
-> @@ -5,6 +5,7 @@
->  #include <asm/atomic.h>
->  #include <asm/pgalloc.h>
->  #include <asm/tlbflush.h>
-> +#include <asm/paravirt.h>
->  =
-
->  /*
->   * Used for LDT copy/destruction.
-> @@ -65,7 +66,10 @@ static inline void switch_mm(struct mm_s
->  #define deactivate_mm(tsk, mm)			\
->  	asm("movl %0,%%gs": :"r" (0));
->  =
-
-> -#define activate_mm(prev, next) \
-> -	switch_mm((prev),(next),NULL)
-> +#define activate_mm(prev, next)				\
-> +	do {						\
-> +		arch_activate_mm(prev, next);		\
-> +		switch_mm((prev),(next),NULL);		\
-> +	} while(0);
-
-It seems strange to call out to arch_foo() from within an arch header file.
-I mean, we implicity know we're i386.
-
-Maybe it's just poorly named.
-
-> +static inline void paravirt_activate_mm(struct mm_struct *prev,
-> +					struct mm_struct *next)
-> +{
-> +}
-> +
-> +static inline void paravirt_dup_mmap(struct mm_struct *oldmm,
-> +				     struct mm_struct *mm)
-> +{
-> +}
-> +
-> +static inline void paravirt_exit_mmap(struct mm_struct *mm)
-> +{
-> +}
-
-These functions are unreferenced in this patchset.
-
->  #endif /* CONFIG_PARAVIRT */
->  #endif	/* __ASM_PARAVIRT_H */
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -374,6 +374,12 @@ struct mm_struct {
->  	rwlock_t		ioctx_list_lock;
->  	struct kioctx		*ioctx_list;
->  };
-> +
-> +#ifndef __HAVE_ARCH_MM_LIFETIME
-> +#define arch_activate_mm(prev, next)	do {} while(0)
-> +#define arch_dup_mmap(oldmm, mm)	do {} while(0)
-> +#define arch_exit_mmap(mm)		do {} while(0)
-> +#endif
-
-Can we lose __HAVE_ARCH_MM_LIFETIME?  Just define these (preferably in C,
-not in cpp) in the appropriate include/asm-foo/ files?
-
->  struct sighand_struct {
->  	atomic_t		count;
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- a/kernel/fork.c
-> +++ b/kernel/fork.c
-> @@ -286,6 +286,7 @@ static inline int dup_mmap(struct mm_str
->  		if (retval)
->  			goto out;
->  	}
-> +	arch_dup_mmap(oldmm, mm);
->  	retval =3D 0;
->  out:
->  	up_write(&mm->mmap_sem);
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- a/mm/mmap.c
-> +++ b/mm/mmap.c
-> @@ -1976,6 +1976,8 @@ void exit_mmap(struct mm_struct *mm)
->  	struct vm_area_struct *vma =3D mm->mmap;
->  	unsigned long nr_accounted =3D 0;
->  	unsigned long end;
-> +
-> +	arch_exit_mmap(mm);
->  =
-
->  	lru_add_drain();
->  	flush_cache_mm(mm);
-
-Perhaps some commentary telling the arch maintainer what these hooks he's
-being offered are for?
+It was implemented in
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20/2.6.20=
+-mm1/broken-out/smaps-extract-pmd-walker-from-smaps-code.patch
