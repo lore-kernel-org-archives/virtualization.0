@@ -1,18 +1,25 @@
 From: Keir Fraser <keir@xensource.com>
 Subject: Re: [Xen-devel] Re: [patch 12/21] Xen-paravirt: Allocate and free
- vmalloc areas
+	vmalloc areas
 Date: Fri, 16 Feb 2007 17:10:29 +0000
-Message-ID: <C1FB9605.9988%keir__34304.8608433039$1171645872$gmane$org@xensource.com>
+Message-ID: <C1FB9605.9988%keir__49452.2359142595$1171645913$gmane$org@xensource.com>
 References: <45D5DFF3.6040005@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964890AbXBPRKd@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
 In-Reply-To: <45D5DFF3.6040005@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Cc: Ian Pratt <ian.pratt@xensource.com>, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
