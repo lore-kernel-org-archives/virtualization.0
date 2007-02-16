@@ -1,47 +1,32 @@
 From: Keir Fraser <keir@xensource.com>
-Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options and
-	disableunsupported config options.
-Date: Fri, 16 Feb 2007 11:03:06 +0000
-Message-ID: <C1FB3FEA.98F7%keir__9819.23458534784$1171623939$gmane$org@xensource.com>
-References: <20070216025452.d25e3545.akpm@linux-foundation.org>
+Subject: Re: [Xen-devel] Re: [patch 12/21] Xen-paravirt: Allocate and free
+ vmalloc areas
+Date: Fri, 16 Feb 2007 11:10:08 +0000
+Message-ID: <C1FB4190.98FA%keir__16387.6729355708$1171624260$gmane$org@xensource.com>
+References: <20070216091843.GB28196@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070216025452.d25e3545.akpm@linux-foundation.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Steven Hand <steven.hand@cl.cam.ac.uk>, Ian Pratt <Ian.Pratt@xensource.com>, Christian Limpach <Christian.Limpach@xensource.com>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750713AbXBPLKO@vger.kernel.org>
+In-Reply-To: <20070216091843.GB28196@muc.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16/2/07 10:54, "Andrew Morton" <akpm@linux-foundation.org> wrote:
 
-> OK, you're screwed.  I agree that the process freezer is the way out of t=
-hat
-> one.
-> =
 
-> Ingo said that he's clocked the freezer at a few milliseconds.  But if it=
-'s
-> any higher than that it'll need to get sped up once we convert cpu hotplug
-> to use it.
 
-A few milliseconds is acceptable. Presumably that is under some stress
-workload? What we'd really like is to be able to gang-hotplug CPUs to
-amortise the freezer overhead.
+On 16/2/07 09:18, "Andi Kleen" <ak@muc.de> wrote:
 
-This initial patchset does not include save/restore support anyway, so in
-fact it would be consistent to have CONFIG_PREEMPT configurable. I'm sure
-that we are going to have some nasty bugs to fix up as a result, but we
-can't fix them until we find them! Then we can convert our save/restore code
-to use the freezer before submitting it for inclusion.
+>> It's for populating the pagetable in a vmalloc area.  There's magic in
+> 
+> If the lazy setup doesn't work for you you can always call vmalloc_sync()
+> early.
 
- -- Keir
+vmalloc_sync_all()? That's a great idea. We can put that in alloc_vm_area()
+and kill {lock,unlock}_vm_area() which is a nice interface simplification.
+
+ Thanks!
+ Keir
