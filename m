@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 12/21] Xen-paravirt: Allocate and free vmalloc areas
-Date: Thu, 15 Feb 2007 18:25:01 -0800
-Message-ID: <20070216022531.417300365@goop.org>
+Subject: [patch 14/21] Xen-paravirt: Add XEN config options and disable
+	unsupported config options.
+Date: Thu, 15 Feb 2007 18:25:03 -0800
+Message-ID: <20070216022531.570154735@goop.org>
 References: <20070216022449.739760547@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=alloc-vm-area.patch
+Content-Disposition: inline; filename=xen-config.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,130 +19,148 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allocate/destroy a 'vmalloc' VM area: alloc_vm_area and free_vm_area
-The alloc function ensures that page tables are constructed for the
-region of kernel virtual address space and mapped into init_mm.
+The XEN config option enables the Xen paravirt_ops interface, which is
+installed when the kernel finds itself running under Xen. (By some
+as-yet fully defined mechanism, implemented in a future patch.)
 
-Lock an area so that PTEs are accessible in the current address space:
-lock_vm_area and unlock_vm_area.  The lock function prevents context
-switches to a lazy mm that doesn't have the area mapped into its page
-tables.  It also ensures that the page tables are mapped into the
-current mm by causing the page fault handler to copy the page
-directory pointers from init_mm into the current mm.
+Xen is no longer a sub-architecture, so the X86_XEN subarch config
+option has gone.
 
-These functions are not particularly Xen-specific, so they're put into
-mm/vmalloc.c.
+The disabled config options are:
+- PREEMPT: Xen doesn't support it
+- HZ: set to 100Hz for now, to cut down on VCPU context switch rate.
+  This will be adapted to use tickless later.
+- kexec: not yet supported
 
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: "Jan Beulich" <JBeulich@novell.com>
 
---
- include/linux/vmalloc.h |    8 +++++
- mm/vmalloc.c            |   62 +++++++++++++++++++++++++++++++++++++++++++=
-+++
- 2 files changed, 70 insertions(+)
+---
+ arch/i386/Kconfig       |    7 +++++--
+ arch/i386/Kconfig.debug |    1 +
+ arch/i386/xen/Kconfig   |   10 ++++++++++
+ kernel/Kconfig.hz       |    4 ++--
+ kernel/Kconfig.preempt  |    1 +
+ 5 files changed, 19 insertions(+), 4 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -68,6 +68,14 @@ extern int map_vm_area(struct vm_struct =
-
- 			struct page ***pages);
- extern void unmap_vm_area(struct vm_struct *area);
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -192,6 +192,8 @@ config PARAVIRT
+ 	  under a hypervisor, improving performance significantly.
+ 	  However, when run without a hypervisor the kernel is
+ 	  theoretically slower.  If in doubt, say N.
++
++source "arch/i386/xen/Kconfig"
  =
 
-+/* Allocate/destroy a 'vmalloc' VM area. */
-+extern struct vm_struct *alloc_vm_area(unsigned long size);
-+extern void free_vm_area(struct vm_struct *area);
-+
-+/* Lock an area so that PTEs are accessible in the current address space. =
-*/
-+extern void lock_vm_area(struct vm_struct *area);
-+extern void unlock_vm_area(struct vm_struct *area);
-+
- /*
-  *	Internals.  Dont't use..
-  */
+ config ACPI_SRAT
+ 	bool
+@@ -298,12 +300,12 @@ config X86_UP_IOAPIC
+ =
+
+ config X86_LOCAL_APIC
+ 	bool
+-	depends on X86_UP_APIC || ((X86_VISWS || SMP) && !X86_VOYAGER) || X86_GEN=
+ERICARCH
++	depends on X86_UP_APIC || (((X86_VISWS || SMP) && !X86_VOYAGER) || X86_GE=
+NERICARCH)
+ 	default y
+ =
+
+ config X86_IO_APIC
+ 	bool
+-	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER)) || X86_G=
+ENERICARCH
++	depends on X86_UP_IOAPIC || ((SMP && !(X86_VISWS || X86_VOYAGER)) || X86_=
+GENERICARCH)
+ 	default y
+ =
+
+ config X86_VISWS_APIC
+@@ -743,6 +745,7 @@ source kernel/Kconfig.hz
+ =
+
+ config KEXEC
+ 	bool "kexec system call"
++	depends on !XEN
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -747,3 +747,65 @@ out_einval_locked:
- }
- EXPORT_SYMBOL(remap_vmalloc_range);
+--- a/arch/i386/Kconfig.debug
++++ b/arch/i386/Kconfig.debug
+@@ -79,6 +79,7 @@ config DOUBLEFAULT
+ config DOUBLEFAULT
+ 	default y
+ 	bool "Enable doublefault exception handler" if EMBEDDED
++	depends on !XEN
+ 	help
+           This option allows trapping of rare doublefault exceptions that
+           would otherwise cause a system to silently reboot. Disabling this
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/Kconfig
+@@ -0,0 +1,10 @@
++#
++# This Kconfig describes xen options
++#
++
++config XEN
++	bool "Enable support for Xen hypervisor"
++	depends PARAVIRT
++	default y
++	help
++	  This is the Linux Xen port.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -3,7 +3,7 @@
+ #
  =
 
-+static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *=
-data)
-+{
-+	/* apply_to_page_range() does all the hard work. */
-+	return 0;
-+}
-+
-+struct vm_struct *alloc_vm_area(unsigned long size)
-+{
-+	struct vm_struct *area;
-+
-+	area =3D get_vm_area(size, VM_IOREMAP);
-+	if (area =3D=3D NULL)
-+		return NULL;
-+
-+	/*
-+	 * This ensures that page tables are constructed for this region
-+	 * of kernel virtual address space and mapped into init_mm.
-+	 */
-+	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
-+				area->size, f, NULL)) {
-+		free_vm_area(area);
-+		return NULL;
-+	}
-+
-+	return area;
-+}
-+EXPORT_SYMBOL_GPL(alloc_vm_area);
-+
-+void free_vm_area(struct vm_struct *area)
-+{
-+	struct vm_struct *ret;
-+	ret =3D remove_vm_area(area->addr);
-+	BUG_ON(ret !=3D area);
-+	kfree(area);
-+}
-+EXPORT_SYMBOL_GPL(free_vm_area);
-+
-+void lock_vm_area(struct vm_struct *area)
-+{
-+	unsigned long i;
-+	char c;
-+
-+	/*
-+	 * Prevent context switch to a lazy mm that doesn't have this area
-+	 * mapped into its page tables.
-+	 */
-+	preempt_disable();
-+
-+	/*
-+	 * Ensure that the page tables are mapped into the current mm. The
-+	 * page-fault path will copy the page directory pointers from init_mm.
-+	 */
-+	for (i =3D 0; i < area->size; i +=3D PAGE_SIZE)
-+		(void)__get_user(c, (char __user *)area->addr + i);
-+}
-+EXPORT_SYMBOL_GPL(lock_vm_area);
-+
-+void unlock_vm_area(struct vm_struct *area)
-+{
-+	preempt_enable();
-+}
-+EXPORT_SYMBOL_GPL(unlock_vm_area);
+ choice
+-	prompt "Timer frequency"
++	prompt "Timer frequency" if !XEN
+ 	default HZ_250
+ 	help
+ 	 Allows the configuration of the timer frequency. It is customary
+@@ -49,7 +49,7 @@ endchoice
+ =
+
+ config HZ
+ 	int
+-	default 100 if HZ_100
++	default 100 if HZ_100 || XEN
+ 	default 250 if HZ_250
+ 	default 300 if HZ_300
+ 	default 1000 if HZ_1000
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/kernel/Kconfig.preempt
++++ b/kernel/Kconfig.preempt
+@@ -35,6 +35,7 @@ config PREEMPT_VOLUNTARY
+ =
+
+ config PREEMPT
+ 	bool "Preemptible Kernel (Low-Latency Desktop)"
++	depends on !XEN
+ 	help
+ 	  This option reduces the latency of the kernel by making
+ 	  all kernel code (that is not executing in a critical section)
 
 -- =
