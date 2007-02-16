@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 15/21] Xen-paravirt: Add Xen interface header files
-Date: Thu, 15 Feb 2007 18:25:04 -0800
-Message-ID: <20070216022531.652124685@goop.org>
+Subject: [patch 16/21] Xen-paravirt: Core Xen implementation
+Date: Thu, 15 Feb 2007 18:25:05 -0800
+Message-ID: <20070216022531.741195075@goop.org>
 References: <20070216022449.739760547@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=xen-interface.patch
+Content-Disposition: inline; filename=xen-core.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,3356 +18,3504 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add Xen interface header files. These are taken fairly directly from
-the Xen tree and hence the style is not entirely in accordance with
-Linux guidelines. There is a tension between fitting with Linux coding
-rules and ease of maintenance.
+This adds a second entry point to head.S, which is jumped to when
+booted by Xen.  This allows startup under Xen to be easily detected.
 
-Define macros and inline functions for doing hypercalls into the
-hypervisor.
+Because Xen starts the kernel in a fairly sane state, very little
+setup is needed here; it just needs to jump into xen_start_kernel to
+init the paravirt_ops structure, and then jump into start_kernel
+proper.
+
+This also makes a few small adjustments to the gdt tables to make them
+properly suited to Xen.
+
+This patch also contains an initial set of paravirt ops for Xen, mostly ones
+which can just be implemented with the generic native_* version.  At
+boot time, the global paravirt_ops structure is populated with the Xen
+pointers in xen_start_kernel, which then jumps to the standard
+start_kernel.
+
+Also implements Xen pagetable handling, including the machinery to
+implement direct pagetables.  This means that pte update operations
+are intercepted so that pseudo-physical addresses can be converted to
+machine addresses.  It also implements late pinning/early unpinning so
+that pagetables are initialized while they're normal read-write memory
+as much as possible, yet pinned to make cr3 reloads as efficient as
+possible.
+
+Xen implements interrupts in terms of event channels.  This patch maps
+an event through an event channel to an irq, and then feeds it through
+the normal interrupt path, via a Xen irq_chip implementation.
+
+Context switches are optimised with the use of multicalls, so that the
+multiple hypercalls needed to perform the switch can be implemented
+with a single hypercall.  In order to simplify the source changes,
+this is done via a generic multicall batching mechanism, which can be
+used to batch arbitrary series of hypercalls into a multicall.
+
+Time is implemented by using a clocksource which is driven from the
+hypervisor's nanosecond timebase.  Xen implements time by
+extrapolating from known timestamps using the tsc; the hypervisor is
+responsible for making sure that the tsc is constant rate and
+synchronized between vcpus.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
+---
+ arch/i386/Makefile               |    3 =
 
---
- include/asm-i386/hypercall.h          |  416 +++++++++++++++++++++++++++++
- include/asm-i386/hypervisor.h         |   72 +++++
- include/xen/interface/arch-x86_32.h   |  187 +++++++++++++
- include/xen/interface/elfnote.h       |  133 +++++++++
- include/xen/interface/event_channel.h |  195 ++++++++++++++
- include/xen/interface/features.h      |   43 +++
- include/xen/interface/grant_table.h   |  301 +++++++++++++++++++++
- include/xen/interface/io/blkif.h      |   96 ++++++
- include/xen/interface/io/console.h    |   23 +
- include/xen/interface/io/netif.h      |  152 ++++++++++
- include/xen/interface/io/ring.h       |  260 ++++++++++++++++++
- include/xen/interface/io/xenbus.h     |   42 +++
- include/xen/interface/io/xs_wire.h    |   87 ++++++
- include/xen/interface/memory.h        |  145 ++++++++++
- include/xen/interface/physdev.h       |   61 ++++
- include/xen/interface/sched.h         |   77 +++++
- include/xen/interface/vcpu.h          |  109 +++++++
- include/xen/interface/version.h       |   60 ++++
- include/xen/interface/xen.h           |  445 +++++++++++++++++++++++++++++=
-+++
- 19 files changed, 2904 insertions(+)
+ arch/i386/kernel/cpu/common.c    |    3 =
+
+ arch/i386/kernel/entry.S         |   79 +++
+ arch/i386/kernel/head.S          |   13 =
+
+ arch/i386/kernel/paravirt.c      |   48 +-
+ arch/i386/kernel/vmlinux.lds.S   |    1 =
+
+ arch/i386/mm/pgtable.c           |    1 =
+
+ arch/i386/xen/Makefile           |    2 =
+
+ arch/i386/xen/enlighten.c        |  801 ++++++++++++++++++++++++++++++++++=
+++++
+ arch/i386/xen/events.c           |  480 ++++++++++++++++++++++
+ arch/i386/xen/features.c         |   29 +
+ arch/i386/xen/mmu.c              |  419 +++++++++++++++++++
+ arch/i386/xen/mmu.h              |   51 ++
+ arch/i386/xen/multicalls.c       |   62 ++
+ arch/i386/xen/multicalls.h       |   13 =
+
+ arch/i386/xen/setup.c            |   95 ++++
+ arch/i386/xen/time.c             |  452 +++++++++++++++++++++
+ arch/i386/xen/xen-head.S         |   30 +
+ arch/i386/xen/xen-ops.h          |   20 =
+
+ include/asm-i386/irq.h           |    1 =
+
+ include/asm-i386/paravirt.h      |   42 +
+ include/asm-i386/pda.h           |   12 =
+
+ include/asm-i386/xen/hypercall.h |   18 =
+
+ include/xen/events.h             |   28 +
+ include/xen/features.h           |   26 +
+ include/xen/page.h               |  175 ++++++++
+ 26 files changed, 2878 insertions(+), 26 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/Makefile
++++ b/arch/i386/Makefile
+@@ -93,6 +93,9 @@ mcore-$(CONFIG_X86_ES7000)	:=3D mach-defau
+ mcore-$(CONFIG_X86_ES7000)	:=3D mach-default
+ core-$(CONFIG_X86_ES7000)	:=3D arch/i386/mach-es7000/
+ =
+
++# Xen paravirtualization support
++core-$(CONFIG_XEN)		+=3D arch/i386/xen/
++
+ # default subarch .h files
+ mflags-y +=3D -Iinclude/asm-i386/mach-default
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/cpu/common.c
++++ b/arch/i386/kernel/cpu/common.c
+@@ -19,6 +19,7 @@
+ #include <mach_apic.h>
+ #endif
+ #include <asm/pda.h>
++#include <asm/paravirt.h>
+ =
+
+ #include "cpu.h"
+ =
+
+@@ -707,6 +708,8 @@ __cpuinit int init_gdt(int cpu, struct t
+ 	pda->cpu_number =3D cpu;
+ 	pda->pcurrent =3D idle;
+ =
+
++	paravirt_init_pda(pda, cpu);
++
+ 	return 1;
+ }
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/entry.S
++++ b/arch/i386/kernel/entry.S
+@@ -1034,6 +1034,85 @@ ENTRY(kernel_thread_helper)
+ 	CFI_ENDPROC
+ ENDPROC(kernel_thread_helper)
+ =
+
++#ifdef CONFIG_XEN
++/* Xen only supports sysenter/sysexit in ring0 guests,
++   and only if it the guest asks for it.  So for now,
++   this should never be used. */
++ENTRY(xen_sti_sysexit)
++	CFI_STARTPROC
++	ud2
++	CFI_ENDPROC
++ENDPROC(xen_sti_sysexit)
++	=
+
++ENTRY(xen_hypervisor_callback)
++	CFI_STARTPROC
++	pushl $0
++	CFI_ADJUST_CFA_OFFSET 4
++	SAVE_ALL
++	mov %esp, %eax
++	call xen_evtchn_do_upcall
++	jmp  ret_from_intr
++	CFI_ENDPROC
++ENDPROC(xen_hypervisor_callback)
++	=
+
++# Hypervisor uses this for application faults while it executes.
++# We get here for two reasons:
++#  1. Fault while reloading DS, ES, FS or GS
++#  2. Fault while executing IRET
++# Category 1 we fix up by reattempting the load, and zeroing the segment
++# register if the load fails.
++# Category 2 we fix up by jumping to do_iret_error. We cannot use the
++# normal Linux return path in this case because if we use the IRET hyperca=
+ll
++# to pop the stack frame we end up in an infinite loop of failsafe callbac=
+ks.
++# We distinguish between categories by maintaining a status value in EAX.
++ENTRY(xen_failsafe_callback)
++	CFI_STARTPROC
++	pushl %eax
++	CFI_ADJUST_CFA_OFFSET 4
++	movl $1,%eax
++1:	mov 4(%esp),%ds
++2:	mov 8(%esp),%es
++3:	mov 12(%esp),%fs
++4:	mov 16(%esp),%gs
++	testl %eax,%eax
++	popl %eax
++	CFI_ADJUST_CFA_OFFSET -4
++	lea 16(%esp),%esp
++	CFI_ADJUST_CFA_OFFSET -16
++	jz 5f
++	addl $16,%esp
++	jmp iret_exc		# EAX !=3D 0 =3D> Category 2 (Bad IRET)
++5:	pushl $0		# EAX =3D=3D 0 =3D> Category 1 (Bad segment)
++	CFI_ADJUST_CFA_OFFSET 4
++	SAVE_ALL
++	jmp ret_from_exception
++	CFI_ENDPROC
++	=
+
++.section .fixup,"ax"
++6:	xorl %eax,%eax
++	movl %eax,4(%esp)
++	jmp 1b
++7:	xorl %eax,%eax
++	movl %eax,8(%esp)
++	jmp 2b
++8:	xorl %eax,%eax
++	movl %eax,12(%esp)
++	jmp 3b
++9:	xorl %eax,%eax
++	movl %eax,16(%esp)
++	jmp 4b
++.previous
++.section __ex_table,"a"
++	.align 4
++	.long 1b,6b
++	.long 2b,7b
++	.long 3b,8b
++	.long 4b,9b
++.previous
++ENDPROC(xen_failsafe_callback)
++		=
+
++#endif	/* CONFIG_XEN */
++	=
+
+ .section .rodata,"a"
+ #include "syscall_table.S"
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/head.S
++++ b/arch/i386/kernel/head.S
+@@ -535,6 +535,10 @@ unhandled_paravirt:
+ 	ud2
+ #endif
+ =
+
++#ifdef CONFIG_XEN
++#include "../xen/xen-head.S"
++#endif
++	=
+
+ /*
+  * Real beginning of normal "text" segment
+  */
+@@ -544,8 +548,9 @@ ENTRY(_stext)
+ /*
+  * BSS section
+  */
+-.section ".bss.page_aligned","w"
++.section ".bss.page_aligned","wa"
+ ENTRY(swapper_pg_dir)
++	.align PAGE_SIZE_asm
+ 	.fill 1024,4,0
+ ENTRY(empty_zero_page)
+ 	.fill 4096,1,0
+@@ -614,7 +619,8 @@ ENTRY(boot_gdt_table)
+ /*
+  * The Global Descriptor Table contains 28 quadwords, per-CPU.
+  */
+-	.align L1_CACHE_BYTES
++	.section ".data.page_aligned"
++	.align PAGE_SIZE_asm
+ ENTRY(cpu_gdt_table)
+ 	.quad 0x0000000000000000	/* NULL descriptor */
+ 	.quad 0x0000000000000000	/* 0x0b reserved */
+@@ -663,3 +669,6 @@ ENTRY(cpu_gdt_table)
+ 	.quad 0x0000000000000000	/* 0xf0 - unused */
+ 	.quad 0x0000000000000000	/* 0xf8 - GDT entry 31: double-fault TSS */
+ =
+
++	/* Be sure this is zeroed to avoid false validations in Xen */
++	.fill PAGE_SIZE_asm / 8 - GDT_ENTRIES,8,0
++	.previous
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -146,55 +146,55 @@ void init_IRQ(void)
+ 	paravirt_ops.init_IRQ();
+ }
+ =
+
+-static void native_clts(void)
++void native_clts(void)
+ {
+ 	asm volatile ("clts");
+ }
+ =
+
+-static unsigned long native_read_cr0(void)
++unsigned long native_read_cr0(void)
+ {
+ 	unsigned long val;
+ 	asm volatile("movl %%cr0,%0\n\t" :"=3Dr" (val));
+ 	return val;
+ }
+ =
+
+-static void native_write_cr0(unsigned long val)
++void native_write_cr0(unsigned long val)
+ {
+ 	asm volatile("movl %0,%%cr0": :"r" (val));
+ }
+ =
+
+-static unsigned long native_read_cr2(void)
++unsigned long native_read_cr2(void)
+ {
+ 	unsigned long val;
+ 	asm volatile("movl %%cr2,%0\n\t" :"=3Dr" (val));
+ 	return val;
+ }
+ =
+
+-static void native_write_cr2(unsigned long val)
++void native_write_cr2(unsigned long val)
+ {
+ 	asm volatile("movl %0,%%cr2": :"r" (val));
+ }
+ =
+
+-static unsigned long native_read_cr3(void)
++unsigned long native_read_cr3(void)
+ {
+ 	unsigned long val;
+ 	asm volatile("movl %%cr3,%0\n\t" :"=3Dr" (val));
+ 	return val;
+ }
+ =
+
+-static void native_write_cr3(unsigned long val)
++void native_write_cr3(unsigned long val)
+ {
+ 	asm volatile("movl %0,%%cr3": :"r" (val));
+ }
+ =
+
+-static unsigned long native_read_cr4(void)
++unsigned long native_read_cr4(void)
+ {
+ 	unsigned long val;
+ 	asm volatile("movl %%cr4,%0\n\t" :"=3Dr" (val));
+ 	return val;
+ }
+ =
+
+-static unsigned long native_read_cr4_safe(void)
++unsigned long native_read_cr4_safe(void)
+ {
+ 	unsigned long val;
+ 	/* This could fault if %cr4 does not exist */
+@@ -207,7 +207,7 @@ static unsigned long native_read_cr4_saf
+ 	return val;
+ }
+ =
+
+-static void native_write_cr4(unsigned long val)
++void native_write_cr4(unsigned long val)
+ {
+ 	asm volatile("movl %0,%%cr4": :"r" (val));
+ }
+@@ -246,12 +246,12 @@ static void native_halt(void)
+ 	asm volatile("hlt": : :"memory");
+ }
+ =
+
+-static void native_wbinvd(void)
++void native_wbinvd(void)
+ {
+ 	asm volatile("wbinvd": : :"memory");
+ }
+ =
+
+-static unsigned long long native_read_msr(unsigned int msr, int *err)
++unsigned long long native_read_msr(unsigned int msr, int *err)
+ {
+ 	unsigned long long val;
+ =
+
+@@ -270,7 +270,7 @@ static unsigned long long native_read_ms
+ 	return val;
+ }
+ =
+
+-static int native_write_msr(unsigned int msr, unsigned long long val)
++int native_write_msr(unsigned int msr, unsigned long long val)
+ {
+ 	int err;
+ 	asm volatile("2: wrmsr ; xorl %0,%0\n"
+@@ -288,14 +288,14 @@ static int native_write_msr(unsigned int
+ 	return err;
+ }
+ =
+
+-static unsigned long long native_read_tsc(void)
++unsigned long long native_read_tsc(void)
+ {
+ 	unsigned long long val;
+ 	asm volatile("rdtsc" : "=3DA" (val));
+ 	return val;
+ }
+ =
+
+-static unsigned long long native_read_pmc(void)
++unsigned long long native_read_pmc(void)
+ {
+ 	unsigned long long val;
+ 	asm volatile("rdpmc" : "=3DA" (val));
+@@ -317,17 +317,17 @@ static void native_load_idt(const struct
+ 	asm volatile("lidt %0"::"m" (*dtr));
+ }
+ =
+
+-static void native_store_gdt(struct Xgt_desc_struct *dtr)
++void native_store_gdt(struct Xgt_desc_struct *dtr)
+ {
+ 	asm ("sgdt %0":"=3Dm" (*dtr));
+ }
+ =
+
+-static void native_store_idt(struct Xgt_desc_struct *dtr)
++void native_store_idt(struct Xgt_desc_struct *dtr)
+ {
+ 	asm ("sidt %0":"=3Dm" (*dtr));
+ }
+ =
+
+-static unsigned long native_store_tr(void)
++unsigned long native_store_tr(void)
+ {
+ 	unsigned long tr;
+ 	asm ("str %0":"=3Dr" (tr));
+@@ -336,9 +336,9 @@ static unsigned long native_store_tr(voi
+ =
+
+ static void native_load_tls(struct thread_struct *t, unsigned int cpu)
+ {
+-#define C(i) get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + i] =3D t->tls_arra=
+y[i]
+-	C(0); C(1); C(2);
+-#undef C
++	get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + 0] =3D t->tls_array[0];
++	get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + 1] =3D t->tls_array[1];
++	get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + 2] =3D t->tls_array[2];
+ }
+ =
+
+ static inline void native_write_dt_entry(void *dt, int entry, u32 entry_lo=
+w, u32 entry_high)
+@@ -348,17 +348,17 @@ static inline void native_write_dt_entry
+ 	lp[1] =3D entry_high;
+ }
+ =
+
+-static void native_write_ldt_entry(void *dt, int entrynum, u32 low, u32 hi=
+gh)
++void native_write_ldt_entry(void *dt, int entrynum, u32 low, u32 high)
+ {
+ 	native_write_dt_entry(dt, entrynum, low, high);
+ }
+ =
+
+-static void native_write_gdt_entry(void *dt, int entrynum, u32 low, u32 hi=
+gh)
++void native_write_gdt_entry(void *dt, int entrynum, u32 low, u32 high)
+ {
+ 	native_write_dt_entry(dt, entrynum, low, high);
+ }
+ =
+
+-static void native_write_idt_entry(void *dt, int entrynum, u32 low, u32 hi=
+gh)
++void native_write_idt_entry(void *dt, int entrynum, u32 low, u32 high)
+ {
+ 	native_write_dt_entry(dt, entrynum, low, high);
+ }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -93,6 +93,7 @@ SECTIONS
+ =
+
+   . =3D ALIGN(4096);
+   .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
++	*(.data.page_aligned)
+ 	*(.data.idt)
+   }
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/mm/pgtable.c
++++ b/arch/i386/mm/pgtable.c
+@@ -267,6 +267,7 @@ static void pgd_ctor(pgd_t *pgd)
+ 					swapper_pg_dir + USER_PTRS_PER_PGD,
+ 					KERNEL_PGD_PTRS);
+ 		} else {
++			memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
+ 			spin_lock_irqsave(&pgd_lock, flags);
+ 			pgd_list_add(pgd);
+ 			spin_unlock_irqrestore(&pgd_lock, flags);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- /dev/null
-+++ b/include/asm-i386/xen/hypercall.h
-@@ -0,0 +1,413 @@
-+/*************************************************************************=
-*****
-+ * hypercall.h
-+ *
-+ * Linux-specific hypervisor handling.
-+ *
-+ * Copyright (c) 2002-2004, K A Fraser
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a=
- copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modi=
-fy,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
-are,
-+ * and to permit persons to whom the Software is furnished to do so, subje=
-ct to
-+ * the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included=
- in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
- OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
- THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
-LINGS
-+ * IN THE SOFTWARE.
++++ b/arch/i386/xen/Makefile
+@@ -0,0 +1,2 @@
++obj-y		:=3D enlighten.o setup.o events.o time.o \
++			features.o mmu.o multicalls.o
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/enlighten.c
+@@ -0,0 +1,801 @@
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/smp.h>
++#include <linux/preempt.h>
++#include <linux/percpu.h>
++#include <linux/delay.h>
++#include <linux/start_kernel.h>
++#include <linux/sched.h>
++#include <linux/bootmem.h>
++
++#include <xen/interface/xen.h>
++#include <xen/features.h>
++#include <xen/page.h>
++
++#include <asm/paravirt.h>
++#include <asm/page.h>
++#include <asm/xen/hypercall.h>
++#include <asm/xen/hypervisor.h>
++#include <asm/fixmap.h>
++#include <asm/processor.h>
++#include <asm/setup.h>
++#include <asm/desc.h>
++#include <asm/pgtable.h>
++
++#include "xen-ops.h"
++#include "mmu.h"
++#include "multicalls.h"
++
++static DEFINE_PER_CPU(unsigned, lazy_mode);
++
++/* Code defined in entry.S (not a function) */
++extern const char xen_sti_sysexit[];
++
++struct start_info *xen_start_info;
++
++static unsigned xen_patch(u8 type, u16 clobber, void *firstinsn, unsigned =
+len)
++{
++	/* Xen will require relocations to patch calls and jmps, and
++	   perhaps chunks of inline code */
++	return len;
++}
++
++static void __init xen_banner(void)
++{
++	printk(KERN_INFO "Booting paravirtualized kernel on %s\n",
++	       paravirt_ops.name);
++	printk(KERN_INFO "Hypervisor signature: %s\n", xen_start_info->magic);
++}
++
++static void xen_init_pda(struct i386_pda *pda, int cpu)
++{
++	/* Don't re-init boot CPU; we do it once very early in boot,
++	   and then then cpu_init tries to do it again. If so, just
++	   reuse the stuff we already set up. */
++	if (cpu =3D=3D 0 && pda !=3D &boot_pda) {
++		BUG_ON(boot_pda.xen.vcpu =3D=3D NULL);
++		pda->xen =3D boot_pda.xen;
++		return;
++	}
++
++	pda->xen.vcpu =3D &HYPERVISOR_shared_info->vcpu_info[cpu];
++	pda->xen.cr3 =3D 0;
++}
++
++static fastcall void xen_cpuid(unsigned int *eax, unsigned int *ebx,
++			       unsigned int *ecx, unsigned int *edx)
++{
++	unsigned maskedx =3D ~0;
++	if (*eax =3D=3D 1)
++		maskedx =3D ~(1 << X86_FEATURE_APIC);
++
++	asm(XEN_EMULATE_PREFIX "cpuid"
++		: "=3Da" (*eax),
++		  "=3Db" (*ebx),
++		  "=3Dc" (*ecx),
++		  "=3Dd" (*edx)
++		: "0" (*eax), "2" (*ecx));
++	*edx &=3D maskedx;
++}
++
++static fastcall void xen_set_debugreg(int reg, unsigned long val)
++{
++	HYPERVISOR_set_debugreg(reg, val);
++}
++
++static fastcall unsigned long xen_get_debugreg(int reg)
++{
++	return HYPERVISOR_get_debugreg(reg);
++}
++
++static fastcall unsigned long xen_save_fl(void)
++{
++	struct vcpu_info *vcpu;
++	unsigned long flags;
++
++	preempt_disable();
++	vcpu =3D read_pda(xen.vcpu);
++	/* flag has opposite sense of mask */
++	flags =3D !vcpu->evtchn_upcall_mask;
++	preempt_enable();
++
++	/* convert to IF type flag =
+
++	   -0 -> 0x00000000
++	   -1 -> 0xffffffff
++	*/
++	return (-flags) & X86_EFLAGS_IF;
++}
++
++static fastcall void xen_restore_fl(unsigned long flags)
++{
++	struct vcpu_info *vcpu;
++
++	preempt_disable();
++
++	/* convert from IF type flag */
++	flags =3D !(flags & X86_EFLAGS_IF);
++	vcpu =3D read_pda(xen.vcpu);
++	vcpu->evtchn_upcall_mask =3D flags;
++	if (flags =3D=3D 0) {
++		barrier(); /* unmask then check (avoid races) */
++		if (unlikely(vcpu->evtchn_upcall_pending))
++			force_evtchn_callback();
++		preempt_enable();
++	} else
++		preempt_enable_no_resched();
++}
++
++static fastcall void xen_irq_disable(void)
++{
++	struct vcpu_info *vcpu;
++	preempt_disable();
++	vcpu =3D read_pda(xen.vcpu);
++	vcpu->evtchn_upcall_mask =3D 1;
++	preempt_enable_no_resched();
++}
++
++static fastcall void xen_irq_enable(void)
++{
++	struct vcpu_info *vcpu;
++
++	preempt_disable();
++	vcpu =3D read_pda(xen.vcpu);
++	vcpu->evtchn_upcall_mask =3D 0;
++	barrier(); /* unmask then check (avoid races) */
++	if (unlikely(vcpu->evtchn_upcall_pending))
++		force_evtchn_callback();
++	preempt_enable();
++}
++
++static fastcall void xen_safe_halt(void)
++{
++	stop_hz_timer();
++	/* Blocking includes an implicit local_irq_enable(). */
++	if (HYPERVISOR_sched_op(SCHEDOP_block, 0) !=3D 0)
++		BUG();
++	start_hz_timer();
++}
++
++static fastcall void xen_halt(void)
++{
++#if 0
++	if (irqs_disabled())
++		HYPERVISOR_vcpu_op(VCPUOP_down, smp_processor_id(), NULL);
++#endif
++}
++
++static void xen_set_lazy_mode(int mode)
++{
++	unsigned *lazy =3D &get_cpu_var(lazy_mode);
++
++	if (xen_mc_flush())
++		BUG();
++
++	*lazy =3D mode;
++
++	put_cpu_var(lazy_mode);
++}
++
++static unsigned xen_get_lazy_mode(void)
++{
++	unsigned ret =3D get_cpu_var(lazy_mode);
++	put_cpu_var(lazy_mode);
++
++	return ret;
++}
++
++static fastcall void xen_load_tr_desc(void)
++{
++	/* do nothing */
++}
++
++static fastcall unsigned long xen_store_tr(void)
++{
++	return 0;
++}
++
++static fastcall void xen_set_ldt(const void *addr, unsigned entries)
++{
++	struct mmuext_op *op;
++	struct multicall_space mcs =3D xen_mc_entry(sizeof(*op));
++
++	op =3D mcs.args;
++	op->cmd =3D MMUEXT_SET_LDT;
++	op->arg1.linear_addr =3D (unsigned long)addr;
++	if (addr)
++		/* ldt my be vmalloced, use arbitrary_virt_to_machine */
++		op->arg1.linear_addr =3D arbitrary_virt_to_machine((unsigned long)addr).=
+maddr;
++	op->arg2.nr_ents =3D entries;
++
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	if (xen_get_lazy_mode() !=3D PARAVIRT_LAZY_CPU)
++		xen_mc_flush();
++}
++
++static fastcall void xen_load_gdt(const struct Xgt_desc_struct *dtr)
++{
++	unsigned long va;
++	int f;
++	unsigned size =3D dtr->size + 1;
++	unsigned long frames[16];
++
++	BUG_ON(size > 16*PAGE_SIZE);
++
++	for (va =3D dtr->address, f =3D 0;
++	     va < dtr->address + size;
++	     va +=3D PAGE_SIZE, f++) {
++		frames[f] =3D virt_to_mfn(va);
++		make_lowmem_page_readonly((void *)va);
++	}
++
++	/* This is used very early, so we can't rely on per-cpu data
++	   being set up, so no multicalls */
++	if (HYPERVISOR_set_gdt(frames, size/8))
++		BUG();
++}
++
++static void load_TLS_descriptor(struct thread_struct *t,
++				unsigned int cpu, unsigned int i)
++{
++	xmaddr_t maddr =3D virt_to_machine(&get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_=
+MIN+i]);
++	struct multicall_space mc =3D xen_mc_entry(0);
++
++	MULTI_update_descriptor(mc.mc, maddr.maddr, t->tls_array[i]);
++}
++
++static fastcall void xen_load_tls(struct thread_struct *t, unsigned int cp=
+u)
++{
++	load_TLS_descriptor(t, cpu, 0);
++	load_TLS_descriptor(t, cpu, 1);
++	load_TLS_descriptor(t, cpu, 2);
++
++	if (xen_get_lazy_mode() !=3D PARAVIRT_LAZY_CPU && xen_mc_flush())
++		BUG();
++}
++
++static fastcall void xen_write_ldt_entry(void *dt, int entrynum, u32 low, =
+u32 high)
++{
++	unsigned long lp =3D (unsigned long)dt + entrynum * 8;
++	xmaddr_t mach_lp =3D virt_to_machine(lp);
++	u64 entry =3D (u64)high << 32 | low;
++
++	xen_mc_flush();
++	if (HYPERVISOR_update_descriptor(mach_lp.maddr, entry))
++		BUG();
++}
++
++static int cvt_gate_to_trap(int vector, u32 low, u32 high, struct trap_inf=
+o *info)
++{
++	u8 type, dpl;
++
++	type =3D (high >> 8) & 0x1f;
++	dpl =3D (high >> 13) & 3;
++
++	if (type !=3D 0xf && type !=3D 0xe)
++		return 0;
++
++	info->vector =3D vector;
++	info->address =3D (high & 0xffff0000) | (low & 0x0000ffff);
++	info->cs =3D low >> 16;
++	info->flags =3D dpl;
++	/* interrupt gates clear IF */
++	if (type =3D=3D 0xe)
++		info->flags |=3D 4;
++
++	return 1;
++}
++
++#if 0
++static void unpack_desc(u32 low, u32 high,
++			unsigned long *base, unsigned long *limit,
++			unsigned char *type, unsigned char *flags)
++{
++	*base =3D (high & 0xff000000) | ((high << 16) & 0x00ff0000) | ((low >> 16=
+) & 0xffff);
++	*limit =3D (high & 0x000f0000) | (low & 0xffff);
++	*type =3D (high >> 8) & 0xff;
++	*flags =3D (high >> 20) & 0xf;
++}
++#endif
++
++/* Locations of each CPU's IDT */
++static DEFINE_PER_CPU(struct Xgt_desc_struct, idt_desc);
++
++/* Set an IDT entry.  If the entry is part of the current IDT, then
++   also update Xen. */
++static fastcall void xen_write_idt_entry(void *dt, int entrynum, u32 low, =
+u32 high)
++{
++
++	int cpu =3D smp_processor_id();
++	unsigned long p =3D (unsigned long)dt + entrynum * 8;
++	unsigned long start =3D per_cpu(idt_desc, cpu).address;
++	unsigned long end =3D start + per_cpu(idt_desc, cpu).size + 1;
++
++	xen_mc_flush();
++
++	native_write_idt_entry(dt, entrynum, low, high);
++
++	if (p >=3D start && (p + 8) <=3D end) {
++		struct trap_info info[2];
++
++		info[1].address =3D 0;
++
++		if (cvt_gate_to_trap(entrynum, low, high, &info[0]))
++			if (HYPERVISOR_set_trap_table(info))
++				BUG();
++	}
++}
++
++/* Load a new IDT into Xen.  In principle this can be per-CPU, so we
++   hold a spinlock to protect the static traps[] array (static because
++   it avoids allocation, and saves stack space). */
++static fastcall void xen_load_idt(const struct Xgt_desc_struct *desc)
++{
++	static DEFINE_SPINLOCK(lock);
++	static struct trap_info traps[257];
++
++	int cpu =3D smp_processor_id();
++	unsigned in, out, count;
++
++	per_cpu(idt_desc, cpu) =3D *desc;
++	=
+
++	count =3D desc->size / 8;
++	BUG_ON(count > 256);
++
++	spin_lock(&lock);
++	for(in =3D out =3D 0; in < count; in++) {
++		const u32 *entry =3D (u32 *)(desc->address + in * 8);
++
++		if (cvt_gate_to_trap(in, entry[0], entry[1], &traps[out]))
++			out++;
++	}
++	traps[out].address =3D 0;
++
++	xen_mc_flush();
++	if (HYPERVISOR_set_trap_table(traps))
++		BUG();
++
++	spin_unlock(&lock);
++}
++
++/* Write a GDT descriptor entry.  Ignore LDT descriptors, since
++   they're handled differently. */
++static fastcall void xen_write_gdt_entry(void *dt, int entry, u32 low, u32=
+ high)
++{
++	switch ((high >> 8) & 0xff) {
++	case DESCTYPE_LDT:
++	case DESCTYPE_TSS:
++		/* ignore */
++		break;
++
++	default:
++		xen_mc_flush();
++		if (HYPERVISOR_update_descriptor(virt_to_machine(dt + entry*8).maddr,
++						 (u64)high << 32 | low))
++			BUG();
++	}
++}
++
++static fastcall void xen_load_esp0(struct tss_struct *tss,
++				   struct thread_struct *thread)
++{
++	if (xen_get_lazy_mode() !=3D PARAVIRT_LAZY_CPU) {
++		if (HYPERVISOR_stack_switch(__KERNEL_DS, thread->esp0))
++			BUG();
++	} else {
++		struct multicall_space mcs =3D xen_mc_entry(0);
++		MULTI_stack_switch(mcs.mc, __KERNEL_DS, thread->esp0);
++	}
++}
++
++static fastcall void xen_set_iopl_mask(unsigned mask)
++{
++#if 0
++	struct physdev_set_iopl set_iopl;
++
++	/* Force the change at ring 0. */
++	set_iopl.iopl =3D (mask =3D=3D 0) ? 1 : (mask >> 12) & 3;
++	HYPERVISOR_physdev_op(PHYSDEVOP_set_iopl, &set_iopl);
++#endif
++}
++
++static fastcall void xen_io_delay(void)
++{
++}
++
++#ifdef CONFIG_X86_LOCAL_APIC
++static fastcall void xen_apic_write(unsigned long reg, unsigned long v)
++{
++}
++
++static fastcall void xen_apic_write_atomic(unsigned long reg, unsigned lon=
+g v)
++{
++}
++
++static fastcall unsigned long xen_apic_read(unsigned long reg)
++{
++	return 0;
++}
++#endif
++
++static fastcall void xen_flush_tlb(void)
++{
++	struct mmuext_op *op;
++	struct multicall_space mcs =3D xen_mc_entry(sizeof(*op));
++
++	op =3D mcs.args;
++	op->cmd =3D MMUEXT_TLB_FLUSH_LOCAL;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	if (xen_get_lazy_mode() !=3D PARAVIRT_LAZY_CPU && xen_mc_flush())
++		BUG();
++}
++
++static fastcall void xen_flush_tlb_global(void)
++{
++	struct mmuext_op *op;
++	struct multicall_space mcs =3D xen_mc_entry(sizeof(*op));
++
++	op =3D mcs.args;
++	op->cmd =3D MMUEXT_TLB_FLUSH_ALL;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	if (xen_get_lazy_mode() !=3D PARAVIRT_LAZY_CPU && xen_mc_flush())
++		BUG();
++}
++
++static fastcall void xen_flush_tlb_single(u32 addr)
++{
++	struct mmuext_op *op;
++	struct multicall_space mcs =3D xen_mc_entry(sizeof(*op));
++
++	op =3D mcs.args;
++	op->cmd =3D MMUEXT_INVLPG_LOCAL;
++	op->arg1.linear_addr =3D addr & PAGE_MASK;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	if (xen_get_lazy_mode() !=3D PARAVIRT_LAZY_CPU && xen_mc_flush())
++		BUG();
++}
++
++static fastcall unsigned long xen_read_cr2(void)
++{
++	return read_pda(xen.vcpu)->arch.cr2;
++}
++
++static fastcall void xen_write_cr4(unsigned long cr4)
++{
++	/* never allow TSC to be disabled */
++	native_write_cr4(cr4 & ~X86_CR4_TSD);
++}
++
++/*
++ * Page-directory addresses above 4GB do not fit into architectural %cr3.
++ * When accessing %cr3, or equivalent field in vcpu_guest_context, guests
++ * must use the following accessor macros to pack/unpack valid MFNs.
 + */
++#define xen_pfn_to_cr3(pfn) (((unsigned)(pfn) << 12) | ((unsigned)(pfn) >>=
+ 20))
++#define xen_cr3_to_pfn(cr3) (((unsigned)(cr3) >> 12) | ((unsigned)(cr3) <<=
+ 20))
 +
-+#ifndef __HYPERCALL_H__
-+#define __HYPERCALL_H__
++static fastcall unsigned long xen_read_cr3(void)
++{
++	return read_pda(xen.cr3);
++}
 +
-+#include <linux/errno.h>
++static fastcall void xen_write_cr3(unsigned long cr3)
++{
++	if (cr3 =3D=3D read_pda(xen.cr3)) {
++		/* just a simple tlb flush */
++		xen_flush_tlb();
++		return;
++	}
++
++	write_pda(xen.cr3, cr3);
++
++
++	{
++		struct mmuext_op *op;
++		struct multicall_space mcs =3D xen_mc_entry(sizeof(*op));
++		unsigned long mfn =3D pfn_to_mfn(PFN_DOWN(cr3));
++
++		op =3D mcs.args;
++		op->cmd =3D MMUEXT_NEW_BASEPTR;
++		op->arg1.mfn =3D mfn;
++
++		MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++		if (xen_get_lazy_mode() !=3D PARAVIRT_LAZY_CPU && xen_mc_flush())
++			BUG();
++	}
++}
++
++static fastcall void xen_alloc_pt(u32 pfn)
++{
++	/* XXX pfn isn't necessarily a lowmem page */
++	make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
++}
++
++static fastcall void xen_alloc_pd(u32 pfn)
++{
++	make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
++}
++
++static fastcall void xen_release_pd(u32 pfn)
++{
++	make_lowmem_page_readwrite(__va(PFN_PHYS(pfn)));
++	/* make sure next person to allocate this page gets a clean
++	   pmd */
++	clear_page(__va(PFN_PHYS(pfn)));
++}
++
++static fastcall void xen_release_pt(u32 pfn)
++{
++	make_lowmem_page_readwrite(__va(PFN_PHYS(pfn)));
++}
++
++static fastcall void xen_alloc_pd_clone(u32 pfn, u32 clonepfn,
++					u32 start, u32 count)
++{
++	xen_alloc_pd(pfn);
++}
++
++static __init void xen_pagetable_setup_start(pgd_t *base)
++{
++	pgd_t *xen_pgd =3D (pgd_t *)xen_start_info->pt_base;
++
++	init_mm.pgd =3D base;
++
++	/* copy top-level of Xen-supplied pagetable into place.	 For
++	   !PAE we can use this as-is, but for PAE it is a stand-in
++	   while we copy the pmd pages. */
++	memcpy(base, xen_pgd, PTRS_PER_PGD * sizeof(pgd_t));
++
++	if (PTRS_PER_PMD > 1) {
++		int i;
++
++		/* For PAE, need to allocate new pmds, rather than
++		   share Xen's, since Xen doesn't like pmd's being
++		   shared between address spaces, even though in this
++		   case they're effectively the same address space. */
++		for(i =3D 0; i < PTRS_PER_PGD; i++) {
++			if (pgd_val_ma(xen_pgd[i]) & _PAGE_PRESENT) {
++				pmd_t *pmd =3D (pmd_t *)alloc_bootmem_low_pages(PAGE_SIZE);
++
++				memcpy(pmd, (void *)pgd_page_vaddr(xen_pgd[i]),
++				       PAGE_SIZE);
++
++				xen_alloc_pd(PFN_DOWN(__pa(pmd)));
++
++				set_pgd(&base[i], __pgd(1 + __pa(pmd)));
++			} else
++				pgd_clear(&base[i]);
++		}
++	}
++
++	/* make sure the zero_page is mapped RO so we
++	   can use it in pagetables */
++	make_lowmem_page_readonly(empty_zero_page);
++	make_lowmem_page_readonly(base);
++
++	/* Switch to new pagetable.  This is done before
++	   pagetable_init has done anything so that the new pages
++	   added to the table can be prepared properly for Xen.	 */
++	xen_write_cr3(__pa(base));
++}
++
++static __init void xen_pagetable_setup_done(pgd_t *base)
++{
++	/* init_mm has a new pagetable set up - make sure the GDT page
++	   is still read-only in the new pagetable */
++	xen_load_gdt(&early_gdt_descr);
++
++	if (!xen_feature(XENFEAT_writable_page_tables)) {
++		/* Create a mapping for the shared info page.
++		   Should be set_fixmap(), but shared_info is a machine
++		   address with no corresponding pseudo-phys address. */
++		set_pte_mfn(fix_to_virt(FIX_PARAVIRT),
++			    PFN_DOWN(xen_start_info->shared_info),
++			    PAGE_KERNEL);
++		=
+
++		HYPERVISOR_shared_info =3D
++			(struct shared_info *)fix_to_virt(FIX_PARAVIRT);
++	} else
++		HYPERVISOR_shared_info =3D
++			(struct shared_info *)__va(xen_start_info->shared_info);
++
++	xen_pgd_pin(base);
++
++	write_pda(xen.vcpu, &HYPERVISOR_shared_info->vcpu_info[smp_processor_id()=
+]);
++}
++
++static const struct paravirt_ops xen_paravirt_ops __initdata =3D {
++	.paravirt_enabled =3D 1,
++	.shared_kernel_pmd =3D 0,
++	.pgd_alignment =3D PAGE_SIZE,
++
++	.name =3D "Xen",
++	.banner =3D xen_banner,
++
++	.patch =3D xen_patch,
++
++	.memory_setup =3D xen_memory_setup,
++	.arch_setup =3D xen_arch_setup,
++	.init_IRQ =3D xen_init_IRQ,
++	.time_init =3D xen_time_init,
++	.init_pda =3D xen_init_pda,
++
++	.cpuid =3D xen_cpuid,
++
++	.set_debugreg =3D xen_set_debugreg,
++	.get_debugreg =3D xen_get_debugreg,
++
++	.clts =3D native_clts,
++
++	.read_cr0 =3D native_read_cr0,
++	.write_cr0 =3D native_write_cr0,
++
++	.read_cr2 =3D xen_read_cr2,
++	.write_cr2 =3D native_write_cr2,
++
++	.read_cr3 =3D xen_read_cr3,
++	.write_cr3 =3D xen_write_cr3,
++
++	.read_cr4 =3D native_read_cr4,
++	.read_cr4_safe =3D native_read_cr4_safe,
++	.write_cr4 =3D xen_write_cr4,
++
++	.save_fl =3D xen_save_fl,
++	.restore_fl =3D xen_restore_fl,
++	.irq_disable =3D xen_irq_disable,
++	.irq_enable =3D xen_irq_enable,
++	.safe_halt =3D xen_safe_halt,
++	.halt =3D xen_halt,
++	.wbinvd =3D native_wbinvd,
++
++	.read_msr =3D native_read_msr,
++	.write_msr =3D native_write_msr,
++	.read_tsc =3D native_read_tsc,
++	.read_pmc =3D native_read_pmc,
++
++	.iret =3D (void (fastcall *)(void))&hypercall_page[__HYPERVISOR_iret],
++	.irq_enable_sysexit =3D (void (fastcall *)(void))xen_sti_sysexit,
++
++	.load_tr_desc =3D xen_load_tr_desc,
++	.set_ldt =3D xen_set_ldt,
++	.load_gdt =3D xen_load_gdt,
++	.load_idt =3D xen_load_idt,
++	.load_tls =3D xen_load_tls,
++
++	.store_gdt =3D native_store_gdt,
++	.store_idt =3D native_store_idt,
++	.store_tr =3D xen_store_tr,
++
++	.write_ldt_entry =3D xen_write_ldt_entry,
++	.write_gdt_entry =3D xen_write_gdt_entry,
++	.write_idt_entry =3D xen_write_idt_entry,
++	.load_esp0 =3D xen_load_esp0,
++
++	.set_iopl_mask =3D xen_set_iopl_mask,
++	.io_delay =3D xen_io_delay,
++	.const_udelay =3D __const_udelay,
++	.set_wallclock =3D xen_set_wallclock,
++	.get_wallclock =3D xen_get_wallclock,
++
++#ifdef CONFIG_X86_LOCAL_APIC
++	.apic_write =3D xen_apic_write,
++	.apic_write_atomic =3D xen_apic_write_atomic,
++	.apic_read =3D xen_apic_read,
++	.setup_boot_clock =3D (void *)native_nop,
++	.setup_secondary_clock =3D (void *)native_nop,
++#endif
++
++	.flush_tlb_user =3D xen_flush_tlb,
++	.flush_tlb_kernel =3D xen_flush_tlb_global,
++	.flush_tlb_single =3D xen_flush_tlb_single,
++
++	.pte_update =3D (void *)native_nop,
++	.pte_update_defer =3D (void *)native_nop,
++
++	.pagetable_setup_start =3D xen_pagetable_setup_start,
++	.pagetable_setup_done =3D xen_pagetable_setup_done,
++	.activate_mm =3D xen_activate_mm,
++	.dup_mmap =3D xen_dup_mmap,
++	.exit_mmap =3D xen_exit_mmap,
++
++	.set_pte =3D xen_set_pte,
++	.set_pte_at =3D xen_set_pte_at,
++	.set_pmd =3D xen_set_pmd,
++
++	.alloc_pt =3D xen_alloc_pt,
++	.alloc_pd =3D xen_alloc_pd,
++	.alloc_pd_clone =3D xen_alloc_pd_clone,
++	.release_pd =3D xen_release_pd,
++	.release_pt =3D xen_release_pt,
++
++	.pte_val =3D xen_pte_val,
++	.pmd_val =3D xen_pmd_val,
++	.pgd_val =3D xen_pgd_val,
++
++	.make_pte =3D xen_make_pte,
++	.make_pmd =3D xen_make_pmd,
++	.make_pgd =3D xen_make_pgd,
++
++	.ptep_get_and_clear =3D xen_ptep_get_and_clear,
++
++#ifdef CONFIG_X86_PAE
++	.set_pte_atomic =3D xen_set_pte,
++	.set_pte_present =3D xen_set_pte_at,
++	.set_pud =3D xen_set_pud,
++	.pte_clear =3D xen_pte_clear,
++	.pmd_clear =3D xen_pmd_clear,
++#endif	/* PAE */
++
++	.set_lazy_mode =3D xen_set_lazy_mode,
++	.startup_ipi_hook =3D (void *)native_nop,
++};
++
++/* First C function to be called on Xen boot */
++static asmlinkage void __init xen_start_kernel(void)
++{
++	u32 low, high;
++	pgd_t *pgd;
++
++	if (!xen_start_info)
++		return;
++
++	BUG_ON(memcmp(xen_start_info->magic, "xen-3.0", 7) !=3D 0);
++
++	/* Install Xen paravirt ops */
++	paravirt_ops =3D xen_paravirt_ops;
++
++	xen_setup_features();
++
++	/* Get mfn list */
++	if (!xen_feature(XENFEAT_auto_translated_physmap))
++		phys_to_machine_mapping =3D (unsigned long *)xen_start_info->mfn_list;
++
++	pgd =3D (pgd_t *)xen_start_info->pt_base;
++
++	init_pg_tables_end =3D __pa(pgd) + xen_start_info->nr_pt_frames*PAGE_SIZE;
++
++	/* set up the boot-time gdt and segments */
++	init_mm.pgd =3D pgd; /* use the Xen pagetables to start */
++
++	xen_load_gdt(&early_gdt_descr);
++
++	/* set up PDA descriptor */
++	pack_descriptor(&low, &high, (unsigned)&boot_pda, sizeof(boot_pda)-1,
++			0x80 | DESCTYPE_S | 0x02, 0);
++
++	/* Use hypercall directly, because xen_write_gdt_entry can't
++	 * be used until batched multicalls work. */
++	if (HYPERVISOR_update_descriptor(virt_to_machine(cpu_gdt_table +
++							 GDT_ENTRY_PDA).maddr,
++					 (u64)high << 32 | low))
++		BUG();
++
++	/* set up %fs and init Xen parts of the PDA */
++	asm volatile("mov %0, %%fs" : : "r" (__KERNEL_PDA) : "memory");
++	xen_init_pda(&boot_pda, 0);
++	boot_pda.xen.cr3 =3D __pa(pgd);
++
++	paravirt_ops.kernel_rpl =3D xen_feature(XENFEAT_supervisor_mode_kernel) ?=
+ 0 : 1;
++
++	/* set the limit of our address space */
++	reserve_top_address(-HYPERVISOR_VIRT_START + 2 * PAGE_SIZE);
++
++	/* set up basic CPUID stuff */
++	cpu_detect(&new_cpu_data);
++	new_cpu_data.hard_math =3D 1;
++	identify_cpu(&new_cpu_data);
++
++	/* Poke various useful things into boot_params */
++	LOADER_TYPE =3D (9 << 4) | 0;
++	INITRD_START =3D xen_start_info->mod_start ? __pa(xen_start_info->mod_sta=
+rt) : 0;
++	INITRD_SIZE =3D xen_start_info->mod_len;
++
++	/* Start the world */
++	start_kernel();
++}
++
++paravirt_probe(xen_start_kernel);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/events.c
+@@ -0,0 +1,480 @@
++#include <linux/linkage.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/module.h>
 +#include <linux/string.h>
 +
-+#include <xen/interface/xen.h>
-+#include <xen/interface/sched.h>
-+#include <xen/interface/physdev.h>
-+
-+extern struct { char _entry[32]; } hypercall_page[];
-+
-+#define _hypercall0(type, name)						\
-+({									\
-+	long __res;							\
-+	asm volatile (							\
-+		"call %[call]"						\
-+		: "=3Da" (__res)						\
-+		: [call] "m" (hypercall_page[__HYPERVISOR_##name])	\
-+		: "memory" );						\
-+	(type)__res;							\
-+})
-+
-+#define _hypercall1(type, name, a1)					\
-+({									\
-+	long __res, __ign1;						\
-+	asm volatile (							\
-+		"call %[call]"						\
-+		: "=3Da" (__res), "=3Db" (__ign1)				\
-+		: "1" ((long)(a1)),					\
-+		  [call] "m" (hypercall_page[__HYPERVISOR_##name])	\
-+		: "memory" );						\
-+	(type)__res;							\
-+})
-+
-+#define _hypercall2(type, name, a1, a2)					\
-+({									\
-+	long __res, __ign1, __ign2;					\
-+	asm volatile (							\
-+		"call %[call]"						\
-+		: "=3Da" (__res), "=3Db" (__ign1), "=3Dc" (__ign2)		\
-+		: "1" ((long)(a1)), "2" ((long)(a2)),			\
-+		  [call] "m" (hypercall_page[__HYPERVISOR_##name])	\
-+		: "memory" );						\
-+	(type)__res;							\
-+})
-+
-+#define _hypercall3(type, name, a1, a2, a3)				\
-+({									\
-+	long __res, __ign1, __ign2, __ign3;				\
-+	asm volatile (							\
-+		"call %[call]"						\
-+		: "=3Da" (__res), "=3Db" (__ign1), "=3Dc" (__ign2),		\
-+		"=3Dd" (__ign3)						\
-+		: "1" ((long)(a1)), "2" ((long)(a2)),			\
-+		  "3" ((long)(a3)),					\
-+		  [call] "m" (hypercall_page[__HYPERVISOR_##name])	\
-+		: "memory" );						\
-+	(type)__res;							\
-+})
-+
-+#define _hypercall4(type, name, a1, a2, a3, a4)				\
-+({									\
-+	long __res, __ign1, __ign2, __ign3, __ign4;			\
-+	asm volatile (							\
-+		"call %[call]"						\
-+		: "=3Da" (__res), "=3Db" (__ign1), "=3Dc" (__ign2),		\
-+		"=3Dd" (__ign3), "=3DS" (__ign4)				\
-+		: "1" ((long)(a1)), "2" ((long)(a2)),			\
-+		  "3" ((long)(a3)), "4" ((long)(a4)),			\
-+		  [call] "m" (hypercall_page[__HYPERVISOR_##name])	\
-+		: "memory" );						\
-+	(type)__res;							\
-+})
-+
-+#define _hypercall5(type, name, a1, a2, a3, a4, a5)			\
-+({									\
-+	long __res, __ign1, __ign2, __ign3, __ign4, __ign5;		\
-+	asm volatile (							\
-+		"call %[call]"						\
-+		: "=3Da" (__res), "=3Db" (__ign1), "=3Dc" (__ign2),		\
-+		"=3Dd" (__ign3), "=3DS" (__ign4), "=3DD" (__ign5)		\
-+		: "1" ((long)(a1)), "2" ((long)(a2)),			\
-+		  "3" ((long)(a3)), "4" ((long)(a4)),			\
-+		  "5" ((long)(a5)),					\
-+		  [call] "m" (hypercall_page[__HYPERVISOR_##name])	\
-+		: "memory" );						\
-+	(type)__res;							\
-+})
-+
-+static inline int
-+HYPERVISOR_set_trap_table(
-+	struct trap_info *table)
-+{
-+	return _hypercall1(int, set_trap_table, table);
-+}
-+
-+static inline int
-+HYPERVISOR_mmu_update(
-+	struct mmu_update *req, int count, int *success_count, domid_t domid)
-+{
-+	return _hypercall4(int, mmu_update, req, count, success_count, domid);
-+}
-+
-+static inline int
-+HYPERVISOR_mmuext_op(
-+	struct mmuext_op *op, int count, int *success_count, domid_t domid)
-+{
-+	return _hypercall4(int, mmuext_op, op, count, success_count, domid);
-+}
-+
-+static inline int
-+HYPERVISOR_set_gdt(
-+	unsigned long *frame_list, int entries)
-+{
-+	return _hypercall2(int, set_gdt, frame_list, entries);
-+}
-+
-+static inline int
-+HYPERVISOR_stack_switch(
-+	unsigned long ss, unsigned long esp)
-+{
-+	return _hypercall2(int, stack_switch, ss, esp);
-+}
-+
-+static inline int
-+HYPERVISOR_set_callbacks(
-+	unsigned long event_selector, unsigned long event_address,
-+	unsigned long failsafe_selector, unsigned long failsafe_address)
-+{
-+	return _hypercall4(int, set_callbacks,
-+			   event_selector, event_address,
-+			   failsafe_selector, failsafe_address);
-+}
-+
-+static inline int
-+HYPERVISOR_fpu_taskswitch(
-+	int set)
-+{
-+	return _hypercall1(int, fpu_taskswitch, set);
-+}
-+
-+static inline int
-+HYPERVISOR_sched_op(
-+	int cmd, unsigned long arg)
-+{
-+	return _hypercall2(int, sched_op, cmd, arg);
-+}
-+
-+static inline long
-+HYPERVISOR_set_timer_op(
-+	u64 timeout)
-+{
-+	unsigned long timeout_hi =3D (unsigned long)(timeout>>32);
-+	unsigned long timeout_lo =3D (unsigned long)timeout;
-+	return _hypercall2(long, set_timer_op, timeout_lo, timeout_hi);
-+}
-+
-+static inline int
-+HYPERVISOR_set_debugreg(
-+	int reg, unsigned long value)
-+{
-+	return _hypercall2(int, set_debugreg, reg, value);
-+}
-+
-+static inline unsigned long
-+HYPERVISOR_get_debugreg(
-+	int reg)
-+{
-+	return _hypercall1(unsigned long, get_debugreg, reg);
-+}
-+
-+static inline int
-+HYPERVISOR_update_descriptor(
-+	u64 ma, u64 desc)
-+{
-+	return _hypercall4(int, update_descriptor, ma, ma>>32, desc, desc>>32);
-+}
-+
-+static inline int
-+HYPERVISOR_memory_op(
-+	unsigned int cmd, void *arg)
-+{
-+	return _hypercall2(int, memory_op, cmd, arg);
-+}
-+
-+static inline int
-+HYPERVISOR_multicall(
-+	void *call_list, int nr_calls)
-+{
-+	return _hypercall2(int, multicall, call_list, nr_calls);
-+}
-+
-+static inline int
-+HYPERVISOR_update_va_mapping(
-+	unsigned long va, pte_t new_val, unsigned long flags)
-+{
-+	unsigned long pte_hi =3D 0;
-+#ifdef CONFIG_X86_PAE
-+	pte_hi =3D new_val.pte_high;
-+#endif
-+	return _hypercall4(int, update_va_mapping, va,
-+			   new_val.pte_low, pte_hi, flags);
-+}
-+
-+static inline int
-+HYPERVISOR_event_channel_op(
-+        int cmd, void *arg)
-+{
-+        int rc =3D _hypercall2(int, event_channel_op, cmd, arg);
-+        if (unlikely(rc =3D=3D -ENOSYS)) {
-+                struct evtchn_op op;
-+                op.cmd =3D cmd;
-+                memcpy(&op.u, arg, sizeof(op.u));
-+                rc =3D _hypercall1(int, event_channel_op_compat, &op);
-+                memcpy(arg, &op.u, sizeof(op.u));
-+        }
-+        return rc;
-+}
-+
-+static inline int
-+HYPERVISOR_xen_version(
-+	int cmd, void *arg)
-+{
-+	return _hypercall2(int, xen_version, cmd, arg);
-+}
-+
-+static inline int
-+HYPERVISOR_console_io(
-+	int cmd, int count, char *str)
-+{
-+	return _hypercall3(int, console_io, cmd, count, str);
-+}
-+
-+static inline int
-+HYPERVISOR_physdev_op(int cmd, void *arg)
-+{
-+	int rc =3D _hypercall2(int, physdev_op, cmd, arg);
-+	if (unlikely(rc =3D=3D -ENOSYS)) {
-+		struct physdev_op op;
-+		op.cmd =3D cmd;
-+		memcpy(&op.u, arg, sizeof(op.u));
-+		rc =3D _hypercall1(int, physdev_op_compat, &op);
-+		memcpy(arg, &op.u, sizeof(op.u));
-+	}
-+	return rc;
-+}
-+
-+static inline int
-+HYPERVISOR_grant_table_op(
-+	unsigned int cmd, void *uop, unsigned int count)
-+{
-+	return _hypercall3(int, grant_table_op, cmd, uop, count);
-+}
-+
-+static inline int
-+HYPERVISOR_update_va_mapping_otherdomain(
-+	unsigned long va, pte_t new_val, unsigned long flags, domid_t domid)
-+{
-+	unsigned long pte_hi =3D 0;
-+#ifdef CONFIG_X86_PAE
-+	pte_hi =3D new_val.pte_high;
-+#endif
-+	return _hypercall5(int, update_va_mapping_otherdomain, va,
-+			   new_val.pte_low, pte_hi, flags, domid);
-+}
-+
-+static inline int
-+HYPERVISOR_vm_assist(
-+	unsigned int cmd, unsigned int type)
-+{
-+	return _hypercall2(int, vm_assist, cmd, type);
-+}
-+
-+static inline int
-+HYPERVISOR_vcpu_op(
-+	int cmd, int vcpuid, void *extra_args)
-+{
-+	return _hypercall3(int, vcpu_op, cmd, vcpuid, extra_args);
-+}
-+
-+static inline int
-+HYPERVISOR_suspend(
-+	unsigned long srec)
-+{
-+	return _hypercall3(int, sched_op, SCHEDOP_shutdown,
-+			   SHUTDOWN_suspend, srec);
-+}
-+
-+static inline int
-+HYPERVISOR_nmi_op(
-+	unsigned long op,
-+	unsigned long arg)
-+{
-+	return _hypercall2(int, nmi_op, op, arg);
-+}
-+
-+static inline void
-+MULTI_update_va_mapping(struct multicall_entry *mcl, unsigned long va,
-+			pte_t new_val, unsigned long flags)
-+{
-+	mcl->op =3D __HYPERVISOR_update_va_mapping;
-+	mcl->args[0] =3D va;
-+#ifdef CONFIG_X86_PAE
-+	mcl->args[1] =3D new_val.pte_low;
-+	mcl->args[2] =3D new_val.pte_high;
-+#else
-+	mcl->args[1] =3D new_val.pte_low;
-+	mcl->args[2] =3D 0;
-+#endif
-+	mcl->args[3] =3D flags;
-+}
-+
-+static inline void
-+MULTI_grant_table_op(struct multicall_entry *mcl, unsigned int cmd,
-+		     void *uop, unsigned int count)
-+{
-+	mcl->op =3D __HYPERVISOR_grant_table_op;
-+	mcl->args[0] =3D cmd;
-+	mcl->args[1] =3D (unsigned long)uop;
-+	mcl->args[2] =3D count;
-+}
-+
-+static inline void
-+MULTI_update_va_mapping_otherdomain(struct multicall_entry *mcl, unsigned =
-long va,
-+				    pte_t new_val, unsigned long flags, domid_t domid)
-+{
-+	mcl->op =3D __HYPERVISOR_update_va_mapping_otherdomain;
-+	mcl->args[0] =3D va;
-+#ifdef CONFIG_X86_PAE
-+	mcl->args[1] =3D new_val.pte_low;
-+	mcl->args[2] =3D new_val.pte_high;
-+#else
-+	mcl->args[1] =3D new_val.pte_low;
-+	mcl->args[2] =3D 0;
-+#endif
-+	mcl->args[3] =3D flags;
-+	mcl->args[4] =3D domid;
-+}
-+
-+static inline void
-+MULTI_update_descriptor(struct multicall_entry *mcl, u64 maddr,
-+			struct desc_struct desc)
-+{
-+	mcl->op =3D __HYPERVISOR_update_descriptor;
-+	mcl->args[0] =3D maddr;
-+	mcl->args[1] =3D maddr >> 32;
-+	mcl->args[2] =3D desc.a;
-+	mcl->args[3] =3D desc.b;
-+}
-+
-+static inline void
-+MULTI_memory_op(struct multicall_entry *mcl, unsigned int cmd, void *arg)
-+{
-+	mcl->op =3D __HYPERVISOR_memory_op;
-+	mcl->args[0] =3D cmd;
-+	mcl->args[1] =3D (unsigned long)arg;
-+}
-+
-+static inline void
-+MULTI_mmu_update(struct multicall_entry *mcl, struct mmu_update *req,
-+		 int count, int *success_count, domid_t domid)
-+{
-+	mcl->op =3D __HYPERVISOR_mmu_update;
-+	mcl->args[0] =3D (unsigned long)req;
-+	mcl->args[1] =3D count;
-+	mcl->args[2] =3D (unsigned long)success_count;
-+	mcl->args[3] =3D domid;
-+}
-+
-+static inline void
-+MULTI_mmuext_op(struct multicall_entry *mcl, struct mmuext_op *op, int cou=
-nt,
-+		int *success_count, domid_t domid)
-+{
-+	mcl->op =3D __HYPERVISOR_mmuext_op;
-+	mcl->args[0] =3D (unsigned long)op;
-+	mcl->args[1] =3D count;
-+	mcl->args[2] =3D (unsigned long)success_count;
-+	mcl->args[3] =3D domid;
-+}
-+#endif /* __HYPERCALL_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/asm-i386/xen/hypervisor.h
-@@ -0,0 +1,72 @@
-+/*************************************************************************=
-*****
-+ * hypervisor.h
-+ *
-+ * Linux-specific hypervisor handling.
-+ *
-+ * Copyright (c) 2002-2004, K A Fraser
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a=
- copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modi=
-fy,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
-are,
-+ * and to permit persons to whom the Software is furnished to do so, subje=
-ct to
-+ * the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included=
- in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
- OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
- THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
-LINGS
-+ * IN THE SOFTWARE.
-+ */
-+
-+#ifndef __HYPERVISOR_H__
-+#define __HYPERVISOR_H__
-+
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/version.h>
-+
-+#include <xen/interface/xen.h>
-+#include <xen/interface/version.h>
-+
 +#include <asm/ptrace.h>
-+#include <asm/page.h>
-+#if defined(__i386__)
-+#  ifdef CONFIG_X86_PAE
-+#   include <asm-generic/pgtable-nopud.h>
-+#  else
-+#   include <asm-generic/pgtable-nopmd.h>
-+#  endif
-+#endif
++#include <asm/irq.h>
++#include <asm/sync_bitops.h>
 +#include <asm/xen/hypercall.h>
 +
-+/* arch/i386/kernel/setup.c */
-+extern struct shared_info *HYPERVISOR_shared_info;
-+extern struct start_info *xen_start_info;
-+#define is_initial_xendomain() (xen_start_info->flags & SIF_INITDOMAIN)
++#include <xen/events.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/event_channel.h>
 +
-+/* arch/i386/mach-xen/evtchn.c */
-+/* Force a proper event-channel callback from Xen. */
-+extern void force_evtchn_callback(void);
++#include "xen-ops.h"
 +
-+/* Turn jiffies into Xen system time. */
-+u64 jiffies_to_st(unsigned long jiffies);
++/*
++ * This lock protects updates to the following mapping and reference-count
++ * arrays. The lock does not need to be acquired to read the mapping table=
+s.
++ */
++static DEFINE_SPINLOCK(irq_mapping_update_lock);
++
++/* IRQ <-> VIRQ mapping. */
++DEFINE_PER_CPU(int, virq_to_irq[NR_VIRQS]) =3D {[0 ... NR_VIRQS-1] =3D -1};
++
++/* Packed IRQ information: binding type, sub-type index, and event channel=
+. */
++struct packed_irq
++{
++	unsigned short evtchn;
++	unsigned char index;
++	unsigned char type;
++};
++
++static struct packed_irq irq_info[NR_IRQS];
++
++/* Binding types. */
++enum { IRQT_UNBOUND, IRQT_PIRQ, IRQT_VIRQ, IRQT_IPI, IRQT_EVTCHN };
++
++/* Convenient shorthand for packed representation of an unbound IRQ. */
++#define IRQ_UNBOUND	mk_irq_info(IRQT_UNBOUND, 0, 0)
++
++static int evtchn_to_irq[NR_EVENT_CHANNELS] =3D {
++	[0 ... NR_EVENT_CHANNELS-1] =3D -1
++};
++static unsigned long cpu_evtchn_mask[NR_CPUS][NR_EVENT_CHANNELS/BITS_PER_L=
+ONG];
++static u8 cpu_evtchn[NR_EVENT_CHANNELS];
++
++/* Reference counts for bindings to IRQs. */
++static int irq_bindcount[NR_IRQS];
++
++/* Xen will never allocate port zero for any purpose. */
++#define VALID_EVTCHN(chn)	((chn) !=3D 0)
++
++/*
++ * Force a proper event-channel callback from Xen after clearing the
++ * callback mask. We do this in a very simple manner, by making a call
++ * down into Xen. The pending flag will be checked by Xen on return.
++ */
++void force_evtchn_callback(void)
++{
++	(void)HYPERVISOR_xen_version(0, NULL);
++}
++EXPORT_SYMBOL_GPL(force_evtchn_callback);
++
++static struct irq_chip xen_dynamic_chip;
++
++/* Constructor for packed IRQ information. */
++static inline struct packed_irq mk_irq_info(u32 type, u32 index, u32 evtch=
+n)
++{
++	return (struct packed_irq) { evtchn, index, type };
++}
++
++/*
++ * Accessors for packed IRQ information.
++ */
++static inline unsigned int evtchn_from_irq(int irq)
++{
++	return irq_info[irq].evtchn;
++}
++
++static inline unsigned int index_from_irq(int irq)
++{
++	return irq_info[irq].index;
++}
++
++static inline unsigned int type_from_irq(int irq)
++{
++	return irq_info[irq].type;
++}
++
++static inline unsigned long active_evtchns(unsigned int cpu,
++					   struct shared_info *sh,
++					   unsigned int idx)
++{
++	return (sh->evtchn_pending[idx] &
++		cpu_evtchn_mask[cpu][idx] &
++		~sh->evtchn_mask[idx]);
++}
++
++static void bind_evtchn_to_cpu(unsigned int chn, unsigned int cpu)
++{
++	int irq =3D evtchn_to_irq[chn];
++
++	BUG_ON(irq =3D=3D -1);
++	set_native_irq_info(irq, cpumask_of_cpu(cpu));
++
++	__clear_bit(chn, cpu_evtchn_mask[cpu_evtchn[chn]]);
++	__set_bit(chn, cpu_evtchn_mask[cpu]);
++
++	cpu_evtchn[chn] =3D cpu;
++}
++
++static void init_evtchn_cpu_bindings(void)
++{
++	int i;
++
++	/* By default all event channels notify CPU#0. */
++	for (i =3D 0; i < NR_IRQS; i++)
++		set_native_irq_info(i, cpumask_of_cpu(0));
++
++	memset(cpu_evtchn, 0, sizeof(cpu_evtchn));
++	memset(cpu_evtchn_mask[0], ~0, sizeof(cpu_evtchn_mask[0]));
++}
++
++static inline unsigned int cpu_from_evtchn(unsigned int evtchn)
++{
++	return cpu_evtchn[evtchn];
++}
++
++static inline void clear_evtchn(int port)
++{
++	struct shared_info *s =3D HYPERVISOR_shared_info;
++	sync_clear_bit(port, &s->evtchn_pending[0]);
++}
++
++static inline void set_evtchn(int port)
++{
++	struct shared_info *s =3D HYPERVISOR_shared_info;
++	sync_set_bit(port, &s->evtchn_pending[0]);
++}
 +
 +
-+#define MULTI_UVMFLAGS_INDEX 3
-+#define MULTI_UVMDOMID_INDEX 4
++/**
++ * notify_remote_via_irq - send event to remote end of event channel via i=
+rq
++ * @irq: irq of event channel to send event to
++ *
++ * Unlike notify_remote_via_evtchn(), this is safe to use across
++ * save/restore. Notifications on a broken connection are silently
++ * dropped.
++ */
++void notify_remote_via_irq(int irq)
++{
++	int evtchn =3D evtchn_from_irq(irq);
 +
-+#define is_running_on_xen()	(xen_start_info ? 1 : 0)
++	if (VALID_EVTCHN(evtchn))
++		notify_remote_via_evtchn(evtchn);
++}
++EXPORT_SYMBOL_GPL(notify_remote_via_irq);
 +
-+#endif /* __HYPERVISOR_H__ */
++void mask_evtchn(int port)
++{
++	struct shared_info *s =3D HYPERVISOR_shared_info;
++	sync_set_bit(port, &s->evtchn_mask[0]);
++}
++EXPORT_SYMBOL_GPL(mask_evtchn);
++
++void unmask_evtchn(int port)
++{
++	struct shared_info *s =3D HYPERVISOR_shared_info;
++	unsigned int cpu =3D smp_processor_id();
++	struct vcpu_info *vcpu_info =3D read_pda(xen.vcpu);
++
++	BUG_ON(!irqs_disabled());
++
++	/* Slow path (hypercall) if this is a non-local port. */
++	if (unlikely(cpu !=3D cpu_from_evtchn(port))) {
++		struct evtchn_unmask unmask =3D { .port =3D port };
++		(void)HYPERVISOR_event_channel_op(EVTCHNOP_unmask, &unmask);
++		return;
++	}
++
++	sync_clear_bit(port, &s->evtchn_mask[0]);
++
++	/*
++	 * The following is basically the equivalent of 'hw_resend_irq'. Just
++	 * like a real IO-APIC we 'lose the interrupt edge' if the channel is
++	 * masked.
++	 */
++	if (sync_test_bit(port, &s->evtchn_pending[0]) &&
++	    !sync_test_and_set_bit(port / BITS_PER_LONG,
++				   &vcpu_info->evtchn_pending_sel))
++		vcpu_info->evtchn_upcall_pending =3D 1;
++}
++EXPORT_SYMBOL_GPL(unmask_evtchn);
++
++static int find_unbound_irq(void)
++{
++	int irq;
++
++	/* Only allocate from dynirq range */
++	for (irq =3D 0; irq < NR_IRQS; irq++)
++		if (irq_bindcount[irq] =3D=3D 0)
++			break;
++
++	if (irq =3D=3D NR_IRQS)
++		panic("No available IRQ to bind to: increase NR_IRQS!\n");
++
++	return irq;
++}
++
++static int bind_evtchn_to_irq(unsigned int evtchn)
++{
++	int irq;
++
++	spin_lock(&irq_mapping_update_lock);
++
++	irq =3D evtchn_to_irq[evtchn];
++
++	if (irq =3D=3D -1) {
++		irq =3D find_unbound_irq();
++
++		dynamic_irq_init(irq);
++		set_irq_chip_and_handler(irq, &xen_dynamic_chip, handle_level_irq);
++
++		evtchn_to_irq[evtchn] =3D irq;
++		irq_info[irq] =3D mk_irq_info(IRQT_EVTCHN, 0, evtchn);
++	}
++
++	irq_bindcount[irq]++;
++
++	spin_unlock(&irq_mapping_update_lock);
++
++	return irq;
++}
++
++static int bind_virq_to_irq(unsigned int virq, unsigned int cpu)
++{
++	struct evtchn_bind_virq bind_virq;
++	int evtchn, irq;
++
++	spin_lock(&irq_mapping_update_lock);
++
++	irq =3D per_cpu(virq_to_irq, cpu)[virq];
++
++	if (irq =3D=3D -1) {
++		bind_virq.virq =3D virq;
++		bind_virq.vcpu =3D cpu;
++		if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_virq,
++						&bind_virq) !=3D 0)
++			BUG();
++		evtchn =3D bind_virq.port;
++
++		irq =3D find_unbound_irq();
++
++		dynamic_irq_init(irq);
++		set_irq_chip_and_handler(irq, &xen_dynamic_chip, handle_level_irq);
++
++		evtchn_to_irq[evtchn] =3D irq;
++		irq_info[irq] =3D mk_irq_info(IRQT_VIRQ, virq, evtchn);
++
++		per_cpu(virq_to_irq, cpu)[virq] =3D irq;
++
++		bind_evtchn_to_cpu(evtchn, cpu);
++	}
++
++	irq_bindcount[irq]++;
++
++	spin_unlock(&irq_mapping_update_lock);
++
++	return irq;
++}
++
++static void unbind_from_irq(unsigned int irq)
++{
++	struct evtchn_close close;
++	int evtchn =3D evtchn_from_irq(irq);
++
++	spin_lock(&irq_mapping_update_lock);
++
++	if (VALID_EVTCHN(evtchn) && (--irq_bindcount[irq] =3D=3D 0)) {
++		close.port =3D evtchn;
++		if (HYPERVISOR_event_channel_op(EVTCHNOP_close, &close) !=3D 0)
++			BUG();
++
++		switch (type_from_irq(irq)) {
++		case IRQT_VIRQ:
++			per_cpu(virq_to_irq, cpu_from_evtchn(evtchn))
++				[index_from_irq(irq)] =3D -1;
++			break;
++		default:
++			break;
++		}
++
++		/* Closed ports are implicitly re-bound to VCPU0. */
++		bind_evtchn_to_cpu(evtchn, 0);
++
++		evtchn_to_irq[evtchn] =3D -1;
++		irq_info[irq] =3D IRQ_UNBOUND;
++
++		dynamic_irq_init(irq);
++	}
++
++	spin_unlock(&irq_mapping_update_lock);
++}
++
++int bind_evtchn_to_irqhandler(unsigned int evtchn,
++			      irqreturn_t (*handler)(int, void *),
++			      unsigned long irqflags, const char *devname, void *dev_id)
++{
++	unsigned int irq;
++	int retval;
++
++	irq =3D bind_evtchn_to_irq(evtchn);
++	retval =3D request_irq(irq, handler, irqflags, devname, dev_id);
++	if (retval !=3D 0) {
++		unbind_from_irq(irq);
++		return retval;
++	}
++
++	return irq;
++}
++EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler);
++
++int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
++			    irqreturn_t (*handler)(int, void *),
++			    unsigned long irqflags, const char *devname, void *dev_id)
++{
++	unsigned int irq;
++	int retval;
++
++	irq =3D bind_virq_to_irq(virq, cpu);
++	retval =3D request_irq(irq, handler, irqflags, devname, dev_id);
++	if (retval !=3D 0) {
++		unbind_from_irq(irq);
++		return retval;
++	}
++
++	return irq;
++}
++EXPORT_SYMBOL_GPL(bind_virq_to_irqhandler);
++
++void unbind_from_irqhandler(unsigned int irq, void *dev_id)
++{
++	free_irq(irq, dev_id);
++	unbind_from_irq(irq);
++}
++EXPORT_SYMBOL_GPL(unbind_from_irqhandler);
++
++/*
++  Search the CPUs pending events bitmasks.  For each one found, map
++  the event number to an irq, and feed it into do_IRQ() for
++  handling.
++
++  Xen uses a two-level bitmap to speed searching.  The first level is
++  a bitset of words which contain pending event bits.  The second
++  level is a bitset of pending events themselves.
++*/
++asmlinkage fastcall void xen_evtchn_do_upcall(struct pt_regs *regs)
++{
++	int cpu =3D smp_processor_id();
++	struct shared_info *s =3D HYPERVISOR_shared_info;
++	struct vcpu_info *vcpu_info =3D read_pda(xen.vcpu);
++	unsigned long pending_words;
++
++	vcpu_info->evtchn_upcall_pending =3D 0;
++
++	/* NB. No need for a barrier here -- XCHG is a barrier on x86. */
++	pending_words =3D xchg(&vcpu_info->evtchn_pending_sel, 0);
++	while (pending_words !=3D 0) {
++		unsigned long pending_bits;
++		int word_idx =3D __ffs(pending_words);
++		pending_words &=3D ~(1UL << word_idx);
++
++		while ((pending_bits =3D active_evtchns(cpu, s, word_idx)) !=3D 0) {
++			int bit_idx =3D __ffs(pending_bits);
++			int port =3D (word_idx * BITS_PER_LONG) + bit_idx;
++			int irq =3D evtchn_to_irq[port];
++
++			if (irq !=3D -1) {
++				regs->orig_eax =3D ~irq;
++				do_IRQ(regs);
++			}
++		}
++	}
++}
++
++/* Rebind an evtchn so that it gets delivered to a specific cpu */
++static void rebind_irq_to_cpu(unsigned irq, unsigned tcpu)
++{
++	struct evtchn_bind_vcpu bind_vcpu;
++	int evtchn =3D evtchn_from_irq(irq);
++
++	if (!VALID_EVTCHN(evtchn))
++		return;
++
++	/* Send future instances of this interrupt to other vcpu. */
++	bind_vcpu.port =3D evtchn;
++	bind_vcpu.vcpu =3D tcpu;
++
++	/*
++	 * If this fails, it usually just indicates that we're dealing with a =
+
++	 * virq or IPI channel, which don't actually need to be rebound. Ignore
++	 * it, but don't do the xenlinux-level rebind in that case.
++	 */
++	if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_vcpu, &bind_vcpu) >=3D 0)
++		bind_evtchn_to_cpu(evtchn, tcpu);
++}
++
++
++static void set_affinity_irq(unsigned irq, cpumask_t dest)
++{
++	unsigned tcpu =3D first_cpu(dest);
++	rebind_irq_to_cpu(irq, tcpu);
++}
++
++static void enable_dynirq(unsigned int irq)
++{
++	int evtchn =3D evtchn_from_irq(irq);
++
++	if (VALID_EVTCHN(evtchn))
++		unmask_evtchn(evtchn);
++}
++
++static void disable_dynirq(unsigned int irq)
++{
++	int evtchn =3D evtchn_from_irq(irq);
++
++	if (VALID_EVTCHN(evtchn))
++		mask_evtchn(evtchn);
++}
++
++static void ack_dynirq(unsigned int irq)
++{
++	int evtchn =3D evtchn_from_irq(irq);
++
++	move_native_irq(irq);
++
++	if (VALID_EVTCHN(evtchn))
++		clear_evtchn(evtchn);
++}
++
++static int retrigger_dynirq(unsigned int irq)
++{
++	int evtchn =3D evtchn_from_irq(irq);
++	int ret =3D 0;
++
++	if (VALID_EVTCHN(evtchn)) {
++		set_evtchn(evtchn);
++		ret =3D 1;
++	}
++
++	return ret;
++}
++
++static struct irq_chip xen_dynamic_chip __read_mostly =3D {
++	.name		=3D "xen-virq",
++	.mask		=3D disable_dynirq,
++	.unmask		=3D enable_dynirq,
++	.ack		=3D ack_dynirq,
++	.set_affinity	=3D set_affinity_irq,
++	.retrigger	=3D retrigger_dynirq,
++};
++
++void __init xen_init_IRQ(void)
++{
++	int i;
++
++	init_evtchn_cpu_bindings();
++
++	/* No event channels are 'live' right now. */
++	for (i =3D 0; i < NR_EVENT_CHANNELS; i++)
++		mask_evtchn(i);
++
++	/* Dynamic IRQ space is currently unbound. Zero the refcnts. */
++	for (i =3D 0; i < NR_IRQS; i++)
++		irq_bindcount[i] =3D 0;
++
++	irq_ctx_init(smp_processor_id());
++}
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- /dev/null
-+++ b/include/asm-i386/xen/interface.h
-@@ -0,0 +1,187 @@
++++ b/arch/i386/xen/features.c
+@@ -0,0 +1,29 @@
 +/*************************************************************************=
 *****
-+ * arch-x86_32.h
-+ * =
-
-+ * Guest OS interface to x86 32-bit Xen.
-+ * =
-
-+ * Copyright (c) 2004, K A Fraser
++ * features.c
++ *
++ * Xen feature flags.
++ *
++ * Copyright (c) 2006, Ian Campbell, XenSource Inc.
 + */
++#include <linux/types.h>
++#include <linux/cache.h>
++#include <linux/module.h>
++#include <asm/xen/hypervisor.h>
++#include <xen/features.h>
 +
-+#ifndef __XEN_PUBLIC_ARCH_X86_32_H__
-+#define __XEN_PUBLIC_ARCH_X86_32_H__
++u8 xen_features[XENFEAT_NR_SUBMAPS * 32] __read_mostly;
++EXPORT_SYMBOL_GPL(xen_features);
 +
-+#ifdef __XEN__
-+#define __DEFINE_GUEST_HANDLE(name, type) \
-+    typedef struct { type *p; } __guest_handle_ ## name
++void xen_setup_features(void)
++{
++	struct xen_feature_info fi;
++	int i, j;
++
++	for (i =3D 0; i < XENFEAT_NR_SUBMAPS; i++) {
++		fi.submap_idx =3D i;
++		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
++			break;
++		for (j=3D0; j<32; j++)
++			xen_features[i*32+j] =3D !!(fi.submap & 1<<j);
++	}
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/mmu.c
+@@ -0,0 +1,419 @@
++//#include <linux/bug.h>
++#include <asm/bug.h>
++
++#include <asm/pgtable.h>
++#include <asm/tlbflush.h>
++#include <asm/mmu_context.h>
++
++#include <asm/xen/hypercall.h>
++#include <asm/paravirt.h>
++
++#include <xen/page.h>
++#include <xen/interface/xen.h>
++
++xmaddr_t arbitrary_virt_to_machine(unsigned long address)
++{
++	pte_t *pte =3D lookup_address(address);
++	unsigned offset =3D address & PAGE_MASK;
++
++	BUG_ON(pte =3D=3D NULL);
++
++	return XMADDR((pte_mfn(*pte) << PAGE_SHIFT) + offset);
++}
++
++void make_lowmem_page_readonly(void *vaddr)
++{
++	pte_t *pte, ptev;
++	unsigned long address =3D (unsigned long)vaddr;
++
++	pte =3D lookup_address(address);
++	BUG_ON(pte =3D=3D NULL);
++
++	ptev =3D pte_wrprotect(*pte);
++
++	if (xen_feature(XENFEAT_writable_page_tables))
++		*pte =3D ptev;
++	else
++		if(HYPERVISOR_update_va_mapping(address, ptev, 0))
++			BUG();
++}
++
++void make_lowmem_page_readwrite(void *vaddr)
++{
++	pte_t *pte, ptev;
++	unsigned long address =3D (unsigned long)vaddr;
++
++	pte =3D lookup_address(address);
++	BUG_ON(pte =3D=3D NULL);
++
++	ptev =3D pte_mkwrite(*pte);
++
++	if (xen_feature(XENFEAT_writable_page_tables))
++		*pte =3D ptev;
++	else
++		if(HYPERVISOR_update_va_mapping(address, ptev, 0))
++			BUG();
++}
++
++
++fastcall void xen_set_pte(pte_t *ptep, pte_t pte)
++{
++#if 1
++	struct mmu_update u;
++
++	u.ptr =3D virt_to_machine(ptep).maddr;
++	u.val =3D pte_val_ma(pte);
++	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
++		BUG();
 +#else
-+#define __DEFINE_GUEST_HANDLE(name, type) \
-+    typedef type * __guest_handle_ ## name
++	ptep->pte_high =3D pte.pte_high;
++	smp_wmb();
++	ptep->pte_low =3D pte.pte_low;
 +#endif
++}
 +
-+#define DEFINE_GUEST_HANDLE_STRUCT(name) \
-+	__DEFINE_GUEST_HANDLE(name, struct name)
-+#define DEFINE_GUEST_HANDLE(name) __DEFINE_GUEST_HANDLE(name, name)
-+#define GUEST_HANDLE(name)        __guest_handle_ ## name
++fastcall void xen_set_pmd(pmd_t *ptr, pmd_t val)
++{
++	struct mmu_update u;
 +
-+#ifndef __ASSEMBLY__
-+/* Guest handles for primitive C types. */
-+__DEFINE_GUEST_HANDLE(uchar, unsigned char);
-+__DEFINE_GUEST_HANDLE(uint,  unsigned int);
-+__DEFINE_GUEST_HANDLE(ulong, unsigned long);
-+DEFINE_GUEST_HANDLE(char);
-+DEFINE_GUEST_HANDLE(int);
-+DEFINE_GUEST_HANDLE(long);
-+DEFINE_GUEST_HANDLE(void);
-+#endif
++	u.ptr =3D virt_to_machine(ptr).maddr;
++	u.val =3D pmd_val_ma(val);
++	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
++		BUG();
++}
 +
-+/*
-+ * SEGMENT DESCRIPTOR TABLES
-+ */
-+/*
-+ * A number of GDT entries are reserved by Xen. These are not situated at =
-the
-+ * start of the GDT because some stupid OSes export hard-coded selector va=
-lues
-+ * in their ABI. These hard-coded values are always near the start of the =
-GDT,
-+ * so Xen places itself out of the way, at the far end of the GDT.
-+ */
-+#define FIRST_RESERVED_GDT_PAGE  14
-+#define FIRST_RESERVED_GDT_BYTE  (FIRST_RESERVED_GDT_PAGE * 4096)
-+#define FIRST_RESERVED_GDT_ENTRY (FIRST_RESERVED_GDT_BYTE / 8)
-+
-+/*
-+ * These flat segments are in the Xen-private section of every GDT. Since =
-these
-+ * are also present in the initial GDT, many OSes will be able to avoid
-+ * installing their own GDT.
-+ */
-+#define FLAT_RING1_CS 0xe019    /* GDT index 259 */
-+#define FLAT_RING1_DS 0xe021    /* GDT index 260 */
-+#define FLAT_RING1_SS 0xe021    /* GDT index 260 */
-+#define FLAT_RING3_CS 0xe02b    /* GDT index 261 */
-+#define FLAT_RING3_DS 0xe033    /* GDT index 262 */
-+#define FLAT_RING3_SS 0xe033    /* GDT index 262 */
-+
-+#define FLAT_KERNEL_CS FLAT_RING1_CS
-+#define FLAT_KERNEL_DS FLAT_RING1_DS
-+#define FLAT_KERNEL_SS FLAT_RING1_SS
-+#define FLAT_USER_CS    FLAT_RING3_CS
-+#define FLAT_USER_DS    FLAT_RING3_DS
-+#define FLAT_USER_SS    FLAT_RING3_SS
-+
-+/* And the trap vector is... */
-+#define TRAP_INSTR "int $0x82"
-+
-+/*
-+ * Virtual addresses beyond this are not modifiable by guest OSes. The =
-
-+ * machine->physical mapping table starts at this address, read-only.
-+ */
 +#ifdef CONFIG_X86_PAE
-+#define __HYPERVISOR_VIRT_START 0xF5800000
-+#else
-+#define __HYPERVISOR_VIRT_START 0xFC000000
++fastcall void xen_set_pud(pmd_t *ptr, pud_t val)
++{
++	struct mmu_update u;
++
++	u.ptr =3D virt_to_machine(ptr).maddr;
++	u.val =3D pud_val_ma(val);
++	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
++		BUG();
++}
 +#endif
-+
-+#ifndef HYPERVISOR_VIRT_START
-+#define HYPERVISOR_VIRT_START mk_unsigned_long(__HYPERVISOR_VIRT_START)
-+#endif
-+
-+#ifndef machine_to_phys_mapping
-+#define machine_to_phys_mapping ((unsigned long *)HYPERVISOR_VIRT_START)
-+#endif
-+
-+/* Maximum number of virtual CPUs in multi-processor guests. */
-+#define MAX_VIRT_CPUS 32
-+
-+#ifndef __ASSEMBLY__
 +
 +/*
-+ * Send an array of these to HYPERVISOR_set_trap_table()
-+ */
-+#define TI_GET_DPL(_ti)      ((_ti)->flags & 3)
-+#define TI_GET_IF(_ti)       ((_ti)->flags & 4)
-+#define TI_SET_DPL(_ti,_dpl) ((_ti)->flags |=3D (_dpl))
-+#define TI_SET_IF(_ti,_if)   ((_ti)->flags |=3D ((!!(_if))<<2))
-+struct trap_info {
-+    uint8_t       vector;  /* exception vector                            =
-  */
-+    uint8_t       flags;   /* 0-3: privilege level; 4: clear event enable?=
-  */
-+    uint16_t      cs;      /* code selector                               =
-  */
-+    unsigned long address; /* code offset                                 =
-  */
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(trap_info);
-+
-+struct cpu_user_regs {
-+    uint32_t ebx;
-+    uint32_t ecx;
-+    uint32_t edx;
-+    uint32_t esi;
-+    uint32_t edi;
-+    uint32_t ebp;
-+    uint32_t eax;
-+    uint16_t error_code;    /* private */
-+    uint16_t entry_vector;  /* private */
-+    uint32_t eip;
-+    uint16_t cs;
-+    uint8_t  saved_upcall_mask;
-+    uint8_t  _pad0;
-+    uint32_t eflags;        /* eflags.IF =3D=3D !saved_upcall_mask */
-+    uint32_t esp;
-+    uint16_t ss, _pad1;
-+    uint16_t es, _pad2;
-+    uint16_t ds, _pad3;
-+    uint16_t fs, _pad4;
-+    uint16_t gs, _pad5;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(cpu_user_regs);
-+
-+typedef uint64_t tsc_timestamp_t; /* RDTSC timestamp */
-+
-+/*
-+ * The following is all CPU context. Note that the fpu_ctxt block is fille=
-d =
++ * Associate a virtual page frame with a given physical page frame =
 
-+ * in by FXSAVE if the CPU has feature FXSR; otherwise FSAVE is used.
++ * and protection flags for that frame.
++ */ =
+
++void set_pte_mfn(unsigned long vaddr, unsigned long mfn, pgprot_t flags)
++{
++	pgd_t *pgd;
++	pud_t *pud;
++	pmd_t *pmd;
++	pte_t *pte;
++
++	pgd =3D swapper_pg_dir + pgd_index(vaddr);
++	if (pgd_none(*pgd)) {
++		BUG();
++		return;
++	}
++	pud =3D pud_offset(pgd, vaddr);
++	if (pud_none(*pud)) {
++		BUG();
++		return;
++	}
++	pmd =3D pmd_offset(pud, vaddr);
++	if (pmd_none(*pmd)) {
++		BUG();
++		return;
++	}
++	pte =3D pte_offset_kernel(pmd, vaddr);
++	/* <mfn,flags> stored as-is, to permit clearing entries */
++	xen_set_pte(pte, mfn_pte(mfn, flags));
++
++	/*
++	 * It's enough to flush this one mapping.
++	 * (PGE mappings get flushed as well)
++	 */
++	__flush_tlb_one(vaddr);
++}
++
++void fastcall xen_set_pte_at(struct mm_struct *mm, u32 addr,
++			     pte_t *ptep, pte_t pteval)
++{
++	if ((mm !=3D current->mm && mm !=3D &init_mm) ||
++	    HYPERVISOR_update_va_mapping(addr, pteval, 0) !=3D 0)
++		xen_set_pte(ptep, pteval);
++}
++
++void fastcall xen_pte_update(struct mm_struct *mm, u32 addr, pte_t *ptep)
++{
++}
++
++void fastcall xen_pte_update_defer(struct mm_struct *mm, u32 addr, pte_t *=
+ptep)
++{
++}
++
++#ifdef CONFIG_X86_PAE
++void fastcall xen_set_pte_atomic(pte_t *ptep, pte_t pte)
++{
++	set_64bit((u64 *)ptep, pte_val_ma(pte));
++}
++
++void fastcall xen_pte_clear(struct mm_struct *mm, u32 addr,pte_t *ptep)
++{
++#if 1
++	ptep->pte_low =3D 0;
++	smp_wmb();
++	ptep->pte_high =3D 0;	=
+
++#else
++	set_64bit((u64 *)ptep, 0);
++#endif
++}
++
++void fastcall xen_pmd_clear(pmd_t *pmdp)
++{
++	xen_set_pmd(pmdp, __pmd(0));
++}
++
++fastcall unsigned long long xen_pte_val(pte_t pte)
++{
++	unsigned long long ret =3D 0;
++
++	if (pte.pte_low) {
++		ret =3D ((unsigned long long)pte.pte_high << 32) | pte.pte_low;
++		ret =3D machine_to_phys(XMADDR(ret)).paddr | 1;
++	}
++
++	return ret;
++}
++
++fastcall unsigned long long xen_pmd_val(pmd_t pmd)
++{
++	unsigned long long ret =3D pmd.pmd;
++	if (ret)
++		ret =3D machine_to_phys(XMADDR(ret)).paddr | 1;
++	return ret;
++}
++
++fastcall unsigned long long xen_pgd_val(pgd_t pgd)
++{
++	unsigned long long ret =3D pgd.pgd;
++	if (ret)
++		ret =3D machine_to_phys(XMADDR(ret)).paddr | 1;
++	return ret;
++}
++
++fastcall pte_t xen_make_pte(unsigned long long pte)
++{
++	if (pte & 1)
++		pte =3D phys_to_machine(XPADDR(pte)).maddr;
++
++	return (pte_t){ pte, pte >> 32 };
++}
++
++fastcall pmd_t xen_make_pmd(unsigned long long pmd)
++{
++	if (pmd & 1)
++		pmd =3D phys_to_machine(XPADDR(pmd)).maddr;
++
++	return (pmd_t){ pmd };
++}
++
++fastcall pgd_t xen_make_pgd(unsigned long long pgd)
++{
++	if (pgd & _PAGE_PRESENT)
++		pgd =3D phys_to_machine(XPADDR(pgd)).maddr;
++
++	return (pgd_t){ pgd };
++}
++
++fastcall pte_t xen_ptep_get_and_clear(pte_t *ptep)
++{
++	pte_t res;
++
++	/* xchg acts as a barrier before the setting of the high bits */
++	res.pte_low =3D xchg(&ptep->pte_low, 0);
++	res.pte_high =3D ptep->pte_high;
++	ptep->pte_high =3D 0;
++
++	return res;
++}
++#else  /* !PAE */
++fastcall unsigned long xen_pte_val(pte_t pte)
++{
++	unsigned long ret =3D pte.pte_low;
++
++	if (ret & _PAGE_PRESENT)
++		ret =3D machine_to_phys(XMADDR(ret)).paddr;
++
++	return ret;
++}
++
++fastcall unsigned long xen_pmd_val(pmd_t pmd)
++{
++	BUG();
++	return 0;
++}
++
++fastcall unsigned long xen_pgd_val(pgd_t pgd)
++{
++	unsigned long ret =3D pgd.pgd;
++	if (ret)
++		ret =3D machine_to_phys(XMADDR(ret)).paddr | 1;
++	return ret;
++}
++
++fastcall pte_t xen_make_pte(unsigned long pte)
++{
++	if (pte & _PAGE_PRESENT)
++		pte =3D phys_to_machine(XPADDR(pte)).maddr;
++
++	return (pte_t){ pte };
++}
++
++fastcall pmd_t xen_make_pmd(unsigned long pmd)
++{
++	BUG();
++	return __pmd(0);
++}
++
++fastcall pgd_t xen_make_pgd(unsigned long pgd)
++{
++	if (pgd & _PAGE_PRESENT)
++		pgd =3D phys_to_machine(XPADDR(pgd)).maddr;
++
++	return (pgd_t){ pgd };
++}
++
++fastcall pte_t xen_ptep_get_and_clear(pte_t *ptep)
++{
++	return __pte_ma(xchg(&(ptep)->pte_low, 0));
++}
++#endif	/* CONFIG_X86_PAE */
++
++
++
++static void pgd_walk_set_prot(void *pt, pgprot_t flags)
++{
++	unsigned long pfn =3D PFN_DOWN(__pa(pt));
++
++	if (HYPERVISOR_update_va_mapping((unsigned long)pt,
++					 pfn_pte(pfn, flags), 0) < 0)
++		BUG();
++}
++
++static void pgd_walk(pgd_t *pgd_base, pgprot_t flags)
++{
++	pgd_t *pgd =3D pgd_base;
++	pud_t *pud;
++	pmd_t *pmd;
++	pte_t *pte;
++	int    g, u, m;
++
++	if (xen_feature(XENFEAT_auto_translated_physmap))
++		return;
++
++	for (g =3D 0; g < USER_PTRS_PER_PGD; g++, pgd++) {
++		if (pgd_none(*pgd))
++			continue;
++		pud =3D pud_offset(pgd, 0);
++
++		if (PTRS_PER_PUD > 1) /* not folded */
++			pgd_walk_set_prot(pud,flags);
++
++		for (u =3D 0; u < PTRS_PER_PUD; u++, pud++) {
++			if (pud_none(*pud))
++				continue;
++			pmd =3D pmd_offset(pud, 0);
++
++			if (PTRS_PER_PMD > 1) /* not folded */
++				pgd_walk_set_prot(pmd,flags);
++
++			for (m =3D 0; m < PTRS_PER_PMD; m++, pmd++) {
++				if (pmd_none(*pmd))
++					continue;
++
++				/* This can get called before mem_map
++				   is set up, so we assume nothing is
++				   highmem at that point. */
++				if (mem_map =3D=3D NULL ||
++				    !PageHighMem(pmd_page(*pmd))) {
++					pte =3D pte_offset_kernel(pmd,0);
++					pgd_walk_set_prot(pte,flags);
++				}
++			}
++		}
++	}
++
++	if (HYPERVISOR_update_va_mapping((unsigned long)pgd_base,
++					 pfn_pte(PFN_DOWN(__pa(pgd_base)),
++						 flags),
++					 UVMF_TLB_FLUSH) < 0)
++		BUG();
++}
++
++
++/* This is called just after a mm has been duplicated from its parent,
++   but it has not been used yet.  We need to make sure that its
++   pagetable is all read-only, and can be pinned. The pagetable itself
++   needs to map itself as RO; it doesn't matter what the state its in
++   with respect to any other pagetable. */
++void xen_pgd_pin(pgd_t *pgd)
++{
++	struct mmuext_op op;
++
++	pgd_walk(pgd, PAGE_KERNEL_RO);
++
++#if defined(CONFIG_X86_PAE)
++	op.cmd =3D MMUEXT_PIN_L3_TABLE;
++#else
++	op.cmd =3D MMUEXT_PIN_L2_TABLE;
++#endif
++	op.arg1.mfn =3D pfn_to_mfn(PFN_DOWN(__pa(pgd)));
++	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0)
++		BUG();
++}
++
++/* Release a pagetables pages back as normal RW */
++void xen_pgd_unpin(pgd_t *pgd)
++{
++	struct mmuext_op op;
++
++	op.cmd =3D MMUEXT_UNPIN_TABLE;
++	op.arg1.mfn =3D pfn_to_mfn(PFN_DOWN(__pa(pgd)));
++
++	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0)
++		BUG();
++
++	pgd_walk(pgd, PAGE_KERNEL);
++}
++
++
++fastcall void xen_activate_mm(struct mm_struct *prev, struct mm_struct *ne=
+xt)
++{
++	xen_pgd_pin(next->pgd);
++}
++
++fastcall void xen_dup_mmap(struct mm_struct *oldmm, struct mm_struct *mm)
++{
++	xen_pgd_pin(mm->pgd);	=
+
++}
++
++fastcall void xen_exit_mmap(struct mm_struct *mm)
++{
++	struct task_struct *tsk =3D current;
++
++	task_lock(tsk);
++
++	/*
++	 * We aggressively remove defunct pgd from cr3. We execute unmap_vmas()
++	 * *much* faster this way, as no tlb flushes means bigger wrpt batches.
++	 */
++	if (tsk->active_mm =3D=3D mm) {
++		tsk->active_mm =3D &init_mm;
++		atomic_inc(&init_mm.mm_count);
++
++		switch_mm(mm, &init_mm, tsk);
++
++		atomic_dec(&mm->mm_count);
++		BUG_ON(atomic_read(&mm->mm_count) =3D=3D 0);
++	}
++
++	task_unlock(tsk);
++
++	xen_pgd_unpin(mm->pgd);
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/mmu.h
+@@ -0,0 +1,51 @@
++#ifndef _XEN_MMU_H
++
++#include <linux/linkage.h>
++#include <asm/page.h>
++
++void set_pte_mfn(unsigned long vaddr, unsigned long pfn, pgprot_t flags);
++
++void fastcall xen_set_pte(pte_t *ptep, pte_t pteval);
++void fastcall xen_set_pte_at(struct mm_struct *mm, u32 addr,
++			     pte_t *ptep, pte_t pteval);
++void fastcall xen_set_pmd(pmd_t *pmdp, pmd_t pmdval);
++void fastcall xen_pte_update(struct mm_struct *mm, u32 addr, pte_t *ptep);
++void fastcall xen_pte_update_defer(struct mm_struct *mm, u32 addr, pte_t *=
+ptep);
++
++fastcall void xen_activate_mm(struct mm_struct *prev, struct mm_struct *ne=
+xt);
++fastcall void xen_dup_mmap(struct mm_struct *oldmm, struct mm_struct *mm);
++fastcall void xen_exit_mmap(struct mm_struct *mm);
++
++fastcall pte_t xen_ptep_get_and_clear(pte_t *ptep);
++
++void xen_pgd_pin(pgd_t *pgd);
++void xen_pgd_unpin(pgd_t *pgd);
++
++#ifdef CONFIG_X86_PAE
++fastcall unsigned long long xen_pte_val(pte_t);
++fastcall unsigned long long xen_pmd_val(pmd_t);
++fastcall unsigned long long xen_pgd_val(pgd_t);
++
++fastcall pte_t xen_make_pte(unsigned long long);
++fastcall pmd_t xen_make_pmd(unsigned long long);
++fastcall pgd_t xen_make_pgd(unsigned long long);
++
++fastcall void xen_set_pte_at(struct mm_struct *mm, u32 addr,
++			     pte_t *ptep, pte_t pteval);
++fastcall void xen_set_pte_atomic(pte_t *ptep, pte_t pte);
++fastcall void xen_set_pud(pud_t *ptr, pud_t val);
++fastcall void xen_pte_clear(struct mm_struct *mm, u32 addr,pte_t *ptep);
++fastcall void xen_pmd_clear(pmd_t *pmdp);
++
++
++#else
++fastcall unsigned long xen_pte_val(pte_t);
++fastcall unsigned long xen_pmd_val(pmd_t);
++fastcall unsigned long xen_pgd_val(pgd_t);
++
++fastcall pte_t xen_make_pte(unsigned long);
++fastcall pmd_t xen_make_pmd(unsigned long);
++fastcall pgd_t xen_make_pgd(unsigned long);
++#endif
++
++#endif	/* _XEN_MMU_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/multicalls.c
+@@ -0,0 +1,62 @@
++#include <linux/percpu.h>
++
++#include <asm/xen/hypercall.h>
++
++#include "multicalls.h"
++
++#define MC_BATCH	8
++#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
++
++struct mc_buffer {
++	struct multicall_entry entries[MC_BATCH];
++	u64 args[MC_ARGS];
++	unsigned mcidx, argidx;
++};
++
++static DEFINE_PER_CPU(struct mc_buffer, mc_buffer);
++
++int xen_mc_flush(void)
++{
++	struct mc_buffer *b =3D &get_cpu_var(mc_buffer);
++	int ret =3D 0;
++
++	if (b->mcidx) {
++		int i;
++
++		if (HYPERVISOR_multicall(b->entries, b->mcidx) !=3D 0)
++			BUG();
++		for(i =3D 0; i < b->mcidx; i++)
++			if (b->entries[i].result < 0)
++				ret++;
++		b->mcidx =3D 0;
++		b->argidx =3D 0;
++	} else
++		BUG_ON(b->argidx !=3D 0);
++
++	put_cpu_var(mc_buffer);
++
++	return ret;
++}
++
++struct multicall_space xen_mc_entry(size_t args)
++{
++	struct mc_buffer *b =3D &get_cpu_var(mc_buffer);
++	struct multicall_space ret;
++	unsigned argspace =3D (args + sizeof(u64) - 1) / sizeof(u64);
++
++	BUG_ON(argspace > MC_ARGS);
++
++	if (b->mcidx =3D=3D MC_BATCH ||
++	    (b->argidx + argspace) > MC_ARGS)
++		if (xen_mc_flush())
++			BUG();
++
++	ret.mc =3D &b->entries[b->mcidx];
++	b->mcidx++;
++	ret.args =3D &b->args[b->argidx];
++	b->argidx +=3D argspace;
++
++	put_cpu_var(mc_buffer);
++
++	return ret;
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/multicalls.h
+@@ -0,0 +1,13 @@
++#ifndef _XEN_MULTICALLS_H
++#define _XEN_MULTICALLS_H
++
++struct multicall_space
++{
++	struct multicall_entry *mc;
++	void *args;
++};
++
++struct multicall_space xen_mc_entry(size_t args);
++int xen_mc_flush(void);
++
++#endif /* _XEN_MULTICALLS_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/setup.c
+@@ -0,0 +1,95 @@
++/*
++ *	Machine specific setup for xen
 + */
-+struct vcpu_guest_context {
-+    /* FPU registers come first so they can be aligned for FXSAVE/FXRSTOR.=
++
++#include <linux/module.h>
++#include <linux/mm.h>
++
++#include <asm/e820.h>
++#include <asm/setup.h>
++#include <asm/xen/hypervisor.h>
++#include <asm/xen/hypercall.h>
++#include <asm/pda.h>
++
++#include <xen/interface/physdev.h>
++#include <xen/features.h>
++
++/* These are code, but not functions.  Defined in entry.S */
++extern const char xen_hypervisor_callback[];
++extern const char xen_failsafe_callback[];
++
++static __initdata struct shared_info init_shared;
++
++/*
++ * Point at some empty memory to start with. We map the real shared_info
++ * page as soon as fixmap is up and running.
++ */
++struct shared_info *HYPERVISOR_shared_info =3D &init_shared;
++EXPORT_SYMBOL(HYPERVISOR_shared_info);
++
++unsigned long *phys_to_machine_mapping;
++unsigned long *pfn_to_mfn_frame_list_list, *pfn_to_mfn_frame_list[16];
++EXPORT_SYMBOL(phys_to_machine_mapping);
++
++/**
++ * machine_specific_memory_setup - Hook for machine specific memory setup.
++ **/
++
++char * __init xen_memory_setup(void)
++{
++	unsigned long max_pfn =3D xen_start_info->nr_pages;
++
++	e820.nr_map =3D 0;
++	add_memory_region(0, PFN_PHYS(max_pfn), E820_RAM);
++
++	return "Xen";
++}
++
++void xen_idle(void)
++{
++	local_irq_disable();
++
++	if (need_resched())
++		local_irq_enable();
++	else {
++		current_thread_info()->status &=3D ~TS_POLLING;
++		smp_mb__after_clear_bit();
++		safe_halt();
++		current_thread_info()->status |=3D TS_POLLING;
++	}
++}
++
++void __init xen_arch_setup(void)
++{
++	struct physdevop_set_iopl set_iopl;
++	int rc;
++
++	HYPERVISOR_vm_assist(VMASST_CMD_enable, VMASST_TYPE_4gb_segments);
++	HYPERVISOR_vm_assist(VMASST_CMD_enable, VMASST_TYPE_writable_pagetables);
++
++	if (!xen_feature(XENFEAT_auto_translated_physmap))
++		HYPERVISOR_vm_assist(VMASST_CMD_enable, VMASST_TYPE_pae_extended_cr3);
++
++	HYPERVISOR_set_callbacks(__KERNEL_CS, (unsigned long)xen_hypervisor_callb=
+ack,
++				 __KERNEL_CS, (unsigned long)xen_failsafe_callback);
++
++	set_iopl.iopl =3D 1;
++	rc =3D HYPERVISOR_physdev_op(PHYSDEVOP_SET_IOPL, &set_iopl);
++	if (rc !=3D 0)
++		printk(KERN_INFO "physdev_op failed %d\n", rc);
++
++#ifdef CONFIG_ACPI
++	if (!(xen_start_info->flags & SIF_INITDOMAIN)) {
++		printk(KERN_INFO "ACPI in unprivileged domain disabled\n");
++		disable_acpi();
++	}
++#endif
++
++	memcpy(boot_command_line, xen_start_info->cmd_line,
++	       MAX_GUEST_CMDLINE > COMMAND_LINE_SIZE ?
++	       COMMAND_LINE_SIZE : MAX_GUEST_CMDLINE);
++
++	pm_idle =3D xen_idle;
++
++	vdso_enabled =3D 1;	/* enable by default */
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/time.c
+@@ -0,0 +1,452 @@
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/kernel_stat.h>
++#include <linux/clocksource.h>
++
++#include <asm/xen/hypercall.h>
++#include <asm/arch_hooks.h>
++
++#include <xen/events.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/vcpu.h>
++
++#include "xen-ops.h"
++
++#define XEN_SHIFT 22
++
++/* Permitted clock jitter, in nsecs, beyond which a warning will be printe=
+d. */
++static unsigned long permitted_clock_jitter =3D 10000000UL; /* 10ms */
++static int __init __permitted_clock_jitter(char *str)
++{
++	permitted_clock_jitter =3D simple_strtoul(str, NULL, 0);
++	return 1;
++}
++__setup("permitted_clock_jitter=3D", __permitted_clock_jitter);
++
++
++/* These are perodically updated in shared_info, and then copied here. */
++struct shadow_time_info {
++	u64 tsc_timestamp;     /* TSC at last update of time vals.  */
++	u64 system_timestamp;  /* Time, in nanosecs, since boot.    */
++	u32 tsc_to_nsec_mul;
++	int tsc_shift;
++	u32 version;
++};
++
++static DEFINE_PER_CPU(struct shadow_time_info, shadow_time);
++
++/* Keep track of last time we did processing/updating of jiffies and xtime=
+. */
++static u64 processed_system_time;   /* System time (ns) at last processing=
+. */
++static DEFINE_PER_CPU(u64, processed_system_time);
++
++/* How much CPU time was spent blocked and how much was 'stolen'? */
++static DEFINE_PER_CPU(u64, processed_stolen_time);
++static DEFINE_PER_CPU(u64, processed_blocked_time);
++
++/* Current runstate of each CPU (updated automatically by the hypervisor).=
  */
-+    struct { char x[512]; } fpu_ctxt;       /* User-level FPU registers   =
-  */
-+#define VGCF_I387_VALID (1<<0)
-+#define VGCF_HVM_GUEST  (1<<1)
-+#define VGCF_IN_KERNEL  (1<<2)
-+    unsigned long flags;                    /* VGCF_* flags               =
-  */
-+    struct cpu_user_regs user_regs;         /* User-level CPU registers   =
-  */
-+    struct trap_info trap_ctxt[256];        /* Virtual IDT                =
-  */
-+    unsigned long ldt_base, ldt_ents;       /* LDT (linear address, # ents=
-) */
-+    unsigned long gdt_frames[16], gdt_ents; /* GDT (machine frames, # ents=
-) */
-+    unsigned long kernel_ss, kernel_sp;     /* Virtual TSS (only SS1/SP1) =
-  */
-+    unsigned long ctrlreg[8];               /* CR0-CR7 (control registers)=
-  */
-+    unsigned long debugreg[8];              /* DB0-DB7 (debug registers)  =
-  */
-+    unsigned long event_callback_cs;        /* CS:EIP of event callback   =
-  */
-+    unsigned long event_callback_eip;
-+    unsigned long failsafe_callback_cs;     /* CS:EIP of failsafe callback=
-  */
-+    unsigned long failsafe_callback_eip;
-+    unsigned long vm_assist;                /* VMASST_TYPE_* bitmap */
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_guest_context);
++static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
 +
-+struct arch_shared_info {
-+    unsigned long max_pfn;                  /* max pfn that appears in tab=
-le */
-+    /* Frame containing list of mfns containing list of mfns containing p2=
-m. */
-+    unsigned long pfn_to_mfn_frame_list_list;
-+    unsigned long nmi_reason;
-+};
-+
-+struct arch_vcpu_info {
-+    unsigned long cr2;
-+    unsigned long pad[5]; /* sizeof(struct vcpu_info) =3D=3D 64 */
-+};
-+
-+#endif /* !__ASSEMBLY__ */
++/* Must be signed, as it's compared with s64 quantities which can be -ve. =
+*/
++#define NS_PER_TICK (1000000000LL/HZ)
 +
 +/*
-+ * Prefix forces emulation of some non-trapping instructions.
-+ * Currently only CPUID.
++ * Reads a consistent set of time-base values from Xen, into a shadow data
++ * area.
 + */
-+#ifdef __ASSEMBLY__
-+#define XEN_EMULATE_PREFIX .byte 0x0f,0x0b,0x78,0x65,0x6e ;
-+#define XEN_CPUID          XEN_EMULATE_PREFIX cpuid
++static void get_time_values_from_xen(void)
++{
++	struct vcpu_time_info   *src;
++	struct shadow_time_info *dst;
++
++	src =3D &read_pda(xen.vcpu)->time;
++	dst =3D &get_cpu_var(shadow_time);
++
++	do {
++		dst->version =3D src->version;
++		rmb();
++		dst->tsc_timestamp     =3D src->tsc_timestamp;
++		dst->system_timestamp  =3D src->system_time;
++		dst->tsc_to_nsec_mul   =3D src->tsc_to_system_mul;
++		dst->tsc_shift         =3D src->tsc_shift;
++		rmb();
++	} while ((src->version & 1) | (dst->version ^ src->version));
++
++	put_cpu_var(shadow_time);
++}
++
++static inline int time_values_up_to_date(void)
++{
++	struct vcpu_time_info   *src;
++	unsigned dstversion;
++
++	src =3D &read_pda(xen.vcpu)->time;
++	dstversion =3D get_cpu_var(shadow_time).version;
++	put_cpu_var(shadow_time);
++
++	rmb();
++	return (dstversion =3D=3D src->version);
++}
++
++/*
++ * Scale a 64-bit delta by scaling and multiplying by a 32-bit fraction,
++ * yielding a 64-bit result.
++ */
++static inline u64 scale_delta(u64 delta, u32 mul_frac, int shift)
++{
++	u64 product;
++#ifdef __i386__
++	u32 tmp1, tmp2;
++#endif
++
++	if (shift < 0)
++		delta >>=3D -shift;
++	else
++		delta <<=3D shift;
++
++#ifdef __i386__
++	__asm__ (
++		"mul  %5       ; "
++		"mov  %4,%%eax ; "
++		"mov  %%edx,%4 ; "
++		"mul  %5       ; "
++		"xor  %5,%5    ; "
++		"add  %4,%%eax ; "
++		"adc  %5,%%edx ; "
++		: "=3DA" (product), "=3Dr" (tmp1), "=3Dr" (tmp2)
++		: "a" ((u32)delta), "1" ((u32)(delta >> 32)), "2" (mul_frac) );
++#elif __x86_64__
++	__asm__ (
++		"mul %%rdx ; shrd $32,%%rdx,%%rax"
++		: "=3Da" (product) : "0" (delta), "d" ((u64)mul_frac) );
 +#else
-+#define XEN_EMULATE_PREFIX ".byte 0x0f,0x0b,0x78,0x65,0x6e ; "
-+#define XEN_CPUID          XEN_EMULATE_PREFIX "cpuid"
++#error implement me!
 +#endif
 +
++	return product;
++}
++
++static u64 get_nsec_offset(struct shadow_time_info *shadow)
++{
++	u64 now, delta;
++	rdtscll(now);
++	delta =3D now - shadow->tsc_timestamp;
++	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
++}
++
++
++static void xen_timer_interrupt_hook(void)
++{
++	s64 delta, delta_cpu, stolen, blocked;
++	u64 sched_time;
++	int i, cpu =3D smp_processor_id();
++	unsigned long ticks;
++	struct shadow_time_info *shadow =3D &__get_cpu_var(shadow_time);
++	struct vcpu_runstate_info *runstate =3D &__get_cpu_var(runstate);
++
++	do {
++		get_time_values_from_xen();
++
++		/* Obtain a consistent snapshot of elapsed wallclock cycles. */
++		delta =3D delta_cpu =3D
++			shadow->system_timestamp + get_nsec_offset(shadow);
++		if (0)
++			printk("tsc_timestamp=3D%llu system_timestamp=3D%llu tsc_to_nsec=3D%u t=
+sc_shift=3D%d, version=3D%u, delta=3D%lld processed_system_time=3D%lld\n",
++			       shadow->tsc_timestamp, shadow->system_timestamp,
++			       shadow->tsc_to_nsec_mul, shadow->tsc_shift,
++			       shadow->version, delta, processed_system_time);
++
++		delta     -=3D processed_system_time;
++		delta_cpu -=3D __get_cpu_var(processed_system_time);
++
++		/*
++		 * Obtain a consistent snapshot of stolen/blocked cycles. We
++		 * can use state_entry_time to detect if we get preempted here.
++		 */
++		do {
++			sched_time =3D runstate->state_entry_time;
++			barrier();
++			stolen =3D runstate->time[RUNSTATE_runnable] +
++				runstate->time[RUNSTATE_offline] -
++				__get_cpu_var(processed_stolen_time);
++			blocked =3D runstate->time[RUNSTATE_blocked] -
++				__get_cpu_var(processed_blocked_time);
++			barrier();
++		} while (sched_time !=3D runstate->state_entry_time);
++	} while (!time_values_up_to_date());
++
++	if ((unlikely(delta < -(s64)permitted_clock_jitter) ||
++	     unlikely(delta_cpu < -(s64)permitted_clock_jitter))
++	    && printk_ratelimit()) {
++		printk("Timer ISR/%d: Time went backwards: "
++		       "delta=3D%lld delta_cpu=3D%lld shadow=3D%lld "
++		       "off=3D%lld processed=3D%lld cpu_processed=3D%lld\n",
++		       cpu, delta, delta_cpu, shadow->system_timestamp,
++		       (s64)get_nsec_offset(shadow),
++		       processed_system_time,
++		       __get_cpu_var(processed_system_time));
++		for (i =3D 0; i < num_online_cpus(); i++)
++			printk(" %d: %lld\n", i,
++			       per_cpu(processed_system_time, i));
++	}
++
++	/* System-wide jiffy work. */
++	ticks =3D 0;
++	while(delta > NS_PER_TICK) {
++		delta -=3D NS_PER_TICK;
++		processed_system_time +=3D NS_PER_TICK;
++		ticks++;
++	}
++	do_timer(ticks);
++
++	/*
++	 * Account stolen ticks.
++	 * HACK: Passing NULL to account_steal_time()
++	 * ensures that the ticks are accounted as stolen.
++	 */
++	if ((stolen > 0) && (delta_cpu > 0)) {
++		delta_cpu -=3D stolen;
++		if (unlikely(delta_cpu < 0))
++			stolen +=3D delta_cpu; /* clamp local-time progress */
++		do_div(stolen, NS_PER_TICK);
++		__get_cpu_var(processed_stolen_time) +=3D stolen * NS_PER_TICK;
++		__get_cpu_var(processed_system_time) +=3D stolen * NS_PER_TICK;
++		account_steal_time(NULL, (cputime_t)stolen);
++	}
++
++	/*
++	 * Account blocked ticks.
++	 * HACK: Passing idle_task to account_steal_time()
++	 * ensures that the ticks are accounted as idle/wait.
++	 */
++	if ((blocked > 0) && (delta_cpu > 0)) {
++		delta_cpu -=3D blocked;
++		if (unlikely(delta_cpu < 0))
++			blocked +=3D delta_cpu; /* clamp local-time progress */
++		do_div(blocked, NS_PER_TICK);
++		__get_cpu_var(processed_blocked_time) +=3D blocked * NS_PER_TICK;
++		__get_cpu_var(processed_system_time)  +=3D blocked * NS_PER_TICK;
++		account_steal_time(idle_task(cpu), (cputime_t)blocked);
++	}
++
++	update_process_times(user_mode_vm(get_irq_regs()));
++}
++
++static cycle_t xen_clocksource_read(void)
++{
++	struct shadow_time_info *shadow =3D &get_cpu_var(shadow_time);
++	cycle_t ret;
++
++	get_time_values_from_xen();
++
++	ret =3D shadow->system_timestamp + get_nsec_offset(shadow);
++
++	put_cpu_var(shadow_time);
++
++	return ret;
++}
++
++static void xen_read_wallclock(struct timespec *ts)
++{
++	const struct shared_info *s =3D HYPERVISOR_shared_info;
++	u32 version;
++	u64 delta;
++	struct timespec now;
++
++	/* get wallclock at system boot */
++	do {
++		version =3D s->wc_version;
++		rmb();
++		now.tv_sec  =3D s->wc_sec;
++		now.tv_nsec =3D s->wc_nsec;
++		rmb();
++	} while ((s->wc_version & 1) | (version ^ s->wc_version));
++
++	delta =3D xen_clocksource_read();	/* time since system boot */
++	delta +=3D now.tv_sec * (u64)NSEC_PER_SEC + now.tv_nsec;
++
++	now.tv_nsec =3D do_div(delta, NSEC_PER_SEC);
++	now.tv_sec =3D delta;
++
++	set_normalized_timespec(ts, now.tv_sec, now.tv_nsec);
++}
++
++unsigned long xen_get_wallclock(void)
++{
++	struct timespec ts;
++
++	xen_read_wallclock(&ts);
++
++	return ts.tv_sec;
++}
++
++int xen_set_wallclock(unsigned long now)
++{
++	/* do nothing for domU */
++	return -1;
++}
++
++static void init_cpu_khz(void)
++{
++	u64 __cpu_khz =3D 1000000ULL << 32;
++	struct vcpu_time_info *info;
++	info =3D &HYPERVISOR_shared_info->vcpu_info[0].time;
++	do_div(__cpu_khz, info->tsc_to_system_mul);
++	if (info->tsc_shift < 0)
++		cpu_khz =3D __cpu_khz << -info->tsc_shift;
++	else
++		cpu_khz =3D __cpu_khz >> info->tsc_shift;
++}
++
++static struct clocksource xen_clocksource =3D {
++	.name =3D "xen",
++	.rating =3D 400,
++	.read =3D xen_clocksource_read,
++	.mask =3D ~0,
++	.mult =3D 1<<XEN_SHIFT,		/* time directly in nanoseconds */
++	.shift =3D XEN_SHIFT,
++	.is_continuous =3D 1
++};
++
++static void init_missing_ticks_accounting(int cpu)
++{
++	struct vcpu_register_runstate_memory_area area;
++	struct vcpu_runstate_info *runstate =3D &per_cpu(runstate, cpu);
++
++	memset(runstate, 0, sizeof(*runstate));
++
++	area.addr.v =3D runstate;
++	HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area, cpu, &area);
++
++	per_cpu(processed_blocked_time, cpu) =3D
++		runstate->time[RUNSTATE_blocked];
++	per_cpu(processed_stolen_time, cpu) =3D
++		runstate->time[RUNSTATE_runnable] +
++		runstate->time[RUNSTATE_offline];
++}
++
++static irqreturn_t xen_timer_interrupt(int irq, void *dev_id)
++{
++	/*
++	 * Here we are in the timer irq handler. We just have irqs locally
++	 * disabled but we don't know if the timer_bh is running on the other
++	 * CPU. We need to avoid to SMP race with it. NOTE: we don' t need
++	 * the irq version of write_lock because as just said we have irq
++	 * locally disabled. -arca
++	 */
++	write_seqlock(&xtime_lock);
++
++	xen_timer_interrupt_hook();
++
++	write_sequnlock(&xtime_lock);
++
++	return IRQ_HANDLED;
++}
++
++static void setup_cpu0_timer_irq(void)
++{
++	printk(KERN_DEBUG "installing Xen timer for CPU 0\n");
++
++	bind_virq_to_irqhandler(
++		VIRQ_TIMER,
++		0,
++		xen_timer_interrupt,
++		SA_INTERRUPT,
++		"timer0",
++		NULL);
++}
++
++static __init void xen_late_time_init(void)
++{
++	setup_cpu0_timer_irq();
++}
++
++extern void (*late_time_init)(void);
++__init void xen_time_init(void)
++{
++	late_time_init =3D xen_late_time_init;
++
++	get_time_values_from_xen();
++
++	processed_system_time =3D per_cpu(shadow_time, 0).system_timestamp;
++	per_cpu(processed_system_time, 0) =3D processed_system_time;
++
++	init_cpu_khz();
++	printk(KERN_INFO "Xen reported: %u.%03u MHz processor.\n",
++	       cpu_khz / 1000, cpu_khz % 1000);
++
++	init_missing_ticks_accounting(0);
++
++	clocksource_register(&xen_clocksource);
++
++	/* Set initial system time with full resolution */
++	xen_read_wallclock(&xtime);
++	set_normalized_timespec(&wall_to_monotonic,
++				-xtime.tv_sec, -xtime.tv_nsec);
++
++	tsc_disable =3D 0;
++}
++
++/* Convert jiffies to system time. */
++static u64 jiffies_to_st(unsigned long j)
++{
++	unsigned long seq;
++	long delta;
++	u64 st;
++
++	do {
++		seq =3D read_seqbegin(&xtime_lock);
++		delta =3D j - jiffies;
++		if (delta < 1) {
++			/* Triggers in some wrap-around cases, but that's okay:
++			 * we just end up with a shorter timeout. */
++			st =3D processed_system_time + NS_PER_TICK;
++		} else if (((unsigned long)delta >> (BITS_PER_LONG-3)) !=3D 0) {
++			/* Very long timeout means there is no pending timer.
++			 * We indicate this to Xen by passing zero timeout. */
++			st =3D 0;
++		} else {
++			st =3D processed_system_time + delta * (u64)NS_PER_TICK;
++		}
++	} while (read_seqretry(&xtime_lock, seq));
++
++	return st;
++}
++
++/*
++ * stop_hz_timer / start_hz_timer - enter/exit 'tickless mode' on an idle =
+cpu
++ * These functions are based on implementations from arch/s390/kernel/time=
+.c
++ */
++void stop_hz_timer(void)
++{
++	unsigned int cpu =3D smp_processor_id();
++	unsigned long j;
++
++	cpu_set(cpu, nohz_cpu_mask);
++
++	/* =
+
++	 * See matching smp_mb in rcu_start_batch in rcupdate.c.  These mbs =
+
++	 * ensure that if __rcu_pending (nested in rcu_needs_cpu) fetches a
++	 * value of rcp->cur that matches rdp->quiescbatch and allows us to
++	 * stop the hz timer then the cpumasks created for subsequent values
++	 * of cur in rcu_start_batch are guaranteed to pick up the updated
++	 * nohz_cpu_mask and so will not depend on this cpu.
++	 */
++
++	smp_mb();
++
++	/* Leave ourselves in tick mode if rcu or softirq or timer pending. */
++	if (rcu_needs_cpu(cpu) || local_softirq_pending() ||
++	    (j =3D next_timer_interrupt(), time_before_eq(j, jiffies))) {
++		cpu_clear(cpu, nohz_cpu_mask);
++		j =3D jiffies + 1;
++	}
++
++	if (HYPERVISOR_set_timer_op(jiffies_to_st(j)) !=3D 0)
++		BUG();
++}
++
++void start_hz_timer(void)
++{
++	cpu_clear(smp_processor_id(), nohz_cpu_mask);
++}
++
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/arch/i386/xen/xen-head.S
+@@ -0,0 +1,30 @@
++/* Xen-specific pieces of head.S, intended to be included in the right
++	place in head.S */
++
++#include <linux/elfnote.h>
++#include <asm/boot.h>
++#include <xen/interface/elfnote.h>
++
++ENTRY(startup_xen)
++	movl %esi,xen_start_info
++	jmp startup_paravirt
++	=
+
++.pushsection ".bss.page_aligned"
++ENTRY(hypercall_page)
++	.align PAGE_SIZE_asm
++	.skip 0x1000
++.popsection
++
++	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,       .asciz, "linux")
++	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,  .asciz, "2.6")
++	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,    .asciz, "xen-3.0")
++	ELFNOTE(Xen, XEN_ELFNOTE_VIRT_BASE,      .long,  __PAGE_OFFSET)
++	ELFNOTE(Xen, XEN_ELFNOTE_ENTRY,          .long,  startup_xen)
++	ELFNOTE(Xen, XEN_ELFNOTE_HYPERCALL_PAGE, .long,  hypercall_page)
++	ELFNOTE(Xen, XEN_ELFNOTE_FEATURES,       .asciz, "!writable_page_tables|p=
+ae_pgdir_above_4gb")
++#ifdef CONFIG_X86_PAE
++	ELFNOTE(Xen, XEN_ELFNOTE_PAE_MODE,       .asciz, "yes")
++#else
++	ELFNOTE(Xen, XEN_ELFNOTE_PAE_MODE,       .asciz, "no")
 +#endif
++	ELFNOTE(Xen, XEN_ELFNOTE_LOADER,         .asciz, "generic")
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- /dev/null
-+++ b/include/xen/interface/elfnote.h
-@@ -0,0 +1,133 @@
-+/*************************************************************************=
-*****
-+ * elfnote.h
-+ *
-+ * Definitions used for the Xen ELF notes.
-+ *
-+ * Copyright (c) 2006, Ian Campbell, XenSource Ltd.
-+ */
++++ b/arch/i386/xen/xen-ops.h
+@@ -0,0 +1,20 @@
++#ifndef XEN_OPS_H
++#define XEN_OPS_H
 +
-+#ifndef __XEN_PUBLIC_ELFNOTE_H__
-+#define __XEN_PUBLIC_ELFNOTE_H__
++#include <linux/init.h>
 +
-+/*
-+ * The notes should live in a SHT_NOTE segment and have "Xen" in the
-+ * name field.
-+ *
-+ * Numeric types are either 4 or 8 bytes depending on the content of
-+ * the desc field.
-+ *
-+ * LEGACY indicated the fields in the legacy __xen_guest string which
-+ * this a note type replaces.
-+ */
++extern struct start_info *xen_start_info;
++extern struct shared_info *HYPERVISOR_shared_info;
 +
-+/*
-+ * NAME=3DVALUE pair (string).
-+ *
-+ * LEGACY: FEATURES and PAE
-+ */
-+#define XEN_ELFNOTE_INFO           0
++char * __init xen_memory_setup(void);
++void __init xen_arch_setup(void);
++void __init xen_init_IRQ(void);
 +
-+/*
-+ * The virtual address of the entry point (numeric).
-+ *
-+ * LEGACY: VIRT_ENTRY
-+ */
-+#define XEN_ELFNOTE_ENTRY          1
++void __init xen_time_init(void);
++unsigned long xen_get_wallclock(void);
++int xen_set_wallclock(unsigned long time);
 +
-+/* The virtual address of the hypercall transfer page (numeric).
-+ *
-+ * LEGACY: HYPERCALL_PAGE. (n.b. legacy value is a physical page
-+ * number not a virtual address)
-+ */
-+#define XEN_ELFNOTE_HYPERCALL_PAGE 2
++void stop_hz_timer(void);
++void start_hz_timer(void);
 +
-+/* The virtual address where the kernel image should be mapped (numeric).
-+ *
-+ * Defaults to 0.
-+ *
-+ * LEGACY: VIRT_BASE
-+ */
-+#define XEN_ELFNOTE_VIRT_BASE      3
-+
-+/*
-+ * The offset of the ELF paddr field from the acutal required
-+ * psuedo-physical address (numeric).
-+ *
-+ * This is used to maintain backwards compatibility with older kernels
-+ * which wrote __PAGE_OFFSET into that field. This field defaults to 0
-+ * if not present.
-+ *
-+ * LEGACY: ELF_PADDR_OFFSET. (n.b. legacy default is VIRT_BASE)
-+ */
-+#define XEN_ELFNOTE_PADDR_OFFSET   4
-+
-+/*
-+ * The version of Xen that we work with (string).
-+ *
-+ * LEGACY: XEN_VER
-+ */
-+#define XEN_ELFNOTE_XEN_VERSION    5
-+
-+/*
-+ * The name of the guest operating system (string).
-+ *
-+ * LEGACY: GUEST_OS
-+ */
-+#define XEN_ELFNOTE_GUEST_OS       6
-+
-+/*
-+ * The version of the guest operating system (string).
-+ *
-+ * LEGACY: GUEST_VER
-+ */
-+#define XEN_ELFNOTE_GUEST_VERSION  7
-+
-+/*
-+ * The loader type (string).
-+ *
-+ * LEGACY: LOADER
-+ */
-+#define XEN_ELFNOTE_LOADER         8
-+
-+/*
-+ * The kernel supports PAE (x86/32 only, string =3D "yes" or "no").
-+ *
-+ * LEGACY: PAE (n.b. The legacy interface included a provision to
-+ * indicate 'extended-cr3' support allowing L3 page tables to be
-+ * placed above 4G. It is assumed that any kernel new enough to use
-+ * these ELF notes will include this and therefore "yes" here is
-+ * equivalent to "yes[entended-cr3]" in the __xen_guest interface.
-+ */
-+#define XEN_ELFNOTE_PAE_MODE       9
-+
-+/*
-+ * The features supported/required by this kernel (string).
-+ *
-+ * The string must consist of a list of feature names (as given in
-+ * features.h, without the "XENFEAT_" prefix) separated by '|'
-+ * characters. If a feature is required for the kernel to function
-+ * then the feature name must be preceded by a '!' character.
-+ *
-+ * LEGACY: FEATURES
-+ */
-+#define XEN_ELFNOTE_FEATURES      10
-+
-+/*
-+ * The kernel requires the symbol table to be loaded (string =3D "yes" or =
-"no")
-+ * LEGACY: BSD_SYMTAB (n.b. The legacy treated the presence or absence
-+ * of this string as a boolean flag rather than requiring "yes" or
-+ * "no".
-+ */
-+#define XEN_ELFNOTE_BSD_SYMTAB    11
-+
-+#endif /* __XEN_PUBLIC_ELFNOTE_H__ */
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "BSD"
-+ * c-basic-offset: 4
-+ * tab-width: 4
-+ * indent-tabs-mode: nil
-+ * End:
-+ */
++#endif /* XEN_OPS_H */
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/event_channel.h
-@@ -0,0 +1,195 @@
-+/*************************************************************************=
-*****
-+ * event_channel.h
-+ * =
+--- a/include/asm-i386/irq.h
++++ b/include/asm-i386/irq.h
+@@ -43,6 +43,7 @@ extern void fixup_irqs(cpumask_t map);
+ extern void fixup_irqs(cpumask_t map);
+ #endif
+ =
 
-+ * Event channels between domains.
-+ * =
++fastcall unsigned int do_IRQ(struct pt_regs *regs);
+ void init_IRQ(void);
+ void __init native_init_IRQ(void);
+ =
 
-+ * Copyright (c) 2003-2004, K A Fraser.
-+ */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -31,6 +31,7 @@ struct Xgt_desc_struct;
+ struct Xgt_desc_struct;
+ struct tss_struct;
+ struct mm_struct;
++struct i386_pda;
+ struct paravirt_ops
+ {
+  	int paravirt_enabled;
+@@ -53,6 +54,7 @@ struct paravirt_ops
+ 	void (*arch_setup)(void);
+ 	char *(*memory_setup)(void);
+ 	void (*init_IRQ)(void);
++	void (*init_pda)(struct i386_pda *, int cpu);
+ =
+
+ 	void (*pagetable_setup_start)(pgd_t *pgd_base);
+ 	void (*pagetable_setup_done)(pgd_t *pgd_base);
+@@ -200,6 +202,30 @@ extern struct paravirt_ops paravirt_ops;
+ =
+
+ void native_pagetable_setup_start(pgd_t *pgd);
+ =
+
++/* Non-paravirtualized implementations of various operations for
++   back-ends which don't need their own version. */
++fastcall void native_clts(void);
 +
-+#ifndef __XEN_PUBLIC_EVENT_CHANNEL_H__
-+#define __XEN_PUBLIC_EVENT_CHANNEL_H__
++fastcall unsigned long native_read_cr0(void);
++fastcall void native_write_cr0(unsigned long val);
 +
-+typedef uint32_t evtchn_port_t;
-+DEFINE_GUEST_HANDLE(evtchn_port_t);
++fastcall unsigned long native_read_cr2(void);
++fastcall void native_write_cr2(unsigned long val);
 +
-+/*
-+ * EVTCHNOP_alloc_unbound: Allocate a port in domain <dom> and mark as
-+ * accepting interdomain bindings from domain <remote_dom>. A fresh port
-+ * is allocated in <dom> and returned as <port>.
-+ * NOTES:
-+ *  1. If the caller is unprivileged then <dom> must be DOMID_SELF.
-+ *  2. <rdom> may be DOMID_SELF, allowing loopback connections.
-+ */
-+#define EVTCHNOP_alloc_unbound    6
-+struct evtchn_alloc_unbound {
-+    /* IN parameters */
-+    domid_t dom, remote_dom;
-+    /* OUT parameters */
-+    evtchn_port_t port;
-+};
++fastcall unsigned long native_read_cr3(void);
++fastcall void native_write_cr3(unsigned long val);
 +
-+/*
-+ * EVTCHNOP_bind_interdomain: Construct an interdomain event channel betwe=
-en
-+ * the calling domain and <remote_dom>. <remote_dom,remote_port> must iden=
-tify
-+ * a port that is unbound and marked as accepting bindings from the calling
-+ * domain. A fresh port is allocated in the calling domain and returned as
-+ * <local_port>.
-+ * NOTES:
-+ *  2. <remote_dom> may be DOMID_SELF, allowing loopback connections.
-+ */
-+#define EVTCHNOP_bind_interdomain 0
-+struct evtchn_bind_interdomain {
-+    /* IN parameters. */
-+    domid_t remote_dom;
-+    evtchn_port_t remote_port;
-+    /* OUT parameters. */
-+    evtchn_port_t local_port;
-+};
++fastcall unsigned long native_read_cr4(void);
++fastcall unsigned long native_read_cr4_safe(void);
++fastcall void native_write_cr4(unsigned long val);
 +
-+/*
-+ * EVTCHNOP_bind_virq: Bind a local event channel to VIRQ <irq> on specifi=
-ed
-+ * vcpu.
-+ * NOTES:
-+ *  1. A virtual IRQ may be bound to at most one event channel per vcpu.
-+ *  2. The allocated event channel is bound to the specified vcpu. The bin=
-ding
-+ *     may not be changed.
-+ */
-+#define EVTCHNOP_bind_virq        1
-+struct evtchn_bind_virq {
-+    /* IN parameters. */
-+    uint32_t virq;
-+    uint32_t vcpu;
-+    /* OUT parameters. */
-+    evtchn_port_t port;
-+};
++fastcall void native_wbinvd(void);
 +
-+/*
-+ * EVTCHNOP_bind_pirq: Bind a local event channel to PIRQ <irq>.
-+ * NOTES:
-+ *  1. A physical IRQ may be bound to at most one event channel per domain.
-+ *  2. Only a sufficiently-privileged domain may bind to a physical IRQ.
-+ */
-+#define EVTCHNOP_bind_pirq        2
-+struct evtchn_bind_pirq {
-+    /* IN parameters. */
-+    uint32_t pirq;
-+#define BIND_PIRQ__WILL_SHARE 1
-+    uint32_t flags; /* BIND_PIRQ__* */
-+    /* OUT parameters. */
-+    evtchn_port_t port;
-+};
++fastcall unsigned long long native_read_msr(unsigned int msr, int *err);
++fastcall int native_write_msr(unsigned int msr, unsigned long long val);
++fastcall unsigned long long native_read_tsc(void);
++fastcall unsigned long long native_read_pmc(void);
 +
-+/*
-+ * EVTCHNOP_bind_ipi: Bind a local event channel to receive events.
-+ * NOTES:
-+ *  1. The allocated event channel is bound to the specified vcpu. The bin=
-ding
-+ *     may not be changed.
-+ */
-+#define EVTCHNOP_bind_ipi         7
-+struct evtchn_bind_ipi {
-+    uint32_t vcpu;
-+    /* OUT parameters. */
-+    evtchn_port_t port;
-+};
+ #ifdef CONFIG_X86_PAE
+ unsigned long long native_pte_val(pte_t);
+ unsigned long long native_pmd_val(pmd_t);
+@@ -453,6 +479,19 @@ static inline void arch_exit_mmap(struct
+ 	paravirt_ops.exit_mmap(mm);
+ }
+ =
+
++static inline void paravirt_init_pda(struct i386_pda *pda, int cpu)
++{
++	if (paravirt_ops.init_pda)
++		(*paravirt_ops.init_pda)(pda, cpu);
++}
 +
-+/*
-+ * EVTCHNOP_close: Close a local event channel <port>. If the channel is
-+ * interdomain then the remote end is placed in the unbound state
-+ * (EVTCHNSTAT_unbound), awaiting a new connection.
-+ */
-+#define EVTCHNOP_close            3
-+struct evtchn_close {
-+    /* IN parameters. */
-+    evtchn_port_t port;
-+};
++fastcall void native_write_ldt_entry(void *dt, int entrynum, u32 low, u32 =
+high);
++fastcall void native_write_gdt_entry(void *dt, int entrynum, u32 low, u32 =
+high);
++fastcall void native_write_idt_entry(void *dt, int entrynum, u32 low, u32 =
+high);
++fastcall void native_store_gdt(struct Xgt_desc_struct *dtr);
++fastcall void native_store_idt(struct Xgt_desc_struct *dtr);
++fastcall unsigned long native_store_tr(void);
 +
-+/*
-+ * EVTCHNOP_send: Send an event to the remote end of the channel whose loc=
-al
-+ * endpoint is <port>.
-+ */
-+#define EVTCHNOP_send             4
-+struct evtchn_send {
-+    /* IN parameters. */
-+    evtchn_port_t port;
-+};
+ #define __flush_tlb() paravirt_ops.flush_tlb_user()
+ #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
+ #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
+@@ -712,5 +751,8 @@ static inline void paravirt_exit_mmap(st
+ {
+ }
+ =
+
++static inline void paravirt_init_pda(struct i386_pda *pda, int cpu)
++{
++}
+ #endif /* CONFIG_PARAVIRT */
+ #endif	/* __ASM_PARAVIRT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pda.h
++++ b/include/asm-i386/pda.h
+@@ -16,8 +16,20 @@ struct i386_pda
+ 	int cpu_number;
+ 	struct task_struct *pcurrent;	/* current process */
+ 	struct pt_regs *irq_regs;
 +
-+/*
-+ * EVTCHNOP_status: Get the current status of the communication channel wh=
-ich
-+ * has an endpoint at <dom, port>.
-+ * NOTES:
-+ *  1. <dom> may be specified as DOMID_SELF.
-+ *  2. Only a sufficiently-privileged domain may obtain the status of an e=
-vent
-+ *     channel for which <dom> is not DOMID_SELF.
-+ */
-+#define EVTCHNOP_status           5
-+struct evtchn_status {
-+    /* IN parameters */
-+    domid_t  dom;
-+    evtchn_port_t port;
-+    /* OUT parameters */
-+#define EVTCHNSTAT_closed       0  /* Channel is not in use.              =
-   */
-+#define EVTCHNSTAT_unbound      1  /* Channel is waiting interdom connecti=
-on.*/
-+#define EVTCHNSTAT_interdomain  2  /* Channel is connected to remote domai=
-n. */
-+#define EVTCHNSTAT_pirq         3  /* Channel is bound to a phys IRQ line.=
-   */
-+#define EVTCHNSTAT_virq         4  /* Channel is bound to a virtual IRQ li=
-ne */
-+#define EVTCHNSTAT_ipi          5  /* Channel is bound to a virtual IPI li=
-ne */
-+    uint32_t status;
-+    uint32_t vcpu;                 /* VCPU to which this channel is bound.=
-   */
-+    union {
-+        struct {
-+            domid_t dom;
-+        } unbound; /* EVTCHNSTAT_unbound */
-+        struct {
-+            domid_t dom;
-+            evtchn_port_t port;
-+        } interdomain; /* EVTCHNSTAT_interdomain */
-+        uint32_t pirq;      /* EVTCHNSTAT_pirq        */
-+        uint32_t virq;      /* EVTCHNSTAT_virq        */
-+    } u;
-+};
++#ifdef CONFIG_PARAVIRT
++	union {
++#ifdef CONFIG_XEN
++		struct {
++			struct vcpu_info *vcpu;
++			unsigned long cr3;
++		} xen;
++#endif	/* CONFIG_XEN */
++	};
++#endif	/* CONFIG_PARAVIRT */
+ };
+ =
+
++extern struct i386_pda boot_pda;
+ extern struct i386_pda *_cpu_pda[];
+ =
+
+ #define cpu_pda(i)	(_cpu_pda[i])
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/xen/hypercall.h
++++ b/include/asm-i386/xen/hypercall.h
+@@ -410,4 +410,22 @@ MULTI_mmuext_op(struct multicall_entry *
+ 	mcl->args[2] =3D (unsigned long)success_count;
+ 	mcl->args[3] =3D domid;
+ }
 +
-+/*
-+ * EVTCHNOP_bind_vcpu: Specify which vcpu a channel should notify when an
-+ * event is pending.
-+ * NOTES:
-+ *  1. IPI- and VIRQ-bound channels always notify the vcpu that initialised
-+ *     the binding. This binding cannot be changed.
-+ *  2. All other channels notify vcpu0 by default. This default is set when
-+ *     the channel is allocated (a port that is freed and subsequently reu=
-sed
-+ *     has its binding reset to vcpu0).
-+ */
-+#define EVTCHNOP_bind_vcpu        8
-+struct evtchn_bind_vcpu {
-+    /* IN parameters. */
-+    evtchn_port_t port;
-+    uint32_t vcpu;
-+};
++static inline void
++MULTI_set_gdt(struct multicall_entry *mcl, unsigned long *frames, int entr=
+ies)
++{
++	mcl->op =3D __HYPERVISOR_set_gdt;
++	mcl->args[0] =3D (unsigned long)frames;
++	mcl->args[1] =3D entries;
++}
 +
-+/*
-+ * EVTCHNOP_unmask: Unmask the specified local event-channel port and deli=
-ver
-+ * a notification to the appropriate VCPU if an event is pending.
-+ */
-+#define EVTCHNOP_unmask           9
-+struct evtchn_unmask {
-+    /* IN parameters. */
-+    evtchn_port_t port;
-+};
++static inline void
++MULTI_stack_switch(struct multicall_entry *mcl, =
+
++		   unsigned long ss, unsigned long esp)
++{
++	mcl->op =3D __HYPERVISOR_stack_switch;
++	mcl->args[0] =3D ss;
++	mcl->args[1] =3D esp;
++}
 +
-+struct evtchn_op {
-+    uint32_t cmd; /* EVTCHNOP_* */
-+    union {
-+        struct evtchn_alloc_unbound    alloc_unbound;
-+        struct evtchn_bind_interdomain bind_interdomain;
-+        struct evtchn_bind_virq        bind_virq;
-+        struct evtchn_bind_pirq        bind_pirq;
-+        struct evtchn_bind_ipi         bind_ipi;
-+        struct evtchn_close            close;
-+        struct evtchn_send             send;
-+        struct evtchn_status           status;
-+        struct evtchn_bind_vcpu        bind_vcpu;
-+        struct evtchn_unmask           unmask;
-+    } u;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(evtchn_op);
-+
-+#endif /* __XEN_PUBLIC_EVENT_CHANNEL_H__ */
+ #endif /* __HYPERCALL_H__ */
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- /dev/null
-+++ b/include/xen/interface/features.h
-@@ -0,0 +1,43 @@
++++ b/include/xen/events.h
+@@ -0,0 +1,28 @@
++#ifndef _XEN_EVENTS_H
++#define _XEN_EVENTS_H
++
++#include <linux/irq.h>
++
++int bind_evtchn_to_irqhandler(unsigned int evtchn,
++			      irqreturn_t (*handler)(int, void *),
++			      unsigned long irqflags, const char *devname,
++			      void *dev_id);
++int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
++			    irqreturn_t (*handler)(int, void *),
++			    unsigned long irqflags, const char *devname, void *dev_id);
++
++/*
++ * Common unbind function for all event sources. Takes IRQ to unbind from.
++ * Automatically closes the underlying event channel (even for bindings
++ * made with bind_evtchn_to_irqhandler()).
++ */
++void unbind_from_irqhandler(unsigned int irq, void *dev_id);
++
++static inline void notify_remote_via_evtchn(int port)
++{
++	struct evtchn_send send =3D { .port =3D port };
++	(void)HYPERVISOR_event_channel_op(EVTCHNOP_send, &send);
++}
++
++extern void notify_remote_via_irq(int irq);
++#endif	/* _XEN_EVENTS_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/include/xen/features.h
+@@ -0,0 +1,26 @@
 +/*************************************************************************=
 *****
 + * features.h
-+ * =
-
-+ * Feature flags, reported by XENVER_get_features.
-+ * =
-
-+ * Copyright (c) 2006, Keir Fraser <keir@xensource.com>
-+ */
-+
-+#ifndef __XEN_PUBLIC_FEATURES_H__
-+#define __XEN_PUBLIC_FEATURES_H__
-+
-+/*
-+ * If set, the guest does not need to write-protect its pagetables, and can
-+ * update them via direct writes.
-+ */
-+#define XENFEAT_writable_page_tables       0
-+
-+/*
-+ * If set, the guest does not need to write-protect its segment descriptor
-+ * tables, and can update them via direct writes.
-+ */
-+#define XENFEAT_writable_descriptor_tables 1
-+
-+/*
-+ * If set, translation between the guest's 'pseudo-physical' address space
-+ * and the host's machine address space are handled by the hypervisor. In =
-this
-+ * mode the guest does not need to perform phys-to/from-machine translatio=
-ns
-+ * when performing page table operations.
-+ */
-+#define XENFEAT_auto_translated_physmap    2
-+
-+/* If set, the guest is running in supervisor mode (e.g., x86 ring 0). */
-+#define XENFEAT_supervisor_mode_kernel     3
-+
-+/*
-+ * If set, the guest does not need to allocate x86 PAE page directories
-+ * below 4GB. This flag is usually implied by auto_translated_physmap.
-+ */
-+#define XENFEAT_pae_pgdir_above_4gb        4
-+
-+#define XENFEAT_NR_SUBMAPS 1
-+
-+#endif /* __XEN_PUBLIC_FEATURES_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/grant_table.h
-@@ -0,0 +1,301 @@
-+/*************************************************************************=
-*****
-+ * grant_table.h
-+ * =
-
-+ * Interface for granting foreign access to page frames, and receiving
-+ * page-ownership transfers.
-+ * =
-
-+ * Copyright (c) 2004, K A Fraser
-+ */
-+
-+#ifndef __XEN_PUBLIC_GRANT_TABLE_H__
-+#define __XEN_PUBLIC_GRANT_TABLE_H__
-+
-+
-+/***********************************
-+ * GRANT TABLE REPRESENTATION
-+ */
-+
-+/* Some rough guidelines on accessing and updating grant-table entries
-+ * in a concurrency-safe manner. For more information, Linux contains a
-+ * reference implementation for guest OSes (arch/i386/mach-xen/grant_table=
-.c).
-+ * =
-
-+ * NB. WMB is a no-op on current-generation x86 processors. However, a
-+ *     compiler barrier will still be required.
-+ * =
-
-+ * Introducing a valid entry into the grant table:
-+ *  1. Write ent->domid.
-+ *  2. Write ent->frame:
-+ *      GTF_permit_access:   Frame to which access is permitted.
-+ *      GTF_accept_transfer: Pseudo-phys frame slot being filled by new
-+ *                           frame, or zero if none.
-+ *  3. Write memory barrier (WMB).
-+ *  4. Write ent->flags, inc. valid type.
-+ * =
-
-+ * Invalidating an unused GTF_permit_access entry:
-+ *  1. flags =3D ent->flags.
-+ *  2. Observe that !(flags & (GTF_reading|GTF_writing)).
-+ *  3. Check result of SMP-safe CMPXCHG(&ent->flags, flags, 0).
-+ *  NB. No need for WMB as reuse of entry is control-dependent on success =
-of
-+ *      step 3, and all architectures guarantee ordering of ctrl-dep write=
-s.
 + *
-+ * Invalidating an in-use GTF_permit_access entry:
-+ *  This cannot be done directly. Request assistance from the domain contr=
-oller
-+ *  which can set a timeout on the use of a grant entry and take necessary
-+ *  action. (NB. This is not yet implemented!).
-+ * =
-
-+ * Invalidating an unused GTF_accept_transfer entry:
-+ *  1. flags =3D ent->flags.
-+ *  2. Observe that !(flags & GTF_transfer_committed). [*]
-+ *  3. Check result of SMP-safe CMPXCHG(&ent->flags, flags, 0).
-+ *  NB. No need for WMB as reuse of entry is control-dependent on success =
-of
-+ *      step 3, and all architectures guarantee ordering of ctrl-dep write=
-s.
-+ *  [*] If GTF_transfer_committed is set then the grant entry is 'committe=
-d'.
-+ *      The guest must /not/ modify the grant entry until the address of t=
-he
-+ *      transferred frame is written. It is safe for the guest to spin wai=
-ting
-+ *      for this to occur (detect by observing GTF_transfer_completed in
-+ *      ent->flags).
++ * Query the features reported by Xen.
 + *
-+ * Invalidating a committed GTF_accept_transfer entry:
-+ *  1. Wait for (ent->flags & GTF_transfer_completed).
-+ *
-+ * Changing a GTF_permit_access from writable to read-only:
-+ *  Use SMP-safe CMPXCHG to set GTF_readonly, while checking !GTF_writing.
-+ * =
-
-+ * Changing a GTF_permit_access from read-only to writable:
-+ *  Use SMP-safe bit-setting instruction.
++ * Copyright (c) 2006, Ian Campbell
 + */
 +
-+/*
-+ * A grant table comprises a packed array of grant entries in one or more
-+ * page frames shared between Xen and a guest.
-+ * [XEN]: This field is written by Xen and read by the sharing guest.
-+ * [GST]: This field is written by the guest and read by Xen.
-+ */
-+struct grant_entry {
-+    /* GTF_xxx: various type and flag information.  [XEN,GST] */
-+    uint16_t flags;
-+    /* The domain being granted foreign privileges. [GST] */
-+    domid_t  domid;
-+    /*
-+     * GTF_permit_access: Frame that @domid is allowed to map and access. =
-[GST]
-+     * GTF_accept_transfer: Frame whose ownership transferred by @domid. [=
-XEN]
-+     */
-+    uint32_t frame;
-+};
++#ifndef __XEN_FEATURES_H__
++#define __XEN_FEATURES_H__
 +
-+/*
-+ * Type of grant entry.
-+ *  GTF_invalid: This grant entry grants no privileges.
-+ *  GTF_permit_access: Allow @domid to map/access @frame.
-+ *  GTF_accept_transfer: Allow @domid to transfer ownership of one page fr=
-ame
-+ *                       to this guest. Xen writes the page number to @fra=
-me.
-+ */
-+#define GTF_invalid         (0U<<0)
-+#define GTF_permit_access   (1U<<0)
-+#define GTF_accept_transfer (2U<<0)
-+#define GTF_type_mask       (3U<<0)
++#include <xen/interface/features.h>
 +
-+/*
-+ * Subflags for GTF_permit_access.
-+ *  GTF_readonly: Restrict @domid to read-only mappings and accesses. [GST]
-+ *  GTF_reading: Grant entry is currently mapped for reading by @domid. [X=
-EN]
-+ *  GTF_writing: Grant entry is currently mapped for writing by @domid. [X=
-EN]
-+ */
-+#define _GTF_readonly       (2)
-+#define GTF_readonly        (1U<<_GTF_readonly)
-+#define _GTF_reading        (3)
-+#define GTF_reading         (1U<<_GTF_reading)
-+#define _GTF_writing        (4)
-+#define GTF_writing         (1U<<_GTF_writing)
++void xen_setup_features(void);
 +
-+/*
-+ * Subflags for GTF_accept_transfer:
-+ *  GTF_transfer_committed: Xen sets this flag to indicate that it is comm=
-itted
-+ *      to transferring ownership of a page frame. When a guest sees this =
-flag
-+ *      it must /not/ modify the grant entry until GTF_transfer_completed =
-is
-+ *      set by Xen.
-+ *  GTF_transfer_completed: It is safe for the guest to spin-wait on this =
-flag
-+ *      after reading GTF_transfer_committed. Xen will always write the fr=
-ame
-+ *      address, followed by ORing this flag, in a timely manner.
-+ */
-+#define _GTF_transfer_committed (2)
-+#define GTF_transfer_committed  (1U<<_GTF_transfer_committed)
-+#define _GTF_transfer_completed (3)
-+#define GTF_transfer_completed  (1U<<_GTF_transfer_completed)
++extern u8 xen_features[XENFEAT_NR_SUBMAPS * 32];
 +
++static inline int xen_feature(int flag)
++{
++	switch(flag) {
++	}
 +
-+/***********************************
-+ * GRANT TABLE QUERIES AND USES
-+ */
-+
-+/*
-+ * Reference to a grant entry in a specified domain's grant table.
-+ */
-+typedef uint32_t grant_ref_t;
-+
-+/*
-+ * Handle to track a mapping created via a grant reference.
-+ */
-+typedef uint32_t grant_handle_t;
-+
-+/*
-+ * GNTTABOP_map_grant_ref: Map the grant entry (<dom>,<ref>) for access
-+ * by devices and/or host CPUs. If successful, <handle> is a tracking numb=
-er
-+ * that must be presented later to destroy the mapping(s). On error, <hand=
-le>
-+ * is a negative status code.
-+ * NOTES:
-+ *  1. If GNTPIN_map_for_dev is specified then <dev_bus_addr> is the addre=
-ss
-+ *     via which I/O devices may access the granted frame.
-+ *  2. If GNTPIN_map_for_host is specified then a mapping will be added at
-+ *     either a host virtual address in the current address space, or at
-+ *     a PTE at the specified machine address.  The type of mapping to
-+ *     perform is selected through the GNTMAP_contains_pte flag, and the =
-
-+ *     address is specified in <host_addr>.
-+ *  3. Mappings should only be destroyed via GNTTABOP_unmap_grant_ref. If a
-+ *     host mapping is destroyed by other means then it is *NOT* guaranteed
-+ *     to be accounted to the correct grant reference!
-+ */
-+#define GNTTABOP_map_grant_ref        0
-+struct gnttab_map_grant_ref {
-+    /* IN parameters. */
-+    uint64_t host_addr;
-+    uint32_t flags;               /* GNTMAP_* */
-+    grant_ref_t ref;
-+    domid_t  dom;
-+    /* OUT parameters. */
-+    int16_t  status;              /* GNTST_* */
-+    grant_handle_t handle;
-+    uint64_t dev_bus_addr;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(gnttab_map_grant_ref);
-+
-+/*
-+ * GNTTABOP_unmap_grant_ref: Destroy one or more grant-reference mappings
-+ * tracked by <handle>. If <host_addr> or <dev_bus_addr> is zero, that
-+ * field is ignored. If non-zero, they must refer to a device/host mapping
-+ * that is tracked by <handle>
-+ * NOTES:
-+ *  1. The call may fail in an undefined manner if either mapping is not
-+ *     tracked by <handle>.
-+ *  3. After executing a batch of unmaps, it is guaranteed that no stale
-+ *     mappings will remain in the device or host TLBs.
-+ */
-+#define GNTTABOP_unmap_grant_ref      1
-+struct gnttab_unmap_grant_ref {
-+    /* IN parameters. */
-+    uint64_t host_addr;
-+    uint64_t dev_bus_addr;
-+    grant_handle_t handle;
-+    /* OUT parameters. */
-+    int16_t  status;              /* GNTST_* */
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(gnttab_unmap_grant_ref);
-+
-+/*
-+ * GNTTABOP_setup_table: Set up a grant table for <dom> comprising at least
-+ * <nr_frames> pages. The frame addresses are written to the <frame_list>.
-+ * Only <nr_frames> addresses are written, even if the table is larger.
-+ * NOTES:
-+ *  1. <dom> may be specified as DOMID_SELF.
-+ *  2. Only a sufficiently-privileged domain may specify <dom> !=3D DOMID_=
-SELF.
-+ *  3. Xen may not support more than a single grant-table page per domain.
-+ */
-+#define GNTTABOP_setup_table          2
-+struct gnttab_setup_table {
-+    /* IN parameters. */
-+    domid_t  dom;
-+    uint32_t nr_frames;
-+    /* OUT parameters. */
-+    int16_t  status;              /* GNTST_* */
-+    GUEST_HANDLE(ulong) frame_list;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(gnttab_setup_table);
-+
-+/*
-+ * GNTTABOP_dump_table: Dump the contents of the grant table to the
-+ * xen console. Debugging use only.
-+ */
-+#define GNTTABOP_dump_table           3
-+struct gnttab_dump_table {
-+    /* IN parameters. */
-+    domid_t dom;
-+    /* OUT parameters. */
-+    int16_t status;               /* GNTST_* */
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(gnttab_dump_table);
-+
-+/*
-+ * GNTTABOP_transfer_grant_ref: Transfer <frame> to a foreign domain. The
-+ * foreign domain has previously registered its interest in the transfer v=
-ia
-+ * <domid, ref>.
-+ * =
-
-+ * Note that, even if the transfer fails, the specified page no longer bel=
-ongs
-+ * to the calling domain *unless* the error is GNTST_bad_page.
-+ */
-+#define GNTTABOP_transfer                4
-+struct gnttab_transfer {
-+    /* IN parameters. */
-+    unsigned long mfn;
-+    domid_t       domid;
-+    grant_ref_t   ref;
-+    /* OUT parameters. */
-+    int16_t       status;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(gnttab_transfer);
-+
-+/*
-+ * Bitfield values for update_pin_status.flags.
-+ */
-+ /* Map the grant entry for access by I/O devices. */
-+#define _GNTMAP_device_map      (0)
-+#define GNTMAP_device_map       (1<<_GNTMAP_device_map)
-+ /* Map the grant entry for access by host CPUs. */
-+#define _GNTMAP_host_map        (1)
-+#define GNTMAP_host_map         (1<<_GNTMAP_host_map)
-+ /* Accesses to the granted frame will be restricted to read-only access. =
-*/
-+#define _GNTMAP_readonly        (2)
-+#define GNTMAP_readonly         (1<<_GNTMAP_readonly)
-+ /*
-+  * GNTMAP_host_map subflag:
-+  *  0 =3D> The host mapping is usable only by the guest OS.
-+  *  1 =3D> The host mapping is usable by guest OS + current application.
-+  */
-+#define _GNTMAP_application_map (3)
-+#define GNTMAP_application_map  (1<<_GNTMAP_application_map)
-+
-+ /*
-+  * GNTMAP_contains_pte subflag:
-+  *  0 =3D> This map request contains a host virtual address.
-+  *  1 =3D> This map request contains the machine addess of the PTE to upd=
-ate.
-+  */
-+#define _GNTMAP_contains_pte    (4)
-+#define GNTMAP_contains_pte     (1<<_GNTMAP_contains_pte)
-+
-+/*
-+ * Values for error status returns. All errors are -ve.
-+ */
-+#define GNTST_okay             (0)  /* Normal return.                     =
-   */
-+#define GNTST_general_error    (-1) /* General undefined error.           =
-   */
-+#define GNTST_bad_domain       (-2) /* Unrecognsed domain id.             =
-   */
-+#define GNTST_bad_gntref       (-3) /* Unrecognised or inappropriate gntre=
-f. */
-+#define GNTST_bad_handle       (-4) /* Unrecognised or inappropriate handl=
-e. */
-+#define GNTST_bad_virt_addr    (-5) /* Inappropriate virtual address to ma=
-p. */
-+#define GNTST_bad_dev_addr     (-6) /* Inappropriate device address to unm=
-ap.*/
-+#define GNTST_no_device_space  (-7) /* Out of space in I/O MMU.           =
-   */
-+#define GNTST_permission_denied (-8) /* Not enough privilege for operation=
-.  */
-+#define GNTST_bad_page         (-9) /* Specified page was invalid for op. =
-   */
-+
-+#define GNTTABOP_error_msgs {                   \
-+    "okay",                                     \
-+    "undefined error",                          \
-+    "unrecognised domain id",                   \
-+    "invalid grant reference",                  \
-+    "invalid mapping handle",                   \
-+    "invalid virtual address",                  \
-+    "invalid device address",                   \
-+    "no spare translation slot in the I/O MMU", \
-+    "permission denied",                        \
-+    "bad page"                                  \
++	return xen_features[flag];
 +}
 +
-+#endif /* __XEN_PUBLIC_GRANT_TABLE_H__ */
++#endif /* __ASM_XEN_FEATURES_H__ */
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- /dev/null
-+++ b/include/xen/interface/io/blkif.h
-@@ -0,0 +1,96 @@
-+/*************************************************************************=
-*****
-+ * blkif.h
-+ * =
-
-+ * Unified block-device I/O interface for Xen guest OSes.
-+ * =
-
-+ * Copyright (c) 2003-2004, Keir Fraser
-+ */
-+
-+#ifndef __XEN_PUBLIC_IO_BLKIF_H__
-+#define __XEN_PUBLIC_IO_BLKIF_H__
-+
-+#include "ring.h"
-+#include "../grant_table.h"
-+
-+/*
-+ * Front->back notifications: When enqueuing a new request, sending a
-+ * notification can be made conditional on req_event (i.e., the generic
-+ * hold-off mechanism provided by the ring macros). Backends must set
-+ * req_event appropriately (e.g., using RING_FINAL_CHECK_FOR_REQUESTS()).
-+ * =
-
-+ * Back->front notifications: When enqueuing a new response, sending a
-+ * notification can be made conditional on rsp_event (i.e., the generic
-+ * hold-off mechanism provided by the ring macros). Frontends must set
-+ * rsp_event appropriately (e.g., using RING_FINAL_CHECK_FOR_RESPONSES()).
-+ */
-+
-+#ifndef blkif_vdev_t
-+#define blkif_vdev_t   uint16_t
-+#endif
-+#define blkif_sector_t uint64_t
-+
-+/*
-+ * REQUEST CODES.
-+ */
-+#define BLKIF_OP_READ              0
-+#define BLKIF_OP_WRITE             1
-+/*
-+ * Recognised only if "feature-barrier" is present in backend xenbus info.
-+ * The "feature_barrier" node contains a boolean indicating whether barrier
-+ * requests are likely to succeed or fail. Either way, a barrier request
-+ * may fail at any time with BLKIF_RSP_EOPNOTSUPP if it is unsupported by
-+ * the underlying block-device hardware. The boolean simply indicates whet=
-her
-+ * or not it is worthwhile for the frontend to attempt barrier requests.
-+ * If a backend does not recognise BLKIF_OP_WRITE_BARRIER, it should *not*
-+ * create the "feature-barrier" node!
-+ */
-+#define BLKIF_OP_WRITE_BARRIER     2
-+
-+/*
-+ * Maximum scatter/gather segments per request.
-+ * This is carefully chosen so that sizeof(struct blkif_ring) <=3D PAGE_SI=
-ZE.
-+ * NB. This could be 12 if the ring indexes weren't stored in the same pag=
-e.
-+ */
-+#define BLKIF_MAX_SEGMENTS_PER_REQUEST 11
-+
-+struct blkif_request {
-+    uint8_t        operation;    /* BLKIF_OP_???                         */
-+    uint8_t        nr_segments;  /* number of segments                   */
-+    blkif_vdev_t   handle;       /* only for read/write requests         */
-+    uint64_t       id;           /* private guest value, echoed in resp  */
-+    blkif_sector_t sector_number;/* start sector idx on disk (r/w only)  */
-+    struct blkif_request_segment {
-+        grant_ref_t gref;        /* reference to I/O buffer frame        */
-+        /* @first_sect: first sector in frame to transfer (inclusive).   */
-+        /* @last_sect: last sector in frame to transfer (inclusive).     */
-+        uint8_t     first_sect, last_sect;
-+    } seg[BLKIF_MAX_SEGMENTS_PER_REQUEST];
-+};
-+
-+struct blkif_response {
-+    uint64_t        id;              /* copied from request */
-+    uint8_t         operation;       /* copied from request */
-+    int16_t         status;          /* BLKIF_RSP_???       */
-+};
-+
-+/*
-+ * STATUS RETURN CODES.
-+ */
-+ /* Operation not supported (only happens on barrier writes). */
-+#define BLKIF_RSP_EOPNOTSUPP  -2
-+ /* Operation failed for some unspecified reason (-EIO). */
-+#define BLKIF_RSP_ERROR       -1
-+ /* Operation completed successfully. */
-+#define BLKIF_RSP_OKAY         0
-+
-+/*
-+ * Generate blkif ring structures and types.
-+ */
-+
-+DEFINE_RING_TYPES(blkif, struct blkif_request, struct blkif_response);
-+
-+#define VDISK_CDROM        0x1
-+#define VDISK_REMOVABLE    0x2
-+#define VDISK_READONLY     0x4
-+
-+#endif /* __XEN_PUBLIC_IO_BLKIF_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/io/console.h
-@@ -0,0 +1,23 @@
-+/*************************************************************************=
-*****
-+ * console.h
-+ * =
-
-+ * Console I/O interface for Xen guest OSes.
-+ * =
-
-+ * Copyright (c) 2005, Keir Fraser
-+ */
-+
-+#ifndef __XEN_PUBLIC_IO_CONSOLE_H__
-+#define __XEN_PUBLIC_IO_CONSOLE_H__
-+
-+typedef uint32_t XENCONS_RING_IDX;
-+
-+#define MASK_XENCONS_IDX(idx, ring) ((idx) & (sizeof(ring)-1))
-+
-+struct xencons_interface {
-+    char in[1024];
-+    char out[2048];
-+    XENCONS_RING_IDX in_cons, in_prod;
-+    XENCONS_RING_IDX out_cons, out_prod;
-+};
-+
-+#endif /* __XEN_PUBLIC_IO_CONSOLE_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/io/netif.h
-@@ -0,0 +1,152 @@
-+/*************************************************************************=
-*****
-+ * netif.h
-+ * =
-
-+ * Unified network-device I/O interface for Xen guest OSes.
-+ * =
-
-+ * Copyright (c) 2003-2004, Keir Fraser
-+ */
-+
-+#ifndef __XEN_PUBLIC_IO_NETIF_H__
-+#define __XEN_PUBLIC_IO_NETIF_H__
-+
-+#include "ring.h"
-+#include "../grant_table.h"
-+
-+/*
-+ * Notifications after enqueuing any type of message should be conditional=
- on
-+ * the appropriate req_event or rsp_event field in the shared ring.
-+ * If the client sends notification for rx requests then it should specify
-+ * feature 'feature-rx-notify' via xenbus. Otherwise the backend will assu=
-me
-+ * that it cannot safely queue packets (as it may not be kicked to send th=
-em).
-+ */
-+
-+/*
-+ * This is the 'wire' format for packets:
-+ *  Request 1: netif_tx_request -- NETTXF_* (any flags)
-+ * [Request 2: netif_tx_extra]  (only if request 1 has NETTXF_extra_info)
-+ * [Request 3: netif_tx_extra]  (only if request 2 has XEN_NETIF_EXTRA_MOR=
-E)
-+ *  Request 4: netif_tx_request -- NETTXF_more_data
-+ *  Request 5: netif_tx_request -- NETTXF_more_data
-+ *  ...
-+ *  Request N: netif_tx_request -- 0
-+ */
-+
-+/* Protocol checksum field is blank in the packet (hardware offload)? */
-+#define _NETTXF_csum_blank     (0)
-+#define  NETTXF_csum_blank     (1U<<_NETTXF_csum_blank)
-+
-+/* Packet data has been validated against protocol checksum. */
-+#define _NETTXF_data_validated (1)
-+#define  NETTXF_data_validated (1U<<_NETTXF_data_validated)
-+
-+/* Packet continues in the next request descriptor. */
-+#define _NETTXF_more_data      (2)
-+#define  NETTXF_more_data      (1U<<_NETTXF_more_data)
-+
-+/* Packet to be followed by extra descriptor(s). */
-+#define _NETTXF_extra_info     (3)
-+#define  NETTXF_extra_info     (1U<<_NETTXF_extra_info)
-+
-+struct netif_tx_request {
-+    grant_ref_t gref;      /* Reference to buffer page */
-+    uint16_t offset;       /* Offset within buffer page */
-+    uint16_t flags;        /* NETTXF_* */
-+    uint16_t id;           /* Echoed in response message. */
-+    uint16_t size;         /* Packet size in bytes.       */
-+};
-+
-+/* Types of netif_extra_info descriptors. */
-+#define XEN_NETIF_EXTRA_TYPE_NONE  (0)  /* Never used - invalid */
-+#define XEN_NETIF_EXTRA_TYPE_GSO   (1)  /* u.gso */
-+#define XEN_NETIF_EXTRA_TYPE_MAX   (2)
-+
-+/* netif_extra_info flags. */
-+#define _XEN_NETIF_EXTRA_FLAG_MORE (0)
-+#define XEN_NETIF_EXTRA_FLAG_MORE  (1U<<_XEN_NETIF_EXTRA_FLAG_MORE)
-+
-+/* GSO types - only TCPv4 currently supported. */
-+#define XEN_NETIF_GSO_TYPE_TCPV4        (1)
-+
-+/*
-+ * This structure needs to fit within both netif_tx_request and
-+ * netif_rx_response for compatibility.
-+ */
-+struct netif_extra_info {
-+    uint8_t type;  /* XEN_NETIF_EXTRA_TYPE_* */
-+    uint8_t flags; /* XEN_NETIF_EXTRA_FLAG_* */
-+
-+    union {
-+        struct {
-+            /*
-+             * Maximum payload size of each segment. For example, for TCP =
-this
-+             * is just the path MSS.
-+             */
-+            uint16_t size;
-+
-+            /*
-+             * GSO type. This determines the protocol of the packet and any
-+             * extra features required to segment the packet properly.
-+             */
-+            uint8_t type; /* XEN_NETIF_GSO_TYPE_* */
-+
-+            /* Future expansion. */
-+            uint8_t pad;
-+
-+            /*
-+             * GSO features. This specifies any extra GSO features required
-+             * to process this packet, such as ECN support for TCPv4.
-+             */
-+            uint16_t features; /* XEN_NETIF_GSO_FEAT_* */
-+        } gso;
-+
-+        uint16_t pad[3];
-+    } u;
-+};
-+
-+struct netif_tx_response {
-+    uint16_t id;
-+    int16_t  status;       /* NETIF_RSP_* */
-+};
-+
-+struct netif_rx_request {
-+    uint16_t    id;        /* Echoed in response message.        */
-+    grant_ref_t gref;      /* Reference to incoming granted frame */
-+};
-+
-+/* Packet data has been validated against protocol checksum. */
-+#define _NETRXF_data_validated (0)
-+#define  NETRXF_data_validated (1U<<_NETRXF_data_validated)
-+
-+/* Protocol checksum field is blank in the packet (hardware offload)? */
-+#define _NETRXF_csum_blank     (1)
-+#define  NETRXF_csum_blank     (1U<<_NETRXF_csum_blank)
-+
-+/* Packet continues in the next request descriptor. */
-+#define _NETRXF_more_data      (2)
-+#define  NETRXF_more_data      (1U<<_NETRXF_more_data)
-+
-+/* Packet to be followed by extra descriptor(s). */
-+#define _NETRXF_extra_info     (3)
-+#define  NETRXF_extra_info     (1U<<_NETRXF_extra_info)
-+
-+struct netif_rx_response {
-+    uint16_t id;
-+    uint16_t offset;       /* Offset in page of start of received packet  =
-*/
-+    uint16_t flags;        /* NETRXF_* */
-+    int16_t  status;       /* -ve: BLKIF_RSP_* ; +ve: Rx'ed pkt size. */
-+};
-+
-+/*
-+ * Generate netif ring structures and types.
-+ */
-+
-+DEFINE_RING_TYPES(netif_tx, struct netif_tx_request, struct netif_tx_respo=
-nse);
-+DEFINE_RING_TYPES(netif_rx, struct netif_rx_request, struct netif_rx_respo=
-nse);
-+
-+#define NETIF_RSP_DROPPED         -2
-+#define NETIF_RSP_ERROR           -1
-+#define NETIF_RSP_OKAY             0
-+/* No response: used for auxiliary requests (e.g., netif_tx_extra). */
-+#define NETIF_RSP_NULL             1
-+
-+#endif
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/io/ring.h
-@@ -0,0 +1,260 @@
-+/*************************************************************************=
-*****
-+ * ring.h
-+ * =
-
-+ * Shared producer-consumer ring macros.
-+ *
-+ * Tim Deegan and Andrew Warfield November 2004.
-+ */
-+
-+#ifndef __XEN_PUBLIC_IO_RING_H__
-+#define __XEN_PUBLIC_IO_RING_H__
-+
-+typedef unsigned int RING_IDX;
-+
-+/* Round a 32-bit unsigned constant down to the nearest power of two. */
-+#define __RD2(_x)  (((_x) & 0x00000002) ? 0x2                  : ((_x) & 0=
-x1))
-+#define __RD4(_x)  (((_x) & 0x0000000c) ? __RD2((_x)>>2)<<2    : __RD2(_x))
-+#define __RD8(_x)  (((_x) & 0x000000f0) ? __RD4((_x)>>4)<<4    : __RD4(_x))
-+#define __RD16(_x) (((_x) & 0x0000ff00) ? __RD8((_x)>>8)<<8    : __RD8(_x))
-+#define __RD32(_x) (((_x) & 0xffff0000) ? __RD16((_x)>>16)<<16 : __RD16(_x=
-))
-+
-+/*
-+ * Calculate size of a shared ring, given the total available space for the
-+ * ring and indexes (_sz), and the name tag of the request/response struct=
-ure.
-+ * A ring contains as many entries as will fit, rounded down to the neares=
-t =
-
-+ * power of two (so we can mask with (size-1) to loop around).
-+ */
-+#define __RING_SIZE(_s, _sz) \
-+    (__RD32(((_sz) - (long)&(_s)->ring + (long)(_s)) / sizeof((_s)->ring[0=
-])))
-+
-+/*
-+ * Macros to make the correct C datatypes for a new kind of ring.
-+ * =
-
-+ * To make a new ring datatype, you need to have two message structures,
-+ * let's say struct request, and struct response already defined.
-+ *
-+ * In a header where you want the ring datatype declared, you then do:
-+ *
-+ *     DEFINE_RING_TYPES(mytag, struct request, struct response);
-+ *
-+ * These expand out to give you a set of types, as you can see below.
-+ * The most important of these are:
-+ * =
-
-+ *     struct mytag_sring      - The shared ring.
-+ *     struct mytag_front_ring - The 'front' half of the ring.
-+ *     struct mytag_back_ring  - The 'back' half of the ring.
-+ *
-+ * To initialize a ring in your code you need to know the location and size
-+ * of the shared memory area (PAGE_SIZE, for instance). To initialise
-+ * the front half:
-+ *
-+ *     struct mytag_front_ring front_ring;
-+ *     SHARED_RING_INIT((struct mytag_sring *)shared_page);
-+ *     FRONT_RING_INIT(&front_ring, (struct mytag_sring *)shared_page,
-+ *                     PAGE_SIZE);
-+ *
-+ * Initializing the back follows similarly (note that only the front
-+ * initializes the shared ring):
-+ *
-+ *     struct mytag_back_ring back_ring;
-+ *     BACK_RING_INIT(&back_ring, (struct mytag_sring *)shared_page,
-+ *                    PAGE_SIZE);
-+ */
-+
-+#define DEFINE_RING_TYPES(__name, __req_t, __rsp_t)                     \
-+                                                                        \
-+/* Shared ring entry */                                                 \
-+union __name##_sring_entry {                                            \
-+    __req_t req;                                                        \
-+    __rsp_t rsp;                                                        \
-+};                                                                      \
-+                                                                        \
-+/* Shared ring page */                                                  \
-+struct __name##_sring {                                                 \
-+    RING_IDX req_prod, req_event;                                       \
-+    RING_IDX rsp_prod, rsp_event;                                       \
-+    uint8_t  pad[48];                                                   \
-+    union __name##_sring_entry ring[1]; /* variable-length */           \
-+};                                                                      \
-+                                                                        \
-+/* "Front" end's private variables */                                   \
-+struct __name##_front_ring {                                            \
-+    RING_IDX req_prod_pvt;                                              \
-+    RING_IDX rsp_cons;                                                  \
-+    unsigned int nr_ents;                                               \
-+    struct __name##_sring *sring;                                       \
-+};                                                                      \
-+                                                                        \
-+/* "Back" end's private variables */                                    \
-+struct __name##_back_ring {                                             \
-+    RING_IDX rsp_prod_pvt;                                              \
-+    RING_IDX req_cons;                                                  \
-+    unsigned int nr_ents;                                               \
-+    struct __name##_sring *sring;                                       \
-+};
-+
-+/*
-+ * Macros for manipulating rings.
-+ * =
-
-+ * FRONT_RING_whatever works on the "front end" of a ring: here =
-
-+ * requests are pushed on to the ring and responses taken off it.
-+ * =
-
-+ * BACK_RING_whatever works on the "back end" of a ring: here =
-
-+ * requests are taken off the ring and responses put on.
-+ * =
-
-+ * N.B. these macros do NO INTERLOCKS OR FLOW CONTROL. =
-
-+ * This is OK in 1-for-1 request-response situations where the =
-
-+ * requestor (front end) never has more than RING_SIZE()-1
-+ * outstanding requests.
-+ */
-+
-+/* Initialising empty rings */
-+#define SHARED_RING_INIT(_s) do {                                       \
-+    (_s)->req_prod  =3D (_s)->rsp_prod  =3D 0;                            =
-  \
-+    (_s)->req_event =3D (_s)->rsp_event =3D 1;                            =
-  \
-+    memset((_s)->pad, 0, sizeof((_s)->pad));                            \
-+} while(0)
-+
-+#define FRONT_RING_INIT(_r, _s, __size) do {                            \
-+    (_r)->req_prod_pvt =3D 0;                                             \
-+    (_r)->rsp_cons =3D 0;                                                 \
-+    (_r)->nr_ents =3D __RING_SIZE(_s, __size);                            \
-+    (_r)->sring =3D (_s);                                                 \
-+} while (0)
-+
-+#define BACK_RING_INIT(_r, _s, __size) do {                             \
-+    (_r)->rsp_prod_pvt =3D 0;                                             \
-+    (_r)->req_cons =3D 0;                                                 \
-+    (_r)->nr_ents =3D __RING_SIZE(_s, __size);                            \
-+    (_r)->sring =3D (_s);                                                 \
-+} while (0)
-+
-+/* Initialize to existing shared indexes -- for recovery */
-+#define FRONT_RING_ATTACH(_r, _s, __size) do {                          \
-+    (_r)->sring =3D (_s);                                                 \
-+    (_r)->req_prod_pvt =3D (_s)->req_prod;                                \
-+    (_r)->rsp_cons =3D (_s)->rsp_prod;                                    \
-+    (_r)->nr_ents =3D __RING_SIZE(_s, __size);                            \
-+} while (0)
-+
-+#define BACK_RING_ATTACH(_r, _s, __size) do {                           \
-+    (_r)->sring =3D (_s);                                                 \
-+    (_r)->rsp_prod_pvt =3D (_s)->rsp_prod;                                \
-+    (_r)->req_cons =3D (_s)->req_prod;                                    \
-+    (_r)->nr_ents =3D __RING_SIZE(_s, __size);                            \
-+} while (0)
-+
-+/* How big is this ring? */
-+#define RING_SIZE(_r)                                                   \
-+    ((_r)->nr_ents)
-+
-+/* Number of free requests (for use on front side only). */
-+#define RING_FREE_REQUESTS(_r)						\
-+    (RING_SIZE(_r) - ((_r)->req_prod_pvt - (_r)->rsp_cons))
-+
-+/* Test if there is an empty slot available on the front ring.
-+ * (This is only meaningful from the front. )
-+ */
-+#define RING_FULL(_r)                                                   \
-+    (RING_FREE_REQUESTS(_r) =3D=3D 0)
-+
-+/* Test if there are outstanding messages to be processed on a ring. */
-+#define RING_HAS_UNCONSUMED_RESPONSES(_r)                               \
-+    ((_r)->sring->rsp_prod - (_r)->rsp_cons)
-+
-+#define RING_HAS_UNCONSUMED_REQUESTS(_r)                                \
-+    ({									\
-+	unsigned int req =3D (_r)->sring->req_prod - (_r)->req_cons;	\
-+	unsigned int rsp =3D RING_SIZE(_r) -				\
-+			   ((_r)->req_cons - (_r)->rsp_prod_pvt);	\
-+	req < rsp ? req : rsp;						\
-+    })
-+
-+/* Direct access to individual ring elements, by index. */
-+#define RING_GET_REQUEST(_r, _idx)                                      \
-+    (&((_r)->sring->ring[((_idx) & (RING_SIZE(_r) - 1))].req))
-+
-+#define RING_GET_RESPONSE(_r, _idx)                                     \
-+    (&((_r)->sring->ring[((_idx) & (RING_SIZE(_r) - 1))].rsp))
-+
-+/* Loop termination condition: Would the specified index overflow the ring=
-? */
-+#define RING_REQUEST_CONS_OVERFLOW(_r, _cons)                           \
-+    (((_cons) - (_r)->rsp_prod_pvt) >=3D RING_SIZE(_r))
-+
-+#define RING_PUSH_REQUESTS(_r) do {                                     \
-+    wmb(); /* back sees requests /before/ updated producer index */     \
-+    (_r)->sring->req_prod =3D (_r)->req_prod_pvt;                         \
-+} while (0)
-+
-+#define RING_PUSH_RESPONSES(_r) do {                                    \
-+    wmb(); /* front sees responses /before/ updated producer index */   \
-+    (_r)->sring->rsp_prod =3D (_r)->rsp_prod_pvt;                         \
-+} while (0)
-+
-+/*
-+ * Notification hold-off (req_event and rsp_event):
-+ * =
-
-+ * When queueing requests or responses on a shared ring, it may not always=
- be
-+ * necessary to notify the remote end. For example, if requests are in fli=
-ght
-+ * in a backend, the front may be able to queue further requests without
-+ * notifying the back (if the back checks for new requests when it queues
-+ * responses).
-+ * =
-
-+ * When enqueuing requests or responses:
-+ * =
-
-+ *  Use RING_PUSH_{REQUESTS,RESPONSES}_AND_CHECK_NOTIFY(). The second argu=
-ment
-+ *  is a boolean return value. True indicates that the receiver requires an
-+ *  asynchronous notification.
-+ * =
-
-+ * After dequeuing requests or responses (before sleeping the connection):
-+ * =
-
-+ *  Use RING_FINAL_CHECK_FOR_REQUESTS() or RING_FINAL_CHECK_FOR_RESPONSES(=
-).
-+ *  The second argument is a boolean return value. True indicates that the=
-re
-+ *  are pending messages on the ring (i.e., the connection should not be p=
-ut
-+ *  to sleep).
-+ * =
-
-+ *  These macros will set the req_event/rsp_event field to trigger a
-+ *  notification on the very next message that is enqueued. If you want to
-+ *  create batches of work (i.e., only receive a notification after several
-+ *  messages have been enqueued) then you will need to create a customised
-+ *  version of the FINAL_CHECK macro in your own code, which sets the event
-+ *  field appropriately.
-+ */
-+
-+#define RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(_r, _notify) do {           \
-+    RING_IDX __old =3D (_r)->sring->req_prod;                             \
-+    RING_IDX __new =3D (_r)->req_prod_pvt;                                \
-+    wmb(); /* back sees requests /before/ updated producer index */     \
-+    (_r)->sring->req_prod =3D __new;                                      \
-+    mb(); /* back sees new requests /before/ we check req_event */      \
-+    (_notify) =3D ((RING_IDX)(__new - (_r)->sring->req_event) <           \
-+                 (RING_IDX)(__new - __old));                            \
-+} while (0)
-+
-+#define RING_PUSH_RESPONSES_AND_CHECK_NOTIFY(_r, _notify) do {          \
-+    RING_IDX __old =3D (_r)->sring->rsp_prod;                             \
-+    RING_IDX __new =3D (_r)->rsp_prod_pvt;                                \
-+    wmb(); /* front sees responses /before/ updated producer index */   \
-+    (_r)->sring->rsp_prod =3D __new;                                      \
-+    mb(); /* front sees new responses /before/ we check rsp_event */    \
-+    (_notify) =3D ((RING_IDX)(__new - (_r)->sring->rsp_event) <           \
-+                 (RING_IDX)(__new - __old));                            \
-+} while (0)
-+
-+#define RING_FINAL_CHECK_FOR_REQUESTS(_r, _work_to_do) do {             \
-+    (_work_to_do) =3D RING_HAS_UNCONSUMED_REQUESTS(_r);                   \
-+    if (_work_to_do) break;                                             \
-+    (_r)->sring->req_event =3D (_r)->req_cons + 1;                        \
-+    mb();                                                               \
-+    (_work_to_do) =3D RING_HAS_UNCONSUMED_REQUESTS(_r);                   \
-+} while (0)
-+
-+#define RING_FINAL_CHECK_FOR_RESPONSES(_r, _work_to_do) do {            \
-+    (_work_to_do) =3D RING_HAS_UNCONSUMED_RESPONSES(_r);                  \
-+    if (_work_to_do) break;                                             \
-+    (_r)->sring->rsp_event =3D (_r)->rsp_cons + 1;                        \
-+    mb();                                                               \
-+    (_work_to_do) =3D RING_HAS_UNCONSUMED_RESPONSES(_r);                  \
-+} while (0)
-+
-+#endif /* __XEN_PUBLIC_IO_RING_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/io/xenbus.h
-@@ -0,0 +1,42 @@
-+/*************************************************************************=
-****
-+ * xenbus.h
-+ *
-+ * Xenbus protocol details.
-+ *
-+ * Copyright (C) 2005 XenSource Ltd.
-+ */
-+
-+#ifndef _XEN_PUBLIC_IO_XENBUS_H
-+#define _XEN_PUBLIC_IO_XENBUS_H
-+
-+/* The state of either end of the Xenbus, i.e. the current communication
-+   status of initialisation across the bus.  States here imply nothing abo=
-ut
-+   the state of the connection between the driver and the kernel's device
-+   layers.  */
-+enum xenbus_state
-+{
-+  XenbusStateUnknown      =3D 0,
-+  XenbusStateInitialising =3D 1,
-+  XenbusStateInitWait     =3D 2,  /* Finished early initialisation, but wa=
-iting
-+                                   for information from the peer or hotplug
-+				   scripts. */
-+  XenbusStateInitialised  =3D 3,  /* Initialised and waiting for a connect=
-ion
-+				   from the peer. */
-+  XenbusStateConnected    =3D 4,
-+  XenbusStateClosing      =3D 5,  /* The device is being closed due to an =
-error
-+				   or an unplug event. */
-+  XenbusStateClosed       =3D 6
-+
-+};
-+
-+#endif /* _XEN_PUBLIC_IO_XENBUS_H */
-+
-+/*
-+ * Local variables:
-+ *  c-file-style: "linux"
-+ *  indent-tabs-mode: t
-+ *  c-indent-level: 8
-+ *  c-basic-offset: 8
-+ *  tab-width: 8
-+ * End:
-+ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/io/xs_wire.h
-@@ -0,0 +1,87 @@
-+/*
-+ * Details of the "wire" protocol between Xen Store Daemon and client
-+ * library or guest kernel.
-+ * Copyright (C) 2005 Rusty Russell IBM Corporation
-+ */
-+
-+#ifndef _XS_WIRE_H
-+#define _XS_WIRE_H
-+
-+enum xsd_sockmsg_type
-+{
-+    XS_DEBUG,
-+    XS_DIRECTORY,
-+    XS_READ,
-+    XS_GET_PERMS,
-+    XS_WATCH,
-+    XS_UNWATCH,
-+    XS_TRANSACTION_START,
-+    XS_TRANSACTION_END,
-+    XS_INTRODUCE,
-+    XS_RELEASE,
-+    XS_GET_DOMAIN_PATH,
-+    XS_WRITE,
-+    XS_MKDIR,
-+    XS_RM,
-+    XS_SET_PERMS,
-+    XS_WATCH_EVENT,
-+    XS_ERROR,
-+    XS_IS_DOMAIN_INTRODUCED
-+};
-+
-+#define XS_WRITE_NONE "NONE"
-+#define XS_WRITE_CREATE "CREATE"
-+#define XS_WRITE_CREATE_EXCL "CREATE|EXCL"
-+
-+/* We hand errors as strings, for portability. */
-+struct xsd_errors
-+{
-+    int errnum;
-+    const char *errstring;
-+};
-+#define XSD_ERROR(x) { x, #x }
-+static struct xsd_errors xsd_errors[] __attribute__((unused)) =3D {
-+    XSD_ERROR(EINVAL),
-+    XSD_ERROR(EACCES),
-+    XSD_ERROR(EEXIST),
-+    XSD_ERROR(EISDIR),
-+    XSD_ERROR(ENOENT),
-+    XSD_ERROR(ENOMEM),
-+    XSD_ERROR(ENOSPC),
-+    XSD_ERROR(EIO),
-+    XSD_ERROR(ENOTEMPTY),
-+    XSD_ERROR(ENOSYS),
-+    XSD_ERROR(EROFS),
-+    XSD_ERROR(EBUSY),
-+    XSD_ERROR(EAGAIN),
-+    XSD_ERROR(EISCONN)
-+};
-+
-+struct xsd_sockmsg
-+{
-+    uint32_t type;  /* XS_??? */
-+    uint32_t req_id;/* Request identifier, echoed in daemon's response.  */
-+    uint32_t tx_id; /* Transaction id (0 if not related to a transaction).=
- */
-+    uint32_t len;   /* Length of data following this. */
-+
-+    /* Generally followed by nul-terminated string(s). */
-+};
-+
-+enum xs_watch_type
-+{
-+    XS_WATCH_PATH =3D 0,
-+    XS_WATCH_TOKEN
-+};
-+
-+/* Inter-domain shared memory communications. */
-+#define XENSTORE_RING_SIZE 1024
-+typedef uint32_t XENSTORE_RING_IDX;
-+#define MASK_XENSTORE_IDX(idx) ((idx) & (XENSTORE_RING_SIZE-1))
-+struct xenstore_domain_interface {
-+    char req[XENSTORE_RING_SIZE]; /* Requests to xenstore daemon. */
-+    char rsp[XENSTORE_RING_SIZE]; /* Replies and async watch events. */
-+    XENSTORE_RING_IDX req_cons, req_prod;
-+    XENSTORE_RING_IDX rsp_cons, rsp_prod;
-+};
-+
-+#endif /* _XS_WIRE_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/memory.h
-@@ -0,0 +1,145 @@
-+/*************************************************************************=
-*****
-+ * memory.h
-+ * =
-
-+ * Memory reservation and information.
-+ * =
-
-+ * Copyright (c) 2005, Keir Fraser <keir@xensource.com>
-+ */
-+
-+#ifndef __XEN_PUBLIC_MEMORY_H__
-+#define __XEN_PUBLIC_MEMORY_H__
-+
-+/*
-+ * Increase or decrease the specified domain's memory reservation. Returns=
- a
-+ * -ve errcode on failure, or the # extents successfully allocated or free=
-d.
-+ * arg =3D=3D addr of struct xen_memory_reservation.
-+ */
-+#define XENMEM_increase_reservation 0
-+#define XENMEM_decrease_reservation 1
-+#define XENMEM_populate_physmap     6
-+struct xen_memory_reservation {
-+
-+    /*
-+     * XENMEM_increase_reservation:
-+     *   OUT: MFN (*not* GMFN) bases of extents that were allocated
-+     * XENMEM_decrease_reservation:
-+     *   IN:  GMFN bases of extents to free
-+     * XENMEM_populate_physmap:
-+     *   IN:  GPFN bases of extents to populate with memory
-+     *   OUT: GMFN bases of extents that were allocated
-+     *   (NB. This command also updates the mach_to_phys translation table)
-+     */
-+    GUEST_HANDLE(ulong) extent_start;
-+
-+    /* Number of extents, and size/alignment of each (2^extent_order pages=
-). */
-+    unsigned long  nr_extents;
-+    unsigned int   extent_order;
-+
-+    /*
-+     * Maximum # bits addressable by the user of the allocated region (e.g=
-., =
-
-+     * I/O devices often have a 32-bit limitation even in 64-bit systems).=
- If =
-
-+     * zero then the user has no addressing restriction.
-+     * This field is not used by XENMEM_decrease_reservation.
-+     */
-+    unsigned int   address_bits;
-+
-+    /*
-+     * Domain whose reservation is being changed.
-+     * Unprivileged domains can specify only DOMID_SELF.
-+     */
-+    domid_t        domid;
-+
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(xen_memory_reservation);
-+
-+/*
-+ * Returns the maximum machine frame number of mapped RAM in this system.
-+ * This command always succeeds (it never returns an error code).
-+ * arg =3D=3D NULL.
-+ */
-+#define XENMEM_maximum_ram_page     2
-+
-+/*
-+ * Returns the current or maximum memory reservation, in pages, of the
-+ * specified domain (may be DOMID_SELF). Returns -ve errcode on failure.
-+ * arg =3D=3D addr of domid_t.
-+ */
-+#define XENMEM_current_reservation  3
-+#define XENMEM_maximum_reservation  4
-+
-+/*
-+ * Returns a list of MFN bases of 2MB extents comprising the machine_to_ph=
-ys
-+ * mapping table. Architectures which do not have a m2p table do not imple=
-ment
-+ * this command.
-+ * arg =3D=3D addr of xen_machphys_mfn_list_t.
-+ */
-+#define XENMEM_machphys_mfn_list    5
-+struct xen_machphys_mfn_list {
-+    /*
-+     * Size of the 'extent_start' array. Fewer entries will be filled if t=
-he
-+     * machphys table is smaller than max_extents * 2MB.
-+     */
-+    unsigned int max_extents;
-+
-+    /*
-+     * Pointer to buffer to fill with list of extent starts. If there are
-+     * any large discontiguities in the machine address space, 2MB gaps in
-+     * the machphys table will be represented by an MFN base of zero.
-+     */
-+    GUEST_HANDLE(ulong) extent_start;
-+
-+    /*
-+     * Number of extents written to the above array. This will be smaller
-+     * than 'max_extents' if the machphys table is smaller than max_e * 2M=
-B.
-+     */
-+    unsigned int nr_extents;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(xen_machphys_mfn_list);
-+
-+/*
-+ * Sets the GPFN at which a particular page appears in the specified guest=
-'s
-+ * pseudophysical address space.
-+ * arg =3D=3D addr of xen_add_to_physmap_t.
-+ */
-+#define XENMEM_add_to_physmap      7
-+struct xen_add_to_physmap {
-+    /* Which domain to change the mapping for. */
-+    domid_t domid;
-+
-+    /* Source mapping space. */
-+#define XENMAPSPACE_shared_info 0 /* shared info page */
-+#define XENMAPSPACE_grant_table 1 /* grant table page */
-+    unsigned int space;
-+
-+    /* Index into source mapping space. */
-+    unsigned long idx;
-+
-+    /* GPFN where the source mapping page should appear. */
-+    unsigned long gpfn;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(xen_add_to_physmap);
-+
-+/*
-+ * Translates a list of domain-specific GPFNs into MFNs. Returns a -ve err=
-or
-+ * code on failure. This call only works for auto-translated guests.
-+ */
-+#define XENMEM_translate_gpfn_list  8
-+struct xen_translate_gpfn_list {
-+    /* Which domain to translate for? */
-+    domid_t domid;
-+
-+    /* Length of list. */
-+    unsigned long nr_gpfns;
-+
-+    /* List of GPFNs to translate. */
-+    GUEST_HANDLE(ulong) gpfn_list;
-+
-+    /*
-+     * Output list to contain MFN translations. May be the same as the inp=
-ut
-+     * list (in which case each input GPFN is overwritten with the output =
-MFN).
-+     */
-+    GUEST_HANDLE(ulong) mfn_list;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(xen_translate_gpfn_list);
-+
-+#endif /* __XEN_PUBLIC_MEMORY_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/physdev.h
-@@ -0,0 +1,61 @@
-+
-+#ifndef __XEN_PUBLIC_PHYSDEV_H__
-+#define __XEN_PUBLIC_PHYSDEV_H__
-+
-+/* Commands to HYPERVISOR_physdev_op() */
-+#define PHYSDEVOP_IRQ_UNMASK_NOTIFY     4
-+#define PHYSDEVOP_IRQ_STATUS_QUERY      5
-+#define PHYSDEVOP_SET_IOPL              6
-+#define PHYSDEVOP_SET_IOBITMAP          7
-+#define PHYSDEVOP_APIC_READ             8
-+#define PHYSDEVOP_APIC_WRITE            9
-+#define PHYSDEVOP_ASSIGN_VECTOR         10
-+
-+struct physdevop_irq_status_query {
-+    /* IN */
-+    uint32_t irq;
-+    /* OUT */
-+/* Need to call PHYSDEVOP_IRQ_UNMASK_NOTIFY when the IRQ has been serviced=
-? */
-+#define PHYSDEVOP_IRQ_NEEDS_UNMASK_NOTIFY (1<<0)
-+    uint32_t flags;
-+};
-+
-+struct physdevop_set_iopl {
-+    /* IN */
-+    uint32_t iopl;
-+};
-+
-+struct physdevop_set_iobitmap {
-+    /* IN */
-+    uint8_t *bitmap;
-+    uint32_t nr_ports;
-+};
-+
-+struct physdevop_apic {
-+    /* IN */
-+    unsigned long apic_physbase;
-+    uint32_t reg;
-+    /* IN or OUT */
-+    uint32_t value;
-+};
-+
-+struct physdevop_irq {
-+    /* IN */
-+    uint32_t irq;
-+    /* OUT */
-+    uint32_t vector;
-+};
-+
-+struct physdev_op {
-+    uint32_t cmd;
-+    union {
-+        struct physdevop_irq_status_query      irq_status_query;
-+        struct physdevop_set_iopl              set_iopl;
-+        struct physdevop_set_iobitmap          set_iobitmap;
-+        struct physdevop_apic                  apic_op;
-+        struct physdevop_irq                   irq_op;
-+    } u;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(physdev_op);
-+
-+#endif /* __XEN_PUBLIC_PHYSDEV_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/sched.h
-@@ -0,0 +1,77 @@
-+/*************************************************************************=
-*****
-+ * sched.h
-+ * =
-
-+ * Scheduler state interactions
-+ * =
-
-+ * Copyright (c) 2005, Keir Fraser <keir@xensource.com>
-+ */
-+
-+#ifndef __XEN_PUBLIC_SCHED_H__
-+#define __XEN_PUBLIC_SCHED_H__
-+
-+#include "event_channel.h"
-+
-+/*
-+ * The prototype for this hypercall is:
-+ *  long sched_op_new(int cmd, void *arg)
-+ * @cmd =3D=3D SCHEDOP_??? (scheduler operation).
-+ * @arg =3D=3D Operation-specific extra argument(s), as described below.
-+ * =
-
-+ * **NOTE**:
-+ * Versions of Xen prior to 3.0.2 provide only the following legacy version
-+ * of this hypercall, supporting only the commands yield, block and shutdo=
-wn:
-+ *  long sched_op(int cmd, unsigned long arg)
-+ * @cmd =3D=3D SCHEDOP_??? (scheduler operation).
-+ * @arg =3D=3D 0               (SCHEDOP_yield and SCHEDOP_block)
-+ *      =3D=3D SHUTDOWN_* code (SCHEDOP_shutdown)
-+ */
-+
-+/*
-+ * Voluntarily yield the CPU.
-+ * @arg =3D=3D NULL.
-+ */
-+#define SCHEDOP_yield       0
-+
-+/*
-+ * Block execution of this VCPU until an event is received for processing.
-+ * If called with event upcalls masked, this operation will atomically
-+ * reenable event delivery and check for pending events before blocking the
-+ * VCPU. This avoids a "wakeup waiting" race.
-+ * @arg =3D=3D NULL.
-+ */
-+#define SCHEDOP_block       1
-+
-+/*
-+ * Halt execution of this domain (all VCPUs) and notify the system control=
-ler.
-+ * @arg =3D=3D pointer to sched_shutdown structure.
-+ */
-+#define SCHEDOP_shutdown    2
-+struct sched_shutdown {
-+    unsigned int reason; /* SHUTDOWN_* */
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(sched_shutdown);
-+
-+/*
-+ * Poll a set of event-channel ports. Return when one or more are pending.=
- An
-+ * optional timeout may be specified.
-+ * @arg =3D=3D pointer to sched_poll structure.
-+ */
-+#define SCHEDOP_poll        3
-+struct sched_poll {
-+    GUEST_HANDLE(evtchn_port_t) ports;
-+    unsigned int nr_ports;
-+    uint64_t timeout;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
-+
-+/*
-+ * Reason codes for SCHEDOP_shutdown. These may be interpreted by control
-+ * software to determine the appropriate action. For the most part, Xen do=
-es
-+ * not care about the shutdown code.
-+ */
-+#define SHUTDOWN_poweroff   0  /* Domain exited normally. Clean up and kil=
-l. */
-+#define SHUTDOWN_reboot     1  /* Clean up, kill, and then restart.       =
-   */
-+#define SHUTDOWN_suspend    2  /* Clean up, save suspend info, kill.      =
-   */
-+#define SHUTDOWN_crash      3  /* Tell controller we've crashed.          =
-   */
-+
-+#endif /* __XEN_PUBLIC_SCHED_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/vcpu.h
-@@ -0,0 +1,109 @@
-+/*************************************************************************=
-*****
-+ * vcpu.h
-+ * =
-
-+ * VCPU initialisation, query, and hotplug.
-+ * =
-
-+ * Copyright (c) 2005, Keir Fraser <keir@xensource.com>
-+ */
-+
-+#ifndef __XEN_PUBLIC_VCPU_H__
-+#define __XEN_PUBLIC_VCPU_H__
-+
-+/*
-+ * Prototype for this hypercall is:
-+ *  int vcpu_op(int cmd, int vcpuid, void *extra_args)
-+ * @cmd        =3D=3D VCPUOP_??? (VCPU operation).
-+ * @vcpuid     =3D=3D VCPU to operate on.
-+ * @extra_args =3D=3D Operation-specific extra arguments (NULL if none).
-+ */
-+
-+/*
-+ * Initialise a VCPU. Each VCPU can be initialised only once. A =
-
-+ * newly-initialised VCPU will not run until it is brought up by VCPUOP_up.
-+ * =
-
-+ * @extra_arg =3D=3D pointer to vcpu_guest_context structure containing in=
-itial
-+ *               state for the VCPU.
-+ */
-+#define VCPUOP_initialise           0
-+
-+/*
-+ * Bring up a VCPU. This makes the VCPU runnable. This operation will fail
-+ * if the VCPU has not been initialised (VCPUOP_initialise).
-+ */
-+#define VCPUOP_up                   1
-+
-+/*
-+ * Bring down a VCPU (i.e., make it non-runnable).
-+ * There are a few caveats that callers should observe:
-+ *  1. This operation may return, and VCPU_is_up may return false, before =
-the
-+ *     VCPU stops running (i.e., the command is asynchronous). It is a good
-+ *     idea to ensure that the VCPU has entered a non-critical loop before
-+ *     bringing it down. Alternatively, this operation is guaranteed
-+ *     synchronous if invoked by the VCPU itself.
-+ *  2. After a VCPU is initialised, there is currently no way to drop all =
-its
-+ *     references to domain memory. Even a VCPU that is down still holds
-+ *     memory references via its pagetable base pointer and GDT. It is good
-+ *     practise to move a VCPU onto an 'idle' or default page table, LDT a=
-nd
-+ *     GDT before bringing it down.
-+ */
-+#define VCPUOP_down                 2
-+
-+/* Returns 1 if the given VCPU is up. */
-+#define VCPUOP_is_up                3
-+
-+/*
-+ * Return information about the state and running time of a VCPU.
-+ * @extra_arg =3D=3D pointer to vcpu_runstate_info structure.
-+ */
-+#define VCPUOP_get_runstate_info    4
-+struct vcpu_runstate_info {
-+    /* VCPU's current state (RUNSTATE_*). */
-+    int      state;
-+    /* When was current state entered (system time, ns)? */
-+    uint64_t state_entry_time;
-+    /*
-+     * Time spent in each RUNSTATE_* (ns). The sum of these times is
-+     * guaranteed not to drift from system time.
-+     */
-+    uint64_t time[4];
-+};
-+
-+/* VCPU is currently running on a physical CPU. */
-+#define RUNSTATE_running  0
-+
-+/* VCPU is runnable, but not currently scheduled on any physical CPU. */
-+#define RUNSTATE_runnable 1
-+
-+/* VCPU is blocked (a.k.a. idle). It is therefore not runnable. */
-+#define RUNSTATE_blocked  2
-+
-+/*
-+ * VCPU is not runnable, but it is not blocked.
-+ * This is a 'catch all' state for things like hotplug and pauses by the
-+ * system administrator (or for critical sections in the hypervisor).
-+ * RUNSTATE_blocked dominates this state (it is the preferred state).
-+ */
-+#define RUNSTATE_offline  3
-+
-+/*
-+ * Register a shared memory area from which the guest may obtain its own
-+ * runstate information without needing to execute a hypercall.
-+ * Notes:
-+ *  1. The registered address may be virtual or physical, depending on the
-+ *     platform. The virtual address should be registered on x86 systems.
-+ *  2. Only one shared area may be registered per VCPU. The shared area is
-+ *     updated by the hypervisor each time the VCPU is scheduled. Thus
-+ *     runstate.state will always be RUNSTATE_running and
-+ *     runstate.state_entry_time will indicate the system time at which the
-+ *     VCPU was last scheduled to run.
-+ * @extra_arg =3D=3D pointer to vcpu_register_runstate_memory_area structu=
-re.
-+ */
-+#define VCPUOP_register_runstate_memory_area 5
-+struct vcpu_register_runstate_memory_area {
-+    union {
-+        struct vcpu_runstate_info *v;
-+        uint64_t p;
-+    } addr;
-+};
-+
-+#endif /* __XEN_PUBLIC_VCPU_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/version.h
-@@ -0,0 +1,60 @@
-+/*************************************************************************=
-*****
-+ * version.h
-+ * =
-
-+ * Xen version, type, and compile information.
-+ * =
-
-+ * Copyright (c) 2005, Nguyen Anh Quynh <aquynh@gmail.com>
-+ * Copyright (c) 2005, Keir Fraser <keir@xensource.com>
-+ */
-+
-+#ifndef __XEN_PUBLIC_VERSION_H__
-+#define __XEN_PUBLIC_VERSION_H__
-+
-+/* NB. All ops return zero on success, except XENVER_version. */
-+
-+/* arg =3D=3D NULL; returns major:minor (16:16). */
-+#define XENVER_version      0
-+
-+/* arg =3D=3D xen_extraversion_t. */
-+#define XENVER_extraversion 1
-+struct xen_extraversion {
-+    char extraversion[16];
-+};
-+#define XEN_EXTRAVERSION_LEN (sizeof(struct xen_extraversion))
-+
-+/* arg =3D=3D xen_compile_info_t. */
-+#define XENVER_compile_info 2
-+struct xen_compile_info {
-+    char compiler[64];
-+    char compile_by[16];
-+    char compile_domain[32];
-+    char compile_date[32];
-+};
-+
-+#define XENVER_capabilities 3
-+struct xen_capabilities_info {
-+    char info[1024];
-+};
-+#define XEN_CAPABILITIES_INFO_LEN (sizeof(struct xen_capabilities_info))
-+
-+#define XENVER_changeset 4
-+struct xen_changeset_info {
-+    char info[64];
-+};
-+#define XEN_CHANGESET_INFO_LEN (sizeof(struct xen_changeset_info))
-+
-+#define XENVER_platform_parameters 5
-+struct xen_platform_parameters {
-+    unsigned long virt_start;
-+};
-+
-+#define XENVER_get_features 6
-+struct xen_feature_info {
-+    unsigned int submap_idx;    /* IN: which 32-bit submap to return */
-+    uint32_t     submap;        /* OUT: 32-bit submap */
-+};
-+
-+/* Declares the features reported by XENVER_get_features. */
-+#include "features.h"
-+
-+#endif /* __XEN_PUBLIC_VERSION_H__ */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/interface/xen.h
-@@ -0,0 +1,445 @@
-+/*************************************************************************=
-*****
-+ * xen.h
-+ * =
-
-+ * Guest OS interface to Xen.
-+ * =
-
-+ * Copyright (c) 2004, K A Fraser
-+ */
-+
-+#ifndef __XEN_PUBLIC_XEN_H__
-+#define __XEN_PUBLIC_XEN_H__
-+
-+#include <asm/xen/interface.h>
-+
-+/*
-+ * XEN "SYSTEM CALLS" (a.k.a. HYPERCALLS).
-+ */
-+
-+/*
-+ * x86_32: EAX =3D vector; EBX, ECX, EDX, ESI, EDI =3D args 1, 2, 3, 4, 5.
-+ *         EAX =3D return value
-+ *         (argument registers may be clobbered on return)
-+ * x86_64: RAX =3D vector; RDI, RSI, RDX, R10, R8, R9 =3D args 1, 2, 3, 4,=
- 5, 6. =
-
-+ *         RAX =3D return value
-+ *         (argument registers not clobbered on return; RCX, R11 are)
-+ */
-+#define __HYPERVISOR_set_trap_table        0
-+#define __HYPERVISOR_mmu_update            1
-+#define __HYPERVISOR_set_gdt               2
-+#define __HYPERVISOR_stack_switch          3
-+#define __HYPERVISOR_set_callbacks         4
-+#define __HYPERVISOR_fpu_taskswitch        5
-+#define __HYPERVISOR_sched_op              6
-+#define __HYPERVISOR_dom0_op               7
-+#define __HYPERVISOR_set_debugreg          8
-+#define __HYPERVISOR_get_debugreg          9
-+#define __HYPERVISOR_update_descriptor    10
-+#define __HYPERVISOR_memory_op            12
-+#define __HYPERVISOR_multicall            13
-+#define __HYPERVISOR_update_va_mapping    14
-+#define __HYPERVISOR_set_timer_op         15
-+#define __HYPERVISOR_event_channel_op_compat 16
-+#define __HYPERVISOR_xen_version          17
-+#define __HYPERVISOR_console_io           18
-+#define __HYPERVISOR_physdev_op_compat    19
-+#define __HYPERVISOR_grant_table_op       20
-+#define __HYPERVISOR_vm_assist            21
-+#define __HYPERVISOR_update_va_mapping_otherdomain 22
-+#define __HYPERVISOR_iret                 23 /* x86 only */
-+#define __HYPERVISOR_vcpu_op              24
-+#define __HYPERVISOR_set_segment_base     25 /* x86/64 only */
-+#define __HYPERVISOR_mmuext_op            26
-+#define __HYPERVISOR_acm_op               27
-+#define __HYPERVISOR_nmi_op               28
-+#define __HYPERVISOR_sched_op_new         29
-+#define __HYPERVISOR_callback_op          30
-+#define __HYPERVISOR_xenoprof_op          31
-+#define __HYPERVISOR_event_channel_op     32
-+#define __HYPERVISOR_physdev_op           33
-+#define __HYPERVISOR_hvm_op               34
-+
-+/* =
-
-+ * VIRTUAL INTERRUPTS
-+ * =
-
-+ * Virtual interrupts that a guest OS may receive from Xen.
-+ */
-+#define VIRQ_TIMER      0  /* Timebase update, and/or requested timeout.  =
-*/
-+#define VIRQ_DEBUG      1  /* Request guest to dump debug info.           =
-*/
-+#define VIRQ_CONSOLE    2  /* (DOM0) Bytes received on emergency console. =
-*/
-+#define VIRQ_DOM_EXC    3  /* (DOM0) Exceptional event for some domain.   =
-*/
-+#define VIRQ_DEBUGGER   6  /* (DOM0) A domain has paused for debugging.   =
-*/
-+#define NR_VIRQS        8
-+
-+/*
-+ * MMU-UPDATE REQUESTS
-+ * =
-
-+ * HYPERVISOR_mmu_update() accepts a list of (ptr, val) pairs.
-+ * A foreigndom (FD) can be specified (or DOMID_SELF for none).
-+ * Where the FD has some effect, it is described below.
-+ * ptr[1:0] specifies the appropriate MMU_* command.
-+ * =
-
-+ * ptr[1:0] =3D=3D MMU_NORMAL_PT_UPDATE:
-+ * Updates an entry in a page table. If updating an L1 table, and the new
-+ * table entry is valid/present, the mapped frame must belong to the FD, if
-+ * an FD has been specified. If attempting to map an I/O page then the
-+ * caller assumes the privilege of the FD.
-+ * FD =3D=3D DOMID_IO: Permit /only/ I/O mappings, at the priv level of th=
-e caller.
-+ * FD =3D=3D DOMID_XEN: Map restricted areas of Xen's heap space.
-+ * ptr[:2]  -- Machine address of the page-table entry to modify.
-+ * val      -- Value to write.
-+ * =
-
-+ * ptr[1:0] =3D=3D MMU_MACHPHYS_UPDATE:
-+ * Updates an entry in the machine->pseudo-physical mapping table.
-+ * ptr[:2]  -- Machine address within the frame whose mapping to modify.
-+ *             The frame must belong to the FD, if one is specified.
-+ * val      -- Value to write into the mapping entry.
-+ */
-+#define MMU_NORMAL_PT_UPDATE     0 /* checked '*ptr =3D val'. ptr is MA.  =
-     */
-+#define MMU_MACHPHYS_UPDATE      1 /* ptr =3D MA of frame to modify entry =
-for  */
-+
-+/*
-+ * MMU EXTENDED OPERATIONS
-+ * =
-
-+ * HYPERVISOR_mmuext_op() accepts a list of mmuext_op structures.
-+ * A foreigndom (FD) can be specified (or DOMID_SELF for none).
-+ * Where the FD has some effect, it is described below.
-+ * =
-
-+ * cmd: MMUEXT_(UN)PIN_*_TABLE
-+ * mfn: Machine frame number to be (un)pinned as a p.t. page.
-+ *      The frame must belong to the FD, if one is specified.
-+ * =
-
-+ * cmd: MMUEXT_NEW_BASEPTR
-+ * mfn: Machine frame number of new page-table base to install in MMU.
-+ * =
-
-+ * cmd: MMUEXT_NEW_USER_BASEPTR [x86/64 only]
-+ * mfn: Machine frame number of new page-table base to install in MMU
-+ *      when in user space.
-+ * =
-
-+ * cmd: MMUEXT_TLB_FLUSH_LOCAL
-+ * No additional arguments. Flushes local TLB.
-+ * =
-
-+ * cmd: MMUEXT_INVLPG_LOCAL
-+ * linear_addr: Linear address to be flushed from the local TLB.
-+ * =
-
-+ * cmd: MMUEXT_TLB_FLUSH_MULTI
-+ * vcpumask: Pointer to bitmap of VCPUs to be flushed.
-+ * =
-
-+ * cmd: MMUEXT_INVLPG_MULTI
-+ * linear_addr: Linear address to be flushed.
-+ * vcpumask: Pointer to bitmap of VCPUs to be flushed.
-+ * =
-
-+ * cmd: MMUEXT_TLB_FLUSH_ALL
-+ * No additional arguments. Flushes all VCPUs' TLBs.
-+ * =
-
-+ * cmd: MMUEXT_INVLPG_ALL
-+ * linear_addr: Linear address to be flushed from all VCPUs' TLBs.
-+ * =
-
-+ * cmd: MMUEXT_FLUSH_CACHE
-+ * No additional arguments. Writes back and flushes cache contents.
-+ * =
-
-+ * cmd: MMUEXT_SET_LDT
-+ * linear_addr: Linear address of LDT base (NB. must be page-aligned).
-+ * nr_ents: Number of entries in LDT.
-+ */
-+#define MMUEXT_PIN_L1_TABLE      0
-+#define MMUEXT_PIN_L2_TABLE      1
-+#define MMUEXT_PIN_L3_TABLE      2
-+#define MMUEXT_PIN_L4_TABLE      3
-+#define MMUEXT_UNPIN_TABLE       4
-+#define MMUEXT_NEW_BASEPTR       5
-+#define MMUEXT_TLB_FLUSH_LOCAL   6
-+#define MMUEXT_INVLPG_LOCAL      7
-+#define MMUEXT_TLB_FLUSH_MULTI   8
-+#define MMUEXT_INVLPG_MULTI      9
-+#define MMUEXT_TLB_FLUSH_ALL    10
-+#define MMUEXT_INVLPG_ALL       11
-+#define MMUEXT_FLUSH_CACHE      12
-+#define MMUEXT_SET_LDT          13
-+#define MMUEXT_NEW_USER_BASEPTR 15
-+
-+#ifndef __ASSEMBLY__
-+struct mmuext_op {
-+    unsigned int cmd;
-+    union {
-+        /* [UN]PIN_TABLE, NEW_BASEPTR, NEW_USER_BASEPTR */
-+        unsigned long mfn;
-+        /* INVLPG_LOCAL, INVLPG_ALL, SET_LDT */
-+        unsigned long linear_addr;
-+    } arg1;
-+    union {
-+        /* SET_LDT */
-+        unsigned int nr_ents;
-+        /* TLB_FLUSH_MULTI, INVLPG_MULTI */
-+        void *vcpumask;
-+    } arg2;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(mmuext_op);
++++ b/include/xen/page.h
+@@ -0,0 +1,175 @@
++#ifndef __XEN_PAGE_H
++#define __XEN_PAGE_H
++
++#include <linux/pfn.h>
++
++#include <asm/uaccess.h>
++
++#include <xen/features.h>
++
++#ifdef CONFIG_X86_PAE
++/* Xen machine address */
++typedef struct xmaddr {
++	unsigned long long maddr;
++} xmaddr_t;
++
++/* Xen pseudo-physical address */
++typedef struct xpaddr {
++	unsigned long long paddr;
++} xpaddr_t;
++#else
++/* Xen machine address */
++typedef struct xmaddr {
++	unsigned long maddr;
++} xmaddr_t;
++
++/* Xen pseudo-physical address */
++typedef struct xpaddr {
++	unsigned long paddr;
++} xpaddr_t;
 +#endif
 +
-+/* These are passed as 'flags' to update_va_mapping. They can be ORed. */
-+/* When specifying UVMF_MULTI, also OR in a pointer to a CPU bitmap.   */
-+/* UVMF_LOCAL is merely UVMF_MULTI with a NULL bitmap pointer.         */
-+#define UVMF_NONE               (0UL<<0) /* No flushing at all.   */
-+#define UVMF_TLB_FLUSH          (1UL<<0) /* Flush entire TLB(s).  */
-+#define UVMF_INVLPG             (2UL<<0) /* Flush only one entry. */
-+#define UVMF_FLUSHTYPE_MASK     (3UL<<0)
-+#define UVMF_MULTI              (0UL<<2) /* Flush subset of TLBs. */
-+#define UVMF_LOCAL              (0UL<<2) /* Flush local TLB.      */
-+#define UVMF_ALL                (1UL<<2) /* Flush all TLBs.       */
++#define XMADDR(x)	((xmaddr_t) { .maddr =3D (x) })
++#define XPADDR(x)	((xpaddr_t) { .paddr =3D (x) })
++
++/**** MACHINE <-> PHYSICAL CONVERSION MACROS ****/
++#define INVALID_P2M_ENTRY	(~0UL)
++#define FOREIGN_FRAME_BIT	(1UL<<31)
++#define FOREIGN_FRAME(m)	((m) | FOREIGN_FRAME_BIT)
++
++extern unsigned long *phys_to_machine_mapping;
++
++static inline unsigned long pfn_to_mfn(unsigned long pfn)
++{
++	if (xen_feature(XENFEAT_auto_translated_physmap))
++		return pfn;
++
++	return phys_to_machine_mapping[(unsigned int)(pfn)] &
++		~FOREIGN_FRAME_BIT;
++}
++
++static inline int phys_to_machine_mapping_valid(unsigned long pfn)
++{
++	if (xen_feature(XENFEAT_auto_translated_physmap))
++		return 1;
++
++	return (phys_to_machine_mapping[pfn] !=3D INVALID_P2M_ENTRY);
++}
++
++static inline unsigned long mfn_to_pfn(unsigned long mfn)
++{
++	unsigned long pfn;
++
++	if (xen_feature(XENFEAT_auto_translated_physmap))
++		return mfn;
++
++#if 0
++	if (unlikely((mfn >> machine_to_phys_order) !=3D 0))
++		return max_mapnr;
++#endif
++
++	pfn =3D 0;
++	/*
++	 * The array access can fail (e.g., device space beyond end of RAM).
++	 * In such cases it doesn't matter what we return (we return garbage),
++	 * but we must handle the fault without crashing!
++	 */
++	__get_user(pfn, &machine_to_phys_mapping[mfn]);
++
++	return pfn;
++}
++
++static inline xmaddr_t phys_to_machine(xpaddr_t phys)
++{
++	unsigned offset =3D phys.paddr & ~PAGE_MASK;
++	return XMADDR(PFN_PHYS(pfn_to_mfn(PFN_DOWN(phys.paddr))) | offset);
++}
++
++static inline xpaddr_t machine_to_phys(xmaddr_t machine)
++{
++	unsigned offset =3D machine.maddr & ~PAGE_MASK;
++	return XPADDR(PFN_PHYS(mfn_to_pfn(PFN_DOWN(machine.maddr))) | offset);
++}
 +
 +/*
-+ * Commands to HYPERVISOR_console_io().
++ * We detect special mappings in one of two ways:
++ *  1. If the MFN is an I/O page then Xen will set the m2p entry
++ *     to be outside our maximum possible pseudophys range.
++ *  2. If the MFN belongs to a different domain then we will certainly
++ *     not have MFN in our p2m table. Conversely, if the page is ours,
++ *     then we'll have p2m(m2p(MFN))=3D=3DMFN.
++ * If we detect a special mapping then it doesn't have a 'struct page'.
++ * We force !pfn_valid() by returning an out-of-range pointer.
++ *
++ * NB. These checks require that, for any MFN that is not in our reservati=
+on,
++ * there is no PFN such that p2m(PFN) =3D=3D MFN. Otherwise we can get con=
+fused if
++ * we are foreign-mapping the MFN, and the other domain as m2p(MFN) =3D=3D=
+ PFN.
++ * Yikes! Various places must poke in INVALID_P2M_ENTRY for safety.
++ *
++ * NB2. When deliberately mapping foreign pages into the p2m table, you *m=
+ust*
++ *      use FOREIGN_FRAME(). This will cause pte_pfn() to choke on it, as =
+we
++ *      require. In all the cases we care about, the FOREIGN_FRAME bit is
++ *      masked (e.g., pfn_to_mfn()) so behaviour there is correct.
 + */
-+#define CONSOLEIO_write         0
-+#define CONSOLEIO_read          1
++static inline unsigned long mfn_to_local_pfn(unsigned long mfn)
++{
++	extern unsigned long max_mapnr;
++	unsigned long pfn =3D mfn_to_pfn(mfn);
++	if ((pfn < max_mapnr)
++	    && !xen_feature(XENFEAT_auto_translated_physmap)
++	    && (phys_to_machine_mapping[pfn] !=3D mfn))
++		return max_mapnr; /* force !pfn_valid() */
++	return pfn;
++}
 +
-+/*
-+ * Commands to HYPERVISOR_vm_assist().
-+ */
-+#define VMASST_CMD_enable                0
-+#define VMASST_CMD_disable               1
-+#define VMASST_TYPE_4gb_segments         0
-+#define VMASST_TYPE_4gb_segments_notify  1
-+#define VMASST_TYPE_writable_pagetables  2
-+#define VMASST_TYPE_pae_extended_cr3     3
-+#define MAX_VMASST_TYPE 3
++static inline void set_phys_to_machine(unsigned long pfn, unsigned long mf=
+n)
++{
++	if (xen_feature(XENFEAT_auto_translated_physmap)) {
++		BUG_ON(pfn !=3D mfn && mfn !=3D INVALID_P2M_ENTRY);
++		return;
++	}
++	phys_to_machine_mapping[pfn] =3D mfn;
++}
 +
-+#ifndef __ASSEMBLY__
++/* VIRT <-> MACHINE conversion */
++#define virt_to_machine(v)	(phys_to_machine(XPADDR(__pa(v))))
++#define virt_to_mfn(v)		(pfn_to_mfn(PFN_DOWN(__pa(v))))
++#define mfn_to_virt(m)		(__va(mfn_to_pfn(m) << PAGE_SHIFT))
 +
-+typedef uint16_t domid_t;
++#ifdef CONFIG_X86_PAE
++#define pte_mfn(_pte) (((_pte).pte_low >> PAGE_SHIFT) |\
++                       (((_pte).pte_high & 0xfff) << (32-PAGE_SHIFT)))
 +
-+/* Domain ids >=3D DOMID_FIRST_RESERVED cannot be used for ordinary domain=
-s. */
-+#define DOMID_FIRST_RESERVED (0x7FF0U)
++static inline pte_t mfn_pte(unsigned long page_nr, pgprot_t pgprot)
++{
++	pte_t pte;
 +
-+/* DOMID_SELF is used in certain contexts to refer to oneself. */
-+#define DOMID_SELF (0x7FF0U)
++	pte.pte_high =3D (page_nr >> (32 - PAGE_SHIFT)) | (pgprot_val(pgprot) >> =
+32);
++	pte.pte_high &=3D (__supported_pte_mask >> 32);
++	pte.pte_low =3D ((page_nr << PAGE_SHIFT) | pgprot_val(pgprot));
++	pte.pte_low &=3D __supported_pte_mask;
 +
-+/*
-+ * DOMID_IO is used to restrict page-table updates to mapping I/O memory.
-+ * Although no Foreign Domain need be specified to map I/O pages, DOMID_IO
-+ * is useful to ensure that no mappings to the OS's own heap are accidenta=
-lly
-+ * installed. (e.g., in Linux this could cause havoc as reference counts
-+ * aren't adjusted on the I/O-mapping code path).
-+ * This only makes sense in MMUEXT_SET_FOREIGNDOM, but in that context can
-+ * be specified by any calling domain.
-+ */
-+#define DOMID_IO   (0x7FF1U)
++	return pte;
++}
 +
-+/*
-+ * DOMID_XEN is used to allow privileged domains to map restricted parts of
-+ * Xen's heap space (e.g., the machine_to_phys table).
-+ * This only makes sense in MMUEXT_SET_FOREIGNDOM, and is only permitted if
-+ * the caller is privileged.
-+ */
-+#define DOMID_XEN  (0x7FF2U)
++static inline unsigned long long pte_val_ma(pte_t x)
++{
++	return ((unsigned long long)x.pte_high << 32) | x.pte_low;
++}
++#define pmd_val_ma(v) ((v).pmd)
++#define pud_val_ma(v) ((v).pgd.pgd)
++#else  /* !X86_PAE */
++#define pte_mfn(_pte) ((_pte).pte_low >> PAGE_SHIFT)
++#define mfn_pte(pfn, prot)	__pte_ma(((pfn) << PAGE_SHIFT) | pgprot_val(pro=
+t))
++#define pte_val_ma(x)	((x).pte_low)
++#define pmd_val_ma(v)	((v).pud.pgd.pgd)
++#endif	/* CONFIG_X86_PAE */
++#define pgd_val_ma(x)	((x).pgd)
 +
-+/*
-+ * Send an array of these to HYPERVISOR_mmu_update().
-+ * NB. The fields are natural pointer/address size for this architecture.
-+ */
-+struct mmu_update {
-+    uint64_t ptr;       /* Machine address of PTE. */
-+    uint64_t val;       /* New contents of PTE.    */
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(mmu_update);
++#define __pte_ma(x)	((pte_t) { (x) } )
 +
-+/*
-+ * Send an array of these to HYPERVISOR_multicall().
-+ * NB. The fields are natural register size for this architecture.
-+ */
-+struct multicall_entry {
-+    unsigned long op, result;
-+    unsigned long args[6];
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(multicall_entry);
++xmaddr_t arbitrary_virt_to_machine(unsigned long address);
++void make_lowmem_page_readonly(void *vaddr);
++void make_lowmem_page_readwrite(void *vaddr);
 +
-+/*
-+ * Event channel endpoints per domain:
-+ *  1024 if a long is 32 bits; 4096 if a long is 64 bits.
-+ */
-+#define NR_EVENT_CHANNELS (sizeof(unsigned long) * sizeof(unsigned long) *=
- 64)
-+
-+struct vcpu_time_info {
-+    /*
-+     * Updates to the following values are preceded and followed by an
-+     * increment of 'version'. The guest can therefore detect updates by
-+     * looking for changes to 'version'. If the least-significant bit of
-+     * the version number is set then an update is in progress and the gue=
-st
-+     * must wait to read a consistent set of values.
-+     * The correct way to interact with the version number is similar to
-+     * Linux's seqlock: see the implementations of read_seqbegin/read_seqr=
-etry.
-+     */
-+    uint32_t version;
-+    uint32_t pad0;
-+    uint64_t tsc_timestamp;   /* TSC at last update of time vals.  */
-+    uint64_t system_time;     /* Time, in nanosecs, since boot.    */
-+    /*
-+     * Current system time:
-+     *   system_time + ((tsc - tsc_timestamp) << tsc_shift) * tsc_to_syste=
-m_mul
-+     * CPU frequency (Hz):
-+     *   ((10^9 << 32) / tsc_to_system_mul) >> tsc_shift
-+     */
-+    uint32_t tsc_to_system_mul;
-+    int8_t   tsc_shift;
-+    int8_t   pad1[3];
-+}; /* 32 bytes */
-+
-+struct vcpu_info {
-+    /*
-+     * 'evtchn_upcall_pending' is written non-zero by Xen to indicate
-+     * a pending notification for a particular VCPU. It is then cleared =
-
-+     * by the guest OS /before/ checking for pending work, thus avoiding
-+     * a set-and-check race. Note that the mask is only accessed by Xen
-+     * on the CPU that is currently hosting the VCPU. This means that the
-+     * pending and mask flags can be updated by the guest without special
-+     * synchronisation (i.e., no need for the x86 LOCK prefix).
-+     * This may seem suboptimal because if the pending flag is set by
-+     * a different CPU then an IPI may be scheduled even when the mask
-+     * is set. However, note:
-+     *  1. The task of 'interrupt holdoff' is covered by the per-event-
-+     *     channel mask bits. A 'noisy' event that is continually being
-+     *     triggered can be masked at source at this very precise
-+     *     granularity.
-+     *  2. The main purpose of the per-VCPU mask is therefore to restrict
-+     *     reentrant execution: whether for concurrency control, or to
-+     *     prevent unbounded stack usage. Whatever the purpose, we expect
-+     *     that the mask will be asserted only for short periods at a time,
-+     *     and so the likelihood of a 'spurious' IPI is suitably small.
-+     * The mask is read before making an event upcall to the guest: a
-+     * non-zero mask therefore guarantees that the VCPU will not receive
-+     * an upcall activation. The mask is cleared when the VCPU requests
-+     * to block: this avoids wakeup-waiting races.
-+     */
-+    uint8_t evtchn_upcall_pending;
-+    uint8_t evtchn_upcall_mask;
-+    unsigned long evtchn_pending_sel;
-+    struct arch_vcpu_info arch;
-+    struct vcpu_time_info time;
-+}; /* 64 bytes (x86) */
-+
-+/*
-+ * Xen/kernel shared data -- pointer provided in start_info.
-+ * NB. We expect that this struct is smaller than a page.
-+ */
-+struct shared_info {
-+    struct vcpu_info vcpu_info[MAX_VIRT_CPUS];
-+
-+    /*
-+     * A domain can create "event channels" on which it can send and recei=
-ve
-+     * asynchronous event notifications. There are three classes of event =
-that
-+     * are delivered by this mechanism:
-+     *  1. Bi-directional inter- and intra-domain connections. Domains must
-+     *     arrange out-of-band to set up a connection (usually by allocati=
-ng
-+     *     an unbound 'listener' port and avertising that via a storage se=
-rvice
-+     *     such as xenstore).
-+     *  2. Physical interrupts. A domain with suitable hardware-access
-+     *     privileges can bind an event-channel port to a physical interru=
-pt
-+     *     source.
-+     *  3. Virtual interrupts ('events'). A domain can bind an event-chann=
-el
-+     *     port to a virtual interrupt source, such as the virtual-timer
-+     *     device or the emergency console.
-+     * =
-
-+     * Event channels are addressed by a "port index". Each channel is
-+     * associated with two bits of information:
-+     *  1. PENDING -- notifies the domain that there is a pending notifica=
-tion
-+     *     to be processed. This bit is cleared by the guest.
-+     *  2. MASK -- if this bit is clear then a 0->1 transition of PENDING
-+     *     will cause an asynchronous upcall to be scheduled. This bit is =
-only
-+     *     updated by the guest. It is read-only within Xen. If a channel
-+     *     becomes pending while the channel is masked then the 'edge' is =
-lost
-+     *     (i.e., when the channel is unmasked, the guest must manually ha=
-ndle
-+     *     pending notifications as no upcall will be scheduled by Xen).
-+     * =
-
-+     * To expedite scanning of pending notifications, any 0->1 pending
-+     * transition on an unmasked channel causes a corresponding bit in a
-+     * per-vcpu selector word to be set. Each bit in the selector covers a
-+     * 'C long' in the PENDING bitfield array.
-+     */
-+    unsigned long evtchn_pending[sizeof(unsigned long) * 8];
-+    unsigned long evtchn_mask[sizeof(unsigned long) * 8];
-+
-+    /*
-+     * Wallclock time: updated only by control software. Guests should base
-+     * their gettimeofday() syscall on this wallclock-base value.
-+     */
-+    uint32_t wc_version;      /* Version counter: see vcpu_time_info_t. */
-+    uint32_t wc_sec;          /* Secs  00:00:00 UTC, Jan 1, 1970.  */
-+    uint32_t wc_nsec;         /* Nsecs 00:00:00 UTC, Jan 1, 1970.  */
-+
-+    struct arch_shared_info arch;
-+
-+};
-+
-+/*
-+ * Start-of-day memory layout for the initial domain (DOM0):
-+ *  1. The domain is started within contiguous virtual-memory region.
-+ *  2. The contiguous region begins and ends on an aligned 4MB boundary.
-+ *  3. The region start corresponds to the load address of the OS image.
-+ *     If the load address is not 4MB aligned then the address is rounded =
-down.
-+ *  4. This the order of bootstrap elements in the initial virtual region:
-+ *      a. relocated kernel image
-+ *      b. initial ram disk              [mod_start, mod_len]
-+ *      c. list of allocated page frames [mfn_list, nr_pages]
-+ *      d. start_info_t structure        [register ESI (x86)]
-+ *      e. bootstrap page tables         [pt_base, CR3 (x86)]
-+ *      f. bootstrap stack               [register ESP (x86)]
-+ *  5. Bootstrap elements are packed together, but each is 4kB-aligned.
-+ *  6. The initial ram disk may be omitted.
-+ *  7. The list of page frames forms a contiguous 'pseudo-physical' memory
-+ *     layout for the domain. In particular, the bootstrap virtual-memory
-+ *     region is a 1:1 mapping to the first section of the pseudo-physical=
- map.
-+ *  8. All bootstrap elements are mapped read-writable for the guest OS. T=
-he
-+ *     only exception is the bootstrap page table, which is mapped read-on=
-ly.
-+ *  9. There is guaranteed to be at least 512kB padding after the final
-+ *     bootstrap element. If necessary, the bootstrap virtual region is
-+ *     extended by an extra 4MB to ensure this.
-+ */
-+
-+#define MAX_GUEST_CMDLINE 1024
-+struct start_info {
-+    /* THE FOLLOWING ARE FILLED IN BOTH ON INITIAL BOOT AND ON RESUME.    =
-*/
-+    char magic[32];             /* "xen-<version>-<platform>".            =
-*/
-+    unsigned long nr_pages;     /* Total pages allocated to this domain.  =
-*/
-+    unsigned long shared_info;  /* MACHINE address of shared info struct. =
-*/
-+    uint32_t flags;             /* SIF_xxx flags.                         =
-*/
-+    unsigned long store_mfn;    /* MACHINE page number of shared page.    =
-*/
-+    uint32_t store_evtchn;      /* Event channel for store communication. =
-*/
-+    union {
-+        struct {
-+            unsigned long mfn;      /* MACHINE page number of console page=
-.   */
-+            uint32_t  evtchn;   /* Event channel for console page.        =
-*/
-+        } domU;
-+        struct {
-+            uint32_t info_off;  /* Offset of console_info struct.         =
-*/
-+            uint32_t info_size; /* Size of console_info struct from start.=
-*/
-+        } dom0;
-+    } console;
-+    /* THE FOLLOWING ARE ONLY FILLED IN ON INITIAL BOOT (NOT RESUME).     =
-*/
-+    unsigned long pt_base;      /* VIRTUAL address of page directory.     =
-*/
-+    unsigned long nr_pt_frames; /* Number of bootstrap p.t. frames.       =
-*/
-+    unsigned long mfn_list;     /* VIRTUAL address of page-frame list.    =
-*/
-+    unsigned long mod_start;    /* VIRTUAL address of pre-loaded module.  =
-*/
-+    unsigned long mod_len;      /* Size (bytes) of pre-loaded module.     =
-*/
-+    int8_t cmd_line[MAX_GUEST_CMDLINE];
-+};
-+
-+/* These flags are passed in the 'flags' field of start_info_t. */
-+#define SIF_PRIVILEGED    (1<<0)  /* Is the domain privileged? */
-+#define SIF_INITDOMAIN    (1<<1)  /* Is this the initial control domain? */
-+
-+typedef uint64_t cpumap_t;
-+
-+typedef uint8_t xen_domain_handle_t[16];
-+
-+/* Turn a plain number into a C unsigned long constant. */
-+#define __mk_unsigned_long(x) x ## UL
-+#define mk_unsigned_long(x) __mk_unsigned_long(x)
-+
-+#else /* __ASSEMBLY__ */
-+
-+/* In assembly code we cannot use C numeric constant suffixes. */
-+#define mk_unsigned_long(x) x
-+
-+#endif /* !__ASSEMBLY__ */
-+
-+#endif /* __XEN_PUBLIC_XEN_H__ */
++#endif /* __XEN_PAGE_H */
 
 -- =
