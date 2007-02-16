@@ -1,18 +1,13 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options and disable
-	unsupported config options.
-Date: Fri, 16 Feb 2007 01:24:14 -0700
-Message-ID: <m1ire2h5n5.fsf@ebiederm.dsl.xmission.com>
-References: <20070216022449.739760547@goop.org>
-	<20070216022531.570154735@goop.org> <45D54BFF.80100@vmware.com>
-	<m11wkqimjd.fsf@ebiederm.dsl.xmission.com>
-	<1171613663.20666.30.camel@localhost.localdomain>
+From: Gerd Hoffmann <kraxel@suse.de>
+Subject: Re: xen hvc console
+Date: Fri, 16 Feb 2007 09:26:01 +0100
+Message-ID: <45D56A99.102@suse.de>
+References: <45D4E1AB.3020408@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1171613663.20666.30.camel@localhost.localdomain> (Ian Campbell's
-	message of "Fri, 16 Feb 2007 08:14:22 +0000")
+In-Reply-To: <45D4E1AB.3020408@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,21 +17,33 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Ian Campbell <Ian.Campbell@XenSource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@XenSource.com>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ian Campbell <Ian.Campbell@XenSource.com> writes:
+Jeremy Fitzhardinge wrote:
+> I had a quick try to make it work, but no success thus far.  Should it
+> be enough to apply the patch and then boot with "console=3D/dev/hvc0"?
 
-> On Fri, 2007-02-16 at 00:33 -0700, Eric W. Biederman wrote:
->> I know there actually has been some work to get kexec actually working u=
-nder
->> Xen but I don't know where that has gone.
->
-> kexec/kdump works with Xen 3.0.4 but it's a dom0 only thing so it
-> doesn't appear in this patchset.
+Without /dev/, i.e. "console=3Dhvc0".  But, yes, that should be it.  Works
+for me.
 
-Ok but we still need to get the failure to user space for domU instead
-of trying what works on real hardware and failing.
+> Also, why do you comment out the EARLY_PRINTK stuff in Kconfig?
 
-Eric
+Doesn't compile due to setup_early_printk() being gone.
+
+I also think we don't need early_printk in xen any more.  The hvc
+console supports a two-step setup.  One can be done very early at boot
+(hvc_instantiate) and one later on, once everything (memory, irqs) is up
+and running, during normal device initialization (hvc_alloc).
+
+I'm still playing with it a bit and browse through the console code.
+Right now early hvc initialization happens in console_init, I'll try to
+do it earlier at boot.
+
+cheers,
+  Gerd
+
+-- =
+
+Gerd Hoffmann <kraxel@suse.de>
