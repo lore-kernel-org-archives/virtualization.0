@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 10/21] Xen-paravirt: add hooks to intercept mm creation and
-	destruction
-Date: Thu, 15 Feb 2007 18:24:59 -0800
-Message-ID: <20070216022531.267584466@goop.org>
+Subject: [patch 08/21] Xen-paravirt: Allow paravirt backend to choose kernel
+	PMD sharing
+Date: Thu, 15 Feb 2007 18:24:57 -0800
+Message-ID: <20070216022531.119986720@goop.org>
 References: <20070216022449.739760547@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=mm-lifetime-hooks.patch
+Content-Disposition: inline; filename=shared-kernel-pmd.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,180 +22,369 @@ To: Andi Kleen <ak@muc.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add hooks to allow a paravirt implementation to track the lifetime of
-an mm.
+Xen does not allow guests to have the kernel pmd shared between page
+tables, so parameterize pgtable.c to allow both modes of operation.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 --
- arch/i386/kernel/paravirt.c    |    4 ++++
- include/asm-i386/mmu_context.h |    8 ++++++--
- include/asm-i386/paravirt.h    |   38 ++++++++++++++++++++++++++++++++++++=
-++
- kernel/fork.c                  |    3 +++
- mm/mmap.c                      |    4 ++++
- 5 files changed, 55 insertions(+), 2 deletions(-)
+ arch/i386/kernel/paravirt.c            |    1 =
+
+ arch/i386/mm/fault.c                   |    6 +--
+ arch/i386/mm/pageattr.c                |    2 -
+ arch/i386/mm/pgtable.c                 |   61 +++++++++++++++++++---------=
+---
+ include/asm-i386/page.h                |    7 ++-
+ include/asm-i386/paravirt.h            |    1 =
+
+ include/asm-i386/pgtable-2level-defs.h |    2 +
+ include/asm-i386/pgtable-2level.h      |    2 -
+ include/asm-i386/pgtable-3level-defs.h |    6 +++
+ include/asm-i386/pgtable-3level.h      |   16 ++------
+ include/asm-i386/pgtable.h             |    7 +++
+ 11 files changed, 68 insertions(+), 43 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -706,6 +706,10 @@ struct paravirt_ops paravirt_ops =3D {
- 	.irq_enable_sysexit =3D native_irq_enable_sysexit,
- 	.iret =3D native_iret,
+@@ -572,6 +572,7 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.name =3D "bare hardware",
+ 	.paravirt_enabled =3D 0,
+ 	.kernel_rpl =3D 0,
++	.shared_kernel_pmd =3D 1,	/* Only used when CONFIG_X86_PAE is set */
  =
 
-+	.dup_mmap =3D (void *)native_nop,
-+	.exit_mmap =3D (void *)native_nop,
-+	.activate_mm =3D (void *)native_nop,
-+
- 	.startup_ipi_hook =3D (void *)native_nop,
- };
- =
-
+  	.patch =3D native_patch,
+ 	.banner =3D default_banner,
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -5,6 +5,7 @@
- #include <asm/atomic.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-+#include <asm/paravirt.h>
+--- a/arch/i386/mm/fault.c
++++ b/arch/i386/mm/fault.c
+@@ -616,8 +616,7 @@ do_sigbus:
+ 	force_sig_info_fault(SIGBUS, BUS_ADRERR, address, tsk);
+ }
  =
 
- /*
-  * Used for LDT copy/destruction.
-@@ -65,7 +66,10 @@ static inline void switch_mm(struct mm_s
- #define deactivate_mm(tsk, mm)			\
- 	asm("movl %0,%%gs": :"r" (0));
+-#ifndef CONFIG_X86_PAE
+-void vmalloc_sync_all(void)
++void _vmalloc_sync_all(void)
+ {
+ 	/*
+ 	 * Note that races in the updates of insync and start aren't
+@@ -628,6 +627,8 @@ void vmalloc_sync_all(void)
+ 	static DECLARE_BITMAP(insync, PTRS_PER_PGD);
+ 	static unsigned long start =3D TASK_SIZE;
+ 	unsigned long address;
++
++	BUG_ON(SHARED_KERNEL_PMD);
  =
 
--#define activate_mm(prev, next) \
--	switch_mm((prev),(next),NULL)
-+#define activate_mm(prev, next)				\
-+	do {						\
-+		arch_activate_mm(prev, next);		\
-+		switch_mm((prev),(next),NULL);		\
-+	} while(0);
+ 	BUILD_BUG_ON(TASK_SIZE & ~PGDIR_MASK);
+ 	for (address =3D start; address >=3D TASK_SIZE; address +=3D PGDIR_SIZE) {
+@@ -651,4 +652,3 @@ void vmalloc_sync_all(void)
+ 			start =3D address + PGDIR_SIZE;
+ 	}
+ }
+-#endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/mm/pageattr.c
++++ b/arch/i386/mm/pageattr.c
+@@ -91,7 +91,7 @@ static void set_pmd_pte(pte_t *kpte, uns
+ 	unsigned long flags;
  =
 
+ 	set_pte_atomic(kpte, pte); 	/* change init_mm */
+-	if (PTRS_PER_PMD > 1)
++	if (SHARED_KERNEL_PMD)
+ 		return;
+ =
+
+ 	spin_lock_irqsave(&pgd_lock, flags);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/mm/pgtable.c
++++ b/arch/i386/mm/pgtable.c
+@@ -241,31 +241,42 @@ static void pgd_ctor(pgd_t *pgd)
+ 	unsigned long flags;
+ =
+
+ 	if (PTRS_PER_PMD =3D=3D 1) {
++		/* !PAE, no pagetable sharing */
+ 		memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
++
++		clone_pgd_range(pgd + USER_PTRS_PER_PGD,
++				swapper_pg_dir + USER_PTRS_PER_PGD,
++				KERNEL_PGD_PTRS);
++
+ 		spin_lock_irqsave(&pgd_lock, flags);
+-	}
+-
+-	clone_pgd_range(pgd + USER_PTRS_PER_PGD,
+-			swapper_pg_dir + USER_PTRS_PER_PGD,
+-			KERNEL_PGD_PTRS);
+-
+-	if (PTRS_PER_PMD > 1)
+-		return;
+-
+-	/* must happen under lock */
+-	paravirt_alloc_pd_clone(__pa(pgd) >> PAGE_SHIFT,
+-			__pa(swapper_pg_dir) >> PAGE_SHIFT,
+-			USER_PTRS_PER_PGD, PTRS_PER_PGD - USER_PTRS_PER_PGD);
+-
+-	pgd_list_add(pgd);
+-	spin_unlock_irqrestore(&pgd_lock, flags);
++
++		/* must happen under lock */
++		paravirt_alloc_pd_clone(__pa(pgd) >> PAGE_SHIFT,
++					__pa(swapper_pg_dir) >> PAGE_SHIFT,
++					USER_PTRS_PER_PGD,
++					PTRS_PER_PGD - USER_PTRS_PER_PGD);
++
++		pgd_list_add(pgd);
++		spin_unlock_irqrestore(&pgd_lock, flags);
++	} else {
++		/* PAE, PMD may be shared */
++		if (SHARED_KERNEL_PMD) {
++			clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
++					swapper_pg_dir + USER_PTRS_PER_PGD,
++					KERNEL_PGD_PTRS);
++		} else {
++			spin_lock_irqsave(&pgd_lock, flags);
++			pgd_list_add(pgd);
++			spin_unlock_irqrestore(&pgd_lock, flags);
++		}
++	}
+ }
+ =
+
+ static void pgd_dtor(pgd_t *pgd)
+ {
+ 	unsigned long flags; /* can be called from interrupt context */
+ =
+
+-	if (PTRS_PER_PMD =3D=3D 1)
++	if (SHARED_KERNEL_PMD)
+ 		return;
+ =
+
+ 	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
+@@ -279,19 +290,25 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 	int i;
+ 	pgd_t *pgd =3D kmem_cache_alloc(pgd_cache, GFP_KERNEL);
+ =
+
+-	if (pgd)
++	if (likely(pgd))
+ 		pgd_ctor(pgd);
+ =
+
+-	if (PTRS_PER_PMD =3D=3D 1 || !pgd)
++	if (PTRS_PER_PMD =3D=3D 1 || unlikely(!pgd))
+ 		return pgd;
+ =
+
+-	for (i =3D 0; i < USER_PTRS_PER_PGD; ++i) {
++	for (i =3D 0; i < (SHARED_KERNEL_PMD ? USER_PTRS_PER_PGD : PTRS_PER_PGD);=
+ ++i) {
+ 		pmd_t *pmd =3D kmem_cache_alloc(pmd_cache, GFP_KERNEL);
+-		if (!pmd)
++		if (unlikely(!pmd))
+ 			goto out_oom;
++
++		if (i >=3D USER_PTRS_PER_PGD)
++			memcpy(pmd, (void *)pgd_page_vaddr(swapper_pg_dir[i]),
++			       sizeof(pmd_t) * PTRS_PER_PMD);
++
+ 		paravirt_alloc_pd(__pa(pmd) >> PAGE_SHIFT);
+ 		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
+ 	}
++
+ 	return pgd;
+ =
+
+ out_oom:
+@@ -312,7 +329,7 @@ void pgd_free(pgd_t *pgd)
+ =
+
+ 	/* in the PAE case user pgd entries are overwritten before usage */
+ 	if (PTRS_PER_PMD > 1)
+-		for (i =3D 0; i < USER_PTRS_PER_PGD; ++i) {
++		for (i =3D 0; i < (SHARED_KERNEL_PMD ? USER_PTRS_PER_PGD : PTRS_PER_PGD)=
+; ++i) {
+ 			pgd_t pgdent =3D pgd[i];
+ 			void* pmd =3D (void *)__va(pgd_val(pgdent)-1);
+ 			paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/page.h
++++ b/include/asm-i386/page.h
+@@ -50,21 +50,23 @@ typedef struct { unsigned long long pgpr
+ #ifndef CONFIG_PARAVIRT
+ #define pmd_val(x)	((x).pmd)
+ #define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
++#define __pte(x) ((pte_t) { .pte_low =3D (x), .pte_high =3D ((x) >> 32) } )
+ #define __pmd(x) ((pmd_t) { (x) } )
+ #endif	/* CONFIG_PARAVIRT */
+ #define HPAGE_SHIFT	21
+ #include <asm-generic/pgtable-nopud.h>
+-#else
++#else  /* !CONFIG_X86_PAE */
+ typedef struct { unsigned long pte_low; } pte_t;
+ typedef struct { unsigned long pgd; } pgd_t;
+ typedef struct { unsigned long pgprot; } pgprot_t;
+ #define boot_pte_t pte_t /* or would you rather have a typedef */
+ #ifndef CONFIG_PARAVIRT
++#define __pte(x) ((pte_t) { (x) })
+ #define pte_val(x)	((x).pte_low)
  #endif
+ #define HPAGE_SHIFT	22
+ #include <asm-generic/pgtable-nopmd.h>
+-#endif
++#endif	/* CONFIG_X86_PAE */
+ #define PTE_MASK	PAGE_MASK
+ =
+
+ #ifdef CONFIG_HUGETLB_PAGE
+@@ -79,7 +81,6 @@ typedef struct { unsigned long pgprot; }
+ =
+
+ #ifndef CONFIG_PARAVIRT
+ #define pgd_val(x)	((x).pgd)
+-#define __pte(x) ((pte_t) { (x) } )
+ #define __pgd(x) ((pgd_t) { (x) } )
+ #endif
+ =
+
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -126,6 +126,12 @@ struct paravirt_ops
- 	void (*io_delay)(void);
- 	void (*const_udelay)(unsigned long loops);
+@@ -34,6 +34,7 @@ struct paravirt_ops
+ struct paravirt_ops
+ {
+ 	unsigned int kernel_rpl;
++	int shared_kernel_pmd;
+  	int paravirt_enabled;
+ 	const char *name;
  =
 
-+	void (fastcall *activate_mm)(struct mm_struct *prev,
-+				     struct mm_struct *next);
-+	void (fastcall *dup_mmap)(struct mm_struct *oldmm, =
-
-+				  struct mm_struct *mm);
-+	void (fastcall *exit_mmap)(struct mm_struct *mm);
-+
- #ifdef CONFIG_X86_LOCAL_APIC
- 	void (*apic_write)(unsigned long reg, unsigned long v);
- 	void (*apic_write_atomic)(unsigned long reg, unsigned long v);
-@@ -429,6 +435,24 @@ static inline void startup_ipi_hook(int =
-
- }
- #endif
- =
-
-+#define __HAVE_ARCH_MM_LIFETIME
-+static inline void arch_activate_mm(struct mm_struct *prev,
-+				    struct mm_struct *next)
-+{
-+	paravirt_ops.activate_mm(prev, next);
-+}
-+
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+	paravirt_ops.dup_mmap(oldmm, mm);
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+	paravirt_ops.exit_mmap(mm);
-+}
-+
- #define __flush_tlb() paravirt_ops.flush_tlb_user()
- #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
- #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
-@@ -673,5 +697,20 @@ static inline void paravirt_pagetable_se
- 	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
- #endif
- }
-+
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
-+{
-+}
-+
-+static inline void paravirt_dup_mmap(struct mm_struct *oldmm,
-+				     struct mm_struct *mm)
-+{
-+}
-+
-+static inline void paravirt_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif /* CONFIG_PARAVIRT */
- #endif	/* __ASM_PARAVIRT_H */
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -374,6 +374,12 @@ struct mm_struct {
- 	rwlock_t		ioctx_list_lock;
- 	struct kioctx		*ioctx_list;
- };
+--- a/include/asm-i386/pgtable-2level-defs.h
++++ b/include/asm-i386/pgtable-2level-defs.h
+@@ -1,5 +1,7 @@
+ #ifndef _I386_PGTABLE_2LEVEL_DEFS_H
+ #define _I386_PGTABLE_2LEVEL_DEFS_H
 +
-+#ifndef __HAVE_ARCH_MM_LIFETIME
-+#define arch_activate_mm(prev, next)	do {} while(0)
-+#define arch_dup_mmap(oldmm, mm)	do {} while(0)
-+#define arch_exit_mmap(mm)		do {} while(0)
++#define SHARED_KERNEL_PMD	0
+ =
+
+ /*
+  * traditional i386 two-level paging structure:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable-2level.h
++++ b/include/asm-i386/pgtable-2level.h
+@@ -66,6 +66,4 @@ static inline int pte_exec_kernel(pte_t =
+
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
+ =
+
+-void vmalloc_sync_all(void);
+-
+ #endif /* _I386_PGTABLE_2LEVEL_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable-3level-defs.h
++++ b/include/asm-i386/pgtable-3level-defs.h
+@@ -1,5 +1,11 @@
+ #ifndef _I386_PGTABLE_3LEVEL_DEFS_H
+ #define _I386_PGTABLE_3LEVEL_DEFS_H
++
++#ifdef CONFIG_PARAVIRT
++#define SHARED_KERNEL_PMD	(paravirt_ops.shared_kernel_pmd)
++#else
++#define SHARED_KERNEL_PMD	1
 +#endif
  =
 
- struct sighand_struct {
- 	atomic_t		count;
+ /*
+  * PGDIR_SHIFT determines what a top-level page table entry can map
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -286,6 +286,7 @@ static inline int dup_mmap(struct mm_str
- 		if (retval)
- 			goto out;
- 	}
-+	arch_dup_mmap(oldmm, mm);
- 	retval =3D 0;
- out:
- 	up_write(&mm->mmap_sem);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1976,6 +1976,8 @@ void exit_mmap(struct mm_struct *mm)
- 	struct vm_area_struct *vma =3D mm->mmap;
- 	unsigned long nr_accounted =3D 0;
- 	unsigned long end;
-+
-+	arch_exit_mmap(mm);
+--- a/include/asm-i386/pgtable-3level.h
++++ b/include/asm-i386/pgtable-3level.h
+@@ -153,20 +153,14 @@ extern unsigned long long __supported_pt
  =
 
- 	lru_add_drain();
- 	flush_cache_mm(mm);
+ static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
+ {
+-	pte_t pte;
+-
+-	pte.pte_high =3D (page_nr >> (32 - PAGE_SHIFT)) | \
+-					(pgprot_val(pgprot) >> 32);
+-	pte.pte_high &=3D (__supported_pte_mask >> 32);
+-	pte.pte_low =3D ((page_nr << PAGE_SHIFT) | pgprot_val(pgprot)) & \
+-							__supported_pte_mask;
+-	return pte;
++	return __pte((((unsigned long long)page_nr << PAGE_SHIFT) | =
+
++		      pgprot_val(pgprot)) & __supported_pte_mask);
+ }
+ =
+
+ static inline pmd_t pfn_pmd(unsigned long page_nr, pgprot_t pgprot)
+ {
+-	return __pmd((((unsigned long long)page_nr << PAGE_SHIFT) | \
+-			pgprot_val(pgprot)) & __supported_pte_mask);
++	return __pmd((((unsigned long long)page_nr << PAGE_SHIFT) |
++		      pgprot_val(pgprot)) & __supported_pte_mask);
+ }
+ =
+
+ /*
+@@ -186,6 +180,4 @@ static inline pmd_t pfn_pmd(unsigned lon
+ =
+
+ #define __pmd_free_tlb(tlb, x)		do { } while (0)
+ =
+
+-#define vmalloc_sync_all() ((void)0)
+-
+ #endif /* _I386_PGTABLE_3LEVEL_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -239,6 +239,13 @@ static inline pte_t pte_mkwrite(pte_t pt
+ static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |=3D _PAGE_RW; =
+return pte; }
+ static inline pte_t pte_mkhuge(pte_t pte)	{ (pte).pte_low |=3D _PAGE_PSE; =
+return pte; }
+ =
+
++extern void _vmalloc_sync_all(void);
++static inline void vmalloc_sync_all(void)
++{
++	if (!SHARED_KERNEL_PMD)
++		_vmalloc_sync_all();
++}
++
+ #ifdef CONFIG_X86_PAE
+ # include <asm/pgtable-3level.h>
+ #else
 
 -- =
