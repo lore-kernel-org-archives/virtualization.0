@@ -1,54 +1,49 @@
-From: Dan Hecht <dhecht@vmware.com>
-Subject: Re: [Xen-devel] Re: [patch 14/21] Xen-paravirt: Add XEN config	options
- and disableunsupported config options.
-Date: Fri, 16 Feb 2007 14:38:13 -0800
-Message-ID: <45D63255.2070801@vmware.com>
-References: <C1FBAFD7.99AB%keir@xensource.com> <45D62759.7080006@vmware.com>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: Re: [patch 12/21] Xen-paravirt: Allocate and free
+	vmalloc areas
+Date: Fri, 16 Feb 2007 23:29:57 +0000
+Message-ID: <C1FBEEF5.2256%Keir.Fraser@cl.cam.ac.uk>
+References: <45D60569.2050702@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751517AbXBPWlM@vger.kernel.org>
-In-Reply-To: <45D62759.7080006@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Keir Fraser <keir@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Christian Limpach <Christian.Limpach@xensource.com>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Steven Hand <steven.hand@cl.cam.ac.uk>, linux-kernel@vger.kernel.org, Ian Pratt <Ian.Pratt@xensource.com>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <45D60569.2050702@goop.org>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Andi Kleen <ak@muc.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/16/2007 01:51 PM, Zachary Amsden wrote:
+On 16/2/07 19:26, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
+
 > Keir Fraser wrote:
->> On 16/2/07 17:46, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
->>
->>   
->>> Keir Fraser wrote:
->>>     
->>>> This initial patchset does not include save/restore support anyway, so in
->>>> fact it would be consistent to have CONFIG_PREEMPT configurable. I'm sure
->>>> that we are going to have some nasty bugs to fix up as a result, but we
->>>> can't fix them until we find them! Then we can convert our save/restore code
->>>> to use the freezer before submitting it for inclusion.
->>>>       
->>> OK.  So that makes the only config restriction the 100Hz ticks.
->>>     
->> We can extend the Xen timer interface quite easily and get rid of this one
->> too. In fact it doesn't *much* matter if the CONFIG_HZ differs from the Xen
->> ticker rate -- we modified the Linux timer ISR to handle timer interrupts at
->> arbitrary times already. The only drawback is that jiffies updates in burts
->> if CONFIG_HZ is higher than the actual tick rate, and this can affect some
->> calibration constants and cause Linux to print out some weird values at
->> start-of-day.
+>> Hmmm... Actually looks like a bunch of architectures do lazy sync of the
+>> vmalloc area, although neither ia64 nor powerpc does so. However, all
+>> current users of the alloc_vm_area() function would be okay since none of
+>> the other lazy-syncing architectures are supported by Xen.
 >>   
 > 
-> That's why we'd very much like to get a get_cpu_speed paravirt-op 
-> implemented.  I think this would be useful to work around these problems 
-> for Xen as well.
-> 
->
+> Well, assuming that alloc_vm_area() has some non-Xen use, the right
+> thing is for archs to export vmalloc_sync_all(), and just use that from
+> common code.
 
-Yes, and regardless of whether you run your periodic timer slower than 
-HZ, calibrating time in a VM is always difficult due to the fact the 
-kernel is time sharing the physical cpu.  Why not just ask the 
-underlying hypervisor?
+It has no other users right now and get_vm_area_sync() would be a
+better-named and more generically useful function than alloc_vm_area(). But
+yes, to be done properly it does require vmalloc_sync_all() to be defined by
+all architectures (even if that's BUG() and implement-properly-on-demand).
 
-Really, Time is one of those areas where paravirtualization makes a lot 
-of sense, no matter how much virtualization hardware you have crammed 
-into your cpu....
+get_vm_area_sync(), partnered with existing remove_vm_area(), just seems
+much smaller and neater than adding four new functions with a more complex
+usage: alloc_vm_area, {lock,unlock}_vm_area, and free_vm_area. Maybe keeping
+free_vm_area() too makes sense as its interface is more neatly symmetrical
+to that of get_vm_area().
+
+ -- Keir
