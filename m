@@ -1,61 +1,128 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options
- and disable unsupported config options.
-Date: Thu, 15 Feb 2007 22:15:27 -0800
-Message-ID: <45D54BFF.80100@vmware.com>
-References: <20070216022449.739760547@goop.org>
-	<20070216022531.570154735@goop.org>
+From: Dan Hecht <dhecht@vmware.com>
+Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options and disable
+ unsupported config options.
+Date: Thu, 15 Feb 2007 22:14:45 -0800
+Message-ID: <45D54BD5.8010707@vmware.com>
+References: <20070216022449.739760547@goop.org> <20070216022531.570154735@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1423329AbXBPGPY@vger.kernel.org>
 In-Reply-To: <20070216022531.570154735@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Avi Kivity <avi@qumranet.com>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Cc: Andi Kleen <ak@muc.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
+On 02/15/2007 06:25 PM, Jeremy Fitzhardinge wrote:
 > The XEN config option enables the Xen paravirt_ops interface, which is
 > installed when the kernel finds itself running under Xen. (By some
 > as-yet fully defined mechanism, implemented in a future patch.)
->
+> 
 > Xen is no longer a sub-architecture, so the X86_XEN subarch config
 > option has gone.
->
+> 
 > The disabled config options are:
 > - PREEMPT: Xen doesn't support it
 > - HZ: set to 100Hz for now, to cut down on VCPU context switch rate.
 >   This will be adapted to use tickless later.
 > - kexec: not yet supported
->
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
->   
+> 
 
-We do support different HZ values, although 100HZ is actually preferable 
-for us, so I don't object to that.  PREEMPT is supported by us, but not 
-as tested as I would like, so I also don't object to dropping it for 
-generic paravirt guests - Rusty - Avi any objections to dropping preempt 
-in terms of lguest/KVM paravirtualization?
+>  
+>  config KEXEC
+>  	bool "kexec system call"
+> +	depends on !XEN
+>  	help
+>  	  kexec is a system call that implements the ability to shutdown your
+>  	  current kernel, and to start another kernel.  It is like a reboot
 
-Paravirt-ops definitely needs a hook for kexec, although we should not 
-disable kexec for the natively booted paravirt-ops.  Eric - is there a 
-way to disable it at runtime?
+>  config DOUBLEFAULT
+>  	default y
+>  	bool "Enable doublefault exception handler" if EMBEDDED
+> +	depends on !XEN
+>  	help
+>            This option allows trapping of rare doublefault exceptions that
+>            would otherwise cause a system to silently reboot. Disabling this
 
-We do support the doublefault task gate, and it would be good to keep 
-it, but I can't complain so much if it is gone from generic paravirt 
-kernels for now, because it is non-essential, and generally fatal 
-anyway.  We do need it for native boots of paravirt-ops kernels, 
-however, so turning off the config option still needs to be revisited.
 
-Zach
+> +config XEN
+> +	bool "Enable support for Xen hypervisor"
+> +	depends PARAVIRT
+> +	default y
+> +	help
+> +	  This is the Linux Xen port.
+
+>  choice
+> -	prompt "Timer frequency"
+> +	prompt "Timer frequency" if !XEN
+>  	default HZ_250
+>  	help
+>  	 Allows the configuration of the timer frequency. It is customary
+> @@ -49,7 +49,7 @@ endchoice
+>  
+>  config HZ
+>  	int
+> -	default 100 if HZ_100
+> +	default 100 if HZ_100 || XEN
+>  	default 250 if HZ_250
+>  	default 300 if HZ_300
+>  	default 1000 if HZ_1000
+
+
+>  config PREEMPT
+>  	bool "Preemptible Kernel (Low-Latency Desktop)"
+> +	depends on !XEN
+>  	help
+>  	  This option reduces the latency of the kernel by making
+>  	  all kernel code (that is not executing in a critical section)
+> 
+
+I hate to sound like a broken record, but this really isn't the right 
+way to do this.  If you are going to inhibit config settings when Xen 
+support is compiled, then it should be:
+
+config XEN
+     depends on !KEXEC && !DOUBLEFAULT && HZ_100 && !PREEMPT
+
+I'm really not trying to make things more difficult for you or for Xen 
+users.
+
+One of the primary goals of paravirt-ops is to allow the same kernel 
+binary to bind to multiple hypervisor interfaces (and native), at 
+runtime.  So, we should assume that kernels which are built with 
+CONFIG_PARAVIRT will also enable all the paravirt-ops backends; and this 
+is a good thing.
+
+But, the problem is, then, when someone enables paravirt (and all the 
+backends, including Xen), you are silently forcing all these options 
+off.  Compiling in paravirt support should not change force you into 
+using some set of config option; when a paravirt-ops kernel is run on 
+native, it should be as fully featured as a non-paravirtops kernel.
+
+So, this should really be solved (in order of preference) by:
+
+1) Complete the xen paravirt-ops backend so it can handle these 
+"incompatible" options.  I realize this is just a matter of time (at 
+least for most of them, what is your plan for PREEMPT?).
+
+2) Disable the option at runtime only if the kernel is booted on Xen. 
+When the kernel is booted on native, lhype, paravirt kvm, vmware, etc it 
+should be not be inhibited.  This may not be feasible for all of these 
+options, but as Zach pointed out, is easy enough for DOUBLEFAULT.  Maybe 
+it can be done for KEXEC?  And HZ is easy to allow too, even though Xen 
+will still give interrupts at 100hz -- we do this when you boot on VMI. 
+  PREEMPT is probably the only real compile time incompatible options 
+with Xen.  You just simply have to change the loop decrementors in your 
+timer interrupt.
+
+You basically chose #2 for SMP: while your backend doesn't support it 
+yet, it's not harmful to have the config option enabled; you just don't 
+allow a second vcpu to startup when running on Xen.
+
+3) Use the config XEN line I suggest above.  The net effect is the same 
+as your proposed change (it prevents users from compiling the 
+incompatible options together), but at least the user understands what 
+is going on, instead of options just silently changing on them.
+
+Dan
