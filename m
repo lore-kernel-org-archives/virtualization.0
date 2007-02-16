@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 21/21] Xen-paravirt: Add the Xen virtual network device driver.
-Date: Thu, 15 Feb 2007 18:25:10 -0800
-Message-ID: <20070216022532.151700145@goop.org>
+Subject: [patch 19/21] Xen-paravirt: Add the Xenbus sysfs and virtual device
+	hotplug driver.
+Date: Thu, 15 Feb 2007 18:25:08 -0800
+Message-ID: <20070216022531.989851372@goop.org>
 References: <20070216022449.739760547@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=xen-netfront.patch
+Content-Disposition: inline; filename=xenbus.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,87 +19,99 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, netdev@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The network device frontend driver allows the kernel to access network
-devices exported exported by a virtual machine containing a physical
-network device driver.
+This communicates with the machine control software via a registry
+residing in a controlling virtual machine. This allows dynamic
+creation, destruction and modification of virtual device
+configurations (network devices, block devices and CPUS, to name some
+examples).
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: netdev@vger.kernel.org
-
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- drivers/net/Kconfig        |   12 =
+ arch/i386/xen/Kconfig                     |    5 =
 
- drivers/net/Makefile       |    2 =
+ drivers/xen/Makefile                      |    1 =
 
- drivers/net/xen-netfront.c | 2066 ++++++++++++++++++++++++++++++++++++++++=
-++++
- include/xen/events.h       |    2 =
+ drivers/xen/xenbus/Makefile               |    9 =
 
- 4 files changed, 2082 insertions(+)
+ drivers/xen/xenbus/xenbus_client.c        |  566 +++++++++++++++++
+ drivers/xen/xenbus/xenbus_comms.c         |  218 ++++++
+ drivers/xen/xenbus/xenbus_comms.h         |   44 +
+ drivers/xen/xenbus/xenbus_probe.c         |  891 +++++++++++++++++++++++++=
++++
+ drivers/xen/xenbus/xenbus_probe.h         |   72 ++
+ drivers/xen/xenbus/xenbus_probe_backend.c |  269 ++++++++
+ drivers/xen/xenbus/xenbus_xs.c            |  840 ++++++++++++++++++++++++++
+ include/asm-i386/hypervisor.h             |    1 =
+
+ include/xen/xenbus.h                      |  208 ++++++
+ 12 files changed, 3124 insertions(+)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -2525,6 +2525,18 @@ source "drivers/atm/Kconfig"
- =
-
- source "drivers/s390/net/Kconfig"
- =
-
-+config XEN_NETDEV_FRONTEND
-+	tristate "Xen network device frontend driver"
-+	depends on XEN
-+	default y
-+	help
-+	  The network device frontend driver allows the kernel to
-+	  access network devices exported exported by a virtual
-+	  machine containing a physical network device driver. The
-+	  frontend driver is intended for unprivileged guest domains;
-+	  if you are compiling a kernel for a Xen guest, you almost
-+	  certainly want to enable this.
+--- a/arch/i386/xen/Kconfig
++++ b/arch/i386/xen/Kconfig
+@@ -8,3 +8,8 @@ config XEN
+ 	default y
+ 	help
+ 	  This is the Linux Xen port.
 +
- config ISERIES_VETH
- 	tristate "iSeries Virtual Ethernet driver support"
- 	depends on PPC_ISERIES
++config XEN_BACKEND
++	bool
++	depends XEN
++	default n
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -218,3 +218,5 @@ obj-$(CONFIG_FS_ENET) +=3D fs_enet/
- obj-$(CONFIG_FS_ENET) +=3D fs_enet/
- =
-
- obj-$(CONFIG_NETXEN_NIC) +=3D netxen/
-+
-+obj-$(CONFIG_XEN_NETDEV_FRONTEND) +=3D xen-netfront.o
+--- a/drivers/xen/Makefile
++++ b/drivers/xen/Makefile
+@@ -1,2 +1,3 @@ obj-y	+=3D core/
+ obj-y	+=3D core/
+ obj-y	+=3D console/
++obj-y	+=3D xenbus/
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- /dev/null
-+++ b/drivers/net/xen-netfront.c
-@@ -0,0 +1,2066 @@
++++ b/drivers/xen/xenbus/Makefile
+@@ -0,0 +1,9 @@
++obj-y	+=3D xenbus.o
++
++xenbus-objs =3D
++xenbus-objs +=3D xenbus_client.o
++xenbus-objs +=3D xenbus_comms.o
++xenbus-objs +=3D xenbus_xs.o
++xenbus-objs +=3D xenbus_probe.o
++
++obj-$(CONFIG_XEN_BACKEND) +=3D xenbus_probe_backend.o
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -0,0 +1,566 @@
 +/*************************************************************************=
 *****
-+ * Virtual network driver for conversing with remote driver backends.
++ * Client-facing interface for the Xenbus driver.  In other words, the
++ * interface between the Xenbus and the device-specific code, be it the
++ * frontend or the backend of that driver.
 + *
-+ * Copyright (c) 2002-2005, K A Fraser
-+ * Copyright (c) 2005, XenSource Ltd
-+ *
++ * Copyright (C) 2005 XenSource Ltd
++ * =
+
 + * This program is free software; you can redistribute it and/or
 + * modify it under the terms of the GNU General Public License version 2
 + * as published by the Free Software Foundation; or, when distributed
 + * separately from the Linux kernel or incorporated into other
 + * software packages, subject to the following license:
-+ *
++ * =
+
 + * Permission is hereby granted, free of charge, to any person obtaining a=
  copy
 + * of this source file (the "Software"), to deal in the Software without
@@ -109,11 +122,13 @@ are,
 + * and to permit persons to whom the Software is furnished to do so, subje=
 ct to
 + * the following conditions:
-+ *
++ * =
+
 + * The above copyright notice and this permission notice shall be included=
  in
 + * all copies or substantial portions of the Software.
-+ *
++ * =
+
 + * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
  OR
 + * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -126,2074 +141,3277 @@ LINGS
 + * IN THE SOFTWARE.
 + */
 +
-+#include <linux/module.h>
-+#include <linux/version.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/string.h>
-+#include <linux/errno.h>
-+#include <linux/netdevice.h>
-+#include <linux/inetdevice.h>
-+#include <linux/etherdevice.h>
-+#include <linux/skbuff.h>
-+#include <linux/init.h>
-+#include <linux/bitops.h>
-+#include <linux/ethtool.h>
-+#include <linux/in.h>
-+#include <linux/if_ether.h>
-+#include <linux/io.h>
-+#include <linux/moduleparam.h>
-+#include <net/sock.h>
-+#include <net/pkt_sched.h>
-+#include <net/arp.h>
-+#include <net/route.h>
-+#include <asm/uaccess.h>
-+#include <xen/xenbus.h>
-+#include <xen/interface/io/netif.h>
-+#include <xen/interface/memory.h>
-+#ifdef CONFIG_XEN_BALLOON
-+#include <xen/balloon.h>
-+#endif
-+#include <asm/page.h>
-+#include <xen/interface/grant_table.h>
-+
++#include <linux/types.h>
++#include <linux/vmalloc.h>
++#include <asm/xen/hypervisor.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/event_channel.h>
 +#include <xen/events.h>
-+#include <xen/page.h>
 +#include <xen/grant_table.h>
++#include <xen/xenbus.h>
 +
-+/*
-+ * Mutually-exclusive module options to select receive data path:
-+ *  rx_copy : Packets are copied by network backend into local memory
-+ *  rx_flip : Page containing packet data is transferred to our ownership
-+ * For fully-virtualised guests there is no option - copying must be used.
-+ * For paravirtualised guests, flipping is the default.
-+ */
-+#ifdef CONFIG_XEN
-+static int MODPARM_rx_copy =3D 0;
-+module_param_named(rx_copy, MODPARM_rx_copy, bool, 0);
-+MODULE_PARM_DESC(rx_copy, "Copy packets from network card (rather than fli=
-p)");
-+static int MODPARM_rx_flip =3D 0;
-+module_param_named(rx_flip, MODPARM_rx_flip, bool, 0);
-+MODULE_PARM_DESC(rx_flip, "Flip packets from network card (rather than cop=
-y)");
-+#else
-+static const int MODPARM_rx_copy =3D 1;
-+static const int MODPARM_rx_flip =3D 0;
-+#endif
-+
-+#define RX_COPY_THRESHOLD 256
-+
-+#define GRANT_INVALID_REF	0
-+
-+#define NET_TX_RING_SIZE __RING_SIZE((struct netif_tx_sring *)0, PAGE_SIZE)
-+#define NET_RX_RING_SIZE __RING_SIZE((struct netif_rx_sring *)0, PAGE_SIZE)
-+
-+struct netfront_info {
-+	struct list_head list;
-+	struct net_device *netdev;
-+
-+	struct net_device_stats stats;
-+
-+	struct netif_tx_front_ring tx;
-+	struct netif_rx_front_ring rx;
-+
-+	spinlock_t   tx_lock;
-+	spinlock_t   rx_lock;
-+
-+	unsigned int evtchn, irq;
-+	unsigned int copying_receiver;
-+
-+	/* Receive-ring batched refills. */
-+#define RX_MIN_TARGET 8
-+#define RX_DFL_MIN_TARGET 64
-+#define RX_MAX_TARGET min_t(int, NET_RX_RING_SIZE, 256)
-+	unsigned rx_min_target, rx_max_target, rx_target;
-+	struct sk_buff_head rx_batch;
-+
-+	struct timer_list rx_refill_timer;
-+
-+	/*
-+	 * {tx,rx}_skbs store outstanding skbuffs. The first entry in tx_skbs
-+	 * is an index into a chain of free entries.
-+	 */
-+	struct sk_buff *tx_skbs[NET_TX_RING_SIZE+1];
-+	struct sk_buff *rx_skbs[NET_RX_RING_SIZE];
-+
-+#define TX_MAX_TARGET min_t(int, NET_RX_RING_SIZE, 256)
-+	grant_ref_t gref_tx_head;
-+	grant_ref_t grant_tx_ref[NET_TX_RING_SIZE + 1];
-+	grant_ref_t gref_rx_head;
-+	grant_ref_t grant_rx_ref[NET_RX_RING_SIZE];
-+
-+	struct xenbus_device *xbdev;
-+	int tx_ring_ref;
-+	int rx_ring_ref;
-+	u8 mac[ETH_ALEN];
-+
-+	unsigned long rx_pfn_array[NET_RX_RING_SIZE];
-+	struct multicall_entry rx_mcl[NET_RX_RING_SIZE+1];
-+	struct mmu_update rx_mmu[NET_RX_RING_SIZE];
-+};
-+
-+struct netfront_rx_info {
-+	struct netif_rx_response rx;
-+	struct netif_extra_info extras[XEN_NETIF_EXTRA_TYPE_MAX - 1];
-+};
-+
-+/*
-+ * Access macros for acquiring freeing slots in tx_skbs[].
-+ */
-+
-+static inline void add_id_to_freelist(struct sk_buff **list, unsigned shor=
-t id)
++char *xenbus_strstate(enum xenbus_state state)
 +{
-+	list[id] =3D list[0];
-+	list[0]  =3D (void *)(unsigned long)id;
-+}
-+
-+static inline unsigned short get_id_from_freelist(struct sk_buff **list)
-+{
-+	unsigned int id =3D (unsigned int)(unsigned long)list[0];
-+	list[0] =3D list[id];
-+	return id;
-+}
-+
-+static inline int xennet_rxidx(RING_IDX idx)
-+{
-+	return idx & (NET_RX_RING_SIZE - 1);
-+}
-+
-+static inline struct sk_buff *xennet_get_rx_skb(struct netfront_info *np,
-+						RING_IDX ri)
-+{
-+	int i =3D xennet_rxidx(ri);
-+	struct sk_buff *skb =3D np->rx_skbs[i];
-+	np->rx_skbs[i] =3D NULL;
-+	return skb;
-+}
-+
-+static inline grant_ref_t xennet_get_rx_ref(struct netfront_info *np,
-+					    RING_IDX ri)
-+{
-+	int i =3D xennet_rxidx(ri);
-+	grant_ref_t ref =3D np->grant_rx_ref[i];
-+	np->grant_rx_ref[i] =3D GRANT_INVALID_REF;
-+	return ref;
-+}
-+
-+#define DPRINTK(fmt, args...)				\
-+	pr_debug("netfront (%s:%d) " fmt,		\
-+		 __FUNCTION__, __LINE__, ##args)
-+#define IPRINTK(fmt, args...)				\
-+	printk(KERN_INFO "netfront: " fmt, ##args)
-+#define WPRINTK(fmt, args...)				\
-+	printk(KERN_WARNING "netfront: " fmt, ##args)
-+
-+static int setup_device(struct xenbus_device *, struct netfront_info *);
-+static struct net_device *create_netdev(struct xenbus_device *);
-+
-+static void netfront_closing(struct xenbus_device *);
-+
-+static void end_access(int, void *);
-+static void netif_disconnect_backend(struct netfront_info *);
-+static int open_netdev(struct netfront_info *);
-+static void close_netdev(struct netfront_info *);
-+
-+static int network_connect(struct net_device *);
-+static void network_tx_buf_gc(struct net_device *);
-+static void network_alloc_rx_buffers(struct net_device *);
-+static int send_fake_arp(struct net_device *);
-+
-+static irqreturn_t netif_int(int irq, void *dev_id);
-+
-+#ifdef CONFIG_SYSFS
-+static int xennet_sysfs_addif(struct net_device *netdev);
-+static void xennet_sysfs_delif(struct net_device *netdev);
-+#else /* !CONFIG_SYSFS */
-+#define xennet_sysfs_addif(dev) (0)
-+#define xennet_sysfs_delif(dev) do { } while(0)
-+#endif
-+
-+static inline int xennet_can_sg(struct net_device *dev)
-+{
-+	return dev->features & NETIF_F_SG;
++	static char *name[] =3D {
++		[ XenbusStateUnknown      ] =3D "Unknown",
++		[ XenbusStateInitialising ] =3D "Initialising",
++		[ XenbusStateInitWait     ] =3D "InitWait",
++		[ XenbusStateInitialised  ] =3D "Initialised",
++		[ XenbusStateConnected    ] =3D "Connected",
++		[ XenbusStateClosing      ] =3D "Closing",
++		[ XenbusStateClosed	  ] =3D "Closed",
++	};
++	return (state < ARRAY_SIZE(name)) ? name[state] : "INVALID";
 +}
 +
 +/**
-+ * Entry point to this code when a new device is created.  Allocate the ba=
-sic
-+ * structures and the ring buffers for communication with the backend, and
-+ * inform the backend of the appropriate details for those.
++ * xenbus_watch_path - register a watch
++ * @dev: xenbus device
++ * @path: path to watch
++ * @watch: watch to register
++ * @callback: callback to register
++ *
++ * Register a @watch on the given path, using the given xenbus_watch struc=
+ture
++ * for storage, and the given @callback function as the callback.  Return =
+0 on
++ * success, or -errno on error.  On success, the given @path will be saved=
+ as
++ * @watch->node, and remains the caller's to free.  On error, @watch->node=
+ will
++ * be NULL, the device will switch to %XenbusStateClosing, and the error w=
+ill
++ * be saved in the store.
 + */
-+static int __devinit netfront_probe(struct xenbus_device *dev,
-+				    const struct xenbus_device_id *id)
++int xenbus_watch_path(struct xenbus_device *dev, const char *path,
++		      struct xenbus_watch *watch,
++		      void (*callback)(struct xenbus_watch *,
++				       const char **, unsigned int))
 +{
 +	int err;
-+	struct net_device *netdev;
-+	struct netfront_info *info;
 +
-+	netdev =3D create_netdev(dev);
-+	if (IS_ERR(netdev)) {
-+		err =3D PTR_ERR(netdev);
-+		xenbus_dev_fatal(dev, err, "creating netdev");
++	watch->node =3D path;
++	watch->callback =3D callback;
++
++	err =3D register_xenbus_watch(watch);
++
++	if (err) {
++		watch->node =3D NULL;
++		watch->callback =3D NULL;
++		xenbus_dev_fatal(dev, err, "adding watch on %s", path);
++	}
++
++	return err;
++}
++EXPORT_SYMBOL_GPL(xenbus_watch_path);
++
++
++/**
++ * xenbus_watch_path2 - register a watch on path/path2
++ * @dev: xenbus device
++ * @path: first half of path to watch
++ * @path2: second half of path to watch
++ * @watch: watch to register
++ * @callback: callback to register
++ *
++ * Register a watch on the given @path/@path2, using the given xenbus_watch
++ * structure for storage, and the given @callback function as the callback.
++ * Return 0 on success, or -errno on error.  On success, the watched path
++ * (@path/@path2) will be saved as @watch->node, and becomes the caller's =
+to
++ * kfree().  On error, watch->node will be NULL, so the caller has nothing=
+ to
++ * free, the device will switch to %XenbusStateClosing, and the error will=
+ be
++ * saved in the store.
++ */
++int xenbus_watch_path2(struct xenbus_device *dev, const char *path,
++		       const char *path2, struct xenbus_watch *watch,
++		       void (*callback)(struct xenbus_watch *,
++					const char **, unsigned int))
++{
++	int err;
++	char *state =3D kasprintf(GFP_KERNEL, "%s/%s", path, path2);
++	if (!state) {
++		xenbus_dev_fatal(dev, -ENOMEM, "allocating path for watch");
++		return -ENOMEM;
++	}
++	err =3D xenbus_watch_path(dev, state, watch, callback);
++
++	if (err)
++		kfree(state);
++	return err;
++}
++EXPORT_SYMBOL_GPL(xenbus_watch_path2);
++
++
++/**
++ * xenbus_switch_state
++ * @dev: xenbus device
++ * @xbt: transaction handle
++ * @state: new state
++ *
++ * Advertise in the store a change of the given driver to the given new_st=
+ate.
++ * Return 0 on success, or -errno on error.  On error, the device will swi=
+tch
++ * to XenbusStateClosing, and the error will be saved in the store.
++ */
++int xenbus_switch_state(struct xenbus_device *dev, enum xenbus_state state)
++{
++	/* We check whether the state is currently set to the given value, and
++	   if not, then the state is set.  We don't want to unconditionally
++	   write the given state, because we don't want to fire watches
++	   unnecessarily.  Furthermore, if the node has gone, we don't write
++	   to it, as the device will be tearing down, and we don't want to
++	   resurrect that directory.
++
++	   Note that, because of this cached value of our state, this function
++	   will not work inside a Xenstore transaction (something it was
++	   trying to in the past) because dev->state would not get reset if
++	   the transaction was aborted.
++
++	 */
++
++	int current_state;
++	int err;
++
++	if (state =3D=3D dev->state)
++		return 0;
++
++	err =3D xenbus_scanf(XBT_NIL, dev->nodename, "state", "%d",
++			   &current_state);
++	if (err !=3D 1)
++		return 0;
++
++	err =3D xenbus_printf(XBT_NIL, dev->nodename, "state", "%d", state);
++	if (err) {
++		if (state !=3D XenbusStateClosing) /* Avoid looping */
++			xenbus_dev_fatal(dev, err, "writing new state");
 +		return err;
 +	}
 +
-+	info =3D netdev_priv(netdev);
-+	dev->dev.driver_data =3D info;
-+
-+	err =3D open_netdev(info);
-+	if (err)
-+		goto fail;
++	dev->state =3D state;
 +
 +	return 0;
++}
++EXPORT_SYMBOL_GPL(xenbus_switch_state);
 +
-+ fail:
-+	free_netdev(netdev);
-+	dev->dev.driver_data =3D NULL;
-+	return err;
++int xenbus_frontend_closed(struct xenbus_device *dev)
++{
++	xenbus_switch_state(dev, XenbusStateClosed);
++	complete(&dev->down);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(xenbus_frontend_closed);
++
++/**
++ * Return the path to the error node for the given device, or NULL on fail=
+ure.
++ * If the value returned is non-NULL, then it is the caller's to kfree.
++ */
++static char *error_path(struct xenbus_device *dev)
++{
++	return kasprintf(GFP_KERNEL, "error/%s", dev->nodename);
++}
++
++
++static void xenbus_va_dev_error(struct xenbus_device *dev, int err,
++				const char *fmt, va_list ap)
++{
++	int ret;
++	unsigned int len;
++	char *printf_buffer =3D NULL;
++	char *path_buffer =3D NULL;
++
++#define PRINTF_BUFFER_SIZE 4096
++	printf_buffer =3D kmalloc(PRINTF_BUFFER_SIZE, GFP_KERNEL);
++	if (printf_buffer =3D=3D NULL)
++		goto fail;
++
++	len =3D sprintf(printf_buffer, "%i ", -err);
++	ret =3D vsnprintf(printf_buffer+len, PRINTF_BUFFER_SIZE-len, fmt, ap);
++
++	BUG_ON(len + ret > PRINTF_BUFFER_SIZE-1);
++
++	dev_err(&dev->dev, "%s\n", printf_buffer);
++
++	path_buffer =3D error_path(dev);
++
++	if (path_buffer =3D=3D NULL) {
++		dev_err(&dev->dev, "failed to write error node for %s (%s)\n",
++		       dev->nodename, printf_buffer);
++		goto fail;
++	}
++
++	if (xenbus_write(XBT_NIL, path_buffer, "error", printf_buffer) !=3D 0) {
++		dev_err(&dev->dev, "failed to write error node for %s (%s)\n",
++		       dev->nodename, printf_buffer);
++		goto fail;
++	}
++
++fail:
++	kfree(printf_buffer);
++	kfree(path_buffer);
 +}
 +
 +
 +/**
-+ * We are reconnecting to the backend, due to a suspend/resume, or a backe=
-nd
-+ * driver restart.  We tear down our netif structure and recreate it, but
-+ * leave the device-layer structures intact so that this is transparent to=
- the
-+ * rest of the kernel.
-+ */
-+static int netfront_resume(struct xenbus_device *dev)
-+{
-+	struct netfront_info *info =3D dev->dev.driver_data;
-+
-+	DPRINTK("%s\n", dev->nodename);
-+
-+	netif_disconnect_backend(info);
-+	return 0;
-+}
-+
-+static int xen_net_read_mac(struct xenbus_device *dev, u8 mac[])
-+{
-+	char *s, *e, *macstr;
-+	int i;
-+
-+	macstr =3D s =3D xenbus_read(XBT_NIL, dev->nodename, "mac", NULL);
-+	if (IS_ERR(macstr))
-+		return PTR_ERR(macstr);
-+
-+	for (i =3D 0; i < ETH_ALEN; i++) {
-+		mac[i] =3D simple_strtoul(s, &e, 16);
-+		if ((s =3D=3D e) || (*e !=3D ((i =3D=3D ETH_ALEN-1) ? '\0' : ':'))) {
-+			kfree(macstr);
-+			return -ENOENT;
-+		}
-+		s =3D e+1;
-+	}
-+
-+	kfree(macstr);
-+	return 0;
-+}
-+
-+/* Common code used when first setting up, and when resuming. */
-+static int talk_to_backend(struct xenbus_device *dev,
-+			   struct netfront_info *info)
-+{
-+	const char *message;
-+	struct xenbus_transaction xbt;
-+	int err;
-+
-+	err =3D xen_net_read_mac(dev, info->mac);
-+	if (err) {
-+		xenbus_dev_fatal(dev, err, "parsing %s/mac", dev->nodename);
-+		goto out;
-+	}
-+
-+	/* Create shared ring, alloc event channel. */
-+	err =3D setup_device(dev, info);
-+	if (err)
-+		goto out;
-+
-+again:
-+	err =3D xenbus_transaction_start(&xbt);
-+	if (err) {
-+		xenbus_dev_fatal(dev, err, "starting transaction");
-+		goto destroy_ring;
-+	}
-+
-+	err =3D xenbus_printf(xbt, dev->nodename, "tx-ring-ref","%u",
-+			    info->tx_ring_ref);
-+	if (err) {
-+		message =3D "writing tx ring-ref";
-+		goto abort_transaction;
-+	}
-+	err =3D xenbus_printf(xbt, dev->nodename, "rx-ring-ref","%u",
-+			    info->rx_ring_ref);
-+	if (err) {
-+		message =3D "writing rx ring-ref";
-+		goto abort_transaction;
-+	}
-+	err =3D xenbus_printf(xbt, dev->nodename,
-+			    "event-channel", "%u", info->evtchn);
-+	if (err) {
-+		message =3D "writing event-channel";
-+		goto abort_transaction;
-+	}
-+
-+	err =3D xenbus_printf(xbt, dev->nodename, "request-rx-copy", "%u",
-+			    info->copying_receiver);
-+	if (err) {
-+		message =3D "writing request-rx-copy";
-+		goto abort_transaction;
-+	}
-+
-+	err =3D xenbus_printf(xbt, dev->nodename, "feature-rx-notify", "%d", 1);
-+	if (err) {
-+		message =3D "writing feature-rx-notify";
-+		goto abort_transaction;
-+	}
-+
-+	err =3D xenbus_printf(xbt, dev->nodename, "feature-sg", "%d", 1);
-+	if (err) {
-+		message =3D "writing feature-sg";
-+		goto abort_transaction;
-+	}
-+
-+	err =3D xenbus_printf(xbt, dev->nodename, "feature-gso-tcpv4", "%d", 1);
-+	if (err) {
-+		message =3D "writing feature-gso-tcpv4";
-+		goto abort_transaction;
-+	}
-+
-+	err =3D xenbus_transaction_end(xbt, 0);
-+	if (err) {
-+		if (err =3D=3D -EAGAIN)
-+			goto again;
-+		xenbus_dev_fatal(dev, err, "completing transaction");
-+		goto destroy_ring;
-+	}
-+
-+	return 0;
-+
-+ abort_transaction:
-+	xenbus_transaction_end(xbt, 1);
-+	xenbus_dev_fatal(dev, err, "%s", message);
-+ destroy_ring:
-+	netif_disconnect_backend(info);
-+ out:
-+	return err;
-+}
-+
-+static int setup_device(struct xenbus_device *dev, struct netfront_info *i=
-nfo)
-+{
-+	struct netif_tx_sring *txs;
-+	struct netif_rx_sring *rxs;
-+	int err;
-+	struct net_device *netdev =3D info->netdev;
-+
-+	info->tx_ring_ref =3D GRANT_INVALID_REF;
-+	info->rx_ring_ref =3D GRANT_INVALID_REF;
-+	info->rx.sring =3D NULL;
-+	info->tx.sring =3D NULL;
-+	info->irq =3D 0;
-+
-+	txs =3D (struct netif_tx_sring *)get_zeroed_page(GFP_KERNEL);
-+	if (!txs) {
-+		err =3D -ENOMEM;
-+		xenbus_dev_fatal(dev, err, "allocating tx ring page");
-+		goto fail;
-+	}
-+	SHARED_RING_INIT(txs);
-+	FRONT_RING_INIT(&info->tx, txs, PAGE_SIZE);
-+
-+	err =3D xenbus_grant_ring(dev, virt_to_mfn(txs));
-+	if (err < 0) {
-+		free_page((unsigned long)txs);
-+		goto fail;
-+	}
-+
-+	info->tx_ring_ref =3D err;
-+	rxs =3D (struct netif_rx_sring *)get_zeroed_page(GFP_KERNEL);
-+	if (!rxs) {
-+		err =3D -ENOMEM;
-+		xenbus_dev_fatal(dev, err, "allocating rx ring page");
-+		goto fail;
-+	}
-+	SHARED_RING_INIT(rxs);
-+	FRONT_RING_INIT(&info->rx, rxs, PAGE_SIZE);
-+
-+	err =3D xenbus_grant_ring(dev, virt_to_mfn(rxs));
-+	if (err < 0) {
-+		free_page((unsigned long)rxs);
-+		goto fail;
-+	}
-+	info->rx_ring_ref =3D err;
-+
-+	err =3D xenbus_alloc_evtchn(dev, &info->evtchn);
-+	if (err)
-+		goto fail;
-+
-+	memcpy(netdev->dev_addr, info->mac, ETH_ALEN);
-+	err =3D bind_evtchn_to_irqhandler(info->evtchn, netif_int,
-+					SA_SAMPLE_RANDOM, netdev->name,
-+					netdev);
-+	if (err < 0)
-+		goto fail;
-+	info->irq =3D err;
-+	return 0;
-+
-+ fail:
-+	return err;
-+}
-+
-+/**
-+ * Callback received when the backend's state changes.
-+ */
-+static void backend_changed(struct xenbus_device *dev,
-+			    enum xenbus_state backend_state)
-+{
-+	struct netfront_info *np =3D dev->dev.driver_data;
-+	struct net_device *netdev =3D np->netdev;
-+
-+	DPRINTK("%s\n", xenbus_strstate(backend_state));
-+
-+	switch (backend_state) {
-+	case XenbusStateInitialising:
-+	case XenbusStateInitialised:
-+	case XenbusStateConnected:
-+	case XenbusStateUnknown:
-+	case XenbusStateClosed:
-+		break;
-+
-+	case XenbusStateInitWait:
-+		if (dev->state !=3D XenbusStateInitialising)
-+			break;
-+		if (network_connect(netdev) !=3D 0)
-+			break;
-+		xenbus_switch_state(dev, XenbusStateConnected);
-+		(void)send_fake_arp(netdev);
-+		break;
-+
-+	case XenbusStateClosing:
-+		if (dev->state =3D=3D XenbusStateClosed)
-+			break;
-+		netfront_closing(dev);
-+		break;
-+	}
-+}
-+
-+/** Send a packet on a net device to encourage switches to learn the
-+ * MAC. We send a fake ARP request.
++ * xenbus_dev_error
++ * @dev: xenbus device
++ * @err: error to report
++ * @fmt: error message format
 + *
-+ * @param dev device
-+ * @return 0 on success, error code otherwise
++ * Report the given negative errno into the store, along with the given
++ * formatted message.
 + */
-+static int send_fake_arp(struct net_device *dev)
++void xenbus_dev_error(struct xenbus_device *dev, int err, const char *fmt,=
+ ...)
 +{
-+	struct sk_buff *skb;
-+	u32             src_ip, dst_ip;
++	va_list ap;
 +
-+	dst_ip =3D INADDR_BROADCAST;
-+	src_ip =3D inet_select_addr(dev, dst_ip, RT_SCOPE_LINK);
++	va_start(ap, fmt);
++	xenbus_va_dev_error(dev, err, fmt, ap);
++	va_end(ap);
++}
++EXPORT_SYMBOL_GPL(xenbus_dev_error);
 +
-+	/* No IP? Then nothing to do. */
-+	if (src_ip =3D=3D 0)
-+		return 0;
++/**
++ * xenbus_dev_fatal
++ * @dev: xenbus device
++ * @err: error to report
++ * @fmt: error message format
++ *
++ * Equivalent to xenbus_dev_error(dev, err, fmt, args), followed by
++ * xenbus_switch_state(dev, NULL, XenbusStateClosing) to schedule an order=
+ly
++ * closedown of this driver and its peer.
++ */
 +
-+	skb =3D arp_create(ARPOP_REPLY, ETH_P_ARP,
-+			 dst_ip, dev, src_ip,
-+			 /*dst_hw*/ NULL, /*src_hw*/ NULL,
-+			 /*target_hw*/ dev->dev_addr);
-+	if (skb =3D=3D NULL)
++void xenbus_dev_fatal(struct xenbus_device *dev, int err, const char *fmt,=
+ ...)
++{
++	va_list ap;
++
++	va_start(ap, fmt);
++	xenbus_va_dev_error(dev, err, fmt, ap);
++	va_end(ap);
++
++	xenbus_switch_state(dev, XenbusStateClosing);
++}
++EXPORT_SYMBOL_GPL(xenbus_dev_fatal);
++
++/**
++ * xenbus_grant_ring
++ * @dev: xenbus device
++ * @ring_mfn: mfn of ring to grant
++
++ * Grant access to the given @ring_mfn to the peer of the given device.  R=
+eturn
++ * 0 on success, or -errno on error.  On error, the device will switch to
++ * XenbusStateClosing, and the error will be saved in the store.
++ */
++int xenbus_grant_ring(struct xenbus_device *dev, unsigned long ring_mfn)
++{
++	int err =3D gnttab_grant_foreign_access(dev->otherend_id, ring_mfn, 0);
++	if (err < 0)
++		xenbus_dev_fatal(dev, err, "granting access to ring page");
++	return err;
++}
++EXPORT_SYMBOL_GPL(xenbus_grant_ring);
++
++
++/**
++ * Allocate an event channel for the given xenbus_device, assigning the ne=
+wly
++ * created local port to *port.  Return 0 on success, or -errno on error. =
+ On
++ * error, the device will switch to XenbusStateClosing, and the error will=
+ be
++ * saved in the store.
++ */
++int xenbus_alloc_evtchn(struct xenbus_device *dev, int *port)
++{
++	struct evtchn_alloc_unbound alloc_unbound;
++	int err;
++
++	alloc_unbound.dom =3D DOMID_SELF;
++	alloc_unbound.remote_dom =3D dev->otherend_id;
++
++	err =3D HYPERVISOR_event_channel_op(EVTCHNOP_alloc_unbound,
++					  &alloc_unbound);
++	if (err)
++		xenbus_dev_fatal(dev, err, "allocating event channel");
++	else
++		*port =3D alloc_unbound.port;
++
++	return err;
++}
++EXPORT_SYMBOL_GPL(xenbus_alloc_evtchn);
++
++
++/**
++ * Bind to an existing interdomain event channel in another domain. Return=
+s 0
++ * on success and stores the local port in *port. On error, returns -errno,
++ * switches the device to XenbusStateClosing, and saves the error in XenSt=
+ore.
++ */
++int xenbus_bind_evtchn(struct xenbus_device *dev, int remote_port, int *po=
+rt)
++{
++	struct evtchn_bind_interdomain bind_interdomain;
++	int err;
++
++	bind_interdomain.remote_dom =3D dev->otherend_id;
++	bind_interdomain.remote_port =3D remote_port;
++
++	err =3D HYPERVISOR_event_channel_op(EVTCHNOP_bind_interdomain,
++					  &bind_interdomain);
++	if (err)
++		xenbus_dev_fatal(dev, err,
++				 "binding to event channel %d from domain %d",
++				 remote_port, dev->otherend_id);
++	else
++		*port =3D bind_interdomain.local_port;
++
++	return err;
++}
++EXPORT_SYMBOL_GPL(xenbus_bind_evtchn);
++
++
++/**
++ * Free an existing event channel. Returns 0 on success or -errno on error.
++ */
++int xenbus_free_evtchn(struct xenbus_device *dev, int port)
++{
++	struct evtchn_close close;
++	int err;
++
++	close.port =3D port;
++
++	err =3D HYPERVISOR_event_channel_op(EVTCHNOP_close, &close);
++	if (err)
++		xenbus_dev_error(dev, err, "freeing event channel %d", port);
++
++	return err;
++}
++EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
++
++
++/**
++ * xenbus_map_ring_valloc
++ * @dev: xenbus device
++ * @gnt_ref: grant reference
++ * @vaddr: pointer to address to be filled out by mapping
++ *
++ * Based on Rusty Russell's skeleton driver's map_page.
++ * Map a page of memory into this domain from another domain's grant table.
++ * xenbus_map_ring_valloc allocates a page of virtual address space, maps =
+the
++ * page to that address, and sets *vaddr to that address.
++ * Returns 0 on success, and GNTST_* (see xen/include/interface/grant_tabl=
+e.h)
++ * or -ENOMEM on error. If an error is returned, device will switch to
++ * XenbusStateClosing and the error message will be saved in XenStore.
++ */
++int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **=
+vaddr)
++{
++	struct gnttab_map_grant_ref op =3D {
++		.flags =3D GNTMAP_host_map,
++		.ref   =3D gnt_ref,
++		.dom   =3D dev->otherend_id,
++	};
++	struct vm_struct *area;
++
++	*vaddr =3D NULL;
++
++	area =3D alloc_vm_area(PAGE_SIZE);
++	if (!area)
 +		return -ENOMEM;
 +
-+	return dev_queue_xmit(skb);
-+}
++	op.host_addr =3D (unsigned long)area->addr;
 +
-+static int network_open(struct net_device *dev)
-+{
-+	struct netfront_info *np =3D netdev_priv(dev);
++	lock_vm_area(area);
++	if (HYPERVISOR_grant_table_op(GNTTABOP_map_grant_ref, &op, 1))
++		BUG();
++	unlock_vm_area(area);
 +
-+	memset(&np->stats, 0, sizeof(np->stats));
-+
-+	spin_lock(&np->rx_lock);
-+	if (netif_carrier_ok(dev)) {
-+		network_alloc_rx_buffers(dev);
-+		np->rx.sring->rsp_event =3D np->rx.rsp_cons + 1;
-+		if (RING_HAS_UNCONSUMED_RESPONSES(&np->rx))
-+			netif_rx_schedule(dev);
++	if (op.status !=3D GNTST_okay) {
++		free_vm_area(area);
++		xenbus_dev_fatal(dev, op.status,
++				 "mapping in shared page %d from domain %d",
++				 gnt_ref, dev->otherend_id);
++		return op.status;
 +	}
-+	spin_unlock(&np->rx_lock);
 +
-+	netif_start_queue(dev);
++	/* Stuff the handle in an unused field */
++	area->phys_addr =3D (unsigned long)op.handle;
 +
++	*vaddr =3D area->addr;
 +	return 0;
 +}
-+
-+static inline int netfront_tx_slot_available(struct netfront_info *np)
-+{
-+	return RING_FREE_REQUESTS(&np->tx) >=3D MAX_SKB_FRAGS + 2;
-+}
-+
-+static inline void network_maybe_wake_tx(struct net_device *dev)
-+{
-+	struct netfront_info *np =3D netdev_priv(dev);
-+
-+	if (unlikely(netif_queue_stopped(dev)) &&
-+	    netfront_tx_slot_available(np) &&
-+	    likely(netif_running(dev)))
-+		netif_wake_queue(dev);
-+}
-+
-+static void network_tx_buf_gc(struct net_device *dev)
-+{
-+	RING_IDX cons, prod;
-+	unsigned short id;
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	struct sk_buff *skb;
-+
-+	BUG_ON(!netif_carrier_ok(dev));
-+
-+	do {
-+		prod =3D np->tx.sring->rsp_prod;
-+		rmb(); /* Ensure we see responses up to 'rp'. */
-+
-+		for (cons =3D np->tx.rsp_cons; cons !=3D prod; cons++) {
-+			struct netif_tx_response *txrsp;
-+
-+			txrsp =3D RING_GET_RESPONSE(&np->tx, cons);
-+			if (txrsp->status =3D=3D NETIF_RSP_NULL)
-+				continue;
-+
-+			id  =3D txrsp->id;
-+			skb =3D np->tx_skbs[id];
-+			if (unlikely(gnttab_query_foreign_access(
-+				np->grant_tx_ref[id]) !=3D 0)) {
-+				printk(KERN_ALERT "network_tx_buf_gc: warning "
-+				       "-- grant still in use by backend "
-+				       "domain.\n");
-+				BUG();
-+			}
-+			gnttab_end_foreign_access_ref(
-+				np->grant_tx_ref[id], GNTMAP_readonly);
-+			gnttab_release_grant_reference(
-+				&np->gref_tx_head, np->grant_tx_ref[id]);
-+			np->grant_tx_ref[id] =3D GRANT_INVALID_REF;
-+			add_id_to_freelist(np->tx_skbs, id);
-+			dev_kfree_skb_irq(skb);
-+		}
-+
-+		np->tx.rsp_cons =3D prod;
-+
-+		/*
-+		 * Set a new event, then check for race with update of tx_cons.
-+		 * Note that it is essential to schedule a callback, no matter
-+		 * how few buffers are pending. Even if there is space in the
-+		 * transmit ring, higher layers may be blocked because too much
-+		 * data is outstanding: in such cases notification from Xen is
-+		 * likely to be the only kick that we'll get.
-+		 */
-+		np->tx.sring->rsp_event =3D
-+			prod + ((np->tx.sring->req_prod - prod) >> 1) + 1;
-+		mb();
-+	} while ((cons =3D=3D prod) && (prod !=3D np->tx.sring->rsp_prod));
-+
-+	network_maybe_wake_tx(dev);
-+}
-+
-+static void rx_refill_timeout(unsigned long data)
-+{
-+	struct net_device *dev =3D (struct net_device *)data;
-+	netif_rx_schedule(dev);
-+}
-+
-+static void network_alloc_rx_buffers(struct net_device *dev)
-+{
-+	unsigned short id;
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	struct sk_buff *skb;
-+	struct page *page;
-+	int i, batch_target, notify;
-+	RING_IDX req_prod =3D np->rx.req_prod_pvt;
-+	struct xen_memory_reservation reservation;
-+	grant_ref_t ref;
-+	unsigned long pfn;
-+	void *vaddr;
-+	int nr_flips;
-+	struct netif_rx_request *req;
-+
-+	if (unlikely(!netif_carrier_ok(dev)))
-+		return;
-+
-+	/*
-+	 * Allocate skbuffs greedily, even though we batch updates to the
-+	 * receive ring. This creates a less bursty demand on the memory
-+	 * allocator, so should reduce the chance of failed allocation requests
-+	 * both for ourself and for other kernel subsystems.
-+	 */
-+	batch_target =3D np->rx_target - (req_prod - np->rx.rsp_cons);
-+	for (i =3D skb_queue_len(&np->rx_batch); i < batch_target; i++) {
-+		/*
-+		 * Allocate an skb and a page. Do not use __dev_alloc_skb as
-+		 * that will allocate page-sized buffers which is not
-+		 * necessary here.
-+		 * 16 bytes added as necessary headroom for netif_receive_skb.
-+		 */
-+		skb =3D alloc_skb(RX_COPY_THRESHOLD + 16 + NET_IP_ALIGN,
-+				GFP_ATOMIC | __GFP_NOWARN);
-+		if (unlikely(!skb))
-+			goto no_skb;
-+
-+		page =3D alloc_page(GFP_ATOMIC | __GFP_NOWARN);
-+		if (!page) {
-+			kfree_skb(skb);
-+no_skb:
-+			/* Any skbuffs queued for refill? Force them out. */
-+			if (i !=3D 0)
-+				goto refill;
-+			/* Could not allocate any skbuffs. Try again later. */
-+			mod_timer(&np->rx_refill_timer,
-+				  jiffies + (HZ/10));
-+			break;
-+		}
-+
-+		skb_reserve(skb, 16 + NET_IP_ALIGN); /* mimic dev_alloc_skb() */
-+		skb_shinfo(skb)->frags[0].page =3D page;
-+		skb_shinfo(skb)->nr_frags =3D 1;
-+		__skb_queue_tail(&np->rx_batch, skb);
-+	}
-+
-+	/* Is the batch large enough to be worthwhile? */
-+	if (i < (np->rx_target/2)) {
-+		if (req_prod > np->rx.sring->req_prod)
-+			goto push;
-+		return;
-+	}
-+
-+	/* Adjust our fill target if we risked running out of buffers. */
-+	if (((req_prod - np->rx.sring->rsp_prod) < (np->rx_target / 4)) &&
-+	    ((np->rx_target *=3D 2) > np->rx_max_target))
-+		np->rx_target =3D np->rx_max_target;
-+
-+ refill:
-+	for (nr_flips =3D i =3D 0; ; i++) {
-+		if ((skb =3D __skb_dequeue(&np->rx_batch)) =3D=3D NULL)
-+			break;
-+
-+		skb->dev =3D dev;
-+
-+		id =3D xennet_rxidx(req_prod + i);
-+
-+		BUG_ON(np->rx_skbs[id]);
-+		np->rx_skbs[id] =3D skb;
-+
-+		ref =3D gnttab_claim_grant_reference(&np->gref_rx_head);
-+		BUG_ON((signed short)ref < 0);
-+		np->grant_rx_ref[id] =3D ref;
-+
-+		pfn =3D page_to_pfn(skb_shinfo(skb)->frags[0].page);
-+		vaddr =3D page_address(skb_shinfo(skb)->frags[0].page);
-+
-+		req =3D RING_GET_REQUEST(&np->rx, req_prod + i);
-+		if (!np->copying_receiver) {
-+			gnttab_grant_foreign_transfer_ref(ref,
-+							  np->xbdev->otherend_id,
-+							  pfn);
-+			np->rx_pfn_array[nr_flips] =3D pfn_to_mfn(pfn);
-+			if (!xen_feature(XENFEAT_auto_translated_physmap)) {
-+				/* Remove this page before passing
-+				 * back to Xen. */
-+				set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
-+				MULTI_update_va_mapping(np->rx_mcl+i,
-+							(unsigned long)vaddr,
-+							__pte(0), 0);
-+			}
-+			nr_flips++;
-+		} else {
-+			gnttab_grant_foreign_access_ref(ref,
-+							np->xbdev->otherend_id,
-+							pfn_to_mfn(pfn),
-+							0);
-+		}
-+
-+		req->id =3D id;
-+		req->gref =3D ref;
-+	}
-+
-+	if ( nr_flips !=3D 0 ) {
-+#ifdef CONFIG_XEN_BALLOON
-+		/* Tell the ballon driver what is going on. */
-+		balloon_update_driver_allowance(i);
-+#endif
-+
-+		reservation.extent_start =3D np->rx_pfn_array;
-+		reservation.nr_extents   =3D nr_flips;
-+		reservation.extent_order =3D 0;
-+		reservation.address_bits =3D 0;
-+		reservation.domid        =3D DOMID_SELF;
-+
-+		if (!xen_feature(XENFEAT_auto_translated_physmap)) {
-+			/* After all PTEs have been zapped, flush the TLB. */
-+			np->rx_mcl[i-1].args[MULTI_UVMFLAGS_INDEX] =3D
-+				UVMF_TLB_FLUSH|UVMF_ALL;
-+
-+			/* Give away a batch of pages. */
-+			np->rx_mcl[i].op =3D __HYPERVISOR_memory_op;
-+			np->rx_mcl[i].args[0] =3D XENMEM_decrease_reservation;
-+			np->rx_mcl[i].args[1] =3D (unsigned long)&reservation;
-+
-+			/* Zap PTEs and give away pages in one big
-+			 * multicall. */
-+			(void)HYPERVISOR_multicall(np->rx_mcl, i+1);
-+
-+			/* Check return status of HYPERVISOR_memory_op(). */
-+			if (unlikely(np->rx_mcl[i].result !=3D i))
-+				panic("Unable to reduce memory reservation\n");
-+		} else {
-+			if (HYPERVISOR_memory_op(XENMEM_decrease_reservation,
-+						 &reservation) !=3D i)
-+				panic("Unable to reduce memory reservation\n");
-+		}
-+	} else {
-+		wmb();
-+	}
-+
-+	/* Above is a suitable barrier to ensure backend will see requests. */
-+	np->rx.req_prod_pvt =3D req_prod + i;
-+ push:
-+	RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(&np->rx, notify);
-+	if (notify)
-+		notify_remote_via_irq(np->irq);
-+}
-+
-+static void xennet_move_rx_slot(struct netfront_info *np, struct sk_buff *=
-skb,
-+				grant_ref_t ref)
-+{
-+	int new =3D xennet_rxidx(np->rx.req_prod_pvt);
-+
-+	BUG_ON(np->rx_skbs[new]);
-+	np->rx_skbs[new] =3D skb;
-+	np->grant_rx_ref[new] =3D ref;
-+	RING_GET_REQUEST(&np->rx, np->rx.req_prod_pvt)->id =3D new;
-+	RING_GET_REQUEST(&np->rx, np->rx.req_prod_pvt)->gref =3D ref;
-+	np->rx.req_prod_pvt++;
-+}
-+
-+static void xennet_make_frags(struct sk_buff *skb, struct net_device *dev,
-+			      struct netif_tx_request *tx)
-+{
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	char *data =3D skb->data;
-+	unsigned long mfn;
-+	RING_IDX prod =3D np->tx.req_prod_pvt;
-+	int frags =3D skb_shinfo(skb)->nr_frags;
-+	unsigned int offset =3D offset_in_page(data);
-+	unsigned int len =3D skb_headlen(skb);
-+	unsigned int id;
-+	grant_ref_t ref;
-+	int i;
-+
-+	while (len > PAGE_SIZE - offset) {
-+		tx->size =3D PAGE_SIZE - offset;
-+		tx->flags |=3D NETTXF_more_data;
-+		len -=3D tx->size;
-+		data +=3D tx->size;
-+		offset =3D 0;
-+
-+		id =3D get_id_from_freelist(np->tx_skbs);
-+		np->tx_skbs[id] =3D skb_get(skb);
-+		tx =3D RING_GET_REQUEST(&np->tx, prod++);
-+		tx->id =3D id;
-+		ref =3D gnttab_claim_grant_reference(&np->gref_tx_head);
-+		BUG_ON((signed short)ref < 0);
-+
-+		mfn =3D virt_to_mfn(data);
-+		gnttab_grant_foreign_access_ref(ref, np->xbdev->otherend_id,
-+						mfn, GNTMAP_readonly);
-+
-+		tx->gref =3D np->grant_tx_ref[id] =3D ref;
-+		tx->offset =3D offset;
-+		tx->size =3D len;
-+		tx->flags =3D 0;
-+	}
-+
-+	for (i =3D 0; i < frags; i++) {
-+		skb_frag_t *frag =3D skb_shinfo(skb)->frags + i;
-+
-+		tx->flags |=3D NETTXF_more_data;
-+
-+		id =3D get_id_from_freelist(np->tx_skbs);
-+		np->tx_skbs[id] =3D skb_get(skb);
-+		tx =3D RING_GET_REQUEST(&np->tx, prod++);
-+		tx->id =3D id;
-+		ref =3D gnttab_claim_grant_reference(&np->gref_tx_head);
-+		BUG_ON((signed short)ref < 0);
-+
-+		mfn =3D pfn_to_mfn(page_to_pfn(frag->page));
-+		gnttab_grant_foreign_access_ref(ref, np->xbdev->otherend_id,
-+						mfn, GNTMAP_readonly);
-+
-+		tx->gref =3D np->grant_tx_ref[id] =3D ref;
-+		tx->offset =3D frag->page_offset;
-+		tx->size =3D frag->size;
-+		tx->flags =3D 0;
-+	}
-+
-+	np->tx.req_prod_pvt =3D prod;
-+}
-+  =
-
-+static int network_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+{
-+	unsigned short id;
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	struct netif_tx_request *tx;
-+	struct netif_extra_info *extra;
-+	char *data =3D skb->data;
-+	RING_IDX i;
-+	grant_ref_t ref;
-+	unsigned long mfn;
-+	int notify;
-+	int frags =3D skb_shinfo(skb)->nr_frags;
-+	unsigned int offset =3D offset_in_page(data);
-+	unsigned int len =3D skb_headlen(skb);
-+
-+	frags +=3D (offset + len + PAGE_SIZE - 1) / PAGE_SIZE;
-+	if (unlikely(frags > MAX_SKB_FRAGS + 1)) {
-+		printk(KERN_ALERT "xennet: skb rides the rocket: %d frags\n",
-+		       frags);
-+		dump_stack();
-+		goto drop;
-+	}
-+
-+	spin_lock_irq(&np->tx_lock);
-+
-+	if (unlikely(!netif_carrier_ok(dev) ||
-+		     (frags > 1 && !xennet_can_sg(dev)) ||
-+		     netif_needs_gso(dev, skb))) {
-+		spin_unlock_irq(&np->tx_lock);
-+		goto drop;
-+	}
-+
-+	i =3D np->tx.req_prod_pvt;
-+
-+	id =3D get_id_from_freelist(np->tx_skbs);
-+	np->tx_skbs[id] =3D skb;
-+
-+	tx =3D RING_GET_REQUEST(&np->tx, i);
-+
-+	tx->id   =3D id;
-+	ref =3D gnttab_claim_grant_reference(&np->gref_tx_head);
-+	BUG_ON((signed short)ref < 0);
-+	mfn =3D virt_to_mfn(data);
-+	gnttab_grant_foreign_access_ref(
-+		ref, np->xbdev->otherend_id, mfn, GNTMAP_readonly);
-+	tx->gref =3D np->grant_tx_ref[id] =3D ref;
-+	tx->offset =3D offset;
-+	tx->size =3D len;
-+	extra =3D NULL;
-+
-+ 	tx->flags =3D 0;
-+ 	if (skb->ip_summed =3D=3D CHECKSUM_PARTIAL) /* local packet? */
-+ 		tx->flags |=3D NETTXF_csum_blank | NETTXF_data_validated;
-+
-+	if (skb_shinfo(skb)->gso_size) {
-+		struct netif_extra_info *gso =3D (struct netif_extra_info *)
-+			RING_GET_REQUEST(&np->tx, ++i);
-+
-+		if (extra)
-+			extra->flags |=3D XEN_NETIF_EXTRA_FLAG_MORE;
-+		else
-+			tx->flags |=3D NETTXF_extra_info;
-+
-+		gso->u.gso.size =3D skb_shinfo(skb)->gso_size;
-+		gso->u.gso.type =3D XEN_NETIF_GSO_TYPE_TCPV4;
-+		gso->u.gso.pad =3D 0;
-+		gso->u.gso.features =3D 0;
-+
-+		gso->type =3D XEN_NETIF_EXTRA_TYPE_GSO;
-+		gso->flags =3D 0;
-+		extra =3D gso;
-+	}
-+
-+	np->tx.req_prod_pvt =3D i + 1;
-+
-+	xennet_make_frags(skb, dev, tx);
-+	tx->size =3D skb->len;
-+
-+	RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(&np->tx, notify);
-+	if (notify)
-+		notify_remote_via_irq(np->irq);
-+
-+	network_tx_buf_gc(dev);
-+
-+	if (!netfront_tx_slot_available(np))
-+		netif_stop_queue(dev);
-+
-+	spin_unlock_irq(&np->tx_lock);
-+
-+	np->stats.tx_bytes +=3D skb->len;
-+	np->stats.tx_packets++;
-+
-+	return 0;
-+
-+ drop:
-+	np->stats.tx_dropped++;
-+	dev_kfree_skb(skb);
-+	return 0;
-+}
-+
-+static irqreturn_t netif_int(int irq, void *dev_id)
-+{
-+	struct net_device *dev =3D dev_id;
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&np->tx_lock, flags);
-+
-+	if (likely(netif_carrier_ok(dev))) {
-+		network_tx_buf_gc(dev);
-+		/* Under tx_lock: protects access to rx shared-ring indexes. */
-+		if (RING_HAS_UNCONSUMED_RESPONSES(&np->rx))
-+			netif_rx_schedule(dev);
-+	}
-+
-+	spin_unlock_irqrestore(&np->tx_lock, flags);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void handle_incoming_queue(struct net_device *dev, struct sk_buff_h=
-ead *rxq)
-+{
-+	struct sk_buff *skb;
-+
-+	while ((skb =3D __skb_dequeue(rxq)) !=3D NULL) {
-+		struct page *page =3D (struct page *)skb->nh.raw;
-+		void *vaddr =3D page_address(page);
-+
-+		memcpy(skb->data, vaddr + (skb->h.raw - skb->nh.raw),
-+		       skb_headlen(skb));
-+
-+		if (page !=3D skb_shinfo(skb)->frags[0].page)
-+			__free_page(page);
-+
-+		/* Ethernet work: Delayed to here as it peeks the header. */
-+		skb->protocol =3D eth_type_trans(skb, dev);
-+
-+		/* Pass it up. */
-+		netif_receive_skb(skb);
-+		dev->last_rx =3D jiffies;
-+	}
-+}
-+
-+int xennet_get_extras(struct netfront_info *np,
-+		      struct netif_extra_info *extras, RING_IDX rp)
-+
-+{
-+	struct netif_extra_info *extra;
-+	RING_IDX cons =3D np->rx.rsp_cons;
-+	int err =3D 0;
-+
-+	do {
-+		struct sk_buff *skb;
-+		grant_ref_t ref;
-+
-+		if (unlikely(cons + 1 =3D=3D rp)) {
-+			if (net_ratelimit())
-+				WPRINTK("Missing extra info\n");
-+			err =3D -EBADR;
-+			break;
-+		}
-+
-+		extra =3D (struct netif_extra_info *)
-+			RING_GET_RESPONSE(&np->rx, ++cons);
-+
-+		if (unlikely(!extra->type ||
-+			     extra->type >=3D XEN_NETIF_EXTRA_TYPE_MAX)) {
-+			if (net_ratelimit())
-+				WPRINTK("Invalid extra type: %d\n",
-+					extra->type);
-+			err =3D -EINVAL;
-+		} else {
-+			memcpy(&extras[extra->type - 1], extra,
-+			       sizeof(*extra));
-+		}
-+
-+		skb =3D xennet_get_rx_skb(np, cons);
-+		ref =3D xennet_get_rx_ref(np, cons);
-+		xennet_move_rx_slot(np, skb, ref);
-+	} while (extra->flags & XEN_NETIF_EXTRA_FLAG_MORE);
-+
-+	np->rx.rsp_cons =3D cons;
-+	return err;
-+}
-+
-+static int xennet_get_responses(struct netfront_info *np,
-+				struct netfront_rx_info *rinfo, RING_IDX rp,
-+				struct sk_buff_head *list,
-+				int *pages_flipped_p)
-+{
-+	int pages_flipped =3D *pages_flipped_p;
-+	struct mmu_update *mmu;
-+	struct multicall_entry *mcl;
-+	struct netif_rx_response *rx =3D &rinfo->rx;
-+	struct netif_extra_info *extras =3D rinfo->extras;
-+	RING_IDX cons =3D np->rx.rsp_cons;
-+	struct sk_buff *skb =3D xennet_get_rx_skb(np, cons);
-+	grant_ref_t ref =3D xennet_get_rx_ref(np, cons);
-+	int max =3D MAX_SKB_FRAGS + (rx->status <=3D RX_COPY_THRESHOLD);
-+	int frags =3D 1;
-+	int err =3D 0;
-+	unsigned long ret;
-+
-+	if (rx->flags & NETRXF_extra_info) {
-+		err =3D xennet_get_extras(np, extras, rp);
-+		cons =3D np->rx.rsp_cons;
-+	}
-+
-+	for (;;) {
-+		unsigned long mfn;
-+
-+		if (unlikely(rx->status < 0 ||
-+			     rx->offset + rx->status > PAGE_SIZE)) {
-+			if (net_ratelimit())
-+				WPRINTK("rx->offset: %x, size: %u\n",
-+					rx->offset, rx->status);
-+			xennet_move_rx_slot(np, skb, ref);
-+			err =3D -EINVAL;
-+			goto next;
-+		}
-+
-+		/*
-+		 * This definitely indicates a bug, either in this driver or in
-+		 * the backend driver. In future this should flag the bad
-+		 * situation to the system controller to reboot the backed.
-+		 */
-+		if (ref =3D=3D GRANT_INVALID_REF) {
-+			if (net_ratelimit())
-+				WPRINTK("Bad rx response id %d.\n", rx->id);
-+			err =3D -EINVAL;
-+			goto next;
-+		}
-+
-+		if (!np->copying_receiver) {
-+			/* Memory pressure, insufficient buffer
-+			 * headroom, ... */
-+			mfn =3D gnttab_end_foreign_transfer_ref(ref);
-+			if (!mfn) {
-+				if (net_ratelimit())
-+					WPRINTK("Unfulfilled rx req "
-+						"(id=3D%d, st=3D%d).\n",
-+						rx->id, rx->status);
-+				xennet_move_rx_slot(np, skb, ref);
-+				err =3D -ENOMEM;
-+				goto next;
-+			}
-+
-+			if (!xen_feature(XENFEAT_auto_translated_physmap)) {
-+				/* Remap the page. */
-+				struct page *page =3D
-+					skb_shinfo(skb)->frags[0].page;
-+				unsigned long pfn =3D page_to_pfn(page);
-+				void *vaddr =3D page_address(page);
-+
-+				mcl =3D np->rx_mcl + pages_flipped;
-+				mmu =3D np->rx_mmu + pages_flipped;
-+
-+				MULTI_update_va_mapping(mcl,
-+							(unsigned long)vaddr,
-+							mfn_pte(mfn, PAGE_KERNEL),
-+							0);
-+				mmu->ptr =3D ((u64)mfn << PAGE_SHIFT)
-+					| MMU_MACHPHYS_UPDATE;
-+				mmu->val =3D pfn;
-+
-+				set_phys_to_machine(pfn, mfn);
-+			}
-+			pages_flipped++;
-+		} else {
-+			ret =3D gnttab_end_foreign_access_ref(ref, 0);
-+			BUG_ON(!ret);
-+		}
-+
-+		gnttab_release_grant_reference(&np->gref_rx_head, ref);
-+
-+		__skb_queue_tail(list, skb);
-+
-+next:
-+		if (!(rx->flags & NETRXF_more_data))
-+			break;
-+
-+		if (cons + frags =3D=3D rp) {
-+			if (net_ratelimit())
-+				WPRINTK("Need more frags\n");
-+			err =3D -ENOENT;
-+			break;
-+		}
-+
-+		rx =3D RING_GET_RESPONSE(&np->rx, cons + frags);
-+		skb =3D xennet_get_rx_skb(np, cons + frags);
-+		ref =3D xennet_get_rx_ref(np, cons + frags);
-+		frags++;
-+	}
-+
-+	if (unlikely(frags > max)) {
-+		if (net_ratelimit())
-+			WPRINTK("Too many frags\n");
-+		err =3D -E2BIG;
-+	}
-+
-+	if (unlikely(err))
-+		np->rx.rsp_cons =3D cons + frags;
-+
-+	*pages_flipped_p =3D pages_flipped;
-+
-+	return err;
-+}
-+
-+static RING_IDX xennet_fill_frags(struct netfront_info *np,
-+				  struct sk_buff *skb,
-+				  struct sk_buff_head *list)
-+{
-+	struct skb_shared_info *shinfo =3D skb_shinfo(skb);
-+	int nr_frags =3D shinfo->nr_frags;
-+	RING_IDX cons =3D np->rx.rsp_cons;
-+	skb_frag_t *frag =3D shinfo->frags + nr_frags;
-+	struct sk_buff *nskb;
-+
-+	while ((nskb =3D __skb_dequeue(list))) {
-+		struct netif_rx_response *rx =3D
-+			RING_GET_RESPONSE(&np->rx, ++cons);
-+
-+		frag->page =3D skb_shinfo(nskb)->frags[0].page;
-+		frag->page_offset =3D rx->offset;
-+		frag->size =3D rx->status;
-+
-+		skb->data_len +=3D rx->status;
-+
-+		skb_shinfo(nskb)->nr_frags =3D 0;
-+		kfree_skb(nskb);
-+
-+		frag++;
-+		nr_frags++;
-+	}
-+
-+	shinfo->nr_frags =3D nr_frags;
-+	return cons;
-+}
-+
-+static int xennet_set_skb_gso(struct sk_buff *skb, struct netif_extra_info=
- *gso)
-+{
-+	if (!gso->u.gso.size) {
-+		if (net_ratelimit())
-+			WPRINTK("GSO size must not be zero.\n");
-+		return -EINVAL;
-+	}
-+
-+	/* Currently only TCPv4 S.O. is supported. */
-+	if (gso->u.gso.type !=3D XEN_NETIF_GSO_TYPE_TCPV4) {
-+		if (net_ratelimit())
-+			WPRINTK("Bad GSO type %d.\n", gso->u.gso.type);
-+		return -EINVAL;
-+	}
-+
-+	skb_shinfo(skb)->gso_size =3D gso->u.gso.size;
-+	skb_shinfo(skb)->gso_type =3D SKB_GSO_TCPV4;
-+
-+	/* Header must be checked, and gso_segs computed. */
-+	skb_shinfo(skb)->gso_type |=3D SKB_GSO_DODGY;
-+	skb_shinfo(skb)->gso_segs =3D 0;
-+
-+	return 0;
-+}
-+
-+static int netif_poll(struct net_device *dev, int *pbudget)
-+{
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	struct sk_buff *skb;
-+	struct netfront_rx_info rinfo;
-+	struct netif_rx_response *rx =3D &rinfo.rx;
-+	struct netif_extra_info *extras =3D rinfo.extras;
-+	RING_IDX i, rp;
-+	struct multicall_entry *mcl;
-+	int work_done, budget, more_to_do =3D 1;
-+	struct sk_buff_head rxq;
-+	struct sk_buff_head errq;
-+	struct sk_buff_head tmpq;
-+	unsigned long flags;
-+	unsigned int len;
-+	int pages_flipped =3D 0;
-+	int err;
-+
-+	spin_lock(&np->rx_lock);
-+
-+	if (unlikely(!netif_carrier_ok(dev))) {
-+		spin_unlock(&np->rx_lock);
-+		return 0;
-+	}
-+
-+	skb_queue_head_init(&rxq);
-+	skb_queue_head_init(&errq);
-+	skb_queue_head_init(&tmpq);
-+
-+	if ((budget =3D *pbudget) > dev->quota)
-+		budget =3D dev->quota;
-+	rp =3D np->rx.sring->rsp_prod;
-+	rmb(); /* Ensure we see queued responses up to 'rp'. */
-+
-+	i =3D np->rx.rsp_cons;
-+	work_done =3D 0;
-+	while ((i !=3D rp) && (work_done < budget)) {
-+		memcpy(rx, RING_GET_RESPONSE(&np->rx, i), sizeof(*rx));
-+		memset(extras, 0, sizeof(extras));
-+
-+		err =3D xennet_get_responses(np, &rinfo, rp, &tmpq,
-+					   &pages_flipped);
-+
-+		if (unlikely(err)) {
-+err:	=
-
-+			while ((skb =3D __skb_dequeue(&tmpq)))
-+				__skb_queue_tail(&errq, skb);
-+			np->stats.rx_errors++;
-+			i =3D np->rx.rsp_cons;
-+			continue;
-+		}
-+
-+		skb =3D __skb_dequeue(&tmpq);
-+
-+		if (extras[XEN_NETIF_EXTRA_TYPE_GSO - 1].type) {
-+			struct netif_extra_info *gso;
-+			gso =3D &extras[XEN_NETIF_EXTRA_TYPE_GSO - 1];
-+
-+			if (unlikely(xennet_set_skb_gso(skb, gso))) {
-+				__skb_queue_head(&tmpq, skb);
-+				np->rx.rsp_cons +=3D skb_queue_len(&tmpq);
-+				goto err;
-+			}
-+		}
-+
-+		skb->nh.raw =3D (void *)skb_shinfo(skb)->frags[0].page;
-+		skb->h.raw =3D skb->nh.raw + rx->offset;
-+
-+		len =3D rx->status;
-+		if (len > RX_COPY_THRESHOLD)
-+			len =3D RX_COPY_THRESHOLD;
-+		skb_put(skb, len);
-+
-+		if (rx->status > len) {
-+			skb_shinfo(skb)->frags[0].page_offset =3D
-+				rx->offset + len;
-+			skb_shinfo(skb)->frags[0].size =3D rx->status - len;
-+			skb->data_len =3D rx->status - len;
-+		} else {
-+			skb_shinfo(skb)->frags[0].page =3D NULL;
-+			skb_shinfo(skb)->nr_frags =3D 0;
-+		}
-+
-+		i =3D xennet_fill_frags(np, skb, &tmpq);
-+
-+		/*
-+		 * Truesize must approximates the size of true data plus
-+		 * any supervisor overheads. Adding hypervisor overheads
-+		 * has been shown to significantly reduce achievable
-+		 * bandwidth with the default receive buffer size. It is
-+		 * therefore not wise to account for it here.
-+		 *
-+		 * After alloc_skb(RX_COPY_THRESHOLD), truesize is set to
-+		 * RX_COPY_THRESHOLD + the supervisor overheads. Here, we
-+		 * add the size of the data pulled in xennet_fill_frags().
-+		 *
-+		 * We also adjust for any unused space in the main data
-+		 * area by subtracting (RX_COPY_THRESHOLD - len). This is
-+		 * especially important with drivers which split incoming
-+		 * packets into header and data, using only 66 bytes of
-+		 * the main data area (see the e1000 driver for example.)
-+		 * On such systems, without this last adjustement, our
-+		 * achievable receive throughout using the standard receive
-+		 * buffer size was cut by 25%(!!!).
-+		 */
-+		skb->truesize +=3D skb->data_len - (RX_COPY_THRESHOLD - len);
-+		skb->len +=3D skb->data_len;
-+
-+		if (rx->flags & NETRXF_data_validated)
-+			skb->ip_summed =3D CHECKSUM_UNNECESSARY;
-+
-+		np->stats.rx_packets++;
-+		np->stats.rx_bytes +=3D skb->len;
-+
-+		__skb_queue_tail(&rxq, skb);
-+
-+		np->rx.rsp_cons =3D ++i;
-+		work_done++;
-+	}
-+
-+	if (pages_flipped) {
-+#ifdef CONFIG_XEN_BALLOON
-+		/* Some pages are no longer absent... */
-+		balloon_update_driver_allowance(-pages_flipped);
-+#endif
-+		/* Do all the remapping work, and M2P updates. */
-+		if (!xen_feature(XENFEAT_auto_translated_physmap)) {
-+			mcl =3D np->rx_mcl + pages_flipped;
-+			MULTI_mmu_update(mcl, np->rx_mmu,
-+					 pages_flipped, 0, DOMID_SELF);
-+			(void)HYPERVISOR_multicall(np->rx_mcl,
-+						   pages_flipped + 1);
-+		}
-+	}
-+
-+	while ((skb =3D __skb_dequeue(&errq)))
-+		kfree_skb(skb);
-+
-+	handle_incoming_queue(dev, &rxq);
-+
-+	/* If we get a callback with very few responses, reduce fill target. */
-+	/* NB. Note exponential increase, linear decrease. */
-+	if (((np->rx.req_prod_pvt - np->rx.sring->rsp_prod) >
-+	     ((3*np->rx_target) / 4)) &&
-+	    (--np->rx_target < np->rx_min_target))
-+		np->rx_target =3D np->rx_min_target;
-+
-+	network_alloc_rx_buffers(dev);
-+
-+	*pbudget   -=3D work_done;
-+	dev->quota -=3D work_done;
-+
-+	if (work_done < budget) {
-+		local_irq_save(flags);
-+
-+		RING_FINAL_CHECK_FOR_RESPONSES(&np->rx, more_to_do);
-+		if (!more_to_do)
-+			__netif_rx_complete(dev);
-+
-+		local_irq_restore(flags);
-+	}
-+
-+	spin_unlock(&np->rx_lock);
-+
-+	return more_to_do;
-+}
-+
-+static void netif_release_tx_bufs(struct netfront_info *np)
-+{
-+	struct sk_buff *skb;
-+	int i;
-+
-+	for (i =3D 1; i <=3D NET_TX_RING_SIZE; i++) {
-+		if ((unsigned long)np->tx_skbs[i] < PAGE_OFFSET)
-+			continue;
-+
-+		skb =3D np->tx_skbs[i];
-+		gnttab_end_foreign_access_ref(
-+			np->grant_tx_ref[i], GNTMAP_readonly);
-+		gnttab_release_grant_reference(
-+			&np->gref_tx_head, np->grant_tx_ref[i]);
-+		np->grant_tx_ref[i] =3D GRANT_INVALID_REF;
-+		add_id_to_freelist(np->tx_skbs, i);
-+		dev_kfree_skb_irq(skb);
-+	}
-+}
-+
-+static void netif_release_rx_bufs(struct netfront_info *np)
-+{
-+	struct mmu_update      *mmu =3D np->rx_mmu;
-+	struct multicall_entry *mcl =3D np->rx_mcl;
-+	struct sk_buff_head free_list;
-+	struct sk_buff *skb;
-+	unsigned long mfn;
-+	int xfer =3D 0, noxfer =3D 0, unused =3D 0;
-+	int id, ref;
-+
-+	if (np->copying_receiver) {
-+		printk("%s: fix me for copying receiver.\n", __FUNCTION__);
-+		return;
-+	}
-+
-+	skb_queue_head_init(&free_list);
-+
-+	spin_lock(&np->rx_lock);
-+
-+	for (id =3D 0; id < NET_RX_RING_SIZE; id++) {
-+		if ((ref =3D np->grant_rx_ref[id]) =3D=3D GRANT_INVALID_REF) {
-+			unused++;
-+			continue;
-+		}
-+
-+		skb =3D np->rx_skbs[id];
-+		mfn =3D gnttab_end_foreign_transfer_ref(ref);
-+		gnttab_release_grant_reference(&np->gref_rx_head, ref);
-+		np->grant_rx_ref[id] =3D GRANT_INVALID_REF;
-+		add_id_to_freelist(np->rx_skbs, id);
-+
-+		if (0 =3D=3D mfn) {
-+#ifdef CONFIG_XEN_BALLOON
-+			struct page *page =3D skb_shinfo(skb)->frags[0].page;
-+			balloon_release_driver_page(page);
-+#endif
-+			skb_shinfo(skb)->nr_frags =3D 0;
-+			dev_kfree_skb(skb);
-+			noxfer++;
-+			continue;
-+		}
-+
-+		if (!xen_feature(XENFEAT_auto_translated_physmap)) {
-+			/* Remap the page. */
-+			struct page *page =3D skb_shinfo(skb)->frags[0].page;
-+			unsigned long pfn =3D page_to_pfn(page);
-+			void *vaddr =3D page_address(page);
-+
-+			MULTI_update_va_mapping(mcl, (unsigned long)vaddr,
-+						mfn_pte(mfn, PAGE_KERNEL),
-+						0);
-+			mcl++;
-+			mmu->ptr =3D ((u64)mfn << PAGE_SHIFT)
-+				| MMU_MACHPHYS_UPDATE;
-+			mmu->val =3D pfn;
-+			mmu++;
-+
-+			set_phys_to_machine(pfn, mfn);
-+		}
-+		__skb_queue_tail(&free_list, skb);
-+		xfer++;
-+	}
-+
-+	printk("%s: %d xfer, %d noxfer, %d unused\n",
-+	       __FUNCTION__, xfer, noxfer, unused);
-+
-+	if (xfer) {
-+#ifdef CONFIG_XEN_BALLOON
-+		/* Some pages are no longer absent... */
-+		balloon_update_driver_allowance(-xfer);
-+#endif
-+
-+		if (!xen_feature(XENFEAT_auto_translated_physmap)) {
-+			/* Do all the remapping work and M2P updates. */
-+			mcl->op =3D __HYPERVISOR_mmu_update;
-+			mcl->args[0] =3D (unsigned long)np->rx_mmu;
-+			mcl->args[1] =3D mmu - np->rx_mmu;
-+			mcl->args[2] =3D 0;
-+			mcl->args[3] =3D DOMID_SELF;
-+			mcl++;
-+			HYPERVISOR_multicall(np->rx_mcl, mcl - np->rx_mcl);
-+		}
-+	}
-+
-+	while ((skb =3D __skb_dequeue(&free_list)) !=3D NULL)
-+		dev_kfree_skb(skb);
-+
-+	spin_unlock(&np->rx_lock);
-+}
-+
-+static int network_close(struct net_device *dev)
-+{
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	netif_stop_queue(np->netdev);
-+	return 0;
-+}
-+
-+
-+static struct net_device_stats *network_get_stats(struct net_device *dev)
-+{
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	return &np->stats;
-+}
-+
-+static int xennet_change_mtu(struct net_device *dev, int mtu)
-+{
-+	int max =3D xennet_can_sg(dev) ? 65535 - ETH_HLEN : ETH_DATA_LEN;
-+
-+	if (mtu > max)
-+		return -EINVAL;
-+	dev->mtu =3D mtu;
-+	return 0;
-+}
-+
-+static int xennet_set_sg(struct net_device *dev, u32 data)
-+{
-+	if (data) {
-+		struct netfront_info *np =3D netdev_priv(dev);
-+		int val;
-+
-+		if (xenbus_scanf(XBT_NIL, np->xbdev->otherend, "feature-sg",
-+				 "%d", &val) < 0)
-+			val =3D 0;
-+		if (!val)
-+			return -ENOSYS;
-+	} else if (dev->mtu > ETH_DATA_LEN)
-+		dev->mtu =3D ETH_DATA_LEN;
-+
-+	return ethtool_op_set_sg(dev, data);
-+}
-+
-+static int xennet_set_tso(struct net_device *dev, u32 data)
-+{
-+	if (data) {
-+		struct netfront_info *np =3D netdev_priv(dev);
-+		int val;
-+
-+		if (xenbus_scanf(XBT_NIL, np->xbdev->otherend,
-+				 "feature-gso-tcpv4", "%d", &val) < 0)
-+			val =3D 0;
-+		if (!val)
-+			return -ENOSYS;
-+	}
-+
-+	return ethtool_op_set_tso(dev, data);
-+}
-+
-+static void xennet_set_features(struct net_device *dev)
-+{
-+	/* Turn off all GSO bits except ROBUST. */
-+	dev->features &=3D (1 << NETIF_F_GSO_SHIFT) - 1;
-+	dev->features |=3D NETIF_F_GSO_ROBUST;
-+	xennet_set_sg(dev, 0);
-+
-+	/* We need checksum offload to enable scatter/gather and TSO. */
-+	if (!(dev->features & NETIF_F_IP_CSUM))
-+		return;
-+
-+	if (!xennet_set_sg(dev, 1))
-+		xennet_set_tso(dev, 1);
-+}
-+
-+static int network_connect(struct net_device *dev)
-+{
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	int i, requeue_idx, err;
-+	struct sk_buff *skb;
-+	grant_ref_t ref;
-+	struct netif_rx_request *req;
-+	unsigned int feature_rx_copy, feature_rx_flip;
-+
-+	err =3D xenbus_scanf(XBT_NIL, np->xbdev->otherend,
-+			   "feature-rx-copy", "%u", &feature_rx_copy);
-+	if (err !=3D 1)
-+		feature_rx_copy =3D 0;
-+	err =3D xenbus_scanf(XBT_NIL, np->xbdev->otherend,
-+			   "feature-rx-flip", "%u", &feature_rx_flip);
-+	if (err !=3D 1)
-+		feature_rx_flip =3D 1;
-+
-+	/*
-+	 * Copy packets on receive path if:
-+	 *  (a) This was requested by user, and the backend supports it; or
-+	 *  (b) Flipping was requested, but this is unsupported by the backend.
-+	 */
-+	np->copying_receiver =3D ((MODPARM_rx_copy && feature_rx_copy) ||
-+				(MODPARM_rx_flip && !feature_rx_flip));
-+
-+	err =3D talk_to_backend(np->xbdev, np);
-+	if (err)
-+		return err;
-+
-+	xennet_set_features(dev);
-+
-+	IPRINTK("device %s has %sing receive path.\n",
-+		dev->name, np->copying_receiver ? "copy" : "flipp");
-+
-+	spin_lock_irq(&np->tx_lock);
-+	spin_lock(&np->rx_lock);
-+
-+	/*
-+	 * Recovery procedure:
-+	 *  NB. Freelist index entries are always going to be less than
-+	 *  PAGE_OFFSET, whereas pointers to skbs will always be equal or
-+	 *  greater than PAGE_OFFSET: we use this property to distinguish
-+	 *  them.
-+	 */
-+
-+	/* Step 1: Discard all pending TX packet fragments. */
-+	netif_release_tx_bufs(np);
-+
-+	/* Step 2: Rebuild the RX buffer freelist and the RX ring itself. */
-+	for (requeue_idx =3D 0, i =3D 0; i < NET_RX_RING_SIZE; i++) {
-+		if (!np->rx_skbs[i])
-+			continue;
-+
-+		skb =3D np->rx_skbs[requeue_idx] =3D xennet_get_rx_skb(np, i);
-+		ref =3D np->grant_rx_ref[requeue_idx] =3D xennet_get_rx_ref(np, i);
-+		req =3D RING_GET_REQUEST(&np->rx, requeue_idx);
-+
-+		if (!np->copying_receiver) {
-+			gnttab_grant_foreign_transfer_ref(
-+				ref, np->xbdev->otherend_id,
-+				page_to_pfn(skb_shinfo(skb)->frags->page));
-+		} else {
-+			gnttab_grant_foreign_access_ref(
-+				ref, np->xbdev->otherend_id,
-+				pfn_to_mfn(page_to_pfn(skb_shinfo(skb)->
-+						       frags->page)),
-+				0);
-+		}
-+		req->gref =3D ref;
-+		req->id   =3D requeue_idx;
-+
-+		requeue_idx++;
-+	}
-+
-+	np->rx.req_prod_pvt =3D requeue_idx;
-+
-+	/*
-+	 * Step 3: All public and private state should now be sane.  Get
-+	 * ready to start sending and receiving packets and give the driver
-+	 * domain a kick because we've probably just requeued some
-+	 * packets.
-+	 */
-+	netif_carrier_on(dev);
-+	notify_remote_via_irq(np->irq);
-+	network_tx_buf_gc(dev);
-+	network_alloc_rx_buffers(dev);
-+
-+	spin_unlock(&np->rx_lock);
-+	spin_unlock_irq(&np->tx_lock);
-+
-+	return 0;
-+}
-+
-+static void netif_uninit(struct net_device *dev)
-+{
-+	struct netfront_info *np =3D netdev_priv(dev);
-+	netif_release_tx_bufs(np);
-+	netif_release_rx_bufs(np);
-+	gnttab_free_grant_references(np->gref_tx_head);
-+	gnttab_free_grant_references(np->gref_rx_head);
-+}
-+
-+static struct ethtool_ops network_ethtool_ops =3D
-+{
-+	.get_tx_csum =3D ethtool_op_get_tx_csum,
-+	.set_tx_csum =3D ethtool_op_set_tx_csum,
-+	.get_sg =3D ethtool_op_get_sg,
-+	.set_sg =3D xennet_set_sg,
-+	.get_tso =3D ethtool_op_get_tso,
-+	.set_tso =3D xennet_set_tso,
-+	.get_link =3D ethtool_op_get_link,
-+};
-+
-+#ifdef CONFIG_SYSFS
-+static ssize_t show_rxbuf_min(struct device *dev, =
-
-+			      struct device_attribute *attr, char *buf)
-+{
-+	struct net_device *netdev =3D to_net_dev(dev);
-+	struct netfront_info *info =3D netdev_priv(netdev);
-+
-+	return sprintf(buf, "%u\n", info->rx_min_target);
-+}
-+
-+static ssize_t store_rxbuf_min(struct device *dev,
-+			       struct device_attribute *attr,
-+			       const char *buf, size_t len)
-+{
-+	struct net_device *netdev =3D to_net_dev(dev);
-+	struct netfront_info *np =3D netdev_priv(netdev);
-+	char *endp;
-+	unsigned long target;
-+
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	target =3D simple_strtoul(buf, &endp, 0);
-+	if (endp =3D=3D buf)
-+		return -EBADMSG;
-+
-+	if (target < RX_MIN_TARGET)
-+		target =3D RX_MIN_TARGET;
-+	if (target > RX_MAX_TARGET)
-+		target =3D RX_MAX_TARGET;
-+
-+	spin_lock(&np->rx_lock);
-+	if (target > np->rx_max_target)
-+		np->rx_max_target =3D target;
-+	np->rx_min_target =3D target;
-+	if (target > np->rx_target)
-+		np->rx_target =3D target;
-+
-+	network_alloc_rx_buffers(netdev);
-+
-+	spin_unlock(&np->rx_lock);
-+	return len;
-+}
-+
-+static ssize_t show_rxbuf_max(struct device *dev,
-+			      struct device_attribute *attr, char *buf)
-+{
-+	struct net_device *netdev =3D to_net_dev(dev);
-+	struct netfront_info *info =3D netdev_priv(netdev);
-+
-+	return sprintf(buf, "%u\n", info->rx_max_target);
-+}
-+
-+static ssize_t store_rxbuf_max(struct device *dev,
-+			       struct device_attribute *attr,
-+			       const char *buf, size_t len)
-+{
-+	struct net_device *netdev =3D to_net_dev(dev);
-+	struct netfront_info *np =3D netdev_priv(netdev);
-+	char *endp;
-+	unsigned long target;
-+
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	target =3D simple_strtoul(buf, &endp, 0);
-+	if (endp =3D=3D buf)
-+		return -EBADMSG;
-+
-+	if (target < RX_MIN_TARGET)
-+		target =3D RX_MIN_TARGET;
-+	if (target > RX_MAX_TARGET)
-+		target =3D RX_MAX_TARGET;
-+
-+	spin_lock(&np->rx_lock);
-+	if (target < np->rx_min_target)
-+		np->rx_min_target =3D target;
-+	np->rx_max_target =3D target;
-+	if (target < np->rx_target)
-+		np->rx_target =3D target;
-+
-+	network_alloc_rx_buffers(netdev);
-+
-+	spin_unlock(&np->rx_lock);
-+	return len;
-+}
-+
-+static ssize_t show_rxbuf_cur(struct device *dev,
-+			      struct device_attribute *attr, char *buf)
-+{
-+	struct net_device *netdev =3D to_net_dev(dev);
-+	struct netfront_info *info =3D netdev_priv(netdev);
-+
-+	return sprintf(buf, "%u\n", info->rx_target);
-+}
-+
-+static struct device_attribute xennet_attrs[] =3D {
-+	__ATTR(rxbuf_min, S_IRUGO|S_IWUSR, show_rxbuf_min, store_rxbuf_min),
-+	__ATTR(rxbuf_max, S_IRUGO|S_IWUSR, show_rxbuf_max, store_rxbuf_max),
-+	__ATTR(rxbuf_cur, S_IRUGO, show_rxbuf_cur, NULL),
-+};
-+
-+static int xennet_sysfs_addif(struct net_device *netdev)
-+{
-+	int i;
-+	int error =3D 0;
-+
-+	for (i =3D 0; i < ARRAY_SIZE(xennet_attrs); i++) {
-+		error =3D device_create_file(&netdev->dev, =
-
-+					   &xennet_attrs[i]);
-+		if (error)
-+			goto fail;
-+	}
-+	return 0;
-+
-+ fail:
-+	while (--i >=3D 0)
-+		device_remove_file(&netdev->dev, &xennet_attrs[i]);
-+	return error;
-+}
-+
-+static void xennet_sysfs_delif(struct net_device *netdev)
-+{
-+	int i;
-+
-+	for (i =3D 0; i < ARRAY_SIZE(xennet_attrs); i++) {
-+		device_remove_file(&netdev->dev, &xennet_attrs[i]);
-+	}
-+}
-+
-+#endif /* CONFIG_SYSFS */
-+
-+
-+/*
-+ * Nothing to do here. Virtual interface is point-to-point and the
-+ * physical interface is probably promiscuous anyway.
-+ */
-+static void network_set_multicast_list(struct net_device *dev)
-+{
-+}
-+
-+static struct net_device * __devinit create_netdev(struct xenbus_device *d=
-ev)
-+{
-+	int i, err =3D 0;
-+	struct net_device *netdev =3D NULL;
-+	struct netfront_info *np =3D NULL;
-+
-+	netdev =3D alloc_etherdev(sizeof(struct netfront_info));
-+	if (!netdev) {
-+		printk(KERN_WARNING "%s> alloc_etherdev failed.\n",
-+		       __FUNCTION__);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	np                   =3D netdev_priv(netdev);
-+	np->xbdev            =3D dev;
-+
-+	netif_carrier_off(netdev);
-+
-+	spin_lock_init(&np->tx_lock);
-+	spin_lock_init(&np->rx_lock);
-+
-+	skb_queue_head_init(&np->rx_batch);
-+	np->rx_target     =3D RX_DFL_MIN_TARGET;
-+	np->rx_min_target =3D RX_DFL_MIN_TARGET;
-+	np->rx_max_target =3D RX_MAX_TARGET;
-+
-+	init_timer(&np->rx_refill_timer);
-+	np->rx_refill_timer.data =3D (unsigned long)netdev;
-+	np->rx_refill_timer.function =3D rx_refill_timeout;
-+
-+	/* Initialise {tx,rx}_skbs as a free chain containing every entry. */
-+	for (i =3D 0; i <=3D NET_TX_RING_SIZE; i++) {
-+		np->tx_skbs[i] =3D (void *)((unsigned long) i+1);
-+		np->grant_tx_ref[i] =3D GRANT_INVALID_REF;
-+	}
-+
-+	for (i =3D 0; i < NET_RX_RING_SIZE; i++) {
-+		np->rx_skbs[i] =3D NULL;
-+		np->grant_rx_ref[i] =3D GRANT_INVALID_REF;
-+	}
-+
-+	/* A grant for every tx ring slot */
-+	if (gnttab_alloc_grant_references(TX_MAX_TARGET,
-+					  &np->gref_tx_head) < 0) {
-+		printk(KERN_ALERT "#### netfront can't alloc tx grant refs\n");
-+		err =3D -ENOMEM;
-+		goto exit;
-+	}
-+	/* A grant for every rx ring slot */
-+	if (gnttab_alloc_grant_references(RX_MAX_TARGET,
-+					  &np->gref_rx_head) < 0) {
-+		printk(KERN_ALERT "#### netfront can't alloc rx grant refs\n");
-+		err =3D -ENOMEM;
-+		goto exit_free_tx;
-+	}
-+
-+	netdev->open            =3D network_open;
-+	netdev->hard_start_xmit =3D network_start_xmit;
-+	netdev->stop            =3D network_close;
-+	netdev->get_stats       =3D network_get_stats;
-+	netdev->poll            =3D netif_poll;
-+	netdev->set_multicast_list =3D network_set_multicast_list;
-+	netdev->uninit          =3D netif_uninit;
-+	netdev->change_mtu	=3D xennet_change_mtu;
-+	netdev->weight          =3D 64;
-+	netdev->features        =3D NETIF_F_IP_CSUM;
-+
-+	SET_ETHTOOL_OPS(netdev, &network_ethtool_ops);
-+	SET_MODULE_OWNER(netdev);
-+	SET_NETDEV_DEV(netdev, &dev->dev);
-+
-+	np->netdev =3D netdev;
-+	return netdev;
-+
-+ exit_free_tx:
-+	gnttab_free_grant_references(np->gref_tx_head);
-+ exit:
-+	free_netdev(netdev);
-+	return ERR_PTR(err);
-+}
-+
-+/*
-+ * We use this notifier to send out a fake ARP reply to reset switches and
-+ * router ARP caches when an IP interface is brought up on a VIF.
-+ */
-+static int
-+inetdev_notify(struct notifier_block *this, unsigned long event, void *ptr)
-+{
-+	struct in_ifaddr  *ifa =3D (struct in_ifaddr *)ptr;
-+	struct net_device *dev =3D ifa->ifa_dev->dev;
-+
-+	/* UP event and is it one of our devices? */
-+	if (event =3D=3D NETDEV_UP && dev->open =3D=3D network_open)
-+		(void)send_fake_arp(dev);
-+
-+	return NOTIFY_DONE;
-+}
-+
-+
-+/* ** Close down ** */
++EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
 +
 +
 +/**
-+ * Handle the change of state of the backend to Closing.  We must delete o=
-ur
-+ * device-layer structures now, to ensure that writes are flushed through =
-to
-+ * the backend.  Once is this done, we can switch to Closed in
-+ * acknowledgement.
++ * xenbus_map_ring
++ * @dev: xenbus device
++ * @gnt_ref: grant reference
++ * @handle: pointer to grant handle to be filled
++ * @vaddr: address to be mapped to
++ *
++ * Map a page of memory into this domain from another domain's grant table.
++ * xenbus_map_ring does not allocate the virtual address space (you must do
++ * this yourself!). It only maps in the page to the specified address.
++ * Returns 0 on success, and GNTST_* (see xen/include/interface/grant_tabl=
+e.h)
++ * or -ENOMEM on error. If an error is returned, device will switch to
++ * XenbusStateClosing and the error message will be saved in XenStore.
 + */
-+static void netfront_closing(struct xenbus_device *dev)
++int xenbus_map_ring(struct xenbus_device *dev, int gnt_ref,
++		    grant_handle_t *handle, void *vaddr)
 +{
-+	struct netfront_info *info =3D dev->dev.driver_data;
++	struct gnttab_map_grant_ref op =3D {
++		.host_addr =3D (unsigned long)vaddr,
++		.flags     =3D GNTMAP_host_map,
++		.ref       =3D gnt_ref,
++		.dom       =3D dev->otherend_id,
++	};
 +
-+	DPRINTK("%s\n", dev->nodename);
++	if (HYPERVISOR_grant_table_op(GNTTABOP_map_grant_ref, &op, 1))
++		BUG();
 +
-+	close_netdev(info);
-+	xenbus_frontend_closed(dev);
++	if (op.status !=3D GNTST_okay) {
++		xenbus_dev_fatal(dev, op.status,
++				 "mapping in shared page %d from domain %d",
++				 gnt_ref, dev->otherend_id);
++	} else
++		*handle =3D op.handle;
++
++	return op.status;
 +}
++EXPORT_SYMBOL_GPL(xenbus_map_ring);
 +
 +
-+static int __devexit netfront_remove(struct xenbus_device *dev)
++/**
++ * xenbus_unmap_ring_vfree
++ * @dev: xenbus device
++ * @vaddr: addr to unmap
++ *
++ * Based on Rusty Russell's skeleton driver's unmap_page.
++ * Unmap a page of memory in this domain that was imported from another do=
+main.
++ * Use xenbus_unmap_ring_vfree if you mapped in your memory with
++ * xenbus_map_ring_valloc (it will free the virtual address space).
++ * Returns 0 on success and returns GNTST_* on error
++ * (see xen/include/interface/grant_table.h).
++ */
++int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr)
 +{
-+	struct netfront_info *info =3D dev->dev.driver_data;
++	struct vm_struct *area;
++	struct gnttab_unmap_grant_ref op =3D {
++		.host_addr =3D (unsigned long)vaddr,
++	};
 +
-+	DPRINTK("%s\n", dev->nodename);
++	/* It'd be nice if linux/vmalloc.h provided a find_vm_area(void *addr)
++	 * method so that we don't have to muck with vmalloc internals here.
++	 * We could force the user to hang on to their struct vm_struct from
++	 * xenbus_map_ring_valloc, but these 6 lines considerably simplify
++	 * this API.
++	 */
++	read_lock(&vmlist_lock);
++	for (area =3D vmlist; area !=3D NULL; area =3D area->next) {
++		if (area->addr =3D=3D vaddr)
++			break;
++	}
++	read_unlock(&vmlist_lock);
 +
-+	netif_disconnect_backend(info);
-+	free_netdev(info->netdev);
-+
-+	return 0;
-+}
-+
-+
-+static int open_netdev(struct netfront_info *info)
-+{
-+	int err;
-+	=
-
-+	err =3D register_netdev(info->netdev);
-+	if (err) {
-+		printk(KERN_WARNING "%s: register_netdev err=3D%d\n",
-+		       __FUNCTION__, err);
-+		return err;
++	if (!area) {
++		xenbus_dev_error(dev, -ENOENT,
++				 "can't find mapped virtual address %p", vaddr);
++		return GNTST_bad_virt_addr;
 +	}
 +
-+	err =3D xennet_sysfs_addif(info->netdev);
-+	if (err) {
-+		unregister_netdev(info->netdev);
-+		printk(KERN_WARNING "%s: add sysfs failed err=3D%d\n",
-+		       __FUNCTION__, err);
-+		return err;
-+	}
++	op.handle =3D (grant_handle_t)area->phys_addr;
 +
-+	return 0;
++	lock_vm_area(area);
++	if (HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref, &op, 1))
++		BUG();
++	unlock_vm_area(area);
++
++	if (op.status =3D=3D GNTST_okay)
++		free_vm_area(area);
++	else
++		xenbus_dev_error(dev, op.status,
++				 "unmapping page at handle %d error %d",
++				 (int16_t)area->phys_addr, op.status);
++
++	return op.status;
 +}
++EXPORT_SYMBOL_GPL(xenbus_unmap_ring_vfree);
 +
-+static void close_netdev(struct netfront_info *info)
++
++/**
++ * xenbus_unmap_ring
++ * @dev: xenbus device
++ * @handle: grant handle
++ * @vaddr: addr to unmap
++ *
++ * Unmap a page of memory in this domain that was imported from another do=
+main.
++ * Returns 0 on success and returns GNTST_* on error
++ * (see xen/include/interface/grant_table.h).
++ */
++int xenbus_unmap_ring(struct xenbus_device *dev,
++		      grant_handle_t handle, void *vaddr)
 +{
-+	del_timer_sync(&info->rx_refill_timer);
++	struct gnttab_unmap_grant_ref op =3D {
++		.host_addr =3D (unsigned long)vaddr,
++		.handle    =3D handle,
++	};
 +
-+	xennet_sysfs_delif(info->netdev);
-+	unregister_netdev(info->netdev);
++	if (HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref, &op, 1))
++		BUG();
++
++	if (op.status !=3D GNTST_okay)
++		xenbus_dev_error(dev, op.status,
++				 "unmapping page at handle %d error %d",
++				 handle, op.status);
++
++	return op.status;
 +}
++EXPORT_SYMBOL_GPL(xenbus_unmap_ring);
 +
 +
-+static void netif_disconnect_backend(struct netfront_info *info)
++/**
++ * xenbus_read_driver_state
++ * @path: path for driver
++ *
++ * Return the state of the driver rooted at the given store path, or
++ * XenbusStateUnknown if no state can be read.
++ */
++enum xenbus_state xenbus_read_driver_state(const char *path)
 +{
-+	/* Stop old i/f to prevent errors whilst we rebuild the state. */
-+	spin_lock_irq(&info->tx_lock);
-+	spin_lock(&info->rx_lock);
-+	netif_carrier_off(info->netdev);
-+	spin_unlock(&info->rx_lock);
-+	spin_unlock_irq(&info->tx_lock);
++	enum xenbus_state result;
++	int err =3D xenbus_gather(XBT_NIL, path, "state", "%d", &result, NULL);
++	if (err)
++		result =3D XenbusStateUnknown;
 +
-+	if (info->irq)
-+		unbind_from_irqhandler(info->irq, info->netdev);
-+	info->evtchn =3D info->irq =3D 0;
-+
-+	end_access(info->tx_ring_ref, info->tx.sring);
-+	end_access(info->rx_ring_ref, info->rx.sring);
-+	info->tx_ring_ref =3D GRANT_INVALID_REF;
-+	info->rx_ring_ref =3D GRANT_INVALID_REF;
-+	info->tx.sring =3D NULL;
-+	info->rx.sring =3D NULL;
++	return result;
 +}
-+
-+
-+static void end_access(int ref, void *page)
-+{
-+	if (ref !=3D GRANT_INVALID_REF)
-+		gnttab_end_foreign_access(ref, 0, (unsigned long)page);
-+}
-+
-+
-+/* ** Driver registration ** */
-+
-+
-+static struct xenbus_device_id netfront_ids[] =3D {
-+	{ "vif" },
-+	{ "" }
-+};
-+
-+
-+static struct xenbus_driver netfront =3D {
-+	.name =3D "vif",
-+	.owner =3D THIS_MODULE,
-+	.ids =3D netfront_ids,
-+	.probe =3D netfront_probe,
-+	.remove =3D __devexit_p(netfront_remove),
-+	.resume =3D netfront_resume,
-+	.otherend_changed =3D backend_changed,
-+};
-+
-+
-+static struct notifier_block notifier_inetdev =3D {
-+	.notifier_call  =3D inetdev_notify,
-+};
-+
-+static int __init netif_init(void)
-+{
-+	if (!is_running_on_xen())
-+		return -ENODEV;
-+
-+#ifdef CONFIG_XEN
-+	if (MODPARM_rx_flip && MODPARM_rx_copy) {
-+		WPRINTK("Cannot specify both rx_copy and rx_flip.\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!MODPARM_rx_flip && !MODPARM_rx_copy)
-+		MODPARM_rx_flip =3D 1; /* Default is to flip. */
-+#endif
-+
-+	if (is_initial_xendomain())
-+		return 0;
-+
-+	IPRINTK("Initialising virtual ethernet driver.\n");
-+
-+	(void)register_inetaddr_notifier(&notifier_inetdev);
-+
-+	return xenbus_register_frontend(&netfront);
-+}
-+module_init(netif_init);
-+
-+
-+static void __exit netif_exit(void)
-+{
-+	if (is_initial_xendomain())
-+		return;
-+
-+	unregister_inetaddr_notifier(&notifier_inetdev);
-+
-+	return xenbus_unregister_driver(&netfront);
-+}
-+module_exit(netif_exit);
-+
-+MODULE_LICENSE("Dual BSD/GPL");
++EXPORT_SYMBOL_GPL(xenbus_read_driver_state);
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -2,6 +2,8 @@
- #define _XEN_EVENTS_H
+--- /dev/null
++++ b/drivers/xen/xenbus/xenbus_comms.c
+@@ -0,0 +1,218 @@
++/*************************************************************************=
+*****
++ * xenbus_comms.c
++ *
++ * Low level code to talks to Xen Store: ringbuffer and event channel.
++ *
++ * Copyright (C) 2005 Rusty Russell, IBM Corporation
++ * =
+
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ * =
+
++ * Permission is hereby granted, free of charge, to any person obtaining a=
+ copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modi=
+fy,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
+are,
++ * and to permit persons to whom the Software is furnished to do so, subje=
+ct to
++ * the following conditions:
++ * =
+
++ * The above copyright notice and this permission notice shall be included=
+ in
++ * all copies or substantial portions of the Software.
++ * =
+
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
+ OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
+ THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
+LINGS
++ * IN THE SOFTWARE.
++ */
++
++#include <linux/wait.h>
++#include <linux/interrupt.h>
++#include <linux/sched.h>
++#include <linux/err.h>
++#include <xen/xenbus.h>
++#include <asm/xen/hypervisor.h>
++#include <xen/events.h>
++#include <xen/page.h>
++#include "xenbus_comms.h"
++
++static int xenbus_irq;
++
++static DECLARE_WORK(probe_work, xenbus_probe);
++
++static DECLARE_WAIT_QUEUE_HEAD(xb_waitq);
++
++static irqreturn_t wake_waiting(int irq, void *unused)
++{
++	if (unlikely(xenstored_ready =3D=3D 0)) {
++		xenstored_ready =3D 1;
++		schedule_work(&probe_work);
++	}
++
++	wake_up(&xb_waitq);
++	return IRQ_HANDLED;
++}
++
++static int check_indexes(XENSTORE_RING_IDX cons, XENSTORE_RING_IDX prod)
++{
++	return ((prod - cons) <=3D XENSTORE_RING_SIZE);
++}
++
++static void *get_output_chunk(XENSTORE_RING_IDX cons,
++			      XENSTORE_RING_IDX prod,
++			      char *buf, uint32_t *len)
++{
++	*len =3D XENSTORE_RING_SIZE - MASK_XENSTORE_IDX(prod);
++	if ((XENSTORE_RING_SIZE - (prod - cons)) < *len)
++		*len =3D XENSTORE_RING_SIZE - (prod - cons);
++	return buf + MASK_XENSTORE_IDX(prod);
++}
++
++static const void *get_input_chunk(XENSTORE_RING_IDX cons,
++				   XENSTORE_RING_IDX prod,
++				   const char *buf, uint32_t *len)
++{
++	*len =3D XENSTORE_RING_SIZE - MASK_XENSTORE_IDX(cons);
++	if ((prod - cons) < *len)
++		*len =3D prod - cons;
++	return buf + MASK_XENSTORE_IDX(cons);
++}
++
++/**
++ * xb_write - low level write
++ * @data: buffer to send
++ * @len: length of buffer
++ *
++ * Returns 0 on success, error otherwise.
++ */
++int xb_write(const void *data, unsigned len)
++{
++	struct xenstore_domain_interface *intf =3D xen_store_interface;
++	XENSTORE_RING_IDX cons, prod;
++	int rc;
++
++	while (len !=3D 0) {
++		void *dst;
++		unsigned int avail;
++
++		rc =3D wait_event_interruptible(
++			xb_waitq,
++			(intf->req_prod - intf->req_cons) !=3D
++			XENSTORE_RING_SIZE);
++		if (rc < 0)
++			return rc;
++
++		/* Read indexes, then verify. */
++		cons =3D intf->req_cons;
++		prod =3D intf->req_prod;
++		mb();
++		if (!check_indexes(cons, prod)) {
++			intf->req_cons =3D intf->req_prod =3D 0;
++			return -EIO;
++		}
++
++		dst =3D get_output_chunk(cons, prod, intf->req, &avail);
++		if (avail =3D=3D 0)
++			continue;
++		if (avail > len)
++			avail =3D len;
++
++		memcpy(dst, data, avail);
++		data +=3D avail;
++		len -=3D avail;
++
++		/* Other side must not see new header until data is there. */
++		wmb();
++		intf->req_prod +=3D avail;
++
++		/* This implies mb() before other side sees interrupt. */
++		notify_remote_via_evtchn(xen_store_evtchn);
++	}
++
++	return 0;
++}
++
++/**
++ * xb_read - low level read
++ * @data: buffer to fill
++ * @len: length of buffer
++ *
++ * Returns 0 on success, error otherwise.
++ */
++int xb_read(void *data, unsigned len)
++{
++	struct xenstore_domain_interface *intf =3D xen_store_interface;
++	XENSTORE_RING_IDX cons, prod;
++	int rc;
++
++	while (len !=3D 0) {
++		unsigned int avail;
++		const char *src;
++
++		rc =3D wait_event_interruptible(
++			xb_waitq,
++			intf->rsp_cons !=3D intf->rsp_prod);
++		if (rc < 0)
++			return rc;
++
++		/* Read indexes, then verify. */
++		cons =3D intf->rsp_cons;
++		prod =3D intf->rsp_prod;
++		mb();
++		if (!check_indexes(cons, prod)) {
++			intf->rsp_cons =3D intf->rsp_prod =3D 0;
++			return -EIO;
++		}
++
++		src =3D get_input_chunk(cons, prod, intf->rsp, &avail);
++		if (avail =3D=3D 0)
++			continue;
++		if (avail > len)
++			avail =3D len;
++
++		/* We must read header before we read data. */
++		rmb();
++
++		memcpy(data, src, avail);
++		data +=3D avail;
++		len -=3D avail;
++
++		/* Other side must not see free space until we've copied out */
++		mb();
++		intf->rsp_cons +=3D avail;
++
++		pr_debug("Finished read of %i bytes (%i to go)\n", avail, len);
++
++		/* Implies mb(): they will see new header. */
++		notify_remote_via_evtchn(xen_store_evtchn);
++	}
++
++	return 0;
++}
++
++/**
++ * xb_init_comms - Set up interrupt handler off store event channel.
++ */
++int xb_init_comms(void)
++{
++	int err;
++
++	if (xenbus_irq)
++		unbind_from_irqhandler(xenbus_irq, &xb_waitq);
++
++	err =3D bind_evtchn_to_irqhandler(
++		xen_store_evtchn, wake_waiting,
++		0, "xenbus", &xb_waitq);
++	if (err <=3D 0) {
++		printk(KERN_ERR "XENBUS request irq failed %i\n", err);
++		return err;
++	}
++
++	xenbus_irq =3D err;
++
++	return 0;
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/xen/xenbus/xenbus_comms.h
+@@ -0,0 +1,44 @@
++/*
++ * Private include for xenbus communications.
++ * =
+
++ * Copyright (C) 2005 Rusty Russell, IBM Corporation
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ * =
+
++ * Permission is hereby granted, free of charge, to any person obtaining a=
+ copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modi=
+fy,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
+are,
++ * and to permit persons to whom the Software is furnished to do so, subje=
+ct to
++ * the following conditions:
++ * =
+
++ * The above copyright notice and this permission notice shall be included=
+ in
++ * all copies or substantial portions of the Software.
++ * =
+
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
+ OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
+ THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
+LINGS
++ * IN THE SOFTWARE.
++ */
++
++#ifndef _XENBUS_COMMS_H
++#define _XENBUS_COMMS_H
++
++int xs_init(void);
++int xb_init_comms(void);
++
++/* Low level routines. */
++int xb_write(const void *data, unsigned len);
++int xb_read(void *data, unsigned len);
++int xs_input_avail(void);
++extern struct xenstore_domain_interface *xen_store_interface;
++extern int xen_store_evtchn;
++
++#endif /* _XENBUS_COMMS_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -0,0 +1,891 @@
++/*************************************************************************=
+*****
++ * Talks to Xen Store to figure out what devices we have.
++ *
++ * Copyright (C) 2005 Rusty Russell, IBM Corporation
++ * Copyright (C) 2005 Mike Wray, Hewlett-Packard
++ * Copyright (C) 2005, 2006 XenSource Ltd
++ * =
+
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ * =
+
++ * Permission is hereby granted, free of charge, to any person obtaining a=
+ copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modi=
+fy,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
+are,
++ * and to permit persons to whom the Software is furnished to do so, subje=
+ct to
++ * the following conditions:
++ * =
+
++ * The above copyright notice and this permission notice shall be included=
+ in
++ * all copies or substantial portions of the Software.
++ * =
+
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
+ OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
+ THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
+LINGS
++ * IN THE SOFTWARE.
++ */
++
++#define DPRINTK(fmt, args...)				\
++	pr_debug("xenbus_probe (%s:%d) " fmt ".\n",	\
++		 __FUNCTION__, __LINE__, ##args)
++
++#include <linux/kernel.h>
++#include <linux/err.h>
++#include <linux/string.h>
++#include <linux/ctype.h>
++#include <linux/fcntl.h>
++#include <linux/mm.h>
++#include <linux/notifier.h>
++#include <linux/kthread.h>
++#include <linux/mutex.h>
++
++#include <asm/io.h>
++#include <asm/page.h>
++#include <asm/pgtable.h>
++#include <asm/xen/hypervisor.h>
++#include <xen/xenbus.h>
++#include <xen/events.h>
++#include <xen/page.h>
++
++#include "xenbus_comms.h"
++#include "xenbus_probe.h"
++
++int xen_store_evtchn;
++struct xenstore_domain_interface *xen_store_interface;
++static unsigned long xen_store_mfn;
++
++static BLOCKING_NOTIFIER_HEAD(xenstore_chain);
++
++static void wait_for_devices(struct xenbus_driver *xendrv);
++
++static int xenbus_probe_frontend(const char *type, const char *name);
++
++static void xenbus_dev_shutdown(struct device *_dev);
++
++/* If something in array of ids matches this device, return it. */
++static const struct xenbus_device_id *
++match_device(const struct xenbus_device_id *arr, struct xenbus_device *dev)
++{
++	for (; *arr->devicetype !=3D '\0'; arr++) {
++		if (!strcmp(arr->devicetype, dev->devicetype))
++			return arr;
++	}
++	return NULL;
++}
++
++int xenbus_match(struct device *_dev, struct device_driver *_drv)
++{
++	struct xenbus_driver *drv =3D to_xenbus_driver(_drv);
++
++	if (!drv->ids)
++		return 0;
++
++	return match_device(drv->ids, to_xenbus_device(_dev)) !=3D NULL;
++}
++
++/* device/<type>/<id> =3D> <type>-<id> */
++static int frontend_bus_id(char bus_id[BUS_ID_SIZE], const char *nodename)
++{
++	nodename =3D strchr(nodename, '/');
++	if (!nodename || strlen(nodename + 1) >=3D BUS_ID_SIZE) {
++		printk(KERN_WARNING "XENBUS: bad frontend %s\n", nodename);
++		return -EINVAL;
++	}
++
++	strlcpy(bus_id, nodename + 1, BUS_ID_SIZE);
++	if (!strchr(bus_id, '/')) {
++		printk(KERN_WARNING "XENBUS: bus_id %s no slash\n", bus_id);
++		return -EINVAL;
++	}
++	*strchr(bus_id, '/') =3D '-';
++	return 0;
++}
++
++
++static void free_otherend_details(struct xenbus_device *dev)
++{
++	kfree(dev->otherend);
++	dev->otherend =3D NULL;
++}
++
++
++static void free_otherend_watch(struct xenbus_device *dev)
++{
++	if (dev->otherend_watch.node) {
++		unregister_xenbus_watch(&dev->otherend_watch);
++		kfree(dev->otherend_watch.node);
++		dev->otherend_watch.node =3D NULL;
++	}
++}
++
++
++int read_otherend_details(struct xenbus_device *xendev,
++				 char *id_node, char *path_node)
++{
++	int err =3D xenbus_gather(XBT_NIL, xendev->nodename,
++				id_node, "%i", &xendev->otherend_id,
++				path_node, NULL, &xendev->otherend,
++				NULL);
++	if (err) {
++		xenbus_dev_fatal(xendev, err,
++				 "reading other end details from %s",
++				 xendev->nodename);
++		return err;
++	}
++	if (strlen(xendev->otherend) =3D=3D 0 ||
++	    !xenbus_exists(XBT_NIL, xendev->otherend, "")) {
++		xenbus_dev_fatal(xendev, -ENOENT,
++				 "unable to read other end from %s.  "
++				 "missing or inaccessible.",
++				 xendev->nodename);
++		free_otherend_details(xendev);
++		return -ENOENT;
++	}
++
++	return 0;
++}
++
++
++static int read_backend_details(struct xenbus_device *xendev)
++{
++	return read_otherend_details(xendev, "backend-id", "backend");
++}
++
++
++/* Bus type for frontend drivers. */
++static struct xen_bus_type xenbus_frontend =3D {
++	.root =3D "device",
++	.levels =3D 2, 		/* device/type/<id> */
++	.get_bus_id =3D frontend_bus_id,
++	.probe =3D xenbus_probe_frontend,
++	.bus =3D {
++		.name     =3D "xen",
++		.match    =3D xenbus_match,
++		.probe    =3D xenbus_dev_probe,
++		.remove   =3D xenbus_dev_remove,
++		.shutdown =3D xenbus_dev_shutdown,
++	},
++};
++
++static void otherend_changed(struct xenbus_watch *watch,
++			     const char **vec, unsigned int len)
++{
++	struct xenbus_device *dev =3D
++		container_of(watch, struct xenbus_device, otherend_watch);
++	struct xenbus_driver *drv =3D to_xenbus_driver(dev->dev.driver);
++	enum xenbus_state state;
++
++	/* Protect us against watches firing on old details when the otherend
++	   details change, say immediately after a resume. */
++	if (!dev->otherend ||
++	    strncmp(dev->otherend, vec[XS_WATCH_PATH],
++		    strlen(dev->otherend))) {
++		dev_dbg(&dev->dev, "Ignoring watch at %s", vec[XS_WATCH_PATH]);
++		return;
++	}
++
++	state =3D xenbus_read_driver_state(dev->otherend);
++
++	dev_dbg(&dev->dev, "state is %d, (%s), %s, %s",
++		state, xenbus_strstate(state), dev->otherend_watch.node,
++		vec[XS_WATCH_PATH]);
++
++	/*
++	 * Ignore xenbus transitions during shutdown. This prevents us doing
++	 * work that can fail e.g., when the rootfs is gone.
++	 */
++	if (system_state > SYSTEM_RUNNING) {
++		struct xen_bus_type *bus =3D bus;
++		bus =3D container_of(dev->dev.bus, struct xen_bus_type, bus);
++		/* If we're frontend, drive the state machine to Closed. */
++		/* This should cause the backend to release our resources. */
++		if ((bus =3D=3D &xenbus_frontend) && (state =3D=3D XenbusStateClosing))
++			xenbus_frontend_closed(dev);
++		return;
++	}
++
++	if (drv->otherend_changed)
++		drv->otherend_changed(dev, state);
++}
++
++
++static int talk_to_otherend(struct xenbus_device *dev)
++{
++	struct xenbus_driver *drv =3D to_xenbus_driver(dev->dev.driver);
++
++	free_otherend_watch(dev);
++	free_otherend_details(dev);
++
++	return drv->read_otherend_details(dev);
++}
++
++
++static int watch_otherend(struct xenbus_device *dev)
++{
++	return xenbus_watch_path2(dev, dev->otherend, "state",
++				  &dev->otherend_watch, otherend_changed);
++}
++
++
++int xenbus_dev_probe(struct device *_dev)
++{
++	struct xenbus_device *dev =3D to_xenbus_device(_dev);
++	struct xenbus_driver *drv =3D to_xenbus_driver(_dev->driver);
++	const struct xenbus_device_id *id;
++	int err;
++
++	DPRINTK("%s", dev->nodename);
++
++	if (!drv->probe) {
++		err =3D -ENODEV;
++		goto fail;
++	}
++
++	id =3D match_device(drv->ids, dev);
++	if (!id) {
++		err =3D -ENODEV;
++		goto fail;
++	}
++
++	err =3D talk_to_otherend(dev);
++	if (err) {
++		dev_warn(&dev->dev, "talk_to_otherend on %s failed.\n",
++			 dev->nodename);
++		return err;
++	}
++
++	err =3D drv->probe(dev, id);
++	if (err)
++		goto fail;
++
++	err =3D watch_otherend(dev);
++	if (err) {
++		dev_warn(&dev->dev, "watch_otherend on %s failed.\n",
++		       dev->nodename);
++		return err;
++	}
++
++	return 0;
++fail:
++	xenbus_dev_error(dev, err, "xenbus_dev_probe on %s", dev->nodename);
++	xenbus_switch_state(dev, XenbusStateClosed);
++	return -ENODEV;
++}
++
++int xenbus_dev_remove(struct device *_dev)
++{
++	struct xenbus_device *dev =3D to_xenbus_device(_dev);
++	struct xenbus_driver *drv =3D to_xenbus_driver(_dev->driver);
++
++	DPRINTK("%s", dev->nodename);
++
++	free_otherend_watch(dev);
++	free_otherend_details(dev);
++
++	if (drv->remove)
++		drv->remove(dev);
++
++	xenbus_switch_state(dev, XenbusStateClosed);
++	return 0;
++}
++
++static void xenbus_dev_shutdown(struct device *_dev)
++{
++	struct xenbus_device *dev =3D to_xenbus_device(_dev);
++	unsigned long timeout =3D 5*HZ;
++
++	DPRINTK("%s", dev->nodename);
++
++	get_device(&dev->dev);
++	if (dev->state !=3D XenbusStateConnected) {
++		printk("%s: %s: %s !=3D Connected, skipping\n", __FUNCTION__,
++		       dev->nodename, xenbus_strstate(dev->state));
++		goto out;
++	}
++	xenbus_switch_state(dev, XenbusStateClosing);
++	timeout =3D wait_for_completion_timeout(&dev->down, timeout);
++	if (!timeout)
++		printk("%s: %s timeout closing device\n", __FUNCTION__, dev->nodename);
++ out:
++	put_device(&dev->dev);
++}
++
++int xenbus_register_driver_common(struct xenbus_driver *drv,
++				  struct xen_bus_type *bus)
++{
++	drv->driver.name =3D drv->name;
++	drv->driver.bus =3D &bus->bus;
++	drv->driver.owner =3D drv->owner;
++
++	return driver_register(&drv->driver);
++}
++
++int xenbus_register_frontend(struct xenbus_driver *drv)
++{
++	int ret;
++
++	drv->read_otherend_details =3D read_backend_details;
++
++	ret =3D xenbus_register_driver_common(drv, &xenbus_frontend);
++	if (ret)
++		return ret;
++
++	/* If this driver is loaded as a module wait for devices to attach. */
++	wait_for_devices(drv);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(xenbus_register_frontend);
++
++void xenbus_unregister_driver(struct xenbus_driver *drv)
++{
++	driver_unregister(&drv->driver);
++}
++EXPORT_SYMBOL_GPL(xenbus_unregister_driver);
++
++struct xb_find_info
++{
++	struct xenbus_device *dev;
++	const char *nodename;
++};
++
++static int cmp_dev(struct device *dev, void *data)
++{
++	struct xenbus_device *xendev =3D to_xenbus_device(dev);
++	struct xb_find_info *info =3D data;
++
++	if (!strcmp(xendev->nodename, info->nodename)) {
++		info->dev =3D xendev;
++		get_device(dev);
++		return 1;
++	}
++	return 0;
++}
++
++struct xenbus_device *xenbus_device_find(const char *nodename,
++					 struct bus_type *bus)
++{
++	struct xb_find_info info =3D { .dev =3D NULL, .nodename =3D nodename };
++
++	bus_for_each_dev(bus, NULL, &info, cmp_dev);
++	return info.dev;
++}
++
++static int cleanup_dev(struct device *dev, void *data)
++{
++	struct xenbus_device *xendev =3D to_xenbus_device(dev);
++	struct xb_find_info *info =3D data;
++	int len =3D strlen(info->nodename);
++
++	DPRINTK("%s", info->nodename);
++
++	/* Match the info->nodename path, or any subdirectory of that path. */
++	if (strncmp(xendev->nodename, info->nodename, len))
++		return 0;
++
++	/* If the node name is longer, ensure it really is a subdirectory. */
++	if ((strlen(xendev->nodename) > len) && (xendev->nodename[len] !=3D '/'))
++		return 0;
++
++	info->dev =3D xendev;
++	get_device(dev);
++	return 1;
++}
++
++static void xenbus_cleanup_devices(const char *path, struct bus_type *bus)
++{
++	struct xb_find_info info =3D { .nodename =3D path };
++
++	do {
++		info.dev =3D NULL;
++		bus_for_each_dev(bus, NULL, &info, cleanup_dev);
++		if (info.dev) {
++			device_unregister(&info.dev->dev);
++			put_device(&info.dev->dev);
++		}
++	} while (info.dev);
++}
++
++static void xenbus_dev_release(struct device *dev)
++{
++	if (dev)
++		kfree(to_xenbus_device(dev));
++}
++
++static ssize_t xendev_show_nodename(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, "%s\n", to_xenbus_device(dev)->nodename);
++}
++DEVICE_ATTR(nodename, S_IRUSR | S_IRGRP | S_IROTH, xendev_show_nodename, N=
+ULL);
++
++static ssize_t xendev_show_devtype(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, "%s\n", to_xenbus_device(dev)->devicetype);
++}
++DEVICE_ATTR(devtype, S_IRUSR | S_IRGRP | S_IROTH, xendev_show_devtype, NUL=
+L);
++
++
++int xenbus_probe_node(struct xen_bus_type *bus,
++		      const char *type,
++		      const char *nodename)
++{
++	int err;
++	struct xenbus_device *xendev;
++	size_t stringlen;
++	char *tmpstring;
++
++	enum xenbus_state state =3D xenbus_read_driver_state(nodename);
++
++	if (state !=3D XenbusStateInitialising) {
++		/* Device is not new, so ignore it.  This can happen if a
++		   device is going away after switching to Closed.  */
++		return 0;
++	}
++
++	stringlen =3D strlen(nodename) + 1 + strlen(type) + 1;
++	xendev =3D kzalloc(sizeof(*xendev) + stringlen, GFP_KERNEL);
++	if (!xendev)
++		return -ENOMEM;
++
++	xendev->state =3D XenbusStateInitialising;
++
++	/* Copy the strings into the extra space. */
++
++	tmpstring =3D (char *)(xendev + 1);
++	strcpy(tmpstring, nodename);
++	xendev->nodename =3D tmpstring;
++
++	tmpstring +=3D strlen(tmpstring) + 1;
++	strcpy(tmpstring, type);
++	xendev->devicetype =3D tmpstring;
++	init_completion(&xendev->down);
++
++	xendev->dev.bus =3D &bus->bus;
++	xendev->dev.release =3D xenbus_dev_release;
++
++	err =3D bus->get_bus_id(xendev->dev.bus_id, xendev->nodename);
++	if (err)
++		goto fail;
++
++	/* Register with generic device framework. */
++	err =3D device_register(&xendev->dev);
++	if (err)
++		goto fail;
++
++	device_create_file(&xendev->dev, &dev_attr_nodename);
++	device_create_file(&xendev->dev, &dev_attr_devtype);
++
++	return 0;
++fail:
++	kfree(xendev);
++	return err;
++}
++
++/* device/<typename>/<name> */
++static int xenbus_probe_frontend(const char *type, const char *name)
++{
++	char *nodename;
++	int err;
++
++	nodename =3D kasprintf(GFP_KERNEL, "%s/%s/%s", xenbus_frontend.root, type=
+, name);
++	if (!nodename)
++		return -ENOMEM;
++
++	DPRINTK("%s", nodename);
++
++	err =3D xenbus_probe_node(&xenbus_frontend, type, nodename);
++	kfree(nodename);
++	return err;
++}
++
++static int xenbus_probe_device_type(struct xen_bus_type *bus, const char *=
+type)
++{
++	int err =3D 0;
++	char **dir;
++	unsigned int dir_n =3D 0;
++	int i;
++
++	dir =3D xenbus_directory(XBT_NIL, bus->root, type, &dir_n);
++	if (IS_ERR(dir))
++		return PTR_ERR(dir);
++
++	for (i =3D 0; i < dir_n; i++) {
++		err =3D bus->probe(type, dir[i]);
++		if (err)
++			break;
++	}
++	kfree(dir);
++	return err;
++}
++
++int xenbus_probe_devices(struct xen_bus_type *bus)
++{
++	int err =3D 0;
++	char **dir;
++	unsigned int i, dir_n;
++
++	dir =3D xenbus_directory(XBT_NIL, bus->root, "", &dir_n);
++	if (IS_ERR(dir))
++		return PTR_ERR(dir);
++
++	for (i =3D 0; i < dir_n; i++) {
++		err =3D xenbus_probe_device_type(bus, dir[i]);
++		if (err)
++			break;
++	}
++	kfree(dir);
++	return err;
++}
++
++static unsigned int char_count(const char *str, char c)
++{
++	unsigned int i, ret =3D 0;
++
++	for (i =3D 0; str[i]; i++)
++		if (str[i] =3D=3D c)
++			ret++;
++	return ret;
++}
++
++static int strsep_len(const char *str, char c, unsigned int len)
++{
++	unsigned int i;
++
++	for (i =3D 0; str[i]; i++)
++		if (str[i] =3D=3D c) {
++			if (len =3D=3D 0)
++				return i;
++			len--;
++		}
++	return (len =3D=3D 0) ? i : -ERANGE;
++}
++
++void dev_changed(const char *node, struct xen_bus_type *bus)
++{
++	int exists, rootlen;
++	struct xenbus_device *dev;
++	char type[BUS_ID_SIZE];
++	const char *p, *root;
++
++	if (char_count(node, '/') < 2)
++ 		return;
++
++	exists =3D xenbus_exists(XBT_NIL, node, "");
++	if (!exists) {
++		xenbus_cleanup_devices(node, &bus->bus);
++		return;
++	}
++
++	/* backend/<type>/... or device/<type>/... */
++	p =3D strchr(node, '/') + 1;
++	snprintf(type, BUS_ID_SIZE, "%.*s", (int)strcspn(p, "/"), p);
++	type[BUS_ID_SIZE-1] =3D '\0';
++
++	rootlen =3D strsep_len(node, '/', bus->levels);
++	if (rootlen < 0)
++		return;
++	root =3D kasprintf(GFP_KERNEL, "%.*s", rootlen, node);
++	if (!root)
++		return;
++
++	dev =3D xenbus_device_find(root, &bus->bus);
++	if (!dev)
++		xenbus_probe_node(bus, type, root);
++	else
++		put_device(&dev->dev);
++
++	kfree(root);
++}
++
++static void frontend_changed(struct xenbus_watch *watch,
++			     const char **vec, unsigned int len)
++{
++	DPRINTK("");
++
++	dev_changed(vec[XS_WATCH_PATH], &xenbus_frontend);
++}
++
++/* We watch for devices appearing and vanishing. */
++static struct xenbus_watch fe_watch =3D {
++	.node =3D "device",
++	.callback =3D frontend_changed,
++};
++
++static int suspend_dev(struct device *dev, void *data)
++{
++	int err =3D 0;
++	struct xenbus_driver *drv;
++	struct xenbus_device *xdev;
++
++	DPRINTK("");
++
++	if (dev->driver =3D=3D NULL)
++		return 0;
++	drv =3D to_xenbus_driver(dev->driver);
++	xdev =3D container_of(dev, struct xenbus_device, dev);
++	if (drv->suspend)
++		err =3D drv->suspend(xdev);
++	if (err)
++		printk(KERN_WARNING
++		       "xenbus: suspend %s failed: %i\n", dev->bus_id, err);
++	return 0;
++}
++
++static int resume_dev(struct device *dev, void *data)
++{
++	int err;
++	struct xenbus_driver *drv;
++	struct xenbus_device *xdev;
++
++	DPRINTK("");
++
++	if (dev->driver =3D=3D NULL)
++		return 0;
++
++	drv =3D to_xenbus_driver(dev->driver);
++	xdev =3D container_of(dev, struct xenbus_device, dev);
++
++	err =3D talk_to_otherend(xdev);
++	if (err) {
++		printk(KERN_WARNING
++		       "xenbus: resume (talk_to_otherend) %s failed: %i\n",
++		       dev->bus_id, err);
++		return err;
++	}
++
++	xdev->state =3D XenbusStateInitialising;
++
++	if (drv->resume) {
++		err =3D drv->resume(xdev);
++		if (err) { =
+
++			printk(KERN_WARNING
++			       "xenbus: resume %s failed: %i\n", =
+
++			       dev->bus_id, err);
++			return err;
++		}
++	}
++
++	err =3D watch_otherend(xdev);
++	if (err) {
++		printk(KERN_WARNING
++		       "xenbus_probe: resume (watch_otherend) %s failed: "
++		       "%d.\n", dev->bus_id, err);
++		return err;
++	}
++
++	return 0;
++}
++
++void xenbus_suspend(void)
++{
++	DPRINTK("");
++
++	bus_for_each_dev(&xenbus_frontend.bus, NULL, NULL, suspend_dev);
++	xenbus_backend_suspend(suspend_dev);
++	xs_suspend();
++}
++EXPORT_SYMBOL_GPL(xenbus_suspend);
++
++void xenbus_resume(void)
++{
++	xb_init_comms();
++	xs_resume();
++	bus_for_each_dev(&xenbus_frontend.bus, NULL, NULL, resume_dev);
++	xenbus_backend_resume(resume_dev);
++}
++EXPORT_SYMBOL_GPL(xenbus_resume);
++
++
++/* A flag to determine if xenstored is 'ready' (i.e. has started) */
++int xenstored_ready =3D 0;
++
++
++int register_xenstore_notifier(struct notifier_block *nb)
++{
++	int ret =3D 0;
++
++	if (xenstored_ready > 0)
++		ret =3D nb->notifier_call(nb, 0, NULL);
++	else
++		blocking_notifier_chain_register(&xenstore_chain, nb);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(register_xenstore_notifier);
++
++void unregister_xenstore_notifier(struct notifier_block *nb)
++{
++	blocking_notifier_chain_unregister(&xenstore_chain, nb);
++}
++EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
++
++void xenbus_probe(struct work_struct *unused)
++{
++	BUG_ON((xenstored_ready <=3D 0));
++
++	/* Enumerate devices in xenstore and watch for changes. */
++	xenbus_probe_devices(&xenbus_frontend);
++	register_xenbus_watch(&fe_watch);
++	xenbus_backend_probe_and_watch();
++
++	/* Notify others that xenstore is up */
++	blocking_notifier_call_chain(&xenstore_chain, 0, NULL);
++}
++
++static int __init xenbus_probe_init(void)
++{
++	int err =3D 0;
++
++	DPRINTK("");
++
++	err =3D -ENODEV;
++	if (!is_running_on_xen())
++		goto out_error;
++
++	/* Register ourselves with the kernel bus subsystem */
++	err =3D bus_register(&xenbus_frontend.bus);
++	if (err)
++		goto out_error;
++
++	err =3D xenbus_backend_bus_register();
++	if (err)
++		goto out_unreg_front;
++
++	/*
++	 * Domain0 doesn't have a store_evtchn or store_mfn yet.
++	 */
++	if (is_initial_xendomain()) {
++		/* dom0 not yet supported */
++	} else {
++		xenstored_ready =3D 1;
++		xen_store_evtchn =3D xen_start_info->store_evtchn;
++		xen_store_mfn =3D xen_start_info->store_mfn;
++	}
++	xen_store_interface =3D mfn_to_virt(xen_store_mfn);
++
++	/* Initialize the interface to xenstore. */
++	err =3D xs_init();
++	if (err) {
++		printk(KERN_WARNING
++		       "XENBUS: Error initializing xenstore comms: %i\n", err);
++		goto out_unreg_back;
++	}
++
++	if (!is_initial_xendomain())
++		xenbus_probe(NULL);
++
++	return 0;
++
++  out_unreg_back:
++	xenbus_backend_bus_unregister();
++
++  out_unreg_front:
++	bus_unregister(&xenbus_frontend.bus);
++
++  out_error:
++	return err;
++}
++
++postcore_initcall(xenbus_probe_init);
++
++MODULE_LICENSE("Dual BSD/GPL");
++
++static int is_disconnected_device(struct device *dev, void *data)
++{
++	struct xenbus_device *xendev =3D to_xenbus_device(dev);
++	struct device_driver *drv =3D data;
++
++	/*
++	 * A device with no driver will never connect. We care only about
++	 * devices which should currently be in the process of connecting.
++	 */
++	if (!dev->driver)
++		return 0;
++
++	/* Is this search limited to a particular driver? */
++	if (drv && (dev->driver !=3D drv))
++		return 0;
++
++	return (xendev->state !=3D XenbusStateConnected);
++}
++
++static int exists_disconnected_device(struct device_driver *drv)
++{
++	return bus_for_each_dev(&xenbus_frontend.bus, NULL, drv,
++				is_disconnected_device);
++}
++
++static int print_device_status(struct device *dev, void *data)
++{
++	struct xenbus_device *xendev =3D to_xenbus_device(dev);
++	struct device_driver *drv =3D data;
++
++	/* Is this operation limited to a particular driver? */
++	if (drv && (dev->driver !=3D drv))
++		return 0;
++
++	if (!dev->driver) {
++		/* Information only: is this too noisy? */
++		printk(KERN_INFO "XENBUS: Device with no driver: %s\n",
++		       xendev->nodename);
++	} else if (xendev->state !=3D XenbusStateConnected) {
++		printk(KERN_WARNING "XENBUS: Timeout connecting "
++		       "to device: %s (state %d)\n",
++		       xendev->nodename, xendev->state);
++	}
++
++	return 0;
++}
++
++/* We only wait for device setup after most initcalls have run. */
++static int ready_to_wait_for_devices;
++
++/*
++ * On a 10 second timeout, wait for all devices currently configured.  We =
+need
++ * to do this to guarantee that the filesystems and / or network devices
++ * needed for boot are available, before we can allow the boot to proceed.
++ *
++ * This needs to be on a late_initcall, to happen after the frontend device
++ * drivers have been initialised, but before the root fs is mounted.
++ *
++ * A possible improvement here would be to have the tools add a per-device
++ * flag to the store entry, indicating whether it is needed at boot time.
++ * This would allow people who knew what they were doing to accelerate the=
+ir
++ * boot slightly, but of course needs tools or manual intervention to set =
+up
++ * those flags correctly.
++ */
++static void wait_for_devices(struct xenbus_driver *xendrv)
++{
++	unsigned long timeout =3D jiffies + 10*HZ;
++	struct device_driver *drv =3D xendrv ? &xendrv->driver : NULL;
++
++	if (!ready_to_wait_for_devices || !is_running_on_xen())
++		return;
++
++	while (exists_disconnected_device(drv)) {
++		if (time_after(jiffies, timeout))
++			break;
++		schedule_timeout_interruptible(HZ/10);
++	}
++
++	bus_for_each_dev(&xenbus_frontend.bus, NULL, drv,
++			 print_device_status);
++}
++
++#ifndef MODULE
++static int __init boot_wait_for_devices(void)
++{
++	ready_to_wait_for_devices =3D 1;
++	wait_for_devices(NULL);
++	return 0;
++}
++
++late_initcall(boot_wait_for_devices);
++#endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/xen/xenbus/xenbus_probe.h
+@@ -0,0 +1,72 @@
++/*************************************************************************=
+*****
++ * xenbus_probe.h
++ *
++ * Talks to Xen Store to figure out what devices we have.
++ *
++ * Copyright (C) 2005 Rusty Russell, IBM Corporation
++ * Copyright (C) 2005 XenSource Ltd.
++ * =
+
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ * =
+
++ * Permission is hereby granted, free of charge, to any person obtaining a=
+ copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modi=
+fy,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
+are,
++ * and to permit persons to whom the Software is furnished to do so, subje=
+ct to
++ * the following conditions:
++ * =
+
++ * The above copyright notice and this permission notice shall be included=
+ in
++ * all copies or substantial portions of the Software.
++ * =
+
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
+ OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
+ THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
+LINGS
++ * IN THE SOFTWARE.
++ */
++
++#ifndef _XENBUS_PROBE_H
++#define _XENBUS_PROBE_H
++
++#ifdef CONFIG_XEN_BACKEND
++extern void xenbus_backend_suspend(int (*fn)(struct device *, void *));
++extern void xenbus_backend_resume(int (*fn)(struct device *, void *));
++extern void xenbus_backend_probe_and_watch(void);
++extern int xenbus_backend_bus_register(void);
++extern void xenbus_backend_bus_unregister(void);
++#else
++static inline void xenbus_backend_suspend(int (*fn)(struct device *, void =
+*)) {}
++static inline void xenbus_backend_resume(int (*fn)(struct device *, void *=
+)) {}
++static inline void xenbus_backend_probe_and_watch(void) {}
++static inline int xenbus_backend_bus_register(void) {return 0;}
++static inline void xenbus_backend_bus_unregister(void) {}
++#endif
++
++struct xen_bus_type
++{
++	char *root;
++	unsigned int levels;
++	int (*get_bus_id)(char bus_id[BUS_ID_SIZE], const char *nodename);
++	int (*probe)(const char *type, const char *dir);
++	struct bus_type bus;
++};
++
++extern int xenbus_match(struct device *_dev, struct device_driver *_drv);
++extern int xenbus_dev_probe(struct device *_dev);
++extern int xenbus_dev_remove(struct device *_dev);
++extern int xenbus_register_driver_common(struct xenbus_driver *drv,
++					 struct xen_bus_type *bus);
++extern int xenbus_probe_node(struct xen_bus_type *bus,
++			     const char *type,
++			     const char *nodename);
++extern int xenbus_probe_devices(struct xen_bus_type *bus);
++
++extern void dev_changed(const char *node, struct xen_bus_type *bus);
++
++#endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/xen/xenbus/xenbus_probe_backend.c
+@@ -0,0 +1,269 @@
++/*************************************************************************=
+*****
++ * Talks to Xen Store to figure out what devices we have (backend half).
++ *
++ * Copyright (C) 2005 Rusty Russell, IBM Corporation
++ * Copyright (C) 2005 Mike Wray, Hewlett-Packard
++ * Copyright (C) 2005, 2006 XenSource Ltd
++ * =
+
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ * =
+
++ * Permission is hereby granted, free of charge, to any person obtaining a=
+ copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modi=
+fy,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
+are,
++ * and to permit persons to whom the Software is furnished to do so, subje=
+ct to
++ * the following conditions:
++ * =
+
++ * The above copyright notice and this permission notice shall be included=
+ in
++ * all copies or substantial portions of the Software.
++ * =
+
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
+ OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
+ THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
+LINGS
++ * IN THE SOFTWARE.
++ */
++
++#define DPRINTK(fmt, args...)				\
++	pr_debug("xenbus_probe (%s:%d) " fmt ".\n",	\
++		 __FUNCTION__, __LINE__, ##args)
++
++#include <linux/kernel.h>
++#include <linux/err.h>
++#include <linux/string.h>
++#include <linux/ctype.h>
++#include <linux/fcntl.h>
++#include <linux/mm.h>
++#include <linux/notifier.h>
++#include <linux/kthread.h>
++
++#include <asm/io.h>
++#include <asm/page.h>
++//#include <asm/maddr.h>
++#include <asm/pgtable.h>
++#include <asm/xen/hypervisor.h>
++#include <xen/xenbus.h>
++//#include <xen/xen_proc.h>
++//#include <xen/evtchn.h>
++#include <xen/features.h>
++//#include <xen/hvm.h>
++
++#include "xenbus_comms.h"
++#include "xenbus_probe.h"
++
++#ifdef HAVE_XEN_PLATFORM_COMPAT_H
++#include <xen/platform-compat.h>
++#endif
++
++static int xenbus_uevent_backend(struct device *dev, char **envp,
++				 int num_envp, char *buffer, int buffer_size);
++static int xenbus_probe_backend(const char *type, const char *domid);
++
++extern int read_otherend_details(struct xenbus_device *xendev,
++				 char *id_node, char *path_node);
++
++static int read_frontend_details(struct xenbus_device *xendev)
++{
++	return read_otherend_details(xendev, "frontend-id", "frontend");
++}
++
++/* backend/<type>/<fe-uuid>/<id> =3D> <type>-<fe-domid>-<id> */
++static int backend_bus_id(char bus_id[BUS_ID_SIZE], const char *nodename)
++{
++	int domid, err;
++	const char *devid, *type, *frontend;
++	unsigned int typelen;
++
++	type =3D strchr(nodename, '/');
++	if (!type)
++		return -EINVAL;
++	type++;
++	typelen =3D strcspn(type, "/");
++	if (!typelen || type[typelen] !=3D '/')
++		return -EINVAL;
++
++	devid =3D strrchr(nodename, '/') + 1;
++
++	err =3D xenbus_gather(XBT_NIL, nodename, "frontend-id", "%i", &domid,
++			    "frontend", NULL, &frontend,
++			    NULL);
++	if (err)
++		return err;
++	if (strlen(frontend) =3D=3D 0)
++		err =3D -ERANGE;
++	if (!err && !xenbus_exists(XBT_NIL, frontend, ""))
++		err =3D -ENOENT;
++
++	kfree(frontend);
++
++	if (err)
++		return err;
++
++	if (snprintf(bus_id, BUS_ID_SIZE,
++		     "%.*s-%i-%s", typelen, type, domid, devid) >=3D BUS_ID_SIZE)
++		return -ENOSPC;
++	return 0;
++}
++
++static struct xen_bus_type xenbus_backend =3D {
++	.root =3D "backend",
++	.levels =3D 3, 		/* backend/type/<frontend>/<id> */
++	.get_bus_id =3D backend_bus_id,
++	.probe =3D xenbus_probe_backend,
++	.bus =3D {
++		.name     =3D "xen-backend",
++		.match    =3D xenbus_match,
++		.probe    =3D xenbus_dev_probe,
++		.remove   =3D xenbus_dev_remove,
++//		.shutdown =3D xenbus_dev_shutdown,
++		.uevent   =3D xenbus_uevent_backend,
++	},
++};
++
++static int xenbus_uevent_backend(struct device *dev, char **envp,
++				 int num_envp, char *buffer, int buffer_size)
++{
++	struct xenbus_device *xdev;
++	struct xenbus_driver *drv;
++	int i =3D 0;
++	int length =3D 0;
++
++	DPRINTK("");
++
++	if (dev =3D=3D NULL)
++		return -ENODEV;
++
++	xdev =3D to_xenbus_device(dev);
++	if (xdev =3D=3D NULL)
++		return -ENODEV;
++
++	/* stuff we want to pass to /sbin/hotplug */
++	add_uevent_var(envp, num_envp, &i, buffer, buffer_size, &length,
++		       "XENBUS_TYPE=3D%s", xdev->devicetype);
++
++	add_uevent_var(envp, num_envp, &i, buffer, buffer_size, &length,
++		       "XENBUS_PATH=3D%s", xdev->nodename);
++
++	add_uevent_var(envp, num_envp, &i, buffer, buffer_size, &length,
++		       "XENBUS_BASE_PATH=3D%s", xenbus_backend.root);
++
++	/* terminate, set to next free slot, shrink available space */
++	envp[i] =3D NULL;
++	envp =3D &envp[i];
++	num_envp -=3D i;
++	buffer =3D &buffer[length];
++	buffer_size -=3D length;
++
++	if (dev->driver) {
++		drv =3D to_xenbus_driver(dev->driver);
++		if (drv && drv->uevent)
++			return drv->uevent(xdev, envp, num_envp, buffer,
++					   buffer_size);
++	}
++
++	return 0;
++}
++
++int xenbus_register_backend(struct xenbus_driver *drv)
++{
++	drv->read_otherend_details =3D read_frontend_details;
++
++	return xenbus_register_driver_common(drv, &xenbus_backend);
++}
++EXPORT_SYMBOL_GPL(xenbus_register_backend);
++
++/* backend/<typename>/<frontend-uuid>/<name> */
++static int xenbus_probe_backend_unit(const char *dir,
++				     const char *type,
++				     const char *name)
++{
++	char *nodename;
++	int err;
++
++	nodename =3D kasprintf(GFP_KERNEL, "%s/%s", dir, name);
++	if (!nodename)
++		return -ENOMEM;
++
++	DPRINTK("%s\n", nodename);
++
++	err =3D xenbus_probe_node(&xenbus_backend, type, nodename);
++	kfree(nodename);
++	return err;
++}
++
++/* backend/<typename>/<frontend-domid> */
++static int xenbus_probe_backend(const char *type, const char *domid)
++{
++	char *nodename;
++	int err =3D 0;
++	char **dir;
++	unsigned int i, dir_n =3D 0;
++
++	DPRINTK("");
++
++	nodename =3D kasprintf(GFP_KERNEL, "%s/%s/%s", xenbus_backend.root, type,=
+ domid);
++	if (!nodename)
++		return -ENOMEM;
++
++	dir =3D xenbus_directory(XBT_NIL, nodename, "", &dir_n);
++	if (IS_ERR(dir)) {
++		kfree(nodename);
++		return PTR_ERR(dir);
++	}
++
++	for (i =3D 0; i < dir_n; i++) {
++		err =3D xenbus_probe_backend_unit(nodename, type, dir[i]);
++		if (err)
++			break;
++	}
++	kfree(dir);
++	kfree(nodename);
++	return err;
++}
++
++static void backend_changed(struct xenbus_watch *watch,
++			    const char **vec, unsigned int len)
++{
++	DPRINTK("");
++
++	dev_changed(vec[XS_WATCH_PATH], &xenbus_backend);
++}
++
++static struct xenbus_watch be_watch =3D {
++	.node =3D "backend",
++	.callback =3D backend_changed,
++};
++
++void xenbus_backend_suspend(int (*fn)(struct device *, void *))
++{
++	DPRINTK("");
++	bus_for_each_dev(&xenbus_backend.bus, NULL, NULL, fn);
++}
++
++void xenbus_backend_resume(int (*fn)(struct device *, void *))
++{
++	DPRINTK("");
++	bus_for_each_dev(&xenbus_backend.bus, NULL, NULL, fn);
++}
++
++void xenbus_backend_probe_and_watch(void)
++{
++	xenbus_probe_devices(&xenbus_backend);
++	register_xenbus_watch(&be_watch);
++}
++
++int xenbus_backend_bus_register(void)
++{
++	return bus_register(&xenbus_backend.bus);
++}
++
++void xenbus_backend_bus_unregister(void)
++{
++	bus_unregister(&xenbus_backend.bus);
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/xen/xenbus/xenbus_xs.c
+@@ -0,0 +1,840 @@
++/*************************************************************************=
+*****
++ * xenbus_xs.c
++ *
++ * This is the kernel equivalent of the "xs" library.  We don't need every=
+thing
++ * and we use xenbus_comms for communication.
++ *
++ * Copyright (C) 2005 Rusty Russell, IBM Corporation
++ * =
+
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ * =
+
++ * Permission is hereby granted, free of charge, to any person obtaining a=
+ copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modi=
+fy,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
+are,
++ * and to permit persons to whom the Software is furnished to do so, subje=
+ct to
++ * the following conditions:
++ * =
+
++ * The above copyright notice and this permission notice shall be included=
+ in
++ * all copies or substantial portions of the Software.
++ * =
+
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
+ OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
+ THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
+LINGS
++ * IN THE SOFTWARE.
++ */
++
++#include <linux/unistd.h>
++#include <linux/errno.h>
++#include <linux/types.h>
++#include <linux/uio.h>
++#include <linux/kernel.h>
++#include <linux/string.h>
++#include <linux/err.h>
++#include <linux/slab.h>
++#include <linux/fcntl.h>
++#include <linux/kthread.h>
++#include <linux/rwsem.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <xen/xenbus.h>
++#include "xenbus_comms.h"
++
++struct xs_stored_msg {
++	struct list_head list;
++
++	struct xsd_sockmsg hdr;
++
++	union {
++		/* Queued replies. */
++		struct {
++			char *body;
++		} reply;
++
++		/* Queued watch events. */
++		struct {
++			struct xenbus_watch *handle;
++			char **vec;
++			unsigned int vec_size;
++		} watch;
++	} u;
++};
++
++struct xs_handle {
++	/* A list of replies. Currently only one will ever be outstanding. */
++	struct list_head reply_list;
++	spinlock_t reply_lock;
++	wait_queue_head_t reply_waitq;
++
++	/* One request at a time. */
++	struct mutex request_mutex;
++
++	/* Protect transactions against save/restore. */
++	struct rw_semaphore suspend_mutex;
++};
++
++static struct xs_handle xs_state;
++
++/* List of registered watches, and a lock to protect it. */
++static LIST_HEAD(watches);
++static DEFINE_SPINLOCK(watches_lock);
++
++/* List of pending watch callback events, and a lock to protect it. */
++static LIST_HEAD(watch_events);
++static DEFINE_SPINLOCK(watch_events_lock);
++
++/*
++ * Details of the xenwatch callback kernel thread. The thread waits on the
++ * watch_events_waitq for work to do (queued on watch_events list). When it
++ * wakes up it acquires the xenwatch_mutex before reading the list and
++ * carrying out work.
++ */
++static pid_t xenwatch_pid;
++static DEFINE_MUTEX(xenwatch_mutex);
++static DECLARE_WAIT_QUEUE_HEAD(watch_events_waitq);
++
++static int get_error(const char *errorstring)
++{
++	unsigned int i;
++
++	for (i =3D 0; strcmp(errorstring, xsd_errors[i].errstring) !=3D 0; i++) {
++		if (i =3D=3D ARRAY_SIZE(xsd_errors) - 1) {
++			printk(KERN_WARNING
++			       "XENBUS xen store gave: unknown error %s",
++			       errorstring);
++			return EINVAL;
++		}
++	}
++	return xsd_errors[i].errnum;
++}
++
++static void *read_reply(enum xsd_sockmsg_type *type, unsigned int *len)
++{
++	struct xs_stored_msg *msg;
++	char *body;
++
++	spin_lock(&xs_state.reply_lock);
++
++	while (list_empty(&xs_state.reply_list)) {
++		spin_unlock(&xs_state.reply_lock);
++		/* XXX FIXME: Avoid synchronous wait for response here. */
++		wait_event(xs_state.reply_waitq,
++			   !list_empty(&xs_state.reply_list));
++		spin_lock(&xs_state.reply_lock);
++	}
++
++	msg =3D list_entry(xs_state.reply_list.next,
++			 struct xs_stored_msg, list);
++	list_del(&msg->list);
++
++	spin_unlock(&xs_state.reply_lock);
++
++	*type =3D msg->hdr.type;
++	if (len)
++		*len =3D msg->hdr.len;
++	body =3D msg->u.reply.body;
++
++	kfree(msg);
++
++	return body;
++}
++
++/* Emergency write. */
++void xenbus_debug_write(const char *str, unsigned int count)
++{
++	struct xsd_sockmsg msg =3D { 0 };
++
++	msg.type =3D XS_DEBUG;
++	msg.len =3D sizeof("print") + count + 1;
++
++	mutex_lock(&xs_state.request_mutex);
++	xb_write(&msg, sizeof(msg));
++	xb_write("print", sizeof("print"));
++	xb_write(str, count);
++	xb_write("", 1);
++	mutex_unlock(&xs_state.request_mutex);
++}
++
++void *xenbus_dev_request_and_reply(struct xsd_sockmsg *msg)
++{
++	void *ret;
++	struct xsd_sockmsg req_msg =3D *msg;
++	int err;
++
++	if (req_msg.type =3D=3D XS_TRANSACTION_START)
++		down_read(&xs_state.suspend_mutex);
++
++	mutex_lock(&xs_state.request_mutex);
++
++	err =3D xb_write(msg, sizeof(*msg) + msg->len);
++	if (err) {
++		msg->type =3D XS_ERROR;
++		ret =3D ERR_PTR(err);
++	} else
++		ret =3D read_reply(&msg->type, &msg->len);
++
++	mutex_unlock(&xs_state.request_mutex);
++
++	if ((msg->type =3D=3D XS_TRANSACTION_END) ||
++	    ((req_msg.type =3D=3D XS_TRANSACTION_START) &&
++	     (msg->type =3D=3D XS_ERROR)))
++		up_read(&xs_state.suspend_mutex);
++
++	return ret;
++}
++
++/* Send message to xs, get kmalloc'ed reply.  ERR_PTR() on error. */
++static void *xs_talkv(struct xenbus_transaction t,
++		      enum xsd_sockmsg_type type,
++		      const struct kvec *iovec,
++		      unsigned int num_vecs,
++		      unsigned int *len)
++{
++	struct xsd_sockmsg msg;
++	void *ret =3D NULL;
++	unsigned int i;
++	int err;
++
++	msg.tx_id =3D t.id;
++	msg.req_id =3D 0;
++	msg.type =3D type;
++	msg.len =3D 0;
++	for (i =3D 0; i < num_vecs; i++)
++		msg.len +=3D iovec[i].iov_len;
++
++	mutex_lock(&xs_state.request_mutex);
++
++	err =3D xb_write(&msg, sizeof(msg));
++	if (err) {
++		mutex_unlock(&xs_state.request_mutex);
++		return ERR_PTR(err);
++	}
++
++	for (i =3D 0; i < num_vecs; i++) {
++		err =3D xb_write(iovec[i].iov_base, iovec[i].iov_len);;
++		if (err) {
++			mutex_unlock(&xs_state.request_mutex);
++			return ERR_PTR(err);
++		}
++	}
++
++	ret =3D read_reply(&msg.type, len);
++
++	mutex_unlock(&xs_state.request_mutex);
++
++	if (IS_ERR(ret))
++		return ret;
++
++	if (msg.type =3D=3D XS_ERROR) {
++		err =3D get_error(ret);
++		kfree(ret);
++		return ERR_PTR(-err);
++	}
++
++	if (msg.type !=3D type) {
++		if (printk_ratelimit())
++			printk(KERN_WARNING
++			       "XENBUS unexpected type [%d], expected [%d]\n",
++			       msg.type, type);
++		kfree(ret);
++		return ERR_PTR(-EINVAL);
++	}
++	return ret;
++}
++
++/* Simplified version of xs_talkv: single message. */
++static void *xs_single(struct xenbus_transaction t,
++		       enum xsd_sockmsg_type type,
++		       const char *string,
++		       unsigned int *len)
++{
++	struct kvec iovec;
++
++	iovec.iov_base =3D (void *)string;
++	iovec.iov_len =3D strlen(string) + 1;
++	return xs_talkv(t, type, &iovec, 1, len);
++}
++
++/* Many commands only need an ack, don't care what it says. */
++static int xs_error(char *reply)
++{
++	if (IS_ERR(reply))
++		return PTR_ERR(reply);
++	kfree(reply);
++	return 0;
++}
++
++static unsigned int count_strings(const char *strings, unsigned int len)
++{
++	unsigned int num;
++	const char *p;
++
++	for (p =3D strings, num =3D 0; p < strings + len; p +=3D strlen(p) + 1)
++		num++;
++
++	return num;
++}
++
++/* Return the path to dir with /name appended. Buffer must be kfree()'ed. =
+*/
++static char *join(const char *dir, const char *name)
++{
++	char *buffer;
++
++	if (strlen(name) =3D=3D 0)
++		buffer =3D kasprintf(GFP_KERNEL, "%s", dir);
++	else
++		buffer =3D kasprintf(GFP_KERNEL, "%s/%s", dir, name);
++	return (!buffer) ? ERR_PTR(-ENOMEM) : buffer;
++}
++
++static char **split(char *strings, unsigned int len, unsigned int *num)
++{
++	char *p, **ret;
++
++	/* Count the strings. */
++	*num =3D count_strings(strings, len);
++
++	/* Transfer to one big alloc for easy freeing. */
++	ret =3D kmalloc(*num * sizeof(char *) + len, GFP_KERNEL);
++	if (!ret) {
++		kfree(strings);
++		return ERR_PTR(-ENOMEM);
++	}
++	memcpy(&ret[*num], strings, len);
++	kfree(strings);
++
++	strings =3D (char *)&ret[*num];
++	for (p =3D strings, *num =3D 0; p < strings + len; p +=3D strlen(p) + 1)
++		ret[(*num)++] =3D p;
++
++	return ret;
++}
++
++char **xenbus_directory(struct xenbus_transaction t,
++			const char *dir, const char *node, unsigned int *num)
++{
++	char *strings, *path;
++	unsigned int len;
++
++	path =3D join(dir, node);
++	if (IS_ERR(path))
++		return (char **)path;
++
++	strings =3D xs_single(t, XS_DIRECTORY, path, &len);
++	kfree(path);
++	if (IS_ERR(strings))
++		return (char **)strings;
++
++	return split(strings, len, num);
++}
++EXPORT_SYMBOL_GPL(xenbus_directory);
++
++/* Check if a path exists. Return 1 if it does. */
++int xenbus_exists(struct xenbus_transaction t,
++		  const char *dir, const char *node)
++{
++	char **d;
++	int dir_n;
++
++	d =3D xenbus_directory(t, dir, node, &dir_n);
++	if (IS_ERR(d))
++		return 0;
++	kfree(d);
++	return 1;
++}
++EXPORT_SYMBOL_GPL(xenbus_exists);
++
++/* Get the value of a single file.
++ * Returns a kmalloced value: call free() on it after use.
++ * len indicates length in bytes.
++ */
++void *xenbus_read(struct xenbus_transaction t,
++		  const char *dir, const char *node, unsigned int *len)
++{
++	char *path;
++	void *ret;
++
++	path =3D join(dir, node);
++	if (IS_ERR(path))
++		return (void *)path;
++
++	ret =3D xs_single(t, XS_READ, path, len);
++	kfree(path);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xenbus_read);
++
++/* Write the value of a single file.
++ * Returns -err on failure.
++ */
++int xenbus_write(struct xenbus_transaction t,
++		 const char *dir, const char *node, const char *string)
++{
++	const char *path;
++	struct kvec iovec[2];
++	int ret;
++
++	path =3D join(dir, node);
++	if (IS_ERR(path))
++		return PTR_ERR(path);
++
++	iovec[0].iov_base =3D (void *)path;
++	iovec[0].iov_len =3D strlen(path) + 1;
++	iovec[1].iov_base =3D (void *)string;
++	iovec[1].iov_len =3D strlen(string);
++
++	ret =3D xs_error(xs_talkv(t, XS_WRITE, iovec, ARRAY_SIZE(iovec), NULL));
++	kfree(path);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xenbus_write);
++
++/* Create a new directory. */
++int xenbus_mkdir(struct xenbus_transaction t,
++		 const char *dir, const char *node)
++{
++	char *path;
++	int ret;
++
++	path =3D join(dir, node);
++	if (IS_ERR(path))
++		return PTR_ERR(path);
++
++	ret =3D xs_error(xs_single(t, XS_MKDIR, path, NULL));
++	kfree(path);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xenbus_mkdir);
++
++/* Destroy a file or directory (directories must be empty). */
++int xenbus_rm(struct xenbus_transaction t, const char *dir, const char *no=
+de)
++{
++	char *path;
++	int ret;
++
++	path =3D join(dir, node);
++	if (IS_ERR(path))
++		return PTR_ERR(path);
++
++	ret =3D xs_error(xs_single(t, XS_RM, path, NULL));
++	kfree(path);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xenbus_rm);
++
++/* Start a transaction: changes by others will not be seen during this
++ * transaction, and changes will not be visible to others until end.
++ */
++int xenbus_transaction_start(struct xenbus_transaction *t)
++{
++	char *id_str;
++
++	down_read(&xs_state.suspend_mutex);
++
++	id_str =3D xs_single(XBT_NIL, XS_TRANSACTION_START, "", NULL);
++	if (IS_ERR(id_str)) {
++		up_read(&xs_state.suspend_mutex);
++		return PTR_ERR(id_str);
++	}
++
++	t->id =3D simple_strtoul(id_str, NULL, 0);
++	kfree(id_str);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(xenbus_transaction_start);
++
++/* End a transaction.
++ * If abandon is true, transaction is discarded instead of committed.
++ */
++int xenbus_transaction_end(struct xenbus_transaction t, int abort)
++{
++	char abortstr[2];
++	int err;
++
++	if (abort)
++		strcpy(abortstr, "F");
++	else
++		strcpy(abortstr, "T");
++
++	err =3D xs_error(xs_single(t, XS_TRANSACTION_END, abortstr, NULL));
++
++	up_read(&xs_state.suspend_mutex);
++
++	return err;
++}
++EXPORT_SYMBOL_GPL(xenbus_transaction_end);
++
++/* Single read and scanf: returns -errno or num scanned. */
++int xenbus_scanf(struct xenbus_transaction t,
++		 const char *dir, const char *node, const char *fmt, ...)
++{
++	va_list ap;
++	int ret;
++	char *val;
++
++	val =3D xenbus_read(t, dir, node, NULL);
++	if (IS_ERR(val))
++		return PTR_ERR(val);
++
++	va_start(ap, fmt);
++	ret =3D vsscanf(val, fmt, ap);
++	va_end(ap);
++	kfree(val);
++	/* Distinctive errno. */
++	if (ret =3D=3D 0)
++		return -ERANGE;
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xenbus_scanf);
++
++/* Single printf and write: returns -errno or 0. */
++int xenbus_printf(struct xenbus_transaction t,
++		  const char *dir, const char *node, const char *fmt, ...)
++{
++	va_list ap;
++	int ret;
++#define PRINTF_BUFFER_SIZE 4096
++	char *printf_buffer;
++
++	printf_buffer =3D kmalloc(PRINTF_BUFFER_SIZE, GFP_KERNEL);
++	if (printf_buffer =3D=3D NULL)
++		return -ENOMEM;
++
++	va_start(ap, fmt);
++	ret =3D vsnprintf(printf_buffer, PRINTF_BUFFER_SIZE, fmt, ap);
++	va_end(ap);
++
++	BUG_ON(ret > PRINTF_BUFFER_SIZE-1);
++	ret =3D xenbus_write(t, dir, node, printf_buffer);
++
++	kfree(printf_buffer);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xenbus_printf);
++
++/* Takes tuples of names, scanf-style args, and void **, NULL terminated. =
+*/
++int xenbus_gather(struct xenbus_transaction t, const char *dir, ...)
++{
++	va_list ap;
++	const char *name;
++	int ret =3D 0;
++
++	va_start(ap, dir);
++	while (ret =3D=3D 0 && (name =3D va_arg(ap, char *)) !=3D NULL) {
++		const char *fmt =3D va_arg(ap, char *);
++		void *result =3D va_arg(ap, void *);
++		char *p;
++
++		p =3D xenbus_read(t, dir, name, NULL);
++		if (IS_ERR(p)) {
++			ret =3D PTR_ERR(p);
++			break;
++		}
++		if (fmt) {
++			if (sscanf(p, fmt, result) =3D=3D 0)
++				ret =3D -EINVAL;
++			kfree(p);
++		} else
++			*(char **)result =3D p;
++	}
++	va_end(ap);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xenbus_gather);
++
++static int xs_watch(const char *path, const char *token)
++{
++	struct kvec iov[2];
++
++	iov[0].iov_base =3D (void *)path;
++	iov[0].iov_len =3D strlen(path) + 1;
++	iov[1].iov_base =3D (void *)token;
++	iov[1].iov_len =3D strlen(token) + 1;
++
++	return xs_error(xs_talkv(XBT_NIL, XS_WATCH, iov,
++				 ARRAY_SIZE(iov), NULL));
++}
++
++static int xs_unwatch(const char *path, const char *token)
++{
++	struct kvec iov[2];
++
++	iov[0].iov_base =3D (char *)path;
++	iov[0].iov_len =3D strlen(path) + 1;
++	iov[1].iov_base =3D (char *)token;
++	iov[1].iov_len =3D strlen(token) + 1;
++
++	return xs_error(xs_talkv(XBT_NIL, XS_UNWATCH, iov,
++				 ARRAY_SIZE(iov), NULL));
++}
++
++static struct xenbus_watch *find_watch(const char *token)
++{
++	struct xenbus_watch *i, *cmp;
++
++	cmp =3D (void *)simple_strtoul(token, NULL, 16);
++
++	list_for_each_entry(i, &watches, list)
++		if (i =3D=3D cmp)
++			return i;
++
++	return NULL;
++}
++
++/* Register callback to watch this node. */
++int register_xenbus_watch(struct xenbus_watch *watch)
++{
++	/* Pointer in ascii is the token. */
++	char token[sizeof(watch) * 2 + 1];
++	int err;
++
++	sprintf(token, "%lX", (long)watch);
++
++	down_read(&xs_state.suspend_mutex);
++
++	spin_lock(&watches_lock);
++	BUG_ON(find_watch(token));
++	list_add(&watch->list, &watches);
++	spin_unlock(&watches_lock);
++
++	err =3D xs_watch(watch->node, token);
++
++	/* Ignore errors due to multiple registration. */
++	if ((err !=3D 0) && (err !=3D -EEXIST)) {
++		spin_lock(&watches_lock);
++		list_del(&watch->list);
++		spin_unlock(&watches_lock);
++	}
++
++	up_read(&xs_state.suspend_mutex);
++
++	return err;
++}
++EXPORT_SYMBOL_GPL(register_xenbus_watch);
++
++void unregister_xenbus_watch(struct xenbus_watch *watch)
++{
++	struct xs_stored_msg *msg, *tmp;
++	char token[sizeof(watch) * 2 + 1];
++	int err;
++
++	sprintf(token, "%lX", (long)watch);
++
++	down_read(&xs_state.suspend_mutex);
++
++	spin_lock(&watches_lock);
++	BUG_ON(!find_watch(token));
++	list_del(&watch->list);
++	spin_unlock(&watches_lock);
++
++	err =3D xs_unwatch(watch->node, token);
++	if (err)
++		printk(KERN_WARNING
++		       "XENBUS Failed to release watch %s: %i\n",
++		       watch->node, err);
++
++	up_read(&xs_state.suspend_mutex);
++
++	/* Make sure there are no callbacks running currently (unless
++	   its us) */
++	if (current->pid !=3D xenwatch_pid)
++		mutex_lock(&xenwatch_mutex);
++
++	/* Cancel pending watch events. */
++	spin_lock(&watch_events_lock);
++	list_for_each_entry_safe(msg, tmp, &watch_events, list) {
++		if (msg->u.watch.handle !=3D watch)
++			continue;
++		list_del(&msg->list);
++		kfree(msg->u.watch.vec);
++		kfree(msg);
++	}
++	spin_unlock(&watch_events_lock);
++
++	if (current->pid !=3D xenwatch_pid)
++		mutex_unlock(&xenwatch_mutex);
++}
++EXPORT_SYMBOL_GPL(unregister_xenbus_watch);
++
++void xs_suspend(void)
++{
++	struct xenbus_watch *watch;
++	char token[sizeof(watch) * 2 + 1];
++
++	down_write(&xs_state.suspend_mutex);
++
++	/* No need for watches_lock: the suspend_mutex is sufficient. */
++	list_for_each_entry(watch, &watches, list) {
++		sprintf(token, "%lX", (long)watch);
++		xs_unwatch(watch->node, token);
++	}
++
++	mutex_lock(&xs_state.request_mutex);
++}
++
++void xs_resume(void)
++{
++	struct xenbus_watch *watch;
++	char token[sizeof(watch) * 2 + 1];
++
++	mutex_unlock(&xs_state.request_mutex);
++
++	/* No need for watches_lock: the suspend_mutex is sufficient. */
++	list_for_each_entry(watch, &watches, list) {
++		sprintf(token, "%lX", (long)watch);
++		xs_watch(watch->node, token);
++	}
++
++	up_write(&xs_state.suspend_mutex);
++}
++
++static int xenwatch_thread(void *unused)
++{
++	struct list_head *ent;
++	struct xs_stored_msg *msg;
++
++	for (;;) {
++		wait_event_interruptible(watch_events_waitq,
++					 !list_empty(&watch_events));
++
++		if (kthread_should_stop())
++			break;
++
++		mutex_lock(&xenwatch_mutex);
++
++		spin_lock(&watch_events_lock);
++		ent =3D watch_events.next;
++		if (ent !=3D &watch_events)
++			list_del(ent);
++		spin_unlock(&watch_events_lock);
++
++		if (ent !=3D &watch_events) {
++			msg =3D list_entry(ent, struct xs_stored_msg, list);
++			msg->u.watch.handle->callback(
++				msg->u.watch.handle,
++				(const char **)msg->u.watch.vec,
++				msg->u.watch.vec_size);
++			kfree(msg->u.watch.vec);
++			kfree(msg);
++		}
++
++		mutex_unlock(&xenwatch_mutex);
++	}
++
++	return 0;
++}
++
++static int process_msg(void)
++{
++	struct xs_stored_msg *msg;
++	char *body;
++	int err;
++
++	msg =3D kmalloc(sizeof(*msg), GFP_KERNEL);
++	if (msg =3D=3D NULL)
++		return -ENOMEM;
++
++	err =3D xb_read(&msg->hdr, sizeof(msg->hdr));
++	if (err) {
++		kfree(msg);
++		return err;
++	}
++
++	body =3D kmalloc(msg->hdr.len + 1, GFP_KERNEL);
++	if (body =3D=3D NULL) {
++		kfree(msg);
++		return -ENOMEM;
++	}
++
++	err =3D xb_read(body, msg->hdr.len);
++	if (err) {
++		kfree(body);
++		kfree(msg);
++		return err;
++	}
++	body[msg->hdr.len] =3D '\0';
++
++	if (msg->hdr.type =3D=3D XS_WATCH_EVENT) {
++		msg->u.watch.vec =3D split(body, msg->hdr.len,
++					 &msg->u.watch.vec_size);
++		if (IS_ERR(msg->u.watch.vec)) {
++			kfree(msg);
++			return PTR_ERR(msg->u.watch.vec);
++		}
++
++		spin_lock(&watches_lock);
++		msg->u.watch.handle =3D find_watch(
++			msg->u.watch.vec[XS_WATCH_TOKEN]);
++		if (msg->u.watch.handle !=3D NULL) {
++			spin_lock(&watch_events_lock);
++			list_add_tail(&msg->list, &watch_events);
++			wake_up(&watch_events_waitq);
++			spin_unlock(&watch_events_lock);
++		} else {
++			kfree(msg->u.watch.vec);
++			kfree(msg);
++		}
++		spin_unlock(&watches_lock);
++	} else {
++		msg->u.reply.body =3D body;
++		spin_lock(&xs_state.reply_lock);
++		list_add_tail(&msg->list, &xs_state.reply_list);
++		spin_unlock(&xs_state.reply_lock);
++		wake_up(&xs_state.reply_waitq);
++	}
++
++	return 0;
++}
++
++static int xenbus_thread(void *unused)
++{
++	int err;
++
++	for (;;) {
++		err =3D process_msg();
++		if (err)
++			printk(KERN_WARNING "XENBUS error %d while reading "
++			       "message\n", err);
++		if (kthread_should_stop())
++			break;
++	}
++
++	return 0;
++}
++
++int xs_init(void)
++{
++	int err;
++	struct task_struct *task;
++
++	INIT_LIST_HEAD(&xs_state.reply_list);
++	spin_lock_init(&xs_state.reply_lock);
++	init_waitqueue_head(&xs_state.reply_waitq);
++
++	mutex_init(&xs_state.request_mutex);
++	init_rwsem(&xs_state.suspend_mutex);
++
++	/* Initialize the shared memory rings to talk to xenstored */
++	err =3D xb_init_comms();
++	if (err)
++		return err;
++
++	task =3D kthread_run(xenwatch_thread, NULL, "xenwatch");
++	if (IS_ERR(task))
++		return PTR_ERR(task);
++	xenwatch_pid =3D task->pid;
++
++	task =3D kthread_run(xenbus_thread, NULL, "xenbus");
++	if (IS_ERR(task))
++		return PTR_ERR(task);
++
++	return 0;
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/xen/hypervisor.h
++++ b/include/asm-i386/xen/hypervisor.h
+@@ -42,6 +42,7 @@
  =
 
- #include <linux/irq.h>
-+#include <xen/interface/event_channel.h>
-+#include <asm/xen/hypercall.h>
- =
+ #include <asm/ptrace.h>
+ #include <asm/page.h>
++#include <asm/desc.h>
+ #if defined(__i386__)
+ #  ifdef CONFIG_X86_PAE
+ #   include <asm-generic/pgtable-nopud.h>
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/include/xen/xenbus.h
+@@ -0,0 +1,208 @@
++/*************************************************************************=
+*****
++ * xenbus.h
++ *
++ * Talks to Xen Store to figure out what devices we have.
++ *
++ * Copyright (C) 2005 Rusty Russell, IBM Corporation
++ * Copyright (C) 2005 XenSource Ltd.
++ * =
 
- int bind_evtchn_to_irqhandler(unsigned int evtchn,
- 			      irqreturn_t (*handler)(int, void *),
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ * =
+
++ * Permission is hereby granted, free of charge, to any person obtaining a=
+ copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modi=
+fy,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Softw=
+are,
++ * and to permit persons to whom the Software is furnished to do so, subje=
+ct to
++ * the following conditions:
++ * =
+
++ * The above copyright notice and this permission notice shall be included=
+ in
++ * all copies or substantial portions of the Software.
++ * =
+
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS=
+ OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL=
+ THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEA=
+LINGS
++ * IN THE SOFTWARE.
++ */
++
++#ifndef _XEN_XENBUS_H
++#define _XEN_XENBUS_H
++
++#include <linux/device.h>
++#include <linux/notifier.h>
++#include <linux/mutex.h>
++#include <linux/completion.h>
++#include <linux/init.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/grant_table.h>
++#include <xen/interface/io/xenbus.h>
++#include <xen/interface/io/xs_wire.h>
++
++/* Register callback to watch this node. */
++struct xenbus_watch
++{
++	struct list_head list;
++
++	/* Path being watched. */
++	const char *node;
++
++	/* Callback (executed in a process context with no locks held). */
++	void (*callback)(struct xenbus_watch *,
++			 const char **vec, unsigned int len);
++};
++
++
++/* A xenbus device. */
++struct xenbus_device {
++	const char *devicetype;
++	const char *nodename;
++	const char *otherend;
++	int otherend_id;
++	struct xenbus_watch otherend_watch;
++	struct device dev;
++	enum xenbus_state state;
++	struct completion down;
++};
++
++static inline struct xenbus_device *to_xenbus_device(struct device *dev)
++{
++	return container_of(dev, struct xenbus_device, dev);
++}
++
++struct xenbus_device_id
++{
++	/* .../device/<device_type>/<identifier> */
++	char devicetype[32]; 	/* General class of device. */
++};
++
++/* A xenbus driver. */
++struct xenbus_driver {
++	char *name;
++	struct module *owner;
++	const struct xenbus_device_id *ids;
++	int (*probe)(struct xenbus_device *dev,
++		     const struct xenbus_device_id *id);
++	void (*otherend_changed)(struct xenbus_device *dev,
++				 enum xenbus_state backend_state);
++	int (*remove)(struct xenbus_device *dev);
++	int (*suspend)(struct xenbus_device *dev);
++	int (*resume)(struct xenbus_device *dev);
++	int (*uevent)(struct xenbus_device *, char **, int, char *, int);
++	struct device_driver driver;
++	int (*read_otherend_details)(struct xenbus_device *dev);
++};
++
++static inline struct xenbus_driver *to_xenbus_driver(struct device_driver =
+*drv)
++{
++	return container_of(drv, struct xenbus_driver, driver);
++}
++
++int xenbus_register_frontend(struct xenbus_driver *drv);
++int xenbus_register_backend(struct xenbus_driver *drv);
++void xenbus_unregister_driver(struct xenbus_driver *drv);
++
++struct xenbus_transaction
++{
++	u32 id;
++};
++
++/* Nil transaction ID. */
++#define XBT_NIL ((struct xenbus_transaction) { 0 })
++
++int __init xenbus_dev_init(void);
++
++char **xenbus_directory(struct xenbus_transaction t,
++			const char *dir, const char *node, unsigned int *num);
++void *xenbus_read(struct xenbus_transaction t,
++		  const char *dir, const char *node, unsigned int *len);
++int xenbus_write(struct xenbus_transaction t,
++		 const char *dir, const char *node, const char *string);
++int xenbus_mkdir(struct xenbus_transaction t,
++		 const char *dir, const char *node);
++int xenbus_exists(struct xenbus_transaction t,
++		  const char *dir, const char *node);
++int xenbus_rm(struct xenbus_transaction t, const char *dir, const char *no=
+de);
++int xenbus_transaction_start(struct xenbus_transaction *t);
++int xenbus_transaction_end(struct xenbus_transaction t, int abort);
++
++/* Single read and scanf: returns -errno or num scanned if > 0. */
++int xenbus_scanf(struct xenbus_transaction t,
++		 const char *dir, const char *node, const char *fmt, ...)
++	__attribute__((format(scanf, 4, 5)));
++
++/* Single printf and write: returns -errno or 0. */
++int xenbus_printf(struct xenbus_transaction t,
++		  const char *dir, const char *node, const char *fmt, ...)
++	__attribute__((format(printf, 4, 5)));
++
++/* Generic read function: NULL-terminated triples of name,
++ * sprintf-style type string, and pointer. Returns 0 or errno.*/
++int xenbus_gather(struct xenbus_transaction t, const char *dir, ...);
++
++/* notifer routines for when the xenstore comes up */
++extern int xenstored_ready;
++int register_xenstore_notifier(struct notifier_block *nb);
++void unregister_xenstore_notifier(struct notifier_block *nb);
++
++int register_xenbus_watch(struct xenbus_watch *watch);
++void unregister_xenbus_watch(struct xenbus_watch *watch);
++void xs_suspend(void);
++void xs_resume(void);
++
++/* Used by xenbus_dev to borrow kernel's store connection. */
++void *xenbus_dev_request_and_reply(struct xsd_sockmsg *msg);
++
++/* Called from xen core code. */
++void xenbus_suspend(void);
++void xenbus_resume(void);
++void xenbus_probe(struct work_struct *);
++
++#define XENBUS_IS_ERR_READ(str) ({			\
++	if (!IS_ERR(str) && strlen(str) =3D=3D 0) {		\
++		kfree(str);				\
++		str =3D ERR_PTR(-ERANGE);			\
++	}						\
++	IS_ERR(str);					\
++})
++
++#define XENBUS_EXIST_ERR(err) ((err) =3D=3D -ENOENT || (err) =3D=3D -ERANG=
+E)
++
++int xenbus_watch_path(struct xenbus_device *dev, const char *path,
++		      struct xenbus_watch *watch,
++		      void (*callback)(struct xenbus_watch *,
++				       const char **, unsigned int));
++int xenbus_watch_path2(struct xenbus_device *dev, const char *path,
++		       const char *path2, struct xenbus_watch *watch,
++		       void (*callback)(struct xenbus_watch *,
++					const char **, unsigned int));
++int xenbus_switch_state(struct xenbus_device *dev, enum xenbus_state new_s=
+tate);
++int xenbus_grant_ring(struct xenbus_device *dev, unsigned long ring_mfn);
++int xenbus_map_ring_valloc(struct xenbus_device *dev,
++			   int gnt_ref, void **vaddr);
++int xenbus_map_ring(struct xenbus_device *dev, int gnt_ref,
++			   grant_handle_t *handle, void *vaddr);
++
++int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr);
++int xenbus_unmap_ring(struct xenbus_device *dev,
++		      grant_handle_t handle, void *vaddr);
++
++int xenbus_alloc_evtchn(struct xenbus_device *dev, int *port);
++int xenbus_bind_evtchn(struct xenbus_device *dev, int remote_port, int *po=
+rt);
++int xenbus_free_evtchn(struct xenbus_device *dev, int port);
++
++enum xenbus_state xenbus_read_driver_state(const char *path);
++
++void xenbus_dev_error(struct xenbus_device *dev, int err, const char *fmt,=
+ ...);
++void xenbus_dev_fatal(struct xenbus_device *dev, int err, const char *fmt,=
+ ...);
++
++char *xenbus_strstate(enum xenbus_state state);
++int xenbus_dev_is_online(struct xenbus_device *dev);
++int xenbus_frontend_closed(struct xenbus_device *dev);
++
++#endif /* _XEN_XENBUS_H */
 
 -- =
