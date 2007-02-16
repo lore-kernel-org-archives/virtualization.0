@@ -1,59 +1,63 @@
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch 11/21] Xen-paravirt: Add apply_to_page_range() which applies
- a function to a pte range.
-Date: Fri, 16 Feb 2007 18:31:14 +1100
-Message-ID: <45D55DC2.3070703@yahoo.com.au>
-References: <20070216022449.739760547@goop.org>	<20070216022531.344125142@goop.org> <20070215223727.6819f962.akpm@linux-foundation.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options and disable
+	unsupported config options.
+Date: Fri, 16 Feb 2007 00:33:58 -0700
+Message-ID: <m11wkqimjd.fsf@ebiederm.dsl.xmission.com>
+References: <20070216022449.739760547@goop.org>
+	<20070216022531.570154735@goop.org> <45D54BFF.80100@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751499AbXBPHbz@vger.kernel.org>
-In-Reply-To: <20070215223727.6819f962.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Christoph Lameter <clameter@sgi.com>, Linux Memory Management <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <45D54BFF.80100@vmware.com> (Zachary Amsden's message of "Thu, 15
+	Feb 2007 22:15:27 -0800")
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andrew Morton wrote:
-> On Thu, 15 Feb 2007 18:25:00 -0800 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> 
-> 
->>Add a new mm function apply_to_page_range() which applies a given
->>function to every pte in a given virtual address range in a given mm
->>structure. This is a generic alternative to cut-and-pasting the Linux
->>idiomatic pagetable walking code in every place that a sequence of
->>PTEs must be accessed.
->>
->>Although this interface is intended to be useful in a wide range of
->>situations, it is currently used specifically by several Xen
->>subsystems, for example: to ensure that pagetables have been allocated
->>for a virtual address range, and to construct batched special
->>pagetable update requests to map I/O memory (in ioremap()).
-> 
-> 
-> There was some discussion about this sort of thing last week.  The
-> consensus was that it's better to run the callback against a whole pmd's
-> worth of ptes, mainly to amortise the callback's cost (a lot).
-> 
-> It was implemented in
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.20/2.6.20-mm1/broken-out/smaps-extract-pmd-walker-from-smaps-code.patch
+Zachary Amsden <zach@vmware.com> writes:
 
+>
+> We do support different HZ values, although 100HZ is actually preferable =
+for us,
+> so I don't object to that.  PREEMPT is supported by us, but not as tested=
+ as I
+> would like, so I also don't object to dropping it for generic paravirt gu=
+ests -
+> Rusty - Avi any objections to dropping preempt in terms of lguest/KVM
+> paravirtualization?
+>
+> Paravirt-ops definitely needs a hook for kexec, although we should not di=
+sable
+> kexec for the natively booted paravirt-ops.  Eric - is there a way to dis=
+able it
+> at runtime?
+>
+> We do support the doublefault task gate, and it would be good to keep it,=
+ but I
+> can't complain so much if it is gone from generic paravirt kernels for no=
+w,
+> because it is non-essential, and generally fatal anyway.  We do need it f=
+or
+> native boots of paravirt-ops kernels, however, so turning off the config =
+option
+> still needs to be revisited
 
-Speaking of that patch, I missed the discussion, but I'd hope it doesn't
-go upstream in its current form.
+Have machine_kexec_prepare fail.
 
-We now have one way of walking range of ptes. The code may be duplicated a
-few times, but it is simple, we know how it works, and it is easy to get
-right because everyone does the same thing.
+I think your machine description or paravirt_ops or whatever it is needs
+to hook both machine_kexec_prepare and machine_kexec.
 
-We used to have about a dozen slightly different ways of doing this until
-Hugh spent the effort to standardise it all. Isn't it nice?
+I know there actually has been some work to get kexec actually working under
+Xen but I don't know where that has gone.
 
-If we want an ever-so-slightly lower performing interface for those paths
-that don't care to count every cycle -- which I think is a fine idea BTW
--- it should be implemented in mm/memory.c and it should use our standard
-form of pagetable walking.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Eric
