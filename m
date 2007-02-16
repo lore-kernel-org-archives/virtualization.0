@@ -1,49 +1,54 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [patch 00/21] Xen-paravirt: Xen guest implementation for paravirt_ops
- interface
-Date: Fri, 16 Feb 2007 14:10:48 -0800
-Message-ID: <45D62BE8.6000702@vmware.com>
-References: <20070216022449.739760547@goop.org> <Pine.LNX.4.64.0702161244380.26718@schroedinger.engr.sgi.com> <45D61C74.2000601@vmware.com> <Pine.LNX.4.64.0702161312460.28871@schroedinger.engr.sgi.com> <45D626BB.20007@vmware.com> <Pine.LNX.4.64.0702161356380.29218@schroedinger.engr.sgi.com>
+From: Dan Hecht <dhecht@vmware.com>
+Subject: Re: [Xen-devel] Re: [patch 14/21] Xen-paravirt: Add XEN config	options
+ and disableunsupported config options.
+Date: Fri, 16 Feb 2007 14:38:13 -0800
+Message-ID: <45D63255.2070801@vmware.com>
+References: <C1FBAFD7.99AB%keir@xensource.com> <45D62759.7080006@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946074AbXBPWKu@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0702161356380.29218@schroedinger.engr.sgi.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751517AbXBPWlM@vger.kernel.org>
+In-Reply-To: <45D62759.7080006@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Keir Fraser <keir@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Christian Limpach <Christian.Limpach@xensource.com>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Steven Hand <steven.hand@cl.cam.ac.uk>, linux-kernel@vger.kernel.org, Ian Pratt <Ian.Pratt@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christoph Lameter wrote:
-> On Fri, 16 Feb 2007, Zachary Amsden wrote:
+On 02/16/2007 01:51 PM, Zachary Amsden wrote:
+> Keir Fraser wrote:
+>> On 16/2/07 17:46, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
+>>
+>>   
+>>> Keir Fraser wrote:
+>>>     
+>>>> This initial patchset does not include save/restore support anyway, so in
+>>>> fact it would be consistent to have CONFIG_PREEMPT configurable. I'm sure
+>>>> that we are going to have some nasty bugs to fix up as a result, but we
+>>>> can't fix them until we find them! Then we can convert our save/restore code
+>>>> to use the freezer before submitting it for inclusion.
+>>>>       
+>>> OK.  So that makes the only config restriction the 100Hz ticks.
+>>>     
+>> We can extend the Xen timer interface quite easily and get rid of this one
+>> too. In fact it doesn't *much* matter if the CONFIG_HZ differs from the Xen
+>> ticker rate -- we modified the Linux timer ISR to handle timer interrupts at
+>> arbitrary times already. The only drawback is that jiffies updates in burts
+>> if CONFIG_HZ is higher than the actual tick rate, and this can affect some
+>> calibration constants and cause Linux to print out some weird values at
+>> start-of-day.
+>>   
+> 
+> That's why we'd very much like to get a get_cpu_speed paravirt-op 
+> implemented.  I think this would be useful to work around these problems 
+> for Xen as well.
+> 
 >
->   
->> Yes, but that is just because the Xen hooks happens to be near the last part
->> of the merge.  VMI required some special hooks, as do both Xen and lhype (I
->> think ... Rusty can correct me if lhype's puppy's have precluded the addition
->> of new hooks).  Xen page table handling is very different, mostly it is trap
->> and emulate so writable page tables can work, which means they don't always
->> issue hypercalls for PTE updates, although they do have that option, should
->> the hypervisor MMU model change, or performance concerns prompt a different
->> model (or perhaps, migration?)
->>     
->
-> Well looks like there are still some major design issues to be ironed out. 
-> What is proposed here is to make paravirt_ops a fake generic 
-> API and then tunnel through it to vendor specific kernel mods.
->   
 
-No, there are two radically different approaches represented in one 
-API.  Shadow page tables and direct page tables require different 
-abstractions to make them work.  The API is not fake.  It accommodates 
-both approaches, and the Xen changes here are pretty much required to 
-make direct page tables work.  The shadow side of the equation is not 
-vendor specific, in fact, it is used by lhype to make PTE update 
-hypercalls.  But only one vendor chose direct page tables, so it appears 
-vendor specific, when in fact it is just specific to that design choice.
+Yes, and regardless of whether you run your periodic timer slower than 
+HZ, calibrating time in a VM is always difficult due to the fact the 
+kernel is time sharing the physical cpu.  Why not just ask the 
+underlying hypervisor?
 
-Adding XenBus hooks to paravirt-ops, for instance, would be vendor 
-specific and useless to anyone else.  But that is not the approach which 
-has been taken here.
-
-Zach
+Really, Time is one of those areas where paravirtualization makes a lot 
+of sense, no matter how much virtualization hardware you have crammed 
+into your cpu....
