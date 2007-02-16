@@ -1,128 +1,150 @@
-From: Dan Hecht <dhecht@vmware.com>
-Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options and disable
- unsupported config options.
-Date: Thu, 15 Feb 2007 22:14:45 -0800
-Message-ID: <45D54BD5.8010707@vmware.com>
-References: <20070216022449.739760547@goop.org> <20070216022531.570154735@goop.org>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [patch 10/21] Xen-paravirt: add hooks to intercept mm creation
+	and destruction
+Date: Thu, 15 Feb 2007 22:34:09 -0800
+Message-ID: <20070215223409.eea8f1e3.akpm@linux-foundation.org>
+References: <20070216022449.739760547@goop.org>
+	<20070216022531.267584466@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1423329AbXBPGPY@vger.kernel.org>
-In-Reply-To: <20070216022531.570154735@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20070216022531.267584466@goop.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@muc.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/15/2007 06:25 PM, Jeremy Fitzhardinge wrote:
-> The XEN config option enables the Xen paravirt_ops interface, which is
-> installed when the kernel finds itself running under Xen. (By some
-> as-yet fully defined mechanism, implemented in a future patch.)
-> 
-> Xen is no longer a sub-architecture, so the X86_XEN subarch config
-> option has gone.
-> 
-> The disabled config options are:
-> - PREEMPT: Xen doesn't support it
-> - HZ: set to 100Hz for now, to cut down on VCPU context switch rate.
->   This will be adapted to use tickless later.
-> - kexec: not yet supported
-> 
+On Thu, 15 Feb 2007 18:24:59 -0800 Jeremy Fitzhardinge <jeremy@goop.org> wr=
+ote:
 
->  
->  config KEXEC
->  	bool "kexec system call"
-> +	depends on !XEN
->  	help
->  	  kexec is a system call that implements the ability to shutdown your
->  	  current kernel, and to start another kernel.  It is like a reboot
+> Add hooks to allow a paravirt implementation to track the lifetime of
+> an mm.
+> =
 
->  config DOUBLEFAULT
->  	default y
->  	bool "Enable doublefault exception handler" if EMBEDDED
-> +	depends on !XEN
->  	help
->            This option allows trapping of rare doublefault exceptions that
->            would otherwise cause a system to silently reboot. Disabling this
+> --- a/arch/i386/kernel/paravirt.c
+> +++ b/arch/i386/kernel/paravirt.c
+> @@ -706,6 +706,10 @@ struct paravirt_ops paravirt_ops =3D {
+>  	.irq_enable_sysexit =3D native_irq_enable_sysexit,
+>  	.iret =3D native_iret,
+>  =
 
+> +	.dup_mmap =3D (void *)native_nop,
+> +	.exit_mmap =3D (void *)native_nop,
+> +	.activate_mm =3D (void *)native_nop,
+> +
+>  	.startup_ipi_hook =3D (void *)native_nop,
+>  };
 
-> +config XEN
-> +	bool "Enable support for Xen hypervisor"
-> +	depends PARAVIRT
-> +	default y
-> +	help
-> +	  This is the Linux Xen port.
+eww.  I suppose there's a good reason for the casting.
 
->  choice
-> -	prompt "Timer frequency"
-> +	prompt "Timer frequency" if !XEN
->  	default HZ_250
->  	help
->  	 Allows the configuration of the timer frequency. It is customary
-> @@ -49,7 +49,7 @@ endchoice
->  
->  config HZ
->  	int
-> -	default 100 if HZ_100
-> +	default 100 if HZ_100 || XEN
->  	default 250 if HZ_250
->  	default 300 if HZ_300
->  	default 1000 if HZ_1000
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- a/include/asm-i386/mmu_context.h
+> +++ b/include/asm-i386/mmu_context.h
+> @@ -5,6 +5,7 @@
+>  #include <asm/atomic.h>
+>  #include <asm/pgalloc.h>
+>  #include <asm/tlbflush.h>
+> +#include <asm/paravirt.h>
+>  =
 
+>  /*
+>   * Used for LDT copy/destruction.
+> @@ -65,7 +66,10 @@ static inline void switch_mm(struct mm_s
+>  #define deactivate_mm(tsk, mm)			\
+>  	asm("movl %0,%%gs": :"r" (0));
+>  =
 
->  config PREEMPT
->  	bool "Preemptible Kernel (Low-Latency Desktop)"
-> +	depends on !XEN
->  	help
->  	  This option reduces the latency of the kernel by making
->  	  all kernel code (that is not executing in a critical section)
-> 
+> -#define activate_mm(prev, next) \
+> -	switch_mm((prev),(next),NULL)
+> +#define activate_mm(prev, next)				\
+> +	do {						\
+> +		arch_activate_mm(prev, next);		\
+> +		switch_mm((prev),(next),NULL);		\
+> +	} while(0);
 
-I hate to sound like a broken record, but this really isn't the right 
-way to do this.  If you are going to inhibit config settings when Xen 
-support is compiled, then it should be:
+It seems strange to call out to arch_foo() from within an arch header file.
+I mean, we implicity know we're i386.
 
-config XEN
-     depends on !KEXEC && !DOUBLEFAULT && HZ_100 && !PREEMPT
+Maybe it's just poorly named.
 
-I'm really not trying to make things more difficult for you or for Xen 
-users.
+> +static inline void paravirt_activate_mm(struct mm_struct *prev,
+> +					struct mm_struct *next)
+> +{
+> +}
+> +
+> +static inline void paravirt_dup_mmap(struct mm_struct *oldmm,
+> +				     struct mm_struct *mm)
+> +{
+> +}
+> +
+> +static inline void paravirt_exit_mmap(struct mm_struct *mm)
+> +{
+> +}
 
-One of the primary goals of paravirt-ops is to allow the same kernel 
-binary to bind to multiple hypervisor interfaces (and native), at 
-runtime.  So, we should assume that kernels which are built with 
-CONFIG_PARAVIRT will also enable all the paravirt-ops backends; and this 
-is a good thing.
+These functions are unreferenced in this patchset.
 
-But, the problem is, then, when someone enables paravirt (and all the 
-backends, including Xen), you are silently forcing all these options 
-off.  Compiling in paravirt support should not change force you into 
-using some set of config option; when a paravirt-ops kernel is run on 
-native, it should be as fully featured as a non-paravirtops kernel.
+>  #endif /* CONFIG_PARAVIRT */
+>  #endif	/* __ASM_PARAVIRT_H */
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- a/include/linux/sched.h
+> +++ b/include/linux/sched.h
+> @@ -374,6 +374,12 @@ struct mm_struct {
+>  	rwlock_t		ioctx_list_lock;
+>  	struct kioctx		*ioctx_list;
+>  };
+> +
+> +#ifndef __HAVE_ARCH_MM_LIFETIME
+> +#define arch_activate_mm(prev, next)	do {} while(0)
+> +#define arch_dup_mmap(oldmm, mm)	do {} while(0)
+> +#define arch_exit_mmap(mm)		do {} while(0)
+> +#endif
 
-So, this should really be solved (in order of preference) by:
+Can we lose __HAVE_ARCH_MM_LIFETIME?  Just define these (preferably in C,
+not in cpp) in the appropriate include/asm-foo/ files?
 
-1) Complete the xen paravirt-ops backend so it can handle these 
-"incompatible" options.  I realize this is just a matter of time (at 
-least for most of them, what is your plan for PREEMPT?).
+>  struct sighand_struct {
+>  	atomic_t		count;
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- a/kernel/fork.c
+> +++ b/kernel/fork.c
+> @@ -286,6 +286,7 @@ static inline int dup_mmap(struct mm_str
+>  		if (retval)
+>  			goto out;
+>  	}
+> +	arch_dup_mmap(oldmm, mm);
+>  	retval =3D 0;
+>  out:
+>  	up_write(&mm->mmap_sem);
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- a/mm/mmap.c
+> +++ b/mm/mmap.c
+> @@ -1976,6 +1976,8 @@ void exit_mmap(struct mm_struct *mm)
+>  	struct vm_area_struct *vma =3D mm->mmap;
+>  	unsigned long nr_accounted =3D 0;
+>  	unsigned long end;
+> +
+> +	arch_exit_mmap(mm);
+>  =
 
-2) Disable the option at runtime only if the kernel is booted on Xen. 
-When the kernel is booted on native, lhype, paravirt kvm, vmware, etc it 
-should be not be inhibited.  This may not be feasible for all of these 
-options, but as Zach pointed out, is easy enough for DOUBLEFAULT.  Maybe 
-it can be done for KEXEC?  And HZ is easy to allow too, even though Xen 
-will still give interrupts at 100hz -- we do this when you boot on VMI. 
-  PREEMPT is probably the only real compile time incompatible options 
-with Xen.  You just simply have to change the loop decrementors in your 
-timer interrupt.
+>  	lru_add_drain();
+>  	flush_cache_mm(mm);
 
-You basically chose #2 for SMP: while your backend doesn't support it 
-yet, it's not harmful to have the config option enabled; you just don't 
-allow a second vcpu to startup when running on Xen.
-
-3) Use the config XEN line I suggest above.  The net effect is the same 
-as your proposed change (it prevents users from compiling the 
-incompatible options together), but at least the user understands what 
-is going on, instead of options just silently changing on them.
-
-Dan
+Perhaps some commentary telling the arch maintainer what these hooks he's
+being offered are for?
