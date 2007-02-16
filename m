@@ -1,63 +1,56 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options and disable
-	unsupported config options.
-Date: Fri, 16 Feb 2007 00:33:58 -0700
-Message-ID: <m11wkqimjd.fsf@ebiederm.dsl.xmission.com>
-References: <20070216022449.739760547@goop.org>
-	<20070216022531.570154735@goop.org> <45D54BFF.80100@vmware.com>
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch 12/21] Xen-paravirt: Allocate and free vmalloc areas
+Date: Fri, 16 Feb 2007 18:48:26 +1100
+Message-ID: <45D561CA.3080609@yahoo.com.au>
+References: <20070216022449.739760547@goop.org>	<20070216022531.417300365@goop.org>	<20070215224322.5c73d8e9.akpm@linux-foundation.org>	<45D55852.9000103@goop.org> <20070215232447.5ee67f50.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45D54BFF.80100@vmware.com> (Zachary Amsden's message of "Thu, 15
-	Feb 2007 22:15:27 -0800")
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965240AbXBPHtF@vger.kernel.org>
+In-Reply-To: <20070215232447.5ee67f50.akpm@linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Jan Beulich <JBeulich@novell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden <zach@vmware.com> writes:
+Andrew Morton wrote:
+> On Thu, 15 Feb 2007 23:08:02 -0800 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> 
+> 
+>>Andrew Morton wrote:
+>>
+>>>This won't work when CONFIG_PREEMPT=y.  The pagefault handler will see
+>>>in_atomic() and will scram.
+>>>  
+>>
+>>Is there some other way to get the pagetable populated for the address
+>>range?
+>>
+> 
+> 
+> If you really need to run atomically, that gets ugly.  Even of one were to
+> run handle_mm_fault() by hand, it still needs to allocate memory.
+> 
+> Two ugly options might be:
+> 
+> a) touch all the pages, then go atomic, then touch them all again.  If
+>    one of them faults (ie: you raced with swapout) then go back and try
+>    again.  Obviously susceptible to livelocking.
+> 
+> b) Do get_user_pages() against all the pages, then go atomic, then do
+>    put_page() against them all.  Of course, they can immediately get
+>    swapped out.
+> 
+> But that function's already racy against swapout and I guess it works OK. 
+> I don't have clue what it is actually trying to do, so I'm guessing madly
+> here.
 
->
-> We do support different HZ values, although 100HZ is actually preferable =
-for us,
-> so I don't object to that.  PREEMPT is supported by us, but not as tested=
- as I
-> would like, so I also don't object to dropping it for generic paravirt gu=
-ests -
-> Rusty - Avi any objections to dropping preempt in terms of lguest/KVM
-> paravirtualization?
->
-> Paravirt-ops definitely needs a hook for kexec, although we should not di=
-sable
-> kexec for the natively booted paravirt-ops.  Eric - is there a way to dis=
-able it
-> at runtime?
->
-> We do support the doublefault task gate, and it would be good to keep it,=
- but I
-> can't complain so much if it is gone from generic paravirt kernels for no=
-w,
-> because it is non-essential, and generally fatal anyway.  We do need it f=
-or
-> native boots of paravirt-ops kernels, however, so turning off the config =
-option
-> still needs to be revisited
+Well its only operating on kernel pages, and against a vmalloc region.
+So it would be immune to any sort of unmapping or swapout.
 
-Have machine_kexec_prepare fail.
+Andrew's option a) should work. What's this for, and how is it not Xen
+specific if nothing else in the tree needs such a weird hack?
 
-I think your machine description or paravirt_ops or whatever it is needs
-to hook both machine_kexec_prepare and machine_kexec.
-
-I know there actually has been some work to get kexec actually working under
-Xen but I don't know where that has gone.
-
-Eric
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 
