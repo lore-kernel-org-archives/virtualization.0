@@ -1,60 +1,30 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: Re: [patch 14/21] Xen-paravirt: Add XEN config options
-	and disable unsupported config options.
-Date: Fri, 16 Feb 2007 02:19:29 -0800
-Message-ID: <45D58531.4010808@vmware.com>
-References: <C1FB336B.98D6%keir@xensource.com>
+From: Keir Fraser <keir@xensource.com>
+Subject: Re: [Xen-devel] Re: [patch 14/21] Xen-paravirt: Add XEN config
+ options and disable unsupported config options.
+Date: Fri, 16 Feb 2007 10:44:02 +0000
+Message-ID: <C1FB3B72.98E5%keir@xensource.com>
+References: <45D58531.4010808@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <C1FB336B.98D6%keir@xensource.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Keir Fraser <keir@xensource.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751916AbXBPKoH@vger.kernel.org>
+In-Reply-To: <45D58531.4010808@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>, Keir Fraser <keir@xensource.com>
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, Dan Hecht <dhecht@vmware.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Steven Hand <steven.hand@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Keir Fraser wrote:
-> On 16/2/07 07:25, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
->
->   
->>> Oh, so that's why it doesn't break when CONFIG_PREEMPT=y.  In which case
->>> that preempt_disable() I spotted is wrong-and-unneeded.
->>>
->>> Why doesn't Xen work with preemption??
->>>       
->> I've forgotten the details.  Ian?  Keir?  Steven?  Maybe it can be done.
->>     
->
-> It breaks guest save/restore for us currently because threads can be
-> sleeping with machine addresses in local storage (registers, stack). There
-> are a few ways to achieve an acceptable solution:
->
->  1. Put processes in the freezer when we suspend. This should avoid any
-> thread being in a critical section with machine addresses in its hand. We
-> haven't yet investigated the performance impact of freezing processes,
-> particularly on the downtime of live relocation.
->
->  2. Allow CONFIG_PREEMPT to be compiled in, but disable it at runtime. We
-> could do this by, for example, reserving a bit in preempt_count() so that
-> most preemption checks do not touch any more cache lines. I guess it would
-> need a bit of fixing up (e.g., so that in_atomic() would not be always
-> asserted). Even better for us would be to allow switching between
-> involuntary and voluntary preemption at runtime. It looks as though the hook
-> points for these two techniques are not usually compiled in at the same
-> time, however.
->
->   
+On 16/2/07 10:19, "Zachary Amsden" <zach@vmware.com> wrote:
 
-Doesn't stop_machine_run already take care of getting you out of all 
-kernel threads?  So you can only be sleeping, not preempted, in which 
-case, this might not be an issue?
+> Doesn't stop_machine_run already take care of getting you out of all
+> kernel threads?  So you can only be sleeping, not preempted, in which
+> case, this might not be an issue?
 
-Zach
+It ensures that no (non-stopmachine) threads are running on any of the other
+CPUs, but it doesn't guarantee that all threads are at any form of quiescent
+point. They can certainly have private references to machine addresses.
+
+Otherwise, what would be the point of the process freezer? :-)
+
+ -- Keir
