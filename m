@@ -1,36 +1,54 @@
-From: Keir Fraser <keir@xensource.com>
-Subject: Re: [Xen-devel] Re: [patch 12/21] Xen-paravirt: Allocate and free
- vmalloc areas
-Date: Fri, 16 Feb 2007 17:12:31 +0000
-Message-ID: <C1FB967F.998B%keir__37519.3322696306$1171646044$gmane$org@xensource.com>
-References: <C1FB9605.9988%keir@xensource.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 07/21] Xen-paravirt: remove ctor for pgd
+	cache
+Date: Fri, 16 Feb 2007 09:19:35 -0800
+Message-ID: <45D5E7A7.3090400@goop.org>
+References: <20070216022449.739760547@goop.org>	
+	<20070216022531.047039320@goop.org>
+	<84144f020702160039y11fb1f4dl7b77d4358cc189ee@mail.gmail.com>
+	<45D57738.9030907@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932506AbXBPRMg@vger.kernel.org>
-In-Reply-To: <C1FB9605.9988%keir@xensource.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Keir Fraser <keir@xensource.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <45D57738.9030907@yahoo.com.au>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16/2/07 17:10, "Keir Fraser" <keir@xensource.com> wrote:
+Nick Piggin wrote:
+> Pekka Enberg wrote:
+>> On 2/16/07, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>>
+>>> Remove the ctor for the pgd cache.  There's no point in having the
+>>> cache machinery do this via an indirect call when all pgd are freed in
+>>> the one place anyway.
+>>
+>>
+>> The reason we have slab constructors and destructors is to _avoid_
+>> reinitializing every time we allocate an object. AFAICT your changing
+>> the code now to do _more_ work than before, so is there some other
+>> reason why you want to do this than avoiding an indirect call?
+>
+> Sometimes  it is better for the caches to initialise an object
+> immediately, but in this case I think it is better to use the
+> slab ctor because it is very unlikely to use many cachelines
+> immediately anyway.
+>
+> It would be nice to put the "why" in the changelogs, rather than
+> "what". Not everyone wants to go through the whole patchset to
+> decipher why Xen possibly needs something.
 
-> On 16/2/07 16:46, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
-> 
->> Yes, that would work.  Unfortunately that's i386 arch-specific, whereas
->> the rest of this code is generic.  I guess I could just move it all to
->> arch/i386/mm.
-> 
-> This whole thing isn't an issue on ia64 (they no-op lock_vm_area) and
-> powerpc doesn't use any of the Xen driver code at this time.
-> vmalloc_sync_all is supported by both i386 and x86_64, so we can make the
-> call conditional on CONFIG_X86 so that ia64 will continue to build. This is
-> what I've done in xen-unstable.
+Hm, I think I was mislead by looking at kmem_cache_alloc in slob.c
+rather than the one that's actually used in slab.c.  There's no
+particular Xen reason for this patch, so I can drop it.
 
-
-In fact that file is only built for i386 and x86_64, so there really is no
-problem with using vmalloc_sync_all() directly and without ifdef.
-
- -- Keir
+    J
