@@ -1,35 +1,40 @@
-From: Andi Kleen <ak@muc.de>
-Subject: Re: [patch 12/21] Xen-paravirt: Allocate and free
-	vmalloc areas
-Date: 16 Feb 2007 10:18:43 +0100
-Message-ID: <20070216091843.GB28196@muc.de>
-References: <20070216022449.739760547@goop.org>
-	<20070216022531.417300365@goop.org>
-	<20070215224322.5c73d8e9.akpm@linux-foundation.org>
-	<45D55852.9000103@goop.org>
-	<20070215232447.5ee67f50.akpm@linux-foundation.org>
-	<45D55DB1.7040002@goop.org>
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch 07/21] Xen-paravirt: remove ctor for pgd cache
+Date: Fri, 16 Feb 2007 20:19:52 +1100
+Message-ID: <45D57738.9030907@yahoo.com.au>
+References: <20070216022449.739760547@goop.org>	 <20070216022531.047039320@goop.org> <84144f020702160039y11fb1f4dl7b77d4358cc189ee@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Date: Fri, 16 Feb 2007 10:18:43 +0100
-Content-Disposition: inline
-In-Reply-To: <45D55DB1.7040002@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1423459AbXBPJUb@vger.kernel.org>
+In-Reply-To: <84144f020702160039y11fb1f4dl7b77d4358cc189ee@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> It's for populating the pagetable in a vmalloc area.  There's magic in
+Pekka Enberg wrote:
+> On 2/16/07, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> 
+>> Remove the ctor for the pgd cache.  There's no point in having the
+>> cache machinery do this via an indirect call when all pgd are freed in
+>> the one place anyway.
+> 
+> 
+> The reason we have slab constructors and destructors is to _avoid_
+> reinitializing every time we allocate an object. AFAICT your changing
+> the code now to do _more_ work than before, so is there some other
+> reason why you want to do this than avoiding an indirect call?
 
-If the lazy setup doesn't work for you you can always call vmalloc_sync()
-early.
+Sometimes  it is better for the caches to initialise an object
+immediately, but in this case I think it is better to use the
+slab ctor because it is very unlikely to use many cachelines
+immediately anyway.
 
--Andi
+It would be nice to put the "why" in the changelogs, rather than
+"what". Not everyone wants to go through the whole patchset to
+decipher why Xen possibly needs something.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 
