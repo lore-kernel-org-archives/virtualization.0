@@ -1,18 +1,25 @@
 From: Keir Fraser <keir@xensource.com>
 Subject: Re: [Xen-devel] Re: [patch 14/21] Xen-paravirt: Add XEN config
- options and disableunsupported config options.
+	options and disableunsupported config options.
 Date: Fri, 16 Feb 2007 19:00:39 +0000
-Message-ID: <C1FBAFD7.99AB%keir__14037.2966685847$1171652487$gmane$org@xensource.com>
+Message-ID: <C1FBAFD7.99AB%keir__35116.8747678914$1171652532$gmane$org@xensource.com>
 References: <45D5EDDB.7050404@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946064AbXBPTAn@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
 In-Reply-To: <45D5EDDB.7050404@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>, Keir Fraser <keir@xensource.com>
-Cc: xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, Ian Pratt <Ian.Pratt@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Steven Hand <steven.hand@cl.cam.ac.uk>, Christian Limpach <Christian.Limpach@xensource.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Steven Hand <steven.hand@cl.cam.ac.uk>, Andrew Morton <akpm@linux-foundation.org>, Ian Pratt <Ian.Pratt@xensource.com>, linux-kernel@vger.kernel.org, Christian Limpach <Christian.Limpach@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 16/2/07 17:46, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
@@ -21,7 +28,8 @@ On 16/2/07 17:46, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
 >> This initial patchset does not include save/restore support anyway, so in
 >> fact it would be consistent to have CONFIG_PREEMPT configurable. I'm sure
 >> that we are going to have some nasty bugs to fix up as a result, but we
->> can't fix them until we find them! Then we can convert our save/restore code
+>> can't fix them until we find them! Then we can convert our save/restore =
+code
 >> to use the freezer before submitting it for inclusion.
 > OK.  So that makes the only config restriction the 100Hz ticks.
 
