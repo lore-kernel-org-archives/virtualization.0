@@ -1,52 +1,51 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: Re: [patch 14/21] Xen-paravirt: Add XEN config	options
-	and disableunsupported config options.
-Date: Fri, 16 Feb 2007 13:51:21 -0800
-Message-ID: <45D62759.7080006@vmware.com>
-References: <C1FBAFD7.99AB%keir@xensource.com>
+From: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [patch 00/21] Xen-paravirt: Xen guest implementation for
+	paravirt_ops interface
+Date: Fri, 16 Feb 2007 13:59:44 -0800 (PST)
+Message-ID: <Pine.LNX.4.64.0702161356380.29218@schroedinger.engr.sgi.com>
+References: <20070216022449.739760547@goop.org>
+	<Pine.LNX.4.64.0702161244380.26718@schroedinger.engr.sgi.com>
+	<45D61C74.2000601@vmware.com>
+	<Pine.LNX.4.64.0702161312460.28871@schroedinger.engr.sgi.com>
+	<45D626BB.20007@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <C1FBAFD7.99AB%keir@xensource.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Keir Fraser <keir@xensource.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, Christian Limpach <Christian.Limpach@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Steven Hand <steven.hand@cl.cam.ac.uk>, Ian Pratt <Ian.Pratt@xensource.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <45D626BB.20007@vmware.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Keir Fraser wrote:
-> On 16/2/07 17:46, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
->
->   
->> Keir Fraser wrote:
->>     
->>> This initial patchset does not include save/restore support anyway, so in
->>> fact it would be consistent to have CONFIG_PREEMPT configurable. I'm sure
->>> that we are going to have some nasty bugs to fix up as a result, but we
->>> can't fix them until we find them! Then we can convert our save/restore code
->>> to use the freezer before submitting it for inclusion.
->>>       
->> OK.  So that makes the only config restriction the 100Hz ticks.
->>     
->
-> We can extend the Xen timer interface quite easily and get rid of this one
-> too. In fact it doesn't *much* matter if the CONFIG_HZ differs from the Xen
-> ticker rate -- we modified the Linux timer ISR to handle timer interrupts at
-> arbitrary times already. The only drawback is that jiffies updates in burts
-> if CONFIG_HZ is higher than the actual tick rate, and this can affect some
-> calibration constants and cause Linux to print out some weird values at
-> start-of-day.
->   
+On Fri, 16 Feb 2007, Zachary Amsden wrote:
 
-That's why we'd very much like to get a get_cpu_speed paravirt-op 
-implemented.  I think this would be useful to work around these problems 
-for Xen as well.
+> Yes, but that is just because the Xen hooks happens to be near the last p=
+art
+> of the merge.  VMI required some special hooks, as do both Xen and lhype =
+(I
+> think ... Rusty can correct me if lhype's puppy's have precluded the addi=
+tion
+> of new hooks).  Xen page table handling is very different, mostly it is t=
+rap
+> and emulate so writable page tables can work, which means they don't alwa=
+ys
+> issue hypercalls for PTE updates, although they do have that option, shou=
+ld
+> the hypervisor MMU model change, or performance concerns prompt a differe=
+nt
+> model (or perhaps, migration?)
 
-Zach
+Well looks like there are still some major design issues to be ironed out. =
+
+What is proposed here is to make paravirt_ops a fake generic =
+
+API and then tunnel through it to vendor specific kernel mods.
