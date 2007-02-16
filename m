@@ -1,56 +1,67 @@
-From: Nick Piggin <nickpiggin@yahoo.com.au>
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [patch 12/21] Xen-paravirt: Allocate and free vmalloc areas
-Date: Fri, 16 Feb 2007 18:48:26 +1100
-Message-ID: <45D561CA.3080609@yahoo.com.au>
-References: <20070216022449.739760547@goop.org>	<20070216022531.417300365@goop.org>	<20070215224322.5c73d8e9.akpm@linux-foundation.org>	<45D55852.9000103@goop.org> <20070215232447.5ee67f50.akpm@linux-foundation.org>
+Date: Thu, 15 Feb 2007 23:49:04 -0800
+Message-ID: <20070215234904.f3fbcdf0.akpm@linux-foundation.org>
+References: <20070216022449.739760547@goop.org>
+	<20070216022531.417300365@goop.org>
+	<20070215224322.5c73d8e9.akpm@linux-foundation.org>
+	<45D55852.9000103@goop.org>
+	<20070215232447.5ee67f50.akpm@linux-foundation.org>
+	<45D55DB1.7040002@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965240AbXBPHtF@vger.kernel.org>
-In-Reply-To: <20070215232447.5ee67f50.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Jan Beulich <JBeulich@novell.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <45D55DB1.7040002@goop.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andrew Morton wrote:
-> On Thu, 15 Feb 2007 23:08:02 -0800 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> 
-> 
->>Andrew Morton wrote:
->>
->>>This won't work when CONFIG_PREEMPT=y.  The pagefault handler will see
->>>in_atomic() and will scram.
->>>  
->>
->>Is there some other way to get the pagetable populated for the address
->>range?
->>
-> 
-> 
-> If you really need to run atomically, that gets ugly.  Even of one were to
-> run handle_mm_fault() by hand, it still needs to allocate memory.
-> 
-> Two ugly options might be:
-> 
-> a) touch all the pages, then go atomic, then touch them all again.  If
->    one of them faults (ie: you raced with swapout) then go back and try
->    again.  Obviously susceptible to livelocking.
-> 
-> b) Do get_user_pages() against all the pages, then go atomic, then do
->    put_page() against them all.  Of course, they can immediately get
->    swapped out.
-> 
-> But that function's already racy against swapout and I guess it works OK. 
-> I don't have clue what it is actually trying to do, so I'm guessing madly
-> here.
+On Thu, 15 Feb 2007 23:30:57 -0800 Jeremy Fitzhardinge <jeremy@goop.org> wr=
+ote:
 
-Well its only operating on kernel pages, and against a vmalloc region.
-So it would be immune to any sort of unmapping or swapout.
+> > If you really need to run atomically, that gets ugly.  Even of one were=
+ to
+> > run handle_mm_fault() by hand, it still needs to allocate memory.
+> >
+> > Two ugly options might be:
+> >
+> > a) touch all the pages, then go atomic, then touch them all again.  If
+> >    one of them faults (ie: you raced with swapout) then go back and try
+> >    again.  Obviously susceptible to livelocking.
+> >
+> > b) Do get_user_pages() against all the pages, then go atomic, then do
+> >    put_page() against them all.  Of course, they can immediately get
+> >    swapped out.
+> >
+> > But that function's already racy against swapout and I guess it works O=
+K. =
 
-Andrew's option a) should work. What's this for, and how is it not Xen
-specific if nothing else in the tree needs such a weird hack?
+> > I don't have clue what it is actually trying to do, so I'm guessing mad=
+ly
+> > here.
+> >   =
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> =
+
+> It's for populating the pagetable in a vmalloc area.  There's magic in
+> the fault handler to synchronize the vmalloc mappings between different
+> process's kernel mappings, so if the mapping isn't currently present, it
+> will fault and create the appropriate mapping.  It's not operating on
+> swappable user memory, so swapping isn't an issue; but if the fault
+> handler exits immediately with preempt disabled, then there's a problem.
+> =
+
+
+oh, I see.  The vmalloc fault can run atomically.  In fact it can run at
+hard iRQ.  So no probs (apart from the fact that it required an email
+dialogue to work this out rather than reading the code, but I do go on).
