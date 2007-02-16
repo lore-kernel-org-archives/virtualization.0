@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 07/21] Xen-paravirt: remove ctor for pgd cache
-Date: Thu, 15 Feb 2007 18:24:56 -0800
-Message-ID: <20070216022531.047039320@goop.org>
+Subject: [patch 09/21] Xen-paravirt: Allow paravirt backend to select PGD
+	allocation alignment
+Date: Thu, 15 Feb 2007 18:24:58 -0800
+Message-ID: <20070216022531.194731142@goop.org>
 References: <20070216022449.739760547@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=remove-pgd-ctor.patch
+Content-Disposition: inline; filename=pgd-alignment.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -21,117 +22,84 @@ To: Andi Kleen <ak@muc.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove the ctor for the pgd cache.  There's no point in having the
-cache machinery do this via an indirect call when all pgd are freed in
-the one place anyway.
+Xen requires pgds to be page-aligned, so make this a parameter which
+can be set in the paravirt_ops structure.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
+--
+ arch/i386/kernel/paravirt.c |    1 +
+ arch/i386/mm/init.c         |    2 +-
+ include/asm-i386/paravirt.h |    5 ++++-
+ include/asm-i386/pgtable.h  |    6 ++++++
+ 4 files changed, 12 insertions(+), 2 deletions(-)
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -573,6 +573,7 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.paravirt_enabled =3D 0,
+ 	.kernel_rpl =3D 0,
+ 	.shared_kernel_pmd =3D 1,	/* Only used when CONFIG_X86_PAE is set */
++	.pgd_alignment =3D sizeof(pgd_t) * PTRS_PER_PGD,
+ =
+
+  	.patch =3D native_patch,
+ 	.banner =3D default_banner,
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/mm/init.c
 +++ b/arch/i386/mm/init.c
-@@ -739,11 +739,9 @@ void __init pgtable_cache_init(void)
- 			panic("pgtable_cache_init(): cannot create pmd cache");
+@@ -745,7 +745,7 @@ void __init pgtable_cache_init(void)
  	}
  	pgd_cache =3D kmem_cache_create("pgd",
--				PTRS_PER_PGD*sizeof(pgd_t),
--				PTRS_PER_PGD*sizeof(pgd_t),
--				0,
--				pgd_ctor,
--				PTRS_PER_PMD =3D=3D 1 ? pgd_dtor : NULL);
-+				      PTRS_PER_PGD*sizeof(pgd_t),
-+				      PTRS_PER_PGD*sizeof(pgd_t),
-+				      0, NULL, NULL);
+ 				      PTRS_PER_PGD*sizeof(pgd_t),
+-				      PTRS_PER_PGD*sizeof(pgd_t),
++				      PGD_ALIGNMENT,
+ 				      0, NULL, NULL);
  	if (!pgd_cache)
  		panic("pgtable_cache_init(): Cannot create pgd cache");
- }
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/pgtable.c
-+++ b/arch/i386/mm/pgtable.c
-@@ -236,7 +236,7 @@ static inline void pgd_list_del(pgd_t *p
- 		set_page_private(next, (unsigned long)pprev);
- }
- =
-
--void pgd_ctor(void *pgd, struct kmem_cache *cache, unsigned long unused)
-+static void pgd_ctor(pgd_t *pgd)
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -33,9 +33,12 @@ struct mm_struct;
+ struct mm_struct;
+ struct paravirt_ops
  {
- 	unsigned long flags;
- =
-
-@@ -245,7 +245,7 @@ void pgd_ctor(void *pgd, struct kmem_cac
- 		spin_lock_irqsave(&pgd_lock, flags);
- 	}
- =
-
--	clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
-+	clone_pgd_range(pgd + USER_PTRS_PER_PGD,
- 			swapper_pg_dir + USER_PTRS_PER_PGD,
- 			KERNEL_PGD_PTRS);
- =
-
-@@ -261,10 +261,12 @@ void pgd_ctor(void *pgd, struct kmem_cac
- 	spin_unlock_irqrestore(&pgd_lock, flags);
- }
- =
-
--/* never called when PTRS_PER_PMD > 1 */
--void pgd_dtor(void *pgd, struct kmem_cache *cache, unsigned long unused)
-+static void pgd_dtor(pgd_t *pgd)
- {
- 	unsigned long flags; /* can be called from interrupt context */
++ 	int paravirt_enabled;
+ 	unsigned int kernel_rpl;
 +
-+	if (PTRS_PER_PMD =3D=3D 1)
-+		return;
- =
-
- 	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
- 	spin_lock_irqsave(&pgd_lock, flags);
-@@ -276,6 +278,9 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
- {
- 	int i;
- 	pgd_t *pgd =3D kmem_cache_alloc(pgd_cache, GFP_KERNEL);
+ 	int shared_kernel_pmd;
+- 	int paravirt_enabled;
++	int pgd_alignment;
 +
-+	if (pgd)
-+		pgd_ctor(pgd);
+ 	const char *name;
  =
 
- 	if (PTRS_PER_PMD =3D=3D 1 || !pgd)
- 		return pgd;
-@@ -296,6 +301,7 @@ out_oom:
- 		paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
- 		kmem_cache_free(pmd_cache, pmd);
- 	}
-+	pgd_dtor(pgd);
- 	kmem_cache_free(pgd_cache, pgd);
- 	return NULL;
- }
-@@ -313,5 +319,6 @@ void pgd_free(pgd_t *pgd)
- 			kmem_cache_free(pmd_cache, pmd);
- 		}
- 	/* in the non-PAE case, free_pgtables() clears user pgd entries */
-+	pgd_dtor(pgd);
- 	kmem_cache_free(pgd_cache, pgd);
- }
+ 	/*
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/pgtable.h
 +++ b/include/asm-i386/pgtable.h
-@@ -41,8 +41,6 @@ extern struct page *pgd_list;
- extern struct page *pgd_list;
+@@ -270,6 +270,12 @@ static inline void vmalloc_sync_all(void
+ #define pte_update_defer(mm, addr, ptep)	do { } while (0)
+ #endif
  =
 
- void pmd_ctor(void *, struct kmem_cache *, unsigned long);
--void pgd_ctor(void *, struct kmem_cache *, unsigned long);
--void pgd_dtor(void *, struct kmem_cache *, unsigned long);
- void pgtable_cache_init(void);
- void paging_init(void);
- =
-
++#ifdef CONFIG_PARAVIRT
++#define PGD_ALIGNMENT	(paravirt_ops.pgd_alignment)
++#else
++#define PGD_ALIGNMENT	(sizeof(pgd_t) * PTRS_PER_PGD)
++#endif
++
+ /*
+  * We only update the dirty/accessed state if we set
+  * the dirty bit by hand in the kernel, since the hardware
 
 -- =
