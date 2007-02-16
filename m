@@ -1,14 +1,15 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Re: [patch 12/21] Xen-paravirt: Allocate and free
-	vmalloc areas
-Date: Fri, 16 Feb 2007 09:27:39 -0800
-Message-ID: <45D5E98B.4070904@goop.org>
-References: <C1FB967F.998B%keir@xensource.com>
+Subject: Re: [patch 04/21] Xen-paravirt:
+	===================================================================
+Date: Fri, 16 Feb 2007 09:32:43 -0800
+Message-ID: <45D5EABB.5090909@goop.org>
+References: <20070216022449.739760547@goop.org>
+	<20070216022530.755967483@goop.org> <20070216091207.GA28196@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <C1FB967F.998B%keir@xensource.com>
+In-Reply-To: <20070216091207.GA28196@muc.de>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -17,35 +18,24 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: Keir Fraser <keir@xensource.com>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Keir Fraser wrote:
-> On 16/2/07 17:10, "Keir Fraser" <keir@xensource.com> wrote:
+Andi Kleen wrote:
+> Subject? description?
 >
+>
+> On Thu, Feb 15, 2007 at 06:24:53PM -0800, Jeremy Fitzhardinge wrote:
 >   
->> On 16/2/07 16:46, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
->>
->>     
->>> Yes, that would work.  Unfortunately that's i386 arch-specific, whereas
->>> the rest of this code is generic.  I guess I could just move it all to
->>> arch/i386/mm.
->>>       
->> This whole thing isn't an issue on ia64 (they no-op lock_vm_area) and
->> powerpc doesn't use any of the Xen driver code at this time.
->> vmalloc_sync_all is supported by both i386 and x86_64, so we can make the
->> call conditional on CONFIG_X86 so that ia64 will continue to build. This is
->> what I've done in xen-unstable.
+>> -static void vmi_set_pte_present(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte)
+>> +static void vmi_set_pte_present(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte)
 >>     
 >
->
-> In fact that file is only built for i386 and x86_64, so there really is no
-> problem with using vmalloc_sync_all() directly and without ifdef.
->   
-
-I had moved it to mm/vmalloc.c in response to previous review comments
-(namely, its not Xen specific, so it shouldn't live in the Xen part of
-the tree).
+> And what good is that change anyways? unsigned long is the usual style
+> for addresses.
+There was a fair amount of inconsistency.  In this case, u32 was being
+used for existing functions dealing with addresses, and I propagated it
+through.  I can switch it all back to unsigned long if you'd prefer.
 
     J
