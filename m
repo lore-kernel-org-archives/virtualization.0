@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 09/21] Xen-paravirt: Allow paravirt backend to select PGD
-	allocation alignment
-Date: Thu, 15 Feb 2007 18:24:58 -0800
-Message-ID: <20070216022531.194731142@goop.org>
+Subject: [patch 10/21] Xen-paravirt: add hooks to intercept mm creation and
+	destruction
+Date: Thu, 15 Feb 2007 18:24:59 -0800
+Message-ID: <20070216022531.267584466@goop.org>
 References: <20070216022449.739760547@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=pgd-alignment.patch
+Content-Disposition: inline; filename=mm-lifetime-hooks.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,84 +22,180 @@ To: Andi Kleen <ak@muc.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen requires pgds to be page-aligned, so make this a parameter which
-can be set in the paravirt_ops structure.
+Add hooks to allow a paravirt implementation to track the lifetime of
+an mm.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-
 --
- arch/i386/kernel/paravirt.c |    1 +
- arch/i386/mm/init.c         |    2 +-
- include/asm-i386/paravirt.h |    5 ++++-
- include/asm-i386/pgtable.h  |    6 ++++++
- 4 files changed, 12 insertions(+), 2 deletions(-)
+ arch/i386/kernel/paravirt.c    |    4 ++++
+ include/asm-i386/mmu_context.h |    8 ++++++--
+ include/asm-i386/paravirt.h    |   38 ++++++++++++++++++++++++++++++++++++=
+++
+ kernel/fork.c                  |    3 +++
+ mm/mmap.c                      |    4 ++++
+ 5 files changed, 55 insertions(+), 2 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -573,6 +573,7 @@ struct paravirt_ops paravirt_ops =3D {
- 	.paravirt_enabled =3D 0,
- 	.kernel_rpl =3D 0,
- 	.shared_kernel_pmd =3D 1,	/* Only used when CONFIG_X86_PAE is set */
-+	.pgd_alignment =3D sizeof(pgd_t) * PTRS_PER_PGD,
+@@ -706,6 +706,10 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.irq_enable_sysexit =3D native_irq_enable_sysexit,
+ 	.iret =3D native_iret,
  =
 
-  	.patch =3D native_patch,
- 	.banner =3D default_banner,
++	.dup_mmap =3D (void *)native_nop,
++	.exit_mmap =3D (void *)native_nop,
++	.activate_mm =3D (void *)native_nop,
++
+ 	.startup_ipi_hook =3D (void *)native_nop,
+ };
+ =
+
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/init.c
-+++ b/arch/i386/mm/init.c
-@@ -745,7 +745,7 @@ void __init pgtable_cache_init(void)
- 	}
- 	pgd_cache =3D kmem_cache_create("pgd",
- 				      PTRS_PER_PGD*sizeof(pgd_t),
--				      PTRS_PER_PGD*sizeof(pgd_t),
-+				      PGD_ALIGNMENT,
- 				      0, NULL, NULL);
- 	if (!pgd_cache)
- 		panic("pgtable_cache_init(): Cannot create pgd cache");
+--- a/include/asm-i386/mmu_context.h
++++ b/include/asm-i386/mmu_context.h
+@@ -5,6 +5,7 @@
+ #include <asm/atomic.h>
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
++#include <asm/paravirt.h>
+ =
+
+ /*
+  * Used for LDT copy/destruction.
+@@ -65,7 +66,10 @@ static inline void switch_mm(struct mm_s
+ #define deactivate_mm(tsk, mm)			\
+ 	asm("movl %0,%%gs": :"r" (0));
+ =
+
+-#define activate_mm(prev, next) \
+-	switch_mm((prev),(next),NULL)
++#define activate_mm(prev, next)				\
++	do {						\
++		arch_activate_mm(prev, next);		\
++		switch_mm((prev),(next),NULL);		\
++	} while(0);
+ =
+
+ #endif
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -33,9 +33,12 @@ struct mm_struct;
- struct mm_struct;
- struct paravirt_ops
- {
-+ 	int paravirt_enabled;
- 	unsigned int kernel_rpl;
-+
- 	int shared_kernel_pmd;
-- 	int paravirt_enabled;
-+	int pgd_alignment;
-+
- 	const char *name;
+@@ -126,6 +126,12 @@ struct paravirt_ops
+ 	void (*io_delay)(void);
+ 	void (*const_udelay)(unsigned long loops);
  =
 
- 	/*
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -270,6 +270,12 @@ static inline void vmalloc_sync_all(void
- #define pte_update_defer(mm, addr, ptep)	do { } while (0)
++	void (fastcall *activate_mm)(struct mm_struct *prev,
++				     struct mm_struct *next);
++	void (fastcall *dup_mmap)(struct mm_struct *oldmm, =
+
++				  struct mm_struct *mm);
++	void (fastcall *exit_mmap)(struct mm_struct *mm);
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	void (*apic_write)(unsigned long reg, unsigned long v);
+ 	void (*apic_write_atomic)(unsigned long reg, unsigned long v);
+@@ -429,6 +435,24 @@ static inline void startup_ipi_hook(int =
+
+ }
  #endif
  =
 
-+#ifdef CONFIG_PARAVIRT
-+#define PGD_ALIGNMENT	(paravirt_ops.pgd_alignment)
-+#else
-+#define PGD_ALIGNMENT	(sizeof(pgd_t) * PTRS_PER_PGD)
-+#endif
++#define __HAVE_ARCH_MM_LIFETIME
++static inline void arch_activate_mm(struct mm_struct *prev,
++				    struct mm_struct *next)
++{
++	paravirt_ops.activate_mm(prev, next);
++}
 +
- /*
-  * We only update the dirty/accessed state if we set
-  * the dirty bit by hand in the kernel, since the hardware
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++	paravirt_ops.dup_mmap(oldmm, mm);
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++	paravirt_ops.exit_mmap(mm);
++}
++
+ #define __flush_tlb() paravirt_ops.flush_tlb_user()
+ #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
+ #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
+@@ -673,5 +697,20 @@ static inline void paravirt_pagetable_se
+ 	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
+ #endif
+ }
++
++static inline void paravirt_activate_mm(struct mm_struct *prev,
++					struct mm_struct *next)
++{
++}
++
++static inline void paravirt_dup_mmap(struct mm_struct *oldmm,
++				     struct mm_struct *mm)
++{
++}
++
++static inline void paravirt_exit_mmap(struct mm_struct *mm)
++{
++}
++
+ #endif /* CONFIG_PARAVIRT */
+ #endif	/* __ASM_PARAVIRT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -374,6 +374,12 @@ struct mm_struct {
+ 	rwlock_t		ioctx_list_lock;
+ 	struct kioctx		*ioctx_list;
+ };
++
++#ifndef __HAVE_ARCH_MM_LIFETIME
++#define arch_activate_mm(prev, next)	do {} while(0)
++#define arch_dup_mmap(oldmm, mm)	do {} while(0)
++#define arch_exit_mmap(mm)		do {} while(0)
++#endif
+ =
+
+ struct sighand_struct {
+ 	atomic_t		count;
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -286,6 +286,7 @@ static inline int dup_mmap(struct mm_str
+ 		if (retval)
+ 			goto out;
+ 	}
++	arch_dup_mmap(oldmm, mm);
+ 	retval =3D 0;
+ out:
+ 	up_write(&mm->mmap_sem);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1976,6 +1976,8 @@ void exit_mmap(struct mm_struct *mm)
+ 	struct vm_area_struct *vma =3D mm->mmap;
+ 	unsigned long nr_accounted =3D 0;
+ 	unsigned long end;
++
++	arch_exit_mmap(mm);
+ =
+
+ 	lru_add_drain();
+ 	flush_cache_mm(mm);
 
 -- =
