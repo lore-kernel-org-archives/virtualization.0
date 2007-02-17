@@ -1,18 +1,10 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 00/21] Xen-paravirt: Xen guest implementation for
-	paravirt_ops interface
-Date: Sat, 17 Feb 2007 16:05:42 +1100
-Message-ID: <1171688742.18876.69.camel@localhost.localdomain>
-References: <20070216022449.739760547@goop.org>
-	<Pine.LNX.4.64.0702161244380.26718@schroedinger.engr.sgi.com>
-	<45D61C74.2000601@vmware.com>
-	<Pine.LNX.4.64.0702161312460.28871@schroedinger.engr.sgi.com>
-	<45D626BB.20007@vmware.com>
+From: "Estate Search" <srutaqllx@tpnet.pl>
+Subject: Wall Street Alert
+Date: Sat, 17 Feb 2007 11:39:10 -0100
+Message-ID: <DBC3635225A85DF.2A0A45CEC1@tpnet.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_0001_01C75288.3D90ACF0"
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45D626BB.20007@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,51 +14,53 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, JAndi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-02-16 at 13:48 -0800, Zachary Amsden wrote:
-> Christoph Lameter wrote:
-> > It still seems to be implemented for Xen and not to support a variety o=
-f =
+This is a multi-part message in MIME format...
 
-> > page table methods in paravirt ops.
-> =
+------=_NextPart_000_0001_01C75288.3D90ACF0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Yes, but that is just because the Xen hooks happens to be near the last =
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
+</HEAD>
+<BODY>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><B>::: PURE BIOFUELS CORP (<U=
+>PBOF.OB</U>) :::</B></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><I>Stock Radar Presents</I></=
+FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><I>Get Ready!! PBOF continues=
+!</I></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Don't you dare take your eyes=
+ off this one Tue,20 morning.</FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>CURRENT PRICE: <B>1.50 USD</B=
+></FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Extended Day Target: <B>2.025=
+ USD (35%)</B></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>---</FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Breaking News Headline:</FONT=
+></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D1>Entry into a Material Definit=
+ive Agreement, Change in Directors or Principal O</FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>---</FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><B>When this St0ck moves... W=
+ATCH OUT! CATCH THE NEW LEADER!</B></FONT></DIV><BR></BODY></HTML>
 
-> part of the merge.  VMI required some special hooks, as do both Xen and =
+------=_NextPart_000_0001_01C75288.3D90ACF0
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> lhype (I think ... Rusty can correct me if lhype's puppy's have =
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/virtualization
 
-> precluded the addition of new hooks).
-
-lguest was supposed to be a demonstration of paravirt_ops, so it
-shouldn't have added any.  But note that I did change some other things,
-such as the esp0 initialization for the swapper.
-
-Puppies are still alive and well.  Although Andi not pushing into 2.6.21
-(yet?) made puppies sad 8(
-
->   Xen page table handling is very =
-
-> different, mostly it is trap and emulate so writable page tables can =
-
-> work, which means they don't always issue hypercalls for PTE updates, =
-
-> although they do have that option, should the hypervisor MMU model =
-
-> change, or performance concerns prompt a different model (or perhaps, =
-
-> migration?)
-
-Yes, Xen really like their direct pagetable stuff.  I'm a
-traditionalist, myself, but it did require some expansion of
-paravirt_ops.
-
-KVM might well want more, although from here it's more likely we'll move
-some of the hooks up the stack a little IMHO.
-
-Cheers,
-Rusty.
+------=_NextPart_000_0001_01C75288.3D90ACF0--
