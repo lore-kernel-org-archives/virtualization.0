@@ -1,42 +1,72 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 00/21] Xen-paravirt: Xen guest
-	implementation for paravirt_ops interface
-Date: Sat, 17 Feb 2007 15:58:18 +1100
-Message-ID: <1171688298.18876.63.camel@localhost.localdomain>
+Subject: Re: [patch 00/21] Xen-paravirt: Xen guest implementation for
+	paravirt_ops interface
+Date: Sat, 17 Feb 2007 16:05:42 +1100
+Message-ID: <1171688742.18876.69.camel@localhost.localdomain>
 References: <20070216022449.739760547@goop.org>
 	<Pine.LNX.4.64.0702161244380.26718@schroedinger.engr.sgi.com>
+	<45D61C74.2000601@vmware.com>
+	<Pine.LNX.4.64.0702161312460.28871@schroedinger.engr.sgi.com>
+	<45D626BB.20007@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <Pine.LNX.4.64.0702161244380.26718@schroedinger.engr.sgi.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <45D626BB.20007@vmware.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, JAndi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-02-16 at 12:49 -0800, Christoph Lameter wrote:
-> On Thu, 15 Feb 2007, Jeremy Fitzhardinge wrote:
-> 
-> > This patch series implements the Linux Xen guest in terms of the
-> > paravirt-ops interface.  The features in implemented this patch series
-> 
-> I am thoroughly confused. Maybe that is because I have not been following 
-> this issue closely but it seems that you are using the paravirt interface 
-> as an API for Xen code in the guest? I thought the idea of paravirt was to 
-> have an API that is generic? This patchset seems to be mostly realizing 
-> Xen specific functionality? How does the code here interact with KVM, 
-> VMWare and other hypervisors?
+On Fri, 2007-02-16 at 13:48 -0800, Zachary Amsden wrote:
+> Christoph Lameter wrote:
+> > It still seems to be implemented for Xen and not to support a variety o=
+f =
 
-It doesn't.  Paravirt_ops provides the hooks.  KVM, lguest, VMI and Xen
-all need to implement what they want on top of them.
+> > page table methods in paravirt ops.
+> =
 
-Hope that clarifies,
+> Yes, but that is just because the Xen hooks happens to be near the last =
+
+> part of the merge.  VMI required some special hooks, as do both Xen and =
+
+> lhype (I think ... Rusty can correct me if lhype's puppy's have =
+
+> precluded the addition of new hooks).
+
+lguest was supposed to be a demonstration of paravirt_ops, so it
+shouldn't have added any.  But note that I did change some other things,
+such as the esp0 initialization for the swapper.
+
+Puppies are still alive and well.  Although Andi not pushing into 2.6.21
+(yet?) made puppies sad 8(
+
+>   Xen page table handling is very =
+
+> different, mostly it is trap and emulate so writable page tables can =
+
+> work, which means they don't always issue hypercalls for PTE updates, =
+
+> although they do have that option, should the hypervisor MMU model =
+
+> change, or performance concerns prompt a different model (or perhaps, =
+
+> migration?)
+
+Yes, Xen really like their direct pagetable stuff.  I'm a
+traditionalist, myself, but it did require some expansion of
+paravirt_ops.
+
+KVM might well want more, although from here it's more likely we'll move
+some of the hooks up the stack a little IMHO.
+
+Cheers,
 Rusty.
