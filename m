@@ -1,78 +1,43 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [patch 14/21] Xen-paravirt: Add XEN config options
- and disable unsupported config options.
-Date: Sun, 18 Feb 2007 13:32:23 +0200
-Message-ID: <45D83947.8080505@qumranet.com>
-References: <20070216022449.739760547@goop.org>
-	<20070216022531.570154735@goop.org> <45D54BFF.80100@vmware.com>
+From: Ada  <itgrad04@cfl.rr.com>
+Subject: Version of the Networking Guide with me, while
+Date: Sun, 18 Feb 2007 21:15:15 +0000 (UTC)
+Message-ID: <852834076.56032740917372@thebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <45D54BFF.80100@vmware.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Zachary Amsden <zach@vmware.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Date: Sun, 18 Feb 2007 21:14:27 -0060
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> Jeremy Fitzhardinge wrote:
->> The XEN config option enables the Xen paravirt_ops interface, which is
->> installed when the kernel finds itself running under Xen. (By some
->> as-yet fully defined mechanism, implemented in a future patch.)
->>
->> Xen is no longer a sub-architecture, so the X86_XEN subarch config
->> option has gone.
->>
->> The disabled config options are:
->> - PREEMPT: Xen doesn't support it
->> - HZ: set to 100Hz for now, to cut down on VCPU context switch rate.
->>   This will be adapted to use tickless later.
->> - kexec: not yet supported
->>
->> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
->> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
->> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
->> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
->>   
->
-> We do support different HZ values, although 100HZ is actually 
-> preferable for us, so I don't object to that.  
-
-Ditto for kvm.
-
-> PREEMPT is supported by us, but not as tested as I would like, so I 
-> also don't object to dropping it for generic paravirt guests - Rusty - 
-> Avi any objections to dropping preempt in terms of lguest/KVM 
-> paravirtualization?
-
-I don't have any objections myself, but Ingo (who has done the bulk of 
-the kvm paravirt work; cc'ed) uses PREEMPT_RT, so he will certainly object.
-
->
-> Paravirt-ops definitely needs a hook for kexec, although we should not 
-> disable kexec for the natively booted paravirt-ops.  Eric - is there a 
-> way to disable it at runtime?
-
-kvm paravirt should work correctly with kexec.
-
->
-> We do support the doublefault task gate, and it would be good to keep 
-> it, but I can't complain so much if it is gone from generic paravirt 
-> kernels for now, because it is non-essential, and generally fatal 
-> anyway.  We do need it for native boots of paravirt-ops kernels, 
-> however, so turning off the config option still needs to be revisited.
-
-kvm doesn't support task gates (a task switch will immediately kill the 
-guest).
+ have a long history with just SMU, the 11,000-student, private university,=
+ which is first lady Laura Bush's alma mater.University to stop trying to l=
+and George W. Bush's presidential library.benefits were increasing the =
 
 
--- 
-error compiling committee.c: too many arguments to function
+EXCELLENT NEWS for U!!! New EXCITING STOCK!!!
+We glad to provide for U =
+
+ &#9679; CARBON RACE CORP (CBRJ.PK) &#9679; SHARE!!!
+
+In spite of recent advent on market of shares it has already taken scores!!!
+Only the TOP places on market and HUGE POTENTIAL IN GROWTH!!!
+
+Our company oriented on rationalization products based on advanced composit=
+e materials.
+For more info about CBRJ.PK check broker site!!!
+
+Hurry up U have to buy this CBRJ.PK SHARE on Tuesday: 02/20/2007
+
+ the philosophy of the Bush administration would hurt the school's reputati=
+on.He said among the library's have a long history Turner said those fears =
+were unfounded. as the apparent winner York, who graduated from =
