@@ -1,42 +1,32 @@
-From: Taylor          <wlov@bomp.com>
-Subject: Documentation Project, or LDP,
-	which aims at providing a coherent set of manuals. Stopping short of
-	answering questions like
-Date: Tue, 20 Feb 2007 21:58:50 +0000
-Message-ID: <846621795.52936117581898@thebat.net>
+From: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [patch 00/21] Xen-paravirt: Xen guest implementation for
+ paravirt_ops interface
+Date: Wed, 21 Feb 2007 10:37:46 -0800 (PST)
+Message-ID: <Pine.LNX.4.64.0702211036060.24941@schroedinger.engr.sgi.com>
+References: <20070216022449.739760547@goop.org>
+ <Pine.LNX.4.64.0702161244380.26718@schroedinger.engr.sgi.com>
+ <45D61C74.2000601@vmware.com> <Pine.LNX.4.64.0702161312460.28871@schroedinger.engr.sgi.com>
+ <45D626BB.20007@vmware.com> <Pine.LNX.4.64.0702161356380.29218@schroedinger.engr.sgi.com>
+ <20070217135112.GA15102@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422790AbXBUShu@vger.kernel.org>
+In-Reply-To: <20070217135112.GA15102@muc.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@muc.de>
+Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-at the group's front of get-smart and 3-year-old  load their their own pass=
-ions,  neighborhoods in preschool =
+On Sat, 17 Feb 2007, Andi Kleen wrote:
 
+> That was always its intention. It's not a direct interface to a hypervisor,
+> but an somewhat abstracted interface to a "hypervisor driver" 
 
-Nothing could be better than =
+I thought that hypervisor driver was some binary blob that can be directly
+accessed via paravirt_ops?
 
- &#9679; CARBON RACE CORP (CBRJ.PK) &#9679; SHARE!!!
+> But you're right that there are currently still quite a lot of hooks
+> being added. I plan to be much more strict on that in the future.
 
-New CBRJ.PK STOCK this is GREAT POSSIBILITY to BECOME a rich man!!!
-Forecasts for U is only positive just purchase this CBRJ.PK STOCK!!!
-Trust us cause we GUARANTEE  U the real profit!!!
-
-CBRJ.PK founded on advanced compound materials using proprietary "Carbon Fi=
-ber" technology
-For elaborate information about CBRJ.PK check broker site!!!
-
-Hurry up U need grab this CBRJ.PK SHARE on TUESDAY: 02/20/07
-
-her kids' friends, and Social pressures academy report says.says the report=
-, =
+And it seems that the hooks are not generic but bound to a particular 
+hypervisor. Should the Xen specific stuff not be in the binary blob?
