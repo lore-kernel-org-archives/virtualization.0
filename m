@@ -1,16 +1,15 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Re: [patch 05/24] Xen-paravirt_ops: Add pagetable
-	accessors to pack and unpack pagetable entries
-Date: Wed, 21 Feb 2007 15:27:21 -0800
-Message-ID: <45DCD559.1040301@goop.org>
-References: <20070221205254.169835700@goop.org>	<20070221205322.869165491@goop.org>
-	<200702212315.12883.ak@suse.de>
-	<1172100002.13378.42.camel@localhost.localdomain>
+Subject: Re: Re: [patch 17/24] Xen-paravirt_ops: avoid having
+	a bad	selector in %gs during context switch
+Date: Wed, 21 Feb 2007 15:29:37 -0800
+Message-ID: <45DCD5E1.5070201@goop.org>
+References: <20070221205254.169835700@goop.org>	<20070221205323.770169136@goop.org>
+	<200702212310.02218.ak@suse.de> <45DCD4D0.2000101@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <1172100002.13378.42.camel@localhost.localdomain>
+In-Reply-To: <45DCD4D0.2000101@vmware.com>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -19,31 +18,26 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Zachary Amsden <zach@vmware.com>
 Cc: xen-devel@lists.xensource.com, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Wed, 2007-02-21 at 23:15 +0100, Andi Kleen wrote:
->   
->> On Wednesday 21 February 2007 21:52, Jeremy Fitzhardinge wrote:
->>     
->>> Add a set of accessors to pack, unpack and modify page table entries
->>> (at all levels).  This allows a paravirt implementation to control the
->>> contents of pgd/pmd/pte entries.  For example, Xen uses this to
->>> convert the (pseudo-)physical address into a machine address when
->>> populating a pagetable entry, and converting back to pphys address
->>> when an entry is read.
->>>       
->> Do you have some lmbench numbers before/after this change? 
->> iirc at least fork and exit do a lot of pte accesses in various forms.
->> If it's measurable it might be needed to patch those for the native case.
->>     
+Zachary Amsden wrote:
+> I agree with that, but especially because this is not even the right
+> place to save and clear gs; when userspace uses an LDT based %gs, you
+> need to do this all the way back in mmu_context.h before you switch
+> the LDT out. 
+
+Yeah.  This patch was really just to shut my debug Xen build up.  
+There's no correctness issue one way or the other, so it doesn't really
+matter that it doesn't catch LDT-using processes.
+
+> And I noticed this martian hanging out in mmu_context.h:
 >
-> Yes, __mkpte must be patched to avoid performance embarrassment.
->
-> Jeremy, did you want me to do this, or are you happy to?
->   
-I'm working on it now.  I'll mail out a proposal in a little bit.
+> #define deactivate_mm(tsk, mm)                  \
+>        asm("movl %0,%%gs": :"r" (0));
+
+Yeah, I've always wondered what this is for.  Its a remnant of a
+remnant, I think.
 
     J
