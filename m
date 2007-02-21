@@ -1,15 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 05/24] Xen-paravirt_ops: Add pagetable
-	accessors to pack and unpack pagetable entries
-Date: Thu, 22 Feb 2007 10:20:02 +1100
-Message-ID: <1172100002.13378.42.camel@localhost.localdomain>
-References: <20070221205254.169835700@goop.org>
-	<20070221205322.869165491@goop.org>  <200702212315.12883.ak@suse.de>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: Re: [patch 17/24] Xen-paravirt_ops: avoid having
+	a bad	selector in %gs during context switch
+Date: Wed, 21 Feb 2007 15:25:04 -0800
+Message-ID: <45DCD4D0.2000101@vmware.com>
+References: <20070221205254.169835700@goop.org>	<20070221205323.770169136@goop.org>
+	<200702212310.02218.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <200702212315.12883.ak@suse.de>
+In-Reply-To: <200702212310.02218.ak@suse.de>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -19,25 +19,38 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-02-21 at 23:15 +0100, Andi Kleen wrote:
-> On Wednesday 21 February 2007 21:52, Jeremy Fitzhardinge wrote:
-> > Add a set of accessors to pack, unpack and modify page table entries
-> > (at all levels).  This allows a paravirt implementation to control the
-> > contents of pgd/pmd/pte entries.  For example, Xen uses this to
-> > convert the (pseudo-)physical address into a machine address when
-> > populating a pagetable entry, and converting back to pphys address
-> > when an entry is read.
-> 
-> Do you have some lmbench numbers before/after this change? 
-> iirc at least fork and exit do a lot of pte accesses in various forms.
-> If it's measurable it might be needed to patch those for the native case.
+Andi Kleen wrote:
+>>  	/*
+>> +	 * Temporary hack: zero gs now that we've saved it so that Xen
+>> +	 * doesn't try to reload the old value after changing the GDT
+>> +	 * during the context switch.  This can go away once Xen has
+>> +	 * been taught to only reload %gs when it absolutely must.
+>> +	 */
+>> +	loadsegment(gs, 0);
+>>     
+>
+> Sorry, but i don't really want that unconditionally in the context switch.
+> Adding a paravirt ops for it would be also ugly. Can Xen be fixed?
+>   
 
-Yes, __mkpte must be patched to avoid performance embarrassment.
+I agree with that, but especially because this is not even the right 
+place to save and clear gs; when userspace uses an LDT based %gs, you 
+need to do this all the way back in mmu_context.h before you switch the 
+LDT out.  We have the same bug, but I was loathe to try to fix it yet, 
+since it could mean some strange code movement.  The awkward bit is that 
+switch_mm doesn't have the pointer to the previous task, only it's mm, 
+so there is no place to save gs.  Perhaps it is time to move the LDT 
+switch into switch_to instead of switch_mm?  It's not like there are 
+different per-process LDTs in the fixmap or something, which I could see 
+as a valid reason to associate this with the mm switch.  But all process 
+LDTs are global, so there isn't an issue.
 
-Jeremy, did you want me to do this, or are you happy to?
-Rusty.
-PS. I really must revise my "paravirt-ops counter" patch which tallies
-how much each op is getting called.
+And I noticed this martian hanging out in mmu_context.h:
+
+#define deactivate_mm(tsk, mm)                  \
+        asm("movl %0,%%gs": :"r" (0));
+
+Zach
