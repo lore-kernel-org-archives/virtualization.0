@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 11/24] Xen-paravirt_ops: Add apply_to_page_range() which
-	applies a function to a pte range.
-Date: Wed, 21 Feb 2007 12:53:05 -0800
-Message-ID: <20070221205323.297511375@goop.org>
+Subject: [patch 10/24] Xen-paravirt_ops: remove HAVE_ARCH_MM_LIFETIME,
+	define no-op architecture implementations
+Date: Wed, 21 Feb 2007 12:53:04 -0800
+Message-ID: <20070221205323.223043246@goop.org>
 References: <20070221205254.169835700@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=apply-to-page-range.patch
+Content-Disposition: inline; filename=kill-HAVE_ARCH_MM_LIFETIME.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,160 +19,624 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Christoph Lameter <clameter@sgi.com>, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-arch@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new mm function apply_to_page_range() which applies a given
-function to every pte in a given virtual address range in a given mm
-structure. This is a generic alternative to cut-and-pasting the Linux
-idiomatic pagetable walking code in every place that a sequence of
-PTEs must be accessed.
+akpm:
+> Can we lose __HAVE_ARCH_MM_LIFETIME?  Just define these (preferably in C,
+> not in cpp) in the appropriate include/asm-foo/ files?
 
-Although this interface is intended to be useful in a wide range of
-situations, it is currently used specifically by several Xen
-subsystems, for example: to ensure that pagetables have been allocated
-for a virtual address range, and to construct batched special
-pagetable update requests to map I/O memory (in ioremap()).
-
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Christoph Lameter <clameter@sgi.com>
+Cc: linux-arch@vger.kernel.org
 
 ---
- include/linux/mm.h |    5 ++
- mm/memory.c        |   94 ++++++++++++++++++++++++++++++++++++++++++++++++=
-++++
- 2 files changed, 99 insertions(+)
+ include/asm-alpha/mmu_context.h     |    9 +++++++++
+ include/asm-arm/mmu_context.h       |    9 +++++++++
+ include/asm-arm26/mmu_context.h     |    9 +++++++++
+ include/asm-avr32/mmu_context.h     |    9 +++++++++
+ include/asm-cris/mmu_context.h      |    8 ++++++++
+ include/asm-frv/mmu_context.h       |    8 ++++++++
+ include/asm-h8300/mmu_context.h     |    8 ++++++++
+ include/asm-i386/mmu_context.h      |    2 +-
+ include/asm-i386/paravirt.h         |   18 +++++++++++++++---
+ include/asm-ia64/mmu_context.h      |    8 ++++++++
+ include/asm-m32r/mmu_context.h      |    8 ++++++++
+ include/asm-m68k/mmu_context.h      |    8 ++++++++
+ include/asm-m68knommu/mmu_context.h |    8 ++++++++
+ include/asm-mips/mmu_context.h      |    8 ++++++++
+ include/asm-parisc/mmu_context.h    |    9 +++++++++
+ include/asm-powerpc/mmu_context.h   |   10 ++++++++++
+ include/asm-ppc/mmu_context.h       |    9 +++++++++
+ include/asm-s390/mmu_context.h      |    8 ++++++++
+ include/asm-sh/mmu_context.h        |    8 ++++++++
+ include/asm-sh64/mmu_context.h      |    8 ++++++++
+ include/asm-sparc/mmu_context.h     |    8 ++++++++
+ include/asm-sparc64/mmu_context.h   |    8 ++++++++
+ include/asm-um/mmu_context.h        |    8 ++++++++
+ include/asm-v850/mmu_context.h      |    8 ++++++++
+ include/asm-x86_64/mmu_context.h    |    8 ++++++++
+ include/asm-xtensa/mmu_context.h    |    9 +++++++++
+ include/linux/sched.h               |    6 ------
+ 27 files changed, 217 insertions(+), 10 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1130,6 +1130,11 @@ struct page *follow_page(struct vm_area_
+--- a/include/asm-alpha/mmu_context.h
++++ b/include/asm-alpha/mmu_context.h
+@@ -256,4 +256,13 @@ enter_lazy_tlb(struct mm_struct *mm, str
+ #undef __MMU_EXTERN_INLINE
+ #endif
  =
 
- unsigned long __follow_page(void *vaddr);
- =
-
-+typedef int (*pte_fn_t)(pte_t *pte, struct page *pmd_page, unsigned long a=
-ddr,
-+			void *data);
-+extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
-+			       unsigned long size, pte_fn_t fn, void *data);
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
 +
- #ifdef CONFIG_PROC_FS
- void vm_stat_account(struct mm_struct *, unsigned long, struct file *, lon=
-g);
- #else
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
++
+ #endif /* __ALPHA_MMU_CONTEXT_H */
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1414,6 +1414,100 @@ int remap_pfn_range(struct vm_area_struc
+--- a/include/asm-arm/mmu_context.h
++++ b/include/asm-arm/mmu_context.h
+@@ -108,4 +108,13 @@ switch_mm(struct mm_struct *prev, struct
+ #define deactivate_mm(tsk,mm)	do { } while (0)
+ #define activate_mm(prev,next)	switch_mm(prev, next, NULL)
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
++
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-arm26/mmu_context.h
++++ b/include/asm-arm26/mmu_context.h
+@@ -48,4 +48,13 @@ static inline void activate_mm(struct mm
+ 	cpu_switch_mm(next->pgd, next);
  }
- EXPORT_SYMBOL(remap_pfn_range);
  =
 
-+static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
 +{
-+	pte_t *pte;
-+	int err;
-+	struct page *pmd_page;
-+	spinlock_t *ptl;
-+
-+	pte =3D (mm =3D=3D &init_mm) ?
-+		pte_alloc_kernel(pmd, addr) :
-+		pte_alloc_map_lock(mm, pmd, addr, &ptl);
-+	if (!pte)
-+		return -ENOMEM;
-+
-+	BUG_ON(pmd_huge(*pmd));
-+
-+	pmd_page =3D pmd_page(*pmd);
-+
-+	do {
-+		err =3D fn(pte, pmd_page, addr, data);
-+		if (err)
-+			break;
-+	} while (pte++, addr +=3D PAGE_SIZE, addr !=3D end);
-+
-+	if (mm !=3D &init_mm)
-+		pte_unmap_unlock(pte-1, ptl);
-+	return err;
 +}
 +
-+static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
++static inline void arch_exit_mmap(struct mm_struct *mm)
 +{
-+	pmd_t *pmd;
-+	unsigned long next;
-+	int err;
-+
-+	pmd =3D pmd_alloc(mm, pud, addr);
-+	if (!pmd)
-+		return -ENOMEM;
-+	do {
-+		next =3D pmd_addr_end(addr, end);
-+		err =3D apply_to_pte_range(mm, pmd, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pmd++, addr =3D next, addr !=3D end);
-+	return err;
 +}
 +
-+static int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-avr32/mmu_context.h
++++ b/include/asm-avr32/mmu_context.h
+@@ -145,4 +145,13 @@ static inline void disable_mmu(void)
+ 	sysreg_write(MMUCR, SYSREG_BIT(MMUCR_S));
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
 +{
-+	pud_t *pud;
-+	unsigned long next;
-+	int err;
-+
-+	pud =3D pud_alloc(mm, pgd, addr);
-+	if (!pud)
-+		return -ENOMEM;
-+	do {
-+		next =3D pud_addr_end(addr, end);
-+		err =3D apply_to_pmd_range(mm, pud, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pud++, addr =3D next, addr !=3D end);
-+	return err;
 +}
 +
-+/*
-+ * Scan a region of virtual memory, filling in page tables as necessary
-+ * and calling a provided function on each leaf page table.
-+ */
-+int apply_to_page_range(struct mm_struct *mm, unsigned long addr,
-+			unsigned long size, pte_fn_t fn, void *data)
++static inline void arch_exit_mmap(struct mm_struct *mm)
 +{
-+	pgd_t *pgd;
-+	unsigned long next;
-+	unsigned long end =3D addr + size;
-+	int err;
-+
-+	BUG_ON(addr >=3D end);
-+	pgd =3D pgd_offset(mm, addr);
-+	do {
-+		next =3D pgd_addr_end(addr, end);
-+		err =3D apply_to_pud_range(mm, pgd, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pgd++, addr =3D next, addr !=3D end);
-+	return err;
 +}
-+EXPORT_SYMBOL_GPL(apply_to_page_range);
 +
+ #endif /* __ASM_AVR32_MMU_CONTEXT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-cris/mmu_context.h
++++ b/include/asm-cris/mmu_context.h
+@@ -21,4 +21,12 @@ static inline void enter_lazy_tlb(struct
+ {
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-frv/mmu_context.h
++++ b/include/asm-frv/mmu_context.h
+@@ -46,4 +46,12 @@ do {						\
+ do {						\
+ } while(0)
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-h8300/mmu_context.h
++++ b/include/asm-h8300/mmu_context.h
+@@ -28,4 +28,12 @@ static inline void activate_mm(struct mm
+ {
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/mmu_context.h
++++ b/include/asm-i386/mmu_context.h
+@@ -68,7 +68,7 @@ static inline void switch_mm(struct mm_s
+ =
+
+ #define activate_mm(prev, next)				\
+ 	do {						\
+-		arch_activate_mm(prev, next);		\
++		paravirt_activate_mm(prev, next);	\
+ 		switch_mm((prev),(next),NULL);		\
+ 	} while(0);
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -432,9 +432,8 @@ static inline void startup_ipi_hook(int =
+
+ }
+ #endif
+ =
+
+-#define __HAVE_ARCH_MM_LIFETIME
+-static inline void arch_activate_mm(struct mm_struct *prev,
+-				    struct mm_struct *next)
++static inline void paravirt_activate_mm(struct mm_struct *prev,
++					struct mm_struct *next)
+ {
+ 	paravirt_ops.activate_mm(prev, next);
+ }
+@@ -695,5 +694,18 @@ static inline void paravirt_pagetable_se
+ #endif
+ }
+ =
+
++static inline void paravirt_activate_mm(struct mm_struct *prev,
++					struct mm_struct *next)
++{
++}
++
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif /* CONFIG_PARAVIRT */
+ #endif	/* __ASM_PARAVIRT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-ia64/mmu_context.h
++++ b/include/asm-ia64/mmu_context.h
+@@ -197,5 +197,13 @@ activate_mm (struct mm_struct *prev, str
+ =
+
+ #define switch_mm(prev_mm,next_mm,next_task)	activate_mm(prev_mm, next_mm)
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ # endif /* ! __ASSEMBLY__ */
+ #endif /* _ASM_IA64_MMU_CONTEXT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-m32r/mmu_context.h
++++ b/include/asm-m32r/mmu_context.h
+@@ -157,6 +157,14 @@ static inline void switch_mm(struct mm_s
+ #define enter_lazy_tlb(mm,tsk)          do { } while (0)
+ #endif /* not CONFIG_MMU */
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif /* not __ASSEMBLY__ */
+ =
+
+ #endif /* __KERNEL__ */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-m68k/mmu_context.h
++++ b/include/asm-m68k/mmu_context.h
+@@ -149,5 +149,13 @@ static inline void activate_mm(struct mm
+ 	activate_context(next_mm);
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-m68knommu/mmu_context.h
++++ b/include/asm-m68knommu/mmu_context.h
+@@ -29,4 +29,12 @@ static inline void activate_mm(struct mm
+ {
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-mips/mmu_context.h
++++ b/include/asm-mips/mmu_context.h
+@@ -293,4 +293,12 @@ drop_mmu_context(struct mm_struct *mm, u
+ 	local_irq_restore(flags);
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif /* _ASM_MMU_CONTEXT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-parisc/mmu_context.h
++++ b/include/asm-parisc/mmu_context.h
+@@ -70,4 +70,13 @@ static inline void activate_mm(struct mm
+ =
+
+ 	switch_mm(prev,next,current);
+ }
++
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-powerpc/mmu_context.h
++++ b/include/asm-powerpc/mmu_context.h
+@@ -80,5 +80,15 @@ static inline void activate_mm(struct mm
+ }
+ =
+
+ #endif /* CONFIG_PPC64 */
++
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
++
+ #endif /* __KERNEL__ */
+ #endif /* __ASM_POWERPC_MMU_CONTEXT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-ppc/mmu_context.h
++++ b/include/asm-ppc/mmu_context.h
+@@ -197,5 +197,14 @@ static inline void switch_mm(struct mm_s
+ =
+
+ extern void mmu_context_init(void);
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
++
+ #endif /* __PPC_MMU_CONTEXT_H */
+ #endif /* __KERNEL__ */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-s390/mmu_context.h
++++ b/include/asm-s390/mmu_context.h
+@@ -67,4 +67,12 @@ static inline void activate_mm(struct mm
+ 	set_fs(current->thread.mm_segment);
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif /* __S390_MMU_CONTEXT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-sh/mmu_context.h
++++ b/include/asm-sh/mmu_context.h
+@@ -214,5 +214,13 @@ static inline void disable_mmu(void)
+ #define disable_mmu()	do { BUG(); } while (0)
+ #endif
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif /* __KERNEL__ */
+ #endif /* __ASM_SH_MMU_CONTEXT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-sh64/mmu_context.h
++++ b/include/asm-sh64/mmu_context.h
+@@ -203,6 +203,14 @@ enter_lazy_tlb(struct mm_struct *mm, str
+ {
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif	/* __ASSEMBLY__ */
+ =
+
+ #endif /* __ASM_SH64_MMU_CONTEXT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-sparc/mmu_context.h
++++ b/include/asm-sparc/mmu_context.h
+@@ -35,6 +35,14 @@ BTFIXUPDEF_CALL(void, switch_mm, struct =
+
+ /* Activate a new MM instance for the current task. */
+ #define activate_mm(active_mm, mm) switch_mm((active_mm), (mm), NULL)
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif /* !(__ASSEMBLY__) */
+ =
+
+ #endif /* !(__SPARC_MMU_CONTEXT_H) */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-sparc64/mmu_context.h
++++ b/include/asm-sparc64/mmu_context.h
+@@ -147,6 +147,14 @@ static inline void activate_mm(struct mm
+ 	spin_unlock_irqrestore(&mm->context.lock, flags);
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif /* !(__ASSEMBLY__) */
+ =
+
+ #endif /* !(__SPARC64_MMU_CONTEXT_H) */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-um/mmu_context.h
++++ b/include/asm-um/mmu_context.h
+@@ -74,6 +74,14 @@ static inline void destroy_context(struc
+ 	CHOOSE_MODE((void) 0, destroy_context_skas(mm));
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif
+ =
+
  /*
-  * handle_pte_fault chooses page fault handler according to an entry
-  * which was read non-atomically.  Before making any commitment, on
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-v850/mmu_context.h
++++ b/include/asm-v850/mmu_context.h
+@@ -8,4 +8,12 @@
+ #define activate_mm(prev,next)		((void)0)
+ #define enter_lazy_tlb(mm,tsk)		((void)0)
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ #endif /* __V850_MMU_CONTEXT_H__ */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-x86_64/mmu_context.h
++++ b/include/asm-x86_64/mmu_context.h
+@@ -69,5 +69,13 @@ static inline void switch_mm(struct mm_s
+ #define activate_mm(prev, next) \
+ 	switch_mm((prev),(next),NULL)
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
+ =
+
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-xtensa/mmu_context.h
++++ b/include/asm-xtensa/mmu_context.h
+@@ -131,4 +131,13 @@ static inline void enter_lazy_tlb(struct
+ =
+
+ }
+ =
+
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
++
+ #endif /* _XTENSA_MMU_CONTEXT_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -374,12 +374,6 @@ struct mm_struct {
+ 	rwlock_t		ioctx_list_lock;
+ 	struct kioctx		*ioctx_list;
+ };
+-
+-#ifndef __HAVE_ARCH_MM_LIFETIME
+-#define arch_activate_mm(prev, next)	do {} while(0)
+-#define arch_dup_mmap(oldmm, mm)	do {} while(0)
+-#define arch_exit_mmap(mm)		do {} while(0)
+-#endif
+ =
+
+ struct sighand_struct {
+ 	atomic_t		count;
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -29,6 +29,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlb.h>
++#include <asm/mmu_context.h>
+ =
+
+ #ifndef arch_mmap_check
+ #define arch_mmap_check(addr, len, flags)	(0)
 
 -- =
