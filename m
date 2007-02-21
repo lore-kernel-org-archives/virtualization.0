@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 07/24] Xen-paravirt_ops: paravirt_ops: allocate a fixmap slot
-Date: Wed, 21 Feb 2007 12:53:01 -0800
-Message-ID: <20070221205322.997421039@goop.org>
+Subject: [patch 13/24] Xen-paravirt_ops: Add nosegneg capability to the
+	vsyscall page notes
+Date: Wed, 21 Feb 2007 12:53:07 -0800
+Message-ID: <20070221205323.451289749@goop.org>
 References: <20070221205254.169835700@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=paravirt-fixmap.patch
+Content-Disposition: inline; filename=xen-vsyscall-note.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,34 +19,62 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allocate a fixmap slot for use by a paravirt_ops implementation.  Xen
-uses this to map the hypervisor's shared info page, which doesn't have
-a pseudo-physical page number, and therefore can't be mapped
-ordinarily.
+Add the "nosegneg" fake capabilty to the vsyscall page notes. This is
+used by the runtime linker to select a glibc version which then
+disables negative-offset accesses to the thread-local segment via
+%gs. These accesses require emulation in Xen (because segments are
+truncated to protect the hypervisor address space) and avoiding them
+provides a measurable performance boost.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Acked-by: Zachary Amsden <zach@vmware.com>
 
---
- include/asm-i386/fixmap.h |    3 +++
- 1 file changed, 3 insertions(+)
+---
+ arch/i386/kernel/vsyscall-note.S |   28 +++++++++++++++++++++++++++++
+ 1 files changed, 28 insertions(+)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/fixmap.h
-+++ b/include/asm-i386/fixmap.h
-@@ -86,6 +86,9 @@ enum fixed_addresses {
- #ifdef CONFIG_PCI_MMCONFIG
- 	FIX_PCIE_MCFG,
- #endif
-+#ifdef CONFIG_PARAVIRT
-+	FIX_PARAVIRT,
+--- a/arch/i386/kernel/vsyscall-note.S
++++ b/arch/i386/kernel/vsyscall-note.S
+@@ -23,3 +24,31 @@ 3:	.balign 4;		/* pad out section */			 =
+
+ 	ASM_ELF_NOTE_BEGIN(".note.kernel-version", "a", UTS_SYSNAME, 0)
+ 	.long LINUX_VERSION_CODE
+ 	ASM_ELF_NOTE_END
++
++#ifdef CONFIG_XEN
++/*
++ * Add a special note telling glibc's dynamic linker a fake hardware
++ * flavor that it will use to choose the search path for libraries in the
++ * same way it uses real hardware capabilities like "mmx".
++ * We supply "nosegneg" as the fake capability, to indicate that we
++ * do not like negative offsets in instructions using segment overrides,
++ * since we implement those inefficiently.  This makes it possible to
++ * install libraries optimized to avoid those access patterns in someplace
++ * like /lib/i686/tls/nosegneg.  Note that an /etc/ld.so.conf.d/file
++ * corresponding to the bits here is needed to make ldconfig work right.
++ * It should contain:
++ *	hwcap 0 nosegneg
++ * to match the mapping of bit to name that we give here.
++ */
++#define NOTE_KERNELCAP_BEGIN(ncaps, mask) \
++	ASM_ELF_NOTE_BEGIN(".note.kernelcap", "a", "GNU", 2) \
++	.long ncaps, mask
++#define NOTE_KERNELCAP(bit, name) \
++	.byte bit; .asciz name
++#define NOTE_KERNELCAP_END ASM_ELF_NOTE_END
++
++NOTE_KERNELCAP_BEGIN(1, 1)
++NOTE_KERNELCAP(1, "nosegneg")
++NOTE_KERNELCAP_END
 +#endif
- 	__end_of_permanent_fixed_addresses,
- 	/* temporary boot-time mappings, used before ioremap() is functional */
- #define NR_FIX_BTMAPS	16
++
 
 -- =
