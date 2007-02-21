@@ -1,14 +1,16 @@
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [patch 17/24] Xen-paravirt_ops: avoid having a bad selector
-	in %gs during context switch
-Date: Wed, 21 Feb 2007 22:16:15 +0000
-Message-ID: <C202752F.26C4%Keir.Fraser@cl.cam.ac.uk>
-References: <200702212310.02218.ak@suse.de>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [patch 05/24] Xen-paravirt_ops: Add pagetable accessors to pack
+	and unpack pagetable entries
+Date: Wed, 21 Feb 2007 23:15:12 +0100
+Message-ID: <200702212315.12883.ak@suse.de>
+References: <20070221205254.169835700@goop.org>
+	<20070221205322.869165491@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <200702212310.02218.ak@suse.de>
+In-Reply-To: <20070221205322.869165491@goop.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,25 +20,21 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org
-Cc: Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@linux-foundation.org>, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org
+To: virtualization@lists.osdl.org
+Cc: Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 21/2/07 22:10, "Andi Kleen" <ak@suse.de> wrote:
+On Wednesday 21 February 2007 21:52, Jeremy Fitzhardinge wrote:
+> Add a set of accessors to pack, unpack and modify page table entries
+> (at all levels).  This allows a paravirt implementation to control the
+> contents of pgd/pmd/pte entries.  For example, Xen uses this to
+> convert the (pseudo-)physical address into a machine address when
+> populating a pagetable entry, and converting back to pphys address
+> when an entry is read.
 
->> /*
->> +  * Temporary hack: zero gs now that we've saved it so that Xen
->> +  * doesn't try to reload the old value after changing the GDT
->> +  * during the context switch.  This can go away once Xen has
->> +  * been taught to only reload %gs when it absolutely must.
->> +  */
->> + loadsegment(gs, 0);
-> =
+Do you have some lmbench numbers before/after this change? =
 
-> Sorry, but i don't really want that unconditionally in the context switch.
-> Adding a paravirt ops for it would be also ugly. Can Xen be fixed?
+iirc at least fork and exit do a lot of pte accesses in various forms.
+If it's measurable it might be needed to patch those for the native case.
 
-This is not an issue for correctness so this can safely be removed and still
-work with current Xen.
-
- -- Keir
+-Andi
