@@ -1,14 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 09/24] Xen-paravirt_ops: add hooks to intercept mm creation
-	and destruction
-Date: Wed, 21 Feb 2007 12:53:03 -0800
-Message-ID: <20070221205323.146153780@goop.org>
+Subject: [patch 07/24] Xen-paravirt_ops: paravirt_ops: allocate a fixmap slot
+Date: Wed, 21 Feb 2007 12:53:01 -0800
+Message-ID: <20070221205322.997421039@goop.org>
 References: <20070221205254.169835700@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=mm-lifetime-hooks.patch
+Content-Disposition: inline; filename=paravirt-fixmap.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,172 +18,34 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-arch@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add hooks to allow a paravirt implementation to track the lifetime of
-an mm.
+Allocate a fixmap slot for use by a paravirt_ops implementation.  Xen
+uses this to map the hypervisor's shared info page, which doesn't have
+a pseudo-physical page number, and therefore can't be mapped
+ordinarily.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: linux-arch@vger.kernel.org
+
 --
- arch/i386/kernel/paravirt.c    |    4 ++++
- include/asm-i386/mmu_context.h |    8 ++++++--
- include/asm-i386/paravirt.h    |   38 ++++++++++++++++++++++++++++++++++++=
-++
- kernel/fork.c                  |    3 +++
- mm/mmap.c                      |    4 ++++
- 5 files changed, 55 insertions(+), 2 deletions(-)
+ include/asm-i386/fixmap.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -706,6 +706,10 @@ struct paravirt_ops paravirt_ops =3D {
- 	.irq_enable_sysexit =3D native_irq_enable_sysexit,
- 	.iret =3D native_iret,
- =
-
-+	.dup_mmap =3D (void *)native_nop,
-+	.exit_mmap =3D (void *)native_nop,
-+	.activate_mm =3D (void *)native_nop,
-+
- 	.startup_ipi_hook =3D (void *)native_nop,
- };
- =
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -5,6 +5,7 @@
- #include <asm/atomic.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-+#include <asm/paravirt.h>
- =
-
- /*
-  * Used for LDT copy/destruction.
-@@ -65,7 +66,10 @@ static inline void switch_mm(struct mm_s
- #define deactivate_mm(tsk, mm)			\
- 	asm("movl %0,%%gs": :"r" (0));
- =
-
--#define activate_mm(prev, next) \
--	switch_mm((prev),(next),NULL)
-+#define activate_mm(prev, next)				\
-+	do {						\
-+		arch_activate_mm(prev, next);		\
-+		switch_mm((prev),(next),NULL);		\
-+	} while(0);
- =
-
+--- a/include/asm-i386/fixmap.h
++++ b/include/asm-i386/fixmap.h
+@@ -86,6 +86,9 @@ enum fixed_addresses {
+ #ifdef CONFIG_PCI_MMCONFIG
+ 	FIX_PCIE_MCFG,
  #endif
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -126,6 +126,12 @@ struct paravirt_ops
- 	void (*io_delay)(void);
- 	void (*const_udelay)(unsigned long loops);
- =
-
-+	void (*activate_mm)(struct mm_struct *prev,
-+			    struct mm_struct *next);
-+	void (*dup_mmap)(struct mm_struct *oldmm, =
-
-+			 struct mm_struct *mm);
-+	void (*exit_mmap)(struct mm_struct *mm);
-+
- #ifdef CONFIG_X86_LOCAL_APIC
- 	void (*apic_write)(unsigned long reg, unsigned long v);
- 	void (*apic_write_atomic)(unsigned long reg, unsigned long v);
-@@ -429,6 +435,24 @@ static inline void startup_ipi_hook(int =
-
- }
- #endif
- =
-
-+#define __HAVE_ARCH_MM_LIFETIME
-+static inline void arch_activate_mm(struct mm_struct *prev,
-+				    struct mm_struct *next)
-+{
-+	paravirt_ops.activate_mm(prev, next);
-+}
-+
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+	paravirt_ops.dup_mmap(oldmm, mm);
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+	paravirt_ops.exit_mmap(mm);
-+}
-+
- #define __flush_tlb() paravirt_ops.flush_tlb_user()
- #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
- #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
-@@ -673,5 +697,6 @@ static inline void paravirt_pagetable_se
- 	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
- #endif
- }
-+
- #endif /* CONFIG_PARAVIRT */
- #endif	/* __ASM_PARAVIRT_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -374,6 +374,12 @@ struct mm_struct {
- 	rwlock_t		ioctx_list_lock;
- 	struct kioctx		*ioctx_list;
- };
-+
-+#ifndef __HAVE_ARCH_MM_LIFETIME
-+#define arch_activate_mm(prev, next)	do {} while(0)
-+#define arch_dup_mmap(oldmm, mm)	do {} while(0)
-+#define arch_exit_mmap(mm)		do {} while(0)
++#ifdef CONFIG_PARAVIRT
++	FIX_PARAVIRT,
 +#endif
- =
-
- struct sighand_struct {
- 	atomic_t		count;
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -286,6 +286,8 @@ static inline int dup_mmap(struct mm_str
- 		if (retval)
- 			goto out;
- 	}
-+	/* a new mm has just been created */
-+	arch_dup_mmap(oldmm, mm);
- 	retval =3D 0;
- out:
- 	up_write(&mm->mmap_sem);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1976,6 +1976,9 @@ void exit_mmap(struct mm_struct *mm)
- 	struct vm_area_struct *vma =3D mm->mmap;
- 	unsigned long nr_accounted =3D 0;
- 	unsigned long end;
-+
-+	/* mm's last user has gone, and its about to be pulled down */
-+	arch_exit_mmap(mm);
- =
-
- 	lru_add_drain();
- 	flush_cache_mm(mm);
+ 	__end_of_permanent_fixed_addresses,
+ 	/* temporary boot-time mappings, used before ioremap() is functional */
+ #define NR_FIX_BTMAPS	16
 
 -- =
