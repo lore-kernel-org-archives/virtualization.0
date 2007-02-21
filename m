@@ -1,40 +1,37 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [patch 05/24] Xen-paravirt_ops: Add pagetable accessors to pack
-	and unpack pagetable entries
-Date: Wed, 21 Feb 2007 23:15:12 +0100
-Message-ID: <200702212315.12883.ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 05/24] Xen-paravirt_ops: Add pagetable
+ accessors to pack and unpack pagetable entries
+Date: Wed, 21 Feb 2007 14:20:56 -0800
+Message-ID: <45DCC5C8.4090905@goop.org>
 References: <20070221205254.169835700@goop.org>
-	<20070221205322.869165491@goop.org>
+	<20070221205322.869165491@goop.org> <200702212315.12883.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070221205322.869165491@goop.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization@lists.osdl.org
-Cc: Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <200702212315.12883.ak@suse.de>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 21 February 2007 21:52, Jeremy Fitzhardinge wrote:
-> Add a set of accessors to pack, unpack and modify page table entries
-> (at all levels).  This allows a paravirt implementation to control the
-> contents of pgd/pmd/pte entries.  For example, Xen uses this to
-> convert the (pseudo-)physical address into a machine address when
-> populating a pagetable entry, and converting back to pphys address
-> when an entry is read.
+Andi Kleen wrote:
+> Do you have some lmbench numbers before/after this change? 
+> iirc at least fork and exit do a lot of pte accesses in various forms.
+> If it's measurable it might be needed to patch those for the native case.
+>   
 
-Do you have some lmbench numbers before/after this change? =
+I don't.  I think Rusty ran some numbers and found the pte accessors
+became the most commonly used paravirt ops.
 
-iirc at least fork and exit do a lot of pte accesses in various forms.
-If it's measurable it might be needed to patch those for the native case.
+I'm working on revamping the pv_ops patching infrastructure at the
+moment, so we should be able to deal with these fairly efficiently.
 
--Andi
+    J
