@@ -1,15 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: rough sketch of revised patching infrastructure
-Date: Thu, 22 Feb 2007 21:55:57 +1100
-Message-ID: <1172141757.13378.76.camel@localhost.localdomain>
-References: <45DCFB6E.2010806@goop.org>
-	<1172115803.13378.63.camel@localhost.localdomain>
+Date: Thu, 22 Feb 2007 10:13:36 -0800
+Message-ID: <45DDDD50.80502@goop.org>
+References: <45DCFB6E.2010806@goop.org>	
+	<1172115803.13378.63.camel@localhost.localdomain>	
 	<45DD6EF7.9060808@goop.org>
+	<1172141757.13378.76.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="------------030401050504040300040708"
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45DD6EF7.9060808@goop.org>
+In-Reply-To: <1172141757.13378.76.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,99 +19,274 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-02-22 at 02:22 -0800, Jeremy Fitzhardinge wrote:
-> Rusty Russell wrote:
-> > On Wed, 2007-02-21 at 18:09 -0800, Jeremy Fitzhardinge wrote:
-> >   =
+This is a multi-part message in MIME format.
+--------------030401050504040300040708
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-> >> Here's the new patching patch.  It compiles, but it doesn't, you know,
-> >> boot, as such.
-> >>     =
+Rusty Russell wrote:
+> Actually, your paravirt_patch_insns has similar logic anyway, so this
+> code could collapse (it should fall back to paravirt_patch_default tho
+> IMHO).
+>   
 
-> >
-> > OK, there are several separate things here.
-> > (1) Get rid of the PARAVIRT_IRQ_DISABLE etc constants in favour of
-> > offsetof within the structure.
-> > (2) Change (almost) all the paravirt hooks to be patchable.
-> > (3) Genericise the infrastructure to table-driven.
-> >
-> > These should probably become separate patches, in fact.
-> >   =
+I wanted to get rid of the table because its now sparse, and possibly
+fairly large (since the special save flags & disable is at offset
+0x80).  And a switch would be pretty clean anyway.
 
-> =
+How does this look?  Compiles, but untested.
 
-> OK, here's something which is more presentable, and it even boots (at
-> least under Xen; haven't tried native).
-> =
+    J
 
-> paravirt-patch-rename-paravirt_patch.patch
+--------------030401050504040300040708
+Content-Type: text/x-patch;
+ name="paravirt-patch-machinery.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="paravirt-patch-machinery.patch"
 
-Great.
+Implement the actual patching machinery.  paravirt_patcher() contains the logic to automatically patch a callsite based on a few simple rules:
+ - if the paravirt_op function is either NULL or native_nop, then patch nops
+ - if the paravirt_op function is a jmp target, then jmp to it
+ - if the paravirt_op function is callable and doesn't clobber too much
+    for the callsite, call it directly
 
-> paravirt-use-offset-site-ids.patch
+These rules will remove most of the expensive indirect calls in favour
+of either a direct call or a pile of nops.
 
-Cool.
+Paravirt backends can also pass in other patcher functions for
+specific operations if they want to insert literal machine code, or do
+more complex things.  The function paravirt_patch_insns() is available
+to help with this.
 
-> paravirt-fix-clobbers.patch
->  - misc cleanups
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-Cool.
+diff -r 30afc1621aa1 arch/i386/kernel/paravirt.c
+--- a/arch/i386/kernel/paravirt.c	Thu Feb 22 02:05:33 2007 -0800
++++ b/arch/i386/kernel/paravirt.c	Thu Feb 22 10:09:17 2007 -0800
+@@ -53,6 +53,7 @@ char *memory_setup(void)
+ #define DEF_NATIVE(name, code)					\
+ 	extern const char start_##name[], end_##name[];		\
+ 	asm("start_" #name ": " code "; end_" #name ":")
++
+ DEF_NATIVE(cli, "cli");
+ DEF_NATIVE(sti, "sti");
+ DEF_NATIVE(popf, "push %eax; popf");
+@@ -61,36 +62,128 @@ DEF_NATIVE(iret, "iret");
+ DEF_NATIVE(iret, "iret");
+ DEF_NATIVE(sti_sysexit, "sti; sysexit");
+ 
+-static const struct native_insns
+-{
+-	const char *start, *end;
+-} native_insns[] = {
+-	[PARAVIRT_IRQ_DISABLE] = { start_cli, end_cli },
+-	[PARAVIRT_IRQ_ENABLE] = { start_sti, end_sti },
+-	[PARAVIRT_RESTORE_FLAGS] = { start_popf, end_popf },
+-	[PARAVIRT_SAVE_FLAGS] = { start_pushf, end_pushf },
+-	[PARAVIRT_SAVE_FLAGS_IRQ_DISABLE] = { start_pushf_cli, end_pushf_cli },
+-	[PARAVIRT_INTERRUPT_RETURN] = { start_iret, end_iret },
+-	[PARAVIRT_STI_SYSEXIT] = { start_sti_sysexit, end_sti_sysexit },
+-};
++static unsigned native_patch_insns(u8 type, u16 clobbers, void *insns, unsigned len)
++{
++	const unsigned char *start, *end;
++
++	switch(type) {
++	case PARAVIRT_IRQ_DISABLE:
++		start = start_cli;
++		end = end_cli;
++		break;
++	case PARAVIRT_IRQ_ENABLE:
++		start = start_sti;
++		end = end_sti;
++		break;
++	case PARAVIRT_RESTORE_FLAGS:
++		start = start_popf;
++		end = end_popf;
++		break;
++	case PARAVIRT_SAVE_FLAGS:
++		start = start_pushf;
++		end = end_pushf;
++		break;
++	case PARAVIRT_SAVE_FLAGS_IRQ_DISABLE:
++		start = start_pushf_cli;
++		end = end_pushf_cli;
++		break;
++	case PARAVIRT_INTERRUPT_RETURN:
++		start = start_iret;
++		end = end_iret;
++		break;
++	case PARAVIRT_STI_SYSEXIT:
++		start = start_sti_sysexit;
++		end = end_sti_sysexit;
++		break;
++
++	default:
++		return 0;
++	}
++
++	return paravirt_patch_insns(insns, len, start, end);
++}
+ 
+ static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned len)
+ {
+-	unsigned int insn_len;
+-
+-	/* Don't touch it if we don't have a replacement */
+-	if (type >= ARRAY_SIZE(native_insns) || !native_insns[type].start)
+-		return len;
+-
+-	insn_len = native_insns[type].end - native_insns[type].start;
+-
+-	/* Similarly if we can't fit replacement. */
+-	if (len < insn_len)
+-		return len;
+-
+-	memcpy(insns, native_insns[type].start, insn_len);
++	unsigned ret = native_patch_insns(type, clobbers, insns, len);
++
++	if (ret == 0)
++		ret = paravirt_patch_default(type, clobbers, insns, len);
++
++	return ret;
++}
++
++unsigned paravirt_patch_nop(u8 type, u16 clobbers, void *site, unsigned len)
++{
++	return 0;
++}
++
++unsigned paravirt_patch_ignore(u8 type, u16 clobbers, void *site, unsigned len)
++{
++	return len;
++}
++
++unsigned paravirt_patch_call(u8 type, u16 clobbers, void *site, unsigned len)
++{
++	void *target = *((void **)&paravirt_ops + type);
++	unsigned char *call = site;
++	unsigned long delta = (unsigned long)target - (unsigned long)(call+5);
++
++	if (clobbers != CLBR_ANY)
++		return len;	/* calling C would clobber too much */
++	if (len < 5)
++		return len;	/* call too long for patch site */
++
++	*call++ = 0xe8;		/* call */
++	*(unsigned long *)call = delta;
++
++	return 5;
++}
++
++unsigned paravirt_patch_jmp(u8 type, u16 clobbers, void *site, unsigned len)
++{
++	void *target = *((void **)&paravirt_ops + type);
++	unsigned char *jmp = site;
++	unsigned long delta = (unsigned long)target - (unsigned long)(jmp+5);
++
++	if (len < 5)
++		return len;	/* call too long for patch site */
++
++	*jmp++ = 0xe9;		/* jmp */
++	*(unsigned long *)jmp = delta;
++
++	return 5;
++}
++
++unsigned paravirt_patch_default(u8 type, u16 clobbers, void *site, unsigned len)
++{
++	void *opfunc = *((void **)&paravirt_ops + type);
++	unsigned ret;
++
++	if (opfunc == (void *)native_nop || opfunc == NULL)
++		ret = paravirt_patch_nop(type, clobbers, site, len);
++	else if (type == PARAVIRT_PATCH(iret) ||
++		 type == PARAVIRT_PATCH(irq_enable_sysexit))
++		ret = paravirt_patch_jmp(type, clobbers, site, len);
++	else
++		ret = paravirt_patch_jmp(type, clobbers, site, len);
++
++	return ret;
++}
++
++unsigned paravirt_patch_insns(void *site, unsigned len,
++			      const char *start, const char *end)
++{
++	unsigned insn_len = end - start;
++
++	if (insn_len > len || start == NULL)
++		insn_len = len;
++	else
++		memcpy(site, start, insn_len);
++
+ 	return insn_len;
+ }
++
+ 
+ static unsigned long native_get_debugreg(int regno)
+ {
+diff -r 30afc1621aa1 arch/i386/xen/enlighten.c
+--- a/arch/i386/xen/enlighten.c	Thu Feb 22 02:05:33 2007 -0800
++++ b/arch/i386/xen/enlighten.c	Thu Feb 22 10:09:17 2007 -0800
+@@ -36,13 +36,6 @@ extern const char xen_sti_sysexit[];
+ 
+ struct start_info *xen_start_info;
+ EXPORT_SYMBOL_GPL(xen_start_info);
+-
+-static unsigned xen_patch(u8 type, u16 clobber, void *firstinsn, unsigned len)
+-{
+-	/* Xen will require relocations to patch calls and jmps, and
+-	   perhaps chunks of inline code */
+-	return len;
+-}
+ 
+ static void __init xen_banner(void)
+ {
+@@ -619,7 +612,7 @@ static const struct paravirt_ops xen_par
+ 	.name = "Xen",
+ 	.banner = xen_banner,
+ 
+-	.patch = xen_patch,
++	.patch = paravirt_patch_default,
+ 
+ 	.memory_setup = xen_memory_setup,
+ 	.arch_setup = xen_arch_setup,
+diff -r 30afc1621aa1 include/asm-i386/paravirt.h
+--- a/include/asm-i386/paravirt.h	Thu Feb 22 02:05:33 2007 -0800
++++ b/include/asm-i386/paravirt.h	Thu Feb 22 10:09:17 2007 -0800
+@@ -865,6 +865,17 @@ struct paravirt_patch_site {
+ 	u16 clobbers;		/* what registers you may clobber */
+ };
+ 
++typedef unsigned (*patcher_t)(u8 type, u16 clobbers, void *site, unsigned len);
++
++unsigned paravirt_patch_nop(u8 type, u16 clobbers, void *site, unsigned len);
++unsigned paravirt_patch_ignore(u8 type, u16 clobbers, void *site, unsigned len);
++unsigned paravirt_patch_call(u8 type, u16 clobbers, void *site, unsigned len);
++unsigned paravirt_patch_jmp(u8 type, u16 clobbers, void *site, unsigned len);
++unsigned paravirt_patch_default(u8 type, u16 clobbers, void *site, unsigned len);
++
++unsigned paravirt_patch_insns(void *site, unsigned len,
++			      const char *start, const char *end);
++
+ extern struct paravirt_patch_site __start_parainstructions[],
+ 	__stop_parainstructions[];
+ 
 
-> paravirt-patchable-call-wrappers.patch
->  - wrap a large number of the paravirt calls with the magic to make the
-> callsites patchable.  More are possible; this is just a good first step.
+--------------030401050504040300040708
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Ugly, but I originally played with alternatives for a long time and mine
-were no prettier.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/virtualization
 
-> paravirt-patch-machinery.patch
->  - the actual patching machinery, which is function-pointer driven
-> rather than table driven now.
-
-Not quite so sure on this one.  We loop through calling
-paravirt_ops.patch() for each patch.  In the native case, this calls
-paravirt_patcher with a fn pointer, which is simply called by
-paravirt_patcher.
-
-I would think you want to replace paravirt_patcher's patch =3D=3D NULL case
-with a special "paravity_patch_default", and then have to paravirt_ops
-patch function call that specifically when it wants a default.
-
-Also, I think you can leave the native table almost as-is, eg:
-
-static const struct native_insns
-{
-       const char *start, *end;
-} native_insns[] =3D {
-       [PARAVIRT_PATCH(irq_disable)] =3D { start_cli, end_cli },
-       [PARAVIRT_PATCH(irq_enable)] =3D { start_sti, end_sti },
-...
-};
-static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned l=
-en)
-{
-       unsigned int insn_len;
-
-       /* Don't touch it if we don't have a replacement */
-       if (type >=3D ARRAY_SIZE(native_insns) || !native_insns[type].start)
-               return paravirt_patch_default(type, clobbers, insns, len);
-       insn_len =3D native_insns[type].end - native_insns[type].start;
-
-       /* Similarly if we can't fit replacement. */
-       if (len < insn_len)
-               return paravirt_patch_default(type, clobbers, insns, len);
-
-       return paravirt_patch_insns(insns, len, native_insns[type].start, na=
-tive_insns[type].end);
-}
-
-Actually, your paravirt_patch_insns has similar logic anyway, so this
-code could collapse (it should fall back to paravirt_patch_default tho
-IMHO).
-
-Thanks for doing this work!
-Rusty.
+--------------030401050504040300040708--
