@@ -1,40 +1,40 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 18/24] Xen-paravirt_ops: Some generic early
- printk & boot console fixups
-Date: Wed, 21 Feb 2007 21:48:14 -0800
-Message-ID: <45DD2E9E.5030601@goop.org>
-References: <20070221205254.169835700@goop.org>	<20070221205323.842917348@goop.org>
-	<20070221191047.8d21acaa.akpm@linux-foundation.org>
+From: Gerd Hoffmann <kraxel@suse.de>
+Subject: Re: [patch 18/24] Xen-paravirt_ops: Some generic early printk & boot
+ console fixups
+Date: Thu, 22 Feb 2007 09:33:02 +0100
+Message-ID: <45DD553E.4000301@suse.de>
+References: <20070221205254.169835700@goop.org>	<20070221205323.842917348@goop.org> <20070221191047.8d21acaa.akpm@linux-foundation.org> <45DD2E9E.5030601@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070221191047.8d21acaa.akpm@linux-foundation.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751388AbXBVIdQ@vger.kernel.org>
+In-Reply-To: <45DD2E9E.5030601@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andrew Morton wrote:
-> hm, this patch series seems to have gone out of its way to cause problems.
->
-> This particular (pathetically changelogged) patch is already in my tree,
-> only in a later, much more comprehensive form.  Similarly the HVC changes
-> were already in Rusty's stuff and were supposed to be merged by Paulus, but
-> haven't been yet.
->
-> Can we just drop this one?  Does the Xen work actually depend on it?
+Jeremy Fitzhardinge wrote:
+> Andrew Morton wrote:
+>> hm, this patch series seems to have gone out of its way to cause problems.
+>>
+>> This particular (pathetically changelogged) patch is already in my tree,
+>> only in a later, much more comprehensive form.  Similarly the HVC changes
+>> were already in Rusty's stuff and were supposed to be merged by Paulus, but
+>> haven't been yet.
+>>
+>> Can we just drop this one?  Does the Xen work actually depend on it?
 
-Well, some form of the hvc patches is needed to get a console.  I'll
-rationalize them with respect to Gerd and Rusty's latest patches, but I
-did want to make the series stand on its own rather than have external
-dependencies on unmerged patches.
+Yes.  The other which made it into -mm via lkml is a more recent version
+of the same patch (+documentation, +!x86 arch updates).
 
-    J
+On the hvm_console.c changes: there is just a small change needed to
+make it build on !ppc, that should be identical identical in my (xen)
+and rusty (lguest) patch series.  Patching it only once is fine for
+obvious reasons ;)
+
+cheers,
+  Gerd
+
+-- 
+Gerd Hoffmann <kraxel@suse.de>
