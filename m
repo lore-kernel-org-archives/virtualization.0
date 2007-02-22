@@ -1,8 +1,8 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [patch 10/21] Xen-paravirt: add hooks to intercept
  mm creation and destruction
-Date: Thu, 22 Feb 2007 12:21:33 -0800
-Message-ID: <45DDFB4D.9050809@goop.org>
+Date: Thu, 22 Feb 2007 12:23:31 -0800
+Message-ID: <45DDFBC3.3070304@goop.org>
 References: <20070216022449.739760547@goop.org>
 	<20070216022531.267584466@goop.org> <20070222201644.GA4938@ucw.cz>
 Mime-Version: 1.0
@@ -41,8 +41,6 @@ Pavel Machek wrote:
 > Why the fastcall stuff?  Why is io_delay different from activate_mm in
 > this regard?
 >   
-
-That's crud; I forgot to remove it.  Everything is effectively fastcall
-now that -mregparm=3 is always on.
+Actually, I did remove it.  I think you're looking at an old patch.
 
     J
