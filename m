@@ -1,18 +1,10 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: rough sketch of revised patching infrastructure
-Date: Thu, 22 Feb 2007 14:54:23 -0800
-Message-ID: <45DE1F1F.2020700@goop.org>
-References: <45DCFB6E.2010806@goop.org>	
-	<1172115803.13378.63.camel@localhost.localdomain>	
-	<45DD6EF7.9060808@goop.org>	
-	<1172141757.13378.76.camel@localhost.localdomain>
-	<45DDDD50.80502@goop.org>
-	<1172184705.19233.35.camel@localhost.localdomain>
+From: "growth. process" <xzhlbckatry@t-dialin.net>
+Subject: Personal Finance
+Date: Fri, 23 Feb 2007 10:53:33 -0100
+Message-ID: <7055914511AC41E.2E8DAE592B@t-dialin.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_0000_01C75738.DCDCC730"
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1172184705.19233.35.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,21 +14,52 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Ian Campbell <Ian.Campbell@XenSource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ian Campbell wrote:
->> +       else if (type =3D=3D PARAVIRT_PATCH(iret) ||
->> +                type =3D=3D PARAVIRT_PATCH(irq_enable_sysexit))
->> +               ret =3D paravirt_patch_jmp(type, clobbers, site, len);
->> +       else
->> +               ret =3D paravirt_patch_jmp(type, clobbers, site, len);
->>     =
+This is a multi-part message in MIME format...
 
->
-> Should be a paravirt_patch_call?
+------=_NextPart_000_0000_01C75738.DCDCC730
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yep.  I noticed that after I posted it.  Should work aside from that.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
+</HEAD>
+<BODY>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><B>___Physicians Adult Daycar=
+e, Inc. Up 7% from yesterday! Wow____</B></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><I>Physicians Adult Daycare, =
+Inc. (phya.pk)</I></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>DATE   :   FEB 23, 2007</FONT=
+></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Company:   PHYSICIANS ADULT D=
+AY</FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Currently: <B>$0.33 (+0.02) (=
++6.45% in a day!!!)</B></FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Expected Day Target: <B>$0.75=
+</B></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>News:</FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Physicians Adult Daycare, Inc=
+. (PHYA) announced that the Company is in the final negotiation stages with=
+ TOTALtrak Global, Inc., a global provider of leading-edge Radio Frequency =
+Identification (RFID)-based and patent-pending Multi-Range (MRID) technolog=
+y solutions, to implement this versatile and powerful technology into the C=
+ompany's innovative adult daycare program......</FONT></DIV></BODY></HTML>
 
-    J
+------=_NextPart_000_0000_01C75738.DCDCC730
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/virtualization
+
+------=_NextPart_000_0000_01C75738.DCDCC730--
