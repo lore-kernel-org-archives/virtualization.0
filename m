@@ -1,534 +1,420 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 09/26] Xen-paravirt_ops: remove HAVE_ARCH_MM_LIFETIME, define no-op architecture implementations
-Date: Tue, 27 Feb 2007 00:13:46 -0800
-Message-ID: <20070227081632.356636957@goop.org>
+Subject: [patch 05/26] Xen-paravirt_ops: paravirt_ops: hooks to set up initial
+	pagetable
+Date: Tue, 27 Feb 2007 00:13:42 -0800
+Message-ID: <20070227081630.650554241@goop.org>
 References: <20070227081337.434798469@goop.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030197AbXB0Ijb@vger.kernel.org>
-Content-Disposition: inline; filename=kill-HAVE_ARCH_MM_LIFETIME.patch
-Sender: linux-kernel-owner@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Disposition: inline; filename=paravirt-memory-init.patch
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, linux-arch@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-akpm:
-> Can we lose __HAVE_ARCH_MM_LIFETIME?  Just define these (preferably in C,
-> not in cpp) in the appropriate include/asm-foo/ files?
+This patch introduces paravirt_ops hooks to control how the kernel's
+initial pagetable is set up.
+
+In the case of a native boot, the very early bootstrap code creates a
+simple non-PAE pagetable to map the kernel and physical memory.  When
+the VM subsystem is initialized, it creates a proper pagetable which
+respects the PAE mode, large pages, etc.
+
+When booting under a hypervisor, there are many possibilities for what
+paging environment the hypervisor establishes for the guest kernel, so
+the constructon of the kernel's pagetable depends on the hypervisor.
+
+In the case of Xen, the hypervisor boots the kernel with a fully
+constructed pagetable, which is already using PAE if necessary.  Also,
+Xen requires particular care when constructing pagetables to make sure
+all pagetables are always mapped read-only.
+
+In order to make this easier, kernel's initial pagetable construction
+has been changed to only allocate and initialize a pagetable page if
+there's no page already present in the pagetable.  This allows the Xen
+paravirt backend to make a copy of the hypervisor-provided pagetable,
+allowing the kernel to establish any more mappings it needs while
+keeping the existing ones.
+
+A slightly subtle point which is worth highlighting here is that Xen
+requires all kernel mappings to share the same pte_t pages between all
+pagetables, so that updating a kernel page's mapping in one pagetable
+is reflected in all other pagetables.  This makes it possible to
+allocate a page and attach it to a pagetable without having to
+explicitly enumerate that page's mapping in all pagetables.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: linux-arch@vger.kernel.org
+Cc: William Lee Irwin III <wli@holomorphy.com>
 
 ---
- include/asm-alpha/mmu_context.h     |    9 +++++++++
- include/asm-arm/mmu_context.h       |    9 +++++++++
- include/asm-arm26/mmu_context.h     |    9 +++++++++
- include/asm-avr32/mmu_context.h     |    9 +++++++++
- include/asm-cris/mmu_context.h      |    8 ++++++++
- include/asm-frv/mmu_context.h       |    8 ++++++++
- include/asm-h8300/mmu_context.h     |    8 ++++++++
- include/asm-i386/mmu_context.h      |    2 +-
- include/asm-i386/paravirt.h         |   18 +++++++++++++++---
- include/asm-ia64/mmu_context.h      |    8 ++++++++
- include/asm-m32r/mmu_context.h      |    8 ++++++++
- include/asm-m68k/mmu_context.h      |    8 ++++++++
- include/asm-m68knommu/mmu_context.h |    8 ++++++++
- include/asm-mips/mmu_context.h      |    8 ++++++++
- include/asm-parisc/mmu_context.h    |    9 +++++++++
- include/asm-powerpc/mmu_context.h   |   10 ++++++++++
- include/asm-ppc/mmu_context.h       |    9 +++++++++
- include/asm-s390/mmu_context.h      |    8 ++++++++
- include/asm-sh/mmu_context.h        |    8 ++++++++
- include/asm-sh64/mmu_context.h      |    8 ++++++++
- include/asm-sparc/mmu_context.h     |    8 ++++++++
- include/asm-sparc64/mmu_context.h   |    8 ++++++++
- include/asm-um/mmu_context.h        |    8 ++++++++
- include/asm-v850/mmu_context.h      |    8 ++++++++
- include/asm-x86_64/mmu_context.h    |    8 ++++++++
- include/asm-xtensa/mmu_context.h    |    9 +++++++++
- include/linux/sched.h               |    6 ------
- mm/mmap.c                           |    1 +
- 28 files changed, 218 insertions(+), 10 deletions(-)
+ arch/i386/kernel/paravirt.c |   40 +++++++++++++++++++
+ arch/i386/mm/init.c         |   87 +++++++++++++++++++++++++--------------=
+----
+ include/asm-i386/paravirt.h |   54 ++++++++++++++++++++++++++
+ include/asm-i386/pgtable.h  |    3 +
+ 4 files changed, 148 insertions(+), 36 deletions(-)
 
-===================================================================
---- a/include/asm-alpha/mmu_context.h
-+++ b/include/asm-alpha/mmu_context.h
-@@ -256,4 +256,13 @@ enter_lazy_tlb(struct mm_struct *mm, str
- #undef __MMU_EXTERN_INLINE
- #endif
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif /* __ALPHA_MMU_CONTEXT_H */
-===================================================================
---- a/include/asm-arm/mmu_context.h
-+++ b/include/asm-arm/mmu_context.h
-@@ -108,4 +108,13 @@ switch_mm(struct mm_struct *prev, struct
- #define deactivate_mm(tsk,mm)	do { } while (0)
- #define activate_mm(prev,next)	switch_mm(prev, next, NULL)
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif
-===================================================================
---- a/include/asm-arm26/mmu_context.h
-+++ b/include/asm-arm26/mmu_context.h
-@@ -48,4 +48,13 @@ static inline void activate_mm(struct mm
- 	cpu_switch_mm(next->pgd, next);
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif
-===================================================================
---- a/include/asm-avr32/mmu_context.h
-+++ b/include/asm-avr32/mmu_context.h
-@@ -145,4 +145,13 @@ static inline void disable_mmu(void)
- 	sysreg_write(MMUCR, SYSREG_BIT(MMUCR_S));
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif /* __ASM_AVR32_MMU_CONTEXT_H */
-===================================================================
---- a/include/asm-cris/mmu_context.h
-+++ b/include/asm-cris/mmu_context.h
-@@ -21,4 +21,12 @@ static inline void enter_lazy_tlb(struct
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -379,6 +379,43 @@ static void native_io_delay(void)
  {
+ 	asm volatile("outb %al,$0x80");
  }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
++
++void native_pagetable_setup_start(pgd_t *base)
 +{
++#ifdef CONFIG_X86_PAE
++	int i;
++
++	/*
++	 * Init entries of the first-level page table to the
++	 * zero page, if they haven't already been set up.
++	 *
++	 * In a normal native boot, we'll be running on a
++	 * pagetable rooted in swapper_pg_dir, but not in PAE
++	 * mode, so this will end up clobbering the mappings
++	 * for the lower 24Mbytes of the address space,
++	 * without affecting the kernel address space.
++	 */
++	for (i =3D 0; i < USER_PTRS_PER_PGD; i++)
++		set_pgd(&base[i],
++			__pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
++	memset(&base[USER_PTRS_PER_PGD], 0, sizeof(pgd_t));
++#endif
 +}
 +
-+static inline void arch_exit_mmap(struct mm_struct *mm)
++void native_pagetable_setup_done(pgd_t *base)
 +{
-+}
- #endif
-===================================================================
---- a/include/asm-frv/mmu_context.h
-+++ b/include/asm-frv/mmu_context.h
-@@ -46,4 +46,12 @@ do {						\
- do {						\
- } while(0)
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
++#ifdef CONFIG_X86_PAE
++	/*
++	 * Add low memory identity-mappings - SMP needs it when
++	 * starting up on an AP from real-mode. In the non-PAE
++	 * case we already have these mappings through head.S.
++	 * All user-space mappings are explicitly cleared after
++	 * SMP startup.
++	 */
++	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
++#endif
 +}
 +
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif
-===================================================================
---- a/include/asm-h8300/mmu_context.h
-+++ b/include/asm-h8300/mmu_context.h
-@@ -28,4 +28,12 @@ static inline void activate_mm(struct mm
+ =
+
+ static void native_flush_tlb(void)
  {
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
+@@ -627,6 +664,9 @@ struct paravirt_ops paravirt_ops =3D {
  #endif
-===================================================================
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -68,7 +68,7 @@ static inline void switch_mm(struct mm_s
- 
- #define activate_mm(prev, next)				\
- 	do {						\
--		arch_activate_mm(prev, next);		\
-+		paravirt_activate_mm(prev, next);	\
- 		switch_mm((prev),(next),NULL);		\
- 	} while(0);
- 
-===================================================================
+ 	.set_lazy_mode =3D (void *)native_nop,
+ =
+
++	.pagetable_setup_start =3D native_pagetable_setup_start,
++	.pagetable_setup_done =3D native_pagetable_setup_done,
++
+ 	.flush_tlb_user =3D native_flush_tlb,
+ 	.flush_tlb_kernel =3D native_flush_tlb_global,
+ 	.flush_tlb_single =3D native_flush_tlb_single,
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -42,6 +42,7 @@
+ #include <asm/tlb.h>
+ #include <asm/tlbflush.h>
+ #include <asm/sections.h>
++#include <asm/paravirt.h>
+ =
+
+ unsigned int __VMALLOC_RESERVE =3D 128 << 20;
+ =
+
+@@ -62,6 +63,7 @@ static pmd_t * __init one_md_table_init(
+ 		=
+
+ #ifdef CONFIG_X86_PAE
+ 	pmd_table =3D (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++
+ 	paravirt_alloc_pd(__pa(pmd_table) >> PAGE_SHIFT);
+ 	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
+ 	pud =3D pud_offset(pgd, 0);
+@@ -83,12 +85,10 @@ static pte_t * __init one_page_table_ini
+ {
+ 	if (pmd_none(*pmd)) {
+ 		pte_t *page_table =3D (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++
+ 		paravirt_alloc_pt(__pa(page_table) >> PAGE_SHIFT);
+ 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+-		if (page_table !=3D pte_offset_kernel(pmd, 0))
+-			BUG();	=
+
+-
+-		return page_table;
++		BUG_ON(page_table !=3D pte_offset_kernel(pmd, 0));
+ 	}
+ 	=
+
+ 	return pte_offset_kernel(pmd, 0);
+@@ -119,7 +119,7 @@ static void __init page_table_range_init
+ 	pgd =3D pgd_base + pgd_idx;
+ =
+
+ 	for ( ; (pgd_idx < PTRS_PER_PGD) && (vaddr !=3D end); pgd++, pgd_idx++) {
+-		if (pgd_none(*pgd)) =
+
++		if (!(pgd_val(*pgd) & _PAGE_PRESENT))
+ 			one_md_table_init(pgd);
+ 		pud =3D pud_offset(pgd, vaddr);
+ 		pmd =3D pmd_offset(pud, vaddr);
+@@ -158,7 +158,11 @@ static void __init kernel_physical_mappi
+ 	pfn =3D 0;
+ =
+
+ 	for (; pgd_idx < PTRS_PER_PGD; pgd++, pgd_idx++) {
+-		pmd =3D one_md_table_init(pgd);
++		if (!(pgd_val(*pgd) & _PAGE_PRESENT))
++			pmd =3D one_md_table_init(pgd);
++		else
++			pmd =3D pmd_offset(pud_offset(pgd, PAGE_OFFSET), PAGE_OFFSET);
++
+ 		if (pfn >=3D max_low_pfn)
+ 			continue;
+ 		for (pmd_idx =3D 0; pmd_idx < PTRS_PER_PMD && pfn < max_low_pfn; pmd++, =
+pmd_idx++) {
+@@ -167,20 +171,26 @@ static void __init kernel_physical_mappi
+ 			/* Map with big pages if possible, otherwise create normal page tables.=
+ */
+ 			if (cpu_has_pse) {
+ 				unsigned int address2 =3D (pfn + PTRS_PER_PTE - 1) * PAGE_SIZE + PAGE_=
+OFFSET + PAGE_SIZE-1;
+-
+-				if (is_kernel_text(address) || is_kernel_text(address2))
+-					set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
+-				else
+-					set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
++				if (!pmd_present(*pmd)) {
++					if (is_kernel_text(address) || is_kernel_text(address2))
++						set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
++					else
++						set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
++				}
+ 				pfn +=3D PTRS_PER_PTE;
+ 			} else {
+ 				pte =3D one_page_table_init(pmd);
+ =
+
+-				for (pte_ofs =3D 0; pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn; pte++=
+, pfn++, pte_ofs++) {
+-						if (is_kernel_text(address))
+-							set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
+-						else
+-							set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
++				for (pte_ofs =3D 0;
++				     pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn;
++				     pte++, pfn++, pte_ofs++, address +=3D PAGE_SIZE) {
++					if (pte_present(*pte))
++						continue;
++
++					if (is_kernel_text(address))
++						set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
++					else
++						set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
+ 				}
+ 			}
+ 		}
+@@ -337,19 +347,32 @@ extern void __init remap_numa_kva(void);
+ #define remap_numa_kva() do {} while (0)
+ #endif
+ =
+
++/*
++ * Build a proper pagetable for the kernel mappings.  Up until this
++ * point, we've been running on some set of pagetables constructed by
++ * the boot process.
++ *
++ * If we're booting on native hardware, this will be a pagetable
++ * constructed in arch/i386/kernel/head.S, and not running in PAE mode
++ * (even if we'll end up running in PAE).  The root of the pagetable
++ * will be swapper_pg_dir.
++ *
++ * If we're booting paravirtualized under a hypervisor, then there are
++ * more options: we may already be running PAE, and the pagetable may
++ * or may not be based in swapper_pg_dir.  In any case,
++ * paravirt_pagetable_setup_start() will set up swapper_pg_dir
++ * appropriately for the rest of the initialization to work.
++ *
++ * In general, pagetable_init() assumes that the pagetable may already
++ * be partially populated, and so it avoids stomping on any existing
++ * mappings.
++ */
+ static void __init pagetable_init (void)
+ {
+-	unsigned long vaddr;
++	unsigned long vaddr, end;
+ 	pgd_t *pgd_base =3D swapper_pg_dir;
+ =
+
+-#ifdef CONFIG_X86_PAE
+-	int i;
+-	/* Init entries of the first-level page table to the zero page */
+-	for (i =3D 0; i < PTRS_PER_PGD; i++)
+-		set_pgd(pgd_base + i, __pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
+-#else
+-	paravirt_alloc_pd(__pa(swapper_pg_dir) >> PAGE_SHIFT);
+-#endif
++	paravirt_pagetable_setup_start(pgd_base);
+ =
+
+ 	/* Enable PSE if available */
+ 	if (cpu_has_pse) {
+@@ -371,20 +394,12 @@ static void __init pagetable_init (void)
+ 	 * created - mappings will be set by set_fixmap():
+ 	 */
+ 	vaddr =3D __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
+-	page_table_range_init(vaddr, 0, pgd_base);
++	end =3D (FIXADDR_TOP + PMD_SIZE - 1) & PMD_MASK;
++	page_table_range_init(vaddr, end, pgd_base);
+ =
+
+ 	permanent_kmaps_init(pgd_base);
+ =
+
+-#ifdef CONFIG_X86_PAE
+-	/*
+-	 * Add low memory identity-mappings - SMP needs it when
+-	 * starting up on an AP from real-mode. In the non-PAE
+-	 * case we already have these mappings through head.S.
+-	 * All user-space mappings are explicitly cleared after
+-	 * SMP startup.
+-	 */
+-	set_pgd(&pgd_base[0], pgd_base[USER_PTRS_PER_PGD]);
+-#endif
++	paravirt_pagetable_setup_done(pgd_base);
+ }
+ =
+
+ #if defined(CONFIG_SOFTWARE_SUSPEND) || defined(CONFIG_ACPI_SLEEP)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -432,9 +432,8 @@ static inline void startup_ipi_hook(int 
+@@ -49,6 +49,9 @@ struct paravirt_ops
+ 	void (*arch_setup)(void);
+ 	char *(*memory_setup)(void);
+ 	void (*init_IRQ)(void);
++
++	void (*pagetable_setup_start)(pgd_t *pgd_base);
++	void (*pagetable_setup_done)(pgd_t *pgd_base);
+ =
+
+ 	void (*banner)(void);
+ =
+
+@@ -185,6 +188,8 @@ struct paravirt_ops
+ =
+
+ extern struct paravirt_ops paravirt_ops;
+ =
+
++void native_pagetable_setup_start(pgd_t *pgd);
++
+ #ifdef CONFIG_X86_PAE
+ unsigned long long native_pte_val(pte_t);
+ unsigned long long native_pmd_val(pmd_t);
+@@ -389,6 +394,17 @@ static inline void setup_secondary_clock
  }
  #endif
- 
--#define __HAVE_ARCH_MM_LIFETIME
--static inline void arch_activate_mm(struct mm_struct *prev,
--				    struct mm_struct *next)
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
- {
- 	paravirt_ops.activate_mm(prev, next);
- }
-@@ -695,5 +694,18 @@ static inline void paravirt_pagetable_se
- #endif
- }
- 
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
+ =
+
++static inline void paravirt_pagetable_setup_start(pgd_t *base)
 +{
++	if (paravirt_ops.pagetable_setup_start)
++		(*paravirt_ops.pagetable_setup_start)(base);
 +}
 +
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
++static inline void paravirt_pagetable_setup_done(pgd_t *base)
 +{
++	if (paravirt_ops.pagetable_setup_done)
++		(*paravirt_ops.pagetable_setup_done)(base);
++}
+ =
+
+ void native_set_pte(pte_t *ptep, pte_t pteval);
+ void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t =
+pteval);
+@@ -615,5 +631,43 @@ 772:;						\
+ 	call *paravirt_ops+PARAVIRT_read_cr0
+ =
+
+ #endif /* __ASSEMBLY__ */
++#else  /* !CONFIG_PARAVIRT */
++#include <asm/pgtable.h>
++
++static inline void paravirt_pagetable_setup_start(pgd_t *base)
++{
++#ifdef CONFIG_X86_PAE
++	int i;
++
++	/*
++	 * Init entries of the first-level page table to the
++	 * zero page, if they haven't already been set up.
++	 *
++	 * In a normal native boot, we'll be running on a
++	 * pagetable rooted in swapper_pg_dir, but not in PAE
++	 * mode, so this will end up clobbering the mappings
++	 * for the lower 24Mbytes of the address space,
++	 * without affecting the kernel address space.
++	 */
++	for (i =3D 0; i < USER_PTRS_PER_PGD; i++)
++		set_pgd(&base[i],
++			__pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
++	memset(&base[USER_PTRS_PER_PGD], 0, sizeof(pgd_t));
++#endif
 +}
 +
-+static inline void arch_exit_mmap(struct mm_struct *mm)
++static inline void paravirt_pagetable_setup_done(pgd_t *base)
 +{
++#ifdef CONFIG_X86_PAE
++	/*
++	 * Add low memory identity-mappings - SMP needs it when
++	 * starting up on an AP from real-mode. In the non-PAE
++	 * case we already have these mappings through head.S.
++	 * All user-space mappings are explicitly cleared after
++	 * SMP startup.
++	 */
++	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
++#endif
 +}
  #endif /* CONFIG_PARAVIRT */
  #endif	/* __ASM_PARAVIRT_H */
-===================================================================
---- a/include/asm-ia64/mmu_context.h
-+++ b/include/asm-ia64/mmu_context.h
-@@ -197,5 +197,13 @@ activate_mm (struct mm_struct *prev, str
- 
- #define switch_mm(prev_mm,next_mm,next_task)	activate_mm(prev_mm, next_mm)
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -15,7 +15,10 @@
+ #include <asm/processor.h>
+ #include <asm/fixmap.h>
+ #include <linux/threads.h>
 +
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- # endif /* ! __ASSEMBLY__ */
- #endif /* _ASM_IA64_MMU_CONTEXT_H */
-===================================================================
---- a/include/asm-m32r/mmu_context.h
-+++ b/include/asm-m32r/mmu_context.h
-@@ -157,6 +157,14 @@ static inline void switch_mm(struct mm_s
- #define enter_lazy_tlb(mm,tsk)          do { } while (0)
- #endif /* not CONFIG_MMU */
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif /* not __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-===================================================================
---- a/include/asm-m68k/mmu_context.h
-+++ b/include/asm-m68k/mmu_context.h
-@@ -149,5 +149,13 @@ static inline void activate_mm(struct mm
- 	activate_context(next_mm);
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif
- #endif
-===================================================================
---- a/include/asm-m68knommu/mmu_context.h
-+++ b/include/asm-m68knommu/mmu_context.h
-@@ -29,4 +29,12 @@ static inline void activate_mm(struct mm
- {
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif
-===================================================================
---- a/include/asm-mips/mmu_context.h
-+++ b/include/asm-mips/mmu_context.h
-@@ -293,4 +293,12 @@ drop_mmu_context(struct mm_struct *mm, u
- 	local_irq_restore(flags);
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif /* _ASM_MMU_CONTEXT_H */
-===================================================================
---- a/include/asm-parisc/mmu_context.h
-+++ b/include/asm-parisc/mmu_context.h
-@@ -70,4 +70,13 @@ static inline void activate_mm(struct mm
- 
- 	switch_mm(prev,next,current);
- }
-+
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif
-===================================================================
---- a/include/asm-powerpc/mmu_context.h
-+++ b/include/asm-powerpc/mmu_context.h
-@@ -80,5 +80,15 @@ static inline void activate_mm(struct mm
- }
- 
- #endif /* CONFIG_PPC64 */
-+
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif /* __KERNEL__ */
- #endif /* __ASM_POWERPC_MMU_CONTEXT_H */
-===================================================================
---- a/include/asm-ppc/mmu_context.h
-+++ b/include/asm-ppc/mmu_context.h
-@@ -197,5 +197,14 @@ static inline void switch_mm(struct mm_s
- 
- extern void mmu_context_init(void);
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif /* __PPC_MMU_CONTEXT_H */
- #endif /* __KERNEL__ */
-===================================================================
---- a/include/asm-s390/mmu_context.h
-+++ b/include/asm-s390/mmu_context.h
-@@ -67,4 +67,12 @@ static inline void activate_mm(struct mm
- 	set_fs(current->thread.mm_segment);
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif /* __S390_MMU_CONTEXT_H */
-===================================================================
---- a/include/asm-sh/mmu_context.h
-+++ b/include/asm-sh/mmu_context.h
-@@ -214,5 +214,13 @@ static inline void disable_mmu(void)
- #define disable_mmu()	do { BUG(); } while (0)
- #endif
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif /* __KERNEL__ */
- #endif /* __ASM_SH_MMU_CONTEXT_H */
-===================================================================
---- a/include/asm-sh64/mmu_context.h
-+++ b/include/asm-sh64/mmu_context.h
-@@ -203,6 +203,14 @@ enter_lazy_tlb(struct mm_struct *mm, str
- {
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif	/* __ASSEMBLY__ */
- 
- #endif /* __ASM_SH64_MMU_CONTEXT_H */
-===================================================================
---- a/include/asm-sparc/mmu_context.h
-+++ b/include/asm-sparc/mmu_context.h
-@@ -35,6 +35,14 @@ BTFIXUPDEF_CALL(void, switch_mm, struct 
- /* Activate a new MM instance for the current task. */
- #define activate_mm(active_mm, mm) switch_mm((active_mm), (mm), NULL)
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif /* !(__ASSEMBLY__) */
- 
- #endif /* !(__SPARC_MMU_CONTEXT_H) */
-===================================================================
---- a/include/asm-sparc64/mmu_context.h
-+++ b/include/asm-sparc64/mmu_context.h
-@@ -147,6 +147,14 @@ static inline void activate_mm(struct mm
- 	spin_unlock_irqrestore(&mm->context.lock, flags);
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif /* !(__ASSEMBLY__) */
- 
- #endif /* !(__SPARC64_MMU_CONTEXT_H) */
-===================================================================
---- a/include/asm-um/mmu_context.h
-+++ b/include/asm-um/mmu_context.h
-@@ -74,6 +74,14 @@ static inline void destroy_context(struc
- 	CHOOSE_MODE((void) 0, destroy_context_skas(mm));
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif
- 
- /*
-===================================================================
---- a/include/asm-v850/mmu_context.h
-+++ b/include/asm-v850/mmu_context.h
-@@ -8,4 +8,12 @@
- #define activate_mm(prev,next)		((void)0)
- #define enter_lazy_tlb(mm,tsk)		((void)0)
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- #endif /* __V850_MMU_CONTEXT_H__ */
-===================================================================
---- a/include/asm-x86_64/mmu_context.h
-+++ b/include/asm-x86_64/mmu_context.h
-@@ -69,5 +69,13 @@ static inline void switch_mm(struct mm_s
- #define activate_mm(prev, next) \
- 	switch_mm((prev),(next),NULL)
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
- 
- #endif
-===================================================================
---- a/include/asm-xtensa/mmu_context.h
-+++ b/include/asm-xtensa/mmu_context.h
-@@ -131,4 +131,13 @@ static inline void enter_lazy_tlb(struct
- 
- }
- 
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
- #endif /* _XTENSA_MMU_CONTEXT_H */
-===================================================================
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -374,12 +374,6 @@ struct mm_struct {
- 	rwlock_t		ioctx_list_lock;
- 	struct kioctx		*ioctx_list;
- };
--
--#ifndef __HAVE_ARCH_MM_LIFETIME
--#define arch_activate_mm(prev, next)	do {} while(0)
--#define arch_dup_mmap(oldmm, mm)	do {} while(0)
--#define arch_exit_mmap(mm)		do {} while(0)
--#endif
- 
- struct sighand_struct {
- 	atomic_t		count;
-===================================================================
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -29,6 +29,7 @@
- #include <asm/uaccess.h>
- #include <asm/cacheflush.h>
- #include <asm/tlb.h>
-+#include <asm/mmu_context.h>
- 
- #ifndef arch_mmap_check
- #define arch_mmap_check(addr, len, flags)	(0)
++#ifdef CONFIG_PARAVIRT		/* guarded to prevent cyclic dependency */
+ #include <asm/paravirt.h>
++#endif
+ =
 
--- 
+ #ifndef _I386_BITOPS_H
+ #include <asm/bitops.h>
+
+-- =
