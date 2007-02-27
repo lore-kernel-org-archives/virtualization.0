@@ -1,44 +1,30 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 06/26] Xen-paravirt_ops: paravirt_ops:
- allocate a fixmap slot
-Date: Tue, 27 Feb 2007 10:55:17 -0800
-Message-ID: <45E47E95.2060803@goop.org>
+From: James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: [patch 09/26] Xen-paravirt_ops: remove HAVE_ARCH_MM_LIFETIME,
+	define no-op architecture implementations
+Date: Tue, 27 Feb 2007 12:53:14 -0600
+Message-ID: <1172602394.3408.30.camel@mulgrave.il.steeleye.com>
 References: <20070227081337.434798469@goop.org>
-	<20070227081631.122933982@goop.org>
-	<20070227101143.GC10827@elte.hu>
+	 <20070227081632.356636957@goop.org>
+	 <1172589358.3408.2.camel@mulgrave.il.steeleye.com>
+	 <45E46889.9090801@goop.org>
+	 <1172597726.3408.25.camel@mulgrave.il.steeleye.com>
+	 <45E470D6.7050401@goop.org>
+	 <1172599480.3408.28.camel@mulgrave.il.steeleye.com>
+	 <45E47D08.5020802@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070227101143.GC10827@elte.hu>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752501AbXB0Syd@vger.kernel.org>
+In-Reply-To: <45E47D08.5020802@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, linux-arch@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ingo Molnar wrote:
-> * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
->
->   
->> Allocate a fixmap slot for use by a paravirt_ops implementation.  Xen 
->> uses this to map the hypervisor's shared info page, which doesn't have 
->> a pseudo-physical page number, and therefore can't be mapped 
->> ordinarily.
->>     
->
-> why not vmalloc it on the guest side? fixmaps are bad for this purpose 
-> for a general paravirt implementation, it limits the size of the shared 
-> info page, etc.
+On Tue, 2007-02-27 at 10:48 -0800, Jeremy Fitzhardinge wrote:
+> Well, I'm happy to create asm-generic/mm_hooks.h or something, and
+> reduce all the changes to asm-*/mmu_context.h to a one-liner.
 
-Yes.  vmalloc would have the annoying side-effect of actually allocating
-some pages which would be shadowed by the remapping, but I guess
-get_vm_area would do the job.  I'll give it a go.
+If no-one else objects, that will certainly make my life easier, thanks!
 
-    J
+James
