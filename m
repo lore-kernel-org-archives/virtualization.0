@@ -1,120 +1,65 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 16/26] Xen-paravirt_ops: Allocate and free vmalloc areas
-Date: Thu, 01 Mar 2007 15:24:59 -0800
-Message-ID: <20070301232528.297902504@goop.org>
+Subject: [patch 17/26] Xen-paravirt_ops: Add nosegneg capability to the vsyscall page notes
+Date: Thu, 01 Mar 2007 15:25:00 -0800
+Message-ID: <20070301232528.407996939@goop.org>
 References: <20070301232443.195603797@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=alloc-vm-area.patch
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161303AbXCBACF@vger.kernel.org>
+Content-Disposition: inline; filename=xen-vsyscall-note.patch
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allocate/destroy a 'vmalloc' VM area: alloc_vm_area and free_vm_area
-The alloc function ensures that page tables are constructed for the
-region of kernel virtual address space and mapped into init_mm.
+Add the "nosegneg" fake capabilty to the vsyscall page notes. This is
+used by the runtime linker to select a glibc version which then
+disables negative-offset accesses to the thread-local segment via
+%gs. These accesses require emulation in Xen (because segments are
+truncated to protect the hypervisor address space) and avoiding them
+provides a measurable performance boost.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: "Jan Beulich" <JBeulich@novell.com>
-Cc: "Andi Kleen" <ak@muc.de>
+Acked-by: Zachary Amsden <zach@vmware.com>
 
 ---
- arch/i386/mm/fault.c    |   43 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/vmalloc.h |    4 ++++
- 2 files changed, 47 insertions(+)
+ arch/i386/kernel/vsyscall-note.S |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/fault.c
-+++ b/arch/i386/mm/fault.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/kprobes.h>
- #include <linux/uaccess.h>
-+#include <linux/vmalloc.h>
- =
+===================================================================
+--- a/arch/i386/kernel/vsyscall-note.S
++++ b/arch/i386/kernel/vsyscall-note.S
+@@ -23,3 +24,31 @@ 3:	.balign 4;		/* pad out section */			 
+ 	ASM_ELF_NOTE_BEGIN(".note.kernel-version", "a", UTS_SYSNAME, 0)
+ 	.long LINUX_VERSION_CODE
+ 	ASM_ELF_NOTE_END
++
++#ifdef CONFIG_XEN
++/*
++ * Add a special note telling glibc's dynamic linker a fake hardware
++ * flavor that it will use to choose the search path for libraries in the
++ * same way it uses real hardware capabilities like "mmx".
++ * We supply "nosegneg" as the fake capability, to indicate that we
++ * do not like negative offsets in instructions using segment overrides,
++ * since we implement those inefficiently.  This makes it possible to
++ * install libraries optimized to avoid those access patterns in someplace
++ * like /lib/i686/tls/nosegneg.  Note that an /etc/ld.so.conf.d/file
++ * corresponding to the bits here is needed to make ldconfig work right.
++ * It should contain:
++ *	hwcap 0 nosegneg
++ * to match the mapping of bit to name that we give here.
++ */
++#define NOTE_KERNELCAP_BEGIN(ncaps, mask) \
++	ASM_ELF_NOTE_BEGIN(".note.kernelcap", "a", "GNU", 2) \
++	.long ncaps, mask
++#define NOTE_KERNELCAP(bit, name) \
++	.byte bit; .asciz name
++#define NOTE_KERNELCAP_END ASM_ELF_NOTE_END
++
++NOTE_KERNELCAP_BEGIN(1, 1)
++NOTE_KERNELCAP(1, "nosegneg")
++NOTE_KERNELCAP_END
++#endif
++
 
- #include <asm/system.h>
- #include <asm/desc.h>
-@@ -624,3 +625,45 @@ void _vmalloc_sync_all(void)
- 			start =3D address + PGDIR_SIZE;
- 	}
- }
-+
-+
-+static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *=
-data)
-+{
-+	/* apply_to_page_range() does all the hard work. */
-+	return 0;
-+}
-+
-+struct vm_struct *alloc_vm_area(unsigned long size)
-+{
-+	struct vm_struct *area;
-+
-+	area =3D get_vm_area(size, VM_IOREMAP);
-+	if (area =3D=3D NULL)
-+		return NULL;
-+
-+	/*
-+	 * This ensures that page tables are constructed for this region
-+	 * of kernel virtual address space and mapped into init_mm.
-+	 */
-+	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
-+				area->size, f, NULL)) {
-+		free_vm_area(area);
-+		return NULL;
-+	}
-+
-+	/* Make sure the pagetables are constructed in process kernel
-+	   mappings */
-+	vmalloc_sync_all();
-+
-+	return area;
-+}
-+EXPORT_SYMBOL_GPL(alloc_vm_area);
-+
-+void free_vm_area(struct vm_struct *area)
-+{
-+	struct vm_struct *ret;
-+	ret =3D remove_vm_area(area->addr);
-+	BUG_ON(ret !=3D area);
-+	kfree(area);
-+}
-+EXPORT_SYMBOL_GPL(free_vm_area);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -68,6 +68,10 @@ extern int map_vm_area(struct vm_struct =
-
- 			struct page ***pages);
- extern void unmap_vm_area(struct vm_struct *area);
- =
-
-+/* Allocate/destroy a 'vmalloc' VM area. */
-+extern struct vm_struct *alloc_vm_area(unsigned long size);
-+extern void free_vm_area(struct vm_struct *area);
-+
- /*
-  *	Internals.  Dont't use..
-  */
-
--- =
+-- 
