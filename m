@@ -1,52 +1,103 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 00/26] Xen-paravirt_ops: Xen guest implementation for paravirt_ops interface
-Date: Thu, 01 Mar 2007 15:24:43 -0800
-Message-ID: <20070301232443.195603797@goop.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161292AbXCAX4t@vger.kernel.org>
+Subject: [patch 03/26] Xen-paravirt_ops: use paravirt_nop to consistently mark no-op operations
+Date: Thu, 01 Mar 2007 15:24:46 -0800
+Message-ID: <20070301232526.261284776@goop.org>
+References: <20070301232443.195603797@goop.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161252AbXCAX4v@vger.kernel.org>
+Content-Disposition: inline; filename=paravirt-nop.patch
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@muc.de>
 Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Andi,
+Add a _paravirt_nop function for use as a stub for no-op operations,
+and paravirt_nop #defined void * version to make using it easier
+(since all its uses are as a void *).
 
-This patch series implements the Linux Xen guest as a paravirt_ops
-backend.  The features in implemented this patch series are:
- * domU only
- * UP only (most code is SMP-safe, but there's no way to create a new vcpu)
- * writable pagetables, with late pinning/early unpinning
-   (no shadow pagetable support)
- * supports both PAE and non-PAE modes
- * xen hvc console (console=hvc0)
- * virtual block device (blockfront)
- * virtual network device (netfront)
+This is useful to allow the patcher to automatically identify noop
+operations so it can simply nop out the callsite.
 
-The patch series is in three parts:
-  1-2	Cleanup patches to various parts of the kernel
-  3-15	Extensions to the core code and/or paravirt ops, needed to support
-	Xen. Includes hooks into get/setting pte values and the new
-	patching machinery.
- 16-26	The Xen paravirt_ops implementation itself.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-(Some of the earlier patches in the series have already been posted,
- but are included to make the series self-contained.)
+---
+ arch/i386/kernel/paravirt.c |   22 +++++++++++-----------
+ include/asm-i386/paravirt.h |    3 +++
+ 2 files changed, 14 insertions(+), 11 deletions(-)
 
-I've tried to make each patch as self-explanatory as possible.  The
-series is based on 2.6.21-rc2-git1.
+===================================================================
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -34,7 +34,7 @@
+ #include <asm/tlbflush.h>
+ 
+ /* nop stub */
+-static void native_nop(void)
++void _paravirt_nop(void)
+ {
+ }
+ 
+@@ -489,7 +489,7 @@ struct paravirt_ops paravirt_ops = {
+ 
+  	.patch = native_patch,
+ 	.banner = default_banner,
+-	.arch_setup = native_nop,
++	.arch_setup = paravirt_nop,
+ 	.memory_setup = machine_specific_memory_setup,
+ 	.get_wallclock = native_get_wallclock,
+ 	.set_wallclock = native_set_wallclock,
+@@ -544,23 +544,23 @@ struct paravirt_ops paravirt_ops = {
+ 	.setup_boot_clock = setup_boot_APIC_clock,
+ 	.setup_secondary_clock = setup_secondary_APIC_clock,
+ #endif
+-	.set_lazy_mode = (void *)native_nop,
++	.set_lazy_mode = paravirt_nop,
+ 
+ 	.flush_tlb_user = native_flush_tlb,
+ 	.flush_tlb_kernel = native_flush_tlb_global,
+ 	.flush_tlb_single = native_flush_tlb_single,
+ 
+-	.alloc_pt = (void *)native_nop,
+-	.alloc_pd = (void *)native_nop,
+-	.alloc_pd_clone = (void *)native_nop,
+-	.release_pt = (void *)native_nop,
+-	.release_pd = (void *)native_nop,
++	.alloc_pt = paravirt_nop,
++	.alloc_pd = paravirt_nop,
++	.alloc_pd_clone = paravirt_nop,
++	.release_pt = paravirt_nop,
++	.release_pd = paravirt_nop,
+ 
+ 	.set_pte = native_set_pte,
+ 	.set_pte_at = native_set_pte_at,
+ 	.set_pmd = native_set_pmd,
+-	.pte_update = (void *)native_nop,
+-	.pte_update_defer = (void *)native_nop,
++	.pte_update = paravirt_nop,
++	.pte_update_defer = paravirt_nop,
+ #ifdef CONFIG_X86_PAE
+ 	.set_pte_atomic = native_set_pte_atomic,
+ 	.set_pte_present = native_set_pte_present,
+@@ -572,7 +572,7 @@ struct paravirt_ops paravirt_ops = {
+ 	.irq_enable_sysexit = native_irq_enable_sysexit,
+ 	.iret = native_iret,
+ 
+-	.startup_ipi_hook = (void *)native_nop,
++	.startup_ipi_hook = paravirt_nop,
+ };
+ 
+ /*
+===================================================================
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -422,6 +422,9 @@ static inline void pmd_clear(pmd_t *pmdp
+ #define arch_enter_lazy_mmu_mode() paravirt_ops.set_lazy_mode(PARAVIRT_LAZY_MMU)
+ #define arch_leave_lazy_mmu_mode() paravirt_ops.set_lazy_mode(PARAVIRT_LAZY_NONE)
+ 
++void _paravirt_nop(void);
++#define paravirt_nop	((void *)_paravirt_nop)
++
+ /* These all sit in the .parainstructions section to tell us what to patch. */
+ struct paravirt_patch {
+ 	u8 *instr; 		/* original instructions */
 
-Changes since the previous posting:
-- Moved the arch_*_mmap stubs to asm-generic/mm_hooks.h, and included that in
-  asm-*/mmu_context.h (James Bottomley)
-- Use unsigned long consistently for addresses (Andi Kleen)
-- Moved xenboot_console declaration to its own header. (Andi Kleen)
-- Renamed FIX_PARAVIRT to FIX_PARAVIRT_BOOTMAP to emphasize that its intended
-  for bootstrap only (Ingo Molnar)
-- Cleaned up headers a fair bit.  Moved a lot of the native_*
-  functions to their "home" headers, so that they can be used either for
-  native paravirt boots, or when CONFIG_PARAVIRT is disabled.  This cuts
-  down on duplication, and makes paravirt.h simpler.
-- Various cleanups from Adrian Bunk
-
-Thanks,
-	J
 -- 
