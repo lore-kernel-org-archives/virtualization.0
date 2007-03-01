@@ -1,11 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 11/26] Xen-paravirt_ops: Use patch site IDs
-	computed from offset in paravirt_ops structure
-Date: Thu, 01 Mar 2007 15:24:54 -0800
-Message-ID: <20070301232527.638508535@goop.org>
+Subject: [patch 23/26] Xen-paravirt_ops: Add Xen grant table
+	support
+Date: Thu, 01 Mar 2007 15:25:06 -0800
+Message-ID: <20070301232529.139074125@goop.org>
 References: <20070301232443.195603797@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=paravirt-use-offset-site-ids.patch
+Content-Disposition: inline; filename=xen-grant-table.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -15,309 +15,603 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andi Kleen <ak@muc.de>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use patch type identifiers derived from the offset of the operation in
-the paravirt_ops structure.  This avoids having to maintain a separate
-enum for patch site types.
+Add Xen 'grant table' driver which allows granting of access to
+selected local memory pages by other virtual machines and,
+symmetrically, the mapping of remote memory pages which other virtual
+machines have granted access to.
 
-This patch also drops the fused save_fl+cli operation, which doesn't
-really add much and makes things more complex.
+This driver is a prerequisite for many of the Xen virtual device
+drivers, which grant the 'device driver domain' restricted and
+temporary access to only those memory pages that are currently
+involved in I/O operations.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Zachary Amsden <zach@vmware.com>
-
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/i386/kernel/asm-offsets.c |    5 +
- arch/i386/kernel/paravirt.c    |   14 ++---
- arch/i386/kernel/vmi.c         |   38 ++------------
- include/asm-i386/paravirt.h    |  107 +++++++++++++++++++---------------------
- 4 files changed, 70 insertions(+), 94 deletions(-)
+ drivers/xen/Makefile      |    1 
+ drivers/xen/grant-table.c |  454 +++++++++++++++++++++++++++++++++++++++++++++
+ include/xen/grant_table.h |  107 ++++++++++
+ 3 files changed, 562 insertions(+)
 
 ===================================================================
---- a/arch/i386/kernel/asm-offsets.c
-+++ b/arch/i386/kernel/asm-offsets.c
-@@ -110,5 +110,10 @@ void foo(void)
- 	OFFSET(PARAVIRT_irq_enable_sysexit, paravirt_ops, irq_enable_sysexit);
- 	OFFSET(PARAVIRT_iret, paravirt_ops, iret);
- 	OFFSET(PARAVIRT_read_cr0, paravirt_ops, read_cr0);
-+
-+	DEFINE(PARAVIRT_IRQ_DISABLE, PARAVIRT_PATCH(irq_disable));
-+	DEFINE(PARAVIRT_IRQ_ENABLE, PARAVIRT_PATCH(irq_enable));
-+	DEFINE(PARAVIRT_STI_SYSEXIT, PARAVIRT_PATCH(irq_enable_sysexit));
-+	DEFINE(PARAVIRT_INTERRUPT_RETURN, PARAVIRT_PATCH(iret));
- #endif
- }
+--- a/drivers/xen/Makefile
++++ b/drivers/xen/Makefile
+@@ -1,1 +1,2 @@ obj-y	+= hvc-console.o
++obj-y	+= grant-table.o
+ obj-y	+= hvc-console.o
 ===================================================================
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -57,7 +57,6 @@ DEF_NATIVE(sti, "sti");
- DEF_NATIVE(sti, "sti");
- DEF_NATIVE(popf, "push %eax; popf");
- DEF_NATIVE(pushf, "pushf; pop %eax");
--DEF_NATIVE(pushf_cli, "pushf; pop %eax; cli");
- DEF_NATIVE(iret, "iret");
- DEF_NATIVE(sti_sysexit, "sti; sysexit");
- 
-@@ -65,13 +64,12 @@ static const struct native_insns
- {
- 	const char *start, *end;
- } native_insns[] = {
--	[PARAVIRT_IRQ_DISABLE] = { start_cli, end_cli },
--	[PARAVIRT_IRQ_ENABLE] = { start_sti, end_sti },
--	[PARAVIRT_RESTORE_FLAGS] = { start_popf, end_popf },
--	[PARAVIRT_SAVE_FLAGS] = { start_pushf, end_pushf },
--	[PARAVIRT_SAVE_FLAGS_IRQ_DISABLE] = { start_pushf_cli, end_pushf_cli },
--	[PARAVIRT_INTERRUPT_RETURN] = { start_iret, end_iret },
--	[PARAVIRT_STI_SYSEXIT] = { start_sti_sysexit, end_sti_sysexit },
-+	[PARAVIRT_PATCH(irq_disable)] = { start_cli, end_cli },
-+	[PARAVIRT_PATCH(irq_enable)] = { start_sti, end_sti },
-+	[PARAVIRT_PATCH(restore_fl)] = { start_popf, end_popf },
-+	[PARAVIRT_PATCH(save_fl)] = { start_pushf, end_pushf },
-+	[PARAVIRT_PATCH(iret)] = { start_iret, end_iret },
-+	[PARAVIRT_PATCH(irq_enable_sysexit)] = { start_sti_sysexit, end_sti_sysexit },
- };
- 
- static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned len)
+--- /dev/null
++++ b/drivers/xen/grant-table.c
+@@ -0,0 +1,454 @@
++/******************************************************************************
++ * grant_table.c
++ *
++ * Granting foreign access to our memory reservation.
++ *
++ * Copyright (c) 2005, Christopher Clark
++ * Copyright (c) 2004-2005, K A Fraser
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
++#include <xen/interface/xen.h>
++#include <xen/page.h>
++#include <xen/grant_table.h>
++
++#include <asm/pgtable.h>
++#include <asm/uaccess.h>
++#include <asm/sync_bitops.h>
++
++
++/* External tools reserve first few grant table entries. */
++#define NR_RESERVED_ENTRIES 8
++
++#define NR_GRANT_ENTRIES \
++	(NR_GRANT_FRAMES * PAGE_SIZE / sizeof(struct grant_entry))
++#define GNTTAB_LIST_END (NR_GRANT_ENTRIES + 1)
++
++static grant_ref_t gnttab_list[NR_GRANT_ENTRIES];
++static int gnttab_free_count;
++static grant_ref_t gnttab_free_head;
++static DEFINE_SPINLOCK(gnttab_list_lock);
++
++static struct grant_entry *shared;
++
++static struct gnttab_free_callback *gnttab_free_callback_list;
++
++static int get_free_entries(int count)
++{
++	unsigned long flags;
++	int ref;
++	grant_ref_t head;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	if (gnttab_free_count < count) {
++		spin_unlock_irqrestore(&gnttab_list_lock, flags);
++		return -1;
++	}
++	ref = head = gnttab_free_head;
++	gnttab_free_count -= count;
++	while (count-- > 1)
++		head = gnttab_list[head];
++	gnttab_free_head = gnttab_list[head];
++	gnttab_list[head] = GNTTAB_LIST_END;
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++	return ref;
++}
++
++#define get_free_entry() get_free_entries(1)
++
++static void do_free_callbacks(void)
++{
++	struct gnttab_free_callback *callback, *next;
++
++	callback = gnttab_free_callback_list;
++	gnttab_free_callback_list = NULL;
++
++	while (callback != NULL) {
++		next = callback->next;
++		if (gnttab_free_count >= callback->count) {
++			callback->next = NULL;
++			callback->fn(callback->arg);
++		} else {
++			callback->next = gnttab_free_callback_list;
++			gnttab_free_callback_list = callback;
++		}
++		callback = next;
++	}
++}
++
++static inline void check_free_callbacks(void)
++{
++	if (unlikely(gnttab_free_callback_list))
++		do_free_callbacks();
++}
++
++static void put_free_entry(grant_ref_t ref)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	gnttab_list[ref] = gnttab_free_head;
++	gnttab_free_head = ref;
++	gnttab_free_count++;
++	check_free_callbacks();
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++
++static void update_grant_entry(grant_ref_t ref, domid_t domid,
++			       unsigned long frame, unsigned flags)
++{
++	/*
++	 * Introducing a valid entry into the grant table:
++	 *  1. Write ent->domid.
++	 *  2. Write ent->frame:
++	 *      GTF_permit_access:   Frame to which access is permitted.
++	 *      GTF_accept_transfer: Pseudo-phys frame slot being filled by new
++	 *                           frame, or zero if none.
++	 *  3. Write memory barrier (WMB).
++	 *  4. Write ent->flags, inc. valid type.
++	 */
++	shared[ref].frame = frame;
++	shared[ref].domid = domid;
++	wmb();
++	shared[ref].flags = flags;
++}
++
++/*
++ * Public grant-issuing interface functions
++ */
++void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
++				     unsigned long frame, int readonly)
++{
++	update_grant_entry(ref, domid, frame,
++			   GTF_permit_access | (readonly ? GTF_readonly : 0));
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access_ref);
++
++int gnttab_grant_foreign_access(domid_t domid, unsigned long frame,
++				int readonly)
++{
++	int ref;
++
++	if (unlikely((ref = get_free_entry()) == -1))
++		return -ENOSPC;
++
++	gnttab_grant_foreign_access_ref(ref, domid, frame, readonly);
++
++	return ref;
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access);
++
++int gnttab_query_foreign_access(grant_ref_t ref)
++{
++	u16 nflags;
++
++	nflags = shared[ref].flags;
++
++	return (nflags & (GTF_reading|GTF_writing));
++}
++EXPORT_SYMBOL_GPL(gnttab_query_foreign_access);
++
++int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly)
++{
++	u16 flags, nflags;
++
++	nflags = shared[ref].flags;
++	do {
++		if ((flags = nflags) & (GTF_reading|GTF_writing)) {
++			printk(KERN_ALERT "WARNING: g.e. still in use!\n");
++			return 0;
++		}
++	} while ((nflags = sync_cmpxchg(&shared[ref].flags, flags, 0)) !=
++		 flags);
++
++	return 1;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_access_ref);
++
++void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
++			       unsigned long page)
++{
++	if (gnttab_end_foreign_access_ref(ref, readonly)) {
++		put_free_entry(ref);
++		if (page != 0)
++			free_page(page);
++	} else {
++		/* XXX This needs to be fixed so that the ref and page are
++		   placed on a list to be freed up later. */
++		printk(KERN_WARNING
++		       "WARNING: leaking g.e. and page still in use!\n");
++	}
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_access);
++
++int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn)
++{
++	int ref;
++
++	if (unlikely((ref = get_free_entry()) == -1))
++		return -ENOSPC;
++	gnttab_grant_foreign_transfer_ref(ref, domid, pfn);
++
++	return ref;
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_transfer);
++
++void gnttab_grant_foreign_transfer_ref(grant_ref_t ref, domid_t domid,
++				       unsigned long pfn)
++{
++	update_grant_entry(ref, domid, pfn, GTF_accept_transfer);
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_transfer_ref);
++
++unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref)
++{
++	unsigned long frame;
++	u16           flags;
++
++	/*
++	 * If a transfer is not even yet started, try to reclaim the grant
++	 * reference and return failure (== 0).
++	 */
++	while (!((flags = shared[ref].flags) & GTF_transfer_committed)) {
++		if (sync_cmpxchg(&shared[ref].flags, flags, 0) == flags)
++			return 0;
++		cpu_relax();
++	}
++
++	/* If a transfer is in progress then wait until it is completed. */
++	while (!(flags & GTF_transfer_completed)) {
++		flags = shared[ref].flags;
++		cpu_relax();
++	}
++
++	rmb();	/* Read the frame number /after/ reading completion status. */
++	frame = shared[ref].frame;
++	BUG_ON(frame == 0);
++
++	return frame;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_transfer_ref);
++
++unsigned long gnttab_end_foreign_transfer(grant_ref_t ref)
++{
++	unsigned long frame = gnttab_end_foreign_transfer_ref(ref);
++	put_free_entry(ref);
++	return frame;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_transfer);
++
++void gnttab_free_grant_reference(grant_ref_t ref)
++{
++	put_free_entry(ref);
++}
++EXPORT_SYMBOL_GPL(gnttab_free_grant_reference);
++
++void gnttab_free_grant_references(grant_ref_t head)
++{
++	grant_ref_t ref;
++	unsigned long flags;
++	int count = 1;
++	if (head == GNTTAB_LIST_END)
++		return;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	ref = head;
++	while (gnttab_list[ref] != GNTTAB_LIST_END) {
++		ref = gnttab_list[ref];
++		count++;
++	}
++	gnttab_list[ref] = gnttab_free_head;
++	gnttab_free_head = head;
++	gnttab_free_count += count;
++	check_free_callbacks();
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_free_grant_references);
++
++int gnttab_alloc_grant_references(u16 count, grant_ref_t *head)
++{
++	int h = get_free_entries(count);
++
++	if (h == -1)
++		return -ENOSPC;
++
++	*head = h;
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(gnttab_alloc_grant_references);
++
++int gnttab_empty_grant_references(const grant_ref_t *private_head)
++{
++	return (*private_head == GNTTAB_LIST_END);
++}
++EXPORT_SYMBOL_GPL(gnttab_empty_grant_references);
++
++int gnttab_claim_grant_reference(grant_ref_t *private_head)
++{
++	grant_ref_t g = *private_head;
++	if (unlikely(g == GNTTAB_LIST_END))
++		return -ENOSPC;
++	*private_head = gnttab_list[g];
++	return g;
++}
++EXPORT_SYMBOL_GPL(gnttab_claim_grant_reference);
++
++void gnttab_release_grant_reference(grant_ref_t *private_head,
++				    grant_ref_t release)
++{
++	gnttab_list[release] = *private_head;
++	*private_head = release;
++}
++EXPORT_SYMBOL_GPL(gnttab_release_grant_reference);
++
++void gnttab_request_free_callback(struct gnttab_free_callback *callback,
++				  void (*fn)(void *), void *arg, u16 count)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	if (callback->next)
++		goto out;
++	callback->fn = fn;
++	callback->arg = arg;
++	callback->count = count;
++	callback->next = gnttab_free_callback_list;
++	gnttab_free_callback_list = callback;
++	check_free_callbacks();
++out:
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_request_free_callback);
++
++void gnttab_cancel_free_callback(struct gnttab_free_callback *callback)
++{
++	struct gnttab_free_callback **pcb;
++	unsigned long flags;
++
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	for (pcb = &gnttab_free_callback_list; *pcb; pcb = &(*pcb)->next) {
++		if (*pcb == callback) {
++			*pcb = callback->next;
++			break;
++		}
++	}
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_cancel_free_callback);
++
++#ifndef __ia64__
++static int map_pte_fn(pte_t *pte, struct page *pmd_page,
++		      unsigned long addr, void *data)
++{
++	unsigned long **frames = (unsigned long **)data;
++
++	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
++	(*frames)++;
++	return 0;
++}
++
++static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
++			unsigned long addr, void *data)
++{
++
++	set_pte_at(&init_mm, addr, pte, __pte(0));
++	return 0;
++}
++#endif
++
++int gnttab_resume(void)
++{
++	struct gnttab_setup_table setup;
++	unsigned long frames[NR_GRANT_FRAMES];
++	int rc;
++
++	setup.dom        = DOMID_SELF;
++	setup.nr_frames  = NR_GRANT_FRAMES;
++	setup.frame_list = frames;
++
++	rc = HYPERVISOR_grant_table_op(GNTTABOP_setup_table, &setup, 1);
++	if (rc == -ENOSYS)
++		return -ENOSYS;
++
++	BUG_ON(rc || setup.status);
++
++#ifndef __ia64__
++	{
++		void *pframes = frames;
++		struct vm_struct *area;
++
++		if (shared == NULL) {
++			area = get_vm_area(PAGE_SIZE * NR_GRANT_FRAMES,
++					   VM_IOREMAP);
++			BUG_ON(area == NULL);
++			shared = area->addr;
++		}
++		rc = apply_to_page_range(&init_mm, (unsigned long)shared,
++					 PAGE_SIZE * NR_GRANT_FRAMES,
++					 map_pte_fn, &pframes);
++		BUG_ON(rc);
++	}
++#else
++	shared = __va(frames[0] << PAGE_SHIFT);
++	printk("grant table at %p\n", shared);
++#endif
++
++	return 0;
++}
++
++int gnttab_suspend(void)
++{
++
++#ifndef __ia64__
++	apply_to_page_range(&init_mm, (unsigned long)shared,
++			    PAGE_SIZE * NR_GRANT_FRAMES,
++			    unmap_pte_fn, NULL);
++#endif
++
++	return 0;
++}
++
++static int __init gnttab_init(void)
++{
++	int i;
++
++	if (!is_running_on_xen())
++		return -ENODEV;
++
++	if (gnttab_resume() < 0)
++		return -ENODEV;
++
++	for (i = NR_RESERVED_ENTRIES; i < NR_GRANT_ENTRIES; i++)
++		gnttab_list[i] = i + 1;
++	gnttab_free_count = NR_GRANT_ENTRIES - NR_RESERVED_ENTRIES;
++	gnttab_free_head  = NR_RESERVED_ENTRIES;
++
++	printk("Grant table initialized\n");
++	return 0;
++}
++
++core_initcall(gnttab_init);
 ===================================================================
---- a/arch/i386/kernel/vmi.c
-+++ b/arch/i386/kernel/vmi.c
-@@ -78,11 +78,6 @@ struct {
- #define MNEM_JMP  0xe9
- #define MNEM_RET  0xc3
- 
--static char irq_save_disable_callout[] = {
--	MNEM_CALL, 0, 0, 0, 0,
--	MNEM_CALL, 0, 0, 0, 0,
--	MNEM_RET
--};
- #define IRQ_PATCH_INT_MASK 0
- #define IRQ_PATCH_DISABLE  5
- 
-@@ -130,33 +125,17 @@ static unsigned vmi_patch(u8 type, u16 c
- static unsigned vmi_patch(u8 type, u16 clobbers, void *insns, unsigned len)
- {
- 	switch (type) {
--		case PARAVIRT_IRQ_DISABLE:
-+		case PARAVIRT_PATCH(irq_disable):
- 			return patch_internal(VMI_CALL_DisableInterrupts, len, insns);
--		case PARAVIRT_IRQ_ENABLE:
-+		case PARAVIRT_PATCH(irq_enable):
- 			return patch_internal(VMI_CALL_EnableInterrupts, len, insns);
--		case PARAVIRT_RESTORE_FLAGS:
-+		case PARAVIRT_PATCH(restore_fl):
- 			return patch_internal(VMI_CALL_SetInterruptMask, len, insns);
--		case PARAVIRT_SAVE_FLAGS:
-+		case PARAVIRT_PATCH(save_fl):
- 			return patch_internal(VMI_CALL_GetInterruptMask, len, insns);
--        	case PARAVIRT_SAVE_FLAGS_IRQ_DISABLE:
--			if (len >= 10) {
--				patch_internal(VMI_CALL_GetInterruptMask, len, insns);
--				patch_internal(VMI_CALL_DisableInterrupts, len-5, insns+5);
--				return 10;
--			} else {
--				/*
--				 * You bastards didn't leave enough room to
--				 * patch save_flags_irq_disable inline.  Patch
--				 * to a helper
--				 */
--				BUG_ON(len < 5);
--				*(char *)insns = MNEM_CALL;
--				patch_offset(insns, irq_save_disable_callout);
--				return 5;
--			}
--		case PARAVIRT_INTERRUPT_RETURN:
-+		case PARAVIRT_PATCH(iret):
- 			return patch_internal(VMI_CALL_IRET, len, insns);
--		case PARAVIRT_STI_SYSEXIT:
-+		case PARAVIRT_PATCH(irq_enable_sysexit):
- 			return patch_internal(VMI_CALL_SYSEXIT, len, insns);
- 		default:
- 			break;
-@@ -733,11 +712,6 @@ static inline int __init activate_vmi(vo
- 	para_fill(restore_fl, SetInterruptMask);
- 	para_fill(irq_disable, DisableInterrupts);
- 	para_fill(irq_enable, EnableInterrupts);
--	/* irq_save_disable !!! sheer pain */
--	patch_offset(&irq_save_disable_callout[IRQ_PATCH_INT_MASK],
--		     (char *)paravirt_ops.save_fl);
--	patch_offset(&irq_save_disable_callout[IRQ_PATCH_DISABLE],
--		     (char *)paravirt_ops.irq_disable);
- #ifndef CONFIG_NO_IDLE_HZ
- 	para_fill(safe_halt, Halt);
- #else
-===================================================================
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -4,18 +4,7 @@
-  * para-virtualization: those hooks are defined here. */
- 
- #ifdef CONFIG_PARAVIRT
--#include <linux/stringify.h>
- #include <asm/page.h>
--
--/* These are the most performance critical ops, so we want to be able to patch
-- * callers */
--#define PARAVIRT_IRQ_DISABLE 0
--#define PARAVIRT_IRQ_ENABLE 1
--#define PARAVIRT_RESTORE_FLAGS 2
--#define PARAVIRT_SAVE_FLAGS 3
--#define PARAVIRT_SAVE_FLAGS_IRQ_DISABLE 4
--#define PARAVIRT_INTERRUPT_RETURN 5
--#define PARAVIRT_STI_SYSEXIT 6
- 
- /* Bitmask of what can be clobbered: usually at least eax. */
- #define CLBR_NONE 0x0
-@@ -26,6 +15,23 @@
- 
- #ifndef __ASSEMBLY__
- #include <linux/types.h>
+--- /dev/null
++++ b/include/xen/grant_table.h
+@@ -0,0 +1,107 @@
++/******************************************************************************
++ * grant_table.h
++ *
++ * Two sets of functionality:
++ * 1. Granting foreign access to our memory reservation.
++ * 2. Accessing others' memory reservations via grant references.
++ * (i.e., mechanisms for both sender and recipient of grant references)
++ *
++ * Copyright (c) 2004-2005, K A Fraser
++ * Copyright (c) 2005, Christopher Clark
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
 +
-+#define paravirt_type(type)		[paravirt_typenum] "i" (type)
-+#define paravirt_clobber(clobber)	[paravirt_clobber] "i" (clobber)
++#ifndef __ASM_GNTTAB_H__
++#define __ASM_GNTTAB_H__
 +
-+#define PARAVIRT_PATCH(x)		(offsetof(struct paravirt_ops, x) / sizeof(void *))
++#include <asm/xen/hypervisor.h>
++#include <xen/interface/grant_table.h>
 +
-+#define _paravirt_alt(insn_string, type, clobber)	\
-+	"771:\n\t" insn_string "\n" "772:\n"		\
-+	".pushsection .parainstructions,\"a\"\n"	\
-+	"  .long 771b\n"				\
-+	"  .byte " type "\n"				\
-+	"  .byte 772b-771b\n"				\
-+	"  .short " clobber "\n"			\
-+	".popsection\n"
++/* NR_GRANT_FRAMES must be less than or equal to that configured in Xen */
++#define NR_GRANT_FRAMES 4
 +
-+#define paravirt_alt(insn_string)				\
-+	_paravirt_alt(insn_string, "%c[paravirt_typenum]", "%c[paravirt_clobber]")
- 
- struct thread_struct;
- struct Xgt_desc_struct;
-@@ -512,24 +518,16 @@ extern struct paravirt_patch_site __star
- extern struct paravirt_patch_site __start_parainstructions[],
- 	__stop_parainstructions[];
- 
--#define paravirt_alt(insn_string, typenum, clobber)	\
--	"771:\n\t" insn_string "\n" "772:\n"		\
--	".pushsection .parainstructions,\"a\"\n"	\
--	"  .long 771b\n"				\
--	"  .byte " __stringify(typenum) "\n"		\
--	"  .byte 772b-771b\n"				\
--	"  .short " __stringify(clobber) "\n"		\
--	".popsection"
--
- static inline unsigned long __raw_local_save_flags(void)
- {
- 	unsigned long f;
- 
- 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
- 					   "call *%1;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
--			     : "=a"(f): "m"(paravirt_ops.save_fl)
-+					   "popl %%edx; popl %%ecx")
-+			     : "=a"(f): "m"(paravirt_ops.save_fl),
-+			       paravirt_type(PARAVIRT_PATCH(save_fl)),
-+			       paravirt_clobber(CLBR_NONE)
- 			     : "memory", "cc");
- 	return f;
- }
-@@ -538,9 +536,10 @@ static inline void raw_local_irq_restore
- {
- 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
- 					   "call *%1;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
--			     : "=a"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
-+					   "popl %%edx; popl %%ecx")
-+			     : "=a"(f) : "m" (paravirt_ops.restore_fl), "0"(f),
-+			       paravirt_type(PARAVIRT_PATCH(restore_fl)),
-+			       paravirt_clobber(CLBR_EAX)
- 			     : "memory", "cc");
- }
- 
-@@ -548,9 +547,10 @@ static inline void raw_local_irq_disable
- {
- 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
- 					   "call *%0;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
--			     : : "m" (paravirt_ops.irq_disable)
-+					   "popl %%edx; popl %%ecx")
-+			     : : "m" (paravirt_ops.irq_disable),
-+			       paravirt_type(PARAVIRT_PATCH(irq_disable)),
-+			       paravirt_clobber(CLBR_EAX)
- 			     : "memory", "eax", "cc");
- }
- 
-@@ -558,9 +558,10 @@ static inline void raw_local_irq_enable(
- {
- 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
- 					   "call *%0;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
--			     : : "m" (paravirt_ops.irq_enable)
-+					   "popl %%edx; popl %%ecx")
-+			     : : "m" (paravirt_ops.irq_enable),
-+			       paravirt_type(PARAVIRT_PATCH(irq_enable)),
-+			       paravirt_clobber(CLBR_EAX)
- 			     : "memory", "eax", "cc");
- }
- 
-@@ -568,33 +569,31 @@ static inline unsigned long __raw_local_
- {
- 	unsigned long f;
- 
--	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
--					   "call *%1; pushl %%eax;"
--					   "call *%2; popl %%eax;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
--					  CLBR_NONE)
--			     : "=a"(f)
--			     : "m" (paravirt_ops.save_fl),
--			       "m" (paravirt_ops.irq_disable)
--			     : "memory", "cc");
-+	f = __raw_local_save_flags();
-+	raw_local_irq_disable();
++struct gnttab_free_callback {
++	struct gnttab_free_callback *next;
++	void (*fn)(void *);
++	void *arg;
++	u16 count;
++};
 +
- 	return f;
- }
- 
--#define CLI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
--		     "call *paravirt_ops+%c[irq_disable];"		\
--		     "popl %%edx; popl %%ecx",				\
--		     PARAVIRT_IRQ_DISABLE, CLBR_EAX)
--
--#define STI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
--		     "call *paravirt_ops+%c[irq_enable];"		\
--		     "popl %%edx; popl %%ecx",				\
--		     PARAVIRT_IRQ_ENABLE, CLBR_EAX)
-+#define CLI_STRING _paravirt_alt("pushl %%ecx; pushl %%edx;"		\
-+				 "call *paravirt_ops+%c[irq_disable];"	\
-+				 "popl %%edx; popl %%ecx",		\
-+				 "%c[paravirt_cli_type]", "%c[paravirt_clobber]")
++int gnttab_grant_foreign_access(domid_t domid, unsigned long frame,
++				int readonly);
 +
-+#define STI_STRING _paravirt_alt("pushl %%ecx; pushl %%edx;"		\
-+				"call *paravirt_ops+%c[irq_enable];"	\
-+				 "popl %%edx; popl %%ecx",		\
-+				 "%c[paravirt_cli_type]", "%c[paravirt_clobber]")
++/*
++ * End access through the given grant reference, iff the grant entry is no
++ * longer in use.  Return 1 if the grant entry was freed, 0 if it is still in
++ * use.
++ */
++int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly);
 +
++/*
++ * Eventually end access through the given grant reference, and once that
++ * access has been ended, free the given page too.  Access will be ended
++ * immediately iff the grant entry is not in use, otherwise it will happen
++ * some time later.  page may be 0, in which case no freeing will occur.
++ */
++void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
++			       unsigned long page);
 +
- #define CLI_STI_CLOBBERS , "%eax"
--#define CLI_STI_INPUT_ARGS \
-+#define CLI_STI_INPUT_ARGS						\
- 	,								\
--	[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
--	[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable))
-+		[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
-+		[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable)), \
-+		[paravirt_cli_type] "i" (PARAVIRT_PATCH(irq_disable)),	\
-+		[paravirt_sti_type] "i" (PARAVIRT_PATCH(irq_disable)),	\
-+		paravirt_clobber(CLBR_NONE)
- 
- #else  /* __ASSEMBLY__ */
- 
++int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
++
++unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
++unsigned long gnttab_end_foreign_transfer(grant_ref_t ref);
++
++int gnttab_query_foreign_access(grant_ref_t ref);
++
++/*
++ * operations on reserved batches of grant references
++ */
++int gnttab_alloc_grant_references(u16 count, grant_ref_t *pprivate_head);
++
++void gnttab_free_grant_reference(grant_ref_t ref);
++
++void gnttab_free_grant_references(grant_ref_t head);
++
++int gnttab_empty_grant_references(const grant_ref_t *pprivate_head);
++
++int gnttab_claim_grant_reference(grant_ref_t *pprivate_head);
++
++void gnttab_release_grant_reference(grant_ref_t *private_head,
++				    grant_ref_t release);
++
++void gnttab_request_free_callback(struct gnttab_free_callback *callback,
++				  void (*fn)(void *), void *arg, u16 count);
++void gnttab_cancel_free_callback(struct gnttab_free_callback *callback);
++
++void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
++				     unsigned long frame, int readonly);
++
++void gnttab_grant_foreign_transfer_ref(grant_ref_t, domid_t domid,
++				       unsigned long pfn);
++
++#define gnttab_map_vaddr(map) ((void *)(map.host_virt_addr))
++
++#endif /* __ASM_GNTTAB_H__ */
 
 -- 
