@@ -1,97 +1,323 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 22/26] Xen-paravirt_ops: Add early printk support via hvc console
-Date: Thu, 01 Mar 2007 15:25:05 -0800
-Message-ID: <20070301232529.031999567@goop.org>
+Subject: [patch 11/26] Xen-paravirt_ops: Use patch site IDs
+	computed from offset in paravirt_ops structure
+Date: Thu, 01 Mar 2007 15:24:54 -0800
+Message-ID: <20070301232527.638508535@goop.org>
 References: <20070301232443.195603797@goop.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161261AbXCBACr@vger.kernel.org>
-Content-Disposition: inline; filename=xen-hvc-earlyprintk.patch
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline; filename=paravirt-use-offset-site-ids.patch
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add early printk support via hvc console, enable using
-"earlyprintk=xen" on the kernel command line.
+Use patch type identifiers derived from the offset of the operation in
+the paravirt_ops structure.  This avoids having to maintain a separate
+enum for patch site types.
 
-From: Gerd Hoffmann <kraxel@suse.de>
+This patch also drops the fused save_fl+cli operation, which doesn't
+really add much and makes things more complex.
+
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Zachary Amsden <zach@vmware.com>
 
 ---
- arch/x86_64/kernel/early_printk.c |    5 +++++
- drivers/xen/hvc-console.c         |   25 +++++++++++++++++++++++++
- include/xen/hvc-console.h         |    6 ++++++
- 3 files changed, 36 insertions(+)
+ arch/i386/kernel/asm-offsets.c |    5 +
+ arch/i386/kernel/paravirt.c    |   14 ++---
+ arch/i386/kernel/vmi.c         |   38 ++------------
+ include/asm-i386/paravirt.h    |  107 +++++++++++++++++++---------------------
+ 4 files changed, 70 insertions(+), 94 deletions(-)
 
 ===================================================================
---- a/arch/x86_64/kernel/early_printk.c
-+++ b/arch/x86_64/kernel/early_printk.c
-@@ -6,6 +6,7 @@
- #include <asm/io.h>
- #include <asm/processor.h>
- #include <asm/fcntl.h>
-+#include <xen/hvc-console.h>
- 
- /* Simple VGA output */
- 
-@@ -243,6 +244,10 @@ static int __init setup_early_printk(cha
-  		simnow_init(buf + 6);
-  		early_console = &simnow_console;
-  		keep_early = 1;
-+#ifdef CONFIG_XEN
-+	} else if (!strncmp(buf, "xen", 3)) {
-+ 		early_console = &xenboot_console;
-+#endif
- 	}
- 	register_console(early_console);
- 	return 0;
+--- a/arch/i386/kernel/asm-offsets.c
++++ b/arch/i386/kernel/asm-offsets.c
+@@ -110,5 +110,10 @@ void foo(void)
+ 	OFFSET(PARAVIRT_irq_enable_sysexit, paravirt_ops, irq_enable_sysexit);
+ 	OFFSET(PARAVIRT_iret, paravirt_ops, iret);
+ 	OFFSET(PARAVIRT_read_cr0, paravirt_ops, read_cr0);
++
++	DEFINE(PARAVIRT_IRQ_DISABLE, PARAVIRT_PATCH(irq_disable));
++	DEFINE(PARAVIRT_IRQ_ENABLE, PARAVIRT_PATCH(irq_enable));
++	DEFINE(PARAVIRT_STI_SYSEXIT, PARAVIRT_PATCH(irq_enable_sysexit));
++	DEFINE(PARAVIRT_INTERRUPT_RETURN, PARAVIRT_PATCH(iret));
+ #endif
+ }
 ===================================================================
---- a/drivers/xen/hvc-console.c
-+++ b/drivers/xen/hvc-console.c
-@@ -28,6 +28,7 @@
- #include <xen/page.h>
- #include <xen/events.h>
- #include <xen/interface/io/console.h>
-+#include <xen/hvc-console.h>
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -57,7 +57,6 @@ DEF_NATIVE(sti, "sti");
+ DEF_NATIVE(sti, "sti");
+ DEF_NATIVE(popf, "push %eax; popf");
+ DEF_NATIVE(pushf, "pushf; pop %eax");
+-DEF_NATIVE(pushf_cli, "pushf; pop %eax; cli");
+ DEF_NATIVE(iret, "iret");
+ DEF_NATIVE(sti_sysexit, "sti; sysexit");
  
- #include "../char/hvc_console.h"
+@@ -65,13 +64,12 @@ static const struct native_insns
+ {
+ 	const char *start, *end;
+ } native_insns[] = {
+-	[PARAVIRT_IRQ_DISABLE] = { start_cli, end_cli },
+-	[PARAVIRT_IRQ_ENABLE] = { start_sti, end_sti },
+-	[PARAVIRT_RESTORE_FLAGS] = { start_popf, end_popf },
+-	[PARAVIRT_SAVE_FLAGS] = { start_pushf, end_pushf },
+-	[PARAVIRT_SAVE_FLAGS_IRQ_DISABLE] = { start_pushf_cli, end_pushf_cli },
+-	[PARAVIRT_INTERRUPT_RETURN] = { start_iret, end_iret },
+-	[PARAVIRT_STI_SYSEXIT] = { start_sti_sysexit, end_sti_sysexit },
++	[PARAVIRT_PATCH(irq_disable)] = { start_cli, end_cli },
++	[PARAVIRT_PATCH(irq_enable)] = { start_sti, end_sti },
++	[PARAVIRT_PATCH(restore_fl)] = { start_popf, end_popf },
++	[PARAVIRT_PATCH(save_fl)] = { start_pushf, end_pushf },
++	[PARAVIRT_PATCH(iret)] = { start_iret, end_iret },
++	[PARAVIRT_PATCH(irq_enable_sysexit)] = { start_sti_sysexit, end_sti_sysexit },
+ };
  
-@@ -132,3 +133,27 @@ module_init(xen_init);
- module_init(xen_init);
- module_exit(xen_fini);
- console_initcall(xen_cons_init);
-+
-+static void xenboot_write_console(struct console *console, const char *string,
-+				  unsigned len)
-+{
-+	unsigned int linelen, off = 0;
-+	const char *pos;
-+
-+	while (off < len && NULL != (pos = strchr(string+off, '\n'))) {
-+		linelen = pos-string+off;
-+		if (off + linelen > len)
-+			break;
-+		write_console(0, string+off, linelen);
-+		write_console(0, "\r\n", 2);
-+		off += linelen + 1;
-+	}
-+	if (off < len)
-+		write_console(0, string+off, len-off);
-+}
-+
-+struct console xenboot_console = {
-+	.name		= "xenboot",
-+	.write		= xenboot_write_console,
-+	.flags		= CON_PRINTBUFFER | CON_BOOT,
-+};
+ static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned len)
 ===================================================================
---- /dev/null
-+++ b/include/xen/hvc-console.h
-@@ -0,0 +1,6 @@
-+#ifndef XEN_HVC_CONSOLE_H
-+#define XEN_HVC_CONSOLE_H
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -78,11 +78,6 @@ struct {
+ #define MNEM_JMP  0xe9
+ #define MNEM_RET  0xc3
+ 
+-static char irq_save_disable_callout[] = {
+-	MNEM_CALL, 0, 0, 0, 0,
+-	MNEM_CALL, 0, 0, 0, 0,
+-	MNEM_RET
+-};
+ #define IRQ_PATCH_INT_MASK 0
+ #define IRQ_PATCH_DISABLE  5
+ 
+@@ -130,33 +125,17 @@ static unsigned vmi_patch(u8 type, u16 c
+ static unsigned vmi_patch(u8 type, u16 clobbers, void *insns, unsigned len)
+ {
+ 	switch (type) {
+-		case PARAVIRT_IRQ_DISABLE:
++		case PARAVIRT_PATCH(irq_disable):
+ 			return patch_internal(VMI_CALL_DisableInterrupts, len, insns);
+-		case PARAVIRT_IRQ_ENABLE:
++		case PARAVIRT_PATCH(irq_enable):
+ 			return patch_internal(VMI_CALL_EnableInterrupts, len, insns);
+-		case PARAVIRT_RESTORE_FLAGS:
++		case PARAVIRT_PATCH(restore_fl):
+ 			return patch_internal(VMI_CALL_SetInterruptMask, len, insns);
+-		case PARAVIRT_SAVE_FLAGS:
++		case PARAVIRT_PATCH(save_fl):
+ 			return patch_internal(VMI_CALL_GetInterruptMask, len, insns);
+-        	case PARAVIRT_SAVE_FLAGS_IRQ_DISABLE:
+-			if (len >= 10) {
+-				patch_internal(VMI_CALL_GetInterruptMask, len, insns);
+-				patch_internal(VMI_CALL_DisableInterrupts, len-5, insns+5);
+-				return 10;
+-			} else {
+-				/*
+-				 * You bastards didn't leave enough room to
+-				 * patch save_flags_irq_disable inline.  Patch
+-				 * to a helper
+-				 */
+-				BUG_ON(len < 5);
+-				*(char *)insns = MNEM_CALL;
+-				patch_offset(insns, irq_save_disable_callout);
+-				return 5;
+-			}
+-		case PARAVIRT_INTERRUPT_RETURN:
++		case PARAVIRT_PATCH(iret):
+ 			return patch_internal(VMI_CALL_IRET, len, insns);
+-		case PARAVIRT_STI_SYSEXIT:
++		case PARAVIRT_PATCH(irq_enable_sysexit):
+ 			return patch_internal(VMI_CALL_SYSEXIT, len, insns);
+ 		default:
+ 			break;
+@@ -733,11 +712,6 @@ static inline int __init activate_vmi(vo
+ 	para_fill(restore_fl, SetInterruptMask);
+ 	para_fill(irq_disable, DisableInterrupts);
+ 	para_fill(irq_enable, EnableInterrupts);
+-	/* irq_save_disable !!! sheer pain */
+-	patch_offset(&irq_save_disable_callout[IRQ_PATCH_INT_MASK],
+-		     (char *)paravirt_ops.save_fl);
+-	patch_offset(&irq_save_disable_callout[IRQ_PATCH_DISABLE],
+-		     (char *)paravirt_ops.irq_disable);
+ #ifndef CONFIG_NO_IDLE_HZ
+ 	para_fill(safe_halt, Halt);
+ #else
+===================================================================
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -4,18 +4,7 @@
+  * para-virtualization: those hooks are defined here. */
+ 
+ #ifdef CONFIG_PARAVIRT
+-#include <linux/stringify.h>
+ #include <asm/page.h>
+-
+-/* These are the most performance critical ops, so we want to be able to patch
+- * callers */
+-#define PARAVIRT_IRQ_DISABLE 0
+-#define PARAVIRT_IRQ_ENABLE 1
+-#define PARAVIRT_RESTORE_FLAGS 2
+-#define PARAVIRT_SAVE_FLAGS 3
+-#define PARAVIRT_SAVE_FLAGS_IRQ_DISABLE 4
+-#define PARAVIRT_INTERRUPT_RETURN 5
+-#define PARAVIRT_STI_SYSEXIT 6
+ 
+ /* Bitmask of what can be clobbered: usually at least eax. */
+ #define CLBR_NONE 0x0
+@@ -26,6 +15,23 @@
+ 
+ #ifndef __ASSEMBLY__
+ #include <linux/types.h>
 +
-+extern struct console xenboot_console;
++#define paravirt_type(type)		[paravirt_typenum] "i" (type)
++#define paravirt_clobber(clobber)	[paravirt_clobber] "i" (clobber)
 +
-+#endif	/* XEN_HVC_CONSOLE_H */
++#define PARAVIRT_PATCH(x)		(offsetof(struct paravirt_ops, x) / sizeof(void *))
++
++#define _paravirt_alt(insn_string, type, clobber)	\
++	"771:\n\t" insn_string "\n" "772:\n"		\
++	".pushsection .parainstructions,\"a\"\n"	\
++	"  .long 771b\n"				\
++	"  .byte " type "\n"				\
++	"  .byte 772b-771b\n"				\
++	"  .short " clobber "\n"			\
++	".popsection\n"
++
++#define paravirt_alt(insn_string)				\
++	_paravirt_alt(insn_string, "%c[paravirt_typenum]", "%c[paravirt_clobber]")
+ 
+ struct thread_struct;
+ struct Xgt_desc_struct;
+@@ -512,24 +518,16 @@ extern struct paravirt_patch_site __star
+ extern struct paravirt_patch_site __start_parainstructions[],
+ 	__stop_parainstructions[];
+ 
+-#define paravirt_alt(insn_string, typenum, clobber)	\
+-	"771:\n\t" insn_string "\n" "772:\n"		\
+-	".pushsection .parainstructions,\"a\"\n"	\
+-	"  .long 771b\n"				\
+-	"  .byte " __stringify(typenum) "\n"		\
+-	"  .byte 772b-771b\n"				\
+-	"  .short " __stringify(clobber) "\n"		\
+-	".popsection"
+-
+ static inline unsigned long __raw_local_save_flags(void)
+ {
+ 	unsigned long f;
+ 
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+ 					   "call *%1;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
+-			     : "=a"(f): "m"(paravirt_ops.save_fl)
++					   "popl %%edx; popl %%ecx")
++			     : "=a"(f): "m"(paravirt_ops.save_fl),
++			       paravirt_type(PARAVIRT_PATCH(save_fl)),
++			       paravirt_clobber(CLBR_NONE)
+ 			     : "memory", "cc");
+ 	return f;
+ }
+@@ -538,9 +536,10 @@ static inline void raw_local_irq_restore
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+ 					   "call *%1;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
+-			     : "=a"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
++					   "popl %%edx; popl %%ecx")
++			     : "=a"(f) : "m" (paravirt_ops.restore_fl), "0"(f),
++			       paravirt_type(PARAVIRT_PATCH(restore_fl)),
++			       paravirt_clobber(CLBR_EAX)
+ 			     : "memory", "cc");
+ }
+ 
+@@ -548,9 +547,10 @@ static inline void raw_local_irq_disable
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+ 					   "call *%0;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_disable)
++					   "popl %%edx; popl %%ecx")
++			     : : "m" (paravirt_ops.irq_disable),
++			       paravirt_type(PARAVIRT_PATCH(irq_disable)),
++			       paravirt_clobber(CLBR_EAX)
+ 			     : "memory", "eax", "cc");
+ }
+ 
+@@ -558,9 +558,10 @@ static inline void raw_local_irq_enable(
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+ 					   "call *%0;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_enable)
++					   "popl %%edx; popl %%ecx")
++			     : : "m" (paravirt_ops.irq_enable),
++			       paravirt_type(PARAVIRT_PATCH(irq_enable)),
++			       paravirt_clobber(CLBR_EAX)
+ 			     : "memory", "eax", "cc");
+ }
+ 
+@@ -568,33 +569,31 @@ static inline unsigned long __raw_local_
+ {
+ 	unsigned long f;
+ 
+-	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1; pushl %%eax;"
+-					   "call *%2; popl %%eax;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
+-					  CLBR_NONE)
+-			     : "=a"(f)
+-			     : "m" (paravirt_ops.save_fl),
+-			       "m" (paravirt_ops.irq_disable)
+-			     : "memory", "cc");
++	f = __raw_local_save_flags();
++	raw_local_irq_disable();
++
+ 	return f;
+ }
+ 
+-#define CLI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
+-		     "call *paravirt_ops+%c[irq_disable];"		\
+-		     "popl %%edx; popl %%ecx",				\
+-		     PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-
+-#define STI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
+-		     "call *paravirt_ops+%c[irq_enable];"		\
+-		     "popl %%edx; popl %%ecx",				\
+-		     PARAVIRT_IRQ_ENABLE, CLBR_EAX)
++#define CLI_STRING _paravirt_alt("pushl %%ecx; pushl %%edx;"		\
++				 "call *paravirt_ops+%c[irq_disable];"	\
++				 "popl %%edx; popl %%ecx",		\
++				 "%c[paravirt_cli_type]", "%c[paravirt_clobber]")
++
++#define STI_STRING _paravirt_alt("pushl %%ecx; pushl %%edx;"		\
++				"call *paravirt_ops+%c[irq_enable];"	\
++				 "popl %%edx; popl %%ecx",		\
++				 "%c[paravirt_cli_type]", "%c[paravirt_clobber]")
++
++
+ #define CLI_STI_CLOBBERS , "%eax"
+-#define CLI_STI_INPUT_ARGS \
++#define CLI_STI_INPUT_ARGS						\
+ 	,								\
+-	[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
+-	[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable))
++		[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
++		[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable)), \
++		[paravirt_cli_type] "i" (PARAVIRT_PATCH(irq_disable)),	\
++		[paravirt_sti_type] "i" (PARAVIRT_PATCH(irq_disable)),	\
++		paravirt_clobber(CLBR_NONE)
+ 
+ #else  /* __ASSEMBLY__ */
+ 
 
 -- 
