@@ -1,43 +1,40 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 4/9] Vmi fix highpte
-Date: Thu, 01 Mar 2007 22:45:34 -0800
-Message-ID: <45E7C80E.1020107@goop.org>
-References: <200703020254.l222smBB009668@zach-dev.vmware.com> <45E79529.9000305@goop.org> <45E79C72.4000806@goop.org> <45E7C4DD.1040403@vmware.com>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [RFC] Arp announce (for Xen)
+Date: Fri, 02 Mar 2007 08:46:04 +0000
+Message-ID: <C20D94CC.3237%Keir.Fraser@cl.cam.ac.uk>
+References: <20070301173030.754514ec@freekitty>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422900AbXCBGpg@vger.kernel.org>
-In-Reply-To: <45E7C4DD.1040403@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20070301173030.754514ec@freekitty>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Stephen Hemminger <shemminger@linux-foundation.org>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-devel@lists.xensource.com, Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@muc.de>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Zachary@smtp.osdl.org, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> Yeah, actually that does work, since you pass the km_type, we can use
-> that.  But I would rather not respin this for 2.6.21; getting this
-> 100% right can be tricky, and we've already done a good deal of
-> testing on this patch the way it is.
+On 2/3/07 01:30, "Stephen Hemminger" <shemminger@linux-foundation.org>
+wrote:
 
-It seems fairly low risk to me; its basically the same structure with
-the same calls happening in the same order, but just slightly rearranged
-in the source.  Of course, if I'd seen this patch earlier I could have
-given you earlier feedback...
+> What about implementing the unused arp_announce flag on the inetdevice?
+> Something like the following.  Totally untested...
+> 
+> Looks like it either was there (and got removed) or was planned but
+> never implemented.
 
->   Do you have any objection to me creating a patch for -mm tree that
-> implements kmap_atomic_pte the way you have described above and
-> attaching it to the Xen patch series, but leaving the current patch as
-> is for now?
+This would be acceptable. It only needs a simple script to poke the correct
+value, and that could be easily integrated into vendor scripts. The general
+idea of being able to have a callback to userspace is okay but we'd like
+something lighter weight for live migration, which is typically done only
+within the scope of a single layer-2 network and hence all that is really
+required is the gratuitous ARP to kick the switch hardware.
 
-Not particularly, but it seems odd to put something in knowing its going
-to be immediately replaced.  What's the urgency?
-
-> Thanks, (and thanks for the suggestion - I was a little worried about
-> how it would play with Xen when HIGHPTE support came around, but it
-> looks like it will work for both of us with just one paravirt-op).
-
-Yeah, the kpte_clear_flush change helped as well.  I have a patch to
-make that into a pvop as well, since its useful to do the clear+flush in
-a single call.
-
-    J
+ -- Keir
