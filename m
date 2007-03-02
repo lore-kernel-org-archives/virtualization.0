@@ -1,81 +1,40 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: [PATCH 7/9] Fix nohz compile.patch
-Date: Thu, 1 Mar 2007 18:55:37 -0800
-Message-ID: <200703020255.l222tb5W009688@zach-dev.vmware.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422797AbXCBC4u@vger.kernel.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 4/9] Vmi fix highpte
+Date: Thu, 01 Mar 2007 19:08:25 -0800
+Message-ID: <45E79529.9000305@goop.org>
+References: <200703020254.l222smBB009668@zach-dev.vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422740AbXCBDIg@vger.kernel.org>
+In-Reply-To: <200703020254.l222smBB009668@zach-dev.vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>
-Cc: Ingo Molnar <ingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-More goo from hrtimers integration.  We do compile and run properly with NO_HZ
-enabled.  There was a period when we didn't because of a missing export, but
-that was since fixed.
+Zachary Amsden wrote:
+> Provide a PT map hook for HIGHPTE kernels to designate where they are mapping
+> page tables.  This information is required so the physical address of PTE
+> updates can be determined; otherwise, the mm layer would have to carry the
+> physical address all the way to each PTE modification callsite, which is
+> even more hideous that the macros required to provide the proper hooks.
+>
+> So lets not mess up arch neutral code to achieve this, but keep the horror
+> in an #ifdef HIGHPTE in include/asm-i386/pgtable.h.  I had to use macros
+> here because some types are not yet defined in all the include paths for
+> this header.
+>
+> This patch is absolutely required for HIGHPTE kernels to operate properly
+> with VMI.
+>   
 
-And with the clocksource code now firmly in place, we can get rid of code
-that fixes up the wallclock, since this is done in the common infrastructure.
-This actually fixes a timer bug as well, that was caused by do_settimeofday
-no longer being callable with interrupts disabled due to the use of
-on_each_cpu().
+Hm, I don't think this interface will work for Xen.  In Xen, whenever a
+pagetable page gets mapped, it must be mapped RO.  map_pt_hook gets
+called after the mapping has already been created, so its too late for Xen.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+I was planning on adding kmap_atomic_pte() for use in pte_offset_map*(),
+which would be wired through to paravirt_ops to allow Xen to make this a
+RO mapping.  Would this be sufficient for you to do your vmi thing?
 
-diff -r 5d41588419ab arch/i386/Kconfig
---- a/arch/i386/Kconfig	Tue Feb 27 17:24:55 2007 -0800
-+++ b/arch/i386/Kconfig	Tue Feb 27 17:25:44 2007 -0800
-@@ -220,7 +220,7 @@ config PARAVIRT
- 
- config VMI
- 	bool "VMI Paravirt-ops support"
--	depends on PARAVIRT && !NO_HZ
-+	depends on PARAVIRT
- 	default y
- 	help
- 	  VMI provides a paravirtualized interface to multiple hypervisors
-diff -r 5d41588419ab arch/i386/kernel/vmi.c
---- a/arch/i386/kernel/vmi.c	Tue Feb 27 17:24:55 2007 -0800
-+++ b/arch/i386/kernel/vmi.c	Tue Feb 27 18:46:26 2007 -0800
-@@ -934,6 +934,7 @@ void __init vmi_init(void)
- #ifdef CONFIG_X86_IO_APIC
- 	no_timer_check = 1;
- #endif
-+	no_sync_cmos_clock = 1;
- 
- 	local_irq_restore(flags & X86_EFLAGS_IF);
- }
-diff -r 5d41588419ab arch/i386/kernel/vmitime.c
---- a/arch/i386/kernel/vmitime.c	Tue Feb 27 17:24:55 2007 -0800
-+++ b/arch/i386/kernel/vmitime.c	Tue Feb 27 18:47:51 2007 -0800
-@@ -153,13 +153,6 @@ static void vmi_get_wallclock_ts(struct 
- 	ts->tv_sec = wallclock;
- }
- 
--static void update_xtime_from_wallclock(void)
--{
--	struct timespec ts;
--	vmi_get_wallclock_ts(&ts);
--	do_settimeofday(&ts);
--}
--
- unsigned long vmi_get_wallclock(void)
- {
- 	struct timespec ts;
-@@ -197,18 +190,10 @@ void __init vmi_time_init(void)
- 	set_intr_gate(LOCAL_TIMER_VECTOR, apic_vmi_timer_interrupt);
- #endif
- 
--	no_sync_cmos_clock = 1;
--
--	vmi_get_wallclock_ts(&xtime);
--	set_normalized_timespec(&wall_to_monotonic,
--		-xtime.tv_sec, -xtime.tv_nsec);
--
- 	real_cycles_accounted_system = read_real_cycles();
--	update_xtime_from_wallclock();
- 	per_cpu(process_times_cycles_accounted_cpu, 0) = read_available_cycles();
- 
- 	cycles_per_sec = vmi_timer_ops.get_cycle_frequency();
--
- 	cycles_per_jiffy = cycles_per_sec;
- 	(void)do_div(cycles_per_jiffy, HZ);
- 	cycles_per_alarm = cycles_per_sec;
+    J
