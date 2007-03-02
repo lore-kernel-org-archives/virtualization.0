@@ -1,55 +1,36 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH 4/9] Vmi fix highpte
-Date: Fri, 02 Mar 2007 01:53:09 -0800
-Message-ID: <45E7F405.6020507@vmware.com>
-References: <200703020254.l222smBB009668@zach-dev.vmware.com> <45E79529.9000305@goop.org> <45E79C72.4000806@goop.org> <45E7C4DD.1040403@vmware.com> <45E7C80E.1020107@goop.org>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: [RFC] Arp announce (for Xen)
+Date: 2 Mar 2007 13:54:28 +0100
+Message-ID: <20070302125428.GA67405@muc.de>
+References: <20070301232443.195603797@goop.org>
+	<20070301232529.648076372@goop.org>
+	<20070301164214.4a40bc59@freekitty> <45E7764A.7000100@goop.org>
+	<20070301173030.754514ec@freekitty>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422991AbXCBJxM@vger.kernel.org>
-In-Reply-To: <45E7C80E.1020107@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Date: Fri, 2 Mar 2007 13:54:28 +0100
+Content-Disposition: inline
+In-Reply-To: <20070301173030.754514ec@freekitty>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Jeff Garzik <jeff@garzik.org>, Ian Pratt <ian.pratt@xensource.com>, netdev@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->   
->> Yeah, actually that does work, since you pass the km_type, we can use
->> that.  But I would rather not respin this for 2.6.21; getting this
->> 100% right can be tricky, and we've already done a good deal of
->> testing on this patch the way it is.
->>     
->
-> It seems fairly low risk to me; its basically the same structure with
-> the same calls happening in the same order, but just slightly rearranged
-> in the source.  Of course, if I'd seen this patch earlier I could have
-> given you earlier feedback...
->   
+On Thu, Mar 01, 2007 at 05:30:30PM -0800, Stephen Hemminger wrote:
+> What about implementing the unused arp_announce flag on the inetdevice?
+> Something like the following.  Totally untested...
+> 
+> Looks like it either was there (and got removed) or was planned but
+> never implemented.
 
-I've been sending out this particular patch or a variant of it for a 
-long time.  It did get lost for a while during the paravirt-ops 
-conversion, however.  You're the first to give any feedback on it.
+Seems like the right solution to me (if it works)
 
->>   Do you have any objection to me creating a patch for -mm tree that
->> implements kmap_atomic_pte the way you have described above and
->> attaching it to the Xen patch series, but leaving the current patch as
->> is for now?
->>     
->
-> Not particularly, but it seems odd to put something in knowing its going
-> to be immediately replaced.  What's the urgency?
->   
-
-Better to keep what is known working for now, even if it is going to be 
-replaced later... code is easy to change in development cycles, less 
-easy to fix when nearing release.  It really is easy to mess up one of 
-the pte conversions by, say, shift the wrong value or calculate wrong or 
-PAE dependent PTE offset.  Plus it is harder to test, since you need > 
-896 M memory for your VM before the code even gets run.
-
-Not that I expect anything to go wrong with it, but I would prefer to 
-err on the side of caution for now, that's all.
-
-Zach
+-Andi
