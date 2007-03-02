@@ -1,32 +1,53 @@
-From: jamal <hadi@cyberus.ca>
-Subject: Re: [RFC] Arp announce (for Xen)
-Date: Fri, 02 Mar 2007 09:08:38 -0500
-Message-ID: <1172844518.4864.42.camel@localhost>
-References: <20070301232443.195603797@goop.org>
-	 <20070301232529.648076372@goop.org> <20070301164214.4a40bc59@freekitty>
-	 <45E7764A.7000100@goop.org> <20070301173030.754514ec@freekitty>
-	 <20070302125428.GA67405@muc.de>
-Reply-To: hadi@cyberus.ca
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 4/9] Vmi fix highpte
+Date: Fri, 02 Mar 2007 08:55:59 -0800
+Message-ID: <45E8571F.1050509@goop.org>
+References: <200703020254.l222smBB009668@zach-dev.vmware.com> <45E79529.9000305@goop.org> <45E79C72.4000806@goop.org> <45E7C4DD.1040403@vmware.com> <45E7C80E.1020107@goop.org> <45E7F405.6020507@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20070302125428.GA67405@muc.de>
-Sender: netdev-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>
-Cc: Stephen Hemminger <shemminger@linux-foundation.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992618AbXCBQ4F@vger.kernel.org>
+In-Reply-To: <45E7F405.6020507@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-02-03 at 13:54 +0100, Andi Kleen wrote:
+Zachary Amsden wrote:
+> I've been sending out this particular patch or a variant of it for a
+> long time.  It did get lost for a while during the paravirt-ops
+> conversion, however.  You're the first to give any feedback on it.
 
-> Seems like the right solution to me (if it works)
+Oops, I guess so.  I've been doing a lot more Xen pagetable work for the
+last couple of weeks, so it caught my eye this time.
 
-I like it as well given the simple change. 
-These are the kind of optimizations that justify offloading things to
-the kernel (instead of user space) i.e very little lines of code, covers
-a large number of user-desires, and can be turned off if you want to do
-something complex. _Almost_ elegant Stephen;->
+>>>   Do you have any objection to me creating a patch for -mm tree that
+>>> implements kmap_atomic_pte the way you have described above and
+>>> attaching it to the Xen patch series, but leaving the current patch as
+>>> is for now?
+>>>     
+>>
+>> Not particularly, but it seems odd to put something in knowing its going
+>> to be immediately replaced.  What's the urgency?
+>>   
+>
+> Better to keep what is known working for now, even if it is going to
+> be replaced later... code is easy to change in development cycles,
+> less easy to fix when nearing release.  It really is easy to mess up
+> one of the pte conversions by, say, shift the wrong value or calculate
+> wrong or PAE dependent PTE offset.
 
-cheers,
-jamal
+Those are bugs that can occur, but they don't apply in this case.  The
+vmi implementation of kmap_atomic_pte() would be:
 
+static void *vmi_kmap_atomic_pte(struct page *page, enum km_type type)
+{
+	void *ptep = kmap_atomic(page, type);
+	vmi_map_pt_hook(type, ptep, page_to_pfn(page));
+	return ptep;
+}
+
+Right?  Which is functionally identical to the code in your patch,
+except wrapped up in a new function.
+
+    J
