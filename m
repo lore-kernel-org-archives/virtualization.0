@@ -1,54 +1,21 @@
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: [RFC] Arp announce (for Xen)
-Date: Thu, 1 Mar 2007 17:30:30 -0800
-Message-ID: <20070301173030.754514ec@freekitty>
-References: <20070301232443.195603797@goop.org>
-	<20070301232529.648076372@goop.org>
-	<20070301164214.4a40bc59@freekitty> <45E7764A.7000100@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45E7764A.7000100@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com, Jeff Garzik <jeff@garzik.org>, Ian Pratt <ian.pratt@xensource.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Zachary@smtp.osdl.org, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+From: Zachary Amsden <zach@vmware.com>
+Subject: [PATCH 0/9] Bugfix patches for i386/vmi/paravirt-ops
+Date: Thu, 1 Mar 2007 18:53:48 -0800
+Message-ID: <200703020253.l222rm5N009643@zach-dev.vmware.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422721AbXCBCyJ@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-What about implementing the unused arp_announce flag on the inetdevice?
-Something like the following.  Totally untested...
+Andi, Linus, we have some critical bugfixes for the VMI paravirt-ops code.
+Please apply.  If there are objections to certain pieces, they can be
+reworked, but they are pretty much all needed for correctness.  We are
+hoping to get these in the next 2.6.21-rc release.
 
-Looks like it either was there (and got removed) or was planned but
-never implemented.
+We had quite a few difficulties debugging after the integration of the
+hrtimers code, which is why this took so long.  Andrew, add you on
+the list in case any further hrtimers integration issues pop up.
 
-diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
-index e10794d..cefc339 100644
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -1089,6 +1089,16 @@ static int inetdev_event(struct notifier
- 			}
- 		}
- 		ip_mc_up(in_dev);
-+		/* fallthru */
-+
-+	case NETDEV_CHANGEADDR:
-+		/* Send gratuitous ARP in case of address change or new device */
-+		if (IN_DEV_ARP_ANNOUNCE(in_dev))
-+			arp_send(ARPOP_REQUEST, ETH_P_ARP,
-+				 in_dev->ifa_list->ifa_address, dev,
-+				 in_dev->ifa_list->ifa_address, NULL, =
+Thanks,
 
-+				 dev->dev_addr, NULL);
-+			=
-
- 		break;
- 	case NETDEV_DOWN:
- 		ip_mc_down(in_dev);
+Zach
