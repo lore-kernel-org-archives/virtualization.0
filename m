@@ -1,35 +1,50 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [RFC] Arp announce (for Xen)
-Date: Fri, 2 Mar 2007 10:08:04 -0800
-Message-ID: <20070302180804.GH10574@sequoia.sous-sol.org>
-References: <20070301232443.195603797@goop.org>
-	<20070301232529.648076372@goop.org>
-	<20070301164214.4a40bc59@freekitty> <45E7764A.7000100@goop.org>
-	<20070301173030.754514ec@freekitty>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: system call time increase when turning on CONFIG_PARAVIRT
+Date: Fri, 02 Mar 2007 13:54:03 -0800
+Message-ID: <45E89CFB.4090905@goop.org>
+References: <1172866274.4898.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline
-In-Reply-To: <20070301173030.754514ec@freekitty>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Jeff Garzik <jeff@garzik.org>, Ian Pratt <ian.pratt@xensource.com>, Andi Kleen <ak@muc.de>, netdev@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <1172866274.4898.14.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: tim.c.chen@linux.intel.com
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Stephen Hemminger (shemminger@linux-foundation.org) wrote:
-> +	case NETDEV_CHANGEADDR:
-> +		/* Send gratuitous ARP in case of address change or new device */
-> +		if (IN_DEV_ARP_ANNOUNCE(in_dev))
+Tim Chen wrote:
+> With CONFIG_PARAVIRT turned on, I've found that time invoking
+> system_call jumped up quite a lot.  Using TCP streaming test as a
+> workload and running on 32-bit 2.6.20 kernel, system_call goes up from
+> 0.00025% all the way to 1.6% in the oprofile data.  There is a drop of
+> about 4% in overall throughput for this particular workload. =
 
-Conceptually right on, but it looks like improper hijacking
-of arp_announce sysctl.  Could introduce another
+>
+> With lmbench's null system call test, the call time goes up from 0.10
+> usec to 0.225 usec.
+>
+> I'm testing on dual socket Intel core 2 processor running at 2.67 GHz
+> with 4 GB RAM.
+[ I assume you're talking about running on native hardware. ]
 
-thanks,
--chris
+In the current paravirt changes in the kernel, many of the
+paravirtualized operations are implemented as (expensive) indirect calls
+via paravirt_ops.  Among the changes in the paravirt patches I posted
+yesterday is an enhanced patching mechanism which inlines a lot of the
+common operations, and converts the rest into direct calls.
+
+I haven't done any detailed measurements on what effect this will have,
+but it does bring the actual executed instruction stream much closer to
+the !CONFIG_PARAVIRT case, and so I would hope it would recover most or
+all of the performance loss you've noticed.
+
+    J
