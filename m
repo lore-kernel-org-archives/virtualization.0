@@ -1,53 +1,35 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 4/9] Vmi fix highpte
-Date: Fri, 02 Mar 2007 08:55:59 -0800
-Message-ID: <45E8571F.1050509@goop.org>
-References: <200703020254.l222smBB009668@zach-dev.vmware.com> <45E79529.9000305@goop.org> <45E79C72.4000806@goop.org> <45E7C4DD.1040403@vmware.com> <45E7C80E.1020107@goop.org> <45E7F405.6020507@vmware.com>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [RFC] Arp announce (for Xen)
+Date: Fri, 2 Mar 2007 10:08:04 -0800
+Message-ID: <20070302180804.GH10574@sequoia.sous-sol.org>
+References: <20070301232443.195603797@goop.org>
+	<20070301232529.648076372@goop.org>
+	<20070301164214.4a40bc59@freekitty> <45E7764A.7000100@goop.org>
+	<20070301173030.754514ec@freekitty>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992618AbXCBQ4F@vger.kernel.org>
-In-Reply-To: <45E7F405.6020507@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline
+In-Reply-To: <20070301173030.754514ec@freekitty>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Jeff Garzik <jeff@garzik.org>, Ian Pratt <ian.pratt@xensource.com>, Andi Kleen <ak@muc.de>, netdev@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> I've been sending out this particular patch or a variant of it for a
-> long time.  It did get lost for a while during the paravirt-ops
-> conversion, however.  You're the first to give any feedback on it.
+* Stephen Hemminger (shemminger@linux-foundation.org) wrote:
+> +	case NETDEV_CHANGEADDR:
+> +		/* Send gratuitous ARP in case of address change or new device */
+> +		if (IN_DEV_ARP_ANNOUNCE(in_dev))
 
-Oops, I guess so.  I've been doing a lot more Xen pagetable work for the
-last couple of weeks, so it caught my eye this time.
+Conceptually right on, but it looks like improper hijacking
+of arp_announce sysctl.  Could introduce another
 
->>>   Do you have any objection to me creating a patch for -mm tree that
->>> implements kmap_atomic_pte the way you have described above and
->>> attaching it to the Xen patch series, but leaving the current patch as
->>> is for now?
->>>     
->>
->> Not particularly, but it seems odd to put something in knowing its going
->> to be immediately replaced.  What's the urgency?
->>   
->
-> Better to keep what is known working for now, even if it is going to
-> be replaced later... code is easy to change in development cycles,
-> less easy to fix when nearing release.  It really is easy to mess up
-> one of the pte conversions by, say, shift the wrong value or calculate
-> wrong or PAE dependent PTE offset.
-
-Those are bugs that can occur, but they don't apply in this case.  The
-vmi implementation of kmap_atomic_pte() would be:
-
-static void *vmi_kmap_atomic_pte(struct page *page, enum km_type type)
-{
-	void *ptep = kmap_atomic(page, type);
-	vmi_map_pt_hook(type, ptep, page_to_pfn(page));
-	return ptep;
-}
-
-Right?  Which is functionally identical to the code in your patch,
-except wrapped up in a new function.
-
-    J
+thanks,
+-chris
