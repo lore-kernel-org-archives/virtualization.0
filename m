@@ -1,69 +1,52 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Andi Kleen <ak@suse.de>
 Subject: Re: [patch] paravirt: VDSO page is essential
-Date: Mon, 05 Mar 2007 12:11:25 -0800
-Message-ID: <45EC796D.5050705@vmware.com>
-References: <20070305120631.GA14105@elte.hu>
-	<1173101297.26165.39.camel@localhost.localdomain>
-	<20070305143437.GF22829@bingen.suse.de>
+Date: Mon, 5 Mar 2007 21:16:42 +0100
+Message-ID: <200703052116.42807.ak@suse.de>
+References: <20070305120631.GA14105@elte.hu> <20070305143437.GF22829@bingen.suse.de> <45EC796D.5050705@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070305143437.GF22829@bingen.suse.de>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752850AbXCEURz@vger.kernel.org>
+In-Reply-To: <45EC796D.5050705@vmware.com>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>, virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> But this still means I would need to decide between a PARAVIRT
-> kernel that either supports xen/VMI or cannot boot old user land without
-> weird options.  I don't think that's the correct solution. The goal
-> is a single binary that runs everywhere and is still compatible.
->   =
+ We are not concerned so much 
+> with supporting legacy user land deployments,
 
+I am concerned about that. I won't merge any patches that break compatibility
+by default.
 
-Rusty's patch looks a step in the right direction to me.  I can't =
+> > What would probably work is to somehow decide at runtime if a hypervisor
+> > is there or not and then set vdso default based on that. I guess that
+> > detection would be hypervisor specific though and probably would
+> > need paravirt ops extensions.
+> >   
+> 
+> What we really need to do is to be able to detect an old user land and 
+> drop VDSO support when that is found.  
 
-comment on Ingo's patch as he failed to -cc me on it, despite the fact =
+Rusty implemented that, but it was widely considered too ugly
+(and it was not 100% reliable e.g. with chroots) 
 
-that we are the only ones affected by it.  We are not concerned so much =
+> But since we can't do that, the  
+> next best thing is to allow the hypervisor to choose whatever workaround 
+> it wants when it moves the fixmap and compat_vdso was enabled.  In our 
+> case, the workaround we will want is a boot option to disable VDSO for 
+> old user land,
 
-with supporting legacy user land deployments, as we expect for the most =
+The boot option is already there, but boot options for is not my
+idea of user friendly binary compatibility.
 
-part, the install scenario to happen when upgrading to new distros.
+> and a printk warning if you take #GPs and kill the init  
+> proc, because for us, this is not an expected support scenario.  We 
+> would much rather support the VDSO by default in paravirt kernels even 
+> with COMPAT_VDSO turned on.
 
-> What would probably work is to somehow decide at runtime if a hypervisor
-> is there or not and then set vdso default based on that. I guess that
-> detection would be hypervisor specific though and probably would
-> need paravirt ops extensions.
->   =
+But you can't have it at the compatible fixed address, right?
 
-
-What we really need to do is to be able to detect an old user land and =
-
-drop VDSO support when that is found.  But since we can't do that, the =
-
-next best thing is to allow the hypervisor to choose whatever workaround =
-
-it wants when it moves the fixmap and compat_vdso was enabled.  In our =
-
-case, the workaround we will want is a boot option to disable VDSO for =
-
-old user land, and a printk warning if you take #GPs and kill the init =
-
-proc, because for us, this is not an expected support scenario.  We =
-
-would much rather support the VDSO by default in paravirt kernels even =
-
-with COMPAT_VDSO turned on.
-
-Zach
+-Andi
