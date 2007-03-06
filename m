@@ -1,14 +1,20 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: Xen & VMI?
-Date: Tue, 06 Mar 2007 13:02:41 -0800
-Message-ID: <45EDD6F1.7080100@goop.org>
-References: <45ED82D9.6050204@codemonkey.ws>	<8FFF7E42E93CC646B632AB40643802A80229779B@scsmsx412.amr.corp.intel.com>
-	<20070306203712.GC21736@elte.hu>
+Date: Tue, 6 Mar 2007 22:03:34 +0100
+Message-ID: <20070306210334.GC26348@elte.hu>
+References: <45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org>
+	<45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org>
+	<20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de>
+	<20070306085222.GA17002@elte.hu>
+	<20070306194612.GG19575@sequoia.sous-sol.org>
+	<20070306203018.GA21736@elte.hu>
+	<20070306205351.GA10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070306203712.GC21736@elte.hu>
+Content-Disposition: inline
+In-Reply-To: <20070306205351.GA10574@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,47 +24,73 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Anthony Liguori <anthony@codemonkey.ws>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: virtualization <virtualization@lists.osdl.org>, Roland McGrath <roland@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ingo Molnar wrote:
-> maybe we are talking past each other because i dont really disagree with =
 
-> that: i mentioned it right at beginning that higher-level APIs would =
+* Chris Wright <chrisw@sous-sol.org> wrote:
 
-> have to be added to VMI. What i'd like to avoid is the ABI duplication =
+> > i'm still arguing the same: that doing the same thing via =
 
-> for the lowlevel stuff /and/ for the highlevel stuff. Since VMI is =
+> > overlapping, conflicting, redundant ABIs is crazy and contrary to =
 
-> mostly about lowlevel stuff right now it's obvious that it would have to =
+> > the basic interests of Linux. It's like having 5 different, parallel =
 
-> grow more highlevel ops. Doing an IO driver via IO emulation is =
+> > variants of sys_open(), interfaced via a convoluted open_ops.
+> =
 
-> obviously pretty ... low-tech.
->
-> maybe i shouldnt call it 'VMI' but 'the paravirt ABI'. I dont mind if =
+> I would've said 5 parallel implementations of inode->i_op simply given =
 
-> it's the Xen ABI or the VMWare ABI or a mesh of the two - everyone can =
+> the nature of the operations, which is entirely sane.
 
-> map their own internals to that /one/ ABI.
+with the big freaking difference that the 5 parallel implementations of =
 
-Well, that's the basic force shaping paravirt_ops; many of the calls are
-generally used by all backends, and some are more specific.  The
-entrypoints in paravirt_ops would be an approximate model for this
-hypothetical ABI you're talking about.
+inode->i_op are:
 
-But the key point you're missing is that this isn't a one-way
-interface.  The hypervisor backend code makes calls into the kernel's
-interfaces as well.  We use memory allocation, the interrupt
-infrastructure, timers, per-cpu and as many other existing interfaces as
-possible, so that we don't have to bloat paravirt_ops with duplicates of
-all those other interfaces.
+	_internal to Linux_
 
-If you're seriously talking about an ABI, then you'd also have to
-present stable ABIs for all subsystems the hypervisor backends want to
-call into, either by actually freezing the internal linux interfaces
-into ABIs, or by effectively duplicating them across the paravirt ABI
-(or whatever).
+Doh. There's only a data ABI underneath them.
 
-    J
+every time someone tried to impose a functional/behavioral ABI on core =
+
+bits of Linux we said: 'no way dude!'. Remember STREAMS? Remember the =
+
+module KABI? Remember ACPI? [doh, i guess we messed up on the latter =
+
+one. We regret that day ever since.]
+
+(network file systems are a bit of an exception to the rule, but those =
+
+are pretty isolated themselves and in no way as wide and central as the =
+
+direction paravirt_ops appears to grow.)
+
+> > having data ABI coupling is one thing (filesystems, network formats, =
+
+> > etc.). But having a 5-way function ABI coupling between system =
+
+> > software running on the /same piece of hardware/, doing the same =
+
+> > thing in essence is just madness in my book.
+> =
+
+> This is where I'm not understanding your argument.  The hardware is =
+
+> somewhat irrelevant since the OS is running on a platform presented by =
+
+> the hypervisor.  And the point is to allow multiple implementations of =
+
+> the OS opertations that interact with the platform.  And in essence =
+
+> all network stacks and file systems are doing the same thing with the =
+
+> same hardware. [...]
+
+again, those are /DATA/ ABIs. Not function ABIs. Not behavioral ABIs. =
+
+The coupling is /FAR/ saner and far more plannable and far more =
+
+isolated. And even data ABIs are very non-trivial ...
+
+	Ingo
