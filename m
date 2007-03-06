@@ -1,14 +1,18 @@
-From: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [Xen-devel] [PATCH 2/10] linux 2.6.18: COMPAT_VDSO
-Date: Tue, 06 Mar 2007 07:52:47 +0000
-Message-ID: <45ED2BDF.76E4.0078.0@novell.com>
-References: <45EC098D.76E4.0078.0@novell.com> <45EC787B.2020807@goop.org>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Xen & VMI?
+Date: Tue, 6 Mar 2007 09:19:09 +0100
+Message-ID: <20070306081909.GA9331@elte.hu>
+References: <20070305120631.GA14105@elte.hu>
+	<1173101297.26165.39.camel@localhost.localdomain>
+	<1173142644.4644.6.camel@localhost.localdomain>
+	<45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org>
+	<45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45EC787B.2020807@goop.org>
 Content-Disposition: inline
+In-Reply-To: <45ECC9B6.1060209@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,21 +23,44 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, xen-devel@lists.xensource.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->Ingo just raised this as an issue for paravirt_ops as well.  I don't
->quite follow what's going on there.   My understanding is that there are
->some old versions of glibc (which were unreleased CVS snapshots shipped
->by some vendors) which don't use the vdso's ELF header, but instead have
->their own canned one which built into the library itself.
 
-Perhaps you meanwhile saw the similar question from Keir regarding this
-(and my answer), but in short: plain glibc 2.3.2 (at least) supports AT_SYS=
-INFO
-but not AT_SYSINFO_HDR. In this scenario, moving the vDSO around is fine,
-but glibc-internal (arguably broken) consistency checks prevent the vDSO fr=
-om
-being accepted when not using COMPAT_VDSO.
+btw., while we have everyone on the phone and talking ;) Technologically =
 
-Jan
+it would save us a whole lot of trouble in Linux if 'external' =
+
+hypervisors could standardize around a single ABI - such as VMI. Is =
+
+there any deep reason why Xen couldnt use VMI to talk to Linux? I =
+
+suspect a range of VMI vectors could be set aside for Xen's dom0 (and =
+
+other) APIs that have no current VMI equivalent - if there's broad =
+
+agreement on the current 60+ base VMI vectors that center around basic =
+
+x86 CPU capabilities - which make up the largest portion of our =
+
+paravirtualization complexity. Pipe dream?
+
+there are already 5 major hypervisors we are going to support (in =
+
+alphabetical order):
+
+ - KVM
+ - lguest
+ - Windows
+ - VMWare
+ - Xen
+
+the QA matrix is gonna be a _mess_. Okay, lguest and KVM is special =
+
+because both the client and the server side is in the same source code, =
+
+so the ABI [if any] is alot easier to manage. That still leaves another =
+
+three...
+
+	Ingo
