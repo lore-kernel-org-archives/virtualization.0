@@ -1,35 +1,59 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Xen & VMI?
-Date: Tue, 6 Mar 2007 11:31:37 +0100
-Message-ID: <20070306103137.GB7478@elte.hu>
-References: <45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org> <45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org> <20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de> <20070306085222.GA17002@elte.hu> <45ED3121.8090308@suse.de> <45ED3A8D.9090906@argo.co.il> <45ED4117.40701@suse.de>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
+Date: Tue, 06 Mar 2007 11:59:34 +0100
+Message-ID: <1173178774.24738.311.camel@localhost.localdomain>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
+	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
+	 <20070306084647.GA16280@elte.hu>  <45ED2C82.3080008@vmware.com>
+Reply-To: tglx@linutronix.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934013AbXCFKb4@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <45ED4117.40701@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964930AbXCFKxd@vger.kernel.org>
+In-Reply-To: <45ED2C82.3080008@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@suse.de>
-Cc: Avi Kivity <avi@argo.co.il>, Jeremy Fitzhardinge <jeremy@goop.org>, virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, ak@suse.de, Daniel Hecht <dhecht@vmware.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, 2007-03-06 at 00:55 -0800, Zachary Amsden wrote:
+> > a proper CE device also has the added bonus of making high-res timers 
+> > guests work automatically. It should be simple: just pass it through to 
+> > your hypervisor, a hyper-CE-device, like a hyper-clocksource device has 
+> > essentially no guest-side complexity.
+> >   
+> 
+> It is not so simple.  In theory it works great.  In reality, the i386 
+> implementation is completely hardwired to work the way hardware works, 
+> and breaking the clockevent code out of the deep ties to the APIC is 
+> extremely non-trivial.  We tried, and could not accomplish it for 2.6.21 
+> because the hrtimers integration was complex, and introduced many bugs 
+> for us.
 
-* Gerd Hoffmann <kraxel@suse.de> wrote:
+Why is this so non-trivial ? All you have to do is _NOT_ register
+PIT/HPET/APIC timers and register a per CPU hyper-CE-device instead,
+which uses the hypervisor timer emulation instead of real hardware.
 
-> Thanks.  That is actually the point I want make: although it is 
-> *possible* to do that via VMI ROM, doing that using paravirt_ops is 
-> *better* (no matter whenever the hypervisor is xen or kvm). [...]
+clockevents breaks the hardwired assumptions of the old timer code and
+allows you to remove _ALL_ the hardwired hackery in vmitimer.c, i.e.
+stuff like
 
-but paravirt_ops is not an ABI ... nor will it ever become one. So the 
-fact remains: the extra ABIs towards external hypervisors are quite an 
-issue.
+       /* Disable PIT. */
+        outb_p(0x3a, PIT_MODE); /* binary, mode 5, LSB/MSB, ch 0 */
 
-> [...] The very same discussion a couple months ago came to exactly 
-> that conclusion.
+> We worked around this by keeping NO_IDLE_HZ support, which now 
+> you deprecated.  So now we are using NO_HZ without a hyper-CE device, 
+> and it is working fine.  We understand the benefits of moving to the CE 
+> model - but it cannot be done overnight.
 
-uhm, that discussion mostly only involved people interested in external 
-hypervisors, not those poor souls who have to fix up the mess in the end 
-within Linux ;-) [ I am very sure all foxes would come to the happy 
-conclusion that there is no need for any stinkin' lock on the barn ;-) ]
+This is ugly as hell. NO_HZ enables the dyntick functions in idle(),
+irq_enter() and irq_exit() so the clockevents code is actually invoked.
+I have not looked close enough why this does work at all.
 
-	Ingo
+I have the feeling that "working fine" means something like "does not
+explode".
+
+We really want to fix this now instead of pushing some not know why it
+works hack into the kernel.
+
+	tglx
