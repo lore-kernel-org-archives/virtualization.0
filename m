@@ -1,17 +1,16 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Xen & VMI?
-Date: Tue, 06 Mar 2007 13:46:34 -0800
-Message-ID: <45EDE13A.4070204@goop.org>
-References: <45ED82D9.6050204@codemonkey.ws>
-	<8FFF7E42E93CC646B632AB40643802A80229779B@scsmsx412.amr.corp.intel.com>
-	<20070306203712.GC21736@elte.hu> <45EDD6F1.7080100@goop.org>
-	<20070306211105.GD26348@elte.hu> <45EDD96D.1030108@goop.org>
-	<20070306212037.GB31568@elte.hu>
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: Re: [RFC] ARP notify option
+Date: Tue, 6 Mar 2007 14:52:41 -0800
+Message-ID: <20070306145241.5ec1c511@freekitty>
+References: <20070301164214.4a40bc59@freekitty> <45E7764A.7000100@goop.org>
+	<20070301173030.754514ec@freekitty>
+	<20070305.203536.92584097.davem@davemloft.net>
+	<20070306105132.52c77491@freekitty> <45EDDA8F.5060106@nortel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070306212037.GB31568@elte.hu>
+In-Reply-To: <45EDDA8F.5060106@nortel.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -21,63 +20,40 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Anthony Liguori <anthony@codemonkey.ws>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: xen-devel@lists.xensource.com, jeff@garzik.org, ian.pratt@xensource.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, David Miller <davem@davemloft.net>, ak@muc.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ingo Molnar wrote:
-> 1 sane ABI instead of 4 parallel ones? It's the same difference as the =
+On Tue, 06 Mar 2007 15:18:07 -0600
+"Chris Friesen" <cfriesen@nortel.com> wrote:
 
-> difference between 300 system calls and 1200 system calls. Alot more =
+> Stephen Hemminger wrote:
+> =
 
-> focus, alot more integration, alot less pain. Every time i change a =
+> > +arp_notify - BOOLEAN
+> > +	Define mode for notification of address and device changes.
+> > +	0 - (default): do nothing
+> > +	1 - Generate gratuitous arp replies when device is brought up
+> > +	    or hardware address changes.
+> =
 
-> detail in Linux i have to update (and think about) 1 virtualization =
+> Did you consider using gratuitous arp requests instead?  I remember =
 
-> aspect - not 4 (or more).
->   =
+> reading about some hardware that updated its arp cache on gratuitous =
+
+> requests but not gratuitous replies.
+> =
+
+> Chris
+
+I copied the ARP generation from other places that were doing
+gratuitous ARP already:  Xen and irlan.
+Our local switch used REPLY's to do the same thing.
+
+One could imagine making it a ternary value and having 2 generate
+REQUEST's.
 
 
-But you're just pushing the problem off; it doesn't go away, and it
-doesn't really stop being your problem.  If you change the way you use
-the abi and something breaks in one of its implementations, you're still
-going to get "wahh, you broke Xen/ESX/whatever".  And then you either
-have to wait for the ABI implementation to get fixed, or work around it
-on the Linux side.
+-- =
 
-I don't see why you think an ABI is easier to reason about than the
-pv_ops api?  If you're going to make a kernel change that has an effect
-on the API, its also going to have an effect on the ABI, but with the
-ABI you're stuck waiting for the ABI to catch up before you can do
-something.  If your kernel change relies on pv_ops but won't need to
-change it, then reasoning about the pv_ops API is enough to make things
-work.
-
-pvops has, what, about 90 calls in it, which break down into a few broad
-classes:
-
-   1. various setup things, which more or less correspond to subsystems
-      (interrupts, time, memory, etc)
-   2. calls which are direct analogues of hardware operations
-   3. pagetable/tlb operations
-   4. random corner cases (like the apic stuff to plug into ESX's apic
-      emulation)
-
-The (functionally) large missing component is SMP support, though I
-expect that will only come down to a handful of extra operations.
-
-All of these operations are pretty easily understood in their own terms
-at the pv_ops interface level.  Knowing how the pv_ops backends map
-these onto a particular hypercall interface is not really necessary to
-understand the pv_ops interface, though its readily visible by reading
-the source.  But if you need to look and change it, you can; hiding it
-under a layer of magic ABI dust isn't going to fix that.
-
-The other big part that's missing from paravirt_ops is all the hooks for
-calling back into the kernel - because they're not necessary.  You
-skipped that point in my earlier mail, but it is important.  A basic
-element in Xen's design is that it interacts with the guest kernel in a
-fairly high level, and makes use of existing kernel mechanisms whereever
-possible.  How do you see that working in your proposal?
-
-    J
+Stephen Hemminger <shemminger@linux-foundation.org>
