@@ -1,15 +1,19 @@
 From: Zachary Amsden <zach@vmware.com>
-Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Tue, 06 Mar 2007 00:55:30 -0800
-Message-ID: <45ED2C82.3080008@vmware.com>
-References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
-	<45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
-	<20070306084647.GA16280@elte.hu>
+Subject: Re: Xen & VMI?
+Date: Tue, 06 Mar 2007 01:03:31 -0800
+Message-ID: <45ED2E63.3070700@vmware.com>
+References: <20070305120631.GA14105@elte.hu>
+	<1173101297.26165.39.camel@localhost.localdomain>
+	<1173142644.4644.6.camel@localhost.localdomain>
+	<45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org>
+	<45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org>
+	<20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de>
+	<20070306085222.GA17002@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070306084647.GA16280@elte.hu>
+In-Reply-To: <20070306085222.GA17002@elte.hu>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -20,54 +24,67 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, mm-commits@vger.kernel.org, tglx@linutronix.de, akpm@linux-foundation.org
+Cc: virtualization <virtualization@lists.osdl.org>, Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
->
->   =
+>>> there are already 5 major hypervisors we are going to support (in =
 
->> no, that's not the case: next_timer_interrupt() is the NO_IDLE_HZ =
+>>> alphabetical order):
+>>>
+>>>  - KVM
+>>>  - lguest
+>>>  - Windows
+>>>  - VMWare
+>>>  - Xen
+>>>
+>>> the QA matrix is gonna be a _mess_.
+>>>       =
 
->> method of doing things - while in the NO_HZ case you are supposed to =
+>> I fail to see how xen-via-vmirom instead of xen-via-paravirt_ops =
 
->> use clockevent devices to program timer hardware.
+>> reduces the QA effort.  You still have 5 Hypervisors you have to test =
+
+>> against.
 >>     =
 
+>
+> yes, just like we have thousands of separate PC boards to support. But =
 
-We don't have a clockevent device.  But we need NO_IDLE_HZ support, =
+> as long as the basic ABI is the same, the QA effort on the Linux kernel =
 
-which NO_HZ has now subsumed.
+> side is alot more focused. (Distros still have 18446744073709551616 =
 
-> a proper CE device also has the added bonus of making high-res timers =
+> total combinations to QA, and have to make an educated guess to reduce =
 
-> guests work automatically. It should be simple: just pass it through to =
-
-> your hypervisor, a hyper-CE-device, like a hyper-clocksource device has =
-
-> essentially no guest-side complexity.
+> that to a more manageable number.)
 >   =
 
 
-It is not so simple.  In theory it works great.  In reality, the i386 =
+But hardware PC boards don't do anything as remotely complicate as =
 
-implementation is completely hardwired to work the way hardware works, =
+changing the semantics required for correctness in you MMU =
 
-and breaking the clockevent code out of the deep ties to the APIC is =
+implementation.  There might be some weird MTRR and caching things, =
 
-extremely non-trivial.  We tried, and could not accomplish it for 2.6.21 =
+which are a property of the architecture, and which all modern boards =
 
-because the hrtimers integration was complex, and introduced many bugs =
+have in common.  You don't have completely diverse implementation =
 
-for us.  We worked around this by keeping NO_IDLE_HZ support, which now =
+properties like shadow vs direct vs native page tables.  Or hardware =
 
-you deprecated.  So now we are using NO_HZ without a hyper-CE device, =
+virtualization vs direct CPL raised execution.  You simply can't test =
 
-and it is working fine.  We understand the benefits of moving to the CE =
+this diversity by making an educated guess, because in this case, =
 
-model - but it cannot be done overnight.
+something will always be omitted.  The test matrix has to be raised, and =
 
-Xen has the same requirements for integrating their timer code.
+if that is a problem, the burden of proper testing shifted onto the =
+
+manufacturers, just as you would with some new PC board or new =
+
+architecture that wanted to be Linux friendly but was radically =
+
+different in some way.
 
 Zach
