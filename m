@@ -1,19 +1,18 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: Xen & VMI?
-Date: Tue, 06 Mar 2007 01:03:31 -0800
-Message-ID: <45ED2E63.3070700@vmware.com>
+Date: Tue, 06 Mar 2007 01:07:31 -0800
+Message-ID: <45ED2F53.2040101@goop.org>
 References: <20070305120631.GA14105@elte.hu>
 	<1173101297.26165.39.camel@localhost.localdomain>
 	<1173142644.4644.6.camel@localhost.localdomain>
 	<45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org>
 	<45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org>
-	<20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de>
-	<20070306085222.GA17002@elte.hu>
+	<20070306081909.GA9331@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070306085222.GA17002@elte.hu>
+In-Reply-To: <20070306081909.GA9331@elte.hu>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -24,67 +23,49 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Ingo Molnar <mingo@elte.hu>
-Cc: virtualization <virtualization@lists.osdl.org>, Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
+Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Ingo Molnar wrote:
->>> there are already 5 major hypervisors we are going to support (in =
+> btw., while we have everyone on the phone and talking ;) Technologically =
 
->>> alphabetical order):
->>>
->>>  - KVM
->>>  - lguest
->>>  - Windows
->>>  - VMWare
->>>  - Xen
->>>
->>> the QA matrix is gonna be a _mess_.
->>>       =
+> it would save us a whole lot of trouble in Linux if 'external' =
 
->> I fail to see how xen-via-vmirom instead of xen-via-paravirt_ops =
+> hypervisors could standardize around a single ABI - such as VMI. Is =
 
->> reduces the QA effort.  You still have 5 Hypervisors you have to test =
+> there any deep reason why Xen couldnt use VMI to talk to Linux? I =
 
->> against.
->>     =
+> suspect a range of VMI vectors could be set aside for Xen's dom0 (and =
 
->
-> yes, just like we have thousands of separate PC boards to support. But =
+> other) APIs that have no current VMI equivalent - if there's broad =
 
-> as long as the basic ABI is the same, the QA effort on the Linux kernel =
+> agreement on the current 60+ base VMI vectors that center around basic =
 
-> side is alot more focused. (Distros still have 18446744073709551616 =
+> x86 CPU capabilities - which make up the largest portion of our =
 
-> total combinations to QA, and have to make an educated guess to reduce =
+> paravirtualization complexity. Pipe dream?
 
-> that to a more manageable number.)
->   =
+Well, we went around this about six months ago, and decided the best way
+forward is the current paravirt_ops approach. =
 
 
-But hardware PC boards don't do anything as remotely complicate as =
+The Xen and VMI interfaces are quite different, and have different
+design goals.  VMI is fairly low-level, and is approximately a software
+implementation of VT/SVM with a couple of extra bits, whereas the Xen
+interface is intended to be higher level, with the expectation that the
+guest cooperates more with its virtualization.  They have similarities
+by necessity, but they have some fairly basic differences.
 
-changing the semantics required for correctness in you MMU =
+You could come up with some shim layer which makes the two interfaces
+appear similar, and you could spell the name of that shim "VMI".  Or you
+could call it "paravirt_ops", which is the name we chose.  And you could
+implement the interface to that layer as a binary ABI, or you could make
+it a normal source-level Linux kernel interface, which is what we chose
+to do.
 
-implementation.  There might be some weird MTRR and caching things, =
+Either way, its still one of native hardware, VMI/ESX, Xen or something
+else under the interface layer, and you need to test for each case
+regardless of what the interface looks like.
 
-which are a property of the architecture, and which all modern boards =
 
-have in common.  You don't have completely diverse implementation =
-
-properties like shadow vs direct vs native page tables.  Or hardware =
-
-virtualization vs direct CPL raised execution.  You simply can't test =
-
-this diversity by making an educated guess, because in this case, =
-
-something will always be omitted.  The test matrix has to be raised, and =
-
-if that is a problem, the burden of proper testing shifted onto the =
-
-manufacturers, just as you would with some new PC board or new =
-
-architecture that wanted to be Linux friendly but was radically =
-
-different in some way.
-
-Zach
+    J
