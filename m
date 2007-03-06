@@ -1,28 +1,63 @@
-From: Avi Kivity <avi@argo.co.il>
+From: Gerd Hoffmann <kraxel@suse.de>
 Subject: Re: Xen & VMI?
-Date: Tue, 06 Mar 2007 11:55:25 +0200
-Message-ID: <45ED3A8D.9090906@argo.co.il>
-References: <20070305120631.GA14105@elte.hu> <1173101297.26165.39.camel@localhost.localdomain> <1173142644.4644.6.camel@localhost.localdomain> <45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org> <45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org> <20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de> <20070306085222.GA17002@elte.hu> <45ED3121.8090308@suse.de>
+Date: Tue, 06 Mar 2007 11:15:05 +0100
+Message-ID: <45ED3F29.6000705@suse.de>
+References: <1173101297.26165.39.camel@localhost.localdomain>
+	<1173142644.4644.6.camel@localhost.localdomain>
+	<45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org>
+	<45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org>
+	<20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de>
+	<20070306085222.GA17002@elte.hu> <45ED3121.8090308@suse.de>
+	<20070306093436.GA30239@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030344AbXCFJ6G@vger.kernel.org>
-In-Reply-To: <45ED3121.8090308@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>, virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20070306093436.GA30239@elte.hu>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gerd Hoffmann wrote:
-> Oh, and btw:  What was the reason why kvm paravirtualization doesn't use
-> the vmi interface?
->
->   
+Ingo Molnar wrote:
+> * Gerd Hoffmann <kraxel@suse.de> wrote:
+> =
 
-There actually was proof of concept code to do just that (by Anthony 
-Liguori).  For Linux, I feel paravirt_ops is superior as we can extend 
-it if something is missing.  If VMI is adopted by non-Linux guests, we 
-may support it as a quick way to add paravirt support for those guests.
+>> Oh, and btw: What was the reason why kvm paravirtualization doesn't =
 
--- 
-error compiling committee.c: too many arguments to function
+>> use the vmi interface?
+> =
+
+> cleanliness and performance: KVM doesnt need any artificial indirection.
+
+Xen doesn't need it either.
+
+> IMO the GPL-ed ROM portion of VMI was a bad idea to begin with.
+
+So why do you want xen use vmi then?
+
+> well, the VMI patches got into Linux with the claim that it's also =
+
+> useful for Xen. So that claim was ... not actually true?
+
+As mentioned there was a proof-of-concept VMI ROM done by vmware.  As
+far I know it translated the VMI ROM interface calls into xen hypercalls
+somehow, Zach probably has more details.
+
+So in the end you would still have two different hypervisor ABI's, the
+VMI ROM just hides that.
+
+cheers,
+  Gerd
+
+-- =
+
+Gerd Hoffmann <kraxel@suse.de>
