@@ -1,59 +1,60 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Tue, 06 Mar 2007 11:59:34 +0100
-Message-ID: <1173178774.24738.311.camel@localhost.localdomain>
-References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
-	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
-	 <20070306084647.GA16280@elte.hu>  <45ED2C82.3080008@vmware.com>
-Reply-To: tglx@linutronix.de
+From: Gerd Hoffmann <kraxel@suse.de>
+Subject: Re: Xen & VMI?
+Date: Tue, 06 Mar 2007 12:04:56 +0100
+Message-ID: <45ED4AD8.6020504@suse.de>
+References: <45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org> <45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org> <20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de> <20070306085222.GA17002@elte.hu> <45ED3121.8090308@suse.de> <20070306093436.GA30239@elte.hu> <45ED3F29.6000705@suse.de> <20070306102658.GA7478@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964930AbXCFKxd@vger.kernel.org>
-In-Reply-To: <45ED2C82.3080008@vmware.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964919AbXCFLEu@vger.kernel.org>
+In-Reply-To: <20070306102658.GA7478@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, ak@suse.de, Daniel Hecht <dhecht@vmware.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-03-06 at 00:55 -0800, Zachary Amsden wrote:
-> > a proper CE device also has the added bonus of making high-res timers 
-> > guests work automatically. It should be simple: just pass it through to 
-> > your hypervisor, a hyper-CE-device, like a hyper-clocksource device has 
-> > essentially no guest-side complexity.
-> >   
+Ingo Molnar wrote:
+>>> IMO the GPL-ed ROM portion of VMI was a bad idea to begin with.
+>> So why do you want xen use vmi then?
 > 
-> It is not so simple.  In theory it works great.  In reality, the i386 
-> implementation is completely hardwired to work the way hardware works, 
-> and breaking the clockevent code out of the deep ties to the APIC is 
-> extremely non-trivial.  We tried, and could not accomplish it for 2.6.21 
-> because the hrtimers integration was complex, and introduced many bugs 
-> for us.
+> due to the other argument i listed:
+> 
+> || Also, lguest and KVM is Linux-internal, so there's a natural match 
+> || between the guest and the host APIs.
+>
+> It's a basic kernel maintainance issue: lguest/KVM and Linux host and 
+> guest will co-evolve foward in a natural way as they are in essence 
+> Linux-internal technologies. They /will/ harmonize.
 
-Why is this so non-trivial ? All you have to do is _NOT_ register
-PIT/HPET/APIC timers and register a per CPU hyper-CE-device instead,
-which uses the hypervisor timer emulation instead of real hardware.
+Yes for lguest, that is a linux-only ground for play and research and
+that will most likely not change in near future.
 
-clockevents breaks the hardwired assumptions of the old timer code and
-allows you to remove _ALL_ the hardwired hackery in vmitimer.c, i.e.
-stuff like
+It is complete bullshit for kvm.  You can run almost anything as guest
+in kvm, and I certainly wouldn't be surprised if we see other operating
+systems start using the kvm paravirt interface.
 
-       /* Disable PIT. */
-        outb_p(0x3a, PIT_MODE); /* binary, mode 5, LSB/MSB, ch 0 */
+> There is no such 
+> guarantee with Xen/VMWare/etc. (which are distinctly separate 
+> technologies) - so any ABIs towards them could become (and are already 
+> becoming) a drag and distraction.
 
-> We worked around this by keeping NO_IDLE_HZ support, which now 
-> you deprecated.  So now we are using NO_HZ without a hyper-CE device, 
-> and it is working fine.  We understand the benefits of moving to the CE 
-> model - but it cannot be done overnight.
+We'll certainly need some stable ABI for kvm too, so you can mix kernel
+versions on host and guest.  I really can't see why do you think kvm is
+special in any way (except that it is your favorite toy at the moment).
 
-This is ugly as hell. NO_HZ enables the dyntick functions in idle(),
-irq_enter() and irq_exit() so the clockevents code is actually invoked.
-I have not looked close enough why this does work at all.
+>> So in the end you would still have two different hypervisor ABI's, the 
+>> VMI ROM just hides that.
+> 
+> oh, but that way i have cleverly pushed the problem out of Linux and 
+> into the VMI-ROM's domain ;) Which is all i care about.
 
-I have the feeling that "working fine" means something like "does not
-explode".
+Fine, so lets move kvm paravirtualitzation into vmi too (proof of
+concept code by Anthony Liguori exists) and kill one more item on the
+(linux) QA test matrix?  (just following your arguments, not that I'm
+confident it would actually help reducing QA effort).
 
-We really want to fix this now instead of pushing some not know why it
-works hack into the kernel.
+cheers,
+  Gerd
 
-	tglx
+-- 
+Gerd Hoffmann <kraxel@suse.de>
