@@ -1,19 +1,19 @@
-From: Ingo Molnar <mingo@elte.hu>
+From: Gerd Hoffmann <kraxel@suse.de>
 Subject: Re: Xen & VMI?
-Date: Tue, 6 Mar 2007 10:10:06 +0100
-Message-ID: <20070306091006.GA26073@elte.hu>
-References: <1173101297.26165.39.camel@localhost.localdomain>
+Date: Tue, 06 Mar 2007 10:15:13 +0100
+Message-ID: <45ED3121.8090308@suse.de>
+References: <20070305120631.GA14105@elte.hu>
+	<1173101297.26165.39.camel@localhost.localdomain>
 	<1173142644.4644.6.camel@localhost.localdomain>
 	<45ECBDDC.8080708@vmware.com> <45ECC076.9050209@goop.org>
 	<45ECC91D.1020809@vmware.com> <45ECC9B6.1060209@goop.org>
 	<20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de>
-	<20070306085222.GA17002@elte.hu> <45ED2E63.3070700@vmware.com>
+	<20070306085222.GA17002@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline
-In-Reply-To: <45ED2E63.3070700@vmware.com>
+In-Reply-To: <20070306085222.GA17002@elte.hu>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -23,46 +23,49 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: virtualization <virtualization@lists.osdl.org>, Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-* Zachary Amsden <zach@vmware.com> wrote:
-
-> > > reduces the QA effort.  You still have 5 Hypervisors you have to =
-
-> > > test against.
-> >
-> > yes, just like we have thousands of separate PC boards to support. =
-
-> > But as long as the basic ABI is the same, the QA effort on the Linux =
-
-> > kernel side is alot more focused. (Distros still have =
-
-> > 18446744073709551616 total combinations to QA, and have to make an =
-
-> > educated guess to reduce that to a more manageable number.)
+Ingo Molnar wrote:
+> * Gerd Hoffmann <kraxel@suse.de> wrote:
 > =
 
-> But hardware PC boards don't do anything as remotely complicate as =
+>>> [using vmi rom]
+>> IIRC there was some proof-of-concept at least for xen guests.
+> =
 
-> changing the semantics required for correctness in you MMU =
+> yes - but de-facto contradicted by the Xen paravirt_ops patches sent to =
 
-> implementation. [...]
+> lkml ;)
 
-ugh, PC boards are actually far worse and far more diverse than any =
+Yep.  The fact that it is possible to do that doesn't imply that it is
+the best solution.
 
-variances between hypervisors, but i digress.
+Oh, and btw:  What was the reason why kvm paravirtualization doesn't use
+the vmi interface?
 
-anyway, my point stands: the Linux kernel is significantly more =
+>>> the QA matrix is gonna be a _mess_.
+>> I fail to see how xen-via-vmirom instead of xen-via-paravirt_ops =
 
-maintainable and easier to QA if it has only a single 'external' =
+>> reduces the QA effort.  You still have 5 Hypervisors you have to test =
 
-hypervisor ABI to worry about - and that might as well be VMI. This is a =
+>> against.
+> =
 
-really obvious point, i expected the discussion to center more around =
+> yes, just like we have thousands of separate PC boards to support. But =
 
-the specifics of such a move ;-)
+> as long as the basic ABI is the same, the QA effort on the Linux kernel =
 
-	Ingo
+> side is alot more focused.
+
+xen and vmware are still two very different hypervisors from the memory
+mangement point of view.  I doubt moving the abstraction line within the
+linux kernel from paravirt_ops to vmi makes QA easier.
+
+cheers,
+  Gerd
+
+-- =
+
+Gerd Hoffmann <kraxel@suse.de>
