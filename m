@@ -1,41 +1,90 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Xen & VMI?
-Date: Tue, 6 Mar 2007 18:11:30 +0100
-Message-ID: <20070306171130.GA13403@elte.hu>
-References: <20070306081909.GA9331@elte.hu> <45ED2837.3020108@suse.de> <20070306085222.GA17002@elte.hu> <45ED3121.8090308@suse.de> <20070306093436.GA30239@elte.hu> <45ED3F29.6000705@suse.de> <20070306102658.GA7478@elte.hu> <45ED4AD8.6020504@suse.de> <20070306115937.GA25313@elte.hu> <45ED9678.5050907@goop.org>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: RE: Xen & VMI?
+Date: Tue, 6 Mar 2007 09:17:39 -0800
+Message-ID: <8FFF7E42E93CC646B632AB40643802A80229779B@scsmsx412.amr.corp.intel.com>
+References: <45ED82D9.6050204@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965309AbXCFRM0@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <45ED9678.5050907@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Gerd Hoffmann <kraxel@suse.de>, virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <45ED82D9.6050204@codemonkey.ws>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Anthony Liguori <anthony@codemonkey.ws>, Ingo Molnar <mingo@elte.hu>
+Cc: virtualization <virtualization@lists.osdl.org>, Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Anthony Liguori wrote:
+> Ingo Molnar wrote:
+>> * Gerd Hoffmann <kraxel@suse.de> wrote:
+>> =
 
-* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>>>>> So in the end you would still have two different hypervisor ABI's,
+>>>>> the VMI ROM just hides that.
+>>>> oh, but that way i have cleverly pushed the problem out of Linux
+>>>> and into the VMI-ROM's domain ;) Which is all i care about.
+>>> Fine, so lets move kvm paravirtualitzation into vmi too (proof of
+>>> concept code by Anthony Liguori exists) and kill one more item on
+>>> the (linux) QA test matrix?  (just following your arguments, not
+>>> that I'm confident it would actually help reducing QA effort).
+>> =
 
-> The whole point of pv_ops is to allow the hypervisors interfaces to 
-> evolve at their own pace without having to constrain the core kernel's 
-> development
+>> yes - although obviously a KVM Linux guest does not need such an
+>> interface - but it's a nice proof of concept to integrate other guest
+>> OSs into KVM.
+> =
 
-unfortunately that's a self-serving oxymoron, contradicted by real life 
-;) Pretty much the only way to ensure a sane ABI is to do it like we do 
-it with the Linux syscall ABI:
+> I disagree that a KVM Linux guest does not benefit from VMI.  Right
+> now, your KVM paravirt interface only covers CR3 target caching and
+> apic enhancements (neither of which I believe have made it into
+> 2.6.21). Inevitably, things like MMU batching will be added.
 
-	_to have only one_
+I think a KVM Linux would benefit more from paravirt ops, rather than
+VMI. The higher-level interface such as the one in Xen, espeically for
+I/O, interrupt controllers, timer, SMP, etc. actually simplifies the
+implementation of the VMM, and improve performance of the guest. Even
+for MMU, direct page tables, for example, would work better for
+hardware-based virtualization because the processor can use the native
+page tables. =
 
-We do not let OpenOffice or Evolution have its own separate ABI to Linux 
-so that they 'can evolve at their own pace'... We want them to cooperate 
-and come up with a common ABI (or rather, we try to come up with the 
-right syscalls ourselves), because divering, overlapping ABIs are a huge 
-PITA.
 
-We do not unify their pointlessly diverging ABIs to within the kernel 
-via say office_ops (while we could) because that's crappy on its face. 
-Hypervisors arent in any way different, they just _think_ they are 
-special because they are relatively new. But hey, i dont expect you to 
-concede this point ;)
+> =
 
-	Ingo
+> Using paravirt_ops, this is going to require new kernels for the
+>   guests. Every new paravirtualization feature will require a new
+>   guest kernel. With VMI, one can add these features to any 2.6.21+
+> guest by just modifying the ROM (assuming a newer host).  Some
+> features will require new VMI entry points but quite a lot will fall
+> under the current entry points.
+> =
+
+> Of all the hypervisors, KVM is the easiest to use VMI with.  QEMU
+> already supports option ROM loading and Zach just made some changes to
+> allow a native ROM to be implemented very easily.
+> =
+
+> If we're going to use VMI for anything other than VMware, it seems to
+> be that KVM should be what we use it for.
+> =
+
+> Regards,
+> =
+
+> Anthony Liguori
+> =
+
+>> 	Ingo
+> =
+
+
+Jun
+---
+Intel Open Source Technology Center
