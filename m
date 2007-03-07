@@ -1,71 +1,79 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: Xen & VMI?
-Date: Tue, 06 Mar 2007 18:54:38 -0600
-Message-ID: <45EE0D4E.3060903@codemonkey.ws>
-References: <45ED82D9.6050204@codemonkey.ws>	
-	<8FFF7E42E93CC646B632AB40643802A80229779B@scsmsx412.amr.corp.intel.com>	
-	<20070306203712.GC21736@elte.hu>
-	<1173228246.4644.85.camel@localhost.localdomain>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
+Date: Wed, 07 Mar 2007 02:18:24 +0100
+Message-ID: <1173230305.24738.529.camel@localhost.localdomain>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
+	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
+	 <20070306084647.GA16280@elte.hu>  <45ED2C82.3080008@vmware.com>
+	 <1173178774.24738.311.camel@localhost.localdomain>
+	 <45EDD82F.90204@vmware.com>
+	 <1173225182.24738.507.camel@localhost.localdomain>
+	 <45EE0628.1080108@goop.org>  <45EE08E8.2020008@vmware.com>
+	 <1173228544.24738.514.camel@localhost.localdomain>
+	 <45EE0D10.7070807@vmware.com>
+Reply-To: tglx@linutronix.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1173228246.4644.85.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932704AbXCGBMV@vger.kernel.org>
+In-Reply-To: <45EE0D10.7070807@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dan Hecht <dhecht@vmware.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, ak@suse.de, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Tue, 2007-03-06 at 21:37 +0100, Ingo Molnar wrote:
->   =
+On Tue, 2007-03-06 at 16:53 -0800, Dan Hecht wrote:
+> > Ooops. I completely forgot, that you get the absolute expiry time
+> > already in ktime_t format (nanoseconds) when dev->set_next_event() is
+> > called.
+> > 
+> > 	dev->next_event = expires;
+> > 
+> > is done right before the call. 
+> > 
+> > So it's already there for free.
+> > 
+> >
+> 
+> Okay.  I noticed that but didn't think it was okay to use since it 
+> didn't seem like it was set up for the clock_event_device code's use, so 
+> seemed like a conceptual interface violation to go digging around in 
+> there.
 
->> maybe i shouldnt call it 'VMI' but 'the paravirt ABI'. I dont mind if =
+Yes it is. 
 
->> it's the Xen ABI or the VMWare ABI or a mesh of the two - everyone can =
+I just wanted to point out that you can use it until I'm awake enough to
+implement it proper.
 
->> map their own internals to that /one/ ABI.
->>     =
+> Also, wasn't one of the points of clockevents to prevent the device code 
+> from doing conversions between nanoseconds and clicks themselves?  Don't 
+> we really want the clockevents generic layer to do this conversion 
+> between monotonic nanonseconds to absolute device clicks and then give 
+> the device code that value, so the device layer doesn't perform any 
+> conversions?
 
->
-> I think it's an excellent aim, but it's *HARD*.  I rejected this
-> approach earlier because I'm just not smart enough.  (Yet?)
->
-> The Linux side is fairly stable.  The hardware side is changing, and the
-> hypervisor side is changing.  This means the ABI will churn fairly fast.
-> The hypervisors are very different, which means the ABI will be very
-> wide.
->
-> We could start with VMI and try to support Xen, KVM and lguest.
+Right. But this applies only to deltas, as the conversion of absolute
+time values gets ugly, i.e. 128bit math
 
-There is one more here.  We also have Xen HVM which will soon want to be =
+IMO the paravirt interfaces should use nanoseconds anyway for both
+readout and next event programming. That way the conversion is done in
+the hypervisor once and the clocksources and clockevents are simple and
+unified (except for the underlying hypervisor calls).
 
-paravirtualized too.  We don't want the current xen paravirt_ops for =
+> On an unrelated note, can you explain what the difference between 
+> CLOCK_EVT_MODE_UNUSED and CLOCK_EVT_MODE_SHUTDOWN modes are and what the 
+> legal state transitions are? (or point me to a document describing 
+> this).  At least on i386, all clock event devices treat them the same; 
+> do we really need both?
 
-that as they have a lot of things that HVM does not need.
+UNUSED:
+The device is registered, but not used by any clockevents client
 
-Since KVM and Xen HVM have the least requirements in term of guest =
+SHUTDOWN:
+The device is registered, claimed by a clockevents client, but
+momentarily not active.
 
-modifications, they are probably the obviously places to start.
+The clock events device can treat UNUSED and SHUTDOWN basically in the
+same way.
 
-Regards,
-
-Anthony Liguori
-
->   It
-> would at least give us a better idea of the scope of the problem.  But
-> IMHO it's a *huge* job.
->
-> Rusty.
->
->
->
->   =
+	tglx
