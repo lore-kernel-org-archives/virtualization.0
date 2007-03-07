@@ -1,61 +1,132 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 07 Mar 2007 08:48:36 +0100
-Message-ID: <1173253716.24738.540.camel@localhost.localdomain>
-References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
-	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
-	 <20070306084647.GA16280@elte.hu>  <45ED2C82.3080008@vmware.com>
-	 <1173178774.24738.311.camel@localhost.localdomain>
-	 <45EDD82F.90204@vmware.com>
-	 <1173225182.24738.507.camel@localhost.localdomain>
-	 <45EE0A68.6010406@vmware.com>
-	 <1173230571.24738.534.camel@localhost.localdomain>
-	 <45EE190E.4060904@vmware.com>
-Reply-To: tglx@linutronix.de
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: Xen & VMI?
+Date: Wed, 7 Mar 2007 09:15:10 +0100
+Message-ID: <20070307081510.GB15111@elte.hu>
+References: <45ED82D9.6050204@codemonkey.ws>
+	<8FFF7E42E93CC646B632AB40643802A80229779B@scsmsx412.amr.corp.intel.com>
+	<20070306203712.GC21736@elte.hu>
+	<1173228246.4644.85.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161204AbXCGHmc@vger.kernel.org>
-In-Reply-To: <45EE190E.4060904@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Hecht <dhecht@vmware.com>
-Cc: Zachary Amsden <zach@vmware.com>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, ak@suse.de, Virtualization Mailing List <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Disposition: inline
+In-Reply-To: <1173228246.4644.85.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Anthony Liguori <anthony@codemonkey.ws>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-03-06 at 17:44 -0800, Dan Hecht wrote:
-> >>> 2) As I said above. The time accounting for virtualization needs to be
-> >>> fixed in a generic way.
-> >>>
-> >>> I'm not going to accept some weird hackery for virtualization, which is
-> >>> of exactly ZERO value for the kernel itself. Quite the contrary it will
-> >>> make the cleanup harder and introduce another hard to remove thing,
-> >>> which will in the worst case last for ever.
-> >>>
-> >> Okay, to confirm I'm on the same page as you, you want to move process 
-> >> time accounting from being periodic sampled based to being trace based? 
-> >> i.e. at the system-call/interrupt boundaries, read clocksource and 
-> >> compute directly the amount of system/user/process time?
-> > 
-> > At least for the paravirt guests this is the correct approach. Once the
-> > CPU vendors come up with a sane solution for a reliable and fast clock
-> > source we might use that on real hardware as well.
-> > 
-> 
-> I thought your preference was to not do things differently from real 
-> hardware?  I guess this case you are okay with since you'd like to see 
-> the real hardware case follow eventually?
 
-Real hardware _IS_ broken and slow. If we add the facilities for
-virtualization we want it in a way, which is usable by real hardware as
-well.
+* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-> > Yes, with todays hardware it is simply a PITA. PowerPC has some basic
-> > support for this though, IIRC.
-> > 
-> 
-> I think S390 maybe too.
+> On Tue, 2007-03-06 at 21:37 +0100, Ingo Molnar wrote:
+> > maybe i shouldnt call it 'VMI' but 'the paravirt ABI'. I dont mind if =
 
-One more reason to make it a generic solution rather than some extra
-hackery.
+> > it's the Xen ABI or the VMWare ABI or a mesh of the two - everyone can =
 
-	tglx
+> > map their own internals to that /one/ ABI.
+> =
+
+> I think it's an excellent aim, but it's *HARD*.  I rejected this =
+
+> approach earlier because I'm just not smart enough.  (Yet?)
+> =
+
+> The Linux side is fairly stable.  The hardware side is changing, and =
+
+> the hypervisor side is changing.  This means the ABI will churn fairly =
+
+> fast. The hypervisors are very different, which means the ABI will be =
+
+> very wide.
+
+the 'hardware is changing fast so we cannot do a sane API' argument =
+
+sounds good at first but in this context it is still fundamentally =
+
+wrong. Hardware has changed /dramatically/ since we started Linux, still =
+
+we didnt have to do dramatic changes to the system call API/ABI. Why? =
+
+Because hardware too is fundamentally controlled by the rules of this =
+
+world. So if you know the laws of physics, math and computer science, =
+
+you /CAN/ do a sane API that lives for quite some time. We had these =
+
+kinds of discussions when Linux was just a few years old - many people =
+
+were worried about 'the hardware changes too fast' - but if the =
+
+fundamentals are strong, it _doesnt really matter_, as long as our =
+
+interfaces are sane and we quickly adopt our internals.
+
+On the other hand, Linux's internal details, semantics, approaches are a =
+
+lot more ad-hoc and alot more affected by changes in the hardware =
+
+environment - that's why i'd not like to see some external ABI =
+
+constraint limit aspects of those internals.
+
+For example, VMI_CALL_SetAlarm takes a 'cycles' argument. Cycles is a =
+
+quite bad unit for an API, it should be absolute time, nanosec or =
+
+picosec based instead. We could easily see CPUs that have /no concept of =
+
+cycles/, at all! Even today's CPUs have hardly any fix concept of =
+
+cycles, due to cpufreq. It's as if 15 years ago we had based sys_mmap() =
+
+around the concept of '16-bit segments'. We could certainly make it work =
+
+on current hardware but it would look pretty awkward today.
+
+in fact hardware changes alot more by just going from one Linux arch to =
+
+another - still the system call API is essentially the same. (with =
+
+small, non-fundamental variations)
+
+furthermore, most of the details in VMI or in Xen's lowlevel APIs (where =
+
+most of the overlap is currently - VMI doesnt have all that many =
+
+highlevel APIs) are cast into stone. The i386 arch is not going to =
+
+change, ever. Most details of the x86_64 arch is not going to change, =
+
+ever. It's unclear whether there will ever be the need for any x86_128 =
+
+arch (for humans). So it should be quite possible to come up with =
+
+something sane for these lowlevel details, and cast it into stone, for =
+
+everyone. Just like the chip makers cast it into silicon.
+
+the more nontrivial (and thus more harmful, because more =
+
+design-limiting) bits are the highlevel APIs.
+
+> We could start with VMI and try to support Xen, KVM and lguest.  It =
+
+> would at least give us a better idea of the scope of the problem.  But =
+
+> IMHO it's a *huge* job.
+
+yeah, it's a nontrivial job - like writing a sane OS. But it's doable =
+
+and we are in fact out here trying to do exactly that, right? ;-)
+
+	Ingo
