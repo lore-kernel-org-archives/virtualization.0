@@ -1,7 +1,7 @@
 From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 7 Mar 2007 18:49:57 +0100
-Message-ID: <20070307174957.GA31371@elte.hu>
+Date: Wed, 7 Mar 2007 18:52:32 +0100
+Message-ID: <20070307175232.GB31371@elte.hu>
 References: <45EDD82F.90204@vmware.com>
 	<1173225182.24738.507.camel@localhost.localdomain>
 	<45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>
@@ -33,19 +33,18 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> Xen, for example, uses the tsc as the principle timebase in the
-> hypervisor interface. [...]
+> I don't think having a clock implementation for each hypervisor is =
 
-ugh. Please take it from me: i've watched the Linux time code walk its =
+> such a big deal.  The Xen one, for example, is 300 lines of =
 
-long, rocky 10+ years road. One of the first mistakes was when we made =
+> straightforward code.
 
-the TSC the center of the i386-time universe. (incidentally, it was me =
+/For you/ it's certainly no big deal, you dont have to fix it up and you =
 
-who did the first steps of that, as a rookie kernel hacker) We got cured =
+dont have to keep it flexible ;)
 
-out of that in v2.6.19, v2.6.20 and v2.6.21. Granted, Xen is only at the =
+and really, i'm not expecting miracles, i've never seen any hardware =
 
-beginning of that same road. Meet in another 10 years? ;)
+vendor argue /against/ support for their own hardware =3DB-)
 
 	Ingo
