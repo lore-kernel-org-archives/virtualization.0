@@ -1,158 +1,205 @@
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Dan Hecht <dhecht@vmware.com>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 07 Mar 2007 22:40:39 +0100
-Message-ID: <1173303639.24738.814.camel@localhost.localdomain>
-References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
-	<45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
-	<20070306084647.GA16280@elte.hu>  <45ED2C82.3080008@vmware.com>
-	<1173178774.24738.311.camel@localhost.localdomain>
-	<45EDD82F.90204@vmware.com>
-	<1173225182.24738.507.camel@localhost.localdomain>
-	<45EE0628.1080108@goop.org>  <45EE08E8.2020008@vmware.com>
-	<1173228544.24738.514.camel@localhost.localdomain>
-	<45EE0D10.7070807@vmware.com>
-	<1173230305.24738.529.camel@localhost.localdomain>
-	<45EE1EA3.90803@vmware.com>
-	<1173256666.24738.576.camel@localhost.localdomain>
-	<45EEF966.6060902@goop.org>
-	<1173300032.24738.750.camel@localhost.localdomain>
-	<45EF2991.1020204@goop.org>
-Reply-To: tglx@linutronix.de
+Date: Wed, 07 Mar 2007 13:33:41 -0800
+Message-ID: <45EF2FB5.1080604@vmware.com>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>	 <20070306084647.GA16280@elte.hu> <45ED2C82.3080008@vmware.com>	 <1173178774.24738.311.camel@localhost.localdomain>	 <45EDD82F.90204@vmware.com>	 <1173225182.24738.507.camel@localhost.localdomain>	 <45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>	 <1173228544.24738.514.camel@localhost.localdomain>	 <45EE0D10.7070807@vmware.com>	 <1173230305.24738.529.camel@localhost.localdomain>	 <45EE1EA3.90803@vmware.com>	 <1173256666.24738.576.camel@localhost.localdomain>	 <45EEF966.6060902@goop.org>	<Line.LNX.4.64.0703071304080.1851@d.namei>	 <45EF0CF5.5090305@goop.org>  <45EF175D.6030609@vmware.com> <1173302503.24738.795.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45EF2991.1020204@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992627AbXCGViJ@vger.kernel.org>
+In-Reply-To: <1173302503.24738.795.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: tglx@linutronix.de
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, James Morris <jmorris@namei.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, akpm@linux-foundation.org, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-03-07 at 13:07 -0800, Jeremy Fitzhardinge wrote:
-> Thomas Gleixner wrote:
-> > I tend to disagree. The clockevents infrastructure was designed to cope
-> > with the existing mess of real hardware. The discussion over the last
-> > days exposed me to even more exotic designs than the hardware vendors
-> > were able to deliver until now.
-> >   =
+On 03/07/2007 01:21 PM, Thomas Gleixner wrote:
+> On Wed, 2007-03-07 at 11:49 -0800, Dan Hecht wrote:
+>> Jeremy, I saw you sent out the Xen version earlier, thanks.  Here's ours 
+>> for reference (please excuse any formating issues); it's also lean. 
+>> We'll send out a proper patch later after some more testing:
+> 
+> Ah. Bitching loud enough speeds things up. :)
+> 
 
-> =
+We've always planned to do this.  We just didn't want to create the 
+dependency between paravirt_ops and clockevents too early such that they 
+would depend on each other to merge to main line.  Now that they are 
+both there, we are all for it.
 
-> It's a different but related problem domain.  It's also an increasingly
-> common execution environment for a kernel to find itself in.  Dealing
-> with proper paravirtualized timer devices is a big improvement over
-> trying to reliably deal with fully virtualized hardware timers, which
-> simply can't make the same guarantees that real hardware can make - such
-> as "you will definitely get N ns of CPU time between doing the
-> delta->absolute computation and programming the match register".
+>> /** vmi clockevent */
+>>
+>> static struct clock_event_device vmi_global_clockevent;
+>>
+>> static inline u32 vmi_alarm_wiring(struct clock_event_device *evt)
+>> {
+>> 	return (evt == &vmi_global_clockevent) ?
+>> 		VMI_ALARM_WIRED_IRQ0 : VMI_ALARM_WIRED_LVTT;
+>> }
+>>
+>> static void vmi_timer_set_mode(enum clock_event_mode mode,
+>> 			       struct clock_event_device *evt)
+>> {
+>> 	u32 wiring;
+>> 	cycle_t now, cycles_per_hz;
+>> 	BUG_ON(!irqs_disabled());
+>>
+>> 	wiring = vmi_alarm_wiring(evt);
+>> 	if (wiring == VMI_ALARM_WIRED_LVTT)
+>> 		/* Route the interrupt to the correct vector */
+>> 		apic_write_around(APIC_LVTT, LOCAL_TIMER_VECTOR);
+> 
+> Wire that in the hypervisor.
+> 
+>> 	switch (mode) {
+>> 	case CLOCK_EVT_MODE_ONESHOT:
+>> 		break;
+>> 	case CLOCK_EVT_MODE_PERIODIC:
+>> 		cycles_per_hz = vmi_timer_ops.get_cycle_frequency();
+>> 		(void)do_div(cycles_per_hz, HZ);
+>> 		now = vmi_timer_ops.get_cycle_counter(vmi_counter(VMI_PERIODIC));
+>> 		vmi_timer_ops.set_alarm(wiring | VMI_PERIODIC,
+>> 					now, cycles_per_hz);
+> 
+> 	paravirt_ops->paravirt_clockevent->set_periodic(vcpu, period);
+> 
 
-That's exactly the reason why we want only _ONE_ proper virtualized
-timer device instead of 10 new variants of broken hardware.
-
-> > I know exactly where you are heading:
-> >
-> > Offload the handling of hypervisor design decisions to the kernel and
-> > let us deal with that. So we need to implement 128 bit math to convert
-> > back and forth and I expect more interesting things to creep up. =
-
-> >   =
-
-> =
-
-> I wouldn't put it that way.  We've been getting a lot of pressure to
-> keep the pv_ops interface as small as possible.  Reusing existing kernel
-> interfaces rather than making up new ones is a good way to do that.  The
-> clock infrastructure certainly cleans things up; earlier Xen patches
-> made a complete copy of the old kernel/time.c and hacked it around,
-> which isn't what anyone wants to do.
-
-All you need is exactly ONE paravirt clockevent device and ONE paravirt
-clocksource for _ALL_ hypervisors. Cast that into stone with a
-paravirt_ops->clockwahtever interface and we are all happy.
-
-> > All this is of _NO_ use and benefit for the kernel itself.
-> >   =
-
-> =
-
-> Lots of people want to run Linux in virtual machines.  If we can make
-> sane kernel changes to help those users, then that is of use an benefit
-> to the kernel.
-
-The above will give a real benefit as it is a well defined interface,
-which can be verified on both ends.
-
-> > Real hardware copes well with relative deltas for the events, even when
-> > it is match register based. I thought long about the support for
-> > absolute expiry values in cycles and decided against them to avoid that
-> > math hackery, which you folks now demand.
-> >   =
-
-> =
-
-> Not really.  Xen and VMI interfaces both use absolute monotonic time for
-> timeouts, which is certainly a common case for such interfaces
-> (pthread_cond_timedwait, for example).  Converting delta to absolute is
-> clearly simple, but it does introduce an added bit of non-determinism if
-> your CPU can be preempted from outside at any time.  I presume SMM or
-> similar interrupts can cause the same problem on real hardware.
-
-As I said before: I have no objection against expanding / changing the
-clockevents interface to deliver absolute expiry time, which we have
-already handy.
-
-I just refuse for a good reason to convert it from ktime_t (nanoseconds)
-to an absolute cycle value. This can be done on the hypervisor side of
-the paravirt clock event device. Same applies for clocksources. The ones
-which need nanosecond from/to whatever conversion can do it _IN_ the
-hypervisor and not in 10 different grades of madness in the kernel code.
-
-> > We can optimize this by skipping the conversion via a feature flag.
-  =
-
-> The clocksource needed the shift for ntp warping.  Does the clockevent
-> need a shift at all?  Could I just set mult/shift to 1/0?
-
-Yes.
-
-> > Your implementation is almost the perfect prototype, if you move the
-> > 128 bit hackery into the hypervisor and hide it away from the kernel :)
-> >   =
-
-> The point is to use the tsc to avoid making any hypercalls, so dealing
-> with the tsc->ns conversion has to happen on the guest side somehow.
-
-I understand that you want to make this as fast as possible, but TSC is
-broken in more than one way and it just makes me barf, when we have yet
-another way of dealing with it in the kernel.
-
-Please keep the paravirt interface abstract and treat it in the same way
-we treat the kernel - userspace API. The kernel hides all this hardware
-crap away from the user space and the same applies for a sane paravirt
-interface. This is also a benefit in terms of portability. =
+Huh?  paravirt_ops isn't a hypervisor interface, it's just a linux code 
+abstraction.  The code on both sides of paravirt_ops is *linux* code, 
+any way you cut it.  clockevents is already a linux code abstraction. 
+why introduce the redundancy?
 
 
-For devices, which already live on top of an abstraction layer in the
-kernel, e.g. clocksources, clockevents, interrupts, we can share one
-implementation accross multiple platforms.
+>> 		break;
+>> 	case CLOCK_EVT_MODE_UNUSED:
+>> 	case CLOCK_EVT_MODE_SHUTDOWN:
+> 
+> 	paravirt_ops->paravirt_clockevent->stop_event(vcpu, mode);
+> 
 
-> > One of these is perfectly fine for _ALL_ of the hypervisor folks.
-> > Anything else is just a backwards decision for the kernel.
-> >   =
+You would be introducing the same redundancy.
 
-> That would certainly be ideal.  We'll look at the xen, vmi, lguest and
-> kvm paravirtualized time models and see how much they really have in
-> common.  I'm a bit curious about how vmi's time events make their way
-> back into the system.
+> 
+>> 		switch (evt->mode) {
+>> 		case CLOCK_EVT_MODE_ONESHOT:
+>> 			vmi_timer_ops.cancel_alarm(VMI_ONESHOT);
+>> 			break;
+>> 		case CLOCK_EVT_MODE_PERIODIC:
+>> 			vmi_timer_ops.cancel_alarm(VMI_PERIODIC);
+>> 			break;
+>> 		default:
+>> 			break;
+>> 		}
+>> 		break;
+>> 	default:
+>> 		break;
+>> 	}
+>> }
+> 
+> This whole vmi_timer_ops thing is horrible. All hypervisors can share 
+> paravirt_ops->paravirt_clockevent and retrieve the methods on boot.
+> 
 
-By the crude mechanism I'm fighting.
+vmi_timer_ops.whatever is where the kernel <-> hypervisor boundary is 
+crossed for VMI.
 
-	tglx
+>> static int vmi_timer_next_event(unsigned long delta,
+>> 				struct clock_event_device *evt)
+>> {
+>> 	/* Unfortunately, set_next_event interface only passes relative
+>> 	 * expiry, but we want absolute expiry.  It'd be better if were
+>> 	 * were passed an aboslute expiry, since a bunch of time may
+>> 	 * have been stolen between the time the delta is computed and
+>> 	 * when we set the alarm below. */
+>> 	cycle_t now = vmi_timer_ops.get_cycle_counter(vmi_counter(VMI_ONESHOT));
+>>
+>> 	BUG_ON(evt->mode != CLOCK_EVT_MODE_ONESHOT);
+>> 	vmi_timer_ops.set_alarm(vmi_alarm_wiring(evt) | VMI_ONESHOT,
+>> 				now + delta, 0);
+>> 	return 0;
+>> }
+> 
+> Great. Now we have:
+> 
+>        s64 event = startup_offset + ktime_to_ns(evt->next_event);
+> 
+>        if (HYPERVISOR_set_timer_op(event) < 0)
+>                 BUG();
+> and
+> 
+> 	vmi_timer_ops.set_alarm(vmi_alarm_wiring(evt) | VMI_ONESHOT,	now + delta, 0);
+> 
+> How will the next implementations look like ?
+> 
+> 	lguest_program_timer(delta + lguest_current_time(), LGUEST_TIMER_SHOOT_ONCE);
+> 
+> 	virt_nextgen_ops.set_timer_event(delta, NO_WE_NEED_NO_FLAGS);
+> 
+> 	.......
+> 
+> This is tinkering of the best. My understanding of the paravirt
+> discussion at Kernel Summit was, that paravirt ops are exactly there to
+> prevent the above random hackery in the kernel and to allow _ALL_
+> hypervisors to interact via a sane interface inside of the kernel.
+> 
+
+No, that was not the point of paravirt_ops.  It is actually the complete 
+opposite of the intention of paravirt_ops.  paravirt_ops' intent is 
+exactly to allow for *multiple* hypervisor ABIs to exist in the kernel.
+
+At kernel summit, paravirt_ops was proposed to allow for multiple 
+hypervisor ABI's to be targeted by the kernel.  The code on both sides 
+of paravirt_ops is *linux* code.
+
+> You are just perverting the whole idea of a standartized
+> paravirtualization interface.
+> 
+> This things can be done for clocksources, clockevents, interrupts (the
+> generic irq code allows this) and probaly for a whole bunch of other
+> stuff.
+> 
+> The current paravirt interface is completely insane and will explode
+> into an unmaintainable nightmare within no time, if we keep accepting
+> that crap further.
+>
+> No thanks.
+>
+
+Again, you are misunderstanding the intent of paravirt_ops and history 
+behind it's development.
+
+
+>> #ifdef CONFIG_X86_LOCAL_APIC
+>>
+>> /* Replacement for lapic timer local clock event.
+>>   * paravirt_ops.setup_boot_clock      = vmi_nop
+>>   *       (continue using global_clock_event on cpu0)
+>>   * paravirt_ops.setup_secondary_clock = vmi_timer_setup_local_alarm
+>>   */
+>> void __devinit vmi_timer_setup_local_alarm(void)
+>> {
+>> 	struct clock_event_device *evt = &__get_cpu_var(local_clock_events);
+>>
+>> 	/* Then, start it back up as a local clockevent device. */
+>> 	memcpy(evt, &vmi_clockevent, sizeof(*evt));
+>> 	evt->cpumask = cpumask_of_cpu(smp_processor_id());
+>>
+>> 	printk(KERN_WARNING "vmi: registering clock event %s. mult=%lu 
+>> shift=%u\n",
+>> 	       evt->name, evt->mult, evt->shift);
+>> 	clockevents_register_device(evt);
+>> }
+>>
+>> #endif
+> 
+> Why the hell do you need an lapic emulator here? This is exactly the
+> kind of crap, we do not want to have. clockevents do not care which
+> piece of hardware is calling them and we do not care how a particular
+> hypervisor is wiring that hardware.
+> 
+
+Again, I said in a previous mail that we am fine with introducing our 
+own interrupt handler rather than using the lapic one.
+
+
+Dan
