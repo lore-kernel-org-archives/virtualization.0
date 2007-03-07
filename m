@@ -1,20 +1,20 @@
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Dan Hecht <dhecht@vmware.com>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 07 Mar 2007 02:22:50 +0100
-Message-ID: <1173230571.24738.534.camel@localhost.localdomain>
-References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
-	<45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
-	<20070306084647.GA16280@elte.hu>  <45ED2C82.3080008@vmware.com>
-	<1173178774.24738.311.camel@localhost.localdomain>
-	<45EDD82F.90204@vmware.com>
-	<1173225182.24738.507.camel@localhost.localdomain>
+Date: Tue, 06 Mar 2007 17:44:46 -0800
+Message-ID: <45EE190E.4060904@vmware.com>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>	
+	<45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>	
+	<20070306084647.GA16280@elte.hu> <45ED2C82.3080008@vmware.com>	
+	<1173178774.24738.311.camel@localhost.localdomain>	
+	<45EDD82F.90204@vmware.com>	
+	<1173225182.24738.507.camel@localhost.localdomain>	
 	<45EE0A68.6010406@vmware.com>
-Reply-To: tglx@linutronix.de
+	<1173230571.24738.534.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45EE0A68.6010406@vmware.com>
+In-Reply-To: <1173230571.24738.534.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -24,68 +24,80 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Dan Hecht <dhecht@vmware.com>
+To: tglx@linutronix.de
 Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-03-06 at 16:42 -0800, Dan Hecht wrote:
-> >> accounting would be wrong.  Instead, we should allow the =
+On 03/06/2007 05:22 PM, Thomas Gleixner wrote:
+> On Tue, 2007-03-06 at 16:42 -0800, Dan Hecht wrote:
+>>>> accounting would be wrong.  Instead, we should allow the =
 
-> >> tick_sched_timer in cases (c) and (d) to have runtime configurable =
+>>>> tick_sched_timer in cases (c) and (d) to have runtime configurable =
 
-> >> period, and then scale the time value accordingly before passing to =
+>>>> period, and then scale the time value accordingly before passing to =
 
-> >> account_system_time.  This is probably something the Xen folks will wa=
+>>>> account_system_time.  This is probably something the Xen folks will wa=
 nt =
 
-> >> also, since I think Xen itself only gets 100hz hard timer, and so it c=
+>>>> also, since I think Xen itself only gets 100hz hard timer, and so it c=
 an =
 
-> >> implement at best a oneshot virtual timer with 100hz resolution.  Any =
+>>>> implement at best a oneshot virtual timer with 100hz resolution.  Any =
 
-> >> objections to us doing something like this?
-> > =
+>>>> objections to us doing something like this?
+>>> Yes. It's gross hackery. =
 
-> > Yes. It's gross hackery. =
+>>>
+>>> 1) We want to have a cleanup of the tick assumptions _all_ over the
+>>> place and this is going to be real hard work.
+>>>
+>>> 2) As I said above. The time accounting for virtualization needs to be
+>>> fixed in a generic way.
+>>>
+>>> I'm not going to accept some weird hackery for virtualization, which is
+>>> of exactly ZERO value for the kernel itself. Quite the contrary it will
+>>> make the cleanup harder and introduce another hard to remove thing,
+>>> which will in the worst case last for ever.
+>>>
+>> Okay, to confirm I'm on the same page as you, you want to move process =
 
-> > =
+>> time accounting from being periodic sampled based to being trace based? =
 
-> > 1) We want to have a cleanup of the tick assumptions _all_ over the
-> > place and this is going to be real hard work.
-> > =
+>> i.e. at the system-call/interrupt boundaries, read clocksource and =
 
-> > 2) As I said above. The time accounting for virtualization needs to be
-> > fixed in a generic way.
-> > =
-
-> > I'm not going to accept some weird hackery for virtualization, which is
-> > of exactly ZERO value for the kernel itself. Quite the contrary it will
-> > make the cleanup harder and introduce another hard to remove thing,
-> > which will in the worst case last for ever.
-> >
+>> compute directly the amount of system/user/process time?
 > =
 
-> Okay, to confirm I'm on the same page as you, you want to move process =
+> At least for the paravirt guests this is the correct approach. Once the
+> CPU vendors come up with a sane solution for a reliable and fast clock
+> source we might use that on real hardware as well.
+> =
 
-> time accounting from being periodic sampled based to being trace based? =
 
-> i.e. at the system-call/interrupt boundaries, read clocksource and =
+I thought your preference was to not do things differently from real =
 
-> compute directly the amount of system/user/process time?
+hardware?  I guess this case you are okay with since you'd like to see =
 
-At least for the paravirt guests this is the correct approach. Once the
-CPU vendors come up with a sane solution for a reliable and fast clock
-source we might use that on real hardware as well.
+the real hardware case follow eventually?
 
-> Do you know if anyone has explored this?  I thought there was a =
+In any case, in paravirt the costs of reading timers and doing system =
 
-> discussion about this a while back but it was rejected due to the =
+call transitions are a bit different than on native, so we'll need to =
 
-> sample-based approach having much lower overheads on high system call =
+figure out what makes sense given those costs.
 
-> rate workloads.
+>> Do you know if anyone has explored this?  I thought there was a =
 
-Yes, with todays hardware it is simply a PITA. PowerPC has some basic
-support for this though, IIRC.
+>> discussion about this a while back but it was rejected due to the =
 
-	tglx
+>> sample-based approach having much lower overheads on high system call =
+
+>> rate workloads.
+> =
+
+> Yes, with todays hardware it is simply a PITA. PowerPC has some basic
+> support for this though, IIRC.
+> =
+
+
+I think S390 maybe too.
