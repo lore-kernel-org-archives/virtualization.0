@@ -1,19 +1,31 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 07 Mar 2007 15:25:29 -0800
-Message-ID: <45EF49E9.7040509@vmware.com>
-References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>	<45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>	<20070306084647.GA16280@elte.hu> <45ED2C82.3080008@vmware.com>	<1173178774.24738.311.camel@localhost.localdomain>	<45EDD82F.90204@vmware.com>	<1173225182.24738.507.camel@localhost.localdomain>	<45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>	<1173228544.24738.514.camel@localhost.localdomain>	<45EE0D10.7070807@vmware.com>	<1173230305.24738.529.camel@localhost.localdomain>	<45EE1EA3.90803@vmware.com>	<1173256666.24738.576.camel@localhost.localdomain>	<45EEF966.6060902@goop.org>	<Line.LNX.4.64.0703071304080.1851@d.namei>	<45EF0CF5.5090305@goop.org>  <45EF175D.6030609@vmware.com>	<1173302503.24738.795.camel@localhost.localdomain>	<45EF372E.7030600@goop.org> <1173308717.24738.898.camel@localhost.localdomain>
+Date: Wed, 07 Mar 2007 15:33:43 -0800
+Message-ID: <45EF4BD7.7060400@goop.org>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>	 <20070306084647.GA16280@elte.hu> <45ED2C82.3080008@vmware.com>	 <1173178774.24738.311.camel@localhost.localdomain>	 <45EDD82F.90204@vmware.com>	 <1173225182.24738.507.camel@localhost.localdomain>	 <45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>	 <1173228544.24738.514.camel@localhost.localdomain>	 <45EE0D10.7070807@vmware.com>	 <1173230305.24738.529.camel@localhost.localdomain>	 <45EE1EA3.90803@vmware.com>	 <1173256666.24738.576.camel@localhost.localdomain>	 <45EEF966.6060902@goop.org>	<Line.LNX.4.64.0703071304080.1851@d.namei>	 <45EF0CF5.5090305@goop.org>  <45EF175D.6030609@vmware.com>	 <1173302503.24738.795.camel@localhost.localdomain>	 <45EF372E.7030600@goop.org> <1173308717.24738.898.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992731AbXCGXZb@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965738AbXCGXdr@vger.kernel.org>
 In-Reply-To: <1173308717.24738.898.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 To: tglx@linutronix.de
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, akpm@linux-foundation.org, Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+Cc: Dan Hecht <dhecht@vmware.com>, James Morris <jmorris@namei.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, akpm@linux-foundation.org, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Thomas Gleixner wrote:
+> Still there is a difference between using existing kernel interfaces and
+> abusing them in a way which makes modifications to the core kernel code
+> hard and unmaintainable. See below.
+>   
+
+I completely agree.  "Using the kernel interfaces" doesn't mean "this
+random hack happens to work", it means "use the interface as intended as
+a fully-fledged client".  If the interface doesn't work for our use,
+then we can negotiate with the appropriate people on how to extend it
+properly.
+
+
 > On the other hand we yet see things like:
 >
 >         /* We use normal irq0 handler on cpu0. */
@@ -23,59 +35,69 @@ Thomas Gleixner wrote:
 > the clock event interrupt self contained. clockevents is not bound to
 > IRQ0 and this kind of hackery is exactly what we need to avoid in order
 > to get this maintainable.
->
-> Once this is used by paravirt implementations a change to the
-> mach-default implementation will break stuff left and right.
 >   
 
-We've fixed that already.  Thanks for pointing it out.  We were just 
-trying to re-use code.
+Yes, I'm definitely not arguing with you about this.  I think the first
+cut vmi time code was pretty questionable, but I have confidence they'll
+fix it up before submission.
 
-> Also the whole LAPIC business is so horrible, that it hurts. The generic
-> interrupt layer is there since almost a year and we still see the crude
-> emulation of hardware and assumptions of irq0 setup all over the place.
->
-> We carefully need to define, which existing kernel interfaces are used /
-> hooked in which way.
->
-> If the paravirt implementations actually use the already available
-> abstractions in the way in which those abstractions are designed, then
-> we get into a maintainable design. If there are shortcomings on those
-> abstractions we need to fix them in a sane way or provide a _common_
-> workaround (e.g. 128 bit math back and forth library) without impacting
-> the main kernel code.
->
-> Looking at vmitimer.c and the number of hardcoded assumptions are
-> telling me, that we are heading in exactly the opposite direction.
->   
-
-No, VMI timer is unique because for SMP, it is based on the APIC.  On 
-i386, SMP is hardwired to depend on the APIC, and so we simply re-use 
-the pieces of it which are there, with the same assumptions about irqs, 
-and hardware behavior, good or bad.  We just have a different way of 
-telling the LAPIC when to deliver interrupts.
-
-The alternative is to pretty much completely copy apic.c into vmi.c or 
-vmitimer.c, which seems a rather bad idea, since now two copies of 
-nearly identical code need to be maintained.
+The point is that when you put the xen and vmi implementations next to
+each other you find that 1) in each case there's a pretty small
+abstraction distance between the clock interface and the hypercall
+interface, and 2) there's very little code which can be shared between
+the two.  Which means that adding another layer of abstraction to
+protect the clock code from paravirtualized time devices is just going
+to add fat without much benefit.
 
 > Yes, if they are used in a sane and self contained way without reaching
 > all over the place and expecting that those functions, which are not
 > part of the paravirt interfaces will work for ever.
 >   
 
-But we definitely need pieces of the core APIC dependent code.  Xen 
-needs pieces of it too, but very select pieces for SMP boot.  The 
-ugliness you point out is there, but the reason it is there is not 
-because the paravirt code is cluttered, it is because the i386 code is 
-so hardwired to use the APIC model that there is pain separating from it.
+100% agree.  If the interfaces change, then we'll change the code using
+them like any other kernel code would.  If the new interfaces are hard
+to make work then that's a problem, but one would hope that would get
+shaken out as part of the normal kernel development process.
 
-The correct solution here is to properly separate the APIC, SMP, and 
-timer code so the logic of it which we want to reuse is separated from 
-the hardware dependence.  Clock events and clocksources take care of 
-most of the timer issues, but there is still ugliness from SMP timer 
-events depending on having part of the APIC infrastructure for wiring 
-the interrupt gates.
+The point is that this code under and around the paravirt_ops interface
+is just normal Linux code, and we expect to participate in the normal
+kernel development process, with all the usual
+discussions/arguments/negotiations over interface changes.  If the code
+loses all its maintainers and becomes orphaned, unresponsive to
+interface changes, then it's like any other dead driver: mark it
+CONFIG_BROKEN and wait for someone to fix it.  But for now and the
+foreseeable future these are going to be actively supported and
+maintained pieces of code.
+
+> You are not increasing the entanglement with the rest of the system,
+> when you use a self contained device on top of an existing core kernel
+> infrastructure, which has a paravirt backend. Quite the contrary, you
+> have one piece of virtual hardware which is connected to the kernel and
+> interacts with the various incarnations on the other side, which can as
+> well live inside the kernel code. Granted it is another level of
+> indirection, but I'd be happy to have only to deal with one of those
+> beasts.
+>   
+
+Right.  But at that point the interface doesn't really have much of a
+technical basis.  It's really a political border at which you can hand
+off responsibility and make it ours.  I quite understand your
+motivation, but I think you're solving a problem that hasn't happened
+yet, and one that we'd all like to avoid.
+
+I know the vmi time code has coloured your view here, but I surely hope
+it can be got into a better state before posting.  I'm biased of course,
+but I would rather hope that all these drivers we're talking about will
+be as stylistically clean as the Xen time code (which has room for
+improvement, of course).
+
+There is, however, a median solution which keeps the number of clock
+drivers down but also doesn't involve extending pv_ops.  We can just
+create paravirt_clocksource/paravirt_clockevent helper wrappers, with
+their own internal interfaces to act as a facade for the
+hypervisor-specific code.  I don't think there's much point in doing
+this now, but maybe it will become appealing once we start dealing with
+things like stolen time.
 
 > No it's not an absolute blocker, as long as we can take care, that the
 > number of incarnations is 
@@ -85,13 +107,7 @@ the interrupt gates.
 > - common code like the 128 bit math is in a shared library
 > - self contained and not reaching out into core kernel code for no good
 > reason
->   
-> Same goes for clock events, interrupts and other core facilities.
 
-I think that is what everyone wants.  This is an iterative process.  We 
-certainly don't want to reach out into core kernel code unless there is 
-a good reason to do so, and with every development of clock events, 
-sources, and interrupts, we have less of a reason to do so, and the code 
-gets cleaner and more maintainable.
+Yep.
 
-Zach
+    J
