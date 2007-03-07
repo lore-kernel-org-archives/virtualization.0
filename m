@@ -1,73 +1,87 @@
-From: Dan Hecht <dhecht@vmware.com>
-Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Tue, 06 Mar 2007 18:08:35 -0800
-Message-ID: <45EE1EA3.90803@vmware.com>
-References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>	 <20070306084647.GA16280@elte.hu>  <45ED2C82.3080008@vmware.com>	 <1173178774.24738.311.camel@localhost.localdomain>	 <45EDD82F.90204@vmware.com>	 <1173225182.24738.507.camel@localhost.localdomain>	 <45EE0628.1080108@goop.org>  <45EE08E8.2020008@vmware.com>	 <1173228544.24738.514.camel@localhost.localdomain>	 <45EE0D10.7070807@vmware.com> <1173230305.24738.529.camel@localhost.localdomain>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: Xen & VMI?
+Date: Tue, 06 Mar 2007 18:16:25 -0800
+Message-ID: <45EE2079.1060200@vmware.com>
+References: <20070306081909.GA9331@elte.hu>
+	<45ED2837.3020108@suse.de>	<20070306085222.GA17002@elte.hu>
+	<45ED3121.8090308@suse.de>	<20070306093436.GA30239@elte.hu>
+	<45ED3F29.6000705@suse.de>	<20070306102658.GA7478@elte.hu>
+	<45ED4AD8.6020504@suse.de>	<20070306115937.GA25313@elte.hu>
+	<45ED9678.5050907@goop.org> <20070306171130.GA13403@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161218AbXCGCId@vger.kernel.org>
-In-Reply-To: <1173230305.24738.529.camel@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: tglx@linutronix.de
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, ak@suse.de, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>, Dan Hecht <dhecht@vmware.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20070306171130.GA13403@elte.hu>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/06/2007 05:18 PM, Thomas Gleixner wrote:
-> On Tue, 2007-03-06 at 16:53 -0800, Dan Hecht wrote:
->>> Ooops. I completely forgot, that you get the absolute expiry time
->>> already in ktime_t format (nanoseconds) when dev->set_next_event() is
->>> called.
->>>
->>> 	dev->next_event = expires;
->>>
->>> is done right before the call. 
->>>
->>> So it's already there for free.
->>>
->>>
->> Okay.  I noticed that but didn't think it was okay to use since it 
->> didn't seem like it was set up for the clock_event_device code's use, so 
->> seemed like a conceptual interface violation to go digging around in 
->> there.
-> 
-> Yes it is. 
-> 
-> I just wanted to point out that you can use it until I'm awake enough to
-> implement it proper.
-> 
+Ingo Molnar wrote:
 
-Well, we'll probably just live with using the relative expiry for the 
-first pass, and then revisit this later once that is working, rather 
-than resort to hacking it out by reading ->next_event.
+> We do not let OpenOffice or Evolution have its own separate ABI to Linux =
 
->> Also, wasn't one of the points of clockevents to prevent the device code 
->> from doing conversions between nanoseconds and clicks themselves?  Don't 
->> we really want the clockevents generic layer to do this conversion 
->> between monotonic nanonseconds to absolute device clicks and then give 
->> the device code that value, so the device layer doesn't perform any 
->> conversions?
-> 
-> Right. But this applies only to deltas, as the conversion of absolute
-> time values gets ugly, i.e. 128bit math
-> 
+> so that they 'can evolve at their own pace'... We want them to cooperate =
 
-Yeah, hopefully we can come up with a clean way to do this.  But, like I 
-said early, until we do, we'll stick with the relative expiry.
+> and come up with a common ABI (or rather, we try to come up with the =
 
-> IMO the paravirt interfaces should use nanoseconds anyway for both
-> readout and next event programming. That way the conversion is done in
-> the hypervisor once and the clocksources and clockevents are simple and
-> unified (except for the underlying hypervisor calls).
-> 
+> right syscalls ourselves), because divering, overlapping ABIs are a huge =
 
-I disagree.  The clocksource/clockevents layer are always going to have 
-to convert nanoseconds to/from hardware units, so why not use it?  And, 
-some guests (say, a future version of linux that does trace-based 
-process accounting) may want higher resolution than nanoseconds for 
-certain uses.  In any case, this is beside the point; I'd prefer to 
-stick to using the clockevents interface in the way it was intended 
-rather than reaching into ->next_event.
+> PITA.
+>   =
 
-thanks,
-Dan
+
+OpenOffice or Evolution are the completely wrong example.  They disprove =
+
+your point more than they prove it.  Consider any significantly large =
+
+cross-platform software like OpenOffice, Evolution, Firefox.  You don't =
+
+let or restrict what these pieces of software do at all.  They evolve at =
+
+their own pace, and they all build their very complicated and divergent =
+
+cross platform compatibility layers, with huge, overlapping APIs, =
+
+converging in places, diverging in others.
+
+> We do not unify their pointlessly diverging ABIs to within the kernel =
+
+> via say office_ops (while we could) because that's crappy on its face. =
+
+> Hypervisors arent in any way different, they just _think_ they are =
+
+> special because they are relatively new. But hey, i dont expect you to =
+
+> concede this point ;)
+
+No, you don't.  The developers of Office and Evolution and Firefox do =
+
+that for you.  And it's not crappy on its face because it provides real =
+
+value to them - the ability to run heterogeneously in multiple different =
+
+environments and across many different platforms and operating systems.
+
+Where your analogy is wrong is that in this case, Linux is very much =
+
+like one of those large software systems.  It has complicated features =
+
+that require special plugins to work efficiently in different hypervisor =
+
+environments.  And paravirt-ops is providing that functionality to =
+
+Linux, just as the platform layer of any large software system does and =
+
+very much should do.
+
+Zach
