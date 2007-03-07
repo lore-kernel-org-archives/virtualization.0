@@ -1,7 +1,7 @@
-From: Ingo Molnar <mingo@elte.hu>
+From: James Morris <jmorris@namei.org>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 7 Mar 2007 18:52:32 +0100
-Message-ID: <20070307175232.GB31371@elte.hu>
+Date: Wed, 7 Mar 2007 13:03:39 -0500 (EST)
+Message-ID: <Line.LNX.4.64.0703071303010.1851@d.namei>
 References: <45EDD82F.90204@vmware.com>
 	<1173225182.24738.507.camel@localhost.localdomain>
 	<45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>
@@ -10,13 +10,12 @@ References: <45EDD82F.90204@vmware.com>
 	<1173230305.24738.529.camel@localhost.localdomain>
 	<45EE1EA3.90803@vmware.com>
 	<1173256666.24738.576.camel@localhost.localdomain>
-	<45EEF966.6060902@goop.org>
+	<45EEF966.6060902@goop.org> <20070307174957.GA31371@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline
-In-Reply-To: <45EEF966.6060902@goop.org>
+In-Reply-To: <20070307174957.GA31371@elte.hu>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -26,25 +25,41 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, tglx@linutronix.de, akpm@linux-foundation.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, akpm@linux-foundation.org, john stultz <johnstul@us.ibm.com>, tglx@linutronix.de, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, 7 Mar 2007, Ingo Molnar wrote:
 
-* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> =
 
-> I don't think having a clock implementation for each hypervisor is =
+> * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> =
 
-> such a big deal.  The Xen one, for example, is 300 lines of =
+> > Xen, for example, uses the tsc as the principle timebase in the
+> > hypervisor interface. [...]
+> =
 
-> straightforward code.
+> ugh. Please take it from me: i've watched the Linux time code walk its =
 
-/For you/ it's certainly no big deal, you dont have to fix it up and you =
+> long, rocky 10+ years road. One of the first mistakes was when we made =
 
-dont have to keep it flexible ;)
+> the TSC the center of the i386-time universe. (incidentally, it was me =
 
-and really, i'm not expecting miracles, i've never seen any hardware =
+> who did the first steps of that, as a rookie kernel hacker) We got cured =
 
-vendor argue /against/ support for their own hardware =3DB-)
+> out of that in v2.6.19, v2.6.20 and v2.6.21. Granted, Xen is only at the =
 
-	Ingo
+> beginning of that same road. Meet in another 10 years? ;)
+
+What do you suggest instead ?
+
+(Digging into this for lguest now...)
+
+
+
+- James
+-- =
+
+James Morris
+<jmorris@namei.org>
