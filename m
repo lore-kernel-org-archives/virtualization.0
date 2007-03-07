@@ -1,7 +1,7 @@
 From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 07 Mar 2007 22:14:47 +0100
-Message-ID: <1173302087.24738.785.camel@localhost.localdomain>
+Date: Wed, 07 Mar 2007 22:19:52 +0100
+Message-ID: <1173302393.24738.792.camel@localhost.localdomain>
 References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
 	<45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
 	<20070306084647.GA16280@elte.hu> <45ED2C82.3080008@vmware.com>
@@ -16,13 +16,15 @@ References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
 	<1173256666.24738.576.camel@localhost.localdomain>
 	<45EEF966.6060902@goop.org>	<Line.LNX.4.64.0703071304080.1851@d.namei>
 	<45EF0CF5.5090305@goop.org> <45EF175D.6030609@vmware.com>
-	<45EF1C80.50900@goop.org>  <45EF2560.7090104@vmware.com>
+	<45EF1C80.50900@goop.org>
+	<1173301065.24738.766.camel@localhost.localdomain>
+	<45EF2868.8050009@vmware.com>
 Reply-To: tglx@linutronix.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45EF2560.7090104@vmware.com>
+In-Reply-To: <45EF2868.8050009@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -36,34 +38,60 @@ To: Dan Hecht <dhecht@vmware.com>
 Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, akpm@linux-foundation.org, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-03-07 at 12:49 -0800, Dan Hecht wrote:
-> On 03/07/2007 12:11 PM, Jeremy Fitzhardinge wrote:
-> > Dan Hecht wrote:
-> >> Jeremy, I saw you sent out the Xen version earlier, thanks.  Here's
-> >> ours for reference (please excuse any formating issues); it's also
-> >> lean. We'll send out a proper patch later after some more testing:
+On Wed, 2007-03-07 at 13:02 -0800, Dan Hecht wrote:
+> On 03/07/2007 12:57 PM, Thomas Gleixner wrote:
+> > On Wed, 2007-03-07 at 12:11 -0800, Jeremy Fitzhardinge wrote:
+> >> Dan Hecht wrote:
+> >>> Jeremy, I saw you sent out the Xen version earlier, thanks.  Here's
+> >>> ours for reference (please excuse any formating issues); it's also
+> >>> lean. We'll send out a proper patch later after some more testing:
+> >> So the interrupt side of the clockevent comes through the virtual apic=
+? =
+
+> >> Where does evt->handle_event get called?
 > > =
 
-> > So the interrupt side of the clockevent comes through the virtual apic? =
+> > =
 
-> > Where does evt->handle_event get called?
+> >>         /* We use normal irq0 handler on cpu0. */
+> >>         time_init_hook();
+> > =
+
+> > That's exactly the thing I ranted about before. We keep the historic
+> > view of emulated hardware and just wrap it into enough glue code instead
+> > of doing an abstract design, which just gets rid of those hardware
+> > assumptions at all. That's the big advantage of paravirtualization, but
+> > the current way on paravirt ops is just ignoring this.
 > > =
 
 > =
 
-> Yeah, we use the same interrupt handlers as normal i386: timer_interrupt =
+> Are you saying you would prefer we create our own irq handler something =
 
-> and smp_apic_timer_interrupt.  That way we don't need to duplicate the =
+> like this rather than using the standard i386 handlers?
+> =
 
-> interrupt handler code.
+> irqreturn_t vmi_timer_interrupt(int irq, void *dev_id)
+> {
+>     local_event->event_handler(local_event);
+>     return IRQ_HANDLED;
+> }
+> =
 
-Oh well. Here we are again. 2 hypervisors - 4 different views on how to
-inject events into the kernel.
+> ??  That's fine with me.
 
-This is the complete wrong approach. Paravirtualization should not abuse
-existing hardware drivers. It should just provide their own sane
-abstract implementation.
+I prefer _ONE_ generic abstract implementation of a clock event, which
+can be used by all hypervisors. Please keep all your wiring and ideas of
+how to best emulate a i386 system away from the kernel as far as you
+can.
 
-Please stop this _NOW_
+Please sit down with the other hypervisor folks and define the five
+functions you need to interact between clockevents and the particular
+hypervisor and implement it once.
+
+Then you can change and evolve your idea of how handle them best in your
+hypervisor code, where it belongs.
 
 	tglx
+
+ =
