@@ -1,33 +1,50 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 07 Mar 2007 10:28:28 -0800
-Message-ID: <45EF044C.2080307@goop.org>
-References: <45EDD82F.90204@vmware.com> <1173225182.24738.507.camel@localhost.localdomain> <45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com> <1173228544.24738.514.camel@localhost.localdomain> <45EE0D10.7070807@vmware.com> <1173230305.24738.529.camel@localhost.localdomain> <45EE1EA3.90803@vmware.com> <1173256666.24738.576.camel@localhost.localdomain> <45EEF966.6060902@goop.org> <20070307175232.GB31371@elte.hu>
+Date: Wed, 07 Mar 2007 10:35:28 -0800
+Message-ID: <45EF05F0.7090700@goop.org>
+References: <45EDD82F.90204@vmware.com>
+	<1173225182.24738.507.camel@localhost.localdomain>
+	<45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>
+	<1173228544.24738.514.camel@localhost.localdomain>
+	<45EE0D10.7070807@vmware.com>
+	<1173230305.24738.529.camel@localhost.localdomain>
+	<45EE1EA3.90803@vmware.com>
+	<1173256666.24738.576.camel@localhost.localdomain>
+	<45EEF966.6060902@goop.org> <20070307174957.GA31371@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422983AbXCGS2c@vger.kernel.org>
-In-Reply-To: <20070307175232.GB31371@elte.hu>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20070307174957.GA31371@elte.hu>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Ingo Molnar <mingo@elte.hu>
-Cc: tglx@linutronix.de, Dan Hecht <dhecht@vmware.com>, Zachary Amsden <zach@vmware.com>, akpm@linux-foundation.org, ak@suse.de, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, tglx@linutronix.de, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Ingo Molnar wrote:
-> /For you/ it's certainly no big deal, you dont have to fix it up and you 
-> dont have to keep it flexible ;)
->   
+> ugh. Please take it from me: i've watched the Linux time code walk its =
 
-How flexible does it need to be?  Its a simple time source and event
-driver.  How flexible does the pit driver need to be?  It's just a small
-leaf node hanging off a large existing piece of kernel infrastructure.
+> long, rocky 10+ years road. One of the first mistakes was when we made =
 
-> and really, i'm not expecting miracles, i've never seen any hardware 
-> vendor argue /against/ support for their own hardware =B-)
->   
+> the TSC the center of the i386-time universe. (incidentally, it was me =
 
-And since when has it been kernel policy to argue against including a
-well written, self-contained, vendor-provided driver for a piece of
-hardware?
+> who did the first steps of that, as a rookie kernel hacker) We got cured =
+
+> out of that in v2.6.19, v2.6.20 and v2.6.21. Granted, Xen is only at the =
+
+> beginning of that same road. Meet in another 10 years? ;)
+
+Yep, the tsc has myriad problems; for Xen its the best of a bad lot. =
+
+Unfortunately in 10 years no clearly better alternative has appeared;
+maybe in 10 years there will be one.  It might even be the tsc.
 
     J
