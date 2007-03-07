@@ -1,132 +1,74 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Xen & VMI?
-Date: Wed, 7 Mar 2007 09:15:10 +0100
-Message-ID: <20070307081510.GB15111@elte.hu>
-References: <45ED82D9.6050204@codemonkey.ws>
-	<8FFF7E42E93CC646B632AB40643802A80229779B@scsmsx412.amr.corp.intel.com>
-	<20070306203712.GC21736@elte.hu>
-	<1173228246.4644.85.camel@localhost.localdomain>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
+Date: Wed, 07 Mar 2007 09:37:46 +0100
+Message-ID: <1173256666.24738.576.camel@localhost.localdomain>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
+	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
+	 <20070306084647.GA16280@elte.hu>  <45ED2C82.3080008@vmware.com>
+	 <1173178774.24738.311.camel@localhost.localdomain>
+	 <45EDD82F.90204@vmware.com>
+	 <1173225182.24738.507.camel@localhost.localdomain>
+	 <45EE0628.1080108@goop.org>  <45EE08E8.2020008@vmware.com>
+	 <1173228544.24738.514.camel@localhost.localdomain>
+	 <45EE0D10.7070807@vmware.com>
+	 <1173230305.24738.529.camel@localhost.localdomain>
+	 <45EE1EA3.90803@vmware.com>
+Reply-To: tglx@linutronix.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline
-In-Reply-To: <1173228246.4644.85.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Anthony Liguori <anthony@codemonkey.ws>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030470AbXCGIbk@vger.kernel.org>
+In-Reply-To: <45EE1EA3.90803@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dan Hecht <dhecht@vmware.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, ak@suse.de, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, 2007-03-06 at 18:08 -0800, Dan Hecht wrote:
+> > IMO the paravirt interfaces should use nanoseconds anyway for both
+> > readout and next event programming. That way the conversion is done in
+> > the hypervisor once and the clocksources and clockevents are simple and
+> > unified (except for the underlying hypervisor calls).
+> > 
+> 
+> I disagree.  The clocksource/clockevents layer are always going to have 
+> to convert nanoseconds to/from hardware units, so why not use it?  And, 
+> some guests (say, a future version of linux that does trace-based 
+> process accounting) may want higher resolution than nanoseconds for 
+> certain uses. 
 
-* Rusty Russell <rusty@rustcorp.com.au> wrote:
+That's a pure academic exercise. When we are at the point where
+nanoseconds are to coarse - sometimes after we both retired - the
+internal resolution will be femtoseconds or whatever fits.
 
-> On Tue, 2007-03-06 at 21:37 +0100, Ingo Molnar wrote:
-> > maybe i shouldnt call it 'VMI' but 'the paravirt ABI'. I dont mind if =
+Again: paravirt should use a common infrastructure for this. Virtual
+clocksource and virtual clockevent devices, which operate on ktime_t and
+not on some artificial clock chip emulation frequency. The backend
+implementation will be still per hypervisor, but we have _ONE_ device
+emulation model, which is exposed to the kernel instead of five.
 
-> > it's the Xen ABI or the VMWare ABI or a mesh of the two - everyone can =
+On a Linux based host, you probably end up with a hrtimer on the host
+side to schedule the next event on the guest. So why do we need to
+convert ktime_t to some virtual frequency in the guest so we can convert
+it back into ktime_t on the host ?
 
-> > map their own internals to that /one/ ABI.
-> =
+Abstractions for the abstractions sake are braindead. There is no real
+reason to implement 128 bit math into that path just to make the virtual
+clockevent device look like real hardware.
 
-> I think it's an excellent aim, but it's *HARD*.  I rejected this =
+The abstraction of clockevents helps you to get rid of hardwired
+hardware assumptions, but you insist on creating them artificially for
+reasons which are beyond my grasp.
 
-> approach earlier because I'm just not smart enough.  (Yet?)
-> =
+> In any case, this is beside the point; I'd prefer to 
+> stick to using the clockevents interface in the way it was intended 
+> rather than reaching into ->next_event.
 
-> The Linux side is fairly stable.  The hardware side is changing, and =
+Sigh. The gain is, that you still have a good reason, why you can't move
+to the clockevents interface.
 
-> the hypervisor side is changing.  This means the ABI will churn fairly =
+Jeremy spent a couple of hours to get NO_HZ running for Xen yesterday
+instead of writing up lengthy excuses, why it is soooo hard and takes
+sooo much time and the current interface is sooo insufficient.
 
-> fast. The hypervisors are very different, which means the ABI will be =
-
-> very wide.
-
-the 'hardware is changing fast so we cannot do a sane API' argument =
-
-sounds good at first but in this context it is still fundamentally =
-
-wrong. Hardware has changed /dramatically/ since we started Linux, still =
-
-we didnt have to do dramatic changes to the system call API/ABI. Why? =
-
-Because hardware too is fundamentally controlled by the rules of this =
-
-world. So if you know the laws of physics, math and computer science, =
-
-you /CAN/ do a sane API that lives for quite some time. We had these =
-
-kinds of discussions when Linux was just a few years old - many people =
-
-were worried about 'the hardware changes too fast' - but if the =
-
-fundamentals are strong, it _doesnt really matter_, as long as our =
-
-interfaces are sane and we quickly adopt our internals.
-
-On the other hand, Linux's internal details, semantics, approaches are a =
-
-lot more ad-hoc and alot more affected by changes in the hardware =
-
-environment - that's why i'd not like to see some external ABI =
-
-constraint limit aspects of those internals.
-
-For example, VMI_CALL_SetAlarm takes a 'cycles' argument. Cycles is a =
-
-quite bad unit for an API, it should be absolute time, nanosec or =
-
-picosec based instead. We could easily see CPUs that have /no concept of =
-
-cycles/, at all! Even today's CPUs have hardly any fix concept of =
-
-cycles, due to cpufreq. It's as if 15 years ago we had based sys_mmap() =
-
-around the concept of '16-bit segments'. We could certainly make it work =
-
-on current hardware but it would look pretty awkward today.
-
-in fact hardware changes alot more by just going from one Linux arch to =
-
-another - still the system call API is essentially the same. (with =
-
-small, non-fundamental variations)
-
-furthermore, most of the details in VMI or in Xen's lowlevel APIs (where =
-
-most of the overlap is currently - VMI doesnt have all that many =
-
-highlevel APIs) are cast into stone. The i386 arch is not going to =
-
-change, ever. Most details of the x86_64 arch is not going to change, =
-
-ever. It's unclear whether there will ever be the need for any x86_128 =
-
-arch (for humans). So it should be quite possible to come up with =
-
-something sane for these lowlevel details, and cast it into stone, for =
-
-everyone. Just like the chip makers cast it into silicon.
-
-the more nontrivial (and thus more harmful, because more =
-
-design-limiting) bits are the highlevel APIs.
-
-> We could start with VMI and try to support Xen, KVM and lguest.  It =
-
-> would at least give us a better idea of the scope of the problem.  But =
-
-> IMHO it's a *huge* job.
-
-yeah, it's a nontrivial job - like writing a sane OS. But it's doable =
-
-and we are in fact out here trying to do exactly that, right? ;-)
-
-	Ingo
+	tglx
