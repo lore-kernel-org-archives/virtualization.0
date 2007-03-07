@@ -1,18 +1,20 @@
 From: Zachary Amsden <zach@vmware.com>
 Subject: Re: Xen & VMI?
-Date: Tue, 06 Mar 2007 18:16:25 -0800
-Message-ID: <45EE2079.1060200@vmware.com>
-References: <20070306081909.GA9331@elte.hu>
-	<45ED2837.3020108@suse.de>	<20070306085222.GA17002@elte.hu>
-	<45ED3121.8090308@suse.de>	<20070306093436.GA30239@elte.hu>
-	<45ED3F29.6000705@suse.de>	<20070306102658.GA7478@elte.hu>
-	<45ED4AD8.6020504@suse.de>	<20070306115937.GA25313@elte.hu>
-	<45ED9678.5050907@goop.org> <20070306171130.GA13403@elte.hu>
+Date: Tue, 06 Mar 2007 18:35:38 -0800
+Message-ID: <45EE24FA.7090002@vmware.com>
+References: <45ECC076.9050209@goop.org> <45ECC91D.1020809@vmware.com>
+	<45ECC9B6.1060209@goop.org> <20070306081909.GA9331@elte.hu>
+	<45ED2837.3020108@suse.de> <20070306085222.GA17002@elte.hu>
+	<20070306194612.GG19575@sequoia.sous-sol.org>
+	<20070306203018.GA21736@elte.hu>
+	<20070306205351.GA10574@sequoia.sous-sol.org>
+	<20070306210334.GC26348@elte.hu>
+	<20070306212855.GB10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070306171130.GA13403@elte.hu>
+In-Reply-To: <20070306212855.GB10574@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -22,66 +24,61 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: virtualization <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+To: Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@elte.hu>
+Cc: virtualization <virtualization@lists.osdl.org>, Roland McGrath <roland@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ingo Molnar wrote:
-
-> We do not let OpenOffice or Evolution have its own separate ABI to Linux =
-
-> so that they 'can evolve at their own pace'... We want them to cooperate =
-
-> and come up with a common ABI (or rather, we try to come up with the =
-
-> right syscalls ourselves), because divering, overlapping ABIs are a huge =
-
-> PITA.
+Chris Wright wrote:
+> I agree that changing the interface to the low-level platform is tricky
+> and less isolated.  But how does the VMI protect you from those changes?
+> It simply doesn't, the changes are still necessary.  And the inflexibility
+> means the tough corner cases swept under the VMI rug are more difficult
+> to debug, get right, etc...
 >   =
 
 
-OpenOffice or Evolution are the completely wrong example.  They disprove =
+I actually disagree here.  Yes, it will change over time.  VMI was =
 
-your point more than they prove it.  Consider any significantly large =
+designed to be extensible and flexible - you can omit implementation for =
 
-cross-platform software like OpenOffice, Evolution, Firefox.  You don't =
+any calls you don't require, and with consensus, you can add new flags, =
 
-let or restrict what these pieces of software do at all.  They evolve at =
+fields, and calls where you need them.  But VMI as it stands today is =
 
-their own pace, and they all build their very complicated and divergent =
+simply not sufficient to support the hypervisors which are here now.  =
 
-cross platform compatibility layers, with huge, overlapping APIs, =
+There are gaps, particularly with SMP support, which require significant =
 
-converging in places, diverging in others.
+changes to either the hypervisors, the kernel, or the VMI itself.  There =
 
-> We do not unify their pointlessly diverging ABIs to within the kernel =
+are many reasons these gaps still exist, but most prominently, the big =
 
-> via say office_ops (while we could) because that's crappy on its face. =
+reason is that nobody wanted to use a single ABI to interface to the =
 
-> Hypervisors arent in any way different, they just _think_ they are =
+hypervisor a year ago when we first proposed the VMI interface as a =
 
-> special because they are relatively new. But hey, i dont expect you to =
+virtualization solution for Linux.  In the end, I see no reason the =
 
-> concede this point ;)
+technical issues can't be solved, but the larger questions about the =
 
-No, you don't.  The developers of Office and Evolution and Firefox do =
+future evolution of the interface and also some largely non-technical =
 
-that for you.  And it's not crappy on its face because it provides real =
+points, valid or not, have stalled the growth which we originally desired.
 
-value to them - the ability to run heterogeneously in multiple different =
+At this point, the question of whether to pursue a common ABI is no =
 
-environments and across many different platforms and operating systems.
+longer a technical issue, it's no longer a management or evolutionary =
 
-Where your analogy is wrong is that in this case, Linux is very much =
+issue at all.  It's a pragmatic issue about getting code that works into =
 
-like one of those large software systems.  It has complicated features =
+Linux today.  It's about working together using what we have as a base, =
 
-that require special plugins to work efficiently in different hypervisor =
+which is paravirt-ops, to get working code to users.  We can always =
 
-environments.  And paravirt-ops is providing that functionality to =
+evolve the code in tree if we find a workable cross-vendor ABI that =
 
-Linux, just as the platform layer of any large software system does and =
+solves everyone's problems.  But that is neither here nor there, because =
 
-very much should do.
+it isn't here today.
 
 Zach
