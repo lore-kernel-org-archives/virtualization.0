@@ -1,7 +1,7 @@
-From: Steven Rostedt <srostedt@redhat.com>
+From: Steven Rostedt <rostedt@goodmis.org>
 Subject: [RFC/PATCH PV_OPS X86_64 00/17] Paravirt_ops for x86_64
-Date: Thu, 08 Mar 2007 00:53:57 -0500
-Message-ID: <45EFA4F5.1020001@redhat.com>
+Date: Thu, 08 Mar 2007 01:01:44 -0500
+Message-ID: <1173333704.25848.0.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
