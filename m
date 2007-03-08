@@ -1,7 +1,7 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [RFC/PATCH PV_OPS X86_64 02/17] paravirt_ops - msr
-Date: Thu, 08 Mar 2007 01:01:56 -0500
-Message-ID: <1173333716.25848.3.camel@localhost.localdomain>
+Subject: [RFC/PATCH PV_OPS X86_64 03/17] paravirt_ops - system routines
+Date: Thu, 08 Mar 2007 01:01:59 -0500
+Message-ID: <1173333719.25848.4.camel@localhost.localdomain>
 References: <20070308054422.820010000@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -20,289 +20,242 @@ To: virtualization@lists.osdl.org
 Cc: Chris Wright <chrisw@sous-sol.org>, Glauber de Oliveira Costa <gcosta@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-plain text document attachment (xx-paravirt-msr-header.patch)
-Code consolidations of msr routines for paravirt ops.
+plain text document attachment (xx-paravirt-processor-header.patch)
+System routine updates for the paravirt_ops interface.
 
 Signed-off-by: Steven Rostedt srostedt@redhat.com
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 
 
-
-Index: clean-start/include/asm-x86_64/msr.h
+Index: clean-start/include/asm-x86_64/processor.h
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- clean-start.orig/include/asm-x86_64/msr.h
-+++ clean-start/include/asm-x86_64/msr.h
-@@ -2,6 +2,62 @@
- #define X86_64_MSR_H 1
+--- clean-start.orig/include/asm-x86_64/processor.h
++++ clean-start/include/asm-x86_64/processor.h
+@@ -139,35 +139,6 @@ extern unsigned short num_cache_leaves;
+ #define X86_CR4_OSXMMEXCPT	0x0400	/* enable unmasked SSE exceptions */
  =
 
- #ifndef __ASSEMBLY__
-+#include <asm/errno.h>
+ /*
+- * Save the cr4 feature set we're using (ie
+- * Pentium 4MB enable and PPro Global page
+- * enable), so that any CPU's that boot up
+- * after us can get the correct flags.
+- */
+-extern unsigned long mmu_cr4_features;
+-
+-static inline void set_in_cr4 (unsigned long mask)
+-{
+-	mmu_cr4_features |=3D mask;
+-	__asm__("movq %%cr4,%%rax\n\t"
+-		"orq %0,%%rax\n\t"
+-		"movq %%rax,%%cr4\n"
+-		: : "irg" (mask)
+-		:"ax");
+-}
+-
+-static inline void clear_in_cr4 (unsigned long mask)
+-{
+-	mmu_cr4_features &=3D ~mask;
+-	__asm__("movq %%cr4,%%rax\n\t"
+-		"andq %0,%%rax\n\t"
+-		"movq %%rax,%%cr4\n"
+-		: : "irg" (~mask)
+-		:"ax");
+-}
+-
+-
+-/*
+  * User space process size. 47bits minus one guard page.
+  */
+ #define TASK_SIZE64	(0x800000000000UL - 4096)
+@@ -299,6 +270,10 @@ struct thread_struct {
+ 	set_fs(USER_DS);							 \
+ } while(0) =
+
+ =
+
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++#else
++#define paravirt_enabled() 0
+ #define get_debugreg(var, register)				\
+ 		__asm__("movq %%db" #register ", %0"		\
+ 			:"=3Dr" (var))
+@@ -306,6 +281,31 @@ struct thread_struct {
+ 		__asm__("movq %0,%%db" #register		\
+ 			: /* no output */			\
+ 			:"r" (value))
++#define load_rsp0(tss, thread)				\
++	do { (tss)->rsp0 =3D (thread)->rsp0; } while(0)
++#endif
 +
-+static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
-+				 unsigned int *ecx, unsigned int *edx)
++/*
++ * Save the cr4 feature set we're using (ie
++ * Pentium 4MB enable and PPro Global page
++ * enable), so that any CPU's that boot up
++ * after us can get the correct flags.
++ */
++extern unsigned long mmu_cr4_features;
++
++static inline void set_in_cr4 (unsigned long mask)
 +{
-+	__asm__("cpuid"
-+		: "=3Da" (*eax),
-+		  "=3Db" (*ebx),
-+		  "=3Dc" (*ecx),
-+		  "=3Dd" (*edx)
-+		: "0" (*eax), "2" (*ecx));
++	mmu_cr4_features |=3D mask;
++	write_cr4(read_cr4() | mask);
 +}
 +
-+/* wrmsr with exception handling */
-+static inline int native_write_msr_safe(unsigned int msr, unsigned long va=
-l)
++static inline void clear_in_cr4 (unsigned long mask)
 +{
-+	int err;
-+	asm volatile("2: wrmsr ; xorl %0,%0\n"
-+		     "1:\n\t"
-+		     ".section .fixup,\"ax\"\n\t"
-+		     "3:  movl %4,%0 ; jmp 1b\n\t"
-+		     ".previous\n\t"
-+ 		     ".section __ex_table,\"a\"\n"
-+		     "   .align 8\n\t"
-+		     "   .quad 2b,3b\n\t"
-+		     ".previous"
-+		     : "=3Da" (err)
-+		     : "c" (msr), "0" ((u32)val), "d" ((u32)(val>>32)),
-+		       "i" (-EFAULT));
-+	return err;
++	mmu_cr4_features &=3D ~mask;
++	write_cr4(read_cr4() & ~mask);
 +}
 +
-+/* rdmsr with exception handling */
-+static inline unsigned long native_read_msr_safe(unsigned int msr, int *er=
-r)
-+{
-+	unsigned long a, b;
 +
-+	  asm volatile ("1:       rdmsr\n"
-+                      "2:\n"
-+                      ".section .fixup,\"ax\"\n"
-+                      "3:       movl %4,%0\n"
-+                      " jmp 2b\n"
-+                      ".previous\n"
-+                      ".section __ex_table,\"a\"\n"
-+                      " .align 8\n"
-+                      " .quad 1b,3b\n"
-+                      ".previous":"=3D&bDS" (*err), "=3Da"(a), "=3Dd"(b)
-+                      :"c"(msr), "i"(-EIO), "0"(0));
-+	return a | (b << 32);
+ =
+
+ struct task_struct;
+ struct mm_struct;
+Index: clean-start/include/asm-x86_64/system.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- clean-start.orig/include/asm-x86_64/system.h
++++ clean-start/include/asm-x86_64/system.h
+@@ -65,46 +65,84 @@ extern void load_gs_index(unsigned); =
+
+ 		".previous"			\
+ 		: :"r" (value), "r" (0))
+ =
+
++static inline void native_clts(void)
++{
++	asm volatile ("clts");
++}
++
++static inline unsigned long native_read_cr0(void)
++{
++	unsigned long val;
++	asm volatile("movq %%cr0,%0\n\t" :"=3Dr" (val));
++	return val;
++}
++
++static inline void native_write_cr0(unsigned long val)
++{
++	asm volatile("movq %0,%%cr0": :"r" (val));
++}
++
++static inline unsigned long native_read_cr2(void)
++{
++	unsigned long val;
++	asm volatile("movq %%cr2,%0\n\t" :"=3Dr" (val));
++	return val;
++}
++
++static inline void native_write_cr2(unsigned long val)
++{
++	asm volatile("movq %0,%%cr2": :"r" (val));
++}
++
++static inline unsigned long native_read_cr3(void)
++{
++	unsigned long val;
++	asm volatile("movq %%cr3,%0\n\t" :"=3Dr" (val));
++	return val;
++}
++
++static inline void native_write_cr3(unsigned long val)
++{
++	asm volatile("movq %0,%%cr3": :"r" (val));
++}
++
++static inline unsigned long native_read_cr4(void)
++{
++	unsigned long val;
++	asm volatile("movq %%cr4,%0\n\t" :"=3Dr" (val));
++	return val;
++}
++
++static inline void native_write_cr4(unsigned long val)
++{
++	asm volatile("movq %0,%%cr4": :"r" (val));
++}
++
++static inline void native_wbinvd(void)
++{
++	asm volatile("wbinvd": : :"memory");
 +}
 +
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
 +#else
-+
-+#define __cpuid native_cpuid
  /*
-  * Access to machine-specific registers (available on 586 and better only)
-  * Note: the rd* operations modify the parameters directly (without using
-@@ -28,37 +84,18 @@
- =
-
- #define wrmsrl(msr,val) wrmsr(msr,(__u32)((__u64)(val)),((__u64)(val))>>32=
-) =
-
- =
-
--/* wrmsr with exception handling */
--#define wrmsr_safe(msr,a,b) ({ int ret__;			\
--	asm volatile("2: wrmsr ; xorl %0,%0\n"			\
--		     "1:\n\t"					\
--		     ".section .fixup,\"ax\"\n\t"		\
--		     "3:  movl %4,%0 ; jmp 1b\n\t"		\
--		     ".previous\n\t"				\
-- 		     ".section __ex_table,\"a\"\n"		\
--		     "   .align 8\n\t"				\
--		     "   .quad 	2b,3b\n\t"			\
--		     ".previous"				\
--		     : "=3Da" (ret__)				\
--		     : "c" (msr), "0" (a), "d" (b), "i" (-EFAULT)); \
--	ret__; })
--
--#define checking_wrmsrl(msr,val) wrmsr_safe(msr,(u32)(val),(u32)((val)>>32=
-))
--
--#define rdmsr_safe(msr,a,b) \
--	({ int ret__;						\
--	  asm volatile ("1:       rdmsr\n"			\
--                      "2:\n"					\
--                      ".section .fixup,\"ax\"\n"		\
--                      "3:       movl %4,%0\n"			\
--                      " jmp 2b\n"				\
--                      ".previous\n"				\
--                      ".section __ex_table,\"a\"\n"		\
--                      " .align 8\n"				\
--                      " .quad 1b,3b\n"				\
--                      ".previous":"=3D&bDS" (ret__), "=3Da"(*(a)), "=3Dd"(=
-*(b))\
--                      :"c"(msr), "i"(-EIO), "0"(0));		\
--	  ret__; })		=
-
-+#define wrmsr_safe(msr,val1,val2)					\
-+		native_write_msr_safe(msr,(u64)(val1)|(u64)(val2)<<32)
-+
-+#define rdmsr_safe(msr,val1,val2)				\
-+	({							\
-+		int __err;					\
-+		unsigned long __val;				\
-+		__val =3D native_read_msr_safe(msr, &__err);	\
-+		*val1 =3D (u32)__val;				\
-+		*val2 =3D (u32)(__val>>32);			\
-+		__err;						\
-+	})
- =
-
- #define rdtsc(low,high) \
-      __asm__ __volatile__("rdtsc" : "=3Da" (low), "=3Dd" (high))
-@@ -66,8 +103,6 @@
- #define rdtscl(low) \
-      __asm__ __volatile__ ("rdtsc" : "=3Da" (low) : : "edx")
- =
-
--#define rdtscp(low,high,aux) \
--     asm volatile (".byte 0x0f,0x01,0xf9" : "=3Da" (low), "=3Dd" (high), "=
-=3Dc" (aux))
- =
-
- #define rdtscll(val) do { \
-      unsigned int __a,__d; \
-@@ -75,42 +110,43 @@
-      (val) =3D ((unsigned long)__a) | (((unsigned long)__d)<<32); \
- } while(0)
- =
-
-+#define rdpmc(counter,low,high) \
-+     __asm__ __volatile__("rdpmc" \
-+			  : "=3Da" (low), "=3Dd" (high) \
-+			  : "c" (counter))
-+
-+#define rdtscp(low,high,aux) \
-+     asm volatile (".byte 0x0f,0x01,0xf9" : "=3Da" (low), "=3Dd" (high), "=
-=3Dc" (aux))
-+
- #define rdtscpll(val, aux) do { \
-      unsigned long __a, __d; \
-      asm volatile (".byte 0x0f,0x01,0xf9" : "=3Da" (__a), "=3Dd" (__d), "=
-=3Dc" (aux)); \
-      (val) =3D (__d << 32) | __a; \
- } while (0)
- =
-
-+#define checking_wrmsrl(msr,val) native_write_msr_safe(msr, val)
-+
-+#endif /* CONFIG_PARAVIRT */
-+
- #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
- =
-
- #define write_rdtscp_aux(val) wrmsr(0xc0000103, val, 0)
- =
-
--#define rdpmc(counter,low,high) \
--     __asm__ __volatile__("rdpmc" \
--			  : "=3Da" (low), "=3Dd" (high) \
--			  : "c" (counter))
--
--static inline void cpuid(int op, unsigned int *eax, unsigned int *ebx,
-+static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int =
-*ebx,
- 			 unsigned int *ecx, unsigned int *edx)
- {
--	__asm__("cpuid"
--		: "=3Da" (*eax),
--		  "=3Db" (*ebx),
--		  "=3Dc" (*ecx),
--		  "=3Dd" (*edx)
--		: "0" (op));
-+	*eax =3D op;
-+	*ecx =3D 0;
-+	__cpuid(eax, ebx, ecx, edx);
- }
- =
-
- /* Some CPUID calls want 'count' to be placed in ecx */
--static inline void cpuid_count(int op, int count, int *eax, int *ebx, int =
-*ecx,
--	       	int *edx)
-+static inline void cpuid_count(int op, int count,
-+			 int *eax, int *ebx, int *ecx, int *edx)
- {
--	__asm__("cpuid"
--		: "=3Da" (*eax),
--		  "=3Db" (*ebx),
--		  "=3Dc" (*ecx),
--		  "=3Dd" (*edx)
--		: "0" (op), "c" (count));
-+	*eax =3D op;
-+	*ecx =3D count;
-+	__cpuid(eax, ebx, ecx, edx);
- }
- =
-
- /*
-@@ -118,42 +154,34 @@ static inline void cpuid_count(int op, i
+  * Clear and set 'TS' bit respectively
   */
- static inline unsigned int cpuid_eax(unsigned int op)
- {
--	unsigned int eax;
+-#define clts() __asm__ __volatile__ ("clts")
 -
--	__asm__("cpuid"
--		: "=3Da" (eax)
--		: "0" (op)
--		: "bx", "cx", "dx");
-+	unsigned int eax, ebx, ecx, edx;
-+	eax =3D op;
-+	ecx =3D 0;
-+	__cpuid(&eax, &ebx, &ecx, &edx);
- 	return eax;
- }
- static inline unsigned int cpuid_ebx(unsigned int op)
- {
--	unsigned int eax, ebx;
+-static inline unsigned long read_cr0(void)
+-{ =
+
+-	unsigned long cr0;
+-	asm volatile("movq %%cr0,%0" : "=3Dr" (cr0));
+-	return cr0;
+-} =
+
 -
--	__asm__("cpuid"
--		: "=3Da" (eax), "=3Db" (ebx)
--		: "0" (op)
--		: "cx", "dx" );
-+	unsigned int eax, ebx, ecx, edx;
-+	eax =3D op;
-+	ecx =3D 0;
-+	__cpuid(&eax, &ebx, &ecx, &edx);
- 	return ebx;
- }
- static inline unsigned int cpuid_ecx(unsigned int op)
- {
--	unsigned int eax, ecx;
+-static inline void write_cr0(unsigned long val) =
+
+-{ =
+
+-	asm volatile("movq %0,%%cr0" :: "r" (val));
+-} =
+
 -
--	__asm__("cpuid"
--		: "=3Da" (eax), "=3Dc" (ecx)
--		: "0" (op)
--		: "bx", "dx" );
-+	unsigned int eax, ebx, ecx, edx;
-+	eax =3D op;
-+	ecx =3D 0;
-+	__cpuid(&eax, &ebx, &ecx, &edx);
- 	return ecx;
- }
- static inline unsigned int cpuid_edx(unsigned int op)
- {
--	unsigned int eax, edx;
+-static inline unsigned long read_cr3(void)
+-{ =
+
+-	unsigned long cr3;
+-	asm("movq %%cr3,%0" : "=3Dr" (cr3));
+-	return cr3;
+-} =
+
 -
--	__asm__("cpuid"
--		: "=3Da" (eax), "=3Dd" (edx)
--		: "0" (op)
--		: "bx", "cx");
-+	unsigned int eax, ebx, ecx, edx;
-+	eax =3D op;
-+	ecx =3D 0;
-+	__cpuid(&eax, &ebx, &ecx, &edx);
- 	return edx;
- }
+-static inline unsigned long read_cr4(void)
+-{ =
+
+-	unsigned long cr4;
+-	asm("movq %%cr4,%0" : "=3Dr" (cr4));
+-	return cr4;
+-} =
+
+-
+-static inline void write_cr4(unsigned long val)
+-{ =
+
+-	asm volatile("movq %0,%%cr4" :: "r" (val));
+-} =
+
++#define clts	 native_clts
++#define read_cr0 native_read_cr0
++#define write_cr0 native_write_cr0
++#define read_cr2 native_read_cr2
++#define write_cr2 native_write_cr2
++#define read_cr3 native_read_cr3
++#define write_cr3 native_write_cr3
++#define read_cr4 native_read_cr4
++#define write_cr4 native_write_cr4
++#define wbinvd	native_wbinvd
++#endif /* CONFIG_PARAVIRT */
  =
 
+ #define stts() write_cr0(8 | read_cr0())
+ =
+
+-#define wbinvd() \
+-	__asm__ __volatile__ ("wbinvd": : :"memory");
+ =
+
+ /*
+  * On SMP systems, when the scheduler does migration-cost autodetection,
 
 --
