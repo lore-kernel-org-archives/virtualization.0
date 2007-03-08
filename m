@@ -1,75 +1,129 @@
 From: Zachary Amsden <zach@vmware.com>
 Subject: Re: hardwired VMI crap
-Date: Thu, 08 Mar 2007 14:31:56 -0800
-Message-ID: <45F08EDC.30003@vmware.com>
-References: <45EE1EA3.90803@vmware.com>	
-	<1173256666.24738.576.camel@localhost.localdomain>	
-	<45EEF966.6060902@goop.org>
-	<Line.LNX.4.64.0703071304080.1851@d.namei>	
-	<45EF0CF5.5090305@goop.org> <45EF175D.6030609@vmware.com>	
-	<1173302503.24738.795.camel@localhost.localdomain>	
-	<45EF372E.7030600@goop.org>	
-	<1173308717.24738.898.camel@localhost.localdomain>	
-	<45EF49E9.7040509@vmware.com> <20070308091019.GA19460@elte.hu>	
-	<45EFE010.7080108@vmware.com>
-	<1173352154.24738.1023.camel@localhost.localdomain>
-	<45F0761C.6060107@vmware.com> <45F07D07.5090003@goop.org>
+Date: Thu, 08 Mar 2007 14:58:41 -0800
+Message-ID: <45F09521.1060308@vmware.com>
+References: <45EE1EA3.90803@vmware.com> <1173352154.24738.1023.camel@localhost.localdomain> <45F0761C.6060107@vmware.com> <200703082239.44585.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45F07D07.5090003@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, tglx@linutronix.de
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030857AbXCHW6o@vger.kernel.org>
+In-Reply-To: <200703082239.44585.ak@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>, john stultz <johnstul@us.ibm.com>, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Pratap Subrahmanyam <pratap@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Daniel Hecht <dhecht@vmware.com>, Daniel Arai <arai@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->   =
+Andi Kleen wrote:
 
->> We faithfully emulate lapic, io_apic, the pit, pic, and a normal
->> interrupt subsystem.
->>     =
+> At least in Linux we don't really work with deadlines; if there 
+> are issues they need to be fixed even if it takes longer. I don't 
+> expect the version in .21 to be really usable anyways; it is clearly
+> still in development.
+>   
 
+It was working, and I expect to have it working again.  It is not in 
+development, but we urgently need to find a way to fix the problems 
+created when Ingo hobbled it by removing NO_IDLE_HZ code from 2.6.21..
+
+>   
+>> we re-used the APIC and IO-APIC, this is  
+>> uber rocket science.  We've been doing things this way, with public 
+>> patches for over a year, and you've even been CC'd on some of the 
+>> discussions.  So it is a little late to tell us - "redesign your 
+>> hypervisor, or else.."
+>>     
 >
-> Can you not just use the apic clock driver directly then?  Do you need
-> to do anything special?
->   =
+> It shouldn't touch the hypervisor, just the paravirt VMI backend shouldn't it?
+> I assume you could do a very minimal APIC layer that is just enough to 
+> talk to your softapic and a genapic backend for IPIs.
+>
+> At least I would welcome anything that shrinks the number of 
+> paravirt hooks.
+>
+> I'm just not sure it would be less hooks: you would probably need
+> functions to start other CPUs at least.
+>   
+ 
+Anything that attempts to create this uber multi-virtual interrupt / 
+timer / IPI / clock management beast is going to add a huge number of 
+paravirt hooks, because the vendor backends will be different for all of 
+these.
 
+>  
+> I must admit I also didn't quite get what was the big problem with
+> hooking apic_read/apic_write.
+>   
 
-The apic clock driver is going to program the apic, not our virtual =
+You mean why we need them?  They make APIC writes faster, since 
+otherwise they would trap and emulate, which is slow, and APIC is on 
+critical paths.  Or why people object to them?  I don't get the latter 
+either.
 
-clock, which tracks real time, available and stolen time.  APIC has no =
+> For the timer you just need to use a own exclusive 
+> clocksource that never touches PIT.
+>   
 
-idea about any of this.
+We have that working fine.  It is getting the clock event to work 
+independently from the lapic timer that is difficult because of the i386 
+backend.
 
-We want an APIC, just purely as a local interrupt controller, and a =
+>   
+>> We faithfully emulate lapic, io_apic, the pit, pic, and a normal 
+>> interrupt subsystem. We can't magically stop using these things because  
+>> we have to support traditional full virtualization.  Which means any 
+>> version of Linux, virtual interrupt controller or not, is going to boot 
+>> up, find these things, and try to use them.  So for a paravirt kernel, 
+>> either we have to disable each of these things in the Linux code or just 
+>> re-use them.
+>>     
+>
+> If you don't enable them they should be already disabled as default 
+> state, shouldn't they? 
+>
+> With an own custom clocksource and possible own APIC layer nobody
+> would ever enable the APICs.
+>   
 
-separate, paravirt timer device.  It is not very complicated.
+But we enable and use them, in both full-virt, and paravirt mode.  So we 
+really would need to duplicate the code, almost exactly for our "virtual 
+interrupt controller", which would really just be a wrapper on top of a 
+nearly identical APIC or IO-APIC implementation.
 
-The problem is that we are not supposed to fiddle with APIC internals, =
+>> 1) Rewrite the interrupt subsystem of our hypervisor, making it 
+>> incompatible with full virtualization, so that we can support an 
+>> abstract interrupt controller with a "clean" interface
+>>     
+>
+> What do you mean with rewrite? It's quite easy to add a new
+> backend to the generic IRQ code. They aren't a lot of code.
+>   
 
-so we shouldn't be using their clock events, so we can't use their low =
+Yes, but we would then need to duplicate the APIC or IO-APIC 
+implementation, because that is the hardware we emulate and use.  We 
+just want a different way to fire local timers, that is all.
 
-level local timer interrupt, and we are not supposed to write our own.  =
+> You could probably do a much simpler version, couldn't you? A lot of 
+> the stuff in apic.c/io_apic.c shouldn't be needed for a clean virtual
+> interface. But yes it would probably be still a lot of code.
+>   
 
-So we need a weird hack somewhere because we are not allowed to use any =
+Yes, we could do a cleaner simpler version.  But then we need to write 
+this new interrupt controller code for both the hypervisor and for 
+Linux.  And the fact that it is cleaner doesn't make it any nicer or 
+perform any better - it is just another dependency between the kernel 
+and hypervisor that then becomes hard to change.  So we would rather 
+stay as close to the hardware design as possible.
 
-of the paths that currently work for our code, because of the =
+> Still (2) is probably best for now, but the other alternatives
+> are not as ridiculous as you paint them.
+>   
 
-maintenance burden it imposes by misusing the interfaces.
+We have (2) working.  But Thomas apparently hated it.  The idea I have 
+about a single-IRQ source interrupt controller for timers seems pretty 
+nice, and does almost exactly encapsulate the one difference we have 
+from standard APIC / IO-APIC hardware - a different way to drive local 
+timers.
 
-The larger problem I am having is that nobody wants to give productive =
-
-feedback on how to fix the problem, just sit around and fling muck.
+Thanks for your feedback,
 
 Zach
