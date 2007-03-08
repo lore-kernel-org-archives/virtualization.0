@@ -1,38 +1,99 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: system call time increase when turning on CONFIG_PARAVIRT
-Date: Wed, 07 Mar 2007 16:55:40 -0800
-Message-ID: <45EF5F0C.5070102@goop.org>
-References: <1172866274.4898.14.camel@localhost.localdomain>	
-	<45E89CFB.4090905@goop.org>
-	<1172877111.8383.4.camel@localhost.localdomain>	
-	<45E8BE79.40200@goop.org>
-	<1173312124.8383.35.camel@localhost.localdomain>
+From: Daniel Arai <arai@vmware.com>
+Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
+Date: Wed, 07 Mar 2007 17:01:43 -0800
+Message-ID: <45EF6077.9090302@vmware.com>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>	<45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>	<20070306084647.GA16280@elte.hu> <45ED2C82.3080008@vmware.com>	<1173178774.24738.311.camel@localhost.localdomain>	<45EDD82F.90204@vmware.com>	<1173225182.24738.507.camel@localhost.localdomain>	<45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>	<1173228544.24738.514.camel@localhost.localdomain>	<45EE0D10.7070807@vmware.com>	<1173230305.24738.529.camel@localhost.localdomain>	<45EE1EA3.90803@vmware.com>	<1173256666.24738.576.camel@localhost.localdomain>	<45EEF966.6060902@goop.org>	<Line.LNX.4.64.0703071304080.1851@d.namei>	<45EF0CF5.5090305@goop.org>  <45EF175D.6030609@vmware.com>	<1173302503.24738.795.camel@localhost.localdomain>	<45EF372E.7030600@goop.org>	<1173308717.24738.898.camel@localhost.localdomain>	<45EF49E9.7040509@vmware.com> <1173313373.24738.937.c
+ amel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1173312124.8383.35.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: tim.c.chen@linux.intel.com
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992815AbXCHBBq@vger.kernel.org>
+In-Reply-To: <1173313373.24738.937.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: tglx@linutronix.de
+Cc: Zachary Amsden <zach@vmware.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tim Chen wrote:
-> It turned out that VDSO was turned off by CONFIG_PARAVIRT option,
-> causing the system call to use inefficient int 0x80 which led to the
-> increase system_call time I was seeing.  I noted that Ingo has caught
-> this problem and proposed a patch to correct this issue in another mail
-> thread.
+Thomas Gleixner wrote:
 
-Thanks for identifying this.  We'll be posting a more general fix for
-COMPAT_VDSO soon which will address this.
+> You managed to avoid the usage of other code (i.e. PIT / HPET) already,
+> so why is it sooo desireable to emulate apics instead of substituting it
+> by a small and sane replacement ? Just because you happen to have an
+> LAPIC emulator ? That's no reason to wire yourself into the kernel code
+> and make it harder to change and maintain.
 
-    J
+There are several reasons why it's desirable to emulate the APIC.  As you 
+mentioned, we already have APIC emulation, and APIC emulation isn't a huge 
+bottleneck on most workloads.  Our code works, the Linux code works, and 
+replacing both pieces of code with something "small and sane" isn't going to 
+improve performance very much, so why bother?  Any hypervisor implementation is 
+going to be a tradeoff between what's easy to implement in the hypervisor, 
+what's easy to implement in the guest operating system, and what's performance 
+critical.
+
+Secondly, not all (para-)virtualized operating systems will want to use 
+abstracted devices.  Some virtual operating systems will be given direct access 
+to hardware devices, and will need to run the actual driver for that device and 
+not some abstracted device driver.  So I don't buy your argument that every 
+piece of the kernel that interacts with a paravirtualized driver should have a 
+"small and sane replacement."
+
+But more importantly, we want a kernel that can run both on native hardware and 
+in a paravirtualized environment.  Linux doesn't really provide abstractions for 
+  replacing the appropriate code.  We tried to hook into the source code at a 
+level that seemed possible.
+
+For example, take smp_call_function().  What this essentially does is call 
+send_IPI_allbutself().
+
+void fastcall send_IPI_self(int vector)
+{
+         __send_IPI_shortcut(APIC_DEST_SELF, vector);
+}
+
+void __send_IPI_shortcut(unsigned int shortcut, int vector)
+{
+         /*
+          * Subtle. In the case of the 'never do double writes' workaround
+          * we have to lock out interrupts to be safe.  As we don't care
+          * of the value read we use an atomic rmw access to avoid costly
+          * cli/sti.  Otherwise we use an even cheaper single atomic write
+          * to the APIC.
+          */
+         unsigned int cfg;
+
+         /*
+          * Wait for idle.
+          */
+         apic_wait_icr_idle();
+
+         /*
+          * No need to touch the target chip field
+          */
+         cfg = __prepare_ICR(shortcut, vector);
+
+         /*
+          * Send the IPI. The write to APIC_ICR fires this off.
+          */
+         apic_write_around(APIC_ICR, cfg);
+}
+
+
+There's no good way to override __send_IPI_shortcut.  I suppose we could add 
+paravirt ops for __send_IPI_shortcut and every other op that touches the APIC. 
+But there are dozens of functions in apic.c that would need to be included in 
+paravirt ops.  And for our implementation, we really just want to override 
+apic_read and apic_write, since we can make these faster when done through 
+hypercalls than through memory accesses.  If we were to make these paravirt ops, 
+their implementations would be the same, except with a different apic_read and 
+apic_write.  This is a whole lot of useless code duplication.
+
+Most of the interrupt system is not written in such a way that multiple APICs 
+implementations can be selected from at boot time.  This is an absolute 
+requirement so that the same kernel can boot on native and in a paravirtualized 
+environment.  While this could be implemented, it seems like a waste of time, 
+since we can just emulate something similar to a real interrupt system and not 
+change things very much.
+
+Dan Arai
+VMware, Inc.
