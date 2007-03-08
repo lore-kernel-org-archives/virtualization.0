@@ -1,127 +1,49 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: hardwired VMI crap
-Date: Thu, 08 Mar 2007 12:09:14 +0100
-Message-ID: <1173352154.24738.1023.camel@localhost.localdomain>
-References: <45EE1EA3.90803@vmware.com>
-	 <1173256666.24738.576.camel@localhost.localdomain>
-	 <45EEF966.6060902@goop.org> <Line.LNX.4.64.0703071304080.1851@d.namei>
-	 <45EF0CF5.5090305@goop.org> <45EF175D.6030609@vmware.com>
-	 <1173302503.24738.795.camel@localhost.localdomain>
-	 <45EF372E.7030600@goop.org>
-	 <1173308717.24738.898.camel@localhost.localdomain>
-	 <45EF49E9.7040509@vmware.com> <20070308091019.GA19460@elte.hu>
-	 <45EFE010.7080108@vmware.com>
-Reply-To: tglx@linutronix.de
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [RFC/PATCH PV_OPS X86_64 00/17] Paravirt_ops for x86_64
+Date: Thu, 08 Mar 2007 08:05:07 -0500
+Message-ID: <1173359107.25848.23.camel@localhost.localdomain>
+References: <1173333704.25848.0.camel@localhost.localdomain>
+	<20070308064729.GZ10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751259AbXCHLDH@vger.kernel.org>
-In-Reply-To: <45EFE010.7080108@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>, john stultz <johnstul@us.ibm.com>, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Pratap Subrahmanyam <pratap@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@suse.de>, Daniel Hecht <dhecht@vmware.com>, Daniel Arai <arai@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20070308064729.GZ10574@sequoia.sous-sol.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-03-08 at 02:06 -0800, Zachary Amsden wrote:
-> >> The correct solution here is to properly separate the APIC, SMP, and 
-> >> timer code so the logic of it which we want to reuse is separated from 
-> >> the hardware dependence.  Clock events and clocksources take care of 
-> >> most of the timer issues, but there is still ugliness from SMP timer 
-> >> events depending on having part of the APIC infrastructure for wiring 
-> >> the interrupt gates.
-> >>     
-> >
-> > what are you talking about? A clockevents driver does not need to know 
-> > about lapic details, at all. In terms of interrupt gates for the 
-> > hypervisor to notify about clock events - use a virtual interrupt 
-> > controller via genirq.
-> >   
-> 
-> See my last e-mail.  It is not possible on i386, since local per-cpu 
-> interrupts are only supported via the APIC.
+On Wed, 2007-03-07 at 22:47 -0800, Chris Wright wrote:
+> * Steven Rostedt (rostedt@goodmis.org) wrote:
+> > Well, it's still kind of crappy, but it's starting to work. So I spent
+> > today, pulling out patches related only to paravirt ops from our git
+> > repo, and separating them to be readable. Well, here they are.
+> =
 
-It is not possible from your POV. It is possible, as we have already a
-complete irq abstraction layer, which supports _ALL_ of the
-requirements.
+> Cool.  I had split these up slightly differently, with core changes
+> coming first (like places where raw asm is still left behind), followed
+> by adding in the paravirt bits.  I think it would be useful to get those
+> simple basic changes to the front of the queue, because they can
+> largely be merged right away w/out issue.  I'll look through the lot
+> tomorrow.
 
-To make use of it in a maintainable way, it just needs the work of doing
-a proper client for the genirq layer, which get's its interrupt injected
-by the hypervisor.
+The way I split it, and what took me so long to split it, was that I
+wanted each patch to be able to compile. There was one two-way
+dependency, I think that was between patches 7 and 8. But the most part,
+each addition of a patch allowed for a successful compile.  I didn't
+test running those though ;)
 
-genirq() does not care by which mechanism handle_percpu_irq() is called.
+I can work on splitting it better. After pushing out the lguest64
+patches (coming soon).
 
-We provided the abstractions and you just tell us straight in the face,
-that your hypervisor works that way and therefor we have to accept that
-you do it that way.
 
-It's not rocket science to implement an abstract interrupt controller,
-which lets you inject per cpu or global interrupts into the generic
-layer. It needs some preparatory work to distangle the boot code
-assumptions from the implicit hardware, but this is a better spent time,
-than another set of hackery, which you already advertised for smpboot.c
-
-All we want you and the other hypervisor folks to do is to 
-
-- use existing abstractions in the way they are designed
-- create new ones where applicable
-- break the hardwired hardware assumptions, so a sane emulation model
-can be used.
-
-This is a one time effort and of value for everyone and it is even
-portable and reusable outside of i386. 
-
-Nobody wants to prevent you of using existing facilities of the kernel
-code. All we ask for is to use them in a sane way without hardwiring the
-particular backend oddities all over the place.
-
-This all is rushed in with the great promise, that it will be cleaned up
-somewhere in the future, but this is not some random self contained
-driver we talk about. It reaches into the guts of the kernel code and
-once it is there we have to deal with it until the great promise is
-fulfilled.
-
-> > if you want to use hardwired hardware details as your API: DO IT WITHOUT 
-> > MODIFYING LINUX. If you want anything more intelligent, something more 
-> > 'paravirtual' - WORK WITH US AND WORK WITH THE OTHER HYPERVISORS. So far 
-> > all i've seen from you was excuses and stonewalling on every step! We 
-> >   
-> 
-> So far, all you have done is not complain about our code until it was 
-> merged, the pursue every tactic possible to break it.  It is not us that 
-> are stonewalling.
-
-You have been told before. Andi asked you more than once to move to
-clockevents.
-
-I know its my fault that I just did not take enough time to look in
-detail into the whole paravirt business before - mostly because I made
-wrong assumptions about the design and intent of paravirt ops.
-
-> In the meantime, having code that uses slightly older interfaces in the 
-> kernel tree is not wrong in any way - it is pragmatic, because that code 
-> is working today, and not only that, the sanest thing to do in a release 
-> cycle.  And our code in the tree to be released imposes zero burden on 
-> anyone except for us.  Are we stopping you from rewriting the timer 
-> subsystem in the -rc tree?  How?  Because this code is supposed to be 
-> settled.  Your deliberate breaking of our code forces us to come up with 
-> workarounds that might be considered inappropriate, but nevertheless, 
-> necessary.  Who has to deal with and adapt to this?  Certainly not you.  
-> The burden to maintain the correctness of our code is on us.
-
-That's just aside of reality. The reality is:
-
-Ingo, Andi or I change code and it breaks one of the reachouts. Now this
-get detected in -rc5 and gets a blocking issue. Report comes from user
-and there is no time to fix it proper. The commit gets identified and it
-simply falls back on us to fix it or revert the original patch.
-
-Just look at it how it works. Dynticks break whatever crude assumption
-in a driver and I have to spend my time on fixing it. We have enough
-shit already there, which we break by such changes. No need to add
-another steaming pile of it, which lures there to catch us.
-
-If you can not change your hypervisor model to use a sane abstraction of
-interrupts, then please emulate lapic, io_apic and everything else
-_OUTSIDE_ of the kernel.
-
-	tglx
+-- Steve
