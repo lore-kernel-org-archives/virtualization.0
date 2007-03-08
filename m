@@ -1,7 +1,7 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [RFC/PATCH LGUEST X86_64 06/13] lguest64 Kconfig
-Date: Thu, 08 Mar 2007 12:38:56 -0500
-Message-ID: <1173375536.32170.8.camel@localhost.localdomain>
+Subject: [RFC/PATCH LGUEST X86_64 12/13] dump stack on crash
+Date: Thu, 08 Mar 2007 12:39:15 -0500
+Message-ID: <1173375555.32170.14.camel@localhost.localdomain>
 References: <20070308162348.299676000@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -20,42 +20,29 @@ To: virtualization@lists.osdl.org
 Cc: Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-plain text document attachment (lguest64-kconfig.patch)
-Put the kconfig options for lguest64 in.
+plain text document attachment (lguest64-dump-panic.patch)
+it's nice to see a back trace dump when we do a panic.
 
 Signed-off-by: Steven Rostedt <srostedt@redhat.com>
-Signed-off-by: Glauber de Oliveira Costa <glommer@gmail.com>
+Cc: Glauber de Oliveira Costa <glommer@gmail.com>
 Cc: Chris Wright <chrisw@sous-sol.org>
 
 
-
-Index: work-pv/arch/x86_64/Kconfig
+Index: work-pv/kernel/panic.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- work-pv.orig/arch/x86_64/Kconfig
-+++ work-pv/arch/x86_64/Kconfig
-@@ -320,6 +320,19 @@ config SCHED_MC
+--- work-pv.orig/kernel/panic.c
++++ work-pv/kernel/panic.c
+@@ -78,6 +78,7 @@ NORET_TYPE void panic(const char * fmt, =
+
+ 	vsnprintf(buf, sizeof(buf), fmt, args);
+ 	va_end(args);
+ 	printk(KERN_EMERG "Kernel panic - not syncing: %s\n",buf);
++	dump_stack();
+ 	bust_spinlocks(0);
  =
 
- source "kernel/Kconfig.preempt"
- =
-
-+config LGUEST
-+	tristate "Lguest support"
-+	depends on PARAVIRT
-+	help
-+	  Enable this is you think 32 bits are not enough fur a puppie.
-+
-+config LGUEST_GUEST
-+	bool
-+	depends on LGUEST
-+	default y
-+	help
-+	  Guest definitions for lguest
-+
- config NUMA
-        bool "Non Uniform Memory Access (NUMA) Support"
-        depends on SMP
+ 	/*
 
 --
