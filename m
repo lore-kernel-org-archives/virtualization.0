@@ -1,99 +1,118 @@
-From: Dan Hecht <dhecht@vmware.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Wed, 07 Mar 2007 15:52:41 -0800
-Message-ID: <45EF5049.3060902@vmware.com>
-References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>	 <20070306084647.GA16280@elte.hu> <45ED2C82.3080008@vmware.com>	 <1173178774.24738.311.camel@localhost.localdomain>	 <45EDD82F.90204@vmware.com>	 <1173225182.24738.507.camel@localhost.localdomain>	 <45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>	 <1173228544.24738.514.camel@localhost.localdomain>	 <45EE0D10.7070807@vmware.com>	 <1173230305.24738.529.camel@localhost.localdomain>	 <45EE1EA3.90803@vmware.com>	 <1173256666.24738.576.camel@localhost.localdomain>	 <45EEF966.6060902@goop.org>	<Line.LNX.4.64.0703071304080.1851@d.namei>	 <45EF0CF5.5090305@goop.org>  <45EF175D.6030609@vmware.com>	 <1173302503.24738.795.camel@localhost.localdomain>	 <45EF372E.7030600@goop.org> <1173308717.24738.898.camel@localhost.localdomain> <45EF4BD7.7060400@goop.org>
+Date: Thu, 08 Mar 2007 01:22:53 +0100
+Message-ID: <1173313373.24738.937.camel@localhost.localdomain>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
+	 <45ED16D2.3000202@vmware.com> <20070306084258.GA15745@elte.hu>
+	 <20070306084647.GA16280@elte.hu> <45ED2C82.3080008@vmware.com>
+	 <1173178774.24738.311.camel@localhost.localdomain>
+	 <45EDD82F.90204@vmware.com>
+	 <1173225182.24738.507.camel@localhost.localdomain>
+	 <45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com>
+	 <1173228544.24738.514.camel@localhost.localdomain>
+	 <45EE0D10.7070807@vmware.com>
+	 <1173230305.24738.529.camel@localhost.localdomain>
+	 <45EE1EA3.90803@vmware.com>
+	 <1173256666.24738.576.camel@localhost.localdomain>
+	 <45EEF966.6060902@goop.org>	<Line.LNX.4.64.0703071304080.1851@d.namei>
+	 <45EF0CF5.5090305@goop.org>  <45EF175D.6030609@vmware.com>
+	 <1173302503.24738.795.camel@localhost.localdomain>
+	 <45EF372E.7030600@goop.org>
+	 <1173308717.24738.898.camel@localhost.localdomain>
+	 <45EF49E9.7040509@vmware.com>
+Reply-To: tglx@linutronix.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992776AbXCGX5I@vger.kernel.org>
-In-Reply-To: <45EF4BD7.7060400@goop.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992796AbXCHAQp@vger.kernel.org>
+In-Reply-To: <45EF49E9.7040509@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: tglx@linutronix.de, James Morris <jmorris@namei.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, akpm@linux-foundation.org, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>, Dan Hecht <dhecht@vmware.com>, Zachary Amsden <zach@vmware.com>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, akpm@linux-foundation.org, Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/07/2007 03:33 PM, Jeremy Fitzhardinge wrote:
-> I know the vmi time code has coloured your view here, but I surely hope
-> it can be got into a better state before posting.  I'm biased of course,
-> but I would rather hope that all these drivers we're talking about will
-> be as stylistically clean as the Xen time code (which has room for
-> improvement, of course).
+On Wed, 2007-03-07 at 15:25 -0800, Zachary Amsden wrote:
+> > Looking at vmitimer.c and the number of hardcoded assumptions are
+> > telling me, that we are heading in exactly the opposite direction.
+> >   
 > 
+> No, VMI timer is unique because for SMP, it is based on the APIC.  On 
+> i386, SMP is hardwired to depend on the APIC, and so we simply re-use 
+> the pieces of it which are there, with the same assumptions about irqs, 
+> and hardware behavior, good or bad.  We just have a different way of 
+> telling the LAPIC when to deliver interrupts.
 
-Could you send us comments on where you feel the style needs some fixing 
-up?
+This is exactly the point. There is no benfit in reusing 3 lines of
+lapic interrupt handler code and therefor reaching into it. clockevents
+are not connected to lapic on SMP by any means. They are designed to be
+self contained and so please use them as designed.
 
-VMI encapsulates all the implementation details away from the kernel, 
-whereas the Xen time code puts it all out there in the kernel (see 
-snippet below).  What happens when Xen wants to change the way it 
-implements "system time"?  It looses compatibility with all existing 
-kernels....
+> The alternative is to pretty much completely copy apic.c into vmi.c or 
+> vmitimer.c, which seems a rather bad idea, since now two copies of 
+> nearly identical code need to be maintained.
 
-In VMI terms, the code to read "system time" from the hypervisor is this 
-one-liner (it can be written in any "style" you want; the fact is, it's 
-just an interface call to the VMI-layer):
+You managed to avoid the usage of other code (i.e. PIT / HPET) already,
+so why is it sooo desireable to emulate apics instead of substituting it
+by a small and sane replacement ? Just because you happen to have an
+LAPIC emulator ? That's no reason to wire yourself into the kernel code
+and make it harder to change and maintain.
 
-vmi_timer_ops.get_cycle_counter(VMI_CYCLES_REAL);
+> > Yes, if they are used in a sane and self contained way without reaching
+> > all over the place and expecting that those functions, which are not
+> > part of the paravirt interfaces will work for ever.
+> >   
+> 
+> But we definitely need pieces of the core APIC dependent code.  Xen 
+> needs pieces of it too, but very select pieces for SMP boot.  The 
+> ugliness you point out is there, but the reason it is there is not 
+> because the paravirt code is cluttered, it is because the i386 code is 
+> so hardwired to use the APIC model that there is pain separating from it.
+>
+> The correct solution here is to properly separate the APIC, SMP, and 
+> timer code so the logic of it which we want to reuse is separated from 
+> the hardware dependence.  Clock events and clocksources take care of 
+> most of the timer issues, but there is still ugliness from SMP timer 
+> events depending on having part of the APIC infrastructure for wiring 
+> the interrupt gates.
 
-In Xen terms, the same code to accomplish that is:
+Again: clockevents do not require APIC and do not depend on any APIC
+wiring. Your hypervisor is working that way.
 
-/*
-  * Scale a 64-bit delta by scaling and multiplying by a 32-bit fraction,
-  * yielding a 64-bit result.
-  */
-static inline u64 scale_delta(u64 delta, u32 mul_frac, int shift)
-{
-	u64 product;
-#ifdef __i386__
-	u32 tmp1, tmp2;
-#endif
+> > No it's not an absolute blocker, as long as we can take care, that the
+> > number of incarnations is 
+> >
+> > - designed to be shareable between hypervisors which have the same time
+> > model
+> > - common code like the 128 bit math is in a shared library
+> > - self contained and not reaching out into core kernel code for no good
+> > reason
+> >   
+> > Same goes for clock events, interrupts and other core facilities.
+> 
+> I think that is what everyone wants.  This is an iterative process.  We 
+> certainly don't want to reach out into core kernel code unless there is 
+> a good reason to do so, and with every development of clock events, 
+> sources, and interrupts, we have less of a reason to do so, and the code 
+> gets cleaner and more maintainable.
 
-	if (shift < 0)
-		delta >>= -shift;
-	else
-		delta <<= shift;
+We have to avoid this reachout in the first place. It just adds more
+hardwires into the hairball and makes it harder to distangle. 
 
-#ifdef __i386__
-	__asm__ (
-		"mul  %5       ; "
-		"mov  %4,%%eax ; "
-		"mov  %%edx,%4 ; "
-		"mul  %5       ; "
-		"xor  %5,%5    ; "
-		"add  %4,%%eax ; "
-		"adc  %5,%%edx ; "
-		: "=A" (product), "=r" (tmp1), "=r" (tmp2)
-		: "a" ((u32)delta), "1" ((u32)(delta >> 32)), "2" (mul_frac) );
-#elif __x86_64__
-	__asm__ (
-		"mul %%rdx ; shrd $32,%%rdx,%%rax"
-		: "=a" (product) : "0" (delta), "d" ((u64)mul_frac) );
-#else
-#error implement me!
-#endif
+If you want the virtualization support in the kernel, then please
+understand that we hardwire now and we'll fix it up once the core kernel
+developers serve us the solution on the silver tablet is not going to
+work. Please work with us on a proper solution upfront instead of
+throwing random hackery with the lame excuse "for a good reason" at us.
 
-	return product;
-}
+You knew exactly, that clockevents & co are on the way to mainline and
+there was enough time to work with us on a proper solution. No, you
+decided to ignore it, even after people pointed it out to you way before
+the 2.6.21 merge window. Now we have the hardwire in place and we can
+wait for you to fix it whenever it seems to fit into the vmware business
+plan.
 
-static u64 get_nsec_offset(struct shadow_time_info *shadow)
-{
-	u64 now, delta;
-	rdtscll(now);
-	delta = now - shadow->tsc_timestamp;
-	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
-}
+I'm not going to accept any further reachout unless there is an urgent
+bugfix in the release cycle, which does not allow a proper solution. But
+be sure, that the backout patch will hit -mm immidiately.
 
-static cycle_t xen_clocksource_read(void)
-{
-	struct shadow_time_info *shadow = &get_cpu_var(shadow_time);
-	cycle_t ret;
-
-	get_time_values_from_xen();
-
-	ret = shadow->system_timestamp + get_nsec_offset(shadow);
-
-	put_cpu_var(shadow_time);
-
-	return ret;
-}
+	tglx
