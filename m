@@ -1,7 +1,7 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [RFC/PATCH PV_OPS X86_64 05/17] pravirt_ops - segments
-Date: Thu, 08 Mar 2007 01:02:07 -0500
-Message-ID: <1173333727.25848.6.camel@localhost.localdomain>
+Subject: [RFC/PATCH PV_OPS X86_64 06/17] paravirt_op - miscellaneous updates.
+Date: Thu, 08 Mar 2007 01:02:12 -0500
+Message-ID: <1173333732.25848.7.camel@localhost.localdomain>
 References: <20070308054422.820010000@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -20,37 +20,52 @@ To: virtualization@lists.osdl.org
 Cc: Chris Wright <chrisw@sous-sol.org>, Glauber de Oliveira Costa <gcosta@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-plain text document attachment (xx-paravirt-segment-header.patch)
-Added two new segments for the hypervisor.
+plain text document attachment (xx-paravirt-misc-headers.patch)
+Miscellaneous header updates.  Sort of a work-in-progress.
 
 Signed-off-by: Steven Rostedt srostedt@redhat.com
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 
 
-Index: clean-start/include/asm-x86_64/segment.h
+Index: clean-start/include/asm-x86_64/proto.h
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- clean-start.orig/include/asm-x86_64/segment.h
-+++ clean-start/include/asm-x86_64/segment.h
-@@ -37,8 +37,14 @@
- #define GS_TLS_SEL ((GDT_ENTRY_TLS_MIN+GS_TLS)*8 + 3)
- #define FS_TLS_SEL ((GDT_ENTRY_TLS_MIN+FS_TLS)*8 + 3)
+--- clean-start.orig/include/asm-x86_64/proto.h
++++ clean-start/include/asm-x86_64/proto.h
+@@ -27,7 +27,11 @@ extern void init_memory_mapping(unsigned
  =
 
-+#define __HV_CS 0x80  /* 16*8 */
-+#define __HV_DS 0x88  /* 17*8 */
-+
-+#define GDT_ENTRY_HV_CS 16
-+#define GDT_ENTRY_HV_DS 17
-+
- #define IDT_ENTRIES 256
--#define GDT_ENTRIES 16
-+#define GDT_ENTRIES 18
- #define GDT_SIZE (GDT_ENTRIES * 8)
- #define TLS_SIZE (GDT_ENTRY_TLS_ENTRIES * 8) =
+ extern void system_call(void); =
 
+ extern int kernel_syscall(void);
++#ifdef CONFIG_PARAVIRT
++extern void x86_64_syscall_init(void);
++#else
+ extern void syscall_init(void);
++#endif
  =
 
+ extern void ia32_syscall(void);
+ extern void ia32_cstar_target(void); =
+
+Index: clean-start/include/asm-x86_64/spinlock.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- clean-start.orig/include/asm-x86_64/spinlock.h
++++ clean-start/include/asm-x86_64/spinlock.h
+@@ -6,6 +6,10 @@
+ #include <asm/page.h>
+ #include <asm/processor.h>
+ =
+
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++#endif
++
+ /*
+  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+  *
 
 --
