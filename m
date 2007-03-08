@@ -1,7 +1,7 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [RFC/PATCH PV_OPS X86_64 16/17] paravirt_ops - touch ups
-Date: Thu, 08 Mar 2007 01:02:38 -0500
-Message-ID: <1173333758.25848.17.camel@localhost.localdomain>
+Subject: [RFC/PATCH PV_OPS X86_64 17/17] paravirt_ops - pda entry
+Date: Thu, 08 Mar 2007 01:02:40 -0500
+Message-ID: <1173333760.25848.18.camel@localhost.localdomain>
 References: <20070308054422.820010000@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -20,68 +20,46 @@ To: virtualization@lists.osdl.org
 Cc: Chris Wright <chrisw@sous-sol.org>, Glauber de Oliveira Costa <gcosta@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-plain text document attachment (xx-paravirt-touchups.patch)
-Some miscellaneous clean ups.
+plain text document attachment (xx-paravirt-pda.patch)
+We don't actually use this. But we started to. This patch adds a =
+
+vcpu entry into the PDA.  This can come in handy, but we are not
+sure if we want it.  This is why it's in its own little patch.
 
 Signed-off-by: Steven Rostedt srostedt@redhat.com
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 
 
-Index: clean-start/arch/x86_64/ia32/syscall32.c
+Index: work-nopv/arch/x86_64/kernel/asm-offsets.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- clean-start.orig/arch/x86_64/ia32/syscall32.c
-+++ clean-start/arch/x86_64/ia32/syscall32.c
-@@ -119,5 +119,5 @@ void syscall32_cpu_init(void)
- 	checking_wrmsrl(MSR_IA32_SYSENTER_ESP, 0ULL);
- 	checking_wrmsrl(MSR_IA32_SYSENTER_EIP, (u64)ia32_sysenter_target);
- =
-
--	wrmsrl(MSR_CSTAR, ia32_cstar_target);
-+	wrmsrl(MSR_CSTAR, (u64)ia32_cstar_target);
- }
-Index: clean-start/arch/x86_64/mm/pageattr.c
+--- work-nopv.orig/arch/x86_64/kernel/asm-offsets.c
++++ work-nopv/arch/x86_64/kernel/asm-offsets.c
+@@ -48,6 +48,9 @@ int main(void)
+ 	ENTRY(cpunumber);
+ 	ENTRY(irqstackptr);
+ 	ENTRY(data_offset);
++	/* XXX: this should probably be a paravirt_ops stub, to be filled in
++	 * with the hypervisor code */
++	ENTRY(vcpu);
+ 	BLANK();
+ #undef ENTRY
+ #ifdef CONFIG_IA32_EMULATION
+Index: clean-start/include/asm-x86_64/pda.h
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- clean-start.orig/arch/x86_64/mm/pageattr.c
-+++ clean-start/arch/x86_64/mm/pageattr.c
-@@ -81,7 +81,7 @@ static void flush_kernel_map(void *arg)
- 		void *adr =3D page_address(pg);
- 		if (cpu_has_clflush)
- 			cache_flush_page(adr);
--		__flush_tlb_one(adr);
-+		__flush_tlb_one((u64)adr);
- 	}
- }
+--- clean-start.orig/include/asm-x86_64/pda.h
++++ clean-start/include/asm-x86_64/pda.h
+@@ -29,6 +29,7 @@ struct x8664_pda {
+ 	short isidle;
+ 	struct mm_struct *active_mm;
+ 	unsigned apic_timer_irqs;
++	void *vcpu;
+ } ____cacheline_aligned_in_smp;
  =
 
-Index: clean-start/include/linux/irqflags.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- clean-start.orig/include/linux/irqflags.h
-+++ clean-start/include/linux/irqflags.h
-@@ -74,11 +74,11 @@
- #endif /* CONFIG_TRACE_IRQFLAGS_SUPPORT */
- =
-
- #ifdef CONFIG_TRACE_IRQFLAGS_SUPPORT
--static inline void safe_halt(void)
--{
--	trace_hardirqs_on();
--	raw_safe_halt();
--}
-+#define safe_halt()						\
-+	do {							\
-+		trace_hardirqs_on();				\
-+		raw_safe_halt();				\
-+	} while (0)
- =
-
- #define local_save_flags(flags)		raw_local_save_flags(flags)
- =
-
+ extern struct x8664_pda *_cpu_pda[];
 
 --
