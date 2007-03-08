@@ -1,42 +1,62 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [RFC/PATCH PV_OPS X86_64 05/17] pravirt_ops - segments
-Date: Wed, 7 Mar 2007 22:49:42 -0800
-Message-ID: <20070308064942.GA10574@sequoia.sous-sol.org>
-References: <20070308054422.820010000@redhat.com>
-	<1173333727.25848.6.camel@localhost.localdomain>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
+Date: Thu, 08 Mar 2007 08:02:32 +0100
+Message-ID: <1173337352.24738.951.camel@localhost.localdomain>
+References: <200703060654.l266sVxr014860@shell0.pdx.osdl.net>
+	 <45ED16D2.3000202@vmware.com>	<20070306084258.GA15745@elte.hu>
+	 <20070306084647.GA16280@elte.hu>	<45ED2C82.3080008@vmware.com>
+	 <1173178774.24738.311.camel@localhost.localdomain>
+	 <45EDD82F.90204@vmware.com>
+	 <1173225182.24738.507.camel@localhost.localdomain>
+	 <45EE0628.1080108@goop.org>	<45EE08E8.2020008@vmware.com>
+	 <1173228544.24738.514.camel@localhost.localdomain>
+	 <45EE0D10.7070807@vmware.com>
+	 <1173230305.24738.529.camel@localhost.localdomain>
+	 <45EE1EA3.90803@vmware.com>
+	 <1173256666.24738.576.camel@localhost.localdomain>
+	 <45EEF966.6060902@goop.org>	<Line.LNX.4.64.0703071304080.1851@d.namei>
+	 <45EF0CF5.5090305@goop.org>	<45EF175D.6030609@vmware.com>
+	 <1173302503.24738.795.camel@localhost.localdomain>
+	 <45EF372E.7030600@goop.org>
+	 <1173308717.24738.898.camel@localhost.localdomain>
+	 <45EF49E9.7040509@vmware.com>
+	 <1173313373.24738.937.camel@localhost.localdomain>
+	 <45EF6077.9090302@vmware.com>  <45EF6597.5060104@goop.org>
+Reply-To: tglx@linutronix.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline
-In-Reply-To: <1173333727.25848.6.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Glauber de Oliveira Costa <gcosta@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932622AbXCHG40@vger.kernel.org>
+In-Reply-To: <45EF6597.5060104@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Daniel Arai <arai@vmware.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Steven Rostedt (rostedt@goodmis.org) wrote:
-> --- clean-start.orig/include/asm-x86_64/segment.h
-> +++ clean-start/include/asm-x86_64/segment.h
-> @@ -37,8 +37,14 @@
->  #define GS_TLS_SEL ((GDT_ENTRY_TLS_MIN+GS_TLS)*8 + 3)
->  #define FS_TLS_SEL ((GDT_ENTRY_TLS_MIN+FS_TLS)*8 + 3)
->  =
+On Wed, 2007-03-07 at 17:23 -0800, Jeremy Fitzhardinge wrote:
+> Daniel Arai wrote:
+> > But more importantly, we want a kernel that can run both on native hardware and 
+> > in a paravirtualized environment.  Linux doesn't really provide abstractions for 
+> >   replacing the appropriate code.  We tried to hook into the source code at a 
+> > level that seemed possible.
+> >   
+> 
+> Xen doesn't support any kind of apic emulation, so we'll need to hook
+> anything which relies on an apic.  The ipi code you quote below will
+> probably be one of those.
+> 
+> My opinion is that pv_ops shouldn't have raw apic operations, but
+> instead have appropriate high-level interfaces to achieve the same
+> ends.  Zach's counter-argument was basically your's: that the VMI code
+> will use a lot of the native code except for the actual apic operations.
+> 
+> I can live with VMI emulating apics if it wants, so long as it does it
+> in private and doesn't make a big scene about it.  We'll need the
+> high-level interfaces regardless.
 
-> +#define __HV_CS 0x80  /* 16*8 */
-> +#define __HV_DS 0x88  /* 17*8 */
-> +
-> +#define GDT_ENTRY_HV_CS 16
-> +#define GDT_ENTRY_HV_DS 17
-> +
+I can't because it reaches out into non private parts of the low level
+implementation and is not helping to distangle things and making the
+overall code better. No it forces its own view of the world on us
+without giving us anything back.
 
-Hmm, this one is not technically needed for pv_ops, looks like lguest
-bleeding in ;-)
+	tglx
