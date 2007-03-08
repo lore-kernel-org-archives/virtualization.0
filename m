@@ -1,34 +1,55 @@
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: + stupid-hack-to-make-mainline-build.patch added to -mm tree
-Date: Thu, 08 Mar 2007 08:15:15 +0000
-Message-ID: <C2157693.381A%Keir.Fraser@cl.cam.ac.uk>
-References: <20070308080131.GB9295@elte.hu>
+Date: Thu, 08 Mar 2007 00:41:32 -0800
+Message-ID: <45EFCC3C.5090201@goop.org>
+References: <45EE0628.1080108@goop.org> <45EE08E8.2020008@vmware.com> <1173228544.24738.514.camel@localhost.localdomain> <45EE0D10.7070807@vmware.com> <1173230305.24738.529.camel@localhost.localdomain> <45EE1EA3.90803@vmware.com> <1173256666.24738.576.camel@localhost.localdomain> <45EEF966.6060902@goop.org> <1173300032.24738.750.camel@localhost.localdomain> <45EF2991.1020204@goop.org> <20070308080131.GB9295@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030298AbXCHIlo@vger.kernel.org>
 In-Reply-To: <20070308080131.GB9295@elte.hu>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, tglx@linutronix.de, LKML <linux-kernel@vger.kernel.org>, akpm@linux-foundation.org, john stultz <johnstul@us.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: tglx@linutronix.de, Dan Hecht <dhecht@vmware.com>, Zachary Amsden <zach@vmware.com>, akpm@linux-foundation.org, ak@suse.de, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 8/3/07 08:01, "Ingo Molnar" <mingo@elte.hu> wrote:
+Ingo Molnar wrote:
+> you are obsessed with avoiding a hypercall, but why? Granted it's slow 
+> especially on things like SVN/VMX, but it's not fundamentally slow. We 
+> definitely do not want to design our whole APIs and abstractions around 
+> the temporary notion that 'hypercalls are slow'.
 
-> you are obsessed with avoiding a hypercall, but why? Granted it's slow
-> especially on things like SVN/VMX, but it's not fundamentally slow. We
-> definitely do not want to design our whole APIs and abstractions around
-> the temporary notion that 'hypercalls are slow'. I'd expect hypercalls
-> to be put into silicon just as much as SYSENTER was put into silicon.
+Sure.  But the specific case we're talking about here is a 300 line
+clock driver.  Nothing about its implementation has any effect on the
+kernel's APIs or abstractions.
 
-If syscalls are already so fast, why does Linux have vgettimeofday()?
+>  I'd expect hypercalls 
+> to be put into silicon just as much as SYSENTER was put into silicon. 
+>   
+Sysenter is marginally faster than int $80, but not massively so.  I
+guess Xen could use sysenter now for hypercalls, since its only useful
+for getting into ring 0.
 
- -- Keir
+> Anyway, in terms of guest time code, a /big/ amount of design junk can 
+> be avoided by not trying to do sillynesses like 'virtual time'. 
+Well, if you have a hypervisor scheduler multiplexing vcpus onto a real
+cpu at 100hz and a kernel scheduler multiplexing processes onto a vcpu
+at 100hz, then you're going to get a lot of disappointed processes who
+nominally got their 10ms real-time slice, but it was all spent on some
+other vcpu.   Its important that the kernel's scheduler know how much
+vcpu time each process really got, rather than basing its scheduling on
+the amount of real time that passed.
+
+> The TSC 
+> is awfully unreliable.
+>   
+Sure.
+
+> /THIS/ is the kind of junk we are trying to protect Linux against. 
+>   
+
+What?  That Xen happens to use the tsc as part of its hypervisor
+interface?  A fact that's completely isolated from the rest of the
+kernel behind the clock subsystem?
+
+    J
