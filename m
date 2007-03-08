@@ -1,197 +1,30 @@
 From: Andi Kleen <ak@suse.de>
 Subject: Re: hardwired VMI crap
-Date: Thu, 8 Mar 2007 22:39:44 +0100
-Message-ID: <200703082239.44585.ak@suse.de>
-References: <45EE1EA3.90803@vmware.com>
-	<1173352154.24738.1023.camel@localhost.localdomain>
-	<45F0761C.6060107@vmware.com>
+Date: Thu, 8 Mar 2007 22:43:31 +0100
+Message-ID: <200703082243.31659.ak@suse.de>
+References: <45EF175D.6030609@vmware.com> <45F07D07.5090003@goop.org> <20070308213458.GA24634@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45F0761C.6060107@vmware.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030574AbXCHVnf@vger.kernel.org>
+In-Reply-To: <20070308213458.GA24634@elte.hu>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, tglx@linutronix.de, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, tglx@linutronix.de, john stultz <johnstul@us.ibm.com>, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Pratap Subrahmanyam <pratap@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Daniel Hecht <dhecht@vmware.com>, Daniel Arai <arai@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 08 March 2007 21:46, Zachary Amsden wrote:
-> Thomas Gleixner wrote:
-> > On Thu, 2007-03-08 at 02:06 -0800, Zachary Amsden wrote:
-> >   =
 
-> >>>> The correct solution here is to properly separate the APIC, SMP, and =
-
-> >>>> timer code so the logic of it which we want to reuse is separated fr=
-om =
-
-> >>>> the hardware dependence.  Clock events and clocksources take care of =
-
-> >>>> most of the timer issues, but there is still ugliness from SMP timer =
-
-> >>>> events depending on having part of the APIC infrastructure for wirin=
-g =
-
-> >>>> the interrupt gates.
-> >>>>     =
-
-> >>>>         =
-
-> >>> what are you talking about? A clockevents driver does not need to kno=
-w =
-
-> >>> about lapic details, at all. In terms of interrupt gates for the =
-
-> >>> hypervisor to notify about clock events - use a virtual interrupt =
-
-> >>> controller via genirq.
-> >>>   =
-
-> >>>       =
-
-> >> See my last e-mail.  It is not possible on i386, since local per-cpu =
-
-> >> interrupts are only supported via the APIC.
-> >>     =
-
-> >
-> > It is not possible from your POV. It is possible, as we have already a
-> > complete irq abstraction layer, which supports _ALL_ of the
-> > requirements.
-> >
-> > To make use of it in a maintainable way, it just needs the work of doing
-> > a proper client for the genirq layer, which get's its interrupt injected
-> > by the hypervisor.
-> >
-> > genirq() does not care by which mechanism handle_percpu_irq() is called.
-> >
-> > We provided the abstractions and you just tell us straight in the face,
-> > that your hypervisor works that way and therefor we have to accept that
-> > you do it that way.
-> >
-> > It's not rocket science to implement an abstract interrupt controller,
-> > which lets you inject per cpu or global interrupts into the generic
-> > layer. It needs some preparatory work to distangle the boot code
-> > assumptions from the implicit hardware, but this is a better spent time,
-> > than another set of hackery, which you already advertised for smpboot.c
-> >   =
-
-> =
-
-> When we're about two weeks away from a product release and you are =
-
-> threatening to unmerge or block our code because we didn't create an =
-
-> abstract interrupt controller,
-
-At least in Linux we don't really work with deadlines; if there =
-
-are issues they need to be fixed even if it takes longer. I don't =
-
-expect the version in .21 to be really usable anyways; it is clearly
-still in development.
-
-> we re-used the APIC and IO-APIC, this is  =
-
-> uber rocket science.  We've been doing things this way, with public =
-
-> patches for over a year, and you've even been CC'd on some of the =
-
-> discussions.  So it is a little late to tell us - "redesign your =
-
-> hypervisor, or else.."
-
-It shouldn't touch the hypervisor, just the paravirt VMI backend shouldn't =
-it?
-I assume you could do a very minimal APIC layer that is just enough to =
-
-talk to your softapic and a genapic backend for IPIs.
-
-At least I would welcome anything that shrinks the number of =
-
-paravirt hooks.
-
-I'm just not sure it would be less hooks: you would probably need
-functions to start other CPUs at least.
- =
-
-I must admit I also didn't quite get what was the big problem with
-hooking apic_read/apic_write.
-
-For the timer you just need to use a own exclusive =
-
-clocksource that never touches PIT.
-
-> We faithfully emulate lapic, io_apic, the pit, pic, and a normal =
-
-> interrupt subsystem. We can't magically stop using these things because  =
-
-> we have to support traditional full virtualization.  Which means any =
-
-> version of Linux, virtual interrupt controller or not, is going to boot =
-
-> up, find these things, and try to use them.  So for a paravirt kernel, =
-
-> either we have to disable each of these things in the Linux code or just =
-
-> re-use them.
-
-If you don't enable them they should be already disabled as default =
-
-state, shouldn't they? =
-
-
-With an own custom clocksource and possible own APIC layer nobody
-would ever enable the APICs.
-
-> 1) Rewrite the interrupt subsystem of our hypervisor, making it =
-
-> incompatible with full virtualization, so that we can support an =
-
-> abstract interrupt controller with a "clean" interface
-
-What do you mean with rewrite? It's quite easy to add a new
-backend to the generic IRQ code. They aren't a lot of code.
-
-> 2) Reuse the same method that HPET, PIT and other time clients in i386 =
-
-> use - the global_clock_event pointer which allows you to wrest control =
-
-> back from the APIC and reuse the lapic_events local clockevents.
-
-If you used an own APIC layer APIC would never get control at all.
-
-> 3) Create a new low level interrupt handler for the per-cpu VMI timer =
-
-> IRQs instead of re-using the APIC handler
-> 4) Use the irq APIs to allocate IRQ-0 as a percpu IRQ, then change the =
-
-> IO-APIC code so it can know not to convert this PIC IRQ into a IO-APIC =
-
-> edge IRQ.
-> 5) Disable the io-apic code entirely in paravirt mode.  Rather than =
-
-> change it, merge a parallel copy of it into the VMI code
->  so that we can use the 99% of the code we need, with the one bugfix for =
-
-> #4 above
-
-You could probably do a much simpler version, couldn't you? A lot of =
-
-the stuff in apic.c/io_apic.c shouldn't be needed for a clean virtual
-interface. But yes it would probably be still a lot of code.
-
-Still (2) is probably best for now, but the other alternatives
-are not as ridiculous as you paint them.
-
+> what we do _NOT_ want is some mixture of 'simplified' and 'hardwired' 
+> native hardware access mixed with hypercalls that somehow ends up 
+> creating a Frankenstein mixture of 'virtual silicon', is specified 
+> nowhere else but in VMWare's proprietary hypervisor source code that we 
+> have no way to fix and no way to even see!
+
+Hmm, but we already drive the "vmware silicon" quite successfully with
+fully virtualized kernels. And apparently the VMI version is the same,
+just with some short cuts. Are you just worried about the ->apic_write()
+hooks or about something else too?
 
 -Andi
