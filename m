@@ -1,44 +1,62 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: hardwired VMI crap
-Date: Thu, 08 Mar 2007 16:44:17 -0800
-Message-ID: <45F0ADE1.6060303@goop.org>
-References: <45EF175D.6030609@vmware.com>	 <1173302503.24738.795.camel@localhost.localdomain>	 <45EF372E.7030600@goop.org>	 <1173308717.24738.898.camel@localhost.localdomain>	 <45EF49E9.7040509@vmware.com> <20070308091019.GA19460@elte.hu>	 <45EFE010.7080108@vmware.com>	 <1173352154.24738.1023.camel@localhost.localdomain>	 <45F0761C.6060107@vmware.com> <45F07D07.5090003@goop.org>	 <20070308213458.GA24634@elte.hu>  <45F09EAE.6090908@goop.org> <1173398690.24738.1108.camel@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC/PATCH LGUEST X86_64 01/13] HV VM Fix map area for HV.
+Date: Fri, 09 Mar 2007 14:52:50 +1100
+Message-ID: <1173412371.32234.109.camel@localhost.localdomain>
+References: <20070308162348.299676000@redhat.com>
+	<1173375511.32170.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161361AbXCIAoX@vger.kernel.org>
-In-Reply-To: <1173398690.24738.1108.camel@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, Zachary Amsden <zach@vmware.com>, john stultz <johnstul@us.ibm.com>, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Pratap Subrahmanyam <pratap@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@suse.de>, Daniel Hecht <dhecht@vmware.com>, Daniel Arai <arai@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <1173375511.32170.3.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thomas Gleixner wrote:
-> Once you are there, you are near the point where you created a virtual
-> architecture, which could run on any real architecture which gets
-> supported by a hypervisor backend.
->
-> I'd love that :)
->   
+On Thu, 2007-03-08 at 12:38 -0500, Steven Rostedt wrote:
+> One solution is just to do a single area for boot up, and then
+> use the vmalloc to map. But this gets quite complex, since we need to
+> force the guest to map a given area, after the fact, hoping that
+> it didn't map it someplace else before we get to the code to map it.
+> This can be done, but doing it this way is (for now) much easier.
 
-Sure.  But not even hypervisors.  Once we sort out pv_ops's SMP support,
-it will be this >< close to covering everything in the subarch
-interface.  So we can drop all that goo in favour of paravirt_ops, and
-make a single kernel that will boot on everything from voyager to
-numa-q!  How's that for world peace?
+Well, this way was more code, but you're right about the theoretical
+failure mode of the vmalloc method.
 
-> I know it is tricky to combine this with the upcoming hardware
-> virtualization support. But it's at least a worthwhile thought
-> experiment.
->   
+>     Host            Guest1          Guest2
+>  +-----------+   +-----------+  +-----------+
+>  |           |   |           |  |           |
+>  +-----------+   +-----------+  +-----------+
+>  | HV FIXMAP |   | HV FIXMAP |  | HV FIXMAP |
+>  |   TEXT    |   |   TEXT    |  |   TEXT    |
+>  +-----------+   +-----------+  +-----------+
+>  | GUEST 1   |   | GUEST 1   |  | UNMAPPED  |
+>  |SHARED DATA|   |SHARED DATA|  |           |
+>  +-----------+   +-----------+  +-----------+
+>  | GUEST 2   |   | UNMAPPED  |  | GUEST 2   |
+>  |SHARED DATA|   |           |  |SHARED DATA|
+>  +-----------+   |           |  +-----------+
+>  |           |   |           |  |           |
 
-Well, in many ways that's a step backwards.  The upside is that its
-easier to get away with simply emulating the some particular piece
-hardware, but it does lose a lot of opportunities for interesting
-flexibility and optimisations.
+I think it's better to do this per-cpu, as in the recently posted 32-but
+patches.  You have to copy in when changing guests, but you can support
+an infinite number of guests with (HV TEXTSIZE + NR_CPUS*2) pages.
 
-But I anticipate we'll get a xen-hvm pv_ops backend, for running under
-Xen with a virtualizing cpu.  It will probably look a lot like kvm's
-pv_ops backend.
+Damn, I forgot to cc you on that patch.  Sorry, I suck 8(
 
-    J
+They went to lkml as:
+[PATCH 7/9] lguest: use read-only pages rather than segments to protect hig=
+h-mapped switcher
+[PATCH 8/9] lguest: Optimize away copy in and out of per-cpu guest pages
+
+Cheers!
+Rusty.
