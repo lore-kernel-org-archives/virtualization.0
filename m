@@ -1,7 +1,7 @@
-From: Daniel Walker <dwalker@mvista.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: hardwired VMI crap
-Date: Thu, 08 Mar 2007 16:22:23 -0800
-Message-ID: <1173399743.20300.3.camel@dwalker1>
+Date: Thu, 8 Mar 2007 16:29:07 -0800 (PST)
+Message-ID: <Pine.LNX.4.64.0703081616250.10832@woody.linux-foundation.org>
 References: <45EF175D.6030609@vmware.com>
 	<1173302503.24738.795.camel@localhost.localdomain>
 	<45EF372E.7030600@goop.org>
@@ -10,14 +10,14 @@ References: <45EF175D.6030609@vmware.com>
 	<45EFE010.7080108@vmware.com>
 	<1173352154.24738.1023.camel@localhost.localdomain>
 	<45F0761C.6060107@vmware.com> <45F07D07.5090003@goop.org>
-	<20070308213458.GA24634@elte.hu> <45F09EAE.6090908@goop.org>
-	<45F0A254.4020002@vmware.com>
-Reply-To: dwalker@mvista.com
+	<20070308213458.GA24634@elte.hu>
+	<45F09EAE.6090908@goop.org> <45F0A254.4020002@vmware.com>
+	<45F0A5F0.7040900@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45F0A254.4020002@vmware.com>
+In-Reply-To: <45F0A5F0.7040900@goop.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -27,24 +27,82 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, tglx@linutronix.de
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, tglx@linutronix.de, akpm@linux-foundation.org, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-03-08 at 15:55 -0800, Zachary Amsden wrote:
 
+[ I don't really want to be involved too much in this particular =
+
+  discussion, but I'll pipe up quickly anyway.. ]
+
+On Thu, 8 Mar 2007, Jeremy Fitzhardinge wrote:
+
+> Zachary Amsden wrote:
+> > For APICs, we have two operations - APICRead and APICWrite.  It is
+> > nice and clean, and plugs in very easily to the APIC accessors
+> > available in Linux.
+> >
+> > Is this not clean?
 > =
 
-> We just don't drive the local timer interrupts through the APIC, we make =
+> Sure, that's clean, From that perspective the apic is a bunch of
+> registers backed by a state machine or something.
 
-> hypercalls to schedule local timer alarms.  Which is something we must =
+I think you could do much worse than just decide to pick the IO-APIC/lapic =
 
-> do for UP kernels as well, which use the PIT / PIC.  So there is a need =
+as your "virtual interrupt controller model". So I do *not* think that =
 
-> for having clockevents code which doesn't program timers through the APIC.
+APICRead/APICWrite are in any way horrible interfaces for a virtual =
 
-This getting a bit confusing to me .. When your talking about "local
-timer interrupts" are you speaking of a periodic interrupt from the
-lapic , or the jiffies increment inside the virtual machine?
+interrupt controller. In many ways, you then have a tested and known =
 
-Daniel
+interface to work with.
+
+Of course, there are bound to be better interfaces that map more naturally =
+
+to what people actually want to *do* ("[un]mask interrupt pin X", =
+
+"acknowledge interrupt pin X" etc), but quite often the cost of an =
+
+interface is *designing* it, so I don't think it's wrong per se to just =
+
+avoid that cost entirely, and just say "we make our interface look like a =
+
+known hardware interface". And then IOAPIC/lapic is the obvious choice.
+
+So Ingo, I think you've been a bit unfair. I agree that it would be =
+
+ugly to also try to emulate timers with that "fake local apic" setup, but =
+
+even that ugliness is probably not horrid, especially if you want to have =
+
+some kind of stable interface for an ABI.
+
+Of course the whole "stable ABI" is fairly moot. The kernel clearly won't =
+
+use the ABI, but a source-level API - and part of that is *exactly* that =
+
+an ABI is by design always very inflexible and has to be backwards =
+
+compatible. Make the API more high-level, and then the VMI "paravirt_ops" =
+
+stuff can translate that higher-level API into its own low-level ABI any =
+
+way it wants to.
+
+I do agree that for timers, the lapic model is probably ugly enough that =
+
+an ABI might be better off with somethign cleaner than just seeing timers =
+
+too as part of the interrupt controller, but I doubt it really is  that =
+
+big a deal. And I really think Ingo has made a bigger deal out of this =
+
+than necessary, although clearly CONFIG_NO_HZ will require that the =
+
+paravirt_ops will work on that level and will be able to translate it to =
+
+whatever VMI interfaces there are.
+
+		Linus
