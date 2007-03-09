@@ -1,108 +1,44 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: hardwired VMI crap
-Date: Thu, 8 Mar 2007 16:29:07 -0800 (PST)
-Message-ID: <Pine.LNX.4.64.0703081616250.10832@woody.linux-foundation.org>
-References: <45EF175D.6030609@vmware.com>
-	<1173302503.24738.795.camel@localhost.localdomain>
-	<45EF372E.7030600@goop.org>
-	<1173308717.24738.898.camel@localhost.localdomain>
-	<45EF49E9.7040509@vmware.com> <20070308091019.GA19460@elte.hu>
-	<45EFE010.7080108@vmware.com>
-	<1173352154.24738.1023.camel@localhost.localdomain>
-	<45F0761C.6060107@vmware.com> <45F07D07.5090003@goop.org>
-	<20070308213458.GA24634@elte.hu>
-	<45F09EAE.6090908@goop.org> <45F0A254.4020002@vmware.com>
-	<45F0A5F0.7040900@goop.org>
+Date: Thu, 08 Mar 2007 16:44:17 -0800
+Message-ID: <45F0ADE1.6060303@goop.org>
+References: <45EF175D.6030609@vmware.com>	 <1173302503.24738.795.camel@localhost.localdomain>	 <45EF372E.7030600@goop.org>	 <1173308717.24738.898.camel@localhost.localdomain>	 <45EF49E9.7040509@vmware.com> <20070308091019.GA19460@elte.hu>	 <45EFE010.7080108@vmware.com>	 <1173352154.24738.1023.camel@localhost.localdomain>	 <45F0761C.6060107@vmware.com> <45F07D07.5090003@goop.org>	 <20070308213458.GA24634@elte.hu>  <45F09EAE.6090908@goop.org> <1173398690.24738.1108.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45F0A5F0.7040900@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, tglx@linutronix.de, akpm@linux-foundation.org, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161361AbXCIAoX@vger.kernel.org>
+In-Reply-To: <1173398690.24738.1108.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: tglx@linutronix.de
+Cc: Ingo Molnar <mingo@elte.hu>, Zachary Amsden <zach@vmware.com>, john stultz <johnstul@us.ibm.com>, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Pratap Subrahmanyam <pratap@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@suse.de>, Daniel Hecht <dhecht@vmware.com>, Daniel Arai <arai@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Thomas Gleixner wrote:
+> Once you are there, you are near the point where you created a virtual
+> architecture, which could run on any real architecture which gets
+> supported by a hypervisor backend.
+>
+> I'd love that :)
+>   
 
-[ I don't really want to be involved too much in this particular =
+Sure.  But not even hypervisors.  Once we sort out pv_ops's SMP support,
+it will be this >< close to covering everything in the subarch
+interface.  So we can drop all that goo in favour of paravirt_ops, and
+make a single kernel that will boot on everything from voyager to
+numa-q!  How's that for world peace?
 
-  discussion, but I'll pipe up quickly anyway.. ]
+> I know it is tricky to combine this with the upcoming hardware
+> virtualization support. But it's at least a worthwhile thought
+> experiment.
+>   
 
-On Thu, 8 Mar 2007, Jeremy Fitzhardinge wrote:
+Well, in many ways that's a step backwards.  The upside is that its
+easier to get away with simply emulating the some particular piece
+hardware, but it does lose a lot of opportunities for interesting
+flexibility and optimisations.
 
-> Zachary Amsden wrote:
-> > For APICs, we have two operations - APICRead and APICWrite.  It is
-> > nice and clean, and plugs in very easily to the APIC accessors
-> > available in Linux.
-> >
-> > Is this not clean?
-> =
+But I anticipate we'll get a xen-hvm pv_ops backend, for running under
+Xen with a virtualizing cpu.  It will probably look a lot like kvm's
+pv_ops backend.
 
-> Sure, that's clean, From that perspective the apic is a bunch of
-> registers backed by a state machine or something.
-
-I think you could do much worse than just decide to pick the IO-APIC/lapic =
-
-as your "virtual interrupt controller model". So I do *not* think that =
-
-APICRead/APICWrite are in any way horrible interfaces for a virtual =
-
-interrupt controller. In many ways, you then have a tested and known =
-
-interface to work with.
-
-Of course, there are bound to be better interfaces that map more naturally =
-
-to what people actually want to *do* ("[un]mask interrupt pin X", =
-
-"acknowledge interrupt pin X" etc), but quite often the cost of an =
-
-interface is *designing* it, so I don't think it's wrong per se to just =
-
-avoid that cost entirely, and just say "we make our interface look like a =
-
-known hardware interface". And then IOAPIC/lapic is the obvious choice.
-
-So Ingo, I think you've been a bit unfair. I agree that it would be =
-
-ugly to also try to emulate timers with that "fake local apic" setup, but =
-
-even that ugliness is probably not horrid, especially if you want to have =
-
-some kind of stable interface for an ABI.
-
-Of course the whole "stable ABI" is fairly moot. The kernel clearly won't =
-
-use the ABI, but a source-level API - and part of that is *exactly* that =
-
-an ABI is by design always very inflexible and has to be backwards =
-
-compatible. Make the API more high-level, and then the VMI "paravirt_ops" =
-
-stuff can translate that higher-level API into its own low-level ABI any =
-
-way it wants to.
-
-I do agree that for timers, the lapic model is probably ugly enough that =
-
-an ABI might be better off with somethign cleaner than just seeing timers =
-
-too as part of the interrupt controller, but I doubt it really is  that =
-
-big a deal. And I really think Ingo has made a bigger deal out of this =
-
-than necessary, although clearly CONFIG_NO_HZ will require that the =
-
-paravirt_ops will work on that level and will be able to translate it to =
-
-whatever VMI interfaces there are.
-
-		Linus
+    J
