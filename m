@@ -1,14 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC/PATCH LGUEST X86_64 03/13] lguest64 core
-Date: Fri, 09 Mar 2007 15:10:48 +1100
-Message-ID: <1173413448.32234.119.camel@localhost.localdomain>
-References: <20070308162348.299676000@redhat.com>
-	<1173375527.32170.5.camel@localhost.localdomain>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [RFC/PATCH LGUEST X86_64 00/13] Lguest for the x86_64
+Date: Fri, 09 Mar 2007 13:20:33 +0200
+Message-ID: <45F14301.9090007@qumranet.com>
+References: <1173375492.32170.1.camel@localhost.localdomain>
+	<1173399509.32234.61.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <1173375527.32170.5.camel@localhost.localdomain>
+In-Reply-To: <1173399509.32234.61.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,25 +18,43 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Steven Rostedt <rostedt@goodmis.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-03-08 at 12:38 -0500, Steven Rostedt wrote:
-> +lg-objs :=3D core.o hypervisor.o lguest_user.o hv_vm.o page_tables.o \
-> +hypercalls.o io.o interrupts_and_traps.o lguest_debug.o
+Rusty Russell wrote:
+>> To prevent a guest from stealing all the hosts memory pages, we can
+>> use these hashes to also limit the number of puds, pmds, and ptes.
+>>
+>> If the page is not pinned (currently used), we can set up LRU lists,
+>> and find those pages that are somewhat stale, and free them.  This
+>> can be done safely since we have all the info we need to put them
+>> back if the guest needs them again.
+>>     =
 
-Right, I missed the trick here: hypervisor.S doesn't require any
-relocations, so that fact that it's linked at the wrong address doesn't
-matter at all.  Excuse me while I prepare a patch 8)
+>
+> This is the same issue with 32-bit (one main reason why it's root-only).
+> In my case it's not too hard to add a shrinker (it would drop PTE pages
+> out of the pagetable of any non-running guest, just needs locking), but
+> we also want to avoid pinning in guest (ie. userspace) pages: for this I
+> think we really want a per-mm callback when the swapper wants to kick
+> something out.
+>
+> I imagine kvm will have the same or similar issues (they restrict their
+> pagetables to 256 pages per guest, which is simultanously too many and
+> too few IMHO).
+>   =
 
-> +extern long end_hyper_text;
-> +extern long start_hyper_text;
 
-The standard way of doing this is "extern char end_hyper_text[];"
-doesn't matter on x86/x86-64, but on some platforms gcc can make
-assumptions about addresses based on the size of the variable (sbss
-etc).  So nice to use that everywhere for asm constants.
+We have similar issues, but they are easily fixed since at most four =
 
-Cheers,
-Rusty.
+pages are pinned per vcpu (sixteen with Ingo's cr3 cache).  A per-mm =
+
+swapper callback sounds great, especially when thinking about swapping =
+
+regular guest pages, and even more in the context of nested page tables.
+
+-- =
+
+Do not meddle in the internals of kernels, for they are subtle and quick to=
+ panic.
