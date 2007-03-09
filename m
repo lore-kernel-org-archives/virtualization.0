@@ -1,7 +1,7 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: hardwired VMI crap
-Date: Thu, 08 Mar 2007 15:55:00 -0800
-Message-ID: <45F0A254.4020002@vmware.com>
+Date: Fri, 09 Mar 2007 01:04:50 +0100
+Message-ID: <1173398690.24738.1108.camel@localhost.localdomain>
 References: <45EF175D.6030609@vmware.com>
 	<1173302503.24738.795.camel@localhost.localdomain>
 	<45EF372E.7030600@goop.org>
@@ -10,7 +10,8 @@ References: <45EF175D.6030609@vmware.com>
 	<45EFE010.7080108@vmware.com>
 	<1173352154.24738.1023.camel@localhost.localdomain>
 	<45F0761C.6060107@vmware.com> <45F07D07.5090003@goop.org>
-	<20070308213458.GA24634@elte.hu> <45F09EAE.6090908@goop.org>
+	<20070308213458.GA24634@elte.hu>  <45F09EAE.6090908@goop.org>
+Reply-To: tglx@linutronix.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -26,43 +27,37 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, tglx@linutronix.de, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> No, but I'm not prejudiced against virtual hardware.  If we have a piece
-> of code that thinks its talking to an apic, then I think its OK to use
-> that code whether its a real apic or a virtual one, _so long as its
-> being used in a way that's consistent with its intended interface_.  I
-> have to admit I have not looked at apics - real or virtual - in any
-> detail, so I won't claim to really understand the details of the
-> existing arch/i386 code or what VMI's trying to do, but it does seem to
-> me that it could all be much cleaner.
->
-> And clean is good, we all love clean - and so, agreement!
->   =
+On Thu, 2007-03-08 at 15:39 -0800, Jeremy Fitzhardinge wrote:
+> Ingo Molnar wrote:
+> >  - /One/ _intelligent_ higher-level virtualization API/ABI. Xen's API i=
+s =
 
+> >    quite advanced on this front.
+> =
 
-For APICs, we have two operations - APICRead and APICWrite.  It is nice =
+> At last!  Some love!
+> =
 
-and clean, and plugs in very easily to the APIC accessors available in =
+> The Xen approach has always been to prefer high-level interfaces over
+> lower-level ones, so that guests can meaningfully participate in their
+> own virtualization.  There are some necessarily low-level things, but
+> conceptually simple things like "create a new vcpu" should have simple
+> interfaces.  There's no point in going to the effort of emulating a
+> whole pile of real hardware if Xen can present an interface which is a
+> close match to an existing high-level interface within the operating syst=
+em.
 
-Linux.
+Once you are there, you are near the point where you created a virtual
+architecture, which could run on any real architecture which gets
+supported by a hypervisor backend.
 
-Is this not clean?
+I'd love that :)
 
-We just don't drive the local timer interrupts through the APIC, we make =
+I know it is tricky to combine this with the upcoming hardware
+virtualization support. But it's at least a worthwhile thought
+experiment.
 
-hypercalls to schedule local timer alarms.  Which is something we must =
-
-do for UP kernels as well, which use the PIT / PIC.  So there is a need =
-
-for having clockevents code which doesn't program timers through the APIC.
-
-So we have one separate time device, independent from the traditional =
-
-hardware timers, and we just program that.  This design is not very =
-
-complex, nor is it unclean, IMHO.
-
-Zach
+	tglx
