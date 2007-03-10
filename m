@@ -1,13 +1,14 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: pte_offset_map + lazy mmu
-Date: Fri, 09 Mar 2007 23:26:08 -0800
-Message-ID: <45F25D90.4040100@vmware.com>
-References: <45F2521E.1000807@goop.org>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: PATCH: Fix VMI and COMPAT_VDSO for 2.6.21
+Date: Sat, 10 Mar 2007 09:47:50 +0100
+Message-ID: <20070310084750.GA15647@elte.hu>
+References: <45F2578E.3060907@vmware.com> <45F257C1.4070904@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45F2521E.1000807@goop.org>
+Content-Disposition: inline
+In-Reply-To: <45F257C1.4070904@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -17,53 +18,42 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Is pte_offset_map allowed to happen within lazy mmu?  I presume not,
-> because you definitely don't want the mapping pte update to be deferred.
->
-> Or, more specifically, is kunmap_atomic ever allowed within lazy mmu? =
 
-> I'm looking at kpte_clear_flush; I've already got a patch which turns
-> this into a pv_op, along with a Xen implementation.  But I think its
-> probably an excess pv_op for a relatively minor corner case.  It seems
-> to me that it would be better to define kpte_clear_flush as:
->
->     #define kpte_clear_flush(ptep, vaddr)					\
->     do {									\
->     	arch_enter_lazy_mmu_mode();					\
->     	pte_clear(&init_mm, vaddr, ptep);				\
->     	__flush_tlb_one(vaddr);						\
->     	arch_leave_lazy_mmu_mode();					\
->     } while (0)
->       =
+* Zachary Amsden <zach@vmware.com> wrote:
 
->
-> and take advantage of mmu batching to make this operation efficient. =
+> Zachary Amsden wrote:
+> >VMI is broken under COMPAT_VDSO, as Xen and other non hardware =
 
-> But I'm not sure if this is safe.
->
-> (Also, kmap_atomic could use set_pte_at rather than set_pte.)
->
-> What do you think?
->   =
+> >assisted hypervisors will be.  I have been working on a fix for this =
 
+> >which works for older glibcs that panic when the new relocatable VDSO =
 
-I'm sorry, I was broken.  This does work for us, as the batching is not =
+> >is used.  However, I believe at this time that the fix is going to be =
 
-nested (as you point out, that would be a bug).  I already took care to =
+> >too radical to consider at this stage in the release of 2.6.21.  We =
 
-make sure that all the arch_enter_lazy_mmu_mode() hooks in mm code =
+> >don't expect this config option to be turned on by vendors for new =
 
-happen after the pagetables are mapped.
+> >distributions, so at this point we are willing to drop support for it =
 
-Still, I think the hint based solution allows for expansion of the =
+> >when VMI is compiled in, and work on a patch for 2.6.22 which more =
 
-capabilities without requiring new paravirt-ops.  What do you think =
+> >fully addresses the problem.
+> >
+> >Please apply, thanks.
 
-about my proposal?
+makes sense. We can do Jan's relocatable-COMPAT_VDSO thing in v2.6.22, =
 
-Zach
+but for v2.6.21 that's way too intrusive.
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+> I suppose it would be better if I attached the patch.
+
+it certainly helps ;-)
+
+	Ingo
