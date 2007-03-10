@@ -1,7 +1,7 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: email back up!
-Date: Fri, 09 Mar 2007 13:21:14 -0500
-Message-ID: <1173464474.456.12.camel@localhost.localdomain>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: pte_offset_map + lazy mmu
+Date: Fri, 09 Mar 2007 22:37:18 -0800
+Message-ID: <45F2521E.1000807@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -15,21 +15,36 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: virtualization <virtualization@lists.osdl.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@elte.hu>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-For those that tried to respond to my LGUEST64 patch post, I must
-apologize. My email service provider for rostedt@goodmis.org (done by
-Domain Direct) did a upgrade to their email defense system. Well it must
-have been a good job, since it really did well on defending me against
-email.  That is, I stopped getting *any* email!
+Is pte_offset_map allowed to happen within lazy mmu?  I presume not,
+because you definitely don't want the mapping pte update to be deferred.
 
-But after several calls (and waiting on hold for an hour), I got the
-issue resolved.
+Or, more specifically, is kunmap_atomic ever allowed within lazy mmu? =
 
-So my email account is back up and functional.
+I'm looking at kpte_clear_flush; I've already got a patch which turns
+this into a pv_op, along with a Xen implementation.  But I think its
+probably an excess pv_op for a relatively minor corner case.  It seems
+to me that it would be better to define kpte_clear_flush as:
 
-Thanks,
+    #define kpte_clear_flush(ptep, vaddr)					\
+    do {									\
+    	arch_enter_lazy_mmu_mode();					\
+    	pte_clear(&init_mm, vaddr, ptep);				\
+    	__flush_tlb_one(vaddr);						\
+    	arch_leave_lazy_mmu_mode();					\
+    } while (0)
+      =
 
--- Steve
+
+and take advantage of mmu batching to make this operation efficient. =
+
+But I'm not sure if this is safe.
+
+(Also, kmap_atomic could use set_pte_at rather than set_pte.)
+
+What do you think?
+
+    J
