@@ -1,54 +1,45 @@
-From: "Kraska, Joe A \(US SSA\)" <joe.kraska@baesystems.com>
-Subject: RE: Virtualization + CPU w/crypto acceleration
-	instructions
-Date: Mon, 12 Mar 2007 12:50:52 -0700
-Message-ID: <09D59AEF0405D740BDCA2FAC0E0EA97601B3D360@blums0008.sd.gd.com>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: Virtualization + CPU w/crypto acceleration instructions
+Date: Mon, 12 Mar 2007 15:46:20 -0800
+Message-ID: <45F5E64C.1050604@vmware.com>
 References: <62b0912f0703121235l2001eaadra87e9022a8a8c0db@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <xen-users-bounces@lists.xensource.com>
-content-class: urn:content-classes:message
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-users>,
-	<mailto:xen-users-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-users@lists.xensource.com>
-List-Help: <mailto:xen-users-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-users>,
-	<mailto:xen-users-request@lists.xensource.com?subject=subscribe>
-Sender: xen-users-bounces@lists.xensource.com
-Errors-To: xen-users-bounces@lists.xensource.com
-To: Molle Bestefich <molle.bestefich@gmail.com>, xen-users@lists.xensource.com, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <62b0912f0703121235l2001eaadra87e9022a8a8c0db@mail.gmail.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Molle Bestefich <molle.bestefich@gmail.com>
+Cc: virtualization@lists.osdl.org, xen-users@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-This seems more like a developer question. You might try the xen-devel
-list. Anyway, I believe that all hardware instructions on any x86 cpu
-are supposed to be executable by arbitrary assembly. Those that cannot
-be properly kernel trapped may experience performance loss, but I
-think that's SUPPOSED to be the only limitation.
-
-Would be nice if someone with exact knowledge chipped in, of course.
-
-Joe.
-
-> -----Original Message-----
-> From: xen-users-bounces@lists.xensource.com [mailto:xen-users-
-> bounces@lists.xensource.com] On Behalf Of Molle Bestefich
-> Sent: Monday, March 12, 2007 12:36 PM
-> To: xen-users@lists.xensource.com; virtualization@lists.osdl.org
-> Subject: [Xen-users] Virtualization + CPU w/crypto acceleration
-instructions
->=20
+Molle Bestefich wrote:
 > In a virtualized environment running Xen or VMware, can the guest
 > operating systems utilize hardware crypto acceleration such as the
 > "PadLock" AES acceleration built into VIA CPUs?
->=20
-> (Wasn't able to find this info in any of ~400 Google hits, so I'm
-> shooting it out a bit to let as many as possible benefit from the
-> answer.)
->=20
-> _______________________________________________
-> Xen-users mailing list
-> Xen-users@lists.xensource.com
-> http://lists.xensource.com/xen-users
+
+VMware doesn't support VIA CPUs, and I think we would have compatibility =
+
+issues with these instructions.  In general, most hypervisors would need =
+
+to support decoding of the new instructions for complete emulation in =
+
+various fault and corner cases.  In general, I would expect some trouble =
+
+just running a hypervisor or VIA CPUs, as the test matrix is so low I =
+
+can't point even to one working example.  Perhaps someone can correct me =
+
+if they have got one up and running.
+
+UML should work fine though.
+
+Zach
