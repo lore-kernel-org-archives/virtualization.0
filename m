@@ -1,27 +1,34 @@
-From: "Molle Bestefich" <molle.bestefich@gmail.com>
-Subject: Virtualization + CPU w/crypto acceleration instructions
-Date: Mon, 12 Mar 2007 20:35:31 +0100
-Message-ID: <62b0912f0703121235l2001eaadra87e9022a8a8c0db@mail.gmail.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: Virtualization + CPU w/crypto acceleration instructions
+Date: Mon, 12 Mar 2007 12:44:45 -0700
+Message-ID: <45F5ADAD.2030902@goop.org>
+References: <62b0912f0703121235l2001eaadra87e9022a8a8c0db@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-users-bounces@lists.xensource.com>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-users>,
-	<mailto:xen-users-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-users@lists.xensource.com>
-List-Help: <mailto:xen-users-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-users>,
-	<mailto:xen-users-request@lists.xensource.com?subject=subscribe>
-Sender: xen-users-bounces@lists.xensource.com
-Errors-To: xen-users-bounces@lists.xensource.com
-To: xen-users@lists.xensource.com, virtualization@lists.osdl.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <62b0912f0703121235l2001eaadra87e9022a8a8c0db@mail.gmail.com>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Molle Bestefich <molle.bestefich@gmail.com>
+Cc: virtualization@lists.osdl.org, xen-users@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In a virtualized environment running Xen or VMware, can the guest
-operating systems utilize hardware crypto acceleration such as the
-"PadLock" AES acceleration built into VIA CPUs?
+Molle Bestefich wrote:
+> In a virtualized environment running Xen or VMware, can the guest
+> operating systems utilize hardware crypto acceleration such as the
+> "PadLock" AES acceleration built into VIA CPUs?
+>   =
 
-(Wasn't able to find this info in any of ~400 Google hits, so I'm
-shooting it out a bit to let as many as possible benefit from the
-answer.)
+
+If they're unprivileged instructions, then they should just work.  If
+its done via MSRs or some other ring0 mechanism, it might be more tricky.
+
+    J
