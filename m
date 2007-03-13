@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 21/34] Xen-pv_ops: Allocate and free vmalloc areas
-Date: Tue, 13 Mar 2007 16:30:38 -0700
-Message-ID: <20070313233033.228981227@goop.org>
+Subject: [patch 18/34] Xen-pv_ops: revert map_pt_hook.
+Date: Tue, 13 Mar 2007 16:30:35 -0700
+Message-ID: <20070313233032.612071679@goop.org>
 References: <20070313233017.933601256@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=alloc-vm-area.patch
+Content-Disposition: inline; filename=revert-map_pt_hook.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,103 +18,125 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allocate/destroy a 'vmalloc' VM area: alloc_vm_area and free_vm_area
-The alloc function ensures that page tables are constructed for the
-region of kernel virtual address space and mapped into init_mm.
+Back out the map_pt_hook to clear the way for kmap_atomic_pte.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: "Jan Beulich" <JBeulich@novell.com>
-Cc: "Andi Kleen" <ak@muc.de>
+Cc: Zachary Amsden <zach@vmware.com>
 
 ---
- arch/i386/mm/fault.c    |   43 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/vmalloc.h |    4 ++++
- 2 files changed, 47 insertions(+)
+ arch/i386/kernel/paravirt.c |    2 --
+ arch/i386/kernel/vmi.c      |    2 ++
+ include/asm-i386/paravirt.h |    7 -------
+ include/asm-i386/pgtable.h  |   23 ++++-------------------
+ 4 files changed, 6 insertions(+), 28 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/fault.c
-+++ b/arch/i386/mm/fault.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/kprobes.h>
- #include <linux/uaccess.h>
-+#include <linux/vmalloc.h>
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -586,8 +586,6 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.flush_tlb_single =3D native_flush_tlb_single,
+ 	.flush_tlb_others =3D native_flush_tlb_others,
  =
 
- #include <asm/system.h>
- #include <asm/desc.h>
-@@ -624,3 +625,45 @@ void _vmalloc_sync_all(void)
- 			start =3D address + PGDIR_SIZE;
+-	.map_pt_hook =3D paravirt_nop,
+-
+ 	.alloc_pt =3D paravirt_nop,
+ 	.alloc_pd =3D paravirt_nop,
+ 	.alloc_pd_clone =3D paravirt_nop,
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -824,8 +824,10 @@ static inline int __init activate_vmi(vo
+ 		paravirt_ops.release_pt =3D vmi_release_pt;
+ 		paravirt_ops.release_pd =3D vmi_release_pd;
  	}
- }
-+
-+
-+static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *=
-data)
-+{
-+	/* apply_to_page_range() does all the hard work. */
-+	return 0;
-+}
-+
-+struct vm_struct *alloc_vm_area(unsigned long size)
-+{
-+	struct vm_struct *area;
-+
-+	area =3D get_vm_area(size, VM_IOREMAP);
-+	if (area =3D=3D NULL)
-+		return NULL;
-+
-+	/*
-+	 * This ensures that page tables are constructed for this region
-+	 * of kernel virtual address space and mapped into init_mm.
-+	 */
-+	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
-+				area->size, f, NULL)) {
-+		free_vm_area(area);
-+		return NULL;
-+	}
-+
-+	/* Make sure the pagetables are constructed in process kernel
-+	   mappings */
-+	vmalloc_sync_all();
-+
-+	return area;
-+}
-+EXPORT_SYMBOL_GPL(alloc_vm_area);
-+
-+void free_vm_area(struct vm_struct *area)
-+{
-+	struct vm_struct *ret;
-+	ret =3D remove_vm_area(area->addr);
-+	BUG_ON(ret !=3D area);
-+	kfree(area);
-+}
-+EXPORT_SYMBOL_GPL(free_vm_area);
++#if 0
+ 	para_wrap(map_pt_hook, vmi_map_pt_hook, set_linear_mapping,
+ 		  SetLinearMapping);
++#endif
+ =
+
+ 	/*
+ 	 * These MUST always be patched.  Don't support indirect jumps
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -68,6 +68,10 @@ extern int map_vm_area(struct vm_struct =
-
- 			struct page ***pages);
- extern void unmap_vm_area(struct vm_struct *area);
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -124,8 +124,6 @@ struct paravirt_ops
+ 	void (*flush_tlb_single)(u32 addr);
+ 	void (*flush_tlb_others)(const cpumask_t *cpus, struct mm_struct *mm,
+ 				 unsigned long va);
+-
+-	void (*map_pt_hook)(int type, pte_t *va, u32 pfn);
  =
 
-+/* Allocate/destroy a 'vmalloc' VM area. */
-+extern struct vm_struct *alloc_vm_area(unsigned long size);
-+extern void free_vm_area(struct vm_struct *area);
-+
- /*
-  *	Internals.  Dont't use..
+ 	void (*alloc_pt)(u32 pfn);
+ 	void (*alloc_pd)(u32 pfn);
+@@ -661,11 +659,6 @@ static inline void flush_tlb_others(cpum
+ 	PVOP_VCALL3(flush_tlb_others, &cpumask, mm, va);
+ }
+ =
+
+-static inline void paravirt_map_pt_hook(int type, pte_t *va, u32 pfn)
+-{
+-	PVOP_VCALL3(map_pt_hook, type, va, pfn);
+-}
+-
+ #define paravirt_alloc_pt(pfn)	PVOP_VCALL1(alloc_pt, pfn)
+ #define paravirt_release_pt(pfn) PVOP_VCALL1(release_pt, pfn)
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -270,7 +270,6 @@ static inline void vmalloc_sync_all(void
   */
+ #define pte_update(mm, addr, ptep)		do { } while (0)
+ #define pte_update_defer(mm, addr, ptep)	do { } while (0)
+-#define paravirt_map_pt_hook(slot, va, pfn)	do { } while (0)
+ =
+
+ #define raw_ptep_get_and_clear(xp)     native_ptep_get_and_clear(xp)
+ #endif
+@@ -479,24 +478,10 @@ extern pte_t *lookup_address(unsigned lo
+ #endif
+ =
+
+ #if defined(CONFIG_HIGHPTE)
+-#define pte_offset_map(dir, address)				\
+-({								\
+-	pte_t *__ptep;						\
+-	unsigned pfn =3D pmd_val(*(dir)) >> PAGE_SHIFT;	   	\
+-	__ptep =3D (pte_t *)kmap_atomic(pfn_to_page(pfn),KM_PTE0);\
+-	paravirt_map_pt_hook(KM_PTE0,__ptep, pfn);		\
+-	__ptep =3D __ptep + pte_index(address);			\
+-	__ptep;							\
+-})
+-#define pte_offset_map_nested(dir, address)			\
+-({								\
+-	pte_t *__ptep;						\
+-	unsigned pfn =3D pmd_val(*(dir)) >> PAGE_SHIFT;	   	\
+-	__ptep =3D (pte_t *)kmap_atomic(pfn_to_page(pfn),KM_PTE1);\
+-	paravirt_map_pt_hook(KM_PTE1,__ptep, pfn);		\
+-	__ptep =3D __ptep + pte_index(address);			\
+-	__ptep;							\
+-})
++#define pte_offset_map(dir, address) \
++	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
++#define pte_offset_map_nested(dir, address) \
++	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE1) + pte_index(address))
+ #define pte_unmap(pte) kunmap_atomic(pte, KM_PTE0)
+ #define pte_unmap_nested(pte) kunmap_atomic(pte, KM_PTE1)
+ #else
 
 -- =
