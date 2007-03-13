@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 06/34] Xen-pv_ops: Hooks to set up initial pagetable
-Date: Tue, 13 Mar 2007 16:30:23 -0700
-Message-ID: <20070313233030.414049633@goop.org>
+Subject: [patch 27/34] Xen-pv_ops: Implement Xen clockevent device
+Date: Tue, 13 Mar 2007 16:30:44 -0700
+Message-ID: <20070313233034.377094084@goop.org>
 References: <20070313233017.933601256@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=paravirt-memory-init.patch
+Content-Disposition: inline; filename=xen-dynticks.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,396 +18,657 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, William Irwin <bill.irwin@oracle.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces paravirt_ops hooks to control how the kernel's
-initial pagetable is set up.
+This patch implements a Xen clockevent device, using the set_timer_op
+hypercall.  Unfortunately this will generate timer events on the same
+event channel as the 100Hz tick which Xen helpfully generates for us.
+This doesn't matter, other than generating a stream of what appear to
+be spurious timer events.  The clockevent infrastucture can deal with
+this, though it may be worth suppressing them by checking the current
+time against the event time.
 
-In the case of a native boot, the very early bootstrap code creates a
-simple non-PAE pagetable to map the kernel and physical memory.  When
-the VM subsystem is initialized, it creates a proper pagetable which
-respects the PAE mode, large pages, etc.
-
-When booting under a hypervisor, there are many possibilities for what
-paging environment the hypervisor establishes for the guest kernel, so
-the constructon of the kernel's pagetable depends on the hypervisor.
-
-In the case of Xen, the hypervisor boots the kernel with a fully
-constructed pagetable, which is already using PAE if necessary.  Also,
-Xen requires particular care when constructing pagetables to make sure
-all pagetables are always mapped read-only.
-
-In order to make this easier, kernel's initial pagetable construction
-has been changed to only allocate and initialize a pagetable page if
-there's no page already present in the pagetable.  This allows the Xen
-paravirt backend to make a copy of the hypervisor-provided pagetable,
-allowing the kernel to establish any more mappings it needs while
-keeping the existing ones.
-
-A slightly subtle point which is worth highlighting here is that Xen
-requires all kernel mappings to share the same pte_t pages between all
-pagetables, so that updating a kernel page's mapping in one pagetable
-is reflected in all other pagetables.  This makes it possible to
-allocate a page and attach it to a pagetable without having to
-explicitly enumerate that page's mapping in all pagetables.
+This patch does not attempt to account for lost/stolen time.  That
+will have to be done in a more general way.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Acked-by: William Irwin <bill.irwin@oracle.com>
-Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 
 ---
- arch/i386/kernel/paravirt.c |    3 =
+ arch/i386/xen/Kconfig     |    2 =
 
- arch/i386/mm/init.c         |  159 +++++++++++++++++++++++++++++----------=
+ arch/i386/xen/enlighten.c |    2 =
+
+ arch/i386/xen/time.c      |  482 ++++++++++++++++++++---------------------=
 ----
- include/asm-i386/paravirt.h |   17 ++++
- include/asm-i386/pgtable.h  |   16 ++++
- 4 files changed, 143 insertions(+), 52 deletions(-)
+ arch/i386/xen/xen-ops.h   |    3 =
+
+ 4 files changed, 225 insertions(+), 264 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -549,6 +549,9 @@ struct paravirt_ops paravirt_ops =3D {
- #endif
- 	.set_lazy_mode =3D paravirt_nop,
+--- a/arch/i386/xen/Kconfig
++++ b/arch/i386/xen/Kconfig
+@@ -4,7 +4,7 @@
  =
 
-+	.pagetable_setup_start =3D native_pagetable_setup_start,
-+	.pagetable_setup_done =3D native_pagetable_setup_done,
-+
- 	.flush_tlb_user =3D native_flush_tlb,
- 	.flush_tlb_kernel =3D native_flush_tlb_global,
- 	.flush_tlb_single =3D native_flush_tlb_single,
+ config XEN
+ 	bool "Enable support for Xen hypervisor"
+-	depends on PARAVIRT && HZ_100 && !PREEMPT && !NO_HZ
++	depends on PARAVIRT && !PREEMPT
+ 	default y
+ 	help
+ 	  This is the Linux Xen port.
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/init.c
-+++ b/arch/i386/mm/init.c
-@@ -42,6 +42,7 @@
- #include <asm/tlb.h>
- #include <asm/tlbflush.h>
- #include <asm/sections.h>
-+#include <asm/paravirt.h>
+--- a/arch/i386/xen/enlighten.c
++++ b/arch/i386/xen/enlighten.c
+@@ -149,11 +149,9 @@ static void xen_irq_enable(void)
  =
 
- unsigned int __VMALLOC_RESERVE =3D 128 << 20;
- =
-
-@@ -62,6 +63,7 @@ static pmd_t * __init one_md_table_init(
- 		=
-
- #ifdef CONFIG_X86_PAE
- 	pmd_table =3D (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-+
- 	paravirt_alloc_pd(__pa(pmd_table) >> PAGE_SHIFT);
- 	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
- 	pud =3D pud_offset(pgd, 0);
-@@ -83,12 +85,10 @@ static pte_t * __init one_page_table_ini
+ static void xen_safe_halt(void)
  {
- 	if (pmd_none(*pmd)) {
- 		pte_t *page_table =3D (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-+
- 		paravirt_alloc_pt(__pa(page_table) >> PAGE_SHIFT);
- 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
--		if (page_table !=3D pte_offset_kernel(pmd, 0))
--			BUG();	=
+-	stop_hz_timer();
+ 	/* Blocking includes an implicit local_irq_enable(). */
+ 	if (HYPERVISOR_sched_op(SCHEDOP_block, 0) !=3D 0)
+ 		BUG();
+-	start_hz_timer();
+ }
+ =
 
+ static void xen_halt(void)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/xen/time.c
++++ b/arch/i386/xen/time.c
+@@ -1,10 +1,10 @@
+ #include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/kernel_stat.h>
++#include <linux/interrupt.h>
+ #include <linux/clocksource.h>
 -
--		return page_table;
-+		BUG_ON(page_table !=3D pte_offset_kernel(pmd, 0));
- 	}
- 	=
-
- 	return pte_offset_kernel(pmd, 0);
-@@ -119,7 +119,7 @@ static void __init page_table_range_init
- 	pgd =3D pgd_base + pgd_idx;
- =
-
- 	for ( ; (pgd_idx < PTRS_PER_PGD) && (vaddr !=3D end); pgd++, pgd_idx++) {
--		if (pgd_none(*pgd)) =
-
-+		if (!(pgd_val(*pgd) & _PAGE_PRESENT))
- 			one_md_table_init(pgd);
- 		pud =3D pud_offset(pgd, vaddr);
- 		pmd =3D pmd_offset(pud, vaddr);
-@@ -158,7 +158,11 @@ static void __init kernel_physical_mappi
- 	pfn =3D 0;
- =
-
- 	for (; pgd_idx < PTRS_PER_PGD; pgd++, pgd_idx++) {
--		pmd =3D one_md_table_init(pgd);
-+		if (!(pgd_val(*pgd) & _PAGE_PRESENT))
-+			pmd =3D one_md_table_init(pgd);
-+		else
-+			pmd =3D pmd_offset(pud_offset(pgd, PAGE_OFFSET), PAGE_OFFSET);
++#include <linux/clockchips.h>
 +
- 		if (pfn >=3D max_low_pfn)
- 			continue;
- 		for (pmd_idx =3D 0; pmd_idx < PTRS_PER_PMD && pfn < max_low_pfn; pmd++, =
-pmd_idx++) {
-@@ -167,20 +171,26 @@ static void __init kernel_physical_mappi
- 			/* Map with big pages if possible, otherwise create normal page tables.=
- */
- 			if (cpu_has_pse) {
- 				unsigned int address2 =3D (pfn + PTRS_PER_PTE - 1) * PAGE_SIZE + PAGE_=
-OFFSET + PAGE_SIZE-1;
++#include <asm/xen/hypervisor.h>
+ #include <asm/xen/hypercall.h>
+-#include <asm/arch_hooks.h>
+ =
+
+ #include <xen/events.h>
+ #include <xen/interface/xen.h>
+@@ -13,16 +13,9 @@
+ #include "xen-ops.h"
+ =
+
+ #define XEN_SHIFT 22
 -
--				if (is_kernel_text(address) || is_kernel_text(address2))
--					set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
--				else
--					set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
-+				if (!pmd_present(*pmd)) {
-+					if (is_kernel_text(address) || is_kernel_text(address2))
-+						set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
-+					else
-+						set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
-+				}
- 				pfn +=3D PTRS_PER_PTE;
- 			} else {
- 				pte =3D one_page_table_init(pmd);
- =
-
--				for (pte_ofs =3D 0; pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn; pte++=
-, pfn++, pte_ofs++) {
--						if (is_kernel_text(address))
--							set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
--						else
--							set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
-+				for (pte_ofs =3D 0;
-+				     pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn;
-+				     pte++, pfn++, pte_ofs++, address +=3D PAGE_SIZE) {
-+					if (pte_present(*pte))
-+						continue;
-+
-+					if (is_kernel_text(address))
-+						set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
-+					else
-+						set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
- 				}
- 			}
- 		}
-@@ -337,44 +347,36 @@ extern void __init remap_numa_kva(void);
- #define remap_numa_kva() do {} while (0)
- #endif
- =
-
--static void __init pagetable_init (void)
+-/* Permitted clock jitter, in nsecs, beyond which a warning will be printe=
+d. */
+-static unsigned long permitted_clock_jitter =3D 10000000UL; /* 10ms */
+-static int __init __permitted_clock_jitter(char *str)
 -{
--	unsigned long vaddr;
--	pgd_t *pgd_base =3D swapper_pg_dir;
+-	permitted_clock_jitter =3D simple_strtoul(str, NULL, 0);
+-	return 1;
+-}
+-__setup("permitted_clock_jitter=3D", __permitted_clock_jitter);
 -
-+void __init native_pagetable_setup_start(pgd_t *base)
-+{
- #ifdef CONFIG_X86_PAE
- 	int i;
--	/* Init entries of the first-level page table to the zero page */
--	for (i =3D 0; i < PTRS_PER_PGD; i++)
--		set_pgd(pgd_base + i, __pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
++#define TIMER_SLOP	100000	/* Xen may fire a timer up to this many ns early=
+ */
 +
-+	/*
-+	 * Init entries of the first-level page table to the
-+	 * zero page, if they haven't already been set up.
-+	 *
-+	 * In a normal native boot, we'll be running on a
-+	 * pagetable rooted in swapper_pg_dir, but not in PAE
-+	 * mode, so this will end up clobbering the mappings
-+	 * for the lower 24Mbytes of the address space,
-+	 * without affecting the kernel address space.
-+	 */
-+	for (i =3D 0; i < USER_PTRS_PER_PGD; i++)
-+		set_pgd(&base[i],
-+			__pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
-+
-+	/* Make sure kernel address space is empty so that a pagetable
-+	   will be allocated for it. */
-+	memset(&base[USER_PTRS_PER_PGD], 0,
-+	       KERNEL_PGD_PTRS * sizeof(pgd_t));
- #else
- 	paravirt_alloc_pd(__pa(swapper_pg_dir) >> PAGE_SHIFT);
- #endif
++static DEFINE_PER_CPU(struct clock_event_device, xen_clock_events);
+ =
+
+ /* These are perodically updated in shared_info, and then copied here. */
+ struct shadow_time_info {
+@@ -34,20 +27,6 @@ struct shadow_time_info {
+ };
+ =
+
+ static DEFINE_PER_CPU(struct shadow_time_info, shadow_time);
 -
--	/* Enable PSE if available */
--	if (cpu_has_pse) {
--		set_in_cr4(X86_CR4_PSE);
+-/* Keep track of last time we did processing/updating of jiffies and xtime=
+. */
+-static u64 processed_system_time;   /* System time (ns) at last processing=
+. */
+-static DEFINE_PER_CPU(u64, processed_system_time);
+-
+-/* How much CPU time was spent blocked and how much was 'stolen'? */
+-static DEFINE_PER_CPU(u64, processed_stolen_time);
+-static DEFINE_PER_CPU(u64, processed_blocked_time);
+-
+-/* Current runstate of each CPU (updated automatically by the hypervisor).=
+ */
+-static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
+-
+-/* Must be signed, as it's compared with s64 quantities which can be -ve. =
+*/
+-#define NS_PER_TICK (1000000000LL/HZ)
+ =
+
+ unsigned long xen_cpu_khz(void)
+ {
+@@ -87,19 +66,6 @@ static void get_time_values_from_xen(voi
+ 	} while ((src->version & 1) | (dst->version ^ src->version));
+ =
+
+ 	put_cpu_var(shadow_time);
+-}
+-
+-static inline int time_values_up_to_date(void)
+-{
+-	struct vcpu_time_info   *src;
+-	unsigned dstversion;
+-
+-	src =3D &read_pda(xen.vcpu)->time;
+-	dstversion =3D get_cpu_var(shadow_time).version;
+-	put_cpu_var(shadow_time);
+-
+-	rmb();
+-	return (dstversion =3D=3D src->version);
+ }
+ =
+
+ /*
+@@ -148,104 +114,6 @@ static u64 get_nsec_offset(struct shadow
+ 	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
+ }
+ =
+
+-
+-static void xen_timer_interrupt_hook(void)
+-{
+-	s64 delta, delta_cpu, stolen, blocked;
+-	u64 sched_time;
+-	int i, cpu =3D smp_processor_id();
+-	unsigned long ticks;
+-	struct shadow_time_info *shadow =3D &__get_cpu_var(shadow_time);
+-	struct vcpu_runstate_info *runstate =3D &__get_cpu_var(runstate);
+-
+-	do {
+-		get_time_values_from_xen();
+-
+-		/* Obtain a consistent snapshot of elapsed wallclock cycles. */
+-		delta =3D delta_cpu =3D
+-			shadow->system_timestamp + get_nsec_offset(shadow);
+-		if (0)
+-			printk("tsc_timestamp=3D%llu system_timestamp=3D%llu tsc_to_nsec=3D%u t=
+sc_shift=3D%d, version=3D%u, delta=3D%lld processed_system_time=3D%lld\n",
+-			       shadow->tsc_timestamp, shadow->system_timestamp,
+-			       shadow->tsc_to_nsec_mul, shadow->tsc_shift,
+-			       shadow->version, delta, processed_system_time);
+-
+-		delta     -=3D processed_system_time;
+-		delta_cpu -=3D __get_cpu_var(processed_system_time);
+-
+-		/*
+-		 * Obtain a consistent snapshot of stolen/blocked cycles. We
+-		 * can use state_entry_time to detect if we get preempted here.
+-		 */
+-		do {
+-			sched_time =3D runstate->state_entry_time;
+-			barrier();
+-			stolen =3D runstate->time[RUNSTATE_runnable] +
+-				runstate->time[RUNSTATE_offline] -
+-				__get_cpu_var(processed_stolen_time);
+-			blocked =3D runstate->time[RUNSTATE_blocked] -
+-				__get_cpu_var(processed_blocked_time);
+-			barrier();
+-		} while (sched_time !=3D runstate->state_entry_time);
+-	} while (!time_values_up_to_date());
+-
+-	if ((unlikely(delta < -(s64)permitted_clock_jitter) ||
+-	     unlikely(delta_cpu < -(s64)permitted_clock_jitter))
+-	    && printk_ratelimit()) {
+-		printk("Timer ISR/%d: Time went backwards: "
+-		       "delta=3D%lld delta_cpu=3D%lld shadow=3D%lld "
+-		       "off=3D%lld processed=3D%lld cpu_processed=3D%lld\n",
+-		       cpu, delta, delta_cpu, shadow->system_timestamp,
+-		       (s64)get_nsec_offset(shadow),
+-		       processed_system_time,
+-		       __get_cpu_var(processed_system_time));
+-		for (i =3D 0; i < num_online_cpus(); i++)
+-			printk(" %d: %lld\n", i,
+-			       per_cpu(processed_system_time, i));
 -	}
 -
--	/* Enable PGE if available */
--	if (cpu_has_pge) {
--		set_in_cr4(X86_CR4_PGE);
--		__PAGE_KERNEL |=3D _PAGE_GLOBAL;
--		__PAGE_KERNEL_EXEC |=3D _PAGE_GLOBAL;
+-	/* System-wide jiffy work. */
+-	ticks =3D 0;
+-	while(delta > NS_PER_TICK) {
+-		delta -=3D NS_PER_TICK;
+-		processed_system_time +=3D NS_PER_TICK;
+-		ticks++;
 -	}
--
--	kernel_physical_mapping_init(pgd_base);
--	remap_numa_kva();
+-	do_timer(ticks);
 -
 -	/*
--	 * Fixed mappings, only the page table structure has to be
--	 * created - mappings will be set by set_fixmap():
+-	 * Account stolen ticks.
+-	 * HACK: Passing NULL to account_steal_time()
+-	 * ensures that the ticks are accounted as stolen.
 -	 */
--	vaddr =3D __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
--	page_table_range_init(vaddr, 0, pgd_base);
+-	if ((stolen > 0) && (delta_cpu > 0)) {
+-		delta_cpu -=3D stolen;
+-		if (unlikely(delta_cpu < 0))
+-			stolen +=3D delta_cpu; /* clamp local-time progress */
+-		do_div(stolen, NS_PER_TICK);
+-		__get_cpu_var(processed_stolen_time) +=3D stolen * NS_PER_TICK;
+-		__get_cpu_var(processed_system_time) +=3D stolen * NS_PER_TICK;
+-		account_steal_time(NULL, (cputime_t)stolen);
+-	}
 -
--	permanent_kmaps_init(pgd_base);
+-	/*
+-	 * Account blocked ticks.
+-	 * HACK: Passing idle_task to account_steal_time()
+-	 * ensures that the ticks are accounted as idle/wait.
+-	 */
+-	if ((blocked > 0) && (delta_cpu > 0)) {
+-		delta_cpu -=3D blocked;
+-		if (unlikely(delta_cpu < 0))
+-			blocked +=3D delta_cpu; /* clamp local-time progress */
+-		do_div(blocked, NS_PER_TICK);
+-		__get_cpu_var(processed_blocked_time) +=3D blocked * NS_PER_TICK;
+-		__get_cpu_var(processed_system_time)  +=3D blocked * NS_PER_TICK;
+-		account_steal_time(idle_task(cpu), (cputime_t)blocked);
+-	}
 -
-+}
-+
-+void __init native_pagetable_setup_done(pgd_t *base)
-+{
- #ifdef CONFIG_X86_PAE
- 	/*
- 	 * Add low memory identity-mappings - SMP needs it when
-@@ -383,8 +385,63 @@ static void __init pagetable_init (void)
- 	 * All user-space mappings are explicitly cleared after
- 	 * SMP startup.
- 	 */
--	set_pgd(&pgd_base[0], pgd_base[USER_PTRS_PER_PGD]);
--#endif
-+	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
-+#endif
-+}
+-	update_process_times(user_mode_vm(get_irq_regs()));
+-}
+-
+ static cycle_t xen_clocksource_read(void)
+ {
+ 	struct shadow_time_info *shadow =3D &get_cpu_var(shadow_time);
+@@ -300,7 +168,7 @@ int xen_set_wallclock(unsigned long now)
+ 	return -1;
+ }
+ =
+
+-static struct clocksource xen_clocksource =3D {
++static struct clocksource xen_clocksource __read_mostly =3D {
+ 	.name =3D "xen",
+ 	.rating =3D 400,
+ 	.read =3D xen_clocksource_read,
+@@ -310,64 +178,227 @@ static struct clocksource xen_clocksourc
+ 	.flags =3D CLOCK_SOURCE_IS_CONTINUOUS,
+ };
+ =
+
+-static void init_missing_ticks_accounting(int cpu)
+-{
+-	struct vcpu_register_runstate_memory_area area;
+-	struct vcpu_runstate_info *runstate =3D &per_cpu(runstate, cpu);
+-
+-	memset(runstate, 0, sizeof(*runstate));
+-
+-	area.addr.v =3D runstate;
+-	HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area, cpu, &area);
+-
+-	per_cpu(processed_blocked_time, cpu) =3D
+-		runstate->time[RUNSTATE_blocked];
+-	per_cpu(processed_stolen_time, cpu) =3D
+-		runstate->time[RUNSTATE_runnable] +
+-		runstate->time[RUNSTATE_offline];
+-}
+-
+-static irqreturn_t xen_timer_interrupt(int irq, void *dev_id)
+-{
+-	/*
+-	 * Here we are in the timer irq handler. We just have irqs locally
+-	 * disabled but we don't know if the timer_bh is running on the other
+-	 * CPU. We need to avoid to SMP race with it. NOTE: we don' t need
+-	 * the irq version of write_lock because as just said we have irq
+-	 * locally disabled. -arca
+-	 */
+-	write_seqlock(&xtime_lock);
+-
+-	xen_timer_interrupt_hook();
+-
+-	write_sequnlock(&xtime_lock);
+-
+-	return IRQ_HANDLED;
+-}
+-
+-static void setup_cpu0_timer_irq(void)
+-{
+-	printk(KERN_DEBUG "installing Xen timer for CPU 0\n");
+-
+-	bind_virq_to_irqhandler(
+-		VIRQ_TIMER,
+-		0,
+-		xen_timer_interrupt,
+-		SA_INTERRUPT,
+-		"timer0",
+-		NULL);
 +
 +/*
-+ * Build a proper pagetable for the kernel mappings.  Up until this
-+ * point, we've been running on some set of pagetables constructed by
-+ * the boot process.
-+ *
-+ * If we're booting on native hardware, this will be a pagetable
-+ * constructed in arch/i386/kernel/head.S, and not running in PAE mode
-+ * (even if we'll end up running in PAE).  The root of the pagetable
-+ * will be swapper_pg_dir.
-+ *
-+ * If we're booting paravirtualized under a hypervisor, then there are
-+ * more options: we may already be running PAE, and the pagetable may
-+ * or may not be based in swapper_pg_dir.  In any case,
-+ * paravirt_pagetable_setup_start() will set up swapper_pg_dir
-+ * appropriately for the rest of the initialization to work.
-+ *
-+ * In general, pagetable_init() assumes that the pagetable may already
-+ * be partially populated, and so it avoids stomping on any existing
-+ * mappings.
-+ */
-+static void __init pagetable_init (void)
++   Xen clockevent implementation
++
++   Xen has two clockevent implementations:
++
++   The old timer_op one works with all released versions of Xen prior
++   to version 3.0.4.  This version of the hypervisor provides a
++   single-shot timer with nanosecond resolution.  However, sharing the
++   same event channel is a 100Hz tick which is delivered while the
++   vcpu is running.  We don't care about or use this tick, so it
++   appears as a stream of spurious timer events which need to be
++   filtered out.
++
++   The new vcpu_op-based timer interface allows the tick timer period
++   to be changed or turned off.  The tick timer is not useful as a
++   periodic timer because events are only delivered to running vcpus.
++   The one-shot timer can report when a timeout is in the past, so
++   set_next_event is capable of returning -ETIME when appropriate.
++   This interface is used when available.
++*/
++
++
++/*
++  Get a hypervisor absolute time.  In theory we could maintain an
++  offset between the kernel's time and the hypervisor's time, and
++  apply that to a kernel's absolute timeout.  Unfortunately the
++  hypervisor and kernel times can drift even if the kernel is using
++  the Xen clocksource, because ntp can warp the kernel's clocksource.
++*/
++static s64 get_abs_timeout(unsigned long delta)
 +{
-+	unsigned long vaddr, end;
-+	pgd_t *pgd_base =3D swapper_pg_dir;
++	return xen_clocksource_read() + delta;
++}
 +
-+	paravirt_pagetable_setup_start(pgd_base);
++static void xen_timerop_set_mode(enum clock_event_mode mode,
++				 struct clock_event_device *evt)
++{
++	switch(mode) {
++	case CLOCK_EVT_MODE_PERIODIC:
++		/* unsupported */
++		WARN_ON(1);
++		break;
 +
-+	/* Enable PSE if available */
-+	if (cpu_has_pse) {
-+		set_in_cr4(X86_CR4_PSE);
++	case CLOCK_EVT_MODE_ONESHOT:
++		break;
++
++	case CLOCK_EVT_MODE_UNUSED:
++	case CLOCK_EVT_MODE_SHUTDOWN:
++		HYPERVISOR_set_timer_op(0);  /* cancel timeout */
++		break;
++	}
++}
++
++static int xen_timerop_set_next_event(unsigned long delta,
++				      struct clock_event_device *evt)
++{
++	WARN_ON(evt->mode !=3D CLOCK_EVT_MODE_ONESHOT);
++
++	if (HYPERVISOR_set_timer_op(get_abs_timeout(delta)) < 0)
++		BUG();
++
++	/* We may have missed the deadline, but there's no real way of
++	   knowing for sure.  If the event was in the past, then we'll
++	   get an immediate interrupt. */
++
++	return 0;
++}
++
++static irqreturn_t xen_timerop_timer_interrupt(int irq, void *dev_id)
++{
++	struct clock_event_device *evt =3D &__get_cpu_var(xen_clock_events);
++	irqreturn_t ret;
++
++	ret =3D IRQ_NONE;
++	if (evt->event_handler) {
++		cycle_t now =3D xen_clocksource_read();
++		s64 offset =3D now - ktime_to_ns(ktime_get());
++		s64 event =3D offset + ktime_to_ns(evt->next_event);
++
++		/* filter out spurious tick timer events */
++		if ((now+TIMER_SLOP) >=3D event)
++			evt->event_handler(evt);
++		ret =3D IRQ_HANDLED;
 +	}
 +
-+	/* Enable PGE if available */
-+	if (cpu_has_pge) {
-+		set_in_cr4(X86_CR4_PGE);
-+		__PAGE_KERNEL |=3D _PAGE_GLOBAL;
-+		__PAGE_KERNEL_EXEC |=3D _PAGE_GLOBAL;
++	return ret;
++}
++
++static const struct clock_event_device xen_timerop_clockevent =3D {
++	.name =3D "xen",
++	.features =3D CLOCK_EVT_FEAT_ONESHOT,
++
++	.max_delta_ns =3D 0xffffffff,
++	.min_delta_ns =3D TIMER_SLOP,
++
++	.mult =3D 1,
++	.shift =3D 0,
++	.rating =3D 500,
++
++	.set_mode =3D xen_timerop_set_mode,
++	.set_next_event =3D xen_timerop_set_next_event,
++};
++
++
++
++static void xen_vcpuop_set_mode(enum clock_event_mode mode,
++				struct clock_event_device *evt)
++{
++	int cpu =3D smp_processor_id();
++
++	switch(mode) {
++	case CLOCK_EVT_MODE_PERIODIC:
++		WARN_ON(1);	/* unsupported */
++		break;
++
++	case CLOCK_EVT_MODE_ONESHOT:
++		if (HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL))
++			BUG();
++		break;
++
++	case CLOCK_EVT_MODE_UNUSED:
++	case CLOCK_EVT_MODE_SHUTDOWN:
++		if (HYPERVISOR_vcpu_op(VCPUOP_stop_singleshot_timer, cpu, NULL) ||
++		    HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL))
++			BUG();
++		break;
++	}
++}
++
++static int xen_vcpuop_set_next_event(unsigned long delta,
++				     struct clock_event_device *evt)
++{
++	int cpu =3D smp_processor_id();
++	struct vcpu_set_singleshot_timer single;
++	int ret;
++
++	WARN_ON(evt->mode !=3D CLOCK_EVT_MODE_ONESHOT);
++
++	single.timeout_abs_ns =3D get_abs_timeout(delta);
++	single.flags =3D VCPU_SSHOTTMR_future;
++
++	ret =3D HYPERVISOR_vcpu_op(VCPUOP_set_singleshot_timer, cpu, &single);
++
++	BUG_ON(ret !=3D 0 && ret !=3D -ETIME);
++
++	return ret;
++}
++
++static irqreturn_t xen_vcpuop_timer_interrupt(int irq, void *dev_id)
++{
++	struct clock_event_device *evt =3D &__get_cpu_var(xen_clock_events);
++	irqreturn_t ret;
++
++	ret =3D IRQ_NONE;
++	if (evt->event_handler) {
++		evt->event_handler(evt);
++		ret =3D IRQ_HANDLED;
 +	}
 +
-+	kernel_physical_mapping_init(pgd_base);
-+	remap_numa_kva();
++	return ret;
++}
 +
-+	/*
-+	 * Fixed mappings, only the page table structure has to be
-+	 * created - mappings will be set by set_fixmap():
-+	 */
-+	vaddr =3D __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
-+	end =3D (FIXADDR_TOP + PMD_SIZE - 1) & PMD_MASK;
-+	page_table_range_init(vaddr, end, pgd_base);
++static const struct clock_event_device xen_vcpuop_clockevent =3D {
++	.name =3D "xen",
++	.features =3D CLOCK_EVT_FEAT_ONESHOT,
 +
-+	permanent_kmaps_init(pgd_base);
++	.max_delta_ns =3D 0xffffffff,
++	.min_delta_ns =3D TIMER_SLOP,
 +
-+	paravirt_pagetable_setup_done(pgd_base);
++	.mult =3D 1,
++	.shift =3D 0,
++	.rating =3D 500,
++
++	.set_mode =3D xen_vcpuop_set_mode,
++	.set_next_event =3D xen_vcpuop_set_next_event,
++};
++
++static const struct clock_event_device *xen_clockevent =3D &xen_timerop_cl=
+ockevent;
++static irq_handler_t xen_timer_interrupt =3D xen_timerop_timer_interrupt;
++
++static void xen_setup_timer(int cpu)
++{
++	const char *name;
++	struct clock_event_device *evt;
++	int irq;
++
++	printk("installing Xen timer for CPU %d\n", cpu);
++
++	name =3D kasprintf(GFP_KERNEL, "timer%d", cpu);
++	if (!name)
++		name =3D "<timer kasprintf failed>";
++
++	irq =3D bind_virq_to_irqhandler(VIRQ_TIMER, cpu, xen_timer_interrupt,
++				      SA_INTERRUPT, name, NULL);
++
++	evt =3D &get_cpu_var(xen_clock_events);
++	memcpy(evt, xen_clockevent, sizeof(*evt));
++
++	evt->cpumask =3D cpumask_of_cpu(cpu);
++	evt->irq =3D irq;
++	clockevents_register_device(evt);
++
++	put_cpu_var(xen_clock_events);
  }
  =
 
- #if defined(CONFIG_SOFTWARE_SUSPEND) || defined(CONFIG_ACPI_SLEEP)
+ __init void xen_time_init(void)
+ {
++	int cpu =3D smp_processor_id();
++
+ 	get_time_values_from_xen();
+ =
+
+-	processed_system_time =3D per_cpu(shadow_time, 0).system_timestamp;
+-	per_cpu(processed_system_time, 0) =3D processed_system_time;
+-
+-	init_missing_ticks_accounting(0);
+-
+ 	clocksource_register(&xen_clocksource);
++
++	if (HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL) =3D=3D 0) {
++		/* Successfully turned off 100hz tick, so we have the
++		   vcpuop-based timer interface */
++		printk(KERN_DEBUG "Xen: using vcpuop timer interface\n");
++		xen_clockevent =3D &xen_vcpuop_clockevent;
++		xen_timer_interrupt =3D xen_vcpuop_timer_interrupt;
++	}
+ =
+
+ 	/* Set initial system time with full resolution */
+ 	xen_read_wallclock(&xtime);
+@@ -376,70 +407,5 @@ __init void xen_time_init(void)
+ =
+
+ 	tsc_disable =3D 0;
+ =
+
+-	setup_cpu0_timer_irq();
+-}
+-
+-/* Convert jiffies to system time. */
+-static u64 jiffies_to_st(unsigned long j)
+-{
+-	unsigned long seq;
+-	long delta;
+-	u64 st;
+-
+-	do {
+-		seq =3D read_seqbegin(&xtime_lock);
+-		delta =3D j - jiffies;
+-		if (delta < 1) {
+-			/* Triggers in some wrap-around cases, but that's okay:
+-			 * we just end up with a shorter timeout. */
+-			st =3D processed_system_time + NS_PER_TICK;
+-		} else if (((unsigned long)delta >> (BITS_PER_LONG-3)) !=3D 0) {
+-			/* Very long timeout means there is no pending timer.
+-			 * We indicate this to Xen by passing zero timeout. */
+-			st =3D 0;
+-		} else {
+-			st =3D processed_system_time + delta * (u64)NS_PER_TICK;
+-		}
+-	} while (read_seqretry(&xtime_lock, seq));
+-
+-	return st;
+-}
+-
+-/*
+- * stop_hz_timer / start_hz_timer - enter/exit 'tickless mode' on an idle =
+cpu
+- * These functions are based on implementations from arch/s390/kernel/time=
+.c
+- */
+-void stop_hz_timer(void)
+-{
+-	unsigned int cpu =3D smp_processor_id();
+-	unsigned long j;
+-
+-	cpu_set(cpu, nohz_cpu_mask);
+-
+-	/*
+-	 * See matching smp_mb in rcu_start_batch in rcupdate.c.  These mbs
+-	 * ensure that if __rcu_pending (nested in rcu_needs_cpu) fetches a
+-	 * value of rcp->cur that matches rdp->quiescbatch and allows us to
+-	 * stop the hz timer then the cpumasks created for subsequent values
+-	 * of cur in rcu_start_batch are guaranteed to pick up the updated
+-	 * nohz_cpu_mask and so will not depend on this cpu.
+-	 */
+-
+-	smp_mb();
+-
+-	/* Leave ourselves in tick mode if rcu or softirq or timer pending. */
+-	if (rcu_needs_cpu(cpu) || local_softirq_pending() ||
+-	    (j =3D next_timer_interrupt(), time_before_eq(j, jiffies))) {
+-		cpu_clear(cpu, nohz_cpu_mask);
+-		j =3D jiffies + 1;
+-	}
+-
+-	if (HYPERVISOR_set_timer_op(jiffies_to_st(j)) !=3D 0)
+-		BUG();
+-}
+-
+-void start_hz_timer(void)
+-{
+-	cpu_clear(smp_processor_id(), nohz_cpu_mask);
+-}
+-
++	xen_setup_timer(cpu);
++}
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -2,10 +2,11 @@
- #define __ASM_PARAVIRT_H
- /* Various instructions on x86 need to be replaced for
-  * para-virtualization: those hooks are defined here. */
-+
-+#ifdef CONFIG_PARAVIRT
- #include <linux/stringify.h>
- #include <asm/page.h>
+--- a/arch/i386/xen/xen-ops.h
++++ b/arch/i386/xen/xen-ops.h
+@@ -17,9 +17,6 @@ int xen_set_wallclock(unsigned long time
  =
 
--#ifdef CONFIG_PARAVIRT
- /* These are the most performance critical ops, so we want to be able to p=
-atch
-  * callers */
- #define PARAVIRT_IRQ_DISABLE 0
-@@ -48,6 +49,9 @@ struct paravirt_ops
- 	void (*arch_setup)(void);
- 	char *(*memory_setup)(void);
- 	void (*init_IRQ)(void);
-+
-+	void (*pagetable_setup_start)(pgd_t *pgd_base);
-+	void (*pagetable_setup_done)(pgd_t *pgd_base);
+ void xen_mark_init_mm_pinned(void);
  =
 
- 	void (*banner)(void);
+-void stop_hz_timer(void);
+-void start_hz_timer(void);
+-
+ DECLARE_PER_CPU(unsigned, xen_lazy_mode);
  =
 
-@@ -363,6 +367,17 @@ static inline void setup_secondary_clock
- }
- #endif
- =
-
-+static inline void paravirt_pagetable_setup_start(pgd_t *base)
-+{
-+	if (paravirt_ops.pagetable_setup_start)
-+		(*paravirt_ops.pagetable_setup_start)(base);
-+}
-+
-+static inline void paravirt_pagetable_setup_done(pgd_t *base)
-+{
-+	if (paravirt_ops.pagetable_setup_done)
-+		(*paravirt_ops.pagetable_setup_done)(base);
-+}
- =
-
- void native_set_pte(pte_t *ptep, pte_t pteval);
- void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t =
-pteval);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -497,6 +497,22 @@ do {									\
-  * tables contain all the necessary information.
-  */
- #define update_mmu_cache(vma,address,pte) do { } while (0)
-+
-+void native_pagetable_setup_start(pgd_t *base);
-+void native_pagetable_setup_done(pgd_t *base);
-+
-+#ifndef CONFIG_PARAVIRT
-+static inline void paravirt_pagetable_setup_start(pgd_t *base)
-+{
-+	native_pagetable_setup_start(base);
-+}
-+
-+static inline void paravirt_pagetable_setup_done(pgd_t *base)
-+{
-+	native_pagetable_setup_done(base);
-+}
-+#endif	/* !CONFIG_PARAVIRT */
-+
- #endif /* !__ASSEMBLY__ */
- =
-
- #ifdef CONFIG_FLATMEM
+ static inline unsigned xen_get_lazy_mode(void)
 
 -- =
