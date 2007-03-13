@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 23/34] Xen-pv_ops: Add XEN config options
-Date: Tue, 13 Mar 2007 16:30:40 -0700
-Message-ID: <20070313233033.642130317@goop.org>
+Subject: [patch 17/34] Xen-pv_ops: add flush_tlb_others paravirt_op
+Date: Tue, 13 Mar 2007 16:30:34 -0700
+Message-ID: <20070313233032.504059544@goop.org>
 References: <20070313233017.933601256@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=xen-config.patch
+Content-Disposition: inline; filename=paravirt-flush_tlb_others.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,60 +18,207 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The XEN config option enables the Xen paravirt_ops interface, which is
-installed when the kernel finds itself running under Xen.
-
-Xen is no longer a sub-architecture, so the X86_XEN subarch config
-option has gone.
-
-Xen is currently incompatible with:
-- PREEMPT
-- HZ: set to 100Hz for now, to cut down on VCPU context switch rate.
-  This will be adapted to use tickless later.
+This patch adds a pv_op for flush_tlb_others.  Some hypervisors, such
+as Xen, have much more efficient ways to implement cross-cpu tlb
+shootdown than IPI, so expose an appropriate operation to allow it to
+be used.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- arch/i386/Kconfig     |    2 ++
- arch/i386/xen/Kconfig |   10 ++++++++++
- 2 files changed, 12 insertions(+)
+ arch/i386/kernel/paravirt.c |    1 +
+ arch/i386/kernel/smp.c      |   15 ++++++++-------
+ include/asm-i386/paravirt.h |    8 ++++++++
+ include/asm-i386/tlbflush.h |   19 +++++++++++++++++--
+ 4 files changed, 34 insertions(+), 9 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -216,6 +216,8 @@ config PARAVIRT
- 	  under a hypervisor, improving performance significantly.
- 	  However, when run without a hypervisor the kernel is
- 	  theoretically slower.  If in doubt, say N.
-+
-+source "arch/i386/xen/Kconfig"
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -584,6 +584,7 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.flush_tlb_user =3D native_flush_tlb,
+ 	.flush_tlb_kernel =3D native_flush_tlb_global,
+ 	.flush_tlb_single =3D native_flush_tlb_single,
++	.flush_tlb_others =3D native_flush_tlb_others,
  =
 
- config VMI
- 	bool "VMI Paravirt-ops support"
+ 	.map_pt_hook =3D paravirt_nop,
+ =
+
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/arch/i386/xen/Kconfig
-@@ -0,0 +1,10 @@
-+#
-+# This Kconfig describes xen options
-+#
+--- a/arch/i386/kernel/smp.c
++++ b/arch/i386/kernel/smp.c
+@@ -256,7 +256,6 @@ static struct mm_struct * flush_mm;
+ static struct mm_struct * flush_mm;
+ static unsigned long flush_va;
+ static DEFINE_SPINLOCK(tlbstate_lock);
+-#define FLUSH_ALL	0xffffffff
+ =
+
+ /*
+  * We cannot call mmdrop() because we are in interrupt context, =
+
+@@ -338,7 +337,7 @@ fastcall void smp_invalidate_interrupt(s
+ 		 =
+
+ 	if (flush_mm =3D=3D per_cpu(cpu_tlbstate, cpu).active_mm) {
+ 		if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK) {
+-			if (flush_va =3D=3D FLUSH_ALL)
++			if (flush_va =3D=3D TLB_FLUSH_ALL)
+ 				local_flush_tlb();
+ 			else
+ 				__flush_tlb_one(flush_va);
+@@ -353,9 +352,11 @@ out:
+ 	put_cpu_no_resched();
+ }
+ =
+
+-static void flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
+-						unsigned long va)
+-{
++void native_flush_tlb_others(const cpumask_t *cpumaskp, struct mm_struct *=
+mm,
++			     unsigned long va)
++{
++	cpumask_t cpumask =3D *cpumaskp;
 +
-+config XEN
-+	bool "Enable support for Xen hypervisor"
-+	depends on PARAVIRT && HZ_100 && !PREEMPT && !NO_HZ
-+	default y
-+	help
-+	  This is the Linux Xen port.
+ 	/*
+ 	 * A couple of (to be removed) sanity checks:
+ 	 *
+@@ -417,7 +418,7 @@ void flush_tlb_current_task(void)
+ =
+
+ 	local_flush_tlb();
+ 	if (!cpus_empty(cpu_mask))
+-		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
++		flush_tlb_others(cpu_mask, mm, TLB_FLUSH_ALL);
+ 	preempt_enable();
+ }
+ =
+
+@@ -436,7 +437,7 @@ void flush_tlb_mm (struct mm_struct * mm
+ 			leave_mm(smp_processor_id());
+ 	}
+ 	if (!cpus_empty(cpu_mask))
+-		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
++		flush_tlb_others(cpu_mask, mm, TLB_FLUSH_ALL);
+ =
+
+ 	preempt_enable();
+ }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -15,6 +15,7 @@
+ =
+
+ #ifndef __ASSEMBLY__
+ #include <linux/types.h>
++#include <linux/cpumask.h>
+ =
+
+ struct thread_struct;
+ struct Xgt_desc_struct;
+@@ -121,6 +122,8 @@ struct paravirt_ops
+ 	void (*flush_tlb_user)(void);
+ 	void (*flush_tlb_kernel)(void);
+ 	void (*flush_tlb_single)(u32 addr);
++	void (*flush_tlb_others)(const cpumask_t *cpus, struct mm_struct *mm,
++				 unsigned long va);
+ =
+
+ 	void (*map_pt_hook)(int type, pte_t *va, u32 pfn);
+ =
+
+@@ -652,6 +655,11 @@ static inline void arch_exit_mmap(struct
+ #define __flush_tlb()		PVOP_VCALL0(flush_tlb_user)
+ #define __flush_tlb_global()	PVOP_VCALL0(flush_tlb_kernel)
+ #define __flush_tlb_single(addr) PVOP_VCALL1(flush_tlb_single, addr)
++static inline void flush_tlb_others(cpumask_t cpumask, struct mm_struct *m=
+m,
++				    unsigned long va)
++{
++	PVOP_VCALL3(flush_tlb_others, &cpumask, mm, va);
++}
+ =
+
+ static inline void paravirt_map_pt_hook(int type, pte_t *va, u32 pfn)
+ {
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/tlbflush.h
++++ b/include/asm-i386/tlbflush.h
+@@ -79,10 +79,14 @@
+  *  - flush_tlb_range(vma, start, end) flushes a range of pages
+  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
+  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
++ *  - flush_tlb_others(cpumask, mm, va) flushes a TLBs on other cpus
+  *
+  * ..but the i386 has somewhat limited tlb flushing capabilities,
+  * and page-granular flushes are available only on i486 and up.
+  */
++
++#define TLB_FLUSH_ALL	0xffffffff
++
+ =
+
+ #ifndef CONFIG_SMP
+ =
+
+@@ -110,7 +114,12 @@ static inline void flush_tlb_range(struc
+ 		__flush_tlb();
+ }
+ =
+
+-#else
++static inline void native_flush_tlb_others(const cpumask_t *cpumask,
++					   struct mm_struct *mm, unsigned long va)
++{
++}
++
++#else  /* SMP */
+ =
+
+ #include <asm/smp.h>
+ =
+
+@@ -129,6 +138,9 @@ static inline void flush_tlb_range(struc
+ 	flush_tlb_mm(vma->vm_mm);
+ }
+ =
+
++void native_flush_tlb_others(const cpumask_t *cpumask, struct mm_struct *m=
+m,
++			     unsigned long va);
++
+ #define TLBSTATE_OK	1
+ #define TLBSTATE_LAZY	2
+ =
+
+@@ -139,8 +151,11 @@ struct tlb_state
+ 	char __cacheline_padding[L1_CACHE_BYTES-8];
+ };
+ DECLARE_PER_CPU(struct tlb_state, cpu_tlbstate);
++#endif	/* SMP */
+ =
+
+-
++#ifndef CONFIG_PARAVIRT
++#define flush_tlb_others(mask, mm, va)		\
++	native_flush_tlb_others(&mask, mm, va)
+ #endif
+ =
+
+ #define flush_tlb_kernel_range(start, end) flush_tlb_all()
 
 -- =
