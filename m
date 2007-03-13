@@ -1,62 +1,48 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 00/34] Xen-pv_ops: Xen guest implementation for
-	paravirt_ops interface
-Date: Tue, 13 Mar 2007 16:30:17 -0700
-Message-ID: <20070313233017.933601256@goop.org>
-Return-path: <xen-devel-bounces@lists.xensource.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Subject: [patch 01/34] Xen-pv_ops: Fix typo in sync_constant_test_bit()s name.
+Date: Tue, 13 Mar 2007 16:30:18 -0700
+Message-ID: <20070313233029.380063252@goop.org>
+References: <20070313233017.933601256@goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Disposition: inline; filename=fix-sync-bitops.patch
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Andi,
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-This patch series implements the Linux Xen guest as a paravirt_ops
-backend.  The features in implemented this patch series are:
- * domU only
- * UP and SMP guest support (NEW!)
- * dynamic ticks (NEW!)
- * writable pagetables, with late pinning/early unpinning
-   (no shadow pagetable support)
- * supports both PAE and non-PAE modes
-   (non-PAE may be broken at the moment)
- * xen hvc console (console=hvc0)
- * virtual block device (blockfront)
- * virtual network device (netfront)
+---
+ include/asm-i386/sync_bitops.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The patch series is in three parts:
-  1-2	Cleanup patches to various parts of the kernel
-  3-19	Extensions to the core code and/or paravirt ops, needed to support
-	Xen. Includes hooks into get/setting pte values and the new
-	patching machinery.
- 19-34	The Xen paravirt_ops implementation itself.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/sync_bitops.h
++++ b/include/asm-i386/sync_bitops.h
+@@ -130,7 +130,7 @@ static inline int sync_test_and_change_b
+ 	return oldbit;
+ }
+ =
 
-(Some of the earlier patches in the series have already been posted,
- but are included to make the series self-contained.)
+-static __always_inline int sync_const_test_bit(int nr, const volatile unsi=
+gned long *addr)
++static __always_inline int sync_constant_test_bit(int nr, const volatile u=
+nsigned long *addr)
+ {
+ 	return ((1UL << (nr & 31)) &
+ 		(((const volatile unsigned int *)addr)[nr >> 5])) !=3D 0;
 
-I've tried to make each patch as self-explanatory as possible.  The
-series is based on 2.6.21-rc3-git7.
-
-Changes since the previous posting:
-- SMP support
-- Implemented xen_clockevent, so Xen is fully compatible with
-  CONFIG_NO_HZ and HIGH_RES_TIMERS.
-- Finished implementing late pinning/early unpinning of pagetables, which
-  should now be equivalent to xen-unstable in performance.
-- Add kmap_atomic_pte for mapping ptes, and therefore support for HIGHPTE
-- Fixed crash on systems with >= 4G memory
-- Cleanup netfront (Stephen Hemminger)
-- Add MAINTAINERS entries
-- Fold kill-HAVE_ARCH_MM_LIFETIME.patch into mm-lifetime-hooks.patch
-- rebased
-
-Thanks,
-	J
--- 
+-- =
