@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 18/34] Xen-pv_ops: revert map_pt_hook.
-Date: Tue, 13 Mar 2007 16:30:35 -0700
-Message-ID: <20070313233032.612071679@goop.org>
+Subject: [patch 16/34] Xen-pv_ops: add common patching machinery
+Date: Tue, 13 Mar 2007 16:30:33 -0700
+Message-ID: <20070313233032.299119534@goop.org>
 References: <20070313233017.933601256@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=revert-map_pt_hook.patch
+Content-Disposition: inline; filename=paravirt-patch-machinery.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,125 +18,275 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Anthony Liguori <anthony@codemonkey.ws>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Back out the map_pt_hook to clear the way for kmap_atomic_pte.
+Implement the actual patching machinery.  paravirt_patch_default()
+contains the logic to automatically patch a callsite based on a few
+simple rules:
+
+ - if the paravirt_op function is paravirt_nop, then patch nops
+ - if the paravirt_op function is a jmp target, then jmp to it
+ - if the paravirt_op function is callable and doesn't clobber too much
+    for the callsite, call it directly
+
+paravirt_patch_default is suitable as a default implementation of
+paravirt_ops.patch, will remove most of the expensive indirect calls
+in favour of either a direct call or a pile of nops.
+
+Backends may implement their own patcher, however.  There are several
+helper functions to help with this:
+
+paravirt_patch_nop	nop out a callsite
+paravirt_patch_ignore	leave the callsite as-is
+paravirt_patch_call	patch a call if the caller and callee
+			have compatible clobbers
+paravirt_patch_jmp	patch in a jmp
+paravirt_patch_insns	patch some literal instructions over
+			the callsite, if they fit
+
+This patch also implements more direct patches for the native case, so
+that when running on native hardware many common operations are
+implemented inline.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Zachary Amsden <zach@vmware.com>
-
+Cc: Anthony Liguori <anthony@codemonkey.ws>
 ---
- arch/i386/kernel/paravirt.c |    2 --
- arch/i386/kernel/vmi.c      |    2 ++
- include/asm-i386/paravirt.h |    7 -------
- include/asm-i386/pgtable.h  |   23 ++++-------------------
- 4 files changed, 6 insertions(+), 28 deletions(-)
+ arch/i386/kernel/alternative.c |    3 =
 
+ arch/i386/kernel/paravirt.c    |  163 ++++++++++++++++++++++++++++++++----=
+----
+ include/asm-i386/paravirt.h    |   11 ++
+ 3 files changed, 147 insertions(+), 30 deletions(-)
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/alternative.c
++++ b/arch/i386/kernel/alternative.c
+@@ -359,6 +359,9 @@ void apply_paravirt(struct paravirt_patc
+ =
+
+ 		used =3D paravirt_ops.patch(p->instrtype, p->clobbers, p->instr,
+ 					  p->len);
++
++		BUG_ON(used > p->len);
++
+ #ifdef CONFIG_DEBUG_PARAVIRT
+ 		{
+ 		int i;
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -586,8 +586,6 @@ struct paravirt_ops paravirt_ops =3D {
- 	.flush_tlb_single =3D native_flush_tlb_single,
- 	.flush_tlb_others =3D native_flush_tlb_others,
- =
-
--	.map_pt_hook =3D paravirt_nop,
+@@ -53,40 +53,143 @@ char *memory_setup(void)
+ #define DEF_NATIVE(name, code)					\
+ 	extern const char start_##name[], end_##name[];		\
+ 	asm("start_" #name ": " code "; end_" #name ":")
+-DEF_NATIVE(cli, "cli");
+-DEF_NATIVE(sti, "sti");
+-DEF_NATIVE(popf, "push %eax; popf");
+-DEF_NATIVE(pushf, "pushf; pop %eax");
++
++DEF_NATIVE(irq_disable, "cli");
++DEF_NATIVE(irq_enable, "sti");
++DEF_NATIVE(restore_fl, "push %eax; popf");
++DEF_NATIVE(save_fl, "pushf; pop %eax");
+ DEF_NATIVE(iret, "iret");
+-DEF_NATIVE(sti_sysexit, "sti; sysexit");
 -
- 	.alloc_pt =3D paravirt_nop,
- 	.alloc_pd =3D paravirt_nop,
- 	.alloc_pd_clone =3D paravirt_nop,
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/vmi.c
-+++ b/arch/i386/kernel/vmi.c
-@@ -824,8 +824,10 @@ static inline int __init activate_vmi(vo
- 		paravirt_ops.release_pt =3D vmi_release_pt;
- 		paravirt_ops.release_pd =3D vmi_release_pd;
- 	}
-+#if 0
- 	para_wrap(map_pt_hook, vmi_map_pt_hook, set_linear_mapping,
- 		  SetLinearMapping);
-+#endif
+-static const struct native_insns
+-{
+-	const char *start, *end;
+-} native_insns[] =3D {
+-	[PARAVIRT_PATCH(irq_disable)] =3D { start_cli, end_cli },
+-	[PARAVIRT_PATCH(irq_enable)] =3D { start_sti, end_sti },
+-	[PARAVIRT_PATCH(restore_fl)] =3D { start_popf, end_popf },
+-	[PARAVIRT_PATCH(save_fl)] =3D { start_pushf, end_pushf },
+-	[PARAVIRT_PATCH(iret)] =3D { start_iret, end_iret },
+-	[PARAVIRT_PATCH(irq_enable_sysexit)] =3D { start_sti_sysexit, end_sti_sys=
+exit },
+-};
++DEF_NATIVE(irq_enable_sysexit, "sti; sysexit");
++DEF_NATIVE(read_cr2, "mov %cr2, %eax");
++DEF_NATIVE(write_cr3, "mov %eax, %cr3");
++DEF_NATIVE(read_cr3, "mov %cr3, %eax");
++DEF_NATIVE(clts, "clts");
++DEF_NATIVE(read_tsc, "rdtsc");
++
++DEF_NATIVE(pushf_cli, "pushf; pop %eax; cli");
++DEF_NATIVE(ud2a, "ud2a");
  =
 
- 	/*
- 	 * These MUST always be patched.  Don't support indirect jumps
+ static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned =
+len)
+ {
+-	unsigned int insn_len;
+-
+-	/* Don't touch it if we don't have a replacement */
+-	if (type >=3D ARRAY_SIZE(native_insns) || !native_insns[type].start)
+-		return len;
+-
+-	insn_len =3D native_insns[type].end - native_insns[type].start;
+-
+-	/* Similarly if we can't fit replacement. */
+-	if (len < insn_len)
+-		return len;
+-
+-	memcpy(insns, native_insns[type].start, insn_len);
++	const unsigned char *start, *end;
++	unsigned ret;
++
++	switch(type) {
++#define SITE(x)	case PARAVIRT_PATCH(x):	start =3D start_##x; end =3D end_#=
+#x; goto patch_site
++		SITE(irq_disable);
++		SITE(irq_enable);
++		SITE(restore_fl);
++		SITE(save_fl);
++		SITE(iret);
++		SITE(irq_enable_sysexit);
++		SITE(read_cr2);
++		SITE(read_cr3);
++		SITE(write_cr3);
++		SITE(clts);
++		SITE(read_tsc);
++#undef SITE
++
++	patch_site:
++		ret =3D paravirt_patch_insns(insns, len, start, end);
++		break;
++
++	case PARAVIRT_PATCH(make_pgd):
++	case PARAVIRT_PATCH(make_pte):
++	case PARAVIRT_PATCH(pgd_val):
++	case PARAVIRT_PATCH(pte_val):
++#ifdef CONFIG_X86_PAE
++	case PARAVIRT_PATCH(make_pmd):
++	case PARAVIRT_PATCH(pmd_val):
++#endif
++		/* These functions end up returning exactly what
++		   they're passed, in the same registers. */
++		ret =3D paravirt_patch_nop();
++		break;
++
++	default:
++		ret =3D paravirt_patch_default(type, clobbers, insns, len);
++		break;
++	}
++
++	return ret;
++}
++
++unsigned paravirt_patch_nop(void)
++{
++	return 0;
++}
++
++unsigned paravirt_patch_ignore(unsigned len)
++{
++	return len;
++}
++
++unsigned paravirt_patch_call(void *target, u16 tgt_clobbers,
++			     void *site, u16 site_clobbers,
++			     unsigned len)
++{
++	unsigned char *call =3D site;
++	unsigned long delta =3D (unsigned long)target - (unsigned long)(call+5);
++
++	if (tgt_clobbers & ~site_clobbers)
++		return len;	/* target would clobber too much for this site */
++	if (len < 5)
++		return len;	/* call too long for patch site */
++
++	*call++ =3D 0xe8;		/* call */
++	*(unsigned long *)call =3D delta;
++
++	return 5;
++}
++
++unsigned paravirt_patch_jmp(void *target, void *site, unsigned len)
++{
++	unsigned char *jmp =3D site;
++	unsigned long delta =3D (unsigned long)target - (unsigned long)(jmp+5);
++
++	if (len < 5)
++		return len;	/* call too long for patch site */
++
++	*jmp++ =3D 0xe9;		/* jmp */
++	*(unsigned long *)jmp =3D delta;
++
++	return 5;
++}
++
++unsigned paravirt_patch_default(u8 type, u16 clobbers, void *site, unsigne=
+d len)
++{
++	void *opfunc =3D *((void **)&paravirt_ops + type);
++	unsigned ret;
++
++	if (opfunc =3D=3D NULL)
++		/* If there's no function, patch it with a ud2a (BUG) */
++		ret =3D paravirt_patch_insns(site, len, start_ud2a, end_ud2a);
++	else if (opfunc =3D=3D paravirt_nop)
++		/* If the operation is a nop, then nop the callsite */
++		ret =3D paravirt_patch_nop();
++	else if (type =3D=3D PARAVIRT_PATCH(iret) ||
++		 type =3D=3D PARAVIRT_PATCH(irq_enable_sysexit))
++		/* If operation requires a jmp, then jmp */
++		ret =3D paravirt_patch_jmp(opfunc, site, len);
++	else
++		/* Otherwise call the function; assume target could
++		   clobber any caller-save reg */
++		ret =3D paravirt_patch_call(opfunc, CLBR_ANY,
++					  site, clobbers, len);
++
++	return ret;
++}
++
++unsigned paravirt_patch_insns(void *site, unsigned len,
++			      const char *start, const char *end)
++{
++	unsigned insn_len =3D end - start;
++
++	if (insn_len > len || start =3D=3D NULL)
++		insn_len =3D len;
++	else
++		memcpy(site, start, insn_len);
++
+ 	return insn_len;
+ }
+ =
+
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -124,8 +124,6 @@ struct paravirt_ops
- 	void (*flush_tlb_single)(u32 addr);
- 	void (*flush_tlb_others)(const cpumask_t *cpus, struct mm_struct *mm,
- 				 unsigned long va);
--
--	void (*map_pt_hook)(int type, pte_t *va, u32 pfn);
+@@ -821,6 +821,17 @@ struct paravirt_patch_site {
+ 	u16 clobbers;		/* what registers you may clobber */
+ };
  =
 
- 	void (*alloc_pt)(u32 pfn);
- 	void (*alloc_pd)(u32 pfn);
-@@ -661,11 +659,6 @@ static inline void flush_tlb_others(cpum
- 	PVOP_VCALL3(flush_tlb_others, &cpumask, mm, va);
- }
++unsigned paravirt_patch_nop(void);
++unsigned paravirt_patch_ignore(unsigned len);
++unsigned paravirt_patch_call(void *target, u16 tgt_clobbers,
++			     void *site, u16 site_clobbers,
++			     unsigned len);
++unsigned paravirt_patch_jmp(void *target, void *site, unsigned len);
++unsigned paravirt_patch_default(u8 type, u16 clobbers, void *site, unsigne=
+d len);
++
++unsigned paravirt_patch_insns(void *site, unsigned len,
++			      const char *start, const char *end);
++
+ extern struct paravirt_patch_site __start_parainstructions[],
+ 	__stop_parainstructions[];
  =
 
--static inline void paravirt_map_pt_hook(int type, pte_t *va, u32 pfn)
--{
--	PVOP_VCALL3(map_pt_hook, type, va, pfn);
--}
--
- #define paravirt_alloc_pt(pfn)	PVOP_VCALL1(alloc_pt, pfn)
- #define paravirt_release_pt(pfn) PVOP_VCALL1(release_pt, pfn)
- =
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -270,7 +270,6 @@ static inline void vmalloc_sync_all(void
-  */
- #define pte_update(mm, addr, ptep)		do { } while (0)
- #define pte_update_defer(mm, addr, ptep)	do { } while (0)
--#define paravirt_map_pt_hook(slot, va, pfn)	do { } while (0)
- =
-
- #define raw_ptep_get_and_clear(xp)     native_ptep_get_and_clear(xp)
- #endif
-@@ -479,24 +478,10 @@ extern pte_t *lookup_address(unsigned lo
- #endif
- =
-
- #if defined(CONFIG_HIGHPTE)
--#define pte_offset_map(dir, address)				\
--({								\
--	pte_t *__ptep;						\
--	unsigned pfn =3D pmd_val(*(dir)) >> PAGE_SHIFT;	   	\
--	__ptep =3D (pte_t *)kmap_atomic(pfn_to_page(pfn),KM_PTE0);\
--	paravirt_map_pt_hook(KM_PTE0,__ptep, pfn);		\
--	__ptep =3D __ptep + pte_index(address);			\
--	__ptep;							\
--})
--#define pte_offset_map_nested(dir, address)			\
--({								\
--	pte_t *__ptep;						\
--	unsigned pfn =3D pmd_val(*(dir)) >> PAGE_SHIFT;	   	\
--	__ptep =3D (pte_t *)kmap_atomic(pfn_to_page(pfn),KM_PTE1);\
--	paravirt_map_pt_hook(KM_PTE1,__ptep, pfn);		\
--	__ptep =3D __ptep + pte_index(address);			\
--	__ptep;							\
--})
-+#define pte_offset_map(dir, address) \
-+	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
-+#define pte_offset_map_nested(dir, address) \
-+	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE1) + pte_index(address))
- #define pte_unmap(pte) kunmap_atomic(pte, KM_PTE0)
- #define pte_unmap_nested(pte) kunmap_atomic(pte, KM_PTE1)
- #else
 
 -- =
