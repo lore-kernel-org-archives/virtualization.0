@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 09/34] Xen-pv_ops: add hooks to intercept mm creation and
-	destruction
-Date: Tue, 13 Mar 2007 16:30:26 -0700
-Message-ID: <20070313233030.944166280@goop.org>
+Subject: [patch 05/34] Xen-pv_ops: Add pagetable accessors to pack and unpack
+	pagetable entries
+Date: Tue, 13 Mar 2007 16:30:22 -0700
+Message-ID: <20070313233030.207097840@goop.org>
 References: <20070313233017.933601256@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=mm-lifetime-hooks.patch
+Content-Disposition: inline; filename=paravirt-pte-accessors.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -19,570 +19,694 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, James Bottomley <James.Bottomley@SteelEye.com>, linux-arch@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add hooks to allow a paravirt implementation to track the lifetime of
-an mm.
+Add a set of accessors to pack, unpack and modify page table entries
+(at all levels).  This allows a paravirt implementation to control the
+contents of pgd/pmd/pte entries.  For example, Xen uses this to
+convert the (pseudo-)physical address into a machine address when
+populating a pagetable entry, and converting back to pphys address
+when an entry is read.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: linux-arch@vger.kernel.org
-Cc: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Ingo Molnar <mingo@elte.hu>
 
 ---
- arch/i386/kernel/paravirt.c         |    4 ++++
- include/asm-alpha/mmu_context.h     |    1 +
- include/asm-arm/mmu_context.h       |    1 +
- include/asm-arm26/mmu_context.h     |    2 ++
- include/asm-avr32/mmu_context.h     |    1 +
- include/asm-cris/mmu_context.h      |    2 ++
- include/asm-frv/mmu_context.h       |    1 +
- include/asm-generic/mm_hooks.h      |   18 ++++++++++++++++++
- include/asm-h8300/mmu_context.h     |    1 +
- include/asm-i386/mmu_context.h      |   17 +++++++++++++++--
- include/asm-i386/paravirt.h         |   23 +++++++++++++++++++++++
- include/asm-ia64/mmu_context.h      |    1 +
- include/asm-m32r/mmu_context.h      |    1 +
- include/asm-m68k/mmu_context.h      |    1 +
- include/asm-m68knommu/mmu_context.h |    1 +
- include/asm-mips/mmu_context.h      |    1 +
- include/asm-parisc/mmu_context.h    |    1 +
- include/asm-powerpc/mmu_context.h   |    1 +
- include/asm-ppc/mmu_context.h       |    1 +
- include/asm-s390/mmu_context.h      |    2 ++
- include/asm-sh/mmu_context.h        |    1 +
- include/asm-sh64/mmu_context.h      |    2 +-
- include/asm-sparc/mmu_context.h     |    2 ++
- include/asm-sparc64/mmu_context.h   |    1 +
- include/asm-um/mmu_context.h        |    2 ++
- include/asm-v850/mmu_context.h      |    2 ++
- include/asm-x86_64/mmu_context.h    |    1 +
- include/asm-xtensa/mmu_context.h    |    1 +
- kernel/fork.c                       |    2 ++
- mm/mmap.c                           |    4 ++++
- 30 files changed, 96 insertions(+), 3 deletions(-)
+ arch/i386/kernel/paravirt.c       |   84 +++++----------------------------=
+----
+ arch/i386/kernel/vmi.c            |    6 +-
+ include/asm-i386/page.h           |   71 ++++++++++++++++++++++++++-----
+ include/asm-i386/paravirt.h       |   54 ++++++++++++++++++-----
+ include/asm-i386/pgtable-2level.h |   28 +++++++++---
+ include/asm-i386/pgtable-3level.h |   65 +++++++++++++++++-----------
+ include/asm-i386/pgtable.h        |    2 =
+
+ 7 files changed, 179 insertions(+), 131 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -520,6 +520,10 @@ struct paravirt_ops paravirt_ops =3D {
+@@ -399,78 +399,6 @@ static void native_flush_tlb_single(u32 =
+
+ {
+ 	__native_flush_tlb_single(addr);
+ }
+-
+-#ifndef CONFIG_X86_PAE
+-static void native_set_pte(pte_t *ptep, pte_t pteval)
+-{
+-	*ptep =3D pteval;
+-}
+-
+-static void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep,=
+ pte_t pteval)
+-{
+-	*ptep =3D pteval;
+-}
+-
+-static void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
+-{
+-	*pmdp =3D pmdval;
+-}
+-
+-#else /* CONFIG_X86_PAE */
+-
+-static void native_set_pte(pte_t *ptep, pte_t pte)
+-{
+-	ptep->pte_high =3D pte.pte_high;
+-	smp_wmb();
+-	ptep->pte_low =3D pte.pte_low;
+-}
+-
+-static void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep,=
+ pte_t pte)
+-{
+-	ptep->pte_high =3D pte.pte_high;
+-	smp_wmb();
+-	ptep->pte_low =3D pte.pte_low;
+-}
+-
+-static void native_set_pte_present(struct mm_struct *mm, unsigned long add=
+r, pte_t *ptep, pte_t pte)
+-{
+-	ptep->pte_low =3D 0;
+-	smp_wmb();
+-	ptep->pte_high =3D pte.pte_high;
+-	smp_wmb();
+-	ptep->pte_low =3D pte.pte_low;
+-}
+-
+-static void native_set_pte_atomic(pte_t *ptep, pte_t pteval)
+-{
+-	set_64bit((unsigned long long *)ptep,pte_val(pteval));
+-}
+-
+-static void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
+-{
+-	set_64bit((unsigned long long *)pmdp,pmd_val(pmdval));
+-}
+-
+-static void native_set_pud(pud_t *pudp, pud_t pudval)
+-{
+-	*pudp =3D pudval;
+-}
+-
+-static void native_pte_clear(struct mm_struct *mm, unsigned long addr, pte=
+_t *ptep)
+-{
+-	ptep->pte_low =3D 0;
+-	smp_wmb();
+-	ptep->pte_high =3D 0;
+-}
+-
+-static void native_pmd_clear(pmd_t *pmd)
+-{
+-	u32 *tmp =3D (u32 *)pmd;
+-	*tmp =3D 0;
+-	smp_wmb();
+-	*(tmp + 1) =3D 0;
+-}
+-#endif /* CONFIG_X86_PAE */
+ =
+
+ /* These are in entry.S */
+ extern void native_iret(void);
+@@ -565,13 +493,25 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.set_pmd =3D native_set_pmd,
+ 	.pte_update =3D paravirt_nop,
+ 	.pte_update_defer =3D paravirt_nop,
++
++	.ptep_get_and_clear =3D native_ptep_get_and_clear,
++
+ #ifdef CONFIG_X86_PAE
+ 	.set_pte_atomic =3D native_set_pte_atomic,
+ 	.set_pte_present =3D native_set_pte_present,
+ 	.set_pud =3D native_set_pud,
+ 	.pte_clear =3D native_pte_clear,
+ 	.pmd_clear =3D native_pmd_clear,
++
++	.pmd_val =3D native_pmd_val,
++	.make_pmd =3D native_make_pmd,
+ #endif
++
++	.pte_val =3D native_pte_val,
++	.pgd_val =3D native_pgd_val,
++
++	.make_pte =3D native_make_pte,
++	.make_pgd =3D native_make_pgd,
+ =
+
  	.irq_enable_sysexit =3D native_irq_enable_sysexit,
  	.iret =3D native_iret,
- =
-
-+	.dup_mmap =3D paravirt_nop,
-+	.exit_mmap =3D paravirt_nop,
-+	.activate_mm =3D paravirt_nop,
-+
- 	.startup_ipi_hook =3D paravirt_nop,
- };
- =
-
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-alpha/mmu_context.h
-+++ b/include/asm-alpha/mmu_context.h
-@@ -10,6 +10,7 @@
- #include <asm/system.h>
- #include <asm/machvec.h>
- #include <asm/compiler.h>
-+#include <asm-generic/mm_hooks.h>
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -443,13 +443,13 @@ static void vmi_release_pd(u32 pfn)
+         ((level) | (is_current_as(mm, user) ?                           \
+                 (VMI_PAGE_DEFER | VMI_PAGE_CURRENT_AS | ((addr) & VMI_PAGE=
+_VA_MASK)) : 0))
  =
 
- /*
-  * Force a context reload. This is needed when we change the page
+-static void vmi_update_pte(struct mm_struct *mm, u32 addr, pte_t *ptep)
++static void vmi_update_pte(struct mm_struct *mm, unsigned long addr, pte_t=
+ *ptep)
+ {
+ 	vmi_check_page_type(__pa(ptep) >> PAGE_SHIFT, VMI_PAGE_PTE);
+ 	vmi_ops.update_pte(ptep, vmi_flags_addr(mm, addr, VMI_PAGE_PT, 0));
+ }
+ =
+
+-static void vmi_update_pte_defer(struct mm_struct *mm, u32 addr, pte_t *pt=
+ep)
++static void vmi_update_pte_defer(struct mm_struct *mm, unsigned long addr,=
+ pte_t *ptep)
+ {
+ 	vmi_check_page_type(__pa(ptep) >> PAGE_SHIFT, VMI_PAGE_PTE);
+ 	vmi_ops.update_pte(ptep, vmi_flags_addr_defer(mm, addr, VMI_PAGE_PT, 0));
+@@ -462,7 +462,7 @@ static void vmi_set_pte(pte_t *ptep, pte
+ 	vmi_ops.set_pte(pte, ptep, VMI_PAGE_PT);
+ }
+ =
+
+-static void vmi_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pt=
+e_t pte)
++static void vmi_set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t=
+ *ptep, pte_t pte)
+ {
+ 	vmi_check_page_type(__pa(ptep) >> PAGE_SHIFT, VMI_PAGE_PTE);
+ 	vmi_ops.set_pte(pte, ptep, vmi_flags_addr(mm, addr, VMI_PAGE_PT, 0));
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-arm/mmu_context.h
-+++ b/include/asm-arm/mmu_context.h
-@@ -16,6 +16,7 @@
- #include <linux/compiler.h>
- #include <asm/cacheflush.h>
- #include <asm/proc-fns.h>
-+#include <asm-generic/mm_hooks.h>
+--- a/include/asm-i386/page.h
++++ b/include/asm-i386/page.h
+@@ -12,7 +12,6 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
  =
 
- void __check_kvm_seq(struct mm_struct *mm);
+-
+ #ifdef CONFIG_X86_USE_3DNOW
  =
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-arm26/mmu_context.h
-+++ b/include/asm-arm26/mmu_context.h
-@@ -12,6 +12,8 @@
+ #include <asm/mmx.h>
+@@ -42,26 +41,73 @@
+  * These are used to make use of C type-checking..
   */
- #ifndef __ASM_ARM_MMU_CONTEXT_H
- #define __ASM_ARM_MMU_CONTEXT_H
+ extern int nx_enabled;
 +
-+#include <asm-generic/mm_hooks.h>
- =
-
- #define init_new_context(tsk,mm)	0
- #define destroy_context(mm)		do { } while(0)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-avr32/mmu_context.h
-+++ b/include/asm-avr32/mmu_context.h
-@@ -15,6 +15,7 @@
- #include <asm/tlbflush.h>
- #include <asm/pgalloc.h>
- #include <asm/sysreg.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- /*
-  * The MMU "context" consists of two things:
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-cris/mmu_context.h
-+++ b/include/asm-cris/mmu_context.h
-@@ -1,5 +1,7 @@
- #ifndef __CRIS_MMU_CONTEXT_H
- #define __CRIS_MMU_CONTEXT_H
+ #ifdef CONFIG_X86_PAE
+ extern unsigned long long __supported_pte_mask;
+ typedef struct { unsigned long pte_low, pte_high; } pte_t;
+ typedef struct { unsigned long long pmd; } pmd_t;
+ typedef struct { unsigned long long pgd; } pgd_t;
+ typedef struct { unsigned long long pgprot; } pgprot_t;
+-#define pmd_val(x)	((x).pmd)
+-#define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
+-#define __pmd(x) ((pmd_t) { (x) } )
 +
-+#include <asm-generic/mm_hooks.h>
- =
-
- extern int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
- extern void get_mmu_context(struct mm_struct *mm);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-frv/mmu_context.h
-+++ b/include/asm-frv/mmu_context.h
-@@ -15,6 +15,7 @@
- #include <asm/setup.h>
- #include <asm/page.h>
- #include <asm/pgalloc.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
- *tsk)
- {
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/asm-generic/mm_hooks.h
-@@ -0,0 +1,18 @@
-+/*
-+ * Define generic no-op hooks for arch_dup_mmap and arch_exit_mmap, to
-+ * be included in asm-FOO/mmu_context.h for any arch FOO which doesn't
-+ * need to hook these.
-+ */
-+#ifndef _ASM_GENERIC_MM_HOOKS_H
-+#define _ASM_GENERIC_MM_HOOKS_H
-+
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
++static inline unsigned long long native_pgd_val(pgd_t pgd)
 +{
++	return pgd.pgd;
++}
++static inline unsigned long long native_pmd_val(pmd_t pmd)
++{
++	return pmd.pmd;
++}
++static inline unsigned long long native_pte_val(pte_t pte)
++{
++	return pte.pte_low | ((unsigned long long)pte.pte_high << 32);
++}
++static inline pgd_t native_make_pgd(unsigned long long val)
++{
++	return (pgd_t) { val };
++}
++static inline pmd_t native_make_pmd(unsigned long long val)
++{
++	return (pmd_t) { val };
++}
++static inline pte_t native_make_pte(unsigned long long val)
++{
++	return (pte_t) { .pte_low =3D val, .pte_high =3D (val >> 32) } ;
 +}
 +
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+}
-+
-+#endif	/* _ASM_GENERIC_MM_HOOKS_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-h8300/mmu_context.h
-+++ b/include/asm-h8300/mmu_context.h
-@@ -4,6 +4,7 @@
- #include <asm/setup.h>
- #include <asm/page.h>
- #include <asm/pgalloc.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
- *tsk)
- {
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -5,6 +5,16 @@
- #include <asm/atomic.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-+#include <asm/paravirt.h>
 +#ifndef CONFIG_PARAVIRT
-+#include <asm-generic/mm_hooks.h>
-+
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
-+{
-+}
++#define pmd_val(x)	native_pmd_val(x)
++#define __pmd(x)	native_make_pmd(x)
 +#endif	/* !CONFIG_PARAVIRT */
 +
+ #define HPAGE_SHIFT	21
+ #include <asm-generic/pgtable-nopud.h>
+-#else
++#else  /* !CONFIG_X86_PAE */
+ typedef struct { unsigned long pte_low; } pte_t;
+ typedef struct { unsigned long pgd; } pgd_t;
+ typedef struct { unsigned long pgprot; } pgprot_t;
+ #define boot_pte_t pte_t /* or would you rather have a typedef */
+-#define pte_val(x)	((x).pte_low)
++
++static inline unsigned long native_pgd_val(pgd_t pgd)
++{
++	return pgd.pgd;
++}
++static inline unsigned long native_pte_val(pte_t pte)
++{
++	return pte.pte_low;
++}
++static inline pgd_t native_make_pgd(unsigned long val)
++{
++	return (pgd_t) { val };
++}
++static inline pte_t native_make_pte(unsigned long val)
++{
++	return (pte_t) { .pte_low =3D val };
++}
++
+ #define HPAGE_SHIFT	22
+ #include <asm-generic/pgtable-nopmd.h>
+-#endif
++#endif	/* CONFIG_X86_PAE */
++
+ #define PTE_MASK	PAGE_MASK
  =
 
- /*
-  * Used for LDT copy/destruction.
-@@ -65,7 +75,10 @@ static inline void switch_mm(struct mm_s
- #define deactivate_mm(tsk, mm)			\
- 	asm("movl %0,%%gs": :"r" (0));
- =
-
--#define activate_mm(prev, next) \
--	switch_mm((prev),(next),NULL)
-+#define activate_mm(prev, next)				\
-+	do {						\
-+		paravirt_activate_mm(prev, next);	\
-+		switch_mm((prev),(next),NULL);		\
-+	} while(0);
- =
-
+ #ifdef CONFIG_HUGETLB_PAGE
+@@ -71,12 +117,15 @@ typedef struct { unsigned long pgprot; }
+ #define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
  #endif
+ =
+
+-#define pgd_val(x)	((x).pgd)
+ #define pgprot_val(x)	((x).pgprot)
+-
+-#define __pte(x) ((pte_t) { (x) } )
+-#define __pgd(x) ((pgd_t) { (x) } )
+ #define __pgprot(x)	((pgprot_t) { (x) } )
++
++#ifndef CONFIG_PARAVIRT
++#define pgd_val(x)	native_pgd_val(x)
++#define __pgd(x)	native_make_pgd(x)
++#define pte_val(x)	native_pte_val(x)
++#define __pte(x)	native_make_pte(x)
++#endif	/* !CONFIG_PARAVIRT */
+ =
+
+ #endif /* !__ASSEMBLY__ */
+ =
+
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -119,6 +119,12 @@ struct paravirt_ops
+@@ -2,7 +2,6 @@
+ #define __ASM_PARAVIRT_H
+ /* Various instructions on x86 need to be replaced for
+  * para-virtualization: those hooks are defined here. */
+-#include <linux/linkage.h>
+ #include <linux/stringify.h>
+ #include <asm/page.h>
  =
 
- 	void (*io_delay)(void);
+@@ -25,6 +24,8 @@
+ #define CLBR_ANY 0x7
  =
 
-+	void (*activate_mm)(struct mm_struct *prev,
-+			    struct mm_struct *next);
-+	void (*dup_mmap)(struct mm_struct *oldmm,
-+			 struct mm_struct *mm);
-+	void (*exit_mmap)(struct mm_struct *mm);
+ #ifndef __ASSEMBLY__
++#include <linux/types.h>
 +
- #ifdef CONFIG_X86_LOCAL_APIC
- 	void (*apic_write)(unsigned long reg, unsigned long v);
- 	void (*apic_write_atomic)(unsigned long reg, unsigned long v);
-@@ -394,6 +400,23 @@ static inline void startup_ipi_hook(int =
+ struct thread_struct;
+ struct Xgt_desc_struct;
+ struct tss_struct;
+@@ -53,11 +54,6 @@ struct paravirt_ops
+ 	unsigned long (*get_wallclock)(void);
+ 	int (*set_wallclock)(unsigned long);
+ 	void (*time_init)(void);
+-
+-	/* All the function pointers here are declared as "fastcall"
+-	   so that we get a specific register-based calling
+-	   convention.  This makes it easier to implement inline
+-	   assembler replacements. */
+ =
 
+ 	void (*cpuid)(unsigned int *eax, unsigned int *ebx,
+ 		      unsigned int *ecx, unsigned int *edx);
+@@ -130,7 +126,7 @@ struct paravirt_ops
+ 	void (*flush_tlb_kernel)(void);
+ 	void (*flush_tlb_single)(u32 addr);
+ =
+
+-	void (fastcall *map_pt_hook)(int type, pte_t *va, u32 pfn);
++	void (*map_pt_hook)(int type, pte_t *va, u32 pfn);
+ =
+
+ 	void (*alloc_pt)(u32 pfn);
+ 	void (*alloc_pd)(u32 pfn);
+@@ -139,16 +135,33 @@ struct paravirt_ops
+ 	void (*release_pd)(u32 pfn);
+ =
+
+ 	void (*set_pte)(pte_t *ptep, pte_t pteval);
+-	void (*set_pte_at)(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte=
+val);
++	void (*set_pte_at)(struct mm_struct *mm, unsigned long addr, pte_t *ptep,=
+ pte_t pteval);
+ 	void (*set_pmd)(pmd_t *pmdp, pmd_t pmdval);
+-	void (*pte_update)(struct mm_struct *mm, u32 addr, pte_t *ptep);
+-	void (*pte_update_defer)(struct mm_struct *mm, u32 addr, pte_t *ptep);
++	void (*pte_update)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
++	void (*pte_update_defer)(struct mm_struct *mm, unsigned long addr, pte_t =
+*ptep);
++
++ 	pte_t (*ptep_get_and_clear)(pte_t *ptep);
++
+ #ifdef CONFIG_X86_PAE
+ 	void (*set_pte_atomic)(pte_t *ptep, pte_t pteval);
+-	void (*set_pte_present)(struct mm_struct *mm, unsigned long addr, pte_t *=
+ptep, pte_t pte);
++ 	void (*set_pte_present)(struct mm_struct *mm, unsigned long addr, pte_t =
+*ptep, pte_t pte);
+ 	void (*set_pud)(pud_t *pudp, pud_t pudval);
+-	void (*pte_clear)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
++ 	void (*pte_clear)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
+ 	void (*pmd_clear)(pmd_t *pmdp);
++
++	unsigned long long (*pte_val)(pte_t);
++	unsigned long long (*pmd_val)(pmd_t);
++	unsigned long long (*pgd_val)(pgd_t);
++
++	pte_t (*make_pte)(unsigned long long pte);
++	pmd_t (*make_pmd)(unsigned long long pmd);
++	pgd_t (*make_pgd)(unsigned long long pgd);
++#else
++	unsigned long (*pte_val)(pte_t);
++	unsigned long (*pgd_val)(pgd_t);
++
++	pte_t (*make_pte)(unsigned long pte);
++	pgd_t (*make_pgd)(unsigned long pgd);
+ #endif
+ =
+
+ 	void (*set_lazy_mode)(int mode);
+@@ -218,6 +231,8 @@ static inline void __cpuid(unsigned int =
+
+ #define read_cr4() paravirt_ops.read_cr4()
+ #define read_cr4_safe(x) paravirt_ops.read_cr4_safe()
+ #define write_cr4(x) paravirt_ops.write_cr4(x)
++
++#define raw_ptep_get_and_clear(xp)	(paravirt_ops.ptep_get_and_clear(xp))
+ =
+
+ static inline void raw_safe_halt(void)
+ {
+@@ -303,6 +318,17 @@ static inline void halt(void)
+ 	(paravirt_ops.write_idt_entry((dt), (entry), (low), (high)))
+ #define set_iopl_mask(mask) (paravirt_ops.set_iopl_mask(mask))
+ =
+
++#define __pte(x)	paravirt_ops.make_pte(x)
++#define __pgd(x)	paravirt_ops.make_pgd(x)
++
++#define pte_val(x)	paravirt_ops.pte_val(x)
++#define pgd_val(x)	paravirt_ops.pgd_val(x)
++
++#ifdef CONFIG_X86_PAE
++#define __pmd(x)	paravirt_ops.make_pmd(x)
++#define pmd_val(x)	paravirt_ops.pmd_val(x)
++#endif
++
+ /* The paravirtualized I/O functions */
+ static inline void slow_down_io(void) {
+ 	paravirt_ops.io_delay();
+@@ -343,6 +369,7 @@ static inline void setup_secondary_clock
  }
  #endif
  =
 
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
-+{
-+	paravirt_ops.activate_mm(prev, next);
-+}
 +
-+static inline void arch_dup_mmap(struct mm_struct *oldmm,
-+				 struct mm_struct *mm)
-+{
-+	paravirt_ops.dup_mmap(oldmm, mm);
-+}
-+
-+static inline void arch_exit_mmap(struct mm_struct *mm)
-+{
-+	paravirt_ops.exit_mmap(mm);
-+}
-+
- #define __flush_tlb() paravirt_ops.flush_tlb_user()
- #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
- #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-ia64/mmu_context.h
-+++ b/include/asm-ia64/mmu_context.h
-@@ -29,6 +29,7 @@
- #include <linux/spinlock.h>
+ #ifdef CONFIG_SMP
+ static inline void startup_ipi_hook(int phys_apicid, unsigned long start_e=
+ip,
+ 				    unsigned long start_esp)
+@@ -370,7 +397,8 @@ static inline void set_pte(pte_t *ptep, =
+
+ 	paravirt_ops.set_pte(ptep, pteval);
+ }
  =
 
- #include <asm/processor.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- struct ia64_ctx {
- 	spinlock_t lock;
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-m32r/mmu_context.h
-+++ b/include/asm-m32r/mmu_context.h
-@@ -15,6 +15,7 @@
- #include <asm/pgalloc.h>
- #include <asm/mmu.h>
- #include <asm/tlbflush.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- /*
-  * Cache of MMU context last used.
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-m68k/mmu_context.h
-+++ b/include/asm-m68k/mmu_context.h
-@@ -1,6 +1,7 @@
- #ifndef __M68K_MMU_CONTEXT_H
- #define __M68K_MMU_CONTEXT_H
- =
-
-+#include <asm-generic/mm_hooks.h>
- =
-
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
- *tsk)
+-static inline void set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep,=
+ pte_t pteval)
++static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
++			      pte_t *ptep, pte_t pteval)
  {
+ 	paravirt_ops.set_pte_at(mm, addr, ptep, pteval);
+ }
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-m68knommu/mmu_context.h
-+++ b/include/asm-m68knommu/mmu_context.h
-@@ -4,6 +4,7 @@
- #include <asm/setup.h>
- #include <asm/page.h>
- #include <asm/pgalloc.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
- *tsk)
- {
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-mips/mmu_context.h
-+++ b/include/asm-mips/mmu_context.h
-@@ -20,6 +20,7 @@
- #include <asm/mipsmtregs.h>
- #include <asm/smtc.h>
- #endif /* SMTC */
-+#include <asm-generic/mm_hooks.h>
- =
-
- /*
-  * For the fast tlb miss handlers, we keep a per cpu array of pointers
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-parisc/mmu_context.h
-+++ b/include/asm-parisc/mmu_context.h
-@@ -5,6 +5,7 @@
- #include <asm/atomic.h>
- #include <asm/pgalloc.h>
- #include <asm/pgtable.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
- *tsk)
- {
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-powerpc/mmu_context.h
-+++ b/include/asm-powerpc/mmu_context.h
-@@ -10,6 +10,7 @@
- #include <linux/mm.h>	=
-
- #include <asm/mmu.h>	=
-
- #include <asm/cputable.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- /*
-  * Copyright (C) 2001 PPC 64 Team, IBM Corp
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-ppc/mmu_context.h
-+++ b/include/asm-ppc/mmu_context.h
-@@ -6,6 +6,7 @@
- #include <asm/bitops.h>
- #include <asm/mmu.h>
- #include <asm/cputable.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- /*
-  * On 32-bit PowerPC 6xx/7xx/7xxx CPUs, we use a set of 16 VSIDs
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-s390/mmu_context.h
-+++ b/include/asm-s390/mmu_context.h
-@@ -10,6 +10,8 @@
- #define __S390_MMU_CONTEXT_H
- =
-
- #include <asm/pgalloc.h>
-+#include <asm-generic/mm_hooks.h>
-+
- /*
-  * get a new mmu context.. S390 don't know about contexts.
+--- a/include/asm-i386/pgtable-2level.h
++++ b/include/asm-i386/pgtable-2level.h
+@@ -11,11 +11,24 @@
+  * within a page table are directly modified.  Thus, the following
+  * hook is made available.
   */
++static inline void native_set_pte(pte_t *ptep , pte_t pte)
++{
++	*ptep =3D pte;
++}
++static inline void native_set_pte_at(struct mm_struct *mm, unsigned long a=
+ddr,
++				     pte_t *ptep , pte_t pte)
++{
++	native_set_pte(ptep, pte);
++}
++static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
++{
++	*pmdp =3D pmd;
++}
+ #ifndef CONFIG_PARAVIRT
+-#define set_pte(pteptr, pteval) (*(pteptr) =3D pteval)
+-#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
+-#define set_pmd(pmdptr, pmdval) (*(pmdptr) =3D (pmdval))
+-#endif
++#define set_pte(pteptr, pteval)		native_set_pte(pteptr, pteval)
++#define set_pte_at(mm,addr,ptep,pteval) native_set_pte_at(mm, addr, ptep, =
+pteval)
++#define set_pmd(pmdptr, pmdval)		native_set_pmd(pmdptr, pmdval)
++#endif	/* CONFIG_PARAVIRT */
+ =
+
+ #define set_pte_atomic(pteptr, pteval) set_pte(pteptr,pteval)
+ #define set_pte_present(mm,addr,ptep,pteval) set_pte_at(mm,addr,ptep,pteva=
+l)
+@@ -23,11 +36,14 @@
+ #define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } w=
+hile (0)
+ #define pmd_clear(xp)	do { set_pmd(xp, __pmd(0)); } while (0)
+ =
+
+-#define raw_ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
++static inline pte_t native_ptep_get_and_clear(pte_t *xp)
++{
++	return __pte(xchg(&xp->pte_low, 0));
++}
+ =
+
+ #define pte_page(x)		pfn_to_page(pte_pfn(x))
+ #define pte_none(x)		(!(x).pte_low)
+-#define pte_pfn(x)		((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
++#define pte_pfn(x)		(pte_val(x) >> PAGE_SHIFT)
+ #define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ #define pfn_pmd(pfn, prot)	__pmd(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ =
+
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-sh/mmu_context.h
-+++ b/include/asm-sh/mmu_context.h
-@@ -12,6 +12,7 @@
- #include <asm/tlbflush.h>
- #include <asm/uaccess.h>
- #include <asm/io.h>
-+#include <asm-generic/mm_hooks.h>
+--- a/include/asm-i386/pgtable-3level.h
++++ b/include/asm-i386/pgtable-3level.h
+@@ -42,20 +42,23 @@ static inline int pte_exec_kernel(pte_t =
+
+ 	return pte_x(pte);
+ }
+ =
+
+-#ifndef CONFIG_PARAVIRT
+ /* Rules for using set_pte: the pte being assigned *must* be
+  * either not present or in a state where the hardware will
+  * not attempt to update the pte.  In places where this is
+  * not possible, use pte_get_and_clear to obtain the old pte
+  * value and then use set_pte to update it.  -ben
+  */
+-static inline void set_pte(pte_t *ptep, pte_t pte)
++static inline void native_set_pte(pte_t *ptep, pte_t pte)
+ {
+ 	ptep->pte_high =3D pte.pte_high;
+ 	smp_wmb();
+ 	ptep->pte_low =3D pte.pte_low;
+ }
+-#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
++static inline void native_set_pte_at(struct mm_struct *mm, unsigned long a=
+ddr,
++				     pte_t *ptep , pte_t pte)
++{
++	native_set_pte(ptep, pte);
++}
  =
 
  /*
-  * The MMU "context" consists of two things:
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-sh64/mmu_context.h
-+++ b/include/asm-sh64/mmu_context.h
-@@ -27,7 +27,7 @@ extern unsigned long mmu_context_cache;
- extern unsigned long mmu_context_cache;
+  * Since this is only called on user PTEs, and the page fault handler
+@@ -63,7 +66,8 @@ static inline void set_pte(pte_t *ptep, =
+
+  * we are justified in merely clearing the PTE present bit, followed
+  * by a set.  The ordering here is important.
+  */
+-static inline void set_pte_present(struct mm_struct *mm, unsigned long add=
+r, pte_t *ptep, pte_t pte)
++static inline void native_set_pte_present(struct mm_struct *mm, unsigned l=
+ong addr,
++					  pte_t *ptep, pte_t pte)
+ {
+ 	ptep->pte_low =3D 0;
+ 	smp_wmb();
+@@ -72,33 +76,49 @@ static inline void set_pte_present(struc
+ 	ptep->pte_low =3D pte.pte_low;
+ }
  =
 
- #include <asm/page.h>
+-#define set_pte_atomic(pteptr,pteval) \
+-		set_64bit((unsigned long long *)(pteptr),pte_val(pteval))
+-#define set_pmd(pmdptr,pmdval) \
+-		set_64bit((unsigned long long *)(pmdptr),pmd_val(pmdval))
+-#define set_pud(pudptr,pudval) \
+-		(*(pudptr) =3D (pudval))
++static inline void native_set_pte_atomic(pte_t *ptep, pte_t pte)
++{
++	set_64bit((unsigned long long *)(ptep),native_pte_val(pte));
++}
++static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
++{
++	set_64bit((unsigned long long *)(pmdp),native_pmd_val(pmd));
++}
++static inline void native_set_pud(pud_t *pudp, pud_t pud)
++{
++	*pudp =3D pud;
++}
+ =
+
+ /*
+  * For PTEs and PDEs, we must clear the P-bit first when clearing a page t=
+able
+  * entry, so clear the bottom half first and enforce ordering with a compi=
+ler
+  * barrier.
+  */
+-static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte=
+_t *ptep)
++static inline void native_pte_clear(struct mm_struct *mm, unsigned long ad=
+dr, pte_t *ptep)
+ {
+ 	ptep->pte_low =3D 0;
+ 	smp_wmb();
+ 	ptep->pte_high =3D 0;
+ }
+ =
+
+-static inline void pmd_clear(pmd_t *pmd)
++static inline void native_pmd_clear(pmd_t *pmd)
+ {
+ 	u32 *tmp =3D (u32 *)pmd;
+ 	*tmp =3D 0;
+ 	smp_wmb();
+ 	*(tmp + 1) =3D 0;
+ }
+-#endif
++
++#ifndef CONFIG_PARAVIRT
++#define set_pte(ptep, pte)			native_set_pte(ptep, pte)
++#define set_pte_at(mm, addr, ptep, pte)		native_set_pte_at(mm, addr, ptep,=
+ pte)
++#define set_pte_present(mm, addr, ptep, pte)	native_set_pte_present(mm, ad=
+dr, ptep, pte)
++#define set_pte_atomic(ptep, pte)		native_set_pte_atomic(ptep, pte)
++#define set_pmd(pmdp, pmd)			native_set_pmd(pmdp, pmd)
++#define set_pud(pudp, pud)			native_set_pud(pudp, pud)
++#define pte_clear(mm, addr, ptep)		native_pte_clear(mm, addr, ptep)
++#define pmd_clear(pmd)				native_pmd_clear(pmd)
++#endif	/* CONFIG_PARAVIRT */
+ =
+
+ /*
+  * Pentium-II erratum A13: in PAE mode we explicitly have to flush
+@@ -119,7 +139,7 @@ static inline void pud_clear (pud_t * pu
+ #define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
+ 			pmd_index(address))
+ =
+
+-static inline pte_t raw_ptep_get_and_clear(pte_t *ptep)
++static inline pte_t native_ptep_get_and_clear(pte_t *ptep)
+ {
+ 	pte_t res;
+ =
+
+@@ -146,28 +166,21 @@ static inline int pte_none(pte_t pte)
+ =
+
+ static inline unsigned long pte_pfn(pte_t pte)
+ {
+-	return (pte.pte_low >> PAGE_SHIFT) |
+-		(pte.pte_high << (32 - PAGE_SHIFT));
++	return pte_val(pte) >> PAGE_SHIFT;
+ }
+ =
+
+ extern unsigned long long __supported_pte_mask;
+ =
+
+ static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
+ {
+-	pte_t pte;
 -
-+#include <asm-generic/mm_hooks.h>
+-	pte.pte_high =3D (page_nr >> (32 - PAGE_SHIFT)) | \
+-					(pgprot_val(pgprot) >> 32);
+-	pte.pte_high &=3D (__supported_pte_mask >> 32);
+-	pte.pte_low =3D ((page_nr << PAGE_SHIFT) | pgprot_val(pgprot)) & \
+-							__supported_pte_mask;
+-	return pte;
++	return __pte((((unsigned long long)page_nr << PAGE_SHIFT) |
++		      pgprot_val(pgprot)) & __supported_pte_mask);
+ }
  =
 
- /* Current mm's pgd */
- extern pgd_t *mmu_pdtp_cache;
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-sparc/mmu_context.h
-+++ b/include/asm-sparc/mmu_context.h
-@@ -4,6 +4,8 @@
- #include <asm/btfixup.h>
- =
-
- #ifndef __ASSEMBLY__
-+
-+#include <asm-generic/mm_hooks.h>
- =
-
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
- *tsk)
+ static inline pmd_t pfn_pmd(unsigned long page_nr, pgprot_t pgprot)
  {
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-sparc64/mmu_context.h
-+++ b/include/asm-sparc64/mmu_context.h
-@@ -9,6 +9,7 @@
- #include <linux/spinlock.h>
- #include <asm/system.h>
- #include <asm/spitfire.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
- *tsk)
- {
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-um/mmu_context.h
-+++ b/include/asm-um/mmu_context.h
-@@ -5,6 +5,8 @@
- =
-
- #ifndef __UM_MMU_CONTEXT_H
- #define __UM_MMU_CONTEXT_H
-+
-+#include <asm-generic/mm_hooks.h>
- =
-
- #include "linux/sched.h"
- #include "choose-mode.h"
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-v850/mmu_context.h
-+++ b/include/asm-v850/mmu_context.h
-@@ -1,5 +1,7 @@
- #ifndef __V850_MMU_CONTEXT_H__
- #define __V850_MMU_CONTEXT_H__
-+
-+#include <asm-generic/mm_hooks.h>
- =
-
- #define destroy_context(mm)		((void)0)
- #define init_new_context(tsk,mm)	0
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-x86_64/mmu_context.h
-+++ b/include/asm-x86_64/mmu_context.h
-@@ -7,6 +7,7 @@
- #include <asm/pda.h>
- #include <asm/pgtable.h>
- #include <asm/tlbflush.h>
-+#include <asm-generic/mm_hooks.h>
+-	return __pmd((((unsigned long long)page_nr << PAGE_SHIFT) | \
+-			pgprot_val(pgprot)) & __supported_pte_mask);
++	return __pmd((((unsigned long long)page_nr << PAGE_SHIFT) |
++		      pgprot_val(pgprot)) & __supported_pte_mask);
+ }
  =
 
  /*
-  * possibly do the LDT unload here?
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-xtensa/mmu_context.h
-+++ b/include/asm-xtensa/mmu_context.h
-@@ -18,6 +18,7 @@
- #include <asm/pgtable.h>
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
-+#include <asm-generic/mm_hooks.h>
- =
-
- #define XCHAL_MMU_ASID_BITS	8
- =
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -286,6 +286,8 @@ static inline int dup_mmap(struct mm_str
- 		if (retval)
- 			goto out;
- 	}
-+	/* a new mm has just been created */
-+	arch_dup_mmap(oldmm, mm);
- 	retval =3D 0;
- out:
- 	up_write(&mm->mmap_sem);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -29,6 +29,7 @@
- #include <asm/uaccess.h>
- #include <asm/cacheflush.h>
- #include <asm/tlb.h>
-+#include <asm/mmu_context.h>
- =
-
- #ifndef arch_mmap_check
- #define arch_mmap_check(addr, len, flags)	(0)
-@@ -1976,6 +1977,9 @@ void exit_mmap(struct mm_struct *mm)
- 	struct vm_area_struct *vma =3D mm->mmap;
- 	unsigned long nr_accounted =3D 0;
- 	unsigned long end;
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -264,6 +264,8 @@ static inline pte_t pte_mkhuge(pte_t pte
+ #define pte_update(mm, addr, ptep)		do { } while (0)
+ #define pte_update_defer(mm, addr, ptep)	do { } while (0)
+ #define paravirt_map_pt_hook(slot, va, pfn)	do { } while (0)
 +
-+	/* mm's last user has gone, and its about to be pulled down */
-+	arch_exit_mmap(mm);
++#define raw_ptep_get_and_clear(xp)     native_ptep_get_and_clear(xp)
+ #endif
  =
 
- 	lru_add_drain();
- 	flush_cache_mm(mm);
+ /*
 
 -- =
