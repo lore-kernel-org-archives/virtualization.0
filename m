@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 17/34] Xen-pv_ops: add flush_tlb_others paravirt_op
-Date: Tue, 13 Mar 2007 16:30:34 -0700
-Message-ID: <20070313233032.504059544@goop.org>
+Subject: [patch 13/34] Xen-pv_ops: Use patch site IDs computed from offset in
+	paravirt_ops structure
+Date: Tue, 13 Mar 2007 16:30:30 -0700
+Message-ID: <20070313233031.674220472@goop.org>
 References: <20070313233017.933601256@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=paravirt-flush_tlb_others.patch
+Content-Disposition: inline; filename=paravirt-use-offset-site-ids.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -21,204 +22,339 @@ To: Andi Kleen <ak@muc.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds a pv_op for flush_tlb_others.  Some hypervisors, such
-as Xen, have much more efficient ways to implement cross-cpu tlb
-shootdown than IPI, so expose an appropriate operation to allow it to
-be used.
+Use patch type identifiers derived from the offset of the operation in
+the paravirt_ops structure.  This avoids having to maintain a separate
+enum for patch site types.
+
+This patch also drops the fused save_fl+cli operation, which doesn't
+really add much and makes things more complex.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Zachary Amsden <zach@vmware.com>
 
 ---
- arch/i386/kernel/paravirt.c |    1 +
- arch/i386/kernel/smp.c      |   15 ++++++++-------
- include/asm-i386/paravirt.h |    8 ++++++++
- include/asm-i386/tlbflush.h |   19 +++++++++++++++++--
- 4 files changed, 34 insertions(+), 9 deletions(-)
+ arch/i386/kernel/asm-offsets.c |    5 +
+ arch/i386/kernel/paravirt.c    |   14 ++---
+ arch/i386/kernel/vmi.c         |   39 ++------------
+ include/asm-i386/paravirt.h    |  107 +++++++++++++++++++-----------------=
+----
+ 4 files changed, 70 insertions(+), 95 deletions(-)
 
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/asm-offsets.c
++++ b/arch/i386/kernel/asm-offsets.c
+@@ -110,5 +110,10 @@ void foo(void)
+ 	OFFSET(PARAVIRT_irq_enable_sysexit, paravirt_ops, irq_enable_sysexit);
+ 	OFFSET(PARAVIRT_iret, paravirt_ops, iret);
+ 	OFFSET(PARAVIRT_read_cr0, paravirt_ops, read_cr0);
++
++	DEFINE(PARAVIRT_IRQ_DISABLE, PARAVIRT_PATCH(irq_disable));
++	DEFINE(PARAVIRT_IRQ_ENABLE, PARAVIRT_PATCH(irq_enable));
++	DEFINE(PARAVIRT_STI_SYSEXIT, PARAVIRT_PATCH(irq_enable_sysexit));
++	DEFINE(PARAVIRT_INTERRUPT_RETURN, PARAVIRT_PATCH(iret));
+ #endif
+ }
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -584,6 +584,7 @@ struct paravirt_ops paravirt_ops =3D {
- 	.flush_tlb_user =3D native_flush_tlb,
- 	.flush_tlb_kernel =3D native_flush_tlb_global,
- 	.flush_tlb_single =3D native_flush_tlb_single,
-+	.flush_tlb_others =3D native_flush_tlb_others,
+@@ -58,7 +58,6 @@ DEF_NATIVE(sti, "sti");
+ DEF_NATIVE(sti, "sti");
+ DEF_NATIVE(popf, "push %eax; popf");
+ DEF_NATIVE(pushf, "pushf; pop %eax");
+-DEF_NATIVE(pushf_cli, "pushf; pop %eax; cli");
+ DEF_NATIVE(iret, "iret");
+ DEF_NATIVE(sti_sysexit, "sti; sysexit");
  =
 
- 	.map_pt_hook =3D paravirt_nop,
+@@ -66,13 +65,12 @@ static const struct native_insns
+ {
+ 	const char *start, *end;
+ } native_insns[] =3D {
+-	[PARAVIRT_IRQ_DISABLE] =3D { start_cli, end_cli },
+-	[PARAVIRT_IRQ_ENABLE] =3D { start_sti, end_sti },
+-	[PARAVIRT_RESTORE_FLAGS] =3D { start_popf, end_popf },
+-	[PARAVIRT_SAVE_FLAGS] =3D { start_pushf, end_pushf },
+-	[PARAVIRT_SAVE_FLAGS_IRQ_DISABLE] =3D { start_pushf_cli, end_pushf_cli },
+-	[PARAVIRT_INTERRUPT_RETURN] =3D { start_iret, end_iret },
+-	[PARAVIRT_STI_SYSEXIT] =3D { start_sti_sysexit, end_sti_sysexit },
++	[PARAVIRT_PATCH(irq_disable)] =3D { start_cli, end_cli },
++	[PARAVIRT_PATCH(irq_enable)] =3D { start_sti, end_sti },
++	[PARAVIRT_PATCH(restore_fl)] =3D { start_popf, end_popf },
++	[PARAVIRT_PATCH(save_fl)] =3D { start_pushf, end_pushf },
++	[PARAVIRT_PATCH(iret)] =3D { start_iret, end_iret },
++	[PARAVIRT_PATCH(irq_enable_sysexit)] =3D { start_sti_sysexit, end_sti_sys=
+exit },
+ };
  =
 
+ static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned =
+len)
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/smp.c
-+++ b/arch/i386/kernel/smp.c
-@@ -256,7 +256,6 @@ static struct mm_struct * flush_mm;
- static struct mm_struct * flush_mm;
- static unsigned long flush_va;
- static DEFINE_SPINLOCK(tlbstate_lock);
--#define FLUSH_ALL	0xffffffff
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -80,11 +80,6 @@ struct {
+ #define MNEM_JMP  0xe9
+ #define MNEM_RET  0xc3
  =
 
- /*
-  * We cannot call mmdrop() because we are in interrupt context, =
-
-@@ -338,7 +337,7 @@ fastcall void smp_invalidate_interrupt(s
- 		 =
-
- 	if (flush_mm =3D=3D per_cpu(cpu_tlbstate, cpu).active_mm) {
- 		if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK) {
--			if (flush_va =3D=3D FLUSH_ALL)
-+			if (flush_va =3D=3D TLB_FLUSH_ALL)
- 				local_flush_tlb();
- 			else
- 				__flush_tlb_one(flush_va);
-@@ -353,9 +352,11 @@ out:
- 	put_cpu_no_resched();
- }
+-static char irq_save_disable_callout[] =3D {
+-	MNEM_CALL, 0, 0, 0, 0,
+-	MNEM_CALL, 0, 0, 0, 0,
+-	MNEM_RET
+-};
+ #define IRQ_PATCH_INT_MASK 0
+ #define IRQ_PATCH_DISABLE  5
  =
 
--static void flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
--						unsigned long va)
--{
-+void native_flush_tlb_others(const cpumask_t *cpumaskp, struct mm_struct *=
-mm,
-+			     unsigned long va)
-+{
-+	cpumask_t cpumask =3D *cpumaskp;
-+
- 	/*
- 	 * A couple of (to be removed) sanity checks:
- 	 *
-@@ -417,7 +418,7 @@ void flush_tlb_current_task(void)
+@@ -132,33 +127,17 @@ static unsigned vmi_patch(u8 type, u16 c
+ static unsigned vmi_patch(u8 type, u16 clobbers, void *insns, unsigned len)
+ {
+ 	switch (type) {
+-		case PARAVIRT_IRQ_DISABLE:
++		case PARAVIRT_PATCH(irq_disable):
+ 			return patch_internal(VMI_CALL_DisableInterrupts, len, insns);
+-		case PARAVIRT_IRQ_ENABLE:
++		case PARAVIRT_PATCH(irq_enable):
+ 			return patch_internal(VMI_CALL_EnableInterrupts, len, insns);
+-		case PARAVIRT_RESTORE_FLAGS:
++		case PARAVIRT_PATCH(restore_fl):
+ 			return patch_internal(VMI_CALL_SetInterruptMask, len, insns);
+-		case PARAVIRT_SAVE_FLAGS:
++		case PARAVIRT_PATCH(save_fl):
+ 			return patch_internal(VMI_CALL_GetInterruptMask, len, insns);
+-        	case PARAVIRT_SAVE_FLAGS_IRQ_DISABLE:
+-			if (len >=3D 10) {
+-				patch_internal(VMI_CALL_GetInterruptMask, len, insns);
+-				patch_internal(VMI_CALL_DisableInterrupts, len-5, insns+5);
+-				return 10;
+-			} else {
+-				/*
+-				 * You bastards didn't leave enough room to
+-				 * patch save_flags_irq_disable inline.  Patch
+-				 * to a helper
+-				 */
+-				BUG_ON(len < 5);
+-				*(char *)insns =3D MNEM_CALL;
+-				patch_offset(insns, irq_save_disable_callout);
+-				return 5;
+-			}
+-		case PARAVIRT_INTERRUPT_RETURN:
++		case PARAVIRT_PATCH(iret):
+ 			return patch_internal(VMI_CALL_IRET, len, insns);
+-		case PARAVIRT_STI_SYSEXIT:
++		case PARAVIRT_PATCH(irq_enable_sysexit):
+ 			return patch_internal(VMI_CALL_SYSEXIT, len, insns);
+ 		default:
+ 			break;
+@@ -768,12 +747,6 @@ static inline int __init activate_vmi(vo
+ 	para_fill(restore_fl, SetInterruptMask);
+ 	para_fill(irq_disable, DisableInterrupts);
+ 	para_fill(irq_enable, EnableInterrupts);
+-
+-	/* irq_save_disable !!! sheer pain */
+-	patch_offset(&irq_save_disable_callout[IRQ_PATCH_INT_MASK],
+-		     (char *)paravirt_ops.save_fl);
+-	patch_offset(&irq_save_disable_callout[IRQ_PATCH_DISABLE],
+-		     (char *)paravirt_ops.irq_disable);
  =
 
- 	local_flush_tlb();
- 	if (!cpus_empty(cpu_mask))
--		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
-+		flush_tlb_others(cpu_mask, mm, TLB_FLUSH_ALL);
- 	preempt_enable();
- }
- =
-
-@@ -436,7 +437,7 @@ void flush_tlb_mm (struct mm_struct * mm
- 			leave_mm(smp_processor_id());
- 	}
- 	if (!cpus_empty(cpu_mask))
--		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
-+		flush_tlb_others(cpu_mask, mm, TLB_FLUSH_ALL);
- =
-
- 	preempt_enable();
- }
+ 	para_fill(wbinvd, WBINVD);
+ 	para_fill(read_tsc, RDTSC);
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -15,6 +15,7 @@
+@@ -4,18 +4,7 @@
+  * para-virtualization: those hooks are defined here. */
  =
 
- #ifndef __ASSEMBLY__
- #include <linux/types.h>
-+#include <linux/cpumask.h>
- =
-
- struct thread_struct;
- struct Xgt_desc_struct;
-@@ -121,6 +122,8 @@ struct paravirt_ops
- 	void (*flush_tlb_user)(void);
- 	void (*flush_tlb_kernel)(void);
- 	void (*flush_tlb_single)(u32 addr);
-+	void (*flush_tlb_others)(const cpumask_t *cpus, struct mm_struct *mm,
-+				 unsigned long va);
- =
-
- 	void (*map_pt_hook)(int type, pte_t *va, u32 pfn);
- =
-
-@@ -652,6 +655,11 @@ static inline void arch_exit_mmap(struct
- #define __flush_tlb()		PVOP_VCALL0(flush_tlb_user)
- #define __flush_tlb_global()	PVOP_VCALL0(flush_tlb_kernel)
- #define __flush_tlb_single(addr) PVOP_VCALL1(flush_tlb_single, addr)
-+static inline void flush_tlb_others(cpumask_t cpumask, struct mm_struct *m=
-m,
-+				    unsigned long va)
-+{
-+	PVOP_VCALL3(flush_tlb_others, &cpumask, mm, va);
-+}
- =
-
- static inline void paravirt_map_pt_hook(int type, pte_t *va, u32 pfn)
- {
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/tlbflush.h
-+++ b/include/asm-i386/tlbflush.h
-@@ -79,10 +79,14 @@
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
-  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
-+ *  - flush_tlb_others(cpumask, mm, va) flushes a TLBs on other cpus
-  *
-  * ..but the i386 has somewhat limited tlb flushing capabilities,
-  * and page-granular flushes are available only on i486 and up.
-  */
-+
-+#define TLB_FLUSH_ALL	0xffffffff
-+
- =
-
- #ifndef CONFIG_SMP
- =
-
-@@ -110,7 +114,12 @@ static inline void flush_tlb_range(struc
- 		__flush_tlb();
- }
- =
-
--#else
-+static inline void native_flush_tlb_others(const cpumask_t *cpumask,
-+					   struct mm_struct *mm, unsigned long va)
-+{
-+}
-+
-+#else  /* SMP */
- =
-
- #include <asm/smp.h>
- =
-
-@@ -129,6 +138,9 @@ static inline void flush_tlb_range(struc
- 	flush_tlb_mm(vma->vm_mm);
- }
- =
-
-+void native_flush_tlb_others(const cpumask_t *cpumask, struct mm_struct *m=
-m,
-+			     unsigned long va);
-+
- #define TLBSTATE_OK	1
- #define TLBSTATE_LAZY	2
- =
-
-@@ -139,8 +151,11 @@ struct tlb_state
- 	char __cacheline_padding[L1_CACHE_BYTES-8];
- };
- DECLARE_PER_CPU(struct tlb_state, cpu_tlbstate);
-+#endif	/* SMP */
- =
-
+ #ifdef CONFIG_PARAVIRT
+-#include <linux/stringify.h>
+ #include <asm/page.h>
 -
-+#ifndef CONFIG_PARAVIRT
-+#define flush_tlb_others(mask, mm, va)		\
-+	native_flush_tlb_others(&mask, mm, va)
- #endif
+-/* These are the most performance critical ops, so we want to be able to p=
+atch
+- * callers */
+-#define PARAVIRT_IRQ_DISABLE 0
+-#define PARAVIRT_IRQ_ENABLE 1
+-#define PARAVIRT_RESTORE_FLAGS 2
+-#define PARAVIRT_SAVE_FLAGS 3
+-#define PARAVIRT_SAVE_FLAGS_IRQ_DISABLE 4
+-#define PARAVIRT_INTERRUPT_RETURN 5
+-#define PARAVIRT_STI_SYSEXIT 6
  =
 
- #define flush_tlb_kernel_range(start, end) flush_tlb_all()
+ /* Bitmask of what can be clobbered: usually at least eax. */
+ #define CLBR_NONE 0x0
+@@ -191,6 +180,23 @@ struct paravirt_ops
+ =
+
+ extern struct paravirt_ops paravirt_ops;
+ =
+
++#define paravirt_type(type)		[paravirt_typenum] "i" (type)
++#define paravirt_clobber(clobber)	[paravirt_clobber] "i" (clobber)
++
++#define PARAVIRT_PATCH(x)		(offsetof(struct paravirt_ops, x) / sizeof(void=
+ *))
++
++#define _paravirt_alt(insn_string, type, clobber)	\
++	"771:\n\t" insn_string "\n" "772:\n"		\
++	".pushsection .parainstructions,\"a\"\n"	\
++	"  .long 771b\n"				\
++	"  .byte " type "\n"				\
++	"  .byte 772b-771b\n"				\
++	"  .short " clobber "\n"			\
++	".popsection\n"
++
++#define paravirt_alt(insn_string)				\
++	_paravirt_alt(insn_string, "%c[paravirt_typenum]", "%c[paravirt_clobber]")
++
+ #define paravirt_enabled() (paravirt_ops.paravirt_enabled)
+ =
+
+ static inline void load_esp0(struct tss_struct *tss,
+@@ -511,24 +517,16 @@ extern struct paravirt_patch_site __star
+ extern struct paravirt_patch_site __start_parainstructions[],
+ 	__stop_parainstructions[];
+ =
+
+-#define paravirt_alt(insn_string, typenum, clobber)	\
+-	"771:\n\t" insn_string "\n" "772:\n"		\
+-	".pushsection .parainstructions,\"a\"\n"	\
+-	"  .long 771b\n"				\
+-	"  .byte " __stringify(typenum) "\n"		\
+-	"  .byte 772b-771b\n"				\
+-	"  .short " __stringify(clobber) "\n"		\
+-	".popsection"
+-
+ static inline unsigned long __raw_local_save_flags(void)
+ {
+ 	unsigned long f;
+ =
+
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+ 					   "call *%1;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
+-			     : "=3Da"(f): "m"(paravirt_ops.save_fl)
++					   "popl %%edx; popl %%ecx")
++			     : "=3Da"(f): "m"(paravirt_ops.save_fl),
++			       paravirt_type(PARAVIRT_PATCH(save_fl)),
++			       paravirt_clobber(CLBR_NONE)
+ 			     : "memory", "cc");
+ 	return f;
+ }
+@@ -537,9 +535,10 @@ static inline void raw_local_irq_restore
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+ 					   "call *%1;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
+-			     : "=3Da"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
++					   "popl %%edx; popl %%ecx")
++			     : "=3Da"(f) : "m" (paravirt_ops.restore_fl), "0"(f),
++			       paravirt_type(PARAVIRT_PATCH(restore_fl)),
++			       paravirt_clobber(CLBR_EAX)
+ 			     : "memory", "cc");
+ }
+ =
+
+@@ -547,9 +546,10 @@ static inline void raw_local_irq_disable
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+ 					   "call *%0;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_disable)
++					   "popl %%edx; popl %%ecx")
++			     : : "m" (paravirt_ops.irq_disable),
++			       paravirt_type(PARAVIRT_PATCH(irq_disable)),
++			       paravirt_clobber(CLBR_EAX)
+ 			     : "memory", "eax", "cc");
+ }
+ =
+
+@@ -557,9 +557,10 @@ static inline void raw_local_irq_enable(
+ {
+ 	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+ 					   "call *%0;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_enable)
++					   "popl %%edx; popl %%ecx")
++			     : : "m" (paravirt_ops.irq_enable),
++			       paravirt_type(PARAVIRT_PATCH(irq_enable)),
++			       paravirt_clobber(CLBR_EAX)
+ 			     : "memory", "eax", "cc");
+ }
+ =
+
+@@ -567,33 +568,31 @@ static inline unsigned long __raw_local_
+ {
+ 	unsigned long f;
+ =
+
+-	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1; pushl %%eax;"
+-					   "call *%2; popl %%eax;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
+-					  CLBR_NONE)
+-			     : "=3Da"(f)
+-			     : "m" (paravirt_ops.save_fl),
+-			       "m" (paravirt_ops.irq_disable)
+-			     : "memory", "cc");
++	f =3D __raw_local_save_flags();
++	raw_local_irq_disable();
++
+ 	return f;
+ }
+ =
+
+-#define CLI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
+-		     "call *paravirt_ops+%c[irq_disable];"		\
+-		     "popl %%edx; popl %%ecx",				\
+-		     PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-
+-#define STI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
+-		     "call *paravirt_ops+%c[irq_enable];"		\
+-		     "popl %%edx; popl %%ecx",				\
+-		     PARAVIRT_IRQ_ENABLE, CLBR_EAX)
++#define CLI_STRING _paravirt_alt("pushl %%ecx; pushl %%edx;"		\
++				 "call *paravirt_ops+%c[irq_disable];"	\
++				 "popl %%edx; popl %%ecx",		\
++				 "%c[paravirt_cli_type]", "%c[paravirt_clobber]")
++
++#define STI_STRING _paravirt_alt("pushl %%ecx; pushl %%edx;"		\
++				"call *paravirt_ops+%c[irq_enable];"	\
++				 "popl %%edx; popl %%ecx",		\
++				 "%c[paravirt_cli_type]", "%c[paravirt_clobber]")
++
++
+ #define CLI_STI_CLOBBERS , "%eax"
+-#define CLI_STI_INPUT_ARGS \
++#define CLI_STI_INPUT_ARGS						\
+ 	,								\
+-	[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
+-	[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable))
++		[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
++		[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable)), \
++		[paravirt_cli_type] "i" (PARAVIRT_PATCH(irq_disable)),	\
++		[paravirt_sti_type] "i" (PARAVIRT_PATCH(irq_disable)),	\
++		paravirt_clobber(CLBR_NONE)
+ =
+
+ #else  /* __ASSEMBLY__ */
+ =
+
 
 -- =
