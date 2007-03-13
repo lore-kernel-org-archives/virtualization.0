@@ -1,49 +1,72 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH 2/9] Sched clock paravirt op fix.patch
-Date: Tue, 13 Mar 2007 12:37:53 -0400
-Message-ID: <45F6D361.8080106@redhat.com>
-References: <200703020254.l222sOaM009656@zach-dev.vmware.com>	<20070313140129.GB92373@muc.de>
-	<45F6C2A3.4040305@goop.org>	<20070313160709.GH10574@sequoia.sous-sol.org>
-	<20070313161656.GA12128@muc.de>
+From: john stultz <johnstul@us.ibm.com>
+Subject: Re: Stolen and degraded time and schedulers
+Date: Tue, 13 Mar 2007 13:12:48 -0700
+Message-ID: <1173816769.22180.14.camel@localhost>
+References: <45F6D1D0.6080905@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070313161656.GA12128@muc.de>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, Daniel Walker <dwalker@mvista.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933174AbXCMUNA@vger.kernel.org>
+In-Reply-To: <45F6D1D0.6080905@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Con Kolivas <kernel@kolivas.org>, Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>, James Morris <jmorris@namei.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk, Virtualization Mailing List <virtualization@lists.osdl.org>, Daniel Walker <dwalker@mvista.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> On Tue, Mar 13, 2007 at 09:07:09AM -0700, Chris Wright wrote:
->> * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
->>> In other words, regardless of whether this particular pv_op lives or
->>> dies, we're going to need to have to deal with stolen time properly.  I
->>> think this hook is reasonable and useful step towards doing that.
->> Exactly.  Normal interrupts we can handle.  Having CPU completely
->> disappear for unkown time periods we can't, and will need to.
-> =
+On Tue, 2007-03-13 at 09:31 -0700, Jeremy Fitzhardinge wrote:
+> The current Linux scheduler makes one big assumption: that 1ms of CPU
+> time is the same as any other 1ms of CPU time, and that therefore a
+> process makes the same amount of progress regardless of which particular
+> ms of time it gets.
+> 
+> This assumption is wrong now, and will become more wrong as
+> virtualization gets more widely used.
+> 
+> It's wrong now, because it fails to take into account of several kinds
+> of missing time:
+> 
+>    1. interrupts - time spent in an ISR is accounted to the current
+>       process, even though it gets no direct benefit
+>    2. SMM - time is completely lost from the kernel
+>    3. slow CPUs - 1ms of 600MHz CPU is less useful than 1ms of 2.4GHz CPU
+> 
+[snip]
+> So how to deal with this?  Basically we need a clock which measures "CPU
+> work units", and have the scheduler use this clock.
+> 
+> A "CPU work unit" clock has these properties:
+> 
+>     * inherently per-CPU (from the kernel's perspective, so it would be
+>       per-VCPU in a virtual machine)
+>     * monotonic - you can't do negative work
+>     * measured in "work units"
+[snip]
+> So, how to implement this?
+> 
+> One quick hack would be to just make a new clocksource entrypoint, which
+> returns work units rather than real-time cycles.  That would be fairly
+> simple to implement, but it doesn't really take the per-cpu nature of
+> the clock into account (since its possible that different cpus on the
+> same machine might need their own methods).
+> 
+> Perhaps a better fit would be an entity which is equivalent to a
+> clocksource, but registered per-cpu like (some) clockevents.
+> 
+> I don't have a particular preference, but I wonder what the clock gurus
+> think.
 
-> But that is just what a interrupt is.
+My gut reaction would be to avoid using clocksources for now. While
+there is some thought going into how to expand clocksources for other
+uses (Daniel is working on this, for example), the design for
+clocksources has been very focused on its utility to timekeeping, so I'm
+hesitant to try complicate the clocksources in order to multiplex
+functionality until what is really needed is well understood.
 
-Interrupts tend to be reasonably short though.
+I suspect the best approach would be see how the sched_clock interface
+can be reworked/used for what you want, as it's design goals map closest
+to the work-unit properties you list above.
 
-Steal time can be several hypervisor/host time slices long.
+Then we can look to see how clocksources can be best used to implement
+the sched_clock interface.
 
-As an aside, normal interrupts *are* accounted for separately
-in /proc/stat, so why not steal time too?
-
--- =
-
-Politics is the struggle between those who want to make their country
-the best in the world, and those who believe it already is.  Each group
-calls the other unpatriotic.
+-john
