@@ -1,275 +1,380 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 19/34] Xen-pv_ops: add kmap_atomic_pte for mapping highpte
-	pages
-Date: Tue, 13 Mar 2007 16:30:36 -0700
-Message-ID: <20070313233032.818107641@goop.org>
+Subject: [patch 08/34] Xen-pv_ops: Allow paravirt backend to
+	choose kernel PMD sharing
+Date: Tue, 13 Mar 2007 16:30:25 -0700
+Message-ID: <20070313233030.742166177@goop.org>
 References: <20070313233017.933601256@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=paravirt-kmap_atomic_pte.patch
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline; filename=shared-kernel-pmd.patch
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen and VMI both have special requirements when mapping a highmem pte
-page into the kernel address space.  These can be dealt with by adding
-a new kmap_atomic_pte() function for mapping highptes, and hooking it
-into the paravirt_ops infrastructure.
+Normally when running in PAE mode, the 4th PMD maps the kernel address
+space, which can be shared among all processes (since they all need
+the same kernel mappings).
 
-Xen specifically wants to map the pte page RO, so this patch exposes a
-helper function, _kmap_atomic, which maps the page with the specified
-page protections.
+Xen, however, does not allow guests to have the kernel pmd shared
+between page tables, so parameterize pgtable.c to allow both modes of
+operation.
 
-This also adds a kmap_flush_unused() function to clear out the cached
-kmap mappings.  Xen needs this to clear out any potential stray RW
-mappings of pages which will become part of a pagetable.
+There are several side-effects of this.  One is that vmalloc will
+update the kernel address space mappings, and those updates need to be
+propagated into all processes if the kernel mappings are not
+intrinsically shared.  In the non-PAE case, this is done by
+maintaining a pgd_list of all processes; this list is used when all
+process pagetables must be updated.  pgd_list is threaded via
+otherwise unused entries in the page structure for the pgd, which
+means that the pgd must be page-sized for this to work.
+
+Normally the PAE pgd is only 4x64 byte entries large, but Xen requires
+the PAE pgd to page aligned anyway, so this patch forces the pgd to be
+page aligned+sized when the kernel pmd is unshared, to accomodate both
+these requirements.
+
+Also, since there may be several distinct kernel pmds (if the
+user/kernel split is below 3G), there's no point in allocating them
+from a slab cache; they're just allocated with get_free_page and
+initialized appropriately.  (Of course the could be cached if there is
+just a single kernel pmd - which is the default with a 3G user/kernel
+split - but it doesn't seem worthwhile to add yet another case into
+this code).
+
+[ Many thanks to wli for review comments. ]
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Signed-off-by: William Lee Irwin III <wli@holomorphy.com>
 Cc: Zachary Amsden <zach@vmware.com>
-
 ---
- arch/i386/kernel/paravirt.c |    7 +++++++
- arch/i386/mm/highmem.c      |    9 +++++++--
- include/asm-i386/highmem.h  |   11 +++++++++++
- include/asm-i386/paravirt.h |   14 +++++++++++++-
- include/asm-i386/pgtable.h  |    4 ++--
- include/linux/highmem.h     |    6 ++++++
- mm/highmem.c                |    9 +++++++++
- 7 files changed, 55 insertions(+), 5 deletions(-)
+ arch/i386/kernel/paravirt.c            |    1 
+ arch/i386/mm/fault.c                   |    6 +-
+ arch/i386/mm/init.c                    |   18 +++++-
+ arch/i386/mm/pageattr.c                |    2 
+ arch/i386/mm/pgtable.c                 |   84 ++++++++++++++++++++++++++------
+ include/asm-i386/paravirt.h            |    1 
+ include/asm-i386/pgtable-2level-defs.h |    2 
+ include/asm-i386/pgtable-2level.h      |    2 
+ include/asm-i386/pgtable-3level-defs.h |    6 ++
+ include/asm-i386/pgtable-3level.h      |    2 
+ include/asm-i386/pgtable.h             |    7 ++
+ 11 files changed, 105 insertions(+), 26 deletions(-)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+===================================================================
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -20,6 +20,7 @@
- #include <linux/efi.h>
- #include <linux/bcd.h>
- #include <linux/start_kernel.h>
-+#include <linux/highmem.h>
- =
-
- #include <asm/bug.h>
- #include <asm/paravirt.h>
-@@ -600,6 +601,12 @@ struct paravirt_ops paravirt_ops =3D {
- =
-
- 	.ptep_get_and_clear =3D native_ptep_get_and_clear,
- =
-
-+#ifdef CONFIG_HIGHPTE
-+	.kmap_atomic_pte =3D native_kmap_atomic_pte,
-+#else
-+	.kmap_atomic_pte =3D paravirt_nop,
-+#endif
-+
- #ifdef CONFIG_X86_PAE
- 	.set_pte_atomic =3D native_set_pte_atomic,
- 	.set_pte_present =3D native_set_pte_present,
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/highmem.c
-+++ b/arch/i386/mm/highmem.c
-@@ -26,7 +26,7 @@ void kunmap(struct page *page)
-  * However when holding an atomic kmap is is not legal to sleep, so atomic
-  * kmaps are appropriate for short, tight code paths only.
-  */
--void *kmap_atomic(struct page *page, enum km_type type)
-+void *_kmap_atomic(struct page *page, enum km_type type, pgprot_t prot)
- {
- 	enum fixed_addresses idx;
- 	unsigned long vaddr;
-@@ -41,9 +41,14 @@ void *kmap_atomic(struct page *page, enu
- 		return page_address(page);
- =
-
- 	vaddr =3D __fix_to_virt(FIX_KMAP_BEGIN + idx);
--	set_pte(kmap_pte-idx, mk_pte(page, kmap_prot));
-+	set_pte(kmap_pte-idx, mk_pte(page, prot));
- =
-
- 	return (void*) vaddr;
-+}
-+
-+void *kmap_atomic(struct page *page, enum km_type type)
-+{
-+	return _kmap_atomic(page, type, kmap_prot);
+@@ -604,6 +604,7 @@ struct paravirt_ops paravirt_ops = {
+ 	.name = "bare hardware",
+ 	.paravirt_enabled = 0,
+ 	.kernel_rpl = 0,
++	.shared_kernel_pmd = 1,	/* Only used when CONFIG_X86_PAE is set */
+ 
+  	.patch = native_patch,
+ 	.banner = default_banner,
+===================================================================
+--- a/arch/i386/mm/fault.c
++++ b/arch/i386/mm/fault.c
+@@ -588,8 +588,7 @@ do_sigbus:
+ 	force_sig_info_fault(SIGBUS, BUS_ADRERR, address, tsk);
  }
- =
-
- void kunmap_atomic(void *kvaddr, enum km_type type)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/highmem.h
-+++ b/include/asm-i386/highmem.h
-@@ -24,6 +24,7 @@
- #include <linux/threads.h>
- #include <asm/kmap_types.h>
- #include <asm/tlbflush.h>
-+#include <asm/paravirt.h>
- =
-
- /* declarations for highmem.c */
- extern unsigned long highstart_pfn, highend_pfn;
-@@ -67,10 +68,20 @@ extern void FASTCALL(kunmap_high(struct =
-
- =
-
- void *kmap(struct page *page);
- void kunmap(struct page *page);
-+void *_kmap_atomic(struct page *page, enum km_type type, pgprot_t prot);
- void *kmap_atomic(struct page *page, enum km_type type);
- void kunmap_atomic(void *kvaddr, enum km_type type);
- void *kmap_atomic_pfn(unsigned long pfn, enum km_type type);
- struct page *kmap_atomic_to_page(void *ptr);
+ 
+-#ifndef CONFIG_X86_PAE
+-void vmalloc_sync_all(void)
++void _vmalloc_sync_all(void)
+ {
+ 	/*
+ 	 * Note that races in the updates of insync and start aren't
+@@ -600,6 +599,8 @@ void vmalloc_sync_all(void)
+ 	static DECLARE_BITMAP(insync, PTRS_PER_PGD);
+ 	static unsigned long start = TASK_SIZE;
+ 	unsigned long address;
 +
-+static inline void *native_kmap_atomic_pte(struct page *page, enum km_type=
- type)
++	BUG_ON(SHARED_KERNEL_PMD);
+ 
+ 	BUILD_BUG_ON(TASK_SIZE & ~PGDIR_MASK);
+ 	for (address = start; address >= TASK_SIZE; address += PGDIR_SIZE) {
+@@ -623,4 +624,3 @@ void vmalloc_sync_all(void)
+ 			start = address + PGDIR_SIZE;
+ 	}
+ }
+-#endif
+===================================================================
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -715,6 +715,8 @@ struct kmem_cache *pmd_cache;
+ 
+ void __init pgtable_cache_init(void)
+ {
++	size_t pgd_size = PTRS_PER_PGD*sizeof(pgd_t);
++
+ 	if (PTRS_PER_PMD > 1) {
+ 		pmd_cache = kmem_cache_create("pmd",
+ 					PTRS_PER_PMD*sizeof(pmd_t),
+@@ -724,13 +726,23 @@ void __init pgtable_cache_init(void)
+ 					NULL);
+ 		if (!pmd_cache)
+ 			panic("pgtable_cache_init(): cannot create pmd cache");
++
++		if (!SHARED_KERNEL_PMD) {
++			/* If we're in PAE mode and have a non-shared
++			   kernel pmd, then the pgd size must be a
++			   page size.  This is because the pgd_list
++			   links through the page structure, so there
++			   can only be one pgd per page for this to
++			   work. */
++			pgd_size = PAGE_SIZE;
++		}
+ 	}
+ 	pgd_cache = kmem_cache_create("pgd",
+-				PTRS_PER_PGD*sizeof(pgd_t),
+-				PTRS_PER_PGD*sizeof(pgd_t),
++				pgd_size,
++				pgd_size,
+ 				0,
+ 				pgd_ctor,
+-				PTRS_PER_PMD == 1 ? pgd_dtor : NULL);
++				(!SHARED_KERNEL_PMD) ? pgd_dtor : NULL);
+ 	if (!pgd_cache)
+ 		panic("pgtable_cache_init(): Cannot create pgd cache");
+ }
+===================================================================
+--- a/arch/i386/mm/pageattr.c
++++ b/arch/i386/mm/pageattr.c
+@@ -91,7 +91,7 @@ static void set_pmd_pte(pte_t *kpte, uns
+ 	unsigned long flags;
+ 
+ 	set_pte_atomic(kpte, pte); 	/* change init_mm */
+-	if (PTRS_PER_PMD > 1)
++	if (SHARED_KERNEL_PMD)
+ 		return;
+ 
+ 	spin_lock_irqsave(&pgd_lock, flags);
+===================================================================
+--- a/arch/i386/mm/pgtable.c
++++ b/arch/i386/mm/pgtable.c
+@@ -238,35 +238,56 @@ static inline void pgd_list_del(pgd_t *p
+ 		set_page_private(next, (unsigned long)pprev);
+ }
+ 
++#if (PTRS_PER_PMD == 1)
++/* Non-PAE pgd constructor */
+ void pgd_ctor(void *pgd, struct kmem_cache *cache, unsigned long unused)
+ {
+ 	unsigned long flags;
+ 
+-	if (PTRS_PER_PMD == 1) {
+-		memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
+-		spin_lock_irqsave(&pgd_lock, flags);
+-	}
++	/* !PAE, no pagetable sharing */
++	memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
+ 
+ 	clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
+ 			swapper_pg_dir + USER_PTRS_PER_PGD,
+ 			KERNEL_PGD_PTRS);
+ 
+-	if (PTRS_PER_PMD > 1)
+-		return;
++	spin_lock_irqsave(&pgd_lock, flags);
+ 
+ 	/* must happen under lock */
+ 	paravirt_alloc_pd_clone(__pa(pgd) >> PAGE_SHIFT,
+-			__pa(swapper_pg_dir) >> PAGE_SHIFT,
+-			USER_PTRS_PER_PGD, PTRS_PER_PGD - USER_PTRS_PER_PGD);
++				__pa(swapper_pg_dir) >> PAGE_SHIFT,
++				USER_PTRS_PER_PGD,
++				KERNEL_PGD_PTRS);
+ 
+ 	pgd_list_add(pgd);
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+ }
+-
+-/* never called when PTRS_PER_PMD > 1 */
++#else  /* PTRS_PER_PMD > 1 */
++/* PAE pgd constructor */
++void pgd_ctor(void *pgd, struct kmem_cache *cache, unsigned long unused)
 +{
-+	return kmap_atomic(page, type);
++	/* PAE, kernel PMD may be shared */
++
++	if (SHARED_KERNEL_PMD) {
++		clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
++				swapper_pg_dir + USER_PTRS_PER_PGD,
++				KERNEL_PGD_PTRS);
++	} else {
++		unsigned long flags;
++
++		memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
++		spin_lock_irqsave(&pgd_lock, flags);
++		pgd_list_add(pgd);
++		spin_unlock_irqrestore(&pgd_lock, flags);
++	}
++}
++#endif	/* PTRS_PER_PMD */
++
+ void pgd_dtor(void *pgd, struct kmem_cache *cache, unsigned long unused)
+ {
+ 	unsigned long flags; /* can be called from interrupt context */
++
++	BUG_ON(SHARED_KERNEL_PMD);
+ 
+ 	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
+ 	spin_lock_irqsave(&pgd_lock, flags);
+@@ -274,6 +295,37 @@ void pgd_dtor(void *pgd, struct kmem_cac
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+ }
+ 
++#define UNSHARED_PTRS_PER_PGD				\
++	(SHARED_KERNEL_PMD ? USER_PTRS_PER_PGD : PTRS_PER_PGD)
++
++/* If we allocate a pmd for part of the kernel address space, then
++   make sure its initialized with the appropriate kernel mappings.
++   Otherwise use a cached zeroed pmd.  */
++static pmd_t *pmd_cache_alloc(int idx)
++{
++	pmd_t *pmd;
++
++	if (idx >= USER_PTRS_PER_PGD) {
++		pmd = (pmd_t *)__get_free_page(GFP_KERNEL);
++
++		if (pmd)
++			memcpy(pmd,
++			       (void *)pgd_page_vaddr(swapper_pg_dir[idx]),
++			       sizeof(pmd_t) * PTRS_PER_PMD);
++	} else
++		pmd = kmem_cache_alloc(pmd_cache, GFP_KERNEL);
++
++	return pmd;
 +}
 +
-+#ifndef CONFIG_PARAVIRT
-+#define kmap_atomic_pte(page, type)	kmap_atomic(page, type)
-+#endif
- =
-
- #define flush_cache_kmaps()	do { } while (0)
- =
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
++static void pmd_cache_free(pmd_t *pmd, int idx)
++{
++	if (idx >= USER_PTRS_PER_PGD)
++		free_page((unsigned long)pmd);
++	else
++		kmem_cache_free(pmd_cache, pmd);
++}
++
+ pgd_t *pgd_alloc(struct mm_struct *mm)
+ {
+ 	int i;
+@@ -282,10 +334,12 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 	if (PTRS_PER_PMD == 1 || !pgd)
+ 		return pgd;
+ 
+-	for (i = 0; i < USER_PTRS_PER_PGD; ++i) {
+-		pmd_t *pmd = kmem_cache_alloc(pmd_cache, GFP_KERNEL);
++ 	for (i = 0; i < UNSHARED_PTRS_PER_PGD; ++i) {
++		pmd_t *pmd = pmd_cache_alloc(i);
++
+ 		if (!pmd)
+ 			goto out_oom;
++
+ 		paravirt_alloc_pd(__pa(pmd) >> PAGE_SHIFT);
+ 		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
+ 	}
+@@ -296,7 +350,7 @@ out_oom:
+ 		pgd_t pgdent = pgd[i];
+ 		void* pmd = (void *)__va(pgd_val(pgdent)-1);
+ 		paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
+-		kmem_cache_free(pmd_cache, pmd);
++		pmd_cache_free(pmd, i);
+ 	}
+ 	kmem_cache_free(pgd_cache, pgd);
+ 	return NULL;
+@@ -308,11 +362,11 @@ void pgd_free(pgd_t *pgd)
+ 
+ 	/* in the PAE case user pgd entries are overwritten before usage */
+ 	if (PTRS_PER_PMD > 1)
+-		for (i = 0; i < USER_PTRS_PER_PGD; ++i) {
++		for (i = 0; i < UNSHARED_PTRS_PER_PGD; ++i) {
+ 			pgd_t pgdent = pgd[i];
+ 			void* pmd = (void *)__va(pgd_val(pgdent)-1);
+ 			paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
+-			kmem_cache_free(pmd_cache, pmd);
++			pmd_cache_free(pmd, i);
+ 		}
+ 	/* in the non-PAE case, free_pgtables() clears user pgd entries */
+ 	kmem_cache_free(pgd_cache, pgd);
+===================================================================
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -16,11 +16,14 @@
- #ifndef __ASSEMBLY__
- #include <linux/types.h>
- #include <linux/cpumask.h>
--
-+#include <asm/kmap_types.h>
-+
-+struct page;
- struct thread_struct;
- struct Xgt_desc_struct;
- struct tss_struct;
- struct mm_struct;
-+
+@@ -34,6 +34,7 @@ struct paravirt_ops
  struct paravirt_ops
  {
  	unsigned int kernel_rpl;
-@@ -138,6 +141,8 @@ struct paravirt_ops
- 	void (*pte_update_defer)(struct mm_struct *mm, unsigned long addr, pte_t =
-*ptep);
- =
-
-  	pte_t (*ptep_get_and_clear)(pte_t *ptep);
++	int shared_kernel_pmd;
+  	int paravirt_enabled;
+ 	const char *name;
+ 
+===================================================================
+--- a/include/asm-i386/pgtable-2level-defs.h
++++ b/include/asm-i386/pgtable-2level-defs.h
+@@ -1,5 +1,7 @@
+ #ifndef _I386_PGTABLE_2LEVEL_DEFS_H
+ #define _I386_PGTABLE_2LEVEL_DEFS_H
 +
-+	void *(*kmap_atomic_pte)(struct page *page, enum km_type type);
- =
-
- #ifdef CONFIG_X86_PAE
- 	void (*set_pte_atomic)(pte_t *ptep, pte_t pteval);
-@@ -667,6 +672,13 @@ static inline void flush_tlb_others(cpum
- 	PVOP_VCALL4(alloc_pd_clone, pfn, clonepfn, start, count)
- #define paravirt_release_pd(pfn) PVOP_VCALL1(release_pd, pfn)
- =
-
-+static inline void *kmap_atomic_pte(struct page *page, enum km_type type)
-+{
-+	unsigned long ret;
-+	ret =3D PVOP_CALL2(unsigned long, kmap_atomic_pte, page, type);
-+	return (void *)ret;
-+}
++#define SHARED_KERNEL_PMD	0
+ 
+ /*
+  * traditional i386 two-level paging structure:
+===================================================================
+--- a/include/asm-i386/pgtable-2level.h
++++ b/include/asm-i386/pgtable-2level.h
+@@ -65,6 +65,4 @@ static inline int pte_exec_kernel(pte_t 
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
+ 
+-void vmalloc_sync_all(void);
+-
+ #endif /* _I386_PGTABLE_2LEVEL_H */
+===================================================================
+--- a/include/asm-i386/pgtable-3level-defs.h
++++ b/include/asm-i386/pgtable-3level-defs.h
+@@ -1,5 +1,11 @@
+ #ifndef _I386_PGTABLE_3LEVEL_DEFS_H
+ #define _I386_PGTABLE_3LEVEL_DEFS_H
 +
- static inline void pte_update(struct mm_struct *mm, unsigned long addr, pt=
-e_t *ptep)
- {
- 	PVOP_VCALL3(pte_update, mm, addr, ptep);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
++#ifdef CONFIG_PARAVIRT
++#define SHARED_KERNEL_PMD	(paravirt_ops.shared_kernel_pmd)
++#else
++#define SHARED_KERNEL_PMD	1
++#endif
+ 
+ /*
+  * PGDIR_SHIFT determines what a top-level page table entry can map
+===================================================================
+--- a/include/asm-i386/pgtable-3level.h
++++ b/include/asm-i386/pgtable-3level.h
+@@ -180,6 +180,4 @@ static inline pmd_t pfn_pmd(unsigned lon
+ 
+ #define __pmd_free_tlb(tlb, x)		do { } while (0)
+ 
+-#define vmalloc_sync_all() ((void)0)
+-
+ #endif /* _I386_PGTABLE_3LEVEL_H */
+===================================================================
 --- a/include/asm-i386/pgtable.h
 +++ b/include/asm-i386/pgtable.h
-@@ -479,9 +479,9 @@ extern pte_t *lookup_address(unsigned lo
- =
-
- #if defined(CONFIG_HIGHPTE)
- #define pte_offset_map(dir, address) \
--	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
-+	((pte_t *)kmap_atomic_pte(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
- #define pte_offset_map_nested(dir, address) \
--	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE1) + pte_index(address))
-+	((pte_t *)kmap_atomic_pte(pmd_page(*(dir)),KM_PTE1) + pte_index(address))
- #define pte_unmap(pte) kunmap_atomic(pte, KM_PTE0)
- #define pte_unmap_nested(pte) kunmap_atomic(pte, KM_PTE1)
- #else
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/highmem.h
-+++ b/include/linux/highmem.h
-@@ -27,6 +27,8 @@ unsigned int nr_free_highpages(void);
- unsigned int nr_free_highpages(void);
- extern unsigned long totalhigh_pages;
- =
-
-+void kmap_flush_unused(void);
-+
- #else /* CONFIG_HIGHMEM */
- =
-
- static inline unsigned int nr_free_highpages(void) { return 0; }
-@@ -44,9 +46,13 @@ static inline void *kmap(struct page *pa
- =
-
- #define kmap_atomic(page, idx) \
- 	({ pagefault_disable(); page_address(page); })
-+#define _kmap_atomic(page, idx, prot)	kmap_atomic(page, idx)
-+
- #define kunmap_atomic(addr, idx)	do { pagefault_enable(); } while (0)
- #define kmap_atomic_pfn(pfn, idx)	kmap_atomic(pfn_to_page(pfn), (idx))
- #define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
-+
-+#define kmap_flush_unused()	do {} while(0)
- #endif
- =
-
- #endif /* CONFIG_HIGHMEM */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/highmem.c
-+++ b/mm/highmem.c
-@@ -97,6 +97,15 @@ static void flush_all_zero_pkmaps(void)
- 		set_page_address(page, NULL);
- 	}
- 	flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
+@@ -244,6 +244,13 @@ static inline pte_t pte_mkwrite(pte_t pt
+ static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |= _PAGE_RW; return pte; }
+ static inline pte_t pte_mkhuge(pte_t pte)	{ (pte).pte_low |= _PAGE_PSE; return pte; }
+ 
++extern void _vmalloc_sync_all(void);
++static inline void vmalloc_sync_all(void)
++{
++	if (!SHARED_KERNEL_PMD)
++		_vmalloc_sync_all();
 +}
 +
-+/* Flush all unused kmap mappings in order to remove stray
-+   mappings. */
-+void kmap_flush_unused(void)
-+{
-+	spin_lock(&kmap_lock);
-+	flush_all_zero_pkmaps();
-+	spin_unlock(&kmap_lock);
- }
- =
+ #ifdef CONFIG_X86_PAE
+ # include <asm/pgtable-3level.h>
+ #else
 
- static inline unsigned long map_new_virtual(struct page *page)
-
--- =
+-- 
