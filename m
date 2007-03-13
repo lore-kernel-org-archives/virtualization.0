@@ -1,10 +1,9 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 03/34] Xen-pv_ops: update MAINTAINERS
-Date: Tue, 13 Mar 2007 16:30:20 -0700
-Message-ID: <20070313233029.792071412@goop.org>
-References: <20070313233017.933601256@goop.org>
+Subject: [patch 00/34] Xen-pv_ops: Xen guest implementation for
+	paravirt_ops interface
+Date: Tue, 13 Mar 2007 16:30:17 -0700
+Message-ID: <20070313233017.933601256@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=add-MAINTAINERS.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -17,52 +16,47 @@ To: Andi Kleen <ak@muc.de>
 Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
----
- MAINTAINERS |   22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+Hi Andi,
 
-===================================================================
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2583,6 +2583,19 @@ T:	cvs cvs.parisc-linux.org:/var/cvs/lin
- T:	cvs cvs.parisc-linux.org:/var/cvs/linux-2.6
- S:	Maintained
- 
-+PARAVIRT_OPS INTERFACE
-+P:	Jeremy Fitzhardinge
-+M:	jeremy@xensource.com
-+P:	Chris Wright
-+M:	chrisw@sous-sol.org
-+P:	Zachary Amsden
-+M:	zach@vmware.com
-+P:	Rusty Russell
-+M:	rusty@rustcorp.com.au
-+L:	virtualization@lists.osdl.org
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+
- PC87360 HARDWARE MONITORING DRIVER
- P:	Jim Cromie
- M:	jim.cromie@gmail.com
-@@ -3780,6 +3793,15 @@ L:	linux-x25@vger.kernel.org
- L:	linux-x25@vger.kernel.org
- S:	Maintained
- 
-+XEN HYPERVISOR INTERFACE
-+P:	Jeremy Fitzhardinge
-+M:	jeremy@xensource.com
-+P:	Chris Wright
-+M:	chrisw@sous-sol.org
-+L:	virtualization@lists.osdl.org
-+L:	xen-devel@lists.xensource.com
-+S:	Supported
-+
- XFS FILESYSTEM
- P:	Silicon Graphics Inc
- P:	Tim Shimmin, David Chatterton
+This patch series implements the Linux Xen guest as a paravirt_ops
+backend.  The features in implemented this patch series are:
+ * domU only
+ * UP and SMP guest support (NEW!)
+ * dynamic ticks (NEW!)
+ * writable pagetables, with late pinning/early unpinning
+   (no shadow pagetable support)
+ * supports both PAE and non-PAE modes
+   (non-PAE may be broken at the moment)
+ * xen hvc console (console=hvc0)
+ * virtual block device (blockfront)
+ * virtual network device (netfront)
 
+The patch series is in three parts:
+  1-2	Cleanup patches to various parts of the kernel
+  3-19	Extensions to the core code and/or paravirt ops, needed to support
+	Xen. Includes hooks into get/setting pte values and the new
+	patching machinery.
+ 19-34	The Xen paravirt_ops implementation itself.
+
+(Some of the earlier patches in the series have already been posted,
+ but are included to make the series self-contained.)
+
+I've tried to make each patch as self-explanatory as possible.  The
+series is based on 2.6.21-rc3-git7.
+
+Changes since the previous posting:
+- SMP support
+- Implemented xen_clockevent, so Xen is fully compatible with
+  CONFIG_NO_HZ and HIGH_RES_TIMERS.
+- Finished implementing late pinning/early unpinning of pagetables, which
+  should now be equivalent to xen-unstable in performance.
+- Add kmap_atomic_pte for mapping ptes, and therefore support for HIGHPTE
+- Fixed crash on systems with >= 4G memory
+- Cleanup netfront (Stephen Hemminger)
+- Add MAINTAINERS entries
+- Fold kill-HAVE_ARCH_MM_LIFETIME.patch into mm-lifetime-hooks.patch
+- rebased
+
+Thanks,
+	J
 -- 
