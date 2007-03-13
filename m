@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 30/34] Xen-pv_ops: Add early printk support via hvc console
-Date: Tue, 13 Mar 2007 16:30:47 -0700
-Message-ID: <20070313233034.995075558@goop.org>
+Subject: [patch 11/34] Xen-pv_ops: Add smp_ops interface
+Date: Tue, 13 Mar 2007 16:30:28 -0700
+Message-ID: <20070313233031.356079665@goop.org>
 References: <20070313233017.933601256@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline; filename=xen-hvc-earlyprintk.patch
+Content-Disposition: inline; filename=smp-ops.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,102 +18,195 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, James Bottomley <James.Bottomley@HansenPartnership.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add early printk support via hvc console, enable using
-"earlyprintk=3Dxen" on the kernel command line.
+Add a smp_ops interface.  This abstracts the API defined by
+<linux/smp.h> for use within arch/i386.  The primary intent is that it
+be used by a paravirtualizing hypervisor to implement SMP, but it
+could also be used by non-APIC-using sub-archtectures.
 
-From: Gerd Hoffmann <kraxel@suse.de>
+This is related to CONFIG_PARAVIRT, but is implemented unconditionally
+since it is simpler that way and not a highly performance-sensitive
+interface.
+
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Andi Kleen <ak@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
 
 ---
- arch/x86_64/kernel/early_printk.c |    5 +++++
- drivers/xen/hvc-console.c         |   25 +++++++++++++++++++++++++
- include/xen/hvc-console.h         |    6 ++++++
- 3 files changed, 36 insertions(+)
+ arch/i386/kernel/smp.c     |   21 +++++++++++++----
+ arch/i386/kernel/smpboot.c |    8 +++---
+ include/asm-i386/smp.h     |   53 ++++++++++++++++++++++++++++++++++++++++=
+++++
+ 3 files changed, 73 insertions(+), 9 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/x86_64/kernel/early_printk.c
-+++ b/arch/x86_64/kernel/early_printk.c
-@@ -6,6 +6,7 @@
- #include <asm/io.h>
- #include <asm/processor.h>
- #include <asm/fcntl.h>
-+#include <xen/hvc-console.h>
+--- a/arch/i386/kernel/smp.c
++++ b/arch/i386/kernel/smp.c
+@@ -483,7 +483,7 @@ void flush_tlb_all(void)
+  * it goes straight through and wastes no time serializing
+  * anything. Worst case is that we lose a reschedule ...
+  */
+-void smp_send_reschedule(int cpu)
++void native_smp_send_reschedule(int cpu)
+ {
+ 	WARN_ON(cpu_is_offline(cpu));
+ 	send_IPI_mask(cpumask_of_cpu(cpu), RESCHEDULE_VECTOR);
+@@ -529,9 +529,9 @@ static struct call_data_struct *call_dat
+  * You must not call this function with disabled interrupts or from a
+  * hardware interrupt handler or from a bottom half handler.
+  */
+-int smp_call_function_mask(cpumask_t mask,
+-			   void (*func)(void *), void *info,
+-			   int wait)
++static int native_smp_call_function_mask(cpumask_t mask,
++					 void (*func)(void *), void *info,
++					 int wait)
+ {
+ 	struct call_data_struct data;
+ 	cpumask_t allbutself;
+@@ -650,7 +650,7 @@ static void stop_this_cpu (void * dummy)
+  * this function calls the 'stop' function on all other CPUs in the system.
+  */
  =
 
- /* Simple VGA output */
+-void smp_send_stop(void)
++void native_smp_send_stop(void)
+ {
+ 	smp_call_function(stop_this_cpu, NULL, 1, 0);
  =
 
-@@ -243,6 +244,10 @@ static int __init setup_early_printk(cha
-  		simnow_init(buf + 6);
-  		early_console =3D &simnow_console;
-  		keep_early =3D 1;
-+#ifdef CONFIG_XEN
-+	} else if (!strncmp(buf, "xen", 3)) {
-+ 		early_console =3D &xenboot_console;
-+#endif
- 	}
- 	register_console(early_console);
- 	return 0;
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/xen/hvc-console.c
-+++ b/drivers/xen/hvc-console.c
-@@ -28,6 +28,7 @@
- #include <xen/page.h>
- #include <xen/events.h>
- #include <xen/interface/io/console.h>
-+#include <xen/hvc-console.h>
+@@ -721,3 +721,14 @@ int safe_smp_processor_id(void)
  =
 
- #include "../char/hvc_console.h"
- =
-
-@@ -132,3 +133,27 @@ module_init(xen_init);
- module_init(xen_init);
- module_exit(xen_fini);
- console_initcall(xen_cons_init);
+ 	return cpuid >=3D 0 ? cpuid : 0;
+ }
 +
-+static void xenboot_write_console(struct console *console, const char *str=
-ing,
-+				  unsigned len)
-+{
-+	unsigned int linelen, off =3D 0;
-+	const char *pos;
++struct smp_ops smp_ops =3D {
++	.smp_prepare_boot_cpu =3D native_smp_prepare_boot_cpu,
++	.smp_prepare_cpus =3D native_smp_prepare_cpus,
++	.cpu_up =3D native_cpu_up,
++	.smp_cpus_done =3D native_smp_cpus_done,
 +
-+	while (off < len && NULL !=3D (pos =3D strchr(string+off, '\n'))) {
-+		linelen =3D pos-string+off;
-+		if (off + linelen > len)
-+			break;
-+		write_console(0, string+off, linelen);
-+		write_console(0, "\r\n", 2);
-+		off +=3D linelen + 1;
-+	}
-+	if (off < len)
-+		write_console(0, string+off, len-off);
-+}
-+
-+struct console xenboot_console =3D {
-+	.name		=3D "xenboot",
-+	.write		=3D xenboot_write_console,
-+	.flags		=3D CON_PRINTBUFFER | CON_BOOT,
++	.smp_send_stop =3D native_smp_send_stop,
++	.smp_send_reschedule =3D native_smp_send_reschedule,
++	.smp_call_function_mask =3D native_smp_call_function_mask,
 +};
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null
-+++ b/include/xen/hvc-console.h
-@@ -0,0 +1,6 @@
-+#ifndef XEN_HVC_CONSOLE_H
-+#define XEN_HVC_CONSOLE_H
+--- a/arch/i386/kernel/smpboot.c
++++ b/arch/i386/kernel/smpboot.c
+@@ -1173,7 +1173,7 @@ static void __init smp_boot_cpus(unsigne
+ =
+
+ /* These are wrappers to interface to the new boot process.  Someone
+    who understands all this stuff should rewrite it properly. --RR 15/Jul/=
+02 */
+-void __init smp_prepare_cpus(unsigned int max_cpus)
++void __init native_smp_prepare_cpus(unsigned int max_cpus)
+ {
+ 	smp_commenced_mask =3D cpumask_of_cpu(0);
+ 	cpu_callin_map =3D cpumask_of_cpu(0);
+@@ -1181,7 +1181,7 @@ void __init smp_prepare_cpus(unsigned in
+ 	smp_boot_cpus(max_cpus);
+ }
+ =
+
+-void __devinit smp_prepare_boot_cpu(void)
++void __devinit native_smp_prepare_boot_cpu(void)
+ {
+ 	cpu_set(smp_processor_id(), cpu_online_map);
+ 	cpu_set(smp_processor_id(), cpu_callout_map);
+@@ -1277,7 +1277,7 @@ void __cpu_die(unsigned int cpu)
+ }
+ #endif /* CONFIG_HOTPLUG_CPU */
+ =
+
+-int __cpuinit __cpu_up(unsigned int cpu)
++int __cpuinit native_cpu_up(unsigned int cpu)
+ {
+ 	unsigned long flags;
+ #ifdef CONFIG_HOTPLUG_CPU
+@@ -1327,7 +1327,7 @@ int __cpuinit __cpu_up(unsigned int cpu)
+ 	return 0;
+ }
+ =
+
+-void __init smp_cpus_done(unsigned int max_cpus)
++void __init native_smp_cpus_done(unsigned int max_cpus)
+ {
+ #ifdef CONFIG_X86_IO_APIC
+ 	setup_ioapic_dest();
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/smp.h
++++ b/include/asm-i386/smp.h
+@@ -51,6 +51,59 @@ extern void cpu_exit_clear(void);
+ extern void cpu_exit_clear(void);
+ extern void cpu_uninit(void);
+ #endif
 +
-+extern struct console xenboot_console;
++struct smp_ops
++{
++	void (*smp_prepare_boot_cpu)(void);
++	void (*smp_prepare_cpus)(unsigned max_cpus);
++	int (*cpu_up)(unsigned cpu);
++	void (*smp_cpus_done)(unsigned max_cpus);
 +
-+#endif	/* XEN_HVC_CONSOLE_H */
++	void (*smp_send_stop)(void);
++	void (*smp_send_reschedule)(int cpu);
++	int (*smp_call_function_mask)(cpumask_t mask,
++				      void (*func)(void *info), void *info,
++				      int wait);
++};
++
++extern struct smp_ops smp_ops;
++
++static inline void smp_prepare_boot_cpu(void)
++{
++	smp_ops.smp_prepare_boot_cpu();
++}
++static inline void smp_prepare_cpus(unsigned int max_cpus)
++{
++	smp_ops.smp_prepare_cpus(max_cpus);
++}
++static inline int __cpu_up(unsigned int cpu)
++{
++	return smp_ops.cpu_up(cpu);
++}
++static inline void smp_cpus_done(unsigned int max_cpus)
++{
++	smp_ops.smp_cpus_done(max_cpus);
++}
++
++static inline void smp_send_stop(void)
++{
++	smp_ops.smp_send_stop();
++}
++static inline void smp_send_reschedule(int cpu)
++{
++	smp_ops.smp_send_reschedule(cpu);
++}
++static inline int smp_call_function_mask(cpumask_t mask,
++					 void (*func) (void *info), void *info,
++					 int wait)
++{
++	return smp_ops.smp_call_function_mask(mask, func, info, wait);
++}
++
++void native_smp_prepare_boot_cpu(void);
++void native_smp_prepare_cpus(unsigned int max_cpus);
++int native_cpu_up(unsigned int cpunum);
++void native_smp_cpus_done(unsigned int max_cpus);
+ =
+
+ #ifndef CONFIG_PARAVIRT
+ #define startup_ipi_hook(phys_apicid, start_eip, start_esp) 		\
 
 -- =
