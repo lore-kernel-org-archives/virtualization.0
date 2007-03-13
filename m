@@ -1,15 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 12/34] Xen-pv_ops: rename struct paravirt_patch to
-	paravirt_patch_site for clarity
-Date: Tue, 13 Mar 2007 16:30:29 -0700
-Message-ID: <20070313233031.461026179@goop.org>
+Subject: [patch 21/34] Xen-pv_ops: Allocate and free vmalloc areas
+Date: Tue, 13 Mar 2007 16:30:38 -0700
+Message-ID: <20070313233033.228981227@goop.org>
 References: <20070313233017.933601256@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-Content-Disposition: inline;
-	filename=paravirt-patch-rename-paravirt_patch.patch
+Content-Disposition: inline; filename=alloc-vm-area.patch
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -20,122 +18,103 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
 To: Andi Kleen <ak@muc.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rename struct paravirt_patch to paravirt_patch_site, so that it
-clearly refers to a callsite, and not the patch which may be applied
-to that callsite.
+Allocate/destroy a 'vmalloc' VM area: alloc_vm_area and free_vm_area
+The alloc function ensures that page tables are constructed for the
+region of kernel virtual address space and mapped into init_mm.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Zachary Amsden <zach@vmware.com>
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: "Jan Beulich" <JBeulich@novell.com>
+Cc: "Andi Kleen" <ak@muc.de>
 
 ---
- arch/i386/kernel/alternative.c |    8 +++-----
- arch/i386/kernel/vmi.c         |    4 ----
- include/asm-i386/alternative.h |    6 +++---
- include/asm-i386/paravirt.h    |    5 ++++-
- 4 files changed, 10 insertions(+), 13 deletions(-)
+ arch/i386/mm/fault.c    |   43 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/vmalloc.h |    4 ++++
+ 2 files changed, 47 insertions(+)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/alternative.c
-+++ b/arch/i386/kernel/alternative.c
-@@ -350,9 +350,9 @@ void alternatives_smp_switch(int smp)
- #endif
+--- a/arch/i386/mm/fault.c
++++ b/arch/i386/mm/fault.c
+@@ -23,6 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/kprobes.h>
+ #include <linux/uaccess.h>
++#include <linux/vmalloc.h>
  =
 
- #ifdef CONFIG_PARAVIRT
--void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *e=
-nd)
--{
--	struct paravirt_patch *p;
-+void apply_paravirt(struct paravirt_patch_site *start, struct paravirt_pat=
-ch_site *end)
-+{
-+	struct paravirt_patch_site *p;
- =
-
- 	for (p =3D start; p < end; p++) {
- 		unsigned int used;
-@@ -379,8 +379,6 @@ void apply_paravirt(struct paravirt_patc
- 	/* Sync to be conservative, in case we patched following instructions */
- 	sync_core();
+ #include <asm/system.h>
+ #include <asm/desc.h>
+@@ -624,3 +625,45 @@ void _vmalloc_sync_all(void)
+ 			start =3D address + PGDIR_SIZE;
+ 	}
  }
--extern struct paravirt_patch __start_parainstructions[],
--	__stop_parainstructions[];
- #endif	/* CONFIG_PARAVIRT */
- =
-
- void __init alternative_instructions(void)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/vmi.c
-+++ b/arch/i386/kernel/vmi.c
-@@ -70,10 +70,6 @@ struct {
- 	void (*set_initial_ap_state)(int, int);
- 	void (*halt)(void);
- } vmi_ops;
--
--/* XXX move this to alternative.h */
--extern struct paravirt_patch __start_parainstructions[],
--	__stop_parainstructions[];
- =
-
- /*
-  * VMI patching routines.
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/alternative.h
-+++ b/include/asm-i386/alternative.h
-@@ -118,12 +118,12 @@ static inline void alternatives_smp_swit
- #define LOCK_PREFIX ""
- #endif
- =
-
--struct paravirt_patch;
-+struct paravirt_patch_site;
- #ifdef CONFIG_PARAVIRT
--void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *e=
-nd);
-+void apply_paravirt(struct paravirt_patch_site *start, struct paravirt_pat=
-ch_site *end);
- #else
- static inline void
--apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
-+apply_paravirt(struct paravirt_patch_site *start, struct paravirt_patch_si=
-te *end)
- {}
- #define __start_parainstructions NULL
- #define __stop_parainstructions NULL
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -501,12 +501,15 @@ void _paravirt_nop(void);
- #define paravirt_nop	((void *)_paravirt_nop)
- =
-
- /* These all sit in the .parainstructions section to tell us what to patch=
-. */
--struct paravirt_patch {
-+struct paravirt_patch_site {
- 	u8 *instr; 		/* original instructions */
- 	u8 instrtype;		/* type of this instruction */
- 	u8 len;			/* length of original instruction */
- 	u16 clobbers;		/* what registers you may clobber */
- };
 +
-+extern struct paravirt_patch_site __start_parainstructions[],
-+	__stop_parainstructions[];
++
++static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *=
+data)
++{
++	/* apply_to_page_range() does all the hard work. */
++	return 0;
++}
++
++struct vm_struct *alloc_vm_area(unsigned long size)
++{
++	struct vm_struct *area;
++
++	area =3D get_vm_area(size, VM_IOREMAP);
++	if (area =3D=3D NULL)
++		return NULL;
++
++	/*
++	 * This ensures that page tables are constructed for this region
++	 * of kernel virtual address space and mapped into init_mm.
++	 */
++	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
++				area->size, f, NULL)) {
++		free_vm_area(area);
++		return NULL;
++	}
++
++	/* Make sure the pagetables are constructed in process kernel
++	   mappings */
++	vmalloc_sync_all();
++
++	return area;
++}
++EXPORT_SYMBOL_GPL(alloc_vm_area);
++
++void free_vm_area(struct vm_struct *area)
++{
++	struct vm_struct *ret;
++	ret =3D remove_vm_area(area->addr);
++	BUG_ON(ret !=3D area);
++	kfree(area);
++}
++EXPORT_SYMBOL_GPL(free_vm_area);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -68,6 +68,10 @@ extern int map_vm_area(struct vm_struct =
+
+ 			struct page ***pages);
+ extern void unmap_vm_area(struct vm_struct *area);
  =
 
- #define paravirt_alt(insn_string, typenum, clobber)	\
- 	"771:\n\t" insn_string "\n" "772:\n"		\
++/* Allocate/destroy a 'vmalloc' VM area. */
++extern struct vm_struct *alloc_vm_area(unsigned long size);
++extern void free_vm_area(struct vm_struct *area);
++
+ /*
+  *	Internals.  Dont't use..
+  */
 
 -- =
