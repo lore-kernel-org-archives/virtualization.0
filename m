@@ -1,46 +1,39 @@
-From: Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: [patch 28/34] Xen-pv_ops: Xen SMP guest support
-Date: Wed, 14 Mar 2007 09:28:20 -0400
-Message-ID: <20070314132820.GL6209@kvack.org>
-References: <20070313233017.933601256@goop.org>
-	<20070313233034.586018620@goop.org>
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Subject: Re: Stolen and degraded time and schedulers
+Date: Wed, 14 Mar 2007 09:58:45 -0400
+Message-ID: <20070314135845.GG22466@csclub.uwaterloo.ca>
+References: <45F6D1D0.6080905@goop.org> <1173816769.22180.14.camel@localhost> <45F70A71.9090205@goop.org> <1173821224.1416.24.camel@dwalker1> <45F71EA5.2090203@goop.org> <45F74515.7010808@vmware.com> <45F77C27.8090604@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030856AbXCNN6r@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20070313233034.586018620@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+In-Reply-To: <45F77C27.8090604@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Dan Hecht <dhecht@vmware.com>, dwalker@mvista.com, cpufreq@lists.linux.org.uk, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Con Kolivas <kernel@kolivas.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 13, 2007 at 04:30:45PM -0700, Jeremy Fitzhardinge wrote:
-> [ brcl, mingo: Would you mind having a close look at the code in
->   xen_exit_mm and drop_mm_ref? - Thanks ]
+On Tue, Mar 13, 2007 at 09:37:59PM -0700, Jeremy Fitzhardinge wrote:
+> (By monotonic time, I presume you mean monotonic real time.)  Yes, I
+> suppose you could, but I don't think that's terribly useful.   I think
+> work_time is probably most naturally measured in cpu clock cycles rather
+> than an actual time unit.  You could convert it to ns, but I don't see
+> the point.
+> 
+> I know its a term in general use, but I don't think the term "stolen
+> time" is all that useful, particularly when we're talking about a more
+> general notion of cpu work contributing to the progress of process
+> execution.  In the cpufreq case, time isn't "stolen" per se.
 
-I see what you're doing here, and this comment seems to allude to the reasons 
-behind it without spelling it out.
+How would you deal with something like a pentium 4 HT processor where
+you may run slower just because you got scheduled on the sibling of a
+cpu that happens to run something else needing the same execution units
+you do, causing you to get delayed more, even though the cpu is running
+full speed and nothing else is trying to use your "cpu"?  I don't think
+there is any way to know what the real impact of two processes on a HT
+cpu have on each other.
 
-> +/*
-> + * We aggressively remove defunct pgd from cr3. We execute unmap_vmas()
-> + * *much* faster this way.
-> + */
+Interesting goal.  Not sure it can be done.
 
-Are you switching mms in order to avoid all of the overhead associated with 
-flushing an active mm during task exit?  If so, it makes much more sense to 
-do this in the generic helper, as it should be a win on x86 and x86-64 
-where switching to init_mm is relatively low cost given the support for 
-global pages.  I'll run some tests on a couple of systems this evening and 
-post the results.
-
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <zyntrop@kvack.org>.
+--
+Len Sorensen
