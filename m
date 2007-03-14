@@ -1,86 +1,29 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: Stolen and degraded time and schedulers
-Date: Wed, 14 Mar 2007 14:38:30 -0700
-Message-ID: <45F86B56.6020606@goop.org>
-References: <45F6D1D0.6080905@goop.org> <200703150836.08670.kernel@kolivas.org>
+Date: Wed, 14 Mar 2007 14:42:56 -0700
+Message-ID: <45F86C60.7060903@goop.org>
+References: <45F6D1D0.6080905@goop.org>	 <1173816769.22180.14.camel@localhost>  <45F70A71.9090205@goop.org>	 <1173821224.1416.24.camel@dwalker1>  <45F71EA5.2090203@goop.org>	 <1173837606.23595.32.camel@imap.mvista.com>  <45F79B9C.20609@goop.org>	 <1173888673.3101.12.camel@imap.mvista.com>  <45F824BE.1060708@goop.org>	 <1173891595.3101.17.camel@imap.mvista.com>  <45F82C01.3000704@goop.org>	 <1173895607.3101.58.camel@imap.mvista.com>  <45F841EE.6060703@goop.org>	 <1173898800.3101.81.camel@imap.mvista.com>  <45F8508F.3070109@goop.org>	 <1173904438.3101.92.camel@imap.mvista.com>  <45F8663D.5050102@goop.org> <1173908065.3101.97.camel@imap.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <200703150836.08670.kernel@kolivas.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Con Kolivas <kernel@kolivas.org>
-Cc: cpufreq@lists.linux.org.uk, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422670AbXCNVnB@vger.kernel.org>
+In-Reply-To: <1173908065.3101.97.camel@imap.mvista.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Walker <dwalker@mvista.com>
+Cc: john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Con Kolivas <kernel@kolivas.org>, Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>, James Morris <jmorris@namei.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk, Virtualization Mailing List <virtualization@lists.osdl.org>, Peter Chubb <peterc@gelato.unsw.edu.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Con Kolivas wrote:
-> I think you're looking for a complex solution to a problem that doesn't e=
-xist. =
+Daniel Walker wrote:
+> It's used for measuring execution time, but timers are triggered based
+> on that time, so it needs to be actual execution time. I don't know to
+> what extent this is already inaccurate on some system tho.
+>   
 
->   =
+Well, "actual execution time" is a bit ambiguous: should that be "time
+actually spent executing", or "time we should have spent executing"?
 
-
-The problem is subtle, but I think the solution is actually fairly simple.
-
-> The job of the process scheduler is to meter out the available cpu resour=
-ces. =
-
-> It cannot make up cycles for a slow cpu or one that is throttled.
-
-No, it can't schedule more cpu time than exists.  But it should account
-for the time the processes actually had available to them, rather than
-assuming they got the full power of the cpu.
-
->  If the =
-
-> problem is happening due to throttling it should be fixed by altering the =
-
-> throttle. The example you describe with the conservative governor is as e=
-asy =
-
-> to fix as changing to the ondemand governor.
-
-That's one workaround, but sometimes its desirable to keep even
-cpu-bound processes at a lower cpu performance level for power-saving
-reasons.  Modern CPUs are designed to switch performance states very
-quickly, so its conceivable you could change performance every context
-switch, though no governor currently uses that fine granularity.
-
->  Differential power cpus on an =
-
-> SMP machine should be managed by SMP balancing choices based on power gro=
-ups.
->   =
-
-
-Do you mean compute power or energy power here?
-
-> It would be fine to implement some other accounting of this definition of=
- time =
-
-> for other purposes but not for process scheduler decisions per se.
->   =
-
-
-I suppose, but it seems to me that they're pretty much the same thing.
-
-> Sorry to chime in late.  My physical condition prevents me spending any =
-
-> extended period of time at the computer so I've tried to be succinct with=
- my =
-
-> comments and may not be able to reply again.
->   =
-
-
-My sympathies; neck problems are bad news.
+It looks like cpu_clock_sample() will only return accurate results on
+yourself; if you get the sched_ns on a thread on another cpu, it won't
+include the time accumulated since the start of its timeslice.
 
     J
