@@ -1,219 +1,150 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH/RFC] replace get_scheduled_cycles with sched_clock paravirt_op
-Date: Wed, 14 Mar 2007 12:07:14 -0700
-Message-ID: <45F847E2.7040102@goop.org>
+Subject: Re: Stolen and degraded time and schedulers
+Date: Wed, 14 Mar 2007 12:34:17 -0700
+Message-ID: <45F84E39.7030507@goop.org>
+References: <45F6D1D0.6080905@goop.org>	 <1173816769.22180.14.camel@localhost>	<45F70A71.9090205@goop.org> <1173821224.1416.24.camel@dwalker1> <45F71EA5.2090203@goop.org> <45F74515.7010808@vmware.com> <45F77C27.8090604@goop.org> <45F846AB.6060200@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932773AbXCNTH2@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932183AbXCNTe3@vger.kernel.org>
+In-Reply-To: <45F846AB.6060200@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Hecht <dhecht@vmware.com>, Zachary Amsden <zach@vmware.com>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
+To: Dan Hecht <dhecht@vmware.com>
+Cc: dwalker@mvista.com, cpufreq@lists.linux.org.uk, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Con Kolivas <kernel@kolivas.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, paulus@au.ibm.com, schwidefsky@de.ibm.com, Rik van Riel <riel@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Subject: Add a sched_clock paravirt_op
+Dan Hecht wrote:
+> Yes, I was just trying to use some consistent terminology, so I picked
+> linux (hrtimer.c) terms: CLOCK_REALTIME == wallclock, CLOCK_MONOTONIC
+> == "real" time counter.
 
-The tsc-based get_scheduled_cycles interface is not a good match for
-Xen's runstate accounting, which reports everything in nanoseconds.
+OK.  I had used "monotonic" in its more general sense earlier in the
+thread, and I wanted to be sure.
 
-This patch replaces this interface with a sched_clock interface, which
-matches both Xen and VMI's requirements.
+> Even cpu clock cycles doesn't really tell you how much "work" a cpu
+> was able to get done.  Different cpus have different throughputs per
+> cycle per instruction sequence.
 
-In order to do this, we:
-   1. replace get_scheduled_cycles with sched_clock
-   2. hoist cycles_2_ns into a common header
-   3. update vmi accordingly
+Sure.  But on a given machine, the CPUs are likely to be closely enough
+matched that a cycle on one CPU is more or less equivalent to a cycle on
+another CPU.  The fact that a cycle represents a different amount of
+work on an i486 compared to Core2 doesn't matter much.  The important
+part is that when the scheduler is doling out CPU time is comparing
+everyone's usages with a common unit.
 
-One thing to note: because sched_clock is implemented as a weak function in
-kernel/sched.c, we must define a real function in order to override this weak
-binding.  This means the usual paravirt_ops technique of using an inline
-function won't work in this case.
+> Right, and that's why I'm not sure I'm convinced the two should be
+> confused.  In the case of cpufreq you are talking about the cpu not
+> doing as much work due to a choice the kernel made.  In the case of
+> stolen time, the choice wasn't made by the kernel, but instead the
+> hypervisor.  I understand they are somewhat similar from the
+> perspective of the scheduler, but a bit different.
+Yes, but the question is whether it matters all that much?  Does it
+matter enough to make them two separate concepts, when one seems to
+cover all the important points?
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Dan Hecht <dhecht@vmware.com>
-Cc: john stultz <johnstul@us.ibm.com>
+> Also, I'm not sure this is the right thing for cpufreq because:
+> 1) when the load is high, which is when this all matters, presumably
+> the kernel will ramp up the cpu to full speed.
 
----
- arch/i386/kernel/paravirt.c |    2 +-
- arch/i386/kernel/tsc.c      |   23 +++++++++++++++--------
- arch/i386/kernel/vmi.c      |    2 +-
- arch/i386/kernel/vmitime.c  |    6 +++---
- include/asm-i386/paravirt.h |    7 +++++--
- include/asm-i386/timer.h    |   32 +++++++++++++++++++++++++++++++-
- include/asm-i386/vmi_time.h |    2 +-
- 7 files changed, 57 insertions(+), 17 deletions(-)
+Not at all.  You might have an unimportant but cpu-bound process which
+doesn't merit increasing the cpu speed, but should also be scheduled
+properly compared to other processes.  I often nice my kernel builds
+(which cpufreq takes as a hint to not ramp up the cpu speed) on my
+laptop so to save power.
 
-===================================================================
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -552,7 +552,7 @@ struct paravirt_ops paravirt_ops = {
- 	.write_msr = native_write_msr,
- 	.read_tsc = native_read_tsc,
- 	.read_pmc = native_read_pmc,
--	.get_scheduled_cycles = native_read_tsc,
-+	.sched_clock = native_sched_clock,
- 	.get_cpu_khz = native_calculate_cpu_khz,
- 	.load_tr_desc = native_load_tr_desc,
- 	.set_ldt = native_set_ldt,
-===================================================================
---- a/arch/i386/kernel/tsc.c
-+++ b/arch/i386/kernel/tsc.c
-@@ -81,7 +81,7 @@ static inline int check_tsc_unstable(voi
-  *
-  *			-johnstul@us.ibm.com "math is hard, lets go shopping!"
-  */
--static unsigned long cyc2ns_scale __read_mostly;
-+unsigned long cyc2ns_scale __read_mostly;
- 
- #define CYC2NS_SCALE_FACTOR 10 /* 2^10, carefully chosen */
- 
-@@ -90,15 +90,10 @@ static inline void set_cyc2ns_scale(unsi
- 	cyc2ns_scale = (1000000 << CYC2NS_SCALE_FACTOR)/cpu_khz;
- }
- 
--static inline unsigned long long cycles_2_ns(unsigned long long cyc)
--{
--	return (cyc * cyc2ns_scale) >> CYC2NS_SCALE_FACTOR;
--}
--
- /*
-  * Scheduler clock - returns current time in nanosec units.
-  */
--unsigned long long sched_clock(void)
-+unsigned long long native_sched_clock(void)
- {
- 	unsigned long long this_offset;
- 
-@@ -110,11 +105,23 @@ unsigned long long sched_clock(void)
- 		return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
- 
- 	/* read the Time Stamp Counter: */
--	get_scheduled_cycles(this_offset);
-+	rdtscll(this_offset);
- 
- 	/* return the value in ns */
- 	return cycles_2_ns(this_offset);
- }
-+
-+/* We need to define a real function for sched_clock, to override the
-+   weak default version */
-+#ifdef CONFIG_PARAVIRT
-+unsigned long long sched_clock(void)
-+{
-+	return paravirt_sched_clock();
-+}
-+#else
-+unsigned long long sched_clock(void)
-+	__attribute__((alias("native_sched_clock")));
-+#endif
- 
- unsigned long native_calculate_cpu_khz(void)
- {
-===================================================================
---- a/arch/i386/kernel/vmi.c
-+++ b/arch/i386/kernel/vmi.c
-@@ -871,7 +871,7 @@ static inline int __init activate_vmi(vo
- 		paravirt_ops.setup_boot_clock = vmi_timer_setup_boot_alarm;
- 		paravirt_ops.setup_secondary_clock = vmi_timer_setup_secondary_alarm;
- #endif
--		paravirt_ops.get_scheduled_cycles = vmi_get_sched_cycles;
-+		paravirt_ops.sched_clock = vmi_sched_clock;
-  		paravirt_ops.get_cpu_khz = vmi_cpu_khz;
- 
- 		/* We have true wallclock functions; disable CMOS clock sync */
-===================================================================
---- a/arch/i386/kernel/vmitime.c
-+++ b/arch/i386/kernel/vmitime.c
-@@ -163,9 +163,9 @@ int vmi_set_wallclock(unsigned long now)
- 	return -1;
- }
- 
--unsigned long long vmi_get_sched_cycles(void)
--{
--	return read_available_cycles();
-+unsigned long long vmi_sched_clock(void)
-+{
-+	return cycles_2_ns(read_available_cycles());
- }
- 
- unsigned long vmi_cpu_khz(void)
-===================================================================
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -92,7 +92,7 @@ struct paravirt_ops
- 
- 	u64 (*read_tsc)(void);
- 	u64 (*read_pmc)(void);
-- 	u64 (*get_scheduled_cycles)(void);
-+ 	unsigned long long (*sched_clock)(void);
- 	unsigned long (*get_cpu_khz)(void);
- 
- 	void (*load_tr_desc)(void);
-@@ -549,7 +549,10 @@ static inline void halt(void)
- 
- #define rdtscll(val) (val = PVOP_CALL0(u64, read_tsc))
- 
--#define get_scheduled_cycles(val) (val = paravirt_ops.get_scheduled_cycles())
-+static inline unsigned long long paravirt_sched_clock(void)
-+{
-+	return PVOP_CALL0(unsigned long long, sched_clock);
-+}
- #define calculate_cpu_khz() (paravirt_ops.get_cpu_khz())
- 
- #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
-===================================================================
---- a/include/asm-i386/timer.h
-+++ b/include/asm-i386/timer.h
-@@ -17,8 +17,38 @@ extern int recalibrate_cpu_khz(void);
- extern int recalibrate_cpu_khz(void);
- 
- #ifndef CONFIG_PARAVIRT
--#define get_scheduled_cycles(val) rdtscll(val)
- #define calculate_cpu_khz() native_calculate_cpu_khz()
- #endif
- 
-+/* Accellerators for sched_clock()
-+ * convert from cycles(64bits) => nanoseconds (64bits)
-+ *  basic equation:
-+ *		ns = cycles / (freq / ns_per_sec)
-+ *		ns = cycles * (ns_per_sec / freq)
-+ *		ns = cycles * (10^9 / (cpu_khz * 10^3))
-+ *		ns = cycles * (10^6 / cpu_khz)
-+ *
-+ *	Then we use scaling math (suggested by george@mvista.com) to get:
-+ *		ns = cycles * (10^6 * SC / cpu_khz) / SC
-+ *		ns = cycles * cyc2ns_scale / SC
-+ *
-+ *	And since SC is a constant power of two, we can convert the div
-+ *  into a shift.
-+ *
-+ *  We can use khz divisor instead of mhz to keep a better percision, since
-+ *  cyc2ns_scale is limited to 10^6 * 2^10, which fits in 32 bits.
-+ *  (mathieu.desnoyers@polymtl.ca)
-+ *
-+ *			-johnstul@us.ibm.com "math is hard, lets go shopping!"
-+ */
-+extern unsigned long cyc2ns_scale __read_mostly;
-+
-+#define CYC2NS_SCALE_FACTOR 10 /* 2^10, carefully chosen */
-+
-+static inline unsigned long long cycles_2_ns(unsigned long long cyc)
-+{
-+	return (cyc * cyc2ns_scale) >> CYC2NS_SCALE_FACTOR;
-+}
-+
-+
- #endif
-===================================================================
---- a/include/asm-i386/vmi_time.h
-+++ b/include/asm-i386/vmi_time.h
-@@ -49,7 +49,7 @@ extern void __init vmi_time_init(void);
- extern void __init vmi_time_init(void);
- extern unsigned long vmi_get_wallclock(void);
- extern int vmi_set_wallclock(unsigned long now);
--extern unsigned long long vmi_get_sched_cycles(void);
-+extern unsigned long long vmi_sched_clock(void);
- extern unsigned long vmi_cpu_khz(void);
- 
- #ifdef CONFIG_X86_LOCAL_APIC
+> 2) in the case where there are two different machines with two
+> different process speeds (well, really processor throughputs), today
+> the scheduler doesn't care about trying to adjust the timing due to
+> one machine being faster than the other.
+
+It doesn't matter.  The scheduler is only important when there's
+contention for the cpu, and if there is, that it compare process CPU
+usage with the same unit.  What that unit isn't inherently very
+important, so long as its consistent.
+
+> I'm not sure this makes sense because it was the kernel that decided
+> slow the cpus and cause less work to be done.
+
+That's true.  But this is a case of the left brain not talking to the
+right brain: cpufreq might decide to slow a cpu down, but the scheduler
+doesn't take that into account.  Making the timebase of sched_clock
+reflect the current cpu speed (or more specifically, the integral of the
+cpu speed over a time interval) is a good way of communicating between
+the two subsystems.
+
+> In the case of stolen time, however, the kernel was even running at
+> all on any pcpu, and it wasn't even up to the kernel to decide that.
+
+As things stand now, there's not much difference from the scheduler's
+perspective, since the scheduler takes no action in either case.
+
+> I listed them below.  To summarize, there are (at least) three:
+>
+> 1) sched_clock, the main topic of this thread.
+> 2) p->time_slice
+
+So, this is the target process timeslice, in units of sched_clock's
+timebase?
+
+> 3) cpustat->steal
+>
+>>> For example, the stuff that happens in update_process_times().  I
+>>> think we'd want to account the stolen time to cpustat->steal.
+>>
+>> I guess we could do something for that.  Would we account non-full-speed
+>> cpus to it?  Maybe?
+>>
+>> How is cpustat->steal used?  How does it get out to usermode?
+>>
+>
+> Via /proc/stat, used by modern 'top', maybe other utilities.  It is
+> useful to users who want to see where the time is really going from
+> inside a guest when running on a (para)virtual machine.
+>
+> I believe previous set of xen paravirt-ops patches already handled
+> cases #2 and #3 (but no longer do since switching to clockevents), and
+> the old vmitime code did also.  Obviously, we need revamp this stuff
+> to make it fit in with the new clockevents/hrtimer way of doing things.
+
+I added stolen time accounting to xen-pv_ops last night.  For Xen, at
+least, it wasn't hard to fit into the clockevent infrastructure.  I just
+update the stolen time accounting for each cpu when it gets a timer
+tick; they seem to get a tick every couple of seconds even when idle.
+
+Similarly, implementing sched_clock as "number of ns the vcpu spent in
+running state" is simple and direct (though this makes it an explicitly
+per-cpu clock; comparing raw sched_clock values between cpus will be
+meaningless; but that's likely true when using the tsc as a timebase too).
+
+>> I think the important part is that sched_clock() be used to actually
+>> compute how much time each process gets.  The fact that a time quantum
+>> gets stolen is less important.  Or do you mean something else?
+>>
+>
+> How is time quantum getting stolen less important?  Time quantum
+> getting stolen results directly in more unnecessary context switches
+> since we might steal the entire timeslice before the process even ran.
+
+It doesn't matter why you didn't get the time; the important part is
+that you know that time went missing.  Its true that you may end up with
+some spurious rescheds, but that seems like the kind of thing you'd want
+to measure as being a problem before getting clever in fixing.
+
+> I actually think #2 and #3 might be more important than #1 (at least
+> they are as important).  And, the earlier Xen patches seem to agree
+> with this, since they addressed 2 & 3 only.
+
+I'd call that an oversight.  Xen has everything needed to implement
+sched_clock in terms of non-stolen time.
+
+>> Yes.  In the same way that clock modulation gates the cpu clock, the
+>> hypervisor effectively gates the clock by giving time to other vcpus.
+>>
+>
+> Yes, except in one case it was a choice of the kernel, and in the
+> other it was up to the hypervisor.
+
+Not necessarily.  The cpu might drop into thermal protection clock
+modulation.
+
+    J
