@@ -1,117 +1,37 @@
-From: Con Kolivas <kernel@kolivas.org>
+From: Daniel Walker <dwalker@mvista.com>
 Subject: Re: Stolen and degraded time and schedulers
-Date: Thu, 15 Mar 2007 08:40:48 +1100
-Message-ID: <200703150840.49269.kernel@kolivas.org>
-References: <45F6D1D0.6080905@goop.org> <200703150836.08670.kernel@kolivas.org>
+Date: Wed, 14 Mar 2007 14:34:25 -0700
+Message-ID: <1173908065.3101.97.camel@imap.mvista.com>
+References: <45F6D1D0.6080905@goop.org>
+	 <1173816769.22180.14.camel@localhost>  <45F70A71.9090205@goop.org>
+	 <1173821224.1416.24.camel@dwalker1>  <45F71EA5.2090203@goop.org>
+	 <1173837606.23595.32.camel@imap.mvista.com>  <45F79B9C.20609@goop.org>
+	 <1173888673.3101.12.camel@imap.mvista.com>  <45F824BE.1060708@goop.org>
+	 <1173891595.3101.17.camel@imap.mvista.com>  <45F82C01.3000704@goop.org>
+	 <1173895607.3101.58.camel@imap.mvista.com>  <45F841EE.6060703@goop.org>
+	 <1173898800.3101.81.camel@imap.mvista.com>  <45F8508F.3070109@goop.org>
+	 <1173904438.3101.92.camel@imap.mvista.com>  <45F8663D.5050102@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <200703150836.08670.kernel@kolivas.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932433AbXCNVec@vger.kernel.org>
+In-Reply-To: <45F8663D.5050102@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: cpufreq@lists.linux.org.uk, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Cc: john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Con Kolivas <kernel@kolivas.org>, Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>, James Morris <jmorris@namei.org>, Chris Wright <chrisw@sous-sol.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk, Virtualization Mailing List <virtualization@lists.osdl.org>, Peter Chubb <peterc@gelato.unsw.edu.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 15 March 2007 08:36, Con Kolivas wrote:
-> On Wednesday 14 March 2007 03:31, Jeremy Fitzhardinge wrote:
-> > The current Linux scheduler makes one big assumption: that 1ms of CPU
-> > time is the same as any other 1ms of CPU time, and that therefore a
-> > process makes the same amount of progress regardless of which particular
-> > ms of time it gets.
-> >
-> > This assumption is wrong now, and will become more wrong as
-> > virtualization gets more widely used.
-> >
-> > It's wrong now, because it fails to take into account of several kinds
-> > of missing time:
-> >
-> >    1. interrupts - time spent in an ISR is accounted to the current
-> >       process, even though it gets no direct benefit
-> >    2. SMM - time is completely lost from the kernel
-> >    3. slow CPUs - 1ms of 600MHz CPU is less useful than 1ms of 2.4GHz C=
-PU
-> >
-> > The first two - time lost to interrupts - are a well known problem, and
-> > are generally considered to be a non issue.  If you're losing a
-> > significant amount of time to interrupts, you probably have bigger
-> > problems.  (Or maybe not?)
-> >
-> > The third is not something I've seen discussed before, but it seems like
-> > it could be a significant problem today.  Certainly, I've noticed it
-> > myself: an interactive program decides to do something CPU-intensive
-> > (like start an animation), and it chugs until the conservative governor
-> > brings the CPU up to speed.  Certainly some of this is because its just
-> > plain CPU-starved, but I think another factor is that it gets penalized
-> > for running on a slow CPU: 1ms is not 1ms.  And for power reasons you
-> > want to encourage processes to run on slow CPUs rather than penalize
-> > them.
-> >
-> > Virtualization just exacerbates this.  If you have a busy machine
-> > running multiple virtual CPUs, then each VCPU may only get a small
-> > proportion of the total amount of available CPU time.  If the kernel's
-> > scheduler asserts that "you were just scheduled for 1ms, therefore you
-> > made 1ms of progress", then many timeslices will effectively end up
-> > being 1ms of 0Mhz CPU - because the VCPU wasn't scheduled and the real
-> > CPU was doing something else.
-> >
-> >
-> > So how to deal with this?  Basically we need a clock which measures "CPU
-> > work units", and have the scheduler use this clock.
-> >
-> > A "CPU work unit" clock has these properties:
-> >
-> >     * inherently per-CPU (from the kernel's perspective, so it would be
-> >       per-VCPU in a virtual machine)
-> >     * monotonic - you can't do negative work
-> >     * measured in "work units"
-> >
-> > A "work unit" is probably most simply expressed in cycles - you assume a
-> > cycle of CPU time is equivalent in terms of work done to any other
-> > cycle.  This means that 1 cycle at 600MHz is equivalent to 1 cycle at
-> > 2.4GHz - but of course the 2.4GHz processor gets 4 times as many in any
-> > real time interval.  (This is the instance where the worst kind of tsc -
-> > varying speed which stops on idle - is actually exactly what you want.)
-> >
-> > You could also measure "work units" in terms of normalized time units:
-> > if the fastest CPU on the machine is 2.4GHz, then 1ms is 1ms a work unit
-> > on that CPU, but 250us on the 600MHz CPU.
-> >
-> > It doesn't really matter what the unit is, so long as it is used
-> > consistently to measure how much progress all processes made.
->
-> I think you're looking for a complex solution to a problem that doesn't
-> exist. The job of the process scheduler is to meter out the available cpu
-> resources. It cannot make up cycles for a slow cpu or one that is
-> throttled. If the problem is happening due to throttling it should be fix=
-ed
-> by altering the throttle. The example you describe with the conservative
-> governor is as easy to fix as changing to the ondemand governor.
-> Differential power cpus on an SMP machine should be managed by SMP
-> balancing choices based on power groups.
->
-> It would be fine to implement some other accounting of this definition of
-> time for other purposes
+On Wed, 2007-03-14 at 14:16 -0700, Jeremy Fitzhardinge wrote:
 
-I mean such as for virtualisation purposes.
+> 
+> >  It's also used for some posix cpu timers
+> > (sched_ns) , and it used for migration thread initialization.
+> 
+> sched_ns doesn't use it directly except for the case where the process
+> is currently running.  Anyway, it's compatible with what I'm talking about.
 
-> but not for process scheduler decisions per se. =
+It's used for measuring execution time, but timers are triggered based
+on that time, so it needs to be actual execution time. I don't know to
+what extent this is already inaccurate on some system tho.
 
-
->
-> Sorry to chime in late.  My physical condition prevents me spending any
-> extended period of time at the computer so I've tried to be succinct with
-> my comments and may not be able to reply again.
-
--- =
-
--ck
+Daniel
