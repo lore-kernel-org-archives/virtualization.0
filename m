@@ -1,7 +1,7 @@
-From: Dan Hecht <dhecht@vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: Stolen and degraded time and schedulers
-Date: Thu, 15 Mar 2007 12:09:08 -0700
-Message-ID: <45F999D4.6080602@vmware.com>
+Date: Thu, 15 Mar 2007 12:18:40 -0700
+Message-ID: <45F99C10.1070500@goop.org>
 References: <45F6D1D0.6080905@goop.org>	
 	<1173816769.22180.14.camel@localhost>	<45F70A71.9090205@goop.org>
 	<1173821224.1416.24.camel@dwalker1> <45F71EA5.2090203@goop.org>
@@ -9,11 +9,12 @@ References: <45F6D1D0.6080905@goop.org>
 	<45F846AB.6060200@vmware.com> <45F84E39.7030507@goop.org>
 	<45F85A62.8050001@vmware.com> <45F85BBB.70707@goop.org>
 	<45F85F43.9030803@vmware.com> <45F866AF.9060609@goop.org>
+	<45F999D4.6080602@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45F866AF.9060609@goop.org>
+In-Reply-To: <45F999D4.6080602@vmware.com>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -23,71 +24,18 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Dan Hecht <dhecht@vmware.com>
 Cc: dwalker@mvista.com, john stultz <johnstul@us.ibm.com>, paulus@au.ibm.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Con Kolivas <kernel@kolivas.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, cpufreq@lists.linux.org.uk, schwidefsky@de.ibm.com, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/14/2007 02:18 PM, Jeremy Fitzhardinge wrote:
-> Dan Hecht wrote:
->> On 03/14/2007 01:31 PM, Jeremy Fitzhardinge wrote:
->>> Dan Hecht wrote:
->>>> Sounds good.  I don't see this in your patchset you sent yesterday
->>>> though; did you add it after sending out those patches?
->>> Yes.
->>>
->>>>   if so, could you forward the new patch?  does it explicitly prevent
->>>> stolen time from getting accounted as  user/system time or does it
->>>> just rely on NO_HZ mode sort of happening to work that way (since the
->>>> one shot timer is skipped ahead for missed ticks)?
->>> Hm, not sure.  It doesn't care how often it gets called; it just
->>> accumulates results up to that point, but I'm not sure if the time would
->>> get double accounted.  Perhaps it doesn't matter when using
->>> xen_sched_clock().
->>>
->> I think you might be double counting time in some cases. =
+Dan Hecht wrote:
+> So, yes, it is per-vcpu.  But, the sched_clock() samples are rebased
+> when processes are migrated between runqueues; search sched.c for
+> most_recent_timestamp.  It's not perfect since most_recent_timestamp
+> between cpu0 and cpu1 do not correspond to the exact same instant, but
+> does prevent negative sleep time and is fairly close.
 
->> sched_clock() isn't really relevant to stolen time accounting (i.e.
->> cpustat->steal).
->>
->> I think what you want is to make sure that the sum of the cputime
->> passed to all of:
->>
->> account_user_time
->> account_system_time
->> account_steal_time
->>
->> adds up to the total amount of time that has passed.  I think it is
->> sort of working for you (i.e. doesn't always double count stolen
->> ticks) since in NO_HZ mode, update_process_time (which calls
->> account_user_time & account_system_time) happens to be skipped during
->> periods of stolen time due to the hrtimer_forward()'ing of the one
->> shot expiry. =
+Yes, I noticed that when I looked more carefully, but I wasn't sure
+whether it would be sufficient to make it all work out.
 
-> =
-
-> OK, this will need a closer look.
-> =
-
-> BTW, what are the properties of the vmi read_available_cycles()?  Is
-> that a per-cpu timer?  If its used as the timebase for sched_clock, how
-> does recalc_task_prio not get a -ve sleep time?
-> =
-
-
-Available time is defined to be (real_time - stolen_time).  i.e. time in =
-
-which the vcpu is either running or not ready to run [because it is =
-
-halted, and nothing is pending]).
-
-So, yes, it is per-vcpu.  But, the sched_clock() samples are rebased =
-
-when processes are migrated between runqueues; search sched.c for =
-
-most_recent_timestamp.  It's not perfect since most_recent_timestamp =
-
-between cpu0 and cpu1 do not correspond to the exact same instant, but =
-
-does prevent negative sleep time and is fairly close.
-
-Dan
+    J
