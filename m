@@ -1,7 +1,7 @@
-From: Rik van Riel <riel@redhat.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: Stolen and degraded time and schedulers
-Date: Thu, 15 Mar 2007 15:48:05 -0400
-Message-ID: <45F9A2F5.50206@redhat.com>
+Date: Thu, 15 Mar 2007 12:53:17 -0700
+Message-ID: <45F9A42D.7090205@goop.org>
 References: <45F6D1D0.6080905@goop.org>	
 	<1173816769.22180.14.camel@localhost>	<45F70A71.9090205@goop.org>
 	<1173821224.1416.24.camel@dwalker1> <45F71EA5.2090203@goop.org>
@@ -29,19 +29,13 @@ Cc: dwalker@mvista.com, john stultz <johnstul@us.ibm.com>, paulus@au.ibm.com, Li
 List-Id: virtualization@lists.linuxfoundation.org
 
 Dan Hecht wrote:
-
-> Available time is defined to be (real_time - stolen_time).  i.e. time in =
-
-> which the vcpu is either running or not ready to run [because it is =
-
+> Available time is defined to be (real_time - stolen_time).  i.e. time
+> in which the vcpu is either running or not ready to run [because it is
 > halted, and nothing is pending]).
 
- From the guest perspective, steal time is:
+Hm, the Xen definition of stolen time is "time VCPU spent in runnable
+(vs running) or offline state".  If the VCPU was blocked anyway, then
+its never considered to be stolen.  Offline means the VCPU was paused by
+the administrator, or during suspend/resume.
 
-"Time I would have liked to run"
-
--- =
-
-Politics is the struggle between those who want to make their country
-the best in the world, and those who believe it already is.  Each group
-calls the other unpatriotic.
+    J
