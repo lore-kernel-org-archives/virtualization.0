@@ -1,73 +1,95 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [RFC, PATCH] Fixup COMPAT_VDSO to work with CONFIG_PARAVIRT
-Date: Fri, 16 Mar 2007 13:06:46 -0600
-Message-ID: <m1ps79m2ih.fsf@ebiederm.dsl.xmission.com>
-References: <45FA054F.6020107@vmware.com>
-	<m17itho10v.fsf@ebiederm.dsl.xmission.com> <45FAC4EF.4060305@goop.org>
-	<20070316163118.GA12999@elte.hu> <45FAC6E6.5090000@goop.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
+ callsites to make them patchable
+Date: Fri, 16 Mar 2007 12:16:59 -0700
+Message-ID: <45FAED2B.8070403@goop.org>
+References: <20070301232443.195603797@goop.org> <20070301232527.956565107@goop.org> <20070316092445.GM23174@elte.hu> <20070316.023331.59468179.davem@davemloft.net> <20070316095702.GA301@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <45FAC6E6.5090000@goop.org> (Jeremy Fitzhardinge's message of
-	"Fri, 16 Mar 2007 09:33:42 -0700")
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <jbeulich@novell.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965880AbXCPTRK@vger.kernel.org>
+In-Reply-To: <20070316095702.GA301@elte.hu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: David Miller <davem@davemloft.net>, ak@muc.de, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, zach@vmware.com, rusty@rustcorp.com.au, anthony@codemonkey.ws, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge <jeremy@goop.org> writes:
+Ingo Molnar wrote:
 
-> Ingo Molnar wrote:
->> that's what is the case right now, but much of the intention behind the =
+> * David Miller <davem@davemloft.net> wrote:
 
->> vma based vDSO is to enable per-process randomized vdso locations, and =
+> > Perhaps the problem can be dealt with using ELF relocations.
+> > 
+> > There is another case, discussed yesterday on netdev, where run-time 
+> > resolution of ELF relocations would be useful (for 
+> > very-very-very-read-only variables) so if it can solve this problem 
+> > too it would be nice to have a generic infrastructure for it.
+>   
 
->> various distributions do that. So the 'modern' vDSO concept is very much =
 
->> relocatable.
+> yeah, and i really think this is very fundamental: [...]
+
+I think what Dave is suggesting is that we use the reloc information the
+compiler generates to find the patchable callsites rather than have
+special wrappers.  This is an interesting idea.
+
+> Limited, instruction-level patching like alternatives.h is fine because 
+> that makes it easier to support multiple, incompatible CPU 
+> architectures, without having to do a hugely intrusive split at the 
+> kernel RPM level.
 >
-> No, the point is that it never needs relocating.  The kernel can map it
-> anywhere and userspace can cope.  Its only the broken glibcs which
-> require relocation.
+> but the level of 'binary patching' done by the paravirt and Xen goes way 
+> beyond that,
 
-Ok.  So to summarize.
-There are three ways of finding the VDSO.
-- AT_SYSINFO
-- AT_SYSINFO_EHDR
-- known fixed address (see x86_64)
+Not really.  There are only three cases:
 
-Currently it doesn't sound like you need to deal with the known fixed
-address case but COMPAT_VDSO also provides that.
+   1. replace an indirect call with a direct call
+   2. nop out a callsite
+   3. patch in a short inline sequence
 
-If userspace uses AT_SYSINFO the premise is that it is not expecting
-not to need to perform any relocation processing.
+And as I pointed out, this is used by all pv_op backends, using a common
+piece of code to implement at least 1 and 2.  3 could be implemented
+semi-generically by using rules like "if (func == native_sti) {
+patch("sti"); }", which would cover many cases where a hypervisor
+doesn't need any special handling for a particular operation.
 
-If userspace uses AT_SYSINFO_EHDR it expects it needs to perform
-relocation processing and fixes up whatever needs fixing up.
+The goal is to eliminate the cost of the indirect calls with nice
+predictable indirect calls.  There's a 1 byte/callsite overhead, but I
+don't think that's a horrible overhead.
 
-With the module code we have shown the kernel is capable of performing
-relocation processing at times and it works.
+And, at worst, its only a little more complex than the kinds of
+transformations.
 
-So is it possible to simply relocate the normal vdso and fixup
-it's program header so it shows that relocation is not necessary.
-If you can do that and still export AT_SYSINFO so the problem user
-space still runs you are good.  (If you can relocate the vdso
-you should be able to relocate it anywhere).
+Ideally, its a mechanism which could be used elsewhere.  It applies with
+you have some kind of ops_vector table which is updated once (or perhaps
+very rarely), and you don't want to wear the overhead of indirect calls
+everywhere.
 
-Otherwise it probably just make sense to simply not export a VDSO
-on those systems.
+>  and the changes here really underscore that we:
+>
+>   _should not emulate the closed source world_
+>
+> There the only solution is to binary-patch - because they have no source 
+> code. But here, we've got all the source code.
+>   
 
-This would leave COMPAT_VDSO for the case where you must use one magic
-fixed address, and if user space does not require that it means
-COMPAT_VDSO could be completely removed.
+I don't think this is a relevant comparison.  This is purely a matter of
+optimising out unnecessary indirect calls.
 
-Eric
+> nobody wants to boot a xen-paravirt kernel from a floppy, so image size 
+> is not an issue. In-RAM overhead would in fact be /reduced/, because 
+> currently all the paravirt overhead hits both the native and the 
+> paravirt kernel. Nor would /all/ of the vmlinuz have to be replicated in 
+> the images - it's enough to replicate only those functions that truly 
+> differ between the two build methods.
+
+One of the explicit goals of pv_ops was to allow a single kernel to
+either boot on native hardware or under any one of the supported
+hypervisors, explicitly to avoid having to manage multiple kernel
+images.  Compiling the kernel N+1 times for N hypervisors, and then
+bundling them up in some kind of multi-image format doesn't seem like a
+particularly good tradeoff.  The kernel RPM on my machine here is
+already ~50Mbytes; expanding that to 250Mbytes to support native, Xen,
+vmi, lguest and kvm doesn't seem reasonable.
+
+    J
