@@ -1,15 +1,16 @@
-From: "Huang2, Wei" <Wei.Huang2@amd.com>
-Subject: RE: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
-	console infrastructure for Xen console
-Date: Fri, 16 Mar 2007 14:01:50 -0500
-Message-ID: <7D748C767B7FA541A8AC5504A4C89A23015685C4@SAUSEXMB2.amd.com>
-References: <C22036DB.BA67%keir@xensource.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [RFC, PATCH] Fixup COMPAT_VDSO to work with CONFIG_PARAVIRT
+Date: Fri, 16 Mar 2007 13:06:46 -0600
+Message-ID: <m1ps79m2ih.fsf@ebiederm.dsl.xmission.com>
+References: <45FA054F.6020107@vmware.com>
+	<m17itho10v.fsf@ebiederm.dsl.xmission.com> <45FAC4EF.4060305@goop.org>
+	<20070316163118.GA12999@elte.hu> <45FAC6E6.5090000@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <C22036DB.BA67%keir@xensource.com>
+In-Reply-To: <45FAC6E6.5090000@goop.org> (Jeremy Fitzhardinge's message of
+	"Fri, 16 Mar 2007 09:33:42 -0700")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,52 +20,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Keir Fraser <keir@xensource.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Chris@osdl.org, linux-kernel@vger.kernel.org, Keir Fraser <Keir.Fraser@xensource.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <jbeulich@novell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-But it is shorter than from JFK or Newark. =
+Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
+> Ingo Molnar wrote:
+>> that's what is the case right now, but much of the intention behind the =
 
------Original Message-----
-From: xen-devel-bounces@lists.xensource.com
-[mailto:xen-devel-bounces@lists.xensource.com] On Behalf Of Keir Fraser
-Sent: Friday, March 16, 2007 6:58 AM
-To: Andrew Morton; Keir Fraser
-Cc: xen-devel@lists.xensource.com; Andi Kleen;
-linux-kernel@vger.kernel.org; Keir Fraser; Wright;
-virtualization@lists.osdl.org; Ingo Molnar; Chris@smtp.osdl.org
-Subject: Re: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
-console infrastructure for Xen console
+>> vma based vDSO is to enable per-process randomized vdso locations, and =
 
-On 16/3/07 11:41, "Andrew Morton" <akpm@linux-foundation.org> wrote:
+>> various distributions do that. So the 'modern' vDSO concept is very much =
 
->> It's needed for writing data /after/ reading the consumer index that
-shows
->> you have space to write. Looking through xenbus_comms.c I think all
-the
->> barriers are correct except there is a spurious extra mb() in
-xb_read(),
->> where there is a later rmb() which is sufficient by itself. All the
-others
->> have a purpose.
->> =
+>> relocatable.
+>
+> No, the point is that it never needs relocating.  The kernel can map it
+> anywhere and userspace can cope.  Its only the broken glibcs which
+> require relocation.
 
-> =
+Ok.  So to summarize.
+There are three ways of finding the VDSO.
+- AT_SYSINFO
+- AT_SYSINFO_EHDR
+- known fixed address (see x86_64)
 
-> If Ingo couldn't work this out from reading the code then nobody else
-can,
-> and we have a maintainability problem which can only be solved with
-> adequate commenting.
+Currently it doesn't sound like you need to deal with the known fixed
+address case but COMPAT_VDSO also provides that.
 
-Agreed. I've fixed up the commenting, removed the spurious mb(), and I
-just
-need Jeremy to merge that change into the Xen pv_ops patchset. :-)
+If userspace uses AT_SYSINFO the premise is that it is not expecting
+not to need to perform any relocation processing.
 
- -- Keir
+If userspace uses AT_SYSINFO_EHDR it expects it needs to perform
+relocation processing and fixes up whatever needs fixing up.
 
+With the module code we have shown the kernel is capable of performing
+relocation processing at times and it works.
 
-_______________________________________________
-Xen-devel mailing list
-Xen-devel@lists.xensource.com
-http://lists.xensource.com/xen-devel
+So is it possible to simply relocate the normal vdso and fixup
+it's program header so it shows that relocation is not necessary.
+If you can do that and still export AT_SYSINFO so the problem user
+space still runs you are good.  (If you can relocate the vdso
+you should be able to relocate it anywhere).
+
+Otherwise it probably just make sense to simply not export a VDSO
+on those systems.
+
+This would leave COMPAT_VDSO for the case where you must use one magic
+fixed address, and if user space does not require that it means
+COMPAT_VDSO could be completely removed.
+
+Eric
