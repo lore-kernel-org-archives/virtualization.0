@@ -1,81 +1,235 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: Stolen and degraded time and schedulers
-Date: Fri, 16 Mar 2007 09:59:01 +0100
-Message-ID: <1174035541.2811.13.camel@localhost>
-References: <45F6D1D0.6080905@goop.org>
-	 <1173816769.22180.14.camel@localhost>	<45F70A71.9090205@goop.org>
-	 <1173821224.1416.24.camel@dwalker1> <45F71EA5.2090203@goop.org>
-	 <45F74515.7010808@vmware.com> <45F77C27.8090604@goop.org>
-	 <45F846AB.6060200@vmware.com> <45F84E39.7030507@goop.org>
-	 <45F85A62.8050001@vmware.com> <45F85BBB.70707@goop.org>
-	 <45F85F43.9030803@vmware.com> <45F866AF.9060609@goop.org>
-	 <45F999D4.6080602@vmware.com> <45F9A42D.7090205@goop.org>
-	 <45F9A788.1010008@vmware.com> <45F9A93A.2030400@redhat.com>
-	 <45F9AE1D.7080203@vmware.com>
-Reply-To: schwidefsky@de.ibm.com
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 20/26] Xen-paravirt_ops: Core Xen
+	implementation
+Date: Fri, 16 Mar 2007 10:14:11 +0100
+Message-ID: <20070316091411.GF23174@elte.hu>
+References: <20070301232443.195603797@goop.org>
+	<20070301232528.812011702@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753445AbXCPI6x@vger.kernel.org>
-In-Reply-To: <45F9AE1D.7080203@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Hecht <dhecht@vmware.com>
-Cc: Rik van Riel <riel@redhat.com>, Jeremy Fitzhardinge <jeremy@goop.org>, dwalker@mvista.com, cpufreq@lists.linux.org.uk, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Con Kolivas <kernel@kolivas.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, paulus@au1.ibm.com, Zachary Amsden <zach@vmware.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline
+In-Reply-To: <20070301232528.812011702@goop.org>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-03-15 at 13:35 -0700, Dan Hecht wrote:
-> >> Yes, the part in the "i.e." above is describing available time.  S=
-o,=20
-> >> it is essentially is the same definition of stolen time VMI uses:
-> >=20
-> >> stolen time     =3D=3D ready to run but not running
-> >> available time  =3D=3D running or not ready to run
-> >=20
-> > S390 too.  We were quite careful to make sure that steal time
-> > means the same on the different platforms when the code was
-> > introduced.
-> >=20
->=20
-> The S390 folks should correct me if I'm mistaken, but I think S390 wo=
-rks=20
-> a bit differently.  I don't think their "steal clock" will differenti=
-ate=20
-> between idle time and stolen time (since it's implemented as a hardwa=
-re=20
-> clock that counts the time a particular vcpu context is executing on =
-the=20
-> pcpu).  So they need the kernel to differentiate between really stole=
-n=20
-> time and just idle time.  At least, I assume this is why=20
-> account_steal_time() can then sometimes account steal time towards id=
-le,=20
-> and looking at arch/s390/kernel/vtime.c seems to indicate this.
-> idle period.
 
-=46or s390 we have: stolen time =3D=3D wanted to run but the hypervisor=
- didn't
-let us. The way this is implemented is by using the cpu timer. This is =
-a
-per-cpu register that is fully virtualized. It runs at the same rate as
-the clock, but only if the virtual cpu is scheduled to run. If the real
-cpu falls out of the guest context the guest cpu timer just stops. The
-wall clock (TOD) keeps ticking. The calculation to find the amount of
-stolen time is now simple: TOD clock - guest cpu timer.
-=46or idle there is a little pitfall. If the guest cpu is a dedicated c=
-pu
-under LPAR loading a wait psw does not cause the guest cpu fall out of
-the guest context. The guest cpu timer will continue ticking. In this
-case the time spent in idle is accounted via system_time. If the guest
-cpu is a shared cpu then loading a wait psw will cause the cpu to fall
-out of guest context and the guest cpu timer will be stopped. In this
-case the idle time will be accounted via steal_time.=20
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
---=20
-blue skies,              IBM Deutschland Entwicklung GmbH
-   Martin                Vorsitzender des Aufsichtsrats: Johann Weihen
-                         Gesch=E4ftsf=FChrung: Herbert Kircher
-Martin Schwidefsky       Sitz der Gesellschaft: B=F6blingen
-Linux on zSeries         Registergericht: Amtsgericht Stuttgart,
-   Development           HRB 243294
+> Core Xen Implementation
+> 
+> This patch is a rollup of all the core pieces of the Xen 
+> implementation, including booting, memory management, interrupts, time 
+> and so on.
 
-"Reality continues to ruin my life." - Calvin.
+> --- a/arch/i386/kernel/head.S
+> +++ b/arch/i386/kernel/head.S
+> @@ -535,6 +535,10 @@ unhandled_paravirt:
+>  	ud2
+>  #endif
+>  
+> +#ifdef CONFIG_XEN
+> +#include "../xen/xen-head.S"
+> +#endif
+
+i'd suggest to remove the #ifdef and push it into xen-head.S.
+
+>  /*
+>   * BSS section
+>   */
+> -.section ".bss.page_aligned","w"
+> +.section ".bss.page_aligned","wa"
+
+why is this done?
+
+>  ENTRY(swapper_pg_dir)
+> +	.align PAGE_SIZE_asm
+>  	.fill 1024,4,0
+
+does the native kernel lose memory here?
+
+> @@ -437,9 +437,9 @@ static unsigned long native_store_tr(voi
+>  
+>  static void native_load_tls(struct thread_struct *t, unsigned int cpu)
+>  {
+> -#define C(i) get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + i] = t->tls_array[i]
+> -	C(0); C(1); C(2);
+> -#undef C
+> +	get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + 0] = t->tls_array[0];
+> +	get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + 1] = t->tls_array[1];
+> +	get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + 2] = t->tls_array[2];
+>  }
+
+this is a cleanup unrelated to the purpose of the patch.
+
+> +static void xen_safe_halt(void)
+> +{
+> +	stop_hz_timer();
+> +	/* Blocking includes an implicit local_irq_enable(). */
+> +	if (HYPERVISOR_sched_op(SCHEDOP_block, 0) != 0)
+> +		BUG();
+> +	start_hz_timer();
+> +}
+
+change this to tick_nohz_stop_sched_tick()/restart_sched_tick() instead.
+
+> +static void xen_halt(void)
+> +{
+> +#if 0
+> +	if (irqs_disabled())
+> +		HYPERVISOR_vcpu_op(VCPUOP_down, smp_processor_id(), NULL);
+> +#endif
+
+hm?
+
+> +		op->arg1.linear_addr = arbitrary_virt_to_machine((unsigned long)addr).maddr;
+
+80+ chars line. (there are more instances of this throughout the patch)
+
+> +	for (va = dtr->address, f = 0;
+> +	     va < dtr->address + size;
+> +	     va += PAGE_SIZE, f++) {
+> +		frames[f] = virt_to_mfn(va);
+> +		make_lowmem_page_readonly((void *)va);
+> +	}
+
+coding style.
+
+> +	/* This is used very early, so we can't rely on per-cpu data
+> +	   being set up, so no multicalls */
+
+comment coding style. (there are instances of this throughout the patch)
+
+> +	spin_lock(&lock);
+> +	for(in = out = 0; in < count; in++) {
+
+missing whitespace.
+
+> +		if (HYPERVISOR_update_descriptor(virt_to_machine(dt + entry*8).maddr,
+
+80+ chars.
+
+> +static void xen_set_iopl_mask(unsigned mask)
+> +{
+> +#if 0
+> +	struct physdev_set_iopl set_iopl;
+> +
+> +	/* Force the change at ring 0. */
+> +	set_iopl.iopl = (mask == 0) ? 1 : (mask >> 12) & 3;
+> +	HYPERVISOR_physdev_op(PHYSDEVOP_set_iopl, &set_iopl);
+> +#endif
+
+hm?
+
+> +	}
+> +
+> +	write_pda(xen.cr3, cr3);
+> +
+> +
+> +	{
+
+unnecessary newline.
+
+> +static struct irq_chip xen_dynamic_chip __read_mostly = {
+> +	.name		= "xen-virq",
+> +	.mask		= disable_dynirq,
+> +	.unmask		= enable_dynirq,
+> +	.ack		= ack_dynirq,
+> +	.set_affinity	= set_affinity_irq,
+> +	.retrigger	= retrigger_dynirq,
+> +};
+
+nicely done! :-)
+
+> +void xen_set_pte(pte_t *ptep, pte_t pte)
+> +{
+> +#if 1
+> +	struct mmu_update u;
+> +
+> +	u.ptr = virt_to_machine(ptep).maddr;
+> +	u.val = pte_val_ma(pte);
+> +	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+> +		BUG();
+> +#else
+> +	ptep->pte_high = pte.pte_high;
+> +	smp_wmb();
+> +	ptep->pte_low = pte.pte_low;
+> +#endif
+
+hm?
+
+> +	pgd = swapper_pg_dir + pgd_index(vaddr);
+> +	if (pgd_none(*pgd)) {
+> +		BUG();
+> +		return;
+
+hm?
+
+> +void xen_pte_clear(struct mm_struct *mm, unsigned long addr,pte_t *ptep)
+> +{
+> +#if 1
+> +	ptep->pte_low = 0;
+> +	smp_wmb();
+> +	ptep->pte_high = 0;
+> +#else
+> +	set_64bit((u64 *)ptep, 0);
+> +#endif
+
+hm?
+
+> +unsigned long xen_pmd_val(pmd_t pmd)
+> +{
+> +	BUG();
+> +	return 0;
+> +}
+
+make it noret.
+
+> +pmd_t xen_make_pmd(unsigned long pmd)
+> +{
+> +	BUG();
+> +	return __pmd(0);
+> +}
+
+ditto.
+
+> +static void xen_timer_interrupt_hook(void)
+> +{
+
+> +				runstate->time[RUNSTATE_offline] -
+> +				__get_cpu_var(processed_stolen_time);
+
+NACK for now, for the reasons outlined in the 'stolen time' thread. 
+Stolen time accounting is a concept only related to the scheduler tick, 
+it's not a concept that should leak into normal timer interrupt 
+concepts.
+
+> +	/* System-wide jiffy work. */
+> +	ticks = 0;
+> +	while(delta > NS_PER_TICK) {
+> +		delta -= NS_PER_TICK;
+> +		processed_system_time += NS_PER_TICK;
+> +		ticks++;
+> +	}
+> +	do_timer(ticks);
+
+that should be updated to clockevents. (i suspect it already is?)
+
+> +
+> +#if 0
+> +	if (unlikely((mfn >> machine_to_phys_order) != 0))
+> +		return max_mapnr;
+> +#endif
+
+hm?
+
+	Ingo
