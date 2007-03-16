@@ -1,33 +1,37 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [patch 24/26] Xen-paravirt_ops: Add the Xenbus sysfs and virtual device hotplug driver.
-Date: Fri, 16 Mar 2007 10:53:16 -0700
-Message-ID: <20070316175316.GA17091@kroah.com>
-References: <20070301232443.195603797@goop.org> <20070301232529.271605211@goop.org> <20070316084704.GB23174@elte.hu> <20070316161804.GH10574@sequoia.sous-sol.org> <20070316161948.GE9413@elte.hu> <20070316164023.GJ10574@sequoia.sous-sol.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 05/26] Xen-paravirt_ops: paravirt_ops: hooks to set up
+ initial pagetable
+Date: Fri, 16 Mar 2007 11:39:43 -0700
+Message-ID: <45FAE46F.7080009@goop.org>
+References: <20070301232443.195603797@goop.org> <20070301232526.611972133@goop.org> <20070316093348.GS23174@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965801AbXCPRz2@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20070316164023.GJ10574@sequoia.sous-sol.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753581AbXCPSjy@vger.kernel.org>
+In-Reply-To: <20070316093348.GS23174@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Greg KH <gregkh@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, William Lee Irwin III <wli@holomorphy.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 16, 2007 at 09:40:23AM -0700, Chris Wright wrote:
-> * Ingo Molnar (mingo@elte.hu) wrote:
-> > please indicate any such review feedback (and approval) via 
-> > signed-off-by lines done by that person.
-> 
-> Certainly, Greg didn't sign off, he simply gave review feedback.
+Ingo Molnar wrote:
+>> +	/* Make sure kernel address space is empty so that a pagetable
+>> +	   will be allocated for it. */
+>>     
+>
+> comment style.
+>   
 
-Yeah, I did that a while ago, but I don't want to give my acked-by or
-signed-off for this code.  While I can not find anything specfically
-wrong with it, it seems a bit "odd", but that might just be because I
-really don't understand what they are doing here, or why.
+As you've noticed its a comment style I use quite often.  I use it for
+what's essentially a little local comment, rather than a block comment
+which really needs to draw attention to itself.  In this case, I think using
 
-And no, I really don't want to understand it either at the moment due to
-being busy with other things :)
+/*
+ * Make sure kernel address space is empty so that a pagetable
+ * will be allocated for it.
+ */
 
-thanks,
+is just too loud for what its trying to say.  If // comments were deemed
+acceptable, I'd probably use them here instead.
 
-greg k-h
+    J
