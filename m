@@ -1,14 +1,14 @@
-From: Keir Fraser <keir@xensource.com>
-Subject: Re: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
-	console infrastructure for Xen console
-Date: Fri, 16 Mar 2007 10:31:49 +0000
-Message-ID: <C2202295.BA49%keir__765.060846652155$1174041226$gmane$org@xensource.com>
-References: <20070316095851.GB301@elte.hu>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] make CONFIG_PARAVIRT require NO_HZ
+Date: Fri, 16 Mar 2007 11:55:38 +0100
+Message-ID: <20070316105538.GA13557@elte.hu>
+References: <20070316054746.GD10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070316095851.GB301@elte.hu>
+Content-Disposition: inline
+In-Reply-To: <20070316054746.GD10574@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
 List-Archive: <http://lists.osdl.org/pipermail/virtualization>
@@ -18,24 +18,19 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
 Sender: virtualization-bounces@lists.osdl.org
 Errors-To: virtualization-bounces@lists.osdl.org
-To: Ingo Molnar <mingo@elte.hu>, Keir Fraser <Keir.Fraser@xensource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: virtualization@lists.osdl.org, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16/3/07 09:58, "Ingo Molnar" <mingo@elte.hu> wrote:
 
->> These mb()'s are pretty standard for lock-free producer/consumer
->> rings. Write descriptor /then/ write the updated producer. Read the
->> producer /then/ read any descriptors revealed by this new producer
->> value.
-> =
+* Chris Wright <chrisw@sous-sol.org> wrote:
 
-> then use rmb()/wmb(). Rarely does a ring protocol truly need mb().
+> Given all the discussion, let's just require NO_HZ when =
 
-It's needed for writing data /after/ reading the consumer index that shows
-you have space to write. Looking through xenbus_comms.c I think all the
-barriers are correct except there is a spurious extra mb() in xb_read(),
-where there is a later rmb() which is sufficient by itself. All the others
-have a purpose.
+> CONFIG_PARAVIRT.  Anyone object?
 
- -- Keir
+well ... why do we want this? I'd not mind making it default y if =
+
+CONFIG_PARAVIRT is enabled, but why force it?
+
+	Ingo
