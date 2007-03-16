@@ -1,38 +1,33 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 08/26] Xen-paravirt_ops: add hooks to
- intercept mm creation and destruction
-Date: Fri, 16 Mar 2007 10:38:42 -0700
-Message-ID: <45FAD622.2080306@goop.org>
-References: <20070301232443.195603797@goop.org>
-	<20070301232527.110592372@goop.org>
-	<20070316093016.GP23174@elte.hu>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [patch 24/26] Xen-paravirt_ops: Add the Xenbus sysfs and virtual device hotplug driver.
+Date: Fri, 16 Mar 2007 10:53:16 -0700
+Message-ID: <20070316175316.GA17091@kroah.com>
+References: <20070301232443.195603797@goop.org> <20070301232529.271605211@goop.org> <20070316084704.GB23174@elte.hu> <20070316161804.GH10574@sequoia.sous-sol.org> <20070316161948.GE9413@elte.hu> <20070316164023.GJ10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070316093016.GP23174@elte.hu>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Zachary Amsden <zach@vmware.com>, linux-arch@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965801AbXCPRz2@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20070316164023.GJ10574@sequoia.sous-sol.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Greg KH <gregkh@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ingo Molnar wrote:
-> * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
->
->   
->> Add hooks to allow a paravirt implementation to track the lifetime of 
->> an mm.
->>     
->
-> (i guess this one should be merged with the ARCH-define cleanup patch)
->   
+On Fri, Mar 16, 2007 at 09:40:23AM -0700, Chris Wright wrote:
+> * Ingo Molnar (mingo@elte.hu) wrote:
+> > please indicate any such review feedback (and approval) via 
+> > signed-off-by lines done by that person.
+> 
+> Certainly, Greg didn't sign off, he simply gave review feedback.
 
-Already done.  In fact, I think I did it before the last patch post. 
-Are you looking at an uptodate series of patches?
+Yeah, I did that a while ago, but I don't want to give my acked-by or
+signed-off for this code.  While I can not find anything specfically
+wrong with it, it seems a bit "odd", but that might just be because I
+really don't understand what they are doing here, or why.
+
+And no, I really don't want to understand it either at the moment due to
+being busy with other things :)
+
+thanks,
+
+greg k-h
