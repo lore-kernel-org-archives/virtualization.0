@@ -1,45 +1,40 @@
-From: Keir Fraser <keir@xensource.com>
-Subject: Re: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
-	console infrastructure for Xen console
-Date: Fri, 16 Mar 2007 11:58:19 +0000
-Message-ID: <C22036DB.BA67%keir__2138.69758085838$1174046398$gmane$org@xensource.com>
-References: <20070316034123.9de92632.akpm@linux-foundation.org>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [patch 20/26] Xen-paravirt_ops: Core Xen implementation
+Date: Fri, 16 Mar 2007 12:00:49 +0000
+Message-ID: <20070316120049.GA22072@infradead.org>
+References: <20070301232443.195603797@goop.org> <20070301232528.812011702@goop.org> <20070316091411.GF23174@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070316034123.9de92632.akpm@linux-foundation.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>
-Cc: Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>, Chris@osdl.org, linux-kernel@vger.kernel.org, Keir Fraser <Keir.Fraser@xensource.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933584AbXCPMBL@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20070316091411.GF23174@elte.hu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Adrian Bunk <bunk@stusta.de>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16/3/07 11:41, "Andrew Morton" <akpm@linux-foundation.org> wrote:
+On Fri, Mar 16, 2007 at 10:14:11AM +0100, Ingo Molnar wrote:
+> 
+> * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> 
+> > Core Xen Implementation
+> > 
+> > This patch is a rollup of all the core pieces of the Xen 
+> > implementation, including booting, memory management, interrupts, time 
+> > and so on.
+> 
+> > --- a/arch/i386/kernel/head.S
+> > +++ b/arch/i386/kernel/head.S
+> > @@ -535,6 +535,10 @@ unhandled_paravirt:
+> >  	ud2
+> >  #endif
+> >  
+> > +#ifdef CONFIG_XEN
+> > +#include "../xen/xen-head.S"
+> > +#endif
+> 
+> i'd suggest to remove the #ifdef and push it into xen-head.S.
 
->> It's needed for writing data /after/ reading the consumer index that sho=
-ws
->> you have space to write. Looking through xenbus_comms.c I think all the
->> barriers are correct except there is a spurious extra mb() in xb_read(),
->> where there is a later rmb() which is sufficient by itself. All the othe=
-rs
->> have a purpose.
->> =
-
-> =
-
-> If Ingo couldn't work this out from reading the code then nobody else can,
-> and we have a maintainability problem which can only be solved with
-> adequate commenting.
-
-Agreed. I've fixed up the commenting, removed the spurious mb(), and I just
-need Jeremy to merge that change into the Xen pv_ops patchset. :-)
-
- -- Keir
+Even better would be an explanation of why this needs to be included
+at all.  Life would be much simpler if this was simply a totally
+separate file.
