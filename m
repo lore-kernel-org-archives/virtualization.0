@@ -1,44 +1,33 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
-	console infrastructure for Xen console
-Date: Fri, 16 Mar 2007 10:58:51 +0100
-Message-ID: <20070316095851.GB301@elte.hu>
-References: <20070316085451.GE23174@elte.hu> <C22013C9.B9E6%keir@xensource.com>
+From: Keir Fraser <keir@xensource.com>
+Subject: Re: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
+ console infrastructure for Xen console
+Date: Fri, 16 Mar 2007 10:31:49 +0000
+Message-ID: <C2202295.BA49%keir__45110.7369423427$1174041161$gmane$org@xensource.com>
+References: <20070316095851.GB301@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline
-In-Reply-To: <C22013C9.B9E6%keir@xensource.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Keir Fraser <Keir.Fraser@xensource.com>
-Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753459AbXCPKcE@vger.kernel.org>
+In-Reply-To: <20070316095851.GB301@elte.hu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>, Keir Fraser <Keir.Fraser@xensource.com>
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 16/3/07 09:58, "Ingo Molnar" <mingo@elte.hu> wrote:
 
-* Keir Fraser <Keir.Fraser@xensource.com> wrote:
-
-> On 16/3/07 08:54, "Ingo Molnar" <mingo@elte.hu> wrote:
+>> These mb()'s are pretty standard for lock-free producer/consumer
+>> rings. Write descriptor /then/ write the updated producer. Read the
+>> producer /then/ read any descriptors revealed by this new producer
+>> value.
 > 
-> >> + prod = intf->in_prod;
-> >> + mb();
-> >> + BUG_ON((prod - cons) > sizeof(intf->in));
-> > 
-> > such mb()'s are typically a sign of "i have no clear idea what SMP
-> > serialization rules apply here, but something is needed because
-> > otherwise it breaks" ?
-> 
-> These mb()'s are pretty standard for lock-free producer/consumer 
-> rings. Write descriptor /then/ write the updated producer. Read the 
-> producer /then/ read any descriptors revealed by this new producer 
-> value.
+> then use rmb()/wmb(). Rarely does a ring protocol truly need mb().
 
-then use rmb()/wmb(). Rarely does a ring protocol truly need mb().
+It's needed for writing data /after/ reading the consumer index that shows
+you have space to write. Looking through xenbus_comms.c I think all the
+barriers are correct except there is a spurious extra mb() in xb_read(),
+where there is a later rmb() which is sufficient by itself. All the others
+have a purpose.
 
-	Ingo
+ -- Keir
