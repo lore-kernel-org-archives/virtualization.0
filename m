@@ -1,44 +1,40 @@
-From: Keir Fraser <keir@xensource.com>
-Subject: Re: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
-	console infrastructure for Xen console
-Date: Fri, 16 Mar 2007 09:28:41 +0000
-Message-ID: <C22013C9.B9E6%keir__46236.4507643089$1174037474$gmane$org@xensource.com>
-References: <20070316085451.GE23174@elte.hu>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 06/26] Xen-paravirt_ops: paravirt_ops:
+	allocate a fixmap slot
+Date: Fri, 16 Mar 2007 10:31:45 +0100
+Message-ID: <20070316093145.GR23174@elte.hu>
+References: <20070301232443.195603797@goop.org>
+	<20070301232526.730138638@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <20070316085451.GE23174@elte.hu>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline
+In-Reply-To: <20070301232526.730138638@goop.org>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16/3/07 08:54, "Ingo Molnar" <mingo@elte.hu> wrote:
 
->> + prod =3D intf->in_prod;
->> + mb();
->> + BUG_ON((prod - cons) > sizeof(intf->in));
-> =
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> such mb()'s are typically a sign of "i have no clear idea what SMP
-> serialization rules apply here, but something is needed because
-> otherwise it breaks" ?
+> Allocate a fixmap slot for use by a paravirt_ops implementation.  This 
+> is intended for early-boot bootstrap mappings.  Once the zones and 
+> allocator have been set up, it would be better to use get_vm_area() to 
+> allocate some virtual space.
+> 
+> Xen uses this to map the hypervisor's shared info page, which doesn't 
+> have a pseudo-physical page number, and therefore can't be mapped 
+> ordinarily.  It is needed early because it contains the vcpu state, 
+> including the interrupt mask.
 
-These mb()'s are pretty standard for lock-free producer/consumer rings.
-Write descriptor /then/ write the updated producer. Read the producer /then/
-read any descriptors revealed by this new producer value.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-All our ring protocols (and we have a few) require memory barriers. Those
-that use our standard set of ring macros have the memory barriers hidden
-from view, but they're still there.
-
- -- Keir
+	Ingo
