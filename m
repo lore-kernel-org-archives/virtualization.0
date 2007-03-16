@@ -1,52 +1,40 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [RFC, PATCH] Fixup COMPAT_VDSO to work with CONFIG_PARAVIRT
-Date: Thu, 15 Mar 2007 22:10:50 -0700
-Message-ID: <45FA26DA.7020109@goop.org>
-References: <45FA054F.6020107@vmware.com> <45FA0D13.6080601@goop.org> <45FA16FE.7010805@vmware.com>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: [PATCH] make CONFIG_PARAVIRT require NO_HZ
+Date: Thu, 15 Mar 2007 22:47:46 -0700
+Message-ID: <20070316054746.GD10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751922AbXCPFKu@vger.kernel.org>
-In-Reply-To: <45FA16FE.7010805@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Jan Beulich <jbeulich@novell.com>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>, Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>
+Cc: virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> Well testing that is not so fun.  I installed SUSE Pro 9.0, and
-> strings on ld.so contains the magic at_sysinfo assert!  But it doesn't
-> install TLS libraries, so I'll have to install them by hand.
->
-> In works - in theory.  Look, a puppy!
->
-> Scratchbox is rumored to produce the fabled assertion even on modern
-> distros by installing its own toolchain which includes the dreaded glibc.
+Given all the discussion, let's just require NO_HZ when
+CONFIG_PARAVIRT.  Anyone object?
 
-I think Andi and Andrew have boxes which are afflicted.
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
 
-> I'm playing safe.  Binary identical relocation to 0xffffe000 was my goal.
+--- a/arch/i386/Kconfig	Mon Mar 12 11:07:45 2007 -0700
++++ b/arch/i386/Kconfig	Mon Mar 12 16:53:14 2007 -0700
+@@ -208,7 +208,7 @@ endchoice
+ =
 
-Yeah, fair enough.  But as Eric likes to keep pointing out, an
-executable ELF file need not have any sections at all, so the only safe
-course for anything "real" is via the section headers.
-
-So I guess the right thing to do is relocate the dynamic stuff via
-PT_DYNAMIC, and relocate the symtab if its present.
-
->>> +        } else if (strcmp(secstrings+sechdrs[i].sh_name,
->>> ".dynamic") == 0) {
->>> +            Elf32_Dyn *dyn = (void *)hdr + sechdrs[i].sh_offset;
->>> +            int tag;
->>> +            while ((tag = (++dyn)->d_tag) != DT_NULL)
->>>       
->>
->> Um, no.
->>   
->
-> Walk based on size instead?
-
-No, I was just complaining about the embedded assignment, before dinner,
-so I was overly terse.
-
-    J
+ config PARAVIRT
+ 	bool "Paravirtualization support (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL
++	depends on EXPERIMENTAL && NO_HZ
+ 	depends on !(X86_VISWS || X86_VOYAGER)
+ 	help
+ 	  Paravirtualization is a way of running multiple instances of
