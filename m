@@ -1,103 +1,52 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [RFC, PATCH] Fixup COMPAT_VDSO to work with CONFIG_PARAVIRT
-Date: Thu, 15 Mar 2007 20:03:10 -0800
-Message-ID: <45FA16FE.7010805@vmware.com>
-References: <45FA054F.6020107@vmware.com> <45FA0D13.6080601@goop.org>
+Date: Thu, 15 Mar 2007 22:10:50 -0700
+Message-ID: <45FA26DA.7020109@goop.org>
+References: <45FA054F.6020107@vmware.com> <45FA0D13.6080601@goop.org> <45FA16FE.7010805@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.osdl.org>
-In-Reply-To: <45FA0D13.6080601@goop.org>
-List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
-List-Archive: <http://lists.osdl.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.osdl.org>
-List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
-List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
-Sender: virtualization-bounces@lists.osdl.org
-Errors-To: virtualization-bounces@lists.osdl.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jan Beulich <jbeulich@novell.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751922AbXCPFKu@vger.kernel.org>
+In-Reply-To: <45FA16FE.7010805@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Jan Beulich <jbeulich@novell.com>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>, Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->   =
-
->> Invoke black magic to relocate the VDSO even when COMPAT_VDSO is enabled
->> by fixing up the ELF object.
->>   =
-
->>     =
-
+Zachary Amsden wrote:
+> Well testing that is not so fun.  I installed SUSE Pro 9.0, and
+> strings on ld.so contains the magic at_sysinfo assert!  But it doesn't
+> install TLS libraries, so I'll have to install them by hand.
 >
-> So does it actually work?  Can you boot the broken distros with this in
-> place?
->   =
-
-
-Well testing that is not so fun.  I installed SUSE Pro 9.0, and strings =
-
-on ld.so contains the magic at_sysinfo assert!  But it doesn't install =
-
-TLS libraries, so I'll have to install them by hand.
-
-In works - in theory.  Look, a puppy!
-
-Scratchbox is rumored to produce the fabled assertion even on modern =
-
-distros by installing its own toolchain which includes the dreaded glibc.
-
-> Using sections is wrong; you should be going through the phdrs, and
-> looking for PT_DYNAMIC for relocation.
->   =
-
-
-Will do.
-
-> Does anyone expect the symbolic info to be correct?  It might be better
-> to just stomp it so nobody gets any ideas.
+> In works - in theory.  Look, a puppy!
 >
-> On the other hand, we don't want to break compatibility with anything...
->   =
+> Scratchbox is rumored to produce the fabled assertion even on modern
+> distros by installing its own toolchain which includes the dreaded glibc.
 
+I think Andi and Andrew have boxes which are afflicted.
 
-I'm playing safe.  Binary identical relocation to 0xffffe000 was my goal.
+> I'm playing safe.  Binary identical relocation to 0xffffe000 was my goal.
 
->> +		} else if (strcmp(secstrings+sechdrs[i].sh_name, ".dynamic") =3D=3D 0=
-) {
->> +			Elf32_Dyn *dyn =3D (void *)hdr + sechdrs[i].sh_offset;
->> +			int tag;
->> +			while ((tag =3D (++dyn)->d_tag) !=3D DT_NULL)
->>   =
+Yeah, fair enough.  But as Eric likes to keep pointing out, an
+executable ELF file need not have any sections at all, so the only safe
+course for anything "real" is via the section headers.
 
->>     =
+So I guess the right thing to do is relocate the dynamic stuff via
+PT_DYNAMIC, and relocate the symtab if its present.
 
+>>> +        } else if (strcmp(secstrings+sechdrs[i].sh_name,
+>>> ".dynamic") == 0) {
+>>> +            Elf32_Dyn *dyn = (void *)hdr + sechdrs[i].sh_offset;
+>>> +            int tag;
+>>> +            while ((tag = (++dyn)->d_tag) != DT_NULL)
+>>>       
+>>
+>> Um, no.
+>>   
 >
-> Um, no.
->   =
+> Walk based on size instead?
 
+No, I was just complaining about the embedded assignment, before dinner,
+so I was overly terse.
 
-Walk based on size instead?
-
->> +		} else if (strcmp(secstrings+sechdrs[i].sh_name, ".useless") =3D=3D 0=
-) {
->> +			/* This is demonic; see vsyscall.lds.S; it puts the
->> +			 * .got in a section named .useless */
->> +			uint32_t *got =3D (void *)hdr + sechdrs[i].sh_offset;
->> +			*got +=3D VDSO_HIGH_BASE;
->> +		}
->>   =
-
->>     =
-
->
-> This won't get relocated with one of the other relocations?  It's in the
-> text phdr.
->   =
-
-
-Hmm, I can try that.  Thanks for the suggestions / fixes.
-
-Zach
+    J
