@@ -1,15 +1,15 @@
 From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 01/26] Xen-paravirt_ops: Fix typo in
-	sync_constant_test_bit()s name.
-Date: Fri, 16 Mar 2007 10:45:40 +0100
-Message-ID: <20070316094540.GW23174@elte.hu>
+Subject: Re: [patch 02/26] Xen-paravirt_ops: ignore vgacon if
+	hardware not present
+Date: Fri, 16 Mar 2007 10:45:20 +0100
+Message-ID: <20070316094520.GV23174@elte.hu>
 References: <20070301232443.195603797@goop.org>
-	<20070301232525.663955593@goop.org>
+	<20070301232525.875538104@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <xen-devel-bounces@lists.xensource.com>
 Content-Disposition: inline
-In-Reply-To: <20070301232525.663955593@goop.org>
+In-Reply-To: <20070301232525.875538104@goop.org>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -25,7 +25,7 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> Avoid trying to set up vgacon if there's no vga hardware present.
 
 Acked-by: Ingo Molnar <mingo@elte.hu>
 
