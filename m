@@ -1,69 +1,43 @@
-From: Steven Rostedt <srostedt@stny.rr.com>
-Subject: Re: [patch 05/26] Xen-paravirt_ops: paravirt_ops: hooks to set up
-	initial pagetable
-Date: Fri, 16 Mar 2007 15:35:44 -0400
-Message-ID: <1174073744.11050.7.camel@localhost.localdomain>
-References: <20070301232443.195603797@goop.org>
-	<20070301232526.611972133@goop.org> <20070316093348.GS23174@elte.hu>
-	<45FAE46F.7080009@goop.org>
-Reply-To: rostedt@goodmis.org
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [RFC, PATCH] Fixup COMPAT_VDSO to work with CONFIG_PARAVIRT
+Date: Fri, 16 Mar 2007 11:38:10 -0800
+Message-ID: <45FAF222.9070900@vmware.com>
+References: <45FA054F.6020107@vmware.com> <m17itho10v.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <45FAE46F.7080009@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753611AbXCPTiN@vger.kernel.org>
+In-Reply-To: <m17itho10v.fsf@ebiederm.dsl.xmission.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Jan Beulich <jbeulich@novell.com>, Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-03-16 at 11:39 -0700, Jeremy Fitzhardinge wrote:
-> Ingo Molnar wrote:
-> >> +	/* Make sure kernel address space is empty so that a pagetable
-> >> +	   will be allocated for it. */
-> >>     =
+Eric W. Biederman wrote:
+> I'm not quite familiar with the context.  And I'm to lazy to look right now.
+> What is the difference with COMPAT_VDSO that it doesn't do relocation?
+> What are we preserving?
+>   
 
-> >
-> > comment style.
-> >   =
+COMPAT_VDSO causes the link address to be fixed at compile time to match 
+the virtual address of the VDSO.  !COMPAT_VDSO just links at zero.
 
-> =
+> The practical question here is if we already have all of the relocation logic
+> for the VDSO why do we need to add more?
+>   
 
-> As you've noticed its a comment style I use quite often.  I use it for
-> what's essentially a little local comment, rather than a block comment
-> which really needs to draw attention to itself.  In this case, I think us=
-ing
-> =
+There wasn't relocation logic before, the VDSO just got remapped to a 
+different virtual address without any relocation at all.  Which is safe, 
+because it is all hand-coded assembly, relocatable code.  But not 
+complete, since the ELF headers don't have any fixup applied for the 
+relocation, and there are broken linkers which look at the ELF headers 
+and assert fail if ph->p_vaddr != _rtld_local._dl_sysinfo_dso; these 
+broken dynamic linkers are what COMPAT_VDSO is protecting.
 
+> I'm tempted to rant on the pure insanity of address space randomization but
+> that is a whole other issue...
+>   
 
-Understood, but then you need to make that comment a single line :)
+Firesticks in ant nests is all I'm saying about that.
 
-The way Linux code prefers comments (like the code itself actually
-prefers it!) is single line comments stay on a single line, and
-multiline comments are always block.
-
-So it's either:
-
-   /* my little comment here */
-
-or =
-
-
-   /*
-    * This comment, although small and to the point, does span multiple
-    * lines and regardless, needs to be a block comment.
-    */
-
-I guess it just makes it easier on the eyes when everything conforms and
-others need to look at / maintain your code.
-
-
--- Steve
+Zach
