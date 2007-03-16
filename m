@@ -1,16 +1,15 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [patch 00/26] Xen-paravirt_ops: Xen guest implementation for
-	paravirt_ops interface
-Date: Fri, 16 Mar 2007 18:59:23 +0000
-Message-ID: <20070316185923.GA15209@infradead.org>
-References: <20070301232443.195603797@goop.org>
-	<20070316092137.GL23174@elte.hu> <45FAD35F.8040404@goop.org>
+From: "Huang2, Wei" <Wei.Huang2@amd.com>
+Subject: RE: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
+	console infrastructure for Xen console
+Date: Fri, 16 Mar 2007 14:01:50 -0500
+Message-ID: <7D748C767B7FA541A8AC5504A4C89A23015685C4@SAUSEXMB2.amd.com>
+References: <C22036DB.BA67%keir@xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <45FAD35F.8040404@goop.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <C22036DB.BA67%keir@xensource.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,41 +19,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+To: Keir Fraser <keir@xensource.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Chris@osdl.org, linux-kernel@vger.kernel.org, Keir Fraser <Keir.Fraser@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 16, 2007 at 10:26:55AM -0700, Jeremy Fitzhardinge wrote:
-> +#ifdef CONFIG_HIGHPTE
-> +	.kmap_atomic_pte =3D native_kmap_atomic_pte,
-> +#else
-> +	.kmap_atomic_pte =3D paravirt_nop,
-> +#endif
+But it is shorter than from JFK or Newark. =
 
-This is ifdefing is quite ugly.  Shouldn't native_kmap_atomic_pte
-just be a noop in the !CONFIG_HIGHPTE case?
 
-> -void *kmap_atomic(struct page *page, enum km_type type)
-> +void *_kmap_atomic(struct page *page, enum km_type type, pgprot_t prot)
+-----Original Message-----
+From: xen-devel-bounces@lists.xensource.com
+[mailto:xen-devel-bounces@lists.xensource.com] On Behalf Of Keir Fraser
+Sent: Friday, March 16, 2007 6:58 AM
+To: Andrew Morton; Keir Fraser
+Cc: xen-devel@lists.xensource.com; Andi Kleen;
+linux-kernel@vger.kernel.org; Keir Fraser; Wright;
+virtualization@lists.osdl.org; Ingo Molnar; Chris@smtp.osdl.org
+Subject: Re: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
+console infrastructure for Xen console
 
-We normally call our "secial" function __foo, not _foo.  But in this
-case it really should have a more meaningfull name like
-kmap_atomic_prot anyway.
+On 16/3/07 11:41, "Andrew Morton" <akpm@linux-foundation.org> wrote:
 
-> +void *kmap_atomic(struct page *page, enum km_type type)
-> +{
-> +	return _kmap_atomic(page, type, kmap_prot);
+>> It's needed for writing data /after/ reading the consumer index that
+shows
+>> you have space to write. Looking through xenbus_comms.c I think all
+the
+>> barriers are correct except there is a spurious extra mb() in
+xb_read(),
+>> where there is a later rmb() which is sufficient by itself. All the
+others
+>> have a purpose.
+>> =
 
-And this one should probably be an inline.
+> =
 
-> +static inline void *native_kmap_atomic_pte(struct page *page, enum km_ty=
-pe type)
-> +{
-> +	return kmap_atomic(page, type);
-> +}
-> +
-> +#ifndef CONFIG_PARAVIRT
-> +#define kmap_atomic_pte(page, type)	kmap_atomic(page, type)
-> +#endif
+> If Ingo couldn't work this out from reading the code then nobody else
+can,
+> and we have a maintainability problem which can only be solved with
+> adequate commenting.
 
-This is all getting rather ugly just for your pagetable hackery.
+Agreed. I've fixed up the commenting, removed the spurious mb(), and I
+just
+need Jeremy to merge that change into the Xen pv_ops patchset. :-)
+
+ -- Keir
+
+
+_______________________________________________
+Xen-devel mailing list
+Xen-devel@lists.xensource.com
+http://lists.xensource.com/xen-devel
