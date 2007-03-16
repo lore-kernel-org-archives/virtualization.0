@@ -1,35 +1,44 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 08/26] Xen-paravirt_ops: add hooks to
-	intercept mm creation and destruction
-Date: Fri, 16 Mar 2007 10:30:16 +0100
-Message-ID: <20070316093016.GP23174@elte.hu>
-References: <20070301232443.195603797@goop.org>
-	<20070301232527.110592372@goop.org>
+From: Keir Fraser <keir@xensource.com>
+Subject: Re: [Xen-devel] Re: [patch 21/26] Xen-paravirt_ops: Use the hvc
+	console infrastructure for Xen console
+Date: Fri, 16 Mar 2007 09:28:41 +0000
+Message-ID: <C22013C9.B9E6%keir__46236.4507643089$1174037474$gmane$org@xensource.com>
+References: <20070316085451.GE23174@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline
-In-Reply-To: <20070301232527.110592372@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Zachary Amsden <zach@vmware.com>, linux-arch@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
+In-Reply-To: <20070316085451.GE23174@elte.hu>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Ingo Molnar <mingo@elte.hu>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 16/3/07 08:54, "Ingo Molnar" <mingo@elte.hu> wrote:
 
-* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>> + prod =3D intf->in_prod;
+>> + mb();
+>> + BUG_ON((prod - cons) > sizeof(intf->in));
+> =
 
-> Add hooks to allow a paravirt implementation to track the lifetime of 
-> an mm.
+> such mb()'s are typically a sign of "i have no clear idea what SMP
+> serialization rules apply here, but something is needed because
+> otherwise it breaks" ?
 
-(i guess this one should be merged with the ARCH-define cleanup patch)
+These mb()'s are pretty standard for lock-free producer/consumer rings.
+Write descriptor /then/ write the updated producer. Read the producer /then/
+read any descriptors revealed by this new producer value.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+All our ring protocols (and we have a few) require memory barriers. Those
+that use our standard set of ring macros have the memory barriers hidden
+from view, but they're still there.
 
-	Ingo
+ -- Keir
