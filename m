@@ -1,53 +1,61 @@
-From: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [RFC, PATCH] Fixup COMPAT_VDSO to work with
-	CONFIG_PARAVIRT
-Date: Fri, 16 Mar 2007 08:08:11 +0000
-Message-ID: <45FA5E7B.76E4.0078.0@novell.com>
-References: <45FA054F.6020107@vmware.com> <45FA0D13.6080601@goop.org>
- <45FA16FE.7010805@vmware.com> <45FA26DA.7020109@goop.org>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: Stolen and degraded time and schedulers
+Date: Fri, 16 Mar 2007 09:38:28 +0100
+Message-ID: <20070316083828.GA22168@elte.hu>
+References: <1173816769.22180.14.camel@localhost> <45F70A71.9090205@goop.org>
+	<1173821224.1416.24.camel@dwalker1> <45F71EA5.2090203@goop.org>
+	<45F74515.7010808@vmware.com> <45F77C27.8090604@goop.org>
+	<45F846AB.6060200@vmware.com> <45F84E39.7030507@goop.org>
+	<20070314203826.GA15394@elte.hu> <45F86247.40109@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753057AbXCPIH0@vger.kernel.org>
-In-Reply-To: <45FA26DA.7020109@goop.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.osdl.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <45F86247.40109@goop.org>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.osdl.org>
+List-Help: <mailto:virtualization-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.osdl.org?subject=subscribe>
+Sender: virtualization-bounces@lists.osdl.org
+Errors-To: virtualization-bounces@lists.osdl.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: dwalker@mvista.com, john stultz <johnstul@us.ibm.com>, paulus@au.ibm.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Con Kolivas <kernel@kolivas.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, cpufreq@lists.linux.org.uk, schwidefsky@de.ibm.com, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> Jeremy Fitzhardinge <jeremy@goop.org> 16.03.07 06:10 >>>
->Zachary Amsden wrote:
->> Well testing that is not so fun.  I installed SUSE Pro 9.0, and
->> strings on ld.so contains the magic at_sysinfo assert!  But it doesn't
->> install TLS libraries, so I'll have to install them by hand.
->>
->> In works - in theory.  Look, a puppy!
->>
->> Scratchbox is rumored to produce the fabled assertion even on modern
->> distros by installing its own toolchain which includes the dreaded glibc.
->
->I think Andi and Andrew have boxes which are afflicted.
 
-I have one, too (which is one reasone why I created the original Xen patch).
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
->> I'm playing safe.  Binary identical relocation to 0xffffe000 was my goal.
->
->Yeah, fair enough.  But as Eric likes to keep pointing out, an
->executable ELF file need not have any sections at all, so the only safe
->course for anything "real" is via the section headers.
+> Ingo Molnar wrote:
+> > touching the 'timer tick' is the wrong approach. 'stolen time' only =
 
-Program headers you mean.
+> > matters to the /scheduler tick/. So extend the hypervisor interface to =
 
->So I guess the right thing to do is relocate the dynamic stuff via
->PT_DYNAMIC, and relocate the symtab if its present.
+> > allow the injection of 'virtual' scheduler tick events: via the use of =
+a =
 
-Symtab should also be deduced from program headers.
+> > special clockevents device - do not change clockevents itself.
+> =
 
-I'm actually surprised this got re-implemented from scratch, when my patch
-already had both variants (one just #ifdef-ed out), and was tested in both
-forms (actually, I first implemented the ELF form, and only after seeing the
-bloat it added to the sources I came up with the second variant, which in
-the end unfortunately didn't add significantly less bloat to the Makefile.
+> I didn't.  I was using sloppy terminology: I hang the stolen time =
 
-Jan
+> accounting off the Xen timer interrupt routine, just so that it gets =
+
+> run every now and again.
+
+i dont understand: how are you separating 'stolen time' drifts from =
+
+events generated for absolute timeouts?
+
+> I suppose I could explicitly hook stolen time accounting into the =
+
+> scheduler, but its not obvious to me that it's necessary.
+
+right now i dont see any clean way to solve this problem without having =
+
+two clockevents drivers: one for the scheduler, one for timer events.
+
+	Ingo
