@@ -1,29 +1,33 @@
-From: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [RFC, PATCH] Fixup COMPAT_VDSO to work
-	with	CONFIG_PARAVIRT
-Date: Fri, 16 Mar 2007 17:09:52 +0000
-Message-ID: <45FADD70.76E4.0078.0@novell.com>
-References: <45FA054F.6020107@vmware.com> <45FA0D13.6080601@goop.org>
- <45FA16FE.7010805@vmware.com> <45FA26DA.7020109@goop.org>
- <45FA5E7B.76E4.0078.0@novell.com> <45FAC9FB.6070800@goop.org>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [patch 20/26] Xen-paravirt_ops: Core Xen
+	implementation
+Date: Fri, 16 Mar 2007 10:12:50 -0700
+Message-ID: <20070316171250.GM10574@sequoia.sous-sol.org>
+References: <20070301232443.195603797@goop.org>
+	<20070301232528.812011702@goop.org>
+	<20070316091411.GF23174@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965748AbXCPRJn@vger.kernel.org>
-In-Reply-To: <45FAC9FB.6070800@goop.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <xen-devel-bounces@lists.xensource.com>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <20070316091411.GF23174@elte.hu>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, Andi Kleen <ak@muc.de>, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> Jeremy Fitzhardinge <jeremy@goop.org> 16.03.07 17:46 >>>
->Jan Beulich wrote:
->> I have one, too (which is one reasone why I created the original Xen patch).
->>   
->
->It's some version of SuSE 9, right?  What glibc version?
+* Ingo Molnar (mingo@elte.hu) wrote:
+> >  ENTRY(swapper_pg_dir)
+> > +	.align PAGE_SIZE_asm
+> >  	.fill 1024,4,0
+> 
+> does the native kernel lose memory here?
 
-Yes. 2.3.2.
-
-Jan
+Not in my builds.
