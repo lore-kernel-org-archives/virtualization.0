@@ -1,8 +1,10 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Steven Rostedt <rostedt@goodmis.org>
 Subject: Re: todo
-Date: Fri, 16 Mar 2007 21:03:06 -0700
-Message-ID: <45FB687A.4090506@goop.org>
-References: <20070317020011.GS10574@sequoia.sous-sol.org>	<45FB5707.3010809@goop.org>	<20070317033452.GU10574@sequoia.sous-sol.org>
+Date: Sat, 17 Mar 2007 00:55:10 -0400
+Message-ID: <1174107310.18098.14.camel@localhost.localdomain>
+References: <20070317020011.GS10574@sequoia.sous-sol.org>
+	<45FB5707.3010809@goop.org>
+	<20070317033452.GU10574@sequoia.sous-sol.org>
 	<45FB67E1.8040104@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -19,24 +21,94 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@elte.hu>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
->>   It also has one
->> negative side-effect, which is promoting external module code that links
->> with the kernel.  IOW, there's much less incentive to get code merged
->> if it's just a matter of linking.
->>     =
+[added Ingo since he'd probably be interested in this]
 
->
+On Fri, 2007-03-16 at 21:00 -0700, Jeremy Fitzhardinge wrote:
+> Chris Wright wrote:
+> > * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
+> >   =
+
+> >> Chris Wright wrote:
+> >>     =
+
+> >>> Consistently wrap paravirt ops callsites
+> >>> 	"ugh" - mingo
+> >>>       =
+
+> >> Had a thought.  What if we do a kind of reverse/two-way module linkage=
+? =
+
+> >> Somehow compile each pv-op implementation like a module, and then link
+> >> the appropriate one in at boot time.
+> >>     =
+
+> >
+> > This is very similar to something Steve was chatting with me about
+> > this morning.  The idea he was tossing around was something a bit like
+> > an initrd that a load_module analog could link up.  In a sense, it's
+> > similar to the VMI ROM, with the exceptions that the ABI is just created
+> > by the compiler from a normal mutable kernel API and it's linkage with
+> > symbols available on both sides.
+> >   =
+
+> =
+
+> Yeah.  It would have to happen a lot earlier than initrd.  It would be
+> more like a multiboot kernel module or something.
+
+I was taking a look at kernel/module.c and arch/i386/kernel/module.c and
+it looks like we can copy/modify the former and use part of the later.
+
+> =
+
+> >> Tricky parts: it would need two-way unresolved references between kern=
+el
+> >> and module, and it would need to be able to run very early in the
+> >> kernel's life.
+> >>     =
+
+> >
+> > This is the tricky part, and where Steve and I left off.
+> >   =
+
+> =
+
+
+I think it's possible. It still be tricky. We need to handle percpu
+variables.  But I have some ideas on how to do it though.
+
+> Fortunately the linker code should be pretty easy to make
+> self-contained.   It shouldn't need to do memory allocations or anything
+> complex like that, so I think its just a matter of grovelling around and
+> fixing up linkages.
+
+Well, we still need to make sure the kernel knows about this image, so
+that it doesn't write over it.  I guess that can be done like the initrd
+is.
+
+> =
+
+> > I suspect we could free the unused backends already.
+> =
+
+> We could; we just need to make sure they get their own section so
+> they're easily separable.
+> =
+
+> >   It also has one
+> > negative side-effect, which is promoting external module code that links
+> > with the kernel.  IOW, there's much less incentive to get code merged
+> > if it's just a matter of linking.
+> =
+
 > It wouldn't be something we'd promote by making it easy to bind
 > out-of-tree code to the interface.  And it would still be a
 > kernel-version-specific ABI; no guarantees of stability.
-BTW, my intention is definitely that all the pv-ops implementations are
-linked into the kernel at build time; its just the binding references
-get updated at boot time, and the unused code pages can be recycled. =
 
-But they're all part of the same kernel image.
+It will be very similar to how we handle modules (and out of tree
+modules).
 
-    J
+-- Steve
