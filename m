@@ -1,93 +1,39 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] make CONFIG_PARAVIRT require NO_HZ
-Date: Fri, 16 Mar 2007 16:18:54 -0800
-Message-ID: <20070316161854.9de1c784.akpm@linux-foundation.org>
-References: <20070316054746.GD10574@sequoia.sous-sol.org>
+Subject: Re: [PATCH/RFC] replace get_scheduled_cycles with sched_clock
+ paravirt_op
+Date: Fri, 16 Mar 2007 16:30:26 -0800
+Message-ID: <20070316163026.7a474142.akpm@linux-foundation.org>
+References: <45F847E2.7040102@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070316054746.GD10574@sequoia.sous-sol.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: virtualization@lists.osdl.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932812AbXCQAac@vger.kernel.org>
+In-Reply-To: <45F847E2.7040102@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Dan Hecht <dhecht@vmware.com>, Zachary Amsden <zach@vmware.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 15 Mar 2007 22:47:46 -0700 Chris Wright <chrisw@sous-sol.org> wrote:
+On Wed, 14 Mar 2007 12:07:14 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> Given all the discussion, let's just require NO_HZ when
-> CONFIG_PARAVIRT.  Anyone object?
-> =
+> Subject: Add a sched_clock paravirt_op
+> 
+> The tsc-based get_scheduled_cycles interface is not a good match for
+> Xen's runstate accounting, which reports everything in nanoseconds.
+> 
+> This patch replaces this interface with a sched_clock interface, which
+> matches both Xen and VMI's requirements.
+> 
+> In order to do this, we:
+>    1. replace get_scheduled_cycles with sched_clock
+>    2. hoist cycles_2_ns into a common header
+>    3. update vmi accordingly
+> 
+> One thing to note: because sched_clock is implemented as a weak function in
+> kernel/sched.c, we must define a real function in order to override this weak
+> binding.  This means the usual paravirt_ops technique of using an inline
+> function won't work in this case.
 
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> ---
-> =
-
-> --- a/arch/i386/Kconfig	Mon Mar 12 11:07:45 2007 -0700
-> +++ b/arch/i386/Kconfig	Mon Mar 12 16:53:14 2007 -0700
-> @@ -208,7 +208,7 @@ endchoice
->  =
-
->  config PARAVIRT
->  	bool "Paravirtualization support (EXPERIMENTAL)"
-> -	depends on EXPERIMENTAL
-> +	depends on EXPERIMENTAL && NO_HZ
->  	depends on !(X86_VISWS || X86_VOYAGER)
->  	help
->  	  Paravirtualization is a way of running multiple instances of
-
-Apart from all the other fun, it seems that we need to merge
-kconfig-abort-configuration-with-recursive-dependencies.patch, because
-
-scripts/kconfig/conf -m arch/i386/Kconfig
-Error: Found recursive dependency: PARAVIRT NO_HZ PARAVIRT
-make[1]: *** [allmodconfig] Error 1
-make: *** [allmodconfig] Error 2
-
-This is due to your patch interacting with
-make-config_paravirt-require-no_hz.patch:
-
-
-From: Chris Wright <chrisw@sous-sol.org>
-
-Require NO_HZ when CONFIG_PARAVIRT.
-
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Acked-by: Zachary Amsden <zach@vmware.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- arch/i386/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/i386/Kconfig~make-config_paravirt-require-no_hz arch/i386/Kc=
-onfig
---- a/arch/i386/Kconfig~make-config_paravirt-require-no_hz
-+++ a/arch/i386/Kconfig
-@@ -208,7 +208,7 @@ endchoice
- =
-
- config PARAVIRT
- 	bool "Paravirtualization support (EXPERIMENTAL)"
--	depends on EXPERIMENTAL
-+	depends on EXPERIMENTAL && NO_HZ
- 	depends on !(X86_VISWS || X86_VOYAGER)
- 	select NO_HZ
- 	help
-_
-
-
-I'll drop both of them while you guys sort it all out.
+include/asm/paravirt.h: In function 'paravirt_sched_clock':
+include/asm/paravirt.h:281: warning: implicit declaration of function 'PVOP_CALL0'
+include/asm/paravirt.h:281: error: expected expression before 'unsigned'
