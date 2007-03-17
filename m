@@ -1,16 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 05/26] Xen-paravirt_ops: paravirt_ops: hooks
-	to set up initial pagetable
-Date: Sat, 17 Mar 2007 20:47:29 +1100
-Message-ID: <1174124849.8897.43.camel@localhost.localdomain>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap
+	paravirt ops callsites to make them patchable
+Date: Sat, 17 Mar 2007 21:33:58 +1100
+Message-ID: <1174127638.8897.75.camel@localhost.localdomain>
 References: <20070301232443.195603797@goop.org>
-	<20070301232526.611972133@goop.org> <20070316093348.GS23174@elte.hu>
-	<45FAE46F.7080009@goop.org>
+	<20070301232527.956565107@goop.org>	<20070316092445.GM23174@elte.hu>
+	<20070316.023331.59468179.davem@davemloft.net>
+	<45FB005D.9060809@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <45FAE46F.7080009@goop.org>
+In-Reply-To: <45FB005D.9060809@goop.org>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -20,21 +21,47 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>
+Cc: zach@vmware.com, xen-devel@lists.xensource.com, akpm@linux-foundation.org, ak@muc.de, NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, anthony@codemonkey.ws, mingo@elte.hu, torvalds@linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-03-16 at 11:39 -0700, Jeremy Fitzhardinge wrote:
-> Ingo Molnar wrote:
-> >> +	/* Make sure kernel address space is empty so that a pagetable
-> >> +	   will be allocated for it. */
-> >>     
+On Fri, 2007-03-16 at 13:38 -0700, Jeremy Fitzhardinge wrote:
+> David Miller wrote:
+> > Perhaps the problem can be dealt with using ELF relocations.
 > >
-> > comment style.
-> >   
+> > There is another case, discussed yesterday on netdev, where run-time
+> > resolution of ELF relocations would be useful (for
+> > very-very-very-read-only variables) so if it can solve this problem
+> > too it would be nice to have a generic infrastructure for it.
 > 
-> As you've noticed its a comment style I use quite often.
+> That's an interesting idea.  Have you or anyone else looked at what it
+> would take to code up?
+> 
+> For this case, I guess you'd walk the relocs looking for references into
+> the paravirt_ops structure.  You'd need to check that was a reference
+> from an indirect jump or call instruction, which would identify a
+> patchable callsite.  The offset into the pv_ops structure would identify
+> which operation is involved.
 
-Me too, and Ingo and I have had this argument before.  These days I try
-hard to fit simple comments in a single line 8)
+I wrote a whole email on ways to do this, BUT...
+
+Perhaps our patching code can already be vastly simplified to something
+like:
+
+#define pv_patch(call, args...) \
+	asm volatile("8888:"); 
+	call(args);
+	asm volatile("8889:"
+	 [ stuff to put 8889, 8888 and call in fixup section ]
+
+The patching code doesn't even need to decode between those two: it
+simply looks for an indirect call insn (0xff 0xd?).  If it finds more
+than one, it doesn't patch.  If it only finds one, it patches.  We'll
+probably hit them all just doing that.
+
+> What are the netdev requirements?
+
+Reading Ben LaHaise's (very cool!) patch, it's not clear that using
+reloc postprocessing is going to be clearer than open-coding it as he
+has done.
 
 Rusty.
