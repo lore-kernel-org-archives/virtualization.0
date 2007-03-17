@@ -1,48 +1,54 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH/RFC] replace get_scheduled_cycles with sched_clock paravirt_op
-Date: Fri, 16 Mar 2007 17:43:16 -0700
-Message-ID: <45FB39A4.5020706@goop.org>
-References: <45F847E2.7040102@goop.org> <20070316163026.7a474142.akpm@linux-foundation.org>
+Subject: Re: todo
+Date: Fri, 16 Mar 2007 19:48:39 -0700
+Message-ID: <45FB5707.3010809@goop.org>
+References: <20070317020011.GS10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966006AbXCQAnW@vger.kernel.org>
-In-Reply-To: <20070316163026.7a474142.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dan Hecht <dhecht@vmware.com>, Zachary Amsden <zach@vmware.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070317020011.GS10574@sequoia.sous-sol.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andrew Morton wrote:
-> On Wed, 14 Mar 2007 12:07:14 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+Chris Wright wrote:
+> this is the only things left on the todo i made today.
 >
->   
->> Subject: Add a sched_clock paravirt_op
->>
->> The tsc-based get_scheduled_cycles interface is not a good match for
->> Xen's runstate accounting, which reports everything in nanoseconds.
->>
->> This patch replaces this interface with a sched_clock interface, which
->> matches both Xen and VMI's requirements.
->>
->> In order to do this, we:
->>    1. replace get_scheduled_cycles with sched_clock
->>    2. hoist cycles_2_ns into a common header
->>    3. update vmi accordingly
->>
->> One thing to note: because sched_clock is implemented as a weak function in
->> kernel/sched.c, we must define a real function in order to override this weak
->> binding.  This means the usual paravirt_ops technique of using an inline
->> function won't work in this case.
->>     
->
-> include/asm/paravirt.h: In function 'paravirt_sched_clock':
-> include/asm/paravirt.h:281: warning: implicit declaration of function 'PVOP_CALL0'
-> include/asm/paravirt.h:281: error: expected expression before 'unsigned'
->   
+> Xen config
+> 	PREEMPT?
+>   =
 
-Sorry, I didn't intend for it to be picked up; it depends on stuff
-earlier in the patch series.  I just wanted to check with the VMI folks
-that it works for them in principle.
+Remove.  Should work; any problems are bugs.
+
+> Consistently wrap paravirt ops callsites
+> 	"ugh" - mingo
+
+Had a thought.  What if we do a kind of reverse/two-way module linkage? =
+
+Somehow compile each pv-op implementation like a module, and then link
+the appropriate one in at boot time.
+
+Tricky parts: it would need two-way unresolved references between kernel
+and module, and it would need to be able to run very early in the
+kernel's life.  It would also limit us to plain old calls rather than
+any inlining (though that could be done separately).
+
+On the upside, it removes pv_ops, and it might simplify the question of
+how normal module exports work, since by that time they would just be
+normal kernel functions.  All the calls would be normal direct calls
+rather than indirect.  And it would allow us to free the memory for the
+unused pv-ops backends.
+
+Plausible?
 
     J
