@@ -1,114 +1,64 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: todo
-Date: Sat, 17 Mar 2007 00:55:10 -0400
-Message-ID: <1174107310.18098.14.camel@localhost.localdomain>
-References: <20070317020011.GS10574@sequoia.sous-sol.org>
-	<45FB5707.3010809@goop.org>
-	<20070317033452.GU10574@sequoia.sous-sol.org>
-	<45FB67E1.8040104@goop.org>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
+ callsites to make them patchable
+Date: Sat, 17 Mar 2007 01:10:18 -0800
+Message-ID: <45FBB07A.2000701@vmware.com>
+References: <20070301232443.195603797@goop.org> <20070301232527.956565107@goop.org> <20070316092445.GM23174@elte.hu> <45FAD592.9010105@goop.org> <45FB283F.6080000@vmware.com> <45FB38F7.5010306@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <45FB67E1.8040104@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933766AbXCQJKU@vger.kernel.org>
+In-Reply-To: <45FB38F7.5010306@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@elte.hu>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, David Miller <davem@davemloft.net>, Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-[added Ingo since he'd probably be interested in this]
+Jeremy Fitzhardinge wrote:
+> I think the suggestion is much simpler.  If you convince gcc/binutils to
+> leave the .reloc section in vmlinux, and make that available to the
+> kernel itself, then you can scan all the kernel's relocs to find ones
+> which refer to paravirt_ops, and use those to determine which are
+> callsites that can be patched.
+>   
 
-On Fri, 2007-03-16 at 21:00 -0700, Jeremy Fitzhardinge wrote:
-> Chris Wright wrote:
-> > * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> >   =
+Yes, that is pretty nice.
 
-> >> Chris Wright wrote:
-> >>     =
+> The main upside is that all the callsites are just normal C calls;
+> there's no special syntax or strange macros, and we get the full benefit
+> of typechecking, etc.
+>
+> But I can see a few downsides compared the current scheme:
+>
+>    1. Identifying the callsites is a somewhat hackish process of looking
+>       at a reloc and doing a bit of dissassembly to see what is using
+>       the reloc, to identify calls and jumps
+>    2. There's nothing explicit to tell us how much space there is to
+>       patch into; we just have to assume sizeof(indirect call/jmp)
+>    3. There's no information about the register environment at the
+>       callsite, so we just have to adopt normal C ABI rules.  For the
+>       patch sites in hand-written asm, this could be tricky.
+>    4. gcc could do strange things which prevent detection of patch
+>       sites.  For example, it might CSE the value of, say,
+>       paravirt_ops.irq_enable, which would be a reasonable optimisation,
+>       but prevent any of the resulting indirect calls from being
+>       patched.  In general it relies on gcc to generate identifiable
+>       callsites, which is a bit unpredictable.
+>    5. There's still a moderate amount of binutils hackery to get the
+>       relocs into the right form, and there's plenty of scope for it to
+>       screw up.
+>   
 
-> >>> Consistently wrap paravirt ops callsites
-> >>> 	"ugh" - mingo
-> >>>       =
+And yes, those are nasty points.  I think I'd be interested in seeing 
+more discussion on it, perhaps those issues could be worked out.
 
-> >> Had a thought.  What if we do a kind of reverse/two-way module linkage=
-? =
+>> [ Roswell technology deleted ]
+>>     
 
-> >> Somehow compile each pv-op implementation like a module, and then link
-> >> the appropriate one in at boot time.
-> >>     =
+Nack.  Everyone needs Roswell technology.
 
-> >
-> > This is very similar to something Steve was chatting with me about
-> > this morning.  The idea he was tossing around was something a bit like
-> > an initrd that a load_module analog could link up.  In a sense, it's
-> > similar to the VMI ROM, with the exceptions that the ABI is just created
-> > by the compiler from a normal mutable kernel API and it's linkage with
-> > symbols available on both sides.
-> >   =
+Actually, that was not a serious proposal.  I think the effort and 
+complexity would likely not justify the gain.  But I still had to throw 
+it out, since it is what we use on Betelgeuse.
 
-> =
-
-> Yeah.  It would have to happen a lot earlier than initrd.  It would be
-> more like a multiboot kernel module or something.
-
-I was taking a look at kernel/module.c and arch/i386/kernel/module.c and
-it looks like we can copy/modify the former and use part of the later.
-
-> =
-
-> >> Tricky parts: it would need two-way unresolved references between kern=
-el
-> >> and module, and it would need to be able to run very early in the
-> >> kernel's life.
-> >>     =
-
-> >
-> > This is the tricky part, and where Steve and I left off.
-> >   =
-
-> =
-
-
-I think it's possible. It still be tricky. We need to handle percpu
-variables.  But I have some ideas on how to do it though.
-
-> Fortunately the linker code should be pretty easy to make
-> self-contained.   It shouldn't need to do memory allocations or anything
-> complex like that, so I think its just a matter of grovelling around and
-> fixing up linkages.
-
-Well, we still need to make sure the kernel knows about this image, so
-that it doesn't write over it.  I guess that can be done like the initrd
-is.
-
-> =
-
-> > I suspect we could free the unused backends already.
-> =
-
-> We could; we just need to make sure they get their own section so
-> they're easily separable.
-> =
-
-> >   It also has one
-> > negative side-effect, which is promoting external module code that links
-> > with the kernel.  IOW, there's much less incentive to get code merged
-> > if it's just a matter of linking.
-> =
-
-> It wouldn't be something we'd promote by making it easy to bind
-> out-of-tree code to the interface.  And it would still be a
-> kernel-version-specific ABI; no guarantees of stability.
-
-It will be very similar to how we handle modules (and out of tree
-modules).
-
--- Steve
+Z
