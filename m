@@ -1,128 +1,93 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap
- paravirt ops callsites to make them patchable
-Date: Fri, 16 Mar 2007 15:29:03 -0800
-Message-ID: <45FB283F.6080000@vmware.com>
-References: <20070301232443.195603797@goop.org>
-	<20070301232527.956565107@goop.org>
-	<20070316092445.GM23174@elte.hu> <45FAD592.9010105@goop.org>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] make CONFIG_PARAVIRT require NO_HZ
+Date: Fri, 16 Mar 2007 16:18:54 -0800
+Message-ID: <20070316161854.9de1c784.akpm@linux-foundation.org>
+References: <20070316054746.GD10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <45FAD592.9010105@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Linus Torvalds <torvalds@linux-foundation.org>, David Miller <davem@davemloft.net>
-Cc: xen-devel@lists.xensource.com, Andi Kleen <ak@muc.de>, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Anthony Liguori <anthony@codemonkey.ws>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070316054746.GD10574@sequoia.sous-sol.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: virtualization@lists.osdl.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Well, one thing to make clear is this is absolutely not a Xen-specific
-> patch or piece of code.  This is part of the paravirt_ops infrastructure
-> designed to remove the overhead of all the indirect calls which are
-> scattered all over the place.  (Perhaps I should post the general
-> paravirt and Xen specific patches in separate patch series to make this
-> clear...).
->
-> The idea is to wrap the callsite itself with in the same manner as the
-> other altinstructions so that the general patcher can, at the very
-> least, convert the indirect call to a direct one, or nop it out if its
-> an indirect call.  This means that a pv_ops implementation can get about
-> 90% of the benefit of patching without any extra effort.
->   
+On Thu, 15 Mar 2007 22:47:46 -0700 Chris Wright <chrisw@sous-sol.org> wrote:
 
-I like this code very much; although it is unavoidably ugly, it is a 
-nice general mechanism for doing code rewriting.  Much more elaboration 
-on this below.
+> Given all the discussion, let's just require NO_HZ when
+> CONFIG_PARAVIRT.  Anyone object?
+> =
 
-> So, I disagree with your characterisation that its "limited"; this is a
-> pretty general mechanism.  The fragile part is in using the PVOP_*
-> macros properly to match the ABI's calling convention, particularly with
-> tricky cases like passed and returned structures and 64-bit args.  But
-> that just needs to be done once in one place, and is otherwise
-> self-contained.
->   
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> ---
+> =
 
-You could just use the VMI ABI, then patch everything at runtime to call 
-into the Xen paravirt-ops backend ;)
+> --- a/arch/i386/Kconfig	Mon Mar 12 11:07:45 2007 -0700
+> +++ b/arch/i386/Kconfig	Mon Mar 12 16:53:14 2007 -0700
+> @@ -208,7 +208,7 @@ endchoice
+>  =
 
-> I would love a better mechanism.  I played with using things like gcc's
-> builtin_apply stuff, and so on, but I could find no way to get gcc to
-> set up the args and then be able to just emit the call itself under asm
-> control.
->   
+>  config PARAVIRT
+>  	bool "Paravirtualization support (EXPERIMENTAL)"
+> -	depends on EXPERIMENTAL
+> +	depends on EXPERIMENTAL && NO_HZ
+>  	depends on !(X86_VISWS || X86_VOYAGER)
+>  	help
+>  	  Paravirtualization is a way of running multiple instances of
 
-I fought tooth and nail to get something cleaner than this for VMI back 
-when it was a subarch.  In the end, the best I could do was wrap the 
-constraints into prettier macros so the asm volatile stuff wasn't 
-sticking out everywhere.  It was pretty, but the macros were so 
-grotesque that I was exiled from my home planet.
+Apart from all the other fun, it seems that we need to merge
+kconfig-abort-configuration-with-recursive-dependencies.patch, because
 
-static inline void local_irq_restore(const unsigned long flags)
-{
-        vmi_wrap_call(
-                SetInterruptMask, "pushl %0; popfl",
-                VMI_NO_OUTPUT,
-                1, VMI_IREG1 (flags),
-                XCONC("cc", "memory"));
-}
+scripts/kconfig/conf -m arch/i386/Kconfig
+Error: Found recursive dependency: PARAVIRT NO_HZ PARAVIRT
+make[1]: *** [allmodconfig] Error 1
+make: *** [allmodconfig] Error 2
 
-So the constraints are obvious and tied to the inline assembly.  But 
-Jeremy seems to have done even better with the vcall stuff.  Prettier:
-
-+	PVOP_VCALL0(setup_boot_clock);
+This is due to your patch interacting with
+make-config_paravirt-require-no_hz.patch:
 
 
+From: Chris Wright <chrisw@sous-sol.org>
 
->
-> I haven't looked at Dave's reply in detail, but I saw some mention of
-> using relocs.  The idea is intriguing , but I don't quite see how it
-> would all fit together.
->   
+Require NO_HZ when CONFIG_PARAVIRT.
 
-We went through this design exercise, and thought it was pretty 
-promising.  Basically, you would reserve a set of "local" relocation 
-types that should never be emitted by the toolchain.  Then you can have 
-complex relocations, such as "replace pushf; popf %0 with arbitrary 
-code."  You can even leave the arguments unfixed and grant the compiler 
-register allocation, as long as you took care to encode the input / 
-output registers somewhere (in a .reloc section of some sort, or encoded 
-in the relocation type itself).
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Acked-by: Zachary Amsden <zach@vmware.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andi Kleen <ak@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-Now you can make complex decisions at runtime, and apply choice 
-functions to these relocations that can cope with a variety of different 
-circumstances - you could encode not just paravirt-ops as relocations, 
-but all of the alternative instructions, and smp alternatives, and even 
-higher level constructs, such as choices made by the user with the 
-kernel command line - some potential examples:
+ arch/i386/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-acpi=noirq
-idle=halt
+diff -puN arch/i386/Kconfig~make-config_paravirt-require-no_hz arch/i386/Kc=
+onfig
+--- a/arch/i386/Kconfig~make-config_paravirt-require-no_hz
++++ a/arch/i386/Kconfig
+@@ -208,7 +208,7 @@ endchoice
+ =
 
-With proper synchronization, using something like stop_machine_run, you 
-can even make these choices dynamically, and then relink the kernel in 
-place to take faster paths.  And the technique is universal, so you 
-could use it cross architecture, which would be really helpful for 
-architectures that say, have really slow indirect branches.
+ config PARAVIRT
+ 	bool "Paravirtualization support (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL
++	depends on EXPERIMENTAL && NO_HZ
+ 	depends on !(X86_VISWS || X86_VOYAGER)
+ 	select NO_HZ
+ 	help
+_
 
-Once the technique gains wide acceptance, you could use it for all 
-kernel interfaces which have static function pointers for the post-init 
-lifetime of the kernel.  Which might contribute to a global performance 
-improvement of perhaps a couple percent.  But the cost is clearly the 
-complexity.
 
-I just had a slightly interesting idea - you could even catch bugs where 
-dynamic assignments to function pointers fail to update the appropriate 
-patch sites by checking for non .init code sections which write through 
-accelerated_fn_ptr_t's using static checking from sparse.
-
-Is that sort of what you were thinking of Dave?
-
-Zach
+I'll drop both of them while you guys sort it all out.
