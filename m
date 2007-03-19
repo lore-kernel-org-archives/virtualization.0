@@ -1,74 +1,47 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap
- paravirt ops callsites to make them patchable
-Date: Sun, 18 Mar 2007 16:46:26 -0700
-Message-ID: <45FDCF52.4000805@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
+	callsites to make them patchable
+Date: Mon, 19 Mar 2007 13:47:49 +1100
+Message-ID: <1174272469.11680.23.camel@localhost.localdomain>
 References: <20070316.023331.59468179.davem@davemloft.net>
-	<45FB005D.9060809@goop.org>
-	<1174127638.8897.75.camel@localhost.localdomain>
-	<20070318.003309.71088169.davem@davemloft.net>
-	<20070318120814.GA45869@muc.de> <45FD619D.6030402@goop.org>
-	<20070318170414.GB45869@muc.de> <45FD76E6.4060907@goop.org>
-	<20070318193030.GB71548@muc.de>
+	 <45FB005D.9060809@goop.org>
+	 <1174127638.8897.75.camel@localhost.localdomain>
+	 <20070318.003309.71088169.davem@davemloft.net>
+	 <20070318120814.GA45869@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070318193030.GB71548@muc.de>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20070318120814.GA45869@muc.de>
+Sender: netdev-owner@vger.kernel.org
 To: Andi Kleen <ak@muc.de>
-Cc: zach@vmware.com, xen-devel@lists.xensource.com, akpm@linux-foundation.org, netdev@vger.kernel.org, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, anthony@codemonkey.ws, mingo@elte.hu, torvalds@linux-foundation.org, David Miller <davem@davemloft.net>
+Cc: David Miller <davem@davemloft.net>, jeremy@goop.org, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, zach@vmware.com, anthony@codemonkey.ws, torvalds@linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> Yes. All inline assembly tells gcc what registers are clobbered
-> and it fills in the tables. Hand clobbering in inline assembly cannot
-> be expressed with the current toolchain, so we moved all those
-> out of line.
->
-> But again I'm not sure it will work anyways. For once you would
-> need large padding around the calls anyways for inline replacement --
-> how would you generate that? I expect you would need to put the calls
-> into asm() again and with that a custom annotiation format looks reasonable.
+On Sun, 2007-03-18 at 13:08 +0100, Andi Kleen wrote:
+> > The idea is _NOT_ that you go look for references to the paravirt_ops
+> > members structure, that would be stupid and you wouldn't be able to
+> > use the most efficient addressing mode on a given cpu, you'd be
+> > patching up indirect calls and crap like that.  Just say no...
+> 
+> That wouldn't handle inlines though. At least some of the current
+> paravirtops like cli/sti are critical enough to require inlining.
 
-Inlining is most important for very small code: sti, cli, pushf;pop eax,
-etc (in many cases, no-ops).  We'd have at least 5 bytes to work in, and
-maybe more if there are surrounding push/pops to be consumed.
+Well, we'd patch the inline over the call if we have room.
 
-For example, say we wanted to put a general call for sti into entry.S,
-where its expected it won't touch any registers.  In that case, we'd
-have a sequence like:
+Magic patching would be neat, but the downsides are that (1) we can't
+expand the patching room and (2) there's no way of attaching clobber
+info to the call site (doing register liveness analysis is not
+appealing).
 
-    push %eax
-    push %ecx
-    push %edx
-    call paravirt_cli
-    pop %edx
-    pop %ecx
-    pop %eax
-      
+Now, this may not be fatal.  5 bytes is enough for all the native ops to
+be patched inline.   For lguest this covers popf and pushf, but not cli
+and sti (10 bytes): they'd have to be calls.
 
-If we parse the relocs, then we'd find the reference to paravirt_cli. 
-If we look at the byte before and see 0xe8, then we can see if its a
-call.  If we then work out in each direction and see matched push/pops,
-then we know what registers can be trashed in the call.  This also
-allows us to determine the callsite size, and therefore how much space
-we need for inlining.
+As for clobber info, it turns out that almost all of the calls can
+clobber %eax, which is probably enough.  We just need to mark the
+handful of asm ones where this isn't true.
 
-So in this case, we see that there are 5 bytes for the call and a
-further 6 bytes of push/pops available for inlining.
+Thoughts?
+Rusty.
 
-Of course this is hand-written code anyway, so there's no particular
-burden to having some extra metadata stashed away in another section. 
-For compiler-generated code, we know that it's already expecting
-standard C ABI calling conventions.  The downside, of course, is that
-only the 5 byte call space is available for inline patching.
-
-    J
