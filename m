@@ -1,60 +1,46 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap
- paravirt ops callsites to make them patchable
-Date: Mon, 19 Mar 2007 13:06:14 -0700
-Message-ID: <45FEED36.9030302@goop.org>
-References: <1174272469.11680.23.camel@localhost.localdomain>	<m1648xxf93.fsf@ebiederm.dsl.xmission.com>	<45FEE010.1050103@goop.org>
-	<20070319.124636.59653632.davem@davemloft.net>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops callsites to make them patchable
+Date: Mon, 19 Mar 2007 21:59:42 +0100
+Message-ID: <200703192159.42396.ak@suse.de>
+References: <20070318193030.GB71548@muc.de> <200703191157.29780.ak@suse.de> <20070319.120854.30182994.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070319.124636.59653632.davem@davemloft.net>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20070319.120854.30182994.davem@davemloft.net>
+Content-Disposition: inline
+Sender: netdev-owner@vger.kernel.org
 To: David Miller <davem@davemloft.net>
-Cc: zach@vmware.com, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, netdev@vger.kernel.org, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, ak@muc.de, ebiederm@xmission.com, anthony@codemonkey.ws, mingo@elte.hu, torvalds@linux-foundation.org, akpm@linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, jbeulich@novell.com, jeremy@goop.org, xen-devel@lists.xensource.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, anthony@codemonkey.ws, akpm@linux-foundation.org, torvalds@linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-David Miller wrote:
-> Another point worth making is that for function calls you
-> can fix things up lazily if you want.
-> [...]
-> In fact forget I mentioned this idea :)
->   
 
-OK :)  I think we'll only ever want to bind to a hypervisor once, since
-the underlying hypervisor can't change on the fly (well, in principle it
-might if you migrate, but you'll have more problems than just dealing
-with the hook points).  And lazy binding doesn't buy much; I think its
-much better to get it all out of the way at once, and then throw the
-reloc info away.
+> It's inability to handle sequences like the above sounds to me like
+> a very good argument to _not_ merge the unwinder back into the tree.
 
-> As another note, I do agree with Linus about the register usage
-> arguments.  It is important.  I think it's been mentioned but what you
-> could do is save nothing (so that "sti" and "cli" are just that and
-> cost nothing), but the more complicated versions save and restore
-> enough registers to operate.
->   
+The unwinder can handle it fine, it is just that gcc right now cannot
+be taught to generate correct unwind tables for it. If paravirt ops
+is widely used i guess it would be possible to find some workaround
+for that though.
+ 
+There is one case it truly cannot handle (it would be possible by switching 
+to dwarf3), but that was relatively easily eliminated and wasn't a problem
+imho.
 
-Right, that's pretty much what we do now.
+> To me, that unwinder is nothing but trouble, it severly limits what
+> cases you can use special calling conventions via inline asm (and we
+> have done that on several occaisions) and even ignoring that the
+> unwinder only works half the time.
 
-> It all depends upon what you're trying to do.  For example, it's
-> easy to use patching to make different PTE layouts be supportable
-> in the same kernel image.  We do this on sparc64 since sun4v
-> has a different PTE layout than sun4u, you can see the code in
-> asm-sparc64/pgtable.h for details (search for "sun4v_*_patch")
->   
+Initially we had some bugs that accounted for near all failures, but they 
+were all fixed in the latest version.
+ 
+> Please don't subject us to another couple months of hair-pulling only
+> to have Linus yank the thing out again, there are certainly more
+> useful things to spend time on :-)
 
-I see.  We want to do something conceptually like this, but we need to
-handle more than just adjusting which of two constants to use as a
-mask.  For example, Xen needs to run pfns through a pfn->mfn (machine
-frame number) conversion and back when making/unpacking pagetable entries.
+I think better backtraces are a good use of my time. Sorry if you
+disagree on that.
 
-    J
+-Andi
