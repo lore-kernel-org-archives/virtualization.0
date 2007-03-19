@@ -1,44 +1,61 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [patch 20/26] Xen-paravirt_ops: Core Xen
-	implementation
-Date: Mon, 19 Mar 2007 11:15:51 -0700
-Message-ID: <20070319181551.GA10574@sequoia.sous-sol.org>
-References: <20070301232443.195603797@goop.org>
-	<20070301232528.812011702@goop.org>
-	<20070316091411.GF23174@elte.hu>
-	<20070316171250.GM10574@sequoia.sous-sol.org>
-	<m1aby9xg5s.fsf@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops callsites to make them patchable
+Date: Mon, 19 Mar 2007 12:25:12 -0600
+Message-ID: <m1648xxf93.fsf@ebiederm.dsl.xmission.com>
+References: <20070316.023331.59468179.davem@davemloft.net>
+	<45FB005D.9060809@goop.org>
+	<1174127638.8897.75.camel@localhost.localdomain>
+	<20070318.003309.71088169.davem@davemloft.net>
+	<20070318120814.GA45869@muc.de>
+	<1174272469.11680.23.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline
-In-Reply-To: <m1aby9xg5s.fsf@ebiederm.dsl.xmission.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1174272469.11680.23.camel@localhost.localdomain> (Rusty
+	Russell's message of "Mon, 19 Mar 2007 13:47:49 +1100")
+Sender: netdev-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, David Miller <davem@davemloft.net>, jeremy@goop.org, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, zach@vmware.com, anthony@codemonkey.ws, torvalds@linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Eric W. Biederman (ebiederm@xmission.com) wrote:
-> Chris Wright <chrisw@sous-sol.org> writes:
-> 
-> > * Ingo Molnar (mingo@elte.hu) wrote:
-> >> >  ENTRY(swapper_pg_dir)
-> >> > +	.align PAGE_SIZE_asm
-> >> >  	.fill 1024,4,0
-> >> 
-> >> does the native kernel lose memory here?
-> >
-> > Not in my builds.
-> 
-> Shouldn't the align be before the label.  Otherwise padding
-> would be inserted between the label and the data.
+Rusty Russell <rusty@rustcorp.com.au> writes:
 
-Yes, I think you're right.  Thanks
--chris
+> On Sun, 2007-03-18 at 13:08 +0100, Andi Kleen wrote:
+>> > The idea is _NOT_ that you go look for references to the paravirt_ops
+>> > members structure, that would be stupid and you wouldn't be able to
+>> > use the most efficient addressing mode on a given cpu, you'd be
+>> > patching up indirect calls and crap like that.  Just say no...
+>> 
+>> That wouldn't handle inlines though. At least some of the current
+>> paravirtops like cli/sti are critical enough to require inlining.
+>
+> Well, we'd patch the inline over the call if we have room.
+>
+> Magic patching would be neat, but the downsides are that (1) we can't
+> expand the patching room and (2) there's no way of attaching clobber
+> info to the call site (doing register liveness analysis is not
+> appealing).
+
+True.  You can use all of the call clobbered registers.
+
+> Now, this may not be fatal.  5 bytes is enough for all the native ops to
+> be patched inline.   For lguest this covers popf and pushf, but not cli
+> and sti (10 bytes): they'd have to be calls.
+>
+> As for clobber info, it turns out that almost all of the calls can
+> clobber %eax, which is probably enough.  We just need to mark the
+> handful of asm ones where this isn't true.
+
+I guess if the code is larger than a function call I'm failing to see
+the disadvantage in making it a direct function call.  Any modern
+processor ought to be able to predict it perfectly, and processors
+like the P4 may even optimize the call out of their L1 instruction
+cache.
+
+If what David is suggesting works, making all of these direct calls
+looks easy and very maintainable.   At which point patching
+instructions inline is quite possibly overkill.
+
+Is it truly critical to inline any of these instructions?
+
+Eric
