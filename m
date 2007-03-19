@@ -1,116 +1,99 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap
- paravirt ops callsites to make them patchable
-Date: Mon, 19 Mar 2007 12:10:08 -0700
-Message-ID: <45FEE010.1050103@goop.org>
-References: <20070316.023331.59468179.davem@davemloft.net>	<45FB005D.9060809@goop.org>	<1174127638.8897.75.camel@localhost.localdomain>	<20070318.003309.71088169.davem@davemloft.net>	<20070318120814.GA45869@muc.de>	<1174272469.11680.23.camel@localhost.localdomain>
-	<m1648xxf93.fsf@ebiederm.dsl.xmission.com>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
+ callsites to make them patchable
+Date: Mon, 19 Mar 2007 12:33:05 -0700
+Message-ID: <45FEE571.9060302@goop.org>
+References: <20070316.023331.59468179.davem@davemloft.net> <45FB005D.9060809@goop.org> <1174127638.8897.75.camel@localhost.localdomain> <20070318.003309.71088169.davem@davemloft.net> <20070318120814.GA45869@muc.de> <1174272469.11680.23.camel@localhost.localdomain> <m1648xxf93.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <m1648xxf93.fsf@ebiederm.dsl.xmission.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: zach@vmware.com, xen-devel@lists.xensource.com, akpm@linux-foundation.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, Andi Kleen <ak@muc.de>, anthony@codemonkey.ws, mingo@elte.hu, torvalds@linux-foundation.org, David Miller <davem@davemloft.net>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org>
+Sender: netdev-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>, David Miller <davem@davemloft.net>, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, zach@vmware.com, anthony@codemonkey.ws, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Eric W. Biederman wrote:
-> Rusty Russell <rusty@rustcorp.com.au> writes:
->
+Linus Torvalds wrote:
+> On Mon, 19 Mar 2007, Eric W. Biederman wrote:
 >   
->> On Sun, 2007-03-18 at 13:08 +0100, Andi Kleen wrote:
->>     
->>>> The idea is _NOT_ that you go look for references to the paravirt_ops
->>>> members structure, that would be stupid and you wouldn't be able to
->>>> use the most efficient addressing mode on a given cpu, you'd be
->>>> patching up indirect calls and crap like that.  Just say no...
->>>>         
->>> That wouldn't handle inlines though. At least some of the current
->>> paravirtops like cli/sti are critical enough to require inlining.
->>>       
->> Well, we'd patch the inline over the call if we have room.
->>
->> Magic patching would be neat, but the downsides are that (1) we can't
->> expand the patching room and (2) there's no way of attaching clobber
->> info to the call site (doing register liveness analysis is not
->> appealing).
+>> True.  You can use all of the call clobbered registers.
 >>     
 >
-> True.  You can use all of the call clobbered registers.
+> Quite often, the biggest single win of inlining is not so much the code 
+> size (although if done right, that will be smaller too), but the fact that 
+> inlining DOES NOT CLOBBER AS MANY REGISTERS!
 >   
 
-The trouble is that there are places where we want to intercept things
-like sti/cli in entry.S in a context where all the registers are in use,
-so we can't generally make the assumption that caller-saved regs are
-clobberable.  For any call-site in compiler-generated code we can make
-that assumption, of course.
+Yes, that's something that we've been conscious of when designing the
+pv_ops patching mechanism.  As it stands, each time you emit a call to a
+pv-ops operation, it not only stores the start and end of the patchable
+area, but also which registers are available for clobbering at that
+callsite by the patched-in code.  For things like sti/cli, where the
+surrounding code expects nothing to be clobbered, we make sure that the
+regs are preserved on the pv-ops side, even though there's a call to a
+normal C function in the middle.  That gives in the pvops backend the
+flexibility to patch over that site with either some inline code or a
+call out to some function which doesn't necessarily clobber the full
+caller-save set (or even any registers).
 
->> Now, this may not be fatal.  5 bytes is enough for all the native ops to
->> be patched inline.   For lguest this covers popf and pushf, but not cli
->> and sti (10 bytes): they'd have to be calls.
->>
->> As for clobber info, it turns out that almost all of the calls can
->> clobber %eax, which is probably enough.  We just need to mark the
->> handful of asm ones where this isn't true.
->>     
+> In short: people here seem to think that inlining is about avoiding the 
+> call/ret sequence. Not so. The real advantages of inlining are elsewhere.
+>   
+
+Yes.  Probably the biggest win of inlining is constant propagation into
+the inline function, but register-use flexibility is good small-scale
+win (vs the micro-scale call/ret elimination).
+
+> Side note, you can certainly fix things like this at least in theory, but 
+> it requires:
 >
-> I guess if the code is larger than a function call I'm failing to see
-> the disadvantage in making it a direct function call.  Any modern
-> processor ought to be able to predict it perfectly, and processors
-> like the P4 may even optimize the call out of their L1 instruction
-> cache.
+>  - the "call" instruction that is used instead of the inlining should 
+>    basically have no callee-clobbers. Any paravirt_ops called this way
+>    should have a special calling sequence where they simple save and 
+>    restore all the registers they use.
+>
+>    This is usually not that bad. Just create a per-architecture wrapper 
+>    function that saves/restores anything that the C calling convention on 
+>    that architecture says is clobbered by calls.
 >   
 
-For current processors, I think i-cache pollution is really the only
-downside to a call.  But maybe you could put multiple pv-op functions
-into a cacheline if they're used in close proximity
-(cli/sti/save_fl/restore_fl would all fit into a single cacheline).
+Most of the places we intercept are normal C calls anyway, so this isn't
+a big issue.  Its mainly the places where we replace single instructions
+that this will have a big effect.
 
-> If what David is suggesting works, making all of these direct calls
-> looks easy and very maintainable.   At which point patching
-> instructions inline is quite possibly overkill.
+The trouble with this is that we're back to having to have special
+wrappers around each call to hide the normal C calling convention from
+the compiler, so that it knows that it has more registers to play with. 
+This was the main complaint about the original version of the patch,
+because it all looks very ugly.
+
+>  - if the function has arguments, and the inlined sequence can take the 
+>    arguments in arbitrary registers, you are going to penalize the inlined 
+>    sequence anyway (by forcing some fixed arbitrary register allocation 
+>    policy).This thing is largely unfixable without some really extreme 
+>    compiler games (like post-processing the assembler output and having 
+>    different entry-points depending on where the arguments are..)
 >   
 
-I spent some time looking at what it would take to get this going.  It
-would probably look something like:
+Yeah, that doesn't sound like much fun.  I think using the normal
+regparm calling convention will be OK.  Aside from some slightly longer
+instruction encodings, all the registers are more or less
+interchangeable anyway.
 
-   1. make CONFIG_PARAVIRT select CONFIG_RELOCATABLE
-   2. generate vmlinux
-   3. extract relocs, and process the references to paravirt symbols
-      into a table
-   4. compile and link that table into the kernel again (like the ksyms
-      dance)
-   5. at boot time, use that table to redirect calls/references into the
-      paravirt backend to the appropriate one
+> .. it will obviously depend on how thngs are done whether these things are 
+> useful or not. But it does mean that it's always a good idea to just have 
+> a config option of "turn off all the paravirt crap, because it *does* add 
+> overhead, and replacing instructions on the fly doesn't make that 
+> overhead go away".
 
-I think if we store the reloc references as section-relative, and the
-reloc table itself is linked into its own section, then there's no need
-for multipass linking to combine the reloc table into the kernel image,
-since adding that table won't affect any existing reloc.
-
-All this is doable; I'd probably end up hacking boot/compressed/relocs.c
-to generate the appropriate reloc table.  My main concern is hacking the
-kernel build process itself; I'm unsure of what it would actually take
-to implement all this.
-
-> Is it truly critical to inline any of these instructions?
->   
-
-Possibly not, but I'd like to be able to say with confidence that
-running a PARAVIRT kernel on bare hardware has no performance loss
-compared to running a !PARAVIRT kernel.  There's the case of small
-instruction sequences which have been replaced with calls (such as
-sti/cli/push;popf/etc), and also the case of hooks which are noops on
-native (like make_pte/pte_val, etc).  In those cases it would be nice to
-patch in a replacement, either a real instruction or just nops.
+Yes, there's a big switch to turn all this off.  It would be nice if we
+could get things to the point that it isn't necessary to have (ie,
+running on bare hardware really is indistinguishable either way), but
+we're a fair way from being able to prove that.  In the meantime, the
+goal is to try to keep the source-level changes a local as possible so
+that maintaining the CONFIG_PARAVIRT vs non-PARAVIRT distinction is
+straightforward.
 
 
     J
