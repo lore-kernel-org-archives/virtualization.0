@@ -1,49 +1,73 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap
- paravirt ops callsites to make them patchable
-Date: Tue, 20 Mar 2007 16:33:58 -0700
-Message-ID: <46006F66.4030901@goop.org>
-References: <1174272469.11680.23.camel@localhost.localdomain>
-	<m1648xxf93.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org>
-	<1174348905.11680.54.camel@localhost.localdomain>
-	<45FF4043.4000805@vmware.com> <45FF770C.7050301@goop.org>
-	<Pine.LNX.4.64.0703200805450.6730@woody.linux-foundation.org>
-	<m1mz27sy82.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0703200903500.6730@woody.linux-foundation.org>
-	<46000C7E.4070001@goop.org> <20070320224324.GL10459@waste.org>
-	<46006963.1020401@vmware.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
+	callsites to make them patchable
+Date: Tue, 20 Mar 2007 16:43:09 -0700 (PDT)
+Message-ID: <Pine.LNX.4.64.0703201626030.6730@woody.linux-foundation.org>
+References: <20070319.204712.118947830.davem@davemloft.net>
+	<m13b40wnrb.fsf@ebiederm.dsl.xmission.com>
+	<200703201428.50564.ak@suse.de>
+	<m1ircvswzz.fsf@ebiederm.dsl.xmission.com>
+	<20070320174159.GA4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703200947501.6730@woody.linux-foundation.org>
+	<20070320180359.GB4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703201022040.6730@woody.linux-foundation.org>
+	<20070320192118.GD4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703201145570.6730@woody.linux-foundation.org>
+	<20070320202352.GF4286@bingen.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <46006963.1020401@vmware.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Zachary Amsden <zach@vmware.com>
-Cc: xen-devel@lists.xensource.com, akpm@linux-foundation.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>, anthony@codemonkey.ws, Matt Mackall <mpm@selenic.com>, mingo@elte.hu, Linus Torvalds <torvalds@linux-foundation.org>, David Miller <davem@davemloft.net>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070320202352.GF4286@bingen.suse.de>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Andi Kleen <ak@suse.de>
+Cc: xen-devel@lists.xensource.com, netdev@vger.kernel.org, mingo@elte.hu, linux-kernel@vger.kernel.org, jbeulich@novell.com, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, anthony@codemonkey.ws, akpm@linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> I think Jeremy's idea was to have interrupt handlers leave interrupts
-> disabled on exit if pda.intr_mask was set.  In which case, they would
-> bypass all work and we could never get preempted.
 
-Yes, I was worried that if we left the isr without actually handling the
-interrupt, it would still be asserted and we'd just get interrupted
-again.  The idea is that we avoid touching cli/sti for the common case
-of no interrupts while interrupts are disabled, but we'd still need to
-fall back to using them if an interrupt becomes pending.
 
-> I don't think leaving hardware interrupts disabled for such a long
-> time is good though. 
+On Tue, 20 Mar 2007, Andi Kleen wrote:
 
-How long?  It would be no longer than now, and possibly less, wouldn't it?
+> On Tue, Mar 20, 2007 at 11:49:39AM -0700, Linus Torvalds wrote:
+> > =
 
-    J
+> > the thing is, I'd rather see a long backtrace that is hard to decipher =
+but =
+
+> > that *never* *ever* causes any additional problems, over a pretty one.
+> =
+
+> Well it causes additional problems. We had some cases where it was really
+> hard to distingush garbage and the true call chain. I can probably dig
+> out some examples if you want.
+
+Well, by "additional problems" _I_ mean things like "a warning turned into =
+
+a fatal oops and didn't get logged at all".
+
+That's a lot more serious than "there were a few extra entries in the =
+
+traceback that caused us some confusion".
+
+And yes, we had exactly that case happen several times.
+
+> With lots of call backs (e.g. common with sysfs) it is also frequently
+> not obvious how the call chains are supposed to go.
+
+With callbacks, it's actually often nice to see the callback data that is =
+
+on the stack (and it's very obvious from the "<function+0>" ksymtab =
+
+explanation: you can't have a <function+0> that is anything but a callback =
+
+pointer (since it isn't a return address).
+
+		Linus
