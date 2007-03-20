@@ -1,36 +1,43 @@
-From: Andi Kleen <ak@muc.de>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops callsites to make them patchable
-Date: 20 Mar 2007 21:02:42 +0100
-Message-ID: <20070320200242.GA90774@muc.de>
-References: <m1648xxf93.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org> <1174348905.11680.54.camel@localhost.localdomain> <45FF4043.4000805@vmware.com> <45FF770C.7050301@goop.org> <Pine.LNX.4.64.0703200805450.6730@woody.linux-foundation.org> <m1mz27sy82.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0703200903500.6730@woody.linux-foundation.org> <20070320192818.GA87860@muc.de> <46003BF1.4090601@vmware.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Re: [patch 13/26] Xen-paravirt_ops: Consistently
+	wrap paravirt ops callsites to make them patchable
+Date: Tue, 20 Mar 2007 21:39:18 +0000
+Message-ID: <20070320213918.116862be@lxorguk.ukuu.org.uk>
+References: <20070319.204712.118947830.davem@davemloft.net>
+	<m13b40wnrb.fsf@ebiederm.dsl.xmission.com>
+	<200703201428.50564.ak@suse.de>
+	<m1ircvswzz.fsf@ebiederm.dsl.xmission.com>
+	<20070320174159.GA4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703200947501.6730@woody.linux-foundation.org>
+	<20070320180359.GB4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703201022040.6730@woody.linux-foundation.org>
+	<20070320192118.GD4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703201145570.6730@woody.linux-foundation.org>
+	<20070320202352.GF4286@bingen.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Date: Tue, 20 Mar 2007 21:02:42 +0100
-Content-Disposition: inline
-In-Reply-To: <46003BF1.4090601@vmware.com>
-Sender: netdev-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, David Miller <davem@davemloft.net>, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, anthony@codemonkey.ws, netdev@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20070320202352.GF4286@bingen.suse.de>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Andi, David Miller <davem@davemloft.net>, netdev@vger.kernel.org, Kleen <ak@suse.de>, jbeulich@novell.com, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, anthony@codemonkey.ws, mingo@elte.hu, Linus Torvalds <torvalds@linux-foundation.org>, akpm@linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Worth it on 32-bit.  On AMD64, probably not.  On Intel 64-bit, maybe, 
-> but less important than in P4 days.
-
-Well most of Intel 64bit is P4 -- and Intel is still shipping
-millions more of them each quarter.
-
-> This could change character completely if used at the tail of a function 
-> where you now have
+> > Because that's really the issue: do you want a "pretty" backtrace, or do 
+> > you want one that is rock solid but has some crud in it.
 > 
-> sti; 1: ret
-> 
-> Which generates an interrupt holdoff on the ret, an unusual thing to do.
+> I just want an as exact backtrace as possible. I also think
+> that we can make the unwinder robust enough.
 
-Unusual yes, but I don't see how it should cause problems. Or do you
-have anything specific in mind? 
+Any reason you can't put the exact back trace in "[xxx]" and the ones we
+see on the stack which dont look like call trace as ?xxx? It makes the
+code a bit trickier but we depend on the quality of traces
 
-Worse is probably that on K8 this case might cause a pipeline stall
-if there isn't a prefix in front of the ret.
-
--Andi
+Alan
