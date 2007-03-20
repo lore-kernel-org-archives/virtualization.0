@@ -1,72 +1,67 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops callsites to make them patchable
-Date: Tue, 20 Mar 2007 20:21:19 +0100
-Message-ID: <20070320192118.GD4286@bingen.suse.de>
-References: <20070319.120854.30182994.davem@davemloft.net> <20070319.204712.118947830.davem@davemloft.net> <m13b40wnrb.fsf@ebiederm.dsl.xmission.com> <200703201428.50564.ak@suse.de> <m1ircvswzz.fsf@ebiederm.dsl.xmission.com> <20070320174159.GA4286@bingen.suse.de> <Pine.LNX.4.64.0703200947501.6730@woody.linux-foundation.org> <20070320180359.GB4286@bingen.suse.de> <Pine.LNX.4.64.0703201022040.6730@woody.linux-foundation.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
+	callsites to make them patchable
+Date: Tue, 20 Mar 2007 11:49:39 -0700 (PDT)
+Message-ID: <Pine.LNX.4.64.0703201145570.6730@woody.linux-foundation.org>
+References: <20070319.120854.30182994.davem@davemloft.net>
+	<20070319.204712.118947830.davem@davemloft.net>
+	<m13b40wnrb.fsf@ebiederm.dsl.xmission.com>
+	<200703201428.50564.ak@suse.de>
+	<m1ircvswzz.fsf@ebiederm.dsl.xmission.com>
+	<20070320174159.GA4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703200947501.6730@woody.linux-foundation.org>
+	<20070320180359.GB4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703201022040.6730@woody.linux-foundation.org>
+	<20070320192118.GD4286@bingen.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0703201022040.6730@woody.linux-foundation.org>
-Sender: netdev-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org, jbeulich@novell.com, jeremy@goop.org, xen-devel@lists.xensource.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, anthony@codemonkey.ws, akpm@linux-foundation.org, mingo@elte.hu
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070320192118.GD4286@bingen.suse.de>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Andi Kleen <ak@suse.de>
+Cc: xen-devel@lists.xensource.com, netdev@vger.kernel.org, mingo@elte.hu, linux-kernel@vger.kernel.org, jbeulich@novell.com, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, anthony@codemonkey.ws, akpm@linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 20, 2007 at 10:27:00AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 20 Mar 2007, Andi Kleen wrote:
-> > 
-> > The code never did that. In fact many of the problems we had initially
-> > especially came out of that -- the fallback code that would handle
-> > this case wasn't fully correct.
-> 
-> I don't keep my emails any more, but you *never* fixed the problems in 
-> arch/*/kernel/traps.c.
-
-I fixed that one after you dropped it (hmm, double checking: or at least
-I thought I had fixed it, but don't see the code right now; will redo then) 
-Basically it was just a one liner anyways - always check against all the
-stacks that are there.
 
 
-> Yes, the kernel/unwind.c issues generally got fixed. The infinite loops in 
-> the *callers* never did.
+On Tue, 20 Mar 2007, Andi Kleen wrote:
+> =
 
-There was later a weaker form that should have caught most loops, but admittedly
-it wasn't 100% bullet-proof with exception stacks.
+> So what is your proposed alternative to handle long backtraces? =
 
-> 
-> > Also frankly often your analysis about what went wrong was just
-> > incorrect.
-> 
-> Still in denial, I see.
-> 
-> Do you still claim that "the fallback position always did the right 
-> thing"
+> You didn't answer that question. Please do, I'm curious about your though=
+ts
+> in this area.
 
-No initially it was buggy and that caused several of the crashes.
+the thing is, I'd rather see a long backtrace that is hard to decipher but =
 
-> Despite the fact that the unwinder had sometimes *corrupted* the 
-> incoming information so much that the fallback position was the one that 
-> oopsed? And no, you didn't fix that.
+that *never* *ever* causes any additional problems, over a pretty one.
 
-No, it oopsed because it was broken by itself.
-Anyways that got fixed quickly.
+Because that's really the issue: do you want a "pretty" backtrace, or do =
 
-> 
-> And no, IT DID NOT use probe_kernel_address like you still claim.
+you want one that is rock solid but has some crud in it.
 
-There definitely was a patch that made it use it. You might have
-not merged it though.
- 
-> Anyway, you work for Suse, I don't care what you do to the Suse kernel. 
-> Maybe it will get stable some day. Somehow, I doubt it. 
+I'll take the rock solid one any day. Especially as even the pretty one =
 
-So what is your proposed alternative to handle long backtraces? 
-You didn't answer that question. Please do, I'm curious about your thoughts
-in this area.
+won't fix the most common problem, which is "I don't see the caller" (due =
 
--Andi
+to inlining or tail-calls).
 
+In contrast, the ugly backtrace will have some "garbage entries" from =
+
+previous frames that didn't get overwritten, but there have actually been =
+
+(admittedly rare) cases where those garbage entries have given hints about =
+
+what happened just before.
+
+			Linus
