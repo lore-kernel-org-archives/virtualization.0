@@ -1,57 +1,69 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops callsites to make them patchable
-Date: Tue, 20 Mar 2007 19:03:59 +0100
-Message-ID: <20070320180359.GB4286@bingen.suse.de>
-References: <20070319.120854.30182994.davem@davemloft.net> <20070319.204712.118947830.davem@davemloft.net> <m13b40wnrb.fsf@ebiederm.dsl.xmission.com> <200703201428.50564.ak@suse.de> <m1ircvswzz.fsf@ebiederm.dsl.xmission.com> <20070320174159.GA4286@bingen.suse.de> <Pine.LNX.4.64.0703200947501.6730@woody.linux-foundation.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
+	callsites to make them patchable
+Date: Tue, 20 Mar 2007 10:27:00 -0700 (PDT)
+Message-ID: <Pine.LNX.4.64.0703201022040.6730@woody.linux-foundation.org>
+References: <20070319.120854.30182994.davem@davemloft.net>
+	<20070319.204712.118947830.davem@davemloft.net>
+	<m13b40wnrb.fsf@ebiederm.dsl.xmission.com>
+	<200703201428.50564.ak@suse.de>
+	<m1ircvswzz.fsf@ebiederm.dsl.xmission.com>
+	<20070320174159.GA4286@bingen.suse.de>
+	<Pine.LNX.4.64.0703200947501.6730@woody.linux-foundation.org>
+	<20070320180359.GB4286@bingen.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0703200947501.6730@woody.linux-foundation.org>
-Sender: netdev-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org, jbeulich@novell.com, jeremy@goop.org, xen-devel@lists.xensource.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, anthony@codemonkey.ws, akpm@linux-foundation.org, mingo@elte.hu
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070320180359.GB4286@bingen.suse.de>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Andi Kleen <ak@suse.de>
+Cc: xen-devel@lists.xensource.com, netdev@vger.kernel.org, mingo@elte.hu, linux-kernel@vger.kernel.org, jbeulich@novell.com, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, anthony@codemonkey.ws, akpm@linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 20, 2007 at 09:52:42AM -0700, Linus Torvalds wrote:
-> The ones I reported were all about trusting the stack contents implicitly, 
 
-The latest version added the full double check you wanted - every
-new RSP is validated against the current stack or the exception stacks.
 
-> and assuming that the unwind info was there and valid. Using things like 
+On Tue, 20 Mar 2007, Andi Kleen wrote:
+> =
 
-The code never did that. In fact many of the problems we had initially
-especially came out of that -- the fallback code that would handle
-this case wasn't fully correct.
+> The code never did that. In fact many of the problems we had initially
+> especially came out of that -- the fallback code that would handle
+> this case wasn't fully correct.
 
-> "__get_user()" didn't fix it, because if a WARN_ON() happened while we 
-> held the mm semaphore and the unwind info was bogus, it would take a 
-> page-fault and deadlock.
+I don't keep my emails any more, but you *never* fixed the problems in =
 
-That was fixed too even before you dropped it by using probe_kernel_address()
+arch/*/kernel/traps.c.
 
-> And I told you guys this. Over *months*. And you ignored me. You told me 
-> everything was fine. Each time, somebody else ended up reporting a hang 
-> where the unwinder was at fault. 
+Yes, the kernel/unwind.c issues generally got fixed. The infinite loops in =
 
-That was because most of the bugs were reported many times duplicated --
-and reports from older releases kept streaming in even after the fix
-went in.
+the *callers* never did.
 
-Also frankly often your analysis about what went wrong was just
-incorrect.
- 
-> And you clearly *still* haven't accepted the fact that the code was buggy. 
+> Also frankly often your analysis about what went wrong was just
+> incorrect.
 
-There were some bugs, but they were all fixed. Or at least I hope -- 
-we will find out during testing.
+Still in denial, I see.
 
-> Does anybody wonder why I wouldn't merge it back?
+Do you still claim that "the fallback position always did the right =
 
-So do you have an alternative to the unwinder? Don't tell me 
-"real men decode 30+ entry long stack traces with lots of callbacks
-by hand". Or do you prefer to use frame pointers everywhere? 
+thing"? Despite the fact that the unwinder had sometimes *corrupted* the =
 
--Andi
+incoming information so much that the fallback position was the one that =
 
+oopsed? And no, you didn't fix that.
+
+And no, IT DID NOT use probe_kernel_address like you still claim.
+
+Anyway, you work for Suse, I don't care what you do to the Suse kernel. =
+
+Maybe it will get stable some day. Somehow, I doubt it. =
+
+
+			Linus
