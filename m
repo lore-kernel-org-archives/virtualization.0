@@ -1,39 +1,30 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
- callsites to make them patchable
-Date: Mon, 19 Mar 2007 22:54:20 -0700
-Message-ID: <45FF770C.7050301@goop.org>
-References: <20070316.023331.59468179.davem@davemloft.net>	 <45FB005D.9060809@goop.org>	 <1174127638.8897.75.camel@localhost.localdomain>	 <20070318.003309.71088169.davem@davemloft.net>	 <20070318120814.GA45869@muc.de>	 <1174272469.11680.23.camel@localhost.localdomain>	 <m1648xxf93.fsf@ebiederm.dsl.xmission.com>	 <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org> <1174348905.11680.54.camel@localhost.localdomain> <45FF4043.4000805@vmware.com>
+From: Andreas Kleen <ak@suse.de>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops	callsites to make them patchable
+Date: Tue, 20 Mar 2007 12:33:10 +0100 (CET)
+Message-ID: <331404.1174390390026.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+References: <20070316.023331.59468179.davem@davemloft.net> <45FB005D.9060809@goop.org> <1174127638.8897.75.camel@localhost.localdomain> <20070318.003309.71088169.davem@davemloft.net> <20070318120814.GA45869@muc.de> <1174272469.11680.23.camel@localhost.localdomain> <m1648xxf93.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org> <1174348905.11680.54.camel@localhost.localdomain> <45FF4043.4000805@vmware.com> <45FF770C.7050301@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <45FF4043.4000805@vmware.com>
+In-Reply-To: <45FF770C.7050301@goop.org>
 Sender: netdev-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Linus Torvalds <torvalds@linux-foundation.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@muc.de>, David Miller <davem@davemloft.net>, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, anthony@codemonkey.ws, netdev@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel@lists.xensource.com, akpm@linux-foundation.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>, anthony@codemonkey.ws, mingo@elte.hu, Linus Torvalds <torvalds@linux-foundation.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> For VMI, the default clobber was "cc", and you need a way to allow at
-> least that, because saving and restoring flags is too expensive on x86.
+Am Di 20.03.2007 06:54 schrieb Jeremy Fitzhardinge <jeremy@goop.org>:
 
-According to lore (Andi, I think), asm() always clobbers cc. 
+> Zachary Amsden wrote:
+> > For VMI, the default clobber was "cc", and you need a way to allow
+> > at
+> > least that, because saving and restoring flags is too expensive on
+> > x86.
+>
+> According to lore (Andi, I think), asm() always clobbers cc.
 
-> I still don't think this was a good trade.  The primary motivation for
-> clobbering %eax was that Xen wanted a free register to use for
-> computing the offset into the shared data in the case of SMP
-> preemptible kernels.  Xen no longer needs such a register, they can
-> use the PDA offset instead.  And it does hurt native performance by
-> unconditionally stealing a register in the four most commonly invoked
-> paravirt-ops code sequences.
+asm with input and/or output. I'm not sure about asms without that.
 
-Actually, it still does need a temp register.  The sequence for cli is:
+-Andi
 
-    mov %fs:xen_vcpu, %eax
-    movb $1,1(%eax)
 
-At some point I hope to move the vcpu structure directly into the
-pda/percpu variables, at which point it will need no temps.
-
-    J
