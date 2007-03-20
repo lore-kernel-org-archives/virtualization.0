@@ -1,8 +1,7 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
-	callsites to make them patchable
-Date: Tue, 20 Mar 2007 08:09:46 -0700 (PDT)
-Message-ID: <Pine.LNX.4.64.0703200805450.6730@woody.linux-foundation.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops callsites to make them patchable
+Date: Tue, 20 Mar 2007 09:58:53 -0600
+Message-ID: <m1mz27sy82.fsf@ebiederm.dsl.xmission.com>
 References: <20070316.023331.59468179.davem@davemloft.net>
 	<45FB005D.9060809@goop.org>
 	<1174127638.8897.75.camel@localhost.localdomain>
@@ -13,62 +12,43 @@ References: <20070316.023331.59468179.davem@davemloft.net>
 	<Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org>
 	<1174348905.11680.54.camel@localhost.localdomain>
 	<45FF4043.4000805@vmware.com> <45FF770C.7050301@goop.org>
+	<Pine.LNX.4.64.0703200805450.6730@woody.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <45FF770C.7050301@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com, akpm@linux-foundation.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>, anthony@codemonkey.ws, mingo@elte.hu, David Miller <davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0703200805450.6730@woody.linux-foundation.org>
+	(Linus Torvalds's message of "Tue, 20 Mar 2007 08:09:46 -0700 (PDT)")
+Sender: netdev-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>, David Miller <davem@davemloft.net>, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, anthony@codemonkey.ws, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Linus Torvalds <torvalds@linux-foundation.org> writes:
 
-
-On Mon, 19 Mar 2007, Jeremy Fitzhardinge wrote:
+> On Mon, 19 Mar 2007, Jeremy Fitzhardinge wrote:
+>> Actually, it still does need a temp register.  The sequence for cli is:
+>> 
+>>     mov %fs:xen_vcpu, %eax
+>>     movb $1,1(%eax)
 >
-> Zachary Amsden wrote:
-> > For VMI, the default clobber was "cc", and you need a way to allow at
-> > least that, because saving and restoring flags is too expensive on x86.
-> =
+> We should just do this natively. There's been several tests over the years 
+> saying that it's much more efficient to do sti/cli as a simple store, and 
+> handling the "oops, we got an interrupt while interrupts were disabled" as 
+> a special case.
+>
+> I have this dim memory that ARM has done it that way for a long time 
+> because it's so expensive to do a "real" cli/sti.
+>
+> And I think -rt does it for other reasons. It's just more flexible.
 
-> According to lore (Andi, I think), asm() always clobbers cc. =
+If that is the case.  In the normal kernel what would
+the "the oops, we got an interrupt code do?"
+I assume it would leave interrupts disabled when it returns?
+Like we currently do with the delayed disable of normal interrupts?
 
+I'm trying to understand the proposed semantics.
 
-On x86, yes. Practically any instruction will clobber cc anyway, so it's =
+Looking at the above code snippet.  I guess it is about time to
+merge our per_cpu and pda variables...
 
-the default.
-
-Although the gcc guys have occasionally been suggesting we should set it =
-
-in our asms.
-
-> Actually, it still does need a temp register.  The sequence for cli is:
-> =
-
->     mov %fs:xen_vcpu, %eax
->     movb $1,1(%eax)
-
-We should just do this natively. There's been several tests over the years =
-
-saying that it's much more efficient to do sti/cli as a simple store, and =
-
-handling the "oops, we got an interrupt while interrupts were disabled" as =
-
-a special case.
-
-I have this dim memory that ARM has done it that way for a long time =
-
-because it's so expensive to do a "real" cli/sti.
-
-And I think -rt does it for other reasons. It's just more flexible.
-
-		Linus
+Eric
