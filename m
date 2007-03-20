@@ -1,53 +1,44 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
-	callsites to make them patchable
-Date: Tue, 20 Mar 2007 11:01:45 +1100
-Message-ID: <1174348905.11680.54.camel@localhost.localdomain>
-References: <20070316.023331.59468179.davem@davemloft.net>
-	 <45FB005D.9060809@goop.org>
-	 <1174127638.8897.75.camel@localhost.localdomain>
-	 <20070318.003309.71088169.davem@davemloft.net>
-	 <20070318120814.GA45869@muc.de>
-	 <1174272469.11680.23.camel@localhost.localdomain>
-	 <m1648xxf93.fsf@ebiederm.dsl.xmission.com>
-	 <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org>
+ callsites to make them patchable
+Date: Mon, 19 Mar 2007 17:23:31 -0800
+Message-ID: <45FF3793.5050308@vmware.com>
+References: <20070316.023331.59468179.davem@davemloft.net> <45FB005D.9060809@goop.org> <1174127638.8897.75.camel@localhost.localdomain> <20070318.003309.71088169.davem@davemloft.net> <20070318120814.GA45869@muc.de> <45FD619D.6030402@goop.org> <20070318170414.GB45869@muc.de> <45FD76E6.4060907@goop.org> <20070318193030.GB71548@muc.de> <45FDCF52.4000805@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org>
+In-Reply-To: <45FDCF52.4000805@goop.org>
 Sender: netdev-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@muc.de>, David Miller <davem@davemloft.net>, jeremy@goop.org, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, zach@vmware.com, anthony@codemonkey.ws, netdev@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@muc.de>, David Miller <davem@davemloft.net>, rusty@rustcorp.com.au, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, anthony@codemonkey.ws, torvalds@linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-03-19 at 11:38 -0700, Linus Torvalds wrote:
-> 
-> On Mon, 19 Mar 2007, Eric W. Biederman wrote:
-> > 
-> > True.  You can use all of the call clobbered registers.
-> 
-> Quite often, the biggest single win of inlining is not so much the code 
-> size (although if done right, that will be smaller too), but the fact that 
-> inlining DOES NOT CLOBBER AS MANY REGISTERS!
+Jeremy Fitzhardinge wrote:
+> For example, say we wanted to put a general call for sti into entry.S,
+> where its expected it won't touch any registers.  In that case, we'd
+> have a sequence like:
+>
+>     push %eax
+>     push %ecx
+>     push %edx
+>     call paravirt_cli
+>     pop %edx
+>     pop %ecx
+>     pop %eax
+>       
+>
+> If we parse the relocs, then we'd find the reference to paravirt_cli. 
+> If we look at the byte before and see 0xe8, then we can see if its a
+> call.  If we then work out in each direction and see matched push/pops,
+> then we know what registers can be trashed in the call.  This also
+> allows us to determine the callsite size, and therefore how much space
+> we need for inlining.
+>   
 
-Thanks Linus.
+No, that is a very dangerous suggestion.  You absolutely *cannot* do 
+this safely without explicitly marking the start EIP of this code.  You 
+*must* use metadata to do that.  It is never safe to disassemble 
+backwards or "rewind" EIP for x86 code.
 
-*This* was the reason that the current hand-coded calls only clobber %
-eax.  It was a compromise between native (no clobbers) and others (might
-need a reg).
-
-Now, since we decided to allow paravirt_ops operations to be normal C
-(ie. the patching is optional and done late), we actually push and pop %
-ecx and %edx.  This makes the call site 10 bytes long, which is a nice
-size for patching anyway (enough for a movl $0, <addr>, a-la lguest's
-cli, or movw $0, %gs:<addr> if we supported SMP).
-
-The current 6 paravirt ops which are patched cover the vast majority of
-calls (until the Xen patches, then we need ~4 more?).  Jeremy chose to
-expand patching to cover *all* paravirt ops, rather than just the new
-hot ones, and that's where we tipped over the ugliness threshold.
-
-Cheers,
-Rusty.
-
+Zach
