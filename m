@@ -1,27 +1,53 @@
-From: Andi Kleen <ak@muc.de>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops callsites to make them patchable
-Date: 20 Mar 2007 00:42:48 +0100
-Message-ID: <20070319234248.GA93348@muc.de>
-References: <20070316.023331.59468179.davem@davemloft.net> <45FB005D.9060809@goop.org> <1174127638.8897.75.camel@localhost.localdomain> <20070318.003309.71088169.davem@davemloft.net> <20070318120814.GA45869@muc.de> <1174272469.11680.23.camel@localhost.localdomain> <m1648xxf93.fsf@ebiederm.dsl.xmission.com> <45FEE010.1050103@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
+	callsites to make them patchable
+Date: Tue, 20 Mar 2007 11:01:45 +1100
+Message-ID: <1174348905.11680.54.camel@localhost.localdomain>
+References: <20070316.023331.59468179.davem@davemloft.net>
+	 <45FB005D.9060809@goop.org>
+	 <1174127638.8897.75.camel@localhost.localdomain>
+	 <20070318.003309.71088169.davem@davemloft.net>
+	 <20070318120814.GA45869@muc.de>
+	 <1174272469.11680.23.camel@localhost.localdomain>
+	 <m1648xxf93.fsf@ebiederm.dsl.xmission.com>
+	 <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Date: Tue, 20 Mar 2007 00:42:48 +0100
-Content-Disposition: inline
-In-Reply-To: <45FEE010.1050103@goop.org>
+In-Reply-To: <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org>
 Sender: netdev-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Rusty Russell <rusty@rustcorp.com.au>, David Miller <davem@davemloft.net>, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, zach@vmware.com, anthony@codemonkey.ws, torvalds@linux-foundation.org, netdev@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@muc.de>, David Miller <davem@davemloft.net>, jeremy@goop.org, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, zach@vmware.com, anthony@codemonkey.ws, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Possibly not, but I'd like to be able to say with confidence that
-> running a PARAVIRT kernel on bare hardware has no performance loss
-> compared to running a !PARAVIRT kernel.  There's the case of small
-> instruction sequences which have been replaced with calls (such as
-> sti/cli/push;popf/etc), 
+On Mon, 2007-03-19 at 11:38 -0700, Linus Torvalds wrote:
+> 
+> On Mon, 19 Mar 2007, Eric W. Biederman wrote:
+> > 
+> > True.  You can use all of the call clobbered registers.
+> 
+> Quite often, the biggest single win of inlining is not so much the code 
+> size (although if done right, that will be smaller too), but the fact that 
+> inlining DOES NOT CLOBBER AS MANY REGISTERS!
 
-My guess is that most critical pushf/popf are in spin_lock_irqsave(). It would 
-be possible to special case that one -- inline it -- and use out of line
-versions for all the others.
+Thanks Linus.
 
--Andi
+*This* was the reason that the current hand-coded calls only clobber %
+eax.  It was a compromise between native (no clobbers) and others (might
+need a reg).
+
+Now, since we decided to allow paravirt_ops operations to be normal C
+(ie. the patching is optional and done late), we actually push and pop %
+ecx and %edx.  This makes the call site 10 bytes long, which is a nice
+size for patching anyway (enough for a movl $0, <addr>, a-la lguest's
+cli, or movw $0, %gs:<addr> if we supported SMP).
+
+The current 6 paravirt ops which are patched cover the vast majority of
+calls (until the Xen patches, then we need ~4 more?).  Jeremy chose to
+expand patching to cover *all* paravirt ops, rather than just the new
+hot ones, and that's where we tipped over the ugliness threshold.
+
+Cheers,
+Rusty.
+
