@@ -1,39 +1,36 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops
- callsites to make them patchable
-Date: Tue, 20 Mar 2007 11:54:25 -0800
-Message-ID: <46003BF1.4090601@vmware.com>
-References: <20070318120814.GA45869@muc.de> <1174272469.11680.23.camel@localhost.localdomain> <m1648xxf93.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org> <1174348905.11680.54.camel@localhost.localdomain> <45FF4043.4000805@vmware.com> <45FF770C.7050301@goop.org> <Pine.LNX.4.64.0703200805450.6730@woody.linux-foundation.org> <m1mz27sy82.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0703200903500.6730@woody.linux-foundation.org> <20070320192818.GA87860@muc.de>
+From: Andi Kleen <ak@muc.de>
+Subject: Re: [patch 13/26] Xen-paravirt_ops: Consistently wrap paravirt ops callsites to make them patchable
+Date: 20 Mar 2007 21:02:42 +0100
+Message-ID: <20070320200242.GA90774@muc.de>
+References: <m1648xxf93.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0703191134190.6730@woody.linux-foundation.org> <1174348905.11680.54.camel@localhost.localdomain> <45FF4043.4000805@vmware.com> <45FF770C.7050301@goop.org> <Pine.LNX.4.64.0703200805450.6730@woody.linux-foundation.org> <m1mz27sy82.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0703200903500.6730@woody.linux-foundation.org> <20070320192818.GA87860@muc.de> <46003BF1.4090601@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20070320192818.GA87860@muc.de>
+Date: Tue, 20 Mar 2007 21:02:42 +0100
+Content-Disposition: inline
+In-Reply-To: <46003BF1.4090601@vmware.com>
 Sender: netdev-owner@vger.kernel.org
-To: Andi Kleen <ak@muc.de>
+To: Zachary Amsden <zach@vmware.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, David Miller <davem@davemloft.net>, mingo@elte.hu, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, chrisw@sous-sol.org, anthony@codemonkey.ws, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> One thing I was pondering was to replace the expensive popfs with
->
-> bt  $IF,(%rsp) 
-> jnc 1f 
-> sti
-> 1: 
->
-> But would be mostly a P4 optimization again and I'm not 100% sure it is
-> worth it.
->   
+> Worth it on 32-bit.  On AMD64, probably not.  On Intel 64-bit, maybe, 
+> but less important than in P4 days.
 
-Worth it on 32-bit.  On AMD64, probably not.  On Intel 64-bit, maybe, 
-but less important than in P4 days.
+Well most of Intel 64bit is P4 -- and Intel is still shipping
+millions more of them each quarter.
 
-This could change character completely if used at the tail of a function 
-where you now have
+> This could change character completely if used at the tail of a function 
+> where you now have
+> 
+> sti; 1: ret
+> 
+> Which generates an interrupt holdoff on the ret, an unusual thing to do.
 
-sti; 1: ret
+Unusual yes, but I don't see how it should cause problems. Or do you
+have anything specific in mind? 
 
-Which generates an interrupt holdoff on the ret, an unusual thing to do.
+Worse is probably that on K8 this case might cause a pipeline stall
+if there isn't a prefix in front of the ret.
 
-Zach
+-Andi
