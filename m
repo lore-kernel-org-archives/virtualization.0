@@ -1,94 +1,48 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH RFC] Change softlockup watchdog to ignore stolen time
-Date: Thu, 22 Mar 2007 16:32:10 -0700
-Message-ID: <460311FA.6070400@goop.org>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH RFC] Change softlockup watchdog to ignore stolen time
+Date: Thu, 22 Mar 2007 16:51:51 -0800
+Message-ID: <460324A7.3010604@vmware.com>
+References: <460311FA.6070400@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933046AbXCVXcL@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752784AbXCVXvm@vger.kernel.org>
+In-Reply-To: <460311FA.6070400@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Virtualization Mailing List <virtualization@lists.osdl.org>
-Cc: Zachary Amsden <zach@vmware.com>, Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Dan Hecht <dhecht@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Akinobu Mita <mita@miraclelinux.com>, Andrew Morton <akpm@linux-foundation.org>, James Morris <jmorris@namei.org>, john stultz <johnstul@us.ibm.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Dan Hecht <dhecht@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Akinobu Mita <mita@miraclelinux.com>, Andrew Morton <akpm@linux-foundation.org>, James Morris <jmorris@namei.org>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The softlockup watchdog is currently a nuisance in a virtual machine,
-since the whole system could have the CPU stolen from it for a long
-period of time.  While it would be unlikely for a guest domain to be
-denied timer interrupts for over 10s, it could happen and any softlockup
-message would be completely spurious.
+Jeremy Fitzhardinge wrote:
+> The softlockup watchdog is currently a nuisance in a virtual machine,
+> since the whole system could have the CPU stolen from it for a long
+> period of time.  While it would be unlikely for a guest domain to be
+> denied timer interrupts for over 10s, it could happen and any softlockup
+> message would be completely spurious.
+>   
 
-Earlier I proposed that sched_clock() return time in unstolen
-nanoseconds, which is how Xen and VMI currently implement it.  If the
-softlockup watchdog uses sched_clock() to measure time, it would
-automatically ignore stolen time, and therefore only report when the
-guest itself locked up.  When running native, sched_clock() returns
-real-time nanoseconds, so the behaviour would be unchanged.
+No, it is not unlikely.  4-way SMP VMs idling exhibit this behavior with 
+NO_HZ or NO_IDLE_HZ because they get quiet enough to schedule nothing on 
+the APs.
 
-Does this seem sound?
+And that can happen on native hardware as well.
 
-Also, softlockup.c's use of jiffies seems archaic now.  Should it be
-converted to use timers?  Mightn't it report lockups just because there
-was no timer event?
+> Earlier I proposed that sched_clock() return time in unstolen
+> nanoseconds, which is how Xen and VMI currently implement it.  If the
+> softlockup watchdog uses sched_clock() to measure time, it would
+> automatically ignore stolen time, and therefore only report when the
+> guest itself locked up.  When running native, sched_clock() returns
+> real-time nanoseconds, so the behaviour would be unchanged.
+>
+> Does this seem sound?
+>
+> Also, softlockup.c's use of jiffies seems archaic now.  Should it be
+> converted to use timers?  Mightn't it report lockups just because there
+> was no timer event?
+>   
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+This looks good to me, as a first order approximation.  But on native 
+hardware, with NO_HZ, this is just broken to begin with.  Perhaps we 
+should make SOFTLOCKUP depend on !NO_HZ.
 
-diff -r b41fb9e70d72 kernel/softlockup.c
---- a/kernel/softlockup.c	Thu Mar 22 16:25:15 2007 -0700
-+++ b/kernel/softlockup.c	Thu Mar 22 16:26:52 2007 -0700
-@@ -17,9 +17,11 @@
- 
- static DEFINE_SPINLOCK(print_lock);
- 
--static DEFINE_PER_CPU(unsigned long, touch_timestamp);
--static DEFINE_PER_CPU(unsigned long, print_timestamp);
-+static DEFINE_PER_CPU(unsigned long long, touch_timestamp);
-+static DEFINE_PER_CPU(unsigned long long, print_timestamp);
- static DEFINE_PER_CPU(struct task_struct *, watchdog_task);
-+
-+#define SEC_NS	(1000000000ull)
- 
- static int did_panic = 0;
- 
-@@ -37,7 +39,7 @@ static struct notifier_block panic_block
- 
- void touch_softlockup_watchdog(void)
- {
--	__raw_get_cpu_var(touch_timestamp) = jiffies;
-+	__raw_get_cpu_var(touch_timestamp) = sched_clock();
- }
- EXPORT_SYMBOL(touch_softlockup_watchdog);
- 
-@@ -49,6 +51,7 @@ void softlockup_tick(void)
- {
- 	int this_cpu = smp_processor_id();
- 	unsigned long touch_timestamp = per_cpu(touch_timestamp, this_cpu);
-+	unsigned long long now;
- 
- 	/* prevent double reports: */
- 	if (per_cpu(print_timestamp, this_cpu) == touch_timestamp ||
-@@ -62,12 +65,14 @@ void softlockup_tick(void)
- 		return;
- 	}
- 
-+	now = sched_clock();
-+
- 	/* Wake up the high-prio watchdog task every second: */
--	if (time_after(jiffies, touch_timestamp + HZ))
-+	if (now > (touch_timestamp + SEC_NS))
- 		wake_up_process(per_cpu(watchdog_task, this_cpu));
- 
- 	/* Warn about unreasonable 10+ seconds delays: */
--	if (time_after(jiffies, touch_timestamp + 10*HZ)) {
-+	if (now > (touch_timestamp + 10*SEC_NS)) {
- 		per_cpu(print_timestamp, this_cpu) = touch_timestamp;
- 
- 		spin_lock(&print_lock);
-@@ -120,7 +125,7 @@ cpu_callback(struct notifier_block *nfb,
- 			printk("watchdog for %i failed\n", hotcpu);
- 			return NOTIFY_BAD;
- 		}
--  		per_cpu(touch_timestamp, hotcpu) = jiffies;
-+  		per_cpu(touch_timestamp, hotcpu) = sched_clock();
-   		per_cpu(watchdog_task, hotcpu) = p;
- 		kthread_bind(p, hotcpu);
-  		break;
+Zach
