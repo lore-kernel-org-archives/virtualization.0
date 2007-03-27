@@ -1,39 +1,126 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 0/2] softlockup watchdog improvements
-Date: Mon, 26 Mar 2007 22:38:16 -0700
-Message-ID: <20070327053816.881735237@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Subject: [patch 1/2] Ignore stolen time in the softlockup watchdog
+Date: Mon, 26 Mar 2007 22:38:17 -0700
+Message-ID: <20070327054106.664262413@goop.org>
+References: <20070327053816.881735237@goop.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934025AbXC0FtB@vger.kernel.org>
+Content-Disposition: inline; filename=softlockup-ignore-stolen-time.patch
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andrew Morton <akpm@linux-foundation.org>
-Cc: virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Linux Kernel <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>, Zachary Amsden <zach@vmware.com>, James Morris <jmorris@namei.org>, Dan Hecht <dhecht@vmware.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Prarit Bhargava <prarit@redhat.com>, Chris Lalancette <clalance@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Here's couple of patches to improve the softlockup watchdog.
+The softlockup watchdog is currently a nuisance in a virtual machine,
+since the whole system could have the CPU stolen from it for a long
+period of time.  While it would be unlikely for a guest domain to be
+denied timer interrupts for over 10s, it could happen and any softlockup
+message would be completely spurious.
 
-The first changes the softlockup timer from using jiffies to sched_clock()
-as a timebase.  Xen and VMI implement sched_clock() as counting unstolen
-time, so time stolen by the hypervisor won't cause the watchdog to bite.
+Earlier I proposed that sched_clock() return time in unstolen
+nanoseconds, which is how Xen and VMI currently implement it.  If the
+softlockup watchdog uses sched_clock() to measure time, it would
+automatically ignore stolen time, and therefore only report when the
+guest itself locked up.  When running native, sched_clock() returns
+real-time nanoseconds, so the behaviour would be unchanged.
 
-The second adds per-cpu enable flags for the watchdog timer.  This allows
-the timer to be disabled when the CPU goes into a (potentially unbounded)
-tickless sleep.
+Note that sched_clock() used this way is inherently per-cpu, so this
+patch makes sure that the per-processor watchdog thread initialized
+its own timestamp.
 
-I know this conflicts with
-fix-bogus-softlockup-warning-with-sysrq-t.patch in -mm2.  I think that
-patch incorrectly changes the behaviour of the softlockup watchdog,
-and a better solution is to temporarily disable the watchdog while
-doing something known to be cpu-consuming, like a long sysreq output.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: john stultz <johnstul@us.ibm.com>
+Cc: Zachary Amsden <zach@vmware.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: Dan Hecht <dhecht@vmware.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Prarit Bhargava <prarit@redhat.com>
+Cc: Chris Lalancette <clalance@redhat.com>
+Cc: Rick Lindsley <ricklind@us.ibm.com>
 
-	J
--- =
+---
+ kernel/softlockup.c |   28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
+
+===================================================================
+--- a/kernel/softlockup.c
++++ b/kernel/softlockup.c
+@@ -17,8 +17,8 @@
+ 
+ static DEFINE_SPINLOCK(print_lock);
+ 
+-static DEFINE_PER_CPU(unsigned long, touch_timestamp);
+-static DEFINE_PER_CPU(unsigned long, print_timestamp);
++static DEFINE_PER_CPU(unsigned long long, touch_timestamp);
++static DEFINE_PER_CPU(unsigned long long, print_timestamp);
+ static DEFINE_PER_CPU(struct task_struct *, watchdog_task);
+ 
+ static int did_panic = 0;
+@@ -37,7 +37,7 @@ static struct notifier_block panic_block
+ 
+ void touch_softlockup_watchdog(void)
+ {
+-	__raw_get_cpu_var(touch_timestamp) = jiffies;
++	__raw_get_cpu_var(touch_timestamp) = sched_clock();
+ }
+ EXPORT_SYMBOL(touch_softlockup_watchdog);
+ 
+@@ -48,10 +48,15 @@ void softlockup_tick(void)
+ void softlockup_tick(void)
+ {
+ 	int this_cpu = smp_processor_id();
+-	unsigned long touch_timestamp = per_cpu(touch_timestamp, this_cpu);
++	unsigned long long touch_timestamp = per_cpu(touch_timestamp, this_cpu);
++	unsigned long long now;
+ 
+-	/* prevent double reports: */
+-	if (per_cpu(print_timestamp, this_cpu) == touch_timestamp ||
++	/* watchdog task hasn't updated timestamp yet */
++	if (touch_timestamp == 0)
++		return;
++
++	/* report at most once a second */
++	if (per_cpu(print_timestamp, this_cpu) < (touch_timestamp + NSEC_PER_SEC) ||
+ 		did_panic ||
+ 			!per_cpu(watchdog_task, this_cpu))
+ 		return;
+@@ -62,12 +67,14 @@ void softlockup_tick(void)
+ 		return;
+ 	}
+ 
++	now = sched_clock();
++
+ 	/* Wake up the high-prio watchdog task every second: */
+-	if (time_after(jiffies, touch_timestamp + HZ))
++	if (now > (touch_timestamp + NSEC_PER_SEC))
+ 		wake_up_process(per_cpu(watchdog_task, this_cpu));
+ 
+ 	/* Warn about unreasonable 10+ seconds delays: */
+-	if (time_after(jiffies, touch_timestamp + 10*HZ)) {
++	if (now > (touch_timestamp + 10ull*NSEC_PER_SEC)) {
+ 		per_cpu(print_timestamp, this_cpu) = touch_timestamp;
+ 
+ 		spin_lock(&print_lock);
+@@ -87,6 +94,9 @@ static int watchdog(void * __bind_cpu)
+ 
+ 	sched_setscheduler(current, SCHED_FIFO, &param);
+ 	current->flags |= PF_NOFREEZE;
++
++	/* initialize timestamp */
++	touch_softlockup_watchdog();
+ 
+ 	/*
+ 	 * Run briefly once per second to reset the softlockup timestamp.
+@@ -120,7 +130,7 @@ cpu_callback(struct notifier_block *nfb,
+ 			printk("watchdog for %i failed\n", hotcpu);
+ 			return NOTIFY_BAD;
+ 		}
+-  		per_cpu(touch_timestamp, hotcpu) = jiffies;
++  		per_cpu(touch_timestamp, hotcpu) = 0;
+   		per_cpu(watchdog_task, hotcpu) = p;
+ 		kthread_bind(p, hotcpu);
+  		break;
+
+-- 
