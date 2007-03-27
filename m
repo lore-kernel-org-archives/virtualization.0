@@ -1,15 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 3/4] Locally disable the softlockup watchdog rather than
-	touching it
-Date: Tue, 27 Mar 2007 14:49:22 -0700
-Message-ID: <20070327215828.085422178@goop.org>
-References: <20070327214919.800272641@goop.org>
+Subject: [patch 0/4] Revised softlockup watchdog improvement patches
+Date: Tue, 27 Mar 2007 14:49:19 -0700
+Message-ID: <20070327214919.800272641@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=softlockup-disable-rather-than-touch.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,188 +16,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Prarit Bhargava <prarit@redhat.com>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, John Hawkes <hawkes@sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>
+Cc: Prarit Bhargava <prarit@redhat.com>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we're about to enter a prolonged period in which we know we're
-going to hold off scheduler ticks, then disable the CPU's softlockup
-watchdog for the duration.  This avoids having to repeatedly touch the
-timestamp, or conversely, risk having the watchdog timeout in the
-middle of your long operation.
+Hi Ingo,
 
-A question about each of these changes is whether they expect just the
-current CPU to be locked up, or the whole machine.
-touch_softlockup_watchdog updates the per-cpu timestamp, so I assumed
-that its per-cpu for all these cases.
+This series of patches implements a number of improvements to the
+softlockup watchdog and its users.
 
-One semantic change this makes is that softlockup_disable/enable does
-a preempt_disable/enable.  I don't think this is a problem, since if
-you're worried about triggering the softlockup watchdog, you're not
-scheduling.
+They are:
 
-I haven't really worked out how this should interact with the nmi
-watchdog; touch_nmi_watchdog() still ends up calling
-touch_softlockup_watchdog(), so there's still some redundancy here.
+1. Make the watchdog ignore stolen time
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Cc: Chris Lalancette <clalance@redhat.com>
-Cc: Eric Dumazet <dada1@cosmosbay.com>
-Cc: John Hawkes <hawkes@sgi.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
+When running under a hypervisor, the kernel may lose an arbitrary amount
+of time as "stolen time".  This may cause the softlockup watchdog to
+trigger spruiously.  Xen and VMI implement sched_clock() as measuring
+unstolen time, so use that as the timebase for the softlockup watchdog.
+This also removes a dependency on jiffies.
 
----
- arch/ia64/kernel/uncached.c  |    8 ++++++--
- drivers/ide/ide-iops.c       |   25 +++++++++++++++++++------
- drivers/ide/ide-taskfile.c   |    8 +++++++-
- drivers/mtd/nand/nand_base.c |    8 +++++++-
- 4 files changed, 39 insertions(+), 10 deletions(-)
+2. Add a per-cpu enable flag for the watchdog
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/ia64/kernel/uncached.c
-+++ b/arch/ia64/kernel/uncached.c
-@@ -253,13 +253,17 @@ static int __init uncached_build_memmap(
- 	int nid =3D paddr_to_nid(uc_start - __IA64_UNCACHED_OFFSET);
- 	struct gen_pool *pool =3D uncached_pools[nid].pool;
- 	size_t size =3D uc_end - uc_start;
--
--	touch_softlockup_watchdog();
-+	int sl_state;
-+
-+	sl_state =3D softlockup_disable();
- =
+When the scheduler disables ticks for a specific CPU, this allows the
+watchdog to be disabled as well.  This avoids spurious watchdog errors
+if a CPU has been tickless for a long time.  The existing tick-sched.c
+code tried to address this by periodically touching the watchdog, but
+this seems more direct.
 
- 	if (pool !=3D NULL) {
- 		memset((char *)uc_start, 0, size);
- 		(void) gen_pool_add(pool, uc_start, size, nid);
- 	}
-+
-+	softlockup_enable(sl_state);
-+
- 	return 0;
- }
- =
+3. Use the per-cpu enable flags to temporarily disable the watchdog
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/ide/ide-iops.c
-+++ b/drivers/ide/ide-iops.c
-@@ -1215,6 +1215,12 @@ int ide_wait_not_busy(ide_hwif_t *hwif, =
+Some drivers perform long operations which will cause the watchdog to
+time out.  If we know we're about to start such an operation, disable
+the watchdog timer for the interim.  This is more straightforward than
+trying to periodically tickle the watchdog timer during the operation, and
+safer than just doing it once at the start and hoping there's enough time.
 
- int ide_wait_not_busy(ide_hwif_t *hwif, unsigned long timeout)
- {
- 	u8 stat =3D 0;
-+	int ret =3D -EBUSY;
-+	int sl_state;
-+
-+	/* Tell softlockup this might take a while.
-+	   XXX should this be global or per-cpu? */
-+	sl_state =3D softlockup_disable();
- =
+4. Add a global disable flag
 
- 	while(timeout--) {
- 		/*
-@@ -1223,19 +1229,26 @@ int ide_wait_not_busy(ide_hwif_t *hwif, =
-
- 		 */
- 		mdelay(1);
- 		stat =3D hwif->INB(hwif->io_ports[IDE_STATUS_OFFSET]);
--		if ((stat & BUSY_STAT) =3D=3D 0)
--			return 0;
-+		if ((stat & BUSY_STAT) =3D=3D 0) {
-+			ret =3D 0;
-+			break;
-+		}
-+
- 		/*
- 		 * Assume a value of 0xff means nothing is connected to
- 		 * the interface and it doesn't implement the pull-down
- 		 * resistor on D7.
- 		 */
--		if (stat =3D=3D 0xff)
--			return -ENODEV;
--		touch_softlockup_watchdog();
-+		if (stat =3D=3D 0xff) {
-+			ret =3D -ENODEV;
-+			break;
-+		}
- 		touch_nmi_watchdog();
- 	}
--	return -EBUSY;
-+
-+	softlockup_enable(sl_state);
-+
-+	return ret;
- }
- =
-
- EXPORT_SYMBOL_GPL(ide_wait_not_busy);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/ide/ide-taskfile.c
-+++ b/drivers/ide/ide-taskfile.c
-@@ -310,10 +310,14 @@ static void ide_pio_datablock(ide_drive_
- static void ide_pio_datablock(ide_drive_t *drive, struct request *rq,
- 				     unsigned int write)
- {
-+	int sl_state;
-+
- 	if (rq->bio)	/* fs request */
- 		rq->errors =3D 0;
- =
-
--	touch_softlockup_watchdog();
-+	/* Tell softlockup this might take a while.
-+	   XXX should this be global or per-cpu? */
-+	sl_state =3D softlockup_disable();
- =
-
- 	switch (drive->hwif->data_phase) {
- 	case TASKFILE_MULTI_IN:
-@@ -324,6 +328,8 @@ static void ide_pio_datablock(ide_drive_
- 		ide_pio_sector(drive, write);
- 		break;
- 	}
-+
-+	softlockup_enable(sl_state);
- }
- =
-
- static ide_startstop_t task_error(ide_drive_t *drive, struct request *rq,
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/mtd/nand/nand_base.c
-+++ b/drivers/mtd/nand/nand_base.c
-@@ -419,15 +419,21 @@ void nand_wait_ready(struct mtd_info *mt
- {
- 	struct nand_chip *chip =3D mtd->priv;
- 	unsigned long timeo =3D jiffies + 2;
-+	int sl_state;
-+
-+	/* Tell softlockup this might take a while.
-+	   XXX should this be global or per-cpu? */
-+	sl_state =3D softlockup_disable();
- =
-
- 	led_trigger_event(nand_led_trigger, LED_FULL);
- 	/* wait until command is processed or timeout occures */
- 	do {
- 		if (chip->dev_ready(mtd))
- 			break;
--		touch_softlockup_watchdog();
- 	} while (time_before(jiffies, timeo));
- 	led_trigger_event(nand_led_trigger, LED_OFF);
-+
-+	softlockup_enable(sl_state);
- }
- EXPORT_SYMBOL_GPL(nand_wait_ready);
- =
-
+Sometimes a long operation will affect all CPUs' ability to tickle the
+watchdog timer.  An obvious example is suspend/resume, but it can also
+happen while generating lots of sysrq output, or other specialized
+operations.  Add global enable/disable calls to deal with these case.
 
 -- =
