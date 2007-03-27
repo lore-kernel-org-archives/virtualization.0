@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 1/4] Ignore stolen time in the softlockup watchdog
-Date: Tue, 27 Mar 2007 14:49:20 -0700
-Message-ID: <20070327215827.871954359@goop.org>
+Subject: [patch 2/4] percpu enable flag for softlockup watchdog
+Date: Tue, 27 Mar 2007 14:49:21 -0700
+Message-ID: <20070327215827.977837635@goop.org>
 References: <20070327214919.800272641@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=softlockup-ignore-stolen-time.patch
+Content-Disposition: inline; filename=softlockup-percpu-enable-flag.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,25 +18,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Prarit Bhargava <prarit@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>, john stultz <johnstul@us.ibm.com>, Eric Dumazet <dada1@cosmosbay.com>, virtualization@lists.osdl.org, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Prarit Bhargava <prarit@redhat.com>, john stultz <johnstul@us.ibm.com>, Eric Dumazet <dada1@cosmosbay.com>, virtualization@lists.osdl.org, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, Linux Kernel <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The softlockup watchdog is currently a nuisance in a virtual machine,
-since the whole system could have the CPU stolen from it for a long
-period of time.  While it would be unlikely for a guest domain to be
-denied timer interrupts for over 10s, it could happen and any softlockup
-message would be completely spurious.
+On a NO_HZ system, there may be an arbitrarily long delay between
+ticks on a CPU.  When we're disabling ticks for a CPU, also disable
+the softlockup watchdog timer.
 
-Earlier I proposed that sched_clock() return time in unstolen
-nanoseconds, which is how Xen and VMI currently implement it.  If the
-softlockup watchdog uses sched_clock() to measure time, it would
-automatically ignore stolen time, and therefore only report when the
-guest itself locked up.  When running native, sched_clock() returns
-real-time nanoseconds, so the behaviour would be unchanged.
-
-Note that sched_clock() used this way is inherently per-cpu, so this
-patch makes sure that the per-processor watchdog thread initialized
-its own timestamp.
+This makes the touch_softlockup_watchdog() interface redundant; if a
+piece of code knows its going to be holding off timer interrupts long
+enough to trigger the watchdog, then it may as well simply temporarily
+disable the timer.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Cc: Ingo Molnar <mingo@elte.hu>
@@ -49,103 +41,265 @@ Cc: Paul Mackerras <paulus@samba.org>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Prarit Bhargava <prarit@redhat.com>
 Cc: Chris Lalancette <clalance@redhat.com>
-Cc: Rick Lindsley <ricklind@us.ibm.com>
 Cc: Eric Dumazet <dada1@cosmosbay.com>
----
- kernel/softlockup.c |   37 ++++++++++++++++++++++++++++++-------
- 1 file changed, 30 insertions(+), 7 deletions(-)
 
+---
+ include/linux/sched.h    |   25 +++++++++++++++++
+ kernel/softlockup.c      |   67 ++++++++++++++++++++++++++++++++++++++++++=
+----
+ kernel/time/tick-sched.c |   34 ++++++++++-------------
+ 3 files changed, 102 insertions(+), 24 deletions(-)
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -232,12 +232,37 @@ extern void scheduler_tick(void);
+ extern void scheduler_tick(void);
+ =
+
+ #ifdef CONFIG_DETECT_SOFTLOCKUP
++/* A scheduler tick on this CPU */
+ extern void softlockup_tick(void);
++
++/* Scheduler is disabling/re-enabling ticks on this CPU */
++extern void softlockup_tick_disable(void);
++extern void softlockup_tick_enable(void);
++
++/* Some code wants to temporarily disable the watchdog */
++extern int  softlockup_disable(void);
++extern void softlockup_enable(int state);
++
+ extern void spawn_softlockup_task(void);
+ extern void touch_softlockup_watchdog(void);
+ #else
+ static inline void softlockup_tick(void)
+ {
++}
++static inline void softlockup_tick_disable(void)
++{
++}
++static inline void softlockup_tick_enable(void)
++{
++}
++static inline int softlockup_disable(void)
++{
++	preempt_disable();
++	return 0;
++}
++static inline void softlockup_enable(int state)
++{
++	preempt_enable();
+ }
+ static inline void spawn_softlockup_task(void)
+ {
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/kernel/softlockup.c
 +++ b/kernel/softlockup.c
-@@ -35,9 +35,19 @@ static struct notifier_block panic_block
- 	.notifier_call =3D softlock_panic,
- };
+@@ -20,6 +20,7 @@ static DEFINE_PER_CPU(unsigned long, tou
+ static DEFINE_PER_CPU(unsigned long, touch_timestamp);
+ static DEFINE_PER_CPU(unsigned long, print_timestamp);
+ static DEFINE_PER_CPU(struct task_struct *, watchdog_task);
++static DEFINE_PER_CPU(int, enabled);
  =
 
-+/*
-+ * Returns seconds, approximately.  We don't need nanosecond
-+ * resolution, and we don't need to waste time with a big divide when
-+ * 2^30ns =3D=3D 1.074s.
-+ */
-+static unsigned long get_timestamp(void)
-+{
-+	return sched_clock() >> 30;  /* 2^30 ~=3D 10^9 */
-+}
-+
- void touch_softlockup_watchdog(void)
+ static int did_panic =3D 0;
+ =
+
+@@ -45,11 +46,65 @@ static unsigned long get_timestamp(void)
+ 	return sched_clock() >> 30;  /* 2^30 ~=3D 10^9 */
+ }
+ =
+
+-void touch_softlockup_watchdog(void)
++void inline touch_softlockup_watchdog(void)
  {
--	__raw_get_cpu_var(touch_timestamp) =3D jiffies;
-+	__raw_get_cpu_var(touch_timestamp) =3D get_timestamp();
+ 	__raw_get_cpu_var(touch_timestamp) =3D get_timestamp();
  }
  EXPORT_SYMBOL(touch_softlockup_watchdog);
++
++/*
++ * Disable the watchdog on this CPU.  This is called directly by the
++ * scheduler to tell us it's going tickless.
++ */
++void inline softlockup_tick_disable(void)
++{
++	__get_cpu_var(enabled) =3D 0;
++}
++
++/*
++ * Disable the watchdog for this CPU, returning the current state to
++ * allow nesting.  Returns with preemptio disabled, since we can't
++ * switch CPUs before we re-enable the watchdog (also, if we're
++ * worried about getting watchdog timeouts, we're not scheduling).
++ */
++int softlockup_disable(void)
++{
++	int ret;
++
++	preempt_disable();
++
++	ret =3D __get_cpu_var(enabled);
++	softlockup_tick_disable();
++
++	return ret;
++}
++EXPORT_SYMBOL(softlockup_disable);
++
++/*
++ * Re-enable the watchdog on this CPU.  Called directly by the
++ * scheduler to tell us ticks are resuming.
++ */
++void inline softlockup_tick_enable(void)
++{
++	__get_cpu_var(enabled) =3D 1;
++}
++
++/*
++ * Returns softlockup watchdog state to before the last per-cpu
++ * disable.
++ */
++void softlockup_enable(int state)
++{
++	if (state) {
++		touch_softlockup_watchdog();
++		/* update timestamp before enable */
++		barrier();
++		softlockup_tick_enable();
++	}
++
++	preempt_enable();
++}
++EXPORT_SYMBOL(softlockup_enable);
  =
 
-@@ -48,10 +58,18 @@ void softlockup_tick(void)
- void softlockup_tick(void)
- {
- 	int this_cpu =3D smp_processor_id();
--	unsigned long touch_timestamp =3D per_cpu(touch_timestamp, this_cpu);
-+	unsigned long touch_timestamp =3D __get_cpu_var(touch_timestamp);
-+	unsigned long print_timestamp;
-+	unsigned long now;
+ /*
+  * This callback runs from the timer interrupt, and checks
+@@ -62,8 +117,8 @@ void softlockup_tick(void)
+ 	unsigned long print_timestamp;
+ 	unsigned long now;
  =
 
--	/* prevent double reports: */
--	if (per_cpu(print_timestamp, this_cpu) =3D=3D touch_timestamp ||
-+	/* watchdog task hasn't updated timestamp yet */
-+	if (touch_timestamp =3D=3D 0)
-+		return;
-+
-+	print_timestamp =3D __get_cpu_var(print_timestamp);
-+
-+	/* report at most once a second */
-+	if (print_timestamp < (touch_timestamp + 1) ||
- 		did_panic ||
- 			!per_cpu(watchdog_task, this_cpu))
+-	/* watchdog task hasn't updated timestamp yet */
+-	if (touch_timestamp =3D=3D 0)
++	/* return if not enabled */
++	if (!__get_cpu_var(enabled))
  		return;
-@@ -62,12 +80,14 @@ void softlockup_tick(void)
- 		return;
- 	}
  =
 
-+	now =3D get_timestamp();
-+
- 	/* Wake up the high-prio watchdog task every second: */
--	if (time_after(jiffies, touch_timestamp + HZ))
-+	if (now > (touch_timestamp + 1))
- 		wake_up_process(per_cpu(watchdog_task, this_cpu));
- =
-
- 	/* Warn about unreasonable 10+ seconds delays: */
--	if (time_after(jiffies, touch_timestamp + 10*HZ)) {
-+	if (now > (touch_timestamp + 10)) {
- 		per_cpu(print_timestamp, this_cpu) =3D touch_timestamp;
- =
-
- 		spin_lock(&print_lock);
-@@ -87,6 +107,9 @@ static int watchdog(void * __bind_cpu)
- =
-
+ 	print_timestamp =3D __get_cpu_var(print_timestamp);
+@@ -108,8 +163,8 @@ static int watchdog(void * __bind_cpu)
  	sched_setscheduler(current, SCHED_FIFO, &param);
  	current->flags |=3D PF_NOFREEZE;
-+
-+	/* initialize timestamp */
-+	touch_softlockup_watchdog();
+ =
+
+-	/* initialize timestamp */
+-	touch_softlockup_watchdog();
++	/* enable on this cpu */
++	softlockup_tick_enable();
  =
 
  	/*
  	 * Run briefly once per second to reset the softlockup timestamp.
-@@ -120,7 +143,7 @@ cpu_callback(struct notifier_block *nfb,
- 			printk("watchdog for %i failed\n", hotcpu);
- 			return NOTIFY_BAD;
+@@ -122,6 +177,8 @@ static int watchdog(void * __bind_cpu)
+ 		touch_softlockup_watchdog();
+ 		schedule();
+ 	}
++
++	softlockup_tick_disable();
+ =
+
+ 	return 0;
+ }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -228,6 +228,8 @@ void tick_nohz_stop_sched_tick(void)
+ 			ts->idle_tick =3D ts->sched_timer.expires;
+ 			ts->tick_stopped =3D 1;
+ 			ts->idle_jiffies =3D last_jiffies;
++
++			softlockup_tick_disable();
  		}
--  		per_cpu(touch_timestamp, hotcpu) =3D jiffies;
-+  		per_cpu(touch_timestamp, hotcpu) =3D 0;
-   		per_cpu(watchdog_task, hotcpu) =3D p;
- 		kthread_bind(p, hotcpu);
-  		break;
+ 		/*
+ 		 * calculate the expiry time for the next timer wheel
+@@ -255,6 +257,7 @@ void tick_nohz_stop_sched_tick(void)
+ 		cpu_clear(cpu, nohz_cpu_mask);
+ 	}
+ 	raise_softirq_irqoff(TIMER_SOFTIRQ);
++
+ out:
+ 	ts->next_jiffies =3D next_jiffies;
+ 	ts->last_jiffies =3D last_jiffies;
+@@ -311,6 +314,8 @@ void tick_nohz_restart_sched_tick(void)
+ 	ts->tick_stopped  =3D 0;
+ 	hrtimer_cancel(&ts->sched_timer);
+ 	ts->sched_timer.expires =3D ts->idle_tick;
++
++	softlockup_tick_enable();
+ =
+
+ 	while (1) {
+ 		/* Forward the time to expire in the future */
+@@ -355,17 +360,12 @@ static void tick_nohz_handler(struct clo
+ 	tick_do_update_jiffies64(now);
+ =
+
+ 	/*
+-	 * When we are idle and the tick is stopped, we have to touch
+-	 * the watchdog as we might not schedule for a really long
+-	 * time. This happens on complete idle SMP systems while
+-	 * waiting on the login prompt. We also increment the "start
+-	 * of idle" jiffy stamp so the idle accounting adjustment we
+-	 * do when we go busy again does not account too much ticks.
+-	 */
+-	if (ts->tick_stopped) {
+-		touch_softlockup_watchdog();
++	 * Increment the "start of idle" jiffy stamp so the idle
++	 * accounting adjustment we do when we go busy again does not
++	 * account too much ticks.
++	 */
++	if (ts->tick_stopped)
+ 		ts->idle_jiffies++;
+-	}
+ =
+
+ 	update_process_times(user_mode(regs));
+ 	profile_tick(CPU_PROFILING);
+@@ -450,17 +450,12 @@ static enum hrtimer_restart tick_sched_t
+ 	 */
+ 	if (regs) {
+ 		/*
+-		 * When we are idle and the tick is stopped, we have to touch
+-		 * the watchdog as we might not schedule for a really long
+-		 * time. This happens on complete idle SMP systems while
+-		 * waiting on the login prompt. We also increment the "start of
+-		 * idle" jiffy stamp so the idle accounting adjustment we do
+-		 * when we go busy again does not account too much ticks.
++		 * Increment the "start of idle" jiffy stamp so the
++		 * idle accounting adjustment we do when we go busy
++		 * again does not account too much ticks.
+ 		 */
+-		if (ts->tick_stopped) {
+-			touch_softlockup_watchdog();
++		if (ts->tick_stopped)
+ 			ts->idle_jiffies++;
+-		}
+ 		/*
+ 		 * update_process_times() might take tasklist_lock, hence
+ 		 * drop the base lock. sched-tick hrtimers are per-CPU and
+@@ -522,6 +517,7 @@ void tick_cancel_sched_timer(int cpu)
+ 	if (ts->sched_timer.base)
+ 		hrtimer_cancel(&ts->sched_timer);
+ 	ts->tick_stopped =3D 0;
++	softlockup_tick_enable();
+ 	ts->nohz_mode =3D NOHZ_MODE_INACTIVE;
+ }
+ #endif /* HIGH_RES_TIMERS */
 
 -- =
