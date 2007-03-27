@@ -1,33 +1,51 @@
-From: Eric Dumazet <dada1@cosmosbay.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [patch 1/2] Ignore stolen time in the softlockup watchdog
-Date: Tue, 27 Mar 2007 09:00:49 +0200
-Message-ID: <4608C121.4050309@cosmosbay.com>
+Date: Tue, 27 Mar 2007 00:12:53 -0700
+Message-ID: <4608C3F5.1030106@goop.org>
 References: <20070327053816.881735237@goop.org>
- <20070327054106.664262413@goop.org>
+	<20070327054106.664262413@goop.org>
+	<4608C121.4050309@cosmosbay.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965233AbXC0HAz@vger.kernel.org>
-In-reply-to: <20070327054106.664262413@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>, Zachary Amsden <zach@vmware.com>, James Morris <jmorris@namei.org>, Dan Hecht <dhecht@vmware.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Prarit Bhargava <prarit@redhat.com>, Chris Lalancette <clalance@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4608C121.4050309@cosmosbay.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Prarit Bhargava <prarit@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>, john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>, Linux Kernel <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge a =E9crit :
+Eric Dumazet wrote:
+> Jeremy Fitzhardinge a =E9crit :
+>
+>> +static DEFINE_PER_CPU(unsigned long long, touch_timestamp);
+>
+> ...
+>
+>>  void touch_softlockup_watchdog(void)
+>>  {
+>> -    __raw_get_cpu_var(touch_timestamp) =3D jiffies;
+>> +    __raw_get_cpu_var(touch_timestamp) =3D sched_clock();
+>>  }
+>
+> Not very clear if this is safe on 32bit, since this is not anymore
+> atomic.
 
-> +static DEFINE_PER_CPU(unsigned long long, touch_timestamp);
+Hm, good point.  Don't think it matters very much.  These values are
+per-cpu, and if an interrupt happens between the word updates and the
+intermediate values causes a timeout, then it was pretty marginal
+anyway.  I guess the worst case is if the low-word gets written first,
+and it goes from a high value to low, then it could be sampled as if
+time had gone back by up to ~4 seconds.
 
-=2E..
+I'll give it another look.
 
->  void touch_softlockup_watchdog(void)
->  {
-> -	__raw_get_cpu_var(touch_timestamp) =3D jiffies;
-> +	__raw_get_cpu_var(touch_timestamp) =3D sched_clock();
->  }
-
-Not very clear if this is safe on 32bit, since this is not anymore atom=
-ic.
-
-Maybe a comment would help ?
+    J
