@@ -1,327 +1,195 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 4/4] Add global disable/enable for softlockup watchdog
-Date: Tue, 27 Mar 2007 14:49:23 -0700
-Message-ID: <20070327215828.171904908@goop.org>
-References: <20070327214919.800272641@goop.org>
+Subject: [PATCH] Add smp_ops interface
+Date: Tue, 27 Mar 2007 15:09:40 -0700
+Message-ID: <46099624.30606@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=softlockup-global-enable.patch
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Prarit Bhargava <prarit@redhat.com>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Zachary Amsden <zach@vmware.com>, Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some machine-wide activities can cause spurious softlockup watchdog
-warnings, so add a mechanism to allow the watchdog to be disabled.
+Add a smp_ops interface.  This abstracts the API defined by
+<linux/smp.h> for use within arch/i386.  The primary intent is that it
+be used by a paravirtualizing hypervisor to implement SMP, but it
+could also be used by non-APIC-using sub-architectures.
 
-The most obvious activity is suspend/resume, but long sysrq output can
-also stall the system long enough to cause problems.
+This is related to CONFIG_PARAVIRT, but is implemented unconditionally
+since it is simpler that way and not a highly performance-sensitive
+interface.
+
+[ Andrew: Patch is based on 2.6.21-rc5-mm1 + the pda->percpu patch I
+  posted the other day.  It will have a minor context conflict without
+  that patch, but is otherwise standalone. ]
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Andi Kleen <ak@suse.de>
 Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Cc: Chris Lalancette <clalance@redhat.com>
-Cc: Eric Dumazet <dada1@cosmosbay.com>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
 
 ---
- drivers/char/sysrq.c  |    8 +++++
- include/linux/sched.h |   10 ++++++
- kernel/panic.c        |    3 +-
- kernel/power/swsusp.c |    3 +-
- kernel/softlockup.c   |   72 ++++++++++++++++++++++++++++++++++++++++++---=
-----
- kernel/timer.c        |    4 ++
- 6 files changed, 87 insertions(+), 13 deletions(-)
+ arch/i386/kernel/smp.c     |   21 +++++++++++++----
+ arch/i386/kernel/smpboot.c |    8 +++---
+ include/asm-i386/smp.h     |   53 ++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 73 insertions(+), 9 deletions(-)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/char/sysrq.c
-+++ b/drivers/char/sysrq.c
-@@ -211,7 +211,11 @@ static struct sysrq_key_op sysrq_showreg
- =
-
- static void sysrq_handle_showstate(int key, struct tty_struct *tty)
+===================================================================
+--- a/arch/i386/kernel/smp.c
++++ b/arch/i386/kernel/smp.c
+@@ -483,7 +483,7 @@ void flush_tlb_all(void)
+  * it goes straight through and wastes no time serializing
+  * anything. Worst case is that we lose a reschedule ...
+  */
+-void smp_send_reschedule(int cpu)
++void native_smp_send_reschedule(int cpu)
  {
-+	softlockup_global_disable();  /* may take a while */
-+
- 	show_state();
-+
-+	softlockup_global_enable();
+ 	WARN_ON(cpu_is_offline(cpu));
+ 	send_IPI_mask(cpumask_of_cpu(cpu), RESCHEDULE_VECTOR);
+@@ -576,9 +576,9 @@ static int __smp_call_function_mask(cpum
+  * You must not call this function with disabled interrupts or from a
+  * hardware interrupt handler or from a bottom half handler.
+  */
+-int smp_call_function_mask(cpumask_t mask,
+-			     void (*func)(void *), void *info,
+-			     int wait)
++int native_smp_call_function_mask(cpumask_t mask,
++				  void (*func)(void *), void *info,
++				  int wait)
+ {
+ 	int ret;
+ 
+@@ -657,7 +657,7 @@ static void stop_this_cpu (void * dummy)
+  * this function calls the 'stop' function on all other CPUs in the system.
+  */
+ 
+-void smp_send_stop(void)
++void native_smp_send_stop(void)
+ {
+ 	/* Don't deadlock on the call lock in panic */
+ 	int nolock = !spin_trylock(&call_lock);
+@@ -733,3 +733,14 @@ int safe_smp_processor_id(void)
+ 
+ 	return cpuid >= 0 ? cpuid : 0;
  }
- static struct sysrq_key_op sysrq_showstate_op =3D {
- 	.handler	=3D sysrq_handle_showstate,
-@@ -222,7 +226,11 @@ static struct sysrq_key_op sysrq_showsta
- =
-
- static void sysrq_handle_showstate_blocked(int key, struct tty_struct *tty)
++
++struct smp_ops smp_ops = {
++	.smp_prepare_boot_cpu = native_smp_prepare_boot_cpu,
++	.smp_prepare_cpus = native_smp_prepare_cpus,
++	.cpu_up = native_cpu_up,
++	.smp_cpus_done = native_smp_cpus_done,
++
++	.smp_send_stop = native_smp_send_stop,
++	.smp_send_reschedule = native_smp_send_reschedule,
++	.smp_call_function_mask = native_smp_call_function_mask,
++};
+===================================================================
+--- a/arch/i386/kernel/smpboot.c
++++ b/arch/i386/kernel/smpboot.c
+@@ -1169,7 +1169,7 @@ static void __init smp_boot_cpus(unsigne
+ 
+ /* These are wrappers to interface to the new boot process.  Someone
+    who understands all this stuff should rewrite it properly. --RR 15/Jul/02 */
+-void __init smp_prepare_cpus(unsigned int max_cpus)
++void __init native_smp_prepare_cpus(unsigned int max_cpus)
  {
-+	softlockup_global_disable();  /* may take a while */
-+
- 	show_state_filter(TASK_UNINTERRUPTIBLE);
-+
-+	softlockup_global_enable();
+ 	smp_commenced_mask = cpumask_of_cpu(0);
+ 	cpu_callin_map = cpumask_of_cpu(0);
+@@ -1189,7 +1189,7 @@ static inline void switch_to_new_gdt(voi
+ 	asm ("mov %0, %%fs" : : "r" (__KERNEL_PERCPU) : "memory");
  }
- static struct sysrq_key_op sysrq_showstate_blocked_op =3D {
- 	.handler	=3D sysrq_handle_showstate_blocked,
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -243,6 +243,10 @@ extern int  softlockup_disable(void);
- extern int  softlockup_disable(void);
- extern void softlockup_enable(int state);
- =
-
-+/* Disable/re-enable softlockup watchdog on all CPUs */
-+extern void softlockup_global_disable(void);
-+extern void softlockup_global_enable(void);
-+
- extern void spawn_softlockup_task(void);
- extern void touch_softlockup_watchdog(void);
- #else
-@@ -263,6 +267,12 @@ static inline void softlockup_enable(int
- static inline void softlockup_enable(int state)
+ 
+-void __init smp_prepare_boot_cpu(void)
++void __init native_smp_prepare_boot_cpu(void)
  {
- 	preempt_enable();
-+}
-+static inline void softlockup_global_enable(void)
-+{
-+}
-+static inline void softlockup_global_disable(void)
-+{
+ 	unsigned int cpu = smp_processor_id();
+ 
+@@ -1290,7 +1290,7 @@ void __cpu_die(unsigned int cpu)
  }
- static inline void spawn_softlockup_task(void)
+ #endif /* CONFIG_HOTPLUG_CPU */
+ 
+-int __cpuinit __cpu_up(unsigned int cpu)
++int __cpuinit native_cpu_up(unsigned int cpu)
  {
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -131,8 +131,9 @@ NORET_TYPE void panic(const char * fmt, =
-
-         disabled_wait(caller);
+ 	unsigned long flags;
+ #ifdef CONFIG_HOTPLUG_CPU
+@@ -1335,7 +1335,7 @@ int __cpuinit __cpu_up(unsigned int cpu)
+ 	return 0;
+ }
+ 
+-void __init smp_cpus_done(unsigned int max_cpus)
++void __init native_smp_cpus_done(unsigned int max_cpus)
+ {
+ #ifdef CONFIG_X86_IO_APIC
+ 	setup_ioapic_dest();
+===================================================================
+--- a/include/asm-i386/smp.h
++++ b/include/asm-i386/smp.h
+@@ -47,6 +47,59 @@ extern void cpu_exit_clear(void);
+ extern void cpu_exit_clear(void);
+ extern void cpu_uninit(void);
  #endif
- 	local_irq_enable();
-+	softlockup_global_disable();
 +
- 	for (i =3D 0;;) {
--		touch_softlockup_watchdog();
- 		i +=3D panic_blink(i);
- 		mdelay(1);
- 		i++;
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/power/swsusp.c
-+++ b/kernel/power/swsusp.c
-@@ -289,6 +289,7 @@ int swsusp_suspend(void)
- 	 * that suspended with irqs off ... no overall powerup.
- 	 */
- 	device_power_up();
-+	softlockup_global_disable();
-  Enable_irqs:
- 	local_irq_enable();
- 	return error;
-@@ -323,7 +324,7 @@ int swsusp_resume(void)
- 	 */
- 	swsusp_free();
- 	restore_processor_state();
--	touch_softlockup_watchdog();
-+	softlockup_global_enable();
- 	device_power_up();
- 	local_irq_enable();
- 	return error;
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/softlockup.c
-+++ b/kernel/softlockup.c
-@@ -17,10 +17,21 @@
- =
-
- static DEFINE_SPINLOCK(print_lock);
- =
-
-+/*
-+ * Since sched_clock() is inherently per-cpu, its not possible to
-+ * update another CPU's timestamp.  To deal with this, we add an extra
-+ * state meaning "enabled, but timestamp needs update".
-+ */
-+enum state {
-+	SL_OFF =3D 0,		/* disabled */
-+	SL_UPDATE,		/* enabled, but timestamp old */
-+	SL_ON,			/* enabled */
++struct smp_ops
++{
++	void (*smp_prepare_boot_cpu)(void);
++	void (*smp_prepare_cpus)(unsigned max_cpus);
++	int (*cpu_up)(unsigned cpu);
++	void (*smp_cpus_done)(unsigned max_cpus);
++
++	void (*smp_send_stop)(void);
++	void (*smp_send_reschedule)(int cpu);
++	int (*smp_call_function_mask)(cpumask_t mask,
++				      void (*func)(void *info), void *info,
++				      int wait);
 +};
 +
- static DEFINE_PER_CPU(unsigned long, touch_timestamp);
- static DEFINE_PER_CPU(unsigned long, print_timestamp);
- static DEFINE_PER_CPU(struct task_struct *, watchdog_task);
--static DEFINE_PER_CPU(int, enabled);
-+static DEFINE_PER_CPU(enum state, softlock_state);
- =
-
- static int did_panic =3D 0;
- =
-
-@@ -48,7 +59,12 @@ static unsigned long get_timestamp(void)
- =
-
- void inline touch_softlockup_watchdog(void)
- {
-+	if (__raw_get_cpu_var(softlock_state) =3D=3D SL_OFF)
-+		return;
++extern struct smp_ops smp_ops;
 +
- 	__raw_get_cpu_var(touch_timestamp) =3D get_timestamp();
-+	barrier();
-+	__raw_get_cpu_var(softlock_state) =3D SL_ON;
- }
- EXPORT_SYMBOL(touch_softlockup_watchdog);
- =
-
-@@ -58,7 +74,7 @@ EXPORT_SYMBOL(touch_softlockup_watchdog)
-  */
- void inline softlockup_tick_disable(void)
- {
--	__get_cpu_var(enabled) =3D 0;
-+	__get_cpu_var(softlock_state) =3D SL_OFF;
- }
- =
-
- /*
-@@ -73,7 +89,7 @@ int softlockup_disable(void)
- =
-
- 	preempt_disable();
- =
-
--	ret =3D __get_cpu_var(enabled);
-+	ret =3D __get_cpu_var(softlock_state) =3D=3D SL_OFF;
- 	softlockup_tick_disable();
- =
-
- 	return ret;
-@@ -86,7 +102,7 @@ EXPORT_SYMBOL(softlockup_disable);
-  */
- void inline softlockup_tick_enable(void)
- {
--	__get_cpu_var(enabled) =3D 1;
-+	__get_cpu_var(softlock_state) =3D SL_UPDATE;
- }
- =
-
- /*
-@@ -96,15 +112,41 @@ void softlockup_enable(int state)
- void softlockup_enable(int state)
- {
- 	if (state) {
--		touch_softlockup_watchdog();
--		/* update timestamp before enable */
--		barrier();
- 		softlockup_tick_enable();
-+		touch_softlockup_watchdog();
- 	}
- =
-
- 	preempt_enable();
- }
- EXPORT_SYMBOL(softlockup_enable);
-+
-+/*
-+ * Disable softlockup watchdog on all CPUs.  This is useful for
-+ * globally disruptive activities, like suspend/resume or large sysrq
-+ * debug outputs.
-+ */
-+void softlockup_global_disable()
++static inline void smp_prepare_boot_cpu(void)
 +{
-+	unsigned cpu;
-+
-+	for_each_online_cpu(cpu)
-+		per_cpu(softlock_state, cpu) =3D SL_OFF;
++	smp_ops.smp_prepare_boot_cpu();
 +}
-+EXPORT_SYMBOL(softlockup_global_disable);
-+
-+/*
-+ * Globally re-enable soft lockups.  This will obviously interfere
-+ * with any CPU's local softlockup disable, but with luck that won't
-+ * matter.
-+ */
-+void softlockup_global_enable()
++static inline void smp_prepare_cpus(unsigned int max_cpus)
 +{
-+	unsigned cpu;
-+
-+	for_each_online_cpu(cpu)
-+		per_cpu(softlock_state, cpu) =3D SL_UPDATE;
++	smp_ops.smp_prepare_cpus(max_cpus);
 +}
-+EXPORT_SYMBOL(softlockup_global_enable);
- =
-
- /*
-  * This callback runs from the timer interrupt, and checks
-@@ -117,9 +159,19 @@ void softlockup_tick(void)
- 	unsigned long print_timestamp;
- 	unsigned long now;
- =
-
--	/* return if not enabled */
--	if (!__get_cpu_var(enabled))
--		return;
-+	switch(__get_cpu_var(softlock_state)) {
-+	case SL_OFF:
-+		/* not enabled */
-+		return;
++static inline int __cpu_up(unsigned int cpu)
++{
++	return smp_ops.cpu_up(cpu);
++}
++static inline void smp_cpus_done(unsigned int max_cpus)
++{
++	smp_ops.smp_cpus_done(max_cpus);
++}
 +
-+	case SL_UPDATE:
-+		/* update timestamp */
-+		touch_softlockup_watchdog();
-+		return;
++static inline void smp_send_stop(void)
++{
++	smp_ops.smp_send_stop();
++}
++static inline void smp_send_reschedule(int cpu)
++{
++	smp_ops.smp_send_reschedule(cpu);
++}
++static inline int smp_call_function_mask(cpumask_t mask,
++					 void (*func) (void *info), void *info,
++					 int wait)
++{
++	return smp_ops.smp_call_function_mask(mask, func, info, wait);
++}
 +
-+	case SL_ON:
-+		break;
-+	}
- =
-
- 	print_timestamp =3D __get_cpu_var(print_timestamp);
- =
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -1011,7 +1011,7 @@ static int timekeeping_resume(struct sys
- 	timekeeping_suspended =3D 0;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- =
-
--	touch_softlockup_watchdog();
-+	softlockup_global_enable();
- =
-
- 	clockevents_notify(CLOCK_EVT_NOTIFY_RESUME, NULL);
- =
-
-@@ -1029,6 +1029,8 @@ static int timekeeping_suspend(struct sy
- 	timekeeping_suspended =3D 1;
- 	timekeeping_suspend_time =3D read_persistent_clock();
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
-+
-+	softlockup_global_disable();
- =
-
- 	clockevents_notify(CLOCK_EVT_NOTIFY_SUSPEND, NULL);
- =
-
-
--- =
++void native_smp_prepare_boot_cpu(void);
++void native_smp_prepare_cpus(unsigned int max_cpus);
++int native_cpu_up(unsigned int cpunum);
++void native_smp_cpus_done(unsigned int max_cpus);
+ 
+ #ifndef CONFIG_PARAVIRT
+ #define startup_ipi_hook(phys_apicid, start_eip, start_esp) 		\
