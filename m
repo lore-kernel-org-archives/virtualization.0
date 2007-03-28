@@ -1,43 +1,54 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [patch 3/4] Locally disable the softlockup watchdog rather than touching it
-Date: Wed, 28 Mar 2007 15:50:04 +0200
-Message-ID: <200703281550.04224.ak@suse.de>
-References: <20070327214919.800272641@goop.org> <20070327215828.085422178@goop.org> <460A6EC0.4020701@redhat.com>
+From: Prarit Bhargava <prarit@redhat.com>
+Subject: Re: [patch 3/4] Locally disable the softlockup watchdog rather than
+ touching it
+Date: Wed, 28 Mar 2007 10:00:15 -0400
+Message-ID: <460A74EF.6000700@redhat.com>
+References: <20070327214919.800272641@goop.org> <20070327215828.085422178@goop.org> <460A6EC0.4020701@redhat.com> <200703281550.04224.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751722AbXC1Nua@vger.kernel.org>
-In-Reply-To: <460A6EC0.4020701@redhat.com>
-Content-Disposition: inline
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751862AbXC1OBT@vger.kernel.org>
+In-Reply-To: <200703281550.04224.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.linux-foundation.org
-Cc: Prarit Bhargava <prarit@redhat.com>, Jeremy Fitzhardinge <jeremy@goop.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, John Hawkes <hawkes@sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.linux-foundation.org, Jeremy Fitzhardinge <jeremy@goop.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, John Hawkes <hawkes@sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 28 March 2007 15:33, Prarit Bhargava wrote:
-> 
-> Jeremy Fitzhardinge wrote:
-> >
-> > I haven't really worked out how this should interact with the nmi
-> > watchdog; touch_nmi_watchdog() still ends up calling
-> > touch_softlockup_watchdog(), so there's still some redundancy here.
-> >
-> >   
-> 
-> touch_nmi_watchdog is attempting to tickle _all_ CPUs softlockup watchdogs.
 
-It is supposed to only touch the current CPU, just like it only touches
-the NMI watchdog on the current CPU.
+>> touch_nmi_watchdog is attempting to tickle _all_ CPUs softlockup watchdogs.
+>>     
+>
+> It is supposed to only touch the current CPU, just like it only touches
+> the NMI watchdog on the current CPU.
+>
+>   
 
+Andi,
 
-> 
-> Currently, the code is incorrect -- it is calling 
-> touch_softlockup_watchdog which touches only the current CPU's 
-> softlockup watchdog.
+(sorry for the cut-and-paste). 
 
-Sounds correct to me.
+touch_nmi_watchdogs sets EACH CPUs alert_counter to 0.
 
--Andi
+void touch_nmi_watchdog (void)
+{
+        if (nmi_watchdog > 0) {
+                unsigned cpu;
 
-> 
+                /*
+                 * Just reset the alert counters, (other CPUs might be
+                 * spinning on locks we hold):
+                 */
+                for_each_present_cpu (cpu)
+                        alert_counter[cpu] = 0;
+        }
+
+        /*
+         * Tickle the softlockup detector too:
+         */
+        touch_softlockup_watchdog();
+}
+
+The call to touch_softlockup_watchdog here is incorrect -- it is only 
+touching the current CPU's softlockup.
+
+P.
