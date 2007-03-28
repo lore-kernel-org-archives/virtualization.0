@@ -1,35 +1,91 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Add machine_ops interface  to abstract halting and rebooting
-Date: Wed, 28 Mar 2007 21:54:04 +0200
-Message-ID: <200703282154.04245.ak@suse.de>
-References: <46099709.2000304@goop.org> <200703282143.53037.ak@suse.de> <460AC665.2090705@goop.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH] Clean up mach_reboot_fixups
+Date: Wed, 28 Mar 2007 13:11:49 -0700
+Message-ID: <460ACC05.4020401@goop.org>
+References: <46099709.2000304@goop.org> <200703282143.53037.ak@suse.de>	<460AC665.2090705@goop.org> <200703282154.04245.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965736AbXC1TyK@vger.kernel.org>
-In-Reply-To: <460AC665.2090705@goop.org>
-Content-Disposition: inline
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965746AbXC1ULt@vger.kernel.org>
+In-Reply-To: <200703282154.04245.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Jan Beulich <jbeulich@novell.com>, Stephane Eranian <eranian@hpl.hp.com>, Ingo Molnar <mingo@elte.hu>, "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andi Kleen <ak@suse.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Stephane Eranian <eranian@hpl.hp.com>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Jan Beulich <jbeulich@novell.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 28 March 2007 21:47, Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> > On Wednesday 28 March 2007 21:32, Jeremy Fitzhardinge wrote:
-> >   
-> >> machine_ops is an interface for the machine_* functions defined in
-> >> <linux/reboot.h>.  This is intended to allow hypervisors to intercept
-> >> the reboot process, but it could be used to implement other x86
-> >> subarchtecture reboots.
-> >>     
-> >
-> > Both patches added thanks
-> >   
-> 
-> I presume you've also got the reboot-fixups cleanup patch?
+Two cleanups:
+ - reboot_fixups.h is entirely i386-dependent, so put it in asm-i386
+ - use a weak version rather than ifdeffery
 
-No, please resend too
+[ Andi - the machine_ops probably depends on this, but only in a minor
+  context-clash way. ]
 
--Andi
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Jaya Kumar <jayalk@intworks.biz>
+
+---
+ arch/i386/kernel/reboot.c        |    6 +++++-
+ arch/i386/kernel/reboot_fixups.c |    2 +-
+ include/asm-i386/reboot_fixups.h |    6 ++++++
+ include/linux/reboot_fixups.h    |   10 ----------
+ 4 files changed, 12 insertions(+), 12 deletions(-)
+
+===================================================================
+--- a/arch/i386/kernel/reboot.c
++++ b/arch/i386/kernel/reboot.c
+@@ -17,7 +17,7 @@
+ #include <asm/apic.h>
+ #include <asm/desc.h>
+ #include "mach_reboot.h"
+-#include <linux/reboot_fixups.h>
++#include <asm/reboot_fixups.h>
+ 
+ /*
+  * Power off function, if any
+@@ -314,6 +314,10 @@ void machine_shutdown(void)
+ #ifdef CONFIG_X86_IO_APIC
+ 	disable_IO_APIC();
+ #endif
++}
++
++void __attribute__((weak)) mach_reboot_fixups(void)
++{
+ }
+ 
+ void machine_emergency_restart(void)
+===================================================================
+--- a/arch/i386/kernel/reboot_fixups.c
++++ b/arch/i386/kernel/reboot_fixups.c
+@@ -10,7 +10,7 @@
+ 
+ #include <asm/delay.h>
+ #include <linux/pci.h>
+-#include <linux/reboot_fixups.h>
++#include <asm/reboot_fixups.h>
+ 
+ static void cs5530a_warm_reset(struct pci_dev *dev)
+ {
+===================================================================
+--- /dev/null
++++ b/include/asm-i386/reboot_fixups.h
+@@ -0,0 +1,6 @@
++#ifndef _LINUX_REBOOT_FIXUPS_H
++#define _LINUX_REBOOT_FIXUPS_H
++
++extern void mach_reboot_fixups(void);
++
++#endif /* _LINUX_REBOOT_FIXUPS_H */
+===================================================================
+--- a/include/linux/reboot_fixups.h
++++ /dev/null
+@@ -1,10 +0,0 @@
+-#ifndef _LINUX_REBOOT_FIXUPS_H
+-#define _LINUX_REBOOT_FIXUPS_H
+-
+-#ifdef CONFIG_X86_REBOOTFIXUPS
+-extern void mach_reboot_fixups(void);
+-#else
+-#define mach_reboot_fixups() ((void)(0))
+-#endif
+-
+-#endif /* _LINUX_REBOOT_FIXUPS_H */
