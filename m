@@ -1,16 +1,14 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [LGUEST] updated nohz/hrtimer WIP patches (v04)
-Date: Thu, 29 Mar 2007 12:24:02 -0700
-Message-ID: <460C1252.6040503@goop.org>
+Date: Fri, 30 Mar 2007 12:08:21 +1000
+Message-ID: <1175220502.12230.355.camel@localhost.localdomain>
 References: <Line.LNX.4.64.0703261148040.13138@d.namei>
 	<Line.LNX.4.64.0703291151270.12641@d.namei>
-	<460BED15.9040301@goop.org>
-	<Line.LNX.4.64.0703291509470.14851@d.namei>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <Line.LNX.4.64.0703291509470.14851@d.namei>
+In-Reply-To: <Line.LNX.4.64.0703291151270.12641@d.namei>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,30 +22,52 @@ To: James Morris <jmorris@namei.org>
 Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-James Morris wrote:
-> Yep, it's as simple as possible now, and absolute time something to =
+On Thu, 2007-03-29 at 11:53 -0400, James Morris wrote:
+> At http://namei.org/misc/lguest/patches/time/v04/
+> =
 
-> investigate along with time synchronization between the host and the =
+> Just a resync to the latest upstream lguest patch queue, after some fun =
 
-> guest (which we effectively avoid at this point).
->   =
+> with bare metal bugs and assorted churn.
 
+Hi James!
 
-There doesn't need to be any time synchronization; you just need a way
-to get at the hypervisor's current clock.  You end up doing the
-hypervisor_clock() + delta yourself anyway, but at least its under your
-control.
+	Thanks for the patch!  Nothing major to add, just some questions
+mainly...
 
-> 'delta' is limited to 2^32 nanoseconds on 32-bit, which is not enough to =
+> diff --git a/drivers/lguest/core.c b/drivers/lguest/core.c
+> index d8f136a..344b455 100644
+> --- a/drivers/lguest/core.c
+> +++ b/drivers/lguest/core.c
+> @@ -393,6 +393,23 @@ int find_free_guest(void)
+>  	return -1;
+>  }
+>  =
 
-> be useful (I really don't understand why the API is like this).  So, =
+> +void guest_clockevent(struct lguest *lg, const ktime_t __user *u)
 
-> instead, the 64-bit ktime_t delta is derived.
+interrupts_and_traps.c might be a better place for this?  Similarly the
+code currently in lguest_user.c, which is mainly for code dealing
+with /dev/lguest.
 
-It means the max delta between timer interrupts is ~4 seconds, but
-that's not too bad.  The clock infrastructure will sort out resetting
-the timer to do longer delays.  It probably isn't terribly useful to do
-longer delays than that, because you need to deal with drift between the
-kernel's clocksource and the timer.
+> +	case LHCALL_CLOCKEVENT:
+> +		guest_clockevent(lg, (ktime_t __user *)regs->edx);
+> +		break;
 
-    J
+Perhaps LHCALL_SET_CLOCKEVENT is a better name? Or were you thinking of
+extending it?
+
+> --- a/drivers/lguest/lguest.c
+> +++ b/drivers/lguest/lguest.c
+> @@ -62,6 +64,7 @@ #include <asm/e820.h>
+>  #include <asm/pda.h>
+>  #include <asm/asm-offsets.h>
+>  #include <asm/mce.h>
+> +#include "lg.h"
+
+Hmm, this implies we've knotted the headers somehow.  "lg.h" is supposed
+to be the internal header for lg.ko.  Perhaps something needs to be
+moved to linux/lguest.h?
+
+Thanks!
+Rusty.
