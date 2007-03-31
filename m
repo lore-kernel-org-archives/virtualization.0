@@ -1,67 +1,30 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 5/6] cleanups to help using per-cpu variables from asm
-Date: Fri, 30 Mar 2007 19:00:47 -0700
-Message-ID: <20070331020055.235511601@goop.org>
-References: <20070331020042.003398870@goop.org>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [patch 4/6] Convert PDA into the percpu section
+Date: Sat, 31 Mar 2007 04:35:58 +0200
+Message-ID: <200703310435.59298.ak@suse.de>
+References: <20070331020042.003398870@goop.org> <20070331020055.075978807@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=i386-cleanups-to-help-using-per-cpu-variables-from-asm.patch
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933322AbXCaCgI@vger.kernel.org>
+In-Reply-To: <20070331020055.075978807@goop.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch does a few small cleanups:
- - use PER_CPU_NAME to generate the names of per-cpu variables
- - use lea to add the per_cpu offset in PER_CPU(), because it doesn't
-   affect condition flags
- - add PER_CPU_VAR which allows direct access to pre-cpu variables
-   with the %fs: prefix on SMP.
+On Saturday 31 March 2007 04:00, Jeremy Fitzhardinge wrote:
+> Currently x86 (similar to x84-64) has a special per-cpu structure
+> called "i386_pda" which can be easily and efficiently referenced via
+> the %fs register.  An ELF section is more flexible than a structure,
+> allowing any piece of code to use this area.  Indeed, such a section
+> already exists: the per-cpu area.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@suse.de>
+Hmm, I'm a little reluctant. This moves i386 more away from x86-64
+again. If we ever merge them it would mean more work. Do you really need it?
 
----
- include/asm-i386/percpu.h |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/percpu.h
-+++ b/include/asm-i386/percpu.h
-@@ -16,12 +16,14 @@
-  *    PER_CPU(cpu_gdt_descr, %ebx)
-  */
- #ifdef CONFIG_SMP
-+#define PER_CPU(var, reg)				\
-+	movl %fs:per_cpu__##this_cpu_off, reg;		\
-+	lea per_cpu__##var(reg), reg
-+#define PER_CPU_VAR(var)	%fs:per_cpu__##var
-+#else /* ! SMP */
- #define PER_CPU(var, reg)			\
--	movl %fs:per_cpu__this_cpu_off, reg;		\
--	addl $per_cpu__##var, reg
--#else /* ! SMP */
--#define PER_CPU(var, reg) \
--	movl $per_cpu__##var, reg;
-+	movl $per_cpu__##var, reg
-+#define PER_CPU_VAR(var)	per_cpu__##var
- #endif	/* SMP */
- =
 
- #else /* ...!ASSEMBLY */
-
--- =
+-Andi
