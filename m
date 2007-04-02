@@ -1,224 +1,309 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 16/17] add kmap_atomic_pte for mapping highpte pages
-Date: Sun, 01 Apr 2007 22:57:08 -0700
-Message-ID: <20070402055705.499213579@goop.org>
+Subject: [patch 13/17] add common patching machinery
+Date: Sun, 01 Apr 2007 22:57:05 -0700
+Message-ID: <20070402055705.199510785@goop.org>
 References: <20070402055652.610711908@goop.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933413AbXDBGAn@vger.kernel.org>
-Content-Disposition: inline; filename=paravirt-kmap_atomic_pte.patch
-Sender: linux-kernel-owner@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline; filename=paravirt-patch-machinery.patch
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>
+Cc: virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Anthony Liguori <anthony@codemonkey.ws>, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen and VMI both have special requirements when mapping a highmem pte
-page into the kernel address space.  These can be dealt with by adding
-a new kmap_atomic_pte() function for mapping highptes, and hooking it
-into the paravirt_ops infrastructure.
+Implement the actual patching machinery.  paravirt_patch_default()
+contains the logic to automatically patch a callsite based on a few
+simple rules:
 
-Xen specifically wants to map the pte page RO, so this patch exposes a
-helper function, kmap_atomic_prot, which maps the page with the
-specified page protections.
+ - if the paravirt_op function is paravirt_nop, then patch nops
+ - if the paravirt_op function is a jmp target, then jmp to it
+ - if the paravirt_op function is callable and doesn't clobber too much
+    for the callsite, call it directly
 
-This also adds a kmap_flush_unused() function to clear out the cached
-kmap mappings.  Xen needs this to clear out any potential stray RW
-mappings of pages which will become part of a pagetable.
+paravirt_patch_default is suitable as a default implementation of
+paravirt_ops.patch, will remove most of the expensive indirect calls
+in favour of either a direct call or a pile of nops.
 
-[ Zach - vmi.c will need some attention after this patch.  It wasn't
-  immediately obvious to me what needs to be done. ]
+Backends may implement their own patcher, however.  There are several
+helper functions to help with this:
+
+paravirt_patch_nop	nop out a callsite
+paravirt_patch_ignore	leave the callsite as-is
+paravirt_patch_call	patch a call if the caller and callee
+			have compatible clobbers
+paravirt_patch_jmp	patch in a jmp
+paravirt_patch_insns	patch some literal instructions over
+			the callsite, if they fit
+
+This patch also implements more direct patches for the native case, so
+that when running on native hardware many common operations are
+implemented inline.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Zachary Amsden <zach@vmware.com>
-
+Cc: Anthony Liguori <anthony@codemonkey.ws>
+Acked-by: Ingo Molnar <mingo@elte.hu>
 ---
- arch/i386/kernel/paravirt.c |    7 +++++++
- arch/i386/mm/highmem.c      |    9 +++++++--
- include/asm-i386/highmem.h  |   11 +++++++++++
- include/asm-i386/paravirt.h |   13 ++++++++++++-
- include/asm-i386/pgtable.h  |    4 ++--
- include/linux/highmem.h     |    6 ++++++
- mm/highmem.c                |    9 +++++++++
- 7 files changed, 54 insertions(+), 5 deletions(-)
+ arch/i386/kernel/alternative.c |    5 -
+ arch/i386/kernel/paravirt.c    |  165 ++++++++++++++++++++++++++++++++----=
+----
+ include/asm-i386/paravirt.h    |   11 ++
+ 3 files changed, 149 insertions(+), 32 deletions(-)
 
-===================================================================
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/alternative.c
++++ b/arch/i386/kernel/alternative.c
+@@ -361,11 +361,14 @@ void apply_paravirt(struct paravirt_patc
+ 		used =3D paravirt_ops.patch(p->instrtype, p->clobbers, p->instr,
+ 					  p->len);
+ =
+
++		BUG_ON(used > p->len);
++
+ 		/* Pad the rest with nops */
+ 		nop_out(p->instr + used, p->len - used);
+ 	}
+ =
+
+-	/* Sync to be conservative, in case we patched following instructions */
++	/* Sync to be conservative, in case we patched following
++	   instructions */
+ 	sync_core();
+ }
+ #endif	/* CONFIG_PARAVIRT */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -20,6 +20,7 @@
- #include <linux/efi.h>
- #include <linux/bcd.h>
- #include <linux/start_kernel.h>
-+#include <linux/highmem.h>
- 
- #include <asm/bug.h>
- #include <asm/paravirt.h>
-@@ -318,6 +319,12 @@ struct paravirt_ops paravirt_ops = {
- 
- 	.ptep_get_and_clear = native_ptep_get_and_clear,
- 
-+#ifdef CONFIG_HIGHPTE
-+	.kmap_atomic_pte = native_kmap_atomic_pte,
-+#else
-+	.kmap_atomic_pte = paravirt_nop,
-+#endif
+@@ -54,40 +54,143 @@ char *memory_setup(void)
+ #define DEF_NATIVE(name, code)					\
+ 	extern const char start_##name[], end_##name[];		\
+ 	asm("start_" #name ": " code "; end_" #name ":")
+-DEF_NATIVE(cli, "cli");
+-DEF_NATIVE(sti, "sti");
+-DEF_NATIVE(popf, "push %eax; popf");
+-DEF_NATIVE(pushf, "pushf; pop %eax");
 +
- #ifdef CONFIG_X86_PAE
- 	.set_pte_atomic = native_set_pte_atomic,
- 	.set_pte_present = native_set_pte_present,
-===================================================================
---- a/arch/i386/mm/highmem.c
-+++ b/arch/i386/mm/highmem.c
-@@ -26,7 +26,7 @@ void kunmap(struct page *page)
-  * However when holding an atomic kmap is is not legal to sleep, so atomic
-  * kmaps are appropriate for short, tight code paths only.
-  */
--void *kmap_atomic(struct page *page, enum km_type type)
-+void *kmap_atomic_prot(struct page *page, enum km_type type, pgprot_t prot)
++DEF_NATIVE(irq_disable, "cli");
++DEF_NATIVE(irq_enable, "sti");
++DEF_NATIVE(restore_fl, "push %eax; popf");
++DEF_NATIVE(save_fl, "pushf; pop %eax");
+ DEF_NATIVE(iret, "iret");
+-DEF_NATIVE(sti_sysexit, "sti; sysexit");
+-
+-static const struct native_insns
+-{
+-	const char *start, *end;
+-} native_insns[] =3D {
+-	[PARAVIRT_PATCH(irq_disable)] =3D { start_cli, end_cli },
+-	[PARAVIRT_PATCH(irq_enable)] =3D { start_sti, end_sti },
+-	[PARAVIRT_PATCH(restore_fl)] =3D { start_popf, end_popf },
+-	[PARAVIRT_PATCH(save_fl)] =3D { start_pushf, end_pushf },
+-	[PARAVIRT_PATCH(iret)] =3D { start_iret, end_iret },
+-	[PARAVIRT_PATCH(irq_enable_sysexit)] =3D { start_sti_sysexit, end_sti_sys=
+exit },
+-};
++DEF_NATIVE(irq_enable_sysexit, "sti; sysexit");
++DEF_NATIVE(read_cr2, "mov %cr2, %eax");
++DEF_NATIVE(write_cr3, "mov %eax, %cr3");
++DEF_NATIVE(read_cr3, "mov %cr3, %eax");
++DEF_NATIVE(clts, "clts");
++DEF_NATIVE(read_tsc, "rdtsc");
++
++DEF_NATIVE(pushf_cli, "pushf; pop %eax; cli");
++DEF_NATIVE(ud2a, "ud2a");
+ =
+
+ static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned =
+len)
  {
- 	enum fixed_addresses idx;
- 	unsigned long vaddr;
-@@ -41,9 +41,14 @@ void *kmap_atomic(struct page *page, enu
- 		return page_address(page);
- 
- 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
--	set_pte(kmap_pte-idx, mk_pte(page, kmap_prot));
-+	set_pte(kmap_pte-idx, mk_pte(page, prot));
- 
- 	return (void*) vaddr;
-+}
+-	unsigned int insn_len;
+-
+-	/* Don't touch it if we don't have a replacement */
+-	if (type >=3D ARRAY_SIZE(native_insns) || !native_insns[type].start)
+-		return len;
+-
+-	insn_len =3D native_insns[type].end - native_insns[type].start;
+-
+-	/* Similarly if we can't fit replacement. */
+-	if (len < insn_len)
+-		return len;
+-
+-	memcpy(insns, native_insns[type].start, insn_len);
++	const unsigned char *start, *end;
++	unsigned ret;
 +
-+void *kmap_atomic(struct page *page, enum km_type type)
-+{
-+	return kmap_atomic_prot(page, type, kmap_prot);
- }
- 
- void kunmap_atomic(void *kvaddr, enum km_type type)
-===================================================================
---- a/include/asm-i386/highmem.h
-+++ b/include/asm-i386/highmem.h
-@@ -24,6 +24,7 @@
- #include <linux/threads.h>
- #include <asm/kmap_types.h>
- #include <asm/tlbflush.h>
-+#include <asm/paravirt.h>
- 
- /* declarations for highmem.c */
- extern unsigned long highstart_pfn, highend_pfn;
-@@ -67,10 +68,20 @@ extern void FASTCALL(kunmap_high(struct 
- 
- void *kmap(struct page *page);
- void kunmap(struct page *page);
-+void *kmap_atomic_prot(struct page *page, enum km_type type, pgprot_t prot);
- void *kmap_atomic(struct page *page, enum km_type type);
- void kunmap_atomic(void *kvaddr, enum km_type type);
- void *kmap_atomic_pfn(unsigned long pfn, enum km_type type);
- struct page *kmap_atomic_to_page(void *ptr);
++	switch(type) {
++#define SITE(x)	case PARAVIRT_PATCH(x):	start =3D start_##x; end =3D end_#=
+#x; goto patch_site
++		SITE(irq_disable);
++		SITE(irq_enable);
++		SITE(restore_fl);
++		SITE(save_fl);
++		SITE(iret);
++		SITE(irq_enable_sysexit);
++		SITE(read_cr2);
++		SITE(read_cr3);
++		SITE(write_cr3);
++		SITE(clts);
++		SITE(read_tsc);
++#undef SITE
 +
-+static inline void *native_kmap_atomic_pte(struct page *page, enum km_type type)
-+{
-+	return kmap_atomic(page, type);
-+}
++	patch_site:
++		ret =3D paravirt_patch_insns(insns, len, start, end);
++		break;
 +
-+#ifndef CONFIG_PARAVIRT
-+#define kmap_atomic_pte(page, type)	kmap_atomic(page, type)
++	case PARAVIRT_PATCH(make_pgd):
++	case PARAVIRT_PATCH(make_pte):
++	case PARAVIRT_PATCH(pgd_val):
++	case PARAVIRT_PATCH(pte_val):
++#ifdef CONFIG_X86_PAE
++	case PARAVIRT_PATCH(make_pmd):
++	case PARAVIRT_PATCH(pmd_val):
 +#endif
- 
- #define flush_cache_kmaps()	do { } while (0)
- 
-===================================================================
++		/* These functions end up returning exactly what
++		   they're passed, in the same registers. */
++		ret =3D paravirt_patch_nop();
++		break;
++
++	default:
++		ret =3D paravirt_patch_default(type, clobbers, insns, len);
++		break;
++	}
++
++	return ret;
++}
++
++unsigned paravirt_patch_nop(void)
++{
++	return 0;
++}
++
++unsigned paravirt_patch_ignore(unsigned len)
++{
++	return len;
++}
++
++unsigned paravirt_patch_call(void *target, u16 tgt_clobbers,
++			     void *site, u16 site_clobbers,
++			     unsigned len)
++{
++	unsigned char *call =3D site;
++	unsigned long delta =3D (unsigned long)target - (unsigned long)(call+5);
++
++	if (tgt_clobbers & ~site_clobbers)
++		return len;	/* target would clobber too much for this site */
++	if (len < 5)
++		return len;	/* call too long for patch site */
++
++	*call++ =3D 0xe8;		/* call */
++	*(unsigned long *)call =3D delta;
++
++	return 5;
++}
++
++unsigned paravirt_patch_jmp(void *target, void *site, unsigned len)
++{
++	unsigned char *jmp =3D site;
++	unsigned long delta =3D (unsigned long)target - (unsigned long)(jmp+5);
++
++	if (len < 5)
++		return len;	/* call too long for patch site */
++
++	*jmp++ =3D 0xe9;		/* jmp */
++	*(unsigned long *)jmp =3D delta;
++
++	return 5;
++}
++
++unsigned paravirt_patch_default(u8 type, u16 clobbers, void *site, unsigne=
+d len)
++{
++	void *opfunc =3D *((void **)&paravirt_ops + type);
++	unsigned ret;
++
++	if (opfunc =3D=3D NULL)
++		/* If there's no function, patch it with a ud2a (BUG) */
++		ret =3D paravirt_patch_insns(site, len, start_ud2a, end_ud2a);
++	else if (opfunc =3D=3D paravirt_nop)
++		/* If the operation is a nop, then nop the callsite */
++		ret =3D paravirt_patch_nop();
++	else if (type =3D=3D PARAVIRT_PATCH(iret) ||
++		 type =3D=3D PARAVIRT_PATCH(irq_enable_sysexit))
++		/* If operation requires a jmp, then jmp */
++		ret =3D paravirt_patch_jmp(opfunc, site, len);
++	else
++		/* Otherwise call the function; assume target could
++		   clobber any caller-save reg */
++		ret =3D paravirt_patch_call(opfunc, CLBR_ANY,
++					  site, clobbers, len);
++
++	return ret;
++}
++
++unsigned paravirt_patch_insns(void *site, unsigned len,
++			      const char *start, const char *end)
++{
++	unsigned insn_len =3D end - start;
++
++	if (insn_len > len || start =3D=3D NULL)
++		insn_len =3D len;
++	else
++		memcpy(site, start, insn_len);
++
+ 	return insn_len;
+ }
+ =
+
+@@ -110,7 +213,7 @@ static void native_flush_tlb_global(void
+ 	__native_flush_tlb_global();
+ }
+ =
+
+-static void native_flush_tlb_single(u32 addr)
++static void native_flush_tlb_single(unsigned long addr)
+ {
+ 	__native_flush_tlb_single(addr);
+ }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -16,7 +16,9 @@
- #ifndef __ASSEMBLY__
- #include <linux/types.h>
- #include <linux/cpumask.h>
--
-+#include <asm/kmap_types.h>
-+
-+struct page;
- struct thread_struct;
- struct Xgt_desc_struct;
- struct tss_struct;
-@@ -143,6 +145,8 @@ struct paravirt_ops
- 	void (*pte_update_defer)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
- 
-  	pte_t (*ptep_get_and_clear)(pte_t *ptep);
-+
-+	void *(*kmap_atomic_pte)(struct page *page, enum km_type type);
- 
- #ifdef CONFIG_X86_PAE
- 	void (*set_pte_atomic)(pte_t *ptep, pte_t pteval);
-@@ -768,6 +772,13 @@ static inline void paravirt_release_pd(u
- 	PVOP_VCALL1(release_pd, pfn);
- }
- 
-+static inline void *kmap_atomic_pte(struct page *page, enum km_type type)
-+{
-+	unsigned long ret;
-+	ret = PVOP_CALL2(unsigned long, kmap_atomic_pte, page, type);
-+	return (void *)ret;
-+}
-+
- static inline void pte_update(struct mm_struct *mm, unsigned long addr,
- 			      pte_t *ptep)
- {
-===================================================================
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -481,9 +481,9 @@ extern pte_t *lookup_address(unsigned lo
- 
- #if defined(CONFIG_HIGHPTE)
- #define pte_offset_map(dir, address) \
--	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
-+	((pte_t *)kmap_atomic_pte(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
- #define pte_offset_map_nested(dir, address) \
--	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE1) + pte_index(address))
-+	((pte_t *)kmap_atomic_pte(pmd_page(*(dir)),KM_PTE1) + pte_index(address))
- #define pte_unmap(pte) kunmap_atomic(pte, KM_PTE0)
- #define pte_unmap_nested(pte) kunmap_atomic(pte, KM_PTE1)
- #else
-===================================================================
---- a/include/linux/highmem.h
-+++ b/include/linux/highmem.h
-@@ -27,6 +27,8 @@ unsigned int nr_free_highpages(void);
- unsigned int nr_free_highpages(void);
- extern unsigned long totalhigh_pages;
- 
-+void kmap_flush_unused(void);
-+
- #else /* CONFIG_HIGHMEM */
- 
- static inline unsigned int nr_free_highpages(void) { return 0; }
-@@ -44,9 +46,13 @@ static inline void *kmap(struct page *pa
- 
- #define kmap_atomic(page, idx) \
- 	({ pagefault_disable(); page_address(page); })
-+#define kmap_atomic_prot(page, idx, prot)	kmap_atomic(page, idx)
-+
- #define kunmap_atomic(addr, idx)	do { pagefault_enable(); } while (0)
- #define kmap_atomic_pfn(pfn, idx)	kmap_atomic(pfn_to_page(pfn), (idx))
- #define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
-+
-+#define kmap_flush_unused()	do {} while(0)
- #endif
- 
- #endif /* CONFIG_HIGHMEM */
-===================================================================
---- a/mm/highmem.c
-+++ b/mm/highmem.c
-@@ -97,6 +97,15 @@ static void flush_all_zero_pkmaps(void)
- 		set_page_address(page, NULL);
- 	}
- 	flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
-+}
-+
-+/* Flush all unused kmap mappings in order to remove stray
-+   mappings. */
-+void kmap_flush_unused(void)
-+{
-+	spin_lock(&kmap_lock);
-+	flush_all_zero_pkmaps();
-+	spin_unlock(&kmap_lock);
- }
- 
- static inline unsigned long map_new_virtual(struct page *page)
+@@ -933,6 +933,17 @@ struct paravirt_patch_site {
+ 	u16 clobbers;		/* what registers you may clobber */
+ };
+ =
 
--- 
++unsigned paravirt_patch_nop(void);
++unsigned paravirt_patch_ignore(unsigned len);
++unsigned paravirt_patch_call(void *target, u16 tgt_clobbers,
++			     void *site, u16 site_clobbers,
++			     unsigned len);
++unsigned paravirt_patch_jmp(void *target, void *site, unsigned len);
++unsigned paravirt_patch_default(u8 type, u16 clobbers, void *site, unsigne=
+d len);
++
++unsigned paravirt_patch_insns(void *site, unsigned len,
++			      const char *start, const char *end);
++
+ extern struct paravirt_patch_site __start_parainstructions[],
+ 	__stop_parainstructions[];
+ =
+
+
+-- =
