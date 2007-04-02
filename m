@@ -1,57 +1,55 @@
-From: Andi Kleen <ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [patch 17/17] Add a sched_clock paravirt_op
-Date: Mon, 2 Apr 2007 08:50:32 +0200
-Message-ID: <200704020850.32274.ak@suse.de>
-References: <20070402055652.610711908@goop.org>
-	<200704020809.42373.ak@suse.de> <4610A70A.7010105@goop.org>
+Date: Mon, 02 Apr 2007 00:06:22 -0700
+Message-ID: <4610AB6E.8020209@goop.org>
+References: <20070402055652.610711908@goop.org> <200704020809.42373.ak@suse.de> <4610A70A.7010105@goop.org> <200704020850.32274.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4610A70A.7010105@goop.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: virtualization@lists.osdl.org, john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753348AbXDBHGh@vger.kernel.org>
+In-Reply-To: <200704020850.32274.ak@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Dan Hecht <dhecht@vmware.com>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Monday 02 April 2007 08:47, Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> > I think it would be much cleaner if you didn't implement your own sched=
-_clock,
-> > but you adjust ns_base/last_tsc to account for your lost cycles.
-> > This could be done cleanly by adding a new function to sched-clock.c
-> > Possibly such a function could be used by other parts of the kernel
-> > in the future too.
-> >   =
+Andi Kleen wrote:
+> Do you also get a clock for stolen nanoseconds? 
+>   
 
-> =
+What you actually get is how many ns the CPU spent in each state. 
+Stolen is runnable+offline.
 
-> Cleaner how?  This seems pretty to me.  Xen can return a
-> clock measuring unstolen nanoseconds, =
+> No need for cycles, you could just subtract the stolen ns if you
+> can get those.
+
+It just seems like a simpler interface to just allow overriding
+sched_clock, rather than exposing sched_clock's internals and fiddling
+with those.  There's really nothing in the existing sched_clock which
+can be profitably reused in the Xen case.  VMI can make use of the
+cycles_2_ns conversion, which is why I made it available for its use.
+
+To be specific, this is the whole Xen sched_clock function:
+
+/* Xen sched_clock implementation.  Returns the number of RUNNING ns */
+unsigned long long xen_sched_clock(void)
+{
+	struct vcpu_runstate_info state;
+	cycle_t now;
+	unsigned long long ret;
+
+	preempt_disable();
+
+	now = xen_clocksource_read();
+	get_runstate_snapshot(&state);
+	WARN_ON(state.state != RUNSTATE_running);
+
+	ret = state.time[RUNSTATE_running] + (now - state.state_entry_time);
+
+	preempt_enable();
+
+	return ret;
+}
 
 
-Do you also get a clock for stolen nanoseconds? =
-
-
-> which maps directly to the =
-
-> sched_clock interface, doesn't need any of the existing sched_clock
-> code.  I suppose I could map the Xen interface onto some abstract
-> "cycles" notion and hook it into the tsc machinery, but it seems like it
-> would be a forced fit.  In general, my approach has been to choose the
-> higher-level interface over a lower-level one, all other things being equ=
-al.
-
-No need for cycles, you could just subtract the stolen ns if you
-can get those.
-
--Andi
+    J
