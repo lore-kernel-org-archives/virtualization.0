@@ -1,11 +1,14 @@
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 2/2] Arch-specific includes
-Date: Mon, 2 Apr 2007 18:28:20 -0300
-Message-ID: <20070402212820.GD7711@redhat.com>
+From: Jeff Garzik <jeff@garzik.org>
+Subject: Re: A set of "standard" virtual devices?
+Date: Mon, 02 Apr 2007 17:33:01 -0400
+Message-ID: <4611768D.1080801@garzik.org>
+References: <4611652F.700@zytor.com> <46116E12.5070206@goop.org>
+	<200704022312.39195.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="DiL7RhKs8rK9YGuF"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <200704022312.39195.ak@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,64 +18,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, "H. Peter Anvin" <hpa@zytor.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Andi Kleen wrote:
+>> How would that work in the case where virtualized guests don't have a
+>> visible PCI bus, and the virtual environment doesn't pretend to emulate
+>> a PCI bus?
+> =
 
---DiL7RhKs8rK9YGuF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> If they emulated one with the appropiate device =
 
-Sorry if this gets resent. My fault ;-)
+> then distribution driver auto probing would just work transparently for t=
+hem.
 
-All that is left for the architectures, is the room for some specific
-definitions.
+Yes, but, ideally with paravirtualization you should be able to avoid =
 
-Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+the overhead of emulating many major classes of device (storage, =
 
--- 
-Glauber de Oliveira Costa
-Red Hat Inc.
-"Free as in Freedom"
+network, RNG, etc.) by developing a low-overhead passthrough interface =
 
---DiL7RhKs8rK9YGuF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="lgarchdefs.patch"
+that does not involve PCI at all.
 
---- /dev/null	2007-04-02 15:35:49.510433377 -0300
-+++ i386/lguest_defs.h	2007-04-02 16:19:27.000000000 -0300
-@@ -0,0 +1,7 @@
-+#ifndef _LGUEST_DEFS_H_
-+#define _LGUEST_DEFS_H_
-+
-+/* LGUEST_TOP_ADDRESS comes from the Makefile */
-+#define RESERVE_TOP_ADDRESS LGUEST_GUEST_TOP - 1024*1024
-+
-+#endif
---- /dev/null	2007-04-02 15:35:49.510433377 -0300
-+++ x86_64/lguest_defs.h	2007-04-02 16:19:27.000000000 -0300
-@@ -0,0 +1,11 @@
-+#ifndef _LGUEST_DEFS_H_
-+#define _LGUEST_DEFS_H_
-+
-+#include <asm/vsyscall.h>
-+
-+/* LGUEST_TOP_ADDRESS comes from the Makefile */
-+#define RESERVE_TOP_ADDRESS LGUEST_GUEST_TOP
-+
-+#define BOOT_PGTABLE "boot_level4_pgt"
-+
-+#endif
-
---DiL7RhKs8rK9YGuF
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
-
---DiL7RhKs8rK9YGuF--
+	Jeff
