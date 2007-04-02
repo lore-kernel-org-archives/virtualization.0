@@ -1,415 +1,73 @@
-From: "Park P. Ambrose" <kbcei@nsi1.com>
-Subject: delta studio
-Date: Sun, 1 Apr 2007 08:07:29 -0700
-Message-ID: <000e01c7746f$8e664f50$e83e50ae@hxyin>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_000A_01C77434.E1F527D0"
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [patch 02/17] Remove CONFIG_DEBUG_PARAVIRT
+Date: Sun, 01 Apr 2007 22:56:54 -0700
+Message-ID: <20070402055704.049622121@goop.org>
+References: <20070402055652.610711908@goop.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932796AbXDBF7G@vger.kernel.org>
+Content-Disposition: inline; filename=remove-CONFIG_DEBUG_PARAVIRT.patch
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format...
+Remove CONFIG_DEBUG_PARAVIRT.  When inlining code, this option
+attempts to trash registers in the patch-site's "clobber" field, on
+the grounds that this should find bugs with incorrect clobbers.
+Unfortunately, the clobber field really means "registers modified by
+this patch site", which includes return values.
 
-------=_NextPart_000_000A_01C77434.E1F527D0
-Content-Type: multipart/alternative;
-    boundary="----------=_1175404130-13751-44"
-Content-Transfer-Encoding: binary
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
+Because of this, this option has outlived its usefulness, so remove
+it.
 
-This is a multi-part message in MIME format...
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
 
-------------=_1175404130-13751-44
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+---
+ arch/i386/Kconfig.debug        |   10 ----------
+ arch/i386/kernel/alternative.c |   14 +-------------
+ 2 files changed, 1 insertion(+), 23 deletions(-)
 
+===================================================================
+--- a/arch/i386/Kconfig.debug
++++ b/arch/i386/Kconfig.debug
+@@ -85,14 +85,4 @@ config DOUBLEFAULT
+           option saves about 4k and might cause you much additional grey
+           hair.
+ 
+-config DEBUG_PARAVIRT
+-	bool "Enable some paravirtualization debugging"
+-	default n
+-	depends on PARAVIRT && DEBUG_KERNEL
+-	help
+-	  Currently deliberately clobbers regs which are allowed to be
+-	  clobbered in inlined paravirt hooks, even in native mode.
+-	  If turning this off solves a problem, then DISABLE_INTERRUPTS() or
+-	  ENABLE_INTERRUPTS() is lying about what registers can be clobbered.
+-
+ endmenu
+===================================================================
+--- a/arch/i386/kernel/alternative.c
++++ b/arch/i386/kernel/alternative.c
+@@ -359,19 +359,7 @@ void apply_paravirt(struct paravirt_patc
+ 
+ 		used = paravirt_ops.patch(p->instrtype, p->clobbers, p->instr,
+ 					  p->len);
+-#ifdef CONFIG_DEBUG_PARAVIRT
+-		{
+-		int i;
+-		/* Deliberately clobber regs using "not %reg" to find bugs. */
+-		for (i = 0; i < 3; i++) {
+-			if (p->len - used >= 2 && (p->clobbers & (1 << i))) {
+-				memcpy(p->instr + used, "\xf7\xd0", 2);
+-				p->instr[used+1] |= i;
+-				used += 2;
+-			}
+-		}
+-		}
+-#endif
++
+ 		/* Pad the rest with nops */
+ 		nop_out(p->instr + used, p->len - used);
+ 	}
 
-com 13 February 2007 Valentine's Day: A powerful lure for spreading malware=
-. com 03 January 2007 GreatSkin.
-Not yet a FractionPrice. What is worrying, however, is that it is a politic=
-ally-motivated attempt to manipulate voters. All users that want to know wh=
-ether their computers have been attacked by these or other malicious code c=
-an use ActiveScan.
-Specials good until end of November 2006. Panda Software already has Window=
-s Vista-compatible versions of Panda Antivirus 2007, for home users, and Pa=
-nda ClientShield, for protecting workstations in corporate networks.
-Part 2 which lists 20 specific Handbags will be coming next week.
-com 21 March 2007 GreatSkin. com 05 February 2007 Coupon Codes to Promote t=
-he Launch of Baghaus!
-Offer good until end of January 2007. The new security suite from Panda Sof=
-tware combines and integrates both proactive and reactive technologies, and=
- includes the award-winning TruPrevent? Not yet a FractionPrice.
-For more details on the Panda Software affiliate program run through the Co=
-mmission Junction network please learn more about the affiliate program her=
-e.
-We've sent you the exact link customized for you that you can use to promot=
-e these specials. com 30 September 2004 If you need additional incentive to=
- start selling Forzieri's range of All Italian' goods, then perhaps we coul=
-d tempt you with more some more cash.
-Increase sales in March for My Celtic Jeweler with the use of this St Patri=
-ck's Day coupon for all products valid the entire month of March.
-com affiliate program, please click here.
-Panda's New  ActiveScan tool now disinfects rootkits.
-PandaLabs Detects Politically Oriented Spam.
-Orders must be placed before Midnight MTN on Thursday, November 30, 2006.
-Here users will find information about the compatibility of Panda Software =
-products with the new operating system. Once again, Panda Internet Security=
- 2007 returned the best results. com 27 February 2007 GreatSkin.
-------------=_1175404130-13751-44
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
-<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
-<DEFANGED_style_0 </STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2><IMG alt=3D"shuteye" hspace=3D0=20
-DEFANGED_src=3D"cid:000901c7746f$8e4f6bf0$e83e50ae@hxyin" align=3D"baseline=
-"=20
-border=3D0></FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>com 13 February 2007 Valentine's Day: A po=
-werful=20
-lure for spreading malware. com 03 January 2007 GreatSkin.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Not yet a FractionPrice. What is worrying,=
- however,=20
-is that it is a politically-motivated attempt to manipulate voters. All use=
-rs that=20
-want to know whether their computers have been attacked by these or other m=
-alicious=20
-code can use ActiveScan.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Specials good until end of November 2006. =
-Panda=20
-Software already has Windows Vista-compatible versions of Panda Antivirus 2=
-007, for=20
-home users, and Panda ClientShield, for protecting workstations in corporat=
-e=20
-networks.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Part 2 which lists 20 specific Handbags wi=
-ll be=20
-coming next week.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>com 21 March 2007 GreatSkin. com 05 Februa=
-ry 2007=20
-Coupon Codes to Promote the Launch of Baghaus!</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Offer good until end of January 2007. The =
-new=20
-security suite from Panda Software combines and integrates both proactive a=
-nd=20
-reactive technologies, and includes the award-winning TruPrevent? Not yet a=
-=20
-FractionPrice.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>For more details on the Panda Software aff=
-iliate=20
-program run through the Commission Junction network please learn more about=
- the=20
-affiliate program here.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>We've sent you the exact link customized f=
-or you=20
-that you can use to promote these specials. com 30 September 2004 If you ne=
-ed=20
-additional incentive to start selling Forzieri's range of All Italian' good=
-s, then=20
-perhaps we could tempt you with more some more cash.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Increase sales in March for My Celtic Jewe=
-ler with=20
-the use of this St Patrick's Day coupon for all products valid the entire m=
-onth of=20
-March.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>com affiliate program, please click=20
-here.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Panda's New  ActiveScan tool now disinfect=
-s=20
-rootkits.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>PandaLabs Detects Politically Oriented=20
-Spam.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Orders must be placed before Midnight MTN =
-on=20
-Thursday, November 30, 2006.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Here users will find information about the=
-=20
-compatibility of Panda Software products with the new operating system. Onc=
-e again,=20
-Panda Internet Security 2007 returned the best results. com 27 February 200=
-7=20
-GreatSkin.</FONT></DIV></BODY></HTML>
-
-------------=_1175404130-13751-44--
-
-------=_NextPart_000_000A_01C77434.E1F527D0
-Content-Type: image/gif;
-	name="fishy.gif"
-Content-Transfer-Encoding: base64
-Content-ID: <000901c7746f$8e4f6bf0$e83e50ae@hxyin>
-Content-Disposition: inline
-
-R0lGODdh/QA1AfUIAAEHODwTCkN5wNp9zkKj03SMt4OW5Nmvk8vKY8Jlc47z
-XlzbXe/PmrZXnZ5R4+9+W16xK4JdOL196M7/z6NBSLNr5vGL/uNuv+5VP2ty
-3mPL72IpoJRNv1h6kC2Sdufp44q3f+U2/zzztfYUZAKINJ4NjkpOjZ/ppjAw
-13VzcGCLDK+1BzoyTw3NDeQnIAthbAWAySKE/JAP84ocBebPb0AAipD38/Hp
-BLRgCQQG3u9zFE/uFwtGp/4Cr4z6Ah3WWywAAAAA/QA1AQAG/0BAYEgsGgOA
-pHLJFB6Rzqf02IxSq9jqdMvtDrHeb1YZNo6X5fB57WSD0/C4VGt2Z7vor9yb
-3KvvfldjcWRPdoeIiIGLjHxab1CQRYlnkXSNjX1TlG5ynGxEn0xwooVvVmKl
-qFyamYB1lbBknHiTiqmduE2hoLqffpesg4SxV1uic1bFvLG3Zaq0q5uFmIGa
-lNW2rb6jc5vZwtS2x4vSgr/V5pa56q65pInMu+HQ0uLg8nnPduv17aG+9vCL
-JMvfJYPv+iHER23eMWjnIJnqtu9evlGv0tD5F/EQNzANOTKSuEZhwnG8pmXU
-ZvHitofIROIzGczdsnUzXcqsqQonzP9tDi2pXElTH0uEQScBVDM0IUUxNDU6
-RfpSajyBVKsKGUYMoiGZBalau3fVqqlkSfXgAfunVFG2Fx3V/NoT61Od6q75
-y1bVDN2SLWeiCpm1r1y4Q+khbTpI0lu9Hh9jJJSz7cZ8WFmp7GhY7cjA+2B5
-MgosreWbjAu7xesY5t/OFbFVns0aba/Yd82aPuqMdti6h6NMpMUaVG7ffgV1
-LYa6tmKimJrrDN6P91NzsuEFDZyge3dmRRw4QEDemGUWGMSLT+RggHv3AwO4
-T40xMn2OpK3nh/KxdegpFVRARAULaDPEAgskgSBs/THBgAqcFFCAEh10MFcR
-HHCgUIbHnQb/WnAX2vWhZLsdIV5x6yVxwAH+NNCAbVisSISMPyUhAQr17adf
-jfb19tFzBhUU3gRHIHjCAgIUGACCByq55AIMRNlHlFQeF+UkVBrAQFBXDnFl
-l1ImQSUDEyTxQArvDQCFCB6o+UWa8CXBwXsvuLnWPytlJ4tZyYXDBY1FrMgi
-AAdwAAAHHmRoqJyLyjcAAHFC+ugYGWSwRKVKYIqFApx2mgSnnyoQKhHwvZfE
-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
-
-------=_NextPart_000_000A_01C77434.E1F527D0
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
-
-------=_NextPart_000_000A_01C77434.E1F527D0--
+-- 
