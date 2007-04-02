@@ -1,45 +1,45 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 16/17] add kmap_atomic_pte for mapping highpte pages
-Date: Mon, 02 Apr 2007 00:22:29 -0700
-Message-ID: <4610AF35.9090406@goop.org>
-References: <20070402055652.610711908@goop.org>
-	<20070402055705.499213579@goop.org> <200704020918.20008.ak@suse.de>
+Subject: Re: A set of "standard" virtual devices?
+Date: Mon, 02 Apr 2007 13:56:50 -0700
+Message-ID: <46116E12.5070206@goop.org>
+References: <4611652F.700@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200704020918.20008.ak@suse.de>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965851AbXDBU5L@vger.kernel.org>
+In-Reply-To: <4611652F.700@zytor.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
->> +}
->> +
->> +/* Flush all unused kmap mappings in order to remove stray
->> +   mappings. */
->> +void kmap_flush_unused(void)
->> +{
->> +	spin_lock(&kmap_lock);
->> +	flush_all_zero_pkmaps();
->> +	spin_unlock(&kmap_lock);
->>  }
->>     =
-
+H. Peter Anvin wrote:
+> On the subject of virtualization; there are a number of devices which
+> keep being invented and reinvented by just about every virtualization
+> vendor for no really good reason.
 >
-> Who calls this now?
+> I personally recently pointed out that a proper virtualization
+> solution should handle entropy collection at the lowest level (where
+> the physical hardware drivers are) and present a hw_rng interface to
+> the guests. Unfortunately, none of the hardware-based hw_rng
+> interfaces is sane enough to do that with, which calls for a virtual
+> driver.
+>
+> It would be nice if there was one, and not a dozen, such drivers.
+>
+> I would therefore like to propose that the Linux Foundation register a
+> PCI ID for use by LANANA ($3000/year), and we set up a LANANA registry
+> for these device IDs, together with a description of the device
+> interface each of them expect.  Similarly, a Subsystem ID registry can
+> be used (for virtualization vendors which don't have their own VID
+> already) to distinguish different implementations.
+>
+> Obviously, anyone who adheres to the published interface can use one
+> of these VID:DIDs -- as far as I'm concerned, even hardware vendors;
+> we'll use the SID to distinguish between implementations. 
 
-Nobody in kernel, or in this patchset.  The Xen code calls it to make
-sure there are no stray RW mappings of a page it has freshly allocated
-for use in a pagetable.
+How would that work in the case where virtualized guests don't have a
+visible PCI bus, and the virtual environment doesn't pretend to emulate
+a PCI bus?
 
     J
