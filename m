@@ -1,41 +1,36 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 04/17] Add pagetable accessors to pack and unpack
-	pagetable entries
-Date: Mon, 02 Apr 2007 16:35:24 +1000
-Message-ID: <1175495724.12230.442.camel@localhost.localdomain>
-References: <20070402055652.610711908@goop.org>
-	 <20070402055704.278590661@goop.org>  <200704020812.18320.ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 17/17] Add a sched_clock paravirt_op
+Date: Sun, 01 Apr 2007 23:47:38 -0700
+Message-ID: <4610A70A.7010105@goop.org>
+References: <20070402055652.610711908@goop.org> <20070402055705.606126251@goop.org> <200704020809.42373.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933932AbXDBGgB@vger.kernel.org>
-In-Reply-To: <200704020812.18320.ak@suse.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932339AbXDBGrw@vger.kernel.org>
+In-Reply-To: <200704020809.42373.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Dan Hecht <dhecht@vmware.com>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-04-02 at 08:12 +0200, Andi Kleen wrote:
-> On Monday 02 April 2007 07:56, Jeremy Fitzhardinge wrote:
-> > Add a set of accessors to pack, unpack and modify page table entries
-> > (at all levels).  This allows a paravirt implementation to control the
-> > contents of pgd/pmd/pte entries.  For example, Xen uses this to
-> > convert the (pseudo-)physical address into a machine address when
-> > populating a pagetable entry, and converting back to pphys address
-> > when an entry is read.
-> 
-> What do the benchmarks say with CONFIG_PARAVIRT on native hardware
-> compared to !CONFIG_PARAVIRT. e.g. does lmbench suffer? 
+Andi Kleen wrote:
+> I think it would be much cleaner if you didn't implement your own sched_clock,
+> but you adjust ns_base/last_tsc to account for your lost cycles.
+> This could be done cleanly by adding a new function to sched-clock.c
+> Possibly such a function could be used by other parts of the kernel
+> in the future too.
+>   
 
-This patch by itself, definitely: I gathered stats previously simply
-measuring the number of calls, and it's comparable to the other calls we
-had to patch.
+Cleaner how?  This seems pretty straightforward to me.  Xen can return a
+clock measuring unstolen nanoseconds, which maps directly to the
+sched_clock interface, doesn't need any of the existing sched_clock
+code.  I suppose I could map the Xen interface onto some abstract
+"cycles" notion and hook it into the tsc machinery, but it seems like it
+would be a forced fit.  In general, my approach has been to choose the
+higher-level interface over a lower-level one, all other things being equal.
 
-So it's clear that the patch infrastructure needs to cover them.  We can
-debate whether we should extend patching to everything as 1/17 does, or
-just to mkpte and pteval.
+The only reason I hoisted the cycles_2_ns stuff was for vmi.  It returns
+a tsc-like cycles interface, and so it can make use of the existing
+cycles_2_ns code (though I don't think a changing timebase is an issue).
 
-I'd still like to see new microbench stats tho.
-
-Cheers!
-Rusty.
+    J
