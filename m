@@ -1,26 +1,88 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: A set of "standard" virtual devices?
-Date: Mon, 2 Apr 2007 23:12:39 +0200
-Message-ID: <200704022312.39195.ak@suse.de>
-References: <4611652F.700@zytor.com> <46116E12.5070206@goop.org>
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: [PATCH 1/2] Makefile for common loader
+Date: Mon, 2 Apr 2007 16:46:10 -0300
+Message-ID: <20070402194610.GB7711@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965888AbXDBVM7@vger.kernel.org>
-In-Reply-To: <46116E12.5070206@goop.org>
+Content-Type: multipart/mixed; boundary="s/l3CgOIzMHHjg/5"
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.linux-foundation.org
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-> How would that work in the case where virtualized guests don't have a
-> visible PCI bus, and the virtual environment doesn't pretend to emulate
-> a PCI bus?
+--s/l3CgOIzMHHjg/5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-If they emulated one with the appropiate device 
-then distribution driver auto probing would just work transparently for them.
+This patch moves lguest's loader Makefile one level bellow, and adds
+arch-specific code to arch directories
 
--Andi
+Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+
+-- 
+Glauber de Oliveira Costa
+Red Hat Inc.
+"Free as in Freedom"
+
+--s/l3CgOIzMHHjg/5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="lgmake.patch"
+
+--- i386/Makefile	2007-04-02 16:11:56.000000000 -0300
++++ Makefile	2007-04-02 16:11:56.000000000 -0300
+@@ -1,12 +1,13 @@
+ # This creates the demonstration utility "lguest" which runs a Linux guest.
+ 
+-# We rely on CONFIG_PAGE_OFFSET to know where to put lguest binary.
+-# Some shells (dash - ubunu) can't handle numbers that big so we cheat.
+-include ../../../.config
+-LGUEST_GUEST_TOP := ($(CONFIG_PAGE_OFFSET) - 0x08000000)
+ 
+-CFLAGS:=-Wall -Wmissing-declarations -Wmissing-prototypes -O3 \
+-	-static -DLGUEST_GUEST_TOP="$(LGUEST_GUEST_TOP)" -Wl,-T,lguest.lds
++#we could uname -i, but it seems to return unknown on a bunch locations
++ARCH:=$(shell uname -m | sed s/i[3456]86/i386/)
++
++include $(ARCH)/defines
++
++CFLAGS:=-g -Wall -Wmissing-declarations -Wmissing-prototypes -O3 \
++	-static -DLGUEST_GUEST_TOP="$(LGUEST_GUEST_TOP)" -Wl,-T,lguest.lds -I$(ARCH)
+ LDLIBS:=-lz
+ 
+ all: lguest.lds lguest
+--- /dev/null	2007-04-02 15:35:49.510433377 -0300
++++ i386/defines	2007-04-02 16:13:43.000000000 -0300
+@@ -0,0 +1,4 @@
++# We rely on CONFIG_PAGE_OFFSET to know where to put lguest binary.
++# Some shells (dash - ubunu) can't handle numbers that big so we cheat.
++include ../../.config
++LGUEST_GUEST_TOP := ($(CONFIG_PAGE_OFFSET) - 0x08000000)
+--- /dev/null	2007-04-02 15:35:49.510433377 -0300
++++ x86_64/defines	2007-04-02 16:11:56.000000000 -0300
+@@ -0,0 +1,4 @@
++# For now on x86_64 we'll hard code the location of the lguest binary loader.
++# But when we can get a relocatable kernel, we'll have to work to make this
++# dynamic.
++LGUEST_GUEST_TOP := 0x7f000000
+
+--s/l3CgOIzMHHjg/5
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+
+--s/l3CgOIzMHHjg/5--
