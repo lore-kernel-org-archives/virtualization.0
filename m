@@ -1,11 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 00/17] paravirt_ops updates
-Date: Sun, 01 Apr 2007 22:56:52 -0700
-Message-ID: <20070402055652.610711908@goop.org>
+Subject: [patch 08/17] add hooks to intercept mm creation and destruction
+Date: Sun, 01 Apr 2007 22:57:00 -0700
+Message-ID: <20070402055704.647770478@goop.org>
+References: <20070402055652.610711908@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline; filename=mm-lifetime-hooks.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,37 +18,581 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: linux-arch@vger.kernel.org, virtualization@lists.osdl.org, James Bottomley <James.Bottomley@SteelEye.com>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Andi,
+Add hooks to allow a paravirt implementation to track the lifetime of
+an mm.  Paravirtualization requires three hooks, but only two are
+needed in common code.  They are:
 
-This series of patches updates paravirt_ops in various ways.  Some of the
-changes are plain cleanups and improvements, and some add some interfaces
-necessary for Xen.
+arch_dup_mmap, which is called when a new mmap is created at fork
 
-The brief overview:
+arch_exit_mmap, which is called when the last process reference to an
+  mm is dropped, which typically happens on exit and exec.
 
-add-MAINTAINERS.patch			- obvious
-remove-CONFIG_DEBUG_PARAVIRT.patch	- no longer needed
-paravirt-nop.patch			- mark nop operations consistently
-paravirt-pte-accessors.patch		- operations to pack/unpack ptes
-paravirt-memory-init.patch		- hooks for memory/pagetable init
-paravirt-fixmap.patch			- add fixmap for paravirt boot
-shared-kernel-pmd.patch			- allow selectable shared kernel pmd
-mm-lifetime-hooks.patch			- hooks for mm dup/activate/exit
-paravirt-patch-rename-paravirt_patch.patch - rename patch structure for cla=
-rity
-paravirt-use-offset-site-ids.patch	- use patch-site id derived from offset
-paravirt-fix-clobbers.patch		- fix register clobbers for patch sites
-paravirt-patchable-call-wrappers.patch	- wrap paravirt calls for patching
-paravirt-patch-machinery.patch		- common patch machinery
-paravirt-flush_tlb_others.patch		- paravirt hook for cross-cpu tlb flushing
-revert-map_pt_hook.patch		- back out map_pt_hook
-paravirt-kmap_atomic_pte.patch		- add kmap_atomic_pte for highpte
-paravirt-sched-clock.patch		- hook to measure schedulable time
+The third hook is activate_mm, which is called from the arch-specific
+activate_mm() macro/function, and so doesn't need stub versions for
+other architectures.  It's called when an mm is first used.
 
-Thanks,
-	J
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: linux-arch@vger.kernel.org
+Cc: James Bottomley <James.Bottomley@SteelEye.com>
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+---
+ arch/i386/kernel/paravirt.c         |    4 ++++
+ include/asm-alpha/mmu_context.h     |    1 +
+ include/asm-arm/mmu_context.h       |    1 +
+ include/asm-arm26/mmu_context.h     |    2 ++
+ include/asm-avr32/mmu_context.h     |    1 +
+ include/asm-cris/mmu_context.h      |    2 ++
+ include/asm-frv/mmu_context.h       |    1 +
+ include/asm-generic/mm_hooks.h      |   18 ++++++++++++++++++
+ include/asm-h8300/mmu_context.h     |    1 +
+ include/asm-i386/mmu_context.h      |   17 +++++++++++++++--
+ include/asm-i386/paravirt.h         |   23 +++++++++++++++++++++++
+ include/asm-ia64/mmu_context.h      |    1 +
+ include/asm-m32r/mmu_context.h      |    1 +
+ include/asm-m68k/mmu_context.h      |    1 +
+ include/asm-m68knommu/mmu_context.h |    1 +
+ include/asm-mips/mmu_context.h      |    1 +
+ include/asm-parisc/mmu_context.h    |    1 +
+ include/asm-powerpc/mmu_context.h   |    1 +
+ include/asm-ppc/mmu_context.h       |    1 +
+ include/asm-s390/mmu_context.h      |    2 ++
+ include/asm-sh/mmu_context.h        |    1 +
+ include/asm-sh64/mmu_context.h      |    2 +-
+ include/asm-sparc/mmu_context.h     |    2 ++
+ include/asm-sparc64/mmu_context.h   |    1 +
+ include/asm-um/mmu_context.h        |    2 ++
+ include/asm-v850/mmu_context.h      |    2 ++
+ include/asm-x86_64/mmu_context.h    |    1 +
+ include/asm-xtensa/mmu_context.h    |    1 +
+ kernel/fork.c                       |    2 ++
+ mm/mmap.c                           |    4 ++++
+ 30 files changed, 96 insertions(+), 3 deletions(-)
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -520,6 +520,10 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.irq_enable_sysexit =3D native_irq_enable_sysexit,
+ 	.iret =3D native_iret,
+ =
+
++	.dup_mmap =3D paravirt_nop,
++	.exit_mmap =3D paravirt_nop,
++	.activate_mm =3D paravirt_nop,
++
+ 	.startup_ipi_hook =3D paravirt_nop,
+ };
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-alpha/mmu_context.h
++++ b/include/asm-alpha/mmu_context.h
+@@ -10,6 +10,7 @@
+ #include <asm/system.h>
+ #include <asm/machvec.h>
+ #include <asm/compiler.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /*
+  * Force a context reload. This is needed when we change the page
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-arm/mmu_context.h
++++ b/include/asm-arm/mmu_context.h
+@@ -16,6 +16,7 @@
+ #include <linux/compiler.h>
+ #include <asm/cacheflush.h>
+ #include <asm/proc-fns.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ void __check_kvm_seq(struct mm_struct *mm);
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-arm26/mmu_context.h
++++ b/include/asm-arm26/mmu_context.h
+@@ -12,6 +12,8 @@
+  */
+ #ifndef __ASM_ARM_MMU_CONTEXT_H
+ #define __ASM_ARM_MMU_CONTEXT_H
++
++#include <asm-generic/mm_hooks.h>
+ =
+
+ #define init_new_context(tsk,mm)	0
+ #define destroy_context(mm)		do { } while(0)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-avr32/mmu_context.h
++++ b/include/asm-avr32/mmu_context.h
+@@ -15,6 +15,7 @@
+ #include <asm/tlbflush.h>
+ #include <asm/pgalloc.h>
+ #include <asm/sysreg.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /*
+  * The MMU "context" consists of two things:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-cris/mmu_context.h
++++ b/include/asm-cris/mmu_context.h
+@@ -1,5 +1,7 @@
+ #ifndef __CRIS_MMU_CONTEXT_H
+ #define __CRIS_MMU_CONTEXT_H
++
++#include <asm-generic/mm_hooks.h>
+ =
+
+ extern int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
+ extern void get_mmu_context(struct mm_struct *mm);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-frv/mmu_context.h
++++ b/include/asm-frv/mmu_context.h
+@@ -15,6 +15,7 @@
+ #include <asm/setup.h>
+ #include <asm/page.h>
+ #include <asm/pgalloc.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
+ *tsk)
+ {
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/include/asm-generic/mm_hooks.h
+@@ -0,0 +1,18 @@
++/*
++ * Define generic no-op hooks for arch_dup_mmap and arch_exit_mmap, to
++ * be included in asm-FOO/mmu_context.h for any arch FOO which doesn't
++ * need to hook these.
++ */
++#ifndef _ASM_GENERIC_MM_HOOKS_H
++#define _ASM_GENERIC_MM_HOOKS_H
++
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
++
++#endif	/* _ASM_GENERIC_MM_HOOKS_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-h8300/mmu_context.h
++++ b/include/asm-h8300/mmu_context.h
+@@ -4,6 +4,7 @@
+ #include <asm/setup.h>
+ #include <asm/page.h>
+ #include <asm/pgalloc.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
+ *tsk)
+ {
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/mmu_context.h
++++ b/include/asm-i386/mmu_context.h
+@@ -5,6 +5,16 @@
+ #include <asm/atomic.h>
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
++#include <asm/paravirt.h>
++#ifndef CONFIG_PARAVIRT
++#include <asm-generic/mm_hooks.h>
++
++static inline void paravirt_activate_mm(struct mm_struct *prev,
++					struct mm_struct *next)
++{
++}
++#endif	/* !CONFIG_PARAVIRT */
++
+ =
+
+ /*
+  * Used for LDT copy/destruction.
+@@ -65,7 +75,10 @@ static inline void switch_mm(struct mm_s
+ #define deactivate_mm(tsk, mm)			\
+ 	asm("movl %0,%%gs": :"r" (0));
+ =
+
+-#define activate_mm(prev, next) \
+-	switch_mm((prev),(next),NULL)
++#define activate_mm(prev, next)				\
++	do {						\
++		paravirt_activate_mm(prev, next);	\
++		switch_mm((prev),(next),NULL);		\
++	} while(0);
+ =
+
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -119,6 +119,12 @@ struct paravirt_ops
+ =
+
+ 	void (*io_delay)(void);
+ =
+
++	void (*activate_mm)(struct mm_struct *prev,
++			    struct mm_struct *next);
++	void (*dup_mmap)(struct mm_struct *oldmm,
++			 struct mm_struct *mm);
++	void (*exit_mmap)(struct mm_struct *mm);
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	void (*apic_write)(unsigned long reg, unsigned long v);
+ 	void (*apic_write_atomic)(unsigned long reg, unsigned long v);
+@@ -394,6 +400,23 @@ static inline void startup_ipi_hook(int =
+
+ }
+ #endif
+ =
+
++static inline void paravirt_activate_mm(struct mm_struct *prev,
++					struct mm_struct *next)
++{
++	paravirt_ops.activate_mm(prev, next);
++}
++
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++	paravirt_ops.dup_mmap(oldmm, mm);
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++	paravirt_ops.exit_mmap(mm);
++}
++
+ #define __flush_tlb() paravirt_ops.flush_tlb_user()
+ #define __flush_tlb_global() paravirt_ops.flush_tlb_kernel()
+ #define __flush_tlb_single(addr) paravirt_ops.flush_tlb_single(addr)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-ia64/mmu_context.h
++++ b/include/asm-ia64/mmu_context.h
+@@ -29,6 +29,7 @@
+ #include <linux/spinlock.h>
+ =
+
+ #include <asm/processor.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ struct ia64_ctx {
+ 	spinlock_t lock;
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-m32r/mmu_context.h
++++ b/include/asm-m32r/mmu_context.h
+@@ -15,6 +15,7 @@
+ #include <asm/pgalloc.h>
+ #include <asm/mmu.h>
+ #include <asm/tlbflush.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /*
+  * Cache of MMU context last used.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-m68k/mmu_context.h
++++ b/include/asm-m68k/mmu_context.h
+@@ -1,6 +1,7 @@
+ #ifndef __M68K_MMU_CONTEXT_H
+ #define __M68K_MMU_CONTEXT_H
+ =
+
++#include <asm-generic/mm_hooks.h>
+ =
+
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
+ *tsk)
+ {
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-m68knommu/mmu_context.h
++++ b/include/asm-m68knommu/mmu_context.h
+@@ -4,6 +4,7 @@
+ #include <asm/setup.h>
+ #include <asm/page.h>
+ #include <asm/pgalloc.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
+ *tsk)
+ {
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-mips/mmu_context.h
++++ b/include/asm-mips/mmu_context.h
+@@ -20,6 +20,7 @@
+ #include <asm/mipsmtregs.h>
+ #include <asm/smtc.h>
+ #endif /* SMTC */
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /*
+  * For the fast tlb miss handlers, we keep a per cpu array of pointers
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-parisc/mmu_context.h
++++ b/include/asm-parisc/mmu_context.h
+@@ -5,6 +5,7 @@
+ #include <asm/atomic.h>
+ #include <asm/pgalloc.h>
+ #include <asm/pgtable.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
+ *tsk)
+ {
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-powerpc/mmu_context.h
++++ b/include/asm-powerpc/mmu_context.h
+@@ -10,6 +10,7 @@
+ #include <linux/mm.h>	=
+
+ #include <asm/mmu.h>	=
+
+ #include <asm/cputable.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /*
+  * Copyright (C) 2001 PPC 64 Team, IBM Corp
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-ppc/mmu_context.h
++++ b/include/asm-ppc/mmu_context.h
+@@ -6,6 +6,7 @@
+ #include <asm/bitops.h>
+ #include <asm/mmu.h>
+ #include <asm/cputable.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /*
+  * On 32-bit PowerPC 6xx/7xx/7xxx CPUs, we use a set of 16 VSIDs
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-s390/mmu_context.h
++++ b/include/asm-s390/mmu_context.h
+@@ -10,6 +10,8 @@
+ #define __S390_MMU_CONTEXT_H
+ =
+
+ #include <asm/pgalloc.h>
++#include <asm-generic/mm_hooks.h>
++
+ /*
+  * get a new mmu context.. S390 don't know about contexts.
+  */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-sh/mmu_context.h
++++ b/include/asm-sh/mmu_context.h
+@@ -12,6 +12,7 @@
+ #include <asm/tlbflush.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /*
+  * The MMU "context" consists of two things:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-sh64/mmu_context.h
++++ b/include/asm-sh64/mmu_context.h
+@@ -27,7 +27,7 @@ extern unsigned long mmu_context_cache;
+ extern unsigned long mmu_context_cache;
+ =
+
+ #include <asm/page.h>
+-
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /* Current mm's pgd */
+ extern pgd_t *mmu_pdtp_cache;
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-sparc/mmu_context.h
++++ b/include/asm-sparc/mmu_context.h
+@@ -4,6 +4,8 @@
+ #include <asm/btfixup.h>
+ =
+
+ #ifndef __ASSEMBLY__
++
++#include <asm-generic/mm_hooks.h>
+ =
+
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
+ *tsk)
+ {
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-sparc64/mmu_context.h
++++ b/include/asm-sparc64/mmu_context.h
+@@ -9,6 +9,7 @@
+ #include <linux/spinlock.h>
+ #include <asm/system.h>
+ #include <asm/spitfire.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct=
+ *tsk)
+ {
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-um/mmu_context.h
++++ b/include/asm-um/mmu_context.h
+@@ -5,6 +5,8 @@
+ =
+
+ #ifndef __UM_MMU_CONTEXT_H
+ #define __UM_MMU_CONTEXT_H
++
++#include <asm-generic/mm_hooks.h>
+ =
+
+ #include "linux/sched.h"
+ #include "choose-mode.h"
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-v850/mmu_context.h
++++ b/include/asm-v850/mmu_context.h
+@@ -1,5 +1,7 @@
+ #ifndef __V850_MMU_CONTEXT_H__
+ #define __V850_MMU_CONTEXT_H__
++
++#include <asm-generic/mm_hooks.h>
+ =
+
+ #define destroy_context(mm)		((void)0)
+ #define init_new_context(tsk,mm)	0
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-x86_64/mmu_context.h
++++ b/include/asm-x86_64/mmu_context.h
+@@ -7,6 +7,7 @@
+ #include <asm/pda.h>
+ #include <asm/pgtable.h>
+ #include <asm/tlbflush.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ /*
+  * possibly do the LDT unload here?
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-xtensa/mmu_context.h
++++ b/include/asm-xtensa/mmu_context.h
+@@ -18,6 +18,7 @@
+ #include <asm/pgtable.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
++#include <asm-generic/mm_hooks.h>
+ =
+
+ #define XCHAL_MMU_ASID_BITS	8
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -286,6 +286,8 @@ static inline int dup_mmap(struct mm_str
+ 		if (retval)
+ 			goto out;
+ 	}
++	/* a new mm has just been created */
++	arch_dup_mmap(oldmm, mm);
+ 	retval =3D 0;
+ out:
+ 	up_write(&mm->mmap_sem);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -29,6 +29,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlb.h>
++#include <asm/mmu_context.h>
+ =
+
+ #ifndef arch_mmap_check
+ #define arch_mmap_check(addr, len, flags)	(0)
+@@ -1976,6 +1977,9 @@ void exit_mmap(struct mm_struct *mm)
+ 	struct vm_area_struct *vma =3D mm->mmap;
+ 	unsigned long nr_accounted =3D 0;
+ 	unsigned long end;
++
++	/* mm's last user has gone, and its about to be pulled down */
++	arch_exit_mmap(mm);
+ =
+
+ 	lru_add_drain();
+ 	flush_cache_mm(mm);
 
 -- =
