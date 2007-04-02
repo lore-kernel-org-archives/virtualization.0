@@ -1,54 +1,33 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: A set of "standard" virtual devices?
-Date: Mon, 02 Apr 2007 15:30:40 -0700
-Message-ID: <46118410.2060904@zytor.com>
-References: <4611652F.700@zytor.com> <200704022312.39195.ak@suse.de>
-	<4611768D.1080801@garzik.org> <200704022336.43136.ak@suse.de>
-	<461178D9.402@goop.org> <46117F72.6020506@zytor.com>
-	<461182BE.5040902@garzik.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 0/2] Use a single loader for i386 and x86_64
+Date: Tue, 03 Apr 2007 09:32:49 +1000
+Message-ID: <1175556769.12230.462.camel@localhost.localdomain>
+References: <20070402194344.GA7711@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <461182BE.5040902@garzik.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, virtualization@lists.linux-foundation.org, mathiasen@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966101AbXDBXd0@vger.kernel.org>
+In-Reply-To: <20070402194344.GA7711@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Glauber de Oliveira Costa <gcosta@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeff Garzik wrote:
-> =
+On Mon, 2007-04-02 at 16:43 -0300, Glauber de Oliveira Costa wrote:
+> This patch moves lguest.c one level bellow, and enhances it with the
+> ability to kick off 64 binaries. It would be much easier to just ifdef
+> functions, but I have x86_64 machines loading 32-bit kernels as a longer
+> goal, and that's why the patch features the load_elf_header() function.
 
-> Sure, but let's look beyond device detection.  For instance, it does not =
+Hi Glauber!
 
-> necessarily follow that emulating PCI DMA is the best way to go for =
+	I've been writing documentation, and in the process completely
+reorganised and cleaned up this file.  I have also been working on
+getting rid of the gratuitous u32's for addresses and trying to cleanse
+myself of 32-bit thinking!
 
-> communication with a virtual device, once detected.
-> =
+	I've now pushed the changes to the repo.  They should simplify this
+patch...
 
-
-This is true, of course.  However, there are going to be a set of =
-
-virtual devices which don't necessarily have to have super-high =
-
-performance.  In the case of a hwrng device, even doing DMA is probably =
-
-overkill.
-
-> Outside of pci_device_id driver matching, is there much value here?
-
-If we can get a set of device drivers that if not all then at least a =
-
-number of hypervisors and/or emulators can agree upon, I think that's =
-
-much won.
-
-	-hpa
+Thanks!
+Rusty.
