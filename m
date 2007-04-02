@@ -1,13 +1,15 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 17/17] Add a sched_clock paravirt_op
-Date: Sun, 01 Apr 2007 22:57:09 -0700
-Message-ID: <20070402055705.606126251@goop.org>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [patch 17/17] Add a sched_clock paravirt_op
+Date: Mon, 2 Apr 2007 08:09:42 +0200
+Message-ID: <200704020809.42373.ak@suse.de>
 References: <20070402055652.610711908@goop.org>
+	<20070402055705.606126251@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=paravirt-sched-clock.patch
+In-Reply-To: <20070402055705.606126251@goop.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,283 +19,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: virtualization@lists.osdl.org, john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The tsc-based get_scheduled_cycles interface is not a good match for
-Xen's runstate accounting, which reports everything in nanoseconds.
+On Monday 02 April 2007 07:57, Jeremy Fitzhardinge wrote:
+> The tsc-based get_scheduled_cycles interface is not a good match for
+> Xen's runstate accounting, which reports everything in nanoseconds.
+> =
 
-This patch replaces this interface with a sched_clock interface, which
-matches both Xen and VMI's requirements.
+> This patch replaces this interface with a sched_clock interface, which
+> matches both Xen and VMI's requirements.
+> =
 
-In order to do this, we:
-   1. replace get_scheduled_cycles with sched_clock
-   2. hoist cycles_2_ns into a common header
-   3. update vmi accordingly
+> In order to do this, we:
+>    1. replace get_scheduled_cycles with sched_clock
+>    2. hoist cycles_2_ns into a common header
+>    3. update vmi accordingly
+> =
 
-One thing to note: because sched_clock is implemented as a weak
-function in kernel/sched.c, we must define a real function in order to
-override this weak binding.  This means the usual paravirt_ops
-technique of using an inline function won't work in this case.
+> One thing to note: because sched_clock is implemented as a weak
+> function in kernel/sched.c, we must define a real function in order to
+> override this weak binding.  This means the usual paravirt_ops
+> technique of using an inline function won't work in this case.
 
+I think it would be much cleaner if you didn't implement your own sched_clo=
+ck,
+but you adjust ns_base/last_tsc to account for your lost cycles.
+This could be done cleanly by adding a new function to sched-clock.c
+Possibly such a function could be used by other parts of the kernel
+in the future too.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Dan Hecht <dhecht@vmware.com>
-Cc: john stultz <johnstul@us.ibm.com>
-
----
- arch/i386/kernel/paravirt.c    |    2 -
- arch/i386/kernel/sched-clock.c |   39 ++++++++++++++--------------------
- arch/i386/kernel/vmi.c         |    2 -
- arch/i386/kernel/vmitime.c     |    6 ++---
- include/asm-i386/paravirt.h    |    7 ++++--
- include/asm-i386/timer.h       |   45 ++++++++++++++++++++++++++++++++++++=
-+++-
- include/asm-i386/vmi_time.h    |    2 -
- 7 files changed, 71 insertions(+), 32 deletions(-)
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -269,7 +269,7 @@ struct paravirt_ops paravirt_ops =3D {
- 	.write_msr =3D native_write_msr_safe,
- 	.read_tsc =3D native_read_tsc,
- 	.read_pmc =3D native_read_pmc,
--	.get_scheduled_cycles =3D native_read_tsc,
-+	.sched_clock =3D native_sched_clock,
- 	.get_cpu_khz =3D native_calculate_cpu_khz,
- 	.load_tr_desc =3D native_load_tr_desc,
- 	.set_ldt =3D native_set_ldt,
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/sched-clock.c
-+++ b/arch/i386/kernel/sched-clock.c
-@@ -37,26 +37,7 @@
- =
-
- #define CYC2NS_SCALE_FACTOR 10 /* 2^10, carefully chosen */
- =
-
--struct sc_data {
--	unsigned int cyc2ns_scale;
--	unsigned char unstable;
--	unsigned long long last_tsc;
--	unsigned long long ns_base;
--};
--
--static DEFINE_PER_CPU(struct sc_data, sc_data);
--
--static inline unsigned long long cycles_2_ns(unsigned long long cyc)
--{
--	const struct sc_data *sc =3D &__get_cpu_var(sc_data);
--	unsigned long long ns;
--
--	cyc -=3D sc->last_tsc;
--	ns =3D (cyc * sc->cyc2ns_scale) >> CYC2NS_SCALE_FACTOR;
--	ns +=3D sc->ns_base;
--
--	return ns;
--}
-+DEFINE_PER_CPU(struct sc_data, sc_data);
- =
-
- /*
-  * Scheduler clock - returns current time in nanosec units.
-@@ -66,7 +47,7 @@ static inline unsigned long long cycles_
-  * [1] no attempt to stop CPU instruction reordering, which can hit
-  * in a 100 instruction window or so.
-  */
--unsigned long long sched_clock(void)
-+unsigned long long native_sched_clock(void)
- {
- 	unsigned long long r;
- 	const struct sc_data *sc =3D &get_cpu_var(sc_data);
-@@ -75,7 +56,7 @@ unsigned long long sched_clock(void)
- 		/* TBD find a cheaper fallback timer than this */
- 		r =3D ktime_to_ns(ktime_get());
- 	} else {
--		get_scheduled_cycles(r);
-+		rdtscll(r);
- 		r =3D cycles_2_ns(r);
- 	}
- =
-
-@@ -83,6 +64,18 @@ unsigned long long sched_clock(void)
- =
-
- 	return r;
- }
-+
-+/* We need to define a real function for sched_clock, to override the
-+   weak default version */
-+#ifdef CONFIG_PARAVIRT
-+unsigned long long sched_clock(void)
-+{
-+	return paravirt_sched_clock();
-+}
-+#else
-+unsigned long long sched_clock(void)
-+	__attribute__((alias("native_sched_clock")));
-+#endif
- =
-
- /* Resync with new CPU frequency */
- static void resync_sc_freq(struct sc_data *sc, unsigned int newfreq)
-@@ -95,7 +88,7 @@ static void resync_sc_freq(struct sc_dat
- 	   because sched_clock callers should be able to tolerate small
- 	   errors. */
- 	sc->ns_base =3D ktime_to_ns(ktime_get());
--	get_scheduled_cycles(sc->last_tsc);
-+	rdtscll(sc->last_tsc);
- 	sc->cyc2ns_scale =3D (1000000 << CYC2NS_SCALE_FACTOR) / newfreq;
- 	sc->unstable =3D 0;
- }
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/vmi.c
-+++ b/arch/i386/kernel/vmi.c
-@@ -866,7 +866,7 @@ static inline int __init activate_vmi(vo
- 		paravirt_ops.setup_boot_clock =3D vmi_timer_setup_boot_alarm;
- 		paravirt_ops.setup_secondary_clock =3D vmi_timer_setup_secondary_alarm;
- #endif
--		paravirt_ops.get_scheduled_cycles =3D vmi_get_sched_cycles;
-+		paravirt_ops.sched_clock =3D vmi_sched_clock;
-  		paravirt_ops.get_cpu_khz =3D vmi_cpu_khz;
- =
-
- 		/* We have true wallclock functions; disable CMOS clock sync */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/vmitime.c
-+++ b/arch/i386/kernel/vmitime.c
-@@ -163,9 +163,9 @@ int vmi_set_wallclock(unsigned long now)
- 	return -1;
- }
- =
-
--unsigned long long vmi_get_sched_cycles(void)
--{
--	return read_available_cycles();
-+unsigned long long vmi_sched_clock(void)
-+{
-+	return cycles_2_ns(read_available_cycles());
- }
- =
-
- unsigned long vmi_cpu_khz(void)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -88,7 +88,7 @@ struct paravirt_ops
- =
-
- 	u64 (*read_tsc)(void);
- 	u64 (*read_pmc)(void);
-- 	u64 (*get_scheduled_cycles)(void);
-+ 	unsigned long long (*sched_clock)(void);
- 	unsigned long (*get_cpu_khz)(void);
- =
-
- 	void (*load_tr_desc)(void);
-@@ -529,7 +529,10 @@ static inline void halt(void)
- =
-
- #define rdtscll(val) (val =3D PVOP_CALL0(u64, read_tsc))
- =
-
--#define get_scheduled_cycles(val) (val =3D paravirt_ops.get_scheduled_cycl=
-es())
-+static inline unsigned long long paravirt_sched_clock(void)
-+{
-+	return PVOP_CALL0(unsigned long long, sched_clock);
-+}
- #define calculate_cpu_khz() (paravirt_ops.get_cpu_khz())
- =
-
- #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/timer.h
-+++ b/include/asm-i386/timer.h
-@@ -15,8 +15,51 @@ extern int recalibrate_cpu_khz(void);
- extern int recalibrate_cpu_khz(void);
- =
-
- #ifndef CONFIG_PARAVIRT
--#define get_scheduled_cycles(val) rdtscll(val)
- #define calculate_cpu_khz() native_calculate_cpu_khz()
- #endif
- =
-
-+/* Accellerators for sched_clock()
-+ * convert from cycles(64bits) =3D> nanoseconds (64bits)
-+ *  basic equation:
-+ *		ns =3D cycles / (freq / ns_per_sec)
-+ *		ns =3D cycles * (ns_per_sec / freq)
-+ *		ns =3D cycles * (10^9 / (cpu_khz * 10^3))
-+ *		ns =3D cycles * (10^6 / cpu_khz)
-+ *
-+ *	Then we use scaling math (suggested by george@mvista.com) to get:
-+ *		ns =3D cycles * (10^6 * SC / cpu_khz) / SC
-+ *		ns =3D cycles * cyc2ns_scale / SC
-+ *
-+ *	And since SC is a constant power of two, we can convert the div
-+ *  into a shift.
-+ *
-+ *  We can use khz divisor instead of mhz to keep a better percision, since
-+ *  cyc2ns_scale is limited to 10^6 * 2^10, which fits in 32 bits.
-+ *  (mathieu.desnoyers@polymtl.ca)
-+ *
-+ *			-johnstul@us.ibm.com "math is hard, lets go shopping!"
-+ */
-+struct sc_data {
-+	unsigned int cyc2ns_scale;
-+	unsigned char unstable;
-+	unsigned long long last_tsc;
-+	unsigned long long ns_base;
-+};
-+
-+DECLARE_PER_CPU(struct sc_data, sc_data);
-+
-+#define CYC2NS_SCALE_FACTOR 10 /* 2^10, carefully chosen */
-+
-+static inline unsigned long long cycles_2_ns(unsigned long long cyc)
-+{
-+	const struct sc_data *sc =3D &__get_cpu_var(sc_data);
-+	unsigned long long ns;
-+
-+	cyc -=3D sc->last_tsc;
-+	ns =3D (cyc * sc->cyc2ns_scale) >> CYC2NS_SCALE_FACTOR;
-+	ns +=3D sc->ns_base;
-+
-+	return ns;
-+}
-+
- #endif
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/vmi_time.h
-+++ b/include/asm-i386/vmi_time.h
-@@ -49,7 +49,7 @@ extern void __init vmi_time_init(void);
- extern void __init vmi_time_init(void);
- extern unsigned long vmi_get_wallclock(void);
- extern int vmi_set_wallclock(unsigned long now);
--extern unsigned long long vmi_get_sched_cycles(void);
-+extern unsigned long long vmi_sched_clock(void);
- extern unsigned long vmi_cpu_khz(void);
- =
-
- #ifdef CONFIG_X86_LOCAL_APIC
-
--- =
+-Andi
