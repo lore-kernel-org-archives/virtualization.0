@@ -1,106 +1,69 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: A set of "standard" virtual devices?
-Date: Tue, 3 Apr 2007 21:42:51 +0200
-Message-ID: <200704032142.51976.arnd@arndb.de>
-References: <4611652F.700@zytor.com> <200704031951.00544.arnd@arndb.de> <4612A5F0.2080609@goop.org>
+Date: Tue, 03 Apr 2007 12:55:15 -0700
+Message-ID: <4612B123.2040105@goop.org>
+References: <4611652F.700@zytor.com> <200704031951.00544.arnd@arndb.de> <4612A5F0.2080609@goop.org> <200704032142.51976.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966209AbXDCTnJ@vger.kernel.org>
-In-Reply-To: <4612A5F0.2080609@goop.org>
-Content-Disposition: inline
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934021AbXDCTzc@vger.kernel.org>
+In-Reply-To: <200704032142.51976.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Arnd Bergmann <arnd@arndb.de>
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Andi Kleen <ak@suse.de>, Christian Borntraeger <borntrae@de.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 03 April 2007, Jeremy Fitzhardinge wrote:
-> Arnd Bergmann wrote:
-> > I think we need to separate two problems here:
-> >
-> > 1. Probing:
-> > That's really what triggered the discussion, PCI probing is well-understood
-> > and implemented on _most_ platforms, so there is some value in reusing it.
-> > When you talk about 'very simple probing', I'm not sure what the most simple
-> > approach could be. 
-> 
-> Is probing an interesting problem to consider on its own?  If there's
-> some hypervisor-agnostic device driver in Linux, then obviously it needs
-> some way to find the the corresponding (virtual) hardware for it to talk
-> to.  But that probing mechanism will depend on the actual interface
-> structure, and is just one of the many problems that need to be solved. 
-> There's no point in overloading PCI to probe for the device unless
-> you're actually using PCI to talk to the device.
+Arnd Bergmann wrote:
+> We already have device drivers for physical devices that can be attached
+> to different buses. The EHCI USB is an example of a driver that can 
+> be for instance PCI, OF or an on-chip device. Moreover, you can have an
+> abstracted device behind it that does not need to know about the transport,
+> like the SCSI disk driver does not care if it is talking to an ATA, 
+> parallel SCSI or SAS chip, or even which controller that is.
+>   
 
-We already have device drivers for physical devices that can be attached
-to different buses. The EHCI USB is an example of a driver that can 
-be for instance PCI, OF or an on-chip device. Moreover, you can have an
-abstracted device behind it that does not need to know about the transport,
-like the SCSI disk driver does not care if it is talking to an ATA, 
-parallel SCSI or SAS chip, or even which controller that is.
+Yes, that kind of layering is useful when there's enough of an
+abstraction gap to fit the layers into.  USB is particularly simple in
+that way, since it can be made to travel nicely over any number of
+transports.
 
-> Let me say up front that I'm skeptical that we can come up with a single
-> bus-like abstraction which can be a both simple and efficient interface
-> to all the virtual architectures.  I think a more fruitful path is to
-> find what pieces of functionality can be made common, with the aim of
-> having small, simple and self-contained hypervisor-specific backends.
-> 
-> I think this needs to be considered on a class by class basis.  This
-> thread started with a discussion about entropy sources.  In theory you
-> could implement it as simply as exposing a mmaped ringbuffer.  There are
-> some extra complexities deriving from the security requirements though;
-> for example, all the entropy needs to be kept strictly private to the
-> domain that consumes it.
-> 
-> But beyond that, there are 3 other important classes of device:
-> 
->     * console
->     * disk
->     * networking
-> 
-> (There are obviously more, but these are the must-have.)
-> 
-> Console already provides us with a model to work on, in the form of
-> hvc-console.  The hvc-console code itself has the bulk of the common
-> console code, along with a set of very small hypervisor-specific
-> backends. The Xen console implementation shrunk considerably when we
-> switched to using it.
+> console is also the least problematic interface, you can do it over
+> practically anything.
+>   
 
-console is also the least problematic interface, you can do it over
-practically anything.
- 
-> If we could do the same thing with disk and net, I would be very happy.
-> 
-> For example, if we wanted to change the Xen frontend/backend disk
-> interface, we could use SCSI as the basic protocol, and then convert
-> netfront into a relatively simple scsi driver.  There would still be a
-> Xen-specific piece, but it should be fairly small and have a clean
-> interface.  Though the existing interface is pretty simple
-> shove-this-block-there affair.
+Sure.  But its interesting that there are savings to be had.
 
-Doing a SCSI driver has been tried before, with ibmvscsi. Not good.
-The interesting question about block devices is how to handle concurrency
-and interrupt mitigation. An efficient interface should
+> Doing a SCSI driver has been tried before, with ibmvscsi. Not good.
+>   
 
-- have asynchronous notification, not sleep until the transfer is complete
-- allow multiple blocks to be in flight simultaneously, so the host can
-  reorder the requests if it is smart enough
-- give only a single interrupt when multiple transfers have completed
+OK, interesting.  People had proposed using SCSI as the interface, but I
+wasn't aware of any results from doing that.  How is it not good?
 
-minor optimizations could be
-- give an interrupt early when some transfers are complete
-- allow I/O barriers to be inserted in the stream
-- allow marking blocks as more or less important (readahead vs. read)
-- provide passthrough of SG_IO or similar for optical media
-  (e.g. DVD writer)
+> The interesting question about block devices is how to handle concurrency
+> and interrupt mitigation. An efficient interface should
+>
+> - have asynchronous notification, not sleep until the transfer is complete
+> - allow multiple blocks to be in flight simultaneously, so the host can
+>   reorder the requests if it is smart enough
+> - give only a single interrupt when multiple transfers have completed
+>   
 
-> I'm not sure what similar common code could be extracted for network
-> devices.  I haven't looked into it all that closely.
+Yes.  The Xen block interface is already pretty efficient in these respects.
 
-One way to do networking would be to simply provide a shared memory area
-that everyone can write to, then use a ring buffer and atomic operations
-to synchronize between the guests, and a method to send interrupts to the
-others for flow control.
+>> I'm not sure what similar common code could be extracted for network
+>> devices.  I haven't looked into it all that closely.
+>>     
+>
+> One way to do networking would be to simply provide a shared memory area
+> that everyone can write to, then use a ring buffer and atomic operations
+> to synchronize between the guests, and a method to send interrupts to the
+> others for flow control.
+>   
 
-	Arnd <><
+Yes, and that's the core of the Xen netfront.  But is there really much
+code which can be shared between different hypervisors?  When you get
+down to it, all the real code is hypervisor-specific stuff for setting
+up ringbuffers and dealing with interrupts.  Like all the other network
+drivers.
+
+    J
