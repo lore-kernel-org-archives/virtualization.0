@@ -1,15 +1,15 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: A set of "standard" virtual devices?
-Date: Tue, 03 Apr 2007 13:03:15 -0700
-Message-ID: <4612B303.5000109@zytor.com>
-References: <4611652F.700@zytor.com> <200704031951.00544.arnd@arndb.de>
-	<4612A5F0.2080609@goop.org> <200704032142.51976.arnd@arndb.de>
+Date: Tue, 3 Apr 2007 22:50:19 +0200
+Message-ID: <200704032250.19875.arnd@arndb.de>
+References: <4611652F.700@zytor.com> <200704032142.51976.arnd@arndb.de>
 	<4612B123.2040105@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <4612B123.2040105@goop.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,38 +20,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Arnd Bergmann <arnd@arndb.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, virtualization@lists.linux-foundation.org
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, "H. Peter Anvin" <hpa@zytor.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
+On Tuesday 03 April 2007, Jeremy Fitzhardinge wrote:
+> > Doing a SCSI driver has been tried before, with ibmvscsi. Not good.
+> > =A0 =
+
 > =
 
-> Yes, and that's the core of the Xen netfront.  But is there really much
-> code which can be shared between different hypervisors?  When you get
-> down to it, all the real code is hypervisor-specific stuff for setting
-> up ringbuffers and dealing with interrupts.  Like all the other network
-> drivers.
+> OK, interesting. =A0People had proposed using SCSI as the interface, but I
+> wasn't aware of any results from doing that. =A0How is it not good?
 > =
 
 
-One thing, Jeremy, which I think is being a bit misleading here: you're =
+SCSI is really overengineered for something as simple as a block interface.
+A large part of the SCSI stack deals only with error handling, which
+you don't want to burden the guests with at all, since most error conditions
+can be handled fine by the host.
+Another big aspect of SCSI is device enumeration and probing. Doing it
+the SCSI way is particularly pointless. It's much simpler to have one
+device with its own I/O interface at the hcall layer, and one interrupt
+number for the block device, instead of faking the full hca/bus/dev/lun
+hierarchy.
 
-focusing on big, performance-critical stuff.  Those things are going to =
-
-be the ones which has the most win to implement in hypervisor-specific =
-
-ways.  Although we can offer models for some hypervisors (and G-d knows =
-
-there are enough implementations out there of virtual disk which are =
-
-almost identical), they're clearly not going to be universal.
-
-However, there are other things; console is some, or my original =
-
-example, which was random number generation.  For those, the benefit of =
-
-unification is proportionally greater, simply because the win of =
-
-anything hypervisor-specific is much smaller.
-
-	-hpa
+	Arnd <><
