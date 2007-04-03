@@ -1,93 +1,106 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: A set of "standard" virtual devices?
-Date: Tue, 03 Apr 2007 12:07:28 -0700
-Message-ID: <4612A5F0.2080609@goop.org>
-References: <4611652F.700@zytor.com> <200704031030.36473.ak@suse.de> <20070403111731.52f2102a@gondolin.boeblingen.de.ibm.com> <200704031951.00544.arnd@arndb.de>
+Date: Tue, 3 Apr 2007 21:42:51 +0200
+Message-ID: <200704032142.51976.arnd@arndb.de>
+References: <4611652F.700@zytor.com> <200704031951.00544.arnd@arndb.de> <4612A5F0.2080609@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753459AbXDCTHo@vger.kernel.org>
-In-Reply-To: <200704031951.00544.arnd@arndb.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966209AbXDCTnJ@vger.kernel.org>
+In-Reply-To: <4612A5F0.2080609@goop.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Andi Kleen <ak@suse.de>, Christian Borntraeger <borntrae@de.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Arnd Bergmann wrote:
-> I think we need to separate two problems here:
->
-> 1. Probing:
-> That's really what triggered the discussion, PCI probing is well-understood
-> and implemented on _most_ platforms, so there is some value in reusing it.
-> When you talk about 'very simple probing', I'm not sure what the most simple
-> approach could be. 
+On Tuesday 03 April 2007, Jeremy Fitzhardinge wrote:
+> Arnd Bergmann wrote:
+> > I think we need to separate two problems here:
+> >
+> > 1. Probing:
+> > That's really what triggered the discussion, PCI probing is well-understood
+> > and implemented on _most_ platforms, so there is some value in reusing it.
+> > When you talk about 'very simple probing', I'm not sure what the most simple
+> > approach could be. 
+> 
+> Is probing an interesting problem to consider on its own?  If there's
+> some hypervisor-agnostic device driver in Linux, then obviously it needs
+> some way to find the the corresponding (virtual) hardware for it to talk
+> to.  But that probing mechanism will depend on the actual interface
+> structure, and is just one of the many problems that need to be solved. 
+> There's no point in overloading PCI to probe for the device unless
+> you're actually using PCI to talk to the device.
 
-Is probing an interesting problem to consider on its own?  If there's
-some hypervisor-agnostic device driver in Linux, then obviously it needs
-some way to find the the corresponding (virtual) hardware for it to talk
-to.  But that probing mechanism will depend on the actual interface
-structure, and is just one of the many problems that need to be solved. 
-There's no point in overloading PCI to probe for the device unless
-you're actually using PCI to talk to the device.
+We already have device drivers for physical devices that can be attached
+to different buses. The EHCI USB is an example of a driver that can 
+be for instance PCI, OF or an on-chip device. Moreover, you can have an
+abstracted device behind it that does not need to know about the transport,
+like the SCSI disk driver does not care if it is talking to an ATA, 
+parallel SCSI or SAS chip, or even which controller that is.
 
-> Ideas that have been implemented before include:
-> a) have a limited set of device IDs (e.g. 65535 devices, or a hierarchic tree),
->    and try to access each one of them in order to find out if it's there. We
->    do that for PCI or CCW, for instance.
-> b) Have an iterator in the hypervisor (or firmware), to return a handle to
->    the first, next or child of a device. We do that for open firmware.
-> c) ask the hypervisor for an unused device of a given class, which needs to
->    be returned to the hypervisor when no longer used. This is how the PS3
->    hypervisor works, but it does not play well with the Linux driver model.
->   
+> Let me say up front that I'm skeptical that we can come up with a single
+> bus-like abstraction which can be a both simple and efficient interface
+> to all the virtual architectures.  I think a more fruitful path is to
+> find what pieces of functionality can be made common, with the aim of
+> having small, simple and self-contained hypervisor-specific backends.
+> 
+> I think this needs to be considered on a class by class basis.  This
+> thread started with a discussion about entropy sources.  In theory you
+> could implement it as simply as exposing a mmaped ringbuffer.  There are
+> some extra complexities deriving from the security requirements though;
+> for example, all the entropy needs to be kept strictly private to the
+> domain that consumes it.
+> 
+> But beyond that, there are 3 other important classes of device:
+> 
+>     * console
+>     * disk
+>     * networking
+> 
+> (There are obviously more, but these are the must-have.)
+> 
+> Console already provides us with a model to work on, in the form of
+> hvc-console.  The hvc-console code itself has the bulk of the common
+> console code, along with a set of very small hypervisor-specific
+> backends. The Xen console implementation shrunk considerably when we
+> switched to using it.
 
-Xen has xenbus, which is essentially a filesystem-like namespace which
-can be walked to find the devices being exposed to a guest.  It is
-fairly similar to OFW's device tree.
+console is also the least problematic interface, you can do it over
+practically anything.
+ 
+> If we could do the same thing with disk and net, I would be very happy.
+> 
+> For example, if we wanted to change the Xen frontend/backend disk
+> interface, we could use SCSI as the basic protocol, and then convert
+> netfront into a relatively simple scsi driver.  There would still be a
+> Xen-specific piece, but it should be fairly small and have a clean
+> interface.  Though the existing interface is pretty simple
+> shove-this-block-there affair.
 
-> 2. Device access:
-> When talking to a virtual device, you want to have at least a way to give
-> commands to it and a way to get interrupts back. Again, multiple ideas
-> have been used in the past, and we should choose a subset:
->   
+Doing a SCSI driver has been tried before, with ibmvscsi. Not good.
+The interesting question about block devices is how to handle concurrency
+and interrupt mitigation. An efficient interface should
 
-Let me say up front that I'm skeptical that we can come up with a single
-bus-like abstraction which can be a both simple and efficient interface
-to all the virtual architectures.  I think a more fruitful path is to
-find what pieces of functionality can be made common, with the aim of
-having small, simple and self-contained hypervisor-specific backends.
+- have asynchronous notification, not sleep until the transfer is complete
+- allow multiple blocks to be in flight simultaneously, so the host can
+  reorder the requests if it is smart enough
+- give only a single interrupt when multiple transfers have completed
 
-I think this needs to be considered on a class by class basis.  This
-thread started with a discussion about entropy sources.  In theory you
-could implement it as simply as exposing a mmaped ringbuffer.  There are
-some extra complexities deriving from the security requirements though;
-for example, all the entropy needs to be kept strictly private to the
-domain that consumes it.
+minor optimizations could be
+- give an interrupt early when some transfers are complete
+- allow I/O barriers to be inserted in the stream
+- allow marking blocks as more or less important (readahead vs. read)
+- provide passthrough of SG_IO or similar for optical media
+  (e.g. DVD writer)
 
-But beyond that, there are 3 other important classes of device:
+> I'm not sure what similar common code could be extracted for network
+> devices.  I haven't looked into it all that closely.
 
-    * console
-    * disk
-    * networking
+One way to do networking would be to simply provide a shared memory area
+that everyone can write to, then use a ring buffer and atomic operations
+to synchronize between the guests, and a method to send interrupts to the
+others for flow control.
 
-(There are obviously more, but these are the must-have.)
-
-Console already provides us with a model to work on, in the form of
-hvc-console.  The hvc-console code itself has the bulk of the common
-console code, along with a set of very small hypervisor-specific
-backends. The Xen console implementation shrunk considerably when we
-switched to using it.
-
-If we could do the same thing with disk and net, I would be very happy.
-
-For example, if we wanted to change the Xen frontend/backend disk
-interface, we could use SCSI as the basic protocol, and then convert
-netfront into a relatively simple scsi driver.  There would still be a
-Xen-specific piece, but it should be fairly small and have a clean
-interface.  Though the existing interface is pretty simple
-shove-this-block-there affair.
-
-I'm not sure what similar common code could be extracted for network
-devices.  I haven't looked into it all that closely.
-
-    J
+	Arnd <><
