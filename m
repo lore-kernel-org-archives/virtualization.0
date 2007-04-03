@@ -1,46 +1,56 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: A set of "standard" virtual devices?
-Date: Tue, 03 Apr 2007 14:45:24 -0700
-Message-ID: <4612CAF4.908@zytor.com>
-References: <4611652F.700@zytor.com> <200704031951.00544.arnd@arndb.de> <4612A5F0.2080609@goop.org> <200704032142.51976.arnd@arndb.de> <4612B123.2040105@goop.org> <4612B303.5000109@zytor.com> <4612C077.60502@goop.org>
+Date: Tue, 3 Apr 2007 23:51:16 +0200
+Message-ID: <200704032351.17823.arnd@arndb.de>
+References: <4611652F.700@zytor.com> <4612B303.5000109@zytor.com> <4612C077.60502@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753687AbXDCVp7@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1945964AbXDCVw4@vger.kernel.org>
 In-Reply-To: <4612C077.60502@goop.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Andi Kleen <ak@suse.de>, Christian Borntraeger <borntrae@de.ibm.com>, virtualization@lists.linux-foundation.org, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Andi Kleen <ak@suse.de>, Christian Borntraeger <borntrae@de.ibm.com>, virtualization@lists.linux-foundation.org, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> 
-> So, what you're saying is:
-> 
->    1. assuming there's going to be a vast number of miscellaneous devices
->    2. it would be best if there were one per device rather than one per
->       hypervisor per device
->    3. so we'd have one linux device driver
-> 
-> But this implies that the work is just pushed off into all the
-> hypervisors to support this new device over the generic interface;
-> there's no overall reduction of code or complexity, other than making
-> "wc" on the kernel source smaller.
-> 
-
-Sure there is, assuming you deal about heterogenous clients.  I'm not 
-sure Xen is (although that is, as far as I understand, being remedied), 
-which might explain your different perspective.
-
-Consider that this may not even be about Linux -- having these standard 
-devices would enable, say, 'doze device drivers to be written and shared.
-
-> That said, something like USB is probably the best bet for this kind of
-> low-performance device.  I think.  Not that I really know anything about
+On Tuesday 03 April 2007, Jeremy Fitzhardinge wrote:
+> That said, something like USB is probably the best bet for this kind =
+of
+> low-performance device. =A0I think. =A0Not that I really know anythin=
+g about
 > USB.
 
-USB is evil in the extreme for this kind of stuff.  Although in theory 
-you can have any HCI you want, in practice the ones that are implemented 
-requires a very complex framework for full compatiblity.
+USB has the disadvantage that it is more complex than PCI and requires
+significantly more code to simulate on the host side.
 
-	-hpa
+On the plus side, I think it should be possible to implement a virtual
+USB host on s390, which is not possible with PCI, but that again takes
+a lot of work to implement.
+
+One interesting aspect of the PS3 hypervisor is that some of the
+low-speed interfaces are implemented as a virtual UART, meaning
+something that only has read and write operations and uses an
+interrupt for flow control. The implementation in=20
+drivers/ps3/vuart.c is probably more complex than what we want
+as a generic transport mechanism, but simply having a bidirectional
+data stream sounds like an ideal abstraction for the "simple"
+case. Some more or less obvious users of this include:
+
+- console
+- additional tty
+- random
+- slow network (using ppp)
+- printer
+- watchdog
+- hid (e.g. mouse)
+- system management (like ps3)
+- fast network (in combination with
+  shared memory segment)
+
+The transport can be hypervisor specific, e.g. there could be
+a virtual PCI serial port on kvm, an hcall interface on the ps3
+and a virtual CTC on s390 (kidding), while all of them can have
+the same kind of hardware _behind_ the serial connection.
+
+	Arnd <><
