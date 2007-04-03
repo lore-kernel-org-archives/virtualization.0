@@ -1,15 +1,15 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: A set of "standard" virtual devices?
-Date: Tue, 3 Apr 2007 22:50:19 +0200
-Message-ID: <200704032250.19875.arnd@arndb.de>
-References: <4611652F.700@zytor.com> <200704032142.51976.arnd@arndb.de>
-	<4612B123.2040105@goop.org>
+Date: Tue, 03 Apr 2007 14:00:39 -0700
+Message-ID: <4612C077.60502@goop.org>
+References: <4611652F.700@zytor.com> <200704031951.00544.arnd@arndb.de>
+	<4612A5F0.2080609@goop.org> <200704032142.51976.arnd@arndb.de>
+	<4612B123.2040105@goop.org> <4612B303.5000109@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4612B123.2040105@goop.org>
-Content-Disposition: inline
+In-Reply-To: <4612B303.5000109@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,29 +19,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, "H. Peter Anvin" <hpa@zytor.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, virtualization@lists.linux-foundation.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Arnd Bergmann <arnd@arndb.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 03 April 2007, Jeremy Fitzhardinge wrote:
-> > Doing a SCSI driver has been tried before, with ibmvscsi. Not good.
-> > =A0 =
-
-> =
-
-> OK, interesting. =A0People had proposed using SCSI as the interface, but I
-> wasn't aware of any results from doing that. =A0How is it not good?
-> =
+H. Peter Anvin wrote:
+> However, there are other things; console is some, or my original
+> example, which was random number generation.  For those, the benefit
+> of unification is proportionally greater, simply because the win of
+> anything hypervisor-specific is much smaller. =
 
 
-SCSI is really overengineered for something as simple as a block interface.
-A large part of the SCSI stack deals only with error handling, which
-you don't want to burden the guests with at all, since most error conditions
-can be handled fine by the host.
-Another big aspect of SCSI is device enumeration and probing. Doing it
-the SCSI way is particularly pointless. It's much simpler to have one
-device with its own I/O interface at the hcall layer, and one interrupt
-number for the block device, instead of faking the full hca/bus/dev/lun
-hierarchy.
+So, what you're saying is:
 
-	Arnd <><
+   1. assuming there's going to be a vast number of miscellaneous devices
+   2. it would be best if there were one per device rather than one per
+      hypervisor per device
+   3. so we'd have one linux device driver
+
+But this implies that the work is just pushed off into all the
+hypervisors to support this new device over the generic interface;
+there's no overall reduction of code or complexity, other than making
+"wc" on the kernel source smaller.
+
+That said, something like USB is probably the best bet for this kind of
+low-performance device.  I think.  Not that I really know anything about
+USB.
+
+    J
