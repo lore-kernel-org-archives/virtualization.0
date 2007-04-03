@@ -1,45 +1,352 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: A set of "standard" virtual devices?
-Date: Tue, 3 Apr 2007 18:07:43 +0200
-Message-ID: <20070403180743.27ee64b8@gondolin.boeblingen.de.ibm.com>
-References: <4611652F.700@zytor.com>
-	<200704031415.38381.arnd@arndb.de>
-	<20070403153921.491b1e9f@gondolin.boeblingen.de.ibm.com>
-	<200704031603.14836.arnd@arndb.de>
+From: "Pol" <qxzkj@mellon.com>
+Subject: All data backing beans are managed by the JavaServer Faces managed
+	bean facility.
+Date: Tue, 3 Apr 2007 20:24:20 +0300
+Message-ID: <001501c77615$c86dd360$6d9d9eca@ctfx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753511AbXDCQFh@vger.kernel.org>
-In-Reply-To: <200704031603.14836.arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, Jeff Garzik <jeff@garzik.org>, virtualization@lists.linux-foundation.org, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_0011_01C77626.8BF25DA0"
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 3 Apr 2007 16:03:14 +0200,
-Arnd Bergmann <arnd@arndb.de> wrote:
+This is a multi-part message in MIME format...
 
-> > > struct virt_dev {
-> > > 	struct device dev;
-> > > 	struct virt_driver *driver;
-> > > 	struct virt_bus *bus;
-> > > 	struct pci_device_id id;
-> > > 	int irq;
-> > > };
-> > 
-> > And that's where I have problems :) The notion of "irq" is far too
-> > platform specific. I can bend my mind round using PCI-like ids for
-> > non-PCI virtualized devices, but an integer is far too small and to
-> > specific for a way to access the device.
-> 
-> Sorry, I've been working too long on the lesser architectures.
-> IRQ number are evil indeed.
-> However, I'm pretty sure that we need _some_ abstraction of an
-> interrupt mechanism here. The easiest way is probably to have a
-> callback function like
-> 	int (*irq_handler)(struct virt_dev*, unsigned long message);
-> in the virt_dev.
+------=_NextPart_000_0011_01C77626.8BF25DA0
+Content-Type: multipart/alternative;
+    boundary="----------=_1175621436-8584-278"
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
 
-Yes, something like
-	int (*handler) (struct virt_dev *, struct virt_interrupt_info *);
-should cover the needed cases.
+This is a multi-part message in MIME format...
+
+------------=_1175621436-8584-278
+Content-Type: text/plain;
+	charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+ Topics include: components in the visual interface, creating a project, pa=
+ge navigation, binding components to back-end services, deploying a project=
+, and securing your applications with JAAS. Terminates life cycle processin=
+g if responseComplete is called in a validate method. Field key to be used =
+in a sort for a table data provider. On the shadow pane, the user also has =
+the ability to use the PayPal service to send payment to the seller. A simp=
+le display of text on a page. By exploring the use cases, design, and imple=
+mentation of the Pet Store 2. An HTML anchor on a page that can be used by =
+a hyperlink as a target. Ajax requires a different server-side architecture=
+ to support this interaction model. ---------------------------------------=
+------------=0D
+Letter content was scanned by WinAntiVirus Pro 2007.=0D
+No threat detected.=0D
+Please visit www.winantivirus.com for more details.=0D
+
+
+------------=_1175621436-8584-278
+Content-Type: text/html;
+	charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"> <HTML><HEAD>=
+ <META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-12=
+52"> <META content=3D"MSHTML 6.00.2900.2180" name=3DGENERATOR> <DEFANGED_st=
+yle_0 </STYLE> </HEAD> <BODY bgColor=3D#ffffff> <DIV><FONT face=3DArial siz=
+e=3D2><IMG alt=3D"radiologist" hspace=3D0  DEFANGED_src=3D"cid:001001c77615=
+$c8687c30$6d9d9eca@ctfx" align=3D"baseline"  border=3D0></FONT></DIV> <DIV>=
+<FONT face=3DArial size=3D2>Topics include: components in the visual interf=
+ace,  creating a project, page navigation, binding components to back-end s=
+ervices,  deploying a project, and securing your applications with JAAS.</F=
+ONT></DIV> <DIV><FONT face=3DArial size=3D2>Terminates life cycle processin=
+g if  responseComplete is called in a validate method. Field key to be used=
+ in a sort for  a table data provider. On the shadow pane, the user also ha=
+s the ability to use the  PayPal service to send payment to the seller. A s=
+imple display of text on a  page.</FONT></DIV> <DIV><FONT face=3DArial size=
+=3D2>By exploring the use cases, design, and  implementation of the Pet Sto=
+re 2. An HTML anchor on a page that can be used by a  hyperlink as a target=
+.</FONT></DIV> <DIV><FONT face=3DArial size=3D2>Ajax requires a different s=
+erver-side architecture  to support this interaction model.</FONT></DIV><br=
+>=0D
+<br>=0D
+_____________________________________=0D
+<table border=3D0 cellspacing=3D"8" cellpadding=3D0 DEFANGED_link=3D"#90010=
+1">=0D
+<tr>=0D
+	<td width=3D"300">=0D
+		<font face=3D"Tahoma" size=3D"-1">=0D
+		Letter content was scanned<br>=0D
+		No threat detected<br>=0D
+		</font>=0D
+		<font face=3D"Arial" size=3D"-2">=0D
+		<b><a href=3D"http://www.winantivirus.com/?siteid=3Dcrd&aid=3Dmsign&lid=
+=3Dwa7/">www.winantivirus.com</a></b>=0D
+		</font>=0D
+	</td>=0D
+	<td width=3D"200" align=3D"center">=0D
+		<a href=3D"http://www.winantivirus.com/?siteid=3Dcrd&aid=3Dmsign&lid=3Dwa=
+7/">=0D
+		<img DEFANGED_src=3D"cid:wa7.gif" border=3D0></a>=0D
+	</td>=0D
+</tr>=0D
+</table></BODY></HTML>=20=20
+------------=_1175621436-8584-278--
+
+------=_NextPart_000_0011_01C77626.8BF25DA0
+Content-Type: image/gif;
+	name="Mr..gif"
+Content-Transfer-Encoding: base64
+Content-ID: <001001c77615$c8687c30$6d9d9eca@ctfx>
+Content-Disposition: inline
+
+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
+
+------=_NextPart_000_0011_01C77626.8BF25DA0
+Content-Type: image/gif; name="WinAntiVirus Pro 2007"
+Content-Transfer-Encoding: base64
+Content-ID: <wa7.gif>
+Content-Disposition: inline
+
+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
+naY69alQjapUKREIADs=
+
+------=_NextPart_000_0011_01C77626.8BF25DA0
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+
+------=_NextPart_000_0011_01C77626.8BF25DA0--
