@@ -1,68 +1,93 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: A set of "standard" virtual devices?
-Date: Tue, 3 Apr 2007 19:50:59 +0200
-Message-ID: <200704031951.00544.arnd@arndb.de>
-References: <4611652F.700@zytor.com> <200704031030.36473.ak@suse.de>
-	<20070403111731.52f2102a@gondolin.boeblingen.de.ibm.com>
+Date: Tue, 03 Apr 2007 12:07:28 -0700
+Message-ID: <4612A5F0.2080609@goop.org>
+References: <4611652F.700@zytor.com> <200704031030.36473.ak@suse.de> <20070403111731.52f2102a@gondolin.boeblingen.de.ibm.com> <200704031951.00544.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070403111731.52f2102a@gondolin.boeblingen.de.ibm.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, "H. Peter Anvin" <hpa@zytor.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753459AbXDCTHo@vger.kernel.org>
+In-Reply-To: <200704031951.00544.arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Andi Kleen <ak@suse.de>, Christian Borntraeger <borntrae@de.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 03 April 2007, Cornelia Huck wrote:
-> On s390, it would be more than strangeness. There's no implementation
-> of PCI at all, someone would have to cook it up - and it wouldn't have
-> any use beyond those special devices. Since there isn't any bus type
-> that is available on *all* architectures, a generic "virtual" bus with
-> very simple probing seems much saner...
+Arnd Bergmann wrote:
+> I think we need to separate two problems here:
+>
+> 1. Probing:
+> That's really what triggered the discussion, PCI probing is well-understood
+> and implemented on _most_ platforms, so there is some value in reusing it.
+> When you talk about 'very simple probing', I'm not sure what the most simple
+> approach could be. 
 
-I think we need to separate two problems here:
+Is probing an interesting problem to consider on its own?  If there's
+some hypervisor-agnostic device driver in Linux, then obviously it needs
+some way to find the the corresponding (virtual) hardware for it to talk
+to.  But that probing mechanism will depend on the actual interface
+structure, and is just one of the many problems that need to be solved. 
+There's no point in overloading PCI to probe for the device unless
+you're actually using PCI to talk to the device.
 
-1. Probing:
-That's really what triggered the discussion, PCI probing is well-understood
-and implemented on _most_ platforms, so there is some value in reusing it.
-When you talk about 'very simple probing', I'm not sure what the most simple
-approach could be. Ideas that have been implemented before include:
-a) have a limited set of device IDs (e.g. 65535 devices, or a hierarchic tr=
-ee),
-   and try to access each one of them in order to find out if it's there. We
-   do that for PCI or CCW, for instance.
-b) Have an iterator in the hypervisor (or firmware), to return a handle to
-   the first, next or child of a device. We do that for open firmware.
-c) ask the hypervisor for an unused device of a given class, which needs to
-   be returned to the hypervisor when no longer used. This is how the PS3
-   hypervisor works, but it does not play well with the Linux driver model.
+> Ideas that have been implemented before include:
+> a) have a limited set of device IDs (e.g. 65535 devices, or a hierarchic tree),
+>    and try to access each one of them in order to find out if it's there. We
+>    do that for PCI or CCW, for instance.
+> b) Have an iterator in the hypervisor (or firmware), to return a handle to
+>    the first, next or child of a device. We do that for open firmware.
+> c) ask the hypervisor for an unused device of a given class, which needs to
+>    be returned to the hypervisor when no longer used. This is how the PS3
+>    hypervisor works, but it does not play well with the Linux driver model.
+>   
 
-2. Device access:
-When talking to a virtual device, you want to have at least a way to give
-commands to it and a way to get interrupts back. Again, multiple ideas
-have been used in the past, and we should choose a subset:
-a) PCI-like: mmio using memory and/or I/O space BAR setup, interrupt
-   numbers and DMA to guest physical addresses.
-b) Channel-like: use an hcall to give commands to the hypervisor, passing
-   down a device handle command code and data areas in guest physical space.
-   Interrupts return the device handle or a OS-defined per-device value.
-c) Minimalistic: Every device is mapped into the guest address space and
-   can potentially be remapped into user space. The device memory can be
-   shared between guests and/or with the host if that uses the same driver.
-   The guest is able to signal the receiving end using an hcall and gets
-   interrupts like in b)
-d) UNIX-like: devices appear like file descriptors, the guest can do
-   operations like read/write/sync/mmap, potentially ioctl on them to talk
-   to the host.
+Xen has xenbus, which is essentially a filesystem-like namespace which
+can be walked to find the devices being exposed to a guest.  It is
+fairly similar to OFW's device tree.
 
-	Arnd <><
+> 2. Device access:
+> When talking to a virtual device, you want to have at least a way to give
+> commands to it and a way to get interrupts back. Again, multiple ideas
+> have been used in the past, and we should choose a subset:
+>   
+
+Let me say up front that I'm skeptical that we can come up with a single
+bus-like abstraction which can be a both simple and efficient interface
+to all the virtual architectures.  I think a more fruitful path is to
+find what pieces of functionality can be made common, with the aim of
+having small, simple and self-contained hypervisor-specific backends.
+
+I think this needs to be considered on a class by class basis.  This
+thread started with a discussion about entropy sources.  In theory you
+could implement it as simply as exposing a mmaped ringbuffer.  There are
+some extra complexities deriving from the security requirements though;
+for example, all the entropy needs to be kept strictly private to the
+domain that consumes it.
+
+But beyond that, there are 3 other important classes of device:
+
+    * console
+    * disk
+    * networking
+
+(There are obviously more, but these are the must-have.)
+
+Console already provides us with a model to work on, in the form of
+hvc-console.  The hvc-console code itself has the bulk of the common
+console code, along with a set of very small hypervisor-specific
+backends. The Xen console implementation shrunk considerably when we
+switched to using it.
+
+If we could do the same thing with disk and net, I would be very happy.
+
+For example, if we wanted to change the Xen frontend/backend disk
+interface, we could use SCSI as the basic protocol, and then convert
+netfront into a relatively simple scsi driver.  There would still be a
+Xen-specific piece, but it should be fairly small and have a clean
+interface.  Though the existing interface is pretty simple
+shove-this-block-there affair.
+
+I'm not sure what similar common code could be extracted for network
+devices.  I haven't looked into it all that closely.
+
+    J
