@@ -1,47 +1,24 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 04/17] Add pagetable accessors to pack and unpack
-	pagetable entries
-Date: Thu, 05 Apr 2007 08:59:09 +1000
-Message-ID: <1175727549.12230.583.camel@localhost.localdomain>
-References: <20070402055652.610711908@goop.org>
-	<200704041347.42822.ak@suse.de> <4613C828.2030604@goop.org>
-	<200704041756.35016.ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 04/17] Add pagetable accessors to pack and unpack	pagetable
+ entries
+Date: Wed, 04 Apr 2007 16:39:45 -0700
+Message-ID: <46143741.3020408@goop.org>
+References: <20070402055652.610711908@goop.org>	 <200704041347.42822.ak@suse.de> <4613C828.2030604@goop.org>	 <200704041756.35016.ak@suse.de> <1175727549.12230.583.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200704041756.35016.ak@suse.de>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752854AbXDDXkO@vger.kernel.org>
+In-Reply-To: <1175727549.12230.583.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-04-04 at 17:56 +0200, Andi Kleen wrote:
-> On Wednesday 04 April 2007 17:45:44 Jeremy Fitzhardinge wrote:
-> > Andi Kleen wrote:
-> > > Why is there a difference for null syscall? I had assumed we patched =
-all the =
+Rusty Russell wrote:
+> You'll still have the damage inflicted on gcc's optimizer, though.
 
-> > > fast path cases relevant there. Do you have an idea where it comes fr=
-om?
-> > =
+Well, I could remove the clobbers for PVOP_CALL[0-2] and add the
+appropriate push/pops, and put similar push/pop wrappers around all the
+called functions.  But it doesn't make it any prettier.
 
-> > Sure.  There's indirect calls for things like sti/cli/iret.  It goes
-> > back to native speed when you patch the real instructions inline.
-> =
-
-> I was talking about the patched case. It seemed to be a little slower
-> too, but in theory it shouldn't have been, no? =
-
-
-You'll still have the damage inflicted on gcc's optimizer, though.
-
-Rusty.
+    J
