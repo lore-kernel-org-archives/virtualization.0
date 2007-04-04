@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 6/6] Allow boot-time disable of paravirt_ops patching
-Date: Tue, 03 Apr 2007 18:07:01 -0700
-Message-ID: <20070404011453.879668615@goop.org>
+Subject: [patch 4/6] Rename the parainstructions symbols to be consistent with
+	the others
+Date: Tue, 03 Apr 2007 18:06:59 -0700
+Message-ID: <20070404011453.598418421@goop.org>
 References: <20070404010655.400913479@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=disable-paravirt-patching.patch
+Content-Disposition: inline; filename=fix-parainstructions-name.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,76 +22,108 @@ To: Andi Kleen <ak@suse.de>
 Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add "noreplace-paravirt" to disable paravirt_ops patching.
+The other symbols used to delineate the alt-instructions sections have
+the form __foo/__foo_end.  Rename parainstructions to match.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Andi Kleen <ak@suse.de>
 Cc: Rusty Russell <rusty@rustcorp.com.au>
 
 ---
- Documentation/kernel-parameters.txt |    3 +++
- arch/i386/kernel/alternative.c      |   13 +++++++++++++
- 2 files changed, 16 insertions(+)
+ arch/i386/kernel/alternative.c |    6 +++---
+ arch/i386/kernel/vmi.c         |    6 +++---
+ arch/i386/kernel/vmlinux.lds.S |    4 ++--
+ include/asm-i386/alternative.h |    4 ++--
+ 4 files changed, 10 insertions(+), 10 deletions(-)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -64,6 +64,7 @@ parameter is applicable:
- 	GENERIC_TIME The generic timeofday code is enabled.
- 	NFS	Appropriate NFS support is enabled.
- 	OSS	OSS sound support is enabled.
-+	PV_OPS	A paravirtualized kernel
- 	PARIDE	The ParIDE subsystem is enabled.
- 	PARISC	The PA-RISC architecture is enabled.
- 	PCI	PCI bus support is enabled.
-@@ -1134,6 +1135,8 @@ and is between 256 and 4096 characters. =
-
- 	nomca		[IA-64] Disable machine check abort handling
- =
-
- 	nomce		[IA-32] Machine Check Exception
-+
-+	noreplace-paravirt	[IA-32,PV_OPS] Don't patch paravirt_ops
- =
-
- 	noreplace-smp	[IA-32,SMP] Don't replace SMP instructions
- 			with UP alternatives
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/alternative.c
 +++ b/arch/i386/kernel/alternative.c
-@@ -30,6 +30,16 @@ static int __init setup_noreplace_smp(ch
+@@ -327,8 +327,8 @@ void apply_paravirt(struct paravirt_patc
+ 	/* Sync to be conservative, in case we patched following instructions */
+ 	sync_core();
  }
- __setup("noreplace-smp", setup_noreplace_smp);
+-extern struct paravirt_patch __start_parainstructions[],
+-	__stop_parainstructions[];
++extern struct paravirt_patch __parainstructions[],
++	__parainstructions_end[];
+ #endif	/* CONFIG_PARAVIRT */
  =
 
-+#ifdef CONFIG_PARAVIRT
-+static int noreplace_paravirt =3D 0;
-+
-+static int __init setup_noreplace_paravirt(char *str)
-+{
-+	noreplace_paravirt =3D 1;
-+	return 1;
-+}
-+__setup("noreplace-paravirt", setup_noreplace_paravirt);
-+#endif
+ void __init alternative_instructions(void)
+@@ -367,6 +367,6 @@ void __init alternative_instructions(voi
+ 		alternatives_smp_switch(0);
+ 	}
+ #endif
+- 	apply_paravirt(__start_parainstructions, __stop_parainstructions);
++ 	apply_paravirt(__parainstructions, __parainstructions_end);
+ 	local_irq_restore(flags);
+ }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -72,8 +72,8 @@ static struct {
+ } vmi_ops;
  =
 
- #define DPRINTK(fmt, args...) if (debug_alternative) \
- 	printk(KERN_DEBUG fmt, args)
-@@ -329,6 +339,9 @@ void apply_paravirt(struct paravirt_patc
- {
- 	struct paravirt_patch *p;
+ /* XXX move this to alternative.h */
+-extern struct paravirt_patch __start_parainstructions[],
+-	__stop_parainstructions[];
++extern struct paravirt_patch __parainstructions[],
++	__parainstructions_end[];
  =
 
-+	if (noreplace_paravirt)
-+		return;
-+
- 	for (p =3D start; p < end; p++) {
- 		unsigned int used;
+ /*
+  * VMI patching routines.
+@@ -917,7 +917,7 @@ static inline int __init activate_vmi(vo
+ 	 * to do this before IRQs get reenabled.  Fortunately, it is
+ 	 * idempotent.
+ 	 */
+-	apply_paravirt(__start_parainstructions, __stop_parainstructions);
++	apply_paravirt(__parainstructions, __parainstructions_end);
  =
 
+ 	vmi_bringup();
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -166,9 +166,9 @@ SECTIONS
+   }
+   . =3D ALIGN(4);
+   .parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
+-  	__start_parainstructions =3D .;
++  	__parainstructions =3D .;
+ 	*(.parainstructions)
+-  	__stop_parainstructions =3D .;
++  	__parainstructions_end =3D .;
+   }
+   /* .exit.text is discard at runtime, not link time, to deal with referen=
+ces
+      from .altinstructions and .eh_frame */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/alternative.h
++++ b/include/asm-i386/alternative.h
+@@ -121,8 +121,8 @@ static inline void
+ static inline void
+ apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
+ {}
+-#define __start_parainstructions NULL
+-#define __stop_parainstructions NULL
++#define __parainstructions	NULL
++#define __parainstructions_end	NULL
+ #endif
+ =
+
+ #endif /* _I386_ALTERNATIVE_H */
 
 -- =
