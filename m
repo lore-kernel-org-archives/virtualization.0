@@ -1,13 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 14/20] add common patching machinery
-Date: Wed, 04 Apr 2007 12:12:05 -0700
-Message-ID: <20070404191206.124948907@goop.org>
+Subject: [patch 10/20] Use patch site IDs computed from offset in paravirt_ops
+	structure
+Date: Wed, 04 Apr 2007 12:12:01 -0700
+Message-ID: <20070404191205.675093845@goop.org>
 References: <20070404191151.009821039@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=paravirt-patch-machinery.patch
+Content-Disposition: inline; filename=paravirt-use-offset-site-ids.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,291 +19,406 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Anthony Liguori <anthony@codemonkey.ws>, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement the actual patching machinery.  paravirt_patch_default()
-contains the logic to automatically patch a callsite based on a few
-simple rules:
+Use patch type identifiers derived from the offset of the operation in
+the paravirt_ops structure.  This avoids having to maintain a separate
+enum for patch site types.
 
- - if the paravirt_op function is paravirt_nop, then patch nops
- - if the paravirt_op function is a jmp target, then jmp to it
- - if the paravirt_op function is callable and doesn't clobber too much
-    for the callsite, call it directly
+Also, since the identifier is derived from the offset into
+paravirt_ops, the offset can be derived from the identifier.  This is
+used to remove replicated information in the various callsite macros,
+which has been a source of bugs in the past.
 
-paravirt_patch_default is suitable as a default implementation of
-paravirt_ops.patch, will remove most of the expensive indirect calls
-in favour of either a direct call or a pile of nops.
-
-Backends may implement their own patcher, however.  There are several
-helper functions to help with this:
-
-paravirt_patch_nop	nop out a callsite
-paravirt_patch_ignore	leave the callsite as-is
-paravirt_patch_call	patch a call if the caller and callee
-			have compatible clobbers
-paravirt_patch_jmp	patch in a jmp
-paravirt_patch_insns	patch some literal instructions over
-			the callsite, if they fit
-
-This patch also implements more direct patches for the native case, so
-that when running on native hardware many common operations are
-implemented inline.
+This patch also drops the fused save_fl+cli operation, which doesn't
+really add much and makes things more complex - specifically because
+it breaks the 1:1 relationship between identifiers and offsets.  If
+this operation turns out to be particularly beneficial, then the right
+answer is to define a new entrypoint for it.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Cc: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Zachary Amsden <zach@vmware.com>
-Cc: Anthony Liguori <anthony@codemonkey.ws>
-Acked-by: Ingo Molnar <mingo@elte.hu>
+
 ---
- arch/i386/kernel/alternative.c |    5 -
- arch/i386/kernel/paravirt.c    |  164 ++++++++++++++++++++++++++++++++----=
+ arch/i386/kernel/paravirt.c |   14 +--
+ arch/i386/kernel/vmi.c      |   39 +--------
+ include/asm-i386/paravirt.h |  179 ++++++++++++++++++++++-----------------=
 ----
- include/asm-i386/paravirt.h    |   12 ++
- 3 files changed, 149 insertions(+), 32 deletions(-)
+ 3 files changed, 105 insertions(+), 127 deletions(-)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/alternative.c
-+++ b/arch/i386/kernel/alternative.c
-@@ -349,11 +349,14 @@ void apply_paravirt(struct paravirt_patc
- 		used =3D paravirt_ops.patch(p->instrtype, p->clobbers, p->instr,
- 					  p->len);
- =
-
-+		BUG_ON(used > p->len);
-+
- 		/* Pad the rest with nops */
- 		nop_out(p->instr + used, p->len - used);
- 	}
- =
-
--	/* Sync to be conservative, in case we patched following instructions */
-+	/* Sync to be conservative, in case we patched following
-+	   instructions */
- 	sync_core();
- }
- #endif	/* CONFIG_PARAVIRT */
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -54,40 +54,142 @@ char *memory_setup(void)
- #define DEF_NATIVE(name, code)					\
- 	extern const char start_##name[], end_##name[];		\
- 	asm("start_" #name ": " code "; end_" #name ":")
--DEF_NATIVE(cli, "cli");
--DEF_NATIVE(sti, "sti");
--DEF_NATIVE(popf, "push %eax; popf");
--DEF_NATIVE(pushf, "pushf; pop %eax");
-+
-+DEF_NATIVE(irq_disable, "cli");
-+DEF_NATIVE(irq_enable, "sti");
-+DEF_NATIVE(restore_fl, "push %eax; popf");
-+DEF_NATIVE(save_fl, "pushf; pop %eax");
+@@ -58,7 +58,6 @@ DEF_NATIVE(sti, "sti");
+ DEF_NATIVE(sti, "sti");
+ DEF_NATIVE(popf, "push %eax; popf");
+ DEF_NATIVE(pushf, "pushf; pop %eax");
+-DEF_NATIVE(pushf_cli, "pushf; pop %eax; cli");
  DEF_NATIVE(iret, "iret");
--DEF_NATIVE(sti_sysexit, "sti; sysexit");
--
--static const struct native_insns
--{
--	const char *start, *end;
--} native_insns[] =3D {
--	[PARAVIRT_PATCH(irq_disable)] =3D { start_cli, end_cli },
--	[PARAVIRT_PATCH(irq_enable)] =3D { start_sti, end_sti },
--	[PARAVIRT_PATCH(restore_fl)] =3D { start_popf, end_popf },
--	[PARAVIRT_PATCH(save_fl)] =3D { start_pushf, end_pushf },
--	[PARAVIRT_PATCH(iret)] =3D { start_iret, end_iret },
--	[PARAVIRT_PATCH(irq_enable_sysexit)] =3D { start_sti_sysexit, end_sti_sys=
+ DEF_NATIVE(sti_sysexit, "sti; sysexit");
+ =
+
+@@ -66,13 +65,12 @@ static const struct native_insns
+ {
+ 	const char *start, *end;
+ } native_insns[] =3D {
+-	[PARAVIRT_IRQ_DISABLE] =3D { start_cli, end_cli },
+-	[PARAVIRT_IRQ_ENABLE] =3D { start_sti, end_sti },
+-	[PARAVIRT_RESTORE_FLAGS] =3D { start_popf, end_popf },
+-	[PARAVIRT_SAVE_FLAGS] =3D { start_pushf, end_pushf },
+-	[PARAVIRT_SAVE_FLAGS_IRQ_DISABLE] =3D { start_pushf_cli, end_pushf_cli },
+-	[PARAVIRT_INTERRUPT_RETURN] =3D { start_iret, end_iret },
+-	[PARAVIRT_STI_SYSEXIT] =3D { start_sti_sysexit, end_sti_sysexit },
++	[PARAVIRT_PATCH(irq_disable)] =3D { start_cli, end_cli },
++	[PARAVIRT_PATCH(irq_enable)] =3D { start_sti, end_sti },
++	[PARAVIRT_PATCH(restore_fl)] =3D { start_popf, end_popf },
++	[PARAVIRT_PATCH(save_fl)] =3D { start_pushf, end_pushf },
++	[PARAVIRT_PATCH(iret)] =3D { start_iret, end_iret },
++	[PARAVIRT_PATCH(irq_enable_sysexit)] =3D { start_sti_sysexit, end_sti_sys=
 exit },
--};
-+DEF_NATIVE(irq_enable_sysexit, "sti; sysexit");
-+DEF_NATIVE(read_cr2, "mov %cr2, %eax");
-+DEF_NATIVE(write_cr3, "mov %eax, %cr3");
-+DEF_NATIVE(read_cr3, "mov %cr3, %eax");
-+DEF_NATIVE(clts, "clts");
-+DEF_NATIVE(read_tsc, "rdtsc");
-+
-+DEF_NATIVE(ud2a, "ud2a");
+ };
  =
 
  static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned =
 len)
- {
--	unsigned int insn_len;
--
--	/* Don't touch it if we don't have a replacement */
--	if (type >=3D ARRAY_SIZE(native_insns) || !native_insns[type].start)
--		return len;
--
--	insn_len =3D native_insns[type].end - native_insns[type].start;
--
--	/* Similarly if we can't fit replacement. */
--	if (len < insn_len)
--		return len;
--
--	memcpy(insns, native_insns[type].start, insn_len);
-+	const unsigned char *start, *end;
-+	unsigned ret;
-+
-+	switch(type) {
-+#define SITE(x)	case PARAVIRT_PATCH(x):	start =3D start_##x; end =3D end_#=
-#x; goto patch_site
-+		SITE(irq_disable);
-+		SITE(irq_enable);
-+		SITE(restore_fl);
-+		SITE(save_fl);
-+		SITE(iret);
-+		SITE(irq_enable_sysexit);
-+		SITE(read_cr2);
-+		SITE(read_cr3);
-+		SITE(write_cr3);
-+		SITE(clts);
-+		SITE(read_tsc);
-+#undef SITE
-+
-+	patch_site:
-+		ret =3D paravirt_patch_insns(insns, len, start, end);
-+		break;
-+
-+	case PARAVIRT_PATCH(make_pgd):
-+	case PARAVIRT_PATCH(make_pte):
-+	case PARAVIRT_PATCH(pgd_val):
-+	case PARAVIRT_PATCH(pte_val):
-+#ifdef CONFIG_X86_PAE
-+	case PARAVIRT_PATCH(make_pmd):
-+	case PARAVIRT_PATCH(pmd_val):
-+#endif
-+		/* These functions end up returning exactly what
-+		   they're passed, in the same registers. */
-+		ret =3D paravirt_patch_nop();
-+		break;
-+
-+	default:
-+		ret =3D paravirt_patch_default(type, clobbers, insns, len);
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
-+unsigned paravirt_patch_nop(void)
-+{
-+	return 0;
-+}
-+
-+unsigned paravirt_patch_ignore(unsigned len)
-+{
-+	return len;
-+}
-+
-+unsigned paravirt_patch_call(void *target, u16 tgt_clobbers,
-+			     void *site, u16 site_clobbers,
-+			     unsigned len)
-+{
-+	unsigned char *call =3D site;
-+	unsigned long delta =3D (unsigned long)target - (unsigned long)(call+5);
-+
-+	if (tgt_clobbers & ~site_clobbers)
-+		return len;	/* target would clobber too much for this site */
-+	if (len < 5)
-+		return len;	/* call too long for patch site */
-+
-+	*call++ =3D 0xe8;		/* call */
-+	*(unsigned long *)call =3D delta;
-+
-+	return 5;
-+}
-+
-+unsigned paravirt_patch_jmp(void *target, void *site, unsigned len)
-+{
-+	unsigned char *jmp =3D site;
-+	unsigned long delta =3D (unsigned long)target - (unsigned long)(jmp+5);
-+
-+	if (len < 5)
-+		return len;	/* call too long for patch site */
-+
-+	*jmp++ =3D 0xe9;		/* jmp */
-+	*(unsigned long *)jmp =3D delta;
-+
-+	return 5;
-+}
-+
-+unsigned paravirt_patch_default(u8 type, u16 clobbers, void *site, unsigne=
-d len)
-+{
-+	void *opfunc =3D *((void **)&paravirt_ops + type);
-+	unsigned ret;
-+
-+	if (opfunc =3D=3D NULL)
-+		/* If there's no function, patch it with a ud2a (BUG) */
-+		ret =3D paravirt_patch_insns(site, len, start_ud2a, end_ud2a);
-+	else if (opfunc =3D=3D paravirt_nop)
-+		/* If the operation is a nop, then nop the callsite */
-+		ret =3D paravirt_patch_nop();
-+	else if (type =3D=3D PARAVIRT_PATCH(iret) ||
-+		 type =3D=3D PARAVIRT_PATCH(irq_enable_sysexit))
-+		/* If operation requires a jmp, then jmp */
-+		ret =3D paravirt_patch_jmp(opfunc, site, len);
-+	else
-+		/* Otherwise call the function; assume target could
-+		   clobber any caller-save reg */
-+		ret =3D paravirt_patch_call(opfunc, CLBR_ANY,
-+					  site, clobbers, len);
-+
-+	return ret;
-+}
-+
-+unsigned paravirt_patch_insns(void *site, unsigned len,
-+			      const char *start, const char *end)
-+{
-+	unsigned insn_len =3D end - start;
-+
-+	if (insn_len > len || start =3D=3D NULL)
-+		insn_len =3D len;
-+	else
-+		memcpy(site, start, insn_len);
-+
- 	return insn_len;
- }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -78,11 +78,6 @@ static struct {
+ #define MNEM_JMP  0xe9
+ #define MNEM_RET  0xc3
  =
 
-@@ -110,7 +212,7 @@ static void native_flush_tlb_global(void
- 	__native_flush_tlb_global();
- }
+-static char irq_save_disable_callout[] =3D {
+-	MNEM_CALL, 0, 0, 0, 0,
+-	MNEM_CALL, 0, 0, 0, 0,
+-	MNEM_RET
+-};
+ #define IRQ_PATCH_INT_MASK 0
+ #define IRQ_PATCH_DISABLE  5
  =
 
--static void native_flush_tlb_single(u32 addr)
-+static void native_flush_tlb_single(unsigned long addr)
+@@ -130,33 +125,17 @@ static unsigned vmi_patch(u8 type, u16 c
+ static unsigned vmi_patch(u8 type, u16 clobbers, void *insns, unsigned len)
  {
- 	__native_flush_tlb_single(addr);
- }
+ 	switch (type) {
+-		case PARAVIRT_IRQ_DISABLE:
++		case PARAVIRT_PATCH(irq_disable):
+ 			return patch_internal(VMI_CALL_DisableInterrupts, len, insns);
+-		case PARAVIRT_IRQ_ENABLE:
++		case PARAVIRT_PATCH(irq_enable):
+ 			return patch_internal(VMI_CALL_EnableInterrupts, len, insns);
+-		case PARAVIRT_RESTORE_FLAGS:
++		case PARAVIRT_PATCH(restore_fl):
+ 			return patch_internal(VMI_CALL_SetInterruptMask, len, insns);
+-		case PARAVIRT_SAVE_FLAGS:
++		case PARAVIRT_PATCH(save_fl):
+ 			return patch_internal(VMI_CALL_GetInterruptMask, len, insns);
+-        	case PARAVIRT_SAVE_FLAGS_IRQ_DISABLE:
+-			if (len >=3D 10) {
+-				patch_internal(VMI_CALL_GetInterruptMask, len, insns);
+-				patch_internal(VMI_CALL_DisableInterrupts, len-5, insns+5);
+-				return 10;
+-			} else {
+-				/*
+-				 * You bastards didn't leave enough room to
+-				 * patch save_flags_irq_disable inline.  Patch
+-				 * to a helper
+-				 */
+-				BUG_ON(len < 5);
+-				*(char *)insns =3D MNEM_CALL;
+-				patch_offset(insns, irq_save_disable_callout);
+-				return 5;
+-			}
+-		case PARAVIRT_INTERRUPT_RETURN:
++		case PARAVIRT_PATCH(iret):
+ 			return patch_internal(VMI_CALL_IRET, len, insns);
+-		case PARAVIRT_STI_SYSEXIT:
++		case PARAVIRT_PATCH(irq_enable_sysexit):
+ 			return patch_internal(VMI_CALL_SYSEXIT, len, insns);
+ 		default:
+ 			break;
+@@ -763,12 +742,6 @@ static inline int __init activate_vmi(vo
+ 	para_fill(restore_fl, SetInterruptMask);
+ 	para_fill(irq_disable, DisableInterrupts);
+ 	para_fill(irq_enable, EnableInterrupts);
+-
+-	/* irq_save_disable !!! sheer pain */
+-	patch_offset(&irq_save_disable_callout[IRQ_PATCH_INT_MASK],
+-		     (char *)paravirt_ops.save_fl);
+-	patch_offset(&irq_save_disable_callout[IRQ_PATCH_DISABLE],
+-		     (char *)paravirt_ops.irq_disable);
+ =
+
+ 	para_fill(wbinvd, WBINVD);
+ 	para_fill(read_tsc, RDTSC);
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -247,6 +247,18 @@ extern struct paravirt_ops paravirt_ops;
- /* Generate patchable code, with the default asm parameters. */
- #define paravirt_alt(insn_string)					\
- 	_paravirt_alt(insn_string, "%c[paravirt_typenum]", "%c[paravirt_clobber]")
-+
-+unsigned paravirt_patch_nop(void);
-+unsigned paravirt_patch_ignore(unsigned len);
-+unsigned paravirt_patch_call(void *target, u16 tgt_clobbers,
-+			     void *site, u16 site_clobbers,
-+			     unsigned len);
-+unsigned paravirt_patch_jmp(void *target, void *site, unsigned len);
-+unsigned paravirt_patch_default(u8 type, u16 clobbers, void *site, unsigne=
-d len);
-+
-+unsigned paravirt_patch_insns(void *site, unsigned len,
-+			      const char *start, const char *end);
-+
+@@ -4,18 +4,7 @@
+  * para-virtualization: those hooks are defined here. */
  =
 
- /*
-  * This generates an indirect call based on the operation type number.
+ #ifdef CONFIG_PARAVIRT
+-#include <linux/stringify.h>
+ #include <asm/page.h>
+-
+-/* These are the most performance critical ops, so we want to be able to p=
+atch
+- * callers */
+-#define PARAVIRT_IRQ_DISABLE 0
+-#define PARAVIRT_IRQ_ENABLE 1
+-#define PARAVIRT_RESTORE_FLAGS 2
+-#define PARAVIRT_SAVE_FLAGS 3
+-#define PARAVIRT_SAVE_FLAGS_IRQ_DISABLE 4
+-#define PARAVIRT_INTERRUPT_RETURN 5
+-#define PARAVIRT_STI_SYSEXIT 6
+ =
+
+ /* Bitmask of what can be clobbered: usually at least eax. */
+ #define CLBR_NONE 0x0
+@@ -191,6 +180,28 @@ struct paravirt_ops
+ =
+
+ extern struct paravirt_ops paravirt_ops;
+ =
+
++#define PARAVIRT_PATCH(x)					\
++	(offsetof(struct paravirt_ops, x) / sizeof(void *))
++
++#define paravirt_type(type)					\
++	[paravirt_typenum] "i" (PARAVIRT_PATCH(type))
++#define paravirt_clobber(clobber)		\
++	[paravirt_clobber] "i" (clobber)
++
++#define PARAVIRT_CALL	"call *paravirt_ops+%c[paravirt_typenum]*4;"
++
++#define _paravirt_alt(insn_string, type, clobber)	\
++	"771:\n\t" insn_string "\n" "772:\n"		\
++	".pushsection .parainstructions,\"a\"\n"	\
++	"  .long 771b\n"				\
++	"  .byte " type "\n"				\
++	"  .byte 772b-771b\n"				\
++	"  .short " clobber "\n"			\
++	".popsection\n"
++
++#define paravirt_alt(insn_string)				\
++	_paravirt_alt(insn_string, "%c[paravirt_typenum]", "%c[paravirt_clobber]")
++
+ #define paravirt_enabled() (paravirt_ops.paravirt_enabled)
+ =
+
+ static inline void load_esp0(struct tss_struct *tss,
+@@ -512,93 +523,89 @@ extern struct paravirt_patch_site __star
+ extern struct paravirt_patch_site __start_parainstructions[],
+ 	__stop_parainstructions[];
+ =
+
+-#define paravirt_alt(insn_string, typenum, clobber)	\
+-	"771:\n\t" insn_string "\n" "772:\n"		\
+-	".pushsection .parainstructions,\"a\"\n"	\
+-	"  .long 771b\n"				\
+-	"  .byte " __stringify(typenum) "\n"		\
+-	"  .byte 772b-771b\n"				\
+-	"  .short " __stringify(clobber) "\n"		\
+-	".popsection"
+-
+ static inline unsigned long __raw_local_save_flags(void)
+ {
+ 	unsigned long f;
+ =
+
+-	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
+-			     : "=3Da"(f): "m"(paravirt_ops.save_fl)
+-			     : "memory", "cc");
++	asm volatile(paravirt_alt("pushl %%ecx; pushl %%edx;"
++				  PARAVIRT_CALL
++				  "popl %%edx; popl %%ecx")
++		     : "=3Da"(f)
++		     : paravirt_type(save_fl),
++		       paravirt_clobber(CLBR_NONE)
++		     : "memory", "cc");
+ 	return f;
+ }
+ =
+
+ static inline void raw_local_irq_restore(unsigned long f)
+ {
+-	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
+-			     : "=3Da"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
+-			     : "memory", "cc");
++	asm volatile(paravirt_alt("pushl %%ecx; pushl %%edx;"
++				  PARAVIRT_CALL
++				  "popl %%edx; popl %%ecx")
++		     : "=3Da"(f)
++		     : "0"(f),
++		       paravirt_type(restore_fl),
++		       paravirt_clobber(CLBR_EAX)
++		     : "memory", "cc");
+ }
+ =
+
+ static inline void raw_local_irq_disable(void)
+ {
+-	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%0;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_disable)
+-			     : "memory", "eax", "cc");
++	asm volatile(paravirt_alt("pushl %%ecx; pushl %%edx;"
++				  PARAVIRT_CALL
++				  "popl %%edx; popl %%ecx")
++		     :
++		     : paravirt_type(irq_disable),
++		       paravirt_clobber(CLBR_EAX)
++		     : "memory", "eax", "cc");
+ }
+ =
+
+ static inline void raw_local_irq_enable(void)
+ {
+-	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%0;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
+-			     : : "m" (paravirt_ops.irq_enable)
+-			     : "memory", "eax", "cc");
++	asm volatile(paravirt_alt("pushl %%ecx; pushl %%edx;"
++				  PARAVIRT_CALL
++				  "popl %%edx; popl %%ecx")
++		     :
++		     : paravirt_type(irq_enable),
++		       paravirt_clobber(CLBR_EAX)
++		     : "memory", "eax", "cc");
+ }
+ =
+
+ static inline unsigned long __raw_local_irq_save(void)
+ {
+ 	unsigned long f;
+ =
+
+-	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
+-					   "call *%1; pushl %%eax;"
+-					   "call *%2; popl %%eax;"
+-					   "popl %%edx; popl %%ecx",
+-					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
+-					  CLBR_NONE)
+-			     : "=3Da"(f)
+-			     : "m" (paravirt_ops.save_fl),
+-			       "m" (paravirt_ops.irq_disable)
+-			     : "memory", "cc");
++	f =3D __raw_local_save_flags();
++	raw_local_irq_disable();
+ 	return f;
+ }
+ =
+
+-#define CLI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
+-		     "call *paravirt_ops+%c[irq_disable];"		\
+-		     "popl %%edx; popl %%ecx",				\
+-		     PARAVIRT_IRQ_DISABLE, CLBR_EAX)
+-
+-#define STI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
+-		     "call *paravirt_ops+%c[irq_enable];"		\
+-		     "popl %%edx; popl %%ecx",				\
+-		     PARAVIRT_IRQ_ENABLE, CLBR_EAX)
++#define CLI_STRING							\
++	_paravirt_alt("pushl %%ecx; pushl %%edx;"			\
++		      "call *paravirt_ops+%c[paravirt_cli_type]*4;"	\
++		      "popl %%edx; popl %%ecx",				\
++		      "%c[paravirt_cli_type]", "%c[paravirt_clobber]")
++
++#define STI_STRING							\
++	_paravirt_alt("pushl %%ecx; pushl %%edx;"			\
++		      "call *paravirt_ops+%c[paravirt_sti_type]*4;"	\
++		      "popl %%edx; popl %%ecx",				\
++		      "%c[paravirt_sti_type]", "%c[paravirt_clobber]")
++
+ #define CLI_STI_CLOBBERS , "%eax"
+-#define CLI_STI_INPUT_ARGS \
++#define CLI_STI_INPUT_ARGS						\
+ 	,								\
+-	[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
+-	[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable))
++	[paravirt_cli_type] "i" (PARAVIRT_PATCH(irq_disable)),		\
++	[paravirt_sti_type] "i" (PARAVIRT_PATCH(irq_enable)),		\
++	paravirt_clobber(CLBR_EAX)
++
++#undef PARAVIRT_CALL
+ =
+
+ #else  /* __ASSEMBLY__ */
+ =
+
+-#define PARA_PATCH(ptype, clobbers, ops)	\
++#define PARA_PATCH(off)	((off) / 4)
++
++#define PARA_SITE(ptype, clobbers, ops)		\
+ 771:;						\
+ 	ops;					\
+ 772:;						\
+@@ -609,25 +616,25 @@ 772:;						\
+ 	 .short clobbers;			\
+ 	.popsection
+ =
+
+-#define INTERRUPT_RETURN				\
+-	PARA_PATCH(PARAVIRT_INTERRUPT_RETURN, CLBR_ANY,	\
+-	jmp *%cs:paravirt_ops+PARAVIRT_iret)
+-
+-#define DISABLE_INTERRUPTS(clobbers)			\
+-	PARA_PATCH(PARAVIRT_IRQ_DISABLE, clobbers,	\
+-	pushl %ecx; pushl %edx;				\
+-	call *paravirt_ops+PARAVIRT_irq_disable;	\
+-	popl %edx; popl %ecx)				\
+-
+-#define ENABLE_INTERRUPTS(clobbers)			\
+-	PARA_PATCH(PARAVIRT_IRQ_ENABLE, clobbers,	\
+-	pushl %ecx; pushl %edx;				\
+-	call *%cs:paravirt_ops+PARAVIRT_irq_enable;	\
+-	popl %edx; popl %ecx)
+-
+-#define ENABLE_INTERRUPTS_SYSEXIT			\
+-	PARA_PATCH(PARAVIRT_STI_SYSEXIT, CLBR_ANY,	\
+-	jmp *%cs:paravirt_ops+PARAVIRT_irq_enable_sysexit)
++#define INTERRUPT_RETURN					\
++	PARA_SITE(PARA_PATCH(PARAVIRT_iret), CLBR_ANY,		\
++		  jmp *%cs:paravirt_ops+PARAVIRT_iret)
++
++#define DISABLE_INTERRUPTS(clobbers)					\
++	PARA_SITE(PARA_PATCH(PARAVIRT_irq_disable), clobbers,		\
++		  pushl %ecx; pushl %edx;				\
++		  call *%cs:paravirt_ops+PARAVIRT_irq_disable;		\
++		  popl %edx; popl %ecx)					\
++
++#define ENABLE_INTERRUPTS(clobbers)					\
++	PARA_SITE(PARA_PATCH(PARAVIRT_irq_enable), clobbers,		\
++		  pushl %ecx; pushl %edx;				\
++		  call *%cs:paravirt_ops+PARAVIRT_irq_enable;		\
++		  popl %edx; popl %ecx)
++
++#define ENABLE_INTERRUPTS_SYSEXIT					\
++	PARA_SITE(PARA_PATCH(PARAVIRT_irq_enable_sysexit), CLBR_ANY,	\
++		  jmp *%cs:paravirt_ops+PARAVIRT_irq_enable_sysexit)
+ =
+
+ #define GET_CR0_INTO_EAX			\
+ 	call *paravirt_ops+PARAVIRT_read_cr0
 
 -- =
