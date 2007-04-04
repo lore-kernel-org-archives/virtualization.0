@@ -1,53 +1,49 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: A set of "standard" virtual devices?
-Date: Wed, 4 Apr 2007 00:49:11 +0200
-Message-ID: <200704040049.13118.arnd@arndb.de>
-References: <4611652F.700@zytor.com> <200704032351.17823.arnd@arndb.de> <4612D0CA.3070209@zytor.com>
+Date: Tue, 03 Apr 2007 17:52:57 -0700
+Message-ID: <4612F6E9.7040003@zytor.com>
+References: <4611652F.700@zytor.com> <200704032351.17823.arnd@arndb.de>	<4612D0CA.3070209@zytor.com> <200704040049.13118.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992466AbXDCWu0@vger.kernel.org>
-In-Reply-To: <4612D0CA.3070209@zytor.com>
-Content-Disposition: inline
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966213AbXDDAxO@vger.kernel.org>
+In-Reply-To: <200704040049.13118.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Andi Kleen <ak@suse.de>, Christian Borntraeger <borntrae@de.ibm.com>, virtualization@lists.linux-foundation.org, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 04 April 2007, H. Peter Anvin wrote:
-> Note that at least for PIO-based devices, there is nothing that says =
-you=20
-> can't implement PCI over another transport, if you wish. =A0It's real=
-ly=20
-> just a very simple RPC protocol.
+Arnd Bergmann wrote:
+> On Wednesday 04 April 2007, H. Peter Anvin wrote:
+>> Note that at least for PIO-based devices, there is nothing that says you 
+>> can't implement PCI over another transport, if you wish.  It's really 
+>> just a very simple RPC protocol.
+> 
+> The PIO aspect of PCI is simple, yes, except on architectures that don't
+> have the concept of PIO or even uncached memory, but even that can
+> be done by defining readl/writel/inl/outl/... as hcalls.
+> 
+> The tricky part about PCI is the device probing, everything about config
+> space accesses, interrupt swizzling, bus/device/function numbers and
+> base address registers becomes a pointless excercise when the other side
+> is just faking it.
 
-The PIO aspect of PCI is simple, yes, except on architectures that don'=
-t
-have the concept of PIO or even uncached memory, but even that can
-be done by defining readl/writel/inl/outl/... as hcalls.
+Configuration space access is platform-dependent.  It's only defined to 
+work in a specific way on x86 platforms.
 
-The tricky part about PCI is the device probing, everything about confi=
-g
-space accesses, interrupt swizzling, bus/device/function numbers and
-base address registers becomes a pointless excercise when the other sid=
-e
-is just faking it.
+"Interrupt swizzling" is really totally independent of PCI.  ALL PCI 
+really provides is up to four interrupts per device (not counting 
+MSI/MSI-X) and an 8-bit writable field which the platform can choose to 
+use to hold interrupt information.  That's all.  The rest is all 
+platform information.
 
-> DMA is trickier, as it makes the data appear into the address space o=
-f=20
-> the guest in a way that is both device- and host-dependent (in the=20
-> presence of PCI domains, IOMMU etc.) =A0There may be reason to avoid =
-DMA=20
-> for that reason.
+PCI enumeration is hardly complex.  Most of the stuff that doesn't apply 
+to you you can generally ignore, as is done by other busses like 
+HyperTransport when they emulate PCI.
 
-Right, PCI DMA and virtualization don't mix. DMA in general is fine tho=
-ugh,
-as long as your devices (real or virtual) see the guest physical addres=
-ses
-as a contiguous 64 bit range and have well-defined semantics about what
-addresses are accessed in what way.
-When you think of file read/write syscalls as DMA into user space, it's
-a very clean concept. Async I/O somewhat less so, but still pretty good=
-=2E
+That being said, on platforms which are PCI-centric, such as x86, this 
+of course makes it a lot easier to produce virtual devices which work 
+across hypervisors, since the device model, of *any* operating system is 
+set up to handle them.
 
-	Arnd <><
+	-hpa
