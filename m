@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 17/20] add kmap_atomic_pte for mapping highpte pages
-Date: Wed, 04 Apr 2007 12:12:08 -0700
-Message-ID: <20070404191206.379769851@goop.org>
+Subject: [patch 15/20] add flush_tlb_others paravirt_op
+Date: Wed, 04 Apr 2007 12:12:06 -0700
+Message-ID: <20070404191206.181792507@goop.org>
 References: <20070404191151.009821039@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=paravirt-kmap_atomic_pte.patch
+Content-Disposition: inline; filename=paravirt-flush_tlb_others.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,252 +21,207 @@ To: Andi Kleen <ak@suse.de>
 Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen and VMI both have special requirements when mapping a highmem pte
-page into the kernel address space.  These can be dealt with by adding
-a new kmap_atomic_pte() function for mapping highptes, and hooking it
-into the paravirt_ops infrastructure.
-
-Xen specifically wants to map the pte page RO, so this patch exposes a
-helper function, kmap_atomic_prot, which maps the page with the
-specified page protections.
-
-This also adds a kmap_flush_unused() function to clear out the cached
-kmap mappings.  Xen needs this to clear out any potential stray RW
-mappings of pages which will become part of a pagetable.
-
-[ Zach - vmi.c will need some attention after this patch.  It wasn't
-  immediately obvious to me what needs to be done. ]
+This patch adds a pv_op for flush_tlb_others.  Linux running on native
+hardware uses cross-CPU IPIs to flush the TLB on any CPU which may
+have a particular mm's pagetable entries cached in its TLB.  This is
+inefficient in a paravirtualized environment, since the hypervisor
+knows which real CPUs actually contain cached mappings, which may be a
+small subset of a guest's VCPUs.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Zachary Amsden <zach@vmware.com>
 
 ---
- arch/i386/kernel/paravirt.c |    7 +++++++
- arch/i386/mm/highmem.c      |    9 +++++++--
- include/asm-i386/highmem.h  |   11 +++++++++++
- include/asm-i386/paravirt.h |   13 ++++++++++++-
- include/asm-i386/pgtable.h  |    4 ++--
- include/linux/highmem.h     |    6 ++++++
- mm/highmem.c                |    9 +++++++++
- 7 files changed, 54 insertions(+), 5 deletions(-)
+ arch/i386/kernel/paravirt.c |    1 +
+ arch/i386/kernel/smp.c      |   15 ++++++++-------
+ include/asm-i386/paravirt.h |    9 +++++++++
+ include/asm-i386/tlbflush.h |   19 +++++++++++++++++--
+ 4 files changed, 35 insertions(+), 9 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -20,6 +20,7 @@
- #include <linux/efi.h>
- #include <linux/bcd.h>
- #include <linux/start_kernel.h>
-+#include <linux/highmem.h>
+@@ -301,6 +301,7 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.flush_tlb_user =3D native_flush_tlb,
+ 	.flush_tlb_kernel =3D native_flush_tlb_global,
+ 	.flush_tlb_single =3D native_flush_tlb_single,
++	.flush_tlb_others =3D native_flush_tlb_others,
  =
 
- #include <asm/bug.h>
- #include <asm/paravirt.h>
-@@ -318,6 +319,12 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.map_pt_hook =3D paravirt_nop,
  =
 
- 	.ptep_get_and_clear =3D native_ptep_get_and_clear,
- =
-
-+#ifdef CONFIG_HIGHPTE
-+	.kmap_atomic_pte =3D native_kmap_atomic_pte,
-+#else
-+	.kmap_atomic_pte =3D paravirt_nop,
-+#endif
-+
- #ifdef CONFIG_X86_PAE
- 	.set_pte_atomic =3D native_set_pte_atomic,
- 	.set_pte_present =3D native_set_pte_present,
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/highmem.c
-+++ b/arch/i386/mm/highmem.c
-@@ -26,7 +26,7 @@ void kunmap(struct page *page)
-  * However when holding an atomic kmap is is not legal to sleep, so atomic
-  * kmaps are appropriate for short, tight code paths only.
-  */
--void *kmap_atomic(struct page *page, enum km_type type)
-+void *kmap_atomic_prot(struct page *page, enum km_type type, pgprot_t prot)
- {
- 	enum fixed_addresses idx;
- 	unsigned long vaddr;
-@@ -41,9 +41,14 @@ void *kmap_atomic(struct page *page, enu
- 		return page_address(page);
+--- a/arch/i386/kernel/smp.c
++++ b/arch/i386/kernel/smp.c
+@@ -256,7 +256,6 @@ static struct mm_struct * flush_mm;
+ static struct mm_struct * flush_mm;
+ static unsigned long flush_va;
+ static DEFINE_SPINLOCK(tlbstate_lock);
+-#define FLUSH_ALL	0xffffffff
  =
 
- 	vaddr =3D __fix_to_virt(FIX_KMAP_BEGIN + idx);
--	set_pte(kmap_pte-idx, mk_pte(page, kmap_prot));
-+	set_pte(kmap_pte-idx, mk_pte(page, prot));
- =
+ /*
+  * We cannot call mmdrop() because we are in interrupt context, =
 
- 	return (void*) vaddr;
-+}
-+
-+void *kmap_atomic(struct page *page, enum km_type type)
-+{
-+	return kmap_atomic_prot(page, type, kmap_prot);
+@@ -338,7 +337,7 @@ fastcall void smp_invalidate_interrupt(s
+ 		 =
+
+ 	if (flush_mm =3D=3D per_cpu(cpu_tlbstate, cpu).active_mm) {
+ 		if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK) {
+-			if (flush_va =3D=3D FLUSH_ALL)
++			if (flush_va =3D=3D TLB_FLUSH_ALL)
+ 				local_flush_tlb();
+ 			else
+ 				__flush_tlb_one(flush_va);
+@@ -353,9 +352,11 @@ out:
+ 	put_cpu_no_resched();
  }
  =
 
- void kunmap_atomic(void *kvaddr, enum km_type type)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/highmem.h
-+++ b/include/asm-i386/highmem.h
-@@ -24,6 +24,7 @@
- #include <linux/threads.h>
- #include <asm/kmap_types.h>
- #include <asm/tlbflush.h>
-+#include <asm/paravirt.h>
- =
-
- /* declarations for highmem.c */
- extern unsigned long highstart_pfn, highend_pfn;
-@@ -67,10 +68,20 @@ extern void FASTCALL(kunmap_high(struct =
-
- =
-
- void *kmap(struct page *page);
- void kunmap(struct page *page);
-+void *kmap_atomic_prot(struct page *page, enum km_type type, pgprot_t prot=
-);
- void *kmap_atomic(struct page *page, enum km_type type);
- void kunmap_atomic(void *kvaddr, enum km_type type);
- void *kmap_atomic_pfn(unsigned long pfn, enum km_type type);
- struct page *kmap_atomic_to_page(void *ptr);
-+
-+static inline void *native_kmap_atomic_pte(struct page *page, enum km_type=
- type)
+-static void flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
+-						unsigned long va)
+-{
++void native_flush_tlb_others(const cpumask_t *cpumaskp, struct mm_struct *=
+mm,
++			     unsigned long va)
 +{
-+	return kmap_atomic(page, type);
-+}
++	cpumask_t cpumask =3D *cpumaskp;
 +
-+#ifndef CONFIG_PARAVIRT
-+#define kmap_atomic_pte(page, type)	kmap_atomic(page, type)
-+#endif
+ 	/*
+ 	 * A couple of (to be removed) sanity checks:
+ 	 *
+@@ -417,7 +418,7 @@ void flush_tlb_current_task(void)
  =
 
- #define flush_cache_kmaps()	do { } while (0)
+ 	local_flush_tlb();
+ 	if (!cpus_empty(cpu_mask))
+-		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
++		flush_tlb_others(cpu_mask, mm, TLB_FLUSH_ALL);
+ 	preempt_enable();
+ }
  =
 
+@@ -436,7 +437,7 @@ void flush_tlb_mm (struct mm_struct * mm
+ 			leave_mm(smp_processor_id());
+ 	}
+ 	if (!cpus_empty(cpu_mask))
+-		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
++		flush_tlb_others(cpu_mask, mm, TLB_FLUSH_ALL);
+ =
+
+ 	preempt_enable();
+ }
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -16,7 +16,9 @@
+@@ -15,6 +15,7 @@
+ =
+
  #ifndef __ASSEMBLY__
  #include <linux/types.h>
- #include <linux/cpumask.h>
--
-+#include <asm/kmap_types.h>
-+
-+struct page;
++#include <linux/cpumask.h>
+ =
+
  struct thread_struct;
  struct Xgt_desc_struct;
- struct tss_struct;
-@@ -143,6 +145,8 @@ struct paravirt_ops
- 	void (*pte_update_defer)(struct mm_struct *mm, unsigned long addr, pte_t =
-*ptep);
+@@ -125,6 +126,8 @@ struct paravirt_ops
+ 	void (*flush_tlb_user)(void);
+ 	void (*flush_tlb_kernel)(void);
+ 	void (*flush_tlb_single)(unsigned long addr);
++	void (*flush_tlb_others)(const cpumask_t *cpus, struct mm_struct *mm,
++				 unsigned long va);
  =
 
-  	pte_t (*ptep_get_and_clear)(pte_t *ptep);
-+
-+	void *(*kmap_atomic_pte)(struct page *page, enum km_type type);
+ 	void (*map_pt_hook)(int type, pte_t *va, u32 pfn);
  =
 
- #ifdef CONFIG_X86_PAE
- 	void (*set_pte_atomic)(pte_t *ptep, pte_t pteval);
-@@ -768,6 +772,13 @@ static inline void paravirt_release_pd(u
- 	PVOP_VCALL1(release_pd, pfn);
+@@ -731,6 +734,12 @@ static inline void __flush_tlb_single(un
+ 	PVOP_VCALL1(flush_tlb_single, addr);
  }
  =
 
-+static inline void *kmap_atomic_pte(struct page *page, enum km_type type)
++static inline void flush_tlb_others(cpumask_t cpumask, struct mm_struct *m=
+m,
++				    unsigned long va)
 +{
-+	unsigned long ret;
-+	ret =3D PVOP_CALL2(unsigned long, kmap_atomic_pte, page, type);
-+	return (void *)ret;
++	PVOP_VCALL3(flush_tlb_others, &cpumask, mm, va);
 +}
 +
- static inline void pte_update(struct mm_struct *mm, unsigned long addr,
- 			      pte_t *ptep)
+ static inline void paravirt_map_pt_hook(int type, pte_t *va, u32 pfn)
  {
+ 	PVOP_VCALL3(map_pt_hook, type, va, pfn);
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -481,9 +481,9 @@ extern pte_t *lookup_address(unsigned lo
- =
-
- #if defined(CONFIG_HIGHPTE)
- #define pte_offset_map(dir, address) \
--	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
-+	((pte_t *)kmap_atomic_pte(pmd_page(*(dir)),KM_PTE0) + pte_index(address))
- #define pte_offset_map_nested(dir, address) \
--	((pte_t *)kmap_atomic(pmd_page(*(dir)),KM_PTE1) + pte_index(address))
-+	((pte_t *)kmap_atomic_pte(pmd_page(*(dir)),KM_PTE1) + pte_index(address))
- #define pte_unmap(pte) kunmap_atomic(pte, KM_PTE0)
- #define pte_unmap_nested(pte) kunmap_atomic(pte, KM_PTE1)
- #else
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/highmem.h
-+++ b/include/linux/highmem.h
-@@ -27,6 +27,8 @@ unsigned int nr_free_highpages(void);
- unsigned int nr_free_highpages(void);
- extern unsigned long totalhigh_pages;
- =
-
-+void kmap_flush_unused(void);
+--- a/include/asm-i386/tlbflush.h
++++ b/include/asm-i386/tlbflush.h
+@@ -79,10 +79,14 @@
+  *  - flush_tlb_range(vma, start, end) flushes a range of pages
+  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
+  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
++ *  - flush_tlb_others(cpumask, mm, va) flushes a TLBs on other cpus
+  *
+  * ..but the i386 has somewhat limited tlb flushing capabilities,
+  * and page-granular flushes are available only on i486 and up.
+  */
 +
- #else /* CONFIG_HIGHMEM */
++#define TLB_FLUSH_ALL	0xffffffff
++
  =
 
- static inline unsigned int nr_free_highpages(void) { return 0; }
-@@ -44,9 +46,13 @@ static inline void *kmap(struct page *pa
+ #ifndef CONFIG_SMP
  =
 
- #define kmap_atomic(page, idx) \
- 	({ pagefault_disable(); page_address(page); })
-+#define kmap_atomic_prot(page, idx, prot)	kmap_atomic(page, idx)
+@@ -110,7 +114,12 @@ static inline void flush_tlb_range(struc
+ 		__flush_tlb();
+ }
+ =
+
+-#else
++static inline void native_flush_tlb_others(const cpumask_t *cpumask,
++					   struct mm_struct *mm, unsigned long va)
++{
++}
 +
- #define kunmap_atomic(addr, idx)	do { pagefault_enable(); } while (0)
- #define kmap_atomic_pfn(pfn, idx)	kmap_atomic(pfn_to_page(pfn), (idx))
- #define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
++#else  /* SMP */
+ =
+
+ #include <asm/smp.h>
+ =
+
+@@ -129,6 +138,9 @@ static inline void flush_tlb_range(struc
+ 	flush_tlb_mm(vma->vm_mm);
+ }
+ =
+
++void native_flush_tlb_others(const cpumask_t *cpumask, struct mm_struct *m=
+m,
++			     unsigned long va);
 +
-+#define kmap_flush_unused()	do {} while(0)
+ #define TLBSTATE_OK	1
+ #define TLBSTATE_LAZY	2
+ =
+
+@@ -139,8 +151,11 @@ struct tlb_state
+ 	char __cacheline_padding[L1_CACHE_BYTES-8];
+ };
+ DECLARE_PER_CPU(struct tlb_state, cpu_tlbstate);
++#endif	/* SMP */
+ =
+
+-
++#ifndef CONFIG_PARAVIRT
++#define flush_tlb_others(mask, mm, va)		\
++	native_flush_tlb_others(&mask, mm, va)
  #endif
  =
 
- #endif /* CONFIG_HIGHMEM */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/highmem.c
-+++ b/mm/highmem.c
-@@ -97,6 +97,15 @@ static void flush_all_zero_pkmaps(void)
- 		set_page_address(page, NULL);
- 	}
- 	flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
-+}
-+
-+/* Flush all unused kmap mappings in order to remove stray
-+   mappings. */
-+void kmap_flush_unused(void)
-+{
-+	spin_lock(&kmap_lock);
-+	flush_all_zero_pkmaps();
-+	spin_unlock(&kmap_lock);
- }
- =
-
- static inline unsigned long map_new_virtual(struct page *page)
+ #define flush_tlb_kernel_range(start, end) flush_tlb_all()
 
 -- =
