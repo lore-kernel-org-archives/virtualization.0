@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 2/6] Remove noreplacement option
-Date: Tue, 03 Apr 2007 18:06:57 -0700
-Message-ID: <20070404011453.344346341@goop.org>
+Subject: [patch 5/6] Allow boot-time disable of SMP altinstructions
+Date: Tue, 03 Apr 2007 18:07:00 -0700
+Message-ID: <20070404011453.778754570@goop.org>
 References: <20070404010655.400913479@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=remove-noreplacement.patch
+Content-Disposition: inline; filename=disable-smp-alternatives.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,121 +21,134 @@ To: Andi Kleen <ak@suse.de>
 Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-noreplacement is dangerous on modern systems because it will not replace the
-context switch FNSAVE with SSE aware FXSAVE. But other places in the kernel=
- still assume
-SSE and do FXSAVE and the CPU will then access FXSAVE information with
-FNSAVE and cause corruption.
+Add "noreplace-smp" to disable SMP instruction replacement.
 
-Easiest way to avoid this is to remove the option. It was mostly for parano=
-ia
-reasons anyways and alternative()s have been stable for some time.
-
-Thanks to Jeremy F. for reporting and helping debug it.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+ =
 
 ---
- Documentation/x86_64/boot-options.txt |    4 ----
- arch/i386/kernel/alternative.c        |   21 ++-------------------
- 2 files changed, 2 insertions(+), 23 deletions(-)
+ Documentation/kernel-parameters.txt |    6 ++++++
+ arch/i386/kernel/alternative.c      |   23 +++++++++++++++++++----
+ 2 files changed, 25 insertions(+), 4 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/Documentation/x86_64/boot-options.txt
-+++ b/Documentation/x86_64/boot-options.txt
-@@ -305,7 +305,3 @@ Debugging
- 			stuck (default)
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -1134,6 +1134,9 @@ and is between 256 and 4096 characters. =
+
+ 	nomca		[IA-64] Disable machine check abort handling
  =
 
- Miscellaneous
--
--  noreplacement  Don't replace instructions with more appropriate ones
--		 for the CPU. This may be useful on asymmetric MP systems
--		 where some CPUs have less capabilities than others.
+ 	nomce		[IA-32] Machine Check Exception
++
++	noreplace-smp	[IA-32,SMP] Don't replace SMP instructions
++			with UP alternatives
+ =
+
+ 	noresidual	[PPC] Don't use residual data on PReP machines.
+ =
+
+@@ -1540,6 +1543,9 @@ and is between 256 and 4096 characters. =
+
+ 	smart2=3D		[HW]
+ 			Format: <io1>[,<io2>[,...,<io8>]]
+ =
+
++	smp-alt-once	[IA-32,SMP] On a hotplug CPU system, only
++			attempt to substitute SMP alternatives once at boot.
++
+ 	snd-ad1816a=3D	[HW,ALSA]
+ =
+
+ 	snd-ad1848=3D	[HW,ALSA]
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/alternative.c
 +++ b/arch/i386/kernel/alternative.c
-@@ -5,15 +5,9 @@
+@@ -5,6 +5,7 @@
  #include <asm/alternative.h>
  #include <asm/sections.h>
  =
 
--static int no_replacement    =3D 0;
++static int noreplace_smp     =3D 0;
  static int smp_alt_once      =3D 0;
  static int debug_alternative =3D 0;
  =
 
--static int __init noreplacement_setup(char *s)
--{
--	no_replacement =3D 1;
--	return 1;
--}
- static int __init bootonly(char *str)
- {
+@@ -13,14 +14,22 @@ static int __init bootonly(char *str)
  	smp_alt_once =3D 1;
-@@ -25,7 +19,6 @@ static int __init debug_alt(char *str)
  	return 1;
  }
- =
-
--__setup("noreplacement", noreplacement_setup);
- __setup("smp-alt-boot", bootonly);
++__setup("smp-alt-boot", bootonly);
++
+ static int __init debug_alt(char *str)
+ {
+ 	debug_alternative =3D 1;
+ 	return 1;
+ }
+-
+-__setup("smp-alt-boot", bootonly);
  __setup("debug-alternative", debug_alt);
++
++static int __init setup_noreplace_smp(char *str)
++{
++	noreplace_smp =3D 1;
++	return 1;
++}
++__setup("noreplace-smp", setup_noreplace_smp);
++
  =
 
-@@ -252,9 +245,6 @@ void alternatives_smp_module_add(struct =
+ #define DPRINTK(fmt, args...) if (debug_alternative) \
+ 	printk(KERN_DEBUG fmt, args)
+@@ -185,6 +194,9 @@ static void alternatives_smp_unlock(u8 *
+ {
+ 	u8 **ptr;
+ =
 
++	if (noreplace_smp)
++		return;
++
+ 	for (ptr =3D start; ptr < end; ptr++) {
+ 		if (*ptr < text)
+ 			continue;
+@@ -218,6 +230,9 @@ void alternatives_smp_module_add(struct =
+
+ {
  	struct smp_alt_module *smp;
  	unsigned long flags;
++
++	if (noreplace_smp)
++		return;
  =
 
--	if (no_replacement)
--		return;
--
  	if (smp_alt_once) {
  		if (boot_cpu_has(X86_FEATURE_UP))
- 			alternatives_smp_unlock(locks, locks_end,
-@@ -289,7 +279,7 @@ void alternatives_smp_module_del(struct =
+@@ -253,7 +268,7 @@ void alternatives_smp_module_del(struct =
 
  	struct smp_alt_module *item;
  	unsigned long flags;
  =
 
--	if (no_replacement || smp_alt_once)
-+	if (smp_alt_once)
+-	if (smp_alt_once)
++	if (smp_alt_once || noreplace_smp)
  		return;
  =
 
  	spin_lock_irqsave(&smp_alt, flags);
-@@ -320,7 +310,7 @@ void alternatives_smp_switch(int smp)
+@@ -284,7 +299,7 @@ void alternatives_smp_switch(int smp)
  	return;
  #endif
  =
 
--	if (no_replacement || smp_alt_once)
-+	if (smp_alt_once)
+-	if (smp_alt_once)
++	if (noreplace_smp || smp_alt_once)
  		return;
  	BUG_ON(!smp && (num_online_cpus() > 1));
  =
 
-@@ -374,13 +364,6 @@ void __init alternative_instructions(voi
- void __init alternative_instructions(void)
- {
- 	unsigned long flags;
--	if (no_replacement) {
--		printk(KERN_INFO "(SMP-)alternatives turned off\n");
--		free_init_pages("SMP alternatives",
--				__pa_symbol(&__smp_alt_begin),
--				__pa_symbol(&__smp_alt_end));
--		return;
--	}
- =
-
- 	local_irq_save(flags);
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
 
 -- =
