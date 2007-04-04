@@ -1,14 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 10/20] Use patch site IDs computed from offset in paravirt_ops
-	structure
-Date: Wed, 04 Apr 2007 12:12:01 -0700
-Message-ID: <20070404191205.675093845@goop.org>
+Subject: [patch 05/20] Hooks to set up initial pagetable
+Date: Wed, 04 Apr 2007 12:11:56 -0700
+Message-ID: <20070404191205.188479055@goop.org>
 References: <20070404191151.009821039@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=paravirt-use-offset-site-ids.patch
+Content-Disposition: inline; filename=paravirt-memory-init.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,406 +18,395 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>, William Irwin <bill.irwin@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use patch type identifiers derived from the offset of the operation in
-the paravirt_ops structure.  This avoids having to maintain a separate
-enum for patch site types.
+This patch introduces paravirt_ops hooks to control how the kernel's
+initial pagetable is set up.
 
-Also, since the identifier is derived from the offset into
-paravirt_ops, the offset can be derived from the identifier.  This is
-used to remove replicated information in the various callsite macros,
-which has been a source of bugs in the past.
+In the case of a native boot, the very early bootstrap code creates a
+simple non-PAE pagetable to map the kernel and physical memory.  When
+the VM subsystem is initialized, it creates a proper pagetable which
+respects the PAE mode, large pages, etc.
 
-This patch also drops the fused save_fl+cli operation, which doesn't
-really add much and makes things more complex - specifically because
-it breaks the 1:1 relationship between identifiers and offsets.  If
-this operation turns out to be particularly beneficial, then the right
-answer is to define a new entrypoint for it.
+When booting under a hypervisor, there are many possibilities for what
+paging environment the hypervisor establishes for the guest kernel, so
+the constructon of the kernel's pagetable depends on the hypervisor.
+
+In the case of Xen, the hypervisor boots the kernel with a fully
+constructed pagetable, which is already using PAE if necessary.  Also,
+Xen requires particular care when constructing pagetables to make sure
+all pagetables are always mapped read-only.
+
+In order to make this easier, kernel's initial pagetable construction
+has been changed to only allocate and initialize a pagetable page if
+there's no page already present in the pagetable.  This allows the Xen
+paravirt backend to make a copy of the hypervisor-provided pagetable,
+allowing the kernel to establish any more mappings it needs while
+keeping the existing ones.
+
+A slightly subtle point which is worth highlighting here is that Xen
+requires all kernel mappings to share the same pte_t pages between all
+pagetables, so that updating a kernel page's mapping in one pagetable
+is reflected in all other pagetables.  This makes it possible to
+allocate a page and attach it to a pagetable without having to
+explicitly enumerate that page's mapping in all pagetables.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Zachary Amsden <zach@vmware.com>
+Acked-by: William Irwin <bill.irwin@oracle.com>
+Cc: Ingo Molnar <mingo@elte.hu>
 
 ---
- arch/i386/kernel/paravirt.c |   14 +--
- arch/i386/kernel/vmi.c      |   39 +--------
- include/asm-i386/paravirt.h |  179 ++++++++++++++++++++++-----------------=
+ arch/i386/kernel/paravirt.c |    3 =
+
+ arch/i386/mm/init.c         |  158 +++++++++++++++++++++++++++++----------=
 ----
- 3 files changed, 105 insertions(+), 127 deletions(-)
+ include/asm-i386/paravirt.h |   17 ++++
+ include/asm-i386/pgtable.h  |   16 ++++
+ 4 files changed, 142 insertions(+), 52 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/arch/i386/kernel/paravirt.c
 +++ b/arch/i386/kernel/paravirt.c
-@@ -58,7 +58,6 @@ DEF_NATIVE(sti, "sti");
- DEF_NATIVE(sti, "sti");
- DEF_NATIVE(popf, "push %eax; popf");
- DEF_NATIVE(pushf, "pushf; pop %eax");
--DEF_NATIVE(pushf_cli, "pushf; pop %eax; cli");
- DEF_NATIVE(iret, "iret");
- DEF_NATIVE(sti_sysexit, "sti; sysexit");
+@@ -476,6 +476,9 @@ struct paravirt_ops paravirt_ops =3D {
+ #endif
+ 	.set_lazy_mode =3D paravirt_nop,
  =
 
-@@ -66,13 +65,12 @@ static const struct native_insns
- {
- 	const char *start, *end;
- } native_insns[] =3D {
--	[PARAVIRT_IRQ_DISABLE] =3D { start_cli, end_cli },
--	[PARAVIRT_IRQ_ENABLE] =3D { start_sti, end_sti },
--	[PARAVIRT_RESTORE_FLAGS] =3D { start_popf, end_popf },
--	[PARAVIRT_SAVE_FLAGS] =3D { start_pushf, end_pushf },
--	[PARAVIRT_SAVE_FLAGS_IRQ_DISABLE] =3D { start_pushf_cli, end_pushf_cli },
--	[PARAVIRT_INTERRUPT_RETURN] =3D { start_iret, end_iret },
--	[PARAVIRT_STI_SYSEXIT] =3D { start_sti_sysexit, end_sti_sysexit },
-+	[PARAVIRT_PATCH(irq_disable)] =3D { start_cli, end_cli },
-+	[PARAVIRT_PATCH(irq_enable)] =3D { start_sti, end_sti },
-+	[PARAVIRT_PATCH(restore_fl)] =3D { start_popf, end_popf },
-+	[PARAVIRT_PATCH(save_fl)] =3D { start_pushf, end_pushf },
-+	[PARAVIRT_PATCH(iret)] =3D { start_iret, end_iret },
-+	[PARAVIRT_PATCH(irq_enable_sysexit)] =3D { start_sti_sysexit, end_sti_sys=
-exit },
- };
- =
-
- static unsigned native_patch(u8 type, u16 clobbers, void *insns, unsigned =
-len)
++	.pagetable_setup_start =3D native_pagetable_setup_start,
++	.pagetable_setup_done =3D native_pagetable_setup_done,
++
+ 	.flush_tlb_user =3D native_flush_tlb,
+ 	.flush_tlb_kernel =3D native_flush_tlb_global,
+ 	.flush_tlb_single =3D native_flush_tlb_single,
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/vmi.c
-+++ b/arch/i386/kernel/vmi.c
-@@ -78,11 +78,6 @@ static struct {
- #define MNEM_JMP  0xe9
- #define MNEM_RET  0xc3
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -42,6 +42,7 @@
+ #include <asm/tlb.h>
+ #include <asm/tlbflush.h>
+ #include <asm/sections.h>
++#include <asm/paravirt.h>
  =
 
--static char irq_save_disable_callout[] =3D {
--	MNEM_CALL, 0, 0, 0, 0,
--	MNEM_CALL, 0, 0, 0, 0,
--	MNEM_RET
--};
- #define IRQ_PATCH_INT_MASK 0
- #define IRQ_PATCH_DISABLE  5
+ unsigned int __VMALLOC_RESERVE =3D 128 << 20;
  =
 
-@@ -130,33 +125,17 @@ static unsigned vmi_patch(u8 type, u16 c
- static unsigned vmi_patch(u8 type, u16 clobbers, void *insns, unsigned len)
+@@ -62,6 +63,7 @@ static pmd_t * __init one_md_table_init(
+ 		=
+
+ #ifdef CONFIG_X86_PAE
+ 	pmd_table =3D (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++
+ 	paravirt_alloc_pd(__pa(pmd_table) >> PAGE_SHIFT);
+ 	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
+ 	pud =3D pud_offset(pgd, 0);
+@@ -83,12 +85,10 @@ static pte_t * __init one_page_table_ini
  {
- 	switch (type) {
--		case PARAVIRT_IRQ_DISABLE:
-+		case PARAVIRT_PATCH(irq_disable):
- 			return patch_internal(VMI_CALL_DisableInterrupts, len, insns);
--		case PARAVIRT_IRQ_ENABLE:
-+		case PARAVIRT_PATCH(irq_enable):
- 			return patch_internal(VMI_CALL_EnableInterrupts, len, insns);
--		case PARAVIRT_RESTORE_FLAGS:
-+		case PARAVIRT_PATCH(restore_fl):
- 			return patch_internal(VMI_CALL_SetInterruptMask, len, insns);
--		case PARAVIRT_SAVE_FLAGS:
-+		case PARAVIRT_PATCH(save_fl):
- 			return patch_internal(VMI_CALL_GetInterruptMask, len, insns);
--        	case PARAVIRT_SAVE_FLAGS_IRQ_DISABLE:
--			if (len >=3D 10) {
--				patch_internal(VMI_CALL_GetInterruptMask, len, insns);
--				patch_internal(VMI_CALL_DisableInterrupts, len-5, insns+5);
--				return 10;
--			} else {
--				/*
--				 * You bastards didn't leave enough room to
--				 * patch save_flags_irq_disable inline.  Patch
--				 * to a helper
--				 */
--				BUG_ON(len < 5);
--				*(char *)insns =3D MNEM_CALL;
--				patch_offset(insns, irq_save_disable_callout);
--				return 5;
--			}
--		case PARAVIRT_INTERRUPT_RETURN:
-+		case PARAVIRT_PATCH(iret):
- 			return patch_internal(VMI_CALL_IRET, len, insns);
--		case PARAVIRT_STI_SYSEXIT:
-+		case PARAVIRT_PATCH(irq_enable_sysexit):
- 			return patch_internal(VMI_CALL_SYSEXIT, len, insns);
- 		default:
- 			break;
-@@ -763,12 +742,6 @@ static inline int __init activate_vmi(vo
- 	para_fill(restore_fl, SetInterruptMask);
- 	para_fill(irq_disable, DisableInterrupts);
- 	para_fill(irq_enable, EnableInterrupts);
+ 	if (pmd_none(*pmd)) {
+ 		pte_t *page_table =3D (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++
+ 		paravirt_alloc_pt(__pa(page_table) >> PAGE_SHIFT);
+ 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+-		if (page_table !=3D pte_offset_kernel(pmd, 0))
+-			BUG();	=
+
 -
--	/* irq_save_disable !!! sheer pain */
--	patch_offset(&irq_save_disable_callout[IRQ_PATCH_INT_MASK],
--		     (char *)paravirt_ops.save_fl);
--	patch_offset(&irq_save_disable_callout[IRQ_PATCH_DISABLE],
--		     (char *)paravirt_ops.irq_disable);
+-		return page_table;
++		BUG_ON(page_table !=3D pte_offset_kernel(pmd, 0));
+ 	}
+ 	=
+
+ 	return pte_offset_kernel(pmd, 0);
+@@ -119,7 +119,7 @@ static void __init page_table_range_init
+ 	pgd =3D pgd_base + pgd_idx;
  =
 
- 	para_fill(wbinvd, WBINVD);
- 	para_fill(read_tsc, RDTSC);
+ 	for ( ; (pgd_idx < PTRS_PER_PGD) && (vaddr !=3D end); pgd++, pgd_idx++) {
+-		if (pgd_none(*pgd)) =
+
++		if (!(pgd_val(*pgd) & _PAGE_PRESENT))
+ 			one_md_table_init(pgd);
+ 		pud =3D pud_offset(pgd, vaddr);
+ 		pmd =3D pmd_offset(pud, vaddr);
+@@ -158,7 +158,11 @@ static void __init kernel_physical_mappi
+ 	pfn =3D 0;
+ =
+
+ 	for (; pgd_idx < PTRS_PER_PGD; pgd++, pgd_idx++) {
+-		pmd =3D one_md_table_init(pgd);
++		if (!(pgd_val(*pgd) & _PAGE_PRESENT))
++			pmd =3D one_md_table_init(pgd);
++		else
++			pmd =3D pmd_offset(pud_offset(pgd, PAGE_OFFSET), PAGE_OFFSET);
++
+ 		if (pfn >=3D max_low_pfn)
+ 			continue;
+ 		for (pmd_idx =3D 0; pmd_idx < PTRS_PER_PMD && pfn < max_low_pfn; pmd++, =
+pmd_idx++) {
+@@ -167,20 +171,26 @@ static void __init kernel_physical_mappi
+ 			/* Map with big pages if possible, otherwise create normal page tables.=
+ */
+ 			if (cpu_has_pse) {
+ 				unsigned int address2 =3D (pfn + PTRS_PER_PTE - 1) * PAGE_SIZE + PAGE_=
+OFFSET + PAGE_SIZE-1;
+-
+-				if (is_kernel_text(address) || is_kernel_text(address2))
+-					set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
+-				else
+-					set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
++				if (!pmd_present(*pmd)) {
++					if (is_kernel_text(address) || is_kernel_text(address2))
++						set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
++					else
++						set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
++				}
+ 				pfn +=3D PTRS_PER_PTE;
+ 			} else {
+ 				pte =3D one_page_table_init(pmd);
+ =
+
+-				for (pte_ofs =3D 0; pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn; pte++=
+, pfn++, pte_ofs++) {
+-						if (is_kernel_text(address))
+-							set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
+-						else
+-							set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
++				for (pte_ofs =3D 0;
++				     pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn;
++				     pte++, pfn++, pte_ofs++, address +=3D PAGE_SIZE) {
++					if (pte_present(*pte))
++						continue;
++
++					if (is_kernel_text(address))
++						set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
++					else
++						set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
+ 				}
+ 			}
+ 		}
+@@ -337,44 +347,36 @@ extern void __init remap_numa_kva(void);
+ #define remap_numa_kva() do {} while (0)
+ #endif
+ =
+
+-static void __init pagetable_init (void)
+-{
+-	unsigned long vaddr;
+-	pgd_t *pgd_base =3D swapper_pg_dir;
+-
++void __init native_pagetable_setup_start(pgd_t *base)
++{
+ #ifdef CONFIG_X86_PAE
+ 	int i;
+-	/* Init entries of the first-level page table to the zero page */
+-	for (i =3D 0; i < PTRS_PER_PGD; i++)
+-		set_pgd(pgd_base + i, __pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
++
++	/*
++	 * Init entries of the first-level page table to the
++	 * zero page, if they haven't already been set up.
++	 *
++	 * In a normal native boot, we'll be running on a
++	 * pagetable rooted in swapper_pg_dir, but not in PAE
++	 * mode, so this will end up clobbering the mappings
++	 * for the lower 24Mbytes of the address space,
++	 * without affecting the kernel address space.
++	 */
++	for (i =3D 0; i < USER_PTRS_PER_PGD; i++)
++		set_pgd(&base[i],
++			__pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
++
++	/* Make sure kernel address space is empty so that a pagetable
++	   will be allocated for it. */
++	memset(&base[USER_PTRS_PER_PGD], 0,
++	       KERNEL_PGD_PTRS * sizeof(pgd_t));
+ #else
+ 	paravirt_alloc_pd(__pa(swapper_pg_dir) >> PAGE_SHIFT);
+ #endif
+-
+-	/* Enable PSE if available */
+-	if (cpu_has_pse) {
+-		set_in_cr4(X86_CR4_PSE);
+-	}
+-
+-	/* Enable PGE if available */
+-	if (cpu_has_pge) {
+-		set_in_cr4(X86_CR4_PGE);
+-		__PAGE_KERNEL |=3D _PAGE_GLOBAL;
+-		__PAGE_KERNEL_EXEC |=3D _PAGE_GLOBAL;
+-	}
+-
+-	kernel_physical_mapping_init(pgd_base);
+-	remap_numa_kva();
+-
+-	/*
+-	 * Fixed mappings, only the page table structure has to be
+-	 * created - mappings will be set by set_fixmap():
+-	 */
+-	vaddr =3D __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
+-	page_table_range_init(vaddr, 0, pgd_base);
+-
+-	permanent_kmaps_init(pgd_base);
+-
++}
++
++void __init native_pagetable_setup_done(pgd_t *base)
++{
+ #ifdef CONFIG_X86_PAE
+ 	/*
+ 	 * Add low memory identity-mappings - SMP needs it when
+@@ -383,8 +385,62 @@ static void __init pagetable_init (void)
+ 	 * All user-space mappings are explicitly cleared after
+ 	 * SMP startup.
+ 	 */
+-	set_pgd(&pgd_base[0], pgd_base[USER_PTRS_PER_PGD]);
+-#endif
++	set_pgd(&base[0], base[USER_PTRS_PER_PGD]);
++#endif
++}
++
++/*
++ * Build a proper pagetable for the kernel mappings.  Up until this
++ * point, we've been running on some set of pagetables constructed by
++ * the boot process.
++ *
++ * If we're booting on native hardware, this will be a pagetable
++ * constructed in arch/i386/kernel/head.S, and not running in PAE mode
++ * (even if we'll end up running in PAE).  The root of the pagetable
++ * will be swapper_pg_dir.
++ *
++ * If we're booting paravirtualized under a hypervisor, then there are
++ * more options: we may already be running PAE, and the pagetable may
++ * or may not be based in swapper_pg_dir.  In any case,
++ * paravirt_pagetable_setup_start() will set up swapper_pg_dir
++ * appropriately for the rest of the initialization to work.
++ *
++ * In general, pagetable_init() assumes that the pagetable may already
++ * be partially populated, and so it avoids stomping on any existing
++ * mappings.
++ */
++static void __init pagetable_init (void)
++{
++	unsigned long vaddr, end;
++	pgd_t *pgd_base =3D swapper_pg_dir;
++
++	paravirt_pagetable_setup_start(pgd_base);
++
++	/* Enable PSE if available */
++	if (cpu_has_pse)
++		set_in_cr4(X86_CR4_PSE);
++
++	/* Enable PGE if available */
++	if (cpu_has_pge) {
++		set_in_cr4(X86_CR4_PGE);
++		__PAGE_KERNEL |=3D _PAGE_GLOBAL;
++		__PAGE_KERNEL_EXEC |=3D _PAGE_GLOBAL;
++	}
++
++	kernel_physical_mapping_init(pgd_base);
++	remap_numa_kva();
++
++	/*
++	 * Fixed mappings, only the page table structure has to be
++	 * created - mappings will be set by set_fixmap():
++	 */
++	vaddr =3D __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
++	end =3D (FIXADDR_TOP + PMD_SIZE - 1) & PMD_MASK;
++	page_table_range_init(vaddr, end, pgd_base);
++
++	permanent_kmaps_init(pgd_base);
++
++	paravirt_pagetable_setup_done(pgd_base);
+ }
+ =
+
+ #if defined(CONFIG_SOFTWARE_SUSPEND) || defined(CONFIG_ACPI_SLEEP)
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -4,18 +4,7 @@
+@@ -2,10 +2,11 @@
+ #define __ASM_PARAVIRT_H
+ /* Various instructions on x86 need to be replaced for
   * para-virtualization: those hooks are defined here. */
- =
-
- #ifdef CONFIG_PARAVIRT
--#include <linux/stringify.h>
++
++#ifdef CONFIG_PARAVIRT
+ #include <linux/stringify.h>
  #include <asm/page.h>
--
--/* These are the most performance critical ops, so we want to be able to p=
+ =
+
+-#ifdef CONFIG_PARAVIRT
+ /* These are the most performance critical ops, so we want to be able to p=
 atch
-- * callers */
--#define PARAVIRT_IRQ_DISABLE 0
--#define PARAVIRT_IRQ_ENABLE 1
--#define PARAVIRT_RESTORE_FLAGS 2
--#define PARAVIRT_SAVE_FLAGS 3
--#define PARAVIRT_SAVE_FLAGS_IRQ_DISABLE 4
--#define PARAVIRT_INTERRUPT_RETURN 5
--#define PARAVIRT_STI_SYSEXIT 6
- =
-
- /* Bitmask of what can be clobbered: usually at least eax. */
- #define CLBR_NONE 0x0
-@@ -191,6 +180,28 @@ struct paravirt_ops
- =
-
- extern struct paravirt_ops paravirt_ops;
- =
-
-+#define PARAVIRT_PATCH(x)					\
-+	(offsetof(struct paravirt_ops, x) / sizeof(void *))
+  * callers */
+ #define PARAVIRT_IRQ_DISABLE 0
+@@ -48,6 +49,9 @@ struct paravirt_ops
+ 	void (*arch_setup)(void);
+ 	char *(*memory_setup)(void);
+ 	void (*init_IRQ)(void);
 +
-+#define paravirt_type(type)					\
-+	[paravirt_typenum] "i" (PARAVIRT_PATCH(type))
-+#define paravirt_clobber(clobber)		\
-+	[paravirt_clobber] "i" (clobber)
-+
-+#define PARAVIRT_CALL	"call *paravirt_ops+%c[paravirt_typenum]*4;"
-+
-+#define _paravirt_alt(insn_string, type, clobber)	\
-+	"771:\n\t" insn_string "\n" "772:\n"		\
-+	".pushsection .parainstructions,\"a\"\n"	\
-+	"  .long 771b\n"				\
-+	"  .byte " type "\n"				\
-+	"  .byte 772b-771b\n"				\
-+	"  .short " clobber "\n"			\
-+	".popsection\n"
-+
-+#define paravirt_alt(insn_string)				\
-+	_paravirt_alt(insn_string, "%c[paravirt_typenum]", "%c[paravirt_clobber]")
-+
- #define paravirt_enabled() (paravirt_ops.paravirt_enabled)
++	void (*pagetable_setup_start)(pgd_t *pgd_base);
++	void (*pagetable_setup_done)(pgd_t *pgd_base);
  =
 
- static inline void load_esp0(struct tss_struct *tss,
-@@ -512,93 +523,89 @@ extern struct paravirt_patch_site __star
- extern struct paravirt_patch_site __start_parainstructions[],
- 	__stop_parainstructions[];
+ 	void (*banner)(void);
  =
 
--#define paravirt_alt(insn_string, typenum, clobber)	\
--	"771:\n\t" insn_string "\n" "772:\n"		\
--	".pushsection .parainstructions,\"a\"\n"	\
--	"  .long 771b\n"				\
--	"  .byte " __stringify(typenum) "\n"		\
--	"  .byte 772b-771b\n"				\
--	"  .short " __stringify(clobber) "\n"		\
--	".popsection"
--
- static inline unsigned long __raw_local_save_flags(void)
- {
- 	unsigned long f;
- =
-
--	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
--					   "call *%1;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_SAVE_FLAGS, CLBR_NONE)
--			     : "=3Da"(f): "m"(paravirt_ops.save_fl)
--			     : "memory", "cc");
-+	asm volatile(paravirt_alt("pushl %%ecx; pushl %%edx;"
-+				  PARAVIRT_CALL
-+				  "popl %%edx; popl %%ecx")
-+		     : "=3Da"(f)
-+		     : paravirt_type(save_fl),
-+		       paravirt_clobber(CLBR_NONE)
-+		     : "memory", "cc");
- 	return f;
+@@ -369,6 +373,17 @@ static inline void setup_secondary_clock
  }
+ #endif
  =
 
- static inline void raw_local_irq_restore(unsigned long f)
- {
--	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
--					   "call *%1;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_RESTORE_FLAGS, CLBR_EAX)
--			     : "=3Da"(f) : "m" (paravirt_ops.restore_fl), "0"(f)
--			     : "memory", "cc");
-+	asm volatile(paravirt_alt("pushl %%ecx; pushl %%edx;"
-+				  PARAVIRT_CALL
-+				  "popl %%edx; popl %%ecx")
-+		     : "=3Da"(f)
-+		     : "0"(f),
-+		       paravirt_type(restore_fl),
-+		       paravirt_clobber(CLBR_EAX)
-+		     : "memory", "cc");
- }
- =
-
- static inline void raw_local_irq_disable(void)
- {
--	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
--					   "call *%0;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_IRQ_DISABLE, CLBR_EAX)
--			     : : "m" (paravirt_ops.irq_disable)
--			     : "memory", "eax", "cc");
-+	asm volatile(paravirt_alt("pushl %%ecx; pushl %%edx;"
-+				  PARAVIRT_CALL
-+				  "popl %%edx; popl %%ecx")
-+		     :
-+		     : paravirt_type(irq_disable),
-+		       paravirt_clobber(CLBR_EAX)
-+		     : "memory", "eax", "cc");
- }
- =
-
- static inline void raw_local_irq_enable(void)
- {
--	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
--					   "call *%0;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_IRQ_ENABLE, CLBR_EAX)
--			     : : "m" (paravirt_ops.irq_enable)
--			     : "memory", "eax", "cc");
-+	asm volatile(paravirt_alt("pushl %%ecx; pushl %%edx;"
-+				  PARAVIRT_CALL
-+				  "popl %%edx; popl %%ecx")
-+		     :
-+		     : paravirt_type(irq_enable),
-+		       paravirt_clobber(CLBR_EAX)
-+		     : "memory", "eax", "cc");
- }
- =
-
- static inline unsigned long __raw_local_irq_save(void)
- {
- 	unsigned long f;
- =
-
--	__asm__ __volatile__(paravirt_alt( "pushl %%ecx; pushl %%edx;"
--					   "call *%1; pushl %%eax;"
--					   "call *%2; popl %%eax;"
--					   "popl %%edx; popl %%ecx",
--					  PARAVIRT_SAVE_FLAGS_IRQ_DISABLE,
--					  CLBR_NONE)
--			     : "=3Da"(f)
--			     : "m" (paravirt_ops.save_fl),
--			       "m" (paravirt_ops.irq_disable)
--			     : "memory", "cc");
-+	f =3D __raw_local_save_flags();
-+	raw_local_irq_disable();
- 	return f;
- }
- =
-
--#define CLI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
--		     "call *paravirt_ops+%c[irq_disable];"		\
--		     "popl %%edx; popl %%ecx",				\
--		     PARAVIRT_IRQ_DISABLE, CLBR_EAX)
--
--#define STI_STRING paravirt_alt("pushl %%ecx; pushl %%edx;"		\
--		     "call *paravirt_ops+%c[irq_enable];"		\
--		     "popl %%edx; popl %%ecx",				\
--		     PARAVIRT_IRQ_ENABLE, CLBR_EAX)
-+#define CLI_STRING							\
-+	_paravirt_alt("pushl %%ecx; pushl %%edx;"			\
-+		      "call *paravirt_ops+%c[paravirt_cli_type]*4;"	\
-+		      "popl %%edx; popl %%ecx",				\
-+		      "%c[paravirt_cli_type]", "%c[paravirt_clobber]")
++static inline void paravirt_pagetable_setup_start(pgd_t *base)
++{
++	if (paravirt_ops.pagetable_setup_start)
++		(*paravirt_ops.pagetable_setup_start)(base);
++}
 +
-+#define STI_STRING							\
-+	_paravirt_alt("pushl %%ecx; pushl %%edx;"			\
-+		      "call *paravirt_ops+%c[paravirt_sti_type]*4;"	\
-+		      "popl %%edx; popl %%ecx",				\
-+		      "%c[paravirt_sti_type]", "%c[paravirt_clobber]")
-+
- #define CLI_STI_CLOBBERS , "%eax"
--#define CLI_STI_INPUT_ARGS \
-+#define CLI_STI_INPUT_ARGS						\
- 	,								\
--	[irq_disable] "i" (offsetof(struct paravirt_ops, irq_disable)),	\
--	[irq_enable] "i" (offsetof(struct paravirt_ops, irq_enable))
-+	[paravirt_cli_type] "i" (PARAVIRT_PATCH(irq_disable)),		\
-+	[paravirt_sti_type] "i" (PARAVIRT_PATCH(irq_enable)),		\
-+	paravirt_clobber(CLBR_EAX)
-+
-+#undef PARAVIRT_CALL
++static inline void paravirt_pagetable_setup_done(pgd_t *base)
++{
++	if (paravirt_ops.pagetable_setup_done)
++		(*paravirt_ops.pagetable_setup_done)(base);
++}
  =
 
- #else  /* __ASSEMBLY__ */
+ #ifdef CONFIG_SMP
+ static inline void startup_ipi_hook(int phys_apicid, unsigned long start_e=
+ip,
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -512,6 +512,22 @@ do {									\
+  * tables contain all the necessary information.
+  */
+ #define update_mmu_cache(vma,address,pte) do { } while (0)
++
++void native_pagetable_setup_start(pgd_t *base);
++void native_pagetable_setup_done(pgd_t *base);
++
++#ifndef CONFIG_PARAVIRT
++static inline void paravirt_pagetable_setup_start(pgd_t *base)
++{
++	native_pagetable_setup_start(base);
++}
++
++static inline void paravirt_pagetable_setup_done(pgd_t *base)
++{
++	native_pagetable_setup_done(base);
++}
++#endif	/* !CONFIG_PARAVIRT */
++
+ #endif /* !__ASSEMBLY__ */
  =
 
--#define PARA_PATCH(ptype, clobbers, ops)	\
-+#define PARA_PATCH(off)	((off) / 4)
-+
-+#define PARA_SITE(ptype, clobbers, ops)		\
- 771:;						\
- 	ops;					\
- 772:;						\
-@@ -609,25 +616,25 @@ 772:;						\
- 	 .short clobbers;			\
- 	.popsection
- =
-
--#define INTERRUPT_RETURN				\
--	PARA_PATCH(PARAVIRT_INTERRUPT_RETURN, CLBR_ANY,	\
--	jmp *%cs:paravirt_ops+PARAVIRT_iret)
--
--#define DISABLE_INTERRUPTS(clobbers)			\
--	PARA_PATCH(PARAVIRT_IRQ_DISABLE, clobbers,	\
--	pushl %ecx; pushl %edx;				\
--	call *paravirt_ops+PARAVIRT_irq_disable;	\
--	popl %edx; popl %ecx)				\
--
--#define ENABLE_INTERRUPTS(clobbers)			\
--	PARA_PATCH(PARAVIRT_IRQ_ENABLE, clobbers,	\
--	pushl %ecx; pushl %edx;				\
--	call *%cs:paravirt_ops+PARAVIRT_irq_enable;	\
--	popl %edx; popl %ecx)
--
--#define ENABLE_INTERRUPTS_SYSEXIT			\
--	PARA_PATCH(PARAVIRT_STI_SYSEXIT, CLBR_ANY,	\
--	jmp *%cs:paravirt_ops+PARAVIRT_irq_enable_sysexit)
-+#define INTERRUPT_RETURN					\
-+	PARA_SITE(PARA_PATCH(PARAVIRT_iret), CLBR_ANY,		\
-+		  jmp *%cs:paravirt_ops+PARAVIRT_iret)
-+
-+#define DISABLE_INTERRUPTS(clobbers)					\
-+	PARA_SITE(PARA_PATCH(PARAVIRT_irq_disable), clobbers,		\
-+		  pushl %ecx; pushl %edx;				\
-+		  call *%cs:paravirt_ops+PARAVIRT_irq_disable;		\
-+		  popl %edx; popl %ecx)					\
-+
-+#define ENABLE_INTERRUPTS(clobbers)					\
-+	PARA_SITE(PARA_PATCH(PARAVIRT_irq_enable), clobbers,		\
-+		  pushl %ecx; pushl %edx;				\
-+		  call *%cs:paravirt_ops+PARAVIRT_irq_enable;		\
-+		  popl %edx; popl %ecx)
-+
-+#define ENABLE_INTERRUPTS_SYSEXIT					\
-+	PARA_SITE(PARA_PATCH(PARAVIRT_irq_enable_sysexit), CLBR_ANY,	\
-+		  jmp *%cs:paravirt_ops+PARAVIRT_irq_enable_sysexit)
- =
-
- #define GET_CR0_INTO_EAX			\
- 	call *paravirt_ops+PARAVIRT_read_cr0
+ #ifdef CONFIG_FLATMEM
 
 -- =
