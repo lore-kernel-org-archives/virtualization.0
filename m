@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 07/20] Allow paravirt backend to choose kernel PMD sharing
-Date: Wed, 04 Apr 2007 12:11:58 -0700
-Message-ID: <20070404191205.392155702@goop.org>
+Subject: [patch 13/20] Document asm-i386/paravirt.h
+Date: Wed, 04 Apr 2007 12:12:04 -0700
+Message-ID: <20070404191206.021209233@goop.org>
 References: <20070404191151.009821039@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=shared-kernel-pmd.patch
+Content-Disposition: inline; filename=paravirt-document-paravirt_ops.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,423 +18,324 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>, William Lee Irwin III <wli@holomorphy.com>, Christoph Lameter <clameter@sgi.com>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Normally when running in PAE mode, the 4th PMD maps the kernel address
-space, which can be shared among all processes (since they all need
-the same kernel mappings).
-
-Xen, however, does not allow guests to have the kernel pmd shared
-between page tables, so parameterize pgtable.c to allow both modes of
-operation.
-
-There are several side-effects of this.  One is that vmalloc will
-update the kernel address space mappings, and those updates need to be
-propagated into all processes if the kernel mappings are not
-intrinsically shared.  In the non-PAE case, this is done by
-maintaining a pgd_list of all processes; this list is used when all
-process pagetables must be updated.  pgd_list is threaded via
-otherwise unused entries in the page structure for the pgd, which
-means that the pgd must be page-sized for this to work.
-
-Normally the PAE pgd is only 4x64 byte entries large, but Xen requires
-the PAE pgd to page aligned anyway, so this patch forces the pgd to be
-page aligned+sized when the kernel pmd is unshared, to accomodate both
-these requirements.
-
-Also, since there may be several distinct kernel pmds (if the
-user/kernel split is below 3G), there's no point in allocating them
-from a slab cache; they're just allocated with get_free_page and
-initialized appropriately.  (Of course the could be cached if there is
-just a single kernel pmd - which is the default with a 3G user/kernel
-split - but it doesn't seem worthwhile to add yet another case into
-this code).
-
-[ Many thanks to wli for review comments. ]
+Clean things up, and broadly document:
+ - the paravirt_ops functions themselves
+ - the patching mechanism
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: William Lee Irwin III <wli@holomorphy.com>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Christoph Lameter <clameter@sgi.com>
-Acked-by: Ingo Molnar <mingo@elte.hu>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+ =
+
 ---
- arch/i386/kernel/paravirt.c            |    1 =
-
- arch/i386/mm/fault.c                   |    6 +-
- arch/i386/mm/init.c                    |   18 +++++-
- arch/i386/mm/pageattr.c                |    2 =
-
- arch/i386/mm/pgtable.c                 |   84 ++++++++++++++++++++++++++--=
+ include/asm-i386/paravirt.h |  140 +++++++++++++++++++++++++++++++++++++--=
 ----
- include/asm-i386/paravirt.h            |    1 =
+ 1 file changed, 123 insertions(+), 17 deletions(-)
 
- include/asm-i386/pgtable-2level-defs.h |    2 =
-
- include/asm-i386/pgtable-2level.h      |    2 =
-
- include/asm-i386/pgtable-3level-defs.h |    6 ++
- include/asm-i386/pgtable-3level.h      |    2 =
-
- include/asm-i386/pgtable.h             |    7 ++
- 11 files changed, 105 insertions(+), 26 deletions(-)
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/paravirt.c
-+++ b/arch/i386/kernel/paravirt.c
-@@ -604,6 +604,7 @@ struct paravirt_ops paravirt_ops =3D {
- 	.name =3D "bare hardware",
- 	.paravirt_enabled =3D 0,
- 	.kernel_rpl =3D 0,
-+	.shared_kernel_pmd =3D 1,	/* Only used when CONFIG_X86_PAE is set */
- =
-
-  	.patch =3D native_patch,
- 	.banner =3D default_banner,
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/fault.c
-+++ b/arch/i386/mm/fault.c
-@@ -588,8 +588,7 @@ do_sigbus:
- 	force_sig_info_fault(SIGBUS, BUS_ADRERR, address, tsk);
- }
- =
-
--#ifndef CONFIG_X86_PAE
--void vmalloc_sync_all(void)
-+void _vmalloc_sync_all(void)
- {
- 	/*
- 	 * Note that races in the updates of insync and start aren't
-@@ -600,6 +599,8 @@ void vmalloc_sync_all(void)
- 	static DECLARE_BITMAP(insync, PTRS_PER_PGD);
- 	static unsigned long start =3D TASK_SIZE;
- 	unsigned long address;
-+
-+	BUG_ON(SHARED_KERNEL_PMD);
- =
-
- 	BUILD_BUG_ON(TASK_SIZE & ~PGDIR_MASK);
- 	for (address =3D start; address >=3D TASK_SIZE; address +=3D PGDIR_SIZE) {
-@@ -623,4 +624,3 @@ void vmalloc_sync_all(void)
- 			start =3D address + PGDIR_SIZE;
- 	}
- }
--#endif
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/init.c
-+++ b/arch/i386/mm/init.c
-@@ -715,6 +715,8 @@ struct kmem_cache *pmd_cache;
- =
-
- void __init pgtable_cache_init(void)
- {
-+	size_t pgd_size =3D PTRS_PER_PGD*sizeof(pgd_t);
-+
- 	if (PTRS_PER_PMD > 1) {
- 		pmd_cache =3D kmem_cache_create("pmd",
- 					PTRS_PER_PMD*sizeof(pmd_t),
-@@ -724,13 +726,23 @@ void __init pgtable_cache_init(void)
- 					NULL);
- 		if (!pmd_cache)
- 			panic("pgtable_cache_init(): cannot create pmd cache");
-+
-+		if (!SHARED_KERNEL_PMD) {
-+			/* If we're in PAE mode and have a non-shared
-+			   kernel pmd, then the pgd size must be a
-+			   page size.  This is because the pgd_list
-+			   links through the page structure, so there
-+			   can only be one pgd per page for this to
-+			   work. */
-+			pgd_size =3D PAGE_SIZE;
-+		}
- 	}
- 	pgd_cache =3D kmem_cache_create("pgd",
--				PTRS_PER_PGD*sizeof(pgd_t),
--				PTRS_PER_PGD*sizeof(pgd_t),
-+				pgd_size,
-+				pgd_size,
- 				0,
- 				pgd_ctor,
--				PTRS_PER_PMD =3D=3D 1 ? pgd_dtor : NULL);
-+				(!SHARED_KERNEL_PMD) ? pgd_dtor : NULL);
- 	if (!pgd_cache)
- 		panic("pgtable_cache_init(): Cannot create pgd cache");
- }
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/pageattr.c
-+++ b/arch/i386/mm/pageattr.c
-@@ -91,7 +91,7 @@ static void set_pmd_pte(pte_t *kpte, uns
- 	unsigned long flags;
- =
-
- 	set_pte_atomic(kpte, pte); 	/* change init_mm */
--	if (PTRS_PER_PMD > 1)
-+	if (SHARED_KERNEL_PMD)
- 		return;
- =
-
- 	spin_lock_irqsave(&pgd_lock, flags);
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/mm/pgtable.c
-+++ b/arch/i386/mm/pgtable.c
-@@ -238,35 +238,56 @@ static inline void pgd_list_del(pgd_t *p
- 		set_page_private(next, (unsigned long)pprev);
- }
- =
-
-+#if (PTRS_PER_PMD =3D=3D 1)
-+/* Non-PAE pgd constructor */
- void pgd_ctor(void *pgd, struct kmem_cache *cache, unsigned long unused)
- {
- 	unsigned long flags;
- =
-
--	if (PTRS_PER_PMD =3D=3D 1) {
--		memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
--		spin_lock_irqsave(&pgd_lock, flags);
--	}
-+	/* !PAE, no pagetable sharing */
-+	memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
- =
-
- 	clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
- 			swapper_pg_dir + USER_PTRS_PER_PGD,
- 			KERNEL_PGD_PTRS);
- =
-
--	if (PTRS_PER_PMD > 1)
--		return;
-+	spin_lock_irqsave(&pgd_lock, flags);
- =
-
- 	/* must happen under lock */
- 	paravirt_alloc_pd_clone(__pa(pgd) >> PAGE_SHIFT,
--			__pa(swapper_pg_dir) >> PAGE_SHIFT,
--			USER_PTRS_PER_PGD, PTRS_PER_PGD - USER_PTRS_PER_PGD);
-+				__pa(swapper_pg_dir) >> PAGE_SHIFT,
-+				USER_PTRS_PER_PGD,
-+				KERNEL_PGD_PTRS);
- =
-
- 	pgd_list_add(pgd);
- 	spin_unlock_irqrestore(&pgd_lock, flags);
- }
--
--/* never called when PTRS_PER_PMD > 1 */
-+#else  /* PTRS_PER_PMD > 1 */
-+/* PAE pgd constructor */
-+void pgd_ctor(void *pgd, struct kmem_cache *cache, unsigned long unused)
-+{
-+	/* PAE, kernel PMD may be shared */
-+
-+	if (SHARED_KERNEL_PMD) {
-+		clone_pgd_range((pgd_t *)pgd + USER_PTRS_PER_PGD,
-+				swapper_pg_dir + USER_PTRS_PER_PGD,
-+				KERNEL_PGD_PTRS);
-+	} else {
-+		unsigned long flags;
-+
-+		memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
-+		spin_lock_irqsave(&pgd_lock, flags);
-+		pgd_list_add(pgd);
-+		spin_unlock_irqrestore(&pgd_lock, flags);
-+	}
-+}
-+#endif	/* PTRS_PER_PMD */
-+
- void pgd_dtor(void *pgd, struct kmem_cache *cache, unsigned long unused)
- {
- 	unsigned long flags; /* can be called from interrupt context */
-+
-+	BUG_ON(SHARED_KERNEL_PMD);
- =
-
- 	paravirt_release_pd(__pa(pgd) >> PAGE_SHIFT);
- 	spin_lock_irqsave(&pgd_lock, flags);
-@@ -274,6 +295,37 @@ void pgd_dtor(void *pgd, struct kmem_cac
- 	spin_unlock_irqrestore(&pgd_lock, flags);
- }
- =
-
-+#define UNSHARED_PTRS_PER_PGD				\
-+	(SHARED_KERNEL_PMD ? USER_PTRS_PER_PGD : PTRS_PER_PGD)
-+
-+/* If we allocate a pmd for part of the kernel address space, then
-+   make sure its initialized with the appropriate kernel mappings.
-+   Otherwise use a cached zeroed pmd.  */
-+static pmd_t *pmd_cache_alloc(int idx)
-+{
-+	pmd_t *pmd;
-+
-+	if (idx >=3D USER_PTRS_PER_PGD) {
-+		pmd =3D (pmd_t *)__get_free_page(GFP_KERNEL);
-+
-+		if (pmd)
-+			memcpy(pmd,
-+			       (void *)pgd_page_vaddr(swapper_pg_dir[idx]),
-+			       sizeof(pmd_t) * PTRS_PER_PMD);
-+	} else
-+		pmd =3D kmem_cache_alloc(pmd_cache, GFP_KERNEL);
-+
-+	return pmd;
-+}
-+
-+static void pmd_cache_free(pmd_t *pmd, int idx)
-+{
-+	if (idx >=3D USER_PTRS_PER_PGD)
-+		free_page((unsigned long)pmd);
-+	else
-+		kmem_cache_free(pmd_cache, pmd);
-+}
-+
- pgd_t *pgd_alloc(struct mm_struct *mm)
- {
- 	int i;
-@@ -282,10 +334,12 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
- 	if (PTRS_PER_PMD =3D=3D 1 || !pgd)
- 		return pgd;
- =
-
--	for (i =3D 0; i < USER_PTRS_PER_PGD; ++i) {
--		pmd_t *pmd =3D kmem_cache_alloc(pmd_cache, GFP_KERNEL);
-+ 	for (i =3D 0; i < UNSHARED_PTRS_PER_PGD; ++i) {
-+		pmd_t *pmd =3D pmd_cache_alloc(i);
-+
- 		if (!pmd)
- 			goto out_oom;
-+
- 		paravirt_alloc_pd(__pa(pmd) >> PAGE_SHIFT);
- 		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
- 	}
-@@ -296,7 +350,7 @@ out_oom:
- 		pgd_t pgdent =3D pgd[i];
- 		void* pmd =3D (void *)__va(pgd_val(pgdent)-1);
- 		paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
--		kmem_cache_free(pmd_cache, pmd);
-+		pmd_cache_free(pmd, i);
- 	}
- 	kmem_cache_free(pgd_cache, pgd);
- 	return NULL;
-@@ -308,11 +362,11 @@ void pgd_free(pgd_t *pgd)
- =
-
- 	/* in the PAE case user pgd entries are overwritten before usage */
- 	if (PTRS_PER_PMD > 1)
--		for (i =3D 0; i < USER_PTRS_PER_PGD; ++i) {
-+		for (i =3D 0; i < UNSHARED_PTRS_PER_PGD; ++i) {
- 			pgd_t pgdent =3D pgd[i];
- 			void* pmd =3D (void *)__va(pgd_val(pgdent)-1);
- 			paravirt_release_pd(__pa(pmd) >> PAGE_SHIFT);
--			kmem_cache_free(pmd_cache, pmd);
-+			pmd_cache_free(pmd, i);
- 		}
- 	/* in the non-PAE case, free_pgtables() clears user pgd entries */
- 	kmem_cache_free(pgd_cache, pgd);
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- a/include/asm-i386/paravirt.h
 +++ b/include/asm-i386/paravirt.h
-@@ -34,6 +34,7 @@ struct paravirt_ops
+@@ -21,6 +21,14 @@ struct tss_struct;
+ struct tss_struct;
+ struct mm_struct;
+ struct desc_struct;
++
++/* Lazy mode for batching updates / context switch */
++enum paravirt_lazy_mode {
++	PARAVIRT_LAZY_NONE =3D 0,
++	PARAVIRT_LAZY_MMU =3D 1,
++	PARAVIRT_LAZY_CPU =3D 2,
++};
++
  struct paravirt_ops
  {
  	unsigned int kernel_rpl;
-+	int shared_kernel_pmd;
-  	int paravirt_enabled;
- 	const char *name;
+@@ -37,22 +45,33 @@ struct paravirt_ops
+ 	 */
+ 	unsigned (*patch)(u8 type, u16 clobber, void *firstinsn, unsigned len);
  =
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable-2level-defs.h
-+++ b/include/asm-i386/pgtable-2level-defs.h
-@@ -1,5 +1,7 @@
- #ifndef _I386_PGTABLE_2LEVEL_DEFS_H
- #define _I386_PGTABLE_2LEVEL_DEFS_H
-+
-+#define SHARED_KERNEL_PMD	0
- =
-
- /*
-  * traditional i386 two-level paging structure:
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable-2level.h
-+++ b/include/asm-i386/pgtable-2level.h
-@@ -65,6 +65,4 @@ static inline int pte_exec_kernel(pte_t =
-
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
- =
-
--void vmalloc_sync_all(void);
++	/* Basic arch-specific setup */
+ 	void (*arch_setup)(void);
+ 	char *(*memory_setup)(void);
+ 	void (*init_IRQ)(void);
 -
- #endif /* _I386_PGTABLE_2LEVEL_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable-3level-defs.h
-+++ b/include/asm-i386/pgtable-3level-defs.h
-@@ -1,5 +1,11 @@
- #ifndef _I386_PGTABLE_3LEVEL_DEFS_H
- #define _I386_PGTABLE_3LEVEL_DEFS_H
++	void (*time_init)(void);
 +
-+#ifdef CONFIG_PARAVIRT
-+#define SHARED_KERNEL_PMD	(paravirt_ops.shared_kernel_pmd)
-+#else
-+#define SHARED_KERNEL_PMD	1
-+#endif
++	/*
++	 * Called before/after init_mm pagetable setup. setup_start
++	 * may reset %cr3, and may pre-install parts of the pagetable;
++	 * pagetable setup is expected to preserve any existing
++	 * mapping.
++	 */
+ 	void (*pagetable_setup_start)(pgd_t *pgd_base);
+ 	void (*pagetable_setup_done)(pgd_t *pgd_base);
  =
 
- /*
-  * PGDIR_SHIFT determines what a top-level page table entry can map
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable-3level.h
-+++ b/include/asm-i386/pgtable-3level.h
-@@ -180,6 +180,4 @@ static inline pmd_t pfn_pmd(unsigned lon
++	/* Print a banner to identify the environment */
+ 	void (*banner)(void);
  =
 
- #define __pmd_free_tlb(tlb, x)		do { } while (0)
- =
-
--#define vmalloc_sync_all() ((void)0)
++	/* Set and set time of day */
+ 	unsigned long (*get_wallclock)(void);
+ 	int (*set_wallclock)(unsigned long);
+-	void (*time_init)(void);
 -
- #endif /* _I386_PGTABLE_3LEVEL_H */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -244,6 +244,13 @@ static inline pte_t pte_mkwrite(pte_t pt
- static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |=3D _PAGE_RW; =
-return pte; }
- static inline pte_t pte_mkhuge(pte_t pte)	{ (pte).pte_low |=3D _PAGE_PSE; =
-return pte; }
++
++	/* cpuid emulation, mostly so that caps bits can be disabled */
+ 	void (*cpuid)(unsigned int *eax, unsigned int *ebx,
+ 		      unsigned int *ecx, unsigned int *edx);
  =
 
-+extern void _vmalloc_sync_all(void);
-+static inline void vmalloc_sync_all(void)
-+{
-+	if (!SHARED_KERNEL_PMD)
-+		_vmalloc_sync_all();
-+}
++	/* hooks for various privileged instructions */
+ 	unsigned long (*get_debugreg)(int regno);
+ 	void (*set_debugreg)(int regno, unsigned long value);
+ =
+
+@@ -71,15 +90,23 @@ struct paravirt_ops
+ 	unsigned long (*read_cr4)(void);
+ 	void (*write_cr4)(unsigned long);
+ =
+
++	/*
++	 * Get/set interrupt state.  save_fl and restore_fl are only
++	 * expected to use X86_EFLAGS_IF; all other bits
++	 * returned from save_fl are undefined, and may be ignored by
++	 * restore_fl.
++	 */
+ 	unsigned long (*save_fl)(void);
+ 	void (*restore_fl)(unsigned long);
+ 	void (*irq_disable)(void);
+ 	void (*irq_enable)(void);
+ 	void (*safe_halt)(void);
+ 	void (*halt)(void);
 +
- #ifdef CONFIG_X86_PAE
- # include <asm/pgtable-3level.h>
- #else
+ 	void (*wbinvd)(void);
+ =
+
+-	/* err =3D 0/-EFAULT.  wrmsr returns 0/-EFAULT. */
++	/* MSR, PMC and TSR operations.
++	   err =3D 0/-EFAULT.  wrmsr returns 0/-EFAULT. */
+ 	u64 (*read_msr)(unsigned int msr, int *err);
+ 	int (*write_msr)(unsigned int msr, u64 val);
+ =
+
+@@ -88,6 +115,7 @@ struct paravirt_ops
+  	u64 (*get_scheduled_cycles)(void);
+ 	unsigned long (*get_cpu_khz)(void);
+ =
+
++	/* Segment descriptor handling */
+ 	void (*load_tr_desc)(void);
+ 	void (*load_gdt)(const struct Xgt_desc_struct *);
+ 	void (*load_idt)(const struct Xgt_desc_struct *);
+@@ -105,9 +133,12 @@ struct paravirt_ops
+ 	void (*load_esp0)(struct tss_struct *tss, struct thread_struct *t);
+ =
+
+ 	void (*set_iopl_mask)(unsigned mask);
+-
+ 	void (*io_delay)(void);
+ =
+
++	/*
++	 * Hooks for intercepting the creation/use/destruction of an
++	 * mm_struct.
++	 */
+ 	void (*activate_mm)(struct mm_struct *prev,
+ 			    struct mm_struct *next);
+ 	void (*dup_mmap)(struct mm_struct *oldmm,
+@@ -115,30 +146,43 @@ struct paravirt_ops
+ 	void (*exit_mmap)(struct mm_struct *mm);
+ =
+
+ #ifdef CONFIG_X86_LOCAL_APIC
++	/*
++	 * Direct APIC operations, principally for VMI.  Ideally
++	 * these shouldn't be in this interface.
++	 */
+ 	void (*apic_write)(unsigned long reg, unsigned long v);
+ 	void (*apic_write_atomic)(unsigned long reg, unsigned long v);
+ 	unsigned long (*apic_read)(unsigned long reg);
+ 	void (*setup_boot_clock)(void);
+ 	void (*setup_secondary_clock)(void);
++
++	void (*startup_ipi_hook)(int phys_apicid,
++				 unsigned long start_eip,
++				 unsigned long start_esp);
+ #endif
+ =
+
++	/* TLB operations */
+ 	void (*flush_tlb_user)(void);
+ 	void (*flush_tlb_kernel)(void);
+ 	void (*flush_tlb_single)(unsigned long addr);
+ =
+
+ 	void (*map_pt_hook)(int type, pte_t *va, u32 pfn);
+ =
+
++	/* Hooks for allocating/releasing pagetable pages */
+ 	void (*alloc_pt)(u32 pfn);
+ 	void (*alloc_pd)(u32 pfn);
+ 	void (*alloc_pd_clone)(u32 pfn, u32 clonepfn, u32 start, u32 count);
+ 	void (*release_pt)(u32 pfn);
+ 	void (*release_pd)(u32 pfn);
+ =
+
++	/* Pagetable manipulation functions */
+ 	void (*set_pte)(pte_t *ptep, pte_t pteval);
+-	void (*set_pte_at)(struct mm_struct *mm, unsigned long addr, pte_t *ptep,=
+ pte_t pteval);
++	void (*set_pte_at)(struct mm_struct *mm, unsigned long addr,
++			   pte_t *ptep, pte_t pteval);
+ 	void (*set_pmd)(pmd_t *pmdp, pmd_t pmdval);
+ 	void (*pte_update)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
+-	void (*pte_update_defer)(struct mm_struct *mm, unsigned long addr, pte_t =
+*ptep);
++	void (*pte_update_defer)(struct mm_struct *mm,
++				 unsigned long addr, pte_t *ptep);
+ =
+
+  	pte_t (*ptep_get_and_clear)(pte_t *ptep);
+ =
+
+@@ -164,13 +208,12 @@ struct paravirt_ops
+ 	pgd_t (*make_pgd)(unsigned long pgd);
+ #endif
+ =
+
+-	void (*set_lazy_mode)(int mode);
++	/* Set deferred update mode, used for batching operations. */
++	void (*set_lazy_mode)(enum paravirt_lazy_mode mode);
+ =
+
+ 	/* These two are jmp to, not actually called. */
+ 	void (*irq_enable_sysexit)(void);
+ 	void (*iret)(void);
+-
+-	void (*startup_ipi_hook)(int phys_apicid, unsigned long start_eip, unsign=
+ed long start_esp);
+ };
+ =
+
+ /* Mark a paravirt probe function. */
+@@ -188,8 +231,10 @@ extern struct paravirt_ops paravirt_ops;
+ #define paravirt_clobber(clobber)		\
+ 	[paravirt_clobber] "i" (clobber)
+ =
+
+-#define PARAVIRT_CALL	"call *(paravirt_ops+%c[paravirt_typenum]*4);"
+-
++/*
++ * Generate some code, and mark it as patchable by the
++ * apply_paravirt() alternate instruction patcher.
++ */
+ #define _paravirt_alt(insn_string, type, clobber)	\
+ 	"771:\n\t" insn_string "\n" "772:\n"		\
+ 	".pushsection .parainstructions,\"a\"\n"	\
+@@ -199,9 +244,74 @@ extern struct paravirt_ops paravirt_ops;
+ 	"  .short " clobber "\n"			\
+ 	".popsection\n"
+ =
+
++/* Generate patchable code, with the default asm parameters. */
+ #define paravirt_alt(insn_string)					\
+ 	_paravirt_alt(insn_string, "%c[paravirt_typenum]", "%c[paravirt_clobber]")
+ =
+
++/*
++ * This generates an indirect call based on the operation type number.
++ * The type number, computed in PARAVIRT_PATCH, is derived from the
++ * offset into the paravirt_ops structure, and can therefore be freely
++ * converted back into a structure offset.
++ */
++#define PARAVIRT_CALL	"call *(paravirt_ops+%c[paravirt_typenum]*4);"
++
++/*
++ * These macros are intended to wrap calls into a paravirt_ops
++ * operation, so that they can be later identified and patched at
++ * runtime.
++ *
++ * Normally, a call to a pv_op function is a simple indirect call:
++ * (paravirt_ops.operations)(args...).
++ *
++ * Unfortunately, this is a relatively slow operation for modern CPUs,
++ * because it cannot necessarily determine what the destination
++ * address is.  In this case, the address is a runtime constant, so at
++ * the very least we can patch the call to e a simple direct call, or
++ * ideally, patch an inline implementation into the callsite.  (Direct
++ * calls are essentially free, because the call and return addresses
++ * are completely predictable.)
++ *
++ * These macros rely on the standard gcc "regparm(3)" calling
++ * convention, in which the first three arguments are placed in %eax,
++ * %edx, %ecx (in that order), and the remaining arguments are placed
++ * on the stack.  All caller-save registers (eax,edx,ecx) are expected
++ * to be modified (either clobbered or used for return values).
++ *
++ * The call instruction itself is marked by placing its start address
++ * and size into the .parainstructions section, so that
++ * apply_paravirt() in arch/i386/kernel/alternative.c can do the
++ * appropriate patching under the control of the backend paravirt_ops
++ * implementation.
++ *
++ * Unfortunately there's no way to get gcc to generate the args setup
++ * for the call, and then allow the call itself to be generated by an
++ * inline asm.  Because of this, we must do the complete arg setup and
++ * return value handling from within these macros.  This is fairly
++ * cumbersome.
++ *
++ * There are 5 sets of PVOP_* macros for dealing with 0-4 arguments.
++ * It could be extended to more arguments, but there would be little
++ * to be gained from that.  For each number of arguments, there are
++ * the two VCALL and CALL variants for void and non-void functions.
++ *
++ * When there is a return value, the invoker of the macro must specify
++ * the return type.  The macro then uses sizeof() on that type to
++ * determine whether its a 32 or 64 bit value, and places the return
++ * in the right register(s) (just %eax for 32-bit, and %edx:%eax for
++ * 64-bit).
++ *
++ * 64-bit arguments are passed as a pair of adjacent 32-bit arguments
++ * in low,high order.
++ *
++ * Small structures are passed and returned in registers.  The macro
++ * calling convention can't directly deal with this, so the wrapper
++ * functions must do this.
++ *
++ * These PVOP_* macros are only defined within this header.  This
++ * means that all uses must be wrapped in inline functions.  This also
++ * makes sure the incoming and outgoing types are always correct.
++ */
+ #define PVOP_CALL0(__rettype, __op)					\
+ 	({								\
+ 		__rettype __ret;					\
+@@ -897,11 +1007,6 @@ static inline pte_t raw_ptep_get_and_cle
+ }
+ #endif	/* CONFIG_X86_PAE */
+ =
+
+-/* Lazy mode for batching updates / context switch */
+-#define PARAVIRT_LAZY_NONE 0
+-#define PARAVIRT_LAZY_MMU  1
+-#define PARAVIRT_LAZY_CPU  2
+-
+ #define  __HAVE_ARCH_ENTER_LAZY_CPU_MODE
+ static inline void arch_enter_lazy_cpu_mode(void)
+ {
+@@ -1012,6 +1117,7 @@ static inline unsigned long __raw_local_
+ 	[paravirt_sti_type] "i" (PARAVIRT_PATCH(irq_enable)),		\
+ 	paravirt_clobber(CLBR_EAX)
+ =
+
++/* Make sure as little as possible of this mess escapes. */
+ #undef PARAVIRT_CALL
+ #undef PVOP_VCALL0
+ #undef PVOP_CALL0
 
 -- =
