@@ -1,34 +1,24 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 04/17] Add pagetable accessors to pack and unpack pagetable
- entries
-Date: Wed, 04 Apr 2007 09:04:30 -0700
-Message-ID: <4613CC8E.7020202@goop.org>
-References: <20070402055652.610711908@goop.org> <200704041347.42822.ak@suse.de> <4613C828.2030604@goop.org> <200704041756.35016.ak@suse.de>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [patch 1/6] Re-enable VDSO by default with PARAVIRT
+Date: Wed, 4 Apr 2007 18:57:54 +0200
+Message-ID: <200704041857.54535.ak@suse.de>
+References: <20070404010655.400913479@goop.org> <20070404011453.193215073@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992980AbXDDQEs@vger.kernel.org>
-In-Reply-To: <200704041756.35016.ak@suse.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751292AbXDDQ6P@vger.kernel.org>
+In-Reply-To: <20070404011453.193215073@goop.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> I was talking about the patched case. It seemed to be a little slower
-> too, but in theory it shouldn't have been, no? 
+On Wednesday 04 April 2007 03:06:56 Jeremy Fitzhardinge wrote:
+> Everyone wants VDSO to be enabled by default.  COMPAT_VDSO still needs
+> a fix, but with luck that will turn up soon.
 
-Oh, the .25 vs .26?  That's definitely noise; on other runs I see no
-difference:
+Hmm, that would break at least my test system until Jan's patch is applied.
 
-paravirt, patched, busy machine
-ezr       Linux 2.6.21- 1000 0.25 0.52 31.3 34.4 12.7 1.02 5.44 743. 1578 4582
-ezr       Linux 2.6.21- 1000 0.25 0.53 31.4 34.2 12.1 1.02 5.27 736. 1594 4806
-ezr       Linux 2.6.21- 1000 0.25 0.52 31.5 34.4 14.3 1.02 5.49 736. 1587 4601
-
-(I didn't use this result because I did it on a fairly busy machine, but
-the best-case numbers are actually somewhat better than the run on a
-completely quiet machine.)
-
-
-    J
+-Andi
