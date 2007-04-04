@@ -1,14 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 4/6] Rename the parainstructions symbols to be consistent with
-	the others
-Date: Tue, 03 Apr 2007 18:06:59 -0700
-Message-ID: <20070404011453.598418421@goop.org>
+Subject: [patch 1/6] Re-enable VDSO by default with PARAVIRT
+Date: Tue, 03 Apr 2007 18:06:56 -0700
+Message-ID: <20070404011453.193215073@goop.org>
 References: <20070404010655.400913479@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=fix-parainstructions-name.patch
+Content-Disposition: inline; filename=paravirt-enable-vdso.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,108 +21,33 @@ To: Andi Kleen <ak@suse.de>
 Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The other symbols used to delineate the alt-instructions sections have
-the form __foo/__foo_end.  Rename parainstructions to match.
+Everyone wants VDSO to be enabled by default.  COMPAT_VDSO still needs
+a fix, but with luck that will turn up soon.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Andi Kleen <ak@suse.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
 
 ---
- arch/i386/kernel/alternative.c |    6 +++---
- arch/i386/kernel/vmi.c         |    6 +++---
- arch/i386/kernel/vmlinux.lds.S |    4 ++--
- include/asm-i386/alternative.h |    4 ++--
- 4 files changed, 10 insertions(+), 10 deletions(-)
+ arch/i386/kernel/sysenter.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/alternative.c
-+++ b/arch/i386/kernel/alternative.c
-@@ -327,8 +327,8 @@ void apply_paravirt(struct paravirt_patc
- 	/* Sync to be conservative, in case we patched following instructions */
- 	sync_core();
- }
--extern struct paravirt_patch __start_parainstructions[],
--	__stop_parainstructions[];
-+extern struct paravirt_patch __parainstructions[],
-+	__parainstructions_end[];
- #endif	/* CONFIG_PARAVIRT */
+--- a/arch/i386/kernel/sysenter.c
++++ b/arch/i386/kernel/sysenter.c
+@@ -27,11 +27,7 @@
+  * Should the kernel map a VDSO page into processes and pass its
+  * address down to glibc upon exec()?
+  */
+-#ifdef CONFIG_PARAVIRT
+-unsigned int __read_mostly vdso_enabled =3D 0;
+-#else
+ unsigned int __read_mostly vdso_enabled =3D 1;
+-#endif
  =
 
- void __init alternative_instructions(void)
-@@ -367,6 +367,6 @@ void __init alternative_instructions(voi
- 		alternatives_smp_switch(0);
- 	}
- #endif
-- 	apply_paravirt(__start_parainstructions, __stop_parainstructions);
-+ 	apply_paravirt(__parainstructions, __parainstructions_end);
- 	local_irq_restore(flags);
- }
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/vmi.c
-+++ b/arch/i386/kernel/vmi.c
-@@ -72,8 +72,8 @@ static struct {
- } vmi_ops;
+ EXPORT_SYMBOL_GPL(vdso_enabled);
  =
 
- /* XXX move this to alternative.h */
--extern struct paravirt_patch __start_parainstructions[],
--	__stop_parainstructions[];
-+extern struct paravirt_patch __parainstructions[],
-+	__parainstructions_end[];
- =
-
- /*
-  * VMI patching routines.
-@@ -917,7 +917,7 @@ static inline int __init activate_vmi(vo
- 	 * to do this before IRQs get reenabled.  Fortunately, it is
- 	 * idempotent.
- 	 */
--	apply_paravirt(__start_parainstructions, __stop_parainstructions);
-+	apply_paravirt(__parainstructions, __parainstructions_end);
- =
-
- 	vmi_bringup();
- =
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/vmlinux.lds.S
-+++ b/arch/i386/kernel/vmlinux.lds.S
-@@ -166,9 +166,9 @@ SECTIONS
-   }
-   . =3D ALIGN(4);
-   .parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
--  	__start_parainstructions =3D .;
-+  	__parainstructions =3D .;
- 	*(.parainstructions)
--  	__stop_parainstructions =3D .;
-+  	__parainstructions_end =3D .;
-   }
-   /* .exit.text is discard at runtime, not link time, to deal with referen=
-ces
-      from .altinstructions and .eh_frame */
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/asm-i386/alternative.h
-+++ b/include/asm-i386/alternative.h
-@@ -121,8 +121,8 @@ static inline void
- static inline void
- apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
- {}
--#define __start_parainstructions NULL
--#define __stop_parainstructions NULL
-+#define __parainstructions	NULL
-+#define __parainstructions_end	NULL
- #endif
- =
-
- #endif /* _I386_ALTERNATIVE_H */
 
 -- =
