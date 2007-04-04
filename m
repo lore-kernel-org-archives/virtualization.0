@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 20/20] Add apply_to_page_range() which applies a function to a
-	pte range.
-Date: Wed, 04 Apr 2007 12:12:11 -0700
-Message-ID: <20070404191206.675793431@goop.org>
+Subject: [patch 04/20] Add pagetable accessors to pack and unpack pagetable
+	entries
+Date: Wed, 04 Apr 2007 12:11:55 -0700
+Message-ID: <20070404191205.089202122@goop.org>
 References: <20070404191151.009821039@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=apply-to-page-range.patch
+Content-Disposition: inline; filename=paravirt-pte-accessors.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,162 +19,691 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Matt Mackall <mpm@waste.org>, Ingo Molnar <mingo@elte.hu>, Ian Pratt <ian.pratt@xensource.com>, Andrew Morton <akpm@linux-foundation.org>, Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new mm function apply_to_page_range() which applies a given
-function to every pte in a given virtual address range in a given mm
-structure. This is a generic alternative to cut-and-pasting the Linux
-idiomatic pagetable walking code in every place that a sequence of
-PTEs must be accessed.
+Add a set of accessors to pack, unpack and modify page table entries
+(at all levels).  This allows a paravirt implementation to control the
+contents of pgd/pmd/pte entries.  For example, Xen uses this to
+convert the (pseudo-)physical address into a machine address when
+populating a pagetable entry, and converting back to pphys address
+when an entry is read.
 
-Although this interface is intended to be useful in a wide range of
-situations, it is currently used specifically by several Xen
-subsystems, for example: to ensure that pagetables have been allocated
-for a virtual address range, and to construct batched special
-pagetable update requests to map I/O memory (in ioremap()).
-
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Christoph Lameter <clameter@sgi.com>
-Cc: Matt Mackall <mpm@waste.org>
-Acked-by: Ingo Molnar <mingo@elte.hu> =
-
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
 ---
- include/linux/mm.h |    5 ++
- mm/memory.c        |   94 ++++++++++++++++++++++++++++++++++++++++++++++++=
-++++
- 2 files changed, 99 insertions(+)
+ arch/i386/kernel/paravirt.c       |   84 +++++----------------------------=
+----
+ arch/i386/kernel/vmi.c            |    6 +-
+ include/asm-i386/page.h           |   79 +++++++++++++++++++++++++++++-----
+ include/asm-i386/paravirt.h       |   52 +++++++++++++++++-----
+ include/asm-i386/pgtable-2level.h |   28 +++++++++---
+ include/asm-i386/pgtable-3level.h |   65 +++++++++++++++++-----------
+ include/asm-i386/pgtable.h        |    2 =
+
+ 7 files changed, 186 insertions(+), 130 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1135,6 +1135,11 @@ struct page *follow_page(struct vm_area_
- #define FOLL_GET	0x04	/* do get_page on page */
- #define FOLL_ANON	0x08	/* give ZERO_PAGE if no pgtable */
- =
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -399,78 +399,6 @@ static void native_flush_tlb_single(u32 =
 
-+typedef int (*pte_fn_t)(pte_t *pte, struct page *pmd_page, unsigned long a=
-ddr,
-+			void *data);
-+extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
-+			       unsigned long size, pte_fn_t fn, void *data);
-+
- #ifdef CONFIG_PROC_FS
- void vm_stat_account(struct mm_struct *, unsigned long, struct file *, lon=
-g);
- #else
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1448,6 +1448,100 @@ int remap_pfn_range(struct vm_area_struc
+ {
+ 	__native_flush_tlb_single(addr);
  }
- EXPORT_SYMBOL(remap_pfn_range);
+-
+-#ifndef CONFIG_X86_PAE
+-static void native_set_pte(pte_t *ptep, pte_t pteval)
+-{
+-	*ptep =3D pteval;
+-}
+-
+-static void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep,=
+ pte_t pteval)
+-{
+-	*ptep =3D pteval;
+-}
+-
+-static void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
+-{
+-	*pmdp =3D pmdval;
+-}
+-
+-#else /* CONFIG_X86_PAE */
+-
+-static void native_set_pte(pte_t *ptep, pte_t pte)
+-{
+-	ptep->pte_high =3D pte.pte_high;
+-	smp_wmb();
+-	ptep->pte_low =3D pte.pte_low;
+-}
+-
+-static void native_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep,=
+ pte_t pte)
+-{
+-	ptep->pte_high =3D pte.pte_high;
+-	smp_wmb();
+-	ptep->pte_low =3D pte.pte_low;
+-}
+-
+-static void native_set_pte_present(struct mm_struct *mm, unsigned long add=
+r, pte_t *ptep, pte_t pte)
+-{
+-	ptep->pte_low =3D 0;
+-	smp_wmb();
+-	ptep->pte_high =3D pte.pte_high;
+-	smp_wmb();
+-	ptep->pte_low =3D pte.pte_low;
+-}
+-
+-static void native_set_pte_atomic(pte_t *ptep, pte_t pteval)
+-{
+-	set_64bit((unsigned long long *)ptep,pte_val(pteval));
+-}
+-
+-static void native_set_pmd(pmd_t *pmdp, pmd_t pmdval)
+-{
+-	set_64bit((unsigned long long *)pmdp,pmd_val(pmdval));
+-}
+-
+-static void native_set_pud(pud_t *pudp, pud_t pudval)
+-{
+-	*pudp =3D pudval;
+-}
+-
+-static void native_pte_clear(struct mm_struct *mm, unsigned long addr, pte=
+_t *ptep)
+-{
+-	ptep->pte_low =3D 0;
+-	smp_wmb();
+-	ptep->pte_high =3D 0;
+-}
+-
+-static void native_pmd_clear(pmd_t *pmd)
+-{
+-	u32 *tmp =3D (u32 *)pmd;
+-	*tmp =3D 0;
+-	smp_wmb();
+-	*(tmp + 1) =3D 0;
+-}
+-#endif /* CONFIG_X86_PAE */
  =
 
-+static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
+ /* These are in entry.S */
+ extern void native_iret(void);
+@@ -565,13 +493,25 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.set_pmd =3D native_set_pmd,
+ 	.pte_update =3D paravirt_nop,
+ 	.pte_update_defer =3D paravirt_nop,
++
++	.ptep_get_and_clear =3D native_ptep_get_and_clear,
++
+ #ifdef CONFIG_X86_PAE
+ 	.set_pte_atomic =3D native_set_pte_atomic,
+ 	.set_pte_present =3D native_set_pte_present,
+ 	.set_pud =3D native_set_pud,
+ 	.pte_clear =3D native_pte_clear,
+ 	.pmd_clear =3D native_pmd_clear,
++
++	.pmd_val =3D native_pmd_val,
++	.make_pmd =3D native_make_pmd,
+ #endif
++
++	.pte_val =3D native_pte_val,
++	.pgd_val =3D native_pgd_val,
++
++	.make_pte =3D native_make_pte,
++	.make_pgd =3D native_make_pgd,
+ =
+
+ 	.irq_enable_sysexit =3D native_irq_enable_sysexit,
+ 	.iret =3D native_iret,
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -444,13 +444,13 @@ static void vmi_release_pd(u32 pfn)
+         ((level) | (is_current_as(mm, user) ?                           \
+                 (VMI_PAGE_DEFER | VMI_PAGE_CURRENT_AS | ((addr) & VMI_PAGE=
+_VA_MASK)) : 0))
+ =
+
+-static void vmi_update_pte(struct mm_struct *mm, u32 addr, pte_t *ptep)
++static void vmi_update_pte(struct mm_struct *mm, unsigned long addr, pte_t=
+ *ptep)
+ {
+ 	vmi_check_page_type(__pa(ptep) >> PAGE_SHIFT, VMI_PAGE_PTE);
+ 	vmi_ops.update_pte(ptep, vmi_flags_addr(mm, addr, VMI_PAGE_PT, 0));
+ }
+ =
+
+-static void vmi_update_pte_defer(struct mm_struct *mm, u32 addr, pte_t *pt=
+ep)
++static void vmi_update_pte_defer(struct mm_struct *mm, unsigned long addr,=
+ pte_t *ptep)
+ {
+ 	vmi_check_page_type(__pa(ptep) >> PAGE_SHIFT, VMI_PAGE_PTE);
+ 	vmi_ops.update_pte(ptep, vmi_flags_addr_defer(mm, addr, VMI_PAGE_PT, 0));
+@@ -463,7 +463,7 @@ static void vmi_set_pte(pte_t *ptep, pte
+ 	vmi_ops.set_pte(pte, ptep, VMI_PAGE_PT);
+ }
+ =
+
+-static void vmi_set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep, pt=
+e_t pte)
++static void vmi_set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t=
+ *ptep, pte_t pte)
+ {
+ 	vmi_check_page_type(__pa(ptep) >> PAGE_SHIFT, VMI_PAGE_PTE);
+ 	vmi_ops.set_pte(pte, ptep, vmi_flags_addr(mm, addr, VMI_PAGE_PT, 0));
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/page.h
++++ b/include/asm-i386/page.h
+@@ -12,7 +12,6 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+ =
+
+-
+ #ifdef CONFIG_X86_USE_3DNOW
+ =
+
+ #include <asm/mmx.h>
+@@ -42,26 +41,81 @@
+  * These are used to make use of C type-checking..
+  */
+ extern int nx_enabled;
++
+ #ifdef CONFIG_X86_PAE
+ extern unsigned long long __supported_pte_mask;
+ typedef struct { unsigned long pte_low, pte_high; } pte_t;
+ typedef struct { unsigned long long pmd; } pmd_t;
+ typedef struct { unsigned long long pgd; } pgd_t;
+ typedef struct { unsigned long long pgprot; } pgprot_t;
+-#define pmd_val(x)	((x).pmd)
+-#define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
+-#define __pmd(x) ((pmd_t) { (x) } )
++
++static inline unsigned long long native_pgd_val(pgd_t pgd)
 +{
-+	pte_t *pte;
-+	int err;
-+	struct page *pmd_page;
-+	spinlock_t *ptl;
-+
-+	pte =3D (mm =3D=3D &init_mm) ?
-+		pte_alloc_kernel(pmd, addr) :
-+		pte_alloc_map_lock(mm, pmd, addr, &ptl);
-+	if (!pte)
-+		return -ENOMEM;
-+
-+	BUG_ON(pmd_huge(*pmd));
-+
-+	pmd_page =3D pmd_page(*pmd);
-+
-+	do {
-+		err =3D fn(pte, pmd_page, addr, data);
-+		if (err)
-+			break;
-+	} while (pte++, addr +=3D PAGE_SIZE, addr !=3D end);
-+
-+	if (mm !=3D &init_mm)
-+		pte_unmap_unlock(pte-1, ptl);
-+	return err;
++	return pgd.pgd;
 +}
 +
-+static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
++static inline unsigned long long native_pmd_val(pmd_t pmd)
 +{
-+	pmd_t *pmd;
-+	unsigned long next;
-+	int err;
-+
-+	pmd =3D pmd_alloc(mm, pud, addr);
-+	if (!pmd)
-+		return -ENOMEM;
-+	do {
-+		next =3D pmd_addr_end(addr, end);
-+		err =3D apply_to_pte_range(mm, pmd, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pmd++, addr =3D next, addr !=3D end);
-+	return err;
++	return pmd.pmd;
 +}
 +
-+static int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
++static inline unsigned long long native_pte_val(pte_t pte)
 +{
-+	pud_t *pud;
-+	unsigned long next;
-+	int err;
-+
-+	pud =3D pud_alloc(mm, pgd, addr);
-+	if (!pud)
-+		return -ENOMEM;
-+	do {
-+		next =3D pud_addr_end(addr, end);
-+		err =3D apply_to_pmd_range(mm, pud, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pud++, addr =3D next, addr !=3D end);
-+	return err;
++	return pte.pte_low | ((unsigned long long)pte.pte_high << 32);
 +}
 +
-+/*
-+ * Scan a region of virtual memory, filling in page tables as necessary
-+ * and calling a provided function on each leaf page table.
-+ */
-+int apply_to_page_range(struct mm_struct *mm, unsigned long addr,
-+			unsigned long size, pte_fn_t fn, void *data)
++static inline pgd_t native_make_pgd(unsigned long long val)
 +{
-+	pgd_t *pgd;
-+	unsigned long next;
-+	unsigned long end =3D addr + size;
-+	int err;
-+
-+	BUG_ON(addr >=3D end);
-+	pgd =3D pgd_offset(mm, addr);
-+	do {
-+		next =3D pgd_addr_end(addr, end);
-+		err =3D apply_to_pud_range(mm, pgd, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pgd++, addr =3D next, addr !=3D end);
-+	return err;
++	return (pgd_t) { val };
 +}
-+EXPORT_SYMBOL_GPL(apply_to_page_range);
 +
++static inline pmd_t native_make_pmd(unsigned long long val)
++{
++	return (pmd_t) { val };
++}
++
++static inline pte_t native_make_pte(unsigned long long val)
++{
++	return (pte_t) { .pte_low =3D val, .pte_high =3D (val >> 32) } ;
++}
++
++#ifndef CONFIG_PARAVIRT
++#define pmd_val(x)	native_pmd_val(x)
++#define __pmd(x)	native_make_pmd(x)
++#endif
++
+ #define HPAGE_SHIFT	21
+ #include <asm-generic/pgtable-nopud.h>
+-#else
++#else  /* !CONFIG_X86_PAE */
+ typedef struct { unsigned long pte_low; } pte_t;
+ typedef struct { unsigned long pgd; } pgd_t;
+ typedef struct { unsigned long pgprot; } pgprot_t;
+ #define boot_pte_t pte_t /* or would you rather have a typedef */
+-#define pte_val(x)	((x).pte_low)
++
++static inline unsigned long native_pgd_val(pgd_t pgd)
++{
++	return pgd.pgd;
++}
++
++static inline unsigned long native_pte_val(pte_t pte)
++{
++	return pte.pte_low;
++}
++
++static inline pgd_t native_make_pgd(unsigned long val)
++{
++	return (pgd_t) { val };
++}
++
++static inline pte_t native_make_pte(unsigned long val)
++{
++	return (pte_t) { .pte_low =3D val };
++}
++
+ #define HPAGE_SHIFT	22
+ #include <asm-generic/pgtable-nopmd.h>
+-#endif
++#endif	/* CONFIG_X86_PAE */
++
+ #define PTE_MASK	PAGE_MASK
+ =
+
+ #ifdef CONFIG_HUGETLB_PAGE
+@@ -71,12 +125,15 @@ typedef struct { unsigned long pgprot; }
+ #define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
+ #endif
+ =
+
+-#define pgd_val(x)	((x).pgd)
+ #define pgprot_val(x)	((x).pgprot)
+-
+-#define __pte(x) ((pte_t) { (x) } )
+-#define __pgd(x) ((pgd_t) { (x) } )
+ #define __pgprot(x)	((pgprot_t) { (x) } )
++
++#ifndef CONFIG_PARAVIRT
++#define pgd_val(x)	native_pgd_val(x)
++#define __pgd(x)	native_make_pgd(x)
++#define pte_val(x)	native_pte_val(x)
++#define __pte(x)	native_make_pte(x)
++#endif
+ =
+
+ #endif /* !__ASSEMBLY__ */
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -2,7 +2,6 @@
+ #define __ASM_PARAVIRT_H
+ /* Various instructions on x86 need to be replaced for
+  * para-virtualization: those hooks are defined here. */
+-#include <linux/linkage.h>
+ #include <linux/stringify.h>
+ #include <asm/page.h>
+ =
+
+@@ -25,6 +24,8 @@
+ #define CLBR_ANY 0x7
+ =
+
+ #ifndef __ASSEMBLY__
++#include <linux/types.h>
++
+ struct thread_struct;
+ struct Xgt_desc_struct;
+ struct tss_struct;
+@@ -53,11 +54,6 @@ struct paravirt_ops
+ 	unsigned long (*get_wallclock)(void);
+ 	int (*set_wallclock)(unsigned long);
+ 	void (*time_init)(void);
+-
+-	/* All the function pointers here are declared as "fastcall"
+-	   so that we get a specific register-based calling
+-	   convention.  This makes it easier to implement inline
+-	   assembler replacements. */
+ =
+
+ 	void (*cpuid)(unsigned int *eax, unsigned int *ebx,
+ 		      unsigned int *ecx, unsigned int *edx);
+@@ -139,16 +135,33 @@ struct paravirt_ops
+ 	void (*release_pd)(u32 pfn);
+ =
+
+ 	void (*set_pte)(pte_t *ptep, pte_t pteval);
+-	void (*set_pte_at)(struct mm_struct *mm, u32 addr, pte_t *ptep, pte_t pte=
+val);
++	void (*set_pte_at)(struct mm_struct *mm, unsigned long addr, pte_t *ptep,=
+ pte_t pteval);
+ 	void (*set_pmd)(pmd_t *pmdp, pmd_t pmdval);
+-	void (*pte_update)(struct mm_struct *mm, u32 addr, pte_t *ptep);
+-	void (*pte_update_defer)(struct mm_struct *mm, u32 addr, pte_t *ptep);
++	void (*pte_update)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
++	void (*pte_update_defer)(struct mm_struct *mm, unsigned long addr, pte_t =
+*ptep);
++
++ 	pte_t (*ptep_get_and_clear)(pte_t *ptep);
++
+ #ifdef CONFIG_X86_PAE
+ 	void (*set_pte_atomic)(pte_t *ptep, pte_t pteval);
+-	void (*set_pte_present)(struct mm_struct *mm, unsigned long addr, pte_t *=
+ptep, pte_t pte);
++ 	void (*set_pte_present)(struct mm_struct *mm, unsigned long addr, pte_t =
+*ptep, pte_t pte);
+ 	void (*set_pud)(pud_t *pudp, pud_t pudval);
+-	void (*pte_clear)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
++ 	void (*pte_clear)(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
+ 	void (*pmd_clear)(pmd_t *pmdp);
++
++	unsigned long long (*pte_val)(pte_t);
++	unsigned long long (*pmd_val)(pmd_t);
++	unsigned long long (*pgd_val)(pgd_t);
++
++	pte_t (*make_pte)(unsigned long long pte);
++	pmd_t (*make_pmd)(unsigned long long pmd);
++	pgd_t (*make_pgd)(unsigned long long pgd);
++#else
++	unsigned long (*pte_val)(pte_t);
++	unsigned long (*pgd_val)(pgd_t);
++
++	pte_t (*make_pte)(unsigned long pte);
++	pgd_t (*make_pgd)(unsigned long pgd);
+ #endif
+ =
+
+ 	void (*set_lazy_mode)(int mode);
+@@ -218,6 +231,8 @@ static inline void __cpuid(unsigned int =
+
+ #define read_cr4() paravirt_ops.read_cr4()
+ #define read_cr4_safe(x) paravirt_ops.read_cr4_safe()
+ #define write_cr4(x) paravirt_ops.write_cr4(x)
++
++#define raw_ptep_get_and_clear(xp)	(paravirt_ops.ptep_get_and_clear(xp))
+ =
+
+ static inline void raw_safe_halt(void)
+ {
+@@ -303,6 +318,17 @@ static inline void halt(void)
+ 	(paravirt_ops.write_idt_entry((dt), (entry), (low), (high)))
+ #define set_iopl_mask(mask) (paravirt_ops.set_iopl_mask(mask))
+ =
+
++#define __pte(x)	paravirt_ops.make_pte(x)
++#define __pgd(x)	paravirt_ops.make_pgd(x)
++
++#define pte_val(x)	paravirt_ops.pte_val(x)
++#define pgd_val(x)	paravirt_ops.pgd_val(x)
++
++#ifdef CONFIG_X86_PAE
++#define __pmd(x)	paravirt_ops.make_pmd(x)
++#define pmd_val(x)	paravirt_ops.pmd_val(x)
++#endif
++
+ /* The paravirtualized I/O functions */
+ static inline void slow_down_io(void) {
+ 	paravirt_ops.io_delay();
+@@ -343,6 +369,7 @@ static inline void setup_secondary_clock
+ }
+ #endif
+ =
+
++
+ #ifdef CONFIG_SMP
+ static inline void startup_ipi_hook(int phys_apicid, unsigned long start_e=
+ip,
+ 				    unsigned long start_esp)
+@@ -370,7 +397,8 @@ static inline void set_pte(pte_t *ptep, =
+
+ 	paravirt_ops.set_pte(ptep, pteval);
+ }
+ =
+
+-static inline void set_pte_at(struct mm_struct *mm, u32 addr, pte_t *ptep,=
+ pte_t pteval)
++static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
++			      pte_t *ptep, pte_t pteval)
+ {
+ 	paravirt_ops.set_pte_at(mm, addr, ptep, pteval);
+ }
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable-2level.h
++++ b/include/asm-i386/pgtable-2level.h
+@@ -11,11 +11,24 @@
+  * within a page table are directly modified.  Thus, the following
+  * hook is made available.
+  */
++static inline void native_set_pte(pte_t *ptep , pte_t pte)
++{
++	*ptep =3D pte;
++}
++static inline void native_set_pte_at(struct mm_struct *mm, unsigned long a=
+ddr,
++				     pte_t *ptep , pte_t pte)
++{
++	native_set_pte(ptep, pte);
++}
++static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
++{
++	*pmdp =3D pmd;
++}
+ #ifndef CONFIG_PARAVIRT
+-#define set_pte(pteptr, pteval) (*(pteptr) =3D pteval)
+-#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
+-#define set_pmd(pmdptr, pmdval) (*(pmdptr) =3D (pmdval))
+-#endif
++#define set_pte(pteptr, pteval)		native_set_pte(pteptr, pteval)
++#define set_pte_at(mm,addr,ptep,pteval) native_set_pte_at(mm, addr, ptep, =
+pteval)
++#define set_pmd(pmdptr, pmdval)		native_set_pmd(pmdptr, pmdval)
++#endif
+ =
+
+ #define set_pte_atomic(pteptr, pteval) set_pte(pteptr,pteval)
+ #define set_pte_present(mm,addr,ptep,pteval) set_pte_at(mm,addr,ptep,pteva=
+l)
+@@ -23,11 +36,14 @@
+ #define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } w=
+hile (0)
+ #define pmd_clear(xp)	do { set_pmd(xp, __pmd(0)); } while (0)
+ =
+
+-#define raw_ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
++static inline pte_t native_ptep_get_and_clear(pte_t *xp)
++{
++	return __pte(xchg(&xp->pte_low, 0));
++}
+ =
+
+ #define pte_page(x)		pfn_to_page(pte_pfn(x))
+ #define pte_none(x)		(!(x).pte_low)
+-#define pte_pfn(x)		((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
++#define pte_pfn(x)		(pte_val(x) >> PAGE_SHIFT)
+ #define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ #define pfn_pmd(pfn, prot)	__pmd(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable-3level.h
++++ b/include/asm-i386/pgtable-3level.h
+@@ -42,20 +42,23 @@ static inline int pte_exec_kernel(pte_t =
+
+ 	return pte_x(pte);
+ }
+ =
+
+-#ifndef CONFIG_PARAVIRT
+ /* Rules for using set_pte: the pte being assigned *must* be
+  * either not present or in a state where the hardware will
+  * not attempt to update the pte.  In places where this is
+  * not possible, use pte_get_and_clear to obtain the old pte
+  * value and then use set_pte to update it.  -ben
+  */
+-static inline void set_pte(pte_t *ptep, pte_t pte)
++static inline void native_set_pte(pte_t *ptep, pte_t pte)
+ {
+ 	ptep->pte_high =3D pte.pte_high;
+ 	smp_wmb();
+ 	ptep->pte_low =3D pte.pte_low;
+ }
+-#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
++static inline void native_set_pte_at(struct mm_struct *mm, unsigned long a=
+ddr,
++				     pte_t *ptep , pte_t pte)
++{
++	native_set_pte(ptep, pte);
++}
+ =
+
  /*
-  * handle_pte_fault chooses page fault handler according to an entry
-  * which was read non-atomically.  Before making any commitment, on
+  * Since this is only called on user PTEs, and the page fault handler
+@@ -63,7 +66,8 @@ static inline void set_pte(pte_t *ptep, =
+
+  * we are justified in merely clearing the PTE present bit, followed
+  * by a set.  The ordering here is important.
+  */
+-static inline void set_pte_present(struct mm_struct *mm, unsigned long add=
+r, pte_t *ptep, pte_t pte)
++static inline void native_set_pte_present(struct mm_struct *mm, unsigned l=
+ong addr,
++					  pte_t *ptep, pte_t pte)
+ {
+ 	ptep->pte_low =3D 0;
+ 	smp_wmb();
+@@ -72,33 +76,49 @@ static inline void set_pte_present(struc
+ 	ptep->pte_low =3D pte.pte_low;
+ }
+ =
+
+-#define set_pte_atomic(pteptr,pteval) \
+-		set_64bit((unsigned long long *)(pteptr),pte_val(pteval))
+-#define set_pmd(pmdptr,pmdval) \
+-		set_64bit((unsigned long long *)(pmdptr),pmd_val(pmdval))
+-#define set_pud(pudptr,pudval) \
+-		(*(pudptr) =3D (pudval))
++static inline void native_set_pte_atomic(pte_t *ptep, pte_t pte)
++{
++	set_64bit((unsigned long long *)(ptep),native_pte_val(pte));
++}
++static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
++{
++	set_64bit((unsigned long long *)(pmdp),native_pmd_val(pmd));
++}
++static inline void native_set_pud(pud_t *pudp, pud_t pud)
++{
++	*pudp =3D pud;
++}
+ =
+
+ /*
+  * For PTEs and PDEs, we must clear the P-bit first when clearing a page t=
+able
+  * entry, so clear the bottom half first and enforce ordering with a compi=
+ler
+  * barrier.
+  */
+-static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte=
+_t *ptep)
++static inline void native_pte_clear(struct mm_struct *mm, unsigned long ad=
+dr, pte_t *ptep)
+ {
+ 	ptep->pte_low =3D 0;
+ 	smp_wmb();
+ 	ptep->pte_high =3D 0;
+ }
+ =
+
+-static inline void pmd_clear(pmd_t *pmd)
++static inline void native_pmd_clear(pmd_t *pmd)
+ {
+ 	u32 *tmp =3D (u32 *)pmd;
+ 	*tmp =3D 0;
+ 	smp_wmb();
+ 	*(tmp + 1) =3D 0;
+ }
+-#endif
++
++#ifndef CONFIG_PARAVIRT
++#define set_pte(ptep, pte)			native_set_pte(ptep, pte)
++#define set_pte_at(mm, addr, ptep, pte)		native_set_pte_at(mm, addr, ptep,=
+ pte)
++#define set_pte_present(mm, addr, ptep, pte)	native_set_pte_present(mm, ad=
+dr, ptep, pte)
++#define set_pte_atomic(ptep, pte)		native_set_pte_atomic(ptep, pte)
++#define set_pmd(pmdp, pmd)			native_set_pmd(pmdp, pmd)
++#define set_pud(pudp, pud)			native_set_pud(pudp, pud)
++#define pte_clear(mm, addr, ptep)		native_pte_clear(mm, addr, ptep)
++#define pmd_clear(pmd)				native_pmd_clear(pmd)
++#endif
+ =
+
+ /*
+  * Pentium-II erratum A13: in PAE mode we explicitly have to flush
+@@ -119,7 +139,7 @@ static inline void pud_clear (pud_t * pu
+ #define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
+ 			pmd_index(address))
+ =
+
+-static inline pte_t raw_ptep_get_and_clear(pte_t *ptep)
++static inline pte_t native_ptep_get_and_clear(pte_t *ptep)
+ {
+ 	pte_t res;
+ =
+
+@@ -146,28 +166,21 @@ static inline int pte_none(pte_t pte)
+ =
+
+ static inline unsigned long pte_pfn(pte_t pte)
+ {
+-	return (pte.pte_low >> PAGE_SHIFT) |
+-		(pte.pte_high << (32 - PAGE_SHIFT));
++	return pte_val(pte) >> PAGE_SHIFT;
+ }
+ =
+
+ extern unsigned long long __supported_pte_mask;
+ =
+
+ static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
+ {
+-	pte_t pte;
+-
+-	pte.pte_high =3D (page_nr >> (32 - PAGE_SHIFT)) | \
+-					(pgprot_val(pgprot) >> 32);
+-	pte.pte_high &=3D (__supported_pte_mask >> 32);
+-	pte.pte_low =3D ((page_nr << PAGE_SHIFT) | pgprot_val(pgprot)) & \
+-							__supported_pte_mask;
+-	return pte;
++	return __pte((((unsigned long long)page_nr << PAGE_SHIFT) |
++		      pgprot_val(pgprot)) & __supported_pte_mask);
+ }
+ =
+
+ static inline pmd_t pfn_pmd(unsigned long page_nr, pgprot_t pgprot)
+ {
+-	return __pmd((((unsigned long long)page_nr << PAGE_SHIFT) | \
+-			pgprot_val(pgprot)) & __supported_pte_mask);
++	return __pmd((((unsigned long long)page_nr << PAGE_SHIFT) |
++		      pgprot_val(pgprot)) & __supported_pte_mask);
+ }
+ =
+
+ /*
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -264,6 +264,8 @@ static inline pte_t pte_mkhuge(pte_t pte
+ #define pte_update(mm, addr, ptep)		do { } while (0)
+ #define pte_update_defer(mm, addr, ptep)	do { } while (0)
+ #define paravirt_map_pt_hook(slot, va, pfn)	do { } while (0)
++
++#define raw_ptep_get_and_clear(xp)     native_ptep_get_and_clear(xp)
+ #endif
+ =
+
+ /*
 
 -- =
