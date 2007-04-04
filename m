@@ -1,40 +1,29 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: A set of "standard" virtual devices?
-Date: Wed, 04 Apr 2007 08:50:25 -0700
-Message-ID: <4613C941.6040706@zytor.com>
-References: <4611652F.700@zytor.com> <200704040049.13118.arnd@arndb.de> <4612F6E9.7040003@zytor.com> <200704041511.42543.arnd@arndb.de>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [patch 04/17] Add pagetable accessors to pack and unpack pagetable entries
+Date: Wed, 4 Apr 2007 17:56:34 +0200
+Message-ID: <200704041756.35016.ak@suse.de>
+References: <20070402055652.610711908@goop.org> <200704041347.42822.ak@suse.de> <4613C828.2030604@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933618AbXDDPvE@vger.kernel.org>
-In-Reply-To: <200704041511.42543.arnd@arndb.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992972AbXDDP4m@vger.kernel.org>
+In-Reply-To: <4613C828.2030604@goop.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mathiasen@gmail.com, virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Arnd Bergmann wrote:
+On Wednesday 04 April 2007 17:45:44 Jeremy Fitzhardinge wrote:
+> Andi Kleen wrote:
+> > Why is there a difference for null syscall? I had assumed we patched all the 
+> > fast path cases relevant there. Do you have an idea where it comes from?
 > 
->> That being said, on platforms which are PCI-centric, such as x86, this 
->> of course makes it a lot easier to produce virtual devices which work 
->> across hypervisors, since the device model, of *any* operating system is 
->> set up to handle them.
-> 
-> Yes, as I said there are two separate problems. I really think that
-> a standardized virtual driver interface should be modeled after
-> kernel <-> user interfaces, not hardware <-> kernel interfaces.
-> 
-> Once we know what operations we want (e.g. read, write and SIGIO,
-> or some other set of primitives), it will be good to provide a
-> virtual PCI device that can be used as one transport mechanism
-> below it. Using PCI device IDs to tell what functionality is
-> provided by the device would provide a reasonable method for
-> autoprobing.
-> 
+> Sure.  There's indirect calls for things like sti/cli/iret.  It goes
+> back to native speed when you patch the real instructions inline.
 
-That seems like a reasonable approach.  I *do* care about 
-hardware-equivalent interfaces, because they, too, keep getting 
-reinvented, but it seems reasonable to approach it in a layered fashion 
-like you describe.
+I was talking about the patched case. It seemed to be a little slower
+too, but in theory it shouldn't have been, no? 
 
-	-hpa
+-Andi
