@@ -1,24 +1,33 @@
-From: Andi Kleen <ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [patch 1/6] Re-enable VDSO by default with PARAVIRT
-Date: Wed, 4 Apr 2007 18:57:54 +0200
-Message-ID: <200704041857.54535.ak@suse.de>
-References: <20070404010655.400913479@goop.org> <20070404011453.193215073@goop.org>
+Date: Wed, 04 Apr 2007 10:12:44 -0700
+Message-ID: <4613DC8C.8020801@goop.org>
+References: <20070404010655.400913479@goop.org>
+	<20070404011453.193215073@goop.org> <200704041857.54535.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751292AbXDDQ6P@vger.kernel.org>
-In-Reply-To: <20070404011453.193215073@goop.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200704041857.54535.ak@suse.de>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 04 April 2007 03:06:56 Jeremy Fitzhardinge wrote:
-> Everyone wants VDSO to be enabled by default.  COMPAT_VDSO still needs
-> a fix, but with luck that will turn up soon.
+Andi Kleen wrote:
+> Hmm, that would break at least my test system until Jan's patch is applie=
+d.
+>   =
 
-Hmm, that would break at least my test system until Jan's patch is applied.
 
--Andi
+Boot with vdso=3D0?
+
+    J
