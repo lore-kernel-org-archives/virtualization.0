@@ -1,57 +1,45 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] lguest32 kallsyms backtrace of guest.
-Date: Wed, 04 Apr 2007 23:19:57 -0400
-Message-ID: <1175743197.9371.39.camel@localhost.localdomain>
-References: <1175711023.9371.21.camel@localhost.localdomain>
-	<1175741652.12230.620.camel@localhost.localdomain>
+Subject: Re: [PATCH] Lguest32, use guest page tables to find paddr for
+	emulated instructions
+Date: Wed, 04 Apr 2007 23:26:24 -0400
+Message-ID: <1175743584.9371.47.camel@localhost.localdomain>
+References: <1175713626.9371.28.camel@localhost.localdomain>
+	 <1175741976.12230.627.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1175741652.12230.620.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161120AbXDED0d@vger.kernel.org>
+In-Reply-To: <1175741976.12230.627.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Glauber de Oliveira Costa <glommer@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-04-05 at 12:54 +1000, Rusty Russell wrote:
+On Thu, 2007-04-05 at 12:59 +1000, Rusty Russell wrote:
+> On Wed, 2007-04-04 at 15:07 -0400, Steven Rostedt wrote:
 
-> =
+> Yeah, I haven't tried loading random modules but I can imagine this does
+> happen (what module was it, BTW?)
 
-> 	This is a cool idea, but there are two issues with this patch.  The
-> first is that it's 500 lines of code: that's around +10% on lguest's
-> total code size!  The second is that it conflicts with the medium-term
-> plan to allow any user to run up lguests: this is why lg.ko never
-> printk()s about problems with the guest.
+I have no idea of which module it crashed on. I didn't investigate that
+too much.  I could simply send a trap to guest when 
+__pa(addr) != lguest_find_guest_paddr(addr) and see which module it
+crashed on.
 
-Not much I can do about the size, but it's in the debug section so
-hopefully it's not considered too bad :)
+My block device I used was basically a copy of a RHEL5 system. I only
+modified the inittab and fstab to get it working.  So on startup and
+doing the udev init was when it crashed.
 
-> =
+> 
+> I used to have a function just like this, but managed to get rid of
+> it.  
+> 
+> Hmm, perhaps we should have an "int lgread_virt_byte(u8 *)" which does
+> the pgtable walk and read all in one?  It won't be efficient, but it'll
+> be more correct and maybe even fewer lines 8)
 
-> While it is useful for cases where a guest dies mysteriously before it
-> brings up the console, three alternatives come to mind:
-> =
+I forgot that you have a goal to keep lguest small :)
 
-> 1) Modify early_printk so Guests can use it.
-> 2) Have a separate tool(-set?) for this kind of post-mortem.  Then you
-> just have to implement guest suspend! 8)
-> 3) Put this in a CONFIG_LGUEST_DEBUG.
-> =
-
-> Note that options 1 or 2 make you do more work, but are probably better
-> in the long term.  I'm happy for #3 to sit as a patch in the tree for
-> the duration, tho!
-
-OK, I'll make a #3 patch to send, but the #1 looks best. Not to mention
-that I still need to make it so that the console can read it.
+Perhaps we can fork, and have lguest and lguest-lite.
 
 -- Steve
