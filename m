@@ -1,41 +1,40 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Lguest32 print hex on bad reads and writes
-Date: Wed, 04 Apr 2007 23:17:58 -0700
-Message-ID: <46149496.5050503@zytor.com>
-References: <1175714071.9371.31.camel@localhost.localdomain>	<1175742090.12230.630.camel@localhost.localdomain>	<72C854B9-1A7F-44C5-9D62-B6B63F3A6DE7@mac.com>	<1175742848.9371.33.camel@localhost.localdomain> <1175744057.12230.632.camel@localhost.localdomain> <46149000.40200@zytor.com>
+From: Roland McGrath <roland@redhat.com>
+Subject: Re: [patch 1/2] Relocate VDSO ELF headers to match mapped location
+	with COMPAT_VDSO
+Date: Wed,  4 Apr 2007 23:31:52 -0700 (PDT)
+Message-ID: <20070405063152.9227D180064@magilla.sf.frob.com>
+References: <20070405045843.333498131@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1945893AbXDEGST@vger.kernel.org>
-In-Reply-To: <46149000.40200@zytor.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kyle Moffett <mrmacman_g4@mac.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: Jeremy Fitzhardinge's message of  Wednesday,
+	4 April 2007 21:58:26 -0700 <20070405045843.333498131@goop.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Jan Beulich <JBeulich@novell.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-H. Peter Anvin wrote:
-> Rusty Russell wrote:
->> On Wed, 2007-04-04 at 23:14 -0400, Steven Rostedt wrote:
->>> On Wed, 2007-04-04 at 23:06 -0400, Kyle Moffett wrote:
->>>
->>>>> (Erk, I wonder what I was thinking when I wrote that?) Can I ask  
->>>>> for %#x (or 0x%x)?  I'm easily confused.
->>>> How about "%p" for pointers?
->>> But that would require casting the numbers to pointers.
->>
->> And the kernel's printk doesn't put 0x on pointers anyway, last I
->> checked 8(
->>
-> 
-> That's really the bug.  Let's fix it.
-> 
->     -hpa
+The patch looks nice and clean.  However, it does not relocate the symbol
+table(s) values.  I thought that was done in an earlier version of this I
+saw, but I might be misremembering.  Though not fatal, this is a regression
+from the previous CONFIG_COMPAT_VDSO behavior.  It will show up in things
+like __kernel_* name display in backtraces.  If with your other patch
+CONFIG_COMPAT_VDSO will become other than a rarely-used compatibility
+option, then this should be fixed.  Note that with your second patch this
+will also break the symbol values in the randomly-located vma vdso;
+non-ancient glibc doesn't care if the vdso isn't mapped where its phdrs
+say, but everything does still care that the symbol tables in an ELF file
+use addresses matching the phdrs in the same file.
 
-Okay, git tree at:
 
-http://git.kernel.org/?p=linux/kernel/git/hpa/linux-2.6-printk.git;a=summary
-git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-2.6-printk.git
-
-... will do actual testing and post it to LKML tomorrow.
-
-	-hpa
+Thanks,
+Roland
