@@ -1,55 +1,55 @@
-From: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [patch 1/2] Relocate VDSO ELF headers to match mapped
-	location with COMPAT_VDSO
-Date: Thu, 05 Apr 2007 08:10:40 +0100
-Message-ID: <4614BD10.76E4.0078.0@novell.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 1/2] Relocate VDSO ELF headers to match mapped	location
+	with COMPAT_VDSO
+Date: Thu, 05 Apr 2007 00:31:38 -0700
+Message-ID: <4614A5DA.9050700@goop.org>
 References: <20070405045825.511024444@goop.org>
- <20070405045843.333498131@goop.org>
+	<20070405045843.333498131@goop.org>
+	<4614BD10.76E4.0078.0@novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946015AbXDEHJz@vger.kernel.org>
-In-Reply-To: <20070405045843.333498131@goop.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, Roland McGrath <roland@redhat.com>, Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, "Eric W. Biederman" <ebiederm@xmission.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4614BD10.76E4.0078.0@novell.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jan Beulich <jbeulich@novell.com>
+Cc: virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>, Roland McGrath <roland@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->+static __cpuinit void reloc_dyn(Elf32_Ehdr *ehdr, unsigned offset)
->+{
->+	Elf32_Dyn *dyn = (void *)ehdr + offset;
->+
->+	for(; dyn->d_tag != DT_NULL; dyn++)
->+		switch(dyn->d_tag) {
->+		case DT_PLTGOT:
->+		case DT_HASH:
->+		case DT_STRTAB:
->+		case DT_SYMTAB:
->+		case DT_RELA:
->+		case DT_INIT:
->+		case DT_FINI:
->+		case DT_REL:
->+		case DT_JMPREL:
->+		case DT_VERSYM:
->+		case DT_VERDEF:
->+		case DT_VERNEED:
->+			dyn->d_un.d_val += VDSO_HIGH_BASE;
->+		}
->+}
+Jan Beulich wrote:
+> While there's a certain level of control on what DT_* may appear in the
+> vDSO, not even considering other than the above types seems fragile to
+> me. Since future additions to the set are supposedly following a fixed
+> scheme (distinguishing pointers and values via the low bit when below
+> OLD_DT_LOOS, and using sub-ranges when between DT_HIOS and
+> OLD_DT_HIOS), at least also handling those would seem like a good
+> idea, as would warning about unrecognized types.
+>   =
 
-While there's a certain level of control on what DT_* may appear in the
-vDSO, not even considering other than the above types seems fragile to
-me. Since future additions to the set are supposedly following a fixed
-scheme (distinguishing pointers and values via the low bit when below
-OLD_DT_LOOS, and using sub-ranges when between DT_HIOS and
-OLD_DT_HIOS), at least also handling those would seem like a good
-idea, as would warning about unrecognized types.
 
-Also, even though it shouldn't matter for the final result, if doing things
-spec-conforming here you should use d_un.d_ptr.
+I wasn't aware of this scheme.  Where is it documented?
 
-In addition to Roland's remarks about missing symbol table relocation, I
-would also assume section headers, if present, should be relocated.
+> Also, even though it shouldn't matter for the final result, if doing thin=
+gs
+> spec-conforming here you should use d_un.d_ptr.
+>   =
 
-Jan
+
+Yes, I've already fixed that.
+
+> In addition to Roland's remarks about missing symbol table relocation, I
+> would also assume section headers, if present, should be relocated.
+>   =
+
+
+Yes, I suppose that's easy enough to add.
+
+    J
