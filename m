@@ -1,55 +1,44 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 1/2] Relocate VDSO ELF headers to match mapped	location
-	with COMPAT_VDSO
-Date: Thu, 05 Apr 2007 00:31:38 -0700
-Message-ID: <4614A5DA.9050700@goop.org>
+From: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [patch 1/2] Relocate VDSO ELF headers to match mapped
+	location with COMPAT_VDSO
+Date: Thu, 05 Apr 2007 08:47:04 +0100
+Message-ID: <4614C598.76E4.0078.0@novell.com>
 References: <20070405045825.511024444@goop.org>
-	<20070405045843.333498131@goop.org>
-	<4614BD10.76E4.0078.0@novell.com>
+ <20070405045843.333498131@goop.org> <4614BD10.76E4.0078.0@novell.com>
+ <4614A5DA.9050700@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4614BD10.76E4.0078.0@novell.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <jbeulich@novell.com>
-Cc: virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>, Roland McGrath <roland@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1946049AbXDEHqO@vger.kernel.org>
+In-Reply-To: <4614A5DA.9050700@goop.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, Roland McGrath <roland@redhat.com>, Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, "Eric W. Biederman" <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jan Beulich wrote:
-> While there's a certain level of control on what DT_* may appear in the
-> vDSO, not even considering other than the above types seems fragile to
-> me. Since future additions to the set are supposedly following a fixed
-> scheme (distinguishing pointers and values via the low bit when below
-> OLD_DT_LOOS, and using sub-ranges when between DT_HIOS and
-> OLD_DT_HIOS), at least also handling those would seem like a good
-> idea, as would warning about unrecognized types.
->   =
+>>> Jeremy Fitzhardinge <jeremy@goop.org> 05.04.07 09:31 >>>
+>Jan Beulich wrote:
+>> While there's a certain level of control on what DT_* may appear in the
+>> vDSO, not even considering other than the above types seems fragile to
+>> me. Since future additions to the set are supposedly following a fixed
+>> scheme (distinguishing pointers and values via the low bit when below
+>> OLD_DT_LOOS, and using sub-ranges when between DT_HIOS and
+>> OLD_DT_HIOS), at least also handling those would seem like a good
+>> idea, as would warning about unrecognized types.
+>
+>I wasn't aware of this scheme.  Where is it documented?
 
+Regarding the low bit part, quoting from working gABI chapter 5: "To make
+it simpler for tools to interpret the contents of dynamic section entries, the
+value of each tag, except for those in two special compatibility ranges, will
+determine the interpretation of the d_un union. A tag whose value is an
+even number indicates a dynamic section entry that uses d_ptr. A tag
+whose value is an odd number indicates a dynamic section entry that uses
+d_val or that uses neither d_ptr nor d_val. Tags whose values are less
+than the special value DT_ENCODING and tags whose values fall between
+DT_HIOS and DT_LOPROC do not follow these rules."
 
-I wasn't aware of this scheme.  Where is it documented?
+Regarding the OS range, all I can point you to is binutils' include/elf/common.h.
 
-> Also, even though it shouldn't matter for the final result, if doing thin=
-gs
-> spec-conforming here you should use d_un.d_ptr.
->   =
-
-
-Yes, I've already fixed that.
-
-> In addition to Roland's remarks about missing symbol table relocation, I
-> would also assume section headers, if present, should be relocated.
->   =
-
-
-Yes, I suppose that's easy enough to add.
-
-    J
+Jan
