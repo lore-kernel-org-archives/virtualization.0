@@ -1,32 +1,52 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 07/20] Allow paravirt backend to choose kernel PMD sharing
-Date: Wed, 04 Apr 2007 17:43:13 -0700
-Message-ID: <46144621.20407@goop.org>
-References: <20070404191151.009821039@goop.org> <20070404191205.392155702@goop.org> <Pine.LNX.4.64.0704041729300.22161@schroedinger.engr.sgi.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: New CPUID/MSR driver; virtualization hooks
+Date: Wed, 04 Apr 2007 17:50:58 -0700
+Message-ID: <461447F2.9010807@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932386AbXDEAnl@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0704041729300.22161@schroedinger.engr.sgi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, William Lee Irwin III <wli@holomorphy.com>, Zachary Amsden <zach@vmware.com>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christoph Lameter wrote:
-> Acked-by: Christoph Lameter <clameter@sgi.com>
->
-> for all thats worth since I am not a i386 specialist.
->
-> How much of the issues with page struct sharing between slab and arch code 
-> does this address?
->   
+I have finally gotten off the pot and finished writing up my new =
 
-I haven't been following that thread as closely as I should be, so I
-don't have an answer.  I guess the interesting thing in this patch is
-that it only uses the pmd cache for usermode pmds (which are
-pre-zeroed), and normal page allocations for kernel pmds.  Also, if the
-kernel pmds are unshared, the pgds are page-sized, so its not really
-making good use of the pgd cache.
+CPUID/MSR driver, which contains support for registers that need =
 
-    J
+arbitrary GPRs touched.  For i386 vs x86-64 compatibility, both use an =
+
+x86-64 register image (16 64-bit register fields); this allows 32-bit =
+
+userspace to access the full 64-bit image if the kernel is 64 bits.
+
+Anyway, this presumably requires new paravirtualization hooks.  The =
+
+patch is at:
+
+http://www.kernel.org/pub/linux/kernel/people/hpa/new-cpuid-msr.patch
+
+... and a git tree is at ...
+
+http://git.kernel.org/?p=3Dlinux/kernel/git/hpa/linux-2.6-cpuidmsr.git;a=3D=
+summary
+
+I'm posting this here to give the paravirt maintainers an opportunity to =
+
+comment.  Presumably the functions that need to be paravirtualized are =
+
+the ones represented by the functions do_cpuid(), do_rdmsr() and =
+
+do_wrmsr(): they take a cpu number, an input register image, and an =
+
+output register image, and return either 0 or -EIO (in case of a trap.)
+
+	-hpa
