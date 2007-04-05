@@ -1,13 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Unified lguest launcher
-Date: Thu, 05 Apr 2007 12:44:42 +1000
-Message-ID: <1175741082.12230.610.camel@localhost.localdomain>
-References: <5d6222a80704040903n49442679p2a6841de69d894c2@mail.gmail.com>
+Subject: Re: [PATCH] lguest32 kallsyms backtrace of guest.
+Date: Thu, 05 Apr 2007 12:54:12 +1000
+Message-ID: <1175741652.12230.620.camel@localhost.localdomain>
+References: <1175711023.9371.21.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5d6222a80704040903n49442679p2a6841de69d894c2@mail.gmail.com>
+In-Reply-To: <1175711023.9371.21.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,99 +17,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <glommer@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
 Cc: virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-04-04 at 13:03 -0300, Glauber de Oliveira Costa wrote:
-> This is a new version of the unified lguest launcher that applies to
-> the current tree. According to rusty's suggestion, I'm bothering less
-> to be able to load 32 bit kernels on 64-bit machines: changing the
-> launcher for such case would be the easy part! In the absence of
-> further objections, I'll commit it.
+On Wed, 2007-04-04 at 14:23 -0400, Steven Rostedt wrote:
+> This is taken from the work I did on lguest64.
 > =
 
-> Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+> When killing a guest, we read the guest stack to do a nice back trace of
+> the guest and send it via printk to the host.
+> =
 
-Hi Glauber!
+> So instead of just getting an error message from the lguest launcher of:
+> =
 
-The patch looks more than reasonable, but I think we can go further with
-the abstraction.  If you could spin it again, I'll apply it.  There may
-be more cleanups after that, but I don't want to hold up your progress!
+> lguest: bad read address 537012178 len 1
+> =
 
-> --- /dev/null
-> +++ linux-2.6.20/Documentation/lguest/i386/defines
-> @@ -0,0 +1,4 @@
-> +# We rely on CONFIG_PAGE_OFFSET to know where to put lguest binary.
-> +# Some shells (dash - ubunu) can't handle numbers that big so we cheat.
-> +include ../../.config
-> +LGUEST_GUEST_TOP :=3D ($(CONFIG_PAGE_OFFSET) - 0x08000000)
+> I also get in my dmesg:
+> =
 
-The include needs another ../ and seems redundant (the .config is
-included from the Makefile anyway).
+> called from  [<c0405f30>] show_trace_log_lvl+0x1a/0x2f
 
-The shells comment is obsolete and should be deleted too, my bad.
+Hi Steven,
 
-> +++ linux-2.6.20/Documentation/lguest/i386/lguest_defs.h
-> @@ -0,0 +1,9 @@
-> +#ifndef _LGUEST_DEFS_H_
-> +#define _LGUEST_DEFS_H_
-> +
-> +/* LGUEST_TOP_ADDRESS comes from the Makefile */
-> +#define RESERVE_TOP_ADDRESS LGUEST_GUEST_TOP - 1024*1024
+	This is a cool idea, but there are two issues with this patch.  The
+first is that it's 500 lines of code: that's around +10% on lguest's
+total code size!  The second is that it conflicts with the medium-term
+plan to allow any user to run up lguests: this is why lg.ko never
+printk()s about problems with the guest.
 
-Why -1M?  And RESERVE_TOP_ADDRESS isn't used in this patch?
+While it is useful for cases where a guest dies mysteriously before it
+brings up the console, three alternatives come to mind:
 
-> +static unsigned long map_elf(int elf_fd, const void *hdr, =
+1) Modify early_printk so Guests can use it.
+2) Have a separate tool(-set?) for this kind of post-mortem.  Then you
+just have to implement guest suspend! 8)
+3) Put this in a CONFIG_LGUEST_DEBUG.
 
->                              unsigned long *page_offset)
->  {
-> -       void *addr;
-> +#ifndef __x86_64__
-> +       const Elf32_Ehdr *ehdr =3D hdr;
->         Elf32_Phdr phdr[ehdr->e_phnum];
-> +#else
-> +       const Elf64_Ehdr *ehdr =3D hdr;
-> +       Elf64_Phdr phdr[ehdr->e_phnum];
-> +#endif
+Note that options 1 or 2 make you do more work, but are probably better
+in the long term.  I'm happy for #3 to sit as a patch in the tree for
+the duration, tho!
 
-The way we did this in the module code was to define Elf_Ehdr etc in the
-arch-specific headers to avoid ifdefs.  I think it would help this code,
-too. =
-
-
-> +           || ((ehdr->e_machine !=3D EM_386) &&
-> +               (ehdr->e_machine !=3D EM_X86_64))
-
-Similarly define ELF_MACHINE?
-
->                else if (*page_offset !=3D phdr[i].p_vaddr - phdr[i].p_pad=
-dr)
-> +               else if ((*page_offset !=3D phdr[i].p_vaddr - phdr[i].p_p=
-addr)
-> +#ifdef __x86_64__
-> +                        && (phdr[i].p_vaddr !=3D VSYSCALL_START)
-> +#endif
-> +                       )
-
-Hmm, static inline bool is_vsyscall_segment(const Elf_Phdr *) maybe?
-
-> +/* LGUEST_TOP_ADDRESS comes from the Makefile */
-> +typedef uint64_t u64;
-> +#include "../../../include/asm/lguest_user.h"
-> +
-> +#define RESERVE_TOP_ADDRESS LGUEST_GUEST_TOP
-> +
-> +
-> +#define BOOT_PGTABLE "boot_level4_pgt"
-
-The comment should refer to LGUEST_GUEST_TOP?
-
-I think the typedef should be in the main code with the others: it
-doesn't hurt i386 and it's neater.
-
-I'm not sure the BOOT_PGTABLE define helps us here, either; it might be
-clearer just to put it directly into the code.
-
-Cheers!
+Cheers,
 Rusty.
