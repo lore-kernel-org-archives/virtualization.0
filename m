@@ -1,38 +1,26 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Lguest32, use guest page tables to find paddr for
-	emulated instructions
-Date: Thu, 05 Apr 2007 12:59:36 +1000
-Message-ID: <1175741976.12230.627.camel@localhost.localdomain>
-References: <1175713626.9371.28.camel@localhost.localdomain>
+Subject: Re: [PATCH] Lguest32 print hex on bad reads and writes
+Date: Thu, 05 Apr 2007 13:01:30 +1000
+Message-ID: <1175742090.12230.630.camel@localhost.localdomain>
+References: <1175714071.9371.31.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1160993AbXDEC7j@vger.kernel.org>
-In-Reply-To: <1175713626.9371.28.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161023AbXDEDBd@vger.kernel.org>
+In-Reply-To: <1175714071.9371.31.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Steven Rostedt <rostedt@goodmis.org>
-Cc: virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Glauber de Oliveira Costa <glommer@gmail.com>
+Cc: virtualization@lists.osdl.org, Glauber de Oliveira Costa <glommer@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-04-04 at 15:07 -0400, Steven Rostedt wrote:
-> [Bug that was found by my previous patch]
-> 
-> This patch allows things like modules, which don't have a direct
-> __pa(EIP) mapping to do emulated instructions.
-> 
-> Sure, the emulated instruction probably should be a paravirt_op, but
-> this patch lets you at least boot a kernel that has modules needing
-> emulated instructions.
+On Wed, 2007-04-04 at 15:14 -0400, Steven Rostedt wrote:
+> Currently the lguest32 error messages from bad reads and writes prints a
+> decimal integer for addresses. This is pretty annoying. So this patch
+> changes those to be hex outputs.
 
-Yeah, I haven't tried loading random modules but I can imagine this does
-happen (what module was it, BTW?)
+(Erk, I wonder what I was thinking when I wrote that?)
 
-I used to have a function just like this, but managed to get rid of
-it.  
+Can I ask for %#x (or 0x%x)?  I'm easily confused.
 
-Hmm, perhaps we should have an "int lgread_virt_byte(u8 *)" which does
-the pgtable walk and read all in one?  It won't be efficient, but it'll
-be more correct and maybe even fewer lines 8)
-
-Thanks for the patch!
+Thanks!
 Rusty.
