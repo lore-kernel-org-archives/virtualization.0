@@ -1,11 +1,14 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: New CPUID/MSR driver; virtualization hooks
-Date: Wed, 04 Apr 2007 17:50:58 -0700
-Message-ID: <461447F2.9010807@zytor.com>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: Re: New CPUID/MSR driver; virtualization hooks
+Date: Wed, 4 Apr 2007 18:16:40 -0700
+Message-ID: <20070405011640.GL19575@sequoia.sous-sol.org>
+References: <461447F2.9010807@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <461447F2.9010807@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,38 +18,80 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization Mailing List <virtualization@lists.osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I have finally gotten off the pot and finished writing up my new =
+* H. Peter Anvin (hpa@zytor.com) wrote:
+> I have finally gotten off the pot and finished writing up my new =
 
-CPUID/MSR driver, which contains support for registers that need =
+> CPUID/MSR driver, which contains support for registers that need =
 
-arbitrary GPRs touched.  For i386 vs x86-64 compatibility, both use an =
+> arbitrary GPRs touched.  For i386 vs x86-64 compatibility, both use an =
 
-x86-64 register image (16 64-bit register fields); this allows 32-bit =
+> x86-64 register image (16 64-bit register fields); this allows 32-bit =
 
-userspace to access the full 64-bit image if the kernel is 64 bits.
+> userspace to access the full 64-bit image if the kernel is 64 bits.
+> =
 
-Anyway, this presumably requires new paravirtualization hooks.  The =
+> Anyway, this presumably requires new paravirtualization hooks.  The =
 
-patch is at:
+> patch is at:
+> =
 
-http://www.kernel.org/pub/linux/kernel/people/hpa/new-cpuid-msr.patch
+> http://www.kernel.org/pub/linux/kernel/people/hpa/new-cpuid-msr.patch
 
-... and a git tree is at ...
+Not mirrored out yet
+> =
 
-http://git.kernel.org/?p=3Dlinux/kernel/git/hpa/linux-2.6-cpuidmsr.git;a=3D=
-summary
+> ... and a git tree is at ...
+> =
 
-I'm posting this here to give the paravirt maintainers an opportunity to =
+> http://git.kernel.org/?p=3Dlinux/kernel/git/hpa/linux-2.6-cpuidmsr.git;a=
+=3Dsummary
 
-comment.  Presumably the functions that need to be paravirtualized are =
+Bleah, and gitweb is unhappy ATM too.
 
-the ones represented by the functions do_cpuid(), do_rdmsr() and =
+> I'm posting this here to give the paravirt maintainers an opportunity to =
 
-do_wrmsr(): they take a cpu number, an input register image, and an =
+> comment.  Presumably the functions that need to be paravirtualized are =
 
-output register image, and return either 0 or -EIO (in case of a trap.)
+> the ones represented by the functions do_cpuid(), do_rdmsr() and =
 
-	-hpa
+> do_wrmsr(): they take a cpu number, an input register image, and an =
+
+> output register image, and return either 0 or -EIO (in case of a trap.)
+
+Yes, so currently cpuid, for example, is like this:
+
+do_cpuid
+  cpuid
+   __cpuid
+
+Where __cpuid is
+native_cpuid() on !CONFIG_PARAVIRT (include/asm-i386/processor.h)
+(and this is real asm("cpuid"))
+and
+paravirt_ops.cpuid() on CONFIG_PARAVIRT (
+
+Without having seen the patch yet, you'll need to make sure
+that the final point which is issuing asm("cpuid") is wrapped
+and split to CONFIG_PARAVIRT and non CONFIG_PARAVIRT modes.
+
+Similar for rdmsr:
+
+do_rdmsr
+  rdmsr_eio
+    rdmsr_safe
+
+Where rdmsr is paravirtualized
+rdmsr is asm("rdmsr") on !CONFIG_PARAVIRT (include/asm-i386/msr.h)
+and
+paravirt_ops.read_msr() on CONFIG_PARAVIRT (include/asm-i386/paravirt.h)
+
+Similar for do_wrmsr.
+
+Does that answer your question?
+
+thanks,
+-chris
