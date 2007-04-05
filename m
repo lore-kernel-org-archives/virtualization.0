@@ -1,16 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Lguest32 print hex on bad reads and writes
-Date: Thu, 05 Apr 2007 13:34:17 +1000
-Message-ID: <1175744057.12230.632.camel@localhost.localdomain>
-References: <1175714071.9371.31.camel@localhost.localdomain>
-	<1175742090.12230.630.camel@localhost.localdomain>
-	<72C854B9-1A7F-44C5-9D62-B6B63F3A6DE7@mac.com>
-	<1175742848.9371.33.camel@localhost.localdomain>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: New CPUID/MSR driver; virtualization hooks
+Date: Wed, 04 Apr 2007 22:00:45 -0700
+Message-ID: <4614827D.9090805@vmware.com>
+References: <461447F2.9010807@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1175742848.9371.33.camel@localhost.localdomain>
+In-Reply-To: <461447F2.9010807@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,25 +17,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kyle Moffett <mrmacman_g4@mac.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-04-04 at 23:14 -0400, Steven Rostedt wrote:
-> On Wed, 2007-04-04 at 23:06 -0400, Kyle Moffett wrote:
-> =
+H. Peter Anvin wrote:
+> I have finally gotten off the pot and finished writing up my new =
 
-> > > (Erk, I wonder what I was thinking when I wrote that?) Can I ask  =
+> CPUID/MSR driver, which contains support for registers that need =
 
-> > > for %#x (or 0x%x)?  I'm easily confused.
-> > =
+> arbitrary GPRs touched.  For i386 vs x86-64 compatibility, both use an =
 
-> > How about "%p" for pointers?
-> =
+> x86-64 register image (16 64-bit register fields); this allows 32-bit =
 
-> But that would require casting the numbers to pointers.
+> userspace to access the full 64-bit image if the kernel is 64 bits.
+>
+> Anyway, this presumably requires new paravirtualization hooks.  The =
 
-And the kernel's printk doesn't put 0x on pointers anyway, last I
-checked 8(
+> patch is at:
+>
+> http://www.kernel.org/pub/linux/kernel/people/hpa/new-cpuid-msr.patch
+>   =
 
-Rusty.
+The requested URL /pub/linux/kernel/people/hpa/new-cpuid-msr.patch was =
+
+not found on this server.
+
+> ... and a git tree is at ...
+>
+> http://git.kernel.org/?p=3Dlinux/kernel/git/hpa/linux-2.6-cpuidmsr.git;a=
+=3Dsummary
+>
+> I'm posting this here to give the paravirt maintainers an opportunity to =
+
+> comment.  Presumably the functions that need to be paravirtualized are =
+
+> the ones represented by the functions do_cpuid(), do_rdmsr() and
+>   =
+
+
+rdmsr / wrmsr can be dropped from paravirt-ops; at least for us (they =
+
+will trap and emulate just fine, and this driver is not performance =
+
+critical), and I think for the others as well.  CPUID, however, does =
+
+require a hook.
+
+Zach
