@@ -1,15 +1,11 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: New CPUID/MSR driver; virtualization hooks
-Date: Thu, 05 Apr 2007 14:09:37 -0700
-Message-ID: <46156591.8080802@vmware.com>
-References: <461447F2.9010807@zytor.com>	<20070405011640.GL19575@sequoia.sous-sol.org>
-	<46144FA6.1000802@zytor.com> <4614867C.4060506@vmware.com>
-	<461539DF.6010502@zytor.com>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH] Lguest launcher, child starving parent
+Date: Thu, 05 Apr 2007 16:40:20 -0400
+Message-ID: <1175805620.24675.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <461539DF.6010502@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,50 +15,85 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+To: virtualization@lists.osdl.org, Glauber de Oliveira Costa <glommer@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-H. Peter Anvin wrote:
->
-> This code is almost entirely identical to the setgpr_wrapper in the =
+Glauber noticed long delays between hitting a key, and seeing data come
+up on the virtual console.  Looking into this, I found that the
+wake_parent routine that reads from all devices was actually starving
+out the parent after sending the parent a signal to wake up.
 
-> patch (except for the fact that setgpr_wrapper sets and captures *ALL* =
+The thing is, the child which takes the console input is recognized by
+the scheduler as an interactive process.  The parent, doesn't do so
+much, so it is recognized more as a CPU hog. So the child easily gets a
+higher priority than the parent.
 
-> the GPRs), and it seems rather pointless to use another wrapper.  It =
+So when the child receives data from the console, it sends a signal to
+the parent and then does another select.  The problem is that the select
+doesn't actually read from the device, and will return immediately since
+their is still data pending until it is read.  But it's the parent that
+reads the data.  So the child actually starves the parent from reading
+the data by spinning and waiting for it to read the data.
 
-> takes a pointer to an entrypoint (default to "cpuid; ret" in the CPUID =
+The fix I implemented was to have the child wait for a response from the
+parent before going on. Since there was already communication between
+the parent and child via a pipe, I used that. This time, the data
+returned by the pipe is either everything went fine (fd =3D=3D -1) or the
+device should be ignored (fd >=3D 0).
 
-> case), so it should do what you need.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
- void (*cpuid)(unsigned int *eax, unsigned int *ebx, ...)
+Index: linux-2.6-lguest/Documentation/lguest/lguest.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6-lguest.orig/Documentation/lguest/lguest.c	2007-04-05 16:13:08=
+.000000000 -0400
++++ linux-2.6-lguest/Documentation/lguest/lguest.c	2007-04-05 16:16:31.0000=
+00000 -0400
+@@ -328,15 +328,15 @@ static void wake_parent(int pipefd, stru
+ =
 
-Not quite.  The paravirt_ops CPUID function is a C function which takes =
+ 	for (;;) {
+ 		fd_set rfds =3D devices->infds;
++		int ignorefd;
+ =
 
-pointers to each GPR as arguments, and returns the values through those =
+ 		select(devices->max_infd+1, &rfds, NULL, NULL, NULL);
+-		if (FD_ISSET(pipefd, &rfds)) {
+-			int ignorefd;
+-			if (read(pipefd, &ignorefd, sizeof(ignorefd)) =3D=3D 0)
+-				exit(0);
+-			FD_CLR(ignorefd, &devices->infds);
+-		}
+ 		kill(getppid(), SIGUSR1);
++		/* wait for parent response */
++		if (read(pipefd, &ignorefd, sizeof(ignorefd)) =3D=3D 0)
++			exit(0);
++		if (ignorefd >=3D 0)
++			FD_CLR(ignorefd, &devices->infds);
+ 	}
+ }
+ =
 
-pointers.  This doesn't allow for an entrypoint compatible with =
+@@ -594,6 +594,7 @@ static void handle_output(int fd, unsign
+ static void handle_input(int fd, int childfd, struct device_list *devices)
+ {
+ 	struct timeval poll =3D { .tv_sec =3D 0, .tv_usec =3D 0 };
++	int fdok =3D -1;
+ =
 
-setgpr_wrapper, which expects the same output in both the cpuid; ret =
-
-case and the paravirt-ops case.
-
-One could argue that the paravirt-ops CPUID should in fact emulate the =
-
-native instruction semantics, which would make it a non-C function.  =
-
-However, until that bridge is crossed, we would need another wrapper =
-
-after setgpr to convert the paravirt-ops CPUID back into the same format =
-
-as native so that setgpr_wrapper can properly store the output fields =
-
-into the common  i386/x86_64 structure.  What definitely should be done =
-
-is hide this secondary wrapper in the paravirt-ops code so that your =
-
-setgpr wrapper doesn't have to deal with weird issues like this because =
-
-of paravirt-ops changes.
-
-Zach
+ 	for (;;) {
+ 		struct device *i;
+@@ -608,7 +609,9 @@ static void handle_input(int fd, int chi
+ 					FD_CLR(i->fd, &devices->infds);
+ 					/* Tell child to ignore it too... */
+ 					write(childfd, &i->fd, sizeof(i->fd));
+-				}
++				} else
++					/* Tell child to continue */
++					write(childfd, &fdok, sizeof(fdok));
+ 			}
+ 		}
+ 	}
