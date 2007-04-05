@@ -1,7 +1,7 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: New CPUID/MSR driver; virtualization hooks
-Date: Thu, 05 Apr 2007 14:09:51 -0700
-Message-ID: <4615659F.8070406@zytor.com>
+Date: Thu, 05 Apr 2007 14:17:55 -0700
+Message-ID: <46156783.9030501@zytor.com>
 References: <461447F2.9010807@zytor.com>	<20070405011640.GL19575@sequoia.sous-sol.org>
 	<46144FA6.1000802@zytor.com> <4614867C.4060506@vmware.com>
 	<461539DF.6010502@zytor.com> <46156591.8080802@vmware.com>
@@ -55,30 +55,27 @@ Zachary Amsden wrote:
 
 > native instruction semantics, which would make it a non-C function.  =
 
-> However, until that bridge is crossed, we would need another wrapper =
 
-> after setgpr to convert the paravirt-ops CPUID back into the same format =
+There is also another option, which is to create an entrypoint with the =
 
-> as native so that setgpr_wrapper can properly store the output fields =
+semantics of the *_everything() functions, i.e. take a register image in =
 
-> into the common  i386/x86_64 structure.  What definitely should be done =
+and out.  The above definition of a cpuid() wrapper is insufficient to =
 
-> is hide this secondary wrapper in the paravirt-ops code so that your =
+handle potential weird cases, so if we go down that route it's =
 
-> setgpr wrapper doesn't have to deal with weird issues like this because =
+inherently a limited-functionality hack.
 
-> of paravirt-ops changes.
+It seems to me that perhaps this is the way to do it:
 
-I guess what I was trying to say was that we'd use setgpr_wrapper in the =
+- Add cpuid_everything, rdmsr_everything and wrmsr_everything
+   entrypoints;
 
-case where you have an entrypoint with native (non-C) semantics; in the =
+- Provide compatibility wrappers that simply invoke the cpuid, rdmsr,
+   and wrmsr entrypoints with appropriate parameter marshalling;
 
-other case we'd use an alternative to setgpr_wrapper.  Either way, it =
+- On hardware, point them to the functions which invoke setgpr_wrapper.
 
-sounds like we're talking about implementing paravirtualization *after* =
-
-CPU selection, i.e. we use IPI to get the thing running on the proper =
-
-CPU before invoking the paravirtualization function?
+What do you think?
 
 	-hpa
