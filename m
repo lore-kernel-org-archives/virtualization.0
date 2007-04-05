@@ -1,14 +1,14 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
+From: tony@bakeyournoodle.com (Tony Breeds)
 Subject: Re: New CPUID/MSR driver; virtualization hooks
-Date: Wed, 04 Apr 2007 18:23:50 -0700
-Message-ID: <46144FA6.1000802@zytor.com>
+Date: Thu, 5 Apr 2007 11:48:32 +1000
+Message-ID: <20070405014832.GU12768@bakeyournoodle.com>
 References: <461447F2.9010807@zytor.com>
-	<20070405011640.GL19575@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070405011640.GL19575@sequoia.sous-sol.org>
+Content-Disposition: inline
+In-Reply-To: <461447F2.9010807@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,44 +18,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chris Wright <chrisw@sous-sol.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
->>
->> http://git.kernel.org/?p=3Dlinux/kernel/git/hpa/linux-2.6-cpuidmsr.git;a=
-=3Dsummary
+On Wed, Apr 04, 2007 at 05:50:58PM -0700, H. Peter Anvin wrote:
+> I have finally gotten off the pot and finished writing up my new =
+
+> CPUID/MSR driver, which contains support for registers that need =
+
+> arbitrary GPRs touched.  For i386 vs x86-64 compatibility, both use an =
+
+> x86-64 register image (16 64-bit register fields); this allows 32-bit =
+
+> userspace to access the full 64-bit image if the kernel is 64 bits.
 > =
 
-> Bleah, and gitweb is unhappy ATM too.
+> Anyway, this presumably requires new paravirtualization hooks.  The =
+
+> patch is at:
 > =
 
+> http://www.kernel.org/pub/linux/kernel/people/hpa/new-cpuid-msr.patch
 
-??? Works for me?
+I think you mean?
 
-> Without having seen the patch yet, you'll need to make sure
-> that the final point which is issuing asm("cpuid") is wrapped
-> and split to CONFIG_PARAVIRT and non CONFIG_PARAVIRT modes.
+http://www.kernel.org/pub/linux/kernel/people/hpa/new-msr-cpuid.patch
 
-It's not *quite* that easy.  The assembly code around this is pretty =
+Yours Tony
 
-extensive, because it has to stand on its head in order to present the =
-
-proper register image.
-
-Pretty much as far as I can see it, there are two possible points where =
-
-one can break out CONFIG_PARAVIRT:
-
-a) int do_foo(int cpu, const u64 ireg[16], u64 oreg[16]);
-
-b) int foo_everything(const u64 ireg[16], u64 oreg[16]);
-
-The difference, of course, is that the former is invoked on the =
-
-originating CPU and the latter on the target CPU at interrupt level. =
-
-Those are pretty much the choices.
-
-	-hpa
+  linux.conf.au        http://linux.conf.au/ || http://lca2008.linux.org.au/
+  Jan 28 - Feb 02 2008 The Australian Linux Technical Conference!
