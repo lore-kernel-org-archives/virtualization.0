@@ -1,25 +1,42 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Define EFLAGS_IF
-Date: Thu, 05 Apr 2007 18:06:16 -0700
-Message-ID: <46159D08.9030400@zytor.com>
-References: <1174533374.2713.104.camel@localhost.localdomain> <46159256.1040705@zytor.com> <461592AA.4060103@goop.org> <46159480.20108@zytor.com> <20070406004839.GA27668@one.firstfloor.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] Unified lguest launcher
+Date: Fri, 06 Apr 2007 12:19:43 +1000
+Message-ID: <1175825983.12230.666.camel@localhost.localdomain>
+References: <5d6222a80704040903n49442679p2a6841de69d894c2@mail.gmail.com>
+	<1175741082.12230.610.camel@localhost.localdomain>
+	<5d6222a80704050743l3c387287kdbe7eb069b793d6e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1767461AbXDFBGb@vger.kernel.org>
-In-Reply-To: <20070406004839.GA27668@one.firstfloor.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <andi@firstfloor.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization <virtualization@lists.osdl.org>, Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <5d6222a80704050743l3c387287kdbe7eb069b793d6e@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Glauber de Oliveira Costa <glommer@gmail.com>
+Cc: virtualization@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> 
-> No processor.h is such a hodgepodge of unrelated stuff that any
-> splitting up is a good thing.
-> 
+On Thu, 2007-04-05 at 11:43 -0300, Glauber de Oliveira Costa wrote:
+> and here's the new patch, merging rusty's suggestions and some more on my=
+ own.
+> =
 
-Fair enough.  However, I'd still like to see the X86_CR* constants 
-moved, too (and constants added for at least CR0 as well.)
+> May I upload this, or does Rusty (or any other) has some more suggestions?
 
-	-hpa
+This looks excellent!
+
+There are a couple of extra spaces floating around, but that's trivial.
+You use "errno =3D ESRCH; err()" where you could use "errx()".
+
+Please merge it straight in. No need for a separate patch in the tree
+for this I think, unless you plan more work?
+
+Thanks!
+Rusty.
