@@ -1,32 +1,25 @@
-From: Andi Kleen <andi@firstfloor.org>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH] Define EFLAGS_IF
-Date: Fri, 6 Apr 2007 02:48:39 +0200
-Message-ID: <20070406004839.GA27668@one.firstfloor.org>
-References: <1174533374.2713.104.camel@localhost.localdomain> <46159256.1040705@zytor.com> <461592AA.4060103@goop.org> <46159480.20108@zytor.com>
+Date: Thu, 05 Apr 2007 18:06:16 -0700
+Message-ID: <46159D08.9030400@zytor.com>
+References: <1174533374.2713.104.camel@localhost.localdomain> <46159256.1040705@zytor.com> <461592AA.4060103@goop.org> <46159480.20108@zytor.com> <20070406004839.GA27668@one.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1767451AbXDFAsn@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <46159480.20108@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1767461AbXDFBGb@vger.kernel.org>
+In-Reply-To: <20070406004839.GA27668@one.firstfloor.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization <virtualization@lists.osdl.org>, Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Andi Kleen <andi@firstfloor.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization <virtualization@lists.osdl.org>, Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 05, 2007 at 05:29:52PM -0700, H. Peter Anvin wrote:
-> Jeremy Fitzhardinge wrote:
-> >
-> >That patch got dropped, and replaced by one which pulled all the flags
-> >definitions out of <asm/processor.h>
-> >
+Andi Kleen wrote:
 > 
-> Saw that a little too late :)
+> No processor.h is such a hodgepodge of unrelated stuff that any
+> splitting up is a good thing.
 > 
-> In general, it would be nice if the various CPU constants were all 
-> defined in one place, so I'd rather suggest protecting the appropriate 
-> parts of asm/processor.h with #ifndef __ASSEMBLY__.
 
-No processor.h is such a hodgepodge of unrelated stuff that any
-splitting up is a good thing.
+Fair enough.  However, I'd still like to see the X86_CR* constants 
+moved, too (and constants added for at least CR0 as well.)
 
--Andi
+	-hpa
