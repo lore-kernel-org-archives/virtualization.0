@@ -1,310 +1,545 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH] paravirt_ops: Clean up paravirt patchable wrappers
-Date: Sat, 07 Apr 2007 23:41:15 -0700
-Message-ID: <46188E8B.8020405@goop.org>
+From: "Ochoa C. Olivia" <oqrw@alaska.com>
+Subject: Howard said he read one unauthorized book about Martha that said she
+	could will herself to orgasm.
+Date: Sun, 8 Apr 2007 10:49:39 +0300
+Message-ID: <001501c779b2$762d2c40$e7312b97@aghjx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752590AbXDHGmN@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_0011_01C779CB.9B65A3C0"
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Replace all the open-coded macros for generating calls with a pair of
-more general macros (__PVOP_CALL/VCALL), and redefine all the
-PVOP_V?CALL[0-4] in terms of them.
+This is a multi-part message in MIME format...
 
-[ Andrew, Andi: this should slot in immediately after "Document asm-i386/paravirt.h"
-  (paravirt_ops-document-asm-i386-paravirth.patch) ]
+------=_NextPart_000_0011_01C779CB.9B65A3C0
+Content-Type: multipart/alternative;
+    boundary="----------=_1176018622-11636-348"
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Ingo Molnar <mingo@elte.hu>
+This is a multi-part message in MIME format...
 
----
- include/asm-i386/paravirt.h |  252 ++++++++++---------------------------------
- 1 file changed, 62 insertions(+), 190 deletions(-)
+------------=_1176018622-11636-348
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-===================================================================
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -332,210 +332,80 @@ unsigned paravirt_patch_insns(void *site
-  * means that all uses must be wrapped in inline functions.  This also
-  * makes sure the incoming and outgoing types are always correct.
-  */
--#define PVOP_CALL0(__rettype, __op)					\
-+#define __PVOP_CALL(rettype, op, pre, post, ...)			\
- 	({								\
--		__rettype __ret;					\
--		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
--			unsigned long long __tmp;			\
--			unsigned long __ecx;				\
--			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
--				     : "=A" (__tmp), "=c" (__ecx)	\
--				     : paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
-+		rettype __ret;						\
-+		unsigned long __eax, __edx, __ecx;			\
-+		if (sizeof(rettype) > sizeof(unsigned long)) {		\
-+			asm volatile(pre				\
-+				     paravirt_alt(PARAVIRT_CALL)	\
-+				     post				\
-+				     : "=a" (__eax), "=d" (__edx),	\
-+				       "=c" (__ecx)			\
-+				     : paravirt_type(op),		\
-+				       paravirt_clobber(CLBR_ANY),	\
-+				       ##__VA_ARGS__			\
- 				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
-+			__ret = (rettype)((((u64)__edx) << 32) | __eax); \
- 		} else {						\
--			unsigned long __tmp, __edx, __ecx;		\
--			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
--				     : "=a" (__tmp), "=d" (__edx),	\
-+			asm volatile(pre				\
-+				     paravirt_alt(PARAVIRT_CALL)	\
-+				     post				\
-+				     : "=a" (__eax), "=d" (__edx),	\
- 				       "=c" (__ecx)			\
--				     : paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
-+				     : paravirt_type(op),		\
-+				       paravirt_clobber(CLBR_ANY),	\
-+				       ##__VA_ARGS__			\
- 				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
-+			__ret = (rettype)__eax;				\
- 		}							\
- 		__ret;							\
- 	})
--#define PVOP_VCALL0(__op)						\
-+#define __PVOP_VCALL(op, pre, post, ...)				\
- 	({								\
- 		unsigned long __eax, __edx, __ecx;			\
--		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
-+		asm volatile(pre					\
-+			     paravirt_alt(PARAVIRT_CALL)		\
-+			     post					\
- 			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
--			     : paravirt_type(__op),			\
--			       paravirt_clobber(CLBR_ANY)		\
-+			     : paravirt_type(op),			\
-+			       paravirt_clobber(CLBR_ANY),		\
-+			       ##__VA_ARGS__				\
- 			     : "memory", "cc");				\
- 	})
- 
--#define PVOP_CALL1(__rettype, __op, arg1)				\
--	({								\
--		__rettype __ret;					\
--		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
--			unsigned long long __tmp;			\
--			unsigned long __ecx;				\
--			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
--				     : "=A" (__tmp), "=c" (__ecx)	\
--				     : "a" ((u32)(arg1)),		\
--				       paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
--				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
--		} else {						\
--			unsigned long __tmp, __edx, __ecx;		\
--			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
--				     : "=a" (__tmp), "=d" (__edx),	\
--				       "=c" (__ecx)			\
--				     : "0" ((u32)(arg1)),		\
--				       paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
--				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
--		}							\
--		__ret;							\
--	})
--#define PVOP_VCALL1(__op, arg1)						\
--	({								\
--		unsigned long __eax, __edx, __ecx;			\
--		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
--			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
--			     : "0" ((u32)(arg1)),			\
--			       paravirt_type(__op),			\
--			       paravirt_clobber(CLBR_ANY)		\
--			     : "memory", "cc");				\
--	})
--
--#define PVOP_CALL2(__rettype, __op, arg1, arg2)				\
--	({								\
--		__rettype __ret;					\
--		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
--			unsigned long long __tmp;			\
--			unsigned long __ecx;				\
--			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
--				     : "=A" (__tmp), "=c" (__ecx)	\
--				     : "a" ((u32)(arg1)),		\
--				       "d" ((u32)(arg2)),		\
--				       paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
--				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
--		} else {						\
--			unsigned long __tmp, __edx, __ecx;		\
--			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
--				     : "=a" (__tmp), "=d" (__edx),	\
--				       "=c" (__ecx)			\
--				     : "0" ((u32)(arg1)),		\
--				       "1" ((u32)(arg2)),		\
--				       paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
--				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
--		}							\
--		__ret;							\
--	})
--#define PVOP_VCALL2(__op, arg1, arg2)					\
--	({								\
--		unsigned long __eax, __edx, __ecx;			\
--		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
--			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
--			     : "0" ((u32)(arg1)),			\
--			       "1" ((u32)(arg2)),			\
--			       paravirt_type(__op),			\
--			       paravirt_clobber(CLBR_ANY)		\
--			     : "memory", "cc");				\
--	})
--
--#define PVOP_CALL3(__rettype, __op, arg1, arg2, arg3)			\
--	({								\
--		__rettype __ret;					\
--		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
--			unsigned long long __tmp;			\
--			unsigned long __ecx;				\
--			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
--				     : "=A" (__tmp), "=c" (__ecx)	\
--				     : "a" ((u32)(arg1)),		\
--				       "d" ((u32)(arg2)),		\
--				       "1" ((u32)(arg3)),		\
--				       paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
--				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
--		} else {						\
--			unsigned long __tmp, __edx, __ecx;	\
--			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
--				     : "=a" (__tmp), "=d" (__edx),	\
--				       "=c" (__ecx)			\
--				     : "0" ((u32)(arg1)),		\
--				       "1" ((u32)(arg2)),		\
--				       "2" ((u32)(arg3)),		\
--				       paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
--				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
--		}							\
--		__ret;							\
--	})
--#define PVOP_VCALL3(__op, arg1, arg2, arg3)				\
--	({								\
--		unsigned long __eax, __edx, __ecx;			\
--		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
--			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
--			     : "0" ((u32)(arg1)),			\
--			       "1" ((u32)(arg2)),			\
--			       "2" ((u32)(arg3)),			\
--			       paravirt_type(__op),			\
--			       paravirt_clobber(CLBR_ANY)		\
--			     : "memory", "cc");				\
--	})
--
--#define PVOP_CALL4(__rettype, __op, arg1, arg2, arg3, arg4)		\
--	({								\
--		__rettype __ret;					\
--		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
--			unsigned long long __tmp;			\
--			unsigned long __ecx;				\
--			asm volatile("push %[_arg4]; "			\
--				     paravirt_alt(PARAVIRT_CALL)	\
--				     "lea 4(%%esp),%%esp"		\
--				     : "=A" (__tmp), "=c" (__ecx)	\
--				     : "a" ((u32)(arg1)),		\
--				       "d" ((u32)(arg2)),		\
--				       "1" ((u32)(arg3)),		\
--				       [_arg4] "mr" ((u32)(arg4)),	\
--				       paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
--				     : "memory", "cc",);		\
--			__ret = (__rettype)__tmp;			\
--		} else {						\
--			unsigned long __tmp, __edx, __ecx;		\
--			asm volatile("push %[_arg4]; "			\
--				     paravirt_alt(PARAVIRT_CALL)	\
--				     "lea 4(%%esp),%%esp"		\
--				     : "=a" (__tmp), "=d" (__edx), "=c" (__ecx) \
--				     : "0" ((u32)(arg1)),		\
--				       "1" ((u32)(arg2)),		\
--				       "2" ((u32)(arg3)),		\
--				       [_arg4]"mr" ((u32)(arg4)),	\
--				       paravirt_type(__op),		\
--				       paravirt_clobber(CLBR_ANY)	\
--				     : "memory", "cc");			\
--			__ret = (__rettype)__tmp;			\
--		}							\
--		__ret;							\
--	})
--#define PVOP_VCALL4(__op, arg1, arg2, arg3, arg4)			\
--	({								\
--		unsigned long __eax, __edx, __ecx;			\
--		asm volatile("push %[_arg4]; "				\
--			     paravirt_alt(PARAVIRT_CALL)		\
--			     "lea 4(%%esp),%%esp"			\
--			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
--			     : "0" ((u32)(arg1)),			\
--			       "1" ((u32)(arg2)),			\
--			       "2" ((u32)(arg3)),			\
--			       [_arg4]"mr" ((u32)(arg4)),		\
--			       paravirt_type(__op),			\
--			       paravirt_clobber(CLBR_ANY)		\
--			     : "memory", "cc");				\
--	})
-+#define PVOP_CALL0(rettype, op)						\
-+	__PVOP_CALL(rettype, op, "", "")
-+#define PVOP_VCALL0(op)							\
-+	__PVOP_VCALL(op, "", "")
-+
-+#define PVOP_CALL1(rettype, op, arg1)					\
-+	__PVOP_CALL(rettype, op, "", "", "0" ((u32)(arg1)))
-+#define PVOP_VCALL1(op, arg1)						\
-+	__PVOP_VCALL(op, "", "", "0" ((u32)(arg1)))
-+
-+#define PVOP_CALL2(rettype, op, arg1, arg2)				\
-+	__PVOP_CALL(rettype, op, "", "", "0" ((u32)(arg1)), "1" ((u32)(arg2)))
-+#define PVOP_VCALL2(op, arg1, arg2)					\
-+	__PVOP_VCALL(op, "", "", "0" ((u32)(arg1)), "1" ((u32)(arg2)))
-+
-+#define PVOP_CALL3(rettype, op, arg1, arg2, arg3)			\
-+	__PVOP_CALL(rettype, op, "", "", "0" ((u32)(arg1)),		\
-+		    "1"((u32)(arg2)), "2"((u32)(arg3)))
-+#define PVOP_VCALL3(op, arg1, arg2, arg3)				\
-+	__PVOP_VCALL(op, "", "", "0" ((u32)(arg1)), "1"((u32)(arg2)),	\
-+		     "2"((u32)(arg3)))
-+
-+#define PVOP_CALL4(rettype, op, arg1, arg2, arg3, arg4)			\
-+	__PVOP_CALL(rettype, op,					\
-+		    "push %[_arg4];", "lea 4(%%esp),%%esp;",		\
-+		    "0" ((u32)(arg1)), "1" ((u32)(arg2)),		\
-+		    "2" ((u32)(arg3)), [_arg4] "mr" ((u32)(arg4)))
-+#define PVOP_VCALL4(op, arg1, arg2, arg3, arg4)				\
-+	__PVOP_VCALL(op,						\
-+		    "push %[_arg4];", "lea 4(%%esp),%%esp;",		\
-+		    "0" ((u32)(arg1)), "1" ((u32)(arg2)),		\
-+		    "2" ((u32)(arg3)), [_arg4] "mr" ((u32)(arg4)))
- 
- static inline int paravirt_enabled(void)
- {
-@@ -1164,6 +1034,8 @@ static inline unsigned long __raw_local_
- 
- /* Make sure as little as possible of this mess escapes. */
- #undef PARAVIRT_CALL
-+#undef __PVOP_CALL
-+#undef __PVOP_VCALL
- #undef PVOP_VCALL0
- #undef PVOP_CALL0
- #undef PVOP_VCALL1
+
+Imus said that the Jews were furious that he was having the Blind Boys of A=
+labama on his show so he had to convince the ''money grubbing'' Jews that t=
+hey were good guests.
+Martha said she heard about that off the air and it happened a long time. '=
+' Artie said that he would rather have a gay son.
+Artie said that this behavior is the scummiest and it's not cool.
+Martha said that she had a man the day after she got out of jail.
+Artie said he went to the mansion, they let him in and he was wandering aro=
+und checking things out. He wanted to do a weight loss thing between him an=
+d Artie to see who could lose more weight.
+The one they just left a year ago was pretty nice but now they're in a pala=
+ce.
+He was talking about Artie. He said this isn't good for him to even be thin=
+king about.
+Howard said that he is kind of like Woody Allen and he ruined things for Mi=
+a Farrow and her daughter when he started dating her.
+It was Sal calling in asking her to stop with her rants.
+She's on medication but it doesn't seem to be working. Howard said that he'=
+s been buying Stilettos as gifts this year and he really thinks that they m=
+ake great gifts. 8:25am Howard said that they have a meeting every week whe=
+re they come up with ideas for the show. Howard asked Martha about Donald T=
+rump bad mouthing her.
+A caller asked  George Takei if he could help get Eric the midget on the sh=
+ow ''Heroes.
+That's when he turned on them.
+She said she didn't know he was in love with her. Martha said that there is=
+ no hierarchy in her organization so if there's a spoil on the floor, she's=
+ the first person to go clean it up.
+Robin said she is looking for someone who knows what they're doing.
+------------=_1176018622-11636-348
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
+<META content=3D"MSHTML 6.00.2800.1409" name=3DGENERATOR>
+<DEFANGED_style_0 </STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2><IMG alt=3D"grief" hspace=3D0=20
+DEFANGED_src=3D"cid:001001c779b2$76133ba0$e7312b97@aghjx" align=3D"baseline=
+"=20
+border=3D0></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Imus said that the Jews were furious that =
+he was=20
+having the Blind Boys of Alabama on his show so he had to convince the ''mo=
+ney=20
+grubbing'' Jews that they were good guests.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Martha said she heard about that off the a=
+ir and it=20
+happened a long time. '' Artie said that he would rather have a gay=20
+son.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Artie said that this behavior is the scumm=
+iest and=20
+it's not cool.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Martha said that she had a man the day aft=
+er she=20
+got out of jail.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Artie said he went to the mansion, they le=
+t him in=20
+and he was wandering around checking things out. He wanted to do a weight l=
+oss thing=20
+between him and Artie to see who could lose more weight.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>The one they just left a year ago was pret=
+ty nice=20
+but now they're in a palace.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>He was talking about Artie. He said this i=
+sn't good=20
+for him to even be thinking about.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Howard said that he is kind of like Woody =
+Allen and=20
+he ruined things for Mia Farrow and her daughter when he started dating=20
+her.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>It was Sal calling in asking her to stop w=
+ith her=20
+rants.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>She's on medication but it doesn't seem to=
+ be=20
+working. Howard said that he's been buying Stilettos as gifts this year and=
+ he=20
+really thinks that they make great gifts. 8:25am Howard said that they have=
+ a=20
+meeting every week where they come up with ideas for the show. Howard asked=
+ Martha=20
+about Donald Trump bad mouthing her.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>A caller asked  George Takei if he could h=
+elp get=20
+Eric the midget on the show ''Heroes.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>That's when he turned on them.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>She said she didn't know he was in love wi=
+th her.=20
+Martha said that there is no hierarchy in her organization so if there's a =
+spoil on=20
+the floor, she's the first person to go clean it up.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Robin said she is looking for someone who =
+knows=20
+what they're doing.</FONT></DIV></BODY></HTML>
+
+------------=_1176018622-11636-348--
+
+------=_NextPart_000_0011_01C779CB.9B65A3C0
+Content-Type: image/gif;
+	name="eardrum.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <001001c779b2$76133ba0$e7312b97@aghjx>
+Content-Disposition: inline
+
+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
+
+------=_NextPart_000_0011_01C779CB.9B65A3C0
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+
+------=_NextPart_000_0011_01C779CB.9B65A3C0--
