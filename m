@@ -1,54 +1,310 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [patch 2/4] clean up identify_cpu
-Date: Sat, 7 Apr 2007 12:06:03 -0700
-Message-ID: <20070407120603.ff72b432.akpm@linux-foundation.org>
-References: <20070406224152.556848893@goop.org>
-	<20070406224204.782242327@goop.org>
-	<20070407021401.a993892b.akpm@linux-foundation.org>
-	<4617D2D1.7040202@goop.org>
-	<20070407105947.15128675.akpm@linux-foundation.org>
-	<20070407183916.GA30811@uranus.ravnborg.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH] paravirt_ops: Clean up paravirt patchable wrappers
+Date: Sat, 07 Apr 2007 23:41:15 -0700
+Message-ID: <46188E8B.8020405@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966283AbXDGTGQ@vger.kernel.org>
-In-Reply-To: <20070407183916.GA30811@uranus.ravnborg.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752590AbXDHGmN@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 7 Apr 2007 20:39:16 +0200 Sam Ravnborg <sam@ravnborg.org> wrote:
+Replace all the open-coded macros for generating calls with a pair of
+more general macros (__PVOP_CALL/VCALL), and redefine all the
+PVOP_V?CALL[0-4] in terms of them.
 
-> On Sat, Apr 07, 2007 at 10:59:47AM -0700, Andrew Morton wrote:
-> > On Sat, 07 Apr 2007 10:20:17 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> > 
-> > >  I don't have a x86-64 compile environment on
-> > > hand, so the 64 bits are completely untested
-> > 
-> > http://userweb.kernel.org/~akpm/cross-compilers/
-> 
-> Does the alpha toolchain work for you?
+[ Andrew, Andi: this should slot in immediately after "Document asm-i386/paravirt.h"
+  (paravirt_ops-document-asm-i386-paravirth.patch) ]
 
-Seems not.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Ingo Molnar <mingo@elte.hu>
 
-> For defconfig I get:
->   CC      arch/alpha/kernel/core_cia.o
-> {standard input}: Assembler messages:
-> {standard input}:351: Error: macro requires $at register while noat in effect
-> {standard input}:376: Error: macro requires $at register while noat in effect
-> {standard input}:400: Error: macro requires $at register while noat in effect
-> {standard input}:419: Error: macro requires $at register while noat in effect
-> {standard input}:474: Error: macro requires $at register while noat in effect
-> {standard input}:499: Error: macro requires $at register while noat in effect
-> {standard input}:523: Error: macro requires $at register while noat in effect
-> {standard input}:542: Error: macro requires $at register while noat in effect
-> make[2]: *** [arch/alpha/kernel/core_cia.o] Error 1
-> make[1]: *** [arch/alpha/kernel] Error 2
-> make: *** [_all] Error 2
-> 
-> Same happens when I compile the same version direct from Dan's crosstool.
-> 
+---
+ include/asm-i386/paravirt.h |  252 ++++++++++---------------------------------
+ 1 file changed, 62 insertions(+), 190 deletions(-)
 
-Me too.  I always do allmodconfig with alpha, and allmodconfig doesn't
-include that file.
+===================================================================
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -332,210 +332,80 @@ unsigned paravirt_patch_insns(void *site
+  * means that all uses must be wrapped in inline functions.  This also
+  * makes sure the incoming and outgoing types are always correct.
+  */
+-#define PVOP_CALL0(__rettype, __op)					\
++#define __PVOP_CALL(rettype, op, pre, post, ...)			\
+ 	({								\
+-		__rettype __ret;					\
+-		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
+-			unsigned long long __tmp;			\
+-			unsigned long __ecx;				\
+-			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
+-				     : "=A" (__tmp), "=c" (__ecx)	\
+-				     : paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
++		rettype __ret;						\
++		unsigned long __eax, __edx, __ecx;			\
++		if (sizeof(rettype) > sizeof(unsigned long)) {		\
++			asm volatile(pre				\
++				     paravirt_alt(PARAVIRT_CALL)	\
++				     post				\
++				     : "=a" (__eax), "=d" (__edx),	\
++				       "=c" (__ecx)			\
++				     : paravirt_type(op),		\
++				       paravirt_clobber(CLBR_ANY),	\
++				       ##__VA_ARGS__			\
+ 				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
++			__ret = (rettype)((((u64)__edx) << 32) | __eax); \
+ 		} else {						\
+-			unsigned long __tmp, __edx, __ecx;		\
+-			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
+-				     : "=a" (__tmp), "=d" (__edx),	\
++			asm volatile(pre				\
++				     paravirt_alt(PARAVIRT_CALL)	\
++				     post				\
++				     : "=a" (__eax), "=d" (__edx),	\
+ 				       "=c" (__ecx)			\
+-				     : paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
++				     : paravirt_type(op),		\
++				       paravirt_clobber(CLBR_ANY),	\
++				       ##__VA_ARGS__			\
+ 				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
++			__ret = (rettype)__eax;				\
+ 		}							\
+ 		__ret;							\
+ 	})
+-#define PVOP_VCALL0(__op)						\
++#define __PVOP_VCALL(op, pre, post, ...)				\
+ 	({								\
+ 		unsigned long __eax, __edx, __ecx;			\
+-		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
++		asm volatile(pre					\
++			     paravirt_alt(PARAVIRT_CALL)		\
++			     post					\
+ 			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
+-			     : paravirt_type(__op),			\
+-			       paravirt_clobber(CLBR_ANY)		\
++			     : paravirt_type(op),			\
++			       paravirt_clobber(CLBR_ANY),		\
++			       ##__VA_ARGS__				\
+ 			     : "memory", "cc");				\
+ 	})
+ 
+-#define PVOP_CALL1(__rettype, __op, arg1)				\
+-	({								\
+-		__rettype __ret;					\
+-		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
+-			unsigned long long __tmp;			\
+-			unsigned long __ecx;				\
+-			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
+-				     : "=A" (__tmp), "=c" (__ecx)	\
+-				     : "a" ((u32)(arg1)),		\
+-				       paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
+-				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
+-		} else {						\
+-			unsigned long __tmp, __edx, __ecx;		\
+-			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
+-				     : "=a" (__tmp), "=d" (__edx),	\
+-				       "=c" (__ecx)			\
+-				     : "0" ((u32)(arg1)),		\
+-				       paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
+-				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
+-		}							\
+-		__ret;							\
+-	})
+-#define PVOP_VCALL1(__op, arg1)						\
+-	({								\
+-		unsigned long __eax, __edx, __ecx;			\
+-		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
+-			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
+-			     : "0" ((u32)(arg1)),			\
+-			       paravirt_type(__op),			\
+-			       paravirt_clobber(CLBR_ANY)		\
+-			     : "memory", "cc");				\
+-	})
+-
+-#define PVOP_CALL2(__rettype, __op, arg1, arg2)				\
+-	({								\
+-		__rettype __ret;					\
+-		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
+-			unsigned long long __tmp;			\
+-			unsigned long __ecx;				\
+-			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
+-				     : "=A" (__tmp), "=c" (__ecx)	\
+-				     : "a" ((u32)(arg1)),		\
+-				       "d" ((u32)(arg2)),		\
+-				       paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
+-				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
+-		} else {						\
+-			unsigned long __tmp, __edx, __ecx;		\
+-			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
+-				     : "=a" (__tmp), "=d" (__edx),	\
+-				       "=c" (__ecx)			\
+-				     : "0" ((u32)(arg1)),		\
+-				       "1" ((u32)(arg2)),		\
+-				       paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
+-				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
+-		}							\
+-		__ret;							\
+-	})
+-#define PVOP_VCALL2(__op, arg1, arg2)					\
+-	({								\
+-		unsigned long __eax, __edx, __ecx;			\
+-		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
+-			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
+-			     : "0" ((u32)(arg1)),			\
+-			       "1" ((u32)(arg2)),			\
+-			       paravirt_type(__op),			\
+-			       paravirt_clobber(CLBR_ANY)		\
+-			     : "memory", "cc");				\
+-	})
+-
+-#define PVOP_CALL3(__rettype, __op, arg1, arg2, arg3)			\
+-	({								\
+-		__rettype __ret;					\
+-		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
+-			unsigned long long __tmp;			\
+-			unsigned long __ecx;				\
+-			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
+-				     : "=A" (__tmp), "=c" (__ecx)	\
+-				     : "a" ((u32)(arg1)),		\
+-				       "d" ((u32)(arg2)),		\
+-				       "1" ((u32)(arg3)),		\
+-				       paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
+-				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
+-		} else {						\
+-			unsigned long __tmp, __edx, __ecx;	\
+-			asm volatile(paravirt_alt(PARAVIRT_CALL)	\
+-				     : "=a" (__tmp), "=d" (__edx),	\
+-				       "=c" (__ecx)			\
+-				     : "0" ((u32)(arg1)),		\
+-				       "1" ((u32)(arg2)),		\
+-				       "2" ((u32)(arg3)),		\
+-				       paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
+-				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
+-		}							\
+-		__ret;							\
+-	})
+-#define PVOP_VCALL3(__op, arg1, arg2, arg3)				\
+-	({								\
+-		unsigned long __eax, __edx, __ecx;			\
+-		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
+-			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
+-			     : "0" ((u32)(arg1)),			\
+-			       "1" ((u32)(arg2)),			\
+-			       "2" ((u32)(arg3)),			\
+-			       paravirt_type(__op),			\
+-			       paravirt_clobber(CLBR_ANY)		\
+-			     : "memory", "cc");				\
+-	})
+-
+-#define PVOP_CALL4(__rettype, __op, arg1, arg2, arg3, arg4)		\
+-	({								\
+-		__rettype __ret;					\
+-		if (sizeof(__rettype) > sizeof(unsigned long)) {	\
+-			unsigned long long __tmp;			\
+-			unsigned long __ecx;				\
+-			asm volatile("push %[_arg4]; "			\
+-				     paravirt_alt(PARAVIRT_CALL)	\
+-				     "lea 4(%%esp),%%esp"		\
+-				     : "=A" (__tmp), "=c" (__ecx)	\
+-				     : "a" ((u32)(arg1)),		\
+-				       "d" ((u32)(arg2)),		\
+-				       "1" ((u32)(arg3)),		\
+-				       [_arg4] "mr" ((u32)(arg4)),	\
+-				       paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
+-				     : "memory", "cc",);		\
+-			__ret = (__rettype)__tmp;			\
+-		} else {						\
+-			unsigned long __tmp, __edx, __ecx;		\
+-			asm volatile("push %[_arg4]; "			\
+-				     paravirt_alt(PARAVIRT_CALL)	\
+-				     "lea 4(%%esp),%%esp"		\
+-				     : "=a" (__tmp), "=d" (__edx), "=c" (__ecx) \
+-				     : "0" ((u32)(arg1)),		\
+-				       "1" ((u32)(arg2)),		\
+-				       "2" ((u32)(arg3)),		\
+-				       [_arg4]"mr" ((u32)(arg4)),	\
+-				       paravirt_type(__op),		\
+-				       paravirt_clobber(CLBR_ANY)	\
+-				     : "memory", "cc");			\
+-			__ret = (__rettype)__tmp;			\
+-		}							\
+-		__ret;							\
+-	})
+-#define PVOP_VCALL4(__op, arg1, arg2, arg3, arg4)			\
+-	({								\
+-		unsigned long __eax, __edx, __ecx;			\
+-		asm volatile("push %[_arg4]; "				\
+-			     paravirt_alt(PARAVIRT_CALL)		\
+-			     "lea 4(%%esp),%%esp"			\
+-			     : "=a" (__eax), "=d" (__edx), "=c" (__ecx) \
+-			     : "0" ((u32)(arg1)),			\
+-			       "1" ((u32)(arg2)),			\
+-			       "2" ((u32)(arg3)),			\
+-			       [_arg4]"mr" ((u32)(arg4)),		\
+-			       paravirt_type(__op),			\
+-			       paravirt_clobber(CLBR_ANY)		\
+-			     : "memory", "cc");				\
+-	})
++#define PVOP_CALL0(rettype, op)						\
++	__PVOP_CALL(rettype, op, "", "")
++#define PVOP_VCALL0(op)							\
++	__PVOP_VCALL(op, "", "")
++
++#define PVOP_CALL1(rettype, op, arg1)					\
++	__PVOP_CALL(rettype, op, "", "", "0" ((u32)(arg1)))
++#define PVOP_VCALL1(op, arg1)						\
++	__PVOP_VCALL(op, "", "", "0" ((u32)(arg1)))
++
++#define PVOP_CALL2(rettype, op, arg1, arg2)				\
++	__PVOP_CALL(rettype, op, "", "", "0" ((u32)(arg1)), "1" ((u32)(arg2)))
++#define PVOP_VCALL2(op, arg1, arg2)					\
++	__PVOP_VCALL(op, "", "", "0" ((u32)(arg1)), "1" ((u32)(arg2)))
++
++#define PVOP_CALL3(rettype, op, arg1, arg2, arg3)			\
++	__PVOP_CALL(rettype, op, "", "", "0" ((u32)(arg1)),		\
++		    "1"((u32)(arg2)), "2"((u32)(arg3)))
++#define PVOP_VCALL3(op, arg1, arg2, arg3)				\
++	__PVOP_VCALL(op, "", "", "0" ((u32)(arg1)), "1"((u32)(arg2)),	\
++		     "2"((u32)(arg3)))
++
++#define PVOP_CALL4(rettype, op, arg1, arg2, arg3, arg4)			\
++	__PVOP_CALL(rettype, op,					\
++		    "push %[_arg4];", "lea 4(%%esp),%%esp;",		\
++		    "0" ((u32)(arg1)), "1" ((u32)(arg2)),		\
++		    "2" ((u32)(arg3)), [_arg4] "mr" ((u32)(arg4)))
++#define PVOP_VCALL4(op, arg1, arg2, arg3, arg4)				\
++	__PVOP_VCALL(op,						\
++		    "push %[_arg4];", "lea 4(%%esp),%%esp;",		\
++		    "0" ((u32)(arg1)), "1" ((u32)(arg2)),		\
++		    "2" ((u32)(arg3)), [_arg4] "mr" ((u32)(arg4)))
+ 
+ static inline int paravirt_enabled(void)
+ {
+@@ -1164,6 +1034,8 @@ static inline unsigned long __raw_local_
+ 
+ /* Make sure as little as possible of this mess escapes. */
+ #undef PARAVIRT_CALL
++#undef __PVOP_CALL
++#undef __PVOP_VCALL
+ #undef PVOP_VCALL0
+ #undef PVOP_CALL0
+ #undef PVOP_VCALL1
