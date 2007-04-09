@@ -1,25 +1,33 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Define EFLAGS_IF
-Date: Mon, 09 Apr 2007 11:11:05 +1000
-Message-ID: <1176081065.11664.3.camel@localhost.localdomain>
-References: <1174533374.2713.104.camel@localhost.localdomain>
-	 <46159256.1040705@zytor.com> <461592AA.4060103@goop.org>
-	 <46159480.20108@zytor.com> <20070406004839.GA27668@one.firstfloor.org>
-	 <46159D08.9030400@zytor.com> <20070406103038.GA32440@one.firstfloor.org>
-	 <461669A4.70405@zytor.com>
+From: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [patch 07/20] Allow paravirt backend to choose kernel PMD sharing
+Date: Sun, 8 Apr 2007 19:36:59 -0700
+Message-ID: <20070409023659.GS2986@holomorphy.com>
+References: <20070404191151.009821039@goop.org> <20070404191205.392155702@goop.org> <20070406164139.08cd343b.akpm@linux-foundation.org> <4616DFB2.4020802@goop.org> <20070406172844.12f7b8e7.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752267AbXDIBLp@vger.kernel.org>
-In-Reply-To: <461669A4.70405@zytor.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752246AbXDICg4@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20070406172844.12f7b8e7.akpm@linux-foundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <andi@firstfloor.org>, Jeremy Fitzhardinge <jeremy@goop.org>, virtualization <virtualization@lists.osdl.org>, Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Christoph Lameter <clameter@sgi.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-04-06 at 08:39 -0700, H. Peter Anvin wrote:
-> I will, unless Rusty does, first.  No desire to step on each other.
+On Fri, 06 Apr 2007 17:02:58 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>> You're too kind.  wli's comment on the first version of this patch was
+>> something along the lines of "this patch causes a surprising amount of
+>> damage for what little it achieves".
 
-Oh no, please, after you!
+On Fri, Apr 06, 2007 at 05:28:44PM -0700, Andrew Morton wrote:
+> Damn, I wish I'd said that.
 
-Rusty.
+ISTR it went:
+
+On Fri, Feb 16, 2007 at 02:21:07PM -0800, William Lee Irwin III wrote:
+> The amount of violence this patch manages to commit is phenomenal for
+> what little it actually does. There are also a number of oddities
+
+Cheers.
+
+
+-- wli
