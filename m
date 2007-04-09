@@ -1,357 +1,425 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 9/10] Vmi timer update.patch
-Date: Mon, 9 Apr 2007 19:37:02 -0700
-Message-ID: <20070410023702.GJ10574@sequoia.sous-sol.org>
-References: <200704100006.l3A06RUR020644@zach-dev.vmware.com>
+From: "assuredly" <xguij@na2.us.ml.com>
+Subject: kidnap producer
+Date: Mon, 9 Apr 2007 19:03:57 -0400
+Message-ID: <002001c77afb$5a784580$d2b6d053@sfqq>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966032AbXDJCi4@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <200704100006.l3A06RUR020644@zach-dev.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Dan Hecht <dhecht@vmware.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_001C_01C77AD9.D3593800"
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> diff -r c02ab981c99c arch/i386/kernel/vmiclock.c
-> --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-> +++ b/arch/i386/kernel/vmiclock.c	Mon Apr 09 15:47:17 2007 -0700
-> @@ -0,0 +1,318 @@
-> +/*
-> + * VMI paravirtual timer support routines.
-> + *
-> + * Copyright (C) 2007, VMware, Inc.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-> + * NON INFRINGEMENT.  See the GNU General Public License for more
-> + * details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-> + *
-> + */
-> +
-> +#include <linux/smp.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/cpumask.h>
-> +#include <linux/clocksource.h>
-> +#include <linux/clockchips.h>
-> +
-> +#include <asm/vmi.h>
-> +#include <asm/vmi_time.h>
-> +#include <asm/arch_hooks.h>
-> +#include <asm/apicdef.h>
-> +#include <asm/apic.h>
-> +#include <asm/timer.h>
-> +
-> +#include <irq_vectors.h>
-> +#include "io_ports.h"
-> +
-> +#define VMI_ONESHOT  (VMI_ALARM_IS_ONESHOT  | VMI_CYCLES_REAL | vmi_get_alarm_wiring())
-> +#define VMI_PERIODIC (VMI_ALARM_IS_PERIODIC | VMI_CYCLES_REAL | vmi_get_alarm_wiring())
-> +
-> +static DEFINE_PER_CPU(struct clock_event_device, local_events);
-> +
-> +static inline u32 vmi_counter(u32 flags)
-> +{
-> +	/* Given VMI_ONESHOT or VMI_PERIODIC, return the corresponding
-> +	 * cycle counter. */
-> +	return flags & VMI_ALARM_COUNTER_MASK;
-> +}
-> +
-> +/* paravirt_ops.get_wallclock = vmi_get_wallclock */
+This is a multi-part message in MIME format...
 
-Style nit, these pv_ops.foo = vmi_foo style comments aren't really useful.
+------=_NextPart_000_001C_01C77AD9.D3593800
+Content-Type: multipart/alternative;
+    boundary="----------=_1176159858-4689-685"
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
 
-> +unsigned long vmi_get_wallclock(void)
-> +{
-> +	unsigned long long wallclock;
-> +	wallclock = vmi_timer_ops.get_wallclock(); // nsec
-> +	(void)do_div(wallclock, 1000000000);       // sec
-> +
-> +	return wallclock;
-> +}
-> +
-> +/* paravirt_ops.set_wallclock = vmi_set_wallclock */
-> +int vmi_set_wallclock(unsigned long now)
-> +{
-> +	return 0;
-> +}
-> +
-> +/* paravirt_ops.get_scheduled_cycles = vmi_get_sched_cycles */
-> +unsigned long long vmi_get_sched_cycles(void)
-> +{
-> +	return vmi_timer_ops.get_cycle_counter(VMI_CYCLES_AVAILABLE);
-> +}
-> +
-> +/* paravirt_ops.get_cpu_khz = vmi_cpu_khz */
-> +unsigned long vmi_cpu_khz(void)
-> +{
-> +	unsigned long long khz;
-> +	khz = vmi_timer_ops.get_cycle_frequency();
-> +	(void)do_div(khz, 1000);
-> +	return khz;
-> +}
-> +
-> +static inline unsigned int vmi_get_timer_vector(void)
-> +{
-> +#ifdef CONFIG_X86_IO_APIC
-> +	return FIRST_DEVICE_VECTOR;
-> +#else
-> +	return FIRST_EXTERNAL_VECTOR;
-> +#endif
-> +}
-> +
-> +/** vmi clockchip */
-> +#ifdef CONFIG_X86_LOCAL_APIC
-> +static unsigned int startup_timer_irq(unsigned int irq)
-> +{
-> +	unsigned long val = apic_read(APIC_LVTT);
-> +	apic_write(APIC_LVTT, vmi_get_timer_vector());
-> +
-> +	return (val & APIC_SEND_PENDING);
-> +}
-> +
-> +static void mask_timer_irq(unsigned int irq)
-> +{
-> +	unsigned long val = apic_read(APIC_LVTT);
-> +	apic_write(APIC_LVTT, val | APIC_LVT_MASKED);
-> +}
-> +
-> +static void unmask_timer_irq(unsigned int irq)
-> +{
-> +	unsigned long val = apic_read(APIC_LVTT);
-> +	apic_write(APIC_LVTT, val & ~APIC_LVT_MASKED);
-> +}
-> +
-> +static void ack_timer_irq(unsigned int irq)
-> +{
-> +	ack_APIC_irq();
-> +}
-> +
-> +static struct irq_chip vmi_chip __read_mostly = {
-> +	.name 		= "VMI-LOCAL",
-> +	.startup 	= startup_timer_irq,
-> +	.mask	 	= mask_timer_irq,
-> +	.unmask	 	= unmask_timer_irq,
-> +	.ack 		= ack_timer_irq
-> +};
-> +#endif
-> +
-> +/** vmi clockevent */
-> +#define VMI_ALARM_WIRED_IRQ0    0x00000000
-> +#define VMI_ALARM_WIRED_LVTT    0x00010000
-> +static int vmi_wiring = VMI_ALARM_WIRED_IRQ0;
-> +
-> +static inline int vmi_get_alarm_wiring(void)
-> +{
-> +	return vmi_wiring;	
-> +}
-> +
-> +static void vmi_timer_set_mode(enum clock_event_mode mode,
-> +			       struct clock_event_device *evt)
-> +{
-> +	cycle_t now, cycles_per_hz;
-> +	BUG_ON(!irqs_disabled());
-> +
-> +	switch (mode) {
-> +	case CLOCK_EVT_MODE_ONESHOT:
-> +		break;
-> +	case CLOCK_EVT_MODE_PERIODIC:
-> +		cycles_per_hz = vmi_timer_ops.get_cycle_frequency();
-> +		(void)do_div(cycles_per_hz, HZ);
-> +		now = vmi_timer_ops.get_cycle_counter(vmi_counter(VMI_PERIODIC));
-> +		vmi_timer_ops.set_alarm(VMI_PERIODIC, now, cycles_per_hz);
-> +		break;
-> +	case CLOCK_EVT_MODE_UNUSED:
-> +	case CLOCK_EVT_MODE_SHUTDOWN:
-> +		switch (evt->mode) {
-> +		case CLOCK_EVT_MODE_ONESHOT:
-> +			vmi_timer_ops.cancel_alarm(VMI_ONESHOT);
-> +			break;
-> +		case CLOCK_EVT_MODE_PERIODIC:
-> +			vmi_timer_ops.cancel_alarm(VMI_PERIODIC);
-> +			break;
-> +		default:
-> +			break;
-> +		}
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +}
-> +
-> +static int vmi_timer_next_event(unsigned long delta,
-> +				struct clock_event_device *evt)
-> +{
-> +	/* Unfortunately, set_next_event interface only passes relative
-> +	 * expiry, but we want absolute expiry.  It'd be better if were
-> +	 * were passed an aboslute expiry, since a bunch of time may
-> +	 * have been stolen between the time the delta is computed and
-> +	 * when we set the alarm below. */
-> +	cycle_t now = vmi_timer_ops.get_cycle_counter(vmi_counter(VMI_ONESHOT));
-> +
-> +	BUG_ON(evt->mode != CLOCK_EVT_MODE_ONESHOT);
-> +	vmi_timer_ops.set_alarm(VMI_ONESHOT, now + delta, 0);
-> +	return 0;
-> +}
-> +
-> +static struct clock_event_device vmi_clockevent = {
-> +	.name		= "vmi-timer",
-> +	.features	= CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT,
-> +	.shift		= 22,
-> +	.set_mode	= vmi_timer_set_mode,
-> +	.set_next_event = vmi_timer_next_event,
-> +	.rating         = 1000,
+This is a multi-part message in MIME format...
 
-Heh, no messing around ;-)
+------------=_1176159858-4689-685
+Content-Type: text/plain;
+	charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> +	.irq		= 0,
-> +};
-> +
-> +static irqreturn_t vmi_timer_interrupt(int irq, void *dev_id)
-> +{
-> +	struct clock_event_device *evt = &__get_cpu_var(local_events);
-> +	evt->event_handler(evt);
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static struct irqaction vmi_clock_action  = {
-> +	.name 		= "vmi-timer",
-> +	.handler 	= vmi_timer_interrupt,
-> +	.flags 		= IRQF_DISABLED | IRQF_NOBALANCING,
-> +	.mask 		= CPU_MASK_ALL,
-> +};
-> +
-> +static void __devinit vmi_time_init_clockevent(void)
-> +{
-> +	cycle_t cycles_per_msec;
-> +	struct clock_event_device *evt;
-> +
-> +	int cpu = smp_processor_id();
-> +	evt = &__get_cpu_var(local_events);
-> +
-> +	/* Use cycles_per_msec since div_sc params are 32-bits. */
-> +	cycles_per_msec = vmi_timer_ops.get_cycle_frequency();
-> +	(void)do_div(cycles_per_msec, 1000);
-> +
-> +	memcpy(evt, &vmi_clockevent, sizeof(*evt));
-> +	/* Must pick .shift such that .mult fits in 32-bits.  Choosing
-> +	 * .shift to be 22 allows 2^(32-22) cycles per nano-seconds
-> +	 * before overflow. */
-> +	evt->mult = div_sc(cycles_per_msec, NSEC_PER_MSEC, evt->shift);
-> +	/* Upper bound is clockevent's use of ulong for cycle deltas. */
-> +	evt->max_delta_ns = clockevent_delta2ns(ULONG_MAX, evt);
-> +	evt->min_delta_ns = clockevent_delta2ns(1, evt);
-> +	evt->cpumask = cpumask_of_cpu(cpu);
-> +
-> +	printk(KERN_WARNING "vmi: registering clock event %s. mult=%lu shift=%u\n", 
-> +	       evt->name, evt->mult, evt->shift);
 
-Why is this a warning? ;-)
+I even started using the early access version to develop my new site and pr=
+ojects. An ID selector applies to the id attribute of a HTML element. I tri=
+ed, but in the process of doing so I found that their web service is non-WS=
+-I compliant. Also, be sure you have the latest version of iTunes installed=
+ on your system. He's been contributing to several architectural areas such=
+ as Window Manager, Web Services, Data Sources, Style builder, CSS Editor a=
+nd component design time. Instead, you can bind these properties to a data =
+provider or to properties whose type is BigDecimal.
+------------=_1176159858-4689-685
+Content-Type: text/html;
+	charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> +	clockevents_register_device(evt);
-> +}
-> +
-> +void __init vmi_time_init(void)
-> +{
-> +	/* Disable PIT: BIOSes start PIT CH0 with 18.2hz peridic. */
-> +	outb_p(0x3a, PIT_MODE); /* binary, mode 5, LSB/MSB, ch 0 */
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-125=
+2">
+<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
+<DEFANGED_style_0 </STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2><IMG alt=3D"compose" hspace=3D0=20
+DEFANGED_src=3D"cid:001b01c77afb$5a677ca0$d2b6d053@sfqq" align=3D"baseline"=
+=20
+border=3D0></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>I even started using the early access vers=
+ion to=20
+develop my new site and projects. An ID selector applies to the id attribut=
+e of a=20
+HTML element. I tried, but in the process of doing so I found that their we=
+b service=20
+is non-WS-I compliant. Also, be sure you have the latest version of iTunes =
+installed=20
+on your system. He's been contributing to several architectural areas such =
+as Window=20
+Manager, Web Services, Data Sources, Style builder, CSS Editor and componen=
+t design=20
+time. Instead, you can bind these properties to a data provider or to prope=
+rties=20
+whose type is BigDecimal.</FONT></DIV></BODY></HTML>
 
-That shouldn't be necessary using clockevents.
+------------=_1176159858-4689-685--
 
-> +	vmi_time_init_clockevent();
-> +	setup_irq(0, &vmi_clock_action);
-> +}
-> +
-> +#ifdef CONFIG_X86_LOCAL_APIC
-> +void __devinit vmi_time_bsp_init(void)
-> +{
-> +	/*
-> +	 * On APIC systems, we want local timers to fire on each cpu.  We do
-> +	 * this by programming LVTT to deliver timer events to the IRQ handler
-> +	 * for IRQ-0, since we can't re-use the APIC local timer handler
-> +	 * without interfering with that code.
-> +	 */
-> +	clockevents_notify(CLOCK_EVT_NOTIFY_SUSPEND, NULL);
+------=_NextPart_000_001C_01C77AD9.D3593800
+Content-Type: image/gif;
+	name="input.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <001b01c77afb$5a677ca0$d2b6d053@sfqq>
+Content-Disposition: inline
 
-Why do you do this suspend...
+R0lGODlhwQGlAfMEAO7f//Hf73JuaaKNxxwACF2HIdYVRZIA3wFC9J7vZ7B2
+n/S9Cjb4DAHjiWC88upI/CwAAAAAwQGlAQAE/xDICYINNOvNu//bJXZiaZrZ
+CUrnNbXuWsGjDLYUHdsk+ulAyw3WC45UvGQIo2w6U7QnDydlGa/MHPZYfQpn
+u2GJE/Vurd8uectOi1Vhtbrtlq99dk1dS8z7q2M3f0tCcYOHfjVTdHgpSX2B
+iHZBkpV3kUuPSJYeWYxtnFBGP32hTWdFV6SfjaaEkmyAhq4sf6C0aKifuIms
+dFqnvsJppby8kbGww5tzmMHOncvOWXx7YECX0tC5OtFg1daAmqqW24usb62p
+VDbUxuDa3dHk8/Hm2e/cxS/29+nufICdq4cuXzlh4mRoC2ZQlChFb141nGjm
+FzRU+uJRPNQP4I8i2f/KrOsXClsXLBvDQNw4bpgxjxVY5mO2atSsg5Tk0JNZ
+EgM1kThp8hyqpKAemA3ZhXQjlJDLjP6IpgR6NJkeMjWTqZt0b+szjL2c3hzp
+NafUpLeW6pKnc8++iivCJY371kldKUjYhoSn1G5TWx3PXrMq0CDKoisL9wzc
+FumghYJPHsbLBGxVU4wU+qp4N2vmf3UTRx79taO7zX5NIyT9mDBoy06ril4l
+Sy+/qJRnD57MGXbL02PVQmadOzjdZVzNHjde3DTRnb/lttN9TvXf1Dug815d
+aZRY4N4fmrQunXhk3GSjk1+vHHF4RO3zeDUfvTX96swnOuZYnnj/Ifxh45v/
+XQGyd9N+92H2X2+8QbUWgqXNh5Zt33U2nVG7SdPMgBdKSEt8MlE1FXr0LZig
+MpuklRw4t13nSlMGkngiTzJaMWKMJgpSoXMzklYKhDt6CJhGH7o2XYdH5GVh
+j6/lxyQnQhJ0l5NNLulgjZJRyZcPLgoG3WIggokUc4G8dyWQwlGIYYZWkqVl
+MTh2+eScslSJWi9lNiibOl/iucuWfcEX6J5oAhrlcp6td1Ycfwq3nJxFNopk
+mCWp5R4z5sTZpmJZasoUhy2i0Oekd8qXo4KfhorlJF6Yt2qQN3KHHYWYNUar
+eHik+AudUppUm6aJ7trckqUSauZL1PFqGKUnetoV/0unajbqsjsVKi1AVI5x
+KKGqFoKMbbcqy1WvkMJq6lPvmKkoiszOuamW55Zr64zoKssem/CKm4u+nTr7
+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
+IolLltSdSelp/aoyVlUKWfbNMfX0YranHolu2ku2LbyCTNNKDCzIT0TBcfOC
+uhk08OJmYeGufIzVJMy5WLfamfmuLGfMScw6DbIEKsbKUadF3pn5FDDSZ/n+
+ujuQMctJbgm+ZmEbr+XLKHsLvI0LZ+5dilEDLpoc9/N5sqMFpHlaOEfkxHV7
+ow3L8GzPfsGznuzbp/9NwqXttv6l0RLzir/ni56OE0zipWSToVcP1rt07RXW
+VUjmIbZbLf5xhKB1iYm3ln3bTDXfg8VBWMVlFB4VX3D5xcNWTyDWQ95wHOqj
+YHnAoMhbhQ0SWFs+fXjIVXReGXcecOGUCF9kOYmogxG9qKYZPX81GCA022mh
+B44tXsUgcU6uCN2UqjinYWkGjmiiMQfW6Bp2VV7Yn5jjqRgmjBqqKYaXaJYZ
+HpnfKQnYjDuiFVV8db7ZxYoCNgngPWJx2WaYbmaFn2GG+gfonkh+1NNBETb6
+2HmEfomibZixpyWLkjpK4jV+jvkaXTNM2tKER9W3pp2e/vmhL4d8wSB33Zn/
++eKBOKYqKmg/IsrLfoCgpuKppkrGa7E2zqmmnvptyeygJTUrpF65ZumWlFY1
+qmqroFIbZ4fQ+ipfqc4WlxCtYM45oJExXeoisuqm2+u6a32bbK2jRktliFIu
+uy9Yt2qZxoM5IiowtHK+qyi8ojpmsL3KIQzwtRBPO/GdB6sVyqeD0ZgpvuOE
+TC+u+l7sbohzsStjlM8xXJ1FL5sLEoXazUozq1r1KzOm4MDgGMZ51gsdsSTX
+I2+8sM0074IQhxtb0cqKS2LGDJX83r5FrOttqntGPXTHVa+m49M8LwVvlZyu
+7Aw2k4F7ImVm28xJhtkuN7Xcz5Zb8V1p240317cw/x1z4GV1C7iDDNdYMtj/
+MSt1aJC/K2hjhkZ+atLUEDY4kRSn5m8Zbzet9tyiO361kOeibrLQSl2u3o2b
+cwjyzoMbmZkZXSlq96pRj9j568dCXfjpUJ1TPOKknr0pO6s3ch/M1ZB8sc/N
+j1s675RZSp1+SmKreOMIS3vy9Hn/6eqvnpO/6PgUe762+WOZeH1nTl+5vldl
+48Htt9Lg/+T7zje5FPWNTXN70sjGgzTn6et+x/sN6/bGOaJxI3xlAprqqNIi
+vGBQE8YLYNxCJzYCPqpWvttYAtsnQvstL4JYKp/YCkg4s4TPYhZcGYSUAUPI
+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
+RAAAOwV9
 
-> +	local_irq_disable();
-> +#ifdef CONFIG_X86_SMP
-> +	/*
-> +	 * XXX handle_percpu_irq only defined for SMP; we need to switch over
-> +	 * to using it, since this is a local interrupt, which each CPU must
-> +	 * handle individually without locking out or dropping simultaneous
-> +	 * local timers on other CPUs.  We also don't want to trigger the
-> +	 * quirk workaround code for interrupts which gets invoked from
-> +	 * handle_percpu_irq via eoi, so we use our own IRQ chip.
-> +	 */
-> +	set_irq_chip_and_handler_name(0, &vmi_chip, handle_percpu_irq, "lvtt");
-> +#else
-> +	set_irq_chip_and_handler_name(0, &vmi_chip, handle_edge_irq, "lvtt");
-> +#endif
-> +	vmi_wiring = VMI_ALARM_WIRED_LVTT;
-> +	apic_write(APIC_LVTT, vmi_get_timer_vector());
+------=_NextPart_000_001C_01C77AD9.D3593800
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-isn't this just your ->startup?
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
 
-> +	local_irq_enable();
-> +	clockevents_notify(CLOCK_EVT_NOTIFY_RESUME, NULL);
-
-...and resume?  Instead of letting clockevents core handle all of that,
-and just registering right here?
-
-> +void __devinit vmi_time_ap_init(void)
-> +{
-> +	vmi_time_init_clockevent();
-> +	apic_write(APIC_LVTT, vmi_get_timer_vector());
-> +}
-> +#endif
-> +
-> +/** vmi clocksource */
-> +
-> +static cycle_t read_real_cycles(void)
-> +{
-> +	return vmi_timer_ops.get_cycle_counter(VMI_CYCLES_REAL);
-> +}
-> +
-> +static struct clocksource clocksource_vmi = {
-> +	.name			= "vmi-timer",
-> +	.rating			= 450,
-> +	.read			= read_real_cycles,
-> +	.mask			= CLOCKSOURCE_MASK(64),
-> +	.mult			= 0, /* to be set */
-> +	.shift			= 22,
-> +	.flags			= CLOCK_SOURCE_IS_CONTINUOUS,
-> +};
-> +
-> +static int __init init_vmi_clocksource(void)
-> +{
-> +	cycle_t cycles_per_msec;
-> +
-> +	if (!vmi_timer_ops.get_cycle_frequency)
-> +		return 0;
-> +	/* Use khz2mult rather than hz2mult since hz arg is only 32-bits. */
-> +	cycles_per_msec = vmi_timer_ops.get_cycle_frequency();
-> +	(void)do_div(cycles_per_msec, 1000);
-> +	
-> +	/* Note that clocksource.{mult, shift} converts in the opposite direction
-> +	 * as clockevents.  */
-> +	clocksource_vmi.mult = clocksource_khz2mult(cycles_per_msec,
-> +						    clocksource_vmi.shift);
-> +
-> +	printk(KERN_WARNING "vmi: registering clock source khz=%lld\n", cycles_per_msec);
-> +	return clocksource_register(&clocksource_vmi);
-> +
-> +}
-> +module_init(init_vmi_clocksource);
+------=_NextPart_000_001C_01C77AD9.D3593800--
