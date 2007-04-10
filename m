@@ -1,47 +1,130 @@
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: PATCH 7/8] lguest: the block driver
-Date: Tue, 10 Apr 2007 14:36:05 +0300
-Message-ID: <84144f020704100436y3405f104x8345c72556d961e9__463.726852513169$1176222623$gmane$org@mail.gmail.com>
-References: <1176203068.26372.21.camel@localhost.localdomain>
-	<1176203130.26372.23.camel@localhost.localdomain>
-	<1176203176.26372.25.camel@localhost.localdomain>
-	<1176203231.26372.27.camel@localhost.localdomain>
-	<1176203285.26372.29.camel@localhost.localdomain>
-	<1176203333.26372.31.camel@localhost.localdomain>
-	<1176203475.26372.37.camel@localhost.localdomain>
-	<1176203528.26372.40.camel@localhost.localdomain>
-	<84144f020704100428r6e35e34cued8758c94728a6a0@mail.gmail.com>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH 9/10] Vmi timer update.patch
+Date: Tue, 10 Apr 2007 10:03:47 -0700
+Message-ID: <461BC373.10306@vmware.com>
+References: <200704100006.l3A06RUR020644@zach-dev.vmware.com> <20070410023702.GJ10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <84144f020704100428r6e35e34cued8758c94728a6a0@mail.gmail.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, jens.axboe@oracle.com, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1031163AbXDJRGT@vger.kernel.org>
+In-Reply-To: <20070410023702.GJ10574@sequoia.sous-sol.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Dan Hecht <dhecht@vmware.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/10/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > +/* Jens gave me this nice helper to end all chunks of a request. */
-> > +static void end_entire_request(struct request *req, int uptodate)
-> > +{
-> > +       if (end_that_request_first(req, uptodate, req->hard_nr_sectors))
-> > +               BUG();
-> > +       add_disk_randomness(req->rq_disk);
-> > +       blkdev_dequeue_request(req);
-> > +       end_that_request_last(req, uptodate);
-> > +}
+Chris Wright wrote:
 
-On 4/10/07, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> Perhaps we should move this to generic code (i.e. block/ll_rw_blk.c)?
 
-Uhm, I am bit confused now. Why don't you just use end_request() here?
+Thanks for the review!  Comments inline.
+
+>> +/* paravirt_ops.get_wallclock = vmi_get_wallclock */
+>>     
+>
+> Style nit, these pv_ops.foo = vmi_foo style comments aren't really useful.
+>
+>   
+
+Yeah, and easy to get out of sync.  I'll drop them.
+
+>> +	.rating         = 1000,
+>>     
+>
+> Heh, no messing around ;-)
+>   
+
+Yes, VMI has 1000 hps.
+
+
+>> +	printk(KERN_WARNING "vmi: registering clock event %s. mult=%lu shift=%u\n", 
+>> +	       evt->name, evt->mult, evt->shift);
+>>     
+>
+> Why is this a warning? ;-)
+>   
+
+Debug info, I can remove it.
+
+>> +void __init vmi_time_init(void)
+>> +{
+>> +	/* Disable PIT: BIOSes start PIT CH0 with 18.2hz peridic. */
+>> +	outb_p(0x3a, PIT_MODE); /* binary, mode 5, LSB/MSB, ch 0 */
+>>     
+>
+> That shouldn't be necessary using clockevents.
+>   
+
+Actually, I'm not so sure.  If clockevents simply masks the PIT when 
+disabling it, we still have overhead of keeping the latch in sync, which 
+requires a timer at the PIT frequency.  I can instrument to see how 
+exactly the PIT gets disabled.
+
+
+>> +	vmi_time_init_clockevent();
+>> +	setup_irq(0, &vmi_clock_action);
+>> +}
+>> +
+>> +#ifdef CONFIG_X86_LOCAL_APIC
+>> +void __devinit vmi_time_bsp_init(void)
+>> +{
+>> +	/*
+>> +	 * On APIC systems, we want local timers to fire on each cpu.  We do
+>> +	 * this by programming LVTT to deliver timer events to the IRQ handler
+>> +	 * for IRQ-0, since we can't re-use the APIC local timer handler
+>> +	 * without interfering with that code.
+>> +	 */
+>> +	clockevents_notify(CLOCK_EVT_NOTIFY_SUSPEND, NULL);
+>>     
+>
+> Why do you do this suspend...
+>   
+
+We need to cancel all pending PIT timer events and restart then local 
+timer, which requires atomically taking over IRQ-0.  We use the IDT gate 
+for IRQ-0 because it is already an exclusive interrupt, but we can't 
+re-use the LVTT IDT gate for local timer since that requires a custom 
+custom SMP interrupt in entry.S.  So we must be absolutely sure when we 
+get an interrupt on IRQ-0 that it came from the VMI local (rather than 
+PIT) delivery path.
+
+>   
+>> +	local_irq_disable();
+>> +#ifdef CONFIG_X86_SMP
+>> +	/*
+>> +	 * XXX handle_percpu_irq only defined for SMP; we need to switch over
+>> +	 * to using it, since this is a local interrupt, which each CPU must
+>> +	 * handle individually without locking out or dropping simultaneous
+>> +	 * local timers on other CPUs.  We also don't want to trigger the
+>> +	 * quirk workaround code for interrupts which gets invoked from
+>> +	 * handle_percpu_irq via eoi, so we use our own IRQ chip.
+>> +	 */
+>> +	set_irq_chip_and_handler_name(0, &vmi_chip, handle_percpu_irq, "lvtt");
+>> +#else
+>> +	set_irq_chip_and_handler_name(0, &vmi_chip, handle_edge_irq, "lvtt");
+>> +#endif
+>> +	vmi_wiring = VMI_ALARM_WIRED_LVTT;
+>> +	apic_write(APIC_LVTT, vmi_get_timer_vector());
+>>     
+>
+> isn't this just your ->startup?
+>   
+
+Which structure has a ->startup function we can use?  Sorry if this 
+seems ignorant, I'm not quite sure what you mean.
+
+>   
+>> +	local_irq_enable();
+>> +	clockevents_notify(CLOCK_EVT_NOTIFY_RESUME, NULL);
+>>     
+>
+> ...and resume?  Instead of letting clockevents core handle all of that,
+> and just registering right here?
+>   
+
+It wasn't clear that clockevents would issue a resume notify for us; if 
+so we could handle this setup in the callback, but it has to be done on 
+the correct CPU.  I can try it and see if that works.
+
+Thanks,
+
+Zach
