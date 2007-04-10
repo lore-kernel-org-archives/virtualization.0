@@ -1,30 +1,35 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [patch 4/6] Rename the parainstructions symbols to be
- consistent with the others
-Date: Tue, 10 Apr 2007 11:44:37 -0700
-Message-ID: <20070410114437.d1eb492e.akpm@linux-foundation.org>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [patch 4/6] Rename the parainstructions symbols to be consistent
+	with the others
+Date: Tue, 10 Apr 2007 20:07:48 +0200
+Message-ID: <200704102007.49163.ak@suse.de>
 References: <20070404010655.400913479@goop.org>
 	<20070404011453.598418421@goop.org>
-	<200704102007.49163.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1031433AbXDJSo4@vger.kernel.org>
-In-Reply-To: <200704102007.49163.ak@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070404011453.598418421@goop.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 10 Apr 2007 20:07:48 +0200 Andi Kleen <ak@suse.de> wrote:
+On Wednesday 04 April 2007 03:06:59 Jeremy Fitzhardinge wrote:
+> The other symbols used to delineate the alt-instructions sections have
+> the form __foo/__foo_end.  Rename parainstructions to match.
 
-> On Wednesday 04 April 2007 03:06:59 Jeremy Fitzhardinge wrote:
-> > The other symbols used to delineate the alt-instructions sections have
-> > the form __foo/__foo_end.  Rename parainstructions to match.
-> 
-> This patch breaks x86-64
-> 
+This patch breaks x86-64
 
-Fixed version is in 2.6.21-rc6-mm1.
+-Andi
 
-Please let me know when you've uploaded your new tree...
+> =
