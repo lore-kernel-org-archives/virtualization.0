@@ -1,18 +1,20 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 6/8] lguest: the net driver
-Date: Tue, 10 Apr 2007 21:11:15 +1000
-Message-ID: <1176203475.26372.37.camel__2440.08793165467$1176215176$gmane$org@localhost.localdomain>
+Subject: [PATCH 8/8] lguest: the documentation, example launcher
+Date: Tue, 10 Apr 2007 21:12:59 +1000
+Message-ID: <1176203579.26372.44.camel__5201.84502606771$1176215230$gmane$org@localhost.localdomain>
 References: <1176203068.26372.21.camel@localhost.localdomain>
 	<1176203130.26372.23.camel@localhost.localdomain>
 	<1176203176.26372.25.camel@localhost.localdomain>
 	<1176203231.26372.27.camel@localhost.localdomain>
 	<1176203285.26372.29.camel@localhost.localdomain>
 	<1176203333.26372.31.camel@localhost.localdomain>
+	<1176203475.26372.37.camel@localhost.localdomain>
+	<1176203528.26372.40.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1176203333.26372.31.camel@localhost.localdomain>
+In-Reply-To: <1176203528.26372.40.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,391 +28,1171 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Andi Kleen <ak@muc.de>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Lguest net driver
-
-A simple net driver for lguest.
+A brief document describing how to use lguest.  Because lguest doesn't
+have an ABI we also include an example launcher in the Documentation
+directory.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/net/Makefile     |    1 =
+ Documentation/lguest/Makefile   |   20 =
 
- drivers/net/lguest_net.c |  355 ++++++++++++++++++++++++++++++++++++++++++=
+ Documentation/lguest/lguest.c   |  982 +++++++++++++++++++++++++++++++++++=
 ++++
- 2 files changed, 356 insertions(+)
+ Documentation/lguest/lguest.txt |  125 ++++
+ 3 files changed, 1127 insertions(+)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -220,3 +220,4 @@ obj-$(CONFIG_FS_ENET) +=3D fs_enet/
- obj-$(CONFIG_FS_ENET) +=3D fs_enet/
- =
-
- obj-$(CONFIG_NETXEN_NIC) +=3D netxen/
-+obj-$(CONFIG_LGUEST_GUEST) +=3D lguest_net.o
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 --- /dev/null
-+++ b/drivers/net/lguest_net.c
-@@ -0,0 +1,355 @@
-+/* A simple network driver for lguest.
-+ *
-+ * Copyright 2006 Rusty Russell <rusty@rustcorp.com.au> IBM Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  U=
-SA
-+ */
-+//#define DEBUG
-+#include <linux/netdevice.h>
-+#include <linux/etherdevice.h>
-+#include <linux/module.h>
-+#include <linux/mm_types.h>
-+#include <linux/lguest_bus.h>
-+#include <asm/io.h>
++++ b/Documentation/lguest/Makefile
+@@ -0,0 +1,20 @@
++# This creates the demonstration utility "lguest" which runs a Linux guest.
 +
-+#define SHARED_SIZE		PAGE_SIZE
-+#define MAX_LANS		4
-+#define NUM_SKBS		8
++# We rely on CONFIG_PAGE_OFFSET to know where to put lguest binary.
++include ../../.config
++LGUEST_GUEST_TOP :=3D ($(CONFIG_PAGE_OFFSET) - 0x08000000)
 +
-+struct lguestnet_info
++CFLAGS:=3D-Wall -Wmissing-declarations -Wmissing-prototypes -O3 \
++	-static -DLGUEST_GUEST_TOP=3D"$(LGUEST_GUEST_TOP)" -Wl,-T,lguest.lds
++LDLIBS:=3D-lz
++
++all: lguest.lds lguest
++
++# The linker script on x86 is so complex the only way of creating one
++# which will link our binary in the right place is to mangle the
++# default one.
++lguest.lds:
++	$(LD) --verbose | awk '/^=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D/ { PRINT=3D1; nex=
+t; } /SIZEOF_HEADERS/ { gsub(/0x[0-9A-F]*/, "$(LGUEST_GUEST_TOP)") } { if (=
+PRINT) print $$0; }' > $@
++
++clean:
++	rm -f lguest.lds lguest
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/Documentation/lguest/lguest.c
+@@ -0,0 +1,982 @@
++/* Simple program to layout "physical" memory for new lguest guest.
++ * Linked high to avoid likely physical memory.  */
++#define _LARGEFILE64_SOURCE
++#define _GNU_SOURCE
++#include <stdio.h>
++#include <string.h>
++#include <unistd.h>
++#include <err.h>
++#include <stdint.h>
++#include <stdlib.h>
++#include <elf.h>
++#include <sys/mman.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/wait.h>
++#include <fcntl.h>
++#include <stdbool.h>
++#include <errno.h>
++#include <signal.h>
++#include <ctype.h>
++#include <sys/socket.h>
++#include <sys/ioctl.h>
++#include <sys/time.h>
++#include <time.h>
++#include <netinet/in.h>
++#include <net/if.h>
++#include <linux/sockios.h>
++#include <linux/if_tun.h>
++#include <sys/uio.h>
++#include <termios.h>
++#include <getopt.h>
++#include <zlib.h>
++typedef uint32_t u32;
++typedef uint16_t u16;
++typedef uint8_t u8;
++#include "../../include/linux/lguest_launcher.h"
++
++#define PAGE_PRESENT 0x7 	/* Present, RW, Execute */
++#define NET_PEERNUM 1
++#define BRIDGE_PFX "bridge:"
++
++static bool verbose;
++#define verbose(args...) \
++	do { if (verbose) printf(args); } while(0)
++
++struct device_list
 +{
-+	/* The shared page(s). */
-+	struct lguest_net *peer;
-+	unsigned long peer_phys;
-+	unsigned long mapsize;
++	fd_set infds;
++	int max_infd;
 +
-+	/* My peerid. */
-+	unsigned int me;
-+
-+	struct net_device_stats stats;
-+
-+	/* Receive queue. */
-+	struct sk_buff *skb[NUM_SKBS];
-+	struct lguest_dma dma[NUM_SKBS];
++	struct device *dev;
++	struct device **lastdev;
 +};
 +
-+/* How many bytes left in this page. */
-+static unsigned int rest_of_page(void *data)
++struct device
 +{
-+	return PAGE_SIZE - ((unsigned long)data % PAGE_SIZE);
++	struct device *next;
++	struct lguest_device_desc *desc;
++	void *mem;
++
++	/* Watch this fd if handle_input non-NULL. */
++	int fd;
++	bool (*handle_input)(int fd, struct device *me);
++
++	/* Watch DMA to this key if handle_input non-NULL. */
++	unsigned long watch_key;
++	u32 (*handle_output)(int fd, const struct iovec *iov,
++			     unsigned int num, struct device *me);
++
++	/* Device-specific data. */
++	void *priv;
++};
++
++static int open_or_die(const char *name, int flags)
++{
++	int fd =3D open(name, flags);
++	if (fd < 0)
++		err(1, "Failed to open %s", name);
++	return fd;
 +}
 +
-+/* Simple convention: offset 4 * peernum. */
-+static unsigned long peer_key(struct lguestnet_info *info, unsigned peernu=
-m)
++static void *map_zeroed_pages(unsigned long addr, unsigned int num)
 +{
-+	return info->peer_phys + 4 * peernum;
++	static int fd =3D -1;
++
++	if (fd =3D=3D -1)
++		fd =3D open_or_die("/dev/zero", O_RDONLY);
++
++	if (mmap((void *)addr, getpagesize() * num,
++		 PROT_READ|PROT_WRITE|PROT_EXEC, MAP_FIXED|MAP_PRIVATE, fd, 0)
++	    !=3D (void *)addr)
++		err(1, "Mmaping %u pages of /dev/zero @%p", num, (void *)addr);
++	return (void *)addr;
 +}
 +
-+static void skb_to_dma(const struct sk_buff *skb, unsigned int headlen,
-+		       struct lguest_dma *dma)
++/* Returns the entry point */
++static unsigned long map_elf(int elf_fd, const Elf32_Ehdr *ehdr,
++			     unsigned long *page_offset)
 +{
-+	unsigned int i, seg;
++	void *addr;
++	Elf32_Phdr phdr[ehdr->e_phnum];
++	unsigned int i;
 +
-+	for (i =3D seg =3D 0; i < headlen; seg++, i +=3D rest_of_page(skb->data+i=
-)) {
-+		dma->addr[seg] =3D virt_to_phys(skb->data + i);
-+		dma->len[seg] =3D min((unsigned)(headlen - i),
-+				    rest_of_page(skb->data + i));
++	/* Sanity checks. */
++	if (ehdr->e_type !=3D ET_EXEC
++	    || ehdr->e_machine !=3D EM_386
++	    || ehdr->e_phentsize !=3D sizeof(Elf32_Phdr)
++	    || ehdr->e_phnum < 1 || ehdr->e_phnum > 65536U/sizeof(Elf32_Phdr))
++		errx(1, "Malformed elf header");
++
++	if (lseek(elf_fd, ehdr->e_phoff, SEEK_SET) < 0)
++		err(1, "Seeking to program headers");
++	if (read(elf_fd, phdr, sizeof(phdr)) !=3D sizeof(phdr))
++		err(1, "Reading program headers");
++
++	*page_offset =3D 0;
++	/* We map the loadable segments at virtual addresses corresponding
++	 * to their physical addresses (our virtual =3D=3D guest physical). */
++	for (i =3D 0; i < ehdr->e_phnum; i++) {
++		if (phdr[i].p_type !=3D PT_LOAD)
++			continue;
++
++		verbose("Section %i: size %i addr %p\n",
++			i, phdr[i].p_memsz, (void *)phdr[i].p_paddr);
++
++		/* We expect linear address space. */
++		if (!*page_offset)
++			*page_offset =3D phdr[i].p_vaddr - phdr[i].p_paddr;
++		else if (*page_offset !=3D phdr[i].p_vaddr - phdr[i].p_paddr)
++			errx(1, "Page offset of section %i different", i);
++
++		/* We map everything private, writable. */
++		addr =3D mmap((void *)phdr[i].p_paddr,
++			    phdr[i].p_filesz,
++			    PROT_READ|PROT_WRITE|PROT_EXEC,
++			    MAP_FIXED|MAP_PRIVATE,
++			    elf_fd, phdr[i].p_offset);
++		if (addr !=3D (void *)phdr[i].p_paddr)
++			err(1, "Mmaping vmlinux seg %i gave %p not %p",
++			    i, addr, (void *)phdr[i].p_paddr);
 +	}
-+	for (i =3D 0; i < skb_shinfo(skb)->nr_frags; i++, seg++) {
-+		const skb_frag_t *f =3D &skb_shinfo(skb)->frags[i];
-+		/* Should not happen with MTU less than 64k - 2 * PAGE_SIZE. */
-+		if (seg =3D=3D LGUEST_MAX_DMA_SECTIONS) {
-+			printk("Woah dude!  Megapacket!\n");
++
++	/* Entry is physical address: convert to virtual */
++	return ehdr->e_entry + *page_offset;
++}
++
++/* This is amazingly reliable. */
++static unsigned long intuit_page_offset(unsigned char *img, unsigned long =
+len)
++{
++	unsigned int i, possibilities[256] =3D { 0 };
++
++	for (i =3D 0; i + 4 < len; i++) {
++		/* mov 0xXXXXXXXX,%eax */
++		if (img[i] =3D=3D 0xA1 && ++possibilities[img[i+4]] > 3)
++			return (unsigned long)img[i+4] << 24;
++	}
++	errx(1, "could not determine page offset");
++}
++
++static unsigned long unpack_bzimage(int fd, unsigned long *page_offset)
++{
++	gzFile f;
++	int ret, len =3D 0;
++	void *img =3D (void *)0x100000;
++
++	f =3D gzdopen(fd, "rb");
++	if (gzdirect(f))
++		errx(1, "did not find correct gzip header");
++	while ((ret =3D gzread(f, img + len, 65536)) > 0)
++		len +=3D ret;
++	if (ret < 0)
++		err(1, "reading image from bzImage");
++
++	verbose("Unpacked size %i addr %p\n", len, img);
++	*page_offset =3D intuit_page_offset(img, len);
++
++	/* Entry is physical address: convert to virtual */
++	return (unsigned long)img + *page_offset;
++}
++
++static unsigned long load_bzimage(int fd, unsigned long *page_offset)
++{
++	unsigned char c;
++	int state =3D 0;
++
++	/* Ugly brute force search for gzip header. */
++	while (read(fd, &c, 1) =3D=3D 1) {
++		switch (state) {
++		case 0:
++			if (c =3D=3D 0x1F)
++				state++;
 +			break;
++		case 1:
++			if (c =3D=3D 0x8B)
++				state++;
++			else
++				state =3D 0;
++			break;
++		case 2 ... 8:
++			state++;
++			break;
++		case 9:
++			lseek(fd, -10, SEEK_CUR);
++			if (c !=3D 0x03) /* Compressed under UNIX. */
++				state =3D -1;
++			else
++				return unpack_bzimage(fd, page_offset);
 +		}
-+		dma->addr[seg] =3D page_to_phys(f->page) + f->page_offset;
-+		dma->len[seg] =3D f->size;
 +	}
-+	if (seg < LGUEST_MAX_DMA_SECTIONS)
-+		dma->len[seg] =3D 0;
++	errx(1, "Could not find kernel in bzImage");
 +}
 +
-+/* We overload multicast bit to show promiscuous mode. */
-+#define PROMISC_BIT		0x01
-+
-+static void lguestnet_set_multicast(struct net_device *dev)
++static unsigned long load_kernel(int fd, unsigned long *page_offset)
 +{
-+	struct lguestnet_info *info =3D dev->priv;
++	Elf32_Ehdr hdr;
 +
-+	if ((dev->flags & (IFF_PROMISC|IFF_ALLMULTI)) || dev->mc_count)
-+		info->peer[info->me].mac[0] |=3D PROMISC_BIT;
++	if (read(fd, &hdr, sizeof(hdr)) !=3D sizeof(hdr))
++		err(1, "Reading kernel");
++
++	if (memcmp(hdr.e_ident, ELFMAG, SELFMAG) =3D=3D 0)
++		return map_elf(fd, &hdr, page_offset);
++
++	return load_bzimage(fd, page_offset);
++}
++
++/* initrd gets loaded at top of memory: return length. */
++static unsigned long load_initrd(const char *name, unsigned long mem)
++{
++	int ifd;
++	struct stat st;
++	void *iaddr;
++
++	ifd =3D open_or_die(name, O_RDONLY);
++	if (fstat(ifd, &st) < 0)
++		err(1, "fstat() on initrd '%s'", name);
++
++	iaddr =3D mmap((void *)mem - st.st_size, st.st_size,
++		     PROT_READ|PROT_EXEC|PROT_WRITE,
++		     MAP_FIXED|MAP_PRIVATE, ifd, 0);
++	if (iaddr !=3D (void *)mem - st.st_size)
++		err(1, "Mmaping initrd '%s' returned %p not %p",
++		    name, iaddr, (void *)mem - st.st_size);
++	close(ifd);
++	verbose("mapped initrd %s size=3D%lu @ %p\n", name, st.st_size, iaddr);
++	return st.st_size;
++}
++
++static inline unsigned long page_align(unsigned long addr)
++{
++	return ((addr + getpagesize()-1) & ~(getpagesize()-1));
++}
++
++static unsigned long setup_pagetables(unsigned long mem,
++				      unsigned long initrd_size,
++				      unsigned long page_offset)
++{
++	u32 *pgdir, *linear;
++	unsigned int mapped_pages, i, linear_pages;
++	unsigned int ptes_per_page =3D getpagesize()/sizeof(u32);
++
++	/* If we can map all of memory above page_offset, we do so. */
++	if (mem > -page_offset)
++		mapped_pages =3D mem/getpagesize();
 +	else
-+		info->peer[info->me].mac[0] &=3D ~PROMISC_BIT;
-+}
++		mapped_pages =3D -page_offset/getpagesize();
 +
-+static int promisc(struct lguestnet_info *info, unsigned int peer)
-+{
-+	return info->peer[peer].mac[0] & PROMISC_BIT;
-+}
++	/* Each linear PTE page can map ptes_per_page pages. */
++	linear_pages =3D (mapped_pages + ptes_per_page-1)/ptes_per_page;
 +
-+static int mac_eq(const unsigned char mac[ETH_ALEN],
-+		  struct lguestnet_info *info, unsigned int peer)
-+{
-+	/* Ignore multicast bit, which peer turns on to mean promisc. */
-+	if ((info->peer[peer].mac[0] & (~PROMISC_BIT)) !=3D mac[0])
-+		return 0;
-+	return memcmp(mac+1, info->peer[peer].mac+1, ETH_ALEN-1) =3D=3D 0;
-+}
++	/* We lay out top-level then linear mapping immediately below initrd */
++	pgdir =3D (void *)mem - initrd_size - getpagesize();
++	linear =3D (void *)pgdir - linear_pages*getpagesize();
 +
-+static void transfer_packet(struct net_device *dev,
-+			    struct sk_buff *skb,
-+			    unsigned int peernum)
-+{
-+	struct lguestnet_info *info =3D dev->priv;
-+	struct lguest_dma dma;
++	for (i =3D 0; i < mapped_pages; i++)
++		linear[i] =3D ((i * getpagesize()) | PAGE_PRESENT);
 +
-+	skb_to_dma(skb, skb_headlen(skb), &dma);
-+	pr_debug("xfer length %04x (%u)\n", htons(skb->len), skb->len);
-+
-+	hcall(LHCALL_SEND_DMA, peer_key(info,peernum), __pa(&dma), 0);
-+	if (dma.used_len !=3D skb->len) {
-+		info->stats.tx_carrier_errors++;
-+		pr_debug("Bad xfer to peer %i: %i of %i (dma %p/%i)\n",
-+			 peernum, dma.used_len, skb->len,
-+			 (void *)dma.addr[0], dma.len[0]);
-+	} else {
-+		info->stats.tx_bytes +=3D skb->len;
-+		info->stats.tx_packets++;
-+	}
-+}
-+
-+static int unused_peer(const struct lguest_net peer[], unsigned int num)
-+{
-+	return peer[num].mac[0] =3D=3D 0;
-+}
-+
-+static int lguestnet_start_xmit(struct sk_buff *skb, struct net_device *de=
-v)
-+{
-+	unsigned int i;
-+	int broadcast;
-+	struct lguestnet_info *info =3D dev->priv;
-+	const unsigned char *dest =3D ((struct ethhdr *)skb->data)->h_dest;
-+
-+	pr_debug("%s: xmit %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		 dev->name, dest[0],dest[1],dest[2],dest[3],dest[4],dest[5]);
-+
-+	broadcast =3D is_multicast_ether_addr(dest);
-+	for (i =3D 0; i < info->mapsize/sizeof(struct lguest_net); i++) {
-+		if (i =3D=3D info->me || unused_peer(info->peer, i))
-+			continue;
-+
-+		if (!broadcast && !promisc(info, i) && !mac_eq(dest, info, i))
-+			continue;
-+
-+		pr_debug("lguestnet %s: sending from %i to %i\n",
-+			 dev->name, info->me, i);
-+		transfer_packet(dev, skb, i);
-+	}
-+	dev_kfree_skb(skb);
-+	return 0;
-+}
-+
-+/* Find a new skb to put in this slot in shared mem. */
-+static int fill_slot(struct net_device *dev, unsigned int slot)
-+{
-+	struct lguestnet_info *info =3D dev->priv;
-+	/* Try to create and register a new one. */
-+	info->skb[slot] =3D netdev_alloc_skb(dev, ETH_HLEN + ETH_DATA_LEN);
-+	if (!info->skb[slot]) {
-+		printk("%s: could not fill slot %i\n", dev->name, slot);
-+		return -ENOMEM;
++	/* Now set up pgd so that this memory is at page_offset */
++	for (i =3D 0; i < mapped_pages; i +=3D ptes_per_page) {
++		pgdir[(i + page_offset/getpagesize())/ptes_per_page]
++			=3D (((u32)linear + i*sizeof(u32)) | PAGE_PRESENT);
 +	}
 +
-+	skb_to_dma(info->skb[slot], ETH_HLEN + ETH_DATA_LEN, &info->dma[slot]);
-+	wmb();
-+	/* Now we tell hypervisor it can use the slot. */
-+	info->dma[slot].used_len =3D 0;
-+	return 0;
++	verbose("Linear mapping of %u pages in %u pte pages at %p\n",
++		mapped_pages, linear_pages, linear);
++
++	return (unsigned long)pgdir;
 +}
 +
-+static irqreturn_t lguestnet_rcv(int irq, void *dev_id)
++static void concat(char *dst, char *args[])
 +{
-+	struct net_device *dev =3D dev_id;
-+	struct lguestnet_info *info =3D dev->priv;
-+	unsigned int i, done =3D 0;
++	unsigned int i, len =3D 0;
 +
-+	for (i =3D 0; i < ARRAY_SIZE(info->dma); i++) {
-+		unsigned int length;
-+		struct sk_buff *skb;
++	for (i =3D 0; args[i]; i++) {
++		strcpy(dst+len, args[i]);
++		strcat(dst+len, " ");
++		len +=3D strlen(args[i]) + 1;
++	}
++	/* In case it's empty. */
++	dst[len] =3D '\0';
++}
 +
-+		length =3D info->dma[i].used_len;
-+		if (length =3D=3D 0)
-+			continue;
++static int tell_kernel(u32 pgdir, u32 start, u32 page_offset)
++{
++	u32 args[] =3D { LHREQ_INITIALIZE,
++		       LGUEST_GUEST_TOP/getpagesize(), /* Just below us */
++		       pgdir, start, page_offset };
++	int fd;
 +
-+		done++;
-+		skb =3D info->skb[i];
-+		fill_slot(dev, i);
++	fd =3D open_or_die("/dev/lguest", O_RDWR);
++	if (write(fd, args, sizeof(args)) < 0)
++		err(1, "Writing to /dev/lguest");
++	return fd;
++}
 +
-+		if (length < ETH_HLEN || length > ETH_HLEN + ETH_DATA_LEN) {
-+			pr_debug(KERN_WARNING "%s: unbelievable skb len: %i\n",
-+				 dev->name, length);
-+			dev_kfree_skb(skb);
-+			continue;
++static void set_fd(int fd, struct device_list *devices)
++{
++	FD_SET(fd, &devices->infds);
++	if (fd > devices->max_infd)
++		devices->max_infd =3D fd;
++}
++
++/* We send lguest_add signals while input is pending: avoids races. */
++static void wake_parent(int pipefd, struct device_list *devices)
++{
++	nice(19);
++
++	set_fd(pipefd, devices);
++
++	for (;;) {
++		fd_set rfds =3D devices->infds;
++
++		select(devices->max_infd+1, &rfds, NULL, NULL, NULL);
++		if (FD_ISSET(pipefd, &rfds)) {
++			int ignorefd;
++			if (read(pipefd, &ignorefd, sizeof(ignorefd)) =3D=3D 0)
++				exit(0);
++			FD_CLR(ignorefd, &devices->infds);
 +		}
-+
-+		skb_put(skb, length);
-+		skb->protocol =3D eth_type_trans(skb, dev);
-+		/* This is a reliable transport. */
-+		if (dev->features & NETIF_F_NO_CSUM)
-+			skb->ip_summed =3D CHECKSUM_UNNECESSARY;
-+		pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
-+			 ntohs(skb->protocol), skb->len, skb->pkt_type);
-+
-+		info->stats.rx_bytes +=3D skb->len;
-+		info->stats.rx_packets++;
-+		netif_rx(skb);
++		kill(getppid(), SIGUSR1);
 +	}
-+	return done ? IRQ_HANDLED : IRQ_NONE;
 +}
 +
-+static int lguestnet_open(struct net_device *dev)
++/* We don't want signal to kill us, just jerk us out of kernel. */
++static void wakeup(int signo)
 +{
-+	int i;
-+	struct lguestnet_info *info =3D dev->priv;
-+
-+	/* Set up our MAC address */
-+	memcpy(info->peer[info->me].mac, dev->dev_addr, ETH_ALEN);
-+
-+	/* Turn on promisc mode if needed */
-+	lguestnet_set_multicast(dev);
-+
-+	for (i =3D 0; i < ARRAY_SIZE(info->dma); i++) {
-+		if (fill_slot(dev, i) !=3D 0)
-+			goto cleanup;
-+	}
-+	if (!hcall(LHCALL_BIND_DMA, peer_key(info, info->me), __pa(info->dma),
-+		   (NUM_SKBS << 8) | dev->irq))
-+		goto cleanup;
-+	return 0;
-+
-+cleanup:
-+	while (--i >=3D 0)
-+		dev_kfree_skb(info->skb[i]);
-+	return -ENOMEM;
 +}
 +
-+static int lguestnet_close(struct net_device *dev)
++static int setup_waker(struct device_list *device_list)
++{
++	int pipefd[2], child;
++	struct sigaction act;
++
++	act.sa_handler =3D wakeup;
++	sigemptyset(&act.sa_mask);
++	act.sa_flags =3D 0;
++	sigaction(SIGUSR1, &act, NULL);
++
++	pipe(pipefd);
++	child =3D fork();
++	if (child =3D=3D -1)
++		err(1, "forking");
++
++	if (child =3D=3D 0) {
++		close(pipefd[1]);
++		wake_parent(pipefd[0], device_list);
++	}
++	close(pipefd[0]);
++
++	return pipefd[1];
++}
++
++static void *_check_pointer(unsigned long addr, unsigned int size,
++			    unsigned int line)
++{
++	if (addr >=3D LGUEST_GUEST_TOP || addr + size >=3D LGUEST_GUEST_TOP)
++		errx(1, "%s:%i: Invalid address %li", __FILE__, line, addr);
++	return (void *)addr;
++}
++#define check_pointer(addr,size) _check_pointer(addr, size, __LINE__)
++
++/* Returns pointer to dma->used_len */
++static u32 *dma2iov(unsigned long dma, struct iovec iov[], unsigned *num)
 +{
 +	unsigned int i;
-+	struct lguestnet_info *info =3D dev->priv;
++	struct lguest_dma *udma;
 +
-+	/* Clear all trace: others might deliver packets, we'll ignore it. */
-+	memset(&info->peer[info->me], 0xFF, sizeof(info->peer[info->me]));
++	udma =3D check_pointer(dma, sizeof(*udma));
++	for (i =3D 0; i < LGUEST_MAX_DMA_SECTIONS; i++) {
++		if (!udma->len[i])
++			break;
 +
-+	/* Deregister sg lists. */
-+	hcall(LHCALL_BIND_DMA, peer_key(info, info->me), __pa(info->dma), 0);
-+	for (i =3D 0; i < ARRAY_SIZE(info->dma); i++)
-+		dev_kfree_skb(info->skb[i]);
-+	return 0;
-+}
-+
-+static struct net_device_stats *lguestnet_get_stats(struct net_device *dev)
-+{
-+	struct lguestnet_info *info =3D dev->priv;
-+
-+	return &info->stats;
-+}
-+
-+static int lguestnet_probe(struct lguest_device *lgdev)
-+{
-+	int err, irqf =3D IRQF_SHARED;
-+	struct net_device *dev;
-+	struct lguestnet_info *info;
-+	struct lguest_device_desc *desc =3D &lguest_devices[lgdev->index];
-+
-+	pr_debug("lguest_net: probing for device %i\n", lgdev->index);
-+
-+	dev =3D alloc_etherdev(sizeof(struct lguestnet_info));
-+	if (!dev)
-+		return -ENOMEM;
-+
-+	SET_MODULE_OWNER(dev);
-+
-+	/* Ethernet defaults with some changes */
-+	ether_setup(dev);
-+	dev->set_mac_address =3D NULL;
-+
-+	dev->dev_addr[0] =3D 0x02; /* set local assignment bit (IEEE802) */
-+	dev->dev_addr[1] =3D 0x00;
-+	memcpy(&dev->dev_addr[2], &lguest_data.guestid, 2);
-+	dev->dev_addr[4] =3D 0x00;
-+	dev->dev_addr[5] =3D 0x00;
-+
-+	dev->open =3D lguestnet_open;
-+	dev->stop =3D lguestnet_close;
-+	dev->hard_start_xmit =3D lguestnet_start_xmit;
-+	dev->get_stats =3D lguestnet_get_stats;
-+
-+	/* Turning on/off promisc will call dev->set_multicast_list.
-+	 * We don't actually support multicast yet */
-+	dev->set_multicast_list =3D lguestnet_set_multicast;
-+	dev->mem_start =3D ((unsigned long)desc->pfn << PAGE_SHIFT);
-+	dev->mem_end =3D dev->mem_start + PAGE_SIZE * desc->num_pages;
-+	dev->irq =3D lgdev->index+1;
-+	dev->features =3D NETIF_F_SG;
-+	if (desc->features & LGUEST_NET_F_NOCSUM)
-+		dev->features |=3D NETIF_F_NO_CSUM;
-+
-+	info =3D dev->priv;
-+	info->mapsize =3D PAGE_SIZE * desc->num_pages;
-+	info->peer_phys =3D ((unsigned long)desc->pfn << PAGE_SHIFT);
-+	info->peer =3D (void *)ioremap(info->peer_phys, info->mapsize);
-+	/* This stores our peerid (upper bits reserved for future). */
-+	info->me =3D (desc->features & (info->mapsize-1));
-+
-+	err =3D register_netdev(dev);
-+	if (err) {
-+		pr_debug("lguestnet: registering device failed\n");
-+		goto free;
++		iov[i].iov_base =3D check_pointer(udma->addr[i], udma->len[i]);
++		iov[i].iov_len =3D udma->len[i];
 +	}
-+
-+	if (lguest_devices[lgdev->index].features & LGUEST_DEVICE_F_RANDOMNESS)
-+		irqf |=3D IRQF_SAMPLE_RANDOM;
-+	if (request_irq(dev->irq, lguestnet_rcv, irqf, "lguestnet", dev) !=3D 0) {
-+		pr_debug("lguestnet: could not get net irq %i\n", dev->irq);
-+		goto unregister;
-+	}
-+
-+	pr_debug("lguestnet: registered device %s\n", dev->name);
-+	lgdev->private =3D dev;
-+	return 0;
-+
-+unregister:
-+	unregister_netdev(dev);
-+free:
-+	free_netdev(dev);
-+	return err;
++	*num =3D i;
++	return &udma->used_len;
 +}
 +
-+static struct lguest_driver lguestnet_drv =3D {
-+	.name =3D "lguestnet",
-+	.owner =3D THIS_MODULE,
-+	.device_type =3D LGUEST_DEVICE_T_NET,
-+	.probe =3D lguestnet_probe,
++static u32 *get_dma_buffer(int fd, void *key,
++			   struct iovec iov[], unsigned int *num, u32 *irq)
++{
++	u32 buf[] =3D { LHREQ_GETDMA, (u32)key };
++	unsigned long udma;
++	u32 *res;
++
++	udma =3D write(fd, buf, sizeof(buf));
++	if (udma =3D=3D (unsigned long)-1)
++		return NULL;
++
++	/* Kernel stashes irq in ->used_len. */
++	res =3D dma2iov(udma, iov, num);
++	*irq =3D *res;
++	return res;
++}
++
++static void trigger_irq(int fd, u32 irq)
++{
++	u32 buf[] =3D { LHREQ_IRQ, irq };
++	if (write(fd, buf, sizeof(buf)) !=3D 0)
++		err(1, "Triggering irq %i", irq);
++}
++
++static void discard_iovec(struct iovec *iov, unsigned int *num)
++{
++	static char discard_buf[1024];
++	*num =3D 1;
++	iov->iov_base =3D discard_buf;
++	iov->iov_len =3D sizeof(discard_buf);
++}
++
++static struct termios orig_term;
++static void restore_term(void)
++{
++	tcsetattr(STDIN_FILENO, TCSANOW, &orig_term);
++}
++
++struct console_abort
++{
++	int count;
++	struct timeval start;
 +};
 +
-+static __init int lguestnet_init(void)
++/* We DMA input to buffer bound at start of console page. */
++static bool handle_console_input(int fd, struct device *dev)
 +{
-+	return register_lguest_driver(&lguestnet_drv);
-+}
-+module_init(lguestnet_init);
++	u32 irq =3D 0, *lenp;
++	int len;
++	unsigned int num;
++	struct iovec iov[LGUEST_MAX_DMA_SECTIONS];
++	struct console_abort *abort =3D dev->priv;
 +
-+MODULE_DESCRIPTION("Lguest network driver");
-+MODULE_LICENSE("GPL");
++	lenp =3D get_dma_buffer(fd, dev->mem, iov, &num, &irq);
++	if (!lenp) {
++		warn("console: no dma buffer!");
++		discard_iovec(iov, &num);
++	}
++
++	len =3D readv(dev->fd, iov, num);
++	if (len <=3D 0) {
++		warnx("Failed to get console input, ignoring console.");
++		len =3D 0;
++	}
++
++	if (lenp) {
++		*lenp =3D len;
++		trigger_irq(fd, irq);
++	}
++
++	/* Three ^C within one second?  Exit. */
++	if (len =3D=3D 1 && ((char *)iov[0].iov_base)[0] =3D=3D 3) {
++		if (!abort->count++)
++			gettimeofday(&abort->start, NULL);
++		else if (abort->count =3D=3D 3) {
++			struct timeval now;
++			gettimeofday(&now, NULL);
++			if (now.tv_sec <=3D abort->start.tv_sec+1)
++				exit(2);
++			abort->count =3D 0;
++		}
++	} else
++		abort->count =3D 0;
++
++	if (!len) {
++		restore_term();
++		return false;
++	}
++	return true;
++}
++
++static u32 handle_console_output(int fd, const struct iovec *iov,
++				 unsigned num, struct device*dev)
++{
++	return writev(STDOUT_FILENO, iov, num);
++}
++
++static u32 handle_tun_output(int fd, const struct iovec *iov,
++			     unsigned num, struct device *dev)
++{
++	/* Now we've seen output, we should warn if we can't get buffers. */
++	*(bool *)dev->priv =3D true;
++	return writev(dev->fd, iov, num);
++}
++
++static unsigned long peer_offset(unsigned int peernum)
++{
++	return 4 * peernum;
++}
++
++static bool handle_tun_input(int fd, struct device *dev)
++{
++	u32 irq =3D 0, *lenp;
++	int len;
++	unsigned num;
++	struct iovec iov[LGUEST_MAX_DMA_SECTIONS];
++
++	lenp =3D get_dma_buffer(fd, dev->mem+peer_offset(NET_PEERNUM), iov, &num,
++			      &irq);
++	if (!lenp) {
++		if (*(bool *)dev->priv)
++			warn("network: no dma buffer!");
++		discard_iovec(iov, &num);
++	}
++
++	len =3D readv(dev->fd, iov, num);
++	if (len <=3D 0)
++		err(1, "reading network");
++	if (lenp) {
++		*lenp =3D len;
++		trigger_irq(fd, irq);
++	}
++	verbose("tun input packet len %i [%02x %02x] (%s)\n", len,
++		((u8 *)iov[0].iov_base)[0], ((u8 *)iov[0].iov_base)[1],
++		lenp ? "sent" : "discarded");
++	return true;
++}
++
++static u32 handle_block_output(int fd, const struct iovec *iov,
++			       unsigned num, struct device *dev)
++{
++	struct lguest_block_page *p =3D dev->mem;
++	u32 irq, *lenp;
++	unsigned int len, reply_num;
++	struct iovec reply[LGUEST_MAX_DMA_SECTIONS];
++	off64_t device_len, off =3D (off64_t)p->sector * 512;
++
++	device_len =3D *(off64_t *)dev->priv;
++
++	if (off >=3D device_len)
++		err(1, "Bad offset %llu vs %llu", off, device_len);
++	if (lseek64(dev->fd, off, SEEK_SET) !=3D off)
++		err(1, "Bad seek to sector %i", p->sector);
++
++	verbose("Block: %s at offset %llu\n", p->type ? "WRITE" : "READ", off);
++
++	lenp =3D get_dma_buffer(fd, dev->mem, reply, &reply_num, &irq);
++	if (!lenp)
++		err(1, "Block request didn't give us a dma buffer");
++
++	if (p->type) {
++		len =3D writev(dev->fd, iov, num);
++		if (off + len > device_len) {
++			ftruncate(dev->fd, device_len);
++			errx(1, "Write past end %llu+%u", off, len);
++		}
++		*lenp =3D 0;
++	} else {
++		len =3D readv(dev->fd, reply, reply_num);
++		*lenp =3D len;
++	}
++
++	p->result =3D 1 + (p->bytes !=3D len);
++	trigger_irq(fd, irq);
++	return 0;
++}
++
++static void handle_output(int fd, unsigned long dma, unsigned long key,
++			  struct device_list *devices)
++{
++	struct device *i;
++	u32 *lenp;
++	struct iovec iov[LGUEST_MAX_DMA_SECTIONS];
++	unsigned num =3D 0;
++
++	lenp =3D dma2iov(dma, iov, &num);
++	for (i =3D devices->dev; i; i =3D i->next) {
++		if (i->handle_output && key =3D=3D i->watch_key) {
++			*lenp =3D i->handle_output(fd, iov, num, i);
++			return;
++		}
++	}
++	warnx("Pending dma %p, key %p", (void *)dma, (void *)key);
++}
++
++static void handle_input(int fd, int childfd, struct device_list *devices)
++{
++	struct timeval poll =3D { .tv_sec =3D 0, .tv_usec =3D 0 };
++
++	for (;;) {
++		struct device *i;
++		fd_set fds =3D devices->infds;
++
++		if (select(devices->max_infd+1, &fds, NULL, NULL, &poll) =3D=3D 0)
++			break;
++
++		for (i =3D devices->dev; i; i =3D i->next) {
++			if (i->handle_input && FD_ISSET(i->fd, &fds)) {
++				if (!i->handle_input(fd, i)) {
++					FD_CLR(i->fd, &devices->infds);
++					/* Tell child to ignore it too... */
++					write(childfd, &i->fd, sizeof(i->fd));
++				}
++			}
++		}
++	}
++}
++
++static struct lguest_device_desc *new_dev_desc(u16 type, u16 features,
++					       u16 num_pages)
++{
++	static unsigned long top =3D LGUEST_GUEST_TOP;
++	struct lguest_device_desc *desc;
++
++	desc =3D malloc(sizeof(*desc));
++	desc->type =3D type;
++	desc->num_pages =3D num_pages;
++	desc->features =3D features;
++	desc->status =3D 0;
++	if (num_pages) {
++		top -=3D num_pages*getpagesize();
++		map_zeroed_pages(top, num_pages);
++		desc->pfn =3D top / getpagesize();
++	} else
++		desc->pfn =3D 0;
++	return desc;
++}
++
++static struct device *new_device(struct device_list *devices,
++				 u16 type, u16 num_pages, u16 features,
++				 int fd,
++				 bool (*handle_input)(int, struct device *),
++				 unsigned long watch_off,
++				 u32 (*handle_output)(int,
++						      const struct iovec *,
++						      unsigned,
++						      struct device *))
++{
++	struct device *dev =3D malloc(sizeof(*dev));
++
++	/* Append to device list. */
++	*devices->lastdev =3D dev;
++	dev->next =3D NULL;
++	devices->lastdev =3D &dev->next;
++
++	dev->fd =3D fd;
++	if (handle_input)
++		set_fd(dev->fd, devices);
++	dev->desc =3D new_dev_desc(type, features, num_pages);
++	dev->mem =3D (void *)(dev->desc->pfn * getpagesize());
++	dev->handle_input =3D handle_input;
++	dev->watch_key =3D (unsigned long)dev->mem + watch_off;
++	dev->handle_output =3D handle_output;
++	return dev;
++}
++
++static void setup_console(struct device_list *devices)
++{
++	struct device *dev;
++
++	if (tcgetattr(STDIN_FILENO, &orig_term) =3D=3D 0) {
++		struct termios term =3D orig_term;
++		term.c_lflag &=3D ~(ISIG|ICANON|ECHO);
++		tcsetattr(STDIN_FILENO, TCSANOW, &term);
++		atexit(restore_term);
++	}
++
++	/* We don't currently require a page for the console. */
++	dev =3D new_device(devices, LGUEST_DEVICE_T_CONSOLE, 0, 0,
++			 STDIN_FILENO, handle_console_input,
++			 LGUEST_CONSOLE_DMA_KEY, handle_console_output);
++	dev->priv =3D malloc(sizeof(struct console_abort));
++	((struct console_abort *)dev->priv)->count =3D 0;
++	verbose("device %p: console\n",
++		(void *)(dev->desc->pfn * getpagesize()));
++}
++
++static void setup_block_file(const char *filename, struct device_list *dev=
+ices)
++{
++	int fd;
++	struct device *dev;
++	off64_t *device_len;
++	struct lguest_block_page *p;
++
++	fd =3D open_or_die(filename, O_RDWR|O_LARGEFILE|O_DIRECT);
++	dev =3D new_device(devices, LGUEST_DEVICE_T_BLOCK, 1,
++			 LGUEST_DEVICE_F_RANDOMNESS,
++			 fd, NULL, 0, handle_block_output);
++	device_len =3D dev->priv =3D malloc(sizeof(*device_len));
++	*device_len =3D lseek64(fd, 0, SEEK_END);
++	p =3D dev->mem;
++
++	p->num_sectors =3D *device_len/512;
++	verbose("device %p: block %i sectors\n",
++		(void *)(dev->desc->pfn * getpagesize()), p->num_sectors);
++}
++
++/* We use fnctl locks to reserve network slots (autocleanup!) */
++static unsigned int find_slot(int netfd, const char *filename)
++{
++	struct flock fl;
++
++	fl.l_type =3D F_WRLCK;
++	fl.l_whence =3D SEEK_SET;
++	fl.l_len =3D 1;
++	for (fl.l_start =3D 0;
++	     fl.l_start < getpagesize()/sizeof(struct lguest_net);
++	     fl.l_start++) {
++		if (fcntl(netfd, F_SETLK, &fl) =3D=3D 0)
++			return fl.l_start;
++	}
++	errx(1, "No free slots in network file %s", filename);
++}
++
++static void setup_net_file(const char *filename,
++			   struct device_list *devices)
++{
++	int netfd;
++	struct device *dev;
++
++	netfd =3D open(filename, O_RDWR, 0);
++	if (netfd < 0) {
++		if (errno =3D=3D ENOENT) {
++			netfd =3D open(filename, O_RDWR|O_CREAT, 0600);
++			if (netfd >=3D 0) {
++				char page[getpagesize()];
++				memset(page, 0, sizeof(page));
++				write(netfd, page, sizeof(page));
++			}
++		}
++		if (netfd < 0)
++			err(1, "cannot open net file '%s'", filename);
++	}
++
++	dev =3D new_device(devices, LGUEST_DEVICE_T_NET, 1,
++			 find_slot(netfd, filename)|LGUEST_NET_F_NOCSUM,
++			 -1, NULL, 0, NULL);
++
++	/* We overwrite the /dev/zero mapping with the actual file. */
++	if (mmap(dev->mem, getpagesize(), PROT_READ|PROT_WRITE,
++			 MAP_FIXED|MAP_SHARED, netfd, 0) !=3D dev->mem)
++			err(1, "could not mmap '%s'", filename);
++	verbose("device %p: shared net %s, peer %i\n",
++		(void *)(dev->desc->pfn * getpagesize()), filename,
++		dev->desc->features & ~LGUEST_NET_F_NOCSUM);
++}
++
++static u32 str2ip(const char *ipaddr)
++{
++	unsigned int byte[4];
++
++	sscanf(ipaddr, "%u.%u.%u.%u", &byte[0], &byte[1], &byte[2], &byte[3]);
++	return (byte[0] << 24) | (byte[1] << 16) | (byte[2] << 8) | byte[3];
++}
++
++/* adapted from libbridge */
++static void add_to_bridge(int fd, const char *if_name, const char *br_name)
++{
++	int ifidx;
++	struct ifreq ifr;
++
++	if (!*br_name)
++		errx(1, "must specify bridge name");
++
++	ifidx =3D if_nametoindex(if_name);
++	if (!ifidx)
++		errx(1, "interface %s does not exist!", if_name);
++
++	strncpy(ifr.ifr_name, br_name, IFNAMSIZ);
++	ifr.ifr_ifindex =3D ifidx;
++	if (ioctl(fd, SIOCBRADDIF, &ifr) < 0)
++		err(1, "can't add %s to bridge %s", if_name, br_name);
++}
++
++static void configure_device(int fd, const char *devname, u32 ipaddr,
++			     unsigned char hwaddr[6])
++{
++	struct ifreq ifr;
++	struct sockaddr_in *sin =3D (struct sockaddr_in *)&ifr.ifr_addr;
++
++	memset(&ifr, 0, sizeof(ifr));
++	strcpy(ifr.ifr_name, devname);
++	sin->sin_family =3D AF_INET;
++	sin->sin_addr.s_addr =3D htonl(ipaddr);
++	if (ioctl(fd, SIOCSIFADDR, &ifr) !=3D 0)
++		err(1, "Setting %s interface address", devname);
++	ifr.ifr_flags =3D IFF_UP;
++	if (ioctl(fd, SIOCSIFFLAGS, &ifr) !=3D 0)
++		err(1, "Bringing interface %s up", devname);
++
++	if (ioctl(fd, SIOCGIFHWADDR, &ifr) !=3D 0)
++		err(1, "getting hw address for %s", devname);
++
++	memcpy(hwaddr, ifr.ifr_hwaddr.sa_data, 6);
++}
++
++static void setup_tun_net(const char *arg, struct device_list *devices)
++{
++	struct device *dev;
++	struct ifreq ifr;
++	int netfd, ipfd;
++	u32 ip;
++	const char *br_name =3D NULL;
++
++	netfd =3D open_or_die("/dev/net/tun", O_RDWR);
++	memset(&ifr, 0, sizeof(ifr));
++	ifr.ifr_flags =3D IFF_TAP | IFF_NO_PI;
++	strcpy(ifr.ifr_name, "tap%d");
++	if (ioctl(netfd, TUNSETIFF, &ifr) !=3D 0)
++		err(1, "configuring /dev/net/tun");
++
++	/* You will be peer 1: we should create enough jitter to randomize */
++	dev =3D new_device(devices, LGUEST_DEVICE_T_NET, 1,
++			 NET_PEERNUM|LGUEST_DEVICE_F_RANDOMNESS, netfd,
++			 handle_tun_input, peer_offset(0), handle_tun_output);
++	dev->priv =3D malloc(sizeof(bool));
++	*(bool *)dev->priv =3D false;
++
++	ipfd =3D socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
++	if (ipfd < 0)
++		err(1, "opening IP socket");
++
++	if (!strncmp(BRIDGE_PFX, arg, strlen(BRIDGE_PFX))) {
++		ip =3D INADDR_ANY;
++		br_name =3D arg + strlen(BRIDGE_PFX);
++		add_to_bridge(ipfd, ifr.ifr_name, br_name);
++	} else
++		ip =3D str2ip(arg);
++
++	/* We are peer 0, ie. first slot. */
++	configure_device(ipfd, ifr.ifr_name, ip, dev->mem);
++	close(ipfd);
++
++	verbose("device %p: tun net %u.%u.%u.%u\n",
++		(void *)(dev->desc->pfn * getpagesize()),
++		(u8)(ip>>24), (u8)(ip>>16), (u8)(ip>>8), (u8)ip);
++	if (br_name)
++		verbose("attached to bridge: %s\n", br_name);
++}
++
++/* Now we know how much memory we have, we copy in device descriptors */
++static void map_device_descriptors(struct device_list *devs, unsigned long=
+ mem)
++{
++	struct device *i;
++	unsigned int num;
++	struct lguest_device_desc *descs;
++
++	/* Device descriptor array sits just above top of normal memory */
++	descs =3D map_zeroed_pages(mem, 1);
++
++	for (i =3D devs->dev, num =3D 0; i; i =3D i->next, num++) {
++		if (num =3D=3D LGUEST_MAX_DEVICES)
++			errx(1, "too many devices");
++		verbose("Device %i: %s\n", num,
++			i->desc->type =3D=3D LGUEST_DEVICE_T_NET ? "net"
++			: i->desc->type =3D=3D LGUEST_DEVICE_T_CONSOLE ? "console"
++			: i->desc->type =3D=3D LGUEST_DEVICE_T_BLOCK ? "block"
++			: "unknown");
++		descs[num] =3D *i->desc;
++		free(i->desc);
++		i->desc =3D &descs[num];
++	}
++}
++
++static void __attribute__((noreturn))
++run_guest(int lguest_fd, int waker_fd, struct device_list *device_list)
++{
++	sigset_t sigset;
++
++	sigemptyset(&sigset);
++	sigaddset(&sigset, SIGUSR1);
++	for (;;) {
++		unsigned long arr[2];
++		int readval;
++
++		sigprocmask(SIG_UNBLOCK, &sigset, NULL);
++		readval =3D read(lguest_fd, arr, sizeof(arr));
++		sigprocmask(SIG_BLOCK, &sigset, NULL);
++
++		if (readval =3D=3D sizeof(arr))
++			handle_output(lguest_fd, arr[0], arr[1], device_list);
++		else if (errno =3D=3D ENOENT) {
++			char reason[1024] =3D { 0 };
++			read(lguest_fd, reason, sizeof(reason)-1);
++			errx(1, "%s", reason);
++		} else if (errno !=3D EINTR)
++			err(1, "Running guest failed");
++		handle_input(lguest_fd, waker_fd, device_list);
++	}
++}
++
++static struct option opts[] =3D {
++	{ "verbose", 0, NULL, 'v' },
++	{ "sharenet", 1, NULL, 's' },
++	{ "tunnet", 1, NULL, 't' },
++	{ "block", 1, NULL, 'b' },
++	{ "initrd", 1, NULL, 'i' },
++};
++static void usage(void)
++{
++	errx(1, "Usage: lguest [--verbose] "
++	     "[--sharenet=3D<filename>|--tunnet=3D(<ipaddr>|bridge:<bridgename>)\=
+n"
++	     "|--block=3D<filename>|--initrd=3D<filename>]...\n"
++	     "<mem-in-mb> vmlinux [args...]");
++}
++
++int main(int argc, char *argv[])
++{
++	unsigned long mem, pgdir, start, page_offset;
++	int c, lguest_fd, waker_fd;
++	struct device_list device_list;
++	struct lguest_boot_info *boot =3D (void *)0;
++	const char *initrd_name =3D NULL;
++
++	device_list.max_infd =3D -1;
++	device_list.dev =3D NULL;
++	device_list.lastdev =3D &device_list.dev;
++	FD_ZERO(&device_list.infds);
++
++	while ((c =3D getopt_long(argc, argv, "v", opts, NULL)) !=3D EOF) {
++		switch (c) {
++		case 'v':
++			verbose =3D true;
++			break;
++		case 's':
++			setup_net_file(optarg, &device_list);
++			break;
++		case 't':
++			setup_tun_net(optarg, &device_list);
++			break;
++		case 'b':
++			setup_block_file(optarg, &device_list);
++			break;
++		case 'i':
++			initrd_name =3D optarg;
++			break;
++		default:
++			warnx("Unknown argument %s", argv[optind]);
++			usage();
++		}
++	}
++	if (optind + 2 > argc)
++		usage();
++
++	/* We need a console device */
++	setup_console(&device_list);
++
++	/* First we map /dev/zero over all of guest-physical memory. */
++	mem =3D atoi(argv[optind]) * 1024 * 1024;
++	map_zeroed_pages(0, mem / getpagesize());
++
++	/* Now we load the kernel */
++	start =3D load_kernel(open_or_die(argv[optind+1], O_RDONLY),
++			    &page_offset);
++
++	/* Write the device descriptors into memory. */
++	map_device_descriptors(&device_list, mem);
++
++	/* Map the initrd image if requested */
++	if (initrd_name)
++		boot->initrd_size =3D load_initrd(initrd_name, mem);
++
++	/* Set up the initial linar pagetables. */
++	pgdir =3D setup_pagetables(mem, boot->initrd_size, page_offset);
++
++	/* Give the guest the boot information it needs. */
++	concat(boot->cmdline, argv+optind+2);
++	boot->max_pfn =3D mem/getpagesize();
++
++	lguest_fd =3D tell_kernel(pgdir, start, page_offset);
++	waker_fd =3D setup_waker(&device_list);
++
++	run_guest(lguest_fd, waker_fd, &device_list);
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/Documentation/lguest/lguest.txt
+@@ -0,0 +1,125 @@
++Rusty's Remarkably Unreliable Guide to Lguest
++	- or, A Young Coder's Illustrated Hypervisor
++http://lguest.ozlabs.org
++
++Lguest is designed to be a minimal hypervisor for the Linux kernel, for
++Linux developers and users to experiment with virtualization with the
++minimum of complexity.  Nonetheless, it should have sufficient
++features to make it useful for specific tasks, and, of course, you are
++encouraged to fork and enhance it.
++
++Features:
++
++- Kernel module which runs in a normal kernel.
++- Simple I/O model for communication.
++- Simple program to create new guests.
++- Logo contains cute puppies: http://lguest.ozlabs.org
++
++Developer features:
++
++- Fun to hack on.
++- No ABI: being tied to a specific kernel anyway, you can change anything.
++- Many opportunities for improvement or feature implementation.
++
++Running Lguest:
++
++- You will need to configure your kernel with the following options:
++
++  CONFIG_HIGHMEM64G=3Dn ("High Memory Support" "64GB")[1]
++  CONFIG_TUN=3Dy/m ("Universal TUN/TAP device driver support")
++  CONFIG_EXPERIMENTAL=3Dy ("Prompt for development and/or incomplete code/=
+drivers")
++  CONFIG_PARAVIRT=3Dy ("Paravirtualization support (EXPERIMENTAL)")
++  CONFIG_LGUEST=3Dy/m ("Linux hypervisor example code")
++
++  and I recommend:
++  CONFIG_HZ=3D100 ("Timer frequency")[2]
++
++- A tool called "lguest" is available in this directory: type "make"
++  to build it.
++
++- Create or find a root disk image.  There are several useful ones
++  around, such as the xm-test tiny root image at
++	  http://xm-test.xensource.com/ramdisks/initrd-1.1-i386.img
++
++  For more serious work, I usually use a distribution ISO image and
++  install it under qemu, then make multiple copies:
++
++	  dd if=3D/dev/zero of=3Drootfile bs=3D1M count=3D2048
++	  qemu -cdrom image.iso -hda rootfile -net user -net nic -boot d
++
++- "modprobe lg" if you built it as a module.
++
++- Run an lguest as root:
++
++      Documentation/lguest/lguest 64m vmlinux --tunnet=3D192.168.19.1 --bl=
+ock=3Drootfile root=3D/dev/lgba
++
++   Explanation:
++    64m: the amount of memory to use.
++
++    vmlinux: the kernel image found in the top of your build directory.  Y=
+ou
++       can also use a standard bzImage.
++
++    --tunnet=3D192.168.19.1: configures a "tap" device for networking with=
+ this
++       IP address.
++
++    --block=3Drootfile: a file or block device which becomes /dev/lgba
++       inside the guest.
++
++    root=3D/dev/lgba: this (and anything else on the command line) are
++       kernel boot parameters.
++
++- Configuring networking.  I usually have the host masquerade, using
++  "iptables -t nat -o eth0 -j MASQUERADE" and "echo 1 >
++  /proc/sys/net/ipv4/ip_forward".  In this example, I would configure
++  eth0 inside the guest at 192.168.19.2.
++
++  Another method is to bridge the tap device to an external interface
++  using --tunnet=3Dbridge:<bridgename>, and perhaps run dhcp on the guest
++  to obtain an IP address.  The bridge needs to be configured first:
++  this option simply adds the tap interface to it.
++
++  A simple example on my system:
++
++    ifconfig eth0 0.0.0.0
++    brctl addbr lg0
++    ifconfig lg0 up
++    brctl addif lg0 eth0
++    dhclient lg0
++
++  Then use --tunnet=3Dbridge:lg0 when launching the guest.
++
++  See http://linux-net.osdl.org/index.php/Bridge for general information
++  on how to get bridging working.
++
++- You can also create an inter-guest network using
++  "--sharenet=3D<filename>": any two guests using the same file are on
++  the same network.  This file is created if it does not exist.
++
++Lguest I/O model:
++
++Lguest uses a simplified DMA model plus shared memory for I/O.  Guests
++can communicate with each other if they share underlying memory
++(usually by the lguest program mmaping the same file), but they can
++use any non-shared memory to communicate with the lguest process.
++
++Guests can register DMA buffers at any key (must be a valid physical
++address) using the LHCALL_BIND_DMA(key, dmabufs, num<<8|irq)
++hypercall.  "dmabufs" is the physical address of an array of "num"
++"struct lguest_dma": each contains a used_len, and an array of
++physical addresses and lengths.  When a transfer occurs, the
++"used_len" field of one of the buffers which has used_len 0 will be
++set to the length transferred and the irq will fire.
++
++Using an irq value of 0 unbinds the dma buffers.
++
++To send DMA, the LHCALL_SEND_DMA(key, dma_physaddr) hypercall is used,
++and the bytes used is written to the used_len field.  This can be 0 if
++noone else has bound a DMA buffer to that key or some other error.
++DMA buffers bound by the same guest are ignored.
++
++Cheers!
++Rusty Russell rusty@rustcorp.com.au.
++
++[1] These are on various places on the TODO list, waiting for you to
++    get annoyed enough at the limitation to fix it.
++[2] Lguest is not yet tickless when idle.  See [1].
