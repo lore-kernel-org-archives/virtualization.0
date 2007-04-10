@@ -1,7 +1,7 @@
 From: Zachary Amsden <zach@vmware.com>
 Subject: Re: paravirt repo rebased to 2.6.21-rc6-mm1
-Date: Tue, 10 Apr 2007 16:29:31 -0700
-Message-ID: <461C1DDB.4090307@vmware.com>
+Date: Tue, 10 Apr 2007 16:29:44 -0700
+Message-ID: <461C1DE8.8030307@vmware.com>
 References: <461C1C7B.5080509@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -25,9 +25,11 @@ Jeremy Fitzhardinge wrote:
 > Seems to work OK for native and Xen.  I had to play a bit with the
 > paravirt-sched-clock patch to deal with the VMI changes.  Zach, can you
 > check that it still works?
+>
+> Thanks,
 >   =
 
 
-I'm on it.
+Thanks, btw.
 
 Zach
