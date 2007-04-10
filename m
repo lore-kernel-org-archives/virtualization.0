@@ -1,64 +1,134 @@
-From: "MONI Murali" <knowingsvoluptuous@lsbc.net>
-Subject: re:
-Date: Tue, 10 Apr 2007 20:42:29 -0120
-Message-ID: <01c77bb0$c144a370$6c822ecf@knowingsvoluptuous>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH 9/10] Vmi timer update.patch
+Date: Tue, 10 Apr 2007 14:57:32 -0700
+Message-ID: <461C084C.9020009@vmware.com>
+References: <200704100006.l3A06RUR020644@zach-dev.vmware.com> <20070410023702.GJ10574@sequoia.sous-sol.org> <461BC373.10306@vmware.com> <20070410172429.GN10574@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753938AbXDJWAK@vger.kernel.org>
+In-Reply-To: <20070410172429.GN10574@sequoia.sous-sol.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Dan Hecht <dhecht@vmware.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Have you seen how these sub-one-cent companies take off on =
+Chris Wright wrote:
+> * Zachary Amsden (zach@vmware.com) wrote:
+>   
+>>>> +void __init vmi_time_init(void)
+>>>> +{
+>>>> +	/* Disable PIT: BIOSes start PIT CH0 with 18.2hz peridic. */
+>>>> +	outb_p(0x3a, PIT_MODE); /* binary, mode 5, LSB/MSB, ch 0 */
+>>>>         
+>>> That shouldn't be necessary using clockevents.
+>>>       
+>> Actually, I'm not so sure.  If clockevents simply masks the PIT when 
+>> disabling it, we still have overhead of keeping the latch in sync, which 
+>> requires a timer at the PIT frequency.  I can instrument to see how 
+>> exactly the PIT gets disabled.
+>>     
+>
+> It should switch from pit to vmi-timer, and the switch should do the state
+> transistions on pit to go to unused mode.
+>   
 
-Good News?  For the past two months, every one we have =
+Yes, but unfortunately that is a nop:
 
-brought you has shown Amazing Appreciation. =
+        /*
+         * Avoid unnecessary state transitions, as it confuses
+         * Geode / Cyrix based boxen.
+         */
+        case CLOCK_EVT_MODE_SHUTDOWN:
+                if (evt->mode == CLOCK_EVT_MODE_UNUSED)
+                        break;
+        case CLOCK_EVT_MODE_UNUSED:
+                if (evt->mode == CLOCK_EVT_MODE_SHUTDOWN)
+                        break;
+        case CLOCK_EVT_MODE_ONESHOT:
+                /* One shot setup */
+                outb_p(0x38, PIT_MODE);
 
+So switching from PIT to VMI does not disable PIT timer interrupts.  
+Thus I have to keep this part of the patch.
 
-At such a low price even the smallest Gain means a =
+>>> isn't this just your ->startup?
+>>>       
+>> Which structure has a ->startup function we can use?  Sorry if this 
+>> seems ignorant, I'm not quite sure what you mean.
+>>     
+>
+> The irq_chip.  IOW, it looks like a liberal sprinkling of LVTT vector
+> initialization.
+>   
 
-Significant Percentage Return.
+Ahh, ok.
 
-We called (P)(P)(T)(L) as one to watch on Friday because of a =
+>   
+>>>> +	local_irq_enable();
+>>>> +	clockevents_notify(CLOCK_EVT_NOTIFY_RESUME, NULL);
+>>>>         
+>>> ...and resume?  Instead of letting clockevents core handle all of that,
+>>> and just registering right here?
+>>>       
+>> It wasn't clear that clockevents would issue a resume notify for us; if 
+>> so we could handle this setup in the callback, but it has to be done on 
+>> the correct CPU.  I can try it and see if that works.
+>>     
+>
+> I would've expected to simply register the clockevents device right here,
+> and that should do the proper state transitions on the old device, as well
+> as the new device.  Why do you need resume notify?
 
-Highly Anticipated Report from the Field.  It moved up 13% =
+I was confused.  The problem is, time init is also highly confused on 
+i386; the system comes up running on the PIT, then switches to the 
+APIC.  This changes when the APIC gets activated, which is why we 
+suspend and resume clockevents while making the irq wiring changes for 
+the switch to APIC mode.  Internally, clockevents does the proper state 
+transition for us on VMI clock events - they get suspended properly, 
+subject to all the proper precautions needed to avoid spurious interrupt 
+that are pending in hardware, then they get resumed properly without us 
+having to worry about missed interrupts or failure to restart the clock.
 
-on Friday and the news isn't even out yet.  Just wait till =
+But to get the clockevents to do state transitions for us without this 
+explicit suspend / resume, we would need to model two clockevents; a 
+clockevent running through the PIT, and a higher priority clockevent 
+running through the APIC.  Then the logic could conceivably switch over 
+for us, but there is an unavoidable race, since we are using the same 
+IRQ in each case - hardware IRQ-0.  And an IRQ can only have one irq 
+chip, so we can't put the code to switch to the new irq chip in the 
+->startup for that chip, since it will never get called unless we set 
+the chip before shutting down the old irq chip (through the PIT), which 
+means the old PIT irq never gets shut down.
 
-word hits the street!
+We can't workaround it however without one of these options:
 
-On second thought, Don't Wait!
+1) stealing a different IRQ and knowing the fixed 1-1 IRQ<->IDT vector 
+mapping for it.  We could conceivably hijack any number of IRQs, in any 
+order by reserving them during VMI platform initialization, but due to 
+the non-linearity with which IRQs are re-mapped to IDT vectors when the 
+IO-APIC is activated, I though it simpler to just continue using IRQ-0, 
+as this is linearly mapped by constants (instead of offset by 8, 
+skipping some vectors and wrapping around).
 
-Company (P)remium (P)e(T)ro(L)eum (P)(P)(T)(L)
+2) Reusing the local timer IDT vector, since APIC won't be using it.   
+Reset the IDT handler to point to our own handler.  We used to do this, 
+providing smp_vmi_timer_interrupt and entry.S assembler code for our own 
+low-level interrupt handlers.  There were objections to our adding 
+low-level interrupt handling code instead of using the proper genirq 
+infrastructure.
 
-Current  $0.0085 (+13%)
-Target    $0.0450 (a FIVE bagger!)
+3) Reuse the local timer IDT vector as our fixed IDT vector.  We must 
+reset the IDT vector for this to point to a do_IRQ style handler which 
+enters the genirq code.  So, reserve a non-zero platform IRQ and set the 
+IDT vector for local timer to vector to interrupt[IRQ].  Now, set the 
+irq chip for this IRQ to be a per-cpu handler and give it the VMI 
+interrupt chip.
 
-At this time (P)(P)(T)(L)  has a number of Surveys and Drilling =
+I can't really think of anything else that is feasible.  And keep in 
+mind, all of these options require modeling the VMI timer as two 
+separate clockevents.  Is it worth the complexity to avoid the suspend / 
+resume?  These hacks seem even less palatable, to me, while suspend / 
+resume of clock event scheduling seems to be a well defined operation.
 
-projects in progress.  We have heard that a Major Discovery =
-
-has been made, and recommend our readers capitalize on this =
-
-Opportunity right away!
-
-HEADLINES
----------------------
-Hit man was sought to kill fetus
-Collins: Why this scientist believes in God =
-
-Ahmadinejad: Pardon for UK sailors
-McCain, Giuliani tied in poll of New Hampshire GOP
-Blogger freed after record contempt stint
-
----------------------
+Zach
