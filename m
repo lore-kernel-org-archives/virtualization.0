@@ -1,130 +1,97 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH 9/10] Vmi timer update.patch
-Date: Tue, 10 Apr 2007 10:03:47 -0700
-Message-ID: <461BC373.10306@vmware.com>
-References: <200704100006.l3A06RUR020644@zach-dev.vmware.com> <20070410023702.GJ10574@sequoia.sous-sol.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] Clean up x86 control register and MSR macros
+Date: Tue, 10 Apr 2007 10:03:12 -0700
+Message-ID: <461BC350.4040403@goop.org>
+References: <200704101648.l3AGmT5e027601@tazenda.hos.anvin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1031163AbXDJRGT@vger.kernel.org>
-In-Reply-To: <20070410023702.GJ10574@sequoia.sous-sol.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Dan Hecht <dhecht@vmware.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200704101648.l3AGmT5e027601@tazenda.hos.anvin.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
-
-
-Thanks for the review!  Comments inline.
-
->> +/* paravirt_ops.get_wallclock = vmi_get_wallclock */
->>     
+H. Peter Anvin wrote:
+> [PATCH] Clean up x86 control register and MSR macros
 >
-> Style nit, these pv_ops.foo = vmi_foo style comments aren't really useful.
+> This patch is based on Rusty's recent cleanup of the EFLAGS-related
+> macros; it extends the same kind of cleanup to control registers and
+> MSRs.
 >
->   
-
-Yeah, and easy to get out of sync.  I'll drop them.
-
->> +	.rating         = 1000,
->>     
+> It also unifies these between i386 and x86-64; at least with regards
+> to MSRs, the two had definitely gotten out of sync.
 >
-> Heh, no messing around ;-)
->   
-
-Yes, VMI has 1000 hps.
-
-
->> +	printk(KERN_WARNING "vmi: registering clock event %s. mult=%lu shift=%u\n", 
->> +	       evt->name, evt->mult, evt->shift);
->>     
+> Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 >
-> Why is this a warning? ;-)
->   
+> diff -urN --exclude=3D'o.*' stock/linux-2.6.21-rc6-mm1/include/asm-i386/K=
+build linux-2.6.21-rc6-mm1/include/asm-i386/Kbuild
+> --- stock/linux-2.6.21-rc6-mm1/include/asm-i386/Kbuild	2007-04-05 19:36:5=
+6.000000000 -0700
+> +++ linux-2.6.21-rc6-mm1/include/asm-i386/Kbuild	2007-04-09 23:28:36.0000=
+00000 -0700
+> @@ -3,8 +3,10 @@
+>  header-y +=3D boot.h
+>  header-y +=3D debugreg.h
+>  header-y +=3D ldt.h
+> +header-y +=3D msr-index.h
+>  header-y +=3D ptrace-abi.h
+>  header-y +=3D ucontext.h
+>  =
 
-Debug info, I can remove it.
-
->> +void __init vmi_time_init(void)
->> +{
->> +	/* Disable PIT: BIOSes start PIT CH0 with 18.2hz peridic. */
->> +	outb_p(0x3a, PIT_MODE); /* binary, mode 5, LSB/MSB, ch 0 */
->>     
->
-> That shouldn't be necessary using clockevents.
->   
-
-Actually, I'm not so sure.  If clockevents simply masks the PIT when 
-disabling it, we still have overhead of keeping the latch in sync, which 
-requires a timer at the PIT frequency.  I can instrument to see how 
-exactly the PIT gets disabled.
+> +unifdef-y +=3D msr.h
+>  unifdef-y +=3D mtrr.h
+>  unifdef-y +=3D vm86.h
+> diff -urN --exclude=3D'o.*' stock/linux-2.6.21-rc6-mm1/include/asm-i386/m=
+sr-index.h linux-2.6.21-rc6-mm1/include/asm-i386/msr-index.h
+> --- stock/linux-2.6.21-rc6-mm1/include/asm-i386/msr-index.h	1969-12-31 16=
+:00:00.000000000 -0800
+> +++ linux-2.6.21-rc6-mm1/include/asm-i386/msr-index.h	2007-04-09 18:14:04=
+.000000000 -0700
+> @@ -0,0 +1,270 @@
+> +#ifndef __ASM_MSR_INDEX_H
+> +#define __ASM_MSR_INDEX_ H
+>   =
 
 
->> +	vmi_time_init_clockevent();
->> +	setup_irq(0, &vmi_clock_action);
->> +}
->> +
->> +#ifdef CONFIG_X86_LOCAL_APIC
->> +void __devinit vmi_time_bsp_init(void)
->> +{
->> +	/*
->> +	 * On APIC systems, we want local timers to fire on each cpu.  We do
->> +	 * this by programming LVTT to deliver timer events to the IRQ handler
->> +	 * for IRQ-0, since we can't re-use the APIC local timer handler
->> +	 * without interfering with that code.
->> +	 */
->> +	clockevents_notify(CLOCK_EVT_NOTIFY_SUSPEND, NULL);
->>     
->
-> Why do you do this suspend...
->   
+Extra space.
 
-We need to cancel all pending PIT timer events and restart then local 
-timer, which requires atomically taking over IRQ-0.  We use the IDT gate 
-for IRQ-0 because it is already an exclusive interrupt, but we can't 
-re-use the LVTT IDT gate for local timer since that requires a custom 
-custom SMP interrupt in entry.S.  So we must be absolutely sure when we 
-get an interrupt on IRQ-0 that it came from the VMI local (rather than 
-PIT) delivery path.
+> +
+> +/* x86-64 specific MSRs */
+> +#define MSR_EFER		0xc0000080 /* extended feature register */
+> +#define MSR_STAR		0xc0000081 /* legacy mode SYSCALL target */
+> +#define MSR_LSTAR		0xc0000082 /* long mode SYSCALL target */
+> +#define MSR_CSTAR		0xc0000083 /* compat mode SYSCALL target */
+> +#define MSR_SYSCALL_MASK	0xc0000084 /* EFLAGS mask for syscall */
+> +#define MSR_FS_BASE		0xc0000100 /* 64bit FS base */
+> +#define MSR_GS_BASE		0xc0000101 /* 64bit GS base */
+> +#define MSR_KERNEL_GS_BASE	0xc0000102 /* SwapGS GS shadow */
+> +
+> +/* EFER bits: */
+> +#define _EFER_SCE		0x00000000 /* SYSCALL/SYSRET */
+> +#define _EFER_LME		0x00000008 /* Long mode enable */
+> +#define _EFER_LMA		0x0000000a /* Long mode active (read-only) */
+> +#define _EFER_NX		0x0000000b /* No execute enable */
+> +
+> +#define EFER_SCE		(1<<_EFER_SCE)
+> +#define EFER_LME		(1<<_EFER_LME)
+> +#define EFER_LMA		(1<<_EFER_LMA)
+> +#define EFER_NX			(1<<_EFER_NX)
+>   =
 
->   
->> +	local_irq_disable();
->> +#ifdef CONFIG_X86_SMP
->> +	/*
->> +	 * XXX handle_percpu_irq only defined for SMP; we need to switch over
->> +	 * to using it, since this is a local interrupt, which each CPU must
->> +	 * handle individually without locking out or dropping simultaneous
->> +	 * local timers on other CPUs.  We also don't want to trigger the
->> +	 * quirk workaround code for interrupts which gets invoked from
->> +	 * handle_percpu_irq via eoi, so we use our own IRQ chip.
->> +	 */
->> +	set_irq_chip_and_handler_name(0, &vmi_chip, handle_percpu_irq, "lvtt");
->> +#else
->> +	set_irq_chip_and_handler_name(0, &vmi_chip, handle_edge_irq, "lvtt");
->> +#endif
->> +	vmi_wiring = VMI_ALARM_WIRED_LVTT;
->> +	apic_write(APIC_LVTT, vmi_get_timer_vector());
->>     
->
-> isn't this just your ->startup?
->   
 
-Which structure has a ->startup function we can use?  Sorry if this 
-seems ignorant, I'm not quite sure what you mean.
+Is having separate bit numbers and masks useful?  If so, is it worth
+doing for the others?
 
->   
->> +	local_irq_enable();
->> +	clockevents_notify(CLOCK_EVT_NOTIFY_RESUME, NULL);
->>     
->
-> ...and resume?  Instead of letting clockevents core handle all of that,
-> and just registering right here?
->   
+Looks OK.  Ack.
 
-It wasn't clear that clockevents would issue a resume notify for us; if 
-so we could handle this setup in the callback, but it has to be done on 
-the correct CPU.  I can try it and see if that works.
-
-Thanks,
-
-Zach
+    J
