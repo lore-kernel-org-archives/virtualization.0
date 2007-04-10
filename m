@@ -1,18 +1,17 @@
-From: Chris Wright <chrisw@sous-sol.org>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [PATCH 9/10] Vmi timer update.patch
-Date: Tue, 10 Apr 2007 15:28:44 -0700
-Message-ID: <20070410222844.GN19575@sequoia.sous-sol.org>
+Date: Tue, 10 Apr 2007 15:28:06 -0700
+Message-ID: <461C0F76.1070308@vmware.com>
 References: <200704100006.l3A06RUR020644@zach-dev.vmware.com>
 	<20070410023702.GJ10574@sequoia.sous-sol.org>
 	<461BC373.10306@vmware.com>
 	<20070410172429.GN10574@sequoia.sous-sol.org>
-	<461C084C.9020009@vmware.com>
+	<461C084C.9020009@vmware.com> <461C0CB4.9000407@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <461C084C.9020009@vmware.com>
+In-Reply-To: <461C0CB4.9000407@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,43 +21,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Virtualization Mailing List <virtualization@lists.osdl.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Thomas Gleixner <tglx@linutronix.de>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> Yes, but unfortunately that is a nop:
-> =
+Jeremy Fitzhardinge wrote:
+> Why not submit a patch to do what you need here?  (The Geode comment is
+> a bit worrying though.)
+>   =
 
->         /*
->          * Avoid unnecessary state transitions, as it confuses
->          * Geode / Cyrix based boxen.
->          */
->         case CLOCK_EVT_MODE_SHUTDOWN:
->                 if (evt->mode =3D=3D CLOCK_EVT_MODE_UNUSED)
->                         break;
->         case CLOCK_EVT_MODE_UNUSED:
->                 if (evt->mode =3D=3D CLOCK_EVT_MODE_SHUTDOWN)
->                         break;
 
-This one should be fallthrough case during exchange (mode =3D=3D PERIODIC)
+Why should VMI add workaround into PIT code?  PIT code wants to know =
 
->         case CLOCK_EVT_MODE_ONESHOT:
->                 /* One shot setup */
->                 outb_p(0x38, PIT_MODE);
-> =
+nothing about VMI.  It understands PIT timers on hardware.  VMI, on the =
 
-> So switching from PIT to VMI does not disable PIT timer interrupts.  =
+other hand, is special - it knows exactly what hardware platform it has =
 
-> Thus I have to keep this part of the patch.
+and can manipulate hardware freely.  On a generic platform, surely touch =
 
-Oh, I was looking at this (x86_64 work I have here):
+PIT I/O ports would be quite ill behavior.  But side effects of that on =
 
-	case CLOCK_EVT_MODE_SHUTDOWN:
-	case CLOCK_EVT_MODE_UNUSED:
-		outb_p(0x30, PIT_MODE);
-		outb_p(0, PIT_CH0);	/* LSB */
-		outb_p(0, PIT_CH0);	/* MSB */
-		break;
+a vastly restricted platform are predictable based on the hardware and =
 
-That's mode 0, not mode 5, but I think the end result is the same.
+kernel, and we would not add a workaround outside of VMI unless it was =
+
+really necessary or generally useful.
+
+Zach
