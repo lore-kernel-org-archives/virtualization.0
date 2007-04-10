@@ -1,14 +1,20 @@
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-Subject: Re: [PATCH 3/10] I386 mcheck p4 grotesque and needless warning
-	fix.patch
-Date: Tue, 10 Apr 2007 16:36:36 +0200
-Message-ID: <9a8748490704100736l49b0a7c6t49d21900f4f23e33@mail.gmail.com>
-References: <200704100006.l3A068Xk020608@zach-dev.vmware.com>
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: PATCH 7/8] lguest: the block driver
+Date: Tue, 10 Apr 2007 14:28:05 +0300
+Message-ID: <84144f020704100428r6e35e34cued8758c94728a6a0__8265.33232252604$1176221847$gmane$org@mail.gmail.com>
+References: <1176203068.26372.21.camel@localhost.localdomain>
+	<1176203130.26372.23.camel@localhost.localdomain>
+	<1176203176.26372.25.camel@localhost.localdomain>
+	<1176203231.26372.27.camel@localhost.localdomain>
+	<1176203285.26372.29.camel@localhost.localdomain>
+	<1176203333.26372.31.camel@localhost.localdomain>
+	<1176203475.26372.37.camel@localhost.localdomain>
+	<1176203528.26372.40.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200704100006.l3A068Xk020608@zach-dev.vmware.com>
+In-Reply-To: <1176203528.26372.40.camel@localhost.localdomain>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,55 +25,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/04/07, Zachary Amsden <zach@vmware.com> wrote:
-> No, just no.  You do not use goto to skip a code block.  You do not
-> return an obvious variable from a singly-inlined function and give
-> the function a return value.  You don't put unexplained comments
-> about kmalloc in code which doesn't do dynamic allocation.  And
-> you don't leave stray warnings around for no good reason.
->
-> Also, when possible, it is better to use block scoped variables
-> because gcc can sometime generate better code.
->
-> Signed-off-by: Zachary Amsden <zach@vmware.com>
->
-> diff -r ed741f57dae8 arch/i386/kernel/cpu/mcheck/p4.c
-> --- a/arch/i386/kernel/cpu/mcheck/p4.c  Fri Apr 06 14:29:52 2007 -0700
-> +++ b/arch/i386/kernel/cpu/mcheck/p4.c  Fri Apr 06 14:43:24 2007 -0700
-[...]
->  static fastcall void intel_machine_check(struct pt_regs * regs, long err=
-or_code)
-> @@ -155,7 +146,6 @@ static fastcall void intel_machine_check
->         u32 alow, ahigh, high, low;
->         u32 mcgstl, mcgsth;
->         int i;
-> -       struct intel_mce_extended_msrs dbg;
->
->         rdmsr (MSR_IA32_MCG_STATUS, mcgstl, mcgsth);
->         if (mcgstl & (1<<0))    /* Recoverable ? */
-> @@ -164,7 +154,9 @@ static fastcall void intel_machine_check
->         printk (KERN_EMERG "CPU %d: Machine Check Exception: %08x%08x\n",
->                 smp_processor_id(), mcgsth, mcgstl);
->
-> -       if (intel_get_extended_msrs(&dbg)) {
-> +       if (mce_num_extended_msrs > 0) {
-> +               struct intel_mce_extended_msrs dbg;
+Hi Rusty,
 
-shouldn't there be a blank line here?
+On 4/10/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> +/* Jens gave me this nice helper to end all chunks of a request. */
+> +static void end_entire_request(struct request *req, int uptodate)
+> +{
+> +       if (end_that_request_first(req, uptodate, req->hard_nr_sectors))
+> +               BUG();
+> +       add_disk_randomness(req->rq_disk);
+> +       blkdev_dequeue_request(req);
+> +       end_that_request_last(req, uptodate);
+> +}
 
-> +               intel_get_extended_msrs(&dbg);
->                 printk (KERN_DEBUG "CPU %d: EIP: %08x EFLAGS: %08x\n",
->                         smp_processor_id(), dbg.eip, dbg.eflags);
->                 printk (KERN_DEBUG "\teax: %08x ebx: %08x ecx: %08x edx: =
-%08x\n",
-
-
--- =
-
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Perhaps we should move this to generic code (i.e. block/ll_rw_blk.c)?
