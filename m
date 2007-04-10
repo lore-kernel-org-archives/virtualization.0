@@ -1,18 +1,11 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH 9/10] Vmi timer update.patch
-Date: Tue, 10 Apr 2007 15:59:44 -0700
-Message-ID: <461C16E0.6010702@vmware.com>
-References: <200704100006.l3A06RUR020644@zach-dev.vmware.com>
-	<20070410023702.GJ10574@sequoia.sous-sol.org>
-	<461BC373.10306@vmware.com>
-	<20070410172429.GN10574@sequoia.sous-sol.org>
-	<461C084C.9020009@vmware.com>
-	<20070410222844.GN19575@sequoia.sous-sol.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: paravirt repo rebased to 2.6.21-rc6-mm1
+Date: Tue, 10 Apr 2007 16:23:39 -0700
+Message-ID: <461C1C7B.5080509@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070410222844.GN19575@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,63 +15,13 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Virtualization Mailing List <virtualization@lists.osdl.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
-> * Zachary Amsden (zach@vmware.com) wrote:
->   =
+Seems to work OK for native and Xen.  I had to play a bit with the
+paravirt-sched-clock patch to deal with the VMI changes.  Zach, can you
+check that it still works?
 
->> Yes, but unfortunately that is a nop:
->>
->>         /*
->>          * Avoid unnecessary state transitions, as it confuses
->>          * Geode / Cyrix based boxen.
->>          */
->>         case CLOCK_EVT_MODE_SHUTDOWN:
->>                 if (evt->mode =3D=3D CLOCK_EVT_MODE_UNUSED)
->>                         break;
->>         case CLOCK_EVT_MODE_UNUSED:
->>                 if (evt->mode =3D=3D CLOCK_EVT_MODE_SHUTDOWN)
->>                         break;
->>     =
-
->
-> This one should be fallthrough case during exchange (mode =3D=3D PERIODIC)
->   =
-
-
-Yes, seems PERIODIC->SHUTDOWN should do the right thing.
-
-
->>         case CLOCK_EVT_MODE_ONESHOT:
->>                 /* One shot setup */
->>                 outb_p(0x38, PIT_MODE);
->>
->> So switching from PIT to VMI does not disable PIT timer interrupts.  =
-
->> Thus I have to keep this part of the patch.
->>     =
-
-
-Since I misread the code, I can drop this now.
-
-
->
-> Oh, I was looking at this (x86_64 work I have here):
->
-> 	case CLOCK_EVT_MODE_SHUTDOWN:
-> 	case CLOCK_EVT_MODE_UNUSED:
-> 		outb_p(0x30, PIT_MODE);
-> 		outb_p(0, PIT_CH0);	/* LSB */
-> 		outb_p(0, PIT_CH0);	/* MSB */
-> 		break;
->
-> That's mode 0, not mode 5, but I think the end result is the same.
->   =
-
-
-Yes, mode 0, 4, 5 all should behave similarly.
-
-Zach
+Thanks,
+    J
