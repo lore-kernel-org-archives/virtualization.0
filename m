@@ -1,14 +1,11 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Clean up x86 control register and MSR macros
-Date: Tue, 10 Apr 2007 10:31:10 -0700
-Message-ID: <461BC9DE.5030009__2251.30260591886$1176255990$gmane$org@zytor.com>
-References: <200704101648.l3AGmT5e027601@tazenda.hos.anvin.org>
-	<461BC350.4040403@goop.org>
+From: "MONI Murali" <knowingsvoluptuous@lsbc.net>
+Subject: re:
+Date: Tue, 10 Apr 2007 20:42:29 -0120
+Message-ID: <01c77bb0$c144a370$6c822ecf@knowingsvoluptuous>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <461BC350.4040403@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,22 +15,50 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> =
+Have you seen how these sub-one-cent companies take off on =
 
-> Is having separate bit numbers and masks useful?  If so, is it worth
-> doing for the others?
-> =
+Good News?  For the past two months, every one we have =
+
+brought you has shown Amazing Appreciation. =
 
 
-I presume it's useful, or at least *used* in the current code, since =
+At such a low price even the smallest Gain means a =
 
-that was there already.  If deemed useful, it's something we could add =
+Significant Percentage Return.
 
-to the other bitmasks.
+We called (P)(P)(T)(L) as one to watch on Friday because of a =
 
-	-hpa
+Highly Anticipated Report from the Field.  It moved up 13% =
+
+on Friday and the news isn't even out yet.  Just wait till =
+
+word hits the street!
+
+On second thought, Don't Wait!
+
+Company (P)remium (P)e(T)ro(L)eum (P)(P)(T)(L)
+
+Current  $0.0085 (+13%)
+Target    $0.0450 (a FIVE bagger!)
+
+At this time (P)(P)(T)(L)  has a number of Surveys and Drilling =
+
+projects in progress.  We have heard that a Major Discovery =
+
+has been made, and recommend our readers capitalize on this =
+
+Opportunity right away!
+
+HEADLINES
+---------------------
+Hit man was sought to kill fetus
+Collins: Why this scientist believes in God =
+
+Ahmadinejad: Pardon for UK sailors
+McCain, Giuliani tied in poll of New Hampshire GOP
+Blogger freed after record contempt stint
+
+---------------------
