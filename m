@@ -1,10 +1,14 @@
-From: "catty" <ryaay@spss.com>
-Subject: corrode droppings
-Date: Tue, 10 Apr 2007 14:55:32 +0400
-Message-ID: <002201c77b5e$c2663950$5b773c59@tebrt>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 2/8] lguest: the host code
+Date: Tue, 10 Apr 2007 21:06:16 +1000
+Message-ID: <1176203176.26372.25.camel__34462.5869104222$1176206035$gmane$org@localhost.localdomain>
+References: <1176203068.26372.21.camel@localhost.localdomain>
+	<1176203130.26372.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_001E_01C77B80.49675E90"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1176203130.26372.23.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -14,481 +18,2623 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andi Kleen <ak@muc.de>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format...
+This is the code for the "lg.ko" module, which allows lguest guests to
+be launched.
 
-------=_NextPart_000_001E_01C77B80.49675E90
-Content-Type: multipart/alternative;
-    boundary="----------=_1176202622-19413-424"
-Content-Transfer-Encoding: binary
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/lguest/core.c                 |  444 +++++++++++++++++++++++++++++=
+++++
+ drivers/lguest/hypercalls.c           |  172 ++++++++++++
+ drivers/lguest/interrupts_and_traps.c |  258 +++++++++++++++++++
+ drivers/lguest/io.c                   |  412 ++++++++++++++++++++++++++++++
+ drivers/lguest/lg.h                   |  278 ++++++++++++++++++++
+ drivers/lguest/lguest_user.c          |  192 ++++++++++++++
+ drivers/lguest/page_tables.c          |  407 ++++++++++++++++++++++++++++++
+ drivers/lguest/segments.c             |  115 ++++++++
+ drivers/lguest/switcher.S             |  159 +++++++++++
+ include/linux/lguest_launcher.h       |   80 +++++
+ 10 files changed, 2517 insertions(+)
 
-This is a multi-part message in MIME format...
-
-------------=_1176202622-19413-424
-Content-Type: text/plain;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-
-com - Blowout SALE on HOT Men's Brands!
-DealofDay: Fetching Cellular Factory.
-More: Quiz: Did I Have a Panic Attack?
-com) and other email addresses.
-That is, arson-for-hire rings are being paid to torch their SUVs, in order =
-for the owners to collect their insurance payments. The Wall is where medhe=
-ads and black boxers go to buy dangerous drugs to treat their fictitious di=
-seases because they've been subjected to spontaneous mass diagnosis. Oh yes=
-, hemp is so dangerous. Though doctors still debate the clinical studies th=
-at have since repeated Dr.
-I turned it down, because I do not wish to support the online gambling indu=
-stry.
-In a moment, you will be redirected to the latest version of MSN Toolbar. A=
- full 90 percent of FDA scientists are actually dedicated, caring people wh=
-o applaud the actions of whistleblowers like Dr.
-The former head of Merck, a man named Gadsden, once said he wished to expan=
-d the drug market to healthy people, so he wouldn't be limited to selling d=
-rugs only to sick people. The effects of the Council's action is brutal and=
- punishing against the very poor and desperate, who bullied, threatened and=
- thrown into desperation by eviction or imprisonment. We're going to take y=
-our daughter away from you.
-The one thing you can't do with hemp is get high from smoking it.
-Performance Speed-wise CrossLoop performs quite nicely on a standard ADSL c=
-onnection, and the quality of the screen rendering is also on a par with si=
-milar solutions.
-Ethics education, in fact, may be the ultimate solution to this problem, be=
-cause without ethics, we are a soulless economy.
-" Editor's comments Jubii is a web-based communication platform that helps =
-groups of people manage their email and share files within a trusted enviro=
-nment. Patients may even have greenish nasal discharge with sinus congestio=
-n due to a common cold.
-You can become a Tupperware member and get Discounts everyday by purchasing=
- this special January bonus kit today!
-------------=_1176202622-19413-424
-Content-Type: text/html;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-125=
-0">
-<META content=3D"MSHTML 6.00.2800.1506" name=3DGENERATOR>
-<DEFANGED_style_0 </STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2><IMG alt=3D"buster" hspace=3D0=20
-DEFANGED_src=3D"cid:001d01c77b5e$c2519fe0$5b773c59@tebrt" align=3D"baseline=
-"=20
-border=3D0></FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>com - Blowout SALE on HOT Men's=20
-Brands!</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>DealofDay: Fetching Cellular Factory.</FON=
-T></DIV>
-<DIV><FONT face=3DArial size=3D2>More: Quiz: Did I Have a Panic Attack?</FO=
-NT></DIV>
-<DIV><FONT face=3DArial size=3D2>com) and other email addresses.</FONT></DI=
-V>
-<DIV><FONT face=3DArial size=3D2>That is, arson-for-hire rings are being pa=
-id to=20
-torch their SUVs, in order for the owners to collect their insurance paymen=
-ts. The=20
-Wall is where medheads and black boxers go to buy dangerous drugs to treat =
-their=20
-fictitious diseases because they've been subjected to spontaneous mass diag=
-nosis. Oh=20
-yes, hemp is so dangerous. Though doctors still debate the clinical studies=
- that=20
-have since repeated Dr.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>I turned it down, because I do not wish to=
- support=20
-the online gambling industry.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>In a moment, you will be redirected to the=
- latest=20
-version of MSN Toolbar. A full 90 percent of FDA scientists are actually de=
-dicated,=20
-caring people who applaud the actions of whistleblowers like Dr.</FONT></DI=
-V>
-<DIV><FONT face=3DArial size=3D2>The former head of Merck, a man named Gads=
-den, once=20
-said he wished to expand the drug market to healthy people, so he wouldn't =
-be=20
-limited to selling drugs only to sick people. The effects of the Council's =
-action is=20
-brutal and punishing against the very poor and desperate, who bullied, thre=
-atened=20
-and thrown into desperation by eviction or imprisonment. We're going to tak=
-e your=20
-daughter away from you.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>The one thing you can't do with hemp is ge=
-t high=20
-from smoking it.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Performance Speed-wise CrossLoop performs =
-quite=20
-nicely on a standard ADSL connection, and the quality of the screen renderi=
-ng is=20
-also on a par with similar solutions.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Ethics education, in fact, may be the ulti=
-mate=20
-solution to this problem, because without ethics, we are a soulless=20
-economy.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>" Editor's comments Jubii is a web-based=
-=20
-communication platform that helps groups of people manage their email and s=
-hare=20
-files within a trusted environment. Patients may even have greenish nasal d=
-ischarge=20
-with sinus congestion due to a common cold.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>You can become a Tupperware member and get=
-=20
-Discounts everyday by purchasing this special January bonus kit=20
-today!</FONT></DIV></BODY></HTML>
-
-------------=_1176202622-19413-424--
-
-------=_NextPart_000_001E_01C77B80.49675E90
-Content-Type: image/gif;
-	name="Roman numeral.gif"
-Content-Transfer-Encoding: base64
-Content-ID: <001d01c77b5e$c2519fe0$5b773c59@tebrt>
-Content-Disposition: inline
-
-R0lGODlhKwJPAfUDAA4oHhEBJNm2u+e1VsWcbKngasrT5btwoVudr/9x3UtM
-Rr2K4L9c0tyK1I1k+KvvZz15eMhsk26M5619q5wxbsh2Mihwi/IGnIGDDwyA
-9wgCYbwPHomcfVP70euWBIcK1giysCq/7obmpQ4dv8cTwUrJAU7sevpES2JU
-tUMAMYIAdyX8pw+pVYHzJfv3bv7oL8Xwo+/318/8AQblStpCBZxT/EIKnf8l
-+kWWRRGzDm3W+oUR8Ac3yQpzDEMFvwfjQSwAAAAAKwJPAQAG/0CAcEgsGo/I
-5DHAbDqf0Kh0Sq1Gldisdsvter9aq/hZHJupxCt4zW67u+S3fC4/2+/4vN48
-3Pv/UluAg4SFhoeIiYqLjI2Oj5CRfkqBdGBNl1OWlJKdnmiboXWfpKVVcKap
-qqukdKyvfYeiqHGCoEuLs7q7SK9Our7BwsPExcbHkrTIkLzNo3fOZcvT1IBp
-edHZ2tvcrtXf4IPdYcbjX+GG0ujY5u3uWKnX67Jrn6Ks7/n6+23zZ/zv/DkC
-mEQVQXP/zlmJdaubwIcQI0qciOgexYX9Lp7K9KugmIPq9oAcSbKXpywaU9bi
-qLKlS3El+dmJ6eylRpo4cxK0iYchz/+NOoO++flHKACiSJPS81IUGBSjUJtV
-ikryqU+YGeORUwqNqteQAmOGladJ5jdOXJO1S8t2JryBX+PKJds2mMK6yOZu
-wptQr99oiv5qmyQ4Z8fCiLc9Ssy4sePHe/km2nkM8lDJWi1rpjo1stt8zExi
-Tnc1l96u3EYv21V362eWqNkMg61mM83DhlXrrg15JUDeWXfftK0YN3GUnT0K
-P3u8uLXmc5ZH1Cw9JRertpggxuT04+Ce0L1Vz2tpPPa7aoMSDuCOe+qygJ+P
-M48u/KyGVcONJGz/uinlwEmFVU2R9GegUPS5dCAu8nXnS3MJxgbWeUboseBp
-ER6V3oXbVYb/02scZmfhd/SFUhGDICIUIIIFasgVSBtmE+GMNGIUXI3lRGfc
-hJ2gJ5GKNoknEmgn+jcGh01d9pCDODbZYnn8hQjgUiI62aOU+DgHn05KSdle
-kYXlON9FyrjnUF/UNdhfZ6156SaB08U34l/M0bYiXU9WeOebVf7H559CWDmR
-WWb6OBmeJwGqKGdWfrgjZYmyRoiRXcKmJH4leZcflToKOuiNDyY256JvurVl
-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
-Twa1nAP96f82Wb8u1rCUfwvqOas1zoAe9WnRDP8PMlunuJa1MGBZvVkHGzvM
-j062osXMVl53Wti0rjVYmd3dO48Z2t61Nqa3eqc9a5tcqj4wt3vdZ4z6uq+7
-DrezuU3sMj+bu+6uskWTSlE6s/uzXd4ygpls7GHPu9vwBnK+0e2bgt/V2qBF
-7MCVTe4rC5fRps5wWnG5bSO7l+FDtnjGHY7wjkP5zFrOchXPG3COI5zSRQ51
-plEu62CcXOD3hqut6a1uaX+80THfeULqzXONU3nfOS/vz4ve36GHO6s3xjiH
-bS5ynFfc0lE9z+uQXmKj09zAb7U615VEXsi6fL57RW6HqW51p3fdz5pOu8mx
-PmttS/3H62bv2vPt9nf/m3uxQUf7w/O847sDntNs9zfTYQ11EbPcroE/fKEv
-6+avR3zxki/5qCGf90FfXMiJJu64nLp5grtaqWJ/u9rHXl9g6zze1UZ01AW/
-d9CvnPGDz3nPNx3zmU8e4qsP8ewr7Plii37ZI3967qmNeLP3vvN2Fj7vVw1u
-6Dpe+bmWe/G7mvx2A7jF7Km+a4EvUYCf/txW9ivdTU/q5zN/7tc/tH25X2qD
-S3z97h9qzcfd9Ntnft7bV3ns3S7Twl8b16UWWX1c4PFVuWFI4Y2fYk2b3pXe
-7/3d/Pkdr0ngWTUe6b3e9F3dipUfWonbpK1fAoqf81Wg0NXZCIZgsJVgtkEb
-/+oNXY9N3WuwWQpG237RoNe12QXWXup9n/RtHdmtYNb5XtwlXfRt3MEl36td
-Xox9IPrdYOSxzhP2nv4RXhAioaPl4K/tILYN4IsxoRR6na41GBg+nhUOHxkC
-nBk2FRqyIXxFmZc9WBvyYO7JmxN632DJ4dJpXhlmIRC6X+jBXh6m4RiioRCK
-IaG1XPwJog4eGyDaX/qtIQUi3yJSIvRxYB3GWttdoRbynYmZYCVWofqlHUyd
-nQe+XCCSnAXOmAPun/U1oBrSH/WNWKXhXyuaGSj6oSH2Gy6S4C1qIr5pl8xh
-oh3y4iv6Vt+5h+LBYAvqHu65ILvBIipS3BwuWS5GYYd7RWM2buESAhfIBWB0
-ENbNeVwxGuMnkuM5ht+bYR86WheK7SE7wmM8ciEx6qE2Wt4gIiA72iMiwqMG
-JpzxFWMjVt44DqOnNaFALmCyyd80BiP/kSNA8huq0SIDJiQKQuE+PmI5NqM8
-OuIxcuTCnSH8eeQGMqQPyl4RqmPXYeQmxiA/th7rBAEAOwV9
-
-------=_NextPart_000_001E_01C77B80.49675E90
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
-
-------=_NextPart_000_001E_01C77B80.49675E90--
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/core.c
+@@ -0,0 +1,444 @@
++/* World's simplest hypervisor, to test paravirt_ops and show
++ * unbelievers that virtualization is the future.  Plus, it's fun! */
++#include <linux/module.h>
++#include <linux/stringify.h>
++#include <linux/stddef.h>
++#include <linux/io.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
++#include <linux/cpu.h>
++#include <linux/freezer.h>
++#include <asm/paravirt.h>
++#include <asm/desc.h>
++#include <asm/pgtable.h>
++#include <asm/uaccess.h>
++#include <asm/poll.h>
++#include <asm/highmem.h>
++#include <asm/asm-offsets.h>
++#include <asm/i387.h>
++#include "lg.h"
++
++/* Found in switcher.S */
++extern char start_switcher_text[], end_switcher_text[], switch_to_guest[];
++extern unsigned long default_idt_entries[];
++
++/* Every guest maps the core switcher code. */
++#define SHARED_SWITCHER_PAGES \
++	DIV_ROUND_UP(end_switcher_text - start_switcher_text, PAGE_SIZE)
++/* Pages for switcher itself, then two pages per cpu */
++#define TOTAL_SWITCHER_PAGES (SHARED_SWITCHER_PAGES + 2 * NR_CPUS)
++
++/* We map at -4M for ease of mapping into the guest (one PTE page). */
++#define SWITCHER_ADDR 0xFFC00000
++
++static struct vm_struct *switcher_vma;
++static struct page **switcher_page;
++
++static int cpu_had_pge;
++static struct {
++	unsigned long offset;
++	unsigned short segment;
++} lguest_entry;
++
++/* This One Big lock protects all inter-guest data structures. */
++DEFINE_MUTEX(lguest_lock);
++static DEFINE_PER_CPU(struct lguest *, last_guest);
++
++/* FIXME: Make dynamic. */
++#define MAX_LGUEST_GUESTS 16
++struct lguest lguests[MAX_LGUEST_GUESTS];
++
++/* Offset from where switcher.S was compiled to where we've copied it */
++static unsigned long switcher_offset(void)
++{
++	return SWITCHER_ADDR - (unsigned long)start_switcher_text;
++}
++
++/* This cpu's struct lguest_pages. */
++static struct lguest_pages *lguest_pages(unsigned int cpu)
++{
++	return &(((struct lguest_pages *)
++		  (SWITCHER_ADDR + SHARED_SWITCHER_PAGES*PAGE_SIZE))[cpu]);
++}
++
++static __init int map_switcher(void)
++{
++	int i, err;
++	struct page **pagep;
++
++	switcher_page =3D kmalloc(sizeof(switcher_page[0])*TOTAL_SWITCHER_PAGES,
++				GFP_KERNEL);
++	if (!switcher_page) {
++		err =3D -ENOMEM;
++		goto out;
++	}
++
++	for (i =3D 0; i < TOTAL_SWITCHER_PAGES; i++) {
++		unsigned long addr =3D get_zeroed_page(GFP_KERNEL);
++		if (!addr) {
++			err =3D -ENOMEM;
++			goto free_some_pages;
++		}
++		switcher_page[i] =3D virt_to_page(addr);
++	}
++
++	switcher_vma =3D __get_vm_area(TOTAL_SWITCHER_PAGES * PAGE_SIZE,
++				       VM_ALLOC, SWITCHER_ADDR, VMALLOC_END);
++	if (!switcher_vma) {
++		err =3D -ENOMEM;
++		printk("lguest: could not map switcher pages high\n");
++		goto free_pages;
++	}
++
++	pagep =3D switcher_page;
++	err =3D map_vm_area(switcher_vma, PAGE_KERNEL, &pagep);
++	if (err) {
++		printk("lguest: map_vm_area failed: %i\n", err);
++		goto free_vma;
++	}
++	memcpy(switcher_vma->addr, start_switcher_text,
++	       end_switcher_text - start_switcher_text);
++
++	/* Fix up IDT entries to point into copied text. */
++	for (i =3D 0; i < IDT_ENTRIES; i++)
++		default_idt_entries[i] +=3D switcher_offset();
++
++	for_each_possible_cpu(i) {
++		struct lguest_pages *pages =3D lguest_pages(i);
++		struct lguest_ro_state *state =3D &pages->state;
++
++		/* These fields are static: rest done in copy_in_guest_info */
++		state->host_gdt_desc.size =3D GDT_SIZE-1;
++		state->host_gdt_desc.address =3D (long)get_cpu_gdt_table(i);
++		store_idt(&state->host_idt_desc);
++		state->guest_idt_desc.size =3D sizeof(state->guest_idt)-1;
++		state->guest_idt_desc.address =3D (long)&state->guest_idt;
++		state->guest_gdt_desc.size =3D sizeof(state->guest_gdt)-1;
++		state->guest_gdt_desc.address =3D (long)&state->guest_gdt;
++		state->guest_tss.esp0 =3D (long)(&pages->regs + 1);
++		state->guest_tss.ss0 =3D LGUEST_DS;
++		/* No I/O for you! */
++		state->guest_tss.io_bitmap_base =3D sizeof(state->guest_tss);
++		setup_default_gdt_entries(state);
++		setup_default_idt_entries(state, default_idt_entries);
++
++		/* Setup LGUEST segments on all cpus */
++		get_cpu_gdt_table(i)[GDT_ENTRY_LGUEST_CS] =3D FULL_EXEC_SEGMENT;
++		get_cpu_gdt_table(i)[GDT_ENTRY_LGUEST_DS] =3D FULL_SEGMENT;
++	}
++
++	/* Initialize entry point into switcher. */
++	lguest_entry.offset =3D (long)switch_to_guest + switcher_offset();
++	lguest_entry.segment =3D LGUEST_CS;
++
++	printk(KERN_INFO "lguest: mapped switcher at %p\n",
++	       switcher_vma->addr);
++	return 0;
++
++free_vma:
++	vunmap(switcher_vma->addr);
++free_pages:
++	i =3D TOTAL_SWITCHER_PAGES;
++free_some_pages:
++	for (--i; i >=3D 0; i--)
++		__free_pages(switcher_page[i], 0);
++	kfree(switcher_page);
++out:
++	return err;
++}
++
++static void unmap_switcher(void)
++{
++	unsigned int i;
++
++	vunmap(switcher_vma->addr);
++	for (i =3D 0; i < TOTAL_SWITCHER_PAGES; i++)
++		__free_pages(switcher_page[i], 0);
++}
++
++/* IN/OUT insns: enough to get us past boot-time probing. */
++static int emulate_insn(struct lguest *lg)
++{
++	u8 insn;
++	unsigned int insnlen =3D 0, in =3D 0, shift =3D 0;
++	unsigned long physaddr =3D guest_pa(lg, lg->regs->eip);
++
++	/* This only works for addresses in linear mapping... */
++	if (lg->regs->eip < lg->page_offset)
++		return 0;
++	lgread(lg, &insn, physaddr, 1);
++
++	/* Operand size prefix means it's actually for ax. */
++	if (insn =3D=3D 0x66) {
++		shift =3D 16;
++		insnlen =3D 1;
++		lgread(lg, &insn, physaddr + insnlen, 1);
++	}
++
++	switch (insn & 0xFE) {
++	case 0xE4: /* in     <next byte>,%al */
++		insnlen +=3D 2;
++		in =3D 1;
++		break;
++	case 0xEC: /* in     (%dx),%al */
++		insnlen +=3D 1;
++		in =3D 1;
++		break;
++	case 0xE6: /* out    %al,<next byte> */
++		insnlen +=3D 2;
++		break;
++	case 0xEE: /* out    %al,(%dx) */
++		insnlen +=3D 1;
++		break;
++	default:
++		return 0;
++	}
++
++	if (in) {
++		/* Lower bit tells is whether it's a 16 or 32 bit access */
++		if (insn & 0x1)
++			lg->regs->eax =3D 0xFFFFFFFF;
++		else
++			lg->regs->eax |=3D (0xFFFF << shift);
++	}
++	lg->regs->eip +=3D insnlen;
++	return 1;
++}
++
++int lguest_address_ok(const struct lguest *lg,
++		      unsigned long addr, unsigned long len)
++{
++	return (addr+len) / PAGE_SIZE < lg->pfn_limit && (addr+len >=3D addr);
++}
++
++/* Just like get_user, but don't let guest access lguest binary. */
++u32 lgread_u32(struct lguest *lg, u32 addr)
++{
++	u32 val =3D 0;
++
++	/* Don't let them access lguest binary */
++	if (!lguest_address_ok(lg, addr, sizeof(val))
++	    || get_user(val, (u32 __user *)addr) !=3D 0)
++		kill_guest(lg, "bad read address %u", addr);
++	return val;
++}
++
++void lgwrite_u32(struct lguest *lg, u32 addr, u32 val)
++{
++	if (!lguest_address_ok(lg, addr, sizeof(val))
++	    || put_user(val, (u32 __user *)addr) !=3D 0)
++		kill_guest(lg, "bad write address %u", addr);
++}
++
++void lgread(struct lguest *lg, void *b, u32 addr, unsigned bytes)
++{
++	if (!lguest_address_ok(lg, addr, bytes)
++	    || copy_from_user(b, (void __user *)addr, bytes) !=3D 0) {
++		/* copy_from_user should do this, but as we rely on it... */
++		memset(b, 0, bytes);
++		kill_guest(lg, "bad read address %u len %u", addr, bytes);
++	}
++}
++
++void lgwrite(struct lguest *lg, u32 addr, const void *b, unsigned bytes)
++{
++	if (!lguest_address_ok(lg, addr, bytes)
++	    || copy_to_user((void __user *)addr, b, bytes) !=3D 0)
++		kill_guest(lg, "bad write address %u len %u", addr, bytes);
++}
++
++static void set_ts(void)
++{
++	u32 cr0;
++
++	cr0 =3D read_cr0();
++	if (!(cr0 & 8))
++		write_cr0(cr0|8);
++}
++
++static void copy_in_guest_info(struct lguest *lg, struct lguest_pages *pag=
+es)
++{
++	if (__get_cpu_var(last_guest) !=3D lg || lg->last_pages !=3D pages) {
++		__get_cpu_var(last_guest) =3D lg;
++		lg->last_pages =3D pages;
++		lg->changed =3D CHANGED_ALL;
++	}
++
++	/* These are pretty cheap, so we do them unconditionally. */
++	pages->state.host_cr3 =3D __pa(current->mm->pgd);
++	map_switcher_in_guest(lg, pages);
++	pages->state.guest_tss.esp1 =3D lg->esp1;
++	pages->state.guest_tss.ss1 =3D lg->ss1;
++
++	/* Copy direct trap entries. */
++	if (lg->changed & CHANGED_IDT)
++		copy_traps(lg, pages->state.guest_idt, default_idt_entries);
++
++	/* Copy all GDT entries but the TSS. */
++	if (lg->changed & CHANGED_GDT)
++		copy_gdt(lg, pages->state.guest_gdt);
++
++	lg->changed =3D 0;
++}
++
++static void run_guest_once(struct lguest *lg, struct lguest_pages *pages)
++{
++	unsigned int clobber;
++
++	copy_in_guest_info(lg, pages);
++
++	/* Put eflags on stack, lcall does rest: suitable for iret return. */
++	asm volatile("pushf; lcall *lguest_entry"
++		     : "=3Da"(clobber), "=3Db"(clobber)
++		     : "0"(pages), "1"(__pa(lg->pgdirs[lg->pgdidx].pgdir))
++		     : "memory", "%edx", "%ecx", "%edi", "%esi");
++}
++
++int run_guest(struct lguest *lg, char *__user user)
++{
++	while (!lg->dead) {
++		unsigned int cr2 =3D 0; /* Damn gcc */
++
++		/* Hypercalls first: we might have been out to userspace */
++		do_hypercalls(lg);
++		if (lg->dma_is_pending) {
++			put_user(lg->pending_dma, (unsigned long *)user);
++			put_user(lg->pending_key, (unsigned long *)user+1);
++			return sizeof(unsigned long)*2;
++		}
++
++		if (signal_pending(current))
++			return -EINTR;
++		maybe_do_interrupt(lg);
++
++		try_to_freeze();
++
++		if (lg->dead)
++			break;
++
++		if (lg->halted) {
++			set_current_state(TASK_INTERRUPTIBLE);
++			schedule_timeout(1);
++			continue;
++		}
++
++		local_irq_disable();
++
++		/* Even if *we* don't want FPU trap, guest might... */
++		if (lg->ts)
++			set_ts();
++
++		run_guest_once(lg, lguest_pages(raw_smp_processor_id()));
++
++		/* Save cr2 now if we page-faulted. */
++		if (lg->regs->trapnum =3D=3D 14)
++			cr2 =3D read_cr2();
++		else if (lg->regs->trapnum =3D=3D 7)
++			math_state_restore();
++		local_irq_enable();
++
++		switch (lg->regs->trapnum) {
++		case 13: /* We've intercepted a GPF. */
++			if (lg->regs->errcode =3D=3D 0) {
++				if (emulate_insn(lg))
++					continue;
++			}
++			break;
++		case 14: /* We've intercepted a page fault. */
++			if (demand_page(lg, cr2, lg->regs->errcode & 2))
++				continue;
++
++			/* If lguest_data is NULL, this won't hurt. */
++			put_user(cr2, &lg->lguest_data->cr2);
++			break;
++		case 7: /* We've intercepted a Device Not Available fault. */
++			/* If they don't want to know, just absorb it. */
++			if (!lg->ts)
++				continue;
++			break;
++		case 32 ... 255: /* Real interrupt, fall thru */
++			cond_resched();
++		case LGUEST_TRAP_ENTRY: /* Handled at top of loop */
++			continue;
++		}
++
++		if (deliver_trap(lg, lg->regs->trapnum))
++			continue;
++
++		kill_guest(lg, "unhandled trap %i at %#x (%#x)",
++			   lg->regs->trapnum, lg->regs->eip,
++			   lg->regs->trapnum =3D=3D 14 ? cr2 : lg->regs->errcode);
++	}
++	return -ENOENT;
++}
++
++int find_free_guest(void)
++{
++	unsigned int i;
++	for (i =3D 0; i < MAX_LGUEST_GUESTS; i++)
++		if (!lguests[i].tsk)
++			return i;
++	return -1;
++}
++
++static void adjust_pge(void *on)
++{
++	if (on)
++		write_cr4(read_cr4() | X86_CR4_PGE);
++	else
++		write_cr4(read_cr4() & ~X86_CR4_PGE);
++}
++
++static int __init init(void)
++{
++	int err;
++
++	if (paravirt_enabled()) {
++		printk("lguest is afraid of %s\n", paravirt_ops.name);
++		return -EPERM;
++	}
++
++	err =3D map_switcher();
++	if (err)
++		return err;
++
++	err =3D init_pagetables(switcher_page, SHARED_SWITCHER_PAGES);
++	if (err) {
++		unmap_switcher();
++		return err;
++	}
++	lguest_io_init();
++
++	err =3D lguest_device_init();
++	if (err) {
++		free_pagetables();
++		unmap_switcher();
++		return err;
++	}
++	lock_cpu_hotplug();
++	if (cpu_has_pge) { /* We have a broader idea of "global". */
++		cpu_had_pge =3D 1;
++		on_each_cpu(adjust_pge, 0, 0, 1);
++		clear_bit(X86_FEATURE_PGE, boot_cpu_data.x86_capability);
++	}
++	unlock_cpu_hotplug();
++	return 0;
++}
++
++static void __exit fini(void)
++{
++	lguest_device_remove();
++	free_pagetables();
++	unmap_switcher();
++	lock_cpu_hotplug();
++	if (cpu_had_pge) {
++		set_bit(X86_FEATURE_PGE, boot_cpu_data.x86_capability);
++		on_each_cpu(adjust_pge, (void *)1, 0, 1);
++	}
++	unlock_cpu_hotplug();
++}
++
++module_init(init);
++module_exit(fini);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Rusty Russell <rusty@rustcorp.com.au>");
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/hypercalls.c
+@@ -0,0 +1,172 @@
++/*  Actual hypercalls, which allow guests to actually do something.
++    Copyright (C) 2006 Rusty Russell IBM Corporation
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 =
+USA
++*/
++#include <linux/uaccess.h>
++#include <linux/syscalls.h>
++#include <linux/mm.h>
++#include <asm/page.h>
++#include <asm/pgtable.h>
++#include <irq_vectors.h>
++#include "lg.h"
++
++static void do_hcall(struct lguest *lg, struct lguest_regs *regs)
++{
++	switch (regs->eax) {
++	case LHCALL_FLUSH_ASYNC:
++		break;
++	case LHCALL_LGUEST_INIT:
++		kill_guest(lg, "already have lguest_data");
++		break;
++	case LHCALL_CRASH: {
++		char msg[128];
++		lgread(lg, msg, regs->edx, sizeof(msg));
++		msg[sizeof(msg)-1] =3D '\0';
++		kill_guest(lg, "CRASH: %s", msg);
++		break;
++	}
++	case LHCALL_FLUSH_TLB:
++		if (regs->edx)
++			guest_pagetable_clear_all(lg);
++		else
++			guest_pagetable_flush_user(lg);
++		break;
++	case LHCALL_TIMER_READ: {
++		u32 now =3D jiffies;
++		mb();
++		regs->eax =3D now - lg->last_timer;
++		lg->last_timer =3D now;
++		break;
++	}
++	case LHCALL_GET_WALLCLOCK: {
++		struct timespec ts;
++		ktime_get_real_ts(&ts);
++		regs->eax =3D ts.tv_sec;
++		break;
++	}
++	case LHCALL_BIND_DMA:
++		regs->eax =3D bind_dma(lg, regs->edx, regs->ebx,
++				     regs->ecx >> 8, regs->ecx & 0xFF);
++		break;
++	case LHCALL_SEND_DMA:
++		send_dma(lg, regs->edx, regs->ebx);
++		break;
++	case LHCALL_LOAD_GDT:
++		load_guest_gdt(lg, regs->edx, regs->ebx);
++		break;
++	case LHCALL_LOAD_IDT_ENTRY:
++		load_guest_idt_entry(lg, regs->edx, regs->ebx, regs->ecx);
++		break;
++	case LHCALL_NEW_PGTABLE:
++		guest_new_pagetable(lg, regs->edx);
++		break;
++	case LHCALL_SET_STACK:
++		guest_set_stack(lg, regs->edx, regs->ebx, regs->ecx);
++		break;
++	case LHCALL_SET_PTE:
++		guest_set_pte(lg, regs->edx, regs->ebx, mkgpte(regs->ecx));
++		break;
++	case LHCALL_SET_PMD:
++		guest_set_pmd(lg, regs->edx, regs->ebx);
++		break;
++	case LHCALL_LOAD_TLS:
++		guest_load_tls(lg, (struct desc_struct __user*)regs->edx);
++		break;
++	case LHCALL_TS:
++		lg->ts =3D regs->edx;
++		break;
++	case LHCALL_HALT:
++		lg->halted =3D 1;
++		break;
++	default:
++		kill_guest(lg, "Bad hypercall %i\n", regs->eax);
++	}
++}
++
++/* We always do queued calls before actual hypercall. */
++static void do_async_hcalls(struct lguest *lg)
++{
++	unsigned int i;
++	u8 st[LHCALL_RING_SIZE];
++
++	copy_from_user(&st, &lg->lguest_data->hcall_status, sizeof(st));
++	for (i =3D 0; i < ARRAY_SIZE(st); i++) {
++		struct lguest_regs regs;
++		unsigned int n =3D lg->next_hcall;
++
++		if (st[n] =3D=3D 0xFF)
++			break;
++
++		if (++lg->next_hcall =3D=3D LHCALL_RING_SIZE)
++			lg->next_hcall =3D 0;
++
++		get_user(regs.eax, &lg->lguest_data->hcalls[n].eax);
++		get_user(regs.edx, &lg->lguest_data->hcalls[n].edx);
++		get_user(regs.ecx, &lg->lguest_data->hcalls[n].ecx);
++		get_user(regs.ebx, &lg->lguest_data->hcalls[n].ebx);
++		do_hcall(lg, &regs);
++		put_user(0xFF, &lg->lguest_data->hcall_status[n]);
++		if (lg->dma_is_pending)
++			break;
++	}
++}
++
++static void initialize(struct lguest *lg)
++{
++	if (lg->regs->eax !=3D LHCALL_LGUEST_INIT) {
++		kill_guest(lg, "hypercall %i before LGUEST_INIT",
++			   lg->regs->eax);
++		return;
++	}
++
++	lg->lguest_data =3D (struct lguest_data __user *)lg->regs->edx;
++	/* We check here so we can simply copy_to_user/from_user */
++	if (!lguest_address_ok(lg, (long)lg->lguest_data,
++			       sizeof(*lg->lguest_data))) {
++		kill_guest(lg, "bad guest page %p", lg->lguest_data);
++		return;
++	}
++	get_user(lg->noirq_start, &lg->lguest_data->noirq_start);
++	get_user(lg->noirq_end, &lg->lguest_data->noirq_end);
++	/* We reserve the top pgd entry. */
++	put_user(4U*1024*1024, &lg->lguest_data->reserve_mem);
++	put_user(lg->guestid, &lg->lguest_data->guestid);
++}
++
++/* Even if we go out to userspace and come back, we don't want to do
++ * the hypercall again. */
++static void clear_hcall(struct lguest *lg)
++{
++	lg->regs->trapnum =3D 255;
++}
++
++void do_hypercalls(struct lguest *lg)
++{
++	if (unlikely(!lg->lguest_data)) {
++		if (lg->regs->trapnum =3D=3D LGUEST_TRAP_ENTRY) {
++			initialize(lg);
++			clear_hcall(lg);
++		}
++		return;
++	}
++
++	do_async_hcalls(lg);
++	if (!lg->dma_is_pending && lg->regs->trapnum =3D=3D LGUEST_TRAP_ENTRY) {
++		do_hcall(lg, lg->regs);
++		clear_hcall(lg);
++	}
++	set_wakeup_process(lg, NULL);
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/interrupts_and_traps.c
+@@ -0,0 +1,258 @@
++#include <linux/uaccess.h>
++#include "lg.h"
++
++static unsigned long idt_address(u32 lo, u32 hi)
++{
++	return (lo & 0x0000FFFF) | (hi & 0xFFFF0000);
++}
++
++static int idt_type(u32 lo, u32 hi)
++{
++	return (hi >> 8) & 0xF;
++}
++
++static int idt_present(u32 lo, u32 hi)
++{
++	return (hi & 0x8000);
++}
++
++static void push_guest_stack(struct lguest *lg, u32 __user **gstack, u32 v=
+al)
++{
++	lgwrite_u32(lg, (u32)--(*gstack), val);
++}
++
++static void set_guest_interrupt(struct lguest *lg, u32 lo, u32 hi, int has=
+_err)
++{
++	u32 __user *gstack;
++	u32 eflags, ss, irq_enable;
++
++	/* If they want a ring change, we use new stack and push old ss/esp */
++	if ((lg->regs->ss&0x3) !=3D GUEST_PL) {
++		gstack =3D (u32 __user *)guest_pa(lg, lg->esp1);
++		ss =3D lg->ss1;
++		push_guest_stack(lg, &gstack, lg->regs->ss);
++		push_guest_stack(lg, &gstack, lg->regs->esp);
++	} else {
++		gstack =3D (u32 __user *)guest_pa(lg, lg->regs->esp);
++		ss =3D lg->regs->ss;
++	}
++
++	/* We use IF bit in eflags to indicate whether irqs were disabled
++	   (it's always 0, since irqs are enabled when guest is running). */
++	eflags =3D lg->regs->eflags;
++	get_user(irq_enable, &lg->lguest_data->irq_enabled);
++	eflags |=3D (irq_enable & X86_EFLAGS_IF);
++
++	push_guest_stack(lg, &gstack, eflags);
++	push_guest_stack(lg, &gstack, lg->regs->cs);
++	push_guest_stack(lg, &gstack, lg->regs->eip);
++
++	if (has_err)
++		push_guest_stack(lg, &gstack, lg->regs->errcode);
++
++	/* Change the real stack so switcher returns to trap handler */
++	lg->regs->ss =3D ss;
++	lg->regs->esp =3D (u32)gstack + lg->page_offset;
++	lg->regs->cs =3D (__KERNEL_CS|GUEST_PL);
++	lg->regs->eip =3D idt_address(lo, hi);
++
++	/* Disable interrupts for an interrupt gate. */
++	if (idt_type(lo, hi) =3D=3D 0xE)
++		put_user(0, &lg->lguest_data->irq_enabled);
++}
++
++void maybe_do_interrupt(struct lguest *lg)
++{
++	unsigned int irq;
++	DECLARE_BITMAP(blk, LGUEST_IRQS);
++	struct desc_struct *idt;
++
++	if (!lg->lguest_data)
++		return;
++
++	/* If timer has changed, set timer interrupt. */
++	if (jiffies !=3D lg->last_timer)
++		set_bit(0, lg->irqs_pending);
++
++	/* Mask out any interrupts they have blocked. */
++	copy_from_user(&blk, lg->lguest_data->blocked_interrupts, sizeof(blk));
++	bitmap_andnot(blk, lg->irqs_pending, blk, LGUEST_IRQS);
++
++	irq =3D find_first_bit(blk, LGUEST_IRQS);
++	if (irq >=3D LGUEST_IRQS)
++		return;
++
++	if (lg->regs->eip >=3D lg->noirq_start && lg->regs->eip < lg->noirq_end)
++		return;
++
++	/* If they're halted, we re-enable interrupts. */
++	if (lg->halted) {
++		/* Re-enable interrupts. */
++		put_user(X86_EFLAGS_IF, &lg->lguest_data->irq_enabled);
++		lg->halted =3D 0;
++	} else {
++		/* Maybe they have interrupts disabled? */
++		u32 irq_enabled;
++		get_user(irq_enabled, &lg->lguest_data->irq_enabled);
++		if (!irq_enabled)
++			return;
++	}
++
++	idt =3D &lg->idt[FIRST_EXTERNAL_VECTOR+irq];
++	if (idt_present(idt->a, idt->b)) {
++		clear_bit(irq, lg->irqs_pending);
++		set_guest_interrupt(lg, idt->a, idt->b, 0);
++	}
++}
++
++static int has_err(unsigned int trap)
++{
++	return (trap =3D=3D 8 || (trap >=3D 10 && trap <=3D 14) || trap =3D=3D 17=
+);
++}
++
++int deliver_trap(struct lguest *lg, unsigned int num)
++{
++	u32 lo =3D lg->idt[num].a, hi =3D lg->idt[num].b;
++
++	if (!idt_present(lo, hi))
++		return 0;
++	set_guest_interrupt(lg, lo, hi, has_err(num));
++	return 1;
++}
++
++static int direct_trap(const struct lguest *lg,
++		       const struct desc_struct *trap,
++		       unsigned int num)
++{
++	/* Hardware interrupts don't go to guest (except syscall). */
++	if (num >=3D FIRST_EXTERNAL_VECTOR && num !=3D SYSCALL_VECTOR)
++		return 0;
++
++	/* We intercept page fault (demand shadow paging & cr2 saving)
++	   protection fault (in/out emulation) and device not
++	   available (TS handling), and hypercall */
++	if (num =3D=3D 14 || num =3D=3D 13 || num =3D=3D 7 || num =3D=3D LGUEST_T=
+RAP_ENTRY)
++		return 0;
++
++	/* Interrupt gates (0xE) or not present (0x0) can't go direct. */
++	return idt_type(trap->a, trap->b) =3D=3D 0xF;
++}
++
++static void pin_stack_pages(struct lguest *lg)
++{
++	unsigned int i;
++
++	for (i =3D 0; i < lg->stack_pages; i++)
++		pin_page(lg, lg->esp1 - i * PAGE_SIZE);
++}
++
++/* We need to ensure all the direct trap pages are mapped after we
++ * clear shadow mappings. */
++void pin_trap_pages(struct lguest *lg)
++{
++	unsigned int i;
++	struct desc_struct *trap;
++
++	for (i =3D 0; i < FIRST_EXTERNAL_VECTOR; i++) {
++		trap =3D &lg->idt[i];
++		if (direct_trap(lg, trap, i))
++			pin_page(lg, idt_address(trap->a, trap->b));
++	}
++
++	trap =3D &lg->syscall_idt;
++	if (direct_trap(lg, trap, SYSCALL_VECTOR))
++		pin_page(lg, idt_address(trap->a, trap->b));
++	pin_stack_pages(lg);
++}
++
++void guest_set_stack(struct lguest *lg, u32 seg, u32 esp, unsigned int pag=
+es)
++{
++	/* You cannot have a stack segment with priv level 0. */
++	if ((seg & 0x3) !=3D GUEST_PL)
++		kill_guest(lg, "bad stack segment %i", seg);
++	if (pages > 2)
++		kill_guest(lg, "bad stack pages %u", pages);
++	lg->ss1 =3D seg;
++	lg->esp1 =3D esp;
++	lg->stack_pages =3D pages;
++	pin_stack_pages(lg);
++}
++
++/* Set up trap in IDT. */
++static void set_trap(struct lguest *lg, struct desc_struct *trap,
++		     unsigned int num, u32 lo, u32 hi)
++{
++	u8 type =3D idt_type(lo, hi);
++
++	if (!idt_present(lo, hi)) {
++		trap->a =3D trap->b =3D 0;
++		return;
++	}
++
++	if (type !=3D 0xE && type !=3D 0xF)
++		kill_guest(lg, "bad IDT type %i", type);
++
++	trap->a =3D ((__KERNEL_CS|GUEST_PL)<<16) | (lo&0x0000FFFF);
++	trap->b =3D (hi&0xFFFFEF00);
++
++	/* Make sure trap address is available so we don't fault.  In
++	 * theory, it could overlap two pages, in practice it's aligned. */
++	if (direct_trap(lg, trap, num))
++		pin_page(lg, idt_address(lo, hi));
++}
++
++void load_guest_idt_entry(struct lguest *lg, unsigned int num, u32 lo, u32=
+ hi)
++{
++	/* Guest never handles: NMI, doublefault, hypercall, spurious irq. */
++	if (num =3D=3D 2 || num =3D=3D 8 || num =3D=3D 15 || num =3D=3D LGUEST_TR=
+AP_ENTRY)
++		return;
++
++	lg->changed |=3D CHANGED_IDT;
++	if (num < ARRAY_SIZE(lg->idt))
++		set_trap(lg, &lg->idt[num], num, lo, hi);
++	else if (num =3D=3D SYSCALL_VECTOR)
++		set_trap(lg, &lg->syscall_idt, num, lo, hi);
++}
++
++static void default_idt_entry(struct desc_struct *idt,
++			      int trap,
++			      const unsigned long handler)
++{
++	u32 flags =3D 0x8e00;
++
++	/* They can't "int" into any of them except hypercall. */
++	if (trap =3D=3D LGUEST_TRAP_ENTRY)
++		flags |=3D (GUEST_PL << 13);
++
++	idt->a =3D (LGUEST_CS<<16) | (handler&0x0000FFFF);
++	idt->b =3D (handler&0xFFFF0000) | flags;
++}
++
++void setup_default_idt_entries(struct lguest_ro_state *state,
++			       const unsigned long *def)
++{
++	unsigned int i;
++
++	for (i =3D 0; i < ARRAY_SIZE(state->guest_idt); i++)
++		default_idt_entry(&state->guest_idt[i], i, def[i]);
++}
++
++void copy_traps(const struct lguest *lg, struct desc_struct *idt,
++		const unsigned long *def)
++{
++	unsigned int i;
++
++	/* All hardware interrupts are same whatever the guest: only the
++	 * traps might be different. */
++	for (i =3D 0; i < FIRST_EXTERNAL_VECTOR; i++) {
++		if (direct_trap(lg, &lg->idt[i], i))
++			idt[i] =3D lg->idt[i];
++		else
++			default_idt_entry(&idt[i], i, def[i]);
++	}
++	i =3D SYSCALL_VECTOR;
++	if (direct_trap(lg, &lg->syscall_idt, i))
++		idt[i] =3D lg->syscall_idt;
++	else
++		default_idt_entry(&idt[i], i, def[i]);
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/io.c
+@@ -0,0 +1,412 @@
++/* Simple I/O model for guests, based on shared memory.
++ * Copyright (C) 2006 Rusty Russell IBM Corporation
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 =
+USA
++ */
++#include <linux/types.h>
++#include <linux/futex.h>
++#include <linux/jhash.h>
++#include <linux/mm.h>
++#include <linux/highmem.h>
++#include <linux/uaccess.h>
++#include "lg.h"
++
++static struct list_head dma_hash[61];
++
++void lguest_io_init(void)
++{
++	unsigned int i;
++
++	for (i =3D 0; i < ARRAY_SIZE(dma_hash); i++)
++		INIT_LIST_HEAD(&dma_hash[i]);
++}
++
++/* FIXME: allow multi-page lengths. */
++static int check_dma_list(struct lguest *lg, const struct lguest_dma *dma)
++{
++	unsigned int i;
++
++	for (i =3D 0; i < LGUEST_MAX_DMA_SECTIONS; i++) {
++		if (!dma->len[i])
++			return 1;
++		if (!lguest_address_ok(lg, dma->addr[i], dma->len[i]))
++			goto kill;
++		if (dma->len[i] > PAGE_SIZE)
++			goto kill;
++		/* We could do over a page, but is it worth it? */
++		if ((dma->addr[i] % PAGE_SIZE) + dma->len[i] > PAGE_SIZE)
++			goto kill;
++	}
++	return 1;
++
++kill:
++	kill_guest(lg, "bad DMA entry: %u@%#x", dma->len[i], dma->addr[i]);
++	return 0;
++}
++
++static unsigned int hash(const union futex_key *key)
++{
++	return jhash2((u32*)&key->both.word,
++		      (sizeof(key->both.word)+sizeof(key->both.ptr))/4,
++		      key->both.offset)
++		% ARRAY_SIZE(dma_hash);
++}
++
++static inline int key_eq(const union futex_key *a, const union futex_key *=
+b)
++{
++	return (a->both.word =3D=3D b->both.word
++		&& a->both.ptr =3D=3D b->both.ptr
++		&& a->both.offset =3D=3D b->both.offset);
++}
++
++/* Must hold read lock on dmainfo owner's current->mm->mmap_sem */
++static void unlink_dma(struct lguest_dma_info *dmainfo)
++{
++	BUG_ON(!mutex_is_locked(&lguest_lock));
++	dmainfo->interrupt =3D 0;
++	list_del(&dmainfo->list);
++	drop_futex_key_refs(&dmainfo->key);
++}
++
++static int unbind_dma(struct lguest *lg,
++		      const union futex_key *key,
++		      unsigned long dmas)
++{
++	int i, ret =3D 0;
++
++	for (i =3D 0; i < LGUEST_MAX_DMA; i++) {
++		if (key_eq(key, &lg->dma[i].key) && dmas =3D=3D lg->dma[i].dmas) {
++			unlink_dma(&lg->dma[i]);
++			ret =3D 1;
++			break;
++		}
++	}
++	return ret;
++}
++
++int bind_dma(struct lguest *lg,
++	     unsigned long ukey, unsigned long dmas, u16 numdmas, u8 interrupt)
++{
++	unsigned int i;
++	int ret =3D 0;
++	union futex_key key;
++
++	if (interrupt >=3D LGUEST_IRQS)
++		return 0;
++
++	mutex_lock(&lguest_lock);
++	down_read(&current->mm->mmap_sem);
++	if (get_futex_key((u32 __user *)ukey, &key) !=3D 0) {
++		kill_guest(lg, "bad dma key %#lx", ukey);
++		goto unlock;
++	}
++	get_futex_key_refs(&key);
++
++	if (interrupt =3D=3D 0)
++		ret =3D unbind_dma(lg, &key, dmas);
++	else {
++		for (i =3D 0; i < LGUEST_MAX_DMA; i++) {
++			if (lg->dma[i].interrupt)
++				continue;
++
++			lg->dma[i].dmas =3D dmas;
++			lg->dma[i].num_dmas =3D numdmas;
++			lg->dma[i].next_dma =3D 0;
++			lg->dma[i].key =3D key;
++			lg->dma[i].guestid =3D lg->guestid;
++			lg->dma[i].interrupt =3D interrupt;
++			list_add(&lg->dma[i].list, &dma_hash[hash(&key)]);
++			ret =3D 1;
++			goto unlock;
++		}
++	}
++	drop_futex_key_refs(&key);
++unlock:
++ 	up_read(&current->mm->mmap_sem);
++	mutex_unlock(&lguest_lock);
++	return ret;
++}
++
++/* lgread from another guest */
++static int lgread_other(struct lguest *lg,
++			void *buf, u32 addr, unsigned bytes)
++{
++	if (!lguest_address_ok(lg, addr, bytes)
++	    || access_process_vm(lg->tsk, addr, buf, bytes, 0) !=3D bytes) {
++		memset(buf, 0, bytes);
++		kill_guest(lg, "bad address in registered DMA struct");
++		return 0;
++	}
++	return 1;
++}
++
++/* lgwrite to another guest */
++static int lgwrite_other(struct lguest *lg, u32 addr,
++			 const void *buf, unsigned bytes)
++{
++	if (!lguest_address_ok(lg, addr, bytes)
++	    || (access_process_vm(lg->tsk, addr, (void *)buf, bytes, 1)
++		!=3D bytes)) {
++		kill_guest(lg, "bad address writing to registered DMA");
++		return 0;
++	}
++	return 1;
++}
++
++static u32 copy_data(struct lguest *srclg,
++		     const struct lguest_dma *src,
++		     const struct lguest_dma *dst,
++		     struct page *pages[])
++{
++	unsigned int totlen, si, di, srcoff, dstoff;
++	void *maddr =3D NULL;
++
++	totlen =3D 0;
++	si =3D di =3D 0;
++	srcoff =3D dstoff =3D 0;
++	while (si < LGUEST_MAX_DMA_SECTIONS && src->len[si]
++	       && di < LGUEST_MAX_DMA_SECTIONS && dst->len[di]) {
++		u32 len =3D min(src->len[si] - srcoff, dst->len[di] - dstoff);
++
++		if (!maddr)
++			maddr =3D kmap(pages[di]);
++
++		/* FIXME: This is not completely portable, since
++		   archs do different things for copy_to_user_page. */
++		if (copy_from_user(maddr + (dst->addr[di] + dstoff)%PAGE_SIZE,
++				   (void *__user)src->addr[si], len) !=3D 0) {
++			kill_guest(srclg, "bad address in sending DMA");
++			totlen =3D 0;
++			break;
++		}
++
++		totlen +=3D len;
++		srcoff +=3D len;
++		dstoff +=3D len;
++		if (srcoff =3D=3D src->len[si]) {
++			si++;
++			srcoff =3D 0;
++		}
++		if (dstoff =3D=3D dst->len[di]) {
++			kunmap(pages[di]);
++			maddr =3D NULL;
++			di++;
++			dstoff =3D 0;
++		}
++	}
++
++	if (maddr)
++		kunmap(pages[di]);
++
++	return totlen;
++}
++
++/* Src is us, ie. current. */
++static u32 do_dma(struct lguest *srclg, const struct lguest_dma *src,
++		  struct lguest *dstlg, const struct lguest_dma *dst)
++{
++	int i;
++	u32 ret;
++	struct page *pages[LGUEST_MAX_DMA_SECTIONS];
++
++	if (!check_dma_list(dstlg, dst) || !check_dma_list(srclg, src))
++		return 0;
++
++	/* First get the destination pages */
++	for (i =3D 0; i < LGUEST_MAX_DMA_SECTIONS; i++) {
++		if (dst->len[i] =3D=3D 0)
++			break;
++		if (get_user_pages(dstlg->tsk, dstlg->mm,
++				   dst->addr[i], 1, 1, 1, pages+i, NULL)
++		    !=3D 1) {
++			kill_guest(dstlg, "Error mapping DMA pages");
++			ret =3D 0;
++			goto drop_pages;
++		}
++	}
++
++	/* Now copy until we run out of src or dst. */
++	ret =3D copy_data(srclg, src, dst, pages);
++
++drop_pages:
++	while (--i >=3D 0)
++		put_page(pages[i]);
++	return ret;
++}
++
++static int dma_transfer(struct lguest *srclg,
++			unsigned long udma,
++			struct lguest_dma_info *dst)
++{
++	struct lguest_dma dst_dma, src_dma;
++	struct lguest *dstlg;
++	u32 i, dma =3D 0;
++
++	dstlg =3D &lguests[dst->guestid];
++	/* Get our dma list. */
++	lgread(srclg, &src_dma, udma, sizeof(src_dma));
++
++	/* We can't deadlock against them dmaing to us, because this
++	 * is all under the lguest_lock. */
++	down_read(&dstlg->mm->mmap_sem);
++
++	for (i =3D 0; i < dst->num_dmas; i++) {
++		dma =3D (dst->next_dma + i) % dst->num_dmas;
++		if (!lgread_other(dstlg, &dst_dma,
++				  dst->dmas + dma * sizeof(struct lguest_dma),
++				  sizeof(dst_dma))) {
++			goto fail;
++		}
++		if (!dst_dma.used_len)
++			break;
++	}
++	if (i !=3D dst->num_dmas) {
++		unsigned long used_lenp;
++		unsigned int ret;
++
++		ret =3D do_dma(srclg, &src_dma, dstlg, &dst_dma);
++		/* Put used length in src. */
++		lgwrite_u32(srclg,
++			    udma+offsetof(struct lguest_dma, used_len), ret);
++		if (ret =3D=3D 0 && src_dma.len[0] !=3D 0)
++			goto fail;
++
++		/* Make sure destination sees contents before length. */
++		wmb();
++		used_lenp =3D dst->dmas
++			+ dma * sizeof(struct lguest_dma)
++			+ offsetof(struct lguest_dma, used_len);
++		lgwrite_other(dstlg, used_lenp, &ret, sizeof(ret));
++		dst->next_dma++;
++	}
++ 	up_read(&dstlg->mm->mmap_sem);
++
++	/* Do this last so dst doesn't simply sleep on lock. */
++	set_bit(dst->interrupt, dstlg->irqs_pending);
++	set_wakeup_process(srclg, dstlg->tsk);
++	return i =3D=3D dst->num_dmas;
++
++fail:
++	up_read(&dstlg->mm->mmap_sem);
++	return 0;
++}
++
++void send_dma(struct lguest *lg, unsigned long ukey, unsigned long udma)
++{
++	union futex_key key;
++	int empty =3D 0;
++
++again:
++	mutex_lock(&lguest_lock);
++	down_read(&current->mm->mmap_sem);
++	if (get_futex_key((u32 __user *)ukey, &key) !=3D 0) {
++		kill_guest(lg, "bad sending DMA key");
++		goto unlock;
++	}
++	/* Shared mapping?  Look for other guests... */
++	if (key.shared.offset & 1) {
++		struct lguest_dma_info *i;
++		list_for_each_entry(i, &dma_hash[hash(&key)], list) {
++			if (i->guestid =3D=3D lg->guestid)
++				continue;
++			if (!key_eq(&key, &i->key))
++				continue;
++
++			empty +=3D dma_transfer(lg, udma, i);
++			break;
++		}
++		if (empty =3D=3D 1) {
++			/* Give any recipients one chance to restock. */
++			up_read(&current->mm->mmap_sem);
++			mutex_unlock(&lguest_lock);
++			set_wakeup_process(lg, NULL);
++			empty++;
++			goto again;
++		}
++	} else {
++		/* Private mapping: tell our userspace. */
++		lg->dma_is_pending =3D 1;
++		lg->pending_dma =3D udma;
++		lg->pending_key =3D ukey;
++	}
++unlock:
++	up_read(&current->mm->mmap_sem);
++	mutex_unlock(&lguest_lock);
++}
++
++void release_all_dma(struct lguest *lg)
++{
++	unsigned int i;
++
++	BUG_ON(!mutex_is_locked(&lguest_lock));
++
++	down_read(&lg->mm->mmap_sem);
++	for (i =3D 0; i < LGUEST_MAX_DMA; i++) {
++		if (lg->dma[i].interrupt)
++			unlink_dma(&lg->dma[i]);
++	}
++	up_read(&lg->mm->mmap_sem);
++}
++
++/* We cache one process to wakeup: helps for batching & wakes outside lock=
+s. */
++void set_wakeup_process(struct lguest *lg, struct task_struct *p)
++{
++	if (p =3D=3D lg->wake)
++		return;
++
++	if (lg->wake) {
++		wake_up_process(lg->wake);
++		put_task_struct(lg->wake);
++	}
++	lg->wake =3D p;
++	if (lg->wake)
++		get_task_struct(lg->wake);
++}
++
++/* Userspace wants a dma buffer from this guest. */
++unsigned long get_dma_buffer(struct lguest *lg,
++			     unsigned long ukey, unsigned long *interrupt)
++{
++	unsigned long ret =3D 0;
++	union futex_key key;
++	struct lguest_dma_info *i;
++
++	mutex_lock(&lguest_lock);
++	down_read(&current->mm->mmap_sem);
++	if (get_futex_key((u32 __user *)ukey, &key) !=3D 0) {
++		kill_guest(lg, "bad registered DMA buffer");
++		goto unlock;
++	}
++	list_for_each_entry(i, &dma_hash[hash(&key)], list) {
++		if (key_eq(&key, &i->key) && i->guestid =3D=3D lg->guestid) {
++			unsigned int j;
++			for (j =3D 0; j < i->num_dmas; j++) {
++				struct lguest_dma dma;
++
++				ret =3D i->dmas + j * sizeof(struct lguest_dma);
++				lgread(lg, &dma, ret, sizeof(dma));
++				if (dma.used_len =3D=3D 0)
++					break;
++			}
++			*interrupt =3D i->interrupt;
++			break;
++		}
++	}
++unlock:
++	up_read(&current->mm->mmap_sem);
++	mutex_unlock(&lguest_lock);
++	return ret;
++}
++
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/lg.h
+@@ -0,0 +1,278 @@
++#ifndef _LGUEST_H
++#define _LGUEST_H
++
++#include <asm/desc.h>
++
++#define GDT_ENTRY_LGUEST_CS	10
++#define GDT_ENTRY_LGUEST_DS	11
++#define LGUEST_CS		(GDT_ENTRY_LGUEST_CS * 8)
++#define LGUEST_DS		(GDT_ENTRY_LGUEST_DS * 8)
++
++#ifndef __ASSEMBLY__
++#include <linux/types.h>
++#include <linux/init.h>
++#include <linux/stringify.h>
++#include <linux/binfmts.h>
++#include <linux/futex.h>
++#include <linux/lguest.h>
++#include <linux/lguest_launcher.h>
++#include <linux/err.h>
++#include <asm/semaphore.h>
++#include "irq_vectors.h"
++
++#define GUEST_PL 1
++
++struct lguest_regs
++{
++	/* Manually saved part. */
++	u32 ebx, ecx, edx;
++	u32 esi, edi, ebp;
++	u32 gs;
++	u32 eax;
++	u32 fs, ds, es;
++	u32 trapnum, errcode;
++	/* Trap pushed part */
++	u32 eip;
++	u32 cs;
++	u32 eflags;
++	u32 esp;
++	u32 ss;
++};
++
++void free_pagetables(void);
++int init_pagetables(struct page **switcher_page, unsigned int pages);
++
++/* Full 4G segment descriptors, suitable for CS and DS. */
++#define FULL_EXEC_SEGMENT ((struct desc_struct){0x0000ffff, 0x00cf9b00})
++#define FULL_SEGMENT ((struct desc_struct){0x0000ffff, 0x00cf9300})
++
++struct lguest_dma_info
++{
++	struct list_head list;
++	union futex_key key;
++	unsigned long dmas;
++	u16 next_dma;
++	u16 num_dmas;
++	u16 guestid;
++	u8 interrupt; 	/* 0 when not registered */
++};
++
++/* We have separate types for the guest's ptes & pgds and the shadow ptes &
++ * pgds.  Since this host might use three-level pagetables and the guest a=
+nd
++ * shadow pagetables don't, we can't use the normal pte_t/pgd_t. */
++typedef union {
++	struct { unsigned flags:12, pfn:20; };
++	struct { unsigned long val; } raw;
++} spgd_t;
++typedef union {
++	struct { unsigned flags:12, pfn:20; };
++	struct { unsigned long val; } raw;
++} spte_t;
++typedef union {
++	struct { unsigned flags:12, pfn:20; };
++	struct { unsigned long val; } raw;
++} gpgd_t;
++typedef union {
++	struct { unsigned flags:12, pfn:20; };
++	struct { unsigned long val; } raw;
++} gpte_t;
++#define mkgpte(_val) ((gpte_t){.raw.val =3D _val})
++#define mkgpgd(_val) ((gpgd_t){.raw.val =3D _val})
++
++struct pgdir
++{
++	unsigned long cr3;
++	spgd_t *pgdir;
++};
++
++/* FIXME: When this is defined in processor.h, delete this definition. */
++struct i386_hw_tss {
++	unsigned short	back_link,__blh;
++	unsigned long	esp0;
++	unsigned short	ss0,__ss0h;
++	unsigned long	esp1;
++	unsigned short	ss1,__ss1h;	/* ss1 is used to cache MSR_IA32_SYSENTER_CS */
++	unsigned long	esp2;
++	unsigned short	ss2,__ss2h;
++	unsigned long	__cr3;
++	unsigned long	eip;
++	unsigned long	eflags;
++	unsigned long	eax,ecx,edx,ebx;
++	unsigned long	esp;
++	unsigned long	ebp;
++	unsigned long	esi;
++	unsigned long	edi;
++	unsigned short	es, __esh;
++	unsigned short	cs, __csh;
++	unsigned short	ss, __ssh;
++	unsigned short	ds, __dsh;
++	unsigned short	fs, __fsh;
++	unsigned short	gs, __gsh;
++	unsigned short	ldt, __ldth;
++	unsigned short	trace, io_bitmap_base;
++};
++
++/* This is a guest-specific page (mapped ro) into the guest. */
++struct lguest_ro_state
++{
++	/* Host information we need to restore when we switch back. */
++	u32 host_cr3;
++	struct Xgt_desc_struct host_idt_desc;
++	struct Xgt_desc_struct host_gdt_desc;
++	u32 host_sp;
++
++	/* Fields which are used when guest is running. */
++	struct Xgt_desc_struct guest_idt_desc;
++	struct Xgt_desc_struct guest_gdt_desc;
++	struct i386_hw_tss guest_tss;
++	struct desc_struct guest_idt[IDT_ENTRIES];
++	struct desc_struct guest_gdt[GDT_ENTRIES];
++};
++
++/* We have two pages shared with guests, per cpu.  */
++struct lguest_pages
++{
++	/* This is the stack page mapped rw in guest */
++	char spare[PAGE_SIZE - sizeof(struct lguest_regs)];
++	struct lguest_regs regs;
++
++	/* This is the host state & guest descriptor page, ro in guest */
++	struct lguest_ro_state state;
++} __attribute__((aligned(PAGE_SIZE)));
++
++#define CHANGED_IDT		1
++#define CHANGED_GDT		2
++#define CHANGED_ALL	        3
++
++/* The private info the thread maintains about the guest. */
++struct lguest
++{
++	/* At end of a page shared mapped over lguest_pages in guest.  */
++	unsigned long regs_page;
++	struct lguest_regs *regs;
++	struct lguest_data __user *lguest_data;
++	struct task_struct *tsk;
++	struct mm_struct *mm; 	/* =3D=3D tsk->mm, but that becomes NULL on exit */
++	u16 guestid;
++	u32 pfn_limit;
++	u32 page_offset;
++	u32 cr2;
++	int halted;
++	int ts;
++	u32 last_timer;
++	u32 next_hcall;
++	u32 esp1;
++	u8 ss1;
++
++	/* Bitmap of what has changed: see CHANGED_* above. */
++	int changed;
++	struct lguest_pages *last_pages;
++
++	/* We keep a small number of these. */
++	u32 pgdidx;
++	struct pgdir pgdirs[4];
++
++	/* Cached wakeup: we hold a reference to this task. */
++	struct task_struct *wake;
++
++	unsigned long noirq_start, noirq_end;
++	int dma_is_pending;
++	unsigned long pending_dma; /* struct lguest_dma */
++	unsigned long pending_key; /* address they're sending to */
++
++	unsigned int stack_pages;
++
++	struct lguest_dma_info dma[LGUEST_MAX_DMA];
++
++	/* Dead? */
++	const char *dead;
++
++	/* The GDT entries copied into lguest_ro_state when running. */
++	struct desc_struct gdt[GDT_ENTRIES];
++
++	/* The IDT entries: some copied into lguest_ro_state when running. */
++	struct desc_struct idt[FIRST_EXTERNAL_VECTOR+LGUEST_IRQS];
++	struct desc_struct syscall_idt;
++
++	/* Pending virtual interrupts */
++	DECLARE_BITMAP(irqs_pending, LGUEST_IRQS);
++};
++
++extern struct lguest lguests[];
++extern struct mutex lguest_lock;
++
++/* core.c: */
++u32 lgread_u32(struct lguest *lg, u32 addr);
++void lgwrite_u32(struct lguest *lg, u32 val, u32 addr);
++void lgread(struct lguest *lg, void *buf, u32 addr, unsigned bytes);
++void lgwrite(struct lguest *lg, u32 addr, const void *buf, unsigned bytes);
++int find_free_guest(void);
++int lguest_address_ok(const struct lguest *lg,
++		      unsigned long addr, unsigned long len);
++int run_guest(struct lguest *lg, char *__user user);
++
++
++/* interrupts_and_traps.c: */
++void maybe_do_interrupt(struct lguest *lg);
++int deliver_trap(struct lguest *lg, unsigned int num);
++void load_guest_idt_entry(struct lguest *lg, unsigned int i, u32 low, u32 =
+hi);
++void guest_set_stack(struct lguest *lg, u32 seg, u32 esp, unsigned int pag=
+es);
++void pin_trap_pages(struct lguest *lg);
++void setup_default_idt_entries(struct lguest_ro_state *state,
++			       const unsigned long *def);
++void copy_traps(const struct lguest *lg, struct desc_struct *idt,
++		const unsigned long *def);
++
++/* segments.c: */
++void setup_default_gdt_entries(struct lguest_ro_state *state);
++void setup_guest_gdt(struct lguest *lg);
++void load_guest_gdt(struct lguest *lg, u32 table, u32 num);
++void guest_load_tls(struct lguest *lg,
++		    const struct desc_struct __user *tls_array);
++void copy_gdt(const struct lguest *lg, struct desc_struct *gdt);
++
++/* page_tables.c: */
++int init_guest_pagetable(struct lguest *lg, unsigned long pgtable);
++void free_guest_pagetable(struct lguest *lg);
++void guest_new_pagetable(struct lguest *lg, unsigned long pgtable);
++void guest_set_pmd(struct lguest *lg, unsigned long cr3, u32 i);
++void guest_pagetable_clear_all(struct lguest *lg);
++void guest_pagetable_flush_user(struct lguest *lg);
++void guest_set_pte(struct lguest *lg, unsigned long cr3,
++		   unsigned long vaddr, gpte_t val);
++void map_switcher_in_guest(struct lguest *lg, struct lguest_pages *pages);
++int demand_page(struct lguest *info, unsigned long cr2, int write);
++void pin_page(struct lguest *lg, unsigned long vaddr);
++
++/* lguest_user.c: */
++int lguest_device_init(void);
++void lguest_device_remove(void);
++
++/* io.c: */
++void lguest_io_init(void);
++int bind_dma(struct lguest *lg,
++	     unsigned long key, unsigned long udma, u16 numdmas, u8 interrupt);
++void send_dma(struct lguest *info, unsigned long key, unsigned long udma);
++void release_all_dma(struct lguest *lg);
++unsigned long get_dma_buffer(struct lguest *lg, unsigned long key,
++			     unsigned long *interrupt);
++void set_wakeup_process(struct lguest *lg, struct task_struct *p);
++
++/* hypercalls.c: */
++void do_hypercalls(struct lguest *lg);
++
++#define kill_guest(lg, fmt...)					\
++do {								\
++	if (!(lg)->dead) {					\
++		(lg)->dead =3D kasprintf(GFP_ATOMIC, fmt);	\
++		if (!(lg)->dead)				\
++			(lg)->dead =3D ERR_PTR(-ENOMEM);		\
++	}							\
++} while(0)
++
++static inline unsigned long guest_pa(struct lguest *lg, unsigned long vadd=
+r)
++{
++	return vaddr - lg->page_offset;
++}
++#endif	/* __ASSEMBLY__ */
++#endif	/* _LGUEST_H */
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/lguest_user.c
+@@ -0,0 +1,192 @@
++/* Userspace control of the guest, via /dev/lguest. */
++#include <linux/uaccess.h>
++#include <linux/miscdevice.h>
++#include <linux/fs.h>
++#include "lg.h"
++
++static void setup_regs(struct lguest_regs *regs, unsigned long start)
++{
++	/* Write out stack in format lguest expects, so we can switch to it. */
++	regs->edi =3D LGUEST_MAGIC_EDI;
++	regs->ebp =3D LGUEST_MAGIC_EBP;
++	regs->esi =3D LGUEST_MAGIC_ESI;
++	regs->ds =3D regs->es =3D regs->ss =3D __KERNEL_DS|GUEST_PL;
++	regs->cs =3D __KERNEL_CS|GUEST_PL;
++	regs->eflags =3D 0x202; 	/* Interrupts enabled. */
++	regs->eip =3D start;
++}
++
++/* + addr */
++static long user_get_dma(struct lguest *lg, const u32 __user *input)
++{
++	unsigned long key, udma, irq;
++
++	if (get_user(key, input) !=3D 0)
++		return -EFAULT;
++	udma =3D get_dma_buffer(lg, key, &irq);
++	if (!udma)
++		return -ENOENT;
++
++	/* We put irq number in udma->used_len. */
++	lgwrite_u32(lg, udma + offsetof(struct lguest_dma, used_len), irq);
++	return udma;
++}
++
++/* + irq */
++static int user_send_irq(struct lguest *lg, const u32 __user *input)
++{
++	u32 irq;
++
++	if (get_user(irq, input) !=3D 0)
++		return -EFAULT;
++	if (irq >=3D LGUEST_IRQS)
++		return -EINVAL;
++	set_bit(irq, lg->irqs_pending);
++	return 0;
++}
++
++static ssize_t read(struct file *file, char __user *user, size_t size,loff=
+_t*o)
++{
++	struct lguest *lg =3D file->private_data;
++
++	if (!lg)
++		return -EINVAL;
++
++	if (lg->dead) {
++		size_t len;
++
++		if (IS_ERR(lg->dead))
++			return PTR_ERR(lg->dead);
++
++		len =3D min(size, strlen(lg->dead)+1);
++		if (copy_to_user(user, lg->dead, len) !=3D 0)
++			return -EFAULT;
++		return len;
++	}
++
++	if (lg->dma_is_pending)
++		lg->dma_is_pending =3D 0;
++
++	return run_guest(lg, user);
++}
++
++/* Take: pfnlimit, pgdir, start, pageoffset. */
++static int initialize(struct file *file, const u32 __user *input)
++{
++	struct lguest *lg;
++	int err, i;
++	u32 args[4];
++
++	if (file->private_data)
++		return -EBUSY;
++
++	if (copy_from_user(args, input, sizeof(args)) !=3D 0)
++		return -EFAULT;
++
++	mutex_lock(&lguest_lock);
++	i =3D find_free_guest();
++	if (i < 0) {
++		err =3D -ENOSPC;
++		goto unlock;
++	}
++	lg =3D &lguests[i];
++	lg->guestid =3D i;
++	lg->pfn_limit =3D args[0];
++	lg->page_offset =3D args[3];
++	lg->regs_page =3D get_zeroed_page(GFP_KERNEL);
++	if (!lg->regs_page) {
++		err =3D -ENOMEM;
++		goto release_guest;
++	}
++	lg->regs =3D (void *)lg->regs_page + PAGE_SIZE - sizeof(*lg->regs);
++
++	err =3D init_guest_pagetable(lg, args[1]);
++	if (err)
++		goto free_regs;
++
++	setup_regs(lg->regs, args[2]);
++	setup_guest_gdt(lg);
++	lg->tsk =3D current;
++	lg->mm =3D get_task_mm(current);
++	lg->last_pages =3D NULL;
++	mutex_unlock(&lguest_lock);
++
++	file->private_data =3D lg;
++	return sizeof(args);
++
++free_regs:
++	free_page(lg->regs_page);
++release_guest:
++	memset(lg, 0, sizeof(*lg));
++unlock:
++	mutex_unlock(&lguest_lock);
++	return err;
++}
++
++static ssize_t write(struct file *file, const char __user *input,
++		     size_t size, loff_t *off)
++{
++	struct lguest *lg =3D file->private_data;
++	u32 req;
++
++	if (get_user(req, input) !=3D 0)
++		return -EFAULT;
++	input +=3D sizeof(req);
++
++	if (req !=3D LHREQ_INITIALIZE && !lg)
++		return -EINVAL;
++	if (lg && lg->dead)
++		return -ENOENT;
++
++	switch (req) {
++	case LHREQ_INITIALIZE:
++		return initialize(file, (const u32 __user *)input);
++	case LHREQ_GETDMA:
++		return user_get_dma(lg, (const u32 __user *)input);
++	case LHREQ_IRQ:
++		return user_send_irq(lg, (const u32 __user *)input);
++	default:
++		return -EINVAL;
++	}
++}
++
++static int close(struct inode *inode, struct file *file)
++{
++	struct lguest *lg =3D file->private_data;
++
++	if (!lg)
++		return 0;
++
++	mutex_lock(&lguest_lock);
++	release_all_dma(lg);
++	free_guest_pagetable(lg);
++	mmput(lg->mm);
++	if (!IS_ERR(lg->dead))
++		kfree(lg->dead);
++	free_page(lg->regs_page);
++	memset(lg, 0, sizeof(*lg));
++	mutex_unlock(&lguest_lock);
++	return 0;
++}
++
++static struct file_operations lguest_fops =3D {
++	.owner	 =3D THIS_MODULE,
++	.release =3D close,
++	.write	 =3D write,
++	.read	 =3D read,
++};
++static struct miscdevice lguest_dev =3D {
++	.minor	=3D MISC_DYNAMIC_MINOR,
++	.name	=3D "lguest",
++	.fops	=3D &lguest_fops,
++};
++
++int __init lguest_device_init(void)
++{
++	return misc_register(&lguest_dev);
++}
++
++void __exit lguest_device_remove(void)
++{
++	misc_deregister(&lguest_dev);
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/page_tables.c
+@@ -0,0 +1,407 @@
++/* Shadow page table operations.
++ * Copyright (C) Rusty Russell IBM Corporation 2006.
++ * GPL v2 and any later version */
++#include <linux/mm.h>
++#include <linux/types.h>
++#include <linux/spinlock.h>
++#include <linux/random.h>
++#include <linux/percpu.h>
++#include <asm/tlbflush.h>
++#include "lg.h"
++
++#define PTES_PER_PAGE_SHIFT 10
++#define PTES_PER_PAGE (1 << PTES_PER_PAGE_SHIFT)
++#define SWITCHER_PGD_INDEX (PTES_PER_PAGE - 1)
++
++static DEFINE_PER_CPU(spte_t *, switcher_pte_pages) =3D { NULL };
++#define switcher_pte_page(cpu) per_cpu(switcher_pte_pages, cpu)
++
++static unsigned vaddr_to_pgd_index(unsigned long vaddr)
++{
++	return vaddr >> (PAGE_SHIFT + PTES_PER_PAGE_SHIFT);
++}
++
++/* These access the shadow versions (ie. the ones used by the CPU). */
++static spgd_t *spgd_addr(struct lguest *lg, u32 i, unsigned long vaddr)
++{
++	unsigned int index =3D vaddr_to_pgd_index(vaddr);
++
++	if (index >=3D SWITCHER_PGD_INDEX) {
++		kill_guest(lg, "attempt to access switcher pages");
++		index =3D 0;
++	}
++	return &lg->pgdirs[i].pgdir[index];
++}
++
++static spte_t *spte_addr(struct lguest *lg, spgd_t spgd, unsigned long vad=
+dr)
++{
++	spte_t *page =3D __va(spgd.pfn << PAGE_SHIFT);
++	BUG_ON(!(spgd.flags & _PAGE_PRESENT));
++	return &page[(vaddr >> PAGE_SHIFT) % PTES_PER_PAGE];
++}
++
++/* These access the guest versions. */
++static unsigned long gpgd_addr(struct lguest *lg, unsigned long vaddr)
++{
++	unsigned int index =3D vaddr >> (PAGE_SHIFT + PTES_PER_PAGE_SHIFT);
++	return lg->pgdirs[lg->pgdidx].cr3 + index * sizeof(gpgd_t);
++}
++
++static unsigned long gpte_addr(struct lguest *lg,
++			       gpgd_t gpgd, unsigned long vaddr)
++{
++	unsigned long gpage =3D gpgd.pfn << PAGE_SHIFT;
++	BUG_ON(!(gpgd.flags & _PAGE_PRESENT));
++	return gpage + ((vaddr>>PAGE_SHIFT) % PTES_PER_PAGE) * sizeof(gpte_t);
++}
++
++/* Do a virtual -> physical mapping on a user page. */
++static unsigned long get_pfn(unsigned long virtpfn, int write)
++{
++	struct page *page;
++	unsigned long ret =3D -1UL;
++
++	down_read(&current->mm->mmap_sem);
++	if (get_user_pages(current, current->mm, virtpfn << PAGE_SHIFT,
++			   1, write, 1, &page, NULL) =3D=3D 1)
++		ret =3D page_to_pfn(page);
++	up_read(&current->mm->mmap_sem);
++	return ret;
++}
++
++static spte_t gpte_to_spte(struct lguest *lg, gpte_t gpte, int write)
++{
++	spte_t spte;
++	unsigned long pfn;
++
++	/* We ignore the global flag. */
++	spte.flags =3D (gpte.flags & ~_PAGE_GLOBAL);
++	pfn =3D get_pfn(gpte.pfn, write);
++	if (pfn =3D=3D -1UL) {
++		kill_guest(lg, "failed to get page %u", gpte.pfn);
++		/* Must not put_page() bogus page on cleanup. */
++		spte.flags =3D 0;
++	}
++	spte.pfn =3D pfn;
++	return spte;
++}
++
++static void release_pte(spte_t pte)
++{
++	if (pte.flags & _PAGE_PRESENT)
++		put_page(pfn_to_page(pte.pfn));
++}
++
++static void check_gpte(struct lguest *lg, gpte_t gpte)
++{
++	if ((gpte.flags & (_PAGE_PWT|_PAGE_PSE)) || gpte.pfn >=3D lg->pfn_limit)
++		kill_guest(lg, "bad page table entry");
++}
++
++static void check_gpgd(struct lguest *lg, gpgd_t gpgd)
++{
++	if ((gpgd.flags & ~_PAGE_TABLE) || gpgd.pfn >=3D lg->pfn_limit)
++		kill_guest(lg, "bad page directory entry");
++}
++
++/* FIXME: We hold reference to pages, which prevents them from being
++   swapped.  It'd be nice to have a callback when Linux wants to swap out.=
+ */
++
++/* We fault pages in, which allows us to update accessed/dirty bits.
++ * Return true if we got page. */
++int demand_page(struct lguest *lg, unsigned long vaddr, int write)
++{
++	gpgd_t gpgd;
++	spgd_t *spgd;
++	unsigned long gpte_ptr;
++	gpte_t gpte;
++	spte_t *spte;
++
++	gpgd =3D mkgpgd(lgread_u32(lg, gpgd_addr(lg, vaddr)));
++	if (!(gpgd.flags & _PAGE_PRESENT))
++		return 0;
++
++	spgd =3D spgd_addr(lg, lg->pgdidx, vaddr);
++	if (!(spgd->flags & _PAGE_PRESENT)) {
++		/* Get a page of PTEs for them. */
++		unsigned long ptepage =3D get_zeroed_page(GFP_KERNEL);
++		/* FIXME: Steal from self in this case? */
++		if (!ptepage) {
++			kill_guest(lg, "out of memory allocating pte page");
++			return 0;
++		}
++		check_gpgd(lg, gpgd);
++		spgd->raw.val =3D (__pa(ptepage) | gpgd.flags);
++	}
++
++	gpte_ptr =3D gpte_addr(lg, gpgd, vaddr);
++	gpte =3D mkgpte(lgread_u32(lg, gpte_ptr));
++
++	/* No page? */
++	if (!(gpte.flags & _PAGE_PRESENT))
++		return 0;
++
++	/* Write to read-only page? */
++	if (write && !(gpte.flags & _PAGE_RW))
++		return 0;
++
++	check_gpte(lg, gpte);
++	gpte.flags |=3D _PAGE_ACCESSED;
++	if (write)
++		gpte.flags |=3D _PAGE_DIRTY;
++
++	/* We're done with the old pte. */
++	spte =3D spte_addr(lg, *spgd, vaddr);
++	release_pte(*spte);
++
++	/* We don't make it writable if this isn't a write: later
++	 * write will fault so we can set dirty bit in guest. */
++	if (gpte.flags & _PAGE_DIRTY)
++		*spte =3D gpte_to_spte(lg, gpte, 1);
++	else {
++		gpte_t ro_gpte =3D gpte;
++		ro_gpte.flags &=3D ~_PAGE_RW;
++		*spte =3D gpte_to_spte(lg, ro_gpte, 0);
++	}
++
++	/* Now we update dirty/accessed on guest. */
++	lgwrite_u32(lg, gpte_ptr, gpte.raw.val);
++	return 1;
++}
++
++/* This is much faster than the full demand_page logic. */
++static int page_writable(struct lguest *lg, unsigned long vaddr)
++{
++	spgd_t *spgd;
++	unsigned long flags;
++
++	spgd =3D spgd_addr(lg, lg->pgdidx, vaddr);
++	if (!(spgd->flags & _PAGE_PRESENT))
++		return 0;
++
++	flags =3D spte_addr(lg, *spgd, vaddr)->flags;
++	return (flags & (_PAGE_PRESENT|_PAGE_RW)) =3D=3D (_PAGE_PRESENT|_PAGE_RW);
++}
++
++void pin_page(struct lguest *lg, unsigned long vaddr)
++{
++	if (!page_writable(lg, vaddr) && !demand_page(lg, vaddr, 0))
++		kill_guest(lg, "bad trap page %#lx", vaddr);
++}
++
++static void release_pgd(struct lguest *lg, spgd_t *spgd)
++{
++	if (spgd->flags & _PAGE_PRESENT) {
++		unsigned int i;
++		spte_t *ptepage =3D __va(spgd->pfn << PAGE_SHIFT);
++		for (i =3D 0; i < PTES_PER_PAGE; i++)
++			release_pte(ptepage[i]);
++		free_page((long)ptepage);
++		spgd->raw.val =3D 0;
++	}
++}
++
++static void flush_user_mappings(struct lguest *lg, int idx)
++{
++	unsigned int i;
++	for (i =3D 0; i < vaddr_to_pgd_index(lg->page_offset); i++)
++		release_pgd(lg, lg->pgdirs[idx].pgdir + i);
++}
++
++void guest_pagetable_flush_user(struct lguest *lg)
++{
++	flush_user_mappings(lg, lg->pgdidx);
++}
++
++static unsigned int find_pgdir(struct lguest *lg, unsigned long pgtable)
++{
++	unsigned int i;
++	for (i =3D 0; i < ARRAY_SIZE(lg->pgdirs); i++)
++		if (lg->pgdirs[i].cr3 =3D=3D pgtable)
++			break;
++	return i;
++}
++
++static unsigned int new_pgdir(struct lguest *lg,
++			      unsigned long cr3,
++			      int *blank_pgdir)
++{
++	unsigned int next;
++
++	next =3D random32() % ARRAY_SIZE(lg->pgdirs);
++	if (!lg->pgdirs[next].pgdir) {
++		lg->pgdirs[next].pgdir =3D (spgd_t *)get_zeroed_page(GFP_KERNEL);
++		if (!lg->pgdirs[next].pgdir)
++			next =3D lg->pgdidx;
++		else
++			/* There are no mappings: you'll need to re-pin */
++			*blank_pgdir =3D 1;
++	}
++	lg->pgdirs[next].cr3 =3D cr3;
++	/* Release all the non-kernel mappings. */
++	flush_user_mappings(lg, next);
++
++	return next;
++}
++
++void guest_new_pagetable(struct lguest *lg, unsigned long pgtable)
++{
++	int newpgdir, repin =3D 0;
++
++	newpgdir =3D find_pgdir(lg, pgtable);
++	if (newpgdir =3D=3D ARRAY_SIZE(lg->pgdirs))
++		newpgdir =3D new_pgdir(lg, pgtable, &repin);
++	lg->pgdidx =3D newpgdir;
++	if (repin)
++		pin_trap_pages(lg);
++}
++
++static void release_all_pagetables(struct lguest *lg)
++{
++	unsigned int i, j;
++
++	for (i =3D 0; i < ARRAY_SIZE(lg->pgdirs); i++)
++		if (lg->pgdirs[i].pgdir)
++			for (j =3D 0; j < SWITCHER_PGD_INDEX; j++)
++				release_pgd(lg, lg->pgdirs[i].pgdir + j);
++}
++
++void guest_pagetable_clear_all(struct lguest *lg)
++{
++	release_all_pagetables(lg);
++	pin_trap_pages(lg);
++}
++
++static void do_set_pte(struct lguest *lg, int idx,
++		       unsigned long vaddr, gpte_t gpte)
++{
++	spgd_t *spgd =3D spgd_addr(lg, idx, vaddr);
++	if (spgd->flags & _PAGE_PRESENT) {
++		spte_t *spte =3D spte_addr(lg, *spgd, vaddr);
++		release_pte(*spte);
++		if (gpte.flags & (_PAGE_DIRTY | _PAGE_ACCESSED)) {
++			check_gpte(lg, gpte);
++			*spte =3D gpte_to_spte(lg, gpte, gpte.flags&_PAGE_DIRTY);
++		} else
++			spte->raw.val =3D 0;
++	}
++}
++
++void guest_set_pte(struct lguest *lg,
++		   unsigned long cr3, unsigned long vaddr, gpte_t gpte)
++{
++	/* Kernel mappings must be changed on all top levels. */
++	if (vaddr >=3D lg->page_offset) {
++		unsigned int i;
++		for (i =3D 0; i < ARRAY_SIZE(lg->pgdirs); i++)
++			if (lg->pgdirs[i].pgdir)
++				do_set_pte(lg, i, vaddr, gpte);
++	} else {
++		int pgdir =3D find_pgdir(lg, cr3);
++		if (pgdir !=3D ARRAY_SIZE(lg->pgdirs))
++			do_set_pte(lg, pgdir, vaddr, gpte);
++	}
++}
++
++void guest_set_pmd(struct lguest *lg, unsigned long cr3, u32 idx)
++{
++	int pgdir;
++
++	if (idx >=3D SWITCHER_PGD_INDEX)
++		return;
++
++	pgdir =3D find_pgdir(lg, cr3);
++	if (pgdir < ARRAY_SIZE(lg->pgdirs))
++		release_pgd(lg, lg->pgdirs[pgdir].pgdir + idx);
++}
++
++int init_guest_pagetable(struct lguest *lg, unsigned long pgtable)
++{
++	/* We assume this in flush_user_mappings, so check now */
++	if (vaddr_to_pgd_index(lg->page_offset) >=3D SWITCHER_PGD_INDEX)
++		return -EINVAL;
++	lg->pgdidx =3D 0;
++	lg->pgdirs[lg->pgdidx].cr3 =3D pgtable;
++	lg->pgdirs[lg->pgdidx].pgdir =3D (spgd_t*)get_zeroed_page(GFP_KERNEL);
++	if (!lg->pgdirs[lg->pgdidx].pgdir)
++		return -ENOMEM;
++	return 0;
++}
++
++void free_guest_pagetable(struct lguest *lg)
++{
++	unsigned int i;
++
++	release_all_pagetables(lg);
++	for (i =3D 0; i < ARRAY_SIZE(lg->pgdirs); i++)
++		free_page((long)lg->pgdirs[i].pgdir);
++}
++
++/* Caller must be preempt-safe */
++void map_switcher_in_guest(struct lguest *lg, struct lguest_pages *pages)
++{
++	spte_t *switcher_pte_page =3D __get_cpu_var(switcher_pte_pages);
++	spgd_t switcher_pgd;
++	spte_t regs_pte;
++
++	/* Since switcher less that 4MB, we simply mug top pte page. */
++	switcher_pgd.pfn =3D __pa(switcher_pte_page) >> PAGE_SHIFT;
++	switcher_pgd.flags =3D _PAGE_KERNEL;
++	lg->pgdirs[lg->pgdidx].pgdir[SWITCHER_PGD_INDEX] =3D switcher_pgd;
++
++	/* Map our regs page over stack page. */
++	regs_pte.pfn =3D __pa(lg->regs_page) >> PAGE_SHIFT;
++	regs_pte.flags =3D _PAGE_KERNEL;
++	switcher_pte_page[(unsigned long)pages/PAGE_SIZE%PTES_PER_PAGE]
++		=3D regs_pte;
++}
++
++static void free_switcher_pte_pages(void)
++{
++	unsigned int i;
++
++	for_each_possible_cpu(i)
++		free_page((long)switcher_pte_page(i));
++}
++
++static __init void populate_switcher_pte_page(unsigned int cpu,
++					      struct page *switcher_page[],
++					      unsigned int pages)
++{
++	unsigned int i;
++	spte_t *pte =3D switcher_pte_page(cpu);
++
++	for (i =3D 0; i < pages; i++) {
++		pte[i].pfn =3D page_to_pfn(switcher_page[i]);
++		pte[i].flags =3D _PAGE_PRESENT|_PAGE_ACCESSED;
++	}
++
++	/* We only map this CPU's pages, so guest can't see others. */
++	i =3D pages + cpu*2;
++
++	/* First page (regs) is rw, second (state) is ro. */
++	pte[i].pfn =3D page_to_pfn(switcher_page[i]);
++	pte[i].flags =3D _PAGE_PRESENT|_PAGE_ACCESSED|_PAGE_RW;
++	pte[i+1].pfn =3D page_to_pfn(switcher_page[i+1]);
++	pte[i+1].flags =3D _PAGE_PRESENT|_PAGE_ACCESSED;
++}
++
++__init int init_pagetables(struct page **switcher_page, unsigned int pages)
++{
++	unsigned int i;
++
++	for_each_possible_cpu(i) {
++		switcher_pte_page(i) =3D (spte_t *)get_zeroed_page(GFP_KERNEL);
++		if (!switcher_pte_page(i)) {
++			free_switcher_pte_pages();
++			return -ENOMEM;
++		}
++		populate_switcher_pte_page(i, switcher_page, pages);
++	}
++	return 0;
++}
++
++void free_pagetables(void)
++{
++	free_switcher_pte_pages();
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/segments.c
+@@ -0,0 +1,115 @@
++#include "lg.h"
++
++static int desc_ok(const struct desc_struct *gdt)
++{
++	/* MBZ=3D0, P=3D1, DT=3D1  */
++	return ((gdt->b & 0x00209000) =3D=3D 0x00009000);
++}
++
++static int segment_present(const struct desc_struct *gdt)
++{
++	return gdt->b & 0x8000;
++}
++
++static int ignored_gdt(unsigned int num)
++{
++	return (num =3D=3D GDT_ENTRY_TSS
++		|| num =3D=3D GDT_ENTRY_LGUEST_CS
++		|| num =3D=3D GDT_ENTRY_LGUEST_DS
++		|| num =3D=3D GDT_ENTRY_DOUBLEFAULT_TSS);
++}
++
++/* We don't allow removal of CS, DS or SS; it doesn't make sense. */
++static void check_segment_use(struct lguest *lg, unsigned int desc)
++{
++	if (lg->regs->gs / 8 =3D=3D desc)
++		lg->regs->gs =3D 0;
++	if (lg->regs->fs / 8 =3D=3D desc)
++		lg->regs->fs =3D 0;
++	if (lg->regs->es / 8 =3D=3D desc)
++		lg->regs->es =3D 0;
++	if (lg->regs->ds / 8 =3D=3D desc
++	    || lg->regs->cs / 8 =3D=3D desc
++	    || lg->regs->ss / 8 =3D=3D desc)
++		kill_guest(lg, "Removed live GDT entry %u", desc);
++}
++
++static void fixup_gdt_table(struct lguest *lg)
++{
++	unsigned int i;
++
++	for (i =3D 0; i < ARRAY_SIZE(lg->gdt); i++) {
++		/* We never copy these ones to real gdt */
++		if (ignored_gdt(i))
++			continue;
++
++		/* We could fault in switch_to_guest if they are using
++		 * a removed segment. */
++		if (!segment_present(&lg->gdt[i])) {
++			check_segment_use(lg, i);
++			continue;
++		}
++
++		if (!desc_ok(&lg->gdt[i]))
++			kill_guest(lg, "Bad GDT descriptor %i", i);
++
++		/* DPL 0 presumably means "for use by guest". */
++		if ((lg->gdt[i].b & 0x00006000) =3D=3D 0)
++			lg->gdt[i].b |=3D (GUEST_PL << 13);
++
++		/* Set accessed bit, since gdt isn't writable. */
++		lg->gdt[i].b |=3D 0x00000100;
++	}
++}
++
++void setup_default_gdt_entries(struct lguest_ro_state *state)
++{
++	struct desc_struct *gdt =3D state->guest_gdt;
++	unsigned long tss =3D (unsigned long)&state->guest_tss;
++
++	/* Hypervisor segments. */
++	gdt[GDT_ENTRY_LGUEST_CS] =3D FULL_EXEC_SEGMENT;
++	gdt[GDT_ENTRY_LGUEST_DS] =3D FULL_SEGMENT;
++
++	/* This is the one which we *cannot* copy from guest, since tss
++	   is depended on this lguest_ro_state, ie. this cpu. */
++	gdt[GDT_ENTRY_TSS].a =3D 0x00000067 | (tss << 16);
++	gdt[GDT_ENTRY_TSS].b =3D 0x00008900 | (tss & 0xFF000000)
++		| ((tss >> 16) & 0x000000FF);
++}
++
++void setup_guest_gdt(struct lguest *lg)
++{
++	lg->gdt[GDT_ENTRY_KERNEL_CS] =3D FULL_EXEC_SEGMENT;
++	lg->gdt[GDT_ENTRY_KERNEL_DS] =3D FULL_SEGMENT;
++	lg->gdt[GDT_ENTRY_KERNEL_CS].b |=3D (GUEST_PL << 13);
++	lg->gdt[GDT_ENTRY_KERNEL_DS].b |=3D (GUEST_PL << 13);
++}
++
++void copy_gdt(const struct lguest *lg, struct desc_struct *gdt)
++{
++	unsigned int i;
++
++	for (i =3D 0; i < GDT_ENTRIES; i++)
++		if (!ignored_gdt(i))
++			gdt[i] =3D lg->gdt[i];
++}
++
++void load_guest_gdt(struct lguest *lg, u32 table, u32 num)
++{
++	if (num > ARRAY_SIZE(lg->gdt))
++		kill_guest(lg, "too many gdt entries %i", num);
++
++	lgread(lg, lg->gdt, table, num * sizeof(lg->gdt[0]));
++	fixup_gdt_table(lg);
++	lg->changed |=3D CHANGED_GDT;
++}
++
++void guest_load_tls(struct lguest *lg, const struct desc_struct __user *gt=
+ls)
++{
++	struct desc_struct *tls =3D &lg->gdt[GDT_ENTRY_TLS_MIN];
++
++	lgread(lg, tls, (u32)gtls, sizeof(*tls)*GDT_ENTRY_TLS_ENTRIES);
++	fixup_gdt_table(lg);
++	lg->changed |=3D CHANGED_GDT;
++}
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/drivers/lguest/switcher.S
+@@ -0,0 +1,159 @@
++/* This code sits at 0xFFC00000 to do the low-level guest<->host switch.
++
++   There is are two pages above us for this CPU (struct lguest_pages).
++   The second page (struct lguest_ro_state) becomes read-only after the
++   context switch.  The first page (the stack for traps) remains writable,
++   but while we're in here, the guest cannot be running.
++*/
++#include <linux/linkage.h>
++#include <asm/asm-offsets.h>
++#include "lg.h"
++
++.text
++ENTRY(start_switcher_text)
++
++/* %eax points to lguest pages for this CPU.  %ebx contains cr3 value.
++   All normal registers can be clobbered! */
++ENTRY(switch_to_guest)
++	/* Save host segments on host stack. */
++	pushl	%es
++	pushl	%ds
++	pushl	%gs
++	pushl	%fs
++	/* With CONFIG_FRAME_POINTER, gcc doesn't let us clobber this! */
++	pushl	%ebp
++	/* Save host stack. */
++	movl	%esp, LGUEST_PAGES_host_sp(%eax)
++	/* Switch to guest stack: if we get NMI we expect to be there. */
++	movl	%eax, %edx
++	addl	$LGUEST_PAGES_regs, %edx
++	movl	%edx, %esp
++	/* Switch to guest's GDT, IDT. */
++	lgdt	LGUEST_PAGES_guest_gdt_desc(%eax)
++	lidt	LGUEST_PAGES_guest_idt_desc(%eax)
++	/* Switch to guest's TSS while GDT still writable. */
++	movl	$(GDT_ENTRY_TSS*8), %edx
++	ltr	%dx
++	/* Set host's TSS GDT entry to available (clear byte 5 bit 2). */
++	movl	(LGUEST_PAGES_host_gdt_desc+2)(%eax), %edx
++	andb	$0xFD, (GDT_ENTRY_TSS*8 + 5)(%edx)
++	/* Switch to guest page tables:	lguest_pages->state now read-only. */
++	movl	%ebx, %cr3
++	/* Restore guest regs */
++	popl	%ebx
++	popl	%ecx
++	popl	%edx
++	popl	%esi
++	popl	%edi
++	popl	%ebp
++	popl	%gs
++	popl	%eax
++	popl	%fs
++	popl	%ds
++	popl	%es
++	/* Skip error code and trap number */
++	addl	$8, %esp
++	iret
++
++#define SWITCH_TO_HOST							\
++	/* Save guest state */						\
++	pushl	%es;							\
++	pushl	%ds;							\
++	pushl	%fs;							\
++	pushl	%eax;							\
++	pushl	%gs;							\
++	pushl	%ebp;							\
++	pushl	%edi;							\
++	pushl	%esi;							\
++	pushl	%edx;							\
++	pushl	%ecx;							\
++	pushl	%ebx;							\
++	/* Load lguest ds segment for convenience. */			\
++	movl	$(LGUEST_DS), %eax;					\
++	movl	%eax, %ds;						\
++	/* Figure out where we are, based on stack (at top of regs). */	\
++	movl	%esp, %eax;						\
++	subl	$LGUEST_PAGES_regs, %eax;				\
++	/* Put trap number in %ebx before we switch cr3 and lose it. */ \
++	movl	LGUEST_PAGES_regs_trapnum(%eax), %ebx;			\
++	/* Switch to host page tables (host GDT, IDT and stack are in host   \
++	   mem, so need this first) */					\
++	movl	LGUEST_PAGES_host_cr3(%eax), %edx;			\
++	movl	%edx, %cr3;						\
++	/* Set guest's TSS to available (clear byte 5 bit 2). */	\
++	andb	$0xFD, (LGUEST_PAGES_guest_gdt+GDT_ENTRY_TSS*8+5)(%eax); \
++	/* Switch to host's GDT & IDT. */				\
++	lgdt	LGUEST_PAGES_host_gdt_desc(%eax);			\
++	lidt	LGUEST_PAGES_host_idt_desc(%eax);			\
++	/* Switch to host's stack. */					\
++	movl	LGUEST_PAGES_host_sp(%eax), %esp;			\
++	/* Switch to host's TSS */					\
++	movl	$(GDT_ENTRY_TSS*8), %edx;				\
++	ltr	%dx;							\
++	popl	%ebp;							\
++	popl	%fs;							\
++	popl	%gs;							\
++	popl	%ds;							\
++	popl	%es
++
++/* Return to run_guest_once. */
++return_to_host:
++	SWITCH_TO_HOST
++	iret
++
++deliver_to_host:
++	SWITCH_TO_HOST
++	/* Decode IDT and jump to hosts' irq handler.  When that does iret, it
++	 * will return to run_guest_once.  This is a feature. */
++	movl	(LGUEST_PAGES_host_idt_desc+2)(%eax), %edx
++	leal	(%edx,%ebx,8), %eax
++	movzwl	(%eax),%edx
++	movl	4(%eax), %eax
++	xorw	%ax, %ax
++	orl	%eax, %edx
++	jmp	*%edx
++
++/* Real hardware interrupts are delivered straight to the host.  Others
++   cause us to return to run_guest_once so it can decide what to do.  Note
++   that some of these are overridden by the guest to deliver directly, and
++   never enter here (see load_guest_idt_entry). */
++.macro IRQ_STUB N TARGET
++	.data; .long 1f; .text; 1:
++ /* Make an error number for most traps, which don't have one. */
++ .if (\N <> 8) && (\N < 10 || \N > 14) && (\N <> 17)
++	pushl	$0
++ .endif
++	pushl	$\N
++	jmp	\TARGET
++	ALIGN
++.endm
++
++.macro IRQ_STUBS FIRST LAST TARGET
++ irq=3D\FIRST
++ .rept \LAST-\FIRST+1
++	IRQ_STUB irq \TARGET
++  irq=3Dirq+1
++ .endr
++.endm
++
++/* We intercept every interrupt, because we may need to switch back to
++ * host.  Unfortunately we can't tell them apart except by entry
++ * point, so we need 256 entry points.
++ */
++.data
++.global default_idt_entries
++default_idt_entries:
++.text
++	IRQ_STUBS 0 1 return_to_host		/* First two traps */
++	IRQ_STUB 2 handle_nmi			/* NMI */
++	IRQ_STUBS 3 31 return_to_host		/* Rest of traps */
++	IRQ_STUBS 32 127 deliver_to_host	/* Real interrupts */
++	IRQ_STUB 128 return_to_host		/* System call (overridden) */
++	IRQ_STUBS 129 255 deliver_to_host	/* Other real interrupts */
++
++/* We ignore NMI and return. */
++handle_nmi:
++	addl	$8, %esp
++	iret
++
++ENTRY(end_switcher_text)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null
++++ b/include/linux/lguest_launcher.h
+@@ -0,0 +1,80 @@
++#ifndef _ASM_LGUEST_USER
++#define _ASM_LGUEST_USER
++/* Everything the "lguest" userspace program needs to know. */
++/* They can register up to 32 arrays of lguest_dma. */
++#define LGUEST_MAX_DMA		32
++/* At most we can dma 16 lguest_dma in one op. */
++#define LGUEST_MAX_DMA_SECTIONS	16
++
++/* How many devices?  Assume each one wants up to two dma arrays per devic=
+e. */
++#define LGUEST_MAX_DEVICES (LGUEST_MAX_DMA/2)
++
++struct lguest_dma
++{
++	/* 0 if free to be used, filled by hypervisor. */
++ 	u32 used_len;
++	u32 addr[LGUEST_MAX_DMA_SECTIONS];
++	u16 len[LGUEST_MAX_DMA_SECTIONS];
++};
++
++/* This is found at address 0. */
++struct lguest_boot_info
++{
++	u32 max_pfn;
++	u32 initrd_size;
++	char cmdline[256];
++};
++
++struct lguest_block_page
++{
++	/* 0 is a read, 1 is a write. */
++	int type;
++	u32 sector; 	/* Offset in device =3D sector * 512. */
++	u32 bytes;	/* Length expected to be read/written in bytes */
++	/* 0 =3D pending, 1 =3D done, 2 =3D done, error */
++	int result;
++	u32 num_sectors; /* Disk length =3D num_sectors * 512 */
++};
++
++/* There is a shared page of these. */
++struct lguest_net
++{
++	/* Simply the mac address (with multicast bit meaning promisc). */
++	unsigned char mac[6];
++};
++
++/* Where the Host expects the Guest to SEND_DMA console output to. */
++#define LGUEST_CONSOLE_DMA_KEY 0
++
++/* We have a page of these descriptors in the lguest_device page. */
++struct lguest_device_desc {
++	u16 type;
++#define LGUEST_DEVICE_T_CONSOLE	1
++#define LGUEST_DEVICE_T_NET	2
++#define LGUEST_DEVICE_T_BLOCK	3
++
++	u16 features;
++#define LGUEST_NET_F_NOCSUM		0x4000 /* Don't bother checksumming */
++#define LGUEST_DEVICE_F_RANDOMNESS	0x8000 /* IRQ is fairly random */
++
++	u16 status;
++/* 256 and above are device specific. */
++#define LGUEST_DEVICE_S_ACKNOWLEDGE	1 /* We have seen device. */
++#define LGUEST_DEVICE_S_DRIVER		2 /* We have found a driver */
++#define LGUEST_DEVICE_S_DRIVER_OK	4 /* Driver says OK! */
++#define LGUEST_DEVICE_S_REMOVED		8 /* Device has gone away. */
++#define LGUEST_DEVICE_S_REMOVED_ACK	16 /* Driver has been told. */
++#define LGUEST_DEVICE_S_FAILED		128 /* Something actually failed */
++
++	u16 num_pages;
++	u32 pfn;
++};
++
++/* Write command first word is a request. */
++enum lguest_req
++{
++	LHREQ_INITIALIZE, /* + pfnlimit, pgdir, start, pageoffset */
++	LHREQ_GETDMA, /* + addr (returns &lguest_dma, irq in ->used_len) */
++	LHREQ_IRQ, /* + irq */
++};
++#endif /* _ASM_LGUEST_USER */
