@@ -1,22 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PATCH 7/8] lguest: the block driver
-Date: Wed, 11 Apr 2007 14:00:24 +1000
-Message-ID: <1176264024.26372.93.camel@localhost.localdomain>
-References: <1176203068.26372.21.camel@localhost.localdomain>
-	<1176203130.26372.23.camel@localhost.localdomain>
-	<1176203176.26372.25.camel@localhost.localdomain>
-	<1176203231.26372.27.camel@localhost.localdomain>
-	<1176203285.26372.29.camel@localhost.localdomain>
-	<1176203333.26372.31.camel@localhost.localdomain>
-	<1176203475.26372.37.camel@localhost.localdomain>
-	<1176203528.26372.40.camel@localhost.localdomain>
-	<84144f020704100428r6e35e34cued8758c94728a6a0@mail.gmail.com>
-	<84144f020704100436y3405f104x8345c72556d961e9@mail.gmail.com>
+Subject: Re: [PATCH] Clean up x86 control register and MSR macros
+Date: Wed, 11 Apr 2007 14:11:06 +1000
+Message-ID: <1176264666.26372.101.camel__28440.2022989982$1176282825$gmane$org@localhost.localdomain>
+References: <200704101648.l3AGmT5e027601@tazenda.hos.anvin.org>
+	<461BC350.4040403@goop.org>  <461BC9DE.5030009@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <84144f020704100436y3405f104x8345c72556d961e9@mail.gmail.com>
+In-Reply-To: <461BC9DE.5030009@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,36 +18,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, jens.axboe@oracle.com, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andi Kleen <andi@firstfloor.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-04-10 at 14:36 +0300, Pekka Enberg wrote:
-> On 4/10/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > > +/* Jens gave me this nice helper to end all chunks of a request. */
-> > > +static void end_entire_request(struct request *req, int uptodate)
-> > > +{
-> > > +       if (end_that_request_first(req, uptodate, req->hard_nr_sector=
-s))
-> > > +               BUG();
-> > > +       add_disk_randomness(req->rq_disk);
-> > > +       blkdev_dequeue_request(req);
-> > > +       end_that_request_last(req, uptodate);
-> > > +}
+On Tue, 2007-04-10 at 10:31 -0700, H. Peter Anvin wrote:
+> Jeremy Fitzhardinge wrote:
+> > =
+
+> > Is having separate bit numbers and masks useful?  If so, is it worth
+> > doing for the others?
+> > =
+
 > =
 
-> On 4/10/07, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> > Perhaps we should move this to generic code (i.e. block/ll_rw_blk.c)?
+> I presume it's useful, or at least *used* in the current code, since =
 
-Yeah, Jens said to put it in here and he'd hoist it later.
+> that was there already.  If deemed useful, it's something we could add =
 
-> Uhm, I am bit confused now. Why don't you just use end_request() here?
+> to the other bitmasks.
 
-What a question!  end_request() doesn't end a request!  What a crazy
-idea!
+I don't think it needs to be done now, as long as it follows a clear
+convention.  I'd prefer eg. X86_EFLAGS_IF_BIT =3D=3D 9, X86_EFLAGS_IF =3D=
+=3D
+512, but _X86_EFLAGS_IF seems to be the current practice.
 
-As far as I can tell, every name in the block layer is actually some
-variant of "fuck off, this is too complicated for you to understand".
-
-Hope that clarifies!
+Cheers,
 Rusty.
