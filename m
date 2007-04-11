@@ -1,14 +1,22 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: paravirt repo rebased to 2.6.21-rc6-mm1
-Date: Tue, 10 Apr 2007 17:10:18 -0700
-Message-ID: <20070411001018.GV10574@sequoia.sous-sol.org>
-References: <461C1C7B.5080509@goop.org> <461C1DDB.4090307@vmware.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: PATCH 7/8] lguest: the block driver
+Date: Wed, 11 Apr 2007 14:00:24 +1000
+Message-ID: <1176264024.26372.93.camel@localhost.localdomain>
+References: <1176203068.26372.21.camel@localhost.localdomain>
+	<1176203130.26372.23.camel@localhost.localdomain>
+	<1176203176.26372.25.camel@localhost.localdomain>
+	<1176203231.26372.27.camel@localhost.localdomain>
+	<1176203285.26372.29.camel@localhost.localdomain>
+	<1176203333.26372.31.camel@localhost.localdomain>
+	<1176203475.26372.37.camel@localhost.localdomain>
+	<1176203528.26372.40.camel@localhost.localdomain>
+	<84144f020704100428r6e35e34cued8758c94728a6a0@mail.gmail.com>
+	<84144f020704100436y3405f104x8345c72556d961e9@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <461C1DDB.4090307@vmware.com>
+In-Reply-To: <84144f020704100436y3405f104x8345c72556d961e9@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,42 +26,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, jens.axboe@oracle.com, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> Jeremy Fitzhardinge wrote:
-> >Seems to work OK for native and Xen.  I had to play a bit with the
-> >paravirt-sched-clock patch to deal with the VMI changes.  Zach, can you
-> >check that it still works?
+On Tue, 2007-04-10 at 14:36 +0300, Pekka Enberg wrote:
+> On 4/10/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > > +/* Jens gave me this nice helper to end all chunks of a request. */
+> > > +static void end_entire_request(struct request *req, int uptodate)
+> > > +{
+> > > +       if (end_that_request_first(req, uptodate, req->hard_nr_sector=
+s))
+> > > +               BUG();
+> > > +       add_disk_randomness(req->rq_disk);
+> > > +       blkdev_dequeue_request(req);
+> > > +       end_that_request_last(req, uptodate);
+> > > +}
 > =
 
-> I'm on it.
+> On 4/10/07, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> > Perhaps we should move this to generic code (i.e. block/ll_rw_blk.c)?
 
-Not sure about cycles_2_ns...
+Yeah, Jens said to put it in here and he'd hoist it later.
 
-arch/i386/kernel/built-in.o: In function `activate_vmi':
-/home/chrisw/hg/xen/linux-2.6-pv/arch/i386/kernel/vmi.c:894: undefined refe=
-rence to `vmi_sched_clock'
+> Uhm, I am bit confused now. Why don't you just use end_request() here?
 
-diff -r a5e50a2e914a arch/i386/kernel/vmiclock.c
---- a/arch/i386/kernel/vmiclock.c	Tue Apr 10 16:20:13 2007 -0700
-+++ b/arch/i386/kernel/vmiclock.c	Tue Apr 10 17:07:47 2007 -0700
-@@ -64,10 +64,10 @@ int vmi_set_wallclock(unsigned long now)
- 	return 0;
- }
- =
+What a question!  end_request() doesn't end a request!  What a crazy
+idea!
 
--/* paravirt_ops.get_scheduled_cycles =3D vmi_get_sched_cycles */
--unsigned long long vmi_get_sched_cycles(void)
--{
--	return vmi_timer_ops.get_cycle_counter(VMI_CYCLES_AVAILABLE);
-+unsigned long long vmi_sched_clock(void)
-+{
-+	cycle_t cycles =3D vmi_timer_ops.get_cycle_counter(VMI_CYCLES_AVAILABLE);
-+	return cycles_2_ns(cycles);
- }
- =
+As far as I can tell, every name in the block layer is actually some
+variant of "fuck off, this is too complicated for you to understand".
 
- /* paravirt_ops.get_cpu_khz =3D vmi_cpu_khz */
+Hope that clarifies!
+Rusty.
