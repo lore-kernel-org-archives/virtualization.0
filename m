@@ -1,14 +1,14 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: paravirt repo rebased to 2.6.21-rc6-mm1
-Date: Thu, 12 Apr 2007 08:40:44 -0700
-Message-ID: <461E52FC.7070001@vmware.com>
-References: <461C1C7B.5080509@goop.org>
-	<20070412085430.GD10574@sequoia.sous-sol.org>
+From: Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH 3/4] Pte xchg optimization.patch
+Date: Thu, 12 Apr 2007 14:18:09 -0400
+Message-ID: <20070412181809.GC25646@redhat.com>
+References: <200704120530.l3C5UweV022834@zach-dev.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070412085430.GD10574@sequoia.sous-sol.org>
+Content-Disposition: inline
+In-Reply-To: <200704120530.l3C5UweV022834@zach-dev.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,26 +18,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Virtualization Mailing List <virtualization@lists.osdl.org>, Chris Wright <chrisw@sous-sol.org>, David Rientjes <rientjes@google.com>, Hugh Dickins <hugh@veritas.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
-> * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
->   =
+On Wed, Apr 11, 2007 at 10:30:58PM -0700, Zachary Amsden wrote:
+ > In situations where page table updates need only be made locally, and th=
+ere
+ > is no cross-processor A/D bit races involved, we need not use the heavyw=
+eight
+ > xchg instruction to atomically fetch and clear page table entries.  Inst=
+ead,
+ > we can just read and clear them directly.
+ > =
 
->> Seems to work OK for native and Xen.  I had to play a bit with the
->> paravirt-sched-clock patch to deal with the VMI changes.  Zach, can you
->> check that it still works?
->>     =
+ > This introduces a neat optimization for non-SMP kernels; drop the atomic
+ > xchg operations from page table updates.
 
+Would it be feasible to do this using the smp_alternatives stuff?
+Given many distros are now shipping SMP-only kernels, it'd be nice
+to get that win without using having to rebuild their kernels.
 
-I'm working off the same tree as Jeremy, so I'm not seeing any problems =
+	Dave
 
-or failures to apply cleanly. As long as sched_clock units match (cycles =
+-- =
 
-vs. ns), it should be ok. And even if they are off, it would be very =
-
-hard to tell by observation.
-
-Zach
+http://www.codemonkey.org.uk
