@@ -1,11 +1,14 @@
-From: "Greg Walker" <gwalker@northlandcounseling.org>
-Subject: Trader news
-Date: Fri, 13 Apr 2007 07:58:40 -0500
-Message-ID: <BF84A95B26168045ADE4D9BED2B0AB380E4A5F@grumpy.nlccgr.com>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] 2.6.21 - VMI logic error
+Date: Fri, 13 Apr 2007 16:32:39 +0200
+Message-ID: <200704131632.39464.ak@suse.de>
+References: <461EEADE.8060400@vmware.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0237715961=="
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
+In-Reply-To: <461EEADE.8060400@vmware.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,54 +18,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linus Torvalds <torvalds@osdl.org>, Anthony Liguori <aliguori@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format...
+On Friday 13 April 2007 04:28:46 Zachary Amsden wrote:
+> So there is a logic error that would prevent us from ever using NOP =
 
---===============0237715961==
-Content-Type: multipart/alternative;
-    boundary="----------=_1176469145-29801-451"
-Content-Transfer-Encoding: binary
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
+> relocations, thus stopping any unnecessary callouts into a VMI ROM.  It =
 
-This is a multi-part message in MIME format...
+> doesn't affect us so much, but could conceivably affect open source =
 
-------------=_1176469145-29801-451
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> implementations of a VMI ROM in the future.  It is not absolutely =
 
-remove me from your mailing
+> critical, but it would be extremely nice to get it fixed in 2.6.21 so =
 
-------------=_1176469145-29801-451
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> there are no broken older kernels floating around that mandate having a =
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
-<META content=3D"MSHTML 6.00.2800.1589" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV><SPAN class=3D524225812-13042007><FONT face=3DArial size=3D2>remove me=
- from your=20
-mailing</FONT></SPAN></DIV></BODY></HTML>
+> workaround for this or else breaking compatibility with these kernels.
 
-------------=_1176469145-29801-451--
+Patch is fine for me.
 
---===============0237715961==
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
-
---===============0237715961==--
+-Andi
