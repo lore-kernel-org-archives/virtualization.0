@@ -1,14 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 16/28] kRemove a warning about unused variable in !CONFIG_ACPI
-	compilation.
-Date: Sat, 14 Apr 2007 13:42:10 -0700
-Message-ID: <20070414204924.577611888@goop.org>
+Subject: [PATCH 21/28] Implement vmi_kmap_atomic_pte
+Date: Sat, 14 Apr 2007 13:42:15 -0700
+Message-ID: <20070414204924.950847380@goop.org>
 References: <20070414204154.871250608@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=i386-acpi-remove-earlyquirk-warning.patch
+Content-Disposition: inline; filename=vmi-kmap_atomic_pte-fix.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,32 +18,135 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Trivial <trivial@kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
+
+Implement vmi_kmap_atomic_pte in terms of the backend set_linear_mapping
+operation.  The conversion is rather straighforward; call kmap_atomic
+and then inform the hypervisor of the page mapping.
+
+The _flush_tlb damage is due to macros being pulled in from highmem.h.
 
 From: Zachary Amsden <zach@vmware.com>
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-CC: Trivial <trivial@kernel.org>
 
 ---
- arch/i386/kernel/acpi/earlyquirk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/i386/kernel/vmi.c |   38 ++++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/acpi/earlyquirk.c
-+++ b/arch/i386/kernel/acpi/earlyquirk.c
-@@ -21,8 +21,8 @@ static int __init nvidia_hpet_check(stru
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -26,6 +26,7 @@
+ #include <linux/cpu.h>
+ #include <linux/bootmem.h>
+ #include <linux/mm.h>
++#include <linux/highmem.h>
+ #include <asm/vmi.h>
+ #include <asm/io.h>
+ #include <asm/fixmap.h>
+@@ -65,8 +66,8 @@ static struct {
+ 	void (*release_page)(u32, u32);
+ 	void (*set_pte)(pte_t, pte_t *, unsigned);
+ 	void (*update_pte)(pte_t *, unsigned);
+-	void (*set_linear_mapping)(int, u32, u32, u32);
+-	void (*flush_tlb)(int);
++	void (*set_linear_mapping)(int, void *, u32, u32);
++	void (*_flush_tlb)(int);
+ 	void (*set_initial_ap_state)(int, int);
+ 	void (*halt)(void);
+   	void (*set_lazy_mode)(int mode);
+@@ -217,12 +218,12 @@ static void vmi_load_esp0(struct tss_str
  =
 
- static int __init check_bridge(int vendor, int device)
+ static void vmi_flush_tlb_user(void)
  {
-+#ifdef CONFIG_ACPI
- 	static int warned;
--#ifdef CONFIG_ACPI
- 	/* According to Nvidia all timer overrides are bogus unless HPET
- 	   is enabled. */
- 	if (!acpi_use_timer_override && vendor =3D=3D PCI_VENDOR_ID_NVIDIA) {
+-	vmi_ops.flush_tlb(VMI_FLUSH_TLB);
++	vmi_ops._flush_tlb(VMI_FLUSH_TLB);
+ }
+ =
+
+ static void vmi_flush_tlb_kernel(void)
+ {
+-	vmi_ops.flush_tlb(VMI_FLUSH_TLB | VMI_FLUSH_GLOBAL);
++	vmi_ops._flush_tlb(VMI_FLUSH_TLB | VMI_FLUSH_GLOBAL);
+ }
+ =
+
+ /* Stub to do nothing at all; used for delays and unimplemented calls */
+@@ -345,8 +346,11 @@ static void vmi_check_page_type(u32 pfn,
+ #define vmi_check_page_type(p,t) do { } while (0)
+ #endif
+ =
+
+-static void vmi_map_pt_hook(int type, pte_t *va, u32 pfn)
+-{
++#ifdef CONFIG_HIGHPTE
++static void *vmi_kmap_atomic_pte(struct page *page, enum km_type type)
++{
++	void *va =3D kmap_atomic(page, type);
++
+ 	/*
+ 	 * Internally, the VMI ROM must map virtual addresses to physical
+ 	 * addresses for processing MMU updates.  By the time MMU updates
+@@ -360,8 +364,11 @@ static void vmi_map_pt_hook(int type, pt
+ 	 *  args:                 SLOT                 VA    COUNT PFN
+ 	 */
+ 	BUG_ON(type !=3D KM_PTE0 && type !=3D KM_PTE1);
+-	vmi_ops.set_linear_mapping((type - KM_PTE0)+1, (u32)va, 1, pfn);
+-}
++	vmi_ops.set_linear_mapping((type - KM_PTE0)+1, va, 1, page_to_pfn(page));
++
++	return va;
++}
++#endif
+ =
+
+ static void vmi_allocate_pt(u32 pfn)
+ {
+@@ -656,7 +663,7 @@ void vmi_bringup(void)
+ {
+  	/* We must establish the lowmem mapping for MMU ops to work */
+ 	if (vmi_ops.set_linear_mapping)
+-		vmi_ops.set_linear_mapping(0, __PAGE_OFFSET, max_low_pfn, 0);
++		vmi_ops.set_linear_mapping(0, (void *)__PAGE_OFFSET, max_low_pfn, 0);
+ }
+ =
+
+ /*
+@@ -793,8 +800,8 @@ static inline int __init activate_vmi(vo
+ 	para_wrap(set_lazy_mode, vmi_set_lazy_mode, set_lazy_mode, SetLazyMode);
+ =
+
+ 	/* user and kernel flush are just handled with different flags to FlushTL=
+B */
+-	para_wrap(flush_tlb_user, vmi_flush_tlb_user, flush_tlb, FlushTLB);
+-	para_wrap(flush_tlb_kernel, vmi_flush_tlb_kernel, flush_tlb, FlushTLB);
++	para_wrap(flush_tlb_user, vmi_flush_tlb_user, _flush_tlb, FlushTLB);
++	para_wrap(flush_tlb_kernel, vmi_flush_tlb_kernel, _flush_tlb, FlushTLB);
+ 	para_fill(flush_tlb_single, InvalPage);
+ =
+
+ 	/*
+@@ -840,9 +847,12 @@ static inline int __init activate_vmi(vo
+ 		paravirt_ops.release_pt =3D vmi_release_pt;
+ 		paravirt_ops.release_pd =3D vmi_release_pd;
+ 	}
+-#if 0
+-	para_wrap(map_pt_hook, vmi_map_pt_hook, set_linear_mapping,
+-		  SetLinearMapping);
++
++	/* Set linear is needed in all cases */
++	vmi_ops.set_linear_mapping =3D vmi_get_function(VMI_CALL_SetLinearMapping=
+);
++#ifdef CONFIG_HIGHPTE
++	if (vmi_ops.set_linear_mapping)
++		paravirt_ops.kmap_atomic_pte =3D vmi_kmap_atomic_pte;
+ #endif
+ =
+
+ 	/*
 
 -- =
