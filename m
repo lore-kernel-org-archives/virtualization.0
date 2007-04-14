@@ -1,32 +1,48 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 12/28] i386: now its ok to use identify_boot_cpu
-Date: Sat, 14 Apr 2007 13:42:06 -0700
-Message-ID: <20070414204924.272309498@goop.org>
+Subject: [PATCH 20/28] Now that the VDSO can be relocated,
+	we can support it in VMI configurations.
+Date: Sat, 14 Apr 2007 13:42:14 -0700
+Message-ID: <20070414204924.872624858@goop.org>
 References: <20070414204154.871250608@goop.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753846AbXDNVXI@vger.kernel.org>
-Content-Disposition: inline; filename=cleanup-identify_cpu-fix.patch
-Sender: linux-kernel-owner@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline; filename=vmi-supports-compat-vdso.patch
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+From: Zachary Amsden <zach@vmware.com>
+Signed-off-by: Zachary Amsden <zach@vmware.com>
 
 ---
- arch/i386/kernel/cpu/bugs.c |    2 +-
+ arch/i386/Kconfig |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-===================================================================
---- a/arch/i386/kernel/cpu/bugs.c
-+++ b/arch/i386/kernel/cpu/bugs.c
-@@ -177,7 +177,7 @@ static void __init check_config(void)
- 
- void __init check_bugs(void)
- {
--	identify_cpu(&boot_cpu_data);
-+	identify_boot_cpu();
- #ifndef CONFIG_SMP
- 	printk("CPU: ");
- 	print_cpu_info(&boot_cpu_data);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -220,7 +220,7 @@ config PARAVIRT
+ =
 
--- 
+ config VMI
+ 	bool "VMI Paravirt-ops support"
+-	depends on PARAVIRT && !COMPAT_VDSO
++	depends on PARAVIRT
+ 	help
+ 	  VMI provides a paravirtualized interface to the VMware ESX server
+ 	  (it could be used by other hypervisors in theory too, but is not
+
+-- =
