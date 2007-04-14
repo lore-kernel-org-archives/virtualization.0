@@ -1,152 +1,183 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 21/28] Implement vmi_kmap_atomic_pte
-Date: Sat, 14 Apr 2007 13:42:15 -0700
-Message-ID: <20070414204924.950847380@goop.org>
+Subject: [PATCH 23/28] Fix BusLogic to stop using check_region
+Date: Sat, 14 Apr 2007 13:42:17 -0700
+Message-ID: <20070414204925.105615645@goop.org>
 References: <20070414204154.871250608@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=vmi-kmap_atomic_pte-fix.patch
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752159AbXDNVYG@vger.kernel.org>
+Content-Disposition: inline; filename=buslogic-check-range-fixes.patch
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, "Lenoard N. Zubkoff" <lnz@dandelion.com>, Michael Clay <claym@osuosl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement vmi_kmap_atomic_pte in terms of the backend set_linear_mapping
-operation.  The conversion is rather straighforward; call kmap_atomic
-and then inform the hypervisor of the page mapping.
-
-The _flush_tlb damage is due to macros being pulled in from highmem.h.
+I got so sick of seing the check_region warnings from BusLogic.c I actually
+fixed it properly.  Never use check region, reserve it before the probe
+with request region instead and check the error result; free region if
+setup fails.  Should be functionally identical to the original except for
+fixing the potential race.
 
 From: Zachary Amsden <zach@vmware.com>
 Signed-off-by: Zachary Amsden <zach@vmware.com>
+CC: Lenoard N. Zubkoff <lnz@dandelion.com>
+CC: Michael Clay <claym@osuosl.org>
 
 ---
- arch/i386/kernel/vmi.c |   38 ++++++++++++++++++++++++--------------
- 1 file changed, 24 insertions(+), 14 deletions(-)
+ drivers/scsi/BusLogic.c |   73 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 48 insertions(+), 25 deletions(-)
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/vmi.c
-+++ b/arch/i386/kernel/vmi.c
-@@ -26,6 +26,7 @@
- #include <linux/cpu.h>
- #include <linux/bootmem.h>
- #include <linux/mm.h>
-+#include <linux/highmem.h>
- #include <asm/vmi.h>
- #include <asm/io.h>
- #include <asm/fixmap.h>
-@@ -65,8 +66,8 @@ static struct {
- 	void (*release_page)(u32, u32);
- 	void (*set_pte)(pte_t, pte_t *, unsigned);
- 	void (*update_pte)(pte_t *, unsigned);
--	void (*set_linear_mapping)(int, u32, u32, u32);
--	void (*flush_tlb)(int);
-+	void (*set_linear_mapping)(int, void *, u32, u32);
-+	void (*_flush_tlb)(int);
- 	void (*set_initial_ap_state)(int, int);
- 	void (*halt)(void);
-   	void (*set_lazy_mode)(int mode);
-@@ -217,12 +218,12 @@ static void vmi_load_esp0(struct tss_str
- =
-
- static void vmi_flush_tlb_user(void)
- {
--	vmi_ops.flush_tlb(VMI_FLUSH_TLB);
-+	vmi_ops._flush_tlb(VMI_FLUSH_TLB);
- }
- =
-
- static void vmi_flush_tlb_kernel(void)
- {
--	vmi_ops.flush_tlb(VMI_FLUSH_TLB | VMI_FLUSH_GLOBAL);
-+	vmi_ops._flush_tlb(VMI_FLUSH_TLB | VMI_FLUSH_GLOBAL);
- }
- =
-
- /* Stub to do nothing at all; used for delays and unimplemented calls */
-@@ -345,8 +346,11 @@ static void vmi_check_page_type(u32 pfn,
- #define vmi_check_page_type(p,t) do { } while (0)
- #endif
- =
-
--static void vmi_map_pt_hook(int type, pte_t *va, u32 pfn)
--{
-+#ifdef CONFIG_HIGHPTE
-+static void *vmi_kmap_atomic_pte(struct page *page, enum km_type type)
-+{
-+	void *va =3D kmap_atomic(page, type);
-+
+===================================================================
+--- a/drivers/scsi/BusLogic.c
++++ b/drivers/scsi/BusLogic.c
+@@ -579,17 +579,17 @@ static void __init BusLogic_InitializePr
  	/*
- 	 * Internally, the VMI ROM must map virtual addresses to physical
- 	 * addresses for processing MMU updates.  By the time MMU updates
-@@ -360,8 +364,11 @@ static void vmi_map_pt_hook(int type, pt
- 	 *  args:                 SLOT                 VA    COUNT PFN
+ 	   Append the list of standard BusLogic MultiMaster ISA I/O Addresses.
  	 */
- 	BUG_ON(type !=3D KM_PTE0 && type !=3D KM_PTE1);
--	vmi_ops.set_linear_mapping((type - KM_PTE0)+1, (u32)va, 1, pfn);
--}
-+	vmi_ops.set_linear_mapping((type - KM_PTE0)+1, va, 1, page_to_pfn(page));
-+
-+	return va;
-+}
-+#endif
- =
-
- static void vmi_allocate_pt(u32 pfn)
- {
-@@ -656,7 +663,7 @@ void vmi_bringup(void)
- {
-  	/* We must establish the lowmem mapping for MMU ops to work */
- 	if (vmi_ops.set_linear_mapping)
--		vmi_ops.set_linear_mapping(0, __PAGE_OFFSET, max_low_pfn, 0);
-+		vmi_ops.set_linear_mapping(0, (void *)__PAGE_OFFSET, max_low_pfn, 0);
+-	if (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe330 : check_region(0x330, BusLogic_MultiMasterAddressCount) == 0)
++	if (!BusLogic_ProbeOptions.LimitedProbeISA || BusLogic_ProbeOptions.Probe330)
+ 		BusLogic_AppendProbeAddressISA(0x330);
+-	if (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe334 : check_region(0x334, BusLogic_MultiMasterAddressCount) == 0)
++	if (!BusLogic_ProbeOptions.LimitedProbeISA || BusLogic_ProbeOptions.Probe334)
+ 		BusLogic_AppendProbeAddressISA(0x334);
+-	if (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe230 : check_region(0x230, BusLogic_MultiMasterAddressCount) == 0)
++	if (!BusLogic_ProbeOptions.LimitedProbeISA || BusLogic_ProbeOptions.Probe230)
+ 		BusLogic_AppendProbeAddressISA(0x230);
+-	if (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe234 : check_region(0x234, BusLogic_MultiMasterAddressCount) == 0)
++	if (!BusLogic_ProbeOptions.LimitedProbeISA || BusLogic_ProbeOptions.Probe234)
+ 		BusLogic_AppendProbeAddressISA(0x234);
+-	if (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe130 : check_region(0x130, BusLogic_MultiMasterAddressCount) == 0)
++	if (!BusLogic_ProbeOptions.LimitedProbeISA || BusLogic_ProbeOptions.Probe130)
+ 		BusLogic_AppendProbeAddressISA(0x130);
+-	if (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe134 : check_region(0x134, BusLogic_MultiMasterAddressCount) == 0)
++	if (!BusLogic_ProbeOptions.LimitedProbeISA || BusLogic_ProbeOptions.Probe134)
+ 		BusLogic_AppendProbeAddressISA(0x134);
  }
- =
-
- /*
-@@ -793,8 +800,8 @@ static inline int __init activate_vmi(vo
- 	para_wrap(set_lazy_mode, vmi_set_lazy_mode, set_lazy_mode, SetLazyMode);
- =
-
- 	/* user and kernel flush are just handled with different flags to FlushTL=
-B */
--	para_wrap(flush_tlb_user, vmi_flush_tlb_user, flush_tlb, FlushTLB);
--	para_wrap(flush_tlb_kernel, vmi_flush_tlb_kernel, flush_tlb, FlushTLB);
-+	para_wrap(flush_tlb_user, vmi_flush_tlb_user, _flush_tlb, FlushTLB);
-+	para_wrap(flush_tlb_kernel, vmi_flush_tlb_kernel, _flush_tlb, FlushTLB);
- 	para_fill(flush_tlb_single, InvalPage);
- =
-
- 	/*
-@@ -840,9 +847,12 @@ static inline int __init activate_vmi(vo
- 		paravirt_ops.release_pt =3D vmi_release_pt;
- 		paravirt_ops.release_pd =3D vmi_release_pd;
+ 
+@@ -795,7 +795,9 @@ static int __init BusLogic_InitializeMul
+ 	   host adapters are probed.
+ 	 */
+ 	if (!BusLogic_ProbeOptions.NoProbeISA)
+-		if (PrimaryProbeInfo->IO_Address == 0 && (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe330 : check_region(0x330, BusLogic_MultiMasterAddressCount) == 0)) {
++		if (PrimaryProbeInfo->IO_Address == 0 &&
++				(!BusLogic_ProbeOptions.LimitedProbeISA ||
++				 BusLogic_ProbeOptions.Probe330)) {
+ 			PrimaryProbeInfo->HostAdapterType = BusLogic_MultiMaster;
+ 			PrimaryProbeInfo->HostAdapterBusType = BusLogic_ISA_Bus;
+ 			PrimaryProbeInfo->IO_Address = 0x330;
+@@ -805,15 +807,25 @@ static int __init BusLogic_InitializeMul
+ 	   omitting the Primary I/O Address which has already been handled.
+ 	 */
+ 	if (!BusLogic_ProbeOptions.NoProbeISA) {
+-		if (!StandardAddressSeen[1] && (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe334 : check_region(0x334, BusLogic_MultiMasterAddressCount) == 0))
++		if (!StandardAddressSeen[1] &&
++				(!BusLogic_ProbeOptions.LimitedProbeISA ||
++				 BusLogic_ProbeOptions.Probe334))
+ 			BusLogic_AppendProbeAddressISA(0x334);
+-		if (!StandardAddressSeen[2] && (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe230 : check_region(0x230, BusLogic_MultiMasterAddressCount) == 0))
++		if (!StandardAddressSeen[2] &&
++				(!BusLogic_ProbeOptions.LimitedProbeISA ||
++				 BusLogic_ProbeOptions.Probe230))
+ 			BusLogic_AppendProbeAddressISA(0x230);
+-		if (!StandardAddressSeen[3] && (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe234 : check_region(0x234, BusLogic_MultiMasterAddressCount) == 0))
++		if (!StandardAddressSeen[3] &&
++				(!BusLogic_ProbeOptions.LimitedProbeISA ||
++				 BusLogic_ProbeOptions.Probe234))
+ 			BusLogic_AppendProbeAddressISA(0x234);
+-		if (!StandardAddressSeen[4] && (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe130 : check_region(0x130, BusLogic_MultiMasterAddressCount) == 0))
++		if (!StandardAddressSeen[4] &&
++				(!BusLogic_ProbeOptions.LimitedProbeISA ||
++				 BusLogic_ProbeOptions.Probe130))
+ 			BusLogic_AppendProbeAddressISA(0x130);
+-		if (!StandardAddressSeen[5] && (BusLogic_ProbeOptions.LimitedProbeISA ? BusLogic_ProbeOptions.Probe134 : check_region(0x134, BusLogic_MultiMasterAddressCount) == 0))
++		if (!StandardAddressSeen[5] &&
++				(!BusLogic_ProbeOptions.LimitedProbeISA ||
++				 BusLogic_ProbeOptions.Probe134))
+ 			BusLogic_AppendProbeAddressISA(0x134);
  	}
--#if 0
--	para_wrap(map_pt_hook, vmi_map_pt_hook, set_linear_mapping,
--		  SetLinearMapping);
-+
-+	/* Set linear is needed in all cases */
-+	vmi_ops.set_linear_mapping =3D vmi_get_function(VMI_CALL_SetLinearMapping=
-);
-+#ifdef CONFIG_HIGHPTE
-+	if (vmi_ops.set_linear_mapping)
-+		paravirt_ops.kmap_atomic_pte =3D vmi_kmap_atomic_pte;
- #endif
- =
-
  	/*
+@@ -2220,22 +2232,35 @@ static int __init BusLogic_init(void)
+ 		HostAdapter->PCI_Device = ProbeInfo->PCI_Device;
+ 		HostAdapter->IRQ_Channel = ProbeInfo->IRQ_Channel;
+ 		HostAdapter->AddressCount = BusLogic_HostAdapterAddressCount[HostAdapter->HostAdapterType];
++
++		/*
++		   Make sure region is free prior to probing.
++		 */
++		if (!request_region(HostAdapter->IO_Address, HostAdapter->AddressCount,
++					"BusLogic"))
++			continue;
+ 		/*
+ 		   Probe the Host Adapter.  If unsuccessful, abort further initialization.
+ 		 */
+-		if (!BusLogic_ProbeHostAdapter(HostAdapter))
++		if (!BusLogic_ProbeHostAdapter(HostAdapter)) {
++			release_region(HostAdapter->IO_Address, HostAdapter->AddressCount);
+ 			continue;
++		}
+ 		/*
+ 		   Hard Reset the Host Adapter.  If unsuccessful, abort further
+ 		   initialization.
+ 		 */
+-		if (!BusLogic_HardwareResetHostAdapter(HostAdapter, true))
++		if (!BusLogic_HardwareResetHostAdapter(HostAdapter, true)) {
++			release_region(HostAdapter->IO_Address, HostAdapter->AddressCount);
+ 			continue;
++		}
+ 		/*
+ 		   Check the Host Adapter.  If unsuccessful, abort further initialization.
+ 		 */
+-		if (!BusLogic_CheckHostAdapter(HostAdapter))
++		if (!BusLogic_CheckHostAdapter(HostAdapter)) {
++			release_region(HostAdapter->IO_Address, HostAdapter->AddressCount);
+ 			continue;
++		}
+ 		/*
+ 		   Initialize the Driver Options field if provided.
+ 		 */
+@@ -2247,16 +2272,6 @@ static int __init BusLogic_init(void)
+ 		 */
+ 		BusLogic_AnnounceDriver(HostAdapter);
+ 		/*
+-		   Register usage of the I/O Address range.  From this point onward, any
+-		   failure will be assumed to be due to a problem with the Host Adapter,
+-		   rather than due to having mistakenly identified this port as belonging
+-		   to a BusLogic Host Adapter.  The I/O Address range will not be
+-		   released, thereby preventing it from being incorrectly identified as
+-		   any other type of Host Adapter.
+-		 */
+-		if (!request_region(HostAdapter->IO_Address, HostAdapter->AddressCount, "BusLogic"))
+-			continue;
+-		/*
+ 		   Register the SCSI Host structure.
+ 		 */
+ 
+@@ -2280,6 +2295,12 @@ static int __init BusLogic_init(void)
+ 		   Acquire the System Resources necessary to use the Host Adapter, then
+ 		   Create the Initial CCBs, Initialize the Host Adapter, and finally
+ 		   perform Target Device Inquiry.
++
++		   From this point onward, any failure will be assumed to be due to a
++		   problem with the Host Adapter, rather than due to having mistakenly
++		   identified this port as belonging to a BusLogic Host Adapter.  The
++		   I/O Address range will not be released, thereby preventing it from
++		   being incorrectly identified as any other type of Host Adapter.
+ 		 */
+ 		if (BusLogic_ReadHostAdapterConfiguration(HostAdapter) &&
+ 		    BusLogic_ReportHostAdapterConfiguration(HostAdapter) &&
+@@ -3598,6 +3619,7 @@ static void __exit BusLogic_exit(void)
+ 
+ __setup("BusLogic=", BusLogic_Setup);
+ 
++#ifdef MODULE
+ static struct pci_device_id BusLogic_pci_tbl[] __devinitdata = {
+ 	{ PCI_VENDOR_ID_BUSLOGIC, PCI_DEVICE_ID_BUSLOGIC_MULTIMASTER,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+@@ -3607,6 +3629,7 @@ static struct pci_device_id BusLogic_pci
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+ 	{ }
+ };
++#endif
+ MODULE_DEVICE_TABLE(pci, BusLogic_pci_tbl);
+ 
+ module_init(BusLogic_init);
 
--- =
+-- 
