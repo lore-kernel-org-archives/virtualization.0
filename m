@@ -1,14 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 17/28] x86: cleanup arch/i386/kernel/cpu/mcheck/p4.c
-Date: Sat, 14 Apr 2007 13:42:11 -0700
-Message-ID: <20070414204924.649790791@goop.org>
+Subject: [PATCH 19/28] Dont implement native_kmap_atomic_pte for !HIGHPTE
+Date: Sat, 14 Apr 2007 13:42:13 -0700
+Message-ID: <20070414204924.796018144@goop.org>
 References: <20070414204154.871250608@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=i386-mcheck-p4-grotesque-and-needless-warning-fix.patch
+Content-Disposition: inline; filename=paravirt-kmap_atomic_pte-tidy.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,81 +21,92 @@ To: Andi Kleen <ak@suse.de>
 Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-No, just no.  You do not use goto to skip a code block.  You do not
-return an obvious variable from a singly-inlined function and give
-the function a return value.  You don't put unexplained comments
-about kmalloc in code which doesn't do dynamic allocation.  And
-you don't leave stray warnings around for no good reason.
-
-Also, when possible, it is better to use block scoped variables
-because gcc can sometime generate better code.
+Don't implement native_kmap_atomic_pte for !HIGHPTE case; it is never neede=
+d,
+never called, and leaving it in is just plain confusing.  Making it isolated
+to the config where it is used may help find bugs.
 
 From: Zachary Amsden <zach@vmware.com>
 Signed-off-by: Zachary Amsden <zach@vmware.com>
+Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- arch/i386/kernel/cpu/mcheck/p4.c |   16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ arch/i386/kernel/paravirt.c |    4 +---
+ include/asm-i386/highmem.h  |    5 -----
+ include/asm-i386/paravirt.h |    4 ++++
+ 3 files changed, 5 insertions(+), 8 deletions(-)
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/arch/i386/kernel/cpu/mcheck/p4.c
-+++ b/arch/i386/kernel/cpu/mcheck/p4.c
-@@ -124,12 +124,9 @@ static void intel_init_thermal(struct cp
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -318,9 +318,7 @@ struct paravirt_ops paravirt_ops =3D {
+ 	.ptep_get_and_clear =3D native_ptep_get_and_clear,
  =
 
+ #ifdef CONFIG_HIGHPTE
+-	.kmap_atomic_pte =3D native_kmap_atomic_pte,
+-#else
+-	.kmap_atomic_pte =3D paravirt_nop,
++	.kmap_atomic_pte =3D kmap_atomic,
+ #endif
  =
 
- /* P4/Xeon Extended MCE MSR retrieval, return 0 if unsupported */
--static inline int intel_get_extended_msrs(struct intel_mce_extended_msrs *=
-r)
-+static inline void intel_get_extended_msrs(struct intel_mce_extended_msrs =
-*r)
- {
- 	u32 h;
+ #ifdef CONFIG_X86_PAE
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/highmem.h
++++ b/include/asm-i386/highmem.h
+@@ -74,11 +74,6 @@ void *kmap_atomic_pfn(unsigned long pfn,
+ void *kmap_atomic_pfn(unsigned long pfn, enum km_type type);
+ struct page *kmap_atomic_to_page(void *ptr);
+ =
+
+-static inline void *native_kmap_atomic_pte(struct page *page, enum km_type=
+ type)
+-{
+-	return kmap_atomic(page, type);
+-}
 -
--	if (mce_num_extended_msrs =3D=3D 0)
--		goto done;
+ #ifndef CONFIG_PARAVIRT
+ #define kmap_atomic_pte(page, type)	kmap_atomic(page, type)
+ #endif
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -190,7 +190,9 @@ struct paravirt_ops
  =
 
- 	rdmsr (MSR_IA32_MCG_EAX, r->eax, h);
- 	rdmsr (MSR_IA32_MCG_EBX, r->ebx, h);
-@@ -141,12 +138,6 @@ static inline int intel_get_extended_msr
- 	rdmsr (MSR_IA32_MCG_ESP, r->esp, h);
- 	rdmsr (MSR_IA32_MCG_EFLAGS, r->eflags, h);
- 	rdmsr (MSR_IA32_MCG_EIP, r->eip, h);
--
--	/* can we rely on kmalloc to do a dynamic
--	 * allocation for the reserved registers?
--	 */
--done:
--	return mce_num_extended_msrs;
+  	pte_t (*ptep_get_and_clear)(pte_t *ptep);
+ =
+
++#ifdef CONFIG_HIGHPTE
+ 	void *(*kmap_atomic_pte)(struct page *page, enum km_type type);
++#endif
+ =
+
+ #ifdef CONFIG_X86_PAE
+ 	void (*set_pte_atomic)(pte_t *ptep, pte_t pteval);
+@@ -759,12 +761,14 @@ static inline void paravirt_release_pd(u
+ 	PVOP_VCALL1(release_pd, pfn);
  }
  =
 
- static fastcall void intel_machine_check(struct pt_regs * regs, long error=
-_code)
-@@ -155,7 +146,6 @@ static fastcall void intel_machine_check
- 	u32 alow, ahigh, high, low;
- 	u32 mcgstl, mcgsth;
- 	int i;
--	struct intel_mce_extended_msrs dbg;
++#ifdef CONFIG_HIGHPTE
+ static inline void *kmap_atomic_pte(struct page *page, enum km_type type)
+ {
+ 	unsigned long ret;
+ 	ret =3D PVOP_CALL2(unsigned long, kmap_atomic_pte, page, type);
+ 	return (void *)ret;
+ }
++#endif
  =
 
- 	rdmsr (MSR_IA32_MCG_STATUS, mcgstl, mcgsth);
- 	if (mcgstl & (1<<0))	/* Recoverable ? */
-@@ -164,7 +154,9 @@ static fastcall void intel_machine_check
- 	printk (KERN_EMERG "CPU %d: Machine Check Exception: %08x%08x\n",
- 		smp_processor_id(), mcgsth, mcgstl);
- =
-
--	if (intel_get_extended_msrs(&dbg)) {
-+	if (mce_num_extended_msrs > 0) {
-+		struct intel_mce_extended_msrs dbg;
-+		intel_get_extended_msrs(&dbg);
- 		printk (KERN_DEBUG "CPU %d: EIP: %08x EFLAGS: %08x\n",
- 			smp_processor_id(), dbg.eip, dbg.eflags);
- 		printk (KERN_DEBUG "\teax: %08x ebx: %08x ecx: %08x edx: %08x\n",
+ static inline void pte_update(struct mm_struct *mm, unsigned long addr,
+ 			      pte_t *ptep)
 
 -- =
