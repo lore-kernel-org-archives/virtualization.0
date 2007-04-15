@@ -1,31 +1,33 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
 Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem
  mappings
-Date: Sat, 14 Apr 2007 15:04:03 -0700
-Message-ID: <46214FD3.3080400@zytor.com>
+Date: Sun, 15 Apr 2007 11:46:12 +0200 (MEST)
+Message-ID: <Pine.LNX.4.61.0704151145410.15892@yvahk01.tjqt.qr>
 References: <20070414204154.871250608@goop.org> <20070414204924.125386443@goop.org>
+ <46214FD3.3080400@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751451AbXDNWFI@vger.kernel.org>
-In-Reply-To: <20070414204924.125386443@goop.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752801AbXDOJ66@vger.kernel.org>
+In-Reply-To: <46214FD3.3080400@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> -
-> +LOW_PAGES = 1<<(32-PAGE_SHIFT_asm)
-> +
 
-Again, for debugging... it would be interesting to replace this with:
+On Apr 14 2007 15:04, H. Peter Anvin wrote:
+>
+> Jeremy Fitzhardinge wrote:
+>> -
+>> +LOW_PAGES = 1<<(32-PAGE_SHIFT_asm)
+>> +
+>
+> Again, for debugging... it would be interesting to replace this with:
+>
+> LOW_PAGES = (0x100000000-__PAGE_OFFSET) >> PAGE_SHIFT_asm
 
-LOW_PAGES = (0x100000000-__PAGE_OFFSET) >> PAGE_SHIFT_asm
+LOW_PAGES = (0x100000000ULL - __PAGE_OFFSET) >> PAGE_SHIT_asm
 
-... to smoke out further problems; this will take the strict definition 
-of "lowmem" (modulo the pci region, which someone unwisely made 
-dynamically adjustable... which would have been fine if initramfs could 
-live in highmem, which it can't yet.)
 
-	-hpa
+Jan
+-- 
