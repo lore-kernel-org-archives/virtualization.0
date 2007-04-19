@@ -1,17 +1,15 @@
-From: Matt Mackall <mpm@selenic.com>
-Subject: Re: [patch 20/20] Add apply_to_page_range() which applies a
-	function to a pte range.
-Date: Thu, 19 Apr 2007 14:59:57 -0500
-Message-ID: <20070419195957.GF11115@waste.org>
-References: <20070404191151.009821039@goop.org>
-	<20070404191206.675793431@goop.org>
-	<20070405044133.GE4892@waste.org> <46149CC9.2070903@goop.org>
-	<20070417205652.GM11115@waste.org> <4627C6B9.7000605@goop.org>
+From: Chuck Ebbert <cebbert@redhat.com>
+Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem
+ mappings
+Date: Thu, 19 Apr 2007 16:47:56 -0400
+Message-ID: <4627D57C.4070809@redhat.com>
+References: <20070414204154.871250608@goop.org>
+	<20070414204924.125386443@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4627C6B9.7000605@goop.org>
+In-Reply-To: <20070414204924.125386443@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,27 +20,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Matt Mackall <mpm@waste.org>, Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christoph Lameter <clameter@sgi.com>, Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 19, 2007 at 12:44:57PM -0700, Jeremy Fitzhardinge wrote:
-> Matt Mackall wrote:
-> > I think adding a flags field and an allocate flag to my callback
-> > struct would be sufficient here.
-> >   
+Jeremy Fitzhardinge wrote:
+> head.S creates the very initial pagetable for the kernel.  This just
+> maps enough space for the kernel itself, and an allocation bitmap.
+> The amount of mapped memory is rounded up to 4Mbytes, and so this
+> typically ends up mapping 8Mbytes of memory.
 > 
-> Yes, probably.
+> When booting, pagetable_init() needs to create mappings for all
+> lowmem, and the pagetables for these mappings are allocated from the
+> free pages around the kernel in low memory.  If the number of
+> pagetable pages + kernel size exceeds head.S's initial mapping, it
+> will end up faulting on an unmapped page.  This will only happen with
+> specific combinations of kernel size and memory size.
 > 
-> What about something that wants to shatter superpages?
+> This patch makes sure that head.S also maps enough space to fit the
+> kernel pagetables as well as the kernel itself.  It ends up using an
+> additional two pages of unreclaimable memory.
+> 
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> Acked-by: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Andi Kleen <ak@suse.de>
+> Cc: Zachary Amsden <zach@vmware.com>
+> Cc: Chris Wright <chrisw@sous-sol.org>
+> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 
-Haven't thought a huge amount about that. Perhaps it's best done with
-the level 3 callback?
-
-> Don't know that that's a huge concern.  The typedef namespace (*_t) is
-> pretty empty, and its not like we're talking about something that's
-> visible outside the kernel.  And the syntax is *really* ugly.
-
-Don't really care about this much.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+Is some version of this going in for 2.6.21, or is it not a real problem?
