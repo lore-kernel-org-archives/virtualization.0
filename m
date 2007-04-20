@@ -1,15 +1,16 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [RFC, PATCH 2/5] Paravirt_ops patch bugs.patch
-Date: Thu, 19 Apr 2007 22:28:52 -0700
-Message-ID: <46284F94.7010901@vmware.com>
-References: <20070420015234.5D42EBFC@zach-dev2.vmware.com>
-	<46284406.2080007@goop.org> <46284AFB.1000307@vmware.com>
-	<46284D4C.1070007@goop.org>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [RFC,
+	PATCH 0/5] Paravirt: fix export of paravirt-ops to binary modules
+Date: Fri, 20 Apr 2007 11:34:41 +0200
+Message-ID: <200704201134.42116.ak@suse.de>
+References: <20070420015214.6834BBFC@zach-dev2.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46284D4C.1070007@goop.org>
+In-Reply-To: <20070420015214.6834BBFC@zach-dev2.vmware.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,89 +20,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, Petr Vandrovec <petr@vmware.com>, Chaz Masden <zamsden@gmail.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>
+To: virtualization@lists.linux-foundation.org
+Cc: Andrew Morton <akpm@osdl.org>, Petr Vandrovec <petr@vmware.com>, Chaz Masden <zamsden@gmail.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->   
->> Jeremy Fitzhardinge wrote:
->>     
->>> Zachary Amsden wrote:
->>>  
->>>       
->>>> Failing to patch because not enough space is available for a call or
->>>> jump
->>>> or because the site clobbers do not allow the target clobbers to fit is
->>>> a fatal error; it means the kernel can not be properly virtualized.
->>>>       
->>>>         
->>> No, that doesn't follow.  If the original site was:
->>>
->>> patchable_start:
->>>     push %eax
->>>     push %ecx
->>>     push %edx
->>>     call *paravirt_ops + thingy
->>>     pop
->>>     pop
->>>     pop
->>> patchable_end:
->>>
->>> then its perfectly OK to leave it as-is, even if the direct call's
->>> destination clobbers are mismatched.  If the patcher wants to generate a
->>> call to a C function in a context which can't deal with normal C calling
->>> conventions, then it needs to also patch in appropriate save/restores.
->>>   
->>>       
->> The example is a bit misconstrued.  In this case, the clobbers for the
->> patchable region are CLBR_ALL - so there is no possibility of mismatch
->> because of expanded clobber list.
->>     
->
-> In my example, it would be CLBR_NONE, meaning that the surrounding code
-> expects no registers to be clobbered.  We have constructions like this
-> for paravirt_ops calls in entry.S, in contexts where no clobbers are
-> acceptable, let alone normal C calls.
->
->   
->> If the patchable region consisted of this, it would be bad:
->>
->>    push %eax
->>    push %ecx
->> patchable_start:
->>    push %edx
->>    call *paravirt_ops + thingy
->>    pop
->> patchable_end: (note - site clobber EDX ok)
->>    pop
->>    pop
->>
->>
->> But, why would you do that?
->>     
->
-> We have done that in the past, to give the inlined code free access to
-> some scratch registers, but without clobbering everything.
->   
+On Friday 20 April 2007 03:52:14 Zachary Amsden wrote:
+> A clever set of manipulations allows us to fix binary modules with paravirt-ops
+> by just not exporting paravirt_ops at all and using the new patching code.
+> 
+> What do you think?  Experimental patches here... only partially tested, but
+> booting and appear to be a working prototype.
 
-Yes, we still do that, but..
+Basic idea looks good.
 
+But is the 5 argument support really needed? 	I don't see any paravirt 
+ops functions that needs it and even if there was one it still wouldn't be clear
+if it made sense to export it.
 
->> Calls through paravirt_ops function pointers are C function calls. 
->> Failing to provide a patchable region which can make a C function call
->> is a BUG().
->>     
->
-> That's not the case at the moment.
->   
-
-All of the patch sites can make C function calls, perhaps with fewer 
-clobbers.  If the implementation cannot fit a proper save / restore and 
-call to the C function into the allotted space, it still is a BUG().  If 
-it has unique clobber requirements which go beyond the patch site 
-clobbers, surely it can't use the generic patch code for those 
-operations.  But it still must have the space.
-
-Zach
+-Andi
