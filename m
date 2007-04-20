@@ -1,16 +1,16 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [RFC, PATCH 0/5] Paravirt: fix export of paravirt-ops to binary
  modules
-Date: Fri, 20 Apr 2007 14:33:22 -0700
-Message-ID: <462931A2.2060104@goop.org>
+Date: Fri, 20 Apr 2007 14:36:38 -0700
+Message-ID: <46293266.9020306@vmware.com>
 References: <20070420015214.6834BBFC@zach-dev2.vmware.com>
 	<200704201134.42116.ak@suse.de> <4628D64A.4070900@goop.org>
-	<46292FB2.5030404@vmware.com>
+	<46292FB2.5030404@vmware.com> <462931A2.2060104@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46292FB2.5030404@vmware.com>
+In-Reply-To: <462931A2.2060104@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,16 +20,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: Andrew Morton <akpm@osdl.org>, Petr Vandrovec <petr@vmware.com>, Chaz Masden <zamsden@gmail.com>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> Yes, I don't know either - but we should be consistent about their
-> export regardless of whether PAE is selected or not.  So we should
-> either have 5 arg macros or not export set_pte_at* at all, even in 4
-> arg version.
+Jeremy Fitzhardinge wrote:
+> Zachary Amsden wrote:
+>   
+>> Yes, I don't know either - but we should be consistent about their
+>> export regardless of whether PAE is selected or not.  So we should
+>> either have 5 arg macros or not export set_pte_at* at all, even in 4
+>> arg version.
+>>     
+>
+> So can you separately control exportability independently from patchability?
+>   
 
-So can you separately control exportability independently from patchability?
+Nope.  But I think we should maintain parity between PAE and non-PAE - 
+and probably also maintain parity between non-paravirt-ops and 
+paravirt-ops, which means the 5 arg macros are a good idea.  It's not 
+like they are very hard to create or maintain.
 
-    J
+Zach
