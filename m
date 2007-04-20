@@ -1,14 +1,13 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [RFC, PATCH 2/5] Paravirt_ops patch bugs.patch
-Date: Thu, 19 Apr 2007 22:09:15 -0700
-Message-ID: <46284AFB.1000307@vmware.com>
-References: <20070420015234.5D42EBFC@zach-dev2.vmware.com>
-	<46284406.2080007@goop.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [RFC, PATCH 5/5] Paravirt_ops export.patch
+Date: Thu, 19 Apr 2007 22:10:24 -0700
+Message-ID: <46284B40.5010106@goop.org>
+References: <20070420015304.74394BFC@zach-dev2.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46284406.2080007@goop.org>
+In-Reply-To: <20070420015304.74394BFC@zach-dev2.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,55 +17,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Zachary Amsden <zach@vmware.com>
 Cc: Andrew Morton <akpm@osdl.org>, Petr Vandrovec <petr@vmware.com>, Chaz Masden <zamsden@gmail.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->   
->> Failing to patch because not enough space is available for a call or jump
->> or because the site clobbers do not allow the target clobbers to fit is
->> a fatal error; it means the kernel can not be properly virtualized.
->>   
->>     
->
-> No, that doesn't follow.  If the original site was:
->
-> patchable_start:
->     push %eax
->     push %ecx
->     push %edx
->     call *paravirt_ops + thingy
->     pop
->     pop
->     pop
-> patchable_end:
->
-> then its perfectly OK to leave it as-is, even if the direct call's
-> destination clobbers are mismatched.  If the patcher wants to generate a
-> call to a C function in a context which can't deal with normal C calling
-> conventions, then it needs to also patch in appropriate save/restores.
+Zachary Amsden wrote:
+> Now that paravirt-ops is a fully patched, purely functional interface,
+> which appropriately generates bugs when patches fail to get applied,
+> it need no longer be exported to modules.  Modules will be patched at
+> load time, and need no boot time fallback which references paravirt-ops.
 >   
 
-The example is a bit misconstrued.  In this case, the clobbers for the 
-patchable region are CLBR_ALL - so there is no possibility of mismatch 
-because of expanded clobber list.  If the patchable region consisted of 
-this, it would be bad:
+Hm, OK, I see what you're getting at.
 
-    push %eax
-    push %ecx
-patchable_start:
-    push %edx
-    call *paravirt_ops + thingy
-    pop
-patchable_end: (note - site clobber EDX ok)
-    pop
-    pop
+I guess the BUG_ON()s need only fire if they're failing to patch over a
+ud2a instruction.
 
 
-But, why would you do that?
+I'm in two minds about this.  On the one hand, it's a clever hack which
+does achieve the desired outcome.  On the other hand, it turns an
+optimisation mechanism into a special-purpose ad-hoc linker which
+doesn't seem like quite the right way to go.  The conversion from "best
+effort, doing nothing is OK" to "doing nothing is a BUG" behaviour is a
+good indication of this.
 
-Calls through paravirt_ops function pointers are C function calls.  Failing to provide a patchable region which can make a C function call is a BUG().
-
-Zach
+    J
