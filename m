@@ -1,16 +1,10 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [RFC, PATCH 5/5] Paravirt_ops export.patch
-Date: Sun, 22 Apr 2007 10:31:18 -0700
-Message-ID: <462B9BE6.6040302@goop.org>
-References: <20070420015304.74394BFC@zach-dev2.vmware.com>	
-	<46284B40.5010106@goop.org>
-	<m1y7kkzdon.fsf@ebiederm.dsl.xmission.com>
-	<8a06f3d10704220959r16a78690ib1c90c56e4d1367@mail.gmail.com>
+From: "Socorro Buchanan" <chalfontgg@noos.fr>
+Subject: He nettie none initiative
+Date: Sun, 22 Apr 2007 21:26:09 +0200
+Message-ID: <001a01c78524$d852a440$05ef1184@SN302163810008>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8334152707314201362=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8a06f3d10704220959r16a78690ib1c90c56e4d1367@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,35 +12,80 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zamsden@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, Petr Vandrovec <petr@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>
+To: virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> Doing nothing is a BUG, even before this change.  If you can't patch
-> in a properly virtualizable substitute for a non-virtualizable
-> sequence, the kernel will not work.  The only way for the patching to
-> fail is for lack of space or failure to meet clobber constraints, both
-> of which would be fatal even without the patching.
+--===============8334152707314201362==
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0017_01C78524.D852A440"
 
-Could you give a specific example?  Because the intent is that if you do
-nothing (ie, don't apply patching at all), then you'll just end up with
-indirect calls which will be a bit expensive but completely functional. 
-The idea is that every time there's a paravirt call, it must be
-surrounded with push/pops to make the C call compatible with the
-callsite's register usage.  Or are you talking about something else?
+------=_NextPart_000_0017_01C78524.D852A440
+Content-Type: text/plain;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-> 2) You must support dynamic re-linking - the kernel has to boot and
-> use builtin native style operations before switching over to the
-> virtualized operations.  So you have to have some kind of jettisonable
-> early binding support.
 
-I don't think there's any particular reason we can't do this very early,
-at the same time we currently populate paravirt_ops.  I think the idea
-is that if you do nothing, the calls will all point to the native
-versions, so if you do the late-paravirtualization (do you still do
-that?) then you'll get native ops initially.
 
-    J
+
+
+Take adventage!!
+
+Target sym: ASVPPrice (current): $0.64 1 Day Target price: $1Action: =
+Strong Buy/Hold!!
+
+
+
+SOMEBODY KNOWS SOMETHING!
+
+
+virtualization, take a look at the hottest news, contact your brocker =
+now..
+
+
+
+------=_NextPart_000_0017_01C78524.D852A440
+Content-Type: text/html;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1252">
+<META content=3D"MSHTML 6.00.2900.2869" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D3D4><FONT =
+size=3D4><STRONG>Take adventage...</STRONG></FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3333 size=3D3>Target =
+sym: <b>ASVP</b><br>Price (current): $0.64 <br>1 Day Target price: =
+$1<br>Action: Strong Buy/Hold...</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#990033 size=3D2>SOMEBODY =
+KNOWS SOMETHING!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#000000 size=3D=
+2>virtualization, take a look at the hottest news, contact your brocker =
+now!!!</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0017_01C78524.D852A440--
+
+--===============8334152707314201362==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============8334152707314201362==--
