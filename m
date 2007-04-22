@@ -1,17 +1,14 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [RFC, PATCH 0/5] Paravirt: fix export of paravirt-ops to binary
- modules
-Date: Fri, 20 Apr 2007 16:02:45 -0700
-Message-ID: <46294695.4010307@vmware.com>
-References: <20070420015214.6834BBFC@zach-dev2.vmware.com>
-	<200704201134.42116.ak@suse.de> <4628D64A.4070900@goop.org>
-	<46292FB2.5030404@vmware.com> <462931A2.2060104@goop.org>
-	<46293266.9020306@vmware.com> <46294666.90008@goop.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [RFC, PATCH 5/5] Paravirt_ops export.patch
+Date: Sun, 22 Apr 2007 08:28:08 -0600
+Message-ID: <m1y7kkzdon.fsf@ebiederm.dsl.xmission.com>
+References: <20070420015304.74394BFC@zach-dev2.vmware.com>
+	<46284B40.5010106@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46294666.90008@goop.org>
+In-Reply-To: <46284B40.5010106@goop.org> (Jeremy Fitzhardinge's message of
+	"Thu, 19 Apr 2007 22:10:24 -0700")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,22 +19,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, Petr Vandrovec <petr@vmware.com>, Chaz Masden <zamsden@gmail.com>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Chaz Masden <zamsden@gmail.com>, Andi Kleen <ak@muc.de>, Petr Vandrovec <petr@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->   
->> Nope.  But I think we should maintain parity between PAE and non-PAE -
->> and probably also maintain parity between non-paravirt-ops and
->> paravirt-ops, which means the 5 arg macros are a good idea.  It's not
->> like they are very hard to create or maintain. 
->>     
+Jeremy Fitzhardinge <jeremy@goop.org> writes:
+
+> Hm, OK, I see what you're getting at.
 >
-> Yep.  Did you see the comment about not being able to use "rm" for arg4?
->   
+> I guess the BUG_ON()s need only fire if they're failing to patch over a
+> ud2a instruction.
+>
+>
+> I'm in two minds about this.  On the one hand, it's a clever hack which
+> does achieve the desired outcome.  On the other hand, it turns an
+> optimisation mechanism into a special-purpose ad-hoc linker which
+> doesn't seem like quite the right way to go.  The conversion from "best
+> effort, doing nothing is OK" to "doing nothing is a BUG" behaviour is a
+> good indication of this.
 
-Yes, thanks, I fixed that.  The I got lost in info gcc looking for a 
-non-stack memory constraint modifier, but it evaded me.
+Yes.  Has anyone thought more about David Miller's suggesting of just
+using the linker and not doing the fancy binary replacement?
 
-Zach
+Especially if you are beginning to reimplement the linker anyway.
+
+Eric
