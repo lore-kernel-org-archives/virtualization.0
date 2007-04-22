@@ -1,10 +1,17 @@
-From: "Socorro Buchanan" <chalfontgg@noos.fr>
-Subject: He nettie none initiative
-Date: Sun, 22 Apr 2007 21:26:09 +0200
-Message-ID: <001a01c78524$d852a440$05ef1184@SN302163810008>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC, PATCH 0/5] Paravirt: fix export of paravirt-ops to
+	binary modules
+Date: Mon, 23 Apr 2007 09:37:07 +1000
+Message-ID: <1177285027.17026.0.camel@localhost.localdomain>
+References: <20070420015214.6834BBFC@zach-dev2.vmware.com>
+	<200704201134.42116.ak@suse.de> <4628D64A.4070900@goop.org>
+	<46292FB2.5030404@vmware.com> <462931A2.2060104@goop.org>
+	<46293266.9020306@vmware.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8334152707314201362=="
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <46293266.9020306@vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -12,80 +19,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization <virtualization@lists.osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chaz Masden <zamsden@gmail.com>, Petr Vandrovec <petr@vmware.com>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============8334152707314201362==
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0017_01C78524.D852A440"
+On Fri, 2007-04-20 at 14:36 -0700, Zachary Amsden wrote:
+> Jeremy Fitzhardinge wrote:
+> > Zachary Amsden wrote:
+> >   
+> >> Yes, I don't know either - but we should be consistent about their
+> >> export regardless of whether PAE is selected or not.  So we should
+> >> either have 5 arg macros or not export set_pte_at* at all, even in 4
+> >> arg version.
+> >>     
+> >
+> > So can you separately control exportability independently from patchability?
+> >   
+> 
+> Nope.  But I think we should maintain parity between PAE and non-PAE - 
+> and probably also maintain parity between non-paravirt-ops and 
+> paravirt-ops, which means the 5 arg macros are a good idea.  It's not 
+> like they are very hard to create or maintain.
 
-------=_NextPart_000_0017_01C78524.D852A440
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Less exports good.  Consistency with all config options isn't a hard
+requirement: I'd be tempted not to export the pte functions.
 
-
-
-
-
-Take adventage!!
-
-Target sym: ASVPPrice (current): $0.64 1 Day Target price: $1Action: =
-Strong Buy/Hold!!
-
-
-
-SOMEBODY KNOWS SOMETHING!
-
-
-virtualization, take a look at the hottest news, contact your brocker =
-now..
-
-
-
-------=_NextPart_000_0017_01C78524.D852A440
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2900.2869" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D3D4><FONT =
-size=3D4><STRONG>Take adventage...</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3333 size=3D3>Target =
-sym: <b>ASVP</b><br>Price (current): $0.64 <br>1 Day Target price: =
-$1<br>Action: Strong Buy/Hold...</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990033 size=3D2>SOMEBODY =
-KNOWS SOMETHING!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000000 size=3D=
-2>virtualization, take a look at the hottest news, contact your brocker =
-now!!!</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0017_01C78524.D852A440--
-
---===============8334152707314201362==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============8334152707314201362==--
+Rusty.
