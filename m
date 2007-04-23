@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 25/25] xen: Xen machine operations
-Date: Mon, 23 Apr 2007 14:57:03 -0700
-Message-ID: <20070423215714.151360501@goop.org>
+Subject: [PATCH 13/25] xen: xen: lazy-mmu operations
+Date: Mon, 23 Apr 2007 14:56:51 -0700
+Message-ID: <20070423215711.742425039@goop.org>
 References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-machine-ops.patch
+Content-Disposition: inline; filename=xen-lazy-mmu.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,102 +18,196 @@ To: Andi Kleen <ak@suse.de>
 Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make the appropriate hypercalls to halt and reboot the virtual machine.
+This patch uses the lazy-mmu hooks to batch mmu operations where
+possible.  This is primarily useful for batching operations applied to
+active pagetables, which happens during mprotect, munmap, mremap and
+the like (mmap does not do bulk pagetable operations, so it isn't
+helped).
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- arch/i386/xen/enlighten.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- arch/i386/xen/smp.c       |    4 +---
- 2 files changed, 44 insertions(+), 3 deletions(-)
+ arch/i386/xen/enlighten.c  |   56 +++++++++++++++++++++++++++-----------------
+ arch/i386/xen/mmu.c        |   56 ++++++++++++++++++++++++++++++++------------
+ arch/i386/xen/multicalls.c |    4 +--
+ 3 files changed, 78 insertions(+), 38 deletions(-)
 
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -14,6 +14,7 @@
+@@ -451,28 +451,38 @@ static void xen_apic_write(unsigned long
  
- #include <xen/interface/xen.h>
- #include <xen/interface/vcpu.h>
-+#include <xen/interface/sched.h>
- #include <xen/features.h>
- #include <xen/page.h>
- 
-@@ -28,6 +29,7 @@
- #include <asm/pgtable.h>
- #include <asm/smp.h>
- #include <asm/tlbflush.h>
-+#include <asm/reboot.h>
- 
- #include "xen-ops.h"
- #include "mmu.h"
-@@ -787,6 +789,45 @@ static const struct smp_ops xen_smp_ops 
- };
- #endif	/* CONFIG_SMP */
- 
-+static void xen_reboot(int reason)
-+{
-+#ifdef CONFIG_SMP
-+	smp_send_stop();
-+#endif
-+
-+	if (HYPERVISOR_sched_op(SCHEDOP_shutdown, reason))
-+		BUG();
-+}
-+
-+static void xen_restart(char *msg)
-+{
-+	xen_reboot(SHUTDOWN_reboot);
-+}
-+
-+static void xen_emergency_restart(void)
-+{
-+	xen_reboot(SHUTDOWN_reboot);
-+}
-+
-+static void xen_machine_halt(void)
-+{
-+	xen_reboot(SHUTDOWN_poweroff);
-+}
-+
-+static void xen_crash_shutdown(struct pt_regs *regs)
-+{
-+	xen_reboot(SHUTDOWN_crash);
-+}
-+
-+static const struct machine_ops __initdata xen_machine_ops = {
-+	.restart = xen_restart,
-+	.halt = xen_machine_halt,
-+	.power_off = xen_machine_halt,
-+	.shutdown = xen_machine_halt,
-+	.crash_shutdown = xen_crash_shutdown,
-+	.emergency_restart = xen_emergency_restart,
-+};
-+
- /* First C function to be called on Xen boot */
- static asmlinkage void __init xen_start_kernel(void)
+ static void xen_flush_tlb(void)
  {
-@@ -800,6 +841,8 @@ static asmlinkage void __init xen_start_
- 
- 	/* Install Xen paravirt ops */
- 	paravirt_ops = xen_paravirt_ops;
-+	machine_ops = xen_machine_ops;
+-	struct mmuext_op op;
+-
+-	op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
 +
- #ifdef CONFIG_SMP
- 	smp_ops = xen_smp_ops;
- #endif
-===================================================================
---- a/arch/i386/xen/smp.c
-+++ b/arch/i386/xen/smp.c
-@@ -303,9 +303,7 @@ static void stop_self(void *v)
- 
- void xen_smp_send_stop(void)
- {
--	cpumask_t mask = cpu_online_map;
--	cpu_clear(smp_processor_id(), mask);
--	xen_smp_call_function_mask(mask, stop_self, NULL, 0);
-+	smp_call_function(stop_self, NULL, 0, 0);
++	op = mcs.args;
++	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
  }
  
- void xen_smp_send_reschedule(int cpu)
+ static void xen_flush_tlb_single(unsigned long addr)
+ {
+-	struct mmuext_op op;
+-
+-	op.cmd = MMUEXT_INVLPG_LOCAL;
+-	op.arg1.linear_addr = addr & PAGE_MASK;
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
++
++	op = mcs.args;
++	op->cmd = MMUEXT_INVLPG_LOCAL;
++	op->arg1.linear_addr = addr & PAGE_MASK;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
+ 
+ static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
+ 				 unsigned long va)
+ {
+-	struct mmuext_op op;
++	struct {
++		struct mmuext_op op;
++		cpumask_t mask;
++	} *args;
+ 	cpumask_t cpumask = *cpus;
++	struct multicall_space mcs;
+ 
+ 	/*
+ 	 * A couple of (to be removed) sanity checks:
+@@ -489,17 +499,21 @@ static void xen_flush_tlb_others(const c
+ 	if (cpus_empty(cpumask))
+ 		return;
+ 
++	mcs = xen_mc_entry(sizeof(*args));
++	args = mcs.args;
++	args->mask = cpumask;
++	args->op.arg2.vcpumask = &args->mask;
++
+ 	if (va == TLB_FLUSH_ALL) {
+-		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
+-		op.arg2.vcpumask = (void *)cpus;
++		args->op.cmd = MMUEXT_TLB_FLUSH_MULTI;
+ 	} else {
+-		op.cmd = MMUEXT_INVLPG_MULTI;
+-		op.arg1.linear_addr = va;
+-		op.arg2.vcpumask = (void *)cpus;
+-	}
+-
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++		args->op.cmd = MMUEXT_INVLPG_MULTI;
++		args->op.arg1.linear_addr = va;
++	}
++
++	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
+ 
+ static unsigned long xen_read_cr2(void)
+===================================================================
+--- a/arch/i386/xen/mmu.c
++++ b/arch/i386/xen/mmu.c
+@@ -56,12 +56,20 @@ void make_lowmem_page_readwrite(void *va
+ 
+ void xen_set_pmd(pmd_t *ptr, pmd_t val)
+ {
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pmd_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	struct multicall_space mcs;
++	struct mmu_update *u;
++
++	preempt_disable();
++
++	mcs = xen_mc_entry(sizeof(*u));
++	u = mcs.args;
++	u->ptr = virt_to_machine(ptr).maddr;
++	u->val = pmd_val_ma(val);
++	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
++
++	preempt_enable();
+ }
+ 
+ /*
+@@ -104,20 +112,38 @@ void xen_set_pte_at(struct mm_struct *mm
+ void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
+ 		    pte_t *ptep, pte_t pteval)
+ {
+-	if ((mm != current->mm && mm != &init_mm) ||
+-	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
+-		xen_set_pte(ptep, pteval);
++	if (mm == current->mm || mm == &init_mm) {
++		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
++			struct multicall_space mcs;
++			mcs = xen_mc_entry(0);
++
++			MULTI_update_va_mapping(mcs.mc, addr, pteval, 0);
++			xen_mc_issue(PARAVIRT_LAZY_MMU);
++			return;
++		} else
++			if (HYPERVISOR_update_va_mapping(addr, pteval, 0) == 0)
++				return;
++	}
++	xen_set_pte(ptep, pteval);
+ }
+ 
+ #ifdef CONFIG_X86_PAE
+ void xen_set_pud(pud_t *ptr, pud_t val)
+ {
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pud_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	struct multicall_space mcs;
++	struct mmu_update *u;
++
++	preempt_disable();
++
++	mcs = xen_mc_entry(sizeof(*u));
++	u = mcs.args;
++	u->ptr = virt_to_machine(ptr).maddr;
++	u->val = pud_val_ma(val);
++	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
++
++	preempt_enable();
+ }
+ 
+ void xen_set_pte(pte_t *ptep, pte_t pte)
+===================================================================
+--- a/arch/i386/xen/multicalls.c
++++ b/arch/i386/xen/multicalls.c
+@@ -5,8 +5,8 @@
+ 
+ #include "multicalls.h"
+ 
+-#define MC_BATCH	8
+-#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
++#define MC_BATCH	32
++#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
+ 
+ struct mc_buffer {
+ 	struct multicall_entry entries[MC_BATCH];
 
 -- 
