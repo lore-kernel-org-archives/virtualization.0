@@ -1,20 +1,11 @@
-From: Andi Kleen <ak@muc.de>
-Subject: Re: [RFC, PATCH 5/5] Paravirt_ops export.patch
-Date: 24 Apr 2007 00:29:49 +0200
-Message-ID: <20070423222949.GA73244@muc.de>
-References: <20070420015304.74394BFC@zach-dev2.vmware.com>
-	<46284B40.5010106@goop.org>
-	<m1y7kkzdon.fsf@ebiederm.dsl.xmission.com>
-	<8a06f3d10704220959r16a78690ib1c90c56e4d1367@mail.gmail.com>
-	<462B9BE6.6040302@goop.org> <462D1CBC.6050405@vmware.com>
-	<462D252D.5090008@goop.org> <462D2AF9.9010609@vmware.com>
-	<462D300C.8000700@goop.org> <462D3219.9080301@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH 03/25] xen: Add nosegneg capability to the vsyscall page
+	notes
+Date: Mon, 23 Apr 2007 14:56:41 -0700
+Message-ID: <20070423215709.802499615@goop.org>
+References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Date: Tue, 24 Apr 2007 00:29:49 +0200
-Content-Disposition: inline
-In-Reply-To: <462D3219.9080301@vmware.com>
+Content-Disposition: inline; filename=xen-vsyscall-note.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,12 +15,63 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zamsden@gmail.com>, Petr Vandrovec <petr@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ulrich Drepper <drepper@redhat.com>, Roland McGrath <roland@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> So, Rusty, back to splitting exports or just EXPORT_SYMBOL the thing?
+Add the "nosegneg" fake capabilty to the vsyscall page notes. This is
+used by the runtime linker to select a glibc version which then
+disables negative-offset accesses to the thread-local segment via
+%gs. These accesses require emulation in Xen (because segments are
+truncated to protect the hypervisor address space) and avoiding them
+provides a measurable performance boost.
 
-I already exported it here, but I would prefer if it was split too.
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Acked-by: Zachary Amsden <zach@vmware.com>
+Cc: Roland McGrath <roland@redhat.com>
+Cc: Ulrich Drepper <drepper@redhat.com>
 
--Andi
+---
+ arch/i386/kernel/vsyscall-note.S |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+===================================================================
+--- a/arch/i386/kernel/vsyscall-note.S
++++ b/arch/i386/kernel/vsyscall-note.S
+@@ -23,3 +24,31 @@ 3:	.balign 4;		/* pad out section */			 
+ 	ASM_ELF_NOTE_BEGIN(".note.kernel-version", "a", UTS_SYSNAME, 0)
+ 	.long LINUX_VERSION_CODE
+ 	ASM_ELF_NOTE_END
++
++#ifdef CONFIG_XEN
++/*
++ * Add a special note telling glibc's dynamic linker a fake hardware
++ * flavor that it will use to choose the search path for libraries in the
++ * same way it uses real hardware capabilities like "mmx".
++ * We supply "nosegneg" as the fake capability, to indicate that we
++ * do not like negative offsets in instructions using segment overrides,
++ * since we implement those inefficiently.  This makes it possible to
++ * install libraries optimized to avoid those access patterns in someplace
++ * like /lib/i686/tls/nosegneg.  Note that an /etc/ld.so.conf.d/file
++ * corresponding to the bits here is needed to make ldconfig work right.
++ * It should contain:
++ *	hwcap 0 nosegneg
++ * to match the mapping of bit to name that we give here.
++ */
++#define NOTE_KERNELCAP_BEGIN(ncaps, mask) \
++	ASM_ELF_NOTE_BEGIN(".note.kernelcap", "a", "GNU", 2) \
++	.long ncaps, mask
++#define NOTE_KERNELCAP(bit, name) \
++	.byte bit; .asciz name
++#define NOTE_KERNELCAP_END ASM_ELF_NOTE_END
++
++NOTE_KERNELCAP_BEGIN(1, 2)
++NOTE_KERNELCAP(1, "nosegneg")
++NOTE_KERNELCAP_END
++#endif
++
+
+-- 
