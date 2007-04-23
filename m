@@ -1,11 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 16/25] xen: Use the hvc console infrastructure for Xen
-	console
-Date: Mon, 23 Apr 2007 14:56:54 -0700
-Message-ID: <20070423215712.328111104@goop.org>
+Subject: [PATCH 15/25] xen: xen time fixups
+Date: Mon, 23 Apr 2007 14:56:53 -0700
+Message-ID: <20070423215712.134951673@goop.org>
 References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-hvc-console.patch
+Content-Disposition: inline; filename=xen-time-fixups.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,217 +18,233 @@ To: Andi Kleen <ak@suse.de>
 Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement a Xen back-end for hvc console.
+1. make sure timer state is set up before bringing up CPU
+2. make sure snapshot of 64-bit time values is atomic
 
-From: Gerd Hoffmann <kraxel@suse.de>
+Be sure, however, that the clockevent source is registered on its home
+CPU.
+
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- arch/i386/xen/Kconfig     |    1 
- arch/i386/xen/events.c    |    3 -
- drivers/Makefile          |    3 +
- drivers/xen/Makefile      |    1 
- drivers/xen/hvc-console.c |  134 +++++++++++++++++++++++++++++++++++++++++++++
- include/xen/events.h      |    1 
- 6 files changed, 142 insertions(+), 1 deletion(-)
+ arch/i386/xen/smp.c     |    4 +-
+ arch/i386/xen/time.c    |   93 +++++++++++++++++++++++++++++++----------------
+ arch/i386/xen/xen-ops.h |    3 +
+ 3 files changed, 67 insertions(+), 33 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/Kconfig
-+++ b/arch/i386/xen/Kconfig
-@@ -5,6 +5,7 @@ config XEN
- config XEN
- 	bool "Enable support for Xen hypervisor"
- 	depends on PARAVIRT
-+	select HVC_DRIVER
- 	default y
- 	help
- 	  This is the Linux Xen port.
+--- a/arch/i386/xen/smp.c
++++ b/arch/i386/xen/smp.c
+@@ -78,10 +78,11 @@ static __cpuinit void cpu_bringup_and_id
+ 	int cpu = smp_processor_id();
+ 
+ 	cpu_init();
+-	xen_setup_timer();
+ 
+ 	preempt_disable();
+ 	per_cpu(cpu_state, cpu) = CPU_ONLINE;
++
++	xen_setup_cpu_clockevents();
+ 
+ 	/* We can take interrupts now: we're officially "up". */
+ 	local_irq_enable();
+@@ -275,6 +276,7 @@ int __cpuinit xen_cpu_up(unsigned int cp
+ 	per_cpu(current_task, cpu) = idle;
+ 	xen_vcpu_setup(cpu);
+ 	irq_ctx_init(cpu);
++	xen_setup_timer(cpu);
+ 
+ 	/* make sure interrupts start blocked */
+ 	per_cpu(xen_vcpu, cpu)->evtchn_upcall_mask = 1;
 ===================================================================
---- a/arch/i386/xen/events.c
-+++ b/arch/i386/xen/events.c
-@@ -219,7 +219,7 @@ static int find_unbound_irq(void)
- 	return irq;
+--- a/arch/i386/xen/time.c
++++ b/arch/i386/xen/time.c
+@@ -40,6 +40,35 @@ static DEFINE_PER_CPU(u64, residual_stol
+ static DEFINE_PER_CPU(u64, residual_stolen);
+ static DEFINE_PER_CPU(u64, residual_blocked);
+ 
++/* return an consistent snapshot of 64-bit time/counter value */
++static u64 get64(const u64 *p)
++{
++	u64 ret;
++
++	if (BITS_PER_LONG < 64) {
++		u32 *p32 = (u32 *)p;
++		u32 h, l;
++
++		/*
++		 * Read high then low, and then make sure high is
++		 * still the same; this will only loop if low wraps
++		 * and carries into high.
++		 * XXX some clean way to make this endian-proof?
++		 */
++		do {
++			h = p32[1];
++			barrier();
++			l = p32[0];
++			barrier();
++		} while (p32[1] != h);
++
++		ret = (((u64)h) << 32) | l;
++	} else
++		ret = *p;
++
++	return ret;
++}
++
+ /*
+  * Runstate accounting
+  */
+@@ -53,24 +82,22 @@ static void get_runstate_snapshot(struct
+ 	state = &__get_cpu_var(runstate);
+ 
+ 	do {
+-		state_time = state->state_entry_time;
++		state_time = get64(&state->state_entry_time);
+ 		barrier();
+ 		*res = *state;
+ 		barrier();
+-	} while(state->state_entry_time != state_time);
+-}
+-
+-static void setup_runstate_info(void)
++	} while(get64(&state->state_entry_time) != state_time);
++}
++
++static void setup_runstate_info(int cpu)
+ {
+ 	struct vcpu_register_runstate_memory_area area;
+ 
+-	area.addr.v = &__get_cpu_var(runstate);
++	area.addr.v = &per_cpu(runstate, cpu);
+ 
+ 	if (HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area,
+-			       smp_processor_id(), &area))
++			       cpu, &area))
+ 		BUG();
+-
+-	get_runstate_snapshot(&__get_cpu_var(runstate_snapshot));
  }
  
--static int bind_evtchn_to_irq(unsigned int evtchn)
-+int bind_evtchn_to_irq(unsigned int evtchn)
+ static void do_stolen_accounting(void)
+@@ -185,12 +212,10 @@ unsigned long xen_cpu_khz(void)
+  * Reads a consistent set of time-base values from Xen, into a shadow data
+  * area.
+  */
+-static void get_time_values_from_xen(void)
++static unsigned get_time_values_from_xen(void)
  {
+ 	struct vcpu_time_info   *src;
+ 	struct shadow_time_info *dst;
+-
+-	preempt_disable();
+ 
+ 	src = &__get_cpu_var(xen_vcpu)->time;
+ 	dst = &__get_cpu_var(shadow_time);
+@@ -205,7 +230,7 @@ static void get_time_values_from_xen(voi
+ 		rmb();
+ 	} while ((src->version & 1) | (dst->version ^ src->version));
+ 
+-	preempt_enable();
++	return dst->version;
+ }
+ 
+ /*
+@@ -249,7 +274,7 @@ static u64 get_nsec_offset(struct shadow
+ static u64 get_nsec_offset(struct shadow_time_info *shadow)
+ {
+ 	u64 now, delta;
+-	rdtscll(now);
++	now = native_read_tsc();
+ 	delta = now - shadow->tsc_timestamp;
+ 	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
+ }
+@@ -258,10 +283,14 @@ static cycle_t xen_clocksource_read(void
+ {
+ 	struct shadow_time_info *shadow = &get_cpu_var(shadow_time);
+ 	cycle_t ret;
+-
+-	get_time_values_from_xen();
+-
+-	ret = shadow->system_timestamp + get_nsec_offset(shadow);
++	unsigned version;
++
++	do {
++		version = get_time_values_from_xen();
++		barrier();
++		ret = shadow->system_timestamp + get_nsec_offset(shadow);
++		barrier();
++	} while(version != __get_cpu_var(xen_vcpu)->time.version);
+ 
+ 	put_cpu_var(shadow_time);
+ 
+@@ -483,9 +512,8 @@ static irqreturn_t xen_timer_interrupt(i
+ 	return ret;
+ }
+ 
+-void xen_setup_timer(void)
+-{
+-	int cpu = smp_processor_id();
++void xen_setup_timer(int cpu)
++{
+ 	const char *name;
+ 	struct clock_event_device *evt;
  	int irq;
+@@ -500,23 +528,25 @@ void xen_setup_timer(void)
+ 				      IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
+ 				      name, NULL);
  
-@@ -244,6 +244,7 @@ static int bind_evtchn_to_irq(unsigned i
+-	evt = &get_cpu_var(xen_clock_events);
++	evt = &per_cpu(xen_clock_events, cpu);
+ 	memcpy(evt, xen_clockevent, sizeof(*evt));
  
- 	return irq;
+ 	evt->cpumask = cpumask_of_cpu(cpu);
+ 	evt->irq = irq;
+-	clockevents_register_device(evt);
+-
+-	setup_runstate_info();
+-
+-	put_cpu_var(xen_clock_events);
++
++	setup_runstate_info(cpu);
++}
++
++void xen_setup_cpu_clockevents(void)
++{
++	BUG_ON(preemptible());
++
++	clockevents_register_device(&__get_cpu_var(xen_clock_events));
  }
-+EXPORT_SYMBOL_GPL(bind_evtchn_to_irq);
  
- static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
+ __init void xen_time_init(void)
  {
-===================================================================
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -14,6 +14,9 @@ obj-$(CONFIG_ACPI)		+= acpi/
- # was used and do nothing if so
- obj-$(CONFIG_PNP)		+= pnp/
- obj-$(CONFIG_ARM_AMBA)		+= amba/
-+
-+# Xen is the default console when running as a guest
-+obj-$(CONFIG_XEN)		+= xen/
+ 	int cpu = smp_processor_id();
+-
+-	get_time_values_from_xen();
  
- # char/ comes before serial/ etc so that the VT console is the boot-time
- # default.
-===================================================================
---- /dev/null
-+++ b/drivers/xen/Makefile
-@@ -0,0 +1,1 @@
-+obj-y	+= hvc-console.o
-===================================================================
---- /dev/null
-+++ b/drivers/xen/hvc-console.c
-@@ -0,0 +1,134 @@
-+/*
-+ * xen console driver interface to hvc_console.c
-+ *
-+ * (c) 2007 Gerd Hoffmann <kraxel@suse.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-+ */
-+
-+#include <linux/console.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/init.h>
-+#include <linux/types.h>
-+
-+#include <asm/xen/hypervisor.h>
-+#include <xen/page.h>
-+#include <xen/events.h>
-+#include <xen/interface/io/console.h>
-+
-+#include "../char/hvc_console.h"
-+
-+#define HVC_COOKIE   0x58656e /* "Xen" in hex */
-+
-+static struct hvc_struct *hvc;
-+static int xencons_irq;
-+
-+/* ------------------------------------------------------------------ */
-+
-+static inline struct xencons_interface *xencons_interface(void)
-+{
-+	return mfn_to_virt(xen_start_info->console.domU.mfn);
-+}
-+
-+static inline void notify_daemon(void)
-+{
-+	/* Use evtchn: this is called early, before irq is set up. */
-+	notify_remote_via_evtchn(xen_start_info->console.domU.evtchn);
-+}
-+
-+static int write_console(uint32_t vtermno, const char *data, int len)
-+{
-+	struct xencons_interface *intf = xencons_interface();
-+	XENCONS_RING_IDX cons, prod;
-+	int sent = 0;
-+
-+	cons = intf->out_cons;
-+	prod = intf->out_prod;
-+	mb();
-+	BUG_ON((prod - cons) > sizeof(intf->out));
-+
-+	while ((sent < len) && ((prod - cons) < sizeof(intf->out)))
-+		intf->out[MASK_XENCONS_IDX(prod++, intf->out)] = data[sent++];
-+
-+	wmb();
-+	intf->out_prod = prod;
-+
-+	notify_daemon();
-+	return sent;
-+}
-+
-+static int read_console(uint32_t vtermno, char *buf, int len)
-+{
-+	struct xencons_interface *intf = xencons_interface();
-+	XENCONS_RING_IDX cons, prod;
-+	int recv = 0;
-+
-+	cons = intf->in_cons;
-+	prod = intf->in_prod;
-+	mb();
-+	BUG_ON((prod - cons) > sizeof(intf->in));
-+
-+	while (cons != prod && recv < len)
-+		buf[recv++] = intf->in[MASK_XENCONS_IDX(cons++,intf->in)];
-+
-+	mb();
-+	intf->in_cons = cons;
-+
-+	notify_daemon();
-+	return recv;
-+}
-+
-+static struct hv_ops hvc_ops = {
-+	.get_chars = read_console,
-+	.put_chars = write_console,
-+};
-+
-+static int __init xen_init(void)
-+{
-+	struct hvc_struct *hp;
-+
-+	if (!is_running_on_xen())
-+		return 0;
-+
-+	xencons_irq = bind_evtchn_to_irq(xen_start_info->console.domU.evtchn);
-+	if (xencons_irq < 0)
-+		xencons_irq = 0 /* NO_IRQ */;
-+	hp = hvc_alloc(HVC_COOKIE, xencons_irq, &hvc_ops, 256);
-+	if (IS_ERR(hp))
-+		return PTR_ERR(hp);
-+
-+	hvc = hp;
-+	return 0;
-+}
-+
-+static void __exit xen_fini(void)
-+{
-+	if (hvc)
-+		hvc_remove(hvc);
-+}
-+
-+static int xen_cons_init(void)
-+{
-+	if (!is_running_on_xen())
-+		return 0;
-+
-+	hvc_instantiate(HVC_COOKIE, 0, &hvc_ops);
-+	return 0;
-+}
-+
-+module_init(xen_init);
-+module_exit(xen_fini);
-+console_initcall(xen_cons_init);
-===================================================================
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -13,6 +13,7 @@ enum ipi_vector {
- 	XEN_NR_IPIS,
- };
+ 	clocksource_register(&xen_clocksource);
  
-+int bind_evtchn_to_irq(unsigned int evtchn);
- int bind_evtchn_to_irqhandler(unsigned int evtchn,
- 			      irq_handler_t handler,
- 			      unsigned long irqflags, const char *devname,
+@@ -534,5 +564,6 @@ __init void xen_time_init(void)
+ 
+ 	tsc_disable = 0;
+ 
+-	xen_setup_timer();
+-}
++	xen_setup_timer(cpu);
++	xen_setup_cpu_clockevents();
++}
+===================================================================
+--- a/arch/i386/xen/xen-ops.h
++++ b/arch/i386/xen/xen-ops.h
+@@ -25,7 +25,8 @@ unsigned long xen_get_wallclock(void);
+ unsigned long xen_get_wallclock(void);
+ int xen_set_wallclock(unsigned long time);
+ unsigned long long xen_sched_clock(void);
+-void xen_setup_timer(void);
++void xen_setup_timer(int cpu);
++void xen_setup_cpu_clockevents(void);
+ 
+ void xen_mark_init_mm_pinned(void);
+ 
 
 -- 
