@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 11/25] xen: Xen SMP guest support
-Date: Mon, 23 Apr 2007 14:56:49 -0700
-Message-ID: <20070423215711.197402369@goop.org>
+Subject: [PATCH 07/25] xen: Complete pagetable pinning for Xen
+Date: Mon, 23 Apr 2007 14:56:45 -0700
+Message-ID: <20070423215710.515092096@goop.org>
 References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-smp.patch
+Content-Disposition: inline; filename=xen-pinned-pagetables.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,1181 +15,790 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Benjamin LaHaise <bcrl@kvack.org>, Ingo Molnar <mingo@redhat.com>, lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a fairly straightforward Xen implementation of smp_ops.  One
-thing this must to is carefully set up all the various sibling and
-core maps so that the smp scheduler setup works properly (the setup is
-very simple, since vcpus don't have any siblings or multiple cores).
+Xen has a notion of pinned pagetables, which are pagetables that
+remain read-only to the guest and are validated by the hypervisor.
+This makes context switches much cheaper, because the hypervisor
+doesn't need to revalidate the pagetable each time.
 
-Xen has its own IPI mechanisms, and has no dependency on any
-APIC-based IPI.  The smp_ops hooks and the flush_tlb_others pv_op
-allow a Xen guest to avoid all APIC code in arch/i386 (the only apic
-operation is a single apic_read for the apic version number).
+This patch adds a PG_pinned flag for pagetable pages so we can tell if
+it has been pinned or not.  This allows various pagetable update
+optimisations.
 
-One subtle point which needs to be addressed is unpinning pagetables
-when another cpu may have a lazy tlb reference to the pagetable. Xen
-will not allow an in-use pagetable to be unpinned, so we must find any
-other cpus with a reference to the pagetable and get them to shoot
-down their references.
+This also adds a mm parameter to the alloc_pt pv_op, so that Xen can
+see if we're adding a page to a pinned pagetable.  This is not
+necessary for alloc_pd or release_p[dt], which is fortunate because it
+isn't available at all callsites.
+
+This also adds a new paravirt hook which is called during setup once
+the zones and memory allocator have been initialized.  When the
+init_mm pagetable is first built, the struct page array does not yet
+exist, and so there's nowhere to put he init_mm pagetable's PG_pinned
+flags.  Once the zones are initialized and the struct page array
+exists, we can set the PG_pinned flags for those pages.
+
+This patch also adds the Xen support for pte pages allocated out of
+highmem (highpte), principly by implementing xen_kmap_atomic_pte.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Andi Kleen <ak@suse.de>
+Cc: Zach Amsden <zach@vmware.com>
 
 ---
- arch/i386/kernel/smp.c                             |   16 
- arch/i386/kernel/smpboot.c                         |    4 
- arch/i386/xen/Makefile                             |    6 
- arch/i386/xen/enlighten.c                          |  118 ++++-
- arch/i386/xen/events.c                             |   78 +++
- arch/i386/xen/mmu.c                                |   66 ++-
- arch/i386/xen/mmu.h                                |    9 
- arch/i386/xen/setup.c                              |    9 
- arch/i386/xen/smp.c                                |  419 ++++++++++++++++++++
- arch/i386/xen/time.c                               |    9 
- arch/i386/xen/xen-ops.h                            |   25 +
- include/asm-i386/mach-default/irq_vectors_limits.h |    2 
- include/asm-i386/mmu_context.h                     |   17 
- include/asm-i386/processor.h                       |    1 
- include/asm-i386/smp.h                             |    2 
- include/xen/events.h                               |   27 +
- 16 files changed, 730 insertions(+), 78 deletions(-)
+ arch/i386/kernel/setup.c    |    3 
+ arch/i386/kernel/vmi.c      |    2 
+ arch/i386/mm/init.c         |    2 
+ arch/i386/mm/pageattr.c     |    2 
+ arch/i386/xen/enlighten.c   |  105 +++++++++++-----
+ arch/i386/xen/mmu.c         |  280 +++++++++++++++++++++++++++----------------
+ arch/i386/xen/mmu.h         |    2 
+ arch/i386/xen/xen-ops.h     |    2 
+ include/asm-i386/paravirt.h |   16 +-
+ include/asm-i386/pgalloc.h  |    6 
+ include/asm-i386/setup.h    |    4 
+ include/linux/page-flags.h  |    5 
+ 12 files changed, 289 insertions(+), 140 deletions(-)
 
 ===================================================================
---- a/arch/i386/kernel/smp.c
-+++ b/arch/i386/kernel/smp.c
-@@ -23,6 +23,7 @@
+--- a/arch/i386/kernel/setup.c
++++ b/arch/i386/kernel/setup.c
+@@ -607,9 +607,12 @@ void __init setup_arch(char **cmdline_p)
+ 	sparse_init();
+ 	zone_sizes_init();
  
- #include <asm/mtrr.h>
- #include <asm/tlbflush.h>
-+#include <asm/mmu_context.h>
- #include <mach_apic.h>
- 
- /*
-@@ -256,21 +257,6 @@ static struct mm_struct * flush_mm;
- static struct mm_struct * flush_mm;
- static unsigned long flush_va;
- static DEFINE_SPINLOCK(tlbstate_lock);
--
--/*
-- * We cannot call mmdrop() because we are in interrupt context, 
-- * instead update mm->cpu_vm_mask.
-- *
-- * We need to reload %cr3 since the page tables may be going
-- * away from under us..
-- */
--static inline void leave_mm (unsigned long cpu)
--{
--	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
--		BUG();
--	cpu_clear(cpu, per_cpu(cpu_tlbstate, cpu).active_mm->cpu_vm_mask);
--	load_cr3(swapper_pg_dir);
--}
- 
- /*
-  *
-===================================================================
---- a/arch/i386/kernel/smpboot.c
-+++ b/arch/i386/kernel/smpboot.c
-@@ -151,7 +151,7 @@ void __init smp_alloc_memory(void)
-  * a given CPU
-  */
- 
--static void __cpuinit smp_store_cpu_info(int id)
-+void __cpuinit smp_store_cpu_info(int id)
- {
- 	struct cpuinfo_x86 *c = cpu_data + id;
- 
-@@ -785,7 +785,7 @@ static inline struct task_struct * alloc
- /* Initialize the CPU's GDT.  This is either the boot CPU doing itself
-    (still using the master per-cpu area), or a CPU doing it for a
-    secondary which will soon come up. */
--static __cpuinit void init_gdt(int cpu)
-+__cpuinit void init_gdt(int cpu)
- {
- 	struct desc_struct *gdt = get_cpu_gdt_table(cpu);
- 
-===================================================================
---- a/arch/i386/xen/Makefile
-+++ b/arch/i386/xen/Makefile
-@@ -1,2 +1,4 @@ obj-y		:= enlighten.o setup.o events.o t
--obj-y		:= enlighten.o setup.o events.o time.o \
--			features.o mmu.o multicalls.o
-+obj-y	:= enlighten.o setup.o events.o time.o \
-+		features.o mmu.o multicalls.o
 +
-+obj-$(CONFIG_SMP)	+= smp.o
+ 	/*
+ 	 * NOTE: at this point the bootmem allocator is fully available.
+ 	 */
++
++	paravirt_post_allocator_init();
+ 
+ 	dmi_scan_machine();
+ 
+===================================================================
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -361,7 +361,7 @@ static void *vmi_kmap_atomic_pte(struct 
+ }
+ #endif
+ 
+-static void vmi_allocate_pt(u32 pfn)
++static void vmi_allocate_pt(struct mm_struct *mm, u32 pfn)
+ {
+ 	vmi_set_page_type(pfn, VMI_PAGE_L1);
+ 	vmi_ops.allocate_page(pfn, VMI_PAGE_L1, 0, 0, 0);
+===================================================================
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -87,7 +87,7 @@ static pte_t * __init one_page_table_ini
+ 	if (pmd_none(*pmd)) {
+ 		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+ 
+-		paravirt_alloc_pt(__pa(page_table) >> PAGE_SHIFT);
++		paravirt_alloc_pt(&init_mm, __pa(page_table) >> PAGE_SHIFT);
+ 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+ 		BUG_ON(page_table != pte_offset_kernel(pmd, 0));
+ 	}
+===================================================================
+--- a/arch/i386/mm/pageattr.c
++++ b/arch/i386/mm/pageattr.c
+@@ -60,7 +60,7 @@ static struct page *split_large_page(uns
+ 	address = __pa(address);
+ 	addr = address & LARGE_PAGE_MASK; 
+ 	pbase = (pte_t *)page_address(base);
+-	paravirt_alloc_pt(page_to_pfn(base));
++	paravirt_alloc_pt(&init_mm, page_to_pfn(base));
+ 	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
+                set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
+                                           addr == address ? prot : ref_prot));
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -13,6 +13,7 @@
- #include <linux/highmem.h>
+@@ -8,6 +8,9 @@
+ #include <linux/sched.h>
+ #include <linux/bootmem.h>
+ #include <linux/module.h>
++#include <linux/mm.h>
++#include <linux/page-flags.h>
++#include <linux/highmem.h>
  
  #include <xen/interface/xen.h>
-+#include <xen/interface/vcpu.h>
  #include <xen/features.h>
- #include <xen/page.h>
- 
-@@ -25,6 +26,8 @@
- #include <asm/setup.h>
- #include <asm/desc.h>
- #include <asm/pgtable.h>
-+#include <asm/smp.h>
-+#include <asm/tlbflush.h>
- 
- #include "xen-ops.h"
- #include "mmu.h"
-@@ -44,7 +47,7 @@ struct start_info *xen_start_info;
- struct start_info *xen_start_info;
- EXPORT_SYMBOL_GPL(xen_start_info);
- 
--static void xen_vcpu_setup(int cpu)
-+void xen_vcpu_setup(int cpu)
- {
- 	per_cpu(xen_vcpu, cpu) = &HYPERVISOR_shared_info->vcpu_info[cpu];
- }
-@@ -152,10 +155,10 @@ static void xen_safe_halt(void)
- 
- static void xen_halt(void)
- {
--#if 0
- 	if (irqs_disabled())
- 		HYPERVISOR_vcpu_op(VCPUOP_down, smp_processor_id(), NULL);
--#endif
-+	else
-+		xen_safe_halt();
- }
- 
- static void xen_set_lazy_mode(enum paravirt_lazy_mode mode)
-@@ -313,6 +316,32 @@ static void xen_write_idt_entry(struct d
+@@ -453,32 +456,59 @@ static void xen_write_cr3(unsigned long 
  	}
  }
  
-+static void xen_convert_trap_info(const struct Xgt_desc_struct *desc,
-+				  struct trap_info *traps)
+-static void xen_alloc_pt(u32 pfn)
+-{
+-	/* XXX pfn isn't necessarily a lowmem page */
++/* Early in boot, while setting up the initial pagetable, assume
++   everything is pinned. */
++static void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
 +{
-+	unsigned in, out, count;
++	BUG_ON(mem_map);	/* should only be used early */
+ 	make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
+ }
+ 
+-static void xen_alloc_pd(u32 pfn)
+-{
+-	make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
+-}
+-
+-static void xen_release_pd(u32 pfn)
+-{
+-	make_lowmem_page_readwrite(__va(PFN_PHYS(pfn)));
+-}
+-
++/* This needs to make sure the new pte page is pinned iff its being
++   attached to a pinned pagetable. */
++static void xen_alloc_pt(struct mm_struct *mm, u32 pfn)
++{
++	struct page *page = pfn_to_page(pfn);
 +
-+	count = desc->size / 8;
-+	BUG_ON(count > 256);
++	if (PagePinned(virt_to_page(mm->pgd))) {
++		SetPagePinned(page);
 +
-+	for(in = out = 0; in < count; in++) {
-+		const u32 *entry = (u32 *)(desc->address + in * 8);
-+
-+		if (cvt_gate_to_trap(in, entry[0], entry[1], &traps[out]))
-+			out++;
++		if (!PageHighMem(page))
++			make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
++		else
++			/* make sure there are no stray mappings of
++			   this page */
++			kmap_flush_unused();
 +	}
-+	traps[out].address = 0;
 +}
 +
-+void xen_copy_trap_info(struct trap_info *traps)
-+{
-+	const struct Xgt_desc_struct *desc = &get_cpu_var(idt_desc);
-+
-+	xen_convert_trap_info(desc, traps);
-+
-+	put_cpu_var(idt_desc);
-+}
-+
- /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
-    hold a spinlock to protect the static traps[] array (static because
-    it avoids allocation, and saves stack space). */
-@@ -320,23 +349,13 @@ static void xen_load_idt(const struct Xg
++/* This should never happen until we're OK to use struct page */
+ static void xen_release_pt(u32 pfn)
  {
- 	static DEFINE_SPINLOCK(lock);
- 	static struct trap_info traps[257];
+-	make_lowmem_page_readwrite(__va(PFN_PHYS(pfn)));
+-}
 -
- 	int cpu = smp_processor_id();
--	unsigned in, out, count;
- 
- 	per_cpu(idt_desc, cpu) = *desc;
- 
--	count = desc->size / 8;
--	BUG_ON(count > 256);
--
- 	spin_lock(&lock);
--	for(in = out = 0; in < count; in++) {
--		const u32 *entry = (u32 *)(desc->address + in * 8);
--
--		if (cvt_gate_to_trap(in, entry[0], entry[1], &traps[out]))
--			out++;
--	}
--	traps[out].address = 0;
+-static void xen_alloc_pd_clone(u32 pfn, u32 clonepfn,
+-					u32 start, u32 count)
+-{
+-	xen_alloc_pd(pfn);
+-}
++	struct page *page = pfn_to_page(pfn);
 +
-+	xen_convert_trap_info(desc, traps);
- 
- 	xen_mc_flush();
- 	if (HYPERVISOR_set_trap_table(traps))
-@@ -393,7 +412,13 @@ static void xen_io_delay(void)
- #ifdef CONFIG_X86_LOCAL_APIC
- static unsigned long xen_apic_read(unsigned long reg)
- {
-+	WARN_ON(1);
- 	return 0;
-+}
-+
-+static void xen_apic_write(unsigned long reg, unsigned long val)
-+{
-+	WARN_ON(1);
- }
- #endif
- 
-@@ -416,6 +441,40 @@ static void xen_flush_tlb_single(unsigne
- 		BUG();
- }
- 
-+static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
-+				 unsigned long va)
-+{
-+	struct mmuext_op op;
-+	cpumask_t cpumask = *cpus;
-+
-+	/*
-+	 * A couple of (to be removed) sanity checks:
-+	 *
-+	 * - current CPU must not be in mask
-+	 * - mask must exist :)
-+	 */
-+	BUG_ON(cpus_empty(cpumask));
-+	BUG_ON(cpu_isset(smp_processor_id(), cpumask));
-+	BUG_ON(!mm);
-+
-+	/* If a CPU which we ran on has gone down, OK. */
-+	cpus_and(cpumask, cpumask, cpu_online_map);
-+	if (cpus_empty(cpumask))
-+		return;
-+
-+	if (va == TLB_FLUSH_ALL) {
-+		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
-+		op.arg2.vcpumask = (void *)cpus;
-+	} else {
-+		op.cmd = MMUEXT_INVLPG_MULTI;
-+		op.arg1.linear_addr = va;
-+		op.arg2.vcpumask = (void *)cpus;
++	if (PagePinned(page)) {
++		if (!PageHighMem(page))
++			make_lowmem_page_readwrite(__va(PFN_PHYS(pfn)));
 +	}
-+
-+	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
-+		BUG();
 +}
 +
- static unsigned long xen_read_cr2(void)
- {
- 	return x86_read_percpu(xen_vcpu)->arch.cr2;
-@@ -426,14 +485,6 @@ static void xen_write_cr4(unsigned long 
- 	/* never allow TSC to be disabled */
- 	native_write_cr4(cr4 & ~X86_CR4_TSD);
- }
--
--/*
-- * Page-directory addresses above 4GB do not fit into architectural %cr3.
-- * When accessing %cr3, or equivalent field in vcpu_guest_context, guests
-- * must use the following accessor macros to pack/unpack valid MFNs.
-- */
--#define xen_pfn_to_cr3(pfn) (((unsigned)(pfn) << 12) | ((unsigned)(pfn) >> 20))
--#define xen_cr3_to_pfn(cr3) (((unsigned)(cr3) >> 12) | ((unsigned)(cr3) << 20))
- 
- static unsigned long xen_read_cr3(void)
- {
-@@ -679,8 +730,8 @@ static const struct paravirt_ops xen_par
- 	.sched_clock = xen_sched_clock,
- 
- #ifdef CONFIG_X86_LOCAL_APIC
--	.apic_write = paravirt_nop,
--	.apic_write_atomic = paravirt_nop,
-+	.apic_write = xen_apic_write,
-+	.apic_write_atomic = xen_apic_write,
- 	.apic_read = xen_apic_read,
- 	.setup_boot_clock = paravirt_nop,
- 	.setup_secondary_clock = paravirt_nop,
-@@ -690,6 +741,7 @@ static const struct paravirt_ops xen_par
- 	.flush_tlb_user = xen_flush_tlb,
- 	.flush_tlb_kernel = xen_flush_tlb,
- 	.flush_tlb_single = xen_flush_tlb_single,
-+	.flush_tlb_others = xen_flush_tlb_others,
- 
- 	.pte_update = paravirt_nop,
- 	.pte_update_defer = paravirt_nop,
-@@ -734,6 +786,19 @@ static const struct paravirt_ops xen_par
- 	.set_lazy_mode = xen_set_lazy_mode,
- };
- 
-+#ifdef CONFIG_SMP
-+static const struct smp_ops xen_smp_ops __initdata = {
-+	.smp_prepare_boot_cpu = xen_smp_prepare_boot_cpu,
-+	.smp_prepare_cpus = xen_smp_prepare_cpus,
-+	.cpu_up = xen_cpu_up,
-+	.smp_cpus_done = xen_smp_cpus_done,
++#ifdef CONFIG_HIGHPTE
++static void *xen_kmap_atomic_pte(struct page *page, enum km_type type)
++{
++	pgprot_t prot = PAGE_KERNEL;
 +
-+	.smp_send_stop = xen_smp_send_stop,
-+	.smp_send_reschedule = xen_smp_send_reschedule,
-+	.smp_call_function_mask = xen_smp_call_function_mask,
-+};
-+#endif	/* CONFIG_SMP */
++	if (PagePinned(page))
++		prot = PAGE_KERNEL_RO;
 +
- /* First C function to be called on Xen boot */
- static asmlinkage void __init xen_start_kernel(void)
- {
-@@ -746,6 +811,9 @@ static asmlinkage void __init xen_start_
- 
- 	/* Install Xen paravirt ops */
- 	paravirt_ops = xen_paravirt_ops;
-+#ifdef CONFIG_SMP
-+	smp_ops = xen_smp_ops;
++	if (0 && PageHighMem(page))
++		printk("mapping highpte %lx type %d prot %s\n",
++		       page_to_pfn(page), type,
++		       (unsigned long)pgprot_val(prot) & _PAGE_RW ? "WRITE" : "READ");
++
++	return kmap_atomic_prot(page, type, prot);
++}
 +#endif
  
- 	xen_setup_features();
- 
-===================================================================
---- a/arch/i386/xen/events.c
-+++ b/arch/i386/xen/events.c
-@@ -24,6 +24,9 @@ static DEFINE_SPINLOCK(irq_mapping_updat
- /* IRQ <-> VIRQ mapping. */
- static DEFINE_PER_CPU(int, virq_to_irq[NR_VIRQS]) = {[0 ... NR_VIRQS-1] = -1};
- 
-+/* IRQ <-> IPI mapping */
-+static DEFINE_PER_CPU(int, ipi_to_irq[XEN_NR_IPIS]) = {[0 ... XEN_NR_IPIS-1] = -1};
-+
- /* Packed IRQ information: binding type, sub-type index, and event channel. */
- struct packed_irq
+ static __init void xen_pagetable_setup_start(pgd_t *base)
  {
-@@ -35,7 +38,13 @@ static struct packed_irq irq_info[NR_IRQ
- static struct packed_irq irq_info[NR_IRQS];
+@@ -506,7 +536,7 @@ static __init void xen_pagetable_setup_s
+ 				memcpy(pmd, (void *)pgd_page_vaddr(xen_pgd[i]),
+ 				       PAGE_SIZE);
  
- /* Binding types. */
--enum { IRQT_UNBOUND, IRQT_PIRQ, IRQT_VIRQ, IRQT_IPI, IRQT_EVTCHN };
-+enum {
-+	IRQT_UNBOUND,
-+	IRQT_PIRQ,
-+	IRQT_VIRQ,
-+	IRQT_IPI,
-+	IRQT_EVTCHN
-+};
+-				xen_alloc_pd(PFN_DOWN(__pa(pmd)));
++				make_lowmem_page_readonly(pmd);
  
- /* Convenient shorthand for packed representation of an unbound IRQ. */
- #define IRQ_UNBOUND	mk_irq_info(IRQT_UNBOUND, 0, 0)
-@@ -238,6 +247,43 @@ static int bind_evtchn_to_irq(unsigned i
- 	return irq;
- }
+ 				set_pgd(&base[i], __pgd(1 + __pa(pmd)));
+ 			} else
+@@ -527,6 +557,10 @@ static __init void xen_pagetable_setup_s
  
-+static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
-+{
-+	struct evtchn_bind_ipi bind_ipi;
-+	int evtchn, irq;
+ static __init void xen_pagetable_setup_done(pgd_t *base)
+ {
++	/* This will work as long as patching hasn't happened yet
++	   (which it hasn't) */
++	paravirt_ops.alloc_pt = xen_alloc_pt;
 +
-+	spin_lock(&irq_mapping_update_lock);
-+
-+	if ((irq = per_cpu(ipi_to_irq, cpu)[ipi]) == -1) {
-+		if ((irq = find_unbound_irq()) < 0)
-+			goto out;
-+
-+		dynamic_irq_init(irq);
-+		set_irq_chip_and_handler_name(irq, &xen_dynamic_chip,
-+					      handle_level_irq, "ipi");
-+
-+		bind_ipi.vcpu = cpu;
-+		if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_ipi,
-+						&bind_ipi) != 0)
+ 	if (!xen_feature(XENFEAT_auto_translated_physmap)) {
+ 		/*
+ 		 * Create a mapping for the shared info page.
+@@ -544,7 +578,19 @@ static __init void xen_pagetable_setup_d
+ 		HYPERVISOR_shared_info =
+ 			(struct shared_info *)__va(xen_start_info->shared_info);
+ 
+-	xen_pgd_pin(base);
++	/* Actually pin the pagetable down, but we can't set PG_pinned
++	   yet because the page structures don't exist yet. */
++	{
++		struct mmuext_op op;
++#ifdef CONFIG_X86_PAE
++		op.cmd = MMUEXT_PIN_L3_TABLE;
++#else
++		op.cmd = MMUEXT_PIN_L3_TABLE;
++#endif
++		op.arg1.mfn = pfn_to_mfn(PFN_DOWN(__pa(base)));
++		if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
 +			BUG();
-+		evtchn = bind_ipi.port;
-+
-+		evtchn_to_irq[evtchn] = irq;
-+		irq_info[irq] = mk_irq_info(IRQT_IPI, ipi, evtchn);
-+
-+		per_cpu(ipi_to_irq, cpu)[ipi] = irq;
-+
-+		bind_evtchn_to_cpu(evtchn, cpu);
 +	}
-+
-+	irq_bindcount[irq]++;
-+
-+ out:
-+	spin_unlock(&irq_mapping_update_lock);
-+	return irq;
-+}
-+
-+
- static int bind_virq_to_irq(unsigned int virq, unsigned int cpu)
- {
- 	struct evtchn_bind_virq bind_virq;
-@@ -345,12 +391,42 @@ int bind_virq_to_irqhandler(unsigned int
- }
- EXPORT_SYMBOL_GPL(bind_virq_to_irqhandler);
  
-+int bind_ipi_to_irqhandler(enum ipi_vector ipi,
-+			   unsigned int cpu,
-+			   irq_handler_t handler,
-+			   unsigned long irqflags,
-+			   const char *devname,
-+			   void *dev_id)
-+{
-+	int irq, retval;
-+
-+	irq = bind_ipi_to_irq(ipi, cpu);
-+	if (irq < 0)
-+		return irq;
-+
-+	retval = request_irq(irq, handler, irqflags, devname, dev_id);
-+	if (retval != 0) {
-+		unbind_from_irq(irq);
-+		return retval;
-+	}
-+
-+	return irq;
-+}
-+
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
- 	free_irq(irq, dev_id);
- 	unbind_from_irq(irq);
+ 	xen_vcpu_setup(smp_processor_id());
  }
- EXPORT_SYMBOL_GPL(unbind_from_irqhandler);
-+
-+void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector)
-+{
-+	int irq = per_cpu(ipi_to_irq, cpu)[vector];
-+	BUG_ON(irq < 0);
-+	notify_remote_via_irq(irq);
-+}
-+
+@@ -562,6 +608,7 @@ static const struct paravirt_ops xen_par
+ 	.arch_setup = xen_arch_setup,
+ 	.init_IRQ = xen_init_IRQ,
+ 	.time_init = xen_time_init,
++	.post_allocator_init = xen_mark_init_mm_pinned,
  
- /*
-   Search the CPUs pending events bitmasks.  For each one found, map
+ 	.cpuid = xen_cpuid,
+ 
+@@ -647,11 +694,15 @@ static const struct paravirt_ops xen_par
+ 	.set_pte_at = xen_set_pte_at,
+ 	.set_pmd = xen_set_pmd,
+ 
+-	.alloc_pt = xen_alloc_pt,
+-	.alloc_pd = xen_alloc_pd,
+-	.alloc_pd_clone = xen_alloc_pd_clone,
+-	.release_pd = xen_release_pd,
++	.alloc_pt = xen_alloc_pt_init,
+ 	.release_pt = xen_release_pt,
++	.alloc_pd = paravirt_nop,
++	.alloc_pd_clone = paravirt_nop,
++	.release_pd = paravirt_nop,
++
++#ifdef CONFIG_HIGHPTE
++	.kmap_atomic_pte = xen_kmap_atomic_pte,
++#endif
+ 
+ 	.pte_val = xen_pte_val,
+ 	.pgd_val = xen_pgd_val,
 ===================================================================
 --- a/arch/i386/xen/mmu.c
 +++ b/arch/i386/xen/mmu.c
-@@ -349,8 +349,12 @@ void xen_pgd_pin(pgd_t *pgd)
+@@ -1,15 +1,19 @@
++#include <linux/highmem.h>
++
+ #include <asm/bug.h>
+-
+ #include <asm/pgtable.h>
+ #include <asm/tlbflush.h>
+ #include <asm/mmu_context.h>
  
- 	xen_mc_batch();
+ #include <asm/xen/hypercall.h>
++#include <asm/xen/hypervisor.h>
+ #include <asm/paravirt.h>
  
--	if (pgd_walk(pgd, pin_page, TASK_SIZE))
-+	if (pgd_walk(pgd, pin_page, TASK_SIZE)) {
-+		/* re-enable interrupts for kmap_flush_unused */
-+		xen_mc_issue(0);
- 		kmap_flush_unused();
-+		xen_mc_batch();
-+	}
+ #include <xen/page.h>
+ #include <xen/interface/xen.h>
  
- 	mcs = __xen_mc_entry(sizeof(*op));
- 	op = mcs.args;
-@@ -433,27 +437,49 @@ void xen_dup_mmap(struct mm_struct *oldm
- 	spin_unlock(&mm->page_table_lock);
++#include "multicalls.h"
++
+ #include "mmu.h"
+ 
+ xmaddr_t arbitrary_virt_to_machine(unsigned long address)
+@@ -47,17 +51,6 @@ void make_lowmem_page_readwrite(void *va
+ 	ptev = pte_mkwrite(*pte);
+ 
+ 	if(HYPERVISOR_update_va_mapping(address, ptev, 0))
+-		BUG();
+-}
+-
+-
+-void xen_set_pte(pte_t *ptep, pte_t pte)
+-{
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptep).maddr;
+-	u.val = pte_val_ma(pte);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+ 		BUG();
  }
  
-+
-+#ifdef CONFIG_SMP
-+/*
-+ * While a process runs, Xen pins its pagetables, which means that the
-+ * hypervisor forces it to be read-only, and it controls all updates
-+ * to it.  This means that all pagetable updates have to go via the
-+ * hypervisor, which is moderately expensive.
-+ *
-+ * Since we're pulling the pagetable down, we switch to use init_mm,
-+ * unpin old process pagetable and mark it all read-write, which
-+ * allows further operations on it to be simple memory accesses.
-+ *
-+ * The only subtle point is that another CPU may be still using the
-+ * pagetable because of lazy tlb flushing.  This means we need need to
-+ * switch all CPUs off this pagetable before we can unpin it.
-+ */
-+static void drop_mm_ref(void *info)
+@@ -70,18 +63,6 @@ void xen_set_pmd(pmd_t *ptr, pmd_t val)
+ 	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+ 		BUG();
+ }
+-
+-#ifdef CONFIG_X86_PAE
+-void xen_set_pud(pud_t *ptr, pud_t val)
+-{
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pud_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
+-}
+-#endif
+ 
+ /*
+  * Associate a virtual page frame with a given physical page frame
+@@ -129,12 +110,29 @@ void xen_set_pte_at(struct mm_struct *mm
+ }
+ 
+ #ifdef CONFIG_X86_PAE
++void xen_set_pud(pud_t *ptr, pud_t val)
 +{
-+	struct mm_struct *mm = info;
++	struct mmu_update u;
 +
-+	if (__get_cpu_var(cpu_tlbstate).active_mm == mm)
-+		leave_mm(smp_processor_id());
++	u.ptr = virt_to_machine(ptr).maddr;
++	u.val = pud_val_ma(val);
++	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
++		BUG();
 +}
-+#endif
 +
- void xen_exit_mmap(struct mm_struct *mm)
++void xen_set_pte(pte_t *ptep, pte_t pte)
++{
++	ptep->pte_high = pte.pte_high;
++	smp_wmb();
++	ptep->pte_low = pte.pte_low;
++}
++
+ void xen_set_pte_atomic(pte_t *ptep, pte_t pte)
  {
--	struct task_struct *tsk = current;
--
--	task_lock(tsk);
--
--	/*
--	 * We aggressively remove defunct pgd from cr3. We execute unmap_vmas()
--	 * *much* faster this way, as no tlb flushes means bigger wrpt batches.
--	 */
--	if (tsk->active_mm == mm) {
--		tsk->active_mm = &init_mm;
--		atomic_inc(&init_mm.mm_count);
--
--		switch_mm(mm, &init_mm, tsk);
--
--		atomic_dec(&mm->mm_count);
--		BUG_ON(atomic_read(&mm->mm_count) == 0);
--	}
--
--	task_unlock(tsk);
-+	preempt_disable();
+ 	set_64bit((u64 *)ptep, pte_val_ma(pte));
+ }
+ 
+-void xen_pte_clear(struct mm_struct *mm, unsigned long addr,pte_t *ptep)
++void xen_pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+ {
+ 	ptep->pte_low = 0;
+ 	smp_wmb();
+@@ -198,6 +196,11 @@ pgd_t xen_make_pgd(unsigned long long pg
+ 	return (pgd_t){ pgd };
+ }
+ #else  /* !PAE */
++void xen_set_pte(pte_t *ptep, pte_t pte)
++{
++	*ptep = pte;
++}
 +
-+	if (current->active_mm == mm) {
-+		if (current->mm == mm)
-+			load_cr3(swapper_pg_dir);
-+		else
-+			leave_mm(smp_processor_id());
+ unsigned long xen_pte_val(pte_t pte)
+ {
+ 	unsigned long ret = pte.pte_low;
+@@ -206,12 +209,6 @@ unsigned long xen_pte_val(pte_t pte)
+ 		ret = machine_to_phys(XMADDR(ret)).paddr;
+ 
+ 	return ret;
+-}
+-
+-unsigned long xen_pmd_val(pmd_t pmd)
+-{
+-	BUG();
+-	return 0;
+ }
+ 
+ unsigned long xen_pgd_val(pgd_t pgd)
+@@ -230,12 +227,6 @@ pte_t xen_make_pte(unsigned long pte)
+ 	return (pte_t){ pte };
+ }
+ 
+-pmd_t xen_make_pmd(unsigned long pmd)
+-{
+-	BUG();
+-	return __pmd(0);
+-}
+-
+ pgd_t xen_make_pgd(unsigned long pgd)
+ {
+ 	if (pgd & _PAGE_PRESENT)
+@@ -246,109 +237,194 @@ pgd_t xen_make_pgd(unsigned long pgd)
+ #endif	/* CONFIG_X86_PAE */
+ 
+ 
+-
+-static void pgd_walk_set_prot(void *pt, pgprot_t flags)
+-{
+-	unsigned long pfn = PFN_DOWN(__pa(pt));
+-
+-	if (HYPERVISOR_update_va_mapping((unsigned long)pt,
+-					 pfn_pte(pfn, flags), 0) < 0)
+-		BUG();
+-}
+-
+-static void pgd_walk(pgd_t *pgd_base, pgprot_t flags)
++/*
++  (Yet another) pagetable walker.  This one is intended for pinning a
++  pagetable.  This means that it walks a pagetable and calls the
++  callback function on each page it finds making up the page table,
++  at every level.  It walks the entire pagetable, but it only bothers
++  pinning pte pages which are below pte_limit.  In the normal case
++  this will be TASK_SIZE, but at boot we need to pin up to
++  FIXADDR_TOP.  But the important bit is that we don't pin beyond
++  there, because then we start getting into Xen's ptes.
++*/
++static int pgd_walk(pgd_t *pgd_base, int (*func)(struct page *, unsigned),
++		    unsigned long limit)
+ {
+ 	pgd_t *pgd = pgd_base;
+-	pud_t *pud;
+-	pmd_t *pmd;
+-	pte_t *pte;
+-	int    g, u, m;
++	int flush = 0;
++	unsigned long addr = 0;
++	unsigned long pgd_next;
++
++	BUG_ON(limit > FIXADDR_TOP);
+ 
+ 	if (xen_feature(XENFEAT_auto_translated_physmap))
+-		return;
+-
+-	for (g = 0; g < USER_PTRS_PER_PGD; g++, pgd++) {
+-		if (pgd_none(*pgd))
++		return 0;
++
++	for (; addr != FIXADDR_TOP; pgd++, addr = pgd_next) {
++		pud_t *pud;
++		unsigned long pud_limit, pud_next;
++
++		pgd_next = pud_limit = pgd_addr_end(addr, FIXADDR_TOP);
++
++		if (!pgd_val(*pgd))
+ 			continue;
++
+ 		pud = pud_offset(pgd, 0);
+ 
+ 		if (PTRS_PER_PUD > 1) /* not folded */
+-			pgd_walk_set_prot(pud,flags);
+-
+-		for (u = 0; u < PTRS_PER_PUD; u++, pud++) {
++			flush |= (*func)(virt_to_page(pud), 0);
++
++		for (; addr != pud_limit; pud++, addr = pud_next) {
++			pmd_t *pmd;
++			unsigned long pmd_limit;
++
++			pud_next = pud_addr_end(addr, pud_limit);
++
++			if (pud_next < limit)
++				pmd_limit = pud_next;
++			else
++				pmd_limit = limit;
++
+ 			if (pud_none(*pud))
+ 				continue;
++
+ 			pmd = pmd_offset(pud, 0);
+ 
+ 			if (PTRS_PER_PMD > 1) /* not folded */
+-				pgd_walk_set_prot(pmd,flags);
+-
+-			for (m = 0; m < PTRS_PER_PMD; m++, pmd++) {
++				flush |= (*func)(virt_to_page(pmd), 0);
++
++			for (; addr != pmd_limit; pmd++) {
++				addr += (PAGE_SIZE * PTRS_PER_PTE);
++				if ((pmd_limit-1) < (addr-1)) {
++					addr = pmd_limit;
++					break;
++				}
++
+ 				if (pmd_none(*pmd))
+ 					continue;
+ 
+-				/* This can get called before mem_map
+-				   is set up, so we assume nothing is
+-				   highmem at that point. */
+-				if (mem_map == NULL ||
+-				    !PageHighMem(pmd_page(*pmd))) {
+-					pte = pte_offset_kernel(pmd,0);
+-					pgd_walk_set_prot(pte,flags);
+-				}
++				flush |= (*func)(pmd_page(*pmd), 0);
+ 			}
+ 		}
+ 	}
+ 
+-	if (HYPERVISOR_update_va_mapping((unsigned long)pgd_base,
+-					 pfn_pte(PFN_DOWN(__pa(pgd_base)),
+-						 flags),
+-					 UVMF_TLB_FLUSH) < 0)
+-		BUG();
+-}
+-
+-
+-/* This is called just after a mm has been duplicated from its parent,
+-   but it has not been used yet.  We need to make sure that its
+-   pagetable is all read-only, and can be pinned. */
++	flush |= (*func)(virt_to_page(pgd_base), UVMF_TLB_FLUSH);
++
++	return flush;
++}
++
++static int pin_page(struct page *page, unsigned flags)
++{
++	unsigned pgfl = test_and_set_bit(PG_pinned, &page->flags);
++	int flush;
++
++	if (pgfl)
++		flush = 0;		/* already pinned */
++	else if (PageHighMem(page))
++		/* kmaps need flushing if we found an unpinned
++		   highpage */
++		flush = 1;
++	else {
++		void *pt = lowmem_page_address(page);
++		unsigned long pfn = page_to_pfn(page);
++		struct multicall_space mcs = xen_mc_entry(0);
++
++		flush = 0;
++
++		MULTI_update_va_mapping(mcs.mc, (unsigned long)pt,
++					pfn_pte(pfn, PAGE_KERNEL_RO),
++					flags);
 +	}
 +
-+#ifdef CONFIG_SMP
-+	if (!cpus_empty(mm->cpu_vm_mask))
-+		xen_smp_call_function_mask(mm->cpu_vm_mask, drop_mm_ref,
-+					   mm, 1);
-+#endif	/* CONFIG_SMP */
++	return flush;
++}
 +
-+	preempt_enable();
- 
- 	xen_pgd_unpin(mm->pgd);
++/* This is called just after a mm has been created, but it has not
++   been used yet.  We need to make sure that its pagetable is all
++   read-only, and can be pinned. */
+ void xen_pgd_pin(pgd_t *pgd)
+ {
+-	struct mmuext_op op;
+-
+-	pgd_walk(pgd, PAGE_KERNEL_RO);
+-
+-#if defined(CONFIG_X86_PAE)
+-	op.cmd = MMUEXT_PIN_L3_TABLE;
++	struct multicall_space mcs;
++	struct mmuext_op *op;
++
++	if (pgd_walk(pgd, pin_page, TASK_SIZE))
++		kmap_flush_unused();
++
++	mcs = xen_mc_entry(sizeof(*op));
++	op = mcs.args;
++
++#ifdef CONFIG_X86_PAE
++	op->cmd = MMUEXT_PIN_L3_TABLE;
+ #else
+-	op.cmd = MMUEXT_PIN_L2_TABLE;
++	op->cmd = MMUEXT_PIN_L2_TABLE;
+ #endif
+-	op.arg1.mfn = pfn_to_mfn(PFN_DOWN(__pa(pgd)));
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	op->arg1.mfn = pfn_to_mfn(PFN_DOWN(__pa(pgd)));
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	xen_mc_flush();
++}
++
++/* The init_mm pagetable is really pinned as soon as its created, but
++   that's before we have page structures to store the bits.  So do all
++   the book-keeping now. */
++static __init int mark_pinned(struct page *page, unsigned flags)
++{
++	SetPagePinned(page);
++	return 0;
++}
++
++void __init xen_mark_init_mm_pinned(void)
++{
++	pgd_walk(init_mm.pgd, mark_pinned, FIXADDR_TOP);
++}
++
++static int unpin_page(struct page *page, unsigned flags)
++{
++	unsigned pgfl = test_and_clear_bit(PG_pinned, &page->flags);
++
++	if (pgfl && !PageHighMem(page)) {
++		void *pt = lowmem_page_address(page);
++		unsigned long pfn = page_to_pfn(page);
++		struct multicall_space mcs = xen_mc_entry(0);
++
++		MULTI_update_va_mapping(mcs.mc, (unsigned long)pt,
++					pfn_pte(pfn, PAGE_KERNEL),
++					flags);
++	}
++
++	return 0;		/* never need to flush on unpin */
  }
+ 
+ /* Release a pagetables pages back as normal RW */
+-void xen_pgd_unpin(pgd_t *pgd)
+-{
+-	struct mmuext_op op;
+-
+-	op.cmd = MMUEXT_UNPIN_TABLE;
+-	op.arg1.mfn = pfn_to_mfn(PFN_DOWN(__pa(pgd)));
+-
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
+-
+-	pgd_walk(pgd, PAGE_KERNEL);
++static void xen_pgd_unpin(pgd_t *pgd)
++{
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
++
++	op = mcs.args;
++	op->cmd = MMUEXT_UNPIN_TABLE;
++	op->arg1.mfn = pfn_to_mfn(PFN_DOWN(__pa(pgd)));
++
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	pgd_walk(pgd, unpin_page, TASK_SIZE);
++
++	xen_mc_flush();
+ }
+ 
+ 
+ void xen_activate_mm(struct mm_struct *prev, struct mm_struct *next)
+ {
++	spin_lock(&next->page_table_lock);
+ 	xen_pgd_pin(next->pgd);
++	spin_unlock(&next->page_table_lock);
+ }
+ 
+ void xen_dup_mmap(struct mm_struct *oldmm, struct mm_struct *mm)
+ {
++	spin_lock(&mm->page_table_lock);
+ 	xen_pgd_pin(mm->pgd);
++	spin_unlock(&mm->page_table_lock);
+ }
+ 
+ void xen_exit_mmap(struct mm_struct *mm)
 ===================================================================
 --- a/arch/i386/xen/mmu.h
 +++ b/arch/i386/xen/mmu.h
-@@ -2,6 +2,15 @@
+@@ -15,7 +15,7 @@ void xen_exit_mmap(struct mm_struct *mm)
+ void xen_exit_mmap(struct mm_struct *mm);
  
- #include <linux/linkage.h>
- #include <asm/page.h>
-+
-+/*
-+ * Page-directory addresses above 4GB do not fit into architectural %cr3.
-+ * When accessing %cr3, or equivalent field in vcpu_guest_context, guests
-+ * must use the following accessor macros to pack/unpack valid MFNs.
-+ */
-+#define xen_pfn_to_cr3(pfn) (((unsigned)(pfn) << 12) | ((unsigned)(pfn) >> 20))
-+#define xen_cr3_to_pfn(cr3) (((unsigned)(cr3) >> 12) | ((unsigned)(cr3) << 20))
-+
+ void xen_pgd_pin(pgd_t *pgd);
+-void xen_pgd_unpin(pgd_t *pgd);
++//void xen_pgd_unpin(pgd_t *pgd);
  
- void set_pte_mfn(unsigned long vaddr, unsigned long pfn, pgprot_t flags);
- 
-===================================================================
---- a/arch/i386/xen/setup.c
-+++ b/arch/i386/xen/setup.c
-@@ -15,10 +15,6 @@
- #include <xen/features.h>
- 
- #include "xen-ops.h"
--
--/* These are code, but not functions.  Defined in entry.S */
--extern const char xen_hypervisor_callback[];
--extern const char xen_failsafe_callback[];
- 
- static __initdata struct shared_info init_shared;
- 
-@@ -90,4 +86,9 @@ void __init xen_arch_setup(void)
- 	       COMMAND_LINE_SIZE : MAX_GUEST_CMDLINE);
- 
- 	pm_idle = xen_idle;
-+
-+#ifdef CONFIG_SMP
-+	/* fill cpus_possible with all available cpus */
-+	xen_fill_possible_map();
-+#endif
- }
-===================================================================
---- /dev/null
-+++ b/arch/i386/xen/smp.c
-@@ -0,0 +1,419 @@
-+#include <linux/sched.h>
-+#include <linux/err.h>
-+
-+#include <asm/paravirt.h>
-+#include <asm/smp.h>
-+#include <asm/desc.h>
-+#include <asm/pgtable.h>
-+#include <asm/cpu.h>
-+
-+#include <xen/interface/xen.h>
-+#include <xen/interface/vcpu.h>
-+
-+#include <asm/xen/interface.h>
-+#include <asm/xen/hypercall.h>
-+
-+#include <xen/page.h>
-+#include <xen/events.h>
-+
-+#include "xen-ops.h"
-+#include "mmu.h"
-+
-+static cpumask_t cpu_initialized_map;
-+static DEFINE_PER_CPU(int, resched_irq);
-+static DEFINE_PER_CPU(int, callfunc_irq);
-+
-+/*
-+ * Structure and data for smp_call_function(). This is designed to minimise
-+ * static memory requirements. It also looks cleaner.
-+ */
-+static DEFINE_SPINLOCK(call_lock);
-+
-+struct call_data_struct {
-+	void (*func) (void *info);
-+	void *info;
-+	atomic_t started;
-+	atomic_t finished;
-+	int wait;
-+};
-+
-+static irqreturn_t xen_call_function_interrupt(int irq, void *dev_id);
-+
-+static struct call_data_struct *call_data;
-+
-+/*
-+ * Reschedule call back. Nothing to do,
-+ * all the work is done automatically when
-+ * we return from the interrupt.
-+ */
-+static irqreturn_t xen_reschedule_interrupt(int irq, void *dev_id)
-+{
-+	return IRQ_HANDLED;
-+}
-+
-+/* VCPUs are single-cored, and have no siblings */
-+static void set_cpu_sibling_map(int cpu)
-+{
-+	struct cpuinfo_x86 *c = &cpu_data[cpu];
-+
-+	cpu_set(cpu, cpu_sibling_map[cpu]);
-+	cpu_set(cpu, c->llc_shared_map);
-+	cpu_core_map[cpu] = cpu_sibling_map[cpu];
-+	c->booted_cores = 1;
-+}
-+
-+static void remove_siblinginfo(int cpu)
-+{
-+	struct cpuinfo_x86 *c = &cpu_data[cpu];
-+
-+	cpus_clear(cpu_sibling_map[cpu]);
-+	cpus_clear(cpu_core_map[cpu]);
-+	c->booted_cores = 0;
-+	c->phys_proc_id = 0;
-+	c->cpu_core_id = 0;
-+}
-+
-+static __cpuinit void cpu_bringup_and_idle(void)
-+{
-+	int cpu = smp_processor_id();
-+
-+	cpu_init();
-+	xen_setup_timer();
-+
-+	preempt_disable();
-+	per_cpu(cpu_state, cpu) = CPU_ONLINE;
-+
-+	/* We can take interrupts now: we're officially "up". */
-+	local_irq_enable();
-+
-+	wmb();
-+	cpu_idle();
-+}
-+
-+static int xen_smp_intr_init(unsigned int cpu)
-+{
-+	int rc;
-+	const char *resched_name, *callfunc_name;
-+
-+	per_cpu(resched_irq, cpu) = per_cpu(callfunc_irq, cpu) = -1;
-+
-+	resched_name = kasprintf(GFP_KERNEL, "resched%d", cpu);
-+	rc = bind_ipi_to_irqhandler(XEN_RESCHEDULE_VECTOR,
-+				    cpu,
-+				    xen_reschedule_interrupt,
-+				    IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
-+				    resched_name,
-+				    NULL);
-+	if (rc < 0)
-+		goto fail;
-+	per_cpu(resched_irq, cpu) = rc;
-+
-+	callfunc_name = kasprintf(GFP_KERNEL, "callfunc%d", cpu);
-+	rc = bind_ipi_to_irqhandler(XEN_CALL_FUNCTION_VECTOR,
-+				    cpu,
-+				    xen_call_function_interrupt,
-+				    IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
-+				    callfunc_name,
-+				    NULL);
-+	if (rc < 0)
-+		goto fail;
-+	per_cpu(callfunc_irq, cpu) = rc;
-+
-+	return 0;
-+
-+ fail:
-+	if (per_cpu(resched_irq, cpu) >= 0)
-+		unbind_from_irqhandler(per_cpu(resched_irq, cpu), NULL);
-+	if (per_cpu(callfunc_irq, cpu) >= 0)
-+		unbind_from_irqhandler(per_cpu(callfunc_irq, cpu), NULL);
-+	return rc;
-+}
-+
-+void __init xen_fill_possible_map(void)
-+{
-+	int i, rc;
-+
-+	for_each_possible_cpu(i)
-+	    if (i != smp_processor_id())
-+		return;
-+
-+	for (i = 0; i < NR_CPUS; i++) {
-+		rc = HYPERVISOR_vcpu_op(VCPUOP_is_up, i, NULL);
-+		if (rc >= 0)
-+			cpu_set(i, cpu_possible_map);
-+	}
-+}
-+
-+void __init xen_smp_prepare_boot_cpu(void)
-+{
-+	int cpu;
-+
-+	BUG_ON(smp_processor_id() != 0);
-+	native_smp_prepare_boot_cpu();
-+
-+	xen_vcpu_setup(0);
-+
-+	/* We've switched to the "real" per-cpu gdt, so make sure the
-+	   old memory can be recycled */
-+	make_lowmem_page_readwrite(&per_cpu__gdt_page);
-+
-+	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+		cpus_clear(cpu_sibling_map[cpu]);
-+		cpus_clear(cpu_core_map[cpu]);
-+	}
-+
-+	xen_fill_possible_map();  /* should already be done */
-+}
-+
-+void __init xen_smp_prepare_cpus(unsigned int max_cpus)
-+{
-+	unsigned cpu;
-+
-+	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+		cpus_clear(cpu_sibling_map[cpu]);
-+		cpus_clear(cpu_core_map[cpu]);
-+	}
-+
-+	smp_store_cpu_info(0);
-+	set_cpu_sibling_map(0);
-+
-+	if (xen_smp_intr_init(0))
-+		BUG();
-+
-+	cpu_initialized_map = cpumask_of_cpu(0);
-+
-+	/* Restrict the possible_map according to max_cpus. */
-+	while ((num_possible_cpus() > 1) && (num_possible_cpus() > max_cpus)) {
-+		for (cpu = NR_CPUS-1; !cpu_isset(cpu, cpu_possible_map); cpu--)
-+			continue;
-+		cpu_clear(cpu, cpu_possible_map);
-+	}
-+
-+	for_each_possible_cpu (cpu) {
-+		struct task_struct *idle;
-+
-+		if (cpu == 0)
-+			continue;
-+
-+		idle = fork_idle(cpu);
-+		if (IS_ERR(idle))
-+			panic("failed fork for CPU %d", cpu);
-+
-+		cpu_set(cpu, cpu_present_map);
-+	}
-+
-+	//init_xenbus_allowed_cpumask();
-+}
-+
-+static __cpuinit int
-+cpu_initialize_context(unsigned int cpu, struct task_struct *idle)
-+{
-+	struct vcpu_guest_context *ctxt;
-+	struct gdt_page *gdt = &per_cpu(gdt_page, cpu);
-+
-+	if (cpu_test_and_set(cpu, cpu_initialized_map))
-+		return 0;
-+
-+	ctxt = kzalloc(sizeof(*ctxt), GFP_KERNEL);
-+	if (ctxt == NULL)
-+		return -ENOMEM;
-+
-+	ctxt->flags = VGCF_IN_KERNEL;
-+	ctxt->user_regs.ds = __USER_DS;
-+	ctxt->user_regs.es = __USER_DS;
-+	ctxt->user_regs.fs = __KERNEL_PERCPU;
-+	ctxt->user_regs.gs = 0;
-+	ctxt->user_regs.ss = __KERNEL_DS;
-+	ctxt->user_regs.eip = (unsigned long)cpu_bringup_and_idle;
-+	ctxt->user_regs.eflags = 0x1000; /* IOPL_RING1 */
-+
-+	memset(&ctxt->fpu_ctxt, 0, sizeof(ctxt->fpu_ctxt));
-+
-+	xen_copy_trap_info(ctxt->trap_ctxt);
-+
-+	ctxt->ldt_ents = 0;
-+
-+	BUG_ON((unsigned long)gdt->gdt & ~PAGE_MASK);
-+	make_lowmem_page_readonly(gdt->gdt);
-+
-+	ctxt->gdt_frames[0] = virt_to_mfn(gdt->gdt);
-+	ctxt->gdt_ents      = ARRAY_SIZE(gdt->gdt);
-+
-+	ctxt->user_regs.cs = __KERNEL_CS;
-+	ctxt->user_regs.esp = idle->thread.esp0 - sizeof(struct pt_regs);
-+
-+	ctxt->kernel_ss = __KERNEL_DS;
-+	ctxt->kernel_sp = idle->thread.esp0;
-+
-+	ctxt->event_callback_cs     = __KERNEL_CS;
-+	ctxt->event_callback_eip    = (unsigned long)xen_hypervisor_callback;
-+	ctxt->failsafe_callback_cs  = __KERNEL_CS;
-+	ctxt->failsafe_callback_eip = (unsigned long)xen_failsafe_callback;
-+
-+	per_cpu(xen_cr3, cpu) = __pa(swapper_pg_dir);
-+	ctxt->ctrlreg[3] = xen_pfn_to_cr3(virt_to_mfn(swapper_pg_dir));
-+
-+	if (HYPERVISOR_vcpu_op(VCPUOP_initialise, cpu, ctxt))
-+		BUG();
-+
-+	kfree(ctxt);
-+	return 0;
-+}
-+
-+int __cpuinit xen_cpu_up(unsigned int cpu)
-+{
-+	struct task_struct *idle = idle_task(cpu);
-+	int rc;
-+
-+#if 0
-+	rc = cpu_up_check(cpu);
-+	if (rc)
-+		return rc;
-+#endif
-+
-+	init_gdt(cpu);
-+	per_cpu(current_task, cpu) = idle;
-+	xen_vcpu_setup(cpu);
-+	irq_ctx_init(cpu);
-+
-+	/* make sure interrupts start blocked */
-+	per_cpu(xen_vcpu, cpu)->evtchn_upcall_mask = 1;
-+
-+	rc = cpu_initialize_context(cpu, idle);
-+	if (rc)
-+		return rc;
-+
-+	if (num_online_cpus() == 1)
-+		alternatives_smp_switch(1);
-+
-+	/* This must be done before setting cpu_online_map */
-+	smp_store_cpu_info(cpu);
-+	set_cpu_sibling_map(cpu);
-+	wmb();
-+
-+	rc = xen_smp_intr_init(cpu);
-+	if (rc) {
-+		remove_siblinginfo(cpu);
-+		return rc;
-+	}
-+
-+	cpu_set(cpu, cpu_online_map);
-+
-+	rc = HYPERVISOR_vcpu_op(VCPUOP_up, cpu, NULL);
-+	BUG_ON(rc);
-+
-+	return 0;
-+}
-+
-+void xen_smp_cpus_done(unsigned int max_cpus)
-+{
-+}
-+
-+static void stop_self(void *v)
-+{
-+	int cpu = smp_processor_id();
-+
-+	/* make sure we're not pinning something down */
-+	load_cr3(swapper_pg_dir);
-+	/* should set up a minimal gdt */
-+
-+	HYPERVISOR_vcpu_op(VCPUOP_down, cpu, NULL);
-+	BUG();
-+}
-+
-+void xen_smp_send_stop(void)
-+{
-+	cpumask_t mask = cpu_online_map;
-+	cpu_clear(smp_processor_id(), mask);
-+	xen_smp_call_function_mask(mask, stop_self, NULL, 0);
-+}
-+
-+void xen_smp_send_reschedule(int cpu)
-+{
-+	xen_send_IPI_one(cpu, XEN_RESCHEDULE_VECTOR);
-+}
-+
-+
-+static void xen_send_IPI_mask(cpumask_t mask, enum ipi_vector vector)
-+{
-+	unsigned cpu;
-+
-+	cpus_and(mask, mask, cpu_online_map);
-+
-+	for_each_cpu_mask(cpu, mask)
-+		xen_send_IPI_one(cpu, vector);
-+}
-+
-+static irqreturn_t xen_call_function_interrupt(int irq, void *dev_id)
-+{
-+	void (*func) (void *info) = call_data->func;
-+	void *info = call_data->info;
-+	int wait = call_data->wait;
-+
-+	/*
-+	 * Notify initiating CPU that I've grabbed the data and am
-+	 * about to execute the function
-+	 */
-+	mb();
-+	atomic_inc(&call_data->started);
-+	/*
-+	 * At this point the info structure may be out of scope unless wait==1
-+	 */
-+	irq_enter();
-+	(*func)(info);
-+	irq_exit();
-+
-+	if (wait) {
-+		mb();
-+		atomic_inc(&call_data->finished);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+int xen_smp_call_function_mask(cpumask_t mask, void (*func)(void *),
-+			       void *info, int wait)
-+{
-+	struct call_data_struct data;
-+	int cpus;
-+
-+	/* Holding any lock stops cpus from going down. */
-+	spin_lock(&call_lock);
-+
-+	cpu_clear(smp_processor_id(), mask);
-+
-+	cpus = cpus_weight(mask);
-+	if (!cpus) {
-+		spin_unlock(&call_lock);
-+		return 0;
-+	}
-+
-+	/* Can deadlock when called with interrupts disabled */
-+	WARN_ON(irqs_disabled());
-+
-+	data.func = func;
-+	data.info = info;
-+	atomic_set(&data.started, 0);
-+	data.wait = wait;
-+	if (wait)
-+		atomic_set(&data.finished, 0);
-+
-+	call_data = &data;
-+	mb();
-+
-+	/* Send a message to other CPUs and wait for them to respond */
-+	xen_send_IPI_mask(mask, XEN_CALL_FUNCTION_VECTOR);
-+
-+	/* Make sure other vcpus get a chance to run.
-+	   XXX too severe?  Maybe we should check the other CPU's states? */
-+	HYPERVISOR_sched_op(SCHEDOP_yield, 0);
-+
-+	/* Wait for response */
-+	while (atomic_read(&data.started) != cpus ||
-+	       (wait && atomic_read(&data.finished) != cpus))
-+		cpu_relax();
-+
-+	spin_unlock(&call_lock);
-+
-+	return 0;
-+}
-===================================================================
---- a/arch/i386/xen/time.c
-+++ b/arch/i386/xen/time.c
-@@ -452,8 +452,9 @@ static irqreturn_t xen_timer_interrupt(i
- 	return ret;
- }
- 
--static void xen_setup_timer(int cpu)
--{
-+void xen_setup_timer(void)
-+{
-+	int cpu = smp_processor_id();
- 	const char *name;
- 	struct clock_event_device *evt;
- 	int irq;
-@@ -502,5 +503,5 @@ __init void xen_time_init(void)
- 
- 	tsc_disable = 0;
- 
--	xen_setup_timer(cpu);
--}
-+	xen_setup_timer();
-+}
+ #ifdef CONFIG_X86_PAE
+ unsigned long long xen_pte_val(pte_t);
 ===================================================================
 --- a/arch/i386/xen/xen-ops.h
 +++ b/arch/i386/xen/xen-ops.h
-@@ -2,6 +2,13 @@
- #define XEN_OPS_H
- 
- #include <linux/init.h>
-+#include <linux/percpu.h>
-+
-+/* These are code, but not functions.  Defined in entry.S */
-+extern const char xen_hypervisor_callback[];
-+extern const char xen_failsafe_callback[];
-+
-+void xen_copy_trap_info(struct trap_info *traps);
- 
- DECLARE_PER_CPU(struct vcpu_info *, xen_vcpu);
- DECLARE_PER_CPU(unsigned long, xen_cr3);
-@@ -18,6 +25,7 @@ unsigned long xen_get_wallclock(void);
- unsigned long xen_get_wallclock(void);
+@@ -20,6 +20,8 @@ int xen_set_wallclock(unsigned long time
  int xen_set_wallclock(unsigned long time);
- unsigned long long xen_sched_clock(void);
-+void xen_setup_timer(void);
+ cycle_t xen_clocksource_read(void);
  
- void xen_mark_init_mm_pinned(void);
++void xen_mark_init_mm_pinned(void);
++
+ DECLARE_PER_CPU(enum paravirt_lazy_mode, xen_lazy_mode);
  
-@@ -28,5 +36,22 @@ static inline unsigned xen_get_lazy_mode
- 	return x86_read_percpu(xen_lazy_mode);
+ static inline unsigned xen_get_lazy_mode(void)
+===================================================================
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -52,6 +52,8 @@ struct paravirt_ops
+ 	/* Basic arch-specific setup */
+ 	void (*arch_setup)(void);
+ 	char *(*memory_setup)(void);
++	void (*post_allocator_init)(void);
++
+ 	void (*init_IRQ)(void);
+ 	void (*time_init)(void);
+ 
+@@ -173,7 +175,7 @@ struct paravirt_ops
+ 				 unsigned long va);
+ 
+ 	/* Hooks for allocating/releasing pagetable pages */
+-	void (*alloc_pt)(u32 pfn);
++	void (*alloc_pt)(struct mm_struct *mm, u32 pfn);
+ 	void (*alloc_pd)(u32 pfn);
+ 	void (*alloc_pd_clone)(u32 pfn, u32 clonepfn, u32 start, u32 count);
+ 	void (*release_pt)(u32 pfn);
+@@ -682,6 +684,12 @@ static inline void setup_secondary_clock
  }
- 
-+void __init xen_fill_possible_map(void);
-+
-+void xen_vcpu_setup(int cpu);
-+void xen_smp_prepare_boot_cpu(void);
-+void xen_smp_prepare_cpus(unsigned int max_cpus);
-+int xen_cpu_up(unsigned int cpu);
-+void xen_smp_cpus_done(unsigned int max_cpus);
-+
-+void xen_smp_send_stop(void);
-+void xen_smp_send_reschedule(int cpu);
-+int xen_smp_call_function (void (*func) (void *info), void *info, int nonatomic,
-+			   int wait);
-+int xen_smp_call_function_single(int cpu, void (*func) (void *info), void *info,
-+				 int nonatomic, int wait);
-+
-+int xen_smp_call_function_mask(cpumask_t mask, void (*func)(void *),
-+			       void *info, int wait);
- 
- #endif /* XEN_OPS_H */
-===================================================================
---- a/include/asm-i386/mach-default/irq_vectors_limits.h
-+++ b/include/asm-i386/mach-default/irq_vectors_limits.h
-@@ -1,7 +1,7 @@
- #ifndef _ASM_IRQ_VECTORS_LIMITS_H
- #define _ASM_IRQ_VECTORS_LIMITS_H
- 
--#ifdef CONFIG_X86_IO_APIC
-+#if defined(CONFIG_X86_IO_APIC) || defined(CONFIG_PARAVIRT)
- #define NR_IRQS 224
- # if (224 >= 32 * NR_CPUS)
- # define NR_IRQ_VECTORS NR_IRQS
-===================================================================
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -30,6 +30,23 @@ static inline void enter_lazy_tlb(struct
- 	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
- 		per_cpu(cpu_tlbstate, cpu).state = TLBSTATE_LAZY;
  #endif
+ 
++static inline void paravirt_post_allocator_init(void)
++{
++	if (paravirt_ops.post_allocator_init)
++		(*paravirt_ops.post_allocator_init)();
 +}
 +
-+/*
-+ * We cannot call mmdrop() because we are in interrupt context,
-+ * instead update mm->cpu_vm_mask.
-+ *
-+ * We need to reload %cr3 since the page tables may be going
-+ * away from under us..
-+ */
-+static inline void leave_mm (unsigned long cpu)
-+{
-+#ifdef CONFIG_SMP
-+	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
-+		BUG();
-+	cpu_clear(cpu, per_cpu(cpu_tlbstate, cpu).active_mm->cpu_vm_mask);
-+#endif
-+	load_cr3(swapper_pg_dir);
+ static inline void paravirt_pagetable_setup_start(pgd_t *base)
+ {
+ 	if (paravirt_ops.pagetable_setup_start)
+@@ -738,9 +746,9 @@ static inline void flush_tlb_others(cpum
+ 	PVOP_VCALL3(flush_tlb_others, &cpumask, mm, va);
  }
  
- static inline void switch_mm(struct mm_struct *prev,
-===================================================================
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -752,6 +752,7 @@ extern void cpu_set_gdt(int);
- extern void cpu_set_gdt(int);
- extern void switch_to_new_gdt(void);
- extern void cpu_init(void);
-+extern void init_gdt(int cpu);
- 
- extern int force_mwait;
- 
-===================================================================
---- a/include/asm-i386/smp.h
-+++ b/include/asm-i386/smp.h
-@@ -143,6 +143,8 @@ extern void __cpu_die(unsigned int cpu);
- extern void __cpu_die(unsigned int cpu);
- extern unsigned int num_processors;
- 
-+void __cpuinit smp_store_cpu_info(int id);
-+
- #endif /* !__ASSEMBLY__ */
- 
- #else /* CONFIG_SMP */
-===================================================================
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -1,15 +1,32 @@
- #ifndef _XEN_EVENTS_H
- #define _XEN_EVENTS_H
- 
--#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+
-+#include <xen/interface/event_channel.h>
-+#include <asm/xen/hypercall.h>
-+
-+enum ipi_vector {
-+	XEN_RESCHEDULE_VECTOR,
-+	XEN_CALL_FUNCTION_VECTOR,
-+
-+	XEN_NR_IPIS,
-+};
- 
- int bind_evtchn_to_irqhandler(unsigned int evtchn,
--			      irqreturn_t (*handler)(int, void *),
-+			      irq_handler_t handler,
- 			      unsigned long irqflags, const char *devname,
- 			      void *dev_id);
- int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
--			    irqreturn_t (*handler)(int, void *),
--			    unsigned long irqflags, const char *devname, void *dev_id);
-+			    irq_handler_t handler,
-+			    unsigned long irqflags, const char *devname,
-+			    void *dev_id);
-+int bind_ipi_to_irqhandler(enum ipi_vector ipi,
-+			   unsigned int cpu,
-+			   irq_handler_t handler,
-+			   unsigned long irqflags,
-+			   const char *devname,
-+			   void *dev_id);
- 
- /*
-  * Common unbind function for all event sources. Takes IRQ to unbind from.
-@@ -17,6 +34,8 @@ int bind_virq_to_irqhandler(unsigned int
-  * made with bind_evtchn_to_irqhandler()).
-  */
- void unbind_from_irqhandler(unsigned int irq, void *dev_id);
-+
-+void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector);
- 
- static inline void notify_remote_via_evtchn(int port)
+-static inline void paravirt_alloc_pt(unsigned pfn)
+-{
+-	PVOP_VCALL1(alloc_pt, pfn);
++static inline void paravirt_alloc_pt(struct mm_struct *mm, unsigned pfn)
++{
++	PVOP_VCALL2(alloc_pt, mm, pfn);
+ }
+ static inline void paravirt_release_pt(unsigned pfn)
  {
+===================================================================
+--- a/include/asm-i386/pgalloc.h
++++ b/include/asm-i386/pgalloc.h
+@@ -7,7 +7,7 @@
+ #ifdef CONFIG_PARAVIRT
+ #include <asm/paravirt.h>
+ #else
+-#define paravirt_alloc_pt(pfn) do { } while (0)
++#define paravirt_alloc_pt(mm, pfn) do { } while (0)
+ #define paravirt_alloc_pd(pfn) do { } while (0)
+ #define paravirt_alloc_pd(pfn) do { } while (0)
+ #define paravirt_alloc_pd_clone(pfn, clonepfn, start, count) do { } while (0)
+@@ -17,13 +17,13 @@
+ 
+ #define pmd_populate_kernel(mm, pmd, pte)			\
+ do {								\
+-	paravirt_alloc_pt(__pa(pte) >> PAGE_SHIFT);		\
++	paravirt_alloc_pt(mm, __pa(pte) >> PAGE_SHIFT);		\
+ 	set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)));		\
+ } while (0)
+ 
+ #define pmd_populate(mm, pmd, pte) 				\
+ do {								\
+-	paravirt_alloc_pt(page_to_pfn(pte));			\
++	paravirt_alloc_pt(mm, page_to_pfn(pte));		\
+ 	set_pmd(pmd, __pmd(_PAGE_TABLE +			\
+ 		((unsigned long long)page_to_pfn(pte) <<	\
+ 			(unsigned long long) PAGE_SHIFT)));	\
+===================================================================
+--- a/include/asm-i386/setup.h
++++ b/include/asm-i386/setup.h
+@@ -79,6 +79,10 @@ void __init add_memory_region(unsigned l
+ 
+ extern unsigned long init_pg_tables_end;
+ 
++#ifndef CONFIG_PARAVIRT
++#define paravirt_post_allocator_init()	do {} while(0)
++#endif
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif  /*  __KERNEL__  */
+===================================================================
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -93,6 +93,7 @@
+ 
+ /* PG_owner_priv_1 users should have descriptive aliases */
+ #define PG_checked		PG_owner_priv_1 /* Used by some filesystems */
++#define PG_pinned		PG_owner_priv_1	/* Xen pinned pagetable */
+ 
+ #if (BITS_PER_LONG > 32)
+ /*
+@@ -170,6 +171,10 @@ static inline void SetPageUptodate(struc
+ #define PageChecked(page)	test_bit(PG_checked, &(page)->flags)
+ #define SetPageChecked(page)	set_bit(PG_checked, &(page)->flags)
+ #define ClearPageChecked(page)	clear_bit(PG_checked, &(page)->flags)
++
++#define PagePinned(page)	test_bit(PG_pinned, &(page)->flags)
++#define SetPagePinned(page)	set_bit(PG_pinned, &(page)->flags)
++#define ClearPagePinned(page)	clear_bit(PG_pinned, &(page)->flags)
+ 
+ #define PageReserved(page)	test_bit(PG_reserved, &(page)->flags)
+ #define SetPageReserved(page)	set_bit(PG_reserved, &(page)->flags)
 
 -- 
