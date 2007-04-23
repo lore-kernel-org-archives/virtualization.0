@@ -1,33 +1,42 @@
-From: Andi Kleen <ak@suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
 Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem mappings
-Date: Mon, 23 Apr 2007 19:54:46 +0200
-Message-ID: <200704231954.46339.ak@suse.de>
-References: <20070414204154.871250608@goop.org> <m1vefnvvyb.fsf@ebiederm.dsl.xmission.com> <462CF0C5.2040200@zytor.com>
+Date: Mon, 23 Apr 2007 12:00:51 -0600
+Message-ID: <m17is3vulo.fsf@ebiederm.dsl.xmission.com>
+References: <20070414204154.871250608@goop.org>
+	<200704192250.52633.ak@suse.de> <4627D756.5020405@zytor.com>
+	<200704192304.01053.ak@suse.de> <4627DB0C.2010804@zytor.com>
+	<4627DDAD.4070805@redhat.com> <4627E099.209@goop.org>
+	<m1d51vxxm4.fsf@ebiederm.dsl.xmission.com> <462CE027.4030302@goop.org>
+	<462CE1E0.9060007@zytor.com> <462CE69E.8040207@goop.org>
+	<462CEB55.9070508@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161182AbXDWRzR@vger.kernel.org>
-In-Reply-To: <462CF0C5.2040200@zytor.com>
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161175AbXDWSCn@vger.kernel.org>
+In-Reply-To: <462CEB55.9070508@zytor.com> (H. Peter Anvin's message of "Mon,
+	23 Apr 2007 10:22:29 -0700")
 Sender: linux-kernel-owner@vger.kernel.org
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Chuck Ebbert <cebbert@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Chuck Ebbert <cebbert@redhat.com>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Monday 23 April 2007 19:45:41 H. Peter Anvin wrote:
-> Eric W. Biederman wrote:
-> > 
-> > - I know of one system that had BIOS tables at 16MB I believe (and
-> >   thus had a fairly low hole).
-> > 
-> 
-> Please name names, otherwise this is just rumouring.  Seriously.  We 
-> have enough cargo-cult programming as it is.
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-Unisys did this at some point in their large machines, but they fixed
-that in a later BIOS.
+> Agreed.  However, saying that your patch shouldn't go into the mainline kernel
+> until that has been fixed is spurious and wrong.  It fixes a real problem with
+> minimal risk.
 
-Anyways, boot up should be robust against any holes if possible.
+For a stable and frozen kernel it is probably the best we can do.
 
--Andi
+However the code is based on confusion of what should be happening and
+it increases the complexity of the code and pushes us towards the edge of
+code that is so crufty it is impossible to maintain.
+
+We need to simplify this mess not make it more convoluted.
+
+Did anyone else notice that if we don't have PAE we continue to use
+the initial page tables 4K page mappings of the kernel?
+
+This probably explains why experiments to 4MB align the i386 kernel
+to improve performance failed.
+
+Eric
