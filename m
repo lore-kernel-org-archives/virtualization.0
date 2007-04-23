@@ -1,67 +1,87 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem mappings
-Date: Mon, 23 Apr 2007 03:12:51 -0600
-Message-ID: <m1d51vxxm4.fsf@ebiederm.dsl.xmission.com>
-References: <20070414204154.871250608@goop.org>
-	<200704192250.52633.ak@suse.de> <4627D756.5020405@zytor.com>
-	<200704192304.01053.ak@suse.de> <4627DB0C.2010804@zytor.com>
-	<4627DDAD.4070805@redhat.com> <4627E099.209@goop.org>
+From: "Lynn Holman" <norphlet78@migomak.com>
+Subject: Are temperament at conesus
+Date: Mon, 23 Apr 2007 17:19:54 +0200
+Message-ID: <000f01c785cb$9baed4d0$069fdd44@pppacitlw5ckt6>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754069AbXDWJO6@vger.kernel.org>
-In-Reply-To: <4627E099.209@goop.org> (Jeremy Fitzhardinge's message of "Thu,
-	19 Apr 2007 14:35:21 -0700")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chuck Ebbert <cebbert@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: multipart/mixed; boundary="===============8328625136912751431=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge <jeremy@goop.org> writes:
+--===============8328625136912751431==
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000C_01C785CB.9BAED4D0"
 
-> Chuck Ebbert wrote:
->> H. Peter Anvin wrote:
->>   
->>> Andi Kleen wrote:
->>>     
->>>> Then we would have seen reports surely?
->>>>       
->
-> Yes, I would have thought so.  It surprised me that such an obvious bug
-> could be there, apparently for a long time.  But it's real, and
-> potentially affects everyone.  It probably doesn't affect highly modular
-> distros much, since the kernel itself will be relatively small.
->
->> I never saw a description of the symptoms of encountering this bug.
->> Does it just hang, or what?
->>   
->
-> You get an early-fault message on-screen, assuming that's enabled;
-> otherwise it will just appear to hang.  It happens in pagetable_init,
-> when it allocates a new pagetable above the head.S mapping (8M in my
-> case).  It will only hit if the kernel size approaches a 4M boundary,
-> since it won't leave enough space mapped to construct the lowmem mappings.
->
-> It only affects native booting, since under Xen all those mappings have
-> already been constructed.  It happened to me with a paravirt kernel that
-> happened to Xen compiled into it, but that was irrelevent (though
-> misleading; the 40k difference in kernel size was enough to make it not
-> happen in a non-Xen kernel).
+------=_NextPart_000_000C_01C785CB.9BAED4D0
+Content-Type: text/plain;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-I happened to be looking at this stretch of code and I have realized
-that this is quite simply the wrong fix.
 
-The problem is that it depends intimately on the details of
-alloc_bootmem_pages_low.  Essentially the problem is that when
-we are setting up the identity mappings in paging_init we assume
-the identity mappings already exist.
 
-If there are holes in the memory map or someone changes the way
-pages are returned from alloc_bootmem_pages_low() this code
-will break again.
 
-The only way to ensure this will not happen is to do what we do
-on x86_64 and map the new page table page into our address space
-before we write to it.  Assuming the page we allocate is already
-mapped is simply not robust.
+IT IS GOING TO BREAK OUT!!
 
-Eric
+Target sym: ASVPPrice (current): $0.64 1 Day Target price: $1Action: =
+Strong Buy/Hold..
+
+
+Bullish profit guaranted (500+%)!!!
+
+ASVP have released very hot news. Check this out, virtualization and =
+call to your brocker right now.
+
+
+------=_NextPart_000_000C_01C785CB.9BAED4D0
+Content-Type: text/html;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1252">
+<META content=3D"MSHTML 6.00.2462.1106" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#333366 size=3D3D4><FONT =
+size=3D4><STRONG>IT IS GOING TO BREAK OUT.</STRONG></FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#000033 size=3D4>Target =
+sym: <b>ASVP</b><br>Price (current): $0.64 <br>1 Day Target price: =
+$1<br>Action: Strong Buy/Hold..</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#000066 size=3D4>Bullish =
+profit guaranted (500+%)!!!</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#000033 size=3D2>ASVP =
+have released very hot news. Check this out, virtualization and call to =
+your brocker right now!!!</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_000C_01C785CB.9BAED4D0--
+
+--===============8328625136912751431==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============8328625136912751431==--
