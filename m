@@ -1,87 +1,34 @@
-From: "Lynn Holman" <norphlet78@migomak.com>
-Subject: Are temperament at conesus
-Date: Mon, 23 Apr 2007 17:19:54 +0200
-Message-ID: <000f01c785cb$9baed4d0$069fdd44@pppacitlw5ckt6>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem
+ mappings
+Date: Mon, 23 Apr 2007 09:01:59 -0700
+Message-ID: <462CD877.8000302@zytor.com>
+References: <20070414204154.871250608@goop.org>	<200704192250.52633.ak@suse.de> <4627D756.5020405@zytor.com>	<200704192304.01053.ak@suse.de> <4627DB0C.2010804@zytor.com>	<4627DDAD.4070805@redhat.com> <4627E099.209@goop.org> <m1d51vxxm4.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8328625136912751431=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964792AbXDWQDR@vger.kernel.org>
+In-Reply-To: <m1d51vxxm4.fsf@ebiederm.dsl.xmission.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Chuck Ebbert <cebbert@redhat.com>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============8328625136912751431==
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000C_01C785CB.9BAED4D0"
+Eric W. Biederman wrote:
+> 
+> I happened to be looking at this stretch of code and I have realized
+> that this is quite simply the wrong fix.
+> 
+> The problem is that it depends intimately on the details of
+> alloc_bootmem_pages_low.  Essentially the problem is that when
+> we are setting up the identity mappings in paging_init we assume
+> the identity mappings already exist.
+> 
+> If there are holes in the memory map or someone changes the way
+> pages are returned from alloc_bootmem_pages_low() this code
+> will break again.
+> 
 
-------=_NextPart_000_000C_01C785CB.9BAED4D0
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+How would holes in the memory map affect it?
 
-
-
-
-IT IS GOING TO BREAK OUT!!
-
-Target sym: ASVPPrice (current): $0.64 1 Day Target price: $1Action: =
-Strong Buy/Hold..
-
-
-Bullish profit guaranted (500+%)!!!
-
-ASVP have released very hot news. Check this out, virtualization and =
-call to your brocker right now.
-
-
-------=_NextPart_000_000C_01C785CB.9BAED4D0
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2462.1106" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#333366 size=3D3D4><FONT =
-size=3D4><STRONG>IT IS GOING TO BREAK OUT.</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000033 size=3D4>Target =
-sym: <b>ASVP</b><br>Price (current): $0.64 <br>1 Day Target price: =
-$1<br>Action: Strong Buy/Hold..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000066 size=3D4>Bullish =
-profit guaranted (500+%)!!!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000033 size=3D2>ASVP =
-have released very hot news. Check this out, virtualization and call to =
-your brocker right now!!!</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_000C_01C785CB.9BAED4D0--
-
---===============8328625136912751431==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============8328625136912751431==--
+	-hpa
