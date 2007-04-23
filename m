@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 22/25] xen: xen-netfront: use skb.cb for storing private data
-Date: Mon, 23 Apr 2007 14:57:00 -0700
-Message-ID: <20070423215713.550883195@goop.org>
+Subject: [PATCH 23/25] xen: Lockdep fixes for xen-netfront
+Date: Mon, 23 Apr 2007 14:57:01 -0700
+Message-ID: <20070423215713.768656419@goop.org>
 References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-netfront-use-cb.patch
+Content-Disposition: inline; filename=xen-netfront-lockdep-fix.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,65 +15,156 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Netfront's use of nh.raw and h.raw for storing page+offset is a bit
-hinky, and it breaks with upcoming network stack updates which reduce
-these fields to sub-pointer sizes.  Fortunately, skb offers the "cb"
-field specifically for stashing this kind of info, so use it.
+netfront contains two locking problems found by lockdep:
+
+1. rx_lock is a normal spinlock, and tx_lock is an irq spinlock.  This
+   means that in normal use, tx_lock may be taken by an interrupt routine
+   while rx_lock is held.  However, netif_disconnect_backend takes them
+   in the order tx_lock->rx_lock, which could lead to a deadlock.  Reverse
+   them
+2. rx_lock can also be taken in softirq context, so it should be taken/released
+   with spin_(un)lock_bh.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: Chris Wright <chrisw@sous-sol.org>
 Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 
 ---
- drivers/net/xen-netfront.c |   18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/net/xen-netfront.c |   30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
 ===================================================================
 --- a/drivers/net/xen-netfront.c
 +++ b/drivers/net/xen-netfront.c
-@@ -52,6 +52,13 @@
- #include <xen/page.h>
- #include <xen/grant_table.h>
+@@ -515,14 +515,14 @@ static int network_open(struct net_devic
  
-+struct netfront_cb {
-+	struct page *page;
-+	unsigned offset;
-+};
-+
-+#define NETFRONT_SKB_CB(skb)	((struct netfront_cb *)((skb)->cb))
-+
- /*
-  * Mutually-exclusive module options to select receive data path:
-  *  rx_copy : Packets are copied by network backend into local memory
-@@ -944,10 +951,11 @@ static void handle_incoming_queue(struct
- 	struct sk_buff *skb;
+ 	memset(&np->stats, 0, sizeof(np->stats));
  
- 	while ((skb = __skb_dequeue(rxq)) != NULL) {
--		struct page *page = (struct page *)skb->nh.raw;
-+		struct page *page = NETFRONT_SKB_CB(skb)->page;
- 		void *vaddr = page_address(page);
--
--		memcpy(skb->data, vaddr + (skb->h.raw - skb->nh.raw),
-+		unsigned offset = NETFRONT_SKB_CB(skb)->offset;
-+
-+		memcpy(skb->data, vaddr + offset,
- 		       skb_headlen(skb));
+-	spin_lock(&np->rx_lock);
++	spin_lock_bh(&np->rx_lock);
+ 	if (netfront_carrier_ok(np)) {
+ 		network_alloc_rx_buffers(dev);
+ 		np->rx.sring->rsp_event = np->rx.rsp_cons + 1;
+ 		if (RING_HAS_UNCONSUMED_RESPONSES(&np->rx))
+ 			netif_rx_schedule(dev);
+ 	}
+-	spin_unlock(&np->rx_lock);
++	spin_unlock_bh(&np->rx_lock);
  
- 		if (page != skb_shinfo(skb)->frags[0].page)
-@@ -1251,8 +1259,8 @@ err:
- 			}
- 		}
+ 	network_maybe_wake_tx(dev);
  
--		skb->nh.raw = (void *)skb_shinfo(skb)->frags[0].page;
--		skb->h.raw = skb->nh.raw + rx->offset;
-+		NETFRONT_SKB_CB(skb)->page = skb_shinfo(skb)->frags[0].page;
-+		NETFRONT_SKB_CB(skb)->offset = rx->offset;
+@@ -1212,10 +1212,10 @@ static int netif_poll(struct net_device 
+ 	int pages_flipped = 0;
+ 	int err;
  
- 		len = rx->status;
- 		if (len > RX_COPY_THRESHOLD)
+-	spin_lock(&np->rx_lock);
++	spin_lock_bh(&np->rx_lock);
+ 
+ 	if (unlikely(!netfront_carrier_ok(np))) {
+-		spin_unlock(&np->rx_lock);
++		spin_unlock_bh(&np->rx_lock);
+ 		return 0;
+ 	}
+ 
+@@ -1356,7 +1356,7 @@ err:
+ 		local_irq_restore(flags);
+ 	}
+ 
+-	spin_unlock(&np->rx_lock);
++	spin_unlock_bh(&np->rx_lock);
+ 
+ 	return more_to_do;
+ }
+@@ -1399,7 +1399,7 @@ static void netif_release_rx_bufs(struct
+ 
+ 	skb_queue_head_init(&free_list);
+ 
+-	spin_lock(&np->rx_lock);
++	spin_lock_bh(&np->rx_lock);
+ 
+ 	for (id = 0; id < NET_RX_RING_SIZE; id++) {
+ 		if ((ref = np->grant_rx_ref[id]) == GRANT_INVALID_REF) {
+@@ -1469,7 +1469,7 @@ static void netif_release_rx_bufs(struct
+ 	while ((skb = __skb_dequeue(&free_list)) != NULL)
+ 		dev_kfree_skb(skb);
+ 
+-	spin_unlock(&np->rx_lock);
++	spin_unlock_bh(&np->rx_lock);
+ }
+ 
+ static int network_close(struct net_device *dev)
+@@ -1579,8 +1579,8 @@ static int network_connect(struct net_de
+ 	dev_info(&dev->dev, "has %sing receive path.\n",
+ 		 np->copying_receiver ? "copy" : "flipp");
+ 
++	spin_lock_bh(&np->rx_lock);
+ 	spin_lock_irq(&np->tx_lock);
+-	spin_lock(&np->rx_lock);
+ 
+ 	/*
+ 	 * Recovery procedure:
+@@ -1632,8 +1632,8 @@ static int network_connect(struct net_de
+ 	network_tx_buf_gc(dev);
+ 	network_alloc_rx_buffers(dev);
+ 
+-	spin_unlock(&np->rx_lock);
+ 	spin_unlock_irq(&np->tx_lock);
++	spin_unlock_bh(&np->rx_lock);
+ 
+ 	return 0;
+ }
+@@ -1689,7 +1689,7 @@ static ssize_t store_rxbuf_min(struct de
+ 	if (target > RX_MAX_TARGET)
+ 		target = RX_MAX_TARGET;
+ 
+-	spin_lock(&np->rx_lock);
++	spin_lock_bh(&np->rx_lock);
+ 	if (target > np->rx_max_target)
+ 		np->rx_max_target = target;
+ 	np->rx_min_target = target;
+@@ -1698,7 +1698,7 @@ static ssize_t store_rxbuf_min(struct de
+ 
+ 	network_alloc_rx_buffers(netdev);
+ 
+-	spin_unlock(&np->rx_lock);
++	spin_unlock_bh(&np->rx_lock);
+ 	return len;
+ }
+ 
+@@ -1732,7 +1732,7 @@ static ssize_t store_rxbuf_max(struct de
+ 	if (target > RX_MAX_TARGET)
+ 		target = RX_MAX_TARGET;
+ 
+-	spin_lock(&np->rx_lock);
++	spin_lock_bh(&np->rx_lock);
+ 	if (target < np->rx_min_target)
+ 		np->rx_min_target = target;
+ 	np->rx_max_target = target;
+@@ -1741,7 +1741,7 @@ static ssize_t store_rxbuf_max(struct de
+ 
+ 	network_alloc_rx_buffers(netdev);
+ 
+-	spin_unlock(&np->rx_lock);
++	spin_unlock_bh(&np->rx_lock);
+ 	return len;
+ }
+ 
+@@ -1885,11 +1885,11 @@ static void netif_disconnect_backend(str
+ static void netif_disconnect_backend(struct netfront_info *info)
+ {
+ 	/* Stop old i/f to prevent errors whilst we rebuild the state. */
++	spin_lock_bh(&info->rx_lock);
+ 	spin_lock_irq(&info->tx_lock);
+-	spin_lock(&info->rx_lock);
+ 	netfront_carrier_off(info);
+-	spin_unlock(&info->rx_lock);
+ 	spin_unlock_irq(&info->tx_lock);
++	spin_unlock_bh(&info->rx_lock);
+ 
+ 	if (info->irq)
+ 		unbind_from_irqhandler(info->irq, info->netdev);
 
 -- 
