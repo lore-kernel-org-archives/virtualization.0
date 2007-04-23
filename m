@@ -1,16 +1,18 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [RFC, PATCH 5/5] Paravirt_ops export.patch
-Date: Mon, 23 Apr 2007 15:14:33 -0600
-Message-ID: <m1mz0yvlmu.fsf@ebiederm.dsl.xmission.com>
-References: <20070420015304.74394BFC@zach-dev2.vmware.com>
-	<46284B40.5010106@goop.org> <m1y7kkzdon.fsf@ebiederm.dsl.xmission.com>
-	<8a06f3d10704220959r16a78690ib1c90c56e4d1367@mail.gmail.com>
-	<462B9BE6.6040302@goop.org> <462D1CBC.6050405@vmware.com>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [RFC, PATCH 0/5] Paravirt: fix export of paravirt-ops to	binary
+ modules
+Date: Mon, 23 Apr 2007 14:18:51 -0700
+Message-ID: <462D22BB.3080909@vmware.com>
+References: <20070420015214.6834BBFC@zach-dev2.vmware.com>	
+	<200704230149.44137.ak@suse.de>	
+	<1177287845.17026.27.camel@localhost.localdomain>	
+	<200704230249.29473.ak@suse.de>
+	<1177290274.17026.42.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <462D1CBC.6050405@vmware.com> (Zachary Amsden's message of "Mon,
-	23 Apr 2007 13:53:16 -0700")
+In-Reply-To: <1177290274.17026.42.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,34 +22,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zamsden@gmail.com>, Andi Kleen <ak@muc.de>, Petr Vandrovec <petr@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Chaz Masden <zamsden@gmail.com>, Petr Vandrovec <petr@vmware.com>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden <zach@vmware.com> writes:
-
->
->>> 2) You must support dynamic re-linking - the kernel has to boot and
->>> use builtin native style operations before switching over to the
->>> virtualized operations.  So you have to have some kind of jettisonable
->>> early binding support.
+Rusty Russell wrote:
+> On Mon, 2007-04-23 at 02:49 +0200, Andi Kleen wrote:
+>   
+>> On Monday 23 April 2007 02:24:05 Rusty Russell wrote:
+>>     
+>>> On Mon, 2007-04-23 at 01:49 +0200, Andi Kleen wrote:
+>>>       
+>>>>> Less exports good.  Consistency with all config options isn't a hard
+>>>>> requirement: I'd be tempted not to export the pte functions.
+>>>>>           
+>>>> Yes paravirt_ops should be probably split into two for internal and external
+>>>> available functions. Any takers? 
+>>>>         
+>>> Hi Andi!
 >>>
->>
->> I don't think there's any particular reason we can't do this very early,
->> at the same time we currently populate paravirt_ops.  I think the idea
->> is that if you do nothing, the calls will all point to the native
->> versions, so if you do the late-paravirtualization (do you still do
->> that?) then you'll get native ops initially.
->>
+>>> 	I'm a little uncomfortable with cutting the struct this way: I always
+>>> thought it'd be a function split if we did one.
+>>>       
+>> It's a functional split, isn't it? arch/mm internal and "exported" to other
+>> users
+>>     
 >
-> Yes, we still do late paravirtualization.  My point is that because of that, you
-> can't just link once and be done with it - you must relink the paravirt-ops
-> later, which is more complex than a one time pre-execution link.
+> Hi,
+>
+> 	When I said functional I was thinking "page table ops" vs "apic ops"
+> etc.  There's little logic to what needs exporting.
+>
+> 	Most modules only need the interrupt operations.  A small handful want
+> more, and then some (kvm, lguest) need a whole range of crap (these
+> should use the native_ versions directly, since nested paravirt is not
+> supported).
+>
+> I did the work before; I'll drag it back out and see what the symbols
+> are again...
+>   
 
-Then if it is causing problems and making the code more complex (and it sounds
-like it is) please let's get rid of late paravirtualization.
+Interrupt control is needed in general.  CPUID is also widely used.
+FPU control (clts, read / write cr0) is required for certain software 
+operations.
 
-arch/i386 is in bad enough shape with tons of unnecessary special cases.
-We don't need the paravirtualization support adding more.
+There are non-obvious exports that are required for some modules; in 
+particular, MSRs may be used in video drivers, and wbinvd must be 
+available to hardware drivers.  We may wish to simply trap / emulate 
+these instructions and remove the paravirt-ops altogether.  They are not 
+performance critical in 32-bit, and will complicate loading non-GPL 
+drivers for a wide range of hardware - hardware that is not exposed in a 
+virtualized environment to begin with.
 
-Eric
+Some rather more interesting modules map kernel page tables to read the 
+physical frame numbers from ptes; this is
+safe to do if you get_pages or get_user_pages and keep the pages 
+locked.  This requires kmap_atomic_pte to be available.  Similarly, 
+pte_val and make_pte need to be available.  Mostly only modules that 
+require a native environment (virtualization modules) need them, but we 
+need some way to either resolve the symbol as load time or make the 
+requirement for the symbol go away.  No matter how you look at it, 
+failing to load a module because of an unresolved paravirt-op that is 
+actually going to be reduced to a nop is a very silly situation to be in.
+
+Zach
