@@ -1,10 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 02/25] xen: Allocate and free vmalloc areas
-Date: Mon, 23 Apr 2007 14:56:40 -0700
-Message-ID: <20070423215709.627070158@goop.org>
+Subject: [PATCH 01/25] xen: Add apply_to_page_range() which applies a
+	function to a pte range.
+Date: Mon, 23 Apr 2007 14:56:39 -0700
+Message-ID: <20070423215709.339043724@goop.org>
 References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=alloc-vm-area.patch
+Content-Disposition: inline; filename=apply-to-page-range.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,96 +16,152 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Andi Kleen <ak@muc.de>, Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: Matt Mackall <mpm@waste.org>, Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christoph Lameter <clameter@sgi.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allocate/destroy a 'vmalloc' VM area: alloc_vm_area and free_vm_area
-The alloc function ensures that page tables are constructed for the
-region of kernel virtual address space and mapped into init_mm.
+Add a new mm function apply_to_page_range() which applies a given
+function to every pte in a given virtual address range in a given mm
+structure. This is a generic alternative to cut-and-pasting the Linux
+idiomatic pagetable walking code in every place that a sequence of
+PTEs must be accessed.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Although this interface is intended to be useful in a wide range of
+situations, it is currently used specifically by several Xen
+subsystems, for example: to ensure that pagetables have been allocated
+for a virtual address range, and to construct batched special
+pagetable update requests to map I/O memory (in ioremap()).
+
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: "Jan Beulich" <JBeulich@novell.com>
-Cc: "Andi Kleen" <ak@muc.de>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Christoph Lameter <clameter@sgi.com>
+Cc: Matt Mackall <mpm@waste.org>
+Acked-by: Ingo Molnar <mingo@elte.hu> 
 
 ---
- include/linux/vmalloc.h |    4 +++
- mm/vmalloc.c            |   51 +++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 55 insertions(+)
+ include/linux/mm.h |    5 ++
+ mm/memory.c        |   94 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 99 insertions(+)
 
 ===================================================================
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -68,6 +68,10 @@ extern int map_vm_area(struct vm_struct 
- 			struct page ***pages);
- extern void unmap_vm_area(struct vm_struct *area);
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1135,6 +1135,11 @@ struct page *follow_page(struct vm_area_
+ #define FOLL_GET	0x04	/* do get_page on page */
+ #define FOLL_ANON	0x08	/* give ZERO_PAGE if no pgtable */
  
-+/* Allocate/destroy a 'vmalloc' VM area. */
-+extern struct vm_struct *alloc_vm_area(unsigned long size);
-+extern void free_vm_area(struct vm_struct *area);
++typedef int (*pte_fn_t)(pte_t *pte, struct page *pmd_page, unsigned long addr,
++			void *data);
++extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
++			       unsigned long size, pte_fn_t fn, void *data);
++
+ #ifdef CONFIG_PROC_FS
+ void vm_stat_account(struct mm_struct *, unsigned long, struct file *, long);
+ #else
+===================================================================
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1448,6 +1448,100 @@ int remap_pfn_range(struct vm_area_struc
+ }
+ EXPORT_SYMBOL(remap_pfn_range);
+ 
++static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
++{
++	pte_t *pte;
++	int err;
++	struct page *pmd_page;
++	spinlock_t *ptl;
++
++	pte = (mm == &init_mm) ?
++		pte_alloc_kernel(pmd, addr) :
++		pte_alloc_map_lock(mm, pmd, addr, &ptl);
++	if (!pte)
++		return -ENOMEM;
++
++	BUG_ON(pmd_huge(*pmd));
++
++	pmd_page = pmd_page(*pmd);
++
++	do {
++		err = fn(pte, pmd_page, addr, data);
++		if (err)
++			break;
++	} while (pte++, addr += PAGE_SIZE, addr != end);
++
++	if (mm != &init_mm)
++		pte_unmap_unlock(pte-1, ptl);
++	return err;
++}
++
++static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
++{
++	pmd_t *pmd;
++	unsigned long next;
++	int err;
++
++	pmd = pmd_alloc(mm, pud, addr);
++	if (!pmd)
++		return -ENOMEM;
++	do {
++		next = pmd_addr_end(addr, end);
++		err = apply_to_pte_range(mm, pmd, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pmd++, addr = next, addr != end);
++	return err;
++}
++
++static int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
++{
++	pud_t *pud;
++	unsigned long next;
++	int err;
++
++	pud = pud_alloc(mm, pgd, addr);
++	if (!pud)
++		return -ENOMEM;
++	do {
++		next = pud_addr_end(addr, end);
++		err = apply_to_pmd_range(mm, pud, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pud++, addr = next, addr != end);
++	return err;
++}
++
++/*
++ * Scan a region of virtual memory, filling in page tables as necessary
++ * and calling a provided function on each leaf page table.
++ */
++int apply_to_page_range(struct mm_struct *mm, unsigned long addr,
++			unsigned long size, pte_fn_t fn, void *data)
++{
++	pgd_t *pgd;
++	unsigned long next;
++	unsigned long end = addr + size;
++	int err;
++
++	BUG_ON(addr >= end);
++	pgd = pgd_offset(mm, addr);
++	do {
++		next = pgd_addr_end(addr, end);
++		err = apply_to_pud_range(mm, pgd, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pgd++, addr = next, addr != end);
++	return err;
++}
++EXPORT_SYMBOL_GPL(apply_to_page_range);
 +
  /*
-  *	Internals.  Dont't use..
-  */
-===================================================================
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -757,3 +757,54 @@ out_einval_locked:
- }
- EXPORT_SYMBOL(remap_vmalloc_range);
- 
-+static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *data)
-+{
-+	/* apply_to_page_range() does all the hard work. */
-+	return 0;
-+}
-+
-+/**
-+ *	alloc_vm_area - allocate a range of kernel address space
-+ *	@size:		size of the area
-+ *	@returns:	NULL on failure, vm_struct on success
-+ *
-+ *	This function reserves a range of kernel address space, and
-+ *	allocates pagetables to map that range.  No actual mappings
-+ *	are created.  If the kernel address space is not shared
-+ *	between processes, it syncs the pagetable across all
-+ *	processes.
-+ */
-+struct vm_struct *alloc_vm_area(unsigned long size)
-+{
-+	struct vm_struct *area;
-+
-+	area = get_vm_area(size, VM_IOREMAP);
-+	if (area == NULL)
-+		return NULL;
-+
-+	/*
-+	 * This ensures that page tables are constructed for this region
-+	 * of kernel virtual address space and mapped into init_mm.
-+	 */
-+	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
-+				area->size, f, NULL)) {
-+		free_vm_area(area);
-+		return NULL;
-+	}
-+
-+	/* Make sure the pagetables are constructed in process kernel
-+	   mappings */
-+	vmalloc_sync_all();
-+
-+	return area;
-+}
-+EXPORT_SYMBOL_GPL(alloc_vm_area);
-+
-+void free_vm_area(struct vm_struct *area)
-+{
-+	struct vm_struct *ret;
-+	ret = remove_vm_area(area->addr);
-+	BUG_ON(ret != area);
-+	kfree(area);
-+}
-+EXPORT_SYMBOL_GPL(free_vm_area);
+  * handle_pte_fault chooses page fault handler according to an entry
+  * which was read non-atomically.  Before making any commitment, on
 
 -- 
