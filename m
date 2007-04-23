@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 17/25] xen: Add early printk support via hvc console
-Date: Mon, 23 Apr 2007 14:56:55 -0700
-Message-ID: <20070423215712.510683511@goop.org>
+Subject: [PATCH 22/25] xen: xen-netfront: use skb.cb for storing private data
+Date: Mon, 23 Apr 2007 14:57:00 -0700
+Message-ID: <20070423215713.550883195@goop.org>
 References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-hvc-earlyprintk.patch
+Content-Disposition: inline; filename=xen-netfront-use-cb.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,92 +15,65 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add early printk support via hvc console, enable using
-"earlyprintk=xen" on the kernel command line.
+Netfront's use of nh.raw and h.raw for storing page+offset is a bit
+hinky, and it breaks with upcoming network stack updates which reduce
+these fields to sub-pointer sizes.  Fortunately, skb offers the "cb"
+field specifically for stashing this kind of info, so use it.
 
-From: Gerd Hoffmann <kraxel@suse.de>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Acked-by: Ingo Molnar <mingo@elte.hu>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Chris Wright <chrisw@sous-sol.org>
+Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 
 ---
- arch/x86_64/kernel/early_printk.c |    5 +++++
- drivers/xen/hvc-console.c         |   25 +++++++++++++++++++++++++
- include/xen/hvc-console.h         |    6 ++++++
- 3 files changed, 36 insertions(+)
+ drivers/net/xen-netfront.c |   18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
 ===================================================================
---- a/arch/x86_64/kernel/early_printk.c
-+++ b/arch/x86_64/kernel/early_printk.c
-@@ -6,6 +6,7 @@
- #include <asm/io.h>
- #include <asm/processor.h>
- #include <asm/fcntl.h>
-+#include <xen/hvc-console.h>
- 
- /* Simple VGA output */
- 
-@@ -243,6 +244,10 @@ static int __init setup_early_printk(cha
-  		simnow_init(buf + 6);
-  		early_console = &simnow_console;
-  		keep_early = 1;
-+#ifdef CONFIG_XEN
-+	} else if (!strncmp(buf, "xen", 3)) {
-+ 		early_console = &xenboot_console;
-+#endif
- 	}
- 	register_console(early_console);
- 	return 0;
-===================================================================
---- a/drivers/xen/hvc-console.c
-+++ b/drivers/xen/hvc-console.c
-@@ -28,6 +28,7 @@
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -52,6 +52,13 @@
  #include <xen/page.h>
- #include <xen/events.h>
- #include <xen/interface/io/console.h>
-+#include <xen/hvc-console.h>
+ #include <xen/grant_table.h>
  
- #include "../char/hvc_console.h"
- 
-@@ -132,3 +133,27 @@ module_init(xen_init);
- module_init(xen_init);
- module_exit(xen_fini);
- console_initcall(xen_cons_init);
-+
-+static void xenboot_write_console(struct console *console, const char *string,
-+				  unsigned len)
-+{
-+	unsigned int linelen, off = 0;
-+	const char *pos;
-+
-+	while (off < len && NULL != (pos = strchr(string+off, '\n'))) {
-+		linelen = pos-string+off;
-+		if (off + linelen > len)
-+			break;
-+		write_console(0, string+off, linelen);
-+		write_console(0, "\r\n", 2);
-+		off += linelen + 1;
-+	}
-+	if (off < len)
-+		write_console(0, string+off, len-off);
-+}
-+
-+struct console xenboot_console = {
-+	.name		= "xenboot",
-+	.write		= xenboot_write_console,
-+	.flags		= CON_PRINTBUFFER | CON_BOOT,
++struct netfront_cb {
++	struct page *page;
++	unsigned offset;
 +};
-===================================================================
---- /dev/null
-+++ b/include/xen/hvc-console.h
-@@ -0,0 +1,6 @@
-+#ifndef XEN_HVC_CONSOLE_H
-+#define XEN_HVC_CONSOLE_H
 +
-+extern struct console xenboot_console;
++#define NETFRONT_SKB_CB(skb)	((struct netfront_cb *)((skb)->cb))
 +
-+#endif	/* XEN_HVC_CONSOLE_H */
+ /*
+  * Mutually-exclusive module options to select receive data path:
+  *  rx_copy : Packets are copied by network backend into local memory
+@@ -944,10 +951,11 @@ static void handle_incoming_queue(struct
+ 	struct sk_buff *skb;
+ 
+ 	while ((skb = __skb_dequeue(rxq)) != NULL) {
+-		struct page *page = (struct page *)skb->nh.raw;
++		struct page *page = NETFRONT_SKB_CB(skb)->page;
+ 		void *vaddr = page_address(page);
+-
+-		memcpy(skb->data, vaddr + (skb->h.raw - skb->nh.raw),
++		unsigned offset = NETFRONT_SKB_CB(skb)->offset;
++
++		memcpy(skb->data, vaddr + offset,
+ 		       skb_headlen(skb));
+ 
+ 		if (page != skb_shinfo(skb)->frags[0].page)
+@@ -1251,8 +1259,8 @@ err:
+ 			}
+ 		}
+ 
+-		skb->nh.raw = (void *)skb_shinfo(skb)->frags[0].page;
+-		skb->h.raw = skb->nh.raw + rx->offset;
++		NETFRONT_SKB_CB(skb)->page = skb_shinfo(skb)->frags[0].page;
++		NETFRONT_SKB_CB(skb)->offset = rx->offset;
+ 
+ 		len = rx->status;
+ 		if (len > RX_COPY_THRESHOLD)
 
 -- 
