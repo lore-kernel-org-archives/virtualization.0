@@ -1,16 +1,18 @@
 From: Zachary Amsden <zach@vmware.com>
 Subject: Re: [RFC, PATCH 5/5] Paravirt_ops export.patch
-Date: Mon, 23 Apr 2007 14:40:16 -0700
-Message-ID: <462D27C0.2020200@vmware.com>
-References: <20070420015304.74394BFC@zach-dev2.vmware.com>	<46284B40.5010106@goop.org>
-	<m1y7kkzdon.fsf@ebiederm.dsl.xmission.com>	<8a06f3d10704220959r16a78690ib1c90c56e4d1367@mail.gmail.com>	<462B9BE6.6040302@goop.org>
-	<462D1CBC.6050405@vmware.com>
-	<m1mz0yvlmu.fsf@ebiederm.dsl.xmission.com>
+Date: Mon, 23 Apr 2007 14:54:01 -0700
+Message-ID: <462D2AF9.9010609@vmware.com>
+References: <20070420015304.74394BFC@zach-dev2.vmware.com>	
+	<46284B40.5010106@goop.org>
+	<m1y7kkzdon.fsf@ebiederm.dsl.xmission.com>
+	<8a06f3d10704220959r16a78690ib1c90c56e4d1367@mail.gmail.com>
+	<462B9BE6.6040302@goop.org> <462D1CBC.6050405@vmware.com>
+	<462D252D.5090008@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <m1mz0yvlmu.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <462D252D.5090008@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,40 +22,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zamsden@gmail.com>, Andi Kleen <ak@muc.de>, Petr Vandrovec <petr@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zamsden@gmail.com>, Andi Kleen <ak@muc.de>, Petr Vandrovec <petr@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Eric W. Biederman wrote:
->> Yes, we still do late paravirtualization.  My point is that because of that, you
->> can't just link once and be done with it - you must relink the paravirt-ops
->> later, which is more complex than a one time pre-execution link.
->>     
+Jeremy Fitzhardinge wrote:
 >
-> Then if it is causing problems and making the code more complex (and it sounds
-> like it is) please let's get rid of late paravirtualization.
->
-> arch/i386 is in bad enough shape with tons of unnecessary special cases.
-> We don't need the paravirtualization support adding more.
+> Well, the BUG is if the patch-size is smaller than sizeof(indirect
+> call).  Or more generally, if the patch site contains bogus crud.  But I
+> don't think checking for that in the patcher makes a great deal of sense.
 >   
 
-Late paravirtualization is not causing problems and making the code more 
-complex, in fact it is making it simpler.  The fact that we don't need 
-to intrude in the boot process at all, but can let the code run without 
-inhibition and 100's of special hooks is saving a lot of complexity.  
-Otherwise, we would need to dissect head.S even further with custom junk 
-for VMI, including probing for ROMs and other things that are just 
-naturally easier once you have basic kernel architecture like physical 
-mapping, PAE-ness and memory management in place.  Paravirtualizing the 
-init code to set both non-PAE and PAE ptes from non-PAE mode (see 
-boot_ioremap.c) would be one such grotesque and unwarranted violation.
+True, it may not make a lot of sense to check there.  But it is the only 
+place where we can check it at runtime.  Unless you want some kind of 
+compile time checking in the code which generates the patch data, say 
+perhaps a .abort.  Still, that is not safe against modules which have 
+broken paravirt-ops embedding.
 
-My point is that if we were to use a linker type approach, it needs to 
-be done before the first instruction of the kernel (in particular, 
-before the first cpuid ever gets run); this makes it tempting to do in 
-some weird assembly goo in head.S, instead of doing it in proper C code 
-that can be reused later on.  Doing it in C would be better coding 
-practice, it just requires more effort to avoid taking shortcuts (to 
-work around the non-C starting environment).
+> Currently the invariants on pv_ops patch sites are initially:
+>
+>    1. the sequence is always at least an indirect call to an
+>       implementation of the operations, and
+>    2. it will always have appropriate register save/restores which allow
+>       a call to C code to work at that site
+>
+> As a result, it is always OK to execute without doing any patching.
+>
+> The callsite clobbers may be smaller than those needed for a naked C
+> call, but that means the site will have push/pops around the indirect
+> call.  This gives the patcher more space to work with if it wants to
+> inline something; if it just wants to generate a call to C code, it must
+> also generate its own register saves.
+>   
+
+Since there are so few of these sites, and they are performance 
+critical, the placement of a BUG() here verifying the clobbers are ok 
+effectively makes it the paravirt-op backend's responsibility to ensure 
+that these sites get patched.  This is what would allow the removal of 
+dependence on the paravirt_ops symbol for the most important interrupt 
+control operations.
+
+> It's semantically no different from updating the paravirt_ops structure
+> followed by patching.  If the kernel comes up with all the sites
+> prelinked to the native versions, then its the same as booting on the
+> current kernel, with paravirt_ops initialized to the native versions.
+>   
+
+It's semantically the same, but the code needs to be re-usable later, 
+which is where the problems arise - you can't simply cram the prelink 
+code into head.S, but have to write it to be properly callable later on.
 
 Zach
