@@ -1,44 +1,33 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
+From: Andi Kleen <ak@suse.de>
 Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem mappings
-Date: Mon, 23 Apr 2007 11:52:54 -0600
-Message-ID: <m1ejmbvuyx.fsf@ebiederm.dsl.xmission.com>
-References: <20070414204154.871250608@goop.org>
-	<200704192250.52633.ak@suse.de> <4627D756.5020405@zytor.com>
-	<200704192304.01053.ak@suse.de> <4627DB0C.2010804@zytor.com>
-	<4627DDAD.4070805@redhat.com> <4627E099.209@goop.org>
-	<m1d51vxxm4.fsf@ebiederm.dsl.xmission.com> <462CE027.4030302@goop.org>
-	<462CE1E0.9060007@zytor.com> <462CE69E.8040207@goop.org>
-	<m1vefnvvyb.fsf@ebiederm.dsl.xmission.com>
-	<462CF0C5.2040200@zytor.com>
+Date: Mon, 23 Apr 2007 19:54:46 +0200
+Message-ID: <200704231954.46339.ak@suse.de>
+References: <20070414204154.871250608@goop.org> <m1vefnvvyb.fsf@ebiederm.dsl.xmission.com> <462CF0C5.2040200@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161162AbXDWRyr@vger.kernel.org>
-In-Reply-To: <462CF0C5.2040200@zytor.com> (H. Peter Anvin's message of "Mon,
-	23 Apr 2007 10:45:41 -0700")
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161182AbXDWRzR@vger.kernel.org>
+In-Reply-To: <462CF0C5.2040200@zytor.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Chuck Ebbert <cebbert@redhat.com>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Chuck Ebbert <cebbert@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-
+On Monday 23 April 2007 19:45:41 H. Peter Anvin wrote:
 > Eric W. Biederman wrote:
->>
->> - I know of one system that had BIOS tables at 16MB I believe (and
->>   thus had a fairly low hole).
->>
->
-> Please name names, otherwise this is just rumouring.  Seriously.  We have enough
-> cargo-cult programming as it is.
+> > 
+> > - I know of one system that had BIOS tables at 16MB I believe (and
+> >   thus had a fairly low hole).
+> > 
+> 
+> Please name names, otherwise this is just rumouring.  Seriously.  We 
+> have enough cargo-cult programming as it is.
 
-The unisys systems.  I don't remember exactly where they put there ACPI
-tables but it was low enough that the default address for the kdump kernels
-conflicted with it.  So this is likely 16MB or 32MB
+Unisys did this at some point in their large machines, but they fixed
+that in a later BIOS.
 
-> A lot of old ISA systems had an option to put a memory hole at 15-16 MB to
-> support ISA video cards with linear frame buffer.  It very rarely got used,
-> since VLB took over around the same time.
+Anyways, boot up should be robust against any holes if possible.
 
-No this was a much larger and more modern system.
-
-Eric
+-Andi
