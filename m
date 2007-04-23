@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 12/25] xen: Add support for preemption
-Date: Mon, 23 Apr 2007 14:56:50 -0700
-Message-ID: <20070423215711.414711879@goop.org>
+Subject: [PATCH 09/25] xen: Account for time stolen by Xen
+Date: Mon, 23 Apr 2007 14:56:47 -0700
+Message-ID: <20070423215710.867690403@goop.org>
 References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-preempt.patch
+Content-Disposition: inline; filename=xen-stolen-time.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,363 +15,168 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add Xen support for preemption.  This is mostly a cleanup of existing
-preempt_enable/disable calls, or just comments to explain the current
-usage.
+This accounts for the time Xen steals from our VCPUs.  This accounting
+gets run on each timer interrupt, just as a way to get it run
+relatively often, and when interesting things are going on.
+
+Stolen time is not really used by much in the kernel; it is reported
+in /proc/stats, and that's about it.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: john stultz <johnstul@us.ibm.com>
 
 ---
- arch/i386/xen/Kconfig      |    2 
- arch/i386/xen/enlighten.c  |   93 ++++++++++++++++++++++++++++----------------
- arch/i386/xen/mmu.c        |    4 +
- arch/i386/xen/multicalls.c |   11 ++---
- arch/i386/xen/time.c       |   22 ++++++++--
- 5 files changed, 88 insertions(+), 44 deletions(-)
+ arch/i386/xen/time.c |  101 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 100 insertions(+), 1 deletion(-)
 
-===================================================================
---- a/arch/i386/xen/Kconfig
-+++ b/arch/i386/xen/Kconfig
-@@ -4,7 +4,7 @@
- 
- config XEN
- 	bool "Enable support for Xen hypervisor"
--	depends on PARAVIRT && !PREEMPT
-+	depends on PARAVIRT
- 	default y
- 	help
- 	  This is the Linux Xen port.
-===================================================================
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -2,6 +2,7 @@
- #include <linux/init.h>
- #include <linux/smp.h>
- #include <linux/preempt.h>
-+#include <linux/hardirq.h>
- #include <linux/percpu.h>
- #include <linux/delay.h>
- #include <linux/start_kernel.h>
-@@ -92,11 +93,10 @@ static unsigned long xen_save_fl(void)
- 	struct vcpu_info *vcpu;
- 	unsigned long flags;
- 
--	preempt_disable();
- 	vcpu = x86_read_percpu(xen_vcpu);
-+
- 	/* flag has opposite sense of mask */
- 	flags = !vcpu->evtchn_upcall_mask;
--	preempt_enable();
- 
- 	/* convert to IF type flag
- 	   -0 -> 0x00000000
-@@ -109,41 +109,56 @@ static void xen_restore_fl(unsigned long
- {
- 	struct vcpu_info *vcpu;
- 
--	preempt_disable();
--
- 	/* convert from IF type flag */
- 	flags = !(flags & X86_EFLAGS_IF);
-+
-+	/* There's a one instruction preempt window here.  We need to
-+	   make sure we're don't switch CPUs between getting the vcpu
-+	   pointer and updating the mask. */
-+	preempt_disable();
- 	vcpu = x86_read_percpu(xen_vcpu);
- 	vcpu->evtchn_upcall_mask = flags;
-+	preempt_enable_no_resched();
-+
-+	/* Doesn't matter if we get preempted here, because any
-+	   pending event will get dealt with anyway. */
-+
- 	if (flags == 0) {
-+		preempt_check_resched();
- 		barrier(); /* unmask then check (avoid races) */
- 		if (unlikely(vcpu->evtchn_upcall_pending))
- 			force_evtchn_callback();
--		preempt_enable();
--	} else
--		preempt_enable_no_resched();
-+	}
- }
- 
- static void xen_irq_disable(void)
- {
-+	/* There's a one instruction preempt window here.  We need to
-+	   make sure we're don't switch CPUs between getting the vcpu
-+	   pointer and updating the mask. */
-+	preempt_disable();
-+	x86_read_percpu(xen_vcpu)->evtchn_upcall_mask = 1;
-+	preempt_enable_no_resched();
-+}
-+
-+static void xen_irq_enable(void)
-+{
- 	struct vcpu_info *vcpu;
--	preempt_disable();
--	vcpu = x86_read_percpu(xen_vcpu);
--	vcpu->evtchn_upcall_mask = 1;
--	preempt_enable_no_resched();
--}
--
--static void xen_irq_enable(void)
--{
--	struct vcpu_info *vcpu;
--
-+
-+	/* There's a one instruction preempt window here.  We need to
-+	   make sure we're don't switch CPUs between getting the vcpu
-+	   pointer and updating the mask. */
- 	preempt_disable();
- 	vcpu = x86_read_percpu(xen_vcpu);
- 	vcpu->evtchn_upcall_mask = 0;
-+	preempt_enable_no_resched();
-+
-+	/* Doesn't matter if we get preempted here, because any
-+	   pending event will get dealt with anyway. */
-+
- 	barrier(); /* unmask then check (avoid races) */
- 	if (unlikely(vcpu->evtchn_upcall_pending))
- 		force_evtchn_callback();
--	preempt_enable();
- }
- 
- static void xen_safe_halt(void)
-@@ -163,6 +178,8 @@ static void xen_halt(void)
- 
- static void xen_set_lazy_mode(enum paravirt_lazy_mode mode)
- {
-+	BUG_ON(preemptible());
-+
- 	switch(mode) {
- 	case PARAVIRT_LAZY_NONE:
- 		BUG_ON(x86_read_percpu(xen_lazy_mode) == PARAVIRT_LAZY_NONE);
-@@ -262,12 +279,17 @@ static void xen_write_ldt_entry(struct d
- 	xmaddr_t mach_lp = virt_to_machine(lp);
- 	u64 entry = (u64)high << 32 | low;
- 
-+	preempt_disable();
-+
- 	xen_mc_flush();
- 	if (HYPERVISOR_update_descriptor(mach_lp.maddr, entry))
- 		BUG();
--}
--
--static int cvt_gate_to_trap(int vector, u32 low, u32 high, struct trap_info *info)
-+
-+	preempt_enable();
-+}
-+
-+static int cvt_gate_to_trap(int vector, u32 low, u32 high,
-+			    struct trap_info *info)
- {
- 	u8 type, dpl;
- 
-@@ -295,11 +317,13 @@ static DEFINE_PER_CPU(struct Xgt_desc_st
-    also update Xen. */
- static void xen_write_idt_entry(struct desc_struct *dt, int entrynum, u32 low, u32 high)
- {
--
--	int cpu = smp_processor_id();
- 	unsigned long p = (unsigned long)&dt[entrynum];
--	unsigned long start = per_cpu(idt_desc, cpu).address;
--	unsigned long end = start + per_cpu(idt_desc, cpu).size + 1;
-+	unsigned long start, end;
-+
-+	preempt_disable();
-+
-+	start = __get_cpu_var(idt_desc).address;
-+	end = start + __get_cpu_var(idt_desc).size + 1;
- 
- 	xen_mc_flush();
- 
-@@ -314,6 +338,8 @@ static void xen_write_idt_entry(struct d
- 			if (HYPERVISOR_set_trap_table(info))
- 				BUG();
- 	}
-+
-+	preempt_enable();
- }
- 
- static void xen_convert_trap_info(const struct Xgt_desc_struct *desc,
-@@ -335,11 +361,9 @@ static void xen_convert_trap_info(const 
- 
- void xen_copy_trap_info(struct trap_info *traps)
- {
--	const struct Xgt_desc_struct *desc = &get_cpu_var(idt_desc);
-+	const struct Xgt_desc_struct *desc = &__get_cpu_var(idt_desc);
- 
- 	xen_convert_trap_info(desc, traps);
--
--	put_cpu_var(idt_desc);
- }
- 
- /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
-@@ -349,11 +373,10 @@ static void xen_load_idt(const struct Xg
- {
- 	static DEFINE_SPINLOCK(lock);
- 	static struct trap_info traps[257];
--	int cpu = smp_processor_id();
--
--	per_cpu(idt_desc, cpu) = *desc;
- 
- 	spin_lock(&lock);
-+
-+	__get_cpu_var(idt_desc) = *desc;
- 
- 	xen_convert_trap_info(desc, traps);
- 
-@@ -368,6 +391,8 @@ static void xen_load_idt(const struct Xg
-    they're handled differently. */
- static void xen_write_gdt_entry(struct desc_struct *dt, int entry, u32 low, u32 high)
- {
-+	preempt_disable();
-+
- 	switch ((high >> 8) & 0xff) {
- 	case DESCTYPE_LDT:
- 	case DESCTYPE_TSS:
-@@ -384,10 +409,12 @@ static void xen_write_gdt_entry(struct d
- 	}
- 
- 	}
-+
-+	preempt_enable();
- }
- 
- static void xen_load_esp0(struct tss_struct *tss,
--				   struct thread_struct *thread)
-+			  struct thread_struct *thread)
- {
- 	struct multicall_space mcs = xen_mc_entry(0);
- 	MULTI_stack_switch(mcs.mc, __KERNEL_DS, thread->esp0);
-@@ -493,6 +520,8 @@ static unsigned long xen_read_cr3(void)
- 
- static void xen_write_cr3(unsigned long cr3)
- {
-+	BUG_ON(preemptible());
-+
- 	if (cr3 == x86_read_percpu(xen_cr3)) {
- 		/* just a simple tlb flush */
- 		xen_flush_tlb();
-===================================================================
---- a/arch/i386/xen/mmu.c
-+++ b/arch/i386/xen/mmu.c
-@@ -481,5 +481,7 @@ void xen_exit_mmap(struct mm_struct *mm)
- 
- 	preempt_enable();
- 
-+	spin_lock(&mm->page_table_lock);
- 	xen_pgd_unpin(mm->pgd);
--}
-+	spin_unlock(&mm->page_table_lock);
-+}
-===================================================================
---- a/arch/i386/xen/multicalls.c
-+++ b/arch/i386/xen/multicalls.c
-@@ -1,4 +1,5 @@
- #include <linux/percpu.h>
-+#include <linux/hardirq.h>
- 
- #include <asm/xen/hypercall.h>
- 
-@@ -18,9 +19,11 @@ DEFINE_PER_CPU(unsigned long, xen_mc_irq
- 
- void xen_mc_flush(void)
- {
--	struct mc_buffer *b = &get_cpu_var(mc_buffer);
-+	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
- 	int ret = 0;
- 	unsigned long flags;
-+
-+	BUG_ON(preemptible());
- 
- 	/* Disable interrupts in case someone comes in and queues
- 	   something in the middle */
-@@ -39,7 +42,6 @@ void xen_mc_flush(void)
- 	} else
- 		BUG_ON(b->argidx != 0);
- 
--	put_cpu_var(mc_buffer);
- 	local_irq_restore(flags);
- 
- 	BUG_ON(ret);
-@@ -47,10 +49,11 @@ void xen_mc_flush(void)
- 
- struct multicall_space __xen_mc_entry(size_t args)
- {
--	struct mc_buffer *b = &get_cpu_var(mc_buffer);
-+	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
- 	struct multicall_space ret;
- 	unsigned argspace = (args + sizeof(u64) - 1) / sizeof(u64);
- 
-+	BUG_ON(preemptible());
- 	BUG_ON(argspace > MC_ARGS);
- 
- 	if (b->mcidx == MC_BATCH ||
-@@ -62,7 +65,5 @@ struct multicall_space __xen_mc_entry(si
- 	ret.args = &b->args[b->argidx];
- 	b->argidx += argspace;
- 
--	put_cpu_var(mc_buffer);
--
- 	return ret;
- }
 ===================================================================
 --- a/arch/i386/xen/time.c
 +++ b/arch/i386/xen/time.c
-@@ -48,7 +48,7 @@ static void get_runstate_snapshot(struct
- 	u64 state_time;
- 	struct vcpu_runstate_info *state;
+@@ -2,6 +2,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/clocksource.h>
+ #include <linux/clockchips.h>
++#include <linux/kernel_stat.h>
  
--	preempt_disable();
-+	BUG_ON(preemptible());
+ #include <asm/xen/hypervisor.h>
+ #include <asm/xen/hypercall.h>
+@@ -14,6 +15,7 @@
  
- 	state = &__get_cpu_var(runstate);
+ #define XEN_SHIFT 22
+ #define TIMER_SLOP	100000	/* Xen may fire a timer up to this many ns early */
++#define NS_PER_TICK	(1000000000ll / HZ)
  
-@@ -58,8 +58,6 @@ static void get_runstate_snapshot(struct
- 		*res = *state;
- 		barrier();
- 	} while(state->state_entry_time != state_time);
--
--	preempt_enable();
- }
+ /* These are perodically updated in shared_info, and then copied here. */
+ struct shadow_time_info {
+@@ -26,6 +28,99 @@ struct shadow_time_info {
  
- static void setup_runstate_info(void)
-@@ -128,15 +126,29 @@ unsigned long long xen_sched_clock(void)
- unsigned long long xen_sched_clock(void)
- {
- 	struct vcpu_runstate_info state;
--	cycle_t now = xen_clocksource_read();
-+	cycle_t now;
-+	unsigned long long ret;
+ static DEFINE_PER_CPU(struct shadow_time_info, shadow_time);
+ 
++/* runstate info updated by Xen */
++static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
 +
-+	/*
-+	 * Ideally sched_clock should be called on a per-cpu basis
-+	 * anyway, so preempt should already be disabled, but that's
-+	 * not current practice at the moment.
-+	 */
++/* snapshots of runstate info */
++static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate_snapshot);
++
++/* unused ns of stolen and blocked time */
++static DEFINE_PER_CPU(u64, residual_stolen);
++static DEFINE_PER_CPU(u64, residual_blocked);
++
++/*
++ * Runstate accounting
++ */
++static void get_runstate_snapshot(struct vcpu_runstate_info *res)
++{
++	u64 state_time;
++	struct vcpu_runstate_info *state;
++
 +	preempt_disable();
 +
-+	now = xen_clocksource_read();
- 
- 	get_runstate_snapshot(&state);
- 
- 	WARN_ON(state.state != RUNSTATE_running);
- 
--	return state.time[RUNSTATE_blocked] +
-+	ret = state.time[RUNSTATE_blocked] +
- 		state.time[RUNSTATE_running] +
- 		(now - state.state_entry_time);
++	state = &__get_cpu_var(runstate);
++
++	do {
++		state_time = state->state_entry_time;
++		barrier();
++		*res = *state;
++		barrier();
++	} while(state->state_entry_time != state_time);
 +
 +	preempt_enable();
++}
 +
-+	return ret;
++static void setup_runstate_info(void)
++{
++	struct vcpu_register_runstate_memory_area area;
++
++	area.addr.v = &__get_cpu_var(runstate);
++
++	if (HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area,
++			       smp_processor_id(), &area))
++		BUG();
++
++	get_runstate_snapshot(&__get_cpu_var(runstate_snapshot));
++}
++
++static void do_stolen_accounting(void)
++{
++	struct vcpu_runstate_info state;
++	struct vcpu_runstate_info *snap;
++	u64 blocked, runnable, offline, stolen;
++	cputime_t ticks;
++
++	get_runstate_snapshot(&state);
++
++	WARN_ON(state.state != RUNSTATE_running);
++
++	snap = &__get_cpu_var(runstate_snapshot);
++
++	/* work out how much time the VCPU has not been runn*ing*  */
++	blocked = state.time[RUNSTATE_blocked] - snap->time[RUNSTATE_blocked];
++	runnable = state.time[RUNSTATE_runnable] - snap->time[RUNSTATE_runnable];
++	offline = state.time[RUNSTATE_offline] - snap->time[RUNSTATE_offline];
++
++	*snap = state;
++
++	/* Add the appropriate number of ticks of stolen time,
++	   including any left-overs from last time.  Passing NULL to
++	   account_steal_time accounts the time as stolen. */
++	stolen = runnable + offline + __get_cpu_var(residual_stolen);
++	ticks = 0;
++	while(stolen >= NS_PER_TICK) {
++		ticks++;
++		stolen -= NS_PER_TICK;
++	}
++	__get_cpu_var(residual_stolen) = stolen;
++	account_steal_time(NULL, ticks);
++
++	/* Add the appropriate number of ticks of blocked time,
++	   including any left-overs from last time.  Passing idle to
++	   account_steal_time accounts the time as idle/wait. */
++	blocked += __get_cpu_var(residual_blocked);
++	ticks = 0;
++	while(blocked >= NS_PER_TICK) {
++		ticks++;
++		blocked -= NS_PER_TICK;
++	}
++	__get_cpu_var(residual_blocked) = blocked;
++	account_steal_time(idle_task(smp_processor_id()), ticks);
++}
++
++
++
++/* Get the CPU speed from Xen */
+ unsigned long xen_cpu_khz(void)
+ {
+ 	u64 cpu_khz = 1000000ULL << 32;
+@@ -338,6 +433,8 @@ static irqreturn_t xen_timer_interrupt(i
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
++	do_stolen_accounting();
++
+ 	return ret;
  }
  
+@@ -363,6 +460,8 @@ static void xen_setup_timer(int cpu)
+ 	evt->irq = irq;
+ 	clockevents_register_device(evt);
  
++	setup_runstate_info();
++
+ 	put_cpu_var(xen_clock_events);
+ }
+ 
+@@ -375,7 +474,7 @@ __init void xen_time_init(void)
+ 	clocksource_register(&xen_clocksource);
+ 
+ 	if (HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL) == 0) {
+-		/* Successfully turned off 100hz tick, so we have the
++		/* Successfully turned off 100Hz tick, so we have the
+ 		   vcpuop-based timer interface */
+ 		printk(KERN_DEBUG "Xen: using vcpuop timer interface\n");
+ 		xen_clockevent = &xen_vcpuop_clockevent;
 
 -- 
