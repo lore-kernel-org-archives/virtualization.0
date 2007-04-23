@@ -1,42 +1,40 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem mappings
-Date: Mon, 23 Apr 2007 12:00:51 -0600
-Message-ID: <m17is3vulo.fsf@ebiederm.dsl.xmission.com>
-References: <20070414204154.871250608@goop.org>
-	<200704192250.52633.ak@suse.de> <4627D756.5020405@zytor.com>
-	<200704192304.01053.ak@suse.de> <4627DB0C.2010804@zytor.com>
-	<4627DDAD.4070805@redhat.com> <4627E099.209@goop.org>
-	<m1d51vxxm4.fsf@ebiederm.dsl.xmission.com> <462CE027.4030302@goop.org>
-	<462CE1E0.9060007@zytor.com> <462CE69E.8040207@goop.org>
-	<462CEB55.9070508@zytor.com>
+From: Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem
+ mappings
+Date: Mon, 23 Apr 2007 11:06:48 -0700
+Message-ID: <462CF5B8.4070708@xensource.com>
+References: <20070414204154.871250608@goop.org>	<200704192250.52633.ak@suse.de> <4627D756.5020405@zytor.com>	<200704192304.01053.ak@suse.de> <4627DB0C.2010804@zytor.com>	<4627DDAD.4070805@redhat.com> <4627E099.209@goop.org>	<m1d51vxxm4.fsf@ebiederm.dsl.xmission.com> <462CE027.4030302@goop.org>	<462CE1E0.9060007@zytor.com> <m1zm4zvwfr.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161175AbXDWSCn@vger.kernel.org>
-In-Reply-To: <462CEB55.9070508@zytor.com> (H. Peter Anvin's message of "Mon,
-	23 Apr 2007 10:22:29 -0700")
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1161205AbXDWSH2@vger.kernel.org>
+In-Reply-To: <m1zm4zvwfr.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Chuck Ebbert <cebbert@redhat.com>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Chuck Ebbert <cebbert@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+Eric W. Biederman wrote:
+> Consider a memory hole of size 8M immediately after our bootmem bitmap.
+> head.S which knows nothing of holes will map the pages of the hole
+> into the initial page tables assuming that is where the page tables
+> will live.
+>   
 
-> Agreed.  However, saying that your patch shouldn't go into the mainline kernel
-> until that has been fixed is spurious and wrong.  It fixes a real problem with
-> minimal risk.
+Sure, but considering we're only talking about mapping an additional *2*
+pages, the chances are that it will affect a kernel as much as the early
+head.S mapping.  It's well within the variability of fairly similar
+kernel configs.
 
-For a stable and frozen kernel it is probably the best we can do.
+> As for how to fix this, we need to call boot_ioremap or better
+> bt_ioremap on the address returned from alloc_bootmem_pages_low to
+> force the allocated page into the page table.  After we have setup
+> the page table page we can call unmap the page to free up the scarce
+> early mapping resource.
+>   
 
-However the code is based on confusion of what should be happening and
-it increases the complexity of the code and pushes us towards the edge of
-code that is so crufty it is impossible to maintain.
+Would that be necessary?  Is there any need to remap it?  Couldn't you
+just do the straightforward phys->virt mapping and use the page where it
+lies?
 
-We need to simplify this mess not make it more convoluted.
-
-Did anyone else notice that if we don't have PAE we continue to use
-the initial page tables 4K page mappings of the kernel?
-
-This probably explains why experiments to 4MB align the i386 kernel
-to improve performance failed.
-
-Eric
+    J
