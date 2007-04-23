@@ -1,213 +1,71 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 13/25] xen: xen: lazy-mmu operations
-Date: Mon, 23 Apr 2007 14:56:51 -0700
-Message-ID: <20070423215711.742425039@goop.org>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 00/25] xen: Xen implementation for paravirt_ops
+Date: Tue, 24 Apr 2007 00:50:06 +0200
+Message-ID: <200704240050.06615.ak@suse.de>
 References: <20070423215638.563901986@goop.org>
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-lazy-mmu.patch
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754433AbXDWWuN@vger.kernel.org>
+In-Reply-To: <20070423215638.563901986@goop.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch uses the lazy-mmu hooks to batch mmu operations where
-possible.  This is primarily useful for batching operations applied to
-active pagetables, which happens during mprotect, munmap, mremap and
-the like (mmap does not do bulk pagetable operations, so it isn't
-helped).
+On Monday 23 April 2007 23:56:38 Jeremy Fitzhardinge wrote:
+> Hi Andi,
+> 
+> It applies to 2.6.21-rc7 + your patches + the last batch of pv_ops
+> patches 
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+I got most of those except for the broken sched_clock change.
 
----
- arch/i386/xen/enlighten.c  |   56 +++++++++++++++++++++++++++-----------------
- arch/i386/xen/mmu.c        |   56 ++++++++++++++++++++++++++++++++------------
- arch/i386/xen/multicalls.c |    4 +--
- 3 files changed, 78 insertions(+), 38 deletions(-)
+> I posted. 
 
-===================================================================
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -451,28 +451,38 @@ static void xen_apic_write(unsigned long
- 
- static void xen_flush_tlb(void)
- {
--	struct mmuext_op op;
--
--	op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+	struct mmuext_op *op;
-+	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
-+
-+	op = mcs.args;
-+	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
- static void xen_flush_tlb_single(unsigned long addr)
- {
--	struct mmuext_op op;
--
--	op.cmd = MMUEXT_INVLPG_LOCAL;
--	op.arg1.linear_addr = addr & PAGE_MASK;
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+	struct mmuext_op *op;
-+	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
-+
-+	op = mcs.args;
-+	op->cmd = MMUEXT_INVLPG_LOCAL;
-+	op->arg1.linear_addr = addr & PAGE_MASK;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
- static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
- 				 unsigned long va)
- {
--	struct mmuext_op op;
-+	struct {
-+		struct mmuext_op op;
-+		cpumask_t mask;
-+	} *args;
- 	cpumask_t cpumask = *cpus;
-+	struct multicall_space mcs;
- 
- 	/*
- 	 * A couple of (to be removed) sanity checks:
-@@ -489,17 +499,21 @@ static void xen_flush_tlb_others(const c
- 	if (cpus_empty(cpumask))
- 		return;
- 
-+	mcs = xen_mc_entry(sizeof(*args));
-+	args = mcs.args;
-+	args->mask = cpumask;
-+	args->op.arg2.vcpumask = &args->mask;
-+
- 	if (va == TLB_FLUSH_ALL) {
--		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
--		op.arg2.vcpumask = (void *)cpus;
-+		args->op.cmd = MMUEXT_TLB_FLUSH_MULTI;
- 	} else {
--		op.cmd = MMUEXT_INVLPG_MULTI;
--		op.arg1.linear_addr = va;
--		op.arg2.vcpumask = (void *)cpus;
--	}
--
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+		args->op.cmd = MMUEXT_INVLPG_MULTI;
-+		args->op.arg1.linear_addr = va;
-+	}
-+
-+	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
- static unsigned long xen_read_cr2(void)
-===================================================================
---- a/arch/i386/xen/mmu.c
-+++ b/arch/i386/xen/mmu.c
-@@ -56,12 +56,20 @@ void make_lowmem_page_readwrite(void *va
- 
- void xen_set_pmd(pmd_t *ptr, pmd_t val)
- {
--	struct mmu_update u;
--
--	u.ptr = virt_to_machine(ptr).maddr;
--	u.val = pmd_val_ma(val);
--	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
--		BUG();
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
-+
-+	preempt_disable();
-+
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptr).maddr;
-+	u->val = pmd_val_ma(val);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+
-+	preempt_enable();
- }
- 
- /*
-@@ -104,20 +112,38 @@ void xen_set_pte_at(struct mm_struct *mm
- void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
- 		    pte_t *ptep, pte_t pteval)
- {
--	if ((mm != current->mm && mm != &init_mm) ||
--	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
--		xen_set_pte(ptep, pteval);
-+	if (mm == current->mm || mm == &init_mm) {
-+		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
-+			struct multicall_space mcs;
-+			mcs = xen_mc_entry(0);
-+
-+			MULTI_update_va_mapping(mcs.mc, addr, pteval, 0);
-+			xen_mc_issue(PARAVIRT_LAZY_MMU);
-+			return;
-+		} else
-+			if (HYPERVISOR_update_va_mapping(addr, pteval, 0) == 0)
-+				return;
-+	}
-+	xen_set_pte(ptep, pteval);
- }
- 
- #ifdef CONFIG_X86_PAE
- void xen_set_pud(pud_t *ptr, pud_t val)
- {
--	struct mmu_update u;
--
--	u.ptr = virt_to_machine(ptr).maddr;
--	u.val = pud_val_ma(val);
--	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
--		BUG();
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
-+
-+	preempt_disable();
-+
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptr).maddr;
-+	u->val = pud_val_ma(val);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+
-+	preempt_enable();
- }
- 
- void xen_set_pte(pte_t *ptep, pte_t pte)
-===================================================================
---- a/arch/i386/xen/multicalls.c
-+++ b/arch/i386/xen/multicalls.c
-@@ -5,8 +5,8 @@
- 
- #include "multicalls.h"
- 
--#define MC_BATCH	8
--#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
-+#define MC_BATCH	32
-+#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
- 
- struct mc_buffer {
- 	struct multicall_entry entries[MC_BATCH];
+How much testing outside Jeremylabs has it gotten? Some beta
+testing before merging would be good, otherwise we'll just have
+a flood of fixes shortly when it is exposed to users.
 
--- 
+> This patch generally restricts itself to Xen-specific parts of the tree,
+> though it does make a few small changes elsewhere.
+
+The general problem is that it is much more than just an architecture update.
+
+> These patches include:
+>  - some helper routines for allocating address space and walking pagetables
+
+Needs review from mm people.
+
+>  - Xen interface header files
+>  - Core Xen implementation
+>  - Efficient late-pinning/early-unpinning pagetable handling 
+
+The number of new paravirt hooks makes me thing of renaming it to
+everything_ops @|
+
+>  - Virtualized time, including stolen time
+
+Can you let it be reviewed by the time people? (Thomas, Ingo, John, Roman etc.)
+
+>  - SMP support
+>  - Preemption support
+>  - Batched pagetable updates
+
+>  - Xen console, based on hvc console
+>  - Xenbus
+
+That one would need to be reviewed first. It's so much code that I can't
+do it all myself.
+
+>  - Netfront, the paravirtualized network device
+
+That one should go through the network device maintainer/netdev.
+
+>  - Blockfront, the paravirtualized block device
+
+And that needs a block device review and whoever maintains that (Jens?) 
+
+-Andi
