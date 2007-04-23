@@ -1,11 +1,8 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 01/25] xen: Add apply_to_page_range() which applies a
-	function to a pte range.
-Date: Mon, 23 Apr 2007 14:56:39 -0700
-Message-ID: <20070423215709.339043724@goop.org>
-References: <20070423215638.563901986@goop.org>
+Subject: [PATCH 00/25] xen: Xen implementation for paravirt_ops
+Date: Mon, 23 Apr 2007 14:56:38 -0700
+Message-ID: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=apply-to-page-range.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,152 +13,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Matt Mackall <mpm@waste.org>, Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Christoph Lameter <clameter@sgi.com>, Ingo Molnar <mingo@elte.hu>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new mm function apply_to_page_range() which applies a given
-function to every pte in a given virtual address range in a given mm
-structure. This is a generic alternative to cut-and-pasting the Linux
-idiomatic pagetable walking code in every place that a sequence of
-PTEs must be accessed.
+Hi Andi,
 
-Although this interface is intended to be useful in a wide range of
-situations, it is currently used specifically by several Xen
-subsystems, for example: to ensure that pagetables have been allocated
-for a virtual address range, and to construct batched special
-pagetable update requests to map I/O memory (in ioremap()).
+This series of patches implements the Xen paravirt-ops interface.
+It applies to 2.6.21-rc7 + your patches + the last batch of pv_ops
+patches I posted.
 
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Christoph Lameter <clameter@sgi.com>
-Cc: Matt Mackall <mpm@waste.org>
-Acked-by: Ingo Molnar <mingo@elte.hu> 
+This patch generally restricts itself to Xen-specific parts of the tree,
+though it does make a few small changes elsewhere.
 
----
- include/linux/mm.h |    5 ++
- mm/memory.c        |   94 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 99 insertions(+)
+These patches include:
+ - some helper routines for allocating address space and walking pagetables
+ - Xen interface header files
+ - Core Xen implementation
+ - Efficient late-pinning/early-unpinning pagetable handling
+ - Virtualized time, including stolen time
+ - SMP support
+ - Preemption support
+ - Batched pagetable updates
+ - Xen console, based on hvc console
+ - Xenbus
+ - Netfront, the paravirtualized network device
+ - Blockfront, the paravirtualized block device
 
-===================================================================
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1135,6 +1135,11 @@ struct page *follow_page(struct vm_area_
- #define FOLL_GET	0x04	/* do get_page on page */
- #define FOLL_ANON	0x08	/* give ZERO_PAGE if no pgtable */
- 
-+typedef int (*pte_fn_t)(pte_t *pte, struct page *pmd_page, unsigned long addr,
-+			void *data);
-+extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
-+			       unsigned long size, pte_fn_t fn, void *data);
-+
- #ifdef CONFIG_PROC_FS
- void vm_stat_account(struct mm_struct *, unsigned long, struct file *, long);
- #else
-===================================================================
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1448,6 +1448,100 @@ int remap_pfn_range(struct vm_area_struc
- }
- EXPORT_SYMBOL(remap_pfn_range);
- 
-+static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
-+{
-+	pte_t *pte;
-+	int err;
-+	struct page *pmd_page;
-+	spinlock_t *ptl;
-+
-+	pte = (mm == &init_mm) ?
-+		pte_alloc_kernel(pmd, addr) :
-+		pte_alloc_map_lock(mm, pmd, addr, &ptl);
-+	if (!pte)
-+		return -ENOMEM;
-+
-+	BUG_ON(pmd_huge(*pmd));
-+
-+	pmd_page = pmd_page(*pmd);
-+
-+	do {
-+		err = fn(pte, pmd_page, addr, data);
-+		if (err)
-+			break;
-+	} while (pte++, addr += PAGE_SIZE, addr != end);
-+
-+	if (mm != &init_mm)
-+		pte_unmap_unlock(pte-1, ptl);
-+	return err;
-+}
-+
-+static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
-+{
-+	pmd_t *pmd;
-+	unsigned long next;
-+	int err;
-+
-+	pmd = pmd_alloc(mm, pud, addr);
-+	if (!pmd)
-+		return -ENOMEM;
-+	do {
-+		next = pmd_addr_end(addr, end);
-+		err = apply_to_pte_range(mm, pmd, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pmd++, addr = next, addr != end);
-+	return err;
-+}
-+
-+static int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
-+				     unsigned long addr, unsigned long end,
-+				     pte_fn_t fn, void *data)
-+{
-+	pud_t *pud;
-+	unsigned long next;
-+	int err;
-+
-+	pud = pud_alloc(mm, pgd, addr);
-+	if (!pud)
-+		return -ENOMEM;
-+	do {
-+		next = pud_addr_end(addr, end);
-+		err = apply_to_pmd_range(mm, pud, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pud++, addr = next, addr != end);
-+	return err;
-+}
-+
-+/*
-+ * Scan a region of virtual memory, filling in page tables as necessary
-+ * and calling a provided function on each leaf page table.
-+ */
-+int apply_to_page_range(struct mm_struct *mm, unsigned long addr,
-+			unsigned long size, pte_fn_t fn, void *data)
-+{
-+	pgd_t *pgd;
-+	unsigned long next;
-+	unsigned long end = addr + size;
-+	int err;
-+
-+	BUG_ON(addr >= end);
-+	pgd = pgd_offset(mm, addr);
-+	do {
-+		next = pgd_addr_end(addr, end);
-+		err = apply_to_pud_range(mm, pgd, addr, next, fn, data);
-+		if (err)
-+			break;
-+	} while (pgd++, addr = next, addr != end);
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(apply_to_page_range);
-+
- /*
-  * handle_pte_fault chooses page fault handler according to an entry
-  * which was read non-atomically.  Before making any commitment, on
-
+Thanks,
+	J
 -- 
