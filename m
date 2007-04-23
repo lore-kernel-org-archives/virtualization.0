@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 15/25] xen: xen time fixups
-Date: Mon, 23 Apr 2007 14:56:53 -0700
-Message-ID: <20070423215712.134951673@goop.org>
+Subject: [PATCH 24/25] xen: xen: diddle netfront
+Date: Mon, 23 Apr 2007 14:57:02 -0700
+Message-ID: <20070423215713.941180180@goop.org>
 References: <20070423215638.563901986@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-time-fixups.patch
+Content-Disposition: inline; filename=xen-netfront-diddle.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,233 +18,80 @@ To: Andi Kleen <ak@suse.de>
 Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-1. make sure timer state is set up before bringing up CPU
-2. make sure snapshot of 64-bit time values is atomic
-
-Be sure, however, that the clockevent source is registered on its home
-CPU.
+Move things around a bit to match xen-unstable netfront.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- arch/i386/xen/smp.c     |    4 +-
- arch/i386/xen/time.c    |   93 +++++++++++++++++++++++++++++++----------------
- arch/i386/xen/xen-ops.h |    3 +
- 3 files changed, 67 insertions(+), 33 deletions(-)
+ drivers/net/xen-netfront.c |   36 +++++++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 19 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/smp.c
-+++ b/arch/i386/xen/smp.c
-@@ -78,10 +78,11 @@ static __cpuinit void cpu_bringup_and_id
- 	int cpu = smp_processor_id();
- 
- 	cpu_init();
--	xen_setup_timer();
- 
- 	preempt_disable();
- 	per_cpu(cpu_state, cpu) = CPU_ONLINE;
-+
-+	xen_setup_cpu_clockevents();
- 
- 	/* We can take interrupts now: we're officially "up". */
- 	local_irq_enable();
-@@ -275,6 +276,7 @@ int __cpuinit xen_cpu_up(unsigned int cp
- 	per_cpu(current_task, cpu) = idle;
- 	xen_vcpu_setup(cpu);
- 	irq_ctx_init(cpu);
-+	xen_setup_timer(cpu);
- 
- 	/* make sure interrupts start blocked */
- 	per_cpu(xen_vcpu, cpu)->evtchn_upcall_mask = 1;
-===================================================================
---- a/arch/i386/xen/time.c
-+++ b/arch/i386/xen/time.c
-@@ -40,6 +40,35 @@ static DEFINE_PER_CPU(u64, residual_stol
- static DEFINE_PER_CPU(u64, residual_stolen);
- static DEFINE_PER_CPU(u64, residual_blocked);
- 
-+/* return an consistent snapshot of 64-bit time/counter value */
-+static u64 get64(const u64 *p)
-+{
-+	u64 ret;
-+
-+	if (BITS_PER_LONG < 64) {
-+		u32 *p32 = (u32 *)p;
-+		u32 h, l;
-+
-+		/*
-+		 * Read high then low, and then make sure high is
-+		 * still the same; this will only loop if low wraps
-+		 * and carries into high.
-+		 * XXX some clean way to make this endian-proof?
-+		 */
-+		do {
-+			h = p32[1];
-+			barrier();
-+			l = p32[0];
-+			barrier();
-+		} while (p32[1] != h);
-+
-+		ret = (((u64)h) << 32) | l;
-+	} else
-+		ret = *p;
-+
-+	return ret;
-+}
-+
- /*
-  * Runstate accounting
-  */
-@@ -53,24 +82,22 @@ static void get_runstate_snapshot(struct
- 	state = &__get_cpu_var(runstate);
- 
- 	do {
--		state_time = state->state_entry_time;
-+		state_time = get64(&state->state_entry_time);
- 		barrier();
- 		*res = *state;
- 		barrier();
--	} while(state->state_entry_time != state_time);
--}
--
--static void setup_runstate_info(void)
-+	} while(get64(&state->state_entry_time) != state_time);
-+}
-+
-+static void setup_runstate_info(int cpu)
- {
- 	struct vcpu_register_runstate_memory_area area;
- 
--	area.addr.v = &__get_cpu_var(runstate);
-+	area.addr.v = &per_cpu(runstate, cpu);
- 
- 	if (HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area,
--			       smp_processor_id(), &area))
-+			       cpu, &area))
- 		BUG();
--
--	get_runstate_snapshot(&__get_cpu_var(runstate_snapshot));
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -750,19 +750,6 @@ no_skb:
+ 		notify_remote_via_irq(np->irq);
  }
  
- static void do_stolen_accounting(void)
-@@ -185,12 +212,10 @@ unsigned long xen_cpu_khz(void)
-  * Reads a consistent set of time-base values from Xen, into a shadow data
-  * area.
-  */
--static void get_time_values_from_xen(void)
-+static unsigned get_time_values_from_xen(void)
- {
- 	struct vcpu_time_info   *src;
- 	struct shadow_time_info *dst;
--
--	preempt_disable();
- 
- 	src = &__get_cpu_var(xen_vcpu)->time;
- 	dst = &__get_cpu_var(shadow_time);
-@@ -205,7 +230,7 @@ static void get_time_values_from_xen(voi
- 		rmb();
- 	} while ((src->version & 1) | (dst->version ^ src->version));
- 
--	preempt_enable();
-+	return dst->version;
- }
- 
- /*
-@@ -249,7 +274,7 @@ static u64 get_nsec_offset(struct shadow
- static u64 get_nsec_offset(struct shadow_time_info *shadow)
- {
- 	u64 now, delta;
--	rdtscll(now);
-+	now = native_read_tsc();
- 	delta = now - shadow->tsc_timestamp;
- 	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
- }
-@@ -258,10 +283,14 @@ static cycle_t xen_clocksource_read(void
- {
- 	struct shadow_time_info *shadow = &get_cpu_var(shadow_time);
- 	cycle_t ret;
--
--	get_time_values_from_xen();
--
--	ret = shadow->system_timestamp + get_nsec_offset(shadow);
-+	unsigned version;
-+
-+	do {
-+		version = get_time_values_from_xen();
-+		barrier();
-+		ret = shadow->system_timestamp + get_nsec_offset(shadow);
-+		barrier();
-+	} while(version != __get_cpu_var(xen_vcpu)->time.version);
- 
- 	put_cpu_var(shadow_time);
- 
-@@ -483,9 +512,8 @@ static irqreturn_t xen_timer_interrupt(i
- 	return ret;
- }
- 
--void xen_setup_timer(void)
+-static void xennet_move_rx_slot(struct netfront_info *np, struct sk_buff *skb,
+-				grant_ref_t ref)
 -{
--	int cpu = smp_processor_id();
-+void xen_setup_timer(int cpu)
-+{
- 	const char *name;
- 	struct clock_event_device *evt;
- 	int irq;
-@@ -500,23 +528,25 @@ void xen_setup_timer(void)
- 				      IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
- 				      name, NULL);
- 
--	evt = &get_cpu_var(xen_clock_events);
-+	evt = &per_cpu(xen_clock_events, cpu);
- 	memcpy(evt, xen_clockevent, sizeof(*evt));
- 
- 	evt->cpumask = cpumask_of_cpu(cpu);
- 	evt->irq = irq;
--	clockevents_register_device(evt);
+-	int new = xennet_rxidx(np->rx.req_prod_pvt);
 -
--	setup_runstate_info();
+-	BUG_ON(np->rx_skbs[new]);
+-	np->rx_skbs[new] = skb;
+-	np->grant_rx_ref[new] = ref;
+-	RING_GET_REQUEST(&np->rx, np->rx.req_prod_pvt)->id = new;
+-	RING_GET_REQUEST(&np->rx, np->rx.req_prod_pvt)->gref = ref;
+-	np->rx.req_prod_pvt++;
+-}
 -
--	put_cpu_var(xen_clock_events);
-+
-+	setup_runstate_info(cpu);
+ static void xennet_make_frags(struct sk_buff *skb, struct net_device *dev,
+ 			      struct netif_tx_request *tx)
+ {
+@@ -944,6 +931,19 @@ static irqreturn_t netif_int(int irq, vo
+ 	spin_unlock_irqrestore(&np->tx_lock, flags);
+ 
+ 	return IRQ_HANDLED;
 +}
 +
-+void xen_setup_cpu_clockevents(void)
++static void xennet_move_rx_slot(struct netfront_info *np, struct sk_buff *skb,
++				grant_ref_t ref)
 +{
-+	BUG_ON(preemptible());
++	int new = xennet_rxidx(np->rx.req_prod_pvt);
 +
-+	clockevents_register_device(&__get_cpu_var(xen_clock_events));
++	BUG_ON(np->rx_skbs[new]);
++	np->rx_skbs[new] = skb;
++	np->grant_rx_ref[new] = ref;
++	RING_GET_REQUEST(&np->rx, np->rx.req_prod_pvt)->id = new;
++	RING_GET_REQUEST(&np->rx, np->rx.req_prod_pvt)->gref = ref;
++	np->rx.req_prod_pvt++;
  }
  
- __init void xen_time_init(void)
+ static void handle_incoming_queue(struct net_device *dev, struct sk_buff_head *rxq)
+@@ -1169,7 +1169,8 @@ static RING_IDX xennet_fill_frags(struct
+ 	return cons;
+ }
+ 
+-static int xennet_set_skb_gso(struct sk_buff *skb, struct netif_extra_info *gso)
++static int xennet_set_skb_gso(struct sk_buff *skb,
++			      struct netif_extra_info *gso)
  {
- 	int cpu = smp_processor_id();
--
--	get_time_values_from_xen();
+ 	if (!gso->u.gso.size) {
+ 		if (net_ratelimit())
+@@ -1456,11 +1457,8 @@ static void netif_release_rx_bufs(struct
  
- 	clocksource_register(&xen_clocksource);
- 
-@@ -534,5 +564,6 @@ __init void xen_time_init(void)
- 
- 	tsc_disable = 0;
- 
--	xen_setup_timer();
--}
-+	xen_setup_timer(cpu);
-+	xen_setup_cpu_clockevents();
-+}
-===================================================================
---- a/arch/i386/xen/xen-ops.h
-+++ b/arch/i386/xen/xen-ops.h
-@@ -25,7 +25,8 @@ unsigned long xen_get_wallclock(void);
- unsigned long xen_get_wallclock(void);
- int xen_set_wallclock(unsigned long time);
- unsigned long long xen_sched_clock(void);
--void xen_setup_timer(void);
-+void xen_setup_timer(int cpu);
-+void xen_setup_cpu_clockevents(void);
- 
- void xen_mark_init_mm_pinned(void);
- 
+ 		if (!xen_feature(XENFEAT_auto_translated_physmap)) {
+ 			/* Do all the remapping work and M2P updates. */
+-			mcl->op = __HYPERVISOR_mmu_update;
+-			mcl->args[0] = (unsigned long)np->rx_mmu;
+-			mcl->args[1] = mmu - np->rx_mmu;
+-			mcl->args[2] = 0;
+-			mcl->args[3] = DOMID_SELF;
++			MULTI_mmu_update(mcl, np->rx_mmu, mmu - np->rx_mmu,
++					 0, DOMID_SELF);
+ 			mcl++;
+ 			HYPERVISOR_multicall(np->rx_mcl, mcl - np->rx_mcl);
+ 		}
 
 -- 
