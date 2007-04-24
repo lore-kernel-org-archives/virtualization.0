@@ -1,16 +1,13 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [patch 1/4] Ignore stolen time in the softlockup watchdog
-Date: Tue, 24 Apr 2007 10:57:38 -0700
-Message-ID: <20070424105738.e0ce36a9.akpm@linux-foundation.org>
-References: <20070327214919.800272641@goop.org>
-	<20070327215827.871954359@goop.org>
-	<20070423234910.50149faf.akpm@linux-foundation.org>
-	<462E43A7.1050001@goop.org>
+From: Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: SMP lockup in virtualized environment
+Date: Tue, 24 Apr 2007 11:04:15 -0700
+Message-ID: <462E469F.6060502__35716.1087719307$1177437966$gmane$org@xensource.com>
+References: <462E4223.1050109@trango-systems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <462E43A7.1050001@goop.org>
+In-Reply-To: <462E4223.1050109@trango-systems.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,29 +17,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Bhargava <prarit@redhat.com>, Thomas@smtp2.linux-foundation.org, Lindsley <ricklind@us.ibm.com>, Prarit@smtp2.linux-foundation.org, john stultz <johnstul@us.ibm.com>, Zachary@smtp2.linux-foundation.org, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>, virtualization@lists.osdl.org, Chris Lalancette <clalance@redhat.com>, Paul Mackerras <paulus@samba.org>, Rick@smtp2.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@elte.hu>, Gleixner <tglx@linutronix.de>
+To: LAPLACE Cyprien <cyprien.laplace@trango-systems.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 24 Apr 2007 10:51:35 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+LAPLACE Cyprien wrote:
+> I wonder how the guest domain can be denied timer interrupts for such a
+> long time ? The only reason I see is that the guest domain is not
+> scheduled at all (host domain or another higher priority guest running).
+>
+> Now in SMP host and guest, what happens if a guest CPU is not scheduled
+> for a while ?
+>   
 
-> Andrew Morton wrote:
-> > It seems fairly sensitive to .config settings.  See
-> > http://userweb.kernel.org/~akpm/config-sony.txt
-> >   
-> 
-> I haven't tried your config yet, but I haven't managed to reproduce it
-> by playing with the usual suspects in my config (SMP, PREEMPT).  Any
-> idea about which config changes make the difference?
+I think this mostly happens when you're doing an inherently
+time-stealing thing, like pausing vcpus or suspend/resume.  But I guess
+it could happen with a low-prio domain/vcpu on a busy system.
 
-I said that because the damn thing went away when I was hunting it down
-because I lost the config and was unable to remember the right combination
-of debug settings.  Fortunately it later came back so I took care to
-preserve the config.
+> An example: in kernel/pid.c:alloc_pid(), if one of the guest CPUs is
+> descheduled when holding the pidmap_lock, what happens to the other
+> guest CPUs who want to alloc/free pids ? Are they blocked too ?
+>   
 
-> Hm, is it caused by using sched_clock() to generate the printk
-> timestamps while generating the lock test output?
+Yep; its a problem.  If a vcpu holding locks and not running, then
+everyone else will be prevented from taking those locks.  If you have a
+very busy system, then presumably all the vcpus will be similarly loaded
+and the fact that it takes a long time to get locks just means you're
+trying to run too many vcpus for your hardware's capacity.
 
-Conceivably.  What does that locking API test do?
+The other problem is if you've got two vcpus sharing one real cpu, and
+vcpu A spins while waiting for vcpu B to release a lock, and vcpu B is
+waiting for A to get off the physical CPU.  I don't know how often this
+is a real problem in practice.
 
-I was using printk timestamps and netconsole at the time.
+    J
