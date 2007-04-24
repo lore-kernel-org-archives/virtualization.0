@@ -1,42 +1,28 @@
-From: LAPLACE Cyprien <cyprien.laplace@trango-systems.com>
-Subject: SMP lockup in virtualized environment
-Date: Tue, 24 Apr 2007 19:45:07 +0200
-Message-ID: <462E4223.1050109__22264.9704934613$1177436838$gmane$org@trango-systems.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 1/4] Ignore stolen time in the softlockup watchdog
+Date: Tue, 24 Apr 2007 10:51:35 -0700
+Message-ID: <462E43A7.1050001@goop.org>
+References: <20070327214919.800272641@goop.org>	<20070327215827.871954359@goop.org> <20070423234910.50149faf.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422889AbXDXRvQ@vger.kernel.org>
+In-Reply-To: <20070423234910.50149faf.akpm@linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Linux Kernel <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, Prarit Bhargava <prarit@redhat.com>, Eric Dumazet <dada1@cosmosbay.com>, Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>, Zachary Amsden <zach@vmware.com>, James Morris <jmorris@namei.org>, Dan Hecht <dhecht@vmware.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Chris Lalancette <clalance@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>, Andi Kleen <ak@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In a previous mail, Jeremy Fitzhardinge wrote:
-> The softlockup watchdog is currently a nuisance in a virtual machine,
-> since the whole system could have the CPU stolen from it for a long
-> period of time.  While it would be unlikely for a guest domain to be
-> denied timer interrupts for over 10s, it could happen and any
-> softlockup message would be completely spurious.
+Andrew Morton wrote:
+> It seems fairly sensitive to .config settings.  See
+> http://userweb.kernel.org/~akpm/config-sony.txt
+>   
 
-I wonder how the guest domain can be denied timer interrupts for such a
-long time ? The only reason I see is that the guest domain is not
-scheduled at all (host domain or another higher priority guest running).
+I haven't tried your config yet, but I haven't managed to reproduce it
+by playing with the usual suspects in my config (SMP, PREEMPT).  Any
+idea about which config changes make the difference?
 
-Now in SMP host and guest, what happens if a guest CPU is not scheduled
-for a while ?
+Hm, is it caused by using sched_clock() to generate the printk
+timestamps while generating the lock test output?
 
-An example: in kernel/pid.c:alloc_pid(), if one of the guest CPUs is
-descheduled when holding the pidmap_lock, what happens to the other
-guest CPUs who want to alloc/free pids ? Are they blocked too ?
-
-
--- 
-Cyprien Laplace
+    J
