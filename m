@@ -1,25 +1,31 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 22/25] xen: xen-netfront: use skb.cb for storing private
- data
-Date: Mon, 23 Apr 2007 21:34:55 -0700
-Message-ID: <462D88EF.9030007@goop.org>
-References: <20070423215638.563901986@goop.org> <20070423215713.550883195@goop.org> <20070424014528.GA27789@gondor.apana.org.au>
+Subject: Re: [PATCH 23/25] xen: Lockdep fixes for xen-netfront
+Date: Mon, 23 Apr 2007 21:36:10 -0700
+Message-ID: <462D893A.1020201@goop.org>
+References: <E1HgBbr-0007Ob-00@gondolin.me.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751613AbXDXEe3@vger.kernel.org>
-In-Reply-To: <20070424014528.GA27789@gondor.apana.org.au>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <E1HgBbr-0007Ob-00@gondolin.me.apana.org.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Cc: chrisw@sous-sol.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Herbert Xu wrote:
-> Thanks Jeremy.  The patch looks good.
+> You don't need to disable BH in netif_poll since it's always called
+> with BH disabled.
+>   
 
-Could you give netfront an overall review as well?  I know you're
-already pretty familiar with it, but if you could cast a fresh eye over
-it, that would be helpful.
+Ah, yes, you mentioned that before.  I'll fix it up.
 
-Thanks,
     J
