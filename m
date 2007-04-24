@@ -1,49 +1,34 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 03/25] xen: Add nosegneg capability to the vsyscall page
- notes
-Date: Mon, 23 Apr 2007 18:24:12 -0700
-Message-ID: <462D5C3C.4000406@goop.org>
-References: <20070423232941.476FB1801A4@magilla.sf.frob.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 22/25] xen: xen-netfront: use skb.cb for storing private data
+Date: Tue, 24 Apr 2007 11:45:28 +1000
+Message-ID: <20070424014528.GA27789@gondor.apana.org.au>
+References: <20070423215638.563901986@goop.org> <20070423215713.550883195@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754542AbXDXBX6@vger.kernel.org>
-In-Reply-To: <20070423232941.476FB1801A4@magilla.sf.frob.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754552AbXDXBqP@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20070423215713.550883195@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Roland McGrath <roland@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Ulrich Drepper <drepper@redhat.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Roland McGrath wrote:
->> + * It should contain:
->> + *	hwcap 0 nosegneg
->> + * to match the mapping of bit to name that we give here.
->>     
->
-> This needs to be "hwcap 0 nosegneg" to match:
->
->   
->> +NOTE_KERNELCAP_BEGIN(1, 2)
->> +NOTE_KERNELCAP(1, "nosegneg")
->> +NOTE_KERNELCAP_END
->>     
->
-> The actual bits you are using should be fine.  (You're intentionally
-> skipping bit 0 to work around hold glibc bugs, which you might want to add
-> to the comments.  Also a comment or perhaps using 1<<1 syntax would make it
-> more clear that "2" is the bit mask containing bit 1 and that's why it has
-> to be 2, and not because of some other magical property of 2.)  But if
-> kernel packagers don't write the matching bit number in their ld.so.conf.d
-> files, then ld.so.cache lookups won't work right.
+On Mon, Apr 23, 2007 at 02:57:00PM -0700, Jeremy Fitzhardinge wrote:
+> Netfront's use of nh.raw and h.raw for storing page+offset is a bit
+> hinky, and it breaks with upcoming network stack updates which reduce
+> these fields to sub-pointer sizes.  Fortunately, skb offers the "cb"
+> field specifically for stashing this kind of info, so use it.
+> 
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> Cc: Chris Wright <chrisw@sous-sol.org>
+> Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 
-I have to admit I still don't really understand all this.  Is it
-documented somewhere?
+Thanks Jeremy.  The patch looks good.
 
-What does "hwcap 0 nosegneg" actually mean?  What does the "0" mean here?
-
-In the ELF note, what does the "nosegneg" string mean?  How is it used? 
-Is it compared to the "nosegneg" in ld.so.conf?  How does this relate to
-the bitfields?
-
-Thanks,
-    J
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
