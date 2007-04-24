@@ -1,30 +1,38 @@
 From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 22/25] xen: xen-netfront: use skb.cb for storing private data
-Date: Tue, 24 Apr 2007 11:45:28 +1000
-Message-ID: <20070424014528.GA27789@gondor.apana.org.au>
-References: <20070423215638.563901986@goop.org> <20070423215713.550883195@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754552AbXDXBqP@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20070423215713.550883195@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: Re: [PATCH 23/25] xen: Lockdep fixes for xen-netfront
+Date: Tue, 24 Apr 2007 13:22:31 +1000
+Message-ID: <E1HgBbr-0007Ob-00@gondolin.me.apana.org.au>
+References: <20070423215713.768656419@goop.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070423215713.768656419@goop.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Cc: chrisw@sous-sol.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2007 at 02:57:00PM -0700, Jeremy Fitzhardinge wrote:
-> Netfront's use of nh.raw and h.raw for storing page+offset is a bit
-> hinky, and it breaks with upcoming network stack updates which reduce
-> these fields to sub-pointer sizes.  Fortunately, skb offers the "cb"
-> field specifically for stashing this kind of info, so use it.
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>
+> @@ -1212,10 +1212,10 @@ static int netif_poll(struct net_device 
+>        int pages_flipped = 0;
+>        int err;
 > 
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> Cc: Chris Wright <chrisw@sous-sol.org>
-> Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+> -       spin_lock(&np->rx_lock);
+> +       spin_lock_bh(&np->rx_lock);
+> 
+>        if (unlikely(!netfront_carrier_ok(np))) {
+> -               spin_unlock(&np->rx_lock);
+> +               spin_unlock_bh(&np->rx_lock);
 
-Thanks Jeremy.  The patch looks good.
+You don't need to disable BH in netif_poll since it's always called
+with BH disabled.
 
 Cheers,
 -- 
