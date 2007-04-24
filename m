@@ -1,41 +1,75 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [patch 1/4] Ignore stolen time in the softlockup watchdog
-Date: Tue, 24 Apr 2007 11:16:09 -0700
-Message-ID: <462E4969.6070802@goop.org>
-References: <20070327214919.800272641@goop.org>	<20070327215827.871954359@goop.org>	<20070423234910.50149faf.akpm@linux-foundation.org>	<462E43A7.1050001@goop.org> <20070424105738.e0ce36a9.akpm@linux-foundation.org>
+Date: Tue, 24 Apr 2007 11:32:22 -0700
+Message-ID: <20070424113222.ed2e1314.akpm@linux-foundation.org>
+References: <20070327214919.800272641@goop.org>
+	<20070327215827.871954359@goop.org>
+	<20070423234910.50149faf.akpm@linux-foundation.org>
+	<462E43A7.1050001@goop.org>
+	<20070424105738.e0ce36a9.akpm@linux-foundation.org>
+	<462E4969.6070802@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422803AbXDXSPv@vger.kernel.org>
-In-Reply-To: <20070424105738.e0ce36a9.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linux Kernel <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, Prarit Bhargava <prarit@redhat.com>, Eric Dumazet <dada1@cosmosbay.com>, Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>, Zachary Amsden <zach@vmware.com>, James Morris <jmorris@namei.org>, Dan Hecht <dhecht@vmware.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Chris Lalancette <clalance@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>, Andi Kleen <ak@suse.de>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <462E4969.6070802@goop.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Bhargava <prarit@redhat.com>, Thomas@smtp2.linux-foundation.org, Lindsley <ricklind@us.ibm.com>, Prarit@smtp2.linux-foundation.org, john stultz <johnstul@us.ibm.com>, Zachary@smtp2.linux-foundation.org, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>, virtualization@lists.osdl.org, Chris Lalancette <clalance@redhat.com>, Paul Mackerras <paulus@samba.org>, Rick@smtp2.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@elte.hu>, Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andrew Morton wrote:
-> I said that because the damn thing went away when I was hunting it down
-> because I lost the config and was unable to remember the right combination
-> of debug settings.  Fortunately it later came back so I took care to
-> preserve the config.
->   
+On Tue, 24 Apr 2007 11:16:09 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-sched_clock doesn't *do* anything except flap interrupts. Oh, wait, have
-you got Andi's bugfixed version of the sched_clock patch?  The first
-version did a local_save_flags rather than a local_irq_save.
+> Andrew Morton wrote:
+> > I said that because the damn thing went away when I was hunting it down
+> > because I lost the config and was unable to remember the right combination
+> > of debug settings.  Fortunately it later came back so I took care to
+> > preserve the config.
+> >   
+> 
+> sched_clock doesn't *do* anything except flap interrupts.
 
->> Hm, is it caused by using sched_clock() to generate the printk
->> timestamps while generating the lock test output?
->>     
->
-> Conceivably.  What does that locking API test do?
->   
+Well, it _is_ mysterious.
 
-Didn't make a difference here.  Building your config now.
+Did you try to locate the code which failed?  I got lost in macros and
+include files, and gave up very very easily.  Stop hiding, Ingo.
 
-> I was using printk timestamps and netconsole at the time.
->   
+> Oh, wait, have
+> you got Andi's bugfixed version of the sched_clock patch?  The first
+> version did a local_save_flags rather than a local_irq_save.
 
-Ah, great, now you're going to make me setup netconsole...
+I have whatever I pulled from firstfloor over the weekend.  It's in
+rc7-mm1.  No, it doesn't use local_save_flags.
 
-    J
+> >> Hm, is it caused by using sched_clock() to generate the printk
+> >> timestamps while generating the lock test output?
+> >>     
+> >
+> > Conceivably.  What does that locking API test do?
+> >   
+> 
+> Didn't make a difference here.  Building your config now.
+> 
+> > I was using printk timestamps and netconsole at the time.
+> >   
+> 
+> Ah, great, now you're going to make me setup netconsole...
+> 
+
+That's a doddle.
+
+On test system, boot with
+
+netconsole=4444@<test-system-ip-addr>/eth0,<udp-port-no>@<workstation-ip-addr>/<workstation-mac-addr>
+
+On workstation:
+
+sudo netcat -u -l -p <udp-port-no> | tee -a ~/.log/log-<test-system-hostname>
