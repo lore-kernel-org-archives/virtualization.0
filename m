@@ -1,46 +1,40 @@
-From: Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH 03/25] xen: Add nosegneg capability to the vsyscall page
-	notes
-Date: Mon, 23 Apr 2007 16:29:41 -0700 (PDT)
-Message-ID: <20070423232941.476FB1801A4@magilla.sf.frob.com>
-References: <20070423215709.802499615@goop.org>
+From: olof@lixom.net (Olof Johansson)
+Subject: Re: [PATCH 16/25] xen: Use the hvc console infrastructure for Xen console
+Date: Mon, 23 Apr 2007 20:21:11 -0500
+Message-ID: <20070424012111.GA28649@lixom.net>
+References: <20070423215638.563901986@goop.org> <20070423215712.328111104@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: Jeremy Fitzhardinge's message of  Monday,
-	23 April 2007 14:56:41 -0700 <20070423215709.802499615@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754534AbXDXBVK@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20070423215712.328111104@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ulrich Drepper <drepper@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Gerd Hoffmann <kraxel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> + * It should contain:
-> + *	hwcap 0 nosegneg
-> + * to match the mapping of bit to name that we give here.
+On Mon, Apr 23, 2007 at 02:56:54PM -0700, Jeremy Fitzhardinge wrote:
+> Implement a Xen back-end for hvc console.
+> 
+> From: Gerd Hoffmann <kraxel@suse.de>
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> 
+> ---
+>  arch/i386/xen/Kconfig     |    1 
+>  arch/i386/xen/events.c    |    3 -
+>  drivers/Makefile          |    3 +
+>  drivers/xen/Makefile      |    1 
+>  drivers/xen/hvc-console.c |  134 +++++++++++++++++++++++++++++++++++++++++++++
+>  include/xen/events.h      |    1 
+>  6 files changed, 142 insertions(+), 1 deletion(-)
 
-This needs to be "hwcap 0 nosegneg" to match:
+If you move the driver to drivers/char/hvc_xen.c instead, you won't have to do...
 
-> +NOTE_KERNELCAP_BEGIN(1, 2)
-> +NOTE_KERNELCAP(1, "nosegneg")
-> +NOTE_KERNELCAP_END
+> +#include "../char/hvc_console.h"
 
-The actual bits you are using should be fine.  (You're intentionally
-skipping bit 0 to work around hold glibc bugs, which you might want to add
-to the comments.  Also a comment or perhaps using 1<<1 syntax would make it
-more clear that "2" is the bit mask containing bit 1 and that's why it has
-to be 2, and not because of some other magical property of 2.)  But if
-kernel packagers don't write the matching bit number in their ld.so.conf.d
-files, then ld.so.cache lookups won't work right.
+...this.
+
+Other single-platform backend hvc drivers are under drivers/char already.
 
 
-Thanks,
-Roland
+-Olof
