@@ -1,16 +1,20 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 16/25] xen: Use the hvc console infrastructure for Xen
- console
-Date: Tue, 24 Apr 2007 13:01:38 -0700
-Message-ID: <462E6222.3060302@goop.org>
-References: <20070423215638.563901986@goop.org>
-	<20070423215712.328111104@goop.org>
-	<20070424012111.GA28649@lixom.net>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [patch 1/4] Ignore stolen time in the softlockup watchdog
+Date: Tue, 24 Apr 2007 13:14:27 -0700
+Message-ID: <20070424131427.940d461e.akpm@linux-foundation.org>
+References: <20070327214919.800272641@goop.org>
+	<20070327215827.871954359@goop.org>
+	<20070423234910.50149faf.akpm@linux-foundation.org>
+	<462E43A7.1050001@goop.org>
+	<20070424105738.e0ce36a9.akpm@linux-foundation.org>
+	<462E4969.6070802@goop.org>
+	<20070424113222.ed2e1314.akpm@linux-foundation.org>
+	<462E61F1.7060403@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070424012111.GA28649@lixom.net>
+In-Reply-To: <462E61F1.7060403@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,38 +24,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Olof Johansson <olof@lixom.net>
-Cc: Gerd Hoffmann <kraxel@suse.de>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Bhargava <prarit@redhat.com>, Thomas@smtp2.linux-foundation.org, Lindsley <ricklind@us.ibm.com>, Prarit@smtp2.linux-foundation.org, john stultz <johnstul@us.ibm.com>, Zachary@smtp2.linux-foundation.org, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>, virtualization@lists.osdl.org, Chris Lalancette <clalance@redhat.com>, Paul Mackerras <paulus@samba.org>, Rick@smtp2.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@elte.hu>, Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Olof Johansson wrote:
-> On Mon, Apr 23, 2007 at 02:56:54PM -0700, Jeremy Fitzhardinge wrote:
->   
->> Implement a Xen back-end for hvc console.
->>
->> From: Gerd Hoffmann <kraxel@suse.de>
->> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
->>
->> ---
->>  arch/i386/xen/Kconfig     |    1 
->>  arch/i386/xen/events.c    |    3 -
->>  drivers/Makefile          |    3 +
->>  drivers/xen/Makefile      |    1 
->>  drivers/xen/hvc-console.c |  134 +++++++++++++++++++++++++++++++++++++++++++++
->>  include/xen/events.h      |    1 
->>  6 files changed, 142 insertions(+), 1 deletion(-)
->>     
->
-> If you move the driver to drivers/char/hvc_xen.c instead, you won't have to do...
->
->   
->> +#include "../char/hvc_console.h"
->>     
->
-> ...this.
->
-> Other single-platform backend hvc drivers are under drivers/char already.
+On Tue, 24 Apr 2007 13:00:49 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-Good point.
+> Andrew Morton wrote:
+> > Well, it _is_ mysterious.
+> >
+> > Did you try to locate the code which failed?  I got lost in macros and
+> > include files, and gave up very very easily.  Stop hiding, Ingo.
+> >   
+> 
+> OK, I've managed to reproduce it.  Removing the local_irq_save/restore
+> from sched_clock() makes it go away, as I'd expect (otherwise it would
+> really be magic).
 
-    J
+erm, why do you expect that?  A local_irq_save()/local_irq_restore() pair
+shouldn't be affecting anything?
+
+>  But given that it never seems to touch the softlockup
+> during testing, I have no idea what difference it makes...
+
+To what softlockup are you referring, and what does that have to do with
+anything?
+
+<feels dumb>
