@@ -1,14 +1,20 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [patch 1/4] Ignore stolen time in the softlockup watchdog
-Date: Tue, 24 Apr 2007 13:24:24 -0700
-Message-ID: <462E6778.7070305@goop.org>
-References: <20070327214919.800272641@goop.org>	<20070327215827.871954359@goop.org>	<20070423234910.50149faf.akpm@linux-foundation.org>	<462E43A7.1050001@goop.org>	<20070424105738.e0ce36a9.akpm@linux-foundation.org>	<462E4969.6070802@goop.org>	<20070424113222.ed2e1314.akpm@linux-foundation.org>
-	<462E61F1.7060403@goop.org>
+Date: Tue, 24 Apr 2007 13:33:59 -0700
+Message-ID: <20070424133359.f18bce78.akpm@linux-foundation.org>
+References: <20070327214919.800272641@goop.org>
+	<20070327215827.871954359@goop.org>
+	<20070423234910.50149faf.akpm@linux-foundation.org>
+	<462E43A7.1050001@goop.org>
+	<20070424105738.e0ce36a9.akpm@linux-foundation.org>
+	<462E4969.6070802@goop.org>
+	<20070424113222.ed2e1314.akpm@linux-foundation.org>
+	<462E61F1.7060403@goop.org> <462E6778.7070305@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <462E61F1.7060403@goop.org>
+In-Reply-To: <462E6778.7070305@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,32 +25,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Prarit Bhargava <prarit@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>, virtualization@lists.osdl.org, Chris Lalancette <clalance@redhat.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+Cc: Prarit Bhargava <prarit@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>, virtualization@lists.osdl.org, Chris Lalancette <clalance@redhat.com>, Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paul@smtp2.linux-foundation.org, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Andrew Morton wrote:
->   
->> Well, it _is_ mysterious.
->>
->> Did you try to locate the code which failed?  I got lost in macros and
->> include files, and gave up very very easily.  Stop hiding, Ingo.
->>   
->>     
->
-> OK, I've managed to reproduce it.  Removing the local_irq_save/restore
-> from sched_clock() makes it go away, as I'd expect (otherwise it would
-> really be magic).  But given that it never seems to touch the softlockup
-> during testing, I have no idea what difference it makes...
+On Tue, 24 Apr 2007 13:24:24 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-And sched_clock's use of local_irq_save/restore appears to be absolutely
-correct, so I think it must be triggering a bug in either the self-tests
-or lockdep itself.
+> Jeremy Fitzhardinge wrote:
+> > Andrew Morton wrote:
+> >   
+> >> Well, it _is_ mysterious.
+> >>
+> >> Did you try to locate the code which failed?  I got lost in macros and
+> >> include files, and gave up very very easily.  Stop hiding, Ingo.
+> >>   
+> >>     
+> >
+> > OK, I've managed to reproduce it.  Removing the local_irq_save/restore
+> > from sched_clock() makes it go away, as I'd expect (otherwise it would
+> > really be magic).  But given that it never seems to touch the softlockup
+> > during testing, I have no idea what difference it makes...
+> 
+> And sched_clock's use of local_irq_save/restore appears to be absolutely
+> correct, so I think it must be triggering a bug in either the self-tests
+> or lockdep itself.
 
-The only way I could actually extract the test code itself was to run
-the whole thing through cpp+indent, but it doesn't shed much light.
+It's weird.  And I don't think the locking selftest code calls
+sched_clock() (or any other time-related thing) at all, does it?
 
-It's also not clear to me if there are 6 independent failures, or if
-they're a cascade.
+> The only way I could actually extract the test code itself was to run
+> the whole thing through cpp+indent, but it doesn't shed much light.
+> 
+> It's also not clear to me if there are 6 independent failures, or if
+> they're a cascade.
 
-    J
+Oh well.  I'll restore the patches and when people hit problems we can
+blame Ingo!
