@@ -1,41 +1,34 @@
-From: Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch 1/4] Ignore stolen time in the softlockup watchdog
-Date: Tue, 24 Apr 2007 14:33:58 -0700
-Message-ID: <1177450439.12796.79.camel@imap.mvista.com>
-References: <20070327214919.800272641@goop.org> <462E6778.7070305@goop.org>
-	 <1177447948.12796.66.camel@imap.mvista.com> <200704242320.06470.ak@suse.de>
+From: Chris Snook <csnook@redhat.com>
+Subject: Re: SMP lockup in virtualized environment
+Date: Tue, 24 Apr 2007 18:37:51 -0400
+Message-ID: <462E86BF.7010402__36720.6154777252$1177454342$gmane$org@redhat.com>
+References: <462E4223.1050109@trango-systems.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1423119AbXDXVf0@vger.kernel.org>
-In-Reply-To: <200704242320.06470.ak@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.linux-foundation.org, Jeremy Fitzhardinge <jeremy@goop.org>, Prarit Bhargava <prarit@redhat.com>, Rick Lindsley <ricklind@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>, virtualization@lists.osdl.org, Chris Lalancette <clalance@redhat.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <462E4223.1050109@trango-systems.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: LAPLACE Cyprien <cyprien.laplace@trango-systems.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-04-24 at 23:20 +0200, Andi Kleen wrote:
-> On Tuesday 24 April 2007 22:52:27 Daniel Walker wrote:
-> > On Tue, 2007-04-24 at 13:24 -0700, Jeremy Fitzhardinge wrote:
-> > 
-> > > And sched_clock's use of local_irq_save/restore appears to be absolutely
-> > > correct, so I think it must be triggering a bug in either the self-tests
-> > > or lockdep itself.
-> > 
-> > Why does sched_clock need to disable interrupts?
-> 
-> It's only used in the instable path which is kind of "i already threw up
-> my hands" anyways
-> 
-> I use it because when you transition from stable (TSC) to instable (jiffies)
-> the only way to avoid the clock jumping backwards is to remember and update the 
-> last value. To avoid races with parallel cpufreq handlers or timer
-> interrupts this small section needs to run with interrupts disabled.
+LAPLACE Cyprien wrote:
+> An example: in kernel/pid.c:alloc_pid(), if one of the guest CPUs is
+> descheduled when holding the pidmap_lock, what happens to the other
+> guest CPUs who want to alloc/free pids ? Are they blocked too ?
 
-Preemption is already disabled with the get_cpu_var() , so it seems like
-the timer interrupt is the only worry? I find it confusing that the
-access of jiffies_64 isn't protected from interrupts, it's only the
-per_cpu data which should already be protected by the
-get_cpu_var()/put_cpu_var ..
+Yup.  This is where it's really nice to have directed yields, where you tell the 
+hypervisor to give your physical CPU time to the vcpu that's holding the lock 
+you're blocking on.  I know s390 can do this.  Perhaps it's something worth 
+generalizing in paravirt_ops?
 
-Daniel
+	-- Chris
