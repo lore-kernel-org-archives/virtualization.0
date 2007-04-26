@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] Fix lguest oops when guest dies while receiving I/O
-Date: Thu, 26 Apr 2007 20:45:10 +1000
-Message-ID: <1177584310.30071.60.camel__23927.6818851524$1177584392$gmane$org@localhost.localdomain>
+Subject: [PATCH] Fix lguest documentation error
+Date: Thu, 26 Apr 2007 20:46:42 +1000
+Message-ID: <1177584403.30071.62.camel__44938.5630236522$1177584476$gmane$org@localhost.localdomain>
+References: <1177584310.30071.60.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1177584310.30071.60.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,33 +21,27 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-lguest needs to hold a reference to its task in case it exits while
-another Guest is sending it I/O.  Otherwise we can oops in
-access_process_vm->get_task_mm->task_lock().
+[ How embarrassing, I got the iptables command wrong! --RR ]
 
+From: James Morris <jmorris@namei.org>
+
+Fix up nat example in documentation.
+
+Signed-off-by: James Morris <jmorris@namei.org>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
 ---
- drivers/lguest/lguest_user.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/lguest/lguest.txt |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 ===================================================================
---- a/drivers/lguest/lguest_user.c
-+++ b/drivers/lguest/lguest_user.c
-@@ -107,7 +107,8 @@ static int initialize(struct file *file,
- 	setup_regs(lg->regs, args[2]);
- 	setup_guest_gdt(lg);
- 	lg->tsk = current;
--	lg->mm = get_task_mm(current);
-+	get_task_struct(lg->tsk);
-+	lg->mm = get_task_mm(lg->tsk);
- 	lg->last_pages = NULL;
- 	mutex_unlock(&lguest_lock);
+--- a/Documentation/lguest/lguest.txt
++++ b/Documentation/lguest/lguest.txt
+@@ -69,7 +69,7 @@ Running Lguest:
+        kernel boot parameters.
  
-@@ -160,6 +161,7 @@ static int close(struct inode *inode, st
- 	mutex_lock(&lguest_lock);
- 	release_all_dma(lg);
- 	free_guest_pagetable(lg);
-+	put_task_struct(lg->tsk);
- 	mmput(lg->mm);
- 	if (!IS_ERR(lg->dead))
- 		kfree(lg->dead);
+ - Configuring networking.  I usually have the host masquerade, using
+-  "iptables -t nat -o eth0 -j MASQUERADE" and "echo 1 >
++  "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE" and "echo 1 >
+   /proc/sys/net/ipv4/ip_forward".  In this example, I would configure
+   eth0 inside the guest at 192.168.19.2.
