@@ -1,34 +1,42 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
 Subject: Re: [PATCH 06/25] xen: Core Xen implementation
-Date: Fri, 27 Apr 2007 00:08:07 -0700
-Message-ID: <4631A157.9040702@goop.org>
-References: <20070423215638.563901986@goop.org> <20070423215710.355105690@goop.org> <200704242325.23447.ak@suse.de>
+Date: Fri, 27 Apr 2007 08:31:23 +0100
+Message-ID: <C257655B.66F1%Keir.Fraser@cl.cam.ac.uk>
+References: <4631A157.9040702@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754102AbXD0HHi@vger.kernel.org>
-In-Reply-To: <200704242325.23447.ak@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Adrian Bunk <bunk@stusta.de>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4631A157.9040702@goop.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>
+Cc: Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Adrian Bunk <bunk@stusta.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
->> +	/* convert from IF type flag */
->> +	flags = !(flags & X86_EFLAGS_IF);
->> +	vcpu = x86_read_percpu(xen_vcpu);
->> +	vcpu->evtchn_upcall_mask = flags;
->> +	if (flags == 0) {
->> +		barrier(); /* unmask then check (avoid races) */
->>     
->
-> Don't you need a rmb() here then? The CPU could speculate reads
-> (more occurrences) 
->   
+On 27/4/07 08:08, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
 
-Is rmb() sufficient?  It will stop a speculative read on the pending
-flag, but will it make sure the write has happened by then?  Ie, is it a
-write-vs-read barrier, or just a read-vs-read? 
-Documentation/memory-barriers.txt suggests not.
+>> Don't you need a rmb() here then? The CPU could speculate reads
+>> (more occurrences)
+>>   
+> 
+> Is rmb() sufficient?  It will stop a speculative read on the pending
+> flag, but will it make sure the write has happened by then?  Ie, is it a
+> write-vs-read barrier, or just a read-vs-read?
+> Documentation/memory-barriers.txt suggests not.
 
-    J
+The barrier() is sufficient. We are racing against Xen checking
+evtchn_upcall_mask *on the local cpu*. Which means an interrupt has to
+occur, which squashes speculative stuff.
+
+Yeah, I know, it needs a better comment. :-)
+
+ -- Keir
