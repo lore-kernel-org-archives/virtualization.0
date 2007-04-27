@@ -1,29 +1,34 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 11/25] xen: Xen SMP guest support
-Date: Thu, 26 Apr 2007 23:46:19 -0700
-Message-ID: <46319C3B.2010300@goop.org>
-References: <20070423215638.563901986@goop.org> <20070423215711.197402369@goop.org> <200704251124.48445.ak@suse.de>
+Subject: Re: [PATCH 06/25] xen: Core Xen implementation
+Date: Fri, 27 Apr 2007 00:08:07 -0700
+Message-ID: <4631A157.9040702@goop.org>
+References: <20070423215638.563901986@goop.org> <20070423215710.355105690@goop.org> <200704242325.23447.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755419AbXD0Gpu@vger.kernel.org>
-In-Reply-To: <200704251124.48445.ak@suse.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754102AbXD0HHi@vger.kernel.org>
+In-Reply-To: <200704242325.23447.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Benjamin LaHaise <bcrl@kvack.org>, Ingo Molnar <mingo@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Adrian Bunk <bunk@stusta.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Andi Kleen wrote:
->> +/* VCPUs are single-cored, and have no siblings */
->> +static void set_cpu_sibling_map(int cpu)
+>> +	/* convert from IF type flag */
+>> +	flags = !(flags & X86_EFLAGS_IF);
+>> +	vcpu = x86_read_percpu(xen_vcpu);
+>> +	vcpu->evtchn_upcall_mask = flags;
+>> +	if (flags == 0) {
+>> +		barrier(); /* unmask then check (avoid races) */
 >>     
 >
-> Can you put this somewhere generic and use it everywhere? Don't want
-> duplication of this code.
+> Don't you need a rmb() here then? The CPU could speculate reads
+> (more occurrences) 
 >   
 
-Are there any other users?  This is a very cutdown version of the code
-in kernel/smpboot.c; under Xen all CPUs are considered to be
-single-cored and single-threaded, so there's not a lot to do here.
+Is rmb() sufficient?  It will stop a speculative read on the pending
+flag, but will it make sure the write has happened by then?  Ie, is it a
+write-vs-read barrier, or just a read-vs-read? 
+Documentation/memory-barriers.txt suggests not.
 
     J
