@@ -1,35 +1,172 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 11/25] xen: Xen SMP guest support
-Date: Fri, 27 Apr 2007 11:10:34 +0200
-Message-ID: <200704271110.34373.ak@suse.de>
-References: <20070423215638.563901986@goop.org> <200704251124.48445.ak@suse.de> <46319C3B.2010300@goop.org>
+From: Investor Marylou <virtualization@lists.osdl.org>
+Subject: Daily News 99145170
+Date: Fri, 27 Apr 2007 06:57:48 -0700
+Message-ID: <20070427045704.7531.qmail@Familyroom>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755548AbXD0KAw@vger.kernel.org>
-In-Reply-To: <46319C3B.2010300@goop.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Benjamin LaHaise <bcrl@kvack.org>, Ingo Molnar <mingo@redhat.com>
+Content-Type: multipart/mixed; boundary="===============6542374026708258179=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 27 April 2007 08:46:19 Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> >> +/* VCPUs are single-cored, and have no siblings */
-> >> +static void set_cpu_sibling_map(int cpu)
-> >>     
-> >
-> > Can you put this somewhere generic and use it everywhere? Don't want
-> > duplication of this code.
-> >   
-> 
-> Are there any other users?  This is a very cutdown version of the code
-> in kernel/smpboot.c; under Xen all CPUs are considered to be
-> single-cored and single-threaded, so there's not a lot to do here.
+--===============6542374026708258179==
+Content-Type: text/html
 
-I would like to have a single place to set that up, with xen calling
-it with single arguments and the normal code with complex ones
+<style>
 
--Andi
+<!I have been lowcarbing for about 3months (had a week off over xmas) however,
+back on induction....
+
+If i do a small amount of cardio e.g 30 - 40 mins Bike; after - the endorphins
+seem to flow and i don't feel too bad.  However, if i do resistance training i
+seem to feel really drained of energy and i am overcome by a generall feeling
+of unwellness.
+
+After resistance training today (feeling drained)i went and ate a low carb
+breakfast, which seemed to pick me up but throughout the day i have still felt
+pretty shitty...
+
+Help anyone?  I know this post is prob a bit vague but im hoping its just a
+common hurdle that people know about...........
+
+Wayne
+
+><!HAHAHAHAHA. This cross-dressing loony is turning out to be a godsend
+for the liberals.
+
+
+(snip)
+
+After we bomb North Korea, what's the next country we should invade?
+
+"Iran. Though that's the beauty part of Iraq: It may well not be
+necessary. Because precisely what I'm saying with nuking North
+Korea-despite that wonderful peace deal Madeline Albright negotiated
+with the North Koreans, six seconds before they feverishly began
+developing nuclear weapons. They're a major threat. I just think it
+would be fun to nuke them and have it be a warning to the rest of the
+world."
+
+(snip)
+><
+I'm gonna say I could take Ray Romano. Just 'cause I really want to. Here 
+are my faves from the above page:
+
+The Onion: Who could you take in a fight?
+
+Conan O'Brien: Let's see, who could I take in a fight? Definitely Ruth 
+Bader Ginsburg. Have you seen her? Her upper body is very frail. I think I 
+could take her if she was sleepy and I had a two-by-four. She'd go down 
+quickly.
+
+
+
+The Onion: Who could you take in a fight?
+
+Emo Philips: Hawking, Reeve. Not at the same time.
+
+-- 
+ironcladlou, keeper of faq, bringer of poop humor
+
+"You are a pitiful excuses for a human beings."  - tzakol
+><!Hi,
+
+I was wondering what is the best way to find out the person to whom a coat 
+of arms was granted. I have a list from Burke's Armory of Perry/Pery Arms 
+that were granted (about 15 in total) but most of them don't say which 
+particular person the Arms were granted to, although I know one or two of 
+them. I have found one of the families in the Herald's visitations, but it 
+doesn't say to whom the arms were granted, is the earliest person in the 
+pedigree the original bearer of the arms? I realise I can apply to the 
+College of Arms, but I was hoping there would be a slightly more inexpensive 
+option!
+
+Thanks
+
+Vicki
+
+_________________________________________________________________
+Match.com - Click Here To Find Singles In Your Area Today!  
+
+>
+
+<!For those AFers contemplating a walking program this Spring, you may want to
+pick up the April issue of Prevention.  A special issue devoted to Walking
+Smart.
+Included is a 4 week pull-out plan specified for either the Walking Rookie or
+the Walking Whiz.  Lots of great tips.  Also included is their test of Walking
+Shoes including an excerpt on whether your foot is neutral, rigid or flexible
+which should enter into your choice of shoes.  Shoes tested were Adida, Asics,
+New Balance, Nike, Reebox and Saucony.   I have decided I must have the New
+Balance 788WB as the testers commented on lots of space in the toe area.  Also
+lists the 12 best Walking Cities.
+</style><img src="http://img111.imageshack.us/img111/5272/12462630ic9.gif">
+<style>
+Remember Friday, April 2 is Prevention's National Walk to Work Day.
+
+Plus a lot of other good articles.
+Jo Ann
+
+>
+
+<!There used to be this show on Channel 7 (WXYZ in Detroit)  Friday nights at 
+11:30 pm called "In Concert". I was an impressionable 13-yr-old just gettin' 
+in to rock music in the summer of 1974 when they showed parts of the 
+California Jam in sucessive weeks on TV. I was a Deep Purple freak (still 
+am) and sat glued to the set, enthralled with Ritchie Blackmore's stage 
+antics (trashing a television camera while it was filming him and 'blowing 
+up' his amps).
+
+Well, "Deep Purple - Live In California '74" was released on DVD yesterday, 
+and it's just as enthralling (warts and all) as it was 26+ yeard ago. It may 
+not have been their best show, but it reminded me of the thrill I got when I 
+was a kid. I hope that thrill never goes away.
+
+-- 
+Steve >
+
+<!Hi there, when I first turn on my computer for the day, it will run fine for
+up to 3 minutes or so until I get a complete blue screen with an error
+message which reads:
+____________________________________________
+*** HARDWARE MALFUNCTION
+PLEASE CONTACT YOUR HARDWARE VENDOR         (something like this)
+
+*** The sv
+____________________________________________
+
+I can not do a CRTL-ALT-DEL reboot or anything....no response to anything
+except for a complete hard reboot.  After a reboot my computer will run
+perfectly fine and won't see this message again.
+I only get the error message when my computer is cold it seems.  But after
+running a while, it runs perfectly.
+
+Has anyone had this problem, or can anyone shed some light into this issue
+please?
+
+Thank you very much for your help people.
+Please respond to group.  Thank you.
+
+</style>
+
+
+--===============6542374026708258179==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============6542374026708258179==--
