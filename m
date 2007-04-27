@@ -1,42 +1,35 @@
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [PATCH 06/25] xen: Core Xen implementation
-Date: Fri, 27 Apr 2007 08:31:23 +0100
-Message-ID: <C257655B.66F1%Keir.Fraser@cl.cam.ac.uk>
-References: <4631A157.9040702@goop.org>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 11/25] xen: Xen SMP guest support
+Date: Fri, 27 Apr 2007 11:10:34 +0200
+Message-ID: <200704271110.34373.ak@suse.de>
+References: <20070423215638.563901986@goop.org> <200704251124.48445.ak@suse.de> <46319C3B.2010300@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4631A157.9040702@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>
-Cc: Ian Pratt <ian.pratt@xensource.com>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Adrian Bunk <bunk@stusta.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755548AbXD0KAw@vger.kernel.org>
+In-Reply-To: <46319C3B.2010300@goop.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Benjamin LaHaise <bcrl@kvack.org>, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27/4/07 08:08, "Jeremy Fitzhardinge" <jeremy@goop.org> wrote:
-
->> Don't you need a rmb() here then? The CPU could speculate reads
->> (more occurrences)
->>   
+On Friday 27 April 2007 08:46:19 Jeremy Fitzhardinge wrote:
+> Andi Kleen wrote:
+> >> +/* VCPUs are single-cored, and have no siblings */
+> >> +static void set_cpu_sibling_map(int cpu)
+> >>     
+> >
+> > Can you put this somewhere generic and use it everywhere? Don't want
+> > duplication of this code.
+> >   
 > 
-> Is rmb() sufficient?  It will stop a speculative read on the pending
-> flag, but will it make sure the write has happened by then?  Ie, is it a
-> write-vs-read barrier, or just a read-vs-read?
-> Documentation/memory-barriers.txt suggests not.
+> Are there any other users?  This is a very cutdown version of the code
+> in kernel/smpboot.c; under Xen all CPUs are considered to be
+> single-cored and single-threaded, so there's not a lot to do here.
 
-The barrier() is sufficient. We are racing against Xen checking
-evtchn_upcall_mask *on the local cpu*. Which means an interrupt has to
-occur, which squashes speculative stuff.
+I would like to have a single place to set that up, with xen calling
+it with single arguments and the normal code with complex ones
 
-Yeah, I know, it needs a better comment. :-)
-
- -- Keir
+-Andi
