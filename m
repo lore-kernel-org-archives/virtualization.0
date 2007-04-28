@@ -1,14 +1,15 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 Subject: Re: The virtuailization patches break Voyager.
-Date: Sat, 28 Apr 2007 10:02:37 -0600
-Message-ID: <m1zm4sebc2.fsf@ebiederm.dsl.xmission.com>
+Date: Sat, 28 Apr 2007 11:05:15 -0500
+Message-ID: <1177776315.3688.43.camel@mulgrave.il.steeleye.com>
 References: <m1mz0tgfxa.fsf@ebiederm.dsl.xmission.com>
-	<1177775271.3688.30.camel@mulgrave.il.steeleye.com>
+	<4632FD3E.401@goop.org> <m1zm4sgaqt.fsf@ebiederm.dsl.xmission.com>
+	<200704281134.53160.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1177775271.3688.30.camel@mulgrave.il.steeleye.com> (James
-	Bottomley's message of "Sat, 28 Apr 2007 10:47:51 -0500")
+In-Reply-To: <200704281134.53160.ak@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,29 +19,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-James Bottomley <James.Bottomley@HansenPartnership.com> writes:
+On Sat, 2007-04-28 at 11:34 +0200, Andi Kleen wrote:
+> > 
+> > The sane pattern is and seems to has always been.
+> > 
+> > arch_function()
+> > {
+> >         platform_ops.platform_function();
+> > }
+> 
+> Yes agreed. We'll slowly move there. Patches to accelerate it are
+> welcome (for post .22) 
+> 
+> But you're flaming the wrong person for this really. Jeremy and other
+> paravirt implementors have  done a lot of work of moving things into this 
+> direction.
+> 
+> > At the same time I find it very distressing how many functions named
+> > native_xxx we are accumulating.  Especially when all native refers is
+> > to the default i386 subarch and not to anything particularly native.
+> > Just one particular way something was implemented.
+> 
+> How else would you name and/or implement that?
+> 
+> > The fact that 2 level or 3 level page tables can't be selected at
+> > runtime seems to be a failing to think of themselves as a generic 
+> > a subarch mechanism.  I can't fault you to much for that one as
+> > that is a little off the beaten path.
+> 
+> That would really require generic mm changes to do properly. I know
+> PA-RISC does it without that, but that wouldn't fly on x86 I think
+> because PAE and non PAE are more different there.
 
-> I got a bit tired of trying to be proactive.  The last time was for the
-> %gs per cpu thing, which I saw coming.  The basic problem is that
-> there's no well organised git tree I can pull from and bisect to trace
-> problems.
->
-> My strategy now is to wait for the merge window to close and then go
-> around sweeping up the mess and yelling at the offenders ... it's what
-> all the non-x86 architectures do, and it's definitely an easier process.
+It's getting embarrassing to find myself responsible for practically
+everything in this debate people regard as strange ...
 
-Reasonable.  I think we would have fewer people to yell at if we
-restructured things a bit. 
+I did this on PA-RISC to save code and indirect lookups in
+interruptions.  It's not exactly runtime switchable.  What we do is make
+32 bit processes use the two level structure and 64 bit ones the 3 level
+structure.  Since almost every user level process is 32 bit (because the
+instruction set is the same, like ppc and sparc, but not x86_64) it
+really made no sense to waste the page table entries and the lookup
+time.
 
-The fact that we have prominent people deliberately ignoring voyager
-during development I find disturbing. 
+What I did was to alter the page table layout so the first 4GB use a
+2-level scheme and anything after that uses 3 levels, so the requested
+virtual address does the switch. (it's modelled on the way inode lookups
+are done ... you don't begin in the indirect table, you begin in the
+direct one).
 
-In this case I just happened to stumble onto the problem while I was
-looking at something else, and decided it wasn't worth doing
-development on code that was broken to start with.
+However, I think we can only do this because we have a software TLB
+refill interruption not a HW page table walker.
 
-Eric
+James
