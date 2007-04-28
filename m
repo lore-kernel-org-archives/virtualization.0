@@ -1,15 +1,16 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
+From: Andi Kleen <ak@suse.de>
 Subject: Re: The virtuailization patches break Voyager.
-Date: Sat, 28 Apr 2007 03:15:33 -0600
-Message-ID: <m1k5vwg8qy.fsf@ebiederm.dsl.xmission.com>
-References: <m1mz0tgfxa.fsf@ebiederm.dsl.xmission.com>
-	<m18xcdgdus.fsf@ebiederm.dsl.xmission.com> <4632FD3E.401@goop.org>
-	<200704281042.48440.ak@suse.de>
+Date: Sat, 28 Apr 2007 11:34:52 +0200
+Message-ID: <200704281134.53160.ak@suse.de>
+References: <m1mz0tgfxa.fsf@ebiederm.dsl.xmission.com> <4632FD3E.401@goop.org>
+	<m1zm4sgaqt.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200704281042.48440.ak@suse.de> (Andi Kleen's message of "Sat, 28
-	Apr 2007 10:42:48 +0200")
+In-Reply-To: <m1zm4sgaqt.fsf@ebiederm.dsl.xmission.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,40 +20,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
-Cc: James.Bottomley@hansenpartnership.com, virtualization@lists.osdl.org, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: James.Bottomley@hansenpartnership.com, virtualization@lists.osdl.org, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen <ak@suse.de> writes:
 
-> On Saturday 28 April 2007 09:52:30 Jeremy Fitzhardinge wrote:
->> Well, not really. The problem with the subarch mechanism is that it
->> promotes a lot of copied code with small modifications, and so making
->> changes is the inherently non-general activity of trying to find all the
->> various copies, work out what subtle differences they have, and try to
->> make the appropriate changes in each case. This was one of the major
->> objections to the original Xen-as-subarch patches, and it is the problem
->> with Voyager. The mass of preprocessor tricks doesn't help either.
->
-> Yes I agree. Current i386 subarch is a mess and I hope to slowly phase
-> it out. mach-{es7000,summit} should just be folded into mach-generic
-> always (like x86-64) and I'm somewhat hoping that mach-voyager and 
-> perhaps mach-visws too will just go away at some point.
+> 
+> The sane pattern is and seems to has always been.
+> 
+> arch_function()
+> {
+>         platform_ops.platform_function();
+> }
 
-There is a possibility, that arch/i386 will seen renewed life as an
-embedded architecture.  At which point things like mach-visws may
-start proliferating.
+Yes agreed. We'll slowly move there. Patches to accelerate it are
+welcome (for post .22) 
 
-So I think it makes a lot of sense to see if we can fold mach-visws
-and mach-voyager into appropriate pluggable interfaces.
+But you're flaming the wrong person for this really. Jeremy and other
+paravirt implementors have  done a lot of work of moving things into this 
+direction.
 
-Xen is stranger than anything voyager does.
+> At the same time I find it very distressing how many functions named
+> native_xxx we are accumulating.  Especially when all native refers is
+> to the default i386 subarch and not to anything particularly native.
+> Just one particular way something was implemented.
 
-> The future direction are focussed pluggable interfaces like genapic, smp_ops
-> etc.
+How else would you name and/or implement that?
 
-Sounds good.  Although it may be nice to do the standard platform
-trick of having them compile out if you only compile for one
-subarchitecture.
+> The fact that 2 level or 3 level page tables can't be selected at
+> runtime seems to be a failing to think of themselves as a generic 
+> a subarch mechanism.  I can't fault you to much for that one as
+> that is a little off the beaten path.
 
-Eric
+That would really require generic mm changes to do properly. I know
+PA-RISC does it without that, but that wouldn't fly on x86 I think
+because PAE and non PAE are more different there.
+
+-Andi
