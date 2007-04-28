@@ -1,14 +1,16 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: huh startup_ipi_hook?
-Date: Sat, 28 Apr 2007 03:05:01 -0600
-Message-ID: <m1odl8g98i.fsf@ebiederm.dsl.xmission.com>
-References: <m1d51pgeby.fsf@ebiederm.dsl.xmission.com>
-	<200704281045.11461.ak@suse.de>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: The virtuailization patches break Voyager.
+Date: Sat, 28 Apr 2007 11:13:21 +0200
+Message-ID: <1177751601.7646.58.camel@localhost.localdomain>
+References: <m1mz0tgfxa.fsf@ebiederm.dsl.xmission.com>
+	<m18xcdgdus.fsf@ebiederm.dsl.xmission.com> <4632FD3E.401@goop.org>
+	<200704281042.48440.ak@suse.de>
+Reply-To: tglx@linutronix.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200704281045.11461.ak@suse.de> (Andi Kleen's message of "Sat, 28
-	Apr 2007 10:45:11 +0200")
+In-Reply-To: <200704281042.48440.ak@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,54 +21,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org
+Cc: James.Bottomley@hansenpartnership.com, virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen <ak@suse.de> writes:
+On Sat, 2007-04-28 at 10:42 +0200, Andi Kleen wrote:
+> On Saturday 28 April 2007 09:52:30 Jeremy Fitzhardinge wrote:
+> > Eric W. Biederman wrote:
+> > > Next time I'm in a really tormenting mood I will fire up my 
+> > > my ibm ps2 with it's 16Mhz 386 and 6MB and verify that all is working
+> > > well there.
+> > >   
+> > 
+> > Well, that would be interesting. From a subarch perspective, it would
+> > just be the normal default, and in theory it should work fine. But I
+> > suspect the fpu emulator is probably broken, and non-WP is likely to
+> > have rotted, 
+> 
+> AFAIK it's been tested occasionally on some embedded 386 systems
+> (e.g. by Thomas Gleixner). Probably not with the recent changes though. 
 
->> 
->> I think we should be intercepting this startup call at a higher level,
->> where we can just say:  Start secondary cpu with this stack
->> and with this esp.  Or something like that.
->
-> The reason VMI tends to thing lower level is that most of its 
-> interfaces are like real hardware and of the code
-> would be just copied then if it did high level interfaces.
->
-> I suspect this specific hook could only be made better if 
-> smpboot.c was refactored into more pieces and callable, but I doubt
-> that would be a big overall improvement.
+Last test was 2.6.21-rc7, where I fixed the non-WP thing. The
+FP-emulator seems to work.
 
-We have to functions do_boot_cpu that does all of the basic
-setup.  And wakeup_secondary_cpu that does the arch specific
-stuff to setup a cpu.  (That is the current pre paravirt factoring).
+Which kind of breakage is new ?
 
-Guess what.  Instead of making the hook wakeup_secondary_cpu.
-The hook is lost in the guts of one of the implementations of
-wakeup_secondary_cpu.   Where the variable it wants t pass
-are not even available except as globals.  It's ridiculous.
-
-We should have init_wakeup_secondary_cpu, nmi_wakeup_secondary_cpu,
-and vmi_wakeup_secondary_cpu.
-
-Having init_wakeup_secondary_cpu and vmi_wakeup_secondary_cpu
-share code looks like a strong false code sharing, and a major code
-pain.
-
-Further it skips the early setup in head.S, which is wrong.
-Either we need to do it or it needs to be removed from the smp
-startup path in head.S
-
-Further because it doesn't expose the difference at the same
-place we setup parameters and do something subtle and sneaky
-it is very easy to overlook and I suspect it is going to break
-just as often as voyager, because it is hard to see that
-the dependencies are there.
-
-So yes this is a real problem, and maybe we need to do a little
-refactoring to make it better because it doesn't need the initial
-boot code page.  But there is no way it is a good long term
-solution the way it is.  I doubt it does the correct thing to begin
-with.
-
-Eric
+	tglx
