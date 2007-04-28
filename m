@@ -1,41 +1,53 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 22/25] xen: xen-netfront: use skb.cb for storing private data
-Date: Sat, 28 Apr 2007 16:28:39 +1000
-Message-ID: <20070428062839.GA6535@gondor.apana.org.au>
-References: <20070423215638.563901986@goop.org> <20070423215713.550883195@goop.org> <20070424014528.GA27789@gondor.apana.org.au> <462D88EF.9030007@goop.org> <20070424055731.GA30018@gondor.apana.org.au> <46327706.80508@goop.org> <20070427223742.GA2742@gondor.apana.org.au> <463286D9.7090609@goop.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: The virtuailization patches break Voyager.
+Date: Sat, 28 Apr 2007 00:40:33 -0600
+Message-ID: <m1mz0tgfxa.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754747AbXD1G3F@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <463286D9.7090609@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Andi Kleen <ak@suse.de>, Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@linux-foundation.org>
+Cc: James.Bottomley@HansenPartnership.com, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 27, 2007 at 04:27:21PM -0700, Jeremy Fitzhardinge wrote:
-> Herbert Xu wrote:
-> > They can be applied separately so you don't need the dom0 part for your
-> > tree.
-> 
-> Great, thanks.
 
-BTW, the version I posted to you is missing the following line.
+Guys currently I am horrified by the ease at which I can find
+bugs in the pending paravirtualization patches.  I have barely
+even looked at arch/i386 in the -mm tree and it feels like
+I am tripping over significant bugs left and right.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
---- linux-2.6.20.i386/drivers/xen/core/skbuff.c	2007-04-28 15:30:16.000000000 +1000
-+++ build-2.6.20.i386/drivers/xen/core/skbuff.c	2007-04-28 15:30:52.000000000 +1000
-@@ -89,6 +89,7 @@
- 	skb->h.raw = (unsigned char *)skb->nh.iph + 4*skb->nh.iph->ihl;
- 	if (skb->h.raw >= skb->tail)
- 		goto out;
-+	skb->csum_start = skb->h.raw - skb->head;
- 	switch (skb->nh.iph->protocol) {
- 	case IPPROTO_TCP:
- 		skb->csum_offset = offsetof(struct tcphdr, check);
+Because no one has heeded my advice and put in a proper platform
+layer on arch/i386 and we are instead doing a half baked job
+with paravirt_ops it is still trivially easy to miss the
+fact that subarchitectures do something different, and thus
+it is easy to miss when you break a sub architecture on
+arch/i386.
+
+Not that the paravirtuailzation patches are even safe on the
+primary arch/i386.
+
+To some extent I grant with major changes a little goofing up on
+pending patches is to be expected, but it would be nice if
+things were restructured to make it harder to miss the
+subarchitectures on arch/i386.
+
+The patch known as x86_64-mm-use-per-cpu-gdt-immediately-upon-boot
+on -mm currently breaks voyager smp support in some very obvious ways.
+
+Making init_gdt a function which is called from voyager_smp.c static
+in smpboot.c a file that is not even used on voayger is an obvious
+one.
+
+Adding start_pda and not setting it in voyager_smp is another.
+
+Rusty do you think you can address this?
+
+Eric
