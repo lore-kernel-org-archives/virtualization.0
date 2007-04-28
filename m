@@ -1,16 +1,14 @@
-From: Andi Kleen <ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: The virtuailization patches break Voyager.
-Date: Sat, 28 Apr 2007 19:15:54 +0200
-Message-ID: <20070428171554.GB29316@bingen.suse.de>
-References: <m1mz0tgfxa.fsf@ebiederm.dsl.xmission.com>
-	<m18xcdgdus.fsf@ebiederm.dsl.xmission.com>
-	<4632FD3E.401@goop.org> <200704281042.48440.ak@suse.de>
-	<1177775658.3688.33.camel@mulgrave.il.steeleye.com>
+Date: Sat, 28 Apr 2007 09:18:53 -0700
+Message-ID: <463373ED.8040103@goop.org>
+References: <m1mz0tgfxa.fsf@ebiederm.dsl.xmission.com>	<1177775271.3688.30.camel@mulgrave.il.steeleye.com>
+	<m1zm4sebc2.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1177775658.3688.33.camel@mulgrave.il.steeleye.com>
+In-Reply-To: <m1zm4sebc2.fsf@ebiederm.dsl.xmission.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,12 +18,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Actually, pluggable smp_ops might make voyager look far more standard
+Eric W. Biederman wrote:
+> Reasonable.  I think we would have fewer people to yell at if we
+> restructured things a bit. 
+>
+> The fact that we have prominent people deliberately ignoring voyager
+> during development I find disturbing. 
+>
+> In this case I just happened to stumble onto the problem while I was
+> looking at something else, and decided it wasn't worth doing
+> development on code that was broken to start with.
 
-Great. Please send patches (but post .22) 
+Well, you've shamed me into fixing it. I'm putting together a
+fix-voyager-build patch now.
 
--Andi
+J
