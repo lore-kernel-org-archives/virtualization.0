@@ -1,10 +1,13 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: huh startup_ipi_hook?
-Date: Sat, 28 Apr 2007 01:14:57 -0600
-Message-ID: <m1d51pgeby.fsf@ebiederm.dsl.xmission.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: huh startup_ipi_hook?
+Date: Sat, 28 Apr 2007 00:22:59 -0700
+Message-ID: <4632F653.3000102@goop.org>
+References: <m1d51pgeby.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <m1d51pgeby.fsf@ebiederm.dsl.xmission.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -14,37 +17,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Eric W. Biederman wrote:
+> So conceptually I think the concept makes sense but implementation
+> wise I think what is currently present is totally ridiculous.
 
-The current paravirt startup_ipi hook for vmware 
-commit: ae5da273fe3352febd38658d8d34484cbcfb3423
-is quite frankly ridiculous.
+I tend to agree. For Xen I added smp_ops as an adjunct to paravirt_ops,
+which is basically the interface defined in linux/smp.h:
 
-In the middle of wake_up_secondary_cpu:
-We have:
-      /*
-       * Paravirt / VMI wants a startup IPI hook here to set up the
-       * target processor state.
-       */
-      startup_ipi_hook(phys_apicid, (unsigned long) start_secondary,
-                       (unsigned long) stack_start.esp);
+struct smp_ops
+{
+	void (*smp_prepare_boot_cpu)(void);
+	void (*smp_prepare_cpus)(unsigned max_cpus);
+	int (*cpu_up)(unsigned cpu);
+	void (*smp_cpus_done)(unsigned max_cpus);
 
-As far as I can tell from reading this there is a completely
-different mechanism in place to start for a secondary processor.
-Which seems sane.
+	void (*smp_send_stop)(void);
+	void (*smp_send_reschedule)(int cpu);
+	int (*smp_call_function_mask)(cpumask_t mask,
+				      void (*func)(void *info), void *info,
+				      int wait);
+};
 
-What doesn't seem sane is bothering to run the rest of the code
-for sending an INIT message to a secondary processor.  It certainly
-does not feel general at all.
 
-I think we should be intercepting this startup call at a higher level,
-where we can just say:  Start secondary cpu with this stack
-and with this esp.  Or something like that.
+This is a fairly close match to Xen's requirements. Certainly, anything
+APIC-related is useless for us, since there's no APIC emulation going on.
 
-So conceptually I think the concept makes sense but implementation
-wise I think what is currently present is totally ridiculous.
+I won't speak for Zach, but his counter-argument is generally along the
+lines of "we can just make use of the existing code with a couple of
+little hooks near the bottom". But I wonder if the existing genapic
+interface can be used (or extended) to cover these cases without having
+needing to have APIC-level interfaces in paravirt_ops.
 
-Eric
+Are you reviewing -mm? That's basically OK, but there's newer stuff in
+Andi's patch queue.
+
+J
