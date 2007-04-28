@@ -1,14 +1,14 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: The virtuailization patches break Voyager.
-Date: Sat, 28 Apr 2007 00:52:30 -0700
-Message-ID: <4632FD3E.401@goop.org>
-References: <m1mz0tgfxa.fsf@ebiederm.dsl.xmission.com>	<4632F0E5.1060508@goop.org>
-	<m18xcdgdus.fsf@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: huh startup_ipi_hook?
+Date: Sat, 28 Apr 2007 02:06:28 -0600
+Message-ID: <m14pn0hqij.fsf@ebiederm.dsl.xmission.com>
+References: <m1d51pgeby.fsf@ebiederm.dsl.xmission.com>
+	<4632F653.3000102@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <m18xcdgdus.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <4632F653.3000102@goop.org> (Jeremy Fitzhardinge's message of
+	"Sat, 28 Apr 2007 00:22:59 -0700")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,66 +18,82 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: James.Bottomley@HansenPartnership.com, virtualization@lists.osdl.org, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Eric W. Biederman wrote:
-> Next time I'm in a really tormenting mood I will fire up my 
-> my ibm ps2 with it's 16Mhz 386 and 6MB and verify that all is working
-> well there.
->   
+Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
-Well, that would be interesting. From a subarch perspective, it would
-just be the normal default, and in theory it should work fine. But I
-suspect the fpu emulator is probably broken, and non-WP is likely to
-have rotted, and lots of other things. Is that an MCA machine?
-
-> I really don't think it is ok to be cavalier about anything
-> that we actually support.  Usually if we can handle the general
-> case it makes for better more maintainable code.
+> Eric W. Biederman wrote:
+>> So conceptually I think the concept makes sense but implementation
+>> wise I think what is currently present is totally ridiculous.
 >
-> So far the paravirt class of machines seems every bit as much a subarch
-> as voyager and every bit as interesting.
->   
-Well, not really. The problem with the subarch mechanism is that it
-promotes a lot of copied code with small modifications, and so making
-changes is the inherently non-general activity of trying to find all the
-various copies, work out what subtle differences they have, and try to
-make the appropriate changes in each case. This was one of the major
-objections to the original Xen-as-subarch patches, and it is the problem
-with Voyager. The mass of preprocessor tricks doesn't help either.
-
-Because paravirt_ops is intended to support both native execution as
-well as virtualized, and needs to be able to decide at boot time, we've
-been careful to use as much common code as possible, and only make
-differences where they are really needed. The executed code path for
-booting on native hardware is very similar for the CONFIG_PARAVIRT vs
-!PARAVIRT cases (which is why bugs like the PSE pagetable setup have
-leaked through), but it also means that bugs are more likely to be
-found. Virtualized execution is more different, of course, and has fewer
-people actually trying it out - this is bad, of course, but at least any
-bugs should be fairly self-contained.
-
->> Are you referring to the PSE pagetable setup problem we've been
->> discussing, or do you have something else in mind?
->>     
+> I tend to agree. For Xen I added smp_ops as an adjunct to paravirt_ops,
+> which is basically the interface defined in linux/smp.h:
 >
-> That is what I was thinking of in particular.  But I don't currently
-> have much faith in the code review process that has been happening
-> for paravirt patches.
->   
+> struct smp_ops
+> {
+> 	void (*smp_prepare_boot_cpu)(void);
+> 	void (*smp_prepare_cpus)(unsigned max_cpus);
+> 	int (*cpu_up)(unsigned cpu);
+> 	void (*smp_cpus_done)(unsigned max_cpus);
+>
+> 	void (*smp_send_stop)(void);
+> 	void (*smp_send_reschedule)(int cpu);
+> 	int (*smp_call_function_mask)(cpumask_t mask,
+> 				      void (*func)(void *info), void *info,
+> 				      int wait);
+> };
 
-Getting reviewer attention has obviously been a problem. We've been
-trying to come up with good code, and Andi has been doing a fairly good
-job of looking over it all, but we're in complex and subtle parts of the
-kernel and the more reviewers the better. So I'm very pleased you're
-taking the time to look over this.
+That may work but at first glance that feels a little to high level,
+and a little lacking.
 
-> Well at least in 2.6.21-rc7-mm2 init_gdt was still static, and
-> still in smpboot.c
+What I am certain of is that we need a general ability to send
+inter processor interrupts.  Beyond that I haven't looked closely
+yet.
 
-Yes, there are newer patches in Andi's queue.
+> This is a fairly close match to Xen's requirements. Certainly, anything
+> APIC-related is useless for us, since there's no APIC emulation going on.
 
-Thanks,
-J
+I almost agree.  Real hardware in a paravirtualized setting is
+something we have to deal with.  This means while we may not have to
+deal with APICs we do have to deal with irqs from real hardware,
+and there are a lot of implications there.
+
+Partly I suspect you haven't been getting some of the review you could
+have because arch/i386 is not that interesting right now.  arch/x86_64
+is where the code is generally clean, and new hardware support work
+tends to focus.
+
+> I won't speak for Zach, but his counter-argument is generally along the
+> lines of "we can just make use of the existing code with a couple of
+> little hooks near the bottom". But I wonder if the existing genapic
+> interface can be used (or extended) to cover these cases without having
+> needing to have APIC-level interfaces in paravirt_ops.
+
+Things need to be abstracted properly.  Not to high or we don't share
+what should be common.  Not to low or we place the hooks in the wrong
+location and we have a voyager on steroids problem.
+
+A big part of my problem with the startup_ipi_hook is that I am not
+convinced we were passing it the proper parameters.  We care about
+some of the work that head.S does and that was just cavalierly
+bypassing it.  Maintenance wise it looked as easy to maintain as
+voyager is today (way to easy to overlook).
+
+If you are going to feed a function start function and start stack
+you hook in where we are feeding the kernel start function and start
+stack.
+
+> Are you reviewing -mm? That's basically OK, but there's newer stuff in
+> Andi's patch queue.
+
+I wasn't even trying to review anything.  Since I was touching some stuff
+in the general area while I was in there I was hoping to clean up
+arch/i386/head.S.  It looks like there is currently too much other
+activity to do this easily.
+
+What you have are what I stumbled onto.  I figured it best if I took
+a few minutes spoke up, and mentioned what I saw.
+
+Eric
