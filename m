@@ -1,99 +1,71 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 11/32] xen: ignore RW mapping of RO pages in pagetable_init
-Date: Sun, 29 Apr 2007 10:28:46 -0700
-Message-ID: <20070429172912.710019000@goop.org>
+Subject: [patch 28/32] xen: xen-netfront: use skb.cb for storing private data
+Date: Sun, 29 Apr 2007 10:29:03 -0700
+Message-ID: <20070429172916.237274000@goop.org>
 References: <20070429172835.284784000@goop.org>
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=xen-pagetable_init-ignore-ro-mappings.patch
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030964AbXD2RgZ@vger.kernel.org>
+Content-Disposition: inline; filename=xen-netfront-use-cb.patch
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, "\"Eric W. Biederman\"" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Herbert Xu <herbert@gondor.apana.org.au>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When setting up the initial pagetable, which includes mappings of all
-low physical memory, ignore a mapping which tries to set the RW bit on
-an RO pte.  An RO pte indicates a page which is part of the current
-pagetable, and so it cannot be allowed to become RW.
-
-Once xen_pagetable_setup_done is called, set_pte reverts to its normal
-behaviour.
+Netfront's use of nh.raw and h.raw for storing page+offset is a bit
+hinky, and it breaks with upcoming network stack updates which reduce
+these fields to sub-pointer sizes.  Fortunately, skb offers the "cb"
+field specifically for stashing this kind of info, so use it.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Chris Wright <chrisw@sous-sol.org>
+Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 
 ---
- arch/i386/xen/enlighten.c |   27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+ drivers/net/xen-netfront.c |   18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -635,7 +635,7 @@ static void xen_write_cr3(unsigned long 
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -52,6 +52,13 @@
+ #include <xen/page.h>
+ #include <xen/grant_table.h>
  
- /* Early in boot, while setting up the initial pagetable, assume
-    everything is pinned. */
--static void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
-+static __init void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
- {
- 	BUG_ON(mem_map);	/* should only be used early */
- 	make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
-@@ -687,9 +687,31 @@ static void *xen_kmap_atomic_pte(struct 
- }
- #endif
- 
-+static __init pte_t mask_rw_pte(pte_t *ptep, pte_t pte)
-+{
-+	/* If there's an existing pte, then don't allow _PAGE_RW to be set */
-+	if (pte_val_ma(*ptep) & _PAGE_PRESENT)
-+		pte = __pte_ma(((pte_val_ma(*ptep) & _PAGE_RW) | ~_PAGE_RW) &
-+			       pte_val_ma(pte));
++struct netfront_cb {
++	struct page *page;
++	unsigned offset;
++};
 +
-+	return pte;
-+}
++#define NETFRONT_SKB_CB(skb)	((struct netfront_cb *)((skb)->cb))
 +
-+/* Init-time set_pte while constructing initial pagetables, which
-+   doesn't allow RO pagetable pages to be remapped RW */
-+static __init void xen_set_pte_init(pte_t *ptep, pte_t pte)
-+{
-+	pte = mask_rw_pte(ptep, pte);
+ /*
+  * Mutually-exclusive module options to select receive data path:
+  *  rx_copy : Packets are copied by network backend into local memory
+@@ -944,10 +951,11 @@ static void handle_incoming_queue(struct
+ 	struct sk_buff *skb;
+ 
+ 	while ((skb = __skb_dequeue(rxq)) != NULL) {
+-		struct page *page = (struct page *)skb->nh.raw;
++		struct page *page = NETFRONT_SKB_CB(skb)->page;
+ 		void *vaddr = page_address(page);
+-
+-		memcpy(skb->data, vaddr + (skb->h.raw - skb->nh.raw),
++		unsigned offset = NETFRONT_SKB_CB(skb)->offset;
 +
-+	xen_set_pte(ptep, pte);
-+}
-+
- static __init void xen_pagetable_setup_start(pgd_t *base)
- {
- 	pgd_t *xen_pgd = (pgd_t *)xen_start_info->pt_base;
-+
-+	/* special set_pte for pagetable initialization */
-+	paravirt_ops.set_pte = xen_set_pte_init;
++		memcpy(skb->data, vaddr + offset,
+ 		       skb_headlen(skb));
  
- 	init_mm.pgd = base;
- 	/*
-@@ -737,6 +759,7 @@ static __init void xen_pagetable_setup_d
- 	/* This will work as long as patching hasn't happened yet
- 	   (which it hasn't) */
- 	paravirt_ops.alloc_pt = xen_alloc_pt;
-+	paravirt_ops.set_pte = xen_set_pte;
+ 		if (page != skb_shinfo(skb)->frags[0].page)
+@@ -1251,8 +1259,8 @@ err:
+ 			}
+ 		}
  
- 	if (!xen_feature(XENFEAT_auto_translated_physmap)) {
- 		/*
-@@ -919,7 +942,7 @@ static const struct paravirt_ops xen_par
- 	.dup_mmap = xen_dup_mmap,
- 	.exit_mmap = xen_exit_mmap,
+-		skb->nh.raw = (void *)skb_shinfo(skb)->frags[0].page;
+-		skb->h.raw = skb->nh.raw + rx->offset;
++		NETFRONT_SKB_CB(skb)->page = skb_shinfo(skb)->frags[0].page;
++		NETFRONT_SKB_CB(skb)->offset = rx->offset;
  
--	.set_pte = xen_set_pte,
-+	.set_pte = NULL,	/* see xen_pagetable_setup_* */
- 	.set_pte_at = xen_set_pte_at,
- 	.set_pmd = xen_set_pmd,
- 
+ 		len = rx->status;
+ 		if (len > RX_COPY_THRESHOLD)
 
 -- 
