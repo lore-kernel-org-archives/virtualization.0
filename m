@@ -1,205 +1,99 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 17/32] xen: lazy-mmu operations
-Date: Sun, 29 Apr 2007 10:28:52 -0700
-Message-ID: <20070429172913.887034000@goop.org>
+Subject: [patch 11/32] xen: ignore RW mapping of RO pages in pagetable_init
+Date: Sun, 29 Apr 2007 10:28:46 -0700
+Message-ID: <20070429172912.710019000@goop.org>
 References: <20070429172835.284784000@goop.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030573AbXD2Reh@vger.kernel.org>
-Content-Disposition: inline; filename=xen-lazy-mmu.patch
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline;
+	filename=xen-pagetable_init-ignore-ro-mappings.patch
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, "\"Eric W. Biederman\"" <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch uses the lazy-mmu hooks to batch mmu operations where
-possible.  This is primarily useful for batching operations applied to
-active pagetables, which happens during mprotect, munmap, mremap and
-the like (mmap does not do bulk pagetable operations, so it isn't
-helped).
+When setting up the initial pagetable, which includes mappings of all
+low physical memory, ignore a mapping which tries to set the RW bit on
+an RO pte.  An RO pte indicates a page which is part of the current
+pagetable, and so it cannot be allowed to become RW.
+
+Once xen_pagetable_setup_done is called, set_pte reverts to its normal
+behaviour.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: ebiederm@xmission.com (Eric W. Biederman)
 
 ---
- arch/i386/xen/enlighten.c  |   56 +++++++++++++++++++++++++++-----------------
- arch/i386/xen/mmu.c        |   56 ++++++++++++++++++++++++++++++++------------
- arch/i386/xen/multicalls.c |    4 +--
- 3 files changed, 78 insertions(+), 38 deletions(-)
+ arch/i386/xen/enlighten.c |   27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -451,28 +451,38 @@ static void xen_apic_write(unsigned long
+@@ -635,7 +635,7 @@ static void xen_write_cr3(unsigned long 
  
- static void xen_flush_tlb(void)
+ /* Early in boot, while setting up the initial pagetable, assume
+    everything is pinned. */
+-static void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
++static __init void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
  {
--	struct mmuext_op op;
--
--	op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+	struct mmuext_op *op;
-+	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
-+
-+	op = mcs.args;
-+	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ 	BUG_ON(mem_map);	/* should only be used early */
+ 	make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
+@@ -687,9 +687,31 @@ static void *xen_kmap_atomic_pte(struct 
  }
+ #endif
  
- static void xen_flush_tlb_single(unsigned long addr)
- {
--	struct mmuext_op op;
--
--	op.cmd = MMUEXT_INVLPG_LOCAL;
--	op.arg1.linear_addr = addr & PAGE_MASK;
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+	struct mmuext_op *op;
-+	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
++static __init pte_t mask_rw_pte(pte_t *ptep, pte_t pte)
++{
++	/* If there's an existing pte, then don't allow _PAGE_RW to be set */
++	if (pte_val_ma(*ptep) & _PAGE_PRESENT)
++		pte = __pte_ma(((pte_val_ma(*ptep) & _PAGE_RW) | ~_PAGE_RW) &
++			       pte_val_ma(pte));
 +
-+	op = mcs.args;
-+	op->cmd = MMUEXT_INVLPG_LOCAL;
-+	op->arg1.linear_addr = addr & PAGE_MASK;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++	return pte;
++}
 +
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
- static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
- 				 unsigned long va)
++/* Init-time set_pte while constructing initial pagetables, which
++   doesn't allow RO pagetable pages to be remapped RW */
++static __init void xen_set_pte_init(pte_t *ptep, pte_t pte)
++{
++	pte = mask_rw_pte(ptep, pte);
++
++	xen_set_pte(ptep, pte);
++}
++
+ static __init void xen_pagetable_setup_start(pgd_t *base)
  {
--	struct mmuext_op op;
-+	struct {
-+		struct mmuext_op op;
-+		cpumask_t mask;
-+	} *args;
- 	cpumask_t cpumask = *cpus;
-+	struct multicall_space mcs;
+ 	pgd_t *xen_pgd = (pgd_t *)xen_start_info->pt_base;
++
++	/* special set_pte for pagetable initialization */
++	paravirt_ops.set_pte = xen_set_pte_init;
  
+ 	init_mm.pgd = base;
  	/*
- 	 * A couple of (to be removed) sanity checks:
-@@ -489,17 +499,21 @@ static void xen_flush_tlb_others(const c
- 	if (cpus_empty(cpumask))
- 		return;
+@@ -737,6 +759,7 @@ static __init void xen_pagetable_setup_d
+ 	/* This will work as long as patching hasn't happened yet
+ 	   (which it hasn't) */
+ 	paravirt_ops.alloc_pt = xen_alloc_pt;
++	paravirt_ops.set_pte = xen_set_pte;
  
-+	mcs = xen_mc_entry(sizeof(*args));
-+	args = mcs.args;
-+	args->mask = cpumask;
-+	args->op.arg2.vcpumask = &args->mask;
-+
- 	if (va == TLB_FLUSH_ALL) {
--		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
--		op.arg2.vcpumask = (void *)cpus;
-+		args->op.cmd = MMUEXT_TLB_FLUSH_MULTI;
- 	} else {
--		op.cmd = MMUEXT_INVLPG_MULTI;
--		op.arg1.linear_addr = va;
--		op.arg2.vcpumask = (void *)cpus;
--	}
--
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+		args->op.cmd = MMUEXT_INVLPG_MULTI;
-+		args->op.arg1.linear_addr = va;
-+	}
-+
-+	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
+ 	if (!xen_feature(XENFEAT_auto_translated_physmap)) {
+ 		/*
+@@ -919,7 +942,7 @@ static const struct paravirt_ops xen_par
+ 	.dup_mmap = xen_dup_mmap,
+ 	.exit_mmap = xen_exit_mmap,
  
- static unsigned long xen_read_cr2(void)
-===================================================================
---- a/arch/i386/xen/mmu.c
-+++ b/arch/i386/xen/mmu.c
-@@ -56,12 +56,20 @@ void make_lowmem_page_readwrite(void *va
+-	.set_pte = xen_set_pte,
++	.set_pte = NULL,	/* see xen_pagetable_setup_* */
+ 	.set_pte_at = xen_set_pte_at,
+ 	.set_pmd = xen_set_pmd,
  
- void xen_set_pmd(pmd_t *ptr, pmd_t val)
- {
--	struct mmu_update u;
--
--	u.ptr = virt_to_machine(ptr).maddr;
--	u.val = pmd_val_ma(val);
--	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
--		BUG();
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
-+
-+	preempt_disable();
-+
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptr).maddr;
-+	u->val = pmd_val_ma(val);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+
-+	preempt_enable();
- }
- 
- /*
-@@ -104,20 +112,38 @@ void xen_set_pte_at(struct mm_struct *mm
- void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
- 		    pte_t *ptep, pte_t pteval)
- {
--	if ((mm != current->mm && mm != &init_mm) ||
--	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
--		xen_set_pte(ptep, pteval);
-+	if (mm == current->mm || mm == &init_mm) {
-+		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
-+			struct multicall_space mcs;
-+			mcs = xen_mc_entry(0);
-+
-+			MULTI_update_va_mapping(mcs.mc, addr, pteval, 0);
-+			xen_mc_issue(PARAVIRT_LAZY_MMU);
-+			return;
-+		} else
-+			if (HYPERVISOR_update_va_mapping(addr, pteval, 0) == 0)
-+				return;
-+	}
-+	xen_set_pte(ptep, pteval);
- }
- 
- #ifdef CONFIG_X86_PAE
- void xen_set_pud(pud_t *ptr, pud_t val)
- {
--	struct mmu_update u;
--
--	u.ptr = virt_to_machine(ptr).maddr;
--	u.val = pud_val_ma(val);
--	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
--		BUG();
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
-+
-+	preempt_disable();
-+
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptr).maddr;
-+	u->val = pud_val_ma(val);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+
-+	preempt_enable();
- }
- 
- void xen_set_pte(pte_t *ptep, pte_t pte)
-===================================================================
---- a/arch/i386/xen/multicalls.c
-+++ b/arch/i386/xen/multicalls.c
-@@ -5,8 +5,8 @@
- 
- #include "multicalls.h"
- 
--#define MC_BATCH	8
--#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
-+#define MC_BATCH	32
-+#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
- 
- struct mc_buffer {
- 	struct multicall_entry entries[MC_BATCH];
 
 -- 
