@@ -1,20 +1,8 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 10/28] i386: map enough initial memory to create lowmem
- mappings
-Date: Sun, 29 Apr 2007 09:55:44 -0700
-Message-ID: <4634CE10.2050103@goop.org>
-References: <20070414204154.871250608@goop.org>	<200704192250.52633.ak@suse.de>
-	<4627D756.5020405@zytor.com>	<200704192304.01053.ak@suse.de>
-	<4627DB0C.2010804@zytor.com>	<4627DDAD.4070805@redhat.com>
-	<4627E099.209@goop.org>	<m1abwwqiof.fsf@ebiederm.dsl.xmission.com>
-	<462FC8CD.1030505@goop.org>	<m11wi8qflo.fsf@ebiederm.dsl.xmission.com>
-	<462FD0EF.5050706@goop.org>
-	<m1wszv6sft.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: [patch 00/32] xen: Xen implementation for paravirt_ops
+Date: Sun, 29 Apr 2007 10:28:35 -0700
+Message-ID: <20070429172835.284784000@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <m1wszv6sft.fsf@ebiederm.dsl.xmission.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,14 +12,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Chuck Ebbert <cebbert@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Eric W. Biederman wrote:
-> Any chance you had CONFIG_DEBUG_PAGEALLOC selected?
->   
+Hi Andi,
 
-Yes, that's quite likely.
+This series of patches implements the Xen paravirt-ops interface.
+It applies to 2.6.21 + 2.6.21-070428-1 + the patches I've posted over
+the last couple of days.
 
-    J
+Changes since the last posting:
+ - update per review comments
+   - comment each file
+   - comment barrier use
+   - use common cpu sibling setup
+ - fixed a few minor bugs, specifically a traceirq mismatch warning
+ - some xenbus cleanups as a result of my review; more coming
+ - split xen-core into more pieces
+
+These patches are now moderately well tested, with several successful
+runs through XenSource's regression test suite, and some amount of
+non-me testing.  While I wouldn't go into production with a
+xen/paravirt_ops kernel right now, it does seem pretty functional.
+
+This series generally restricts itself to Xen-specific parts of the
+tree, though it does make a few small changes elsewhere.
+
+It includes:
+ - some helper routines for allocating address space and walking pagetables
+ - Xen interface header files
+ - Core Xen implementation
+ - Efficient late-pinning/early-unpinning pagetable handling
+ - Virtualized time, including stolen time
+ - SMP support
+ - Preemption support
+ - Batched pagetable updates
+ - Xen console, based on hvc console
+ - Xenbus
+ - Netfront, the paravirtualized network device
+ - Blockfront, the paravirtualized block device
+
+Thanks,
+	J
+
+
+-- 
