@@ -1,163 +1,332 @@
 From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [patch 27/32] xen: Add the Xen virtual network device driver.
-Date: Sun, 29 Apr 2007 18:59:42 +0100
-Message-ID: <20070429175942.GA3551@infradead.org>
-References: <20070429172835.284784000@goop.org> <20070429172916.025602000@goop.org>
+Subject: Re: [patch 26/32] xen: Add Xen virtual block device driver.
+Date: Sun, 29 Apr 2007 19:16:46 +0100
+Message-ID: <20070429181646.GB3551@infradead.org>
+References: <20070429172835.284784000@goop.org> <20070429172915.805798000@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030878AbXD2SQz@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20070429172916.025602000@goop.org>
-Sender: netdev-owner@vger.kernel.org
+In-Reply-To: <20070429172915.805798000@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, Stephen Hemminger <shemminge@linux-foundation.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>, Jens Axboe <axboe@kernel.dk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 29, 2007 at 10:29:02AM -0700, Jeremy Fitzhardinge wrote:
+>  source "drivers/s390/block/Kconfig"
+> +source "drivers/block/xen/Kconfig"
+
+Please don't add a new subdirectory for a tiny new driver that
+really should be only a single .c file.
+
+> +config XEN_BLKDEV_FRONTEND
+> +	tristate "Block device frontend driver"
+> +	depends on XEN
+> +	default y
+
+Please kill the default statement.  We really should have script that
+autorejects every new driver that wants to be default y..
+
 > +#include <linux/version.h>
 
-not needed.
+not needed, as usual.
 
-> +#include <xen/xenbus.h>
-> +#include <xen/interface/io/netif.h>
-> +#include <xen/interface/memory.h>
-> +#ifdef CONFIG_XEN_BALLOON
-> +#include <xen/balloon.h>
-> +#endif
-> +#include <xen/interface/grant_table.h>
+> +#define BLKIF_STATE_DISCONNECTED 0
+> +#define BLKIF_STATE_CONNECTED    1
+> +#define BLKIF_STATE_SUSPENDED    2
 
-Please don't try to put such a fucked up include hierachy in.
-Just move everything under include/xen or you will soon get
-problems with the 80 line length limit for your includes..
+enum, please.
 
-Also please make sure that <xen/balloon.h> can be included unconditionally,
-as we really don't like ifdefs around includes.
-
-> +struct netfront_info {
-> +	struct list_head list;
-> +	struct net_device *netdev;
+> +static void connect(struct blkfront_info *);
+> +static void blkfront_closing(struct xenbus_device *);
+> +static int blkfront_remove(struct xenbus_device *);
+> +static int talk_to_backend(struct xenbus_device *, struct blkfront_info *);
+> +static int setup_blkring(struct xenbus_device *, struct blkfront_info *);
 > +
-> +	struct net_device_stats stats;
+> +static void kick_pending_request_queues(struct blkfront_info *);
 > +
-> +	struct netif_tx_front_ring tx;
-> +	struct netif_rx_front_ring rx;
-> +
-> +	spinlock_t   tx_lock;
-> +	spinlock_t   rx_lock;
-> +
-> +	unsigned int evtchn, irq;
-> +	unsigned int copying_receiver;
-> +	unsigned int carrier;
+> +static irqreturn_t blkif_int(int irq, void *dev_id);
+> +static void blkif_restart_queue(struct work_struct *work);
+> +static void blkif_recover(struct blkfront_info *);
+> +static void blkif_completion(struct blk_shadow *);
+> +static void blkif_free(struct blkfront_info *, int);
 
-This doesn't not look like exactly smart cacheline alignment :)
+Please get rid of all the forward-declarations by putting the code
+into proper order.
 
-> +	grant_ref_t gref_tx_head;
-
-What's a grant_ref_t?  Should this really be a typedef or better
-a struct type?  Also it really wants a xen_ prefix instead of someting
-so generic.
-
-> + * Implement our own carrier flag: the network stack's version causes delays
-> + * when the carrier is re-enabled (in particular, dev_activate() may not
-> + * immediately be called, which can cause packet loss).
-> + */
-
-Did you talk to the networking folks about these problems?
-
-> +#define netfront_carrier_on(netif)	((netif)->carrier = 1)
-> +#define netfront_carrier_off(netif)	((netif)->carrier = 0)
-> +#define netfront_carrier_ok(netif)	((netif)->carrier)
-
-Please use proper symbolic names for the ctal states and kill these
-wrappers.
-
-> +static int setup_device(struct xenbus_device *, struct netfront_info *);
-> +static struct net_device *create_netdev(struct xenbus_device *);
-> +
-> +static void end_access(int, void *);
-> +static void netif_disconnect_backend(struct netfront_info *);
-> +
-> +static int network_connect(struct net_device *);
-> +static void network_tx_buf_gc(struct net_device *);
-> +static void network_alloc_rx_buffers(struct net_device *);
-> +
-> +static irqreturn_t netif_int(int irq, void *dev_id);
-
-Any chance you could avoid these forward-prototypes by reordering
-the functions a little?
-
-Also a lot of these names are horribly generic.  A proper xennet_
-prefix would probably help.
-
-> +static inline int xennet_can_sg(struct net_device *dev)
+> +static inline int GET_ID_FROM_FREELIST(
+> +	struct blkfront_info *info)
 > +{
-> +	return dev->features & NETIF_F_SG;
+> +	unsigned long free = info->shadow_free;
+> +	BUG_ON(free > BLK_RING_SIZE);
+> +	info->shadow_free = info->shadow[free].req.id;
+> +	info->shadow[free].req.id = 0x0fffffee; /* debug */
+> +	return free;
+> +}
+> +
+> +static inline void ADD_ID_TO_FREELIST(
+> +	struct blkfront_info *info, unsigned long id)
+> +{
+> +	info->shadow[id].req.id  = info->shadow_free;
+> +	info->shadow[id].request = 0;
+> +	info->shadow_free = id;
 > +}
 
-totally useless wrapper.
+Please give these proper lowercased names, and while you're at it
+please kill all the inline statements you have and let the compiler
+do it's work.
 
-> +static int __devexit netfront_remove(struct xenbus_device *dev)
+
+> +static irqreturn_t blkif_int(int irq, void *dev_id)
+
+Please call interrupt handlers foo_interrupt, that makes peopl see what's
+going on much more easily.
+
+> +static void blkif_recover(struct blkfront_info *info)
 > +{
-> +	struct netfront_info *info = dev->dev.driver_data;
+> +	int i;
+> +	struct blkif_request *req;
+> +	struct blk_shadow *copy;
+> +	int j;
 > +
-> +	dev_dbg(&dev->dev, "%s\n", dev->nodename);
+> +	/* Stage 1: Make a safe copy of the shadow state. */
+> +	copy = kmalloc(sizeof(info->shadow), GFP_KERNEL | __GFP_NOFAIL);
+
+Please don't use __GFP_NOFAIL in any new code.
+
+> +/* ** Driver Registration ** */
+
+No one would have guesses without that comments..
+
+> +extern int blkif_ioctl(struct inode *inode, struct file *filep,
+> +		       unsigned command, unsigned long argument);
+
+doesn't actually exist anywhere.
+
+> +extern int blkif_check(dev_t dev);
+
+ditto
+
+> +extern int blkif_revalidate(dev_t dev);
+
+ditto.
+
+> +/******************************************************************************
+
+Just kill these *, okay?
+
+> + * vbd.c
+
+Please don't put filenames in the top of file comments, they'll get out
+of date far too soon while serving no purpose at all.
+
+> +#define BLKIF_MAJOR(dev) ((dev)>>8)
+> +#define BLKIF_MINOR(dev) ((dev) & 0xff)
+
+Please make these proper xenblk-prefixed inlines in lower case.
+
 > +
-> +	netif_disconnect_backend(info);
+> +static struct xlbd_type_info xvd_type_info = {
+> +	.partn_shift = 4,
+> +	.disks_per_major = 16,
+> +	.devname = "xvd",
+> +	.diskname = "xvd"
+> +};
 > +
-> +	del_timer_sync(&info->rx_refill_timer);
+> +static struct xlbd_major_info xvd_major_info = {
+> +	.major = XENVBD_MAJOR,
+> +	.type = &xvd_type_info
+> +};
+
+The structures seem quite useless and the code would be much
+cleaner without them.  What's the reason for their existance?
+
 > +
-> +	xennet_sysfs_delif(info->netdev);
+> +/* Information about our VBDs. */
+> +#define MAX_VBDS 64
+> +static LIST_HEAD(vbds_list);
 > +
-> +	unregister_netdev(info->netdev);
+> +static struct block_device_operations xlvbd_block_fops =
+> +{
+> +	.owner = THIS_MODULE,
+> +	.open = blkif_open,
+> +	.release = blkif_release,
+> +	.getgeo = blkif_getgeo
+> +};
 > +
-> +	free_netdev(info->netdev);
+> +DEFINE_SPINLOCK(blkif_io_lock);
+> +
+> +int
+> +xlvbd_alloc_major(void)
+> +{
+> +	if (register_blkdev(xvd_major_info.major,
+> +			    xvd_major_info.type->devname)) {
+> +		printk(KERN_WARNING "xen_blk: can't get major %d with name %s\n",
+> +		       xvd_major_info.major, xvd_major_info.type->devname);
+> +		return -1;
+> +	}
+> +	return 0;
+> +}
 
-This looks like very wrong ordering to me.  unregister_netdev should
-be the first thing in the remove function.
+Useless wrapper, please just kill it.
 
-> +	SHARED_RING_INIT(rxs);
-> +	FRONT_RING_INIT(&info->rx, rxs, PAGE_SIZE);
+> +
+> +static int
+> +xlvbd_init_blk_queue(struct gendisk *gd, u16 sector_size)
+> +{
+> +	request_queue_t *rq;
+> +
+> +	rq = blk_init_queue(do_blkif_request, &blkif_io_lock);
+> +	if (rq == NULL)
+> +		return -1;
+> +
+> +	elevator_init(rq, "noop");
+> +
+> +	/* Hard sector size and max sectors impersonate the equiv. hardware. */
+> +	blk_queue_hardsect_size(rq, sector_size);
+> +	blk_queue_max_sectors(rq, 512);
+> +
+> +	/* Each segment in a request is up to an aligned page in size. */
+> +	blk_queue_segment_boundary(rq, PAGE_SIZE - 1);
+> +	blk_queue_max_segment_size(rq, PAGE_SIZE);
+> +
+> +	/* Ensure a merged request will fit in a single I/O ring slot. */
+> +	blk_queue_max_phys_segments(rq, BLKIF_MAX_SEGMENTS_PER_REQUEST);
+> +	blk_queue_max_hw_segments(rq, BLKIF_MAX_SEGMENTS_PER_REQUEST);
+> +
+> +	/* Make sure buffer addresses are sector-aligned. */
+> +	blk_queue_dma_alignment(rq, 511);
+> +
+> +	gd->queue = rq;
+> +
+> +	return 0;
 
-Can you replace these shouting macros with proper named functions?
+Useless wrapper, please just kill it.
 
-> +	 * receive ring. This creates a less bursty demand on the memory
-> +	 * allocator, so should reduce the chance of failed allocation requests
-> +	 * both for ourself and for other kernel subsystems.
-> +	 */
-> +	batch_target = np->rx_target - (req_prod - np->rx.rsp_cons);
-> +	for (i = skb_queue_len(&np->rx_batch); i < batch_target; i++) {
-> +		/*
-> +		 * Allocate an skb and a page. Do not use __dev_alloc_skb as
-> +		 * that will allocate page-sized buffers which is not
-> +		 * necessary here.
-> +		 * 16 bytes added as necessary headroom for netif_receive_skb.
-> +		 */
-> +		skb = alloc_skb(RX_COPY_THRESHOLD + 16 + NET_IP_ALIGN,
-> +				GFP_ATOMIC | __GFP_NOWARN);
+> +static int
+> +xlvbd_alloc_gendisk(int minor, blkif_sector_t capacity, int vdevice,
+> +		    u16 vdisk_info, u16 sector_size,
+> +		    struct blkfront_info *info)
+> +{
+> +	struct gendisk *gd;
+> +	struct xlbd_major_info *mi;
+> +	int nr_minors = 1;
+> +	int err = -ENODEV;
+> +
+> +	BUG_ON(info->gd != NULL);
+> +	BUG_ON(info->mi != NULL);
+> +	BUG_ON(info->rq != NULL);
+> +
+> +	mi = &xvd_major_info;
+> +	info->mi = mi;
+> +
+> +	if ((minor & ((1 << mi->type->partn_shift) - 1)) == 0)
+> +		nr_minors = 1 << mi->type->partn_shift;
+> +
+> +	gd = alloc_disk(nr_minors);
+> +	if (gd == NULL)
+> +		goto out;
+> +
+> +	if (nr_minors > 1)
+> +		sprintf(gd->disk_name, "%s%c", mi->type->diskname,
+> +			'a' + mi->index * mi->type->disks_per_major +
+> +			(minor >> mi->type->partn_shift));
+> +	else
+> +		sprintf(gd->disk_name, "%s%c%d", mi->type->diskname,
+> +			'a' + mi->index * mi->type->disks_per_major +
+> +			(minor >> mi->type->partn_shift),
+> +			minor & ((1 << mi->type->partn_shift) - 1));
+> +
+> +	gd->major = mi->major;
+> +	gd->first_minor = minor;
+> +	gd->fops = &xlvbd_block_fops;
+> +	gd->private_data = info;
+> +	gd->driverfs_dev = &(info->xbdev->dev);
+> +	set_capacity(gd, capacity);
+> +
+> +	if (xlvbd_init_blk_queue(gd, sector_size)) {
+> +		del_gendisk(gd);
+> +		goto out;
+> +	}
+> +
+> +	info->rq = gd->queue;
+> +	info->gd = gd;
+> +
+> +	if (info->feature_barrier)
+> +		xlvbd_barrier(info);
+> +
+> +	if (vdisk_info & VDISK_READONLY)
+> +		set_disk_ro(gd, 1);
+> +
+> +	if (vdisk_info & VDISK_REMOVABLE)
+> +		gd->flags |= GENHD_FL_REMOVABLE;
+> +
+> +	if (vdisk_info & VDISK_CDROM)
+> +		gd->flags |= GENHD_FL_CD;
+> +
+> +	return 0;
+> +
+> + out:
+> +	info->mi = NULL;
+> +	return err;
+> +}
+> +
+> +int
+> +xlvbd_add(blkif_sector_t capacity, int vdevice, u16 vdisk_info,
+> +	  u16 sector_size, struct blkfront_info *info)
+> +{
+> +	struct block_device *bd;
+> +	int err = 0;
+> +
+> +	info->dev = MKDEV(BLKIF_MAJOR(vdevice), BLKIF_MINOR(vdevice));
+> +
+> +	bd = bdget(info->dev);
+> +	if (bd == NULL)
+> +		return -ENODEV;
+> +
+> +	err = xlvbd_alloc_gendisk(BLKIF_MINOR(vdevice), capacity, vdevice,
+> +				  vdisk_info, sector_size, info);
+> +
+> +	bdput(bd);
+> +	return err;
+> +}
 
-This comment doesn't make any sense, __dev_alloc_skb is:
+Please just inline this in the caller, and get rid of the bdget mess.
 
-static inline struct sk_buff *__dev_alloc_skb(unsigned int length,
-                                              gfp_t gfp_mask)
-{
-	struct sk_buff *skb = alloc_skb(length + NET_SKB_PAD, gfp_mask);
-	if (likely(skb))
-		skb_reserve(skb, NET_SKB_PAD);
-	return skb;
-}
+> +void
+> +xlvbd_del(struct blkfront_info *info)
+> +{
+> +	if (info->mi == NULL)
+> +		return;
+> +
+> +	BUG_ON(info->gd == NULL);
+> +	del_gendisk(info->gd);
+> +	put_disk(info->gd);
+> +	info->gd = NULL;
+> +
+> +	info->mi = NULL;
+> +
+> +	BUG_ON(info->rq == NULL);
+> +	blk_cleanup_queue(info->rq);
+> +	info->rq = NULL;
+> +}
 
-then again what you really should be using here is __netdev_alloc_skb.
+Note that the del_gendisk should happen before actual
+cleanup happens on the device, so this function should
+go away and the only caller should do things in the proper order.
 
-> +#ifdef CONFIG_XEN_BALLOON
-> +		/* Tell the ballon driver what is going on. */
-> +		balloon_update_driver_allowance(i);
-> +#endif
-
-	This should be a noop for !CONFIG_XEN_BALLOON in the header,
-	and there should be no need for ifdefs here.
-
-> +		skb->nh.raw = (void *)skb_shinfo(skb)->frags[0].page;
-> +		skb->h.raw = skb->nh.raw + rx->offset;
-
-Stuff like this won't compile anymore in the current tree.
-
+> +int
+> +xlvbd_barrier(struct blkfront_info *info)
+> +{
+> +	int err;
+> +
+> +	err = blk_queue_ordered(info->rq,
+> +		info->feature_barrier ? QUEUE_ORDERED_DRAIN : QUEUE_ORDERED_NONE, NULL);
+> +	if (err)
+> +		return err;
+> +	printk("blkfront: %s: barriers %s\n",
+> +	       info->gd->disk_name, info->feature_barrier ? "enabled" : "disabled");
+> +	return 0;
+> +}
+i
+Please kill this rather useless wrapper.
