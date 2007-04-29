@@ -1,23 +1,11 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 22/25] xen: xen-netfront: use skb.cb for storing private
-	data
-Date: Sun, 29 Apr 2007 18:05:15 +1000
-Message-ID: <20070429080515.GA16942@gondor.apana.org.au>
-References: <20070423215638.563901986@goop.org>
-	<20070423215713.550883195@goop.org>
-	<20070424014528.GA27789@gondor.apana.org.au>
-	<462D88EF.9030007@goop.org>
-	<20070424055731.GA30018@gondor.apana.org.au>
-	<46327706.80508@goop.org>
-	<20070427223742.GA2742@gondor.apana.org.au>
-	<463286D9.7090609@goop.org>
-	<20070428062839.GA6535@gondor.apana.org.au>
-	<46344CA5.6000900@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 1/2] lguest: fix up after pda->percpu conversion
+Date: Sun, 29 Apr 2007 23:34:57 +1000
+Message-ID: <1177853697.30071.179.camel__25433.4189034582$1177853776$gmane$org@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <46344CA5.6000900@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,35 +15,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 29, 2007 at 12:43:33AM -0700, Jeremy Fitzhardinge wrote:
-> Herbert Xu wrote:
-> > BTW, the version I posted to you is missing the following line.
-> >   
-> > --- linux-2.6.20.i386/drivers/xen/core/skbuff.c	2007-04-28 15:30:16.000000000 +1000
-> > +++ build-2.6.20.i386/drivers/xen/core/skbuff.c	2007-04-28 15:30:52.000000000 +1000
-> > @@ -89,6 +89,7 @@
-> >  	skb->h.raw = (unsigned char *)skb->nh.iph + 4*skb->nh.iph->ihl;
-> >  	if (skb->h.raw >= skb->tail)
-> >  		goto out;
-> > +	skb->csum_start = skb->h.raw - skb->head;
-> >  	switch (skb->nh.iph->protocol) {
-> >  	case IPPROTO_TCP:
-> >  		skb->csum_offset = offsetof(struct tcphdr, check);
-> >   
-> 
-> drivers/xen/core/skbuff.c?  What's that?
+Andrew Morton commented out some stuff to make lguest compile.  This
+should actually make it work (in the latest -mm).
 
-It's part of the skb_checksum_setup function which we still need
-for this because the current netback protocol doesn't pass the
-csum_start and csum_offset values along.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/lguest/lguest.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+===================================================================
+--- a/drivers/lguest/lguest.c
++++ b/drivers/lguest/lguest.c
+@@ -34,7 +34,6 @@
+ #include <asm/desc.h>
+ #include <asm/setup.h>
+ #include <asm/e820.h>
+-//#include <asm/pda.h>
+ #include <asm/mce.h>
+ 
+ /* Declarations for definitions in lguest_guest.S */
+@@ -406,10 +409,6 @@ static unsigned lguest_patch(u8 type, u1
+ 	memcpy(insns, lguest_insns[type].start, insn_len);
+ 	return insn_len;
+ }
+-
+-/* From head.S */
+-//extern void setup_pda(void);
+-extern struct Xgt_desc_struct early_gdt_descr;
+ 
+ __init void lguest_init(void)
+ {
+@@ -466,10 +465,8 @@ __init void lguest_init(void)
+ 	/* We use top of mem for initial pagetables. */
+ 	init_pg_tables_end = __pa(pg0);
+ 
+-	/* set up PDA descriptor */
+-//	setup_pda();
+-	load_gdt(&early_gdt_descr);
+-//	asm volatile ("mov %0, %%fs" : : "r" (__KERNEL_PDA) : "memory");
++	/* Set up per-cpu descriptor (pointing to master area) */
++	asm volatile ("mov %0, %%fs" : : "r" (__KERNEL_DS) : "memory");
+ 
+ 	reserve_top_address(lguest_data.reserve_mem);
