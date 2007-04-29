@@ -1,11 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/2] lguest: fix up after pda->percpu conversion
-Date: Sun, 29 Apr 2007 23:34:57 +1000
-Message-ID: <1177853697.30071.179.camel__25433.4189034582$1177853776$gmane$org@localhost.localdomain>
+Subject: [PATCH 2/2] lguest: handle new paravirt lazy mode (fix userspace
+	segfaults)
+Date: Sun, 29 Apr 2007 23:36:58 +1000
+Message-ID: <1177853818.30071.182.camel@localhost.localdomain>
+References: <1177853697.30071.179.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1177853697.30071.179.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,45 +22,31 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andrew Morton commented out some stuff to make lguest compile.  This
-should actually make it work (in the latest -mm).
+There's a new paravirt_lazy_mode mode in town.
+
+Well, it's spelled "mode", but it's pronounced "hack".
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/lguest/lguest.c |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/lguest/lguest.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 ===================================================================
 --- a/drivers/lguest/lguest.c
 +++ b/drivers/lguest/lguest.c
-@@ -34,7 +34,6 @@
- #include <asm/desc.h>
- #include <asm/setup.h>
- #include <asm/e820.h>
--//#include <asm/pda.h>
- #include <asm/mce.h>
- 
- /* Declarations for definitions in lguest_guest.S */
-@@ -406,10 +409,6 @@ static unsigned lguest_patch(u8 type, u1
- 	memcpy(insns, lguest_insns[type].start, insn_len);
- 	return insn_len;
- }
--
--/* From head.S */
--//extern void setup_pda(void);
--extern struct Xgt_desc_struct early_gdt_descr;
- 
- __init void lguest_init(void)
+@@ -59,9 +59,13 @@ static enum paravirt_lazy_mode lazy_mode
+ static enum paravirt_lazy_mode lazy_mode;
+ static void lguest_lazy_mode(enum paravirt_lazy_mode mode)
  {
-@@ -466,10 +465,8 @@ __init void lguest_init(void)
- 	/* We use top of mem for initial pagetables. */
- 	init_pg_tables_end = __pa(pg0);
+-	lazy_mode = mode;
+-	if (mode == PARAVIRT_LAZY_NONE)
++	if (mode == PARAVIRT_LAZY_FLUSH)
+ 		hcall(LHCALL_FLUSH_ASYNC, 0, 0, 0);
++	else {
++		lazy_mode = mode;
++		if (mode == PARAVIRT_LAZY_NONE)
++			hcall(LHCALL_FLUSH_ASYNC, 0, 0, 0);
++	}
+ }
  
--	/* set up PDA descriptor */
--//	setup_pda();
--	load_gdt(&early_gdt_descr);
--//	asm volatile ("mov %0, %%fs" : : "r" (__KERNEL_PDA) : "memory");
-+	/* Set up per-cpu descriptor (pointing to master area) */
-+	asm volatile ("mov %0, %%fs" : : "r" (__KERNEL_DS) : "memory");
- 
- 	reserve_top_address(lguest_data.reserve_mem);
+ static void lazy_hcall(unsigned long call,
