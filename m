@@ -1,84 +1,111 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 18/32] xen: deal with negative stolen time
-Date: Sun, 29 Apr 2007 10:28:53 -0700
-Message-ID: <20070429172914.118104000@goop.org>
+Subject: [patch 32/32] xen: Xen machine operations
+Date: Sun, 29 Apr 2007 10:29:07 -0700
+Message-ID: <20070429172917.065864000@goop.org>
 References: <20070429172835.284784000@goop.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030202AbXD2RdB@vger.kernel.org>
-Content-Disposition: inline; filename=xen-signed-time.patch
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030694AbXD2Rcd@vger.kernel.org>
+Content-Disposition: inline; filename=xen-machine-ops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@suse.de>
 Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Stolen time should never be negative; if it ever is, it probably
-indicates some other bug.  However, if it does happen, then its better
-to just clamp it at zero, rather than trying to account for it as a
-huge positive number.
+Make the appropriate hypercalls to halt and reboot the virtual machine.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- arch/i386/xen/time.c |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ arch/i386/xen/enlighten.c |   43 +++++++++++++++++++++++++++++++++++++++++++
+ arch/i386/xen/smp.c       |    4 +---
+ 2 files changed, 44 insertions(+), 3 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/time.c
-+++ b/arch/i386/xen/time.c
-@@ -77,7 +77,7 @@ static void do_stolen_accounting(void)
+--- a/arch/i386/xen/enlighten.c
++++ b/arch/i386/xen/enlighten.c
+@@ -14,6 +14,7 @@
+ 
+ #include <xen/interface/xen.h>
+ #include <xen/interface/vcpu.h>
++#include <xen/interface/sched.h>
+ #include <xen/features.h>
+ #include <xen/page.h>
+ 
+@@ -28,6 +29,7 @@
+ #include <asm/pgtable.h>
+ #include <asm/smp.h>
+ #include <asm/tlbflush.h>
++#include <asm/reboot.h>
+ 
+ #include "xen-ops.h"
+ #include "mmu.h"
+@@ -787,6 +789,45 @@ static const struct smp_ops xen_smp_ops 
+ };
+ #endif	/* CONFIG_SMP */
+ 
++static void xen_reboot(int reason)
++{
++#ifdef CONFIG_SMP
++	smp_send_stop();
++#endif
++
++	if (HYPERVISOR_sched_op(SCHEDOP_shutdown, reason))
++		BUG();
++}
++
++static void xen_restart(char *msg)
++{
++	xen_reboot(SHUTDOWN_reboot);
++}
++
++static void xen_emergency_restart(void)
++{
++	xen_reboot(SHUTDOWN_reboot);
++}
++
++static void xen_machine_halt(void)
++{
++	xen_reboot(SHUTDOWN_poweroff);
++}
++
++static void xen_crash_shutdown(struct pt_regs *regs)
++{
++	xen_reboot(SHUTDOWN_crash);
++}
++
++static const struct machine_ops __initdata xen_machine_ops = {
++	.restart = xen_restart,
++	.halt = xen_machine_halt,
++	.power_off = xen_machine_halt,
++	.shutdown = xen_machine_halt,
++	.crash_shutdown = xen_crash_shutdown,
++	.emergency_restart = xen_emergency_restart,
++};
++
+ /* First C function to be called on Xen boot */
+ static asmlinkage void __init xen_start_kernel(void)
  {
- 	struct vcpu_runstate_info state;
- 	struct vcpu_runstate_info *snap;
--	u64 blocked, runnable, offline, stolen;
-+	s64 blocked, runnable, offline, stolen;
- 	cputime_t ticks;
+@@ -800,6 +841,8 @@ static asmlinkage void __init xen_start_
  
- 	get_runstate_snapshot(&state);
-@@ -97,6 +97,10 @@ static void do_stolen_accounting(void)
- 	   including any left-overs from last time.  Passing NULL to
- 	   account_steal_time accounts the time as stolen. */
- 	stolen = runnable + offline + __get_cpu_var(residual_stolen);
+ 	/* Install Xen paravirt ops */
+ 	paravirt_ops = xen_paravirt_ops;
++	machine_ops = xen_machine_ops;
 +
-+	if (stolen < 0)
-+		stolen = 0;
-+
- 	ticks = 0;
- 	while(stolen >= NS_PER_TICK) {
- 		ticks++;
-@@ -109,6 +113,10 @@ static void do_stolen_accounting(void)
- 	   including any left-overs from last time.  Passing idle to
- 	   account_steal_time accounts the time as idle/wait. */
- 	blocked += __get_cpu_var(residual_blocked);
-+
-+	if (blocked < 0)
-+		blocked = 0;
-+
- 	ticks = 0;
- 	while(blocked >= NS_PER_TICK) {
- 		ticks++;
-@@ -127,7 +135,8 @@ unsigned long long xen_sched_clock(void)
+ #ifdef CONFIG_SMP
+ 	smp_ops = xen_smp_ops;
+ #endif
+===================================================================
+--- a/arch/i386/xen/smp.c
++++ b/arch/i386/xen/smp.c
+@@ -303,9 +303,7 @@ static void stop_self(void *v)
+ 
+ void xen_smp_send_stop(void)
  {
- 	struct vcpu_runstate_info state;
- 	cycle_t now;
--	unsigned long long ret;
-+	u64 ret;
-+	s64 offset;
+-	cpumask_t mask = cpu_online_map;
+-	cpu_clear(smp_processor_id(), mask);
+-	xen_smp_call_function_mask(mask, stop_self, NULL, 0);
++	smp_call_function(stop_self, NULL, 0, 0);
+ }
  
- 	/*
- 	 * Ideally sched_clock should be called on a per-cpu basis
-@@ -142,9 +151,13 @@ unsigned long long xen_sched_clock(void)
- 
- 	WARN_ON(state.state != RUNSTATE_running);
- 
-+	offset = now - state.state_entry_time;
-+	if (offset < 0)
-+		offset = 0;
-+
- 	ret = state.time[RUNSTATE_blocked] +
- 		state.time[RUNSTATE_running] +
--		(now - state.state_entry_time);
-+		offset;
- 
- 	preempt_enable();
- 
+ void xen_smp_send_reschedule(int cpu)
 
 -- 
