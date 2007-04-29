@@ -1,71 +1,69 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 28/32] xen: xen-netfront: use skb.cb for storing private data
-Date: Sun, 29 Apr 2007 10:29:03 -0700
-Message-ID: <20070429172916.237274000@goop.org>
+Subject: [patch 25/32] xen: rename dev_changed to xenbus_dev_changed
+Date: Sun, 29 Apr 2007 10:29:00 -0700
+Message-ID: <20070429172915.601786000@goop.org>
 References: <20070429172835.284784000@goop.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030964AbXD2RgZ@vger.kernel.org>
-Content-Disposition: inline; filename=xen-netfront-use-cb.patch
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1030882AbXD2RhO@vger.kernel.org>
+Content-Disposition: inline; filename=xenbus-fix-dev_changed.patch
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Herbert Xu <herbert@gondor.apana.org.au>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Netfront's use of nh.raw and h.raw for storing page+offset is a bit
-hinky, and it breaks with upcoming network stack updates which reduce
-these fields to sub-pointer sizes.  Fortunately, skb offers the "cb"
-field specifically for stashing this kind of info, so use it.
+"dev_changed" is too generic to be global.  Put "xenbus_" on the
+front.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Chris Wright <chrisw@sous-sol.org>
-Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 
 ---
- drivers/net/xen-netfront.c |   18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/xen/xenbus/xenbus_probe.c         |    4 ++--
+ drivers/xen/xenbus/xenbus_probe.h         |    2 +-
+ drivers/xen/xenbus/xenbus_probe_backend.c |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
 ===================================================================
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -52,6 +52,13 @@
- #include <xen/page.h>
- #include <xen/grant_table.h>
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -567,7 +567,7 @@ static int strsep_len(const char *str, c
+ 	return (len == 0) ? i : -ERANGE;
+ }
  
-+struct netfront_cb {
-+	struct page *page;
-+	unsigned offset;
-+};
-+
-+#define NETFRONT_SKB_CB(skb)	((struct netfront_cb *)((skb)->cb))
-+
- /*
-  * Mutually-exclusive module options to select receive data path:
-  *  rx_copy : Packets are copied by network backend into local memory
-@@ -944,10 +951,11 @@ static void handle_incoming_queue(struct
- 	struct sk_buff *skb;
+-void dev_changed(const char *node, struct xen_bus_type *bus)
++void xenbus_dev_changed(const char *node, struct xen_bus_type *bus)
+ {
+ 	int exists, rootlen;
+ 	struct xenbus_device *dev;
+@@ -609,7 +609,7 @@ static void frontend_changed(struct xenb
+ {
+ 	DPRINTK(NULL, "");
  
- 	while ((skb = __skb_dequeue(rxq)) != NULL) {
--		struct page *page = (struct page *)skb->nh.raw;
-+		struct page *page = NETFRONT_SKB_CB(skb)->page;
- 		void *vaddr = page_address(page);
--
--		memcpy(skb->data, vaddr + (skb->h.raw - skb->nh.raw),
-+		unsigned offset = NETFRONT_SKB_CB(skb)->offset;
-+
-+		memcpy(skb->data, vaddr + offset,
- 		       skb_headlen(skb));
+-	dev_changed(vec[XS_WATCH_PATH], &xenbus_frontend);
++	xenbus_dev_changed(vec[XS_WATCH_PATH], &xenbus_frontend);
+ }
  
- 		if (page != skb_shinfo(skb)->frags[0].page)
-@@ -1251,8 +1259,8 @@ err:
- 			}
- 		}
+ /* We watch for devices appearing and vanishing. */
+===================================================================
+--- a/drivers/xen/xenbus/xenbus_probe.h
++++ b/drivers/xen/xenbus/xenbus_probe.h
+@@ -67,6 +67,6 @@ extern int xenbus_probe_node(struct xen_
+ 			     const char *nodename);
+ extern int xenbus_probe_devices(struct xen_bus_type *bus);
  
--		skb->nh.raw = (void *)skb_shinfo(skb)->frags[0].page;
--		skb->h.raw = skb->nh.raw + rx->offset;
-+		NETFRONT_SKB_CB(skb)->page = skb_shinfo(skb)->frags[0].page;
-+		NETFRONT_SKB_CB(skb)->offset = rx->offset;
+-extern void dev_changed(const char *node, struct xen_bus_type *bus);
++extern void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
  
- 		len = rx->status;
- 		if (len > RX_COPY_THRESHOLD)
+ #endif
+===================================================================
+--- a/drivers/xen/xenbus/xenbus_probe_backend.c
++++ b/drivers/xen/xenbus/xenbus_probe_backend.c
+@@ -228,7 +228,7 @@ static void backend_changed(struct xenbu
+ {
+ 	DPRINTK("");
+ 
+-	dev_changed(vec[XS_WATCH_PATH], &xenbus_backend);
++	xenbus_dev_changed(vec[XS_WATCH_PATH], &xenbus_backend);
+ }
+ 
+ static struct xenbus_watch be_watch = {
 
 -- 
