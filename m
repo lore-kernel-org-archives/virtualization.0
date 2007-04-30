@@ -1,40 +1,169 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: Re: [PATCH 04/12] i386 voyager: Use modern techniques to setup and
-	teardown low identiy mappings.
-Date: Mon, 30 Apr 2007 12:06:17 -0500
-Message-ID: <1177952777.3674.41.camel__24008.020226802$1177952822$gmane$org@mulgrave.il.steeleye.com>
-References: <m1d51l6f1y.fsf@ebiederm.dsl.xmission.com>
-	<m18xc96eyq.fsf@ebiederm.dsl.xmission.com>
-	<m14pmx6ewk.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1zm4p509a.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1vefd4zyj.fsf_-_@ebiederm.dsl.xmission.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 27/32] xen: Add the Xen virtual network device driver.
+Date: Mon, 30 Apr 2007 11:11:25 -0700
+Message-ID: <4636314D.7070006@goop.org>
+References: <20070429172835.284784000@goop.org> <20070429172916.025602000@goop.org> <20070429175942.GA3551@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <m1vefd4zyj.fsf_-_@ebiederm.dsl.xmission.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20070429175942.GA3551@infradead.org>
+Sender: netdev-owner@vger.kernel.org
+To: Christoph Hellwig <hch@infradead.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, Stephen Hemminger <shemminge@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-04-30 at 09:57 -0600, Eric W. Biederman wrote:
-> This is a trivial and hopefully obviously correct patch to setup
-> and teardown the identity mappings the way the rest of arch/i386
-> does.
-> 
-> My new page table setup code will break some assumptions below so
-> this is my attempt to keep voyager working. 
+Christoph Hellwig wrote:
+> On Sun, Apr 29, 2007 at 10:29:02AM -0700, Jeremy Fitzhardinge wrote:
+>   
+>> +#include <linux/version.h>
+>>     
+>
+> not needed.
+>   
 
-It works for the 586 beasts ... I'll dig out some 486 cards and test
-them later.  Thanks,
+Yup.
 
-James
+>> +#include <xen/xenbus.h>
+>> +#include <xen/interface/io/netif.h>
+>> +#include <xen/interface/memory.h>
+>> +#ifdef CONFIG_XEN_BALLOON
+>> +#include <xen/balloon.h>
+>> +#endif
+>> +#include <xen/interface/grant_table.h>
+>>     
+>
+> Please don't try to put such a fucked up include hierachy in.
+> Just move everything under include/xen or you will soon get
+> problems with the 80 line length limit for your includes..
+>   
+
+I'm trying to draw the distinction between kernel-internal Xen-related
+headers, and the Xen hypervisor ABI itself.  The stuff under
+xen/interface is more or less copied in from the main Xen tree, so it
+would be nice to keep it distinct.
+
+> Also please make sure that <xen/balloon.h> can be included unconditionally,
+> as we really don't like ifdefs around includes.
+>   
+
+The balloon driver isn't in this patch set, so I'll drop all references
+to it.
+
+>> +	grant_ref_t gref_tx_head;
+>>     
+>
+> What's a grant_ref_t?  Should this really be a typedef or better
+> a struct type?
+
+Structurally it's just a u32.  I could wrap it up in a structure for
+typedef reasons, I suppose.
+
+>   Also it really wants a xen_ prefix instead of someting
+> so generic.
+>   
+
+OK.
+
+>> + * Implement our own carrier flag: the network stack's version causes delays
+>> + * when the carrier is re-enabled (in particular, dev_activate() may not
+>> + * immediately be called, which can cause packet loss).
+>> + */
+>>     
+>
+> Did you talk to the networking folks about these problems?
+>   
+
+Not sure what the deliberations were leading to those changes.
+
+Herbert, Keir?
+
+
+>> +#define netfront_carrier_on(netif)	((netif)->carrier = 1)
+>> +#define netfront_carrier_off(netif)	((netif)->carrier = 0)
+>> +#define netfront_carrier_ok(netif)	((netif)->carrier)
+>>     
+>
+> Please use proper symbolic names for the ctal states and kill these
+> wrappers.
+>   
+
+OK.
+
+>
+> Any chance you could avoid these forward-prototypes by reordering
+> the functions a little?
+>   
+
+I'll give it a go.
+
+> Also a lot of these names are horribly generic.  A proper xennet_
+> prefix would probably help.
+>   
+
+Yes.
+
+>> +static int __devexit netfront_remove(struct xenbus_device *dev)
+>> +{
+>> +	struct netfront_info *info = dev->dev.driver_data;
+>> +
+>> +	dev_dbg(&dev->dev, "%s\n", dev->nodename);
+>> +
+>> +	netif_disconnect_backend(info);
+>> +
+>> +	del_timer_sync(&info->rx_refill_timer);
+>> +
+>> +	xennet_sysfs_delif(info->netdev);
+>> +
+>> +	unregister_netdev(info->netdev);
+>> +
+>> +	free_netdev(info->netdev);
+>>     
+>
+> This looks like very wrong ordering to me.  unregister_netdev should
+> be the first thing in the remove function.
+>   
+
+I know this ordering was the result of a relatively recent bugfix
+replacing something that was completely broken.
+
+>> +	SHARED_RING_INIT(rxs);
+>> +	FRONT_RING_INIT(&info->rx, rxs, PAGE_SIZE);
+>>     
+>
+> Can you replace these shouting macros with proper named functions?
+>   
+
+Will do.
+
+>> +	 * receive ring. This creates a less bursty demand on the memory
+>> +	 * allocator, so should reduce the chance of failed allocation requests
+>> +	 * both for ourself and for other kernel subsystems.
+>> +	 */
+>> +	batch_target = np->rx_target - (req_prod - np->rx.rsp_cons);
+>> +	for (i = skb_queue_len(&np->rx_batch); i < batch_target; i++) {
+>> +		/*
+>> +		 * Allocate an skb and a page. Do not use __dev_alloc_skb as
+>> +		 * that will allocate page-sized buffers which is not
+>> +		 * necessary here.
+>> +		 * 16 bytes added as necessary headroom for netif_receive_skb.
+>> +		 */
+>> +		skb = alloc_skb(RX_COPY_THRESHOLD + 16 + NET_IP_ALIGN,
+>> +				GFP_ATOMIC | __GFP_NOWARN);
+>>     
+>
+> This comment doesn't make any sense, __dev_alloc_skb is:
+>   
+
+Yes, it has probably dated.  I'll give it another look.
+
+>> +		skb->nh.raw = (void *)skb_shinfo(skb)->frags[0].page;
+>> +		skb->h.raw = skb->nh.raw + rx->offset;
+>>     
+>
+> Stuff like this won't compile anymore in the current tree.
+>   
+
+Fixed later in the series.
+
+Thanks,
+    J
