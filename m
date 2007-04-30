@@ -1,17 +1,15 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol for
- relocatable bzImage
-Date: Mon, 30 Apr 2007 11:50:16 -0700
-Message-ID: <46363A68.6080201@goop.org>
-References: <20070428758.455116000@suse.de>	<20070428175909.1D09D151CA@wotan.suse.de>
-	<46338D72.70402@garzik.org>	<m1fy6kdzi1.fsf@ebiederm.dsl.xmission.com>
-	<4634483E.9030307@goop.org>
-	<m14pmz8bbb.fsf@ebiederm.dsl.xmission.com>
+Subject: Re: [patch 26/32] xen: Add Xen virtual block device driver.
+Date: Mon, 30 Apr 2007 11:52:19 -0700
+Message-ID: <46363AE3.2000208@goop.org>
+References: <20070429172835.284784000@goop.org>
+	<20070429172915.805798000@goop.org>
+	<20070429181646.GB3551@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <m14pmz8bbb.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <20070429181646.GB3551@infradead.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,54 +19,105 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, Vivek Goyal <vgoyal@in.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Christoph Hellwig <hch@infradead.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>, Jens Axboe <axboe@kernel.dk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Eric W. Biederman wrote:
-> I have several ideas on how we can make this work but first I have to
-> ask what is it that you are trying to accomplish?
+Christoph Hellwig wrote:
+>>  source "drivers/s390/block/Kconfig"
+>> +source "drivers/block/xen/Kconfig"
+>>     
+>
+> Please don't add a new subdirectory for a tiny new driver that
+> really should be only a single .c file.
 >   
 
-The requirements are:
+Yup.
 
-   1. the domain builder needs to get various information about the
-      guest kernel by inspecting its ELF notes
-   2. we start the kernel in 32-bit mode with paging enabled, in ring 1
-   3. the guest kernel needs various pieces of runtime information from
-      the hypervisor about its runtime environment
+>> +config XEN_BLKDEV_FRONTEND
+>> +	tristate "Block device frontend driver"
+>> +	depends on XEN
+>> +	default y
+>>     
+>
+> Please kill the default statement.  We really should have script that
+> autorejects every new driver that wants to be default y..
+>   
 
-At the moment we just load a bare vmlinux kernel with a xen-specific
-entrypoint, so 1 and 2 are easy.  3 is achieved by having the domain
-builder start the kernel with %esi pointing to a Xen info structure
-which tells the kernel what it needs to know.
+I guess.  But if you've already decided to enable Xen, it seems to me
+that the default option should reflect the common case.  But I don't
+feel strongly about it either way.
 
-That works OK for a kernel which is compiled to run under Xen and can't
-run in any other environment, but now that we can generate a single
-kernel which can run in any number of different environments, its
-unfortunate that we still need multiple variants of the kernel image.
+>> +#define BLKIF_STATE_DISCONNECTED 0
+>> +#define BLKIF_STATE_CONNECTED    1
+>> +#define BLKIF_STATE_SUSPENDED    2
+>>     
+>
+> enum, please.
+>   
 
-Clearly the Xen domain builder needs to be extended to deal with a
-bzImage format kernel directly, so we can use the same actual kernel
-image for native and Xen booting.  Since we're changing the domain
-builder anyway, I can change the details of how it works so long as the
-3 requirements can still be met.
+OK.
 
-So, I have no problem in also building a boot protocol info structure,
-and passing that in %esi, so long as I can store a pointer to the
-Xen-specific info as well.  Some info will be duplicated, like the
-initrd location, but that's OK.
+> Please get rid of all the forward-declarations by putting the code
+> into proper order.
+>   
 
-I'd already reserved a Xen bootloader ID specifically with this in mind;
-all I really need is a place where I can stash the pointer.
+Yep. I'll de-generic the names too.
 
-I think I'd prefer to have the domain builder decompress/relocate the
-kernel from the bzImage and start it directly, rather than have it
-decompress/relocate itself, but I'm not really set on that.  It depends
-on how well it can deal with having paging enabled and being in ring 1. 
-Looks like it might just be a matter of starting up with "enough" memory
-mapped.
+>> +static inline int GET_ID_FROM_FREELIST(
+>> +	struct blkfront_info *info)
+>> +{
+>> +	unsigned long free = info->shadow_free;
+>> +	BUG_ON(free > BLK_RING_SIZE);
+>> +	info->shadow_free = info->shadow[free].req.id;
+>> +	info->shadow[free].req.id = 0x0fffffee; /* debug */
+>> +	return free;
+>> +}
+>> +
+>> +static inline void ADD_ID_TO_FREELIST(
+>> +	struct blkfront_info *info, unsigned long id)
+>> +{
+>> +	info->shadow[id].req.id  = info->shadow_free;
+>> +	info->shadow[id].request = 0;
+>> +	info->shadow_free = id;
+>> +}
+>>     
+>
+> Please give these proper lowercased names, and while you're at it
+> please kill all the inline statements you have and let the compiler
+> do it's work.
+>   
 
-So the biggest unknown is where to put the Xen ELF notes.
+OK.
 
+>> +static irqreturn_t blkif_int(int irq, void *dev_id)
+>>     
+>
+> Please call interrupt handlers foo_interrupt, that makes peopl see what's
+> going on much more easily.
+>   
+
+OK.
+
+>> +static void blkif_recover(struct blkfront_info *info)
+>> +{
+>> +	int i;
+>> +	struct blkif_request *req;
+>> +	struct blk_shadow *copy;
+>> +	int j;
+>> +
+>> +	/* Stage 1: Make a safe copy of the shadow state. */
+>> +	copy = kmalloc(sizeof(info->shadow), GFP_KERNEL | __GFP_NOFAIL);
+>>     
+>
+> Please don't use __GFP_NOFAIL in any new code.
+>   
+
+OK.
+
+[...]
+
+The rest looks sound.  I'll go through it in detail, but a lot of your
+points things I've been meaning to get to anyway.
+
+Thanks,
     J
