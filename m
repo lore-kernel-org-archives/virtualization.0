@@ -1,14 +1,15 @@
 From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: [PATCH 01/12] x86_64: Allow fixmaps to be used with the initial
-	page table.
-Date: Mon, 30 Apr 2007 09:48:13 -0600
-Message-ID: <m18xc96eyq.fsf__32874.5068786249$1177948293$gmane$org@ebiederm.dsl.xmission.com>
+Subject: [PATCH 02/12] i386 head.S: Remove unnecessary use of %ebx as the
+	boot cpu flag
+Date: Mon, 30 Apr 2007 09:49:31 -0600
+Message-ID: <m14pmx6ewk.fsf_-___4772.38902026347$1177948456$gmane$org@ebiederm.dsl.xmission.com>
 References: <m1d51l6f1y.fsf@ebiederm.dsl.xmission.com>
+	<m18xc96eyq.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <m1d51l6f1y.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
-	message of "Mon, 30 Apr 2007 09:46:17 -0600")
+In-Reply-To: <m18xc96eyq.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
+	message of "Mon, 30 Apr 2007 09:48:13 -0600")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,51 +24,51 @@ Cc: linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-fou
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-This patch preallocates the intermediate page table entries so that
-all that is needed to setup a fixmap is to fill in the appropriate
-pte.
+Currently in head.S there are two ways we test to see if we
+are the boot cpu.  By looking at %ebx and by looking at the
+static variable ready.  When changing things around I have
+found that it gets tricky to preserve %ebx.  So this
+patch just switches head.S over to the more reliable
+test of always using ready.
 
-By doing this modern hardware that uses memory mapped access can be
-talked to early in boot through a fixmap. 
-
-Allowing USB debugging and the like.
+Hopefully later we can kill these tests entirely.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/x86_64/kernel/head.S |   14 +++++++++++++-
- 1 files changed, 13 insertions(+), 1 deletions(-)
+ arch/i386/kernel/head.S |    7 +------
+ 1 files changed, 1 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86_64/kernel/head.S b/arch/x86_64/kernel/head.S
-index 1fab487..1b704c4 100644
---- a/arch/x86_64/kernel/head.S
-+++ b/arch/x86_64/kernel/head.S
-@@ -74,6 +74,9 @@ startup_64:
+diff --git a/arch/i386/kernel/head.S b/arch/i386/kernel/head.S
+index 9b10af6..aa9e28e 100644
+--- a/arch/i386/kernel/head.S
++++ b/arch/i386/kernel/head.S
+@@ -157,7 +157,6 @@ page_pde_offset = (__PAGE_OFFSET >> 20);
+ 	jb 10b
+ 	movl %edi,(init_pg_tables_end - __PAGE_OFFSET)
  
- 	addq	%rbp, level3_ident_pgt + 0(%rip)
- 	addq	%rbp, level3_kernel_pgt + (510*8)(%rip)
-+	addq	%rbp, level3_kernel_pgt + (511*8)(%rip)
-+
-+	addq	%rbp, level2_fixmap_pgt + (506*8)(%rip)
+-	xorl %ebx,%ebx				/* This is the boot CPU (BSP) */
+ 	jmp 3f
+ /*
+  * Non-boot CPU entry point; entered from trampoline.S
+@@ -228,10 +227,6 @@ ENTRY(startup_32_smp)
+ 	wrmsr
  
- 	/* Add an Identity mapping if I am above 1G */
- 	leaq	_text(%rip), %rdi
-@@ -314,7 +317,16 @@ NEXT_PAGE(level3_kernel_pgt)
- 	.fill	510,8,0
- 	/* (2^48-(2*1024*1024*1024)-((2^39)*511))/(2^30) = 510 */
- 	.quad	level2_kernel_pgt - __START_KERNEL_map + _KERNPG_TABLE
--	.fill	1,8,0
-+	.quad	level2_fixmap_pgt - __START_KERNEL_map + _KERNPG_TABLE + _PAGE_USER
-+
-+NEXT_PAGE(level2_fixmap_pgt)
-+	.fill	506,8,0
-+	.quad	level1_fixmap_pgt - __START_KERNEL_map + _KERNPG_TABLE + _PAGE_USER
-+	/* 8MB reserved for vsyscalls + a 2MB hole = 4 + 1 entries */
-+	.fill	5,8,0
-+
-+NEXT_PAGE(level1_fixmap_pgt)
-+	.fill	512,8,0
+ 6:
+-	/* This is a secondary processor (AP) */
+-	xorl %ebx,%ebx
+-	incl %ebx
+-
+ #endif /* CONFIG_SMP */
+ 3:
  
- NEXT_PAGE(level2_ident_pgt)
- 	/* Since I easily can, map the first 1G.
+@@ -257,7 +252,7 @@ ENTRY(startup_32_smp)
+ 	popfl
+ 
+ #ifdef CONFIG_SMP
+-	andl %ebx,%ebx
++	cmpb $0, ready
+ 	jz  1f				/* Initial CPU cleans BSS */
+ 	jmp checkCPUtype
+ 1:
 -- 
 1.5.1.1.181.g2de0
