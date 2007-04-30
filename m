@@ -1,20 +1,12 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol for
-	relocatable bzImage
-Date: Sun, 29 Apr 2007 23:25:53 -0600
-Message-ID: <m1d51m77ry.fsf@ebiederm.dsl.xmission.com>
-References: <20070428758.455116000@suse.de>
-	<20070428175909.1D09D151CA@wotan.suse.de> <46338D72.70402@garzik.org>
-	<m1fy6kdzi1.fsf@ebiederm.dsl.xmission.com> <4634483E.9030307@goop.org>
-	<m14pmz8bbb.fsf@ebiederm.dsl.xmission.com>
-	<1177902195.30071.203.camel@localhost.localdomain>
-	<463572B7.90202@zytor.com>
-	<1177909434.30071.216.camel@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] lguest: properly kill guest userspace programs accessing
+	kernel mem
+Date: Mon, 30 Apr 2007 23:04:19 +1000
+Message-ID: <1177938259.30071.219.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1177909434.30071.216.camel@localhost.localdomain> (Rusty
-	Russell's message of "Mon, 30 Apr 2007 15:03:54 +1000")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,37 +16,82 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, Vivek Goyal <vgoyal@in.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
+Kernel pages on x86 are protected by not having the _PAGE_USER bit
+set.  When guest userspace accesses a kernel page, we didn't check
+this, so we'd think we'd handled the fault and return to the guest,
+causing the guest userspace program to loop instead of segfaulting.
 
-> On Sun, 2007-04-29 at 21:38 -0700, H. Peter Anvin wrote:
->> Rusty Russell wrote:
->> > 
->> > Dammit, Eric, you spend a lot of time using words like "insane" where
->> > you mean we didn't do everything all at once.
->> > 
->> > It's *not* clear that using %esi is sane, but nothing in the current
->> > code prevents that.
->> 
->> Why not?
->
-> (I assume you mean why isn't it clear?)
->
-> Because VMI uses the presence of a ROM to indicate it's not native.  KVM
-> uses a magic MSR IIRC.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/lguest/core.c        |    2 +-
+ drivers/lguest/lg.h          |    2 +-
+ drivers/lguest/page_tables.c |   12 ++++++++----
+ 3 files changed, 10 insertions(+), 6 deletions(-)
 
-Reasonable, if you don't mid a little hardware emulation.
-
-> I think it makes sense for lguest to change over, tho.  Patches welcome
-> 8)
-
-Sure.
-
-Peter do we want to use the bootloader byte and assign lguest it's own
-bootloader type or do we want to add another field specific to 
-paravirtualized environments?
-
-Eric
+===================================================================
+--- a/drivers/lguest/core.c
++++ b/drivers/lguest/core.c
+@@ -346,7 +346,7 @@ int run_guest(struct lguest *lg, char *_
+ 			}
+ 			break;
+ 		case 14: /* We've intercepted a page fault. */
+-			if (demand_page(lg, cr2, lg->regs->errcode & 2))
++			if (demand_page(lg, cr2, lg->regs->errcode))
+ 				continue;
+ 
+ 			/* If lguest_data is NULL, this won't hurt. */
+===================================================================
+--- a/drivers/lguest/lg.h
++++ b/drivers/lguest/lg.h
+@@ -216,7 +216,7 @@ void guest_set_pte(struct lguest *lg, un
+ void guest_set_pte(struct lguest *lg, unsigned long cr3,
+ 		   unsigned long vaddr, gpte_t val);
+ void map_switcher_in_guest(struct lguest *lg, struct lguest_pages *pages);
+-int demand_page(struct lguest *info, unsigned long cr2, int write);
++int demand_page(struct lguest *info, unsigned long cr2, int errcode);
+ void pin_page(struct lguest *lg, unsigned long vaddr);
+ 
+ /* lguest_user.c: */
+===================================================================
+--- a/drivers/lguest/page_tables.c
++++ b/drivers/lguest/page_tables.c
+@@ -109,7 +109,7 @@ static void check_gpgd(struct lguest *lg
+ 
+ /* We fault pages in, which allows us to update accessed/dirty bits.
+  * Return true if we got page. */
+-int demand_page(struct lguest *lg, unsigned long vaddr, int write)
++int demand_page(struct lguest *lg, unsigned long vaddr, int errcode)
+ {
+ 	gpgd_t gpgd;
+ 	spgd_t *spgd;
+@@ -138,12 +140,16 @@ int demand_page(struct lguest *lg, unsig
+ 		return 0;
+ 
+ 	/* Write to read-only page? */
+-	if (write && !(gpte.flags & _PAGE_RW))
++	if ((errcode & 2) && !(gpte.flags & _PAGE_RW))
+ 		return 0;
++
++	/* User access to a non-user page? */
++	if ((errcode & 4) && !(gpte.flags & _PAGE_USER))
++		return 0;
+ 
+ 	check_gpte(lg, gpte);
+ 	gpte.flags |= _PAGE_ACCESSED;
+-	if (write)
++	if (errcode & 2)
+ 		gpte.flags |= _PAGE_DIRTY;
+ 
+ 	/* We're done with the old pte. */
+@@ -185,7 +200,7 @@ static int page_writable(struct lguest *
+ 
+ void pin_page(struct lguest *lg, unsigned long vaddr)
+ {
+-	if (!page_writable(lg, vaddr) && !demand_page(lg, vaddr, 0))
++	if (!page_writable(lg, vaddr) && !demand_page(lg, vaddr, 2))
+ 		kill_guest(lg, "bad stack page %#lx", vaddr);
+ }
