@@ -1,23 +1,18 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 09/12] i386/x86_64: EHCI usb debug port early printk
-	support.
-Date: Mon, 30 Apr 2007 19:56:08 +0200
-Message-ID: <20070430175607.GD25929__8117.22182338617$1177952349$gmane$org@bingen.suse.de>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: Re: [PATCH 04/12] i386 voyager: Use modern techniques to setup and
+	teardown low identiy mappings.
+Date: Mon, 30 Apr 2007 12:06:17 -0500
+Message-ID: <1177952777.3674.41.camel__24008.020226802$1177952822$gmane$org@mulgrave.il.steeleye.com>
 References: <m1d51l6f1y.fsf@ebiederm.dsl.xmission.com>
 	<m18xc96eyq.fsf@ebiederm.dsl.xmission.com>
 	<m14pmx6ewk.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1zm4p509a.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1vefd4zyj.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1r6q14zow.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1mz0p4zfc.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1irbd4zcm.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1ejm14z5f.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1abwp4yd9.fsf_-_@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <m1abwp4yd9.fsf_-_@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1vefd4zyj.fsf_-_@ebiederm.dsl.xmission.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -28,67 +23,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thanks for writing that code. It should be an interesting alternative
-on boxes where firescope doesn't work.
-
-I hope I can eventually merge early firewire support code too.
-
-On Mon, Apr 30, 2007 at 10:32:02AM -0600, Eric W. Biederman wrote:
+On Mon, 2007-04-30 at 09:57 -0600, Eric W. Biederman wrote:
+> This is a trivial and hopefully obviously correct patch to setup
+> and teardown the identity mappings the way the rest of arch/i386
+> does.
 > 
-> With legacy free systems serial ports have stopped being an option
-> to get early boot traces and other debug information out of a machine.
+> My new page table setup code will break some assumptions below so
+> this is my attempt to keep voyager working. 
 
-This needs a CONFIG_* at least. And some documentation on how to set it
-up on both sides.
+It works for the 586 beasts ... I'll dig out some 486 cards and test
+them later.  Thanks,
 
-> 
-> This debug device can be used to replace serial ports for
-> kgdb, kdb, and console support.  And gregkh has a simple usb
-> serial driver for it so user space applications that control
-> serial ports should work unmodified.
-
-But not merged yet, right? I was hoping it could be done from
-user space anyways.
-
-> For users the hard part looks like it will be finding cables and
-> finding which is usb debug port 1 and realizing that there is
-> flow control so the kernel boot will not happen if someone is not
-> reading the serial console data.
-
-That's nasty. Any way to work around that?
-
-> index 92213d2..dc097aa 100644
-> --- a/arch/x86_64/kernel/early_printk.c
-> +++ b/arch/x86_64/kernel/early_printk.c
-> @@ -3,9 +3,19 @@
->  #include <linux/init.h>
->  #include <linux/string.h>
->  #include <linux/screen_info.h>
-> +#include <linux/usb/ch9.h>
-> +#include <linux/pci_regs.h>
-> +#include <linux/pci_ids.h>
-> +#include <linux/errno.h>
-
-Can you put it in a separate file please?
-Perhaps with a little abstraction in drivers/usb ? 
-
-> +static void dbgp_breath(void)
-> +{
-> +	/* Sleep to give the debug port a chance to breathe */
-
-But you don't?
-
-> +static __u32 __init find_dbgp(int ehci_num, unsigned *rbus, unsigned *rslot, unsigned *rfunc)
-
-This should be probably merged into the early quirks loop
-
->   		early_console = &simnow_console;
->   		keep_early = 1;
-> +	} else if (!strncmp(buf, "dbgp", 4)) {
-
-usb would seem to be more intuitive
-
--Andi
+James
