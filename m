@@ -1,13 +1,14 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: Re: [PATCH] i386: introduce voyager smp_ops, fix voyager build
-Date: Mon, 30 Apr 2007 13:23:26 -0500
-Message-ID: <1177957406.3674.48.camel@mulgrave.il.steeleye.com>
-References: <463382E5.9060701@goop.org>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: huh startup_ipi_hook?
+Date: Mon, 30 Apr 2007 11:33:06 -0700
+Message-ID: <46363662.40806@vmware.com>
+References: <m1d51pgeby.fsf@ebiederm.dsl.xmission.com>
+	<4632F653.3000102@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <463382E5.9060701@goop.org>
+In-Reply-To: <4632F653.3000102@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,22 +19,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2007-04-28 at 10:22 -0700, Jeremy Fitzhardinge wrote:
-> This adds an smp_ops for voyager, and hooks things up appropriately.
-> This is the first baby-step to making subarch runtime switchable.
+Jeremy Fitzhardinge wrote:
+> This is a fairly close match to Xen's requirements. Certainly, anything
+> APIC-related is useless for us, since there's no APIC emulation going on.
+>
+> I won't speak for Zach, but his counter-argument is generally along the
+> lines of "we can just make use of the existing code with a couple of
+> little hooks near the bottom". But I wonder if the existing genapic
+> interface can be used (or extended) to cover these cases without having
+> needing to have APIC-level interfaces in paravirt_ops.
 
-This sort of works, but there's something strange going on with it and
-andi's entire series.  It now dies loading the SCSI modules in the error
-handling thread ... I assume we have some API conflict ... I'll
-investigate.
+Because we faithfully emulate the APIC and IO-APIC, that is the 
+underlying hardware for us, and we don't have a fancy paravirtualized 
+interrupt controller because there is no need for it.  The only 
+obstruction to this approach is that trapping and emulating APIC access 
+is slow.  And some APIC registers have side effects on read.  So we 
+simply replace APIC read / write with faster hypercalls.
 
-The other problem is it conflicts with an existing voyager patch:
+Of course we can create a bunch of new code to use the genapic 
+interface.  It is just a matter of copying apic.c and io-apic.c verbatim 
+and applying the sed command s/apic/vmi_apic/g.  We can easily do this, 
+but the only point would be to eliminate the low-level APIC access 
+paravirt-op, which is not a maintenance burden, performance problem, or 
+encumberance on anyone.  So it would be purely a cleanliness thing.  
+Doubling code to make two separate copies when the interface in question 
+is already well abstracted and contained in a header file doesn't make 
+it cleaner, at least to me.
 
-http://git.kernel.org/?p=linux/kernel/git/jejb/voyager-2.6.git;a=commit;h=0293ca814b74e20e77cf719074ee15372204fc55
-
-But I've got that fixed up.
-
-James
+Zach
