@@ -1,10 +1,14 @@
 From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: [PATCH 0/12] Early USB debug port and i386 boot cleanups
-Date: Mon, 30 Apr 2007 09:46:17 -0600
-Message-ID: <m1d51l6f1y.fsf__17301.5820364983$1177948139$gmane$org@ebiederm.dsl.xmission.com>
+Subject: [PATCH 01/12] x86_64: Allow fixmaps to be used with the initial
+	page table.
+Date: Mon, 30 Apr 2007 09:48:13 -0600
+Message-ID: <m18xc96eyq.fsf__32874.5068786249$1177948293$gmane$org@ebiederm.dsl.xmission.com>
+References: <m1d51l6f1y.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <m1d51l6f1y.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
+	message of "Mon, 30 Apr 2007 09:46:17 -0600")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,24 +23,51 @@ Cc: linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-fou
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-Modern hardware relies primarily on memory mapped I/O which is typically
-at addresses that are not mapped by the kernels initial page tables,
-which makes using them currently unusable for early debugging print support.
+This patch preallocates the intermediate page table entries so that
+all that is needed to setup a fixmap is to fill in the appropriate
+pte.
 
-So this patch set digs in and fixes the early page tables on both
-arch/i386 and arch/x86_64 so that set_fixmap works with our initial boot
-page tables.   All that is needed is that we allocate preallocate the pte
-page that the fixmap entries live on.
+By doing this modern hardware that uses memory mapped access can be
+talked to early in boot through a fixmap. 
 
-On arch/i386 I accomplish this by ensuring the boot time page tables are
-in the native mode.  Doing this provides an alternative and slightly
-more capable fix to Jeremy's problem of not having the initial memory
-mapping covering enough pages to identity map all of low memory.  Because
-we are now updating the page table we are running on we add the mappings
-we need for the initial page table as we build the initial page table.
+Allowing USB debugging and the like.
 
-Since I was in there I kept cleaning up arch/i386/head.S.
-In particular I have gotten as far as removing the early cpuid,
-and have added a head32.S.
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ arch/x86_64/kernel/head.S |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletions(-)
 
-Eric
+diff --git a/arch/x86_64/kernel/head.S b/arch/x86_64/kernel/head.S
+index 1fab487..1b704c4 100644
+--- a/arch/x86_64/kernel/head.S
++++ b/arch/x86_64/kernel/head.S
+@@ -74,6 +74,9 @@ startup_64:
+ 
+ 	addq	%rbp, level3_ident_pgt + 0(%rip)
+ 	addq	%rbp, level3_kernel_pgt + (510*8)(%rip)
++	addq	%rbp, level3_kernel_pgt + (511*8)(%rip)
++
++	addq	%rbp, level2_fixmap_pgt + (506*8)(%rip)
+ 
+ 	/* Add an Identity mapping if I am above 1G */
+ 	leaq	_text(%rip), %rdi
+@@ -314,7 +317,16 @@ NEXT_PAGE(level3_kernel_pgt)
+ 	.fill	510,8,0
+ 	/* (2^48-(2*1024*1024*1024)-((2^39)*511))/(2^30) = 510 */
+ 	.quad	level2_kernel_pgt - __START_KERNEL_map + _KERNPG_TABLE
+-	.fill	1,8,0
++	.quad	level2_fixmap_pgt - __START_KERNEL_map + _KERNPG_TABLE + _PAGE_USER
++
++NEXT_PAGE(level2_fixmap_pgt)
++	.fill	506,8,0
++	.quad	level1_fixmap_pgt - __START_KERNEL_map + _KERNPG_TABLE + _PAGE_USER
++	/* 8MB reserved for vsyscalls + a 2MB hole = 4 + 1 entries */
++	.fill	5,8,0
++
++NEXT_PAGE(level1_fixmap_pgt)
++	.fill	512,8,0
+ 
+ NEXT_PAGE(level2_ident_pgt)
+ 	/* Since I easily can, map the first 1G.
+-- 
+1.5.1.1.181.g2de0
