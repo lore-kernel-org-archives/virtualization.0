@@ -1,63 +1,108 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [patch 09/32] xen: xen configuration
-Date: Mon, 30 Apr 2007 15:36:58 -0700
-Message-ID: <46366F8A.1030302@vmware.com>
-References: <20070429172835.284784000@goop.org> <20070429172912.297678000@goop.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol for
+ relocatable bzImage
+Date: Mon, 30 Apr 2007 15:42:25 -0700
+Message-ID: <463670D1.3000003__36028.3962604173$1177972980$gmane$org@goop.org>
+References: <20070428758.455116000@suse.de>	<20070428175909.1D09D151CA@wotan.suse.de>
+	<46338D72.70402@garzik.org>	<m1fy6kdzi1.fsf@ebiederm.dsl.xmission.com>
+	<4634483E.9030307@goop.org>	<m14pmz8bbb.fsf@ebiederm.dsl.xmission.com>
+	<46363A68.6080201@goop.org>
+	<m18xc9344o.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------060900000903010404040703"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1422799AbXD3WjL@vger.kernel.org>
-In-Reply-To: <20070429172912.297678000@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <m18xc9344o.fsf@ebiederm.dsl.xmission.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, Vivek Goyal <vgoyal@in.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------060900000903010404040703
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Jeremy Fitzhardinge wrote:
-> +config XEN
-> +	bool "Enable support for Xen hypervisor"
-> +	depends on PARAVIRT && !PREEMPT && !SMP
-> +	default y
-> +	help
-> +	  This is the Linux Xen port.  Enabling this will allow the
-> +	  kernel to boot in a paravirtualized environment under the
-> +	  Xen hypervisor.
+Eric W. Biederman wrote:
+>> I think I'd prefer to have the domain builder decompress/relocate the
+>> kernel from the bzImage and start it directly, rather than have it
+>> decompress/relocate itself, but I'm not really set on that.
+>>     
 >
+> We can change a lot more implementation details arbitrarily if you don't
+> know what needs to happen for decompression and relocation.
+
+Yes, and if it can be made to work, it ultimately means less work for me ;)
+
+> We have to avoid the writes decompressor-prinnt routines 
+
+At worst, we could set up chunk of memory as a dummy framebuffer.  That
+might be useful for debugging anyway.
+
+> and 
+> possibly the reload of the segment registers.  But otherwise
+> we should be fine.  I don't see any other privileged instructions
+> in arch/i386/boot/compressed/{head.S, misc.c}
 >   
 
-Since the default assumption of paravirt is to support running on 
-multiple hypervisors and backends are now defaulting to being on, make 
-the same true of VMI.
+Xen will start the domain with a GDT loaded, and all the segment
+registers loaded with flat segments.  I guess boot/compressed/head.S
+could do the %cs ring check before deciding to do privileged operations.
 
-Zach
+I presume bzImage jumps straight to startup_32 on the newly decompressed
+kernel?
 
---------------060900000903010404040703
-Content-Type: text/x-patch;
- name="make-vmi-default-to-on.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="make-vmi-default-to-on.patch"
+>> It depends
+>> on how well it can deal with having paging enabled and being in ring 1. 
+>> Looks like it might just be a matter of starting up with "enough" memory
+>> mapped.
+>>     
+>
+> Yes.  I think so.  There is an additional issue of exactly how do we
+> get the fixmap region allocated so we can use it but that is minor.
+>   
 
-Since the default assumption of paravirt is to support all possible guest
-backends, making VMI default to on when CONFIG_PARAVIRT is enabled.
+I haven't checked if it already has this, but it would be nice if the
+bzImage had a memory range/list of memory ranges it needs mapped to get
+the kernel on its feet, so that the domain builder can just go and map
+those areas for it (either P==V mappings, or with a constant offset;
+whichever is more useful).
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+Also, if its a PAE kernel, Xen will start with PAE mode enabled, so
+bzImage will have to deal with that.  But if its not touching
+pagetables, it won't matter.
 
-diff -r 20882b709da4 arch/i386/Kconfig
---- a/arch/i386/Kconfig	Thu Apr 26 19:58:12 2007 -0700
-+++ b/arch/i386/Kconfig	Mon Apr 30 15:32:34 2007 -0700
-@@ -227,6 +227,7 @@ config VMI
- config VMI
- 	bool "VMI Paravirt-ops support"
- 	depends on PARAVIRT
-+	default y
- 	help
- 	  VMI provides a paravirtualized interface to the VMware ESX server
- 	  (it could be used by other hypervisors in theory too, but is not
+> What I really want to do is go back to sticking an ELF header on the
+> bzImage.  We still can't support multiple entry points that way but we
+> can include ELF notes fairly easily.
+>   
 
---------------060900000903010404040703--
+That's OK.  We'll be able to use the boot info to go into the
+Xen-specific path shortly after startup_32 anyway.
+
+BTW, the test for a non-ring 0 %cs won't always be a good test for
+paravirtualization; we're likely to start seeing hybrid execution models
+where we run a largely paravirtualized kernel in a SVM/VT container.  If
+we can just unconditionally use the bootloader arch definition to
+determine the entry path into the kernel, it will clean things up nicely.
+
+> It looks like for the next version of booting lguest and Xen are
+> actually coming closer together again.  Yea.
+>
+> For boot protocol. 2.0.7  We currently need a subarchitecture field (16bits?).
+> default == 0, Xen, lguest, voyager?, visws?, numaq?, efi?
+>
+> We need a subarchitecture data pointer field (32bits).
+>   
+
+Do we want to support starting a 64-bit guest in 64-bit mode?
+
+> We need to target .23 because it is to late for .22.
+
+Yes.  I'll need to do a moderate amount of work on the Xen side to make
+this work, I think.
+
+    J
