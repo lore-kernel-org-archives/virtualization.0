@@ -1,41 +1,27 @@
-From: Antoine Martin <antoine@nagafix.co.uk>
-Subject: 2.6.21 and UML
-Date: Tue, 01 May 2007 18:47:35 +0100
-Message-ID: <46377D37.8030307@nagafix.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [patch 31/32] xen: --- drivers/net/xen-netfront.c | 6 +++--- 1 file changed, 3 insertions(+), 3 deletions(-)
+Date: Wed, 02 May 2007 16:33:53 +1000
+Message-ID: <E1Hj8PR-0007wA-00@gondolin.me.apana.org.au>
+References: <20070429172916.861677000@goop.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S2992838AbXEBGer@vger.kernel.org>
+In-Reply-To: <20070429172916.861677000@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: ak@suse.de, akpm@linux-foundation.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org
 List-Id: virtualization@lists.linuxfoundation.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> ===================================================================
+> --- a/drivers/net/xen-netfront.c
+> +++ b/drivers/net/xen-netfront.c
+> @@ -1213,10 +1213,10 @@ static int netif_poll(struct net_device 
 
-Hi,
+Any reason why xen-netfront isn't just in a single patch? It makes
+it a bit hard to review having it scattered around like this.
 
-Any chance of getting a snapshot/patch to apply to 2.6.21?
-
-Also, the FAQ doesn't mention UML but at a glance the two
-virtualizations look very similar - or am I missing something?
-The address space stuff looks like what skas0 does in uml?
-
-Cheers
-Antoine
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFGN303GK2zHPGK1rsRCos9AJ9kDXUrxoKFe/JWjHnFzx79n4PDFACeJ9n5
-MM0wU3ehvPZ3v1Y7PxF2oYA=
-=kUv+
------END PGP SIGNATURE-----
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
