@@ -1,13 +1,21 @@
-From: Matt Mackall <mpm@selenic.com>
-Subject: Re: [RELEASE] Lguest for 2.6.21
-Date: Thu, 3 May 2007 11:02:01 -0500
-Message-ID: <20070503160201.GR11166@waste.org>
-References: <1178117028.19815.14.camel@localhost.localdomain>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol for
+ relocatable bzImage
+Date: Thu, 03 May 2007 09:23:58 -0700
+Message-ID: <463A0C9E.4010402__9746.37453114173$1178209480$gmane$org@goop.org>
+References: <4634483E.9030307@goop.org>	<m14pmz8bbb.fsf@ebiederm.dsl.xmission.com>
+	<46363A68.6080201@goop.org>	<46385A8A.6070405@redhat.com>
+	<4638AB55.20408@goop.org>	<4638F9BE.8090508@zytor.com>
+	<4638FC39.4010101@goop.org>	<4638FE1B.9050901@zytor.com>
+	<46390523.5010809@goop.org>	<463909AF.9040205@zytor.com>
+	<20070503045031.GA5794@in.ibm.com>	<m1tzuuv24z.fsf@ebiederm.dsl.xmission.com>
+	<463989BD.6040603@goop.org>
+	<m1ps5iujl8.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1178117028.19815.14.camel@localhost.localdomain>
+In-Reply-To: <m1ps5iujl8.fsf@ebiederm.dsl.xmission.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,32 +25,80 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, vgoyal@in.ibm.com, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 03, 2007 at 12:43:48AM +1000, Rusty Russell wrote:
-> Hi all,
-> 
-> 	Lguest is a simple hypervisor which runs Linux under Linux, without
-> needing VT hardware.
-> 
-> 	Two people asked if I had a version of lguest which worked on
-> other-than-bleeding-edge-mm kernels, so I did a backport of the latest
-> version to 2.6.21.
-> 
-> 	http://lguest.ozlabs.org/lguest-2.6.21-254.patch.gz
-> 
-> See Documentation/lguest/lguest.txt for how to run,
-> drivers/lguest/README for the draft code documentation journey.
+Eric W. Biederman wrote:
+> Yes.  I guess in this context, I am generally for building the ELF
+> headers by hand instead of with a linker script, because then we
+> know exactly what is happening and can ensure everything is just so.
+>   
 
-Your lguest readme is quite lacking in the area of how to configure a
-guest kernel as opposed to the host kernel. More hand-holding, please.
+Yes, it seems easiest - particularly given how flaky binutils can get
+when you really try to control its ELF generation.
 
-Maybe it's obvious once I've actually applied the patch and run
-menuconfig, but I'm loathe to attempt anything that isn't a cake walk
-at my current loadavg, especially given the fits of blind rage trying
-to do anything nontrivial with Xen tends to provoke in me.
+> Sorry, for not being clear I have been expecting to do this for years,
+> it is one of the reasons I keep coming back to putting an ELF header
+> on the bzImage. 
+>   
 
--- 
-Mathematics is the supreme nostalgia of our time.
+OK.  It seems obvious, but I just wanted to make sure ;)
+
+>> In the Xen case, its obviously the domain builder who creates the
+>> mappings, and we can easily implement p != v mappings.  But when booting
+>> native, presumably paging is off at this stage, and only identity maps
+>> can be implemented.  I guess the rough rule is that if paging is enabled
+>> on entry, the kernel should expect all the bzImage mappings to be in
+>> place, but if paging is off, well, the question is moot.
+>>     
+>
+> Right.  Except that there is a bit of a catch 22 in the
+> para-virtualized environments of setting up the page tables, I'm not
+> at all certain what the gain of setting up p != v mappings are.
+>   
+
+Well, that's more or less it.  If the decompressor ends up jumping to
+startup_32, and that immediately goes into xen_start_kernel(), then
+we're still running on the initial bzImage p=v pagetables.  At the
+moment, when the domain builder maps the kernel's vmlinux to the vaddrs
+in its Phdrs, so there's no need to do any more boot-time pagetable
+manipulation.  If we come out of bzImage with only identity mappings,
+then obviously the Xen case will need to do the same pagetable setup as
+the native case - which is good so long as we can work out how to share
+the code to do so.
+
+For i386, it looks like this will be tricky because at this point:
+
+    * we're not running at the linked address, so C code will be tricky
+      and non-standard
+    * we need to deal with multiple hypervisors and their constraints on
+      what can be in a pagetable
+    * we could be running with no paging, or paging in either non-PAE or
+      PAE modes
+
+Writing some code which can deal with all of those at once will be an
+interesting exercise.
+
+> Part of what I find compelling about this is our initial page tables
+> for linux have always had more going on than the virtual addresses
+> just being at a constant offset from of the physical addresses, so
+> the actions of the current domain builders have me concerned that they
+> may be violating some early linux booting assumptions and are
+> currently just getting lucky.  Moving the page table setup code into
+> the kernel removes that dependency from the domain builders.
+
+The nice thing about having the domain builder create the pagetables is
+that it turns it from a tricky bootstrap problem into a relatively easy
+job.  The main thing is that the domain builder can create a scaffolding
+pagetable which is enough to get everything started.  Once you have that
+in place, its pretty easy to update it to set precisely the right bits
+in the ptes, etc.
+
+It also means that the path for Xen vs native will be more similar,
+because the bzImage code won't need to deal with pagetable setup at all:
+for native it won't matter, and for Xen it has already been done.  It
+only matters once we hit the 32-bit kernel-proper code, and we diverge
+at that point anyway.
+
+    J
