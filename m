@@ -1,18 +1,19 @@
-From: WANG Cong <xiyou.wangcong@gmail.com>
-Subject: Re: [RELEASE] Lguest for 2.6.21
-Date: Thu, 3 May 2007 13:43:38 +0800
-Message-ID: <20070503054338.GB3166__44452.3736289286$1178170801$gmane$org@localhost.localdomain>
-References: <1178117028.19815.14.camel@localhost.localdomain>
-	<20070502193303.GA1502@localhost.localdomain>
-	<1178146848.23670.6.camel@localhost.localdomain>
-	<20070503035749.GC2295@localhost.localdomain>
-	<1178166032.23670.16.camel@localhost.localdomain>
-Reply-To: WANG Cong <xiyou.wangcong@gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol for
+	relocatable bzImage
+Date: Thu, 03 May 2007 00:42:52 -0600
+Message-ID: <m1tzuuv24z.fsf__8112.62935535542$1178174646$gmane$org@ebiederm.dsl.xmission.com>
+References: <4634483E.9030307@goop.org>
+	<m14pmz8bbb.fsf@ebiederm.dsl.xmission.com> <46363A68.6080201@goop.org>
+	<46385A8A.6070405@redhat.com> <4638AB55.20408@goop.org>
+	<4638F9BE.8090508@zytor.com> <4638FC39.4010101@goop.org>
+	<4638FE1B.9050901@zytor.com> <46390523.5010809@goop.org>
+	<463909AF.9040205@zytor.com> <20070503045031.GA5794@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1178166032.23670.16.camel@localhost.localdomain>
+In-Reply-To: <20070503045031.GA5794@in.ibm.com> (Vivek Goyal's message of
+	"Thu, 3 May 2007 10:20:31 +0530")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,54 +23,75 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: vgoyal@in.ibm.com
+Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, Gerd Hoffmann <kraxel@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 03, 2007 at 02:20:32PM +1000, Rusty Russell wrote:
->On Thu, 2007-05-03 at 11:57 +0800, WANG Cong wrote:
->> On Thu, May 03, 2007 at 09:00:48AM +1000, Rusty Russell wrote:
->> >	Thanks for the patch.  This omission (in several places) was
->> >deliberate.  We can't really do anything sensible if the user unmapped
->> >the page.  I assume you saw a gcc warning from this code?
+Vivek Goyal <vgoyal@in.ibm.com> writes:
+
+> On Wed, May 02, 2007 at 02:59:11PM -0700, H. Peter Anvin wrote:
+>> Jeremy Fitzhardinge wrote:
+>> > 
+>> > So the bzImage structure is currently:
+>> > 
+>> >    1. old-style boot sector
+>> >    2. old-style boot info, followed by 0xaa55 at the end of the sector
+>> >    3. the HdrS boot param block
+>> >    4. setup.S boot code
+>> >    5. the self-decompressing kernel
+>> > 
+>> > If we make 5 actually an ELF file, containing properly formed Ehdr,
+>> > Phdrs (for all the mappings required), and the actual kernel
+>> > decompressor, relocator and compressed kernel data, then it would be
+>> > easy for the Xen domain builder to find that and use it as a basis for
+>> > loading.  I think it would just require the bzImage boot param block to
+>> > contain an offset of the start of the ELF file.  The contents of the ELF
+>> > file would be in a form where the normal boot code could just jump over
+>> > the ELF headers, directly into the segment data itself.
+>> > 
+>> > ie:
+>> > 
+>> >    1. old-style boot sector
+>> >    2. old-style boot info, followed by 0xaa55 at the end of the sector
+>> >    3. the HdrS boot param block
+>> >    4. setup.S boot code (jumps directly into 5.3)
+>> >    5. 32-bit self-decompressing kernel:
+>> >          1. Ehdr
+>> >          2. Phdrs for all necessary mappings
+>> >          3. decompressor/relocator .text
+>> >          4. compressed kernel data
+>> > 
+>> > Does that sound reasonable?
+>> > 
 >> 
->> Yes. In fact, I got two warnings, another one is in drivers/lguest/hypercalls.c.
->> 
->> If I understand you correctly, you mean we can do nothing useful to fix it?
->
->We can, but we can ignore those warnings for the moment; they're
->harmless.
+>> I don't know if that would break any programs that are currently
+>> bypassing the setup.
 
-OK.
+I think everything will break, unless we make 5.1 and 5.2 
+into 4.2 and 4.3.  In the above design.
 
->
->> I have sent a mail which described the errors I got when comipling
->> Documentation/lguest/lguest.c. But it seems that you didn't receive it
->> (it didn't appear in lkml.org neither!).
->
->Hmm, no, I didn't get it here either 8(
->
->>  It is that, I have already made my .config as you suggested, but I
->> still can't compile Documentation/lguest/lguest.c, errors are:
->> 
->> lguest.c: In function 'add_to_bridge':
->> lguest.c:779: error: 'SIOCBRADDIF' undeclared (first use in this function)
->> lguest.c:779: error: (Each undeclared identifier is reported only once
->> lguest.c:779: error: for each function it appears in.)
->
->Ah, perhaps older libc headers?  Can you try adding this to the top of
->Documentation/lguest/lguest.c after the #define BRIDGE_PFX "bridge:"
->
->#ifndef SIOCBRADDIF
->#define SIOCBRADDIF	0x89a2		/* add interface to bridge      */
->#endif
->
->Thanks,
->Rusty.
+> I think kexec bzImage loader will break. It bypasses the setup code and
+> directly jumps to the code present after setup sectors(decompressor).
 
-Yes, it works. Thanks very much for your pointing.
+Quite likely.    The boot sector except for a handful of bytes actually
+goes unused so we can put extra header information there, I actually
+have patches for placing an ELF header there.
 
-I have already found you also forgot some checking in this user-space code. I will fix them soon. ;)
+If we wanted to do an ELF header in the middle we would have to put
+it at the end of the setup sectors rather then the beginning of the
+raw protected mode kernel image.
 
-Regards.
-WANG Cong
+>> The existing setup protocol definitely allows
+>> invoking an entry point which isn't 0x100000 (rather, the 32-bit
+>> entrypoint is defined by code32_start); I'm not sure how Eric's
+>> relocatable kernel patches (2.05 protocol) affect that, mostly because I
+>> haven't seen any boot loaders which actually use it so I can't comment
+>> on what their code looks like.
+>
+> With relocatable patches, if a boot loader decides to load protected mode
+> component at non-1MB address, then it shall have to modify code32_start to
+> reflect the new location of protected mode code.
+
+Yes.  And this aspect of the relocatable kernel is all Vivek.
+
+Eric
