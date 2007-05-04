@@ -1,11 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 19/29] xen: Use the hvc console infrastructure for Xen
-	console
-Date: Fri, 04 May 2007 16:21:10 -0700
-Message-ID: <20070504232120.890105448@goop.org>
+Subject: [patch 28/29] xen: Place vcpu_info structure into per-cpu memory,
+	if possible
+Date: Fri, 04 May 2007 16:21:19 -0700
+Message-ID: <20070504232121.724845416@goop.org>
 References: <20070504232051.411946839@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-hvc-console.patch
+Content-Disposition: inline; filename=xen-place-vcpu.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,234 +16,251 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Olof Johansson <olof@lixom.net>, lkml <linux-kernel@vger.kernel.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement a Xen back-end for hvc console.
+An experimental patch for Xen allows guests to place their vcpu_info
+structs anywhere.  We try to use this to place the vcpu_info into the
+PDA, which allows direct access.
 
-From: Gerd Hoffmann <kraxel@suse.de>
+If this works, then switch to using direct access operations for
+irq_enable, disable, save_fl and restore_fl.
+
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: Olof Johansson <olof@lixom.net>
+Cc: Chris Wright <chrisw@sous-sol.org>
+Cc: Keir Fraser <keir@xensource.com>
 ---
- arch/i386/xen/events.c |    3 -
- drivers/Makefile       |    3 +
- drivers/char/Kconfig   |    8 ++
- drivers/char/Makefile  |    1 
- drivers/char/hvc_xen.c |  134 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/xen/events.h   |    1 
- 6 files changed, 149 insertions(+), 1 deletion(-)
+ arch/i386/xen/enlighten.c    |  121 +++++++++++++++++++++++++++++++++++++++++-
+ arch/i386/xen/setup.c        |    8 --
+ include/xen/interface/vcpu.h |   13 ++++
+ 3 files changed, 133 insertions(+), 9 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/events.c
-+++ b/arch/i386/xen/events.c
-@@ -244,7 +244,7 @@ static int find_unbound_irq(void)
- 	return irq;
- }
+--- a/arch/i386/xen/enlighten.c
++++ b/arch/i386/xen/enlighten.c
+@@ -61,9 +61,55 @@ struct start_info *xen_start_info;
+ struct start_info *xen_start_info;
+ EXPORT_SYMBOL_GPL(xen_start_info);
  
--static int bind_evtchn_to_irq(unsigned int evtchn)
-+int bind_evtchn_to_irq(unsigned int evtchn)
- {
- 	int irq;
- 
-@@ -269,6 +269,7 @@ static int bind_evtchn_to_irq(unsigned i
- 
- 	return irq;
- }
-+EXPORT_SYMBOL_GPL(bind_evtchn_to_irq);
- 
- static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
- {
-===================================================================
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -14,6 +14,9 @@ obj-$(CONFIG_ACPI)		+= acpi/
- # was used and do nothing if so
- obj-$(CONFIG_PNP)		+= pnp/
- obj-$(CONFIG_ARM_AMBA)		+= amba/
++static /* __initdata */ struct shared_info dummy_shared_info;
 +
-+# Xen is the default console when running as a guest
-+obj-$(CONFIG_XEN)		+= xen/
- 
- # char/ comes before serial/ etc so that the VT console is the boot-time
- # default.
-===================================================================
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -650,6 +650,14 @@ config HVC_BEAT
- 	help
- 	  Toshiba's Cell Reference Set Beat Console device driver
- 
-+config HVC_XEN
-+	bool "Xen Hypervisor Console support"
-+	depends on XEN
-+	select HVC_DRIVER
-+	default y
-+	help
-+	  Xen virtual console device driver
-+
- config HVCS
- 	tristate "IBM Hypervisor Virtual Console Server support"
- 	depends on PPC_PSERIES
-===================================================================
---- a/drivers/char/Makefile
-+++ b/drivers/char/Makefile
-@@ -47,6 +47,7 @@ obj-$(CONFIG_HVC_RTAS)		+= hvc_rtas.o
- obj-$(CONFIG_HVC_RTAS)		+= hvc_rtas.o
- obj-$(CONFIG_HVC_BEAT)		+= hvc_beat.o
- obj-$(CONFIG_LGUEST_GUEST)	+= hvc_lguest.o
-+obj-$(CONFIG_HVC_XEN)		+= hvc_xen.o
- obj-$(CONFIG_HVC_DRIVER)	+= hvc_console.o
- obj-$(CONFIG_RAW_DRIVER)	+= raw.o
- obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
-===================================================================
---- /dev/null
-+++ b/drivers/char/hvc_xen.c
-@@ -0,0 +1,134 @@
 +/*
-+ * xen console driver interface to hvc_console.c
-+ *
-+ * (c) 2007 Gerd Hoffmann <kraxel@suse.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
++ * Point at some empty memory to start with. We map the real shared_info
++ * page as soon as fixmap is up and running.
 + */
++struct shared_info *HYPERVISOR_shared_info = (void *)&dummy_shared_info;
 +
-+#include <linux/console.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/init.h>
-+#include <linux/types.h>
++/* tristate - -1: not tested, 0: not available, 1: available */
++static int have_vcpu_info_placement = -1;
 +
-+#include <asm/xen/hypervisor.h>
-+#include <xen/page.h>
-+#include <xen/events.h>
-+#include <xen/interface/io/console.h>
+ void xen_vcpu_setup(int cpu)
+ {
++	struct vcpu_register_vcpu_info info;
++	int err;
++	struct vcpu_info *vcpup;
 +
-+#include "hvc_console.h"
+ 	per_cpu(xen_vcpu, cpu) = &HYPERVISOR_shared_info->vcpu_info[cpu];
 +
-+#define HVC_COOKIE   0x58656e /* "Xen" in hex */
++	if (!have_vcpu_info_placement)
++		return;		/* already tested, not available */
 +
-+static struct hvc_struct *hvc;
-+static int xencons_irq;
++	vcpup = &per_cpu(xen_vcpu_info, cpu);
 +
-+/* ------------------------------------------------------------------ */
++	printk("setting up vcpu for %d: xen_vcpu_info=%p\n",
++	       cpu, vcpup);
 +
-+static inline struct xencons_interface *xencons_interface(void)
++	info.mfn = virt_to_mfn(vcpup);
++	info.offset = offset_in_page(vcpup);
++
++	printk("trying to map vcpu_info %d at %p, mfn %x, offset %d\n",
++	       cpu, vcpup, info.mfn, info.offset);
++
++	/* Check to see if the hypervisor will put the vcpu_info
++	   structure where we want it, which allows direct access via
++	   a percpu-variable. */
++	err = HYPERVISOR_vcpu_op(VCPUOP_register_vcpu_info, cpu, &info);
++
++	BUG_ON(err != 0 && err != -ENOSYS);
++	BUG_ON(err && have_vcpu_info_placement==1);  /* all or nothing */
++
++	have_vcpu_info_placement = 0;
++
++	if (err == 0) {
++		have_vcpu_info_placement = 1;
++		per_cpu(xen_vcpu, cpu) = vcpup;
++		printk("cpu %d using vcpu_info at %p\n",
++		       cpu, vcpup);
++	}
+ }
+ 
+ static void __init xen_banner(void)
+@@ -123,6 +169,20 @@ static unsigned long xen_save_fl(void)
+ 	return (-flags) & X86_EFLAGS_IF;
+ }
+ 
++static unsigned long xen_save_fl_direct(void)
 +{
-+	return mfn_to_virt(xen_start_info->console.domU.mfn);
++	unsigned long flags;
++
++	/* flag has opposite sense of mask */
++	flags = !x86_read_percpu(xen_vcpu_info.evtchn_upcall_mask);
++
++	/* convert to IF type flag
++	   -0 -> 0x00000000
++	   -1 -> 0xffffffff
++	*/
++	return (-flags) & X86_EFLAGS_IF;
 +}
 +
-+static inline void notify_daemon(void)
+ static void xen_restore_fl(unsigned long flags)
+ {
+ 	struct vcpu_info *vcpu;
+@@ -149,6 +209,25 @@ static void xen_restore_fl(unsigned long
+ 	}
+ }
+ 
++static void xen_restore_fl_direct(unsigned long flags)
 +{
-+	/* Use evtchn: this is called early, before irq is set up. */
-+	notify_remote_via_evtchn(xen_start_info->console.domU.evtchn);
++	/* convert from IF type flag */
++	flags = !(flags & X86_EFLAGS_IF);
++
++	/* This is an atomic update, so no need to worry about
++	   preemption. */
++	x86_write_percpu(xen_vcpu_info.evtchn_upcall_mask, flags);
++
++	/* If we get preempted here, then any pending event will be
++	   handled anyway. */
++
++	if (flags == 0) {
++		barrier(); /* unmask then check (avoid races) */
++		if (unlikely(x86_read_percpu(xen_vcpu_info.evtchn_upcall_pending)))
++			force_evtchn_callback();
++	}
 +}
 +
-+static int write_console(uint32_t vtermno, const char *data, int len)
-+{
-+	struct xencons_interface *intf = xencons_interface();
-+	XENCONS_RING_IDX cons, prod;
-+	int sent = 0;
-+
-+	cons = intf->out_cons;
-+	prod = intf->out_prod;
-+	mb();
-+	BUG_ON((prod - cons) > sizeof(intf->out));
-+
-+	while ((sent < len) && ((prod - cons) < sizeof(intf->out)))
-+		intf->out[MASK_XENCONS_IDX(prod++, intf->out)] = data[sent++];
-+
-+	wmb();
-+	intf->out_prod = prod;
-+
-+	notify_daemon();
-+	return sent;
+ static void xen_irq_disable(void)
+ {
+ 	/* There's a one instruction preempt window here.  We need to
+@@ -157,6 +236,12 @@ static void xen_irq_disable(void)
+ 	preempt_disable();
+ 	x86_read_percpu(xen_vcpu)->evtchn_upcall_mask = 1;
+ 	preempt_enable_no_resched();
 +}
 +
-+static int read_console(uint32_t vtermno, char *buf, int len)
++static void xen_irq_disable_direct(void)
 +{
-+	struct xencons_interface *intf = xencons_interface();
-+	XENCONS_RING_IDX cons, prod;
-+	int recv = 0;
-+
-+	cons = intf->in_cons;
-+	prod = intf->in_prod;
-+	mb();
-+	BUG_ON((prod - cons) > sizeof(intf->in));
-+
-+	while (cons != prod && recv < len)
-+		buf[recv++] = intf->in[MASK_XENCONS_IDX(cons++,intf->in)];
-+
-+	mb();
-+	intf->in_cons = cons;
-+
-+	notify_daemon();
-+	return recv;
++	/* Atomic update, so preemption not a concern. */
++	x86_write_percpu(xen_vcpu_info.evtchn_upcall_mask, 1);
+ }
+ 
+ static void xen_irq_enable(void)
+@@ -176,6 +261,19 @@ static void xen_irq_enable(void)
+ 
+ 	barrier(); /* unmask then check (avoid races) */
+ 	if (unlikely(vcpu->evtchn_upcall_pending))
++		force_evtchn_callback();
 +}
 +
-+static struct hv_ops hvc_ops = {
-+	.get_chars = read_console,
-+	.put_chars = write_console,
++static void xen_irq_enable_direct(void)
++{
++	/* Atomic update, so preemption not a concern. */
++	x86_write_percpu(xen_vcpu_info.evtchn_upcall_mask, 0);
++
++	/* Doesn't matter if we get preempted here, because any
++	   pending event will get dealt with anyway. */
++
++	barrier(); /* unmask then check (avoid races) */
++	if (unlikely(x86_read_percpu(xen_vcpu_info.evtchn_upcall_pending)))
+ 		force_evtchn_callback();
+ }
+ 
+@@ -538,9 +636,19 @@ static void xen_flush_tlb_others(const c
+ 	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
+ 
++static void xen_write_cr2(unsigned long cr2)
++{
++	x86_read_percpu(xen_vcpu)->arch.cr2 = cr2;
++}
++
+ static unsigned long xen_read_cr2(void)
+ {
+ 	return x86_read_percpu(xen_vcpu)->arch.cr2;
++}
++
++static unsigned long xen_read_cr2_direct(void)
++{
++	return x86_read_percpu(xen_vcpu_info.arch.cr2);
+ }
+ 
+ static void xen_write_cr4(unsigned long cr4)
+@@ -775,7 +883,7 @@ static const struct paravirt_ops xen_par
+ 	.write_cr0 = native_write_cr0,
+ 
+ 	.read_cr2 = xen_read_cr2,
+-	.write_cr2 = native_write_cr2,
++	.write_cr2 = xen_write_cr2,
+ 
+ 	.read_cr3 = xen_read_cr3,
+ 	.write_cr3 = xen_write_cr3,
+@@ -963,6 +1071,17 @@ static asmlinkage void __init xen_start_
+ 	x86_write_percpu(xen_cr3, __pa(pgd));
+ 	xen_vcpu_setup(0);
+ 
++	/* xen_vcpu_setup managed to place the vcpu_info within the
++	   pda, so make use of it */
++	BUG_ON(have_vcpu_info_placement == -1);
++	if (have_vcpu_info_placement) {
++		paravirt_ops.save_fl = xen_save_fl_direct;
++		paravirt_ops.restore_fl = xen_restore_fl_direct;
++		paravirt_ops.irq_disable = xen_irq_disable_direct;
++		paravirt_ops.irq_enable = xen_irq_enable_direct;
++		paravirt_ops.read_cr2 = xen_read_cr2_direct;
++	}
++
+ 	paravirt_ops.kernel_rpl = 1;
+ 	if (xen_feature(XENFEAT_supervisor_mode_kernel))
+ 		paravirt_ops.kernel_rpl = 0;
+===================================================================
+--- a/arch/i386/xen/setup.c
++++ b/arch/i386/xen/setup.c
+@@ -22,14 +22,6 @@
+ /* These are code, but not functions.  Defined in entry.S */
+ extern const char xen_hypervisor_callback[];
+ extern const char xen_failsafe_callback[];
+-
+-static __initdata struct shared_info init_shared;
+-
+-/*
+- * Point at some empty memory to start with. We map the real shared_info
+- * page as soon as fixmap is up and running.
+- */
+-struct shared_info *HYPERVISOR_shared_info = &init_shared;
+ 
+ unsigned long *phys_to_machine_mapping;
+ EXPORT_SYMBOL(phys_to_machine_mapping);
+===================================================================
+--- a/include/xen/interface/vcpu.h
++++ b/include/xen/interface/vcpu.h
+@@ -151,6 +151,19 @@ struct vcpu_set_singleshot_timer {
+ #define _VCPU_SSHOTTMR_future (0)
+ #define VCPU_SSHOTTMR_future  (1U << _VCPU_SSHOTTMR_future)
+ 
++/*
++ * Register a memory location in the guest address space for the
++ * vcpu_info structure.  This allows the guest to place the vcpu_info
++ * structure in a convenient place, such as in a per-cpu data area.
++ * The pointer need not be page aligned, but the structure must not
++ * cross a page boundary.
++ */
++#define VCPUOP_register_vcpu_info   10  /* arg == struct vcpu_info */
++struct vcpu_register_vcpu_info {
++    uint32_t mfn;               /* mfn of page to place vcpu_info */
++    uint32_t offset;            /* offset within page */
 +};
 +
-+static int __init xen_init(void)
-+{
-+	struct hvc_struct *hp;
-+
-+	if (!is_running_on_xen())
-+		return 0;
-+
-+	xencons_irq = bind_evtchn_to_irq(xen_start_info->console.domU.evtchn);
-+	if (xencons_irq < 0)
-+		xencons_irq = 0 /* NO_IRQ */;
-+	hp = hvc_alloc(HVC_COOKIE, xencons_irq, &hvc_ops, 256);
-+	if (IS_ERR(hp))
-+		return PTR_ERR(hp);
-+
-+	hvc = hp;
-+	return 0;
-+}
-+
-+static void __exit xen_fini(void)
-+{
-+	if (hvc)
-+		hvc_remove(hvc);
-+}
-+
-+static int xen_cons_init(void)
-+{
-+	if (!is_running_on_xen())
-+		return 0;
-+
-+	hvc_instantiate(HVC_COOKIE, 0, &hvc_ops);
-+	return 0;
-+}
-+
-+module_init(xen_init);
-+module_exit(xen_fini);
-+console_initcall(xen_cons_init);
-===================================================================
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -13,6 +13,7 @@ enum ipi_vector {
- 	XEN_NR_IPIS,
- };
+ #endif /* __XEN_PUBLIC_VCPU_H__ */
  
-+int bind_evtchn_to_irq(unsigned int evtchn);
- int bind_evtchn_to_irqhandler(unsigned int evtchn,
- 			      irq_handler_t handler,
- 			      unsigned long irqflags, const char *devname,
+ /*
 
 -- 
