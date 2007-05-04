@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 26/29] xen: fix netfront checksums
-Date: Fri, 04 May 2007 16:21:17 -0700
-Message-ID: <20070504232121.554055808@goop.org>
+Subject: [patch 17/29] xen: lazy-mmu operations
+Date: Fri, 04 May 2007 16:21:08 -0700
+Message-ID: <20070504232120.686965680@goop.org>
 References: <20070504232051.411946839@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-netfront-csum-fixes.patch
+Content-Disposition: inline; filename=xen-lazy-mmu.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,156 +15,200 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we receive a partially checksummed packed, we need to work out how
-much of it was checksummed based on its protocol.  The ideal would be
-that Xen could tell us how much is checksummed, but in the meantime
-we'll make do with this.
+This patch uses the lazy-mmu hooks to batch mmu operations where
+possible.  This is primarily useful for batching operations applied to
+active pagetables, which happens during mprotect, munmap, mremap and
+the like (mmap does not do bulk pagetable operations, so it isn't
+helped).
 
-[ This is a separate patch for review; will be folded into
-  xen-netfront later. ]
-
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Acked-by: Chris Wright <chrisw@sous-sol.org>
+
 ---
- drivers/net/xen-netfront.c |   76 +++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 68 insertions(+), 8 deletions(-)
+ arch/i386/xen/enlighten.c  |   56 +++++++++++++++++++++++++++-----------------
+ arch/i386/xen/mmu.c        |   56 ++++++++++++++++++++++++++++++++------------
+ arch/i386/xen/multicalls.c |    4 +--
+ 3 files changed, 78 insertions(+), 38 deletions(-)
 
 ===================================================================
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -35,10 +35,12 @@
- #include <linux/etherdevice.h>
- #include <linux/skbuff.h>
- #include <linux/ethtool.h>
--#include <linux/in.h>
- #include <linux/if_ether.h>
-+#include <linux/tcp.h>
-+#include <linux/udp.h>
- #include <linux/moduleparam.h>
- #include <linux/mm.h>
-+#include <net/ip.h>
+--- a/arch/i386/xen/enlighten.c
++++ b/arch/i386/xen/enlighten.c
+@@ -451,28 +451,38 @@ static void xen_apic_write(unsigned long
  
- #include <xen/xenbus.h>
- #include <xen/events.h>
-@@ -564,8 +566,12 @@ static int xennet_start_xmit(struct sk_b
- 	extra = NULL;
- 
-  	tx->flags = 0;
-- 	if (skb->ip_summed == CHECKSUM_PARTIAL) /* local packet? */
-+ 	if (skb->ip_summed == CHECKSUM_PARTIAL)
-+ 		/* local packet? */
-  		tx->flags |= NETTXF_csum_blank | NETTXF_data_validated;
-+ 	else if (skb->ip_summed == CHECKSUM_UNNECESSARY)
-+ 		/* remote but checksummed. */
-+ 		tx->flags |= NETTXF_data_validated;
- 
- 	if (skb_shinfo(skb)->gso_size) {
- 		struct xen_netif_extra_info *gso;
-@@ -867,9 +873,50 @@ static RING_IDX xennet_fill_frags(struct
- 	return cons;
+ static void xen_flush_tlb(void)
+ {
+-	struct mmuext_op op;
+-
+-	op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
++
++	op = mcs.args;
++	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
  }
  
--static void handle_incoming_queue(struct net_device *dev,
-+static int skb_checksum_setup(struct sk_buff *skb)
-+{
-+	struct iphdr *iph;
-+	unsigned char *th;
-+	int err = -EPROTO;
+ static void xen_flush_tlb_single(unsigned long addr)
+ {
+-	struct mmuext_op op;
+-
+-	op.cmd = MMUEXT_INVLPG_LOCAL;
+-	op.arg1.linear_addr = addr & PAGE_MASK;
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
 +
-+	if (skb->protocol != htons(ETH_P_IP))
-+		goto out;
++	op = mcs.args;
++	op->cmd = MMUEXT_INVLPG_LOCAL;
++	op->arg1.linear_addr = addr & PAGE_MASK;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
 +
-+	iph = (void *)skb->data;
-+	th = skb->data + 4 * iph->ihl;
-+	if (th >= skb_tail_pointer(skb))
-+		goto out;
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
+ 
+ static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
+ 				 unsigned long va)
+ {
+-	struct mmuext_op op;
++	struct {
++		struct mmuext_op op;
++		cpumask_t mask;
++	} *args;
+ 	cpumask_t cpumask = *cpus;
++	struct multicall_space mcs;
+ 
+ 	/*
+ 	 * A couple of (to be removed) sanity checks:
+@@ -489,17 +499,21 @@ static void xen_flush_tlb_others(const c
+ 	if (cpus_empty(cpumask))
+ 		return;
+ 
++	mcs = xen_mc_entry(sizeof(*args));
++	args = mcs.args;
++	args->mask = cpumask;
++	args->op.arg2.vcpumask = &args->mask;
 +
-+	skb->csum_start = th - skb->head;
-+	switch (iph->protocol) {
-+	case IPPROTO_TCP:
-+		skb->csum_offset = offsetof(struct tcphdr, check);
-+		break;
-+	case IPPROTO_UDP:
-+		skb->csum_offset = offsetof(struct udphdr, check);
-+		break;
-+	default:
-+		if (net_ratelimit())
-+			printk(KERN_ERR "Attempting to checksum a non-"
-+			       "TCP/UDP packet, dropping a protocol"
-+			       " %d packet", iph->protocol);
-+		goto out;
+ 	if (va == TLB_FLUSH_ALL) {
+-		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
+-		op.arg2.vcpumask = (void *)cpus;
++		args->op.cmd = MMUEXT_TLB_FLUSH_MULTI;
+ 	} else {
+-		op.cmd = MMUEXT_INVLPG_MULTI;
+-		op.arg1.linear_addr = va;
+-		op.arg2.vcpumask = (void *)cpus;
+-	}
+-
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++		args->op.cmd = MMUEXT_INVLPG_MULTI;
++		args->op.arg1.linear_addr = va;
 +	}
 +
-+	if ((th + skb->csum_offset + 2) > skb_tail_pointer(skb))
-+		goto out;
++	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
 +
-+	err = 0;
-+
-+out:
-+	return err;
-+}
-+
-+static int handle_incoming_queue(struct net_device *dev,
- 				  struct sk_buff_head *rxq)
- {
-+	struct netfront_info *np = netdev_priv(dev);
-+	int packets_dropped = 0;
- 	struct sk_buff *skb;
- 
- 	while ((skb = __skb_dequeue(rxq)) != NULL) {
-@@ -886,10 +933,24 @@ static void handle_incoming_queue(struct
- 		/* Ethernet work: Delayed to here as it peeks the header. */
- 		skb->protocol = eth_type_trans(skb, dev);
- 
-+		if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+			if (skb_checksum_setup(skb)) {
-+				kfree_skb(skb);
-+				packets_dropped++;
-+				np->stats.rx_errors++;
-+				continue;
-+			}
-+		}
-+
-+		np->stats.rx_packets++;
-+		np->stats.rx_bytes += skb->len;
-+
- 		/* Pass it up. */
- 		netif_receive_skb(skb);
- 		dev->last_rx = jiffies;
- 	}
-+
-+	return packets_dropped;
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
  }
  
- static int xennet_poll(struct net_device *dev, int *pbudget)
-@@ -1003,11 +1064,10 @@ err:
- 		skb->truesize += skb->data_len - (RX_COPY_THRESHOLD - len);
- 		skb->len += skb->data_len;
+ static unsigned long xen_read_cr2(void)
+===================================================================
+--- a/arch/i386/xen/mmu.c
++++ b/arch/i386/xen/mmu.c
+@@ -56,12 +56,20 @@ void make_lowmem_page_readwrite(void *va
  
--		if (rx->flags & NETRXF_data_validated)
-+		if (rx->flags & NETRXF_csum_blank)
-+			skb->ip_summed = CHECKSUM_PARTIAL;
-+		else if (rx->flags & NETRXF_data_validated)
- 			skb->ip_summed = CHECKSUM_UNNECESSARY;
+ void xen_set_pmd(pmd_t *ptr, pmd_t val)
+ {
+-	struct mmu_update u;
 -
--		np->stats.rx_packets++;
--		np->stats.rx_bytes += skb->len;
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pmd_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	struct multicall_space mcs;
++	struct mmu_update *u;
++
++	preempt_disable();
++
++	mcs = xen_mc_entry(sizeof(*u));
++	u = mcs.args;
++	u->ptr = virt_to_machine(ptr).maddr;
++	u->val = pmd_val_ma(val);
++	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
++
++	preempt_enable();
+ }
  
- 		__skb_queue_tail(&rxq, skb);
+ /*
+@@ -104,20 +112,38 @@ void xen_set_pte_at(struct mm_struct *mm
+ void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
+ 		    pte_t *ptep, pte_t pteval)
+ {
+-	if ((mm != current->mm && mm != &init_mm) ||
+-	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
+-		xen_set_pte(ptep, pteval);
++	if (mm == current->mm || mm == &init_mm) {
++		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
++			struct multicall_space mcs;
++			mcs = xen_mc_entry(0);
++
++			MULTI_update_va_mapping(mcs.mc, addr, pteval, 0);
++			xen_mc_issue(PARAVIRT_LAZY_MMU);
++			return;
++		} else
++			if (HYPERVISOR_update_va_mapping(addr, pteval, 0) == 0)
++				return;
++	}
++	xen_set_pte(ptep, pteval);
+ }
  
-@@ -1029,7 +1089,7 @@ err:
- 	while ((skb = __skb_dequeue(&errq)))
- 		kfree_skb(skb);
+ #ifdef CONFIG_X86_PAE
+ void xen_set_pud(pud_t *ptr, pud_t val)
+ {
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pud_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	struct multicall_space mcs;
++	struct mmu_update *u;
++
++	preempt_disable();
++
++	mcs = xen_mc_entry(sizeof(*u));
++	u = mcs.args;
++	u->ptr = virt_to_machine(ptr).maddr;
++	u->val = pud_val_ma(val);
++	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
++
++	preempt_enable();
+ }
  
--	handle_incoming_queue(dev, &rxq);
-+	work_done -= handle_incoming_queue(dev, &rxq);
+ void xen_set_pte(pte_t *ptep, pte_t pte)
+===================================================================
+--- a/arch/i386/xen/multicalls.c
++++ b/arch/i386/xen/multicalls.c
+@@ -5,8 +5,8 @@
  
- 	/* If we get a callback with very few responses, reduce fill target. */
- 	/* NB. Note exponential increase, linear decrease. */
+ #include "multicalls.h"
+ 
+-#define MC_BATCH	8
+-#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
++#define MC_BATCH	32
++#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
+ 
+ struct mc_buffer {
+ 	struct multicall_entry entries[MC_BATCH];
 
 -- 
