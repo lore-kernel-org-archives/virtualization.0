@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 13/29] xen: Account for time stolen by Xen
-Date: Fri, 04 May 2007 16:21:04 -0700
-Message-ID: <20070504232120.348532015@goop.org>
+Subject: [patch 24/29] xen: rename xen netif_ structures to xen_netif_
+Date: Fri, 04 May 2007 16:21:15 -0700
+Message-ID: <20070504232121.366607336@goop.org>
 References: <20070504232051.411946839@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-stolen-time.patch
+Content-Disposition: inline; filename=xen-netif-rename.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,174 +15,79 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Rik van Riel <riel@redhat.com>, john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This accounts for the time Xen steals from our VCPUs.  This accounting
-gets run on each timer interrupt, just as a way to get it run
-relatively often, and when interesting things are going on.
-
-Stolen time is not really used by much in the kernel; it is reported
-in /proc/stats, and that's about it.
+The "netif_" prefix is used in the Linux network stack, so rename the
+Xen structures to xen_netif_ to avoid confusion (and potential
+collision).
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Acked-by: Chris Wright <chrisw@sous-sol.org>
-Cc: john stultz <johnstul@us.ibm.com>
-Cc: Rik van Riel <riel@redhat.com>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+
 ---
- arch/i386/xen/time.c |  106 +++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 105 insertions(+), 1 deletion(-)
+ include/xen/interface/io/netif.h |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/time.c
-+++ b/arch/i386/xen/time.c
-@@ -2,6 +2,7 @@
- #include <linux/interrupt.h>
- #include <linux/clocksource.h>
- #include <linux/clockchips.h>
-+#include <linux/kernel_stat.h>
+--- a/include/xen/interface/io/netif.h
++++ b/include/xen/interface/io/netif.h
+@@ -47,7 +47,7 @@
+ #define _NETTXF_extra_info     (3)
+ #define  NETTXF_extra_info     (1U<<_NETTXF_extra_info)
  
- #include <asm/xen/hypervisor.h>
- #include <asm/xen/hypercall.h>
-@@ -14,6 +15,7 @@
+-struct netif_tx_request {
++struct xen_netif_tx_request {
+     grant_ref_t gref;      /* Reference to buffer page */
+     uint16_t offset;       /* Offset within buffer page */
+     uint16_t flags;        /* NETTXF_* */
+@@ -71,7 +71,7 @@ struct netif_tx_request {
+  * This structure needs to fit within both netif_tx_request and
+  * netif_rx_response for compatibility.
+  */
+-struct netif_extra_info {
++struct xen_netif_extra_info {
+     uint8_t type;  /* XEN_NETIF_EXTRA_TYPE_* */
+     uint8_t flags; /* XEN_NETIF_EXTRA_FLAG_* */
  
- #define XEN_SHIFT 22
- #define TIMER_SLOP	100000	/* Xen may fire a timer up to this many ns early */
-+#define NS_PER_TICK	(1000000000ll / HZ)
+@@ -103,12 +103,12 @@ struct netif_extra_info {
+     } u;
+ };
  
- /* These are perodically updated in shared_info, and then copied here. */
- struct shadow_time_info {
-@@ -26,6 +28,104 @@ struct shadow_time_info {
+-struct netif_tx_response {
++struct xen_netif_tx_response {
+     uint16_t id;
+     int16_t  status;       /* NETIF_RSP_* */
+ };
  
- static DEFINE_PER_CPU(struct shadow_time_info, shadow_time);
+-struct netif_rx_request {
++struct xen_netif_rx_request {
+     uint16_t    id;        /* Echoed in response message.        */
+     grant_ref_t gref;      /* Reference to incoming granted frame */
+ };
+@@ -129,7 +129,7 @@ struct netif_rx_request {
+ #define _NETRXF_extra_info     (3)
+ #define  NETRXF_extra_info     (1U<<_NETRXF_extra_info)
  
-+/* runstate info updated by Xen */
-+static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
-+
-+/* snapshots of runstate info */
-+static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate_snapshot);
-+
-+/* unused ns of stolen and blocked time */
-+static DEFINE_PER_CPU(u64, residual_stolen);
-+static DEFINE_PER_CPU(u64, residual_blocked);
-+
-+/*
-+ * Runstate accounting
-+ */
-+static void get_runstate_snapshot(struct vcpu_runstate_info *res)
-+{
-+	u64 state_time;
-+	struct vcpu_runstate_info *state;
-+
-+	preempt_disable();
-+
-+	state = &__get_cpu_var(runstate);
-+
-+	/*
-+	 * The runstate info is always updated by the hypervisor on
-+	 * the current CPU, so there's no need to use anything
-+	 * stronger than a compiler barrier when fetching it.
-+	 */
-+	do {
-+		state_time = state->state_entry_time;
-+		barrier();
-+		*res = *state;
-+		barrier();
-+	} while(state->state_entry_time != state_time);
-+
-+	preempt_enable();
-+}
-+
-+static void setup_runstate_info(void)
-+{
-+	struct vcpu_register_runstate_memory_area area;
-+
-+	area.addr.v = &__get_cpu_var(runstate);
-+
-+	if (HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area,
-+			       smp_processor_id(), &area))
-+		BUG();
-+
-+	get_runstate_snapshot(&__get_cpu_var(runstate_snapshot));
-+}
-+
-+static void do_stolen_accounting(void)
-+{
-+	struct vcpu_runstate_info state;
-+	struct vcpu_runstate_info *snap;
-+	u64 blocked, runnable, offline, stolen;
-+	cputime_t ticks;
-+
-+	get_runstate_snapshot(&state);
-+
-+	WARN_ON(state.state != RUNSTATE_running);
-+
-+	snap = &__get_cpu_var(runstate_snapshot);
-+
-+	/* work out how much time the VCPU has not been runn*ing*  */
-+	blocked = state.time[RUNSTATE_blocked] - snap->time[RUNSTATE_blocked];
-+	runnable = state.time[RUNSTATE_runnable] - snap->time[RUNSTATE_runnable];
-+	offline = state.time[RUNSTATE_offline] - snap->time[RUNSTATE_offline];
-+
-+	*snap = state;
-+
-+	/* Add the appropriate number of ticks of stolen time,
-+	   including any left-overs from last time.  Passing NULL to
-+	   account_steal_time accounts the time as stolen. */
-+	stolen = runnable + offline + __get_cpu_var(residual_stolen);
-+	ticks = 0;
-+	while(stolen >= NS_PER_TICK) {
-+		ticks++;
-+		stolen -= NS_PER_TICK;
-+	}
-+	__get_cpu_var(residual_stolen) = stolen;
-+	account_steal_time(NULL, ticks);
-+
-+	/* Add the appropriate number of ticks of blocked time,
-+	   including any left-overs from last time.  Passing idle to
-+	   account_steal_time accounts the time as idle/wait. */
-+	blocked += __get_cpu_var(residual_blocked);
-+	ticks = 0;
-+	while(blocked >= NS_PER_TICK) {
-+		ticks++;
-+		blocked -= NS_PER_TICK;
-+	}
-+	__get_cpu_var(residual_blocked) = blocked;
-+	account_steal_time(idle_task(smp_processor_id()), ticks);
-+}
-+
-+
-+
-+/* Get the CPU speed from Xen */
- unsigned long xen_cpu_khz(void)
- {
- 	u64 cpu_khz = 1000000ULL << 32;
-@@ -338,6 +438,8 @@ static irqreturn_t xen_timer_interrupt(i
- 		ret = IRQ_HANDLED;
- 	}
+-struct netif_rx_response {
++struct xen_netif_rx_response {
+     uint16_t id;
+     uint16_t offset;       /* Offset in page of start of received packet  */
+     uint16_t flags;        /* NETRXF_* */
+@@ -140,8 +140,12 @@ struct netif_rx_response {
+  * Generate netif ring structures and types.
+  */
  
-+	do_stolen_accounting();
-+
- 	return ret;
- }
+-DEFINE_RING_TYPES(netif_tx, struct netif_tx_request, struct netif_tx_response);
+-DEFINE_RING_TYPES(netif_rx, struct netif_rx_request, struct netif_rx_response);
++DEFINE_RING_TYPES(xen_netif_tx,
++		  struct xen_netif_tx_request,
++		  struct xen_netif_tx_response);
++DEFINE_RING_TYPES(xen_netif_rx,
++		  struct xen_netif_rx_request,
++		  struct xen_netif_rx_response);
  
-@@ -364,6 +466,8 @@ static void xen_setup_timer(int cpu)
- 	evt->irq = irq;
- 	clockevents_register_device(evt);
- 
-+	setup_runstate_info();
-+
- 	put_cpu_var(xen_clock_events);
- }
- 
-@@ -376,7 +480,7 @@ __init void xen_time_init(void)
- 	clocksource_register(&xen_clocksource);
- 
- 	if (HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL) == 0) {
--		/* Successfully turned off 100hz tick, so we have the
-+		/* Successfully turned off 100Hz tick, so we have the
- 		   vcpuop-based timer interface */
- 		printk(KERN_DEBUG "Xen: using vcpuop timer interface\n");
- 		xen_clockevent = &xen_vcpuop_clockevent;
+ #define NETIF_RSP_DROPPED         -2
+ #define NETIF_RSP_ERROR           -1
 
 -- 
