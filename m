@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 15/29] xen: Xen SMP guest support
-Date: Fri, 04 May 2007 16:21:06 -0700
-Message-ID: <20070504232120.514165436@goop.org>
+Subject: [patch 21/29] xen: Add Xen grant table support
+Date: Fri, 04 May 2007 16:21:12 -0700
+Message-ID: <20070504232121.073523847@goop.org>
 References: <20070504232051.411946839@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-smp.patch
+Content-Disposition: inline; filename=xen-grant-table.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,1153 +15,943 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Benjamin LaHaise <bcrl@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>
+Cc: Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a fairly straightforward Xen implementation of smp_ops.
+Add Xen 'grant table' driver which allows granting of access to
+selected local memory pages by other virtual machines and,
+symmetrically, the mapping of remote memory pages which other virtual
+machines have granted access to.
 
-Xen has its own IPI mechanisms, and has no dependency on any
-APIC-based IPI.  The smp_ops hooks and the flush_tlb_others pv_op
-allow a Xen guest to avoid all APIC code in arch/i386 (the only apic
-operation is a single apic_read for the apic version number).
-
-One subtle point which needs to be addressed is unpinning pagetables
-when another cpu may have a lazy tlb reference to the pagetable. Xen
-will not allow an in-use pagetable to be unpinned, so we must find any
-other cpus with a reference to the pagetable and get them to shoot
-down their references.
+This driver is a prerequisite for many of the Xen virtual device
+drivers, which grant the 'device driver domain' restricted and
+temporary access to only those memory pages that are currently
+involved in I/O operations.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Andi Kleen <ak@suse.de>
-
 ---
- arch/i386/kernel/smp.c                             |    5 
- arch/i386/kernel/smpboot.c                         |    8 
- arch/i386/xen/Kconfig                              |    2 
- arch/i386/xen/Makefile                             |    2 
- arch/i386/xen/enlighten.c                          |  119 ++++-
- arch/i386/xen/events.c                             |   78 +++
- arch/i386/xen/mmu.c                                |   75 ++-
- arch/i386/xen/mmu.h                                |   13 
- arch/i386/xen/setup.c                              |    5 
- arch/i386/xen/smp.c                                |  405 ++++++++++++++++++++
- arch/i386/xen/time.c                               |    9 
- arch/i386/xen/xen-ops.h                            |   25 +
- include/asm-i386/mach-default/irq_vectors_limits.h |    2 
- include/asm-i386/mmu_context.h                     |    2 
- include/asm-i386/smp.h                             |    5 
- include/xen/events.h                               |   27 +
- 16 files changed, 717 insertions(+), 65 deletions(-)
+ drivers/xen/Makefile                |    1 
+ drivers/xen/grant-table.c           |  576 +++++++++++++++++++++++++++++++++++
+ include/xen/grant_table.h           |  107 ++++++
+ include/xen/interface/grant_table.h |  112 +++++-
+ 4 files changed, 777 insertions(+), 19 deletions(-)
 
 ===================================================================
---- a/arch/i386/kernel/smp.c
-+++ b/arch/i386/kernel/smp.c
-@@ -23,6 +23,7 @@
- 
- #include <asm/mtrr.h>
- #include <asm/tlbflush.h>
-+#include <asm/mmu_context.h>
- #include <mach_apic.h>
- 
- /*
-@@ -250,13 +251,13 @@ static DEFINE_SPINLOCK(tlbstate_lock);
- static DEFINE_SPINLOCK(tlbstate_lock);
- 
- /*
-- * We cannot call mmdrop() because we are in interrupt context, 
-+ * We cannot call mmdrop() because we are in interrupt context,
-  * instead update mm->cpu_vm_mask.
-  *
-  * We need to reload %cr3 since the page tables may be going
-  * away from under us..
-  */
--static inline void leave_mm (unsigned long cpu)
-+void leave_mm (unsigned long cpu)
- {
- 	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
- 		BUG();
-===================================================================
---- a/arch/i386/kernel/smpboot.c
-+++ b/arch/i386/kernel/smpboot.c
-@@ -149,7 +149,7 @@ void __init smp_alloc_memory(void)
-  * a given CPU
-  */
- 
--static void __cpuinit smp_store_cpu_info(int id)
-+void __cpuinit smp_store_cpu_info(int id)
- {
- 	struct cpuinfo_x86 *c = cpu_data + id;
- 
-@@ -309,8 +309,7 @@ cpumask_t cpu_coregroup_map(int cpu)
- /* representing cpus for which sibling maps can be computed */
- static cpumask_t cpu_sibling_setup_map;
- 
--static inline void
--set_cpu_sibling_map(int cpu)
-+void set_cpu_sibling_map(int cpu)
- {
- 	int i;
- 	struct cpuinfo_x86 *c = cpu_data;
-@@ -1145,8 +1144,7 @@ void __init native_smp_prepare_boot_cpu(
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
--static void
--remove_siblinginfo(int cpu)
-+void remove_siblinginfo(int cpu)
- {
- 	int sibling;
- 	struct cpuinfo_x86 *c = cpu_data;
-===================================================================
---- a/arch/i386/xen/Kconfig
-+++ b/arch/i386/xen/Kconfig
-@@ -4,6 +4,6 @@
- 
- config XEN
- 	bool "Enable support for Xen hypervisor"
--	depends on PARAVIRT && !PREEMPT && !SMP
-+	depends on PARAVIRT && !PREEMPT
- 	help
- 	  This is the Linux Xen port.  Enabling this will allow the
-===================================================================
---- a/arch/i386/xen/Makefile
-+++ b/arch/i386/xen/Makefile
-@@ -1,2 +1,4 @@ obj-y		:= enlighten.o setup.o features.o
- obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o \
- 			events.o time.o
-+
-+obj-$(CONFIG_SMP)	+= smp.o
-===================================================================
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -40,6 +40,8 @@
- #include <asm/setup.h>
- #include <asm/desc.h>
- #include <asm/pgtable.h>
-+#include <asm/smp.h>
-+#include <asm/tlbflush.h>
- 
- #include "xen-ops.h"
- #include "mmu.h"
-@@ -56,7 +58,7 @@ struct start_info *xen_start_info;
- struct start_info *xen_start_info;
- EXPORT_SYMBOL_GPL(xen_start_info);
- 
--static void xen_vcpu_setup(int cpu)
-+void xen_vcpu_setup(int cpu)
- {
- 	per_cpu(xen_vcpu, cpu) = &HYPERVISOR_shared_info->vcpu_info[cpu];
- }
-@@ -344,6 +346,32 @@ static void xen_write_idt_entry(struct d
- 	}
- }
- 
-+static void xen_convert_trap_info(const struct Xgt_desc_struct *desc,
-+				  struct trap_info *traps)
-+{
-+	unsigned in, out, count;
-+
-+	count = (desc->size+1) / 8;
-+	BUG_ON(count > 256);
-+
-+	for(in = out = 0; in < count; in++) {
-+		const u32 *entry = (u32 *)(desc->address + in * 8);
-+
-+		if (cvt_gate_to_trap(in, entry[0], entry[1], &traps[out]))
-+			out++;
-+	}
-+	traps[out].address = 0;
-+}
-+
-+void xen_copy_trap_info(struct trap_info *traps)
-+{
-+	const struct Xgt_desc_struct *desc = &get_cpu_var(idt_desc);
-+
-+	xen_convert_trap_info(desc, traps);
-+
-+	put_cpu_var(idt_desc);
-+}
-+
- /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
-    hold a spinlock to protect the static traps[] array (static because
-    it avoids allocation, and saves stack space). */
-@@ -351,23 +379,13 @@ static void xen_load_idt(const struct Xg
- {
- 	static DEFINE_SPINLOCK(lock);
- 	static struct trap_info traps[257];
--
- 	int cpu = smp_processor_id();
--	unsigned in, out, count;
- 
- 	per_cpu(idt_desc, cpu) = *desc;
- 
--	count = (desc->size+1) / 8;
--	BUG_ON(count > 256);
--
- 	spin_lock(&lock);
--	for(in = out = 0; in < count; in++) {
--		const u32 *entry = (u32 *)(desc->address + in * 8);
--
--		if (cvt_gate_to_trap(in, entry[0], entry[1], &traps[out]))
--			out++;
--	}
--	traps[out].address = 0;
-+
-+	xen_convert_trap_info(desc, traps);
- 
- 	xen_mc_flush();
- 	if (HYPERVISOR_set_trap_table(traps))
-@@ -422,7 +440,15 @@ static void xen_io_delay(void)
- #ifdef CONFIG_X86_LOCAL_APIC
- static unsigned long xen_apic_read(unsigned long reg)
- {
-+	/* Warn to see if there's any stray references */
-+	WARN_ON(1);
- 	return 0;
-+}
-+
-+static void xen_apic_write(unsigned long reg, unsigned long val)
-+{
-+	/* Warn to see if there's any stray references */
-+	WARN_ON(1);
- }
- #endif
- 
-@@ -445,6 +471,40 @@ static void xen_flush_tlb_single(unsigne
- 		BUG();
- }
- 
-+static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
-+				 unsigned long va)
-+{
-+	struct mmuext_op op;
-+	cpumask_t cpumask = *cpus;
-+
-+	/*
-+	 * A couple of (to be removed) sanity checks:
-+	 *
-+	 * - current CPU must not be in mask
-+	 * - mask must exist :)
-+	 */
-+	BUG_ON(cpus_empty(cpumask));
-+	BUG_ON(cpu_isset(smp_processor_id(), cpumask));
-+	BUG_ON(!mm);
-+
-+	/* If a CPU which we ran on has gone down, OK. */
-+	cpus_and(cpumask, cpumask, cpu_online_map);
-+	if (cpus_empty(cpumask))
-+		return;
-+
-+	if (va == TLB_FLUSH_ALL) {
-+		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
-+		op.arg2.vcpumask = (void *)cpus;
-+	} else {
-+		op.cmd = MMUEXT_INVLPG_MULTI;
-+		op.arg1.linear_addr = va;
-+		op.arg2.vcpumask = (void *)cpus;
-+	}
-+
-+	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
-+		BUG();
-+}
-+
- static unsigned long xen_read_cr2(void)
- {
- 	return x86_read_percpu(xen_vcpu)->arch.cr2;
-@@ -455,18 +515,6 @@ static void xen_write_cr4(unsigned long 
- 	/* never allow TSC to be disabled */
- 	native_write_cr4(cr4 & ~X86_CR4_TSD);
- }
--
--/*
-- * Page-directory addresses above 4GB do not fit into architectural %cr3.
-- * When accessing %cr3, or equivalent field in vcpu_guest_context, guests
-- * must use the following accessor macros to pack/unpack valid MFNs.
-- *
-- * Note that Xen is using the fact that the pagetable base is always
-- * page-aligned, and putting the 12 MSB of the address into the 12 LSB
-- * of cr3.
-- */
--#define xen_pfn_to_cr3(pfn) (((unsigned)(pfn) << 12) | ((unsigned)(pfn) >> 20))
--#define xen_cr3_to_pfn(cr3) (((unsigned)(cr3) >> 12) | ((unsigned)(cr3) << 20))
- 
- static unsigned long xen_read_cr3(void)
- {
-@@ -736,8 +784,8 @@ static const struct paravirt_ops xen_par
- 	.io_delay = xen_io_delay,
- 
- #ifdef CONFIG_X86_LOCAL_APIC
--	.apic_write = paravirt_nop,
--	.apic_write_atomic = paravirt_nop,
-+	.apic_write = xen_apic_write,
-+	.apic_write_atomic = xen_apic_write,
- 	.apic_read = xen_apic_read,
- 	.setup_boot_clock = paravirt_nop,
- 	.setup_secondary_clock = paravirt_nop,
-@@ -747,6 +795,7 @@ static const struct paravirt_ops xen_par
- 	.flush_tlb_user = xen_flush_tlb,
- 	.flush_tlb_kernel = xen_flush_tlb,
- 	.flush_tlb_single = xen_flush_tlb_single,
-+	.flush_tlb_others = xen_flush_tlb_others,
- 
- 	.pte_update = paravirt_nop,
- 	.pte_update_defer = paravirt_nop,
-@@ -792,6 +841,19 @@ static const struct paravirt_ops xen_par
- 	.set_lazy_mode = xen_set_lazy_mode,
- };
- 
-+#ifdef CONFIG_SMP
-+static const struct smp_ops xen_smp_ops __initdata = {
-+	.smp_prepare_boot_cpu = xen_smp_prepare_boot_cpu,
-+	.smp_prepare_cpus = xen_smp_prepare_cpus,
-+	.cpu_up = xen_cpu_up,
-+	.smp_cpus_done = xen_smp_cpus_done,
-+
-+	.smp_send_stop = xen_smp_send_stop,
-+	.smp_send_reschedule = xen_smp_send_reschedule,
-+	.smp_call_function_mask = xen_smp_call_function_mask,
-+};
-+#endif	/* CONFIG_SMP */
-+
- /* First C function to be called on Xen boot */
- static asmlinkage void __init xen_start_kernel(void)
- {
-@@ -804,6 +866,9 @@ static asmlinkage void __init xen_start_
- 
- 	/* Install Xen paravirt ops */
- 	paravirt_ops = xen_paravirt_ops;
-+#ifdef CONFIG_SMP
-+	smp_ops = xen_smp_ops;
-+#endif
- 
- 	xen_setup_features();
- 
-===================================================================
---- a/arch/i386/xen/events.c
-+++ b/arch/i386/xen/events.c
-@@ -47,6 +47,9 @@ static DEFINE_SPINLOCK(irq_mapping_updat
- /* IRQ <-> VIRQ mapping. */
- static DEFINE_PER_CPU(int, virq_to_irq[NR_VIRQS]) = {[0 ... NR_VIRQS-1] = -1};
- 
-+/* IRQ <-> IPI mapping */
-+static DEFINE_PER_CPU(int, ipi_to_irq[XEN_NR_IPIS]) = {[0 ... XEN_NR_IPIS-1] = -1};
-+
- /* Packed IRQ information: binding type, sub-type index, and event channel. */
- struct packed_irq
- {
-@@ -58,7 +61,13 @@ static struct packed_irq irq_info[NR_IRQ
- static struct packed_irq irq_info[NR_IRQS];
- 
- /* Binding types. */
--enum { IRQT_UNBOUND, IRQT_PIRQ, IRQT_VIRQ, IRQT_IPI, IRQT_EVTCHN };
-+enum {
-+	IRQT_UNBOUND,
-+	IRQT_PIRQ,
-+	IRQT_VIRQ,
-+	IRQT_IPI,
-+	IRQT_EVTCHN
-+};
- 
- /* Convenient shorthand for packed representation of an unbound IRQ. */
- #define IRQ_UNBOUND	mk_irq_info(IRQT_UNBOUND, 0, 0)
-@@ -261,6 +270,43 @@ static int bind_evtchn_to_irq(unsigned i
- 	return irq;
- }
- 
-+static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
-+{
-+	struct evtchn_bind_ipi bind_ipi;
-+	int evtchn, irq;
-+
-+	spin_lock(&irq_mapping_update_lock);
-+
-+	if ((irq = per_cpu(ipi_to_irq, cpu)[ipi]) == -1) {
-+		if ((irq = find_unbound_irq()) < 0)
-+			goto out;
-+
-+		dynamic_irq_init(irq);
-+		set_irq_chip_and_handler_name(irq, &xen_dynamic_chip,
-+					      handle_level_irq, "ipi");
-+
-+		bind_ipi.vcpu = cpu;
-+		if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_ipi,
-+						&bind_ipi) != 0)
-+			BUG();
-+		evtchn = bind_ipi.port;
-+
-+		evtchn_to_irq[evtchn] = irq;
-+		irq_info[irq] = mk_irq_info(IRQT_IPI, ipi, evtchn);
-+
-+		per_cpu(ipi_to_irq, cpu)[ipi] = irq;
-+
-+		bind_evtchn_to_cpu(evtchn, cpu);
-+	}
-+
-+	irq_bindcount[irq]++;
-+
-+ out:
-+	spin_unlock(&irq_mapping_update_lock);
-+	return irq;
-+}
-+
-+
- static int bind_virq_to_irq(unsigned int virq, unsigned int cpu)
- {
- 	struct evtchn_bind_virq bind_virq;
-@@ -369,12 +415,42 @@ int bind_virq_to_irqhandler(unsigned int
- }
- EXPORT_SYMBOL_GPL(bind_virq_to_irqhandler);
- 
-+int bind_ipi_to_irqhandler(enum ipi_vector ipi,
-+			   unsigned int cpu,
-+			   irq_handler_t handler,
-+			   unsigned long irqflags,
-+			   const char *devname,
-+			   void *dev_id)
-+{
-+	int irq, retval;
-+
-+	irq = bind_ipi_to_irq(ipi, cpu);
-+	if (irq < 0)
-+		return irq;
-+
-+	retval = request_irq(irq, handler, irqflags, devname, dev_id);
-+	if (retval != 0) {
-+		unbind_from_irq(irq);
-+		return retval;
-+	}
-+
-+	return irq;
-+}
-+
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
- 	free_irq(irq, dev_id);
- 	unbind_from_irq(irq);
- }
- EXPORT_SYMBOL_GPL(unbind_from_irqhandler);
-+
-+void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector)
-+{
-+	int irq = per_cpu(ipi_to_irq, cpu)[vector];
-+	BUG_ON(irq < 0);
-+	notify_remote_via_irq(irq);
-+}
-+
- 
- /*
-  * Search the CPUs pending events bitmasks.  For each one found, map
-===================================================================
---- a/arch/i386/xen/mmu.c
-+++ b/arch/i386/xen/mmu.c
-@@ -388,8 +388,12 @@ void xen_pgd_pin(pgd_t *pgd)
- 
- 	xen_mc_batch();
- 
--	if (pgd_walk(pgd, pin_page, TASK_SIZE))
-+	if (pgd_walk(pgd, pin_page, TASK_SIZE)) {
-+		/* re-enable interrupts for kmap_flush_unused */
-+		xen_mc_issue(0);
- 		kmap_flush_unused();
-+		xen_mc_batch();
-+	}
- 
- 	mcs = __xen_mc_entry(sizeof(*op));
- 	op = mcs.args;
-@@ -472,27 +476,58 @@ void xen_dup_mmap(struct mm_struct *oldm
- 	spin_unlock(&mm->page_table_lock);
- }
- 
-+
-+#ifdef CONFIG_SMP
-+/* Another cpu may still have their %cr3 pointing at the pagetable, so
-+   we need to repoint it somewhere else before we can unpin it. */
-+static void drop_other_mm_ref(void *info)
-+{
-+	struct mm_struct *mm = info;
-+
-+	if (__get_cpu_var(cpu_tlbstate).active_mm == mm)
-+		leave_mm(smp_processor_id());
-+}
-+
-+static void drop_mm_ref(struct mm_struct *mm)
-+{
-+	if (current->active_mm == mm) {
-+		if (current->mm == mm)
-+			load_cr3(swapper_pg_dir);
-+		else
-+			leave_mm(smp_processor_id());
-+	}
-+
-+	if (!cpus_empty(mm->cpu_vm_mask))
-+		xen_smp_call_function_mask(mm->cpu_vm_mask, drop_other_mm_ref,
-+					   mm, 1);
-+}
-+#else
-+static void drop_mm_ref(struct mm_struct *mm)
-+{
-+	if (current->active_mm == mm)
-+		load_cr3(swapper_pg_dir);
-+}
-+#endif
-+
-+/*
-+ * While a process runs, Xen pins its pagetables, which means that the
-+ * hypervisor forces it to be read-only, and it controls all updates
-+ * to it.  This means that all pagetable updates have to go via the
-+ * hypervisor, which is moderately expensive.
-+ *
-+ * Since we're pulling the pagetable down, we switch to use init_mm,
-+ * unpin old process pagetable and mark it all read-write, which
-+ * allows further operations on it to be simple memory accesses.
-+ *
-+ * The only subtle point is that another CPU may be still using the
-+ * pagetable because of lazy tlb flushing.  This means we need need to
-+ * switch all CPUs off this pagetable before we can unpin it.
-+ */
- void xen_exit_mmap(struct mm_struct *mm)
- {
--	struct task_struct *tsk = current;
--
--	task_lock(tsk);
--
--	/*
--	 * We aggressively remove defunct pgd from cr3. We execute unmap_vmas()
--	 * *much* faster this way, as no tlb flushes means bigger wrpt batches.
--	 */
--	if (tsk->active_mm == mm) {
--		tsk->active_mm = &init_mm;
--		atomic_inc(&init_mm.mm_count);
--
--		switch_mm(mm, &init_mm, tsk);
--
--		atomic_dec(&mm->mm_count);
--		BUG_ON(atomic_read(&mm->mm_count) == 0);
--	}
--
--	task_unlock(tsk);
-+	get_cpu();		/* make sure we don't move around */
-+	drop_mm_ref(mm);
-+	put_cpu();
- 
- 	xen_pgd_unpin(mm->pgd);
- }
-===================================================================
---- a/arch/i386/xen/mmu.h
-+++ b/arch/i386/xen/mmu.h
-@@ -2,6 +2,19 @@
- 
- #include <linux/linkage.h>
- #include <asm/page.h>
-+
-+/*
-+ * Page-directory addresses above 4GB do not fit into architectural %cr3.
-+ * When accessing %cr3, or equivalent field in vcpu_guest_context, guests
-+ * must use the following accessor macros to pack/unpack valid MFNs.
-+ *
-+ * Note that Xen is using the fact that the pagetable base is always
-+ * page-aligned, and putting the 12 MSB of the address into the 12 LSB
-+ * of cr3.
-+ */
-+#define xen_pfn_to_cr3(pfn) (((unsigned)(pfn) << 12) | ((unsigned)(pfn) >> 20))
-+#define xen_cr3_to_pfn(cr3) (((unsigned)(cr3) >> 12) | ((unsigned)(cr3) << 20))
-+
- 
- void set_pte_mfn(unsigned long vaddr, unsigned long pfn, pgprot_t flags);
- 
-===================================================================
---- a/arch/i386/xen/setup.c
-+++ b/arch/i386/xen/setup.c
-@@ -93,4 +93,9 @@ void __init xen_arch_setup(void)
- 	       COMMAND_LINE_SIZE : MAX_GUEST_CMDLINE);
- 
- 	pm_idle = xen_idle;
-+
-+#ifdef CONFIG_SMP
-+	/* fill cpus_possible with all available cpus */
-+	xen_fill_possible_map();
-+#endif
- }
+--- a/drivers/xen/Makefile
++++ b/drivers/xen/Makefile
+@@ -1,1 +1,2 @@ obj-y	+= hvc-console.o
++obj-y	+= grant-table.o
+ obj-y	+= hvc-console.o
 ===================================================================
 --- /dev/null
-+++ b/arch/i386/xen/smp.c
-@@ -0,0 +1,405 @@
-+/*
-+ * Xen SMP support
++++ b/drivers/xen/grant-table.c
+@@ -0,0 +1,576 @@
++/******************************************************************************
++ * grant_table.c
 + *
-+ * This file implements the Xen versions of smp_ops.  SMP under Xen is
-+ * very straightforward.  Bringing a CPU up is simply a matter of
-+ * loading its initial context and setting it running.
++ * Granting foreign access to our memory reservation.
 + *
-+ * IPIs are handled through the Xen event mechanism.
++ * Copyright (c) 2005-2006, Christopher Clark
++ * Copyright (c) 2004-2005, K A Fraser
 + *
-+ * Because virtual CPUs can be scheduled onto any real CPU, there's no
-+ * useful topology information for the kernel to make use of.  As a
-+ * result, all CPUs are treated as if they're single-core and
-+ * single-threaded.
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
 + *
-+ * This does not handle HOTPLUG_CPU yet.
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
 + */
-+#include <linux/sched.h>
-+#include <linux/err.h>
 +
-+#include <asm/paravirt.h>
-+#include <asm/smp.h>
-+#include <asm/desc.h>
-+#include <asm/pgtable.h>
-+#include <asm/cpu.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
 +
 +#include <xen/interface/xen.h>
-+#include <xen/interface/vcpu.h>
-+
-+#include <asm/xen/interface.h>
-+#include <asm/xen/hypercall.h>
-+
 +#include <xen/page.h>
-+#include <xen/events.h>
++#include <xen/grant_table.h>
 +
-+#include "xen-ops.h"
-+#include "mmu.h"
++#include <asm/pgtable.h>
++#include <asm/uaccess.h>
++#include <asm/sync_bitops.h>
 +
-+static cpumask_t cpu_initialized_map;
-+static DEFINE_PER_CPU(int, resched_irq);
-+static DEFINE_PER_CPU(int, callfunc_irq);
 +
-+/*
-+ * Structure and data for smp_call_function(). This is designed to minimise
-+ * static memory requirements. It also looks cleaner.
-+ */
-+static DEFINE_SPINLOCK(call_lock);
++/* External tools reserve first few grant table entries. */
++#define NR_RESERVED_ENTRIES 8
++#define GNTTAB_LIST_END 0xffffffff
++#define GREFS_PER_GRANT_FRAME (PAGE_SIZE / sizeof(struct grant_entry))
 +
-+struct call_data_struct {
-+	void (*func) (void *info);
-+	void *info;
-+	atomic_t started;
-+	atomic_t finished;
-+	int wait;
-+};
++static grant_ref_t **gnttab_list;
++static unsigned int nr_grant_frames;
++static unsigned int boot_max_nr_grant_frames;
++static int gnttab_free_count;
++static grant_ref_t gnttab_free_head;
++static DEFINE_SPINLOCK(gnttab_list_lock);
 +
-+static irqreturn_t xen_call_function_interrupt(int irq, void *dev_id);
++static struct grant_entry *shared;
 +
-+static struct call_data_struct *call_data;
++static struct gnttab_free_callback *gnttab_free_callback_list;
 +
-+/*
-+ * Reschedule call back. Nothing to do,
-+ * all the work is done automatically when
-+ * we return from the interrupt.
-+ */
-+static irqreturn_t xen_reschedule_interrupt(int irq, void *dev_id)
++static int gnttab_expand(unsigned int req_entries);
++
++#define RPP (PAGE_SIZE / sizeof(grant_ref_t))
++#define gnttab_entry(entry) (gnttab_list[(entry) / RPP][(entry) % RPP])
++
++static int get_free_entries(int count)
 +{
-+	return IRQ_HANDLED;
++	unsigned long flags;
++	int ref, rc;
++	grant_ref_t head;
++
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++
++	if ((gnttab_free_count < count) &&
++	    ((rc = gnttab_expand(count - gnttab_free_count)) < 0)) {
++		spin_unlock_irqrestore(&gnttab_list_lock, flags);
++		return rc;
++	}
++
++	ref = head = gnttab_free_head;
++	gnttab_free_count -= count;
++	while (count-- > 1)
++		head = gnttab_entry(head);
++ 	gnttab_free_head = gnttab_entry(head);
++	gnttab_entry(head) = GNTTAB_LIST_END;
++
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++
++	return ref;
 +}
 +
-+static __cpuinit void cpu_bringup_and_idle(void)
++#define get_free_entry() get_free_entries(1)
++
++static void do_free_callbacks(void)
 +{
-+	int cpu = smp_processor_id();
++	struct gnttab_free_callback *callback, *next;
 +
-+	cpu_init();
-+	xen_setup_timer();
++	callback = gnttab_free_callback_list;
++	gnttab_free_callback_list = NULL;
 +
-+	preempt_disable();
-+	per_cpu(cpu_state, cpu) = CPU_ONLINE;
++	while (callback != NULL) {
++		next = callback->next;
++		if (gnttab_free_count >= callback->count) {
++			callback->next = NULL;
++			callback->fn(callback->arg);
++		} else {
++			callback->next = gnttab_free_callback_list;
++			gnttab_free_callback_list = callback;
++		}
++		callback = next;
++	}
++}
 +
-+	/* We can take interrupts now: we're officially "up". */
-+	local_irq_enable();
++static inline void check_free_callbacks(void)
++{
++	if (unlikely(gnttab_free_callback_list))
++		do_free_callbacks();
++}
 +
++static void put_free_entry(grant_ref_t ref)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	gnttab_entry(ref) = gnttab_free_head;
++	gnttab_free_head = ref;
++	gnttab_free_count++;
++	check_free_callbacks();
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++
++static void update_grant_entry(grant_ref_t ref, domid_t domid,
++			       unsigned long frame, unsigned flags)
++{
++	/*
++	 * Introducing a valid entry into the grant table:
++	 *  1. Write ent->domid.
++	 *  2. Write ent->frame:
++	 *      GTF_permit_access:   Frame to which access is permitted.
++	 *      GTF_accept_transfer: Pseudo-phys frame slot being filled by new
++	 *                           frame, or zero if none.
++	 *  3. Write memory barrier (WMB).
++	 *  4. Write ent->flags, inc. valid type.
++	 */
++	shared[ref].frame = frame;
++	shared[ref].domid = domid;
 +	wmb();
-+	cpu_idle();
++	shared[ref].flags = flags;
 +}
 +
-+static int xen_smp_intr_init(unsigned int cpu)
++/*
++ * Public grant-issuing interface functions
++ */
++void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
++				     unsigned long frame, int readonly)
 +{
-+	int rc;
-+	const char *resched_name, *callfunc_name;
++	update_grant_entry(ref, domid, frame,
++			   GTF_permit_access | (readonly ? GTF_readonly : 0));
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access_ref);
 +
-+	per_cpu(resched_irq, cpu) = per_cpu(callfunc_irq, cpu) = -1;
++int gnttab_grant_foreign_access(domid_t domid, unsigned long frame,
++				int readonly)
++{
++	int ref;
 +
-+	resched_name = kasprintf(GFP_KERNEL, "resched%d", cpu);
-+	rc = bind_ipi_to_irqhandler(XEN_RESCHEDULE_VECTOR,
-+				    cpu,
-+				    xen_reschedule_interrupt,
-+				    IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
-+				    resched_name,
-+				    NULL);
-+	if (rc < 0)
-+		goto fail;
-+	per_cpu(resched_irq, cpu) = rc;
++	if (unlikely((ref = get_free_entry()) < 0))
++		return -ENOSPC;
 +
-+	callfunc_name = kasprintf(GFP_KERNEL, "callfunc%d", cpu);
-+	rc = bind_ipi_to_irqhandler(XEN_CALL_FUNCTION_VECTOR,
-+				    cpu,
-+				    xen_call_function_interrupt,
-+				    IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
-+				    callfunc_name,
-+				    NULL);
-+	if (rc < 0)
-+		goto fail;
-+	per_cpu(callfunc_irq, cpu) = rc;
++	gnttab_grant_foreign_access_ref(ref, domid, frame, readonly);
++
++	return ref;
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access);
++
++int gnttab_query_foreign_access(grant_ref_t ref)
++{
++	u16 nflags;
++
++	nflags = shared[ref].flags;
++
++	return (nflags & (GTF_reading|GTF_writing));
++}
++EXPORT_SYMBOL_GPL(gnttab_query_foreign_access);
++
++int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly)
++{
++	u16 flags, nflags;
++
++	nflags = shared[ref].flags;
++	do {
++		if ((flags = nflags) & (GTF_reading|GTF_writing)) {
++			printk(KERN_ALERT "WARNING: g.e. still in use!\n");
++			return 0;
++		}
++	} while ((nflags = sync_cmpxchg(&shared[ref].flags, flags, 0)) !=
++		 flags);
++
++	return 1;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_access_ref);
++
++void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
++			       unsigned long page)
++{
++	if (gnttab_end_foreign_access_ref(ref, readonly)) {
++		put_free_entry(ref);
++		if (page != 0)
++			free_page(page);
++	} else {
++		/* XXX This needs to be fixed so that the ref and page are
++		   placed on a list to be freed up later. */
++		printk(KERN_WARNING
++		       "WARNING: leaking g.e. and page still in use!\n");
++	}
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_access);
++
++int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn)
++{
++	int ref;
++
++	if (unlikely((ref = get_free_entry()) < 0))
++		return -ENOSPC;
++	gnttab_grant_foreign_transfer_ref(ref, domid, pfn);
++
++	return ref;
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_transfer);
++
++void gnttab_grant_foreign_transfer_ref(grant_ref_t ref, domid_t domid,
++				       unsigned long pfn)
++{
++	update_grant_entry(ref, domid, pfn, GTF_accept_transfer);
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_transfer_ref);
++
++unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref)
++{
++	unsigned long frame;
++	u16           flags;
++
++	/*
++	 * If a transfer is not even yet started, try to reclaim the grant
++	 * reference and return failure (== 0).
++	 */
++	while (!((flags = shared[ref].flags) & GTF_transfer_committed)) {
++		if (sync_cmpxchg(&shared[ref].flags, flags, 0) == flags)
++			return 0;
++		cpu_relax();
++	}
++
++	/* If a transfer is in progress then wait until it is completed. */
++	while (!(flags & GTF_transfer_completed)) {
++		flags = shared[ref].flags;
++		cpu_relax();
++	}
++
++	rmb();	/* Read the frame number /after/ reading completion status. */
++	frame = shared[ref].frame;
++	BUG_ON(frame == 0);
++
++	return frame;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_transfer_ref);
++
++unsigned long gnttab_end_foreign_transfer(grant_ref_t ref)
++{
++	unsigned long frame = gnttab_end_foreign_transfer_ref(ref);
++	put_free_entry(ref);
++	return frame;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_transfer);
++
++void gnttab_free_grant_reference(grant_ref_t ref)
++{
++	put_free_entry(ref);
++}
++EXPORT_SYMBOL_GPL(gnttab_free_grant_reference);
++
++void gnttab_free_grant_references(grant_ref_t head)
++{
++	grant_ref_t ref;
++	unsigned long flags;
++	int count = 1;
++	if (head == GNTTAB_LIST_END)
++		return;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	ref = head;
++	while (gnttab_entry(ref) != GNTTAB_LIST_END) {
++		ref = gnttab_entry(ref);
++		count++;
++	}
++	gnttab_entry(ref) = gnttab_free_head;
++	gnttab_free_head = head;
++	gnttab_free_count += count;
++	check_free_callbacks();
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_free_grant_references);
++
++int gnttab_alloc_grant_references(u16 count, grant_ref_t *head)
++{
++	int h = get_free_entries(count);
++
++	if (h < 0)
++		return -ENOSPC;
++
++	*head = h;
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(gnttab_alloc_grant_references);
++
++int gnttab_empty_grant_references(const grant_ref_t *private_head)
++{
++	return (*private_head == GNTTAB_LIST_END);
++}
++EXPORT_SYMBOL_GPL(gnttab_empty_grant_references);
++
++int gnttab_claim_grant_reference(grant_ref_t *private_head)
++{
++	grant_ref_t g = *private_head;
++	if (unlikely(g == GNTTAB_LIST_END))
++		return -ENOSPC;
++	*private_head = gnttab_entry(g);
++	return g;
++}
++EXPORT_SYMBOL_GPL(gnttab_claim_grant_reference);
++
++void gnttab_release_grant_reference(grant_ref_t *private_head,
++				    grant_ref_t release)
++{
++	gnttab_entry(release) = *private_head;
++	*private_head = release;
++}
++EXPORT_SYMBOL_GPL(gnttab_release_grant_reference);
++
++void gnttab_request_free_callback(struct gnttab_free_callback *callback,
++				  void (*fn)(void *), void *arg, u16 count)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	if (callback->next)
++		goto out;
++	callback->fn = fn;
++	callback->arg = arg;
++	callback->count = count;
++	callback->next = gnttab_free_callback_list;
++	gnttab_free_callback_list = callback;
++	check_free_callbacks();
++out:
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_request_free_callback);
++
++void gnttab_cancel_free_callback(struct gnttab_free_callback *callback)
++{
++	struct gnttab_free_callback **pcb;
++	unsigned long flags;
++
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	for (pcb = &gnttab_free_callback_list; *pcb; pcb = &(*pcb)->next) {
++		if (*pcb == callback) {
++			*pcb = callback->next;
++			break;
++		}
++	}
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_cancel_free_callback);
++
++static int grow_gnttab_list(unsigned int more_frames)
++{
++	unsigned int new_nr_grant_frames, extra_entries, i;
++
++	new_nr_grant_frames = nr_grant_frames + more_frames;
++	extra_entries       = more_frames * GREFS_PER_GRANT_FRAME;
++
++	for (i = nr_grant_frames; i < new_nr_grant_frames; i++)
++	{
++		gnttab_list[i] = (grant_ref_t *)__get_free_page(GFP_ATOMIC);
++		if (!gnttab_list[i])
++			goto grow_nomem;
++	}
++
++
++	for (i = GREFS_PER_GRANT_FRAME * nr_grant_frames;
++	     i < GREFS_PER_GRANT_FRAME * new_nr_grant_frames - 1; i++)
++		gnttab_entry(i) = i + 1;
++
++	gnttab_entry(i) = gnttab_free_head;
++	gnttab_free_head = GREFS_PER_GRANT_FRAME * nr_grant_frames;
++	gnttab_free_count += extra_entries;
++
++	nr_grant_frames = new_nr_grant_frames;
++
++	check_free_callbacks();
 +
 +	return 0;
 +
-+ fail:
-+	if (per_cpu(resched_irq, cpu) >= 0)
-+		unbind_from_irqhandler(per_cpu(resched_irq, cpu), NULL);
-+	if (per_cpu(callfunc_irq, cpu) >= 0)
-+		unbind_from_irqhandler(per_cpu(callfunc_irq, cpu), NULL);
++grow_nomem:
++	for ( ; i >= nr_grant_frames; i--)
++		free_page((unsigned long) gnttab_list[i]);
++	return -ENOMEM;
++}
++
++static unsigned int __max_nr_grant_frames(void)
++{
++	struct gnttab_query_size query;
++	int rc;
++
++	query.dom = DOMID_SELF;
++
++	rc = HYPERVISOR_grant_table_op(GNTTABOP_query_size, &query, 1);
++	if ((rc < 0) || (query.status != GNTST_okay))
++		return 4; /* Legacy max supported number of frames */
++
++	return query.max_nr_frames;
++}
++
++static inline unsigned int max_nr_grant_frames(void)
++{
++	unsigned int xen_max = __max_nr_grant_frames();
++
++	if (xen_max > boot_max_nr_grant_frames)
++		return boot_max_nr_grant_frames;
++	return xen_max;
++}
++
++static int map_pte_fn(pte_t *pte, struct page *pmd_page,
++		      unsigned long addr, void *data)
++{
++	unsigned long **frames = (unsigned long **)data;
++
++	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
++	(*frames)++;
++	return 0;
++}
++
++static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
++			unsigned long addr, void *data)
++{
++
++	set_pte_at(&init_mm, addr, pte, __pte(0));
++	return 0;
++}
++
++static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
++{
++	struct gnttab_setup_table setup;
++	unsigned long *frames;
++	unsigned int nr_gframes = end_idx + 1;
++	int rc;
++
++	frames = kmalloc(nr_gframes * sizeof(unsigned long), GFP_ATOMIC);
++	if (!frames)
++		return -ENOMEM;
++
++	setup.dom        = DOMID_SELF;
++	setup.nr_frames  = nr_gframes;
++	setup.frame_list = frames;
++
++	rc = HYPERVISOR_grant_table_op(GNTTABOP_setup_table, &setup, 1);
++	if (rc == -ENOSYS) {
++		kfree(frames);
++		return -ENOSYS;
++	}
++
++	BUG_ON(rc || setup.status);
++
++	if (shared == NULL) {
++		struct vm_struct *area;
++		area = alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
++		BUG_ON(area == NULL);
++		shared = area->addr;
++	}
++	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
++				 PAGE_SIZE * nr_gframes,
++				 map_pte_fn, &frames);
++	BUG_ON(rc);
++	frames -= nr_gframes; /* adjust after map_pte_fn() */
++
++	kfree(frames);
++
++	return 0;
++}
++
++int gnttab_resume(void)
++{
++	if (max_nr_grant_frames() < nr_grant_frames)
++		return -ENOSYS;
++	return gnttab_map(0, nr_grant_frames - 1);
++}
++
++int gnttab_suspend(void)
++{
++	apply_to_page_range(&init_mm, (unsigned long)shared,
++			    PAGE_SIZE * nr_grant_frames,
++			    unmap_pte_fn, NULL);
++
++	return 0;
++}
++
++static int gnttab_expand(unsigned int req_entries)
++{
++	int rc;
++	unsigned int cur, extra;
++
++	cur = nr_grant_frames;
++	extra = ((req_entries + (GREFS_PER_GRANT_FRAME-1)) /
++		 GREFS_PER_GRANT_FRAME);
++	if (cur + extra > max_nr_grant_frames())
++		return -ENOSPC;
++
++	if ((rc = gnttab_map(cur, cur + extra - 1)) == 0)
++		rc = grow_gnttab_list(extra);
++
 +	return rc;
 +}
 +
-+void __init xen_fill_possible_map(void)
++static int __devinit gnttab_init(void)
 +{
-+	int i, rc;
++	int i;
++	unsigned int max_nr_glist_frames;
++	unsigned int nr_init_grefs;
 +
-+	for (i = 0; i < NR_CPUS; i++) {
-+		rc = HYPERVISOR_vcpu_op(VCPUOP_is_up, i, NULL);
-+		if (rc >= 0)
-+			cpu_set(i, cpu_possible_map);
-+	}
-+}
++	if (!is_running_on_xen())
++		return -ENODEV;
 +
-+void __init xen_smp_prepare_boot_cpu(void)
-+{
-+	int cpu;
++	nr_grant_frames = 1;
++	boot_max_nr_grant_frames = __max_nr_grant_frames();
 +
-+	BUG_ON(smp_processor_id() != 0);
-+	native_smp_prepare_boot_cpu();
++	/* Determine the maximum number of frames required for the
++	 * grant reference free list on the current hypervisor.
++	 */
++	max_nr_glist_frames = (boot_max_nr_grant_frames *
++			       GREFS_PER_GRANT_FRAME /
++			       (PAGE_SIZE / sizeof(grant_ref_t)));
 +
-+	xen_vcpu_setup(0);
-+
-+	/* We've switched to the "real" per-cpu gdt, so make sure the
-+	   old memory can be recycled */
-+	make_lowmem_page_readwrite(&per_cpu__gdt_page);
-+
-+	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+		cpus_clear(cpu_sibling_map[cpu]);
-+		cpus_clear(cpu_core_map[cpu]);
-+	}
-+}
-+
-+void __init xen_smp_prepare_cpus(unsigned int max_cpus)
-+{
-+	unsigned cpu;
-+
-+	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+		cpus_clear(cpu_sibling_map[cpu]);
-+		cpus_clear(cpu_core_map[cpu]);
-+	}
-+
-+	smp_store_cpu_info(0);
-+	set_cpu_sibling_map(0);
-+
-+	if (xen_smp_intr_init(0))
-+		BUG();
-+
-+	cpu_initialized_map = cpumask_of_cpu(0);
-+
-+	/* Restrict the possible_map according to max_cpus. */
-+	while ((num_possible_cpus() > 1) && (num_possible_cpus() > max_cpus)) {
-+		for (cpu = NR_CPUS-1; !cpu_isset(cpu, cpu_possible_map); cpu--)
-+			continue;
-+		cpu_clear(cpu, cpu_possible_map);
-+	}
-+
-+	for_each_possible_cpu (cpu) {
-+		struct task_struct *idle;
-+
-+		if (cpu == 0)
-+			continue;
-+
-+		idle = fork_idle(cpu);
-+		if (IS_ERR(idle))
-+			panic("failed fork for CPU %d", cpu);
-+
-+		cpu_set(cpu, cpu_present_map);
-+	}
-+
-+	//init_xenbus_allowed_cpumask();
-+}
-+
-+static __cpuinit int
-+cpu_initialize_context(unsigned int cpu, struct task_struct *idle)
-+{
-+	struct vcpu_guest_context *ctxt;
-+	struct gdt_page *gdt = &per_cpu(gdt_page, cpu);
-+
-+	if (cpu_test_and_set(cpu, cpu_initialized_map))
-+		return 0;
-+
-+	ctxt = kzalloc(sizeof(*ctxt), GFP_KERNEL);
-+	if (ctxt == NULL)
++	gnttab_list = kmalloc(max_nr_glist_frames * sizeof(grant_ref_t *),
++			      GFP_KERNEL);
++	if (gnttab_list == NULL)
 +		return -ENOMEM;
 +
-+	ctxt->flags = VGCF_IN_KERNEL;
-+	ctxt->user_regs.ds = __USER_DS;
-+	ctxt->user_regs.es = __USER_DS;
-+	ctxt->user_regs.fs = __KERNEL_PERCPU;
-+	ctxt->user_regs.gs = 0;
-+	ctxt->user_regs.ss = __KERNEL_DS;
-+	ctxt->user_regs.eip = (unsigned long)cpu_bringup_and_idle;
-+	ctxt->user_regs.eflags = 0x1000; /* IOPL_RING1 */
-+
-+	memset(&ctxt->fpu_ctxt, 0, sizeof(ctxt->fpu_ctxt));
-+
-+	xen_copy_trap_info(ctxt->trap_ctxt);
-+
-+	ctxt->ldt_ents = 0;
-+
-+	BUG_ON((unsigned long)gdt->gdt & ~PAGE_MASK);
-+	make_lowmem_page_readonly(gdt->gdt);
-+
-+	ctxt->gdt_frames[0] = virt_to_mfn(gdt->gdt);
-+	ctxt->gdt_ents      = ARRAY_SIZE(gdt->gdt);
-+
-+	ctxt->user_regs.cs = __KERNEL_CS;
-+	ctxt->user_regs.esp = idle->thread.esp0 - sizeof(struct pt_regs);
-+
-+	ctxt->kernel_ss = __KERNEL_DS;
-+	ctxt->kernel_sp = idle->thread.esp0;
-+
-+	ctxt->event_callback_cs     = __KERNEL_CS;
-+	ctxt->event_callback_eip    = (unsigned long)xen_hypervisor_callback;
-+	ctxt->failsafe_callback_cs  = __KERNEL_CS;
-+	ctxt->failsafe_callback_eip = (unsigned long)xen_failsafe_callback;
-+
-+	per_cpu(xen_cr3, cpu) = __pa(swapper_pg_dir);
-+	ctxt->ctrlreg[3] = xen_pfn_to_cr3(virt_to_mfn(swapper_pg_dir));
-+
-+	if (HYPERVISOR_vcpu_op(VCPUOP_initialise, cpu, ctxt))
-+		BUG();
-+
-+	kfree(ctxt);
-+	return 0;
-+}
-+
-+int __cpuinit xen_cpu_up(unsigned int cpu)
-+{
-+	struct task_struct *idle = idle_task(cpu);
-+	int rc;
-+
-+#if 0
-+	rc = cpu_up_check(cpu);
-+	if (rc)
-+		return rc;
-+#endif
-+
-+	init_gdt(cpu);
-+	per_cpu(current_task, cpu) = idle;
-+	xen_vcpu_setup(cpu);
-+	irq_ctx_init(cpu);
-+
-+	/* make sure interrupts start blocked */
-+	per_cpu(xen_vcpu, cpu)->evtchn_upcall_mask = 1;
-+
-+	rc = cpu_initialize_context(cpu, idle);
-+	if (rc)
-+		return rc;
-+
-+	if (num_online_cpus() == 1)
-+		alternatives_smp_switch(1);
-+
-+	rc = xen_smp_intr_init(cpu);
-+	if (rc)
-+		return rc;
-+
-+	/* This must be done before setting cpu_online_map */
-+	smp_store_cpu_info(cpu);
-+	set_cpu_sibling_map(cpu);
-+	wmb();
-+
-+	cpu_set(cpu, cpu_online_map);
-+
-+	rc = HYPERVISOR_vcpu_op(VCPUOP_up, cpu, NULL);
-+	BUG_ON(rc);
-+
-+	return 0;
-+}
-+
-+void xen_smp_cpus_done(unsigned int max_cpus)
-+{
-+}
-+
-+static void stop_self(void *v)
-+{
-+	int cpu = smp_processor_id();
-+
-+	/* make sure we're not pinning something down */
-+	load_cr3(swapper_pg_dir);
-+	/* should set up a minimal gdt */
-+
-+	HYPERVISOR_vcpu_op(VCPUOP_down, cpu, NULL);
-+	BUG();
-+}
-+
-+void xen_smp_send_stop(void)
-+{
-+	cpumask_t mask = cpu_online_map;
-+	cpu_clear(smp_processor_id(), mask);
-+	xen_smp_call_function_mask(mask, stop_self, NULL, 0);
-+}
-+
-+void xen_smp_send_reschedule(int cpu)
-+{
-+	xen_send_IPI_one(cpu, XEN_RESCHEDULE_VECTOR);
-+}
-+
-+
-+static void xen_send_IPI_mask(cpumask_t mask, enum ipi_vector vector)
-+{
-+	unsigned cpu;
-+
-+	cpus_and(mask, mask, cpu_online_map);
-+
-+	for_each_cpu_mask(cpu, mask)
-+		xen_send_IPI_one(cpu, vector);
-+}
-+
-+static irqreturn_t xen_call_function_interrupt(int irq, void *dev_id)
-+{
-+	void (*func) (void *info) = call_data->func;
-+	void *info = call_data->info;
-+	int wait = call_data->wait;
-+
-+	/*
-+	 * Notify initiating CPU that I've grabbed the data and am
-+	 * about to execute the function
-+	 */
-+	mb();
-+	atomic_inc(&call_data->started);
-+	/*
-+	 * At this point the info structure may be out of scope unless wait==1
-+	 */
-+	irq_enter();
-+	(*func)(info);
-+	irq_exit();
-+
-+	if (wait) {
-+		mb();
-+		atomic_inc(&call_data->finished);
++	for (i = 0; i < nr_grant_frames; i++) {
++		gnttab_list[i] = (grant_ref_t *)__get_free_page(GFP_KERNEL);
++		if (gnttab_list[i] == NULL)
++			goto ini_nomem;
 +	}
 +
-+	return IRQ_HANDLED;
-+}
++	if (gnttab_resume() < 0)
++		return -ENODEV;
 +
-+int xen_smp_call_function_mask(cpumask_t mask, void (*func)(void *),
-+			       void *info, int wait)
-+{
-+	struct call_data_struct data;
-+	int cpus;
++	nr_init_grefs = nr_grant_frames * GREFS_PER_GRANT_FRAME;
 +
-+	/* Holding any lock stops cpus from going down. */
-+	spin_lock(&call_lock);
++	for (i = NR_RESERVED_ENTRIES; i < nr_init_grefs - 1; i++)
++		gnttab_entry(i) = i + 1;
 +
-+	cpu_clear(smp_processor_id(), mask);
++	gnttab_entry(nr_init_grefs - 1) = GNTTAB_LIST_END;
++	gnttab_free_count = nr_init_grefs - NR_RESERVED_ENTRIES;
++	gnttab_free_head  = NR_RESERVED_ENTRIES;
 +
-+	cpus = cpus_weight(mask);
-+	if (!cpus) {
-+		spin_unlock(&call_lock);
-+		return 0;
-+	}
-+
-+	/* Can deadlock when called with interrupts disabled */
-+	WARN_ON(irqs_disabled());
-+
-+	data.func = func;
-+	data.info = info;
-+	atomic_set(&data.started, 0);
-+	data.wait = wait;
-+	if (wait)
-+		atomic_set(&data.finished, 0);
-+
-+	call_data = &data;
-+	mb();
-+
-+	/* Send a message to other CPUs and wait for them to respond */
-+	xen_send_IPI_mask(mask, XEN_CALL_FUNCTION_VECTOR);
-+
-+	/* Make sure other vcpus get a chance to run.
-+	   XXX too severe?  Maybe we should check the other CPU's states? */
-+	HYPERVISOR_sched_op(SCHEDOP_yield, 0);
-+
-+	/* Wait for response */
-+	while (atomic_read(&data.started) != cpus ||
-+	       (wait && atomic_read(&data.finished) != cpus))
-+		cpu_relax();
-+
-+	spin_unlock(&call_lock);
-+
++	printk("Grant table initialized\n");
 +	return 0;
++
++ ini_nomem:
++	for (i--; i >= 0; i--)
++		free_page((unsigned long)gnttab_list[i]);
++	kfree(gnttab_list);
++	return -ENOMEM;
 +}
++
++core_initcall(gnttab_init);
 ===================================================================
---- a/arch/i386/xen/time.c
-+++ b/arch/i386/xen/time.c
-@@ -472,8 +472,9 @@ static irqreturn_t xen_timer_interrupt(i
- 	return ret;
- }
- 
--static void xen_setup_timer(int cpu)
--{
-+void xen_setup_timer(void)
-+{
-+	int cpu = smp_processor_id();
- 	const char *name;
- 	struct clock_event_device *evt;
- 	int irq;
-@@ -522,5 +523,5 @@ __init void xen_time_init(void)
- 
- 	tsc_disable = 0;
- 
--	xen_setup_timer(cpu);
--}
-+	xen_setup_timer();
-+}
-===================================================================
---- a/arch/i386/xen/xen-ops.h
-+++ b/arch/i386/xen/xen-ops.h
-@@ -2,6 +2,13 @@
- #define XEN_OPS_H
- 
- #include <linux/init.h>
-+#include <linux/percpu.h>
+--- /dev/null
++++ b/include/xen/grant_table.h
+@@ -0,0 +1,107 @@
++/******************************************************************************
++ * grant_table.h
++ *
++ * Two sets of functionality:
++ * 1. Granting foreign access to our memory reservation.
++ * 2. Accessing others' memory reservations via grant references.
++ * (i.e., mechanisms for both sender and recipient of grant references)
++ *
++ * Copyright (c) 2004-2005, K A Fraser
++ * Copyright (c) 2005, Christopher Clark
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
 +
-+/* These are code, but not functions.  Defined in entry.S */
-+extern const char xen_hypervisor_callback[];
-+extern const char xen_failsafe_callback[];
++#ifndef __ASM_GNTTAB_H__
++#define __ASM_GNTTAB_H__
 +
-+void xen_copy_trap_info(struct trap_info *traps);
- 
- DECLARE_PER_CPU(struct vcpu_info *, xen_vcpu);
- DECLARE_PER_CPU(unsigned long, xen_cr3);
-@@ -18,6 +25,7 @@ unsigned long xen_get_wallclock(void);
- unsigned long xen_get_wallclock(void);
- int xen_set_wallclock(unsigned long time);
- unsigned long long xen_sched_clock(void);
-+void xen_setup_timer(void);
- 
- void xen_mark_init_mm_pinned(void);
- 
-@@ -28,5 +36,22 @@ static inline unsigned xen_get_lazy_mode
- 	return x86_read_percpu(xen_lazy_mode);
- }
- 
-+void __init xen_fill_possible_map(void);
++#include <asm/xen/hypervisor.h>
++#include <xen/interface/grant_table.h>
 +
-+void xen_vcpu_setup(int cpu);
-+void xen_smp_prepare_boot_cpu(void);
-+void xen_smp_prepare_cpus(unsigned int max_cpus);
-+int xen_cpu_up(unsigned int cpu);
-+void xen_smp_cpus_done(unsigned int max_cpus);
++/* NR_GRANT_FRAMES must be less than or equal to that configured in Xen */
++#define NR_GRANT_FRAMES 4
 +
-+void xen_smp_send_stop(void);
-+void xen_smp_send_reschedule(int cpu);
-+int xen_smp_call_function (void (*func) (void *info), void *info, int nonatomic,
-+			   int wait);
-+int xen_smp_call_function_single(int cpu, void (*func) (void *info), void *info,
-+				 int nonatomic, int wait);
-+
-+int xen_smp_call_function_mask(cpumask_t mask, void (*func)(void *),
-+			       void *info, int wait);
- 
- #endif /* XEN_OPS_H */
-===================================================================
---- a/include/asm-i386/mach-default/irq_vectors_limits.h
-+++ b/include/asm-i386/mach-default/irq_vectors_limits.h
-@@ -1,7 +1,7 @@
- #ifndef _ASM_IRQ_VECTORS_LIMITS_H
- #define _ASM_IRQ_VECTORS_LIMITS_H
- 
--#ifdef CONFIG_X86_IO_APIC
-+#if defined(CONFIG_X86_IO_APIC) || defined(CONFIG_PARAVIRT)
- #define NR_IRQS 224
- # if (224 >= 32 * NR_CPUS)
- # define NR_IRQ_VECTORS NR_IRQS
-===================================================================
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -31,6 +31,8 @@ static inline void enter_lazy_tlb(struct
- 		per_cpu(cpu_tlbstate, cpu).state = TLBSTATE_LAZY;
- #endif
- }
-+
-+void leave_mm (unsigned long cpu);
- 
- static inline void switch_mm(struct mm_struct *prev,
- 			     struct mm_struct *next,
-===================================================================
---- a/include/asm-i386/smp.h
-+++ b/include/asm-i386/smp.h
-@@ -43,9 +43,12 @@ extern u8 x86_cpu_to_apicid[];
- 
- #define cpu_physical_id(cpu)	x86_cpu_to_apicid[cpu]
- 
-+extern void set_cpu_sibling_map(int cpu);
-+
- #ifdef CONFIG_HOTPLUG_CPU
- extern void cpu_exit_clear(void);
- extern void cpu_uninit(void);
-+extern void remove_siblinginfo(int cpu);
- #endif
- 
- struct smp_ops
-@@ -143,6 +146,8 @@ extern void __cpu_die(unsigned int cpu);
- extern void __cpu_die(unsigned int cpu);
- extern unsigned int num_processors;
- 
-+void __cpuinit smp_store_cpu_info(int id);
-+
- #endif /* !__ASSEMBLY__ */
- 
- #else /* CONFIG_SMP */
-===================================================================
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -1,15 +1,32 @@
- #ifndef _XEN_EVENTS_H
- #define _XEN_EVENTS_H
- 
--#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+
-+#include <xen/interface/event_channel.h>
-+#include <asm/xen/hypercall.h>
-+
-+enum ipi_vector {
-+	XEN_RESCHEDULE_VECTOR,
-+	XEN_CALL_FUNCTION_VECTOR,
-+
-+	XEN_NR_IPIS,
++struct gnttab_free_callback {
++	struct gnttab_free_callback *next;
++	void (*fn)(void *);
++	void *arg;
++	u16 count;
 +};
++
++int gnttab_grant_foreign_access(domid_t domid, unsigned long frame,
++				int readonly);
++
++/*
++ * End access through the given grant reference, iff the grant entry is no
++ * longer in use.  Return 1 if the grant entry was freed, 0 if it is still in
++ * use.
++ */
++int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly);
++
++/*
++ * Eventually end access through the given grant reference, and once that
++ * access has been ended, free the given page too.  Access will be ended
++ * immediately iff the grant entry is not in use, otherwise it will happen
++ * some time later.  page may be 0, in which case no freeing will occur.
++ */
++void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
++			       unsigned long page);
++
++int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
++
++unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
++unsigned long gnttab_end_foreign_transfer(grant_ref_t ref);
++
++int gnttab_query_foreign_access(grant_ref_t ref);
++
++/*
++ * operations on reserved batches of grant references
++ */
++int gnttab_alloc_grant_references(u16 count, grant_ref_t *pprivate_head);
++
++void gnttab_free_grant_reference(grant_ref_t ref);
++
++void gnttab_free_grant_references(grant_ref_t head);
++
++int gnttab_empty_grant_references(const grant_ref_t *pprivate_head);
++
++int gnttab_claim_grant_reference(grant_ref_t *pprivate_head);
++
++void gnttab_release_grant_reference(grant_ref_t *private_head,
++				    grant_ref_t release);
++
++void gnttab_request_free_callback(struct gnttab_free_callback *callback,
++				  void (*fn)(void *), void *arg, u16 count);
++void gnttab_cancel_free_callback(struct gnttab_free_callback *callback);
++
++void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
++				     unsigned long frame, int readonly);
++
++void gnttab_grant_foreign_transfer_ref(grant_ref_t, domid_t domid,
++				       unsigned long pfn);
++
++#define gnttab_map_vaddr(map) ((void *)(map.host_virt_addr))
++
++#endif /* __ASM_GNTTAB_H__ */
+===================================================================
+--- a/include/xen/interface/grant_table.h
++++ b/include/xen/interface/grant_table.h
+@@ -1,8 +1,26 @@
+ /******************************************************************************
+  * grant_table.h
+- *
++ *
+  * Interface for granting foreign access to page frames, and receiving
+  * page-ownership transfers.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
+  *
+  * Copyright (c) 2004, K A Fraser
+  */
+@@ -17,11 +35,11 @@
  
- int bind_evtchn_to_irqhandler(unsigned int evtchn,
--			      irqreturn_t (*handler)(int, void *),
-+			      irq_handler_t handler,
- 			      unsigned long irqflags, const char *devname,
- 			      void *dev_id);
- int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
--			    irqreturn_t (*handler)(int, void *),
--			    unsigned long irqflags, const char *devname, void *dev_id);
-+			    irq_handler_t handler,
-+			    unsigned long irqflags, const char *devname,
-+			    void *dev_id);
-+int bind_ipi_to_irqhandler(enum ipi_vector ipi,
-+			   unsigned int cpu,
-+			   irq_handler_t handler,
-+			   unsigned long irqflags,
-+			   const char *devname,
-+			   void *dev_id);
+ /* Some rough guidelines on accessing and updating grant-table entries
+  * in a concurrency-safe manner. For more information, Linux contains a
+- * reference implementation for guest OSes (arch/i386/mach-xen/grant_table.c).
+- *
++ * reference implementation for guest OSes (arch/xen/kernel/grant_table.c).
++ *
+  * NB. WMB is a no-op on current-generation x86 processors. However, a
+  *     compiler barrier will still be required.
+- *
++ *
+  * Introducing a valid entry into the grant table:
+  *  1. Write ent->domid.
+  *  2. Write ent->frame:
+@@ -30,7 +48,7 @@
+  *                           frame, or zero if none.
+  *  3. Write memory barrier (WMB).
+  *  4. Write ent->flags, inc. valid type.
+- *
++ *
+  * Invalidating an unused GTF_permit_access entry:
+  *  1. flags = ent->flags.
+  *  2. Observe that !(flags & (GTF_reading|GTF_writing)).
+@@ -42,7 +60,7 @@
+  *  This cannot be done directly. Request assistance from the domain controller
+  *  which can set a timeout on the use of a grant entry and take necessary
+  *  action. (NB. This is not yet implemented!).
+- *
++ *
+  * Invalidating an unused GTF_accept_transfer entry:
+  *  1. flags = ent->flags.
+  *  2. Observe that !(flags & GTF_transfer_committed). [*]
+@@ -60,7 +78,7 @@
+  *
+  * Changing a GTF_permit_access from writable to read-only:
+  *  Use SMP-safe CMPXCHG to set GTF_readonly, while checking !GTF_writing.
+- *
++ *
+  * Changing a GTF_permit_access from read-only to writable:
+  *  Use SMP-safe bit-setting instruction.
+  */
+@@ -144,12 +162,12 @@ typedef uint32_t grant_handle_t;
+  * that must be presented later to destroy the mapping(s). On error, <handle>
+  * is a negative status code.
+  * NOTES:
+- *  1. If GNTPIN_map_for_dev is specified then <dev_bus_addr> is the address
++ *  1. If GNTMAP_device_map is specified then <dev_bus_addr> is the address
+  *     via which I/O devices may access the granted frame.
+- *  2. If GNTPIN_map_for_host is specified then a mapping will be added at
++ *  2. If GNTMAP_host_map is specified then a mapping will be added at
+  *     either a host virtual address in the current address space, or at
+  *     a PTE at the specified machine address.  The type of mapping to
+- *     perform is selected through the GNTMAP_contains_pte flag, and the
++ *     perform is selected through the GNTMAP_contains_pte flag, and the
+  *     address is specified in <host_addr>.
+  *  3. Mappings should only be destroyed via GNTTABOP_unmap_grant_ref. If a
+  *     host mapping is destroyed by other means then it is *NOT* guaranteed
+@@ -167,7 +185,6 @@ struct gnttab_map_grant_ref {
+     grant_handle_t handle;
+     uint64_t dev_bus_addr;
+ };
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_map_grant_ref);
  
  /*
-  * Common unbind function for all event sources. Takes IRQ to unbind from.
-@@ -17,6 +34,8 @@ int bind_virq_to_irqhandler(unsigned int
-  * made with bind_evtchn_to_irqhandler()).
-  */
- void unbind_from_irqhandler(unsigned int irq, void *dev_id);
-+
-+void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector);
+  * GNTTABOP_unmap_grant_ref: Destroy one or more grant-reference mappings
+@@ -189,7 +206,6 @@ struct gnttab_unmap_grant_ref {
+     /* OUT parameters. */
+     int16_t  status;              /* GNTST_* */
+ };
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_unmap_grant_ref);
  
- static inline void notify_remote_via_evtchn(int port)
- {
+ /*
+  * GNTTABOP_setup_table: Set up a grant table for <dom> comprising at least
+@@ -207,9 +223,8 @@ struct gnttab_setup_table {
+     uint32_t nr_frames;
+     /* OUT parameters. */
+     int16_t  status;              /* GNTST_* */
+-    GUEST_HANDLE(ulong) frame_list;
+-};
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_setup_table);
++    ulong *frame_list;
++};
+ 
+ /*
+  * GNTTABOP_dump_table: Dump the contents of the grant table to the
+@@ -222,13 +237,12 @@ struct gnttab_dump_table {
+     /* OUT parameters. */
+     int16_t status;               /* GNTST_* */
+ };
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_dump_table);
+ 
+ /*
+  * GNTTABOP_transfer_grant_ref: Transfer <frame> to a foreign domain. The
+  * foreign domain has previously registered its interest in the transfer via
+  * <domid, ref>.
+- *
++ *
+  * Note that, even if the transfer fails, the specified page no longer belongs
+  * to the calling domain *unless* the error is GNTST_bad_page.
+  */
+@@ -241,7 +255,65 @@ struct gnttab_transfer {
+     /* OUT parameters. */
+     int16_t       status;
+ };
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_transfer);
++
++
++/*
++ * GNTTABOP_copy: Hypervisor based copy
++ * source and destinations can be eithers MFNs or, for foreign domains,
++ * grant references. the foreign domain has to grant read/write access
++ * in its grant table.
++ *
++ * The flags specify what type source and destinations are (either MFN
++ * or grant reference).
++ *
++ * Note that this can also be used to copy data between two domains
++ * via a third party if the source and destination domains had previously
++ * grant appropriate access to their pages to the third party.
++ *
++ * source_offset specifies an offset in the source frame, dest_offset
++ * the offset in the target frame and  len specifies the number of
++ * bytes to be copied.
++ */
++
++#define _GNTCOPY_source_gref      (0)
++#define GNTCOPY_source_gref       (1<<_GNTCOPY_source_gref)
++#define _GNTCOPY_dest_gref        (1)
++#define GNTCOPY_dest_gref         (1<<_GNTCOPY_dest_gref)
++
++#define GNTTABOP_copy                 5
++struct gnttab_copy {
++    /* IN parameters. */
++    struct {
++        union {
++            grant_ref_t ref;
++            unsigned long   gmfn;
++        } u;
++        domid_t  domid;
++        uint16_t offset;
++    } source, dest;
++    uint16_t      len;
++    uint16_t      flags;          /* GNTCOPY_* */
++    /* OUT parameters. */
++    int16_t       status;
++};
++
++/*
++ * GNTTABOP_query_size: Query the current and maximum sizes of the shared
++ * grant table.
++ * NOTES:
++ *  1. <dom> may be specified as DOMID_SELF.
++ *  2. Only a sufficiently-privileged domain may specify <dom> != DOMID_SELF.
++ */
++#define GNTTABOP_query_size           6
++struct gnttab_query_size {
++    /* IN parameters. */
++    domid_t  dom;
++    /* OUT parameters. */
++    uint32_t nr_frames;
++    uint32_t max_nr_frames;
++    int16_t  status;              /* GNTST_* */
++};
++
+ 
+ /*
+  * Bitfield values for update_pin_status.flags.
+@@ -284,6 +356,7 @@ DEFINE_GUEST_HANDLE_STRUCT(gnttab_transf
+ #define GNTST_no_device_space  (-7) /* Out of space in I/O MMU.              */
+ #define GNTST_permission_denied (-8) /* Not enough privilege for operation.  */
+ #define GNTST_bad_page         (-9) /* Specified page was invalid for op.    */
++#define GNTST_bad_copy_arg    (-10) /* copy arguments cross page boundary */
+ 
+ #define GNTTABOP_error_msgs {                   \
+     "okay",                                     \
+@@ -295,7 +368,8 @@ DEFINE_GUEST_HANDLE_STRUCT(gnttab_transf
+     "invalid device address",                   \
+     "no spare translation slot in the I/O MMU", \
+     "permission denied",                        \
+-    "bad page"                                  \
++    "bad page",                                 \
++    "copy arguments cross page boundary"        \
+ }
+ 
+ #endif /* __XEN_PUBLIC_GRANT_TABLE_H__ */
 
 -- 
