@@ -1,11 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 11/29] xen: ignore RW mapping of RO pages in pagetable_init
-Date: Fri, 04 May 2007 16:21:02 -0700
-Message-ID: <20070504232120.156706062@goop.org>
+Subject: [patch 14/29] xen: Implement xen_sched_clock
+Date: Fri, 04 May 2007 16:21:05 -0700
+Message-ID: <20070504232120.431264841@goop.org>
 References: <20070504232051.411946839@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=xen-pagetable_init-ignore-ro-mappings.patch
+Content-Disposition: inline; filename=xen-sched-clock.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,85 +15,100 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, "\"Eric W. Biederman\"" <ebiederm@xmission.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When setting up the initial pagetable, which includes mappings of all
-low physical memory, ignore a mapping which tries to set the RW bit on
-an RO pte.  An RO pte indicates a page which is part of the current
-pagetable, and so it cannot be allowed to become RW.
-
-Once xen_pagetable_setup_done is called, set_pte reverts to its normal
-behaviour.
+Implement xen_sched_clock, which returns the number of ns the current
+vcpu has been actually in an unstolen state (ie, running or blocked,
+vs runnable-but-not-running, or offline) since boot.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Acked-by: Chris Wright <chrisw@sous-sol.org>
-Cc: ebiederm@xmission.com (Eric W. Biederman)
+Cc: john stultz <johnstul@us.ibm.com>
 
 ---
- arch/i386/xen/enlighten.c |   27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+ arch/i386/xen/enlighten.c |    2 +-
+ arch/i386/xen/time.c      |   22 +++++++++++++++++++++-
+ arch/i386/xen/xen-ops.h   |    3 +--
+ 3 files changed, 23 insertions(+), 4 deletions(-)
 
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -635,7 +635,7 @@ static void xen_write_cr3(unsigned long 
+@@ -676,7 +676,7 @@ static const struct paravirt_ops xen_par
+ 	.set_wallclock = xen_set_wallclock,
+ 	.get_wallclock = xen_get_wallclock,
+ 	.get_cpu_khz = xen_cpu_khz,
+-	.sched_clock = xen_clocksource_read,
++	.sched_clock = xen_sched_clock,
  
- /* Early in boot, while setting up the initial pagetable, assume
-    everything is pinned. */
--static void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
-+static __init void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
- {
- 	BUG_ON(mem_map);	/* should only be used early */
- 	make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
-@@ -687,9 +687,31 @@ static void *xen_kmap_atomic_pte(struct 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	.apic_write = paravirt_nop,
+===================================================================
+--- a/arch/i386/xen/time.c
++++ b/arch/i386/xen/time.c
+@@ -16,6 +16,8 @@
+ #define XEN_SHIFT 22
+ #define TIMER_SLOP	100000	/* Xen may fire a timer up to this many ns early */
+ #define NS_PER_TICK	(1000000000ll / HZ)
++
++static cycle_t xen_clocksource_read(void);
+ 
+ /* These are perodically updated in shared_info, and then copied here. */
+ struct shadow_time_info {
+@@ -118,6 +120,24 @@ static void do_stolen_accounting(void)
+ 	account_steal_time(idle_task(smp_processor_id()), ticks);
  }
- #endif
  
-+static __init pte_t mask_rw_pte(pte_t *ptep, pte_t pte)
++/*
++ * Xen sched_clock implementation.  Returns the number of unstolen
++ * nanoseconds, which is nanoseconds the VCPU spent in RUNNING+BLOCKED
++ * states.
++ */
++unsigned long long xen_sched_clock(void)
 +{
-+	/* If there's an existing pte, then don't allow _PAGE_RW to be set */
-+	if (pte_val_ma(*ptep) & _PAGE_PRESENT)
-+		pte = __pte_ma(((pte_val_ma(*ptep) & _PAGE_RW) | ~_PAGE_RW) &
-+			       pte_val_ma(pte));
++	struct vcpu_runstate_info state;
++	cycle_t now = xen_clocksource_read();
 +
-+	return pte;
++	get_runstate_snapshot(&state);
++
++	WARN_ON(state.state != RUNSTATE_running);
++
++	return state.time[RUNSTATE_blocked] +
++		state.time[RUNSTATE_running] +
++		(now - state.state_entry_time);
 +}
-+
-+/* Init-time set_pte while constructing initial pagetables, which
-+   doesn't allow RO pagetable pages to be remapped RW */
-+static __init void xen_set_pte_init(pte_t *ptep, pte_t pte)
-+{
-+	pte = mask_rw_pte(ptep, pte);
-+
-+	xen_set_pte(ptep, pte);
-+}
-+
- static __init void xen_pagetable_setup_start(pgd_t *base)
+ 
+ 
+ /* Get the CPU speed from Xen */
+@@ -209,7 +229,7 @@ static u64 get_nsec_offset(struct shadow
+ 	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
+ }
+ 
+-cycle_t xen_clocksource_read(void)
++static cycle_t xen_clocksource_read(void)
  {
- 	pgd_t *xen_pgd = (pgd_t *)xen_start_info->pt_base;
-+
-+	/* special set_pte for pagetable initialization */
-+	paravirt_ops.set_pte = xen_set_pte_init;
+ 	struct shadow_time_info *shadow = &get_cpu_var(shadow_time);
+ 	cycle_t ret;
+===================================================================
+--- a/arch/i386/xen/xen-ops.h
++++ b/arch/i386/xen/xen-ops.h
+@@ -2,7 +2,6 @@
+ #define XEN_OPS_H
  
- 	init_mm.pgd = base;
- 	/*
-@@ -737,6 +759,7 @@ static __init void xen_pagetable_setup_d
- 	/* This will work as long as patching hasn't happened yet
- 	   (which it hasn't) */
- 	paravirt_ops.alloc_pt = xen_alloc_pt;
-+	paravirt_ops.set_pte = xen_set_pte;
+ #include <linux/init.h>
+-#include <linux/clocksource.h>
  
- 	if (!xen_feature(XENFEAT_auto_translated_physmap)) {
- 		/*
-@@ -919,7 +942,7 @@ static const struct paravirt_ops xen_par
- 	.dup_mmap = xen_dup_mmap,
- 	.exit_mmap = xen_exit_mmap,
+ DECLARE_PER_CPU(struct vcpu_info *, xen_vcpu);
+ DECLARE_PER_CPU(unsigned long, xen_cr3);
+@@ -18,7 +17,7 @@ void __init xen_time_init(void);
+ void __init xen_time_init(void);
+ unsigned long xen_get_wallclock(void);
+ int xen_set_wallclock(unsigned long time);
+-cycle_t xen_clocksource_read(void);
++unsigned long long xen_sched_clock(void);
  
--	.set_pte = xen_set_pte,
-+	.set_pte = NULL,	/* see xen_pagetable_setup_* */
- 	.set_pte_at = xen_set_pte_at,
- 	.set_pmd = xen_set_pmd,
+ void xen_mark_init_mm_pinned(void);
  
 
 -- 
