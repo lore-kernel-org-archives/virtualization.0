@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [RELEASE] linux-2.6.21 backport: 269 version
-Date: Sat, 05 May 2007 00:09:05 +1000
-Message-ID: <1178287745.23670.80.camel__3431.41525886512$1178287818$gmane$org@localhost.localdomain>
+Subject: Re: [RELEASE] linux-2.6.21 backport: 269 version
+Date: Sat, 05 May 2007 00:13:20 +1000
+Message-ID: <1178288000.23670.83.camel__3209.9068667323$1178288116$gmane$org@localhost.localdomain>
+References: <1178287745.23670.80.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1178287745.23670.80.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,21 +17,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
-Cc: WANG Cong <xiyou.wangcong@gmail.com>
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thanks to everyone who sent bug reports.  I've backported all the fixes
-and tweaks.
+On Sat, 2007-05-05 at 00:09 +1000, Rusty Russell wrote:
+> Thanks to everyone who sent bug reports.  I've backported all the fixes
+> and tweaks.
+> 
+> Changes since last 2.6.21 release (254):
 
-Changes since last 2.6.21 release (254):
+The URL?  Well, I'm glad you asked:
 
-1) Method for building launcher with out-of-tree build (patch from Tony Breeds)
-2) SIOCBRADDIF definition for older libc headers (report by Wang Cong)
-3) Warning suppression for put_user/get_user (Wang Cong report again)
-4) Numerous typo fixes (Jeremy Fitzhardinge's eyes)
-5) Rework of networking documentation (Glauber de Oliveira Costa's whining)
-6) Block documentation includes new love scene.
+	http://lguest.ozlabs.org/lguest-2.6.21-269.patch.gz
 
-Heroic hacking!
-Rusty Russell <rusty@rustcorp.com.au>
+Cheers,
+Rusty.
