@@ -1,15 +1,15 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [patch 25/29] xen: Add the Xen virtual network device driver.
-Date: Sat, 5 May 2007 20:23:05 +1000
-Message-ID: <20070505102305.GA12771@gondor.apana.org.au>
+From: olof@lixom.net (Olof Johansson)
+Subject: Re: [patch 19/29] xen: Use the hvc console infrastructure for Xen
+	console
+Date: Sun, 6 May 2007 11:31:45 -0500
+Message-ID: <20070506163145.GA32291@lixom.net>
 References: <20070504232051.411946839@goop.org>
-	<20070504232121.492190579@goop.org>
-	<20070505091624.GA8890@infradead.org> <463C56D3.8060609@goop.org>
+	<20070504232120.890105448@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <463C56D3.8060609@goop.org>
+In-Reply-To: <20070504232120.890105448@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,20 +20,15 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Jeff Garzik <jeff@garzik.org>, Ian Pratt <ian.pratt@xensource.com>, netdev@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, virtualization@lists.osdl.org, Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, Stephen Hemminger <shemminge@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, May 05, 2007 at 03:05:07AM -0700, Jeremy Fitzhardinge wrote:
->
-> Sorry, I forgot about it.  I was waiting to hear back from network
-> people about what this is actually for, and whether we really need it. 
+On Fri, May 04, 2007 at 04:21:10PM -0700, Jeremy Fitzhardinge wrote:
+> Implement a Xen back-end for hvc console.
+> 
+> From: Gerd Hoffmann <kraxel@suse.de>
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> Cc: Olof Johansson <olof@lixom.net>
 
-We should just change this to use netif_device_attach and
-netif_device_detach.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Acked-by: Olof Johansson <olof@lixom.net>
