@@ -1,113 +1,44 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 7/9] lguest: the net driver
-Date: Thu, 10 May 2007 01:14:55 +1000
-Message-ID: <1178723695.7286.164.camel@localhost.localdomain>
-References: <200705090951.l499pdOr020406@shell0.pdx.osdl.net>
-	 <4641BE65.3030807@garzik.org>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol for
+ relocatable bzImage
+Date: Tue, 08 May 2007 16:13:07 -0700
+Message-ID: <46410403.4050802__26624.9255081222$1178728657$gmane$org@zytor.com>
+References: <4634483E.9030307@goop.org>	
+	<m1tzuuv24z.fsf@ebiederm.dsl.xmission.com>	
+	<86802c440705080941y69ddd5d6lab170c5f3967f148@mail.gmail.com>	
+	<m1sla7i68s.fsf@ebiederm.dsl.xmission.com>	
+	<86802c440705081033s19365843i5b955ae175de73eb@mail.gmail.com>	
+	<86802c440705081151r6bfd82e4o50c6a34b2b2a833f@mail.gmail.com>	
+	<m1k5vji107.fsf@ebiederm.dsl.xmission.com>	
+	<86802c440705081500x682ee098y7d51f7bb98dbcff6@mail.gmail.com>	
+	<4640F4B3.30408@goop.org> <4640FB2C.2060300@zytor.com>
+	<86802c440705081541v7d0773cek2c5fae1854b68bbc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757953AbXEIPP3@vger.kernel.org>
-In-Reply-To: <4641BE65.3030807@garzik.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeff Garzik <jeff@garzik.org>
-Cc: akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, ak@suse.de, jmorris@namei.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <86802c440705081541v7d0773cek2c5fae1854b68bbc@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, vgoyal@in.ibm.com, "Eric W. Biederman" <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jeff,
-
-	Thanks for your review.  Questions below.
-
-On Wed, 2007-05-09 at 08:28 -0400, Jeff Garzik wrote:
-> akpm@linux-foundation.org wrote:
-> > +static void transfer_packet(struct net_device *dev,
-...
-> > +	hcall(LHCALL_SEND_DMA, peer_key(info,peernum), __pa(&dma), 0);
+yhlu wrote:
+> On 5/8/07, H. Peter Anvin <hpa@zytor.com> wrote:
+>> Jeremy Fitzhardinge wrote:
+>> Specifically boot_params.screen_info isn't being properly set up by the
+>> caller.
 > 
-> __pa() should not be used in any driver.
-> 
-> At the very least, lguest helper code should wrap this.
+> will setup real_mode_data in kexec path?
 
-	I realize your continual battle with this, but adding a layer of
-indirection doesn't seem like it will add clarity.  The issues with
-__pa() are reasonably known (don't hand it a vmalloc address, for
-example).  Any wrapper I create would be another hurdle to jump 8(
+-ENOPARSE
 
-> > +static irqreturn_t lguestnet_rcv(int irq, void *dev_id)
-...
-> > +	return done ? IRQ_HANDLED : IRQ_NONE;
-> 
-> Using NAPI would be preferable...
-
-I'm not so convinced: scheduling tends to give us pretty good interrupt
-mitigation.  However, if you wish to send a patch, I'd be happy to
-benchmark the two 8)
-
-> > +	/* Ethernet defaults with some changes */
-> > +	ether_setup(dev);
-> > +	dev->set_mac_address = NULL;
-> 
-> why NULL?
-
-Because it's not implemented: our MAC is advertised in the device page
-and we'd have to change it there too.
-
-Trivial to do, but is there a compelling reason to implement it?
-
-> > +	dev->mem_start = ((unsigned long)desc->pfn << PAGE_SHIFT);
-> > +	dev->mem_end = dev->mem_start + PAGE_SIZE * desc->num_pages;
-> > +	dev->irq = lgdev->index+1;
-> 
-> don't fill in mem_start, mem_end and irq.  they are useless, and for 
-> lguest, misleading.
-
-You meant to type "useful and accurate", I think?  They show up in
-ifconfig, so you can see what the underlying devices are using.  They're
-as useful for virtual hardware as they are for physical hardware.
-
-> > +	dev->features = NETIF_F_SG;
-> > +	if (desc->features & LGUEST_NET_F_NOCSUM)
-> > +		dev->features |= NETIF_F_NO_CSUM;
-> 
-> do not set SG without an accompanying csum bitflag
-
-That seems... odd.  My driver can do SG, and may or may not need csums.
-The current Linux code turns SG off if I need csums and that's fine, but
-it hardly seems like my device should be making that decision.
-
-> > +	info = dev->priv;
-> 
-> use netdev_priv()
-
-OK, thanks.
-
-> > +	info->mapsize = PAGE_SIZE * desc->num_pages;
-> > +	info->peer_phys = ((unsigned long)desc->pfn << PAGE_SHIFT);
-> > +	info->peer = (void *)ioremap(info->peer_phys, info->mapsize);
-> 
-> check for NULL
-
-Erk, good catch!
-
-> > +unregister:
-> > +	unregister_netdev(dev);
-> > +free:
-> > +	free_netdev(dev);
-> 
-> missing iounmap() on error
-
-What is it about me and iomap... will fix that too.
-
-> > +static struct lguest_driver lguestnet_drv = {
-> > +	.name = "lguestnet",
-> > +	.owner = THIS_MODULE,
-> > +	.device_type = LGUEST_DEVICE_T_NET,
-> > +	.probe = lguestnet_probe,
-> > +};
-> 
-> You are distinctly missing module remove support
-
-Yes.  It is never built as a module currently (though it should work).
-
-Thanks!
-Rusty.
+	-hpa
