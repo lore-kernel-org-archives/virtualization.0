@@ -1,12 +1,20 @@
-From: James Morris <jmorris@namei.org>
-Subject: Re: [PATCH] lguest: two net bugfixes
-Date: Tue, 8 May 2007 09:17:16 -0400 (EDT)
-Message-ID: <Line.LNX.4.64.0705080916560.23450__31362.254478927$1178630323$gmane$org@d.namei>
-References: <1178623374.7286.10.camel@localhost.localdomain>
+From: yhlu <yhlu.kernel@gmail.com>
+Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol for
+	relocatable bzImage
+Date: Tue, 8 May 2007 09:41:09 -0700
+Message-ID: <86802c440705080941y69ddd5d6lab170c5f3967f148__1966.44374304942$1178642609$gmane$org@mail.gmail.com>
+References: <4634483E.9030307@goop.org> <46385A8A.6070405@redhat.com>
+	<4638AB55.20408@goop.org> <4638F9BE.8090508@zytor.com>
+	<4638FC39.4010101@goop.org> <4638FE1B.9050901@zytor.com>
+	<46390523.5010809@goop.org> <463909AF.9040205@zytor.com>
+	<20070503045031.GA5794@in.ibm.com>
+	<m1tzuuv24z.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1178623374.7286.10.camel@localhost.localdomain>
+In-Reply-To: <m1tzuuv24z.fsf@ebiederm.dsl.xmission.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,61 +24,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, vgoyal@in.ibm.com, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 8 May 2007, Rusty Russell wrote:
+On 5/2/07, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> Vivek Goyal <vgoyal@in.ibm.com> writes:
+>
+> > On Wed, May 02, 2007 at 02:59:11PM -0700, H. Peter Anvin wrote:
+> >> Jeremy Fitzhardinge wrote:
+> >> >
+> >> > So the bzImage structure is currently:
+> >> >
+> >> >    1. old-style boot sector
+> >> >    2. old-style boot info, followed by 0xaa55 at the end of the sector
+> >> >    3. the HdrS boot param block
+> >> >    4. setup.S boot code
+> >> >    5. the self-decompressing kernel
+> >> >
 
-> 1) Bridging via host is broken: we need to set "promisc" bit in MAC
->    address published by the host so the guest sends us everything.
->    Thanks James Morris for the report (I don't use bridging).
-> 
-> 2) Lguest network device uses 0 to mean "noone at this slot".  It used to
->    use 0xFF, and one spot was missed.  Minor: it just means we'll have a
->    useless extra transmit for broadcast packets.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Eric,
 
-Acked-by: James Morris <jmorris@namei.org>
+With the latest change that make vmlinux to be elf64 and make bzImage
+do switch to 64bit long mode, the kernel started via kexec can not get
+VGA console. but the serial console works well. I wonder if the
+setup.S is skipped in bzImage via kexec path.
+
+or i missed sth?
+
+#!/bin/bash
+./kexec -t bzImage -l bzImage_2.6.22_k8.1 --command-line="apic=debug
+acpi_dbg_level=0x00000007 pci=routeirq snd-hda-intel.enable_msi=1
+ramdisk_size=65536 root=/dev/ram0 rw ip=dhcp console=tty0
+console=ttyS0,9600n8" --ramdisk=mydisk8_x86_64.gz
 
 
-
-> ---
->  Documentation/lguest/lguest.c |    2 ++
->  drivers/net/lguest_net.c      |    2 +-
->  2 files changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff -r 999a9058a151 Documentation/lguest/lguest.c
-> --- a/Documentation/lguest/lguest.c	Tue May 08 19:49:33 2007 +1000
-> +++ b/Documentation/lguest/lguest.c	Tue May 08 21:04:51 2007 +1000
-> @@ -860,6 +860,10 @@ static void setup_tun_net(const char *ar
->  
->  	/* We are peer 0, ie. first slot. */
->  	configure_device(ipfd, ifr.ifr_name, ip, dev->mem);
-> +
-> +	/* Set "promisc" bit: we want every single packet. */
-> +	*((u8 *)dev->mem) |= 0x1;
-> +
->  	close(ipfd);
->  
->  	verbose("device %p: tun net %u.%u.%u.%u\n",
-> diff -r 999a9058a151 drivers/net/lguest_net.c
-> --- a/drivers/net/lguest_net.c	Tue May 08 19:49:33 2007 +1000
-> +++ b/drivers/net/lguest_net.c	Tue May 08 21:03:47 2007 +1000
-> @@ -249,7 +249,7 @@ static int lguestnet_close(struct net_de
->  	struct lguestnet_info *info = dev->priv;
->  
->  	/* Clear all trace: others might deliver packets, we'll ignore it. */
-> -	memset(&info->peer[info->me], 0xFF, sizeof(info->peer[info->me]));
-> +	memset(&info->peer[info->me], 0, sizeof(info->peer[info->me]));
->  
->  	/* Deregister sg lists. */
->  	hcall(LHCALL_BIND_DMA, peer_key(info, info->me), __pa(info->dma), 0);
-> 
-> 
-> 
-
--- 
-James Morris
-<jmorris@namei.org>
+YH
