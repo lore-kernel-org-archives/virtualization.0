@@ -1,63 +1,27 @@
 From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [1/2] [NET] link_watch: Move link watch list into net_device
-Date: Tue, 8 May 2007 22:13:22 +1000
-Message-ID: <20070508121322.GA21647@gondor.apana.org.au>
-References: <20070504232051.411946839@goop.org>
-	<20070504232121.492190579@goop.org>
-	<20070505091624.GA8890@infradead.org> <463C56D3.8060609@goop.org>
-	<20070505102305.GA12771@gondor.apana.org.au>
-	<463F95C3.60407@goop.org>
+Subject: [2/2] [NET] link_watch: Remove delay for up even when we're down
+Date: Tue, 8 May 2007 22:16:09 +1000
+Message-ID: <20070508121609.GA24763@gondor.apana.org.au>
+References: <20070504232051.411946839@goop.org> <20070504232121.492190579@goop.org> <20070505091624.GA8890@infradead.org> <463C56D3.8060609@goop.org> <20070505102305.GA12771@gondor.apana.org.au> <463F95C3.60407@goop.org> <20070508121322.GA21647@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <463F95C3.60407@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+In-Reply-To: <20070508121322.GA21647@gondor.apana.org.au>
+Sender: netdev-owner@vger.kernel.org
 To: "David S. Miller" <davem@davemloft.net>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Jeff Garzik <jeff@garzik.org>, Ian Pratt <ian.pratt@xensource.com>, netdev@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, virtualization@lists.osdl.org, Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, Stephen Hemminger <shemminge@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, Stephen Hemminger <shemminge@linux-foundation.org>, Rusty Russell <rusty@rustcorp.com.au>, Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 07, 2007 at 02:10:27PM -0700, Jeremy Fitzhardinge wrote:
->
-> > We should just change this to use netif_device_attach and
-> > netif_device_detach.
-> 
-> Like this?
+[NET]: Remove link_watch delay for up even when we're down
 
-Sorry, I had forgotten that I've already concluded previously that
-this doesn't work because we don't want to prevent the interface
-from being brought up (and other reasons).  My memory is failing me :)
+Currently all link carrier events are delayed by up to a second
+before they're processed to prevent link storms.  This causes
+unnecessary packet loss during that interval.
 
-So I think the best option now is to get rid of the delay on carrier
-on events for everyone.
-
-Here is the first of 2 patches.
-
-[NET] link_watch: Move link watch list into net_device
-
-These days the link watch mechanism is an integral part of the
-network subsystem as it manages the carrier status.  So it now
-makes sense to allocate some memory for it in net_device rather
-than allocating it on demand.
-
-In fact, this is necessary because we can't tolerate a memory
-allocation failure since that means we'd have to potentially
-throw a link up event away.
-
-It also simplifies the code greatly.
-
-In doing so I discovered a subtle race condition in the use
-of singleevent.  This race condition still exists (and is
-somewhat magnified) without singleevent but it's now plugged
-thanks to an smp_mb__before_clear_bit.
+In fact, we can achieve the same effect in preventing storms by
+only delaying down events and unnecssary up events.  The latter
+is defined as up events when we're already up.
 
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
@@ -68,117 +32,139 @@ Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
 Home Page: http://gondor.apana.org.au/~herbert/
 PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 --
-a6c194d06da9aed2a8f5a4ea07e3cbf9266db4ef
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 3044622..f671cd2 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -467,6 +467,8 @@ struct net_device
- 	/* device index hash chain */
- 	struct hlist_node	index_hlist;
- 
-+	struct net_device	*link_watch_next;
-+
- 	/* register/unregister state machine */
- 	enum { NETREG_UNINITIALIZED=0,
- 	       NETREG_REGISTERED,	/* completed register_netdevice */
 diff --git a/net/core/link_watch.c b/net/core/link_watch.c
-index e3c26a9..71a35da 100644
+index 71a35da..b5f4579 100644
 --- a/net/core/link_watch.c
 +++ b/net/core/link_watch.c
-@@ -19,7 +19,6 @@
- #include <linux/rtnetlink.h>
- #include <linux/jiffies.h>
- #include <linux/spinlock.h>
--#include <linux/list.h>
- #include <linux/slab.h>
- #include <linux/workqueue.h>
- #include <linux/bitops.h>
-@@ -28,7 +27,6 @@
+@@ -77,11 +77,52 @@ static void rfc2863_policy(struct net_device *dev)
+ }
  
- enum lw_bits {
- 	LW_RUNNING = 0,
--	LW_SE_USED
- };
  
- static unsigned long linkwatch_flags;
-@@ -37,17 +35,9 @@ static unsigned long linkwatch_nextevent;
- static void linkwatch_event(struct work_struct *dummy);
- static DECLARE_DELAYED_WORK(linkwatch_work, linkwatch_event);
- 
--static LIST_HEAD(lweventlist);
-+static struct net_device *lweventlist;
- static DEFINE_SPINLOCK(lweventlist_lock);
- 
--struct lw_event {
--	struct list_head list;
--	struct net_device *dev;
--};
--
--/* Avoid kmalloc() for most systems */
--static struct lw_event singleevent;
--
- static unsigned char default_operstate(const struct net_device *dev)
- {
- 	if (!netif_carrier_ok(dev))
-@@ -90,21 +80,23 @@ static void rfc2863_policy(struct net_device *dev)
- /* Must be called with the rtnl semaphore held */
- void linkwatch_run_queue(void)
- {
--	struct list_head head, *n, *next;
-+	struct net_device *next;
- 
- 	spin_lock_irq(&lweventlist_lock);
--	list_replace_init(&lweventlist, &head);
-+	next = lweventlist;
-+	lweventlist = NULL;
- 	spin_unlock_irq(&lweventlist_lock);
- 
--	list_for_each_safe(n, next, &head) {
--		struct lw_event *event = list_entry(n, struct lw_event, list);
--		struct net_device *dev = event->dev;
-+	while (next) {
-+		struct net_device *dev = next;
- 
--		if (event == &singleevent) {
--			clear_bit(LW_SE_USED, &linkwatch_flags);
--		} else {
--			kfree(event);
--		}
-+		next = dev->link_watch_next;
+-/* Must be called with the rtnl semaphore held */
+-void linkwatch_run_queue(void)
++static int linkwatch_urgent_event(struct net_device *dev)
++{
++	return netif_running(dev) && netif_carrier_ok(dev) &&
++	       dev->qdisc != dev->qdisc_sleeping;
++}
 +
-+		/*
-+		 * Make sure the above read is complete since it can be
-+		 * rewritten as soon as we clear the bit below.
-+		 */
-+		smp_mb__before_clear_bit();
++
++static void linkwatch_add_event(struct net_device *dev)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&lweventlist_lock, flags);
++	dev->link_watch_next = lweventlist;
++	lweventlist = dev;
++	spin_unlock_irqrestore(&lweventlist_lock, flags);
++}
++
++
++static void linkwatch_schedule_work(unsigned long delay)
++{
++	if (test_and_set_bit(LW_RUNNING, &linkwatch_flags))
++		return;
++
++	/* If we wrap around we'll delay it by at most HZ. */
++	if (delay > HZ)
++		delay = 0;
++
++	schedule_delayed_work(&linkwatch_work, delay);
++}
++
++
++static void __linkwatch_run_queue(int urgent_only)
+ {
+ 	struct net_device *next;
  
- 		/* We are about to handle this device,
- 		 * so new events can be accepted
-@@ -147,24 +139,12 @@ void linkwatch_fire_event(struct net_device *dev)
++	/*
++	 * Limit the number of linkwatch events to one
++	 * per second so that a runaway driver does not
++	 * cause a storm of messages on the netlink
++	 * socket.  This limit does not apply to up events
++	 * while the device qdisc is down.
++	 */
++	if (!urgent_only)
++		linkwatch_nextevent = jiffies + HZ;
++	clear_bit(LW_RUNNING, &linkwatch_flags);
++
+ 	spin_lock_irq(&lweventlist_lock);
+ 	next = lweventlist;
+ 	lweventlist = NULL;
+@@ -92,6 +133,11 @@ void linkwatch_run_queue(void)
+ 
+ 		next = dev->link_watch_next;
+ 
++		if (urgent_only && !linkwatch_urgent_event(dev)) {
++			linkwatch_add_event(dev);
++			continue;
++		}
++
+ 		/*
+ 		 * Make sure the above read is complete since it can be
+ 		 * rewritten as soon as we clear the bit below.
+@@ -116,21 +162,23 @@ void linkwatch_run_queue(void)
+ 
+ 		dev_put(dev);
+ 	}
++
++	if (lweventlist)
++		linkwatch_schedule_work(linkwatch_nextevent - jiffies);
+ }
+ 
+ 
+-static void linkwatch_event(struct work_struct *dummy)
++/* Must be called with the rtnl semaphore held */
++void linkwatch_run_queue(void)
+ {
+-	/* Limit the number of linkwatch events to one
+-	 * per second so that a runaway driver does not
+-	 * cause a storm of messages on the netlink
+-	 * socket
+-	 */
+-	linkwatch_nextevent = jiffies + HZ;
+-	clear_bit(LW_RUNNING, &linkwatch_flags);
++	__linkwatch_run_queue(0);
++}
++
+ 
++static void linkwatch_event(struct work_struct *dummy)
++{
+ 	rtnl_lock();
+-	linkwatch_run_queue();
++	__linkwatch_run_queue(time_after(linkwatch_nextevent, jiffies));
+ 	rtnl_unlock();
+ }
+ 
+@@ -138,23 +186,19 @@ static void linkwatch_event(struct work_struct *dummy)
+ void linkwatch_fire_event(struct net_device *dev)
  {
  	if (!test_and_set_bit(__LINK_STATE_LINKWATCH_PENDING, &dev->state)) {
- 		unsigned long flags;
--		struct lw_event *event;
--
--		if (test_and_set_bit(LW_SE_USED, &linkwatch_flags)) {
--			event = kmalloc(sizeof(struct lw_event), GFP_ATOMIC);
--
--			if (unlikely(event == NULL)) {
--				clear_bit(__LINK_STATE_LINKWATCH_PENDING, &dev->state);
--				return;
--			}
--		} else {
--			event = &singleevent;
--		}
+-		unsigned long flags;
++		unsigned long delay;
  
  		dev_hold(dev);
--		event->dev = dev;
  
- 		spin_lock_irqsave(&lweventlist_lock, flags);
--		list_add_tail(&event->list, &lweventlist);
-+		dev->link_watch_next = lweventlist;
-+		lweventlist = dev;
- 		spin_unlock_irqrestore(&lweventlist_lock, flags);
+-		spin_lock_irqsave(&lweventlist_lock, flags);
+-		dev->link_watch_next = lweventlist;
+-		lweventlist = dev;
+-		spin_unlock_irqrestore(&lweventlist_lock, flags);
++		linkwatch_add_event(dev);
  
- 		if (!test_and_set_bit(LW_RUNNING, &linkwatch_flags)) {
+-		if (!test_and_set_bit(LW_RUNNING, &linkwatch_flags)) {
+-			unsigned long delay = linkwatch_nextevent - jiffies;
++		delay = linkwatch_nextevent - jiffies;
+ 
+-			/* If we wrap around we'll delay it by at most HZ. */
+-			if (delay > HZ)
+-				delay = 0;
+-			schedule_delayed_work(&linkwatch_work, delay);
+-		}
++		/* Minimise down-time: drop delay for up event. */
++		if (linkwatch_urgent_event(dev))
++			delay = 0;
++
++		linkwatch_schedule_work(delay);
+ 	}
+ }
+ 
