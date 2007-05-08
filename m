@@ -1,104 +1,77 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [patch 25/29] xen: Add the Xen virtual network device driver.
-Date: Tue, 08 May 2007 08:35:22 +1000
-Message-ID: <1178577322.28438.16.camel@localhost.localdomain>
-References: <20070504232051.411946839@goop.org>
-	 <20070504232121.492190579@goop.org> <20070505091624.GA8890@infradead.org>
-	 <463F9608.40803@goop.org>
+Date: Mon, 07 May 2007 23:30:10 -0700
+Message-ID: <464018F2.7050409@goop.org>
+References: <20070504232051.411946839@goop.org>	
+	<20070504232121.492190579@goop.org>
+	<20070505091624.GA8890@infradead.org>	 <463F9608.40803@goop.org>
+	<1178577322.28438.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <463F9608.40803@goop.org>
-Sender: netdev-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, Stephen Hemminger <shemminge@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1178577322.28438.16.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Chris Wright <chrisw@sous-sol.org>, Herbert Xu <herbert@gondor.apana.org.au>, Jeff Garzik <jeff@garzik.org>, Ian Pratt <ian.pratt@xensource.com>, netdev@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, virtualization@lists.osdl.org, Stephen Hemminger <shemminge@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-05-07 at 14:11 -0700, Jeremy Fitzhardinge wrote:
-> Christoph Hellwig wrote:
-> > On Fri, May 04, 2007 at 04:21:16PM -0700, Jeremy Fitzhardinge wrote:
-> >   
-> >> +/*
-> >> + * Mutually-exclusive module options to select receive data path:
-> >> + *  rx_copy : Packets are copied by network backend into local memory
-> >> + *  rx_flip : Page containing packet data is transferred to our ownership
-> >> + * For fully-virtualised guests there is no option - copying must be used.
-> >> + * For paravirtualised guests, flipping is the default.
-> >> + */
-> >> +static enum {
-> >> +	RX_COPY = 0,
-> >> +	RX_FLIP = 1,
-> >> +} rx_mode = RX_FLIP;
-> >> +MODULE_PARM_DESC(rx_mode, "How to get packets from card: 0->copy, 1->flip");
-> >>     
-> >
-> > There only seems to be a module description but no actual paramter for
-> > this.  I wish people would have listened to me back then and made the
-> > description part of the modular_param statement..
-> 
-> Is this correct?
-> 
-> ---
->  drivers/net/xen-netfront.c |   32 ++++++++++++++++++++++++++++----
->  1 file changed, 28 insertions(+), 4 deletions(-)
-> 
-> ===================================================================
-> --- a/drivers/net/xen-netfront.c
-> +++ b/drivers/net/xen-netfront.c
-> @@ -62,16 +62,40 @@ struct netfront_cb {
->  
->  /*
->   * Mutually-exclusive module options to select receive data path:
-> - *  rx_copy : Packets are copied by network backend into local memory
-> - *  rx_flip : Page containing packet data is transferred to our ownership
-> + *  copy : Packets are copied by network backend into local memory
-> + *  flip : Page containing packet data is transferred to our ownership
->   * For fully-virtualised guests there is no option - copying must be used.
->   * For paravirtualised guests, flipping is the default.
->   */
-> -static enum {
-> +static enum rx_mode {
->  	RX_COPY = 0,
->  	RX_FLIP = 1,
->  } rx_mode = RX_FLIP;
-> -MODULE_PARM_DESC(rx_mode, "How to get packets from card: 0->copy, 1->flip");
-> +MODULE_PARM_DESC(rx_mode, "How to get packets from card: \"copy\" or \"flip\"");
-> +
-> +static int set_rx_mode(const char *val, struct kernel_param *kp)
-> +{
-> +	enum rx_mode *rxmp = kp->arg;
-> +	int ret = 0;
-> +
-> +	if (strcmp(val, "copy") == 0)
-> +		*rxmp = RX_COPY;
-> +	else if (strcmp(val, "flip") == 0)
-> +		*rxmp = RX_FLIP;
-> +	else
-> +		ret = -EINVAL;
-> +
-> +	return ret;
-> +}
-> +
-> +static int get_rx_mode(char *buffer, struct kernel_param *kp)
-> +{
-> +	enum rx_mode *rxmp = kp->arg;
-> +
-> +	return sprintf(buffer, "%s", *rxmp == RX_COPY ? "copy" : "flip");
-> +}
-> +
-> +module_param_call(rx_mode, set_rx_mode, get_rx_mode, &rx_mode, 0400);
+Rusty Russell wrote:
+> Looks good, you can slightly improve it to be the model use of new
+> module_param types by calling your functions param_set_rx_mode and
+> param_get_rx_mode, then simply using "module_param(rx_mode, rx_mode,
+> 0400)"
+>   
 
-Looks good, you can slightly improve it to be the model use of new
-module_param types by calling your functions param_set_rx_mode and
-param_get_rx_mode, then simply using "module_param(rx_mode, rx_mode,
-0400)"
+Cute.  I tried it out, but it doesn't yield an obvious improvement:
 
-Cheers,
-Rusty.
-
-
->  
->  #define RX_COPY_THRESHOLD 256
->  
-
+diff -r 83d67449bff4 drivers/net/xen-netfront.c
+--- a/drivers/net/xen-netfront.c	Mon May 07 18:44:11 2007 -0700
++++ b/drivers/net/xen-netfront.c	Mon May 07 22:58:36 2007 -0700
+@@ -67,13 +67,16 @@ struct netfront_cb {
+  * For fully-virtualised guests there is no option - copying must be used.
+  * For paravirtualised guests, flipping is the default.
+  */
+-static enum rx_mode {
++typedef enum rx_mode {
+ 	RX_COPY = 0,
+ 	RX_FLIP = 1,
+-} rx_mode = RX_FLIP;
+-MODULE_PARM_DESC(rx_mode, "How to get packets from card: \"copy\" or \"flip\"");
+-
+-static int set_rx_mode(const char *val, struct kernel_param *kp)
++} rx_mode_t;
++
++static enum rx_mode rx_mode = RX_FLIP;
++
++#define param_check_rx_mode_t(name, p) __param_check(name, p, rx_mode_t)
++
++static int param_set_rx_mode_t(const char *val, struct kernel_param *kp)
+ {
+ 	enum rx_mode *rxmp = kp->arg;
+ 	int ret = 0;
+@@ -88,14 +91,15 @@ static int set_rx_mode(const char *val, 
+ 	return ret;
+ }
+ 
+-static int get_rx_mode(char *buffer, struct kernel_param *kp)
++static int param_get_rx_mode_t(char *buffer, struct kernel_param *kp)
+ {
+ 	enum rx_mode *rxmp = kp->arg;
+ 
+ 	return sprintf(buffer, "%s", *rxmp == RX_COPY ? "copy" : "flip");
+ }
+ 
+-module_param_call(rx_mode, set_rx_mode, get_rx_mode, &rx_mode, 0400);
++MODULE_PARM_DESC(rx_mode, "How to get packets from card: \"copy\" or \"flip\"");
++module_param(rx_mode, rx_mode_t, 0400);
+ 
+ #define RX_COPY_THRESHOLD 256
