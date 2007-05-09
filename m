@@ -1,34 +1,36 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [2/2] [NET] link_watch: Remove delay for up even when we're
- down
-Date: Tue, 08 May 2007 18:36:46 -0700 (PDT)
-Message-ID: <20070508.183646.130238577.davem@davemloft.net>
-References: <463F95C3.60407@goop.org>
-	<20070508121322.GA21647@gondor.apana.org.au>
-	<20070508121609.GA24763@gondor.apana.org.au>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [1/2] [NET] link_watch: Move link watch list into net_device
+Date: Wed, 9 May 2007 11:49:04 +1000
+Message-ID: <20070509014904.GA31072@gondor.apana.org.au>
+References: <20070504232051.411946839@goop.org> <20070504232121.492190579@goop.org> <20070505091624.GA8890@infradead.org> <463C56D3.8060609@goop.org> <20070505102305.GA12771@gondor.apana.org.au> <463F95C3.60407@goop.org> <20070508121322.GA21647@gondor.apana.org.au> <4640DB55.1050608@goop.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20070508121609.GA24763@gondor.apana.org.au>
+Content-Disposition: inline
+In-Reply-To: <4640DB55.1050608@goop.org>
 Sender: netdev-owner@vger.kernel.org
-To: herbert@gondor.apana.org.au
-Cc: jeremy@goop.org, hch@infradead.org, ak@suse.de, akpm@linux-foundation.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk, netdev@vger.kernel.org, jeff@garzik.org, shemminge@linux-foundation.org, rusty@rustcorp.com.au, Keir.Fraser@cl.cam.ac.uk
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: "David S. Miller" <davem@davemloft.net>, Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, Stephen Hemminger <shemminge@linux-foundation.org>, Rusty Russell <rusty@rustcorp.com.au>, Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Tue, 8 May 2007 22:16:09 +1000
+On Tue, May 08, 2007 at 01:19:33PM -0700, Jeremy Fitzhardinge wrote:
+> 
+> Subject: xen: go back to using normal network stack carriers
+> 
+> This effectively reverts xen-unstable change
+> 14280:42b29f084c31. Herbert has changed the behaviour of the core
+> networking to not delay an initial down->up transition, and so the
+> timing concern has been solved.
+> 
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
 
-> [NET]: Remove link_watch delay for up even when we're down
-> 
-> Currently all link carrier events are delayed by up to a second
-> before they're processed to prevent link storms.  This causes
-> unnecessary packet loss during that interval.
-> 
-> In fact, we can achieve the same effect in preventing storms by
-> only delaying down events and unnecssary up events.  The latter
-> is defined as up events when we're already up.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Looks good to me.
 
-Also applied, thanks Herbert.
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
