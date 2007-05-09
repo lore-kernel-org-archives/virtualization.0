@@ -1,30 +1,38 @@
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: [patch 8/9] lguest: the block driver
-Date: Wed, 9 May 2007 13:22:43 +0300
-Message-ID: <84144f020705090322jc37884drc31b97879648d09@mail.gmail.com>
-References: <200705090951.l499pdsc020409@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757330AbXEIKXE@vger.kernel.org>
-In-Reply-To: <200705090951.l499pdsc020409@shell0.pdx.osdl.net>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: "akpm@linux-foundation.org" <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, rusty@rustcorp.com.au, ak@suse.de, jens.axboe@oracle.com, Rene Herman <rene.herman@gmail.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [patch 7/9] lguest: the net driver
+Date: Wed, 09 May 2007 20:12:46 +1000
+Message-ID: <E1HljA6-0001E4-00@gondolin.me.apana.org.au>
+References: <200705090951.l499pdOr020406@shell0.pdx.osdl.net>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <200705090951.l499pdOr020406@shell0.pdx.osdl.net>
+Sender: netdev-owner@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, rusty@rustcorp.com.au, ak@suse.de, jeff@garzik.org, jmorris@namei.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 5/9/07, akpm@linux-foundation.org <akpm@linux-foundation.org> wrote:
-> +/* Jens gave me this nice helper to end all chunks of a request. */
-> +static void end_entire_request(struct request *req, int uptodate)
-> +{
-> +       if (end_that_request_first(req, uptodate, req->hard_nr_sectors))
-> +               BUG();
-> +       add_disk_randomness(req->rq_disk);
-> +       blkdev_dequeue_request(req);
-> +       end_that_request_last(req, uptodate);
-> +}
+akpm@linux-foundation.org wrote:
+>
+> +       if (desc->features & LGUEST_NET_F_NOCSUM)
+> +               dev->features |= NETIF_F_NO_CSUM;
 
-Again, I would prefer this went straight into block/ll_rw_blk.c. Rene
-and I am using something similar in the new Mitsumi driver although
-one of us has a bug already, we're using req->nr_sectors for this...
+Any reason why you're using NO_CSUM here instead of HW_CSUM?
+Practically there is no difference but NO_CSUM could be treated
+differently in future and I'm not sure whether such changes would
+be desirable in this driver (i.e., not even generating a partial
+checksum).
+
+Also, there doesn't seem to be any passing of metadata to the
+backend which means that neither NO_CSUM/HW_CSUM can work if
+somebody needs to look at the checksum field.  You could use
+IP_CSUM if you do the same hack on the backend that Xen does.
+Otherwise you'll have to make do with no checksum offload at all.
+
+I think you'd also need a change_mtu function if the SG feature
+is going to be of some use since the default Ethernet one limits
+the MTU to 1500.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
