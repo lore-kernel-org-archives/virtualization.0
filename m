@@ -2,7 +2,7 @@ From: "yhlu" <yhlu.kernel@gmail.com>
 Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol
  for relocatable bzImage
 Date: Tue, 8 May 2007 21:42:02 -0700
-Message-ID: <86802c440705082142u7ee2b402q9ae09edbed32766a__5128.19140353731$1178737450$gmane$org@mail.gmail.com>
+Message-ID: <86802c440705082142u7ee2b402q9ae09edbed32766a__48142.0196746059$1178737501$gmane$org@mail.gmail.com>
 References: <4638FC39.4010101@goop.org> <46390523.5010809@goop.org>
 	<463909AF.9040205@zytor.com> <20070503045031.GA5794@in.ibm.com>
 	<m1tzuuv24z.fsf@ebiederm.dsl.xmission.com>
