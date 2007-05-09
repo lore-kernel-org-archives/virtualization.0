@@ -1,43 +1,26 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 7/9] lguest: the net driver
-Date: Wed, 09 May 2007 22:13:28 +1000
-Message-ID: <1178712808.7286.92.camel@localhost.localdomain>
-References: <E1HljA6-0001E4-00@gondolin.me.apana.org.au>
-	 <1178711725.7286.82.camel@localhost.localdomain>
-	 <20070509120030.GA12853@gondor.apana.org.au>
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: [patch 2/9] lguest: the guest code
+Date: Wed, 9 May 2007 15:13:45 +0300
+Message-ID: <84144f020705090513q28784b69sd91cd2490514d44c@mail.gmail.com>
+References: <200705090951.l499pYBV020391@shell0.pdx.osdl.net>
+	 <84144f020705090316o5e3b6d89r74638ec8e4d396d4@mail.gmail.com>
+	 <1178711957.7286.87.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20070509120030.GA12853@gondor.apana.org.au>
-Sender: netdev-owner@vger.kernel.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, ak@suse.de, jeff@garzik.org, jmorris@namei.org, netdev@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756091AbXEIMOW@vger.kernel.org>
+In-Reply-To: <1178711957.7286.87.camel@localhost.localdomain>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "akpm@linux-foundation.org" <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, ak@suse.de, jeremy@goop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-05-09 at 22:00 +1000, Herbert Xu wrote:
-> Hi Rusty:
-> 
-> On Wed, May 09, 2007 at 09:55:25PM +1000, Rusty Russell wrote:
-> > 
-> > 	NO_CSUM because it really doesn't need a checksum.  The
-> > LGUEST_NET_F_NOCSUM is only set for local inter-guest networking.  If
-> > some guest were to route the packets outside the machine, this would be
-> > an issue, though ("don't do that").
-> 
-> While I can see that this is good in keeping things simple, I think
-> it's something that you want to be able to support since the user
-> may wish to setup a guest as a firewall appliance which would involve
-> passing packets from another guest to the outside world.
+Hi Rusty,
 
-Indeed, you understand the tradeoff.  The example launcher could have an
-option not to set the LGUEST_NET_F_NOCSUM in this case.
+On 5/9/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
+>         Hmm, where would the error go?
 
-That said, one significant purpose of lguest is to serve as an example
-of how to do things.  So if you feel really strongly that there's a
-Right Way, we could look at the patch...
-
-Thanks,
-Rusty.
-
-
+Let it propagate: scan_devices -> lguest_bus_init -> do_initcalls. We
+probably don't want to panic() if bus_register and device_register
+fail there either.
