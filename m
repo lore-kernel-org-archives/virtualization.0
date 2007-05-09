@@ -1,32 +1,59 @@
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: [patch 8/9] lguest: the block driver
-Date: Wed, 9 May 2007 12:54:31 +0200
-Message-ID: <20070509105431.GT4163@kernel.dk>
-References: <200705090951.l499pdsc020409@shell0.pdx.osdl.net> <84144f020705090322jc37884drc31b97879648d09@mail.gmail.com> <20070509102933.GR4163@kernel.dk> <Pine.LNX.4.64.0705091345400.16351@sbz-30.cs.Helsinki.FI>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch 7/9] lguest: the net driver
+Date: Wed, 09 May 2007 21:55:25 +1000
+Message-ID: <1178711725.7286.82.camel@localhost.localdomain>
+References: <E1HljA6-0001E4-00@gondolin.me.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756902AbXEIK5U@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0705091345400.16351@sbz-30.cs.Helsinki.FI>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pekka J Enberg <penberg@cs.helsinki.fi>
-Cc: "akpm@linux-foundation.org" <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, rusty@rustcorp.com.au, ak@suse.de, Rene Herman <rene.herman@gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <E1HljA6-0001E4-00@gondolin.me.apana.org.au>
+Sender: netdev-owner@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, ak@suse.de, jeff@garzik.org, jmorris@namei.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 09 2007, Pekka J Enberg wrote:
-> On Wed, 9 May 2007, Jens Axboe wrote:
-> > Lets do it after it is merged, as not to create a hold-up point for
-> > lguest. Once it's in, I'll fix it up.
+On Wed, 2007-05-09 at 20:12 +1000, Herbert Xu wrote:
+> akpm@linux-foundation.org wrote:
+> >
+> > +       if (desc->features & LGUEST_NET_F_NOCSUM)
+> > +               dev->features |= NETIF_F_NO_CSUM;
 > 
-> Ok. Seems pointless, though, as it's only a matter of:
+> Any reason why you're using NO_CSUM here instead of HW_CSUM?
+> Practically there is no difference but NO_CSUM could be treated
+> differently in future and I'm not sure whether such changes would
+> be desirable in this driver (i.e., not even generating a partial
+> checksum).
 
-Yes I'm very well aware of that, my point is just that I'll do it once
-lguest is merged since then
+Hi Herbert,
 
-a) it has a user, and
-b) I don't want lguest to wait for me to get that update pulled
+	NO_CSUM because it really doesn't need a checksum.  The
+LGUEST_NET_F_NOCSUM is only set for local inter-guest networking.  If
+some guest were to route the packets outside the machine, this would be
+an issue, though ("don't do that").
 
-Can we please let this rest?
+> Also, there doesn't seem to be any passing of metadata to the
+> backend which means that neither NO_CSUM/HW_CSUM can work if
+> somebody needs to look at the checksum field.  You could use
+> IP_CSUM if you do the same hack on the backend that Xen does.
+> Otherwise you'll have to make do with no checksum offload at all.
 
--- 
-Jens Axboe
+Yeah, definitely good future work.  This is far simpler: external-facing
+networks don't get marked with the LGUEST_NET_F_NOCSUM but set.
+
+KVM is going to have a paravirt network driver too: it'd be nice to
+share code here.
+
+> I think you'd also need a change_mtu function if the SG feature
+> is going to be of some use since the default Ethernet one limits
+> the MTU to 1500.
+
+Indeed, that would be a new feature, and is certainly a consideration
+for more efficient inter-guest networking.  However, I consider that
+somewhat cheating: it's nice to know that 1500 doesn't suck too hard.
+
+Remember, "Features kill puppies!" 8)
+
+Thanks,
+Rusty.
+
