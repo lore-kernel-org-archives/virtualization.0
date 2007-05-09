@@ -1,22 +1,24 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol for
-	relocatable bzImage
-Date: Tue, 08 May 2007 22:58:27 -0600
-Message-ID: <m1ejlqtwy4.fsf__34136.2018873498$1178729683$gmane$org@ebiederm.dsl.xmission.com>
-References: <4638FC39.4010101@goop.org> <46390523.5010809@goop.org>
-	<463909AF.9040205@zytor.com> <20070503045031.GA5794@in.ibm.com>
-	<m1tzuuv24z.fsf@ebiederm.dsl.xmission.com>
-	<86802c440705080941y69ddd5d6lab170c5f3967f148@mail.gmail.com>
-	<m1sla7i68s.fsf@ebiederm.dsl.xmission.com>
-	<86802c440705081033s19365843i5b955ae175de73eb@mail.gmail.com>
-	<86802c440705081151r6bfd82e4o50c6a34b2b2a833f@mail.gmail.com>
-	<20070509033348.GA12361@in.ibm.com>
-	<86802c440705082142u7ee2b402q9ae09edbed32766a@mail.gmail.com>
+ relocatable bzImage
+Date: Tue, 08 May 2007 22:08:12 -0700
+Message-ID: <4641573C.1000205__46827.2991515279$1178729716$gmane$org@zytor.com>
+References: <4634483E.9030307@goop.org>	
+	<m1k5vji107.fsf@ebiederm.dsl.xmission.com>	
+	<86802c440705081500x682ee098y7d51f7bb98dbcff6@mail.gmail.com>	
+	<4640F4B3.30408@goop.org> <4640FB2C.2060300@zytor.com>	
+	<86802c440705081541v7d0773cek2c5fae1854b68bbc@mail.gmail.com>	
+	<46410403.4050802@zytor.com>	
+	<m17irivkhy.fsf@ebiederm.dsl.xmission.com>	
+	<46413087.2020505@zytor.com>	
+	<m1tzumu10k.fsf@ebiederm.dsl.xmission.com>
+	<86802c440705082152g49d4d3echf3eb165ce4feb2e9@mail.gmail.com>
+	<46415640.6000600@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <86802c440705082142u7ee2b402q9ae09edbed32766a@mail.gmail.com>
-	(yhlu.kernel@gmail.com's message of "Tue, 8 May 2007 21:42:02 -0700")
+In-Reply-To: <46415640.6000600@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,23 +29,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: yhlu <yhlu.kernel@gmail.com>
-Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, vgoyal@in.ibm.com, "H. Peter Anvin" <hpa@zytor.com>
+Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, vgoyal@in.ibm.com, "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-yhlu <yhlu.kernel@gmail.com> writes:
+H. Peter Anvin wrote:
+> yhlu wrote:
+>> On 5/8/07, Eric W. Biederman <ebiederm@xmission.com> wrote:
+>>> Since the whole point is to detect the case where we don't have
+>>> a screen at all it makes sense to check several additional variables
+>>> and make certain that they are all 0.  Agreed?
+>> need one good way to find if there is support vga console.
+> 
+> There really isn't one, at least not given the current data structure;
+> the data structure has an "isVGA" flag, but if that is 0 it's supposed
+> to mean CGA/MDA/HGC/EGA, as opposed to VGA...
 
-> On 5/8/07, Vivek Goyal <vgoyal@in.ibm.com> wrote:
->> On Tue, May 08, 2007 at 11:51:35AM -0700, yhlu wrote:
->> This message generally appears if you did not specify --args-linux
->> on kexec command line while loading vmlinux.
->>
-> besides elf-x86_64, still need --args-linux to pass sth? but how to
-> let it load ramdisk?
+Of course, one could argue that since all of those were obsolete by the
+time Linux was first created, that it probably doesn't matter and that
+isVGA == 0 pretty much means the more obvious thing.
 
-Same arguments just use --args-linux.
+MDA/HGC stuck around for quite a while for debugging, since it was
+non-conflicting with VGA, but even if it is, the reason people put it in
+their system is to have something that the OS doesn't readily see.
 
-Basically the calling convention needs to be specified because
-there isn't a universal one, and /sbin/kexec can't yet detect
-vmlinux is linux.
-
-Eric
+	-hpa
