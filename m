@@ -1,40 +1,43 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 2/9] lguest: the guest code
-Date: Wed, 09 May 2007 21:59:17 +1000
-Message-ID: <1178711957.7286.87.camel@localhost.localdomain>
-References: <200705090951.l499pYBV020391@shell0.pdx.osdl.net>
-	 <84144f020705090316o5e3b6d89r74638ec8e4d396d4@mail.gmail.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [patch 7/9] lguest: the net driver
+Date: Wed, 9 May 2007 22:00:30 +1000
+Message-ID: <20070509120030.GA12853@gondor.apana.org.au>
+References: <E1HljA6-0001E4-00@gondolin.me.apana.org.au> <1178711725.7286.82.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755887AbXEIMAH@vger.kernel.org>
-In-Reply-To: <84144f020705090316o5e3b6d89r74638ec8e4d396d4@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: "akpm@linux-foundation.org" <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, ak@suse.de, jeremy@goop.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1178711725.7286.82.camel@localhost.localdomain>
+Sender: netdev-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, ak@suse.de, jeff@garzik.org, jmorris@namei.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-05-09 at 13:16 +0300, Pekka Enberg wrote:
-> Hi Rusty,
-> 
-> On 5/9/07, akpm@linux-foundation.org <akpm@linux-foundation.org> wrote:
-> > +static void add_lguest_device(unsigned int index)
-> > +{
-> > +       struct lguest_device *new;
-> > +
-> > +       lguest_devices[index].status |= LGUEST_DEVICE_S_ACKNOWLEDGE;
-> > +       new = kmalloc(sizeof(struct lguest_device), GFP_KERNEL);
-> > +       if (!new) {
-> > +               printk(KERN_EMERG "Cannot allocate lguest device %u\n", index);
-> > +               lguest_devices[index].status |= LGUEST_DEVICE_S_FAILED;
-> 
-> [snip]
-> 
-> Any reason why we don't return an error here?
+Hi Rusty:
 
-Hi Pekka,
+On Wed, May 09, 2007 at 09:55:25PM +1000, Rusty Russell wrote:
+> 
+> 	NO_CSUM because it really doesn't need a checksum.  The
+> LGUEST_NET_F_NOCSUM is only set for local inter-guest networking.  If
+> some guest were to route the packets outside the machine, this would be
+> an issue, though ("don't do that").
 
-	Hmm, where would the error go?
+While I can see that this is good in keeping things simple, I think
+it's something that you want to be able to support since the user
+may wish to setup a guest as a firewall appliance which would involve
+passing packets from another guest to the outside world.
+ 
+> Indeed, that would be a new feature, and is certainly a consideration
+> for more efficient inter-guest networking.  However, I consider that
+> somewhat cheating: it's nice to know that 1500 doesn't suck too hard.
+> 
+> Remember, "Features kill puppies!" 8)
 
-A little confused,
-Rusty.
+Heh :)
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
