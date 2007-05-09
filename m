@@ -1,8 +1,8 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol
  for relocatable bzImage
-Date: Tue, 08 May 2007 22:54:31 -0700
-Message-ID: <46416217.1070202__34616.5911913433$1178744063$gmane$org@zytor.com>
+Date: Tue, 08 May 2007 22:55:18 -0700
+Message-ID: <46416246.9090005__43647.0734341585$1178744080$gmane$org@zytor.com>
 References: <4634483E.9030307@goop.org> <4640FB2C.2060300@zytor.com>
 	<86802c440705081541v7d0773cek2c5fae1854b68bbc@mail.gmail.com>
 	<46410403.4050802@zytor.com> <m17irivkhy.fsf@ebiederm.dsl.xmission.com>
@@ -30,21 +30,10 @@ Cc: Jeff Garzik <jeff@garzik.org>, patches@x86-64.org, linux-kernel@vger.kernel.
 List-Id: virtualization@lists.linuxfoundation.org
 
 yhlu wrote:
-> On 5/8/07, H. Peter Anvin <hpa@zytor.com> wrote:
->> H. Peter Anvin wrote:
->> Of course, one could argue that since all of those were obsolete by the
->> time Linux was first created, that it probably doesn't matter and that
->> isVGA == 0 pretty much means the more obvious thing.
->>
->> MDA/HGC stuck around for quite a while for debugging, since it was
->> non-conflicting with VGA, but even if it is, the reason people put it in
->> their system is to have something that the OS doesn't readily see.
->>
 > so the kexec tools need to scan the pci devices list, and find out how
 > to set real_mode.isVGA and orig_video_mode, also need to parse the
 > comand line about vga console.
 
-A better way, probably, would be for the kernel to export the
-boot_params structure so kexec can reuse it.
+BTW, welcome to the hell of bypassing setup.
 
 	-hpa
