@@ -2,7 +2,7 @@ From: ebiederm@xmission.com
 Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol
  for relocatable bzImage
 Date: Tue, 08 May 2007 22:58:27 -0600
-Message-ID: <m1ejlqtwy4.fsf__22963.6705400937$1178741291$gmane$org@ebiederm.dsl.xmission.com>
+Message-ID: <m1ejlqtwy4.fsf__24321.910707704$1178741386$gmane$org@ebiederm.dsl.xmission.com>
 References: <4638FC39.4010101@goop.org> <46390523.5010809@goop.org>
 	<463909AF.9040205@zytor.com> <20070503045031.GA5794@in.ibm.com>
 	<m1tzuuv24z.fsf@ebiederm.dsl.xmission.com>
