@@ -2,7 +2,7 @@ From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [patches] [PATCH] [21/22] x86_64: Extend bzImage protocol
  for relocatable bzImage
 Date: Tue, 08 May 2007 22:55:18 -0700
-Message-ID: <46416246.9090005__43647.0734341585$1178744080$gmane$org@zytor.com>
+Message-ID: <46416246.9090005__14473.7688279294$1178744145$gmane$org@zytor.com>
 References: <4634483E.9030307@goop.org> <4640FB2C.2060300@zytor.com>
 	<86802c440705081541v7d0773cek2c5fae1854b68bbc@mail.gmail.com>
 	<46410403.4050802@zytor.com> <m17irivkhy.fsf@ebiederm.dsl.xmission.com>
