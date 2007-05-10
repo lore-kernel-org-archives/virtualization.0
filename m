@@ -1,36 +1,22 @@
-From: David Miller <davem@davemloft.net>
+From: Chris Wright <chrisw@sous-sol.org>
 Subject: Re: [1/2] [NET] link_watch: Move link watch list into net_device
-Date: Thu, 10 May 2007 15:53:24 -0700 (PDT)
-Message-ID: <20070510.155324.111718436.davem@davemloft.net>
-References: <46439B19.7010706@goop.org>
-	<20070510.152552.117703057.davem@davemloft.net>
-	<4643A096.7000909@goop.org>
+Date: Thu, 10 May 2007 15:53:08 -0700
+Message-ID: <20070510225308.GL3505@sequoia.sous-sol.org>
+References: <464395E5.2090500@goop.org> <20070510151426.d808384f.akpm@linux-foundation.org> <46439B19.7010706@goop.org> <20070510.152552.117703057.davem@davemloft.net> <4643A096.7000909@goop.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <4643A096.7000909@goop.org>
 Sender: netdev-owner@vger.kernel.org
-To: jeremy@goop.org
-Cc: akpm@linux-foundation.org, herbert@gondor.apana.org.au, hch@infradead.org, ak@suse.de, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk, netdev@vger.kernel.org, jeff@garzik.org, shemminger@linux-foundation.org, rusty@rustcorp.com.au, Valdis.Kletnieks@vt.edu
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: David Miller <davem@davemloft.net>, akpm@linux-foundation.org, herbert@gondor.apana.org.au, hch@infradead.org, ak@suse.de, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk, netdev@vger.kernel.org, jeff@garzik.org, shemminger@linux-foundation.org, rusty@rustcorp.com.au, Valdis.Kletnieks@vt.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Date: Thu, 10 May 2007 15:45:42 -0700
-
-> David Miller wrote:
-> > I'm not so certain now that we know it's the jiffies wrap point :-)
-> >
-> > The fixes in question are attached below and they were posted and
-> > discussed on netdev:
-> >   
-> 
+* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
 > Yep, this patch gets rid of my spinning thread.  I can't find this patch
 > or any discussion on marc.info; is there a better netdev list archive?
 
-I don't see it there either... let me check my mail archive...
+See the "linkwatch bustage in git-net" thread on netdev
 
-Indeed, they were "posted" to netdev but were blocked by the vger
-regexp filters on the keyword "urgent" so that postings never made it
-to the list.  I removed that filter regexp so that never happens
-again, sorry.
+http://thread.gmane.org/gmane.linux.network/61800/focus=61812
