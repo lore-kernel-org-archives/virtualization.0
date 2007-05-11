@@ -1,12 +1,8 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 10/28]xen: ignore RW mapping of RO pages in
-	pagetable_init
-Date: Thu, 10 May 2007 17:06:53 -0700
-Message-ID: <20070511001159.996613000@goop.org>
-References: <20070511000643.025196000@goop.org>
+Subject: [patch 00/28]xen: Xen implementation for paravirt_ops
+Date: Thu, 10 May 2007 17:06:43 -0700
+Message-ID: <20070511000643.025196000@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline;
-	filename=xen-pagetable_init-ignore-ro-mappings.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -16,85 +12,45 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andi Kleen <ak@suse.de>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, "\"Eric W. Biederman\"" <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When setting up the initial pagetable, which includes mappings of all
-low physical memory, ignore a mapping which tries to set the RW bit on
-an RO pte.  An RO pte indicates a page which is part of the current
-pagetable, and so it cannot be allowed to become RW.
+Hi Andi,
 
-Once xen_pagetable_setup_done is called, set_pte reverts to its normal
-behaviour.
+This series of patches implements the Xen paravirt-ops interface.  It
+applies to 2.6.21-git13 + patches-2.6.21-git7-070507-1.tar.gz (I think
+"unwinder" is the only patch which doesn't apply to git13, and the
+sched-clock patches are the only ones which this series actually
+needs).
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Acked-by: Chris Wright <chrisw@sous-sol.org>
-Cc: ebiederm@xmission.com (Eric W. Biederman)
+Changes since the last posting:
+ - More netfront review and cleanup
+ - Added ability to cleanly halt/reboot guests from outside the domain.
+ - Folded bugfix patches into their main patch
+ - Lots of little style and other cleanups
 
----
- arch/i386/xen/enlighten.c |   27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+These patches are now moderately well tested, with several successful
+runs through XenSource's regression test suite, and some amount of
+non-me testing.  While I wouldn't go into production with a
+xen/paravirt_ops kernel right now, it does seem pretty functional.
 
-===================================================================
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -635,7 +635,7 @@ static void xen_write_cr3(unsigned long 
- 
- /* Early in boot, while setting up the initial pagetable, assume
-    everything is pinned. */
--static void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
-+static __init void xen_alloc_pt_init(struct mm_struct *mm, u32 pfn)
- {
- 	BUG_ON(mem_map);	/* should only be used early */
- 	make_lowmem_page_readonly(__va(PFN_PHYS(pfn)));
-@@ -687,9 +687,31 @@ static void *xen_kmap_atomic_pte(struct 
- }
- #endif
- 
-+static __init pte_t mask_rw_pte(pte_t *ptep, pte_t pte)
-+{
-+	/* If there's an existing pte, then don't allow _PAGE_RW to be set */
-+	if (pte_val_ma(*ptep) & _PAGE_PRESENT)
-+		pte = __pte_ma(((pte_val_ma(*ptep) & _PAGE_RW) | ~_PAGE_RW) &
-+			       pte_val_ma(pte));
-+
-+	return pte;
-+}
-+
-+/* Init-time set_pte while constructing initial pagetables, which
-+   doesn't allow RO pagetable pages to be remapped RW */
-+static __init void xen_set_pte_init(pte_t *ptep, pte_t pte)
-+{
-+	pte = mask_rw_pte(ptep, pte);
-+
-+	xen_set_pte(ptep, pte);
-+}
-+
- static __init void xen_pagetable_setup_start(pgd_t *base)
- {
- 	pgd_t *xen_pgd = (pgd_t *)xen_start_info->pt_base;
-+
-+	/* special set_pte for pagetable initialization */
-+	paravirt_ops.set_pte = xen_set_pte_init;
- 
- 	init_mm.pgd = base;
- 	/*
-@@ -737,6 +759,7 @@ static __init void xen_pagetable_setup_d
- 	/* This will work as long as patching hasn't happened yet
- 	   (which it hasn't) */
- 	paravirt_ops.alloc_pt = xen_alloc_pt;
-+	paravirt_ops.set_pte = xen_set_pte;
- 
- 	if (!xen_feature(XENFEAT_auto_translated_physmap)) {
- 		/*
-@@ -919,7 +942,7 @@ static const struct paravirt_ops xen_par
- 	.dup_mmap = xen_dup_mmap,
- 	.exit_mmap = xen_exit_mmap,
- 
--	.set_pte = xen_set_pte,
-+	.set_pte = NULL,	/* see xen_pagetable_setup_* */
- 	.set_pte_at = xen_set_pte_at,
- 	.set_pmd = xen_set_pmd,
- 
+This series generally restricts itself to Xen-specific parts of the
+tree, though it does make a few small changes elsewhere.
 
+It includes:
+ - some helper routines for allocating address space and walking pagetables
+ - Xen interface header files
+ - Core Xen implementation (boot, mmu, events, time)
+ - Efficient late-pinning/early-unpinning pagetable handling
+ - Virtualized time, including stolen time
+ - SMP support
+ - Preemption support
+ - Batched pagetable updates
+ - Xen console, based on hvc console
+ - Xenbus
+ - Netfront, the paravirtualized network device
+ - Blockfront, the paravirtualized block device
+
+Thanks,
+	J
 -- 
