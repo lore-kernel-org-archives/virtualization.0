@@ -1,61 +1,43 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 2/5] lguest guest feedback tidyups
-Date: Fri, 11 May 2007 08:40:50 +0100
-Message-ID: <20070511074050.GB25727__26884.9644846798$1178869305$gmane$org@infradead.org>
-References: <1178846246.23513.21.camel@localhost.localdomain>
-	<1178846354.23513.23.camel@localhost.localdomain>
-	<1178846490.23513.27.camel@localhost.localdomain>
-	<20070511065613.GB25182@infradead.org>
-	<1178868666.23513.49.camel@localhost.localdomain>
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: [patch 8/9] lguest: the block driver
+Date: Fri, 11 May 2007 14:09:55 +0200
+Message-ID: <20070511120955.GZ4629@kernel.dk>
+References: <200705090951.l499pdsc020409@shell0.pdx.osdl.net> <84144f020705090322jc37884drc31b97879648d09@mail.gmail.com> <46434378.1020900@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760667AbXEKMKp@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1178868666.23513.49.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>, virtualization <virtualization@lists.linux-foundation.org>
+In-Reply-To: <46434378.1020900@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rene Herman <rene.herman@gmail.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, rusty@rustcorp.com.au, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 11, 2007 at 05:31:06PM +1000, Rusty Russell wrote:
-> 	Well, without ioremap, the memory wouldn't normally be mapped.  Is
-> there something better to use?
-
-Either use accessors or use your own lguest-specific remapping function that
-doesn't return __iomem function
-
-> > So instead of sprinkling cast
-> > around add lguest_read*/lguest_write* accessors that do the __force cast
-> > once and make sure the ioremap return value is always accessed using those.
+On Thu, May 10 2007, Rene Herman wrote:
+> On 05/09/2007 12:22 PM, Pekka Enberg wrote:
 > 
-> And that's nothing to do with iremap.  They're required because guest
-> "physical" == host virtual, and casting a long to a "__user void *"
-> seems to require a __force.
+> >>+static void end_entire_request(struct request *req, int uptodate)
+> >>+{
+> >>+       if (end_that_request_first(req, uptodate, req->hard_nr_sectors))
+> >>+               BUG();
+> >>+       add_disk_randomness(req->rq_disk);
+> >>+       blkdev_dequeue_request(req);
+> >>+       end_that_request_last(req, uptodate);
+> >>+}
+> >
+> >Again, I would prefer this went straight into block/ll_rw_blk.c. Rene
+> >and I am using something similar in the new Mitsumi driver although
+> >one of us has a bug already, we're using req->nr_sectors for this...
+> 
+> The req->hard_nr_sectors is specifically marked block layer internal and 
+> since nr_sectors is what we're requesting and reading (we can't deal with 
+> partial transfers anyway since the drive won't tell us where it failed as 
+> far as I've been able to see and we do want to make read requests for as 
+> many sectors as possible at a time for speed) I believe that in our case 
+> the nr_sectors is fine.
 
-Well, it's the same problem really.  You want to treat it as host virtual
-in some places and and guest physical in others, but you need to keep
-the abstraction clean.  To keep that absraction clean you introduce
-accessors that contain the __force cast.  Now that you have these accessors
-instead of random casts you need to think a bit where the host virtual
-abstraction makes more sense and were the the guest virtual abstraction
-makes more sense and use it consistantly there with as few as possible
-uses of the accessors in between. 
+Using ->nr_sectors is fine, IFF you don't modify ->nr_sectors in the
+driver. The generic helper will use ->hard_nr_sectors.
 
-Now to something different than the technical content of this mail:
-
-> Hi Christoph!
-
-> I enjoy a good Hellwigging as much as anyone, but your aim is off.
-
-Please stop this crap.  I know who I am, so there's no need to waste
-mail estate with saying Hi.  Also please stop being a total fuckass
-and abusing my lastname just because you didn't get what was in the
-mail.
+-- 
+Jens Axboe
