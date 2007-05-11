@@ -1,16 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 4/5] lguest block driver feedback tidyups
-Date: Fri, 11 May 2007 11:23:52 +1000
-Message-ID: <1178846632.23513.30.camel__116.726061287586$1178846680$gmane$org@localhost.localdomain>
+Subject: [PATCH 5/5] lguest console driver feedback tidyups
+Date: Fri, 11 May 2007 11:24:35 +1000
+Message-ID: <1178846675.23513.32.camel@localhost.localdomain>
 References: <1178846246.23513.21.camel@localhost.localdomain>
 	<1178846354.23513.23.camel@localhost.localdomain>
 	<1178846490.23513.27.camel@localhost.localdomain>
 	<1178846572.23513.29.camel@localhost.localdomain>
+	<1178846632.23513.30.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1178846572.23513.29.camel@localhost.localdomain>
+In-Reply-To: <1178846632.23513.30.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,82 +22,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jens Axboe <jens.axboe@oracle.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-1) Use new dma wrapper functions, and handle bind failure (may happen
-   in future)
-2) Use new lgdev_irq() "get me a good interrupt number" function.
-3)  __force the ioremap: guests can use it as normal memory.
+1) Use new lguest_send_dma & lguest_bind_dma functions.
+2) sparse: lguest_cons can be static.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/block/lguest_blk.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/char/hvc_lguest.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
 ===================================================================
---- a/drivers/block/lguest_blk.c
-+++ b/drivers/block/lguest_blk.c
-@@ -123,7 +123,7 @@ static void do_write(struct blockdev *bd
- 	pr_debug("lgb: WRITE sector %li\n", (long)req->sector);
- 	setup_req(bd, 1, req, &send);
+--- a/drivers/char/hvc_lguest.c
++++ b/drivers/char/hvc_lguest.c
+@@ -36,7 +36,7 @@ static int put_chars(u32 vtermno, const 
+ 	dma.len[1] = 0;
+ 	dma.addr[0] = __pa(buf);
  
--	hcall(LHCALL_SEND_DMA, bd->phys_addr, __pa(&send), 0);
-+	lguest_send_dma(bd->phys_addr, &send);
+-	hcall(LHCALL_SEND_DMA, LGUEST_CONSOLE_DMA_KEY, __pa(&dma), 0);
++	lguest_send_dma(LGUEST_CONSOLE_DMA_KEY, &dma);
+ 	return count;
  }
  
- static void do_read(struct blockdev *bd, struct request *req)
-@@ -134,7 +134,7 @@ static void do_read(struct blockdev *bd,
- 	setup_req(bd, 0, req, &bd->dma);
- 
- 	empty_dma(&ping);
--	hcall(LHCALL_SEND_DMA, bd->phys_addr, __pa(&ping), 0);
-+	lguest_send_dma(bd->phys_addr, &ping);
+@@ -59,7 +59,7 @@ static int get_chars(u32 vtermno, char *
+ 	return count;
  }
  
- static void do_lgb_request(request_queue_t *q)
-@@ -183,13 +183,13 @@ static int lguestblk_probe(struct lguest
- 		return -ENOMEM;
+-struct hv_ops lguest_cons = {
++static struct hv_ops lguest_cons = {
+ 	.get_chars = get_chars,
+ 	.put_chars = put_chars,
+ };
+@@ -75,14 +75,17 @@ console_initcall(cons_init);
  
- 	spin_lock_init(&bd->lock);
--	bd->irq = lgdev->index+1;
-+	bd->irq = lgdev_irq(lgdev);
- 	bd->req = NULL;
- 	bd->dma.used_len = 0;
- 	bd->dma.len[0] = 0;
- 	bd->phys_addr = (lguest_devices[lgdev->index].pfn << PAGE_SHIFT);
+ static int lguestcons_probe(struct lguest_device *lgdev)
+ {
+-	lgdev->private = hvc_alloc(0, lgdev->index+1, &lguest_cons, 256);
++	int err;
++
++	lgdev->private = hvc_alloc(0, lgdev_irq(lgdev), &lguest_cons, 256);
+ 	if (IS_ERR(lgdev->private))
+ 		return PTR_ERR(lgdev->private);
  
--	bd->lb_page = (void *)ioremap(bd->phys_addr, PAGE_SIZE);
-+	bd->lb_page = (__force void *)ioremap(bd->phys_addr, PAGE_SIZE);
- 	if (!bd->lb_page) {
- 		err = -ENOMEM;
- 		goto out_free_bd;
-@@ -225,7 +225,9 @@ static int lguestblk_probe(struct lguest
- 	if (err)
- 		goto out_cleanup_queue;
- 
--	hcall(LHCALL_BIND_DMA, bd->phys_addr, __pa(&bd->dma), (1<<8)+bd->irq);
-+	err = lguest_bind_dma(bd->phys_addr, &bd->dma, 1, bd->irq);
+-	if (!hcall(LHCALL_BIND_DMA, LGUEST_CONSOLE_DMA_KEY, __pa(&cons_input),
+-		   (1<<8) + lgdev->index+1))
++	err = lguest_bind_dma(LGUEST_CONSOLE_DMA_KEY, &cons_input, 1,
++			      lgdev_irq(lgdev));
 +	if (err)
-+		goto out_free_irq;
+ 		printk("lguest console: failed to bind buffer.\n");
+-	return 0;
++	return err;
+ }
  
- 	bd->disk->major = bd->major;
- 	bd->disk->first_minor = 0;
-@@ -241,6 +243,8 @@ static int lguestblk_probe(struct lguest
- 	lgdev->private = bd;
- 	return 0;
- 
-+out_free_irq:
-+	free_irq(bd->irq, bd);
- out_cleanup_queue:
- 	blk_cleanup_queue(bd->disk->queue);
- out_put_disk:
-@@ -248,7 +252,7 @@ out_unregister_blkdev:
- out_unregister_blkdev:
- 	unregister_blkdev(bd->major, "lguestblk");
- out_unmap:
--	iounmap(bd->lb_page);
-+	iounmap((__force void *__iomem)bd->lb_page);
- out_free_bd:
- 	kfree(bd);
- 	return err;
+ static struct lguest_driver lguestcons_drv = {
