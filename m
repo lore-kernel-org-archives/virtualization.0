@@ -1,10 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 13/28]xen: Implement xen_sched_clock
-Date: Thu, 10 May 2007 17:06:56 -0700
-Message-ID: <20070511001201.487691000@goop.org>
+Subject: [patch 26/28]xen: handle external requests for shutdown,
+	reboot and sysrq
+Date: Thu, 10 May 2007 17:07:09 -0700
+Message-ID: <20070511001209.268040000@goop.org>
 References: <20070511000643.025196000@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-sched-clock.patch
+Content-Disposition: inline; filename=xen-management.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,100 +16,176 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andi Kleen <ak@suse.de>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement xen_sched_clock, which returns the number of ns the current
-vcpu has been actually in an unstolen state (ie, running or blocked,
-vs runnable-but-not-running, or offline) since boot.
+The guest domain can be asked to shutdown or reboot itself, or have a
+sysrq key injected, via xenbus.  This patch adds a watcher for those
+events, and does the appropriate action.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Acked-by: Chris Wright <chrisw@sous-sol.org>
-Cc: john stultz <johnstul@us.ibm.com>
+Cc: Chris Wright <chrisw@sous-sol.org>
 
 ---
- arch/i386/xen/enlighten.c |    2 +-
- arch/i386/xen/time.c      |   22 +++++++++++++++++++++-
- arch/i386/xen/xen-ops.h   |    3 +--
- 3 files changed, 23 insertions(+), 4 deletions(-)
+ arch/i386/xen/Makefile |    2 
+ arch/i386/xen/manage.c |  143 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 144 insertions(+), 1 deletion(-)
 
 ===================================================================
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -676,7 +676,7 @@ static const struct paravirt_ops xen_par
- 	.set_wallclock = xen_set_wallclock,
- 	.get_wallclock = xen_get_wallclock,
- 	.get_cpu_khz = xen_cpu_khz,
--	.sched_clock = xen_clocksource_read,
-+	.sched_clock = xen_sched_clock,
+--- a/arch/i386/xen/Makefile
++++ b/arch/i386/xen/Makefile
+@@ -1,4 +1,4 @@ obj-y		:= enlighten.o setup.o features.o
+ obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o \
+-			events.o time.o
++			events.o time.o manage.o
  
- #ifdef CONFIG_X86_LOCAL_APIC
- 	.apic_write = paravirt_nop,
+ obj-$(CONFIG_SMP)	+= smp.o
 ===================================================================
---- a/arch/i386/xen/time.c
-+++ b/arch/i386/xen/time.c
-@@ -16,6 +16,8 @@
- #define XEN_SHIFT 22
- #define TIMER_SLOP	100000	/* Xen may fire a timer up to this many ns early */
- #define NS_PER_TICK	(1000000000ll / HZ)
-+
-+static cycle_t xen_clocksource_read(void);
- 
- /* These are perodically updated in shared_info, and then copied here. */
- struct shadow_time_info {
-@@ -118,6 +120,24 @@ static void do_stolen_accounting(void)
- 	account_steal_time(idle_task(smp_processor_id()), ticks);
- }
- 
+--- /dev/null
++++ b/arch/i386/xen/manage.c
+@@ -0,0 +1,143 @@
 +/*
-+ * Xen sched_clock implementation.  Returns the number of unstolen
-+ * nanoseconds, which is nanoseconds the VCPU spent in RUNNING+BLOCKED
-+ * states.
++ * Handle extern requests for shutdown, reboot and sysrq
 + */
-+unsigned long long xen_sched_clock(void)
++#include <linux/kernel.h>
++#include <linux/err.h>
++#include <linux/reboot.h>
++#include <linux/sysrq.h>
++
++#include <xen/xenbus.h>
++
++#define SHUTDOWN_INVALID  -1
++#define SHUTDOWN_POWEROFF  0
++#define SHUTDOWN_SUSPEND   2
++/* Code 3 is SHUTDOWN_CRASH, which we don't use because the domain can only
++ * report a crash, not be instructed to crash!
++ * HALT is the same as POWEROFF, as far as we're concerned.  The tools use
++ * the distinction when we return the reason code to them.
++ */
++#define SHUTDOWN_HALT      4
++
++/* Ignore multiple shutdown requests. */
++static int shutting_down = SHUTDOWN_INVALID;
++
++static void shutdown_handler(struct xenbus_watch *watch,
++			     const char **vec, unsigned int len)
 +{
-+	struct vcpu_runstate_info state;
-+	cycle_t now = xen_clocksource_read();
++	char *str;
++	struct xenbus_transaction xbt;
++	int err;
 +
-+	get_runstate_snapshot(&state);
++	if (shutting_down != SHUTDOWN_INVALID)
++		return;
 +
-+	WARN_ON(state.state != RUNSTATE_running);
++ again:
++	err = xenbus_transaction_start(&xbt);
++	if (err)
++		return;
 +
-+	return state.time[RUNSTATE_blocked] +
-+		state.time[RUNSTATE_running] +
-+		(now - state.state_entry_time);
++	str = (char *)xenbus_read(xbt, "control", "shutdown", NULL);
++	/* Ignore read errors and empty reads. */
++	if (XENBUS_IS_ERR_READ(str)) {
++		xenbus_transaction_end(xbt, 1);
++		return;
++	}
++
++	xenbus_write(xbt, "control", "shutdown", "");
++
++	err = xenbus_transaction_end(xbt, 0);
++	if (err == -EAGAIN) {
++		kfree(str);
++		goto again;
++	}
++
++	if (strcmp(str, "poweroff") == 0 ||
++	    strcmp(str, "halt") == 0)
++		orderly_poweroff(false);
++	else if (strcmp(str, "reboot") == 0)
++		ctrl_alt_del();
++	else {
++		printk("Ignoring shutdown request: %s\n", str);
++		shutting_down = SHUTDOWN_INVALID;
++	}
++
++	kfree(str);
 +}
- 
- 
- /* Get the CPU speed from Xen */
-@@ -209,7 +229,7 @@ static u64 get_nsec_offset(struct shadow
- 	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
- }
- 
--cycle_t xen_clocksource_read(void)
-+static cycle_t xen_clocksource_read(void)
- {
- 	struct shadow_time_info *shadow = &get_cpu_var(shadow_time);
- 	cycle_t ret;
-===================================================================
---- a/arch/i386/xen/xen-ops.h
-+++ b/arch/i386/xen/xen-ops.h
-@@ -2,7 +2,6 @@
- #define XEN_OPS_H
- 
- #include <linux/init.h>
--#include <linux/clocksource.h>
- 
- DECLARE_PER_CPU(struct vcpu_info *, xen_vcpu);
- DECLARE_PER_CPU(unsigned long, xen_cr3);
-@@ -18,7 +17,7 @@ void __init xen_time_init(void);
- void __init xen_time_init(void);
- unsigned long xen_get_wallclock(void);
- int xen_set_wallclock(unsigned long time);
--cycle_t xen_clocksource_read(void);
-+unsigned long long xen_sched_clock(void);
- 
- void xen_mark_init_mm_pinned(void);
- 
++
++static void sysrq_handler(struct xenbus_watch *watch, const char **vec,
++			  unsigned int len)
++{
++	char sysrq_key = '\0';
++	struct xenbus_transaction xbt;
++	int err;
++
++ again:
++	err = xenbus_transaction_start(&xbt);
++	if (err)
++		return;
++	if (!xenbus_scanf(xbt, "control", "sysrq", "%c", &sysrq_key)) {
++		printk(KERN_ERR "Unable to read sysrq code in "
++		       "control/sysrq\n");
++		xenbus_transaction_end(xbt, 1);
++		return;
++	}
++
++	if (sysrq_key != '\0')
++		xenbus_printf(xbt, "control", "sysrq", "%c", '\0');
++
++	err = xenbus_transaction_end(xbt, 0);
++	if (err == -EAGAIN)
++		goto again;
++
++	if (sysrq_key != '\0')
++		handle_sysrq(sysrq_key, NULL);
++}
++
++static struct xenbus_watch shutdown_watch = {
++	.node = "control/shutdown",
++	.callback = shutdown_handler
++};
++
++static struct xenbus_watch sysrq_watch = {
++	.node = "control/sysrq",
++	.callback = sysrq_handler
++};
++
++static int setup_shutdown_watcher(void)
++{
++	int err;
++
++	err = register_xenbus_watch(&shutdown_watch);
++	if (err) {
++		printk(KERN_ERR "Failed to set shutdown watcher\n");
++		return err;
++	}
++
++	err = register_xenbus_watch(&sysrq_watch);
++	if (err) {
++		printk(KERN_ERR "Failed to set sysrq watcher\n");
++		return err;
++	}
++
++	return 0;
++}
++
++static int shutdown_event(struct notifier_block *notifier,
++			  unsigned long event,
++			  void *data)
++{
++	setup_shutdown_watcher();
++	return NOTIFY_DONE;
++}
++
++static int __init setup_shutdown_event(void)
++{
++	static struct notifier_block xenstore_notifier = {
++		.notifier_call = shutdown_event
++	};
++	register_xenstore_notifier(&xenstore_notifier);
++
++	return 0;
++}
++
++subsys_initcall(setup_shutdown_event);
 
 -- 
