@@ -1,51 +1,187 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 1/6] Guest page hinting: core + volatile page cache.
-Date: Fri, 11 May 2007 16:53:49 +0200
-Message-ID: <1178895229.7695.4.camel@localhost>
-References: <20070511135827.393181482@de.ibm.com>
-	 <20070511135925.513572897@de.ibm.com>
-	 <5056.1178894723@turing-police.cc.vt.edu>
-Reply-To: schwidefsky@de.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761698AbXEKOxd@vger.kernel.org>
-In-Reply-To: <5056.1178894723@turing-police.cc.vt.edu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Valdis.Kletnieks@vt.edu
-Cc: virtualization@lists.osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@linux-foundation.org>, Nick Piggin <npiggin@suse.de>, Hubertus Franke <frankeh@watson.ibm.com>, Rik van Riel <riel@redhat.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [patch 12/28]xen: Account for time stolen by Xen
+Date: Thu, 10 May 2007 17:06:55 -0700
+Message-ID: <20070511001200.985239000@goop.org>
+References: <20070511000643.025196000@goop.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline; filename=xen-stolen-time.patch
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Andi Kleen <ak@suse.de>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-05-11 at 10:45 -0400, Valdis.Kletnieks@vt.edu wrote:
-> > The guest page hinting patchset introduces code that passes guest
-> > page usage information to the host system that virtualizes the
-> > memory of its guests. There are three different page states:
-> 
-> Possibly hiding in the patchset someplace where I don't see it, but IBM's
-> VM hypervisor supported reflecting page faults back to a multitasking guest,
-> giving a signal that the guest supervisor could use.  The guest would then
-> look up which process owned that virtual page, and could elect to flag that
-> process as in page-wait and schedule another process to run while the hypervisor
-> was doing the I/O to bring the page in.  The guest would then get another
-> interrupt when the page became available, which it could use to flag the
-> suspended process as eligible for scheduling again.
+This accounts for the time Xen steals from our VCPUs.  This accounting
+gets run on each timer interrupt, just as a way to get it run
+relatively often, and when interesting things are going on.
 
-That features is called pfault and is hidden in arch/s390/mm/fault.c.
-Guest page hinting is different. The idea is that the guest (linux)
-allows the host (z/VM) to remove the page from memory without writing it
-to a paging device. With pfault z/VM has to write the page but tells its
-guest that is has to retrieve the page before the current context can
-continue if the guest accesses the page. So with pfault the host gets
-the page back, with guest page hinting the guest does it.
+Stolen time is not really used by much in the kernel; it is reported
+in /proc/stats, and that's about it.
 
-> Not sure how that would fit into all this though - it looks like the
-> "discard fault" does something similar, but only for pages marked volatile.
-> Would it be useful/helpful to also deliver a similar signal for stable pages?
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Acked-by: Chris Wright <chrisw@sous-sol.org>
+Cc: john stultz <johnstul@us.ibm.com>
+Cc: Rik van Riel <riel@redhat.com>
+---
+ arch/i386/xen/time.c |  106 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 105 insertions(+), 1 deletion(-)
 
-Pfault delivers a signal for stable pages, yes.
+===================================================================
+--- a/arch/i386/xen/time.c
++++ b/arch/i386/xen/time.c
+@@ -2,6 +2,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/clocksource.h>
+ #include <linux/clockchips.h>
++#include <linux/kernel_stat.h>
+ 
+ #include <asm/xen/hypervisor.h>
+ #include <asm/xen/hypercall.h>
+@@ -14,6 +15,7 @@
+ 
+ #define XEN_SHIFT 22
+ #define TIMER_SLOP	100000	/* Xen may fire a timer up to this many ns early */
++#define NS_PER_TICK	(1000000000ll / HZ)
+ 
+ /* These are perodically updated in shared_info, and then copied here. */
+ struct shadow_time_info {
+@@ -26,6 +28,104 @@ struct shadow_time_info {
+ 
+ static DEFINE_PER_CPU(struct shadow_time_info, shadow_time);
+ 
++/* runstate info updated by Xen */
++static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
++
++/* snapshots of runstate info */
++static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate_snapshot);
++
++/* unused ns of stolen and blocked time */
++static DEFINE_PER_CPU(u64, residual_stolen);
++static DEFINE_PER_CPU(u64, residual_blocked);
++
++/*
++ * Runstate accounting
++ */
++static void get_runstate_snapshot(struct vcpu_runstate_info *res)
++{
++	u64 state_time;
++	struct vcpu_runstate_info *state;
++
++	preempt_disable();
++
++	state = &__get_cpu_var(runstate);
++
++	/*
++	 * The runstate info is always updated by the hypervisor on
++	 * the current CPU, so there's no need to use anything
++	 * stronger than a compiler barrier when fetching it.
++	 */
++	do {
++		state_time = state->state_entry_time;
++		barrier();
++		*res = *state;
++		barrier();
++	} while(state->state_entry_time != state_time);
++
++	preempt_enable();
++}
++
++static void setup_runstate_info(void)
++{
++	struct vcpu_register_runstate_memory_area area;
++
++	area.addr.v = &__get_cpu_var(runstate);
++
++	if (HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area,
++			       smp_processor_id(), &area))
++		BUG();
++
++	get_runstate_snapshot(&__get_cpu_var(runstate_snapshot));
++}
++
++static void do_stolen_accounting(void)
++{
++	struct vcpu_runstate_info state;
++	struct vcpu_runstate_info *snap;
++	u64 blocked, runnable, offline, stolen;
++	cputime_t ticks;
++
++	get_runstate_snapshot(&state);
++
++	WARN_ON(state.state != RUNSTATE_running);
++
++	snap = &__get_cpu_var(runstate_snapshot);
++
++	/* work out how much time the VCPU has not been runn*ing*  */
++	blocked = state.time[RUNSTATE_blocked] - snap->time[RUNSTATE_blocked];
++	runnable = state.time[RUNSTATE_runnable] - snap->time[RUNSTATE_runnable];
++	offline = state.time[RUNSTATE_offline] - snap->time[RUNSTATE_offline];
++
++	*snap = state;
++
++	/* Add the appropriate number of ticks of stolen time,
++	   including any left-overs from last time.  Passing NULL to
++	   account_steal_time accounts the time as stolen. */
++	stolen = runnable + offline + __get_cpu_var(residual_stolen);
++	ticks = 0;
++	while(stolen >= NS_PER_TICK) {
++		ticks++;
++		stolen -= NS_PER_TICK;
++	}
++	__get_cpu_var(residual_stolen) = stolen;
++	account_steal_time(NULL, ticks);
++
++	/* Add the appropriate number of ticks of blocked time,
++	   including any left-overs from last time.  Passing idle to
++	   account_steal_time accounts the time as idle/wait. */
++	blocked += __get_cpu_var(residual_blocked);
++	ticks = 0;
++	while(blocked >= NS_PER_TICK) {
++		ticks++;
++		blocked -= NS_PER_TICK;
++	}
++	__get_cpu_var(residual_blocked) = blocked;
++	account_steal_time(idle_task(smp_processor_id()), ticks);
++}
++
++
++
++/* Get the CPU speed from Xen */
+ unsigned long xen_cpu_khz(void)
+ {
+ 	u64 cpu_khz = 1000000ULL << 32;
+@@ -338,6 +438,8 @@ static irqreturn_t xen_timer_interrupt(i
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
++	do_stolen_accounting();
++
+ 	return ret;
+ }
+ 
+@@ -364,6 +466,8 @@ static void xen_setup_timer(int cpu)
+ 	evt->irq = irq;
+ 	clockevents_register_device(evt);
+ 
++	setup_runstate_info();
++
+ 	put_cpu_var(xen_clock_events);
+ }
+ 
+@@ -376,7 +480,7 @@ __init void xen_time_init(void)
+ 	clocksource_register(&xen_clocksource);
+ 
+ 	if (HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL) == 0) {
+-		/* Successfully turned off 100hz tick, so we have the
++		/* Successfully turned off 100Hz tick, so we have the
+ 		   vcpuop-based timer interface */
+ 		printk(KERN_DEBUG "Xen: using vcpuop timer interface\n");
+ 		xen_clockevent = &xen_vcpuop_clockevent;
 
 -- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
