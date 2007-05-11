@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 16/28]xen: lazy-mmu operations
-Date: Thu, 10 May 2007 17:06:59 -0700
-Message-ID: <20070511001202.833330000@goop.org>
+Subject: [patch 07/28]xen: xen time implementation
+Date: Thu, 10 May 2007 17:06:50 -0700
+Message-ID: <20070511001158.013752000@goop.org>
 References: <20070511000643.025196000@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=xen-lazy-mmu.patch
+Content-Disposition: inline; filename=xen-time.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -14,200 +14,454 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch uses the lazy-mmu hooks to batch mmu operations where
-possible.  This is primarily useful for batching operations applied to
-active pagetables, which happens during mprotect, munmap, mremap and
-the like (mmap does not do bulk pagetable operations, so it isn't
-helped).
+Time is implemented by using a clocksource which is driven from the
+hypervisor's nanosecond timebase.  Xen implements time by
+extrapolating from known timestamps using the tsc; the hypervisor is
+responsible for making sure that the tsc is constant rate and
+synchronized between vcpus.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Acked-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 
 ---
- arch/i386/xen/enlighten.c  |   56 +++++++++++++++++++++++++++-----------------
- arch/i386/xen/mmu.c        |   56 ++++++++++++++++++++++++++++++++------------
- arch/i386/xen/multicalls.c |    4 +--
- 3 files changed, 78 insertions(+), 38 deletions(-)
+ arch/i386/xen/Makefile    |    2 
+ arch/i386/xen/enlighten.c |    6 
+ arch/i386/xen/time.c      |  402 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 409 insertions(+), 1 deletion(-)
 
+===================================================================
+--- a/arch/i386/xen/Makefile
++++ b/arch/i386/xen/Makefile
+@@ -1,2 +1,2 @@ obj-y		:= enlighten.o setup.o features.o
+ obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o \
+-			events.o
++			events.o time.o
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -451,28 +451,38 @@ static void xen_apic_write(unsigned long
+@@ -595,6 +595,12 @@ static const struct paravirt_ops xen_par
+ 	.arch_setup = xen_arch_setup,
+ 	.init_IRQ = xen_init_IRQ,
  
- static void xen_flush_tlb(void)
- {
--	struct mmuext_op op;
--
--	op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+	struct mmuext_op *op;
-+	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
++	.time_init = xen_time_init,
++	.set_wallclock = xen_set_wallclock,
++	.get_wallclock = xen_get_wallclock,
++	.get_cpu_khz = xen_cpu_khz,
++	.sched_clock = xen_clocksource_read,
 +
-+	op = mcs.args;
-+	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
+ 	.cpuid = xen_cpuid,
  
- static void xen_flush_tlb_single(unsigned long addr)
- {
--	struct mmuext_op op;
--
--	op.cmd = MMUEXT_INVLPG_LOCAL;
--	op.arg1.linear_addr = addr & PAGE_MASK;
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+	struct mmuext_op *op;
-+	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
-+
-+	op = mcs.args;
-+	op->cmd = MMUEXT_INVLPG_LOCAL;
-+	op->arg1.linear_addr = addr & PAGE_MASK;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
- static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
- 				 unsigned long va)
- {
--	struct mmuext_op op;
-+	struct {
-+		struct mmuext_op op;
-+		cpumask_t mask;
-+	} *args;
- 	cpumask_t cpumask = *cpus;
-+	struct multicall_space mcs;
- 
- 	/*
- 	 * A couple of (to be removed) sanity checks:
-@@ -489,17 +499,21 @@ static void xen_flush_tlb_others(const c
- 	if (cpus_empty(cpumask))
- 		return;
- 
-+	mcs = xen_mc_entry(sizeof(*args));
-+	args = mcs.args;
-+	args->mask = cpumask;
-+	args->op.arg2.vcpumask = &args->mask;
-+
- 	if (va == TLB_FLUSH_ALL) {
--		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
--		op.arg2.vcpumask = (void *)cpus;
-+		args->op.cmd = MMUEXT_TLB_FLUSH_MULTI;
- 	} else {
--		op.cmd = MMUEXT_INVLPG_MULTI;
--		op.arg1.linear_addr = va;
--		op.arg2.vcpumask = (void *)cpus;
--	}
--
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+		args->op.cmd = MMUEXT_INVLPG_MULTI;
-+		args->op.arg1.linear_addr = va;
-+	}
-+
-+	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
- static unsigned long xen_read_cr2(void)
+ 	.set_debugreg = xen_set_debugreg,
 ===================================================================
---- a/arch/i386/xen/mmu.c
-+++ b/arch/i386/xen/mmu.c
-@@ -56,12 +56,20 @@ void make_lowmem_page_readwrite(void *va
- 
- void xen_set_pmd(pmd_t *ptr, pmd_t val)
- {
--	struct mmu_update u;
--
--	u.ptr = virt_to_machine(ptr).maddr;
--	u.val = pmd_val_ma(val);
--	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
--		BUG();
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
+--- /dev/null
++++ b/arch/i386/xen/time.c
+@@ -0,0 +1,402 @@
++/*
++ * Xen time implementation.
++ *
++ * This is implemented in terms of a clocksource driver which uses
++ * the hypervisor clock as a nanosecond timebase, and a clockevent
++ * driver which uses the hypervisor's timer mechanism.
++ *
++ * Jeremy Fitzhardinge <jeremy@xensource.com>, XenSource Inc, 2007
++ */
++#include <linux/kernel.h>
++#include <linux/interrupt.h>
++#include <linux/clocksource.h>
++#include <linux/clockchips.h>
++
++#include <asm/xen/hypervisor.h>
++#include <asm/xen/hypercall.h>
++
++#include <xen/events.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/vcpu.h>
++
++#include "xen-ops.h"
++
++#define XEN_SHIFT 22
++#define TIMER_SLOP	100000	/* Xen may fire a timer up to this many ns early */
++
++/* These are perodically updated in shared_info, and then copied here. */
++struct shadow_time_info {
++	u64 tsc_timestamp;     /* TSC at last update of time vals.  */
++	u64 system_timestamp;  /* Time, in nanosecs, since boot.    */
++	u32 tsc_to_nsec_mul;
++	int tsc_shift;
++	u32 version;
++};
++
++static DEFINE_PER_CPU(struct shadow_time_info, shadow_time);
++
++unsigned long xen_cpu_khz(void)
++{
++	u64 cpu_khz = 1000000ULL << 32;
++	const struct vcpu_time_info *info =
++		&HYPERVISOR_shared_info->vcpu_info[0].time;
++
++	do_div(cpu_khz, info->tsc_to_system_mul);
++	if (info->tsc_shift < 0)
++		cpu_khz <<= -info->tsc_shift;
++	else
++		cpu_khz >>= info->tsc_shift;
++
++	return cpu_khz;
++}
++
++/*
++ * Reads a consistent set of time-base values from Xen, into a shadow data
++ * area.
++ */
++static void get_time_values_from_xen(void)
++{
++	struct vcpu_time_info   *src;
++	struct shadow_time_info *dst;
 +
 +	preempt_disable();
 +
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptr).maddr;
-+	u->val = pmd_val_ma(val);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++	src = &__get_cpu_var(xen_vcpu)->time;
++	dst = &__get_cpu_var(shadow_time);
 +
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
++	do {
++		dst->version = src->version;
++		rmb();
++		dst->tsc_timestamp     = src->tsc_timestamp;
++		dst->system_timestamp  = src->system_time;
++		dst->tsc_to_nsec_mul   = src->tsc_to_system_mul;
++		dst->tsc_shift         = src->tsc_shift;
++		rmb();
++	} while ((src->version & 1) | (dst->version ^ src->version));
 +
 +	preempt_enable();
- }
- 
- /*
-@@ -104,20 +112,38 @@ void xen_set_pte_at(struct mm_struct *mm
- void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
- 		    pte_t *ptep, pte_t pteval)
- {
--	if ((mm != current->mm && mm != &init_mm) ||
--	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
--		xen_set_pte(ptep, pteval);
-+	if (mm == current->mm || mm == &init_mm) {
-+		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
-+			struct multicall_space mcs;
-+			mcs = xen_mc_entry(0);
++}
 +
-+			MULTI_update_va_mapping(mcs.mc, addr, pteval, 0);
-+			xen_mc_issue(PARAVIRT_LAZY_MMU);
-+			return;
-+		} else
-+			if (HYPERVISOR_update_va_mapping(addr, pteval, 0) == 0)
-+				return;
++/*
++ * Scale a 64-bit delta by scaling and multiplying by a 32-bit fraction,
++ * yielding a 64-bit result.
++ */
++static inline u64 scale_delta(u64 delta, u32 mul_frac, int shift)
++{
++	u64 product;
++#ifdef __i386__
++	u32 tmp1, tmp2;
++#endif
++
++	if (shift < 0)
++		delta >>= -shift;
++	else
++		delta <<= shift;
++
++#ifdef __i386__
++	__asm__ (
++		"mul  %5       ; "
++		"mov  %4,%%eax ; "
++		"mov  %%edx,%4 ; "
++		"mul  %5       ; "
++		"xor  %5,%5    ; "
++		"add  %4,%%eax ; "
++		"adc  %5,%%edx ; "
++		: "=A" (product), "=r" (tmp1), "=r" (tmp2)
++		: "a" ((u32)delta), "1" ((u32)(delta >> 32)), "2" (mul_frac) );
++#elif __x86_64__
++	__asm__ (
++		"mul %%rdx ; shrd $32,%%rdx,%%rax"
++		: "=a" (product) : "0" (delta), "d" ((u64)mul_frac) );
++#else
++#error implement me!
++#endif
++
++	return product;
++}
++
++static u64 get_nsec_offset(struct shadow_time_info *shadow)
++{
++	u64 now, delta;
++	rdtscll(now);
++	delta = now - shadow->tsc_timestamp;
++	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
++}
++
++cycle_t xen_clocksource_read(void)
++{
++	struct shadow_time_info *shadow = &get_cpu_var(shadow_time);
++	cycle_t ret;
++
++	get_time_values_from_xen();
++
++	ret = shadow->system_timestamp + get_nsec_offset(shadow);
++
++	put_cpu_var(shadow_time);
++
++	return ret;
++}
++
++static void xen_read_wallclock(struct timespec *ts)
++{
++	const struct shared_info *s = HYPERVISOR_shared_info;
++	u32 version;
++	u64 delta;
++	struct timespec now;
++
++	/* get wallclock at system boot */
++	do {
++		version = s->wc_version;
++		rmb();
++		now.tv_sec  = s->wc_sec;
++		now.tv_nsec = s->wc_nsec;
++		rmb();
++	} while ((s->wc_version & 1) | (version ^ s->wc_version));
++
++	delta = xen_clocksource_read();	/* time since system boot */
++	delta += now.tv_sec * (u64)NSEC_PER_SEC + now.tv_nsec;
++
++	now.tv_nsec = do_div(delta, NSEC_PER_SEC);
++	now.tv_sec = delta;
++
++	set_normalized_timespec(ts, now.tv_sec, now.tv_nsec);
++}
++
++unsigned long xen_get_wallclock(void)
++{
++	struct timespec ts;
++
++	xen_read_wallclock(&ts);
++
++	return ts.tv_sec;
++}
++
++int xen_set_wallclock(unsigned long now)
++{
++	/* do nothing for domU */
++	return -1;
++}
++
++static struct clocksource xen_clocksource __read_mostly = {
++	.name = "xen",
++	.rating = 400,
++	.read = xen_clocksource_read,
++	.mask = ~0,
++	.mult = 1<<XEN_SHIFT,		/* time directly in nanoseconds */
++	.shift = XEN_SHIFT,
++	.flags = CLOCK_SOURCE_IS_CONTINUOUS,
++};
++
++/*
++   Xen clockevent implementation
++
++   Xen has two clockevent implementations:
++
++   The old timer_op one works with all released versions of Xen prior
++   to version 3.0.4.  This version of the hypervisor provides a
++   single-shot timer with nanosecond resolution.  However, sharing the
++   same event channel is a 100Hz tick which is delivered while the
++   vcpu is running.  We don't care about or use this tick, but it will
++   cause the core time code to think the timer fired too soon, and
++   will end up resetting it each time.  It could be filtered, but
++   doing so has complications when the ktime clocksource is not yet
++   the xen clocksource (ie, at boot time).
++
++   The new vcpu_op-based timer interface allows the tick timer period
++   to be changed or turned off.  The tick timer is not useful as a
++   periodic timer because events are only delivered to running vcpus.
++   The one-shot timer can report when a timeout is in the past, so
++   set_next_event is capable of returning -ETIME when appropriate.
++   This interface is used when available.
++*/
++
++
++/*
++  Get a hypervisor absolute time.  In theory we could maintain an
++  offset between the kernel's time and the hypervisor's time, and
++  apply that to a kernel's absolute timeout.  Unfortunately the
++  hypervisor and kernel times can drift even if the kernel is using
++  the Xen clocksource, because ntp can warp the kernel's clocksource.
++*/
++static s64 get_abs_timeout(unsigned long delta)
++{
++	return xen_clocksource_read() + delta;
++}
++
++static void xen_timerop_set_mode(enum clock_event_mode mode,
++				 struct clock_event_device *evt)
++{
++	switch(mode) {
++	case CLOCK_EVT_MODE_PERIODIC:
++		/* unsupported */
++		WARN_ON(1);
++		break;
++
++	case CLOCK_EVT_MODE_ONESHOT:
++		break;
++
++	case CLOCK_EVT_MODE_UNUSED:
++	case CLOCK_EVT_MODE_SHUTDOWN:
++		HYPERVISOR_set_timer_op(0);  /* cancel timeout */
++		break;
 +	}
-+	xen_set_pte(ptep, pteval);
- }
- 
- #ifdef CONFIG_X86_PAE
- void xen_set_pud(pud_t *ptr, pud_t val)
- {
--	struct mmu_update u;
--
--	u.ptr = virt_to_machine(ptr).maddr;
--	u.val = pud_val_ma(val);
--	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
--		BUG();
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
++}
 +
-+	preempt_disable();
++static int xen_timerop_set_next_event(unsigned long delta,
++				      struct clock_event_device *evt)
++{
++	WARN_ON(evt->mode != CLOCK_EVT_MODE_ONESHOT);
 +
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptr).maddr;
-+	u->val = pud_val_ma(val);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++	if (HYPERVISOR_set_timer_op(get_abs_timeout(delta)) < 0)
++		BUG();
 +
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
++	/* We may have missed the deadline, but there's no real way of
++	   knowing for sure.  If the event was in the past, then we'll
++	   get an immediate interrupt. */
 +
-+	preempt_enable();
- }
- 
- void xen_set_pte(pte_t *ptep, pte_t pte)
-===================================================================
---- a/arch/i386/xen/multicalls.c
-+++ b/arch/i386/xen/multicalls.c
-@@ -5,8 +5,8 @@
- 
- #include "multicalls.h"
- 
--#define MC_BATCH	8
--#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
-+#define MC_BATCH	32
-+#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
- 
- struct mc_buffer {
- 	struct multicall_entry entries[MC_BATCH];
++	return 0;
++}
++
++static const struct clock_event_device xen_timerop_clockevent = {
++	.name = "xen",
++	.features = CLOCK_EVT_FEAT_ONESHOT,
++
++	.max_delta_ns = 0xffffffff,
++	.min_delta_ns = TIMER_SLOP,
++
++	.mult = 1,
++	.shift = 0,
++	.rating = 500,
++
++	.set_mode = xen_timerop_set_mode,
++	.set_next_event = xen_timerop_set_next_event,
++};
++
++
++
++static void xen_vcpuop_set_mode(enum clock_event_mode mode,
++				struct clock_event_device *evt)
++{
++	int cpu = smp_processor_id();
++
++	switch(mode) {
++	case CLOCK_EVT_MODE_PERIODIC:
++		WARN_ON(1);	/* unsupported */
++		break;
++
++	case CLOCK_EVT_MODE_ONESHOT:
++		if (HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL))
++			BUG();
++		break;
++
++	case CLOCK_EVT_MODE_UNUSED:
++	case CLOCK_EVT_MODE_SHUTDOWN:
++		if (HYPERVISOR_vcpu_op(VCPUOP_stop_singleshot_timer, cpu, NULL) ||
++		    HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL))
++			BUG();
++		break;
++	}
++}
++
++static int xen_vcpuop_set_next_event(unsigned long delta,
++				     struct clock_event_device *evt)
++{
++	int cpu = smp_processor_id();
++	struct vcpu_set_singleshot_timer single;
++	int ret;
++
++	WARN_ON(evt->mode != CLOCK_EVT_MODE_ONESHOT);
++
++	single.timeout_abs_ns = get_abs_timeout(delta);
++	single.flags = VCPU_SSHOTTMR_future;
++
++	ret = HYPERVISOR_vcpu_op(VCPUOP_set_singleshot_timer, cpu, &single);
++
++	BUG_ON(ret != 0 && ret != -ETIME);
++
++	return ret;
++}
++
++static const struct clock_event_device xen_vcpuop_clockevent = {
++	.name = "xen",
++	.features = CLOCK_EVT_FEAT_ONESHOT,
++
++	.max_delta_ns = 0xffffffff,
++	.min_delta_ns = TIMER_SLOP,
++
++	.mult = 1,
++	.shift = 0,
++	.rating = 500,
++
++	.set_mode = xen_vcpuop_set_mode,
++	.set_next_event = xen_vcpuop_set_next_event,
++};
++
++static const struct clock_event_device *xen_clockevent =
++	&xen_timerop_clockevent;
++static DEFINE_PER_CPU(struct clock_event_device, xen_clock_events);
++
++static irqreturn_t xen_timer_interrupt(int irq, void *dev_id)
++{
++	struct clock_event_device *evt = &__get_cpu_var(xen_clock_events);
++	irqreturn_t ret;
++
++	ret = IRQ_NONE;
++	if (evt->event_handler) {
++		evt->event_handler(evt);
++		ret = IRQ_HANDLED;
++	}
++
++	return ret;
++}
++
++static void xen_setup_timer(int cpu)
++{
++	const char *name;
++	struct clock_event_device *evt;
++	int irq;
++
++	printk("installing Xen timer for CPU %d\n", cpu);
++
++	name = kasprintf(GFP_KERNEL, "timer%d", cpu);
++	if (!name)
++		name = "<timer kasprintf failed>";
++
++	irq = bind_virq_to_irqhandler(VIRQ_TIMER, cpu, xen_timer_interrupt,
++				      IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
++				      name, NULL);
++
++	evt = &get_cpu_var(xen_clock_events);
++	memcpy(evt, xen_clockevent, sizeof(*evt));
++
++	evt->cpumask = cpumask_of_cpu(cpu);
++	evt->irq = irq;
++	clockevents_register_device(evt);
++
++	put_cpu_var(xen_clock_events);
++}
++
++__init void xen_time_init(void)
++{
++	int cpu = smp_processor_id();
++
++	get_time_values_from_xen();
++
++	clocksource_register(&xen_clocksource);
++
++	if (HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL) == 0) {
++		/* Successfully turned off 100hz tick, so we have the
++		   vcpuop-based timer interface */
++		printk(KERN_DEBUG "Xen: using vcpuop timer interface\n");
++		xen_clockevent = &xen_vcpuop_clockevent;
++	}
++
++	/* Set initial system time with full resolution */
++	xen_read_wallclock(&xtime);
++	set_normalized_timespec(&wall_to_monotonic,
++				-xtime.tv_sec, -xtime.tv_nsec);
++
++	tsc_disable = 0;
++
++	xen_setup_timer(cpu);
++}
 
 -- 
