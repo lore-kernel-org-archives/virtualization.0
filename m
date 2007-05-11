@@ -1,11 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 26/28]xen: handle external requests for shutdown,
-	reboot and sysrq
-Date: Thu, 10 May 2007 17:07:09 -0700
-Message-ID: <20070511001209.268040000@goop.org>
+Subject: [patch 23/28]xen: rename xen netif_ structures to xen_netif_
+Date: Thu, 10 May 2007 17:07:06 -0700
+Message-ID: <20070511001207.097457000@goop.org>
 References: <20070511000643.025196000@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-management.patch
+Content-Disposition: inline; filename=xen-netif-rename.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,173 +18,76 @@ To: Andi Kleen <ak@suse.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The guest domain can be asked to shutdown or reboot itself, or have a
-sysrq key injected, via xenbus.  This patch adds a watcher for those
-events, and does the appropriate action.
+The "netif_" prefix is used in the Linux network stack, so rename the
+Xen structures to xen_netif_ to avoid confusion (and potential
+collision).
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- arch/i386/xen/Makefile |    2 
- arch/i386/xen/manage.c |  143 ++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 144 insertions(+), 1 deletion(-)
+ include/xen/interface/io/netif.h |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/Makefile
-+++ b/arch/i386/xen/Makefile
-@@ -1,4 +1,4 @@ obj-y		:= enlighten.o setup.o features.o
- obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o \
--			events.o time.o
-+			events.o time.o manage.o
+--- a/include/xen/interface/io/netif.h
++++ b/include/xen/interface/io/netif.h
+@@ -47,7 +47,7 @@
+ #define _NETTXF_extra_info     (3)
+ #define  NETTXF_extra_info     (1U<<_NETTXF_extra_info)
  
- obj-$(CONFIG_SMP)	+= smp.o
-===================================================================
---- /dev/null
-+++ b/arch/i386/xen/manage.c
-@@ -0,0 +1,143 @@
-+/*
-+ * Handle extern requests for shutdown, reboot and sysrq
-+ */
-+#include <linux/kernel.h>
-+#include <linux/err.h>
-+#include <linux/reboot.h>
-+#include <linux/sysrq.h>
-+
-+#include <xen/xenbus.h>
-+
-+#define SHUTDOWN_INVALID  -1
-+#define SHUTDOWN_POWEROFF  0
-+#define SHUTDOWN_SUSPEND   2
-+/* Code 3 is SHUTDOWN_CRASH, which we don't use because the domain can only
-+ * report a crash, not be instructed to crash!
-+ * HALT is the same as POWEROFF, as far as we're concerned.  The tools use
-+ * the distinction when we return the reason code to them.
-+ */
-+#define SHUTDOWN_HALT      4
-+
-+/* Ignore multiple shutdown requests. */
-+static int shutting_down = SHUTDOWN_INVALID;
-+
-+static void shutdown_handler(struct xenbus_watch *watch,
-+			     const char **vec, unsigned int len)
-+{
-+	char *str;
-+	struct xenbus_transaction xbt;
-+	int err;
-+
-+	if (shutting_down != SHUTDOWN_INVALID)
-+		return;
-+
-+ again:
-+	err = xenbus_transaction_start(&xbt);
-+	if (err)
-+		return;
-+
-+	str = (char *)xenbus_read(xbt, "control", "shutdown", NULL);
-+	/* Ignore read errors and empty reads. */
-+	if (XENBUS_IS_ERR_READ(str)) {
-+		xenbus_transaction_end(xbt, 1);
-+		return;
-+	}
-+
-+	xenbus_write(xbt, "control", "shutdown", "");
-+
-+	err = xenbus_transaction_end(xbt, 0);
-+	if (err == -EAGAIN) {
-+		kfree(str);
-+		goto again;
-+	}
-+
-+	if (strcmp(str, "poweroff") == 0 ||
-+	    strcmp(str, "halt") == 0)
-+		orderly_poweroff(false);
-+	else if (strcmp(str, "reboot") == 0)
-+		ctrl_alt_del();
-+	else {
-+		printk("Ignoring shutdown request: %s\n", str);
-+		shutting_down = SHUTDOWN_INVALID;
-+	}
-+
-+	kfree(str);
-+}
-+
-+static void sysrq_handler(struct xenbus_watch *watch, const char **vec,
-+			  unsigned int len)
-+{
-+	char sysrq_key = '\0';
-+	struct xenbus_transaction xbt;
-+	int err;
-+
-+ again:
-+	err = xenbus_transaction_start(&xbt);
-+	if (err)
-+		return;
-+	if (!xenbus_scanf(xbt, "control", "sysrq", "%c", &sysrq_key)) {
-+		printk(KERN_ERR "Unable to read sysrq code in "
-+		       "control/sysrq\n");
-+		xenbus_transaction_end(xbt, 1);
-+		return;
-+	}
-+
-+	if (sysrq_key != '\0')
-+		xenbus_printf(xbt, "control", "sysrq", "%c", '\0');
-+
-+	err = xenbus_transaction_end(xbt, 0);
-+	if (err == -EAGAIN)
-+		goto again;
-+
-+	if (sysrq_key != '\0')
-+		handle_sysrq(sysrq_key, NULL);
-+}
-+
-+static struct xenbus_watch shutdown_watch = {
-+	.node = "control/shutdown",
-+	.callback = shutdown_handler
-+};
-+
-+static struct xenbus_watch sysrq_watch = {
-+	.node = "control/sysrq",
-+	.callback = sysrq_handler
-+};
-+
-+static int setup_shutdown_watcher(void)
-+{
-+	int err;
-+
-+	err = register_xenbus_watch(&shutdown_watch);
-+	if (err) {
-+		printk(KERN_ERR "Failed to set shutdown watcher\n");
-+		return err;
-+	}
-+
-+	err = register_xenbus_watch(&sysrq_watch);
-+	if (err) {
-+		printk(KERN_ERR "Failed to set sysrq watcher\n");
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int shutdown_event(struct notifier_block *notifier,
-+			  unsigned long event,
-+			  void *data)
-+{
-+	setup_shutdown_watcher();
-+	return NOTIFY_DONE;
-+}
-+
-+static int __init setup_shutdown_event(void)
-+{
-+	static struct notifier_block xenstore_notifier = {
-+		.notifier_call = shutdown_event
-+	};
-+	register_xenstore_notifier(&xenstore_notifier);
-+
-+	return 0;
-+}
-+
-+subsys_initcall(setup_shutdown_event);
+-struct netif_tx_request {
++struct xen_netif_tx_request {
+     grant_ref_t gref;      /* Reference to buffer page */
+     uint16_t offset;       /* Offset within buffer page */
+     uint16_t flags;        /* NETTXF_* */
+@@ -71,7 +71,7 @@ struct netif_tx_request {
+  * This structure needs to fit within both netif_tx_request and
+  * netif_rx_response for compatibility.
+  */
+-struct netif_extra_info {
++struct xen_netif_extra_info {
+     uint8_t type;  /* XEN_NETIF_EXTRA_TYPE_* */
+     uint8_t flags; /* XEN_NETIF_EXTRA_FLAG_* */
+ 
+@@ -103,12 +103,12 @@ struct netif_extra_info {
+     } u;
+ };
+ 
+-struct netif_tx_response {
++struct xen_netif_tx_response {
+     uint16_t id;
+     int16_t  status;       /* NETIF_RSP_* */
+ };
+ 
+-struct netif_rx_request {
++struct xen_netif_rx_request {
+     uint16_t    id;        /* Echoed in response message.        */
+     grant_ref_t gref;      /* Reference to incoming granted frame */
+ };
+@@ -129,7 +129,7 @@ struct netif_rx_request {
+ #define _NETRXF_extra_info     (3)
+ #define  NETRXF_extra_info     (1U<<_NETRXF_extra_info)
+ 
+-struct netif_rx_response {
++struct xen_netif_rx_response {
+     uint16_t id;
+     uint16_t offset;       /* Offset in page of start of received packet  */
+     uint16_t flags;        /* NETRXF_* */
+@@ -140,8 +140,12 @@ struct netif_rx_response {
+  * Generate netif ring structures and types.
+  */
+ 
+-DEFINE_RING_TYPES(netif_tx, struct netif_tx_request, struct netif_tx_response);
+-DEFINE_RING_TYPES(netif_rx, struct netif_rx_request, struct netif_rx_response);
++DEFINE_RING_TYPES(xen_netif_tx,
++		  struct xen_netif_tx_request,
++		  struct xen_netif_tx_response);
++DEFINE_RING_TYPES(xen_netif_rx,
++		  struct xen_netif_rx_request,
++		  struct xen_netif_rx_response);
+ 
+ #define NETIF_RSP_DROPPED         -2
+ #define NETIF_RSP_ERROR           -1
 
 -- 
