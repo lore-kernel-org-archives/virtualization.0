@@ -1,11 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 27/28]xen: Place vcpu_info structure into
-	per-cpu memory, if possible
-Date: Thu, 10 May 2007 17:07:10 -0700
-Message-ID: <20070511001209.902851000@goop.org>
+Subject: [patch 16/28]xen: lazy-mmu operations
+Date: Thu, 10 May 2007 17:06:59 -0700
+Message-ID: <20070511001202.833330000@goop.org>
 References: <20070511000643.025196000@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=xen-place-vcpu.patch
+Content-Disposition: inline; filename=xen-lazy-mmu.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -15,251 +14,200 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andi Kleen <ak@suse.de>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-An experimental patch for Xen allows guests to place their vcpu_info
-structs anywhere.  We try to use this to place the vcpu_info into the
-PDA, which allows direct access.
-
-If this works, then switch to using direct access operations for
-irq_enable, disable, save_fl and restore_fl.
+This patch uses the lazy-mmu hooks to batch mmu operations where
+possible.  This is primarily useful for batching operations applied to
+active pagetables, which happens during mprotect, munmap, mremap and
+the like (mmap does not do bulk pagetable operations, so it isn't
+helped).
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chris Wright <chrisw@sous-sol.org>
-Cc: Keir Fraser <keir@xensource.com>
+Acked-by: Chris Wright <chrisw@sous-sol.org>
+
 ---
- arch/i386/xen/enlighten.c    |  121 +++++++++++++++++++++++++++++++++++++++++-
- arch/i386/xen/setup.c        |    8 --
- include/xen/interface/vcpu.h |   13 ++++
- 3 files changed, 133 insertions(+), 9 deletions(-)
+ arch/i386/xen/enlighten.c  |   56 +++++++++++++++++++++++++++-----------------
+ arch/i386/xen/mmu.c        |   56 ++++++++++++++++++++++++++++++++------------
+ arch/i386/xen/multicalls.c |    4 +--
+ 3 files changed, 78 insertions(+), 38 deletions(-)
 
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -61,9 +61,55 @@ struct start_info *xen_start_info;
- struct start_info *xen_start_info;
- EXPORT_SYMBOL_GPL(xen_start_info);
+@@ -451,28 +451,38 @@ static void xen_apic_write(unsigned long
  
-+static /* __initdata */ struct shared_info dummy_shared_info;
-+
-+/*
-+ * Point at some empty memory to start with. We map the real shared_info
-+ * page as soon as fixmap is up and running.
-+ */
-+struct shared_info *HYPERVISOR_shared_info = (void *)&dummy_shared_info;
-+
-+/* tristate - -1: not tested, 0: not available, 1: available */
-+static int have_vcpu_info_placement = -1;
-+
- void xen_vcpu_setup(int cpu)
+ static void xen_flush_tlb(void)
  {
-+	struct vcpu_register_vcpu_info info;
-+	int err;
-+	struct vcpu_info *vcpup;
+-	struct mmuext_op op;
+-
+-	op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
 +
- 	per_cpu(xen_vcpu, cpu) = &HYPERVISOR_shared_info->vcpu_info[cpu];
++	op = mcs.args;
++	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
 +
-+	if (!have_vcpu_info_placement)
-+		return;		/* already tested, not available */
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
+ 
+ static void xen_flush_tlb_single(unsigned long addr)
+ {
+-	struct mmuext_op op;
+-
+-	op.cmd = MMUEXT_INVLPG_LOCAL;
+-	op.arg1.linear_addr = addr & PAGE_MASK;
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
 +
-+	vcpup = &per_cpu(xen_vcpu_info, cpu);
++	op = mcs.args;
++	op->cmd = MMUEXT_INVLPG_LOCAL;
++	op->arg1.linear_addr = addr & PAGE_MASK;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
 +
-+	printk("setting up vcpu for %d: xen_vcpu_info=%p\n",
-+	       cpu, vcpup);
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
+ 
+ static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
+ 				 unsigned long va)
+ {
+-	struct mmuext_op op;
++	struct {
++		struct mmuext_op op;
++		cpumask_t mask;
++	} *args;
+ 	cpumask_t cpumask = *cpus;
++	struct multicall_space mcs;
+ 
+ 	/*
+ 	 * A couple of (to be removed) sanity checks:
+@@ -489,17 +499,21 @@ static void xen_flush_tlb_others(const c
+ 	if (cpus_empty(cpumask))
+ 		return;
+ 
++	mcs = xen_mc_entry(sizeof(*args));
++	args = mcs.args;
++	args->mask = cpumask;
++	args->op.arg2.vcpumask = &args->mask;
 +
-+	info.mfn = virt_to_mfn(vcpup);
-+	info.offset = offset_in_page(vcpup);
-+
-+	printk("trying to map vcpu_info %d at %p, mfn %x, offset %d\n",
-+	       cpu, vcpup, info.mfn, info.offset);
-+
-+	/* Check to see if the hypervisor will put the vcpu_info
-+	   structure where we want it, which allows direct access via
-+	   a percpu-variable. */
-+	err = HYPERVISOR_vcpu_op(VCPUOP_register_vcpu_info, cpu, &info);
-+
-+	BUG_ON(err != 0 && err != -ENOSYS);
-+	BUG_ON(err && have_vcpu_info_placement==1);  /* all or nothing */
-+
-+	have_vcpu_info_placement = 0;
-+
-+	if (err == 0) {
-+		have_vcpu_info_placement = 1;
-+		per_cpu(xen_vcpu, cpu) = vcpup;
-+		printk("cpu %d using vcpu_info at %p\n",
-+		       cpu, vcpup);
+ 	if (va == TLB_FLUSH_ALL) {
+-		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
+-		op.arg2.vcpumask = (void *)cpus;
++		args->op.cmd = MMUEXT_TLB_FLUSH_MULTI;
+ 	} else {
+-		op.cmd = MMUEXT_INVLPG_MULTI;
+-		op.arg1.linear_addr = va;
+-		op.arg2.vcpumask = (void *)cpus;
+-	}
+-
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++		args->op.cmd = MMUEXT_INVLPG_MULTI;
++		args->op.arg1.linear_addr = va;
 +	}
++
++	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
  }
  
- static void __init xen_banner(void)
-@@ -123,6 +169,20 @@ static unsigned long xen_save_fl(void)
- 	return (-flags) & X86_EFLAGS_IF;
- }
- 
-+static unsigned long xen_save_fl_direct(void)
-+{
-+	unsigned long flags;
-+
-+	/* flag has opposite sense of mask */
-+	flags = !x86_read_percpu(xen_vcpu_info.evtchn_upcall_mask);
-+
-+	/* convert to IF type flag
-+	   -0 -> 0x00000000
-+	   -1 -> 0xffffffff
-+	*/
-+	return (-flags) & X86_EFLAGS_IF;
-+}
-+
- static void xen_restore_fl(unsigned long flags)
- {
- 	struct vcpu_info *vcpu;
-@@ -149,6 +209,25 @@ static void xen_restore_fl(unsigned long
- 	}
- }
- 
-+static void xen_restore_fl_direct(unsigned long flags)
-+{
-+	/* convert from IF type flag */
-+	flags = !(flags & X86_EFLAGS_IF);
-+
-+	/* This is an atomic update, so no need to worry about
-+	   preemption. */
-+	x86_write_percpu(xen_vcpu_info.evtchn_upcall_mask, flags);
-+
-+	/* If we get preempted here, then any pending event will be
-+	   handled anyway. */
-+
-+	if (flags == 0) {
-+		barrier(); /* unmask then check (avoid races) */
-+		if (unlikely(x86_read_percpu(xen_vcpu_info.evtchn_upcall_pending)))
-+			force_evtchn_callback();
-+	}
-+}
-+
- static void xen_irq_disable(void)
- {
- 	/* There's a one instruction preempt window here.  We need to
-@@ -157,6 +236,12 @@ static void xen_irq_disable(void)
- 	preempt_disable();
- 	x86_read_percpu(xen_vcpu)->evtchn_upcall_mask = 1;
- 	preempt_enable_no_resched();
-+}
-+
-+static void xen_irq_disable_direct(void)
-+{
-+	/* Atomic update, so preemption not a concern. */
-+	x86_write_percpu(xen_vcpu_info.evtchn_upcall_mask, 1);
- }
- 
- static void xen_irq_enable(void)
-@@ -176,6 +261,19 @@ static void xen_irq_enable(void)
- 
- 	barrier(); /* unmask then check (avoid races) */
- 	if (unlikely(vcpu->evtchn_upcall_pending))
-+		force_evtchn_callback();
-+}
-+
-+static void xen_irq_enable_direct(void)
-+{
-+	/* Atomic update, so preemption not a concern. */
-+	x86_write_percpu(xen_vcpu_info.evtchn_upcall_mask, 0);
-+
-+	/* Doesn't matter if we get preempted here, because any
-+	   pending event will get dealt with anyway. */
-+
-+	barrier(); /* unmask then check (avoid races) */
-+	if (unlikely(x86_read_percpu(xen_vcpu_info.evtchn_upcall_pending)))
- 		force_evtchn_callback();
- }
- 
-@@ -538,9 +636,19 @@ static void xen_flush_tlb_others(const c
- 	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
-+static void xen_write_cr2(unsigned long cr2)
-+{
-+	x86_read_percpu(xen_vcpu)->arch.cr2 = cr2;
-+}
-+
  static unsigned long xen_read_cr2(void)
+===================================================================
+--- a/arch/i386/xen/mmu.c
++++ b/arch/i386/xen/mmu.c
+@@ -56,12 +56,20 @@ void make_lowmem_page_readwrite(void *va
+ 
+ void xen_set_pmd(pmd_t *ptr, pmd_t val)
  {
- 	return x86_read_percpu(xen_vcpu)->arch.cr2;
-+}
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pmd_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	struct multicall_space mcs;
++	struct mmu_update *u;
 +
-+static unsigned long xen_read_cr2_direct(void)
-+{
-+	return x86_read_percpu(xen_vcpu_info.arch.cr2);
++	preempt_disable();
++
++	mcs = xen_mc_entry(sizeof(*u));
++	u = mcs.args;
++	u->ptr = virt_to_machine(ptr).maddr;
++	u->val = pmd_val_ma(val);
++	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
++
++	preempt_enable();
  }
- 
- static void xen_write_cr4(unsigned long cr4)
-@@ -775,7 +883,7 @@ static const struct paravirt_ops xen_par
- 	.write_cr0 = native_write_cr0,
- 
- 	.read_cr2 = xen_read_cr2,
--	.write_cr2 = native_write_cr2,
-+	.write_cr2 = xen_write_cr2,
- 
- 	.read_cr3 = xen_read_cr3,
- 	.write_cr3 = xen_write_cr3,
-@@ -963,6 +1071,17 @@ static asmlinkage void __init xen_start_
- 	x86_write_percpu(xen_cr3, __pa(pgd));
- 	xen_vcpu_setup(0);
- 
-+	/* xen_vcpu_setup managed to place the vcpu_info within the
-+	   pda, so make use of it */
-+	BUG_ON(have_vcpu_info_placement == -1);
-+	if (have_vcpu_info_placement) {
-+		paravirt_ops.save_fl = xen_save_fl_direct;
-+		paravirt_ops.restore_fl = xen_restore_fl_direct;
-+		paravirt_ops.irq_disable = xen_irq_disable_direct;
-+		paravirt_ops.irq_enable = xen_irq_enable_direct;
-+		paravirt_ops.read_cr2 = xen_read_cr2_direct;
-+	}
-+
- 	paravirt_ops.kernel_rpl = 1;
- 	if (xen_feature(XENFEAT_supervisor_mode_kernel))
- 		paravirt_ops.kernel_rpl = 0;
-===================================================================
---- a/arch/i386/xen/setup.c
-+++ b/arch/i386/xen/setup.c
-@@ -22,14 +22,6 @@
- /* These are code, but not functions.  Defined in entry.S */
- extern const char xen_hypervisor_callback[];
- extern const char xen_failsafe_callback[];
--
--static __initdata struct shared_info init_shared;
--
--/*
-- * Point at some empty memory to start with. We map the real shared_info
-- * page as soon as fixmap is up and running.
-- */
--struct shared_info *HYPERVISOR_shared_info = &init_shared;
- 
- unsigned long *phys_to_machine_mapping;
- EXPORT_SYMBOL(phys_to_machine_mapping);
-===================================================================
---- a/include/xen/interface/vcpu.h
-+++ b/include/xen/interface/vcpu.h
-@@ -151,6 +151,19 @@ struct vcpu_set_singleshot_timer {
- #define _VCPU_SSHOTTMR_future (0)
- #define VCPU_SSHOTTMR_future  (1U << _VCPU_SSHOTTMR_future)
- 
-+/*
-+ * Register a memory location in the guest address space for the
-+ * vcpu_info structure.  This allows the guest to place the vcpu_info
-+ * structure in a convenient place, such as in a per-cpu data area.
-+ * The pointer need not be page aligned, but the structure must not
-+ * cross a page boundary.
-+ */
-+#define VCPUOP_register_vcpu_info   10  /* arg == struct vcpu_info */
-+struct vcpu_register_vcpu_info {
-+    uint32_t mfn;               /* mfn of page to place vcpu_info */
-+    uint32_t offset;            /* offset within page */
-+};
-+
- #endif /* __XEN_PUBLIC_VCPU_H__ */
  
  /*
+@@ -104,20 +112,38 @@ void xen_set_pte_at(struct mm_struct *mm
+ void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
+ 		    pte_t *ptep, pte_t pteval)
+ {
+-	if ((mm != current->mm && mm != &init_mm) ||
+-	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
+-		xen_set_pte(ptep, pteval);
++	if (mm == current->mm || mm == &init_mm) {
++		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
++			struct multicall_space mcs;
++			mcs = xen_mc_entry(0);
++
++			MULTI_update_va_mapping(mcs.mc, addr, pteval, 0);
++			xen_mc_issue(PARAVIRT_LAZY_MMU);
++			return;
++		} else
++			if (HYPERVISOR_update_va_mapping(addr, pteval, 0) == 0)
++				return;
++	}
++	xen_set_pte(ptep, pteval);
+ }
+ 
+ #ifdef CONFIG_X86_PAE
+ void xen_set_pud(pud_t *ptr, pud_t val)
+ {
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pud_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	struct multicall_space mcs;
++	struct mmu_update *u;
++
++	preempt_disable();
++
++	mcs = xen_mc_entry(sizeof(*u));
++	u = mcs.args;
++	u->ptr = virt_to_machine(ptr).maddr;
++	u->val = pud_val_ma(val);
++	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
++
++	preempt_enable();
+ }
+ 
+ void xen_set_pte(pte_t *ptep, pte_t pte)
+===================================================================
+--- a/arch/i386/xen/multicalls.c
++++ b/arch/i386/xen/multicalls.c
+@@ -5,8 +5,8 @@
+ 
+ #include "multicalls.h"
+ 
+-#define MC_BATCH	8
+-#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
++#define MC_BATCH	32
++#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
+ 
+ struct mc_buffer {
+ 	struct multicall_entry entries[MC_BATCH];
 
 -- 
