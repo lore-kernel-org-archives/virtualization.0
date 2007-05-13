@@ -1,35 +1,48 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch 19/28]xen: Add early printk support via hvc
-	console
-Date: Sat, 12 May 2007 12:57:36 -0700
-Message-ID: <46461C30.8050108@goop.org>
-References: <20070511000643.025196000@goop.org>	<20070511001204.948444000@goop.org>
-	<20070512190813.GA17757@wavehammer.waldi.eu.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/5] lguest guest feedback tidyups
+Date: Sun, 13 May 2007 11:00:51 +1000
+Message-ID: <1179018051.23513.81.camel__26993.9382946633$1179018130$gmane$org@localhost.localdomain>
+References: <1178846246.23513.21.camel@localhost.localdomain>
+	<1178846354.23513.23.camel@localhost.localdomain>
+	<1178846490.23513.27.camel@localhost.localdomain>
+	<20070511065613.GB25182@infradead.org>
+	<1178868666.23513.49.camel@localhost.localdomain>
+	<20070511074050.GB25727@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070512190813.GA17757@wavehammer.waldi.eu.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Bastian Blank <bastian@waldi.eu.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070511074050.GB25727@infradead.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Bastian Blank wrote:
-> On Thu, May 10, 2007 at 05:07:02PM -0700, Jeremy Fitzhardinge wrote:
->   
->> +#ifdef CONFIG_XEN
->>     
->
-> xenboot_console is only available with CONFIG_HVC_XEN.
->   
+On Fri, 2007-05-11 at 08:40 +0100, Christoph Hellwig wrote:
+> On Fri, May 11, 2007 at 05:31:06PM +1000, Rusty Russell wrote:
+> > Hi Christoph!
+> 
+> > I enjoy a good Hellwigging as much as anyone, but your aim is off.
+> 
+> Please stop this crap.  I know who I am, so there's no need to waste
+> mail estate with saying Hi.  Also please stop being a total fuckass
+> and abusing my lastname just because you didn't get what was in the
+> mail.
 
-Good point.  I added CONFIG_HVC_XEN, but forgot to update this.
+On the contrary, I was honestly trying to being polite.  Perhaps I
+failed.
 
-    J
+You made a mistake.  None of us like to be corrected, so I did it as
+gently as I could.  But you were right about one thing: describing your
+previous mail as "a good Hellwigging" was inappropriate.
+
+This latest mail... *that's* good Hellwigging!
+Rusty.
