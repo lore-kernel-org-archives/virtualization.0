@@ -1,18 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 2/5] lguest guest feedback tidyups
-Date: Sun, 13 May 2007 11:00:51 +1000
-Message-ID: <1179018051.23513.81.camel__26993.9382946633$1179018130$gmane$org@localhost.localdomain>
+Date: Sun, 13 May 2007 13:48:47 +1000
+Message-ID: <1179028128.23513.110.camel__37918.8303639696$1179028191$gmane$org@localhost.localdomain>
 References: <1178846246.23513.21.camel@localhost.localdomain>
 	<1178846354.23513.23.camel@localhost.localdomain>
 	<1178846490.23513.27.camel@localhost.localdomain>
 	<20070511065613.GB25182@infradead.org>
-	<1178868666.23513.49.camel@localhost.localdomain>
-	<20070511074050.GB25727@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070511074050.GB25727@infradead.org>
+In-Reply-To: <20070511065613.GB25182@infradead.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,23 +24,137 @@ To: Christoph Hellwig <hch@infradead.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-05-11 at 08:40 +0100, Christoph Hellwig wrote:
-> On Fri, May 11, 2007 at 05:31:06PM +1000, Rusty Russell wrote:
-> > Hi Christoph!
+On Fri, 2007-05-11 at 07:56 +0100, Christoph Hellwig wrote:
+> On Fri, May 11, 2007 at 11:21:30AM +1000, Rusty Russell wrote:
+> > 1) send-dma and bind-dma hypercall wrappers for drivers to use,
+> > 2) formalization of the convention that devices can use the irq
+> >    corresponding to their index on the lguest_bus.
+> > 3) ___force to shut up sparse: guests *can* use ioremap as virtual mem.
 > 
-> > I enjoy a good Hellwigging as much as anyone, but your aim is off.
-> 
-> Please stop this crap.  I know who I am, so there's no need to waste
-> mail estate with saying Hi.  Also please stop being a total fuckass
-> and abusing my lastname just because you didn't get what was in the
-> mail.
+> No, they can't.
 
-On the contrary, I was honestly trying to being polite.  Perhaps I
-failed.
+OK, here's the updated patch (lguest_map/lguest_unmap).
 
-You made a mistake.  None of us like to be corrected, so I did it as
-gently as I could.  But you were right about one thing: describing your
-previous mail as "a good Hellwigging" was inappropriate.
+==
+Jeff Garzik argued forcefully that __pa() should not appear in
+drivers, and that struct netdevice's irq field should not be used.
+Christoph Hellwig suggested that I run sparse, and provide an
+lguest-specific wrapper for mapping/unmapping virtual device memory.
 
-This latest mail... *that's* good Hellwigging!
-Rusty.
+Results:
+1) send-dma and bind-dma hypercall wrappers for drivers to use,
+2) formalization of the convention that devices can use the irq
+   corresponding to their index on the lguest_bus.
+3) Helper to map and unmap virtual device memory (not classic __iomem).
+4) lguest.c should include "lguest_bus.h" for lguest_devices declaration.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/lguest/lguest.c     |   33 +++++++++++++++++++++++++++++++++
+ drivers/lguest/lguest_bus.c |    2 +-
+ include/linux/lguest_bus.h  |   17 ++++++++++++++++-
+ 3 files changed, 50 insertions(+), 2 deletions(-)
+
+===================================================================
+--- a/drivers/lguest/lguest.c
++++ b/drivers/lguest/lguest.c
+@@ -27,6 +27,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/lguest.h>
+ #include <linux/lguest_launcher.h>
++#include <linux/lguest_bus.h>
+ #include <asm/paravirt.h>
+ #include <asm/param.h>
+ #include <asm/page.h>
+@@ -35,6 +36,7 @@
+ #include <asm/setup.h>
+ #include <asm/e820.h>
+ #include <asm/mce.h>
++#include <asm/io.h>
+ 
+ /* Declarations for definitions in lguest_guest.S */
+ extern char lguest_noirq_start[], lguest_noirq_end[];
+@@ -99,6 +101,37 @@ void async_hcall(unsigned long call,
+ 			next_call = 0;
+ 	}
+ 	local_irq_restore(flags);
++}
++
++void lguest_send_dma(unsigned long key, struct lguest_dma *dma)
++{
++	dma->used_len = 0;
++	hcall(LHCALL_SEND_DMA, key, __pa(dma), 0);
++}
++
++int lguest_bind_dma(unsigned long key, struct lguest_dma *dmas,
++		    unsigned int num, u8 irq)
++{
++	if (!hcall(LHCALL_BIND_DMA, key, __pa(dmas), (num << 8) | irq))
++		return -ENOMEM;
++	return 0;
++}
++
++void lguest_unbind_dma(unsigned long key, struct lguest_dma *dmas)
++{
++	hcall(LHCALL_BIND_DMA, key, __pa(dmas), 0);
++}
++
++/* For guests, device memory can be used as normal memory, so we cast away the
++ * __iomem to quieten sparse. */
++void *lguest_map(unsigned long phys_addr, unsigned long pages)
++{
++	return (__force void *)ioremap(phys_addr, PAGE_SIZE*pages);
++}
++
++void lguest_unmap(void *addr)
++{
++	iounmap((__force void __iomem *)addr);
+ }
+ 
+ static unsigned long save_fl(void)
+===================================================================
+--- a/drivers/lguest/lguest_bus.c
++++ b/drivers/lguest/lguest_bus.c
+@@ -136,7 +136,7 @@ static int __init lguest_bus_init(void)
+ 		return 0;
+ 
+ 	/* Devices are in page above top of "normal" mem. */
+-	lguest_devices = ioremap(max_pfn << PAGE_SHIFT, PAGE_SIZE);
++	lguest_devices = lguest_map(max_pfn<<PAGE_SHIFT, 1);
+ 
+ 	if (bus_register(&lguest_bus.bus) != 0
+ 	    || device_register(&lguest_bus.dev) != 0)
+===================================================================
+--- a/include/linux/lguest_bus.h
++++ b/include/linux/lguest_bus.h
+@@ -7,7 +7,6 @@
+ 
+ struct lguest_device {
+ 	/* Unique busid, and index into lguest_page->devices[] */
+-	/* By convention, each device can use irq index+1 if it wants to. */
+ 	unsigned int index;
+ 
+ 	struct device dev;
+@@ -15,6 +14,22 @@ struct lguest_device {
+ 	/* Driver can hang data off here. */
+ 	void *private;
+ };
++
++/* By convention, each device can use irq index+1 if it wants to. */
++static inline int lgdev_irq(const struct lguest_device *dev)
++{
++	return dev->index + 1;
++}
++
++/* dma args must not be vmalloced! */
++void lguest_send_dma(unsigned long key, struct lguest_dma *dma);
++int lguest_bind_dma(unsigned long key, struct lguest_dma *dmas,
++		    unsigned int num, u8 irq);
++void lguest_unbind_dma(unsigned long key, struct lguest_dma *dmas);
++
++/* Map the virtual device space */
++void *lguest_map(unsigned long phys_addr, unsigned long pages);
++void lguest_unmap(void *);
+ 
+ struct lguest_driver {
+ 	const char *name;
