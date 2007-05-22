@@ -1,28 +1,118 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [patch 00/33] xen: Xen paravirt_ops implementation
-Date: Tue, 22 May 2007 16:57:53 +0200
-Message-ID: <200705221657.53607.ak@suse.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [patch 20/33] xen: Implement xen_sched_clock
+Date: Tue, 22 May 2007 15:10:01 +0100
+Message-ID: <20070522141252.554886649@goop.org>
 References: <20070522140941.802382212@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934699AbXEVO6o@vger.kernel.org>
-In-Reply-To: <20070522140941.802382212@goop.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>, Xen-devel <xen-devel@lists.xensource.com>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline; filename=xen-sched-clock.patch
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 22 May 2007 16:09, Jeremy Fitzhardinge wrote:
+Implement xen_sched_clock, which returns the number of ns the current
+vcpu has been actually in an unstolen state (ie, running or blocked,
+vs runnable-but-not-running, or offline) since boot.
 
->
-> This is the Xen implementation for the paravirt_ops interface.  The
-> series is based on 2.6.22-rc1-mm1, and I think its ready to be cooked
-> in -mm with a view to being merged in 2.6.23.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Acked-by: Chris Wright <chrisw@sous-sol.org>
+Cc: john stultz <johnstul@us.ibm.com>
 
-I already got it in my tree now from your previous post. Does this
-version have changes over that one? 
+---
+ arch/i386/xen/enlighten.c |    2 +-
+ arch/i386/xen/time.c      |   27 ++++++++++++++++++++++++++-
+ arch/i386/xen/xen-ops.h   |    3 +--
+ 3 files changed, 28 insertions(+), 4 deletions(-)
 
--Andi
+===================================================================
+--- a/arch/i386/xen/enlighten.c
++++ b/arch/i386/xen/enlighten.c
+@@ -679,7 +679,7 @@ static const struct paravirt_ops xen_par
+ 	.set_wallclock = xen_set_wallclock,
+ 	.get_wallclock = xen_get_wallclock,
+ 	.get_cpu_khz = xen_cpu_khz,
+-	.sched_clock = xen_clocksource_read,
++	.sched_clock = xen_sched_clock,
+ 
+ 	.cpuid = xen_cpuid,
+ 
+===================================================================
+--- a/arch/i386/xen/time.c
++++ b/arch/i386/xen/time.c
+@@ -26,6 +26,8 @@
+ #define TIMER_SLOP	100000	/* Xen may fire a timer up to this many ns early */
+ #define NS_PER_TICK	(1000000000ll / HZ)
+ 
++static cycle_t xen_clocksource_read(void);
++
+ /* These are perodically updated in shared_info, and then copied here. */
+ struct shadow_time_info {
+ 	u64 tsc_timestamp;     /* TSC at last update of time vals.  */
+@@ -169,6 +171,29 @@ static void do_stolen_accounting(void)
+ 	account_steal_time(idle_task(smp_processor_id()), ticks);
+ }
+ 
++/*
++ * Xen sched_clock implementation.  Returns the number of unstolen
++ * nanoseconds, which is nanoseconds the VCPU spent in RUNNING+BLOCKED
++ * states.
++ */
++unsigned long long xen_sched_clock(void)
++{
++	struct vcpu_runstate_info state;
++	cycle_t now = xen_clocksource_read();
++	s64 offset;
++
++	get_runstate_snapshot(&state);
++
++	WARN_ON(state.state != RUNSTATE_running);
++
++	offset = now - state.state_entry_time;
++	if (offset < 0)
++		offset = 0;
++
++ 	return state.time[RUNSTATE_blocked] +
++ 		state.time[RUNSTATE_running] +
++		offset;
++}
+ 
+ 
+ /* Get the CPU speed from Xen */
+@@ -258,7 +283,7 @@ static u64 get_nsec_offset(struct shadow
+ 	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
+ }
+ 
+-cycle_t xen_clocksource_read(void)
++static cycle_t xen_clocksource_read(void)
+ {
+ 	struct shadow_time_info *shadow = &get_cpu_var(shadow_time);
+ 	cycle_t ret;
+===================================================================
+--- a/arch/i386/xen/xen-ops.h
++++ b/arch/i386/xen/xen-ops.h
+@@ -2,7 +2,6 @@
+ #define XEN_OPS_H
+ 
+ #include <linux/init.h>
+-#include <linux/clocksource.h>
+ 
+ DECLARE_PER_CPU(struct vcpu_info *, xen_vcpu);
+ DECLARE_PER_CPU(unsigned long, xen_cr3);
+@@ -18,7 +17,7 @@ void __init xen_time_init(void);
+ void __init xen_time_init(void);
+ unsigned long xen_get_wallclock(void);
+ int xen_set_wallclock(unsigned long time);
+-cycle_t xen_clocksource_read(void);
++unsigned long long xen_sched_clock(void);
+ 
+ void xen_mark_init_mm_pinned(void);
+ 
+
+-- 
