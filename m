@@ -1,10 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 08/33] xen: Allocate and free vmalloc areas
-Date: Tue, 22 May 2007 15:09:49 +0100
-Message-ID: <20070522141251.514546814@goop.org>
+Subject: [patch 09/33] xen: Add nosegneg capability to the
+	vsyscall page notes
+Date: Tue, 22 May 2007 15:09:50 +0100
+Message-ID: <20070522141251.598618585@goop.org>
 References: <20070522140941.802382212@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=alloc-vm-area.patch
+Content-Disposition: inline; filename=xen-vsyscall-note.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -14,100 +15,62 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Ian Pratt <ian.pratt@xensource.com>, Andi Kleen <ak@muc.de>, lkml <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Linus Torvalds <torvalds@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Cc: Zachary Amsden <zach@vmware.com>, Xen-devel <xen-devel@lists.xensource.com>, Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Linus Torvalds <torvalds@linux-foundation.org>, Ulrich Drepper <drepper@redhat.com>, Roland McGrath <roland@redhat.com>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allocate/release a chunk of vmalloc address space:
- alloc_vm_area reserves a chunk of address space, and makes sure all
- the pagetables are constructed for that address range - but no pages.
+Add the "nosegneg" fake capabilty to the vsyscall page notes. This is
+used by the runtime linker to select a glibc version which then
+disables negative-offset accesses to the thread-local segment via
+%gs. These accesses require emulation in Xen (because segments are
+truncated to protect the hypervisor address space) and avoiding them
+provides a measurable performance boost.
 
- free_vm_area releases the address space range.
-
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: "Jan Beulich" <JBeulich@novell.com>
-Cc: "Andi Kleen" <ak@muc.de>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Acked-by: Zachary Amsden <zach@vmware.com>
+Cc: Roland McGrath <roland@redhat.com>
+Cc: Ulrich Drepper <drepper@redhat.com>
 
 ---
- include/linux/vmalloc.h |    4 +++
- mm/vmalloc.c            |   53 +++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 57 insertions(+)
+ arch/i386/kernel/vsyscall-note.S |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
 ===================================================================
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -69,6 +69,10 @@ extern int map_vm_area(struct vm_struct 
- 			struct page ***pages);
- extern void unmap_vm_area(struct vm_struct *area);
- 
-+/* Allocate/destroy a 'vmalloc' VM area. */
-+extern struct vm_struct *alloc_vm_area(size_t size);
-+extern void free_vm_area(struct vm_struct *area);
+--- a/arch/i386/kernel/vsyscall-note.S
++++ b/arch/i386/kernel/vsyscall-note.S
+@@ -12,3 +12,31 @@ ELFNOTE_START(Linux, 0, "a")
+ ELFNOTE_START(Linux, 0, "a")
+ 	.long LINUX_VERSION_CODE
+ ELFNOTE_END
 +
- /*
-  *	Internals.  Dont't use..
-  */
-===================================================================
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -762,3 +762,56 @@ void  __attribute__((weak)) vmalloc_sync
- void  __attribute__((weak)) vmalloc_sync_all(void)
- {
- }
++#ifdef CONFIG_XEN
 +
-+
-+static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *data)
-+{
-+	/* apply_to_page_range() does all the hard work. */
-+	return 0;
-+}
-+
-+/**
-+ *	alloc_vm_area - allocate a range of kernel address space
-+ *	@size:		size of the area
-+ *	@returns:	NULL on failure, vm_struct on success
-+ *
-+ *	This function reserves a range of kernel address space, and
-+ *	allocates pagetables to map that range.  No actual mappings
-+ *	are created.  If the kernel address space is not shared
-+ *	between processes, it syncs the pagetable across all
-+ *	processes.
++/*
++ * Add a special note telling glibc's dynamic linker a fake hardware
++ * flavor that it will use to choose the search path for libraries in the
++ * same way it uses real hardware capabilities like "mmx".
++ * We supply "nosegneg" as the fake capability, to indicate that we
++ * do not like negative offsets in instructions using segment overrides,
++ * since we implement those inefficiently.  This makes it possible to
++ * install libraries optimized to avoid those access patterns in someplace
++ * like /lib/i686/tls/nosegneg.  Note that an /etc/ld.so.conf.d/file
++ * corresponding to the bits here is needed to make ldconfig work right.
++ * It should contain:
++ *	hwcap 1 nosegneg
++ * to match the mapping of bit to name that we give here.
 + */
-+struct vm_struct *alloc_vm_area(size_t size)
-+{
-+	struct vm_struct *area;
 +
-+	area = get_vm_area(size, VM_IOREMAP);
-+	if (area == NULL)
-+		return NULL;
++/* Bit used for the pseudo-hwcap for non-negative segments.  We use
++   bit 1 to avoid bugs in some versions of glibc when bit 0 is
++   used; the choice is otherwise arbitrary. */
++#define VDSO_NOTE_NONEGSEG_BIT	1
 +
-+	/*
-+	 * This ensures that page tables are constructed for this region
-+	 * of kernel virtual address space and mapped into init_mm.
-+	 */
-+	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
-+				area->size, f, NULL)) {
-+		free_vm_area(area);
-+		return NULL;
-+	}
-+
-+	/* Make sure the pagetables are constructed in process kernel
-+	   mappings */
-+	vmalloc_sync_all();
-+
-+	return area;
-+}
-+EXPORT_SYMBOL_GPL(alloc_vm_area);
-+
-+void free_vm_area(struct vm_struct *area)
-+{
-+	struct vm_struct *ret;
-+	ret = remove_vm_area(area->addr);
-+	BUG_ON(ret != area);
-+	kfree(area);
-+}
-+EXPORT_SYMBOL_GPL(free_vm_area);
++ELFNOTE_START(GNU, 2, "a")
++	.long 1, 1<<VDSO_NOTE_NONEGSEG_BIT		/* ncaps, mask */
++	.byte VDSO_NOTE_NONEGSEG_BIT; .asciz "nosegneg"	/* bit, name */
++ELFNOTE_END
++#endif
 
 -- 
