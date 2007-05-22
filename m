@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 12/33] xen: Xen virtual mmu
-Date: Tue, 22 May 2007 15:09:53 +0100
-Message-ID: <20070522141251.894774151@goop.org>
+Subject: [patch 13/33] xen: xen event channels
+Date: Tue, 22 May 2007 15:09:54 +0100
+Message-ID: <20070522141251.949209588@goop.org>
 References: <20070522140941.802382212@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=xen-mmu.patch
+Content-Disposition: inline; filename=xen-events.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -14,595 +14,599 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen pagetable handling, including the machinery to implement direct
-pagetables.
+Xen implements interrupts in terms of event channels.  Each guest
+domain gets 1024 event channels which can be used for a variety of
+purposes, such as Xen timer events, inter-domain events,
+inter-processor events (IPI) or for real hardware IRQs.
 
-Xen presents the real CPU's pagetables directly to guests, with no
-added shadowing or other layer of abstraction.  Naturally this means
-the hypervisor must maintain close control over what the guest can put
-into the pagetable.
+Within the kernel, we map the event channels to IRQs, and implement
+the whole interrupt handling using a Xen irq_chip.
 
-When the guest modifies the pte/pmd/pgd, it must convert its
-domain-specific notion of a "physical" pfn into a global machine frame
-number (mfn) before inserting the entry into the pagetable.  Xen will
-check to make sure the domain is allowed to create a mapping of the
-given mfn.
-
-Xen also requires that all mappings the guest has of its own active
-pagetable are read-only.  This is relatively easy to implement in
-Linux because all pagetables share the same pte pages for kernel
-mappings, so updating the pte in one pagetable will implicitly update
-the mapping in all pagetables.
-
-Normally a pagetable becomes active when you point to it with cr3 (or
-the Xen equivalent), but when you do so, Xen must check the whole
-pagetable for correctness, which is clearly a performance problem.
-
-Xen solves this with pinning which keeps a pagetable effectively
-active even if its currently unused, which means that all the normal
-update rules are enforced.  This means that it need not revalidate the
-pagetable when loading cr3.
-
-This patch has a first-cut implementation of pinning, but it is more
-fully implemented in a later patch.
+Rather than setting NR_IRQ to 1024 under PARAVIRT in order to
+accomodate Xen, we create a dynamic mapping between event channels and
+IRQs.  Ideally, Linux will eventually move towards dynamically
+allocating per-irq structures, and we can use a 1:1 mapping between
+event channels and irqs.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
 
 ---
- arch/i386/xen/Makefile    |    2 
- arch/i386/xen/enlighten.c |   30 ++-
- arch/i386/xen/mmu.c       |  419 +++++++++++++++++++++++++++++++++++++++++++++
- arch/i386/xen/mmu.h       |   47 +++++
- 4 files changed, 493 insertions(+), 5 deletions(-)
+ arch/i386/xen/Makefile    |    3 
+ arch/i386/xen/enlighten.c |    1 
+ arch/i386/xen/events.c    |  511 +++++++++++++++++++++++++++++++++++++++++++++
+ include/xen/events.h      |   28 ++
+ 4 files changed, 542 insertions(+), 1 deletion(-)
 
 ===================================================================
 --- a/arch/i386/xen/Makefile
 +++ b/arch/i386/xen/Makefile
-@@ -1,1 +1,1 @@ obj-y		:= enlighten.o setup.o features.o
--obj-y		:= enlighten.o setup.o features.o multicalls.o
-+obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o
+@@ -1,1 +1,2 @@ obj-y		:= enlighten.o setup.o features.o
+-obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o
++obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o \
++			events.o
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -39,6 +39,7 @@
- #include <asm/pgtable.h>
+@@ -593,6 +593,7 @@ static const struct paravirt_ops xen_par
  
- #include "xen-ops.h"
-+#include "mmu.h"
- #include "multicalls.h"
+ 	.memory_setup = xen_memory_setup,
+ 	.arch_setup = xen_arch_setup,
++	.init_IRQ = xen_init_IRQ,
  
- EXPORT_SYMBOL_GPL(hypercall_page);
-@@ -575,11 +576,9 @@ static __init void xen_pagetable_setup_d
- 		 * Should be set_fixmap(), but shared_info is a machine
- 		 * address with no corresponding pseudo-phys address.
- 		 */
--#if 0
- 		set_pte_mfn(fix_to_virt(FIX_PARAVIRT_BOOTMAP),
- 			    PFN_DOWN(xen_start_info->shared_info),
- 			    PAGE_KERNEL);
--#endif
- 
- 		HYPERVISOR_shared_info =
- 			(struct shared_info *)fix_to_virt(FIX_PARAVIRT_BOOTMAP);
-@@ -588,9 +587,7 @@ static __init void xen_pagetable_setup_d
- 		HYPERVISOR_shared_info =
- 			(struct shared_info *)__va(xen_start_info->shared_info);
- 
--#if 0
- 	xen_pgd_pin(base);
--#endif
- 
- 	xen_vcpu_setup(smp_processor_id());
- }
-@@ -686,6 +683,31 @@ static const struct paravirt_ops xen_par
- 	.release_pd = xen_release_pd,
- 	.release_pt = xen_release_pt,
- 
-+	.set_pte = xen_set_pte,
-+	.set_pte_at = xen_set_pte_at,
-+	.set_pmd = xen_set_pmd,
-+
-+	.pte_val = xen_pte_val,
-+	.pgd_val = xen_pgd_val,
-+
-+	.make_pte = xen_make_pte,
-+	.make_pgd = xen_make_pgd,
-+
-+#ifdef CONFIG_X86_PAE
-+	.set_pte_atomic = xen_set_pte_atomic,
-+	.set_pte_present = xen_set_pte_at,
-+	.set_pud = xen_set_pud,
-+	.pte_clear = xen_pte_clear,
-+	.pmd_clear = xen_pmd_clear,
-+
-+	.make_pmd = xen_make_pmd,
-+	.pmd_val = xen_pmd_val,
-+#endif	/* PAE */
-+
-+	.activate_mm = xen_activate_mm,
-+	.dup_mmap = xen_dup_mmap,
-+	.exit_mmap = xen_exit_mmap,
-+
- 	.set_lazy_mode = xen_set_lazy_mode,
- };
+ 	.cpuid = xen_cpuid,
  
 ===================================================================
 --- /dev/null
-+++ b/arch/i386/xen/mmu.c
-@@ -0,0 +1,419 @@
++++ b/arch/i386/xen/events.c
+@@ -0,0 +1,511 @@
 +/*
-+ * Xen mmu operations
++ * Xen event channels
 + *
-+ * This file contains the various mmu fetch and update operations.
-+ * The most important job they must perform is the mapping between the
-+ * domain's pfn and the overall machine mfns.
++ * Xen models interrupts with abstract event channels.  Because each
++ * domain gets 1024 event channels, but NR_IRQ is not that large, we
++ * must dynamically map irqs<->event channels.  The event channels
++ * interface with the rest of the kernel by defining a xen interrupt
++ * chip.  When an event is recieved, it is mapped to an irq and sent
++ * through the normal interrupt processing path.
 + *
-+ * Xen allows guests to directly update the pagetable, in a controlled
-+ * fashion.  In other words, the guest modifies the same pagetable
-+ * that the CPU actually uses, which eliminates the overhead of having
-+ * a separate shadow pagetable.
++ * There are four kinds of events which can be mapped to an event
++ * channel:
 + *
-+ * In order to allow this, it falls on the guest domain to map its
-+ * notion of a "physical" pfn - which is just a domain-local linear
-+ * address - into a real "machine address" which the CPU's MMU can
-+ * use.
-+ *
-+ * A pgd_t/pmd_t/pte_t will typically contain an mfn, and so can be
-+ * inserted directly into the pagetable.  When creating a new
-+ * pte/pmd/pgd, it converts the passed pfn into an mfn.  Conversely,
-+ * when reading the content back with __(pgd|pmd|pte)_val, it converts
-+ * the mfn back into a pfn.
-+ *
-+ * The other constraint is that all pages which make up a pagetable
-+ * must be mapped read-only in the guest.  This prevents uncontrolled
-+ * guest updates to the pagetable.  Xen strictly enforces this, and
-+ * will disallow any pagetable update which will end up mapping a
-+ * pagetable page RW, and will disallow using any writable page as a
-+ * pagetable.
-+ *
-+ * Naively, when loading %cr3 with the base of a new pagetable, Xen
-+ * would need to validate the whole pagetable before going on.
-+ * Naturally, this is quite slow.  The solution is to "pin" a
-+ * pagetable, which enforces all the constraints on the pagetable even
-+ * when it is not actively in use.  This menas that Xen can be assured
-+ * that it is still valid when you do load it into %cr3, and doesn't
-+ * need to revalidate it.
++ * 1. Inter-domain notifications.  This includes all the virtual
++ *    device events, since they're driven by front-ends in another domain
++ *    (typically dom0).
++ * 2. VIRQs, typically used for timers.  These are per-cpu events.
++ * 3. IPIs.
++ * 4. Hardware interrupts. Not supported at present.
 + *
 + * Jeremy Fitzhardinge <jeremy@xensource.com>, XenSource Inc, 2007
 + */
-+#include <asm/bug.h>
 +
-+#include <asm/pgtable.h>
-+#include <asm/tlbflush.h>
-+#include <asm/mmu_context.h>
++#include <linux/linkage.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/module.h>
++#include <linux/string.h>
 +
++#include <asm/ptrace.h>
++#include <asm/irq.h>
++#include <asm/sync_bitops.h>
 +#include <asm/xen/hypercall.h>
-+#include <asm/paravirt.h>
 +
-+#include <xen/page.h>
++#include <xen/events.h>
 +#include <xen/interface/xen.h>
++#include <xen/interface/event_channel.h>
 +
-+#include "mmu.h"
-+
-+xmaddr_t arbitrary_virt_to_machine(unsigned long address)
-+{
-+	pte_t *pte = lookup_address(address);
-+	unsigned offset = address & PAGE_MASK;
-+
-+	BUG_ON(pte == NULL);
-+
-+	return XMADDR((pte_mfn(*pte) << PAGE_SHIFT) + offset);
-+}
-+
-+void make_lowmem_page_readonly(void *vaddr)
-+{
-+	pte_t *pte, ptev;
-+	unsigned long address = (unsigned long)vaddr;
-+
-+	pte = lookup_address(address);
-+	BUG_ON(pte == NULL);
-+
-+	ptev = pte_wrprotect(*pte);
-+
-+	if(HYPERVISOR_update_va_mapping(address, ptev, 0))
-+		BUG();
-+}
-+
-+void make_lowmem_page_readwrite(void *vaddr)
-+{
-+	pte_t *pte, ptev;
-+	unsigned long address = (unsigned long)vaddr;
-+
-+	pte = lookup_address(address);
-+	BUG_ON(pte == NULL);
-+
-+	ptev = pte_mkwrite(*pte);
-+
-+	if(HYPERVISOR_update_va_mapping(address, ptev, 0))
-+		BUG();
-+}
-+
-+
-+void xen_set_pte(pte_t *ptep, pte_t pte)
-+{
-+	struct mmu_update u;
-+
-+	u.ptr = virt_to_machine(ptep).maddr;
-+	u.val = pte_val_ma(pte);
-+	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
-+		BUG();
-+}
-+
-+void xen_set_pmd(pmd_t *ptr, pmd_t val)
-+{
-+	struct mmu_update u;
-+
-+	u.ptr = virt_to_machine(ptr).maddr;
-+	u.val = pmd_val_ma(val);
-+	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
-+		BUG();
-+}
-+
-+#ifdef CONFIG_X86_PAE
-+void xen_set_pud(pud_t *ptr, pud_t val)
-+{
-+	struct mmu_update u;
-+
-+	u.ptr = virt_to_machine(ptr).maddr;
-+	u.val = pud_val_ma(val);
-+	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
-+		BUG();
-+}
-+#endif
++#include "xen-ops.h"
 +
 +/*
-+ * Associate a virtual page frame with a given physical page frame
-+ * and protection flags for that frame.
++ * This lock protects updates to the following mapping and reference-count
++ * arrays. The lock does not need to be acquired to read the mapping tables.
 + */
-+void set_pte_mfn(unsigned long vaddr, unsigned long mfn, pgprot_t flags)
-+{
-+	pgd_t *pgd;
-+	pud_t *pud;
-+	pmd_t *pmd;
-+	pte_t *pte;
++static DEFINE_SPINLOCK(irq_mapping_update_lock);
 +
-+	pgd = swapper_pg_dir + pgd_index(vaddr);
-+	if (pgd_none(*pgd)) {
-+		BUG();
-+		return;
++/* IRQ <-> VIRQ mapping. */
++static DEFINE_PER_CPU(int, virq_to_irq[NR_VIRQS]) = {[0 ... NR_VIRQS-1] = -1};
++
++/* Packed IRQ information: binding type, sub-type index, and event channel. */
++struct packed_irq
++{
++	unsigned short evtchn;
++	unsigned char index;
++	unsigned char type;
++};
++
++static struct packed_irq irq_info[NR_IRQS];
++
++/* Binding types. */
++enum { IRQT_UNBOUND, IRQT_PIRQ, IRQT_VIRQ, IRQT_IPI, IRQT_EVTCHN };
++
++/* Convenient shorthand for packed representation of an unbound IRQ. */
++#define IRQ_UNBOUND	mk_irq_info(IRQT_UNBOUND, 0, 0)
++
++static int evtchn_to_irq[NR_EVENT_CHANNELS] = {
++	[0 ... NR_EVENT_CHANNELS-1] = -1
++};
++static unsigned long cpu_evtchn_mask[NR_CPUS][NR_EVENT_CHANNELS/BITS_PER_LONG];
++static u8 cpu_evtchn[NR_EVENT_CHANNELS];
++
++/* Reference counts for bindings to IRQs. */
++static int irq_bindcount[NR_IRQS];
++
++/* Xen will never allocate port zero for any purpose. */
++#define VALID_EVTCHN(chn)	((chn) != 0)
++
++/*
++ * Force a proper event-channel callback from Xen after clearing the
++ * callback mask. We do this in a very simple manner, by making a call
++ * down into Xen. The pending flag will be checked by Xen on return.
++ */
++void force_evtchn_callback(void)
++{
++	(void)HYPERVISOR_xen_version(0, NULL);
++}
++EXPORT_SYMBOL_GPL(force_evtchn_callback);
++
++static struct irq_chip xen_dynamic_chip;
++
++/* Constructor for packed IRQ information. */
++static inline struct packed_irq mk_irq_info(u32 type, u32 index, u32 evtchn)
++{
++	return (struct packed_irq) { evtchn, index, type };
++}
++
++/*
++ * Accessors for packed IRQ information.
++ */
++static inline unsigned int evtchn_from_irq(int irq)
++{
++	return irq_info[irq].evtchn;
++}
++
++static inline unsigned int index_from_irq(int irq)
++{
++	return irq_info[irq].index;
++}
++
++static inline unsigned int type_from_irq(int irq)
++{
++	return irq_info[irq].type;
++}
++
++static inline unsigned long active_evtchns(unsigned int cpu,
++					   struct shared_info *sh,
++					   unsigned int idx)
++{
++	return (sh->evtchn_pending[idx] &
++		cpu_evtchn_mask[cpu][idx] &
++		~sh->evtchn_mask[idx]);
++}
++
++static void bind_evtchn_to_cpu(unsigned int chn, unsigned int cpu)
++{
++	int irq = evtchn_to_irq[chn];
++
++	BUG_ON(irq == -1);
++#ifdef CONFIG_SMP
++	irq_desc[irq].affinity = cpumask_of_cpu(cpu);
++#endif
++
++	__clear_bit(chn, cpu_evtchn_mask[cpu_evtchn[chn]]);
++	__set_bit(chn, cpu_evtchn_mask[cpu]);
++
++	cpu_evtchn[chn] = cpu;
++}
++
++static void init_evtchn_cpu_bindings(void)
++{
++#ifdef CONFIG_SMP
++	int i;
++	/* By default all event channels notify CPU#0. */
++	for (i = 0; i < NR_IRQS; i++)
++		irq_desc[i].affinity = cpumask_of_cpu(0);
++#endif
++
++	memset(cpu_evtchn, 0, sizeof(cpu_evtchn));
++	memset(cpu_evtchn_mask[0], ~0, sizeof(cpu_evtchn_mask[0]));
++}
++
++static inline unsigned int cpu_from_evtchn(unsigned int evtchn)
++{
++	return cpu_evtchn[evtchn];
++}
++
++static inline void clear_evtchn(int port)
++{
++	struct shared_info *s = HYPERVISOR_shared_info;
++	sync_clear_bit(port, &s->evtchn_pending[0]);
++}
++
++static inline void set_evtchn(int port)
++{
++	struct shared_info *s = HYPERVISOR_shared_info;
++	sync_set_bit(port, &s->evtchn_pending[0]);
++}
++
++
++/**
++ * notify_remote_via_irq - send event to remote end of event channel via irq
++ * @irq: irq of event channel to send event to
++ *
++ * Unlike notify_remote_via_evtchn(), this is safe to use across
++ * save/restore. Notifications on a broken connection are silently
++ * dropped.
++ */
++void notify_remote_via_irq(int irq)
++{
++	int evtchn = evtchn_from_irq(irq);
++
++	if (VALID_EVTCHN(evtchn))
++		notify_remote_via_evtchn(evtchn);
++}
++EXPORT_SYMBOL_GPL(notify_remote_via_irq);
++
++static void mask_evtchn(int port)
++{
++	struct shared_info *s = HYPERVISOR_shared_info;
++	sync_set_bit(port, &s->evtchn_mask[0]);
++}
++
++static void unmask_evtchn(int port)
++{
++	struct shared_info *s = HYPERVISOR_shared_info;
++	unsigned int cpu = get_cpu();
++
++	BUG_ON(!irqs_disabled());
++
++	/* Slow path (hypercall) if this is a non-local port. */
++	if (unlikely(cpu != cpu_from_evtchn(port))) {
++		struct evtchn_unmask unmask = { .port = port };
++		(void)HYPERVISOR_event_channel_op(EVTCHNOP_unmask, &unmask);
++	} else {
++		struct vcpu_info *vcpu_info = __get_cpu_var(xen_vcpu);
++
++		sync_clear_bit(port, &s->evtchn_mask[0]);
++
++		/*
++		 * The following is basically the equivalent of
++		 * 'hw_resend_irq'. Just like a real IO-APIC we 'lose
++		 * the interrupt edge' if the channel is masked.
++		 */
++		if (sync_test_bit(port, &s->evtchn_pending[0]) &&
++		    !sync_test_and_set_bit(port / BITS_PER_LONG,
++					   &vcpu_info->evtchn_pending_sel))
++			vcpu_info->evtchn_upcall_pending = 1;
 +	}
-+	pud = pud_offset(pgd, vaddr);
-+	if (pud_none(*pud)) {
-+		BUG();
-+		return;
-+	}
-+	pmd = pmd_offset(pud, vaddr);
-+	if (pmd_none(*pmd)) {
-+		BUG();
-+		return;
-+	}
-+	pte = pte_offset_kernel(pmd, vaddr);
-+	/* <mfn,flags> stored as-is, to permit clearing entries */
-+	xen_set_pte(pte, mfn_pte(mfn, flags));
 +
-+	/*
-+	 * It's enough to flush this one mapping.
-+	 * (PGE mappings get flushed as well)
-+	 */
-+	__flush_tlb_one(vaddr);
++	put_cpu();
 +}
 +
-+void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
-+		    pte_t *ptep, pte_t pteval)
++static int find_unbound_irq(void)
 +{
-+	if ((mm != current->mm && mm != &init_mm) ||
-+	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
-+		xen_set_pte(ptep, pteval);
++	int irq;
++
++	/* Only allocate from dynirq range */
++	for (irq = 0; irq < NR_IRQS; irq++)
++		if (irq_bindcount[irq] == 0)
++			break;
++
++	if (irq == NR_IRQS)
++		panic("No available IRQ to bind to: increase NR_IRQS!\n");
++
++	return irq;
 +}
 +
-+#ifdef CONFIG_X86_PAE
-+void xen_set_pte_atomic(pte_t *ptep, pte_t pte)
++static int bind_evtchn_to_irq(unsigned int evtchn)
 +{
-+	set_64bit((u64 *)ptep, pte_val_ma(pte));
-+}
++	int irq;
 +
-+void xen_pte_clear(struct mm_struct *mm, unsigned long addr,pte_t *ptep)
-+{
-+	ptep->pte_low = 0;
-+	smp_wmb();
-+	ptep->pte_high = 0;
-+}
++	spin_lock(&irq_mapping_update_lock);
 +
-+void xen_pmd_clear(pmd_t *pmdp)
-+{
-+	xen_set_pmd(pmdp, __pmd(0));
-+}
++	irq = evtchn_to_irq[evtchn];
 +
-+unsigned long long xen_pte_val(pte_t pte)
-+{
-+	unsigned long long ret = 0;
++	if (irq == -1) {
++		irq = find_unbound_irq();
 +
-+	if (pte.pte_low) {
-+		ret = ((unsigned long long)pte.pte_high << 32) | pte.pte_low;
-+		ret = machine_to_phys(XMADDR(ret)).paddr | 1;
++		dynamic_irq_init(irq);
++		set_irq_chip_and_handler_name(irq, &xen_dynamic_chip,
++					      handle_level_irq, "event");
++
++		evtchn_to_irq[evtchn] = irq;
++		irq_info[irq] = mk_irq_info(IRQT_EVTCHN, 0, evtchn);
 +	}
 +
-+	return ret;
++	irq_bindcount[irq]++;
++
++	spin_unlock(&irq_mapping_update_lock);
++
++	return irq;
 +}
 +
-+unsigned long long xen_pmd_val(pmd_t pmd)
++static int bind_virq_to_irq(unsigned int virq, unsigned int cpu)
 +{
-+	unsigned long long ret = pmd.pmd;
-+	if (ret)
-+		ret = machine_to_phys(XMADDR(ret)).paddr | 1;
-+	return ret;
++	struct evtchn_bind_virq bind_virq;
++	int evtchn, irq;
++
++	spin_lock(&irq_mapping_update_lock);
++
++	irq = per_cpu(virq_to_irq, cpu)[virq];
++
++	if (irq == -1) {
++		bind_virq.virq = virq;
++		bind_virq.vcpu = cpu;
++		if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_virq,
++						&bind_virq) != 0)
++			BUG();
++		evtchn = bind_virq.port;
++
++		irq = find_unbound_irq();
++
++		dynamic_irq_init(irq);
++		set_irq_chip_and_handler_name(irq, &xen_dynamic_chip,
++					      handle_level_irq, "virq");
++
++		evtchn_to_irq[evtchn] = irq;
++		irq_info[irq] = mk_irq_info(IRQT_VIRQ, virq, evtchn);
++
++		per_cpu(virq_to_irq, cpu)[virq] = irq;
++
++		bind_evtchn_to_cpu(evtchn, cpu);
++	}
++
++	irq_bindcount[irq]++;
++
++	spin_unlock(&irq_mapping_update_lock);
++
++	return irq;
 +}
 +
-+unsigned long long xen_pgd_val(pgd_t pgd)
++static void unbind_from_irq(unsigned int irq)
 +{
-+	unsigned long long ret = pgd.pgd;
-+	if (ret)
-+		ret = machine_to_phys(XMADDR(ret)).paddr | 1;
-+	return ret;
++	struct evtchn_close close;
++	int evtchn = evtchn_from_irq(irq);
++
++	spin_lock(&irq_mapping_update_lock);
++
++	if (VALID_EVTCHN(evtchn) && (--irq_bindcount[irq] == 0)) {
++		close.port = evtchn;
++		if (HYPERVISOR_event_channel_op(EVTCHNOP_close, &close) != 0)
++			BUG();
++
++		switch (type_from_irq(irq)) {
++		case IRQT_VIRQ:
++			per_cpu(virq_to_irq, cpu_from_evtchn(evtchn))
++				[index_from_irq(irq)] = -1;
++			break;
++		default:
++			break;
++		}
++
++		/* Closed ports are implicitly re-bound to VCPU0. */
++		bind_evtchn_to_cpu(evtchn, 0);
++
++		evtchn_to_irq[evtchn] = -1;
++		irq_info[irq] = IRQ_UNBOUND;
++
++		dynamic_irq_init(irq);
++	}
++
++	spin_unlock(&irq_mapping_update_lock);
 +}
 +
-+pte_t xen_make_pte(unsigned long long pte)
++int bind_evtchn_to_irqhandler(unsigned int evtchn,
++			      irqreturn_t (*handler)(int, void *),
++			      unsigned long irqflags,
++			      const char *devname, void *dev_id)
 +{
-+	if (pte & 1)
-+		pte = phys_to_machine(XPADDR(pte)).maddr;
++	unsigned int irq;
++	int retval;
 +
-+	return (pte_t){ pte, pte >> 32 };
++	irq = bind_evtchn_to_irq(evtchn);
++	retval = request_irq(irq, handler, irqflags, devname, dev_id);
++	if (retval != 0) {
++		unbind_from_irq(irq);
++		return retval;
++	}
++
++	return irq;
 +}
++EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler);
 +
-+pmd_t xen_make_pmd(unsigned long long pmd)
++int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
++			    irqreturn_t (*handler)(int, void *),
++			    unsigned long irqflags, const char *devname, void *dev_id)
 +{
-+	if (pmd & 1)
-+		pmd = phys_to_machine(XPADDR(pmd)).maddr;
++	unsigned int irq;
++	int retval;
 +
-+	return (pmd_t){ pmd };
++	irq = bind_virq_to_irq(virq, cpu);
++	retval = request_irq(irq, handler, irqflags, devname, dev_id);
++	if (retval != 0) {
++		unbind_from_irq(irq);
++		return retval;
++	}
++
++	return irq;
 +}
++EXPORT_SYMBOL_GPL(bind_virq_to_irqhandler);
 +
-+pgd_t xen_make_pgd(unsigned long long pgd)
++void unbind_from_irqhandler(unsigned int irq, void *dev_id)
 +{
-+	if (pgd & _PAGE_PRESENT)
-+		pgd = phys_to_machine(XPADDR(pgd)).maddr;
-+
-+	return (pgd_t){ pgd };
++	free_irq(irq, dev_id);
++	unbind_from_irq(irq);
 +}
-+#else  /* !PAE */
-+unsigned long xen_pte_val(pte_t pte)
++EXPORT_SYMBOL_GPL(unbind_from_irqhandler);
++
++/*
++ * Search the CPUs pending events bitmasks.  For each one found, map
++ * the event number to an irq, and feed it into do_IRQ() for
++ * handling.
++ *
++ * Xen uses a two-level bitmap to speed searching.  The first level is
++ * a bitset of words which contain pending event bits.  The second
++ * level is a bitset of pending events themselves.
++ */
++fastcall void xen_evtchn_do_upcall(struct pt_regs *regs)
 +{
-+	unsigned long ret = pte.pte_low;
++	int cpu = get_cpu();
++	struct shared_info *s = HYPERVISOR_shared_info;
++	struct vcpu_info *vcpu_info = __get_cpu_var(xen_vcpu);
++	unsigned long pending_words;
 +
-+	if (ret & _PAGE_PRESENT)
-+		ret = machine_to_phys(XMADDR(ret)).paddr;
++	vcpu_info->evtchn_upcall_pending = 0;
 +
-+	return ret;
-+}
++	/* NB. No need for a barrier here -- XCHG is a barrier on x86. */
++	pending_words = xchg(&vcpu_info->evtchn_pending_sel, 0);
++	while (pending_words != 0) {
++		unsigned long pending_bits;
++		int word_idx = __ffs(pending_words);
++		pending_words &= ~(1UL << word_idx);
 +
-+unsigned long xen_pmd_val(pmd_t pmd)
-+{
-+	/* a BUG here is a lot easier to track down than a NULL eip */
-+	BUG();
-+	return 0;
-+}
++		while ((pending_bits = active_evtchns(cpu, s, word_idx)) != 0) {
++			int bit_idx = __ffs(pending_bits);
++			int port = (word_idx * BITS_PER_LONG) + bit_idx;
++			int irq = evtchn_to_irq[port];
 +
-+unsigned long xen_pgd_val(pgd_t pgd)
-+{
-+	unsigned long ret = pgd.pgd;
-+	if (ret)
-+		ret = machine_to_phys(XMADDR(ret)).paddr | 1;
-+	return ret;
-+}
-+
-+pte_t xen_make_pte(unsigned long pte)
-+{
-+	if (pte & _PAGE_PRESENT)
-+		pte = phys_to_machine(XPADDR(pte)).maddr;
-+
-+	return (pte_t){ pte };
-+}
-+
-+pmd_t xen_make_pmd(unsigned long pmd)
-+{
-+	/* a BUG here is a lot easier to track down than a NULL eip */
-+	BUG();
-+	return __pmd(0);
-+}
-+
-+pgd_t xen_make_pgd(unsigned long pgd)
-+{
-+	if (pgd & _PAGE_PRESENT)
-+		pgd = phys_to_machine(XPADDR(pgd)).maddr;
-+
-+	return (pgd_t){ pgd };
-+}
-+#endif	/* CONFIG_X86_PAE */
-+
-+
-+
-+static void pgd_walk_set_prot(void *pt, pgprot_t flags)
-+{
-+	unsigned long pfn = PFN_DOWN(__pa(pt));
-+
-+	if (HYPERVISOR_update_va_mapping((unsigned long)pt,
-+					 pfn_pte(pfn, flags), 0) < 0)
-+		BUG();
-+}
-+
-+static void pgd_walk(pgd_t *pgd_base, pgprot_t flags)
-+{
-+	pgd_t *pgd = pgd_base;
-+	pud_t *pud;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+	int    g, u, m;
-+
-+	if (xen_feature(XENFEAT_auto_translated_physmap))
-+		return;
-+
-+	for (g = 0; g < USER_PTRS_PER_PGD; g++, pgd++) {
-+		if (pgd_none(*pgd))
-+			continue;
-+		pud = pud_offset(pgd, 0);
-+
-+		if (PTRS_PER_PUD > 1) /* not folded */
-+			pgd_walk_set_prot(pud,flags);
-+
-+		for (u = 0; u < PTRS_PER_PUD; u++, pud++) {
-+			if (pud_none(*pud))
-+				continue;
-+			pmd = pmd_offset(pud, 0);
-+
-+			if (PTRS_PER_PMD > 1) /* not folded */
-+				pgd_walk_set_prot(pmd,flags);
-+
-+			for (m = 0; m < PTRS_PER_PMD; m++, pmd++) {
-+				if (pmd_none(*pmd))
-+					continue;
-+
-+				/* This can get called before mem_map
-+				   is set up, so we assume nothing is
-+				   highmem at that point. */
-+				if (mem_map == NULL ||
-+				    !PageHighMem(pmd_page(*pmd))) {
-+					pte = pte_offset_kernel(pmd,0);
-+					pgd_walk_set_prot(pte,flags);
-+				}
++			if (irq != -1) {
++				regs->orig_eax = ~irq;
++				do_IRQ(regs);
 +			}
 +		}
 +	}
 +
-+	if (HYPERVISOR_update_va_mapping((unsigned long)pgd_base,
-+					 pfn_pte(PFN_DOWN(__pa(pgd_base)),
-+						 flags),
-+					 UVMF_TLB_FLUSH) < 0)
-+		BUG();
++	put_cpu();
 +}
 +
-+
-+/* This is called just after a mm has been duplicated from its parent,
-+   but it has not been used yet.  We need to make sure that its
-+   pagetable is all read-only, and can be pinned. */
-+void xen_pgd_pin(pgd_t *pgd)
++/* Rebind an evtchn so that it gets delivered to a specific cpu */
++static void rebind_irq_to_cpu(unsigned irq, unsigned tcpu)
 +{
-+	struct mmuext_op op;
++	struct evtchn_bind_vcpu bind_vcpu;
++	int evtchn = evtchn_from_irq(irq);
 +
-+	pgd_walk(pgd, PAGE_KERNEL_RO);
++	if (!VALID_EVTCHN(evtchn))
++		return;
 +
-+#if defined(CONFIG_X86_PAE)
-+	op.cmd = MMUEXT_PIN_L3_TABLE;
-+#else
-+	op.cmd = MMUEXT_PIN_L2_TABLE;
-+#endif
-+	op.arg1.mfn = pfn_to_mfn(PFN_DOWN(__pa(pgd)));
-+	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0)
-+		BUG();
-+}
-+
-+/* Release a pagetables pages back as normal RW */
-+void xen_pgd_unpin(pgd_t *pgd)
-+{
-+	struct mmuext_op op;
-+
-+	op.cmd = MMUEXT_UNPIN_TABLE;
-+	op.arg1.mfn = pfn_to_mfn(PFN_DOWN(__pa(pgd)));
-+
-+	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0)
-+		BUG();
-+
-+	pgd_walk(pgd, PAGE_KERNEL);
-+}
-+
-+
-+void xen_activate_mm(struct mm_struct *prev, struct mm_struct *next)
-+{
-+	xen_pgd_pin(next->pgd);
-+}
-+
-+void xen_dup_mmap(struct mm_struct *oldmm, struct mm_struct *mm)
-+{
-+	xen_pgd_pin(mm->pgd);
-+}
-+
-+void xen_exit_mmap(struct mm_struct *mm)
-+{
-+	struct task_struct *tsk = current;
-+
-+	task_lock(tsk);
++	/* Send future instances of this interrupt to other vcpu. */
++	bind_vcpu.port = evtchn;
++	bind_vcpu.vcpu = tcpu;
 +
 +	/*
-+	 * We aggressively remove defunct pgd from cr3. We execute unmap_vmas()
-+	 * *much* faster this way, as no tlb flushes means bigger wrpt batches.
++	 * If this fails, it usually just indicates that we're dealing with a
++	 * virq or IPI channel, which don't actually need to be rebound. Ignore
++	 * it, but don't do the xenlinux-level rebind in that case.
 +	 */
-+	if (tsk->active_mm == mm) {
-+		tsk->active_mm = &init_mm;
-+		atomic_inc(&init_mm.mm_count);
++	if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_vcpu, &bind_vcpu) >= 0)
++		bind_evtchn_to_cpu(evtchn, tcpu);
++}
 +
-+		switch_mm(mm, &init_mm, tsk);
 +
-+		atomic_dec(&mm->mm_count);
-+		BUG_ON(atomic_read(&mm->mm_count) == 0);
++static void set_affinity_irq(unsigned irq, cpumask_t dest)
++{
++	unsigned tcpu = first_cpu(dest);
++	rebind_irq_to_cpu(irq, tcpu);
++}
++
++static void enable_dynirq(unsigned int irq)
++{
++	int evtchn = evtchn_from_irq(irq);
++
++	if (VALID_EVTCHN(evtchn))
++		unmask_evtchn(evtchn);
++}
++
++static void disable_dynirq(unsigned int irq)
++{
++	int evtchn = evtchn_from_irq(irq);
++
++	if (VALID_EVTCHN(evtchn))
++		mask_evtchn(evtchn);
++}
++
++static void ack_dynirq(unsigned int irq)
++{
++	int evtchn = evtchn_from_irq(irq);
++
++	move_native_irq(irq);
++
++	if (VALID_EVTCHN(evtchn))
++		clear_evtchn(evtchn);
++}
++
++static int retrigger_dynirq(unsigned int irq)
++{
++	int evtchn = evtchn_from_irq(irq);
++	int ret = 0;
++
++	if (VALID_EVTCHN(evtchn)) {
++		set_evtchn(evtchn);
++		ret = 1;
 +	}
 +
-+	task_unlock(tsk);
++	return ret;
++}
 +
-+	xen_pgd_unpin(mm->pgd);
++static struct irq_chip xen_dynamic_chip __read_mostly = {
++	.name		= "xen-dyn",
++	.mask		= disable_dynirq,
++	.unmask		= enable_dynirq,
++	.ack		= ack_dynirq,
++	.set_affinity	= set_affinity_irq,
++	.retrigger	= retrigger_dynirq,
++};
++
++void __init xen_init_IRQ(void)
++{
++	int i;
++
++	init_evtchn_cpu_bindings();
++
++	/* No event channels are 'live' right now. */
++	for (i = 0; i < NR_EVENT_CHANNELS; i++)
++		mask_evtchn(i);
++
++	/* Dynamic IRQ space is currently unbound. Zero the refcnts. */
++	for (i = 0; i < NR_IRQS; i++)
++		irq_bindcount[i] = 0;
++
++	irq_ctx_init(smp_processor_id());
 +}
 ===================================================================
 --- /dev/null
-+++ b/arch/i386/xen/mmu.h
-@@ -0,0 +1,47 @@
-+#ifndef _XEN_MMU_H
++++ b/include/xen/events.h
+@@ -0,0 +1,28 @@
++#ifndef _XEN_EVENTS_H
++#define _XEN_EVENTS_H
 +
-+#include <linux/linkage.h>
-+#include <asm/page.h>
++#include <linux/irq.h>
 +
-+void set_pte_mfn(unsigned long vaddr, unsigned long pfn, pgprot_t flags);
++int bind_evtchn_to_irqhandler(unsigned int evtchn,
++			      irqreturn_t (*handler)(int, void *),
++			      unsigned long irqflags, const char *devname,
++			      void *dev_id);
++int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
++			    irqreturn_t (*handler)(int, void *),
++			    unsigned long irqflags, const char *devname, void *dev_id);
 +
-+void xen_set_pte(pte_t *ptep, pte_t pteval);
-+void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
-+		    pte_t *ptep, pte_t pteval);
-+void xen_set_pmd(pmd_t *pmdp, pmd_t pmdval);
++/*
++ * Common unbind function for all event sources. Takes IRQ to unbind from.
++ * Automatically closes the underlying event channel (even for bindings
++ * made with bind_evtchn_to_irqhandler()).
++ */
++void unbind_from_irqhandler(unsigned int irq, void *dev_id);
 +
-+void xen_activate_mm(struct mm_struct *prev, struct mm_struct *next);
-+void xen_dup_mmap(struct mm_struct *oldmm, struct mm_struct *mm);
-+void xen_exit_mmap(struct mm_struct *mm);
++static inline void notify_remote_via_evtchn(int port)
++{
++	struct evtchn_send send = { .port = port };
++	(void)HYPERVISOR_event_channel_op(EVTCHNOP_send, &send);
++}
 +
-+void xen_pgd_pin(pgd_t *pgd);
-+void xen_pgd_unpin(pgd_t *pgd);
-+
-+#ifdef CONFIG_X86_PAE
-+unsigned long long xen_pte_val(pte_t);
-+unsigned long long xen_pmd_val(pmd_t);
-+unsigned long long xen_pgd_val(pgd_t);
-+
-+pte_t xen_make_pte(unsigned long long);
-+pmd_t xen_make_pmd(unsigned long long);
-+pgd_t xen_make_pgd(unsigned long long);
-+
-+void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
-+		    pte_t *ptep, pte_t pteval);
-+void xen_set_pte_atomic(pte_t *ptep, pte_t pte);
-+void xen_set_pud(pud_t *ptr, pud_t val);
-+void xen_pte_clear(struct mm_struct *mm, unsigned long addr,pte_t *ptep);
-+void xen_pmd_clear(pmd_t *pmdp);
-+
-+
-+#else
-+unsigned long xen_pte_val(pte_t);
-+unsigned long xen_pmd_val(pmd_t);
-+unsigned long xen_pgd_val(pgd_t);
-+
-+pte_t xen_make_pte(unsigned long);
-+pmd_t xen_make_pmd(unsigned long);
-+pgd_t xen_make_pgd(unsigned long);
-+#endif
-+
-+#endif	/* _XEN_MMU_H */
++extern void notify_remote_via_irq(int irq);
++#endif	/* _XEN_EVENTS_H */
 
 -- 
