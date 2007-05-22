@@ -1,11 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 06/33] xen: paravirt: make siblingmap functions
-	visible
-Date: Tue, 22 May 2007 15:09:47 +0100
-Message-ID: <20070522141251.350437872@goop.org>
+Subject: [patch 08/33] xen: Allocate and free vmalloc areas
+Date: Tue, 22 May 2007 15:09:49 +0100
+Message-ID: <20070522141251.514546814@goop.org>
 References: <20070522140941.802382212@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=paravirt-unstatic-siblingmaps.patch
+Content-Disposition: inline; filename=alloc-vm-area.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -15,55 +14,100 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Ian Pratt <ian.pratt@xensource.com>, Andi Kleen <ak@muc.de>, lkml <linux-kernel@vger.kernel.org>, Jan Beulich <JBeulich@novell.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Linus Torvalds <torvalds@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paravirt implementations need to set the sibling map on new cpus.
+Allocate/release a chunk of vmalloc address space:
+ alloc_vm_area reserves a chunk of address space, and makes sure all
+ the pagetables are constructed for that address range - but no pages.
+
+ free_vm_area releases the address space range.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: "Jan Beulich" <JBeulich@novell.com>
+Cc: "Andi Kleen" <ak@muc.de>
+
 ---
- arch/i386/kernel/smpboot.c |    6 ++----
- include/asm-i386/smp.h     |    3 +++
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ include/linux/vmalloc.h |    4 +++
+ mm/vmalloc.c            |   53 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 57 insertions(+)
 
 ===================================================================
---- a/include/asm-i386/smp.h
-+++ b/include/asm-i386/smp.h
-@@ -43,9 +43,12 @@ extern u8 x86_cpu_to_apicid[];
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -69,6 +69,10 @@ extern int map_vm_area(struct vm_struct 
+ 			struct page ***pages);
+ extern void unmap_vm_area(struct vm_struct *area);
  
- #define cpu_physical_id(cpu)	x86_cpu_to_apicid[cpu]
- 
-+extern void set_cpu_sibling_map(int cpu);
++/* Allocate/destroy a 'vmalloc' VM area. */
++extern struct vm_struct *alloc_vm_area(size_t size);
++extern void free_vm_area(struct vm_struct *area);
 +
- #ifdef CONFIG_HOTPLUG_CPU
- extern void cpu_exit_clear(void);
- extern void cpu_uninit(void);
-+extern void remove_siblinginfo(int cpu);
- #endif
- 
- struct smp_ops
+ /*
+  *	Internals.  Dont't use..
+  */
 ===================================================================
---- a/arch/i386/kernel/smpboot.c
-+++ b/arch/i386/kernel/smpboot.c
-@@ -308,8 +308,7 @@ cpumask_t cpu_coregroup_map(int cpu)
- /* representing cpus for which sibling maps can be computed */
- static cpumask_t cpu_sibling_setup_map;
- 
--static inline void
--set_cpu_sibling_map(int cpu)
-+void set_cpu_sibling_map(int cpu)
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -762,3 +762,56 @@ void  __attribute__((weak)) vmalloc_sync
+ void  __attribute__((weak)) vmalloc_sync_all(void)
  {
- 	int i;
- 	struct cpuinfo_x86 *c = cpu_data;
-@@ -1157,8 +1156,7 @@ void __init native_smp_prepare_boot_cpu(
  }
- 
- #ifdef CONFIG_HOTPLUG_CPU
--static void
--remove_siblinginfo(int cpu)
-+void remove_siblinginfo(int cpu)
- {
- 	int sibling;
- 	struct cpuinfo_x86 *c = cpu_data;
++
++
++static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *data)
++{
++	/* apply_to_page_range() does all the hard work. */
++	return 0;
++}
++
++/**
++ *	alloc_vm_area - allocate a range of kernel address space
++ *	@size:		size of the area
++ *	@returns:	NULL on failure, vm_struct on success
++ *
++ *	This function reserves a range of kernel address space, and
++ *	allocates pagetables to map that range.  No actual mappings
++ *	are created.  If the kernel address space is not shared
++ *	between processes, it syncs the pagetable across all
++ *	processes.
++ */
++struct vm_struct *alloc_vm_area(size_t size)
++{
++	struct vm_struct *area;
++
++	area = get_vm_area(size, VM_IOREMAP);
++	if (area == NULL)
++		return NULL;
++
++	/*
++	 * This ensures that page tables are constructed for this region
++	 * of kernel virtual address space and mapped into init_mm.
++	 */
++	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
++				area->size, f, NULL)) {
++		free_vm_area(area);
++		return NULL;
++	}
++
++	/* Make sure the pagetables are constructed in process kernel
++	   mappings */
++	vmalloc_sync_all();
++
++	return area;
++}
++EXPORT_SYMBOL_GPL(alloc_vm_area);
++
++void free_vm_area(struct vm_struct *area)
++{
++	struct vm_struct *ret;
++	ret = remove_vm_area(area->addr);
++	BUG_ON(ret != area);
++	kfree(area);
++}
++EXPORT_SYMBOL_GPL(free_vm_area);
 
 -- 
