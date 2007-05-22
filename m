@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 23/33] xen: xen: lazy-mmu operations
-Date: Tue, 22 May 2007 15:10:04 +0100
-Message-ID: <20070522141252.968563938@goop.org>
+Subject: [patch 26/33] xen: Add Xen grant table support
+Date: Tue, 22 May 2007 15:10:07 +0100
+Message-ID: <20070522141253.197989315@goop.org>
 References: <20070522140941.802382212@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=xen-lazy-mmu.patch
+Content-Disposition: inline; filename=xen-grant-table.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -14,200 +14,914 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Ian Pratt <ian.pratt@xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Linus Torvalds <torvalds@linux-foundation.org>, Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch uses the lazy-mmu hooks to batch mmu operations where
-possible.  This is primarily useful for batching operations applied to
-active pagetables, which happens during mprotect, munmap, mremap and
-the like (mmap does not do bulk pagetable operations, so it isn't
-helped).
+Add Xen 'grant table' driver which allows granting of access to
+selected local memory pages by other virtual machines and,
+symmetrically, the mapping of remote memory pages which other virtual
+machines have granted access to.
+
+This driver is a prerequisite for many of the Xen virtual device
+drivers, which grant the 'device driver domain' restricted and
+temporary access to only those memory pages that are currently
+involved in I/O operations.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Acked-by: Chris Wright <chrisw@sous-sol.org>
-
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/i386/xen/enlighten.c  |   56 +++++++++++++++++++++++++++-----------------
- arch/i386/xen/mmu.c        |   56 ++++++++++++++++++++++++++++++++------------
- arch/i386/xen/multicalls.c |    4 +--
- 3 files changed, 78 insertions(+), 38 deletions(-)
+ drivers/Makefile                    |    2 
+ drivers/xen/Makefile                |    1 
+ drivers/xen/grant-table.c           |  582 +++++++++++++++++++++++++++++++++++
+ include/xen/grant_table.h           |  107 ++++++
+ include/xen/interface/grant_table.h |   96 +++++
+ 5 files changed, 777 insertions(+), 11 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -451,28 +451,38 @@ static void xen_apic_write(unsigned long
- 
- static void xen_flush_tlb(void)
- {
--	struct mmuext_op op;
--
--	op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+	struct mmuext_op *op;
-+	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -14,6 +14,8 @@ obj-$(CONFIG_ACPI)		+= acpi/
+ # was used and do nothing if so
+ obj-$(CONFIG_PNP)		+= pnp/
+ obj-$(CONFIG_ARM_AMBA)		+= amba/
 +
-+	op = mcs.args;
-+	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
++obj-$(CONFIG_XEN)		+= xen/
  
- static void xen_flush_tlb_single(unsigned long addr)
- {
--	struct mmuext_op op;
--
--	op.cmd = MMUEXT_INVLPG_LOCAL;
--	op.arg1.linear_addr = addr & PAGE_MASK;
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+	struct mmuext_op *op;
-+	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
+ # char/ comes before serial/ etc so that the VT console is the boot-time
+ # default.
+===================================================================
+--- /dev/null
++++ b/drivers/xen/Makefile
+@@ -0,0 +1,1 @@
++obj-y	+= grant-table.o
+===================================================================
+--- /dev/null
++++ b/drivers/xen/grant-table.c
+@@ -0,0 +1,582 @@
++/******************************************************************************
++ * grant_table.c
++ *
++ * Granting foreign access to our memory reservation.
++ *
++ * Copyright (c) 2005-2006, Christopher Clark
++ * Copyright (c) 2004-2005, K A Fraser
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
 +
-+	op = mcs.args;
-+	op->cmd = MMUEXT_INVLPG_LOCAL;
-+	op->arg1.linear_addr = addr & PAGE_MASK;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
 +
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
- static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
- 				 unsigned long va)
- {
--	struct mmuext_op op;
-+	struct {
-+		struct mmuext_op op;
-+		cpumask_t mask;
-+	} *args;
- 	cpumask_t cpumask = *cpus;
-+	struct multicall_space mcs;
- 
- 	/*
- 	 * A couple of (to be removed) sanity checks:
-@@ -489,17 +499,21 @@ static void xen_flush_tlb_others(const c
- 	if (cpus_empty(cpumask))
- 		return;
- 
-+	mcs = xen_mc_entry(sizeof(*args));
-+	args = mcs.args;
-+	args->mask = cpumask;
-+	args->op.arg2.vcpumask = &args->mask;
++#include <xen/interface/xen.h>
++#include <xen/page.h>
++#include <xen/grant_table.h>
 +
- 	if (va == TLB_FLUSH_ALL) {
--		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
--		op.arg2.vcpumask = (void *)cpus;
-+		args->op.cmd = MMUEXT_TLB_FLUSH_MULTI;
- 	} else {
--		op.cmd = MMUEXT_INVLPG_MULTI;
--		op.arg1.linear_addr = va;
--		op.arg2.vcpumask = (void *)cpus;
--	}
--
--	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
--		BUG();
-+		args->op.cmd = MMUEXT_INVLPG_MULTI;
-+		args->op.arg1.linear_addr = va;
++#include <asm/pgtable.h>
++#include <asm/uaccess.h>
++#include <asm/sync_bitops.h>
++
++
++/* External tools reserve first few grant table entries. */
++#define NR_RESERVED_ENTRIES 8
++#define GNTTAB_LIST_END 0xffffffff
++#define GREFS_PER_GRANT_FRAME (PAGE_SIZE / sizeof(struct grant_entry))
++
++static grant_ref_t **gnttab_list;
++static unsigned int nr_grant_frames;
++static unsigned int boot_max_nr_grant_frames;
++static int gnttab_free_count;
++static grant_ref_t gnttab_free_head;
++static DEFINE_SPINLOCK(gnttab_list_lock);
++
++static struct grant_entry *shared;
++
++static struct gnttab_free_callback *gnttab_free_callback_list;
++
++static int gnttab_expand(unsigned int req_entries);
++
++#define RPP (PAGE_SIZE / sizeof(grant_ref_t))
++
++static inline grant_ref_t *__gnttab_entry(grant_ref_t entry)
++{
++	return &gnttab_list[(entry) / RPP][(entry) % RPP];
++}
++/* This can be used as an l-value */
++#define gnttab_entry(entry) (*__gnttab_entry(entry))
++
++static int get_free_entries(unsigned count)
++{
++	unsigned long flags;
++	int ref, rc;
++	grant_ref_t head;
++
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++
++	if ((gnttab_free_count < count) &&
++	    ((rc = gnttab_expand(count - gnttab_free_count)) < 0)) {
++		spin_unlock_irqrestore(&gnttab_list_lock, flags);
++		return rc;
 +	}
 +
-+	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
++	ref = head = gnttab_free_head;
++	gnttab_free_count -= count;
++	while (count-- > 1)
++		head = gnttab_entry(head);
++ 	gnttab_free_head = gnttab_entry(head);
++	gnttab_entry(head) = GNTTAB_LIST_END;
 +
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
- }
- 
- static unsigned long xen_read_cr2(void)
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++
++	return ref;
++}
++
++static void do_free_callbacks(void)
++{
++	struct gnttab_free_callback *callback, *next;
++
++	callback = gnttab_free_callback_list;
++	gnttab_free_callback_list = NULL;
++
++	while (callback != NULL) {
++		next = callback->next;
++		if (gnttab_free_count >= callback->count) {
++			callback->next = NULL;
++			callback->fn(callback->arg);
++		} else {
++			callback->next = gnttab_free_callback_list;
++			gnttab_free_callback_list = callback;
++		}
++		callback = next;
++	}
++}
++
++static inline void check_free_callbacks(void)
++{
++	if (unlikely(gnttab_free_callback_list))
++		do_free_callbacks();
++}
++
++static void put_free_entry(grant_ref_t ref)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	gnttab_entry(ref) = gnttab_free_head;
++	gnttab_free_head = ref;
++	gnttab_free_count++;
++	check_free_callbacks();
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++
++static void update_grant_entry(grant_ref_t ref, domid_t domid,
++			       unsigned long frame, unsigned flags)
++{
++	/*
++	 * Introducing a valid entry into the grant table:
++	 *  1. Write ent->domid.
++	 *  2. Write ent->frame:
++	 *      GTF_permit_access:   Frame to which access is permitted.
++	 *      GTF_accept_transfer: Pseudo-phys frame slot being filled by new
++	 *                           frame, or zero if none.
++	 *  3. Write memory barrier (WMB).
++	 *  4. Write ent->flags, inc. valid type.
++	 */
++	shared[ref].frame = frame;
++	shared[ref].domid = domid;
++	wmb();
++	shared[ref].flags = flags;
++}
++
++/*
++ * Public grant-issuing interface functions
++ */
++void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
++				     unsigned long frame, int readonly)
++{
++	update_grant_entry(ref, domid, frame,
++			   GTF_permit_access | (readonly ? GTF_readonly : 0));
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access_ref);
++
++int gnttab_grant_foreign_access(domid_t domid, unsigned long frame,
++				int readonly)
++{
++	int ref;
++
++	ref = get_free_entries(1);
++	if (unlikely(ref < 0))
++		return -ENOSPC;
++
++	gnttab_grant_foreign_access_ref(ref, domid, frame, readonly);
++
++	return ref;
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access);
++
++int gnttab_query_foreign_access(grant_ref_t ref)
++{
++	u16 nflags;
++
++	nflags = shared[ref].flags;
++
++	return (nflags & (GTF_reading|GTF_writing));
++}
++EXPORT_SYMBOL_GPL(gnttab_query_foreign_access);
++
++int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly)
++{
++	u16 flags, nflags;
++
++	nflags = shared[ref].flags;
++	do {
++		if ((flags = nflags) & (GTF_reading|GTF_writing)) {
++			printk(KERN_ALERT "WARNING: g.e. still in use!\n");
++			return 0;
++		}
++	} while ((nflags = sync_cmpxchg(&shared[ref].flags, flags, 0)) !=
++		 flags);
++
++	return 1;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_access_ref);
++
++void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
++			       unsigned long page)
++{
++	if (gnttab_end_foreign_access_ref(ref, readonly)) {
++		put_free_entry(ref);
++		if (page != 0)
++			free_page(page);
++	} else {
++		/* XXX This needs to be fixed so that the ref and page are
++		   placed on a list to be freed up later. */
++		printk(KERN_WARNING
++		       "WARNING: leaking g.e. and page still in use!\n");
++	}
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_access);
++
++int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn)
++{
++	int ref;
++
++	ref = get_free_entries(1);
++	if (unlikely(ref < 0))
++		return -ENOSPC;
++	gnttab_grant_foreign_transfer_ref(ref, domid, pfn);
++
++	return ref;
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_transfer);
++
++void gnttab_grant_foreign_transfer_ref(grant_ref_t ref, domid_t domid,
++				       unsigned long pfn)
++{
++	update_grant_entry(ref, domid, pfn, GTF_accept_transfer);
++}
++EXPORT_SYMBOL_GPL(gnttab_grant_foreign_transfer_ref);
++
++unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref)
++{
++	unsigned long frame;
++	u16           flags;
++
++	/*
++	 * If a transfer is not even yet started, try to reclaim the grant
++	 * reference and return failure (== 0).
++	 */
++	while (!((flags = shared[ref].flags) & GTF_transfer_committed)) {
++		if (sync_cmpxchg(&shared[ref].flags, flags, 0) == flags)
++			return 0;
++		cpu_relax();
++	}
++
++	/* If a transfer is in progress then wait until it is completed. */
++	while (!(flags & GTF_transfer_completed)) {
++		flags = shared[ref].flags;
++		cpu_relax();
++	}
++
++	rmb();	/* Read the frame number /after/ reading completion status. */
++	frame = shared[ref].frame;
++	BUG_ON(frame == 0);
++
++	return frame;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_transfer_ref);
++
++unsigned long gnttab_end_foreign_transfer(grant_ref_t ref)
++{
++	unsigned long frame = gnttab_end_foreign_transfer_ref(ref);
++	put_free_entry(ref);
++	return frame;
++}
++EXPORT_SYMBOL_GPL(gnttab_end_foreign_transfer);
++
++void gnttab_free_grant_reference(grant_ref_t ref)
++{
++	put_free_entry(ref);
++}
++EXPORT_SYMBOL_GPL(gnttab_free_grant_reference);
++
++void gnttab_free_grant_references(grant_ref_t head)
++{
++	grant_ref_t ref;
++	unsigned long flags;
++	int count = 1;
++	if (head == GNTTAB_LIST_END)
++		return;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	ref = head;
++	while (gnttab_entry(ref) != GNTTAB_LIST_END) {
++		ref = gnttab_entry(ref);
++		count++;
++	}
++	gnttab_entry(ref) = gnttab_free_head;
++	gnttab_free_head = head;
++	gnttab_free_count += count;
++	check_free_callbacks();
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_free_grant_references);
++
++int gnttab_alloc_grant_references(u16 count, grant_ref_t *head)
++{
++	int h = get_free_entries(count);
++
++	if (h < 0)
++		return -ENOSPC;
++
++	*head = h;
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(gnttab_alloc_grant_references);
++
++int gnttab_empty_grant_references(const grant_ref_t *private_head)
++{
++	return (*private_head == GNTTAB_LIST_END);
++}
++EXPORT_SYMBOL_GPL(gnttab_empty_grant_references);
++
++int gnttab_claim_grant_reference(grant_ref_t *private_head)
++{
++	grant_ref_t g = *private_head;
++	if (unlikely(g == GNTTAB_LIST_END))
++		return -ENOSPC;
++	*private_head = gnttab_entry(g);
++	return g;
++}
++EXPORT_SYMBOL_GPL(gnttab_claim_grant_reference);
++
++void gnttab_release_grant_reference(grant_ref_t *private_head,
++				    grant_ref_t release)
++{
++	gnttab_entry(release) = *private_head;
++	*private_head = release;
++}
++EXPORT_SYMBOL_GPL(gnttab_release_grant_reference);
++
++void gnttab_request_free_callback(struct gnttab_free_callback *callback,
++				  void (*fn)(void *), void *arg, u16 count)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	if (callback->next)
++		goto out;
++	callback->fn = fn;
++	callback->arg = arg;
++	callback->count = count;
++	callback->next = gnttab_free_callback_list;
++	gnttab_free_callback_list = callback;
++	check_free_callbacks();
++out:
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_request_free_callback);
++
++void gnttab_cancel_free_callback(struct gnttab_free_callback *callback)
++{
++	struct gnttab_free_callback **pcb;
++	unsigned long flags;
++
++	spin_lock_irqsave(&gnttab_list_lock, flags);
++	for (pcb = &gnttab_free_callback_list; *pcb; pcb = &(*pcb)->next) {
++		if (*pcb == callback) {
++			*pcb = callback->next;
++			break;
++		}
++	}
++	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gnttab_cancel_free_callback);
++
++static int grow_gnttab_list(unsigned int more_frames)
++{
++	unsigned int new_nr_grant_frames, extra_entries, i;
++
++	new_nr_grant_frames = nr_grant_frames + more_frames;
++	extra_entries       = more_frames * GREFS_PER_GRANT_FRAME;
++
++	for (i = nr_grant_frames; i < new_nr_grant_frames; i++)
++	{
++		gnttab_list[i] = (grant_ref_t *)__get_free_page(GFP_ATOMIC);
++		if (!gnttab_list[i])
++			goto grow_nomem;
++	}
++
++
++	for (i = GREFS_PER_GRANT_FRAME * nr_grant_frames;
++	     i < GREFS_PER_GRANT_FRAME * new_nr_grant_frames - 1; i++)
++		gnttab_entry(i) = i + 1;
++
++	gnttab_entry(i) = gnttab_free_head;
++	gnttab_free_head = GREFS_PER_GRANT_FRAME * nr_grant_frames;
++	gnttab_free_count += extra_entries;
++
++	nr_grant_frames = new_nr_grant_frames;
++
++	check_free_callbacks();
++
++	return 0;
++
++grow_nomem:
++	for ( ; i >= nr_grant_frames; i--)
++		free_page((unsigned long) gnttab_list[i]);
++	return -ENOMEM;
++}
++
++static unsigned int __max_nr_grant_frames(void)
++{
++	struct gnttab_query_size query;
++	int rc;
++
++	query.dom = DOMID_SELF;
++
++	rc = HYPERVISOR_grant_table_op(GNTTABOP_query_size, &query, 1);
++	if ((rc < 0) || (query.status != GNTST_okay))
++		return 4; /* Legacy max supported number of frames */
++
++	return query.max_nr_frames;
++}
++
++static inline unsigned int max_nr_grant_frames(void)
++{
++	unsigned int xen_max = __max_nr_grant_frames();
++
++	if (xen_max > boot_max_nr_grant_frames)
++		return boot_max_nr_grant_frames;
++	return xen_max;
++}
++
++static int map_pte_fn(pte_t *pte, struct page *pmd_page,
++		      unsigned long addr, void *data)
++{
++	unsigned long **frames = (unsigned long **)data;
++
++	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
++	(*frames)++;
++	return 0;
++}
++
++static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
++			unsigned long addr, void *data)
++{
++
++	set_pte_at(&init_mm, addr, pte, __pte(0));
++	return 0;
++}
++
++static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
++{
++	struct gnttab_setup_table setup;
++	unsigned long *frames;
++	unsigned int nr_gframes = end_idx + 1;
++	int rc;
++
++	frames = kmalloc(nr_gframes * sizeof(unsigned long), GFP_ATOMIC);
++	if (!frames)
++		return -ENOMEM;
++
++	setup.dom        = DOMID_SELF;
++	setup.nr_frames  = nr_gframes;
++	setup.frame_list = frames;
++
++	rc = HYPERVISOR_grant_table_op(GNTTABOP_setup_table, &setup, 1);
++	if (rc == -ENOSYS) {
++		kfree(frames);
++		return -ENOSYS;
++	}
++
++	BUG_ON(rc || setup.status);
++
++	if (shared == NULL) {
++		struct vm_struct *area;
++		area = alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
++		BUG_ON(area == NULL);
++		shared = area->addr;
++	}
++	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
++				 PAGE_SIZE * nr_gframes,
++				 map_pte_fn, &frames);
++	BUG_ON(rc);
++	frames -= nr_gframes; /* adjust after map_pte_fn() */
++
++	kfree(frames);
++
++	return 0;
++}
++
++static int gnttab_resume(void)
++{
++	if (max_nr_grant_frames() < nr_grant_frames)
++		return -ENOSYS;
++	return gnttab_map(0, nr_grant_frames - 1);
++}
++
++static int gnttab_suspend(void)
++{
++	apply_to_page_range(&init_mm, (unsigned long)shared,
++			    PAGE_SIZE * nr_grant_frames,
++			    unmap_pte_fn, NULL);
++
++	return 0;
++}
++
++static int gnttab_expand(unsigned int req_entries)
++{
++	int rc;
++	unsigned int cur, extra;
++
++	cur = nr_grant_frames;
++	extra = ((req_entries + (GREFS_PER_GRANT_FRAME-1)) /
++		 GREFS_PER_GRANT_FRAME);
++	if (cur + extra > max_nr_grant_frames())
++		return -ENOSPC;
++
++	if ((rc = gnttab_map(cur, cur + extra - 1)) == 0)
++		rc = grow_gnttab_list(extra);
++
++	return rc;
++}
++
++static int __devinit gnttab_init(void)
++{
++	int i;
++	unsigned int max_nr_glist_frames;
++	unsigned int nr_init_grefs;
++
++	if (!is_running_on_xen())
++		return -ENODEV;
++
++	nr_grant_frames = 1;
++	boot_max_nr_grant_frames = __max_nr_grant_frames();
++
++	/* Determine the maximum number of frames required for the
++	 * grant reference free list on the current hypervisor.
++	 */
++	max_nr_glist_frames = (boot_max_nr_grant_frames *
++			       GREFS_PER_GRANT_FRAME /
++			       (PAGE_SIZE / sizeof(grant_ref_t)));
++
++	gnttab_list = kmalloc(max_nr_glist_frames * sizeof(grant_ref_t *),
++			      GFP_KERNEL);
++	if (gnttab_list == NULL)
++		return -ENOMEM;
++
++	for (i = 0; i < nr_grant_frames; i++) {
++		gnttab_list[i] = (grant_ref_t *)__get_free_page(GFP_KERNEL);
++		if (gnttab_list[i] == NULL)
++			goto ini_nomem;
++	}
++
++	if (gnttab_resume() < 0)
++		return -ENODEV;
++
++	nr_init_grefs = nr_grant_frames * GREFS_PER_GRANT_FRAME;
++
++	for (i = NR_RESERVED_ENTRIES; i < nr_init_grefs - 1; i++)
++		gnttab_entry(i) = i + 1;
++
++	gnttab_entry(nr_init_grefs - 1) = GNTTAB_LIST_END;
++	gnttab_free_count = nr_init_grefs - NR_RESERVED_ENTRIES;
++	gnttab_free_head  = NR_RESERVED_ENTRIES;
++
++	printk("Grant table initialized\n");
++	return 0;
++
++ ini_nomem:
++	for (i--; i >= 0; i--)
++		free_page((unsigned long)gnttab_list[i]);
++	kfree(gnttab_list);
++	return -ENOMEM;
++}
++
++core_initcall(gnttab_init);
 ===================================================================
---- a/arch/i386/xen/mmu.c
-+++ b/arch/i386/xen/mmu.c
-@@ -56,12 +56,20 @@ void make_lowmem_page_readwrite(void *va
+--- /dev/null
++++ b/include/xen/grant_table.h
+@@ -0,0 +1,107 @@
++/******************************************************************************
++ * grant_table.h
++ *
++ * Two sets of functionality:
++ * 1. Granting foreign access to our memory reservation.
++ * 2. Accessing others' memory reservations via grant references.
++ * (i.e., mechanisms for both sender and recipient of grant references)
++ *
++ * Copyright (c) 2004-2005, K A Fraser
++ * Copyright (c) 2005, Christopher Clark
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#ifndef __ASM_GNTTAB_H__
++#define __ASM_GNTTAB_H__
++
++#include <asm/xen/hypervisor.h>
++#include <xen/interface/grant_table.h>
++
++/* NR_GRANT_FRAMES must be less than or equal to that configured in Xen */
++#define NR_GRANT_FRAMES 4
++
++struct gnttab_free_callback {
++	struct gnttab_free_callback *next;
++	void (*fn)(void *);
++	void *arg;
++	u16 count;
++};
++
++int gnttab_grant_foreign_access(domid_t domid, unsigned long frame,
++				int readonly);
++
++/*
++ * End access through the given grant reference, iff the grant entry is no
++ * longer in use.  Return 1 if the grant entry was freed, 0 if it is still in
++ * use.
++ */
++int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly);
++
++/*
++ * Eventually end access through the given grant reference, and once that
++ * access has been ended, free the given page too.  Access will be ended
++ * immediately iff the grant entry is not in use, otherwise it will happen
++ * some time later.  page may be 0, in which case no freeing will occur.
++ */
++void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
++			       unsigned long page);
++
++int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
++
++unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
++unsigned long gnttab_end_foreign_transfer(grant_ref_t ref);
++
++int gnttab_query_foreign_access(grant_ref_t ref);
++
++/*
++ * operations on reserved batches of grant references
++ */
++int gnttab_alloc_grant_references(u16 count, grant_ref_t *pprivate_head);
++
++void gnttab_free_grant_reference(grant_ref_t ref);
++
++void gnttab_free_grant_references(grant_ref_t head);
++
++int gnttab_empty_grant_references(const grant_ref_t *pprivate_head);
++
++int gnttab_claim_grant_reference(grant_ref_t *pprivate_head);
++
++void gnttab_release_grant_reference(grant_ref_t *private_head,
++				    grant_ref_t release);
++
++void gnttab_request_free_callback(struct gnttab_free_callback *callback,
++				  void (*fn)(void *), void *arg, u16 count);
++void gnttab_cancel_free_callback(struct gnttab_free_callback *callback);
++
++void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
++				     unsigned long frame, int readonly);
++
++void gnttab_grant_foreign_transfer_ref(grant_ref_t, domid_t domid,
++				       unsigned long pfn);
++
++#define gnttab_map_vaddr(map) ((void *)(map.host_virt_addr))
++
++#endif /* __ASM_GNTTAB_H__ */
+===================================================================
+--- a/include/xen/interface/grant_table.h
++++ b/include/xen/interface/grant_table.h
+@@ -4,6 +4,24 @@
+  * Interface for granting foreign access to page frames, and receiving
+  * page-ownership transfers.
+  *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
+  * Copyright (c) 2004, K A Fraser
+  */
  
- void xen_set_pmd(pmd_t *ptr, pmd_t val)
- {
--	struct mmu_update u;
--
--	u.ptr = virt_to_machine(ptr).maddr;
--	u.val = pmd_val_ma(val);
--	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
--		BUG();
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
-+
-+	preempt_disable();
-+
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptr).maddr;
-+	u->val = pmd_val_ma(val);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+
-+	preempt_enable();
- }
+@@ -17,7 +35,7 @@
+ 
+ /* Some rough guidelines on accessing and updating grant-table entries
+  * in a concurrency-safe manner. For more information, Linux contains a
+- * reference implementation for guest OSes (arch/i386/mach-xen/grant_table.c).
++ * reference implementation for guest OSes (arch/xen/kernel/grant_table.c).
+  *
+  * NB. WMB is a no-op on current-generation x86 processors. However, a
+  *     compiler barrier will still be required.
+@@ -144,9 +162,9 @@ typedef uint32_t grant_handle_t;
+  * that must be presented later to destroy the mapping(s). On error, <handle>
+  * is a negative status code.
+  * NOTES:
+- *  1. If GNTPIN_map_for_dev is specified then <dev_bus_addr> is the address
++ *  1. If GNTMAP_device_map is specified then <dev_bus_addr> is the address
+  *     via which I/O devices may access the granted frame.
+- *  2. If GNTPIN_map_for_host is specified then a mapping will be added at
++ *  2. If GNTMAP_host_map is specified then a mapping will be added at
+  *     either a host virtual address in the current address space, or at
+  *     a PTE at the specified machine address.  The type of mapping to
+  *     perform is selected through the GNTMAP_contains_pte flag, and the
+@@ -167,7 +185,6 @@ struct gnttab_map_grant_ref {
+     grant_handle_t handle;
+     uint64_t dev_bus_addr;
+ };
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_map_grant_ref);
  
  /*
-@@ -104,20 +112,38 @@ void xen_set_pte_at(struct mm_struct *mm
- void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
- 		    pte_t *ptep, pte_t pteval)
- {
--	if ((mm != current->mm && mm != &init_mm) ||
--	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
--		xen_set_pte(ptep, pteval);
-+	if (mm == current->mm || mm == &init_mm) {
-+		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
-+			struct multicall_space mcs;
-+			mcs = xen_mc_entry(0);
+  * GNTTABOP_unmap_grant_ref: Destroy one or more grant-reference mappings
+@@ -189,7 +206,6 @@ struct gnttab_unmap_grant_ref {
+     /* OUT parameters. */
+     int16_t  status;              /* GNTST_* */
+ };
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_unmap_grant_ref);
+ 
+ /*
+  * GNTTABOP_setup_table: Set up a grant table for <dom> comprising at least
+@@ -207,9 +223,8 @@ struct gnttab_setup_table {
+     uint32_t nr_frames;
+     /* OUT parameters. */
+     int16_t  status;              /* GNTST_* */
+-    GUEST_HANDLE(ulong) frame_list;
+-};
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_setup_table);
++    ulong *frame_list;
++};
+ 
+ /*
+  * GNTTABOP_dump_table: Dump the contents of the grant table to the
+@@ -222,7 +237,6 @@ struct gnttab_dump_table {
+     /* OUT parameters. */
+     int16_t status;               /* GNTST_* */
+ };
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_dump_table);
+ 
+ /*
+  * GNTTABOP_transfer_grant_ref: Transfer <frame> to a foreign domain. The
+@@ -241,7 +255,65 @@ struct gnttab_transfer {
+     /* OUT parameters. */
+     int16_t       status;
+ };
+-DEFINE_GUEST_HANDLE_STRUCT(gnttab_transfer);
 +
-+			MULTI_update_va_mapping(mcs.mc, addr, pteval, 0);
-+			xen_mc_issue(PARAVIRT_LAZY_MMU);
-+			return;
-+		} else
-+			if (HYPERVISOR_update_va_mapping(addr, pteval, 0) == 0)
-+				return;
-+	}
-+	xen_set_pte(ptep, pteval);
++
++/*
++ * GNTTABOP_copy: Hypervisor based copy
++ * source and destinations can be eithers MFNs or, for foreign domains,
++ * grant references. the foreign domain has to grant read/write access
++ * in its grant table.
++ *
++ * The flags specify what type source and destinations are (either MFN
++ * or grant reference).
++ *
++ * Note that this can also be used to copy data between two domains
++ * via a third party if the source and destination domains had previously
++ * grant appropriate access to their pages to the third party.
++ *
++ * source_offset specifies an offset in the source frame, dest_offset
++ * the offset in the target frame and  len specifies the number of
++ * bytes to be copied.
++ */
++
++#define _GNTCOPY_source_gref      (0)
++#define GNTCOPY_source_gref       (1<<_GNTCOPY_source_gref)
++#define _GNTCOPY_dest_gref        (1)
++#define GNTCOPY_dest_gref         (1<<_GNTCOPY_dest_gref)
++
++#define GNTTABOP_copy                 5
++struct gnttab_copy {
++    /* IN parameters. */
++    struct {
++        union {
++            grant_ref_t ref;
++            unsigned long   gmfn;
++        } u;
++        domid_t  domid;
++        uint16_t offset;
++    } source, dest;
++    uint16_t      len;
++    uint16_t      flags;          /* GNTCOPY_* */
++    /* OUT parameters. */
++    int16_t       status;
++};
++
++/*
++ * GNTTABOP_query_size: Query the current and maximum sizes of the shared
++ * grant table.
++ * NOTES:
++ *  1. <dom> may be specified as DOMID_SELF.
++ *  2. Only a sufficiently-privileged domain may specify <dom> != DOMID_SELF.
++ */
++#define GNTTABOP_query_size           6
++struct gnttab_query_size {
++    /* IN parameters. */
++    domid_t  dom;
++    /* OUT parameters. */
++    uint32_t nr_frames;
++    uint32_t max_nr_frames;
++    int16_t  status;              /* GNTST_* */
++};
++
+ 
+ /*
+  * Bitfield values for update_pin_status.flags.
+@@ -284,6 +356,7 @@ DEFINE_GUEST_HANDLE_STRUCT(gnttab_transf
+ #define GNTST_no_device_space  (-7) /* Out of space in I/O MMU.              */
+ #define GNTST_permission_denied (-8) /* Not enough privilege for operation.  */
+ #define GNTST_bad_page         (-9) /* Specified page was invalid for op.    */
++#define GNTST_bad_copy_arg    (-10) /* copy arguments cross page boundary */
+ 
+ #define GNTTABOP_error_msgs {                   \
+     "okay",                                     \
+@@ -295,7 +368,8 @@ DEFINE_GUEST_HANDLE_STRUCT(gnttab_transf
+     "invalid device address",                   \
+     "no spare translation slot in the I/O MMU", \
+     "permission denied",                        \
+-    "bad page"                                  \
++    "bad page",                                 \
++    "copy arguments cross page boundary"        \
  }
  
- #ifdef CONFIG_X86_PAE
- void xen_set_pud(pud_t *ptr, pud_t val)
- {
--	struct mmu_update u;
--
--	u.ptr = virt_to_machine(ptr).maddr;
--	u.val = pud_val_ma(val);
--	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
--		BUG();
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
-+
-+	preempt_disable();
-+
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptr).maddr;
-+	u->val = pud_val_ma(val);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+
-+	preempt_enable();
- }
- 
- void xen_set_pte(pte_t *ptep, pte_t pte)
-===================================================================
---- a/arch/i386/xen/multicalls.c
-+++ b/arch/i386/xen/multicalls.c
-@@ -5,8 +5,8 @@
- 
- #include "multicalls.h"
- 
--#define MC_BATCH	8
--#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
-+#define MC_BATCH	32
-+#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
- 
- struct mc_buffer {
- 	struct multicall_entry entries[MC_BATCH];
+ #endif /* __XEN_PUBLIC_GRANT_TABLE_H__ */
 
 -- 
