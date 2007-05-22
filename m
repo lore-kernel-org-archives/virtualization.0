@@ -1,11 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 02/33] xen: paravirt: add a hook for once the
-	allocator is ready
-Date: Tue, 22 May 2007 15:09:43 +0100
-Message-ID: <20070522141250.930553805@goop.org>
+Subject: [patch 04/33] xen: paravirt: unstatic leave_mm
+Date: Tue, 22 May 2007 15:09:45 +0100
+Message-ID: <20070522141251.160703868@goop.org>
 References: <20070522140941.802382212@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=paravirt-add-post_allocator_init.patch
+Content-Disposition: inline; filename=paravirt-unstatic-leave_mm.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -18,69 +17,54 @@ To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a hook so that the paravirt backend knows when the allocator is
-ready.  This is useful for the obvious reason that the allocator is
-available, but the other side-effect of having the bootmem allocator
-available is that each page now has an associated "struct page".
+Make globally leave_mm visible, specifically so that Xen can use it to
+shoot-down lazy uses of cr3.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- arch/i386/kernel/setup.c    |    2 ++
- include/asm-i386/paravirt.h |    8 ++++++++
- include/asm-i386/setup.h    |    4 ++++
- 3 files changed, 14 insertions(+)
+ arch/i386/kernel/smp.c         |    5 +++--
+ include/asm-i386/mmu_context.h |    2 ++
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
 ===================================================================
---- a/arch/i386/kernel/setup.c
-+++ b/arch/i386/kernel/setup.c
-@@ -611,6 +611,8 @@ void __init setup_arch(char **cmdline_p)
- 	 * NOTE: at this point the bootmem allocator is fully available.
- 	 */
- 
-+	paravirt_post_allocator_init();
-+
- 	dmi_scan_machine();
- 
- #ifdef CONFIG_X86_GENERICARCH
-===================================================================
---- a/include/asm-i386/paravirt.h
-+++ b/include/asm-i386/paravirt.h
-@@ -52,6 +52,8 @@ struct paravirt_ops
- 	/* Basic arch-specific setup */
- 	void (*arch_setup)(void);
- 	char *(*memory_setup)(void);
-+	void (*post_allocator_init)(void);
-+
- 	void (*init_IRQ)(void);
- 	void (*time_init)(void);
- 
-@@ -669,6 +671,12 @@ static inline void setup_secondary_clock
- }
+--- a/include/asm-i386/mmu_context.h
++++ b/include/asm-i386/mmu_context.h
+@@ -31,6 +31,8 @@ static inline void enter_lazy_tlb(struct
+ 		per_cpu(cpu_tlbstate, cpu).state = TLBSTATE_LAZY;
  #endif
- 
-+static inline void paravirt_post_allocator_init(void)
-+{
-+	if (paravirt_ops.post_allocator_init)
-+		(*paravirt_ops.post_allocator_init)();
-+}
+ }
 +
- static inline void paravirt_pagetable_setup_start(pgd_t *base)
- {
- 	if (paravirt_ops.pagetable_setup_start)
++void leave_mm (unsigned long cpu);
+ 
+ static inline void switch_mm(struct mm_struct *prev,
+ 			     struct mm_struct *next,
 ===================================================================
---- a/include/asm-i386/setup.h
-+++ b/include/asm-i386/setup.h
-@@ -79,6 +79,10 @@ void __init add_memory_region(unsigned l
+--- a/arch/i386/kernel/smp.c
++++ b/arch/i386/kernel/smp.c
+@@ -22,6 +22,7 @@
  
- extern unsigned long init_pg_tables_end;
+ #include <asm/mtrr.h>
+ #include <asm/tlbflush.h>
++#include <asm/mmu_context.h>
+ #include <mach_apic.h>
  
-+#ifndef CONFIG_PARAVIRT
-+#define paravirt_post_allocator_init()	do {} while(0)
-+#endif
-+
- #endif /* __ASSEMBLY__ */
+ /*
+@@ -249,13 +250,13 @@ static DEFINE_SPINLOCK(tlbstate_lock);
+ static DEFINE_SPINLOCK(tlbstate_lock);
  
- #endif  /*  __KERNEL__  */
+ /*
+- * We cannot call mmdrop() because we are in interrupt context, 
++ * We cannot call mmdrop() because we are in interrupt context,
+  * instead update mm->cpu_vm_mask.
+  *
+  * We need to reload %cr3 since the page tables may be going
+  * away from under us..
+  */
+-static inline void leave_mm (unsigned long cpu)
++void leave_mm (unsigned long cpu)
+ {
+ 	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
+ 		BUG();
 
 -- 
