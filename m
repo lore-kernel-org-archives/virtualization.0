@@ -1,10 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 07/33] xen: paravirt: export __supported_pte_mask
-Date: Tue, 22 May 2007 15:09:48 +0100
-Message-ID: <20070522141251.429681560@goop.org>
+Subject: [patch 05/33] xen: paravirt: unstatic smp_store_cpu_info
+Date: Tue, 22 May 2007 15:09:46 +0100
+Message-ID: <20070522141251.267503488@goop.org>
 References: <20070522140941.802382212@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=paravirt-export-supported_pte_mask.patch
+Content-Disposition: inline;
+	filename=paravirt-unstatic-smp_store_cpu_info.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -17,25 +18,38 @@ To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-__supported_pte_mask is needed when constructing pte values.  Xen
-device drivers need to do this to make mappings of foreign pages (ie,
-pages granted to us by other domains).
+Paravirt implementations need to store cpu info when bringing up cpus.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+
 ---
- arch/i386/mm/init.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/i386/kernel/smpboot.c |    2 +-
+ include/asm-i386/smp.h     |    2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
 ===================================================================
---- a/arch/i386/mm/init.c
-+++ b/arch/i386/mm/init.c
-@@ -473,6 +473,7 @@ void zap_low_mappings (void)
+--- a/include/asm-i386/smp.h
++++ b/include/asm-i386/smp.h
+@@ -129,6 +132,8 @@ extern void __cpu_die(unsigned int cpu);
+ extern void __cpu_die(unsigned int cpu);
+ extern unsigned int num_processors;
  
- static int disable_nx __initdata = 0;
- u64 __supported_pte_mask __read_mostly = ~_PAGE_NX;
-+EXPORT_SYMBOL_GPL(__supported_pte_mask);
++void __cpuinit smp_store_cpu_info(int id);
++
+ #endif /* !__ASSEMBLY__ */
  
- /*
-  * noexec = on|off
+ #else /* CONFIG_SMP */
+===================================================================
+--- a/arch/i386/kernel/smpboot.c
++++ b/arch/i386/kernel/smpboot.c
+@@ -148,7 +148,7 @@ void __init smp_alloc_memory(void)
+  * a given CPU
+  */
+ 
+-static void __cpuinit smp_store_cpu_info(int id)
++void __cpuinit smp_store_cpu_info(int id)
+ {
+ 	struct cpuinfo_x86 *c = cpu_data + id;
+ 
 
 -- 
