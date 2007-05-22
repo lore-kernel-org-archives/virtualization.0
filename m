@@ -1,10 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 04/33] xen: paravirt: unstatic leave_mm
-Date: Tue, 22 May 2007 15:09:45 +0100
-Message-ID: <20070522141251.160703868@goop.org>
+Subject: [patch 01/33] xen: paravirt: add an "mm" argument to
+	alloc_pt
+Date: Tue, 22 May 2007 15:09:42 +0100
+Message-ID: <20070522141250.783758019@goop.org>
 References: <20070522140941.802382212@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=paravirt-unstatic-leave_mm.patch
+Content-Disposition: inline; filename=paravirt-add-mm-to-alloc_pt.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -17,54 +18,107 @@ To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make globally leave_mm visible, specifically so that Xen can use it to
-shoot-down lazy uses of cr3.
+It's useful to know which mm is allocating a pagetable.  Xen uses this
+to determine whether the pagetable being added to is pinned or not.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- arch/i386/kernel/smp.c         |    5 +++--
- include/asm-i386/mmu_context.h |    2 ++
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ arch/i386/kernel/vmi.c      |    2 +-
+ arch/i386/mm/init.c         |    2 +-
+ arch/i386/mm/pageattr.c     |    2 +-
+ include/asm-i386/paravirt.h |    8 ++++----
+ include/asm-i386/pgalloc.h  |    6 +++---
+ 5 files changed, 10 insertions(+), 10 deletions(-)
 
 ===================================================================
---- a/include/asm-i386/mmu_context.h
-+++ b/include/asm-i386/mmu_context.h
-@@ -31,6 +31,8 @@ static inline void enter_lazy_tlb(struct
- 		per_cpu(cpu_tlbstate, cpu).state = TLBSTATE_LAZY;
- #endif
+--- a/arch/i386/kernel/vmi.c
++++ b/arch/i386/kernel/vmi.c
+@@ -361,7 +361,7 @@ static void *vmi_kmap_atomic_pte(struct 
  }
-+
-+void leave_mm (unsigned long cpu);
+ #endif
  
- static inline void switch_mm(struct mm_struct *prev,
- 			     struct mm_struct *next,
-===================================================================
---- a/arch/i386/kernel/smp.c
-+++ b/arch/i386/kernel/smp.c
-@@ -22,6 +22,7 @@
- 
- #include <asm/mtrr.h>
- #include <asm/tlbflush.h>
-+#include <asm/mmu_context.h>
- #include <mach_apic.h>
- 
- /*
-@@ -249,13 +250,13 @@ static DEFINE_SPINLOCK(tlbstate_lock);
- static DEFINE_SPINLOCK(tlbstate_lock);
- 
- /*
-- * We cannot call mmdrop() because we are in interrupt context, 
-+ * We cannot call mmdrop() because we are in interrupt context,
-  * instead update mm->cpu_vm_mask.
-  *
-  * We need to reload %cr3 since the page tables may be going
-  * away from under us..
-  */
--static inline void leave_mm (unsigned long cpu)
-+void leave_mm (unsigned long cpu)
+-static void vmi_allocate_pt(u32 pfn)
++static void vmi_allocate_pt(struct mm_struct *mm, u32 pfn)
  {
- 	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
- 		BUG();
+ 	vmi_set_page_type(pfn, VMI_PAGE_L1);
+ 	vmi_ops.allocate_page(pfn, VMI_PAGE_L1, 0, 0, 0);
+===================================================================
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -87,7 +87,7 @@ static pte_t * __init one_page_table_ini
+ 	if (!(pmd_val(*pmd) & _PAGE_PRESENT)) {
+ 		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+ 
+-		paravirt_alloc_pt(__pa(page_table) >> PAGE_SHIFT);
++		paravirt_alloc_pt(&init_mm, __pa(page_table) >> PAGE_SHIFT);
+ 		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+ 		BUG_ON(page_table != pte_offset_kernel(pmd, 0));
+ 	}
+===================================================================
+--- a/arch/i386/mm/pageattr.c
++++ b/arch/i386/mm/pageattr.c
+@@ -60,7 +60,7 @@ static struct page *split_large_page(uns
+ 	address = __pa(address);
+ 	addr = address & LARGE_PAGE_MASK; 
+ 	pbase = (pte_t *)page_address(base);
+-	paravirt_alloc_pt(page_to_pfn(base));
++	paravirt_alloc_pt(&init_mm, page_to_pfn(base));
+ 	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
+                set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
+                                           addr == address ? prot : ref_prot));
+===================================================================
+--- a/include/asm-i386/paravirt.h
++++ b/include/asm-i386/paravirt.h
+@@ -173,7 +175,7 @@ struct paravirt_ops
+ 				 unsigned long va);
+ 
+ 	/* Hooks for allocating/releasing pagetable pages */
+-	void (*alloc_pt)(u32 pfn);
++	void (*alloc_pt)(struct mm_struct *mm, u32 pfn);
+ 	void (*alloc_pd)(u32 pfn);
+ 	void (*alloc_pd_clone)(u32 pfn, u32 clonepfn, u32 start, u32 count);
+ 	void (*release_pt)(u32 pfn);
+@@ -738,9 +746,9 @@ static inline void flush_tlb_others(cpum
+ 	PVOP_VCALL3(flush_tlb_others, &cpumask, mm, va);
+ }
+ 
+-static inline void paravirt_alloc_pt(unsigned pfn)
+-{
+-	PVOP_VCALL1(alloc_pt, pfn);
++static inline void paravirt_alloc_pt(struct mm_struct *mm, unsigned pfn)
++{
++	PVOP_VCALL2(alloc_pt, mm, pfn);
+ }
+ static inline void paravirt_release_pt(unsigned pfn)
+ {
+===================================================================
+--- a/include/asm-i386/pgalloc.h
++++ b/include/asm-i386/pgalloc.h
+@@ -7,7 +7,7 @@
+ #ifdef CONFIG_PARAVIRT
+ #include <asm/paravirt.h>
+ #else
+-#define paravirt_alloc_pt(pfn) do { } while (0)
++#define paravirt_alloc_pt(mm, pfn) do { } while (0)
+ #define paravirt_alloc_pd(pfn) do { } while (0)
+ #define paravirt_alloc_pd(pfn) do { } while (0)
+ #define paravirt_alloc_pd_clone(pfn, clonepfn, start, count) do { } while (0)
+@@ -17,13 +17,13 @@
+ 
+ #define pmd_populate_kernel(mm, pmd, pte)			\
+ do {								\
+-	paravirt_alloc_pt(__pa(pte) >> PAGE_SHIFT);		\
++	paravirt_alloc_pt(mm, __pa(pte) >> PAGE_SHIFT);		\
+ 	set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)));		\
+ } while (0)
+ 
+ #define pmd_populate(mm, pmd, pte) 				\
+ do {								\
+-	paravirt_alloc_pt(page_to_pfn(pte));			\
++	paravirt_alloc_pt(mm, page_to_pfn(pte));		\
+ 	set_pmd(pmd, __pmd(_PAGE_TABLE +			\
+ 		((unsigned long long)page_to_pfn(pte) <<	\
+ 			(unsigned long long) PAGE_SHIFT)));	\
 
 -- 
