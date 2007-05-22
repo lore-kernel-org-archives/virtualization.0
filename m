@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 22/33] xen: Add support for preemption
-Date: Tue, 22 May 2007 15:10:03 +0100
-Message-ID: <20070522141252.703932136@goop.org>
+Subject: [patch 23/33] xen: xen: lazy-mmu operations
+Date: Tue, 22 May 2007 15:10:04 +0100
+Message-ID: <20070522141252.968563938@goop.org>
 References: <20070522140941.802382212@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=xen-preempt.patch
+Content-Disposition: inline; filename=xen-lazy-mmu.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -17,377 +17,197 @@ To: Andrew Morton <akpm@linux-foundation.org>, Andi Kleen <ak@suse.de>
 Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add Xen support for preemption.  This is mostly a cleanup of existing
-preempt_enable/disable calls, or just comments to explain the current
-usage.
+This patch uses the lazy-mmu hooks to batch mmu operations where
+possible.  This is primarily useful for batching operations applied to
+active pagetables, which happens during mprotect, munmap, mremap and
+the like (mmap does not do bulk pagetable operations, so it isn't
+helped).
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Acked-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- arch/i386/xen/Kconfig      |    2 
- arch/i386/xen/enlighten.c  |  105 +++++++++++++++++++++++++-------------------
- arch/i386/xen/mmu.c        |    4 +
- arch/i386/xen/multicalls.c |   11 ++--
- arch/i386/xen/time.c       |   22 +++++++--
- 5 files changed, 89 insertions(+), 55 deletions(-)
+ arch/i386/xen/enlighten.c  |   56 +++++++++++++++++++++++++++-----------------
+ arch/i386/xen/mmu.c        |   56 ++++++++++++++++++++++++++++++++------------
+ arch/i386/xen/multicalls.c |    4 +--
+ 3 files changed, 78 insertions(+), 38 deletions(-)
 
-===================================================================
---- a/arch/i386/xen/Kconfig
-+++ b/arch/i386/xen/Kconfig
-@@ -4,7 +4,7 @@
- 
- config XEN
- 	bool "Enable support for Xen hypervisor"
--	depends on PARAVIRT && !PREEMPT
-+	depends on PARAVIRT
- 	help
- 	  This is the Linux Xen port.  Enabling this will allow the
- 	  kernel to boot in a paravirtualized environment under the
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -15,6 +15,7 @@
- #include <linux/init.h>
- #include <linux/smp.h>
- #include <linux/preempt.h>
-+#include <linux/hardirq.h>
- #include <linux/percpu.h>
- #include <linux/delay.h>
- #include <linux/start_kernel.h>
-@@ -108,11 +109,10 @@ static unsigned long xen_save_fl(void)
- 	struct vcpu_info *vcpu;
- 	unsigned long flags;
+@@ -451,28 +451,38 @@ static void xen_apic_write(unsigned long
  
--	preempt_disable();
- 	vcpu = x86_read_percpu(xen_vcpu);
-+
- 	/* flag has opposite sense of mask */
- 	flags = !vcpu->evtchn_upcall_mask;
--	preempt_enable();
- 
- 	/* convert to IF type flag
- 	   -0 -> 0x00000000
-@@ -125,51 +125,56 @@ static void xen_restore_fl(unsigned long
+ static void xen_flush_tlb(void)
  {
- 	struct vcpu_info *vcpu;
- 
--	preempt_disable();
+-	struct mmuext_op op;
 -
- 	/* convert from IF type flag */
- 	flags = !(flags & X86_EFLAGS_IF);
+-	op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
 +
-+	/* There's a one instruction preempt window here.  We need to
-+	   make sure we're don't switch CPUs between getting the vcpu
-+	   pointer and updating the mask. */
-+	preempt_disable();
- 	vcpu = x86_read_percpu(xen_vcpu);
- 	vcpu->evtchn_upcall_mask = flags;
-+	preempt_enable_no_resched();
++	op = mcs.args;
++	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
 +
-+	/* Doesn't matter if we get preempted here, because any
-+	   pending event will get dealt with anyway. */
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
  
- 	if (flags == 0) {
--		/* Unmask then check (avoid races).  We're only protecting
--		   against updates by this CPU, so there's no need for
--		   anything stronger. */
--		barrier();
+ static void xen_flush_tlb_single(unsigned long addr)
+ {
+-	struct mmuext_op op;
 -
-+		preempt_check_resched();
-+		barrier(); /* unmask then check (avoid races) */
- 		if (unlikely(vcpu->evtchn_upcall_pending))
- 			force_evtchn_callback();
--		preempt_enable();
--	} else
--		preempt_enable_no_resched();
+-	op.cmd = MMUEXT_INVLPG_LOCAL;
+-	op.arg1.linear_addr = addr & PAGE_MASK;
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++	struct mmuext_op *op;
++	struct multicall_space mcs = xen_mc_entry(sizeof(*op));
++
++	op = mcs.args;
++	op->cmd = MMUEXT_INVLPG_LOCAL;
++	op->arg1.linear_addr = addr & PAGE_MASK;
++	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
+ 
+ static void xen_flush_tlb_others(const cpumask_t *cpus, struct mm_struct *mm,
+ 				 unsigned long va)
+ {
+-	struct mmuext_op op;
++	struct {
++		struct mmuext_op op;
++		cpumask_t mask;
++	} *args;
+ 	cpumask_t cpumask = *cpus;
++	struct multicall_space mcs;
+ 
+ 	/*
+ 	 * A couple of (to be removed) sanity checks:
+@@ -489,17 +499,21 @@ static void xen_flush_tlb_others(const c
+ 	if (cpus_empty(cpumask))
+ 		return;
+ 
++	mcs = xen_mc_entry(sizeof(*args));
++	args = mcs.args;
++	args->mask = cpumask;
++	args->op.arg2.vcpumask = &args->mask;
++
+ 	if (va == TLB_FLUSH_ALL) {
+-		op.cmd = MMUEXT_TLB_FLUSH_MULTI;
+-		op.arg2.vcpumask = (void *)cpus;
++		args->op.cmd = MMUEXT_TLB_FLUSH_MULTI;
+ 	} else {
+-		op.cmd = MMUEXT_INVLPG_MULTI;
+-		op.arg1.linear_addr = va;
+-		op.arg2.vcpumask = (void *)cpus;
+-	}
+-
+-	if (HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF))
+-		BUG();
++		args->op.cmd = MMUEXT_INVLPG_MULTI;
++		args->op.arg1.linear_addr = va;
 +	}
++
++	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
  }
  
- static void xen_irq_disable(void)
- {
-+	/* There's a one instruction preempt window here.  We need to
-+	   make sure we're don't switch CPUs between getting the vcpu
-+	   pointer and updating the mask. */
-+	preempt_disable();
-+	x86_read_percpu(xen_vcpu)->evtchn_upcall_mask = 1;
-+	preempt_enable_no_resched();
-+}
-+
-+static void xen_irq_enable(void)
-+{
- 	struct vcpu_info *vcpu;
--	preempt_disable();
--	vcpu = x86_read_percpu(xen_vcpu);
--	vcpu->evtchn_upcall_mask = 1;
--	preempt_enable_no_resched();
--}
--
--static void xen_irq_enable(void)
--{
--	struct vcpu_info *vcpu;
--
-+
-+	/* There's a one instruction preempt window here.  We need to
-+	   make sure we're don't switch CPUs between getting the vcpu
-+	   pointer and updating the mask. */
- 	preempt_disable();
- 	vcpu = x86_read_percpu(xen_vcpu);
- 	vcpu->evtchn_upcall_mask = 0;
--
--	/* Unmask then check (avoid races).  We're only protecting
--	   against updates by this CPU, so there's no need for
--	   anything stronger. */
--	barrier();
--
-+	preempt_enable_no_resched();
-+
-+	/* Doesn't matter if we get preempted here, because any
-+	   pending event will get dealt with anyway. */
-+
-+	barrier(); /* unmask then check (avoid races) */
- 	if (unlikely(vcpu->evtchn_upcall_pending))
- 		force_evtchn_callback();
--	preempt_enable();
- }
- 
- static void xen_safe_halt(void)
-@@ -189,6 +194,8 @@ static void xen_halt(void)
- 
- static void xen_set_lazy_mode(enum paravirt_lazy_mode mode)
- {
-+	BUG_ON(preemptible());
-+
- 	switch(mode) {
- 	case PARAVIRT_LAZY_NONE:
- 		BUG_ON(x86_read_percpu(xen_lazy_mode) == PARAVIRT_LAZY_NONE);
-@@ -292,12 +299,17 @@ static void xen_write_ldt_entry(struct d
- 	xmaddr_t mach_lp = virt_to_machine(lp);
- 	u64 entry = (u64)high << 32 | low;
- 
-+	preempt_disable();
-+
- 	xen_mc_flush();
- 	if (HYPERVISOR_update_descriptor(mach_lp.maddr, entry))
- 		BUG();
--}
--
--static int cvt_gate_to_trap(int vector, u32 low, u32 high, struct trap_info *info)
-+
-+	preempt_enable();
-+}
-+
-+static int cvt_gate_to_trap(int vector, u32 low, u32 high,
-+			    struct trap_info *info)
- {
- 	u8 type, dpl;
- 
-@@ -325,11 +337,13 @@ static DEFINE_PER_CPU(struct Xgt_desc_st
-    also update Xen. */
- static void xen_write_idt_entry(struct desc_struct *dt, int entrynum, u32 low, u32 high)
- {
--
--	int cpu = smp_processor_id();
- 	unsigned long p = (unsigned long)&dt[entrynum];
--	unsigned long start = per_cpu(idt_desc, cpu).address;
--	unsigned long end = start + per_cpu(idt_desc, cpu).size + 1;
-+	unsigned long start, end;
-+
-+	preempt_disable();
-+
-+	start = __get_cpu_var(idt_desc).address;
-+	end = start + __get_cpu_var(idt_desc).size + 1;
- 
- 	xen_mc_flush();
- 
-@@ -344,6 +358,8 @@ static void xen_write_idt_entry(struct d
- 			if (HYPERVISOR_set_trap_table(info))
- 				BUG();
- 	}
-+
-+	preempt_enable();
- }
- 
- static void xen_convert_trap_info(const struct Xgt_desc_struct *desc,
-@@ -365,11 +381,9 @@ static void xen_convert_trap_info(const 
- 
- void xen_copy_trap_info(struct trap_info *traps)
- {
--	const struct Xgt_desc_struct *desc = &get_cpu_var(idt_desc);
-+	const struct Xgt_desc_struct *desc = &__get_cpu_var(idt_desc);
- 
- 	xen_convert_trap_info(desc, traps);
--
--	put_cpu_var(idt_desc);
- }
- 
- /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
-@@ -379,11 +393,10 @@ static void xen_load_idt(const struct Xg
- {
- 	static DEFINE_SPINLOCK(lock);
- 	static struct trap_info traps[257];
--	int cpu = smp_processor_id();
--
--	per_cpu(idt_desc, cpu) = *desc;
- 
- 	spin_lock(&lock);
-+
-+	__get_cpu_var(idt_desc) = *desc;
- 
- 	xen_convert_trap_info(desc, traps);
- 
-@@ -398,6 +411,8 @@ static void xen_load_idt(const struct Xg
-    they're handled differently. */
- static void xen_write_gdt_entry(struct desc_struct *dt, int entry, u32 low, u32 high)
- {
-+	preempt_disable();
-+
- 	switch ((high >> 8) & 0xff) {
- 	case DESCTYPE_LDT:
- 	case DESCTYPE_TSS:
-@@ -414,10 +429,12 @@ static void xen_write_gdt_entry(struct d
- 	}
- 
- 	}
-+
-+	preempt_enable();
- }
- 
- static void xen_load_esp0(struct tss_struct *tss,
--				   struct thread_struct *thread)
-+			  struct thread_struct *thread)
- {
- 	struct multicall_space mcs = xen_mc_entry(0);
- 	MULTI_stack_switch(mcs.mc, __KERNEL_DS, thread->esp0);
-@@ -521,6 +538,8 @@ static unsigned long xen_read_cr3(void)
- 
- static void xen_write_cr3(unsigned long cr3)
- {
-+	BUG_ON(preemptible());
-+
- 	if (cr3 == x86_read_percpu(xen_cr3)) {
- 		/* just a simple tlb flush */
- 		xen_flush_tlb();
+ static unsigned long xen_read_cr2(void)
 ===================================================================
 --- a/arch/i386/xen/mmu.c
 +++ b/arch/i386/xen/mmu.c
-@@ -529,5 +529,7 @@ void xen_exit_mmap(struct mm_struct *mm)
- 	drop_mm_ref(mm);
- 	put_cpu();
+@@ -56,12 +56,20 @@ void make_lowmem_page_readwrite(void *va
  
-+	spin_lock(&mm->page_table_lock);
- 	xen_pgd_unpin(mm->pgd);
--}
-+	spin_unlock(&mm->page_table_lock);
-+}
+ void xen_set_pmd(pmd_t *ptr, pmd_t val)
+ {
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pmd_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	struct multicall_space mcs;
++	struct mmu_update *u;
++
++	preempt_disable();
++
++	mcs = xen_mc_entry(sizeof(*u));
++	u = mcs.args;
++	u->ptr = virt_to_machine(ptr).maddr;
++	u->val = pmd_val_ma(val);
++	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
++
++	preempt_enable();
+ }
+ 
+ /*
+@@ -104,20 +112,38 @@ void xen_set_pte_at(struct mm_struct *mm
+ void xen_set_pte_at(struct mm_struct *mm, unsigned long addr,
+ 		    pte_t *ptep, pte_t pteval)
+ {
+-	if ((mm != current->mm && mm != &init_mm) ||
+-	    HYPERVISOR_update_va_mapping(addr, pteval, 0) != 0)
+-		xen_set_pte(ptep, pteval);
++	if (mm == current->mm || mm == &init_mm) {
++		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
++			struct multicall_space mcs;
++			mcs = xen_mc_entry(0);
++
++			MULTI_update_va_mapping(mcs.mc, addr, pteval, 0);
++			xen_mc_issue(PARAVIRT_LAZY_MMU);
++			return;
++		} else
++			if (HYPERVISOR_update_va_mapping(addr, pteval, 0) == 0)
++				return;
++	}
++	xen_set_pte(ptep, pteval);
+ }
+ 
+ #ifdef CONFIG_X86_PAE
+ void xen_set_pud(pud_t *ptr, pud_t val)
+ {
+-	struct mmu_update u;
+-
+-	u.ptr = virt_to_machine(ptr).maddr;
+-	u.val = pud_val_ma(val);
+-	if (HYPERVISOR_mmu_update(&u, 1, NULL, DOMID_SELF) < 0)
+-		BUG();
++	struct multicall_space mcs;
++	struct mmu_update *u;
++
++	preempt_disable();
++
++	mcs = xen_mc_entry(sizeof(*u));
++	u = mcs.args;
++	u->ptr = virt_to_machine(ptr).maddr;
++	u->val = pud_val_ma(val);
++	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++
++	xen_mc_issue(PARAVIRT_LAZY_MMU);
++
++	preempt_enable();
+ }
+ 
+ void xen_set_pte(pte_t *ptep, pte_t pte)
 ===================================================================
 --- a/arch/i386/xen/multicalls.c
 +++ b/arch/i386/xen/multicalls.c
-@@ -20,6 +20,7 @@
-  * Jeremy Fitzhardinge <jeremy@xensource.com>, XenSource Inc, 2007
-  */
- #include <linux/percpu.h>
-+#include <linux/hardirq.h>
+@@ -5,8 +5,8 @@
  
- #include <asm/xen/hypercall.h>
+ #include "multicalls.h"
  
-@@ -39,9 +40,11 @@ DEFINE_PER_CPU(unsigned long, xen_mc_irq
+-#define MC_BATCH	8
+-#define MC_ARGS		(MC_BATCH * 32 / sizeof(u64))
++#define MC_BATCH	32
++#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
  
- void xen_mc_flush(void)
- {
--	struct mc_buffer *b = &get_cpu_var(mc_buffer);
-+	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
- 	int ret = 0;
- 	unsigned long flags;
-+
-+	BUG_ON(preemptible());
- 
- 	/* Disable interrupts in case someone comes in and queues
- 	   something in the middle */
-@@ -60,7 +63,6 @@ void xen_mc_flush(void)
- 	} else
- 		BUG_ON(b->argidx != 0);
- 
--	put_cpu_var(mc_buffer);
- 	local_irq_restore(flags);
- 
- 	BUG_ON(ret);
-@@ -68,10 +70,11 @@ void xen_mc_flush(void)
- 
- struct multicall_space __xen_mc_entry(size_t args)
- {
--	struct mc_buffer *b = &get_cpu_var(mc_buffer);
-+	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
- 	struct multicall_space ret;
- 	unsigned argspace = (args + sizeof(u64) - 1) / sizeof(u64);
- 
-+	BUG_ON(preemptible());
- 	BUG_ON(argspace > MC_ARGS);
- 
- 	if (b->mcidx == MC_BATCH ||
-@@ -83,7 +86,5 @@ struct multicall_space __xen_mc_entry(si
- 	ret.args = &b->args[b->argidx];
- 	b->argidx += argspace;
- 
--	put_cpu_var(mc_buffer);
--
- 	return ret;
- }
-===================================================================
---- a/arch/i386/xen/time.c
-+++ b/arch/i386/xen/time.c
-@@ -86,7 +86,7 @@ static void get_runstate_snapshot(struct
- 	u64 state_time;
- 	struct vcpu_runstate_info *state;
- 
--	preempt_disable();
-+	BUG_ON(preemptible());
- 
- 	state = &__get_cpu_var(runstate);
- 
-@@ -101,8 +101,6 @@ static void get_runstate_snapshot(struct
- 		*res = *state;
- 		barrier();
- 	} while(get64(&state->state_entry_time) != state_time);
--
--	preempt_enable();
- }
- 
- static void setup_runstate_info(int cpu)
-@@ -177,8 +175,18 @@ unsigned long long xen_sched_clock(void)
- unsigned long long xen_sched_clock(void)
- {
- 	struct vcpu_runstate_info state;
--	cycle_t now = xen_clocksource_read();
-+	cycle_t now;
-+	u64 ret;
- 	s64 offset;
-+
-+	/*
-+	 * Ideally sched_clock should be called on a per-cpu basis
-+	 * anyway, so preempt should already be disabled, but that's
-+	 * not current practice at the moment.
-+	 */
-+	preempt_disable();
-+
-+	now = xen_clocksource_read();
- 
- 	get_runstate_snapshot(&state);
- 
-@@ -188,9 +196,13 @@ unsigned long long xen_sched_clock(void)
- 	if (offset < 0)
- 		offset = 0;
- 
-- 	return state.time[RUNSTATE_blocked] +
-+	ret = state.time[RUNSTATE_blocked] +
-  		state.time[RUNSTATE_running] +
- 		offset;
-+
-+	preempt_enable();
-+
-+	return ret;
- }
- 
- 
+ struct mc_buffer {
+ 	struct multicall_entry entries[MC_BATCH];
 
 -- 
