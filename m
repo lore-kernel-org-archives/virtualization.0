@@ -1,92 +1,45 @@
-From: "Melvin Medrano" <deanvillebe@marlab.dk>
-Subject: was copan she milroy
-Date: Fri, 25 May 2007 18:24:32 +0900
-Message-ID: <001801c79ef9$f0fa2880$06dc3abc@homezsz3jlj1l3>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Extending boot protocol & bzImage for paravirt_ops
+Date: Fri, 25 May 2007 16:06:55 +0100
+Message-ID: <4656FB8F.4090604@goop.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7525198663308421658=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762775AbXEYPHR@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============7525198663308421658==
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0015_01C79EF9.F0FA2880"
+Well, it seems to be about time to have this conversation again.
 
-------=_NextPart_000_0015_01C79EF9.F0FA2880
-Content-Type: text/plain;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+A rough overview of the previous thread and requirements is:
 
+   1. bzImage would not be a bare ELF file, but it would contain an ELF
+      header+file within it
+   2. We need some way to add extra ELF notes into that ELF file
+   3. We use a "paravirtualized" bootloader type, with some other field
+      to determine which hypervisor we're dealing with
+   4. We need to extend the boot info structure to include a pointer to
+      some other hypervisor-specific information
+   5. When started at the 32-bit entrypoint, bzImage expects:
+         1. 32-bit mode
+         2. running in any ring (and ring implies nothing about the
+            environment)
+         3. all segment registers are loaded with flat 4G segments
+         4. there may or may not be a valid GDT (segment registers must
+            not be reloaded until GDT is explicitly set up)
+         5. interrupts disabled
+         6. paging may or may not be enabled; if enabled, it has 1:1
+            mappings where the ELF file's Phdrs say they should be
+   6. When bzImage starts the kernel-proper, it works out how to choose
+      the appropriate boot path based on the boot info structure in %esi
 
+How much of this already exists?  Is there enough to start prototyping with?
 
+What was the problem with ELF bzImage?  Is it confirmed to be
+problematic, or just suspected?  Could we end up using a plain ELF file
+(which would be easiest for me, since I think the existing ELF domain
+builder could pretty much deal with that as-is).
 
-
-Just take a look at this one...
-
-S.ymboL: ADOVCurrent: $0.56 1 Day Target price: $2.50Action: Aggresive =
-Buy/Hold!!!
-
-
-
-500% profit guaranted..
-
-
-
-ADOV has a nice fresh news, virtualization, contact your broker!!
-
-
-
-------=_NextPart_000_0015_01C79EF9.F0FA2880
-Content-Type: text/html;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.2462.2962" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#3300FF size=3D=
-3D4><FONT size=3D2><STRONG>Just take a look at this =
-one!!!</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#0033FF size=3D=
-4>S.ymboL: <b>ADOV</b><br>Current: $0.56 <br>1 Day Target price: =
-$2.50<br>Action: Aggresive Buy/Hold!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0033 size=3D3>500% =
-profit guaranted..</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990000 size=3D4>ADOV =
-has a nice fresh news, virtualization, contact your =
-broker!!!</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0015_01C79EF9.F0FA2880--
-
---===============7525198663308421658==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============7525198663308421658==--
+    J
