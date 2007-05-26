@@ -1,47 +1,89 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Extending boot protocol & bzImage for paravirt_ops
-Date: Sat, 26 May 2007 20:18:11 +1000
-Message-ID: <1180174691.650.8.camel@localhost.localdomain>
-References: <4656FB8F.4090604@goop.org>
-	 <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
+From: "Kendall Burgess" <muenster636@designerspark.com>
+Subject: It mahaska herself kilauea
+Date: Sat, 26 May 2007 14:30:11 +0200
+Message-ID: <001501c79fa2$5e283480$0140f414@pc7d417sq1tyl7>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759400AbXEZKSl@vger.kernel.org>
-In-Reply-To: <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="===============7688698358136818268=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-05-25 at 10:46 -0600, Eric W. Biederman wrote:
-> Most of that though is just packaging.  The meat of the issue
-> is how do we upgrade the bootloader data.  Do the changes
-> below sound like everything we need?
-> 
->  Field name:	loadflags
->  Type:		modify (obligatory)
->  Offset/size:	0x211/1
->  Protocol:	2.00+
->  
->    This field is a bitmask.
->  
->    Bit 0 (read):	LOADED_HIGH
->  	- If 0, the protected-mode code is loaded at 0x10000.
->  	- If 1, the protected-mode code is loaded at 0x100000.
-> 
-> +  Bit 6 (write): KEEP_SEGMENTS
-> +	Protocol: 2.07+
-> +	- if 0, reload the segment registers in the 32bit entry point.
-> +	- if 1, do not reload the segment registers in the 32bit entry point.
-> +		Assume that %cs %ds %ss %es are all set to flat segments with
-> +		a base of 0 (or the equivalent for their environment).
+--===============7688698358136818268==
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0012_01C79FA2.5E283480"
 
-You also want to skip the cli: perhaps a separate flag for this is
-appropriate though.
+------=_NextPart_000_0012_01C79FA2.5E283480
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Rest looks fine from an lguest POV.  We don't need the platform data
-field either, since we use the first hypercall to get that).
 
-Cheers,
-Rusty.
+
+
+
+THE BULL REPORT!
+
+
+Promoting sym: ADOVCurrent: $0.52 3 Day Target price: $2.50Action: =
+Strong buy...
+
+500% profit guaranted!!
+
+
+See the hottest news of the ADOV, virtualization, call your broker!!
+
+
+
+------=_NextPart_000_0012_01C79FA2.5E283480
+Content-Type: text/html;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+iso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2969" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0033 size=3D=
+3D4><FONT size=3D2><STRONG>THE BULL REPORT..</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0000 size=3D=
+4>Promoting sym: <b>ADOV</b><br>Current: $0.52 <br>3 Day Target price: =
+$2.50<br>Action: Strong buy..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF3300 size=3D3>500% =
+profit guaranted..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0000 size=3D4>See =
+the hottest news of the ADOV, virtualization, call your =
+broker..</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_0012_01C79FA2.5E283480--
+
+--===============7688698358136818268==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============7688698358136818268==--
