@@ -1,15 +1,10 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Extending boot protocol & bzImage for paravirt_ops
-Date: Sun, 27 May 2007 01:19:28 +0100
-Message-ID: <4658CE90.5090008@goop.org>
-References: <4656FB8F.4090604@goop.org>
-	<m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
-	<4658C704.2050405@goop.org> <4658CD70.2080702@zytor.com>
+From: "Merle Sheehan" <forestburgh21@compactmultimedia.com>
+Subject: in before hellertown
+Date: Sun, 27 May 2007 17:26:21 +0300
+Message-ID: <001b01c7a084$246fc360$002a965c@home66lu6h4xt6>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8783867320328650231=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4658CD70.2080702@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,23 +12,73 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: virtualization <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-H. Peter Anvin wrote:
-> Pardon me for saying it, but it's hardly a hardship to add support for a
-> single additional constant in existing code.  I'm starting to think this
-> argument is approaching not just the silly, but downright ridiculous.
->   
+--===============8783867320328650231==
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0018_01C7A084.246FC360"
 
-Well, if the existing code is a standard libelf/libbfd, it could be tricky.
+------=_NextPart_000_0018_01C7A084.246FC360
+Content-Type: text/plain;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-> Another option is to have the ELF header at a nonzero offset.
->   
 
-Yes, that's exactly what I'm proposing.
 
-    J
+
+IT IS GOING TO BREAK OUT!!!
+
+Ca.mp.aign for: ADOVCurrent: $0.52 3 Day Target price: $2.50Market: =
+hellish!!
+
+WATCH IT LIKE A HAWK!!
+
+
+ADOV has a nice fresh news, virtualization, contact your broker!!
+
+------=_NextPart_000_0018_01C7A084.246FC360
+Content-Type: text/html;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1252">
+<META content=3D"MSHTML 6.00.3790.1409" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#333366 size=3D3D4><FONT =
+size=3D4><STRONG>IT IS GOING TO BREAK OUT.</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#000066 size=3D=
+4>Ca.mp.aign for: <b>ADOV</b><br>Current: $0.52 <br>3 Day Target price: =
+$2.50<br>Market: hellish!</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#6600FF size=3D2>WATCH IT =
+LIKE A HAWK.</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0066 size=3D3>ADOV has =
+a nice fresh news, virtualization, contact your broker..</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0018_01C7A084.246FC360--
+
+--===============8783867320328650231==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============8783867320328650231==--
