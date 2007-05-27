@@ -1,36 +1,30 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Extending boot protocol & bzImage for paravirt_ops
-Date: Sun, 27 May 2007 10:10:04 +1000
-Message-ID: <1180224604.29340.4.camel@localhost.localdomain>
-References: <4656FB8F.4090604@goop.org>
-	 <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
-	 <1180174691.650.8.camel@localhost.localdomain>  <4658C72E.9030205@goop.org>
+Date: Sat, 26 May 2007 17:14:40 -0700
+Message-ID: <4658CD70.2080702@zytor.com>
+References: <4656FB8F.4090604@goop.org> <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com> <4658C704.2050405@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754968AbXE0AKb@vger.kernel.org>
-In-Reply-To: <4658C72E.9030205@goop.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756873AbXE0AO7@vger.kernel.org>
+In-Reply-To: <4658C704.2050405@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Chris Wright <chrisw@sous-sol.org>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2007-05-27 at 00:47 +0100, Jeremy Fitzhardinge wrote:
-> Rusty Russell wrote:
-> > You also want to skip the cli: perhaps a separate flag for this is
-> > appropriate though.
-> >   
+Jeremy Fitzhardinge wrote:
 > 
-> Not a problem for Xen; it will be trapped+emulated (ie, ignored).
+> I'd really prefer to keep an intact embedded ELF file rather than have a
+> semi-ELF file.  That way it would be easier to simply load the image and
+> point the normal ELF machinery at some offset into the file rather than
+> having to have a special handler for "\x7fBZE" or whatever.
+> 
 
-Well, I could do that for lguest as a special case, I guess.  Seems icky
-tho.
+Pardon me for saying it, but it's hardly a hardship to add support for a
+single additional constant in existing code.  I'm starting to think this
+argument is approaching not just the silly, but downright ridiculous.
 
-hpa wrote:
-> Do we have *any* environment that enters the 32-bit code with interrupts
-> enabled?  I would think that is unsafe no matter how you do it.
+Another option is to have the ELF header at a nonzero offset.
 
-Yeah, the cli there seems strange: maybe it's safe to simply delete it?
-
-Cheers,
-Rusty.
+	-hpa
