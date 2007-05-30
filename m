@@ -1,15 +1,13 @@
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: RE: [kvm-devel] [PATCH 3/3] Eliminate read_cr3 on TLB flush
-Date: Wed, 30 May 2007 10:11:59 -0700
-Message-ID: <97D612E30E1F88419025B06CB4CF1BE10259AB81__10218.3025599972$1180545166$gmane$org@scsmsx412.amr.corp.intel.com>
-References: <465D9A77.90505@goop.org>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [kvm-devel] [PATCH 3/3] Eliminate read_cr3 on TLB flush
+Date: Wed, 30 May 2007 10:58:33 -0700
+Message-ID: <465DBB49.5030503__31465.9165255309$1180548395$gmane$org@vmware.com>
+References: <97D612E30E1F88419025B06CB4CF1BE10259AB81@scsmsx412.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <465D9A77.90505@goop.org>
+In-Reply-To: <97D612E30E1F88419025B06CB4CF1BE10259AB81@scsmsx412.amr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,26 +17,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Anthony Liguori <aliguori@us.ibm.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Anthony Liguori wrote:
-> > Sure.  It adds a few more cycles onto native though (two memory
-reads,
-> > and some math).
-> 
-> As opposed to a serializing control-register read?  I think that's
-> probably a win.
-> 
->     J
-> 
+Nakajima, Jun wrote:
+> And actually you don't need the write to CR3 to flush TLB because the
+> one to CR4 does it. Or does kvm_flush_tlb_kernel assume that CR3 is
+> updated at the same time?
+>
+> Jun
 
-And actually you don't need the write to CR3 to flush TLB because the
-one to CR4 does it. Or does kvm_flush_tlb_kernel assume that CR3 is
-updated at the same time?
+It should not be necessary, but I believe this was added as a workaround 
+to a PII erratum.  I can't find the erratum, however, and the history of 
+using G bits in Linux is complicated (several bugs introduced and many 
+intermediate versions of this code).  Since this is not performance 
+critical, I think it is probably best to leave the CR3 reload.
 
-Jun
----
-Intel Open Source Technology Center
+However, being unnecessary on modern processors, I already submitted a 
+patch to eliminate it on 64-bit (or maybe just told Andi about it, I 
+can't recall).
+
+Zach
