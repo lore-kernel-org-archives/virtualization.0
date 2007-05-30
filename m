@@ -1,60 +1,26 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [kvm-devel] [PATCH 3/3] Eliminate read_cr3 on TLB flush
-Date: Wed, 30 May 2007 17:03:33 -0500
-Message-ID: <465DF4B5.40705__44950.4020777114$1180562663$gmane$org@us.ibm.com>
-References: <97D612E30E1F88419025B06CB4CF1BE10259AE6D@scsmsx412.amr.corp.intel.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: Extending boot protocol & bzImage for paravirt_ops
+Date: Wed, 30 May 2007 16:16:55 -0700
+Message-ID: <465E05E7.20409@goop.org>
+References: <4656FB8F.4090604@goop.org> <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <97D612E30E1F88419025B06CB4CF1BE10259AE6D@scsmsx412.amr.corp.intel.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757879AbXE3XRd@vger.kernel.org>
+In-Reply-To: <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Vivek Goyal <vgoyal@in.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Nakajima, Jun wrote:
-> Anthony Liguori wrote:
->   
->
-> Given the optimizations for CPU virtualization in the current H/W, I'm
-> not sure if such hooks are useful. Do you have any performance data that
-> justify such hooks? 
+Eric W. Biederman wrote:
+> I think we should start there and be prepared to munge the ELF
+> magic number if there are problems.  Placing ELF notes is going
+> to require a little work but mostly it should be a matter of
+> copying the from vmlinux.
 >   
 
-No, I don't.  It was just a thought that was yet to be confirmed.
+Do you have a semi-current ELF bzImage patch on hand I can start playing
+with?
 
-Regards,
-
-Anthony Liguori
-
->> Regards,
->>
->> Anthony Liguori
->>
->>     
->
->
-> Jun
-> ---
-> Intel Open Source Technology Center
->
-> -------------------------------------------------------------------------
-> This SF.net email is sponsored by DB2 Express
-> Download DB2 Express C - the FREE version of DB2 express and take
-> control of your XML. No limits. Just data. Click to get it now.
-> http://sourceforge.net/powerbar/db2/
-> _______________________________________________
-> kvm-devel mailing list
-> kvm-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/kvm-devel
->
->   
+    J
