@@ -1,14 +1,13 @@
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: RE: [kvm-devel] [PATCH 3/3] Eliminate read_cr3 on TLB flush
-Date: Wed, 30 May 2007 13:40:07 -0700
-Message-ID: <97D612E30E1F88419025B06CB4CF1BE10259AE6D__39352.7395827279$1180557705$gmane$org@scsmsx412.amr.corp.intel.com>
-References: <465DCED8.4080506@us.ibm.com>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [kvm-devel] [PATCH 3/3] Eliminate read_cr3 on TLB flush
+Date: Wed, 30 May 2007 14:49:03 -0700
+Message-ID: <465DF14F.4020709__3596.75919539786$1180562209$gmane$org@vmware.com>
+References: <97D612E30E1F88419025B06CB4CF1BE10259AD95@scsmsx412.amr.corp.intel.com>
+	<465DCED8.4080506@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
 In-Reply-To: <465DCED8.4080506@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,35 +23,16 @@ Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foun
 List-Id: virtualization@lists.linuxfoundation.org
 
 Anthony Liguori wrote:
-> Nakajima, Jun wrote:
-
-<snip>
-
-> > For KVM, it should be okay as well. But we can replace two CR4
-accesses
-> > with just one hypercall. 
-> > 
-> 
+>
 > I was thinking the same thing :-)
-> 
-> I was actually thinking about adding a hypercall to set/clear a bit in
-a
-> control register.  The thought here is that it would be useful not
-just
-> for the global bit but also for CR0.TS although we would need another
-> paravirt_op hook for stts.
+>
+> I was actually thinking about adding a hypercall to set/clear a bit in 
+> a control register.  The thought here is that it would be useful not 
+> just for the global bit but also for CR0.TS although we would need 
+> another paravirt_op hook for stts.
 
-Given the optimizations for CPU virtualization in the current H/W, I'm
-not sure if such hooks are useful. Do you have any performance data that
-justify such hooks? 
+You don't need STTS: just cache CR0 value on writes and replace 
+read_cr0.  More paravirt_op hooks would likely be frowned upon, we've 
+already got too many.
 
-> 
-> Regards,
-> 
-> Anthony Liguori
-> 
-
-
-Jun
----
-Intel Open Source Technology Center
+Zach
