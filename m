@@ -1,59 +1,58 @@
-From: "Nakajima, Jun" <jun.nakajima-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/3] KVM paravirt_ops infrastructure
-Date: Wed, 30 May 2007 12:04:23 -0700
-Message-ID: <97D612E30E1F88419025B06CB4CF1BE10259AD83@scsmsx412.amr.corp.intel.com>
-References: <465DBE3A.6030908@us.ibm.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: RE: [kvm-devel] [PATCH 3/3] Eliminate read_cr3 on TLB flush
+Date: Wed, 30 May 2007 12:12:07 -0700
+Message-ID: <97D612E30E1F88419025B06CB4CF1BE10259AD95__30879.2683099911$1180552393$gmane$org@scsmsx412.amr.corp.intel.com>
+References: <465DBB49.5030503@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-class: urn:content-classes:message
-In-Reply-To: <465DBE3A.6030908-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
+In-Reply-To: <465DBB49.5030503@vmware.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
+Zachary Amsden wrote:
 > Nakajima, Jun wrote:
-> > Anthony Liguori wrote:
+> > And actually you don't need the write to CR3 to flush TLB because
+the
+> > one to CR4 does it. Or does kvm_flush_tlb_kernel assume that CR3 is
+updated
+> > at the same time? 
 > > 
-> > > Regards,
-> > > 
-> > > Anthony Liguori
-> > > 
-> > 
-> > I think we should use the CPUID instruction (leaf 0x40000000) to
-detect
-> > the hypervosor as we are doing in Xen.
-> > 
+> > Jun
 > 
-> Is that leaf reserved for such use by Intel?
-> 
+> It should not be necessary, but I believe this was added as a
+workaround
+> to a PII erratum.  I can't find the erratum, however, and the history
+of
+> using G bits in Linux is complicated (several bugs introduced and many
+> intermediate versions of this code).  Since this is not performance
+> critical, I think it is probably best to leave the CR3 reload.
 
-What I can say is that we (including the H/W teams) reviewed it
-internally.
+I don't recommend this for old processors.
 
-> Regards,
 > 
-> Anthony Liguori
+> However, being unnecessary on modern processors, I already submitted a
+> patch to eliminate it on 64-bit (or maybe just told Andi about it, I
+> can't recall).
 > 
+> Zach
 
+For KVM, it should be okay as well. But we can replace two CR4 accesses
+with just one hypercall.
 
 Jun
 ---
 Intel Open Source Technology Center
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
