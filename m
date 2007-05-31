@@ -1,14 +1,10 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [kvm-devel] [PATCH 1/3] KVM paravirt_ops infrastructure
-Date: Wed, 30 May 2007 20:15:33 -0500
-Message-ID: <465E21B5.1090605@codemonkey.ws>
-References: <465D8F03.7000201@us.ibm.com> <465D8FA7.9050600@us.ibm.com>
-	<1180573347.30202.135.camel@localhost.localdomain>
+From: "Aisha@ml.com" <virtualization@lists.osdl.org>
+Subject: Market Usa
+Date: Wed, 30 May 2007 19:04:58 -0700
+Message-ID: <20070531160453.6463.qmail@anh_tam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3901230038228216270=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1180573347.30202.135.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,123 +12,161 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.osdl.org>, Anthony Liguori <aliguori@us.ibm.com>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Wed, 2007-05-30 at 09:52 -0500, Anthony Liguori wrote:
->   
->> This patch adds the basic infrastructure for paravirtualizing a KVM
->> guest.
->>     
->
-> Hi Anthony!
->
-> 	Nice patch, comments below.
->
->   
->> Discovery of running under KVM is done by sharing a page of memory
->> between
->> the guest and host (initially through an MSR write).
->>     
->
-> I missed the shared page in this patch?  If you are going to do that,
-> perhaps putting the hypercall magic in that page is a good idea?
->   
+--===============3901230038228216270==
+Content-Type: text/html
 
-para_state is the shared page.  The address is passed to the KVM via the 
-MSR (so it's a shared page owned by the guest).
+<style>
 
->> +extern unsigned char hypercall_addr[4];
->>     
+<!I have been lowcarbing for about 3months (had a week off over xmas) however,
+back on induction....
+
+If i do a small amount of cardio e.g 30 - 40 mins Bike; after - the endorphins
+seem to flow and i don't feel too bad.  However, if i do resistance training i
+seem to feel really drained of energy and i am overcome by a generall feeling
+of unwellness.
+
+After resistance training today (feeling drained)i went and ate a low carb
+breakfast, which seemed to pick me up but throughout the day i have still felt
+pretty shitty...
+
+Help anyone?  I know this post is prob a bit vague but im hoping its just a
+common hurdle that people know about...........
+
+Wayne
+
+><!HAHAHAHAHA. This cross-dressing loony is turning out to be a godsend
+for the liberals.
+
+
+(snip)
+
+After we bomb North Korea, what's the next country we should invade?
+
+"Iran. Though that's the beauty part of Iraq: It may well not be
+necessary. Because precisely what I'm saying with nuking North
+Korea-despite that wonderful peace deal Madeline Albright negotiated
+with the North Koreans, six seconds before they feverishly began
+developing nuclear weapons. They're a major threat. I just think it
+would be fun to nuke them and have it be a warning to the rest of the
+world."
+
+(snip)
+><
+I'm gonna say I could take Ray Romano. Just 'cause I really want to. Here 
+are my faves from the above page:
+
+The Onion: Who could you take in a fight?
+
+Conan O'Brien: Let's see, who could I take in a fight? Definitely Ruth 
+Bader Ginsburg. Have you seen her? Her upper body is very frail. I think I 
+could take her if she was sleepy and I had a two-by-four. She'd go down 
+quickly.
+
+
+
+The Onion: Who could you take in a fight?
+
+Emo Philips: Hawking, Reeve. Not at the same time.
+
+-- 
+ironcladlou, keeper of faq, bringer of poop humor
+
+"You are a pitiful excuses for a human beings."  - tzakol
+><!Hi,
+
+I was wondering what is the best way to find out the person to whom a coat 
+of arms was granted. I have a list from Burke's Armory of Perry/Pery Arms 
+that were granted (about 15 in total) but most of them don't say which 
+particular person the Arms were granted to, although I know one or two of 
+them. I have found one of the families in the Herald's visitations, but it 
+doesn't say to whom the arms were granted, is the earliest person in the 
+pedigree the original bearer of the arms? I realise I can apply to the 
+College of Arms, but I was hoping there would be a slightly more inexpensive 
+option!
+
+Thanks
+
+Vicki
+
+_________________________________________________________________
+Match.com - Click Here To Find Singles In Your Area Today!  
+
 >
-> Perhaps in a header?
+
+<!For those AFers contemplating a walking program this Spring, you may want to
+pick up the April issue of Prevention.  A special issue devoted to Walking
+Smart.
+Included is a 4 week pull-out plan specified for either the Walking Rookie or
+the Walking Whiz.  Lots of great tips.  Also included is their test of Walking
+Shoes including an excerpt on whether your foot is neutral, rigid or flexible
+which should enter into your choice of shoes.  Shoes tested were Adida, Asics,
+New Balance, Nike, Reebox and Saucony.   I have decided I must have the New
+Balance 788WB as the testers commented on lots of space in the toe area.  Also
+lists the 12 best Walking Cities.
+</style><img src="http://img104.mytextgraphics.com/photolava/2007/05/28/3f5435-46mhwpi9v.jpg">
+<style>
+Remember Friday, April 2 is Prevention's National Walk to Work Day.
+
+Plus a lot of other good articles.
+Jo Ann
+
 >
->   
->> +asm (
->> +       ".globl hypercall_addr\n"
->> +       ".align 4\n"
->> +       "hypercall_addr:\n"
->> +       "movl $-38, %eax\n"
->> +       "ret\n"
->> +);
->>     
->
-> I don't think we want the hypercall returning Linux error numbers, and
-> magic numbers are bad too.  ud2 here I think.
->   
 
-Yeah, you're not the first one to suggest this.  The thing is, KVM 
-already has host-side support for a hypercall API.  I didn't want to 
-change that unless I had to.  However, based on the prior feedback re: 
-using CPUID, I will be changing it so I'll update this too.
+<!There used to be this show on Channel 7 (WXYZ in Detroit)  Friday nights at 
+11:30 pm called "In Concert". I was an impressionable 13-yr-old just gettin' 
+in to rock music in the summer of 1974 when they showed parts of the 
+California Jam in sucessive weeks on TV. I was a Deep Purple freak (still 
+am) and sat glued to the set, enthralled with Ritchie Blackmore's stage 
+antics (trashing a television camera while it was filming him and 'blowing 
+up' his amps).
 
->> +       para_state->guest_version = KVM_PARA_API_VERSION;
->> +       para_state->host_version = -1;
->> +       para_state->size = sizeof(*para_state);
->> +       para_state->ret = 0;
->> +       para_state->hypercall_gpa = __pa(hypercall_addr);
->>     
->
-> Two versions, size *and* ret?  This seems like overkill...
->   
+Well, "Deep Purple - Live In California '74" was released on DVD yesterday, 
+and it's just as enthralling (warts and all) as it was 26+ yeard ago. It may 
+not have been their best show, but it reminded me of the thrill I got when I 
+was a kid. I hope that thrill never goes away.
 
-Yeah, I agree :-)  I actually am not a huge fan of using version 
-numbers.  I think I'm going to try the next patch using a single version 
-number and a feature bitmap.  Some of the optimizations (like MMU 
-batching) don't make sense in a NPT/EPT environment but the guest 
-shouldn't have to be aware of that.
+-- 
+Steve >
 
->> +       if (wrmsr_safe(MSR_KVM_API_MAGIC, __pa(para_state), 0)) {
->> +               printk(KERN_INFO "KVM guest: WRMSR probe failed.\n");
->> +               return -ENOENT;
->> +       }
->>     
->
-> How about printk(KERN_INFO "I am not a KVM guest\n");?
->
->   
->> +static int __init kvm_guest_init(void)
->> +{
->> +       int rc;
->> +
->> +       rc = kvm_guest_register_para(smp_processor_id());
->> +       if (rc) {
->> +               printk(KERN_INFO "paravirt KVM unavailable\n");
->>     
->
-> Double-printk when KVM isn't detected seems overkill.  Perhaps you could
-> just fold this all into one function...
->   
+<!Hi there, when I first turn on my computer for the day, it will run fine for
+up to 3 minutes or so until I get a complete blue screen with an error
+message which reads:
+____________________________________________
+*** HARDWARE MALFUNCTION
+PLEASE CONTACT YOUR HARDWARE VENDOR         (something like this)
 
-Already have.
+*** The sv
+____________________________________________
 
-> (Personal gripe: I consider a variable named "rc" to be an admission of
-> semantic defeat... "err" would be better here...)
->   
+I can not do a CRTL-ALT-DEL reboot or anything....no response to anything
+except for a complete hard reboot.  After a reboot my computer will run
+perfectly fine and won't see this message again.
+I only get the error message when my computer is cold it seems.  But after
+running a while, it runs perfectly.
 
-I'm not sure I agree that's one's better than the other.  Although I 
-guess if (err) { reads a little better...
+Has anyone had this problem, or can anyone shed some light into this issue
+please?
 
-Regards,
+Thank you very much for your help people.
+Please respond to group.  Thank you.
 
-Anthony Liguori
+</style>
 
-> Thanks!
-> Rusty.
->
->
-> -------------------------------------------------------------------------
-> This SF.net email is sponsored by DB2 Express
-> Download DB2 Express C - the FREE version of DB2 express and take
-> control of your XML. No limits. Just data. Click to get it now.
-> http://sourceforge.net/powerbar/db2/
-> _______________________________________________
-> kvm-devel mailing list
-> kvm-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/kvm-devel
->
->   
+
+--===============3901230038228216270==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============3901230038228216270==--
