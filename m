@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/3] lguest: speed up PARAVIRT_LAZY_FLUSH handling
-Date: Thu, 31 May 2007 17:23:11 +1000
-Message-ID: <1180596191.11133.22.camel__41605.3654080772$1180596257$gmane$org@localhost.localdomain>
+Subject: [PATCH 2/3] lguest: more lazy_hcalls
+Date: Thu, 31 May 2007 17:24:13 +1000
+Message-ID: <1180596254.11133.24.camel__5143.66021748192$1180596332$gmane$org@localhost.localdomain>
+References: <1180596191.11133.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1180596191.11133.22.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,47 +21,48 @@ To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When Zach Amsden added PARAVIRT_LAZY_FLUSH I didn't realize how often
-it would get called.  We only need to do something if we're actually
-in lazy mode.
+Some hypercalls can be batched: lazy_hcall is the wrapper which
+determines this, so it's pretty harmless to use lazy_hcall() instead of
+hcall().
 
 Before:
-Time for one context switch via pipe: 10509 (9863 - 18761)
-Time for one Copy-on-Write fault: 71796 (20625 - 207750)
-Time to exec client once: 1076218 (1066203 - 1085937)
-Time for one fork/exit/wait: 1193125 (574750 - 1197750)
-Time for two PTE updates: 10844 (10659 - 20703)
+Time for one context switch via pipe: 6745 (6521 - 13966)
 
 After:
-Time for one context switch via pipe: 6745 (6521 - 13966)
-Time for one Copy-on-Write fault: 44734 (11468 - 91988)
-Time to exec client once: 815984 (801218 - 878218)
-Time for one fork/exit/wait: 1023250 (397687 - 1030375)
-Time for two PTE updates: 6699 (6475 - 9279)
-
-(Native for comparison):
-Time for one context switch via pipe: 4031 (3212 - 4146)
-Time for one Copy-on-Write fault: 4402 (4388 - 4426)
-Time to exec client once: 343859 (336859 - 349484)
-Time for one fork/exit/wait: 120234 (118500 - 136140)
-Time for two PTE updates: 2269 (2261 - 2272)
+Time for one context switch via pipe: 5406 (5170 - 7467)
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/lguest/lguest.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff -r 077496256739 drivers/lguest/lguest.c
---- a/drivers/lguest/lguest.c	Thu May 31 16:34:17 2007 +1000
-+++ b/drivers/lguest/lguest.c	Thu May 31 16:36:23 2007 +1000
-@@ -58,9 +58,10 @@ static enum paravirt_lazy_mode lazy_mode
- static enum paravirt_lazy_mode lazy_mode;
- static void lguest_lazy_mode(enum paravirt_lazy_mode mode)
+===================================================================
+--- a/drivers/lguest/lguest.c
++++ b/drivers/lguest/lguest.c
+@@ -225,7 +225,7 @@ static unsigned long current_cr0, curren
+ static unsigned long current_cr0, current_cr3;
+ static void lguest_write_cr0(unsigned long val)
  {
--	if (mode == PARAVIRT_LAZY_FLUSH)
--		hcall(LHCALL_FLUSH_ASYNC, 0, 0, 0);
--	else {
-+	if (mode == PARAVIRT_LAZY_FLUSH) {
-+		if (unlikely(lazy_mode != PARAVIRT_LAZY_NONE))
-+			hcall(LHCALL_FLUSH_ASYNC, 0, 0, 0);
-+	} else {
- 		lazy_mode = mode;
- 		if (mode == PARAVIRT_LAZY_NONE)
- 			hcall(LHCALL_FLUSH_ASYNC, 0, 0, 0);
+-	hcall(LHCALL_TS, val & 8, 0, 0);
++	lazy_hcall(LHCALL_TS, val & 8, 0, 0);
+ 	current_cr0 = val;
+ }
+ 
+@@ -247,7 +247,7 @@ static unsigned long lguest_read_cr2(voi
+ 
+ static void lguest_write_cr3(unsigned long cr3)
+ {
+-	hcall(LHCALL_NEW_PGTABLE, cr3, 0, 0);
++	lazy_hcall(LHCALL_NEW_PGTABLE, cr3, 0, 0);
+ 	current_cr3 = cr3;
+ }
+ 
+@@ -287,7 +287,7 @@ static void lguest_set_pte(pte_t *ptep, 
+ 	*ptep = pteval;
+ 	/* Don't bother with hypercall before initial setup. */
+ 	if (current_cr3)
+-		hcall(LHCALL_FLUSH_TLB, 1, 0, 0);
++		lazy_hcall(LHCALL_FLUSH_TLB, 1, 0, 0);
+ }
+ 
+ static void lguest_flush_tlb_single(unsigned long addr)
