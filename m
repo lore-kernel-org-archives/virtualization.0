@@ -1,87 +1,54 @@
-From: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/3] KVM paravirt_ops infrastructure
-Date: Thu, 31 May 2007 12:31:52 -0500
-Message-ID: <465F0688.1050702@us.ibm.com>
-References: <97D612E30E1F88419025B06CB4CF1BE10259AD83@scsmsx412.amr.corp.intel.com>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: [kvm-devel] [PATCH 3/3] Eliminate read_cr3 on TLB flush
+Date: Thu, 31 May 2007 12:30:27 -0500
+Message-ID: <465F0633.7080800__40241.7693440386$1180632747$gmane$org@us.ibm.com>
+References: <97D612E30E1F88419025B06CB4CF1BE10259AD95@scsmsx412.amr.corp.intel.com>	<465DCED8.4080506@us.ibm.com>
+	<465E7E4F.8050208@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <97D612E30E1F88419025B06CB4CF1BE10259AD83-1a9uaKK1+wJcIJlls4ac1rfspsVTdybXVpNB7YpNyf8@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: "Nakajima, Jun" <jun.nakajima-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>, Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <465E7E4F.8050208@qumranet.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Nakajima, Jun wrote:
+Avi Kivity wrote:
 > Anthony Liguori wrote:
 >   
->> Nakajima, Jun wrote:
->>     
->>> Anthony Liguori wrote:
->>>
->>>       
->>>> Regards,
->>>>
->>>> Anthony Liguori
->>>>
+>>>>     
+>>>>       
 >>>>         
->>> I think we should use the CPUID instruction (leaf 0x40000000) to
+>>> For KVM, it should be okay as well. But we can replace two CR4 accesses
+>>> with just one hypercall.
+>>>   
+>>>     
 >>>       
-> detect
->   
->>> the hypervosor as we are doing in Xen.
->>>
->>>       
->> Is that leaf reserved for such use by Intel?
+>> I was thinking the same thing :-)
 >>
+>> I was actually thinking about adding a hypercall to set/clear a bit in a 
+>> control register.  The thought here is that it would be useful not just 
+>> for the global bit but also for CR0.TS although we would need another 
+>> paravirt_op hook for stts.
+>>   
 >>     
 >
-> What I can say is that we (including the H/W teams) reviewed it
-> internally.
+> Are global tlb flushes frequent enough to warrant optimization?
 >   
 
-I've switched to using CPUID.  I noticed that Xen also uses 0x400000001 
-so I'm presuming that that is okay too?
+I don't think so, so I'm going to remove this from the series.  I'm 
+adding another an MMU batching patch which should be enough measurable 
+performance advantage to warrant the series.
 
 Regards,
 
 Anthony Liguori
-
->> Regards,
->>
->> Anthony Liguori
->>
->>     
->
->
-> Jun
-> ---
-> Intel Open Source Technology Center
->
-> -------------------------------------------------------------------------
-> This SF.net email is sponsored by DB2 Express
-> Download DB2 Express C - the FREE version of DB2 express and take
-> control of your XML. No limits. Just data. Click to get it now.
-> http://sourceforge.net/powerbar/db2/
-> _______________________________________________
-> kvm-devel mailing list
-> kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-> https://lists.sourceforge.net/lists/listinfo/kvm-devel
->
->   
-
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
