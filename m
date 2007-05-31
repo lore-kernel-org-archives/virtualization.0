@@ -1,15 +1,14 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [PATCH RFC 3/3] virtio infrastructure: example block
- driver
-Date: Thu, 31 May 2007 20:36:24 +0300
-Message-ID: <465F0798.2070708__3765.29491409219$1180633117$gmane$org@qumranet.com>
-References: <1180613947.11133.58.camel@localhost.localdomain>	<1180614044.11133.61.camel@localhost.localdomain>	<1180614091.11133.63.camel@localhost.localdomain>	<465EC637.7020504@de.ibm.com>	<20070531150206.GB6474@narn.hozed.org>
-	<465EFF72.5070100@de.ibm.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [patch rfc wip] first cut of ELF bzImage
+Date: Thu, 31 May 2007 10:52:49 -0700
+Message-ID: <465F0B71.60303@zytor.com>
+References: <465E78D2.9080609@goop.org> <465E7CA2.6090201@zytor.com>
+	<465E7EC0.6080108@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <465EFF72.5070100@de.ibm.com>
+In-Reply-To: <465E7EC0.6080108@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,24 +18,55 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: carsteno@de.ibm.com
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, mschwid2@linux.vnet.ibm.com, virtualization <virtualization@lists.linux-foundation.org>, Troy Benjegerdes <hozer@hozed.org>, Suzanne McIntosh <skranjac@us.ibm.com>, Christian Borntraeger <cborntra@de.ibm.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Vivek Goyal <vgoyal@in.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Carsten Otte wrote:
-> Troy Benjegerdes wrote:
->   
->> This kind of a claim needs some benchmark data to document it.
->>     
-> We've implemented both for our vdisk driver on 390. At least on our 
-> platform, merging in the host is preferable because vmenter/vmexit is 
-> very fast and we would merge twice because we submit the result via 
-> io_submit() system call from host userland.
->   
+Jeremy Fitzhardinge wrote:
+> H. Peter Anvin wrote:
+>> The more I'm thinking about this whole issue, the more I'm thinking this
+>> is really misdirected.
+>>
+>> I'm starting to think that the right thing to do might very well be as
+>> follows:
+>>
+>> - Change the payload of the bzImage file from a flat binary to an ELF
+>>   file -- a stripped vmlinux.gz.
+>> - Change the decompressor to incorporate a (simple) ELF parser.
+>> - Incorporate a couple of pointer fields in the bzImage header that
+>>   points directly to the payload, the format of which can be identified
+>>   via its magic number (currently gzip). 
+> 
+> I don't see a lot of benefit in doing this.  Having some form of
+> executable I can just run is probably simpler for me to implement than
+> trying to unwrap a vmlinux.gz from an envelope, even if that's what
+> we're currently booting.  The Xen domain builder simply wants an ELF
+> file it can load; if its a self-decompressing kernel image, then that's
+> OK.  The only real problem is setting up the initial mappings so that
+> the booting code can run as if paging is enabled.  The simplest answer
+> to that is to simply 1:1 map all lowmem and set it running, but having
+> specific Phdrs laying out the mappings would be a bit more refined.
+> 
+> Now if the bzImage were simply some 16-bit startup code prepended onto
+> a self-decompressing 32-bit ELF kernel file, then that would be fairly
+> easy to deal with too, since that would just be a matter of looking at
+> the boot_params to find the start of the ELF file and continue from
+> there.
 
+You're focusing entirely on Xen here, but if Xen really is the only user
+of this, then I say there isn't much benefit into doing this at all.
+Hopefully we're trying to solve something bigger than the Xen domain
+builder being way too rigidly written, here.
 
-If a single hypercall can submit multiple requests, then this may work
-well for the newcomer archs too.
+So it really comes down to: what are the bigger problems we're solving?
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+> I'm not sure why you say that.  Rusty managed to get unmodified
+> bzImage's booting in lguest within a few hours of hacking.  I don't
+> expect Xen would be much different.
+
+Anything that's a true virtualizer should just be able to load and run a
+bzImage file from the 16-bit entrypoint, obviously.  That's not what
+Rusty is doing, but all he'd need is the bit (already proposed) to
+inhibit cli and segment reloads.
+
+	-hpa
