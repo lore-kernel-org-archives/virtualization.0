@@ -1,14 +1,17 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: Re: [kvm-devel] [PATCH RFC 1/3] virtio infrastructure
-Date: Thu, 31 May 2007 14:53:08 +0200
-Message-ID: <465EC534.6040005__949.89505964822$1180616046$gmane$org@de.ibm.com>
+Subject: Re: [kvm-devel] [PATCH RFC 3/3] virtio infrastructure: example block
+ driver
+Date: Thu, 31 May 2007 14:57:27 +0200
+Message-ID: <465EC637.7020504__13502.3038987585$1180616302$gmane$org@de.ibm.com>
 References: <1180613947.11133.58.camel@localhost.localdomain>
+	<1180614044.11133.61.camel@localhost.localdomain>
+	<1180614091.11133.63.camel@localhost.localdomain>
 Reply-To: carsteno@de.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1180613947.11133.58.camel@localhost.localdomain>
+In-Reply-To: <1180614091.11133.63.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,19 +26,21 @@ Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.x
 List-Id: virtualization@lists.linuxfoundation.org
 
 Rusty Russell wrote:
-> This attempts to implement a "virtual I/O" layer which should allow
-> common drivers to be efficiently used across most virtual I/O
-> mechanisms.  It will no-doubt need further enhancement.
+> Example block driver using virtio.
 > 
-> The details of probing the device are left to hypervisor-specific
-> code: it simple constructs the "struct virtio_device" and hands it to
-> the probe function (eg. virtnet_probe() or virtblk_probe()).
+> The block driver uses outbufs with sg[0] being the request information
+> (struct virtio_blk_outhdr) with the type, sector and inbuf id.  For a
+> write, the rest of the sg will contain the data to be written.
 > 
-> The virtio drivers add and detach input and output buffers; as the
-> buffers are used up their associated "used" pointers are filled in.
+> The first segment of the inbuf is a result code (struct
+> virtio_blk_inhdr).  For a read, the rest of the sg points to the input
+> buffer.
 > 
-> I have written two virtio device drivers (net and block) and two
-> virtio implementations (for lguest): a read-write socket-style
-> implementation, and a more efficient descriptor-based implementation).
-These should work for s390 afaics. They seem to fit the requirements 
-of network IO.
+> TODO:
+> 	1) Ordered tag support.
+Implementing a do_request function has quite a few disadvantages over 
+hooking into q->make_request_fn. This way, we have the device plug 
+(latency), request merging, and I/O scheduling inside the guest.
+It seems preferable to do that in the host, especially when requests 
+of multiple guests end up on the same physical media (shared access, 
+or partitioned).
