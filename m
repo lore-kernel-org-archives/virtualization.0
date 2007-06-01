@@ -1,54 +1,51 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: another RFC patch: bzImage with ELF payload
-Date: Fri, 01 Jun 2007 12:42:15 -0700
-Message-ID: <46607697.7060402@goop.org>
-References: <46605E3D.3030009@goop.org> <46605ED4.6040202@goop.org>
-	<m1lkf3zdki.fsf@ebiederm.dsl.xmission.com>
+Subject: Re: Extending boot protocol & bzImage for paravirt_ops
+Date: Fri, 01 Jun 2007 13:55:43 -0700
+Message-ID: <466087CF.70708@goop.org>
+References: <4656FB8F.4090604@goop.org> <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <m1lkf3zdki.fsf@ebiederm.dsl.xmission.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764855AbXFAU4F@vger.kernel.org>
+In-Reply-To: <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Vivek Goyal <vgoyal@in.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Eric W. Biederman wrote:
-> Jeremy Fitzhardinge <jeremy@goop.org> writes:
->
->   
->> Jeremy Fitzhardinge wrote:
->>     
->>> BTW, this won't apply as-is; I have some mucking-around patches to try
->>> and get the linux/elf*.h headers into a bit more order, but that's not
->>> ready yet.
->>>   
->>>       
->> BTW2: I've been basically ignoring zImage.  Do we need to support it at
->> all?  Has anyone used it in the last 10 years?
->>     
->
-> zImage is uninteresting.  I think HPA explicitly dropped support a few
-> years ago so we can't even build it.
->   
-
-Hm, its still there, and he put explicit support for it into the new
-bootcode rewrite.  Doesn't boot for me though.
-
-> That said a bImage (non-compressed bzImage).  Might actually be
-> interesting.
+> ....
+> +Field name:	hardware_subarch
+> +Type:		write
+> +Offset/size:	0x23c/4
+> +Protocol:	2.07+
+> +
+> +  In a paravirtualized environment the hardware low level architectural 
+> +  pieces such as interrupt handling, page table handling, and
+> +  accessing process control registers needs to be done differently.
+> +
+> +  This field allows the bootloader to inform the kernel we are in one
+> +  one of those environments.
+> +
+> +  0x00000000	The default x86/PC environment
+> +  0x00000001	lguest
+> +  0x00000002	Xen
+> +
+> +Field name:	hardware_subarch_data
+> +Type:		write
+> +Offset/size:	0x23c/8
 >   
 
-That's pretty easy in my current plan.  You just glue vmlinux into the
-image rather than compressor+compressed data.
+offset = 240
 
-    J
+> +Protocol:	2.07+
+> +
+> +  A pointer to data that is specific to hardware subarch
+>   
+
+Do we care particularly? If 8 bytes is enough for the subarch, do we
+care whether its a pointer or literal? After all, this is just a private
+channel between the bootloader and some subarch-specific piece of code
+in the kernel.
+
+J
