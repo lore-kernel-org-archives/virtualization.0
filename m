@@ -1,51 +1,48 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Extending boot protocol & bzImage for paravirt_ops
-Date: Fri, 01 Jun 2007 13:55:43 -0700
-Message-ID: <466087CF.70708@goop.org>
-References: <4656FB8F.4090604@goop.org> <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: another RFC patch: bzImage with ELF payload
+Date: Fri, 01 Jun 2007 14:38:24 -0700
+Message-ID: <466091D0.1060803@zytor.com>
+References: <46605E3D.3030009@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764855AbXFAU4F@vger.kernel.org>
-In-Reply-To: <m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <46605E3D.3030009@goop.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Vivek Goyal <vgoyal@in.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Eric W. Biederman wrote:
-> ....
-> +Field name:	hardware_subarch
-> +Type:		write
-> +Offset/size:	0x23c/4
-> +Protocol:	2.07+
-> +
-> +  In a paravirtualized environment the hardware low level architectural 
-> +  pieces such as interrupt handling, page table handling, and
-> +  accessing process control registers needs to be done differently.
-> +
-> +  This field allows the bootloader to inform the kernel we are in one
-> +  one of those environments.
-> +
-> +  0x00000000	The default x86/PC environment
-> +  0x00000001	lguest
-> +  0x00000002	Xen
-> +
-> +Field name:	hardware_subarch_data
-> +Type:		write
-> +Offset/size:	0x23c/8
->   
+Jeremy Fitzhardinge wrote:
+> OK, here's another go-around.  This patch leaves the bzImage itself
+> unmodified, but it changes the payload into an ELF file.  That is, the
+> 32-bit decompression/relocation+compressed kernel is now a properly
+> formed ELF file.
+> 
+> One thing that fell out of this is that code32_start end up being a
+> pointer to the ELF header rather than an entrypoint.  Rather than
+> reproducing Vivek's (?) hack of making the ELF header itself executable,
+> I changed the 16-bit code to check for an ELF magic number at
+> code32_start and use the e_entry to get the actual entrypoint.  This
+> seems like approximately the right way of doing this, but I'm not sure
+> how we want to formalize it.  It's certainly easier than trying to
+> extract the payload's entry address and copying it to code32_start in
+> the boot_params block, and we need a pointer to the ELF file itself anyway.
+> 
 
-offset = 240
+No, that breaks any boot loader that uses the boot loader hook
+mechanism.  That's definitely broken.
 
-> +Protocol:	2.07+
-> +
-> +  A pointer to data that is specific to hardware subarch
->   
+Either way, I still believe that this should be done at the other end of
+the decompression chain.  Give out the information about *how the kernel
+will be executed*, not about the intermediate, transient step.
 
-Do we care particularly? If 8 bytes is enough for the subarch, do we
-care whether its a pointer or literal? After all, this is just a private
-channel between the bootloader and some subarch-specific piece of code
-in the kernel.
-
-J
+	-hpa
