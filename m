@@ -1,16 +1,15 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Extending boot protocol & bzImage for paravirt_ops
-Date: Fri, 01 Jun 2007 14:57:10 -0700
-Message-ID: <46609636.4050208@zytor.com>
-References: <4656FB8F.4090604@goop.org>
-	<m14pm0c0m2.fsf@ebiederm.dsl.xmission.com>
-	<466087CF.70708@goop.org> <4660924A.2070009@zytor.com>
-	<466093E3.4010701@goop.org>
+From: "Santos, Jose Renato G" <joserenato.santos@hp.com>
+Subject: RE: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
+Date: Fri, 1 Jun 2007 23:35:26 -0000
+Message-ID: <08CA2245AFCF444DB3AC415E47CC40AFBD2CCF__24791.9008056217$1180741066$gmane$org@G3W0072.americas.hpqcorp.net>
+References: <1180613947.11133.58.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <466093E3.4010701@goop.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <1180613947.11133.58.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,31 +19,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Rusty Russell <rusty@rustcorp.com.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, Xen Mailing List <xen-devel@lists.xensource.com>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, jmk@plan9.bell-labs.com, Herbert Xu <herbert@gondor.apana.org.au>, Christian Borntraeger <cborntra@de.ibm.com>, Suzanne McIntosh <skranjac@us.ibm.com>, Anthony Liguori <anthony@codemonkey.ws>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> H. Peter Anvin wrote:
->>> Do we care particularly? If 8 bytes is enough for the subarch, do we
->>> care whether its a pointer or literal? After all, this is just a private
->>> channel between the bootloader and some subarch-specific piece of code
->>> in the kernel.
->>>
->>>     
->> I see two options: either we make it a pointer *and a length* so that a
->> loader can reshuffle it at will (that also implies no absolute pointers
->> within the data), or it's an opaque cookie anyway.
-> 
-> No, it has to be completely opaque.  It might be a pointer to some
-> special shared memory or something, and not movable.
-> 
+ 
 
-Well, if we define is as a movable object then it has to be treated as
-such.  It's a protocol definition issue.  If we define it opaque, though
--- of for that matter, if we don't -- we should define what memory it
-can live in, though.  Right now, the only "available" memory we have is
-end of setup to 0xa0000; the command line is defined to be allocated
-from this memory.
+> -----Original Message-----
+> From: xen-devel-bounces@lists.xensource.com 
+> [mailto:xen-devel-bounces@lists.xensource.com] On Behalf Of 
+> Rusty Russell
+> Sent: Thursday, May 31, 2007 5:19 AM
+> To: kvm-devel; Xen Mailing List; virtualization
+> Cc: Jimi Xenidis; Stephen Rothwell; jmk@plan9.bell-labs.com; 
+> Herbert Xu; Christian Borntraeger; Suzanne McIntosh; Anthony 
+> Liguori; Martin Schwidefsky
+> Subject: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
+> 
+> This attempts to implement a "virtual I/O" layer which should 
+> allow common drivers to be efficiently used across most 
+> virtual I/O mechanisms.  It will no-doubt need further enhancement.
+> 
+>
 
-	-hpa
+Rusty
+
+Could you please clarify what is the purpose of this "virtual I/O"
+layer?
+At least for networking, why isn't the current linux net device
+abstraction sufficient for hiding the details of different virtual
+devices implementations? What am I missing?
+
+Thanks
+
+Renato
