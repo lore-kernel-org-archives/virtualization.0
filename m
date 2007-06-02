@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [kvm-devel] [PATCH RFC 1/3] virtio infrastructure
-Date: Sat, 02 Jun 2007 19:50:36 +1000
-Message-ID: <1180777836.9228.44.camel__27591.6022401818$1180777908$gmane$org@localhost.localdomain>
+Subject: RE: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
+Date: Sat, 02 Jun 2007 20:12:47 +1000
+Message-ID: <1180779167.9228.66.camel__742.768371901725$1180779242$gmane$org@localhost.localdomain>
 References: <1180613947.11133.58.camel@localhost.localdomain>
-	<46610E8D.10706@qumranet.com>
+	<08CA2245AFCF444DB3AC415E47CC40AFBD2CCF@G3W0072.americas.hpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46610E8D.10706@qumranet.com>
+In-Reply-To: <08CA2245AFCF444DB3AC415E47CC40AFBD2CCF@G3W0072.americas.hpqcorp.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,71 +18,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Suzanne McIntosh <skranjac@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: "Santos, Jose Renato G" <joserenato.santos@hp.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, jmk@plan9.bell-labs.com, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Suzanne McIntosh <skranjac@us.ibm.com>, Anthony Liguori <anthony@codemonkey.ws>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2007-06-02 at 09:30 +0300, Avi Kivity wrote:
-> Rusty Russell wrote:
-> > + * virtio_ops - virtio abstraction layer
-> > + * @add_outbuf: prepare to send data to the other end:
-> > + *	vdev: the virtio_device
-> > + *	sg: the description of the buffer(s).
-> > + *	num: the size of the sg array.
-> > + *	used: the length sent (set once sending is done).
-> > + *      Returns an identifier or an error.
-> > + * @add_inbuf: prepare to receive data from the other end:
-> > + *	vdev: the virtio_device
-> > + *	sg: the description of the buffer(s).
-> > + *	num: the size of the sg array.
-> > + *	used: the length sent (set once data received).
-> > + *      Returns an identifier or an error (eg. -ENOSPC).
-> >   
+On Fri, 2007-06-01 at 23:35 +0000, Santos, Jose Renato G wrote:
 > 
-> Instead of 'used', how about a completion callback (with associated data
-> pointer)?  A new helper, virtio_complete(), would call the callback for
-> all completed requests.  It would eliminate all the tedious scanning
-> used to match the identifier.
+> > -----Original Message-----
+> > From: xen-devel-bounces@lists.xensource.com 
+> > [mailto:xen-devel-bounces@lists.xensource.com] On Behalf Of 
+> > Rusty Russell
+> > Sent: Thursday, May 31, 2007 5:19 AM
+> > To: kvm-devel; Xen Mailing List; virtualization
+> > Cc: Jimi Xenidis; Stephen Rothwell; jmk@plan9.bell-labs.com; 
+> > Herbert Xu; Christian Borntraeger; Suzanne McIntosh; Anthony 
+> > Liguori; Martin Schwidefsky
+> > Subject: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
+> > 
+> > This attempts to implement a "virtual I/O" layer which should 
+> > allow common drivers to be efficiently used across most 
+> > virtual I/O mechanisms.  It will no-doubt need further enhancement.
+> 
+> Rusty
+> 
+> Could you please clarify what is the purpose of this "virtual I/O"
+> layer?
+> At least for networking, why isn't the current linux net device
+> abstraction sufficient for hiding the details of different virtual
+> devices implementations? What am I missing?
 
-Hi Avi,
+Hi Renato!
 
-	There were several considerations here.  My first was that the drivers
-look much more like normal devices than getting a callback for every
-buffer.   Secondly, "used" batches much more nicely than a completion.
-Finally, it's also something you really want to know, so the driver
-doesn't have to zero its inbufs (an untrusted other side says it sends
-you 1500 bytes but actually sent nothing, and now you spray kernel
-memory out the NIC).
+	This is a very good question.  For currently-existing and working
+devices it just seems like another layer of indirection, and not much
+code saving.
 
-	I also considered some scheme like:
+	There are several reasons for having a common layer.  The obvious is to
+reduce the amount of code, but that's the least important.  Slightly
+more important is that noone wants to maintain and tune 5 different
+virtual net drivers, 5 different virtual block drivers, etc.  In fact,
+the kernel community will start to rebel at some point, especially if
+they want different optimization hooks deeper into the kernel.
 
-	struct virtio_used_info
-	{
-		unsigned long len;
-		void *next_token;
-	};
-	...
-	unsigned long (*add_outbuf)(struct virtio_device *vdev,
-				    const struct scatterlist sg[],
-				    unsigned int num,
-				    void *token,
-				    struct virtio_used_info *used_info);
+	We expect to see new device types (entropy device, anyone?), and so the
+5 different drivers becomes the 5 x N different drivers.  Eventually we
+may come up with common bus and probing which everyone loves, but until
+then we can at least make it simple for each virtualization technology
+to implement the new XYZZY device.
 
-So the "used" becomes a "used/next" pair and you can just walk the
-linked list.  But I wasn't convinced that walking the buffers is going
-to be a performance issue (tho the net driver puts them in a continuous
-array for cache friendliness as a nod to this concern).
+	Finally, virtual I/O techniques are *moving*.  KVM doesn't really have
+one, XenSource are discussing more changes to theirs (at least for
+networking) and lguest is still looking for an efficient one.  No doubt
+the others would love to use clean and optimal Linux drivers, too (UML,
+S/390, Power, VMWare?).
 
-> It would also be nice to support a bit of non-buffer data, like a set of
-> bitflags.
+	When Linux doesn't provide a model of what it expects from virtual
+devices, one end of the design process is untethered: we've already seen
+some fairly random and gratuitously different results.  If we can
+provide a simple interface which we like it encourages new
+implementations to produce Linux-friendly interfaces.
 
-	I expect this might be necessary, but it wasn't so far.  The non-buffer
-data tends to go in sg[0]: the block driver works this way, and the
-network driver will for GSO.  Of course, a specialized virtio_ops
-backend might well take this and put the info somewhere else.
+	Of course, the new interface must not suck.
 
-	I also considered a separate "publish"/"examine" interface for things
-which aren't really messages, but again, haven't needed it yet.
-
-Thanks!
+I hope that clarifies my thinking?
 Rusty.
