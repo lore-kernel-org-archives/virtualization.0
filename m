@@ -1,8 +1,8 @@
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: [kvm-devel] [PATCH RFC 3/3] virtio infrastructure: example
-	block driver
-Date: Mon, 4 Jun 2007 15:54:33 +0200
-Message-ID: <20070604135433.GG32105__7834.98308524049$1180965564$gmane$org@kernel.dk>
+From: Carsten Otte <cotte@de.ibm.com>
+Subject: Re: [kvm-devel] [PATCH RFC 3/3] virtio infrastructure: example block
+ driver
+Date: Mon, 04 Jun 2007 16:12:25 +0200
+Message-ID: <46641DC9.5050600__6534.12194592438$1180966444$gmane$org@de.ibm.com>
 References: <1180613947.11133.58.camel@localhost.localdomain>
 	<1180614044.11133.61.camel@localhost.localdomain>
 	<1180614091.11133.63.camel@localhost.localdomain>
@@ -12,11 +12,13 @@ References: <1180613947.11133.58.camel@localhost.localdomain>
 	<20070601131315.GW32105@kernel.dk> <4664164A.40604@de.ibm.com>
 	<20070604134322.GC32105@kernel.dk>
 	<1180965161.25878.47.camel@localhost.localdomain>
+	<20070604135433.GG32105@kernel.dk>
+Reply-To: carsteno@de.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1180965161.25878.47.camel@localhost.localdomain>
+In-Reply-To: <20070604135433.GG32105@kernel.dk>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,41 +28,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Jens Axboe <jens.axboe@oracle.com>
 Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, Herbert Xu <herbert@gondor.apana.org.au>, carsteno@de.ibm.com, mschwid2@linux.vnet.ibm.com, virtualization <virtualization@lists.linux-foundation.org>, kvm-devel <kvm-devel@lists.sourceforge.net>, Suzanne McIntosh <skranjac@us.ibm.com>, Christian Borntraeger <cborntra@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 04 2007, Rusty Russell wrote:
-> On Mon, 2007-06-04 at 15:43 +0200, Jens Axboe wrote:
-> > On Mon, Jun 04 2007, Carsten Otte wrote:
-> > > Jens Axboe wrote:
-> > > >On Fri, Jun 01 2007, Carsten Otte wrote:
-> > > >>With regard to compute power needed, almost none. The penalty is 
-> > > >>latency, not overhead: A small request may sit on the request queue to 
-> > > >>wait for other work to arrive until the queue gets unplugged. This 
-> > > >>penality is compensated by the benefit of a good chance that more 
-> > > >>requests will be merged during this time period.
-> > > >>If we have this method both in host and guest, we have twice the 
-> > > >>penalty with no added benefit.
-> > > >
-> > > >I don't buy that argument. We can easily expose the unplug delay, so you
-> > > >can kill it at what ever level you want. Or you could just do it in the
-> > > >driver right now, but that is a bit hackish.
-> > > That would be preferable if the device driver can chose the unplug 
-> > > delay, or even better it could be (guest)sysfs tuneable.
-> > 
-> > Right. We probably should make it sysfs configurable in any case, right
-> > now it's a (somewhat) policy decision in the kernel with the delay and
-> > unplug depth.
-> 
-> The danger is that it's just another knob noone knows how to use.
-> Perhaps simply setting it to 0 for the noop scheduler will cover all
-> known cases?
+Jens Axboe wrote:
+> Most people should not fiddle with it, the defaults are there for good
+> reason. I can provide a blk_queue_unplug_thresholds(q, depth, delay)
+> helper that you could use for the virtualized drivers, perhaps that
+> would be better for that use?
+Yea, we should'nt change the defaults without a good reason. That 
+would change things for all device drivers.
+This interface provides all functionality we need. I think we need a 
+knob in /sys/block/mydevice/queue/ in addition to that.
 
-Most people should not fiddle with it, the defaults are there for good
-reason. I can provide a blk_queue_unplug_thresholds(q, depth, delay)
-helper that you could use for the virtualized drivers, perhaps that
-would be better for that use?
-
--- 
-Jens Axboe
+so long,
+Carsten
