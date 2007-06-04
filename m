@@ -1,43 +1,55 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
-Date: Mon, 04 Jun 2007 14:19:41 -0700
-Message-ID: <466481ED.8050209__12226.4702491977$1180992134$gmane$org@goop.org>
-References: <1180613947.11133.58.camel@localhost.localdomain>	<08CA2245AFCF444DB3AC415E47CC40AFBD2CCF@G3W0072.americas.hpqcorp.net>	<1180779167.9228.66.camel@localhost.localdomain>
-	<08CA2245AFCF444DB3AC415E47CC40AFBD2FD4@G3W0072.americas.hpqcorp.net>
+Subject: Re: Re: [PATCH] xen: use iret directly where possible
+Date: Mon, 04 Jun 2007 14:28:58 -0700
+Message-ID: <4664841A.8040802@goop.org>
+References: <46646662.9020707@goop.org> <200706042145.30339.ak@suse.de>
+	<4664772A.20602@goop.org> <200706042305.05340.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <08CA2245AFCF444DB3AC415E47CC40AFBD2FD4@G3W0072.americas.hpqcorp.net>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Santos, Jose Renato G" <joserenato.santos@hp.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, jmk@plan9.bell-labs.com, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Suzanne McIntosh <skranjac@us.ibm.com>, Anthony Liguori <anthony@codemonkey.ws>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <200706042305.05340.ak@suse.de>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Andi Kleen <ak@suse.de>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@linux-foundation.org>, Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Santos, Jose Renato G wrote:
->   It seems that we will still need specific devices drivers
->   for each different virtualization flavor. For example,
->   we will still need to have a specific Xen netfront 
->   device that talks to a backend device in dom0, using
->   page grants, and other Xen specific mechanisms.
->   It looks like  will still need to maintain all the virtual device 
->   drivers and in addition we will now have to maintain 
->   another virtualization layer. 
+Andi Kleen wrote:
+> If you stay cli you don't need that. Why is it that it has to enable 
+> interrupts?
 >   
 
-The hope is that the Xen-specific elements of the driver will be
-restricted to Xen-specific things like grant tables, and the bulk of the
-driver and its logic can be common.  Whether that can be achieved and
-still retain the full performance/features of the entirely Xen-specific
-netfront driver remains to be seen.  I haven't had a chance to look at
-doing any Xen-virtio glue yet, so I'm not really sure how it will work out.
+Bear in mind we're talking about running paravirt under Xen in ring 1.
+
+The cli/sti instructions don't control the event mask, so they're
+effectively expensive no-ops (they trap into the hypervisor, are
+emulated as no-ops). But if you mean cli as a general term for
+"events/interrupts masked", then they can't remain masked when you
+return to usermode.   iret normally sets the current eflags IF state
+from the on-stack IF, but that's irrelevent to Xen; we need to extract
+eflags.IF from the on-stack eflags, and put that into the vcpu's event
+mask.  That's inherently non-atomic with respect to iret.
+
+>> In your sequence, the event may become pending after "check again", even
+>> though it won't be delivered. 
+>>     
+>
+> sti only takes affect one instruction after it. So if you can make 
+> it that small it would also work. But that might not help you.
+
+No, it doesn't.  sti can't be run directly in ring1, and trapping into
+Xen is exactly what this patch is trying to avoid.  Even if it did, Xen
+treats it as a no-op, and it has no effect on the event mask state. 
+Even if Xen did use it to control the event mask state, it would lose
+the 1-instruction shadow because it trapped into the hypervisor, and a
+new event may be pending as it comes out.
+
 
     J
