@@ -1,200 +1,327 @@
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: [kvm-devel] [PATCH RFC 3/3] virtio infrastructure: example
-	block driver
-Date: Mon, 4 Jun 2007 16:31:15 +0200
-Message-ID: <20070604143115.GJ32105__1161.44528515196$1180967638$gmane$org@kernel.dk>
-References: <1180614091.11133.63.camel@localhost.localdomain>
-	<465EC637.7020504@de.ibm.com>
-	<1180654765.10999.6.camel@localhost.localdomain>
-	<465FC65C.6020905@de.ibm.com>
-	<20070601131315.GW32105@kernel.dk> <4664164A.40604@de.ibm.com>
-	<20070604134322.GC32105@kernel.dk>
-	<1180965161.25878.47.camel@localhost.localdomain>
-	<20070604135433.GG32105@kernel.dk> <46641DC9.5050600@de.ibm.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH] xen: use iret directly where possible
+Date: Mon, 04 Jun 2007 12:22:10 -0700
+Message-ID: <46646662.9020707@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <46641DC9.5050600@de.ibm.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: carsteno@de.ibm.com
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, mschwid2@linux.vnet.ibm.com, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Suzanne McIntosh <skranjac@us.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 04 2007, Carsten Otte wrote:
-> Jens Axboe wrote:
-> >Most people should not fiddle with it, the defaults are there for good
-> >reason. I can provide a blk_queue_unplug_thresholds(q, depth, delay)
-> >helper that you could use for the virtualized drivers, perhaps that
-> >would be better for that use?
-> Yea, we should'nt change the defaults without a good reason. That 
-> would change things for all device drivers.
-> This interface provides all functionality we need. I think we need a 
-> knob in /sys/block/mydevice/queue/ in addition to that.
+xen: use iret directly where possible
 
-Something like this, totally untested (but trivial, so it should work
-:-)
+Most of the time we can simply use the iret instruction to exit the
+kernel, rather than having to use the iret hypercall - the only
+exception is if we're returning into vm86 mode, or from delivering an
+NMI (which we don't support yet).
 
-diff --git a/block/elevator.c b/block/elevator.c
-index ce866eb..81e2a2d 100644
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -638,7 +638,7 @@ void elv_insert(request_queue_t *q, struct request *rq, int where)
- 		int nrq = q->rq.count[READ] + q->rq.count[WRITE]
- 			- q->in_flight;
+When running native, iret has the behaviour of testing for a pending
+interrupt atomically with re-enabling interrupts.  Unfortunately
+there's no way to do this with Xen, so there's a window in which we
+could get a recursive exception after enabling events but before
+actually returning to userspace.
+
+This causes three problems:
+
+ - If the interrupt causes a softirq to be queued, we will return to
+   userspace without processing it, since its already after the point at
+   which we look for queued softirqs.  This means it could be an
+   unbounded amount of time before it gets processed on next kernel
+   entry.
+
+ - If the interrupt causes a signal to be delivered to the current process,
+   the signal will be marked pending on the process, but it will not
+   get delivered because we're past the point where pending signals
+   are detected.  Again, it could be an unbounded amount of time
+   before the signal gets delivered.
+
+ - The recursion is, in theory, unbounded.  There's a small chance that
+   a series of unfortunate events will cause the exception frames to
+   build up and overrun the stack.  But that's very unlikely.
+
+To deal with this, the xen event upcall handler checks to see if the
+EIP is within the critical section of the iret code, after events
+are (potentially) enabled up to the iret itself.  If its within this
+range, it calls the iret critical section fixup, which adjusts the
+stack to deal with any unrestored registers, and then shifts the
+stack frame up to replace the previous invocation.
+
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+
+---
+ arch/i386/kernel/asm-offsets.c |    1 
+ arch/i386/kernel/entry.S       |   16 +++
+ arch/i386/xen/enlighten.c      |    1 
+ arch/i386/xen/xen-asm.S        |  167 +++++++++++++++++++++++++++++++++++++++-
+ arch/i386/xen/xen-ops.h        |    1 
+ 5 files changed, 181 insertions(+), 5 deletions(-)
+
+===================================================================
+--- a/arch/i386/kernel/asm-offsets.c
++++ b/arch/i386/kernel/asm-offsets.c
+@@ -65,6 +65,7 @@ void foo(void)
+ 	OFFSET(TI_addr_limit, thread_info, addr_limit);
+ 	OFFSET(TI_restart_block, thread_info, restart_block);
+ 	OFFSET(TI_sysenter_return, thread_info, sysenter_return);
++	OFFSET(TI_cpu, thread_info, cpu);
+ 	BLANK();
  
--		if (nrq >= q->unplug_thresh)
-+		if (nrq >= q->unplug_thresh || !q->unplug_delay)
- 			__generic_unplug_device(q);
+ 	OFFSET(GDS_size, Xgt_desc_struct, size);
+===================================================================
+--- a/arch/i386/kernel/entry.S
++++ b/arch/i386/kernel/entry.S
+@@ -1030,7 +1030,21 @@ ENTRY(xen_hypervisor_callback)
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	SAVE_ALL
+ 	TRACE_IRQS_OFF
+-	mov %esp, %eax
++
++	/* Check to see if we got the event in the critical
++	   region in xen_iret_direct, after we've reenabled
++	   events and checked for pending events.  This simulates
++	   iret instruction's behaviour where it delivers a
++	   pending interrupt when enabling interrupts. */
++	movl PT_EIP(%esp),%eax
++	cmpl $xen_iret_start_crit,%eax
++	jb   1f
++	cmpl $xen_iret_end_crit,%eax
++	jae  1f
++
++	call xen_iret_crit_fixup
++
++1:	mov %esp, %eax
+ 	call xen_evtchn_do_upcall
+ 	jmp  ret_from_intr
+ 	CFI_ENDPROC
+===================================================================
+--- a/arch/i386/xen/enlighten.c
++++ b/arch/i386/xen/enlighten.c
+@@ -827,6 +827,7 @@ void __init xen_setup_vcpu_info_placemen
+ 		paravirt_ops.irq_disable = xen_irq_disable_direct;
+ 		paravirt_ops.irq_enable = xen_irq_enable_direct;
+ 		paravirt_ops.read_cr2 = xen_read_cr2_direct;
++		paravirt_ops.iret = xen_iret_direct;
  	}
  }
-diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
-index 6b5173a..aaefb32 100644
---- a/block/ll_rw_blk.c
-+++ b/block/ll_rw_blk.c
-@@ -785,6 +785,30 @@ void blk_queue_dma_alignment(request_queue_t *q, int mask)
- EXPORT_SYMBOL(blk_queue_dma_alignment);
  
- /**
-+ * blk_queue_unplug_threshold - set automatic unplug thresholds for the queue
-+ * @q:     the request queue for the device
-+ * @depth: the queue depth at which to do unplug
-+ * @delay: maximum unplug timer delay
-+ *
-+ * Description:
-+ *    Set the desired unplug depth/threshold and delay for a given queue.
-+ *    The block layer has a set of good defaults for this, so this function
-+ *    should ONLY be used by drivers for virtualized environments, where
-+ *    you could potentially have several layers of queues that each do their
-+ *    own delay.
-+ *
-+ *    If in doubt, don't use this function! The settings can also be
-+ *    tweaked from sysfs.
-+ *
-+ **/
-+void blk_queue_unplug_threshold(request_queue_t *q, unsigned int depth,
-+				unsigned long delay)
-+{
-+	q->unplug_thresh = depth;
-+	q->unplug_delay = delay;
-+}
+===================================================================
+--- a/arch/i386/xen/xen-asm.S
++++ b/arch/i386/xen/xen-asm.S
+@@ -12,14 +12,20 @@
+  */
+ 
+ #include <linux/linkage.h>
 +
-+/**
-  * blk_queue_find_tag - find a request by its tag and queue
-  * @q:	 The request queue for the device
-  * @tag: The tag of the request
-@@ -1550,7 +1574,8 @@ void blk_plug_device(request_queue_t *q)
- 		return;
+ #include <asm/asm-offsets.h>
+ #include <asm/thread_info.h>
+ #include <asm/percpu.h>
+-#include <asm/asm-offsets.h>
+ #include <asm/processor-flags.h>
++#include <asm/segment.h>
++
++#include <xen/interface/xen.h>
  
- 	if (!test_and_set_bit(QUEUE_FLAG_PLUGGED, &q->queue_flags)) {
--		mod_timer(&q->unplug_timer, jiffies + q->unplug_delay);
-+		if (q->unplug_delay)
-+			mod_timer(&q->unplug_timer, jiffies + q->unplug_delay);
- 		blk_add_trace_generic(q, NULL, 0, BLK_TA_PLUG);
- 	}
- }
-@@ -3975,6 +4000,54 @@ static ssize_t queue_max_hw_sectors_show(struct request_queue *q, char *page)
- 	return queue_var_show(max_hw_sectors_kb, (page));
- }
+ #define RELOC(x, v)	.globl x##_reloc; x##_reloc=v
+ #define ENDPATCH(x)	.globl x##_end; x##_end=.
++
++/* Pseudo-flag used for virtual NMI, which we don't implement yet */
++#define XEN_EFLAGS_NMI	0x80000000
  
-+static ssize_t queue_unplug_delay_show(struct request_queue *q, char *page)
-+{
-+	return queue_var_show(q->unplug_delay, page);
-+}
+ /*
+ 	Enable events.  This clears the event mask and tests the pending
+@@ -81,13 +87,12 @@ ENDPATCH(xen_save_fl_direct)
+  */
+ ENTRY(xen_restore_fl_direct)
+ 	testb $X86_EFLAGS_IF>>8, %ah
+-	setz %al
+-	movb %al, PER_CPU_VAR(xen_vcpu_info)+XEN_vcpu_info_mask
++	setz PER_CPU_VAR(xen_vcpu_info)+XEN_vcpu_info_mask
+ 	/* Preempt here doesn't matter because that will deal with
+ 	   any pending interrupts.  The pending check may end up being
+ 	   run on the wrong CPU, but that doesn't hurt. */
+ 
+-	/* check for pending but unmasked */
++	/* check for unmasked and pending */
+ 	cmpw $0x0001, PER_CPU_VAR(xen_vcpu_info)+XEN_vcpu_info_pending
+ 	jz 1f
+ 2:	call check_events
+@@ -97,6 +102,160 @@ ENDPATCH(xen_restore_fl_direct)
+ 	ENDPROC(xen_restore_fl_direct)
+ 	RELOC(xen_restore_fl_direct, 2b+1)
+ 
++/*
++	This is run where a normal iret would be run, with the same stack setup:
++	      8: eflags
++	      4: cs
++	esp-> 0: eip
++
++	This attempts to make sure that any pending events are dealt with
++	on return to usermode, but there is a small window in which an event
++	can happen just before entering usermode.  This has three effects:
++	 - There can be interrupt recursion on the stack, which is
++	   unbounded in theory (but very unlikely in practice)
++	 - New softirq events can be queued up, but they won't get
++	   processed until the cpu next enters and leaves the kernel.
++	 - Signals likewise.
++
++	Non-direct iret could be done in the same way, but it would
++	require an annoying amount of code duplication.  We'll assume
++	that direct mode will be the common case once the hypervisor
++	support becomes commonplace.
++ */
++ENTRY(xen_iret_direct)
++	/* test eflags for special cases */
++	testl $(X86_EFLAGS_VM | XEN_EFLAGS_NMI), 8(%esp)
++	jnz hyper_iret
++
++	/* check IF state we're restoring */
++	testb $X86_EFLAGS_IF>>8, 8+1(%esp)
++
++	push %eax
++	ESP_OFFSET=4	# bytes pushed onto stack
++
++	/* Store vcpu_info pointer for easy access.  Do it this
++	   way to avoid having to reload %fs */
++#ifdef CONFIG_SMP
++	GET_THREAD_INFO(%eax)
++	movl TI_cpu(%eax),%eax
++	movl __per_cpu_offset(,%eax,4),%eax
++	lea per_cpu__xen_vcpu_info(%eax),%eax
++#else
++	movl $per_cpu__xen_vcpu_info, %eax
++#endif
++
++	/* Maybe enable events.  Once this happens we could get a
++	   recursive event, so the critical region starts immediately
++	   afterwards.  However, if that happens we don't end up
++	   resuming the code, so we don't have to be worried about
++	   being preempted to another CPU. */
++	setz XEN_vcpu_info_mask(%eax)
++xen_iret_start_crit:
++
++	/* check for unmasked and pending */
++	cmpw $0x0001, XEN_vcpu_info_pending(%eax)
++
++	/* If there's something pending, mask events again so we
++	   can jump back into xen_hypervisor_callback */
++	sete XEN_vcpu_info_mask(%eax)
++
++	popl %eax
++
++	/* From this point on the registers are restored and the stack
++	   updated, so we don't need to worry about it if we're preempted */
++iret_restore_end:
++
++	/* Jump to hypervisor_callback after fixing up the stack.
++	   Events are masked, so jumping out of the critical
++	   region is OK. */
++	je xen_hypervisor_callback
++
++	iret
++xen_iret_end_crit:
++
++hyper_iret:
++	/* put this out of line since its very rarely used */
++	jmp hypercall_page + __HYPERVISOR_iret * 32
++
++	.globl xen_iret_start_crit, xen_iret_end_crit
 +
 +/*
-+ * We don't bother rearming a running timer. It's just not worth it, the
-+ * next unplug will get it right.
++   This is called by xen_hypervisor_callback in entry.S when it sees
++   that the EIP at the time of interrupt was between xen_iret_start_crit
++   and xen_iret_end_crit.  We're passed the EIP in %eax so we can do
++   a more refined determination of what to do.
++
++   The stack format at this point is:
++	----------------
++	 ss		:
++	 esp		:
++	 eflags		}  outer exception info
++	 cs		}
++	 eip		}
++	---------------- <- edi (copy dest)
++	 eax		:  outer eax if it hasn't been restored
++	----------------
++	 eflags		}  nested exception info
++	 cs		}   (no ss/esp because we're nested
++	 eip		}    from the same ring)
++	 orig_eax	}<- esi (copy src)
++	 - - - - - - - -
++	 fs		}
++	 es		}
++	 ds		}  SAVE_ALL state
++	 eax		}
++	  :		:
++	 ebx		}
++	----------------
++	 return addr	 <- esp
++	----------------
++
++   In order to deliver the nested exception properly, we need to shift
++   everything from the return addr up to the error code so it
++   sits just under the outer exception info.  This means that when we
++   handle the exception, we do it in the context of the outer exception
++   rather than starting a new one.
++
++   The only caveat is that if the outer eax hasn't been
++   restored yet (ie, it's still on stack), we need to insert
++   its value into the SAVE_ALL state before going on, since
++   its usermode state which we eventually need to restore.
 + */
-+static ssize_t queue_unplug_delay_store(struct request_queue *q,
-+					const char *page, size_t count)
-+{
-+	unsigned long delay;
-+	int ret;
++ENTRY(xen_iret_crit_fixup)
++	/* offsets +4 for return address */
 +
-+	ret = queue_var_store(&delay, page, count);
++	/* Paranoia: make sure we're really coming from userspace.
++	   Once could imagine a case where userspace jumps into
++	   the critical range address, but just before the CPU
++	   delivers a GP, it decides to deliver an interrupt
++	   instead.  Unlikely?  Definitely.  Easy to avoid?
++	   Yes. (Some virtual environments get this wrong.) */
++	movl PT_CS+4(%esp), %ecx
++	andl $SEGMENT_RPL_MASK, %ecx
++	cmpl $USER_RPL, %ecx
++	je 2f
 +
-+	spin_lock_irq(q->queue_lock);
-+	q->unplug_delay = msecs_to_jiffies(delay);
-+	spin_unlock_irq(q->queue_lock);
++	lea PT_ORIG_EAX+4(%esp), %esi
++	lea PT_EFLAGS+4(%esp), %edi
 +
-+	return ret;
-+}
++	/* If eip is before iret_restore_end then stack
++	   hasn't been restored yet. */
++	cmp $iret_restore_end, %eax
++	jae 1f
 +
-+static ssize_t queue_unplug_depth_show(struct request_queue *q, char *page)
-+{
-+	return queue_var_show(q->unplug_thresh, page);
-+}
++	movl 0+4(%edi),%eax		/* copy EAX */
++	movl %eax, PT_EAX+4(%esp)
 +
-+/*
-+ * We don't bother unplugging if we depth was reduced and we just happened
-+ * to have a current queue depth of somewhere in between the old and new
-+ * value.
-+ */
-+static ssize_t queue_unplug_depth_store(struct request_queue *q,
-+					const char *page, size_t count)
-+{
-+	unsigned long depth;
-+	int ret;
++	lea ESP_OFFSET(%edi),%edi	/* move dest up over saved regs */
 +
-+	ret = queue_var_store(&depth, page, count);
++	/* set up the copy */
++1:	std
++	mov $(PT_EIP+4) / 4, %ecx	/* copy ret+saved regs up to orig_eax */
++	rep movsl
++	cld
 +
-+	spin_lock_irq(q->queue_lock);
-+	q->unplug_thresh = depth;
-+	spin_unlock_irq(q->queue_lock);
-+
-+	return ret;
-+}
++	lea 4(%edi),%esp		/* point esp to new frame */
++2:	ret
  
- static struct queue_sysfs_entry queue_requests_entry = {
- 	.attr = {.name = "nr_requests", .mode = S_IRUGO | S_IWUSR },
-@@ -4005,12 +4078,26 @@ static struct queue_sysfs_entry queue_iosched_entry = {
- 	.store = elv_iosched_store,
- };
  
-+static struct queue_sysfs_entry queue_unplug_depth_entry = {
-+	.attr = {.name = "unplug_depth", .mode = S_IRUGO | S_IWUSR },
-+	.show = queue_unplug_depth_show,
-+	.store = queue_unplug_depth_store,
-+};
-+
-+static struct queue_sysfs_entry queue_unplug_delay_entry = {
-+	.attr = {.name = "unplug_delay_ms", .mode = S_IRUGO | S_IWUSR },
-+	.show = queue_unplug_delay_show,
-+	.store = queue_unplug_delay_store,
-+};
-+
- static struct attribute *default_attrs[] = {
- 	&queue_requests_entry.attr,
- 	&queue_ra_entry.attr,
- 	&queue_max_hw_sectors_entry.attr,
- 	&queue_max_sectors_entry.attr,
- 	&queue_iosched_entry.attr,
-+	&queue_unplug_delay_entry.attr,
-+	&queue_unplug_depth_entry.attr,
- 	NULL,
- };
+ /*
+===================================================================
+--- a/arch/i386/xen/xen-ops.h
++++ b/arch/i386/xen/xen-ops.h
+@@ -68,4 +68,5 @@ DECL_ASM(unsigned long, xen_save_fl_dire
+ DECL_ASM(unsigned long, xen_save_fl_direct, void);
+ DECL_ASM(void, xen_restore_fl_direct, unsigned long);
  
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index db5b00a..04c09d6 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -747,6 +747,7 @@ extern void blk_queue_prep_rq(request_queue_t *, prep_rq_fn *pfn);
- extern void blk_queue_merge_bvec(request_queue_t *, merge_bvec_fn *);
- extern void blk_queue_dma_alignment(request_queue_t *, int);
- extern void blk_queue_softirq_done(request_queue_t *, softirq_done_fn *);
-+extern void blk_queue_unplug_threshold(request_queue_t *q, unsigned int, unsigned long);
- extern struct backing_dev_info *blk_get_backing_dev_info(struct block_device *bdev);
- extern int blk_queue_ordered(request_queue_t *, unsigned, prepare_flush_fn *);
- extern void blk_queue_issue_flush_fn(request_queue_t *, issue_flush_fn *);
-
--- 
-Jens Axboe
++void xen_iret_direct(void);
+ #endif /* XEN_OPS_H */
