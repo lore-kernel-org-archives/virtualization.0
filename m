@@ -1,108 +1,57 @@
-From: "Santos, Jose Renato G" <joserenato.santos@hp.com>
-Subject: RE: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
-Date: Mon, 4 Jun 2007 21:14:01 -0000
-Message-ID: <08CA2245AFCF444DB3AC415E47CC40AFBD2FD4__41715.5349547558$1180991828$gmane$org@G3W0072.americas.hpqcorp.net>
-References: <1180613947.11133.58.camel@localhost.localdomain>
-	<08CA2245AFCF444DB3AC415E47CC40AFBD2CCF@G3W0072.americas.hpqcorp.net>
-	<1180779167.9228.66.camel@localhost.localdomain>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: Re: [PATCH] xen: use iret directly where possible
+Date: Mon, 4 Jun 2007 23:05:04 +0200
+Message-ID: <200706042305.05340.ak@suse.de>
+References: <46646662.9020707@goop.org> <200706042145.30339.ak@suse.de>
+	<4664772A.20602@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <1180779167.9228.66.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, jmk@plan9.bell-labs.com, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Suzanne McIntosh <skranjac@us.ibm.com>, Anthony Liguori <anthony@codemonkey.ws>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <4664772A.20602@goop.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@linux-foundation.org>, Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
- 
+On Monday 04 June 2007 22:33, Jeremy Fitzhardinge wrote:
 
-> -----Original Message-----
-> From: Rusty Russell [mailto:rusty@rustcorp.com.au] 
-> Sent: Saturday, June 02, 2007 3:13 AM
-> To: Santos, Jose Renato G
-> Cc: kvm-devel; Xen Mailing List; virtualization; Jimi 
-> Xenidis; Stephen Rothwell; jmk@plan9.bell-labs.com; Herbert 
-> Xu; Christian Borntraeger; Suzanne McIntosh; Anthony Liguori; 
-> Martin Schwidefsky
-> Subject: RE: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
-> 
-> 
-> Hi Renato!
-> 
-> 	This is a very good question.  For currently-existing 
-> and working devices it just seems like another layer of 
-> indirection, and not much code saving.
-> 
-> 	There are several reasons for having a common layer.  
-> The obvious is to reduce the amount of code, but that's the 
-> least important.  Slightly more important is that noone wants 
-> to maintain and tune 5 different virtual net drivers, 5 
-> different virtual block drivers, etc.  In fact, the kernel 
-> community will start to rebel at some point, especially if 
-> they want different optimization hooks deeper into the kernel.
-> 
+> Hm, yes, I guess so.  I'd assumed that softirq was in the WORK_NEEDED
+> path of entry.S without checking; but anything which can set one of the
+> WORK_NEEDED flags is an issue.
 
-  Rusty,
+For interrupts it can be only signals or rescheduling.
 
-  Thanks for clarifying your thinking. This helped me understand
-  your goals better.
-  I agree it would be nice to reduce the number of drivers as it
-  improves mantainability. However I am not convinced that
-  adding an IO virtualization layer will remove the need
-  for having different drivers for different virtualization
-  technologies.
-  It seems that we will still need specific devices drivers
-  for each different virtualization flavor. For example,
-  we will still need to have a specific Xen netfront 
-  device that talks to a backend device in dom0, using
-  page grants, and other Xen specific mechanisms.
-  It looks like  will still need to maintain all the virtual device 
-  drivers and in addition we will now have to maintain 
-  another virtualization layer. 
-  I confess I don't know well any of the other virtualization
-  technologies besides Xen. Maybe for some of them there is
-  enough similarities that you could benefit from a common
-  virtualization layer, but I just can't see it yet. 
-  
-  Regards
+> >>  - If the interrupt causes a signal to be delivered to the current
+> >> process, the signal will be marked pending on the process, but it will
+> >> not get delivered because we're past the point where pending signals are
+> >> detected.  Again, it could be an unbounded amount of time before the
+> >> signal gets delivered.
+> >
+> > It's still not clear to me why you can't do cli ; check again ;
+> > iret-equivalent to handle this.
+>
+> Well, we use the real iret instruction to actually transition into
+> userspace; obviously we can't do anything after that, and there's always
+> going to be an open window before it because we can't do anything
+> instruction-level atomic.
 
-  Renato
-  
-> 	We expect to see new device types (entropy device, 
-> anyone?), and so the
-> 5 different drivers becomes the 5 x N different drivers.  
-> Eventually we may come up with common bus and probing which 
-> everyone loves, but until then we can at least make it simple 
-> for each virtualization technology to implement the new XYZZY device.
-> 
-> 	Finally, virtual I/O techniques are *moving*.  KVM 
-> doesn't really have one, XenSource are discussing more 
-> changes to theirs (at least for
-> networking) and lguest is still looking for an efficient one. 
->  No doubt the others would love to use clean and optimal 
-> Linux drivers, too (UML, S/390, Power, VMWare?).
-> 
-> 	When Linux doesn't provide a model of what it expects 
-> from virtual devices, one end of the design process is 
-> untethered: we've already seen some fairly random and 
-> gratuitously different results.  If we can provide a simple 
-> interface which we like it encourages new implementations to 
-> produce Linux-friendly interfaces.
-> 
-> 	Of course, the new interface must not suck.
-> 
-> I hope that clarifies my thinking?
-> Rusty.
-> 
-> 
+If you stay cli you don't need that. Why is it that it has to enable 
+interrupts?
+
+> In your sequence, the event may become pending after "check again", even
+> though it won't be delivered. 
+
+sti only takes affect one instruction after it. So if you can make 
+it that small it would also work. But that might not help you.
+
+-Andi
