@@ -1,124 +1,108 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Re: [PATCH] xen: use iret directly where possible
-Date: Mon, 04 Jun 2007 13:33:46 -0700
-Message-ID: <4664772A.20602@goop.org>
-References: <46646662.9020707@goop.org> <200706042145.30339.ak@suse.de>
+From: "Santos, Jose Renato G" <joserenato.santos@hp.com>
+Subject: RE: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
+Date: Mon, 4 Jun 2007 21:14:01 -0000
+Message-ID: <08CA2245AFCF444DB3AC415E47CC40AFBD2FD4__41715.5349547558$1180991828$gmane$org@G3W0072.americas.hpqcorp.net>
+References: <1180613947.11133.58.camel@localhost.localdomain>
+	<08CA2245AFCF444DB3AC415E47CC40AFBD2CCF@G3W0072.americas.hpqcorp.net>
+	<1180779167.9228.66.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <200706042145.30339.ak@suse.de>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Andi Kleen <ak@suse.de>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@linux-foundation.org>, Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <1180779167.9228.66.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, jmk@plan9.bell-labs.com, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Suzanne McIntosh <skranjac@us.ibm.com>, Anthony Liguori <anthony@codemonkey.ws>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
-> Not sure what a recursive exception is. You mean the interrupt?
->   
+ 
 
-Yeah, though Xen calls them events, so I chose a completely different
-third term.
+> -----Original Message-----
+> From: Rusty Russell [mailto:rusty@rustcorp.com.au] 
+> Sent: Saturday, June 02, 2007 3:13 AM
+> To: Santos, Jose Renato G
+> Cc: kvm-devel; Xen Mailing List; virtualization; Jimi 
+> Xenidis; Stephen Rothwell; jmk@plan9.bell-labs.com; Herbert 
+> Xu; Christian Borntraeger; Suzanne McIntosh; Anthony Liguori; 
+> Martin Schwidefsky
+> Subject: RE: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
+> 
+> 
+> Hi Renato!
+> 
+> 	This is a very good question.  For currently-existing 
+> and working devices it just seems like another layer of 
+> indirection, and not much code saving.
+> 
+> 	There are several reasons for having a common layer.  
+> The obvious is to reduce the amount of code, but that's the 
+> least important.  Slightly more important is that noone wants 
+> to maintain and tune 5 different virtual net drivers, 5 
+> different virtual block drivers, etc.  In fact, the kernel 
+> community will start to rebel at some point, especially if 
+> they want different optimization hooks deeper into the kernel.
+> 
 
-> It looks ...very... ug^w^wcomplicated.
->   
+  Rusty,
 
-I suppose, but you should look at the xen-unstable code by comparison...
+  Thanks for clarifying your thinking. This helped me understand
+  your goals better.
+  I agree it would be nice to reduce the number of drivers as it
+  improves mantainability. However I am not convinced that
+  adding an IO virtualization layer will remove the need
+  for having different drivers for different virtualization
+  technologies.
+  It seems that we will still need specific devices drivers
+  for each different virtualization flavor. For example,
+  we will still need to have a specific Xen netfront 
+  device that talks to a backend device in dom0, using
+  page grants, and other Xen specific mechanisms.
+  It looks like  will still need to maintain all the virtual device 
+  drivers and in addition we will now have to maintain 
+  another virtualization layer. 
+  I confess I don't know well any of the other virtualization
+  technologies besides Xen. Maybe for some of them there is
+  enough similarities that you could benefit from a common
+  virtualization layer, but I just can't see it yet. 
+  
+  Regards
 
-But either way, the alternative is to always use the iret hypercall,
-which effectively doubles the cost of entering and exiting the kernel,
-so I think the extra code is worth it.
-
->>  - If the interrupt causes a softirq to be queued, we will return to
->>    userspace without processing it, since its already after the point at
->>    which we look for queued softirqs.  This means it could be an
->>    unbounded amount of time before it gets processed on next kernel
->>    entry.
->>     
->
-> That doesn't make sense. softirqs get processed after interrupts,
-> not on return to user space. So the nested interrupt should handle
-> its own softirqs because the softirq counters are already decreased.
->   
-
-Hm, yes, I guess so.  I'd assumed that softirq was in the WORK_NEEDED
-path of entry.S without checking; but anything which can set one of the
-WORK_NEEDED flags is an issue.
-
->>  - If the interrupt causes a signal to be delivered to the current process,
->>    the signal will be marked pending on the process, but it will not
->>    get delivered because we're past the point where pending signals
->>    are detected.  Again, it could be an unbounded amount of time
->>    before the signal gets delivered.
->>     
->
-> It's still not clear to me why you can't do cli ; check again ; iret-equivalent
-> to handle this.
->   
-
-Well, we use the real iret instruction to actually transition into
-userspace; obviously we can't do anything after that, and there's always
-going to be an open window before it because we can't do anything
-instruction-level atomic.
-
-In your sequence, the event may become pending after "check again", even
-though it won't be delivered.  And either way, we need to set the proper
-event mask state before using "iret", so there's still a race where a
-recursive interrupt could happen.
-
-In other words, consider this hypothetical sequence:
-
-   1. start with events masked
-   2. check for pending -> handle if so
-   3. unmask events
-   4. check for pending -> handle if so
-   5. iret
-
-There's always a window after "check for pending" where a new event can
-become pending.  If it happens between 2 & 3, then we miss it at 2; if 4
-isn't done, we end up returning to userspace with a pending event.  That
-is, 2 is insufficient on its own, and redundant when 4 is in place, so
-there's no point in testing for pending while events are still masked.
-
-If we do the check at 4, then there's a window at 4-5 where we can get a
-recursive event/interrupt.   If that happens, then the nested interrupt
-save nested register state on the stack.  At it leaves the nested
-interrupt it will notice that its returning to kernel mode, and won't
-bother testing any of the WORK_NEEDED flags, and it will end up
-returning to just before the iret in step 5.  This will simply return to
-usermode directly without re-testing the WORK_NEEDED flags, leaving them
-set until the process enters and leaves the kernel again, possibly an
-unbounded amount of time later.
-
-(Despite the recursion window, the test at 4 is always necessary to mop
-up any previously pending events from before step 1.)
-
-This patch short-circuits this by noticing that there's a recursive
-event in the 4-5 window, and just folds the recursive frame into the
-current one and jumps back into interrupt handling, meaning that all the
-work flags will be re-processed as it comes out again.
-
->>  - The recursion is, in theory, unbounded.  There's a small chance that
->>    a series of unfortunate events will cause the exception frames to
->>    build up and overrun the stack.  But that's very unlikely.
->>     
->
-> Doesn't seem to be different to me than a normal interrupt anywhere
-> else. If you're worried about overflow use interrupt stacks.
->   
-
-No, I don't think this is really a concern at all.  But it was the only
-rationale listed by the original Xen implementation.  I wasn't going to
-bother with the critical region stuff at all, but I think the
-signal/WORK_NEEDED issue is worth plugging.  Besides, if we were in that
-situation, this patch just converts the stack overrun into a livelock,
-which isn't much of an improvement.
-
-    J
+  Renato
+  
+> 	We expect to see new device types (entropy device, 
+> anyone?), and so the
+> 5 different drivers becomes the 5 x N different drivers.  
+> Eventually we may come up with common bus and probing which 
+> everyone loves, but until then we can at least make it simple 
+> for each virtualization technology to implement the new XYZZY device.
+> 
+> 	Finally, virtual I/O techniques are *moving*.  KVM 
+> doesn't really have one, XenSource are discussing more 
+> changes to theirs (at least for
+> networking) and lguest is still looking for an efficient one. 
+>  No doubt the others would love to use clean and optimal 
+> Linux drivers, too (UML, S/390, Power, VMWare?).
+> 
+> 	When Linux doesn't provide a model of what it expects 
+> from virtual devices, one end of the design process is 
+> untethered: we've already seen some fairly random and 
+> gratuitously different results.  If we can provide a simple 
+> interface which we like it encourages new implementations to 
+> produce Linux-friendly interfaces.
+> 
+> 	Of course, the new interface must not suck.
+> 
+> I hope that clarifies my thinking?
+> Rusty.
+> 
+> 
