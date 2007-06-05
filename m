@@ -1,19 +1,21 @@
 From: "Santos, Jose Renato G" <joserenato.santos@hp.com>
 Subject: RE: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
-Date: Tue, 5 Jun 2007 02:39:36 -0000
-Message-ID: <08CA2245AFCF444DB3AC415E47CC40AFBD30BC__15520.6406642266$1181011279$gmane$org@G3W0072.americas.hpqcorp.net>
+Date: Tue, 5 Jun 2007 02:49:45 -0000
+Message-ID: <08CA2245AFCF444DB3AC415E47CC40AFBD30C4__20908.3909322091$1181011855$gmane$org@G3W0072.americas.hpqcorp.net>
 References: <1180613947.11133.58.camel@localhost.localdomain>
 	<08CA2245AFCF444DB3AC415E47CC40AFBD2CCF@G3W0072.americas.hpqcorp.net>
 	<1180779167.9228.66.camel@localhost.localdomain>
 	<08CA2245AFCF444DB3AC415E47CC40AFBD2FD4@G3W0072.americas.hpqcorp.net>
-	<1181007892.25878.112.camel@localhost.localdomain>
+	<466481ED.8050209@goop.org>
+	<08CA2245AFCF444DB3AC415E47CC40AFBD30B4@G3W0072.americas.hpqcorp.net>
+	<1181010428.25878.137.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-class: urn:content-classes:message
-In-Reply-To: <1181007892.25878.112.camel@localhost.localdomain>
+In-Reply-To: <1181010428.25878.137.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -31,77 +33,62 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 > -----Original Message-----
 > From: Rusty Russell [mailto:rusty@rustcorp.com.au] 
-> Sent: Monday, June 04, 2007 6:45 PM
+> Sent: Monday, June 04, 2007 7:27 PM
 > To: Santos, Jose Renato G
-> Cc: kvm-devel; Xen Mailing List; virtualization; Jimi 
-> Xenidis; Stephen Rothwell; jmk@plan9.bell-labs.com; Herbert 
-> Xu; Christian Borntraeger; Suzanne McIntosh; Anthony Liguori; 
-> Martin Schwidefsky
+> Cc: Jeremy Fitzhardinge; Jimi Xenidis; Stephen Rothwell; Xen 
+> Mailing List; jmk@plan9.bell-labs.com; Herbert Xu; kvm-devel; 
+> virtualization; Christian Borntraeger; Suzanne McIntosh; 
+> Anthony Liguori; Martin Schwidefsky
 > Subject: RE: [Xen-devel] [PATCH RFC 1/3] virtio infrastructure
 > 
-> On Mon, 2007-06-04 at 21:14 +0000, Santos, Jose Renato G wrote:
-> >   Thanks for clarifying your thinking. This helped me understand
-> >   your goals better.
-> >   I agree it would be nice to reduce the number of drivers as it
-> >   improves mantainability. However I am not convinced that
-> >   adding an IO virtualization layer will remove the need
-> >   for having different drivers for different virtualization
-> >   technologies.
+> On Tue, 2007-06-05 at 02:05 +0000, Santos, Jose Renato G wrote:
 > 
-> >   It seems that we will still need specific devices drivers
-> >   for each different virtualization flavor. For example,
-> >   we will still need to have a specific Xen netfront 
-> >   device that talks to a backend device in dom0, using
-> >   page grants, and other Xen specific mechanisms.
+> > > From: Jeremy Fitzhardinge [mailto:jeremy@goop.org] The 
+> hope is that 
+> > > the Xen-specific elements of the driver will be restricted to 
+> > > Xen-specific things like grant tables, and the bulk of the driver 
+> > > and its logic can be common.  Whether that can be 
+> achieved and still 
+> > > retain the full performance/features of the entirely Xen-specific 
+> > > netfront driver remains to be seen.  I haven't had a 
+> chance to look 
+> > > at doing any Xen-virtio glue yet, so I'm not really sure 
+> how it will 
+> > > work out.
+> > > 
+> > >     J
+> > > 
+> > 
+> >   Ok, if you share some common code this could be beneficial, but
+> >   in the specific case of Xen networking I believe most of netfront
+> >   code is Xen specific.  I think that a generic "virtual-IO" layer 
+> >   would not be beneficial in this case, but instead it would 
+> >   only add extra complexity to glue the layers.
 > 
-> Hi Renato,
+> This is precisely the plan: to code it up and look hard at 
+> it.  If performance gets hurt, it's a lose.  If performance 
+> is equal and the code is clearer, it's a win, and this is my goal.
 > 
-> 	That definitely should be implementable as a virtio 
-> layer; it was one of the design points.  I consulted with 
-> Herbert Xu early on in the process, and I don't think it 
-> would be too painful.  The devil, of course, is in the details.
-> 
+  I was not really thinking about performance. I was questioning
+  how much code could realy be shared? I expected that just a small
+  fraction of the code could be shared. So even if performance does
+  not suffer, it would not be providing any benefit, or worse, it
+  could make the code more complex due to interaction with an 
+  additional layer
 
- Hi Rusty,
- Yes. I believe it should be implementable. The question is,
- does it achieve the desired benefits? Will the code be easier
- to maintain because it is sharing some generic code with
- other drivers? 
-
-> >   It looks like  will still need to maintain all the virtual device 
-> >   drivers and in addition we will now have to maintain 
-> >   another virtualization layer. 
+> Perhaps you underestimate how much of the Xen netfront driver 
+> is actually dealing with things which *any* efficient virtio 
+> I/O netdriver will have to wrestle with.
 > 
-> 	That would be silly, yes.
-> 
-> >   I confess I don't know well any of the other virtualization
-> >   technologies besides Xen. Maybe for some of them there is
-> >   enough similarities that you could benefit from a common
-> >   virtualization layer, but I just can't see it yet. 
-> 
-> Well, S/390, PowerPC and UML both have virtual I/O already in 
-> the kernel tree, as does Xen.  I believe VMWare have 
-> out-of-tree drivers.  KVM is in tree, but currently doesn't 
-> have paravirtualized drivers. 
-> lguest is sitting in the -mm tree for merging in 2.6.23 with 
-> its own drivers.
-> 
-> None of these drivers is optimal.  The Xen ones are closest, 
-> and they're very Xen-specific and quite complex.  This is 
-> good, and as it gives virtio drivers a target to beat 8)
-> 
+  Perhaps, you are right.
+  I think we will know when you code it up.
+  
+  Regards
 
- Yes. It will be interesting to see how virtio could improve
- the situation. I hope you are right and we could simplify
- this complexity. 
- I apologize if I sounded negative. 
- Just wanted to have a reality check :)
-
- Regards
-
- Renato 
-
-> Cheers,
+  Renato
+  
+  
+> Thanks!
 > Rusty.
 > 
 > 
