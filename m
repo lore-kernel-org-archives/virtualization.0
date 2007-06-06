@@ -1,45 +1,28 @@
-From: Keir Fraser <keir@xensource.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [Xen-devel] [patch 14/33] xen: xen time implementation
-Date: Wed, 06 Jun 2007 13:54:44 +0100
-Message-ID: <C28C6D24.1026E%keir__14383.7295043797$1181134560$gmane$org@xensource.com>
-References: <4666C8E3.76E4.0078.0@novell.com>
+Date: Wed, 06 Jun 2007 07:15:31 -0700
+Message-ID: <4666C183.9060008@goop.org>
+References: <20070522140941.802382212@goop.org> <46668EC6.76E4.0078.0@novell.com> <466686E2.4040004@goop.org> <200706061226.11326.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4666C8E3.76E4.0078.0@novell.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761148AbXFFOPv@vger.kernel.org>
+In-Reply-To: <200706061226.11326.ak@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: Jan Beulich <jbeulich@novell.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Chris Wright <chrisw@sous-sol.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Bohac <jbohac@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Andi Kleen wrote:
+>> I once had some code in there to do that, implemented in very boneheaded
+>> way with a spinlock to protect the "last time returned" variable.  I
+>> expect there's a better way to implement it.
+>>     
+>
+> But any per CPU setup likely needs this to avoid non monotonicity 
 
+Yeah.  The point I didn't quite make was that this should be something
+that the clock core should handle rather than dealing with it in every
+clocksource.
 
-
-On 6/6/07 13:46, "Jan Beulich" <jbeulich@novell.com> wrote:
-
->> On the other hand some timing issues on throttling are probably
->> the smallest of the users' problems when it really happens.
-> 
-> Not if this results in your box hanging - I think throttling is exactly
-> intended
-> to keep the box alive as long as possible (and I've seen throttling in action,
-> with the box happily recovering from the situation - after having seen it a
-> few times I checked and found the fan covered with dust).
-
-Clamping to last returned timestamp value would be fine here. Time would go
-moderately haywire for a while (lurch forwards and then stop for a while),
-but wouldn't go backwards and should recover reasonably within the timescale
-of the thermal event itself. I don't see an issue with just implementing
-this clamping if it is needed.
-
- -- Keir
+    J
