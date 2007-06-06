@@ -1,84 +1,51 @@
-From: Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: Re: [PATCH] paravirt: helper to disable all IO space
-Date: Tue, 05 Jun 2007 18:38:09 -0700
-Message-ID: <46661001.5090406@xensource.com>
-References: <46660CB2.60409@xensource.com>
+From: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [patch 21/33] xen: Xen SMP guest support
+Date: Wed, 06 Jun 2007 09:34:27 +0200
+Message-ID: <46667FA3.76E4.0078.0@novell.com>
+References: <20070522140941.802382212@goop.org>
+	<20070522141252.611887616@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46660CB2.60409@xensource.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20070522141252.611887616@goop.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Benjamin LaHaise <bcrl@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> In a virtual environment, device drivers such as legacy IDE will waste
-> quite a lot of time probing for their devices which will never appear.
-> This helper function allows a paravirt implementation to lay claim to
-> the whole iomem and ioport space, thereby disabling all device drivers
-> trying to claim IO resources.
->
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
->
-> diff -r 83c67f9402b5 arch/i386/kernel/paravirt.c
-> --- a/arch/i386/kernel/paravirt.c	Tue Jun 05 17:41:04 2007 -0700
-> +++ b/arch/i386/kernel/paravirt.c	Tue Jun 05 18:17:29 2007 -0700
-> @@ -227,6 +227,39 @@ static int __init print_banner(void)
->  	return 0;
->  }
->  core_initcall(print_banner);
-> +
-> +static struct resource reserve_ioports = {
-> +	.start = 0,
-> +	.end = IO_SPACE_LIMIT,
-> +	.name = "paravirt-ioport",
-> +	.flags = IORESOURCE_IO | IORESOURCE_BUSY,
-> +};
-> +
-> +static struct resource reserve_iomem = {
-> +	.start = 0,
-> +	.end = -1,
-> +	.name = "paravirt-iomem",
-> +	.flags = IORESOURCE_MEM | IORESOURCE_BUSY,
-> +};
-> +
-> +/*
-> + * Reserve the whole legacy IO space to prevent any legacy drivers
-> + * from wasting time probing for their hardware.  This is a fairly
-> + * brute-force approach to disabling all non-virtual drivers.
-> + * 
-> + * Note that this must be called very early to have any effect.
-> + */
-> +int paravirt_disable_iospace(void)
-> +{
-> +	int ret = 0;
-> +
-> +	ret = request_resource(&ioport_resource, &reserve_ioports);
-> +	if (ret == 0)
-> +		ret = request_resource(&iomem_resource, &reserve_iomem);
-> +
-> +	return ret;
-> +}
-> +
->  
->  struct paravirt_ops paravirt_ops = {
->  	.name = "bare hardware",
-> diff -r 83c67f9402b5 arch/i386/xen/setup.c
-> --- a/arch/i386/xen/setup.c	Tue Jun 05 17:41:04 2007 -0700
-> +++ b/arch/i386/xen/setup.c	Tue Jun 05 18:17:29 2007 -0700
->   
+>--- a/arch/i386/xen/time.c
+>+++ b/arch/i386/xen/time.c
+>@@ -105,17 +105,15 @@ static void get_runstate_snapshot(struct
+> 	preempt_enable();
+> }
+>=20
+>-static void setup_runstate_info(void)
+>+static void setup_runstate_info(int cpu)
+> {
+> 	struct vcpu_register_runstate_memory_area area;
+>=20
+>-	area.addr.v =3D &__get_cpu_var(runstate);
+>+	area.addr.v =3D &per_cpu(runstate, cpu);
+>=20
+> 	if (HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area,
+> 			       smp_processor_id(), &area))
 
-Oops.  This was supposed to be in the corresponding Xen patch.
+Shouldn't this be 'cpu' rather than 'smp_processor_id()'?
 
-    J
+> 		BUG();
+>-
+>-	get_runstate_snapshot(&__get_cpu_var(runstate_snapshot));
+> }
+>=20
+> static void do_stolen_accounting(void)
+
+Jan
