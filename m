@@ -1,28 +1,37 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [Xen-devel] [patch 14/33] xen: xen time implementation
-Date: Wed, 06 Jun 2007 07:15:31 -0700
-Message-ID: <4666C183.9060008@goop.org>
-References: <20070522140941.802382212@goop.org> <46668EC6.76E4.0078.0@novell.com> <466686E2.4040004@goop.org> <200706061226.11326.ak@suse.de>
+Subject: [PATCH] paravirt: fix error handling in paravirt_disable_iospace
+Date: Wed, 06 Jun 2007 15:34:37 -0700
+Message-ID: <4667367D.4090207@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761148AbXFFOPv@vger.kernel.org>
-In-Reply-To: <200706061226.11326.ak@suse.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964972AbXFFWft@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Jan Beulich <jbeulich@novell.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, virtualization@lists.osdl.org, Xen-devel <xen-devel@lists.xensource.com>, Chris Wright <chrisw@sous-sol.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Bohac <jbohac@suse.cz>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
->> I once had some code in there to do that, implemented in very boneheaded
->> way with a spinlock to protect the "last time returned" variable.  I
->> expect there's a better way to implement it.
->>     
->
-> But any per CPU setup likely needs this to avoid non monotonicity 
+Make sure everything is backed out if it fails.
 
-Yeah.  The point I didn't quite make was that this should be something
-that the clock core should handle rather than dealing with it in every
-clocksource.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-    J
+---
+ arch/i386/kernel/paravirt.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+===================================================================
+--- a/arch/i386/kernel/paravirt.c
++++ b/arch/i386/kernel/paravirt.c
+@@ -254,8 +254,11 @@ int paravirt_disable_iospace(void)
+ 	int ret;
+ 
+ 	ret = request_resource(&ioport_resource, &reserve_ioports);
+-	if (ret == 0)
++	if (ret == 0) {
+ 		ret = request_resource(&iomem_resource, &reserve_iomem);
++		if (ret)
++			release_resource(&reserve_ioports);
++	}
+ 
+ 	return ret;
+ }
