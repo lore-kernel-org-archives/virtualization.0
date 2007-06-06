@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH RFC 7/7] i386: paravirt boot sequence
-Date: Wed, 06 Jun 2007 15:58:44 -0700
-Message-ID: <20070606230922.549990391@goop.org>
+Subject: [PATCH RFC 4/7] define ELF notes for adding to a boot image
+Date: Wed, 06 Jun 2007 15:58:41 -0700
+Message-ID: <20070606230922.353532407@goop.org>
 References: <20070606225837.654272428@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=i386-paravirt-bootup.patch
+Content-Disposition: inline; filename=elf-bootnotes.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,143 +18,31 @@ To: "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com
 Cc: lkml <linux-kernel@vger.kernel.org>, Vivek Goyal <vgoyal@in.ibm.com>, v12n <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch uses the updated boot protocol to do paravirtualized boot.
-If the boot version is >= 2.07, then it will do two things:
-
- 1. Check the bootparams loadflags to see if we should reload the
-    segment registers and clear interrupts.  This is appropriate
-    for normal native boot and some paravirtualized environments, but
-    inappropraite for others.
-
- 2. Check the hardware architecture, and dispatch to the appropriate
-    kernel entrypoint.  If the bootloader doesn't set this, then we
-    simply do the normal boot sequence.
-
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
 Cc: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
 
 ---
- arch/i386/boot/header.S |    9 ++++++++-
- arch/i386/kernel/head.S |   47 +++++++++++++++++++++++++++++++++++++++++++----
- 2 files changed, 51 insertions(+), 5 deletions(-)
+ include/linux/elf_boot.h |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 ===================================================================
---- a/arch/i386/boot/header.S
-+++ b/arch/i386/boot/header.S
-@@ -119,7 +119,7 @@ 1:
- 	# Part 2 of the header, from the old setup.S
- 
- 		.ascii	"HdrS"		# header signature
--		.word	0x0206		# header version number (>= 0x0105)
-+		.word	0x0207		# header version number (>= 0x0105)
- 					# or else old loadlin-1.5 will fail)
- 		.globl realmode_swtch
- realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
-@@ -209,6 +209,13 @@ cmdline_size:   .long   COMMAND_LINE_SIZ
-                                                 #added with boot protocol
-                                                 #version 2.06
- 
-+hardware_subarch:	.long 0			# subarchitecture, added with 2.07
-+						# default to 0 for normal x86 PC
+--- /dev/null
++++ b/include/linux/elf_boot.h
+@@ -0,0 +1,15 @@
++#ifndef ELF_BOOT_H
++#define ELF_BOOT_H
 +
-+hardware_subarch_data:	.quad 0
-+
-+kernel_payload:		.long blob_payload	# raw kernel data
-+
- # End of setup header #####################################################
- 
- 	.section ".inittext", "ax"
-===================================================================
---- a/arch/i386/kernel/head.S
-+++ b/arch/i386/kernel/head.S
-@@ -71,28 +71,37 @@ INIT_MAP_BEYOND_END = BOOTBITMAP_SIZE + 
-  */
- .section .text.head,"ax",@progbits
- ENTRY(startup_32)
-+	/* check to see if KEEP_SEGMENTS flag is meaningful */
-+	cmpw $0x207, BP_version(%esi)
-+	jb 1f
-+
-+	/* test KEEP_SEGMENTS flag to see if the bootloader is asking
-+		us to not reload segments */
-+	testb $(1<<6), BP_loadflags(%esi)
-+	jnz 2f
- 
- /*
-  * Set segments to known values.
-  */
--	cld
--	lgdt boot_gdt_descr - __PAGE_OFFSET
-+1:	lgdt boot_gdt_descr - __PAGE_OFFSET
- 	movl $(__BOOT_DS),%eax
- 	movl %eax,%ds
- 	movl %eax,%es
- 	movl %eax,%fs
- 	movl %eax,%gs
-+2:
- 
- /*
-  * Clear BSS first so that there are no surprises...
-- * No need to cld as DF is already clear from cld above...
-- */
++/* Elf notes to help bootloaders identify what program they are booting.
 + */
-+	cld
- 	xorl %eax,%eax
- 	movl $__bss_start - __PAGE_OFFSET,%edi
- 	movl $__bss_stop - __PAGE_OFFSET,%ecx
- 	subl %edi,%ecx
- 	shrl $2,%ecx
- 	rep ; stosl
 +
- /*
-  * Copy bootup parameters out of the way.
-  * Note: %esi still has the pointer to the real-mode data.
-@@ -120,6 +129,35 @@ 2:
- 	movsl
- 1:
- 
-+#ifdef CONFIG_PARAVIRT
-+	cmpw $0x207, (boot_params + BP_version - __PAGE_OFFSET)
-+	jb default_entry
++/* Standardized Elf image notes for booting... The name for all of these is ELFBoot */
++#define ELF_NOTE_BOOT		ELFBoot
 +
-+	/* Paravirt-compatible boot parameters.  Look to see what architecture
-+		we're booting under. */
-+	movl (boot_params + BP_hardware_subarch - __PAGE_OFFSET), %eax
-+	cmpl $num_subarch_entries, %eax
-+	jae bad_subarch
++#define EIN_PROGRAM_NAME	1 /* The program in this ELF file */
++#define EIN_PROGRAM_VERSION	2 /* The version of the program in this ELF file */
++#define EIN_PROGRAM_CHECKSUM	3 /* ip style checksum of the memory image. */
++#define EIN_ARGUMENT_STYLE	4 /* String identifying argument passing style */
 +
-+	movl subarch_entries - __PAGE_OFFSET(,%eax,4), %eax
-+	subl $__PAGE_OFFSET, %eax
-+	jmp *%eax
-+
-+bad_subarch:
-+WEAK(lguest_entry)
-+WEAK(xen_entry)
-+	/* Unknown implementation; there's really
-+	   nothing we can do at this point. */
-+	ud2a
-+.data
-+subarch_entries:
-+	.long default_entry		/* normal x86/PC */
-+	.long lguest_entry		/* lguest hypervisor */
-+	.long xen_entry			/* Xen hypervisor */
-+num_subarch_entries = (. - subarch_entries) / 4
-+.previous
-+#endif /* CONFIG_PARAVIRT */
-+
- /*
-  * Initialize page tables.  This creates a PDE and a set of page
-  * tables, which are located immediately beyond _end.  The variable
-@@ -132,6 +170,7 @@ 1:
-  */
- page_pde_offset = (__PAGE_OFFSET >> 20);
- 
-+default_entry:
- 	movl $(pg0 - __PAGE_OFFSET), %edi
- 	movl $(swapper_pg_dir - __PAGE_OFFSET), %edx
- 	movl $0x007, %eax			/* 0x007 = PRESENT+RW+USER */
++#endif /* ELF_BOOT_H */
 
 -- 
