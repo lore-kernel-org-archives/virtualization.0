@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH RFC 1/7] update boot spec to 2.07
-Date: Wed, 06 Jun 2007 15:58:38 -0700
-Message-ID: <20070606230922.074177129@goop.org>
+Subject: [PATCH RFC 6/7] i386: make the bzImage payload an ELF file
+Date: Wed, 06 Jun 2007 15:58:43 -0700
+Message-ID: <20070606230922.476662240@goop.org>
 References: <20070606225837.654272428@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=update-boot-spec.patch
+Content-Disposition: inline; filename=i386-bzimage-elf-payload.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,26 +18,31 @@ To: "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com
 Cc: lkml <linux-kernel@vger.kernel.org>, Vivek Goyal <vgoyal@in.ibm.com>, v12n <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Proposed updates for version 2.07 of the boot protocol.  This includes:
+This patch makes the payload of the bzImage file an ELF file.  In
+other words, the bzImage is structured as follows:
+ - boot sector
+ - 16bit setup code
+ - ELF header
+  - decompressor
+  - compressed kernel
 
-load_flags.KEEP_SEGMENTS- flag to request/inhibit segment reloads
-hardware_subarch	- what subarchitecture we're booting under
-hardware_subarch_data	- per-architecture data
-kernel_payload		- address of the raw kernel blob
+A bootloader may find the start of the ELF file by looking at the
+setup_size entry in the boot params, and using that to find the offset
+of the ELF header.  The ELF Phdrs contain all the mapped memory
+required to decompress and start booting the kernel.
 
-The intention of these changes is to make booting a paravirtualized
-kernel work via the normal Linux boot protocol.  The intention is that
-the bzImage payload can be a properly formed ELF file, so that the
-bootloader can use its ELF notes and Phdrs to get more metadata about
-the kernel and its requirements.
+One slightly complex part of this is that the bzImage boot_params need
+to know about the internal structure of the ELF file, at least to the
+extent of being able to point the core32_start entry at the ELF file's
+entrypoint, so that loaders which use this field will still work.
 
-The ELF file could be the uncompressed kernel vmlinux itself; it would
-only take small buildsystem changes to implement this.
+Similarly, the ELF header needs to know how big the kernel vmlinux's
+bss segment is, in order to make sure is is mapped properly.
 
-kernel_payload was added so that a bootloader can just get to the raw
-bits of the kernel, so that it can do its own decompression/relocation
-if it wishes.  This is not particularly well-defined yet; I just added
-it with the hope that it keeps HPA happy.
+To handle these two cases, we generate abstracted versions of the
+object files which only contain the symbols we care about (generated
+with objcopy --strip-all --keep-symbol=X), and then include those
+symbol tables with ld -R.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Cc: "Eric W. Biederman" <ebiederm@xmission.com>
@@ -46,133 +51,319 @@ Cc: Vivek Goyal <vgoyal@in.ibm.com>
 Cc: Rusty Russell <rusty@rustcorp.com.au>
 
 ---
- Documentation/i386/boot.txt    |   43 +++++++++++++++++++++++++++++++++++++++-
- arch/i386/kernel/asm-offsets.c |    7 ++++++
- include/asm-i386/bootparam.h   |   10 +++++++--
- 3 files changed, 57 insertions(+), 3 deletions(-)
+ arch/i386/boot/Makefile               |   11 ++++--
+ arch/i386/boot/compressed/Makefile    |   29 +++++++++++++--
+ arch/i386/boot/compressed/elfhdr.S    |   60 +++++++++++++++++++++++++++++++++
+ arch/i386/boot/compressed/head.S      |    9 ++--
+ arch/i386/boot/compressed/notes.S     |    7 +++
+ arch/i386/boot/compressed/vmlinux.lds |   24 ++++++++++---
+ arch/i386/boot/header.S               |    7 ---
+ arch/i386/boot/setup.ld               |    5 ++
+ arch/i386/kernel/head.S               |    1 
+ arch/i386/kernel/vmlinux.lds.S        |    1 
+ 10 files changed, 131 insertions(+), 23 deletions(-)
 
 ===================================================================
---- a/Documentation/i386/boot.txt
-+++ b/Documentation/i386/boot.txt
-@@ -168,6 +168,9 @@ 0234/1	2.05+	relocatable_kernel Whether 
- 0234/1	2.05+	relocatable_kernel Whether kernel is relocatable or not
- 0235/3	N/A	pad2		Unused
- 0238/4	2.06+	cmdline_size	Maximum size of the kernel command line
-+023C/4	2.07+	hardware_subarch Hardware subarchitecture
-+0240/8	2.07+	hardware_subarch_data Subarchitecture-specific data
-+0248/4	2.07+	kernel_payload	Pointer to raw kernel data
+--- a/arch/i386/boot/Makefile
++++ b/arch/i386/boot/Makefile
+@@ -72,14 +72,19 @@ AFLAGS		:= $(CFLAGS) -D__ASSEMBLY__
  
- (1) For backwards compatibility, if the setup_sects field contains 0, the
-     real value is 4.
-@@ -204,7 +207,7 @@ boot loaders can ignore those fields.
+ SETUP_OBJS = $(addprefix $(obj)/,$(setup-y))
  
- The byte order of all fields is littleendian (this is x86, after all.)
+-LDFLAGS_setup.elf	:= -T
+-$(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
++$(obj)/zImage $(obj)/bzImage: 				\
++	LDFLAGS	:=					\
++		-R $(obj)/compressed/blob-syms		\
++		--defsym IMAGE_OFFSET=$(IMAGE_OFFSET) -T
++
++$(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) 	\
++		$(obj)/compressed/blob-syms FORCE
+ 	$(call if_changed,ld)
  
--Field name:	setup_secs
-+Field name:	setup_sects
- Type:		read
- Offset/size:	0x1f1/1
- Protocol:	ALL
-@@ -356,6 +359,13 @@ Protocol:	2.00+
- 	- If 0, the protected-mode code is loaded at 0x10000.
- 	- If 1, the protected-mode code is loaded at 0x100000.
+ $(obj)/payload.o:	EXTRA_AFLAGS := -Wa,-I$(obj)
+ $(obj)/payload.o: $(src)/payload.S $(obj)/blob.bin
  
-+  Bit 6 (write): KEEP_SEGMENTS
-+	Protocol: 2.07+
-+	- if 0, reload the segment registers in the 32bit entry point.
-+	- if 1, do not reload the segment registers in the 32bit entry point.
-+		Assume that %cs %ds %ss %es are all set to flat segments with
-+		a base of 0 (or the equivalent for their environment).
-+
-   Bit 7 (write): CAN_USE_HEAP
- 	Set this bit to 1 to indicate that the value entered in the
- 	heap_end_ptr is valid.  If this field is clear, some setup code
-@@ -479,6 +489,37 @@ Protocol:	2.06+
-   zero. This means that the command line can contain at most
-   cmdline_size characters. With protocol version 2.05 and earlier, the
-   maximum size was 255.
-+
-+Field name:	hardware_subarch
-+Type:		write
-+Offset/size:	0x23c/4
-+Protocol:	2.07+
-+
-+  In a paravirtualized environment the hardware low level architectural
-+  pieces such as interrupt handling, page table handling, and
-+  accessing process control registers needs to be done differently.
-+
-+  This field allows the bootloader to inform the kernel we are in one
-+  one of those environments.
-+
-+  0x00000000	The default x86/PC environment
-+  0x00000001	lguest
-+  0x00000002	Xen
-+
-+Field name:	hardware_subarch_data
-+Type:		write
-+Offset/size:	0x240/8
-+Protocol:	2.07+
-+
-+  A pointer to data that is specific to hardware subarch
-+
-+Field name:	kernel_payload
-+Type:		read
-+Offset/size:	0x248/4
-+Protocol:	2.07+
-+
-+  The relocated pointer to the actual kernel payload, in whatever form
-+  it exists in (gzip image, normally).
+-$(obj)/compressed/blob: FORCE
++$(obj)/compressed/blob $(obj)/compressed/blob-syms: FORCE
+ 	$(Q)$(MAKE) $(build)=$(obj)/compressed IMAGE_OFFSET=$(IMAGE_OFFSET) $@
  
- 
- **** THE KERNEL COMMAND LINE
+ # Set this if you want to pass append arguments to the zdisk/fdimage/isoimage kernel
 ===================================================================
---- a/arch/i386/kernel/asm-offsets.c
-+++ b/arch/i386/kernel/asm-offsets.c
-@@ -15,6 +15,7 @@
- #include <asm/fixmap.h>
- #include <asm/processor.h>
- #include <asm/thread_info.h>
-+#include <asm/bootparam.h>
- #include <asm/elf.h>
- #include <xen/interface/xen.h>
+--- a/arch/i386/boot/compressed/Makefile
++++ b/arch/i386/boot/compressed/Makefile
+@@ -4,21 +4,42 @@
+ # create a compressed vmlinux image from the original vmlinux
+ #
  
-@@ -143,4 +144,10 @@ void foo(void)
- 	OFFSET(LGUEST_PAGES_regs_errcode, lguest_pages, regs.errcode);
- 	OFFSET(LGUEST_PAGES_regs, lguest_pages, regs);
- #endif
+-targets		:= blob vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o \
++targets		:= blob vmlinux.bin vmlinux.bin.gz \
++			elfhdr.o head.o misc.o notes.o piggy.o \
+ 			vmlinux.bin.all vmlinux.relocs
+ 
+-LDFLAGS_blob	:= -T
+ hostprogs-y	:= relocs
+ 
+ CFLAGS  := -m32 -D__KERNEL__ $(LINUX_INCLUDE) -O2 \
+ 	   -fno-strict-aliasing -fPIC \
+ 	   $(call cc-option,-ffreestanding) \
+ 	   $(call cc-option,-fno-stack-protector)
+-LDFLAGS := -m elf_i386
++LDFLAGS := -R $(obj)/vmlinux-syms --defsym IMAGE_OFFSET=$(IMAGE_OFFSET) -T
+ 
+-$(obj)/blob: $(src)/vmlinux.lds $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
++OBJS=$(addprefix $(obj)/,elfhdr.o head.o misc.o notes.o piggy.o)
 +
-+	BLANK();
-+	OFFSET(BP_scratch, boot_params, scratch);
-+	OFFSET(BP_loadflags, boot_params, hdr.loadflags);
-+	OFFSET(BP_hardware_subarch, boot_params, hdr.hardware_subarch);
-+	OFFSET(BP_version, boot_params, hdr.version);
++$(obj)/blob: $(src)/vmlinux.lds $(obj)/vmlinux-syms $(OBJS) FORCE
+ 	$(call if_changed,ld)
+ 	@:
++
++# Generate a stripped-down object including only the symbols needed
++# so that we can get them with ld -R. Direct stderr to /dev/null to
++# shut useless warning up.
++quiet_cmd_symextract = SYMEXT $@
++      cmd_symextract = objcopy -S \
++			$(addprefix -j,$(EXTRACTSECTS)) \
++			$(addprefix -K,$(EXTRACTSYMS)) \
++			$< $@ 2>/dev/null
++
++$(obj)/blob-syms: EXTRACTSYMS := blob_entry blob_payload
++$(obj)/blob-syms: EXTRACTSECTS := .text.head .data.compressed
++$(obj)/blob-syms: $(obj)/blob FORCE
++	$(call if_changed,symextract)
++
++$(obj)/vmlinux-syms: EXTRACTSYMS := __reserved_end
++$(obj)/vmlinux-syms: EXTRACTSECTS := .bss
++$(obj)/vmlinux-syms: vmlinux FORCE
++	$(call if_changed,symextract)
+ 
+ $(obj)/vmlinux.bin: vmlinux FORCE
+ 	$(call if_changed,objcopy)
+===================================================================
+--- /dev/null
++++ b/arch/i386/boot/compressed/elfhdr.S
+@@ -0,0 +1,60 @@
++/* DIY ELF header */
++
++#include <linux/elf.h>
++#include <asm/boot.h>
++
++.section .elfhdr,"a",@progbits
++ehdr:
++	# e_ident
++	.byte ELFMAG0, ELFMAG1, ELFMAG2, ELFMAG3
++	.byte ELFCLASS32, ELFDATA2LSB, EV_CURRENT, ELFOSABI_STANDALONE
++	.org ehdr + EI_NIDENT
++#ifndef CONFIG_RELOCATABLE
++	.word ET_EXEC				# e_type
++#else
++	.word ET_DYN				# e_type
++#endif
++	.word EM_386				# e_machine
++	.int  1					# e_version
++	.int  LOAD_PHYSICAL_ADDR + blob_startup_32 - ehdr	# e_entry
++	.int  phdr - ehdr			# e_phoff
++	.int  0					# e_shoff
++	.int  0					# e_flags
++	.word ehdr_end - ehdr			# e_ehsize
++	.word phdr_size				# e_phentsize
++	.word phnum				# e_phnum
++	.word 40				# e_shentsize
++	.word 0					# e_shnum
++	.word 0					# e_shstrndx
++ehdr_end:
++
++phdr:
++	.int PT_LOAD					# p_type
++	.int _head - ehdr				# p_offset
++	.int LOAD_PHYSICAL_ADDR				# p_vaddr
++	.int LOAD_PHYSICAL_ADDR				# p_paddr
++	.int blob_filesz				# p_filesz
++	.int blob_memsz					# p_memsz
++	.int PF_R | PF_W | PF_X				# p_flags
++	.int 4096					# p_align
++phdr_size = . - phdr
++
++	.int PT_NOTE					# p_type
++	.int _notes - ehdr				# p_offset
++	.int 0						# p_vaddr
++	.int 0						# p_paddr
++	.int blob_notesz				# p_filesz
++	.int 0						# p_memsz
++	.int 0						# p_flags
++	.int 0						# p_align
++
++	.int PT_PHDR					# p_type
++	.int phdr - ehdr				# p_offset
++	.int LOAD_PHYSICAL_ADDR + phdr - ehdr		# p_vaddr
++	.int LOAD_PHYSICAL_ADDR + phdr - ehdr		# p_paddr
++	.int phdr_end - phdr				# p_filesz
++	.int phdr_end - phdr				# p_memsz
++	.int PF_R | PF_W | PF_X				# p_flags
++	.int 0						# p_align
++phdr_end:
++phnum = (phdr_end - phdr) / phdr_size
+===================================================================
+--- a/arch/i386/boot/compressed/head.S
++++ b/arch/i386/boot/compressed/head.S
+@@ -27,11 +27,12 @@
+ #include <asm/segment.h>
+ #include <asm/page.h>
+ #include <asm/boot.h>
++#include <asm/asm-offsets.h>
+ 
+ .section ".text.head","ax",@progbits
+-	.globl startup_32
++	.globl blob_startup_32
+ 
+-startup_32:
++blob_startup_32:
+ 	cld
+ 	cli
+ 	movl $(__BOOT_DS),%eax
+@@ -48,7 +49,7 @@ startup_32:
+  * data at 0x1e4 (defined as a scratch field) are used as the stack
+  * for this calculation. Only 4 bytes are needed.
+  */
+-	leal (0x1e4+4)(%esi), %esp
++	leal (BP_scratch+4)(%esi), %esp
+ 	call 1f
+ 1:	popl %ebp
+ 	subl $1b, %ebp
+@@ -85,7 +86,7 @@ 1:	popl %ebp
+ 	pushl %esi
+ 	leal _end(%ebp), %esi
+ 	leal _end(%ebx), %edi
+-	movl $(_end - startup_32), %ecx
++	movl $(_end - blob_startup_32), %ecx
+ 	std
+ 	rep
+ 	movsb
+===================================================================
+--- /dev/null
++++ b/arch/i386/boot/compressed/notes.S
+@@ -0,0 +1,7 @@
++#include <linux/elfnote.h>
++#include <linux/elf_boot.h>
++#include <linux/utsrelease.h>
++
++ELFNOTE(ELF_NOTE_BOOT, EIN_PROGRAM_NAME, .asciz "Linux")
++ELFNOTE(ELF_NOTE_BOOT, EIN_PROGRAM_VERSION, .asciz UTS_RELEASE)
++ELFNOTE(ELF_NOTE_BOOT, EIN_ARGUMENT_STYLE, .asciz "Linux")
+===================================================================
+--- a/arch/i386/boot/compressed/vmlinux.lds
++++ b/arch/i386/boot/compressed/vmlinux.lds
+@@ -1,18 +1,21 @@ OUTPUT_FORMAT("elf32-i386", "elf32-i386"
+-OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
++OUTPUT_FORMAT("elf32-i386")
+ OUTPUT_ARCH(i386)
+-ENTRY(startup_32)
++
+ SECTIONS
+ {
+-        /* Be careful parts of head.S assume startup_32 is at
+-         * address 0.
+-	 */
++	/* make sure we don't get anything from vmlinux-syms */
++	/DISCARD/ : { */vmlinux-syms(*) }
++
+ 	. =  0 	;
+ 	.text.head : {
++		*(.elfhdr)
+ 		_head = . ;
++	blob_entry = blob_startup_32 + IMAGE_OFFSET;
+ 		*(.text.head)
+ 		_ehead = . ;
+ 	}
+ 	.data.compressed : {
++	blob_payload = input_data + IMAGE_OFFSET;
+ 		*(.data.compressed)
+ 	}
+ 	.text :	{
+@@ -33,6 +36,7 @@ SECTIONS
+ 		*(.data.*)
+ 		_edata = . ;
+ 	}
++	blob_filesz = . ;
+ 	.bss : {
+ 		_bss = . ;
+ 		*(.bss)
+@@ -40,4 +44,14 @@ SECTIONS
+ 		*(COMMON)
+ 		_end = . ;
+ 	}
++
++	/* __reserved_end taken from vmlinux */
++	blob_memsz = __reserved_end;
++
++	.notes : {
++		_notes = . ;
++		*(.note*)
++		_notes_end = .;
++	}
++	blob_notesz = _notes_end - _notes;
  }
 ===================================================================
---- a/include/asm-i386/bootparam.h
-+++ b/include/asm-i386/bootparam.h
-@@ -24,8 +24,9 @@ struct setup_header {
- 	u16	kernel_version;
- 	u8	type_of_loader;
- 	u8	loadflags;
--#define LOADED_HIGH	0x01
--#define CAN_USE_HEAP	0x80
-+#define LOADED_HIGH	(1<<0)
-+#define KEEP_SEGMENTS	(1<<6)
-+#define CAN_USE_HEAP	(1<<7)
- 	u16	setup_move_size;
- 	u32	code32_start;
- 	u32	ramdisk_image;
-@@ -37,6 +38,11 @@ struct setup_header {
- 	u32	initrd_addr_max;
- 	u32	kernel_alignment;
- 	u8	relocatable_kernel;
-+	u8	_pad2[3];
-+	u32	cmdline_size;
-+	u32	hardware_subarch;
-+	u64	hardware_subarch_data;
-+	u32	kernel_payload;
- } __attribute__((packed));
+--- a/arch/i386/boot/header.S
++++ b/arch/i386/boot/header.S
+@@ -155,13 +155,8 @@ setup_move_size: .word  _setup_size	# si
+ 					# loader knows how much data behind
+ 					# us also needs to be loaded.
  
- struct sys_desc_table {
+-code32_start:				# here loaders can put a different
++code32_start:	.long blob_entry	# here loaders can put a different
+ 					# start address for 32-bit code.
+-#ifndef __BIG_KERNEL__
+-		.long	0x1000		#   0x1000 = default for zImage
+-#else
+-		.long	0x100000	# 0x100000 = default for big kernel
+-#endif
+ 
+ ramdisk_image:	.long	0		# address of loaded ramdisk image
+ 					# Here the loader puts the 32-bit
+===================================================================
+--- a/arch/i386/boot/setup.ld
++++ b/arch/i386/boot/setup.ld
+@@ -9,6 +9,9 @@ ENTRY(_start)
+ 
+ SECTIONS
+ {
++	/* make sure we don't get anything from blob-syms */
++	/DISCARD/	: { */blob-syms(*) }
++
+ 	.bstext 0	: { *(.bstext) }
+ 	.bsdata		: { *(.bsdata) }
+ 
+@@ -45,7 +48,7 @@ SECTIONS
+ 
+ 	/DISCARD/ : { *(.note*) }
+ 
+-	. = ALIGN(512);		/* align to sector size */
++	. = ALIGN(4096);		/* align to page size */
+ 	_setup_size = . - _start;
+ 	_setup_sects = _setup_size / 512;
+ 
+===================================================================
+--- a/arch/i386/kernel/head.S
++++ b/arch/i386/kernel/head.S
+@@ -59,6 +59,7 @@ BOOTBITMAP_SIZE = LOW_PAGES / 8
+ BOOTBITMAP_SIZE = LOW_PAGES / 8
+ ALLOCATOR_SLOP = 4
+ 
++.globl INIT_MAP_BEYOND_END
+ INIT_MAP_BEYOND_END = BOOTBITMAP_SIZE + (PAGE_TABLE_SIZE + ALLOCATOR_SLOP)*PAGE_SIZE_asm
+ 
+ /*
+===================================================================
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -194,6 +194,7 @@ SECTIONS
+ 	/* This is where the kernel creates the early boot page tables */
+ 	. = ALIGN(4096);
+ 	pg0 = . ;
++	__reserved_end = . + INIT_MAP_BEYOND_END - LOAD_OFFSET;
+   }
+ 
+   /* Sections to be discarded */
 
 -- 
