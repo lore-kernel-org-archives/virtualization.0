@@ -1,16 +1,15 @@
-From: Rob Landley <rob@landley.net>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH RFC 6/7] i386: make the bzImage payload an ELF file
-Date: Thu, 7 Jun 2007 12:08:04 -0400
-Message-ID: <200706071208.04777.rob__17659.830247476$1181232566$gmane$org@landley.net>
+Date: Thu, 07 Jun 2007 09:14:50 -0700
+Message-ID: <46682EFA.1020406@zytor.com>
 References: <20070606225837.654272428@goop.org>
 	<200706062147.21225.rob@landley.net> <46676552.4060308@zytor.com>
+	<200706071208.04777.rob@landley.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46676552.4060308@zytor.com>
-Content-Disposition: inline
+In-Reply-To: <200706071208.04777.rob@landley.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,41 +19,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
+To: Rob Landley <rob@landley.net>
 Cc: lkml <linux-kernel@vger.kernel.org>, v12n <virtualization@lists.linux-foundation.org>, Vivek Goyal <vgoyal@in.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 06 June 2007 9:54 pm, H. Peter Anvin wrote:
-> Rob Landley wrote:
-> > On Wednesday 06 June 2007 7:41 pm, H. Peter Anvin wrote:
-> >> This makes vmlinux (normally stripped) recoverable from the bzImage file
-> >> and so anything that is currently booting vmlinux would be serviced by
-> >> this scheme.
-> > 
-> > Would this make it sane to strip the initramfs image out of vmlinux with 
-> > objdump and replace it with another one, or are there offsets resolved 
-during 
-> > the build that stop that for vmlinux?
-> > 
+Rob Landley wrote:
 > 
-> There probably are offsets resolved during the build.  However, that
-> wouldn't be all that hard to fix.  Still, one can argue whether or not
-> it is sane under any definition to do this kind of unpacking-repacking
-> of ELF files.
+> Er, make that objcopy, not objdump.
+> 
+> Sane, maybe not.  Something people want to do (and under the mistaken 
+> assumption I know more about initramfs then they do, have asked me how), yes.  
+> It always boils down to "do you have a vmlinux image lying around?  Doing 
+> this with a bzImage _is_ brain surgery", and has yet to get beyond that 
+> question.  I had about half of a script worked out for this, once...
+> 
 
-Er, make that objcopy, not objdump.
+If it can be done today on a vmlinux then it can be done the same way
+with the mechanism I have proposed.  Period, full stop.
 
-Sane, maybe not.  Something people want to do (and under the mistaken 
-assumption I know more about initramfs then they do, have asked me how), yes.  
-It always boils down to "do you have a vmlinux image lying around?  Doing 
-this with a bzImage _is_ brain surgery", and has yet to get beyond that 
-question.  I had about half of a script worked out for this, once...
+> You can also supply an external initramfs image through the initrd mechanism, 
+> but this is unpleasant to do with some bootloaders (or lack of bootloaders).  
+> Plus it doesn't remove the old one, and wasting space makes embedded 
+> developers itch.
 
-You can also supply an external initramfs image through the initrd mechanism, 
-but this is unpleasant to do with some bootloaders (or lack of bootloaders).  
-Plus it doesn't remove the old one, and wasting space makes embedded 
-developers itch.
+In thory one could create an extended bzImage format which could handle
+a concatenated, and easily replaceable, initrd, but if it's done on
+vmlinux today it would make a *lot* more sense to have it be done on the
+vmlinux and nothing else.
 
-Rob
--- 
-The Google cluster became self-aware at 2:14am EDT August 29, 2007...
+	-hpa
