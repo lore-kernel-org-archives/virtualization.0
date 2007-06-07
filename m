@@ -1,9 +1,10 @@
-From: "Mariano Dupree" <ballyn@mailshell.com>
-Subject: Re: Thank you, we are accepting your refinance appication
-Date: Thu, 7 Jun 2007 13:09:23 +0200
-Message-ID: <001201c7a905$70c619b0$06763144@oem12e4b62b9e7>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH RFC 0/3] Virtio draft II
+Date: Thu, 07 Jun 2007 22:02:41 +1000
+Message-ID: <1181217762.14054.192.camel__23634.3235047118$1181217892$gmane$org@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2448136597787093867=="
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,90 +13,49 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization <virtualization@lists.osdl.org>
+To: virtualization <virtualization@lists.linux-foundation.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2448136597787093867==
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000F_01C7A905.70C619B0"
+Hi again all,
 
-------=_NextPart_000_000F_01C7A905.70C619B0
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+	It turns out that networking really wants ordered requests, which the
+previous patches didn't allow.  This patch changes it to a callback
+mechanism; kudos to Avi.
 
+	The downside is that locking is more complicated, and after a few dead
+ends I implemented the simplest solution: the struct virtio_device
+contains the spinlock to use, and it's held when your callbacks get
+called.
 
-Your credit history does not matter to us!
+Core changes:
+1) struct virtio_device has a "lock" and "priv" fields (the latter for
+the driver to use, esp from callbacks).
+2) add_outbuf and add_inbuf take a cb function ptr and void *, rather
+than a used pointer.
+3) lengths of buffers must now fit in an unsigned int, not long.
+4) the virtio_sync wrapper is gone.
 
-If you OWN property and want IMMEDIATE pocket money to spend ANY way you =
-like, or simply require to LOWER your current payments by a third or =
-more, here is our deal we can offer you TODAY (hurry, this offer will =
-expire THIS EVENING):
+Block driver changes (+30 lines)
+1) Convert to callbacks not interrupt.
+2) Ensure both outbuf & inbuf have been used up before finishing
+request.  This avoids potential remote access to freed memory.
 
-$442,000+ loan
+Net driver changes (+6 lines)
+1) Convert to callbacks.
+2) Store id in skb->cb, not array.
+3) Remove NET_BUFS limit: we queue packets until virtio chokes.
+4) Locking should now be correct, thanks mainly to virtio changes.
 
-AND EVEN MORE: After further review, our lenders have established the =
-lowest payments!
+BTW, the lguest implementations (very rough) are in the lguest patch
+repo for your viewing pleasure:
 
-Hurry, when best deal is gone, it is gone. Simply fill in this easy =
-form... 
+Implementation over dumb read/write interface:
+http://lguest.ozlabs.org/patches/?file/tip/new-io-lguest-readwrite.patch
+Implementation using descriptors (assuming host can access guest mem):
+http://lguest.ozlabs.org/patches/?file/tip/new-io-lguest-desc.patch
 
-Do not worry about approval, your your credit report will not disqualify =
-you!
-
-http://tstyutes.com/
-------=_NextPart_000_000F_01C7A905.70C619B0
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2600.2962" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV align=3Dleft><FONT face=3DArial size=3D2><B>Your credit history =
-doesn't matter to us!</B></FONT></DIV>
-<DIV align=3Dcenter>&nbsp;</DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>If you OWN real estate and =
-want IMMEDIATE pocket money to spend ANY way you like, or simply require =
-to LOWER your entire payment by a third or more, here is the deal we can =
-offer you TODAY (hurry, this offer will expire TONIGHT):</FONT></DIV>
-<DIV align=3Dcenter>&nbsp;</DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2><B>$224,000+ =
-debt</B></FONT></DIV>
-<DIV align=3Dcenter>&nbsp;</DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>AND EVEN MORE: After =
-further review, our lenders have established the lowest current =
-payments!</FONT></DIV>
-<DIV align=3Dcenter>&nbsp;</DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2><B>Hurry, when our deal is =
-gone, it is gone. Simply fill this user-friendly form... =
-</B></FONT></DIV>
-<DIV align=3Dcenter>&nbsp;</DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>Do not worry about =
-approval, your credit history will not disqualify you!</FONT></DIV>
-<DIV align=3Dcenter>&nbsp;</DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2><a href=3D=
-"http://tstyutes.com/">http://tstyutes.com/</a></FONT></DIV>
-</BODY></HTML>
-
-------=_NextPart_000_000F_01C7A905.70C619B0--
-
---===============2448136597787093867==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============2448136597787093867==--
+Cheers,
+Rusty.
