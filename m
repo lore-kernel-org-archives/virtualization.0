@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH RFC 0/3] Virtio draft II
-Date: Thu, 07 Jun 2007 22:02:41 +1000
-Message-ID: <1181217762.14054.192.camel__23634.3235047118$1181217892$gmane$org@localhost.localdomain>
+Subject: [PATCH RFC 1/3] Virtio draft II: virtio.h
+Date: Thu, 07 Jun 2007 22:04:27 +1000
+Message-ID: <1181217867.14054.195.camel__32337.9698595547$1181217972$gmane$org@localhost.localdomain>
+References: <1181217762.14054.192.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1181217762.14054.192.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,43 +21,102 @@ To: virtualization <virtualization@lists.linux-foundation.org>
 Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi again all,
+This attempts to implement a "virtual I/O" layer which should allow
+common drivers to be efficiently used across most virtual I/O
+mechanisms.  It will no-doubt need further enhancement.
 
-	It turns out that networking really wants ordered requests, which the
-previous patches didn't allow.  This patch changes it to a callback
-mechanism; kudos to Avi.
+The details of probing the device are left to hypervisor-specific
+code: it simple constructs the "struct virtio_device" and hands it to
+the probe function (eg. virtnet_probe() or virtblk_probe()).
 
-	The downside is that locking is more complicated, and after a few dead
-ends I implemented the simplest solution: the struct virtio_device
-contains the spinlock to use, and it's held when your callbacks get
-called.
+The virtio drivers add and detach input and output buffers; as the
+buffers are used up their associated callbacks are filled in.
 
-Core changes:
-1) struct virtio_device has a "lock" and "priv" fields (the latter for
-the driver to use, esp from callbacks).
-2) add_outbuf and add_inbuf take a cb function ptr and void *, rather
-than a used pointer.
-3) lengths of buffers must now fit in an unsigned int, not long.
-4) the virtio_sync wrapper is gone.
+I have written two virtio device drivers (net and block) and two
+virtio implementations (for lguest): a read-write socket-style
+implementation, and a more efficient descriptor-based implementation.
 
-Block driver changes (+30 lines)
-1) Convert to callbacks not interrupt.
-2) Ensure both outbuf & inbuf have been used up before finishing
-request.  This avoids potential remote access to freed memory.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ include/linux/virtio.h |   75 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
 
-Net driver changes (+6 lines)
-1) Convert to callbacks.
-2) Store id in skb->cb, not array.
-3) Remove NET_BUFS limit: we queue packets until virtio chokes.
-4) Locking should now be correct, thanks mainly to virtio changes.
-
-BTW, the lguest implementations (very rough) are in the lguest patch
-repo for your viewing pleasure:
-
-Implementation over dumb read/write interface:
-http://lguest.ozlabs.org/patches/?file/tip/new-io-lguest-readwrite.patch
-Implementation using descriptors (assuming host can access guest mem):
-http://lguest.ozlabs.org/patches/?file/tip/new-io-lguest-desc.patch
-
-Cheers,
-Rusty.
+===================================================================
+--- /dev/null
++++ b/include/linux/virtio.h
+@@ -0,0 +1,75 @@
++#ifndef _LINUX_VIRTIO_H
++#define _LINUX_VIRTIO_H
++#include <linux/types.h>
++#include <linux/scatterlist.h>
++#include <linux/spinlock.h>
++
++/**
++ * virtio_device - description and routines to drive a virtual device.
++ * @lock: the lock to hold before calling any functions.
++ * @dev: the underlying struct device.
++ * @ops: the operations for this virtual device.
++ * @priv: private pointer for the driver to use.
++ */
++struct virtio_device {
++	spinlock_t lock;
++	struct device *dev;
++	struct virtio_ops *ops;
++	void *priv;
++};
++
++/**
++ * virtio_ops - virtio abstraction layer
++ * @add_outbuf: prepare to send data to the other end:
++ *	vdev: the virtio_device
++ *	sg: the description of the buffer(s).
++ *	num: the size of the sg array.
++ *	cb: the function to call once the outbuf is finished & detached.
++ *	data: the token to hand to the cb function.
++ *      Returns a unique id or an error.  Note that the callback will be
++ *	called with the lock held, and possibly in an interrupt handler.
++ * @add_inbuf: prepare to receive data from the other end:
++ *	vdev: the virtio_device
++ *	sg: the description of the buffer(s).
++ *	num: the size of the sg array.
++ *	cb: the function to call once the inbuf is finished & detached.
++ *	data: the token to hand to the cb function.
++ *      Returns a unique id or an error (eg. -ENOSPC).  Note that the
++ *	callback will be called with the lock held, and possibly in an
++ *	interrupt handler.
++ * @sync: update after add_inbuf/add_outbuf
++ *	vdev: the virtio_device we're talking about.
++ *	After one or more add_inbuf/add_outbuf calls, invoke this to kick
++ *	the virtio layer.
++ * @detach_outbuf: make sure sent sg can no longer be read.
++ *	vdev: the virtio_device we're talking about.
++ *	id: the id returned from add_outbuf.
++ *	This is not necessary (or valid!) if the outbuf callback has
++ *	already fired.
++ * @detach_inbuf: make sure sent sg can no longer be written to.
++ *	vdev: the virtio_device we're talking about.
++ *	id: the id returned from add_inbuf.
++ *	This is not necessary (or valid!) if the outbuf callback has
++ *	already fired.
++ */
++struct virtio_ops {
++	unsigned long (*add_outbuf)(struct virtio_device *vdev,
++				    const struct scatterlist sg[],
++				    unsigned int num,
++				    void (*cb)(struct virtio_device *vdev,
++					       void *data, unsigned len),
++				    void *data);
++
++	unsigned long (*add_inbuf)(struct virtio_device *vdev,
++				   struct scatterlist sg[],
++				   unsigned int num,
++				   void (*cb)(struct virtio_device *vdev,
++					      void *data, unsigned len),
++				   void *data);
++
++	void (*sync)(struct virtio_device *vdev);
++
++	void (*detach_outbuf)(struct virtio_device *vdev, unsigned long id);
++	void (*detach_inbuf)(struct virtio_device *vdev, unsigned long id);
++};
++#endif /* _LINUX_VIRTIO_H */
