@@ -1,14 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/7] lguest documentation: infrastructure and Chapter I
-Date: Fri, 08 Jun 2007 17:05:19 +1000
-Message-ID: <1181286319.29842.39.camel__11699.1461989985$1181286415$gmane$org@localhost.localdomain>
-References: <1181272257.24958.12.camel@localhost.localdomain>
-	<20070607232349.b4673058.akpm@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: "Gabriel Bell" <drvenica@emassey.com>
+Subject: Software At Low Pr1ce
+Date: Fri, 8 Jun 2007 08:04:20 +0000 (UTC)
+Message-ID: <000001c7a9a2$df547a00$0100007f@localhost>
+Content-Type: text/plain;
+    charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070607232349.b4673058.akpm@linux-foundation.org>
+Date: Cum, 08 Haz 2007 11:00:11 +0300
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,65 +16,61 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-06-07 at 23:23 -0700, Andrew Morton wrote:
-> On Fri, 08 Jun 2007 13:10:57 +1000 Rusty Russell <rusty@rustcorp.com.au> wrote:
-> 
-> > The netfilter code had very good documentation: the Netfilter Hacking
-> > HOWTO.  Noone ever read it.
-> > 
-> > So this time I'm trying something different, using a bit of
-> > Knuthiness.
-> > 
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > ---
-> >  Documentation/lguest/extract          |   58 +++++++++++++++++++++++++++++++++
-> >  Documentation/lguest/lguest.c         |    9 +++--
-> >  drivers/lguest/Makefile               |   12 ++++++
-> >  drivers/lguest/README                 |   47 ++++++++++++++++++++++++++
-> >  drivers/lguest/core.c                 |    7 ++-
-> >  drivers/lguest/hypercalls.c           |    9 +++--
-> >  drivers/lguest/interrupts_and_traps.c |   13 +++++++
-> >  drivers/lguest/io.c                   |    8 +++-
-> >  drivers/lguest/lguest.c               |   31 ++++++++++++++++-
-> >  drivers/lguest/lguest_bus.c           |    3 +
-> >  drivers/lguest/lguest_user.c          |    7 +++
-> >  drivers/lguest/page_tables.c          |   10 ++++-
-> >  drivers/lguest/segments.c             |   11 ++++++
-> >  drivers/lguest/switcher.S             |   13 +++----
-> >  14 files changed, 219 insertions(+), 19 deletions(-)
-> 
-> This patch series craps all over the existing one:
-> 
-> lguest-export-symbols-for-lguest-as-a-module.patch
-> lguest-the-guest-code.patch
-> lguest-the-host-code.patch
-> lguest-the-asm-offsets.patch
-> lguest-the-makefile-and-kconfig.patch
-> lguest-the-console-driver.patch
-> lguest-the-net-driver.patch
-> lguest-the-block-driver.patch
-> lguest-the-documentation-example-launcher.patch
-> 
-> obviously we could append this new series to the existing one, but that
-> limits our ability to make further changes over the next few weeks.  Or we
-> just give up trying to present the series nicely and it hits mainline with
-> a random stream of uninteresting and irrelevant afterthoughts at the end,
-> like we're some lameo git users or something.
+Nu Mcafee titles released on Jun 06 20:29:48 MSK 2007
 
-Well, I've been painfully maintaining that documentation patch for
-months (it touches *everything*).  I *had* intended to send it straight
-to Linus one he took lguest, but that may never happen.
+Adobe Creative Suite CS3 269$
+Adobe Photoshop CS3      89$
+Symantec Norton 360      29$
+Microsoft Office 2007    79$
+Microsoft Vista Business 79$
+Nero 7 Premium           39$
+Adobe Acrobat 8 Pro 	 79$
+Adobe Flash CS3 Pro      59$
+Windows XP Pro +SP2 	 49$
+Adobe Premiere 2.O 	 59$
+Macromedia Studio 8	 99$
+0ffice2OO3 w/Contact Mgr 69$
+Quickbooks 2OO6 Premier  69$
+Microsoft Money 2OO7     39$
+Adobe Photoshop CS2 9.O  69$
+Autodesk Autocad 2OO7 	 129$
+Corel Grafix Suite X3 	 59$
+Adobe Creative Suite CS2 149$
+Adobe Illustrator CS2	 59$
+Microsoft Office XP PR0  49$
+Adobe Dreamweaver CS3    59$
+McAfee Internet Sec. 7   29$
+Norton Antivirus Corp.   29$
+Mac software		 49$
 
-Don't take it.  I'll push it to the end of my own series, send it direct
-to Linus if and when.
+http://kcsoftb.com?cpehf12029pUAJBHgfVC16929ysrezvpaHL59276SpnxeHtDuB90294ZgJowMcafee
 
-> (I could split all this up, but I'm getting kinda bored of preventing you
-> from mucking up your own patch series)
-
-Little sympathy.  Perhaps there's a moral about timely merging here.
-
-Rusty.
+remembered to you and her mother. -- Your's, &c.
+horizon a blood-red glow, which as I drew nearer, crept slowly up the
+threats of torture and death against all concerned in the affair. That
+but nevertheless she uncorked it and put it to her lips.  `I know
+Mrs. Jenkinson's room.  She would be in nobody's way, you know,
+"There is some trick in the wind," he said. "What it is we shall see
+punishing for a European to have to hurry on foot through the
+the possession of every virtue.  She tried to recollect some
+It was necessary to buy her an outfit of clothes, and this problem
+The Caterpillar and Alice looked at each other for some time in
+moisture and fatness, and the man at the plow was happy in the
+himself that he loved his old home more than he loved Gertrude.
+Lodge.  Four or five little black figures hurried before it across the
+witnessed in him.  Your sister I also watched. -- Her look and
+?Thurs 5 March  Arrival at Hunsford
+I must succeed in finding the entrance on the following day, for now
+He waved his hand and the Kachins marched away up the hill, leading
+off the circular edge of the end.  It was dropping off in flakes and
+"Nip right in," said Risley, and the two entered briskly, and closed
+pleasantness of the walk to it, or of the people who lived in
+"But you are sad? I see a cloud on your forehead, Eliza."
+and put back into the jury-box, or they would die.
+Jane's second letter, had she entertained a hope of Wickham's
+Derbyshire, and Jane and Elizabeth, in addition to every other
+at present only to the Emperor Napoleon, Baron von Thugut, who acted
+kindness, and treated me for months as a son at his house. I will
