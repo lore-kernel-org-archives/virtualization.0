@@ -1,13 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Avi Kivity <avi@qumranet.com>
 Subject: Re: More virtio users
-Date: Sun, 10 Jun 2007 18:13:40 +1000
-Message-ID: <1181463220.16428.24.camel__14932.2388614111$1181463319$gmane$org@localhost.localdomain>
+Date: Sun, 10 Jun 2007 11:16:11 +0300
+Message-ID: <466BB34B.9050105__25838.7134098031$1181463456$gmane$org@qumranet.com>
 References: <466BA965.6050208@qumranet.com>
+	<1181463220.16428.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <466BA965.6050208@qumranet.com>
+In-Reply-To: <1181463220.16428.24.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,30 +18,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, xen-devel <xen-devel@lists.xensource.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2007-06-10 at 10:33 +0300, Avi Kivity wrote:
-> It is worthwhile, when designing virtio, to keep in mind as many 
-> possible users as possible.  In addition to block and net, I see at 
-> least the following:
-> 
-> - vmgl (paravirtualized 3D graphics) 
-> [http://www.cs.toronto.edu/~andreslc/xen-gl/]
-> - scsi (for tape, cd writer, etc.)
-> - framebuffer (with just one request to share the framebuffer?)
+Rusty Russell wrote:
+> Lguest doesn't have a framebuffer, so maybe this is a good thing for me
+> to hack on, but I promised myself I'd finish NAPI for the net device,
+> and tag for block device first.
+>   
 
-Console, USB.  HPA suggested an entropy device.
+If you're touching the block device, passing a request's io priority to 
+the host can be useful.
 
-Framebuffer is an interesting one.  Virtio doesn't assume shared memory,
-so naively the fb you would just send outbufs describing changed memory.
-This would work, but describing rectangles is better.  A helper might be
-the right approach here
-
-Lguest doesn't have a framebuffer, so maybe this is a good thing for me
-to hack on, but I promised myself I'd finish NAPI for the net device,
-and tag for block device first.
-
-Cheers,
-Rusty.
+-- 
+error compiling committee.c: too many arguments to function
