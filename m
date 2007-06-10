@@ -1,14 +1,13 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [Xen-devel] More virtio users
-Date: Sun, 10 Jun 2007 11:09:19 +0300
-Message-ID: <466BB1AF.1000601__25227.6221094236$1181463053$gmane$org@qumranet.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: More virtio users
+Date: Sun, 10 Jun 2007 18:13:40 +1000
+Message-ID: <1181463220.16428.24.camel__14932.2388614111$1181463319$gmane$org@localhost.localdomain>
 References: <466BA965.6050208@qumranet.com>
-	<20070610080602.GD3738@rhun.haifa.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070610080602.GD3738@rhun.haifa.ibm.com>
+In-Reply-To: <466BA965.6050208@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,35 +17,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Avi Kivity <avi@qumranet.com>
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, xen-devel <xen-devel@lists.xensource.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Muli Ben-Yehuda wrote:
-> On Sun, Jun 10, 2007 at 10:33:57AM +0300, Avi Kivity wrote:
->   
->> It is worthwhile, when designing virtio, to keep in mind as many 
->> possible users as possible.  In addition to block and net, I see at 
->> least the following:
->>
->> - vmgl (paravirtualized 3D graphics) 
->> [http://www.cs.toronto.edu/~andreslc/xen-gl/]
->> - scsi (for tape, cd writer, etc.)
->> - framebuffer (with just one request to share the framebuffer?)
->>
->> There are probably more.  Any ideas?
->>     
->
-> - Fast inter-domain networking, a-la XenSocket.
->   
+On Sun, 2007-06-10 at 10:33 +0300, Avi Kivity wrote:
+> It is worthwhile, when designing virtio, to keep in mind as many 
+> possible users as possible.  In addition to block and net, I see at 
+> least the following:
+> 
+> - vmgl (paravirtualized 3D graphics) 
+> [http://www.cs.toronto.edu/~andreslc/xen-gl/]
+> - scsi (for tape, cd writer, etc.)
+> - framebuffer (with just one request to share the framebuffer?)
 
-Yup.
+Console, USB.  HPA suggested an entropy device.
 
-> - PCI (or your favorite HW bus) passthrough, for your favorite oddball
->   device (e.g., crypto-accelerators).
->   
+Framebuffer is an interesting one.  Virtio doesn't assume shared memory,
+so naively the fb you would just send outbufs describing changed memory.
+This would work, but describing rectangles is better.  A helper might be
+the right approach here
 
-Won't all high-bandwidth traffic be through dma, bypassing virtio?
+Lguest doesn't have a framebuffer, so maybe this is a good thing for me
+to hack on, but I promised myself I'd finish NAPI for the net device,
+and tag for block device first.
 
--- 
-error compiling committee.c: too many arguments to function
+Cheers,
+Rusty.
