@@ -1,15 +1,19 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Xen-devel] Re: More virtio users
-Date: Tue, 12 Jun 2007 09:19:43 +1000
-Message-ID: <1181603983.16428.100.camel__36651.2330751449$1181608748$gmane$org@localhost.localdomain>
+Subject: Re: More virtio users
+Date: Tue, 12 Jun 2007 10:31:27 +1000
+Message-ID: <1181608287.16428.127.camel__43581.0680537999$1181608845$gmane$org@localhost.localdomain>
 References: <466BA965.6050208@qumranet.com>
 	<1181463220.16428.24.camel@localhost.localdomain>
-	<466D04C2.8010403@redhat.com>
+	<466BB34B.9050105@qumranet.com>
+	<1181479060.16428.37.camel@localhost.localdomain>
+	<20070611064107.GA7341@kernel.dk>
+	<1181546953.16428.96.camel@localhost.localdomain>
+	<20070611073300.GB21969@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <466D04C2.8010403@redhat.com>
+In-Reply-To: <20070611073300.GB21969@kernel.dk>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,28 +23,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, xen-devel <xen-devel@lists.xensource.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Tejun Heo <htejun@gmail.com>, xen-devel <xen-devel@lists.xensource.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-06-11 at 10:16 +0200, Gerd Hoffmann wrote:
-> Hi,
+On Mon, 2007-06-11 at 09:33 +0200, Jens Axboe wrote:
+> On Mon, Jun 11 2007, Rusty Russell wrote:
+> > So the problem is that I'd like to handle all of them, but I'm not clear
+> > what requests my device can get.  I can't see a source of any other type
+> > of request.
 > 
-> > Framebuffer is an interesting one.  Virtio doesn't assume shared memory,
-> > so naively the fb you would just send outbufs describing changed memory.
-> > This would work, but describing rectangles is better.  A helper might be
-> > the right approach here
-> 
-> Rectangles work just fine for a framebuffer console.  They stop working 
-> once you plan to run any graphical stuff such as an X-Server on top of 
-> the framebuffer.  Only way to get notified about changes is page faults, 
-> i.e. 4k granularity on the linear framebuffer memory.
+> The other main request type is blk_pc_request(). In the data setup it's
+> indentical to blk_fs_request(), there's a bio chain off ->bio. It's a
+> byte granularity entity though, so you should check ->data_len for the
+> size of it. ->cmd[] holds a SCSI cdb, which is the command you are
+> supposed to handle.
 
-Yes, I discussed this with Ben Herrenschmidt a couple of months ago.  It
-would be better to provide a fb ioctl which X could use to describe
-changed rectangles if available.  In the virtio case we could hand that
-information through, and other virtualized framebuffers would be able to
-use it similarly.
+SCSI?  I'm even more lost now.
 
-Cheers,
+Q: So what *are* the commands?
+Q: Who puts them in my queue?
+
+I have *never* seen anything but an fs request come through to my
+driver.
+
+> Perhaps you are misunderstanding what the tag is? The tag is a unique
+> identifier for a pending request, so you will by definition never have
+> requests sharing a tag value.
+
+Yes, I started to suspect that.
+
+> But the tag is not to be considered as
+> ordered, unless it has the barrier flag set as well. So you only need to
+> serialize on the device side when blk_barrier_rq() is true.
+
+blk_barrier_rq(req) is never true.  I put a BUG_ON(blk_barrier_rq(req))
+in my code and booted.  This is using the device as a root ext3
+filesystem.
+
+I reverted all the tag changes, still no barriers.  I added
+"blk_queue_ordered(vblk->disk->queue, QUEUE_ORDERED_DRAIN, NULL);",
+still no barriers.
+
+Dazed and confused,
 Rusty.
