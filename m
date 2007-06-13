@@ -1,14 +1,11 @@
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: Re: [kvm-devel] [Xen-devel] More virtio users
-Date: Wed, 13 Jun 2007 08:28:04 +0300
-Message-ID: <20070613052803.GA3635__12311.8314230398$1181712591$gmane$org@rhun.haifa.ibm.com>
-References: <1EF1E44200D82B47BD5BA61171E8CE9D04269608@NT-IRVA-0750.brcm.ad.broadcom.com>
-	<200706130154.27513.arnd@arndb.de>
+From: Wilson Donald <jqgl@mostellerllc.com>
+Subject: quirk jewelry
+Date: Wed, 13 Jun 2007 19:27:47 +0900
+Message-ID: <466FC6A3.7000400@mostellerllc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200706130154.27513.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,50 +15,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kvm-devel@lists.sourceforge.net, xen-devel <xen-devel@lists.xensource.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 13, 2007 at 01:54:26AM +0200, Arnd Bergmann wrote:
-> On Wednesday 13 June 2007, Caitlin Bestler wrote:
-> > 
-> > > It can be done, but you'd also need a passthrough for the
-> > > IOMMU in that case, and you get a potential security hole: if
-> > > a malicious guest is smart enough to figure out IOMMU
-> > > mappings from the device to memory owned by the host.
-> > > 
-> > If it is possible for a malicious guess to use the IOMMU
-> > to access memory that was not assigned to it then either
-> > the Hypervisor is not really a Hypervisor or the IOMMU
-> > is not really an IOMMU.
-> 
-> Unfortunately, most IOMMU implementations are not really IOMMUs
-> then, I guess ;-).
+CAON Owns Patent To Change Global Construction!
 
-Nowdays when people say 'IOMMU', they really mean 'isolation-capable
-IOMMU', i.e., one that provides more than a single address space. In
-that sense, most IOMMU implementations really aren't (isolation
-capable) IOMMUs.
+Chan-On International Inc.
+Symbol: CAON
+Close: $0.75 UP
 
-> To be safe, every PCI device needs to have its own tagged DMA
-> transfers, which essentially boils down to having each device behind
-> a separate PCI host bridge, and that's not very likely to be done on
-> PC style hardware.
+Among the 12 patents CAON recently acquired is a design for turning
+industrial plastic and ash waste into wallboard to replace drywall. it
+is not only a reduction in cost for developers, it is environmentally
+safe and longer lasting than regular drywall. This company has the edge.
+Get on CAON first thing Wednesday.
 
-IBM, Intel and AMD all have x86 IOMMUs that provide some degree of
-isolation between different devices (per bus or per device function),
-where different BDF's have different IO translation tabels.
+Book, exhibit glorify NYC baseball era . Enjoy A Wonderful Morning.
 
-> Admittedly, I haven't seen many IOMMU implementations, but the one
-> I'm most familiar with (the one on the Cell Broadband Engine) can
-> only assign a local device on the north bridge to one guest in a
-> secure way, but an entire PCI or PCIe host is treated as a single
-> device when seen from the IOMMU, so when one PCIe device has a
-> mapping to guest A, guest B can use MMIO access to program another
-> device on the same host to do DMA into the buffer provided by guest
-> A.
+Nigerian author wins top women's fiction prize . King thriller to appear
+in Esquire . Smith finds haunted new Russia . MANDINGO embraces the
+Magic Of Super Sunday with Motown Memories, a one-hour program hosted by
+Tom Fallon, known for his dynamic and engaging style. Infinity
+Broadcasting Corporation, a division of Viacom, is one of the largest
+radio broadcasting companies in the United States. Management bibles are
+not gospel .
 
-That's not an isolation capable IOMMU then.
+Three factors are contributing to this shift. Aruntx appreciates your
+patronage and look forward to serving you for many years to come. Six
+eighteen ounce boxes per case, including all shipping charges. Although
+several radio stations, such as Bonneville Internationals WTOP AM in
+Washington, D. The word of the day is peradventure. Magical Harry Potter
+sale expected .
 
-Cheers,
-Muli
+If not, today is the day to do it.
+
+Top Random House editor leaving company .
+Seuss himself: "The more that you read the more things you will know.
+Each show features information on the artists and Motown Memories trivia
+questions.
