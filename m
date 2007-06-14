@@ -1,11 +1,15 @@
-From: Wilson Donald <jqgl@mostellerllc.com>
-Subject: quirk jewelry
-Date: Wed, 13 Jun 2007 19:27:47 +0900
-Message-ID: <466FC6A3.7000400@mostellerllc.com>
+From: Mark Williamson <mark.williamson@cl.cam.ac.uk>
+Subject: Re: [Xen-devel] Re: [kvm-devel] More virtio users
+Date: Thu, 14 Jun 2007 17:27:15 +0100
+Message-ID: <200706141727.18463.mark.williamson__34691.4922040471$1181838541$gmane$org@cl.cam.ac.uk>
+References: <466BA965.6050208@qumranet.com> <200706130001.21431.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200706130001.21431.arnd@arndb.de>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,41 +19,65 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: xen-devel@lists.xensource.com
+Cc: kvm-devel@lists.sourceforge.net, Arnd Bergmann <arnd@arndb.de>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CAON Owns Patent To Change Global Construction!
+I've not reviewed the virtio patches but think I've gathered the gist of =
+what=20
+they're doing (puppies would probably help here)...
 
-Chan-On International Inc.
-Symbol: CAON
-Close: $0.75 UP
+> On Sunday 10 June 2007, Avi Kivity wrote:
+> > There are probably more. =A0Any ideas?
+>
+> * watchdog timer
 
-Among the 12 patents CAON recently acquired is a design for turning
-industrial plastic and ash waste into wallboard to replace drywall. it
-is not only a reduction in cost for developers, it is environmentally
-safe and longer lasting than regular drywall. This company has the edge.
-Get on CAON first thing Wednesday.
+I recently knocked up a watchdog timer for Xen.  The Linux-side code is b=
+ased=20
+on the softdog implementation, but the actual timer implementation is wit=
+hin=20
+Xen itself.
 
-Book, exhibit glorify NYC baseball era . Enjoy A Wonderful Morning.
+It'd be fairly trivial to make something like this call out to a variety =
+of=20
+potential paravirt implementations - much of the code was effectively=20
+boilerplate (setting up char device, dealing with magic close character,=20
+etc).
 
-Nigerian author wins top women's fiction prize . King thriller to appear
-in Esquire . Smith finds haunted new Russia . MANDINGO embraces the
-Magic Of Super Sunday with Motown Memories, a one-hour program hosted by
-Tom Fallon, known for his dynamic and engaging style. Infinity
-Broadcasting Corporation, a division of Viacom, is one of the largest
-radio broadcasting companies in the United States. Management bibles are
-not gospel .
+Taking this further, it'd be quite easy to make a "null" implementation t=
+hat=20
+does what softdog did.
 
-Three factors are contributing to this shift. Aruntx appreciates your
-patronage and look forward to serving you for many years to come. Six
-eighteen ounce boxes per case, including all shipping charges. Although
-several radio stations, such as Bonneville Internationals WTOP AM in
-Washington, D. The word of the day is peradventure. Magical Harry Potter
-sale expected .
+Watchdogs grow from puppies, so I'd think this would suit Rusty quite wel=
+l ;-)
 
-If not, today is the day to do it.
+> * tty ports (not just console) to attach to via host socket
+> * alsa
+> * hostfs (UML like)
 
-Top Random House editor leaving company .
-Seuss himself: "The more that you read the more things you will know.
-Each show features information on the artists and Motown Memories trivia
-questions.
+My XenFS project is somewhat like hostfs but it's a) a bit hairy and b) n=
+ot=20
+done yet :-)  A simpler hostfs-style filesystem would be useful and a bet=
+ter=20
+target for testing out virtio.
+
+The main thing XenFS would want that I guess other virtio devices mightn'=
+t=20
+want is support for persistently sharing memory between virtual machines.=
+.. =20
+In the Xen case this is less trivial than the UML hostfs case.  It's not=20
+*needed* yet, I just thought I'd throw it out there as a potential future=
+=20
+thing.  Presumably virtual block devices that do memory sharing might nee=
+d=20
+this sort of facility too.
+
+Cheers,
+Mark
+
+--=20
+Dave: Just a question. What use is a unicyle with no seat?  And no pedals=
+!
+Mark: To answer a question with a question: What use is a skateboard?
+Dave: Skateboards have wheels.
+Mark: My wheel has a wheel!
