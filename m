@@ -1,15 +1,15 @@
-From: "Caitlin Bestler" <caitlinb@broadcom.com>
-Subject: RE: [kvm-devel] [Xen-devel] More virtio users
-Date: Thu, 14 Jun 2007 12:41:43 -0700
-Message-ID: <1EF1E44200D82B47BD5BA61171E8CE9D04269D6E__29142.1282141984$1181850232$gmane$org@NT-IRVA-0750.brcm.ad.broadcom.com>
-References: <200706130154.27513.arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [kvm-devel] [Xen-devel] More virtio users
+Date: Fri, 15 Jun 2007 01:39:35 +0200
+Message-ID: <200706150139.36770.arnd__42438.9225234792$1181864660$gmane$org@arndb.de>
+References: <1EF1E44200D82B47BD5BA61171E8CE9D04269D6E@NT-IRVA-0750.brcm.ad.broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <200706130154.27513.arnd@arndb.de>
+In-Reply-To: <1EF1E44200D82B47BD5BA61171E8CE9D04269D6E@NT-IRVA-0750.brcm.ad.broadcom.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,50 +19,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
+To: Caitlin Bestler <caitlinb@broadcom.com>
 Cc: kvm-devel@lists.sourceforge.net, xen-devel <xen-devel@lists.xensource.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-xen-devel-bounces@lists.xensource.com wrote:
-> On Wednesday 13 June 2007, Caitlin Bestler wrote:
->> 
->>> It can be done, but you'd also need a passthrough for the IOMMU in
->>> that case, and you get a potential security hole: if a malicious
->>> guest is smart enough to figure out IOMMU mappings from the device
->>> to memory owned by the host. 
->>> 
->> If it is possible for a malicious guess to use the IOMMU to access
->> memory that was not assigned to it then either the Hypervisor is not
->> really a Hypervisor or the IOMMU is not really an IOMMU.
+On Thursday 14 June 2007, Caitlin Bestler wrote:
 > 
-> Unfortunately, most IOMMU implementations are not really
-> IOMMUs then, I guess ;-). To be safe, every PCI device needs
-> to have its own tagged DMA transfers, which essentially boils
-> down to having each device behind a separate PCI host bridge,
-> and that's not very likely to be done on PC style hardware.
+> Why not simply adopt the policy that if the IOMMU does not meet
+> the security requirements of the Hypervisor then it is not an
+> IOMMU as far as the Hypervisor is concerned?
 > 
-> Admittedly, I haven't seen many IOMMU implementations, but
-> the one I'm most familiar with (the one on the Cell Broadband
-> Engine) can only assign a local device on the north bridge to
-> one guest in a secure way, but an entire PCI or PCIe host is
-> treated as a single device when seen from the IOMMU, so when
-> one PCIe device has a mapping to guest A, guest B can use
-> MMIO access to program another device on the same host to do
-> DMA into the buffer provided by guest A.
+> More specificially, the Hypervisor should enable direct access
+> by a Guest to a device *only* if an IOMMU functionality exists
+> to allow the Hypervisor to create a virtual IO memory map that
+> controls *precisiley* which pages the device is allowed to
+> access for that guest.
 > 
-Why not simply adopt the policy that if the IOMMU does not meet
-the security requirements of the Hypervisor then it is not an
-IOMMU as far as the Hypervisor is concerned?
+> If such functionality is not available then the Guest MUST NOT
+> access the device directly, and a frontend/backend solution 
+> must be used instead.
+> 
+> Basically, there are no security problems using an IOMMU, because
+> if there is a security problem it is not an IOMMU.
 
-More specificially, the Hypervisor should enable direct access
-by a Guest to a device *only* if an IOMMU functionality exists
-to allow the Hypervisor to create a virtual IO memory map that
-controls *precisiley* which pages the device is allowed to
-access for that guest.
+We shouldn't redefine standard terms, IOMMUs have existed for a
+long time on systems that do not run hypervisors, and it's not
+often clear if they have a security problem or not.
 
-If such functionality is not available then the Guest MUST NOT
-access the device directly, and a frontend/backend solution 
-must be used instead.
+In case of the Cell Broadband Engine I already mentioned, there
+is an IOMMU integrated on the CPU which has all the necessary
+features needed for secure operation. However, whether those
+are effective depends on the type of I/O device you connect
+to it.
 
-Basically, there are no security problems using an IOMMU, because
-if there is a security problem it is not an IOMMU.
+With the "axon" bridge chip, it is by default insecure and
+we should not allow access from any guest, while the "spider"
+bridge has some devices (e.g. USB and network) that are
+guaranteed to be safe when set up correctly, and other devices
+that are not.
+
+I agree that we shouldn't allow guest to access devices if
+that is dangerous, but that doesn't mean that the IOMMU
+magically is something else than an IOMMU.
+
+	Arnd <><
