@@ -1,15 +1,10 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [kvm-devel] [Xen-devel] More virtio users
-Date: Fri, 15 Jun 2007 01:39:35 +0200
-Message-ID: <200706150139.36770.arnd__42438.9225234792$1181864660$gmane$org@arndb.de>
-References: <1EF1E44200D82B47BD5BA61171E8CE9D04269D6E@NT-IRVA-0750.brcm.ad.broadcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH 03/10] define ELF notes for adding to a boot image
+Date: Thu, 14 Jun 2007 17:48:21 -0700
+Message-ID: <20070615005012.882738673__388.419398996298$1181919091$gmane$org@goop.org>
+References: <20070615004818.424726597@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1EF1E44200D82B47BD5BA61171E8CE9D04269D6E@NT-IRVA-0750.brcm.ad.broadcom.com>
-Content-Disposition: inline
+Content-Disposition: inline; filename=elf-bootnotes.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,47 +14,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Caitlin Bestler <caitlinb@broadcom.com>
-Cc: kvm-devel@lists.sourceforge.net, xen-devel <xen-devel@lists.xensource.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: Xen-Devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Vivek Goyal <vgoyal@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, v12n <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 14 June 2007, Caitlin Bestler wrote:
-> 
-> Why not simply adopt the policy that if the IOMMU does not meet
-> the security requirements of the Hypervisor then it is not an
-> IOMMU as far as the Hypervisor is concerned?
-> 
-> More specificially, the Hypervisor should enable direct access
-> by a Guest to a device *only* if an IOMMU functionality exists
-> to allow the Hypervisor to create a virtual IO memory map that
-> controls *precisiley* which pages the device is allowed to
-> access for that guest.
-> 
-> If such functionality is not available then the Guest MUST NOT
-> access the device directly, and a frontend/backend solution 
-> must be used instead.
-> 
-> Basically, there are no security problems using an IOMMU, because
-> if there is a security problem it is not an IOMMU.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>
 
-We shouldn't redefine standard terms, IOMMUs have existed for a
-long time on systems that do not run hypervisors, and it's not
-often clear if they have a security problem or not.
+---
+ include/linux/elf_boot.h |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-In case of the Cell Broadband Engine I already mentioned, there
-is an IOMMU integrated on the CPU which has all the necessary
-features needed for secure operation. However, whether those
-are effective depends on the type of I/O device you connect
-to it.
+===================================================================
+--- /dev/null
++++ b/include/linux/elf_boot.h
+@@ -0,0 +1,15 @@
++#ifndef ELF_BOOT_H
++#define ELF_BOOT_H
++
++/* Elf notes to help bootloaders identify what program they are booting.
++ */
++
++/* Standardized Elf image notes for booting... The name for all of these is ELFBoot */
++#define ELF_NOTE_BOOT		ELFBoot
++
++#define EIN_PROGRAM_NAME	1 /* The program in this ELF file */
++#define EIN_PROGRAM_VERSION	2 /* The version of the program in this ELF file */
++#define EIN_PROGRAM_CHECKSUM	3 /* ip style checksum of the memory image. */
++#define EIN_ARGUMENT_STYLE	4 /* String identifying argument passing style */
++
++#endif /* ELF_BOOT_H */
 
-With the "axon" bridge chip, it is by default insecure and
-we should not allow access from any guest, while the "spider"
-bridge has some devices (e.g. USB and network) that are
-guaranteed to be safe when set up correctly, and other devices
-that are not.
-
-I agree that we shouldn't allow guest to access devices if
-that is dangerous, but that doesn't mean that the IOMMU
-magically is something else than an IOMMU.
-
-	Arnd <><
+-- 
