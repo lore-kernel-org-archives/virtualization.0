@@ -1,14 +1,14 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 04/10] i386: clean up bzImage generation
-Date: Fri, 15 Jun 2007 09:20:14 -0700
-Message-ID: <4672BC3E.6080308__38188.3936621763$1181924514$gmane$org@zytor.com>
+Subject: Re: [PATCH 03/10] define ELF notes for adding to a boot image
+Date: Fri, 15 Jun 2007 09:20:43 -0700
+Message-ID: <4672BC5B.1040502__18761.5992771045$1181924552$gmane$org@zytor.com>
 References: <20070615004818.424726597@goop.org>
-	<20070615005012.962196819@goop.org>
+	<20070615005012.882738673@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070615005012.962196819@goop.org>
+In-Reply-To: <20070615005012.882738673@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,22 +23,8 @@ Cc: Xen-Devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.or
 List-Id: virtualization@lists.linuxfoundation.org
 
 Jeremy Fitzhardinge wrote:
-> -setup_move_size: .word  0x8000		# size to move, when setup is not
-> +setup_move_size: .word  _setup_size	# size to move, when setup is not
->  					# loaded at 0x90000. We will move setup
->  					# to 0x90000 then just before jumping
->  					# into the kernel. However, only the
+> +#define EIN_PROGRAM_CHECKSUM	3 /* ip style checksum of the memory image. */
 
-This is WRONG and will break 2.00 protocol bootloaders, if any still
-exist, and quite possibly some 2.01 protocol bootloaders.  There are
-definitiely bootloaders in the field that rely on this implicit value.
-
-> @@ -246,7 +246,6 @@ setup2:
->  	jnz	1f
->  	movw	$0xfffc, %sp	# Make sure we're not zero
->  1:	movzwl	%sp, %esp	# Clear upper half of %esp
-> -	sti
-
-Motivation, please?
+Why on earth use one of the weakest verificants in common use?
 
 	-hpa
