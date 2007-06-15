@@ -1,8 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 00/10] paravirt/subarchitecture boot protocol
-Date: Thu, 14 Jun 2007 17:48:18 -0700
-Message-ID: <20070615004818.424726597__4022.49832773141$1181919177$gmane$org@goop.org>
+Subject: [PATCH 02/10] allow linux/elf.h to be included in assembler
+Date: Thu, 14 Jun 2007 17:48:20 -0700
+Message-ID: <20070615005012.806180753__40245.5135518268$1181919190$gmane$org@goop.org>
+References: <20070615004818.424726597@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline; filename=asm-elf_h.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,73 +18,140 @@ To: "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com
 Cc: Xen-Devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Vivek Goyal <vgoyal@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, v12n <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This series updates the boot protocol to 2.07 and uses it to implement
-paravirtual booting.  This allows the bootloader to tell the kernel
-what kind of hardware/pseudo-hardware environment it's coming up under,
-and the kernel can use the appropriate boot sequence code.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-Specifically:
+---
+ include/linux/elf.h |   24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
-- Update the boot protocol to 2.07, which adds fields to specify the
-  hardware subarchitecture and some subarchitecture-specific data.
-  It also specifies a flag to tell the boot code to avoid reloading
-  segment registers and playing with interrupt state, since it may not
-  have a visible gdt and/or may not be running in ring 0.
-  (Note: the segment reload and interrupt flags are conflated into one
-   flag, but they are not really related.  We could have two flags, but
-   the "cli" is probably completely redundant anyway, since the bootloader
-   would have to be completely mad to start the kernel with interrupts
-   enabled.)
+===================================================================
+--- a/include/linux/elf.h
++++ b/include/linux/elf.h
+@@ -1,9 +1,10 @@
+ #ifndef _LINUX_ELF_H
+ #define _LINUX_ELF_H
+ 
++#include <linux/elf-em.h>
++#ifndef __ASSEMBLY__
+ #include <linux/types.h>
+ #include <linux/auxvec.h>
+-#include <linux/elf-em.h>
+ #include <asm/elf.h>
+ 
+ struct file;
+@@ -31,6 +32,7 @@ typedef __u32	Elf64_Word;
+ typedef __u32	Elf64_Word;
+ typedef __u64	Elf64_Xword;
+ typedef __s64	Elf64_Sxword;
++#endif	/* __ASSEMBLY__ */
+ 
+ /* These constants are for the segment types stored in the image headers */
+ #define PT_NULL    0
+@@ -123,6 +125,7 @@ typedef __s64	Elf64_Sxword;
+ #define ELF64_ST_BIND(x)	ELF_ST_BIND(x)
+ #define ELF64_ST_TYPE(x)	ELF_ST_TYPE(x)
+ 
++#ifndef __ASSEMBLY__
+ typedef struct dynamic{
+   Elf32_Sword d_tag;
+   union{
+@@ -138,6 +141,7 @@ typedef struct {
+     Elf64_Addr d_ptr;
+   } d_un;
+ } Elf64_Dyn;
++#endif	/* __ASSEMBLY__ */
+ 
+ /* The following are used with relocations */
+ #define ELF32_R_SYM(x) ((x) >> 8)
+@@ -146,6 +150,7 @@ typedef struct {
+ #define ELF64_R_SYM(i)			((i) >> 32)
+ #define ELF64_R_TYPE(i)			((i) & 0xffffffff)
+ 
++#ifndef __ASSEMBLY__
+ typedef struct elf32_rel {
+   Elf32_Addr	r_offset;
+   Elf32_Word	r_info;
+@@ -185,11 +190,12 @@ typedef struct elf64_sym {
+   Elf64_Addr st_value;		/* Value of the symbol */
+   Elf64_Xword st_size;		/* Associated symbol size */
+ } Elf64_Sym;
+-
++#endif	/* __ASSEMBLY__ */
+ 
+ #define EI_NIDENT	16
+ 
+-typedef struct elf32_hdr{
++#ifndef __ASSEMBLY__
++typedef struct elf32_hdr {
+   unsigned char	e_ident[EI_NIDENT];
+   Elf32_Half	e_type;
+   Elf32_Half	e_machine;
+@@ -222,6 +228,7 @@ typedef struct elf64_hdr {
+   Elf64_Half e_shnum;
+   Elf64_Half e_shstrndx;
+ } Elf64_Ehdr;
++#endif	/* __ASSEMBLY__ */
+ 
+ /* These constants define the permissions on sections in the program
+    header, p_flags. */
+@@ -229,7 +236,8 @@ typedef struct elf64_hdr {
+ #define PF_W		0x2
+ #define PF_X		0x1
+ 
+-typedef struct elf32_phdr{
++#ifndef __ASSEMBLY__
++typedef struct elf32_phdr {
+   Elf32_Word	p_type;
+   Elf32_Off	p_offset;
+   Elf32_Addr	p_vaddr;
+@@ -250,6 +258,7 @@ typedef struct elf64_phdr {
+   Elf64_Xword p_memsz;		/* Segment size in memory */
+   Elf64_Xword p_align;		/* Segment alignment, file & memory */
+ } Elf64_Phdr;
++#endif	/* __ASSEMBLY__ */
+ 
+ /* sh_type */
+ #define SHT_NULL	0
+@@ -284,7 +293,8 @@ typedef struct elf64_phdr {
+ #define SHN_ABS		0xfff1
+ #define SHN_COMMON	0xfff2
+ #define SHN_HIRESERVE	0xffff
+- 
++
++#ifndef __ASSEMBLY__
+ typedef struct {
+   Elf32_Word	sh_name;
+   Elf32_Word	sh_type;
+@@ -310,6 +320,7 @@ typedef struct elf64_shdr {
+   Elf64_Xword sh_addralign;	/* Section alignment */
+   Elf64_Xword sh_entsize;	/* Entry size if section holds table */
+ } Elf64_Shdr;
++#endif	/* __ASSEMBLY__ */
+ 
+ #define	EI_MAG0		0		/* e_ident[] indexes */
+ #define	EI_MAG1		1
+@@ -343,6 +354,7 @@ typedef struct elf64_shdr {
+ 
+ #define ELFOSABI_NONE	0
+ #define ELFOSABI_LINUX	3
++#define ELFOSABI_STANDALONE	255
+ 
+ #ifndef ELF_OSABI
+ #define ELF_OSABI ELFOSABI_NONE
+@@ -357,6 +369,7 @@ typedef struct elf64_shdr {
+ #define NT_PRXFPREG     0x46e62b7f      /* copied from gdb5.1/include/elf/common.h */
+ 
+ 
++#ifndef __ASSEMBLY__
+ /* Note header in a PT_NOTE section */
+ typedef struct elf32_note {
+   Elf32_Word	n_namesz;	/* Name size */
+@@ -396,5 +409,6 @@ static inline void arch_write_notes(stru
+ #define ELF_CORE_EXTRA_NOTES_SIZE arch_notes_size()
+ #define ELF_CORE_WRITE_EXTRA_NOTES arch_write_notes(file)
+ #endif /* ARCH_HAVE_EXTRA_ELF_NOTES */
++#endif	/* __ASSEMBLY__ */
+ 
+ #endif /* _LINUX_ELF_H */
 
-- Change the format of bzImage to contain an ELF file.  The initial part of
-  the bzImage is still the boot_params header followed by the 16-bit
-  setup code needed for booting from BIOS.  But rather than having
-  the self-decompressing kernel follow as a naked blob of code+data,
-  its actually wrapped in a page-aligned ELF file.  This allows the
-  bootloader to extract it and parse it, and use that to know what
-  memory the booting kernel will need initially.  Xen and lguest need
-  this because they start the kernel with paging enabled, and so need
-  to know what initial mappings to create.
-
-- Modify the kernel boot sequence to:
-  1. avoid reloading the segment state (gdt and segment registers) if the
-     bootloader asks it to
-  2. jump to a subarchitecture-specific entrypoint in kernel/head.S.
-
-- Add Xen-specific starup code, which mainly remaps the kernel from
-  its P=V identity mapping to the normal PAGE_OFFSET mapping.
-
-  One open issue is that I haven't made the normal head.S initial
-  pagetable construction code generally reusable.  The default
-  boot-on-normal x86 hardware still uses it of course, but other
-  subarchitectures like Voyager and lguest could probably use it as-is,
-  while still needing to do other specialized things.
-
-  The obvious fix is to make it a callable function, but we don't
-  generally assume there's a stack available at this early stage.
-  It looks like it would be easy to set one up though.
-
-As a pre-requisite for all the above, I've also cleaned up the process
-to generate the bzImage.  I've eliminated the need for the tools/build
-program, and instead use the linker to do more heavy lifting.  I've also
-removed some somewhat obscure uses of ld and objcopy wrap binary files
-in ELF .o wrappers, and replaced with with .S files containing .incbin.
-
-The downside is that its making a bit more complex use of linker scripts,
-which always opens scope for finding more binutils bugs.  Only one way
-to find out...
-
-Tested to check the generated kernels boot under qemu's internal bootload
-and grub, as well as booting under Xen (with an appropriate update to
-the Xen domain builder).
-
-TODO:
- - poke Rusty into implementing the lguest bits
- - clean up all the ELF headers to make them easier to reuse in the
-   boot-code compile environment, in order to
- - remove all the .S files specifying ELF structures, and use .c instead
-   (which would be a general cleanup; I don't think we need to specify
-    ELF notes in .S files at all.)
-
-	J
 -- 
