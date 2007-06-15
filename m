@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 02/10] allow linux/elf.h to be included in assembler
-Date: Thu, 14 Jun 2007 17:48:20 -0700
-Message-ID: <20070615005012.806180753__40245.5135518268$1181919190$gmane$org@goop.org>
+Subject: [PATCH 04/10] i386: clean up bzImage generation
+Date: Thu, 14 Jun 2007 17:48:22 -0700
+Message-ID: <20070615005012.962196819__7174.41997626356$1181919191$gmane$org@goop.org>
 References: <20070615004818.424726597@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=asm-elf_h.patch
+Content-Disposition: inline; filename=i386-cleanup-image-generation.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,140 +18,459 @@ To: "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com
 Cc: Xen-Devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, Vivek Goyal <vgoyal@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, v12n <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+This patch cleans up image generation in several ways:
+ - Firstly, it removes tools/build, and uses binutils to do all the
+   final construction of the bzImage.  This removes a chunk of code
+   and makes the image generation more flexible, since we can compute
+   various numbers rather than be forced to use fixed constants.
+
+ - Rename compressed/vmlinux to compressed/blob, to make it a
+   bit clearer that it's the compressed kernel image + decompressor
+   (now all the files named "vmlinux*" are directly derived from
+   the kernel vmlinux).
+
+ - Rather than using objcopy to wrap the compressed kernel into an
+   object file, simply use the assembler: payload.S does a .bininc
+   of the blob.bin file, which allows us to easily place
+   it into a section, and it makes the Makefile dependency a little
+   clearer.
+
+ - Similarly, use the same technique to create compressed/piggy.o,
+   which cleans things up even more, since the .S file can also
+   set the input and output_size symbols without further linker
+   script hackery; it also removes a complete linker script.
+
+ - Also, remove stray "sti"
+
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
 
 ---
- include/linux/elf.h |   24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ arch/i386/boot/Makefile               |   31 +-----
+ arch/i386/boot/compressed/Makefile    |   13 --
+ arch/i386/boot/compressed/piggy.S     |   10 +
+ arch/i386/boot/compressed/vmlinux.scr |   10 -
+ arch/i386/boot/header.S               |    7 -
+ arch/i386/boot/payload.S              |    3 
+ arch/i386/boot/setup.ld               |   37 ++++---
+ arch/i386/boot/tools/.gitignore       |    1 
+ arch/i386/boot/tools/build.c          |  168 ---------------------------------
+ 9 files changed, 55 insertions(+), 225 deletions(-)
 
 ===================================================================
---- a/include/linux/elf.h
-+++ b/include/linux/elf.h
-@@ -1,9 +1,10 @@
- #ifndef _LINUX_ELF_H
- #define _LINUX_ELF_H
+--- a/arch/i386/boot/Makefile
++++ b/arch/i386/boot/Makefile
+@@ -25,12 +25,13 @@ SVGA_MODE := -DSVGA_MODE=NORMAL_VGA
  
-+#include <linux/elf-em.h>
-+#ifndef __ASSEMBLY__
- #include <linux/types.h>
- #include <linux/auxvec.h>
--#include <linux/elf-em.h>
- #include <asm/elf.h>
+ #RAMDISK := -DRAMDISK=512
  
- struct file;
-@@ -31,6 +32,7 @@ typedef __u32	Elf64_Word;
- typedef __u32	Elf64_Word;
- typedef __u64	Elf64_Xword;
- typedef __s64	Elf64_Sxword;
-+#endif	/* __ASSEMBLY__ */
+-targets		:= vmlinux.bin setup.bin setup.elf zImage bzImage
++targets		:= blob.bin setup.elf zImage bzImage
+ subdir- 	:= compressed
  
- /* These constants are for the segment types stored in the image headers */
- #define PT_NULL    0
-@@ -123,6 +125,7 @@ typedef __s64	Elf64_Sxword;
- #define ELF64_ST_BIND(x)	ELF_ST_BIND(x)
- #define ELF64_ST_TYPE(x)	ELF_ST_TYPE(x)
+ setup-y		+= a20.o apm.o cmdline.o copy.o cpu.o cpucheck.o edd.o
+-setup-y		+= header.o main.o mca.o memory.o pm.o pmjump.o
+-setup-y		+= printf.o string.o tty.o video.o version.o voyager.o
++setup-y		+= header.o main.o mca.o memory.o payload.o pm.o
++setup-y		+= pmjump.o printf.o string.o tty.o video.o version.o
++setup-y		+= voyager.o
  
-+#ifndef __ASSEMBLY__
- typedef struct dynamic{
-   Elf32_Sword d_tag;
-   union{
-@@ -138,6 +141,7 @@ typedef struct {
-     Elf64_Addr d_ptr;
-   } d_un;
- } Elf64_Dyn;
-+#endif	/* __ASSEMBLY__ */
- 
- /* The following are used with relocations */
- #define ELF32_R_SYM(x) ((x) >> 8)
-@@ -146,6 +150,7 @@ typedef struct {
- #define ELF64_R_SYM(i)			((i) >> 32)
- #define ELF64_R_TYPE(i)			((i) & 0xffffffff)
- 
-+#ifndef __ASSEMBLY__
- typedef struct elf32_rel {
-   Elf32_Addr	r_offset;
-   Elf32_Word	r_info;
-@@ -185,11 +190,12 @@ typedef struct elf64_sym {
-   Elf64_Addr st_value;		/* Value of the symbol */
-   Elf64_Xword st_size;		/* Associated symbol size */
- } Elf64_Sym;
+ # The link order of the video-*.o modules can matter.  In particular,
+ # video-vga.o *must* be listed first, followed by video-vesa.o.
+@@ -39,10 +40,6 @@ setup-y		+= video-vga.o
+ setup-y		+= video-vga.o
+ setup-y		+= video-vesa.o
+ setup-y		+= video-bios.o
 -
-+#endif	/* __ASSEMBLY__ */
+-hostprogs-y	:= tools/build
+-
+-HOSTCFLAGS_build.o := $(LINUXINCLUDE)
  
- #define EI_NIDENT	16
+ # ---------------------------------------------------------------------------
  
--typedef struct elf32_hdr{
-+#ifndef __ASSEMBLY__
-+typedef struct elf32_hdr {
-   unsigned char	e_ident[EI_NIDENT];
-   Elf32_Half	e_type;
-   Elf32_Half	e_machine;
-@@ -222,6 +228,7 @@ typedef struct elf64_hdr {
-   Elf64_Half e_shnum;
-   Elf64_Half e_shstrndx;
- } Elf64_Ehdr;
-+#endif	/* __ASSEMBLY__ */
+@@ -65,18 +62,12 @@ AFLAGS		:= $(CFLAGS) -D__ASSEMBLY__
+ $(obj)/bzImage: IMAGE_OFFSET := 0x100000
+ $(obj)/bzImage: EXTRA_CFLAGS := -D__BIG_KERNEL__
+ $(obj)/bzImage: EXTRA_AFLAGS := $(SVGA_MODE) $(RAMDISK) -D__BIG_KERNEL__
+-$(obj)/bzImage: BUILDFLAGS   := -b
  
- /* These constants define the permissions on sections in the program
-    header, p_flags. */
-@@ -229,7 +236,8 @@ typedef struct elf64_hdr {
- #define PF_W		0x2
- #define PF_X		0x1
+-quiet_cmd_image = BUILD   $@
+-cmd_image = $(obj)/tools/build $(BUILDFLAGS) $(obj)/setup.bin \
+-	    $(obj)/vmlinux.bin $(ROOT_DEV) > $@
+-
+-$(obj)/zImage $(obj)/bzImage: $(obj)/setup.bin \
+-			      $(obj)/vmlinux.bin $(obj)/tools/build FORCE
+-	$(call if_changed,image)
++$(obj)/zImage $(obj)/bzImage: $(obj)/setup.elf FORCE
++	$(call if_changed,objcopy)
+ 	@echo 'Kernel: $@ is ready' ' (#'`cat .version`')'
  
--typedef struct elf32_phdr{
-+#ifndef __ASSEMBLY__
-+typedef struct elf32_phdr {
-   Elf32_Word	p_type;
-   Elf32_Off	p_offset;
-   Elf32_Addr	p_vaddr;
-@@ -250,6 +258,7 @@ typedef struct elf64_phdr {
-   Elf64_Xword p_memsz;		/* Segment size in memory */
-   Elf64_Xword p_align;		/* Segment alignment, file & memory */
- } Elf64_Phdr;
-+#endif	/* __ASSEMBLY__ */
+-$(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
++$(obj)/blob.bin: $(obj)/compressed/blob FORCE
+ 	$(call if_changed,objcopy)
  
- /* sh_type */
- #define SHT_NULL	0
-@@ -284,7 +293,8 @@ typedef struct elf64_phdr {
- #define SHN_ABS		0xfff1
- #define SHN_COMMON	0xfff2
- #define SHN_HIRESERVE	0xffff
-- 
+ SETUP_OBJS = $(addprefix $(obj)/,$(setup-y))
+@@ -85,12 +76,10 @@ LDFLAGS_setup.elf	:= -T
+ $(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
+ 	$(call if_changed,ld)
+ 
+-OBJCOPYFLAGS_setup.bin	:= -O binary
++$(obj)/payload.o:	EXTRA_AFLAGS := -Wa,-I$(obj)
++$(obj)/payload.o: $(src)/payload.S $(obj)/blob.bin
+ 
+-$(obj)/setup.bin: $(obj)/setup.elf FORCE
+-	$(call if_changed,objcopy)
+-
+-$(obj)/compressed/vmlinux: FORCE
++$(obj)/compressed/blob: FORCE
+ 	$(Q)$(MAKE) $(build)=$(obj)/compressed IMAGE_OFFSET=$(IMAGE_OFFSET) $@
+ 
+ # Set this if you want to pass append arguments to the zdisk/fdimage/isoimage kernel
+===================================================================
+--- a/arch/i386/boot/compressed/Makefile
++++ b/arch/i386/boot/compressed/Makefile
+@@ -4,11 +4,10 @@
+ # create a compressed vmlinux image from the original vmlinux
+ #
+ 
+-targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o \
++targets		:= blob vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o \
+ 			vmlinux.bin.all vmlinux.relocs
+-EXTRA_AFLAGS	:= -traditional
+ 
+-LDFLAGS_vmlinux := -T
++LDFLAGS_blob	:= -T
+ hostprogs-y	:= relocs
+ 
+ CFLAGS  := -m32 -D__KERNEL__ $(LINUX_INCLUDE) -O2 \
+@@ -17,7 +16,7 @@ CFLAGS  := -m32 -D__KERNEL__ $(LINUX_INC
+ 	   $(call cc-option,-fno-stack-protector)
+ LDFLAGS := -m elf_i386
+ 
+-$(obj)/vmlinux: $(src)/vmlinux.lds $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
++$(obj)/blob: $(src)/vmlinux.lds $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
+ 	$(call if_changed,ld)
+ 	@:
+ 
+@@ -44,7 +43,5 @@ else
+ 	$(call if_changed,gzip)
+ endif
+ 
+-LDFLAGS_piggy.o := -r --format binary --oformat elf32-i386 -T
+-
+-$(obj)/piggy.o: $(src)/vmlinux.scr $(obj)/vmlinux.bin.gz FORCE
+-	$(call if_changed,ld)
++$(obj)/piggy.o:	EXTRA_AFLAGS := -Wa,-I$(obj)
++$(obj)/piggy.o: $(src)/piggy.S $(obj)/vmlinux.bin.gz
+===================================================================
+--- /dev/null
++++ b/arch/i386/boot/compressed/piggy.S
+@@ -0,0 +1,10 @@
++.section .data.compressed,"a",@progbits
 +
-+#ifndef __ASSEMBLY__
- typedef struct {
-   Elf32_Word	sh_name;
-   Elf32_Word	sh_type;
-@@ -310,6 +320,7 @@ typedef struct elf64_shdr {
-   Elf64_Xword sh_addralign;	/* Section alignment */
-   Elf64_Xword sh_entsize;	/* Entry size if section holds table */
- } Elf64_Shdr;
-+#endif	/* __ASSEMBLY__ */
++.globl input_data, input_len, output_len
++
++input_len:	.long input_data_end - input_data
++
++input_data:
++.incbin "vmlinux.bin.gz"
++output_len = .-4
++input_data_end:
+===================================================================
+--- a/arch/i386/boot/compressed/vmlinux.scr
++++ /dev/null
+@@ -1,10 +0,0 @@
+-SECTIONS
+-{
+-  .data.compressed : {
+-	input_len = .;
+-	LONG(input_data_end - input_data) input_data = .; 
+-	*(.data) 
+-	output_len = . - 4;
+-	input_data_end = .; 
+-	}
+-}
+===================================================================
+--- a/arch/i386/boot/header.S
++++ b/arch/i386/boot/header.S
+@@ -97,9 +97,9 @@ bugger_off_msg:
+ 	.section ".header", "a"
+ 	.globl	hdr
+ hdr:
+-setup_sects:	.byte SETUPSECTS
++setup_sects:	.byte _setup_sects
+ root_flags:	.word ROOT_RDONLY
+-syssize:	.long SYSSIZE
++syssize:	.long kernel_size_para
+ ram_size:	.word RAMDISK
+ vid_mode:	.word SVGA_MODE
+ root_dev:	.word ROOT_DEV
+@@ -148,7 +148,7 @@ CAN_USE_HEAP	= 0x80			# If set, the load
+ 		.byte	LOADED_HIGH
+ #endif
  
- #define	EI_MAG0		0		/* e_ident[] indexes */
- #define	EI_MAG1		1
-@@ -343,6 +354,7 @@ typedef struct elf64_shdr {
+-setup_move_size: .word  0x8000		# size to move, when setup is not
++setup_move_size: .word  _setup_size	# size to move, when setup is not
+ 					# loaded at 0x90000. We will move setup
+ 					# to 0x90000 then just before jumping
+ 					# into the kernel. However, only the
+@@ -246,7 +246,6 @@ setup2:
+ 	jnz	1f
+ 	movw	$0xfffc, %sp	# Make sure we're not zero
+ 1:	movzwl	%sp, %esp	# Clear upper half of %esp
+-	sti
  
- #define ELFOSABI_NONE	0
- #define ELFOSABI_LINUX	3
-+#define ELFOSABI_STANDALONE	255
+ # Check signature at end of setup
+ 	cmpl	$0x5a5aaa55, setup_sig
+===================================================================
+--- /dev/null
++++ b/arch/i386/boot/payload.S
+@@ -0,0 +1,3 @@
++.section .kernel,"a",@progbits
++
++.incbin "blob.bin"
+===================================================================
+--- a/arch/i386/boot/setup.ld
++++ b/arch/i386/boot/setup.ld
+@@ -3,18 +3,16 @@
+  *
+  * Linker script for the i386 setup code
+  */
+-OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
++OUTPUT_FORMAT("elf32-i386")
+ OUTPUT_ARCH(i386)
+ ENTRY(_start)
  
- #ifndef ELF_OSABI
- #define ELF_OSABI ELFOSABI_NONE
-@@ -357,6 +369,7 @@ typedef struct elf64_shdr {
- #define NT_PRXFPREG     0x46e62b7f      /* copied from gdb5.1/include/elf/common.h */
+ SECTIONS
+ {
+-	. = 0;
+-	.bstext		: { *(.bstext) }
++	.bstext 0	: { *(.bstext) }
+ 	.bsdata		: { *(.bsdata) }
+ 
+-	. = 497;
+-	.header		: { *(.header) }
++	.header 497	: { *(.header) }
+ 	.inittext	: { *(.inittext) }
+ 	.initdata	: { *(.initdata) }
+ 	.text		: { *(.text*) }
+@@ -38,16 +36,29 @@ SECTIONS
  
  
-+#ifndef __ASSEMBLY__
- /* Note header in a PT_NOTE section */
- typedef struct elf32_note {
-   Elf32_Word	n_namesz;	/* Name size */
-@@ -396,5 +409,6 @@ static inline void arch_write_notes(stru
- #define ELF_CORE_EXTRA_NOTES_SIZE arch_notes_size()
- #define ELF_CORE_WRITE_EXTRA_NOTES arch_write_notes(file)
- #endif /* ARCH_HAVE_EXTRA_ELF_NOTES */
-+#endif	/* __ASSEMBLY__ */
+ 	. = ALIGN(16);
+-	__bss_start = .;
+-	.bss 		:
+-	{
+-		*(.bss)
+-	}
+-	. = ALIGN(16);
++	.bss ALIGN(16)	: {
++		__bss_start = .;
++		 *(.bss)
++		. = ALIGN(16);
++	 }
+ 	_end = .;
  
- #endif /* _LINUX_ELF_H */
+ 	/DISCARD/ : { *(.note*) }
+ 
+-	. = ASSERT(_end <= 0x8000, "Setup too big!");
+-	. = ASSERT(hdr == 0x1f1, "The setup header has the wrong offset!");
++	. = ALIGN(512);		/* align to sector size */
++	_setup_size = . - _start;
++	_setup_sects = _setup_size / 512;
++
++	/* compressed kernel data */
++	.kernel	: {
++		kernel = .;
++		*(.kernel)
++		kernel_end = .;
++
++	}
++	kernel_size = kernel_end - kernel;
++	kernel_size_para = (kernel_size + 15) / 16;
+ }
++
++ASSERT(_end <= 0x8000, "Setup too big!");
++ASSERT(hdr == 0x1f1, "The setup header has the wrong offset!");
+===================================================================
+--- a/arch/i386/boot/tools/.gitignore
++++ /dev/null
+@@ -1,1 +0,0 @@
+-build
+===================================================================
+--- a/arch/i386/boot/tools/build.c
++++ /dev/null
+@@ -1,168 +0,0 @@
+-/*
+- *  Copyright (C) 1991, 1992  Linus Torvalds
+- *  Copyright (C) 1997 Martin Mares
+- *  Copyright (C) 2007 H. Peter Anvin
+- */
+-
+-/*
+- * This file builds a disk-image from three different files:
+- *
+- * - setup: 8086 machine code, sets up system parm
+- * - system: 80386 code for actual system
+- *
+- * It does some checking that all files are of the correct type, and
+- * just writes the result to stdout, removing headers and padding to
+- * the right amount. It also writes some system data to stderr.
+- */
+-
+-/*
+- * Changes by tytso to allow root device specification
+- * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
+- * Cross compiling fixes by Gertjan van Wingerde, July 1996
+- * Rewritten by Martin Mares, April 1997
+- * Substantially overhauled by H. Peter Anvin, April 2007
+- */
+-
+-#include <stdio.h>
+-#include <string.h>
+-#include <stdlib.h>
+-#include <stdarg.h>
+-#include <sys/types.h>
+-#include <sys/stat.h>
+-#include <sys/sysmacros.h>
+-#include <unistd.h>
+-#include <fcntl.h>
+-#include <sys/mman.h>
+-#include <asm/boot.h>
+-
+-typedef unsigned char  u8;
+-typedef unsigned short u16;
+-typedef unsigned long  u32;
+-
+-#define DEFAULT_MAJOR_ROOT 0
+-#define DEFAULT_MINOR_ROOT 0
+-
+-/* Minimal number of setup sectors */
+-#define SETUP_SECT_MIN 5
+-#define SETUP_SECT_MAX 64
+-
+-/* This must be large enough to hold the entire setup */
+-u8 buf[SETUP_SECT_MAX*512];
+-int is_big_kernel;
+-
+-static void die(const char * str, ...)
+-{
+-	va_list args;
+-	va_start(args, str);
+-	vfprintf(stderr, str, args);
+-	fputc('\n', stderr);
+-	exit(1);
+-}
+-
+-static void usage(void)
+-{
+-	die("Usage: build [-b] setup system [rootdev] [> image]");
+-}
+-
+-int main(int argc, char ** argv)
+-{
+-	unsigned int i, sz, setup_sectors;
+-	int c;
+-	u32 sys_size;
+-	u8 major_root, minor_root;
+-	struct stat sb;
+-	FILE *file;
+-	int fd;
+-	void *kernel;
+-
+-	if (argc > 2 && !strcmp(argv[1], "-b"))
+-	  {
+-	    is_big_kernel = 1;
+-	    argc--, argv++;
+-	  }
+-	if ((argc < 3) || (argc > 4))
+-		usage();
+-	if (argc > 3) {
+-		if (!strcmp(argv[3], "CURRENT")) {
+-			if (stat("/", &sb)) {
+-				perror("/");
+-				die("Couldn't stat /");
+-			}
+-			major_root = major(sb.st_dev);
+-			minor_root = minor(sb.st_dev);
+-		} else if (strcmp(argv[3], "FLOPPY")) {
+-			if (stat(argv[3], &sb)) {
+-				perror(argv[3]);
+-				die("Couldn't stat root device.");
+-			}
+-			major_root = major(sb.st_rdev);
+-			minor_root = minor(sb.st_rdev);
+-		} else {
+-			major_root = 0;
+-			minor_root = 0;
+-		}
+-	} else {
+-		major_root = DEFAULT_MAJOR_ROOT;
+-		minor_root = DEFAULT_MINOR_ROOT;
+-	}
+-	fprintf(stderr, "Root device is (%d, %d)\n", major_root, minor_root);
+-
+-	/* Copy the setup code */
+-	file = fopen(argv[1], "r");
+-	if (!file)
+-		die("Unable to open `%s': %m", argv[1]);
+-	c = fread(buf, 1, sizeof(buf), file);
+-	if (ferror(file))
+-		die("read-error on `setup'");
+-	if (c < 1024)
+-		die("The setup must be at least 1024 bytes");
+-	if (buf[510] != 0x55 || buf[511] != 0xaa)
+-		die("Boot block hasn't got boot flag (0xAA55)");
+-	fclose(file);
+-
+-	/* Pad unused space with zeros */
+-	setup_sectors = (c + 511) / 512;
+-	if (setup_sectors < SETUP_SECT_MIN)
+-		setup_sectors = SETUP_SECT_MIN;
+-	i = setup_sectors*512;
+-	memset(buf+c, 0, i-c);
+-
+-	/* Set the default root device */
+-	buf[508] = minor_root;
+-	buf[509] = major_root;
+-
+-	fprintf(stderr, "Setup is %d bytes (padded to %d bytes).\n", c, i);
+-
+-	/* Open and stat the kernel file */
+-	fd = open(argv[2], O_RDONLY);
+-	if (fd < 0)
+-		die("Unable to open `%s': %m", argv[2]);
+-	if (fstat(fd, &sb))
+-		die("Unable to stat `%s': %m", argv[2]);
+-	sz = sb.st_size;
+-	fprintf (stderr, "System is %d kB\n", (sz+1023)/1024);
+-	kernel = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
+-	if (kernel == MAP_FAILED)
+-		die("Unable to mmap '%s': %m", argv[2]);
+-	sys_size = (sz + 15) / 16;
+-	if (!is_big_kernel && sys_size > DEF_SYSSIZE)
+-		die("System is too big. Try using bzImage or modules.");
+-
+-	/* Patch the setup code with the appropriate size parameters */
+-	buf[0x1f1] = setup_sectors-1;
+-	buf[0x1f4] = sys_size;
+-	buf[0x1f5] = sys_size >> 8;
+-	buf[0x1f6] = sys_size >> 16;
+-	buf[0x1f7] = sys_size >> 24;
+-
+-	if (fwrite(buf, 1, i, stdout) != i)
+-		die("Writing setup failed");
+-
+-	/* Copy the kernel code */
+-	if (fwrite(kernel, 1, sz, stdout) != sz)
+-		die("Writing kernel failed");
+-	close(fd);
+-
+-	/* Everything is OK */
+-	return 0;
+-}
 
 -- 
