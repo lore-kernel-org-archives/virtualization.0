@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 04/10] i386: clean up bzImage generation
-Date: Fri, 15 Jun 2007 09:34:10 -0700
-Message-ID: <4672BF82.9050101__25229.5715654784$1181925316$gmane$org@goop.org>
+Subject: Re: [PATCH 03/10] define ELF notes for adding to a boot image
+Date: Fri, 15 Jun 2007 09:40:31 -0700
+Message-ID: <4672C0FF.9080209__34573.3914793984$1181925698$gmane$org@goop.org>
 References: <20070615004818.424726597@goop.org>
-	<20070615005012.962196819@goop.org> <4672BC3E.6080308@zytor.com>
+	<20070615005012.882738673@goop.org> <4672BC5B.1040502@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4672BC3E.6080308@zytor.com>
+In-Reply-To: <4672BC5B.1040502@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,32 +25,13 @@ List-Id: virtualization@lists.linuxfoundation.org
 H. Peter Anvin wrote:
 > Jeremy Fitzhardinge wrote:
 >   
->> -setup_move_size: .word  0x8000		# size to move, when setup is not
->> +setup_move_size: .word  _setup_size	# size to move, when setup is not
->>  					# loaded at 0x90000. We will move setup
->>  					# to 0x90000 then just before jumping
->>  					# into the kernel. However, only the
+>> +#define EIN_PROGRAM_CHECKSUM	3 /* ip style checksum of the memory image. */
 >>     
 >
-> This is WRONG and will break 2.00 protocol bootloaders, if any still
-> exist, and quite possibly some 2.01 protocol bootloaders.  There are
-> definitiely bootloaders in the field that rely on this implicit value.
->   
+> Why on earth use one of the weakest verificants in common use?
 
-Ah, I see.  I didn't see any documentation saying that this must be
-0x8000.  Or does _setup_size just have to be <= 0x8000?
-
->> @@ -246,7 +246,6 @@ setup2:
->>  	jnz	1f
->>  	movw	$0xfffc, %sp	# Make sure we're not zero
->>  1:	movzwl	%sp, %esp	# Clear upper half of %esp
->> -	sti
->>     
->
-> Motivation, please?
->   
-
-We talked about this, and you said it was a mistake.  It needn't be in
-this patch; it could be separate, or just dropped as far as I'm concerned.
+I don't know.  I copied this stuff from the original relocatable kernel
+patches; I think this is from Vivek.  Eric, Vivek: is there a specific
+use for these notes?
 
     J
