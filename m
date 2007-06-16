@@ -1,16 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH RFC 3/3] Virtio draft III: example block driver
-Date: Sat, 16 Jun 2007 23:18:40 +1000
-Message-ID: <1181999920.6237.263.camel__2957.51262824542$1182000005$gmane$org@localhost.localdomain>
+Subject: [PATCH] Lguest implemention of virtio draft III
+Date: Sat, 16 Jun 2007 23:28:34 +1000
+Message-ID: <1182000514.6237.273.camel__6647.15859243206$1182000631$gmane$org@localhost.localdomain>
 References: <1181217762.14054.192.camel@localhost.localdomain>
 	<1181999552.6237.255.camel@localhost.localdomain>
 	<1181999669.6237.257.camel@localhost.localdomain>
 	<1181999825.6237.260.camel@localhost.localdomain>
+	<1181999920.6237.263.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1181999825.6237.260.camel@localhost.localdomain>
+In-Reply-To: <1181999920.6237.263.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,481 +22,625 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization <virtualization@lists.linux-foundation.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Jens Axboe <jens.axboe@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The block driver uses outbufs with sg[0] being the request information
-(struct virtio_blk_outhdr) with the type, sector and inbuf id.  For a
-write, the rest of the sg will contain the data to be written.
+This is a bonus patch for those wondering how a virtio implementation
+can look.  I have two, this is the more efficient one (needs some
+modification for inter-guest though: it assumes the other end does all
+the accessing of our memory.  It's currently tacked on to the existing
+lguest I/O mechanism as a demonstration, rather than replacing it.
 
-The first segment of the inbuf is a result code (struct
-virtio_blk_inhdr).  For a read, the rest of the sg points to the input
-buffer.
+It shows that it's possible to implement virtio without internal
+locking.
 
-We accept the normal SCSI ioctls: they get handed through to the other
-side which can then handle it or reply that it's unsupported.
+Userspace server-side code isn't included.
+===
+This allows zero-copy from guest <-> host.  It uses a page of
+descriptors, a page to say what descriptors to use, and a page to say
+what's been used: one each set for inbufs and one for outbufs.
 
-Although we try to reply -ENOTTY on unsupported commands, the block
-layer in its infinite wisdom suppressed the error so ioctl(fd,
-CDROMEJECT) returns success to userspace.
+TODO:
+1) More polishing
+2) Get rid of old I/O
+3) Inter-guest I/O implementation
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/block/Makefile     |    1 
- drivers/block/virtio_blk.c |  385 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/Kbuild       |    1 
- include/linux/virtio_blk.h |   39 ++++
- 4 files changed, 426 insertions(+)
+ drivers/lguest/Makefile         |    2 
+ drivers/lguest/hypercalls.c     |    4 
+ drivers/lguest/lguest_virtio.c  |  511 +++++++++++++++++++++++++++++++++++++++
+ include/linux/lguest.h          |    3 
+ include/linux/lguest_launcher.h |   24 +
+ 6 files changed, 948 insertions(+), 5 deletions(-)
 
-===================================================================
---- a/drivers/block/Makefile
-+++ b/drivers/block/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_BLK_CPQ_CISS_DA)  += cciss.
- obj-$(CONFIG_BLK_CPQ_CISS_DA)  += cciss.o
- obj-$(CONFIG_BLK_DEV_DAC960)	+= DAC960.o
- obj-$(CONFIG_CDROM_PKTCDVD)	+= pktcdvd.o
-+obj-y				+= virtio_blk.o
+--- a/drivers/lguest/Makefile
++++ b/drivers/lguest/Makefile
+@@ -1,5 +1,5 @@
+ # Guest requires the paravirt_ops replacement and the bus driver.
+-obj-$(CONFIG_LGUEST_GUEST) += lguest.o lguest_asm.o lguest_bus.o
++obj-$(CONFIG_LGUEST_GUEST) += lguest.o lguest_asm.o lguest_bus.o lguest_virtio.o
  
- obj-$(CONFIG_BLK_DEV_UMEM)	+= umem.o
- obj-$(CONFIG_BLK_DEV_NBD)	+= nbd.o
+ # Host requires the other files, which can be a module.
+ obj-$(CONFIG_LGUEST)	+= lg.o
+===================================================================
+--- a/drivers/lguest/hypercalls.c
++++ b/drivers/lguest/hypercalls.c
+@@ -86,6 +86,10 @@ static void do_hcall(struct lguest *lg, 
+ 		break;
+ 	case LHCALL_HALT:
+ 		lg->halted = 1;
++		break;
++	case LHCALL_NOTIFY:
++		lg->pending_key = regs->edx << PAGE_SHIFT;
++		lg->dma_is_pending = 1;
+ 		break;
+ 	default:
+ 		kill_guest(lg, "Bad hypercall %li\n", regs->eax);
 ===================================================================
 --- /dev/null
-+++ b/drivers/block/virtio_blk.c
-@@ -0,0 +1,383 @@
++++ b/drivers/lguest/lguest_virtio.c
+@@ -0,0 +1,511 @@
++/* Descriptor-based virtio backend using lguest. */
++
++/* FIXME: Put "running" in shared page so other side really doesn't
++ * send us interrupts.  Then we would never need to "fail" restart.
++ * If there are more buffers when we set "running", simply ping other
++ * side.  It would interrupt us back again.
++ */
 +#define DEBUG
-+#include <linux/spinlock.h>
-+#include <linux/blkdev.h>
-+#include <linux/hdreg.h>
++#include <linux/lguest.h>
++#include <linux/lguest_bus.h>
 +#include <linux/virtio.h>
-+#include <linux/virtio_blk.h>
++#include <linux/interrupt.h>
++#include <asm/io.h>
 +
-+static unsigned char virtblk_index = 'a';
-+struct virtio_blk
++#define NUM_DESCS (PAGE_SIZE / sizeof(struct lguest_desc))
++
++#ifdef DEBUG
++/* For development, we want to crash whenever the other side is bad. */
++#define BAD_SIDE(lgv, fmt...)			\
++	do { dev_err(lgv->vdev.dev, fmt); BUG(); } while(0)
++#define START_USE(di) \
++	do { if ((di)->in_use) panic("in_use = %i\n", (di)->in_use); (di)->in_use = __LINE__; mb(); } while(0)
++#define END_USE(di) \
++	do { BUG_ON(!(di)->in_use); (di)->in_use = 0; mb(); } while(0)
++#else
++#define BAD_SIDE(lgv, fmt...)			\
++	do { dev_err(lgv->vdev.dev, fmt); (lgv)->broken = true; } while(0)
++#define START_USE(di)
++#define END_USE(di)
++#endif
++
++/* FIXME: make the device mem layout a struct, not a set of pointers */
++struct desc_info
 +{
-+	spinlock_t lock;
++	/* Page of descriptors. */
++	struct lguest_desc *desc;
++	/* How we tell other side what buffers are available. */
++	unsigned int *avail_idx;
++	unsigned int *available;
++	/* How other side tells us what's used. */
++	unsigned int *used_idx;
++	struct lguest_used *used;
 +
-+	struct virtio_device *vdev;
++	/* Number of free buffers */
++	unsigned int num_free;
++	/* Head of free buffer list. */
++	unsigned int free_head;
++	/* Number we've added since last sync. */
++	unsigned int num_added;
 +
-+	/* The disk structure for the kernel. */
-+	struct gendisk *disk;
++	/* Last used index we've seen. */
++	unsigned int last_used_idx;
 +
-+	/* Request tracking. */
-+	struct list_head reqs;
++	/* Unless they told us to stop */
++	bool running;
 +
-+	mempool_t *pool;
++#ifdef DEBUG
++	/* They're supposed to lock for us. */
++	unsigned int in_use;
++#endif
 +
-+	/* Scatterlist: can be too big for stack. */
-+	struct scatterlist sg[2+MAX_PHYS_SEGMENTS];
++	/* Tokens for callbacks. */
++	void *data[NUM_DESCS];
 +};
 +
-+struct virtblk_req
++/* FIXME: When doing this for real, vdev will go straight into lguest_device */
++struct lguest_virtio_device
 +{
-+	struct list_head list;
-+	struct request *req;
-+	unsigned long out_id;
-+	bool out_done, in_done;
-+	int uptodate;
-+	struct virtio_blk_outhdr out_hdr;
-+	struct virtio_blk_inhdr in_hdr;
++	struct virtio_device vdev;
++	struct lguest_device *lg;
++	void *priv;
++
++	/* Other side has made a mess, don't try any more. */
++	bool broken;
++
++	struct desc_info in, out;
 +};
 +
-+static void end_dequeued_request(struct request *req,
-+				 request_queue_t *q, int uptodate)
++static inline struct lguest_virtio_device *
++vdev_to_lgv(struct virtio_device *vdev)
 +{
-+	/* And so the insanity of the block layer infects us here. */
-+	int nsectors = req->hard_nr_sectors;
-+
-+	if (blk_pc_request(req)) {
-+		nsectors = (req->data_len + 511) >> 9;
-+		if (!nsectors)
-+			nsectors = 1;
-+	}
-+	if (end_that_request_first(req, uptodate, nsectors))
-+		BUG();
-+	add_disk_randomness(req->rq_disk);
-+	end_that_request_last(req, uptodate);
++	return container_of(vdev, struct lguest_virtio_device, vdev);
 +}
 +
-+static bool finish(struct virtio_blk *vblk, struct virtblk_req *vbr)
++static unsigned long add_buf(struct desc_info *di,
++			     const struct scatterlist *sg,
++			     unsigned int num,
++			     void *data)
 +{
-+	if (!vbr->in_done || !vbr->out_done)
-+		return false;
-+	end_dequeued_request(vbr->req, vblk->disk->queue, vbr->uptodate);
-+	list_del(&vbr->list);
-+	mempool_free(vbr, vblk->pool);
-+	return true;
-+}
++	unsigned int i, head, uninitialized_var(prev);
 +
-+/* We make sure they finished both the input and output buffers: otherwise
-+ * they might still have read access after we free them. */
-+static bool blk_out_done(struct virtio_device *vdev)
-+{
-+	struct virtio_blk *vblk = vdev->priv;
-+	struct virtblk_req *vbr;
-+	unsigned int len, finished = 0;
-+	unsigned long flags;
++	BUG_ON(data == NULL);
++	START_USE(di);
 +
-+	spin_lock_irqsave(&vblk->lock, flags);
-+	while ((vbr = vdev->ops->get_outbuf(vdev, &len)) != NULL) {
-+		BUG_ON(vbr->out_done);
-+		vbr->out_done = true;
-+		finished += finish(vblk, vbr);
-+	}
-+	/* In case queue is stopped waiting for more buffers. */
-+	if (finished)
-+		blk_start_queue(vblk->disk->queue);
-+	spin_unlock_irqrestore(&vblk->lock, flags);
-+	return true;
-+}
-+
-+static bool blk_in_done(struct virtio_device *vdev)
-+{
-+	struct virtio_blk *vblk = vdev->priv;
-+	struct virtblk_req *vbr;
-+	unsigned int len, finished = 0;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&vblk->lock, flags);
-+
-+	while ((vbr = vdev->ops->get_inbuf(vdev, &len)) != NULL) {
-+		BUG_ON(vbr->in_done);
-+
-+		switch (vbr->in_hdr.status) {
-+		case VIRTIO_BLK_S_OK:
-+			vbr->uptodate = 1;
-+			break;
-+		case VIRTIO_BLK_S_UNSUPP:
-+			vbr->uptodate = -ENOTTY;
-+			break;
-+		default:
-+			vbr->uptodate = 0;
-+			break;
-+		}
-+		vbr->in_done = true;
-+		finished += finish(vblk, vbr);
++	if (di->num_free < num) {
++		pr_debug("Can't add buf len %i - avail = %i\n", num,
++			 di->num_free);
++		END_USE(di);
++		return -ENOSPC;
 +	}
 +
-+	/* In case queue is stopped waiting for more buffers. */
-+	if (finished)
-+		blk_start_queue(vblk->disk->queue);
-+	spin_unlock_irqrestore(&vblk->lock, flags);
-+	return true;
++	/* We're about to use some buffers from the free list. */
++	di->num_free -= num;
++
++	head = di->free_head;
++	for (i = di->free_head; num; i = di->desc[i].next, num--) {
++		di->desc[i].flags |= LGUEST_DESC_F_NEXT;
++		di->desc[i].pfn = page_to_pfn(sg[0].page);
++		di->desc[i].offset = sg[0].offset;
++		di->desc[i].len = sg[0].length;
++		prev = i;
++		sg++;
++	}
++	/* Last one doesn't continue. */
++	di->desc[prev].flags &= ~LGUEST_DESC_F_NEXT;
++
++	/* Update free pointer */
++	di->free_head = i;
++
++	di->data[head] = data;
++
++	/* Make sure it's all visible to other side before setting head. */
++	wmb();
++	di->desc[head].flags |= LGUEST_DESC_F_HEAD;
++
++	/* Put it in available array for advertising. */
++	di->available[(*di->avail_idx + di->num_added++) % NUM_DESCS] = head;
++
++	pr_debug("Added buffer head %i\n", head);
++	END_USE(di);
++	return head;
 +}
 +
-+static bool do_write(request_queue_t *q, struct virtio_blk *vblk,
-+		     struct virtblk_req *vbr)
++static unsigned long lguest_add_outbuf(struct virtio_device *vdev,
++				       const struct scatterlist sg[],
++				       unsigned int num,
++				       void *data)
 +{
-+	unsigned long num;
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
 +
-+	vbr->out_hdr.type |= VIRTIO_BLK_T_WRITE;
++	BUG_ON(num > NUM_DESCS);
++	BUG_ON(num == 0);
 +
-+	/* Set up for reply. */
-+	vblk->sg[0].page = virt_to_page(&vbr->in_hdr);
-+	vblk->sg[0].offset = offset_in_page(&vbr->in_hdr);
-+	vblk->sg[0].length = sizeof(vbr->in_hdr);
-+	vbr->out_hdr.id = vblk->vdev->ops->add_inbuf(vblk->vdev, vblk->sg, 1,
-+						     vbr);
-+	if (IS_ERR_VALUE(vbr->out_hdr.id))
-+		goto full;
-+
-+	/* First sg element points to output header. */
-+	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
-+	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
-+	vblk->sg[0].length = sizeof(vbr->out_hdr);
-+
-+	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
-+	vbr->out_id = vblk->vdev->ops->add_outbuf(vblk->vdev, vblk->sg, 1+num,
-+						  vbr);
-+	if (IS_ERR_VALUE(vbr->out_id))
-+		goto detach_inbuf_full;
-+
-+	pr_debug("Write: %p in=%lu out=%lu\n", vbr,
-+		 (long)vbr->out_hdr.id, (long)vbr->out_id);
-+	list_add_tail(&vbr->list, &vblk->reqs);
-+	return true;
-+
-+detach_inbuf_full:
-+	vblk->vdev->ops->detach_inbuf(vblk->vdev, vbr->out_hdr.id);
-+full:
-+	return false;
++	return add_buf(&lgv->out, sg, num, data);
 +}
 +
-+static bool do_read(request_queue_t *q, struct virtio_blk *vblk,
-+		    struct virtblk_req *vbr)
++static unsigned long lguest_add_inbuf(struct virtio_device *vdev,
++				      struct scatterlist sg[],
++				      unsigned int num,
++				      void *data)
 +{
-+	unsigned long num;
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
 +
-+	vbr->out_hdr.type |= VIRTIO_BLK_T_READ;
++	BUG_ON(num > NUM_DESCS);
++	BUG_ON(num == 0);
 +
-+	/* Set up for reply. */
-+	vblk->sg[0].page = virt_to_page(&vbr->in_hdr);
-+	vblk->sg[0].offset = offset_in_page(&vbr->in_hdr);
-+	vblk->sg[0].length = sizeof(vbr->in_hdr);
-+	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
-+	vbr->out_hdr.id = vblk->vdev->ops->add_inbuf(vblk->vdev, vblk->sg,
-+						     1+num, vbr);
-+	if (IS_ERR_VALUE(vbr->out_hdr.id))
-+		goto full;
-+
-+	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
-+	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
-+	vblk->sg[0].length = sizeof(vbr->out_hdr);
-+
-+	vbr->out_id = vblk->vdev->ops->add_outbuf(vblk->vdev, vblk->sg, 1,
-+						  vbr);
-+	if (IS_ERR_VALUE(vbr->out_id))
-+		goto detach_inbuf_full;
-+
-+	pr_debug("Read: %p in=%lu out=%lu\n", vbr,
-+		 (long)vbr->out_hdr.id, (long)vbr->out_id);
-+	list_add_tail(&vbr->list, &vblk->reqs);
-+	return true;
-+
-+detach_inbuf_full:
-+	vblk->vdev->ops->detach_inbuf(vblk->vdev, vbr->out_hdr.id);
-+full:
-+	return false;
++	return add_buf(&lgv->in, sg, num, data);
 +}
 +
-+static bool do_scsi(request_queue_t *q, struct virtio_blk *vblk,
-+		    struct virtblk_req *vbr)
++static void lguest_sync(struct virtio_device *vdev, enum virtio_dir inout)
 +{
-+	unsigned long num;
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
 +
-+	vbr->out_hdr.type |= VIRTIO_BLK_T_SCSI_CMD;
++	if (inout & VIRTIO_IN)
++		START_USE(&lgv->in);
++	if (inout & VIRTIO_OUT)
++		START_USE(&lgv->out);
++	/* LGUEST_DESC_F_HEAD needs to be set before we say they're avail. */
++	wmb();
 +
-+	/* Set up for reply. */
-+	vblk->sg[0].page = virt_to_page(&vbr->in_hdr);
-+	vblk->sg[0].offset = offset_in_page(&vbr->in_hdr);
-+	vblk->sg[0].length = sizeof(vbr->in_hdr);
-+	vbr->out_hdr.id = vblk->vdev->ops->add_inbuf(vblk->vdev, vblk->sg, 1,
-+						     vbr);
-+	if (IS_ERR_VALUE(vbr->out_hdr.id))
-+		goto full;
-+
-+	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
-+	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
-+	vblk->sg[0].length = sizeof(vbr->out_hdr);
-+	vblk->sg[1].page = virt_to_page(vbr->req->cmd);
-+	vblk->sg[1].offset = offset_in_page(vbr->req->cmd);
-+	vblk->sg[1].length = vbr->req->cmd_len;
-+
-+	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
-+	vbr->out_id = vblk->vdev->ops->add_outbuf(vblk->vdev, vblk->sg, 2+num,
-+						  vbr);
-+	if (IS_ERR_VALUE(vbr->out_id))
-+		goto detach_inbuf_full;
-+
-+	pr_debug("Scsi: %p in=%lu out=%lu\n", vbr,
-+		 (long)vbr->out_hdr.id, (long)vbr->out_id);
-+	list_add_tail(&vbr->list, &vblk->reqs);
-+	return true;
-+
-+detach_inbuf_full:
-+	vblk->vdev->ops->detach_inbuf(vblk->vdev, vbr->out_hdr.id);
-+full:
-+	return false;
-+}
-+
-+static void do_virtblk_request(request_queue_t *q)
-+{
-+	struct virtio_blk *vblk = NULL;
-+	struct request *req;
-+	struct virtblk_req *vbr;
-+
-+	while ((req = elv_next_request(q)) != NULL) {
-+		vblk = req->rq_disk->private_data;
-+
-+		vbr = mempool_alloc(vblk->pool, GFP_ATOMIC);
-+		if (!vbr)
-+			goto stop;
-+
-+		BUG_ON(req->nr_phys_segments > ARRAY_SIZE(vblk->sg));
-+		vbr->req = req;
-+		/* Actual type gets or'ed in do_scsi/do_write/do_read */
-+		vbr->out_hdr.type = blk_barrier_rq(req)?VIRTIO_BLK_T_BARRIER:0;
-+		vbr->out_hdr.sector = req->sector;
-+		vbr->out_hdr.ioprio = req->ioprio;
-+		vbr->out_done = vbr->in_done = false;
-+
-+		if (blk_pc_request(req)) {
-+			if (!do_scsi(q, vblk, vbr))
-+				goto stop;
-+		} else if (blk_fs_request(req)) {
-+			if (rq_data_dir(req) == WRITE) {
-+				if (!do_write(q, vblk, vbr))
-+					goto stop;
-+			} else {
-+				if (!do_read(q, vblk, vbr))
-+					goto stop;
-+			}
-+		} else
-+			/* We don't put anything else in the queue. */
-+			BUG();
-+		blkdev_dequeue_request(req);
++	if (inout & VIRTIO_IN) {
++		*lgv->in.avail_idx += lgv->in.num_added;
++		lgv->in.num_added = 0;
++	}
++	if (inout & VIRTIO_OUT) {
++		*lgv->out.avail_idx += lgv->out.num_added;
++		lgv->out.num_added = 0;
 +	}
 +
-+sync:
-+	if (vblk)
-+		vblk->vdev->ops->sync(vblk->vdev, VIRTIO_IN|VIRTIO_OUT);
-+	return;
-+
-+stop:
-+	/* Queue full?  Wait. */
-+	blk_stop_queue(q);
-+	mempool_free(vbr, vblk->pool);
-+	goto sync;
++	/* Prod other side to tell it about changes. */
++	hcall(LHCALL_NOTIFY, lguest_devices[lgv->lg->index].pfn, 0, 0);
++	if (inout & VIRTIO_IN)
++		END_USE(&lgv->in);
++	if (inout & VIRTIO_OUT)
++		END_USE(&lgv->out);
 +}
 +
-+static int virtblk_ioctl(struct inode *inode, struct file *filp,
-+			 unsigned cmd, unsigned long data)
++static void detach_buf(struct desc_info *di, int id)
 +{
-+	return scsi_cmd_ioctl(filp, inode->i_bdev->bd_disk, cmd,
-+			      (void __user *)data);
++	unsigned int i;
++
++	BUG_ON(id >= NUM_DESCS);
++	BUG_ON(!(di->desc[id].flags & LGUEST_DESC_F_HEAD));
++
++	di->desc[id].flags &= ~LGUEST_DESC_F_HEAD;
++	/* Make sure other side has seen that it's detached. */
++	wmb();
++
++	/* Put back on free list: find end */
++	for (i = id; di->desc[i].flags&LGUEST_DESC_F_NEXT; i=di->desc[i].next)
++		di->num_free++;
++
++	di->desc[i].next = di->free_head;
++	di->free_head = id;
++	/* Plus final descriptor */
++	di->num_free++;
 +}
 +
-+static struct virtio_driver_ops virtblk_ops = {
-+	.in = blk_in_done,
-+	.out = blk_out_done,
++static void lguest_detach_outbuf(struct virtio_device *vdev, unsigned long id)
++{
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
++
++	START_USE(&lgv->out);
++	detach_buf(&lgv->out, id);
++	END_USE(&lgv->out);
++}
++
++static void lguest_detach_inbuf(struct virtio_device *vdev, unsigned long id)
++{
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
++
++	START_USE(&lgv->in);
++	detach_buf(&lgv->in, id);
++	END_USE(&lgv->in);
++}
++
++static bool more_used(struct desc_info *di)
++{
++	return di->last_used_idx != *di->used_idx;
++}
++
++static void *get_buf(struct desc_info *di, struct lguest_virtio_device *lgv,
++		     unsigned int *len)
++{
++	unsigned int id;
++
++	START_USE(di);
++
++	if (!more_used(di)) {
++		END_USE(di);
++		return NULL;
++	}
++
++	/* Don't let them make us do infinite work. */
++	if (unlikely(*di->used_idx > di->last_used_idx + NUM_DESCS)) {
++		BAD_SIDE(lgv, "Too many descriptors");
++		return NULL;
++	}
++
++	id = di->used[di->last_used_idx%NUM_DESCS].id;
++	*len = di->used[di->last_used_idx%NUM_DESCS].len;
++
++	if (unlikely(id >= NUM_DESCS)) {
++		BAD_SIDE(lgv, "id %u out of range\n", id);
++		return NULL;
++	}
++	if (unlikely(!(di->desc[id].flags & LGUEST_DESC_F_HEAD))) {
++		BAD_SIDE(lgv, "id %u is not a head!\n", id);
++		return NULL;
++	}
++
++	detach_buf(di, id);
++	di->last_used_idx++;
++	BUG_ON(!di->data[id]);
++	END_USE(di);
++	return di->data[id];
++}
++
++static void *lguest_get_outbuf(struct virtio_device *vdev, unsigned int *len)
++{
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
++
++	return get_buf(&lgv->out, lgv, len);
++}
++
++static void *lguest_get_inbuf(struct virtio_device *vdev, unsigned int *len)
++{
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
++
++	return get_buf(&lgv->in, lgv, len);
++}
++
++static bool lguest_restart_in(struct virtio_device *vdev)
++{
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
++
++	START_USE(&lgv->in);
++	BUG_ON(lgv->in.running);
++
++	if (likely(!more_used(&lgv->in)) || unlikely(lgv->broken))
++		lgv->in.running = true;
++
++	END_USE(&lgv->in);
++	return lgv->in.running;
++}
++
++static bool lguest_restart_out(struct virtio_device *vdev)
++{
++	struct lguest_virtio_device *lgv = vdev_to_lgv(vdev);
++
++	START_USE(&lgv->out);
++	BUG_ON(lgv->out.running);
++
++	if (likely(!more_used(&lgv->in)) || unlikely(lgv->broken))
++		lgv->in.running = true;
++
++	END_USE(&lgv->out);
++	return lgv->in.running;
++}
++
++static irqreturn_t lguest_virtio_interrupt(int irq, void *_lgv)
++{
++	struct lguest_virtio_device *lgv = _lgv;
++
++	if (unlikely(lgv->broken))
++		return IRQ_HANDLED;
++
++	if (lgv->out.running && more_used(&lgv->out))
++		lgv->out.running = lgv->vdev.driver_ops->out(&lgv->vdev);
++
++	if (lgv->in.running && more_used(&lgv->in))
++		lgv->in.running = lgv->vdev.driver_ops->in(&lgv->vdev);
++
++	return IRQ_HANDLED;
++}
++
++static struct virtio_ops lguest_virtio_ops = {
++	.add_outbuf = lguest_add_outbuf,
++	.add_inbuf = lguest_add_inbuf,
++	.sync = lguest_sync,
++	.detach_outbuf = lguest_detach_outbuf,
++	.detach_inbuf = lguest_detach_inbuf,
++	.get_outbuf = lguest_get_outbuf,
++	.get_inbuf = lguest_get_inbuf,
++	.restart_in = lguest_restart_in,
++	.restart_out = lguest_restart_out,
 +};
 +
++static struct lguest_virtio_device *lg_new_virtio(struct lguest_device *lgdev)
++{
++	struct lguest_virtio_device *lgv;
++	void *mem;
++	unsigned int i;
 +
-+static struct block_device_operations virtblk_fops = {
-+	.ioctl = virtblk_ioctl,
++	lgv = kmalloc(sizeof(*lgv), GFP_KERNEL);
++	if (!lgv)
++		return NULL;
++
++	memset(lgv, 0, sizeof(*lgv));
++
++	lgdev->private = lgv;
++	lgv->lg = lgdev;
++
++	/* Device mem is input pages followed by output pages */
++	mem = lguest_map(lguest_devices[lgdev->index].pfn<<PAGE_SHIFT, 6);
++	if (!mem)
++		goto free_lgv;
++	lgv->in.desc = mem;
++	lgv->in.avail_idx = mem + PAGE_SIZE;
++	lgv->in.available = (void *)(lgv->in.avail_idx + 1);
++	lgv->in.used_idx = mem + PAGE_SIZE*2;
++	lgv->in.used = (void *)(lgv->in.used_idx + 1);
++	lgv->out.desc = mem + PAGE_SIZE*3;
++	lgv->out.avail_idx = mem + PAGE_SIZE*4;
++	lgv->out.available = (void *)(lgv->out.avail_idx + 1);
++	lgv->out.used_idx = mem + PAGE_SIZE*5;
++	lgv->out.used = (void *)(lgv->out.used_idx + 1);
++
++	lgv->in.last_used_idx = lgv->out.last_used_idx = 0;
++	lgv->in.num_added = lgv->out.num_added = 0;
++	lgv->in.running = lgv->out.running = true;
++
++	/* Put everything in free lists. */
++	lgv->in.num_free = lgv->out.num_free = NUM_DESCS;
++	for (i = 0; i < NUM_DESCS-1; i++) {
++		lgv->in.desc[i].next = i+1;
++		lgv->out.desc[i].next = i+1;
++	}
++
++	lgv->vdev.ops = &lguest_virtio_ops;
++	lgv->vdev.dev = &lgdev->dev;
++	lgv->broken = false;
++	return lgv;
++
++free_lgv:
++	kfree(lgv);
++	return NULL;;
++}
++
++static void lg_destroy_virtio(struct lguest_virtio_device *lgv)
++{
++	lguest_unmap(lgv->in.desc);
++	kfree(lgv);
++}
++
++/* It's nice to have the name for the interrupt, so we do this separately
++ * from lg_new_virtio(). */
++static int lg_setup_interrupt(struct lguest_virtio_device *lgv,
++			      const char *name)
++{
++	int irqf;
++
++	if (lguest_devices[lgv->lg->index].features&LGUEST_DEVICE_F_RANDOMNESS)
++		irqf = IRQF_SAMPLE_RANDOM;
++	else
++		irqf = 0;
++
++	return request_irq(lgdev_irq(lgv->lg), lguest_virtio_interrupt, irqf,
++			   name, lgv);
++}
++
++/* Example network driver code. */
++#include <linux/virtio_net.h>
++#include <linux/etherdevice.h>
++
++static int lguest_virtnet_probe(struct lguest_device *lgdev)
++{
++	struct lguest_virtio_device *lgv;
++	struct net_device *dev;
++	u8 mac[ETH_ALEN];
++	int err;
++
++	lgv = lg_new_virtio(lgdev);
++	if (!lgv)
++		return -ENOMEM;
++
++	random_ether_addr(mac);
++	lgv->priv = dev = virtnet_probe(&lgv->vdev, mac);
++	if (IS_ERR(lgv->priv)) {
++		err = PTR_ERR(lgv->priv);
++		goto destroy;
++	}
++	err = lg_setup_interrupt(lgv, dev->name);
++	if (err)
++		goto unprobe;
++	return 0;
++
++unprobe:
++	virtnet_remove(dev);
++destroy:
++	lg_destroy_virtio(lgv);
++	return err;
++}
++
++static struct lguest_driver lguest_virtnet_drv = {
++	.name = "lguestvirtnet",
 +	.owner = THIS_MODULE,
++	.device_type = LGUEST_DEVICE_T_VIRTNET,
++	.probe = lguest_virtnet_probe,
 +};
 +
-+struct gendisk *virtblk_probe(struct virtio_device *vdev)
++static __init int lguest_virtnet_init(void)
 +{
-+	struct virtio_blk *vblk;
-+	int err, major;
-+
-+	vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
-+	if (!vblk) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	INIT_LIST_HEAD(&vblk->reqs);
-+	spin_lock_init(&vblk->lock);
-+	vblk->vdev = vdev;
-+	vdev->priv = vblk;
-+	vdev->driver_ops = &virtblk_ops;
-+
-+	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
-+	if (!vblk->pool) {
-+		err = -ENOMEM;
-+		goto out_free_vblk;
-+	}
-+
-+	major = register_blkdev(0, "virtblk");
-+	if (major < 0) {
-+		err = major;
-+		goto out_mempool;
-+	}
-+
-+	/* FIXME: How many partitions?  How long is a piece of string? */
-+	vblk->disk = alloc_disk(1 << 3);
-+	if (!vblk->disk) {
-+		err = -ENOMEM;
-+		goto out_unregister_blkdev;
-+	}
-+
-+	vblk->disk->queue = blk_init_queue(do_virtblk_request, &vblk->lock);
-+	if (!vblk->disk->queue) {
-+		err = -ENOMEM;
-+		goto out_put_disk;
-+	}
-+
-+	sprintf(vblk->disk->disk_name, "vd%c", virtblk_index++);
-+	vblk->disk->major = major;
-+	vblk->disk->first_minor = 0;
-+	vblk->disk->private_data = vblk;
-+	vblk->disk->fops = &virtblk_fops;
-+
-+	blk_queue_ordered(vblk->disk->queue, QUEUE_ORDERED_TAG, NULL);
-+
-+	/* Caller can do blk_queue_max_hw_segments(), set_capacity()
-+	 * etc then add_disk(). */
-+	return vblk->disk;
-+
-+out_put_disk:
-+	put_disk(vblk->disk);
-+out_unregister_blkdev:
-+	unregister_blkdev(major, "virtblk");
-+out_mempool:
-+	mempool_destroy(vblk->pool);
-+out_free_vblk:
-+	kfree(vblk);
-+out:
-+	return ERR_PTR(err);
++	return register_lguest_driver(&lguest_virtnet_drv);
 +}
-+EXPORT_SYMBOL_GPL(virtblk_probe);
++device_initcall(lguest_virtnet_init);
 +
-+void virtblk_remove(struct gendisk *disk)
++/* Example block driver code. */
++#include <linux/virtio_blk.h>
++#include <linux/genhd.h>
++#include <linux/blkdev.h>
++static int lguest_virtblk_probe(struct lguest_device *lgdev)
 +{
-+	struct virtio_blk *vblk = disk->private_data;
-+	int major = vblk->disk->major;
++	struct lguest_virtio_device *lgv;
++	struct gendisk *disk;
++	unsigned long sectors;
++	int err;
 +
-+	BUG_ON(!list_empty(&vblk->reqs));
-+	blk_cleanup_queue(vblk->disk->queue);
-+	put_disk(vblk->disk);
-+	unregister_blkdev(major, "virtblk");
-+	mempool_destroy(vblk->pool);
-+	kfree(vblk);
++	lgv = lg_new_virtio(lgdev);
++	if (!lgv)
++		return -ENOMEM;
++
++	/* Page is initially used to pass capacity. */
++	sectors = *(unsigned long *)lgv->in.desc;
++	*(unsigned long *)lgv->in.desc = 0;
++
++	lgv->priv = disk = virtblk_probe(&lgv->vdev);
++	if (IS_ERR(lgv->priv)) {
++		err = PTR_ERR(lgv->priv);
++		goto destroy;
++	}
++	set_capacity(disk, sectors);
++	blk_queue_max_hw_segments(disk->queue, NUM_DESCS-1);
++
++	err = lg_setup_interrupt(lgv, disk->disk_name);
++	if (err)
++		goto unprobe;
++	add_disk(disk);
++	return 0;
++
++unprobe:
++	virtblk_remove(disk);
++destroy:
++	lg_destroy_virtio(lgv);
++	return err;
 +}
-+EXPORT_SYMBOL_GPL(virtblk_remove);
-===================================================================
---- a/include/linux/Kbuild
-+++ b/include/linux/Kbuild
-@@ -341,6 +341,7 @@ unifdef-y += utsname.h
- unifdef-y += utsname.h
- unifdef-y += videodev2.h
- unifdef-y += videodev.h
-+unifdef-y += virtio_blk.h
- unifdef-y += wait.h
- unifdef-y += wanrouter.h
- unifdef-y += watchdog.h
-===================================================================
---- /dev/null
-+++ b/include/linux/virtio_blk.h
-@@ -0,0 +1,39 @@
-+#ifndef _LINUX_VIRTIO_BLK_H
-+#define _LINUX_VIRTIO_BLK_H
-+#include <linux/types.h>
 +
-+#define VIRTIO_BLK_T_READ	0
-+#define VIRTIO_BLK_T_WRITE 1
-+#define VIRTIO_BLK_T_SCSI_CMD 3
-+#define VIRTIO_BLK_T_BARRIER 0x80000000 /* Barrier before this op. */
-+
-+/* This is the first element of the scatter-gather list. */
-+struct virtio_blk_outhdr
-+{
-+	/* VIRTIO_BLK_T* */
-+	__u32 type;
-+	/* io priority. */
-+	__u32 ioprio;
-+	/* Sector (ie. 512 byte offset) */
-+	__u64 sector;
-+	/* Where to put reply. */
-+	__u64 id;
++static struct lguest_driver lguest_virtblk_drv = {
++	.name = "lguestvirtblk",
++	.owner = THIS_MODULE,
++	.device_type = LGUEST_DEVICE_T_VIRTBLK,
++	.probe = lguest_virtblk_probe,
 +};
 +
-+#define VIRTIO_BLK_S_OK		0
-+#define VIRTIO_BLK_S_IOERR	1
-+#define VIRTIO_BLK_S_UNSUPP	2
-+
-+struct virtio_blk_inhdr
++static __init int lguest_virtblk_init(void)
 +{
-+	unsigned char status;
++	return register_lguest_driver(&lguest_virtblk_drv);
++}
++device_initcall(lguest_virtblk_init);
++
++MODULE_LICENSE("GPL");
+===================================================================
+--- a/include/linux/lguest.h
++++ b/include/linux/lguest.h
+@@ -23,6 +23,9 @@
+ #define LHCALL_SET_PTE		14
+ #define LHCALL_SET_PMD		15
+ #define LHCALL_LOAD_TLS		16
++
++/* Experimental hcalls for new I/O */
++#define LHCALL_NOTIFY	100 /* pfn */
+ 
+ #define LG_CLOCK_MIN_DELTA	100UL
+ #define LG_CLOCK_MAX_DELTA	ULONG_MAX
+===================================================================
+--- a/include/linux/lguest_launcher.h
++++ b/include/linux/lguest_launcher.h
+@@ -44,6 +44,8 @@ struct lguest_device_desc {
+ #define LGUEST_DEVICE_T_CONSOLE	1
+ #define LGUEST_DEVICE_T_NET	2
+ #define LGUEST_DEVICE_T_BLOCK	3
++#define LGUEST_DEVICE_T_VIRTNET	8
++#define LGUEST_DEVICE_T_VIRTBLK	9
+ 
+ 	u16 features;
+ #define LGUEST_NET_F_NOCSUM		0x4000 /* Don't bother checksumming */
+@@ -70,4 +72,26 @@ enum lguest_req
+ 	LHREQ_IRQ, /* + irq */
+ 	LHREQ_BREAK, /* + on/off flag (on blocks until someone does off) */
+ };
++
++/* This marks a buffer as being the start (and active) */
++#define LGUEST_DESC_F_HEAD	1
++/* This marks a buffer as continuing via the next field. */
++#define LGUEST_DESC_F_NEXT	2
++
++/* Virtio descriptors */
++struct lguest_desc
++{
++	unsigned long pfn;
++	unsigned long len;
++	u16 offset;
++	u16 flags;
++	/* We chain unused descriptors via this, too */
++	u32 next;
 +};
 +
-+#ifdef __KERNEL__
-+struct gendisk;
-+struct virtio_device;
-+
-+struct gendisk *virtblk_probe(struct virtio_device *vdev);
-+void virtblk_remove(struct gendisk *disk);
-+#endif /* __KERNEL__ */
-+#endif /* _LINUX_VIRTIO_BLK_H */
++struct lguest_used
++{
++	unsigned int id;
++	unsigned int len;
++};
+ #endif /* _ASM_LGUEST_USER */
