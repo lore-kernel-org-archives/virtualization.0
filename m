@@ -1,13 +1,14 @@
 From: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 1/5] KVM paravirt_ops core infrastructure
-Date: Mon, 18 Jun 2007 11:03:55 +0300
-Message-ID: <46763C6B.9050004@qumranet.com>
-References: <4675F462.1010708@codemonkey.ws> <4675F4C3.6050700@codemonkey.ws>
+Subject: Re: [PATCH 2/5] KVM: Implement CR read caching for KVM
+	paravirt_ops
+Date: Mon, 18 Jun 2007 11:05:39 +0300
+Message-ID: <46763CD3.3060704@qumranet.com>
+References: <4675F462.1010708@codemonkey.ws> <4675F4F1.5090207@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <4675F4C3.6050700-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
+In-Reply-To: <4675F4F1.5090207-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
 	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
@@ -22,30 +23,12 @@ Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, vir
 List-Id: virtualization@lists.linuxfoundation.org
 
 Anthony Liguori wrote:
+> With hardware virtualization, CR reads often times require a VMEXIT which is
+> rather expensive.  Instead of reading CR and taking the VMEXIT, maintain a
+> copy of each CR and return that on CR reads.
+>   
 
-
-> -		nr = vcpu->regs[VCPU_REGS_RBX] & -1u;
-> -		a0 = vcpu->regs[VCPU_REGS_RAX] & -1u;
-> +		nr = vcpu->regs[VCPU_REGS_RAX] & -1u;
-> +		a0 = vcpu->regs[VCPU_REGS_RBX] & -1u;
-
-
-> - * Each hypercall may have 0-6 parameters.
-> - *
-> - * 64-bit hypercall index is in RAX, goes from 0 to __NR_hypercalls-1
-> - *
-> - * 64-bit parameters 1-6 are in the standard gcc x86_64 calling convention
-> - * order: RDI, RSI, RDX, RCX, R8, R9.
-> + * Each hypercall may have 0-4 parameters.
->   *
-> - * 32-bit index is EBX, parameters are: EAX, ECX, EDX, ESI, EDI, EBP.
-> - * (the first 3 are according to the gcc regparm calling convention)
-> + * 32-bit index is EAX, parameters are: EBX, ECX, EDX, ESI.
-
-
-What's the motivation for these changes?
-
-
+Looks good.  Any measurable performance impact?
 
 -- 
 error compiling committee.c: too many arguments to function
