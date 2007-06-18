@@ -1,60 +1,69 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC 3/3] Virtio draft III: example block driver
-Date: Mon, 18 Jun 2007 18:08:15 +1000
-Message-ID: <1182154095.19064.24.camel__29856.5307319679$1182154306$gmane$org@localhost.localdomain>
-References: <1181217762.14054.192.camel@localhost.localdomain>
-	<1181999552.6237.255.camel@localhost.localdomain>
-	<1181999669.6237.257.camel@localhost.localdomain>
-	<1181999825.6237.260.camel@localhost.localdomain>
-	<1181999920.6237.263.camel@localhost.localdomain>
-	<46754451.2010305@qumranet.com>
+From: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 3/5] KVM: Add paravirt MMU write support
+Date: Mon, 18 Jun 2007 11:20:49 +0300
+Message-ID: <46764061.9080705@qumranet.com>
+References: <4675F462.1010708@codemonkey.ws> <4675F533.40809@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46754451.2010305@qumranet.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Jens Axboe <jens.axboe@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <4675F533.40809-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
+Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2007-06-17 at 17:25 +0300, Avi Kivity wrote:
-> Rusty Russell wrote:
-> > +	/* Set up for reply. */
-> > +	vblk->sg[0].page = virt_to_page(&vbr->in_hdr);
-> > +	vblk->sg[0].offset = offset_in_page(&vbr->in_hdr);
-> > +	vblk->sg[0].length = sizeof(vbr->in_hdr);
-> > +	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
-> > +	vbr->out_hdr.id = vblk->vdev->ops->add_inbuf(vblk->vdev, vblk->sg,
-> > +						     1+num, vbr);
-> > +	if (IS_ERR_VALUE(vbr->out_hdr.id))
-> > +		goto full;
-> > +
-> > +	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
-> > +	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
-> > +	vblk->sg[0].length = sizeof(vbr->out_hdr);
-> > +
-> > +	vbr->out_id = vblk->vdev->ops->add_outbuf(vblk->vdev, vblk->sg, 1,
-> > +						  vbr);
-> 
-> This strikes me as wasteful.  Why not set up a single descriptor which 
-> contains both placement and the data itself?
+Anthony Liguori wrote:
+> +static int kvm_hypercall_mmu_write(struct kvm_vcpu *vcpu, gva_t addr,
+> +				   unsigned long size, unsigned long a0,
+> +				   unsigned long a1)
+> +{
+> +	gpa_t gpa = vcpu->mmu.gva_to_gpa(vcpu, addr);
+> +	u64 value;
+> +
+> +	if (gpa == UNMAPPED_GVA)
+> +		return -EFAULT;
+> +	if (size == 1) {
+> +		if (!emulator_write_phys(vcpu, gpa, &a0, sizeof(a0)))
+> +			return -EFAULT;
+> +	} else if (size == 2) {
+> +		value = (u64)a1 << 32 | a0;
+> +		if (!emulator_write_phys(vcpu, gpa, &value, sizeof(value)))
+> +			return -EFAULT;
+> +	} else
+> +		return -E2BIG;
+> +
+> +	return 0;
+> +}
 
-We could actually do this for write, but not for read (where the length
-& sector need to be sent to other end, and the data comes from other
-end).
+Hypercalls should return kvm-specific error codes (defined in 
+include/linux/kvm_para.h), not Linux error codes, as they could be used 
+in operating systems which have different values for E2BIG and friends.
 
-The strict separation of in and out in virtio is to support both
-untrusted inter-guest I/O (admittedly not useful for block devices) and
-socket-style hypercall interfaces.
+> +static void kvm_pte_clear(struct mm_struct *mm,
+> +			  unsigned long addr, pte_t *ptep)
+> +{
+> +	pte_t pte = {0};
+>   
 
-Thanks,
-Rusty.
+Surely there's a nice macro for creating a pte from an int?
+
+Any performance measurement?
+
+-- 
+error compiling committee.c: too many arguments to function
+
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by DB2 Express
+Download DB2 Express C - the FREE version of DB2 express and take
+control of your XML. No limits. Just data. Click to get it now.
+http://sourceforge.net/powerbar/db2/
