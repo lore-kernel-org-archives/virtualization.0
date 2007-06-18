@@ -1,64 +1,60 @@
-From: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 2/5] KVM: Implement CR read caching for KVM
-	paravirt_ops
-Date: Mon, 18 Jun 2007 11:11:33 +0300
-Message-ID: <46763E35.8020108@qumranet.com>
-References: <4675F462.1010708@codemonkey.ws> <4675F4F1.5090207@codemonkey.ws>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC 3/3] Virtio draft III: example block driver
+Date: Mon, 18 Jun 2007 18:08:15 +1000
+Message-ID: <1182154095.19064.24.camel__29856.5307319679$1182154306$gmane$org@localhost.localdomain>
+References: <1181217762.14054.192.camel@localhost.localdomain>
+	<1181999552.6237.255.camel@localhost.localdomain>
+	<1181999669.6237.257.camel@localhost.localdomain>
+	<1181999825.6237.260.camel@localhost.localdomain>
+	<1181999920.6237.263.camel@localhost.localdomain>
+	<46754451.2010305@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <4675F4F1.5090207-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <46754451.2010305@qumranet.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Jens Axboe <jens.axboe@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> +/*
-> + * Control register reads can be trapped.  Since trapping is relatively
-> + * expensive, we can avoid paying the cost by caching logically.
-> + */
-> +static unsigned long kvm_read_cr(int reg)
-> +{
-> +	struct kvm_paravirt_state *state
-> +		= per_cpu(paravirt_state, smp_processor_id());
-> +
-> +	if (unlikely(!state->cr_valid[reg])) {
-> +		if (reg == 0)
-> +			state->cached_cr[reg] = native_read_cr0();
-> +		else if (reg == 3)
-> +			state->cached_cr[reg] = native_read_cr3();
-> +		else if (reg == 4)
-> +			state->cached_cr[reg] = native_read_cr4();
-> +		else
-> +			BUG();
-> +		state->cr_valid[reg] = 1;
-> +	}
-> +	return state->cached_cr[reg];
-> +}
-> +
+On Sun, 2007-06-17 at 17:25 +0300, Avi Kivity wrote:
+> Rusty Russell wrote:
+> > +	/* Set up for reply. */
+> > +	vblk->sg[0].page = virt_to_page(&vbr->in_hdr);
+> > +	vblk->sg[0].offset = offset_in_page(&vbr->in_hdr);
+> > +	vblk->sg[0].length = sizeof(vbr->in_hdr);
+> > +	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
+> > +	vbr->out_hdr.id = vblk->vdev->ops->add_inbuf(vblk->vdev, vblk->sg,
+> > +						     1+num, vbr);
+> > +	if (IS_ERR_VALUE(vbr->out_hdr.id))
+> > +		goto full;
+> > +
+> > +	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
+> > +	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
+> > +	vblk->sg[0].length = sizeof(vbr->out_hdr);
+> > +
+> > +	vbr->out_id = vblk->vdev->ops->add_outbuf(vblk->vdev, vblk->sg, 1,
+> > +						  vbr);
+> 
+> This strikes me as wasteful.  Why not set up a single descriptor which 
+> contains both placement and the data itself?
 
-It would be good to declare this (and kvm_write_cr) always_inline.  
-These functions are never called with a non-constant reg parameters, and 
-the unsightly if tree (more readable as a switch, IMO) will fold nicely 
-when inlined.
+We could actually do this for write, but not for read (where the length
+& sector need to be sent to other end, and the data comes from other
+end).
 
+The strict separation of in and out in virtio is to support both
+untrusted inter-guest I/O (admittedly not useful for block devices) and
+socket-style hypercall interfaces.
 
--- 
-error compiling committee.c: too many arguments to function
-
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
+Thanks,
+Rusty.
