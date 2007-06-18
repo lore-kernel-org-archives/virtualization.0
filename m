@@ -1,109 +1,52 @@
-From: Jeremy Fitzhardinge <jeremy-TSDbQ3PG+2Y@public.gmane.org>
-Subject: Re: [PATCH 0/5] KVM paravirt_ops implementation
-Date: Sun, 17 Jun 2007 21:21:35 -0700
-Message-ID: <4676084F.3090901@goop.org>
-References: <4675F462.1010708@codemonkey.ws> <4675F9DE.6080806@goop.org>
-	<4675FDCA.4040006@codemonkey.ws>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Xen-devel] Re: [kvm-devel] [PATCH RFC 0/3] Virtio draft III
+Date: Mon, 18 Jun 2007 17:48:01 +1000
+Message-ID: <1182152881.19064.9.camel__21004.1169579656$1182153104$gmane$org@localhost.localdomain>
+References: <1181217762.14054.192.camel@localhost.localdomain>
+	<1181999552.6237.255.camel@localhost.localdomain>
+	<467541DF.5060907@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <4675FDCA.4040006-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-Cc: Zachary Amsden <zach-pghWNbHTmq7QT0dZR+AlfA@public.gmane.org>, kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <467541DF.5060907@qumranet.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> Hi Jeremy,
->
-> Jeremy Fitzhardinge wrote:
->> Anthony Liguori wrote:
->>  
->>> 1) Not really sure what is needed for CONFIG_PREEMPT support.  I'm not
->>> sure which paravirt_ops calls are actually re-entrant.
->>>     
->>
->> I'm not sure that has specifically come up.  The main issue is whether a
->> particular call can be preempted and whether that matters.  I guess the
->> calls which affect a particular CPU's state will generally be called in
->> a non-preemptable context, but I guess we can't assume that; the best
->> approach is to assume that each call be atomic with respect to
->> preemption.
->>   
->
-> So each call would need to disable preemption?  I'm not sure that
-> makes a whole lot of sense for something like CR reads/writes.  In
-> fact, without passing in a cpu parameter, I'm pretty sure that those
-> operations *have* to require preemption to be disabled.
+On Sun, 2007-06-17 at 17:14 +0300, Avi Kivity wrote:
+> Rusty Russell wrote:
+> > In this episode, Rusty tries to NAPI-ize the driver and discovers that
+> > virtio callbacks are a bad idea: NAPI needs to turn interrupts off and
+> > still be able to query for new incoming packets.
+> >
+> > Changes to core:
+> > 1) Back to "interrupt" model with get_inbuf()/get_outbuf() calls.
+> >   
+> 
+> Seems to be these are just two different ways of iterating over the 
+> pending buffers, and one could be implemented in terms of the other in a 
+> few lines.  I think that new new way is better, though, due to less 
+> indirection.
 
-Yeah, its a little unclear to me.  If you're poking at a control
-register, then one presumes you've got a specific CPU's CRx in mind. 
-But in the Xen code I don't care about the preemption state for control
-register updates - except for write_cr3, which never makes any sense
-with preemption enabled.
+Yes, the lguest implementation points them to a common routine.  We
+could do some batching here too, but it seemed like premature
+optimization.
 
-> For something like MMU operations, preemption really doesn't have to
-> be disabled.
+> btw, I'm not sure that the name 'virtio' is correct.  Probably any 
+> network or block driver which has support for batching (the vast 
+> majority) could use this to good effect.
 
-Unless you're batching, since the lazy_mode is inherently per-cpu state.
+Trying to avoid boiling the ocean 8)
 
->> Things like batching must be completed with preemption disabled over the
->> whole batch.  I check that with BUG_ON in the Xen code.
->>   
->
-> Right now the KVM batching requires preemption to be disabled for
-> batching.
-
-I think that's probably overkill.  I had to put a few explicit
-preempt_disable/enables in the Xen code, but mostly the preempt state is
-reasonable for a given operation (ie, disabled for per-cpu state
-updates, enabled for memory/global state updates).
-
->   I don't think that's a hard requirement though since we could pass
-> the current batch PA as part of the flush hypercalls.
-
-PA?
-
-> Things are a lot easier though if we can just assume preemption is
-> disabled :-)
->
-> Are you aware of any paravirt_ops calls that are probably being called
-> in the kernel with preemption enabled?
-
-Erm, I haven't made a breakdown, but many are.  The descriptor updates
-generally are, for example.  Pagetable updates could be, but are
-generally done under a pagetable lock, and so are not preemptible anyway.
-
-> I don't see a compelling reason to paravirtualize earlier although I
-> also don't see a compelling reason not too.  I noticed that VMI hooks
-> setup.c.  It wasn't immediately obvious why it was hooking there but
-> perhaps it worthwhile to have a common hook?  I suspect VMI and KVM
-> will have a similar model for startup.
-
-Well, I was suggesting we could print the banner later rather than
-forcing an earlier init.
-
-The important part is that you set your pv_ops before patching occurs,
-since that will bake the function calls into the rest of the kernel, and
-it will ignore any further changes to the paravirt_ops structure.
-
-I think Zach was originally thinking of initializing VMI much later
-(even as a module load), but the subtleties of inveigling its way into
-the kernel at that late stage got too complex.
-
-    J
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
+Cheers,
+Rusty.
