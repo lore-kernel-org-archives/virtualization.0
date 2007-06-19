@@ -1,120 +1,57 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH RFC 3/3] Virtio draft III: example block driver
-Date: Tue, 19 Jun 2007 11:34:46 +0300
-Message-ID: <46779526.9080009__17430.3827262067$1182242264$gmane$org@qumranet.com>
-References: <1181217762.14054.192.camel@localhost.localdomain>	
-	<1181999552.6237.255.camel@localhost.localdomain>	
-	<1181999669.6237.257.camel@localhost.localdomain>	
-	<1181999825.6237.260.camel@localhost.localdomain>	
-	<1181999920.6237.263.camel@localhost.localdomain>	
-	<46754451.2010305@qumranet.com>	
-	<1182154095.19064.24.camel@localhost.localdomain>	
-	<46764BB5.6070704@qumranet.com>
-	<1182234466.19064.51.camel@localhost.localdomain>
+From: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
+Subject: Re: [PATCH 5/5] KVM: paravirt time source
+Date: Tue, 19 Jun 2007 15:38:51 -0500
+Message-ID: <46783EDB.5010808@codemonkey.ws>
+References: <4675F462.1010708@codemonkey.ws> <4675F601.3090706@codemonkey.ws>
+	<4676D8E4.3020806@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1182234466.19064.51.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Jens Axboe <jens.axboe@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <4676D8E4.3020806-TSDbQ3PG+2Y@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Jeremy Fitzhardinge <jeremy-TSDbQ3PG+2Y@public.gmane.org>
+Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Mon, 2007-06-18 at 12:09 +0300, Avi Kivity wrote:
+Jeremy Fitzhardinge wrote:
+>> +	.read			= read_hyper,
+>> +	.mask			= CLOCKSOURCE_MASK(64),
+>> +	.mult			= 1,
+>> +	.shift			= 0,
+>>   
+>>     
+>
+> It would be better to use a scale and shift here, so that adjtime has
+> something to work with when warping time.
 >   
->> Rusty Russell wrote:
->>     
->>> On Sun, 2007-06-17 at 17:25 +0300, Avi Kivity wrote:
->>>   
->>>       
->>>> Rusty Russell wrote:
->>>>     
->>>>         
->>>>> +	/* Set up for reply. */
->>>>> +	vblk->sg[0].page = virt_to_page(&vbr->in_hdr);
->>>>> +	vblk->sg[0].offset = offset_in_page(&vbr->in_hdr);
->>>>> +	vblk->sg[0].length = sizeof(vbr->in_hdr);
->>>>> +	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
->>>>> +	vbr->out_hdr.id = vblk->vdev->ops->add_inbuf(vblk->vdev, vblk->sg,
->>>>> +						     1+num, vbr);
->>>>> +	if (IS_ERR_VALUE(vbr->out_hdr.id))
->>>>> +		goto full;
->>>>> +
->>>>> +	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
->>>>> +	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
->>>>> +	vblk->sg[0].length = sizeof(vbr->out_hdr);
->>>>> +
->>>>> +	vbr->out_id = vblk->vdev->ops->add_outbuf(vblk->vdev, vblk->sg, 1,
->>>>> +						  vbr);
->>>>>       
->>>>>           
->>>> This strikes me as wasteful.  Why not set up a single descriptor which 
->>>> contains both placement and the data itself?
->>>>     
->>>>         
->>> We could actually do this for write, but not for read (where the length
->>> & sector need to be sent to other end, and the data comes from other
->>> end).
->>>       
->> So you map the first sg entry for output, and the rest for input.
->>
->> Less pretty, but more efficient.
->>     
->
-> At the moment there are two kinds of sgs: input and output.  You're
-> proposing instead that we have a single kind, and a flag on each segment
-> which indicates direction.  That may make block a little efficient,
-> depending on particular implementation of virtio.
->
-> Yet network really wants in and out separate.  I'm not even sure how
-> we'd implement a mixed-sg scheme efficiently for that case.  At the
-> moment it's very straightforward.
+
+I've updated this patch and switched to using a scale/shift like Xen is 
+doing, but I must admit, I don't understand how it helps adjtime.  I 
+poked around a bit and it wasn't obvious.
+
+Why is having {mult=1<<22, shift=22} better for adjtime than {mult=1, 
+shift=0}?
+
+Regards,
+
+ANthony Liguori
+
+>     J
 >
 >   
 
-I think the differences are deeper than that.  Network wants two queues, 
-disk wants one queue.  The directionality of the dma transfer is 
-orthogonal to that.
 
-For a disk, the initiator is always the guest; you issue a request and 
-expend a completion within a few milliseconds.  Read and write requests 
-are similar in nature; you want them in a single queue because you want 
-the elevator to run on both read and write request.  When idling, the 
-queue is empty.
-
-For a network interface, the guest initiates transmits, but the host 
-initiates receives.  Yes, the guest preloads the queue with rx 
-descriptors, but it can't expect a response in any given time, hence the 
-need for two queues.  When idling, the tx queue is empty, the rx queue 
-is full.
-
-So I'd suggest having a struct virtio_queue to represent a queue (so a 
-network interface would have two of them), and the dma direction to be 
-specified separately:
-
-+	unsigned long (*add_buf)(struct virtio_queue *q,
-+				 const struct scatterlist out_sg[], int out_nr,
-+				 const struct scatterlist in_sg[], int in_nr,
-+				 void *data);
-
-
-I think this fits better with the Xen model (which has one ring for 
-block, two each for network and console, if memory serves).
-
-> Of course, I'm carrying two implementations and two drivers, so it's
-> natural for me to try to resist changes 8
-
-Life is rough on the frontier.  But all the glory will be yours!
-
--- 
-error compiling committee.c: too many arguments to function
+-------------------------------------------------------------------------
+This SF.net email is sponsored by DB2 Express
+Download DB2 Express C - the FREE version of DB2 express and take
+control of your XML. No limits. Just data. Click to get it now.
+http://sourceforge.net/powerbar/db2/
