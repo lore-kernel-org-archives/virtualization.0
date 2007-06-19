@@ -1,81 +1,79 @@
-From: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-Subject: Re: [PATCH 5/5] KVM: paravirt time source
-Date: Mon, 18 Jun 2007 19:53:10 -0500
-Message-ID: <467728F6.2040908@codemonkey.ws>
-References: <4675F462.1010708@codemonkey.ws> <4675F601.3090706@codemonkey.ws>
-	<4676D8E4.3020806@goop.org> <4676FEB9.6060308@codemonkey.ws>
-	<46770162.6030101@goop.org> <4677163F.2030308@codemonkey.ws>
-	<46771BA0.2000308@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC 3/3] Virtio draft III: example block driver
+Date: Tue, 19 Jun 2007 16:27:46 +1000
+Message-ID: <1182234466.19064.51.camel__22190.8680316576$1182234554$gmane$org@localhost.localdomain>
+References: <1181217762.14054.192.camel@localhost.localdomain>
+	<1181999552.6237.255.camel@localhost.localdomain>
+	<1181999669.6237.257.camel@localhost.localdomain>
+	<1181999825.6237.260.camel@localhost.localdomain>
+	<1181999920.6237.263.camel@localhost.localdomain>
+	<46754451.2010305@qumranet.com>
+	<1182154095.19064.24.camel@localhost.localdomain>
+	<46764BB5.6070704@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <46771BA0.2000308-TSDbQ3PG+2Y@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Jeremy Fitzhardinge <jeremy-TSDbQ3PG+2Y@public.gmane.org>
-Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <46764BB5.6070704@qumranet.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Jens Axboe <jens.axboe@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Anthony Liguori wrote:
->   
->> Except that I wanted to change the hypercall to allow querying of real
->> time or "available" time as VMI puts it.
->>     
->
-> I see.  You could have an interface like Xen's runstate interface, which
-> gives you a breakdown of how long each vcpu spends in each state
-> (running, runnable, paused or blocked).  The sum of all of them gives
-> you real time, or you can use a subset to work out stolen time
-> (runnable+paused), busyness (blocked / (running+runnable+blocked)), etc.
->   
+On Mon, 2007-06-18 at 12:09 +0300, Avi Kivity wrote:
+> Rusty Russell wrote:
+> > On Sun, 2007-06-17 at 17:25 +0300, Avi Kivity wrote:
+> >   
+> >> Rusty Russell wrote:
+> >>     
+> >>> +	/* Set up for reply. */
+> >>> +	vblk->sg[0].page = virt_to_page(&vbr->in_hdr);
+> >>> +	vblk->sg[0].offset = offset_in_page(&vbr->in_hdr);
+> >>> +	vblk->sg[0].length = sizeof(vbr->in_hdr);
+> >>> +	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
+> >>> +	vbr->out_hdr.id = vblk->vdev->ops->add_inbuf(vblk->vdev, vblk->sg,
+> >>> +						     1+num, vbr);
+> >>> +	if (IS_ERR_VALUE(vbr->out_hdr.id))
+> >>> +		goto full;
+> >>> +
+> >>> +	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
+> >>> +	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
+> >>> +	vblk->sg[0].length = sizeof(vbr->out_hdr);
+> >>> +
+> >>> +	vbr->out_id = vblk->vdev->ops->add_outbuf(vblk->vdev, vblk->sg, 1,
+> >>> +						  vbr);
+> >>>       
+> >> This strikes me as wasteful.  Why not set up a single descriptor which 
+> >> contains both placement and the data itself?
+> >>     
+> >
+> > We could actually do this for write, but not for read (where the length
+> > & sector need to be sent to other end, and the data comes from other
+> > end).
+> 
+> So you map the first sg entry for output, and the rest for input.
+> 
+> Less pretty, but more efficient.
 
-I'll look at that.  Since the vmca is per-vcpu, that may work well.
+At the moment there are two kinds of sgs: input and output.  You're
+proposing instead that we have a single kind, and a flag on each segment
+which indicates direction.  That may make block a little efficient,
+depending on particular implementation of virtio.
 
->> Right now, I'm relying on the PIT but it would be nice to eliminate
->> that.  I'd like to move to something PV so that I can make use of
->> tickless guest kernels.  I'm very open to suggestion and even more
->> open to reusing other people's code :-)
->>     
->
-> A simple hypercall interface which says "raise irq X after N ns" is
-> probably the easiest way to go.
+Yet network really wants in and out separate.  I'm not even sure how
+we'd implement a mixed-sg scheme efficiently for that case.  At the
+moment it's very straightforward.
 
-That's what I was thinking.  The current bit that makes that ugly is 
-that you can't really raise an interrupt in the host kernel yet 
-(although it will be possible when the in-kernel apic code is merged).  
-I could, in theory, implement that interface in userspace but that may 
-be ugly.
+Of course, I'm carrying two implementations and two drivers, so it's
+natural for me to try to resist changes 8)
 
-> Try to avoid the pitfalls of VMI's
-> interface in this area, which tries to recycle existing architectural
-> interrupt sources for hypervisor timers, and gets into a bit of mess. 
-> Xen is relatively clean, but I'm not sure how it would fit into the
-> mostly-emulated kvm model.  If you keep things simple, most of the Xen
-> clockevent code could be reused with little change.
->   
-
-I think it should work out well.  Thanks for the feedback!
-
-Regards,
-
-Anthony Liguori
-
->     J
->
->   
-
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
+Cheers,
+Rusty.
