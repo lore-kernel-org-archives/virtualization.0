@@ -1,11 +1,10 @@
 From: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-Subject: [PATCH 3/5] KVM: Implement CR read caching for KVM
-	paravirt_ops
-Date: Wed, 20 Jun 2007 22:07:40 -0500
-Message-ID: <4679EB7C.6080304@codemonkey.ws>
+Subject: [PATCH 4/5] KVM: Add paravirt MMU write support
+Date: Wed, 20 Jun 2007 22:08:38 -0500
+Message-ID: <4679EBB6.5060902@codemonkey.ws>
 References: <4679EAAF.2060103@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------050002060103070504060100"
+Content-Type: multipart/mixed; boundary="------------060405080607060206070301"
 Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 In-Reply-To: <4679EAAF.2060103-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
@@ -22,7 +21,7 @@ Cc: virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 This is a multi-part message in MIME format.
---------------050002060103070504060100
+--------------060405080607060206070301
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -30,199 +29,297 @@ Regards,
 
 Anthony Liguori
 
---------------050002060103070504060100
+--------------060405080607060206070301
 Content-Type: text/x-patch;
- name="kvm-cr-caching.diff"
+ name="kvm-mmu-write.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="kvm-cr-caching.diff"
+ filename="kvm-mmu-write.diff"
 
-Subject: [PATCH] KVM: Implement CR read caching for KVM paravirt_ops
+Subject: [PATCH] KVM: Add paravirt MMU write support
 Author: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 
-With hardware virtualization, CR reads often times require a VMEXIT which is
-rather expensive.  Instead of reading CR and taking the VMEXIT, maintain a
-copy of each CR and return that on CR reads.
+On at least AMD hardware, hypercall based manipulation of page table memory
+is significantly faster than taking a page fault.  Additionally, using
+hypercalls to manipulation page table memory provides the infrastructure needed
+to do lazy MMU updates.
 
 Signed-off-by: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 
 diff --git a/arch/i386/kernel/kvm.c b/arch/i386/kernel/kvm.c
-index 62c3b5b..dcc45cd 100644
+index bf77159..21133e4 100644
 --- a/arch/i386/kernel/kvm.c
 +++ b/arch/i386/kernel/kvm.c
-@@ -38,8 +38,13 @@
+@@ -25,6 +25,7 @@
+ #include <linux/kvm_para.h>
+ #include <linux/cpu.h>
+ #include <linux/mm.h>
++#include <asm/tlbflush.h>
  
- #define KVM_SCALE 22
- 
-+#define CR0_TS_MASK (1ULL << 3)
-+
- struct kvm_paravirt_state
- {
-+	unsigned long cached_cr[5];
-+	int cr_valid[5];
-+
- 	struct kvm_vmca *vmca;
- 	struct kvm_hypercall_entry *queue;
- 	void (*hypercall)(void);
-@@ -49,6 +54,7 @@ struct kvm_paravirt_state
+ #include <linux/clocksource.h>
+ #include <linux/workqueue.h>
+@@ -54,6 +55,7 @@ struct kvm_paravirt_state
  
  static DEFINE_PER_CPU(struct kvm_paravirt_state *, paravirt_state);
  
-+static int do_cr_read_caching;
++static int do_mmu_write;
+ static int do_cr_read_caching;
  static int do_nop_io_delay;
  static int do_paravirt_clock;
- static u64 msr_set_vmca;
-@@ -104,6 +110,93 @@ static void kvm_io_delay(void)
- {
+@@ -197,6 +199,84 @@ static void kvm_write_cr4(unsigned long value)
+ 	kvm_write_cr(4, value);
  }
  
-+/*
-+ * Control register reads can be trapped.  Since trapping is relatively
-+ * expensive, we can avoid paying the cost by caching logically.
-+ */
-+static __always_inline unsigned long kvm_read_cr(int reg)
++static void kvm_mmu_write(void *dest, const void *src, size_t size)
 +{
-+	struct kvm_paravirt_state *state = x86_read_percpu(paravirt_state);
++	const uint8_t *p = src;
++	u32 a1 = 0;
 +
-+	if (unlikely(!state->cr_valid[reg])) {
-+		switch (reg) {
-+		case 0:
-+			state->cached_cr[reg] = native_read_cr0();
-+			break;
-+		case 3:
-+			state->cached_cr[reg] = native_read_cr3();
-+			break;
-+		case 4:
-+			state->cached_cr[reg] = native_read_cr4();
-+			break;
-+		default:
-+			BUG();
-+		}
-+		state->cr_valid[reg] = 1;
-+	}
-+	return state->cached_cr[reg];
-+}
++	size >>= 2;
++	if (size == 2)
++		a1 = *(u32 *)&p[4];
 +
-+static __always_inline void kvm_write_cr(int reg, unsigned long value)
-+{
-+	struct kvm_paravirt_state *state = x86_read_percpu(paravirt_state);
-+
-+	state->cr_valid[reg] = 1;
-+	state->cached_cr[reg] = value;
-+
-+	switch (reg) {
-+	case 0:
-+		native_write_cr0(value);
-+		break;
-+	case 3:
-+		native_write_cr3(value);
-+		break;
-+	case 4:
-+		native_write_cr4(value);
-+		break;
-+	default:
-+		BUG();
-+	}
-+}
-+
-+static unsigned long kvm_read_cr0(void)
-+{
-+	return kvm_read_cr(0);
-+}
-+
-+static void kvm_write_cr0(unsigned long value)
-+{
-+	kvm_write_cr(0, value);
++	kvm_hypercall(KVM_HYPERCALL_MMU_WRITE, (u32)dest, size, *(u32 *)p, a1);
 +}
 +
 +/*
-+ * We trap clts to ensure that our cached cr0 remains consistent.
++ * We only need to hook operations that are MMU writes.  We hook these so that
++ * we can use lazy MMU mode to batch these operations.  We could probably
++ * improve the performance of the host code if we used some of the information
++ * here to simplify processing of batched writes.
 + */
-+static void kvm_clts(void)
++static void kvm_set_pte(pte_t *ptep, pte_t pte)
 +{
-+	write_cr0(read_cr0() & ~CR0_TS_MASK);
++	kvm_mmu_write(ptep, &pte, sizeof(pte));
 +}
 +
-+static unsigned long kvm_read_cr3(void)
++static void kvm_set_pte_at(struct mm_struct *mm, unsigned long addr,
++			   pte_t *ptep, pte_t pte)
 +{
-+	return kvm_read_cr(3);
++	kvm_mmu_write(ptep, &pte, sizeof(pte));
 +}
 +
-+static void kvm_write_cr3(unsigned long value)
++static void kvm_set_pte_atomic(pte_t *ptep, pte_t pte)
 +{
-+	kvm_write_cr(3, value);
++	kvm_mmu_write(ptep, &pte, sizeof(pte));
 +}
 +
-+static unsigned long kvm_read_cr4(void)
++static void kvm_set_pte_present(struct mm_struct *mm, unsigned long addr,
++				pte_t *ptep, pte_t pte)
 +{
-+	return kvm_read_cr(4);
++	kvm_mmu_write(ptep, &pte, sizeof(pte));
 +}
 +
-+static void kvm_write_cr4(unsigned long value)
++static void kvm_pte_clear(struct mm_struct *mm,
++			  unsigned long addr, pte_t *ptep)
 +{
-+	kvm_write_cr(4, value);
++	pte_t pte = __pte(0);
++	kvm_mmu_write(ptep, &pte, sizeof(pte));
++}
++
++static void kvm_set_pmd(pmd_t *pmdp, pmd_t pmd)
++{
++	kvm_mmu_write(pmdp, &pmd, sizeof(pmd));
++}
++
++static void kvm_set_pud(pud_t *pudp, pud_t pud)
++{
++	kvm_mmu_write(pudp, &pud, sizeof(pud));
++}
++
++static void kvm_pmd_clear(pmd_t *pmdp)
++{
++	pmd_t pmd = __pmd(0);
++	kvm_mmu_write(pmdp, &pmd, sizeof(pmd));
++}
++
++static void kvm_flush_tlb(void)
++{
++	kvm_hypercall(KVM_HYPERCALL_FLUSH_TLB, 0, 0, 0, 0);
++}
++
++static void kvm_flush_tlb_single(unsigned long addr)
++{
++	kvm_hypercall(KVM_HYPERCALL_FLUSH_TLB_SINGLE, addr, 0, 0, 0);
++}
++
++static void kvm_release_pt(u32 pfn)
++{
++	kvm_hypercall(KVM_HYPERCALL_RELEASE_PT, pfn << PAGE_SHIFT, 0, 0, 0);
 +}
 +
  static void paravirt_ops_setup(void)
  {
  	paravirt_ops.name = "KVM";
-@@ -119,6 +212,19 @@ static void paravirt_ops_setup(void)
- 		printk(KERN_INFO "KVM: using paravirt clock source\n");
+@@ -225,6 +305,21 @@ static void paravirt_ops_setup(void)
+ 		paravirt_ops.read_cr4_safe = kvm_read_cr4;
  	}
  
-+	if (do_cr_read_caching) {
-+		paravirt_ops.clts = kvm_clts;
-+		paravirt_ops.read_cr0 = kvm_read_cr0;
-+		paravirt_ops.write_cr0 = kvm_write_cr0;
-+		paravirt_ops.read_cr3 = kvm_read_cr3;
-+		paravirt_ops.write_cr3 = kvm_write_cr3;
-+		paravirt_ops.read_cr4 = kvm_read_cr4;
-+		paravirt_ops.write_cr4 = kvm_write_cr4;
-+
-+		/* CR4 always exists in a KVM guest */
-+		paravirt_ops.read_cr4_safe = kvm_read_cr4;
++	if (do_mmu_write) {
++		paravirt_ops.set_pte = kvm_set_pte;
++		paravirt_ops.set_pte_at = kvm_set_pte_at;
++		paravirt_ops.set_pte_atomic = kvm_set_pte_atomic;
++		paravirt_ops.set_pte_present = kvm_set_pte_present;
++		paravirt_ops.pte_clear = kvm_pte_clear;
++		paravirt_ops.set_pmd = kvm_set_pmd;
++		paravirt_ops.pmd_clear = kvm_pmd_clear;
++		paravirt_ops.set_pud = kvm_set_pud;
++		paravirt_ops.flush_tlb_user = kvm_flush_tlb;
++		paravirt_ops.flush_tlb_single = kvm_flush_tlb_single;
++		paravirt_ops.release_pt = kvm_release_pt;
++		paravirt_ops.release_pd = kvm_release_pt;
 +	}
 +
  	paravirt_ops.paravirt_enabled = 1;
+ }
  
- 	apply_paravirt(__parainstructions, __parainstructions_end);
-@@ -160,6 +266,9 @@ static int paravirt_initialize(void)
- 	if ((edx & KVM_FEATURE_PARAVIRT_CLOCK))
- 		do_paravirt_clock = 1;
+@@ -267,6 +362,9 @@ static int paravirt_initialize(void)
+ 	if ((edx & KVM_FEATURE_CR_READ_CACHE))
+ 		do_cr_read_caching = 1;
  
-+	if ((edx & KVM_FEATURE_CR_READ_CACHE))
-+		do_cr_read_caching = 1;
++	if ((edx & KVM_FEATURE_MMU_WRITE))
++		do_mmu_write = 1;
 +
  	on_each_cpu(paravirt_activate, NULL, 0, 1);
  
  	return 0;
+diff --git a/drivers/kvm/kvm.h b/drivers/kvm/kvm.h
+index b08272b..9a7462a 100644
+--- a/drivers/kvm/kvm.h
++++ b/drivers/kvm/kvm.h
+@@ -538,6 +538,7 @@ void kvm_resched(struct kvm_vcpu *vcpu);
+ void kvm_load_guest_fpu(struct kvm_vcpu *vcpu);
+ void kvm_put_guest_fpu(struct kvm_vcpu *vcpu);
+ void kvm_flush_remote_tlbs(struct kvm *kvm);
++void mmu_unshadow(struct kvm_vcpu *vcpu, gfn_t gfn);
+ 
+ int kvm_read_guest(struct kvm_vcpu *vcpu,
+ 	       gva_t addr,
 diff --git a/drivers/kvm/kvm_main.c b/drivers/kvm/kvm_main.c
-index e455fca..35d73b8 100644
+index 35d73b8..91aec56 100644
 --- a/drivers/kvm/kvm_main.c
 +++ b/drivers/kvm/kvm_main.c
-@@ -95,7 +95,7 @@ struct vfsmount *kvmfs_mnt;
+@@ -95,7 +95,8 @@ struct vfsmount *kvmfs_mnt;
  
  #define KVM_PARAVIRT_FEATURES \
  	(KVM_FEATURE_VMCA | KVM_FEATURE_NOP_IO_DELAY | \
--	 KVM_FEATURE_PARAVIRT_CLOCK)
-+	 KVM_FEATURE_PARAVIRT_CLOCK | KVM_FEATURE_CR_READ_CACHE)
+-	 KVM_FEATURE_PARAVIRT_CLOCK | KVM_FEATURE_CR_READ_CACHE)
++	 KVM_FEATURE_PARAVIRT_CLOCK | KVM_FEATURE_CR_READ_CACHE | \
++	 KVM_FEATURE_MMU_WRITE)
  
  #define KVM_MSR_SET_VMCA	0x87655678
  
+@@ -1348,6 +1349,28 @@ int kvm_emulate_halt(struct kvm_vcpu *vcpu)
+ }
+ EXPORT_SYMBOL_GPL(kvm_emulate_halt);
+ 
++static int kvm_hypercall_mmu_write(struct kvm_vcpu *vcpu, gva_t addr,
++				   unsigned long size, unsigned long a0,
++				   unsigned long a1)
++{
++	gpa_t gpa = vcpu->mmu.gva_to_gpa(vcpu, addr);
++	u64 value;
++
++	if (gpa == UNMAPPED_GVA)
++		return -KVM_EFAULT;
++	if (size == 1) {
++		if (!emulator_write_phys(vcpu, gpa, &a0, sizeof(a0)))
++			return -KVM_EFAULT;
++	} else if (size == 2) {
++		value = (u64)a1 << 32 | a0;
++		if (!emulator_write_phys(vcpu, gpa, &value, sizeof(value)))
++			return -KVM_EFAULT;
++	} else
++		return -KVM_E2BIG;
++
++	return 0;
++}
++
+ static int kvm_hypercall_update_time(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_vmca *vmca;
+@@ -1368,13 +1391,40 @@ static int kvm_hypercall_update_time(struct kvm_vcpu *vcpu)
+ 	return 0;
+ }
+ 
++static int kvm_hypercall_flush_tlb(struct kvm_vcpu *vcpu)
++{
++	kvm_arch_ops->tlb_flush(vcpu);
++	return 0;
++}
++
++static int kvm_hypercall_flush_tlb_single(struct kvm_vcpu *vcpu, gva_t addr)
++{
++	if (kvm_arch_ops->invlpg)
++		kvm_arch_ops->invlpg(vcpu, addr);
++	return 0;
++}
++
++static int kvm_hypercall_release_pt(struct kvm_vcpu *vcpu, gpa_t addr)
++{
++	mmu_unshadow(vcpu, addr >> PAGE_SHIFT);
++	return 0;
++}
++
+ static int dispatch_hypercall(struct kvm_vcpu *vcpu, unsigned long nr,
+ 			      unsigned long p1, unsigned long p2,
+ 			      unsigned long p3, unsigned long p4)
+ {
+ 	switch (nr) {
++	case KVM_HYPERCALL_MMU_WRITE:
++		return kvm_hypercall_mmu_write(vcpu, p1, p2, p3, p4);
+ 	case KVM_HYPERCALL_UPDATE_TIME:
+ 		return kvm_hypercall_update_time(vcpu);
++	case KVM_HYPERCALL_FLUSH_TLB:
++		return kvm_hypercall_flush_tlb(vcpu);
++	case KVM_HYPERCALL_FLUSH_TLB_SINGLE:
++		return kvm_hypercall_flush_tlb_single(vcpu, p1);
++	case KVM_HYPERCALL_RELEASE_PT:
++		return kvm_hypercall_release_pt(vcpu, p1);
+ 	}
+ 	return -KVM_ENOSYS;
+ }
+diff --git a/drivers/kvm/mmu.c b/drivers/kvm/mmu.c
+index ad50cfd..1581286 100644
+--- a/drivers/kvm/mmu.c
++++ b/drivers/kvm/mmu.c
+@@ -728,7 +728,7 @@ static int kvm_mmu_unprotect_page(struct kvm_vcpu *vcpu, gfn_t gfn)
+ 	return r;
+ }
+ 
+-static void mmu_unshadow(struct kvm_vcpu *vcpu, gfn_t gfn)
++void mmu_unshadow(struct kvm_vcpu *vcpu, gfn_t gfn)
+ {
+ 	struct kvm_mmu_page *page;
+ 
 diff --git a/include/linux/kvm_para.h b/include/linux/kvm_para.h
-index 4f27fb1..be185da 100644
+index d4aa7e8..560de6a 100644
 --- a/include/linux/kvm_para.h
 +++ b/include/linux/kvm_para.h
-@@ -16,6 +16,7 @@
- #define KVM_FEATURE_VMCA		(1UL << 0)
+@@ -26,6 +26,7 @@ static int __init kvm_guest_init(void)
  #define KVM_FEATURE_NOP_IO_DELAY	(1UL << 1)
  #define KVM_FEATURE_PARAVIRT_CLOCK	(1UL << 2)
-+#define KVM_FEATURE_CR_READ_CACHE	(1UL << 3)
+ #define KVM_FEATURE_CR_READ_CACHE	(1UL << 3)
++#define KVM_FEATURE_MMU_WRITE		(1UL << 4)
  
  struct kvm_vmca
  {
+@@ -46,7 +47,13 @@ struct kvm_vmca
+ 
+ #define KVM_ENOSYS	ENOSYS
+ #define KVM_EINVAL	EINVAL
++#define KVM_EFAULT	EFAULT
++#define KVM_E2BIG	E2BIG
+ 
+ #define KVM_HYPERCALL_UPDATE_TIME	0
++#define KVM_HYPERCALL_MMU_WRITE		1
++#define KVM_HYPERCALL_FLUSH_TLB		2
++#define KVM_HYPERCALL_FLUSH_TLB_SINGLE	3
++#define KVM_HYPERCALL_RELEASE_PT	4
+ 
+ #endif
 
---------------050002060103070504060100
+--------------060405080607060206070301
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -233,7 +330,7 @@ This SF.net email is sponsored by DB2 Express
 Download DB2 Express C - the FREE version of DB2 express and take
 control of your XML. No limits. Just data. Click to get it now.
 http://sourceforge.net/powerbar/db2/
---------------050002060103070504060100
+--------------060405080607060206070301
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -244,4 +341,4 @@ kvm-devel mailing list
 kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 https://lists.sourceforge.net/lists/listinfo/kvm-devel
 
---------------050002060103070504060100--
+--------------060405080607060206070301--
