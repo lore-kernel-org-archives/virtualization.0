@@ -1,74 +1,54 @@
-From: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-Subject: Re: [PATCH 0/5] KVM paravirt_ops backend (v3)
-Date: Thu, 21 Jun 2007 08:19:31 -0500
-Message-ID: <467A7AE3.505@codemonkey.ws>
-References: <4679EAAF.2060103@codemonkey.ws> <467A4280.9060503@qumranet.com>
+From: installment <wvav@bestrealty.net>
+Subject: Advanced detection Professional Spammers generate SPAM defeating
+	keyword-based SPAM filters!
+Date: Thu, 21 Jun 2007 11:43:31 -0300
+Message-ID: <467A8E93.4040200@bestrealty.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <467A4280.9060503-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> Anthony Liguori wrote:
->> Hi,
->>
->> This is an update to the paravirt_ops KVM backend series.  I've made 
->> a number of changes and attempted to incorporate all the feedback 
->> from the last review.  Some highlights:
->>
->> 1) Clean up the paravirt time source patch to use a more Xen-like model
->> 2) Change the hypercall queueing to pass a PA on the flush hypercall
->> 3) Add MMU support for release_{pt,pd} and TLB flush
->> 4) Use KVM specific errno values
->> 5) Switch from per_cpu to more appropriate functions
->>
->> As for performance, I've got a few interesting results.  kbuild with 
->> a guest using 2G of memory goes from 19 minutes to 12 minutes with 
->> the full series applied.  Using 512mb, the build time goes from 10.75 
->> minutes to 9 minutes.  For 512mb, native is around 7 minutes so 
->> that's pretty close to what Avi had seen.  The more dramatic 
->> improvement with large memory guests is probably because of the 
->> increased shadow page table activity due to high mem.
->
-> Ah, that explains why we were getting such different results.  My 
-> tests were on x86-64.
->
->>
->> virtbench shows major improvements but I'm not 100% confident yet in 
->> the results as they are not very stable.  I don't yet have a 
->> benchmark that shows the benefit of the CR caching so if I don't find 
->> one, I'll drop that from the queue.
->>
->
-> The only barrier to merging is that we're introducing yet another 
-> stable ABI.  Since we can turn off things that turn out not so good 
-> later, and expect the guest to survive, I'm not to worried, so I'm 
-> inclined to merge this.
+Frenzy Pushes SREA Up 46.6%
 
-Some unsigned longs are in kvm_para.h so x86_64 won't work ATM as a 
-host.  I'll fix that and do proper testing on a 64 bit host for the next 
-posting (along with save/restore support).
+Score One Inc. (SREA)
+$0.44 UP 46.6%
 
-Regards,
+SREA is in a frenzy as investor buying pushed it Up over 46% by close
+Wed. Up 427% in just over a week. Get all over SREA Thursday!
 
-Anthony Liguori
+Old somewhat dried out garlic is bitter and not fit to consume. It was
+when they took us in that I first met a Small One that was male.
 
+It was a long time before I saw them again, and by then I had problems
+of my own to deal with.
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
+The pain within me was born in that moment. The water supply and waste
+company says in the the next two years five new production centres will
+produce a drier and more crumbly digested product, closely resembling
+the texture of compost. Interacting with computers is wonderful; bits of
+elegantly assembled logic are rewarded, while failures of reasoning are
+met with runtime errors. I can go up into the Davis Mountains of far
+West Texas and pick the pine nuts from the Mexican pinyon pines that
+grow there. Raw links are the best.
+
+We'll first cover the automatic, Scoop-enforced methods of
+self-anonymization: Comment Throttle The comment throttle is a feature
+that prevents you and I from spam-bombing threads. The NFU is also
+concerned that certain parties to the talks appear to be ignoring the
+"radical policy reform" already carried out at EU level and the impact
+it has had on its farmers. Reload or otherwise re-read your inbox every
+five minutes or so.
+I haven't seen them in. In Europe the grades are determined by the IOOC.
+
+Avoid at all costs putting your submission into the EDIT QUEUE.
