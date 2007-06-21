@@ -1,12 +1,13 @@
-From: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
+From: "Li, Xin B" <xin.b.li-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 0/5] KVM paravirt_ops backend (v3)
-Date: Thu, 21 Jun 2007 12:18:56 +0300
-Message-ID: <467A4280.9060503@qumranet.com>
+Date: Thu, 21 Jun 2007 17:26:30 +0800
+Message-ID: <B30DA1341B0CFA4893EF8A36B40B5C5D014CC69B@pdsmsx411.ccr.corp.intel.com>
 References: <4679EAAF.2060103@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-class: urn:content-classes:message
 In-Reply-To: <4679EAAF.2060103-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
 	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
@@ -17,50 +18,23 @@ List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
 	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
 Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
+To: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>, kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Cc: virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> Hi,
->
-> This is an update to the paravirt_ops KVM backend series.  I've made a 
-> number of changes and attempted to incorporate all the feedback from 
-> the last review.  Some highlights:
->
-> 1) Clean up the paravirt time source patch to use a more Xen-like model
-> 2) Change the hypercall queueing to pass a PA on the flush hypercall
-> 3) Add MMU support for release_{pt,pd} and TLB flush
-> 4) Use KVM specific errno values
-> 5) Switch from per_cpu to more appropriate functions
->
-> As for performance, I've got a few interesting results.  kbuild with a 
-> guest using 2G of memory goes from 19 minutes to 12 minutes with the 
-> full series applied.  Using 512mb, the build time goes from 10.75 
-> minutes to 9 minutes.  For 512mb, native is around 7 minutes so that's 
-> pretty close to what Avi had seen.  The more dramatic improvement with 
-> large memory guests is probably because of the increased shadow page 
-> table activity due to high mem.
+>As for performance, I've got a few interesting results.  kbuild with a 
+>guest using 2G of memory goes from 19 minutes to 12 minutes with the 
+>full series applied.  Using 512mb, the build time goes from 10.75 
+>minutes to 9 minutes.  For 512mb, native is around 7 minutes so that's 
+>pretty close to what Avi had seen.  The more dramatic improvement with 
+>large memory guests is probably because of the increased shadow page 
+>table activity due to high mem.
 
-Ah, that explains why we were getting such different results.  My tests 
-were on x86-64.
-
->
-> virtbench shows major improvements but I'm not 100% confident yet in 
-> the results as they are not very stable.  I don't yet have a benchmark 
-> that shows the benefit of the CR caching so if I don't find one, I'll 
-> drop that from the queue.
->
-
-The only barrier to merging is that we're introducing yet another stable 
-ABI.  Since we can turn off things that turn out not so good later, and 
-expect the guest to survive, I'm not to worried, so I'm inclined to 
-merge this.
-
-
--- 
-error compiling committee.c: too many arguments to function
-
+Exactly, physical memory above 896M on x86_32 are mapped using temp
+mapping, which needs lots of invlpg instructions.
+On xen, it needs to wake all the shadows to find the shadow of high mem,
+since Xen doesn't use reverse map. On KVM, should be much better.
+-Xin
 
 -------------------------------------------------------------------------
 This SF.net email is sponsored by DB2 Express
