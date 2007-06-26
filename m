@@ -1,82 +1,49 @@
-From: Anthony Liguori <anthony-rdkfGonbjUSkNkDKm+mE6A@public.gmane.org>
-Subject: Re: [PATCH 1/5] KVM paravirt_ops core infrastructure
-Date: Tue, 26 Jun 2007 06:57:27 -0500
-Message-ID: <4680FF27.3090907@codemonkey.ws>
-References: <4675F462.1010708@codemonkey.ws> <4675F4C3.6050700@codemonkey.ws>	
-	<64F9B87B6B770947A9F8391472E032160C73025E@ehost011-8.exch011.intermedia.net>
-	<fdaac4d50706260145x1ebceadt432edd5b6a6ac1f2@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 03/10] define ELF notes for adding to a boot image
+Date: Tue, 26 Jun 2007 13:18:30 -0700
+Message-ID: <20070626131830.9a4d4ae6.akpm@linux-foundation.org>
+References: <20070615004818.424726597@goop.org>
+	<20070615005012.882738673@goop.org> <4672BC5B.1040502@zytor.com>
+	<4672C0FF.9080209@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <fdaac4d50706260145x1ebceadt432edd5b6a6ac1f2-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Jun Koi <junkoi2004-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: kvm-devel <kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, virtualization <virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4672C0FF.9080209@goop.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Xen-Devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, v12n <virtualization@lists.linux-foundation.org>, Vivek Goyal <vgoyal@in.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jun Koi wrote:
-> On 6/26/07, Dor Laor <dor.laor-atKUWr5tajBWk0Htik3J/w@public.gmane.org> wrote:
->> ...
->> +static __init struct kvm_paravirt_state *paravirt_alloc_state(void)
->> +{
->> +       struct kvm_paravirt_state *state;
->> +
->> +       state = (void *)get_zeroed_page(GFP_KERNEL);
->> +       if (!state)
->> +               goto err;
->> +
->> +       state->vmca = (void *)get_zeroed_page(GFP_KERNEL);
->> +       if (!state->vmca)
->> +               goto err;
->> +
->> +       /* FIXME: what do I need for this to be executable on 64 bit? */
->> +       state->hypercall = (void *)get_zeroed_page(GFP_KERNEL);
->>
->> Why do you alloc a page for the hypercall instead of using Ingo's code
->> below? This way it can work for 64 bit too.
->>
->> Ingo's code:
->> /*
->>  * This is the vm-syscall address - to be patched by the host to
->>  * VMCALL (Intel) or VMMCALL (AMD), depending on the CPU model:
->>  */
->> asm (
->>         "       .globl hypercall_addr                   \n"
->>         "       .align 4                                \n"
->>         "       hypercall_addr:                         \n"
->>         "               movl $-38, %eax                 \n"
->>         "               ret                             \n"
->> );
->
-> The assembly code "movl $-38, %eax; \nret" is only a "reserved place",
-> which is later overwritten by hypercall address from the host, isnt
-> it?
->
-> If so, why dont we simply put 4 NOPs there?
+On Fri, 15 Jun 2007 09:40:31 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-So if the hypervisor fails to patch it, we get a proper errno instead of 
-running off into random code.
+> H. Peter Anvin wrote:
+> > Jeremy Fitzhardinge wrote:
+> >   
+> >> +#define EIN_PROGRAM_CHECKSUM	3 /* ip style checksum of the memory image. */
+> >>     
+> >
+> > Why on earth use one of the weakest verificants in common use?
+> 
+> I don't know.  I copied this stuff from the original relocatable kernel
+> patches; I think this is from Vivek.  Eric, Vivek: is there a specific
+> use for these notes?
+> 
 
-Regards,
-
-Anthony Liguori
-
-> Thanks,
-> Jun
->
+ping?
 
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
+Jeremy, I'll duck these patches for now, sorry.  Mainly on
+i-already-have-enough-x86-stuff grounds.
+
+There's a bit of overlap between this work and git-newsetup, but nothing
+particularly serious-looking.
