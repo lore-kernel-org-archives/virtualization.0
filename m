@@ -1,14 +1,12 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 03/10] define ELF notes for adding to a boot image
-Date: Tue, 26 Jun 2007 16:21:37 -0400
-Message-ID: <46817551.9040800__45512.6713881784$1182889403$gmane$org@goop.org>
-References: <20070615004818.424726597@goop.org>	<20070615005012.882738673@goop.org>	<4672BC5B.1040502@zytor.com>	<4672C0FF.9080209@goop.org>
-	<20070626131830.9a4d4ae6.akpm@linux-foundation.org>
+From: Navarro Katharine <hvd@covalent.ca>
+Subject: And, if those strategies are very similar,
+	then markets become very unstable.
+Date: Tue, 26 Jun 2007 22:31:47 -0500
+Message-ID: <4681DA23.6010308@covalent.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070626131830.9a4d4ae6.akpm@linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,23 +16,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Xen-Devel <xen-devel@lists.xensource.com>, lkml <linux-kernel@vger.kernel.org>, v12n <virtualization@lists.linux-foundation.org>, Vivek Goyal <vgoyal@in.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "H. Peter Anvin" <hpa@zytor.com>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andrew Morton wrote:
-> Jeremy, I'll duck these patches for now, sorry.  Mainly on
-> i-already-have-enough-x86-stuff grounds.
->   
+Market Makers Short SREA, Watchers Pick It To Explode!
 
-That's fine.  I think it breaks x86-64 at the moment anyway.  And I 
-haven't got much feedback about it.
+Score One Inc. (SREA)
+$0.31
 
-> There's a bit of overlap between this work and git-newsetup, but nothing
-> particularly serious-looking.
->   
+SREA hit price spikes of 600% last week and is still hold at a 300%
+increase as Market Makers are pushing it down to grab control.
+Stockprofiler.us, Businessnewsnow.us, & OTCPicks.com all pick it to take
+off. Get in on the Market Makers play and grab SREA first thing
+Wednesday!
 
-Yes, I based it on the newsetup stuff in -mm, so there shouldn't be too 
-much difference.
+Acceptance of third party money into an incubator fund, in the rare case
+when allowable, is not recommended, given the legal exposure it creates
+for the hedge fund manager.
 
-    J
+If you have published no papers in one area for three years, then
+consider switching to another topic. Mathematicians are looked down
+upon, they are badly paid, and even ostracized by big-talking
+bullshitters.
+- HTML - PDF Introduction Publishing technology has changed drastically
+in recent years. It is like putting all your eggs in one basket.
+
+Offshore funds generally attract the investment of U. An additional
+problem is that no societal incentives exist that would attract students
+to math in the U. A good paper deserves at least three chances at
+publication in ranking journals.
+Write clearly The main assumptions and results should be explained
+clearly.
+
+If many symbols are introduced to present your model, it is a good idea
+to define all symbols together and display them in one place so that the
+referees would not waste time hunting for them.
+
+The UBTI tax is avoided by investing in an offshore hedge fund.
+Continuing to write papers in the same narrow area without clear
+evidence of success is risky.
+
+If you do seek small gains, it is difficult to restore a good
+relationship should you change your mind later.
+
+tax-exempt investors. Even a small change in circumstances can lead to
+large deviations in the future. The advent of the personal computers and
+laser printers has lowered the technical barriers of publication.
