@@ -1,12 +1,17 @@
-From: Navarro Katharine <hvd@covalent.ca>
-Subject: And, if those strategies are very similar,
-	then markets become very unstable.
-Date: Tue, 26 Jun 2007 22:31:47 -0500
-Message-ID: <4681DA23.6010308@covalent.ca>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC 2/3] Virtio draft III: example net driver
+Date: Thu, 28 Jun 2007 21:20:40 +1000
+Message-ID: <1183029641.12401.36.camel__5672.15270498327$1183029771$gmane$org@localhost.localdomain>
+References: <1181217762.14054.192.camel@localhost.localdomain>
+	<1181999552.6237.255.camel@localhost.localdomain>
+	<1181999669.6237.257.camel@localhost.localdomain>
+	<1181999825.6237.260.camel@localhost.localdomain>
+	<467FDEAD.4030204@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <467FDEAD.4030204@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,49 +21,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: brking@linux.vnet.ibm.com
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Xen Mailing List <xen-devel@lists.xensource.com>, "jmk@plan9.bell-labs.com" <jmk@plan9.bell-labs.com>, Herbert Xu <herbert@gondor.apana.org.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <cborntra@de.ibm.com>, Latchesar Ionkov <lionkov@lanl.gov>, Suzanne McIntosh <skranjac@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Market Makers Short SREA, Watchers Pick It To Explode!
+On Mon, 2007-06-25 at 10:26 -0500, Brian King wrote: 
+> I've started to look at these patches to figure out how easily I
+> could convert the ibmveth driver to use this new infrastructure
+> and have ran into a few issues. So far the two biggest issues I've
+> encountered are:
 
-Score One Inc. (SREA)
-$0.31
+Hi Brian,
 
-SREA hit price spikes of 600% last week and is still hold at a 300%
-increase as Market Makers are pushing it down to grab control.
-Stockprofiler.us, Businessnewsnow.us, & OTCPicks.com all pick it to take
-off. Get in on the Market Makers play and grab SREA first thing
-Wednesday!
+	Thanks for looking at this!  Sorry for the slow reply, I've been
+travelling.
 
-Acceptance of third party money into an incubator fund, in the rare case
-when allowable, is not recommended, given the legal exposure it creates
-for the hedge fund manager.
+> 1. The add_inbuf interface passes an sg list. This causes problems for
+>    ibmveth since its rx buffers cannot be scatterlists.
+> 2. The user of this API does not have access to the sk_buf. This causes
+>    issues for ibmveth since it needs to reserve the first 8 bytes of the
+>    rx buffer for use by the firmware. It currently uses skb_reserve to do this.
+> 
+> Would it be simpler to just pass an sk_buf rather than the scatterlist
+> on these interfaces for virtio_net users?
 
-If you have published no papers in one area for three years, then
-consider switching to another topic. Mathematicians are looked down
-upon, they are badly paid, and even ostracized by big-talking
-bullshitters.
-- HTML - PDF Introduction Publishing technology has changed drastically
-in recent years. It is like putting all your eggs in one basket.
+It would be easier, but not suitable for block and other devices which
+use the same interface.  Fortunately, I think there are solutions to
+your issues.
 
-Offshore funds generally attract the investment of U. An additional
-problem is that no societal incentives exist that would attract students
-to math in the U. A good paper deserves at least three chances at
-publication in ranking journals.
-Write clearly The main assumptions and results should be explained
-clearly.
+1. 1500 byte packets will always be 1 sg long (ie. you should BUG_ON()
+if that ever happens).  The issue is MTU > PAGE_SIZE, where I was
+planning to allocate discontig pages.  I can't quite see what your
+maximum supported MTU is, though?
 
-If many symbols are introduced to present your model, it is a good idea
-to define all symbols together and display them in one place so that the
-referees would not waste time hunting for them.
+2. The header problem is difficult (I can't resist pointing out that if
+you had sg receive capability, it would be trivial 8).  The two
+possibilities are to have get_buf take a "unsigned long *off" as well,
+or to have ibm_veth do a memmove.
 
-The UBTI tax is avoided by investing in an offshore hedge fund.
-Continuing to write papers in the same narrow area without clear
-evidence of success is risky.
+memmove sounds horrible at first glance, but since the hypervisor has
+just copied the packet I'm not sure we'll notice in practice.
+Benchmarking should tell...
 
-If you do seek small gains, it is difficult to restore a good
-relationship should you change your mind later.
+BTW, after Avi's comments I have a new virtio draft, but still debugging
+my implementation.  It doesn't effect this discussion, but would involve
+churn for an actual implementation if you've gotten that far...
 
-tax-exempt investors. Even a small change in circumstances can lead to
-large deviations in the future. The advent of the personal computers and
-laser printers has lowered the technical barriers of publication.
+Thanks,
+Rusty.
