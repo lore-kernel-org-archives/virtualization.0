@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/2] lguest: handle dodgy/non-existent TSC.  Host code.
-Date: Wed, 04 Jul 2007 16:19:32 +1000
-Message-ID: <1183529972.6005.1.camel@localhost.localdomain>
+Subject: [PATCH 2/2] lguest: handle dodgy/non-existent TSC.  Guest code.
+Date: Wed, 04 Jul 2007 16:20:33 +1000
+Message-ID: <1183530033.6005.3.camel@localhost.localdomain>
+References: <1183529972.6005.1.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1183529972.6005.1.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,101 +17,113 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>, Matt Mackall <mpm@selenic.com>
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: virtualization <virtualization@lists.linux-foundation.org>, Matt Mackall <mpm@selenic.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Lguest currently requires a TSC, which breaks older machines and Matt
-Mackall who boots the host with "notsc".  In addition, there is no
-good solution to changing TSC speeds (informing all the guests about
-the TSC impending change before it happens would be a great deal of
-code and have issues with disobedient guests).
-
-This patch makes the host determine if the TSC is both constant and
-stable: if not, it doesn't tell the guest to use it.  We export
-check_tsc_unstable() for this.
+We create an "lguest_clock" which the guest uses: either TSC or
+jiffies, depending on whether the host tells us the TSC frequency.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- arch/i386/kernel/tsc.c      |    3 ++-
- drivers/lguest/core.c       |    8 --------
- drivers/lguest/hypercalls.c |    9 +++++++++
- include/asm-i386/tsc.h      |    1 +
- 4 files changed, 12 insertions(+), 9 deletions(-)
+ drivers/lguest/lguest.c |   51 +++++++++++++++++++++++------------------------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
 ===================================================================
---- a/arch/i386/kernel/tsc.c
-+++ b/arch/i386/kernel/tsc.c
-@@ -59,10 +59,11 @@ __setup("notsc", tsc_setup);
-  */
- static int tsc_unstable;
- 
--static inline int check_tsc_unstable(void)
-+int check_tsc_unstable(void)
- {
- 	return tsc_unstable;
+--- a/drivers/lguest/lguest.c
++++ b/drivers/lguest/lguest.c
+@@ -212,8 +212,8 @@ static void lguest_cpuid(unsigned int *e
+ 	case 1:	/* Basic feature request. */
+ 		/* We only allow kernel to see SSE3, CMPXCHG16B and SSSE3 */
+ 		*ecx &= 0x00002201;
+-		/* SSE, SSE2, FXSR, MMX, CMOV, CMPXCHG8B, TSC, FPU. */
+-		*edx &= 0x07808111;
++		/* SSE, SSE2, FXSR, MMX, CMOV, CMPXCHG8B, FPU. */
++		*edx &= 0x07808101;
+ 		/* Host wants to know when we flush kernel pages: set PGE. */
+ 		*edx |= 0x00002000;
+ 		break;
+@@ -348,16 +348,19 @@ static unsigned long lguest_get_wallcloc
+ 	return hcall(LHCALL_GET_WALLCLOCK, 0, 0, 0);
  }
-+EXPORT_SYMBOL_GPL(check_tsc_unstable);
  
- unsigned long native_calculate_cpu_khz(void)
- {
-===================================================================
---- a/drivers/lguest/core.c
-+++ b/drivers/lguest/core.c
-@@ -332,14 +332,6 @@ int run_guest(struct lguest *lg, unsigne
- 			continue;
- 		}
- 
--		/* If the Guest hasn't been told the clock multiplier to use or
--		 * it's changed, we update it here. */
--		if (unlikely(lg->tsc_khz != tsc_khz) && lg->lguest_data) {
--			lg->tsc_khz = tsc_khz;
--			if (put_user(lg->tsc_khz, &lg->lguest_data->tsc_khz))
--				return -EFAULT;
--		}
--
- 		local_irq_disable();
- 
- 		/* Even if *we* don't want FPU trap, guest might... */
-===================================================================
---- a/drivers/lguest/hypercalls.c
-+++ b/drivers/lguest/hypercalls.c
-@@ -132,11 +132,19 @@ static void do_async_hcalls(struct lgues
- 
- static void initialize(struct lguest *lg)
- {
-+	u32 tsc_speed;
-+
- 	if (lg->regs->eax != LHCALL_LGUEST_INIT) {
- 		kill_guest(lg, "hypercall %li before LGUEST_INIT",
- 			   lg->regs->eax);
- 		return;
- 	}
-+
-+	/* We only tell the guest to use the TSC if it's reliable. */
-+	if (boot_cpu_has(X86_FEATURE_CONSTANT_TSC) && !check_tsc_unstable())
-+		tsc_speed = tsc_khz;
+-/* This is what we tell the kernel is our clocksource.  It's the normal "Time
+- * Stamp Counter": the Host tells us what speed it's going at. */
++static cycle_t lguest_clock_read(void)
++{
++	if (lguest_data.tsc_khz)
++		return native_read_tsc();
 +	else
-+		tsc_speed = 0;
++		return jiffies;
++}
++
++/* This is what we tell the kernel is our clocksource.  */
+ static struct clocksource lguest_clock = {
+ 	.name		= "lguest",
+ 	.rating		= 400,
+-	.read		= native_read_tsc,
+-	.mask		= CLOCKSOURCE_MASK(64),
+-	.mult		= 0, /* to be set */
+-	.shift		= 22,
+-	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
++	.read		= lguest_clock_read,
+ };
  
- 	lg->lguest_data = (struct lguest_data __user *)lg->regs->edx;
- 	/* We check here so we can simply copy_to_user/from_user */
-@@ -148,6 +156,7 @@ static void initialize(struct lguest *lg
- 	    || get_user(lg->noirq_end, &lg->lguest_data->noirq_end)
- 	    /* We reserve the top pgd entry. */
- 	    || put_user(4U*1024*1024, &lg->lguest_data->reserve_mem)
-+	    || put_user(tsc_speed, &lg->lguest_data->tsc_khz)
- 	    || put_user(lg->guestid, &lg->lguest_data->guestid))
- 		kill_guest(lg, "bad guest page %p", lg->lguest_data);
+ /* We also need a "struct clock_event_device": Linux asks us to set it to go
+@@ -414,14 +417,6 @@ static void lguest_time_irq(unsigned int
+ {
+ 	unsigned long flags;
  
-===================================================================
---- a/include/asm-i386/tsc.h
-+++ b/include/asm-i386/tsc.h
-@@ -63,6 +63,7 @@ extern void mark_tsc_unstable(char *reas
- extern void mark_tsc_unstable(char *reason);
- extern int unsynchronized_tsc(void);
- extern void init_tsc_clocksource(void);
-+int check_tsc_unstable(void);
+-	/* Check in case host TSC has changed rate. */
+-	if (unlikely(tsc_khz != lguest_data.tsc_khz)) {
+-		tsc_khz = lguest_data.tsc_khz;
+-		lguest_clock.mult = clocksource_khz2mult(tsc_khz, 22);
+-		__get_cpu_var(sc_data).cyc2ns_scale
+-			= (1000000 << CYC2NS_SCALE_FACTOR) / tsc_khz;
+-	}
+-
+ 	/* Don't interrupt us while this is running. */
+ 	local_irq_save(flags);
+ 	lguest_clockevent.event_handler(&lguest_clockevent);
+@@ -432,7 +427,20 @@ static void lguest_time_init(void)
+ {
+ 	set_irq_handler(0, lguest_time_irq);
  
- /*
-  * Boot-time check whether the TSCs are synchronized across
+-	lguest_clock.mult = clocksource_khz2mult(tsc_khz, 22);
++	/* We use the TSC if the Host tells us we can, otherwise a dumb
++	 * jiffies-based clock. */
++	if (lguest_data.tsc_khz) {
++		lguest_clock.shift = 22;
++		lguest_clock.mult = clocksource_khz2mult(lguest_data.tsc_khz,
++							 lguest_clock.shift);
++		lguest_clock.mask = CLOCKSOURCE_MASK(64);
++		lguest_clock.flags = CLOCK_SOURCE_IS_CONTINUOUS;
++	} else {
++		/* To understand this, start at kernel/time/jiffies.c... */
++		lguest_clock.shift = 8;
++		lguest_clock.mult = (((u64)NSEC_PER_SEC<<8)/ACTHZ) << 8;
++		lguest_clock.mask = CLOCKSOURCE_MASK(32);
++	}
+ 	clocksource_register(&lguest_clock);
+ 
+ 	/* We can't set cpumask in the initializer: damn C limitations! */
+@@ -440,12 +448,6 @@ static void lguest_time_init(void)
+ 	clockevents_register_device(&lguest_clockevent);
+ 
+ 	enable_lguest_irq(0);
+-}
+-
+-static unsigned long lguest_get_cpu_khz(void)
+-{
+-	/* The Host tells us the TSC speed */
+-	return lguest_data.tsc_khz;
+ }
+ 
+ static void lguest_load_esp0(struct tss_struct *tss,
+@@ -584,7 +586,6 @@ __init void lguest_init(void *boot)
+ 	paravirt_ops.time_init = lguest_time_init;
+ 	paravirt_ops.set_lazy_mode = lguest_lazy_mode;
+ 	paravirt_ops.wbinvd = lguest_wbinvd;
+-	paravirt_ops.get_cpu_khz = lguest_get_cpu_khz;
+ 
+ 	hcall(LHCALL_LGUEST_INIT, __pa(&lguest_data), 0, 0);
