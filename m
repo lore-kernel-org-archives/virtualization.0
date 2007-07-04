@@ -1,32 +1,47 @@
-From: Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH 1/2] lguest: handle dodgy/non-existent TSC.  Host code.
-Date: Wed, 4 Jul 2007 08:20:26 -0500
-Message-ID: <20070704132025.GZ11115@waste.org>
-References: <1183529972.6005.1.camel@localhost.localdomain>
+From: "Rami Tamir" <ramit-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
+Subject: kvm developers' forum 2007
+Date: Wed, 4 Jul 2007 12:14:25 -0700
+Message-ID: <64F9B87B6B770947A9F8391472E032160C8C4F20@ehost011-8.exch011.intermedia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1183529972.6005.1.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-class: urn:content-classes:message
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 04, 2007 at 04:19:32PM +1000, Rusty Russell wrote:
-> Lguest currently requires a TSC, which breaks older machines and Matt
-> Mackall who boots the host with "notsc".
+We's like to invite all of you to attend the first annual KVM Forum
+2007. Please click here http://www.qumranet.com/KVMForum2007.php to be
+taken to the event site where you can learn more about the KVM Forum
+2007 and register online. Hosted by the KVM Developer Community, the
+purpose of the forum is to bring together developers, testers and other
+technical individuals from within the community to discuss the state of
+KVM today. We will also review and shape the future roadmap of KVM,
+examine development challenges, and agree on modes of collaboration
+needed for common development.
 
-I do? I temporarily had a "notsc" arg in my lguest launcher script,
-but removing it made no difference. I do* boot the host with NO_HZ though.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+The KVM Forum 2007 will give developers an opportunity to update the
+community on the work that they are doing and coordinate efforts for the
+betterment of KVM and Linux virtulization.
+The event will take place in Tucson, Arizona on August 29th - 31st, at
+the Loews Ventana Canyon Resort, for more details please see
+http://www.qumranet.com/KVMForum2007.php
+See you in Tucson!
+
+Rami Tamir
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by DB2 Express
+Download DB2 Express C - the FREE version of DB2 express and take
+control of your XML. No limits. Just data. Click to get it now.
+http://sourceforge.net/powerbar/db2/
