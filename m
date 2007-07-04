@@ -1,13 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/3] Virtio draft IV: the block driver
-Date: Wed, 04 Jul 2007 14:19:25 +1000
-Message-ID: <1183522765.6110.40.camel@localhost.localdomain>
+Subject: [PATCH 3/3] Virtio draft IV: the net driver
+Date: Wed, 04 Jul 2007 14:40:53 +1000
+Message-ID: <1183524053.6110.45.camel@localhost.localdomain>
 References: <1183522348.6110.37.camel@localhost.localdomain>
+	<1183522765.6110.40.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1183522348.6110.37.camel@localhost.localdomain>
+In-Reply-To: <1183522765.6110.40.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,357 +19,334 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization <virtualization@lists.linux-foundation.org>
-Cc: Carsten Otte <cotte@de.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, Jens Axboe <jens.axboe@oracle.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The block driver uses scatter-gather lists with sg[0] being the
-request information (struct virtio_blk_outhdr) with the type, sector
-and inbuf id.  The next N sg entries are the bio itself, then the last
-sg is the status byte.  Whether the N entries are in or out depends on
-whether it's a read or a write.
+The network driver uses *two* virtqueues: one for input packets and
+one for output packets.  This has nice locking properties (ie. we
+don't do any for recv vs send).
 
-We accept the normal (SCSI) ioctls: they get handed through to the other
-side which can then handle it or reply that it's unsupported.  It's
-not clear that this actually works in general, since I don't know
-if blk_pc_request() requests have an accurate rq_data_dir().
-
-Although we try to reply -ENOTTY on unsupported commands, the block
-layer in its infinite wisdom suppressed the error so ioctl(fd,
-CDROMEJECT) returns success to userspace.
+TODO:
+	1) GSO.
+	2) Checksum options.
+	3) Big packets.
+	4) Multi-client devices (maybe separate driver?).
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/block/Makefile     |    1 
- drivers/block/virtio_blk.c |  253 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/Kbuild       |    1 
- include/linux/virtio_blk.h |   45 +++++++
- 4 files changed, 300 insertions(+)
+ drivers/net/Makefile       |    2 
+ drivers/net/virtio_net.c   |  276 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/virtio_net.h |   15 ++
+ 3 files changed, 292 insertions(+), 1 deletion(-)
 
 ===================================================================
---- a/drivers/block/Makefile
-+++ b/drivers/block/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_BLK_CPQ_CISS_DA)  += cciss.
- obj-$(CONFIG_BLK_CPQ_CISS_DA)  += cciss.o
- obj-$(CONFIG_BLK_DEV_DAC960)	+= DAC960.o
- obj-$(CONFIG_CDROM_PKTCDVD)	+= pktcdvd.o
-+obj-y				+= virtio_blk.o
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -37,7 +37,7 @@ obj-$(CONFIG_CASSINI) += cassini.o
  
- obj-$(CONFIG_BLK_DEV_UMEM)	+= umem.o
- obj-$(CONFIG_BLK_DEV_NBD)	+= nbd.o
+ obj-$(CONFIG_MACE) += mace.o
+ obj-$(CONFIG_BMAC) += bmac.o
+-
++obj-y += virtio_net.o
+ obj-$(CONFIG_DGRS) += dgrs.o
+ obj-$(CONFIG_VORTEX) += 3c59x.o
+ obj-$(CONFIG_TYPHOON) += typhoon.o
 ===================================================================
 --- /dev/null
-+++ b/drivers/block/virtio_blk.c
-@@ -0,0 +1,253 @@
-+#define DEBUG
-+#include <linux/spinlock.h>
-+#include <linux/blkdev.h>
-+#include <linux/hdreg.h>
++++ b/drivers/net/virtio_net.c
+@@ -0,0 +1,276 @@
++/* A simple network driver using virtio.
++ *
++ * Copyright 2007 Rusty Russell <rusty@rustcorp.com.au> IBM Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++//#define DEBUG
++#include <linux/netdevice.h>
++#include <linux/etherdevice.h>
++#include <linux/module.h>
 +#include <linux/virtio.h>
-+#include <linux/virtio_blk.h>
++#include <linux/scatterlist.h>
 +
-+static unsigned char virtblk_index = 'a';
-+struct virtio_blk
++/* FIXME: Make dynamic */
++#define MAX_PACKET_LEN (ETH_HLEN+ETH_DATA_LEN)
++
++struct virtnet_info
 +{
-+	spinlock_t lock;
++	struct virtqueue *vq_recv;
++	struct virtqueue *vq_send;
++	struct net_device *ndev;
 +
-+	struct virtqueue *vq;
++	/* Number of input buffers, and max we've ever had. */
++	unsigned int num, max;
 +
-+	/* The disk structure for the kernel. */
-+	struct gendisk *disk;
-+
-+	/* Request tracking. */
-+	struct list_head reqs;
-+
-+	mempool_t *pool;
-+
-+	/* Scatterlist: can be too big for stack. */
-+	struct scatterlist sg[3+MAX_PHYS_SEGMENTS];
++	/* Receive & send queues. */
++	struct sk_buff_head recv;
++	struct sk_buff_head send;
 +};
 +
-+struct virtblk_req
++static bool skb_xmit_done(struct virtqueue *vq)
 +{
-+	struct list_head list;
-+	struct request *req;
-+	struct virtio_blk_outhdr out_hdr;
-+	struct virtio_blk_inhdr in_hdr;
-+};
++	struct virtnet_info *vi = vq->priv;
 +
-+static void end_dequeued_request(struct request *req,
-+				 request_queue_t *q, int uptodate)
-+{
-+	/* And so the insanity of the block layer infects us here. */
-+	int nsectors = req->hard_nr_sectors;
-+
-+	if (blk_pc_request(req)) {
-+		nsectors = (req->data_len + 511) >> 9;
-+		if (!nsectors)
-+			nsectors = 1;
-+	}
-+	if (end_that_request_first(req, uptodate, nsectors))
-+		BUG();
-+	add_disk_randomness(req->rq_disk);
-+	end_that_request_last(req, uptodate);
++	/* In case we were waiting for output buffers. */
++	netif_wake_queue(vi->ndev);
++	return true;
 +}
 +
-+static bool blk_done(struct virtqueue *vq)
++static void receive_skb(struct net_device *dev, struct sk_buff *skb,
++			unsigned len)
 +{
-+	struct virtio_blk *vblk = vq->priv;
-+	struct virtblk_req *vbr;
-+	unsigned int len;
-+	unsigned long flags;
++	if (unlikely(len < ETH_HLEN)) {
++		pr_debug("%s: short packet %i\n", dev->name, len);
++		dev->stats.rx_length_errors++;
++		dev_kfree_skb(skb);
++		return;
++	}
++	BUG_ON(len > MAX_PACKET_LEN);
 +
-+	spin_lock_irqsave(&vblk->lock, flags);
-+	while ((vbr = vq->ops->get_buf(vq, &len)) != NULL) {
-+		int uptodate;
-+		switch (vbr->in_hdr.status) {
-+		case VIRTIO_BLK_S_OK:
-+			uptodate = 1;
++	skb_trim(skb, len);
++	skb->protocol = eth_type_trans(skb, dev);
++	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
++		 ntohs(skb->protocol), skb->len, skb->pkt_type);
++	dev->stats.rx_bytes += skb->len;
++	dev->stats.rx_packets++;
++	netif_rx(skb);
++}
++
++static void try_fill_recv(struct virtnet_info *vi)
++{
++	struct sk_buff *skb;
++	struct scatterlist sg[MAX_SKB_FRAGS];
++	int num, err;
++
++	for (;;) {
++		skb = netdev_alloc_skb(vi->ndev, MAX_PACKET_LEN);
++		if (unlikely(!skb))
 +			break;
-+		case VIRTIO_BLK_S_UNSUPP:
-+			uptodate = -ENOTTY;
-+			break;
-+		default:
-+			uptodate = 0;
++
++		skb_put(skb, MAX_PACKET_LEN);
++		num = skb_to_sgvec(skb, sg, 0, skb->len);
++		skb_queue_head(&vi->recv, skb);
++
++		err = vi->vq_recv->ops->add_buf(vi->vq_recv, sg, 0, num, skb);
++		if (err) {
++			skb_unlink(skb, &vi->recv);
++			kfree_skb(skb);
 +			break;
 +		}
-+
-+		end_dequeued_request(vbr->req, vblk->disk->queue, uptodate);
-+		list_del(&vbr->list);
-+		mempool_free(vbr, vblk->pool);
++		vi->num++;
 +	}
-+	/* In case queue is stopped waiting for more buffers. */
-+	blk_start_queue(vblk->disk->queue);
-+	spin_unlock_irqrestore(&vblk->lock, flags);
-+	return true;
++	if (unlikely(vi->num > vi->max))
++		vi->max = vi->num;
++	vi->vq_recv->ops->sync(vi->vq_recv);
 +}
 +
-+static bool do_req(request_queue_t *q, struct virtio_blk *vblk,
-+		   struct virtblk_req *vbr)
++static bool skb_recv_done(struct virtqueue *vq)
 +{
-+	unsigned long num, out_num, in_num;
++	struct virtnet_info *vi = vq->priv;
 +
-+	if (blk_fs_request(vbr->req)) {
-+		vbr->out_hdr.type = 0;
-+		vbr->out_hdr.sector = vbr->req->sector;
-+		vbr->out_hdr.ioprio = vbr->req->ioprio;
-+	} else if (blk_pc_request(vbr->req)) {
-+		vbr->out_hdr.type = VIRTIO_BLK_T_SCSI_CMD;
-+		vbr->out_hdr.sector = 0;
-+		vbr->out_hdr.ioprio = vbr->req->ioprio;
-+	} else {
-+		/* We don't put anything else in the queue. */
-+		BUG();
-+	}
-+
-+	if (blk_barrier_rq(vbr->req))
-+		vbr->out_hdr.type |= VIRTIO_BLK_T_BARRIER;
-+
-+	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
-+	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
-+	vblk->sg[0].length = sizeof(vbr->out_hdr);
-+	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
-+	vblk->sg[num+1].page = virt_to_page(&vbr->in_hdr);
-+	vblk->sg[num+1].offset = offset_in_page(&vbr->in_hdr);
-+	vblk->sg[num+1].length = sizeof(vbr->in_hdr);
-+
-+	if (rq_data_dir(vbr->req) == WRITE) {
-+		vbr->out_hdr.type |= VIRTIO_BLK_T_OUT;
-+		out_num = 1 + num;
-+		in_num = 1;
-+	} else {
-+		vbr->out_hdr.type |= VIRTIO_BLK_T_IN;
-+		out_num = 1;
-+		in_num = 1 + num;
-+	}
-+
-+	if (vblk->vq->ops->add_buf(vblk->vq, vblk->sg, out_num, in_num, vbr))
-+		return false;
-+
-+	list_add_tail(&vbr->list, &vblk->reqs);
-+	return true;
++	netif_rx_schedule(vi->ndev);
++	/* Suppress further interrupts. */
++	return false;
 +}
 +
-+static void do_virtblk_request(request_queue_t *q)
++static int virtnet_poll(struct net_device *dev, int *budget)
 +{
-+	struct virtio_blk *vblk = NULL;
-+	struct request *req;
-+	struct virtblk_req *vbr;
++	struct virtnet_info *vi = netdev_priv(dev);
++	struct sk_buff *skb = NULL;
++	unsigned int len, received = 0;
 +
-+	while ((req = elv_next_request(q)) != NULL) {
-+		vblk = req->rq_disk->private_data;
-+
-+		vbr = mempool_alloc(vblk->pool, GFP_ATOMIC);
-+		if (!vbr)
-+			goto stop;
-+
-+		BUG_ON(req->nr_phys_segments > ARRAY_SIZE(vblk->sg));
-+		vbr->req = req;
-+		if (!do_req(q, vblk, vbr))
-+			goto stop;
-+		blkdev_dequeue_request(req);
++again:
++	while (received < dev->quota &&
++	       (skb = vi->vq_recv->ops->get_buf(vi->vq_recv, &len)) != NULL) {
++		__skb_unlink(skb, &vi->recv);
++		receive_skb(vi->ndev, skb, len);
++		vi->num--;
++		received++;
 +	}
 +
-+sync:
-+	if (vblk)
-+		vblk->vq->ops->sync(vblk->vq);
-+	return;
++        dev->quota -= received;
++        *budget -= received;
 +
-+stop:
-+	/* Queue full?  Wait. */
-+	blk_stop_queue(q);
-+	mempool_free(vbr, vblk->pool);
-+	goto sync;
++	/* FIXME: If we oom and completely run out of inbufs, we need
++	 * to start a timer trying to fill more. */
++	if (vi->num < vi->max / 2)
++		try_fill_recv(vi);
++
++	/* Still more work to do? */
++	if (skb)
++		return 1; /* not done */
++
++	netif_rx_complete(dev);
++	if (unlikely(!vi->vq_recv->ops->restart(vi->vq_recv))
++	    && netif_rx_reschedule(dev, received))
++		goto again;
++
++	return 0;
 +}
 +
-+static int virtblk_ioctl(struct inode *inode, struct file *filp,
-+			 unsigned cmd, unsigned long data)
++static void free_old_xmit_skbs(struct virtnet_info *vi)
 +{
-+	return scsi_cmd_ioctl(filp, inode->i_bdev->bd_disk, cmd,
-+			      (void __user *)data);
++	struct sk_buff *skb;
++	unsigned int len;
++
++	while ((skb = vi->vq_send->ops->get_buf(vi->vq_send, &len)) != NULL) {
++		/* They cannot have written to the packet. */
++		BUG_ON(len != 0);
++		pr_debug("Sent skb %p\n", skb);
++		__skb_unlink(skb, &vi->send);
++		vi->ndev->stats.tx_bytes += skb->len;
++		vi->ndev->stats.tx_packets++;
++		kfree_skb(skb);
++	}
 +}
 +
-+static struct block_device_operations virtblk_fops = {
-+	.ioctl = virtblk_ioctl,
-+	.owner = THIS_MODULE,
-+};
-+
-+struct gendisk *virtblk_probe(struct virtqueue *vq)
++static int start_xmit(struct sk_buff *skb, struct net_device *dev)
 +{
-+	struct virtio_blk *vblk;
-+	int err, major;
++	struct virtnet_info *vi = netdev_priv(dev);
++	int num, err;
++	struct scatterlist sg[MAX_SKB_FRAGS];
++	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
 +
-+	vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
-+	if (!vblk) {
-+		err = -ENOMEM;
-+		goto out;
++	pr_debug("%s: xmit %p %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 dev->name, skb,
++		 dest[0], dest[1], dest[2], dest[3], dest[4], dest[5]);
++
++	free_old_xmit_skbs(vi);
++
++	num = skb_to_sgvec(skb, sg, 0, skb->len);
++	__skb_queue_head(&vi->send, skb);
++	err = vi->vq_send->ops->add_buf(vi->vq_send, sg, num, 0, skb);
++	if (err) {
++		pr_debug("%s: virtio not prepared to send\n", dev->name);
++		skb_unlink(skb, &vi->send);
++		netif_stop_queue(dev);
++		return NETDEV_TX_BUSY;
 +	}
++	vi->vq_send->ops->sync(vi->vq_send);
 +
-+	INIT_LIST_HEAD(&vblk->reqs);
-+	spin_lock_init(&vblk->lock);
-+	vblk->vq = vq;
-+	vq->cb = blk_done;
-+	vq->priv = vblk;
++	return 0;
++}
 +
-+	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
-+	if (!vblk->pool) {
-+		err = -ENOMEM;
-+		goto out_free_vblk;
++static int virtnet_open(struct net_device *dev)
++{
++	struct virtnet_info *vi = netdev_priv(dev);
++
++	try_fill_recv(vi);
++
++	/* If we didn't even get one input buffer, we're useless. */
++	if (vi->num == 0)
++		return -ENOMEM;
++
++	return 0;
++}
++
++static int virtnet_close(struct net_device *dev)
++{
++	struct virtnet_info *vi = netdev_priv(dev);
++	struct sk_buff *skb;
++
++	/* networking core has neutered skb_xmit_done/skb_recv_done, so don't
++	 * worry about races vs. get(). */
++	while ((skb = __skb_dequeue(&vi->recv)) != NULL) {
++		vi->vq_recv->ops->detach_buf(vi->vq_recv, skb);
++		kfree_skb(skb);
++		vi->num--;
 +	}
-+
-+	major = register_blkdev(0, "virtblk");
-+	if (major < 0) {
-+		err = major;
-+		goto out_mempool;
++	while ((skb = __skb_dequeue(&vi->send)) != NULL) {
++		vi->vq_send->ops->detach_buf(vi->vq_send, skb);
++		kfree_skb(skb);
 +	}
++	BUG_ON(vi->num != 0);
++	return 0;
++}
 +
-+	/* FIXME: How many partitions?  How long is a piece of string? */
-+	vblk->disk = alloc_disk(1 << 3);
-+	if (!vblk->disk) {
-+		err = -ENOMEM;
-+		goto out_unregister_blkdev;
++struct net_device *virtnet_probe(struct virtqueue *vq_recv,
++				 struct virtqueue *vq_send,
++				 struct device *device,
++				 const u8 mac[ETH_ALEN])
++{
++	int err;
++	struct net_device *dev;
++	struct virtnet_info *vi;
++
++	dev = alloc_etherdev(sizeof(struct virtnet_info));
++	if (!dev)
++		return ERR_PTR(-ENOMEM);
++
++	SET_MODULE_OWNER(dev);
++
++	ether_setup(dev);
++	memcpy(dev->dev_addr, mac, ETH_ALEN);
++	dev->open = virtnet_open;
++	dev->stop = virtnet_close;
++	dev->poll = virtnet_poll;
++	dev->hard_start_xmit = start_xmit;
++	dev->weight = 16;
++	SET_NETDEV_DEV(dev, device);
++
++	vi = netdev_priv(dev);
++	vi->ndev = dev;
++	vi->vq_recv = vq_recv;
++	vi->vq_send = vq_send;
++	vq_recv->cb = skb_recv_done;
++	vq_send->cb = skb_xmit_done;
++	vq_recv->priv = vq_send->priv = vi;
++	skb_queue_head_init(&vi->recv);
++	skb_queue_head_init(&vi->send);
++
++	err = register_netdev(dev);
++	if (err) {
++		pr_debug("virtio_net: registering device failed\n");
++		goto free;
 +	}
++	pr_debug("virtnet: registered device %s\n", dev->name);
++	return dev;
 +
-+	vblk->disk->queue = blk_init_queue(do_virtblk_request, &vblk->lock);
-+	if (!vblk->disk->queue) {
-+		err = -ENOMEM;
-+		goto out_put_disk;
-+	}
-+
-+	sprintf(vblk->disk->disk_name, "vd%c", virtblk_index++);
-+	vblk->disk->major = major;
-+	vblk->disk->first_minor = 0;
-+	vblk->disk->private_data = vblk;
-+	vblk->disk->fops = &virtblk_fops;
-+
-+	blk_queue_ordered(vblk->disk->queue, QUEUE_ORDERED_TAG, NULL);
-+
-+	/* Caller can do blk_queue_max_hw_segments(), set_capacity()
-+	 * etc then add_disk(). */
-+	return vblk->disk;
-+
-+out_put_disk:
-+	put_disk(vblk->disk);
-+out_unregister_blkdev:
-+	unregister_blkdev(major, "virtblk");
-+out_mempool:
-+	mempool_destroy(vblk->pool);
-+out_free_vblk:
-+	kfree(vblk);
-+out:
++free:
++	free_netdev(dev);
 +	return ERR_PTR(err);
 +}
-+EXPORT_SYMBOL_GPL(virtblk_probe);
++EXPORT_SYMBOL_GPL(virtnet_probe);
 +
-+void virtblk_remove(struct gendisk *disk)
++void virtnet_remove(struct net_device *dev)
 +{
-+	struct virtio_blk *vblk = disk->private_data;
-+	int major = vblk->disk->major;
-+
-+	BUG_ON(!list_empty(&vblk->reqs));
-+	blk_cleanup_queue(vblk->disk->queue);
-+	put_disk(vblk->disk);
-+	unregister_blkdev(major, "virtblk");
-+	mempool_destroy(vblk->pool);
-+	kfree(vblk);
++	unregister_netdev(dev);
++	free_netdev(dev);
 +}
-+EXPORT_SYMBOL_GPL(virtblk_remove);
-===================================================================
---- a/include/linux/Kbuild
-+++ b/include/linux/Kbuild
-@@ -341,6 +341,7 @@ unifdef-y += utsname.h
- unifdef-y += utsname.h
- unifdef-y += videodev2.h
- unifdef-y += videodev.h
-+unifdef-y += virtio_blk.h
- unifdef-y += wait.h
- unifdef-y += wanrouter.h
- unifdef-y += watchdog.h
++EXPORT_SYMBOL_GPL(virtnet_remove);
++
++MODULE_DESCRIPTION("Virtio network driver");
++MODULE_LICENSE("GPL");
 ===================================================================
 --- /dev/null
-+++ b/include/linux/virtio_blk.h
-@@ -0,0 +1,45 @@
-+#ifndef _LINUX_VIRTIO_BLK_H
-+#define _LINUX_VIRTIO_BLK_H
++++ b/include/linux/virtio_net.h
+@@ -0,0 +1,15 @@
++#ifndef _LINUX_VIRTIO_NET_H
++#define _LINUX_VIRTIO_NET_H
 +#include <linux/types.h>
++#include <linux/etherdevice.h>
++struct device;
++struct net_device;
++struct virtqueue;
 +
-+/* These two define direction. */
-+#define VIRTIO_BLK_T_IN		0
-+#define VIRTIO_BLK_T_OUT	1
++struct net_device *virtnet_probe(struct virtqueue *vq_recv,
++				 struct virtqueue *vq_send,
++				 struct device *dev,
++				 const u8 mac[ETH_ALEN]);
++void virtnet_remove(struct net_device *dev);
 +
-+/* This bit says it's a scsi command, not an actual read or write. */
-+#define VIRTIO_BLK_T_SCSI_CMD	2
-+
-+/* Barrier before this op. */
-+#define VIRTIO_BLK_T_BARRIER	0x80000000
-+
-+/* This is the first element of the read scatter-gather list. */
-+struct virtio_blk_outhdr
-+{
-+	/* VIRTIO_BLK_T* */
-+	__u32 type;
-+	/* io priority. */
-+	__u32 ioprio;
-+	/* Sector (ie. 512 byte offset) */
-+	__u64 sector;
-+	/* Where to put reply. */
-+	__u64 id;
-+};
-+
-+#define VIRTIO_BLK_S_OK		0
-+#define VIRTIO_BLK_S_IOERR	1
-+#define VIRTIO_BLK_S_UNSUPP	2
-+
-+/* This is the first element of the write scatter-gather list */
-+struct virtio_blk_inhdr
-+{
-+	unsigned char status;
-+};
-+
-+#ifdef __KERNEL__
-+struct gendisk;
-+struct virtio_device;
-+
-+struct gendisk *virtblk_probe(struct virtqueue *vq);
-+void virtblk_remove(struct gendisk *disk);
-+#endif /* __KERNEL__ */
-+#endif /* _LINUX_VIRTIO_BLK_H */
++#endif /* _LINUX_VIRTIO_NET_H */
