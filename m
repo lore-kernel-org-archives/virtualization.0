@@ -1,10 +1,10 @@
 From: arnd@arndb.de
-Subject: [RFC 4/4] Example virtio host implementation, using chardev
-Date: Fri, 06 Jul 2007 14:42:04 +0200
-Message-ID: <20070706125717.892848691@arndb.de>
+Subject: [RFC 1/4] New virtio bus driver
+Date: Fri, 06 Jul 2007 14:42:01 +0200
+Message-ID: <20070706125717.576683142@arndb.de>
 References: <20070706124200.988637662@arndb.de>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=virtioserver.diff
+Content-Disposition: inline; filename=new-io-arnd.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,616 +18,377 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Since I still haven't set up lguest and don't have a kvm
-capable machine, I decided to write my own host implementation,
-based on Rusty's read/write based lguest host from virtio
-draft III.
+This adds a new bus_type for virtio that is intended to
+be completely agnostic of the underlying host transport
+and the upper-level protocol.
 
-Now this does _not_ use any hypervisor at all, but instead
-runs expects a user application to do the actual device
-emulation, communicating through a character device.
+Device drivers and host drivers register here, and operations
+are provided that let a device driver talk to the device
+emulation in the hypervisor without knowing the kind of hypervisor.
+Module autoloading through udev should also work.
 
-There are a number of problems with this that are not solved
-yet, so please regard this code as demonstration only and
-don't try to run it.
-
-Locking is one problem, since the code I based this on
-expected to be able to hold a spinlock for the duration of
-the hcall. This is not possible during copy_{to,from}_user,
-so bad things can happen if a driver detaches a buffer
-while it's being accessed from user space.
+Loosely based on Rusty's Virtio draft III.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Index: linux-2.6/drivers/char/virtiosrv.c
-===================================================================
 --- /dev/null
-+++ linux-2.6/drivers/char/virtiosrv.c
-@@ -0,0 +1,573 @@
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/ioctl.h>
-+#include <linux/highmem.h>
-+#include <linux/fs.h>
-+#include <linux/miscdevice.h>
-+#include <linux/module.h>
-+#include <linux/poll.h>
++++ linux-2.6/include/linux/virtio.h
+@@ -0,0 +1,174 @@
++#ifndef _LINUX_VIRTIO_H
++#define _LINUX_VIRTIO_H
++#include <linux/types.h>
 +#include <linux/scatterlist.h>
 +#include <linux/spinlock.h>
++#include <linux/device.h>
++
++/**
++ * virtio_device_id - match a virtio device to a driver
++ * @device_type: string identifying the virtio interface.
++ * @driver_data: used internally by the driver.
++ */
++struct virtio_device_id {
++	const char *device_type;
++	unsigned long driver_data;
++};
++
++/**
++ * virtio_config - virtual device configuration.
++ * @host: structured data interpreted by the host driver.
++ * @driver: structured data interpreted by the device driver.
++ *
++ * The configuration space is what gets used to tell a driver
++ * about the device, e.g. MAC address or block device size.
++ * All fields in here are read-only in the virtual machine,
++ * they are set up by the host.
++ *
++ * The host part remains opaque to the device driver, it can
++ * contain e.g. lguest device index numbers or part of a PCI
++ * configuration space.
++ *
++ * The 256 bytes total intentionally match the size of the
++ * legacy PCI config registers, but the driver should not
++ * expect the layout to be derived from PCI.
++ *
++ * Every virtio_driver should define a data structure for the
++ * virtio_config->driver data, which becomes part of its ABI.
++ */
++struct virtio_config {
++	const char host[128];
++	const char driver[128];
++};
++
++/**
++ * virtio_device - description and routines to drive a virtual device.
++ * @id: identifier for the device type
++ * @dev: the device itself.
++ * @ops: the operations for this virtual device.
++ * @driver_ops: set by the driver for callbacks.
++ * @config: driver specific configuration data.
++ * @config_size: size of the @config data.
++ */
++struct virtio_device {
++	struct virtio_device_id id;
++	struct device dev;
++	struct virtio_ops *ops;
++	struct virtio_config config;
++};
++
++static inline struct virtio_device *to_virtio_dev(struct device *dev)
++{
++	return container_of(dev, struct virtio_device, dev);
++}
++
++/**
++ * virtio_driver - driver callbacks for a virtual device.
++ * @device_table: identifiers for compatible devices,
++ *  zero-terminated array
++ * @drv: the driver as known to the driver core.
++ * @in: inbufs have been completed.
++ *	Usually called from an interrupt handler.
++ *	Return false to suppress further inbuf callbacks.
++ * @out: outbufs have been completed.
++ *	Usually called from an interrupt handler.
++ *	Return false to suppress further outbuf callbacks.
++ */
++struct virtio_driver {
++	struct virtio_device_id *ids;
++	struct device_driver drv;
++	bool (*in)(struct virtio_device *dev);
++	bool (*out)(struct virtio_device *dev);
++};
++
++static inline struct virtio_driver *to_virtio_drv(struct device_driver *drv)
++{
++	return container_of(drv, struct virtio_driver, drv);
++}
++
++int virtio_device_register(struct virtio_device *vdev);
++void virtio_device_unregister(struct virtio_device *vdev);
++int virtio_driver_register(struct virtio_driver *vdrv);
++void virtio_driver_unregister(struct virtio_driver *vdrv);
++
++enum virtio_dir {
++	VIRTIO_IN = 0x1,
++	VIRTIO_OUT = 0x2,
++};
++
++/**
++ * virtio_ops - virtio abstraction layer
++ * @add_outbuf: prepare to send data to the other end:
++ *	vdev: the virtio_device
++ *	sg: the description of the buffer(s).
++ *	num: the size of the sg array.
++ *	data: the token returned by the get_outbuf function.
++ *      Returns a unique id or an error.
++ * @add_inbuf: prepare to receive data from the other end:
++ *	vdev: the virtio_device
++ *	sg: the description of the buffer(s).
++ *	num: the size of the sg array.
++ *	data: the token returned by the get_inbuf function.
++ *      Returns a unique id or an error (eg. -ENOSPC).
++ * @sync: update after add_inbuf and/or add_outbuf
++ *	vdev: the virtio_device we're talking about.
++ *	inout: VIRTIO_IN and/or VIRTIO_OUT
++ *	After one or more add_inbuf/add_outbuf calls, invoke this to kick
++ *	the virtio layer.
++ * @get_outbuf: get the next used outbuf.
++ *	vdev: the virtio_device we're talking about.
++ *	len: the length written into the outbuf
++ *	Returns NULL or the "data" token handed to add_outbuf (which has been
++ *	detached).
++ * @get_inbuf: get the next used inbuf.
++ *	vdev: the virtio_device we're talking about.
++ *	len: the length read from the inbuf
++ *	Returns NULL or the "data" token handed to add_inbuf (which has been
++ *	detached).
++ * @detach_outbuf: make sure sent sg can no longer be read.
++ *	vdev: the virtio_device we're talking about.
++ *	id: the id returned from add_outbuf.
++ *	This is usually used for shutdown.  Don't try to detach twice.
++ * @detach_inbuf: make sure sent sg can no longer be written to.
++ *	vdev: the virtio_device we're talking about.
++ *	id: the id returned from add_inbuf.
++ *	This is usually used for shutdown.  Don't try to detach twice.
++ * @restart_in: restart calls to driver_ops->in after it returned false.
++ *	vdev: the virtio_device we're talking about.
++ *	This returns "false" (and doesn't re-enable) if there are pending
++ *	inbufs, to avoid a race.
++ * @restart_out: restart calls to driver_ops->out after it returned false.
++ *	vdev: the virtio_device we're talking about.
++ *	This returns "false" (and doesn't re-enable) if there are pending
++ *	outbufs, to avoid a race.
++ *
++ * Locking rules are straightforward: the driver is responsible for
++ * locking.  Outbuf operations can be called in parallel to inbuf
++ * operations, but no two outbuf operations nor two inbuf operations
++ * may be invoked simultaneously.
++ *
++ * All operations can be called in any context.
++ */
++struct virtio_ops {
++	unsigned long (*add_outbuf)(struct virtio_device *vdev,
++				    const struct scatterlist sg[],
++				    unsigned int num,
++				    void *data);
++
++	unsigned long (*add_inbuf)(struct virtio_device *vdev,
++				   struct scatterlist sg[],
++				   unsigned int num,
++				   void *data);
++
++	void (*sync)(struct virtio_device *vdev, enum virtio_dir inout);
++
++	void *(*get_outbuf)(struct virtio_device *vdev, unsigned int *len);
++	void *(*get_inbuf)(struct virtio_device *vdev, unsigned int *len);
++
++	void (*detach_outbuf)(struct virtio_device *vdev, unsigned long id);
++	void (*detach_inbuf)(struct virtio_device *vdev, unsigned long id);
++
++	bool (*restart_in)(struct virtio_device *vdev);
++	bool (*restart_out)(struct virtio_device *vdev);
++};
++#endif /* _LINUX_VIRTIO_H */
+Index: linux-2.6/drivers/base/virtio.c
+===================================================================
+--- /dev/null
++++ linux-2.6/drivers/base/virtio.c
+@@ -0,0 +1,153 @@
++/* Virtual I/O bus implementation
++ *
++ * Copyright 2007 Arnd Bergmann <arnd@arndb.de> IBM Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++#include <linux/device.h>
 +#include <linux/virtio.h>
 +
-+#include <asm/uaccess.h>
-+#include <asm/io.h>
-+
-+#define VIRTIOSRV_MAX_SGLEN 18
-+#define VIRTIOSRV_MAX_INBUFS 16
-+
-+struct buf_head
++/**
++ * virtio_match - match a virtio device to its driver by device ID
++ *
++ * Used internally by the bus type implementation. Whenever a new
++ * device or driver is added to the system, the match function gets
++ * called for all possible combinations with existing drivers or
++ * devices.
++ *
++ * When a match is found, we attempt to bind the device to its
++ * driver by calling the driver's probe function.
++ */
++static int virtio_match(struct device *dev, struct device_driver *drv)
 +{
-+	unsigned long len;
-+};
++	struct virtio_device *vdev = to_virtio_dev(dev);
++	struct virtio_driver *vdrv = to_virtio_drv(drv);
++	struct virtio_device_id *id;
 +
-+struct virtiosrv_inbuf
-+{
-+	unsigned int num;
-+	unsigned int used;
-+	bool finished;
-+	struct scatterlist sg[VIRTIOSRV_MAX_SGLEN];
-+	void *data;
-+};
++	/* return true if one id in the driver matches */
++	for (id = vdrv->ids; id->device_type; id++)
++		if (strcmp(id->device_type, vdev->id.device_type) == 0)
++			return 1;
 +
-+struct virtiosrv_device {
-+	struct virtio_device vdev;
-+
-+	/* Outgoing */
-+	bool out_running;
-+	unsigned out_junk;
-+	unsigned sg_elem, sg_num, sg_off, sg_done;
-+	void *out_data;
-+
-+	/* This is the first entry of the scatter list. */
-+	struct buf_head out_head;
-+	struct scatterlist sg[1+VIRTIOSRV_MAX_SGLEN];
-+
-+	/* Incoming */
-+	bool in_running;
-+	unsigned discard;
-+	unsigned in_sg;
-+	unsigned in_done;
-+	struct virtiosrv_inbuf *curr_in;
-+	struct buf_head in_head;
-+		struct virtiosrv_inbuf in[VIRTIOSRV_MAX_INBUFS];
-+
-+	wait_queue_head_t in_wq;
-+	wait_queue_head_t out_wq;
-+
-+	spinlock_t lock;
-+	struct virtiosrv_config_data {
-+		char device_type[16];
-+		char device_id[16];
-+	} *data;
-+};
-+
-+static inline struct virtiosrv_device *to_virtiosrv_dev(struct virtio_device *vdev)
-+{
-+	return container_of(vdev, struct virtiosrv_device, vdev);
-+}
-+
-+static void *virtiosrv_get_outbuf(struct virtio_device *vdev, unsigned int *len)
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+	void *ret;
-+
-+	spin_lock(&sdev->lock);
-+	if (sdev->sg_elem == sdev->sg_num) {
-+		ret = sdev->out_data;
-+		sdev->sg_num = 0;
-+	} else
-+		ret = NULL;
-+	spin_unlock(&sdev->lock);
-+
-+	return ret;
-+}
-+
-+static void *virtiosrv_get_inbuf(struct virtio_device *vdev, unsigned int *len)
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+	unsigned int i;
-+	void *ret = NULL;
-+
-+	spin_lock(&sdev->lock);
-+	for (i = 0; i < ARRAY_SIZE(sdev->in); i++) {
-+		if (sdev->in[i].finished) {
-+			ret = sdev->in[i].data;
-+			*len = sdev->in[i].used;
-+			sdev->in[i].num = 0;
-+			sdev->in[i].finished = false;
-+			break;
-+		}
-+	}
-+	spin_unlock(&sdev->lock);
-+	return ret;
-+}
-+
-+static struct virtiosrv_inbuf *find_inbuf(struct virtiosrv_device *sdev)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(sdev->in); i++)
-+		if (sdev->in[i].num)
-+			return &sdev->in[i];
-+
-+	return NULL;
-+}
-+
-+static unsigned long sg_len(const struct scatterlist sg[],
-+			    unsigned int num)
-+{
-+	unsigned long len, i;
-+
-+	for (i = len = 0; i < num; i++)
-+		len += sg[i].length;
-+	return len;
-+}
-+
-+static unsigned long virtiosrv_add_outbuf(struct virtio_device *vdev,
-+				       const struct scatterlist sg[],
-+				       unsigned int num,
-+				       void *data)
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+
-+	BUG_ON(num > VIRTIOSRV_MAX_SGLEN);
-+	BUG_ON(num == 0);
-+
-+	spin_lock(&sdev->lock);
-+	/* We force them into single-file */
-+	if (sdev->sg_num) {
-+		spin_unlock(&sdev->lock);
-+		return -ENOSPC;
-+	}
-+
-+	sdev->sg_elem = sdev->sg_off = sdev->sg_done = 0;
-+	sdev->sg_num = 1 + num;
-+	sdev->out_head.len = sg_len(sg, num);
-+	sdev->out_data = data;
-+	memcpy(sdev->sg + 1, sg, num * sizeof(*sg));
-+
-+	/* First descriptor points at metadata */
-+	sdev->sg[0].page = pfn_to_page(virt_to_phys(&sdev->out_head)/PAGE_SIZE);
-+	sdev->sg[0].offset = offset_in_page(&sdev->out_head);
-+	sdev->sg[0].length = sizeof(sdev->out_head);
-+	spin_unlock(&sdev->lock);
-+
-+	/* With only one, id is always 0 */
-+	return 0;
-+}
-+
-+static unsigned long virtiosrv_add_inbuf(struct virtio_device *vdev,
-+				      struct scatterlist sg[],
-+				      unsigned int num,
-+				      void *data)
-+
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+	unsigned int i;
-+
-+	BUG_ON(num > VIRTIOSRV_MAX_SGLEN);
-+	BUG_ON(num == 0);
-+
-+	spin_lock(&sdev->lock);
-+	/* Find empty inbuf. */
-+	for (i = 0; sdev->in[i].num != 0; i++) {
-+		if (i == ARRAY_SIZE(sdev->in) - 1) {
-+			spin_unlock(&sdev->lock);
-+			return -ENOSPC;
-+		}
-+	}
-+
-+	sdev->in[i].num = num;
-+	sdev->in[i].finished = false;
-+	sdev->in[i].data = data;
-+	memcpy(sdev->in[i].sg, sg, num * sizeof(*sg));
-+	spin_unlock(&sdev->lock);
-+
-+	return i;
-+}
-+
-+static void virtiosrv_sync(struct virtio_device *vdev, enum virtio_dir inout)
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+
-+	if (sdev->out_running)
-+		wake_up_all(&sdev->out_wq);
-+	if (sdev->in_running)
-+		wake_up_all(&sdev->in_wq);
-+}
-+
-+static void virtiosrv_detach_outbuf(struct virtio_device *vdev, unsigned long id)
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+
-+	spin_lock(&sdev->lock);
-+	BUG_ON(id != 0);
-+	BUG_ON(sdev->sg_num == 0);
-+
-+	/* Already started sending?  Fill with junk. */
-+	if (sdev->sg_done > 0)
-+		sdev->out_junk = sdev->out_head.len - sdev->sg_done;
-+	else
-+		sdev->sg_num = 0;
-+	spin_unlock(&sdev->lock);
-+}
-+
-+static void virtiosrv_detach_inbuf(struct virtio_device *vdev, unsigned long id)
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+
-+	spin_lock(&sdev->lock);
-+	BUG_ON(id >= VIRTIOSRV_MAX_INBUFS);
-+	BUG_ON(!sdev->in[id].num);
-+
-+	/* Detach while being used?  Discard the rest. */
-+	if (sdev->curr_in == &sdev->in[id]) {
-+		sdev->discard = sdev->in_head.len - sdev->in_done;
-+		sdev->curr_in = NULL;
-+	}
-+	sdev->in[id].num = 0;
-+	spin_unlock(&sdev->lock);
-+}
-+
-+static bool virtiosrv_restart_in(struct virtio_device *vdev)
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+
-+	spin_lock(&sdev->lock);
-+	BUG_ON(sdev->in_running);
-+	sdev->in_running = true;
-+	spin_unlock(&sdev->lock);
-+
-+	wake_up_all(&sdev->in_wq);
-+	return true;
-+}
-+
-+static bool virtiosrv_restart_out(struct virtio_device *vdev)
-+{
-+	struct virtiosrv_device *sdev = to_virtiosrv_dev(vdev);
-+
-+	spin_lock(&sdev->lock);
-+	BUG_ON(sdev->out_running);
-+	sdev->out_running = true;
-+	spin_unlock(&sdev->lock);
-+
-+	wake_up_all(&sdev->out_wq);
-+	return true;
-+}
-+
-+static struct virtio_ops virtiosrv_ops = {
-+	.add_outbuf = virtiosrv_add_outbuf,
-+	.add_inbuf = virtiosrv_add_inbuf,
-+	.sync = virtiosrv_sync,
-+	.get_outbuf = virtiosrv_get_outbuf,
-+	.get_inbuf = virtiosrv_get_inbuf,
-+	.detach_outbuf = virtiosrv_detach_outbuf,
-+	.detach_inbuf = virtiosrv_detach_inbuf,
-+	.restart_in = virtiosrv_restart_in,
-+	.restart_out = virtiosrv_restart_out,
-+};
-+
-+static struct device virtiosrv_device = {
-+	.bus_id = "virtio",
-+};
-+
-+static int virtiosrv_register_device(struct virtiosrv_device *sdev, struct file *file)
-+{
-+	/*
-+	 * make sure only one thread gets to do the setup, the mutex
-+	 * protects both the write to the file->private_data pointer
-+	 * and the idr.
-+	 */
-+	static DEFINE_MUTEX(setup_mutex);
-+	int ret;
-+
-+	mutex_lock(&setup_mutex);
-+	ret = -EBUSY;
-+	if (file->private_data)
-+		goto out;
-+
-+	ret = virtio_device_register(&sdev->vdev);
-+	if (ret)
-+		goto out;
-+	file->private_data = sdev;
-+out:
-+	mutex_unlock(&setup_mutex);
-+	return ret;
-+}
-+
-+static int virtiosrv_setup(struct file *file, const void __user *buf, size_t len)
-+{
-+	struct virtiosrv_device *sdev;
-+	struct virtio_device *vdev;
-+	int ret;
-+
-+	/* allocate device */
-+	if (len != sizeof (vdev->config))
-+		return -EINVAL;
-+	ret = -ENOMEM;
-+	sdev = kzalloc(sizeof (*sdev), GFP_KERNEL);
-+	if (!sdev)
-+		goto out;
-+	vdev = &sdev->vdev;
-+
-+	/* set up device data */
-+	ret = -EFAULT;
-+	if (copy_from_user(&vdev->config, buf, len))
-+		goto out;
-+	vdev->id.device_type = sdev->data->device_type;
-+	vdev->ops = &virtiosrv_ops;
-+	vdev->dev.parent = &virtiosrv_device;
-+	sdev->data = (void*)&vdev->config.host;
-+	snprintf(vdev->dev.bus_id, BUS_ID_SIZE, "virtio:%s", sdev->data->device_id);
-+	init_waitqueue_head(&sdev->in_wq);
-+	init_waitqueue_head(&sdev->out_wq);
-+	spin_lock_init(&sdev->lock);
-+
-+	ret = virtiosrv_register_device(sdev, file);
-+	if (ret)
-+		goto out;
-+	return len;
-+
-+out:
-+	/* something went wrong, clean up */
-+	kfree(sdev);
-+	return ret;
-+}
-+
-+static int virtiosrv_close(struct inode *inode, struct file *file)
-+{
-+	struct virtiosrv_device *sdev = file->private_data;
-+
-+	if (sdev)
-+		return 0;
-+
-+	file->private_data = NULL;
-+	virtio_device_unregister(&sdev->vdev);
-+	kfree(sdev);
++	/* did not match any */
 +	return 0;
 +}
 +
 +/**
-+ * virtiosrv_read - read one data element into the virtio device
++ * virtio_uevent - add modalias field to uevent message
 + *
-+ * TODO: locking against virtio_ops
++ * Used internally by the uevent mechanism to add more
++ * information to a virtio device event.
 + */
-+static ssize_t virtiosrv_read(struct file *file, char __user *buf,
-+				size_t len, loff_t *off)
++static int virtio_uevent(struct device *dev, char **envp, int num_envp,
++				char *buf, int buf_size)
 +{
-+	struct virtiosrv_device *sdev = file->private_data;
-+	struct virtio_driver *vdrv = to_virtio_drv(sdev->vdev.dev.driver);
-+	struct scatterlist *sg;
-+	void *page;
-+	int err;
++	struct virtio_device *vdev = to_virtio_dev(dev);
 +
-+	if (!sdev)
-+		return -ENODEV;
-+
-+	/* no data available at device, user needs to wait */
-+	if ((file->f_flags & O_NONBLOCK) && (sdev->sg_elem >= sdev->sg_num))
-+		return -EAGAIN;
-+	err = wait_event_interruptible(sdev->out_wq,
-+					sdev->sg_elem >= sdev->sg_num);
-+	if (err)
-+		return -ERESTARTSYS;
-+
-+	/*
-+	 * user requested too small buffer, don't lose length
-+	 * information
-+	 */
-+	sg = &sdev->sg[sdev->sg_elem];
-+	if (sg->length > len)
-+		return -ENOSPC;
-+
-+	/*
-+	 * If buffer was detached while we're reading, send
-+	 * junk after header
-+	 */
-+	if (sdev->sg_elem > 0 && sdev->out_junk) {
-+		if (sdev->out_junk > len)
-+			return -ENOSPC;
-+
-+		while (sdev->out_junk) {
-+			err = put_user(42, buf);
-+			if (err)
-+				return -EFAULT;
-+			buf++;
-+			sdev->out_junk--;
-+		}
-+		sdev->sg_num = 0;
-+		return sdev->out_junk;
-+	}
-+
-+	/* copy one sg element to user space */
-+	page = kmap(sg->page);
-+	err = copy_to_user(buf, page + sg->offset, sg->length);
-+	kunmap(page);
-+	if (err)
-+		return -EFAULT;
-+
-+	sdev->sg_done += sg->length;
-+	sdev->sg_elem++;
-+
-+	if (sdev->sg_elem == sdev->sg_num)
-+		sdev->out_running = vdrv->out(&sdev->vdev);
-+
-+	return sg->length;
++	envp[0] = buf;
++	snprintf(buf, buf_size, "MODALIAS=virtio:%s",
++			vdev->id.device_type);
++	return 0;
 +}
 +
-+/**
-+ * virtiosrv_write - write data from the virtio device
-+ *
-+ * TODO: locking against virtio_ops
-+ */
-+static ssize_t virtiosrv_write(struct file *file, const char __user *buf,
-+				size_t len, loff_t *off)
++static ssize_t modalias_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
 +{
-+	struct virtiosrv_device *sdev = file->private_data;
-+	ssize_t ret;
-+	if (!sdev)
-+		return virtiosrv_setup(file, buf, len);
-+
-+	while (unlikely(sdev->discard)) {
-+		size_t discard = min_t(size_t, sdev->discard, len);
-+		sdev->discard -= discard;
-+		return discard;
-+	}
-+
-+	ret = 0;
-+	if (!sdev->curr_in) {
-+		/* Haven't got the whole head yet?  Try reading more. */
-+		if (sdev->in_done < sizeof(sdev->in_head)) {
-+			size_t head_len;
-+			head_len = sizeof (sdev->in_head) - sdev->in_done;
-+			head_len = min(len, head_len);
-+
-+			ret = copy_from_user(&sdev->in_head + sdev->in_done,
-+						buf, head_len);
-+			if (ret)
-+				return -EFAULT;
-+			sdev->in_done += head_len;
-+			len -= head_len;
-+			if (sdev->in_done < sizeof(sdev->in_head))
-+				return head_len;
-+			buf += head_len;
-+			ret = head_len;
-+		}
-+
-+		/* try to find a free inbuf, wait if necessary */
-+		sdev->curr_in = find_inbuf(sdev);
-+		if (!sdev->curr_in) {
-+			int err;
-+			if (file->f_flags & O_NONBLOCK)
-+				return -EAGAIN;
-+
-+			err = wait_event_interruptible(sdev->in_wq,
-+				(sdev->curr_in = find_inbuf(sdev)) != NULL);
-+			if (err)
-+				return -ERESTARTSYS;
-+		}
-+
-+		sdev->in_sg = 0;
-+		sdev->in_done = 0;
-+	}
-+
-+	/* Continue reading this buffer.  If it fills, we discard the rest. */
-+	do {
-+		struct scatterlist *sg;
-+		void *page;
-+		unsigned read;
-+
-+		sg = &sdev->curr_in->sg[sdev->in_sg];
-+
-+		read = min_t(size_t, sg->length, len);
-+		if (sdev->in_head.len - sdev->in_done < read)
-+			read = sdev->in_head.len - sdev->in_done;
-+
-+		page = kmap(sg->page);
-+		ret = copy_from_user(page + sg->offset, buf, read);
-+		kunmap(page);
-+		if (ret)
-+			return -EFAULT;
-+
-+		sg->offset += read;
-+		sg->length -= read;
-+		sdev->in_done += read;
-+		buf += read;
-+		ret += read;
-+		len -= read;
-+
-+		if (sdev->in_done == sdev->in_head.len)
-+			break;
-+
-+		if (sg->length != 0)
-+			return ret;
-+
-+		sdev->in_sg++;
-+	} while (sdev->in_sg < sdev->curr_in->num);
-+
-+	/* We finished the buffer: may need to discard some more data. */
-+	if (sdev->in_done < sdev->in_head.len)
-+		sdev->discard = sdev->in_head.len - sdev->in_done;
-+
-+	sdev->curr_in->finished = true;
-+	sdev->curr_in->used = sdev->in_done;
-+	sdev->curr_in = NULL;
-+	sdev->in_done = 0;
-+	return ret;
++	struct virtio_device *vdev = to_virtio_dev(dev);
++	return scnprintf(buf, PAGE_SIZE, "virtio:%s\n", vdev->id.device_type);
 +}
 +
-+static unsigned int virtiosrv_poll(struct file *file,
-+			struct poll_table_struct *wait)
-+{
-+	struct virtiosrv_device *sdev = file->private_data;
-+	int mask = 0;
++static struct device_attribute virtio_dev_attrs[] = {
++	__ATTR_RO(modalias),
++	__ATTR_NULL,
++};
 +
-+	if (!sdev)
-+		return 0;
-+
-+	poll_wait(file, &sdev->in_wq, wait);
-+	poll_wait(file, &sdev->out_wq, wait);
-+	if (sdev->sg_elem < sdev->sg_num)
-+		mask |= POLLIN | POLLRDNORM;
-+	if (find_inbuf(sdev))
-+		mask |= POLLOUT | POLLWRNORM;
-+
-+	return mask;
-+}
-+
-+static struct file_operations virtiosrv_fops = {
++static struct bus_type virtio_bus = {
++	.name = "virtio",
 +	.owner = THIS_MODULE,
-+	.open = nonseekable_open,
-+	.release = virtiosrv_close,
-+	.read = virtiosrv_read,
-+	.write = virtiosrv_write,
-+	.poll = virtiosrv_poll,
++	.match = virtio_match,
++	.uevent = virtio_uevent,
++	.dev_attrs = virtio_dev_attrs,
 +};
 +
-+static struct miscdevice virtiosrv = {
-+	.name = "virtiosrv",
-+	.fops = &virtiosrv_fops,
-+};
-+
-+static int __init virtiosrv_init(void)
++/**
++ * virtio_device_register - add a new virtio device
++ * @vdev: device that will be registered
++ *
++ * A virtio bus driver implementation calls this
++ * function for every device it discovers on its
++ * respective bus implementation.
++ */
++int virtio_device_register(struct virtio_device *vdev)
 +{
-+	int ret;
-+	ret = device_register(&virtiosrv_device);
-+	if (ret)
-+		return ret;
-+
-+	ret = misc_register(&virtiosrv);
-+	if (ret)
-+		device_unregister(&virtiosrv_device);
-+
-+	return ret;
++	vdev->dev.bus = &virtio_bus;
++	return device_register(&vdev->dev);
 +}
-+module_init(virtiosrv_init);
++EXPORT_SYMBOL_GPL(virtio_device_register);
 +
-+static void __exit virtiosrv_exit(void)
++/**
++ * virtio_device_unregister - remove a virtio device
++ * @vdev: device that will be unregistered
++ *
++ * If a virtio bus driver supports hot unplugging of
++ * devices, this function will be used at remove
++ * time.
++ */
++void virtio_device_unregister(struct virtio_device *vdev)
 +{
-+	misc_deregister(&virtiosrv);
-+	device_unregister(&virtiosrv_device);
++	device_unregister(&vdev->dev);
 +}
-+module_exit(virtiosrv_exit);
-Index: linux-2.6/drivers/char/Makefile
++EXPORT_SYMBOL_GPL(virtio_device_unregister);
++
++/**
++ * virtio_driver_register - add a new virtio driver
++ * @vdrv: driver that will be registered
++ *
++ * A virtio device driver module needs to call this
++ * function in its module_init handler, and the
++ * respective unregister function for its module_exit
++ * handler.
++ */
++int virtio_driver_register(struct virtio_driver *vdrv)
++{
++	vdrv->drv.bus = &virtio_bus;
++	return driver_register(&vdrv->drv);
++}
++EXPORT_SYMBOL_GPL(virtio_driver_register);
++
++/**
++ * virtio_driver_unregister - remove a virtio driver
++ * @vdrv: driver that will be unregistered
++ */
++void virtio_driver_unregister(struct virtio_driver *vdrv)
++{
++	driver_unregister(&vdrv->drv);
++}
++EXPORT_SYMBOL_GPL(virtio_driver_unregister);
++
++static int __init virtio_bus_init(void)
++{
++	return bus_register(&virtio_bus);
++}
++module_init(virtio_bus_init);
++
++static void __exit virtio_bus_exit(void)
++{
++	bus_unregister(&virtio_bus);
++}
++module_exit(virtio_bus_exit);
++
++MODULE_AUTHOR("Arnd Bergmann <arnd@arndb.de>");
++MODULE_LICENSE("GPL");
+Index: linux-2.6/drivers/base/Kconfig
 ===================================================================
---- linux-2.6.orig/drivers/char/Makefile
-+++ linux-2.6/drivers/char/Makefile
-@@ -103,6 +103,7 @@ obj-$(CONFIG_IPMI_HANDLER)	+= ipmi/
+--- linux-2.6.orig/drivers/base/Kconfig
++++ linux-2.6/drivers/base/Kconfig
+@@ -53,4 +53,7 @@ config SYS_HYPERVISOR
+ 	bool
+ 	default n
  
- obj-$(CONFIG_HANGCHECK_TIMER)	+= hangcheck-timer.o
- obj-$(CONFIG_TCG_TPM)		+= tpm/
-+obj-$(CONFIG_VIRTIO_SERVER)	+= virtiosrv.o
++config VIRTIO
++	tristate "Virtual I/O device bus"
++
+ endmenu
+Index: linux-2.6/drivers/base/Makefile
+===================================================================
+--- linux-2.6.orig/drivers/base/Makefile
++++ linux-2.6/drivers/base/Makefile
+@@ -12,6 +12,7 @@ obj-$(CONFIG_NUMA)	+= node.o
+ obj-$(CONFIG_MEMORY_HOTPLUG_SPARSE) += memory.o
+ obj-$(CONFIG_SMP)	+= topology.o
+ obj-$(CONFIG_SYS_HYPERVISOR) += hypervisor.o
++obj-$(CONFIG_VIRTIO)	+= virtio.o
  
- # Files generated that shall be removed upon make clean
- clean-files := consolemap_deftbl.c defkeymap.c
+ ifeq ($(CONFIG_DEBUG_DRIVER),y)
+ EXTRA_CFLAGS += -DDEBUG
 
 --
