@@ -1,10 +1,10 @@
 From: arnd@arndb.de
-Subject: [RFC 2/4] Convert virtio_net to new virtio bus
-Date: Fri, 06 Jul 2007 14:42:02 +0200
-Message-ID: <20070706125717.630165348@arndb.de>
+Subject: [RFC 3/4] Convert virtio_blk to new virtio bus
+Date: Fri, 06 Jul 2007 14:42:03 +0200
+Message-ID: <20070706125717.760125899@arndb.de>
 References: <20070706124200.988637662@arndb.de>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=virtnet-iobus.diff
+Content-Disposition: inline; filename=virtblock-iobus.diff
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,153 +18,162 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This converts the virtio_net driver from Rusty's
-draft III implementation to use the generic bus.
-
-Since every device needs to get its MAC address from
-somewhere, we read it from the virtio configuration
-space. It's up to the virtio host to fill in valid
-data here.
+Similar to the virtio_net patch, this converts the
+block driver from draft III. The virtio config space
+here contains the block device size and the
+max_hw_segments setting.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-
-Index: linux-2.6/drivers/net/virtio_net.c
+---
+Index: linux-2.6/drivers/block/virtio_blk.c
 ===================================================================
---- linux-2.6.orig/drivers/net/virtio_net.c
-+++ linux-2.6/drivers/net/virtio_net.c
-@@ -43,7 +43,7 @@ struct virtnet_info
- 
- static bool skb_xmit_done(struct virtio_device *vdev)
+--- linux-2.6.orig/drivers/block/virtio_blk.c
++++ linux-2.6/drivers/block/virtio_blk.c
+@@ -66,7 +66,7 @@ static bool finish(struct virtio_blk *vb
+  * they might still have read access after we free them. */
+ static bool blk_out_done(struct virtio_device *vdev)
  {
--	struct virtnet_info *vi = vdev->priv;
-+	struct virtnet_info *vi = vdev->dev.driver_data;
+-	struct virtio_blk *vblk = vdev->priv;
++	struct virtio_blk *vblk = vdev->dev.driver_data;
+ 	struct virtblk_req *vbr;
+ 	unsigned int len, finished = 0;
+ 	unsigned long flags;
+@@ -86,7 +86,7 @@ static bool blk_out_done(struct virtio_d
  
- 	/* In case we were waiting for output buffers. */
- 	netif_wake_queue(vi->ndev);
-@@ -100,7 +100,7 @@ static void try_fill_recv(struct virtnet
- 
- static bool skb_recv_done(struct virtio_device *vdev)
+ static bool blk_in_done(struct virtio_device *vdev)
  {
--	struct virtnet_info *vi = vdev->priv;
-+	struct virtnet_info *vi = vdev->dev.driver_data;
- 
- 	netif_rx_schedule(vi->ndev);
- 	/* Suppress further interrupts. */
-@@ -217,21 +217,17 @@ static int virtnet_close(struct net_devi
- 	return 0;
+-	struct virtio_blk *vblk = vdev->priv;
++	struct virtio_blk *vblk = vdev->dev.driver_data;
+ 	struct virtblk_req *vbr;
+ 	unsigned int len, finished = 0;
+ 	unsigned long flags;
+@@ -290,22 +290,20 @@ static int virtblk_ioctl(struct inode *i
+ 			      (void __user *)data);
  }
  
--static struct virtio_driver_ops virtnet_ops = {
--	.in = skb_recv_done,
--	.out = skb_xmit_done,
+-static struct virtio_driver_ops virtblk_ops = {
+-	.in = blk_in_done,
+-	.out = blk_out_done,
 -};
 -
--struct net_device *virtnet_probe(struct virtio_device *vdev,
--				 const u8 mac[ETH_ALEN])
-+static int virtnet_probe(struct device *self)
+-
+ static struct block_device_operations virtblk_fops = {
+ 	.ioctl = virtblk_ioctl,
+ 	.owner = THIS_MODULE,
+ };
+ 
+-struct gendisk *virtblk_probe(struct virtio_device *vdev)
++static int virtblk_probe(struct device *dev)
  {
-+	struct virtio_device *vdev = to_virtio_dev(self);
-+	const u8 *mac = (void *)&vdev->config.driver;
- 	int err;
- 	struct net_device *dev;
- 	struct virtnet_info *vi;
++	struct virtio_device *vdev = to_virtio_dev(dev);
+ 	struct virtio_blk *vblk;
++	struct virtio_blk_config *config;
+ 	int err, major;
  
- 	dev = alloc_etherdev(sizeof(struct virtnet_info));
- 	if (!dev)
--		return ERR_PTR(-ENOMEM);
-+		return -ENOMEM;
++	config = (void *)&vdev->config.driver;
++
+ 	vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
+ 	if (!vblk) {
+ 		err = -ENOMEM;
+@@ -315,8 +313,7 @@ struct gendisk *virtblk_probe(struct vir
+ 	INIT_LIST_HEAD(&vblk->reqs);
+ 	spin_lock_init(&vblk->lock);
+ 	vblk->vdev = vdev;
+-	vdev->priv = vblk;
+-	vdev->driver_ops = &virtblk_ops;
++	vdev->dev.driver_data = vblk;
  
- 	SET_MODULE_OWNER(dev);
+ 	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
+ 	if (!vblk->pool) {
+@@ -350,10 +347,12 @@ struct gendisk *virtblk_probe(struct vir
+ 	vblk->disk->fops = &virtblk_fops;
  
-@@ -242,13 +238,12 @@ struct net_device *virtnet_probe(struct 
- 	dev->poll = virtnet_poll;
- 	dev->hard_start_xmit = start_xmit;
- 	dev->weight = 16;
--	SET_NETDEV_DEV(dev, vdev->dev);
-+	SET_NETDEV_DEV(dev, &vdev->dev);
+ 	blk_queue_ordered(vblk->disk->queue, QUEUE_ORDERED_TAG, NULL);
++	set_capacity(vblk->disk, config->capacity);
++	blk_queue_max_hw_segments(vblk->disk->queue, config->max_hw_segments);
  
- 	vi = netdev_priv(dev);
- 	vi->vdev = vdev;
- 	vi->ndev = dev;
--	vdev->priv = vi;
--	vdev->driver_ops = &virtnet_ops;
-+	vdev->dev.driver_data = vi;
- 	skb_queue_head_init(&vi->recv);
- 	skb_queue_head_init(&vi->send);
- 
-@@ -258,20 +253,49 @@ struct net_device *virtnet_probe(struct 
- 		goto free;
- 	}
- 	pr_debug("virtnet: registered device %s\n", dev->name);
--	return dev;
+ 	/* Caller can do blk_queue_max_hw_segments(), set_capacity()
+ 	 * etc then add_disk(). */
+-	return vblk->disk;
 +	return 0;
  
- free:
- 	free_netdev(dev);
+ out_put_disk:
+ 	put_disk(vblk->disk);
+@@ -364,13 +363,12 @@ out_mempool:
+ out_free_vblk:
+ 	kfree(vblk);
+ out:
 -	return ERR_PTR(err);
 +	return err;
  }
--EXPORT_SYMBOL_GPL(virtnet_probe);
+-EXPORT_SYMBOL_GPL(virtblk_probe);
  
--void virtnet_remove(struct net_device *dev)
-+int virtnet_remove(struct device *dev)
+-void virtblk_remove(struct gendisk *disk)
++static int virtblk_remove(struct device *dev)
  {
--	unregister_netdev(dev);
--	free_netdev(dev);
-+	struct virtnet_info *vi = dev->driver_data;
-+	unregister_netdev(vi->ndev);
-+	free_netdev(vi->ndev);
+-	struct virtio_blk *vblk = disk->private_data;
++	struct virtio_blk *vblk = dev->driver_data;
+ 	int major = vblk->disk->major;
+ 
+ 	BUG_ON(!list_empty(&vblk->reqs));
+@@ -379,5 +377,36 @@ void virtblk_remove(struct gendisk *disk
+ 	unregister_blkdev(major, "virtblk");
+ 	mempool_destroy(vblk->pool);
+ 	kfree(vblk);
 +	return 0;
-+}
+ }
+-EXPORT_SYMBOL_GPL(virtblk_remove);
 +
-+static struct virtio_device_id virtnet_device_ids[] = {
-+	{ .device_type = "virtnet" },
++static struct virtio_device_id virtblk_ids[] = {
++	{ .device_type = "block" },
 +	{ },
 +};
 +
-+static struct virtio_driver virtio_net = {
-+	.ids = virtnet_device_ids,
++static struct virtio_driver virtblk_driver = {
 +	.drv = {
-+		.name = "virtnet",
++		.name = "virtblk",
 +		.owner = THIS_MODULE,
-+		.probe = virtnet_probe,
-+		.remove = virtnet_remove,
++		.probe = virtblk_probe,
++		.remove = virtblk_remove,
 +	},
-+	.in = skb_recv_done,
-+	.out = skb_xmit_done,
++	.ids = virtblk_ids,
++	.in = blk_in_done,
++	.out = blk_out_done,
 +};
 +
-+static int __init virtnet_init(void)
++static int __init virtblk_init(void)
 +{
-+	return virtio_driver_register(&virtio_net);
++	return virtio_driver_register(&virtblk_driver);
 +}
-+module_init(virtnet_init);
++module_init(virtblk_init);
 +
-+static void __exit virtnet_exit(void)
++static void __exit virtblk_exit(void)
 +{
-+	return virtio_driver_unregister(&virtio_net);
- }
--EXPORT_SYMBOL_GPL(virtnet_remove);
-+module_exit(virtnet_exit);
- 
- MODULE_DESCRIPTION("Virtio network driver");
- MODULE_LICENSE("GPL");
-Index: linux-2.6/include/linux/virtio_net.h
++	virtio_driver_unregister(&virtblk_driver);
++}
++module_exit(virtblk_exit);
++
++MODULE_LICENSE("GPL");
+Index: linux-2.6/include/linux/virtio_blk.h
 ===================================================================
---- linux-2.6.orig/include/linux/virtio_net.h
-+++ /dev/null
-@@ -1,12 +0,0 @@
--#ifndef _LINUX_VIRTIO_NET_H
--#define _LINUX_VIRTIO_NET_H
--#include <linux/types.h>
--#include <linux/etherdevice.h>
--struct net_device;
+--- linux-2.6.orig/include/linux/virtio_blk.h
++++ linux-2.6/include/linux/virtio_blk.h
+@@ -29,11 +29,10 @@ struct virtio_blk_inhdr
+ 	unsigned char status;
+ };
+ 
+-#ifdef __KERNEL__
+-struct gendisk;
 -struct virtio_device;
--
--struct net_device *virtnet_probe(struct virtio_device *vdev,
--				 const u8 mac[ETH_ALEN]);
--void virtnet_remove(struct net_device *dev);
--
--#endif /* _LINUX_VIRTIO_NET_H */
++struct virtio_blk_config
++{
++	unsigned long long capacity;
++	unsigned long max_hw_segments;
++};
+ 
+-struct gendisk *virtblk_probe(struct virtio_device *vdev);
+-void virtblk_remove(struct gendisk *disk);
+-#endif /* __KERNEL__ */
+ #endif /* _LINUX_VIRTIO_BLK_H */
 
 --
