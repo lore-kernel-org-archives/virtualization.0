@@ -1,52 +1,57 @@
-From: arnd@arndb.de
-Subject: [RFC 0/4] Using a generic bus_type for virtio
-Date: Fri, 06 Jul 2007 14:42:00 +0200
-Message-ID: <20070706124200.988637662@arndb.de>
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH] I386: Deactivate the test for the dead CONFIG_DEBUG_PAGE_TYPE
+ variable.
+Date: Fri, 06 Jul 2007 20:25:14 +0200
+Message-ID: <468E890A.1070504@s5r6.in-berlin.de>
+References: <Pine.LNX.4.64.0707060847470.23786@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763959AbXGFSZ6@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0707060847470.23786@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a subject that came up in the virtio BOF session
-at OLS. I decided to go forward and implement something
-that I like, based on the latest virtio proposal at the
-time, which was draft III.
+Robert P. J. Day wrote:
+> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+> 
+> ---
+> 
+> diff --git a/arch/i386/kernel/vmi.c b/arch/i386/kernel/vmi.c
 
-It's not a drop-in replacement, because it's missing a
-host implementation. I first started my own, which is
-not done yet, but wanted to do one for lguest and one
-for emulated PCI next. It's also entirely untested.
+Maintainers are apparently those under "PARAVIRT_OPS INTERFACE".
+CCs added.
 
-As things evolved, draft IV is completely different, and
-these patches don't make sense any more on them, because
-there is no longer the concept of a virtio_device, but
-instead there are devices that have an arbitrary number
-of virtqueue structures.
+> index c12720d..e3ce5c8 100644
+> --- a/arch/i386/kernel/vmi.c
+> +++ b/arch/i386/kernel/vmi.c
+> @@ -235,7 +235,7 @@ static void vmi_nop(void)
+>  {
+>  }
+> 
+> -#ifdef CONFIG_DEBUG_PAGE_TYPE
+> +#if 0 /* debug page type */
+> 
+>  #ifdef CONFIG_X86_PAE
+>  #define MAX_BOOT_PTS (2048+4+1)
+> @@ -336,7 +336,7 @@ static void vmi_check_page_type(u32 pfn, int type)
+>  #else
+>  #define vmi_set_page_type(p,t) do { } while (0)
+>  #define vmi_check_page_type(p,t) do { } while (0)
+> -#endif
+> +#endif /* debug page type */
+> 
+>  #ifdef CONFIG_HIGHPTE
+>  static void *vmi_kmap_atomic_pte(struct page *page, enum km_type type)
 
-I'd still like to discuss my approach to see if there is
-reason to continue down that road, so I'm posting what
-I have right now.
-
-I think among the options we have to go on are:
-
-1. screw the virtio_bus, and let every host do its own
-stuff -- no autoloading, standalone drivers, chardev
-host etc.
-
-2. get virtio_device back from the dead, and allow it
-to have multiple virtqueues, either two or an unlimited
-number.
-
-3. screw the multiple-virtqueue idea, go back to the
-draft III stuff with my changes.
-
-	Arnd <><
+This misnamed CONFIG_DEBUG_PAGE_TYPE (it's not a Kconfig variable) has
+about 120 lines debug code dangling on it.  So, replacing it by #if 0
+will hopefully motivate a kind janitor to send a removal patch for that
+debug code eventually.  I don't do so just now because that code went in
+between 2.6.20 and 2.6.21-rc1, i.e. not so long ago.
+-- 
+Stefan Richter
+-=====-=-=== -=== --==-
+http://arcgraph.de/sr/
