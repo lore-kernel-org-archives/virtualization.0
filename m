@@ -1,14 +1,16 @@
-From: Avi Kivity <avi@qumranet.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [RFC 1/4] New virtio bus driver
-Date: Sun, 08 Jul 2007 12:59:56 +0300
-Message-ID: <4690B59C.10201@qumranet.com>
+Date: Sun, 8 Jul 2007 17:29:57 +0200
+Message-ID: <200707081729.58461.arnd@arndb.de>
 References: <20070706124200.988637662@arndb.de>
-	<20070706125717.576683142@arndb.de>
+	<20070706125717.576683142@arndb.de> <4690B59C.10201@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070706125717.576683142@arndb.de>
+In-Reply-To: <4690B59C.10201@qumranet.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,83 +20,77 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: arnd@arndb.de
+To: Avi Kivity <avi@qumranet.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-arnd@arndb.de wrote:
+On Sunday 08 July 2007, Avi Kivity wrote:
+> arnd@arndb.de wrote:
 
-> This adds a new bus_type for virtio that is intended to
-> be completely agnostic of the underlying host transport
-> and the upper-level protocol.
->
-> Device drivers and host drivers register here, and operations
-> are provided that let a device driver talk to the device
-> emulation in the hypervisor without knowing the kind of hypervisor.
-> Module autoloading through udev should also work.
->
-> Loosely based on Rusty's Virtio draft III.
-> +
-> +/**
-> + * virtio_device_id - match a virtio device to a driver
-> + * @device_type: string identifying the virtio interface.
-> + * @driver_data: used internally by the driver.
-> + */
-> +struct virtio_device_id {
-> +	const char *device_type;
-> +	unsigned long driver_data;
-> +};
->   
+> > +struct virtio_device_id {
+> > +	const char *device_type;
+> > +	unsigned long driver_data;
+> > +};
+> >   
+> 
+> Carrying a string through a hypervisor interface can be unpleasant.  How 
+> about a constant instead?
 
-Carrying a string through a hypervisor interface can be unpleasant.  How 
-about a constant instead?
+I chose a string because I found it to work rather well on
+open firmware and on the platform bus. It probably has
+to be a fixed length string which will be sent down from
+the hypervisor along with all the device specific data.
 
-> +
-> +/**
-> + * virtio_config - virtual device configuration.
-> + * @host: structured data interpreted by the host driver.
-> + * @driver: structured data interpreted by the device driver.
-> + *
-> + * The configuration space is what gets used to tell a driver
-> + * about the device, e.g. MAC address or block device size.
-> + * All fields in here are read-only in the virtual machine,
-> + * they are set up by the host.
-> + *
-> + * The host part remains opaque to the device driver, it can
-> + * contain e.g. lguest device index numbers or part of a PCI
-> + * configuration space.
-> + *
-> + * The 256 bytes total intentionally match the size of the
-> + * legacy PCI config registers, but the driver should not
-> + * expect the layout to be derived from PCI.
-> + *
-> + * Every virtio_driver should define a data structure for the
-> + * virtio_config->driver data, which becomes part of its ABI.
-> + */
-> +struct virtio_config {
-> +	const char host[128];
-> +	const char driver[128];
-> +};
->   
+> > +struct virtio_config {
+> > +	const char host[128];
+> > +	const char driver[128];
+> > +};
+> >   
+> 
+> There needs to be a way for the driver to tell the device that 
+> configuration has changed (promiscuous mode, MAC address) and vice versa 
+> (media detect).
+> 
+> Maybe have a configuration virtqueue for that.
 
-There needs to be a way for the driver to tell the device that 
-configuration has changed (promiscuous mode, MAC address) and vice versa 
-(media detect).
+I was hoping that we can live without dynamic configuration data
+in the common case. For a simple point-to-point ethernet device,
+that should work fine, and more complicated devices might need their
+own interface, e.g. by embedding a command number in every
+chunk of data that is sent down the one virtqueue, or by having
+a separate virtqueue for all out-of-band data.
 
-Maybe have a configuration virtqueue for that.
+Alternatively, we could have a mechanism separate from the
+virtqueue concept, like a synchronous get_config_data/set_config_data
+callback into the host driver.
 
+> What I'm missing here is the lego approach, where you can mix and match:
+> 
+>   virtnet.ko: basic net driver atop virtio, not linked to any implementation
+>   virtio-lguest.ko, virtio-kvm.ko, virtio-xen.ko:  virtio transports
+>   virtbus-pci.ko, virtbus-vio.ko, virtbus-xen.ko: virtual configuration 
+> space handlers; responsible for creating queues
+> 
+>   vnet-kvm-pci.ko, vnet-kvm-virtbus.ko: stub drivers that glue the 
+> components together
+> 
+> So we'd have one 10-line driver for every combination.
 
-What I'm missing here is the lego approach, where you can mix and match:
+The whole point of the bus abstraction is that the device driver (virtnet
+in this case) does not care about the underlying transport at all,
+while the host driver does not care about the device.
 
-  virtnet.ko: basic net driver atop virtio, not linked to any implementation
-  virtio-lguest.ko, virtio-kvm.ko, virtio-xen.ko:  virtio transports
-  virtbus-pci.ko, virtbus-vio.ko, virtbus-xen.ko: virtual configuration 
-space handlers; responsible for creating queues
+So in your example, you get
 
-  vnet-kvm-pci.ko, vnet-kvm-virtbus.ko: stub drivers that glue the 
-components together
+virtnet.ko (, virtblock.ko, hwrng-virtio.ko, ...): host-independent
+  device driver
+virtbus-lguest.ko, virtbus-kvm.ko, virtbus-pci.ko, virtbus-xen.ko:
+  device independent host drivers
 
-So we'd have one 10-line driver for every combination.
+In cases where some of the code can be shared, e.g. virtbus-lguest
+and virtbus-kvm, you can have multiple host drivers sharing part
+of their code by using symbols from a library module, but my basic
+idea is that each host driver has a single module that handles
+the transport and the device probing.
 
--- 
-error compiling committee.c: too many arguments to function
+	Arnd <><
