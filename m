@@ -1,14 +1,14 @@
 From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [RFC 0/4] Using a generic bus_type for virtio
-Date: Sun, 08 Jul 2007 12:45:34 +0300
-Message-ID: <4690B23E.8030009@qumranet.com>
+Subject: Re: [RFC 1/4] New virtio bus driver
+Date: Sun, 08 Jul 2007 12:59:56 +0300
+Message-ID: <4690B59C.10201@qumranet.com>
 References: <20070706124200.988637662@arndb.de>
-	<1183860930.6005.212.camel@localhost.localdomain>
+	<20070706125717.576683142@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1183860930.6005.212.camel@localhost.localdomain>
+In-Reply-To: <20070706125717.576683142@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,49 +18,83 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: arnd@arndb.de, virtualization@lists.linux-foundation.org
+To: arnd@arndb.de
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Fri, 2007-07-06 at 14:42 +0200, arnd@arndb.de wrote:
->   
->> This is a subject that came up in the virtio BOF session
->> at OLS. I decided to go forward and implement something
->> that I like, based on the latest virtio proposal at the
->> time, which was draft III.
->>
->> It's not a drop-in replacement, because it's missing a
->> host implementation. I first started my own, which is
->> not done yet, but wanted to do one for lguest and one
->> for emulated PCI next. It's also entirely untested.
->>     
->
-> Hi Arnd,
->
-> 	I think it will come down to how neat PCI<->virtio is.  Can we push
-> further towards PCI without screwing non-PCI?  eg. can we use
-> pci_device_id?  struct pci_driver?  (Might be pushing it, but should
-> probably be considered: it'd be neat if some platforms could #define
-> virtio_driver_register pci_driver_register).
->   
+arnd@arndb.de wrote:
 
-This is liable to cause breakage when something changes.  And if I 
-weren't such a sweet person I'd say it's also horribly ugly.
-
-> 	Standardizing how to pack the info for each device into the config
-> space would be especially useful.  Our drivers are going to get more
-> featureful, and we're going to need a versioning/compatibility scheme
-> too.
+> This adds a new bus_type for virtio that is intended to
+> be completely agnostic of the underlying host transport
+> and the upper-level protocol.
 >
-> Basically, I'd like to see someone start with work from the PCI side,
-> then make sure non-PCI isn't overly burdened.
+> Device drivers and host drivers register here, and operations
+> are provided that let a device driver talk to the device
+> emulation in the hypervisor without knowing the kind of hypervisor.
+> Module autoloading through udev should also work.
+>
+> Loosely based on Rusty's Virtio draft III.
+> +
+> +/**
+> + * virtio_device_id - match a virtio device to a driver
+> + * @device_type: string identifying the virtio interface.
+> + * @driver_data: used internally by the driver.
+> + */
+> +struct virtio_device_id {
+> +	const char *device_type;
+> +	unsigned long driver_data;
+> +};
 >   
 
-We can certainly make non-bus specific code, like the feature bitmaps, 
-shared.  I do agree that it makes sense to start from the PCI side as 
-virtbus doesn't have any constraints.
+Carrying a string through a hypervisor interface can be unpleasant.  How 
+about a constant instead?
 
+> +
+> +/**
+> + * virtio_config - virtual device configuration.
+> + * @host: structured data interpreted by the host driver.
+> + * @driver: structured data interpreted by the device driver.
+> + *
+> + * The configuration space is what gets used to tell a driver
+> + * about the device, e.g. MAC address or block device size.
+> + * All fields in here are read-only in the virtual machine,
+> + * they are set up by the host.
+> + *
+> + * The host part remains opaque to the device driver, it can
+> + * contain e.g. lguest device index numbers or part of a PCI
+> + * configuration space.
+> + *
+> + * The 256 bytes total intentionally match the size of the
+> + * legacy PCI config registers, but the driver should not
+> + * expect the layout to be derived from PCI.
+> + *
+> + * Every virtio_driver should define a data structure for the
+> + * virtio_config->driver data, which becomes part of its ABI.
+> + */
+> +struct virtio_config {
+> +	const char host[128];
+> +	const char driver[128];
+> +};
+>   
+
+There needs to be a way for the driver to tell the device that 
+configuration has changed (promiscuous mode, MAC address) and vice versa 
+(media detect).
+
+Maybe have a configuration virtqueue for that.
+
+
+What I'm missing here is the lego approach, where you can mix and match:
+
+  virtnet.ko: basic net driver atop virtio, not linked to any implementation
+  virtio-lguest.ko, virtio-kvm.ko, virtio-xen.ko:  virtio transports
+  virtbus-pci.ko, virtbus-vio.ko, virtbus-xen.ko: virtual configuration 
+space handlers; responsible for creating queues
+
+  vnet-kvm-pci.ko, vnet-kvm-virtbus.ko: stub drivers that glue the 
+components together
+
+So we'd have one 10-line driver for every combination.
 
 -- 
 error compiling committee.c: too many arguments to function
