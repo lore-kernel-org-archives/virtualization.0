@@ -1,13 +1,16 @@
-From: Martin Peschke <mp3@de.ibm.com>
-Subject: Re: [PATCH 2/3] Virtio draft IV: the block driver
-Date: Mon, 09 Jul 2007 17:54:30 +0200
-Message-ID: <1183996470.9982.30.camel@dix>
-References: <46924364.3070006@de.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [RFC 1/4] New virtio bus driver
+Date: Mon, 9 Jul 2007 18:33:19 +0200
+Message-ID: <200707091833.19520.arnd@arndb.de>
+References: <20070706124200.988637662@arndb.de>
+	<200707091624.57725.arnd@arndb.de> <46924C95.8010002@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46924364.3070006@de.ibm.com>
+In-Reply-To: <46924C95.8010002@qumranet.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,81 +20,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-07-09 at 16:17 +0200, Martin Peschke wrote:
->  > +static void do_virtblk_request(request_queue_t *q)
->  > +{
->  > +	struct virtio_blk *vblk = NULL;
->  > +	struct request *req;
->  > +	struct virtblk_req *vbr;
->  > +
->  > +	while ((req = elv_next_request(q)) != NULL) {
->  > +		vblk = req->rq_disk->private_data;
->  > +
->  > +		vbr = mempool_alloc(vblk->pool, GFP_ATOMIC);
->  > +		if (!vbr)
->  > +			goto stop;
->  > +
->  > +		BUG_ON(req->nr_phys_segments > ARRAY_SIZE(vblk->sg));
->  > +		vbr->req = req;
->  > +		if (!do_req(q, vblk, vbr))
->  > +			goto stop;
->  > +		blkdev_dequeue_request(req);
->  > +	}
->  > +
->  > +sync:
->  > +	if (vblk)
+On Monday 09 July 2007, Avi Kivity wrote:
+> Arnd Bergmann wrote:
+> >
+> > But you can always have one more event than you have space in the queue,
+> > so the host _still_ needs to do its own queuing of these events.
 > 
-> 
-> this check looks bogus, as vblk->pool has been accessed unconditionally above
+> It's probably enough to keep a flag that the guest is not up-to-date, 
+> and have a reconfiguration message include the entire configuration 
+> (e.g. don't send deltas).
 
+Probably, but the important point is that this is a decision that can
+be made per driver. For some drivers, it can make sense to have
+partial updates, e.g. for the virtbus you only care about added and
+removed devices instead of passing a complete list for every update,
+while for other drivers, it may be easier to pass a single data structure
+with all the configuration every time.
 
-Sorry, I have been seduced by the code to misread it.
-The check is correct and needed.
+> > [interesting side effect: you can have a PCI device that actually
+> > is a virtbus bridge device, as the parent for other hcall based
+> > virtio devices, along with other PCI devices, some of which are
+> > a virtio device by themselves.]
+> >   
+> That still doesn't help with older Linuces and closed-source OSes, which 
+> are the main motivation for PCI.  Newer Linux should be pure virtbus IMO.
 
-Looks like we can make it more readable, though.
+Since anything regarding virtio is about paravirtualization, you will
+always need additional drivers to run them, and the interesting part
+that remains is to that _something_ exist that you need a driver for.
+Once you have the driver for the virtio bridge, the OS will know that
+there is more that can be probed through another mechanism, similar
+to how you can start probing USB devices as soon as you know what
+the USB host controller on the PCI bus does.
 
-- get rid of convoluted goto's
-- no need for calling mempool_free() with NULL-pointer
-- read private data from q->queuedata once instead of poking inside
-  every request
-- use a local variable to track issued requests and the need for
-  a sync-operation
-- pass req to do_req() as it is used there throughout the function
-  (nice symmetry in parameter list, isn't it?)
+An interesting argument made by hpa during OLS is that there is some
+value in designing the PCI device in a way that it can operate just
+by using standard PCI functionality like MMIO access. I think now that
+this can be done without significant overhead compared to a pure hcall
+inteface. With this, I think we can get a good compromise by implementing
+* PCI based virtbus, hypervisor independent,
+* Xen based virtbus,
+* hcall based virtbus, shared between kvm and lguest, potentially others,
+  and
+* virtqueue based virtbus bridge, for probing hcall based devices
+  through PCI.
 
-It's just an untested and incomplete sketch done while I am acquainting
-myself with the virtio code without having set up lguest yet.
-
-
-static void do_virtblk_request(request_queue_t *q)
-{
-	struct virtio_blk *vblk = q->queuedata;
-	struct request *req;
-	struct virtblk_req *vbr;
-	int issued = 0;
-
-	while ((req = elv_next_request(q)) != NULL) {
-		vbr = mempool_alloc(vblk->pool, GFP_ATOMIC);
-		if (!vbr) {
-			blk_stop_queue(q);
-			break;
-		}
-
-		BUG_ON(req->nr_phys_segments > ARRAY_SIZE(vblk->sg));
-		vbr->req = req;
-		if (!do_req(q, vblk, req, vbr)) {
-			/* Queue full?  Wait. */
-			blk_stop_queue(q);
-			mempool_free(vbr, vblk->pool);
-			break;
-		}
-		blkdev_dequeue_request(req);
-		issued++;
-	}
-
-	if (issued)
-		vblk->vq->ops->sync(vblk->vq);
-}
+	Arnd <><
