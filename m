@@ -1,15 +1,13 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [RFC 1/4] New virtio bus driver
-Date: Mon, 09 Jul 2007 17:56:21 +0300
-Message-ID: <46924C95.8010002@qumranet.com>
-References: <20070706124200.988637662@arndb.de>
-	<200707091338.20288.arnd@arndb.de> <4692257F.4070909@qumranet.com>
-	<200707091624.57725.arnd@arndb.de>
+From: Martin Peschke <mp3@de.ibm.com>
+Subject: Re: [PATCH 2/3] Virtio draft IV: the block driver
+Date: Mon, 09 Jul 2007 17:54:30 +0200
+Message-ID: <1183996470.9982.30.camel@dix>
+References: <46924364.3070006@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200707091624.57725.arnd@arndb.de>
+In-Reply-To: <46924364.3070006@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,82 +17,81 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Arnd Bergmann wrote:
-> On Monday 09 July 2007, Avi Kivity wrote:
->   
->> Suppose there is one message queued.  The host reconfigures and sends 
->> the message. A new reconfiguration event now cannot be propagated.
->>
->> If there are two messages queued, the host can post the updates in the 
->> second message.  The guest would then post two new messages (since it 
->> can't tell whether any reconfiguration events occured after the second 
->> message), the host would fill one, and everyone is happy.
->>     
->
-> But you can always have one more event than you have space in the queue,
-> so the host _still_ needs to do its own queuing of these events.
->
->   
+On Mon, 2007-07-09 at 16:17 +0200, Martin Peschke wrote:
+>  > +static void do_virtblk_request(request_queue_t *q)
+>  > +{
+>  > +	struct virtio_blk *vblk = NULL;
+>  > +	struct request *req;
+>  > +	struct virtblk_req *vbr;
+>  > +
+>  > +	while ((req = elv_next_request(q)) != NULL) {
+>  > +		vblk = req->rq_disk->private_data;
+>  > +
+>  > +		vbr = mempool_alloc(vblk->pool, GFP_ATOMIC);
+>  > +		if (!vbr)
+>  > +			goto stop;
+>  > +
+>  > +		BUG_ON(req->nr_phys_segments > ARRAY_SIZE(vblk->sg));
+>  > +		vbr->req = req;
+>  > +		if (!do_req(q, vblk, vbr))
+>  > +			goto stop;
+>  > +		blkdev_dequeue_request(req);
+>  > +	}
+>  > +
+>  > +sync:
+>  > +	if (vblk)
+> 
+> 
+> this check looks bogus, as vblk->pool has been accessed unconditionally above
 
-It's probably enough to keep a flag that the guest is not up-to-date, 
-and have a reconfiguration message include the entire configuration 
-(e.g. don't send deltas).
 
->> Rusty, If you agree with this, I think it needs to be added to the core 
->> protocol.
->>     
->
-> Why is it part of the core protocol? If a driver needs a feature like
-> this, it needs to have an additional virtqueue, but the core does not
-> need to care that this is about reconfiguration.
->
->   
+Sorry, I have been seduced by the code to misread it.
+The check is correct and needed.
 
-I meant that drivers need that second (or third) virtqueue.  Actual 
-configuration messages could be added later.  virtqueue itself is of 
-course oblivious to this stuff happening behind (or rather on top) of 
-its back.
+Looks like we can make it more readable, though.
 
-> I would make a clear distinction between the stuff that is in the
-> initial config space (read-only) and other things that can be reconfigured.
-> If a device needs to read a property that can dynamically change,
-> it probably makes sense for it to start by reading from the configuration
-> virtqueue instead of the static config space.
->
->   
+- get rid of convoluted goto's
+- no need for calling mempool_free() with NULL-pointer
+- read private data from q->queuedata once instead of poking inside
+  every request
+- use a local variable to track issued requests and the need for
+  a sync-operation
+- pass req to do_req() as it is used there throughout the function
+  (nice symmetry in parameter list, isn't it?)
 
-Agreed.
+It's just an untested and incomplete sketch done while I am acquainting
+myself with the virtio code without having set up lguest yet.
 
->> [btw, virtbus could be implemented atop virtqueue as well]
->>     
->
-> You mean 'one virtbus'? Certainly, that sounds good. You can have
-> a virtio device with a single read-only virtqueue that emits messages
-> about other devices coming and going.
->   
 
-Yes.  A message would contain the device type, identifier, interrupt 
-number (when applicable), and location of the the device's configuration 
-information (including its virtqueues).
+static void do_virtblk_request(request_queue_t *q)
+{
+	struct virtio_blk *vblk = q->queuedata;
+	struct request *req;
+	struct virtblk_req *vbr;
+	int issued = 0;
 
-> I think that is how Carsten's s390 virtual device bus works.
->
-> For virtbus in general, I'd think that this model would only be one
-> of several possible, where the others could be PCI and whatever Xen
-> prefers for device enumeration (I haven't looked at that in detail).
->
-> [interesting side effect: you can have a PCI device that actually
-> is a virtbus bridge device, as the parent for other hcall based
-> virtio devices, along with other PCI devices, some of which are
-> a virtio device by themselves.]
->   
+	while ((req = elv_next_request(q)) != NULL) {
+		vbr = mempool_alloc(vblk->pool, GFP_ATOMIC);
+		if (!vbr) {
+			blk_stop_queue(q);
+			break;
+		}
 
-That still doesn't help with older Linuces and closed-source OSes, which 
-are the main motivation for PCI.  Newer Linux should be pure virtbus IMO.
+		BUG_ON(req->nr_phys_segments > ARRAY_SIZE(vblk->sg));
+		vbr->req = req;
+		if (!do_req(q, vblk, req, vbr)) {
+			/* Queue full?  Wait. */
+			blk_stop_queue(q);
+			mempool_free(vbr, vblk->pool);
+			break;
+		}
+		blkdev_dequeue_request(req);
+		issued++;
+	}
 
--- 
-error compiling committee.c: too many arguments to function
+	if (issued)
+		vblk->vq->ops->sync(vblk->vq);
+}
