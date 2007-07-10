@@ -1,13 +1,15 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH RFC] first cut at splitting up paravirt_ops
-Date: Mon, 09 Jul 2007 17:53:05 -0700
-Message-ID: <4692D871.60002@vmware.com>
-References: <4692D076.6060204@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC 1/4] New virtio bus driver
+Date: Tue, 10 Jul 2007 11:17:56 +1000
+Message-ID: <1184030276.6005.412.camel@localhost.localdomain>
+References: <20070706124200.988637662@arndb.de>
+	<200707081729.58461.arnd@arndb.de> <4691076B.5050106@qumranet.com>
+	<200707082229.00810.arnd@arndb.de>  <4691DA69.4060204@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4692D076.6060204@goop.org>
+In-Reply-To: <4691DA69.4060204@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,32 +19,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Avi Kivity <avi@qumranet.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Here's a first attempt at splitting up paravirt_ops into more specific 
-> chunks.  Its pretty clunky and chunky; mostly just a lot of 
-> replacement.  The grouping of ops is very first cut; I'm open to 
-> suggestions about what groups should exist and what ops they each 
-> should contain.
->
+On Mon, 2007-07-09 at 09:49 +0300, Avi Kivity wrote:
+> At the very least, we need an interrupt for device hotplug.  That same
+> interrupt can be used to notify the guest about configuration changes
+> within a device ("rescan the virtbus and all who sail in her").
 
-Well, I think they are pretty good, but for the init group of ops, it 
-seems it would be clearer conceptually to group pagetable setup with the 
-MMU hooks and time init with the time operations.  Otherwise, the init 
-group gets very jumbled as we pull in new interfaces (APIC has BSP and 
-AP init functions, for example).
+Avi, this is overdesign; let's not try to boil the ocean or virtbus
+might sink beneath the waves and we'll be down the drain without a
+paddle.
 
-
-> The only slightly subtle part is that I've kept the structures wrapped 
-> in a paravirt_ops structure, primarily so that we can still use 
-> offsetof for generating patching IDs.  The paravirt_ops is static, and 
-> I extract the sub-groups with global aliases which can be individually 
-> exported.
-
-I think that is probably the best solution; splitting the patch code to 
-deal with individual structure seems awkward.
-
-Zach
+Rusty.
