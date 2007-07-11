@@ -1,16 +1,15 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 3/3] Virtio draft IV: the net driver
-Date: Wed, 11 Jul 2007 13:46:07 +0200
-Message-ID: <200707111346.07185.borntraeger@de.ibm.com>
-References: <1183522348.6110.37.camel@localhost.localdomain>
-	<200707111228.30707.borntraeger@de.ibm.com>
-	<1184153201.6005.618.camel@localhost.localdomain>
+From: "Sam Abed" <samabed@gmail.com>
+Subject: Fwd: console lock up
+Date: Wed, 11 Jul 2007 22:48:26 +1000
+Message-ID: <c5d4ac100707110548h3df20bceq32835225db8f4b5d@mail.gmail.com>
+References: <c5d4ac100707100546j17c67b5bhcd9f36fcf9da9b2@mail.gmail.com>
+	<1184153011.6005.614.camel@localhost.localdomain>
+	<c5d4ac100707110546n3b26b60ayc4884f91a45517e1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1184153201.6005.618.camel@localhost.localdomain>
+In-Reply-To: <c5d4ac100707110546n3b26b60ayc4884f91a45517e1@mail.gmail.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,40 +20,103 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Mittwoch, 11. Juli 2007 schrieb Rusty Russell:
-> There will be some internal limit on how many buffers the virtio
-> implementation supports, but depends on that implementation.  It could
-> be a number of buffers or a total number of descriptors.
+oops forgot to reply all
 
-I would suggest to implement a limit in the device driver as well. Otherwise 
-the network driver could allocate a huge amount of guest memory if the virtio
-implementation accepts a large amount of buffers. This memory is not swappable 
-and reclaimable by the memory management, so we should be careful. 
-
-So what about something like this:
-
-+       for (;vi->num < MAX_BUFS;) {
-+               skb = netdev_alloc_skb(vi->ndev, MAX_PACKET_LEN);
-+               if (unlikely(!skb))
-+                       break;
-+
-+               skb_put(skb, MAX_PACKET_LEN);
-+               num = skb_to_sgvec(skb, sg, 0, skb->len);
-+               skb_queue_head(&vi->recv, skb);
-+
-+               err = vi->vq_recv->ops->add_buf(vi->vq_recv, sg, 0, num, skb);
-+               if (err) {
-+                       skb_unlink(skb, &vi->recv);
-+                       kfree_skb(skb);
-+                       break;
-+               }
-+		vi->num++
-+       }
+---------- Forwarded message ----------
+From: Sam Abed <samabed@gmail.com>
+Date: Jul 11, 2007 10:46 PM
+Subject: Re: console lock up
+To: Rusty Russell <rusty@rustcorp.com.au>
 
 
+Hello,
+  Thanks for the taking the time to reply
 
-Christian
+On 7/11/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> On Tue, 2007-07-10 at 22:46 +1000, Sam Abed wrote:
+> > hello,
+> >   I am using 2.6.21, lguest-2.6.21-307.patch.gz and an image from
+> > http://uml.nagafix.co.uk/Fedora7/Fedora7-x86-root_fs.bz2
+> >
+> > the console hangs, is this expected or caused by the image? I can
+> > still ssh to it or if I boot in single user mode the console is
+> > available but running init3 and it's hung.
+>
+> Hi Sam,
+>
+>         Thanks for the bug report!  I can't even figure out how to get
+> networking running under that image (not a RH person, sorry).  When I
+> boot in single user mode and ifconfig up manually then "telinit 3" it
+> seems OK.
+
+for me, I can't type into the console, maybe hangs is not the right
+word, but it's definitely not working.
+at the end of the email is a screen scrap, the vcs errors and all
+
+in case you are curious about how RH does it ...
+sh-3.2# cat /etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE=eth0
+#BOOTPROTO=dhcp
+ONBOOT=yes
+TYPE=Ethernet
+IPADDR=192.168.1.2
+NETMASK=255.255.255.0
+NETWORK=192.168.1.0
+BROADCAST=192.168.1.255
+GATEWAY=192.168.1.1
+
+>
+>         Note that it does not seem to start a getty for runlevel 3, so you
+> can't log in, but that's not an lguest issue (you should be able to ssh
+> in).
+I would have though this line does the trick
+sh-3.2# grep getty /etc/inittab
+# Run gettys in standard runlevels
+1:1235:respawn:/sbin/mingetty tty0
+2:1235:respawn:/sbin/mingetty tty1
+
+I can ssh in, it's a bit annoying not having the console.
+>
+> > also is it possible to get the last gz patch released for 2.6.21?
+>
+>         Unfortunately it's a PITA to do and test; I think my time is better
+> spent concentrating on the 2.6.23 release, and not backporting.
+>
+
+oh, I appreciate that, I mean the last one that was published on the
+website for the 2.6.21 version.
+
+> Sorry,
+> Rusty.
+>
+>
+> > _______________________________________________
+> > Virtualization mailing list
+> > Virtualization@lists.linux-foundation.org
+> > https://lists.linux-foundation.org/mailman/listinfo/virtualization
+>
+>
+
+sh-3.2# telinit 3
+INIT: Switching to runlevel: 3
+INIT: Sending processes the TERM signal
+INIT: Sending processes the KILL signal
+Starting sshd: [  OK  ]
+Starting crond: [  OK  ]
+[   23.760000] DEV: registering device: ID = 'vcs1'
+[   23.760000] PM: Adding info for No Bus:vcs1
+[   23.760000] DEV: registering device: ID = 'vcsa1'
+[   23.760000] PM: Adding info for No Bus:vcsa1
+[   23.760000] DEV: Unregistering device. ID = 'vcs1'
+[   23.760000] PM: Removing info for No Bus:vcs1
+[   23.770000] device_create_release called for vcs1
+[   23.770000] DEV: Unregistering device. ID = 'vcsa1'
+[   23.770000] PM: Removing info for No Bus:vcsa1
+[   23.770000] device_create_release called for vcsa1
+[   23.770000] DEV: registering device: ID = 'vcs1'
+[   23.770000] PM: Adding info for No Bus:vcs1
+[   23.770000] DEV: registering device: ID = 'vcsa1'
+[   23.770000] PM: Adding info for No Bus:vcsa1
