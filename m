@@ -1,13 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: console lock up
-Date: Wed, 11 Jul 2007 21:23:31 +1000
-Message-ID: <1184153011.6005.614.camel@localhost.localdomain>
-References: <c5d4ac100707100546j17c67b5bhcd9f36fcf9da9b2@mail.gmail.com>
+Subject: Re: [PATCH 3/3] Virtio draft IV: the net driver
+Date: Wed, 11 Jul 2007 21:26:41 +1000
+Message-ID: <1184153201.6005.618.camel@localhost.localdomain>
+References: <1183522348.6110.37.camel@localhost.localdomain>
+	<1183522765.6110.40.camel@localhost.localdomain>
+	<1183524053.6110.45.camel@localhost.localdomain>
+	<200707111228.30707.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c5d4ac100707100546j17c67b5bhcd9f36fcf9da9b2@mail.gmail.com>
+In-Reply-To: <200707111228.30707.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,40 +20,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Abed <samabed@gmail.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-07-10 at 22:46 +1000, Sam Abed wrote:
-> hello,
->   I am using 2.6.21, lguest-2.6.21-307.patch.gz and an image from
-> http://uml.nagafix.co.uk/Fedora7/Fedora7-x86-root_fs.bz2
-> 
-> the console hangs, is this expected or caused by the image? I can
-> still ssh to it or if I boot in single user mode the console is
-> available but running init3 and it's hung.
+On Wed, 2007-07-11 at 12:28 +0200, Christian Borntraeger wrote:
+> Am Mittwoch, 4. Juli 2007 schrieb Rusty Russell:
+> > +static void try_fill_recv(struct virtnet_info *vi)
 
-Hi Sam,
+> Hmm, so it allocates skbs until oom or until add_buf fails, right?
 
-	Thanks for the bug report!  I can't even figure out how to get
-networking running under that image (not a RH person, sorry).  When I
-boot in single user mode and ifconfig up manually then "telinit 3" it
-seems OK.
+Yep.
 
-	Note that it does not seem to start a getty for runlevel 3, so you
-can't log in, but that's not an lguest issue (you should be able to ssh
-in).
+> Do you expect the add_buf call to fail if we have enough buffers? Who defines 
+> the amount of buffers we can add via add_buf?
 
-> also is it possible to get the last gz patch released for 2.6.21?
+There will be some internal limit on how many buffers the virtio
+implementation supports, but depends on that implementation.  It could
+be a number of buffers or a total number of descriptors.
 
-	Unfortunately it's a PITA to do and test; I think my time is better
-spent concentrating on the 2.6.23 release, and not backporting.
-
-Sorry,
+Cheers,
 Rusty.
-
-
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
