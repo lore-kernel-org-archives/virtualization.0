@@ -1,16 +1,15 @@
-From: "Sam Abed" <samabed@gmail.com>
-Subject: Fwd: console lock up
-Date: Wed, 11 Jul 2007 22:48:26 +1000
-Message-ID: <c5d4ac100707110548h3df20bceq32835225db8f4b5d@mail.gmail.com>
-References: <c5d4ac100707100546j17c67b5bhcd9f36fcf9da9b2@mail.gmail.com>
-	<1184153011.6005.614.camel@localhost.localdomain>
-	<c5d4ac100707110546n3b26b60ayc4884f91a45517e1@mail.gmail.com>
+From: "Caitlin Bestler" <caitlinb@broadcom.com>
+Subject: RE: [PATCH 3/3] Virtio draft IV: the net driver
+Date: Wed, 11 Jul 2007 12:27:24 -0700
+Message-ID: <1EF1E44200D82B47BD5BA61171E8CE9D0475D2F5@NT-IRVA-0750.brcm.ad.broadcom.com>
+References: <1184153201.6005.618.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c5d4ac100707110546n3b26b60ayc4884f91a45517e1@mail.gmail.com>
-Content-Disposition: inline
+Content-class: urn:content-classes:message
+In-Reply-To: <1184153201.6005.618.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,103 +19,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-oops forgot to reply all
+virtualization-bounces@lists.linux-foundation.org wrote:
+> On Wed, 2007-07-11 at 12:28 +0200, Christian Borntraeger wrote:
+>> Am Mittwoch, 4. Juli 2007 schrieb Rusty Russell:
+>>> +static void try_fill_recv(struct virtnet_info *vi)
+> 
+>> Hmm, so it allocates skbs until oom or until add_buf fails, right?
+> 
+> Yep.
+> 
+>> Do you expect the add_buf call to fail if we have enough buffers? Who
+>> defines the amount of buffers we can add via add_buf?
+> 
+> There will be some internal limit on how many buffers the
+> virtio implementation supports, but depends on that
+> implementation.  It could be a number of buffers or a total number of
+> descriptors. 
+> 
 
----------- Forwarded message ----------
-From: Sam Abed <samabed@gmail.com>
-Date: Jul 11, 2007 10:46 PM
-Subject: Re: console lock up
-To: Rusty Russell <rusty@rustcorp.com.au>
+I think one of the key tradeoffs here is simplicity versus flexibility.
+A QP style interface is very explicit about the size of queues
+(requested
+and actual) and the size of queue entries (request maximum and actual
+maximum), current depths, etc.
 
+My reading of the proposed interface is that is it much much simpler
+than all that. This takes flexibility away from the application, that
+in theory *could* have adapted its behavior to different queue sizes,
+and gives it to the specific implmentation (that can now do things like
+variable-length work queue entries if it wants to).
 
-Hello,
-  Thanks for the taking the time to reply
+The one thing I'd recommend avoiding is starting with a simple interface
+and then tacking on one bell or whistle at a time. We should either keep
 
-On 7/11/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> On Tue, 2007-07-10 at 22:46 +1000, Sam Abed wrote:
-> > hello,
-> >   I am using 2.6.21, lguest-2.6.21-307.patch.gz and an image from
-> > http://uml.nagafix.co.uk/Fedora7/Fedora7-x86-root_fs.bz2
-> >
-> > the console hangs, is this expected or caused by the image? I can
-> > still ssh to it or if I boot in single user mode the console is
-> > available but running init3 and it's hung.
->
-> Hi Sam,
->
->         Thanks for the bug report!  I can't even figure out how to get
-> networking running under that image (not a RH person, sorry).  When I
-> boot in single user mode and ifconfig up manually then "telinit 3" it
-> seems OK.
+it simple or shift to a QP style interface and lean on all the research
+and negotiations on what attributes are needed that has already taken
+place
+for RDMA related networking interfaces. It is also a pain for
+implementations
+to have to deal with multiple *detailed* queue interface requirements
+that
+all try to accomplish the same thing but insist on doing it differently.
+If things are vague for one interface you have the flexibility to re-use
+what another interface forced you to do.
 
-for me, I can't type into the console, maybe hangs is not the right
-word, but it's definitely not working.
-at the end of the email is a screen scrap, the vcs errors and all
-
-in case you are curious about how RH does it ...
-sh-3.2# cat /etc/sysconfig/network-scripts/ifcfg-eth0
-DEVICE=eth0
-#BOOTPROTO=dhcp
-ONBOOT=yes
-TYPE=Ethernet
-IPADDR=192.168.1.2
-NETMASK=255.255.255.0
-NETWORK=192.168.1.0
-BROADCAST=192.168.1.255
-GATEWAY=192.168.1.1
-
->
->         Note that it does not seem to start a getty for runlevel 3, so you
-> can't log in, but that's not an lguest issue (you should be able to ssh
-> in).
-I would have though this line does the trick
-sh-3.2# grep getty /etc/inittab
-# Run gettys in standard runlevels
-1:1235:respawn:/sbin/mingetty tty0
-2:1235:respawn:/sbin/mingetty tty1
-
-I can ssh in, it's a bit annoying not having the console.
->
-> > also is it possible to get the last gz patch released for 2.6.21?
->
->         Unfortunately it's a PITA to do and test; I think my time is better
-> spent concentrating on the 2.6.23 release, and not backporting.
->
-
-oh, I appreciate that, I mean the last one that was published on the
-website for the 2.6.21 version.
-
-> Sorry,
-> Rusty.
->
->
-> > _______________________________________________
-> > Virtualization mailing list
-> > Virtualization@lists.linux-foundation.org
-> > https://lists.linux-foundation.org/mailman/listinfo/virtualization
->
->
-
-sh-3.2# telinit 3
-INIT: Switching to runlevel: 3
-INIT: Sending processes the TERM signal
-INIT: Sending processes the KILL signal
-Starting sshd: [  OK  ]
-Starting crond: [  OK  ]
-[   23.760000] DEV: registering device: ID = 'vcs1'
-[   23.760000] PM: Adding info for No Bus:vcs1
-[   23.760000] DEV: registering device: ID = 'vcsa1'
-[   23.760000] PM: Adding info for No Bus:vcsa1
-[   23.760000] DEV: Unregistering device. ID = 'vcs1'
-[   23.760000] PM: Removing info for No Bus:vcs1
-[   23.770000] device_create_release called for vcs1
-[   23.770000] DEV: Unregistering device. ID = 'vcsa1'
-[   23.770000] PM: Removing info for No Bus:vcsa1
-[   23.770000] device_create_release called for vcsa1
-[   23.770000] DEV: registering device: ID = 'vcs1'
-[   23.770000] PM: Adding info for No Bus:vcs1
-[   23.770000] DEV: registering device: ID = 'vcsa1'
-[   23.770000] PM: Adding info for No Bus:vcsa1
+But unless there are *specific* consumers who say they want specific
+bells
+and whistles my hunch would be to stick with the simple interface. Which
+translates as "if you need to add a buffer, add it, let us worry about
+it,
+if you've gone too far we'll tell you."
