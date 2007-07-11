@@ -1,16 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 3/3] Virtio draft IV: the net driver
-Date: Wed, 11 Jul 2007 21:26:41 +1000
-Message-ID: <1184153201.6005.618.camel@localhost.localdomain>
+Date: Wed, 11 Jul 2007 21:32:16 +1000
+Message-ID: <1184153536.6005.622.camel@localhost.localdomain>
 References: <1183522348.6110.37.camel@localhost.localdomain>
 	<1183522765.6110.40.camel@localhost.localdomain>
 	<1183524053.6110.45.camel@localhost.localdomain>
-	<200707111228.30707.borntraeger@de.ibm.com>
+	<200707111245.40717.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200707111228.30707.borntraeger@de.ibm.com>
+In-Reply-To: <200707111245.40717.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,20 +24,18 @@ To: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: Carsten Otte <cotte@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-07-11 at 12:28 +0200, Christian Borntraeger wrote:
+On Wed, 2007-07-11 at 12:45 +0200, Christian Borntraeger wrote:
 > Am Mittwoch, 4. Juli 2007 schrieb Rusty Russell:
-> > +static void try_fill_recv(struct virtnet_info *vi)
+> > +static void receive_skb(struct net_device *dev, struct sk_buff *skb,
+> [...]
+> > +	netif_rx(skb);
+> 
+> In the NAPI case, we should use netif_receive_skb, no?
 
-> Hmm, so it allocates skbs until oom or until add_buf fails, right?
+Oops, well spotted!
 
-Yep.
+I'm working on GSO and checksum offload support at the moment, will roll
+that fix into the next release.
 
-> Do you expect the add_buf call to fail if we have enough buffers? Who defines 
-> the amount of buffers we can add via add_buf?
-
-There will be some internal limit on how many buffers the virtio
-implementation supports, but depends on that implementation.  It could
-be a number of buffers or a total number of descriptors.
-
-Cheers,
+Thanks!
 Rusty.
