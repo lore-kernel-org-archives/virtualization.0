@@ -1,15 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: console lock up
-Date: Thu, 12 Jul 2007 15:06:00 +1000
-Message-ID: <1184216761.6005.746.camel@localhost.localdomain>
-References: <c5d4ac100707100546j17c67b5bhcd9f36fcf9da9b2@mail.gmail.com>
-	<1184153011.6005.614.camel@localhost.localdomain>
-	<c5d4ac100707110546n3b26b60ayc4884f91a45517e1@mail.gmail.com>
+Subject: [PATCH] lguest: disable SYSENTER for guests
+Date: Thu, 12 Jul 2007 17:16:35 +1000
+Message-ID: <1184224595.6005.772.camel__20497.8656526238$1184224730$gmane$org@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c5d4ac100707110546n3b26b60ayc4884f91a45517e1@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,17 +15,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Abed <samabed@gmail.com>
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-07-11 at 22:46 +1000, Sam Abed wrote:
-> 1:1235:respawn:/sbin/mingetty tty0
+The SYSENTER instruction jumps to a pre-programmed address at
+privilege level 0.  We must not allow execution of guest code at that
+privilege level, so disable sysenter when we enter the guest (and
+re-enable it on return).  This fixes current case where guest
+userspace can crash host.
 
-s/tty0/hvc0/ and it works (we don't have multiple virtual consoles in
-lguest)
+This save/restore adds 3% to guest context switch times.  (If only
+there were some kind of scheduler hook or something which would tell
+us when we were being preempted so we could fix this up lazily.  But
+what kind of daredevil coder would propose such a thing?)
 
-Sorry for the runaround: I'll update the FAQ.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/lguest/core.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Thanks!
-Rusty.
+===================================================================
+--- a/drivers/lguest/core.c
++++ b/drivers/lguest/core.c
+@@ -338,6 +338,10 @@ int run_guest(struct lguest *lg, unsigne
+ 		if (lg->ts)
+ 			set_ts();
+ 
++		/* Don't let Guest do SYSENTER: we can't handle it. */
++		if (boot_cpu_has(X86_FEATURE_SEP))
++			wrmsr(MSR_IA32_SYSENTER_CS, 0, 0);
++
+ 		run_guest_once(lg, lguest_pages(raw_smp_processor_id()));
+ 
+ 		/* Save cr2 now if we page-faulted. */
+@@ -345,6 +349,9 @@ int run_guest(struct lguest *lg, unsigne
+ 			cr2 = read_cr2();
+ 		else if (lg->regs->trapnum == 7)
+ 			math_state_restore();
++
++		if (boot_cpu_has(X86_FEATURE_SEP))
++			wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
+ 		local_irq_enable();
+ 
+ 		switch (lg->regs->trapnum) {
