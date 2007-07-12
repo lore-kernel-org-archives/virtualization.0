@@ -1,15 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 3/3] Virtio draft IV: the net driver
-Date: Wed, 11 Jul 2007 19:26:09 -0700 (PDT)
-Message-ID: <20070711.192609.18580123.davem@davemloft.net>
-References: <200707111245.40717.borntraeger@de.ibm.com>
-	<20070711.134447.39159166.davem@davemloft.net>
-	<1184206893.6005.669.camel@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: lguest over qemu
+Date: Thu, 12 Jul 2007 13:19:00 +1000
+Message-ID: <1184210340.6005.723.camel@localhost.localdomain>
+References: <21a166410707110251x574bbb13h4c8d70a7e39155c7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1184206893.6005.669.camel@localhost.localdomain>
+In-Reply-To: <21a166410707110251x574bbb13h4c8d70a7e39155c7@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,19 +17,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: borntraeger@de.ibm.com, cotte@de.ibm.com, herbert@gondor.apana.org.au, virtualization@lists.linux-foundation.org
+To: Matias Zabaljauregui <matias.zabaljauregui@cern.ch>
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-Date: Thu, 12 Jul 2007 12:21:33 +1000
+On Wed, 2007-07-11 at 11:51 +0200, Matias Zabaljauregui wrote:
+> Hi, 
+> 
+> I'm setting my lguest playing environment with qemu, but didn't have a
+> good start... maybe because my modest laptop only has 512Mb of RAM.
+> 
+> This is my qemu  command:
+> 
+>                          qemu -s -no-kqemu -m 400 -hda linux26.img
+> -net nic,model=rtl8139 -net tap
+> 
+> 
+> ( linux26.img  includes  a  2.6.21.5 kernel with the lguest-2.6.21-307
+> patch  )
+> 
+> 
+> This is my lguest command (executed within the qemu VM): 
+> 
+>                           ./lguest 64m /boot/kernel-2.6.21.5
+> --block=initrd-1.1-i386.img root=/dev/lbga
+> 
+> always get this message (I have insisted with different virtual ram
+> amounts): 
+> 
+>                     lguest: failed to get page 167304
 
-> Dave, I think you're the only one (so far?) with multiple irqs.
+I did most of my development under qemu, so I don't think that's the
+issue.  Can you send me your .config?
 
-Luckily there are known hw implementations with that issue
-so I won't be weird for long :)
-
-> It's not clear that guest-controlled interrupt mitigation is the best
-> approach for virtual devices, but at the moment it doesn't hurt.
-
-It would be nice for consistency's sake, once it is easy to do so.
+Thanks,
+Rusty.
