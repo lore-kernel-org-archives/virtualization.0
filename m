@@ -1,16 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [PATCH 3/3] Virtio draft IV: the net driver
-Date: Thu, 12 Jul 2007 12:23:19 +1000
-Message-ID: <1184206999.6005.672.camel@localhost.localdomain>
-References: <1183522348.6110.37.camel@localhost.localdomain>
-	<200707111228.30707.borntraeger@de.ibm.com>
-	<1184153201.6005.618.camel@localhost.localdomain>
-	<200707111346.07185.borntraeger@de.ibm.com>
+Date: Wed, 11 Jul 2007 19:26:09 -0700 (PDT)
+Message-ID: <20070711.192609.18580123.davem@davemloft.net>
+References: <200707111245.40717.borntraeger@de.ibm.com>
+	<20070711.134447.39159166.davem@davemloft.net>
+	<1184206893.6005.669.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200707111346.07185.borntraeger@de.ibm.com>
+In-Reply-To: <1184206893.6005.669.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,26 +19,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au
+Cc: borntraeger@de.ibm.com, cotte@de.ibm.com, herbert@gondor.apana.org.au, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-07-11 at 13:46 +0200, Christian Borntraeger wrote:
-> Am Mittwoch, 11. Juli 2007 schrieb Rusty Russell:
-> > There will be some internal limit on how many buffers the virtio
-> > implementation supports, but depends on that implementation.  It could
-> > be a number of buffers or a total number of descriptors.
-> 
-> I would suggest to implement a limit in the device driver as well. Otherwise 
-> the network driver could allocate a huge amount of guest memory if the virtio
-> implementation accepts a large amount of buffers. This memory is not swappable 
-> and reclaimable by the memory management, so we should be careful. 
+From: Rusty Russell <rusty@rustcorp.com.au>
+Date: Thu, 12 Jul 2007 12:21:33 +1000
 
-Hi Christian,
+> Dave, I think you're the only one (so far?) with multiple irqs.
 
-	I this this would be premature, but easy enough to do later if we have
-such a high-limit virtio implementation.   If we did do it, it would
-make sense to have it a variable passed into the net driver.
+Luckily there are known hw implementations with that issue
+so I won't be weird for long :)
 
-Thanks,
-Rusty.
+> It's not clear that guest-controlled interrupt mitigation is the best
+> approach for virtual devices, but at the moment it doesn't hurt.
+
+It would be nice for consistency's sake, once it is easy to do so.
