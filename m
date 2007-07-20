@@ -1,46 +1,85 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH] Move KVM, paravirt, lguest, VMI and Xen under	arch-level
- Virtualization option
-Date: Thu, 19 Jul 2007 23:10:54 -0700
-Message-ID: <46A051EE.7060304@vmware.com>
-References: <1184905342.10380.263.camel@localhost.localdomain>	
-	<46A046F1.7040207@qumranet.com>
-	<1184911347.10380.274.camel@localhost.localdomain>
+From: "Rami Rosen" <rosenrami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: kvm developers' forum 2007
+Date: Fri, 20 Jul 2007 10:08:25 +0300
+Message-ID: <ae5426fb0707200008s3990ce47i470e2beef7666789@mail.gmail.com>
+References: <Ace+b4kykVlgPTViTL+23KcjSjnLVAK4Z3+A>
+	<64F9B87B6B770947A9F8391472E032160CC16C17@ehost011-8.exch011.intermedia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1184911347.10380.274.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jeff Dike <jdike@addtoit.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@linux-foundation.org>
+Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <64F9B87B6B770947A9F8391472E032160CC16C17-yEcIvxbTEBqsx+V+t5oei8rau4O3wl8o3fe8/T/H7NteoWH0uzbU5w@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Rami Tamir <ramit-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
+Cc: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
->> Otherwise we end up with $NARCH copies of that Kconfig, each slightly
->> different.  The top-level entry can be made to depend on the archs that
->> actually have some virt capability, so as not to show empty an menu.
->>     
->
-> I dislike the duplication, too, but 
->
-> 1) it's a CPU capability, and that's where it belongs in the menu.
-> 2) And as you can see from the difference between the x86_64 and i386
-> help text, there are real platform differences (and not mentioning
-> what's under the menu would be kinda cheating).
-> 3) Virtualization doesn't even make sense as an option for some
-> platforms where it's always on.
->   
+Hello,
+  - I hope that somebody is thinking about putting the slides and
+presentations of
+this interesting event on qumarnet web site when the forum is over;
+(Xen summits for example have the slides on the web ). It seems to me
+that this can be a good idea.
 
-I'm rather indifferent on the matter, but I think a virtualization menu 
-under UML would be very confusing.
+Regards,
+Rami Rosen
 
-Zach
+
+On 7/18/07, Rami Tamir <ramit-atKUWr5tajBWk0Htik3J/w@public.gmane.org> wrote:
+> Following the invitation below, you can now find the updated agenda for
+> 'kvm developres' forum 2007' at: http://www.qumranet.com/agenda.php.
+> See you all at Tucson!
+> Rami
+>
+>
+> -----Original Message-----
+> From: Rami Tamir
+> Sent: Wednesday, July 04, 2007 10:14 PM
+> To: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org; 'virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org'
+> Subject: kvm developers' forum 2007
+>
+> We'd like to invite all of you to attend the first annual KVM Forum
+> 2007. Please click here http://www.qumranet.com/KVMForum2007.php to be
+> taken to the event site where you can learn more about the KVM Forum
+> 2007 and register online. Hosted by the KVM Developer Community, the
+> purpose of the forum is to bring together developers, testers and other
+> technical individuals from within the community to discuss the state of
+> KVM today. We will also review and shape the future roadmap of KVM,
+> examine development challenges, and agree on modes of collaboration
+> needed for common development.
+>
+>
+> The KVM Forum 2007 will give developers an opportunity to update the
+> community on the work that they are doing and coordinate efforts for the
+> betterment of KVM and Linux virtulization.
+> The event will take place in Tucson, Arizona on August 29th - 31st, at
+> the Loews Ventana Canyon Resort, for more details please see
+> http://www.qumranet.com/KVMForum2007.php
+> See you in Tucson!
+>
+> Rami Tamir
+>
+> -------------------------------------------------------------------------
+> This SF.net email is sponsored by DB2 Express
+> Download DB2 Express C - the FREE version of DB2 express and take
+> control of your XML. No limits. Just data. Click to get it now.
+> http://sourceforge.net/powerbar/db2/
+> _______________________________________________
+> kvm-devel mailing list
+> kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+> https://lists.sourceforge.net/lists/listinfo/kvm-devel
+>
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Microsoft
+Defy all challenges. Microsoft(R) Visual Studio 2005.
+http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
