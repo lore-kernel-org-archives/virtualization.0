@@ -1,11 +1,9 @@
-From: "Rosalinda Zimmerman" <aza@dancingpaper.com>
-Subject: Wondercum is proven herbal supplements that act as an aid in
-	overcoming male sexual problems. Maybe you seek ways to
-	increase your fertility and potency
-Date: Fri, 20 Jul 2007 01:48:13 -0800
-Message-ID: <01c7ca70$08907020$c69b55de@aza>
+From: "Stacey Westbrook" <sh.y@mallondictatorship.com>
+Subject: Retail Price $449.00 You save: $369 adobe acrobat PRO
+Date: Fri, 20 Jul 2007 03:09:15 -0900
+Message-ID: <01c7ca7b$5a72f560$7d097cd2@sh.y>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="windows-1250";
+Content-Type: text/plain; format=flowed; charset="iso-8859-2";
 	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
@@ -21,5 +19,5 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Laboratory-controlled dosing. I am so glad I came across this product, WonderCum.
-http://areclite.com
+$89 adobe cs3 extended
+http://gosoftpa.com
