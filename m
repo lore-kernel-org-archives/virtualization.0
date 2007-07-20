@@ -1,14 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/3] lguest: trivial: We now have asm/processor-flags.h, so
-	use it.
-Date: Fri, 20 Jul 2007 22:12:56 +1000
-Message-ID: <1184933576.10380.299.camel__4702.0468548455$1184933749$gmane$org@localhost.localdomain>
-References: <1184933473.10380.296.camel@localhost.localdomain>
+Subject: [PATCH 1/3] lguest: fix sense if IF flag on interrupt injection
+Date: Fri, 20 Jul 2007 22:11:13 +1000
+Message-ID: <1184933473.10380.296.camel__5429.46150894767$1184933808$gmane$org@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1184933473.10380.296.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,19 +19,36 @@ To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+The sense of the IF bit is backwards in the host interrupt handling.
 
-diff -r f41cd1b8d7ef drivers/lguest/lguest_asm.S
---- a/drivers/lguest/lguest_asm.S	Fri Jul 20 13:46:40 2007 +1000
-+++ b/drivers/lguest/lguest_asm.S	Fri Jul 20 14:17:04 2007 +1000
-@@ -2,9 +2,7 @@
- #include <linux/lguest.h>
- #include <asm/asm-offsets.h>
- #include <asm/thread_info.h>
--
--/* FIXME: Once asm/processor-flags.h goes in, include that */
--#define X86_EFLAGS_IF 0x00000200
-+#include <asm/processor-flags.h>
+This means we always save "IF=1" on the stack when injecting an
+interrupt.  It turns out this is almost always correct (unless the
+guest is taking a page fault in an interrupt due to an unpopulated
+vmalloc mapping), so went unnoticed.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/lguest/interrupts_and_traps.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff -r 209f5cd5cda5 drivers/lguest/interrupts_and_traps.c
+--- a/drivers/lguest/interrupts_and_traps.c	Fri Jul 20 14:53:40 2007 +1000
++++ b/drivers/lguest/interrupts_and_traps.c	Fri Jul 20 21:34:06 2007 +1000
+@@ -38,12 +38,12 @@ static void set_guest_interrupt(struct l
+ 		ss = lg->regs->ss;
+ 	}
  
- /*
-  * This is where we begin: we have a magic signature which the launcher looks
+-	/* We use IF bit in eflags to indicate whether irqs were disabled
+-	   (it's always 0, since irqs are enabled when guest is running). */
++	/* We use IF bit in eflags to indicate whether irqs were enabled
++	   (it's always 1, since irqs are enabled when guest is running). */
+ 	eflags = lg->regs->eflags;
+-	if (get_user(irq_enable, &lg->lguest_data->irq_enabled))
+-		irq_enable = 0;
+-	eflags |= (irq_enable & X86_EFLAGS_IF);
++	if (get_user(irq_enable, &lg->lguest_data->irq_enabled) == 0
++	    && !(irq_enable & X86_EFLAGS_IF))
++		eflags &= ~X86_EFLAGS_IF;
+ 
+ 	push_guest_stack(lg, &gstack, eflags);
+ 	push_guest_stack(lg, &gstack, lg->regs->cs);
