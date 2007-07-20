@@ -1,12 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] Move KVM, paravirt, lguest, VMI and Xen under arch-level
-	Virtualization option
-Date: Fri, 20 Jul 2007 14:22:22 +1000
-Message-ID: <1184905342.10380.263.camel__10546.0320054137$1184905464$gmane$org@localhost.localdomain>
+From: "Alexey Eremenko" <al4321@gmail.com>
+Subject: Re: [PATCH] Move KVM, paravirt, lguest,
+	VMI and Xen under arch-level Virtualization option
+Date: Fri, 20 Jul 2007 06:31:55 +0200
+Message-ID: <7fac565a0707192131t1af0982aq5a75fef2fe014762__41824.8024922379$1184906033$gmane$org@mail.gmail.com>
+References: <1184905342.10380.263.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1184905342.10380.263.camel@localhost.localdomain>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,183 +19,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andi Kleen <ak@muc.de>, virtualization <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Any objections?
+On 7/20/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> Any objections?
+>
+> Rusty.
+> ===
+> Having KVM appear in the middle of "drivers" is kinda strange, and
+> having it alone under a menu called "virtualization" doubly so.
+>
 
-Rusty.
-===
-Having KVM appear in the middle of "drivers" is kinda strange, and
-having it alone under a menu called "virtualization" doubly so.
+Hi Rusty !
 
-1) Move the "Virtualization" menu into the arch-specific i386 and
-   x86-64 Kconfig.
-2) Add a help message to the menu.
-3) Move CONFIG_PARAVIRT under CONFIG_VIRTUALIZATION
-4) Move lguest into same menu.
+Very good move, that I have thought about too... I believe that since
+we're creating a Virtualization Menu, we should add
+OS-level-virtualization there as well  (aka containerization) - the
+following things: IPC virtualization (aka IPC namespaces), PID
+virtualization, UTS virtualization. Those are 3 basic components that
+went mainline into 2.6.19.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Article from OpenVZ:
+http://www.linux.com/articles/59150?tid=136&tid=91
 
-diff -r decd4a43335a arch/i386/Kconfig
---- a/arch/i386/Kconfig	Fri Jul 20 13:49:20 2007 +1000
-+++ b/arch/i386/Kconfig	Fri Jul 20 14:05:56 2007 +1000
-@@ -210,17 +210,55 @@ config X86_ES7000
- 
- endchoice
- 
-+config ACPI_SRAT
-+	bool
-+	default y
-+	depends on ACPI && NUMA && (X86_SUMMIT || X86_GENERICARCH)
-+	select ACPI_NUMA
-+
-+config HAVE_ARCH_PARSE_SRAT
-+       bool
-+       default y
-+       depends on ACPI_SRAT
-+
-+config X86_SUMMIT_NUMA
-+	bool
-+	default y
-+	depends on NUMA && (X86_SUMMIT || X86_GENERICARCH)
-+
-+config X86_CYCLONE_TIMER
-+	bool
-+	default y
-+	depends on X86_SUMMIT || X86_GENERICARCH
-+
-+config ES7000_CLUSTERED_APIC
-+	bool
-+	default y
-+	depends on SMP && X86_ES7000 && MPENTIUMIII
-+
-+source "arch/i386/Kconfig.cpu"
-+
-+menuconfig VIRTUALIZATION
-+	bool "Virtualization"
-+	default y
-+	help
-+	  Virtualization is a way of running multiple Operating Systems on
-+	  the same machine.  There are several different virtualization
-+	  technologies in i386 Linux, including KVM, lguest, VMI and Xen.
-+	  If in doubt say Y and examine the sub-options.
-+
-+if VIRTUALIZATION
- config PARAVIRT
--	bool "Paravirtualization support (EXPERIMENTAL)"
--	depends on EXPERIMENTAL
-+	bool "Paravirtualization support"
- 	depends on !(X86_VISWS || X86_VOYAGER)
- 	help
--	  Paravirtualization is a way of running multiple instances of
--	  Linux on the same machine, under a hypervisor.  This option
--	  changes the kernel so it can modify itself when it is run
--	  under a hypervisor, improving performance significantly.
-+	  Paravirtualization enables Linux to detect when it is running
-+	  as a guest operating system under a hypervisor: it will
-+	  modify itself, improving performance significantly.
- 	  However, when run without a hypervisor the kernel is
- 	  theoretically slower.  If in doubt, say N.
-+
-+source "drivers/kvm/Kconfig"
- 
- source "arch/i386/xen/Kconfig"
- 
-@@ -233,33 +271,9 @@ config VMI
- 	  at the moment), by linking the kernel to a GPL-ed ROM module
- 	  provided by the hypervisor.
- 
--config ACPI_SRAT
--	bool
--	default y
--	depends on ACPI && NUMA && (X86_SUMMIT || X86_GENERICARCH)
--	select ACPI_NUMA
--
--config HAVE_ARCH_PARSE_SRAT
--       bool
--       default y
--       depends on ACPI_SRAT
--
--config X86_SUMMIT_NUMA
--	bool
--	default y
--	depends on NUMA && (X86_SUMMIT || X86_GENERICARCH)
--
--config X86_CYCLONE_TIMER
--	bool
--	default y
--	depends on X86_SUMMIT || X86_GENERICARCH
--
--config ES7000_CLUSTERED_APIC
--	bool
--	default y
--	depends on SMP && X86_ES7000 && MPENTIUMIII
--
--source "arch/i386/Kconfig.cpu"
-+source "drivers/lguest/Kconfig"
-+
-+endif # VIRTUALIZATION
- 
- config HPET_TIMER
- 	bool "HPET Timer Support"
-diff -r decd4a43335a arch/x86_64/Kconfig
---- a/arch/x86_64/Kconfig	Fri Jul 20 13:49:20 2007 +1000
-+++ b/arch/x86_64/Kconfig	Fri Jul 20 13:59:08 2007 +1000
-@@ -760,6 +760,19 @@ config SYSVIPC_COMPAT
- 
- endmenu
- 
-+menuconfig VIRTUALIZATION
-+	bool "Virtualization"
-+	default y
-+	help
-+	  Virtualization is a way of running multiple Operating Systems on
-+	  the same machine.  There are several different virtualization
-+	  technologies in Linux, but currently KVM is the only
-+	  option for x86_64.  If in doubt say Y and examine the sub-options.
-+
-+if VIRTUALIZATION
-+source "drivers/kvm/Kconfig"
-+endif #VIRTUALIZATION
-+
- source "net/Kconfig"
- 
- source drivers/Kconfig
-diff -r decd4a43335a drivers/Kconfig
---- a/drivers/Kconfig	Fri Jul 20 13:49:20 2007 +1000
-+++ b/drivers/Kconfig	Fri Jul 20 14:06:03 2007 +1000
-@@ -82,9 +82,5 @@ source "drivers/dma/Kconfig"
- 
- source "drivers/auxdisplay/Kconfig"
- 
--source "drivers/kvm/Kconfig"
--
- source "drivers/uio/Kconfig"
--
--source "drivers/lguest/Kconfig"
- endmenu
-diff -r decd4a43335a drivers/kvm/Kconfig
---- a/drivers/kvm/Kconfig	Fri Jul 20 13:49:20 2007 +1000
-+++ b/drivers/kvm/Kconfig	Fri Jul 20 13:55:07 2007 +1000
-@@ -1,13 +1,6 @@
- #
- # KVM configuration
- #
--menuconfig VIRTUALIZATION
--	bool "Virtualization"
--	depends on X86
--	default y
--
--if VIRTUALIZATION
--
- config KVM
- 	tristate "Kernel-based Virtual Machine (KVM) support"
- 	depends on X86 && EXPERIMENTAL
-@@ -39,5 +32,3 @@ config KVM_AMD
- 	---help---
- 	  Provides support for KVM on AMD processors equipped with the AMD-V
- 	  (SVM) extensions.
--
--endif # VIRTUALIZATION
+P.S. maybe rename those components from "IPC namespaces" to "IPC
+virtualization" or even to "IPC containerization" it better reflect
+it's internals?
+
+-- 
+-Alexey Eremenko "Technologov"
