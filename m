@@ -1,26 +1,25 @@
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: Paravirt ops 64 bit git tree
-Date: Thu, 19 Jul 2007 17:45:30 -0300
-Message-ID: <1184877930.16311.14.camel@t60>
+From: "Rosalinda Zimmerman" <aza@dancingpaper.com>
+Subject: Wondercum is proven herbal supplements that act as an aid in
+	overcoming male sexual problems. Maybe you seek ways to
+	increase your fertility and potency
+Date: Fri, 20 Jul 2007 01:48:13 -0800
+Message-ID: <01c7ca70$08907020$c69b55de@aza>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; format=flowed; charset="windows-1250";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762344AbXGSUpB@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, rusty@rustycorp.com.au, jeremy@goop.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Folks,
-
-After a long while, I'm giving the pvops64 tree the attention it
-deserves again. It's been a long time, so it diverged a lot from the
-rest of the work being done, and it is quite unusable as it is nowadays.
-But at least now, it'll get it's own git tree, which you can clone at
-git://git.et.redhat.com/kernel-pvops-64.git
-
-Chris Wright and I decided that it might be better to rewrite at least
-large chunks of it, so the code that is there, outdated as it is, is
-more a reference than anything else. I'll be starting it mostly from
-scratch, but it'll live in the same place.
-
-Hope you enjoy!
+Laboratory-controlled dosing. I am so glad I came across this product, WonderCum.
+http://areclite.com
