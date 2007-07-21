@@ -1,48 +1,43 @@
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: [PATCH][03/37] Clean up duplicate includes in arch/i386/xen/
-Date: Sat, 21 Jul 2007 17:01:47 +0200
-Message-ID: <200707211701.47855.jesper.juhl@gmail.com>
+From: Jan Engelhardt <jengelh@computergmbh.de>
+Subject: Re: [PATCH] Move KVM, paravirt, lguest, VMI and Xen under arch-level
+ Virtualization option
+Date: Sat, 21 Jul 2007 17:49:44 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0707211748320.21737__48766.4259890609$1185033134$gmane$org@fbirervta.pbzchgretzou.qr>
+References: <1184905342.10380.263.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S938650AbXGUPEB@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jesper Juhl <jesper.juhl@gmail.com>, Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1184905342.10380.263.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
 
-This patch cleans up duplicate includes in
-	arch/i386/xen/
+On Jul 20 2007 14:22, Rusty Russell wrote:
+>Subject: [PATCH] Move KVM, paravirt, lguest,
+>    VMI and Xen under arch-level Virtualization option
+>
+>Any objections?
+
+Well btw, would it make sense to also rearrange the directory structure along
+with it, i.e.
+
+drivers/kvm    => drivers/virt/kvm
+drivers/lguest => drivers/virt/lguest
+drivers/xen    => drivers/virt/xen
+
+Then the full kconfig (with menuconfig,if,endif) can go to
+drivers/virt/Kconfig.
 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
-diff --git a/arch/i386/xen/enlighten.c b/arch/i386/xen/enlighten.c
-index 9a8c118..f65ef89 100644
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -25,7 +25,6 @@
- #include <linux/mm.h>
- #include <linux/page-flags.h>
- #include <linux/highmem.h>
--#include <linux/smp.h>
- 
- #include <xen/interface/xen.h>
- #include <xen/interface/physdev.h>
-diff --git a/arch/i386/xen/mmu.c b/arch/i386/xen/mmu.c
-index 4ae038a..35691a2 100644
---- a/arch/i386/xen/mmu.c
-+++ b/arch/i386/xen/mmu.c
-@@ -41,7 +41,6 @@
- #include <linux/sched.h>
- #include <linux/highmem.h>
- #include <linux/bug.h>
--#include <linux/sched.h>
- 
- #include <asm/pgtable.h>
- #include <asm/tlbflush.h>
+	Jan
+-- 
