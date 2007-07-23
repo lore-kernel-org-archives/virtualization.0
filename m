@@ -1,15 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Move KVM, paravirt, lguest, VMI and Xen under
-	arch-level Virtualization option
-Date: Mon, 23 Jul 2007 15:09:31 +1000
-Message-ID: <1185167371.6344.135.camel__24670.7895807505$1185167509$gmane$org@localhost.localdomain>
-References: <1184905342.10380.263.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0707211748320.21737@fbirervta.pbzchgretzou.qr>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 2/3] Virtio draft IV: the block driver
+Date: Mon, 23 Jul 2007 13:13:11 +0200
+Message-ID: <200707231313.11847.borntraeger@de.ibm.com>
+References: <1183522348.6110.37.camel@localhost.localdomain>
+	<1183522765.6110.40.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <Pine.LNX.4.64.0707211748320.21737@fbirervta.pbzchgretzou.qr>
+In-Reply-To: <1183522765.6110.40.camel@localhost.localdomain>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,36 +20,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Engelhardt <jengelh@computergmbh.de>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2007-07-21 at 17:49 +0200, Jan Engelhardt wrote:
-> On Jul 20 2007 14:22, Rusty Russell wrote:
-> >Subject: [PATCH] Move KVM, paravirt, lguest,
-> >    VMI and Xen under arch-level Virtualization option
-> >
-> >Any objections?
-> 
-> Well btw, would it make sense to also rearrange the directory structure along
-> with it, i.e.
-> 
-> drivers/kvm    => drivers/virt/kvm
-> drivers/lguest => drivers/virt/lguest
-> drivers/xen    => drivers/virt/xen
-> 
-> Then the full kconfig (with menuconfig,if,endif) can go to
-> drivers/virt/Kconfig.
+> +#ifdef __KERNEL__
+> +struct gendisk;
+> +struct virtio_device;
+> +
+> +struct gendisk *virtblk_probe(struct virtqueue *vq);
 
-It would reduce clutter a little, but it'll never cover cases where the
-arch is always virtualized.  You could move VMI there, but UML, PowerPC,
-S/390 won't be moving.
+Hello Rusty,
 
-I still think people expect virtualization under CPU features, so archs
-should include the virt Kconfig explicitly there (rather than it just
-appearing deep in drivers/).  At which point cut & pasting variations of
-the CONFIG_VIRTUALIZATION option is probably as good as any other
-solution, and far less work.
+I am currently do some prototyping with virtio IV and found tis small issue in 
+the block device. virtblk_probe requires a declaration of virtqueue, not 
+virtio_device. 
 
-Cheers,
-Rusty.
+---
+ include/linux/virtio_blk.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.22/include/linux/virtio_blk.h
+===================================================================
+--- linux-2.6.22.orig/include/linux/virtio_blk.h
++++ linux-2.6.22/include/linux/virtio_blk.h
+@@ -37,7 +37,7 @@ struct virtio_blk_inhdr
+ 
+ #ifdef __KERNEL__
+ struct gendisk;
+-struct virtio_device;
++struct virtqueue;
+ 
+ struct gendisk *virtblk_probe(struct virtqueue *vq);
+ void virtblk_remove(struct gendisk *disk);
