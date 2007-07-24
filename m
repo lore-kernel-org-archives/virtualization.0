@@ -1,16 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Randy Dunlap <rdunlap@xenotime.net>
 Subject: Re: [PATCH 1/7] lguest: documentation pt I: Preparation
-Date: Tue, 24 Jul 2007 11:51:19 +1000
-Message-ID: <1185241879.1803.92.camel__45475.0748388053$1185242081$gmane$org@localhost.localdomain>
+Date: Mon, 23 Jul 2007 19:21:13 -0700
+Message-ID: <20070723192113.0eaa0ad8.rdunlap__31731.679410632$1185243497$gmane$org@xenotime.net>
 References: <1184980678.6344.1.camel@localhost.localdomain>
 	<20070723171238.1a832b31.akpm@linux-foundation.org>
-	<1185238908.1803.63.camel@localhost.localdomain>
-	<alpine.LFD.0.999.0707231808560.3607@woody.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LFD.0.999.0707231808560.3607@woody.linux-foundation.org>
+In-Reply-To: <20070723171238.1a832b31.akpm@linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,33 +18,69 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Landley <rob@landley.net>, virtualization <virtualization@lists.linux-foundation.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Rob Landley <rob@landley.net>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-07-23 at 18:18 -0700, Linus Torvalds wrote:
+On Mon, 23 Jul 2007 17:12:38 -0700 Andrew Morton wrote:
+
+> On Sat, 21 Jul 2007 11:17:58 +1000
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
 > 
-> On Tue, 24 Jul 2007, Rusty Russell wrote:
+> > The netfilter code had very good documentation: the Netfilter Hacking
+> > HOWTO.  Noone ever read it.
 > > 
-> > Indeed, no code changes, and I feel strongly that it should go into
-> > 2.6.23 because it's *fun*.   And (as often complained) there's not
-> > enough poetry in the kernel.
+> > So this time I'm trying something different, using a bit of
+> > Knuthiness.  Start with drivers/lguest/README.
 > 
-> There's a reason for that.
+> um.
 > 
-> 	There once was a lad from Braidwood
-> 	With a wife and a hatred for FUD
-> 	  He hacked kernels for fun,
-> 	  couldn't get them to run.
-> 	But he always felt that he should.
+> I'm OK with merging patches and given lguest's newness, the timestamp on
+> these patches, the fact that they don't change code generation (right?) and
+> my reluctance to carry large do-nothing patches for two months, I'd be OK
+> with squeaking them into 2.6.23.
 > 
-> See?
+> But I worry that you're proposing adding what appears to be new
+> Documentation-related machinery and infrastructure when there's already
+> increased activity in that area from other people and we might all be
+> headed in different directions and stuff.
+> 
+> So first I think we'd best form a kernel kommittee and mull this for a
+> while (preferably months) to screw you around as much as poss, OK?  ;)
+> 
+> Items for consideration would be:
+> 
+> - if this stuff is good, shouldn't other code be using it?  If so, is
+>   this new infrastructure in the correct place?
 
-There once was a virtualization coder,
-Whose patches kept getting older,
-  Each time upstream would drop,
-  His documentation would slightly rot,
-SO APPLY MY FUCKING PATCHES OR I'LL KEEP WRITING LIMERICKS.
+I wouldn't mind having a new doc infrastructure, but I don't see this as it.
 
-Thanks!
-Rusty.
+> - if, otoh, this infrastructure is _not_ suitable for other code, well,
+>   what was wrong with it?
+
+I think that we don't want to give up html/pdf/ps output formats in
+favor of just text or C source code.  If we do continue to have
+multiple "rich" output formats, we need even more rich syntax rules
+than we have right now.  OTOH, if we dump all of those rich output
+formats, we have less tool spice that is needed.
+
+(I'm not ignoring Andrew's question here.  I'm just applying the
+7 patches/series and looking at it more.)
+
+> - if the requirement is good, perhaps alternative implementations should
+>   be explored (dunno what).
+
+Yes, but I dunno what either.
+
+
+> IOW, I'd be interested in hearing Rob and Randy's opinions on it all,
+> please.
+
+It's great that Rusty took the time to produce all of this documentation.
+Few people do that today.
+
+Were current kernel-doc tools not sufficient?  If not, why not?
+
+---
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your code ***
