@@ -1,14 +1,16 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
+From: Rene Herman <rene.herman@gmail.com>
 Subject: Re: [PATCH 1/7] lguest: documentation pt I: Preparation
-Date: Mon, 23 Jul 2007 19:21:13 -0700
-Message-ID: <20070723192113.0eaa0ad8.rdunlap__31731.679410632$1185243497$gmane$org@xenotime.net>
+Date: Tue, 24 Jul 2007 04:28:30 +0200
+Message-ID: <46A563CE.5020809__44224.8609652326$1185244323$gmane$org@gmail.com>
 References: <1184980678.6344.1.camel@localhost.localdomain>
 	<20070723171238.1a832b31.akpm@linux-foundation.org>
+	<1185238908.1803.63.camel@localhost.localdomain>
+	<alpine.LFD.0.999.0707231808560.3607@woody.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070723171238.1a832b31.akpm@linux-foundation.org>
+In-Reply-To: <alpine.LFD.0.999.0707231808560.3607@woody.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,69 +20,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Rob Landley <rob@landley.net>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Rob Landley <rob@landley.net>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 23 Jul 2007 17:12:38 -0700 Andrew Morton wrote:
+On 07/24/2007 03:18 AM, Linus Torvalds wrote:
 
-> On Sat, 21 Jul 2007 11:17:58 +1000
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> 
-> > The netfilter code had very good documentation: the Netfilter Hacking
-> > HOWTO.  Noone ever read it.
-> > 
-> > So this time I'm trying something different, using a bit of
-> > Knuthiness.  Start with drivers/lguest/README.
-> 
-> um.
-> 
-> I'm OK with merging patches and given lguest's newness, the timestamp on
-> these patches, the fact that they don't change code generation (right?) and
-> my reluctance to carry large do-nothing patches for two months, I'd be OK
-> with squeaking them into 2.6.23.
-> 
-> But I worry that you're proposing adding what appears to be new
-> Documentation-related machinery and infrastructure when there's already
-> increased activity in that area from other people and we might all be
-> headed in different directions and stuff.
-> 
-> So first I think we'd best form a kernel kommittee and mull this for a
-> while (preferably months) to screw you around as much as poss, OK?  ;)
-> 
-> Items for consideration would be:
-> 
-> - if this stuff is good, shouldn't other code be using it?  If so, is
->   this new infrastructure in the correct place?
+> PS. Nothing rhymes with Ballalaba.
 
-I wouldn't mind having a new doc infrastructure, but I don't see this as it.
+There once was a woman from Ballalaba
+who hid kernel bugs in her djellabah.
+      When her husband found out,
+           he objected loud,
+and got her expelled from the casbah!
 
-> - if, otoh, this infrastructure is _not_ suitable for other code, well,
->   what was wrong with it?
-
-I think that we don't want to give up html/pdf/ps output formats in
-favor of just text or C source code.  If we do continue to have
-multiple "rich" output formats, we need even more rich syntax rules
-than we have right now.  OTOH, if we dump all of those rich output
-formats, we have less tool spice that is needed.
-
-(I'm not ignoring Andrew's question here.  I'm just applying the
-7 patches/series and looking at it more.)
-
-> - if the requirement is good, perhaps alternative implementations should
->   be explored (dunno what).
-
-Yes, but I dunno what either.
-
-
-> IOW, I'd be interested in hearing Rob and Randy's opinions on it all,
-> please.
-
-It's great that Rusty took the time to produce all of this documentation.
-Few people do that today.
-
-Were current kernel-doc tools not sufficient?  If not, why not?
-
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+Rene.
