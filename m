@@ -1,12 +1,13 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [PATCH 1/7] lguest: documentation pt I: Preparation
-Date: Mon, 23 Jul 2007 18:18:33 -0700 (PDT)
-Message-ID: <alpine.LFD.0.999.0707231808560.3607__42150.3647150987$1185240016$gmane$org@woody.linux-foundation.org>
+Date: Mon, 23 Jul 2007 18:20:27 -0700
+Message-ID: <20070723182027.ebe04818.akpm__26139.3251982101$1185240177$gmane$org@linux-foundation.org>
 References: <1184980678.6344.1.camel@localhost.localdomain>
 	<20070723171238.1a832b31.akpm@linux-foundation.org>
 	<1185238908.1803.63.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1185238908.1803.63.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
@@ -19,30 +20,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Landley <rob@landley.net>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: lkml@smtp2.linux-foundation.org, List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Rob Landley <rob@landley.net>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, 24 Jul 2007 11:01:48 +1000
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-
-On Tue, 24 Jul 2007, Rusty Russell wrote:
+> > But I worry that you're proposing adding what appears to be new
+> > Documentation-related machinery and infrastructure when there's already
+> > increased activity in that area from other people and we might all be
+> > headed in different directions and stuff.
 > 
-> Indeed, no code changes, and I feel strongly that it should go into
-> 2.6.23 because it's *fun*.   And (as often complained) there's not
-> enough poetry in the kernel.
+> It does add an lguest-specific script: I aimed for the minimal
+> documentation script required to weave the code and documentation
+> (basically extracts and orders by comment prefix, because code order
+> isn't the same as optimal documentation order).
+> 
+> This is great for lguest, where the entire codebase is small and
+> self-contained enough to be woven into a narrative, and the maintainer
+> is prepared to put in the cycles to keep it uptodate.
+> 
+> But writing this documentation took *weeks*, to document 5000 lines of
+> code.  Perhaps this effort, if merged, will inspire others, but I've
+> seen little indication so far: we have enough trouble getting them
+> documenting a single public function.
 
-There's a reason for that.
+Yeah, I suspect there will be insufficient interest and energy for anyone
+else to take this anywhere.
 
-	There once was a lad from Braidwood
-	With a wife and a hatred for FUD
-	  He hacked kernels for fun,
-	  couldn't get them to run.
-	But he always felt that he should.
-
-See?
-
-So when you say "there's not enough poetry", next time you'll know why. 
-You *really* don't want want poetry.
-
-		Linus
-
-PS. Nothing rhymes with Ballalaba.
+Could you please redo the changes after "link lguest example launcher
+non-static", which made a fairly big mess?
