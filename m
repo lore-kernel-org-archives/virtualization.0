@@ -1,11 +1,20 @@
-From: corbet@lwn.net (Jonathan Corbet)
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 1/7] lguest: documentation pt I: Preparation
-Date: Tue, 24 Jul 2007 09:13:14 -0600
-Message-ID: <5659.1185289994__5975.66892761296$1185290954$gmane$org@lwn.net>
-References: <20070723171238.1a832b31.akpm@linux-foundation.org>
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: Your message of "Mon, 23 Jul 2007 17:12:38 PDT."
+Date: Wed, 25 Jul 2007 08:35:11 +1000
+Message-ID: <1185316511.1803.357.camel__42225.7362901748$1185316670$gmane$org@localhost.localdomain>
+References: <1184980678.6344.1.camel@localhost.localdomain>
 	<20070723171238.1a832b31.akpm@linux-foundation.org>
+	<1185238908.1803.63.camel@localhost.localdomain>
+	<alpine.LFD.0.999.0707231808560.3607@woody.linux-foundation.org>
+	<1185241879.1803.92.camel@localhost.localdomain>
+	<20070724105208.206a7be5@the-village.bc.nu>
+	<1185272894.1803.288.camel@localhost.localdomain>
+	<20070724130423.1356c753@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070724130423.1356c753@the-village.bc.nu>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,31 +24,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Rob Landley <rob@landley.net>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Rob Landley <rob@landley.net>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Items for consideration would be:
-> 
-> - if this stuff is good, shouldn't other code be using it?  If so, is
->   this new infrastructure in the correct place?
-> 
-> - if, otoh, this infrastructure is _not_ suitable for other code, well,
->   what was wrong with it?
-> 
-> - if the requirement is good, perhaps alternative implementations should
->   be explored (dunno what).
+On Tue, 2007-07-24 at 13:04 +0100, Alan Cox wrote:
+> Dear Rusty I think that we know
+> Your code has good things to show
+> But an unreliable guide
+> To the poetic aside
+> Would probably steal the show
 
-Well, we could just rewrite the whole kernel in Web and judge all future
-patches on how literate they are...
+That and your (slightly dated?) mm documentation were awesome.  But can
+we stop now?
 
-Seriously, though, even if the (small) infrastructure is not going to
-take over the driver tree anytime soon, it's hard to imagine why we
-would not want to incorporate this sort of documentation.  It's good
-stuff, something which can really help people get a sense for how this
-whole virtualization thing works.  And it makes the code fun to read.
-
-jon
-
-P.S. I am currently considering a no-limericks policy for the LWN quote
-of the week.
+Please?
+Rusty.
