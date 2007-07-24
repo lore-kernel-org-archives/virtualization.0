@@ -1,14 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [PATCH 1/7] lguest: documentation pt I: Preparation
-Date: Tue, 24 Jul 2007 11:01:48 +1000
-Message-ID: <1185238908.1803.63.camel__45433.4408780143$1185239040$gmane$org@localhost.localdomain>
+Date: Mon, 23 Jul 2007 18:18:33 -0700 (PDT)
+Message-ID: <alpine.LFD.0.999.0707231808560.3607__42150.3647150987$1185240016$gmane$org@woody.linux-foundation.org>
 References: <1184980678.6344.1.camel@localhost.localdomain>
 	<20070723171238.1a832b31.akpm@linux-foundation.org>
+	<1185238908.1803.63.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070723171238.1a832b31.akpm@linux-foundation.org>
+In-Reply-To: <1185238908.1803.63.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,57 +18,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Landley <rob@landley.net>, virtualization <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Landley <rob@landley.net>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-07-23 at 17:12 -0700, Andrew Morton wrote:
-> On Sat, 21 Jul 2007 11:17:58 +1000
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
+
+
+On Tue, 24 Jul 2007, Rusty Russell wrote:
 > 
-> > The netfilter code had very good documentation: the Netfilter Hacking
-> > HOWTO.  Noone ever read it.
-> > 
-> > So this time I'm trying something different, using a bit of
-> > Knuthiness.  Start with drivers/lguest/README.
-> 
-> um.
-> 
-> I'm OK with merging patches and given lguest's newness, the timestamp on
-> these patches, the fact that they don't change code generation (right?) and
-> my reluctance to carry large do-nothing patches for two months, I'd be OK
-> with squeaking them into 2.6.23.
+> Indeed, no code changes, and I feel strongly that it should go into
+> 2.6.23 because it's *fun*.   And (as often complained) there's not
+> enough poetry in the kernel.
 
-Indeed, no code changes, and I feel strongly that it should go into
-2.6.23 because it's *fun*.   And (as often complained) there's not
-enough poetry in the kernel.
+There's a reason for that.
 
-> But I worry that you're proposing adding what appears to be new
-> Documentation-related machinery and infrastructure when there's already
-> increased activity in that area from other people and we might all be
-> headed in different directions and stuff.
+	There once was a lad from Braidwood
+	With a wife and a hatred for FUD
+	  He hacked kernels for fun,
+	  couldn't get them to run.
+	But he always felt that he should.
 
-It does add an lguest-specific script: I aimed for the minimal
-documentation script required to weave the code and documentation
-(basically extracts and orders by comment prefix, because code order
-isn't the same as optimal documentation order).
+See?
 
-This is great for lguest, where the entire codebase is small and
-self-contained enough to be woven into a narrative, and the maintainer
-is prepared to put in the cycles to keep it uptodate.
+So when you say "there's not enough poetry", next time you'll know why. 
+You *really* don't want want poetry.
 
-But writing this documentation took *weeks*, to document 5000 lines of
-code.  Perhaps this effort, if merged, will inspire others, but I've
-seen little indication so far: we have enough trouble getting them
-documenting a single public function.
+		Linus
 
-> IOW, I'd be interested in hearing Rob and Randy's opinions on it all,
-> please.
-
-So they can see what we're talking about, here's an example of the
-output:
-
-	http://lguest.ozlabs.org/lguest-journey.c.bz2
-
-Cheers,
-Rusty.
+PS. Nothing rhymes with Ballalaba.
