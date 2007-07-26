@@ -1,16 +1,10 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/7] lguest: documentation pt I: Preparation
-Date: Thu, 26 Jul 2007 13:35:22 +1000
-Message-ID: <1185420922.27447.19.camel__41233.4989909597$1185421028$gmane$org@localhost.localdomain>
-References: <1184980678.6344.1.camel@localhost.localdomain>
-	<20070723171238.1a832b31.akpm@linux-foundation.org>
-	<1185238908.1803.63.camel@localhost.localdomain>
-	<200707251822.54745.rob@landley.net>
+From: Kuhn <fun@bellnet.ca>
+Subject: abuse
+Date: Thu, 26 Jul 2007 14:40:59 -0700
+Message-ID: <46A914EB.4050307@bellnet.ca>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="------------020203080700050506020003"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200707251822.54745.rob@landley.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,34 +14,94 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rob Landley <rob@landley.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-07-25 at 18:22 -0400, Rob Landley wrote:
-> On Monday 23 July 2007 9:01:48 pm Rusty Russell wrote:
-> > > IOW, I'd be interested in hearing Rob and Randy's opinions on it all,
-> > > please.
-> >
-> > So they can see what we're talking about, here's an example of the
-> > output:
-> >
-> > 	http://lguest.ozlabs.org/lguest-journey.c.bz2
-> 
-> Er, so you read the readme, and then you type "make Preparation!" (which I 
-> wouldn't have guessed from the comment at the end of the readme), and it 
-> spits this to stdout.
+--------------020203080700050506020003
+Content-Type: text/plain; charset=iso-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Rob!
 
-	I'm going to ask an odd thing.  I *don't* think this should be part of
-the generally-available kernel documentation.  I'm sure you can see
-several reasons for this, but I'll spell them out for posterity.
 
-	People reading the lguest *code* documentation should feel a sense of
-achievement.  It starts with a slight puzzle, works its way through deep
-details of code, and emerges with the reader feeling confident enough to
-start hacking on it.
+--------------020203080700050506020003
+Content-Type: application/pdf;
+ name="abuse.pdf"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="abuse.pdf"
 
-Thanks for your understanding!
-Rusty.
+JVBERi0xLjEKJeLjz9MKMSAwIG9iaiAKPDwKL1BhZ2VzIDIgMCBSCi9UeXBlIC9DYXRhbG9nCj4+
+CmVuZG9iaiAKMiAwIG9iaiAKPDwKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL0tpZHMgWzMgMCBS
+IDQgMCBSXQovQ291bnQgMgovVHlwZSAvUGFnZXMKPj4KZW5kb2JqIAo1IDAgb2JqIAo8PAovQmFz
+ZUZvbnQgL0NvdXJpZXIKL1N1YnR5cGUgL1R5cGUxCi9OYW1lIC9GMQovVHlwZSAvRm9udAo+Pgpl
+bmRvYmogCjYgMCBvYmogCjw8Ci9Gb250IAo8PAovRjEgNSAwIFIKPj4KL1Byb2NTZXQgWy9QREYg
+L1RleHRdCj4+CmVuZG9iaiAKMyAwIG9iaiAKPDwKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAg
+MCA2MTIgNzkyXQovUmVzb3VyY2VzIDYgMCBSCi9Db250ZW50cyA3IDAgUgovVHlwZSAvUGFnZQo+
+PgplbmRvYmogCjcgMCBvYmogCjw8Ci9MZW5ndGggNTI5Cj4+CnN0cmVhbQoztg7PSmbJJZFAT7l4
+lHUvTcLgxv/ihS6ql22g8bYpVpjtOQb/dNRZKR+0HM0/9YrdoMMybJj0etCR2vYzZNpcUWv+JvHh
+5lDUhXRdEVjPjsNxUqgLTk6/5pmhSXfWDDsqgNuybTSee8EA8p/PIUHtdamHD4MOy8EzoNQXPgOK
+deCtLTp68Eem7NJZeX3Fmet1iPj+qFVK4l2NYu9Rt0rW3MucPjkKGVUZIDu8cF7/ARsV501jwrcN
+/lh98XfmrJfpPz39Zgp92JRBJ/gN0mvUAXL1d5SQx6KqojWspd6GSlS6ccchab9itkSAgJjae9Aq
+O+2V/uU7D0nccoRMW9hNDgZWZ0rktkCIKTwqQHGEDa5nxTpBvHldQpAPuuqI9ArmQ2PzdjXy82eB
+QBltcDojKLEt8jiENEzpq3ry0pX6Tqa8gwle6NKkDlutg+m2t7DsM94blATg6yxL4QCJbmIepw4+
+bEnyEZy4Z4a5CV8E2FwTzshCzWd2qwRH9ySmyoNIilOOWyETHvU/QOPrvCka8ousA61Ks+QdXaHK
+Dsbrzu/OgGA4T+IG2xOSOzzCKUmuXMuYo2Kfktj7BdjiiTaFuU7DcvuzVmj+SPEqAZmgeuiXy42I
+IgqU9OVyCF/6vPUUdPHGsueNQXibeaVUpho7oLZeZSYQ5fZR0ja3rxukCIs2xYf962T6TJQWdKfL
+YTThCmVuZHN0cmVhbSAKZW5kb2JqIAo0IDAgb2JqIAo8PAovUGFyZW50IDIgMCBSCi9NZWRpYUJv
+eCBbMCAwIDYxMiA3OTJdCi9SZXNvdXJjZXMgNiAwIFIKL0NvbnRlbnRzIDggMCBSCi9UeXBlIC9Q
+YWdlCj4+CmVuZG9iaiAKOCAwIG9iaiAKPDwKL0xlbmd0aCAxNjk4Cj4+CnN0cmVhbQoCuZ3Q8IqQ
+iJ3TkrBf2b0aTplsuXte42yYafuAvhf+vk1b0PngImGmpWV2gQ10phYYFdjYUNef/e1DkN+SHLvR
+73tERUq/g30J9sOjm2cpy1v/D254PhdnyFI4jkehJ99zCWbMsP1FUBnibXjRwHsiKDF4TY2SAALH
+9BdOO5lxdIV5VXBwu8zlOJEkj97fcLl9X/Ry9gCZLT4zEFJmm7q1RBWDS1Lu8KpAj/TPTTzV5frv
+/gGqBJ9CKaSSH6og0Vec3SJUOu6+JyCKP8CKgoawCd7mSHLXjnSMSmseh/apZxHyY9MIigoFhvro
+DM0RjUZqXcMqnKEaCSHY20XX3oHTw723MKxw3KHyg//UZhdKEQ6JmfDOwsvZTJW7WHOCXIE4TU59
+aluzgiEnOLiROYQ4SuuG+iEXWxE45vPcSGrgimSh4R/LS40qlMcUv4mmugC4LBPzTshUwoyuYwa9
+d49+fnKIpSjdighrYIQ0yIS3FP8wOdBb8qotsnyqj5Q0p2FrbJFqX/wEZobArk3R40gO96FNOjcp
+3MhbEyv9GDFpukZXe7P21Y3KLJsCCVdm9HfV8S27gb5LodUnrvdI6pbcCWnrjTTgUKc2fsHJgbbN
+3G/jUsWN6UUsAPisAff0hpmcR00+SHtXGEsv1wjB4lHKBD8uIZAz4aSyf4PfAm5jD9MscuL0K8Za
+TweFqaooEPUShn0rpl+etf5GCK5N87/MHh4fkjMxdCSPDfzPgzifJOHIjJqcOIf5exngDOnJ0B7D
+6Rr9Z68Rt8O9PMtqGEs8w18GewWPH+U6Dr+cWtreTAaL+s8MmJoDOph9Xl27qGA+3TqAHsGo6g56
+kbOxd97pqNr7s9efZm0DW6v9HOL5gXVJK/ZxzJHkPJ/+XODDzzGg1A1j/PhV0Wp5qaav3MhvlMWZ
+tUBwnJbsJetEHdIKXdJvlyx7WtuA+tU9qwd0QCvcl4/rEB7NiNwLe5Giy8xGIpOvfqhj7ilVXGyx
+Ih70WC3/3aolFj35XYhEgQqnMtGRghTrPPh+ewlq3cy639NzeMg4mMbv0pWzWu0MRyjrHJsPQgB7
+hEviG0eQtfwMrM2G4T8EN1ni2gFajnjXYOBwXwnJnQyUUwSNHgfcwzIC7NGANN1KuiLEBO4uiMOP
+Ihch280G7SkXd01Ud0bm2NLcx9nvy9zkqV2VK2/tnzGne1GwDWRGm4BCBGG/QpGTfbkYLT0ilKC9
+3cOuh6IX51cnHXAtZe4wyyw6zG6LVzN0BqtQRdKaRrmpPdqcwNzS7CDjsYsB98PrQkdfMAFpKjlf
+k3QrB1AaprLQN7C6d4tm6ktaVICuQKvPb1XCG31ulA6ZnHuQSNaXYFPlBsoB7cNQQ1Fd8bdjejqR
+kxwGkAa9my9eoMNGEOzePhksfu7BWaobNEXxqM0Wv2fzNvVKfo6+KLdfnTrkDoP1fvTr1RGd5+3F
+85td8kPWc4HafsO95HnBycntWkieKjUX5o6uB6pwdOPKfTRfvualp54xGg7AOjHYM+hcNbLVZ/KU
+kUTlCkIBHh/wuEnjhsNeHEQXQnk6jrIX+r0pZgMWuc/k6pDREoSy+8vX2zDls/Zyj33AI5iHgmID
+12KXxGOxAOOYRVkKcYLcXyTGmrTye+rxKUdwUyTR1mjnXO1IyaJIO7Wy1jCWXixX4/TF39D74Y5W
+d1HiTV42AziW43m9mEOr36JE1Ss+aJhvn2Bjn2mY5HDezA2jzEFzBZbeamH2yhvoqLGyDKf8EMy/
+3un4iZTj7xTAIhWtIJvYPRt/ZEqf3t8r1mf4gAnSR9zu43SUOdDFnbSXwUH1GETBKr4fckEtsPRE
+k0sy0/02daJC+Tir0EcERtsIge7vo7PWJ/ASQtWyK1G6OiWixHIHnO7N6Cn+Gw/goxne6iDoNjaL
+WB/Ia5mwUQrN/0h9RVje3KG7CvNJV/MMFeJE4liXmBXMYky0fBY3fXxgO1Hi2F8lWsBNV1B9Uq+q
+IL/L/0gfiz8LtNgWHRgoNNaMk55XmOABitqXqImI75QztqaX4K+3pob288/VCgteC6k0iYT2wJbi
+wthIK+c3qJ7tXJQrH1SUssaf5hmcoKtrW5D+CeKpxYyf/JEJ3epW3VC1sBid3ZqpRmCBc1Yx4Hqy
+mPTneZeBhxNDRx8yJQufoJq6sivoeTin3gybcSRQp1qgCZTPH53g8txaeEtQywFqfP2sD5sMuSfB
+GamadWQybRVeio95tR6GabqAZ4IoVN/4OzSK/I66Z9z89B99+kAKZW5kc3RyZWFtIAplbmRvYmog
+CjkgMCBvYmogCjw8Ci9SIDMKL1AgLTM5MDQKL08gKInDvTX2rRI9Y9E7UTY/eHH13LM52fUGMNpA
+SnBRe1JaKQovRmlsdGVyIC9TdGFuZGFyZAovTGVuZ3RoIDEyOAovViAyCi9VIChGo7+YZyTknjXS
+sKTtMVN7AAAAAAAAAAAAAAAAAAAAACkKPj4KZW5kb2JqIAoxMCAwIG9iaiAKPDwKL1RpdGxlICiE
+rUugZZh3EXk0N+NuZmfwehTlWnijlxAZXG48IhKTKQovUHJvZHVjZXIgKIeqEvN+n29EfT9goiN+
+ceszAOkbeuyRGl0GXCgjRs9eFiVhXG4cEx6jHhnrk7Hy901fTJ2pP87bHb5pVGIqbpyzJ0Il5TlD
+AEviYZauq8jEk2gCVt/7P2ABxZ9gzkV1nSamoER0KQovQ3JlYXRpb25EYXRlICiX/wCwJsJcKFEk
+ZiewfDkgsykKPj4KZW5kb2JqIHhyZWYKMCAxMQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAw
+MTUgMDAwMDAgbiAKMDAwMDAwMDA2NiAwMDAwMCBuIAowMDAwMDAwMzAzIDAwMDAwIG4gCjAwMDAw
+MDA5OTIgMDAwMDAgbiAKMDAwMDAwMDE1NSAwMDAwMCBuIAowMDAwMDAwMjM1IDAwMDAwIG4gCjAw
+MDAwMDA0MDkgMDAwMDAgbiAKMDAwMDAwMTA5OCAwMDAwMCBuIAowMDAwMDAyODUxIDAwMDAwIG4g
+CjAwMDAwMDI5OTkgMDAwMDAgbiAKdHJhaWxlcgoKPDwKL0VuY3J5cHQgOSAwIFIKL0luZm8gMTAg
+MCBSCi9Sb290IDEgMCBSCi9TaXplIDExCi9JRCBbPDIzYmMwNDIzNGVlZDY3ODQ3NDY2YWM4NTBm
+Y2Q0NzMyPjxjN2MyZGU5NGQwMzMyZGNmOTQ5YjdjZWM1NGFiZmNmNT5dCj4+CnN0YXJ0eHJlZgoz
+MjExCiUlRU9GCg==
+--------------020203080700050506020003
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--------------020203080700050506020003--
