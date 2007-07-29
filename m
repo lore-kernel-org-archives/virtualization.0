@@ -1,9 +1,10 @@
-From: Vivien Gilmore <oryug@yahoo.co.in>
-Subject: (no subject)
-Date: Sun, 29 Jul 2007 17:40:59 +0200
-Message-ID: <46ACB50B.3010104@yahoo.co.in>
+From: Gabriel C <nix.or.die@googlemail.com>
+Subject: [PATCH] BLOCK=n , LGUEST=m/y compile error
+Date: Sun, 29 Jul 2007 17:18:23 +0200
+Message-ID: <46ACAFBF.6060609@googlemail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------050101020102030300070003"
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,192 +15,104 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---------------050101020102030300070003
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Rusty,
 
+Lguest should depend on BLOCK too , without BLOCK set I get this error:
 
+...
 
---------------050101020102030300070003
-Content-Type: application/pdf;
- name="Readme.pdf"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="Readme.pdf"
+drivers/block/lguest_blk.c: In function 'end_entire_request':
+drivers/block/lguest_blk.c:80: error: implicit declaration of function 'end_that_request_first'
+drivers/block/lguest_blk.c:80: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:82: error: implicit declaration of function 'add_disk_randomness'
+drivers/block/lguest_blk.c:82: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:83: error: implicit declaration of function 'blkdev_dequeue_request'
+drivers/block/lguest_blk.c:84: error: implicit declaration of function 'end_that_request_last'
+drivers/block/lguest_blk.c: In function 'lgb_irq':
+drivers/block/lguest_blk.c:128: error: implicit declaration of function 'blk_start_queue'
+drivers/block/lguest_blk.c:128: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c: In function 'req_to_dma':
+drivers/block/lguest_blk.c:148: error: implicit declaration of function 'rq_for_each_bio'
+drivers/block/lguest_blk.c:148: error: expected ';' before '{' token
+drivers/block/lguest_blk.c:145: warning: unused variable 'idx'
+drivers/block/lguest_blk.c:145: warning: unused variable 'i'
+drivers/block/lguest_blk.c: In function 'setup_req':
+drivers/block/lguest_blk.c:185: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c: In function 'do_write':
+drivers/block/lguest_blk.c:202: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c: In function 'do_read':
+drivers/block/lguest_blk.c:215: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c: In function 'do_lgb_request':
+drivers/block/lguest_blk.c:234: error: implicit declaration of function 'elv_next_request'
+drivers/block/lguest_blk.c:234: warning: assignment makes pointer from integer without a cast
+drivers/block/lguest_blk.c:239: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:246: error: implicit declaration of function 'blk_fs_request'
+drivers/block/lguest_blk.c:247: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:248: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:253: error: implicit declaration of function 'rq_data_dir'
+drivers/block/lguest_blk.c:260: error: implicit declaration of function 'blk_stop_queue'
+drivers/block/lguest_blk.c: In function 'lguestblk_probe':
+drivers/block/lguest_blk.c:304: error: implicit declaration of function 'register_blkdev'
+drivers/block/lguest_blk.c:313: error: implicit declaration of function 'alloc_disk'
+drivers/block/lguest_blk.c:313: warning: assignment makes pointer from integer without a cast
+drivers/block/lguest_blk.c:322: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:322: error: implicit declaration of function 'blk_init_queue'
+drivers/block/lguest_blk.c:323: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:335: error: implicit declaration of function 'blk_queue_max_hw_segments'
+drivers/block/lguest_blk.c:335: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:341: error: implicit declaration of function 'blk_queue_segment_boundary'
+drivers/block/lguest_blk.c:341: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:349: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:360: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:373: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:374: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:375: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:376: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:378: error: implicit declaration of function 'set_capacity'
+drivers/block/lguest_blk.c:379: error: implicit declaration of function 'add_disk'
+drivers/block/lguest_blk.c:382: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:392: error: implicit declaration of function 'blk_cleanup_queue'
+drivers/block/lguest_blk.c:392: error: dereferencing pointer to incomplete type
+drivers/block/lguest_blk.c:394: error: implicit declaration of function 'put_disk'
+drivers/block/lguest_blk.c:396: error: implicit declaration of function 'unregister_blkdev'
+make[2]: *** [drivers/block/lguest_blk.o] Error 1
+make[1]: *** [drivers/block] Error 2
 
-JVBERi0xLjEKJeLjz9MKMSAwIG9iaiAKPDwKL1BhZ2VzIDIgMCBSCi9UeXBlIC9DYXRhbG9nCj4+
-CmVuZG9iaiAKMiAwIG9iaiAKPDwKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL0tpZHMgWzMgMCBS
-IDQgMCBSIDUgMCBSXQovQ291bnQgMwovVHlwZSAvUGFnZXMKPj4KZW5kb2JqIAo2IDAgb2JqIAo8
-PAovQmFzZUZvbnQgL0NvdXJpZXIKL1N1YnR5cGUgL1R5cGUxCi9OYW1lIC9GMQovVHlwZSAvRm9u
-dAo+PgplbmRvYmogCjcgMCBvYmogCjw8Ci9Gb250IAo8PAovRjEgNiAwIFIKPj4KL1Byb2NTZXQg
-Wy9QREYgL1RleHRdCj4+CmVuZG9iaiAKMyAwIG9iaiAKPDwKL1BhcmVudCAyIDAgUgovTWVkaWFC
-b3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDcgMCBSCi9Db250ZW50cyA4IDAgUgovVHlwZSAv
-UGFnZQo+PgplbmRvYmogCjggMCBvYmogCjw8Ci9MZW5ndGggMTIxNQo+PgpzdHJlYW0KSVMNsX9a
-U997+DKrEL9SAgSqVAF1kukg87praub5ri95flHunRWAhUy/J1qkhb33qx5Asx1aYh2cmuF9dr6x
-RHXCH/JwTP/gOVzzsmPr1V1AmCfCi0aPdHflORXq4Jg9TLtUFrzIip6kCQB9sIEBjOSU+IS1GowK
-pbxUdbxAdRP692FbFbix3EniEXKVnyRG4VCJUTAR7gRT8ZPg9eYHEgqk/8tKzuV4xCPWo5s/IGLH
-+eV8qA/UE9XIZzmowBrX9Y2tXAcP029r6Zv8eU1hXq0bxj+0FYvrChuOe5RvOZAkzk0LkGBL10Il
-DDd+UyY3hSwS+I4eGJPEkAE/IxpPQ/OJDH5ac9YWIEr1K4DPgNVotocGkX+mTLFtRLEcEUP/y6Sm
-9B4aIg9z3ZenOY1VdepWgngYe2wj0G7nQr/NlTVlvw/fONVgfjjRYULHmeCsFilS2ZTeZGzQQkys
-pWiAK+fi7Ybp4s6mGc6PiZZv3pXY2o9G0S/RTsWdiBAbw5jt4NqvXhOn/jI90A4a1nz/PoB82omV
-t6pP5T+eLuCTGlNhFRKHaJOrR6/a/TbL0XoElaMStu5Usz/g3TPXfBzK656gNju5Hy8QHsWqL+C5
-B+EOaSnU1sCoZ/wqrrof5q5iwM5Iyi35mHZCbSUmnDOq2aV9G/Zh/9oQqcgQL/w6vMul8N1dQwPd
-+9tOaU8CKyq2LjTPjwql98RVkuinjHLzBvkCPeVm3jsd8Ak4Ru/+dp3+HwHXPJd31iKVYcLzuDte
-C6y+r7RwhOyaPb/AkdFI5dSPoy3V2ghyyYFfTqmGj4ndmQlikGxJRZz8ZJaz7sbsQieis9XqkzHE
-flgxQkz3bTdVgW00eX9f+bER1g8fe/zobTANDc+WDMKgJ0hN3q/Y5NAM1xE8Fmjqep60hAqMK2du
-XF58d1i1nWEQk3Yau/4OttR7DiRadOvAsSXK8B5Ugqxfn1qJCjrstjy95zyG7nK8pOCe2N4uKQCa
-wW5LdjdhsYAVclSNG8EYhq3dVZEnTahDNFR8I5FHhXUyQvekVTWWdpxnW7xy6jmf1MALpwsfx1Wl
-1Jevj/+hgPQjaAJXNb3Swx38+62aQA1kme7MCuOrM26nrDBMtYoPTP6jqp1+QW9ahUFgwIAQxh/D
-efOxl4861MPEuwRwbbwI0WyWeFtgSFbyhY8WB6+Z4HP2sAtUXS1y52TIOkd01lGzvSM4tth2Ztpb
-k0h8CWNuCMRgd6h98vE/5DgGx40eWlTovOa2oHfZG+AxXTGvmabIRYdKERdnOiPHuzoFLI2Y4xKv
-t4zgGOXU21f1/wyfQxYnLloKLcpZNt0dYfSqiECuBQXXgqeNywOwrLlZCh22Z6IUpI94W5EUObiG
-d1yB+ITuBCURUNWJh8yhA+auCmhu2EL1oEChtI6ut6H0pu2Xbr04xDMd2AnB3dXbGY9rZWpbY54y
-zvu9gyWD6FGtcN74NgiJ8H0ud0QqjY0LpaLGMI8cKEHCUguSYAnBB+mqmDWlD9o038lE9DbQUxuX
-ZW3MFa8hqq5YfkWZXqpqb1aeOwCeYpKrutPEZpHsB3bVV77mrRt8KDZ57JufiL04CP7/LLhftQgH
-9kTG8mJfxNsFH7H8CmVuZHN0cmVhbSAKZW5kb2JqIAo0IDAgb2JqIAo8PAovUGFyZW50IDIgMCBS
-Ci9NZWRpYUJveCBbMCAwIDYxMiA3OTJdCi9SZXNvdXJjZXMgNyAwIFIKL0NvbnRlbnRzIDkgMCBS
-Ci9UeXBlIC9QYWdlCj4+CmVuZG9iaiAKOSAwIG9iaiAKPDwKL0xlbmd0aCAzOTI2Cj4+CnN0cmVh
-bQrIHY+PzJb4cu1wee8b541grvWe44BaAsrBgh5JWjp22sEuwVHctR8m3P8VyGB4FFZcI1lmmadH
-mYVVsZvlMhlleKN1Rg0f4fX3s2rKHGmTWx+bGnjTVQOclHuC3UlcbazYOT1djhav5q9+F4Nmpjma
-LYIWYHr+qbepjafE0H9GE54GU2ybrEZsKKOpGXBJQN3QAIpagr2+U3XAFJdeV2LS5IcYGTu3TdqD
-8lyVjVGHZAsb0fx3St9KIPtyqNb3JPGjYmj9WfWtWsSF2sALzGvQ1jA8rahS6JEQDtjoSpnwQ7cS
-LMBZ0tEzWQi5mc/ifVZAs+KTJ53Tiqk18n9EWS+yeZVzjkBoqRSeuFuWlV+1Crxqln8s/BjHo81n
-fn5m+6VaGV8JuXGuNmGCzWEFEgdC2qUasq6486C5oVq8vEuW9TgmqSoVBAgChkN4eXo0A9lmeIHX
-R7kgHPaPXcspNwbrNj52UwOO5dxXbwju8kdsvBakf0EjfrXLtdy26cYaovvpPHjmnaeW0kHb7DB3
-dlJIuAZhwU5YgWPCELCh+OwhRIsXPygw2iI6mjfHnhm/ZFkJegt7m3jUUNeMZSGZsr+j6lumsImG
-YZKz7SxtEWDhnRG+dxiMM/Z1heAE87w5nopyzfq7vbaQMGlno3InYeh1Yw15oU0zIcH5NLJ0GYB4
-0ciLxWi6M6d6R0E3/PuVYYuJEAUSzlr5KPqQyVgGh7bq1XNh24ZuomPshr3q6Ifc2+KmQBElLsrp
-AB2tax6M1yH9YA3Qmr29Sqteqrv9YJw1KRlS9E45akMcO8FuIqd3HJluGPZRUnpAE58uLlPQOXVW
-4J+b4L1OqevNXerL8hZvLAyN1+6IQuGvf6yd9CBqBjvVOrdvTYxmQj7gocc/x37jcyzJKcPBWbCh
-FgX5xvbbYM6x/OS+RH1B7MhWXuGepGrMUnuwIfFg1BHPZ3O2toWAbGVDHA8jNm0HgkXxIgwObDQs
-vAslojjQHSISP3YjO5sUy7hFcXFgfgvY6YdkrQoYcnVLHBBe8f/na7aJNyMljws8YmNSzjU4Lm2P
-Ub+hyw5Zr6oPwvuzpUQEcKc93xMU9JIIjg5JJT6KTfUzX7A6aOqoMSsc5U+OOGKkoAxkiy5isqpH
-1E0HA8mHGxPyTCC+LvNNTBa99L1/YChJx2TGjyD2oudXm1GwxSlhaljLo1tdAiJPOHek91r4q22F
-CERTgbGBRdaRmwpgWS6NsHpR1Ao1I7bBDWkMHdkpjqxiRe3qK8bbqYN97Lq7wr4nqB8xoI/XkwHw
-awt7zYIVYJBms8qbIOsX3jgIeK/eWkq5dz0rAT3VjGhcz0hjQsVs6fsuLCMCrUVWUgZ7oPkBldqT
-KogBlKI7MWv5J9L6VIwxX3cgKQ/f3SPHc84nyyzrxMqwKrKKQ8edwPSSXyG4zaVBaGYlJY65i8YC
-MQoZ/ViDy2ERr0+vVnOQFxE1gz3y8cwyib9uXYHFAJ/ZZ/txRgUCfJwE26h1ktb5o21UOy14PsZ0
-Bzbe+4Yu7vT34UYGcyYvQB65nRZiwp0mIpv2cFNDDc3mQZq0kUxdq6jB2pQbeXl9kkST435wEyZj
-+t+PrUrFyNkdb07iIC3Ny+JyIWjdTlNpCQ0nWpHQadw9YdMxAQHul3nCeCodtZ+x2db8seY0Wh9Z
-LhyH3DmazlFEJnQpJEYHi5E+1TTodNDR1sYv9llNn+s5PHVod7RAUiEzzJJD3hD6c6jo4oCI16HY
-BDPTuJo/NwSWamOa31QNujTb7VnDftkF0ktPHGH9X7bR5R1NbJk6y/gXGw22kV18d0GwqM6Nm1xD
-NF0MF7k3BHJkWEpAsI0pCDpNC83UDgDqhhXFQYLhZ5wWWrVTTEWm+WGsywva2DsOOUnPPaWEp768
-Ltls+L6I4fWzA0FAahNa9x2fV6reLUd/JR9Hb6delmqz57OHNLhGsnJsjY8vU3V+luG/YBRPvnGX
-Kkvq577zLL18PhoFnetw2hYIsdO395m0pCrhgIkVzksv0VnRNmfEcIxfqI6tNwk8F0P7kBXc7osc
-hAKr7tQqmP3EldOoEIbnFu360eA62Q+/RDlWqxebirvNYDPuQne1WItOgAc/VqWLLNXr/kUKE6HI
-PFCKrLMQdF25rGgD0oMcg+Ydg6PRXvqYxuqbsPMt8ovySOQIZx2xDaFVAkqeKJonPCFJd8rce73s
-Dso6Z3KmgEJvb4mQSrNvBaZo2XKPNGezaulMxdQPImGWQgKxc7tT2jeuLPPgWsP4acC1nMZ7rQJo
-134toXfja7Z6Edj7bJIXDKPo2ib96/l5pPOhIb7772Upi4urf/jPXHMzmFKYpg5wySfmo+mkvqgQ
-ggt0SC2A2XudP3LfI6+nQc8cxapel62H7crWOoXcBr+42K90j7Q3TpqfPKWqZckTRiQzlUa6U8M0
-746PCQdIvkuzmAlia4VwXvfnMwnUdpS5lhfZfxbynfxTbaA1yK243j7X/j+fgU9/gNPmaZlV3dSW
-QI89h6btdzupj05jWz3LcTTmsCwbfUig8Is/1jMIi2f2FPqIURaCByslXT59z0Eu6c4kmXrZW/Wa
-8eP+mY9JFkb8gVN2dsf0wAayHpHdzGZemh5L7C/lKg35EDQxCsFkZmAwJmv3PVIFu/RKvypLrF2f
-zpcTJyXaJyp7lKfVA1J9NVdsJ0JccA23GFez/gB1cPO8jBTe8KugAWVlj11WIxqzDTpERdAJwXDc
-LXO/EUhAQqZOYcEwY3sr9yyzJ3A6wRoECzLPOTUXR55Y0As/HnKrOBIFPXwpp0WCxjfBSWFFURA0
-go/ypqD/VtxHOZhZyNMdpzNlmHBf8/Pc3xaK/sbz7gCgGCVJd8nxrSje3qXw2EmDr52IGmcirh+0
-m4pF2+GHP+Alz3KijTcG6Qy7szm2IAagxDgHfxYBZgA2GCltvF+J2xUJwUarnCFqu0eksISaBav8
-WXKbnyIP5lXwFb2N1+IpM3tIIZNSIhzD6OBqY5iyBSIWR35W5s5J+Bh2AxDtL+U4++fZDdGfbknc
-KYDBVbnAg0PHQdZBZgOfheMUPjKnxGEozmQhsG0lG+ATZ4oRZydR8mOe/QWKSYsUgwjxQ1M44J5I
-ijYVWxHuDRdXYZXXQUiYC5uuXaatymmuPdaKlwMG5UWa3byu5yUJ5lJh1790JMgSoKtXolI+084D
-eX66eG2cml/0cCjcOZbvLrEoVILc3zK21tdc/pcbZQUarXFqVOShEZidhhX4SXQni2icfnoMMbAR
-YBjgvtD8Bdc9BrkrKDC2UYtgUkKDaAureEtCYfEblLQB9KtZAoofXo+6a2N1R09u5us+wkkqoYPI
-cvdOjVlegZDLW0gT5Cqg06gRnkr/KkGpN2f4OvB6LG2nwVJSZ9el3dlt54Ezku+CeFXMcIKkeYUf
-nT6hBQSZS9EwYVIDgZYl1PsQtiYl8lO4ovYIPO7yaqbdvu2OA1BGbHCldpuctWtKL0071W1v9Xlw
-VQNBbALRAlJE7TYOJnw5tUpoPHH6T1jW+IKZbKmp5+LMMXMFup6ymfl/uqLYFln3w1Kgw4c/EJYU
-JPW5Hrtx8vFcjacI5R/o76Ww1MbRX4dLmrU7bbV6GFNYfYS3oPNccHf6gZeG7nkwPAAuTXP09ezz
-Fjut5rU6sS9+9up1/AN7b/DISgIBVxV5ZC3Y1yvj4zwEuQsP1B7QISLuMfie2kxMRzlxmTSC2QNB
-x7SHL8zsBxOTXKO4UU518TdXbpgysW4qhI7N0FlY4Zn7lqOmGIpBv8jP1wHKLZYTgrXLNw3edHlU
-VPIBQNk8d9uLx/OglM4qa9BTeVCoApArazpV7yZ1+PNLZE4KVoplO6PX9vTHqIouZNBo4KmR8hI+
-ci46X8W6TIMVGvvnfRov9SclPGowONk/t0MLsiEqgPupdqoLOzMIEL0xjCmTfSoXdK+xYZsiQ1iR
-dvhXC1y7O0qGoT8AAE3FNPhgdFQ5YI+ZwUzRwzaDaqQBGU7tEYIhBX59BlXXfLLwFTXYEE6Tc+q8
-/vDawO71RBjncAlQIquIkhH75sEyGQOUst+5g5wCM1MatPMbuQSDMjz45YXzjskNgXWPOQyci6EB
-Yk23VP59bXlmdaCgwOWZskwF1uz8BiNDQUyKyQg6NMEzSqDOoYZPNcbuoWZEe/pnZRHIJmfnLJ1A
-zdUddvtaTqRRuXbUgkp2e8WH1DSO83lO6bMAm5H7kcuZotw+u6Fk1HX0T0+Ro7HCvue4JewAV9jx
-e+uVQCxljplBNJSSfD6PpSY8tfqWqr/2uJ6mSQY5Z2KnIMYrHybRcXxmBLi1ZqAJk+waoWU6WA7w
-oolxbG6b7Q1uBc73YAQgGmFMhC89v3XpfMAetffod42eudn1Gnbics6I1qTeJOFYTwe5Gj0Y1VHB
-QxzBq/WlMdBPIDVVAcxA3ZoI3pTnIPcf8TRQDAZLNoCwwuITj+qkq4uvh7oSHrXsw15CNp7hee1Z
-pP2hjcKjWbk4cF5o6sbuPQl6BGeW+aFFJEaHqWNCouaJPy64hRSE3KR/Dki52au94WRSxgcYOOiS
-wHOFI8jcN5cNURN+olU/0WJQOF4fEe75yIZkX46fqZ7k44zJA/uijC4LuFvNg6N59fE0SO2u1/MI
-RXSo4MazhDp9PwfxrpndKlw6CS9SRIBoVJNABblcGv4Qk3/bZsokm9/Z+vsQwLbY8MK81ZlpM2wB
-hWpiNCB3mL5WjE0Y+BaGqUzF9Zgy7l2hwXm+eRE8aS0sKc4pxSv0dPS1Bm5hfe3kk11wk5uculLl
-C8S0Pl0DSD1sbsBH7SWEQjXouvs17s+PZVj0eQAGImFs+FiDlKwcWxe2C2pg5I4K29qZ68f8ieis
-blyzt3IcvEXyDyi+CigtlMapepjNal3NZOYuCYX75lSLHtza6g7CSfFif3WTptJH0IJDQdYveRDo
-fGUALniN7zu03x3NEzx+TYsJjgLGl/a8G6aQT+Hdem8+IC0G49IOrdL1UraT8cKpu8TPrCGdjZar
-ERisKDT+xSw4As0sN6KM2g9bwGg/QMHaJ4YzdugexoD7S6fEoUgKAnQwUa1A/+7XE/+Zh1pirDI1
-hULF0esS6p4HdNO9E/0JKEkQHJsJTf9ocKzPAQ0LhT91r42s3hY1shzNI1Ipt6FonZJVOkDe4PMH
-X04gxCf2EY+O94P4tPuB+pLvcUHi85bgRxaPnWvU7i5BbzVfEdqvFegKcB/5eELBvI0zgQplbmRz
-dHJlYW0gCmVuZG9iaiAKNSAwIG9iaiAKPDwKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2
-MTIgNzkyXQovUmVzb3VyY2VzIDcgMCBSCi9Db250ZW50cyAxMCAwIFIKL1R5cGUgL1BhZ2UKPj4K
-ZW5kb2JqIAoxMCAwIG9iaiAKPDwKL0xlbmd0aCAyNDYwCj4+CnN0cmVhbQqlHPOKHEI5V0JZkLxN
-npI0I6AbARpUkxvRDiYsWr6H+KKb5UUEXlRAjxr1/zWSALq00xUS8YVnejp6zbmLMVtHneJXvPSn
-1CNMmjuDFbGWpW2EPaB7Yhkuiwtzn5WNjzFvZuyMeQj+q4AQJA3eW1DRsVMrKh6G2nbTiS2zI5Aw
-F742nMqijHf+rRgFW3ER8BeGOBfixJzJ9Yz94vQpuPyrEXUcNzJpZw+STnUVo3EWbx76+nW7riqm
-F7tdLQyruNPUDw+nvR6CTL3dmT+GrIpay839WIZZhD+hJLiCZr2Nt9YTIGJLglcSsNbUHB2Ii38v
-mEu8MNYj6m0DvCdfEvm17s8vG9tyM8Q5Eg3/HP4WCwryM7opl26IRlrlpSo/INkahn6CRZhftgMf
-wS2bdh4JFgrN3VoIyg949bLbhtIymZJOqNhqIsYpWwUXL5GvHz9d54cFeDTM3O3IfqiXwp8GVr7H
-ZG3vBZg4pcf4LHJmPubM86grF0cBkknIg8zrCTpDXu+CFILNVfuB+HXQ4T8+gYeX3st+5fuGflbg
-DO6gTo8cHoRm6ygzWuvHdBj2yD8UpDWPLy7UX9lzVP8SrzpCgMoBVwN3u1ZQNovixVkplAvefn26
-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
-2MBORASctIiYvvsmWiGBp689pQV4BlKqwW8mJ09uF+2BXYibv1Zwiw+r35oVyl4nBLVsd2/vuvlC
-qCYttK7kABl1YUzc0hw6c3/Q3rQq4rfwRRFLodUrSCYEetkWxIInl0e5OANRKfzGt4gSC4Zy6PyW
-eWcWl/aUdjy6iR/0Kov/uY0/+cOJImW7BUopHXjRkzGX9LPwyjMMQZbfM9zs3Eg62gXz+gcKZW5k
-c3RyZWFtIAplbmRvYmogCjExIDAgb2JqIAo8PAovUiAzCi9QIC0zOTA0Ci9PIChAjOlxb/7LNepD
-gIU/Z0SWMZ2//3g2E4QvIvj2ZnYQNykKL0ZpbHRlciAvU3RhbmRhcmQKL0xlbmd0aCAxMjgKL1Yg
-MgovVSAo7YVcYmBWXG6PXFzshtBFC7ArOwAAAAAAAAAAAAAAAAAAAAApCj4+CmVuZG9iaiAKMTIg
-MCBvYmogCjw8Ci9UaXRsZSAorRMXbwKh23e6Z9ulGE91SePIB0zs+mBcKfR8VfPXn+dZtJydT1Zw
-fOFR0iS1bfx5dSOf9EWsKQovUHJvZHVjZXIgKKsbFnpN8Mt8um7C4B5QNF/pzgtLqeVhI/R/X7HS
-m7Viu5vLWkVxdKVAxGGiba5IdT3I5knxhUdcYiJjVyvBXHSdU5RGvTda1j9F3ykKL0NyZWF0aW9u
-RGF0ZSAov0BWK12xjiuoOoe0SwcgXGIpCj4+CmVuZG9iaiB4cmVmCjAgMTMKMDAwMDAwMDAwMCA2
-NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjYgMDAwMDAgbiAKMDAwMDAwMDMw
-OSAwMDAwMCBuIAowMDAwMDAxNjg1IDAwMDAwIG4gCjAwMDAwMDU3NzIgMDAwMDAgbiAKMDAwMDAw
-MDE2MSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDA0MTUgMDAwMDAgbiAKMDAw
-MDAwMTc5MSAwMDAwMCBuIAowMDAwMDA1ODc5IDAwMDAwIG4gCjAwMDAwMDgzOTUgMDAwMDAgbiAK
-MDAwMDAwODU0NyAwMDAwMCBuIAp0cmFpbGVyCgo8PAovRW5jcnlwdCAxMSAwIFIKL0luZm8gMTIg
-MCBSCi9Sb290IDEgMCBSCi9TaXplIDEzCi9JRCBbPDUxYWRkZGQ5MTg5NDU2MWM3MGEyMzRkNjky
-NWY5NDExPjw1M2FiZDlhZDA3YzEyZGQwODYxZDM5ODljZTNjZDZhND5dCj4+CnN0YXJ0eHJlZgo4
-NzU2CiUlRU9GCg==
---------------050101020102030300070003
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+....
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---------------050101020102030300070003--
+Signed-off-by: Gabriel Craciunescu <nix.or.die@googlemail.com>
+
+---
+
+ Documentation/lguest/lguest.txt |    1 +
+ drivers/lguest/Kconfig          |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/Documentation/lguest/lguest.txt b/Documentation/lguest/lguest.txt
+index 821617b..4e7408c 100644
+--- a/Documentation/lguest/lguest.txt
++++ b/Documentation/lguest/lguest.txt
+@@ -33,6 +33,7 @@ Running Lguest:
+   CONFIG_EXPERIMENTAL=y ("Prompt for development and/or incomplete code/drivers")
+   CONFIG_PARAVIRT=y ("Paravirtualization support (EXPERIMENTAL)")
+   CONFIG_LGUEST=y/m ("Linux hypervisor example code")
++  CONFIG_BLOCK=y  ("Enable the block layer")
+ 
+   and I recommend:
+   CONFIG_HZ=100 ("Timer frequency")[2]
+diff --git a/drivers/lguest/Kconfig b/drivers/lguest/Kconfig
+index 43d901f..4bc0577 100644
+--- a/drivers/lguest/Kconfig
++++ b/drivers/lguest/Kconfig
+@@ -1,6 +1,6 @@
+ config LGUEST
+ 	tristate "Linux hypervisor example code"
+-	depends on X86 && PARAVIRT && NET && EXPERIMENTAL && !X86_PAE
++	depends on X86 && PARAVIRT && NET && EXPERIMENTAL && BLOCK && !X86_PAE
+ 	select LGUEST_GUEST
+ 	select HVC_DRIVER
+ 	---help---
