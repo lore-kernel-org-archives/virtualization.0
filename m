@@ -1,10 +1,9 @@
-From: Carylon Alexander <calexander@usamailsolutions.com>
-Subject: Small  Business Awards Program
-Date: 29 Jul 2007 02:53:09 -0400
-Message-ID: <20070729025308.5F39D40DCD9A1B2F@usamailsolutions.com>
-Reply-To: Carylon Alexander <calexander@usamailsolutions.com>
+From: Neville <dasl@woh.rr.com>
+Subject: (no subject)
+Date: Sun, 29 Jul 2007 06:02:51 -0400
+Message-ID: <46AC65CB.8030605@woh.rr.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3045461848808515716=="
+Content-Type: multipart/mixed; boundary="------------020804040501060106050006"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,1084 +12,295 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============3045461848808515716==
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+--------------020804040501060106050006
+Content-Type: text/plain; charset=windows-1250; format=flowed
+Content-Transfer-Encoding: 7bit
 
-<HTML><HEAD>
-<META content=3D"MSHTML 6.00.6000.16481" name=3DGENERATOR></HEAD>
-<BODY>
-<TABLE height=3D69 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D0=
- leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" margi=
-nheight=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR>
-<TD width=3D300><IMG height=3D69 src=3D"http://www.diversitybusiness.com/ima=
-ges/header/Header_Left.jpg" width=3D300 border=3D0></TD>
-<TD vAlign=3Dtop noWrap align=3Dright width=3D"100%" height=3D69>
-<TABLE height=3D"100%" cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=
-=3D0 leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" m=
-arginheight=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR height=3D21 width=3D"100%">
-<TD vAlign=3Dtop noWrap align=3Dright width=3D"100%" background=3Dhttp://www=
-.diversitybusiness.com/images/header/Header_Right_Top.jpg height=3D21><IMG h=
-eight=3D1 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" wi=
-dth=3D"100%" border=3D0><BR><!--TOP NAV--><A href=3D"http://www.diversitybus=
-iness.com/MyOptions"><FONT color=3D#c70015><STRONG>Sign In</STRONG></FONT></=
-A> | <A href=3D"http://www.diversitybusiness.com/Registration"><FONT color=
-=3D#333399>Register</FONT></A>
- | <!--a href=3D"http://www.DiversityBusiness.com/conference">National Busin=
-ess Conference</a--><!--a href=3D"http://mail.Div2000.com" target=3D"_blank"=
->Email</a--><A href=3D"http://www.diversitybusiness.com/businessawards"><FON=
-T color=3D#333399>National Business Awards</FONT></A><!--a href=3D"http://ww=
-w.DiversityBusiness.com/topbusinesslist">Top Business List</a--> | <A href=
-=3D"http://www.diversitybusiness.com/DivInfo/Contact"><FONT color=3D#333399>=
-Contact Us</FONT></A>
- | <A href=3D"http://www.diversitybusiness.com/DivInfo/Media"><FONT color=3D=
-#333399>Media</FONT></A> | <A href=3D"http://www.diversitybusiness.com/DivIn=
-fo/About"><FONT color=3D#333399>About Us</FONT></A>&nbsp;<!--END TOP NAV--> =
-<IMG src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D13 border=3D0></TD></TR>
-<TR height=3D48 width=3D"100%">
-<TD vAlign=3Dtop noWrap align=3Dright width=3D"100%" background=3Dhttp://www=
-.diversitybusiness.com/images/header/New_Header_Right_Bottom2.jpg height=3D4=
-8><IMG height=3D48 src=3D"http://www.diversitybusiness.com/images/ClearSpace=
-r.gif" width=3D"100%" border=3D0></TD></TR></TBODY></TABLE></TD>
-<TD noWrap width=3D6 background=3Dhttp://www.diversitybusiness.com/images/he=
-ader/Header_Right_End.jpg height=3D69><IMG height=3D69 src=3D"http://www.div=
-ersitybusiness.com/images/ClearSpacer.gif" width=3D6 border=3D0></TD></TR></=
-TBODY></TABLE>
-<TABLE height=3D1 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D0 =
-leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" margin=
-height=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR>
-<TD width=3D"100%"><IMG height=3D1 src=3D"http://www.diversitybusiness.com/i=
-mages/mainnav/Main_Nav_Top_Spacer.jpg" width=3D"100%" border=3D0></TD></TR><=
-/TBODY></TABLE>
-<TABLE height=3D18 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D0=
- leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" margi=
-nheight=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR>
-<TD width=3D170>
-<TABLE height=3D18 cellSpacing=3D0 cellPadding=3D0 width=3D170 border=3D0 le=
-ftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" marginhe=
-ight=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR>
-<TD noWrap width=3D15 bgColor=3D#83846b height=3D18><IMG height=3D18 src=3D"=
-http://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D15></TD>
-<TD class=3DSignIn vAlign=3Dbottom noWrap width=3D155 height=3D18>Welcome - =
-7.27.2007</TD></TR></TBODY></TABLE></TD>
-<TD width=3D"100%"><!--	<table border=3D"0" cellpadding=3D"0" cellspacing=3D=
-"0" leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" wi=
-dth=3D"100%" height=3D"18" marginheight=3D"0" marginwidth=3D"0">
-			<tr class=3D"MainNav">
-				<td width=3D"9" nowrap><IMG height=3D"18" src=3D"http://www.diversitybus=
-iness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D"9" border=3D=
-0></td>
-				<td class=3D"MainNav" height=3D"18" valign=3D"bottom" nowrap><a href=3D"=
-http://www.diversitybusiness.com/Directories/">DIRECTORIES</a></td>
-				<td width=3D26 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusi=
-ness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D26 border=3D0>=
-</td>
-				<td width=3D1 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusin=
-ess.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0></td>
-				<td width=3D"9" nowrap><IMG height=3D"18" src=3D"http://www.diversitybus=
-iness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D"9" border=3D=
-0></td>
-				<td class=3D"MainNav" height=3D"18" valign=3D"bottom" nowrap><a href=3D"=
-http://www.diversitybusiness.com/Chapters/">CHAPTERS</a></td>
-				<td width=3D26 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusi=
-ness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D26 border=3D0>=
-</td>
-				<td width=3D1 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusin=
-ess.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0></td>
-				<td width=3D"9" nowrap><IMG height=3D"18" src=3D"http://www.diversitybus=
-iness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D"9" border=3D=
-0></td>
-				<td class=3D"MainNav" height=3D"18" valign=3D"bottom" nowrap><a href=3D"=
-http://www.diversitybusiness.com/Resources/">RESOURCES</a></td>
-				<td width=3D26 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusi=
-ness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D26 border=3D0>=
-</td>
-				<td width=3D1 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusin=
-ess.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0></td>
-				<td width=3D"9" nowrap><IMG height=3D"18" src=3D"http://www.diversitybus=
-iness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D"9" border=3D=
-0></td>
-				<td class=3D"MainNav" height=3D"18" valign=3D"bottom" nowrap><a href=3D"=
-http://www.diversitybusiness.com/Solutions/">SOLUTIONS</a></td>
-				<td width=3D26 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusi=
-ness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D26 border=3D0>=
-</td>
-				<td width=3D1 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusin=
-ess.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0></td>
-				<td width=3D"9" nowrap><IMG height=3D"18" src=3D"http://www.diversitybus=
-iness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D"9" border=3D=
-0></td>
-				<td class=3D"MainNav" height=3D"18" valign=3D"bottom" nowrap><a href=3D"=
-http://www.diversitybusiness.com/Careers/">CAREERS</a></td>
-				<td width=3D26 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusi=
-ness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D26 border=3D0>=
-</td>
-				<td width=3D1 nowrap><IMG height=3D"18" src=3D"http://www.diversitybusin=
-ess.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0></td>
-				<td width=3D"100%" nowrap><IMG height=3D"18" src=3D"http://www.diversity=
-business.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D"100%" bor=
-der=3D0></td>
-			</tr>
-		</table> -->
-<TABLE height=3D18 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D0=
- leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" margi=
-nheight=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR class=3DMainNav>
-<SCRIPT language=3Djavascript>
-<!--
-function RegNewWin(myvalue)
-{
-var myvalue
-window.open(myvalue,"","top=3D5,left=3D5,width=3D650,height=3D650,toolbar=3D=
-no,location=3Dno,menubar=3Dno,scrollbars=3Dyes,copyhistory=3Dno,status=3Dyes=
-,resizable=3Dyes,directories=3Dno");
-}
-//-->
-</SCRIPT>
 
-<TD noWrap width=3D5><IMG height=3D18 src=3D"http://www.diversitybusiness.co=
-m/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D5 border=3D0></TD>
-<TD class=3DMainNav vAlign=3Dbottom noWrap height=3D18><A href=3D"http://www=
-.diversitybusiness.com/Directories/"><FONT color=3D#333399>DIRECTORIES</FONT=
-></A></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD noWrap width=3D1><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0=
-></FONT></TD><!--td width=3D5 nowrap><IMG height=3D18 src=3D"http://www.dive=
-rsitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D5 bor=
-der=3D0></td>
-<td class=3D"MainNav" height=3D"18" valign=3D"bottom" nowrap><a href=3D"http=
-://www.diversitybusiness.com/Seminar/">SEMINARS</td>
-<td width=3D5 nowrap><IMG height=3D18 src=3D"http://www.diversitybusiness.co=
-m/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D5 border=3D0></td>
-<td width=3D1 nowrap><IMG height=3D18 src=3D"http://www.diversitybusiness.co=
-m/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0></td-->
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD class=3DMainNav vAlign=3Dbottom noWrap height=3D18><A href=3D"http://www=
-.diversitybusiness.com/Resources/"><FONT color=3D#333399>RESOURCES</FONT></A=
-></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD noWrap width=3D1><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0=
-></FONT></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD class=3DMainNav vAlign=3Dbottom noWrap height=3D18><A href=3D"http://www=
-.diversitybusiness.com/Solutions/"><FONT color=3D#333399>SOLUTIONS</FONT></A=
-></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD noWrap width=3D1><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0=
-></FONT></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD class=3DMainNav vAlign=3Dbottom noWrap height=3D18><A href=3D"http://www=
-.diversitybusiness.com/Careers/"><FONT color=3D#333399>CAREERS</FONT></A></T=
-D>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD noWrap width=3D1><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0=
-></FONT></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD class=3DMainNav vAlign=3Dbottom noWrap height=3D18><A href=3D"http://www=
-.diversitybusiness.com/Cart/"><FONT color=3D#333399>BOOK Store</FONT></A></T=
-D>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD noWrap width=3D1><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0=
-></FONT></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD class=3DMainNav vAlign=3Dbottom noWrap height=3D18><A href=3D"http://www=
-.diversitybusiness.com/Training/"><FONT color=3D#333399>TRAINING</FONT></A><=
-/TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD noWrap width=3D1><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0=
-></FONT></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD class=3DMainNav vAlign=3Dbottom noWrap height=3D18><A href=3D"http://www=
-.diversitybusiness.com/Alliances/"><FONT color=3D#333399>ALLIANCES</FONT></A=
-></TD>
-<TD noWrap width=3D1><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0=
-></FONT></TD>
-<TD noWrap width=3D5><FONT color=3D#333399><IMG height=3D18 src=3D"http://ww=
-w.diversitybusiness.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=
-=3D5 border=3D0></FONT></TD>
-<TD class=3DMainNav vAlign=3Dbottom noWrap height=3D18><A href=3D"http://www=
-.diversitybusiness.com/magazine/">MAGAZINE<IMG src=3D"http://www.diversitybu=
-siness.com/images/new.gif" border=3D0></A></TD>
-<TD noWrap width=3D5><IMG height=3D18 src=3D"http://www.diversitybusiness.co=
-m/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D5 border=3D0></TD>
-<TD noWrap width=3D1><IMG height=3D18 src=3D"http://www.diversitybusiness.co=
-m/images/mainnav/WhiteSpacer.jpg" width=3D1 border=3D0></TD>
-<TD noWrap width=3D"100%"><IMG height=3D18 src=3D"http://www.diversitybusine=
-ss.com/images/mainnav/Main_Navigation_Txt_Buff.jpg" width=3D"100%" border=3D=
-0></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
-<TABLE height=3D1 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D0 =
-leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" margin=
-height=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR>
-<TD vAlign=3Dtop align=3Dleft width=3D170 height=3D1>
-<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D170 border=3D0 leftmargin=3D"=
-0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" marginheight=3D"0" m=
-arginwidth=3D"0">
-<TBODY>
-<TR>
-<TD noWrap width=3D15 height=3D150><IMG height=3D150 src=3D"http://www.diver=
-sitybusiness.com/images/LeftSideBar/Left_Side_Bar_Top_Buff.jpg" width=3D15 b=
-order=3D0></TD>
-<TD vAlign=3Dtop noWrap width=3D155 background=3Dhttp://www.diversitybusines=
-s.com/images/LeftSideBar/Left_Side_Bar_Top_Blank.jpg height=3D150><!--TOP LE=
-FT BOX--><BR>
-<TABLE cellSpacing=3D0 cellPadding=3D0 align=3Dleft border=3D0 leftmargin=3D=
-"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" marginheight=3D"0" =
-marginwidth=3D"0" valign=3D"top">
-<TBODY>
-<TR>
-<TD vAlign=3Dtop noWrap align=3Dmiddle><!--	<a href=3D"#" onclick=3D"Article=
-Pop('http://www.diversitybusiness.com/resources/news/2003/December/2003Div50=
-PressRelease.htm');return false">Top 50 Corporations<br> for<br> Multicultur=
-al<br> Business Opportunities</a> --><!--a href=3D"http://www.DiversityBusin=
-ess.com/Solutions/Sponsorship/"><IMG src=3D"http://www.DiversityBusiness.com=
-/images/Banners/sponsorrotate3.gif" width=3D"130" Height=3D"50" border=3D0 a=
-lt=3D"Sponsor"></a-->
-<!--A href=3D"http://www.DiversityBusiness.com/Events/DivEvent/2007/" target=
-=3D"_blank"><img src=3D"http://www.diversitybusiness.com/images/conference/2=
-007/animsm.gif" border=3D"0"  alt=3D"Annual Conference" width=3D"120" height=
-=3D"85"></a--><!--A href=3D"http://www.diversitybusiness.com/Resources/DivLi=
-sts/2006/">learn more<br><img src=3D"http://www.diversitybusiness.com/images=
-/TopBusiness/2006div50.gif" border=3D"0"  alt=3D"Business List"></a--><!--A =
-href=3D"http://www.diversitybusiness.com/Resources/DivLists/2006/">
-learn more<br><img src=3D"http://www.diversitybusiness.com/Awards/2006/Award=
-sBadge/DivEmblemC3.jpg" border=3D"0"  alt=3D"Top 50 List"></a--><!--A href=
-=3D"http://www.DiversityBusiness.com/book/" target=3D"_blank"><img src=3D"ht=
-tp://www.diversitybusiness.com/book/images/booksale.gif" border=3D"0"  alt=
-=3D"Book Sale" width=3D"120" height=3D"85"></a--><!--A href=3D"http://www.di=
-versitybusiness.com/resources/news/2005/July/survey.htm" target=3D"_blank">
-<img src=3D"http://www.DiversityBusiness.com/images/survey/2005/animsm.gif" =
-border=3D"0"  alt=3D"Survey 2005"></a--><!--A href=3D"http://www.diversitybu=
-siness.com/conference" target=3D"_blank"><img src=3D"http://www.DiversityBus=
-iness.com/images/conference/2006/animsm.gif" border=3D"0"  alt=3D"Confernce"=
-></a--><!--A href=3D"http://www.DiversityBusiness.com/Events/DivEvent/2007/"=
->learn more<br>
-<img src=3D"http://www.diversitybusiness.com/images/conference/2007/animsm.g=
-if" border=3D"0"  alt=3D"Conference"><br><br>
-<img src=3D"http://www.diversitybusiness.com/events/divevent/2007/images/2.g=
-if" border=3D0><br><br>
-<img src=3D"http://www.diversitybusiness.com/events/divevent/2007/images/3.g=
-if" border=3D0><br><br>
-<img src=3D"http://www.diversitybusiness.com/events/divevent/2007/images/4.g=
-if" border=3D0><br>
-</a--><!--Sponsors<br><img src=3D"http://www.diversitybusiness.com/images/Ba=
-nners/sponsorrotate3.gif" border=3D0--><!--A href=3D"http://www.diversitybus=
-iness.com/businessawards"><img src=3D"http://www.diversitybusiness.com/image=
-s/awards/award120.jpg" border=3D"0"  alt=3D"Award"></a--><A href=3D"http://w=
-ww.diversitybusiness.com/businessawards"><IMG alt=3DAward src=3D"http://www.=
-diversitybusiness.com/images/bizawards/2007.jpg" border=3D0></A> <!--
-					<a href=3D"#" onclick=3D"ArticlePop('http://www.diversitybusiness.com/R=
-esources/news/2003/September/BizWomanScores.htm');return false"><img src=3D"=
-http://www.diversitybusiness.com/images/FeaturedSmallBusiness/mlb.jpg" borde=
-r=3D"0" alt=3D"MLB"></a><br>
-					<a href=3D"#" onclick=3D"ArticlePop('http://www.diversitybusiness.com/R=
-esources/news/2003/September/BizWomanScores.htm');return false">Businesswoma=
-n Scores<br>with MLB</a><br>
-					--><BR></TD></TR></TBODY></TABLE><!--END TOP LEFT BOX--></TD></TR><!--A=
-DVERTISEMENTS & SPONSOR BANNERS -->
-<TR>
-<TD bgColor=3D#2c3a5a colSpan=3D2 height=3D5><IMG height=3D1 src=3D"http://w=
-ww.diversitybusiness.com/images/ClearSpacer.gif" width=3D170 border=3D0 nowr=
-ap></TD></TR>
-<TR>
-<TD noWrap width=3D0 bgColor=3D#828ba0 height=3D22><IMG height=3D14 src=3D"h=
-ttp://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D0 border=3D0=
-></TD>
-<TD class=3DSponsor_Title vAlign=3Dbottom noWrap width=3D155 bgColor=3D#828b=
-a0 height=3D22><A onclick=3D"DivFlashOverview('http://www.diversitybusiness.=
-com/DivInfo/About/DivFlash/StandaloneFlash.htm');return false" href=3D"http:=
-//www.diversitybusiness.com/default1.asp#"><FONT color=3D#ffffff>Diversity B=
-usiness</FONT></A></TD></TR>
-<TR>
-<TD width=3D15 bgColor=3D#ebebeb height=3D331><IMG height=3D"100%" src=3D"ht=
-tp://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D15 border=3D0=
- nowrap></TD>
-<TD noWrap align=3Dleft width=3D155 background=3Dhttp://www.diversitybusines=
-s.com/images/LeftSideBar/Left_Side_Bar_Sponsor.jpg height=3D331>
-<TABLE height=3D171 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D=
-0 leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" vali=
-gn=3D"top">
-<TBODY>
-<TR>
-<TD vAlign=3Dtop><BR>
-<TABLE height=3D1 cellSpacing=3D0 cellPadding=3D0 border=3D0>
-<TBODY>
-<TR>
-<TD height=3D1><FONT color=3D#686868>DiversityBusiness.com is the nation's p=
-rimary resource portal for small businesses and large organizational buyers.=
-<BR><BR>It is a membership-based exchange platform that facilitates contacts=
- and communication, supplier diversity tools, streamlines business processes=
- and provides vital business news and information.</FONT></TD></TR>
-<TR>
-<TD align=3Dright height=3D1><A onclick=3D"DivFlashOverview('http://www.dive=
-rsitybusiness.com/DivInfo/About/DivFlash/StandaloneFlash.htm');return false"=
- href=3D"http://www.diversitybusiness.com/default1.asp#"><STRONG><FONT color=
-=3D#333399>Learn More</FONT></STRONG></A></FONT> </TD></TR>
-<TR>
-<TD align=3Dmiddle height=3D30>
-<HR>
-</TD></TR><!--tr><td align=3D"center" height=3D"10"><b>
-                                  <font face=3D"Arial" size=3D"2">Annual Con=
-ference</font></b></td></tr-->
-<TR>
-<TD align=3Dmiddle height=3D1><!-- A href=3D"http://www.diversitybusiness.co=
-m/Events/DivEvent/2005/" target=3D"_blank"><img src=3D"http://www.diversityb=
-usiness.com/images/FeaturedSmallBusiness/2005_event.gif" border=3D"0"  alt=
-=3D"Annual Conference" width=3D"120" height=3D"85"></a--><!--a href=3D"http:=
-//www.DiversityBusiness.com/Solutions/Sponsorship/"><IMG src=3D"http://www.D=
-iversityBusiness.com/images/Banners/sponsorrotate3.gif" width=3D"130" Height=
-=3D"47" border=3D0 alt=3D"Sponsor"></a--></TD></TR><!--tr>
-<td align=3D"center" height=3D"30"><hr></td></tr--><!-- NEW---------------- =
- -->
-<TR>
-<TD align=3Dmiddle height=3D10>
-<TABLE cellSpacing=3D0 cellPadding=3D0 border=3D0>
-<TBODY>
-<TR>
-<TD vAlign=3Dtop noWrap width=3D15 height=3D14><IMG height=3D14 src=3D"http:=
-//www.diversitybusiness.com/images/HomePage/HomePage_WhatsHot_spacer.jpg" wi=
-dth=3D15 border=3D0></TD>
-<TD class=3DHome_News vAlign=3Dbottom noWrap align=3Dleft width=3D130 bgColo=
-r=3D#b1b134 height=3D14>WHAT'S HOT</TD><!--td width=3D"100%" height=3D"14" n=
-owrap><IMG height=3D"14" width=3D"100%" src=3D"http://www.DiversityBusiness.=
-com/images/HomePage/HomePage_WhatsHot_spacer.jpg" border=3D"0"></td--></TR>
-<TR>
-<TD vAlign=3Dtop noWrap width=3D"100%" colSpan=3D2 height=3D4><IMG height=3D=
-4 src=3D"http://www.diversitybusiness.com/images/HomePage/WhiteSpacer.jpg" w=
-idth=3D"100%" border=3D0></TD></TR>
-<TR>
-<TD vAlign=3Dtop noWrap width=3D15><IMG height=3D"100%" src=3D"http://www.di=
-versitybusiness.com/images/HomePage/WhiteSpacer.jpg" width=3D15 border=3D0><=
-/TD>
-<TD vAlign=3Dtop noWrap width=3D130><!--WHATS HOT CONTENT--><!-- HOT -->-&nb=
-sp;<A href=3D"http://www.diversitybusiness.com/news/supplierdiversity/452006=
-44.asp"><STRONG><FONT color=3D#333399>Annual Election</FONT></STRONG></A><BR=
-><BR>-&nbsp;<A href=3D"http://www.diversitybusiness.com/Resources/DivLists/2=
-006/"><STRONG><FONT color=3D#333399>Top Business List</FONT></STRONG></A><BR=
-><BR>-&nbsp;<A href=3D"http://www.diversitybusiness.com/Conference"><STRONG>=
-<FONT color=3D#333399>Annual Conference</FONT></STRONG></A>
-<BR><BR>-&nbsp;<A href=3D"http://www.diversitybusiness.com/Directories/Buyer=
-/corporationreport.asp"><B><FONT color=3D#333399>Find a Buyer</FONT></B></A>=
-<BR><BR>-&nbsp;<A href=3D"http://www.diversitybusiness.com/Directories/Suppl=
-ier/suppliers.asp"><B><FONT color=3D#333399>Find a Supplier</FONT></B></A><B=
-R><BR>-&nbsp;<A href=3D"http://www.diversitybusiness.com/Directories/RecentN=
-ewMembers/"><B><FONT color=3D#333399>Recent New Members</FONT></B></A><BR><B=
-R>
--&nbsp;<A href=3D"http://www.diversitybusiness.com/Careers/"><STRONG><FONT c=
-olor=3D#333399>Career Center</FONT></STRONG></A><BR><BR>-&nbsp;<A href=3D"ht=
-tp://www.diversitybusiness.com/Training/"><STRONG><FONT color=3D#333399>Trai=
-ning</FONT></STRONG></A><BR><BR>-&nbsp;<A href=3D"http://www.diversitybusine=
-ss.com/Resources/DivLists/2006/"><STRONG><FONT color=3D#333399>Diversity Lis=
-ts</FONT></STRONG></A> <!-- HOT end --><BR><BR><!--END WHATS HOT CONTENT--><=
-/TD><!--td  width=3D"100%" height=3D"2" nowrap>
-<IMG width=3D"100%" height=3D"2" src=3D"http://www.DiversityBusiness.com/ima=
-ges/HomePage/WhiteSpacer.jpg" border=3D"0"></td--></TR>
-<TR>
-<TD noWrap width=3D"100%" bgColor=3D#2c3a5a height=3D1><IMG height=3D1 src=
-=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D"100%" =
-border=3D0></TD></TR>
-<TR>
-<TD vAlign=3Dtop noWrap width=3D15 bgColor=3D#828ba0 height=3D14><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D15 border=3D0></TD>
-<TD class=3DHome_News vAlign=3Dbottom noWrap align=3Dleft width=3D140 bgColo=
-r=3D#828ba0 height=3D14>SERVICES</TD><!--td  width=3D"100%" height=3D"14" BG=
-COLOR=3D"#828BA0" nowrap><IMG height=3D"14" width=3D"100%" src=3D"http://www=
-.DiversityBusiness.com/images/ClearSpacer.gif" border=3D0></td--></TR>
-<TR>
-<TD vAlign=3Dtop noWrap width=3D"100%" colSpan=3D2 height=3D4><IMG height=3D=
-4 src=3D"http://www.diversitybusiness.com/images/HomePage/WhiteSpacer.jpg" w=
-idth=3D"100%" border=3D0></TD></TR>
-<TR>
-<TD vAlign=3Dtop noWrap width=3D15><IMG height=3D"100%" src=3D"http://www.di=
-versitybusiness.com/images/HomePage/WhiteSpacer.jpg" width=3D15 border=3D0><=
-/TD>
-<TD vAlign=3Dtop noWrap width=3D140><!--SOLUTIONS CONTENT-->-&nbsp;<A href=
-=3D"http://www.diversitybusiness.com/Registration/"><FONT color=3D#333399>Me=
-mbership</FONT></A><BR><BR>-&nbsp;<A href=3D"http://www.diversitybusiness.co=
-m/Solutions/Global2ndTier/"><FONT color=3D#333399>2nd Tier Reporting</FONT><=
-/A><BR><BR>-&nbsp;<A href=3D"http://www.diversitybusiness.com/Training/"><FO=
-NT color=3D#333399>Diversity Training</FONT></A><BR><BR>
--&nbsp;<A href=3D"http://www.diversitybusiness.com/Directories/Buyer/corpora=
-tionreport.asp"><FONT color=3D#333399>Locate Buyers</FONT></A><BR><BR>-&nbsp=
-;<A href=3D"http://www.diversitybusiness.com/Resources/News/Newsletter"><FON=
-T color=3D#333399>Newsletter</FONT></A><BR><BR>-&nbsp;<A href=3D"http://www.=
-diversitybusiness.com/Solutions/TargetedAdvertising/"><FONT color=3D#333399>=
-Advertising</FONT></A><BR><BR><!--SOLUTIONS CONTENT--></TD><!--td  width=3D"=
-100%" height=3D"2" nowrap>
-<IMG width=3D"100%" height=3D"2" src=3D"http://www.DiversityBusiness.com/ima=
-ges/HomePage/WhiteSpacer.jpg" border=3D"0"></td--></TR></TBODY></TABLE></TD>=
-</TR><!-- NEW----------------  -->
-<TR>
-<TD align=3Dmiddle height=3D10><FONT face=3DArial size=3D2><!--b>Membership<=
-/b--><!--b>Div50 List</b--><B>&nbsp;</B> </FONT></TD></TR>
-<TR>
-<TD align=3Dmiddle height=3D1><!--A href=3D"http://www.diversitybusiness.com=
-/registration"><img src=3D"http://www.diversitybusiness.com/images/registrat=
-ion/signup.jpg" border=3D"0"  alt=3D"Membership"></a--><!--A href=3D"http://=
-www.diversitybusiness.com/Resources/DivLists/2006/">learn more<br><img src=
-=3D"http://www.diversitybusiness.com/Awards/2006/AwardsBadge/DivEmblemS3.jpg=
-" border=3D"0"  alt=3D"Top Business List"></a--><!--br><br>
-Sponsors<br><img src=3D"http://www.diversitybusiness.com/images/Banners/spon=
-sorrotate3.gif" border=3D0--><!--A href=3D"http://www.diversitybusiness.com/=
-topbusinesslist"><img src=3D"http://www.diversitybusiness.com/images/topbusi=
-ness/2005div50.jpg" border=3D"0"  alt=3D"Div50"></a--><!--A href=3D"http://w=
-ww.thesalesboard.com/sales-books.asp?cpgn=3D639"><img src=3D"http://www.dive=
-rsitybusiness.com/images/banners/actionselling.gif" border=3D"0"  alt=3D"Act=
-ion Selling"></a-->
-<!--A href=3D"http://www.diversitybusiness.com/businessawards"><img src=3D"h=
-ttp://www.diversitybusiness.com/images/awards/award120.jpg" border=3D"0"  al=
-t=3D"Award"></a--><!--br><br--><!--A href=3D"http://www.diversitybusiness.co=
-m/forbes.pdf"  target=3D"_blank"><img src=3D"http://www.diversitybusiness.co=
-m/images/divforbes.jpg" border=3D"0"  alt=3D"Forbes"></a--><!--a href=3D"htt=
-p://www.DiversityBusiness.com/conference"><img src=3D"http://www.diversitybu=
-siness.com/events/divevent/2007/images/1.gif" border=3D0><br></a-->
-</TD></TR>
-<TR>
-<TD align=3Dmiddle height=3D30>
-<HR>
-</TD></TR></TBODY></TABLE></TD>
-<TD width=3D8 bgColor=3D#ebebeb height=3D171><IMG height=3D"100%" src=3D"htt=
-p://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D8 border=3D0 n=
-owrap></TD></TR></TBODY></TABLE></TD></TR><!--END AD & SPONSOR BANNERS-->
-<TR>
-<TD width=3D170 bgColor=3D#ebebeb colSpan=3D2 height=3D41><IMG height=3D"100=
-%" src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D1=
-70 border=3D0 nowrap></TD></TR>
-<TR>
-<TD width=3D170 bgColor=3D#ebebeb colSpan=3D2><IMG height=3D"100%" src=3D"ht=
-tp://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D170 border=3D=
-0 nowrap></TD></TR></TBODY></TABLE></TD>
-<TD vAlign=3Dtop align=3Dleft width=3D"100%" height=3D1>
-<TABLE height=3D250 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D=
-0 leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" marg=
-inheight=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR>
-<TD noWrap width=3D7 height=3D250><IMG height=3D250 src=3D"http://www.divers=
-itybusiness.com/images/HomePage/WhiteSpacer.jpg" width=3D7 border=3D0></TD>
-<TD noWrap width=3D"50%" height=3D250><IMG height=3D250 src=3D"http://www.di=
-versitybusiness.com/images/HomePage/WhiteSpacer.jpg" width=3D"50%" border=3D=
-0></TD>
-<TD noWrap width=3D410 background=3Dhttp://www.diversitybusiness.com/images/=
-HomePage/HomePage_Flash_BG.jpg colSpan=3D6 height=3D250>
-<OBJECT id=3DShockwaveFlash1 codeBase=3Dhttp://download.macromedia.com/pub/s=
-hockwave/cabs/flash/swflash.cab#version=3D6,0,0,0 height=3D250 width=3D410 c=
-lassid=3Dclsid:D27CDB6E-AE6D-11cf-96B8-444553540000><PARAM NAME=3D"_cx" VALU=
-E=3D"10848"><PARAM NAME=3D"_cy" VALUE=3D"6615"><PARAM NAME=3D"FlashVars" VAL=
-UE=3D""><PARAM NAME=3D"Movie" VALUE=3D"http://www.diversitybusiness.com/vide=
-os/flash/div2000.swf"><PARAM NAME=3D"Src" VALUE=3D"http://www.diversitybusin=
-ess.com/videos/flash/div2000.swf"><PARAM NAME=3D"WMode" VALUE=3D"Window">
-<PARAM NAME=3D"Play" VALUE=3D"-1"><PARAM NAME=3D"Loop" VALUE=3D"0"><PARAM NA=
-ME=3D"Quality" VALUE=3D"High"><PARAM NAME=3D"SAlign" VALUE=3D""><PARAM NAME=
-=3D"Menu" VALUE=3D"0"><PARAM NAME=3D"Base" VALUE=3D""><PARAM NAME=3D"AllowSc=
-riptAccess" VALUE=3D""><PARAM NAME=3D"Scale" VALUE=3D"ShowAll"><PARAM NAME=
-=3D"DeviceFont" VALUE=3D"0"><PARAM NAME=3D"EmbedMovie" VALUE=3D"0"><PARAM NA=
-ME=3D"BGColor" VALUE=3D""><PARAM NAME=3D"SWRemote" VALUE=3D""><PARAM NAME=3D=
-"MovieData" VALUE=3D""><PARAM NAME=3D"SeamlessTabbing" VALUE=3D"1"><PARAM NA=
-ME=3D"Profile" VALUE=3D"0">
-<PARAM NAME=3D"ProfileAddress" VALUE=3D""><PARAM NAME=3D"ProfilePort" VALUE=
-=3D"0"><PARAM NAME=3D"AllowNetworking" VALUE=3D"all"><PARAM NAME=3D"AllowFul=
-lScreen" VALUE=3D"false">
-																																										<embed>
-							src=3D"http://www.diversitybusiness.com/videos/flash/div2000.swf"=20
-							width=3D"410" 							height=3D"250"							play=3D"true" 							loop=
-=3D"false"=20
-							quality=3D"high" 							menu=3D"false"
-							pluginspage=3D"http://www.macromedia.com/shockwave/download/index.cgi=
-?P1_Prod_Version=3DShockwaveFlash"=20
-							type=3D"application/x-shockwave-flash">							</embed>=20
-							</OBJECT></TD>
-<TD noWrap width=3D"50%" background=3Dhttp://www.diversitybusiness.com/image=
-s/HomePage/blue_bg_flash.gif height=3D250><IMG height=3D250 src=3D"http://ww=
-w.diversitybusiness.com/images/ClearSpacer.gif" width=3D"50%" border=3D0></T=
-D></TR></TBODY></TABLE>
-<TABLE height=3D539 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D=
-0 leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" marg=
-inheight=3D"0" marginwidth=3D"0">
-<TBODY>
-<TR>
-<TD noWrap width=3D"100%" bgColor=3D#2c3a5a colSpan=3D8 height=3D5><IMG heig=
-ht=3D1 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D"100%" border=3D0></TD></TR>
-<TR>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#828ba0 height=3D22><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D7 border=3D0></TD>
-<TD class=3DHome_News vAlign=3Dbottom noWrap align=3Dleft width=3D"48%" bgCo=
-lor=3D#828ba0 height=3D22>NEWS</TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#828ba0 height=3D22><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D7 border=3D0></TD>
-<TD noWrap align=3Dleft width=3D1 bgColor=3D#2c3a5a height=3D22><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D1 border=3D0></TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#828ba0 height=3D22><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D7 border=3D0></TD>
-<TD class=3DHome_News vAlign=3Dbottom noWrap align=3Dleft width=3D"48%" bgCo=
-lor=3D#828ba0 height=3D22>EVENTS</TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#828ba0 height=3D22><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D7 border=3D0></TD><!--<td align=3D"left" width=3D"100%" height=3D"14" BGC=
-OLOR=3D"#868fa4" nowrap><IMG height=3D14 src=3D"http://www.diversitybusiness=
-.com/images/ClearSpacer.gif" width=3D"100%" border=3D0></td>--></TR>
-<TR>
-<TD vAlign=3Dtop noWrap bgColor=3D#ffffff colSpan=3D3 height=3D21><IMG heigh=
-t=3D10 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D241 border=3D0></TD>
-<TD noWrap align=3Dleft width=3D1 bgColor=3D#2c3a5a height=3D21><IMG height=
-=3D4 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D1 border=3D0></TD>
-<TD vAlign=3Dtop noWrap bgColor=3D#ffffff colSpan=3D3 height=3D21><IMG heigh=
-t=3D4 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D"100%" border=3D0></TD></TR>
-<TR>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#ffffff height=3D475><IMG height=
-=3D"100%" src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" wi=
-dth=3D7 border=3D0></TD>
-<TD vAlign=3Dtop align=3Dleft width=3D"48%" height=3D475>
-<TABLE height=3D"343%" cellSpacing=3D0 width=3D"100%" border=3D0><!--NEWS CO=
-NTENT GOES HERE-->
-<TBODY>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200689.asp"><FONT color=3D#333399>07.24.0=
-7</FONT></A> &nbsp;-&nbsp; Innovative Design Earns Firm Recognition at Portf=
-olio Awards : Baseline Design Takes One Gold and Two Silver </TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200688.asp"><FONT color=3D#333399>07.20.0=
-7</FONT></A> &nbsp;-&nbsp; Dell's 'Direct Talk' for Diverse Suppliers </TD><=
-/TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200687.asp"><FONT color=3D#333399>07.19.0=
-7</FONT></A> &nbsp;-&nbsp; Microsoft's software donation to WBENC </TD></TR>=
 
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200684.asp"><FONT color=3D#333399>07.18.0=
-7</FONT></A> &nbsp;-&nbsp; Marriott breaks ground on first Hispanic-owned ho=
-tel in Washington, D.C. </TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200685.asp"><FONT color=3D#333399>07.17.0=
-7</FONT></A> &nbsp;-&nbsp; World Wide Technology Secures Wireless Infrastruc=
-ture for Pacific Gas &amp; Electric Company </TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200683.asp"><FONT color=3D#333399>06.11.0=
-7</FONT></A> &nbsp;-&nbsp; Industry Organizations Bring DiversityNXT to NXTc=
-omm 2007 </TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200682.asp"><FONT color=3D#333399>06.06.0=
-7</FONT></A> &nbsp;-&nbsp; 8th Annual National Business Awards Program Annou=
-nced </TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200681.asp"><FONT color=3D#333399>06.05.0=
-7</FONT></A> &nbsp;-&nbsp; INTEL CREATING PRIME OPPORTUNITIES FOR DIVERSE AN=
-D SMALL BUSINESSES </TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D15><A href=3D"http://www.diversitybus=
-iness.com/news/supplierdiversity/45200680.asp"><FONT color=3D#333399>05.21.0=
-7</FONT></A> &nbsp;-&nbsp; Eaton Named Best In Class For Supplier Diversity =
-</TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft height=3D1><IMG height=3D17 src=3D"http://www.=
-diversitybusiness.com/images/ClearSpacer.gif" width=3D227 border=3D0></TD></=
-TR><!--END NEWS CONTENT--><!--tr>
-								<td height=3D"21"><img src=3D"http://www.diversitybusiness.com/image=
-s/ClearSpacer.gif" height=3D"1"><IMG height=3D"17" width=3D"222" src=3D"http=
-://www.diversitybusiness.com/images/ClearSpacer.gif" border=3D"0"></td>
-							</tr-->
-<TR>
-<TD vAlign=3Dtop align=3Dright><A href=3D"http://www.diversitybusiness.com/R=
-esources/News/"><IMG src=3D"http://www.diversitybusiness.com/images/HomePage=
-/HomePage_More_Btn.gif" border=3D0></A></TD></TR></TBODY></TABLE></TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#ffffff height=3D475><IMG height=
-=3D"100%" src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" wi=
-dth=3D7 border=3D0></TD>
-<TD noWrap align=3Dleft width=3D1 bgColor=3D#2c3a5a height=3D475><IMG height=
-=3D"100%" src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" wi=
-dth=3D1 border=3D0></TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#ffffff height=3D475><IMG height=
-=3D"100%" src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" wi=
-dth=3D7 border=3D0></TD>
-<TD vAlign=3Dtop align=3Dleft width=3D"45%" height=3D475>
-<TABLE cellSpacing=3D0 cellPadding=3D1 width=3D"100%" border=3D0><!--EVENTS =
-CONTENT-->
-<TBODY>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D598');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>07.25.07</FONT></A>&nbsp;-&nbsp;32nd Annual TAMACC Convention &a=
-mp; Business Expo. <BR><BR></TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D594');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>07.31.07</FONT></A>&nbsp;-&nbsp;Anatomy of a Winning Proposal We=
-binar <BR><BR></TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D599');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>08.05.07</FONT></A>&nbsp;-&nbsp;MFHA Annual Conference. <BR><BR>=
-</TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D600');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>08.15.07</FONT></A>&nbsp;-&nbsp;12th CBCC Statewide Business Con=
-vention and Awards Gala. <BR><BR></TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D584');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>09.04.07</FONT></A>&nbsp;-&nbsp;Annual ACCA National Training In=
-stitute.- Presented by the American Contract Compliance Association. <BR><BR=
-></TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D601');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>09.05.07</FONT></A>&nbsp;-&nbsp;KEYS TO THE EXECUTIVE SUITE=A9 D=
-IVERSITY &amp; EMPOWERMENT CAREER FAIR <BR><BR></TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D585');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>09.25.07</FONT></A>&nbsp;-&nbsp;Southern District Business Oppor=
-tunity Fair: Presented by the Indiana Business Development Council. <BR><BR>=
-</TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D596');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>11.08.07</FONT></A>&nbsp;-&nbsp;Innovation at the Speed of Diver=
-sity <BR><BR></TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D604');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>12.18.07</FONT></A>&nbsp;-&nbsp;Showcase 2007 <BR><BR></TD></TR>=
+--------------020804040501060106050006
+Content-Type: application/pdf;
+ name="e-mail.pdf"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="e-mail.pdf"
 
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D602');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>04.23.08</FONT></A>&nbsp;-&nbsp;DiversityBusiness.com's 8th Annu=
-al National Multicultural Business Conference <BR><BR></TD></TR>
-<TR>
-<TD vAlign=3Dtop align=3Dleft><A onclick=3D"ArticlePop('http://www.diversity=
-business.com/Resources/EventsCalendar/EventDetails.asp?IDnumber=3D603');retu=
-rn false" href=3D"http://www.diversitybusiness.com/default1.asp#"><FONT colo=
-r=3D#333399>05.05.08</FONT></A>&nbsp;-&nbsp;The 2008 FMI Show <BR><BR></TD><=
-/TR><!--END EVENTS CONTENT-->
-<TR>
-<TD height=3D1><IMG height=3D1 src=3D"http://www.diversitybusiness.com/image=
-s/ClearSpacer.gif"></TD></TR>
-<TR>
-<TD align=3Dright><A href=3D"http://www.diversitybusiness.com/Resources/Even=
-tsCalendar/News.asp"><IMG src=3D"http://www.diversitybusiness.com/images/Hom=
-ePage/HomePage_More_Btn.gif" border=3D0></A></TD></TR></TBODY></TABLE></TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#ffffff height=3D475><IMG height=
-=3D"100%" src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" wi=
-dth=3D7 border=3D0></TD></TR>
-<TR>
-<TD noWrap width=3D"100%" bgColor=3D#2c3a5a colSpan=3D8 height=3D1><IMG heig=
-ht=3D1 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D"100%" border=3D0></TD></TR>
-<TR>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#828ba0 height=3D14><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D7 border=3D0></TD>
-<TD class=3DHome_News vAlign=3Dbottom noWrap align=3Dleft width=3D"48%" bgCo=
-lor=3D#828ba0 height=3D14>Featured Sponsor</TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#828ba0 height=3D14><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D7 border=3D0></TD>
-<TD noWrap align=3Dleft width=3D1 bgColor=3D#2c3a5a height=3D14><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D1 border=3D0></TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#828ba0 height=3D14><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D7 border=3D0></TD>
-<TD class=3DHome_News vAlign=3Dbottom noWrap align=3Dleft width=3D"48%" bgCo=
-lor=3D#828ba0 height=3D14>&nbsp;</TD>
-<TD noWrap align=3Dleft width=3D7 bgColor=3D#828ba0 height=3D14><IMG height=
-=3D14 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=
-=3D7 border=3D0></TD></TR>
-<TR>
-<TD colSpan=3D6>
-<P align=3Dcenter><A href=3D"http://www.dell.com/" target=3D_blank><BR><IMG =
-src=3D"http://www.diversitybusiness.com/magazine/images/advertisers/dell.jpg=
-" width=3D563 border=3D0></A></P></TD></TR></TBODY></TABLE></TD>
-<TD noWrap width=3D1 bgColor=3D#2c3a5a height=3D1><IMG height=3D"100%" src=
-=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D1 borde=
-r=3D0> </TD>
-<TD vAlign=3Dtop height=3D1>
-<TABLE height=3D568 cellSpacing=3D0 cellPadding=3D0 width=3D"100%" border=3D=
-0 leftmargin=3D"0" rightmargin=3D"0" topmargin=3D"0" bottommargin=3D"0" marg=
-inheight=3D"0" marginwidth=3D"0" valign=3D"top">
-<TBODY>
-<TR>
-<TD vAlign=3Dtop noWrap width=3D12 bgColor=3D#ffffff height=3D91>&nbsp;</TD>=
-
-<TD vAlign=3Dcenter noWrap align=3Dmiddle width=3D155 bgColor=3D#ffffff heig=
-ht=3D91><!--AD BANNER RIGHT--><!--<A href=3D"http://www.diversitybusiness.co=
-m/Events/DivEvent/2004/" target=3D"_blank"><img src=3D"http://www.diversityb=
-usiness.com/images/FeaturedSmallBusiness/2004_event.gif" border=3D"0"  alt=
-=3D"Annual Conference" width=3D"120" height=3D"85"></a><br>--><!--	<strong>C=
-onference 2005</strong><A href=3D"http://www.diversitybusiness.com/Events/Di=
-vEvent/2005/" target=3D"_blank">
-<img src=3D"http://www.diversitybusiness.com/images/FeaturedSmallBusiness/20=
-05_event.gif" border=3D"0"  alt=3D"Annual Conference" width=3D"120" height=
-=3D"85"></a><br>&nbsp; --><!--	<A href=3D"http://www.diversitybusiness.com/R=
-esources/DivLists/2004/" target=3D"_blank"><strong>2004 Top Business List</s=
-trong><img src=3D"http://www.DiversityBusiness.com/images/FeaturedSmallBusin=
-ess/DivList2004.jpg" border=3D"0"  alt=3D"DivList2004" width=3D"120" height=
-=3D"85"></a><br>&nbsp; -->
-<!--A href=3D"http://www.diversitybusiness.com/vote2005" target=3D"_blank"><=
-strong>Vote 2005</strong><img src=3D"http://www.DiversityBusiness.com/images=
-/vote/votenow3.jpg" border=3D"0"  alt=3D"Vote2005"></a><br--><!--A href=3D"h=
-ttp://www.diversitybusiness.com/resources/news/2004/December/2004top50corp.h=
-tm" target=3D"_blank"><strong>Top 50 Corporations</strong><img src=3D"http:/=
-/www.DiversityBusiness.com/images/DivTop50.jpg" border=3D"0" alt=3D"2004Div5=
-0"></a--><!--A href=3D"http://www.redcross.org" target=3D"_blank">
-<strong>Help the Victims</strong><img src=3D"http://www.DiversityBusiness.co=
-m/images/redcrosslogo.jpg" border=3D"0" alt=3D"RedCross"></a--><!--A href=3D=
-"#" onclick=3D"jump('http://www.silosmashers.com/');return false">Featured B=
-usiness<br><img src=3D"http://www.diversitybusiness.com/images/FSB/silo_logo=
-.jpg" border=3D"0"  alt=3D"Featured Business"></a><br--><!--A href=3D"#" onc=
-lick=3D"jump('http://www.mdy.com');return false">Featured Business<br>
-<img src=3D"http://www.diversitybusiness.com/images/FSB/mdy.jpg" border=3D"0=
-"  alt=3D"Featured Business"></a><br--><!--A href=3D"http://www.DiversityBus=
-iness.com/Events/DivEvent/2007/">learn more<br><img src=3D"http://www.divers=
-itybusiness.com/images/conference/2007/130x271conf2007.gif" border=3D"0"  al=
-t=3D"Conference"></a--><!--A href=3D"#" onclick=3D"RegNewWin('http://www.div=
-ersitybusiness.com/magazine/default.asp');return false">Subscribe<br>
-<img src=3D"http://www.diversitybusiness.com/images/magazine.gif" border=3D"=
-0"  alt=3D"Magazine"></a--><!--A href=3D"http://www.diversitybusiness.com/ne=
-ws/supplierdiversity/45200644.asp">learn more<br><img src=3D"http://www.dive=
-rsitybusiness.com/images/vote/2006/voting2006.jpg" border=3D"0"  alt=3D"Vote=
- 2006"></a--><!--A href=3D"http://www.diversitybusiness.com/Alliances/">lear=
-n more<br><img src=3D"http://www.diversitybusiness.com/images/adbanners/mass=
-mutual.gif" border=3D"0"  alt=3D"Benefits"></a-->
-<!--A href=3D"http://www.inthinkwomen.com/The_Event.html" target=3D_blank>le=
-arn more<br><img src=3D"http://www.diversitybusiness.com/images/adbanners/we=
-_logo.jpg" border=3D"0"  alt=3D"Conference"></a--><!--A href=3D"http://www.d=
-iversitybusiness.com/Events/DivEvent/2007/programbook.asp">learn more<br><im=
-g src=3D"http://www.diversitybusiness.com/images/ourmagazine.gif" border=3D"=
-0"  alt=3D"Magazine"></a--><!--A href=3D"http://www.DiversityBusiness.com/bu=
-sinessawards">learn more<br>
-<img src=3D"http://www.diversitybusiness.com/images/BusinessAwards.gif" bord=
-er=3D"0"  alt=3D"Awards"></a--><!--A href=3D"#" onclick=3D"jump('http://www.=
-OfficeMax.com');return false">Featured Sponsor<br><img src=3D"http://www.div=
-ersitybusiness.com/images/FSP/1.jpg" border=3D"0"  alt=3D"Featured Sponsor">=
-</a--><!--A href=3D"http://www.spoonmantics.com/" target=3D_blank>featured b=
-usiness<br><img src=3D"http://www.diversitybusiness.com/images/adbanners/spo=
-onmantics.jpg" border=3D"0"  alt=3D"SpoonMantics"></a-->
-<!--A href=3D"http://www.DiversityBusiness.com/conference">learn more<br><im=
-g src=3D"http://www.diversitybusiness.com/images/savethedate.gif" border=3D"=
-0"  alt=3D"Conference"></a--><!-- A href=3D"http://www.DiversityBusiness.com=
-/businessawards">learn more<br><img src=3D"http://www.diversitybusiness.com/=
-images/awards/award120.jpg" border=3D"0"  alt=3D"Awards"></a--><!--A href=3D=
-"#" onclick=3D"jump('http://www.tkqlhce.com/click-1718510-10298733');return =
-false">Free Color Printer<br>
-<img src=3D"http://www.diversitybusiness.com/images/adbanners/freeprinter.gi=
-f" border=3D"0"  alt=3D"Featured Sponsor"></a--><!--A href=3D"http://www.div=
-ersitybusiness.com/Resources/DivLists/2005/" target=3D"_blank"><strong>2005 =
-Top Business List</strong><img src=3D"http://www.DiversityBusiness.com/image=
-s/FeaturedSmallBusiness/DivList2005.gif" border=3D"0"  alt=3D"DivList2005" w=
-idth=3D"120" height=3D"85"></a-->
-<P align=3Dcenter>Sponsors<BR><IMG src=3D"http://www.diversitybusiness.com/D=
-ivMasterInc/images/sponsors/2007/01_cisco.jpg" border=3D1><BR><BR><IMG src=
-=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/2007/02_at=
-t.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusiness.com/DivMa=
-sterInc/images/sponsors/2007/03_coke.jpg" border=3D1><BR><BR><IMG src=3D"htt=
-p://www.diversitybusiness.com/DivMasterInc/images/sponsors/2007/04_Dell.jpg"=
- border=3D1><BR><BR>
-<IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/20=
-07/05_raytheon.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusin=
-ess.com/DivMasterInc/images/sponsors/2007/06_officedepot.jpg" border=3D1><BR=
-><BR><IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponso=
-rs/2007/07_homedepot.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversit=
-ybusiness.com/DivMasterInc/images/sponsors/2007/08_timewarner.jpg" border=3D=
-1><BR><BR>
-<IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/20=
-07/09_lockheed.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusin=
-ess.com/DivMasterInc/images/sponsors/2007/10_usps.jpg" border=3D1><BR><BR><I=
-MG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/2007=
-/11_ups.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusiness.com=
-/DivMasterInc/images/sponsors/2007/12_massmutual.jpg" border=3D1><BR><BR>
-<IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/20=
-07/13_chevron.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusine=
-ss.com/DivMasterInc/images/sponsors/2007/14_CorporateExpress.jpg" border=3D1=
-><BR><BR><IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sp=
-onsors/2007/15_pitney.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversi=
-tybusiness.com/DivMasterInc/images/sponsors/2007/16_mlb.jpg" border=3D1><BR>=
-<BR>
-<IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/20=
-07/17_northrop.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusin=
-ess.com/DivMasterInc/images/sponsors/2007/18_utc.jpg" border=3D1><BR><BR><IM=
-G src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/2007/=
-19_xerox.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusiness.co=
-m/DivMasterInc/images/sponsors/2007/20_PG.jpg" border=3D1><BR><BR>
-<IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/20=
-07/21_toyota.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusines=
-s.com/DivMasterInc/images/sponsors/2007/22_boa.jpg" border=3D1><BR><BR><IMG =
-src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/2007/23=
-_fanniemae.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusiness.=
-com/DivMasterInc/images/sponsors/2007/24_mgmmirage.jpg" border=3D1><BR><BR>
-<IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/20=
-07/25_kellogg.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusine=
-ss.com/DivMasterInc/images/sponsors/2007/26_pepsi.jpg" border=3D1><BR><BR><I=
-MG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/2007=
-/27_vzw.jpg" border=3D1><BR><BR><IMG src=3D"http://www.diversitybusiness.com=
-/DivMasterInc/images/sponsors/2007/28_starwood.jpg" border=3D1><BR><BR>
-<IMG src=3D"http://www.diversitybusiness.com/DivMasterInc/images/sponsors/20=
-07/29_ubs.jpg" border=3D1><BR><BR></P><BR><BR>&nbsp; <!--	<A href=3D"http://=
-www.DiversityBusiness.com/careers"><img src=3D"http://www.DiversityBusiness.=
-com/images/divcareer.gif" border=3D"0" alt=3D"Featured Business"></a><br> --=
-><!--	<A href=3D"#" onclick=3D"jump('http://www.avantworld.com/');return fal=
-se"><img src=3D"http://www.DiversityBusiness.com/images/FSB/avantLogo.jpg" b=
-order=3D"0"  alt=3D"Featured Business" width=3D"193" height=3D"39">
-</a><br> --><!--	<A href=3D"#" onclick=3D"jump('http://www.asft.net');return=
- false"><img src=3D"http://www.DiversityBusiness.com/images/FSB/asft.jpg" bo=
-rder=3D"0"  alt=3D"Featured Business" width=3D"193" height=3D"52"></a><br> -=
--><!--	<A href=3D"#" onclick=3D"jump('http://www.nike.com');return false"><i=
-mg src=3D"http://www.DiversityBusiness.com/DivInfo/About/images/sponsors/nik=
-e.jpg" border=3D"0"  alt=3D"Featured Business" width=3D"193" height=3D"57"><=
-/a><br> -->
-<!--	<A href=3D"#" onclick=3D"jump('http://www.diversitybusiness.com/FSB.htm=
-');return false"><img src=3D"http://www.diversitybusiness.com/FSB_files/robL=
-ogo.jpg" border=3D"0"  alt=3D"Featured Small Business" width=3D"193" height=
-=3D"57"></a><br> --><!--END AD BANNER RIGHT--></TD></TR><!--WHATS HOT CONTEN=
-T--><!--HOT CONTENT=20
-				<tr>
-					<td colspan=3D"2" width=3D"100%" height=3D"5" bgcolor=3D"#2C3A5A" nowra=
-p><IMG height=3D"1" width=3D"100%" src=3D"http://www.diversitybusiness.com/i=
-mages/ClearSpacer.gif" border=3D"0"></td>
-				</tr>
-				<tr>
-					<td width=3D"15" height=3D"1" valign=3D"top" nowrap bgcolor=3D"#B1B134"=
-><IMG height=3D"12" width=3D"16" src=3D"http://www.diversitybusiness.com/ima=
-ges/HomePage/HomePage_WhatsHot_spacer.jpg" border=3D"0"></td>
-					<td width=3D"140" height=3D"1" align=3D"left" valign=3D"bottom" bgcolor=
-=3D"#B1B134" class=3D"Home_News" nowrap>WHAT'S HOT</td>
-				</tr>
-				<tr>
-					<td colspan=3D"2" width=3D"100%" height=3D"21" valign=3D"top" nowrap><I=
-MG height=3D"4" width=3D"100%" src=3D"http://www.diversitybusiness.com/image=
-s/HomePage/WhiteSpacer.jpg" border=3D"0"></td>
-				</tr>
-				<tr>
-					<td width=3D"15" valign=3D"top" nowrap height=3D"171"><IMG height=3D"10=
-0%" width=3D"15" src=3D"http://www.diversitybusiness.com/images/HomePage/Whi=
-teSpacer.jpg" border=3D"0"></td>
-					<td width=3D"140" valign=3D"top" nowrap height=3D"171">
-	                             &ndash;&nbsp;<a href=3D"http://www.diversitybu=
-siness.com/news/supplierdiversity/45200644.asp"><strong>Annual Election</str=
-ong></a><br><br>
-				        &ndash;&nbsp;<a href=3D"http://www.DiversityBusiness.com/topbusi=
-nesslist/"><STRONG>Top Business Lists</STRONG></a><br><br>=20
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Conference/"><=
-strong>Annual Conference</strong></a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Directories/Bu=
-yer/corporationreport.asp"><b>Find a Buyer</b></a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Directories/Su=
-pplier/suppliers.asp"><b>Find a Supplier</b></a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Directories/Re=
-centNewMembers/"><b>Recent New Members</b></a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/CAREERS/"><str=
-ong>Career Center</strong></a><br><br>
- 				        &ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Traini=
-ng/"><STRONG>Training</STRONG></a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/topbusinesslis=
-t"><STRONG>Diversity Lists</STRONG></a>
-					<BR>
-					</td>
-				</tr>
-				<tr>
-					<td colspan=3D"2" width=3D"100%" height=3D"5" bgcolor=3D"#2C3A5A" nowra=
-p><IMG height=3D"1" width=3D"100%" src=3D"http://www.diversitybusiness.com/i=
-mages/ClearSpacer.gif" border=3D"0"></td>
-				</tr>
-				<tr>
-					<td valign=3D"top"  width=3D"15" height=3D"22" BGCOLOR=3D"#828BA0" nowr=
-ap><IMG height=3D"14" width=3D"15" src=3D"http://www.diversitybusiness.com/i=
-mages/ClearSpacer.gif" border=3D0></td>
-					<td width=3D"140" height=3D"22" align=3D"left" valign=3D"bottom" bgcolo=
-r=3D"#828BA0" class=3D"Home_News" nowrap>SERVICES</td>
-				</tr>
-				<tr>
-					<td colspan=3D"2" width=3D"100%" height=3D"21" valign=3D"top" nowrap><I=
-MG height=3D"4" width=3D"100%" src=3D"http://www.diversitybusiness.com/image=
-s/HomePage/WhiteSpacer.jpg" border=3D"0"></td>
-				</tr>
-				<tr>
-					<td width=3D"15" valign=3D"top" nowrap height=3D"173"><IMG height=3D"10=
-0%" width=3D"15" src=3D"http://www.diversitybusiness.com/images/HomePage/Whi=
-teSpacer.jpg" border=3D"0"></td>
-					<td width=3D"140" valign=3D"top" nowrap height=3D"160">
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Registration/"=
->Membership</a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Solutions/Glob=
-al2ndTier/">2nd Tier Reporting</a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Training/">Div=
-ersity Training</a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Directories/Bu=
-yer/corporationreport.asp">Locate Buyers</a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Resources/News=
-/Newsletter">Newsletter</a><br><br>
-					&ndash;&nbsp;<a href=3D"http://www.diversitybusiness.com/Solutions/Targ=
-etedAdvertising/">Advertising</a><br><br>
-			SOLUTIONS CONTENT--></TD></TR></TBODY></TABLE></TD></TR><!--FOOTER-->
-<TR bgColor=3D#7884a0 height=3D1 width=3D"100%">
-<TD noWrap width=3D"100%" colSpan=3D4 height=3D1><IMG height=3D1 src=3D"http=
-://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D"100%"></TD></T=
-R>
-<TR bgColor=3D#ebebeb height=3D2 width=3D"100%">
-<TD noWrap width=3D"100%" colSpan=3D4 height=3D1><IMG height=3D2 src=3D"http=
-://www.diversitybusiness.com/images/ClearSpacer.gif" width=3D"100%"></TD></T=
-R>
-<TR bgColor=3D#ebebeb width=3D"100%">
-<TD noWrap align=3Dmiddle width=3D"100%" bgColor=3D#ebebeb colSpan=3D4 heigh=
-t=3D21>=A92007 DiversityBusiness.com, All rights reserved.&nbsp;&nbsp;&nbsp;=
-&nbsp;<A href=3D"http://www.diversitybusiness.com/Solutions/TargetedAdvertis=
-ing/"><FONT color=3D#333399>Advertise</FONT></A>&nbsp;|&nbsp;<A onclick=3D"N=
-ewsletterSU('http://www.diversitybusiness.com/Resources/News/newslettersignu=
-p');return false" href=3D"http://www.diversitybusiness.com/default1.asp#"><F=
-ONT color=3D#333399>Newsletter</FONT></A>
-&nbsp;|&nbsp;<A href=3D"http://www.diversitybusiness.com/Registration"><FONT=
- color=3D#333399>Membership</FONT></A>&nbsp;|&nbsp;<A href=3D"http://www.div=
-ersitybusiness.com/DivInfo/Legal/privacy.asp"><FONT color=3D#333399>Privacy<=
-/FONT></A>&nbsp;|&nbsp;<A href=3D"http://www.diversitybusiness.com/DivInfo/L=
-egal/termsofuse.asp"><FONT color=3D#333399>Terms of Use</FONT></A></TD></TR>=
-
-<TR bgColor=3D#ebebeb height=3D2 width=3D"100%">
-<TD noWrap width=3D"100%" colSpan=3D4 height=3D1><FONT color=3D#333399><IMG =
-height=3D2 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" w=
-idth=3D"100%"></FONT></TD></TR><!--tr width=3D"100%" bgcolor=3D"#ebebeb">
-		<td colspan=3D"4" width=3D"100%" bgcolor=3D"#ebebeb" align=3D"center" nowr=
-ap height=3D"21">Produced by:  Computer Consulting Associates International,=
- Inc. - <a href=3D"http://www.ccaii.com">www.ccaii.com</a></td>
-	</tr-->
-<TR bgColor=3D#ebebeb height=3D2 width=3D"100%">
-<TD noWrap width=3D"100%" colSpan=3D4 height=3D1><FONT color=3D#333399><IMG =
-height=3D2 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" w=
-idth=3D"100%"></FONT></TD></TR>
-<TR bgColor=3D#7884a0 height=3D1 width=3D"100%">
-<TD noWrap width=3D"100%" colSpan=3D4 height=3D1><FONT color=3D#333399><IMG =
-height=3D1 src=3D"http://www.diversitybusiness.com/images/ClearSpacer.gif" w=
-idth=3D"100%"></FONT></TD></TR><!--END FOOTER--></TBODY></TABLE><FONT face=
-=3Darial color=3D#ffffff size=3D-2>
-DiversityBusiness.com is the online hub for supplier diversity. The heart of=
- this website is its' informative database of Women and Minority Business En=
-terprises (W/MBE's) and contact's within Fortune 1000 companies. DiversityBu=
-siness also facilitates your ability to remain abreast of activities and new=
-s that affect W/MBE's and Blue Chip Companies. DiversityBusiness.com is the =
-only e-procurement resource that maintains a national database with up to da=
-te information, as well as providing all=20
-the data necessary for the expansion of Multicultural Businesses on a nation=
-al basis. DiversityBusiness.com known as DiversityBusiness.com launched Care=
-ers in Diversity as another major service to its portfolio. Diversity Career=
-, Diversity Careers, Diversity Training, Diversity Trainings are the new ser=
-vices from DiversityBusiness.com. DiversityBusiness.com hosts the Supplier D=
-iversity Portal for major corporations like OfficeMax, Bellsouth, Waste Mana=
-gement, Deloitte. Suppliers can find=20
-business leads using the DiversityBusiness.com buyer directory. </FONT></BOD=
-Y></HTML>
-
---===============3045461848808515716==
+JVBERi0xLjEKJeLjz9MKMSAwIG9iaiAKPDwKL1BhZ2VzIDIgMCBSCi9UeXBlIC9DYXRhbG9nCj4+
+CmVuZG9iaiAKMiAwIG9iaiAKPDwKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL0tpZHMgWzMgMCBS
+IDQgMCBSIDUgMCBSIDYgMCBSIDcgMCBSXQovQ291bnQgNQovVHlwZSAvUGFnZXMKPj4KZW5kb2Jq
+IAo4IDAgb2JqIAo8PAovQmFzZUZvbnQgL0NvdXJpZXIKL1N1YnR5cGUgL1R5cGUxCi9OYW1lIC9G
+MQovVHlwZSAvRm9udAo+PgplbmRvYmogCjkgMCBvYmogCjw8Ci9Gb250IAo8PAovRjEgOCAwIFIK
+Pj4KL1Byb2NTZXQgWy9QREYgL1RleHRdCj4+CmVuZG9iaiAKMyAwIG9iaiAKPDwKL1BhcmVudCAy
+IDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDkgMCBSCi9Db250ZW50cyAx
+MCAwIFIKL1R5cGUgL1BhZ2UKPj4KZW5kb2JqIAoxMCAwIG9iaiAKPDwKL0xlbmd0aCA3MDUKPj4K
+c3RyZWFtCvbjHs7sUKJrpbiqn5dM7i3+iRVhvfLpL7k2TEY/P4uW/c+DFT+cjJUSBr7Kt7Doajlc
+c0XyflxOkUG7f37RgZwn6bK6SjjphQcB5EnpF4Aich3r5QtH9cZ9080pxwDHPD3Rr24BfyNiu3YD
+yduEeoK81EztMrESVx1ggZzzboe0RbPbNswuLhhuPn6sMy2WZlB6jj0bDA3G5+EHt5+j1yHV63OB
+MCAxON6pG0N9IxKlorVbPyroDuDIfP9a4gYgtbWKHvpP0RmkaWUe1E8vAp6VfZsOwG+aavCvg9ym
+dAq7i4b/8wPlZaGY2ck2IIeuN4CYavElT4MPjuw5bXY8qhQXaLYuILmC9FhkI1j0qIoZoRqRV7aE
+1699S1A8Vo4Za8liVZbn2mgAGdRn3xbfElS3C10Jk8iwTF8uAeUMsJ66+5S+3MYnRn7fJQv9Gj3f
+zve6zSat2ZGGKxp6n2nyuiKVyyi2x5RWgyAamNkObYKsCdx+w/wg2MNH4Xr6K6pbfs5f6GJzzT5p
+2UHbHr+XIJN/ff5gC7+Pnw2rFRJoi0hlOcXasmIiBI9PhumyGUecQSyPjzSGuTuNwoKdOMHE+V88
++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
+VeOdAk6lwEtNquvKAybXsipHEL2ZP1TAFMsGbRQ2I53RZ7JCLQ8pu1XqfQRkxtS9jX1q41XjLcWB
+SAXkpCDBYiDYNuTkw0LyYG+TEfGR5FhwC3tvilzjgLEqmFpWjFPimOdEerBRApgd2fhjExkv+l0r
+qIMkKaTv1ef/PTel0W6ngKEggghGoOZOlOmbBOKnFmagwu1MDiEpQ742BDSGyb0I6xIX4AnZFJRW
+xOQ9h8pHFarnbKXj8yurmldUHXJdeEgpYFWfeqHxTyfkzHh9XU1q+CiMJD7pjUMmxhNziPrAsJ1q
+J5sInCy2in6CT2kh9tQBpyt3lp/nmJCelEXjqyJUlzPArEakFajkiSr0HSh+Ozg6d2ef0R+XzWUw
+qOo/Xt/pZuPnjZVPdpaM46qhVyNH2WC4kBZm8SHGbbqdfrGPKZpx4foMxw/PJrL0V+kkDgdcvioT
+kowzAFmEeDs9nCHi2UajI/tcBpL6mMXPqwY/akqssaiL4RXRT5SKORSwOG4oebc17qfir8wXMtvp
+pOiBhDy3fcUr4AplbmRzdHJlYW0gCmVuZG9iaiAKNyAwIG9iaiAKPDwKL1BhcmVudCAyIDAgUgov
+TWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDkgMCBSCi9Db250ZW50cyAxNCAwIFIK
+L1R5cGUgL1BhZ2UKPj4KZW5kb2JqIAoxNCAwIG9iaiAKPDwKL0xlbmd0aCAyOTgwCj4+CnN0cmVh
+bQrd3SUhqKELP6PQjN8OW7BPz44vurwiQGDM5VeQGlZVzk9tZSfWRGCg8SVhY1yegXDNcw+8wFZq
+skcheY9D6kpgLPBwZIQCZi3PK4QGMJ3Qn82ft2wau4NHrS7SHeA2cLZdEz4EIHRsh2xCP8mDdsoh
+C5cbi7eB32TwXU1outPNZvjGK4wbvJz/CGPxjoVpDiWgVincB7D4ZkOc4T0E1uJzOF41rgNytWSh
+hsiCvuCfejuwJ37v9FqVF17G2LyOsXqHeiKuw64GEx0x8dMRKish+vhbh4JMpJtvY//nz5fGnLpN
+D/S2MvF0Jv6BwJyJtzvt+wrRzstPDiRj13SHFWNeOHbiHN1FOx6qI37o/anDqC8cVZ+w5SbtIPm8
+D1ULApbNSBPbPGsU37Ul68j2eIKtn62NSIGXpOqwLtxpHQKLHwVay+0nrP7ZQMt+JewrXonTs9F2
+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
+U3RhbmRhcmQKL0xlbmd0aCAxMjgKL1YgMgovVSAoYtDXD6BoQx2/QjG233Cw9wAAAAAAAAAAAAAA
+AAAAAAApCj4+CmVuZG9iaiAKMTYgMCBvYmogCjw8Ci9UaXRsZSAoXFwCykyV+I3A0gfknWyy8GZ7
+E/SQAUMGA3xY9h/rk6Fstlx0KQovUHJvZHVjZXIgKEYfnl6Hp43xzQ/vnVi89G1sBLD+Bk5ROGFe
++n3Ulal/rlus9Zunkhsq0IIi6ZBR8b8ZR4hnTp8lSku4lkya9k0W7lMpCi9DcmVhdGlvbkRhdGUg
+KFFM2AvEuZ2SlFC6jD7ttzEpCj4+CmVuZG9iaiB4cmVmCjAgMTcKMDAwMDAwMDAwMCA2NTUzNSBm
+IAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjYgMDAwMDAgbiAKMDAwMDAwMDMyMSAwMDAw
+MCBuIAowMDAwMDAxMTg4IDAwMDAwIG4gCjAwMDAwMDQzMjMgMDAwMDAgbiAKMDAwMDAwNzkwNyAw
+MDAwMCBuIAowMDAwMDExMzczIDAwMDAwIG4gCjAwMDAwMDAxNzMgMDAwMDAgbiAKMDAwMDAwMDI1
+MyAwMDAwMCBuIAowMDAwMDAwNDI4IDAwMDAwIG4gCjAwMDAwMDEyOTUgMDAwMDAgbiAKMDAwMDAw
+NDQzMCAwMDAwMCBuIAowMDAwMDA4MDE0IDAwMDAwIG4gCjAwMDAwMTE0ODAgMDAwMDAgbiAKMDAw
+MDAxNDUxNiAwMDAwMCBuIAowMDAwMDE0NjY3IDAwMDAwIG4gCnRyYWlsZXIKCjw8Ci9FbmNyeXB0
+IDE1IDAgUgovSW5mbyAxNiAwIFIKL1Jvb3QgMSAwIFIKL1NpemUgMTcKL0lEIFs8NDNkMWJmZjIw
+ZDhlNjc5M2Q2MDQ1MDgzMzI4NmI3ZDI+PDJiNWNiY2QwMTM5ODI0Y2U1NGExOTg0OGY1OWE2MzQz
+Pl0KPj4Kc3RhcnR4cmVmCjE0ODQ5CiUlRU9GCg==
+--------------020804040501060106050006
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -1100,4 +310,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============3045461848808515716==--
+--------------020804040501060106050006--
