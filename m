@@ -1,79 +1,78 @@
-From: Hooper <tpnu@staroe-b.net>
-Subject: (no subject)
-Date: Sun, 29 Jul 2007 17:52:10 -0600
-Message-ID: <46AD282A.5000501@staroe-b.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] Make lguest compile with CONFIG_BLOCK=n and CONFIG_NET=n
+Date: Mon, 30 Jul 2007 10:25:22 +1000
+Message-ID: <1185755123.12151.102.camel@localhost.localdomain>
+References: <46ACAFBF.6060609@googlemail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------040205080408000003040304"
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965857AbXG3AZz@vger.kernel.org>
+In-Reply-To: <46ACAFBF.6060609@googlemail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Gabriel C <nix.or.die@googlemail.com>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---------------040205080408000003040304
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, 2007-07-29 at 17:18 +0200, Gabriel C wrote:
+> Hi Rusty,
+> 
+> Lguest should depend on BLOCK too , without BLOCK set I get this error:
 
+Hi Gabriel,
 
+	Thanks for the report!  It's probably better to fix this properly
+rather than hack it as I did for NET.
 
---------------040205080408000003040304
-Content-Type: application/pdf;
- name="Invitation.pdf"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="Invitation.pdf"
+Linus, please apply:
 
-JVBERi0xLjEKJeLjz9MKMSAwIG9iaiAKPDwKL1BhZ2VzIDIgMCBSCi9UeXBlIC9DYXRhbG9nCj4+
-CmVuZG9iaiAKMiAwIG9iaiAKPDwKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL0tpZHMgWzMgMCBS
-XQovQ291bnQgMQovVHlwZSAvUGFnZXMKPj4KZW5kb2JqIAo0IDAgb2JqIAo8PAovQmFzZUZvbnQg
-L0NvdXJpZXIKL1N1YnR5cGUgL1R5cGUxCi9OYW1lIC9GMQovVHlwZSAvRm9udAo+PgplbmRvYmog
-CjUgMCBvYmogCjw8Ci9Gb250IAo8PAovRjEgNCAwIFIKPj4KL1Byb2NTZXQgWy9QREYgL1RleHRd
-Cj4+CmVuZG9iaiAKMyAwIG9iaiAKPDwKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIg
-NzkyXQovUmVzb3VyY2VzIDUgMCBSCi9Db250ZW50cyA2IDAgUgovVHlwZSAvUGFnZQo+PgplbmRv
-YmogCjYgMCBvYmogCjw8Ci9MZW5ndGggNzk5Cj4+CnN0cmVhbQrEBHhE8+sDzD57fRLPRoylHJlR
-kS3nO9SbiSJ28dhoxuOUqMHjasz2RXS26hPOwjb1dDeuLYqP7wGy1Hd0Sax+UTt+qovadYlMaEkY
-WvH6lCmxLR58nd3NIGmZ7suthv/V6De/LnQ+0O4QnFxCotwXTq1diRtpCPIqSdpwp8mj4He4dHR3
-BZnJY3j7amLQeUW0Nk4bOjGuSMhq6n5QIPF+oq/EIs5vQcCuWH/g3+relJmSy1s/+iQFCi4qHSIq
-hteQCTxDbMHQbYdHAzNe4bA4CnsNRN8ul2sjeDpH6dCfumFjHqQvH7L9XfXEelFxXRenezgsMtFs
-hezw4RN+FjNbOHkVTcMwNjWgRko1Fml3CH312/i4wHCQD+3LqXY8nOo4tVNp5T0P2ijnX/GvDLxF
-FyF3IOYnLB8KXp7GTHIAszDW+xImD4npWgmTg0TEvaVnADexLfi26oqLjslt5D1UsxTQ2TbtdpXp
-wU8T9GKZ/rdEPHs6ZzFe4aUjYw3xQWT+ssMOrRzbFRJ0pSj6puIDvQMa+YKnFCCL8NyHe2dzQ/TI
-EPOSTEkDTXMIpqzSkwg57/ATUmHEBNID6FvoghBgUKyt6nVVLfhCBJHghgNhVrgdytL+bc/0HwJu
-trU5xXfX3cUD+euCTlR4lw0rV0wVXpxlCEZ9VuHIPQPj5vp6Bb821AgnoJKbUBg5n4RrZuIOFGu0
-4Qymyd6IhpX+Z0WfikHtJqFwvmejPRvDgDyButsEKe101YzZpGRO23qPZHD8Hz5p53oXD4lAdAFZ
-6Oh9B/LZZsbG4iHDg7lnrWzNnVKLMxHcvoZ65qemsUOvoLLiZcuHfMh8tHyxp+kGoPQlSBsgAODb
-bpIVfZxHUcX39nsV03EbEIFexc53/OPSyEn/afYIS44a6awcGg+fpc+AHgt8IPnVoEidCY8Ki5V6
-pJBxHExZgamMQmrAP/eiTvFZRgD7t+MBjrntb0vfcY0Fz2wBcpQy8ZaBpCraTpYSMPLihaRgIhS6
-SiGvt5RUYiatxw8YRTcJ96CXlihOcen9kXdwbE5hQodCgCl2XhMxCmVuZHN0cmVhbSAKZW5kb2Jq
-IAo3IDAgb2JqIAo8PAovUiAzCi9QIC0zOTA0Ci9PICi8nZweAAdWEc0+XG48pbKYJJq6BrYAPxHD
-s6oR3bVMHJIpCi9GaWx0ZXIgL1N0YW5kYXJkCi9MZW5ndGggMTI4Ci9WIDIKL1UgKFxuNOVcXJ+C
-Or2bXTjxC+M5QgAAAAAAAAAAAAAAAAAAAAApCj4+CmVuZG9iaiAKOCAwIG9iaiAKPDwKL1RpdGxl
-IChcKFwpt0fZK70UP+58+tVtXQVvNVbvXFzy7omDyOz/dtLSHUpEsD7xtGtZAcaIX6Nccrn7GBzn
-20jiXnsH0M38x/hblRoXHNClVUDoMBhO1F2fxZT4kSJpHMd1YwMCVYGRXFzMHLfhwi6iukY8atbN
-Kxq5IyUxjIVcdEGxaTJcXNJ86r652nuGgE6N4jdZcQWktHeU3L2ZKQovUHJvZHVjZXIgKFxiLvJf
-nTynHjnxOK7fbV0QbDhAokH07ImF3+nkbIaGGwRcdLA7tP1kHRPak0n6SbH5Fg703UipKQovQ3Jl
-YXRpb25EYXRlICgYfKUWjX7/RH6pbLqIOExXKQo+PgplbmRvYmogeHJlZgowIDkKMDAwMDAwMDAw
-MCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjYgMDAwMDAgbiAKMDAwMDAw
-MDI5NyAwMDAwMCBuIAowMDAwMDAwMTQ5IDAwMDAwIG4gCjAwMDAwMDAyMjkgMDAwMDAgbiAKMDAw
-MDAwMDQwMyAwMDAwMCBuIAowMDAwMDAxMjU2IDAwMDAwIG4gCjAwMDAwMDE0MDcgMDAwMDAgbiAK
-dHJhaWxlcgoKPDwKL0VuY3J5cHQgNyAwIFIKL0luZm8gOCAwIFIKL1Jvb3QgMSAwIFIKL1NpemUg
-OQovSUQgWzxkNmYyYmE2MzQyMzM0MjM4ZTYyODU0NDlhZTNmYTFiOT48ZTY0NmEwMDUxODNlOTAx
-MDkwOTZiMzllMDYxY2EwOWI+XQo+PgpzdGFydHhyZWYKMTY5MgolJUVPRgo=
---------------040205080408000003040304
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Gabriel C reports lguest doesn't compile with CONFIG_BLOCK=n.  Fix
+this by introducing a config var for the block device, which depends
+on LGUEST && BLOCK.  Do the same for the net driver, rather then
+depending gratuitously on CONFIG_NET.
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---------------040205080408000003040304--
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff -r 9e987fcabb16 drivers/block/Makefile
+--- a/drivers/block/Makefile	Mon Jul 30 09:47:25 2007 +1000
++++ b/drivers/block/Makefile	Mon Jul 30 10:02:32 2007 +1000
+@@ -31,4 +31,4 @@ obj-$(CONFIG_BLK_DEV_UB)	+= ub.o
+ obj-$(CONFIG_BLK_DEV_UB)	+= ub.o
+ 
+ obj-$(CONFIG_XEN_BLKDEV_FRONTEND)	+= xen-blkfront.o
+-obj-$(CONFIG_LGUEST_GUEST)	+= lguest_blk.o
++obj-$(CONFIG_LGUEST_BLOCK)	+= lguest_blk.o
+diff -r 9e987fcabb16 drivers/lguest/Kconfig
+--- a/drivers/lguest/Kconfig	Mon Jul 30 09:47:25 2007 +1000
++++ b/drivers/lguest/Kconfig	Mon Jul 30 10:03:39 2007 +1000
+@@ -1,6 +1,6 @@ config LGUEST
+ config LGUEST
+ 	tristate "Linux hypervisor example code"
+-	depends on X86 && PARAVIRT && NET && EXPERIMENTAL && !X86_PAE
++	depends on X86 && PARAVIRT && EXPERIMENTAL && !X86_PAE
+ 	select LGUEST_GUEST
+ 	select HVC_DRIVER
+ 	---help---
+@@ -18,3 +18,11 @@ config LGUEST_GUEST
+ 	  The guest needs code built-in, even if the host has lguest
+ 	  support as a module.  The drivers are tiny, so we build them
+ 	  in too.
++
++config LGUEST_NET
++	tristate
++	depends on LGUEST_GUEST && NET
++
++config LGUEST_BLOCK
++	tristate
++	depends on LGUEST_GUEST && BLOCK
+diff -r 9e987fcabb16 drivers/net/Makefile
+--- a/drivers/net/Makefile	Mon Jul 30 09:47:25 2007 +1000
++++ b/drivers/net/Makefile	Mon Jul 30 10:02:22 2007 +1000
+@@ -177,7 +177,7 @@ obj-$(CONFIG_HPLANCE) += hplance.o 7990.
+ obj-$(CONFIG_HPLANCE) += hplance.o 7990.o
+ obj-$(CONFIG_MVME147_NET) += mvme147.o 7990.o
+ obj-$(CONFIG_EQUALIZER) += eql.o
+-obj-$(CONFIG_LGUEST_GUEST) += lguest_net.o
++obj-$(CONFIG_LGUEST_NET) += lguest_net.o
+ obj-$(CONFIG_MIPS_JAZZ_SONIC) += jazzsonic.o
+ obj-$(CONFIG_MIPS_AU1X00_ENET) += au1000_eth.o
+ obj-$(CONFIG_MIPS_SIM_NET) += mipsnet.o
