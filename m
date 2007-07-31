@@ -1,9 +1,9 @@
-From: "Bette Stacy" <BetteglossaryHam@worldbank.org>
-Subject: Fwd: Thank you, we are ready to give a business loan
-Date: Mon, 30 Jul 2007 18:51:38 -0100
-Message-ID: <2a54601c7d2c9$fa9d9800$0505010a@tadek>
+From: Bess Glass <bgsyo@iowatelecom.net>
+Subject: Announcement
+Date: Tue, 31 Jul 2007 13:35:50 +0200
+Message-ID: <46AF1E96.5010002@iowatelecom.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0933333274315604388=="
+Content-Type: multipart/mixed; boundary="------------010000010304000402040006"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,84 +12,105 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
-
---===============0933333274315604388==
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_2A542_01C7D2C9.FA9D9800"
-
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_2A542_01C7D2C9.FA9D9800
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-Your credit does not matter to us!
-
-If you have your own business and require IMMEDIATE cash to spend ANY =
-way you like or need Extra money to give your business a boost or wish A =
-low interest loan - NO STRINGS ATTACHED, here is the deal we can offer =
-you TODAY (hurry, this offer will expire NOW):
-
-$51,000+ loan
-
-Hurry, when our deal is gone, it is gone. Simply Call Us...
-
-Do not worry about approval, your your credit report will not disqualify =
-you!
-
-Call Us Free on 877-542-1884
-------=_NextPart_000_2A542_01C7D2C9.FA9D9800
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>=20
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DImpact size=3D3><B>Your credit does not matter to=20
-us!</B></FONT></DIV>  =20
-<DIV><FONT face=3DImpact size=3D3>&nbsp;</FONT></DIV>
-<DIV><FONT face=3DImpact size=3D3>If you have your own business and =
-require=20
-IMMEDIATE cash to spend ANY way you like or need Extra money to give =
-your=20
-business a boost or  wish A low interest loan - NO STRINGS ATTACHED, =
-here is=20
-the deal we can offer you TODAY (hurry, this offer will expire=20
-NOW):</FONT></DIV> =20
-<DIV><FONT face=3DImpact size=3D3>&nbsp;</FONT></DIV>
-<DIV><FONT face=3DImpact size=3D3><B>$51,000+ loan</B></FONT></DIV>
-<DIV><FONT face=3DImpact size=3D3>&nbsp;</FONT></DIV>
-<DIV><FONT face=3DImpact size=3D3><B>Hurry, when our deal is gone, it is =
-gone.=20
-Simply Call Us... </B></FONT></DIV>    =20
-<DIV><FONT face=3DImpact size=3D3>&nbsp;</FONT></DIV>
-<DIV><FONT face=3DImpact size=3D3>Do not worry about approval, your your =
-credit=20
-report will not disqualify you!</FONT></DIV> =20
-<DIV><FONT face=3DImpact size=3D3>&nbsp;</FONT></DIV>
-<DIV><FONT face=3DImpact size=3D3><B>Call Us Free on =
-877-542-1884</B></FONT></DIV>
-</BODY></HTML>
+--------------010000010304000402040006
+Content-Type: text/plain; charset=windows-1250; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-------=_NextPart_000_2A542_01C7D2C9.FA9D9800--
 
+--------------010000010304000402040006
+Content-Type: application/octet-stream;
+ name="Announcement.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="Announcement.zip"
 
---===============0933333274315604388==
+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
+QAcA
+--------------010000010304000402040006
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -99,4 +120,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============0933333274315604388==--
+--------------010000010304000402040006--
