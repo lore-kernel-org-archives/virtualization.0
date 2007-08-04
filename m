@@ -1,31 +1,37 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [syslinux] Vmware crashes if compress/misc.c scrolls?
-Date: Sat, 04 Aug 2007 13:14:15 -0700
-Message-ID: <46B4DE17.7070108@zytor.com>
-References: <4679BBCB.2000202@zytor.com> <46B40504.70208@vmware.com>	<200708041124.35526.ak@suse.de> <46B48ADF.9050006@vmware.com>
+From: "Corrine Whittaker" <LenoreahCrenshaw@constitution.org>
+Subject: Wall Street HOT Alert
+Date: Sun, 5 Aug 2007 02:19:39 +0600
+Message-ID: <14060.2292879068$1186298534@news.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; format=flowed; charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1765112AbXHDUOd@vger.kernel.org>
-In-Reply-To: <46B48ADF.9050006@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: For discussion of SYSLINUX and tftp-hpa <syslinux@zytor.com>
-Cc: Andi Kleen <ak@suse.de>, Sahil Rihan <srihan@vmware.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> 
-> It was 2.6.21.4, so it is fairly recent, but with 32-bit decompress 
-> stage.  GCC was 4.2.0.
-> 
-> Sounds like a gcc bug, to me.
-> 
+SMS MESSAGING IS THE FUTURE AS WE KNOW IT. WHO WILL LEAD IN THIS TELECOMMUNICATIONS DIVISION? ExMt ExMt ExMt !!
 
-I would argue that anything that causes a function and its callsite to
-diverge, when they're part of the same file, is a gcc bug almost by
-definition.
+**BIG NEWS COMMING OUT FROM THIS COMPANY, FOR SURE TO BE A GROUND SHAKER.**
 
-That doesn't mean it's not a problem and that there is not a solution --
-if nothing else there should be a patch for -stable.
+So Who Is EXMT? Exchange Mobile Tele Co
+PK Sym: EXMT
+Closed At Last: AUG 03   $0.22  +0.02  10.0% Change 
+Date OF Action? - AUG MONDAY 06, 2007
 
-	-hpa
+Over the last 6 years, Exchange Mobile has been intensely involved in the wireless messaging and internet communications market. It has developed and implemented independent platforms to provide internet users and mobile subscribers an instantaneous form of communication. 
+
+Founded in 2000, EXCHANGE MOBILE Telecommunications Corp. is an innovator in developing customized applications leveraging leading-edge wireless technology, capturing the imagination of the wireless market while fueling consumer demand. 
+
+In the early part of 2002, EXCHANGE MOBILE developed wireless applications that offered SMS (Short Messaging Services) based value-added services to mobile users. EXCHANGE MOBILE has spent the early stages of its corporate existence building and developing a powerful and dynamic platform based on current SMS, WAP, and other emerging wireless protocols. 
+
+EXMT A HIGH PERFORMANCE STOCK? WE THINK SO AND PLAN TO SEE HUGE THINGS AUGUST 06 (MONDAY) 2007. ^EXMT^
