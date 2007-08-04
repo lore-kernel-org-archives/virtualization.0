@@ -1,239 +1,147 @@
-From: "Mail Delivery System" <MAILER-DAEMON@as.itesm.mx>
-Subject: Delivery Status Notification (Failure)
-Date: 03 Aug 2007 01:22:16 -0500
-Message-ID: <65sf6r$70dv70@as.itesm.mx>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: Vmware crashes if compress/misc.c scrolls?
+Date: Fri, 03 Aug 2007 21:48:04 -0700
+Message-ID: <46B40504.70208@vmware.com>
+References: <4679BBCB.2000202@zytor.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7191855046127353695=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755252AbXHDFCq@vger.kernel.org>
+In-Reply-To: <4679BBCB.2000202@zytor.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Iouri Kharon <bc-info@styx.cabel.net>, syslinux@zytor.com, Andi Kleen <ak@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Sahil Rihan <srihan@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============7191855046127353695==
-Content-Type: multipart/report; report-type=delivery-status;
-	boundary="E1lpF.4DiMKdejw.Dcjq9.3Hu/yjQ"
+H. Peter Anvin wrote:
+> I just got the following message on the syslinux mailing list:
+>
+>   
+>> 2. On some platforms (vmware for example :), READING from the video memory
+>>    in the 32bit mode is impossible (causes an exeption). Taking in to account
+>>    that the scroll function in ilinux/arch/i386/boot/compressed/misc.c
+>>    works using a memcpy of the video memory, when the linux bootsector is given
+>>    control and the cursor is at the end of the screen (-1-2 lines) an exception is
+>>    arisen and in the presence of it's handler in the bootloader the system halts.
+>>    Both lilo and grub handle this situation - the cursor is always somewhere at the
+>>    middle of the screen when the control is given to the linux bootsector.
+>>    When using pxelinux taking in to account that the PXE bios prints out the
+>>    presence of the second initramfs which causes the screen to scroll and the bug
+>>    to appear :)
+>>    A very simple solution - the screen is cleared before giving control to the
+>>    linux bootsector (in the patch).
+>>     
+>
+> First of all, is this actually true?  This seems like a monumental screwup.
+>
+> Second, assuming it is true, what should be done about it?  The notion
+> that the bootloader should erase the screen is ridiculous since we spend
+> a lot of effort maintaining the screen context from 16-bit code.
+>
+> I see a couple of options:
+>
+> a. Do nothing.  It's a Vmware bug, let the users bug Vmware and get an
+>    updated version.
+> b. Detect Vmware versions that are affected (how?) and suppress output.
+> c. Don't attempt to scroll in this code, and instead wrap around the
+>    screen (presumably clearing the rest of the line.)
+> d. Blindly assume hardware scrolling works, instead of doing
+>    copy-to-scroll.  Although I have seen craptops on which hardware
+>    scrolling is broken, it's hardly critical messages we're dealing with
+>    here.  A bug for a bug...
+>   
 
---E1lpF.4DiMKdejw.Dcjq9.3Hu/yjQ
-content-type: text/plain
+Sorry it took me so long to follow up on this.
 
-The following message to <virtualjlbenitezr@itesm.mx> was undeliverable.
-The reason for the problem:
-5.1.0 - Unknown address error 550-'RCPT TO:<virtualjlbenitezr@itesm.mx> User unknown'
+It's not a VMware bug.  Video memory operates just fine under VMware.  
+This led me to put the bug on the back-burner.
 
---E1lpF.4DiMKdejw.Dcjq9.3Hu/yjQ
-content-type: message/delivery-status
+Today it came back to the front, and I did some investigation.  It's 
+also not a syslinux bug, although it is triggered by syslinux.
 
-Final-Recipient: rfc822;virtualjlbenitezr@itesm.mx
-Action: failed
-Status: 5.0.0 (permanent failure)
-Remote-MTA: dns; [10.2.18.230]
-Diagnostic-Code: smtp; 5.1.0 - Unknown address error 550-'RCPT
-	TO:<virtualjlbenitezr@itesm.mx> User unknown' (delivery
-	attempts: 0)
-Reporting-MTA: dns; as.itesm.mx
+Depending on how much information is on the screen, you can trigger a 
+Linux bug caused by a compiler problem.
 
---E1lpF.4DiMKdejw.Dcjq9.3Hu/yjQ
-content-type: message/rfc822
+In the boot decompressor for the kernel in the image Iouri provided, I 
+find the following code present in memory before the first kernel 
+instruction executes:
 
-Received: from unknown (HELO Roman) ([213.242.199.201])
-	by as.itesm.mx with SMTP; 03 Aug 2007 01:22:10 -0500
-Received: from unknown (HELO Roman) ([213.242.199.201])
-	by as.itesm.mx with SMTP; 03 Aug 2007 01:22:10 -0500
-X-Originating-IP: [86.77.867.650] 
-X-Originating-Email: [virtualjlbenitezr@itesm.mx] 
-X-Sender: virtualjlbenitezr@itesm.mx
-Return-Path: virtualjlbenitezr@itesm.mx
-Received: (qmail 16539 by uid 216); Fri, 3 Aug 2007 12:16:03 +0500
-Message-Id: <20070803171603.16541.qmail@Roman>
-To: <virtualjlbenitezr@itesm.mx>
-Subject: RE: Weekly News
-From: admin@tradeking.com <virtualjlbenitezr@itesm.mx>
-MIME-Version: 1.0
-Importance: High
-Content-Type: text/html
-Content-Transfer-Encoding: quoted-printable
-X-MIME-Autoconverted: from 8bit to quoted-printable by smtp2.linux-foundation.org id l736GLEd016191
+Here is Linux function scroll, which calls memcpy to scroll vga memory:
 
-<style>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://  =
-.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<title>PokerLoco News</title>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-885=
-9-1">
-</head>
-<body style=3D"background-color:#1d5808" bgcolor=3D"#1d5808" text=3D"#000=
-000" vlink=3D"#000000" alink=3D"#000000" link=3D"#000000">
-<br>
-<div align=3D"center">
-	<table width=3D"580" border=3D"0" cellpadding=3D"10" cellspacing=3D"0" b=
-gcolor=3D"#FFFFFF" style=3D"border: 1px solid #cccccc;">
-		<tr>
-				<td>
-		<table width=3D"560" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" b=
-gcolor=3D"#FFFFFF">
-			<tr>
-				<td valign=3D"top" colspan=3D"2" bgcolor=3D"#349220" width=3D"560" he=
-ight=3D"108" style=3D""><a href=3D"   .pokerloco.com" target=3D"_blank"><=
-img src=3D"   .pokerloco.com/pokerimages/mailimages/news200606/top_logo.g=
-if" alt=3D"PokerLoco" title=3D"PokerLoco" border=3D"0" height=3D"108" wid=
-th=3D"560"></a></td>
-			</tr>
+0x104131 :     mov    %edx,0x4(%esp,1)
+0x104135 :     mov    %ecx,(%esp,1)
+0x104138 :     mov    %eax,0x8(%esp,1)
+0x10413c :     call   0x1040d0
 
+Here is Linux function memcpy:
 
-			 			<tr>
-        		<td align=3D"left" valign=3D"top" colspan=3D"2"  bgcolor=3D"#FF=
-FFFF" style=3D"padding:15px 10px 0px 10px; font-family:Arial, Verdana, He=
-lvetica, sans-serif; font-size:11px;">
-							          		<a href=3D"   .pokerloco.com/sv/pokernewspokerpromotio=
-ns/bonus_reload.htm" target=3D"_blank"><img src=3D"   .pokerloco.com/poke=
-rimages/banners/119_all.gif" alt=3D"" title=3D"" align=3D"right" border=3D=
-"0" height=3D"120" style=3D"margin: 20px 0 10px 10px;" width=3D"134"></a>
-		          	        	=09
-        	=09
-		          =09
-		          		        		<h1 style=3D"font-size:18px; padding:0px; margin-=
-bottom:10px;">
-	        		Freeload Nyheter!	=09
-	        		</h1>
-	        			        		<p style=3D"margin:0 0 0 0;padding:0">
-	        		Hej Anders<br />
-<br />
-Sommaren b=F6rjar n=E5 sitt slut och det =E4r dags att hitta tillbaka til=
-l Pokerborden, det firar vi med att sl=E4ppa en ny Freeload-bonus.<br />
-<br />
-L=E5t oss f=F6rklara f=F6r er hur bra v=E5ra Freeload-bonusar faktistk =E4=
-r, utan att s=E4tta in ett enda =F6re l=E5ter vi dig v=E4lja en bonus mel=
-lan  $50, $100, $250, $500, $750 eller $1000, f=F6r bara <span style=3D"f=
-ont-size:12px;font-weight:bold">10 Player Points per bonus dollar</span>.=
- Vet du inte vilken bonus du ska v=E4lja kolla in v=E5ran <a href=3D"   .=
-pokerloco.com/en/pokernewspokerpromotions/bonus_finder.htm">Bonus Guide</=
-a> som hj=E4lper dig att hitta r=E4tt!<br />
-<br />
-Ett exempel p=E5 hur bra v=E5ra bonusar faktiskt =E4r:<br />
-Spelar du  turneringar f=E5r du <span style=3D"font-size:12px;font-weight=
-:bold">50% tillbaka av det du betalar i turneringsavgifter</span> n=E4r d=
-u uppn=E5tt det utsatta antalet Player Points.<br />
-<br />
-Klicka h=E4r f=F6r att g=F6r din f=F6rsta ins=E4ttning och d=E4rtill v=E4=
-lja en First Deposit-Bonus samt en efterf=F6ljande Freeload-bonus.<br />
-<br />
-
-	        		</p>
-	        		<br>
-	        							<table border=3D"0" cellspacing=3D"0" cellpadding=3D"3" s=
-tyle=3D"border: 1px solid #cccccc;">
-                     <tr>
-                      <td>
-                        <table border=3D"0" cellspacing=3D"0" cellpadding=
-=3D"0">
-                          <tr>
-                             <td bgcolor=3D"#377b26" align=3D"center" sty=
-le=3D"font-family: Arial,Verdana,Helvetica,sans-serif; font-size: 12px; f=
-ont-weight: bold; padding:5px" ><a href=3D"https://  .pokerloco.com/sv/my=
-pokeraccount/deposit.htm" target=3D"_blank" title=3D"Choose Freeload Bonu=
-s!" style=3D"color: rgb(255, 255, 255); text-decoration: none;">G=F6r en =
-ins=E4ttning</a></td>
-                          </tr>
-                        </table>
-                      </td>
-                     </tr>
-                    </table>	        	=09
-
-		          			          =09
-	        	</td>
-	        		        			        	    	</tr>
-	    =09
-	    		         <tr>
-        		<td colspan=3D"2" height=3D"20" align=3D"center" valign=3D"bott=
-om"><img src=3D"   .pokerloco.com/pokerimages/mailimages/news200606/line.=
-gif" alt=3D"" title=3D"" border=3D"0" height=3D"3" width=3D"559"></td>
-    		</tr>
-    					 			<tr>
-        		<td align=3D"left" valign=3D"top" colspan=3D"2"  bgcolor=3D"#FF=
-FFFF" style=3D"padding:15px 10px 0px 10px; font-family:Arial, Verdana, He=
-lvetica, sans-serif; font-size:11px;">
-					        	=09
-        	=09
-		          =09
-		          		        		<p style=3D"margin:0 0 0 0;padding:0">
-	        		V=E4nliga h=E4lsningar,<br />
-<br />
-Madeleine<br />
-PokerLoco
-	        		</p>
-	        		<br>
-	        				          =09
-	        	</td>
-	        		    	</tr>
-	    =09
-	    		    =09
-			<tr>
-				<td colspan=3D"2" height=3D"20"> </td>
-			</tr>
-								=09
-		=09
-					=09
-		    <tr>
-		       <td bgcolor=3D"#1d5808" height=3D"23" align=3D"left" valign=3D"m=
-iddle" style=3D"padding:0px 0px 0px 10px; font-family:Arial, Verdana, Hel=
-vetica, sans-serif; font-size:10px; color:#ffffff">=A9 PokerLoco 2007.</t=
-d>
-		        <td bgcolor=3D"#1d5808" height=3D"23" align=3D"right" valign=3D=
-"middle" style=3D"padding:0px 10px 0px 0px; font-family:Arial, Verdana, H=
-elvetica, sans-serif; font-size:10px; color:#ffffff"><a href=3D"   .poker=
-loco.com" target=3D"_blank" style=3D"color:#FFFFFF; text-decoration:none;=
- font-size:10px;">  .pokerloco.com</a></td>
-		    </tr>
-		   =20
-		</table>
-		</td>
-		    </tr>
-		   =20
-		</table>
-
-	<p style=3D"margin:0px; padding:10px; color:#ffffff; font-family: Verdan=
-a,Arial,Helvetica,sans-serif; font-size: 9px;">Unable to see this email? =
-Please view it in a <a href=3D"   .pokerloco.com/pokermails/?id=3D912B769=
-668C4" style=3D"color:#ffffff; font-size:9px;" target=3D"_blank">web brow=
-ser</a>. Don't you want PokerLoco's newsletter? Unsubscribe  <a href=3D"h=
-ttps://  .pokerloco.com/mypokeraccount/mysettings.htm" style=3D"color:#ff=
-ffff; font-size:9px;" target=3D"_blank">here</a>.</p>
-</div>
-
-</style>
-</html>
-<center>
+(gdb) x/40i 0x1040d0
+0x1040d0 :     push   %ebp
+0x1040d1 :     test   %ecx,%ecx
+0x1040d3 :     mov    %esp,%ebp
+0x1040d5 :     push   %edi
+0x1040d6 :     mov    %eax,%edi
+0x1040d8 :     push   %esi
+0x1040d9 :     mov    %edx,%esi
+0x1040db :     push   %ebx
+0x1040dc :     mov    %ecx,%ebx
+0x1040de :     je     0x1040f4
+0x1040e0 :     xor    %ecx,%ecx
+0x1040e2 :     xor    %edx,%edx
+0x1040e4 :     movzbl (%esi,%edx,1),%eax
+0x1040e8 :     add    $0x1,%ecx
+0x1040eb :     cmp    %ebx,%ecx
+0x1040ed :     mov    %al,(%edi,%edx,1)
+0x1040f0 :     mov    %ecx,%edx
+0x1040f2 :     jne    0x1040e4
+0x1040f4 :     mov    %edi,%eax
+0x1040f6 :     pop    %ebx
+0x1040f7 :     pop    %esi
+0x1040f8 :     pop    %edi
+0x1040f9 :     pop    %ebp
+0x1040fa :     ret
 
 
+As you can plainly see, the call to memcpy (which is redefined in 
+boot/compressed/misc.c) is made using stack calling convention.  
+Unfortunately, the compiler generated the memcpy function itself using 
+regparm(3) convention.  I am guessing this happened because a leftover 
+prototype declaring memcpy as regparm got pulled in from somewhere, but 
+gcc ignored it in the callsite because the function was declared static 
+in the same file.
 
-<img src=3Dhttp://mediapix.ru/pics/5eeaec95db838936a58c5a2208ffe82b.jpg b=
-order=3D0></a><br>
+The net result of this is the parameters to memcpy get swapped, causing 
+a memcpy from 0xb80a0 to destination (in register edx, 80x24 * 2) 0xa00, 
+of size 0xb8000.
 
+This corrupts all usable memory below 640k, including the GDT which is 
+currently loaded.
 
+But since the compressed kernel is running in high memory, above 1Mb, 
+the kernel is fine.  The compress loader head.S then proceeds to copy 
+the move routine to address 0x11000, and executes the following instruction:
 
+        ljmp $(__KERNEL_CS), $0x1000 # and jump to the move routine
 
---E1lpF.4DiMKdejw.Dcjq9.3Hu/yjQ--
+This reloads CS descriptor from the GDT, which is now garbage, and 
+contains an invalid segment.  The ljmp then generates a #GP.  Since 
+there is no IDT setup to handle the GDT (and even if there were, the 
+destination CS would again be reloaded, causing a fault), a double fault 
+is generated.  Since the double-fault also hits the same problem, the 
+machine then triple faults and proceeds to reboot.
 
+Since the SCREEN_INFO passed to the kernel in the bad case has orig_y is 
+set to 22, when we print 3 newlines:
 
---===============7191855046127353695==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+        putstr(".\nDecompressing Linux...");
+        gunzip();
+        putstr("done.\nBooting the kernel.\n");
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============7191855046127353695==--
+We cause the VGA to scroll, and trigger the bug.
+
+Does anyone recall compiler problems (I noticed this VM was booting a 
+64-bit kernel, but the decompressor was 32-bit code, so perhaps at some 
+time the 64-bit makefile or toolchain for Linux had some kind of 
+compiler bug).
+
+Zach
