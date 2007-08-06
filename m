@@ -1,12 +1,13 @@
-From: "Corrine Whittaker" <LenoreahCrenshaw@constitution.org>
-Subject: Wall Street HOT Alert
-Date: Sun, 5 Aug 2007 02:19:39 +0600
-Message-ID: <14060.2292879068$1186298534@news.gmane.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Q]lguest git repo location?
+Date: Mon, 06 Aug 2007 10:46:48 +1000
+Message-ID: <1186361208.32112.29.camel@localhost.localdomain>
+References: <a901b49a0708040714n52d83eb4ub39d5b76acb1032b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1";
-	reply-type=original
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <a901b49a0708040714n52d83eb4ub39d5b76acb1032b@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,22 +17,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: pradeep singh <pradeep.rautela@gmail.com>
+Cc: virtualization-list <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SMS MESSAGING IS THE FUTURE AS WE KNOW IT. WHO WILL LEAD IN THIS TELECOMMUNICATIONS DIVISION? ExMt ExMt ExMt !!
+On Sat, 2007-08-04 at 19:44 +0530, pradeep singh wrote:
+> HI Rusty,
+> 
+> I wanted to play with lguest. As it was recently merge upstream by
+> Linus, i took a look and the location looks like driver/lguest*.
+> 
+> Unfortunately my local git repo cannot get the 2.6.23-rc2 changes from
+> upstream somehow :-/.[duh... says "Cannot get the repository state
+> from http://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git"].
+> i do not know what i am doing wrong.
+> 
+> Coming back to point -
+> Do you maintain a lguest git repository somewhere? So that i can clone
+> it and experiment with it?
 
-**BIG NEWS COMMING OUT FROM THIS COMPANY, FOR SURE TO BE A GROUND SHAKER.**
+Hi Pradeep!
 
-So Who Is EXMT? Exchange Mobile Tele Co
-PK Sym: EXMT
-Closed At Last: AUG 03   $0.22  +0.02  10.0% Change 
-Date OF Action? - AUG MONDAY 06, 2007
+	I don't keep a git repository; I keep some patches which fits my
+working style better.  However, the 2.6.23-rc2 tree should work with
+this one patch:
+==
+Lguest drivers need to default to "Y" otherwise they're never selected
+for new builds.  We don't bother prompting, because they're less than
+4k combined.
 
-Over the last 6 years, Exchange Mobile has been intensely involved in the wireless messaging and internet communications market. It has developed and implemented independent platforms to provide internet users and mobile subscribers an instantaneous form of communication. 
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Founded in 2000, EXCHANGE MOBILE Telecommunications Corp. is an innovator in developing customized applications leveraging leading-edge wireless technology, capturing the imagination of the wireless market while fueling consumer demand. 
+---
+ drivers/lguest/Kconfig |    2 ++
+ 1 file changed, 2 insertions(+)
 
-In the early part of 2002, EXCHANGE MOBILE developed wireless applications that offered SMS (Short Messaging Services) based value-added services to mobile users. EXCHANGE MOBILE has spent the early stages of its corporate existence building and developing a powerful and dynamic platform based on current SMS, WAP, and other emerging wireless protocols. 
-
-EXMT A HIGH PERFORMANCE STOCK? WE THINK SO AND PLAN TO SEE HUGE THINGS AUGUST 06 (MONDAY) 2007. ^EXMT^
+===================================================================
+--- a/drivers/lguest/Kconfig
++++ b/drivers/lguest/Kconfig
+@@ -21,8 +21,10 @@ config LGUEST_GUEST
+ 
+ config LGUEST_NET
+ 	tristate
++	default y
+ 	depends on LGUEST_GUEST && NET
+ 
+ config LGUEST_BLOCK
+ 	tristate
++	default y
+ 	depends on LGUEST_GUEST && BLOCK
