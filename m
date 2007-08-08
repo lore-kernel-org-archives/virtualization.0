@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 23/25] [PATCH] paravirt hooks for arch initialization
-Date: Wed,  8 Aug 2007 01:19:10 -0300
-Message-ID: <11865468431616-git-send-email-gcosta__35064.2873942435$1186559719$gmane$org@redhat.com>
+Subject: [PATCH 19/25] [PATCH] time-related functions paravirt provisions
+Date: Wed,  8 Aug 2007 01:19:06 -0300
+Message-ID: <11865468281860-git-send-email-gcosta__32416.0234340981$1186559720$gmane$org@redhat.com>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
 	<11865467592921-git-send-email-gcosta@redhat.com>
 	<1186546763582-git-send-email-gcosta@redhat.com>
@@ -21,12 +21,8 @@ References: <11865467522495-git-send-email-gcosta@redhat.com>
 	<11865468162812-git-send-email-gcosta@redhat.com>
 	<1186546820708-git-send-email-gcosta@redhat.com>
 	<11865468243612-git-send-email-gcosta@redhat.com>
-	<11865468281860-git-send-email-gc!
-	osta@redhat.com> <11865468321629-git-send-email-gcosta@redhat.com>
-	<11865468362401-git-send-email-gcosta@redhat.com>
-	<11865468394005-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11865468394005-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11865468243612-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -40,133 +36,122 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch add paravirtualization hooks in the arch initialization
-process. paravirt_arch_setup() lets the guest issue any specific
-initialization routine, and skip all the rest if it see fits, which
-it signals by a proper return value.
+This patch add provisions for time related functions so they
+can be later replaced by paravirt versions.
 
-In case the initialization continues, we hook at least memory_setup(),
-so it can handle it in its own way.
+it basically encloses {g,s}et_wallclock inside the
+already existent functions update_persistent_clock and
+read_persistent_clock, and defines {s,g}et_wallclock
+to the core of such functions.
 
-The hypervisor can make its own  ebda mapping visible by providing
-its custom ebda_info function.
+The timer interrupt setup also have to be replaced.
+The job is done by time_init_hook().
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- arch/x86_64/kernel/setup.c |   41 ++++++++++++++++++++++++++++++++++++-----
- include/asm-x86_64/e820.h  |    6 ++++++
- 2 files changed, 42 insertions(+), 5 deletions(-)
+ arch/x86_64/kernel/time.c |   37 +++++++++++++++++++++++++------------
+ 1 files changed, 25 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
-index af838f6..8e58a5d 100644
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -65,6 +65,12 @@
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+index 6d48a4e..29fcd91 100644
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -42,6 +42,7 @@
  #include <asm/sections.h>
- #include <asm/dmi.h>
- 
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
-+#define paravirt_arch_setup() 0
-+#endif
-+
- /*
-  * Machine setup..
+ #include <linux/hpet.h>
+ #include <asm/apic.h>
++#include <asm/time.h>
+ #include <asm/hpet.h>
+ #include <asm/mpspec.h>
+ #include <asm/nmi.h>
+@@ -82,18 +83,12 @@ EXPORT_SYMBOL(profile_pc);
+  * sheet for details.
   */
-@@ -201,17 +207,28 @@ static inline void copy_edd(void)
- unsigned __initdata ebda_addr;
- unsigned __initdata ebda_size;
  
--static void discover_ebda(void)
-+void native_ebda_info(unsigned *addr, unsigned *size)
+-static int set_rtc_mmss(unsigned long nowtime)
++int do_set_rtc_mmss(unsigned long nowtime)
  {
- 	/*
- 	 * there is a real-mode segmented pointer pointing to the 
- 	 * 4K EBDA area at 0x40E
- 	 */
--	ebda_addr = *(unsigned short *)__va(EBDA_ADDR_POINTER);
--	ebda_addr <<= 4;
-+	*addr = *(unsigned short *)__va(EBDA_ADDR_POINTER);
-+	*addr <<= 4;
-+
-+	*size = *(unsigned short *)__va(*addr);
-+}
+ 	int retval = 0;
+ 	int real_seconds, real_minutes, cmos_minutes;
+ 	unsigned char control, freq_select;
  
--	ebda_size = *(unsigned short *)__va(ebda_addr);
-+/* Overriden in paravirt.c if CONFIG_PARAVIRT */
-+void __attribute__((weak)) ebda_info(unsigned *addr, unsigned *size)
-+{
-+	native_ebda_info(addr, size);
-+}
+-/*
+- * IRQs are disabled when we're called from the timer interrupt,
+- * no need for spin_lock_irqsave()
+- */
+-
+-	spin_lock(&rtc_lock);
  
-+static void discover_ebda(void)
-+{
-+
-+	ebda_info(&ebda_addr, &ebda_size);
- 	/* Round EBDA up to pages */
- 	if (ebda_size == 0)
- 		ebda_size = 1;
-@@ -221,6 +238,13 @@ static void discover_ebda(void)
- 		ebda_size = 64*1024;
+ /*
+  * Tell the clock it's being set and stop it.
+@@ -143,14 +138,22 @@ static int set_rtc_mmss(unsigned long nowtime)
+ 	CMOS_WRITE(control, RTC_CONTROL);
+ 	CMOS_WRITE(freq_select, RTC_FREQ_SELECT);
+ 
+-	spin_unlock(&rtc_lock);
+-
+ 	return retval;
  }
  
-+/* Overridden in paravirt.c if CONFIG_PARAVIRT */
-+void __attribute__((weak)) memory_setup(void)
+ int update_persistent_clock(struct timespec now)
+ {
+-	return set_rtc_mmss(now.tv_sec);
++	int retval;
++
++/*
++ * IRQs are disabled when we're called from the timer interrupt,
++ * no need for spin_lock_irqsave()
++ */
++	spin_lock(&rtc_lock);
++	retval = set_wallclock(now.tv_sec);
++	spin_unlock(&rtc_lock);
++
++	return retval;
+ }
+ 
+ void main_timer_handler(void)
+@@ -195,7 +198,7 @@ static irqreturn_t timer_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-unsigned long read_persistent_clock(void)
++unsigned long do_get_cmos_time(void)
+ {
+ 	unsigned int year, mon, day, hour, min, sec;
+ 	unsigned long flags;
+@@ -246,6 +249,11 @@ unsigned long read_persistent_clock(void)
+ 	return mktime(year, mon, day, hour, min, sec);
+ }
+ 
++unsigned long read_persistent_clock(void)
 +{
-+       return setup_memory_region();
++	return get_wallclock();
 +}
 +
+ /* calibrate_cpu is used on systems with fixed rate TSCs to determine
+  * processor frequency */
+ #define TICK_COUNT 100000000
+@@ -365,6 +373,11 @@ static struct irqaction irq0 = {
+ 	.name		= "timer"
+ };
+ 
++inline void time_init_hook()
++{
++	setup_irq(0, &irq0);
++}
 +
- void __init setup_arch(char **cmdline_p)
+ void __init time_init(void)
  {
- 	printk(KERN_INFO "Command line: %s\n", boot_command_line);
-@@ -231,12 +255,19 @@ void __init setup_arch(char **cmdline_p)
- 	saved_video_mode = SAVED_VIDEO_MODE;
- 	bootloader_type = LOADER_TYPE;
+ 	if (nohpet)
+@@ -403,7 +416,7 @@ void __init time_init(void)
+ 		cpu_khz / 1000, cpu_khz % 1000);
+ 	init_tsc_clocksource();
  
-+	/*
-+	 * By returning non-zero here, a paravirt impl can choose to
-+	 * skip the rest of the setup process
-+	 */
-+	if (paravirt_arch_setup())
-+		return;
-+
- #ifdef CONFIG_BLK_DEV_RAM
- 	rd_image_start = RAMDISK_FLAGS & RAMDISK_IMAGE_START_MASK;
- 	rd_prompt = ((RAMDISK_FLAGS & RAMDISK_PROMPT_FLAG) != 0);
- 	rd_doload = ((RAMDISK_FLAGS & RAMDISK_LOAD_FLAG) != 0);
- #endif
--	setup_memory_region();
-+	memory_setup();
- 	copy_edd();
+-	setup_irq(0, &irq0);
++	do_time_init();
+ }
  
- 	if (!MOUNT_ROOT_RDONLY)
-diff --git a/include/asm-x86_64/e820.h b/include/asm-x86_64/e820.h
-index 3486e70..2ced3ba 100644
---- a/include/asm-x86_64/e820.h
-+++ b/include/asm-x86_64/e820.h
-@@ -20,7 +20,12 @@
- #define E820_ACPI	3
- #define E820_NVS	4
- 
-+#define MAP_TYPE_STR	"BIOS-e820"
-+
- #ifndef __ASSEMBLY__
-+
-+void native_ebda_info(unsigned *addr, unsigned *size);
-+
- struct e820entry {
- 	u64 addr;	/* start of memory segment */
- 	u64 size;	/* size of memory segment */
-@@ -56,6 +61,7 @@ extern struct e820map e820;
- 
- extern unsigned ebda_addr, ebda_size;
- extern unsigned long nodemap_addr, nodemap_size;
-+
- #endif/*!__ASSEMBLY__*/
- 
- #endif/*__E820_HEADER*/
+ /*
 -- 
 1.4.4.2
