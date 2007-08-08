@@ -1,16 +1,15 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 18/25] [PATCH] turn priviled operations into macros in
- entry.S
-Date: Wed, 8 Aug 2007 07:52:10 -0400 (EDT)
-Message-ID: <Pine.LNX.4.58.0708080740490.5921__28917.2003082514$1186574130$gmane$org@gandalf.stny.rr.com>
+Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
+Date: Wed, 8 Aug 2007 07:58:06 -0400 (EDT)
+Message-ID: <Pine.LNX.4.58.0708080754230.5921__16910.5050423697$1186574511$gmane$org@gandalf.stny.rr.com>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<1186546820708-git-send-email-gcosta@redhat.com>
-	<11865468243612-git-send-email-gcosta@redhat.com>
-	<200708081138.23018.ak@suse.de>
+	<1186546847263-git-send-email-gcosta@redhat.com>
+	<11865468513077-git-send-email-gcosta@redhat.com>
+	<200708081200.13669.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200708081138.23018.ak@suse.de>
+In-Reply-To: <200708081200.13669.ak@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,125 +24,18 @@ Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-Hi Andi,
-
-Thanks for all the comments, it's greatly appreciated.
-
 On Wed, 8 Aug 2007, Andi Kleen wrote:
 
+> Strictly you would at least need a !X86_VSMP dependency, but
+> with the vsmp change i requested that will be unnecessary
 >
-> > +#define SYSRETQ						\
-> > +			movq	%gs:pda_oldrsp,%rsp;	\
-> > +			swapgs;				\
-> > +			sysretq;
->
-> When the macro does more than sysret it should have a different
-> name
+> Is this really synced with the latest version of the i386 code?
 
-Noted. Do you have a better idea? Something like SETSTACK_SWAPGS_SYSRETQ?
-
->
->
-> >   */
-> >  	.globl int_ret_from_sys_call
-> >  int_ret_from_sys_call:
-> > -	cli
-> > +	DISABLE_INTERRUPTS(CLBR_ANY)
->
-> ANY? There are certainly some registers alive at this point like rax
-
-Glauber will need to address this, this is his code ;-)
-
->
-> >  retint_restore_args:
-> > -	cli
-> > +	DISABLE_INTERRUPTS(CLBR_ANY)
->
-> Similar.
->
->
-> >  	/*
-> >  	 * The iretq could re-enable interrupts:
-> >  	 */
-> > @@ -566,10 +587,14 @@ retint_restore_args:
-> >  restore_args:
-> >  	RESTORE_ARGS 0,8,0
-> >  iret_label:
-> > -	iretq
-> > +#ifdef CONFIG_PARAVIRT
-> > +	INTERRUPT_RETURN
-> > +ENTRY(native_iret)
->
-> ENTRY adds alignment. Why do you need that export anyways?
-
-The paravirt ops struct points to it.
-
->
-> > +#endif
-> > +1:	iretq
-> >
-> >  	.section __ex_table,"a"
-> > -	.quad iret_label,bad_iret
-> > +	.quad 1b, bad_iret
->
-> iret_label seems more expressive to me than 1
-
-The reason for this change is because of the added:
-#ifdef CONFIG_PARAVIRT
-	INTERRUPT_RETURN
-ENTRY(native_iret)
-#endif
-
-If we are paravirt ops, we need the iretq in the exception table, not the
-paravit ops function call.  Since that function call may simply call the
-native_iretq, and if we take a fault at the iretq, it wont be in the
-exception table.
-
->
-> > +	ENABLE_INTERRUPTS(CLBR_NONE)
->
-> In many of the CLBR_NONEs there are actually some registers free;
-> but it might be safer to keep it this way. But if some client can get
-> significantly better code with one or two free registers it might
-> be worthwhile to investigate.
-
-Glauber, that comment is for you.
-
->
-> > -	swapgs
-> > +	SWAPGS_NOSTACK
->
-> There's still stack here
-
-OK, bad name then. How about SWAPGS_UNTRUSTED_STACK?
-
-From earlier in the file where SWAPGS_NOSTACK is declared we have:
-
-
-/* Currently paravirt can't handle swapgs nicely when we
- * don't have a stack.  So we either find a way around these
- * or just fault and emulate if a guest tries to call swapgs
- * directly.
- *
- * Either way, this is a good way to document that we don't
- * have a reliable stack.
- */
-#define SWAPGS_NOSTACK		swapgs
-
->
-> >  paranoid_restore\trace:
-> >  	RESTORE_ALL 8
-> > -	iretq
-> > +	INTERRUPT_RETURN
->
-> I suspect Xen will need much more changes anyways because of its
-> ring 3 guest. Are these changes sufficient for lguest?
-
-Probably not, but this part of the code I don't fully understand. But just
-doing this doesn't break lguest.  But perhaps it only did not break it yet
-;-)
-
-
-Thanks,
+Glauber started the paravirt ops 64 a second time around, from scratch
+using the PVOPS of i386 as a base. But since we couldn't just take a the
+PVOPS patch from i386 and apply it to x86_64, this was mainly done by
+looking at i386 code and massaging it for x86_64. Somethings may have
+slipped (and we may have been looking at different versions of PVOPS).
+It's not easy trying to keep up with a moving target ;-)
 
 -- Steve
