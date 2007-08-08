@@ -1,23 +1,17 @@
-From: Andi Kleen <andi@firstfloor.org>
-Subject: Re: [PATCH 18/25] [PATCH] turn priviled operations into macros in
-	entry.S
-Date: Wed, 8 Aug 2007 16:03:19 +0200
-Message-ID: <20070808140319.GF14419__47558.2099556506$1186582003$gmane$org@one.firstfloor.org>
+From: "Glauber de Oliveira Costa" <glommer@gmail.com>
+Subject: Re: [PATCH 23/25] [PATCH] paravirt hooks for arch initialization
+Date: Wed, 8 Aug 2007 11:08:25 -0300
+Message-ID: <5d6222a80708080708h43b1521cp734bedd27f94723e__30678.7194255323$1186582451$gmane$org@mail.gmail.com>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<200708081138.23018.ak@suse.de>
-	<Pine.LNX.4.58.0708080740490.5921@gandalf.stny.rr.com>
-	<200708081424.49896.ak@suse.de>
-	<Pine.LNX.4.58.0708080835350.6751@gandalf.stny.rr.com>
-	<p738x8mrv4m.fsf@bingen.suse.de>
-	<Pine.LNX.4.58.0708080919330.7236@gandalf.stny.rr.com>
-	<Pine.LNX.4.58.0708080924590.7236@gandalf.stny.rr.com>
-	<20070808133001.GD14419@one.firstfloor.org>
-	<Pine.LNX.4.58.0708080936070.7516@gandalf.stny.rr.com>
+	<11865468394005-git-send-email-gcosta@redhat.com>
+	<11865468431616-git-send-email-gcosta@redhat.com>
+	<200708081144.04119.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200708081144.04119.ak@suse.de>
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0708080936070.7516@gandalf.stny.rr.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,49 +21,59 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: lguest@ozlabs.org, LKML <linux-kernel@vger.kernel.org>, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, Andi Kleen <andi@firstfloor.org>, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 08, 2007 at 09:47:05AM -0400, Steven Rostedt wrote:
-> /me working very hard to get lguest64 ready for public display
-> 
-> Here's a snippet from my version of core.c.  I've been thinking of ways to
-> optimize it, but for now it works fine. This was done for both ring 3 and
-> ring 1 lguest versions (this is the host running):
-> 
-> 
-> 	/*
-> 	 * Update the LSTAR to point to the HV syscall handler.
-> 	 * Also update the fsbase if the guest uses one.
-> 	 */
-> 	wrmsrl(MSR_LSTAR, (unsigned long)HV_OFFSET(&lguest_syscall_trampoline));
-> 
-> [...]
-> 	asm volatile ("pushq %2; pushq %%rsp; pushfq; pushq %3; call *%6;"
-> 		      /* The stack we pushed is off by 8, due to the
-> previous pushq */
-> 		      "addq $8, %%rsp"
+On 8/8/07, Andi Kleen <ak@suse.de> wrote:
+>
+> > -static void discover_ebda(void)
+> > +void native_ebda_info(unsigned *addr, unsigned *size)
+>
+> I guess it would be better to use the resources frame work here.
+> Before checking EBDA check if it is already reserved. Then lguest/Xen
+> can reserve these areas and stop using it.
+Let's make sure I understand: So you suggest skipping discover
+altogether in case it is already reserved?
 
-Weird stack inbalance, i'm surprised that works. %6 must be doing strange
-things.
+>
+> > +/* Overridden in paravirt.c if CONFIG_PARAVIRT */
+> > +void __attribute__((weak)) memory_setup(void)
+> > +{
+> > +       return setup_memory_region();
+> > +}
+> > +
+> > +
+> >  void __init setup_arch(char **cmdline_p)
+> >  {
+> >       printk(KERN_INFO "Command line: %s\n", boot_command_line);
+> > @@ -231,12 +255,19 @@ void __init setup_arch(char **cmdline_p)
+> >       saved_video_mode = SAVED_VIDEO_MODE;
+> >       bootloader_type = LOADER_TYPE;
+> >
+> > +     /*
+> > +      * By returning non-zero here, a paravirt impl can choose to
+> > +      * skip the rest of the setup process
+> > +      */
+> > +     if (paravirt_arch_setup())
+> > +             return;
+>
+> Sorry, but that's an extremly ugly and clumpsy interface and will lead
+> to extensive code duplication in hypervisors because so much code
+> is disabled.
 
-> 	/* Need to read manual, does rdmsr clear
-> 	 * the top 32 bits of rax? */
-> 	xor	%rax, %rax
-> 
-> 	movl  	$MSR_GS_BASE,%ecx
-> 	rdmsr
+We can just wipe out the return value right now. Note that it was a
+choice, it would only lead to code duplication if the hypervisor
+wanted it. But yeah, I understand your concern. They may chose to
+return 1 here just to change some tiny thing in the bottom.
 
+I don't know exactly what other kinds of hooks we could put there.
+lguest surely didn't need any. Are you okay with just turning it into
+void by now ?
 
-This seems incredibly slow. Since GS changes are controlled in 
-the kernel why don't you just cache them in the per cpu area? 
-The only case where user can reload it is using segment
-selector changes, which can be also handled.
+-- 
+Glauber de Oliveira Costa.
+"Free as in Freedom"
+http://glommer.net
 
-Also why do you need the guest gs value anyways? 
-
-You could just use your own stack and let the guest
-switch to its own.
-
--Andi
+"The less confident you are, the more serious you have to act."
