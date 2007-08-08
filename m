@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 10/25] [PATCH] export math_state_restore
-Date: Wed,  8 Aug 2007 01:18:57 -0300
-Message-ID: <11865467931543-git-send-email-gcosta__33588.4549342611$1186557554$gmane$org@redhat.com>
+Subject: [PATCH 7/25] [PATCH] interrupt related native paravirt functions.
+Date: Wed,  8 Aug 2007 01:18:54 -0300
+Message-ID: <11865467812610-git-send-email-gcosta__14455.7537547827$1186557564$gmane$org@redhat.com>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
 	<11865467592921-git-send-email-gcosta@redhat.com>
 	<1186546763582-git-send-email-gcosta@redhat.com>
@@ -9,11 +9,8 @@ References: <11865467522495-git-send-email-gcosta@redhat.com>
 	<11865467702103-git-send-email-gcosta@redhat.com>
 	<11865467741753-git-send-email-gcosta@redhat.com>
 	<11865467773012-git-send-email-gcosta@redhat.com>
-	<11865467812610-git-send-email-gcosta@redhat.com>
-	<1186546785346-git-send-email-gcosta@redhat.com>
-	<1186546789356-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1186546789356-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11865467773012-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,26 +24,72 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Export math_state_restore symbol, so it can be used for hypervisors.
-They are commonly loaded as modules.
+The interrupt initialization routine becomes native_init_IRQ and will
+be overriden later in case paravirt is on.
+
+The interrupt vector is made global, so paravirt guests can reference
+it in their initializations. However, "interrupt" is such a common
+name, and could lead to clashes, so it is renamed.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- arch/x86_64/kernel/traps.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ arch/x86_64/kernel/i8259.c |   15 +++++++++++----
+ include/asm-x86_64/irq.h   |    2 ++
+ 2 files changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86_64/kernel/traps.c b/arch/x86_64/kernel/traps.c
-index 0388842..aacbe12 100644
---- a/arch/x86_64/kernel/traps.c
-+++ b/arch/x86_64/kernel/traps.c
-@@ -1081,6 +1081,7 @@ asmlinkage void math_state_restore(void)
- 	task_thread_info(me)->status |= TS_USEDFPU;
- 	me->fpu_counter++;
- }
-+EXPORT_SYMBOL_GPL(math_state_restore);
+diff --git a/arch/x86_64/kernel/i8259.c b/arch/x86_64/kernel/i8259.c
+index 948cae6..8dda872 100644
+--- a/arch/x86_64/kernel/i8259.c
++++ b/arch/x86_64/kernel/i8259.c
+@@ -75,8 +75,12 @@ BUILD_16_IRQS(0xc) BUILD_16_IRQS(0xd) BUILD_16_IRQS(0xe) BUILD_16_IRQS(0xf)
+ 	IRQ(x,8), IRQ(x,9), IRQ(x,a), IRQ(x,b), \
+ 	IRQ(x,c), IRQ(x,d), IRQ(x,e), IRQ(x,f)
  
- void __init trap_init(void)
+-/* for the irq vectors */
+-static void (*interrupt[NR_VECTORS - FIRST_EXTERNAL_VECTOR])(void) = {
++/*
++ * For the irq vectors. It is global rather than static to allow for
++ * paravirtualized guests to use it in their own interrupt initialization
++ * routines
++ */
++void (*interrupt_vector[NR_VECTORS - FIRST_EXTERNAL_VECTOR])(void) = {
+ 					  IRQLIST_16(0x2), IRQLIST_16(0x3),
+ 	IRQLIST_16(0x4), IRQLIST_16(0x5), IRQLIST_16(0x6), IRQLIST_16(0x7),
+ 	IRQLIST_16(0x8), IRQLIST_16(0x9), IRQLIST_16(0xa), IRQLIST_16(0xb),
+@@ -484,7 +488,10 @@ static int __init init_timer_sysfs(void)
+ 
+ device_initcall(init_timer_sysfs);
+ 
+-void __init init_IRQ(void)
++/* Overridden in paravirt.c */
++void init_IRQ(void) __attribute__((weak, alias("native_init_IRQ")));
++
++void __init native_init_IRQ(void)
  {
+ 	int i;
+ 
+@@ -497,7 +504,7 @@ void __init init_IRQ(void)
+ 	for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
+ 		int vector = FIRST_EXTERNAL_VECTOR + i;
+ 		if (vector != IA32_SYSCALL_VECTOR)
+-			set_intr_gate(vector, interrupt[i]);
++			set_intr_gate(vector, interrupt_vector[i]);
+ 	}
+ 
+ #ifdef CONFIG_SMP
+diff --git a/include/asm-x86_64/irq.h b/include/asm-x86_64/irq.h
+index 5006c6e..be55299 100644
+--- a/include/asm-x86_64/irq.h
++++ b/include/asm-x86_64/irq.h
+@@ -46,6 +46,8 @@ static __inline__ int irq_canonicalize(int irq)
+ extern void fixup_irqs(cpumask_t map);
+ #endif
+ 
++void native_init_IRQ(void);
++
+ #define __ARCH_HAS_DO_SOFTIRQ 1
+ 
+ #endif /* _ASM_IRQ_H */
 -- 
 1.4.4.2
