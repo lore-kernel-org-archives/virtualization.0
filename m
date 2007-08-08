@@ -1,16 +1,16 @@
 From: "Glauber de Oliveira Costa" <glommer@gmail.com>
-Subject: Re: [PATCH 13/25] [PATCH] turn msr.h functions into native versions
-Date: Wed, 8 Aug 2007 11:19:50 -0300
-Message-ID: <5d6222a80708080719k2e2723mdf82572624856246__29200.5814997994$1186583047$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH 3/25] [PATCH] irq_flags / halt routines
+Date: Wed, 8 Aug 2007 11:23:37 -0300
+Message-ID: <5d6222a80708080723h6efbf857yd707e85ccb713b6__41018.030109308$1186583207$gmane$org@mail.gmail.com>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<11865468003673-git-send-email-gcosta@redhat.com>
-	<11865468043920-git-send-email-gcosta@redhat.com>
-	<200708081125.38481.ak@suse.de>
+	<200708081114.21260.ak@suse.de>
+	<5d6222a80708080710n296f6da8i1dc08d914baeb27a@mail.gmail.com>
+	<200708081614.52391.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200708081125.38481.ak@suse.de>
+In-Reply-To: <200708081614.52391.ak@suse.de>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,30 +26,33 @@ Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 8/8/07, Andi Kleen <ak@suse.de> wrote:
-> On Wednesday 08 August 2007 06:19, Glauber de Oliveira Costa wrote:
+> On Wednesday 08 August 2007 16:10:28 Glauber de Oliveira Costa wrote:
+> > On 8/8/07, Andi Kleen <ak@suse.de> wrote:
+> > >
+> > > > +#ifdef CONFIG_PARAVIRT
+> > > > +#include <asm/paravirt.h>
+> > > > +#  ifdef CONFIG_X86_VSMP
+> > > > +static inline int raw_irqs_disabled_flags(unsigned long flags)
+> > > > +{
+> > > > +     return !(flags & X86_EFLAGS_IF) || (flags & X86_EFLAGS_AC);
+> > > > +}
+> > > > +#  else
+> > > > +static inline int raw_irqs_disabled_flags(unsigned long flags)
+> > > > +{
+> > > > +     return !(flags & X86_EFLAGS_IF);
+> > > > +}
+> > > > +#  endif
+> > >
+> > > You should really turn the vsmp special case into a paravirt client first
+> > > instead of complicating all this even more.
+> >
+> > By "client" you mean a user of the paravirt interface?
 >
-> > +static __always_inline long long vget_cycles_sync(void)
->
-> Why is there a copy of this function now? That seems wrong
+> Yes
 
-Yeah, the other one is in i386 headers, so We probably wan't to leave
-it there. One option is to move get_cycles_sync to x86_64 headers, and
-then #ifdef just the offending part.
-
-> > +             native_read_tscp(&p);
->
-> The instruction is called rdtscp not read_tscp. Please follow that
-
-Although the operation consists in reading tscp. I choose this to be
-consistent with i386, but I have no special feelings about it. I'm
-okay with changing it if you prefer.
-
-> > +#define rdtsc(low, high)                     \
->
-> This macro can be probably eliminated, no callers in kernel
->
->
-Fine.
+Ohhh, I see. You're talking about just the first piece of code inside
+the #ifdef CONFIG_PARAVIRT. In this case yes, I agree with you. It can
+be done.
 
 -- 
 Glauber de Oliveira Costa.
