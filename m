@@ -1,16 +1,16 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 23/25] [PATCH] paravirt hooks for arch initialization
-Date: Wed, 8 Aug 2007 16:13:26 +0200
-Message-ID: <200708081613.26613.ak__26395.8078380258$1186582828$gmane$org@suse.de>
+From: "Glauber de Oliveira Costa" <glommer@gmail.com>
+Subject: Re: [PATCH 13/25] [PATCH] turn msr.h functions into native versions
+Date: Wed, 8 Aug 2007 11:19:50 -0300
+Message-ID: <5d6222a80708080719k2e2723mdf82572624856246__29200.5814997994$1186583047$gmane$org@mail.gmail.com>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<200708081144.04119.ak@suse.de>
-	<5d6222a80708080708h43b1521cp734bedd27f94723e@mail.gmail.com>
+	<11865468003673-git-send-email-gcosta@redhat.com>
+	<11865468043920-git-send-email-gcosta@redhat.com>
+	<200708081125.38481.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5d6222a80708080708h43b1521cp734bedd27f94723e@mail.gmail.com>
+In-Reply-To: <200708081125.38481.ak@suse.de>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,29 +21,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <glommer@gmail.com>
+To: Andi Kleen <ak@suse.de>
 Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 08 August 2007 16:08:25 Glauber de Oliveira Costa wrote:
-> On 8/8/07, Andi Kleen <ak@suse.de> wrote:
-> >
-> > > -static void discover_ebda(void)
-> > > +void native_ebda_info(unsigned *addr, unsigned *size)
-> >
-> > I guess it would be better to use the resources frame work here.
-> > Before checking EBDA check if it is already reserved. Then lguest/Xen
-> > can reserve these areas and stop using it.
-> Let's make sure I understand: So you suggest skipping discover
-> altogether in case it is already reserved?
+On 8/8/07, Andi Kleen <ak@suse.de> wrote:
+> On Wednesday 08 August 2007 06:19, Glauber de Oliveira Costa wrote:
+>
+> > +static __always_inline long long vget_cycles_sync(void)
+>
+> Why is there a copy of this function now? That seems wrong
 
-Yes
+Yeah, the other one is in i386 headers, so We probably wan't to leave
+it there. One option is to move get_cycles_sync to x86_64 headers, and
+then #ifdef just the offending part.
 
+> > +             native_read_tscp(&p);
+>
+> The instruction is called rdtscp not read_tscp. Please follow that
 
-> I don't know exactly what other kinds of hooks we could put there.
-> lguest surely didn't need any. Are you okay with just turning it into
-> void by now ?
+Although the operation consists in reading tscp. I choose this to be
+consistent with i386, but I have no special feelings about it. I'm
+okay with changing it if you prefer.
 
-Yes.
+> > +#define rdtsc(low, high)                     \
+>
+> This macro can be probably eliminated, no callers in kernel
+>
+>
+Fine.
 
--Andi
+-- 
+Glauber de Oliveira Costa.
+"Free as in Freedom"
+http://glommer.net
+
+"The less confident you are, the more serious you have to act."
