@@ -1,15 +1,18 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
-Date: Wed, 8 Aug 2007 07:58:06 -0400 (EDT)
-Message-ID: <Pine.LNX.4.58.0708080754230.5921__16910.5050423697$1186574511$gmane$org@gandalf.stny.rr.com>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 18/25] [PATCH] turn priviled operations into macros in
+	entry.S
+Date: Wed, 8 Aug 2007 14:24:49 +0200
+Message-ID: <200708081424.49896.ak__3780.51527445695$1186576097$gmane$org@suse.de>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<1186546847263-git-send-email-gcosta@redhat.com>
-	<11865468513077-git-send-email-gcosta@redhat.com>
-	<200708081200.13669.ak@suse.de>
+	<200708081138.23018.ak@suse.de>
+	<Pine.LNX.4.58.0708080740490.5921@gandalf.stny.rr.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200708081200.13669.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0708080740490.5921@gandalf.stny.rr.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,23 +22,14 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
 Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On Wed, 8 Aug 2007, Andi Kleen wrote:
+> Probably not, but this part of the code I don't fully understand.
 
-> Strictly you would at least need a !X86_VSMP dependency, but
-> with the vsmp change i requested that will be unnecessary
->
-> Is this really synced with the latest version of the i386 code?
+I would suggest to defer all this until at least one example to test it 
+(except vsmp which is too simple) is around.
 
-Glauber started the paravirt ops 64 a second time around, from scratch
-using the PVOPS of i386 as a base. But since we couldn't just take a the
-PVOPS patch from i386 and apply it to x86_64, this was mainly done by
-looking at i386 code and massaging it for x86_64. Somethings may have
-slipped (and we may have been looking at different versions of PVOPS).
-It's not easy trying to keep up with a moving target ;-)
-
--- Steve
+-Andi
