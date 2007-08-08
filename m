@@ -1,17 +1,16 @@
 From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 18/25] [PATCH] turn priviled operations into macros in
-	entry.S
-Date: Wed, 8 Aug 2007 11:38:21 +0200
-Message-ID: <200708081138.23018.ak__1415.90750213272$1186567574$gmane$org@suse.de>
+Subject: Re: [PATCH 3/25] [PATCH] irq_flags / halt routines
+Date: Wed, 8 Aug 2007 11:14:19 +0200
+Message-ID: <200708081114.21260.ak__35058.0432372682$1186567651$gmane$org@suse.de>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<1186546820708-git-send-email-gcosta@redhat.com>
-	<11865468243612-git-send-email-gcosta@redhat.com>
+	<1186546763582-git-send-email-gcosta@redhat.com>
+	<11865467662182-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11865468243612-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11865467662182-git-send-email-gcosta@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,71 +26,28 @@ Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-> +#define SYSRETQ						\
-> +			movq	%gs:pda_oldrsp,%rsp;	\
-> +			swapgs;				\
-> +			sysretq;
-
-When the macro does more than sysret it should have a different
-name
-
-
->   */
->  	.globl int_ret_from_sys_call
->  int_ret_from_sys_call:
-> -	cli
-> +	DISABLE_INTERRUPTS(CLBR_ANY)
-
-ANY? There are certainly some registers alive at this point like rax
-
->  retint_restore_args:
-> -	cli
-> +	DISABLE_INTERRUPTS(CLBR_ANY)
-
-Similar.
-
-
->  	/*
->  	 * The iretq could re-enable interrupts:
->  	 */
-> @@ -566,10 +587,14 @@ retint_restore_args:
->  restore_args:
->  	RESTORE_ARGS 0,8,0
->  iret_label:
-> -	iretq
 > +#ifdef CONFIG_PARAVIRT
-> +	INTERRUPT_RETURN
-> +ENTRY(native_iret)
+> +#include <asm/paravirt.h>
+> +#  ifdef CONFIG_X86_VSMP
+> +static inline int raw_irqs_disabled_flags(unsigned long flags)
+> +{
+> +	return !(flags & X86_EFLAGS_IF) || (flags & X86_EFLAGS_AC);
+> +}
+> +#  else
+> +static inline int raw_irqs_disabled_flags(unsigned long flags)
+> +{
+> +	return !(flags & X86_EFLAGS_IF);
+> +}
+> +#  endif
 
-ENTRY adds alignment. Why do you need that export anyways? 
+You should really turn the vsmp special case into a paravirt client first 
+instead of complicating all this even more. 
 
-> +#endif
-> +1:	iretq
->
->  	.section __ex_table,"a"
-> -	.quad iret_label,bad_iret
-> +	.quad 1b, bad_iret
+> +#ifndef CONFIG_PARAVIRT
+> +#define raw_safe_halt	native_raw_safe_halt
+> +#define halt		native_halt
+> +#endif /* ! CONFIG_PARAVIRT */
 
-iret_label seems more expressive to me than 1
-
-> +	ENABLE_INTERRUPTS(CLBR_NONE)
-
-In many of the CLBR_NONEs there are actually some registers free;
-but it might be safer to keep it this way. But if some client can get 
-significantly better code with one or two free registers it might 
-be worthwhile to investigate.
-
-> -	swapgs
-> +	SWAPGS_NOSTACK
-
-There's still stack here
-
->  paranoid_restore\trace:
->  	RESTORE_ALL 8
-> -	iretq
-> +	INTERRUPT_RETURN
-
-I suspect Xen will need much more changes anyways because of its
-ring 3 guest. Are these changes sufficient for lguest?
+This seems inconsistent
 
 -Andi
