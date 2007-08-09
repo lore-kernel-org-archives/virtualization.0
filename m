@@ -1,17 +1,15 @@
-From: "Glauber de Oliveira Costa" <glommer@gmail.com>
-Subject: Re: [PATCH 3/25] [PATCH] irq_flags / halt routines
-Date: Thu, 9 Aug 2007 04:29:38 -0300
-Message-ID: <5d6222a80708090029o13577af4j4c99b46612b31ef7__26776.1082192466$1186644755$gmane$org@mail.gmail.com>
-References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<1186546763582-git-send-email-gcosta@redhat.com>
-	<11865467662182-git-send-email-gcosta@redhat.com>
-	<200708081114.21260.ak@suse.de>
+From: Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH 2/7] Added generic lg.h in lguest directory.
+Date: Thu, 09 Aug 2007 14:06:15 +0200
+Message-ID: <46BB0337.6040701__20299.662979278$1186661433$gmane$org@sgi.com>
+References: <20070809003211.373543702@goodmis.org>	
+	<20070809003343.310187242@goodmis.org>
+	<5d6222a80708081756r21bbc7e3ifd357c9c548ac57f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200708081114.21260.ak@suse.de>
-Content-Disposition: inline
+In-Reply-To: <5d6222a80708081756r21bbc7e3ifd357c9c548ac57f@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,44 +19,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
-Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
+To: Glauber de Oliveira Costa <glommer@gmail.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 8/8/07, Andi Kleen <ak@suse.de> wrote:
->
-> > +#ifdef CONFIG_PARAVIRT
-> > +#include <asm/paravirt.h>
-> > +#  ifdef CONFIG_X86_VSMP
-> > +static inline int raw_irqs_disabled_flags(unsigned long flags)
-> > +{
-> > +     return !(flags & X86_EFLAGS_IF) || (flags & X86_EFLAGS_AC);
-> > +}
-> > +#  else
-> > +static inline int raw_irqs_disabled_flags(unsigned long flags)
-> > +{
-> > +     return !(flags & X86_EFLAGS_IF);
-> > +}
-> > +#  endif
->
-> You should really turn the vsmp special case into a paravirt client first
-> instead of complicating all this even more.
-Looking at it more carefully, it turns out that those functions are
-not eligible for being paravirt clients. They do no privileged
-operation at all. In fact, all they do is bit manipulation.
-That said, the code got a little bit cleaner by moving them down, and so I did.
+Glauber de Oliveira Costa wrote:
+> On 8/8/07, Steven Rostedt <rostedt@goodmis.org> wrote:
+>> Add a generic lg.h file to call the architecture specific one.
+>>
+>> diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
+>> new file mode 100644
+>> index 0000000..4c4356e
+>> --- /dev/null
+>> +++ b/drivers/lguest/lg.h
+>> @@ -0,0 +1,3 @@
+>> +#ifdef CONFIG_X86_32
+>> +#include "i386/lg.h"
+>> +#endif
+> 
+> Wouldn't it be cleaner to do something like the asm/ includes?
+> I understand that lguest now lives in drivers/ and so we don't put
+> headers directly in asm-i386 , but we could come up with a similar
+> thing here. 
 
-But later on, you voiced concern about making CONFIG_PARAVIRT depend
-on !VSMP. (and said it would be okay, because these functions would be
-paravirt clients: but they won't) Given this updated picture, what's
-your position about this?
+Yeah, that would be much better, and I don't like having something in
+a header file including arch specific files like that. I target to get
+lguest going on non x86, so I would like to encourage anyone to think
+more than x86 when trying to seperate out something :)
 
-Again, as they don't do anything besides bit manipulation, I don't
-think they will stop VSMP from working with PARAVIRT.
+IMHO we should avoid any header files with asm specific code in
+drivers/lguest - in a way I prefer having arch/<foo>/lguest to
+drivers/lguest/<arch>, would be more esthetically compliant with
+the include/asm-<arch> approach too, but thats not a big deal.
 
--- 
-Glauber de Oliveira Costa.
-"Free as in Freedom"
-http://glommer.net
-
-"The less confident you are, the more serious you have to act."
+Cheers,
+Jes
