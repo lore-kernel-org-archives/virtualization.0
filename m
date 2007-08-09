@@ -1,15 +1,16 @@
 From: Andi Kleen <ak@suse.de>
 Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
-Date: Thu, 9 Aug 2007 16:26:09 +0200
-Message-ID: <200708091626.09316.ak__10214.269362814$1186669758$gmane$org@suse.de>
+Date: Thu, 9 Aug 2007 16:26:57 +0200
+Message-ID: <200708091626.57736.ak__43819.1054774963$1186669944$gmane$org@suse.de>
 References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<200708081200.13669.ak@suse.de> <46BAB9DD.5030400@goop.org>
+	<5d6222a80708090007h3d185ecdm3ea8fa0b5ee96050@mail.gmail.com>
+	<46BABE72.90107@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46BAB9DD.5030400@goop.org>
+In-Reply-To: <46BABE72.90107@goop.org>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,15 +26,9 @@ Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-> This has to match the normal C calling convention though, doesn't it?
+> Hm.  So x86-64 doesn't make 64-bit pointers be 64-bit aligned?
 
-Native cli/sti/save/restore_flags are all only assembly and can be easily
-(in fact more easily than in C) written as pure assembler functions. Then
-you can use whatever calling convention you want.
-
-While some paravirt implementations may have more complicated implementations
-i guess it's still a reasonable requirement to make them simple enough 
-in pure assembler. If not they can use a trampoline, but that's hopefully
-not needed.
+The ABI does of course, although the penalty of not doing it on current
+CPUs is only minor.
 
 -Andi
