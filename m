@@ -1,14 +1,14 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 4/7] Moved the io struct up to the generic lg.h
-Date: Wed, 8 Aug 2007 22:19:35 -0400 (EDT)
-Message-ID: <Pine.LNX.4.58.0708082217470.19189__34103.2682605602$1186626090$gmane$org@gandalf.stny.rr.com>
-References: <20070809003211.373543702@goodmis.org>
-	<20070809003343.664528532@goodmis.org>
-	<20070809115156.ef5fdc6c.sfr@canb.auug.org.au>
+From: "ron minnich" <rminnich@gmail.com>
+Subject: Re: [PATCH] Fix Malicious Guest GDT Host Crash
+Date: Wed, 8 Aug 2007 21:40:04 -0700
+Message-ID: <13426df10708082140r61dbaf0m7f03da23e8bf0421@mail.gmail.com>
+References: <1186546220.17470.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070809115156.ef5fdc6c.sfr@canb.auug.org.au>
+In-Reply-To: <1186546220.17470.23.camel@localhost.localdomain>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,47 +18,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lguest <lguest@ozlabs.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---
-On Thu, 9 Aug 2007, Stephen Rothwell wrote:
-
-> On Wed, 08 Aug 2007 20:32:15 -0400 Steven Rostedt <rostedt@goodmis.org>
-> wrote:
-> >
-> > diff --git a/drivers/lguest/i386/lg.h b/drivers/lguest/i386/lg.h
-> > index 64f0abe..c5ea14c 100644
-> > --- a/drivers/lguest/i386/lg.h
-> > +++ b/drivers/lguest/i386/lg.h
-> > @@ -20,6 +20,8 @@
-> >  #include <linux/err.h>
-> >  #include <asm/semaphore.h>
-> >  #include "irq_vectors.h"
-> > +/* some files include this, some include the parent */
-> > +#include "../lg.h"
+On 8/7/07, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> Hi all,
 >
-> Surely everything should just include the parent which allows for easier
-> consolidation over time. (as you are doing here)
+>         Testing would be appreciated (esp. Ron?): I'd like to push this as soon
+> as possible into 2.6.23.  I thought of it while pondering kvm-lite, and
+> then proved it was a problem...
 
-Yeah, that sounds better. This was my attempt at not modifing the
-i386/ stuff too much.  But I can have those files change to do a "../lg.h"
-include.  Again, doing the move plus change to keep things building. Hmm,
-I guess git can handle that.
+Works fine here.
 
->
-> > --- a/drivers/lguest/lg.h
-> > +++ b/drivers/lguest/lg.h
-> > @@ -1,3 +1,19 @@
-> > +#ifndef _LGUEST_LG_GENERIC
-> > +#define _LGUEST_LG_GENERIC
->
-> Maybe _LGUEST_LG_H?  and the arch ones could use _LGUEST_I386_LG_H etc.
+Be aware that in the early Plan 9 port to lguest I created a gdt entry
+and forgot to wrap the GDT #  with a macro with the result that I
+loaded a gdt # instead of a selector into the gdt entry, and when the
+guest switched back to the host (and back to guest, I guess) it
+crashed my machine so hard that it went into the BIOS 'let's set this
+brand new thinkpad up' dialog. Do not pass GPF, do not collect your
+mental state. It was pretty cool. I have lost disks to that failure
+mode before, however, so it was also more excitement than I needed at
+that particular time. I can try to find that bogus code (it's plan 9
+after all, I've got all versions of the file) unless you know what I
+mean here. I would rather not try to repeat the crash.
 
-Noted. Will do in the next release.
+So, the 'GPF on bogus GDT entry' may not always be there for you. I
+did not think it was possible to crash a machine this hard anymore; I
+was wrong.
 
-Thanks,
+The guys at the Plan 9  BOF at Google thought lguest was pretty darn cool.
 
--- Steve
+Thanks
+
+ron
