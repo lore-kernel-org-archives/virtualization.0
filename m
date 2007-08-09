@@ -1,17 +1,15 @@
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
-Date: Thu, 9 Aug 2007 02:24:16 +0200
-Message-ID: <200708090224.16328.ak__11449.7465584011$1186619257$gmane$org@suse.de>
-References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<5d6222a80708080749t35c5c0ceo8b3b8f0cce50c666@mail.gmail.com>
-	<1186615137.17470.100.camel@localhost.localdomain>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: RE: Introducing paravirt_ops for x86_64
+Date: Wed, 8 Aug 2007 17:28:57 -0700
+Message-ID: <97D612E30E1F88419025B06CB4CF1BE10326E924__48700.4416682341$1186619533$gmane$org@scsmsx412.amr.corp.intel.com>
+References: <5d6222a80708080758t1b937d0ej14c5e60ac23a20c5@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1186615137.17470.100.camel@localhost.localdomain>
-Content-Disposition: inline
+Content-class: urn:content-classes:message
+In-Reply-To: <5d6222a80708080758t1b937d0ej14c5e60ac23a20c5@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,40 +19,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
+To: Glauber de Oliveira Costa <glommer@gmail.com>
+Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 09 August 2007 01:18:57 Rusty Russell wrote:
-> On Wed, 2007-08-08 at 11:49 -0300, Glauber de Oliveira Costa wrote:
-> > On 8/8/07, Andi Kleen <ak@suse.de> wrote:
-> > > > +EXPORT_SYMBOL(paravirt_ops);
-> > >
-> > > Definitely _GPL at least.
-> > Sure.
+Glauber de Oliveira Costa wrote:
+> On 8/8/07, Nakajima, Jun <jun.nakajima@intel.com> wrote:
+> > Glauber de Oliveira Costa wrote:
+> > > Hi folks,
+> > > 
+> > > After some time away from it, and a big rebase as a consequence,
+here is
+> > > the updated version of paravirt_ops for x86_64, heading to
+inclusion.
+> > > 
+> > > Your criticism is of course, very welcome.
+> > > 
+> > > Have fun
+> > 
+> > Do you assume that the kernel ougtht to use 2MB pages for its
+mappings
+> > (e.g. initilal text/data,  direct mapping of physical memory) under
+your
+> > paravirt_ops?  As far as I look at the patches, I don't find one.
 > 
-> We ended up making it EXPORT_SYMBOL in i386 because every driver wants
-> to save and restore interrupt state.
+> I don't think how it could be relevant here. lguest kernel does use
+> 2MB pages, and it goes smootly. For 2MB pages, we will update the page
+> tables in the very same way, and in the very places we did before.
+> Just that the operations can now be overwritten.
+> 
+> So, unless I'm very wrong,  it only makes sense to talk about not
+> supporting large pages in the guest level. But it is not a
+> paravirt_ops problem.
 
-Ah true.
- 
-> But questionably-licensed drivers might be less of a concern on x86-64.
+Some MMU-related PV techiniques (including Xen, and direct paging mode
+for Xen/KVM) need to write-protect page tables, avoiding to use 2MB
+pages when mapping page tables. Looks like you did not, and that
+exaplains why the patches are missing the relevant (many) paravirt_ops
+in include/asm-x86_64/pgalloc.h, for example, compared with the i386
+tree. 
 
-Nvidia/ATI and other binary modules exist too and users will probably unhappy 
-if they cannot run them anymore.
-
-But at usually irq state changes should be patched in anyways and won't
-need paravirt I guess? 
-
-Hmm, actually thinking about it the module loader probably has no clue
-that the relocation it linked will be overwritten so it'll check
-for the export anyways.
-
-So the alternatives would be to add ugly hacks to the module loader
-or split paravirt_ops in "common" and "low level system" areas or 
-export it as a normal export.
-
-Not sure what's best. Ok using a normal export is easiest and not
-that big an issue.
-
--Andi
+Jun
+---
+Intel Open Source Technology Center
