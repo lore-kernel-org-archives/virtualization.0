@@ -1,14 +1,17 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Introducing paravirt_ops for x86_64
-Date: Wed, 08 Aug 2007 22:35:21 -0700
-Message-ID: <46BAA799.7080806__4881.32954710654$1186638037$gmane$org@goop.org>
-References: <11865467522495-git-send-email-gcosta@redhat.com>	<97D612E30E1F88419025B06CB4CF1BE10326E129@scsmsx412.amr.corp.intel.com>
-	<5d6222a80708080758t1b937d0ej14c5e60ac23a20c5@mail.gmail.com>
+Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
+Date: Wed, 08 Aug 2007 22:38:08 -0700
+Message-ID: <46BAA840.2040403__34677.4672544145$1186638122$gmane$org@goop.org>
+References: <11865467522495-git-send-email-gcosta@redhat.com>	
+	<5d6222a80708080749t35c5c0ceo8b3b8f0cce50c666@mail.gmail.com>	
+	<1186615137.17470.100.camel@localhost.localdomain>	
+	<200708090224.16328.ak@suse.de>
+	<1186620295.17752.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5d6222a80708080758t1b937d0ej14c5e60ac23a20c5@mail.gmail.com>
+In-Reply-To: <1186620295.17752.23.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,47 +21,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <glommer@gmail.com>
-Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber de Oliveira Costa wrote:
-> On 8/8/07, Nakajima, Jun <jun.nakajima@intel.com> wrote:
+Rusty Russell wrote:
+> On Thu, 2007-08-09 at 02:24 +0200, Andi Kleen wrote:
 >   
->> Glauber de Oliveira Costa wrote:
->>     
->>> Hi folks,
->>>
->>> After some time away from it, and a big rebase as a consequence, here
->>>       
->> is
->>     
->>> the updated version of paravirt_ops for x86_64, heading to inclusion.
->>>
->>> Your criticism is of course, very welcome.
->>>
->>> Have fun
->>>       
->> Do you assume that the kernel ougtht to use 2MB pages for its mappings
->> (e.g. initilal text/data,  direct mapping of physical memory) under your
->> paravirt_ops?  As far as I look at the patches, I don't find one.
+>> Not sure what's best. Ok using a normal export is easiest and not
+>> that big an issue.
 >>     
 >
-> I don't think how it could be relevant here. lguest kernel does use
-> 2MB pages, and it goes smootly. For 2MB pages, we will update the page
-> tables in the very same way, and in the very places we did before.
-> Just that the operations can now be overwritten.
->
-> So, unless I'm very wrong,  it only makes sense to talk about not
-> supporting large pages in the guest level. But it is not a
-> paravirt_ops problem.
->   
+> Yeah, there's also been talk of breaking up paravirt_ops into multiple
+> structs by area, which would lead naturally into finer-grained export
+> control.
 
-At the moment Xen can't support guests with 2M pages.  In 32-bit this
-isn't a huge problem, since the kernel doesn't assume it can map itself
-with 2M pages.  But I think the 64-bit kernel assumes 2M pages are
-always available for mapping the kernel.  I don't know how pervasive
-this assumption is, but it would be nice to parameterize it in pv-ops.
-
+Yeah, I should dust that patch off again.
 
     J
