@@ -1,14 +1,14 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 5/5 -v2] Move the lguest files that are i386 specific
-Date: Thu, 9 Aug 2007 08:21:52 -0400 (EDT)
-Message-ID: <Pine.LNX.4.58.0708090820120.29847__2470.35847646675$1186662426$gmane$org@gandalf.stny.rr.com>
-References: <20070809043626.830486783@goodmis.org>
-	<20070809044125.610944971@goodmis.org>
-	<20070809154221.2175efd4.sfr@canb.auug.org.au>
+From: Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH 4/7] Moved the io struct up to the generic lg.h
+Date: Thu, 09 Aug 2007 14:26:55 +0200
+Message-ID: <46BB080F.4040905__37913.174663163$1186662673$gmane$org@sgi.com>
+References: <20070809003211.373543702@goodmis.org>	<20070809003343.664528532@goodmis.org>
+	<20070809115156.ef5fdc6c.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070809154221.2175efd4.sfr@canb.auug.org.au>
+In-Reply-To: <20070809115156.ef5fdc6c.sfr@canb.auug.org.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,70 +19,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
---
-On Thu, 9 Aug 2007, Stephen Rothwell wrote:
-
-> Hi Steven,
->
-> On Thu, 09 Aug 2007 00:36:31 -0400 Steven Rostedt <rostedt@goodmis.org>
+Stephen Rothwell wrote:
+> On Wed, 08 Aug 2007 20:32:15 -0400 Steven Rostedt <rostedt@goodmis.org>
 > wrote:
-> >
-> > Well, some may be merged with x86_64 later, but for now we move them
-> > out of the way.  Later on we can start seeing how we can combine
-> > some of these files to be arch generic.
-> >
-> > Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-> > ---
-> >  drivers/lguest/Makefile                    |    7 +-
-> >  drivers/lguest/core.c                      |  771 -------------------
-> >  drivers/lguest/hypercalls.c                |  300 --------
-> >  drivers/lguest/i386/Makefile               |    7 +
-> >  drivers/lguest/i386/core.c                 |  771 +++++++++++++++++++
-> >  drivers/lguest/i386/hypercalls.c           |  300 ++++++++
-> >  drivers/lguest/i386/interrupts_and_traps.c |  440 +++++++++++
-> >  drivers/lguest/i386/lguest.c               | 1097 ++++++++++++++++++++++++++++
-> >  drivers/lguest/i386/lguest_asm.S           |   93 +++
-> >  drivers/lguest/i386/lguest_user.c          |  382 ++++++++++
-> >  drivers/lguest/i386/page_tables.c          |  680 +++++++++++++++++
-> >  drivers/lguest/i386/segments.c             |  229 ++++++
-> >  drivers/lguest/i386/switcher.S             |  347 +++++++++
-> >  drivers/lguest/interrupts_and_traps.c      |  440 -----------
-> >  drivers/lguest/lguest.c                    | 1097 ----------------------------
-> >  drivers/lguest/lguest_asm.S                |   93 ---
-> >  drivers/lguest/lguest_user.c               |  382 ----------
-> >  drivers/lguest/page_tables.c               |  680 -----------------
-> >  drivers/lguest/segments.c                  |  229 ------
-> >  drivers/lguest/switcher.S                  |  347 ---------
-> >  20 files changed, 4348 insertions(+), 4344 deletions(-)
->
-> if you add -C or -M to "git diff --stat" this looks much better:
->
-> $ git diff --stat -C HEAD^
->  drivers/lguest/Makefile                          |    7 ++-----
->  drivers/lguest/i386/Makefile                     |    7 +++++++
->  drivers/lguest/{ => i386}/core.c                 |    0
->  drivers/lguest/{ => i386}/hypercalls.c           |    0
->  drivers/lguest/{ => i386}/interrupts_and_traps.c |    0
->  drivers/lguest/{ => i386}/lguest.c               |    0
->  drivers/lguest/{ => i386}/lguest_asm.S           |    0
->  drivers/lguest/{ => i386}/lguest_user.c          |    0
->  drivers/lguest/{ => i386}/page_tables.c          |    0
->  drivers/lguest/{ => i386}/segments.c             |    0
->  drivers/lguest/{ => i386}/switcher.S             |    0
->  11 files changed, 9 insertions(+), 5 deletions(-)
->
+>> diff --git a/drivers/lguest/i386/lg.h b/drivers/lguest/i386/lg.h
+>> index 64f0abe..c5ea14c 100644
+>> --- a/drivers/lguest/i386/lg.h
+>> +++ b/drivers/lguest/i386/lg.h
+>> @@ -20,6 +20,8 @@
+>>  #include <linux/err.h>
+>>  #include <asm/semaphore.h>
+>>  #include "irq_vectors.h"
+>> +/* some files include this, some include the parent */
+>> +#include "../lg.h"
+> 
+> Surely everything should just include the parent which allows for easier
+> consolidation over time. (as you are doing here)
 
-/me should read the man pages.
+Whats wrong with introducing an include/asm-<arch>/lg.h and have the
+parent do #include <asm/lg.h> ? Seems much cleaner to me.
 
-Thanks, that's the options I was looking for.  I was using the
-git-format-patch, and thought it would do that automatically.  I
-definitely add those options the next time around!
-
-Thanks,
-
--- Steve
+Cheers,
+Jes
