@@ -1,11 +1,11 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 2/7] Added generic lg.h in lguest directory.
-Date: Wed, 08 Aug 2007 20:32:13 -0400
-Message-ID: <20070809003343.310187242__20140.2218117893$1186619804$gmane$org@goodmis.org>
+Subject: [PATCH 5/7] Change lguest launcher to use asm generic include
+Date: Wed, 08 Aug 2007 20:32:16 -0400
+Message-ID: <20070809003343.829371800__43815.5467193157$1186619930$gmane$org@goodmis.org>
 References: <20070809003211.373543702@goodmis.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=0002-Added-generic-lg.h-in-lguest-directory.txt
+	filename=0005-Change-lguest-launcher-to-use-asm-generic-include-instead-of-explicitly.txt
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,22 +19,27 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a generic lg.h file to call the architecture specific one.
+Have the lguest launcher include e820.h via asm/e820.h instead of explicitly
+saying i386.
 
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- drivers/lguest/lg.h |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ Documentation/lguest/lguest.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
-new file mode 100644
-index 0000000..4c4356e
---- /dev/null
-+++ b/drivers/lguest/lg.h
-@@ -0,0 +1,3 @@
-+#ifdef CONFIG_X86_32
-+#include "i386/lg.h"
-+#endif
+diff --git a/Documentation/lguest/lguest.c b/Documentation/lguest/lguest.c
+index f791840..eb7a01c 100644
+--- a/Documentation/lguest/lguest.c
++++ b/Documentation/lguest/lguest.c
+@@ -46,7 +46,7 @@ typedef uint32_t u32;
+ typedef uint16_t u16;
+ typedef uint8_t u8;
+ #include "../../include/linux/lguest_launcher.h"
+-#include "../../include/asm-i386/e820.h"
++#include "../../include/asm/e820.h"
+ /*:*/
+ 
+ #define PAGE_PRESENT 0x7 	/* Present, RW, Execute */
 -- 
 1.4.4.4
 
