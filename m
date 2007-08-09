@@ -1,23 +1,14 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 18/25] [PATCH] turn priviled operations into macros in
- entry.S
-Date: Wed, 08 Aug 2007 22:21:11 -0700
-Message-ID: <46BAA447.9010504__242.127668070857$1186637082$gmane$org@goop.org>
-References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<200708081138.23018.ak@suse.de>
-	<Pine.LNX.4.58.0708080740490.5921@gandalf.stny.rr.com>
-	<200708081424.49896.ak@suse.de>
-	<Pine.LNX.4.58.0708080835350.6751@gandalf.stny.rr.com>
-	<p738x8mrv4m.fsf@bingen.suse.de>
-	<Pine.LNX.4.58.0708080919330.7236@gandalf.stny.rr.com>
-	<Pine.LNX.4.58.0708080924590.7236@gandalf.stny.rr.com>
-	<20070808133001.GD14419@one.firstfloor.org>
-	<Pine.LNX.4.58.0708080936070.7516@gandalf.stny.rr.com>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: [PATCH 4/5 -v2] Added generic lg.h in the include/linux
+ directory
+Date: Thu, 9 Aug 2007 15:31:33 +1000
+Message-ID: <20070809153133.d5dff7b6.sfr__37684.3982412995$1186637725$gmane$org@canb.auug.org.au>
+References: <20070809043626.830486783@goodmis.org>
+	<20070809044125.459178259@goodmis.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1991016793430957947=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <Pine.LNX.4.58.0708080936070.7516@gandalf.stny.rr.com>
+In-Reply-To: <20070809044125.459178259@goodmis.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,18 +16,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Steven Rostedt <rostedt@goodmis.org>
-Cc: lguest@ozlabs.org, LKML <linux-kernel@vger.kernel.org>, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, Andi Kleen <andi@firstfloor.org>, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@elte.hu>
+Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml@smtp2.linux-foundation.org, - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Steven Rostedt wrote:
-> 	/*
-> 	 * x86 arch doesn't have an easy way to find out where
-> 	 * gs is located. So we need to read the MSR. But first
-> 	 * we need to save off the rcx, rax and rdx.
->   
-Why don't you store it in gs?  movq %gs:my_gs_base, %rax?
+--===============1991016793430957947==
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+	micalg="PGP-SHA1";
+	boundary="Signature=_Thu__9_Aug_2007_15_31_33_+1000_cLTAAr6tbZXREfb."
 
-    J
+--Signature=_Thu__9_Aug_2007_15_31_33_+1000_cLTAAr6tbZXREfb.
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Steven,
+
+I am just being pedantic here (and I should have beaten up on Rusty
+before now ...  :-)
+
+On Thu, 09 Aug 2007 00:36:30 -0400 Steven Rostedt <rostedt@goodmis.org>
+wrote:
+>
+> --- a/include/asm-i386/lg.h
+> +++ b/include/asm-i386/lg.h
+> @@ -1,5 +1,5 @@
+> -#ifndef _LGUEST_H
+> -#define _LGUEST_H
+> +#ifndef _I386_LGUEST_H
+> +#define _I386_LGUEST_H
+
+Maybe _ASM_LG_H or _I386_LG_H ? And there is a comment on the #endif at
+the end of the file that should match.
+
+> +++ b/include/linux/lg.h
+> @@ -0,0 +1,30 @@
+> +#ifndef _LINUX_LGUEST_H
+> +#define _LINUX_LGUEST_H
+
+Maybe _LINUX_LG_H ?
+
+Also (this is for Rusty) include/linux/lguest.h is protected by
+_ASM_LGUEST_H ...
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Thu__9_Aug_2007_15_31_33_+1000_cLTAAr6tbZXREfb.
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFGuqa6TgG2atn1QN8RAmJPAJ4gcct+revTVWqW6yTxblm3Jt4MawCfRMih
+BHtkczFmBmKURUW89aQUUHM=
+=dKUJ
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__9_Aug_2007_15_31_33_+1000_cLTAAr6tbZXREfb.--
+
+--===============1991016793430957947==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============1991016793430957947==--
