@@ -1,23 +1,15 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
-Date: Thu, 9 Aug 2007 08:30:34 -0400 (EDT)
-Message-ID: <Pine.LNX.4.58.0708090823140.29847__40307.6334544041$1186662827$gmane$org@gandalf.stny.rr.com>
-References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<11865468321629-git-send-email-gcosta@redhat.com>
-	<11865468362401-git-send-email-gcosta@redhat.com>
-	<11865468394005-git-send-email-gcosta@redhat.com>
-	<11865468431616-git-send-email-gcosta@redhat.com>
-	<1186546847263-git-send-email-gcosta@redhat.com>
-	<11865468513077-git-send-email-gcosta@redhat.com>
-	<46BAB5C8.5090906@goop.org>
-	<5d6222a80708090002y7fdc6f2dw1dbacd3d27a86433@mail.gmail.com>
-	<46BABC0F.5070002@goop.org>
-	<5d6222a80708090007h3d185ecdm3ea8fa0b5ee96050@mail.gmail.com>
-	<46BABE72.90107@goop.org>
+Subject: Re: [PATCH 4/7] Moved the io struct up to the generic lg.h
+Date: Thu, 9 Aug 2007 08:40:49 -0400 (EDT)
+Message-ID: <Pine.LNX.4.58.0708090839460.29847@gandalf.stny.rr.com>
+References: <20070809003211.373543702@goodmis.org>
+	<20070809003343.664528532@goodmis.org>
+	<20070809115156.ef5fdc6c.sfr@canb.auug.org.au>
+	<46BB080F.4040905@sgi.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46BABE72.90107@goop.org>
+In-Reply-To: <46BB080F.4040905@sgi.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,44 +19,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, mingo@elte.hu
+To: Jes Sorensen <jes@sgi.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, lguest <lguest@ozlabs.org>, Carsten Otte <cotte@de.ibm.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 --
-On Thu, 9 Aug 2007, Jeremy Fitzhardinge wrote:
+On Thu, 9 Aug 2007, Jes Sorensen wrote:
 
-> Glauber de Oliveira Costa wrote:
-> > On 8/9/07, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> Stephen Rothwell wrote:
+> > On Wed, 08 Aug 2007 20:32:15 -0400 Steven Rostedt <rostedt@goodmis.org>
+> > wrote:
+> >> diff --git a/drivers/lguest/i386/lg.h b/drivers/lguest/i386/lg.h
+> >> index 64f0abe..c5ea14c 100644
+> >> --- a/drivers/lguest/i386/lg.h
+> >> +++ b/drivers/lguest/i386/lg.h
+> >> @@ -20,6 +20,8 @@
+> >>  #include <linux/err.h>
+> >>  #include <asm/semaphore.h>
+> >>  #include "irq_vectors.h"
+> >> +/* some files include this, some include the parent */
+> >> +#include "../lg.h"
 > >
-> >>> Does it really matter?
-> >>>
-> >>>
-> >> Well, yes, if alignment is an issue.
-> >>
-> > Of course, But the question rises from the context that they are both
-> > together at the beginning. So they are not making anybody non-aligned.
-> > Then the question: Why would putting it in the end be different to
-> > putting them _together_, aligned at the beginning ?
-> >
+> > Surely everything should just include the parent which allows for easier
+> > consolidation over time. (as you are doing here)
 >
-> Well, the point is that if you add new ones then alignment may be an
-> issue.  Putting them at the end (with a comment explaining why they're
-> there) will make it more robust.  Though splitting them into their own
-> sub-structure would probably be better.
+> Whats wrong with introducing an include/asm-<arch>/lg.h and have the
+> parent do #include <asm/lg.h> ? Seems much cleaner to me.
 
-Glauber,
+Seems cleaner to me to!  I think I'll do that.
 
-I was thinking of putting them at the end too, and that would make it all
-work better. But I didn't mention it because I was in the mindset of "well
-i386 has that there, we should too" :-(
-
->
-> Hm.  So x86-64 doesn't make 64-bit pointers be 64-bit aligned?
-
-yeah, it usually does. But it's one of those paranoid things, where you
-want it to still work even if someone later on throws an
-__attribute__((packed)) in on paravirt ops ;-)
+Oh, wait! I did.  ;-)
 
 -- Steve
+
+P.S. Sorry, couldn't resist.
