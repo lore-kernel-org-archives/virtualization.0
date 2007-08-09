@@ -1,16 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
-Date: Thu, 09 Aug 2007 10:44:55 +1000
-Message-ID: <1186620295.17752.23.camel__7624.26142250678$1186620427$gmane$org@localhost.localdomain>
-References: <11865467522495-git-send-email-gcosta@redhat.com>
-	<5d6222a80708080749t35c5c0ceo8b3b8f0cce50c666@mail.gmail.com>
-	<1186615137.17470.100.camel@localhost.localdomain>
-	<200708090224.16328.ak@suse.de>
+From: "Glauber de Oliveira Costa" <glommer@gmail.com>
+Subject: Re: [PATCH 2/7] Added generic lg.h in lguest directory.
+Date: Wed, 8 Aug 2007 21:56:37 -0300
+Message-ID: <5d6222a80708081756r21bbc7e3ifd357c9c548ac57f__27937.8637242646$1186621108$gmane$org@mail.gmail.com>
+References: <20070809003211.373543702@goodmis.org>
+	<20070809003343.310187242@goodmis.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200708090224.16328.ak@suse.de>
+In-Reply-To: <20070809003343.310187242@goodmis.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,17 +19,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
-Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-08-09 at 02:24 +0200, Andi Kleen wrote:
-> Not sure what's best. Ok using a normal export is easiest and not
-> that big an issue.
+On 8/8/07, Steven Rostedt <rostedt@goodmis.org> wrote:
+> Add a generic lg.h file to call the architecture specific one.
+>
+> diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
+> new file mode 100644
+> index 0000000..4c4356e
+> --- /dev/null
+> +++ b/drivers/lguest/lg.h
+> @@ -0,0 +1,3 @@
+> +#ifdef CONFIG_X86_32
+> +#include "i386/lg.h"
+> +#endif
 
-Yeah, there's also been talk of breaking up paravirt_ops into multiple
-structs by area, which would lead naturally into finer-grained export
-control.
+Wouldn't it be cleaner to do something like the asm/ includes?
+I understand that lguest now lives in drivers/ and so we don't put
+headers directly in asm-i386 , but we could come up with a similar
+thing here.
 
-Cheers,
-Rusty.
+-- 
+Glauber de Oliveira Costa.
+"Free as in Freedom"
+http://glommer.net
+
+"The less confident you are, the more serious you have to act."
