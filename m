@@ -1,23 +1,23 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: "Glauber de Oliveira Costa" <glommer@gmail.com>
 Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
-Date: Thu, 09 Aug 2007 00:02:39 -0700
-Message-ID: <46BABC0F.5070002__35223.7566411079$1186643217$gmane$org@goop.org>
-References: <11865467522495-git-send-email-gcosta@redhat.com>	
-	<1186546820708-git-send-email-gcosta@redhat.com>	
-	<11865468243612-git-send-email-gcosta@redhat.com>	
-	<11865468321629-git-send-email-gcosta@redhat.com>	
-	<11865468362401-git-send-email-gcosta@redhat.com>	
-	<11865468394005-git-send-email-gcosta@redhat.com>	
-	<11865468431616-git-send-email-gcosta@redhat.com>	
-	<1186546847263-git-send-email-gcosta@redhat.com>	
-	<11865468513077-git-send-email-gcosta@redhat.com>	
+Date: Thu, 9 Aug 2007 04:07:32 -0300
+Message-ID: <5d6222a80708090007h3d185ecdm3ea8fa0b5ee96050__42417.4195308753$1186643404$gmane$org@mail.gmail.com>
+References: <11865467522495-git-send-email-gcosta@redhat.com>
+	<11865468321629-git-send-email-gcosta@redhat.com>
+	<11865468362401-git-send-email-gcosta@redhat.com>
+	<11865468394005-git-send-email-gcosta@redhat.com>
+	<11865468431616-git-send-email-gcosta@redhat.com>
+	<1186546847263-git-send-email-gcosta@redhat.com>
+	<11865468513077-git-send-email-gcosta@redhat.com>
 	<46BAB5C8.5090906@goop.org>
 	<5d6222a80708090002y7fdc6f2dw1dbacd3d27a86433@mail.gmail.com>
+	<46BABC0F.5070002@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5d6222a80708090002y7fdc6f2dw1dbacd3d27a86433@mail.gmail.com>
+In-Reply-To: <46BABC0F.5070002@goop.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,25 +27,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <glommer@gmail.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber de Oliveira Costa wrote:
->>> +/*
->>> + * integers must be use with care here. They can break the PARAVIRT_PATCH(x)
->>> + * macro, that divides the offset in the structure by 8, to get a number
->>> + * associated with the hook. Dividing by four would be a solution, but it
->>> + * would limit the future growth of the structure if needed.
->>>
->>>       
->> Why not just stick them at the end of the structure?
->>     
+On 8/9/07, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> >
+> > Does it really matter?
+> >
 >
-> Does it really matter?
->   
+> Well, yes, if alignment is an issue.
+Of course, But the question rises from the context that they are both
+together at the beginning. So they are not making anybody non-aligned.
+Then the question: Why would putting it in the end be different to
+putting them _together_, aligned at the beginning ?
 
-Well, yes, if alignment is an issue.
+-- 
+Glauber de Oliveira Costa.
+"Free as in Freedom"
+http://glommer.net
 
-
-    J
+"The less confident you are, the more serious you have to act."
