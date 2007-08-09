@@ -1,11 +1,16 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 6/7] Remove __pa() use in hvc_lguest
-Date: Wed, 08 Aug 2007 20:32:17 -0400
-Message-ID: <20070809003343.991452371__43802.9448771433$1186620341$gmane$org@goodmis.org>
-References: <20070809003211.373543702@goodmis.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 25/25] [PATCH] add paravirtualization support for x86_64
+Date: Thu, 09 Aug 2007 10:44:55 +1000
+Message-ID: <1186620295.17752.23.camel__7624.26142250678$1186620427$gmane$org@localhost.localdomain>
+References: <11865467522495-git-send-email-gcosta@redhat.com>
+	<5d6222a80708080749t35c5c0ceo8b3b8f0cce50c666@mail.gmail.com>
+	<1186615137.17470.100.camel@localhost.localdomain>
+	<200708090224.16328.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=0006-Remove-__pa-use-in-hvc_lguest-in-const-initialization.txt
+In-Reply-To: <200708090224.16328.ak@suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,45 +20,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Andi Kleen <ak@suse.de>
+Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-The hvc_lguest uses __pa in the const initialization.
-In some architectures, __pa() is not constant so this fails in compiles.
+On Thu, 2007-08-09 at 02:24 +0200, Andi Kleen wrote:
+> Not sure what's best. Ok using a normal export is easiest and not
+> that big an issue.
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
----
- drivers/char/hvc_lguest.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
+Yeah, there's also been talk of breaking up paravirt_ops into multiple
+structs by area, which would lead naturally into finer-grained export
+control.
 
-diff --git a/drivers/char/hvc_lguest.c b/drivers/char/hvc_lguest.c
-index feeccba..c7d7d4c 100644
---- a/drivers/char/hvc_lguest.c
-+++ b/drivers/char/hvc_lguest.c
-@@ -42,7 +42,6 @@
-  * use of physical address for the buffer itself. */
- static char inbuf[256];
- static struct lguest_dma cons_input = { .used_len = 0,
--					.addr[0] = __pa(inbuf),
- 					.len[0] = sizeof(inbuf),
- 					.len[1] = 0 };
- 
-@@ -114,6 +113,13 @@ static struct hv_ops lguest_cons = {
-  * (0), and the struct hv_ops containing the put_chars() function. */
- static int __init cons_init(void)
- {
-+	/*
-+	 * We can't initialize using __pa in const declarations,
-+	 * since __pa(inbuf) does not evaluate into a constant on
-+	 * all architectures (namely x86_64).
-+	 */
-+	cons_input.addr[0] = __pa(inbuf);
-+
- 	if (strcmp(paravirt_ops.name, "lguest") != 0)
- 		return 0;
- 
--- 
-1.4.4.4
-
--- 
+Cheers,
+Rusty.
