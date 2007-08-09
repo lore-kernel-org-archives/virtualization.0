@@ -1,11 +1,11 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5/7] Change lguest launcher to use asm generic include
-Date: Wed, 08 Aug 2007 20:32:16 -0400
-Message-ID: <20070809003343.829371800__43815.5467193157$1186619930$gmane$org@goodmis.org>
+Subject: [PATCH 7/7] Move lguest_dma_info into generic lg.h
+Date: Wed, 08 Aug 2007 20:32:18 -0400
+Message-ID: <20070809003344.165770372__22650.356082204$1186620047$gmane$org@goodmis.org>
 References: <20070809003211.373543702@goodmis.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=0005-Change-lguest-launcher-to-use-asm-generic-include-instead-of-explicitly.txt
+	filename=0007-Move-lguest_dma_info-into-generic-lg.h.txt
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,27 +19,59 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Have the lguest launcher include e820.h via asm/e820.h instead of explicitly
-saying i386.
+The lguest_dma_info is also generic across architectures.
+Move it to the generic lg.h
 
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- Documentation/lguest/lguest.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/lguest/i386/lg.h |   11 -----------
+ drivers/lguest/lg.h      |   11 +++++++++++
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/Documentation/lguest/lguest.c b/Documentation/lguest/lguest.c
-index f791840..eb7a01c 100644
---- a/Documentation/lguest/lguest.c
-+++ b/Documentation/lguest/lguest.c
-@@ -46,7 +46,7 @@ typedef uint32_t u32;
- typedef uint16_t u16;
- typedef uint8_t u8;
- #include "../../include/linux/lguest_launcher.h"
--#include "../../include/asm-i386/e820.h"
-+#include "../../include/asm/e820.h"
- /*:*/
+diff --git a/drivers/lguest/i386/lg.h b/drivers/lguest/i386/lg.h
+index c5ea14c..ae83bd2 100644
+--- a/drivers/lguest/i386/lg.h
++++ b/drivers/lguest/i386/lg.h
+@@ -49,17 +49,6 @@ int init_pagetables(struct page **switcher_page, unsigned int pages);
+ #define FULL_EXEC_SEGMENT ((struct desc_struct){0x0000ffff, 0x00cf9b00})
+ #define FULL_SEGMENT ((struct desc_struct){0x0000ffff, 0x00cf9300})
  
- #define PAGE_PRESENT 0x7 	/* Present, RW, Execute */
+-struct lguest_dma_info
+-{
+-	struct list_head list;
+-	union futex_key key;
+-	unsigned long dmas;
+-	u16 next_dma;
+-	u16 num_dmas;
+-	u16 guestid;
+-	u8 interrupt; 	/* 0 when not registered */
+-};
+-
+ /*H:310 The page-table code owes a great debt of gratitude to Andi Kleen.  He
+  * reviewed the original code which used "u32" for all page table entries, and
+  * insisted that it would be far clearer with explicit typing.  I thought it
+diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
+index 3147bf6..6057e3c 100644
+--- a/drivers/lguest/lg.h
++++ b/drivers/lguest/lg.h
+@@ -12,6 +12,17 @@ void release_all_dma(struct lguest *lg);
+ unsigned long get_dma_buffer(struct lguest *lg, unsigned long key,
+ 			     unsigned long *interrupt);
+ 
++struct lguest_dma_info
++{
++	struct list_head list;
++	union futex_key key;
++	unsigned long dmas;
++	u16 next_dma;
++	u16 num_dmas;
++	u16 guestid;
++	u8 interrupt; 	/* 0 when not registered */
++};
++
+ #ifdef CONFIG_X86_32
+ #include "i386/lg.h"
+ #endif
 -- 
 1.4.4.4
 
