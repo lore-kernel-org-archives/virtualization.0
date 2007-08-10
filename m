@@ -1,7 +1,7 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
 Subject: Re: [PATCH 23/25] [PATCH] paravirt hooks for arch initialization
-Date: Fri, 10 Aug 2007 13:01:24 -0700
-Message-ID: <46BCC414.7060504__4567.18942518837$1186776403$gmane$org@goop.org>
+Date: Fri, 10 Aug 2007 17:13:19 -0300
+Message-ID: <46BCC6DF.2040301__24745.6243647777$1186776908$gmane$org@redhat.com>
 References: <11865467522495-git-send-email-gcosta@redhat.com>	
 	<11865468394005-git-send-email-gcosta@redhat.com>	
 	<11865468431616-git-send-email-gcosta@redhat.com>	
@@ -9,11 +9,12 @@ References: <11865467522495-git-send-email-gcosta@redhat.com>
 	<20070809190303.214e5457@the-village.bc.nu>
 	<5d6222a80708101108y62ebfa26n9f47bfc52b48f4a8@mail.gmail.com>
 	<46BCB3A5.8090504@goop.org> <46BCB9C5.4050103@redhat.com>
+	<46BCC414.7060504@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46BCB9C5.4050103@redhat.com>
+In-Reply-To: <46BCC414.7060504@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,16 +24,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <gcosta@redhat.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>, ak@suse.de
 Cc: lguest@ozlabs.org, Steven@smtp2.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber de Oliveira Costa wrote:
-> I think the idea you gave me earlier of using probe_kernel_address could
-> work. Xen/lguest/put_yours_here that won't use an ebda would then have
-> to unmap the page, to make sure a read would fault.
+Jeremy Fitzhardinge escreveu:
+> Glauber de Oliveira Costa wrote:
+>> I think the idea you gave me earlier of using probe_kernel_address could
+>> work. Xen/lguest/put_yours_here that won't use an ebda would then have
+>> to unmap the page, to make sure a read would fault.
+> 
+> Hm, the memory might be mapped anyway, but we could make sure its all
+> zero.  discover_ebda should be able to deal with that OK.
+> 
+>     J
+Indeed, as the EBDA_ADDR_POINTER is not aligned, this may work even better.
 
-Hm, the memory might be mapped anyway, but we could make sure its all
-zero.  discover_ebda should be able to deal with that OK.
+It seems to me safe to assume that if we read zero on that line:
 
-    J
+ebda_addr = *(unsigned short *)__va(EBDA_ADDR_POINTER);
+
+We could just do ebda_size = 0 and go home happy, skipping the rest of 
+the process.
+
+Andi, are you okay with it ?
