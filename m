@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 19/25 -v2] time-related functions paravirt provisions
-Date: Fri, 10 Aug 2007 16:12:31 -0300
-Message-ID: <11867732511513-git-send-email-gcosta__43156.2428166673$1186785409$gmane$org@redhat.com>
+Subject: [PATCH 25/25 -v2] add paravirtualization support for x86_64
+Date: Fri, 10 Aug 2007 16:12:37 -0300
+Message-ID: <11867732811935-git-send-email-gcosta__18801.3339102783$1186785413$gmane$org@redhat.com>
 References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867731633002-git-send-email-gcosta@redhat.com>
 	<11867731681763-git-send-email-gcosta@redhat.com>
@@ -21,8 +21,14 @@ References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867732373232-git-send-email-gcosta@redhat.com>
 	<11867732424024-git-send-email-gcosta@redhat.com>
 	<11867732461037-git-send-email-gcosta@redhat.com>
+	<11867732511513-git-send-email!
+	-gcosta@redhat.com> <11867732562020-git-send-email-gcosta@redhat.com>
+	<1186773261537-git-send-email-gcosta@redhat.com>
+	<11867732661840-git-send-email-gcosta@redhat.com>
+	<11867732713519-git-send-email-gcosta@redhat.com>
+	<11867732763070-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11867732461037-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11867732763070-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -36,147 +42,136 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch add provisions for time related functions so they
-can be later replaced by paravirt versions.
+This is finally, the patch we were all looking for. This
+patch adds a paravirt.h header with the definition of paravirt_ops
+struct. Also, it defines a bunch of inline functions that will
+replace, or hook, the other calls. Every one of those functions
+adds an entry in the parainstructions section (see vmlinux.lds.S).
+Those entries can then be used to runtime-patch the paravirt_ops
+functions.
 
-it basically encloses {g,s}et_wallclock inside the
-already existent functions update_persistent_clock and
-read_persistent_clock, and defines {s,g}et_wallclock
-to the core of such functions.
+paravirt.c contains implementations of paravirt functions that
+are used natively, such as the native_patch. It also fill the
+paravirt_ops structure with the whole lot of functions that
+were (re)defined throughout this patch set.
 
-The timer interrupt setup also have to be replaced.
-The job is done by time_init_hook().
+There are also changes in asm-offsets.c. paravirt.h needs it
+to find out the offsets into the structure of functions
+such as irq_enable, used in assembly files.
 
+[  updates from v1
+   * make PARAVIRT hidden in Kconfig (Andi Kleen)
+   * cleanups in paravirt.h (Andi Kleen)
+   * modifications needed to accomodate other parts of the
+   patch that changed, such as getting rid of ebda_info
+   * put the integers at struct paravirt_ops at the end
+   (Jeremy)
+]
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- arch/x86_64/kernel/time.c |   37 +++++++++++++++++++++++++------------
- include/asm-x86_64/time.h |   18 ++++++++++++++++++
- 2 files changed, 43 insertions(+), 12 deletions(-)
+ arch/x86_64/Kconfig              |   11 +++++++++++
+ arch/x86_64/kernel/Makefile      |    1 +
+ arch/x86_64/kernel/asm-offsets.c |   14 ++++++++++++++
+ arch/x86_64/kernel/vmlinux.lds.S |    6 ++++++
+ include/asm-x86_64/smp.h         |    2 +-
+ 5 files changed, 33 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index 6d48a4e..29fcd91 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -42,6 +42,7 @@
- #include <asm/sections.h>
- #include <linux/hpet.h>
- #include <asm/apic.h>
-+#include <asm/time.h>
- #include <asm/hpet.h>
- #include <asm/mpspec.h>
- #include <asm/nmi.h>
-@@ -82,18 +83,12 @@ EXPORT_SYMBOL(profile_pc);
-  * sheet for details.
-  */
+diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+index ffa0364..00b2fc9 100644
+--- a/arch/x86_64/Kconfig
++++ b/arch/x86_64/Kconfig
+@@ -373,6 +373,17 @@ config NODES_SHIFT
  
--static int set_rtc_mmss(unsigned long nowtime)
-+int do_set_rtc_mmss(unsigned long nowtime)
- {
- 	int retval = 0;
- 	int real_seconds, real_minutes, cmos_minutes;
- 	unsigned char control, freq_select;
+ # Dummy CONFIG option to select ACPI_NUMA from drivers/acpi/Kconfig.
  
--/*
-- * IRQs are disabled when we're called from the timer interrupt,
-- * no need for spin_lock_irqsave()
-- */
--
--	spin_lock(&rtc_lock);
- 
- /*
-  * Tell the clock it's being set and stop it.
-@@ -143,14 +138,22 @@ static int set_rtc_mmss(unsigned long nowtime)
- 	CMOS_WRITE(control, RTC_CONTROL);
- 	CMOS_WRITE(freq_select, RTC_FREQ_SELECT);
- 
--	spin_unlock(&rtc_lock);
--
- 	return retval;
- }
- 
- int update_persistent_clock(struct timespec now)
- {
--	return set_rtc_mmss(now.tv_sec);
-+	int retval;
++config PARAVIRT
++       bool
++       depends on EXPERIMENTAL
++       help
++         Paravirtualization is a way of running multiple instances of
++         Linux on the same machine, under a hypervisor.  This option
++         changes the kernel so it can modify itself when it is run
++         under a hypervisor, improving performance significantly.
++         However, when run without a hypervisor the kernel is
++         theoretically slower.  If in doubt, say N.
 +
-+/*
-+ * IRQs are disabled when we're called from the timer interrupt,
-+ * no need for spin_lock_irqsave()
-+ */
-+	spin_lock(&rtc_lock);
-+	retval = set_wallclock(now.tv_sec);
-+	spin_unlock(&rtc_lock);
-+
-+	return retval;
- }
+ config X86_64_ACPI_NUMA
+        bool "ACPI NUMA detection"
+        depends on NUMA
+diff --git a/arch/x86_64/kernel/Makefile b/arch/x86_64/kernel/Makefile
+index ff5d8c9..120467f 100644
+--- a/arch/x86_64/kernel/Makefile
++++ b/arch/x86_64/kernel/Makefile
+@@ -38,6 +38,7 @@ obj-$(CONFIG_X86_VSMP)		+= vsmp.o
+ obj-$(CONFIG_K8_NB)		+= k8.o
+ obj-$(CONFIG_AUDIT)		+= audit.o
  
- void main_timer_handler(void)
-@@ -195,7 +198,7 @@ static irqreturn_t timer_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
++obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+ obj-$(CONFIG_MODULES)		+= module.o
+ obj-$(CONFIG_PCI)		+= early-quirks.o
  
--unsigned long read_persistent_clock(void)
-+unsigned long do_get_cmos_time(void)
- {
- 	unsigned int year, mon, day, hour, min, sec;
- 	unsigned long flags;
-@@ -246,6 +249,11 @@ unsigned long read_persistent_clock(void)
- 	return mktime(year, mon, day, hour, min, sec);
- }
- 
-+unsigned long read_persistent_clock(void)
-+{
-+	return get_wallclock();
-+}
-+
- /* calibrate_cpu is used on systems with fixed rate TSCs to determine
-  * processor frequency */
- #define TICK_COUNT 100000000
-@@ -365,6 +373,11 @@ static struct irqaction irq0 = {
- 	.name		= "timer"
- };
- 
-+inline void time_init_hook()
-+{
-+	setup_irq(0, &irq0);
-+}
-+
- void __init time_init(void)
- {
- 	if (nohpet)
-@@ -403,7 +416,7 @@ void __init time_init(void)
- 		cpu_khz / 1000, cpu_khz % 1000);
- 	init_tsc_clocksource();
- 
--	setup_irq(0, &irq0);
-+	do_time_init();
- }
- 
- /*
-diff --git a/include/asm-x86_64/time.h b/include/asm-x86_64/time.h
-new file mode 100644
-index 0000000..9a72355
---- /dev/null
-+++ b/include/asm-x86_64/time.h
-@@ -0,0 +1,18 @@
-+#ifndef _ASM_X86_64_TIME_H
-+#define _ASM_X86_64_TIME_H
-+
-+inline void time_init_hook(void);
-+unsigned long do_get_cmos_time(void);
-+int do_set_rtc_mmss(unsigned long nowtime);
-+
+diff --git a/arch/x86_64/kernel/asm-offsets.c b/arch/x86_64/kernel/asm-offsets.c
+index 778953b..f5eff70 100644
+--- a/arch/x86_64/kernel/asm-offsets.c
++++ b/arch/x86_64/kernel/asm-offsets.c
+@@ -15,6 +15,9 @@
+ #include <asm/segment.h>
+ #include <asm/thread_info.h>
+ #include <asm/ia32.h>
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
-+#else /* !CONFIG_PARAVIRT */
-+
-+#define get_wallclock() do_get_cmos_time()
-+#define set_wallclock(x) do_set_rtc_mmss(x)
-+#define do_time_init() time_init_hook()
-+
-+#endif /* CONFIG_PARAVIRT */
-+
 +#endif
+ 
+ #define DEFINE(sym, val) \
+         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+@@ -72,6 +75,17 @@ int main(void)
+ 	       offsetof (struct rt_sigframe32, uc.uc_mcontext));
+ 	BLANK();
+ #endif
++#ifdef CONFIG_PARAVIRT
++#define ENTRY(entry) DEFINE(PARAVIRT_ ## entry, offsetof(struct paravirt_ops, entry))
++	ENTRY(paravirt_enabled);
++	ENTRY(irq_disable);
++	ENTRY(irq_enable);
++	ENTRY(syscall_return);
++	ENTRY(iret);
++	ENTRY(read_cr2);
++	ENTRY(swapgs);
++	BLANK();
++#endif
+ 	DEFINE(pbe_address, offsetof(struct pbe, address));
+ 	DEFINE(pbe_orig_address, offsetof(struct pbe, orig_address));
+ 	DEFINE(pbe_next, offsetof(struct pbe, next));
+diff --git a/arch/x86_64/kernel/vmlinux.lds.S b/arch/x86_64/kernel/vmlinux.lds.S
+index ba8ea97..c3fce85 100644
+--- a/arch/x86_64/kernel/vmlinux.lds.S
++++ b/arch/x86_64/kernel/vmlinux.lds.S
+@@ -185,6 +185,12 @@ SECTIONS
+   .altinstr_replacement : AT(ADDR(.altinstr_replacement) - LOAD_OFFSET) {
+ 	*(.altinstr_replacement)
+   }
++  . = ALIGN(8);
++  .parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
++  __parainstructions = .;
++	*(.parainstructions)
++  __parainstructions_end = .;
++  }
+   /* .exit.text is discard at runtime, not link time, to deal with references
+      from .altinstructions and .eh_frame */
+   .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
+diff --git a/include/asm-x86_64/smp.h b/include/asm-x86_64/smp.h
+index 6b11114..403901b 100644
+--- a/include/asm-x86_64/smp.h
++++ b/include/asm-x86_64/smp.h
+@@ -22,7 +22,7 @@ extern int disable_apic;
+ #ifdef CONFIG_PARAVIRT
+ #include <asm/paravirt.h>
+ void native_flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
+-						unsigned long va);
++							unsigned long va);
+ #else
+ #define startup_ipi_hook(apicid, rip, rsp) do { } while (0)
+ #endif
 -- 
 1.4.4.2
