@@ -1,16 +1,28 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 6/25 -v2] add native_apic read and write functions,
-	as well as boot clocks ones
-Date: Fri, 10 Aug 2007 16:12:18 -0300
-Message-ID: <11867731882768-git-send-email-gcosta__3821.83469268984$1186785400$gmane$org@redhat.com>
+Subject: [PATCH 19/25 -v2] time-related functions paravirt provisions
+Date: Fri, 10 Aug 2007 16:12:31 -0300
+Message-ID: <11867732511513-git-send-email-gcosta__43156.2428166673$1186785409$gmane$org@redhat.com>
 References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867731633002-git-send-email-gcosta@redhat.com>
 	<11867731681763-git-send-email-gcosta@redhat.com>
 	<11867731732274-git-send-email-gcosta@redhat.com>
 	<11867731781610-git-send-email-gcosta@redhat.com>
 	<11867731831138-git-send-email-gcosta@redhat.com>
+	<11867731882768-git-send-email-gcosta@redhat.com>
+	<11867731932688-git-send-email-gcosta@redhat.com>
+	<11867731981891-git-send-email-gcosta@redhat.com>
+	<1186773203887-git-send-email-gcosta@redhat.com>
+	<11867732082735-git-send-email-gcosta@redhat.com>
+	<11867732121974-git-send-email-gcosta@redhat.com>
+	<1186773217875-git-send-email-gcosta@redhat.com>
+	<11867732221652-git-send-email-gcosta@redhat.com>
+	<11867732273108-git-send-email-gcosta@redhat.com>
+	<11867732323106-git-send-email-gcosta@redhat.com>
+	<11867732373232-git-send-email-gcosta@redhat.com>
+	<11867732424024-git-send-email-gcosta@redhat.com>
+	<11867732461037-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11867731831138-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11867732461037-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,87 +36,147 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Time for the apic handling functions to get their native counterparts.
-Also, put the native hook for the boot clocks functions in the apic.h header
+This patch add provisions for time related functions so they
+can be later replaced by paravirt versions.
+
+it basically encloses {g,s}et_wallclock inside the
+already existent functions update_persistent_clock and
+read_persistent_clock, and defines {s,g}et_wallclock
+to the core of such functions.
+
+The timer interrupt setup also have to be replaced.
+The job is done by time_init_hook().
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- arch/x86_64/kernel/apic.c    |    2 +-
- arch/x86_64/kernel/smpboot.c |    8 +++++++-
- include/asm-x86_64/apic.h    |   13 +++++++++++--
- 3 files changed, 19 insertions(+), 4 deletions(-)
+ arch/x86_64/kernel/time.c |   37 +++++++++++++++++++++++++------------
+ include/asm-x86_64/time.h |   18 ++++++++++++++++++
+ 2 files changed, 43 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
-index 900ff38..2d233ef 100644
---- a/arch/x86_64/kernel/apic.c
-+++ b/arch/x86_64/kernel/apic.c
-@@ -1193,7 +1193,7 @@ int __init APIC_init_uniprocessor (void)
- 		setup_IO_APIC();
- 	else
- 		nr_ioapics = 0;
--	setup_boot_APIC_clock();
-+	setup_boot_clock();
- 	check_nmi_watchdog();
- 	return 0;
- }
-diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
-index f99ced6..12d653d 100644
---- a/arch/x86_64/kernel/smpboot.c
-+++ b/arch/x86_64/kernel/smpboot.c
-@@ -338,7 +338,7 @@ void __cpuinit start_secondary(void)
- 	check_tsc_sync_target();
- 
- 	Dprintk("cpu %d: setting up apic clock\n", smp_processor_id()); 	
--	setup_secondary_APIC_clock();
-+	setup_secondary_clock();
- 
- 	Dprintk("cpu %d: enabling apic timer\n", smp_processor_id());
- 
-@@ -468,6 +468,12 @@ static int __cpuinit wakeup_secondary_via_INIT(int phys_apicid, unsigned int sta
- 	num_starts = 2;
- 
- 	/*
-+	 * Paravirt wants a startup IPI hook here to set up the
-+	 * target processor state.
-+	 */
-+	startup_ipi_hook(phys_apicid, (unsigned long) start_rip,
-+		         (unsigned long) init_rsp);
-+	/*
- 	 * Run STARTUP IPI loop.
- 	 */
- 	Dprintk("#startup loops: %d.\n", num_starts);
-diff --git a/include/asm-x86_64/apic.h b/include/asm-x86_64/apic.h
-index 85125ef..de17908 100644
---- a/include/asm-x86_64/apic.h
-+++ b/include/asm-x86_64/apic.h
-@@ -38,16 +38,25 @@ struct pt_regs;
-  * Basic functions accessing APICs.
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+index 6d48a4e..29fcd91 100644
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -42,6 +42,7 @@
+ #include <asm/sections.h>
+ #include <linux/hpet.h>
+ #include <asm/apic.h>
++#include <asm/time.h>
+ #include <asm/hpet.h>
+ #include <asm/mpspec.h>
+ #include <asm/nmi.h>
+@@ -82,18 +83,12 @@ EXPORT_SYMBOL(profile_pc);
+  * sheet for details.
   */
  
--static __inline void apic_write(unsigned long reg, unsigned int v)
-+static __inline void native_apic_write(unsigned long reg, unsigned int v)
+-static int set_rtc_mmss(unsigned long nowtime)
++int do_set_rtc_mmss(unsigned long nowtime)
  {
- 	*((volatile unsigned int *)(APIC_BASE+reg)) = v;
+ 	int retval = 0;
+ 	int real_seconds, real_minutes, cmos_minutes;
+ 	unsigned char control, freq_select;
+ 
+-/*
+- * IRQs are disabled when we're called from the timer interrupt,
+- * no need for spin_lock_irqsave()
+- */
+-
+-	spin_lock(&rtc_lock);
+ 
+ /*
+  * Tell the clock it's being set and stop it.
+@@ -143,14 +138,22 @@ static int set_rtc_mmss(unsigned long nowtime)
+ 	CMOS_WRITE(control, RTC_CONTROL);
+ 	CMOS_WRITE(freq_select, RTC_FREQ_SELECT);
+ 
+-	spin_unlock(&rtc_lock);
+-
+ 	return retval;
  }
  
--static __inline unsigned int apic_read(unsigned long reg)
-+static __inline unsigned int native_apic_read(unsigned long reg)
+ int update_persistent_clock(struct timespec now)
  {
- 	return *((volatile unsigned int *)(APIC_BASE+reg));
+-	return set_rtc_mmss(now.tv_sec);
++	int retval;
++
++/*
++ * IRQs are disabled when we're called from the timer interrupt,
++ * no need for spin_lock_irqsave()
++ */
++	spin_lock(&rtc_lock);
++	retval = set_wallclock(now.tv_sec);
++	spin_unlock(&rtc_lock);
++
++	return retval;
  }
  
+ void main_timer_handler(void)
+@@ -195,7 +198,7 @@ static irqreturn_t timer_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-unsigned long read_persistent_clock(void)
++unsigned long do_get_cmos_time(void)
+ {
+ 	unsigned int year, mon, day, hour, min, sec;
+ 	unsigned long flags;
+@@ -246,6 +249,11 @@ unsigned long read_persistent_clock(void)
+ 	return mktime(year, mon, day, hour, min, sec);
+ }
+ 
++unsigned long read_persistent_clock(void)
++{
++	return get_wallclock();
++}
++
+ /* calibrate_cpu is used on systems with fixed rate TSCs to determine
+  * processor frequency */
+ #define TICK_COUNT 100000000
+@@ -365,6 +373,11 @@ static struct irqaction irq0 = {
+ 	.name		= "timer"
+ };
+ 
++inline void time_init_hook()
++{
++	setup_irq(0, &irq0);
++}
++
+ void __init time_init(void)
+ {
+ 	if (nohpet)
+@@ -403,7 +416,7 @@ void __init time_init(void)
+ 		cpu_khz / 1000, cpu_khz % 1000);
+ 	init_tsc_clocksource();
+ 
+-	setup_irq(0, &irq0);
++	do_time_init();
+ }
+ 
+ /*
+diff --git a/include/asm-x86_64/time.h b/include/asm-x86_64/time.h
+new file mode 100644
+index 0000000..9a72355
+--- /dev/null
++++ b/include/asm-x86_64/time.h
+@@ -0,0 +1,18 @@
++#ifndef _ASM_X86_64_TIME_H
++#define _ASM_X86_64_TIME_H
++
++inline void time_init_hook(void);
++unsigned long do_get_cmos_time(void);
++int do_set_rtc_mmss(unsigned long nowtime);
++
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
-+#else
-+#define apic_write(reg, v) native_apic_write(reg, v)
-+#define apic_read(reg)  native_apic_read(reg)
-+#define setup_boot_clock(void)	setup_boot_APIC_clock(void)
-+#define setup_secondary_clock(void) setup_secondary_APIC_clock(void)
-+#endif
++#else /* !CONFIG_PARAVIRT */
 +
- extern void apic_wait_icr_idle(void);
- extern unsigned int safe_apic_wait_icr_idle(void);
- 
++#define get_wallclock() do_get_cmos_time()
++#define set_wallclock(x) do_set_rtc_mmss(x)
++#define do_time_init() time_init_hook()
++
++#endif /* CONFIG_PARAVIRT */
++
++#endif
 -- 
 1.4.4.2
