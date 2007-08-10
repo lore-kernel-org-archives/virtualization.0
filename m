@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 15/25 -v2] introducing paravirt_activate_mm
-Date: Fri, 10 Aug 2007 16:12:27 -0300
-Message-ID: <11867732323106-git-send-email-gcosta__49082.8716232956$1186784313$gmane$org@redhat.com>
+Subject: [PATCH 7/25 -v2] interrupt related native paravirt functions.
+Date: Fri, 10 Aug 2007 16:12:19 -0300
+Message-ID: <11867731932688-git-send-email-gcosta__37674.4016808972$1186784430$gmane$org@redhat.com>
 References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867731633002-git-send-email-gcosta@redhat.com>
 	<11867731681763-git-send-email-gcosta@redhat.com>
@@ -9,16 +9,8 @@ References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867731781610-git-send-email-gcosta@redhat.com>
 	<11867731831138-git-send-email-gcosta@redhat.com>
 	<11867731882768-git-send-email-gcosta@redhat.com>
-	<11867731932688-git-send-email-gcosta@redhat.com>
-	<11867731981891-git-send-email-gcosta@redhat.com>
-	<1186773203887-git-send-email-gcosta@redhat.com>
-	<11867732082735-git-send-email-gcosta@redhat.com>
-	<11867732121974-git-send-email-gcosta@redhat.com>
-	<1186773217875-git-send-email-gcosta@redhat.com>
-	<11867732221652-git-send-email-gcosta@redhat.com>
-	<11867732273108-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11867732273108-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11867731882768-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -32,49 +24,49 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This function/macro will allow a paravirt guest to be notified we changed
-the current task cr3, and act upon it. It's up to them
+The interrupt initialization routine becomes native_init_IRQ and will
+be overriden later in case paravirt is on.
 
+[  updates from v1
+   * After a talk with Jeremy Fitzhardinge, it turned out that making the
+   interrupt vector global was not a good idea. So it is removed in this
+   patch
+]
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- include/asm-x86_64/mmu_context.h |   17 ++++++++++++++---
- 1 files changed, 14 insertions(+), 3 deletions(-)
+ arch/x86_64/kernel/i8259.c |    5 ++++-
+ include/asm-x86_64/irq.h   |    2 ++
+ 2 files changed, 6 insertions(+), 1 deletions(-)
 
-diff --git a/include/asm-x86_64/mmu_context.h b/include/asm-x86_64/mmu_context.h
-index 9592698..77ce047 100644
---- a/include/asm-x86_64/mmu_context.h
-+++ b/include/asm-x86_64/mmu_context.h
-@@ -7,7 +7,16 @@
- #include <asm/pda.h>
- #include <asm/pgtable.h>
- #include <asm/tlbflush.h>
+diff --git a/arch/x86_64/kernel/i8259.c b/arch/x86_64/kernel/i8259.c
+index 948cae6..048e3cb 100644
+--- a/arch/x86_64/kernel/i8259.c
++++ b/arch/x86_64/kernel/i8259.c
+@@ -484,7 +484,10 @@ static int __init init_timer_sysfs(void)
+ 
+ device_initcall(init_timer_sysfs);
+ 
+-void __init init_IRQ(void)
++/* Overridden in paravirt.c */
++void init_IRQ(void) __attribute__((weak, alias("native_init_IRQ")));
 +
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
- #include <asm-generic/mm_hooks.h>
-+static inline void paravirt_activate_mm(struct mm_struct *prev,
-+					struct mm_struct *next)
-+{
-+}
-+#endif /* CONFIG_PARAVIRT */
++void __init native_init_IRQ(void)
+ {
+ 	int i;
  
- /*
-  * possibly do the LDT unload here?
-@@ -67,8 +76,10 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
- 	asm volatile("movl %0,%%fs"::"r"(0));  \
- } while(0)
- 
--#define activate_mm(prev, next) \
--	switch_mm((prev),(next),NULL)
--
-+#define activate_mm(prev, next) 		\
-+do {						\
-+	paravirt_activate_mm(prev, next);	\
-+	switch_mm((prev),(next),NULL);		\
-+} while (0)
- 
+diff --git a/include/asm-x86_64/irq.h b/include/asm-x86_64/irq.h
+index 5006c6e..be55299 100644
+--- a/include/asm-x86_64/irq.h
++++ b/include/asm-x86_64/irq.h
+@@ -46,6 +46,8 @@ static __inline__ int irq_canonicalize(int irq)
+ extern void fixup_irqs(cpumask_t map);
  #endif
+ 
++void native_init_IRQ(void);
++
+ #define __ARCH_HAS_DO_SOFTIRQ 1
+ 
+ #endif /* _ASM_IRQ_H */
 -- 
 1.4.4.2
