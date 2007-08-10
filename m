@@ -1,11 +1,18 @@
-From: "Bordja Dogu" <Bordja_Dogu@archiworld-pa.com>
-Subject: Customer service-virtualization
-Date: Fri, 10 Aug 2007 12:26:15 -0300
-Message-ID: <000a01c7db62$ca87e4d0$808c7ec8@PCMONI>
+From: "Glauber de Oliveira Costa" <glommer@gmail.com>
+Subject: Re: [PATCH 23/25] [PATCH] paravirt hooks for arch initialization
+Date: Fri, 10 Aug 2007 15:08:35 -0300
+Message-ID: <5d6222a80708101108y62ebfa26n9f47bfc52b48f4a8__13702.6810939007$1186769519$gmane$org@mail.gmail.com>
+References: <11865467522495-git-send-email-gcosta@redhat.com>
+	<11865468394005-git-send-email-gcosta@redhat.com>
+	<11865468431616-git-send-email-gcosta@redhat.com>
+	<200708081144.04119.ak@suse.de> <46BB5258.8040609@goop.org>
+	<20070809190303.214e5457@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0006_01C7DB49.A53AACD0"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070809190303.214e5457@the-village.bc.nu>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,148 +22,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Steven@smtp2.linux-foundation.org, lguest@ozlabs.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-------=_NextPart_000_0006_01C7DB49.A53AACD0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_0007_01C7DB49.A53AACD0"
+On 8/9/07, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > What's the EBDA actually used for?  The only place which seems to use
+> > ebda_addr is in the e820 code to avoid that area as RAM.
+>
+> It belongs to the firmware.
 
+Wouldn't it be better, then, to just skip this step unconditionally if
+we are running a paravirtualized guest? What do we from doing it?
 
-------=_NextPart_001_0007_01C7DB49.A53AACD0
-Content-Type: text/plain;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+-- 
+Glauber de Oliveira Costa.
+"Free as in Freedom"
+http://glommer.net
 
-
-------=_NextPart_001_0007_01C7DB49.A53AACD0
-Content-Type: text/html;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dwindows-1250">
-<META content=3D"MSHTML 6.00.2900.3132" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV></BODY></HTML>
-
-------=_NextPart_001_0007_01C7DB49.A53AACD0--
-
-------=_NextPart_000_0006_01C7DB49.A53AACD0
-Content-Type: application/octet-stream;
-	name="Customer service-virtualization.fdf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="Customer service-virtualization.fdf"
-
-JVBERi0xLjUNJeLjz9MNCjQgMCBvYmo8PC9IWzQzNiAxMTldL0xpbmVhcml6ZWQgMS9FIDE1MzAv
-TCA1NDE5L04gMS9PIDgvVCA1Mjc5Pj4NZW5kb2JqDSAgICAgICAgICAgICAgICAgICAgICAgICAg
-DQp4cmVmDQo0IDcNCjAwMDAwMDAwMTYgMDAwMDAgbg0KMDAwMDAwMDU1NSAwMDAwMCBuDQowMDAw
-MDAwNjg5IDAwMDAwIG4NCjAwMDAwMDA0MzYgMDAwMDAgbg0KMDAwMDAwMDc4NyAwMDAwMCBuDQow
-MDAwMDAwOTY3IDAwMDAwIG4NCjAwMDAwMDEwODggMDAwMDAgbg0KdHJhaWxlcg0KPDwvU2l6ZSAx
-MS9QcmV2IDUyNjkvUm9vdCA2IDAgUi9FbmNyeXB0IDUgMCBSL0luZm8gMyAwIFIvSURbPGI5ZjQx
-NzQyMDIyMzNlNGZhMjA4MzUyOTk0Y2RmYmYwPjxiOWY0MTc0MjAyMjMzZTRmYTIwODM1Mjk5NGNk
-ZmJmMD5dPj4NCnN0YXJ0eHJlZg0KMA0KJSVFT0YNCiAgICANCjcgMCBvYmo8PC9MZW5ndGggNDcv
-RmlsdGVyL0ZsYXRlRGVjb2RlL1MgMzg+PnN0cmVhbQ0KDXywMWBoorqcmJDgO6vyF+DJZrhekARm
-U8JeuY45YwL5cikr0hUK89ngdrS/EYUNCmVuZHN0cmVhbQ1lbmRvYmoNNSAwIG9iajw8L1IgMy9M
-ZW5ndGggMTI4L0ZpbHRlci9TdGFuZGFyZC9PKIYv5GZx6hcxyAlKRhCdR0T6h0Cu70vEFV3K4GyS
-k5iVKS9QIC0zOTA0L1UovJ8Um/3kT7LqPgKOjLCIEQAAAAAAAAAAAAAAAAAAAAApL1YgMj4+DWVu
-ZG9iag02IDAgb2JqPDwvUGFnZXMgMSAwIFIvVHlwZS9DYXRhbG9nL1BhZ2VNb2RlL1VzZU5vbmUv
-UGFnZUxheW91dC9TaW5nbGVQYWdlL01ldGFkYXRhIDIgMCBSPj4NZW5kb2JqDTggMCBvYmo8PC9D
-b250ZW50cyAxMCAwIFIvVHlwZS9QYWdlL1BhcmVudCAxIDAgUi9Sb3RhdGUgMC9NZWRpYUJveFsw
-IDAgNjgwIDgwMF0vQ3JvcEJveFswIDAgNjgwIDgwMF0vUmVzb3VyY2VzPDwvRm9udDw8L0YwIDkg
-MCBSPj4vWE9iamVjdDw8Pj4vUHJvY1NldFsvUERGL1RleHQvSW1hZ2VDXT4+Pj4NZW5kb2JqDTkg
-MCBvYmo8PC9UeXBlL0ZvbnQvTmFtZS9GMC9FbmNvZGluZy9XaW5BbnNpRW5jb2RpbmcvQmFzZUZv
-bnQvSGVsdmV0aWNhL0ZpcnN0Q2hhciAzMi9MYXN0Q2hhciAyNTUvU3VidHlwZS9UeXBlMT4+DWVu
-ZG9iag0xMCAwIG9iajw8L0xlbmd0aCAzNzMvRmlsdGVyL0ZsYXRlRGVjb2RlPj5zdHJlYW0NCo9Z
-lx0kwtYrQxFmh6ngOq5Wes4gy+21nMbubPoZPA8jGhX5WB0LATgMhEFD+1gCJcWG3SwBfLxwd6fh
-ogq+JsUd07PBv9e0zI3VfxN/Km/RUY4K8kmDMc+fCP5iDmkV/IpNX83tceo3Zq56Aqj3RTJddsxO
-s+/4PkPZDkVS79f98gPqmNYkhpIgQmk3leMZO72n62NJliaKutosxClmx79ypKnGyIir8iaMH/Na
-/QuncNbJWaXP8ZiO3nDeDGw52i3YJMoNkLUJSO8gvxKas4SlumJOgbpba6XckZWWr4/Gn7CzqqhI
-+BA/dHTbNCqMLxktj8rnUHvstnxEZPYv7wxSqB2Frv4SDTb/Qt/cEDvK9GKZr2iT9oJMv20AtqUC
-pr/FdccaqazwwZ8GqpzCMH4tT4bmi4XqB+jzUwaeKazuI2L/k5VVnprVqQwGu2fsn4eJen/5MvAy
-5LAV96PhbF+FnEhSJzf46CdWIfgHqygq2JEcJJoNCmVuZHN0cmVhbQ1lbmRvYmoNMSAwIG9iajw8
-L0NvdW50IDEvS2lkc1s4IDAgUl0vVHlwZS9QYWdlcz4+DWVuZG9iag0yIDAgb2JqPDwvTGVuZ3Ro
-IDM0MTgvVHlwZS9NZXRhZGF0YS9TdWJ0eXBlL1hNTD4+c3RyZWFtDQp/Wyw8qVAj2X8A9qgDRCsu
-Jbbzm/mSluyF+QZ1FUPJelAfFHxdJ8CpKrjTlSpxie2yTr9V4OcmJ7SGx8b9afgHS/Dhy9z/TArD
-cy8k6B+mNgZ+RuzNvzssyH0Tt8weqKGmXZKQAyc6Qc3/cbthDJHCEtvRDR7DFk69WE7CPkuaQkcO
-O2E1GscMVykTWBMDc/UGjWQ046F4G5KwpJYxlZ2gPjWk47D/ljKV5eE8hSzHTKN/uf6VXWWFLzCd
-XzHxA/lzIhQCTexSj+kItcH3jSoplLQSP7NIjOAGRoQVlsFUilZPoNvKXhkS/+OFe3lehKNHcRH3
-jBwu/i8GzwwRn8KieQhJq6lUDw2+q9FdcizRYw72PQPgtfHT9LB5xXW1lhMqifuv8YF61n9g8XY+
-zf9AseNB1CgJqqJbW7cEuulTphXPxaNqfrDV9l1NBlUJ23KxhSUxiF32WITgL7exwgSAmShDlJLc
-hmjwuyuKS43/9+L9+IY+Dvvr17I5mvI1Y8rMtx9wmWBg4CUpn7SOacYUOOE0hkO9ZANjNJ1Cg1Yu
-fC7dO/K5MavhwCh0t4aPNBxGeo023IsTTpi8pvzRQwPgfVXv3Oo4qFo6PNTwyU6wH80fz28uvmev
-qPzPHbqLhR2eSFUhgGMNAOF4vkEJbi9j6coA3216nAR5uTG1iL/dd4RAFaHR+P/bN1+9ousdkyR/
-SFnQyoxBYLY2ttkjvwSHIbWYFVWn5Y0JZ0iprlXWLAqoWjGFd87Z47s2z/YdJqsJMmmAqPVhFdT2
-7hp4fLV0Jw0Nxh4jteMX/WekwoFjOrmqqGD7cTRDoUGi0rl+YtXYqKOKde4an2xrdZs+8fQ5id16
-Gcma1leJ2lmG5aQyqxd8MYTXWS7cCMH2+nfflHJrh+sCVCGdiGnRYNpW5VttFcqxH5Z7/UgSBOuM
-d/9PHY1qm8Y+lI0STlEJUvVhCxjlxALQy4MIz488Pp7zWsEmBFGD+uNYR6wAgbdLvd0Cdh47jIX5
-FwpeM5SBtBRWhvPosUDIFmK0Zb4/uk2/cQxRgLhDjkpEOdoA0XZLPCz2xRMa247OwBWdH8pqE12N
-FPqwDn9adfMOtUQv+SooMn3ZZix58SMzZQGfsEyxS91tGJ+l4htev70ZrZ+BR9tkbDlfXFtmOV0E
-c9RtcLAFAq1+URlbxcRErHUS6bAsl0hf4KlEFmrp3JLQyxY2P+PPQFIybcrHqvAMe8AKnAgU9Bfz
-WhBvWGvhzMjG6cfvrQNTsW3bysuW3WWRrpeKBS1Pe2w3h2dUez2Kz/P9rEeLUiiVK4nTVqIHCZ6g
-dds63tDzonuihFaA4uTLn60g0+kt2glhu+JaI+ztSEz4Ysl+EVUsiL3yVKdXIY1tQ6CuEi/2aDjm
-ICgsFxMlQEhHGOGqdPDKHV0EJD2xE9wj3kgr3HWHUsKbRlx9nyUoeOEGULu3hHanwOyXEhfYy98t
-sfPsqt+5FCVtTq59qZOcXiz0VXMzZ+NTRLRzOZFZbPolxWm8bOsRLtOHyDG31hRyK2LeCgjrIa/s
-rhdS649oGAlInDRZfqjyfFl1PXfEDelWDqi1PSUN9Kbu/B/k2OMH2VXHwhcnKe8HpQcGgNZDvpYn
-b1W8IpplzyUSroV3skXrbQQ2gauE0LTx7XTAamdWao00+QJEDOFnvLOnHTFe7zCC2ppZj04gwT9B
-FrpW0cwTNr3lYsDE/o2deLROGiizwND/ye14f5FYGVDM/ekREWzR4sGaC8atJXXLNKZqA0Pm/p0N
-qQ0zazHU4VXb0g06k0rsYtw2NT/4evesT3cbm6KTM8tDAUkHLuNNx+/tVfhwtVkEx0LUpW8VUycH
-rDkdbIfhP1rqjeicV4OHETJj+Y/hBvpijHm333BDLJlrKpbszXsfWfgGHgRWi6AEehUxfx6WyP1H
-ewXh/0VigtRHB4732FJnBkn76aUXodEHjwP2p9QTj/yVJHuP6+ljFxKpCFhPycO7LlKWIWaA/nKh
-R5yGKV69Rczpr9TPO8Q7nVnfb7YxuLyOyBlQ3Fh/xa6qzkm9EwPosdML8gJPsQyW8cx9BvMSl38p
-Fb/ahqxmJKv+efqM1SpOKfMZayZe/Myvn62GPnj989fRWNnvbpBqPUcGnks8uMB6+0LZZ7QUrQLz
-CR2DYGYbTAMD3JCn1c9rgqynxlwBsftNOaKlMw6erKs+xsDKhYSgMKwknF++ERlDFpBMad4uT6i/
-tw5H4dzEgCq2qQmC8V7fQXMxStnJIDSFPhYQf1a/vmdrs3UZp3pWkeaY0Lk9xOUWhCJW0DtEME4s
-3ZE8Cg0R/iuMILuc/Kd2VIot9OLXR/5lDQoF79R6c5/62z1Ce+8LVpiIm6N0rkHDa472GPjXhzBK
-Qc71OZrZcJp6h8vD46kGt4N3kCh35MgWCsCRHfxLjVb2SqzXDd6q8rXoEZQZW01gK6ud4rqU9Zus
-i6aTSMXvBN+YFH5nKiLIMayokhWQdjqJH+PvhFioa6s6HlfLHhwAO3qc0QQ9sB6doo1uG8gC9eXA
-gR1tGjK6gXUJCOGkKJLDjRubzc9ArWyvRTjulYHJQGYaq6lyiiifyIVA8gMpM+ZmzA0ijHdAvYex
-prLdRW6tk8JW7TsoGdOt+buChVG2JcTWZK/Whpw66nK5B20uCEmmQRqWII4nmGoc2Mkte3QpxOnW
-+1KzPlKhSvJQxilE13XgJbM7bffLBWwEeFaDDYZ4ITIJZ5cQl02zfGBV8mjXh2QwXkewyeZakpJ/
-RnyiUjtkxDrq3PBTB+3MH5lm8EMPvutmvgDbioZo4Oo4SIZIPN3M7m5I1dR1VD/0M789u8Tn6U1w
-+JU0RWQNidhBQDVZitBwm4N64S59q3zUvGRaFCLFrvr4ElB2jNmt1WbuohDQFbVxyjxYhFexufKb
-y9l0Bjnc0vCnaLCf3f9g/DsmmZw3qha1ECaVsgTYEJETpk44/r0e1AHYAL9sTGvsAlkIYf4pqL56
-q4xZM8OO+4SbBiR4JFprm3IycFSb20yqvfxrdqBdM80WfN0nrfG0o1Fa0OVw9a6kKI6V5AVMsiYe
-wXEeWPptk0zekg+kGswyRqh5Idq9DAFRm2gvAb9kHOidTbAdZLDDmH9+DuNdqFbl92VGrT/OQ8E3
-5hdumLasjOoE2fNLywV/84WCGHvgjo/tVkxHk+uYQCaKNFg9cSrbvbGgHKAxDdPwByR5FWLf9azz
-0HmOHHUqqVFGdDtgVZvifI56/rbW/Kok5gqEOf6g9ZgtD7kVfqa1BVHtLCS3ndlBEgYQCuBqBJ00
-fZVzWHys10M/JFOLKBMEKCcuNNP8mfdYvtf/DjXWhk00OU5kKAIWM9V03K31+mt0UGt4EBSW8Jqj
-UIrcHx9G01eE/dLhFDvzo6I99zWyZRTi0zorGvqbPIAx8gjhzuj8NcyJzMxKuYPD53aae/UdJZuu
-YRchJwS0ouzQmSLbmc0G3IgFA3o8BN1wBMA3ALoxXU3RQD+Wo4d8ll2IW0kg2dfeFJ22I8H1p/G3
-xiNL8vNLuQp/KB6qSgx7VFNEqJeXUFZ+5puaN9TmfKw24g7c41+0XhKg1Y+Ss3slw0tEzDF/ELbm
-e3I62iSF7i6v+65ArurytJAMaMW1mE5u0JOxcqw9xwvsa9LjCF6oi/oGqLrdZj4TeDuRCSht5ybv
-eMAiyH2R5GXN5tUy3paiG+NwdE4cGigorNq+VAvhCJKtbu42K05JCnUngAKkU3b6/9dpSi7HdFTE
-IeGpMjiU5yXSZPO3U3L6ooQRZ/uoal/U1+OBYUhN7BgqT+ZyBOIXnAvpAwVW478unYI4J+WrRGlP
-znCazxtHHsVDkBCF6yJ0CWkFq9n8ehUEtmXL+DOhrt57Txunon0QtWMphnodFI15dGKrszr9LSfX
-WuQj2UqVIZ1IIMYgy0ZX/CRYH/19KC8U+uomXtPtNz+5XzxIWlM1U+v95nuGoj/5EImgt8erJoqD
-w7CcKrsng+SJzttZS0p/4rH7sTMBWD8Xi48AwU24m4xCVUI4jXESskFctQqHmDIevU+HHQhfUY+s
-+z/N9DFjUPNQcMOubxp8fSmx/5t5wOz4PMsDQ/kyUb20/2pJBp+k56niFJsDCJaxD882NuXENYk4
-H19C4naAKfdhRVGoo+z1a+urAN5x+njpPB+OAGJ1pEu7q/KJrNQ+oCueQpxvRX+wOwvz5zs0K7xs
-jal+2tprRVPmkCQPesJT9fMXjXsI8+XY44WKIU4I0LByLsZ63HOBWmyFGqch4IdOrYDt/05MpjG2
-Z1BfUuAMQnXIKg8Bet+P9AKhwfj4ue1+bntN0SwUvXlmu1o6f9nWpCWpV5FICrGcKSYOvD656kCF
-4T5dfIHpC34z/7Guwl5fNB35E40zz8CCgAiYFZ5n4hgM8Lbq/7vasF7HAp1rLJRj/3QZchELspD5
-dLTzRSMDTY13MVpN+nzRVZMyqVd0q0+1w78qIEMhcpCmy/MlyaSR7ReM/dWurXaUgtLT2pqk8H5h
-waJN9n64dvxfj36GCVo2lS4xZwH0BUzxIt/RM72ptM5v6Q/fWyvXDQplbmRzdHJlYW0NZW5kb2Jq
-DTMgMCBvYmo8PC9Nb2REYXRlKGioXCgiFy/rpk4Sub2Qep+VRLVN9Fxc0zUpL0NyZWF0aW9uRGF0
-ZShoqFwoIhcv66ZOErm9kHabkDMpL1RpdGxlKCkvQ3JlYXRvcihm4n91bnW6+Rpn8OXMMsLCKS9B
-dXRob3IoePNxd1Rwsr40Q+bqzikvS2V5d29yZHMoKS9TdWJqZWN0KCkvUHJvZHVjZXIofP1td1VI
-v/hfVO320ivByUm1VOopPj4NZW5kb2JqDXhyZWYNCjAgNA0KMDAwMDAwMDAwMCA2NTUzNSBmDQow
-MDAwMDAxNTMwIDAwMDAwIG4NCjAwMDAwMDE1ODAgMDAwMDAgbg0KMDAwMDAwNTA3NCAwMDAwMCBu
-DQp0cmFpbGVyDQo8PC9TaXplIDQvRW5jcnlwdCA1IDAgUj4+DQpzdGFydHhyZWYNCjExNg0KJSVF
-T0YNCg==
-
-------=_NextPart_000_0006_01C7DB49.A53AACD0
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
-------=_NextPart_000_0006_01C7DB49.A53AACD0--
+"The less confident you are, the more serious you have to act."
