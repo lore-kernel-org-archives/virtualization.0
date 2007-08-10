@@ -1,20 +1,10 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 23/25] [PATCH] paravirt hooks for arch initialization
-Date: Fri, 10 Aug 2007 13:30:52 -0700
-Message-ID: <46BCCAFC.5090107__47935.1055612371$1186778088$gmane$org@goop.org>
-References: <11865467522495-git-send-email-gcosta@redhat.com>	
-	<11865468394005-git-send-email-gcosta@redhat.com>	
-	<11865468431616-git-send-email-gcosta@redhat.com>	
-	<200708081144.04119.ak@suse.de> <46BB5258.8040609@goop.org>	
-	<20070809190303.214e5457@the-village.bc.nu>
-	<5d6222a80708101108y62ebfa26n9f47bfc52b48f4a8@mail.gmail.com>
-	<46BCB3A5.8090504@goop.org> <46BCB9C5.4050103@redhat.com>
-	<46BCC414.7060504@goop.org> <46BCC6DF.2040301@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: [PATCH 1/25 -v2] header file move
+Date: Fri, 10 Aug 2007 16:12:13 -0300
+Message-ID: <11867731633002-git-send-email-gcosta__5203.72451651401$1186783368$gmane$org@redhat.com>
+References: <1186773157329-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46BCC6DF.2040301@redhat.com>
+In-Reply-To: <1186773157329-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,22 +14,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <gcosta@redhat.com>
-Cc: lguest@ozlabs.org, Steven@smtp2.linux-foundation.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber de Oliveira Costa wrote:
-> Indeed, as the EBDA_ADDR_POINTER is not aligned, this may work even
-> better.
->
-> It seems to me safe to assume that if we read zero on that line:
->
-> ebda_addr = *(unsigned short *)__va(EBDA_ADDR_POINTER);
->
-> We could just do ebda_size = 0 and go home happy, skipping the rest of
-> the process.
+Later on, the paravirt_ops patch will deference the vm_area_struct
+in asm/pgtable.h. It means this define must be after the struct
+definition
 
-Sure, but it should use probe_kernel_addr as well, just so that it will
-be robust against having that page unmapped too.
+Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+---
+ include/linux/mm.h |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
 
-    J
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 655094d..c3f8561 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -35,11 +35,6 @@ extern int sysctl_legacy_va_layout;
+ #define sysctl_legacy_va_layout 0
+ #endif
+ 
+-#include <asm/page.h>
+-#include <asm/pgtable.h>
+-#include <asm/processor.h>
+-
+-#define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
+ 
+ /*
+  * Linux kernel virtual memory manager primitives.
+@@ -113,6 +108,15 @@ struct vm_area_struct {
+ #endif
+ };
+ 
++#include <asm/page.h>
++/*
++ * pgtable.h must be included after the definition of vm_area_struct.
++ * x86_64 pgtable.h is one of the dereferencers of this struct
++ */
++#include <asm/pgtable.h>
++#include <asm/processor.h>
++
++#define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
+ extern struct kmem_cache *vm_area_cachep;
+ 
+ /*
+-- 
+1.4.4.2
