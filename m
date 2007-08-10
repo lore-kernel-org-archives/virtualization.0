@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 14/25 -v2] get rid of inline asm for load_cr3
-Date: Fri, 10 Aug 2007 16:12:26 -0300
-Message-ID: <11867732273108-git-send-email-gcosta__12240.823559887$1186784204$gmane$org@redhat.com>
+Subject: [PATCH 15/25 -v2] introducing paravirt_activate_mm
+Date: Fri, 10 Aug 2007 16:12:27 -0300
+Message-ID: <11867732323106-git-send-email-gcosta__49082.8716232956$1186784313$gmane$org@redhat.com>
 References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867731633002-git-send-email-gcosta@redhat.com>
 	<11867731681763-git-send-email-gcosta@redhat.com>
@@ -16,8 +16,9 @@ References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867732121974-git-send-email-gcosta@redhat.com>
 	<1186773217875-git-send-email-gcosta@redhat.com>
 	<11867732221652-git-send-email-gcosta@redhat.com>
+	<11867732273108-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11867732221652-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11867732273108-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -31,28 +32,49 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Besides not elegant, it is now even forbidden, since it can
-break paravirtualized guests. load_cr3 should call write_cr3()
-instead.
+This function/macro will allow a paravirt guest to be notified we changed
+the current task cr3, and act upon it. It's up to them
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- include/asm-x86_64/mmu_context.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ include/asm-x86_64/mmu_context.h |   17 ++++++++++++++---
+ 1 files changed, 14 insertions(+), 3 deletions(-)
 
 diff --git a/include/asm-x86_64/mmu_context.h b/include/asm-x86_64/mmu_context.h
-index c8cdc1e..9592698 100644
+index 9592698..77ce047 100644
 --- a/include/asm-x86_64/mmu_context.h
 +++ b/include/asm-x86_64/mmu_context.h
-@@ -25,7 +25,7 @@ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
+@@ -7,7 +7,16 @@
+ #include <asm/pda.h>
+ #include <asm/pgtable.h>
+ #include <asm/tlbflush.h>
++
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++#else
+ #include <asm-generic/mm_hooks.h>
++static inline void paravirt_activate_mm(struct mm_struct *prev,
++					struct mm_struct *next)
++{
++}
++#endif /* CONFIG_PARAVIRT */
  
- static inline void load_cr3(pgd_t *pgd)
- {
--	asm volatile("movq %0,%%cr3" :: "r" (__pa(pgd)) : "memory");
-+	write_cr3(__pa(pgd));
- }
+ /*
+  * possibly do the LDT unload here?
+@@ -67,8 +76,10 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 	asm volatile("movl %0,%%fs"::"r"(0));  \
+ } while(0)
  
- static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next, 
+-#define activate_mm(prev, next) \
+-	switch_mm((prev),(next),NULL)
+-
++#define activate_mm(prev, next) 		\
++do {						\
++	paravirt_activate_mm(prev, next);	\
++	switch_mm((prev),(next),NULL);		\
++} while (0)
+ 
+ #endif
 -- 
 1.4.4.2
