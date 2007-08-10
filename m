@@ -1,14 +1,33 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 5/25 -v2] native versions for system.h functions
-Date: Fri, 10 Aug 2007 16:12:17 -0300
-Message-ID: <11867731831138-git-send-email-gcosta__41428.0725330629$1186785414$gmane$org@redhat.com>
+Subject: [PATCH 24/25 -v2] paravirt hooks for arch initialization
+Date: Fri, 10 Aug 2007 16:12:36 -0300
+Message-ID: <11867732763070-git-send-email-gcosta__16789.1244906516$1186785419$gmane$org@redhat.com>
 References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867731633002-git-send-email-gcosta@redhat.com>
 	<11867731681763-git-send-email-gcosta@redhat.com>
 	<11867731732274-git-send-email-gcosta@redhat.com>
 	<11867731781610-git-send-email-gcosta@redhat.com>
+	<11867731831138-git-send-email-gcosta@redhat.com>
+	<11867731882768-git-send-email-gcosta@redhat.com>
+	<11867731932688-git-send-email-gcosta@redhat.com>
+	<11867731981891-git-send-email-gcosta@redhat.com>
+	<1186773203887-git-send-email-gcosta@redhat.com>
+	<11867732082735-git-send-email-gcosta@redhat.com>
+	<11867732121974-git-send-email-gcosta@redhat.com>
+	<1186773217875-git-send-email-gcosta@redhat.com>
+	<11867732221652-git-send-email-gcosta@redhat.com>
+	<11867732273108-git-send-email-gcosta@redhat.com>
+	<11867732323106-git-send-email-gcosta@redhat.com>
+	<11867732373232-git-send-email-gcosta@redhat.com>
+	<11867732424024-git-send-email-gcosta@redhat.com>
+	<11867732461037-git-send-email-gcosta@redhat.com>
+	<11867732511513-git-send-email!
+	-gcosta@redhat.com> <11867732562020-git-send-email-gcosta@redhat.com>
+	<1186773261537-git-send-email-gcosta@redhat.com>
+	<11867732661840-git-send-email-gcosta@redhat.com>
+	<11867732713519-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11867731781610-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11867732713519-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,149 +41,137 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the native hook for the functions in system.h
-They are the read/write_crX, clts and wbinvd. The later, also
-gets its call sites patched.
+This patch add paravirtualization hooks in the arch initialization
+process. paravirt_arch_setup() lets the guest issue any specific
+initialization routine
+
+Also, there is memory_setup(), so guests can handle it their way.
+
+[  updates from v1
+   * Don't use a separate ebda pv hook (Jeremy/Andi)
+   * Make paravirt_setup_arch() void (Andi)
+]
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- arch/x86_64/kernel/tce.c    |    2 +-
- arch/x86_64/mm/pageattr.c   |    2 +-
- include/asm-x86_64/system.h |   54 +++++++++++++++++++++++++++++-------------
- 3 files changed, 39 insertions(+), 19 deletions(-)
+ arch/x86_64/kernel/setup.c |   32 +++++++++++++++++++++++++++++++-
+ include/asm-x86_64/e820.h  |    6 ++++++
+ include/asm-x86_64/page.h  |    1 +
+ 3 files changed, 38 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86_64/kernel/tce.c b/arch/x86_64/kernel/tce.c
-index e3f2569..587f0c2 100644
---- a/arch/x86_64/kernel/tce.c
-+++ b/arch/x86_64/kernel/tce.c
-@@ -42,7 +42,7 @@ static inline void flush_tce(void* tceaddr)
- 	if (cpu_has_clflush)
- 		asm volatile("clflush (%0)" :: "r" (tceaddr));
- 	else
--		asm volatile("wbinvd":::"memory");
-+		wbinvd();
- }
+diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
+index af838f6..19e0d90 100644
+--- a/arch/x86_64/kernel/setup.c
++++ b/arch/x86_64/kernel/setup.c
+@@ -44,6 +44,7 @@
+ #include <linux/dmi.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/ctype.h>
++#include <linux/uaccess.h>
  
- void tce_build(struct iommu_table *tbl, unsigned long index,
-diff --git a/arch/x86_64/mm/pageattr.c b/arch/x86_64/mm/pageattr.c
-index 7e161c6..b497afd 100644
---- a/arch/x86_64/mm/pageattr.c
-+++ b/arch/x86_64/mm/pageattr.c
-@@ -76,7 +76,7 @@ static void flush_kernel_map(void *arg)
- 	/* When clflush is available always use it because it is
- 	   much cheaper than WBINVD. */
- 	if (!cpu_has_clflush)
--		asm volatile("wbinvd" ::: "memory");
-+		wbinvd();
- 	else list_for_each_entry(pg, l, lru) {
- 		void *adr = page_address(pg);
- 		cache_flush_page(adr);
-diff --git a/include/asm-x86_64/system.h b/include/asm-x86_64/system.h
-index 02175aa..20ed9df 100644
---- a/include/asm-x86_64/system.h
-+++ b/include/asm-x86_64/system.h
-@@ -68,53 +68,56 @@ extern void load_gs_index(unsigned);
- /*
-  * Clear and set 'TS' bit respectively
-  */
--#define clts() __asm__ __volatile__ ("clts")
-+static inline void native_clts(void)
-+{
-+	asm volatile ("clts");
-+}
+ #include <asm/mtrr.h>
+ #include <asm/uaccess.h>
+@@ -65,6 +66,12 @@
+ #include <asm/sections.h>
+ #include <asm/dmi.h>
  
--static inline unsigned long read_cr0(void)
--{ 
-+static inline unsigned long native_read_cr0(void)
-+{
- 	unsigned long cr0;
- 	asm volatile("movq %%cr0,%0" : "=r" (cr0));
- 	return cr0;
- }
- 
--static inline void write_cr0(unsigned long val) 
--{ 
-+static inline void native_write_cr0(unsigned long val)
-+{
- 	asm volatile("movq %0,%%cr0" :: "r" (val));
- }
- 
--static inline unsigned long read_cr2(void)
-+static inline unsigned long native_read_cr2(void)
- {
- 	unsigned long cr2;
- 	asm("movq %%cr2,%0" : "=r" (cr2));
- 	return cr2;
- }
- 
--static inline void write_cr2(unsigned long val)
-+static inline void native_write_cr2(unsigned long val)
- {
- 	asm volatile("movq %0,%%cr2" :: "r" (val));
- }
- 
--static inline unsigned long read_cr3(void)
--{ 
-+static inline unsigned long native_read_cr3(void)
-+{
- 	unsigned long cr3;
- 	asm("movq %%cr3,%0" : "=r" (cr3));
- 	return cr3;
- }
- 
--static inline void write_cr3(unsigned long val)
-+static inline void native_write_cr3(unsigned long val)
- {
- 	asm volatile("movq %0,%%cr3" :: "r" (val) : "memory");
- }
- 
--static inline unsigned long read_cr4(void)
--{ 
-+static inline unsigned long native_read_cr4(void)
-+{
- 	unsigned long cr4;
- 	asm("movq %%cr4,%0" : "=r" (cr4));
- 	return cr4;
- }
- 
--static inline void write_cr4(unsigned long val)
--{ 
-+static inline void native_write_cr4(unsigned long val)
-+{
- 	asm volatile("movq %0,%%cr4" :: "r" (val) : "memory");
- }
- 
-@@ -130,10 +133,27 @@ static inline void write_cr8(unsigned long val)
- 	asm volatile("movq %0,%%cr8" :: "r" (val) : "memory");
- }
- 
--#define stts() write_cr0(8 | read_cr0())
-+static inline void native_wbinvd(void)
-+{
-+	asm volatile ("wbinvd" ::: "memory");
-+}
- 
--#define wbinvd() \
--	__asm__ __volatile__ ("wbinvd": : :"memory")
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
 +#else
-+#define clts		native_clts
-+#define wbinvd		native_wbinvd
-+#define read_cr0 	native_read_cr0
-+#define read_cr2 	native_read_cr2
-+#define read_cr3 	native_read_cr3
-+#define read_cr4 	native_read_cr4
-+#define write_cr0	native_write_cr0
-+#define write_cr2	native_write_cr2
-+#define write_cr3	native_write_cr3
-+#define write_cr4	native_write_cr4
++#define paravirt_arch_setup()  do {} while (0)
 +#endif
 +
-+#define stts() write_cr0(8 | read_cr0())
+ /*
+  * Machine setup..
+  */
+@@ -208,6 +215,16 @@ static void discover_ebda(void)
+ 	 * 4K EBDA area at 0x40E
+ 	 */
+ 	ebda_addr = *(unsigned short *)__va(EBDA_ADDR_POINTER);
++	/*
++	 * There can be some situations, like paravirtualized guests,
++	 * in which there is no available ebda information. In such
++	 * case, just skip it
++	 */
++	if (!ebda_addr) {
++		ebda_size = 0;
++		return;
++	}
++
+ 	ebda_addr <<= 4;
  
- #endif	/* __KERNEL__ */
+ 	ebda_size = *(unsigned short *)__va(ebda_addr);
+@@ -221,6 +238,13 @@ static void discover_ebda(void)
+ 		ebda_size = 64*1024;
+ }
  
++/* Overridden in paravirt.c if CONFIG_PARAVIRT */
++void __attribute__((weak)) memory_setup(void)
++{
++       return setup_memory_region();
++}
++
++
+ void __init setup_arch(char **cmdline_p)
+ {
+ 	printk(KERN_INFO "Command line: %s\n", boot_command_line);
+@@ -231,12 +255,18 @@ void __init setup_arch(char **cmdline_p)
+ 	saved_video_mode = SAVED_VIDEO_MODE;
+ 	bootloader_type = LOADER_TYPE;
+ 
++	/*
++	 * By returning non-zero here, a paravirt impl can choose to
++	 * skip the rest of the setup process
++	 */
++	paravirt_arch_setup();
++
+ #ifdef CONFIG_BLK_DEV_RAM
+ 	rd_image_start = RAMDISK_FLAGS & RAMDISK_IMAGE_START_MASK;
+ 	rd_prompt = ((RAMDISK_FLAGS & RAMDISK_PROMPT_FLAG) != 0);
+ 	rd_doload = ((RAMDISK_FLAGS & RAMDISK_LOAD_FLAG) != 0);
+ #endif
+-	setup_memory_region();
++	memory_setup();
+ 	copy_edd();
+ 
+ 	if (!MOUNT_ROOT_RDONLY)
+diff --git a/include/asm-x86_64/e820.h b/include/asm-x86_64/e820.h
+index 3486e70..2ced3ba 100644
+--- a/include/asm-x86_64/e820.h
++++ b/include/asm-x86_64/e820.h
+@@ -20,7 +20,12 @@
+ #define E820_ACPI	3
+ #define E820_NVS	4
+ 
++#define MAP_TYPE_STR	"BIOS-e820"
++
+ #ifndef __ASSEMBLY__
++
++void native_ebda_info(unsigned *addr, unsigned *size);
++
+ struct e820entry {
+ 	u64 addr;	/* start of memory segment */
+ 	u64 size;	/* size of memory segment */
+@@ -56,6 +61,7 @@ extern struct e820map e820;
+ 
+ extern unsigned ebda_addr, ebda_size;
+ extern unsigned long nodemap_addr, nodemap_size;
++
+ #endif/*!__ASSEMBLY__*/
+ 
+ #endif/*__E820_HEADER*/
+diff --git a/include/asm-x86_64/page.h b/include/asm-x86_64/page.h
+index ec8b245..8c40fb2 100644
+--- a/include/asm-x86_64/page.h
++++ b/include/asm-x86_64/page.h
+@@ -149,6 +149,7 @@ extern unsigned long __phys_addr(unsigned long);
+ #define __boot_pa(x)		__pa(x)
+ #ifdef CONFIG_FLATMEM
+ #define pfn_valid(pfn)		((pfn) < end_pfn)
++
+ #endif
+ 
+ #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
 -- 
 1.4.4.2
