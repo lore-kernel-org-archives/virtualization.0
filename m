@@ -1,34 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 25/25 -v2] add paravirtualization support for x86_64
-Date: Fri, 10 Aug 2007 16:12:37 -0300
-Message-ID: <11867732811935-git-send-email-gcosta__18801.3339102783$1186785413$gmane$org@redhat.com>
+Subject: [PATCH 5/25 -v2] native versions for system.h functions
+Date: Fri, 10 Aug 2007 16:12:17 -0300
+Message-ID: <11867731831138-git-send-email-gcosta__41428.0725330629$1186785414$gmane$org@redhat.com>
 References: <1186773157329-git-send-email-gcosta@redhat.com>
 	<11867731633002-git-send-email-gcosta@redhat.com>
 	<11867731681763-git-send-email-gcosta@redhat.com>
 	<11867731732274-git-send-email-gcosta@redhat.com>
 	<11867731781610-git-send-email-gcosta@redhat.com>
-	<11867731831138-git-send-email-gcosta@redhat.com>
-	<11867731882768-git-send-email-gcosta@redhat.com>
-	<11867731932688-git-send-email-gcosta@redhat.com>
-	<11867731981891-git-send-email-gcosta@redhat.com>
-	<1186773203887-git-send-email-gcosta@redhat.com>
-	<11867732082735-git-send-email-gcosta@redhat.com>
-	<11867732121974-git-send-email-gcosta@redhat.com>
-	<1186773217875-git-send-email-gcosta@redhat.com>
-	<11867732221652-git-send-email-gcosta@redhat.com>
-	<11867732273108-git-send-email-gcosta@redhat.com>
-	<11867732323106-git-send-email-gcosta@redhat.com>
-	<11867732373232-git-send-email-gcosta@redhat.com>
-	<11867732424024-git-send-email-gcosta@redhat.com>
-	<11867732461037-git-send-email-gcosta@redhat.com>
-	<11867732511513-git-send-email!
-	-gcosta@redhat.com> <11867732562020-git-send-email-gcosta@redhat.com>
-	<1186773261537-git-send-email-gcosta@redhat.com>
-	<11867732661840-git-send-email-gcosta@redhat.com>
-	<11867732713519-git-send-email-gcosta@redhat.com>
-	<11867732763070-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11867732763070-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11867731781610-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -42,136 +22,149 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is finally, the patch we were all looking for. This
-patch adds a paravirt.h header with the definition of paravirt_ops
-struct. Also, it defines a bunch of inline functions that will
-replace, or hook, the other calls. Every one of those functions
-adds an entry in the parainstructions section (see vmlinux.lds.S).
-Those entries can then be used to runtime-patch the paravirt_ops
-functions.
+This patch adds the native hook for the functions in system.h
+They are the read/write_crX, clts and wbinvd. The later, also
+gets its call sites patched.
 
-paravirt.c contains implementations of paravirt functions that
-are used natively, such as the native_patch. It also fill the
-paravirt_ops structure with the whole lot of functions that
-were (re)defined throughout this patch set.
-
-There are also changes in asm-offsets.c. paravirt.h needs it
-to find out the offsets into the structure of functions
-such as irq_enable, used in assembly files.
-
-[  updates from v1
-   * make PARAVIRT hidden in Kconfig (Andi Kleen)
-   * cleanups in paravirt.h (Andi Kleen)
-   * modifications needed to accomodate other parts of the
-   patch that changed, such as getting rid of ebda_info
-   * put the integers at struct paravirt_ops at the end
-   (Jeremy)
-]
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- arch/x86_64/Kconfig              |   11 +++++++++++
- arch/x86_64/kernel/Makefile      |    1 +
- arch/x86_64/kernel/asm-offsets.c |   14 ++++++++++++++
- arch/x86_64/kernel/vmlinux.lds.S |    6 ++++++
- include/asm-x86_64/smp.h         |    2 +-
- 5 files changed, 33 insertions(+), 1 deletions(-)
+ arch/x86_64/kernel/tce.c    |    2 +-
+ arch/x86_64/mm/pageattr.c   |    2 +-
+ include/asm-x86_64/system.h |   54 +++++++++++++++++++++++++++++-------------
+ 3 files changed, 39 insertions(+), 19 deletions(-)
 
-diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
-index ffa0364..00b2fc9 100644
---- a/arch/x86_64/Kconfig
-+++ b/arch/x86_64/Kconfig
-@@ -373,6 +373,17 @@ config NODES_SHIFT
+diff --git a/arch/x86_64/kernel/tce.c b/arch/x86_64/kernel/tce.c
+index e3f2569..587f0c2 100644
+--- a/arch/x86_64/kernel/tce.c
++++ b/arch/x86_64/kernel/tce.c
+@@ -42,7 +42,7 @@ static inline void flush_tce(void* tceaddr)
+ 	if (cpu_has_clflush)
+ 		asm volatile("clflush (%0)" :: "r" (tceaddr));
+ 	else
+-		asm volatile("wbinvd":::"memory");
++		wbinvd();
+ }
  
- # Dummy CONFIG option to select ACPI_NUMA from drivers/acpi/Kconfig.
+ void tce_build(struct iommu_table *tbl, unsigned long index,
+diff --git a/arch/x86_64/mm/pageattr.c b/arch/x86_64/mm/pageattr.c
+index 7e161c6..b497afd 100644
+--- a/arch/x86_64/mm/pageattr.c
++++ b/arch/x86_64/mm/pageattr.c
+@@ -76,7 +76,7 @@ static void flush_kernel_map(void *arg)
+ 	/* When clflush is available always use it because it is
+ 	   much cheaper than WBINVD. */
+ 	if (!cpu_has_clflush)
+-		asm volatile("wbinvd" ::: "memory");
++		wbinvd();
+ 	else list_for_each_entry(pg, l, lru) {
+ 		void *adr = page_address(pg);
+ 		cache_flush_page(adr);
+diff --git a/include/asm-x86_64/system.h b/include/asm-x86_64/system.h
+index 02175aa..20ed9df 100644
+--- a/include/asm-x86_64/system.h
++++ b/include/asm-x86_64/system.h
+@@ -68,53 +68,56 @@ extern void load_gs_index(unsigned);
+ /*
+  * Clear and set 'TS' bit respectively
+  */
+-#define clts() __asm__ __volatile__ ("clts")
++static inline void native_clts(void)
++{
++	asm volatile ("clts");
++}
  
-+config PARAVIRT
-+       bool
-+       depends on EXPERIMENTAL
-+       help
-+         Paravirtualization is a way of running multiple instances of
-+         Linux on the same machine, under a hypervisor.  This option
-+         changes the kernel so it can modify itself when it is run
-+         under a hypervisor, improving performance significantly.
-+         However, when run without a hypervisor the kernel is
-+         theoretically slower.  If in doubt, say N.
-+
- config X86_64_ACPI_NUMA
-        bool "ACPI NUMA detection"
-        depends on NUMA
-diff --git a/arch/x86_64/kernel/Makefile b/arch/x86_64/kernel/Makefile
-index ff5d8c9..120467f 100644
---- a/arch/x86_64/kernel/Makefile
-+++ b/arch/x86_64/kernel/Makefile
-@@ -38,6 +38,7 @@ obj-$(CONFIG_X86_VSMP)		+= vsmp.o
- obj-$(CONFIG_K8_NB)		+= k8.o
- obj-$(CONFIG_AUDIT)		+= audit.o
+-static inline unsigned long read_cr0(void)
+-{ 
++static inline unsigned long native_read_cr0(void)
++{
+ 	unsigned long cr0;
+ 	asm volatile("movq %%cr0,%0" : "=r" (cr0));
+ 	return cr0;
+ }
  
-+obj-$(CONFIG_PARAVIRT)		+= paravirt.o
- obj-$(CONFIG_MODULES)		+= module.o
- obj-$(CONFIG_PCI)		+= early-quirks.o
+-static inline void write_cr0(unsigned long val) 
+-{ 
++static inline void native_write_cr0(unsigned long val)
++{
+ 	asm volatile("movq %0,%%cr0" :: "r" (val));
+ }
  
-diff --git a/arch/x86_64/kernel/asm-offsets.c b/arch/x86_64/kernel/asm-offsets.c
-index 778953b..f5eff70 100644
---- a/arch/x86_64/kernel/asm-offsets.c
-+++ b/arch/x86_64/kernel/asm-offsets.c
-@@ -15,6 +15,9 @@
- #include <asm/segment.h>
- #include <asm/thread_info.h>
- #include <asm/ia32.h>
+-static inline unsigned long read_cr2(void)
++static inline unsigned long native_read_cr2(void)
+ {
+ 	unsigned long cr2;
+ 	asm("movq %%cr2,%0" : "=r" (cr2));
+ 	return cr2;
+ }
+ 
+-static inline void write_cr2(unsigned long val)
++static inline void native_write_cr2(unsigned long val)
+ {
+ 	asm volatile("movq %0,%%cr2" :: "r" (val));
+ }
+ 
+-static inline unsigned long read_cr3(void)
+-{ 
++static inline unsigned long native_read_cr3(void)
++{
+ 	unsigned long cr3;
+ 	asm("movq %%cr3,%0" : "=r" (cr3));
+ 	return cr3;
+ }
+ 
+-static inline void write_cr3(unsigned long val)
++static inline void native_write_cr3(unsigned long val)
+ {
+ 	asm volatile("movq %0,%%cr3" :: "r" (val) : "memory");
+ }
+ 
+-static inline unsigned long read_cr4(void)
+-{ 
++static inline unsigned long native_read_cr4(void)
++{
+ 	unsigned long cr4;
+ 	asm("movq %%cr4,%0" : "=r" (cr4));
+ 	return cr4;
+ }
+ 
+-static inline void write_cr4(unsigned long val)
+-{ 
++static inline void native_write_cr4(unsigned long val)
++{
+ 	asm volatile("movq %0,%%cr4" :: "r" (val) : "memory");
+ }
+ 
+@@ -130,10 +133,27 @@ static inline void write_cr8(unsigned long val)
+ 	asm volatile("movq %0,%%cr8" :: "r" (val) : "memory");
+ }
+ 
+-#define stts() write_cr0(8 | read_cr0())
++static inline void native_wbinvd(void)
++{
++	asm volatile ("wbinvd" ::: "memory");
++}
+ 
+-#define wbinvd() \
+-	__asm__ __volatile__ ("wbinvd": : :"memory")
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
++#else
++#define clts		native_clts
++#define wbinvd		native_wbinvd
++#define read_cr0 	native_read_cr0
++#define read_cr2 	native_read_cr2
++#define read_cr3 	native_read_cr3
++#define read_cr4 	native_read_cr4
++#define write_cr0	native_write_cr0
++#define write_cr2	native_write_cr2
++#define write_cr3	native_write_cr3
++#define write_cr4	native_write_cr4
 +#endif
++
++#define stts() write_cr0(8 | read_cr0())
  
- #define DEFINE(sym, val) \
-         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-@@ -72,6 +75,17 @@ int main(void)
- 	       offsetof (struct rt_sigframe32, uc.uc_mcontext));
- 	BLANK();
- #endif
-+#ifdef CONFIG_PARAVIRT
-+#define ENTRY(entry) DEFINE(PARAVIRT_ ## entry, offsetof(struct paravirt_ops, entry))
-+	ENTRY(paravirt_enabled);
-+	ENTRY(irq_disable);
-+	ENTRY(irq_enable);
-+	ENTRY(syscall_return);
-+	ENTRY(iret);
-+	ENTRY(read_cr2);
-+	ENTRY(swapgs);
-+	BLANK();
-+#endif
- 	DEFINE(pbe_address, offsetof(struct pbe, address));
- 	DEFINE(pbe_orig_address, offsetof(struct pbe, orig_address));
- 	DEFINE(pbe_next, offsetof(struct pbe, next));
-diff --git a/arch/x86_64/kernel/vmlinux.lds.S b/arch/x86_64/kernel/vmlinux.lds.S
-index ba8ea97..c3fce85 100644
---- a/arch/x86_64/kernel/vmlinux.lds.S
-+++ b/arch/x86_64/kernel/vmlinux.lds.S
-@@ -185,6 +185,12 @@ SECTIONS
-   .altinstr_replacement : AT(ADDR(.altinstr_replacement) - LOAD_OFFSET) {
- 	*(.altinstr_replacement)
-   }
-+  . = ALIGN(8);
-+  .parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
-+  __parainstructions = .;
-+	*(.parainstructions)
-+  __parainstructions_end = .;
-+  }
-   /* .exit.text is discard at runtime, not link time, to deal with references
-      from .altinstructions and .eh_frame */
-   .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
-diff --git a/include/asm-x86_64/smp.h b/include/asm-x86_64/smp.h
-index 6b11114..403901b 100644
---- a/include/asm-x86_64/smp.h
-+++ b/include/asm-x86_64/smp.h
-@@ -22,7 +22,7 @@ extern int disable_apic;
- #ifdef CONFIG_PARAVIRT
- #include <asm/paravirt.h>
- void native_flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
--						unsigned long va);
-+							unsigned long va);
- #else
- #define startup_ipi_hook(apicid, rip, rsp) do { } while (0)
- #endif
+ #endif	/* __KERNEL__ */
+ 
 -- 
 1.4.4.2
