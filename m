@@ -1,13 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Lguest] error rebooting lguest
-Date: Sat, 11 Aug 2007 12:44:49 +1000
-Message-ID: <1186800289.30899.45.camel@localhost.localdomain>
-References: <1186773617.5652.18.camel@odie>
+Subject: Re: [PATCH 5/7] Change lguest launcher to use asm generic include
+Date: Sat, 11 Aug 2007 13:11:33 +1000
+Message-ID: <1186801893.30899.49.camel__16070.1107037768$1186802115$gmane$org@localhost.localdomain>
+References: <20070809003211.373543702@goodmis.org>
+	<20070809003343.829371800@goodmis.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1186773617.5652.18.camel@odie>
+In-Reply-To: <20070809003343.829371800@goodmis.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,32 +18,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Simon Holm =?ISO-8859-1?Q?Th=F8gersen?= <odie@cs.aau.dk>
-Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-08-10 at 21:20 +0200, Simon Holm Th=F8gersen wrote:
-> Hey!
->=20
-> Trying the root disk image
-> http://xm-test.xensource.com/ramdisks/initrd-1.1-i386.img
-> suggested in Documentation/lguest/lguest.txt, I get the follow trace
-> when rebooting the guest. Kernel is 2.6.23-rc2-ge1cf20c1.
+On Wed, 2007-08-08 at 20:32 -0400, Steven Rostedt wrote:
+> plain text document attachment
+> (0005-Change-lguest-launcher-to-use-asm-generic-include-instead-of-explicitly.txt)
+> Have the lguest launcher include e820.h via asm/e820.h instead of explicitly
+> saying i386.
+> 
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Hi Simon,
+Applied, thanks,
 
-	Implementing reboot is an interesting project.  It'd be nice to
-separate "crash" from "halt" as well.  I think the steps are:
-
-1) Override ative_machine_emergency_restart in paravirt_ops to an
-lguest-specific routine.
-2) Enhance the LHCALL_CRASH hypercall (and perhaps rename it) to take an
-argument that says whether we've crashed, halted, or want to reboot.
-Maybe set lg->dead to -EAGAIN for reboot, -EIO for crash, -ENOENT for
-halt?
-3) Change the launcher appropriately.  For reboot, perhaps we can just
-exec ourselves.  For crash, exit with an error code, for halt exit with
-0.
-
-Patch welcome!
 Rusty.
