@@ -1,57 +1,51 @@
-From: Adrian Bunk <bunk@kernel.org>
+From: Valdis.Kletnieks@vt.edu
 Subject: Re: [PATCH] [545/2many] MAINTAINERS - XEN HYPERVISOR INTERFACE
-Date: Mon, 13 Aug 2007 22:21:58 +0200
-Message-ID: <20070813202158.GH18945@stusta.de>
-References: <46bffcb5.o/KKCq3EZH4S47k3%joe@perches.com> <20070813185536.GH3672@sequoia.sous-sol.org> <20070813121005.af159d1d.randy.dunlap@oracle.com> <20070813191938.GI3672@sequoia.sous-sol.org>
+Date: Mon, 13 Aug 2007 16:32:19 -0400
+Message-ID: <27429.1187037139@turing-police.cc.vt.edu>
+References: <46bffcb5.o/KKCq3EZH4S47k3%joe@perches.com> <20070813185536.GH3672@sequoia.sous-sol.org> <20070813121005.af159d1d.randy.dunlap@oracle.com> <22502.1187032979@turing-police.cc.vt.edu>
+            <20070813201324.GG18945@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932817AbXHMUW5@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20070813191938.GI3672@sequoia.sous-sol.org>
+Content-Type: multipart/signed; boundary="==_Exmh_1187037139_3175P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1033080AbXHMUd4@vger.kernel.org>
+In-Reply-To: Your message of "Mon, 13 Aug 2007 22:13:24 +0200."
+             <20070813201324.GG18945@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, joe@perches.com, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, jeremy@xensource.com, akpm@linux-foundation.org
+To: Adrian Bunk <bunk@kernel.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Chris Wright <chrisw@sous-sol.org>, joe@perches.com, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, jeremy@xensource.com, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 13, 2007 at 12:19:38PM -0700, Chris Wright wrote:
-> * Randy Dunlap (randy.dunlap@oracle.com) wrote:
-> > On Mon, 13 Aug 2007 11:55:36 -0700 Chris Wright wrote:
-> > > * joe@perches.com (joe@perches.com) wrote:
-> > > > +F:	arch/i386/xen/
-> > > > +F:	drivers/*/xen-*front.c
-> > > > +F:	drivers/xen/
-> > > > +F:	include/asm-i386/xen/
-> > > > +F:	include/xen/
-> > > 
-> > > I think this data will easily become stale.  What is the point again?
+--==_Exmh_1187037139_3175P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 13 Aug 2007 22:13:24 +0200, Adrian Bunk said:
+> On Mon, Aug 13, 2007 at 03:22:59PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> > On Mon, 13 Aug 2007 12:10:05 PDT, Randy Dunlap said:
 > > 
-> > Agreed.  But not everyone wants to or should have to use git,
-> > so what are the alternatives?
+> > > Agreed.  But not everyone wants to or should have to use git,
+> > > so what are the alternatives?
+> > 
+> > http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=tree
+> > 
+> > and start chasing down 'History' pointers?
+> >...
 > 
-> Between git (or gitweb), existing MAINTAINERS and a bit of common
-> sense (or extra sleuthing), I never perceived a significant problem.
+> And that brings you what?
 
-For active kernel developers like you and me it's not a problem.
+You got a better alternative to 'git history' or 'git blame' to find who
+to cc: regarding a bug, feel free to propose it. ;)
 
-But for other people it's non-trivial to always figure out who the 
-maintainer of some part of the kernel is.
+--==_Exmh_1187037139_3175P
+Content-Type: application/pgp-signature
 
-> Alternative could be to place info directly in source files.  If not
-> all of MAINTAINERS info, it could be a tag to reference the relevant
-> MAINTAINERS entry.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Having the information in MAINTAINERS is what creates the least 
-redundancies.
+iD8DBQFGwL/TcC3lWbTT17ARAqK9AJ0eZgcGEqPd0gZ+S3f2Tmka8oeiWACgkDhn
+QEWyBW83QVd1lsuny2rOjyg=
+=UWWX
+-----END PGP SIGNATURE-----
 
-> thanks,
-> -chris
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--==_Exmh_1187037139_3175P--
