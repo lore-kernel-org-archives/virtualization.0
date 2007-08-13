@@ -1,39 +1,30 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [kvm-devel] [PATCH 0/2][KVM] guest time accounting
-Date: Mon, 13 Aug 2007 22:40:23 +0200
-Message-ID: <20070813204023.GA10283__37602.46363604$1187037768$gmane$org@osiris.ibm.com>
-References: <46BC8B39.6050202@bull.net>
-	<200708131615.42643.borntraeger@de.ibm.com>
-	<46C06885.3020908@qumranet.com>
-	<200708131626.36275.borntraeger@de.ibm.com>
-	<46C06CA2.8010303@qumranet.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] [545/2many] MAINTAINERS - XEN HYPERVISOR
+	INTERFACE
+Date: Mon, 13 Aug 2007 21:54:50 +0100
+Message-ID: <20070813215450.34585d80@the-village.bc.nu>
+References: <46bffcb5.o/KKCq3EZH4S47k3%joe@perches.com>
+	<20070813185536.GH3672@sequoia.sous-sol.org>
+	<20070813121005.af159d1d.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <46C06CA2.8010303@qumranet.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: cotte@de.ibm.com, kvm-devel@lists.sourceforge.net, Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <20070813121005.af159d1d.randy.dunlap@oracle.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: xen-devel@lists.xensource.com, jeremy@xensource.com, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, joe@perches.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->  The only thing remotely relevant in the list config is that 'Filter out 
->  duplicate messages to list members (if possible)' is set as a default for 
->  new members.  Maybe this means that if a cc is also part of the list, that 
->  cc is stripped (which seems a wierd implementation; I'd have expected that 
->  cc be kept and just one copy sent out).
-> 
->  Anybody have a clue?
+> Agreed.  But not everyone wants to or should have to use git,
+> so what are the alternatives?
 
-I got also removed when I was cc'ed. IIRC that started when I subscribed to
-the list. So it looks like people who are subscribed to the list get
-removed from the cc list.
-That's very annoying btw. ;)
+Export the recent git history each release into an XML file at known
+locations on the kernel web site. Wait for tools to appear
