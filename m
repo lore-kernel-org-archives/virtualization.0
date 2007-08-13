@@ -1,30 +1,44 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] [545/2many] MAINTAINERS - XEN HYPERVISOR
-	INTERFACE
-Date: Mon, 13 Aug 2007 21:54:50 +0100
-Message-ID: <20070813215450.34585d80@the-village.bc.nu>
-References: <46bffcb5.o/KKCq3EZH4S47k3%joe@perches.com>
-	<20070813185536.GH3672@sequoia.sous-sol.org>
-	<20070813121005.af159d1d.randy.dunlap@oracle.com>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: Re: [PATCH] [545/2many] MAINTAINERS - XEN HYPERVISOR INTERFACE
+Date: Mon, 13 Aug 2007 22:47:20 +0200
+Message-ID: <20070813204720.GI18945@stusta.de>
+References: <46bffcb5.o/KKCq3EZH4S47k3%joe@perches.com> <20070813185536.GH3672@sequoia.sous-sol.org> <20070813121005.af159d1d.randy.dunlap@oracle.com> <22502.1187032979@turing-police.cc.vt.edu> <20070813201324.GG18945@stusta.de> <27429.1187037139@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070813121005.af159d1d.randy.dunlap@oracle.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: xen-devel@lists.xensource.com, jeremy@xensource.com, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, joe@perches.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S970597AbXHMUsY@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <27429.1187037139@turing-police.cc.vt.edu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Valdis.Kletnieks@vt.edu
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Chris Wright <chrisw@sous-sol.org>, joe@perches.com, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, jeremy@xensource.com, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Agreed.  But not everyone wants to or should have to use git,
-> so what are the alternatives?
+On Mon, Aug 13, 2007 at 04:32:19PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 13 Aug 2007 22:13:24 +0200, Adrian Bunk said:
+> > On Mon, Aug 13, 2007 at 03:22:59PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> > > On Mon, 13 Aug 2007 12:10:05 PDT, Randy Dunlap said:
+> > > 
+> > > > Agreed.  But not everyone wants to or should have to use git,
+> > > > so what are the alternatives?
+> > > 
+> > > http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=tree
+> > > 
+> > > and start chasing down 'History' pointers?
+> > >...
+> > 
+> > And that brings you what?
+> 
+> You got a better alternative to 'git history' or 'git blame' to find who
+> to cc: regarding a bug, feel free to propose it. ;)
 
-Export the recent git history each release into an XML file at known
-locations on the kernel web site. Wait for tools to appear
+Joe's patches
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
