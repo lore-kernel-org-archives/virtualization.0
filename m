@@ -1,11 +1,14 @@
-From: joe@perches.com
-Subject: [PATCH] [365/2many] MAINTAINERS - PARAVIRT_OPS INTERFACE
-Date: Sun, 12 Aug 2007 23:33:31 -0700
-Message-ID: <46bffb3b.jTNczaQ2ECqVDjzn%joe@perches.com>
+From: Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH 0/7] Modify lguest32 to make room for lguest64
+Date: Mon, 13 Aug 2007 11:50:43 +0200
+Message-ID: <46C02973.6030709@sgi.com>
+References: <20070809003211.373543702@goodmis.org>
+	<1186803724.30899.62.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1186803724.30899.62.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,24 +18,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: zach@vmware.com, virtualization@lists.osdl.org, torvalds@linux-foundation.org, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, jeremy@xensource.com, chrisw@s
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add file pattern to MAINTAINER entry
+Rusty Russell wrote:
+> Yeah, after some more thought I've not applied most of this.  We really
+> don't want to move everything then move it back; I prefer Jes' more
+> cautious approach of moving a little bit at a time.
+> 
+> We really have three parts: (1) bits that are generic, (2) bits that
+> should be generic but my implementation is naive, (3) bits that really
+> are i386-specific.
 
-Signed-off-by: Joe Perches <joe@perches.com>
+I have actually been using Steven's patchset to do my work, but in a
+way it's a tool. Moving things out of the way in bulk and see whats
+missing kinda helps for that :)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2166416..44768ce 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3519,6 +3519,9 @@ M:	rusty@rustcorp.com.au
- L:	virtualization@lists.osdl.org
- L:	linux-kernel@vger.kernel.org
- S:	Supported
-+F:	arch/i386/kernel/paravirt.c
-+F:	include/asm-i386/paravirt.h
-+F:	include/asm-um/paravirt.h
- 
- PC87360 HARDWARE MONITORING DRIVER
- P:	Jim Cromie
+> Patches which move 2 to 1 are gratefully accepted: I realize a mass move
+> is easier and this requires thought, but that's what we need.
+> 
+> Since I can't build a module over two directories, that seems to destroy
+> the idea of an i386/ subdir.  Instead I've done a patch which renames
+> the *clearly* i386-specific things to i386_<name>, which at least works.
+> I've pushed it into the repository http://lguest.ozlabs.org/patches/
+
+That works - alternatively we could build two modules, lg and lg_<arch>
+and just have lg pull in the arch one as well? I'm not really biased,
+but I think it will get messy later once we add ia64 and x86_64 to the
+directory.
+
+Cheers,
+Jes
