@@ -1,13 +1,15 @@
-From: Laurent Vivier <Laurent.Vivier@bull.net>
+From: Avi Kivity <avi@qumranet.com>
 Subject: Re: [kvm-devel] [PATCH 0/2][KVM] guest time accounting
-Date: Mon, 13 Aug 2007 15:08:16 +0200
-Message-ID: <46C057C0.7020003__43643.6612777927$1187010715$gmane$org@bull.net>
+Date: Mon, 13 Aug 2007 16:22:15 +0300
+Message-ID: <46C05B07.1090206__7819.26954300633$1187011603$gmane$org@qumranet.com>
 References: <46BC8B39.6050202@bull.net> <46C00FC1.1070306@qumranet.com>
 	<46C012A8.2040908@bull.net> <46C01877.7060007@qumranet.com>
+	<46C057C0.7020003@bull.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2582440014486358441=="
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46C01877.7060007@qumranet.com>
+In-Reply-To: <46C057C0.7020003@bull.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,234 +17,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
+To: Laurent Vivier <Laurent.Vivier@bull.net>
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============2582440014486358441==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="------------enig3A84E6FF9C7F3F20A6623399"
+Laurent Vivier wrote:
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3A84E6FF9C7F3F20A6623399
-Content-Type: multipart/mixed; boundary="------------080702060106080804090907"
+  
 
-This is a multi-part message in MIME format.
---------------080702060106080804090907
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+>> Are these options for using the kernel as a guest or host?  I'd guess
+>> the former.
+>>     
+>
+> I didn't find CONFIG_HYPERVISOR.
+>   
 
-Avi Kivity wrote:
-> Laurent Vivier wrote:
->>> - perhaps the new fields should be guarded by a #ifdef CONFIG_HYPERVI=
-SOR
->>> (selected by CONFIG_KVM)?  that way the (minor) additional overhead i=
-s
->>> only incurred if it can possibly be used.  I imagine that our canine
->>> cousin will want to use this as well.
->>>    =20
->>
->> There is also a CONFIG_VIRTUALIZATION and a CONFIG_VIRT_CPU_ACCOUNTING=
+I meant, add a new option CONFIG_HYPERVISOR.
 
->> (from
->> s390 and powerpc) Which one to use ?
->>  =20
->=20
-> Are these options for using the kernel as a guest or host?  I'd guess
-> the former.
+> The good one seems to be CONFIG_VIRTUALIZATION that is used to activate CONFIG_KVM.
+>   
 
-I didn't find CONFIG_HYPERVISOR.
-The good one seems to be CONFIG_VIRTUALIZATION that is used to activate C=
-ONFIG_KVM.
+It's just a menu.  Right now there's just one entry, but it will 
+change.  And if CONFIG_VIRTUALIZATION is selected, it doesn't mean 
+CONFIG_KVM is selected.
 
->> I'm wondering if we can have a more accurate accounting:
->>
->> - For the moment we add all system time since the previous entering to=
-
->> the VCPU
->> to the guest time (and I guess there is some real system time in it ??=
-?)
->>
->> - Perhaps we can sum nanoseconds spent in the VCPU and add it to
->> cpustat when
->> these ns are greater than 1 ms ? (I'm trying to make something in this=
-
->> way)
->>  =20
-
-Ingo (or other guru), could you have a look to the attached patch, it is =
-what I
-was thinking about when I wrote this.
-
-Laurent
---=20
-------------- Laurent.Vivier@bull.net  --------------
-          "Software is hard" - Donald Knuth
-
---------------080702060106080804090907
-Content-Type: text/plain;
- name="kvm_stat_guest"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
- filename="kvm_stat_guest"
-
-Index: kvm/drivers/kvm/vmx.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- kvm.orig/drivers/kvm/vmx.c	2007-08-13 14:11:38.000000000 +0200
-+++ kvm/drivers/kvm/vmx.c	2007-08-13 14:29:44.000000000 +0200
-@@ -2052,6 +2052,7 @@
- 	struct vcpu_vmx *vmx =3D to_vmx(vcpu);
- 	u8 fail;
- 	int r;
-+	ktime_t now, delta;
-=20
- preempted:
- 	if (vcpu->guest_debug.enabled)
-@@ -2078,6 +2079,7 @@
- 	local_irq_disable();
-=20
- 	vcpu->guest_mode =3D 1;
-+	now =3D ktime_get();
- 	if (vcpu->requests)
- 		if (test_and_clear_bit(KVM_TLB_FLUSH, &vcpu->requests))
- 		    vmx_flush_tlb(vcpu);
-@@ -2198,6 +2200,8 @@
- 		[cr2]"i"(offsetof(struct kvm_vcpu, cr2))
- 	      : "cc", "memory" );
-=20
-+	delta =3D ktime_sub(ktime_get(), now);
-+	current->vtime =3D ktime_add(current->vtime, delta);
- 	vcpu->guest_mode =3D 0;
- 	local_irq_enable();
-=20
-Index: kvm/include/linux/sched.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- kvm.orig/include/linux/sched.h	2007-08-13 14:25:58.000000000 +0200
-+++ kvm/include/linux/sched.h	2007-08-13 14:29:44.000000000 +0200
-@@ -1192,6 +1192,9 @@
- #ifdef CONFIG_FAULT_INJECTION
- 	int make_it_fail;
- #endif
-+#ifdef CONFIG_VIRTUALIZATION
-+	ktime_t vtime;
-+#endif
- };
-=20
- /*
-Index: kvm/kernel/sched.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- kvm.orig/kernel/sched.c	2007-08-13 14:11:38.000000000 +0200
-+++ kvm/kernel/sched.c	2007-08-13 14:34:47.000000000 +0200
-@@ -3212,6 +3212,29 @@
- 	return ns;
- }
-=20
-+#ifdef CONFIG_VIRTUALIZATION
-+static cputime_t account_guest_time(struct task_struct *p, cputime_t cpu=
-time)
-+{
-+	struct cpu_usage_stat *cpustat =3D &kstat_this_cpu.cpustat;
-+	ktime_t kmsec =3D ktime_set(0, NSEC_PER_MSEC);
-+	cputime_t cmsec =3D msecs_to_cputime(1);
-+
-+	while ((ktime_to_ns(p->vtime) >=3D NSEC_PER_MSEC) &&
-+	       (cputime_to_msecs(cputime) >=3D 1)) {
-+		p->vtime =3D ktime_sub(p->vtime, kmsec);
-+		p->utime =3D cputime_add(p->utime, cmsec);
-+
-+		cputime =3D cputime_sub(cputime, cmsec);
-+
-+		cpustat->guest =3D cputime64_add(cpustat->guest,
-+				cputime_to_cputime64(cmsec));
-+		cpustat->user =3D cputime64_add(cpustat->user,
-+				cputime_to_cputime64(cmsec));
-+	}
-+	return cputime;
-+}
-+#endif
-+
- /*
-  * Account user cpu time to a process.
-  * @p: the process that the cpu time gets accounted to
-@@ -3246,6 +3269,10 @@
- 	struct rq *rq =3D this_rq();
- 	cputime64_t tmp;
-=20
-+#ifdef CONFIG_VIRTUALIZATION
-+	cputime =3D account_guest_time(p, cputime);
-+#endif
-+
- 	p->stime =3D cputime_add(p->stime, cputime);
-=20
- 	/* Add system time to cpustat. */
-Index: kvm/drivers/kvm/svm.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- kvm.orig/drivers/kvm/svm.c	2007-08-13 14:31:16.000000000 +0200
-+++ kvm/drivers/kvm/svm.c	2007-08-13 14:33:10.000000000 +0200
-@@ -1392,6 +1392,7 @@
- 	u16 gs_selector;
- 	u16 ldt_selector;
- 	int r;
-+	ktime_t now, delta;
-=20
- again:
- 	r =3D kvm_mmu_reload(vcpu);
-@@ -1404,6 +1405,7 @@
- 	clgi();
-=20
- 	vcpu->guest_mode =3D 1;
-+	now =3D ktime_get();
- 	if (vcpu->requests)
- 		if (test_and_clear_bit(KVM_TLB_FLUSH, &vcpu->requests))
- 		    svm_flush_tlb(vcpu);
-@@ -1536,6 +1538,8 @@
- #endif
- 		: "cc", "memory" );
-=20
-+	delta =3D ktime_sub(ktime_get(), now);
-+	current->vtime =3D ktime_add(current->vtime, delta);
- 	vcpu->guest_mode =3D 0;
-=20
- 	if (vcpu->fpu_active) {
-
---------------080702060106080804090907--
-
---------------enig3A84E6FF9C7F3F20A6623399
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-
-iD8DBQFGwFfE9Kffa9pFVzwRAjzaAJ0XoOmk/d9sGaINf9r/1h2/7QyJ5wCgmGKq
-f7UIoOvKWjWQRrGGT5JO2V4=
-=Gc+L
------END PGP SIGNATURE-----
-
---------------enig3A84E6FF9C7F3F20A6623399--
-
---===============2582440014486358441==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============2582440014486358441==--
+-- 
+error compiling committee.c: too many arguments to function
