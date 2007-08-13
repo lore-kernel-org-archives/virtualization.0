@@ -1,13 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/7] Modify lguest32 to make room for lguest64
-Date: Sat, 11 Aug 2007 13:42:04 +1000
-Message-ID: <1186803724.30899.62.camel__46495.753786485$1186803868$gmane$org@localhost.localdomain>
-References: <20070809003211.373543702@goodmis.org>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH 0/2][KVM] guest time accounting
+Date: Mon, 13 Aug 2007 11:01:05 +0300
+Message-ID: <46C00FC1.1070306__33230.1434515559$1186992175$gmane$org@qumranet.com>
+References: <46BC8B39.6050202@bull.net>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070809003211.373543702@goodmis.org>
+In-Reply-To: <46BC8B39.6050202@bull.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,37 +17,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Jes Sorensen <jes@sgi.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Laurent Vivier <Laurent.Vivier@bull.net>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-08-08 at 20:32 -0400, Steven Rostedt wrote:
-> Hi all,
-> 
-> I've been working on lguest64 and in order to do this, I had to move
-> a lot of the i386 specific out of the way.  Well, the lguest64 port
-> is still not ready to display, but before Rusty makes too many changes
-> I would like this in upstream so I don't have to keep repeating my
-> changes :-)
-> 
-> 
-> So this patch series moves lguest32 out of the way for other archs.
+Laurent Vivier wrote:
+> The aim of these two patches is to measure the CPU time used by a virtual
+> machine. All comments are welcome... I'm not sure it's the good way to do that.
+>
+> [PATCH 1/2] introduce a new field, "guest", in cpustat to store the time used by
+> the CPU to run virtual CPU. Modify /proc/stat to display this new field.
+>
+> [PATCH 2/2] modify account_system_time() to add cputime to cpustat->guest if we
+> are running a VCPU. We add this cputime to  cpustat->user instead of
+> cpustat->system because this part of KVM code is in fact user code although it
+> is executed in the kernel. We duplicate VCPU time between guest and user to
+> allow an unmodified "top(1)" to display correct value. A modified "top(1)" is
+> able to display good cpu user time and cpu guest time by subtracting cpu guest
+> time from cpu user time.
+>   
 
-Yeah, after some more thought I've not applied most of this.  We really
-don't want to move everything then move it back; I prefer Jes' more
-cautious approach of moving a little bit at a time.
+[copying Ingo and Rusty]
 
-We really have three parts: (1) bits that are generic, (2) bits that
-should be generic but my implementation is naive, (3) bits that really
-are i386-specific.
+The patches look good.  A couple of comments:
 
-Patches which move 2 to 1 are gratefully accepted: I realize a mass move
-is easier and this requires thought, but that's what we need.
+- perhaps the new fields should be guarded by a #ifdef CONFIG_HYPERVISOR 
+(selected by CONFIG_KVM)?  that way the (minor) additional overhead is 
+only incurred if it can possibly be used.  I imagine that our canine 
+cousin will want to use this as well.
 
-Since I can't build a module over two directories, that seems to destroy
-the idea of an i386/ subdir.  Instead I've done a patch which renames
-the *clearly* i386-specific things to i386_<name>, which at least works.
-I've pushed it into the repository http://lguest.ozlabs.org/patches/
+- I think that there is per-task accounting of user time and system 
+time; that should be extended as well.
 
-Cheers,
-Rusty.
+
+
+-- 
+error compiling committee.c: too many arguments to function
