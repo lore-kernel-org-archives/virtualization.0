@@ -1,16 +1,14 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [PATCH 0/2][KVM] guest time accounting
-Date: Mon, 13 Aug 2007 17:37:22 +0300
-Message-ID: <46C06CA2.8010303__32447.711521718$1187015941$gmane$org@qumranet.com>
-References: <46BC8B39.6050202@bull.net>
-	<200708131615.42643.borntraeger@de.ibm.com>
-	<46C06885.3020908@qumranet.com>
-	<200708131626.36275.borntraeger@de.ibm.com>
+From: Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH 0/7] Modify lguest32 to make room for lguest64
+Date: Mon, 13 Aug 2007 17:01:22 +0200
+Message-ID: <46C07242.1000504@sgi.com>
+References: <20070809003211.373543702@goodmis.org>
+	<1186803724.30899.62.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200708131626.36275.borntraeger@de.ibm.com>
+In-Reply-To: <1186803724.30899.62.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,41 +18,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel@lists.sourceforge.net, Laurent Vivier <Laurent.Vivier@bull.net>, cotte@de.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lguest <lguest@ozlabs.org>, Carsten Otte <cotte@de.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christian Borntraeger wrote:
-> Am Montag, 13. August 2007 schrieb Avi Kivity:
->   
->> Christian Borntraeger wrote:
->>     
->>> Am Montag, 13. August 2007 schrieb Laurent Vivier:
->>>   
->>>       
->>>>> [copying Ingo and Rusty]
->>>>>       
->>>>>           
->>> @Avi, seems that sourceforge is mangling the cc list?
->>>
->>>   
->>>       
->> It's not configured to do so.  Can you be more specific?
->>     
->
-> I added Carsten and he was removed from the CC list in my copy I got from SF.
-> And you cced Ingo and Rusty but I dont have them on cc, either.
->
->   
+Rusty Russell wrote:
+> Since I can't build a module over two directories, that seems to destroy
+> the idea of an i386/ subdir.  Instead I've done a patch which renames
+> the *clearly* i386-specific things to i386_<name>, which at least works.
+> I've pushed it into the repository http://lguest.ozlabs.org/patches/
 
-The only thing remotely relevant in the list config is that 'Filter out 
-duplicate messages to list members (if possible)' is set as a default 
-for new members.  Maybe this means that if a cc is also part of the 
-list, that cc is stripped (which seems a wierd implementation; I'd have 
-expected that cc be kept and just one copy sent out).
+Rusty,
 
-Anybody have a clue?
+Looking at your patches, I am trying to figure out what they are
+against. There's a diff that includes a diff in that and I cannot see
+exactly whats in upstream and whats not.
 
+Any chance you could post a set of seperate patches that are in the
+queue for Linus so one can quilt apply it or something like that?
 
--- 
-error compiling committee.c: too many arguments to function
+Cheers,
+Jes
