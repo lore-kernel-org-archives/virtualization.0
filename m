@@ -1,33 +1,60 @@
-From: Adrian Bunk <bunk@kernel.org>
-Subject: Re: [PATCH] [545/2many] MAINTAINERS - XEN HYPERVISOR INTERFACE
-Date: Mon, 13 Aug 2007 23:33:59 +0200
-Message-ID: <20070813213359.GM18945@stusta.de>
-References: <46bffcb5.o/KKCq3EZH4S47k3%joe@perches.com> <20070813185536.GH3672@sequoia.sous-sol.org> <20070813121005.af159d1d.randy.dunlap@oracle.com> <20070813215450.34585d80@the-village.bc.nu>
+From: Yoshimi Ichiyanagi <ichiyanagi.yoshimi@lab.ntt.co.jp>
+Subject: [PATCH] i386: modified CONFIG_PHYSICAL_ALIGN
+Date: Tue, 14 Aug 2007 09:55:50 +0900
+Message-ID: <5AC7DE0DDBA7B1ichiyanagi.yoshimi@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S940452AbXHMVfO@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20070813215450.34585d80@the-village.bc.nu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Chris Wright <chrisw@sous-sol.org>, joe@perches.com, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, jeremy@xensource.com, akpm@linux-foundation.org
+Content-Transfer-Encoding: 8bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: rusty@rustcorp.com.au
+Cc: moriai.satoshi@lab.ntt.co.jp, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 13, 2007 at 09:54:50PM +0100, Alan Cox wrote:
-> > Agreed.  But not everyone wants to or should have to use git,
-> > so what are the alternatives?
-> 
-> Export the recent git history each release into an XML file at known
-> locations on the kernel web site. Wait for tools to appear
+CONFIG_PHYSICAL_ALIGN gives the physical address's alignment where the 
+kernel is loaded.
 
-How can the git history tell me to send a Cc to netdev@vger.kernel.org?
+CONFIG_PHYSICAL_ALIGN's default value is different from i386 kernel with the 
+x86_84 kernel. The i386's default CONFIG_PHYSICAL_ALIGN value is 1MB, but 
+the x86_64's is 2MB.
 
-cu
-Adrian
+The problem is, if you compile x86_64 kernel, the value of 
+CONFIG_PHYSICAL_ALIGN will be fixed, and the next time you compile i386 
+kernel, previous CONFIG_PHYSICAL_ALIGN value of x86_64(default: 2MB) will 
+be used by default.
 
--- 
+The follwing patch will fix this problem. With this patch, either 
+CONFIG_RELOCATABLE's option or CONFIG_EMNBEDDED's option is set "Y", 
+you can configure the value of CONFIG_PHYSICAL_ALIGN.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+Signed-off-by: Yoshimi Ichiyanagi <ichiyanagi.yoshimi@lab.ntt.co.jp>
+
+---
+diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+index f952493..05c3316 100644
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -880,7 +880,7 @@ config RELOCATABLE
+           kernel.
+ 
+ config PHYSICAL_ALIGN
+-	hex "Alignment value to which kernel should be aligned"
++	hex "Alignment value to which kernel should be aligned" if (EMBEDDED || RELOCATABLE)
+ 	default "0x100000"
+ 	range 0x2000 0x400000
+ 	help
+
+
+--
+Yoshimi Ichiyanagi
+Open source software computing project, NTT Cyber Space Laboratories
+E-mail : ichiyanagi.yoshimi@lab.ntt.co.jp
