@@ -1,18 +1,22 @@
 From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 3/25][V3] irq_flags / halt routines
-Date: Wed, 15 Aug 2007 17:42:44 +0200
-Message-ID: <20070815154243.GH3406__43369.9556779631$1187189440$gmane$org@bingen.suse.de>
-References: <11871821854176-git-send-email-gcosta@redhat.com>
-	<1187182197314-git-send-email-gcosta@redhat.com>
-	<11871822062386-git-send-email-gcosta@redhat.com>
-	<11871822163867-git-send-email-gcosta@redhat.com>
-	<20070815135554.GE3406@bingen.suse.de>
-	<5d6222a80708150718v14f26343q7467385e7919fa76@mail.gmail.com>
+Subject: Re: [PATCH 21/25][V3] export cpu_gdt_descr
+Date: Wed, 15 Aug 2007 17:43:51 +0200
+Message-ID: <20070815154351.GI3406__36303.1966648579$1187189511$gmane$org@bingen.suse.de>
+References: <11871823373106-git-send-email-gcosta@redhat.com>
+	<11871823673236-git-send-email-gcosta@redhat.com>
+	<11871823782610-git-send-email-gcosta@redhat.com>
+	<11871823892519-git-send-email-gcosta@redhat.com>
+	<11871823991803-git-send-email-gcosta@redhat.com>
+	<11871824081337-git-send-email-!gcosta@redhat.com>
+	<11871824192375-git-send-email-gcosta@redhat.com>
+	<11871824292046-git-send-email-gcosta@redhat.com>
+	<20070815140339.GG3406@bingen.suse.de>
+	<5d6222a80708150725i45a064bfqfd43139338287988@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5d6222a80708150718v14f26343q7467385e7919fa76@mail.gmail.com>
+In-Reply-To: <5d6222a80708150725i45a064bfqfd43139338287988@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,22 +30,17 @@ To: Glauber de Oliveira Costa <glommer@gmail.com>
 Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 15, 2007 at 11:18:25AM -0300, Glauber de Oliveira Costa wrote:
-> > Didn't we agree this should be a pvops client?
+On Wed, Aug 15, 2007 at 11:25:43AM -0300, Glauber de Oliveira Costa wrote:
+> On 8/15/07, Andi Kleen <ak@suse.de> wrote:
+> > > +#ifdef CONFIG_PARAVIRT
+> > > +extern unsigned long *cpu_gdt_descr;
 > >
-> > -Andi
+> > No externs in .c files
 > >
-> No. I exposed my reasoning, asked you back, but got no answer.
-> I'll do it again:
-> 
-> This operations are just manipulating bits, and are doing no
-> privileged operations at all. Nothing that can be paravirtualized, in
+> > Normally they should be where the variable is defined
+> > anyways.
+> Given that this  variable is defined in head.S, what do you propose?
 
-It's talking to a Hypervisor. That is privileged enough.
-Please do that change. If you add so many more ifdefs it's your
-duty to keep the overall number low.
-
-Various other paravirt ops also do things which are not strictly
-privileged.
+Move it to C code first.
 
 -Andi
