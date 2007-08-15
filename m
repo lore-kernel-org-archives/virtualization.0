@@ -1,10 +1,16 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 1/25][V3] header file move
-Date: Wed, 15 Aug 2007 09:49:21 -0300
-Message-ID: <1187182197314-git-send-email-gcosta__38878.1296126128$1187182377$gmane$org@redhat.com>
+Subject: [PATCH 7/25][V3] interrupt related native paravirt functions.
+Date: Wed, 15 Aug 2007 09:49:27 -0300
+Message-ID: <1187182253740-git-send-email-gcosta@redhat.com>
 References: <11871821854176-git-send-email-gcosta@redhat.com>
+	<1187182197314-git-send-email-gcosta@redhat.com>
+	<11871822062386-git-send-email-gcosta@redhat.com>
+	<11871822163867-git-send-email-gcosta@redhat.com>
+	<11871822244170-git-send-email-gcosta@redhat.com>
+	<11871822342754-git-send-email-gcosta@redhat.com>
+	<11871822421713-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11871821854176-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11871822421713-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,47 +24,49 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Later on, the paravirt_ops patch will deference the vm_area_struct
-in asm/pgtable.h. It means this define must be after the struct
-definition
+The interrupt initialization routine becomes native_init_IRQ and will
+be overriden later in case paravirt is on.
 
+[  updates from v1
+   * After a talk with Jeremy Fitzhardinge, it turned out that making the
+   interrupt vector global was not a good idea. So it is removed in this
+   patch
+]
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- include/linux/mm.h |   14 +++++++++-----
- 1 files changed, 9 insertions(+), 5 deletions(-)
+ arch/x86_64/kernel/i8259.c |    5 ++++-
+ include/asm-x86_64/irq.h   |    2 ++
+ 2 files changed, 6 insertions(+), 1 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 655094d..c3f8561 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -35,11 +35,6 @@ extern int sysctl_legacy_va_layout;
- #define sysctl_legacy_va_layout 0
- #endif
+diff --git a/arch/x86_64/kernel/i8259.c b/arch/x86_64/kernel/i8259.c
+index 948cae6..048e3cb 100644
+--- a/arch/x86_64/kernel/i8259.c
++++ b/arch/x86_64/kernel/i8259.c
+@@ -484,7 +484,10 @@ static int __init init_timer_sysfs(void)
  
--#include <asm/page.h>
--#include <asm/pgtable.h>
--#include <asm/processor.h>
--
--#define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
+ device_initcall(init_timer_sysfs);
  
- /*
-  * Linux kernel virtual memory manager primitives.
-@@ -113,6 +108,15 @@ struct vm_area_struct {
- #endif
- };
- 
-+#include <asm/page.h>
-+/*
-+ * pgtable.h must be included after the definition of vm_area_struct.
-+ * x86_64 pgtable.h is one of the dereferencers of this struct
-+ */
-+#include <asm/pgtable.h>
-+#include <asm/processor.h>
+-void __init init_IRQ(void)
++/* Overridden in paravirt.c */
++void init_IRQ(void) __attribute__((weak, alias("native_init_IRQ")));
 +
-+#define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
- extern struct kmem_cache *vm_area_cachep;
++void __init native_init_IRQ(void)
+ {
+ 	int i;
  
- /*
+diff --git a/include/asm-x86_64/irq.h b/include/asm-x86_64/irq.h
+index 5006c6e..be55299 100644
+--- a/include/asm-x86_64/irq.h
++++ b/include/asm-x86_64/irq.h
+@@ -46,6 +46,8 @@ static __inline__ int irq_canonicalize(int irq)
+ extern void fixup_irqs(cpumask_t map);
+ #endif
+ 
++void native_init_IRQ(void);
++
+ #define __ARCH_HAS_DO_SOFTIRQ 1
+ 
+ #endif /* _ASM_IRQ_H */
 -- 
 1.4.4.2
