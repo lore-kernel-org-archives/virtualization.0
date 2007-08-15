@@ -1,12 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 3/25][V3] irq_flags / halt routines
-Date: Wed, 15 Aug 2007 09:49:23 -0300
-Message-ID: <11871822163867-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 5/25][V3] native versions for system.h functions
+Date: Wed, 15 Aug 2007 09:49:25 -0300
+Message-ID: <11871822342754-git-send-email-gcosta__46073.7970228822$1187182360$gmane$org@redhat.com>
 References: <11871821854176-git-send-email-gcosta@redhat.com>
 	<1187182197314-git-send-email-gcosta@redhat.com>
 	<11871822062386-git-send-email-gcosta@redhat.com>
+	<11871822163867-git-send-email-gcosta@redhat.com>
+	<11871822244170-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11871822062386-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11871822244170-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,112 +22,149 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch turns the irq_flags and halt routines into the
-native versions.
-
-[ updates from v1
-Move raw_irqs_disabled_flags outside of the PARAVIRT ifdef to
-avoid increasing the mess, suggested by Andi Kleen
-]
+This patch adds the native hook for the functions in system.h
+They are the read/write_crX, clts and wbinvd. The later, also
+gets its call sites patched.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- include/asm-x86_64/irqflags.h |   37 ++++++++++++++++++++++++++-----------
- 1 files changed, 26 insertions(+), 11 deletions(-)
+ arch/x86_64/kernel/tce.c    |    2 +-
+ arch/x86_64/mm/pageattr.c   |    2 +-
+ include/asm-x86_64/system.h |   54 +++++++++++++++++++++++++++++-------------
+ 3 files changed, 39 insertions(+), 19 deletions(-)
 
-diff --git a/include/asm-x86_64/irqflags.h b/include/asm-x86_64/irqflags.h
-index 86e70fe..fe0d346 100644
---- a/include/asm-x86_64/irqflags.h
-+++ b/include/asm-x86_64/irqflags.h
-@@ -16,6 +16,10 @@
-  * Interrupt control:
-  */
+diff --git a/arch/x86_64/kernel/tce.c b/arch/x86_64/kernel/tce.c
+index e3f2569..587f0c2 100644
+--- a/arch/x86_64/kernel/tce.c
++++ b/arch/x86_64/kernel/tce.c
+@@ -42,7 +42,7 @@ static inline void flush_tce(void* tceaddr)
+ 	if (cpu_has_clflush)
+ 		asm volatile("clflush (%0)" :: "r" (tceaddr));
+ 	else
+-		asm volatile("wbinvd":::"memory");
++		wbinvd();
+ }
  
+ void tce_build(struct iommu_table *tbl, unsigned long index,
+diff --git a/arch/x86_64/mm/pageattr.c b/arch/x86_64/mm/pageattr.c
+index 7e161c6..b497afd 100644
+--- a/arch/x86_64/mm/pageattr.c
++++ b/arch/x86_64/mm/pageattr.c
+@@ -76,7 +76,7 @@ static void flush_kernel_map(void *arg)
+ 	/* When clflush is available always use it because it is
+ 	   much cheaper than WBINVD. */
+ 	if (!cpu_has_clflush)
+-		asm volatile("wbinvd" ::: "memory");
++		wbinvd();
+ 	else list_for_each_entry(pg, l, lru) {
+ 		void *adr = page_address(pg);
+ 		cache_flush_page(adr);
+diff --git a/include/asm-x86_64/system.h b/include/asm-x86_64/system.h
+index 02175aa..20ed9df 100644
+--- a/include/asm-x86_64/system.h
++++ b/include/asm-x86_64/system.h
+@@ -68,53 +68,56 @@ extern void load_gs_index(unsigned);
+ /*
+  * Clear and set 'TS' bit respectively
+  */
+-#define clts() __asm__ __volatile__ ("clts")
++static inline void native_clts(void)
++{
++	asm volatile ("clts");
++}
+ 
+-static inline unsigned long read_cr0(void)
+-{ 
++static inline unsigned long native_read_cr0(void)
++{
+ 	unsigned long cr0;
+ 	asm volatile("movq %%cr0,%0" : "=r" (cr0));
+ 	return cr0;
+ }
+ 
+-static inline void write_cr0(unsigned long val) 
+-{ 
++static inline void native_write_cr0(unsigned long val)
++{
+ 	asm volatile("movq %0,%%cr0" :: "r" (val));
+ }
+ 
+-static inline unsigned long read_cr2(void)
++static inline unsigned long native_read_cr2(void)
+ {
+ 	unsigned long cr2;
+ 	asm("movq %%cr2,%0" : "=r" (cr2));
+ 	return cr2;
+ }
+ 
+-static inline void write_cr2(unsigned long val)
++static inline void native_write_cr2(unsigned long val)
+ {
+ 	asm volatile("movq %0,%%cr2" :: "r" (val));
+ }
+ 
+-static inline unsigned long read_cr3(void)
+-{ 
++static inline unsigned long native_read_cr3(void)
++{
+ 	unsigned long cr3;
+ 	asm("movq %%cr3,%0" : "=r" (cr3));
+ 	return cr3;
+ }
+ 
+-static inline void write_cr3(unsigned long val)
++static inline void native_write_cr3(unsigned long val)
+ {
+ 	asm volatile("movq %0,%%cr3" :: "r" (val) : "memory");
+ }
+ 
+-static inline unsigned long read_cr4(void)
+-{ 
++static inline unsigned long native_read_cr4(void)
++{
+ 	unsigned long cr4;
+ 	asm("movq %%cr4,%0" : "=r" (cr4));
+ 	return cr4;
+ }
+ 
+-static inline void write_cr4(unsigned long val)
+-{ 
++static inline void native_write_cr4(unsigned long val)
++{
+ 	asm volatile("movq %0,%%cr4" :: "r" (val) : "memory");
+ }
+ 
+@@ -130,10 +133,27 @@ static inline void write_cr8(unsigned long val)
+ 	asm volatile("movq %0,%%cr8" :: "r" (val) : "memory");
+ }
+ 
+-#define stts() write_cr0(8 | read_cr0())
++static inline void native_wbinvd(void)
++{
++	asm volatile ("wbinvd" ::: "memory");
++}
+ 
+-#define wbinvd() \
+-	__asm__ __volatile__ ("wbinvd": : :"memory")
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
-+#else /* PARAVIRT */
-+
- static inline unsigned long __raw_local_save_flags(void)
- {
- 	unsigned long flags;
-@@ -31,9 +35,6 @@ static inline unsigned long __raw_local_save_flags(void)
- 	return flags;
- }
- 
--#define raw_local_save_flags(flags) \
--		do { (flags) = __raw_local_save_flags(); } while (0)
--
- static inline void raw_local_irq_restore(unsigned long flags)
- {
- 	__asm__ __volatile__(
-@@ -64,11 +65,6 @@ static inline void raw_local_irq_enable(void)
- 	raw_local_irq_restore((flags | X86_EFLAGS_IF) & (~X86_EFLAGS_AC));
- }
- 
--static inline int raw_irqs_disabled_flags(unsigned long flags)
--{
--	return !(flags & X86_EFLAGS_IF) || (flags & X86_EFLAGS_AC);
--}
--
- #else /* CONFIG_X86_VSMP */
- 
- static inline void raw_local_irq_disable(void)
-@@ -81,13 +77,27 @@ static inline void raw_local_irq_enable(void)
- 	__asm__ __volatile__("sti" : : : "memory");
- }
- 
-+#endif /* CONFIG_X86_VSMP */
-+#endif /* CONFIG_PARAVIRT */
-+
-+/* Those are not paravirt stubs, so they live out of the PARAVIRT ifdef */
-+
-+#ifdef CONFIG_X86_VSMP
-+static inline int raw_irqs_disabled_flags(unsigned long flags)
-+{
-+	return !(flags & X86_EFLAGS_IF) || (flags & X86_EFLAGS_AC);
-+}
-+
 +#else
- static inline int raw_irqs_disabled_flags(unsigned long flags)
- {
- 	return !(flags & X86_EFLAGS_IF);
- }
- 
--#endif
-+#endif /* CONFIG_X86_VSMP */
- 
-+#define raw_local_save_flags(flags) \
-+		do { (flags) = __raw_local_save_flags(); } while (0)
- /*
-  * For spinlocks, etc.:
-  */
-@@ -115,7 +125,7 @@ static inline int raw_irqs_disabled(void)
-  * Used in the idle loop; sti takes one instruction cycle
-  * to complete:
-  */
--static inline void raw_safe_halt(void)
-+static inline void native_raw_safe_halt(void)
- {
- 	__asm__ __volatile__("sti; hlt" : : : "memory");
- }
-@@ -124,11 +134,16 @@ static inline void raw_safe_halt(void)
-  * Used when interrupts are already enabled or to
-  * shutdown the processor:
-  */
--static inline void halt(void)
-+static inline void native_halt(void)
- {
- 	__asm__ __volatile__("hlt": : :"memory");
- }
- 
-+#ifndef CONFIG_PARAVIRT
-+#define raw_safe_halt	native_raw_safe_halt
-+#define halt		native_halt
-+#endif /* ! CONFIG_PARAVIRT */
++#define clts		native_clts
++#define wbinvd		native_wbinvd
++#define read_cr0 	native_read_cr0
++#define read_cr2 	native_read_cr2
++#define read_cr3 	native_read_cr3
++#define read_cr4 	native_read_cr4
++#define write_cr0	native_write_cr0
++#define write_cr2	native_write_cr2
++#define write_cr3	native_write_cr3
++#define write_cr4	native_write_cr4
++#endif
 +
- #else /* __ASSEMBLY__: */
- # ifdef CONFIG_TRACE_IRQFLAGS
- #  define TRACE_IRQS_ON		call trace_hardirqs_on_thunk
++#define stts() write_cr0(8 | read_cr0())
+ 
+ #endif	/* __KERNEL__ */
+ 
 -- 
 1.4.4.2
