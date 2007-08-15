@@ -1,13 +1,16 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 4/25][V3] Add debugreg/load_rsp native hooks
-Date: Wed, 15 Aug 2007 09:49:24 -0300
-Message-ID: <11871822244170-git-send-email-gcosta__26624.2208578207$1187182367$gmane$org@redhat.com>
+Subject: [PATCH 6/25][V3] add native_apic read and write functions,
+	as well as boot clocks ones
+Date: Wed, 15 Aug 2007 09:49:26 -0300
+Message-ID: <11871822421713-git-send-email-gcosta__31277.1474862986$1187182370$gmane$org@redhat.com>
 References: <11871821854176-git-send-email-gcosta@redhat.com>
 	<1187182197314-git-send-email-gcosta@redhat.com>
 	<11871822062386-git-send-email-gcosta@redhat.com>
 	<11871822163867-git-send-email-gcosta@redhat.com>
+	<11871822244170-git-send-email-gcosta@redhat.com>
+	<11871822342754-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11871822163867-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11871822342754-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,160 +24,87 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds native hooks for debugreg handling functions,
-and for the native load_rsp0 function. The later also have its
-call sites patched.
-
-[  updates from v2
-   * there were still a raw reference to cr4 missing
-]
+Time for the apic handling functions to get their native counterparts.
+Also, put the native hook for the boot clocks functions in the apic.h header
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- arch/x86_64/kernel/process.c   |    2 +-
- arch/x86_64/kernel/smpboot.c   |    2 +-
- include/asm-x86_64/processor.h |   83 +++++++++++++++++++++++++++++++--------
- 3 files changed, 68 insertions(+), 19 deletions(-)
+ arch/x86_64/kernel/apic.c    |    2 +-
+ arch/x86_64/kernel/smpboot.c |    8 +++++++-
+ include/asm-x86_64/apic.h    |   13 +++++++++++--
+ 3 files changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86_64/kernel/process.c b/arch/x86_64/kernel/process.c
-index 2842f50..33046f1 100644
---- a/arch/x86_64/kernel/process.c
-+++ b/arch/x86_64/kernel/process.c
-@@ -595,7 +595,7 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
- 	/*
- 	 * Reload esp0, LDT and the page table pointer:
- 	 */
--	tss->rsp0 = next->rsp0;
-+	load_rsp0(tss, next);
- 
- 	/* 
- 	 * Switch DS and ES.
+diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
+index 900ff38..2d233ef 100644
+--- a/arch/x86_64/kernel/apic.c
++++ b/arch/x86_64/kernel/apic.c
+@@ -1193,7 +1193,7 @@ int __init APIC_init_uniprocessor (void)
+ 		setup_IO_APIC();
+ 	else
+ 		nr_ioapics = 0;
+-	setup_boot_APIC_clock();
++	setup_boot_clock();
+ 	check_nmi_watchdog();
+ 	return 0;
+ }
 diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
-index 32f5078..f99ced6 100644
+index f99ced6..12d653d 100644
 --- a/arch/x86_64/kernel/smpboot.c
 +++ b/arch/x86_64/kernel/smpboot.c
-@@ -620,7 +620,7 @@ do_rest:
- 	start_rip = setup_trampoline();
+@@ -338,7 +338,7 @@ void __cpuinit start_secondary(void)
+ 	check_tsc_sync_target();
  
- 	init_rsp = c_idle.idle->thread.rsp;
--	per_cpu(init_tss,cpu).rsp0 = init_rsp;
-+	load_rsp0(&per_cpu(init_tss,cpu), &c_idle.idle->thread);
- 	initial_code = start_secondary;
- 	clear_tsk_thread_flag(c_idle.idle, TIF_FORK);
+ 	Dprintk("cpu %d: setting up apic clock\n", smp_processor_id()); 	
+-	setup_secondary_APIC_clock();
++	setup_secondary_clock();
  
-diff --git a/include/asm-x86_64/processor.h b/include/asm-x86_64/processor.h
-index 1952517..524390f 100644
---- a/include/asm-x86_64/processor.h
-+++ b/include/asm-x86_64/processor.h
-@@ -114,21 +114,13 @@ extern unsigned long mmu_cr4_features;
- static inline void set_in_cr4 (unsigned long mask)
+ 	Dprintk("cpu %d: enabling apic timer\n", smp_processor_id());
+ 
+@@ -468,6 +468,12 @@ static int __cpuinit wakeup_secondary_via_INIT(int phys_apicid, unsigned int sta
+ 	num_starts = 2;
+ 
+ 	/*
++	 * Paravirt wants a startup IPI hook here to set up the
++	 * target processor state.
++	 */
++	startup_ipi_hook(phys_apicid, (unsigned long) start_rip,
++		         (unsigned long) init_rsp);
++	/*
+ 	 * Run STARTUP IPI loop.
+ 	 */
+ 	Dprintk("#startup loops: %d.\n", num_starts);
+diff --git a/include/asm-x86_64/apic.h b/include/asm-x86_64/apic.h
+index 85125ef..de17908 100644
+--- a/include/asm-x86_64/apic.h
++++ b/include/asm-x86_64/apic.h
+@@ -38,16 +38,25 @@ struct pt_regs;
+  * Basic functions accessing APICs.
+  */
+ 
+-static __inline void apic_write(unsigned long reg, unsigned int v)
++static __inline void native_apic_write(unsigned long reg, unsigned int v)
  {
- 	mmu_cr4_features |= mask;
--	__asm__("movq %%cr4,%%rax\n\t"
--		"orq %0,%%rax\n\t"
--		"movq %%rax,%%cr4\n"
--		: : "irg" (mask)
--		:"ax");
-+	write_cr4(read_cr4() | mask);
+ 	*((volatile unsigned int *)(APIC_BASE+reg)) = v;
  }
  
- static inline void clear_in_cr4 (unsigned long mask)
+-static __inline unsigned int apic_read(unsigned long reg)
++static __inline unsigned int native_apic_read(unsigned long reg)
  {
- 	mmu_cr4_features &= ~mask;
--	__asm__("movq %%cr4,%%rax\n\t"
--		"andq %0,%%rax\n\t"
--		"movq %%rax,%%cr4\n"
--		: : "irg" (~mask)
--		:"ax");
-+	write_cr4(read_cr4() & ~mask);
+ 	return *((volatile unsigned int *)(APIC_BASE+reg));
  }
  
- 
-@@ -249,6 +241,12 @@ struct thread_struct {
- 	.rsp0 = (unsigned long)&init_stack + sizeof(init_stack) \
- }
- 
-+static inline void native_load_rsp0(struct tss_struct *tss,
-+				    struct thread_struct *thread)
-+{
-+	tss->rsp0 = thread->rsp0;
-+}
-+
- #define INIT_MMAP \
- { &init_mm, 0, 0, NULL, PAGE_SHARED, VM_READ | VM_WRITE | VM_EXEC, 1, NULL, NULL }
- 
-@@ -264,13 +262,64 @@ struct thread_struct {
- 	set_fs(USER_DS);							 \
- } while(0) 
- 
--#define get_debugreg(var, register)				\
--		__asm__("movq %%db" #register ", %0"		\
--			:"=r" (var))
--#define set_debugreg(value, register)			\
--		__asm__("movq %0,%%db" #register		\
--			: /* no output */			\
--			:"r" (value))
-+static inline unsigned long native_get_debugreg(int regno)
-+{
-+	unsigned long val;
-+
-+	switch (regno) {
-+	case 0:
-+		asm("movq %%db0, %0" :"=r" (val)); break;
-+	case 1:
-+		asm("movq %%db1, %0" :"=r" (val)); break;
-+	case 2:
-+		asm("movq %%db2, %0" :"=r" (val)); break;
-+	case 3:
-+		asm("movq %%db3, %0" :"=r" (val)); break;
-+	case 6:
-+		asm("movq %%db6, %0" :"=r" (val)); break;
-+	case 7:
-+		asm("movq %%db7, %0" :"=r" (val)); break;
-+	default:
-+		val = 0; /* assign it to keep gcc quiet */
-+		WARN_ON(1);
-+	}
-+	return val;
-+}
-+
-+static inline void native_set_debugreg(unsigned long value, int regno)
-+{
-+	switch (regno) {
-+	case 0:
-+		asm("movq %0,%%db0"	: /* no output */ :"r" (value));
-+		break;
-+	case 1:
-+		asm("movq %0,%%db1"	: /* no output */ :"r" (value));
-+		break;
-+	case 2:
-+		asm("movq %0,%%db2"	: /* no output */ :"r" (value));
-+		break;
-+	case 3:
-+		asm("movq %0,%%db3"	: /* no output */ :"r" (value));
-+		break;
-+	case 6:
-+		asm("movq %0,%%db6"	: /* no output */ :"r" (value));
-+		break;
-+	case 7:
-+		asm("movq %0,%%db7"	: /* no output */ :"r" (value));
-+		break;
-+	default:
-+		BUG();
-+	}
-+}
-+
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
 +#else
-+#define paravirt_enabled()	0
-+#define load_rsp0 		native_load_rsp0
-+#define set_debugreg(val, reg)	native_set_debugreg(reg, val)
-+#define get_debugreg(var, reg)	(var) = native_get_debugreg(reg)
++#define apic_write(reg, v) native_apic_write(reg, v)
++#define apic_read(reg)  native_apic_read(reg)
++#define setup_boot_clock(void)	setup_boot_APIC_clock(void)
++#define setup_secondary_clock(void) setup_secondary_APIC_clock(void)
 +#endif
++
+ extern void apic_wait_icr_idle(void);
+ extern unsigned int safe_apic_wait_icr_idle(void);
  
- struct task_struct;
- struct mm_struct;
 -- 
 1.4.4.2
