@@ -1,22 +1,20 @@
-From: Chris Wright <chrisw@sous-sol.org>
+From: "Glauber de Oliveira Costa" <glommer@gmail.com>
 Subject: Re: [PATCH 3/25][V3] irq_flags / halt routines
-Date: Wed, 15 Aug 2007 11:09:29 -0700
-Message-ID: <20070815180929.GX3672__28559.3289918781$1187201577$gmane$org@sequoia.sous-sol.org>
+Date: Wed, 15 Aug 2007 17:57:11 -0300
+Message-ID: <5d6222a80708151357y548fcb3fu54f6d20e6f27d775__4085.01319257102$1187211994$gmane$org@mail.gmail.com>
 References: <11871822062386-git-send-email-gcosta@redhat.com>
-	<11871822163867-git-send-email-gcosta@redhat.com>
 	<20070815135554.GE3406@bingen.suse.de>
 	<5d6222a80708150718v14f26343q7467385e7919fa76@mail.gmail.com>
-	<20070815154243.GH3406@bingen.suse.de>
-	<46C31736.2050001@redhat.com>
-	<20070815163640.GJ3406@bingen.suse.de>
-	<46C3283B.5090804@redhat.com>
+	<20070815154243.GH3406@bingen.suse.de> <46C31736.2050001@redhat.com>
+	<20070815163640.GJ3406@bingen.suse.de> <46C3283B.5090804@redhat.com>
 	<20070815164729.GU3672@sequoia.sous-sol.org>
 	<46C3312D.40106@redhat.com>
+	<20070815180929.GX3672@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+	boundary="----=_Part_78050_27602582.1187211431568"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <46C3312D.40106@redhat.com>
+In-Reply-To: <20070815180929.GX3672@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,53 +24,209 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <gcosta@redhat.com>
-Cc: lguest@ozlabs.org, shai@scalemp.com, kiran@scalemp.com, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: lguest@ozlabs.org, shai@scalemp.com, kiran@scalemp.com, linux-kernel@vger.kernel.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Glauber de Oliveira Costa (gcosta@redhat.com) wrote:
-> Only caveat, is that it has to be done before smp gets in the game, and 
-> with interrupts disabled. (which makes the function in vsmp.c not eligible).
-> 
-> My current option is to force VSMP to use PARAVIRT, as said before, and 
-> then fill paravirt_arch_setup, which is currently unused, with code to 
-> replace the needed paravirt_ops.fn.
-> 
-> I don't know if there is any method to dynamically determine (at this 
-> point) that we are in a vsmp arch, and if there are not, it will have to 
-> get ifdefs anyway. But at least, they are far more local.
+------=_Part_78050_27602582.1187211431568
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-between __cacheline_aligned_in_smp and other compile time bits based on
-VSMP specific INTERNODE_CACHE, etc. I think compile time the way to go.
+On 8/15/07, Chris Wright <chrisw@sous-sol.org> wrote:
+> * Glauber de Oliveira Costa (gcosta@redhat.com) wrote:
+> > Only caveat, is that it has to be done before smp gets in the game, and
+> > with interrupts disabled. (which makes the function in vsmp.c not eligible).
+> >
+> > My current option is to force VSMP to use PARAVIRT, as said before, and
+> > then fill paravirt_arch_setup, which is currently unused, with code to
+> > replace the needed paravirt_ops.fn.
+> >
+> > I don't know if there is any method to dynamically determine (at this
+> > point) that we are in a vsmp arch, and if there are not, it will have to
+> > get ifdefs anyway. But at least, they are far more local.
+>
+> between __cacheline_aligned_in_smp and other compile time bits based on
+> VSMP specific INTERNODE_CACHE, etc. I think compile time the way to go.
+>
+> > I am okay with both, but after all the explanation, I don't think that
+> > adding a new pvops is a bad idea. It would make things less cumbersome
+> > in this case. Also, hacks like this save_fl may require changes to the
+> > hypervisor, right? I don't even know where such hypervisor is, and how
+> > easy it is to replace it (it may be deeply hidden in firmware)
+>
+> No hypervisor change needed.  Just the pv backend needs to return 0 or
+> X86_EFLAGS_IF for save_flags (and similar translation on restore_flags).
+> Xen uses a simple shared memory flag and does something which you could
+> roughly translate into this:
+>
+>         xen_save_flags()
+>         if (xen_vcpu_interrupts_enabled)
+>                 return X86_EFLAGS_IF;
+>         else
+>                 return 0;
+>
+> This doesn't require any hypervisor changes.  Similarly, VSMP could do
+> something along the lines of:
+>
+>         vsmp_save_flags()
+>         flags = native_save_flags();
+>         if (flags & X86_EFLAGS_IF) || (flags & X86_EFLAGS_AC)
+>                 return X86_EFLAGS_IF;
+>         else
+>                 return 0;
+>
 
-> I am okay with both, but after all the explanation, I don't think that 
-> adding a new pvops is a bad idea. It would make things less cumbersome 
-> in this case. Also, hacks like this save_fl may require changes to the 
-> hypervisor, right? I don't even know where such hypervisor is, and how 
-> easy it is to replace it (it may be deeply hidden in firmware)
+I'm attaching to this message my idea on how would it work.
+This is just for comments/considerations. If you all ack this, I'll
+spread the changes over the patch series as needed, and then resend
+the patches.
 
-No hypervisor change needed.  Just the pv backend needs to return 0 or
-X86_EFLAGS_IF for save_flags (and similar translation on restore_flags).
-Xen uses a simple shared memory flag and does something which you could
-roughly translate into this:
+-- 
+Glauber de Oliveira Costa.
+"Free as in Freedom"
+http://glommer.net
 
-	xen_save_flags()
-	if (xen_vcpu_interrupts_enabled)
-		return X86_EFLAGS_IF;
-	else
-		return 0;
+"The less confident you are, the more serious you have to act."
 
-This doesn't require any hypervisor changes.  Similarly, VSMP could do
-something along the lines of:
+------=_Part_78050_27602582.1187211431568
+Content-Type: text/x-patch; name="exp.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="exp.patch"
+X-Attachment-Id: f_f5eb37zp
 
-	vsmp_save_flags()
-	flags = native_save_flags();
-	if (flags & X86_EFLAGS_IF) || (flags & X86_EFLAGS_AC)
-		return X86_EFLAGS_IF;
-	else
-		return 0;
+ZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L0tjb25maWcgYi9hcmNoL3g4Nl82NC9LY29uZmlnCmlu
+ZGV4IDAwYjJmYzkuLjEyMDRiMDggMTAwNjQ0Ci0tLSBhL2FyY2gveDg2XzY0L0tjb25maWcKKysr
+IGIvYXJjaC94ODZfNjQvS2NvbmZpZwpAQCAtMTUwLDYgKzE1MCw3IEBAIGNvbmZpZyBYODZfUEMK
+IGNvbmZpZyBYODZfVlNNUAogCWJvb2wgIlN1cHBvcnQgZm9yIFNjYWxlTVAgdlNNUCIKIAlkZXBl
+bmRzIG9uIFBDSQorCXNlbGVjdCBQQVJBVklSVAogCSBoZWxwCiAJICBTdXBwb3J0IGZvciBTY2Fs
+ZU1QIHZTTVAgc3lzdGVtcy4gIFNheSAnWScgaGVyZSBpZiB0aGlzIGtlcm5lbCBpcwogCSAgc3Vw
+cG9zZWQgdG8gcnVuIG9uIHRoZXNlIEVNNjRULWJhc2VkIG1hY2hpbmVzLiAgT25seSBjaG9vc2Ug
+dGhpcyBvcHRpb24KZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9wYXJhdmlydC5jIGIv
+YXJjaC94ODZfNjQva2VybmVsL3BhcmF2aXJ0LmMKaW5kZXggZGNkOTkxOS4uMjNhODc4NiAxMDA2
+NDQKLS0tIGEvYXJjaC94ODZfNjQva2VybmVsL3BhcmF2aXJ0LmMKKysrIGIvYXJjaC94ODZfNjQv
+a2VybmVsL3BhcmF2aXJ0LmMKQEAgLTIyLDYgKzIyLDggQEAKICNpbmNsdWRlIDxsaW51eC9lZmku
+aD4KICNpbmNsdWRlIDxsaW51eC9iY2QuaD4KICNpbmNsdWRlIDxsaW51eC9zdGFydF9rZXJuZWwu
+aD4KKyNpbmNsdWRlIDxsaW51eC9wY2lfcmVncy5oPgorI2luY2x1ZGUgPGxpbnV4L3BjaV9pZHMu
+aD4KIAogI2luY2x1ZGUgPGFzbS9idWcuaD4KICNpbmNsdWRlIDxhc20vcGFyYXZpcnQuaD4KQEAg
+LTQwLDE1ICs0MiwzMCBAQAogI2luY2x1ZGUgPGFzbS9hc20tb2Zmc2V0cy5oPgogI2luY2x1ZGUg
+PGFzbS9zbXAuaD4KICNpbmNsdWRlIDxhc20vaXJxZmxhZ3MuaD4KKyNpbmNsdWRlIDxhc20vcGNp
+LWRpcmVjdC5oPgogCiAvKiBub3Agc3R1YiAqLwogdm9pZCBfcGFyYXZpcnRfbm9wKHZvaWQpCiB7
+CiB9CiAKK2ludCBhcmNoX2lzX3ZzbXAgPSAwOworCiAvKiBuYXRpdmVseSwgd2UgZG8gbm9ybWFs
+IHNldHVwLCBidXQgd2Ugc3RpbGwgbmVlZCB0byByZXR1cm4gc29tZXRoaW5nICovCiBzdGF0aWMg
+aW50IG5hdGl2ZV9hcmNoX3NldHVwKHZvaWQpCiB7CisJaWYgKCFlYXJseV9wY2lfYWxsb3dlZCgp
+KQorCQlnb3RvIG91dDsKKwkJCisJaWYgKChyZWFkX3BjaV9jb25maWdfMTYoMCwgMHgxZiwgMCwg
+UENJX1ZFTkRPUl9JRCkgPT0gUENJX1ZFTkRPUl9JRF9TQ0FMRU1QKSAmJgorICAgICAgICAgICAg
+KHJlYWRfcGNpX2NvbmZpZ18xNigwLCAweDFmLCAwLCBQQ0lfREVWSUNFX0lEKSA9PSBQQ0lfREVW
+SUNFX0lEX1NDQUxFTVBfVlNNUF9DVEwpKSB7CisJCXBhcmF2aXJ0X29wcy5pcnFfZGlzYWJsZSA9
+IHZzbXBfaXJxX2Rpc2FibGU7CisJCXBhcmF2aXJ0X29wcy5pcnFfZW5hYmxlICA9IHZzbXBfaXJx
+X2VuYWJsZTsKKwkJcGFyYXZpcnRfb3BzLnNhdmVfZmwgID0gdnNtcF9zYXZlX2ZsYWdzOworCQlh
+cmNoX2lzX3ZzbXAgPSAxOworCX0KKworb3V0OgogCXJldHVybiAwOwogfQogCkBAIC0xMDMsOCAr
+MTIwLDYgQEAgc3RhdGljIHVuc2lnbmVkIG5hdGl2ZV9wYXRjaCh1OCB0eXBlLCB1MTYgY2xvYmJl
+cnMsIHZvaWQgKmluc25zLCB1bnNpZ25lZCBsZW4pCiAKIAlzd2l0Y2godHlwZSkgewogI2RlZmlu
+ZSBTSVRFKHgpCWNhc2UgUEFSQVZJUlRfUEFUQ0goeCk6CXN0YXJ0ID0gc3RhcnRfIyN4OyBlbmQg
+PSBlbmRfIyN4OyBnb3RvIHBhdGNoX3NpdGUKLQkJU0lURShpcnFfZGlzYWJsZSk7Ci0JCVNJVEUo
+aXJxX2VuYWJsZSk7CiAJCVNJVEUocmVzdG9yZV9mbCk7CiAJCVNJVEUoc2F2ZV9mbCk7CiAJCVNJ
+VEUoaXJldCk7CkBAIC0xMTcsNyArMTMyLDIzIEBAIHN0YXRpYyB1bnNpZ25lZCBuYXRpdmVfcGF0
+Y2godTggdHlwZSwgdTE2IGNsb2JiZXJzLCB2b2lkICppbnNucywgdW5zaWduZWQgbGVuKQogCQlT
+SVRFKGZsdXNoX3RsYl9zaW5nbGUpOwogCQlTSVRFKHdiaW52ZCk7CiAjdW5kZWYgU0lURQotCisJ
+Y2FzZSBQQVJBVklSVF9QQVRDSChpcnFfZGlzYWJsZSk6IAorCWNhc2UgUEFSQVZJUlRfUEFUQ0go
+aXJxX2VuYWJsZSk6IAorCQlzdGFydCA9IHN0YXJ0X2lycV9kaXNhYmxlOworCQllbmQgPSBlbmRf
+aXJxX2Rpc2FibGU7CisKKwkJaWYgKHR5cGUgPT0gUEFSQVZJUlRfUEFUQ0goaXJxX2VuYWJsZSkp
+IHsKKwkJCXN0YXJ0ID0gc3RhcnRfaXJxX2VuYWJsZTsKKwkJCWVuZCA9IGVuZF9pcnFfZW5hYmxl
+OworCQl9CisKKwkJaWYgKGFyY2hfaXNfdnNtcCkgeworCQkJcmV0ID0gcGFyYXZpcnRfcGF0Y2hf
+ZGVmYXVsdCh0eXBlLAorCQkJCQkJICAgICBjbG9iYmVycywKKwkJCQkJCSAgICAgaW5zbnMsCisJ
+CQkJCQkgICAgIGxlbik7CisJCQlicmVhazsKKwkJfQogCXBhdGNoX3NpdGU6CiAJCXJldCA9IHBh
+cmF2aXJ0X3BhdGNoX2luc25zKGluc25zLCBsZW4sIHN0YXJ0LCBlbmQpOwogCQlicmVhazsKQEAg
+LTIxNCwzMCArMjQ1LDYgQEAgdm9pZCBpbml0X0lSUSh2b2lkKQogCXBhcmF2aXJ0X29wcy5pbml0
+X0lSUSgpOwogfQogCi1zdGF0aWMgdW5zaWduZWQgbG9uZyBuYXRpdmVfc2F2ZV9mbCh2b2lkKQot
+ewotCXVuc2lnbmVkIGxvbmcgZjsKLQlhc20gdm9sYXRpbGUoInB1c2hmcSA7IHBvcHEgJTAiOiI9
+ZyIgKGYpOiAvKiBubyBpbnB1dCAqLyk7Ci0JcmV0dXJuIGY7Ci19Ci0KLXN0YXRpYyB2b2lkIG5h
+dGl2ZV9yZXN0b3JlX2ZsKHVuc2lnbmVkIGxvbmcgZikKLXsKLQlhc20gdm9sYXRpbGUoInB1c2hx
+ICUwIDsgcG9wZnEiOiAvKiBubyBvdXRwdXQgKi8KLQkJCSAgICAgOiJnIiAoZikKLQkJCSAgICAg
+OiJtZW1vcnkiLCAiY2MiKTsKLX0KLQotc3RhdGljIHZvaWQgbmF0aXZlX2lycV9kaXNhYmxlKHZv
+aWQpCi17Ci0JYXNtIHZvbGF0aWxlKCJjbGkiOiA6IDoibWVtb3J5Iik7Ci19Ci0KLXN0YXRpYyB2
+b2lkIG5hdGl2ZV9pcnFfZW5hYmxlKHZvaWQpCi17Ci0JYXNtIHZvbGF0aWxlKCJzdGkiOiA6IDoi
+bWVtb3J5Iik7Ci19Ci0KIHN0YXRpYyB2b2lkIG5hdGl2ZV9pb19kZWxheSh2b2lkKQogewogCWFz
+bSB2b2xhdGlsZSgib3V0YiAlYWwsJDB4ODAiKTsKQEAgLTMyOCw4ICszMjgsOCBAQCBzdHJ1Y3Qg
+cGFyYXZpcnRfb3BzIHBhcmF2aXJ0X29wcyA9IHsKIAkud3JpdGVfY3IzID0gbmF0aXZlX3dyaXRl
+X2NyMywKIAkucmVhZF9jcjQgPSBuYXRpdmVfcmVhZF9jcjQsCiAJLndyaXRlX2NyNCA9IG5hdGl2
+ZV93cml0ZV9jcjQsCi0JLnNhdmVfZmwgPSBuYXRpdmVfc2F2ZV9mbCwKLQkucmVzdG9yZV9mbCA9
+IG5hdGl2ZV9yZXN0b3JlX2ZsLAorCS5zYXZlX2ZsID0gbmF0aXZlX3NhdmVfZmxhZ3MsCisJLnJl
+c3RvcmVfZmwgPSBuYXRpdmVfcmVzdG9yZV9mbGFncywKIAkuaXJxX2Rpc2FibGUgPSBuYXRpdmVf
+aXJxX2Rpc2FibGUsCiAJLmlycV9lbmFibGUgPSBuYXRpdmVfaXJxX2VuYWJsZSwKIAkuc2FmZV9o
+YWx0ID0gbmF0aXZlX3Jhd19zYWZlX2hhbHQsCmRpZmYgLS1naXQgYS9hcmNoL3g4Nl82NC9rZXJu
+ZWwvdnNtcC5jIGIvYXJjaC94ODZfNjQva2VybmVsL3ZzbXAuYwppbmRleCA0MTRjYWYwLi5kZGZi
+MWI3IDEwMDY0NAotLS0gYS9hcmNoL3g4Nl82NC9rZXJuZWwvdnNtcC5jCisrKyBiL2FyY2gveDg2
+XzY0L2tlcm5lbC92c21wLmMKQEAgLTE1LDYgKzE1LDcgQEAKICNpbmNsdWRlIDxsaW51eC9wY2lf
+cmVncy5oPgogI2luY2x1ZGUgPGFzbS9wY2ktZGlyZWN0Lmg+CiAjaW5jbHVkZSA8YXNtL2lvLmg+
+CisjaW5jbHVkZSA8YXNtL2lycWZsYWdzLmg+CiAKIHN0YXRpYyBpbnQgX19pbml0IHZzbXBfaW5p
+dCh2b2lkKQogewpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9hc20teDg2XzY0L2lycWZsYWdzLmggYi9p
+bmNsdWRlL2FzbS14ODZfNjQvaXJxZmxhZ3MuaAppbmRleCBmZTBkMzQ2Li5lYjk5M2Y0IDEwMDY0
+NAotLS0gYS9pbmNsdWRlL2FzbS14ODZfNjQvaXJxZmxhZ3MuaAorKysgYi9pbmNsdWRlL2FzbS14
+ODZfNjQvaXJxZmxhZ3MuaApAQCAtMTYsMTEgKzE2LDcgQEAKICAqIEludGVycnVwdCBjb250cm9s
+OgogICovCiAKLSNpZmRlZiBDT05GSUdfUEFSQVZJUlQKLSNpbmNsdWRlIDxhc20vcGFyYXZpcnQu
+aD4KLSNlbHNlIC8qIFBBUkFWSVJUICovCi0KLXN0YXRpYyBpbmxpbmUgdW5zaWduZWQgbG9uZyBf
+X3Jhd19sb2NhbF9zYXZlX2ZsYWdzKHZvaWQpCitzdGF0aWMgaW5saW5lIHVuc2lnbmVkIGxvbmcg
+bmF0aXZlX3NhdmVfZmxhZ3Modm9pZCkKIHsKIAl1bnNpZ25lZCBsb25nIGZsYWdzOwogCkBAIC0z
+NSw3ICszMSw3IEBAIHN0YXRpYyBpbmxpbmUgdW5zaWduZWQgbG9uZyBfX3Jhd19sb2NhbF9zYXZl
+X2ZsYWdzKHZvaWQpCiAJcmV0dXJuIGZsYWdzOwogfQogCi1zdGF0aWMgaW5saW5lIHZvaWQgcmF3
+X2xvY2FsX2lycV9yZXN0b3JlKHVuc2lnbmVkIGxvbmcgZmxhZ3MpCitzdGF0aWMgaW5saW5lIHZv
+aWQgbmF0aXZlX3Jlc3RvcmVfZmxhZ3ModW5zaWduZWQgbG9uZyBmbGFncykKIHsKIAlfX2FzbV9f
+IF9fdm9sYXRpbGVfXygKIAkJInB1c2hxICUwIDsgcG9wZnEiCkBAIC00NSw1NyArNDEsNTkgQEAg
+c3RhdGljIGlubGluZSB2b2lkIHJhd19sb2NhbF9pcnFfcmVzdG9yZSh1bnNpZ25lZCBsb25nIGZs
+YWdzKQogCSk7CiB9CiAKLSNpZmRlZiBDT05GSUdfWDg2X1ZTTVAKK3N0YXRpYyBpbmxpbmUgdm9p
+ZCBuYXRpdmVfaXJxX2Rpc2FibGUodm9pZCkKK3sKKwlfX2FzbV9fIF9fdm9sYXRpbGVfXygiY2xp
+IiA6IDogOiAibWVtb3J5Iik7Cit9CisKK3N0YXRpYyBpbmxpbmUgdm9pZCBuYXRpdmVfaXJxX2Vu
+YWJsZSh2b2lkKQoreworCV9fYXNtX18gX192b2xhdGlsZV9fKCJzdGkiIDogOiA6ICJtZW1vcnki
+KTsKK30KKworc3RhdGljIGlubGluZSBsb25nIHJhd19pcnFzX2Rpc2FibGVkX2ZsYWdzKHVuc2ln
+bmVkIGxvbmcgZmxhZ3MpCit7CisJcmV0dXJuICEoZmxhZ3MgJiBYODZfRUZMQUdTX0lGKTsKK30K
+IAogLyoKICAqIEludGVycnVwdCBjb250cm9sIGZvciB0aGUgVlNNUCBhcmNoaXRlY3R1cmU6CiAg
+Ki8KIAotc3RhdGljIGlubGluZSB2b2lkIHJhd19sb2NhbF9pcnFfZGlzYWJsZSh2b2lkKQorc3Rh
+dGljIGlubGluZSB1bnNpZ25lZCBsb25nIHZzbXBfc2F2ZV9mbGFncyh2b2lkKQogewotCXVuc2ln
+bmVkIGxvbmcgZmxhZ3MgPSBfX3Jhd19sb2NhbF9zYXZlX2ZsYWdzKCk7CisJdW5zaWduZWQgbG9u
+ZyBmbGFncyA9IHZzbXBfc2F2ZV9mbGFncygpOwogCi0JcmF3X2xvY2FsX2lycV9yZXN0b3JlKChm
+bGFncyAmIH5YODZfRUZMQUdTX0lGKSB8IFg4Nl9FRkxBR1NfQUMpOworCWlmICgoZmxhZ3MgJiBY
+ODZfRUZMQUdTX0lGKSB8fCAoZmxhZ3MgJiBYODZfRUZMQUdTX0FDKSkKKwkJcmV0dXJuIFg4Nl9F
+RkxBR1NfSUY7CisJcmV0dXJuIDA7CiB9CiAKLXN0YXRpYyBpbmxpbmUgdm9pZCByYXdfbG9jYWxf
+aXJxX2VuYWJsZSh2b2lkKQorc3RhdGljIGlubGluZSB2b2lkIHZzbXBfaXJxX2Rpc2FibGUodm9p
+ZCkKIHsKIAl1bnNpZ25lZCBsb25nIGZsYWdzID0gX19yYXdfbG9jYWxfc2F2ZV9mbGFncygpOwog
+Ci0JcmF3X2xvY2FsX2lycV9yZXN0b3JlKChmbGFncyB8IFg4Nl9FRkxBR1NfSUYpICYgKH5YODZf
+RUZMQUdTX0FDKSk7CisJcmF3X2xvY2FsX2lycV9yZXN0b3JlKChmbGFncyAmIH5YODZfRUZMQUdT
+X0lGKSB8IFg4Nl9FRkxBR1NfQUMpOwogfQogCi0jZWxzZSAvKiBDT05GSUdfWDg2X1ZTTVAgKi8K
+LQotc3RhdGljIGlubGluZSB2b2lkIHJhd19sb2NhbF9pcnFfZGlzYWJsZSh2b2lkKQorc3RhdGlj
+IGlubGluZSB2b2lkIHZzbXBfaXJxX2VuYWJsZSh2b2lkKQogewotCV9fYXNtX18gX192b2xhdGls
+ZV9fKCJjbGkiIDogOiA6ICJtZW1vcnkiKTsKLX0KKwl1bnNpZ25lZCBsb25nIGZsYWdzID0gX19y
+YXdfbG9jYWxfc2F2ZV9mbGFncygpOwogCi1zdGF0aWMgaW5saW5lIHZvaWQgcmF3X2xvY2FsX2ly
+cV9lbmFibGUodm9pZCkKLXsKLQlfX2FzbV9fIF9fdm9sYXRpbGVfXygic3RpIiA6IDogOiAibWVt
+b3J5Iik7CisJcmF3X2xvY2FsX2lycV9yZXN0b3JlKChmbGFncyB8IFg4Nl9FRkxBR1NfSUYpICYg
+KH5YODZfRUZMQUdTX0FDKSk7CiB9CiAKLSNlbmRpZiAvKiBDT05GSUdfWDg2X1ZTTVAgKi8KLSNl
+bmRpZiAvKiBDT05GSUdfUEFSQVZJUlQgKi8KKyNpZmRlZiBDT05GSUdfUEFSQVZJUlQKKyNpbmNs
+dWRlIDxhc20vcGFyYXZpcnQuaD4KKyNlbHNlIC8qIFBBUkFWSVJUICovCisjZGVmaW5lIF9fcmF3
+X2xvY2FsX3NhdmVfZmxhZ3MoKQkJbmF0aXZlX3NhdmVfZmxhZ3MoKQorI2RlZmluZSByYXdfbG9j
+YWxfaXJxX3Jlc3RvcmUoeCkJCW5hdGl2ZV9yZXN0b3JlX2ZsYWdzKHgpCisjZGVmaW5lIHJhd19s
+b2NhbF9pcnFfZGlzYWJsZSgpCQkJbmF0aXZlX2lycV9kaXNhYmxlKCkKKyNkZWZpbmUgcmF3X2xv
+Y2FsX2lycV9lbmFibGUoKQkJCW5hdGl2ZV9pcnFfZW5hYmxlKCkKKyNlbmRpZgogCiAvKiBUaG9z
+ZSBhcmUgbm90IHBhcmF2aXJ0IHN0dWJzLCBzbyB0aGV5IGxpdmUgb3V0IG9mIHRoZSBQQVJBVklS
+VCBpZmRlZiAqLwogCi0jaWZkZWYgQ09ORklHX1g4Nl9WU01QCi1zdGF0aWMgaW5saW5lIGludCBy
+YXdfaXJxc19kaXNhYmxlZF9mbGFncyh1bnNpZ25lZCBsb25nIGZsYWdzKQotewotCXJldHVybiAh
+KGZsYWdzICYgWDg2X0VGTEFHU19JRikgfHwgKGZsYWdzICYgWDg2X0VGTEFHU19BQyk7Ci19Ci0K
+LSNlbHNlCi1zdGF0aWMgaW5saW5lIGludCByYXdfaXJxc19kaXNhYmxlZF9mbGFncyh1bnNpZ25l
+ZCBsb25nIGZsYWdzKQotewotCXJldHVybiAhKGZsYWdzICYgWDg2X0VGTEFHU19JRik7Ci19Ci0K
+LSNlbmRpZiAvKiBDT05GSUdfWDg2X1ZTTVAgKi8KLQogI2RlZmluZSByYXdfbG9jYWxfc2F2ZV9m
+bGFncyhmbGFncykgXAogCQlkbyB7IChmbGFncykgPSBfX3Jhd19sb2NhbF9zYXZlX2ZsYWdzKCk7
+IH0gd2hpbGUgKDApCiAvKgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9hc20teDg2XzY0L3BhcmF2aXJ0
+LmggYi9pbmNsdWRlL2FzbS14ODZfNjQvcGFyYXZpcnQuaApkaWZmIC0tZ2l0IGEvaW5jbHVkZS9h
+c20teDg2XzY0L3Byb2Nlc3Nvci5oIGIvaW5jbHVkZS9hc20teDg2XzY0L3Byb2Nlc3Nvci5oCg==
 
-> A question raises here: Would vsmp turn paravirt_enabled to 1 ?
+------=_Part_78050_27602582.1187211431568
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Probably not.  It's mostly native and I'm not sure it would want the
-bits disabled from if (paravirt_enabled()) tests.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+------=_Part_78050_27602582.1187211431568--
