@@ -1,8 +1,11 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 0/25][V3] pvops_64 last round (hopefully)
-Date: Wed, 15 Aug 2007 09:49:20 -0300
-Message-ID: <11871821854176-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 2/25][V3] tlb flushing routines
+Date: Wed, 15 Aug 2007 09:49:22 -0300
+Message-ID: <11871822062386-git-send-email-gcosta__15699.1346659654$1187182345$gmane$org@redhat.com>
+References: <11871821854176-git-send-email-gcosta@redhat.com>
+	<1187182197314-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1187182197314-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -13,14 +16,119 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, mingo@elte.hu
+Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is hopefully the last iteration of the pvops64 patch.
+This patch turns the flush_tlb routines into native versions.
+In case paravirt is not defined, the natives are defined into
+the actually used ones. flush_tlb_others() goes in smp.c, unless
+smp is not in the game
 
-From the last version, we have only one change, which is include/asm-x86_64/processor.h: There were still one survivor in raw asm.
-Also, git screwed me up for some reason, and the 25th patch was missing the new files, paravirt.{c,h}. (although I do remember having git-add'ed it, but who knows...)
+Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+---
+ arch/x86_64/kernel/smp.c      |   10 +++++++++-
+ include/asm-x86_64/smp.h      |    8 ++++++++
+ include/asm-x86_64/tlbflush.h |   22 ++++++++++++++++++----
+ 3 files changed, 35 insertions(+), 5 deletions(-)
 
-Andrew, could you please push it to -mm ?
-
-Have fun!
+diff --git a/arch/x86_64/kernel/smp.c b/arch/x86_64/kernel/smp.c
+index 673a300..39f5f6b 100644
+--- a/arch/x86_64/kernel/smp.c
++++ b/arch/x86_64/kernel/smp.c
+@@ -165,7 +165,7 @@ out:
+ 	cpu_clear(cpu, f->flush_cpumask);
+ }
+ 
+-static void flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
++void native_flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
+ 						unsigned long va)
+ {
+ 	int sender;
+@@ -198,6 +198,14 @@ static void flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
+ 	spin_unlock(&f->tlbstate_lock);
+ }
+ 
++/* Overriden in paravirt.c if CONFIG_PARAVIRT */
++void __attribute__((weak)) flush_tlb_others(cpumask_t cpumask,
++					    struct mm_struct *mm,
++					    unsigned long va)
++{
++	native_flush_tlb_others(cpumask, mm, va);
++}
++
+ int __cpuinit init_smp_flush(void)
+ {
+ 	int i;
+diff --git a/include/asm-x86_64/smp.h b/include/asm-x86_64/smp.h
+index 3f303d2..6b11114 100644
+--- a/include/asm-x86_64/smp.h
++++ b/include/asm-x86_64/smp.h
+@@ -19,6 +19,14 @@ extern int disable_apic;
+ 
+ #include <asm/pda.h>
+ 
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++void native_flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
++						unsigned long va);
++#else
++#define startup_ipi_hook(apicid, rip, rsp) do { } while (0)
++#endif
++
+ struct pt_regs;
+ 
+ extern cpumask_t cpu_present_mask;
+diff --git a/include/asm-x86_64/tlbflush.h b/include/asm-x86_64/tlbflush.h
+index 888eb4a..1c68cc8 100644
+--- a/include/asm-x86_64/tlbflush.h
++++ b/include/asm-x86_64/tlbflush.h
+@@ -6,21 +6,30 @@
+ #include <asm/processor.h>
+ #include <asm/system.h>
+ 
+-static inline void __flush_tlb(void)
++static inline void native_flush_tlb(void)
+ {
+ 	write_cr3(read_cr3());
+ }
+ 
+-static inline void __flush_tlb_all(void)
++static inline void native_flush_tlb_all(void)
+ {
+ 	unsigned long cr4 = read_cr4();
+ 	write_cr4(cr4 & ~X86_CR4_PGE);	/* clear PGE */
+ 	write_cr4(cr4);			/* write old PGE again and flush TLBs */
+ }
+ 
+-#define __flush_tlb_one(addr) \
+-	__asm__ __volatile__("invlpg (%0)" :: "r" (addr) : "memory")
++static inline void native_flush_tlb_one(unsigned long addr)
++{
++	asm volatile ("invlpg (%0)" :: "r" (addr) : "memory");
++}
+ 
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++#else
++#define __flush_tlb()		native_flush_tlb()
++#define __flush_tlb_all()	native_flush_tlb_all()
++#define __flush_tlb_one(addr)	native_flush_tlb_one(addr)
++#endif	/* CONFIG_PARAVIRT */
+ 
+ /*
+  * TLB flushing:
+@@ -64,6 +73,11 @@ static inline void flush_tlb_range(struct vm_area_struct *vma,
+ 		__flush_tlb();
+ }
+ 
++static inline void native_flush_tlb_others(cpumask_t *cpumask,
++					   struct mm_struct *mm, unsigned long va)
++{
++}
++
+ #else
+ 
+ #include <asm/smp.h>
+-- 
+1.4.4.2
