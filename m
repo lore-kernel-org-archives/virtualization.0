@@ -1,14 +1,13 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 5/25][V3] native versions for system.h functions
-Date: Wed, 15 Aug 2007 09:49:25 -0300
-Message-ID: <11871822342754-git-send-email-gcosta__46073.7970228822$1187182360$gmane$org@redhat.com>
+Subject: [PATCH 4/25][V3] Add debugreg/load_rsp native hooks
+Date: Wed, 15 Aug 2007 09:49:24 -0300
+Message-ID: <11871822244170-git-send-email-gcosta__26624.2208578207$1187182367$gmane$org@redhat.com>
 References: <11871821854176-git-send-email-gcosta@redhat.com>
 	<1187182197314-git-send-email-gcosta@redhat.com>
 	<11871822062386-git-send-email-gcosta@redhat.com>
 	<11871822163867-git-send-email-gcosta@redhat.com>
-	<11871822244170-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11871822244170-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11871822163867-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,149 +21,160 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the native hook for the functions in system.h
-They are the read/write_crX, clts and wbinvd. The later, also
-gets its call sites patched.
+This patch adds native hooks for debugreg handling functions,
+and for the native load_rsp0 function. The later also have its
+call sites patched.
+
+[  updates from v2
+   * there were still a raw reference to cr4 missing
+]
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
- arch/x86_64/kernel/tce.c    |    2 +-
- arch/x86_64/mm/pageattr.c   |    2 +-
- include/asm-x86_64/system.h |   54 +++++++++++++++++++++++++++++-------------
- 3 files changed, 39 insertions(+), 19 deletions(-)
+ arch/x86_64/kernel/process.c   |    2 +-
+ arch/x86_64/kernel/smpboot.c   |    2 +-
+ include/asm-x86_64/processor.h |   83 +++++++++++++++++++++++++++++++--------
+ 3 files changed, 68 insertions(+), 19 deletions(-)
 
-diff --git a/arch/x86_64/kernel/tce.c b/arch/x86_64/kernel/tce.c
-index e3f2569..587f0c2 100644
---- a/arch/x86_64/kernel/tce.c
-+++ b/arch/x86_64/kernel/tce.c
-@@ -42,7 +42,7 @@ static inline void flush_tce(void* tceaddr)
- 	if (cpu_has_clflush)
- 		asm volatile("clflush (%0)" :: "r" (tceaddr));
- 	else
--		asm volatile("wbinvd":::"memory");
-+		wbinvd();
+diff --git a/arch/x86_64/kernel/process.c b/arch/x86_64/kernel/process.c
+index 2842f50..33046f1 100644
+--- a/arch/x86_64/kernel/process.c
++++ b/arch/x86_64/kernel/process.c
+@@ -595,7 +595,7 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
+ 	/*
+ 	 * Reload esp0, LDT and the page table pointer:
+ 	 */
+-	tss->rsp0 = next->rsp0;
++	load_rsp0(tss, next);
+ 
+ 	/* 
+ 	 * Switch DS and ES.
+diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
+index 32f5078..f99ced6 100644
+--- a/arch/x86_64/kernel/smpboot.c
++++ b/arch/x86_64/kernel/smpboot.c
+@@ -620,7 +620,7 @@ do_rest:
+ 	start_rip = setup_trampoline();
+ 
+ 	init_rsp = c_idle.idle->thread.rsp;
+-	per_cpu(init_tss,cpu).rsp0 = init_rsp;
++	load_rsp0(&per_cpu(init_tss,cpu), &c_idle.idle->thread);
+ 	initial_code = start_secondary;
+ 	clear_tsk_thread_flag(c_idle.idle, TIF_FORK);
+ 
+diff --git a/include/asm-x86_64/processor.h b/include/asm-x86_64/processor.h
+index 1952517..524390f 100644
+--- a/include/asm-x86_64/processor.h
++++ b/include/asm-x86_64/processor.h
+@@ -114,21 +114,13 @@ extern unsigned long mmu_cr4_features;
+ static inline void set_in_cr4 (unsigned long mask)
+ {
+ 	mmu_cr4_features |= mask;
+-	__asm__("movq %%cr4,%%rax\n\t"
+-		"orq %0,%%rax\n\t"
+-		"movq %%rax,%%cr4\n"
+-		: : "irg" (mask)
+-		:"ax");
++	write_cr4(read_cr4() | mask);
  }
  
- void tce_build(struct iommu_table *tbl, unsigned long index,
-diff --git a/arch/x86_64/mm/pageattr.c b/arch/x86_64/mm/pageattr.c
-index 7e161c6..b497afd 100644
---- a/arch/x86_64/mm/pageattr.c
-+++ b/arch/x86_64/mm/pageattr.c
-@@ -76,7 +76,7 @@ static void flush_kernel_map(void *arg)
- 	/* When clflush is available always use it because it is
- 	   much cheaper than WBINVD. */
- 	if (!cpu_has_clflush)
--		asm volatile("wbinvd" ::: "memory");
-+		wbinvd();
- 	else list_for_each_entry(pg, l, lru) {
- 		void *adr = page_address(pg);
- 		cache_flush_page(adr);
-diff --git a/include/asm-x86_64/system.h b/include/asm-x86_64/system.h
-index 02175aa..20ed9df 100644
---- a/include/asm-x86_64/system.h
-+++ b/include/asm-x86_64/system.h
-@@ -68,53 +68,56 @@ extern void load_gs_index(unsigned);
- /*
-  * Clear and set 'TS' bit respectively
-  */
--#define clts() __asm__ __volatile__ ("clts")
-+static inline void native_clts(void)
+ static inline void clear_in_cr4 (unsigned long mask)
+ {
+ 	mmu_cr4_features &= ~mask;
+-	__asm__("movq %%cr4,%%rax\n\t"
+-		"andq %0,%%rax\n\t"
+-		"movq %%rax,%%cr4\n"
+-		: : "irg" (~mask)
+-		:"ax");
++	write_cr4(read_cr4() & ~mask);
+ }
+ 
+ 
+@@ -249,6 +241,12 @@ struct thread_struct {
+ 	.rsp0 = (unsigned long)&init_stack + sizeof(init_stack) \
+ }
+ 
++static inline void native_load_rsp0(struct tss_struct *tss,
++				    struct thread_struct *thread)
 +{
-+	asm volatile ("clts");
++	tss->rsp0 = thread->rsp0;
 +}
++
+ #define INIT_MMAP \
+ { &init_mm, 0, 0, NULL, PAGE_SHARED, VM_READ | VM_WRITE | VM_EXEC, 1, NULL, NULL }
  
--static inline unsigned long read_cr0(void)
--{ 
-+static inline unsigned long native_read_cr0(void)
+@@ -264,13 +262,64 @@ struct thread_struct {
+ 	set_fs(USER_DS);							 \
+ } while(0) 
+ 
+-#define get_debugreg(var, register)				\
+-		__asm__("movq %%db" #register ", %0"		\
+-			:"=r" (var))
+-#define set_debugreg(value, register)			\
+-		__asm__("movq %0,%%db" #register		\
+-			: /* no output */			\
+-			:"r" (value))
++static inline unsigned long native_get_debugreg(int regno)
 +{
- 	unsigned long cr0;
- 	asm volatile("movq %%cr0,%0" : "=r" (cr0));
- 	return cr0;
- }
- 
--static inline void write_cr0(unsigned long val) 
--{ 
-+static inline void native_write_cr0(unsigned long val)
-+{
- 	asm volatile("movq %0,%%cr0" :: "r" (val));
- }
- 
--static inline unsigned long read_cr2(void)
-+static inline unsigned long native_read_cr2(void)
- {
- 	unsigned long cr2;
- 	asm("movq %%cr2,%0" : "=r" (cr2));
- 	return cr2;
- }
- 
--static inline void write_cr2(unsigned long val)
-+static inline void native_write_cr2(unsigned long val)
- {
- 	asm volatile("movq %0,%%cr2" :: "r" (val));
- }
- 
--static inline unsigned long read_cr3(void)
--{ 
-+static inline unsigned long native_read_cr3(void)
-+{
- 	unsigned long cr3;
- 	asm("movq %%cr3,%0" : "=r" (cr3));
- 	return cr3;
- }
- 
--static inline void write_cr3(unsigned long val)
-+static inline void native_write_cr3(unsigned long val)
- {
- 	asm volatile("movq %0,%%cr3" :: "r" (val) : "memory");
- }
- 
--static inline unsigned long read_cr4(void)
--{ 
-+static inline unsigned long native_read_cr4(void)
-+{
- 	unsigned long cr4;
- 	asm("movq %%cr4,%0" : "=r" (cr4));
- 	return cr4;
- }
- 
--static inline void write_cr4(unsigned long val)
--{ 
-+static inline void native_write_cr4(unsigned long val)
-+{
- 	asm volatile("movq %0,%%cr4" :: "r" (val) : "memory");
- }
- 
-@@ -130,10 +133,27 @@ static inline void write_cr8(unsigned long val)
- 	asm volatile("movq %0,%%cr8" :: "r" (val) : "memory");
- }
- 
--#define stts() write_cr0(8 | read_cr0())
-+static inline void native_wbinvd(void)
-+{
-+	asm volatile ("wbinvd" ::: "memory");
++	unsigned long val;
++
++	switch (regno) {
++	case 0:
++		asm("movq %%db0, %0" :"=r" (val)); break;
++	case 1:
++		asm("movq %%db1, %0" :"=r" (val)); break;
++	case 2:
++		asm("movq %%db2, %0" :"=r" (val)); break;
++	case 3:
++		asm("movq %%db3, %0" :"=r" (val)); break;
++	case 6:
++		asm("movq %%db6, %0" :"=r" (val)); break;
++	case 7:
++		asm("movq %%db7, %0" :"=r" (val)); break;
++	default:
++		val = 0; /* assign it to keep gcc quiet */
++		WARN_ON(1);
++	}
++	return val;
 +}
- 
--#define wbinvd() \
--	__asm__ __volatile__ ("wbinvd": : :"memory")
++
++static inline void native_set_debugreg(unsigned long value, int regno)
++{
++	switch (regno) {
++	case 0:
++		asm("movq %0,%%db0"	: /* no output */ :"r" (value));
++		break;
++	case 1:
++		asm("movq %0,%%db1"	: /* no output */ :"r" (value));
++		break;
++	case 2:
++		asm("movq %0,%%db2"	: /* no output */ :"r" (value));
++		break;
++	case 3:
++		asm("movq %0,%%db3"	: /* no output */ :"r" (value));
++		break;
++	case 6:
++		asm("movq %0,%%db6"	: /* no output */ :"r" (value));
++		break;
++	case 7:
++		asm("movq %0,%%db7"	: /* no output */ :"r" (value));
++		break;
++	default:
++		BUG();
++	}
++}
++
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
 +#else
-+#define clts		native_clts
-+#define wbinvd		native_wbinvd
-+#define read_cr0 	native_read_cr0
-+#define read_cr2 	native_read_cr2
-+#define read_cr3 	native_read_cr3
-+#define read_cr4 	native_read_cr4
-+#define write_cr0	native_write_cr0
-+#define write_cr2	native_write_cr2
-+#define write_cr3	native_write_cr3
-+#define write_cr4	native_write_cr4
++#define paravirt_enabled()	0
++#define load_rsp0 		native_load_rsp0
++#define set_debugreg(val, reg)	native_set_debugreg(reg, val)
++#define get_debugreg(var, reg)	(var) = native_get_debugreg(reg)
 +#endif
-+
-+#define stts() write_cr0(8 | read_cr0())
  
- #endif	/* __KERNEL__ */
- 
+ struct task_struct;
+ struct mm_struct;
 -- 
 1.4.4.2
