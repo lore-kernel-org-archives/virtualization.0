@@ -1,23 +1,22 @@
 From: "Glauber de Oliveira Costa" <glommer@gmail.com>
-Subject: Re: [PATCH 18/25][V3] turn priviled operations into macros in
-	entry.S
-Date: Wed, 15 Aug 2007 11:19:44 -0300
-Message-ID: <5d6222a80708150719x254627f0k40240ac6450f019c__10633.187814574$1187187695$gmane$org@mail.gmail.com>
-References: <11871821854176-git-send-email-gcosta@redhat.com>
-	<11871823042011-git-send-email-gcosta@redhat.com>
-	<11871823151789-git-send-email-gcosta@redhat.com>
-	<11871823273810-git-send-email-gcosta@redhat.com>
+Subject: Re: [PATCH 21/25][V3] export cpu_gdt_descr
+Date: Wed, 15 Aug 2007 11:25:43 -0300
+Message-ID: <5d6222a80708150725i45a064bfqfd43139338287988__31920.1494953179$1187188033$gmane$org@mail.gmail.com>
+References: <11871823151789-git-send-email-gcosta@redhat.com>
 	<11871823373106-git-send-email-gcosta@redhat.com>
 	<11871823673236-git-send-email-gcosta@redhat.com>
 	<11871823782610-git-send-email-gcosta@redhat.com>
 	<11871823892519-git-send-email-gcosta@redhat.com>
 	<11871823991803-git-send-email-gcosta@redhat.com>
-	<Pine.LNX.4.58.0708151002001.25252@gandalf.stny.rr.com>
+	<11871824081337-git-send-email-!gcosta@redhat.com>
+	<11871824192375-git-send-email-gcosta@redhat.com>
+	<11871824292046-git-send-email-gcosta@redhat.com>
+	<20070815140339.GG3406@bingen.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <Pine.LNX.4.58.0708151002001.25252@gandalf.stny.rr.com>
+In-Reply-To: <20070815140339.GG3406@bingen.suse.de>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,16 +27,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, mingo@elte.hu
+To: Andi Kleen <ak@suse.de>
+Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 8/15/07, Andi Kleen <ak@suse.de> wrote:
+> > +#ifdef CONFIG_PARAVIRT
+> > +extern unsigned long *cpu_gdt_descr;
 >
-> Is the .globl really required here? I would think that the reference in
-> the fixup section would be resolved with in the compiling of this object.
+> No externs in .c files
 >
-For the fixup yes, you are right. But I'm using this symbol in
-paravirt.c now, to denote the native operation.
+> Normally they should be where the variable is defined
+> anyways.
+Given that this  variable is defined in head.S, what do you propose?
+AFAICT, this is the very duty of this file (x8664_syms.c), and the
+extern is also used in other symbols like the memcpy family
 
 -- 
 Glauber de Oliveira Costa.
