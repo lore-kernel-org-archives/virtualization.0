@@ -1,17 +1,23 @@
 From: "Glauber de Oliveira Costa" <glommer@gmail.com>
-Subject: Re: [PATCH 3/25][V3] irq_flags / halt routines
-Date: Wed, 15 Aug 2007 11:18:25 -0300
-Message-ID: <5d6222a80708150718v14f26343q7467385e7919fa76__421.049496117298$1187187603$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH 18/25][V3] turn priviled operations into macros in
+	entry.S
+Date: Wed, 15 Aug 2007 11:19:44 -0300
+Message-ID: <5d6222a80708150719x254627f0k40240ac6450f019c__10633.187814574$1187187695$gmane$org@mail.gmail.com>
 References: <11871821854176-git-send-email-gcosta@redhat.com>
-	<1187182197314-git-send-email-gcosta@redhat.com>
-	<11871822062386-git-send-email-gcosta@redhat.com>
-	<11871822163867-git-send-email-gcosta@redhat.com>
-	<20070815135554.GE3406@bingen.suse.de>
+	<11871823042011-git-send-email-gcosta@redhat.com>
+	<11871823151789-git-send-email-gcosta@redhat.com>
+	<11871823273810-git-send-email-gcosta@redhat.com>
+	<11871823373106-git-send-email-gcosta@redhat.com>
+	<11871823673236-git-send-email-gcosta@redhat.com>
+	<11871823782610-git-send-email-gcosta@redhat.com>
+	<11871823892519-git-send-email-gcosta@redhat.com>
+	<11871823991803-git-send-email-gcosta@redhat.com>
+	<Pine.LNX.4.58.0708151002001.25252@gandalf.stny.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070815135554.GE3406@bingen.suse.de>
+In-Reply-To: <Pine.LNX.4.58.0708151002001.25252@gandalf.stny.rr.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,26 +28,16 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@suse.de>
-Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Didn't we agree this should be a pvops client?
 >
-> -Andi
+> Is the .globl really required here? I would think that the reference in
+> the fixup section would be resolved with in the compiling of this object.
 >
-No. I exposed my reasoning, asked you back, but got no answer.
-I'll do it again:
-
-This operations are just manipulating bits, and are doing no
-privileged operations at all. Nothing that can be paravirtualized, in
-the proper sense. Altough we do can introduce such operations for
-clarity of code, I personally believe it is not the way to go.
-
-What I did, then, was move this outside  the PARAVIRT ifdef, which
-lead to a much cleaner code.
-
-
+For the fixup yes, you are right. But I'm using this symbol in
+paravirt.c now, to denote the native operation.
 
 -- 
 Glauber de Oliveira Costa.
