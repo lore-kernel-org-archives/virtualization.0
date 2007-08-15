@@ -1,7 +1,7 @@
-From: Andi Kleen <ak@suse.de>
+From: Chris Wright <chrisw@sous-sol.org>
 Subject: Re: [PATCH 3/25][V3] irq_flags / halt routines
-Date: Wed, 15 Aug 2007 19:34:27 +0200
-Message-ID: <20070815173427.GM3406__30849.9721497812$1187196167$gmane$org@bingen.suse.de>
+Date: Wed, 15 Aug 2007 09:47:29 -0700
+Message-ID: <20070815164729.GU3672__275.376815307204$1187196812$gmane$org@sequoia.sous-sol.org>
 References: <11871821854176-git-send-email-gcosta@redhat.com>
 	<1187182197314-git-send-email-gcosta@redhat.com>
 	<11871822062386-git-send-email-gcosta@redhat.com>
@@ -30,10 +30,17 @@ To: Glauber de Oliveira Costa <gcosta@redhat.com>
 Cc: lguest@ozlabs.org, shai@scalemp.com, kiran@scalemp.com, linux-kernel@vger.kernel.org, chrisw@sous-sol.org, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Maybe we could even make VSMP depend on PARAVIRT, to make it sure it is 
-> completely a paravirt client.
+* Glauber de Oliveira Costa (gcosta@redhat.com) wrote:
+> As alternatives what we have now, we can either keep the paravirt_ops as 
+> it is now for the native case, just hooking the vsmp functions in place 
+> of the normal one, (there are just three ops anyway), refill the 
+> paravirt_ops entirely in somewhere like vsmp.c, or similar (or maybe 
+> even assigning paravirt_ops.fn = vsmp_fn on the fly, but early enough).
 
-That's the right thing to do I think. Remove the existing ifdefs
-and hook vsmp in only using paravirt ops.
+This is the best (just override pvops.fn for the few needed for VSMP).
+The irq_disabled_flags() is the only problem.  For i386 we dropped it
+(disabled_flags) as a pvop and forced the backend to provide a flags
+(via save_flags) that conforms to IF only.
 
--Andi
+thanks,
+-chris
