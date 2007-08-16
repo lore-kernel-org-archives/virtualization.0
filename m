@@ -1,13 +1,14 @@
-From: Laurent Vivier <Laurent.Vivier@bull.net>
-Subject: [PATCH/RFC 4/4]Modify KVM to use the "account modifiers"
-Date: Thu, 16 Aug 2007 17:59:01 +0200
-Message-ID: <46C47445.5070403__34114.9271153428$1187280042$gmane$org@bull.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH/RFC 3/4]Introduce "account modifiers" mechanism
+Date: Fri, 17 Aug 2007 08:39:15 +1000
+Message-ID: <1187303955.6449.7.camel__16789.6549254239$1187304139$gmane$org@localhost.localdomain>
 References: <46C4719A.2060308@bull.net> <46C4720F.7030304@bull.net>
-	<46C4725A.4070607@bull.net> <46C472D2.7000702@bull.net>
+	<46C4725A.4070607@bull.net>  <46C4740F.2050701@bull.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------070207020105010804060308"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46C472D2.7000702@bull.net>
+In-Reply-To: <46C4740F.2050701@bull.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,250 +18,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel@lists.sourceforge.net
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: Laurent Vivier <Laurent.Vivier@bull.net>
+Cc: kvm-devel@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------070207020105010804060308
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-1
+On Thu, 2007-08-16 at 17:58 +0200, Laurent Vivier wrote:
+> [PATCH 3/3] introduce "account modifiers" mechanism in the kernel allowing a
+> module to modify the collected accounting for a given task. This implementation
+> is based on the "preempt_notifier". "account_system_time()" and
+> "account_user_time()" can call functions registered by a module to modify the
+> cputime value.
+> 
+> Signed-off-by: Laurent Vivier <Laurent.Vivier@bull.net>
 
-[PATCH 4/4] Modify KVM to use the "account modifiers". KVM can now measure time
-consumed by a Virtual Machine on a per-cpu basis and modify kernel statistics to
-report this value.
 
-Signed-off-by: Laurent Vivier <Laurent.Vivier@bull.net>
--- 
-------------- Laurent.Vivier@bull.net  --------------
-          "Software is hard" - Donald Knuth
+Hi Laurent,
 
---------------070207020105010804060308
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
- name="kvm_accounting_modifiers"
-Content-Disposition: inline;
- filename="kvm_accounting_modifiers"
+	This seems a little like overkill.  Why not just add an
+"account_guest_time" which subtracts the given amount of time from
+system time (if available) and adds it to guest time?  Then kvm (and
+lguest) should just need to call this at the right times.
 
-Index: kvm/drivers/kvm/kvm.h
-===================================================================
---- kvm.orig/drivers/kvm/kvm.h	2007-08-16 16:21:42.000000000 +0200
-+++ kvm/drivers/kvm/kvm.h	2007-08-16 16:27:00.000000000 +0200
-@@ -408,6 +408,10 @@
- 	struct file *filp;
- 	struct kvm_io_bus mmio_bus;
- 	struct kvm_io_bus pio_bus;
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	struct account_modifier account_modifier;
-+	ktime_t vtime[NR_CPUS];
-+#endif
- };
- 
- struct descriptor_table {
-@@ -589,6 +593,20 @@
- 
- int kvm_hypercall(struct kvm_vcpu *vcpu, struct kvm_run *run);
- 
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+static inline ktime_t kvm_guest_enter(void)
-+{
-+	return ktime_get();
-+}
-+
-+static inline void kvm_guest_exit(struct kvm *kvm, ktime_t enter)
-+{
-+	ktime_t delta = ktime_sub(ktime_get(), enter);
-+	kvm->vtime[smp_processor_id()] =
-+		ktime_add(kvm->vtime[smp_processor_id()], delta);
-+}
-+#endif
-+
- static inline int kvm_mmu_page_fault(struct kvm_vcpu *vcpu, gva_t gva,
- 				     u32 error_code)
- {
-Index: kvm/drivers/kvm/kvm_main.c
-===================================================================
---- kvm.orig/drivers/kvm/kvm_main.c	2007-08-16 16:21:42.000000000 +0200
-+++ kvm/drivers/kvm/kvm_main.c	2007-08-16 16:40:28.000000000 +0200
-@@ -33,6 +33,7 @@
- #include <linux/file.h>
- #include <linux/sysdev.h>
- #include <linux/cpu.h>
-+#include <linux/kernel_stat.h>
- #include <linux/sched.h>
- #include <linux/cpumask.h>
- #include <linux/smp.h>
-@@ -57,6 +58,9 @@
- EXPORT_SYMBOL_GPL(kvm_vcpu_cache);
- 
- static __read_mostly struct preempt_ops kvm_preempt_ops;
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+static __read_mostly struct account_ops kvm_account_ops;
-+#endif
- 
- #define STAT_OFFSET(x) offsetof(struct kvm_vcpu, stat.x)
- 
-@@ -285,6 +289,42 @@
- }
- EXPORT_SYMBOL_GPL(kvm_vcpu_uninit);
- 
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+static inline
-+struct kvm *account_modifier_to_kvm(struct account_modifier *am)
-+{
-+	return container_of(am, struct kvm, account_modifier);
-+}
-+
-+static cputime_t kvm_account_system_modifier(struct account_modifier *modifier,
-+					     struct task_struct *curr,
-+					     int hardirq_offset,
-+					     cputime_t cputime)
-+{
-+	struct kvm *kvm = account_modifier_to_kvm(modifier);
-+	ktime_t kmsec = ktime_set(0, NSEC_PER_MSEC);
-+	cputime_t cmsec = msecs_to_cputime(1);
-+	ktime_t vtime = kvm->vtime[smp_processor_id()];
-+
-+	while ((ktime_to_ns(vtime) >= NSEC_PER_MSEC) &&
-+	       (cputime_to_msecs(cputime) >= 1)) {
-+		kvm->vtime[smp_processor_id()] = ktime_sub(vtime, kmsec);
-+
-+		curr->utime = cputime_add(curr->utime, cmsec);
-+		curr->gtime = cputime_add(curr->gtime, cmsec);
-+
-+		kstat_this_cpu.cpustat.guest = cputime64_add(kstat_this_cpu.cpustat.guest,
-+						cputime_to_cputime64(cmsec));
-+		kstat_this_cpu.cpustat.user = cputime64_add(kstat_this_cpu.cpustat.user,
-+						cputime_to_cputime64(cmsec));
-+
-+		cputime = cputime_sub(cputime, cmsec);
-+	}
-+
-+	return cputime;
-+}
-+#endif
-+
- static struct kvm *kvm_create_vm(void)
- {
- 	struct kvm *kvm = kzalloc(sizeof(struct kvm), GFP_KERNEL);
-@@ -299,6 +339,15 @@
- 	spin_lock(&kvm_lock);
- 	list_add(&kvm->vm_list, &vm_list);
- 	spin_unlock(&kvm_lock);
-+
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	kvm_account_ops.user_time = NULL;
-+	kvm_account_ops.system_time = kvm_account_system_modifier;
-+
-+	account_modifier_init(&kvm->account_modifier, &kvm_account_ops);
-+	account_modifier_register(&kvm->account_modifier);
-+#endif
-+
- 	return kvm;
- }
- 
-@@ -376,6 +425,9 @@
- 	spin_lock(&kvm_lock);
- 	list_del(&kvm->vm_list);
- 	spin_unlock(&kvm_lock);
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	account_modifier_unregister(&kvm->account_modifier);
-+#endif
- 	kvm_io_bus_destroy(&kvm->pio_bus);
- 	kvm_io_bus_destroy(&kvm->mmio_bus);
- 	kvm_free_vcpus(kvm);
-Index: kvm/drivers/kvm/svm.c
-===================================================================
---- kvm.orig/drivers/kvm/svm.c	2007-08-16 16:21:42.000000000 +0200
-+++ kvm/drivers/kvm/svm.c	2007-08-16 16:29:41.000000000 +0200
-@@ -1392,6 +1392,9 @@
- 	u16 gs_selector;
- 	u16 ldt_selector;
- 	int r;
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	ktime_t now;
-+#endif
- 
- again:
- 	r = kvm_mmu_reload(vcpu);
-@@ -1404,6 +1407,9 @@
- 	clgi();
- 
- 	vcpu->guest_mode = 1;
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	now = kvm_guest_enter();
-+#endif
- 	if (vcpu->requests)
- 		if (test_and_clear_bit(KVM_TLB_FLUSH, &vcpu->requests))
- 		    svm_flush_tlb(vcpu);
-@@ -1536,6 +1542,9 @@
- #endif
- 		: "cc", "memory" );
- 
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	kvm_guest_exit(vcpu->kvm, now);
-+#endif
- 	vcpu->guest_mode = 0;
- 
- 	if (vcpu->fpu_active) {
-Index: kvm/drivers/kvm/vmx.c
-===================================================================
---- kvm.orig/drivers/kvm/vmx.c	2007-08-16 16:21:42.000000000 +0200
-+++ kvm/drivers/kvm/vmx.c	2007-08-16 16:30:24.000000000 +0200
-@@ -2052,6 +2052,9 @@
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
- 	u8 fail;
- 	int r;
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	ktime_t now;
-+#endif
- 
- preempted:
- 	if (vcpu->guest_debug.enabled)
-@@ -2078,6 +2081,9 @@
- 	local_irq_disable();
- 
- 	vcpu->guest_mode = 1;
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	now = kvm_guest_enter();
-+#endif
- 	if (vcpu->requests)
- 		if (test_and_clear_bit(KVM_TLB_FLUSH, &vcpu->requests))
- 		    vmx_flush_tlb(vcpu);
-@@ -2198,6 +2204,9 @@
- 		[cr2]"i"(offsetof(struct kvm_vcpu, cr2))
- 	      : "cc", "memory" );
- 
-+#ifdef CONFIG_ACCOUNT_MODIFIERS
-+	kvm_guest_exit(vcpu->kvm, now);
-+#endif
- 	vcpu->guest_mode = 0;
- 	local_irq_enable();
- 
-Index: kvm/drivers/kvm/Kconfig
-===================================================================
---- kvm.orig/drivers/kvm/Kconfig	2007-08-16 16:21:42.000000000 +0200
-+++ kvm/drivers/kvm/Kconfig	2007-08-16 16:21:44.000000000 +0200
-@@ -41,4 +41,10 @@
- 	  Provides support for KVM on AMD processors equipped with the AMD-V
- 	  (SVM) extensions.
- 
-+config ACCOUNT_MODIFIERS
-+        bool "Virtual Machine accounting support"
-+	depends on KVM
-+	---help---
-+	  Allows to account CPU time used by the Virtual Machines.
-+
- endif # VIRTUALIZATION
-
---------------070207020105010804060308
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---------------070207020105010804060308--
+Am I missing something?
+Rusty.
