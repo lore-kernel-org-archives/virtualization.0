@@ -1,12 +1,13 @@
 From: Laurent Vivier <Laurent.Vivier@bull.net>
-Subject: [PATCH/RFC 1/4]Introduce a new field "guest" in cpustat
-Date: Thu, 16 Aug 2007 17:57:49 +0200
-Message-ID: <46C473FD.3050009__2286.84252729199$1187280012$gmane$org@bull.net>
-References: <46C4719A.2060308@bull.net>
+Subject: [PATCH/RFC 3/4]Introduce "account modifiers" mechanism
+Date: Thu, 16 Aug 2007 17:58:07 +0200
+Message-ID: <46C4740F.2050701__2678.72225163064$1187280019$gmane$org@bull.net>
+References: <46C4719A.2060308@bull.net> <46C4720F.7030304@bull.net>
+	<46C4725A.4070607@bull.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------090406080801040303060903"
+Content-Type: multipart/mixed; boundary="------------020103020409060707070202"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46C4719A.2060308@bull.net>
+In-Reply-To: <46C4725A.4070607@bull.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,108 +22,182 @@ Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, vi
 List-Id: virtualization@lists.linuxfoundation.org
 
 This is a multi-part message in MIME format.
---------------090406080801040303060903
+--------------020103020409060707070202
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=ISO-8859-1
 
-[PATCH 1/4] as modern CPUs introduce a third running state, after "user" and
-"system", we need a new field, "guest", in cpustat to store the time used by
-the CPU to run virtual CPU. Modify /proc/stat to display this new field.
+[PATCH 3/3] introduce "account modifiers" mechanism in the kernel allowing a
+module to modify the collected accounting for a given task. This implementation
+is based on the "preempt_notifier". "account_system_time()" and
+"account_user_time()" can call functions registered by a module to modify the
+cputime value.
 
 Signed-off-by: Laurent Vivier <Laurent.Vivier@bull.net>
 -- 
 ------------- Laurent.Vivier@bull.net  --------------
           "Software is hard" - Donald Knuth
 
---------------090406080801040303060903
+--------------020103020409060707070202
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
- name="proc_stat_guest"
+ name="accounting_modifiers"
 Content-Disposition: inline;
- filename="proc_stat_guest"
+ filename="accounting_modifiers"
 
-Index: kvm/fs/proc/proc_misc.c
+Index: kvm/include/linux/sched.h
 ===================================================================
---- kvm.orig/fs/proc/proc_misc.c	2007-08-10 16:49:42.000000000 +0200
-+++ kvm/fs/proc/proc_misc.c	2007-08-10 16:51:34.000000000 +0200
-@@ -443,6 +443,7 @@
- 	int i;
- 	unsigned long jif;
- 	cputime64_t user, nice, system, idle, iowait, irq, softirq, steal;
-+	cputime64_t guest;
- 	u64 sum = 0;
- 	struct timespec boottime;
- 	unsigned int *per_irq_sum;
-@@ -452,7 +453,7 @@
- 		return -ENOMEM;
+--- kvm.orig/include/linux/sched.h	2007-08-16 15:23:27.000000000 +0200
++++ kvm/include/linux/sched.h	2007-08-16 15:23:41.000000000 +0200
+@@ -955,6 +955,10 @@
+ 	/* list of struct preempt_notifier: */
+ 	struct hlist_head preempt_notifiers;
+ #endif
++#ifdef CONFIG_ACCOUNT_MODIFIERS
++	/* list of struct account_modifiers: */
++	struct hlist_head account_modifiers;
++#endif
  
- 	user = nice = system = idle = iowait =
--		irq = softirq = steal = cputime64_zero;
-+		irq = softirq = steal = guest = cputime64_zero;
- 	getboottime(&boottime);
- 	jif = boottime.tv_sec;
+ 	unsigned short ioprio;
+ #ifdef CONFIG_BLK_DEV_IO_TRACE
+@@ -1873,6 +1877,31 @@
+ }
+ #endif
  
-@@ -467,6 +468,7 @@
- 		irq = cputime64_add(irq, kstat_cpu(i).cpustat.irq);
- 		softirq = cputime64_add(softirq, kstat_cpu(i).cpustat.softirq);
- 		steal = cputime64_add(steal, kstat_cpu(i).cpustat.steal);
-+		guest = cputime64_add(guest, kstat_cpu(i).cpustat.guest);
- 		for (j = 0; j < NR_IRQS; j++) {
- 			unsigned int temp = kstat_cpu(i).irqs[j];
- 			sum += temp;
-@@ -474,7 +476,7 @@
- 		}
- 	}
++#ifdef CONFIG_ACCOUNT_MODIFIERS
++struct account_modifier;
++struct account_ops {
++	cputime_t (*user_time)(struct account_modifier *,
++				struct task_struct *, cputime_t );
++	cputime_t (*system_time)(struct account_modifier *,
++				struct task_struct *, int, cputime_t);
++};
++
++struct account_modifier {
++	struct hlist_node link;
++	struct account_ops *ops;
++};
++
++void account_modifier_register(struct account_modifier *modifier);
++void account_modifier_unregister(struct account_modifier *modifier);
++
++static inline void account_modifier_init(struct account_modifier *modifier,
++					struct account_ops *ops)
++{
++	INIT_HLIST_NODE(&modifier->link);
++	modifier->ops = ops;
++}
++#endif
++
+ #endif /* __KERNEL__ */
  
--	seq_printf(p, "cpu  %llu %llu %llu %llu %llu %llu %llu %llu\n",
-+	seq_printf(p, "cpu  %llu %llu %llu %llu %llu %llu %llu %llu %llu\n",
- 		(unsigned long long)cputime64_to_clock_t(user),
- 		(unsigned long long)cputime64_to_clock_t(nice),
- 		(unsigned long long)cputime64_to_clock_t(system),
-@@ -482,7 +484,8 @@
- 		(unsigned long long)cputime64_to_clock_t(iowait),
- 		(unsigned long long)cputime64_to_clock_t(irq),
- 		(unsigned long long)cputime64_to_clock_t(softirq),
--		(unsigned long long)cputime64_to_clock_t(steal));
-+		(unsigned long long)cputime64_to_clock_t(steal),
-+		(unsigned long long)cputime64_to_clock_t(guest));
- 	for_each_online_cpu(i) {
- 
- 		/* Copy values here to work around gcc-2.95.3, gcc-2.96 */
-@@ -494,7 +497,8 @@
- 		irq = kstat_cpu(i).cpustat.irq;
- 		softirq = kstat_cpu(i).cpustat.softirq;
- 		steal = kstat_cpu(i).cpustat.steal;
--		seq_printf(p, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu\n",
-+		guest = kstat_cpu(i).cpustat.guest;
-+		seq_printf(p, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu %llu\n",
- 			i,
- 			(unsigned long long)cputime64_to_clock_t(user),
- 			(unsigned long long)cputime64_to_clock_t(nice),
-@@ -503,7 +507,8 @@
- 			(unsigned long long)cputime64_to_clock_t(iowait),
- 			(unsigned long long)cputime64_to_clock_t(irq),
- 			(unsigned long long)cputime64_to_clock_t(softirq),
--			(unsigned long long)cputime64_to_clock_t(steal));
-+			(unsigned long long)cputime64_to_clock_t(steal),
-+			(unsigned long long)cputime64_to_clock_t(guest));
- 	}
- 	seq_printf(p, "intr %llu", (unsigned long long)sum);
- 
-Index: kvm/include/linux/kernel_stat.h
+ #endif
+Index: kvm/kernel/sched.c
 ===================================================================
---- kvm.orig/include/linux/kernel_stat.h	2007-08-10 16:49:42.000000000 +0200
-+++ kvm/include/linux/kernel_stat.h	2007-08-10 16:49:59.000000000 +0200
-@@ -23,6 +23,7 @@
- 	cputime64_t idle;
- 	cputime64_t iowait;
- 	cputime64_t steal;
-+	cputime64_t guest;
- };
+--- kvm.orig/kernel/sched.c	2007-08-16 15:15:33.000000000 +0200
++++ kvm/kernel/sched.c	2007-08-16 15:23:28.000000000 +0200
+@@ -1593,6 +1593,9 @@
+ #ifdef CONFIG_PREEMPT_NOTIFIERS
+ 	INIT_HLIST_HEAD(&p->preempt_notifiers);
+ #endif
++#ifdef CONFIG_ACCOUNT_MODIFIERS
++	INIT_HLIST_HEAD(&p->account_modifiers);
++#endif
  
- struct kernel_stat {
+ 	/*
+ 	 * We mark the process as running here, but have not actually
+@@ -1731,6 +1734,62 @@
+ }
+ 
+ #endif
++#ifdef CONFIG_ACCOUNT_MODIFIERS
++
++void account_modifier_register(struct account_modifier *modifier)
++{
++	hlist_add_head(&modifier->link, &current->account_modifiers);
++}
++EXPORT_SYMBOL_GPL(account_modifier_register);
++
++void account_modifier_unregister(struct account_modifier *modifier)
++{
++	hlist_del(&modifier->link);
++}
++EXPORT_SYMBOL_GPL(account_modifier_unregister);
++
++static cputime_t fire_user_time_account_modifiers(struct task_struct *curr,
++						  cputime_t cputime)
++{
++	struct account_modifier *modifier;
++	struct hlist_node *node;
++
++	hlist_for_each_entry(modifier, node, &curr->account_modifiers, link)
++		if (modifier->ops->user_time)
++			cputime = modifier->ops->user_time(modifier,
++							curr, cputime);
++	return cputime;
++}
++
++static cputime_t fire_system_time_account_modifiers(struct task_struct *curr,
++						      int hardirq_offset,
++						      cputime_t cputime)
++{
++	struct account_modifier *modifier;
++	struct hlist_node *node;
++
++	hlist_for_each_entry(modifier, node, &curr->account_modifiers, link)
++		if (modifier->ops->system_time)
++			cputime = modifier->ops->system_time(modifier,
++						curr, hardirq_offset, cputime);
++	return cputime;
++}
++
++#else
++
++static inline cputime_t fire_user_time_account_modifiers(struct task_struct *curr, cputime_t cputime)
++{
++	return cputime;
++}
++
++static inline cputime_t fire_system_time_account_modifiers(struct task_struct *curr,
++						      int hardirq_offset,
++						      cputime_t cputime)
++{
++	return cputime;
++}
++
++#endif
+ 
+ /**
+  * prepare_task_switch - prepare to switch tasks
+@@ -3223,6 +3282,8 @@
+ 	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
+ 	cputime64_t tmp;
+ 
++	cputime = fire_user_time_account_modifiers(p, cputime);
++
+ 	p->utime = cputime_add(p->utime, cputime);
+ 
+ 	/* Add user time to cpustat. */
+@@ -3246,6 +3307,8 @@
+ 	struct rq *rq = this_rq();
+ 	cputime64_t tmp;
+ 
++	cputime = fire_system_time_account_modifiers(p,hardirq_offset, cputime);
++
+ 	p->stime = cputime_add(p->stime, cputime);
+ 
+ 	/* Add system time to cpustat. */
+@@ -6522,6 +6585,9 @@
+ #ifdef CONFIG_PREEMPT_NOTIFIERS
+ 	INIT_HLIST_HEAD(&init_task.preempt_notifiers);
+ #endif
++#ifdef CONFIG_ACCOUNT_MODIFIERS
++	INIT_HLIST_HEAD(&init_task.account_modifiers);
++#endif
+ 
+ #ifdef CONFIG_SMP
+ 	nr_cpu_ids = highest_cpu + 1;
 
---------------090406080801040303060903
+--------------020103020409060707070202
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -132,4 +207,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---------------090406080801040303060903--
+--------------020103020409060707070202--
