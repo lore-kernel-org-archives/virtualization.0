@@ -1,17 +1,17 @@
 From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [PATCH/RFC 3/4]Introduce "account
-	modifiers"	mechanism
-Date: Fri, 17 Aug 2007 15:55:13 +0300
-Message-ID: <46C59AB1.6070505__49073.6530897722$1187355962$gmane$org@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH/RFC 4/4,
+	second shot]KVM uses "account_guest_time()"
+Date: Fri, 17 Aug 2007 16:03:14 +0300
+Message-ID: <46C59C92.40902__4355.54226064614$1187356003$gmane$org@qumranet.com>
 References: <46C4719A.2060308@bull.net>
 	<46C4720F.7030304@bull.net>		<46C4725A.4070607@bull.net>
-	<46C4740F.2050701@bull.net>		<1187303955.6449.7.camel@localhost.localdomain>	<46C54FB8.7050504@bull.net>	<1187339450.6449.115.camel@localhost.localdomain>
-	<46C56774.2030009@bull.net>
+	<46C4740F.2050701@bull.net>		<1187303955.6449.7.camel@localhost.localdomain>	<46C54FB8.7050504@bull.net>	<1187339450.6449.115.camel@localhost.localdomain>	<46C56774.2030009@bull.net>
+	<46C58BD5.3090207@bull.net> <46C58C8C.3080803@bull.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46C56774.2030009@bull.net>
+In-Reply-To: <46C58C8C.3080803@bull.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,46 +26,33 @@ Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel <linux-kernel@vger
 List-Id: virtualization@lists.linuxfoundation.org
 
 Laurent Vivier wrote:
->>     
->>> - remove PATCH 3, and add in task_struct a "ktime vtime" where we accumulate
->>> guest time (by calling something like guest_enter() and guest_exit() from the
->>> virtualization engine), and when in account_system_time() we have cputime >
->>> vtime we substrate vtime from cputime and add vtime to user time and guest time.
->>> But doing like this we freeze in kernel/sched.c the link between system time,
->>> user time and guest time (i.e. system time = system time - vtime, user time =
->>> user time + vtime and guest time = guest time + vtime).
->>>       
->> Actually, I think we can set a per-cpu "in_guest" flag for the scheduler
->> code, which then knows to add the tick to the guest time.  That seems
->> the simplest possible solution.
->>
->> lguest or kvm would set the flag before running the guest (which is done
->> with preempt disabled or using preemption hooks), and reset it
->> afterwards.
->>
->> Thoughts?
->>     
->
-> It was my first attempt (except I didn't have a per-cpu flag, but a per-task
-> flag), it's not visible but I love simplicity... ;-)
->
-> A KVM VCPU is stopped by preemption, so when we enter in scheduler we have
-> exited from VCPU and thus this flags is off (so we account 0 to the guest). What
-> I did then is "set the flag on when we enter in the VCPU, and
-> "account_system_time()" sets the flag off when it adds this timeslice to cpustat
-> (and compute correctly guest, user, system time). But I didn't like this idea
-> because all code executed after we entered in the VCPU is accounted to the guest
-> until we have an account_system_time() and I suppose we can have real system
-> time in this part. And I guess a VCPU can be less than 1 ms (unit of cputime) in
-> a timeslice.
->
-> So ? What's best ?
+> KVM updates vtime in task_struct to allow account_guest_time() to modify user,
+> system and guest time in cpustat accordingly.
 >   
 
-The normal user/system accounting has the same issue, no?  Whereever we
-happen to land (kernel or user) gets the whole tick.
+> --- kvm.orig/drivers/kvm/Kconfig	2007-08-17 10:24:46.000000000 +0200
+> +++ kvm/drivers/kvm/Kconfig	2007-08-17 10:25:25.000000000 +0200
+> @@ -41,4 +41,10 @@
+>  	  Provides support for KVM on AMD processors equipped with the AMD-V
+>  	  (SVM) extensions.
+>  
+> +config GUEST_ACCOUNTING
+> +	bool "Virtual Machine accounting support"
+> +	depends on KVM
+> +	---help---
+> +	  Allows to account CPU time used by the Virtual Machines.
+> +
 
-So I think it is okay to have the same limitation for guest time.
+
+Other way round.  In the patch that adds account_guest_time(), have a
+CONFIG_GUEST_ACCOUNTING (defaulting to n, with no description, help, or
+dependencies.  Then, CONFIG_KVM can select GUEST_ACCOUNTING.
+
+The advantages of this are:
+- the puppyvisor can also select this if it so wishes
+- we don't have core code reference some obscure module
+
+CONFIG_PREEMPT_NOTIFIERS does the same thing.
 
 -- 
 Do not meddle in the internals of kernels, for they are subtle and quick to panic.
