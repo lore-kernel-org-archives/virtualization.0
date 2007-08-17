@@ -1,13 +1,16 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: lguest virtio_descriptor structure on 64bit
-Date: Fri, 17 Aug 2007 10:22:18 +0200
-Message-ID: <200708171022.18799.borntraeger@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH/RFC 3/4]Introduce "account modifiers" mechanism
+Date: Fri, 17 Aug 2007 18:30:50 +1000
+Message-ID: <1187339450.6449.115.camel__37773.0510234416$1187339648$gmane$org@localhost.localdomain>
+References: <46C4719A.2060308@bull.net> <46C4720F.7030304@bull.net>
+	<46C4725A.4070607@bull.net>  <46C4740F.2050701@bull.net>
+	<1187303955.6449.7.camel@localhost.localdomain>
+	<46C54FB8.7050504@bull.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <46C54FB8.7050504@bull.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,43 +20,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+To: Laurent Vivier <Laurent.Vivier@bull.net>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Rusty,
+On Fri, 2007-08-17 at 09:35 +0200, Laurent Vivier wrote:
+> Rusty Russell wrote:
+> > Hi Laurent,
+> 
+> Hi Rusty,
+> how are your puppies ?
 
-while playing with your virtio descriptor code, I realized that the desc_pages 
-data structure is not 64 bit safe. struct lguest_desc desc[NUM_DESCS] can be 
-smaller than a page, as struct lguest_desc is 24 bytes on 64bit systems. Lets 
-add a char padding to make the next page really page aligned.
+They're getting a little fat, actually.  Too many features ...
 
-Btw. the new_io_desc.patch does not apply on current git. What base should I 
-use?
+> - remove PATCH 3, and add in task_struct a "ktime vtime" where we accumulate
+> guest time (by calling something like guest_enter() and guest_exit() from the
+> virtualization engine), and when in account_system_time() we have cputime >
+> vtime we substrate vtime from cputime and add vtime to user time and guest time.
+> But doing like this we freeze in kernel/sched.c the link between system time,
+> user time and guest time (i.e. system time = system time - vtime, user time =
+> user time + vtime and guest time = guest time + vtime).
 
+Actually, I think we can set a per-cpu "in_guest" flag for the scheduler
+code, which then knows to add the tick to the guest time.  That seems
+the simplest possible solution.
 
+lguest or kvm would set the flag before running the guest (which is done
+with preempt disabled or using preemption hooks), and reset it
+afterwards.
 
---- lguest_virtio.c.old	2007-08-17 10:15:05.000000000 +0200
-+++ lguest_virtio.c	2007-08-17 10:16:00.000000000 +0200
-@@ -31,15 +31,16 @@
- 
- struct desc_pages
- {
- 	/* Page of descriptors. */
- 	struct lguest_desc desc[NUM_DESCS];
-+	char pad0[PAGE_SIZE - NUM_DESCS * sizeof(struct lguest_desc)];
- 
- 	/* Next page: how we tell other side what buffers are available. */
- 	unsigned int avail_idx;
- 	unsigned int available[NUM_DESCS];
--	char pad[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
-+	char pad1[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
- 
- 	/* Third page: how other side tells us what's used. */
- 	unsigned int used_idx;
- 	struct lguest_used used[NUM_DESCS];
- };
-
-cheers
-
-Christian
+Thoughts?
+Rusty.
