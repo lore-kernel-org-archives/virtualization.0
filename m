@@ -1,16 +1,16 @@
-From: Gregory Haskins <ghaskins@novell.com>
-Subject: Re: [kvm-devel] [PATCH 00/10] PV-IO v3
-Date: Fri, 17 Aug 2007 09:50:14 -0400
-Message-ID: <1187358614.4363.135.camel__17482.9313219108$1187358950$gmane$org@ghaskins-t60p.haskins.net>
-References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>
-	<1187313953.6449.70.camel@localhost.localdomain>
-	<1187328402.4363.110.camel@ghaskins-t60p.haskins.net>
-	<1187336618.6449.106.camel@localhost.localdomain>
+From: Laurent Vivier <Laurent.Vivier@bull.net>
+Subject: Re: [kvm-devel] [PATCH/RFC 3/4]Introduce "account modifiers"
+	mechanism
+Date: Fri, 17 Aug 2007 16:12:56 +0200
+Message-ID: <46C5ACE8.2050004__28971.0412537262$1187360215$gmane$org@bull.net>
+References: <46C4719A.2060308@bull.net>
+	<46C4720F.7030304@bull.net>		<46C4725A.4070607@bull.net>
+	<46C4740F.2050701@bull.net>		<1187303955.6449.7.camel@localhost.localdomain>	<46C54FB8.7050504@bull.net>	<1187339450.6449.115.camel@localhost.localdomain>
+	<46C56774.2030009@bull.net> <46C59AB1.6070505@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="------------010603080806080009030604"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1187336618.6449.106.camel@localhost.localdomain>
+In-Reply-To: <46C59AB1.6070505@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,67 +20,157 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel@lists.sourceforge.net, virtualization <virtualization@lists.linux-foundation.org>
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-08-17 at 17:43 +1000, Rusty Russell wrote:
+This is a multi-part message in MIME format.
+--------------010603080806080009030604
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 
-> 	Sure, these discussions can get pretty esoteric.  The question is
-> whether you want a point-to-point transport (as we discuss here), or an
-> N-way.  Lguest has N-way, but I'm not convinced it's worthwhile, as
-> there's some overhead involved in looking up recipients (basically futex
-> code).
-
-Ah, ok I get it.  In that case: yeah, I agree 1:1 is probably the way to
-go.  We can always build some kind of N-way transport in terms of 1:1
-primitives if its desirable (though its probably better in most cases to
-just reuse something like an ethernet transport/bridge than invent
-something new). 
-
-
+Avi Kivity wrote:
+[...]
 > 
-> I agree that page sharing is silly.  But we can design a mechanism where
-> it such a "DMA agent" need only enforce a few very simple rules not the
-> whole protocol, and yet the guest doesn't know whether it's talking to
-> an agent or the host.
-
-Interesting....I would love to hear more of your ideas surrounding this.
-
-
-> Well, for cache reasons you should really try to avoid having both sides
-> write to the same data.  Hence two separate cache-aligned regions is
-> better than one region and a flip bit.
-
-While I certainly can see what you mean about the cache implications for
-a bit-flip design, I don't see how you can get away with not having both
-sides write to the same memory in other designs either.  Wouldn't you
-still have to adjust descriptors from one ring to the other?  E.g.
-wouldn't both sides be writing descriptor pointer data in this case, or
-am I missing something?
-
-> And if you make them separate pages, then this can also be inter-guest
-> safe 8)
-
-Ok, now you are making my head hurt 8)
-
+> The normal user/system accounting has the same issue, no?  Whereever we
+> happen to land (kernel or user) gets the whole tick.
 > 
-> Yeah, I agree.  I'm not sure how important it is IRL, but it *feels*
-> clever 8)
-
-Heh, yeah, I agree I don't know how much it saves.  I kind of got it for
-free based on the general design of the queue, so I thought "hey that's
-pretty cool".  It shouldn't *hurt*, anyway ;)
-
-
-> 
-> Yeah, I fear grant tables too.  But in any scheme, the descriptors imply
-> permission, so with a little careful design and implementation it should
-> "just work"...
+> So I think it is okay to have the same limitation for guest time.
 > 
 
-I am certainly looking forward to hearing more of your ideas in this
-area.  Very interesting, indeed....
+So this is how it looks like.
+PATCH 1 and 2 are always a prerequisite.
 
-Regards,
--Greg
+Laurent
+
+--------------010603080806080009030604
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ name="account_guest"
+Content-Disposition: inline;
+ filename="account_guest"
+
+Index: kvm/include/linux/sched.h
+===================================================================
+--- kvm.orig/include/linux/sched.h	2007-08-17 15:07:02.000000000 +0200
++++ kvm/include/linux/sched.h	2007-08-17 15:08:19.000000000 +0200
+@@ -1310,6 +1310,7 @@
+ #define PF_STARTING	0x00000002	/* being created */
+ #define PF_EXITING	0x00000004	/* getting shut down */
+ #define PF_EXITPIDONE	0x00000008	/* pi exit done on shut down */
++#define PF_VCPU		0x00000010	/* I'm a virtual CPU */
+ #define PF_FORKNOEXEC	0x00000040	/* forked but didn't exec */
+ #define PF_SUPERPRIV	0x00000100	/* used super-user privileges */
+ #define PF_DUMPCORE	0x00000200	/* dumped core */
+Index: kvm/kernel/sched.c
+===================================================================
+--- kvm.orig/kernel/sched.c	2007-08-17 14:42:43.000000000 +0200
++++ kvm/kernel/sched.c	2007-08-17 15:16:20.000000000 +0200
+@@ -3246,10 +3246,22 @@
+ 	struct rq *rq = this_rq();
+ 	cputime64_t tmp;
+ 
++	tmp = cputime_to_cputime64(cputime);
++	if (p->flags & PF_VCPU) {
++		p->utime = cputime_add(p->utime, cputime);
++		p->gtime = cputime_add(p->gtime, cputime);
++
++		cpustat->guest = cputime64_add(cpustat->guest, tmp);
++		cpustat->user = cputime64_add(cpustat->user, tmp);
++
++		p->flags &= ~PF_VCPU;
++
++		return;
++	}
++
+ 	p->stime = cputime_add(p->stime, cputime);
+ 
+ 	/* Add system time to cpustat. */
+-	tmp = cputime_to_cputime64(cputime);
+ 	if (hardirq_count() - hardirq_offset)
+ 		cpustat->irq = cputime64_add(cpustat->irq, tmp);
+ 	else if (softirq_count())
+
+--------------010603080806080009030604
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ name="kvm_account_guest"
+Content-Disposition: inline;
+ filename="kvm_account_guest"
+
+Index: kvm/drivers/kvm/kvm.h
+===================================================================
+--- kvm.orig/drivers/kvm/kvm.h	2007-08-17 15:26:16.000000000 +0200
++++ kvm/drivers/kvm/kvm.h	2007-08-17 15:29:46.000000000 +0200
+@@ -589,6 +589,19 @@
+ 
+ int kvm_hypercall(struct kvm_vcpu *vcpu, struct kvm_run *run);
+ 
++#ifndef PF_VCPU
++#define PF_VCPU	0	/* no kernel support */
++#endif
++
++static inline void kvm_guest_enter(void)
++{
++	current->flags |= PF_VCPU;
++}
++
++static inline void kvm_guest_exit(void)
++{
++}
++
+ static inline int kvm_mmu_page_fault(struct kvm_vcpu *vcpu, gva_t gva,
+ 				     u32 error_code)
+ {
+Index: kvm/drivers/kvm/svm.c
+===================================================================
+--- kvm.orig/drivers/kvm/svm.c	2007-08-17 15:26:16.000000000 +0200
++++ kvm/drivers/kvm/svm.c	2007-08-17 15:27:03.000000000 +0200
+@@ -1404,6 +1404,7 @@
+ 	clgi();
+ 
+ 	vcpu->guest_mode = 1;
++	kvm_guest_enter();
+ 	if (vcpu->requests)
+ 		if (test_and_clear_bit(KVM_TLB_FLUSH, &vcpu->requests))
+ 		    svm_flush_tlb(vcpu);
+@@ -1536,6 +1537,7 @@
+ #endif
+ 		: "cc", "memory" );
+ 
++	kvm_guest_exit();
+ 	vcpu->guest_mode = 0;
+ 
+ 	if (vcpu->fpu_active) {
+Index: kvm/drivers/kvm/vmx.c
+===================================================================
+--- kvm.orig/drivers/kvm/vmx.c	2007-08-17 15:26:16.000000000 +0200
++++ kvm/drivers/kvm/vmx.c	2007-08-17 15:27:45.000000000 +0200
+@@ -2078,6 +2078,7 @@
+ 	local_irq_disable();
+ 
+ 	vcpu->guest_mode = 1;
++	kvm_guest_enter();
+ 	if (vcpu->requests)
+ 		if (test_and_clear_bit(KVM_TLB_FLUSH, &vcpu->requests))
+ 		    vmx_flush_tlb(vcpu);
+@@ -2198,6 +2199,7 @@
+ 		[cr2]"i"(offsetof(struct kvm_vcpu, cr2))
+ 	      : "cc", "memory" );
+ 
++	kvm_guest_exit();
+ 	vcpu->guest_mode = 0;
+ 	local_irq_enable();
+ 
+
+--------------010603080806080009030604
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--------------010603080806080009030604--
