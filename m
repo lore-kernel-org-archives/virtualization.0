@@ -1,11 +1,13 @@
-From: "Karla Flint" <ibrdpxnu@ws.k12.ny.us>
-Subject: physical therapists mailing list
-Date: Fri, 17 Aug 2007 04:54:49 -0400
-Message-ID: <28284.1643238955$1187338020@news.gmane.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: lguest virtio_descriptor structure on 64bit
+Date: Fri, 17 Aug 2007 10:22:18 +0200
+Message-ID: <200708171022.18799.borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,46 +17,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ekowaleski@twmi.rr.com, ken@kenfen.net, info@leest-antiquariaat.com, melliott@ufl.edu, web@electoral-roll-uk.okeysearch.com, narasimha_murthy_r@yahoo.co.in, virtualizatio
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hello Rusty,
+
+while playing with your virtio descriptor code, I realized that the desc_pages 
+data structure is not 64 bit safe. struct lguest_desc desc[NUM_DESCS] can be 
+smaller than a page, as struct lguest_desc is 24 bytes on 64bit systems. Lets 
+add a char padding to make the next page really page aligned.
+
+Btw. the new_io_desc.patch does not apply on current git. What base should I 
+use?
 
 
 
-Only until Aug 17 - Purchase the Physician Database at the sale price and=
- get Hospital, Nursing Home and Dentist data completely free!
+--- lguest_virtio.c.old	2007-08-17 10:15:05.000000000 +0200
++++ lguest_virtio.c	2007-08-17 10:16:00.000000000 +0200
+@@ -31,15 +31,16 @@
+ 
+ struct desc_pages
+ {
+ 	/* Page of descriptors. */
+ 	struct lguest_desc desc[NUM_DESCS];
++	char pad0[PAGE_SIZE - NUM_DESCS * sizeof(struct lguest_desc)];
+ 
+ 	/* Next page: how we tell other side what buffers are available. */
+ 	unsigned int avail_idx;
+ 	unsigned int available[NUM_DESCS];
+-	char pad[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
++	char pad1[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
+ 
+ 	/* Third page: how other side tells us what's used. */
+ 	unsigned int used_idx;
+ 	struct lguest_used used[NUM_DESCS];
+ };
 
+cheers
 
-Licensed Physicians in the USA=20
-
-788,799 in total =96 17,400 emails
-
-Many different medical specialties
-
-Many unique fields like 'medical school attended' and 'location of reside=
-ncy training'
-
-Price Just Lowered -  $352
-
-
-*** FREE OFFER: Get the 3 directories below for FREE with the purchase of=
- the Doctor data ***
-
-American Hospitals
-complete contact information for CEO's, CFO's, Directors and more - over =
-23,000 listings in total for more than 7,000 hospitals in the USA
-
-US Dentist List
-More than half a million listings [worth $299 alone!]
-
-American Nursing Home Contact List
-Full data for CFO, Nursing Directors, Senior Admins [ worth $249 alone ]
-
-reply to: justdatamedical@hotmail.com
-
-
-
-
-
-put "cease" in the subject of an email to us if you'd rather not be conta=
-cted
+Christian
