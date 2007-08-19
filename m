@@ -1,10 +1,11 @@
-From: "Milford Craft" <sbc@bonnie.com.hk>
-Subject: Re:CADDY
-Date: Fri, 17 Aug 2007 17:03:20 -0100
-Message-ID: <01c7e0f0$834330a0$1c3695c2@sbc>
+From: "Johanna Kraft" <gpcpvj@bokoffkaplan.com>
+Subject: Re:FANFOLD PAPER
+Date: Sun, 19 Aug 2007 04:01:07 -0900
+Message-ID: <01c7e215$920dff90$88f663de@gpcpvj>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	format=flowed;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
@@ -22,9 +23,9 @@ List-Id: virtualization@lists.linuxfoundation.org
 Have you ever hoped to have a pricey Watch?
 
 
-We have the answer for you!
+We have the piece for you!
 
-We carry all the high scale 
+We sell all the expinsive brands 
 for a very small precentage of the expense.
 
 www.maqasloo.com
