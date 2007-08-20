@@ -1,15 +1,18 @@
-From: "Glauber de Oliveira Costa" <glommer@gmail.com>
-Subject: =?iso-8859-1?q?Re=3A_R=E9f=2E_=3A_Re=3A_=5BPATCH_0/4=5D_Virtual_?=
-	=?iso-8859-1?q?Machine_Time_Accounting?=
-Date: Mon, 20 Aug 2007 17:34:49 -0300
-Message-ID: <5d6222a80708201334q27fc6cbcr7ce6a9d7147437a2__18740.507370285$1187642213$gmane$org@mail.gmail.com>
-References: <OF945F7B1F.FF4B4672-ONC125733D.006266E7-C125733D.00626843@frec.bull.fr>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [kvm-devel] [PATCH 00/10] PV-IO v3
+Date: Tue, 21 Aug 2007 09:24:46 +1000
+Message-ID: <1187652286.19435.137.camel__32181.4733361409$1187652435$gmane$org@localhost.localdomain>
+References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>
+	<1187313953.6449.70.camel@localhost.localdomain>
+	<46C80C5B.7070009@qumranet.com>
+	<1187617806.4363.179.camel@ghaskins-t60p.haskins.net>
+	<64F9B87B6B770947A9F8391472E032160D4649E2@ehost011-8.exch011.intermedia.net>
+	<46C9A150.60101@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <OF945F7B1F.FF4B4672-ONC125733D.006266E7-C125733D.00626843@frec.bull.fr>
-Content-Disposition: inline
+In-Reply-To: <46C9A150.60101@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,35 +22,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "laurent.vivier@bull.net" <laurent.vivier@bull.net>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, John Stoffel <john@stoffel.org>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel@lists.sourceforge.net, Gregory Haskins <ghaskins@novell.com>, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> by doing this at kernel level, we can:
-> - measure exactly the guest time,
-> - move this part of system time to user time (as you think it should be
-> user time),
-> - have consistency between system, user and guest time,
-> - report values in /proc/state and /proc/<pid>/state, at system wide level
->
-> I'm not sure we can measure the guest time at the qemu user level.
->
-> Perhaps Rusty can say what he thinks about this ?
->
-Even if we cannot _now_, isn't that an easier, and safer change? (and
-I don't think we lose anything by design).
+On Mon, 2007-08-20 at 17:12 +0300, Avi Kivity wrote:
+> Dor Laor wrote:
+> > Using Rusty's code there is no waste.
+> > Each descriptor has a flag (head|next). Next flag stands for pointer to
+> > the
+> > next descriptor with u32 next index. So the waste is 4 bytes.
+> > Sg descriptors are chained on the same descriptor ring.
+> >   
+> 
+> Block I/O can easily require 256 sglist entries, eating up your ring.
 
-Although I don't know KVM to a that deep level, I think it should be
-possible to keep the virtual cpus in different process (or threads),
-and take the accounting time from there. Perfectly possible to know
-the time we spent running (user time), and the time the hypervisor
-spent doing things on our behalf (system time).
+Absolutely; I think we'd want this variable sized, rather than a single
+page as the current implementation does for no really sound reason.
 
-$0.02.
+That said, I don't have a problem with Avi's out-of-band mechanism.  A
+"DMA" hypercall can follow that almost as easily, and it does give that
+nice "fixed number of slots" effect.
 
--- 
-Glauber de Oliveira Costa.
-"Free as in Freedom"
-http://glommer.net
-
-"The less confident you are, the more serious you have to act."
+Cheers,
+Rusty.
