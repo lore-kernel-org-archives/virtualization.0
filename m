@@ -1,58 +1,52 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] Xen i386 xen-head.S fix sections mixup
-	(updated)
-Date: Mon, 20 Aug 2007 10:34:44 -0700
-Message-ID: <46C9D0B4.5060300@goop.org>
-References: <20070820030420.GA11070@Krystal> <46C9311D.2030702@goop.org>
-	<20070820171912.GB9478@Krystal>
+From: laurent.vivier@bull.net
+Subject: =?iso-8859-1?q?R=E9f=2E_=3A_Re=3A_=5BPATCH_0/4=5D_Virtual_Machin?=
+ =?iso-8859-1?q?e_Time?=  Accounting
+Date: Mon, 20 Aug 2007 19:54:52 +0200
+Message-ID: <OF945F7B1F.FF4B4672-ONC125733D.006266E7-C125733D.00626843__34731.9470406093$1187632350$gmane$org@frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <20070820171912.GB9478@Krystal>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: chrisw@sous-sol.org, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, xen-devel@lists.xensource.com, jeremy@xensource.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Laurent Vivier <Laurent.Vivier@bull.net>, John Stoffel <john@stoffel.org>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Mathieu Desnoyers wrote:
-> Xen i386 xen-head.S fix sections mixup
+
+> Laurent Vivier wrote:
+> functionnalities:
 >
-> xen-head.S does not come back to the data section, leaving the text section
-> as current section. It causes problems with a slightly enhanced DEBUG_RODATA
-> that supports CONFIG_HOTPLUG and bringing a CPU up after the text has been
-> marked read-only: reference to early_gdt_descr causes a page fault.
+> > - allow to measure time spent by a CPU in a virtual CPU.
+> > - allow to display in /proc/state this value by CPU
+> > - allow to display in /proc/<pid>/state this value by process
+> > - allow KVM to use these 3 previous functionnalities
+> >
 >
-> Update:
->
-> It should be using pushsection/popsection.
->   
+> So, currently time spent in a kvm guest is accumulated as qemu-kvm
+> usertime, right?  Given that qemu knows when its running in qemu vs
 
-Looks good, with one caveat below.
+No, it is accumulated as kvm system time.
 
-Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> guest context, couldn't it provide the breakdown between user and guest
+> time (ditto lguest)?
 
-> -	.section .text
-> +.pushsection .text
->  	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,       .asciz "linux")
->  	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,  .asciz "2.6")
->  	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,    .asciz "xen-3.0")
-> @@ -34,5 +35,6 @@ ENTRY(hypercall_page)
->  	ELFNOTE(Xen, XEN_ELFNOTE_PAE_MODE,       .asciz "no")
->  #endif
->  	ELFNOTE(Xen, XEN_ELFNOTE_LOADER,         .asciz "generic")
-> +.popsection
->   
+by doing this at kernel level, we can:
+- measure exactly the guest time,
+- move this part of system time to user time (as you think it should be
+user time),
+- have consistency between system, user and guest time,
+- report values in /proc/state and /proc/<pid>/state, at system wide level
 
-Actually, the push/popsections around the ELFNOTEs are redundant;
-ELFNOTE() does its own push/popsection to put things into the
-appropriate .note* section anyway.
+I'm not sure we can measure the guest time at the qemu user level.
 
-    J
+Perhaps Rusty can say what he thinks about this ?
+
+Regards,
+Laurent
