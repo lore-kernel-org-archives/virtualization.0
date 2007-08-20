@@ -1,15 +1,12 @@
 From: Laurent Vivier <Laurent.Vivier@bull.net>
-Subject: Re: [kvm-devel] [PATCH 4/4] Modify KVM to update guest
-	time	accounting.
-Date: Mon, 20 Aug 2007 16:22:05 +0200
-Message-ID: <46C9A38D.6090509__22352.1761400209$1187619827$gmane$org@bull.net>
-References: <46C993A6.3060001@bull.net>
-	<46C999C8.4080307@qumranet.com>	<46C99C05.90701@bull.net>
-	<46C9A057.6060303@qumranet.com>
+Subject: Re: [PATCH 0/4] Virtual Machine Time Accounting
+Date: Mon, 20 Aug 2007 16:39:39 +0200
+Message-ID: <46C9A7AB.1030003__14124.2152466022$1187620976$gmane$org@bull.net>
+References: <46C99371.7070705@bull.net> <18121.39541.790665.686081@stoffel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1783962937733519771=="
+Content-Type: multipart/mixed; boundary="===============8641982310065125699=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46C9A057.6060303@qumranet.com>
+In-Reply-To: <18121.39541.790665.686081@stoffel.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,96 +17,71 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: John Stoffel <john@stoffel.org>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---===============1783962937733519771==
+--===============8641982310065125699==
 Content-Type: multipart/signed; micalg=pgp-sha1;
 	protocol="application/pgp-signature";
-	boundary="------------enig4CA1BD24A2EA73E7114FD475"
+	boundary="------------enig7C4697859CD76F6581AFFD24"
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig4CA1BD24A2EA73E7114FD475
+--------------enig7C4697859CD76F6581AFFD24
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Avi Kivity wrote:
-> Laurent Vivier wrote:
->> Avi Kivity wrote:
->>  =20
->>> Laurent Vivier wrote:
->>>    =20
->>>> [PATCH 4/4] Modify KVM to update guest time accounting.
->>>>
->>>>  =20
->>>>      =20
->>>> Index: kvm/drivers/kvm/kvm.h
->>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->>>> --- kvm.orig/drivers/kvm/kvm.h    2007-08-20 13:23:53.000000000 +020=
-0
->>>> +++ kvm/drivers/kvm/kvm.h    2007-08-20 13:23:58.000000000 +0200
->>>> @@ -589,6 +589,17 @@ void kvm_mmu_unload(struct kvm_vcpu *vcp
->>>> =20
->>>>  int kvm_hypercall(struct kvm_vcpu *vcpu, struct kvm_run *run);
->>>> =20
->>>> +static inline void kvm_guest_enter(void)
->>>> +{
->>>> +#ifdef CONFIG_GUEST_ACCOUNTING
->>>> +    current->flags |=3D PF_VCPU;
->>>> +#endif
->>>>  =20
->>>>      =20
->>> Since you select GUEST_ACCOUNTING, the #ifdef is always true?
->>>    =20
->> It is just to avoid error if we compile kvm module outside of the kern=
-el, with
->> kernel without support of guest accounting. Can be removed if you want=
-=2E
->>
->>  =20
+Hi John,
+
+John Stoffel wrote:
 >=20
-> Ah okay.  We take care of the external module in=20
-> external-module-compat.h (in this case, we can #define PF_VCPU to 0 if =
-
-> it is undefined).
-
-OK
-
->>>> +}
->>>> +
->>>> +static inline void kvm_guest_exit(void)
->>>> +{
->>>>  =20
->>>>      =20
->>> Missing content?
->>>    =20
->> No, empty function.
->>
->> It is just to introduce "symmetry" in code, the VCPU code begins with
->> "kvm_guest_start()" and ends with "kvm_guest_exit()". And we have no o=
-peration
->> to do in kvm_guest_exit() (the PF_VCPU is cleared by account_system_ti=
-me()), so
->> "empty function", removed by the optimizer (I hope).
->>  =20
+> Laurent> The aim of these four patches is to introduce Virtual Machine
+> Laurent> time accounting.
 >=20
-> But what if account_system_time() is not called (because we exited=20
-> before the timer interrupt hit)?
+> So what does this buy us?  What increased functionality? =20
+>=20
 
-account_system_time() is called by the scheduler on tick. If we clear PF_=
-VCPU in
-kvm_guest_exit(), the flag is always cleared when account_system_time() i=
-s
-executed, so we account "0", if we call account_system_time() directly fr=
-om
-kvm_guest_exit() we account "1", so we subtract 1 to system time, and we =
-have
-perhaps not used 1 tick in system: in my opinion this implies wrong resul=
-ts.
+functionnalities:
+
+- allow to measure time spent by a CPU in a virtual CPU.
+- allow to display in /proc/state this value by CPU
+- allow to display in /proc/<pid>/state this value by process
+- allow KVM to use these 3 previous functionnalities
+
+> Laurent> [PATCH 1/4] as recent CPUs introduce a third running state,
+> Laurent> after "user" and "system", we need a new field, "guest", in
+> Laurent> cpustat to store the time used by the CPU to run virtual
+> Laurent> CPU. Modify /proc/stat to display this new field.
+>=20
+> What happens when you have multiple guests, is this state cummulative? =
+=20
+
+Yes, like system time and user time are.
+
+> I've glanced over these patches and the #ifdefs are ugly..., esp since
+
+#ifdefs are ugly, I agree... I can remove them.
+But "#ifdef" allows to save space and time (and it is not a beauty show).=
+
+
+> the overhead seems to exist even if you don't run any Guest CPUs.  Or
+> whatever you're doing here.
+
+Can you explain ?
+
+> Please justify this patch more in terms of what it provides and why
+> it's a good thing to have. =20
+
+Well... it provides the time spent by CPUs in virtual CPUs.
+It is usefull only if you run Virtual Machine on your host (like KVM, lgu=
+est,
+kqemu...) to know how many time your CPUs dedicate to virtual machine exe=
+cution.
+It's a good thing to have like user time and system time are good things =
+to
+have... do you use 'top' or 'time' sometime ?
+
 
 Laurent
 --=20
@@ -117,7 +89,7 @@ Laurent
           "Software is hard" - Donald Knuth
 
 
---------------enig4CA1BD24A2EA73E7114FD475
+--------------enig7C4697859CD76F6581AFFD24
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -125,14 +97,14 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.7 (GNU/Linux)
 
-iD8DBQFGyaON9Kffa9pFVzwRAiZBAKCjIrPZ45pCUxY3DBByFsTxzjdE0wCfYUVe
-m6tAzCpP/yiMXV1etLLs1EQ=
-=IQR8
+iD8DBQFGyaeu9Kffa9pFVzwRAqydAKCSG136gnCONpBpMj0/gsaNEcAsJACgjSd4
+HVdzGjIUyh0DKiOBnidtZjU=
+=vVLG
 -----END PGP SIGNATURE-----
 
---------------enig4CA1BD24A2EA73E7114FD475--
+--------------enig7C4697859CD76F6581AFFD24--
 
---===============1783962937733519771==
+--===============8641982310065125699==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -142,4 +114,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============1783962937733519771==--
+--===============8641982310065125699==--
