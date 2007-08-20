@@ -1,52 +1,80 @@
-From: laurent.vivier@bull.net
-Subject: =?iso-8859-1?q?R=E9f=2E_=3A_Re=3A_=5BPATCH_0/4=5D_Virtual_Machin?=
- =?iso-8859-1?q?e_Time?=  Accounting
-Date: Mon, 20 Aug 2007 19:54:52 +0200
-Message-ID: <OF945F7B1F.FF4B4672-ONC125733D.006266E7-C125733D.00626843__34731.9470406093$1187632350$gmane$org@frec.bull.fr>
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Subject: [PATCH] Xen i386 xen-head.S fix sections mixup (update
+	2)
+Date: Mon, 20 Aug 2007 15:04:04 -0400
+Message-ID: <20070820190404.GB9322@Krystal>
+References: <20070820030420.GA11070@Krystal> <46C9311D.2030702@goop.org>
+	<20070820171912.GB9478@Krystal> <46C9D0B4.5060300@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline
+In-Reply-To: <46C9D0B4.5060300@goop.org>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Laurent Vivier <Laurent.Vivier@bull.net>, John Stoffel <john@stoffel.org>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@elte.hu>
+Cc: chrisw@sous-sol.org, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, xen-devel@lists.xensource.com, jeremy@xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Xen i386 xen-head.S fix sections mixup
 
-> Laurent Vivier wrote:
-> functionnalities:
->
-> > - allow to measure time spent by a CPU in a virtual CPU.
-> > - allow to display in /proc/state this value by CPU
-> > - allow to display in /proc/<pid>/state this value by process
-> > - allow KVM to use these 3 previous functionnalities
-> >
->
-> So, currently time spent in a kvm guest is accumulated as qemu-kvm
-> usertime, right?  Given that qemu knows when its running in qemu vs
+xen-head.S does not come back to the data section, leaving the text section
+as current section. It causes problems with a slightly enhanced DEBUG_RODATA
+that supports CONFIG_HOTPLUG and bringing a CPU up after the text has been
+marked read-only: reference to early_gdt_descr causes a page fault.
 
-No, it is accumulated as kvm system time.
+Updates:
 
-> guest context, couldn't it provide the breakdown between user and guest
-> time (ditto lguest)?
+- It should be using pushsection/popsection.
+- Actually, the push/popsections around the ELFNOTEs are redundant; ELFNOTE()
+  does its own push/popsection to put things into the appropriate .note* section
+  anyway.
 
-by doing this at kernel level, we can:
-- measure exactly the guest time,
-- move this part of system time to user time (as you think it should be
-user time),
-- have consistency between system, user and guest time,
-- report values in /proc/state and /proc/<pid>/state, at system wide level
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+CC: chrisw@sous-sol.org
+CC: virtualization@lists.osdl.org
+CC: xen-devel@lists.xensource.com
+---
+ arch/i386/xen/xen-head.S |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-I'm not sure we can measure the guest time at the qemu user level.
-
-Perhaps Rusty can say what he thinks about this ?
-
-Regards,
-Laurent
+Index: linux-2.6-lttng/arch/i386/xen/xen-head.S
+===================================================================
+--- linux-2.6-lttng.orig/arch/i386/xen/xen-head.S	2007-08-20 00:22:16.000000000 -0400
++++ linux-2.6-lttng/arch/i386/xen/xen-head.S	2007-08-20 15:00:55.000000000 -0400
+@@ -7,20 +7,20 @@
+ #include <asm/boot.h>
+ #include <xen/interface/elfnote.h>
+ 
+-	.section .init.text
++.pushsection .init.text
+ ENTRY(startup_xen)
+ 	movl %esi,xen_start_info
+ 	cld
+ 	movl $(init_thread_union+THREAD_SIZE),%esp
+ 	jmp xen_start_kernel
++.popsection
+ 
+-.pushsection ".bss.page_aligned"
++.pushsection .bss.page_aligned
+ 	.align PAGE_SIZE_asm
+ ENTRY(hypercall_page)
+ 	.skip 0x1000
+ .popsection
+ 
+-	.section .text
+ 	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,       .asciz "linux")
+ 	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,  .asciz "2.6")
+ 	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,    .asciz "xen-3.0")
+-- 
+Mathieu Desnoyers
+Computer Engineering Ph.D. Student, Ecole Polytechnique de Montreal
+OpenPGP key fingerprint: 8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68
