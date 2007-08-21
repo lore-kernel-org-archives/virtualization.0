@@ -1,7 +1,7 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Gregory Haskins <ghaskins@novell.com>
 Subject: RE: [kvm-devel] [PATCH 00/10] PV-IO v3
-Date: Tue, 21 Aug 2007 23:47:18 +1000
-Message-ID: <1187704038.19435.194.camel__41211.9038789116$1187704309$gmane$org@localhost.localdomain>
+Date: Tue, 21 Aug 2007 10:06:02 -0400
+Message-ID: <1187705162.4363.323.camel__48756.7329350442$1187705414$gmane$org@ghaskins-t60p.haskins.net>
 References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>
 	<1187313953.6449.70.camel@localhost.localdomain>
 	<1187328402.4363.110.camel@ghaskins-t60p.haskins.net>
@@ -11,11 +11,12 @@ References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>
 	<64F9B87B6B770947A9F8391472E032160D464FEB@ehost011-8.exch011.intermedia.net>
 	<1187683122.19435.171.camel@localhost.localdomain>
 	<1187697638.4363.277.camel@ghaskins-t60p.haskins.net>
+	<1187704038.19435.194.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1187697638.4363.277.camel@ghaskins-t60p.haskins.net>
+In-Reply-To: <1187704038.19435.194.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,59 +26,68 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gregory Haskins <ghaskins@novell.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: kvm-devel@lists.sourceforge.net, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-08-21 at 08:00 -0400, Gregory Haskins wrote:
-> On Tue, 2007-08-21 at 17:58 +1000, Rusty Russell wrote:
+On Tue, 2007-08-21 at 23:47 +1000, Rusty Russell wrote:
+
+> Hi Gregory,
 > 
-> > Partly the horror of the code, but mainly because it is an in-order
-> > ring.  You'll note that we use a reply ring, so we don't need to know
-> > how much the other side has consumed (and it needn't do so in order).
-> > 
+> 	The main current use is disk drivers: they process out-of-order.
+
+Maybe for you ;)  I am working on the networking/IVMC side.
+
 > 
-> I have certainly been known to take a similar stance when looking at Xen
-> code ;) (recall the lapic work I did).  However, that said I am not yet
-> convinced that an out-of-order ring (at least as a fundamental
-> primitive) buys us much.
+> >   I think the use of rings for the tx-path in of
+> > itself is questionable unless you can implement something like the bidir
+> > NAPI that I demonstrated in ioqnet.  Otherwise, you end up having to
+> > hypercall on each update to the ring anyway and you might as well
+> > hypercall directly w/o using a ring.
+> 
+> 	In the guest -> host direction, an interface like virtio is designed
+> for batching, with the explicit distinction between add_buf & sync.
 
-Hi Gregory,
+Right.  IOQ has "iter_push()" and "signal()" as synonymous operations.
+But note that batching via deferred synchronization does not implicitly
+require a shared queue. E.g. you could batch internally and then
+hypercall at the "sync" point.  However, batching via a queue is still
+nice because at least you give the host side a chance to independently
+"notice" the changes concurrently before the sync.  But I digress...
 
-	The main current use is disk drivers: they process out-of-order.
+>   On
+> the receive side, you can have explicit interrupt suppression on
+> implicit mitigation caused by scheduling effects.
 
->   I think the use of rings for the tx-path in of
-> itself is questionable unless you can implement something like the bidir
-> NAPI that I demonstrated in ioqnet.  Otherwise, you end up having to
-> hypercall on each update to the ring anyway and you might as well
-> hypercall directly w/o using a ring.
+Agreed.  This is precisely what the bidir NAPI stuff is doing and I
+didn't mean to imply that virtio wasn't capable of it too.  All I meant
+is that if you *don't* take advantage of it, the guest->host path via a
+queue is likely overkill.  E.g. you might as well hypercall instead.
 
-	In the guest -> host direction, an interface like virtio is designed
-for batching, with the explicit distinction between add_buf & sync.  On
-the receive side, you can have explicit interrupt suppression on
-implicit mitigation caused by scheduling effects.
 
-> OTOH, its possible that its redundant to have a simple low-level
-> infrastructure and then build a more complex ring for out-of-order
-> processing on top of it.  I'm not sure.  My gut feeling is that it will
-> probably result in a cleaner implementation: The higher-layered ring can
-> stop worrying about the interrupt/hypercall details (it would use the
-> simple ring as its transport)....and implementations that don't need
-> out-of-order (e.g. networks) don't have to deal with the associated
-> complexity.
+> 	But in fact as we can see, two rings need less from each ring than one
+> ring.  One ring must have producer and consumer indices, so the producer
+> doesn't overrun the consumer.  But if the second ring is used to feed
+> consumption, the consumer index isn't required any more: in fact, it's
+> just confusing to have.
 
-	But in fact as we can see, two rings need less from each ring than one
-ring.  One ring must have producer and consumer indices, so the producer
-doesn't overrun the consumer.  But if the second ring is used to feed
-consumption, the consumer index isn't required any more: in fact, it's
-just confusing to have.
+Don't get me wrong.  I am totally in favor of the two ring approach.
+You have enlightened me on that front. :)  I was under the impression
+that then making the two-ringed approach support out-of-order added
+significantly more complexity.  Did I understand that wrong?
 
-	I really think that a table of descriptors, a ring for produced
-descriptors and a ring for used descriptors is the most cache-friendly,
-bidir-non-trusting simple implementation possible.  Of course, the
-produced and used rings might be the same format, which allows code
-sharing and if you squint a little, that's your "lowest level" simple
-ringbuffer.
+> 
+> 	I really think that a table of descriptors, a ring for produced
+> descriptors and a ring for used descriptors is the most cache-friendly,
+> bidir-non-trusting simple implementation possible.  Of course, the
+> produced and used rings might be the same format, which allows code
+> sharing and if you squint a little, that's your "lowest level" simple
+> ringbuffer.
 
-Thanks for the discussion,
-Rusty.
+Sounds reasonable to me.
+
+> 
+> Thanks for the discussion,
+
+Ditto!
+-Greg
