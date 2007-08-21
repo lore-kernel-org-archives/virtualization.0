@@ -1,13 +1,14 @@
-From: Blaisorblade <blaisorblade@yahoo.it>
-Subject: Re: [uml-devel] [PATCH 1/5] um/... convert #include "linux/..." to
-	#include	 <linux/...>
-Date: Tue, 21 Aug 2007 19:09:17 +0200
-Message-ID: <200708211909.23027.blaisorblade@yahoo.it>
-References: <1187561903.4200.138.camel@localhost>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH 00/10] PV-IO v3
+Date: Tue, 21 Aug 2007 20:12:38 +0300
+Message-ID: <46CB1D06.1040005__16752.6790909053$1187716471$gmane$org@qumranet.com>
+References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>	<1187313953.6449.70.camel@localhost.localdomain>	<1187328402.4363.110.camel@ghaskins-t60p.haskins.net>	<1187336618.6449.106.camel@localhost.localdomain>	<1187358614.4363.135.camel@ghaskins-t60p.haskins.net>	<1187652496.19435.141.camel@localhost.localdomain>	<64F9B87B6B770947A9F8391472E032160D464FEB@ehost011-8.exch011.intermedia.net>	<1187683122.19435.171.camel@localhost.localdomain>	<1187697638.4363.277.camel@ghaskins-t60p.haskins.net>	<1187704038.19435.194.camel@localhost.localdomain>	<1187705162.4363.323.camel@ghaskins-t60p.haskins.net>
+	<1187714864.4363.358.camel@ghaskins-t60p.haskins.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2657067245559378831=="
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1187561903.4200.138.camel@localhost>
+In-Reply-To: <1187714864.4363.358.camel@ghaskins-t60p.haskins.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,82 +16,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: user-mode-linux-devel@lists.sourceforge.net
-Cc: Miklos Szeredi <mszeredi@suse.cz>, Maxim Krasnyansky <maxk@qualcomm.com>, Jeff Dike <jdike@karaya.com>, kernel-janitors@vger.kernel.org, Jason Lunz <lunz@falooley.org>, Jan Beulich <jbeulich@novell.com>, vtun@office.satix.net, Jens Axboe <jens.axboe@oracle.com>, Stephen Hemminger <shemminger@linux-foundation.org>, Nick Piggin <npiggin@suse.de>, Davide Brini <davide.brini@unibo.it>, Fernando Luis Vazquez Cao <fernando@oss.ntt.co.jp>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Alexey Dobriyan <adobriyan@gmail.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Jeff Dike <jdike@addtoit.com>, Eduard-Gabriel Munteanu <maxdamage@aladin.ro>, Chris Wright <chrisw@sous-sol.org>, user-mode-linux-user@lists.sourceforge.net, Jeff Dike <jdike@linux.intel.com>, Arnaldo
+To: Gregory Haskins <ghaskins@novell.com>
+Cc: kvm-devel@lists.sourceforge.net, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2657067245559378831==
-Content-Type: multipart/signed; boundary="nextPart3465391.6hmGNNrzUM";
-	protocol="application/pgp-signature"; micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-
---nextPart3465391.6hmGNNrzUM
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On luned=EC 20 agosto 2007, Joe Perches wrote:
-> (untested)
+Gregory Haskins wrote:
+> On Tue, 2007-08-21 at 10:06 -0400, Gregory Haskins wrote:
+>   
+>> On Tue, 2007-08-21 at 23:47 +1000, Rusty Russell wrote:
+>>     
+>>> 	In the guest -> host direction, an interface like virtio is designed
+>>> for batching, with the explicit distinction between add_buf & sync.
+>>>       
+>> Right.  IOQ has "iter_push()" and "signal()" as synonymous operations.
+>>     
 >
-> There are several files that
-> #include "linux/file" not #include <linux/file>
-> #include "asm/file" not #include <asm/file>
->
-> Here's a little script that converts them:
->
-> egrep -i -r -l --include=3D*.[ch] \
-> "^[[:space:]]*\#[[:space:]]*include[[:space:]]*\"(linux|asm)/(.*)\"" * \
->
-> | xargs sed -i -e
-> | 's/^[[:space:]]*#[[:space:]]*include[[:space:]]*"\(linux\|asm\)\/\(.*\)=
-"/
-> |#include <\1\/\2>/g'
->
-> Signed-off-by: Joe Perches <joe@perches.com>
+> Hi Rusty,
+>   This reminded me of an area that I thought might have been missing in
+> virtio compared to IOQ.  That is, flexibility in the io-completion via
+> the distinction between "signal" and "sync".  sync() implies that its a
+> blocking call based on the full drain of the queue, correct?
 
-Wait, this patch may or may not be sane (Jeff will tell more I guess). Sinc=
-e=20
-we use two different sets of headers (the host ones from userspace and the=
-=20
-guest ones from Linux), this peculiar style has been used till now to make=
-=20
-clear the difference (#include <file> is used for host headers) - at least=
-=20
-that's what I think (I've never asked to Jeff, but I silently deduced this=
-=20
-and followed this practice).
-=2D-=20
-"Doh!" (cit.), I've made another another mistake!
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+No, sync() means "make the other side aware that there's work to be done".
 
---nextPart3465391.6hmGNNrzUM
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQBGyxxCqH9OHC+5NscRAuz6AKCgps1/TLX24DaQmwmgVPtM2urAhwCffaU0
-OughA/pR1xKW0+WDdsnzZu8=
-=caGC
------END PGP SIGNATURE-----
-
---nextPart3465391.6hmGNNrzUM--
-
---===============2657067245559378831==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============2657067245559378831==--
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
