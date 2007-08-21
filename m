@@ -1,16 +1,12 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [kvm-devel] =?iso-8859-1?q?R=E9f=2E_=3A_Re=3A_=5BPATCH_0/4=5D?=
- =?iso-8859-1?q?_Virtual_Machine_Time_Accounting?=
-Date: Tue, 21 Aug 2007 10:06:42 +0200
-Message-ID: <200708211006.42938.borntraeger__33512.832169845$1187683713$gmane$org@de.ibm.com>
-References: <OF945F7B1F.FF4B4672-ONC125733D.006266E7-C125733D.00626843@frec.bull.fr>
-	<5d6222a80708201334q27fc6cbcr7ce6a9d7147437a2@mail.gmail.com>
+Subject: bug in virtio network driver?
+Date: Tue, 21 Aug 2007 10:48:33 +0200
+Message-ID: <200708211048.33534.borntraeger__641.831305301999$1187686228$gmane$org@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5d6222a80708201334q27fc6cbcr7ce6a9d7147437a2@mail.gmail.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,26 +17,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel@lists.sourceforge.net
-Cc: John Stoffel <john@stoffel.org>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, "laurent.vivier@bull.net" <laurent.vivier@bull.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm-devel@lists.sourceforge.net, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Montag, 20. August 2007 schrieb Glauber de Oliveira Costa:
-> Although I don't know KVM to a that deep level, I think it should be
-> possible to keep the virtual cpus in different process (or threads),
-> and take the accounting time from there. Perfectly possible to know
-> the time we spent running (user time), and the time the hypervisor
-> spent doing things on our behalf (system time).
+Hello Rusty,
 
-I disagree here. First thing, you dont want to have the virtual cpu in a 
-different process than the hypervisor control code for that cpu. Otherwise  
-communication has to be made via IPC. 
-Secondly, Its not qemu/kvm that does the accouting. Its existing userspace 
-code like top/snmp agents and clients! etc. that would require additional 
-knowledge which thread is guest code.
+I think I have found a problem in the virtio network driver. virtio_net 
+reclaims sent skbs on xmit. That means that there is always one skb 
+outstanding and the netdev packet statistic is always one packet to low.
 
-I personally like the approach Laurent has taken. Maybe it needs some polish 
-and maybe we want an account_guest_time function, but in general I think he 
-is doing the right thing. 
+Documentation/networking/drivers.txt says
+
+3) Do not forget that once you return 0 from your hard_start_xmit
+   method, it is your driver's responsibility to free up the SKB
+   and in some finite amount of time.
+
+   For example, this means that it is not allowed for your TX
+   mitigation scheme to let TX packets "hang out" in the TX
+   ring unreclaimed forever if no new TX packets are sent.
+   This error can deadlock sockets waiting for send buffer room
+   to be freed up.
+
+One solution would be to use the xmit_done interrupt. Unfortunately this would 
+require additional locking as multiple interrupts can happen at two or more 
+cpus. Do you have any better ideas?
 
 Christian
