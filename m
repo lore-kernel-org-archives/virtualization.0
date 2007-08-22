@@ -1,45 +1,70 @@
-From: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [uml-devel] [PATCH 1/5] um/... convert #include "linux/..." to
-	#include	<linux/...>
-Date: Wed, 22 Aug 2007 12:25:08 -0400
-Message-ID: <20070822162508.GA11022@c2.user-mode-linux.org>
-References: <1187561903.4200.138.camel@localhost>
-	<200708211909.23027.blaisorblade@yahoo.it>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH] Add I/O hypercalls for i386 paravirt
+Date: Wed, 22 Aug 2007 09:48:25 -0700
+Message-ID: <46CC68D9.5060200@vmware.com>
+References: <46CBC842.4070100@vmware.com> <20070822102217.GE2642@bingen.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200708211909.23027.blaisorblade@yahoo.it>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: Miklos Szeredi <mszeredi@suse.cz>, Maxim Krasnyansky <maxk@qualcomm.com>, Jeff Dike <jdike@karaya.com>, kernel-janitors@vger.kernel.org, Jason Lunz <lunz@falooley.org>, Jan Beulich <jbeulich@novell.com>, vtun@office.satix.net, Jens Axboe <jens.axboe@oracle.com>, Stephen Hemminger <shemminger@linux-foundation.org>, Nick Piggin <npiggin@suse.de>, Davide Brini <davide.brini@unibo.it>, Fernando Luis Vazquez Cao <fernando@oss.ntt.co.jp>, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>, Alexey Dobriyan <adobriyan@gmail.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>, Eduard-Gabriel Munteanu <maxdamage@aladin.ro>, Chris Wright <chrisw@sous-sol.org>, user-mode-linux-user@lists.sourceforge.net
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933157AbXHVQxt@vger.kernel.org>
+In-Reply-To: <20070822102217.GE2642@bingen.suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Avi Kivity <avi@qumranet.com>, Jeremy Fitzhardinge <jeremy@goop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 21, 2007 at 07:09:17PM +0200, Blaisorblade wrote:
-> Wait, this patch may or may not be sane (Jeff will tell more I guess).
+Andi Kleen wrote:
+> On Tue, Aug 21, 2007 at 10:23:14PM -0700, Zachary Amsden wrote:
+>   
+>> In general, I/O in a virtual guest is subject to performance problems.  
+>> The I/O can not be completed physically, but must be virtualized.  This 
+>> means trapping and decoding port I/O instructions from the guest OS.  
+>> Not only is the trap for a #GP heavyweight, both in the processor and 
+>> the hypervisor (which usually has a complex #GP path), but this forces 
+>> the hypervisor to decode the individual instruction which has faulted.  
+>>     
+>
+> Is that really that expensive? Hard to imagine.
+>   
 
-It's sane.
+ You have an expensive (16x cost of hypercall on some processors) 
+privilege transition, you have to decode the instruction, then you have 
+to verify protection in the page tables mapping the page allows 
+execution (P, !NX, and U/S check).  This is a lot more expensive than a 
+hypercall.
 
-> Since 
-> we use two different sets of headers (the host ones from userspace and the 
-> guest ones from Linux), this peculiar style has been used till now to make 
-> clear the difference (#include <file> is used for host headers) - at least 
-> that's what I think (I've never asked to Jeff, but I silently deduced this 
-> and followed this practice).
+> e.g. you could always have a fast check for inb/outb at the beginning
+> of the #GP handler. And is your initial #GP entry really more expensive
+> than a hypercall? 
+>   
 
-Yeah, and it makes some sense to extend the practice to the kernel
-side, where <> is used for generic headers and "" for UML-specific
-ones.
+The number of reasons for #GP is enormous, and there are too many paths 
+to optimize with fast checks.  We do have a fast check for inb/outb; 
+it's just not fast enough.
 
-				Jeff
+On P4, hypercall entry is 120 cycles.  #GP is about 2000.  Modern 
+processors are better, but a hypercall is always faster than a fault.  
+Many times, the hypercall can be handled and ready to return before a 
+#GP would even complete.
 
--- 
-Work email - jdike at linux dot intel dot com
+On workloads that sit there and hammer network cards, these costs become 
+significant, and latency sensitive network benchmarks suffer.
+
+>> Worse, even with hardware assist such as VT, the exit reason alone is 
+>> not sufficient to determine the true nature of the faulting instruction, 
+>> requiring a complex and costly instruction decode and simulation.
+>>     
+>
+> It's unclear to me why that should be that costly.
+>
+> Worst case it's a switch()
+>   
+
+There are 24 different possible I/O operations; sometimes with a port 
+encoded in the instruction, sometimes with input in the DX register, 
+sometimes with a rep prefix, and for 3 different operand sizes.
+
+Combine that with the MMU checks required, and it's complex and branchy 
+enough to justify short-circuiting the whole thing with a simple hypercall.
+
+Zach
