@@ -1,79 +1,46 @@
 From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [PATCH 00/10] PV-IO v3
-Date: Wed, 22 Aug 2007 14:47:12 +0300
-Message-ID: <46CC2240.30400__23182.8696480536$1187783416$gmane$org@qumranet.com>
-References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>	<1187714864.4363.358.camel@ghaskins-t60p.haskins.net>	<1187753365.6174.26.camel@localhost.localdomain>	<200708221118.00990.borntraeger@de.ibm.com>	<64F9B87B6B770947A9F8391472E032160D503D81@ehost011-8.exch011.intermedia.net>
-	<1187779205.6174.87.camel@localhost.localdomain>
+Subject: Re: [PATCH] Add I/O hypercalls for i386 paravirt
+Date: Wed, 22 Aug 2007 15:09:10 +0300
+Message-ID: <46CC2766.7020602@qumranet.com>
+References: <46CBC842.4070100@vmware.com> <46CBCADF.2070400@qumranet.com> <1187763956.6174.48.camel@localhost.localdomain> <20070822103545.GG2642@bingen.suse.de> <46CC0719.2080103@qumranet.com> <20070822110810.GO32640@bingen.suse.de> <46CC0EAF.3000805@qumranet.com> <20070822112352.GQ32640@bingen.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1187779205.6174.87.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel@lists.sourceforge.net, Christian Borntraeger <borntraeger@de.ibm.com>, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758784AbXHVMJJ@vger.kernel.org>
+In-Reply-To: <20070822112352.GQ32640@bingen.suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Wed, 2007-08-22 at 02:26 -0700, Dor Laor wrote:
+Andi Kleen wrote:
+> On Wed, Aug 22, 2007 at 01:23:43PM +0300, Avi Kivity wrote:
 >   
->> Actually while playing with virtio for kvm Avi saw that and recommended
->> to do the following:
->> struct desc_pages
->> {
->> 	/* Page of descriptors. */
->> 	union {
->> 		struct virtio_desc desc[NUM_DESCS];
->> 		char pad1[PAGE_SIZE];
->> 	};
->>
->> 	/* Next page: how we tell other side what buffers are available. */
->> 	union {
->> 		struct {
->> 			unsigned int avail_idx;
->> 			unsigned int available[NUM_DESCS];
->> 		};
->> 		char pad2[PAGE_SIZE];
->> 	};
->>
->> 	/* Third page: how other side tells us what's used. */
->> 	union {
->> 		struct {
->> 			unsigned int used_idx;
->> 			struct virtio_used used[NUM_DESCS];
->> 		};
->> 		char pad3[PAGE_SIZE];
->> 	};
->> };
->>
->> It saves useless pointer arithmetic.
+>> Andi Kleen wrote:
+>>     
+>>>> I don't see why it's intrusive -- they all use the APIs, right?
+>>>>    
+>>>>         
+>>> Yes, but it still changes them. It might have a larger impact
+>>> on code size for example. 
+>>>  
+>>>       
+>> Only if CONFIG_PARAVIRT is defined.  
 >>     
 >
-> Hi Dor!
->
-> Please consider moving the "used" field into the descriptor (maybe as a
-> ptr for cache reasons, 'cept I'd really like to trim descriptor size).
-> That makes the avail and used rings identical, plus the current model
-> means we can't trust the used length if we don't trust the other side
-> (this is one of my FIXMEs).
->
-> Of course, we could go further and break the fixed structure: there's no
-> reason for the first and second part to be on separate pages, nor for
-> the third to be consecutive.  But there is no need until be have an
-> untrusted demonstration...
+> Which eventually distribution kernels will do.
 >
 >   
+>> And even then, all the performance 
+>> sensitive stuff uses mmio, no?
+>>     
+>
+> Not worried about performance, but just impact on code size etc.
+>   
 
-Another thing that occurs to me is that alignment should be explicit to 
-64 bits, so that mixed 32/64 bit guest/hosts can be used.
+Ah.  But that's mostly modules, so real in-core changes should be very 
+small (say 10 bytes per call site X 10 callsites per driver X 10 
+drivers... even if off by an order of magnitude it's still tiny)
 
 
 -- 
