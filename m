@@ -1,30 +1,51 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH] Add I/O hypercalls for i386 paravirt
-Date: Wed, 22 Aug 2007 12:51:21 +0300
-Message-ID: <46CC0719.2080103@qumranet.com>
-References: <46CBC842.4070100@vmware.com> <46CBCADF.2070400@qumranet.com> <1187763956.6174.48.camel@localhost.localdomain> <20070822103545.GG2642@bingen.suse.de>
+From: "Dor Laor" <dor.laor@qumranet.com>
+Subject: RE: [kvm-devel] [PATCH 00/10] PV-IO v3
+Date: Wed, 22 Aug 2007 03:05:07 -0700
+Message-ID: <64F9B87B6B770947A9F8391472E032160D503D94__15412.723812233$1187777341$gmane$org@ehost011-8.exch011.intermedia.net>
+References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>
+	<200708221118.00990.borntraeger@de.ibm.com>
+	<64F9B87B6B770947A9F8391472E032160D503D81@ehost011-8.exch011.intermedia.net>
+	<200708221130.17364.borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760541AbXHVJvT@vger.kernel.org>
-In-Reply-To: <20070822103545.GG2642@bingen.suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <200708221130.17364.borntraeger@de.ibm.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: kvm-devel@lists.sourceforge.net, Gregory Haskins <ghaskins@novell.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
->> This patch also means I can kill off the emulation code in
->> drivers/lguest/core.c, which is a real relief.
->>     
+>> Actually while playing with virtio for kvm Avi saw that and
+>recommended
+>> to do the following:
+>> struct desc_pages
+>> {
+>> 	/* Page of descriptors. */
+>> 	union {
+>> 		struct virtio_desc desc[NUM_DESCS];
+>> 		char pad1[PAGE_SIZE];
+>> 	};
+>[...]
 >
-> But would it be faster? If not or only insignificant amount I think I would 
-> prefer you keep it. Hooking IO is quite intrusive because it's done
-> by so many drivers.
->   
+>Fine with me. Is anybody currently working on descriptor based
+transport
+>for
+>virtio for kvm?
+>
 
-I don't see why it's intrusive -- they all use the APIs, right?
-
-
--- 
-error compiling committee.c: too many arguments to function
+Yap, I'm working, I have network driver up and running, soon a block
+device + patches.
+Except me Gregory Haskins is working on a competing implementation, that
+might be merged together
+later on.
