@@ -1,111 +1,38 @@
-From: "Dor Laor" <dor.laor@qumranet.com>
-Subject: RE: [kvm-devel] [PATCH 00/10] PV-IO v3
-Date: Wed, 22 Aug 2007 02:26:35 -0700
-Message-ID: <64F9B87B6B770947A9F8391472E032160D503D81__45344.5992585786$1187774918$gmane$org@ehost011-8.exch011.intermedia.net>
-References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>
-	<1187714864.4363.358.camel@ghaskins-t60p.haskins.net>
-	<1187753365.6174.26.camel@localhost.localdomain>
-	<200708221118.00990.borntraeger@de.ibm.com>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Add I/O hypercalls for i386 paravirt
+Date: Wed, 22 Aug 2007 12:22:17 +0200
+Message-ID: <20070822102217.GE2642@bingen.suse.de>
+References: <46CBC842.4070100@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <200708221118.00990.borntraeger@de.ibm.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org
-Cc: kvm-devel@lists.sourceforge.net, Gregory Haskins <ghaskins@novell.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760234AbXHVJ2i@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <46CBC842.4070100@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Avi Kivity <avi@qumranet.com>, Jeremy Fitzhardinge <jeremy@goop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
->> +struct desc_pages
->> +{
->> +	/* Page of descriptors. */
->> +	struct lguest_desc desc[NUM_DESCS];
->> +
->> +	/* Next page: how we tell other side what buffers are available.
->*/
->> +	unsigned int avail_idx;
->> +	unsigned int available[NUM_DESCS];
->> +	char pad[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
->> +
->> +	/* Third page: how other side tells us what's used. */
->> +	unsigned int used_idx;
->> +	struct lguest_used used[NUM_DESCS];
->> +};
->
->Please consider to add this patch to make this data structure work on
-64
->bit
->to make the second page, really page aligned. On 32 bit this should be
-a
->no-op.
->
->Signed-Off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->
->---
-> drivers/lguest/lguest_virtio.c |    3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
->
->Index: lguest/drivers/lguest/lguest_virtio.c
->===================================================================
->--- lguest.orig/drivers/lguest/lguest_virtio.c
->+++ lguest/drivers/lguest/lguest_virtio.c
->@@ -33,11 +33,12 @@ struct desc_pages
-> {
-> 	/* Page of descriptors. */
-> 	struct lguest_desc desc[NUM_DESCS];
->+	char pad0[PAGE_SIZE - NUM_DESCS * sizeof(struct lguest_desc)];
->
-> 	/* Next page: how we tell other side what buffers are available.
->*/
-> 	unsigned int avail_idx;
-> 	unsigned int available[NUM_DESCS];
->-	char pad[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
->+	char pad1[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
->
-> 	/* Third page: how other side tells us what's used. */
-> 	unsigned int used_idx;
+On Tue, Aug 21, 2007 at 10:23:14PM -0700, Zachary Amsden wrote:
+> In general, I/O in a virtual guest is subject to performance problems.  
+> The I/O can not be completed physically, but must be virtualized.  This 
+> means trapping and decoding port I/O instructions from the guest OS.  
+> Not only is the trap for a #GP heavyweight, both in the processor and 
+> the hypervisor (which usually has a complex #GP path), but this forces 
+> the hypervisor to decode the individual instruction which has faulted.  
 
+Is that really that expensive? Hard to imagine.
 
-Actually while playing with virtio for kvm Avi saw that and recommended
-to do the following:
-struct desc_pages
-{
-	/* Page of descriptors. */
-	union {
-		struct virtio_desc desc[NUM_DESCS];
-		char pad1[PAGE_SIZE];
-	};
+e.g. you could always have a fast check for inb/outb at the beginning
+of the #GP handler. And is your initial #GP entry really more expensive
+than a hypercall? 
 
-	/* Next page: how we tell other side what buffers are available.
-*/
-	union {
-		struct {
-			unsigned int avail_idx;
-			unsigned int available[NUM_DESCS];
-		};
-		char pad2[PAGE_SIZE];
-	};
+> Worse, even with hardware assist such as VT, the exit reason alone is 
+> not sufficient to determine the true nature of the faulting instruction, 
+> requiring a complex and costly instruction decode and simulation.
 
-	/* Third page: how other side tells us what's used. */
-	union {
-		struct {
-			unsigned int used_idx;
-			struct virtio_used used[NUM_DESCS];
-		};
-		char pad3[PAGE_SIZE];
-	};
-};
+It's unclear to me why that should be that costly.
 
-It saves useless pointer arithmetic.
+Worst case it's a switch()
 
---Dor
+-Andi
