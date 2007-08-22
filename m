@@ -1,17 +1,12 @@
-From: "Glauber de Oliveira Costa" <glommer@gmail.com>
-Subject: =?iso-8859-1?q?Re=3A_=5Bkvm-devel=5D_R=E9f=2E_=3A_Re=3A_=5BPATCH?=
-	=?iso-8859-1?q?_0/4=5D_Virtual_Machine_Time_Accounting?=
-Date: Tue, 21 Aug 2007 14:47:21 -0300
-Message-ID: <5d6222a80708211047x1393524j962afc0a02af5ba3__17223.228296689$1187718557$gmane$org@mail.gmail.com>
-References: <OF945F7B1F.FF4B4672-ONC125733D.006266E7-C125733D.00626843@frec.bull.fr>
-	<5d6222a80708201334q27fc6cbcr7ce6a9d7147437a2@mail.gmail.com>
-	<200708211006.42938.borntraeger@de.ibm.com>
+From: "Latonya Crow" <hquhln@bobfrahm.com>
+Subject: Investment Advisor
+Date: Wed, 22 Aug 2007 01:20:28 -0800
+Message-ID: <01c7e45a$a013f300$9c5a3f3a@hquhln>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="windows-1250"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200708211006.42938.borntraeger@de.ibm.com>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,37 +16,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel@lists.sourceforge.net, "laurent.vivier@bull.net" <laurent.vivier@bull.net>, John Stoffel <john@stoffel.org>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 8/21/07, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> Am Montag, 20. August 2007 schrieb Glauber de Oliveira Costa:
-> > Although I don't know KVM to a that deep level, I think it should be
-> > possible to keep the virtual cpus in different process (or threads),
-> > and take the accounting time from there. Perfectly possible to know
-> > the time we spent running (user time), and the time the hypervisor
-> > spent doing things on our behalf (system time).
->
-> I disagree here. First thing, you dont want to have the virtual cpu in a
-> different process than the hypervisor control code for that cpu. Otherwise
-> communication has to be made via IPC.
-> Secondly, Its not qemu/kvm that does the accouting. Its existing userspace
-> code like top/snmp agents and clients! etc. that would require additional
-> knowledge which thread is guest code.
+We have giving you winner after winner this year and things are only 
+getting better! 
 
-Yes, the second argument kills me, and I think it leaves no further
-room from discussion in my side. Thanks for the enlightenment.
+We called it!  CYTV is up BIG on good volume over the last 2 weeks. We 
+hope you took a position early and are smiling right now.  If you didn't, 
+don't worry.  The big spike is expected also on Wednesday with new 
+Press Release
+ 
+CHINA YOUTV CORP (CYTV)
+Get in now .44
+We expect 1.62 in next 3 days
+http://finance.yahoo.com/q?s=CYTV
 
-> I personally like the approach Laurent has taken. Maybe it needs some polish
-> and maybe we want an account_guest_time function, but in general I think he
-> is doing the right thing.
->
-Now, me too.
+Recent News
 
--- 
-Glauber de Oliveira Costa.
-"Free as in Freedom"
-http://glommer.net
+China YouTV's JV Partner Signed Agreement for a Chinese Provincial Portal's DV Shorts Channel
+Tuesday August 21, 12:30 pm ET 
 
-"The less confident you are, the more serious you have to act."
+China YouTV's CnBoo Web Site Ranks No.1 on Google.com
+Friday August 17, 11:25 am ET 
+
+China YouTV Corp.: Strong Growth Trend in Internet Video in China Continues
+Tuesday August 14, 10:54 am ET 
+
+China YouTV's CnBoo Web Site Ranks No.1 on Microsoft Live Search Engine
+Wednesday August 8, 3:24 pm ET 
+
+An incredible press release is expected out of the company very soon.   
+This will be backed up by a PR blitz and I'm sure you can guess what will 
+happen to the price of this issue! 
+
+Get in before this one takes off and ride it all the way to the bank!
