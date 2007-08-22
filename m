@@ -1,67 +1,53 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: [PATCH] Fix lazy mode vmalloc synchronization for paravirt
-Date: Tue, 21 Aug 2007 18:30:36 -0700
-Message-ID: <46CB91BC.2010808@vmware.com>
+From: "Sheldon Jacobson" <itqcpixnlscf@brabant.com>
+Subject: Get in now
+Date: Wed, 22 Aug 2007 01:42:09 -0900
+Message-ID: <01c7e45d$a78aee60$7c291a3b@itqcpixnlscf>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------060406000404010004030508"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755095AbXHVBfx@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>, Chris Wright <chrisw@sous-so>
-Cc: Ben Collins <ben.collins@ubuntu.com>
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------060406000404010004030508
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+We have giving you winner after winner this year and things are only 
+getting better! 
 
-Found this looping Ubuntu installs with VMI.
+We called it!  CYTV is up BIG on good volume over the last 2 weeks. We 
+hope you took a position early and are smiling right now.  If you didn't, 
+don't worry.  The big spike is expected also on Wednesday with new 
+Press Release
+ 
+CHINA YOUTV CORP (CYTV)
+Get in now .44
+We expect 1.62 in next 3 days
+http://finance.yahoo.com/q?s=CYTV
 
-If unlucky enough to hit a vmalloc sync fault during a lazy mode 
-operation (from an IRQ handler for a module which was not yet populated 
-in current page directory, or from inside copy_one_pte, which touches 
-swap_map, and hit in an unused 4M region), the required PDE update would 
-never get flushed, causing an infinite page fault loop.
+Recent News
 
-This bug affects any paravirt-ops backend which uses lazy updates, I 
-believe that makes it a bug in Xen, VMI and lguest.  It only happens on 
-LOWMEM kernels.
+China YouTV's JV Partner Signed Agreement for a Chinese Provincial Portal's DV Shorts Channel
+Tuesday August 21, 12:30 pm ET 
 
-Currently for 2.6.23, but we'll want to backport to -stable as well.
+China YouTV's CnBoo Web Site Ranks No.1 on Google.com
+Friday August 17, 11:25 am ET 
 
-Zach
+China YouTV Corp.: Strong Growth Trend in Internet Video in China Continues
+Tuesday August 14, 10:54 am ET 
 
---------------060406000404010004030508
-Content-Type: text/x-patch;
- name="i386-linus-vmalloc-paravirt-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i386-linus-vmalloc-paravirt-fix.patch"
+China YouTV's CnBoo Web Site Ranks No.1 on Microsoft Live Search Engine
+Wednesday August 8, 3:24 pm ET 
 
-    Touching vmalloc memory in the middle of a lazy mode update can generate
-    a kernel PDE update, which must be flushed immediately.  The fix is to
-    leave lazy mode when doing a vmalloc sync.
-    
-    Signed-off-by: Zachary Amsden <zach@vmware.com>
+An incredible press release is expected out of the company very soon.   
+This will be backed up by a PR blitz and I'm sure you can guess what will 
+happen to the price of this issue! 
 
-diff --git a/arch/i386/mm/fault.c b/arch/i386/mm/fault.c
-diff --git a/arch/i386/mm/fault.c b/arch/i386/mm/fault.c
-index 01ffdd4..fcb38e7 100644
---- a/arch/i386/mm/fault.c
-+++ b/arch/i386/mm/fault.c
-@@ -249,9 +249,10 @@ static inline pmd_t *vmalloc_sync_one(pgd_t *pgd, unsigned long address)
- 	pmd_k = pmd_offset(pud_k, address);
- 	if (!pmd_present(*pmd_k))
- 		return NULL;
--	if (!pmd_present(*pmd))
-+	if (!pmd_present(*pmd)) {
- 		set_pmd(pmd, *pmd_k);
--	else
-+		arch_flush_lazy_mmu_mode();
-+	} else
- 		BUG_ON(pmd_page(*pmd) != pmd_page(*pmd_k));
- 	return pmd_k;
- }
-
---------------060406000404010004030508--
+Get in before this one takes off and ride it all the way to the bank!
