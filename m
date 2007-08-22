@@ -1,69 +1,82 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH] Add I/O hypercalls for i386 paravirt
-Date: Wed, 22 Aug 2007 11:37:49 +0300
-Message-ID: <46CBF5DD.6040300@qumranet.com>
-References: <46CBC842.4070100@vmware.com> <46CBCADF.2070400@qumranet.com> <46CBCC58.3010700@vmware.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [kvm-devel] [PATCH 00/10] PV-IO v3
+Date: Wed, 22 Aug 2007 11:18:00 +0200
+Message-ID: <200708221118.00990.borntraeger__33776.33726127$1187774435$gmane$org@de.ibm.com>
+References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>
+	<1187714864.4363.358.camel@ghaskins-t60p.haskins.net>
+	<1187753365.6174.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753906AbXHVIht@vger.kernel.org>
-In-Reply-To: <46CBCC58.3010700@vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@goop.org>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1187753365.6174.26.camel@localhost.localdomain>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: kvm-devel@lists.sourceforge.net, Gregory Haskins <ghaskins@novell.com>, Dor Laor <dor.laor@qumranet.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> Avi Kivity wrote:
->> Zachary Amsden wrote:
->>  
->>> In general, I/O in a virtual guest is subject to performance
->>> problems.  The I/O can not be completed physically, but must be
->>> virtualized.  This means trapping and decoding port I/O instructions
->>> from the guest OS.  Not only is the trap for a #GP heavyweight, both
->>> in the processor and the hypervisor (which usually has a complex #GP
->>> path), but this forces the hypervisor to decode the individual
->>> instruction which has faulted.  Worse, even with hardware assist such
->>> as VT, the exit reason alone is not sufficient to determine the true
->>> nature of the faulting instruction, requiring a complex and costly
->>> instruction decode and simulation.
->>>
->>> This patch provides hypercalls for the i386 port I/O instructions,
->>> which vastly helps guests which use native-style drivers.  For certain
->>> VMI workloads, this provides a performance boost of up to 30%.  We
->>> expect KVM and lguest to be able to achieve similar gains on I/O
->>> intensive workloads.
->>>
->>>     
->>
->>
->> Won't these workloads be better off using paravirtualized drivers? 
->> i.e., do the native drivers with paravirt I/O instructions get anywhere
->> near the performance of paravirt drivers?
->>   
->
-> Yes, in general, this is true (better off with paravirt drivers).  
-> However, we have "paravirt" drivers which run in both 
-> fully-paravirtualized and fully traditionally virtualized 
-> environments.  As a result, they use native port I/O operations to 
-> interact with virtual hardware.
+Am Mittwoch, 22. August 2007 schrieb Rusty Russell:
+> +struct desc_pages
+> +{
+> +	/* Page of descriptors. */
+> +	struct lguest_desc desc[NUM_DESCS];
+> +
+> +	/* Next page: how we tell other side what buffers are available. */
+> +	unsigned int avail_idx;
+> +	unsigned int available[NUM_DESCS];
+> +	char pad[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
+> +
+> +	/* Third page: how other side tells us what's used. */
+> +	unsigned int used_idx;
+> +	struct lguest_used used[NUM_DESCS];
+> +};
 
-Suffering from terminology overdose here: "fully traditionally 
-virtualized, fully-paravirtuallized, para-fullyvirtualized".
+Please consider to add this patch to make this data structure work on 64 =
+bit=20
+to make the second page, really page aligned. On 32 bit this should be a=20
+no-op.
 
-Since this is only for newer kernels, won't updating the driver to use a 
-hypercall be more efficient?  Or is this for existing out-of-tree drivers?
+Signed-Off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
->
-> Since not all hypervisors have paravirtualized driver infrastructures 
-> and guest O/S support yet, these hypercalls can be advantages to a 
-> wide range of scenarios.  Using I/O hypercalls as such gives exactly 
-> the same performance as paravirt drivers for us, by eliminating the 
-> costly decode path, and the simplicity of using the same driver code 
-> makes this a huge win in code complexity.
+---
+ drivers/lguest/lguest_virtio.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Ah, seems the answer to the last question is yes.
+Index: lguest/drivers/lguest/lguest_virtio.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- lguest.orig/drivers/lguest/lguest_virtio.c
++++ lguest/drivers/lguest/lguest_virtio.c
+@@ -33,11 +33,12 @@ struct desc_pages
+ {
+ 	/* Page of descriptors. */
+ 	struct lguest_desc desc[NUM_DESCS];
++	char pad0[PAGE_SIZE - NUM_DESCS * sizeof(struct lguest_desc)];
+=20
+ 	/* Next page: how we tell other side what buffers are available. */
+ 	unsigned int avail_idx;
+ 	unsigned int available[NUM_DESCS];
+-	char pad[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
++	char pad1[PAGE_SIZE - (NUM_DESCS+1) * sizeof(unsigned int)];
+=20
+ 	/* Third page: how other side tells us what's used. */
+ 	unsigned int used_idx;
 
 
--- 
-error compiling committee.c: too many arguments to function
+--=20
+IBM Deutschland Entwicklung GmbH
+Vorsitzender des Aufsichtsrats: Martin Jetter
+Gesch=E4ftsf=FChrung: Herbert Kircher=20
+Sitz der Gesellschaft: B=F6blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
