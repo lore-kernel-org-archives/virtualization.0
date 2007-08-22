@@ -1,33 +1,31 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [PATCH] Add I/O hypercalls for i386 paravirt
-Date: Wed, 22 Aug 2007 14:45:30 -0700
-Message-ID: <46CCAE7A.7000206@vmware.com>
-References: <46CBC842.4070100@vmware.com> <20070822102217.GE2642@bingen.suse.de> <46CC68D9.5060200@vmware.com> <20070822175918.GB8058@bingen.suse.de> <46CC6D63.2010204@vmware.com> <20070822194632.GD8058@bingen.suse.de> <46CC9FF2.3040406@vmware.com> <20070822220451.GJ8058@bingen.suse.de>
+Date: Wed, 22 Aug 2007 14:54:16 -0700
+Message-ID: <46CCB088.8070606@goop.org>
+References: <46CBC842.4070100@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934063AbXHVVuw@vger.kernel.org>
-In-Reply-To: <20070822220451.GJ8058@bingen.suse.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934059AbXHVVy0@vger.kernel.org>
+In-Reply-To: <46CBC842.4070100@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Avi Kivity <avi@qumranet.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>, Avi Kivity <avi@qumranet.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andi Kleen wrote:
->
->> We might benefit from it, but would the 
->> BusLogic driver?  It sets a nasty precedent for maintenance as different 
->> hypervisors and emulators hack up different drivers for their own 
->> performance.
->>     
->
-> I still think it's preferable to change some drivers than everybody.
->
-> AFAIK BusLogic as real hardware is pretty much dead anyways,
-> so you're probably the only primary user of it anyways.
-> Go wild on it!
->   
+Zachary Amsden wrote:
+> This patch provides hypercalls for the i386 port I/O instructions,
+> which vastly helps guests which use native-style drivers.  For certain
+> VMI workloads, this provides a performance boost of up to 30%.  We
+> expect KVM and lguest to be able to achieve similar gains on I/O
+> intensive workloads.
 
-It is looking juicy.  Maybe another day.
+Two comments:
 
-Zach
+- I should dust off my "break up paravirt_ops" patch, and this would fit
+nicely into it (I think we already discussed this)
+
+- What happens if you *don't* want to pv some of the io instructions? 
+What if you have a device which is directly exposed to the guest?
+
+    J
