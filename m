@@ -1,43 +1,29 @@
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
+From: Chris Wright <chrisw@sous-sol.org>
 Subject: Re: [PATCH] Add I/O hypercalls for i386 paravirt
-Date: Wed, 22 Aug 2007 23:29:14 +0100
-Message-ID: <46CCB8BA.6060007@superbug.demon.co.uk>
-References: <46CBC842.4070100@vmware.com> <46CCB088.8070606@goop.org>
-	<46CCB56F.8090308@superbug.co.uk>
-	<20070822222036.GD3672@sequoia.sous-sol.org>
+Date: Wed, 22 Aug 2007 15:34:24 -0700
+Message-ID: <20070822223424.GE3672@sequoia.sous-sol.org>
+References: <46CBC842.4070100@vmware.com> <46CCB088.8070606@goop.org> <46CCB56F.8090308@superbug.co.uk> <20070822222036.GD3672@sequoia.sous-sol.org> <46CCB8BA.6060007@superbug.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070822222036.GD3672@sequoia.sous-sol.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934308AbXHVWfK@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <46CCB8BA.6060007@superbug.demon.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+Cc: Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Avi Kivity <avi@qumranet.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
-> * James Courtier-Dutton (James@superbug.co.uk) wrote:
->> If one could directly expose a device to the guest, this feature could
->> be extremely useful for me.
->> Is it possible? How would it manage to handle the DMA bus mastering?
-> 
-> Yes it's possible (Xen supports pci pass through).  Without an IOMMU
-> (like Intel VT-d or AMD IOMMU) it's not DMA safe.
-> 
-> thanks,
-> -chris
+* James Courtier-Dutton (James@superbug.demon.co.uk) wrote:
+> Ok, so I need to get a new CPU like the Intel Core Duo that has VT
+> features? I have an old Pentium 4 at the moment, without any VT features.
 
-Ok, so I need to get a new CPU like the Intel Core Duo that has VT
-features? I have an old Pentium 4 at the moment, without any VT features.
+Depends on your goals.  You can certainly give a paravirt Xen guest[1]
+physical hardware without any VT extentions.  But that guest will be
+able to DMA anywhere in memory without VT-d, so if it's an untrusted
+guest you'd be taking a huge risk.
 
-Kind Regards
+thanks,
+-chris
 
-James
+[1] Note: this is with the xenbits.xensource.com kernel, not with a
+kernel you'll get from kernel.org ATM.
