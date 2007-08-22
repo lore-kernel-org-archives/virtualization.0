@@ -1,43 +1,23 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [kvm-devel] [PATCH 00/10] PV-IO v3
-Date: Wed, 22 Aug 2007 11:30:17 +0200
-Message-ID: <200708221130.17364.borntraeger__31938.1234389313$1187775124$gmane$org@de.ibm.com>
-References: <20070816231357.8044.55943.stgit@ghaskins-t60p.haskins.net>
-	<200708221118.00990.borntraeger@de.ibm.com>
-	<64F9B87B6B770947A9F8391472E032160D503D81@ehost011-8.exch011.intermedia.net>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Add I/O hypercalls for i386 paravirt
+Date: Wed, 22 Aug 2007 12:35:45 +0200
+Message-ID: <20070822103545.GG2642@bingen.suse.de>
+References: <46CBC842.4070100@vmware.com> <46CBCADF.2070400@qumranet.com> <1187763956.6174.48.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <64F9B87B6B770947A9F8391472E032160D503D81@ehost011-8.exch011.intermedia.net>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759356AbXHVJmH@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dor Laor <dor.laor@qumranet.com>
-Cc: kvm-devel@lists.sourceforge.net, Gregory Haskins <ghaskins@novell.com>, virtualization@lists.linux-foundation.org
+In-Reply-To: <1187763956.6174.48.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Avi Kivity <avi@qumranet.com>, Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Mittwoch, 22. August 2007 schrieb Dor Laor:
-> Actually while playing with virtio for kvm Avi saw that and recommended
-> to do the following:
-> struct desc_pages
-> {
-> 	/* Page of descriptors. */
-> 	union {
-> 		struct virtio_desc desc[NUM_DESCS];
-> 		char pad1[PAGE_SIZE];
-> 	};
-[...]
+> This patch also means I can kill off the emulation code in
+> drivers/lguest/core.c, which is a real relief.
 
-Fine with me. Is anybody currently working on descriptor based transport for 
-virtio for kvm?
+But would it be faster? If not or only insignificant amount I think I would 
+prefer you keep it. Hooking IO is quite intrusive because it's done
+by so many drivers.
 
-Christian
+-Andi
