@@ -1,10 +1,11 @@
-From: "Shook L Joy" <thrill@marconi.freeserve.co.uk>
-Subject: list of medical doctors
-Date: Thu, 23 Aug 2007 15:56:59 -0400
-Message-ID: <45793.0674231195$1187895835@news.gmane.org>
+From: "Lucia Winn" <bailey@austinhardware.com>
+Subject: Bug #219 CLIENT/SERVER NETWORK
+Date: Fri, 24 Aug 2007 11:07:05 +0800
+Message-ID: <01c7e63e$e7fcbe50$a20e6175@bailey>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,44 +16,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ferguson@liaa.org, llumar.intl@cpfilms.com, kskov@bccancer.bc.ca, arnold582@freemail.com, virtualization@lists.osdl.org, autobrake@mweb.co.za
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+We have giving you winner after winner this year and things are only 
+getting better! 
+
+We called it!  CYTV is up BIG on good volume over the last 2 weeks. We 
+hope you took a position early and are smiling right now.  If you didn't, 
+don't worry.  
+ 
+CHINA YOUTV CORP (CYTV)
+Get in now .40
+
+Recent News
+
+China YouTV's JV Partner Signed Agreement for a Chinese Provincial Portal's DV Shorts Channel
+Tuesday August 21, 12:30 pm ET 
+
+China YouTV's CnBoo Web Site Ranks No.1 on Google.com
+Friday August 17, 11:25 am ET 
+
+China YouTV Corp.: Strong Growth Trend in Internet Video in China Continues
+Tuesday August 14, 10:54 am ET 
+
+China YouTV's CnBoo Web Site Ranks No.1 on Microsoft Live Search Engine
+Wednesday August 8, 3:24 pm ET 
+
+An incredible press release is expected out of the company very soon.   
+This will be backed up by a PR blitz and I'm sure you can guess what will 
+happen to the price of this issue! 
 
 
-
-For the week ending Aug 10, you will receive a Directory for Nursing Home=
-s, Hospitals and Dentists absolutely FREE when you order the MD Contact L=
-ist
-
-
-Licensed MDs in the USA=20
-
-788,735 in total =96 17,400 emails
-
-34 primary and secondary specialties
-
-Can easily be sorted by 16 different fields
-
-Lowered Price -  $352
-
-
-*** Recieve the 3 medical Listings below at no additional cost when you b=
-uy the MD Listing above ***
-
-American Hospitals
-more than 23k hospital administrators in over 7k hospitals [worth over $3=
-00 alone)
-
-US Dentist Contact List
-597,000 dentists and dental services ( a $300 value!)=20
-
-Directory of US Nursing Homes
-Full data for CFO, Nursing Directors, Senior Admins [ worth $249 alone ]
-
-(206) 600-6530
-
-
-
-
-put "finish" in the subject of an email to us to discontinue emails
+Get in before this one takes off and ride it all the way to the bank!
