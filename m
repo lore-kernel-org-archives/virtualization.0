@@ -1,12 +1,11 @@
 From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: [PATCH 3/3] KVM paravirt-ops implementation
-Date: Mon, 27 Aug 2007 10:16:46 -0500
-Message-ID: <11882278093751-git-send-email-aliguori__15153.1890653589$1188228067$gmane$org@us.ibm.com>
-References: <11882278064002-git-send-email-aliguori@us.ibm.com>
-	<1188227808405-git-send-email-aliguori@us.ibm.com>
-	<11882278082826-git-send-email-aliguori@us.ibm.com>
+Subject: [PATCH 2/3] KVM paravirt-ops implementation (v2)
+Date: Mon, 27 Aug 2007 14:42:02 -0500
+Message-ID: <11882437252643-git-send-email-aliguori__35606.2536164702$1188244811$gmane$org@us.ibm.com>
+References: <1188243723984-git-send-email-aliguori@us.ibm.com>
+	<11882437243411-git-send-email-aliguori@us.ibm.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11882278082826-git-send-email-aliguori@us.ibm.com>
+In-Reply-To: <11882437243411-git-send-email-aliguori@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,6 +18,13 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm-devel@lists.sourceforge.net
 Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
+
+A very simple paravirt_ops implementation for KVM.  Future patches will add
+more sophisticated optimizations.  The goal of having this presenting this now
+is to validate the new hypercall infrastructure and to make my patch queue
+smaller.
+
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 
 diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
 index f952493..ceacc66 100644
@@ -103,11 +109,11 @@ index 0000000..26585a4
 +		paravirt_setup();
 +}
 diff --git a/include/linux/kvm_para.h b/include/linux/kvm_para.h
-index e92ea3e..16e51a1 100644
+index 0f94138..10b2e7a 100644
 --- a/include/linux/kvm_para.h
 +++ b/include/linux/kvm_para.h
-@@ -3,6 +3,14 @@
- 
+@@ -4,6 +4,14 @@
+ #ifdef __KERNEL__
  #include <asm/processor.h>
  
 +#ifdef CONFIG_KVM_GUEST
