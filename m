@@ -1,31 +1,40 @@
-From: <cgqusual@stalphonsos.net>
-Subject: Weekend Trade Notice
-Date: Sat, 1 Sep 2007 21:01:34 +0300
-Message-ID: <002e01c7ecc2$21fe8f50$5c853952@byecs>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] Fix preemptible lazy mode bug
+Date: Sat, 01 Sep 2007 14:09:43 -0700
+Message-ID: <46D9D517.6010201@goop.org>
+References: <46CE70C8.2030005@vmware.com> <46CE8069.9070404@goop.org> <46CE81DC.90103@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="windows-1252";
-	reply-type=original
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758212AbXIAVJ7@vger.kernel.org>
+In-Reply-To: <46CE81DC.90103@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, stable@kernel.org, Rusty Russell <rusty@rustcorp.com.au>, Virtualization Mailing List <virtualization@lists.osdl.org>, Andi Kleen <ak@suse.de>Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGPM goes after subscription gaming industry.
+Zachary Amsden wrote:
+> Do you agree it is better to be safe than sorry in this case?  The
+> kind of bugs introduced by getting this wrong are really hard to find,
+> and I would rather err on the side of an extra increment and decrement
+> of preempt_count that causing a regression.
 
-VEGA PROMOTIONAL SYS
-VGPM
-$0.07
+I think this patch is the direction we should go.  I this this would
+work equally well for the other pv implementations; it would probably go
+into the common lazy mode logic when we get around to doing it.
 
-Subscription gamers spend over 1 billion a year. Games like World of
-Warcraft pulled in over 471 million in 2006. VGPM is stepping up to take
-a lion's share of those profits with a new line of subscription games.
-Beat the push and get on VGPM before open, Tuesday.
+    J
+
+diff -r b3fcc228c531 arch/i386/xen/enlighten.c
+--- a/arch/i386/xen/enlighten.c	Mon Aug 20 14:20:15 2007 -0700
++++ b/arch/i386/xen/enlighten.c	Mon Aug 27 13:40:24 2007 -0700
+@@ -250,6 +250,9 @@ static void xen_halt(void)
+ 
+ static void xen_set_lazy_mode(enum paravirt_lazy_mode mode)
+ {
++	if (preemptible() && mode == PARAVIRT_LAZY_FLUSH)
++		return;		/* nothing to flush with preempt on */
++
+ 	BUG_ON(preemptible());
+ 
+ 	switch (mode) {
