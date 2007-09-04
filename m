@@ -1,26 +1,33 @@
-From: "k582tank@dgkcpr.ph" <k582tank@dgkcpr.ph>
-Subject: Hey Phillip Check Out This Watch
-Date: Mon, 03 Sep 2007 22:53:26 -0800
-Message-ID: <200709040644.l846i1V8008889@smtp2.linux-foundation.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] Fix preemptible lazy mode bug
+Date: Tue, 04 Sep 2007 14:42:01 +0100
+Message-ID: <46DD60A9.8080203@goop.org>
+References: <46CE70C8.2030005@vmware.com> <46CE8069.9070404@goop.org>	 <46CE81DC.90103@vmware.com>  <46D9D517.6010201@goop.org> <1188850468.10802.66.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain;
-Content-Transfer-Encoding: 7Bit
-	boundary="--DLOSLN24785"
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754188AbXIDNmm@vger.kernel.org>
+In-Reply-To: <1188850468.10802.66.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Zachary Amsden <zach@vmware.com>, Linus Torvalds <torvalds@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, stable@kernel.org, Virtualization Mailing List <virtualization@lists.osdl.org>, Andi Kleen <ak@suse.de>, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I just got my wife a Bvlgari watch and she really loves it. I can't afford to spend $30 000 on a watch for her, though I would love to; but this did the trick. It looks exactly like the real thing and she's actually glad I didn't spend $30 000 on a watch but saved $29 750 instead. This turned out perfect guys, thanks for providing such a great product, with such great prices. This was a great experience ordering from your company.
+Rusty Russell wrote:
+>  static inline void arch_flush_lazy_mmu_mode(void)
+>  {
+> -	PVOP_VCALL1(set_lazy_mode, PARAVIRT_LAZY_FLUSH);
+> +	if (unlikely(__get_cpu_var(paravirt_lazy_mode) == PARAVIRT_LAZY_MMU))
+> +		arch_leave_lazy_mmu_mode();
+>  }
+>   
 
-- Todd 
+This changes the semantics a bit; previously "flush" would flush
+anything pending but leave us in lazy mode.  This just drops lazymode
+altogether?
 
-Just Visit http://www.happycaricature.com
+I guess if we assume that flushing is a rare event then its OK, but I
+think the name's a bit misleading.  How does it differ from plain
+arch_leave_lazy_mmu_mode()?
+
+    J
