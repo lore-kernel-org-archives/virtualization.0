@@ -1,33 +1,55 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] Fix preemptible lazy mode bug
-Date: Tue, 04 Sep 2007 14:42:01 +0100
-Message-ID: <46DD60A9.8080203@goop.org>
-References: <46CE70C8.2030005@vmware.com> <46CE8069.9070404@goop.org>	 <46CE81DC.90103@vmware.com>  <46D9D517.6010201@goop.org> <1188850468.10802.66.camel@localhost.localdomain>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: [ANNOUNCE] Lguest64 - fatter puppies!
+Date: Tue, 04 Sep 2007 22:06:40 -0400
+Message-ID: <1188958000.7913.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754188AbXIDNmm@vger.kernel.org>
-In-Reply-To: <1188850468.10802.66.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756269AbXIECHi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Zachary Amsden <zach@vmware.com>, Linus Torvalds <torvalds@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>, stable@kernel.org, Virtualization Mailing List <virtualization@lists.osdl.org>, Andi Kleen <ak@suse.de>, Anthony Liguori <anthony@codemonkey.ws>
+To: lguest <lguest@ozlabs.org>
+Cc: virtualization <virtualization@lists.osdl.org>, LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>, Glauber de Oliveira Costa <glommer@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
->  static inline void arch_flush_lazy_mmu_mode(void)
->  {
-> -	PVOP_VCALL1(set_lazy_mode, PARAVIRT_LAZY_FLUSH);
-> +	if (unlikely(__get_cpu_var(paravirt_lazy_mode) == PARAVIRT_LAZY_MMU))
-> +		arch_leave_lazy_mmu_mode();
->  }
->   
+This is a formal announcement of Lguest64.
 
-This changes the semantics a bit; previously "flush" would flush
-anything pending but leave us in lazy mode.  This just drops lazymode
-altogether?
+Most are aware of the little puppies (lguest32, or simply lguest, or in
+some circles "rustyvisor").  But this time the puppies ate a bit too
+much.  No more lean and mean puppies, now we got big fat lazy ones.
+Running on the hardware that's too lazy to do full virutalization. Yes,
+lguest now runs on x86_64!
 
-I guess if we assume that flushing is a rare event then its OK, but I
-think the name's a bit misleading.  How does it differ from plain
-arch_leave_lazy_mmu_mode()?
+As you know, puppies are young, and so is lguest64. And like most new
+born puppies, lguest64 might crap on your floor. But if it's in a good
+mood, it will make it to the door and give you a login prompt (or maybe
+even ssh into it and run firefox!
+http://rostedt.homelinux.com/pics/firefox-on-lguest64.png ).
 
-    J
+lguest64 is still going through a bit of growth pains, but its getting
+better. It's to a point that we are not that afraid to bring it to the
+dog show.
+
+So for those that love puppies, and want even bigger ones, you can
+download the code at:
+
+  git://git.et.redhat.com/kernel-lguest-64.git
+
+TODO:
+ Many things! but here's what's on the near future list.
+
+ - SMP first for host then for guest. We had it working a while
+   ago, but we decided to update to catchup to lguest32, and we
+   broke it.
+
+ - get closer to lguest32. Rusty just likes to annoy us ;-)
+
+ - optimization, optimization, optimization (did I say it's still slow?)
+
+ - oh, and hopefully to get it merged!
+
+well, there's lots more to do, but we can think about it later.
+
+Want to help? test it out, and let us know how big a mess it made on
+your floor.
+
+-- Steve
