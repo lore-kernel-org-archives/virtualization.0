@@ -1,81 +1,28 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Andi Kleen <ak@suse.de>
 Subject: Re: [PATCH] Fix preemptible lazy mode bug
-Date: Wed, 05 Sep 2007 16:49:35 -0700
-Message-ID: <1189036175.21516.31.camel@bodhitayantram.eng.vmware.com>
-References: <46CE70C8.2030005@vmware.com>
-	 <1189024666.10802.197.camel@localhost.localdomain>
+Date: Thu, 6 Sep 2007 06:41:36 +0100
+Message-ID: <200709060641.36855.ak@suse.de>
+References: <46CE70C8.2030005@vmware.com> <1189024666.10802.197.camel@localhost.localdomain> <1189036175.21516.31.camel@bodhitayantram.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757844AbXIEXt6@vger.kernel.org>
-In-Reply-To: <1189024666.10802.197.camel@localhost.localdomain>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758050AbXIFFmy@vger.kernel.org>
+In-Reply-To: <1189036175.21516.31.camel@bodhitayantram.eng.vmware.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, stable@kernel.org, Virtualization Mailing List <virtualization@lists.osdl.org>, Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Linus Torvalds <torvalds@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, stable@kernel.org, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-09-06 at 06:37 +1000, Rusty Russell wrote:
-> On Thu, 2007-08-23 at 22:46 -0700, Zachary Amsden wrote:
-> > I recently sent off a fix for lazy vmalloc faults which can happen under 
-> > paravirt when lazy mode is enabled.  Unfortunately, I jumped the gun a 
-> > bit on fixing this.  I neglected to notice that since the new call to 
-> > flush the MMU update queue is called from the page fault handler, it can 
-> > be pre-empted.  Both VMI and Xen use per-cpu variables to track lazy 
-> > mode state, as all previous calls to set, disable, or flush lazy mode 
-> > happened from a non-preemptable state.
-> 
-> Hi Zach,
-> 
-> 	I don't think this patch does anything.  The flush is because we want
-> the just-completed "set_pte" to have immediate effect, so if preempt is
-> enabled we're already screwed because we can be moved between set_pte
-> and the arch_flush_lazy_mmu_mode() call.
-> 
-> Now, where's the problem caller?  By my reading or rc4, vmalloc faults
-> are fixed up before enabling interrupts.
+>I agree.  The patch is a nop.  I just got overly paranoid.  The whole
+>thing is just very prone to bugs.
+So do we need a patch for .23 or not?
 
-I agree.  The patch is a nop.  I just got overly paranoid.  The whole
-thing is just very prone to bugs.
+>; it does
+> seem perfectly acceptable though for the mm code to use kmap or vmap
+> (not kmap_atomic) internally somewhere in the pagetable code.
 
-So let's go over it carefully:
+i386 does it all the time for highmem pagetables in fact.
 
-1) Lazy mode can't be entered unless preempt is disabled
-2) Flushes are needed in two known cases: kmap_atomic and vmalloc sync
-3) kmap_atomic can only be used when preempt is disabled
-4) vmalloc sync happens under protection of interrupts disabled
-
-Good logically.  What can break this logic?
-
-#1 is defined by us
-#2 is our currently believed complete list of flush scenarios
-#3 is impossible to change by design
-#4 seems very unlikely to change anytime soon
-
-Seeing #2 appears weak, let us elaborate:
-
-A) Lazy mode is used in a couple of controlled paths for user page table
-updates which requires no immediately updated mapping; further, they are
-protected under spinlocks, thus never preempted
-B) Thus only kernel mapping updates require explicit flushes
-C) Any interrupt / fault during lazy mode can only use kmap_atomic or a
-set_pmd to sync a vmalloc region, thus proving my point by circular
-logic (for interrupt / fault cases).
-D) Or better, other kernel mapping changes (kmap, the pageattr code,
-boot_ioremap, vmap, vm86 mark_screen_rdonly) are not usable by
-interrupt / fault handlers, thus proving C by exclusion.
-
-So I'm fairly certain there is no further issues with interrupt handlers
-or faults, where update semantics are heavily constrained.  What of the
-actual lazy mode code itself doing kernel remapping?
-
-Most of these are clearly bogus (pageattr, boot_ioremap, vm86 stuff) for
-the mm code to use inside a spinlock protected lazy mode region; it does
-seem perfectly acceptable though for the mm code to use kmap or vmap
-(not kmap_atomic) internally somewhere in the pagetable code.
-
-We can exclude the trivial lazy mode regions (zeromap, unmap, and
-remap).  Easily by inspection.  The PTE copy routine gets deep enough
-that not all paths are immediately obvious, though, we should keep it in
-mind for bug checking.
-
-Zach
+-Andi
