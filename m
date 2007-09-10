@@ -1,10 +1,7 @@
-From: Markus Armbruster <armbru@redhat.com>
-Subject: [PATCH] input: Fix interrupt enable in i8042_ctr when enabling
-	interrupt fails
-Date: Mon, 10 Sep 2007 14:41:34 +0200
-Message-ID: <877imy7kw1.fsf__22082.5207340114$1189462670$gmane$org@pike.pond.sub.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: [PATCH] Add macros for acessing lguest fields
+Date: Mon, 10 Sep 2007 15:20:40 -0300
+Message-ID: <11894484404160-git-send-email-gcosta__12545.2953893275$1189492772$gmane$org@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,94 +12,80 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-input@atrey.karlin.mff.cuni.cz
-Cc: Dmitry Torokhov <dtor@mail.ru>, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: lguest@ozlabs.org, rostedt@goodmiss.org, virtualization@lists.linux-foundation.org, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When enabling interrupts fails, the interrupt enable bit remains set
-in i8042_ctr.  Later writes of i8042_ctr to the hardware could
-accidentally retry enabling interrupts.  Clear the bit on failure.
+The assumption that we have an overall irqs_pending flags,
+and a one-to-one lguest <-> task mapping fails to hold on x86_64,
+where we can have multiple puppies, aka vcpus.
 
-Signed-off-by: Markus Armbruster <armbru@redhat.com>
-Acked-by: Steven Rostedt <rostedt@goodmis.org>
+Although ifdefs could be used, it makes the code much more
+unreadable, and other ports are on the way, anyway. So some sort
+of acessor is preferred anyway.
 
+Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
-Some time ago Steven Rostedt and I went over this changeset:
+ drivers/lguest/io.c |   10 +++++-----
+ drivers/lguest/lg.h |    3 +++
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-    commit de9ce703c6b807b1dfef5942df4f2fadd0fdb67a
-    Author: Dmitry Torokhov <dtor@insightbb.com>
-    Date:   Sun Sep 10 21:57:21 2006 -0400
-
-        Input: i8042 - get rid of polling timer
-
-        Remove polling timer that was used to detect keybord/mice hotplug and
-        register both IRQs right away instead of waiting for a driver to
-        attach to a port.
-
-        Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-Steven pointed out to me that it changes behavior when enabling IRQ
-fails.
-
-The old code enabled IRQs this way:
-
-	i8042_ctr |= port->irqen;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-		i8042_ctr &= ~port->irqen;
-		return -1;
-	}
-
-i8042_ctr shadows the 8042's CTR.  So, when enabling fails, the bit is
-cleared in the shadow.
-
-The new code does not clear the bit on the error path:
-
-static int i8042_enable_kbd_port(void)
-{
-	i8042_ctr &= ~I8042_CTR_KBDDIS;
-	i8042_ctr |= I8042_CTR_KBDINT;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-		printk(KERN_ERR "i8042.c: Failed to enable KBD port.\n");
-		return -EIO;
-	}
-
-	return 0;
-}
-
-Same for i8042_enable_aux_port().
-
-This leads to the question whether there are later writes of i8042_ctr
-(possibly with other bits altered) to the hardware, which could
-accidentally retry enabling interrupts.
-
-I believe this possible, but unlikely (perhaps not so unlikely on
-virtual machines).  Scenarios involve enable succeeding the first
-time, failing the second time, and succeeding the third time.  I can
-provide details, but the point I'd like to make is not that this is
-broken (although it is, strictly speaking), but that it is not
-obviously correct where it easily could be: just clear the interrupt
-enable bits when writing them to the hardware failed, like the old
-code did.
-
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index db9cca3..71a7e39 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -385,6 +385,7 @@ static int i8042_enable_kbd_port(void)
- 	i8042_ctr |= I8042_CTR_KBDINT;
+diff --git a/drivers/lguest/io.c b/drivers/lguest/io.c
+index ea68613..70bab38 100644
+--- a/drivers/lguest/io.c
++++ b/drivers/lguest/io.c
+@@ -247,7 +247,7 @@ static int lgread_other(struct lguest *lg,
+ 			void *buf, u32 addr, unsigned bytes)
+ {
+ 	if (!lguest_address_ok(lg, addr, bytes)
+-	    || access_process_vm(lg->tsk, addr, buf, bytes, 0) != bytes) {
++	    || access_process_vm(lguest_task(lg), addr, buf, bytes, 0) != bytes) {
+ 		memset(buf, 0, bytes);
+ 		kill_guest(lg, "bad address in registered DMA struct");
+ 		return 0;
+@@ -261,7 +261,7 @@ static int lgwrite_other(struct lguest *lg, u32 addr,
+ 			 const void *buf, unsigned bytes)
+ {
+ 	if (!lguest_address_ok(lg, addr, bytes)
+-	    || (access_process_vm(lg->tsk, addr, (void *)buf, bytes, 1)
++	    || (access_process_vm(lguest_task(lg), addr, (void *)buf, bytes, 1)
+ 		!= bytes)) {
+ 		kill_guest(lg, "bad address writing to registered DMA");
+ 		return 0;
+@@ -376,7 +376,7 @@ static u32 do_dma(struct lguest *srclg, const struct lguest_dma *src,
+ 		 * we only want a single page.  But it works, and returns the
+ 		 * number of pages.  Note that we're holding the destination's
+ 		 * mmap_sem, as get_user_pages() requires. */
+-		if (get_user_pages(dstlg->tsk, dstlg->mm,
++		if (get_user_pages(lguest_task(dstlg), dstlg->mm,
+ 				   dst->addr[i], 1, 1, 1, pages+i, NULL)
+ 		    != 1) {
+ 			/* This means the destination gave us a bogus buffer */
+@@ -469,9 +469,9 @@ static int dma_transfer(struct lguest *srclg,
+ 	/* We trigger the destination interrupt, even if the destination was
+ 	 * empty and we didn't transfer anything: this gives them a chance to
+ 	 * wake up and refill. */
+-	set_bit(dst->interrupt, dstlg->irqs_pending);
++	set_bit(dst->interrupt, lguest_irqs_pending(dstlg));
+ 	/* Wake up the destination process. */
+-	wake_up_process(dstlg->tsk);
++	wake_up_process(lguest_task(dstlg));
+ 	/* If we passed the last "struct lguest_dma", the receive had no
+ 	 * buffers left. */
+ 	return i == dst->num_dmas;
+diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
+index 64f0abe..b1ed671 100644
+--- a/drivers/lguest/lg.h
++++ b/drivers/lguest/lg.h
+@@ -258,6 +258,9 @@ unsigned long get_dma_buffer(struct lguest *lg, unsigned long key,
+ void do_hypercalls(struct lguest *lg);
+ void write_timestamp(struct lguest *lg);
  
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-+		i8042_ctr &= ~I8042_CTR_KBDINT;
- 		printk(KERN_ERR "i8042.c: Failed to enable KBD port.\n");
- 		return -EIO;
- 	}
-@@ -402,6 +403,7 @@ static int i8042_enable_aux_port(void)
- 	i8042_ctr |= I8042_CTR_AUXINT;
- 
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-+		i8042_ctr &= ~I8042_CTR_AUXINT;
- 		printk(KERN_ERR "i8042.c: Failed to enable AUX port.\n");
- 		return -EIO;
- 	}
++#define lguest_task(__lg) __lg->tsk
++#define lguest_irqs_pending(__lg) __lg->irqs_pending
++
+ /*L:035
+  * Let's step aside for the moment, to study one important routine that's used
+  * widely in the Host code.
+-- 
+1.4.4.2
