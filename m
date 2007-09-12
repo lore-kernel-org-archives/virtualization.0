@@ -1,11 +1,11 @@
-From: "Melisa Meadows" <oobhdn@bodyinblack.com>
-Subject: RE: Did you hear this
-Date: Mon, 10 Sep 2007 23:02:01 +0100
-Message-ID: <01c7f3f6$36f04990$411e4555@oobhdn>
+From: "Miguel Seals" <ksw@blrcommunications.co.uk>
+Subject: Miguel has sent you a message
+Date: Wed, 12 Sep 2007 19:09:34 +0200
+Message-ID: <01c7f55f$b0f01210$c867d651@ksw>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+  charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,42 +19,22 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-EXTREME RED HOT ALERT!
-Buy Wednesday September 12th 2007
-
-WW Energy Inc
-Symbol : WWNG
-
-This will EXPLODED TODAY, and will again TOMORROW!
+WWNG On Watch List For Wednesday!
 
 Yesterday we told you this stock would sky rocket, and today it did!
 Moving over 4.1 million shares, and up 100%.
 The stock doubled, and is going to double again tomorrow!
-There is an odour in the air a huge press release is coming out tomorroW!
+There is an odour in the air a huge press release is coming out tomorrow!
 
+ww Energy Inc.
+Symbol : wwng
 Current: $.02
 Expected: $.54
 
-WWNG WAS ONE OF THE HOTTEST STOCKS TRADED, AND IS EXPECTED TO DO
-BETTER TOMORROW!
+WWNG is hitting the news again Wednesday.=20
 
-Check 07/10/07. 2 months ago. This stock traded milions and milions of
-shares, over 7 million on the 2nd day. It's doing it AGAIN! TOMORROW
-IS THE 2ND DAY!
+Big news can mean big returns.=20
 
-Get in on the action Wednesday September 12th 2007!
-WWNG is the winner for this week!
+Easy walk in price for maximum returns.=20
 
-Company info:
-WW Energy, Inc., through its subsidiaries, provides services 
-to the oil and gas industry. The company engages in the 
-acquisition, exploration, exploitation, and development of 
-leases, and oil and gas related assets. It has exploitation 
-projects in Texas, Utah, and New Mexico. The company also 
-engages in transporting fresh production water for oil drilling 
-and exploration, and waste water for disposal. In addition, it 
-provides services for heavy hauling of drilling and well 
-equipment used in oil and gas production and exploration 
-industry. The company also operates in Colorado and 
-Arizona. WW Energy was founded in 1999 and is based in 
-Farmington, New Mexico.
+Don=92t let WWNG pass, Grab it Wednesday.
