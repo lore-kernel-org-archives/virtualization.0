@@ -1,13 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Add macros for acessing lguest fields
-Date: Thu, 13 Sep 2007 16:32:53 +1000
-Message-ID: <1189665173.32322.17.camel__40633.4734791473$1189665336$gmane$org@localhost.localdomain>
-References: <11894484404160-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 1/3] Normalize config options for guest support
+Date: Fri, 14 Sep 2007 15:17:34 +1000
+Message-ID: <1189747054.7262.34.camel__10155.5691253909$1189747226$gmane$org@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11894484404160-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,23 +15,106 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <gcosta@redhat.com>
-Cc: lguest@ozlabs.org, rostedt@goodmiss.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, akpm@linux-foundation.org
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-09-10 at 15:20 -0300, Glauber de Oliveira Costa wrote:
-> The assumption that we have an overall irqs_pending flags,
-> and a one-to-one lguest <-> task mapping fails to hold on x86_64,
-> where we can have multiple puppies, aka vcpus.
-> 
-> Although ifdefs could be used, it makes the code much more
-> unreadable, and other ports are on the way, anyway. So some sort
-> of acessor is preferred anyway.
+Group all the "guest OS" support options together, under
+CONFIG_PARAVIRT.  Make this a proper menu item so it looks neater on
+menuconfig etc, and make the wording for each prompt uniform.
 
-I'd prefer to see the i386 code use vcpus too.  Even if i386 only has
-one at present, it's cleaner.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Of course, there'll be a lot of "s/lg/vcpu/" churn, but that's OK.
-
-Thanks,
-Rusty.
+diff -r 3d3ac181380b arch/i386/Kconfig
+--- a/arch/i386/Kconfig	Fri Sep 14 12:24:15 2007 +1000
++++ b/arch/i386/Kconfig	Fri Sep 14 12:45:09 2007 +1000
+@@ -214,28 +214,38 @@ config X86_ES7000
+ 
+ endchoice
+ 
+-config PARAVIRT
+-	bool "Paravirtualization support (EXPERIMENTAL)"
++menuconfig PARAVIRT
++	bool "Paravirtualized guest support (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
+ 	depends on !(X86_VISWS || X86_VOYAGER)
+ 	help
+ 	  Paravirtualization is a way of running multiple instances of
+ 	  Linux on the same machine, under a hypervisor.  This option
+ 	  changes the kernel so it can modify itself when it is run
+ 	  under a hypervisor, improving performance significantly.
+ 	  However, when run without a hypervisor the kernel is
+ 	  theoretically slower.  If in doubt, say N.
++
++if PARAVIRT
+ 
+ source "arch/i386/xen/Kconfig"
+ 
+ config VMI
+-	bool "VMI Paravirt-ops support"
+-	depends on PARAVIRT
++	bool "VMI Guest support"
+ 	help
+ 	  VMI provides a paravirtualized interface to the VMware ESX server
+ 	  (it could be used by other hypervisors in theory too, but is not
+ 	  at the moment), by linking the kernel to a GPL-ed ROM module
+ 	  provided by the hypervisor.
++
++config LGUEST_GUEST
++	bool "Lguest guest support"
++	depends on !X86_PAE
++	help
++	  Lguest is a tiny in-kernel hypervisor.  Selecting this will
++	  allow your kernel to boot under lguest.  This option will increase
++	  your kernel size by about 6k.  If in doubt, say N.
++endif
+ 
+ config ACPI_SRAT
+ 	bool
+diff -r 3d3ac181380b arch/i386/xen/Kconfig
+--- a/arch/i386/xen/Kconfig	Fri Sep 14 12:24:15 2007 +1000
++++ b/arch/i386/xen/Kconfig	Fri Sep 14 12:37:38 2007 +1000
+@@ -3,8 +3,8 @@
+ #
+ 
+ config XEN
+-	bool "Enable support for Xen hypervisor"
+-	depends on PARAVIRT && X86_CMPXCHG && X86_TSC && !NEED_MULTIPLE_NODES
++	bool "Xen guest support"
++	depends on X86_CMPXCHG && X86_TSC && !NEED_MULTIPLE_NODES
+ 	help
+ 	  This is the Linux Xen port.  Enabling this will allow the
+ 	  kernel to boot in a paravirtualized environment under the
+diff -r 3d3ac181380b drivers/lguest/Kconfig
+--- a/drivers/lguest/Kconfig	Fri Sep 14 12:24:15 2007 +1000
++++ b/drivers/lguest/Kconfig	Fri Sep 14 12:31:44 2007 +1000
+@@ -1,23 +1,18 @@ config LGUEST
+ config LGUEST
+ 	tristate "Linux hypervisor example code"
+-	depends on X86 && PARAVIRT && EXPERIMENTAL && !X86_PAE && FUTEX
+-	select LGUEST_GUEST
++	depends on X86 && EXPERIMENTAL && !X86_PAE && FUTEX
+ 	select HVC_DRIVER
+ 	---help---
+-	  This is a very simple module which allows you to run
+-	  multiple instances of the same Linux kernel, using the
++	  This is a very simple module called lg.ko which allows you to run
++	  multiple instances of the Linux kernel, using the
+ 	  "lguest" command found in the Documentation/lguest directory.
+ 	  Note that "lguest" is pronounced to rhyme with "fell quest",
+ 	  not "rustyvisor".  See Documentation/lguest/lguest.txt.
+ 
++	  Usually you would also turn on "Lguest guest support", to create a
++	  kernel which can also boot under lguest.
++
+ 	  If unsure, say N.  If curious, say M.  If masochistic, say Y.
+-
+-config LGUEST_GUEST
+-	bool
+-	help
+-	  The guest needs code built-in, even if the host has lguest
+-	  support as a module.  The drivers are tiny, so we build them
+-	  in too.
+ 
+ config LGUEST_NET
+ 	tristate
