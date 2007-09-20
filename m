@@ -1,14 +1,15 @@
 From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [PATCH 6/6] virtio ring helper
-Date: Thu, 20 Sep 2007 14:43:34 +0200
-Message-ID: <46F26AF6.60904__35035.0260538564$1190292386$gmane$org@qumranet.com>
-References: <1190289808.7262.223.camel@localhost.localdomain>	<1190290140.7262.228.camel@localhost.localdomain>	<1190290369.7262.231.camel@localhost.localdomain>	<1190290495.7262.235.camel@localhost.localdomain>	<1190290606.7262.239.camel@localhost.localdomain>	<1190290761.7262.242.camel@localhost.localdomain>
-	<1190291234.7262.246.camel@localhost.localdomain>
+Subject: Re: [kvm-devel] [PATCH 2/6] virtio_config
+Date: Thu, 20 Sep 2007 14:55:35 +0200
+Message-ID: <46F26DC7.9040001__45489.2936199487$1190293194$gmane$org@qumranet.com>
+References: <1190289808.7262.223.camel@localhost.localdomain>	<1190290140.7262.228.camel@localhost.localdomain>
+	<1190290369.7262.231.camel@localhost.localdomain>
+	<46F26958.4080102@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1190291234.7262.246.camel@localhost.localdomain>
+In-Reply-To: <46F26958.4080102@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,20 +23,34 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> These helper routines supply most of the virtqueue_ops for hypervisors
-> which want to use a ring for virtio.  Unlike the previous lguest
-> implementation:
+Avi Kivity wrote:
+> Rusty Russell wrote:
+>> Previous versions of virtio didn't commonalize probing.  For every
+>> driver, every virtio implementation (KVM, lguest, etc) needed an
+>> in-kernel stub to join their bus to the probe code.
+>>
+>> To solve this, we introduce a "virtio_config" mechanism, which is
+>> simply a set of [u8 type][u8 len][...data...] fields for each device.
+>> Some convenient wrapper functions make this fairly easy for drivers to
+>> unpack their configuration data themselves.
+>>
+>> This configuration data could be PCI config space, or an unrelated bus
+>> (eg. lguest) or manufactured by the kernel itself.  It's designed to
+>> be extensible: fields get marked as the device reads them so a host
+>> supporting some future extension can tell if the guest driver
+>> understood it.  This also applies to bitfields: the guest explicitly
+>> acks the bits it understands.
+>>
+>> There's also a simple status bitmask useful for low-level host
+>> analysis of what the guest is doing with the device.
+>>
+>>   
 >
-> 3) The page numbers are always 64 bit (PAE anyone?)
->   
+> Lovely.
+>
 
-32 bits of page numbers give 44 bits of physical address on x86.  That's 
-16TB per guest.  Admittedly it's smaller on a VAX.
+A side effect of this is that Xen drivers can no longer use virtio.
 
-I don't like the chaining and would prefer the descriptor to refer to an 
-array of page descriptors.  However I can't complain since this isn't 
-common code.
 
 -- 
 error compiling committee.c: too many arguments to function
