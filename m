@@ -1,16 +1,11 @@
-From: Ian Campbell <ijc@hellion.org.uk>
-Subject: Re: [PATCH 3/3] Time to make CONFIG_PARAVIRT non-experimental.
-Date: Wed, 19 Sep 2007 11:43:00 +0100
-Message-ID: <1190198580.13585.34.camel@localhost.localdomain>
-References: <1189747054.7262.34.camel@localhost.localdomain>
-	<200709181257.41530.ak@suse.de>
-	<1190151272.7262.175.camel@localhost.localdomain>
-	<200709182352.25118.ak@suse.de>  <46F09EA1.7060606@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 0/6] virtio with config abstraction and ring implementation
+Date: Thu, 20 Sep 2007 22:03:28 +1000
+Message-ID: <1190289808.7262.223.camel__18183.2688548186$1190290028$gmane$org@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46F09EA1.7060606@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,30 +15,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.linux-foundation.org
+To: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Dor Laor <dor.laor@qumranet.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-09-18 at 20:59 -0700, Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> > At least the Xen port seems to have specific requirements
-> > and essentially only work on xen-unstable (?) [or at least
-> > some very new Xen version] which probably very few
-> > people use.
-> >   
-> 
-> Only on 64-bit hosts, because of bugs in the 64-bit compat layer. 
-> 32-on-32 and 64-on-64 (when its done) should work fine.
+Hi all,
 
-All the required fixes for 32on64 are queued for Xen 3.1.1 too. The
-proposed updates are at
-http://xenbits.xensource.com/xen-3.1-testing.pq.hg
+	This patch series attempts to come closer to unifying kvm and lguest's
+usage of virtio.  As these two are the first implementations we've seen,
+I hope making them closer will make future ones closer too.
 
-Ian.
+	Drivers now unpack their own configuration: their probe() methods are
+uniform.  The configuration mechanism is extensible and can be backed by
+PCI, a string of bytes, or something else.
 
--- 
-Ian Campbell
-Current Noise: Detonation - Sword-Carved Skin
+	I've abstracted out the lguest ring buffer code into a common library.
+The format has changed slightly (mainly because I had an epiphany about
+inter-guest I/O).
 
-The executioner is, I hear, very expert, and my neck is very slender.
-		-- Anne Boleyn
+	I also implemented a console (lguest needs one).
+
+	Finally, there is a working lguest implementation.  Unfortunately,
+lguest is being refactored for non-i386 ports, so the virtio patches sit
+at the end of the (quite long) for-2.6.24 patchqueue.  Nonetheless, they
+can be found at http://lguest.ozlabs.org/patches (click on bz2 to get
+the series).
+
+Cheers!
+Rusty.
