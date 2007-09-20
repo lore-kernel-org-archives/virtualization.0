@@ -1,13 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/6] virtio interace
-Date: Thu, 20 Sep 2007 22:09:00 +1000
-Message-ID: <1190290140.7262.228.camel__26029.1319377304$1190290308$gmane$org@localhost.localdomain>
+Subject: [PATCH 2/6] virtio_config
+Date: Thu, 20 Sep 2007 22:12:49 +1000
+Message-ID: <1190290369.7262.231.camel__31216.9291814373$1190290519$gmane$org@localhost.localdomain>
 References: <1190289808.7262.223.camel@localhost.localdomain>
+	<1190290140.7262.228.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1190289808.7262.223.camel@localhost.localdomain>
+In-Reply-To: <1190290140.7262.228.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,182 +22,313 @@ To: kvm-devel <kvm-devel@lists.sourceforge.net>
 Cc: lguest <lguest@ozlabs.org>, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(Changes: 
- - renamed sync to kick as Dor suggested
- - added new_vq and free_vq hooks to create virtqueues
- - define a simple virtio driver, which uses PCI ids
- - provide register/unregister_virtio_driver hooks)
+Previous versions of virtio didn't commonalize probing.  For every
+driver, every virtio implementation (KVM, lguest, etc) needed an
+in-kernel stub to join their bus to the probe code.
 
-This attempts to implement a "virtual I/O" layer which should allow
-common drivers to be efficiently used across most virtual I/O
-mechanisms.  It will no-doubt need further enhancement.
+To solve this, we introduce a "virtio_config" mechanism, which is
+simply a set of [u8 type][u8 len][...data...] fields for each device.
+Some convenient wrapper functions make this fairly easy for drivers to
+unpack their configuration data themselves.
 
-The virtio drivers add and get I/O buffers; as the buffers are consumed
-the driver "interrupt" callbacks are invoked.
+This configuration data could be PCI config space, or an unrelated bus
+(eg. lguest) or manufactured by the kernel itself.  It's designed to
+be extensible: fields get marked as the device reads them so a host
+supporting some future extension can tell if the guest driver
+understood it.  This also applies to bitfields: the guest explicitly
+acks the bits it understands.
 
-It also provides driver register and unregister hooks, which are
-simply overridden at run time (eg. for a guest kernel which supports
-KVM paravirt and lguest).
+There's also a simple status bitmask useful for low-level host
+analysis of what the guest is doing with the device.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/Kconfig  |    3 +
- drivers/virtio/Makefile |    1 
- drivers/virtio/virtio.c |   20 ++++++++
- include/linux/virtio.h  |  114 +++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 138 insertions(+)
+ drivers/Kconfig               |    2 
+ drivers/Makefile              |    1 
+ drivers/virtio/Makefile       |    2 
+ drivers/virtio/config.c       |  109 +++++++++++++++++++++++++++++++
+ include/linux/virtio_config.h |  141 +++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 254 insertions(+), 1 deletion(-)
 
 ===================================================================
---- /dev/null
-+++ b/drivers/virtio/Kconfig
-@@ -0,0 +1,3 @@
-+# Virtio always gets selected by whoever wants it.
-+config VIRTIO
-+	bool
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -87,4 +87,6 @@ source "drivers/kvm/Kconfig"
+ source "drivers/kvm/Kconfig"
+ 
+ source "drivers/uio/Kconfig"
++
++source "drivers/virtio/Kconfig"
+ endmenu
 ===================================================================
---- /dev/null
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -88,3 +88,4 @@ obj-$(CONFIG_HID)		+= hid/
+ obj-$(CONFIG_HID)		+= hid/
+ obj-$(CONFIG_PPC_PS3)		+= ps3/
+ obj-$(CONFIG_OF)		+= of/
++obj-$(CONFIG_VIRTIO)		+= virtio/
+===================================================================
+--- a/drivers/virtio/Makefile
 +++ b/drivers/virtio/Makefile
-@@ -0,0 +1,1 @@
-+obj-$(CONFIG_VIRTIO) += virtio.o
+@@ -1,1 +1,1 @@ obj-$(CONFIG_VIRTIO) += virtio.o
+-obj-$(CONFIG_VIRTIO) += virtio.o
++obj-$(CONFIG_VIRTIO) += virtio.o config.o
 ===================================================================
 --- /dev/null
-+++ b/drivers/virtio/virtio.c
-@@ -0,0 +1,20 @@
++++ b/drivers/virtio/config.c
+@@ -0,0 +1,109 @@
++/* Configuration space parsing helpers for virtio.
++ *
++ * The configuration is [type][len][... len bytes ...] fields.
++ *
++ * Copyright 2007 Rusty Russell, IBM Corporation.
++ * GPL v2 or later.
++ */
++#include <linux/err.h>
 +#include <linux/virtio.h>
++#include <linux/virtio_config.h>
++#include <linux/bug.h>
++#include <asm/system.h>
 +
-+struct virtio_backend_ops virtio_backend_ops;
-+EXPORT_SYMBOL_GPL(virtio_backend_ops);
-+
-+/* register and unregister simply punt through to the specific backend. */
-+int register_virtio_driver(struct virtio_driver *drv)
++#define HDR_LEN 2
++int virtio_config_find(struct virtio_config_space *config, u8 type,
++		       unsigned int *len)
 +{
-+	if (!virtio_backend_ops.register_driver)
-+		return -ENOSYS;
++	int i;
 +
-+	return virtio_backend_ops.register_driver(drv);
++	for (i = 0; i < config->len; i += HDR_LEN+config->readb(config,i+1)) {
++		if (config->readb(config, i) == type) {
++			/* Mark it used, so host can know we looked at it. */
++			config->writeb(config, i, type | VIRTIO_CONFIG_F_USED);
++			*len = config->readb(config, i+1);
++			return i;
++		}
++	}
++	return -ENOENT;
 +}
-+EXPORT_SYMBOL_GPL(register_virtio_driver);
 +
-+void unregister_virtio_driver(struct virtio_driver *drv)
++void virtio_config_get(struct virtio_config_space *config, int off,
++		       unsigned int len, void *buf)
 +{
-+	virtio_backend_ops.unregister_driver(drv);
++	unsigned int i;
++
++	BUG_ON(off < 0 || off + HDR_LEN + len > config->len);
++	for (i = 0; i < len; i++)
++		((u8 *)buf)[i] = config->readb(config, off + HDR_LEN + i);
++
 +}
-+EXPORT_SYMBOL_GPL(unregister_virtio_driver);
++
++void virtio_config_set(struct virtio_config_space *config, int off,
++		       unsigned int len, const void *buf)
++{
++	unsigned int i;
++
++	BUG_ON(off < 0 || off + HDR_LEN + len > config->len);
++	for (i = 0; i < len; i++)
++		config->writeb(config, off + HDR_LEN + i, ((u8 *)buf)[i]);
++}
++
++int __virtio_config_val(struct virtio_config_space *config,
++			u8 type, void *val, size_t size)
++{
++	int off;
++	unsigned int len;
++
++	off = virtio_config_find(config, type, &len);
++	if (off < 0)
++		return off;
++
++	if (len != size)
++		return -EIO;
++
++	virtio_config_get(config, off, size, val);
++	return 0;
++}
++
++int virtio_use_bit(struct virtio_config_space *config,
++		   int off, unsigned int len, unsigned int bitnum)
++{
++	u8 ack, mask = 1 << (bitnum % 8);
++
++	/* This makes it convenient to pass-through virtio_config_find. */
++	if (off < 0)
++		return 0;
++
++	/* bit not in range of this bitfield? */
++	if (bitnum * 8 >= len / 2)
++		return 0;
++
++	/* bit not set? */
++	if (!(config->readb(config, bitnum / 8) & mask))
++		return 0;
++
++	/* Set acknowledge bit. */
++	ack = config->readb(config, bitnum / 8 + len / 2) | mask;
++	config->writeb(config, bitnum / 8 + len / 2, ack);
++	return 1;
++}
++
++struct virtqueue *virtio_config_vq(struct virtio_config_space *config,
++				   struct virtqueue_ops *ops,
++				   struct device *dev,
++				   bool (*callback)(void *), void *cb_data)
++{
++	unsigned int len;
++	int off = virtio_config_find(config, VIRTIO_CONFIG_F_VIRTQUEUE, &len);
++
++	if (off < 0)
++		return ERR_PTR(off);
++
++	return ops->new_vq(config, off, len, dev, callback, cb_data);
++}
++
++void virtio_add_status(struct virtio_config_space *config, u32 mask)
++{
++	config->set_status(config, config->get_status(config) | mask);
++}
 ===================================================================
 --- /dev/null
-+++ b/include/linux/virtio.h
-@@ -0,0 +1,114 @@
-+#ifndef _LINUX_VIRTIO_H
-+#define _LINUX_VIRTIO_H
-+/* Everything a virtio driver needs to work with any particular virtio
-+ * implementation. */
++++ b/include/linux/virtio_config.h
+@@ -0,0 +1,141 @@
++#ifndef _LINUX_VIRTIO_CONFIG_H
++#define _LINUX_VIRTIO_CONFIG_H
++/* Virtio devices use a standardized array of bytes to define their
++ * features and pass configuration information.
++ *
++ * The first byte is the status byte, after that come type/len/data fields.
++ * Each field understood by the guest is acknowledged by setting the USED bit.
++ * Some fields are bitfields: the first half is uses to advertise features to
++ * the guest, and the second half is used by the guest to acknowledge. */
 +#include <linux/types.h>
-+#include <linux/scatterlist.h>
-+#include <linux/spinlock.h>
-+#include <linux/pci.h>
++
++/* Status byte for guest to report progress, and synchronize config. */
++/* We have seen device and processed generic fields (VIRTIO_CONFIG_F_VIRTIO) */
++#define VIRTIO_CONFIG_S_ACKNOWLEDGE	1
++/* We have found a driver for the device. */
++#define VIRTIO_CONFIG_S_DRIVER		2
++/* Driver has used its parts of the config, and is happy */
++#define VIRTIO_CONFIG_S_DRIVER_OK	4
++/* We've given up on this device. */
++#define VIRTIO_CONFIG_S_FAILED		128
++
++/* Requirements/features of the virtio implementation. */
++#define VIRTIO_CONFIG_F_VIRTIO 1
++/* Requirements/features of the virtqueue (may have more than one). */
++#define VIRTIO_CONFIG_F_VIRTQUEUE 2
++
++/* Used config: guest sets this bit to say it understood the field. */
++#define VIRTIO_CONFIG_F_USED 0x80
++
++#ifdef __KERNEL__
++/* Low level opertions on this virtio device's configuration space. */
++struct virtio_config_space
++{
++	unsigned int len;
++	void (*writeb)(struct virtio_config_space *, unsigned off, u8 b);
++	u8 (*readb)(struct virtio_config_space *, unsigned off);
++	void (*set_status)(struct virtio_config_space *, u32 status);
++	u32 (*get_status)(struct virtio_config_space *);
++};
++
++/**
++ * virtio_config_find - look for a virtio config.
++ * @config: the virtio config space
++ * @type: the type to search for.
++ * @len: the length of the field.
++ *
++ * This returns the offset of the first field of the given type (or -ENOENT).
++ * This offset and length can then be handed to virtio_config_get().
++ *
++ * This function marks the field type with VIRTIO_CONFIG_F_USED, so it can't be
++ * found again, and the host knows we've seen the field. */
++int virtio_config_find(struct virtio_config_space *config, u8 type,
++		       unsigned int *len);
++
++/**
++ * virtio_config_get - get a virtio config field, and mark it used.
++ * @config: the virtio config space
++ * @off: the offset as returned from virtio_config_find.
++ * @len: the length of the field.
++ * @buf: the buffer to copy the field into.
++ *
++ * Note that virtio config entries are conventionally little-endian. */
++void virtio_config_get(struct virtio_config_space *config, int off,
++		       unsigned int len, void *buf);
++
++/**
++ * virtio_config_set - set a virtio config field, and mark it used.
++ * @config: the virtio config space
++ * @off: the offset as returned from virtio_config_find.
++ * @len: the length of the field.
++ * @buf: the buffer to copy into the field.
++ *
++ * Note that virtio config entries are conventionally little-endian. */
++void virtio_config_set(struct virtio_config_space *config, int off,
++		       unsigned int len, const void *buf);
++
++/**
++ * virtio_config_val - get a single virtio config and mark it used.
++ * @config: the virtio config space
++ * @type: the type to search for.
++ * @val: a pointer to the value to fill in.
++ *
++ * Once used, the config type is marked with VIRTIO_CONFIG_F_USED so it can't
++ * be found again.  This version does endian conversion. */
++#define virtio_config_val(config, type, v) ({				\
++	int _err = __virtio_config_val((config),(type),(v),sizeof(*(v))); \
++									\
++	BUILD_BUG_ON(sizeof(*(v)) != 1 && sizeof(*(v)) != 2		\
++		     && sizeof(*(v)) != 4 && sizeof(*(v)) != 8);	\
++	if (!_err) {							\
++		switch (sizeof(*(v))) {					\
++		case 2: le16_to_cpus(v); break;				\
++		case 4: le32_to_cpus(v); break;				\
++		case 8: le64_to_cpus(v); break;				\
++		}							\
++	}								\
++	_err;								\
++})
++
++int __virtio_config_val(struct virtio_config_space *config,
++			u8 type, void *val, size_t size);
++
++/**
++ * virtio_use_bit - helper to use a feature bit in a bitfield value.
++ * @config: the virtio config space
++ * @off: the offset as returned from virtio_config_find.
++ * @len: the length of the field.
++ * @bitnum: the bit to test.
++ *
++ * If handed a negative offset, it returns false, otherwise returns bit status.
++ * If it's one, it sets the mirroring acknowledgement bit. */
++int virtio_use_bit(struct virtio_config_space *config,
++		   int off, unsigned int len, unsigned int bitnum);
 +
 +struct device;
-+struct virtio_config_space;
++struct virtqueue_ops;
 +
 +/**
-+ * virtqueue_ops - operations for virtqueue abstraction layer
-+ * @new_vq: create a new virtqueue
-+ *	config: the virtio_config_space field describing the queue
-+ *	off: the offset in the config space of the queue configuration
-+ *	len: the length of the virtio_config_space field
-+ *	callback: the driver callback when the queue is used.
-+ *	cb_data: the pointer for the callback.
-+ *	Returns a new virtqueue or an ERR_PTR.
-+ * @free_vq: free a virtqueue
-+ *	vq: the struct virtqueue to free (must be unused or empty).
-+ * @add_buf: expose buffer to other end
-+ *	vq: the struct virtqueue we're talking about.
-+ *	sg: the description of the buffer(s).
-+ *	out_num: the number of sg readable by other side
-+ *	in_num: the number of sg which are writable (after readable ones)
-+ *	data: the token identifying the buffer.
-+ *      Returns 0 or an error.
-+ * @kick: update after add_buf
-+ *	vq: the struct virtqueue
-+ *	After one or more add_buf calls, invoke this to kick the virtio layer.
-+ * @get_buf: get the next used buffer
-+ *	vq: the struct virtqueue we're talking about.
-+ *	len: the length written into the buffer
-+ *	Returns NULL or the "data" token handed to add_buf.
-+ * @restart: restart callbacks ater callback returned false.
-+ *	vq: the struct virtqueue we're talking about.
-+ *	This returns "false" (and doesn't re-enable) if there are pending
-+ *	buffers in the queue, to avoid a race.
-+ * @shutdown: "unadd" all buffers.
-+ *	vq: the struct virtqueue we're talking about.
-+ *	Remove everything from the queue.
++ * virtio_config_vq - find a virtqueue in the config and call ops->new_vq.
++ * @config: the virtio config space
++ * @ops: the virtqueue_ops for the queue.
++ * @dev: the struct device this virtqueue is attached to.
++ * @callback: the driver callback when the queue is used.
++ * @cb_data: the pointer for the callback.
 + *
-+ * Locking rules are straightforward: the driver is responsible for
-+ * locking.  No two operations may be invoked simultaneously.
-+ *
-+ * All operations can be called in any context.
-+ */
-+struct virtqueue_ops {
-+	struct virtqueue *(*new_vq)(struct device *dev,
-+				    struct virtio_config_space *config,
-+				    int off, unsigned len,
-+				    bool (*callback)(void *),
-+				    void *cb_data);
-+
-+	void (*free_vq)(struct virtqueue *vq);
-+
-+	int (*add_buf)(struct virtqueue *vq,
-+		       struct scatterlist sg[],
-+		       unsigned int out_num,
-+		       unsigned int in_num,
-+		       void *data);
-+
-+	void (*kick)(struct virtqueue *vq);
-+
-+	void *(*get_buf)(struct virtqueue *vq, unsigned int *len);
-+
-+	bool (*restart)(struct virtqueue *vq);
-+
-+	void (*shutdown)(struct virtqueue *vq);
-+};
-+
-+/* FIXME: Get a real PCI vendor ID. */
-+#define PCI_VENDOR_ID_VIRTIO 0x5000
-+
-+#define VIRTIO_DEV_ID(_devid, _class) {		\
-+	.vendor = PCI_VENDOR_ID_VIRTIO,		\
-+	.device = (_devid),			\
-+	.subvendor = PCI_ANY_ID,		\
-+	.subdevice = PCI_ANY_ID,		\
-+	.class = (_class)<<8,			\
-+	.class_mask = 0xFFFF00 }
++ * This returns a new virtqueue or ERR_PTR(). */
++struct virtqueue *virtio_config_vq(struct virtio_config_space *config,
++				   struct virtqueue_ops *ops,
++				   struct device *dev,
++				   bool (*callback)(void *), void *cb_data);
 +
 +/**
-+ * virtio_driver - operations for a virtio I/O driver
-+ * @name: the name of the driver (KBUILD_MODNAME).
-+ * @owner: the module which contains these routines (ie. THIS_MODULE).
-+ * @id_table: the ids (we re-use PCI ids) serviced by this driver.
-+ * @probe: the function to call when a device is found.  Returns a token for
-+ *    remove, or PTR_ERR().
-+ * @remove: the function when a device is removed.
-+ */
-+struct virtio_driver {
-+	const char *name;
-+	struct module *owner;
-+	struct pci_device_id *id_table;
-+	void *(*probe)(struct device *device,
-+		       struct virtio_config_space *config,
-+		       struct virtqueue_ops *vqops);
-+	void (*remove)(void *dev);
-+};
++ * virtio_add_status - set a bit in the status field.
++ * @config: the virtio config space
++ * @mask: the mask to set (one bit).
++ *
++ * This is not usually set by the driver itself. */
++void virtio_add_status(struct virtio_config_space *config, u32 mask);
 +
-+int register_virtio_driver(struct virtio_driver *drv);
-+void unregister_virtio_driver(struct virtio_driver *drv);
-+
-+/* The particular virtio backend supplies these. */
-+struct virtio_backend_ops {
-+	int (*register_driver)(struct virtio_driver *drv);
-+	void (*unregister_driver)(struct virtio_driver *drv);
-+};
-+extern struct virtio_backend_ops virtio_backend_ops;
-+#endif /* _LINUX_VIRTIO_H */
++#endif /* __KERNEL__ */
++#endif /* _LINUX_VIRTIO_CONFIG_H */
