@@ -1,17 +1,18 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 5/6] virtio console driver
-Date: Thu, 20 Sep 2007 22:19:21 +1000
-Message-ID: <1190290761.7262.242.camel__46624.1060909399$1190290939$gmane$org@localhost.localdomain>
+Subject: [PATCH 6/6] virtio ring helper
+Date: Thu, 20 Sep 2007 22:27:14 +1000
+Message-ID: <1190291234.7262.246.camel__31608.0691562549$1190291394$gmane$org@localhost.localdomain>
 References: <1190289808.7262.223.camel@localhost.localdomain>
 	<1190290140.7262.228.camel@localhost.localdomain>
 	<1190290369.7262.231.camel@localhost.localdomain>
 	<1190290495.7262.235.camel@localhost.localdomain>
 	<1190290606.7262.239.camel@localhost.localdomain>
+	<1190290761.7262.242.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1190290606.7262.239.camel@localhost.localdomain>
+In-Reply-To: <1190290761.7262.242.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,297 +23,518 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm-devel <kvm-devel@lists.sourceforge.net>
-Cc: lguest <lguest@ozlabs.org>, Jens Axboe <jens.axboe@oracle.com>, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: lguest <lguest@ozlabs.org>, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an hvc-based virtio console driver.  It's suboptimal becuase
-hvc expects to have raw access to interrupts and virtio doesn't assume
-that, so it currently polls.
+These helper routines supply most of the virtqueue_ops for hypervisors
+which want to use a ring for virtio.  Unlike the previous lguest
+implementation:
 
-There are two solutions: expose hvc's "kick" interface, or wean off hvc.
+1) The rings are variable sized (2^n-1 elements).
+2) They have an unfortunate limit of 65535 bytes per sg element.
+3) The page numbers are always 64 bit (PAE anyone?)
+4) They no longer place used[] on a separate page, just a separate
+   cacheline.
+5) We do a modulo on a variable.  We could be tricky if we cared.
+
+Users need only implement the new_vq and free_vq hooks (KVM wants the
+guest to allocate the rings, lguest does it sanely).
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/char/Kconfig           |    4 
- drivers/char/Makefile          |    1 
- drivers/char/virtio_console.c  |  232 ++++++++++++++++++++++++++++++++++++++++
- include/linux/virtio_console.h |   12 ++
- 4 files changed, 249 insertions(+)
+ arch/i386/lguest/Kconfig     |    1 
+ drivers/virtio/Kconfig       |    5 
+ drivers/virtio/Makefile      |    1 
+ drivers/virtio/virtio_ring.c |  301 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/virtio/vring.h       |   50 ++++++
+ include/linux/virtio_ring.h  |   96 +++++++++++++
+ 6 files changed, 454 insertions(+)
 
 ===================================================================
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -613,6 +613,10 @@ config HVC_XEN
+--- a/arch/i386/lguest/Kconfig
++++ b/arch/i386/lguest/Kconfig
+@@ -2,6 +2,7 @@ config LGUEST_GUEST
+ 	bool "Lguest guest support"
+ 	select PARAVIRT
+ 	depends on !X86_PAE
++	select VIRTIO_RING
  	help
- 	  Xen virtual console device driver
- 
-+config VIRTIO_CONSOLE
+ 	  Lguest is a tiny in-kernel hypervisor.  Selecting this will
+ 	  allow your kernel to boot under lguest.  This option will increase
+===================================================================
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -1,3 +1,8 @@
+ # Virtio always gets selected by whoever wants it.
+ config VIRTIO
+ 	bool
++
++# Similarly the virtio ring implementation.
++config VIRTIO_RING
 +	bool
-+	select HVC_DRIVER
-+
- config HVCS
- 	tristate "IBM Hypervisor Virtual Console Server support"
- 	depends on PPC_PSERIES
++	depends on VIRTIO
 ===================================================================
---- a/drivers/char/Makefile
-+++ b/drivers/char/Makefile
-@@ -50,6 +50,7 @@ obj-$(CONFIG_HVC_BEAT)		+= hvc_beat.o
- obj-$(CONFIG_HVC_BEAT)		+= hvc_beat.o
- obj-$(CONFIG_HVC_DRIVER)	+= hvc_console.o
- obj-$(CONFIG_HVC_XEN)		+= hvc_xen.o
-+obj-$(CONFIG_VIRTIO_CONSOLE)	+= virtio_console.o
- obj-$(CONFIG_RAW_DRIVER)	+= raw.o
- obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
- obj-$(CONFIG_MSPEC)		+= mspec.o
+--- a/drivers/virtio/Makefile
++++ b/drivers/virtio/Makefile
+@@ -1,1 +1,2 @@ obj-$(CONFIG_VIRTIO) += virtio.o config.
+ obj-$(CONFIG_VIRTIO) += virtio.o config.o
++obj-$(CONFIG_VIRTIO_RING) += virtio_ring.o
 ===================================================================
 --- /dev/null
-+++ b/drivers/char/virtio_console.c
-@@ -0,0 +1,232 @@
-+/*D:300
-+ * The Guest console driver
++++ b/drivers/virtio/virtio_ring.c
+@@ -0,0 +1,301 @@
++/* Virtio ring implementation.
 + *
-+ * Writing console drivers is one of the few remaining Dark Arts in Linux.
-+ * Fortunately for us, the path of virtual consoles has been well-trodden by
-+ * the PowerPC folks, who wrote "hvc_console.c" to generically support any
-+ * virtual console.  We use that infrastructure which only requires us to write
-+ * the basic put_chars and get_chars functions and call the right register
-+ * functions.
-+ :*/
-+
-+/*M:002 The console can be flooded: while the Guest is processing input the
-+ * Host can send more.  Buffering in the Host could alleviate this, but it is a
-+ * difficult problem in general. :*/
-+/* Copyright (C) 2006, 2007 Rusty Russell, IBM Corporation
++ *  Copyright 2007 Rusty Russell IBM Corporation
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
 + *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + */
-+#include <linux/err.h>
-+#include <linux/init.h>
 +#include <linux/virtio.h>
-+#include <linux/virtio_console.h>
-+#include "hvc_console.h"
++#include <linux/virtio_ring.h>
++#include <linux/device.h>
++#include "vring.h"
 +
-+/*D:340 These represent our input and output console queues, and the virtio
-+ * operations for them. */
-+static struct virtqueue *in_vq, *out_vq;
-+static struct virtqueue_ops *vq_ops;
++#ifdef DEBUG
++/* For development, we want to crash whenever the ring is screwed. */
++#define BAD_RING(vvq, fmt...)			\
++	do { dev_err(vvq->dev, fmt); BUG(); } while(0)
++#define START_USE(vvq) \
++	do { if ((vvq)->in_use) panic("in_use = %i\n", (vvq)->in_use); (vvq)->in_use = __LINE__; mb(); } while(0)
++#define END_USE(vvq) \
++	do { BUG_ON(!(vvq)->in_use); (vvq)->in_use = 0; mb(); } while(0)
++#else
++#define BAD_RING(vvq, fmt...)			\
++	do { dev_err(vvq->dev, fmt); (vvq)->broken = true; } while(0)
++#define START_USE(vvq)
++#define END_USE(vvq)
++#endif
 +
-+/* This is our input buffer, and how much data is left in it. */
-+static unsigned int in_len;
-+static char *in, *inbuf;
-+
-+/* The operations for our console. */
-+static struct hv_ops virtio_cons;
-+
-+/*D:310 The put_chars() callback is pretty straightforward.
-+ *
-+ * We turn the characters into a scatter-gather list, add it to the output
-+ * queue and then kick the Host.  Then we sit here waiting for it to finish:
-+ * inefficient in theory, but in practice implementations will do it
-+ * immediately (lguest's Launcher does). */
-+static int put_chars(u32 vtermno, const char *buf, int count)
++struct virtqueue
 +{
-+	struct scatterlist sg[1];
-+	unsigned int len;
++	/* Callback for driver when data is consumed. */
++	bool (*callback)(void *);
++	void *cb_data;
 +
-+	/* This is a convenient routine to initialize a single-elem sg list */
-+	sg_init_one(sg, buf, count);
++	/* Who to blame this on. */
++	struct device *dev;
 +
-+	/* add_buf wants a token to identify this buffer: we hand it any
-+	 * non-NULL pointer, since there's only ever one buffer. */
-+	if (vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) == 0) {
-+		/* Tell Host to go! */
-+		vq_ops->kick(out_vq);
-+		/* Chill out until it's done with the buffer. */
-+		while (!vq_ops->get_buf(out_vq, &len))
-+			cpu_relax();
-+	}
++	/* Actual memory layout for this queue */
++	struct vring vring;
 +
-+	/* We're expected to return the amount of data we wrote: all of it. */
-+	return count;
-+}
++	/* Other side has made a mess, don't try any more. */
++	bool broken;
 +
-+/* Create a scatter-gather list representing our input buffer and put it in the
-+ * queue. */
-+static void add_inbuf(void)
-+{
-+	struct scatterlist sg[1];
-+	sg_init_one(sg, inbuf, PAGE_SIZE);
++	/* Number of free buffers */
++	unsigned int num_free;
++	/* Head of free buffer list. */
++	unsigned int free_head;
++	/* Number we've added since last sync. */
++	unsigned int num_added;
 +
-+	/* We should always be able to add one buffer to an empty queue. */
-+	if (vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) != 0)
-+		BUG();
-+	vq_ops->kick(in_vq);
-+}
++	/* Last used index we've seen. */
++	unsigned int last_used_idx;
 +
-+/*D:350 get_chars() is the callback from the hvc_console infrastructure when
-+ * an interrupt is received.
-+ *
-+ * Most of the code deals with the fact that the hvc_console() infrastructure
-+ * only asks us for 16 bytes at a time.  We keep in_offset and in_used fields
-+ * for partially-filled buffers. */
-+static int get_chars(u32 vtermno, char *buf, int count)
-+{
-+	/* If we don't have an input queue yet, we can't get input. */
-+	BUG_ON(!in_vq);
++	/* How to notify other side. FIXME: commonalize hcalls! */
++	void (*notify)(void *priv);
++	void *priv;
 +
-+	/* No buffer?  Try to get one. */
-+	if (!in_len) {
-+		in = vq_ops->get_buf(in_vq, &in_len);
-+		if (!in)
-+			return 0;
-+	}
++	/* Unless they told us to stop */
++	bool running;
 +
-+	/* You want more than we have to give?  Well, try wanting less! */
-+	if (in_len < count)
-+		count = in_len;
++#ifdef DEBUG
++	/* They're supposed to lock for us. */
++	unsigned int in_use;
++#endif
 +
-+	/* Copy across to their buffer and increment offset. */
-+	memcpy(buf, in, count);
-+	in += count;
-+	in_len -= count;
-+
-+	/* Finished?  Re-register buffer so Host will use it again. */
-+	if (in_len == 0)
-+		add_inbuf();
-+
-+	return count;
-+}
-+/*:*/
-+
-+/*D:320 Console drivers are initialized very early so boot messages can go out,
-+ * so we do things slightly differently from the generic virtio initialization
-+ * of the net and block drivers.
-+ *
-+ * At this stage, the console is output-only.  It's too early to set up a
-+ * virtqueue, so we let the drivers do some boutique early-output thing. */
-+int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
-+{
-+	virtio_cons.put_chars = put_chars;
-+	return hvc_instantiate(0, 0, &virtio_cons);
-+}
-+
-+/* FIXME: This is why we want to wean off hvc: we do nothing when input comes
-+ * in. */
-+static bool do_nothing(void *data)
-+{
-+	return true;
-+}
-+
-+/*D:370 Once we're further in boot, we get probed like any other virtio device.
-+ * At this stage we set up the output virtqueue.
-+ *
-+ * To set up and manage our virtual console, we call hvc_alloc().  Since we
-+ * never remove the console device we never need this pointer again.
-+ *
-+ * Finally we put our input buffer in the input queue, ready to receive. */
-+static void *virtcons_probe(struct device *device,
-+			    struct virtio_config_space *config,
-+			    struct virtqueue_ops *new_vq_ops)
-+{
-+	int err;
-+	struct hvc_struct *hvc;
-+
-+	/* This is the scratch page we use to receive console input */
-+	inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!inbuf) {
-+		err = -ENOMEM;
-+		goto fail;
-+	}
-+
-+	vq_ops = new_vq_ops;
-+
-+	/* Find the input queue. */
-+	in_vq = virtio_config_vq(config, vq_ops, device, do_nothing, NULL);
-+	if (IS_ERR(in_vq)) {
-+		err = PTR_ERR(in_vq);
-+		goto free_out_vq;
-+	}
-+
-+	out_vq = virtio_config_vq(config, vq_ops, device, do_nothing, NULL);
-+	if (IS_ERR(out_vq)) {
-+		err = PTR_ERR(out_vq);
-+		goto free;
-+	}
-+
-+	/* Start using the new console output. */
-+	virtio_cons.get_chars = get_chars;
-+	virtio_cons.put_chars = put_chars;
-+
-+	/* The first argument of hvc_alloc() is the virtual console number, so
-+	 * we use zero.  The second argument is the interrupt number; we
-+	 * currently leave this as zero: it would be better not to use the
-+	 * hvc mechanism and fix this (FIXME!).
-+	 *
-+	 * The third argument is a "struct hv_ops" containing the put_chars()
-+	 * and get_chars() pointers.  The final argument is the output buffer
-+	 * size: we can do any size, so we put PAGE_SIZE here. */
-+	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
-+	if (IS_ERR(hvc)) {
-+		err = PTR_ERR(hvc);
-+		goto free_in_vq;
-+	}
-+
-+	/* Register the input buffer the first time. */
-+	add_inbuf();
-+	return NULL;
-+
-+free_in_vq:
-+	new_vq_ops->free_vq(in_vq);
-+free_out_vq:
-+	new_vq_ops->free_vq(out_vq);
-+free:
-+	kfree(inbuf);
-+fail:
-+	return ERR_PTR(err);
-+}
-+
-+static struct pci_device_id id_table[] = {
-+	VIRTIO_DEV_ID(VIRTIO_ID_CONSOLE, PCI_CLASS_COMMUNICATION_SERIAL),
-+	{ 0 },
++	/* Tokens for callbacks. */
++	void *data[];
 +};
 +
-+static struct virtio_driver virtio_console = {
-+	.name =         KBUILD_MODNAME,
-+	.owner =        THIS_MODULE,
-+	.id_table =     id_table,
-+	.probe =        virtcons_probe,
-+};
-+
-+static int __init init(void)
++void *vring_priv(struct virtqueue *vq)
 +{
-+	return register_virtio_driver(&virtio_console);
++	return vq->priv;
 +}
-+module_init(init);
 +
-+MODULE_DEVICE_TABLE(pci, id_table);
-+MODULE_DESCRIPTION("Virtio console driver");
-+MODULE_LICENSE("GPL");
++int vring_add_buf(struct virtqueue *vq,
++		  struct scatterlist sg[],
++		  unsigned int out,
++		  unsigned int in,
++		  void *data)
++{
++	unsigned int i, avail, head, uninitialized_var(prev);
++
++	BUG_ON(data == NULL);
++	BUG_ON(out + in > vq->vring.num);
++	BUG_ON(out + in == 0);
++
++	START_USE(vq);
++
++	if (vq->num_free < out + in) {
++		pr_debug("Can't add buf len %i - avail = %i\n",
++			 out + in, vq->num_free);
++		END_USE(vq);
++		return -ENOSPC;
++	}
++
++	/* We're about to use some buffers from the free list. */
++	vq->num_free -= out + in;
++
++	head = vq->free_head;
++	for (i = vq->free_head; out; i = vq->vring.desc[i].next, out--) {
++		vq->vring.desc[i].flags = VRING_DESC_F_NEXT;
++		vq->vring.desc[i].pfn = page_to_pfn(sg[0].page);
++		BUG_ON(sg[0].offset > 65535);
++		BUG_ON(sg[0].length > 65535);
++		vq->vring.desc[i].offset = sg[0].offset;
++		vq->vring.desc[i].len = sg[0].length;
++		prev = i;
++		sg++;
++	}
++	for (; in; i = vq->vring.desc[i].next, in--) {
++		vq->vring.desc[i].flags=VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
++		vq->vring.desc[i].pfn = page_to_pfn(sg[0].page);
++		BUG_ON(sg[0].offset > 65535);
++		BUG_ON(sg[0].length > 65535);
++		vq->vring.desc[i].offset = sg[0].offset;
++		vq->vring.desc[i].len = sg[0].length;
++		prev = i;
++		sg++;
++	}
++	/* Last one doesn't continue. */
++	vq->vring.desc[prev].flags &= ~VRING_DESC_F_NEXT;
++
++	/* Update free pointer */
++	vq->free_head = i;
++
++	/* Set token. */
++	vq->data[head] = data;
++
++	/* Put entry in available array (but don't update avail->idx until they
++	 * do sync).  FIXME: avoid modulus here? */
++	avail = (vq->vring.avail->idx + vq->num_added++) % vq->vring.num;
++	vq->vring.avail->ring[avail] = head;
++
++	pr_debug("Added buffer head %i to %p\n", head, vq);
++	END_USE(vq);
++	return 0;
++}
++
++void vring_kick(struct virtqueue *vq)
++{
++	START_USE(vq);
++	/* Descriptors and available array need to be set before we expose the
++	 * new available array entries. */
++	wmb();
++
++	vq->vring.avail->idx += vq->num_added;
++	vq->num_added = 0;
++
++	/* Prod other side to tell it about changes. */
++	vq->notify(vq->priv);
++	END_USE(vq);
++}
++
++static void detach_buf(struct virtqueue *vq, unsigned int head)
++{
++	unsigned int i;
++
++	/* Clear data ptr. */
++	vq->data[head] = NULL;
++
++	/* Put back on free list: find end */
++	i = head;
++	while (vq->vring.desc[i].flags & VRING_DESC_F_NEXT) {
++		i = vq->vring.desc[i].next;
++		vq->num_free++;
++	}
++
++	vq->vring.desc[i].next = vq->free_head;
++	vq->free_head = head;
++	/* Plus final descriptor */
++	vq->num_free++;
++}
++
++/* FIXME: We need to tell other side about removal, to synchronize. */
++void vring_shutdown(struct virtqueue *vq)
++{
++	unsigned int i;
++
++	for (i = 0; i < vq->vring.num; i++)
++		detach_buf(vq, i);
++}
++
++static bool more_used(const struct virtqueue *vq)
++{
++	return vq->last_used_idx != vq->vring.used->idx;
++}
++
++void *vring_get_buf(struct virtqueue *vq, unsigned int *len)
++{
++	void *ret;
++	unsigned int i;
++
++	START_USE(vq);
++
++	if (!more_used(vq)) {
++		pr_debug("No more buffers in queue\n");
++		END_USE(vq);
++		return NULL;
++	}
++
++	i = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].id;
++	*len = vq->vring.used->ring[vq->last_used_idx%vq->vring.num].len;
++
++	if (unlikely(i >= vq->vring.num)) {
++		BAD_RING(vq, "id %u out of range\n", i);
++		return NULL;
++	}
++	if (unlikely(!vq->data[i])) {
++		BAD_RING(vq, "id %u is not a head!\n", i);
++		return NULL;
++	}
++
++	/* detach_buf clears data, so grab it now. */
++	ret = vq->data[i];
++	detach_buf(vq, i);
++	vq->last_used_idx++;
++	END_USE(vq);
++	return ret;
++}
++
++/* FIXME: Put running in shmem */
++bool vring_restart(struct virtqueue *vq)
++{
++	START_USE(vq);
++	BUG_ON(vq->running);
++
++	if (likely(!more_used(vq)) || unlikely(vq->broken))
++		vq->running = true;
++
++	END_USE(vq);
++	return vq->running;
++}
++
++irqreturn_t vring_interrupt(int irq, void *_vq)
++{
++	struct virtqueue *vq = _vq;
++
++	pr_debug("virtqueue interrupt for %p\n", vq);
++
++	if (unlikely(vq->broken))
++		return IRQ_HANDLED;
++
++	if (vq->running && more_used(vq)) {
++		pr_debug("virtqueue callback for %p (%p)\n", vq, vq->callback);
++		vq->running = vq->callback(vq->cb_data);
++	} else
++		pr_debug("virtqueue %p no more used\n", vq);
++
++	return IRQ_HANDLED;
++}
++
++struct virtqueue *vring_new_virtqueue(unsigned int num,
++				      struct device *dev,
++				      void *pages,
++				      void (*notify)(void *priv), void *priv,
++				      bool (*callback)(void *), void *cb_data)
++{
++	struct virtqueue *vq;
++	unsigned int i;
++
++	vq = kmalloc(sizeof(*vq) + sizeof(void *)*num, GFP_KERNEL);
++	if (!vq)
++		return NULL;
++
++	vring_init(&vq->vring, num, pages);
++	vq->callback = callback;
++	vq->cb_data = cb_data;
++	vq->dev = dev;
++	vq->notify = notify;
++	vq->priv = priv;
++	vq->broken = false;
++	vq->last_used_idx = 0;
++	vq->num_added = 0;
++	vq->running = true;
++#ifdef DEBUG
++	vq->in_use = false;
++#endif
++
++	/* Put everything in free lists. */
++	vq->num_free = num;
++	vq->free_head = 0;
++	for (i = 0; i < num-1; i++)
++		vq->vring.desc[i].next = i+1;
++
++	return vq;
++}
++
++void vring_destroy_virtqueue(struct virtqueue *vq)
++{
++	kfree(vq);
++}
 ===================================================================
 --- /dev/null
-+++ b/include/linux/virtio_console.h
-@@ -0,0 +1,12 @@
-+#ifndef _LINUX_VIRTIO_CONSOLE_H
-+#define _LINUX_VIRTIO_CONSOLE_H
-+#include <linux/virtio_config.h>
++++ b/drivers/virtio/vring.h
+@@ -0,0 +1,50 @@
++#ifndef _VRING_VRING_H
++#define _VRING_VRING_H
++#include <linux/virtio.h>
++#include <linux/irqreturn.h>
 +
-+/* The ID for virtio console */
-+#define VIRTIO_ID_CONSOLE	3
++/* A vring consists of a continuous chunk of memory which looks like so:
++ * (use num == 2^n-1 to make it nicely cacheline aligned).
++ *
++ * struct vring
++ * {
++ *	// The actual descriptors.
++ *	struct vring_desc desc[num];
++ *
++ *	// A ring of available descriptor heads with free-running index.
++ *	__u16 avail_idx;
++ *	__u16 available[num];
++ *
++ *	// Padding so a correctly-chosen num value will cache-align used_idx.
++ *	char pad[sizeof(struct vring_desc) - sizeof(__u16)];
++ *
++ *	// A ring of used descriptor heads with free-running index.
++ *	__u16 used_idx;
++ *	struct vring_used_elem used[num];
++ * };
++ */
++struct virtqueue *vring_new_virtqueue(unsigned int num,
++				      struct device *dev,
++				      void *pages,
++				      void (*notify)(void *priv), void *priv,
++				      bool (*callback)(void *), void *cb_data);
++void vring_destroy_virtqueue(struct virtqueue *vq);
 +
-+#ifdef __KERNEL__
-+int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
-+#endif /* __KERNEL__ */
++irqreturn_t vring_interrupt(int irq, void *_vq);
 +
-+#endif /* _LINUX_VIRTIO_CONSOLE_H */
++void *vring_priv(struct virtqueue *vq);
++
++int vring_add_buf(struct virtqueue *vq,
++		  struct scatterlist sg[],
++		  unsigned int out,
++		  unsigned int in,
++		  void *data);
++
++void vring_kick(struct virtqueue *vq);
++
++void *vring_get_buf(struct virtqueue *vq, unsigned int *len);
++
++bool vring_restart(struct virtqueue *vq);
++
++void vring_shutdown(struct virtqueue *vq);
++#endif /* _VRING_VRING_H */
+===================================================================
+--- /dev/null
++++ b/include/linux/virtio_ring.h
+@@ -0,0 +1,96 @@
++#ifndef _LINUX_VIRTIO_RING_H
++#define _LINUX_VIRTIO_RING_H
++/* An interface for efficient virtio implementation, currently for use by KVM
++ * and lguest, but hopefully others soon.  Do NOT change this since it will
++ * break existing servers and clients.
++ *
++ * This header is BSD licensed so anyone can use the definitions to implement
++ * compatible drivers/servers.
++ *
++ * Copyright Rusty Russell IBM Corporation 2007. */
++#include <linux/types.h>
++
++/* This marks a buffer as continuing via the next field. */
++#define VRING_DESC_F_NEXT	1
++/* This marks a buffer as write-only (otherwise read-only). */
++#define VRING_DESC_F_WRITE	2
++
++/* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
++struct vring_desc
++{
++	/* Page number. */
++	__u64 pfn;
++	/* Length and offset. */
++	__u16 len;
++	__u16 offset;
++	/* The flags as indicated above. */
++	__u16 flags;
++	/* We chain unused descriptors via this, too */
++	__u16 next;
++};
++
++struct vring_avail
++{
++	__u16 idx;
++	__u16 ring[];
++};
++
++/* u32 is used here for ids for padding reasons. */
++struct vring_used_elem
++{
++	/* Index of start of used descriptor chain. */
++	__u32 id;
++	/* Total length of the descriptor chain which was used (written to) */
++	__u32 len;
++};
++
++struct vring_used
++{
++	__u32 idx;
++	struct vring_used_elem ring[];
++};
++
++struct vring {
++	unsigned int num;
++
++	struct vring_desc *desc;
++
++	struct vring_avail *avail;
++
++	struct vring_used *used;
++};
++
++/* The standard layout for the ring is a continuous chunk of memory which looks
++ * like this.  The used fields will be aligned to a "num+1" boundary.
++ *
++ * struct vring
++ * {
++ *	// The actual descriptors (16 bytes each)
++ *	struct vring_desc desc[num];
++ *
++ *	// A ring of available descriptor heads with free-running index.
++ *	__u16 avail_idx;
++ *	__u16 available[num];
++ *
++ *	// Padding so a correctly-chosen num value will cache-align used_idx.
++ *	char pad[sizeof(struct vring_desc)];
++ *
++ *	// A ring of used descriptor heads with free-running index.
++ *	__u32 used_idx;
++ *	struct vring_used_elem used[num];
++ * };
++ */
++static inline void vring_init(struct vring *vr, unsigned int num, void *p)
++{
++	vr->num = num;
++	vr->desc = p;
++	vr->avail = p + num*sizeof(struct vring);
++	vr->used = p + (num+1)*(sizeof(struct vring) + sizeof(__u16));
++}
++
++static inline unsigned vring_size(unsigned int num)
++{
++	return (num + 1) * (sizeof(struct vring_desc) + sizeof(__u16))
++		+ sizeof(__u32) + num * sizeof(struct vring_used_elem);
++}
++#endif /* _LINUX_VIRTIO_RING_H */
