@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/6] virtio_config
-Date: Thu, 20 Sep 2007 22:12:49 +1000
-Message-ID: <1190290369.7262.231.camel__31216.9291814373$1190290519$gmane$org@localhost.localdomain>
+Subject: [PATCH 3/6] virtio net driver
+Date: Thu, 20 Sep 2007 22:14:55 +1000
+Message-ID: <1190290495.7262.235.camel__46640.0865502239$1190290658$gmane$org@localhost.localdomain>
 References: <1190289808.7262.223.camel@localhost.localdomain>
 	<1190290140.7262.228.camel@localhost.localdomain>
+	<1190290369.7262.231.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1190290140.7262.228.camel@localhost.localdomain>
+In-Reply-To: <1190290369.7262.231.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,316 +20,531 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm-devel <kvm-devel@lists.sourceforge.net>
-Cc: lguest <lguest@ozlabs.org>, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, lguest <lguest@ozlabs.org>, Jeff Garzik <jeff@garzik.org>, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Previous versions of virtio didn't commonalize probing.  For every
-driver, every virtio implementation (KVM, lguest, etc) needed an
-in-kernel stub to join their bus to the probe code.
+The network driver uses *two* virtqueues: one for input packets and
+one for output packets.  This has nice locking properties (ie. we
+don't do any for recv vs send).
 
-To solve this, we introduce a "virtio_config" mechanism, which is
-simply a set of [u8 type][u8 len][...data...] fields for each device.
-Some convenient wrapper functions make this fairly easy for drivers to
-unpack their configuration data themselves.
-
-This configuration data could be PCI config space, or an unrelated bus
-(eg. lguest) or manufactured by the kernel itself.  It's designed to
-be extensible: fields get marked as the device reads them so a host
-supporting some future extension can tell if the guest driver
-understood it.  This also applies to bitfields: the guest explicitly
-acks the bits it understands.
-
-There's also a simple status bitmask useful for low-level host
-analysis of what the guest is doing with the device.
+TODO:
+	1) Big packets.
+	2) Multi-client devices (maybe separate driver?).
+	3) Resolve freeing of old xmit skbs (someone sent patch IIRC?)
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/Kconfig               |    2 
- drivers/Makefile              |    1 
- drivers/virtio/Makefile       |    2 
- drivers/virtio/config.c       |  109 +++++++++++++++++++++++++++++++
- include/linux/virtio_config.h |  141 +++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 254 insertions(+), 1 deletion(-)
+ drivers/net/Kconfig        |    6 
+ drivers/net/Makefile       |    2 
+ drivers/net/virtio_net.c   |  438 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/virtio_net.h |   36 +++
+ 4 files changed, 481 insertions(+), 1 deletion(-)
 
 ===================================================================
---- a/drivers/Kconfig
-+++ b/drivers/Kconfig
-@@ -87,4 +87,6 @@ source "drivers/kvm/Kconfig"
- source "drivers/kvm/Kconfig"
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -2998,4 +2998,10 @@ config NET_POLL_CONTROLLER
+ config NET_POLL_CONTROLLER
+ 	def_bool NETPOLL
  
- source "drivers/uio/Kconfig"
++config VIRTIO_NET
++	tristate "Virtio network driver (EXPERIMENTAL)"
++	depends on EXPERIMENTAL && VIRTIO
++	---help---
++	  This is the virtual network driver for lguest.  Say Y or M.
 +
-+source "drivers/virtio/Kconfig"
- endmenu
+ endif # NETDEVICES
 ===================================================================
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -88,3 +88,4 @@ obj-$(CONFIG_HID)		+= hid/
- obj-$(CONFIG_HID)		+= hid/
- obj-$(CONFIG_PPC_PS3)		+= ps3/
- obj-$(CONFIG_OF)		+= of/
-+obj-$(CONFIG_VIRTIO)		+= virtio/
-===================================================================
---- a/drivers/virtio/Makefile
-+++ b/drivers/virtio/Makefile
-@@ -1,1 +1,1 @@ obj-$(CONFIG_VIRTIO) += virtio.o
--obj-$(CONFIG_VIRTIO) += virtio.o
-+obj-$(CONFIG_VIRTIO) += virtio.o config.o
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -38,7 +38,7 @@ obj-$(CONFIG_SUNVNET) += sunvnet.o
+ 
+ obj-$(CONFIG_MACE) += mace.o
+ obj-$(CONFIG_BMAC) += bmac.o
+-
++obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
+ obj-$(CONFIG_DGRS) += dgrs.o
+ obj-$(CONFIG_VORTEX) += 3c59x.o
+ obj-$(CONFIG_TYPHOON) += typhoon.o
 ===================================================================
 --- /dev/null
-+++ b/drivers/virtio/config.c
-@@ -0,0 +1,109 @@
-+/* Configuration space parsing helpers for virtio.
++++ b/drivers/net/virtio_net.c
+@@ -0,0 +1,438 @@
++/* A simple network driver using virtio.
 + *
-+ * The configuration is [type][len][... len bytes ...] fields.
++ * Copyright 2007 Rusty Russell <rusty@rustcorp.com.au> IBM Corporation
 + *
-+ * Copyright 2007 Rusty Russell, IBM Corporation.
-+ * GPL v2 or later.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
-+#include <linux/err.h>
++//#define DEBUG
++#include <linux/netdevice.h>
++#include <linux/etherdevice.h>
++#include <linux/module.h>
 +#include <linux/virtio.h>
-+#include <linux/virtio_config.h>
-+#include <linux/bug.h>
-+#include <asm/system.h>
++#include <linux/virtio_net.h>
++#include <linux/scatterlist.h>
 +
-+#define HDR_LEN 2
-+int virtio_config_find(struct virtio_config_space *config, u8 type,
-+		       unsigned int *len)
++/* FIXME: MTU in config. */
++#define MAX_PACKET_LEN (ETH_HLEN+ETH_DATA_LEN)
++
++struct virtnet_info
 +{
-+	int i;
++	struct virtqueue_ops *vq_ops;
++	struct virtqueue *vq_recv;
++	struct virtqueue *vq_send;
++	struct net_device *ndev;
 +
-+	for (i = 0; i < config->len; i += HDR_LEN+config->readb(config,i+1)) {
-+		if (config->readb(config, i) == type) {
-+			/* Mark it used, so host can know we looked at it. */
-+			config->writeb(config, i, type | VIRTIO_CONFIG_F_USED);
-+			*len = config->readb(config, i+1);
-+			return i;
++	/* Number of input buffers, and max we've ever had. */
++	unsigned int num, max;
++
++	/* Receive & send queues. */
++	struct sk_buff_head recv;
++	struct sk_buff_head send;
++};
++
++static inline struct virtio_net_hdr *skb_vnet_hdr(struct sk_buff *skb)
++{
++	return (struct virtio_net_hdr *)skb->cb;
++}
++
++static inline void vnet_hdr_to_sg(struct scatterlist *sg, struct sk_buff *skb)
++{
++	sg_init_one(sg, skb_vnet_hdr(skb), sizeof(struct virtio_net_hdr));
++}
++
++static bool skb_xmit_done(void *ndev)
++{
++	/* In case we were waiting for output buffers. */
++	netif_wake_queue(ndev);
++	return true;
++}
++
++static void receive_skb(struct net_device *dev, struct sk_buff *skb,
++			unsigned len)
++{
++	struct virtio_net_hdr *hdr = skb_vnet_hdr(skb);
++
++	if (unlikely(len < sizeof(struct virtio_net_hdr) + ETH_HLEN)) {
++		pr_debug("%s: short packet %i\n", dev->name, len);
++		dev->stats.rx_length_errors++;
++		goto drop;
++	}
++	len -= sizeof(struct virtio_net_hdr);
++	BUG_ON(len > MAX_PACKET_LEN);
++
++	skb_trim(skb, len);
++	skb->protocol = eth_type_trans(skb, dev);
++	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
++		 ntohs(skb->protocol), skb->len, skb->pkt_type);
++	dev->stats.rx_bytes += skb->len;
++	dev->stats.rx_packets++;
++
++	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
++		pr_debug("Needs csum!\n");
++		skb->ip_summed = CHECKSUM_PARTIAL;
++		skb->csum_start = hdr->csum_start;
++		skb->csum_offset = hdr->csum_offset;
++		if (skb->csum_start > skb->len - 2
++		    || skb->csum_offset > skb->len - 2) {
++			if (net_ratelimit())
++				printk(KERN_WARNING "%s: csum=%u/%u len=%u\n",
++				       dev->name, skb->csum_start,
++				       skb->csum_offset, skb->len);
++			goto frame_err;
 +		}
 +	}
-+	return -ENOENT;
++
++	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
++		pr_debug("GSO!\n");
++		switch (hdr->gso_type) {
++		case VIRTIO_NET_HDR_GSO_TCPV4:
++			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV4;
++			break;
++		case VIRTIO_NET_HDR_GSO_TCPV4_ECN:
++			skb_shinfo(skb)->gso_type = SKB_GSO_TCP_ECN;
++			break;
++		case VIRTIO_NET_HDR_GSO_UDP:
++			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
++			break;
++		case VIRTIO_NET_HDR_GSO_TCPV6:
++			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV6;
++			break;
++		default:
++			if (net_ratelimit())
++				printk(KERN_WARNING "%s: bad gso type %u.\n",
++				       dev->name, hdr->gso_type);
++			goto frame_err;
++		}
++
++		skb_shinfo(skb)->gso_size = hdr->gso_size;
++		if (skb_shinfo(skb)->gso_size == 0) {
++			if (net_ratelimit())
++				printk(KERN_WARNING "%s: zero gso size.\n",
++				       dev->name);
++			goto frame_err;
++		}
++
++		/* Header must be checked, and gso_segs computed. */
++		skb_shinfo(skb)->gso_type |= SKB_GSO_DODGY;
++		skb_shinfo(skb)->gso_segs = 0;
++	}
++
++	netif_receive_skb(skb);
++	return;
++
++frame_err:
++	dev->stats.rx_frame_errors++;
++drop:
++	dev_kfree_skb(skb);
 +}
 +
-+void virtio_config_get(struct virtio_config_space *config, int off,
-+		       unsigned int len, void *buf)
++static void try_fill_recv(struct virtnet_info *vi)
 +{
-+	unsigned int i;
++	struct sk_buff *skb;
++	struct scatterlist sg[1+MAX_SKB_FRAGS];
++	int num, err;
 +
-+	BUG_ON(off < 0 || off + HDR_LEN + len > config->len);
-+	for (i = 0; i < len; i++)
-+		((u8 *)buf)[i] = config->readb(config, off + HDR_LEN + i);
++	for (;;) {
++		skb = netdev_alloc_skb(vi->ndev, MAX_PACKET_LEN);
++		if (unlikely(!skb))
++			break;
 +
++		skb_put(skb, MAX_PACKET_LEN);
++		vnet_hdr_to_sg(sg, skb);
++		num = skb_to_sgvec(skb, sg+1, 0, skb->len) + 1;
++		skb_queue_head(&vi->recv, skb);
++
++		err = vi->vq_ops->add_buf(vi->vq_recv, sg, 0, num, skb);
++		if (err) {
++			skb_unlink(skb, &vi->recv);
++			kfree_skb(skb);
++			break;
++		}
++		vi->num++;
++	}
++	if (unlikely(vi->num > vi->max))
++		vi->max = vi->num;
++	vi->vq_ops->kick(vi->vq_recv);
 +}
 +
-+void virtio_config_set(struct virtio_config_space *config, int off,
-+		       unsigned int len, const void *buf)
++static bool skb_recv_done(void *ndev)
 +{
-+	unsigned int i;
-+
-+	BUG_ON(off < 0 || off + HDR_LEN + len > config->len);
-+	for (i = 0; i < len; i++)
-+		config->writeb(config, off + HDR_LEN + i, ((u8 *)buf)[i]);
++	netif_rx_schedule(ndev);
++	/* Suppress further interrupts. */
++	return false;
 +}
 +
-+int __virtio_config_val(struct virtio_config_space *config,
-+			u8 type, void *val, size_t size)
++static int virtnet_poll(struct net_device *dev, int *budget)
 +{
-+	int off;
-+	unsigned int len;
++	struct virtnet_info *vi = netdev_priv(dev);
++	struct sk_buff *skb = NULL;
++	unsigned int len, received = 0;
 +
-+	off = virtio_config_find(config, type, &len);
-+	if (off < 0)
-+		return off;
++again:
++	while (received < dev->quota &&
++	       (skb = vi->vq_ops->get_buf(vi->vq_recv, &len)) != NULL) {
++		__skb_unlink(skb, &vi->recv);
++		receive_skb(vi->ndev, skb, len);
++		vi->num--;
++		received++;
++	}
 +
-+	if (len != size)
-+		return -EIO;
++        dev->quota -= received;
++        *budget -= received;
 +
-+	virtio_config_get(config, off, size, val);
++	/* FIXME: If we oom and completely run out of inbufs, we need
++	 * to start a timer trying to fill more. */
++	if (vi->num < vi->max / 2)
++		try_fill_recv(vi);
++
++	/* Still more work to do? */
++	if (skb)
++		return 1; /* not done */
++
++	netif_rx_complete(dev);
++	if (unlikely(!vi->vq_ops->restart(vi->vq_recv))
++	    && netif_rx_reschedule(dev, received))
++		goto again;
++
 +	return 0;
 +}
 +
-+int virtio_use_bit(struct virtio_config_space *config,
-+		   int off, unsigned int len, unsigned int bitnum)
++static void free_old_xmit_skbs(struct virtnet_info *vi)
 +{
-+	u8 ack, mask = 1 << (bitnum % 8);
-+
-+	/* This makes it convenient to pass-through virtio_config_find. */
-+	if (off < 0)
-+		return 0;
-+
-+	/* bit not in range of this bitfield? */
-+	if (bitnum * 8 >= len / 2)
-+		return 0;
-+
-+	/* bit not set? */
-+	if (!(config->readb(config, bitnum / 8) & mask))
-+		return 0;
-+
-+	/* Set acknowledge bit. */
-+	ack = config->readb(config, bitnum / 8 + len / 2) | mask;
-+	config->writeb(config, bitnum / 8 + len / 2, ack);
-+	return 1;
-+}
-+
-+struct virtqueue *virtio_config_vq(struct virtio_config_space *config,
-+				   struct virtqueue_ops *ops,
-+				   struct device *dev,
-+				   bool (*callback)(void *), void *cb_data)
-+{
++	struct sk_buff *skb;
 +	unsigned int len;
-+	int off = virtio_config_find(config, VIRTIO_CONFIG_F_VIRTQUEUE, &len);
 +
-+	if (off < 0)
-+		return ERR_PTR(off);
-+
-+	return ops->new_vq(config, off, len, dev, callback, cb_data);
++	while ((skb = vi->vq_ops->get_buf(vi->vq_send, &len)) != NULL) {
++		pr_debug("Sent skb %p\n", skb);
++		__skb_unlink(skb, &vi->send);
++		vi->ndev->stats.tx_bytes += len;
++		vi->ndev->stats.tx_packets++;
++		kfree_skb(skb);
++	}
 +}
 +
-+void virtio_add_status(struct virtio_config_space *config, u32 mask)
++static int start_xmit(struct sk_buff *skb, struct net_device *dev)
 +{
-+	config->set_status(config, config->get_status(config) | mask);
++	struct virtnet_info *vi = netdev_priv(dev);
++	int num, err;
++	struct scatterlist sg[1+MAX_SKB_FRAGS];
++	struct virtio_net_hdr *hdr;
++	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
++
++	pr_debug("%s: xmit %p %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 dev->name, skb,
++		 dest[0], dest[1], dest[2], dest[3], dest[4], dest[5]);
++
++	free_old_xmit_skbs(vi);
++
++	/* Encode metadata header at front. */
++	hdr = skb_vnet_hdr(skb);
++	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		hdr->flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
++		hdr->csum_start = skb->csum_start - skb_headroom(skb);
++		hdr->csum_offset = skb->csum_offset;
++	} else {
++		hdr->flags = 0;
++		hdr->csum_offset = hdr->csum_start = 0;
++	}
++
++	if (skb_is_gso(skb)) {
++		hdr->gso_size = skb_shinfo(skb)->gso_size;
++		if (skb_shinfo(skb)->gso_type & SKB_GSO_TCP_ECN)
++			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4_ECN;
++		else if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV4)
++			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
++		else if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6)
++			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
++		else if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP)
++			hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP;
++		else
++			BUG();
++	} else {
++		hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
++		hdr->gso_size = 0;
++	}
++
++	vnet_hdr_to_sg(sg, skb);
++	num = skb_to_sgvec(skb, sg+1, 0, skb->len) + 1;
++	__skb_queue_head(&vi->send, skb);
++	err = vi->vq_ops->add_buf(vi->vq_send, sg, num, 0, skb);
++	if (err) {
++		pr_debug("%s: virtio not prepared to send\n", dev->name);
++		skb_unlink(skb, &vi->send);
++		netif_stop_queue(dev);
++		return NETDEV_TX_BUSY;
++	}
++	vi->vq_ops->kick(vi->vq_send);
++
++	return 0;
 +}
-===================================================================
---- /dev/null
-+++ b/include/linux/virtio_config.h
-@@ -0,0 +1,141 @@
-+#ifndef _LINUX_VIRTIO_CONFIG_H
-+#define _LINUX_VIRTIO_CONFIG_H
-+/* Virtio devices use a standardized array of bytes to define their
-+ * features and pass configuration information.
-+ *
-+ * The first byte is the status byte, after that come type/len/data fields.
-+ * Each field understood by the guest is acknowledged by setting the USED bit.
-+ * Some fields are bitfields: the first half is uses to advertise features to
-+ * the guest, and the second half is used by the guest to acknowledge. */
-+#include <linux/types.h>
 +
-+/* Status byte for guest to report progress, and synchronize config. */
-+/* We have seen device and processed generic fields (VIRTIO_CONFIG_F_VIRTIO) */
-+#define VIRTIO_CONFIG_S_ACKNOWLEDGE	1
-+/* We have found a driver for the device. */
-+#define VIRTIO_CONFIG_S_DRIVER		2
-+/* Driver has used its parts of the config, and is happy */
-+#define VIRTIO_CONFIG_S_DRIVER_OK	4
-+/* We've given up on this device. */
-+#define VIRTIO_CONFIG_S_FAILED		128
-+
-+/* Requirements/features of the virtio implementation. */
-+#define VIRTIO_CONFIG_F_VIRTIO 1
-+/* Requirements/features of the virtqueue (may have more than one). */
-+#define VIRTIO_CONFIG_F_VIRTQUEUE 2
-+
-+/* Used config: guest sets this bit to say it understood the field. */
-+#define VIRTIO_CONFIG_F_USED 0x80
-+
-+#ifdef __KERNEL__
-+/* Low level opertions on this virtio device's configuration space. */
-+struct virtio_config_space
++static int virtnet_open(struct net_device *dev)
 +{
++	struct virtnet_info *vi = netdev_priv(dev);
++
++	try_fill_recv(vi);
++
++	/* If we didn't even get one input buffer, we're useless. */
++	if (vi->num == 0)
++		return -ENOMEM;
++
++	return 0;
++}
++
++static int virtnet_close(struct net_device *dev)
++{
++	struct virtnet_info *vi = netdev_priv(dev);
++	struct sk_buff *skb;
++
++	/* networking core has neutered skb_xmit_done/skb_recv_done, so don't
++	 * worry about races vs. get(). */
++	vi->vq_ops->shutdown(vi->vq_recv);
++	while ((skb = __skb_dequeue(&vi->recv)) != NULL) {
++		kfree_skb(skb);
++		vi->num--;
++	}
++	vi->vq_ops->shutdown(vi->vq_send);
++	while ((skb = __skb_dequeue(&vi->send)) != NULL)
++		kfree_skb(skb);
++
++	BUG_ON(vi->num != 0);
++	return 0;
++}
++
++static void *virtnet_probe(struct device *device,
++			   struct virtio_config_space *config,
++			   struct virtqueue_ops *vq_ops)
++{
++	int err, coff;
 +	unsigned int len;
-+	void (*writeb)(struct virtio_config_space *, unsigned off, u8 b);
-+	u8 (*readb)(struct virtio_config_space *, unsigned off);
-+	void (*set_status)(struct virtio_config_space *, u32 status);
-+	u32 (*get_status)(struct virtio_config_space *);
++	struct net_device *dev;
++	struct virtnet_info *vi;
++
++	/* Allocate ourselves a network device with room for our info */
++	dev = alloc_etherdev(sizeof(struct virtnet_info));
++	if (!dev)
++		return ERR_PTR(-ENOMEM);
++
++	/* Set up network device as normal. */
++	SET_MODULE_OWNER(dev);
++	ether_setup(dev);
++	dev->open = virtnet_open;
++	dev->stop = virtnet_close;
++	dev->poll = virtnet_poll;
++	dev->hard_start_xmit = start_xmit;
++	dev->weight = 16;
++	dev->features = NETIF_F_HIGHDMA;
++	SET_NETDEV_DEV(dev, device);
++
++	/* Do we support "hardware" checksums? */
++	coff = virtio_config_find(config, VIRTIO_CONFIG_NET_F, &len);
++	if (virtio_use_bit(config, coff, len, VIRTIO_NET_F_NO_CSUM)) {
++		/* This opens up the world of extra features. */
++		dev->features |= NETIF_F_HW_CSUM|NETIF_F_SG|NETIF_F_FRAGLIST;
++		if (virtio_use_bit(config, coff, len, VIRTIO_NET_F_TSO4))
++			dev->features |= NETIF_F_TSO;
++		if (virtio_use_bit(config, coff, len, VIRTIO_NET_F_UFO))
++			dev->features |= NETIF_F_UFO;
++		if (virtio_use_bit(config, coff, len, VIRTIO_NET_F_TSO4_ECN))
++			dev->features |= NETIF_F_TSO_ECN;
++		if (virtio_use_bit(config, coff, len, VIRTIO_NET_F_TSO6))
++			dev->features |= NETIF_F_TSO6;
++	}
++
++	/* Configuration may specify what MAC to use.  Otherwise random. */
++	coff = virtio_config_find(config, VIRTIO_CONFIG_NET_MAC_F, &len);
++	if (coff >= 0) {
++		dev->addr_len = len;
++		virtio_config_get(config, coff, len, dev->dev_addr);
++	} else
++		random_ether_addr(dev->dev_addr);
++
++	/* Set up our device-specific information */
++	vi = netdev_priv(dev);
++	vi->ndev = dev;
++	vi->vq_ops = vq_ops;
++
++	/* We expect two virtqueues, receive then send. */
++	vi->vq_recv = virtio_config_vq(config, vq_ops, device,
++				       skb_recv_done, dev);
++	if (IS_ERR(vi->vq_recv)) {
++		err = PTR_ERR(vi->vq_recv);
++		goto free;
++	}
++
++	vi->vq_send = virtio_config_vq(config, vq_ops, device,
++				       skb_xmit_done, dev);
++	if (IS_ERR(vi->vq_send)) {
++		err = PTR_ERR(vi->vq_send);
++		goto free_recv;
++	}
++
++	/* Initialize our empty receive and send queues. */
++	skb_queue_head_init(&vi->recv);
++	skb_queue_head_init(&vi->send);
++
++	err = register_netdev(dev);
++	if (err) {
++		pr_debug("virtio_net: registering device failed\n");
++		goto free_send;
++	}
++	pr_debug("virtnet: registered device %s\n", dev->name);
++	return dev;
++
++free_send:
++	vq_ops->free_vq(vi->vq_send);
++free_recv:
++	vq_ops->free_vq(vi->vq_recv);
++free:
++	free_netdev(dev);
++	return ERR_PTR(err);
++}
++
++static void virtnet_remove(void *dev)
++{
++	unregister_netdev(dev);
++	free_netdev(dev);
++}
++
++static struct pci_device_id id_table[] = {
++	VIRTIO_DEV_ID(VIRTIO_ID_NET, PCI_CLASS_NETWORK_OTHER),
++	{ 0 },
 +};
 +
-+/**
-+ * virtio_config_find - look for a virtio config.
-+ * @config: the virtio config space
-+ * @type: the type to search for.
-+ * @len: the length of the field.
-+ *
-+ * This returns the offset of the first field of the given type (or -ENOENT).
-+ * This offset and length can then be handed to virtio_config_get().
-+ *
-+ * This function marks the field type with VIRTIO_CONFIG_F_USED, so it can't be
-+ * found again, and the host knows we've seen the field. */
-+int virtio_config_find(struct virtio_config_space *config, u8 type,
-+		       unsigned int *len);
++static struct virtio_driver virtio_net = {
++	.name =         KBUILD_MODNAME,
++	.owner =        THIS_MODULE,
++	.id_table =     id_table,
++	.probe =        virtnet_probe,
++	.remove =       __devexit_p(virtnet_remove),
++};
 +
-+/**
-+ * virtio_config_get - get a virtio config field, and mark it used.
-+ * @config: the virtio config space
-+ * @off: the offset as returned from virtio_config_find.
-+ * @len: the length of the field.
-+ * @buf: the buffer to copy the field into.
-+ *
-+ * Note that virtio config entries are conventionally little-endian. */
-+void virtio_config_get(struct virtio_config_space *config, int off,
-+		       unsigned int len, void *buf);
++static int __init init(void)
++{
++	return register_virtio_driver(&virtio_net);
++}
 +
-+/**
-+ * virtio_config_set - set a virtio config field, and mark it used.
-+ * @config: the virtio config space
-+ * @off: the offset as returned from virtio_config_find.
-+ * @len: the length of the field.
-+ * @buf: the buffer to copy into the field.
-+ *
-+ * Note that virtio config entries are conventionally little-endian. */
-+void virtio_config_set(struct virtio_config_space *config, int off,
-+		       unsigned int len, const void *buf);
++static void __exit fini(void)
++{
++	unregister_virtio_driver(&virtio_net);
++}
++module_init(init);
++module_exit(fini);
 +
-+/**
-+ * virtio_config_val - get a single virtio config and mark it used.
-+ * @config: the virtio config space
-+ * @type: the type to search for.
-+ * @val: a pointer to the value to fill in.
-+ *
-+ * Once used, the config type is marked with VIRTIO_CONFIG_F_USED so it can't
-+ * be found again.  This version does endian conversion. */
-+#define virtio_config_val(config, type, v) ({				\
-+	int _err = __virtio_config_val((config),(type),(v),sizeof(*(v))); \
-+									\
-+	BUILD_BUG_ON(sizeof(*(v)) != 1 && sizeof(*(v)) != 2		\
-+		     && sizeof(*(v)) != 4 && sizeof(*(v)) != 8);	\
-+	if (!_err) {							\
-+		switch (sizeof(*(v))) {					\
-+		case 2: le16_to_cpus(v); break;				\
-+		case 4: le32_to_cpus(v); break;				\
-+		case 8: le64_to_cpus(v); break;				\
-+		}							\
-+	}								\
-+	_err;								\
-+})
++MODULE_DEVICE_TABLE(pci, id_table);
++MODULE_DESCRIPTION("Virtio network driver");
++MODULE_LICENSE("GPL");
+===================================================================
+--- /dev/null
++++ b/include/linux/virtio_net.h
+@@ -0,0 +1,36 @@
++#ifndef _LINUX_VIRTIO_NET_H
++#define _LINUX_VIRTIO_NET_H
++#include <linux/virtio_config.h>
 +
-+int __virtio_config_val(struct virtio_config_space *config,
-+			u8 type, void *val, size_t size);
++/* The ID for virtio_net */
++#define VIRTIO_ID_NET	1
 +
-+/**
-+ * virtio_use_bit - helper to use a feature bit in a bitfield value.
-+ * @config: the virtio config space
-+ * @off: the offset as returned from virtio_config_find.
-+ * @len: the length of the field.
-+ * @bitnum: the bit to test.
-+ *
-+ * If handed a negative offset, it returns false, otherwise returns bit status.
-+ * If it's one, it sets the mirroring acknowledgement bit. */
-+int virtio_use_bit(struct virtio_config_space *config,
-+		   int off, unsigned int len, unsigned int bitnum);
++/* The bitmap of config for virtio net */
++#define VIRTIO_CONFIG_NET_F	0x40
++#define VIRTIO_NET_F_NO_CSUM	1
++#define VIRTIO_NET_F_TSO4	2
++#define VIRTIO_NET_F_UFO	4
++#define VIRTIO_NET_F_TSO4_ECN	8
++#define VIRTIO_NET_F_TSO6	16
 +
-+struct device;
-+struct virtqueue_ops;
++/* The config defining mac address. */
++#define VIRTIO_CONFIG_NET_MAC_F	0x41
 +
-+/**
-+ * virtio_config_vq - find a virtqueue in the config and call ops->new_vq.
-+ * @config: the virtio config space
-+ * @ops: the virtqueue_ops for the queue.
-+ * @dev: the struct device this virtqueue is attached to.
-+ * @callback: the driver callback when the queue is used.
-+ * @cb_data: the pointer for the callback.
-+ *
-+ * This returns a new virtqueue or ERR_PTR(). */
-+struct virtqueue *virtio_config_vq(struct virtio_config_space *config,
-+				   struct virtqueue_ops *ops,
-+				   struct device *dev,
-+				   bool (*callback)(void *), void *cb_data);
-+
-+/**
-+ * virtio_add_status - set a bit in the status field.
-+ * @config: the virtio config space
-+ * @mask: the mask to set (one bit).
-+ *
-+ * This is not usually set by the driver itself. */
-+void virtio_add_status(struct virtio_config_space *config, u32 mask);
-+
-+#endif /* __KERNEL__ */
-+#endif /* _LINUX_VIRTIO_CONFIG_H */
++/* This is the first element of the scatter-gather list.  If you don't
++ * specify GSO or CSUM features, you can simply ignore the header. */
++struct virtio_net_hdr
++{
++#define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	// Use csum_start, csum_offset
++      __u8 flags;
++#define VIRTIO_NET_HDR_GSO_NONE		0	// Not a GSO frame
++#define VIRTIO_NET_HDR_GSO_TCPV4	1	// GSO frame, IPv4 TCP (TSO)
++/* FIXME: Do we need this?  If they said they can handle ECN, do they care? */
++#define VIRTIO_NET_HDR_GSO_TCPV4_ECN	2	// GSO frame, IPv4 TCP w/ ECN
++#define VIRTIO_NET_HDR_GSO_UDP		3	// GSO frame, IPv4 UDP (UFO)
++#define VIRTIO_NET_HDR_GSO_TCPV6	4	// GSO frame, IPv6 TCP
++      __u8 gso_type;
++      __u16 gso_size;
++      __u16 csum_start;
++      __u16 csum_offset;
++};
++#endif /* _LINUX_VIRTIO_NET_H */
