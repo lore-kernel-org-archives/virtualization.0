@@ -1,16 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 4/6] virtio block driver
-Date: Thu, 20 Sep 2007 22:16:46 +1000
-Message-ID: <1190290606.7262.239.camel__46322.2893108197$1190290745$gmane$org@localhost.localdomain>
+Subject: [PATCH 5/6] virtio console driver
+Date: Thu, 20 Sep 2007 22:19:21 +1000
+Message-ID: <1190290761.7262.242.camel__46624.1060909399$1190290939$gmane$org@localhost.localdomain>
 References: <1190289808.7262.223.camel@localhost.localdomain>
 	<1190290140.7262.228.camel@localhost.localdomain>
 	<1190290369.7262.231.camel@localhost.localdomain>
 	<1190290495.7262.235.camel@localhost.localdomain>
+	<1190290606.7262.239.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1190290495.7262.235.camel@localhost.localdomain>
+In-Reply-To: <1190290606.7262.239.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,449 +25,294 @@ To: kvm-devel <kvm-devel@lists.sourceforge.net>
 Cc: lguest <lguest@ozlabs.org>, Jens Axboe <jens.axboe@oracle.com>, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The block driver uses scatter-gather lists with sg[0] being the
-request information (struct virtio_blk_outhdr) with the type, sector
-and inbuf id.  The next N sg entries are the bio itself, then the last
-sg is the status byte.  Whether the N entries are in or out depends on
-whether it's a read or a write.
+This is an hvc-based virtio console driver.  It's suboptimal becuase
+hvc expects to have raw access to interrupts and virtio doesn't assume
+that, so it currently polls.
 
-We accept the normal (SCSI) ioctls: they get handed through to the other
-side which can then handle it or reply that it's unsupported.  It's
-not clear that this actually works in general, since I don't know
-if blk_pc_request() requests have an accurate rq_data_dir().
-
-Although we try to reply -ENOTTY on unsupported commands, the block
-layer in its infinite wisdom suppressed the error so ioctl(fd,
-CDROMEJECT) returns success to userspace.
+There are two solutions: expose hvc's "kick" interface, or wean off hvc.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/block/Kconfig      |    6 
- drivers/block/Makefile     |    1 
- drivers/block/virtio_blk.c |  327 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/Kbuild       |    1 
- include/linux/virtio_blk.h |   51 ++++++
- 5 files changed, 386 insertions(+)
+ drivers/char/Kconfig           |    4 
+ drivers/char/Makefile          |    1 
+ drivers/char/virtio_console.c  |  232 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/virtio_console.h |   12 ++
+ 4 files changed, 249 insertions(+)
 
 ===================================================================
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -443,4 +443,10 @@ config XEN_BLKDEV_FRONTEND
- 	  block device driver.  It communicates with a back-end driver
- 	  in another domain which drives the actual block device.
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -613,6 +613,10 @@ config HVC_XEN
+ 	help
+ 	  Xen virtual console device driver
  
-+config VIRTIO_BLK
-+	tristate "Virtio block driver (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL && VIRTIO
-+	---help---
-+	  This is the virtual block driver for lguest.  Say Y or M.
++config VIRTIO_CONSOLE
++	bool
++	select HVC_DRIVER
 +
- endif # BLK_DEV
+ config HVCS
+ 	tristate "IBM Hypervisor Virtual Console Server support"
+ 	depends on PPC_PSERIES
 ===================================================================
---- a/drivers/block/Makefile
-+++ b/drivers/block/Makefile
-@@ -25,6 +25,7 @@ obj-$(CONFIG_BLK_DEV_UMEM)	+= umem.o
- obj-$(CONFIG_BLK_DEV_UMEM)	+= umem.o
- obj-$(CONFIG_BLK_DEV_NBD)	+= nbd.o
- obj-$(CONFIG_BLK_DEV_CRYPTOLOOP) += cryptoloop.o
-+obj-$(CONFIG_VIRTIO_BLK)	+= virtio_blk.o
- 
- obj-$(CONFIG_VIODASD)		+= viodasd.o
- obj-$(CONFIG_BLK_DEV_SX8)	+= sx8.o
+--- a/drivers/char/Makefile
++++ b/drivers/char/Makefile
+@@ -50,6 +50,7 @@ obj-$(CONFIG_HVC_BEAT)		+= hvc_beat.o
+ obj-$(CONFIG_HVC_BEAT)		+= hvc_beat.o
+ obj-$(CONFIG_HVC_DRIVER)	+= hvc_console.o
+ obj-$(CONFIG_HVC_XEN)		+= hvc_xen.o
++obj-$(CONFIG_VIRTIO_CONSOLE)	+= virtio_console.o
+ obj-$(CONFIG_RAW_DRIVER)	+= raw.o
+ obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
+ obj-$(CONFIG_MSPEC)		+= mspec.o
 ===================================================================
 --- /dev/null
-+++ b/drivers/block/virtio_blk.c
-@@ -0,0 +1,327 @@
-+#define DEBUG
-+#include <linux/spinlock.h>
-+#include <linux/blkdev.h>
-+#include <linux/hdreg.h>
++++ b/drivers/char/virtio_console.c
+@@ -0,0 +1,232 @@
++/*D:300
++ * The Guest console driver
++ *
++ * Writing console drivers is one of the few remaining Dark Arts in Linux.
++ * Fortunately for us, the path of virtual consoles has been well-trodden by
++ * the PowerPC folks, who wrote "hvc_console.c" to generically support any
++ * virtual console.  We use that infrastructure which only requires us to write
++ * the basic put_chars and get_chars functions and call the right register
++ * functions.
++ :*/
++
++/*M:002 The console can be flooded: while the Guest is processing input the
++ * Host can send more.  Buffering in the Host could alleviate this, but it is a
++ * difficult problem in general. :*/
++/* Copyright (C) 2006, 2007 Rusty Russell, IBM Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++#include <linux/err.h>
++#include <linux/init.h>
 +#include <linux/virtio.h>
-+#include <linux/virtio_blk.h>
-+#include <linux/virtio_blk.h>
++#include <linux/virtio_console.h>
++#include "hvc_console.h"
 +
-+static unsigned char virtblk_index = 'a';
-+struct virtio_blk
++/*D:340 These represent our input and output console queues, and the virtio
++ * operations for them. */
++static struct virtqueue *in_vq, *out_vq;
++static struct virtqueue_ops *vq_ops;
++
++/* This is our input buffer, and how much data is left in it. */
++static unsigned int in_len;
++static char *in, *inbuf;
++
++/* The operations for our console. */
++static struct hv_ops virtio_cons;
++
++/*D:310 The put_chars() callback is pretty straightforward.
++ *
++ * We turn the characters into a scatter-gather list, add it to the output
++ * queue and then kick the Host.  Then we sit here waiting for it to finish:
++ * inefficient in theory, but in practice implementations will do it
++ * immediately (lguest's Launcher does). */
++static int put_chars(u32 vtermno, const char *buf, int count)
 +{
-+	spinlock_t lock;
++	struct scatterlist sg[1];
++	unsigned int len;
 +
-+	struct virtqueue *vq;
-+	struct virtqueue_ops *vq_ops;
++	/* This is a convenient routine to initialize a single-elem sg list */
++	sg_init_one(sg, buf, count);
 +
-+	/* The disk structure for the kernel. */
-+	struct gendisk *disk;
-+
-+	/* Request tracking. */
-+	struct list_head reqs;
-+
-+	mempool_t *pool;
-+
-+	/* Scatterlist: can be too big for stack. */
-+	struct scatterlist sg[3+MAX_PHYS_SEGMENTS];
-+};
-+
-+struct virtblk_req
-+{
-+	struct list_head list;
-+	struct request *req;
-+	struct virtio_blk_outhdr out_hdr;
-+	struct virtio_blk_inhdr in_hdr;
-+};
-+
-+static void end_dequeued_request(struct request *req,
-+				 struct request_queue *q, int uptodate)
-+{
-+	/* And so the insanity of the block layer infects us here. */
-+	int nsectors = req->hard_nr_sectors;
-+
-+	if (blk_pc_request(req)) {
-+		nsectors = (req->data_len + 511) >> 9;
-+		if (!nsectors)
-+			nsectors = 1;
++	/* add_buf wants a token to identify this buffer: we hand it any
++	 * non-NULL pointer, since there's only ever one buffer. */
++	if (vq_ops->add_buf(out_vq, sg, 1, 0, (void *)1) == 0) {
++		/* Tell Host to go! */
++		vq_ops->kick(out_vq);
++		/* Chill out until it's done with the buffer. */
++		while (!vq_ops->get_buf(out_vq, &len))
++			cpu_relax();
 +	}
-+	if (end_that_request_first(req, uptodate, nsectors))
-+		BUG();
-+	add_disk_randomness(req->rq_disk);
-+	end_that_request_last(req, uptodate);
++
++	/* We're expected to return the amount of data we wrote: all of it. */
++	return count;
 +}
 +
-+static bool blk_done(void *_vblk)
++/* Create a scatter-gather list representing our input buffer and put it in the
++ * queue. */
++static void add_inbuf(void)
 +{
-+	struct virtio_blk *vblk = _vblk;
-+	struct virtblk_req *vbr;
-+	unsigned int len;
-+	unsigned long flags;
++	struct scatterlist sg[1];
++	sg_init_one(sg, inbuf, PAGE_SIZE);
 +
-+	spin_lock_irqsave(&vblk->lock, flags);
-+	while ((vbr = vblk->vq_ops->get_buf(vblk->vq, &len)) != NULL) {
-+		int uptodate;
-+		switch (vbr->in_hdr.status) {
-+		case VIRTIO_BLK_S_OK:
-+			uptodate = 1;
-+			break;
-+		case VIRTIO_BLK_S_UNSUPP:
-+			uptodate = -ENOTTY;
-+			break;
-+		default:
-+			uptodate = 0;
-+			break;
-+		}
++	/* We should always be able to add one buffer to an empty queue. */
++	if (vq_ops->add_buf(in_vq, sg, 0, 1, inbuf) != 0)
++		BUG();
++	vq_ops->kick(in_vq);
++}
 +
-+		end_dequeued_request(vbr->req, vblk->disk->queue, uptodate);
-+		list_del(&vbr->list);
-+		mempool_free(vbr, vblk->pool);
++/*D:350 get_chars() is the callback from the hvc_console infrastructure when
++ * an interrupt is received.
++ *
++ * Most of the code deals with the fact that the hvc_console() infrastructure
++ * only asks us for 16 bytes at a time.  We keep in_offset and in_used fields
++ * for partially-filled buffers. */
++static int get_chars(u32 vtermno, char *buf, int count)
++{
++	/* If we don't have an input queue yet, we can't get input. */
++	BUG_ON(!in_vq);
++
++	/* No buffer?  Try to get one. */
++	if (!in_len) {
++		in = vq_ops->get_buf(in_vq, &in_len);
++		if (!in)
++			return 0;
 +	}
-+	/* In case queue is stopped waiting for more buffers. */
-+	blk_start_queue(vblk->disk->queue);
-+	spin_unlock_irqrestore(&vblk->lock, flags);
++
++	/* You want more than we have to give?  Well, try wanting less! */
++	if (in_len < count)
++		count = in_len;
++
++	/* Copy across to their buffer and increment offset. */
++	memcpy(buf, in, count);
++	in += count;
++	in_len -= count;
++
++	/* Finished?  Re-register buffer so Host will use it again. */
++	if (in_len == 0)
++		add_inbuf();
++
++	return count;
++}
++/*:*/
++
++/*D:320 Console drivers are initialized very early so boot messages can go out,
++ * so we do things slightly differently from the generic virtio initialization
++ * of the net and block drivers.
++ *
++ * At this stage, the console is output-only.  It's too early to set up a
++ * virtqueue, so we let the drivers do some boutique early-output thing. */
++int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int))
++{
++	virtio_cons.put_chars = put_chars;
++	return hvc_instantiate(0, 0, &virtio_cons);
++}
++
++/* FIXME: This is why we want to wean off hvc: we do nothing when input comes
++ * in. */
++static bool do_nothing(void *data)
++{
 +	return true;
 +}
 +
-+static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
-+		   struct request *req)
++/*D:370 Once we're further in boot, we get probed like any other virtio device.
++ * At this stage we set up the output virtqueue.
++ *
++ * To set up and manage our virtual console, we call hvc_alloc().  Since we
++ * never remove the console device we never need this pointer again.
++ *
++ * Finally we put our input buffer in the input queue, ready to receive. */
++static void *virtcons_probe(struct device *device,
++			    struct virtio_config_space *config,
++			    struct virtqueue_ops *new_vq_ops)
 +{
-+	unsigned long num, out_num, in_num;
-+	struct virtblk_req *vbr;
++	int err;
++	struct hvc_struct *hvc;
 +
-+	vbr = mempool_alloc(vblk->pool, GFP_ATOMIC);
-+	if (!vbr)
-+		/* When another request finishes we'll try again. */
-+		return false;
-+
-+	vbr->req = req;
-+	if (blk_fs_request(vbr->req)) {
-+		vbr->out_hdr.type = 0;
-+		vbr->out_hdr.sector = vbr->req->sector;
-+		vbr->out_hdr.ioprio = vbr->req->ioprio;
-+	} else if (blk_pc_request(vbr->req)) {
-+		vbr->out_hdr.type = VIRTIO_BLK_T_SCSI_CMD;
-+		vbr->out_hdr.sector = 0;
-+		vbr->out_hdr.ioprio = vbr->req->ioprio;
-+	} else {
-+		/* We don't put anything else in the queue. */
-+		BUG();
-+	}
-+
-+	if (blk_barrier_rq(vbr->req))
-+		vbr->out_hdr.type |= VIRTIO_BLK_T_BARRIER;
-+
-+	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
-+	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
-+	vblk->sg[0].length = sizeof(vbr->out_hdr);
-+	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
-+	vblk->sg[num+1].page = virt_to_page(&vbr->in_hdr);
-+	vblk->sg[num+1].offset = offset_in_page(&vbr->in_hdr);
-+	vblk->sg[num+1].length = sizeof(vbr->in_hdr);
-+
-+	if (rq_data_dir(vbr->req) == WRITE) {
-+		vbr->out_hdr.type |= VIRTIO_BLK_T_OUT;
-+		out_num = 1 + num;
-+		in_num = 1;
-+	} else {
-+		vbr->out_hdr.type |= VIRTIO_BLK_T_IN;
-+		out_num = 1;
-+		in_num = 1 + num;
-+	}
-+
-+	if (vblk->vq_ops->add_buf(vblk->vq, vblk->sg, out_num, in_num, vbr)) {
-+		mempool_free(vbr, vblk->pool);
-+		return false;
-+	}
-+
-+	list_add_tail(&vbr->list, &vblk->reqs);
-+	return true;
-+}
-+
-+static void do_virtblk_request(struct request_queue *q)
-+{
-+	struct virtio_blk *vblk = NULL;
-+	struct request *req;
-+	unsigned int issued = 0;
-+
-+	while ((req = elv_next_request(q)) != NULL) {
-+		vblk = req->rq_disk->private_data;
-+		BUG_ON(req->nr_phys_segments > ARRAY_SIZE(vblk->sg));
-+
-+		if (!do_req(q, vblk, req)) {
-+			/* Queue full?  Wait. */
-+			blk_stop_queue(q);
-+			break;
-+		}
-+		blkdev_dequeue_request(req);
-+		issued++;
-+	}
-+
-+	if (issued)
-+		vblk->vq_ops->kick(vblk->vq);
-+}
-+
-+static int virtblk_ioctl(struct inode *inode, struct file *filp,
-+			 unsigned cmd, unsigned long data)
-+{
-+	return scsi_cmd_ioctl(filp, inode->i_bdev->bd_disk->queue,
-+			      inode->i_bdev->bd_disk, cmd,
-+			      (void __user *)data);
-+}
-+
-+static struct block_device_operations virtblk_fops = {
-+	.ioctl = virtblk_ioctl,
-+	.owner = THIS_MODULE,
-+};
-+
-+static void *virtblk_probe(struct device *device,
-+			   struct virtio_config_space *config,
-+			   struct virtqueue_ops *vq_ops)
-+{
-+	struct virtio_blk *vblk;
-+	int err, major, coff;
-+	unsigned int len;
-+	u64 cap;
-+	u32 v;
-+
-+	vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
-+	if (!vblk) {
++	/* This is the scratch page we use to receive console input */
++	inbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
++	if (!inbuf) {
 +		err = -ENOMEM;
-+		goto out;
++		goto fail;
 +	}
 +
-+	INIT_LIST_HEAD(&vblk->reqs);
-+	spin_lock_init(&vblk->lock);
-+	vblk->vq_ops = vq_ops;
++	vq_ops = new_vq_ops;
 +
-+	/* We expect one virtqueue, for output. */
-+	vblk->vq = virtio_config_vq(config, vq_ops, device, blk_done, vblk);
-+	if (IS_ERR(vblk->vq)) {
-+		err = PTR_ERR(vblk->vq);
-+		goto out_free_vblk;
++	/* Find the input queue. */
++	in_vq = virtio_config_vq(config, vq_ops, device, do_nothing, NULL);
++	if (IS_ERR(in_vq)) {
++		err = PTR_ERR(in_vq);
++		goto free_out_vq;
 +	}
 +
-+	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
-+	if (!vblk->pool) {
-+		err = -ENOMEM;
-+		goto out_free_vq;
++	out_vq = virtio_config_vq(config, vq_ops, device, do_nothing, NULL);
++	if (IS_ERR(out_vq)) {
++		err = PTR_ERR(out_vq);
++		goto free;
 +	}
 +
-+	major = register_blkdev(0, "virtblk");
-+	if (major < 0) {
-+		err = major;
-+		goto out_mempool;
++	/* Start using the new console output. */
++	virtio_cons.get_chars = get_chars;
++	virtio_cons.put_chars = put_chars;
++
++	/* The first argument of hvc_alloc() is the virtual console number, so
++	 * we use zero.  The second argument is the interrupt number; we
++	 * currently leave this as zero: it would be better not to use the
++	 * hvc mechanism and fix this (FIXME!).
++	 *
++	 * The third argument is a "struct hv_ops" containing the put_chars()
++	 * and get_chars() pointers.  The final argument is the output buffer
++	 * size: we can do any size, so we put PAGE_SIZE here. */
++	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
++	if (IS_ERR(hvc)) {
++		err = PTR_ERR(hvc);
++		goto free_in_vq;
 +	}
 +
-+	/* FIXME: How many partitions?  How long is a piece of string? */
-+	vblk->disk = alloc_disk(1 << 4);
-+	if (!vblk->disk) {
-+		err = -ENOMEM;
-+		goto out_unregister_blkdev;
-+	}
++	/* Register the input buffer the first time. */
++	add_inbuf();
++	return NULL;
 +
-+	vblk->disk->queue = blk_init_queue(do_virtblk_request, &vblk->lock);
-+	if (!vblk->disk->queue) {
-+		err = -ENOMEM;
-+		goto out_put_disk;
-+	}
-+
-+	sprintf(vblk->disk->disk_name, "vd%c", virtblk_index++);
-+	vblk->disk->major = major;
-+	vblk->disk->first_minor = 0;
-+	vblk->disk->private_data = vblk;
-+	vblk->disk->fops = &virtblk_fops;
-+
-+	/* If barriers are supported, tell block layer that queue is ordered */
-+	coff = virtio_config_find(config, VIRTIO_CONFIG_BLK_F, &len);
-+	if (virtio_use_bit(config, coff, len, VIRTIO_BLK_F_BARRIER))
-+		blk_queue_ordered(vblk->disk->queue, QUEUE_ORDERED_TAG, NULL);
-+
-+	err = virtio_config_val(config, VIRTIO_CONFIG_BLK_F_CAPACITY, &cap);
-+	if (err) {
-+		dev_err(device, "Bad/missing capacity in config\n");
-+		goto out_put_disk;
-+	}
-+
-+	/* If capacity is too big, truncate with warning. */
-+	if ((sector_t)cap != cap) {
-+		dev_warn(device, "Capacity %llu is too large: truncating\n",
-+			 (unsigned long long)cap);
-+		cap = (sector_t)-1;
-+	}
-+	set_capacity(vblk->disk, cap);
-+
-+	err = virtio_config_val(config, VIRTIO_CONFIG_BLK_F_SIZE_MAX, &v);
-+	if (!err)
-+		blk_queue_max_segment_size(vblk->disk->queue, v);
-+	else if (err != -ENOENT) {
-+		dev_err(device, "Bad SIZE_MAX in config\n");
-+		goto out_put_disk;
-+	}
-+
-+	err = virtio_config_val(config, VIRTIO_CONFIG_BLK_F_SEG_MAX, &v);
-+	if (!err)
-+		blk_queue_max_hw_segments(vblk->disk->queue, v);
-+	else if (err != -ENOENT) {
-+		dev_err(device, "Bad SEG_MAX in config\n");
-+		goto out_put_disk;
-+	}
-+
-+	add_disk(vblk->disk);
-+	return vblk;
-+
-+out_put_disk:
-+	put_disk(vblk->disk);
-+out_unregister_blkdev:
-+	unregister_blkdev(major, "virtblk");
-+out_mempool:
-+	mempool_destroy(vblk->pool);
-+out_free_vq:
-+	vq_ops->free_vq(vblk->vq);
-+out_free_vblk:
-+	kfree(vblk);
-+out:
++free_in_vq:
++	new_vq_ops->free_vq(in_vq);
++free_out_vq:
++	new_vq_ops->free_vq(out_vq);
++free:
++	kfree(inbuf);
++fail:
 +	return ERR_PTR(err);
 +}
 +
-+static void virtblk_remove(void *_vblk)
-+{
-+	struct virtio_blk *vblk = _vblk;
-+	int major = vblk->disk->major;
-+
-+	BUG_ON(!list_empty(&vblk->reqs));
-+	blk_cleanup_queue(vblk->disk->queue);
-+	put_disk(vblk->disk);
-+	unregister_blkdev(major, "virtblk");
-+	mempool_destroy(vblk->pool);
-+	kfree(vblk);
-+}
-+
 +static struct pci_device_id id_table[] = {
-+	VIRTIO_DEV_ID(VIRTIO_ID_BLOCK, PCI_CLASS_STORAGE_OTHER),
++	VIRTIO_DEV_ID(VIRTIO_ID_CONSOLE, PCI_CLASS_COMMUNICATION_SERIAL),
 +	{ 0 },
 +};
 +
-+static struct virtio_driver virtio_blk = {
++static struct virtio_driver virtio_console = {
 +	.name =         KBUILD_MODNAME,
 +	.owner =        THIS_MODULE,
 +	.id_table =     id_table,
-+	.probe =        virtblk_probe,
-+	.remove =       __devexit_p(virtblk_remove),
++	.probe =        virtcons_probe,
 +};
 +
 +static int __init init(void)
 +{
-+	return register_virtio_driver(&virtio_blk);
-+}
-+
-+static void __exit fini(void)
-+{
-+	unregister_virtio_driver(&virtio_blk);
++	return register_virtio_driver(&virtio_console);
 +}
 +module_init(init);
-+module_exit(fini);
 +
 +MODULE_DEVICE_TABLE(pci, id_table);
-+MODULE_DESCRIPTION("Virtio block driver");
++MODULE_DESCRIPTION("Virtio console driver");
 +MODULE_LICENSE("GPL");
 ===================================================================
---- a/include/linux/Kbuild
-+++ b/include/linux/Kbuild
-@@ -343,6 +343,7 @@ unifdef-y += utsname.h
- unifdef-y += utsname.h
- unifdef-y += videodev2.h
- unifdef-y += videodev.h
-+unifdef-y += virtio_blk.h
- unifdef-y += wait.h
- unifdef-y += wanrouter.h
- unifdef-y += watchdog.h
-===================================================================
 --- /dev/null
-+++ b/include/linux/virtio_blk.h
-@@ -0,0 +1,51 @@
-+#ifndef _LINUX_VIRTIO_BLK_H
-+#define _LINUX_VIRTIO_BLK_H
++++ b/include/linux/virtio_console.h
+@@ -0,0 +1,12 @@
++#ifndef _LINUX_VIRTIO_CONSOLE_H
++#define _LINUX_VIRTIO_CONSOLE_H
 +#include <linux/virtio_config.h>
 +
-+/* The ID for virtio_block */
-+#define VIRTIO_ID_BLOCK	2
++/* The ID for virtio console */
++#define VIRTIO_ID_CONSOLE	3
 +
-+/* Feature bits */
-+#define VIRTIO_CONFIG_BLK_F	0x40
-+#define VIRTIO_BLK_F_BARRIER	1	/* Does host support barriers? */
++#ifdef __KERNEL__
++int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
++#endif /* __KERNEL__ */
 +
-+/* The capacity (in 512-byte sectors). */
-+#define VIRTIO_CONFIG_BLK_F_CAPACITY	0x41
-+/* The maximum segment size. */
-+#define VIRTIO_CONFIG_BLK_F_SIZE_MAX	0x42
-+/* The maximum number of segments. */
-+#define VIRTIO_CONFIG_BLK_F_SEG_MAX	0x43
-+
-+/* These two define direction. */
-+#define VIRTIO_BLK_T_IN		0
-+#define VIRTIO_BLK_T_OUT	1
-+
-+/* This bit says it's a scsi command, not an actual read or write. */
-+#define VIRTIO_BLK_T_SCSI_CMD	2
-+
-+/* Barrier before this op. */
-+#define VIRTIO_BLK_T_BARRIER	0x80000000
-+
-+/* This is the first element of the read scatter-gather list. */
-+struct virtio_blk_outhdr
-+{
-+	/* VIRTIO_BLK_T* */
-+	__u32 type;
-+	/* io priority. */
-+	__u32 ioprio;
-+	/* Sector (ie. 512 byte offset) */
-+	__u64 sector;
-+	/* Where to put reply. */
-+	__u64 id;
-+};
-+
-+#define VIRTIO_BLK_S_OK		0
-+#define VIRTIO_BLK_S_IOERR	1
-+#define VIRTIO_BLK_S_UNSUPP	2
-+
-+/* This is the first element of the write scatter-gather list */
-+struct virtio_blk_inhdr
-+{
-+	unsigned char status;
-+};
-+#endif /* _LINUX_VIRTIO_BLK_H */
++#endif /* _LINUX_VIRTIO_CONSOLE_H */
