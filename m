@@ -1,16 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [kvm-devel] [PATCH 2/6] virtio_config
-Date: Fri, 21 Sep 2007 11:50:35 +1000
-Message-ID: <1190339435.19451.23.camel__18427.4907027886$1190374842$gmane$org@localhost.localdomain>
+Subject: Re: [kvm-devel] [PATCH 1/6] virtio interace
+Date: Fri, 21 Sep 2007 21:37:28 +1000
+Message-ID: <1190374648.27805.4.camel@localhost.localdomain>
 References: <1190289808.7262.223.camel@localhost.localdomain>
 	<1190290140.7262.228.camel@localhost.localdomain>
-	<1190290369.7262.231.camel@localhost.localdomain>
-	<46F26958.4080102@qumranet.com>  <46F26DC7.9040001@qumranet.com>
+	<46F2674A.2050403@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46F26DC7.9040001@qumranet.com>
+In-Reply-To: <46F2674A.2050403@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,40 +23,59 @@ To: Avi Kivity <avi@qumranet.com>
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-09-20 at 14:55 +0200, Avi Kivity wrote:
-> Avi Kivity wrote:
-> > Rusty Russell wrote:
-> >> Previous versions of virtio didn't commonalize probing.  For every
-> >> driver, every virtio implementation (KVM, lguest, etc) needed an
-> >> in-kernel stub to join their bus to the probe code.
-> >>
-> >> To solve this, we introduce a "virtio_config" mechanism, which is
-> >> simply a set of [u8 type][u8 len][...data...] fields for each device.
-> >> Some convenient wrapper functions make this fairly easy for drivers to
-> >> unpack their configuration data themselves.
-> >>
-> >> This configuration data could be PCI config space, or an unrelated bus
-> >> (eg. lguest) or manufactured by the kernel itself.  It's designed to
-> >> be extensible: fields get marked as the device reads them so a host
-> >> supporting some future extension can tell if the guest driver
-> >> understood it.  This also applies to bitfields: the guest explicitly
-> >> acks the bits it understands.
-> >>
-> >> There's also a simple status bitmask useful for low-level host
-> >> analysis of what the guest is doing with the device.
-> >>
-> >>   
-> >
-> > Lovely.
-> >
+On Thu, 2007-09-20 at 14:27 +0200, Avi Kivity wrote: 
+> Rusty Russell wrote:
+> > +struct virtio_backend_ops virtio_backend_ops;
+> > +EXPORT_SYMBOL_GPL(virtio_backend_ops);
 > 
-> A side effect of this is that Xen drivers can no longer use virtio.
+> Suggest calling this virtio_transport_ops rather than the too-generic 
+> virtio_backend_ops.  Especially since Xen uses backend for something 
+> completely different.
 
-I'm not so sure.
+Hi Avi,
 
-We were always assuming that Xen could do state management in its virtio
-layer.  If this is not true, it implies we need hooks in the virtio
-drivers, and I don't think we've made it worse by making it translate
-xenbus config info into virtio_config.
+Agreed, fixed.  I actually don't like this interface at all, but it is
+simple until we determine something better.
+
+> > +/**
+> > + * virtqueue_ops - operations for virtqueue abstraction layer
+> > + * @new_vq: create a new virtqueue
+> > + *	config: the virtio_config_space field describing the queue
+> > + *	off: the offset in the config space of the queue configuration
+> > + *	len: the length of the virtio_config_space field
+> >   
+> 
+> 'off, len' are really a magic cookie.  Why does the interface care about 
+> their meaning?
+
+off is a cookie, len isn't.  The driver does "get me the foo field" and
+it returns off + len.  If it wants to read or write the foo field it
+needs that length.
+
+In practice, drivers use the virtio_config_vq() convenience interface
+which does "find field, hand to ops->new_vq".
+
+> > + *	callback: the driver callback when the queue is used.
+> >   
+> 
+> Missing callback return value description.
+
+Indeed, that's always made me uncomfortable.  Fixed.  Although it's
+possible that an explicit disable hook is better...
+
+> > + * @kick: update after add_buf
+> > + *	vq: the struct virtqueue
+> > + *	After one or more add_buf calls, invoke this to kick the virtio layer.
+> >   
+> 
+> 'the other side'
+
+Thanks, fixed.
+
+> I'm not thrilled about reusing pci ids.  Maybe the s390 can say whether 
+> this is a real issue.
+
+I doubt it: it's not a problem for lguest.  But I wonder if I've chosen
+the right fields...
 
 Rusty.
