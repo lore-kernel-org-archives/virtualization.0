@@ -1,20 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 4/6] virtio block driver
-Date: Fri, 21 Sep 2007 22:30:11 +1000
-Message-ID: <1190377811.27805.39.camel__16890.06542224$1190378059$gmane$org@localhost.localdomain>
+Subject: Re: [PATCH 1/6] virtio interace
+Date: Fri, 21 Sep 2007 22:45:36 +1000
+Message-ID: <1190378736.27805.54.camel__2375.0384957113$1190378889$gmane$org@localhost.localdomain>
 References: <1190289808.7262.223.camel@localhost.localdomain>
 	<1190290140.7262.228.camel@localhost.localdomain>
-	<1190290369.7262.231.camel@localhost.localdomain>
-	<1190290495.7262.235.camel@localhost.localdomain>
-	<1190290606.7262.239.camel@localhost.localdomain>
-	<20070920130519.GL2367@kernel.dk>
-	<1190340367.19451.40.camel@localhost.localdomain>
-	<20070921114703.GN2367@kernel.dk>
+	<200709211405.32116.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20070921114703.GN2367@kernel.dk>
+In-Reply-To: <200709211405.32116.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,76 +19,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, Dor Laor <dor.laor@qumranet.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-09-21 at 13:47 +0200, Jens Axboe wrote:
-> On Fri, Sep 21 2007, Rusty Russell wrote:
-> > On Thu, 2007-09-20 at 15:05 +0200, Jens Axboe wrote:
-> > > We have end_queued_request(), lets add end_dequeued_request(). Below.
-> > 
-> > OK, thanks, I'll throw that in the mix and test...
+On Fri, 2007-09-21 at 14:05 +0200, Arnd Bergmann wrote:
+> On Thursday 20 September 2007, Rusty Russell wrote:
+> > +int register_virtio_driver(struct virtio_driver *drv);
+> > +void unregister_virtio_driver(struct virtio_driver *drv);
+> > +
+> > +/* The particular virtio backend supplies these. */
+> > +struct virtio_backend_ops {
+> > +       int (*register_driver)(struct virtio_driver *drv);
+> > +       void (*unregister_driver)(struct virtio_driver *drv);
+> > +};
+> > +extern struct virtio_backend_ops virtio_backend_ops;
 > 
-> I've queued it for 2.6.24 as well, so should be in mainline in that time
-> frame.
+> This still seems a little awkward. From what I understand, you register
+> a virtio_driver, which leads to a pci_driver (or whatever you are based on)
+> to be registered behind the covers, so that the pci_device can be used
+> directly as the virtio device.
 
-OK, I'll sit it in my queue so my patches work until then.
+Hi Arnd,
 
-> > > > +	vblk->sg[0].page = virt_to_page(&vbr->out_hdr);
-> > > > +	vblk->sg[0].offset = offset_in_page(&vbr->out_hdr);
-> > > > +	vblk->sg[0].length = sizeof(vbr->out_hdr);
-> > > > +	num = blk_rq_map_sg(q, vbr->req, vblk->sg+1);
-> > > 
-> > > This wont work for chained sglists, but I gather (I'm so funny) that it
-> > > wont be an issue for you. How large are your sglists?
-> > 
-> > Hmm, potentially extremely large.  What do I need to do for chained
-> > sglists?
-> 
-> Not a lot, actually. You snipped the problematic part in your reply,
-> though:
-> 
->         vblk->sg[num+1].page = virt_to_page(&vbr->in_hdr);
-> 
-> which assumes that sg is a contigious piece of memory, for chained sg
-> lists that isn't true. sg chaining will be in 2.6.24, so if you really
-> do need large sglists, then that's the way to go.
+	Yes, and I dislike it too. 
 
-I'm not sure if I need large sglists here.  Obviously I want to handle
-anything the block layer can give to me (assume you're going to increase
-MAX_PHYS_SEGMENTS soon?).  This might make "vblk" too big to kmalloc
-easily:
+> I think there should instead be a pci_driver that automatically binds
+> to all PCI based virtio imlpementations and creates a child device for
+> the actual virtio_device.
 
-        struct virtio_blk
-        {
-        ...
-        	/* Scatterlist: can be too big for stack. */
-        	struct scatterlist sg[3+MAX_PHYS_SEGMENTS];
-        };
+I'm not sure I understand.  For PCI probing to work, you want to have
+identified yourself as a driver for each PCI id claimed by a virtio
+device.
 
-The sglist for virtio is really a scratch space to represent the request
-buffers (with one element for metadata at start and one at end) which we
-hand through to the virtio layer which turns it into its internal
-descriptors for the host to read.
+Hmm, I guess we could have a PCI driver which claims all VIRTIO vendor
+devices.  Then it can call virtio_find_driver() (?) at the top of its
+probe function to find if there's a matching virtio driver.  This PCI
+driver would have to be initialized after all the virtio drivers are
+registered, but that's easy.
 
-Have you thought of putting an sglist inside the req itself?  Then
-instead of blk_rq_map_sg() it'd just be req->sg?  It could just be a
-chain of sg's in each bio I guess.
+The virtio layer would simply maintain a linked list of drivers and
+implement the virtio_find_driver() matching function.
 
-This would allow me to just to borrow that request sg chain, rather than
-doing the req -> sg -> virtio double-conversion.
+And since we've suppressed normal PCI driver request_module (since it
+always finds "the driver") then we can implement that in
+virtio_find_driver(), and not use a PCI MODULE_DEVICE_TABLE.  Then we
+don't need (full) PCI ids at all.
 
-> > Except "0/1" is not canonical in the kernel.  Arguably, "-errno/0" is
-> > canonical.  OTOH, bool is clear.
-> 
-> -errno/0, then. 1 is typically used for 'failure without specific error
-> number' when -Exx doesn't apply. Like the above :-)
-
-See, I'd be absolutely sure that >= 0 is success (like all syscalls),
-and I'd be appalled by code which used it as failure.
-
-So I think you're right that we should agree to disagree :)
-
-Thanks!
+OK, I have some coding to do now...
 Rusty.
