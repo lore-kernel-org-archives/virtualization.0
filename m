@@ -1,16 +1,17 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [kvm-devel] [PATCH 3/6] virtio net driver
-Date: Fri, 21 Sep 2007 22:08:33 +0800
-Message-ID: <20070921140833.GA12242__11457.6049767949$1190385890$gmane$org@gondor.apana.org.au>
+Date: Fri, 21 Sep 2007 16:42:25 +0200
+Message-ID: <200709211642.25208.borntraeger__48759.1120916933$1190385923$gmane$org@de.ibm.com>
 References: <1190289808.7262.223.camel@localhost.localdomain>
-	<200709211248.11783.borntraeger@de.ibm.com>
-	<1190375615.27805.9.camel@localhost.localdomain>
 	<200709211436.43964.borntraeger@de.ibm.com>
+	<20070921140833.GA12242@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20070921140833.GA12242@gondor.apana.org.au>
 Content-Disposition: inline
-In-Reply-To: <200709211436.43964.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,31 +21,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel@lists.sourceforge.net, lguest <lguest@ozlabs.org>, Jeff Garzik <jeff@garzik.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: kvm-devel@lists.sourceforge.net
+Cc: lguest <lguest@ozlabs.org>, Herbert Xu <herbert@gondor.apana.org.au>, Jeff Garzik <jeff@garzik.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 21, 2007 at 02:36:43PM +0200, Christian Borntraeger wrote:
->
-> @@ -335,7 +344,7 @@ static void *virtnet_probe(struct device
->  	dev->poll = virtnet_poll;
->  	dev->hard_start_xmit = start_xmit;
->  	dev->weight = 16;
-> -	dev->features = NETIF_F_HIGHDMA;
-> +	dev->features = NETIF_F_HIGHDMA | NETIF_F_LLTX;
->  	SET_NETDEV_DEV(dev, device);
->  
->  	/* Do we support "hardware" checksums? */
+Am Freitag, 21. September 2007 schrieb Herbert Xu:
+> Please don't use LLTX in new drivers.  We're trying to get rid
+> of it since it's
+> 
+> 1) unnecessary;
+> 2) causes problems with AF_PACKET seeing things twice.
 
-Please don't use LLTX in new drivers.  We're trying to get rid
-of it since it's
+Ok, but then I cannot reuse the xmit lock in an interrupt handler. Otherwise 
+deadlock can occur because hard_start_xmit has interrupts enabled. 
 
-1) unnecessary;
-2) causes problems with AF_PACKET seeing things twice.
+Rusty, seems we need an additional lock.
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Christian
