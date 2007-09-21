@@ -1,16 +1,16 @@
-From: Satyam Sharma <satyam@infradead.org>
-Subject: Re: [PATCH 3/3] Time to make CONFIG_PARAVIRT non-experimental.
-Date: Thu, 20 Sep 2007 22:17:27 +0530 (IST)
-Message-ID: <alpine.LFD.0.999.0709202207360.19354__22521.3779522621$1190306814$gmane$org@enigma.security.iitk.ac.in>
-References: <1189747054.7262.34.camel@localhost.localdomain>
-	<200709181257.41530.ak@suse.de> <46F02F50.5000001@thewybles.com>
-	<200709182220.27311.ak@suse.de> <46F034A8.2070801@thewybles.com>
-	<alpine.LFD.0.999.0709202110150.18597@enigma.security.iitk.ac.in>
-	<46F29B4B.2070200@thewybles.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [kvm-devel] [PATCH 2/6] virtio_config
+Date: Fri, 21 Sep 2007 11:50:35 +1000
+Message-ID: <1190339435.19451.23.camel__18427.4907027886$1190374842$gmane$org@localhost.localdomain>
+References: <1190289808.7262.223.camel@localhost.localdomain>
+	<1190290140.7262.228.camel@localhost.localdomain>
+	<1190290369.7262.231.camel@localhost.localdomain>
+	<46F26958.4080102@qumranet.com>  <46F26DC7.9040001@qumranet.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46F29B4B.2070200@thewybles.com>
+In-Reply-To: <46F26DC7.9040001@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,42 +20,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Charles N Wyble <charles@thewybles.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On Thu, 20 Sep 2007, Charles N Wyble wrote:
+On Thu, 2007-09-20 at 14:55 +0200, Avi Kivity wrote:
+> Avi Kivity wrote:
+> > Rusty Russell wrote:
+> >> Previous versions of virtio didn't commonalize probing.  For every
+> >> driver, every virtio implementation (KVM, lguest, etc) needed an
+> >> in-kernel stub to join their bus to the probe code.
+> >>
+> >> To solve this, we introduce a "virtio_config" mechanism, which is
+> >> simply a set of [u8 type][u8 len][...data...] fields for each device.
+> >> Some convenient wrapper functions make this fairly easy for drivers to
+> >> unpack their configuration data themselves.
+> >>
+> >> This configuration data could be PCI config space, or an unrelated bus
+> >> (eg. lguest) or manufactured by the kernel itself.  It's designed to
+> >> be extensible: fields get marked as the device reads them so a host
+> >> supporting some future extension can tell if the guest driver
+> >> understood it.  This also applies to bitfields: the guest explicitly
+> >> acks the bits it understands.
+> >>
+> >> There's also a simple status bitmask useful for low-level host
+> >> analysis of what the guest is doing with the device.
+> >>
+> >>   
+> >
+> > Lovely.
+> >
 > 
-> Satyam Sharma wrote:
-> > 
-> > On Tue, 18 Sep 2007, Charles N Wyble wrote:
-> >> Andi Kleen wrote:
-> >>> Besides it's bad taste and taste is very important.
-> >> Well it's bad taste for you (one person).
-> > 
-> > FWIW, my opinion is the same as Andi's here. Please, let's avoid this
-> > disease -- unless *absolutely* required, stuff shouldn't be "default y".
-> 
-> I am curious why you think it shouldn't be default why? Bad taste? Can
-> you provide data about how it will harm things?
+> A side effect of this is that Xen drivers can no longer use virtio.
 
-Clear CONFIG_PARAVIRT from your .config and try "make oldconfig", and find
-out for yourself :-)
+I'm not so sure.
 
-You'll end up having to answer questions for all other config options
-below it, that you never cared about, that you didn't know even existed.
-You'd obviously (I would, at least) feel annoyed by it all ... this is
-almost a regression :-)
+We were always assuming that Xen could do state management in its virtio
+layer.  If this is not true, it implies we need hooks in the virtio
+drivers, and I don't think we've made it worse by making it translate
+xenbus config info into virtio_config.
 
-And for those who automate the oldconfig process using "yes", well, this
-"default y" *will* end up introducing a kernel text size regression --
-all those config options they never had earlier, suddenly got enabled.
-
-Besides, like Andi said, selecting or enabling CONFIG_PARAVIRT is quite
-pointless in the first place -- it's just a menuconfig symbol, not a
-"real" kconfig symbol that _actually_ controls code in the Makefiles.
-
-
-Satyam
+Rusty.
