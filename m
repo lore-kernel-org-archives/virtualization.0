@@ -1,20 +1,12 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 3/3] virtio module alias support
-Date: Mon, 24 Sep 2007 20:10:34 -0700
-Message-ID: <20070925031034.GA16425__15456.7452533685$1190689754$gmane$org@kroah.com>
-References: <1190625194.27805.199.camel@localhost.localdomain>
-	<1190625256.27805.201.camel@localhost.localdomain>
-	<1190625307.27805.203.camel@localhost.localdomain>
-	<1190625394.27805.206.camel@localhost.localdomain>
-	<20070924160221.GB5846@kroah.com>
-	<1190681405.27805.243.camel@localhost.localdomain>
-	<20070925015747.GA16011@kroah.com>
-	<1190686275.27805.255.camel@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 1/3] Virtualization config cleanup: Select CONFIG_PARAVIRT
+	when required
+Date: Tue, 25 Sep 2007 13:58:08 +1000
+Message-ID: <1190692688.27805.276.camel__36772.2087227323$1190692843$gmane$org@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1190686275.27805.255.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,24 +16,87 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@muc.de>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 25, 2007 at 12:11:15PM +1000, Rusty Russell wrote:
-> On Mon, 2007-09-24 at 18:57 -0700, Greg KH wrote:
-> > On Tue, Sep 25, 2007 at 10:50:04AM +1000, Rusty Russell wrote:
-> > > Not sure why I need the modalias here when it's in sysfs.  But, it
-> > > works.
-> > 
-> > udev does not read from sysfs anymore, it just uses the environment
-> > variables.  It's faster and race-free that way.
-> 
-> Should I leave the modalias entry in sysfs for back compat, or not?
-> This will be for >= 2.6.24 only...
+(Unless there are complaints, I'll push this as part of the lguest
+patches for 2.6.24, since there are lguest config changes there too).
 
-No, leave it in sysfs, other tools use it (like older versions of udev).
+Andi points out that PARAVIRT is an option best selected when needed.
 
-thanks,
+We introduce PARAVIRT_GUEST for the menu itself, and select PARAVIRT
+if the user turns on anything which needs it.
 
-greg k-h
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ arch/i386/Kconfig     |   33 ++++++++++++++++++++-------------
+ arch/i386/xen/Kconfig |    1 +
+ 2 files changed, 21 insertions(+), 13 deletions(-)
+
+===================================================================
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -214,24 +214,30 @@ config X86_ES7000
+ 
+ endchoice
+ 
+-menuconfig PARAVIRT
++config PARAVIRT
++	bool
++	depends on !(X86_VISWS || X86_VOYAGER)
++	help
++	  This changes the kernel so it can modify itself when it is run
++	  under a hypervisor, potentially improving performance significantly
++	  over full virtualization.  However, when run without a hypervisor
++	  the kernel is theoretically slower and slightly larger.
++
++menuconfig PARAVIRT_GUEST
+-	bool "Paravirtualized guest support (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL
++	bool "Paravirtualized guest support"
+-	depends on !(X86_VISWS || X86_VOYAGER)
+-	help
+-	  Paravirtualization is a way of running multiple instances of
+-	  Linux on the same machine, under a hypervisor.  This option
+-	  changes the kernel so it can modify itself when it is run
+-	  under a hypervisor, improving performance significantly.
+-	  However, when run without a hypervisor the kernel is
+-	  theoretically slower.  If in doubt, say N.
+-
+-if PARAVIRT
++	help
++	  Say Y here to get to see options related to running Linux under
++	  various hypervisors.  This option alone does not add any kernel code.
++
++	  If you say N, all options in this submenu will be skipped and disabled.
++
++if PARAVIRT_GUEST
+ 
+ source "arch/i386/xen/Kconfig"
+ 
+ config VMI
+ 	bool "VMI Guest support"
++	select PARAVIRT
+ 	help
+ 	  VMI provides a paravirtualized interface to the VMware ESX server
+ 	  (it could be used by other hypervisors in theory too, but is not
+@@ -239,6 +246,7 @@ config VMI
+ 
+ config LGUEST_GUEST
+ 	bool "Lguest guest support"
++	select PARAVIRT
+ 	depends on !X86_PAE
+ 	help
+ 	  Lguest is a tiny in-kernel hypervisor.  Selecting this will
+===================================================================
+--- a/arch/i386/xen/Kconfig
++++ b/arch/i386/xen/Kconfig
+@@ -4,6 +4,7 @@
+ 
+ config XEN
+ 	bool "Xen guest support"
++	select PARAVIRT
+ 	depends on X86_CMPXCHG && X86_TSC && !NEED_MULTIPLE_NODES
+ 	help
+ 	  This is the Linux Xen port.  Enabling this will allow the
