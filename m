@@ -1,16 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [kvm-devel] [PATCH 2/3] virtio ring implementation
-Date: Tue, 25 Sep 2007 23:32:36 +1000
-Message-ID: <1190727156.27805.332.camel__8371.19177817858$1190727310$gmane$org@localhost.localdomain>
-References: <1190625194.27805.199.camel@localhost.localdomain>
-	<1190625256.27805.201.camel@localhost.localdomain>
-	<1190625307.27805.203.camel@localhost.localdomain>
-	<46F7BF41.9060705@qumranet.com>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: Re: [PATCH 1/3] Virtualization config cleanup: Select
+	CONFIG_PARAVIRT when required
+Date: Tue, 25 Sep 2007 06:05:37 +0200
+Message-ID: <20070925040537.GL6800__23364.6970046268$1190733717$gmane$org@stusta.de>
+References: <1190692688.27805.276.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46F7BF41.9060705@qumranet.com>
+Content-Disposition: inline
+In-Reply-To: <1190692688.27805.276.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,62 +18,109 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dor.laor@qumranet.com
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2007-09-24 at 15:44 +0200, Dor Laor wrote:
-> Rusty Russell wrote: 
-> > +irqreturn_t vring_interrupt(int irq, void *_vq)
-> > +{
-> > +       struct vring_virtqueue *vq = to_vvq(_vq);
-> > +
-> > +       pr_debug("virtqueue interrupt for %p\n", vq);
-> > +
-> > +       if (unlikely(vq->broken))
-> > +               return IRQ_HANDLED;
-> > +
-> > +       if (more_used(vq)) {
-> > +               pr_debug("virtqueue callback for %p (%p)\n",
-> > +                        vq, vq->vq.callback);
-> > +               if (!vq->vq.callback)
-> > +                       return IRQ_NONE;
-> > +               if (!vq->vq.callback(&vq->vq))
-> > +                       vq->vring.avail->flags |=
-> > VRING_AVAIL_F_NO_INTERRUPT;
-> > +       } else
-> > +               pr_debug("virtqueue %p no more used\n", vq);
-> > +
-> > +       return IRQ_HANDLED;
-> > +}
-> > +
-> > 
-> Seems like there is a problem with shared irq line, the interrupt
-> handler always returns IRQ_HANDLED (except for the trivial case
-> were the callback is null).
+On Tue, Sep 25, 2007 at 01:58:08PM +1000, Rusty Russell wrote:
+> (Unless there are complaints, I'll push this as part of the lguest
+> patches for 2.6.24, since there are lguest config changes there too).
+> 
+> Andi points out that PARAVIRT is an option best selected when needed.
+> 
+> We introduce PARAVIRT_GUEST for the menu itself, and select PARAVIRT
+> if the user turns on anything which needs it.
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> ---
+>  arch/i386/Kconfig     |   33 ++++++++++++++++++++-------------
+>  arch/i386/xen/Kconfig |    1 +
+>  2 files changed, 21 insertions(+), 13 deletions(-)
+> 
+> ===================================================================
+> --- a/arch/i386/Kconfig
+> +++ b/arch/i386/Kconfig
+> @@ -214,24 +214,30 @@ config X86_ES7000
+>  
+>  endchoice
+>  
+> -menuconfig PARAVIRT
+> +config PARAVIRT
+> +	bool
+> +	depends on !(X86_VISWS || X86_VOYAGER)
+> +	help
+> +	  This changes the kernel so it can modify itself when it is run
+> +	  under a hypervisor, potentially improving performance significantly
+> +	  over full virtualization.  However, when run without a hypervisor
+> +	  the kernel is theoretically slower and slightly larger.
+> +
+> +menuconfig PARAVIRT_GUEST
+> -	bool "Paravirtualized guest support (EXPERIMENTAL)"
+> -	depends on EXPERIMENTAL
+> +	bool "Paravirtualized guest support"
+> -	depends on !(X86_VISWS || X86_VOYAGER)
+> -	help
+> -	  Paravirtualization is a way of running multiple instances of
+> -	  Linux on the same machine, under a hypervisor.  This option
+> -	  changes the kernel so it can modify itself when it is run
+> -	  under a hypervisor, improving performance significantly.
+> -	  However, when run without a hypervisor the kernel is
+> -	  theoretically slower.  If in doubt, say N.
+> -
+> -if PARAVIRT
+> +	help
+> +	  Say Y here to get to see options related to running Linux under
+> +	  various hypervisors.  This option alone does not add any kernel code.
+> +
+> +	  If you say N, all options in this submenu will be skipped and disabled.
+> +
+> +if PARAVIRT_GUEST
+>  
+>  source "arch/i386/xen/Kconfig"
+>  
+>  config VMI
+>  	bool "VMI Guest support"
+> +	select PARAVIRT
 
-To reply for a second time, this time with thought.  Sorry.
 
-Yes, this code is wrong.  It should be:
+depends on !(X86_VISWS || X86_VOYAGER)
 
-irqreturn_t vring_interrupt(int irq, void *_vq)
-{
-	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	help
+>  	  VMI provides a paravirtualized interface to the VMware ESX server
+>  	  (it could be used by other hypervisors in theory too, but is not
+> @@ -239,6 +246,7 @@ config VMI
+>  
+>  config LGUEST_GUEST
+>  	bool "Lguest guest support"
+> +	select PARAVIRT
+>  	depends on !X86_PAE
 
-	if (!more_used(vq)) {
-		pr_debug("virtqueue interrupt with no work for %p\n", vq);
-		return IRQ_NONE;
-	}
 
-	if (unlikely(vq->broken))
-		return IRQ_HANDLED;
+depends on !(X86_VISWS || X86_VOYAGER)
 
-	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
-	if (vq->vq.callback && !vq->vq.callback(&vq->vq))
-		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+>  	help
+>  	  Lguest is a tiny in-kernel hypervisor.  Selecting this will
+> ===================================================================
+> --- a/arch/i386/xen/Kconfig
+> +++ b/arch/i386/xen/Kconfig
+> @@ -4,6 +4,7 @@
+>  
+>  config XEN
+>  	bool "Xen guest support"
+> +	select PARAVIRT
+>  	depends on X86_CMPXCHG && X86_TSC && !NEED_MULTIPLE_NODES
 
-	return IRQ_HANDLED;
-}
+depends on !(X86_VISWS || X86_VOYAGER)
 
-Cheers,
-Rusty.
+>  	help
+>  	  This is the Linux Xen port.  Enabling this will allow the
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
