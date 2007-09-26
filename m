@@ -1,11 +1,11 @@
 From: rusty@rustcorp.com.au
-Subject: [patch 04/43] lguest: Consolidate host virtualization support under
-	Virtualization menu
-Date: Wed, 26 Sep 2007 16:36:22 +1000
-Message-ID: <20070926063645.637566207@rustcorp.com.au>
+Subject: [patch 01/43] lguest: lguest example launcher truncates block
+	device file to 0 length on problems
+Date: Wed, 26 Sep 2007 16:36:19 +1000
+Message-ID: <20070926063645.068771169@rustcorp.com.au>
 References: <20070926063618.956228976@rustcorp.com.au>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=kconfig-virtualization.patch
+Content-Disposition: inline; filename=ftruncate64-fix.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,41 +16,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: lguest@ozlabs.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: Chris Malley <mail@chrismalley.co.uk>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Move lguest under the virtualization menu.
+The function should also use ftruncate64() rather than ftruncate() to prevent
+files over 4GB (not uncommon for a root filesystem) being zeroed.
 
+Signed-off-by: Chris Malley <mail@chrismalley.co.uk>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Avi Kivity <avi@qumranet.com>
----
- drivers/Kconfig     |    2 --
- drivers/kvm/Kconfig |    6 +++++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+CC: Chris Malley <mail@chrismalley.co.uk>
 
-===================================================================
---- a/drivers/Kconfig
-+++ b/drivers/Kconfig
-@@ -87,6 +87,4 @@ source "drivers/kvm/Kconfig"
- source "drivers/kvm/Kconfig"
- 
- source "drivers/uio/Kconfig"
--
--source "drivers/lguest/Kconfig"
- endmenu
-===================================================================
---- a/drivers/kvm/Kconfig
-+++ b/drivers/kvm/Kconfig
-@@ -45,4 +36,8 @@ config KVM_AMD
- 	  Provides support for KVM on AMD processors equipped with the AMD-V
- 	  (SVM) extensions.
- 
--endif # VIRTUALIZATION
-+# OK, it's a little counter-intuitive to do this, but it puts it neatly under
-+# the virtualization menu.
-+source drivers/lguest/Kconfig
-+
-+endif # VIRTUALIZATION
+diff -r bcbb99849fd9 Documentation/lguest/lguest.c
+--- a/Documentation/lguest/lguest.c	Wed Sep 26 12:21:40 2007 +1000
++++ b/Documentation/lguest/lguest.c	Wed Sep 26 14:15:38 2007 +1000
+@@ -882,7 +882,7 @@ static u32 handle_block_output(int fd, c
+ 		 * of the block file (possibly extending it). */
+ 		if (off + len > device_len) {
+ 			/* Trim it back to the correct length */
+-			ftruncate(dev->fd, device_len);
++			ftruncate64(dev->fd, device_len);
+ 			/* Die, bad Guest, die. */
+ 			errx(1, "Write past end %llu+%u", off, len);
+ 		}
 
 --
    there are those who do and those who hang on and you don't see too
