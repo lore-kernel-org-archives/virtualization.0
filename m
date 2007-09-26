@@ -1,10 +1,12 @@
 From: rusty@rustcorp.com.au
-Subject: [patch 09/43] lguest: lguest.txt update
-Date: Wed, 26 Sep 2007 16:36:27 +1000
-Message-ID: <20070926063646.533383441@rustcorp.com.au>
+Subject: [patch 16/43] lguest: Accept elf files that are valid but have
+	sections that can not be mmaped for some reason.
+Date: Wed, 26 Sep 2007 16:36:34 +1000
+Message-ID: <20070926063647.988925288@rustcorp.com.au>
 References: <20070926063618.956228976@rustcorp.com.au>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=lguest.txt-update.patch
+Content-Disposition: inline;
+	filename=0001-Accept-elf-files-that-are-valid-but-have-sections-th.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,127 +17,125 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: lguest@ozlabs.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: "Ronald G. Minnich" <rminnich@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-o Describe the new split configurations
-o Highlight code documentation in drivers/lguest/README
-o Point out necessity of having a getty on /dev/hvc0
-o Remove gratuitous "m" in example
-o Don't discuss I/O model here, stick to user documentation.
 
+Signed-off-by: Ronald G. Minnich <rminnich@gmail.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
 ---
- Documentation/lguest/lguest.txt |   66 ++++++++++++++++-----------------------
- 1 file changed, 28 insertions(+), 38 deletions(-)
+ Documentation/lguest/lguest.c |   61 +++++++++++++++++++++--------------------
+ 1 file changed, 32 insertions(+), 29 deletions(-)
 
 ===================================================================
---- a/Documentation/lguest/lguest.txt
-+++ b/Documentation/lguest/lguest.txt
-@@ -6,7 +6,7 @@ Linux developers and users to experiment
- Linux developers and users to experiment with virtualization with the
- minimum of complexity.  Nonetheless, it should have sufficient
- features to make it useful for specific tasks, and, of course, you are
--encouraged to fork and enhance it.
-+encouraged to fork and enhance it (see drivers/lguest/README).
+--- a/Documentation/lguest/lguest.c
++++ b/Documentation/lguest/lguest.c
+@@ -15,6 +15,7 @@
+ #include <stdlib.h>
+ #include <elf.h>
+ #include <sys/mman.h>
++#include <sys/param.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <sys/wait.h>
+@@ -162,6 +163,30 @@ static unsigned long entry_point(void *s
+ 	errx(1, "Is this image a genuine lguest?");
+ }
  
- Features:
- 
-@@ -23,19 +23,30 @@ Developer features:
- 
- Running Lguest:
- 
--- Lguest runs the same kernel as guest and host.  You can configure
--  them differently, but usually it's easiest not to.
-+- The easiest way to run lguest is to use same kernel as guest and host.
-+  You can configure them differently, but usually it's easiest not to.
- 
-   You will need to configure your kernel with the following options:
- 
--  CONFIG_HIGHMEM64G=n ("High Memory Support" "64GB")[1]
--  CONFIG_TUN=y/m ("Universal TUN/TAP device driver support")
--  CONFIG_EXPERIMENTAL=y ("Prompt for development and/or incomplete code/drivers")
--  CONFIG_PARAVIRT=y ("Paravirtualization support (EXPERIMENTAL)")
--  CONFIG_LGUEST=y/m ("Linux hypervisor example code")
-+  "General setup":
-+     "Prompt for development and/or incomplete code/drivers" = Y
-+        (CONFIG_EXPERIMENTAL=y)
- 
--  and I recommend:
--  CONFIG_HZ=100 ("Timer frequency")[2]
-+  "Processor type and features":
-+     "Paravirtualized guest support" = Y
-+        "Lguest guest support" = Y
-+     "High Memory Support" = off/4GB
-+     "Alignment value to which kernel should be aligned" = 0x100000
-+        (CONFIG_PARAVIRT=y, CONFIG_LGUEST_GUEST=y, CONFIG_HIGHMEM64G=n and
-+         CONFIG_PHYSICAL_ALIGN=0x100000)
++/* This routine is used to load the kernel or initrd.  It tries mmap, but if
++ * that fails (Plan 9's kernel file isn't nicely aligned on page boundaries),
++ * it falls back to reading the memory in. */
++static void map_at(int fd, void *addr, unsigned long offset, unsigned long len)
++{
++	ssize_t r;
 +
-+  "Device Drivers":
-+     "Network device support"
-+        "Universal TUN/TAP device driver support" = M/Y
-+           (CONFIG_TUN=m)
-+     "Virtualization"
-+        "Linux hypervisor example code" = M/Y
-+           (CONFIG_LGUEST=m)
- 
- - A tool called "lguest" is available in this directory: type "make"
-   to build it.  If you didn't build your kernel in-tree, use "make
-@@ -51,14 +61,17 @@ Running Lguest:
- 	  dd if=/dev/zero of=rootfile bs=1M count=2048
- 	  qemu -cdrom image.iso -hda rootfile -net user -net nic -boot d
- 
-+  Make sure that you install a getty on /dev/hvc0 if you want to log in on the
-+  console!
++	/* We map writable even though for some segments are marked read-only.
++	 * The kernel really wants to be writable: it patches its own
++	 * instructions.
++	 *
++	 * MAP_PRIVATE means that the page won't be copied until a write is
++	 * done to it.  This allows us to share untouched memory between
++	 * Guests. */
++	if (mmap(addr, len, PROT_READ|PROT_WRITE|PROT_EXEC,
++		 MAP_FIXED|MAP_PRIVATE, fd, offset) != MAP_FAILED)
++		return;
 +
- - "modprobe lg" if you built it as a module.
++	/* pread does a seek and a read in one shot: saves a few lines. */
++	r = pread(fd, addr, len, offset);
++	if (r != len)
++		err(1, "Reading offset %lu len %lu gave %zi", offset, len, r);
++}
++
+ /* This routine takes an open vmlinux image, which is in ELF, and maps it into
+  * the Guest memory.  ELF = Embedded Linking Format, which is the format used
+  * by all modern binaries on Linux including the kernel.
+@@ -176,7 +201,6 @@ static unsigned long map_elf(int elf_fd,
+ static unsigned long map_elf(int elf_fd, const Elf32_Ehdr *ehdr,
+ 			     unsigned long *page_offset)
+ {
+-	void *addr;
+ 	Elf32_Phdr phdr[ehdr->e_phnum];
+ 	unsigned int i;
+ 	unsigned long start = -1UL, end = 0;
+@@ -227,23 +251,9 @@ static unsigned long map_elf(int elf_fd,
+ 		if (phdr[i].p_paddr + phdr[i].p_filesz > end)
+ 			end = phdr[i].p_paddr + phdr[i].p_filesz;
  
- - Run an lguest as root:
+-		/* We map this section of the file at its physical address.  We
+-		 * map it read & write even if the header says this segment is
+-		 * read-only.  The kernel really wants to be writable: it
+-		 * patches its own instructions which would normally be
+-		 * read-only.
+-		 *
+-		 * MAP_PRIVATE means that the page won't be copied until a
+-		 * write is done to it.  This allows us to share much of the
+-		 * kernel memory between Guests. */
+-		addr = mmap((void *)phdr[i].p_paddr,
+-			    phdr[i].p_filesz,
+-			    PROT_READ|PROT_WRITE|PROT_EXEC,
+-			    MAP_FIXED|MAP_PRIVATE,
+-			    elf_fd, phdr[i].p_offset);
+-		if (addr != (void *)phdr[i].p_paddr)
+-			err(1, "Mmaping vmlinux seg %i gave %p not %p",
+-			    i, addr, (void *)phdr[i].p_paddr);
++		/* We map this section of the file at its physical address. */
++		map_at(elf_fd, (void *)phdr[i].p_paddr,
++		       phdr[i].p_offset, phdr[i].p_filesz);
+ 	}
  
--      Documentation/lguest/lguest 64m vmlinux --tunnet=192.168.19.1 --block=rootfile root=/dev/lgba
-+      Documentation/lguest/lguest 64 vmlinux --tunnet=192.168.19.1 --block=rootfile root=/dev/lgba
+ 	return entry_point((void *)start, (void *)end, *page_offset);
+@@ -402,27 +412,20 @@ static unsigned long load_initrd(const c
+ 	int ifd;
+ 	struct stat st;
+ 	unsigned long len;
+-	void *iaddr;
  
-    Explanation:
--    64m: the amount of memory to use.
-+    64: the amount of memory to use, in MB.
+ 	ifd = open_or_die(name, O_RDONLY);
+ 	/* fstat() is needed to get the file size. */
+ 	if (fstat(ifd, &st) < 0)
+ 		err(1, "fstat() on initrd '%s'", name);
  
-     vmlinux: the kernel image found in the top of your build directory.  You
-        can also use a standard bzImage.
-@@ -99,31 +112,7 @@ Running Lguest:
-   "--sharenet=<filename>": any two guests using the same file are on
-   the same network.  This file is created if it does not exist.
+-	/* The length needs to be rounded up to a page size: mmap needs the
+-	 * address to be page aligned. */
++	/* We map the initrd at the top of memory, but mmap wants it to be
++	 * page-aligned, so we round the size up for that. */
+ 	len = page_align(st.st_size);
+-	/* We map the initrd at the top of memory. */
+-	iaddr = mmap((void *)mem - len, st.st_size,
+-		     PROT_READ|PROT_EXEC|PROT_WRITE,
+-		     MAP_FIXED|MAP_PRIVATE, ifd, 0);
+-	if (iaddr != (void *)mem - len)
+-		err(1, "Mmaping initrd '%s' returned %p not %p",
+-		    name, iaddr, (void *)mem - len);
++	map_at(ifd, (void *)mem - len, 0, st.st_size);
+ 	/* Once a file is mapped, you can close the file descriptor.  It's a
+ 	 * little odd, but quite useful. */
+ 	close(ifd);
+-	verbose("mapped initrd %s size=%lu @ %p\n", name, st.st_size, iaddr);
++	verbose("mapped initrd %s size=%lu @ %p\n", name, len, (void*)mem-len);
  
--Lguest I/O model:
-+There is a helpful mailing list at http://ozlabs.org/mailman/listinfo/lguest
- 
--Lguest uses a simplified DMA model plus shared memory for I/O.  Guests
--can communicate with each other if they share underlying memory
--(usually by the lguest program mmaping the same file), but they can
--use any non-shared memory to communicate with the lguest process.
--
--Guests can register DMA buffers at any key (must be a valid physical
--address) using the LHCALL_BIND_DMA(key, dmabufs, num<<8|irq)
--hypercall.  "dmabufs" is the physical address of an array of "num"
--"struct lguest_dma": each contains a used_len, and an array of
--physical addresses and lengths.  When a transfer occurs, the
--"used_len" field of one of the buffers which has used_len 0 will be
--set to the length transferred and the irq will fire.
--
--Using an irq value of 0 unbinds the dma buffers.
--
--To send DMA, the LHCALL_SEND_DMA(key, dma_physaddr) hypercall is used,
--and the bytes used is written to the used_len field.  This can be 0 if
--noone else has bound a DMA buffer to that key or some other error.
--DMA buffers bound by the same guest are ignored.
--
--Cheers!
-+Good luck!
- Rusty Russell rusty@rustcorp.com.au.
--
--[1] These are on various places on the TODO list, waiting for you to
--    get annoyed enough at the limitation to fix it.
--[2] Lguest is not yet tickless when idle.  See [1].
+ 	/* We return the initrd size. */
+ 	return len;
 
 --
    there are those who do and those who hang on and you don't see too
