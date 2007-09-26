@@ -1,10 +1,11 @@
 From: rusty@rustcorp.com.au
-Subject: [patch 13/43] lguest: Move lguest hcalls to arch-specific header
-Date: Wed, 26 Sep 2007 16:36:31 +1000
-Message-ID: <20070926063647.262292916@rustcorp.com.au>
+Subject: [patch 18/43] lguest: Remove fixed limit on number of guests,
+	and lguests array.
+Date: Wed, 26 Sep 2007 16:36:36 +1000
+Message-ID: <20070926063648.366603351@rustcorp.com.au>
 References: <20070926063618.956228976@rustcorp.com.au>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=arch-indep-lg_hcall.diff
+Content-Disposition: inline; filename=lguest-remove-guestid.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,182 +16,220 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: lguest@ozlabs.org
-Cc: Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Move architecture specific portion of lg_hcall code to asm-i386/lg_hcall.h
-and have it included from linux/lguest.h.
+Back when we had all the Guest state in the switcher, we had a fixed
+array of them.  This is no longer necessary.
 
-[Changed to asm-i386/lguest_hcall.h so documentation finds it -RR]
+If we switch the network code to using random_ether_addr (46 bits is
+enough to avoid clashes), we can get rid of the concept of "guest id"
+altogether.
 
-Signed-off-by: Jes Sorensen <jes@sgi.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jes Sorensen <jes@sgi.com>
 ---
- include/asm-i386/lguest_hcall.h |   67 +++++++++++++++++++++++++++++++++++++
- include/linux/lguest.h          |   69 ++-------------------------------------
- 2 files changed, 71 insertions(+), 65 deletions(-)
+ drivers/lguest/core.c        |   14 --------------
+ drivers/lguest/hypercalls.c  |    4 +---
+ drivers/lguest/io.c          |   10 +++++-----
+ drivers/lguest/lg.h          |    5 +----
+ drivers/lguest/lguest_user.c |   17 ++++++-----------
+ drivers/net/lguest_net.c     |    7 +------
+ include/linux/lguest.h       |    2 --
+ 7 files changed, 14 insertions(+), 45 deletions(-)
 
 ===================================================================
---- /dev/null
-+++ linux-2.6-lguest/include/asm-i386/lguest_hcall.h
-@@ -0,0 +1,67 @@
-+/* Architecture specific portion of the lguest hypercalls */
-+#ifndef _I386_LGUEST_HCALL_H
-+#define _I386_LGUEST_HCALL_H
-+
-+#define LHCALL_FLUSH_ASYNC	0
-+#define LHCALL_LGUEST_INIT	1
-+#define LHCALL_CRASH		2
-+#define LHCALL_LOAD_GDT		3
-+#define LHCALL_NEW_PGTABLE	4
-+#define LHCALL_FLUSH_TLB	5
-+#define LHCALL_LOAD_IDT_ENTRY	6
-+#define LHCALL_SET_STACK	7
-+#define LHCALL_TS		8
-+#define LHCALL_SET_CLOCKEVENT	9
-+#define LHCALL_HALT		10
-+#define LHCALL_BIND_DMA		12
-+#define LHCALL_SEND_DMA		13
-+#define LHCALL_SET_PTE		14
-+#define LHCALL_SET_PMD		15
-+#define LHCALL_LOAD_TLS		16
-+
-+/*G:031 First, how does our Guest contact the Host to ask for privileged
-+ * operations?  There are two ways: the direct way is to make a "hypercall",
-+ * to make requests of the Host Itself.
-+ *
-+ * Our hypercall mechanism uses the highest unused trap code (traps 32 and
-+ * above are used by real hardware interrupts).  Seventeen hypercalls are
-+ * available: the hypercall number is put in the %eax register, and the
-+ * arguments (when required) are placed in %edx, %ebx and %ecx.  If a return
-+ * value makes sense, it's returned in %eax.
-+ *
-+ * Grossly invalid calls result in Sudden Death at the hands of the vengeful
-+ * Host, rather than returning failure.  This reflects Winston Churchill's
-+ * definition of a gentleman: "someone who is only rude intentionally". */
-+#define LGUEST_TRAP_ENTRY 0x1F
-+
-+static inline unsigned long
-+hcall(unsigned long call,
-+      unsigned long arg1, unsigned long arg2, unsigned long arg3)
-+{
-+	/* "int" is the Intel instruction to trigger a trap. */
-+	asm volatile("int $" __stringify(LGUEST_TRAP_ENTRY)
-+		       /* The call is in %eax (aka "a"), and can be replaced */
-+		     : "=a"(call)
-+		       /* The other arguments are in %eax, %edx, %ebx & %ecx */
-+		     : "a"(call), "d"(arg1), "b"(arg2), "c"(arg3)
-+		       /* "memory" means this might write somewhere in memory.
-+			* This isn't true for all calls, but it's safe to tell
-+			* gcc that it might happen so it doesn't get clever. */
-+		     : "memory");
-+	return call;
-+}
-+/*:*/
-+
-+void async_hcall(unsigned long call,
-+		 unsigned long arg1, unsigned long arg2, unsigned long arg3);
-+
-+/* Can't use our min() macro here: needs to be a constant */
-+#define LGUEST_IRQS (NR_IRQS < 32 ? NR_IRQS: 32)
-+
-+#define LHCALL_RING_SIZE 64
-+struct hcall_ring
-+{
-+	u32 eax, edx, ebx, ecx;
-+};
-+
-+#endif	/* _I386_LGUEST_HCALL_H */
-===================================================================
---- linux-2.6-lguest.orig/include/linux/lguest.h
-+++ linux-2.6-lguest/include/linux/lguest.h
-@@ -1,76 +1,15 @@
- /* Things the lguest guest needs to know.  Note: like all lguest interfaces,
-  * this is subject to wild and random change between versions. */
--#ifndef _ASM_LGUEST_H
--#define _ASM_LGUEST_H
-+#ifndef _LINUX_LGUEST_H
-+#define _LINUX_LGUEST_H
- 
- #ifndef __ASSEMBLY__
- #include <asm/irq.h>
+--- a/drivers/lguest/core.c
++++ b/drivers/lguest/core.c
+@@ -46,10 +46,6 @@ static struct {
+ /* This One Big lock protects all inter-guest data structures. */
+ DEFINE_MUTEX(lguest_lock);
+ static DEFINE_PER_CPU(struct lguest *, last_guest);
 -
--#define LHCALL_FLUSH_ASYNC	0
--#define LHCALL_LGUEST_INIT	1
--#define LHCALL_CRASH		2
--#define LHCALL_LOAD_GDT		3
--#define LHCALL_NEW_PGTABLE	4
--#define LHCALL_FLUSH_TLB	5
--#define LHCALL_LOAD_IDT_ENTRY	6
--#define LHCALL_SET_STACK	7
--#define LHCALL_TS		8
--#define LHCALL_SET_CLOCKEVENT	9
--#define LHCALL_HALT		10
--#define LHCALL_BIND_DMA		12
--#define LHCALL_SEND_DMA		13
--#define LHCALL_SET_PTE		14
--#define LHCALL_SET_PMD		15
--#define LHCALL_LOAD_TLS		16
-+#include <asm/lguest_hcall.h>
+-/* FIXME: Make dynamic. */
+-#define MAX_LGUEST_GUESTS 16
+-struct lguest lguests[MAX_LGUEST_GUESTS];
  
- #define LG_CLOCK_MIN_DELTA	100UL
- #define LG_CLOCK_MAX_DELTA	ULONG_MAX
- 
--/*G:031 First, how does our Guest contact the Host to ask for privileged
-- * operations?  There are two ways: the direct way is to make a "hypercall",
-- * to make requests of the Host Itself.
-- *
-- * Our hypercall mechanism uses the highest unused trap code (traps 32 and
-- * above are used by real hardware interrupts).  Seventeen hypercalls are
-- * available: the hypercall number is put in the %eax register, and the
-- * arguments (when required) are placed in %edx, %ebx and %ecx.  If a return
-- * value makes sense, it's returned in %eax.
-- *
-- * Grossly invalid calls result in Sudden Death at the hands of the vengeful
-- * Host, rather than returning failure.  This reflects Winston Churchill's
-- * definition of a gentleman: "someone who is only rude intentionally". */
--#define LGUEST_TRAP_ENTRY 0x1F
+ /* Offset from where switcher.S was compiled to where we've copied it */
+ static unsigned long switcher_offset(void)
+@@ -660,16 +656,6 @@ int run_guest(struct lguest *lg, unsigne
+  * deliver_trap() and demand_page().  After all those, we'll be ready to
+  * examine the Switcher, and our philosophical understanding of the Host/Guest
+  * duality will be complete. :*/
 -
--static inline unsigned long
--hcall(unsigned long call,
--      unsigned long arg1, unsigned long arg2, unsigned long arg3)
+-int find_free_guest(void)
 -{
--	/* "int" is the Intel instruction to trigger a trap. */
--	asm volatile("int $" __stringify(LGUEST_TRAP_ENTRY)
--		       /* The call is in %eax (aka "a"), and can be replaced */
--		     : "=a"(call)
--		       /* The other arguments are in %eax, %edx, %ebx & %ecx */
--		     : "a"(call), "d"(arg1), "b"(arg2), "c"(arg3)
--		       /* "memory" means this might write somewhere in memory.
--			* This isn't true for all calls, but it's safe to tell
--			* gcc that it might happen so it doesn't get clever. */
--		     : "memory");
--	return call;
+-	unsigned int i;
+-	for (i = 0; i < MAX_LGUEST_GUESTS; i++)
+-		if (!lguests[i].tsk)
+-			return i;
+-	return -1;
 -}
--/*:*/
 -
--void async_hcall(unsigned long call,
--		 unsigned long arg1, unsigned long arg2, unsigned long arg3);
--
--/* Can't use our min() macro here: needs to be a constant */
--#define LGUEST_IRQS (NR_IRQS < 32 ? NR_IRQS: 32)
--
--#define LHCALL_RING_SIZE 64
--struct hcall_ring
--{
--	u32 eax, edx, ebx, ecx;
--};
--
- /*G:032 The second method of communicating with the Host is to via "struct
-  * lguest_data".  The Guest's very first hypercall is to tell the Host where
-  * this is, and then the Guest and Host both publish information in it. :*/
-@@ -113,4 +52,4 @@ struct lguest_data
+ static void adjust_pge(void *on)
+ {
+ 	if (on)
+===================================================================
+--- a/drivers/lguest/hypercalls.c
++++ b/drivers/lguest/hypercalls.c
+@@ -225,9 +225,7 @@ static void initialize(struct lguest *lg
+ 	    /* We tell the Guest that it can't use the top 4MB of virtual
+ 	     * addresses used by the Switcher. */
+ 	    || put_user(4U*1024*1024, &lg->lguest_data->reserve_mem)
+-	    || put_user(tsc_speed, &lg->lguest_data->tsc_khz)
+-	    /* We also give the Guest a unique id, as used in lguest_net.c. */
+-	    || put_user(lg->guestid, &lg->lguest_data->guestid))
++	    || put_user(tsc_speed, &lg->lguest_data->tsc_khz))
+ 		kill_guest(lg, "bad guest page %p", lg->lguest_data);
+ 
+ 	/* We write the current time into the Guest's data page once now. */
+===================================================================
+--- a/drivers/lguest/io.c
++++ b/drivers/lguest/io.c
+@@ -212,7 +212,7 @@ int bind_dma(struct lguest *lg,
+ 			lg->dma[i].num_dmas = numdmas;
+ 			lg->dma[i].next_dma = 0;
+ 			lg->dma[i].key = key;
+-			lg->dma[i].guestid = lg->guestid;
++			lg->dma[i].owner = lg;
+ 			lg->dma[i].interrupt = interrupt;
+ 
+ 			/* Now we add it to the hash table: the position
+@@ -412,7 +412,7 @@ static int dma_transfer(struct lguest *s
+ 
+ 	/* From the "struct lguest_dma_info" we found in the hash, grab the
+ 	 * Guest. */
+-	dstlg = &lguests[dst->guestid];
++	dstlg = dst->owner;
+ 	/* Read in the source "struct lguest_dma" handed to SEND_DMA. */
+ 	lgread(srclg, &src_dma, udma, sizeof(src_dma));
+ 
+@@ -506,8 +506,8 @@ again:
+ 		struct lguest_dma_info *i;
+ 		/* Look through the hash for other Guests. */
+ 		list_for_each_entry(i, &dma_hash[hash(&key)], list) {
+-			/* Don't send to ourselves. */
+-			if (i->guestid == lg->guestid)
++			/* Don't send to ourselves (would deadlock). */
++			if (i->owner->mm == lg->mm)
+ 				continue;
+ 			if (!key_eq(&key, &i->key))
+ 				continue;
+@@ -594,7 +594,7 @@ unsigned long get_dma_buffer(struct lgue
+ 	 * send to its own Guest for the moment, so the entry must be for this
+ 	 * Guest) */
+ 	list_for_each_entry(i, &dma_hash[hash(&key)], list) {
+-		if (key_eq(&key, &i->key) && i->guestid == lg->guestid) {
++		if (key_eq(&key, &i->key) && i->owner == lg) {
+ 			unsigned int j;
+ 			/* Look through the registered DMA array for an
+ 			 * available buffer. */
+===================================================================
+--- a/drivers/lguest/lg.h
++++ b/drivers/lguest/lg.h
+@@ -52,9 +52,9 @@ struct lguest_dma_info
+ 	struct list_head list;
+ 	union futex_key key;
+ 	unsigned long dmas;
++	struct lguest *owner;
+ 	u16 next_dma;
+ 	u16 num_dmas;
+-	u16 guestid;
+ 	u8 interrupt; 	/* 0 when not registered */
  };
- extern struct lguest_data lguest_data;
- #endif /* __ASSEMBLY__ */
--#endif	/* _ASM_LGUEST_H */
-+#endif	/* _LINUX_LGUEST_H */
+ 
+@@ -141,7 +141,6 @@ struct lguest
+ 	struct lguest_data __user *lguest_data;
+ 	struct task_struct *tsk;
+ 	struct mm_struct *mm; 	/* == tsk->mm, but that becomes NULL on exit */
+-	u16 guestid;
+ 	u32 pfn_limit;
+ 	/* This provides the offset to the base of guest-physical
+ 	 * memory in the Launcher. */
+@@ -196,7 +195,6 @@ struct lguest
+ 	DECLARE_BITMAP(irqs_pending, LGUEST_IRQS);
+ };
+ 
+-extern struct lguest lguests[];
+ extern struct mutex lguest_lock;
+ 
+ /* core.c: */
+@@ -204,7 +202,6 @@ void lgwrite_u32(struct lguest *lg, unsi
+ void lgwrite_u32(struct lguest *lg, unsigned long addr, u32 val);
+ void lgread(struct lguest *lg, void *buf, unsigned long addr, unsigned len);
+ void lgwrite(struct lguest *lg, unsigned long, const void *buf, unsigned len);
+-int find_free_guest(void);
+ int lguest_address_ok(const struct lguest *lg,
+ 		      unsigned long addr, unsigned long len);
+ int run_guest(struct lguest *lg, unsigned long __user *user);
+===================================================================
+--- a/drivers/lguest/lguest_user.c
++++ b/drivers/lguest/lguest_user.c
+@@ -167,11 +167,11 @@ static int initialize(struct file *file,
+ 	/* "struct lguest" contains everything we (the Host) know about a
+ 	 * Guest. */
+ 	struct lguest *lg;
+-	int err, i;
++	int err;
+ 	u32 args[5];
+ 
+-	/* We grab the Big Lguest lock, which protects the global array
+-	 * "lguests" and multiple simultaneous initializations. */
++	/* We grab the Big Lguest lock, which protects against multiple
++	 * simultaneous initializations. */
+ 	mutex_lock(&lguest_lock);
+ 	/* You can't initialize twice!  Close the device and start again... */
+ 	if (file->private_data) {
+@@ -184,18 +184,13 @@ static int initialize(struct file *file,
+ 		goto unlock;
+ 	}
+ 
+-	/* Find an unused guest. */
+-	i = find_free_guest();
+-	if (i < 0) {
+-		err = -ENOSPC;
++	lg = kzalloc(sizeof(*lg), GFP_KERNEL);
++	if (!lg) {
++		err = -ENOMEM;
+ 		goto unlock;
+ 	}
+-	/* OK, we have an index into the "lguest" array: "lg" is a convenient
+-	 * pointer. */
+-	lg = &lguests[i];
+ 
+ 	/* Populate the easy fields of our "struct lguest" */
+-	lg->guestid = i;
+ 	lg->mem_base = (void __user *)(long)args[0];
+ 	lg->pfn_limit = args[1];
+ 	lg->page_offset = args[4];
+===================================================================
+--- a/drivers/net/lguest_net.c
++++ b/drivers/net/lguest_net.c
+@@ -465,12 +465,7 @@ static int lguestnet_probe(struct lguest
+ 	/* Ethernet defaults with some changes */
+ 	ether_setup(dev);
+ 	dev->set_mac_address = NULL;
+-
+-	dev->dev_addr[0] = 0x02; /* set local assignment bit (IEEE802) */
+-	dev->dev_addr[1] = 0x00;
+-	memcpy(&dev->dev_addr[2], &lguest_data.guestid, 2);
+-	dev->dev_addr[4] = 0x00;
+-	dev->dev_addr[5] = 0x00;
++	random_ether_addr(dev->dev_addr);
+ 
+ 	dev->open = lguestnet_open;
+ 	dev->stop = lguestnet_close;
+===================================================================
+--- a/include/linux/lguest.h
++++ b/include/linux/lguest.h
+@@ -41,8 +41,6 @@ struct lguest_data
+ /* Fields initialized by the Host at boot: */
+ 	/* Memory not to try to access */
+ 	unsigned long reserve_mem;
+-	/* ID of this Guest (used by network driver to set ethernet address) */
+-	u16 guestid;
+ 	/* KHz for the TSC clock. */
+ 	u32 tsc_khz;
+ 
 
 --
    there are those who do and those who hang on and you don't see too
