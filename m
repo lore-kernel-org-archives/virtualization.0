@@ -1,10 +1,11 @@
 From: rusty@rustcorp.com.au
-Subject: [patch 30/43] lguest: Allow guest to specify syscall vector to use.
-Date: Wed, 26 Sep 2007 16:36:48 +1000
-Message-ID: <20070926063650.531824582@rustcorp.com.au>
+Subject: [patch 24/43] lguest: Change example launcher to use unsigned long
+	not u32
+Date: Wed, 26 Sep 2007 16:36:42 +1000
+Message-ID: <20070926063649.450909013@rustcorp.com.au>
 References: <20070926063618.956228976@rustcorp.com.au>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=plan9-syscall.patch
+Content-Disposition: inline; filename=lg-user-datatypes.diff
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,212 +16,215 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: lguest@ozlabs.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-(Based on Ron Minnich's LGUEST_PLAN9_SYSCALL patch).
+Apply Clue 2x4 to lguest userland<->kernel handling code and the
+lguest launcher. Pointers are not to be passed in u32's!
 
-This patch allows Guests to specify what system call vector they want,
-and we try to reserve it.  We only allow one non-Linux system call
-vector, to try to avoid DoS on the Host.
+Basic rule of thumb: Anything passing u32's back and forth should be
+passing unsigned longs to be portable to 64 bit archs.
 
+For those who forgotten already, I repeat: NO POINTERS IN u32!
+
+Signed-off-by: Jes Sorensen <jes@sgi.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
 ---
- arch/i386/lguest/boot.c               |    1 
- drivers/lguest/core.c                 |   30 +++++++++++++-------
- drivers/lguest/i386_core.c            |    4 ++
- drivers/lguest/interrupts_and_traps.c |   49 ++++++++++++++++++++++++++++++++-
- drivers/lguest/lg.h                   |    3 ++
- include/linux/lguest.h                |    3 ++
- 6 files changed, 79 insertions(+), 11 deletions(-)
+ Documentation/lguest/lguest.c |   29 +++++++++++++++--------------
+ drivers/lguest/lguest_user.c  |   33 +++++++++++++++++----------------
+ 2 files changed, 32 insertions(+), 30 deletions(-)
 
 ===================================================================
---- a/drivers/lguest/core.c
-+++ b/drivers/lguest/core.c
-@@ -281,37 +281,47 @@ static int __init init(void)
- 	/* First we put the Switcher up in very high virtual memory. */
- 	err = map_switcher();
- 	if (err)
--		return err;
-+		goto out;
- 
- 	/* Now we set up the pagetable implementation for the Guests. */
- 	err = init_pagetables(switcher_page, SHARED_SWITCHER_PAGES);
--	if (err) {
--		unmap_switcher();
--		return err;
--	}
-+	if (err)
-+		goto unmap;
- 
- 	/* The I/O subsystem needs some things initialized. */
- 	lguest_io_init();
- 
-+	/* We might need to reserve an interrupt vector. */
-+	err = init_interrupts();
-+	if (err)
-+		goto free_pgtables;
-+
- 	/* /dev/lguest needs to be registered. */
- 	err = lguest_device_init();
--	if (err) {
--		free_pagetables();
--		unmap_switcher();
--		return err;
--	}
-+	if (err)
-+		goto free_interrupts;
- 
- 	/* Finally we do some architecture-specific setup. */
- 	lguest_arch_host_init();
- 
- 	/* All good! */
- 	return 0;
-+
-+free_interrupts:
-+	free_interrupts();
-+free_pgtables:
-+	free_pagetables();
-+unmap:
-+	unmap_switcher();
-+out:
-+	return err;
- }
- 
- /* Cleaning up is just the same code, backwards.  With a little French. */
- static void __exit fini(void)
+--- a/Documentation/lguest/lguest.c
++++ b/Documentation/lguest/lguest.c
+@@ -473,9 +473,9 @@ static unsigned long setup_pagetables(un
+ 				      unsigned long initrd_size,
+ 				      unsigned long page_offset)
  {
- 	lguest_device_remove();
-+	free_interrupts();
- 	free_pagetables();
- 	unmap_switcher();
+-	u32 *pgdir, *linear;
++	unsigned long *pgdir, *linear;
+ 	unsigned int mapped_pages, i, linear_pages;
+-	unsigned int ptes_per_page = getpagesize()/sizeof(u32);
++	unsigned int ptes_per_page = getpagesize()/sizeof(void *);
+ 
+ 	/* Ideally we map all physical memory starting at page_offset.
+ 	 * However, if page_offset is 0xC0000000 we can only map 1G of physical
+@@ -505,7 +505,7 @@ static unsigned long setup_pagetables(un
+ 	 * continue from there. */
+ 	for (i = 0; i < mapped_pages; i += ptes_per_page) {
+ 		pgdir[(i + page_offset/getpagesize())/ptes_per_page]
+-			= ((to_guest_phys(linear) + i*sizeof(u32))
++			= ((to_guest_phys(linear) + i*sizeof(void *))
+ 			   | PAGE_PRESENT);
+ 	}
+ 
+@@ -537,12 +537,13 @@ static void concat(char *dst, char *args
+  * the base of guest "physical" memory, the top physical page to allow, the
+  * top level pagetable, the entry point and the page_offset constant for the
+  * Guest. */
+-static int tell_kernel(u32 pgdir, u32 start, u32 page_offset)
+-{
+-	u32 args[] = { LHREQ_INITIALIZE,
+-		       (unsigned long)guest_base,
+-		       guest_limit / getpagesize(),
+-		       pgdir, start, page_offset };
++static int tell_kernel(unsigned long pgdir, unsigned long start,
++		       unsigned long page_offset)
++{
++	unsigned long args[] = { LHREQ_INITIALIZE,
++				 (unsigned long)guest_base,
++				 guest_limit / getpagesize(),
++				 pgdir, start, page_offset };
+ 	int fd;
+ 
+ 	verbose("Guest: %p - %p (%#lx)\n",
+@@ -586,7 +587,7 @@ static void wake_parent(int pipefd, int 
+ 
+ 	for (;;) {
+ 		fd_set rfds = devices->infds;
+-		u32 args[] = { LHREQ_BREAK, 1 };
++		unsigned long args[] = { LHREQ_BREAK, 1 };
+ 
+ 		/* Wait until input is ready from one of the devices. */
+ 		select(devices->max_infd+1, &rfds, NULL, NULL, NULL);
+@@ -684,7 +685,7 @@ static u32 *get_dma_buffer(int fd, void 
+ static u32 *get_dma_buffer(int fd, void *key,
+ 			   struct iovec iov[], unsigned int *num, u32 *irq)
+ {
+-	u32 buf[] = { LHREQ_GETDMA, to_guest_phys(key) };
++	unsigned long buf[] = { LHREQ_GETDMA, to_guest_phys(key) };
+ 	unsigned long udma;
+ 	u32 *res;
+ 
+@@ -705,7 +706,7 @@ static u32 *get_dma_buffer(int fd, void 
+ /* This is a convenient routine to send the Guest an interrupt. */
+ static void trigger_irq(int fd, u32 irq)
+ {
+-	u32 buf[] = { LHREQ_IRQ, irq };
++	unsigned long buf[] = { LHREQ_IRQ, irq };
+ 	if (write(fd, buf, sizeof(buf)) != 0)
+ 		err(1, "Triggering irq %i", irq);
+ }
+@@ -787,7 +788,7 @@ static bool handle_console_input(int fd,
+ 			struct timeval now;
+ 			gettimeofday(&now, NULL);
+ 			if (now.tv_sec <= abort->start.tv_sec+1) {
+-				u32 args[] = { LHREQ_BREAK, 0 };
++				unsigned long args[] = { LHREQ_BREAK, 0 };
+ 				/* Close the fd so Waker will know it has to
+ 				 * exit. */
+ 				close(waker_fd);
+@@ -1365,7 +1366,7 @@ run_guest(int lguest_fd, struct device_l
+ run_guest(int lguest_fd, struct device_list *device_list)
+ {
+ 	for (;;) {
+-		u32 args[] = { LHREQ_BREAK, 0 };
++		unsigned long args[] = { LHREQ_BREAK, 0 };
+ 		unsigned long arr[2];
+ 		int readval;
  
 ===================================================================
---- a/drivers/lguest/i386_core.c
-+++ b/drivers/lguest/i386_core.c
-@@ -530,6 +530,10 @@ int lguest_arch_init_hypercalls(struct l
- 	if (put_user(tsc_speed, &lg->lguest_data->tsc_khz))
+--- a/drivers/lguest/lguest_user.c
++++ b/drivers/lguest/lguest_user.c
+@@ -43,7 +43,7 @@ static void setup_regs(struct lguest_reg
+ /*L:310 To send DMA into the Guest, the Launcher needs to be able to ask for a
+  * DMA buffer.  This is done by writing LHREQ_GETDMA and the key to
+  * /dev/lguest. */
+-static long user_get_dma(struct lguest *lg, const u32 __user *input)
++static long user_get_dma(struct lguest *lg, const unsigned long __user *input)
+ {
+ 	unsigned long key, udma, irq;
+ 
+@@ -67,7 +67,7 @@ static long user_get_dma(struct lguest *
+ /*L:315 To force the Guest to stop running and return to the Launcher, the
+  * Waker sets writes LHREQ_BREAK and the value "1" to /dev/lguest.  The
+  * Launcher then writes LHREQ_BREAK and "0" to release the Waker. */
+-static int break_guest_out(struct lguest *lg, const u32 __user *input)
++static int break_guest_out(struct lguest *lg, const unsigned long __user *input)
+ {
+ 	unsigned long on;
+ 
+@@ -90,9 +90,9 @@ static int break_guest_out(struct lguest
+ 
+ /*L:050 Sending an interrupt is done by writing LHREQ_IRQ and an interrupt
+  * number to /dev/lguest. */
+-static int user_send_irq(struct lguest *lg, const u32 __user *input)
+-{
+-	u32 irq;
++static int user_send_irq(struct lguest *lg, const unsigned long __user *input)
++{
++	unsigned long irq;
+ 
+ 	if (get_user(irq, input) != 0)
  		return -EFAULT;
- 
-+	/* The interrupt code might not like the system call vector. */
-+	if (!check_syscall_vector(lg))
-+		kill_guest(lg, "bad syscall vector");
-+
- 	return 0;
+@@ -142,8 +142,8 @@ static ssize_t read(struct file *file, c
+ 	return run_guest(lg, (unsigned long __user *)user);
  }
- /* Now we've examined the hypercall code; our Guest can make requests.  There
-===================================================================
---- a/arch/i386/lguest/boot.c
-+++ b/arch/i386/lguest/boot.c
-@@ -87,6 +87,7 @@ struct lguest_data lguest_data = {
- 	.noirq_start = (u32)lguest_noirq_start,
- 	.noirq_end = (u32)lguest_noirq_end,
- 	.blocked_interrupts = { 1 }, /* Block timer interrupts */
-+	.syscall_vec = SYSCALL_VECTOR,
- };
- static cycle_t clock_base;
  
-===================================================================
---- a/drivers/lguest/interrupts_and_traps.c
-+++ b/drivers/lguest/interrupts_and_traps.c
-@@ -12,7 +12,13 @@
-  * them first, so we also have a way of "reflecting" them into the Guest as if
-  * they had been delivered to it directly. :*/
- #include <linux/uaccess.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
- #include "lg.h"
-+
-+/* Allow Guests to use a non-128 (ie. non-Linux) syscall trap. */
-+static unsigned int syscall_vector = SYSCALL_VECTOR;
-+module_param(syscall_vector, uint, 0444);
- 
- /* The address of the interrupt handler is split into two bits: */
- static unsigned long idt_address(u32 lo, u32 hi)
-@@ -183,6 +189,47 @@ void maybe_do_interrupt(struct lguest *l
- 	 * timer interrupt. */
- 	write_timestamp(lg);
- }
-+/*:*/
-+
-+/* Linux uses trap 128 for system calls.  Plan9 uses 64, and Ron Minnich sent
-+ * me a patch, so we support that too.  It'd be a big step for lguest if half
-+ * the Plan 9 user base were to start using it.
-+ *
-+ * Actually now I think of it, it's possible that Ron *is* half the Plan 9
-+ * userbase.  Oh well. */
-+static bool could_be_syscall(unsigned int num)
-+{
-+	/* Normal Linux SYSCALL_VECTOR or reserved vector? */
-+	return num == SYSCALL_VECTOR || num == syscall_vector;
-+}
-+
-+/* The syscall vector it wants must be unused by Host. */
-+bool check_syscall_vector(struct lguest *lg)
-+{
-+	u32 vector;
-+
-+	if (get_user(vector, &lg->lguest_data->syscall_vec))
-+		return false;
-+
-+	return could_be_syscall(vector);
-+}
-+
-+int init_interrupts(void)
-+{
-+	/* If they want some strange system call vector, reserve it now */
-+	if (syscall_vector != SYSCALL_VECTOR
-+	    && test_and_set_bit(syscall_vector, used_vectors)) {
-+		printk("lg: couldn't reserve syscall %u\n", syscall_vector);
-+		return -EBUSY;
-+	}
-+	return 0;
-+}
-+
-+void free_interrupts(void)
-+{
-+	if (syscall_vector != SYSCALL_VECTOR)
-+		clear_bit(syscall_vector, used_vectors);
-+}
- 
- /*H:220 Now we've got the routines to deliver interrupts, delivering traps
-  * like page fault is easy.  The only trick is that Intel decided that some
-@@ -224,7 +271,7 @@ static int direct_trap(unsigned int num)
+-/*L:020 The initialization write supplies 5 32-bit values (in addition to the
+- * 32-bit LHREQ_INITIALIZE value).  These are:
++/*L:020 The initialization write supplies 5 pointer sized (32 or 64 bit)
++ * values (in addition to the LHREQ_INITIALIZE value).  These are:
+  *
+  * base: The start of the Guest-physical memory inside the Launcher memory.
+  *
+@@ -162,13 +162,13 @@ static ssize_t read(struct file *file, c
+  * quickly converted from physical to virtual by adding PAGE_OFFSET.  It's
+  * 0xC0000000 (3G) by default, but it's configurable at kernel build time.
+  */
+-static int initialize(struct file *file, const u32 __user *input)
++static int initialize(struct file *file, const unsigned long __user *input)
  {
- 	/* Hardware interrupts don't go to the Guest at all (except system
- 	 * call). */
--	if (num >= FIRST_EXTERNAL_VECTOR && num != SYSCALL_VECTOR)
-+	if (num >= FIRST_EXTERNAL_VECTOR && !could_be_syscall(num))
- 		return 0;
+ 	/* "struct lguest" contains everything we (the Host) know about a
+ 	 * Guest. */
+ 	struct lguest *lg;
+ 	int err;
+-	u32 args[5];
++	unsigned long args[5];
  
- 	/* The Host needs to see page faults (for shadow paging and to save the
-===================================================================
---- a/drivers/lguest/lg.h
-+++ b/drivers/lguest/lg.h
-@@ -142,6 +142,9 @@ void copy_traps(const struct lguest *lg,
- 		const unsigned long *def);
- void guest_set_clockevent(struct lguest *lg, unsigned long delta);
- void init_clockdev(struct lguest *lg);
-+bool check_syscall_vector(struct lguest *lg);
-+int init_interrupts(void);
-+void free_interrupts(void);
+ 	/* We grab the Big Lguest lock, which protects against multiple
+ 	 * simultaneous initializations. */
+@@ -259,17 +259,18 @@ unlock:
+  * start with a 32 bit number: for the first write this must be
+  * LHREQ_INITIALIZE to set up the Guest.  After that the Launcher can use
+  * writes of other values to get DMA buffers and send interrupts. */
+-static ssize_t write(struct file *file, const char __user *input,
++static ssize_t write(struct file *file, const char __user *in,
+ 		     size_t size, loff_t *off)
+ {
+ 	/* Once the guest is initialized, we hold the "struct lguest" in the
+ 	 * file private data. */
+ 	struct lguest *lg = file->private_data;
+-	u32 req;
++	const unsigned long __user *input = (const unsigned long __user *)in;
++	unsigned long req;
  
- /* segments.c: */
- void setup_default_gdt_entries(struct lguest_ro_state *state);
-===================================================================
---- a/include/linux/lguest.h
-+++ b/include/linux/lguest.h
-@@ -48,6 +48,9 @@ struct lguest_data
- /* Fields initialized by the Guest at boot: */
- 	/* Instruction range to suppress interrupts even if enabled */
- 	unsigned long noirq_start, noirq_end;
-+
-+	/* The vector to try to use for system calls (0x40 or 0x80). */
-+	unsigned int syscall_vec;
- };
- extern struct lguest_data lguest_data;
- #endif /* __ASSEMBLY__ */
+ 	if (get_user(req, input) != 0)
+ 		return -EFAULT;
+-	input += sizeof(req);
++	input++;
+ 
+ 	/* If you haven't initialized, you must do that first. */
+ 	if (req != LHREQ_INITIALIZE && !lg)
+@@ -285,13 +286,13 @@ static ssize_t write(struct file *file, 
+ 
+ 	switch (req) {
+ 	case LHREQ_INITIALIZE:
+-		return initialize(file, (const u32 __user *)input);
++		return initialize(file, input);
+ 	case LHREQ_GETDMA:
+-		return user_get_dma(lg, (const u32 __user *)input);
++		return user_get_dma(lg, input);
+ 	case LHREQ_IRQ:
+-		return user_send_irq(lg, (const u32 __user *)input);
++		return user_send_irq(lg, input);
+ 	case LHREQ_BREAK:
+-		return break_guest_out(lg, (const u32 __user *)input);
++		return break_guest_out(lg, input);
+ 	default:
+ 		return -EINVAL;
+ 	}
 
 --
    there are those who do and those who hang on and you don't see too
