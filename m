@@ -1,11 +1,10 @@
 From: rusty@rustcorp.com.au
-Subject: [patch 19/43] lguest: Make shadow IDT a complete IDT with 256
-	entries.
-Date: Wed, 26 Sep 2007 16:36:37 +1000
-Message-ID: <20070926063648.539814423@rustcorp.com.au>
+Subject: [patch 30/43] lguest: Allow guest to specify syscall vector to use.
+Date: Wed, 26 Sep 2007 16:36:48 +1000
+Message-ID: <20070926063650.531824582@rustcorp.com.au>
 References: <20070926063618.956228976@rustcorp.com.au>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=idt-flat.patch
+Content-Disposition: inline; filename=plan9-syscall.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,114 +18,209 @@ To: lguest@ozlabs.org
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This simplifies the code a little, in preparation for allowing
-alternate system call vectors in guests (Plan 9 uses 0x40).
+(Based on Ron Minnich's LGUEST_PLAN9_SYSCALL patch).
+
+This patch allows Guests to specify what system call vector they want,
+and we try to reserve it.  We only allow one non-Linux system call
+vector, to try to avoid DoS on the Host.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
 ---
- drivers/lguest/interrupts_and_traps.c |   49 ++++++++++++---------------------
- drivers/lguest/lg.h                   |    3 --
- 2 files changed, 20 insertions(+), 32 deletions(-)
+ arch/i386/lguest/boot.c               |    1 
+ drivers/lguest/core.c                 |   30 +++++++++++++-------
+ drivers/lguest/i386_core.c            |    4 ++
+ drivers/lguest/interrupts_and_traps.c |   49 ++++++++++++++++++++++++++++++++-
+ drivers/lguest/lg.h                   |    3 ++
+ include/linux/lguest.h                |    3 ++
+ 6 files changed, 79 insertions(+), 11 deletions(-)
 
+===================================================================
+--- a/drivers/lguest/core.c
++++ b/drivers/lguest/core.c
+@@ -281,37 +281,47 @@ static int __init init(void)
+ 	/* First we put the Switcher up in very high virtual memory. */
+ 	err = map_switcher();
+ 	if (err)
+-		return err;
++		goto out;
+ 
+ 	/* Now we set up the pagetable implementation for the Guests. */
+ 	err = init_pagetables(switcher_page, SHARED_SWITCHER_PAGES);
+-	if (err) {
+-		unmap_switcher();
+-		return err;
+-	}
++	if (err)
++		goto unmap;
+ 
+ 	/* The I/O subsystem needs some things initialized. */
+ 	lguest_io_init();
+ 
++	/* We might need to reserve an interrupt vector. */
++	err = init_interrupts();
++	if (err)
++		goto free_pgtables;
++
+ 	/* /dev/lguest needs to be registered. */
+ 	err = lguest_device_init();
+-	if (err) {
+-		free_pagetables();
+-		unmap_switcher();
+-		return err;
+-	}
++	if (err)
++		goto free_interrupts;
+ 
+ 	/* Finally we do some architecture-specific setup. */
+ 	lguest_arch_host_init();
+ 
+ 	/* All good! */
+ 	return 0;
++
++free_interrupts:
++	free_interrupts();
++free_pgtables:
++	free_pagetables();
++unmap:
++	unmap_switcher();
++out:
++	return err;
+ }
+ 
+ /* Cleaning up is just the same code, backwards.  With a little French. */
+ static void __exit fini(void)
+ {
+ 	lguest_device_remove();
++	free_interrupts();
+ 	free_pagetables();
+ 	unmap_switcher();
+ 
+===================================================================
+--- a/drivers/lguest/i386_core.c
++++ b/drivers/lguest/i386_core.c
+@@ -530,6 +530,10 @@ int lguest_arch_init_hypercalls(struct l
+ 	if (put_user(tsc_speed, &lg->lguest_data->tsc_khz))
+ 		return -EFAULT;
+ 
++	/* The interrupt code might not like the system call vector. */
++	if (!check_syscall_vector(lg))
++		kill_guest(lg, "bad syscall vector");
++
+ 	return 0;
+ }
+ /* Now we've examined the hypercall code; our Guest can make requests.  There
+===================================================================
+--- a/arch/i386/lguest/boot.c
++++ b/arch/i386/lguest/boot.c
+@@ -87,6 +87,7 @@ struct lguest_data lguest_data = {
+ 	.noirq_start = (u32)lguest_noirq_start,
+ 	.noirq_end = (u32)lguest_noirq_end,
+ 	.blocked_interrupts = { 1 }, /* Block timer interrupts */
++	.syscall_vec = SYSCALL_VECTOR,
+ };
+ static cycle_t clock_base;
+ 
 ===================================================================
 --- a/drivers/lguest/interrupts_and_traps.c
 +++ b/drivers/lguest/interrupts_and_traps.c
-@@ -215,10 +215,9 @@ int deliver_trap(struct lguest *lg, unsi
-  * system calls down from 1750ns to 270ns.  Plus, if lguest didn't do it, all
-  * the other hypervisors would tease it.
-  *
-- * This routine determines if a trap can be delivered directly. */
--static int direct_trap(const struct lguest *lg,
--		       const struct desc_struct *trap,
--		       unsigned int num)
-+ * This routine indicates if a particular trap number could be delivered
-+ * directly. */
-+static int direct_trap(unsigned int num)
+@@ -12,7 +12,13 @@
+  * them first, so we also have a way of "reflecting" them into the Guest as if
+  * they had been delivered to it directly. :*/
+ #include <linux/uaccess.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
+ #include "lg.h"
++
++/* Allow Guests to use a non-128 (ie. non-Linux) syscall trap. */
++static unsigned int syscall_vector = SYSCALL_VECTOR;
++module_param(syscall_vector, uint, 0444);
+ 
+ /* The address of the interrupt handler is split into two bits: */
+ static unsigned long idt_address(u32 lo, u32 hi)
+@@ -183,6 +189,47 @@ void maybe_do_interrupt(struct lguest *l
+ 	 * timer interrupt. */
+ 	write_timestamp(lg);
+ }
++/*:*/
++
++/* Linux uses trap 128 for system calls.  Plan9 uses 64, and Ron Minnich sent
++ * me a patch, so we support that too.  It'd be a big step for lguest if half
++ * the Plan 9 user base were to start using it.
++ *
++ * Actually now I think of it, it's possible that Ron *is* half the Plan 9
++ * userbase.  Oh well. */
++static bool could_be_syscall(unsigned int num)
++{
++	/* Normal Linux SYSCALL_VECTOR or reserved vector? */
++	return num == SYSCALL_VECTOR || num == syscall_vector;
++}
++
++/* The syscall vector it wants must be unused by Host. */
++bool check_syscall_vector(struct lguest *lg)
++{
++	u32 vector;
++
++	if (get_user(vector, &lg->lguest_data->syscall_vec))
++		return false;
++
++	return could_be_syscall(vector);
++}
++
++int init_interrupts(void)
++{
++	/* If they want some strange system call vector, reserve it now */
++	if (syscall_vector != SYSCALL_VECTOR
++	    && test_and_set_bit(syscall_vector, used_vectors)) {
++		printk("lg: couldn't reserve syscall %u\n", syscall_vector);
++		return -EBUSY;
++	}
++	return 0;
++}
++
++void free_interrupts(void)
++{
++	if (syscall_vector != SYSCALL_VECTOR)
++		clear_bit(syscall_vector, used_vectors);
++}
+ 
+ /*H:220 Now we've got the routines to deliver interrupts, delivering traps
+  * like page fault is easy.  The only trick is that Intel decided that some
+@@ -224,7 +271,7 @@ static int direct_trap(unsigned int num)
  {
  	/* Hardware interrupts don't go to the Guest at all (except system
  	 * call). */
-@@ -229,14 +228,7 @@ static int direct_trap(const struct lgue
- 	 * fault address), general protection faults (in/out emulation) and
- 	 * device not available (TS handling), and of course, the hypercall
- 	 * trap. */
--	if (num == 14 || num == 13 || num == 7 || num == LGUEST_TRAP_ENTRY)
--		return 0;
--
--	/* Only trap gates (type 15) can go direct to the Guest.  Interrupt
--	 * gates (type 14) disable interrupts as they are entered, which we
--	 * never let the Guest do.  Not present entries (type 0x0) also can't
--	 * go direct, of course 8) */
--	return idt_type(trap->a, trap->b) == 0xF;
-+	return num != 14 && num != 13 && num != 7 && num != LGUEST_TRAP_ENTRY;
- }
- /*:*/
+-	if (num >= FIRST_EXTERNAL_VECTOR && num != SYSCALL_VECTOR)
++	if (num >= FIRST_EXTERNAL_VECTOR && !could_be_syscall(num))
+ 		return 0;
  
-@@ -342,15 +334,11 @@ void load_guest_idt_entry(struct lguest 
- 	 * to copy this again. */
- 	lg->changed |= CHANGED_IDT;
- 
--	/* The IDT which we keep in "struct lguest" only contains 32 entries
--	 * for the traps and LGUEST_IRQS (32) entries for interrupts.  We
--	 * ignore attempts to set handlers for higher interrupt numbers, except
--	 * for the system call "interrupt" at 128: we have a special IDT entry
--	 * for that. */
--	if (num < ARRAY_SIZE(lg->idt))
-+	/* Check that the Guest doesn't try to step outside the bounds. */
-+	if (num >= ARRAY_SIZE(lg->idt))
-+		kill_guest(lg, "Setting idt entry %u", num);
-+	else
- 		set_trap(lg, &lg->idt[num], num, lo, hi);
--	else if (num == SYSCALL_VECTOR)
--		set_trap(lg, &lg->syscall_idt, num, lo, hi);
- }
- 
- /* The default entry for each interrupt points into the Switcher routines which
-@@ -393,20 +381,21 @@ void copy_traps(const struct lguest *lg,
- 
- 	/* We can simply copy the direct traps, otherwise we use the default
- 	 * ones in the Switcher: they will return to the Host. */
--	for (i = 0; i < FIRST_EXTERNAL_VECTOR; i++) {
--		if (direct_trap(lg, &lg->idt[i], i))
-+	for (i = 0; i < ARRAY_SIZE(lg->idt); i++) {
-+		/* If no Guest can ever override this trap, leave it alone. */
-+		if (!direct_trap(i))
-+			continue;
-+
-+		/* Only trap gates (type 15) can go direct to the Guest.
-+		 * Interrupt gates (type 14) disable interrupts as they are
-+		 * entered, which we never let the Guest do.  Not present
-+		 * entries (type 0x0) also can't go direct, of course. */
-+		if (idt_type(lg->idt[i].a, lg->idt[i].b) == 0xF)
- 			idt[i] = lg->idt[i];
- 		else
-+			/* Reset it to the default. */
- 			default_idt_entry(&idt[i], i, def[i]);
- 	}
--
--	/* Don't forget the system call trap!  The IDT entries for other
--	 * interupts never change, so no need to copy them. */
--	i = SYSCALL_VECTOR;
--	if (direct_trap(lg, &lg->syscall_idt, i))
--		idt[i] = lg->syscall_idt;
--	else
--		default_idt_entry(&idt[i], i, def[i]);
- }
- 
- void guest_set_clockevent(struct lguest *lg, unsigned long delta)
+ 	/* The Host needs to see page faults (for shadow paging and to save the
 ===================================================================
 --- a/drivers/lguest/lg.h
 +++ b/drivers/lguest/lg.h
-@@ -183,8 +183,7 @@ struct lguest
- 	struct desc_struct gdt[GDT_ENTRIES];
+@@ -142,6 +142,9 @@ void copy_traps(const struct lguest *lg,
+ 		const unsigned long *def);
+ void guest_set_clockevent(struct lguest *lg, unsigned long delta);
+ void init_clockdev(struct lguest *lg);
++bool check_syscall_vector(struct lguest *lg);
++int init_interrupts(void);
++void free_interrupts(void);
  
- 	/* The IDT entries: some copied into lguest_ro_state when running. */
--	struct desc_struct idt[FIRST_EXTERNAL_VECTOR+LGUEST_IRQS];
--	struct desc_struct syscall_idt;
-+	struct desc_struct idt[IDT_ENTRIES];
- 
- 	/* Virtual clock device */
- 	struct hrtimer hrt;
+ /* segments.c: */
+ void setup_default_gdt_entries(struct lguest_ro_state *state);
+===================================================================
+--- a/include/linux/lguest.h
++++ b/include/linux/lguest.h
+@@ -48,6 +48,9 @@ struct lguest_data
+ /* Fields initialized by the Guest at boot: */
+ 	/* Instruction range to suppress interrupts even if enabled */
+ 	unsigned long noirq_start, noirq_end;
++
++	/* The vector to try to use for system calls (0x40 or 0x80). */
++	unsigned int syscall_vec;
+ };
+ extern struct lguest_data lguest_data;
+ #endif /* __ASSEMBLY__ */
 
 --
    there are those who do and those who hang on and you don't see too
