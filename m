@@ -1,10 +1,11 @@
 From: rusty@rustcorp.com.au
-Subject: [patch 02/43] lguest: fix modules oopsing in lguest guests
-Date: Wed, 26 Sep 2007 16:36:20 +1000
-Message-ID: <20070926063645.187987684@rustcorp.com.au>
+Subject: [patch 04/43] lguest: Consolidate host virtualization support under
+	Virtualization menu
+Date: Wed, 26 Sep 2007 16:36:22 +1000
+Message-ID: <20070926063645.637566207@rustcorp.com.au>
 References: <20070926063618.956228976@rustcorp.com.au>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=lguest-module-patch-fix.patch
+Content-Disposition: inline; filename=kconfig-virtualization.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,39 +19,38 @@ To: lguest@ozlabs.org
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The assembly templates for lguest guest patching are in the .init.text
-section.  This means that modules get patched with "cc cc cc cc" or
-similar junk.
+Move lguest under the virtualization menu.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
+Cc: Avi Kivity <avi@qumranet.com>
 ---
- drivers/lguest/lguest_asm.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/Kconfig     |    2 --
+ drivers/kvm/Kconfig |    6 +++++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
 ===================================================================
---- a/drivers/lguest/lguest_asm.S
-+++ b/drivers/lguest/lguest_asm.S
-@@ -22,8 +22,9 @@
- 	jmp lguest_init
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -87,6 +87,4 @@ source "drivers/kvm/Kconfig"
+ source "drivers/kvm/Kconfig"
  
- /*G:055 We create a macro which puts the assembler code between lgstart_ and
-- * lgend_ markers.  These templates end up in the .init.text section, so they
-- * are discarded after boot. */
-+ * lgend_ markers.  These templates are put in the .text section: they can't be
-+ * discarded after boot as we may need to patch modules, too. */
-+.text
- #define LGUEST_PATCH(name, insns...)			\
- 	lgstart_##name:	insns; lgend_##name:;		\
- 	.globl lgstart_##name; .globl lgend_##name
-@@ -34,7 +35,6 @@ LGUEST_PATCH(pushf, movl lguest_data+LGU
- LGUEST_PATCH(pushf, movl lguest_data+LGUEST_DATA_irq_enabled, %eax)
- /*:*/
+ source "drivers/uio/Kconfig"
+-
+-source "drivers/lguest/Kconfig"
+ endmenu
+===================================================================
+--- a/drivers/kvm/Kconfig
++++ b/drivers/kvm/Kconfig
+@@ -45,4 +36,8 @@ config KVM_AMD
+ 	  Provides support for KVM on AMD processors equipped with the AMD-V
+ 	  (SVM) extensions.
  
--.text
- /* These demark the EIP range where host should never deliver interrupts. */
- .global lguest_noirq_start
- .global lguest_noirq_end
+-endif # VIRTUALIZATION
++# OK, it's a little counter-intuitive to do this, but it puts it neatly under
++# the virtualization menu.
++source drivers/lguest/Kconfig
++
++endif # VIRTUALIZATION
 
 --
    there are those who do and those who hang on and you don't see too
