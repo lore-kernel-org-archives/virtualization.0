@@ -1,62 +1,55 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH RFC] paravirt_ops: refactor struct paravirt_ops
-	into	smaller pv_*_ops
-Date: Fri, 28 Sep 2007 12:02:48 -0700
-Message-ID: <1191006168.18310.28.camel@bodhitayantram.eng.vmware.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: RE: [PATCH RFC] paravirt_ops: refactor struct paravirt_ops into smaller pv_*_ops
+Date: Fri, 28 Sep 2007 16:25:11 -0700
+Message-ID: <97D612E30E1F88419025B06CB4CF1BE10396C957@scsmsx412.amr.corp.intel.com>
 References: <46FD4388.6000106@goop.org>
-	 <1191004776.18310.16.camel@bodhitayantram.eng.vmware.com>
-	 <46FD4CA2.30402@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755684AbXI1TCi@vger.kernel.org>
-In-Reply-To: <46FD4CA2.30402@goop.org>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756161AbXI1XZ1@vger.kernel.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <46FD4388.6000106@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@suse.de>, Rusty Russell <rusty@rustcorp.com.au>, Avi Kivity <avi@qumranet.com>, Glauber de Oliveira Costa <glommer@gmail.com>, Anthony Liguori <anthony@codemonkey.ws>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Avi Kivity <avi@qumranet.com>, Gla
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-09-28 at 11:49 -0700, Jeremy Fitzhardinge wrote:
-> > We shouldn't need to export pv_init_ops.  
+Jeremy Fitzhardinge wrote:
+> This patch refactors the paravirt_ops structure into groups of
+> functionally related ops:
 > 
-> No.  The only ones I export are:
+> pv_info - random info, rather than function entrypoints
+> pv_init_ops - functions used at boot time (some for module_init too)
+> pv_misc_ops - lazy mode, which didn't fit well anywhere else
+> pv_time_ops - time-related functions
+> pv_cpu_ops - various privileged instruction ops
+> pv_irq_ops - operations for managing interrupt state
+> pv_apic_ops - APIC operations
+> pv_mmu_ops - operations for managing pagetables
 > 
-> EXPORT_SYMBOL_GPL(pv_time_ops);
-> EXPORT_SYMBOL_GPL(pv_cpu_ops);
-> EXPORT_SYMBOL_GPL(pv_mmu_ops);
-> EXPORT_SYMBOL_GPL(pv_apic_ops);
-> EXPORT_SYMBOL    (pv_irq_ops);
 
-Nicely done.  I know of some out of tree modules which use part of the
-pv_cpu_ops and pv_mmu_ops, but we should not worry about such things,
-and it turns out those modules don't need to be virtualized anyway.
+Good. These make sense to me.
 
-> 
-> 
-> > It is debatable whether
-> > CR2/CR3 should be part of CPU or MMU ops.
-> 
-> Yeah, I was in two minds.  CR3, at least, should be grouped with the
-> other tlb operations, wherever they go.  And while they're privileged
-> CPU instructions (cpu_ops), they're more logically related to the rest
-> of the mmu state.  On the other hand, we could have an ops structure
-> specifically dedicated to pagetable manipulations, and put the cr3/tlb
-> ops elsewhere.
+> +	.pv_irq_ops = {
+> +		 .init_IRQ = native_init_IRQ,
+> +		 .save_fl = native_save_fl,
+> +		 .restore_fl = native_restore_fl,
+> +		 .irq_disable = native_irq_disable,
+> +		 .irq_enable = native_irq_enable,
+> +		 .safe_halt = native_safe_halt,
+> +		 .halt = native_halt,
+> +	 },
 
-I'm not against either approach.  I think the way you did it is fine.
-If it were up to me, I would probably have driven myself crazy splitting
-hairs on it until I was bald.
+I think the halt stuff should be moved to pv_cpu_ops?
 
-> >   Also, can we drop write_cr2?
-> > It isn't used anywhere, so the only reason to keep it is symmetry.
-> > Which was a fine argument when it was an inline, but now it just adds
-> > unused junk to the code.
-> >   
-> 
-> I think its used in some cpu state save/restore code, but its not
-> relevant to pv-ops.
+> +	.pv_misc_ops = {
+> +		 .set_lazy_mode = paravirt_nop,
+> +	 },
 
-Ah yes, it is used there.  We actually exercise some of those paths, but
-they don't need to be strictly virtualized.
+Or you can split it to pv_cpu_ops and pv_mmu_ops, assuming that they
+don't need to interact with each other in terms of the lazy handling.
 
-Zach
+Jun
+---
+Intel Open Source Technology Center
