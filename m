@@ -1,16 +1,15 @@
-From: Carsten Otte <cotte@de.ibm.com>
+From: Avi Kivity <avi@qumranet.com>
 Subject: Re: [kvm-devel] [RFC] KVM Source layout Proposal to accommodate new
  CPU architecture
-Date: Fri, 28 Sep 2007 10:20:36 +0200
-Message-ID: <46FCB954.50005__43234.9268383861$1190992860$gmane$org@de.ibm.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC753A4E@pdsmsx415.ccr.corp.intel.com>
-	<46FB7566.9030504@qumranet.com>
-Reply-To: carsteno@de.ibm.com
+Date: Fri, 28 Sep 2007 19:03:46 +0200
+Message-ID: <46FD33F2.9090506__38522.1739685678$1190998485$gmane$org@qumranet.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDC753A4E@pdsmsx415.ccr.corp.intel.com>	<46FB7566.9030504@qumranet.com>	<42DFA526FC41B1429CE7279EF83C6BDC753E73@pdsmsx415.ccr.corp.intel.com>	<46FD1392.1080905@qumranet.com>
+	<42DFA526FC41B1429CE7279EF83C6BDC754031@pdsmsx415.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=GB2312
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46FB7566.9030504@qumranet.com>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC754031@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,43 +23,21 @@ To: "Zhang, Xiantao" <xiantao.zhang@intel.com>
 Cc: kvm-devel@lists.sourceforge.net, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Zhang, Xiantao wrote:
-> 	We are working on enabling KVM support on IA64 platform, and now
-> Linux, Windows guests get stable run and achieve reasonable performance
-> on KVM with Open GFW. But you know, the current KVM only considers x86
-> platform, and is short of cross-architecture framework. Currently, we
-> have a proposal for KVM source layout to accommodate new CPU
-> architectures.
-That's great. I agree that general restructure of current x86 code is 
-needed to fit different archs proper. I do strongly appreciate your 
-efforts towards this.
+Zhang, Xiantao wrote:
+> Hi Avi,
+> 	So you mean IA64 can adopt the similar method as well? 
 
-> 1. Add subdirectories, such as x86 and ia64 to hold arch-specific code.
-I would prefer Avis move to /virt prior to that. But then we'll need 
-arch specific subdirectories. I think they should go to 
-/arch/<arch>/kvm. That would involve the architecure maintainers, 
-which gives us more peer review.
+What method do you mean exactly?
 
-> 2. Split kvm_main.c to two parts. One is still called kvm_main.c, just
-> contains KVM common interfaces with user space, and basic KVM
-> infrastructure. The other one is named as kvm_arch.c under sub-directory
-> (eg. X86, ia64 etc), which includes arch-specific code to supplement the
-> functionality of kvm_main.c
-I disagree with the split you've made. I think we should try to keep 
-as much as possible common, rather then just duplicating the efforts 
-for each architecture we have. Thus, I do prefer to refine a clean 
-architecutre backend interface based on the current vmx/svm split. We 
-just need to move x86 specifics to a "kvm-x86" library, on which 
-kvm-intel, kvm-amd and maybe kvm-rusty do depend. Interfacing to there 
-needs to go via the same function vector we use for svm/vmx today.
+> But even so, I am still thinking we have to come out a solution for checking IA64 code into existing KVM upstream tree , because KVM infrastructure in mainline Linux may been a long way to go. Moreover, we also have no method to avoid the abstraction for existing code to support cross-architecture framework before what you pointed gets happen. For example, kvm_main.c is also required to split as common interface for all architectures. So, I think it has no big conflicts between our proposal and the final KVM infrastructure in mainline Linux. How about your ideas? :)
+>   
 
-> 3. Add an "include" directory in drivers/kvm. Due to possibly complex
-> code logic in KVM source, maybe many header files need to maintain for
-> some architectures. If we put them under top-level include/asm-arch
-> directory, it may introduce much more maintain effort. So, we put it
-> under "drivers/kvm", and let it be effective when kernel configuration
-> time.
-To me, they clearly belong to include/arch.
+The powerpc people had some patches to make kvm_main arch independent.
+We should work on that base.
 
-so long,
-Carsten
+To avoid a dependency on the x86 merge, we can start by working withing
+drivers/kvm/, for example creating drivers/kvm/x86.c and
+drivers/kvm/ia64.c. Later patches can move these to arch/*/.
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
