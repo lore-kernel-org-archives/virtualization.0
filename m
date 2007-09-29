@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [kvm-devel] [RFC] KVM Source layout Proposal to accommodate
-	new CPU architecture
-Date: Sat, 29 Sep 2007 23:06:51 +1000
-Message-ID: <1191071211.26950.28.camel__20660.1969003261$1191071446$gmane$org@localhost.localdomain>
-References: <42DFA526FC41B1429CE7279EF83C6BDC753A4E@pdsmsx415.ccr.corp.intel.com>
-	<46FB7566.9030504@qumranet.com>
+Subject: Re: [Lguest] [patch 34/43] lguest: Block driver using virtio.
+Date: Sat, 29 Sep 2007 23:26:17 +1000
+Message-ID: <1191072377.26950.34.camel@localhost.localdomain>
+References: <20070926063618.956228976@rustcorp.com.au>
+	<20070926063651.250184396@rustcorp.com.au>
+	<1190979156.25555.13.camel@feisty>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46FB7566.9030504@qumranet.com>
+In-Reply-To: <1190979156.25555.13.camel@feisty>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,26 +19,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: kvm-devel@lists.sourceforge.net, Sam Ravnborg <sam@ravnborg.org>, "Zhang,
-	Xiantao" <xiantao.zhang@intel.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Chris Malley <mail@chrismalley.co.uk>
+Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, Jens Axboe <jens.axboe@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2007-09-27 at 11:18 +0200, Avi Kivity wrote:
-> The whole drivers/kvm/ thing was just a trick to get merged quickly.  I
-> think the new layout should be something like
+On Fri, 2007-09-28 at 12:32 +0100, Chris Malley wrote:
+> rusty@rustcorp.com.au wrote:
+> > +	sprintf(vblk->disk->disk_name, "vd%c", virtblk_index++);
 > 
->   virt/kvm/, include/linux/kvm*.h -> common code
->   virt/lguest/ -> the other hypervisor
->   virt/virtio/ -> shared I/O infrastructure
->   virt/ -> the CONFIG_VIRTIALIZATION menu
->   arch/x86/kvm/, include/asm-x86/ -> x86 specific code
->   arch/ia64/kvm/, include/asm-ia64/ -> ia64 specific code
+> Update lguest documentation to reflect the new virtual block device name.
+> 
+> Signed-off-by: Chris Malley <mail@chrismalley.co.uk>
 
-The problem with this separation is that module source cannot span
-directories (at least, not that I could find).
+Thanks, applied!
 
-This is why lguest went for "i386_" prefix for arch separation.
-
-Cheers,
 Rusty.
