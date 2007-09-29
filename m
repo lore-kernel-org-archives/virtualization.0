@@ -1,40 +1,57 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH RFC] paravirt_ops: refactor struct paravirt_ops into smaller
- pv_*_ops
-Date: Fri, 28 Sep 2007 17:40:30 -0700
-Message-ID: <46FD9EFE.5040004@goop.org>
-References: <46FD4388.6000106@goop.org> <97D612E30E1F88419025B06CB4CF1BE10396C957@scsmsx412.amr.corp.intel.com> <46FD8FE1.4090507@goop.org> <97D612E30E1F88419025B06CB4CF1BE1039B6D3E@scsmsx412.amr.corp.intel.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch 31/43] lguest: Boot with virtual == physical to get
+	closer to native Linux.
+Date: Sat, 29 Sep 2007 23:02:38 +1000
+Message-ID: <1191070958.26950.21.camel@localhost.localdomain>
+References: <20070926063618.956228976@rustcorp.com.au>
+	<20070926063650.704084137@rustcorp.com.au> <46FAF57A.5020105@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756941AbXI2Akp@vger.kernel.org>
-In-Reply-To: <97D612E30E1F88419025B06CB4CF1BE1039B6D3E@scsmsx412.amr.corp.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Avi Kivity <avi@qumranet.com>, Glauber de Oliveira Costa <glommer@gmail.com>, Anthony Liguori <anthony@codemonkey.ws>, Virtualization Mailing List <virtualization@lists.osdl.org>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <46FAF57A.5020105@goop.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Nakajima, Jun wrote:
-> Yes. For the native, "safe_halt" is "sti; hlt". The "native_halt" is
-> just "hlt". So the para_virt part of "hlt" could be moved to pv_cpu_ops,
-> and the "sti" part stays in pv_irq_ops.
->   
+On Wed, 2007-09-26 at 17:12 -0700, Jeremy Fitzhardinge wrote:
+> rusty@rustcorp.com.au wrote:
+> > +/* We walk down the guest page tables to get a guest-physical address */
+> > +unsigned long guest_pa(struct lguest *lg, unsigned long vaddr)
+> > +{
+> > +	pgd_t gpgd;
+> > +	pte_t gpte;
+> > +
+> > +	/* First step: get the top-level Guest page table entry. */
+> > +	gpgd = __pgd(lgread_u32(lg, gpgd_addr(lg, vaddr)));
+> > +	/* Toplevel not present?  We can't map it in. */
+> > +	if (!(pgd_flags(gpgd) & _PAGE_PRESENT))
+> > +		kill_guest(lg, "Bad address %#lx", vaddr);
+> > +
+> > +	gpte = __pte(lgread_u32(lg, gpte_addr(lg, gpgd, vaddr)));
+> > +	if (!(pte_flags(gpte) & _PAGE_PRESENT))
+> > +		kill_guest(lg, "Bad address %#lx", vaddr);
+> > +
+> > +	return pte_pfn(gpte) * PAGE_SIZE | (vaddr & ~PAGE_MASK);
+> > +}
+> 
+> That's nice and general, but is it necessary?  Is this just to handle
+> the two cases of booting with P=V, then switching to the normal kernel
+> offset?
 
-By "sti part", you mean the full "sti; hlt" sequence of safe_halt,
-right?  Since it needs to be an atomic sequence to avoid race
-conditions, so the native sequence has to be precisely "sti; hlt" to
-take advantage of the sti shadow, and other pv-backends will need their
-own way to guarantee this atomicity.
+Hi Jeremy,
 
-But I'm quite happy to put plain "hlt" into cpu_ops as halt_cpu() or
-something (and perhaps rename safe_halt to something a bit more
-descriptive).
+	It's probably overkill, but it has the advantage of being
+straightforward and futureproof.
 
-> Actually my concern was that such misc ops might grow to include the
-> things don't fit well anywhere else. To me, then pv_lazy_ops (with just
-> .set_mode) might be better.
->   
-
-The lazy interface has needed a rethink anyway.
-
-    J
+Cheers,
+Rusty.
