@@ -1,56 +1,44 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [patch 37/43] lguest: Virtio helper routines for a descriptor
- ringbuffer implementation
-Date: Tue, 02 Oct 2007 08:02:33 +0200
-Message-ID: <4701DEF9.6070707@qumranet.com>
-References: <20070926063618.956228976@rustcorp.com.au>	
-	<20070926063651.769960367@rustcorp.com.au>
-	<46FFD6CB.9020904@qumranet.com>	
-	<1191240202.6648.11.camel@localhost.localdomain>	
-	<4700E45E.6080505@qumranet.com>
-	<1191298867.6979.60.camel@localhost.localdomain>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH RFC] paravirt: cleanup lazy mode handling
+Date: Mon, 01 Oct 2007 23:24:24 -0700
+Message-ID: <4701E418.7010603@goop.org>
+References: <470186C4.5080208@goop.org> <4701DBB9.9020202@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1191298867.6979.60.camel@localhost.localdomain>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lguest@ozlabs.org, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754020AbXJBGYf@vger.kernel.org>
+In-Reply-To: <4701DBB9.9020202@qumranet.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Anthony Liguori <anthony@codemonkey.ws>, Glauber de Oliveira Costa <glommer@gmail.com>, "Nakajima, Jun" <jun.nakajima@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Mon, 2007-10-01 at 14:13 +0200, Avi Kivity wrote:
->   
->> Rusty Russell wrote:
->>     
->>> Yes, but this is what lguest is for, to play without fixing an ABI.  I
->>> fully expect incompatible tweaks before KVM causes the ABI to nail down.
->>>       
->> I'm worried about users tearing down the "caution, experimental ABI,
->> will invalidate warranty" sticker from the package, selecting
->> CONFIG_EXPERIMENTAL, CONFIG_I_REALLY_MEAN_ITS_EXPERIMENTAL, and
->> CONFIG_I_DONT_CARE_IF_THIS_BLOWS_UP, not reading your blog, and running
->> 2.6.24 guests on top of 2.6.25 or vice versa.
->>
->> I want the module not to load instead of the guest blowing up.
->>     
->
-> Well, this is the guest side we're talking about.  We can use some bogus
-> vendor ID for the experimental devices so that they simply won't be
-> found by the final drivers.
->
->   
+Avi Kivity wrote:
+> The code doesn't support having both lazy modes active at once.  Maybe
+> that's not an issue, but aren't the two modes orthogonal?
 
-That works.  Thanks!
+Hm, well, that's a good question.  The initial semantics of the lazy
+mode calls were "what VMI wants", and they're still not really nailed
+down.  VMI doesn't support having both active at once, and its a little
+unclear what it would mean anyway.  For now, we don't support multiple
+lazy modes active at once, and the kernel never tries to do it (in fact,
+it would be a bug, since lazy mmu must be preempt disabled, and lazy cpu
+is only used for context switches).
 
--- 
-Any sufficiently difficult bug is indistinguishable from a feature.
+>
+>> --- a/arch/i386/xen/multicalls.h
+>> +++ b/arch/i386/xen/multicalls.h
+>> @@ -35,7 +35,7 @@ void xen_mc_flush(void);
+>>  /* Issue a multicall if we're not in a lazy mode */
+>>  static inline void xen_mc_issue(unsigned mode)
+>>  {
+>> -    if ((xen_get_lazy_mode() & mode) == 0)
+>> +    if ((paravirt_get_lazy_mode() & mode) == 0)
+>>          xen_mc_flush();
+>
+> This snippet looks like it wants to support concurrently active lazy
+> modes.
+
+Yeah, its a little more general than it needs to be.
+
+    J
