@@ -1,44 +1,58 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [PATCH RFC] paravirt: cleanup lazy mode handling
-Date: Mon, 01 Oct 2007 23:24:24 -0700
-Message-ID: <4701E418.7010603@goop.org>
-References: <470186C4.5080208@goop.org> <4701DBB9.9020202@qumranet.com>
+Date: Mon, 01 Oct 2007 23:29:38 -0700
+Message-ID: <4701E552.3070501@goop.org>
+References: <470186C4.5080208@goop.org> <1191288858.6979.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754020AbXJBGYf@vger.kernel.org>
-In-Reply-To: <4701DBB9.9020202@qumranet.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754514AbXJBG3t@vger.kernel.org>
+In-Reply-To: <1191288858.6979.20.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Anthony Liguori <anthony@codemonkey.ws>, Glauber de Oliveira Costa <glommer@gmail.com>, "Nakajima, Jun" <jun.nakajima@intel.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Avi Kivity <avi@qumranet.com>, Anthony Liguori <anthony@codemonkey.ws>, Glauber de Oliveira Costa <glommer@gmail.com>, "Nakajima, Jun" <jun.nakajima@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> The code doesn't support having both lazy modes active at once.  Maybe
-> that's not an issue, but aren't the two modes orthogonal?
-
-Hm, well, that's a good question.  The initial semantics of the lazy
-mode calls were "what VMI wants", and they're still not really nailed
-down.  VMI doesn't support having both active at once, and its a little
-unclear what it would mean anyway.  For now, we don't support multiple
-lazy modes active at once, and the kernel never tries to do it (in fact,
-it would be a bug, since lazy mmu must be preempt disabled, and lazy cpu
-is only used for context switches).
-
+Rusty Russell wrote:
+> That's good, but this code does lose on native because we no longer
+> simply replace the entire thing with noops.
 >
->> --- a/arch/i386/xen/multicalls.h
->> +++ b/arch/i386/xen/multicalls.h
->> @@ -35,7 +35,7 @@ void xen_mc_flush(void);
->>  /* Issue a multicall if we're not in a lazy mode */
->>  static inline void xen_mc_issue(unsigned mode)
->>  {
->> -    if ((xen_get_lazy_mode() & mode) == 0)
->> +    if ((paravirt_get_lazy_mode() & mode) == 0)
->>          xen_mc_flush();
->
-> This snippet looks like it wants to support concurrently active lazy
-> modes.
+> Perhaps inverting this and having (inline) helpers is the way to go?
+>   
 
-Yeah, its a little more general than it needs to be.
+I'm thinking that the overhead will be unmeasurably small, and its not
+really worth any more complexity.  That's almost certainly true for lazy
+mmu mode, but lazy cpu is used in the middle of a context switch, so
+it's probably worth a bit more attention.
+
+> I'm thinking something like:
+>
+> static inline void paravirt_enter_lazy(enum paravirt_lazy_mode mode)
+> {
+> 	BUG_ON(x86_read_percpu(paravirt_lazy_mode) != PARAVIRT_LAZY_NONE);
+> 	BUG_ON(preemptible());
+>
+> 	x86_write_percpu(paravirt_lazy_mode, mode);
+> }
+>
+> static inline void paravirt_exit_lazy(enum paravirt_lazy_mode mode)
+> {
+> 	BUG_ON(x86_read_percpu(paravirt_lazy_mode) != mode);
+> 	BUG_ON(preemptible());
+>
+> 	x86_write_percpu(paravirt_lazy_mode, PARAVIRT_LAZY_NONE);
+> }
+>   
+
+Er, they should probably call something to make the switch actually
+happen, no?
+
+> The only trick would be that the flushes are so rarely required it's
+> probably worth putting the unlikely() in the top level:
+>   
+
+Sure, I guess.  Would it make any difference?  (I've never personally
+noticed likely/unlikely change the generated code in any seriously
+positive way.)
 
     J
