@@ -1,37 +1,27 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [patch 32/43] lguest: Virtio interface
-Date: Wed, 10 Oct 2007 18:00:07 +0200
-Message-ID: <200710101800.08317.arnd@arndb.de>
-References: <20070926063618.956228976@rustcorp.com.au>
-	<200710101624.04531.arnd@arndb.de>
-	<a4e6962a0710100831r309f266nc901f7c81ebef478@mail.gmail.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH RFC REPOST 1/2] paravirt: refactor struct paravirt_ops
+ into smaller pv_*_ops
+Date: Wed, 10 Oct 2007 10:48:56 -0700
+Message-ID: <470D1088.1030908@goop.org>
+References: <470BC758.1030504@goop.org> <200710101635.10139.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a4e6962a0710100831r309f266nc901f7c81ebef478@mail.gmail.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756292AbXJJRtv@vger.kernel.org>
+In-Reply-To: <200710101635.10139.rusty@rustcorp.com.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@qumranet.com>, Glauber de Oliveira Costa <glommer@gmail.com>, "Nakajima, Jun" <jun.nakajima@intel.com>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 10 October 2007, Eric Van Hensbergen wrote:
-> That being the case, why not just use network byte order (big endian)?
+Rusty Russell wrote:
+>> +	OFFSET(PARAVIRT_enabled, pv_info, paravirt_enabled);
+>>     
+>
+> I think this gives the right answer for the wrong reasons?
+>   
 
-PCI hardware is by convention little-endian, so I'd vote for that, but
-it doesn't really matter as long as it's fixed endian.
+Actually, it was OK.  The only use is in entry.S, which uses pv_info +
+PARAVIRT_enabled.
 
-The advantage of big-endian would be that it's not what x86 uses, so
-endianess bugs are more likely to hit early.
-
-	Arnd <><
+    J
