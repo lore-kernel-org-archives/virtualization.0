@@ -1,52 +1,48 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC REPOST 1/2] paravirt: refactor struct paravirt_ops into smaller pv_*_ops
-Date: Fri, 12 Oct 2007 00:01:51 +1000
-Message-ID: <200710120001.52456.rusty@rustcorp.com.au>
-References: <470BC758.1030504@goop.org> <200710101635.10139.rusty@rustcorp.com.au> <470D13CA.3000202@goop.org>
+Subject: Re: [patch 32/43] lguest: Virtio interface
+Date: Fri, 12 Oct 2007 00:17:13 +1000
+Message-ID: <200710120017.13725.rusty@rustcorp.com.au>
+References: <20070926063618.956228976@rustcorp.com.au>
+	<20070926063650.895058914@rustcorp.com.au>
+	<200710101050.49012.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757593AbXJKOC1@vger.kernel.org>
-In-Reply-To: <470D13CA.3000202@goop.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200710101050.49012.borntraeger@de.ibm.com>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@qumranet.com>, Glauber de Oliveira Costa <glommer@gmail.com>, "Nakajima, Jun" <jun.nakajima@intel.com>, Virtualization Mailing List <virtualization@lists.osdl.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 11 October 2007 04:02:50 Jeremy Fitzhardinge wrote:
-> >>  struct paravirt_ops paravirt_ops = {
-> >
-> > ...
-> >
-> >> +	.pv_info = {
-> >> +		.name = "bare hardware",
-> >> +		.paravirt_enabled = 0,
-> >> +		.kernel_rpl = 0,
-> >> +		.shared_kernel_pmd = 1,	/* Only used when CONFIG_X86_PAE is set */
-> >> +	},
-> >
-> > This is the bit I don't get.  Why not just declare struct pv_info pvinfo,
-> > etc, and use the declaration of struct paravirt_ops to get your unique
-> > offset-based identifiers for patching?
+On Wednesday 10 October 2007 18:50:48 Christian Borntraeger wrote:
+> Hi Rusty,
 >
-> Given an op id number in .parainstructions, the patching code needs to
-> be able to index into something to get the corresponding function
-> pointer.  If each pv_* structure is its own little unrelated structure,
-> then the id has to be a <structure, id> tuple, which just complicates
-> things.  If I pack them all into a single structure then it becomes a
-> simple offset calculation.
+> I have a late question :-)
+>
+> > There is also a generic implementation of config space which drivers can
+> > query to get setup information from the host.
+>
+> After thinking about that for a while, is there a special reason the config
+> field is defined as little endian? The only reason I can come up with, is
+> to use virtio for cross platform emulators, lets say a ppc emulates an x86
+> system with virtio devices instead of real ones.
+>
+> Do you have other reasons for a fixed endianess?
 
-	Sure, but this can actually be a temporary thing inside the patch code (or at 
-least static to that file if it's too big for the stack).
+Other people came up with really good reasons, but in fact it was because PCI 
+is little-endian.  If someone found a compelling counter-argument, I'd change 
+it.
 
-	struct paravirt_ops patch_template = { .pv_info = pv_info, .pv_cpu_ops = 
-pv_cpu_ops, ... };
-
-	Then you can even rename struct paravirt_ops to "struct patch_template" and 
-we're well on the way to making this a generic function-call patching 
-mechanism, rather than something paravirt-specific.
-
-Hope that clarifies my thinking...
+Cheers,
 Rusty.
