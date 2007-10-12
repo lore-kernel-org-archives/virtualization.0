@@ -1,54 +1,85 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH RFC REPOST 1/2] paravirt: refactor struct paravirt_ops
- into smaller pv_*_ops
-Date: Fri, 12 Oct 2007 12:16:04 -0700
-Message-ID: <470FC7F4.1030300@goop.org>
-References: <470BC758.1030504@goop.org>
-	<200710101635.10139.rusty@rustcorp.com.au>
-	<470D13CA.3000202@goop.org>
-	<200710120001.52456.rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200710120001.52456.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Anthony Liguori <anthony@codemonkey.ws>
+Subject: [PATCH 09/10] xen: add some debug output for failed
+	multicalls
+Date: Fri, 12 Oct 2007 14:11:41 -0700
+Message-ID: <20071012211148.741961000@goop.org>
+References: <20071012211132.198718000@goop.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline; filename=xen-mc-debug.patch
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> 	Sure, but this can actually be a temporary thing inside the patch code (or at 
-> least static to that file if it's too big for the stack).
->
-> 	struct paravirt_ops patch_template = { .pv_info = pv_info, .pv_cpu_ops = 
-> pv_cpu_ops, ... };
->
-> 	Then you can even rename struct paravirt_ops to "struct patch_template" and 
-> we're well on the way to making this a generic function-call patching 
-> mechanism, rather than something paravirt-specific.
->   
+Multicalls are expected to never fail, and the normal response to a
+failed multicall is very terse.  In the interests of better
+debuggability, add some more verbose output.  It may be worth turning
+this off once it all seems more tested.
 
-Hm, I see.  I'm not quite sure that's the best way to achieve a generic
-result, but I see your point.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-> Hope that clarifies my thinking...
+---
+ arch/i386/xen/multicalls.c |   25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-Well, I'd agree with making the code more generic if another user
-appears, but I'd rather not do it prematurely.
+===================================================================
+--- a/arch/i386/xen/multicalls.c
++++ b/arch/i386/xen/multicalls.c
+@@ -26,11 +26,16 @@
+ 
+ #include "multicalls.h"
+ 
++#define MC_DEBUG	1
++
+ #define MC_BATCH	32
+ #define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
+ 
+ struct mc_buffer {
+ 	struct multicall_entry entries[MC_BATCH];
++#if MC_DEBUG
++	struct multicall_entry debug[MC_BATCH];
++#endif
+ 	u64 args[MC_ARGS];
+ 	struct callback {
+ 		void (*fn)(void *);
+@@ -56,11 +61,31 @@ void xen_mc_flush(void)
+ 	local_irq_save(flags);
+ 
+ 	if (b->mcidx) {
++#if MC_DEBUG
++		memcpy(b->debug, b->entries,
++		       b->mcidx * sizeof(struct multicall_entry));
++#endif
++
+ 		if (HYPERVISOR_multicall(b->entries, b->mcidx) != 0)
+ 			BUG();
+ 		for (i = 0; i < b->mcidx; i++)
+ 			if (b->entries[i].result < 0)
+ 				ret++;
++
++#if MC_DEBUG
++		if (ret) {
++			printk(KERN_ERR "%d multicall(s) failed: cpu %d\n",
++			       ret, smp_processor_id());
++			for(i = 0; i < b->mcidx; i++) {
++				printk("  call %2d/%d: op=%lu arg=[%lx] result=%ld\n",
++				       i+1, b->mcidx,
++				       b->debug[i].op,
++				       b->debug[i].args[0],
++				       b->entries[i].result);
++			}
++		}
++#endif
++
+ 		b->mcidx = 0;
+ 		b->argidx = 0;
+ 	} else
 
-Sorry, I forgot to update lguest.  I'll do that and repost (but I won't
-have had a chance to test it).
-
-Are you otherwise happy with the patch in its current form?  And are you
-happy with the lazymode changes?
-
-    J
+-- 
