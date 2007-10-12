@@ -1,202 +1,92 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 05/10] xen: deal with stale cr3 values when
-	unpinning pagetables
-Date: Fri, 12 Oct 2007 14:11:37 -0700
-Message-ID: <20071012211148.208637000@goop.org>
+Subject: [PATCH 03/10] xen: yield to IPI target if necessary
+Date: Fri, 12 Oct 2007 14:11:35 -0700
+Message-ID: <20071012211147.944148000@goop.org>
 References: <20071012211132.198718000@goop.org>
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=xen-handle-lazy-cr3-on-unpin.patch
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline; filename=xen-ipi-yield.patch
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When a pagetable is no longer in use, it must be unpinned so that its
-pages can be freed.  However, this is only possible if there are no
-stray uses of the pagetable.  The code currently deals with all the
-usual cases, but there's a rare case where a vcpu is changing cr3, but
-is doing so lazily, and the change hasn't actually happened by the time
-the pagetable is unpinned, even though it appears to have been completed.
-
-This change adds a second per-cpu cr3 variable - xen_current_cr3 -
-which tracks the actual state of the vcpu cr3.  It is only updated once
-the actual hypercall to set cr3 has been completed.  Other processors
-wishing to unpin a pagetable can check other vcpu's xen_current_cr3
-values to see if any cross-cpu IPIs are needed to clean things up.
-
-[ Stable folks: 2.6.23 bugfix ]
+When sending a call-function IPI to a vcpu, yield if the vcpu isn't
+running.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Stable Kernel <stable@kernel.org>
 
 ---
- arch/i386/xen/enlighten.c |   63 ++++++++++++++++++++++++++++++---------------
- arch/i386/xen/mmu.c       |   33 ++++++++++++++++++++---
- arch/i386/xen/xen-ops.h   |    1 
- 3 files changed, 71 insertions(+), 26 deletions(-)
+ arch/i386/xen/smp.c     |   14 ++++++++++----
+ arch/i386/xen/time.c    |    6 ++++++
+ arch/i386/xen/xen-ops.h |    2 ++
+ 3 files changed, 18 insertions(+), 4 deletions(-)
 
 ===================================================================
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -55,7 +55,23 @@ DEFINE_PER_CPU(enum paravirt_lazy_mode, 
+--- a/arch/i386/xen/smp.c
++++ b/arch/i386/xen/smp.c
+@@ -360,7 +360,8 @@ int xen_smp_call_function_mask(cpumask_t
+ 			       void *info, int wait)
+ {
+ 	struct call_data_struct data;
+-	int cpus;
++	int cpus, cpu;
++	bool yield;
  
- DEFINE_PER_CPU(struct vcpu_info *, xen_vcpu);
- DEFINE_PER_CPU(struct vcpu_info, xen_vcpu_info);
--DEFINE_PER_CPU(unsigned long, xen_cr3);
+ 	/* Holding any lock stops cpus from going down. */
+ 	spin_lock(&call_lock);
+@@ -389,9 +390,14 @@ int xen_smp_call_function_mask(cpumask_t
+ 	/* Send a message to other CPUs and wait for them to respond */
+ 	xen_send_IPI_mask(mask, XEN_CALL_FUNCTION_VECTOR);
+ 
+-	/* Make sure other vcpus get a chance to run.
+-	   XXX too severe?  Maybe we should check the other CPU's states? */
+-	HYPERVISOR_sched_op(SCHEDOP_yield, 0);
++	/* Make sure other vcpus get a chance to run if they need to. */
++	yield = false;
++	for_each_cpu_mask(cpu, mask)
++		if (xen_vcpu_stolen(cpu))
++			yield = true;
 +
-+/*
-+ * Note about cr3 (pagetable base) values:
-+ *
-+ * xen_cr3 contains the current logical cr3 value; it contains the
-+ * last set cr3.  This may not be the current effective cr3, because
-+ * its update may be being lazily deferred.  However, a vcpu looking
-+ * at its own cr3 can use this value knowing that it everything will
-+ * be self-consistent.
-+ *
-+ * xen_current_cr3 contains the actual vcpu cr3; it is set once the
-+ * hypercall to set the vcpu cr3 is complete (so it may be a little
-+ * out of date, but it will never be set early).  If one vcpu is
-+ * looking at another vcpu's cr3 value, it should use this variable.
-+ */
-+DEFINE_PER_CPU(unsigned long, xen_cr3);	 /* cr3 stored as physaddr */
-+DEFINE_PER_CPU(unsigned long, xen_current_cr3);	 /* actual vcpu cr3 */
++	if (yield)
++		HYPERVISOR_sched_op(SCHEDOP_yield, 0);
  
- struct start_info *xen_start_info;
- EXPORT_SYMBOL_GPL(xen_start_info);
-@@ -631,32 +647,36 @@ static unsigned long xen_read_cr3(void)
- 	return x86_read_percpu(xen_cr3);
- }
- 
-+static void set_current_cr3(void *v)
-+{
-+	x86_write_percpu(xen_current_cr3, (unsigned long)v);
+ 	/* Wait for response */
+ 	while (atomic_read(&data.started) != cpus ||
+===================================================================
+--- a/arch/i386/xen/time.c
++++ b/arch/i386/xen/time.c
+@@ -103,6 +103,12 @@ static void get_runstate_snapshot(struct
+ 		*res = *state;
+ 		barrier();
+ 	} while (get64(&state->state_entry_time) != state_time);
 +}
 +
- static void xen_write_cr3(unsigned long cr3)
- {
-+	struct mmuext_op *op;
-+	struct multicall_space mcs;
-+	unsigned long mfn = pfn_to_mfn(PFN_DOWN(cr3));
-+
- 	BUG_ON(preemptible());
- 
--	if (cr3 == x86_read_percpu(xen_cr3)) {
--		/* just a simple tlb flush */
--		xen_flush_tlb();
--		return;
--	}
--
-+	mcs = xen_mc_entry(sizeof(*op));  /* disables interrupts */
-+
-+	/* Update while interrupts are disabled, so its atomic with
-+	   respect to ipis */
- 	x86_write_percpu(xen_cr3, cr3);
- 
--
--	{
--		struct mmuext_op *op;
--		struct multicall_space mcs = xen_mc_entry(sizeof(*op));
--		unsigned long mfn = pfn_to_mfn(PFN_DOWN(cr3));
--
--		op = mcs.args;
--		op->cmd = MMUEXT_NEW_BASEPTR;
--		op->arg1.mfn = mfn;
--
--		MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
--
--		xen_mc_issue(PARAVIRT_LAZY_CPU);
--	}
-+	op = mcs.args;
-+	op->cmd = MMUEXT_NEW_BASEPTR;
-+	op->arg1.mfn = mfn;
-+
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
-+
-+	/* Update xen_update_cr3 once the batch has actually
-+	   been submitted. */
-+	xen_mc_callback(set_current_cr3, (void *)cr3);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_CPU);  /* interrupts restored */
++/* return true when a vcpu could run but has no real cpu to run on */
++bool xen_vcpu_stolen(int vcpu)
++{
++	return per_cpu(runstate, vcpu).state == RUNSTATE_runnable;
  }
  
- /* Early in boot, while setting up the initial pagetable, assume
-@@ -1124,6 +1144,7 @@ asmlinkage void __init xen_start_kernel(
- 	/* keep using Xen gdt for now; no urgent need to change it */
- 
- 	x86_write_percpu(xen_cr3, __pa(pgd));
-+	x86_write_percpu(xen_current_cr3, __pa(pgd));
- 
- #ifdef CONFIG_SMP
- 	/* Don't do the full vcpu_info placement stuff until we have a
-===================================================================
---- a/arch/i386/xen/mmu.c
-+++ b/arch/i386/xen/mmu.c
-@@ -564,20 +564,43 @@ static void drop_other_mm_ref(void *info
- 
- 	if (__get_cpu_var(cpu_tlbstate).active_mm == mm)
- 		leave_mm(smp_processor_id());
-+
-+	/* If this cpu still has a stale cr3 reference, then make sure
-+	   it has been flushed. */
-+	if (x86_read_percpu(xen_current_cr3) == __pa(mm->pgd)) {
-+		load_cr3(swapper_pg_dir);
-+		arch_flush_lazy_cpu_mode();
-+	}
- }
- 
- static void drop_mm_ref(struct mm_struct *mm)
- {
-+	cpumask_t mask;
-+	unsigned cpu;
-+
- 	if (current->active_mm == mm) {
- 		if (current->mm == mm)
- 			load_cr3(swapper_pg_dir);
- 		else
- 			leave_mm(smp_processor_id());
--	}
--
--	if (!cpus_empty(mm->cpu_vm_mask))
--		xen_smp_call_function_mask(mm->cpu_vm_mask, drop_other_mm_ref,
--					   mm, 1);
-+		arch_flush_lazy_cpu_mode();
-+	}
-+
-+	/* Get the "official" set of cpus referring to our pagetable. */
-+	mask = mm->cpu_vm_mask;
-+
-+	/* It's possible that a vcpu may have a stale reference to our
-+	   cr3, because its in lazy mode, and it hasn't yet flushed
-+	   its set of pending hypercalls yet.  In this case, we can
-+	   look at its actual current cr3 value, and force it to flush
-+	   if needed. */
-+	for_each_online_cpu(cpu) {
-+		if (per_cpu(xen_current_cr3, cpu) == __pa(mm->pgd))
-+			cpu_set(cpu, mask);
-+	}
-+
-+	if (!cpus_empty(mask))
-+		xen_smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
- }
- #else
- static void drop_mm_ref(struct mm_struct *mm)
+ static void setup_runstate_info(int cpu)
 ===================================================================
 --- a/arch/i386/xen/xen-ops.h
 +++ b/arch/i386/xen/xen-ops.h
-@@ -11,6 +11,7 @@ void xen_copy_trap_info(struct trap_info
+@@ -27,6 +27,8 @@ int xen_set_wallclock(unsigned long time
+ int xen_set_wallclock(unsigned long time);
+ unsigned long long xen_sched_clock(void);
  
- DECLARE_PER_CPU(struct vcpu_info *, xen_vcpu);
- DECLARE_PER_CPU(unsigned long, xen_cr3);
-+DECLARE_PER_CPU(unsigned long, xen_current_cr3);
++bool xen_vcpu_stolen(int vcpu);
++
+ void xen_mark_init_mm_pinned(void);
  
- extern struct start_info *xen_start_info;
- extern struct shared_info *HYPERVISOR_shared_info;
+ DECLARE_PER_CPU(enum paravirt_lazy_mode, xen_lazy_mode);
 
 -- 
