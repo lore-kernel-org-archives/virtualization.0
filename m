@@ -1,10 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 01/10] remove dead code in pgtable_cache_init
-Date: Fri, 12 Oct 2007 14:11:33 -0700
-Message-ID: <20071012211147.666677000@goop.org>
+Subject: [PATCH 04/10] xen: add batch completion callbacks
+Date: Fri, 12 Oct 2007 14:11:36 -0700
+Message-ID: <20071012211148.065483000@goop.org>
 References: <20071012211132.198718000@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=x86-mminit-remove-dead-code.patch
+Content-Disposition: inline; filename=xen-multicall-callbacks.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,59 +15,98 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, William Lee Irwin III <wli@holomorphy.com>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Ingo Molnar <mingo@elte.hu>, Christoph Lameter <clameter@sgi.com>
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The conversion from using a slab cache to quicklist left some residual
-dead code.
+This adds a mechanism to register a callback function to be called once
+a batch of hypercalls has been issued.  This is typically used to unlock
+things which must remain locked until the hypercall has taken place.
 
-I note that in the conversion it now always allocates a whole page for
-the pgd, rather than the 32 bytes needed for a PAE pgd.  Was this
-intended?
+[ Stable folks: pre-req for 2.6.23 bugfix "xen: deal with stale cr3
+  values when unpinning pagetables" ]
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Christoph Lameter <clameter@sgi.com>
-Cc: Andi Kleen <ak@suse.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Stable Kernel <stable@kernel.org>
 
 ---
- arch/i386/mm/init.c |   22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ arch/i386/xen/multicalls.c |   29 ++++++++++++++++++++++++++---
+ arch/i386/xen/multicalls.h |    3 +++
+ 2 files changed, 29 insertions(+), 3 deletions(-)
 
 ===================================================================
---- a/arch/i386/mm/init.c
-+++ b/arch/i386/mm/init.c
-@@ -746,24 +746,12 @@ struct kmem_cache *pmd_cache;
+--- a/arch/i386/xen/multicalls.c
++++ b/arch/i386/xen/multicalls.c
+@@ -32,7 +32,11 @@ struct mc_buffer {
+ struct mc_buffer {
+ 	struct multicall_entry entries[MC_BATCH];
+ 	u64 args[MC_ARGS];
+-	unsigned mcidx, argidx;
++	struct callback {
++		void (*fn)(void *);
++		void *data;
++	} callbacks[MC_BATCH];
++	unsigned mcidx, argidx, cbidx;
+ };
  
- void __init pgtable_cache_init(void)
- {
--	size_t pgd_size = PTRS_PER_PGD*sizeof(pgd_t);
+ static DEFINE_PER_CPU(struct mc_buffer, mc_buffer);
+@@ -43,6 +47,7 @@ void xen_mc_flush(void)
+ 	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
+ 	int ret = 0;
+ 	unsigned long flags;
++	int i;
+ 
+ 	BUG_ON(preemptible());
+ 
+@@ -51,8 +56,6 @@ void xen_mc_flush(void)
+ 	local_irq_save(flags);
+ 
+ 	if (b->mcidx) {
+-		int i;
 -
--	if (PTRS_PER_PMD > 1) {
-+	if (PTRS_PER_PMD > 1)
- 		pmd_cache = kmem_cache_create("pmd",
--					PTRS_PER_PMD*sizeof(pmd_t),
--					PTRS_PER_PMD*sizeof(pmd_t),
--					SLAB_PANIC,
--					pmd_ctor);
--		if (!SHARED_KERNEL_PMD) {
--			/* If we're in PAE mode and have a non-shared
--			   kernel pmd, then the pgd size must be a
--			   page size.  This is because the pgd_list
--			   links through the page structure, so there
--			   can only be one pgd per page for this to
--			   work. */
--			pgd_size = PAGE_SIZE;
--		}
--	}
-+					      PTRS_PER_PMD*sizeof(pmd_t),
-+					      PTRS_PER_PMD*sizeof(pmd_t),
-+					      SLAB_PANIC,
-+					      pmd_ctor);
+ 		if (HYPERVISOR_multicall(b->entries, b->mcidx) != 0)
+ 			BUG();
+ 		for (i = 0; i < b->mcidx; i++)
+@@ -64,6 +67,13 @@ void xen_mc_flush(void)
+ 		BUG_ON(b->argidx != 0);
+ 
+ 	local_irq_restore(flags);
++
++	for(i = 0; i < b->cbidx; i++) {
++		struct callback *cb = &b->callbacks[i];
++
++		(*cb->fn)(cb->data);
++	}
++	b->cbidx = 0;
+ 
+ 	BUG_ON(ret);
+ }
+@@ -88,3 +98,16 @@ struct multicall_space __xen_mc_entry(si
+ 
+ 	return ret;
+ }
++
++void xen_mc_callback(void (*fn)(void *), void *data)
++{
++	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
++	struct callback *cb;
++
++	if (b->cbidx == MC_BATCH)
++		xen_mc_flush();
++
++	cb = &b->callbacks[b->cbidx++];
++	cb->fn = fn;
++	cb->data = data;
++}
+===================================================================
+--- a/arch/i386/xen/multicalls.h
++++ b/arch/i386/xen/multicalls.h
+@@ -42,4 +42,7 @@ static inline void xen_mc_issue(unsigned
+ 	local_irq_restore(x86_read_percpu(xen_mc_irq_flags));
  }
  
- /*
++/* Set up a callback to be called when the current batch is flushed */
++void xen_mc_callback(void (*fn)(void *), void *data);
++
+ #endif /* _XEN_MULTICALLS_H */
 
 -- 
