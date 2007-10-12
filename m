@@ -1,66 +1,61 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 08/10] xen: fix incorrect vcpu_register_vcpu_info hypercall
-	argument
-Date: Fri, 12 Oct 2007 14:11:40 -0700
-Message-ID: <20071012211148.610399000@goop.org>
+Subject: [PATCH 02/10] Clean up duplicate includes in
+	arch/i386/xen/
+Date: Fri, 12 Oct 2007 14:11:34 -0700
+Message-ID: <20071012211147.800072000@goop.org>
 References: <20071012211132.198718000@goop.org>
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-fix-register_vcpu_info.patch
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline; filename=xen-clean-up-duplicate-includes.patch
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Mark Williamson <mark.williamson@cl.cam.ac.uk>, Morten =?utf-8?q?B=C3=B8geskov?= <xen-users@morten.bogeskov.dk>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Jesper Juhl <jesper.juhl@gmail.com>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The kernel's copy of struct vcpu_register_vcpu_info was out of date,
-at best causing the hypercall to fail and the guest kernel to fall
-back to the old mechanism, or worse, causing random memory corruption.
+This patch cleans up duplicate includes in
+	arch/i386/xen/
 
-[ Stable folks: applies to 2.6.23 ]
-
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Stable Kernel <stable@kernel.org>
-Cc: Morten =?utf-8?q?B=C3=B8geskov?= <xen-users@morten.bogeskov.dk>
-Cc: Mark Williamson <mark.williamson@cl.cam.ac.uk>
-
 ---
- arch/i386/xen/enlighten.c    |    2 +-
- include/xen/interface/vcpu.h |    5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ arch/i386/xen/enlighten.c |    1 -
+ arch/i386/xen/mmu.c       |    2 --
+ 2 files changed, 3 deletions(-)
 
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -115,7 +115,7 @@ static void __init xen_vcpu_setup(int cp
- 	info.mfn = virt_to_mfn(vcpup);
- 	info.offset = offset_in_page(vcpup);
+@@ -25,7 +25,6 @@
+ #include <linux/mm.h>
+ #include <linux/page-flags.h>
+ #include <linux/highmem.h>
+-#include <linux/smp.h>
  
--	printk(KERN_DEBUG "trying to map vcpu_info %d at %p, mfn %x, offset %d\n",
-+	printk(KERN_DEBUG "trying to map vcpu_info %d at %p, mfn %llx, offset %d\n",
- 	       cpu, vcpup, info.mfn, info.offset);
- 
- 	/* Check to see if the hypervisor will put the vcpu_info
+ #include <xen/interface/xen.h>
+ #include <xen/interface/physdev.h>
+diff --git a/arch/i386/xen/mmu.c b/arch/i386/xen/mmu.c
+index 4ae038a..35691a2 100644
 ===================================================================
---- a/include/xen/interface/vcpu.h
-+++ b/include/xen/interface/vcpu.h
-@@ -160,8 +160,9 @@ struct vcpu_set_singleshot_timer {
-  */
- #define VCPUOP_register_vcpu_info   10  /* arg == struct vcpu_info */
- struct vcpu_register_vcpu_info {
--    uint32_t mfn;               /* mfn of page to place vcpu_info */
--    uint32_t offset;            /* offset within page */
-+    uint64_t mfn;    /* mfn of page to place vcpu_info */
-+    uint32_t offset; /* offset within page */
-+    uint32_t rsvd;   /* unused */
- };
+--- a/arch/i386/xen/mmu.c
++++ b/arch/i386/xen/mmu.c
+@@ -41,7 +41,6 @@
+ #include <linux/sched.h>
+ #include <linux/highmem.h>
+ #include <linux/bug.h>
+-#include <linux/sched.h>
  
- #endif /* __XEN_PUBLIC_VCPU_H__ */
+ #include <asm/pgtable.h>
+ #include <asm/tlbflush.h>
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
