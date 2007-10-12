@@ -1,11 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 07/10] xen: ask the hypervisor how much space it needs
-	reserved
-Date: Fri, 12 Oct 2007 14:11:39 -0700
-Message-ID: <20071012211148.465174000@goop.org>
+Subject: [PATCH 08/10] xen: fix incorrect vcpu_register_vcpu_info hypercall
+	argument
+Date: Fri, 12 Oct 2007 14:11:40 -0700
+Message-ID: <20071012211148.610399000@goop.org>
 References: <20071012211132.198718000@goop.org>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-dynamic-topaddr.patch
+Content-Disposition: inline; filename=xen-fix-register_vcpu_info.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,47 +16,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Mark Williamson <mark.williamson@cl.cam.ac.uk>, Morten =?utf-8?q?B=C3=B8geskov?= <xen-users@morten.bogeskov.dk>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ask the hypervisor how much space it needs reserved, since 32-on-64
-doesn't need any space, and it may change in future.
+The kernel's copy of struct vcpu_register_vcpu_info was out of date,
+at best causing the hypercall to fail and the guest kernel to fall
+back to the old mechanism, or worse, causing random memory corruption.
+
+[ Stable folks: applies to 2.6.23 ]
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Stable Kernel <stable@kernel.org>
+Cc: Morten =?utf-8?q?B=C3=B8geskov?= <xen-users@morten.bogeskov.dk>
+Cc: Mark Williamson <mark.williamson@cl.cam.ac.uk>
 
 ---
- arch/i386/xen/enlighten.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/i386/xen/enlighten.c    |    2 +-
+ include/xen/interface/vcpu.h |    5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
 ===================================================================
 --- a/arch/i386/xen/enlighten.c
 +++ b/arch/i386/xen/enlighten.c
-@@ -1085,6 +1085,17 @@ static const struct machine_ops __initda
+@@ -115,7 +115,7 @@ static void __init xen_vcpu_setup(int cp
+ 	info.mfn = virt_to_mfn(vcpup);
+ 	info.offset = offset_in_page(vcpup);
+ 
+-	printk(KERN_DEBUG "trying to map vcpu_info %d at %p, mfn %x, offset %d\n",
++	printk(KERN_DEBUG "trying to map vcpu_info %d at %p, mfn %llx, offset %d\n",
+ 	       cpu, vcpup, info.mfn, info.offset);
+ 
+ 	/* Check to see if the hypervisor will put the vcpu_info
+===================================================================
+--- a/include/xen/interface/vcpu.h
++++ b/include/xen/interface/vcpu.h
+@@ -160,8 +160,9 @@ struct vcpu_set_singleshot_timer {
+  */
+ #define VCPUOP_register_vcpu_info   10  /* arg == struct vcpu_info */
+ struct vcpu_register_vcpu_info {
+-    uint32_t mfn;               /* mfn of page to place vcpu_info */
+-    uint32_t offset;            /* offset within page */
++    uint64_t mfn;    /* mfn of page to place vcpu_info */
++    uint32_t offset; /* offset within page */
++    uint32_t rsvd;   /* unused */
  };
  
- 
-+static void __init xen_reserve_top(void)
-+{
-+	unsigned long top = HYPERVISOR_VIRT_START;
-+	struct xen_platform_parameters pp;
-+
-+	if (HYPERVISOR_xen_version(XENVER_platform_parameters, &pp) == 0)
-+		top = pp.virt_start;
-+
-+	reserve_top_address(-top + 2 * PAGE_SIZE);
-+}
-+
- /* First C function to be called on Xen boot */
- asmlinkage void __init xen_start_kernel(void)
- {
-@@ -1134,7 +1145,7 @@ asmlinkage void __init xen_start_kernel(
- 		paravirt_ops.kernel_rpl = 0;
- 
- 	/* set the limit of our address space */
--	reserve_top_address(-HYPERVISOR_VIRT_START + 2 * PAGE_SIZE);
-+	xen_reserve_top();
- 
- 	/* set up basic CPUID stuff */
- 	cpu_detect(&new_cpu_data);
+ #endif /* __XEN_PUBLIC_VCPU_H__ */
 
 -- 
