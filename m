@@ -1,17 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 32/43] lguest: Virtio interface
-Date: Fri, 12 Oct 2007 00:17:13 +1000
-Message-ID: <200710120017.13725.rusty@rustcorp.com.au>
-References: <20070926063618.956228976@rustcorp.com.au>
-	<20070926063650.895058914@rustcorp.com.au>
-	<200710101050.49012.borntraeger@de.ibm.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH RFC REPOST 1/2] paravirt: refactor struct paravirt_ops
+ into smaller pv_*_ops
+Date: Fri, 12 Oct 2007 12:16:04 -0700
+Message-ID: <470FC7F4.1030300@goop.org>
+References: <470BC758.1030504@goop.org>
+	<200710101635.10139.rusty@rustcorp.com.au>
+	<470D13CA.3000202@goop.org>
+	<200710120001.52456.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200710101050.49012.borntraeger@de.ibm.com>
-Content-Disposition: inline
+In-Reply-To: <200710120001.52456.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,28 +21,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 10 October 2007 18:50:48 Christian Borntraeger wrote:
-> Hi Rusty,
+Rusty Russell wrote:
+> 	Sure, but this can actually be a temporary thing inside the patch code (or at 
+> least static to that file if it's too big for the stack).
 >
-> I have a late question :-)
+> 	struct paravirt_ops patch_template = { .pv_info = pv_info, .pv_cpu_ops = 
+> pv_cpu_ops, ... };
 >
-> > There is also a generic implementation of config space which drivers can
-> > query to get setup information from the host.
->
-> After thinking about that for a while, is there a special reason the config
-> field is defined as little endian? The only reason I can come up with, is
-> to use virtio for cross platform emulators, lets say a ppc emulates an x86
-> system with virtio devices instead of real ones.
->
-> Do you have other reasons for a fixed endianess?
+> 	Then you can even rename struct paravirt_ops to "struct patch_template" and 
+> we're well on the way to making this a generic function-call patching 
+> mechanism, rather than something paravirt-specific.
+>   
 
-Other people came up with really good reasons, but in fact it was because PCI 
-is little-endian.  If someone found a compelling counter-argument, I'd change 
-it.
+Hm, I see.  I'm not quite sure that's the best way to achieve a generic
+result, but I see your point.
 
-Cheers,
-Rusty.
+> Hope that clarifies my thinking...
+
+Well, I'd agree with making the code more generic if another user
+appears, but I'd rather not do it prematurely.
+
+Sorry, I forgot to update lguest.  I'll do that and repost (but I won't
+have had a chance to test it).
+
+Are you otherwise happy with the patch in its current form?  And are you
+happy with the lazymode changes?
+
+    J
