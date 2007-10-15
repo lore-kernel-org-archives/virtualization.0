@@ -1,61 +1,84 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 04/12] Clean up duplicate includes in
-	arch/i386/xen/
-Date: Mon, 15 Oct 2007 13:48:44 -0700
-Message-ID: <20071015210114.891237072@goop.org>
+Subject: [PATCH 05/12] xen: yield to IPI target if necessary
+Date: Mon, 15 Oct 2007 13:48:45 -0700
+Message-ID: <20071015210114.975881415@goop.org>
 References: <20071015204840.074767068@goop.org>
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline; filename=xen-clean-up-duplicate-includes.patch
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761132AbXJOVtg@vger.kernel.org>
+Content-Disposition: inline; filename=xen-ipi-yield.patch
+Sender: linux-kernel-owner@vger.kernel.org
 To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: xen-devel@lists.xensource.com, Jesper Juhl <jesper.juhl@gmail.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch cleans up duplicate includes in
-	arch/i386/xen/
+When sending a call-function IPI to a vcpu, yield if the vcpu isn't
+running.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+
 ---
- arch/x86/xen/enlighten.c |    1 -
- arch/x86/xen/mmu.c       |    2 --
- 2 files changed, 3 deletions(-)
+ arch/x86/xen/smp.c     |   14 ++++++++++----
+ arch/x86/xen/time.c    |    6 ++++++
+ arch/x86/xen/xen-ops.h |    2 ++
+ 3 files changed, 18 insertions(+), 4 deletions(-)
 
 ===================================================================
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -25,7 +25,6 @@
- #include <linux/mm.h>
- #include <linux/page-flags.h>
- #include <linux/highmem.h>
--#include <linux/smp.h>
+--- a/arch/x86/xen/smp.c
++++ b/arch/x86/xen/smp.c
+@@ -360,7 +360,8 @@ int xen_smp_call_function_mask(cpumask_t
+ 			       void *info, int wait)
+ {
+ 	struct call_data_struct data;
+-	int cpus;
++	int cpus, cpu;
++	bool yield;
  
- #include <xen/interface/xen.h>
- #include <xen/interface/physdev.h>
-diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-index 4ae038a..35691a2 100644
+ 	/* Holding any lock stops cpus from going down. */
+ 	spin_lock(&call_lock);
+@@ -389,9 +390,14 @@ int xen_smp_call_function_mask(cpumask_t
+ 	/* Send a message to other CPUs and wait for them to respond */
+ 	xen_send_IPI_mask(mask, XEN_CALL_FUNCTION_VECTOR);
+ 
+-	/* Make sure other vcpus get a chance to run.
+-	   XXX too severe?  Maybe we should check the other CPU's states? */
+-	HYPERVISOR_sched_op(SCHEDOP_yield, 0);
++	/* Make sure other vcpus get a chance to run if they need to. */
++	yield = false;
++	for_each_cpu_mask(cpu, mask)
++		if (xen_vcpu_stolen(cpu))
++			yield = true;
++
++	if (yield)
++		HYPERVISOR_sched_op(SCHEDOP_yield, 0);
+ 
+ 	/* Wait for response */
+ 	while (atomic_read(&data.started) != cpus ||
 ===================================================================
---- a/arch/x86/xen/mmu.c
-+++ b/arch/x86/xen/mmu.c
-@@ -41,7 +41,6 @@
- #include <linux/sched.h>
- #include <linux/highmem.h>
- #include <linux/bug.h>
--#include <linux/sched.h>
+--- a/arch/x86/xen/time.c
++++ b/arch/x86/xen/time.c
+@@ -103,6 +103,12 @@ static void get_runstate_snapshot(struct
+ 		*res = *state;
+ 		barrier();
+ 	} while (get64(&state->state_entry_time) != state_time);
++}
++
++/* return true when a vcpu could run but has no real cpu to run on */
++bool xen_vcpu_stolen(int vcpu)
++{
++	return per_cpu(runstate, vcpu).state == RUNSTATE_runnable;
+ }
  
- #include <asm/pgtable.h>
- #include <asm/tlbflush.h>
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+ static void setup_runstate_info(int cpu)
+===================================================================
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -27,6 +27,8 @@ int xen_set_wallclock(unsigned long time
+ int xen_set_wallclock(unsigned long time);
+ unsigned long long xen_sched_clock(void);
+ 
++bool xen_vcpu_stolen(int vcpu);
++
+ void xen_mark_init_mm_pinned(void);
+ 
+ DECLARE_PER_CPU(enum paravirt_lazy_mode, xen_lazy_mode);
 
 -- 
