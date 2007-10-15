@@ -1,46 +1,30 @@
-From: David Chinner <dgc@sgi.com>
-Subject: Re: [PATCH 12/12] xfs: eagerly remove vmap mappings to
-	avoid upsetting Xen
-Date: Tue, 16 Oct 2007 09:04:33 +1000
-Message-ID: <20071015230432.GO995458@sgi.com>
+From: Zachary Amsden <zach@vmware.com>
+Subject: Re: [stable] [PATCH 00/12] xen/paravirt_ops patches for 2.6.24
+Date: Mon, 15 Oct 2007 16:48:44 -0700
+Message-ID: <1192492124.17375.62.camel@bodhitayantram.eng.vmware.com>
 References: <20071015204840.074767068@goop.org>
-	<20071015210115.506967748@goop.org>
+	 <20071015215406.GA1588@kroah.com> <4713E2D6.90801@goop.org>
+	 <200710160003.13189.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline
-In-Reply-To: <20071015210115.506967748@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Mark Williamson <mark.williamson@cl.cam.ac.uk>, Nick Piggin <nickpiggin@yahoo.com.au>, xen-devel@lists.xensource.com, XFS masters <xfs-masters@oss.sgi.com>, Keir Fraser <keir@xensource.com>, David Chinner <dgc@sgi.com>, LKML <linux-kernel@vger.kernel.org>, Morten =?iso-8859-1?B?QsO4Z2Vza292?= <xen-users@morten.bogeskov.dk>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Stable Kernel <stable@kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763057AbXJOXtX@vger.kernel.org>
+In-Reply-To: <200710160003.13189.ak@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>, Stable Kernel <stable@kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Keir Fraser <keir@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 15, 2007 at 01:48:52PM -0700, Jeremy Fitzhardinge wrote:
-> XFS leaves stray mappings around when it vmaps memory to make it
-> virtually contigious.  This upsets Xen if one of those pages is being
-> recycled into a pagetable, since it finds an extra writable mapping of
-> the page.
+On Tue, 2007-10-16 at 00:03 +0200, Andi Kleen wrote:
+> > Subject: [PATCH 12/12] xfs: eagerly remove vmap mappings to avoid
+> > upsetting Xen
 > 
-> This patch solves the problem in a brute force way, by making XFS
-> always eagerly unmap its mappings.  David Chinner says this shouldn't
-> have any performance impact on filesystems with default block sizes;
-> it will only affect filesystems with large block sizes.
+> This should be probably done unconditionally because it's a undefined
+> dangerous condition everywhere.
 
-Looks fine, Jeremy. I'll pull this into our dev tree and it should
-get pushed with the .24 XFS merge (if someone doesn't pull these
-patches directly).
+Should be done unconditionally.  One could remap the underlying physical
+space to include an MMIO region, and speculative reads from the
+cacheable virtual mapping of that region could move the robot arm,
+destroying the world.
 
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+Zach
