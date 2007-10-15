@@ -1,33 +1,61 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH RFC REPOST 1/2] paravirt: refactor struct paravirt_ops
- into smaller pv_*_ops
-Date: Mon, 15 Oct 2007 12:23:47 -0700
-Message-ID: <4713BE43.50506@goop.org>
-References: <470BC758.1030504@goop.org> <200710120001.52456.rusty@rustcorp.com.au> <470FC7F4.1030300@goop.org> <200710151816.36758.rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763413AbXJOTYN@vger.kernel.org>
-In-Reply-To: <200710151816.36758.rusty@rustcorp.com.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>, Anthony Liguori <anthony@codemonkey.ws>, Avi Kivity <avi@qumranet.com>, Glauber de Oliveira Costa <glommer@gmail.com>, "Nakajima, Jun" <jun.nakajima@intel.com>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Subject: [PATCH 04/12] Clean up duplicate includes in
+	arch/i386/xen/
+Date: Mon, 15 Oct 2007 13:48:44 -0700
+Message-ID: <20071015210114.891237072@goop.org>
+References: <20071015204840.074767068@goop.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline; filename=xen-clean-up-duplicate-includes.patch
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: xen-devel@lists.xensource.com, Jesper Juhl <jesper.juhl@gmail.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Saturday 13 October 2007 05:16:04 Jeremy Fitzhardinge wrote:
->   
->> Are you otherwise happy with the patch in its current form?  And are you
->> happy with the lazymode changes?
->>     
->
-> No, and yes.
->
-> This applies on top of your 1/2.  Boots here, runs lguest.  It also 
-> exports pv_info: lg.ko checks it to avoid lguest-in-lguest.
->   
+This patch cleans up duplicate includes in
+	arch/i386/xen/
 
-Yeah, OK, I can live with that.  I'll fold it into the base patch, and
-update the lazymode patch accordingly.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+---
+ arch/x86/xen/enlighten.c |    1 -
+ arch/x86/xen/mmu.c       |    2 --
+ 2 files changed, 3 deletions(-)
 
-    J
+===================================================================
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -25,7 +25,6 @@
+ #include <linux/mm.h>
+ #include <linux/page-flags.h>
+ #include <linux/highmem.h>
+-#include <linux/smp.h>
+ 
+ #include <xen/interface/xen.h>
+ #include <xen/interface/physdev.h>
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index 4ae038a..35691a2 100644
+===================================================================
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -41,7 +41,6 @@
+ #include <linux/sched.h>
+ #include <linux/highmem.h>
+ #include <linux/bug.h>
+-#include <linux/sched.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/tlbflush.h>
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
