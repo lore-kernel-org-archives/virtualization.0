@@ -1,53 +1,62 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [stable] [PATCH 00/12] xen/paravirt_ops patches for 2.6.24
-Date: Mon, 15 Oct 2007 14:54:06 -0700
-Message-ID: <20071015215406.GA1588@kroah.com>
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+Subject: Re: [PATCH 04/12] Clean up duplicate includes in arch/i386/xen/
+Date: Mon, 15 Oct 2007 23:58:32 +0200
+Message-ID: <9a8748490710151458o73267df1tcfb35fb5ae71d598@mail.gmail.com>
 References: <20071015204840.074767068@goop.org>
+	 <20071015210114.891237072@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762780AbXJOVz1@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932066AbXJOV6r@vger.kernel.org>
+In-Reply-To: <20071015210114.891237072@goop.org>
 Content-Disposition: inline
-In-Reply-To: <20071015204840.074767068@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, xen-devel@lists.xensource.com, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 15, 2007 at 01:48:40PM -0700, Jeremy Fitzhardinge wrote:
-> Hi Linus,
-> 
-> Here's a set of patches to update paravirt_ops and Xen for 2.6.24
-> 
-> A quick overview of the patchset:
-> 
-> paravirt_ops:
-> 	Remove the monolithic paravirt_ops structure, and replace it with
-> 	smaller structures of related functions.  Also, clean up the handling
-> 	of lazy mode to make it easier to implement.
-> 
-> x86/mm/init.c: remove a chunk of dead code
-> 
-> Xen:
-> 	- remove duplicate includes
-> 	- yield if the target vcpu of an IPI is not currently running
-> 	- add post-batch callbacks for multicalls [*]
-> 	- deal with unpinning pagetables when another vcpu still [*]
-> 	  has a cr3 reference
-> 	- deal with split ptelocks by pinning each pte page
-> 	  separately under lock
-> 	- determine the kernel/hypervisor address split dynamically
-> 	- use the right arg structure for register_vcpu_info [*]
-> 	- add extra debugging output for failed multicalls
-> 
-> XFS:
-> 	- eagerly unmap vmapped areas to avoid confict with Xen
-> 
-> [*] bugfix needed for 2.6.23.  I've also cc:d them to stable@kernel.org
+On 15/10/2007, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> This patch cleans up duplicate includes in
+>         arch/i386/xen/
+>
 
-Yeah, but you cc:ed all 12 patches to stable@.  The majority of which we
-don't want to take, right?  Which specific ones should stable@ care
-about?
+Just for the record; this patch is
+From: Jesper Juhl <jesper.juhl@gmail.com>
 
-thanks,
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> ---
+>  arch/x86/xen/enlighten.c |    1 -
+>  arch/x86/xen/mmu.c       |    2 --
+>  2 files changed, 3 deletions(-)
+>
+> ===================================================================
+> --- a/arch/x86/xen/enlighten.c
+> +++ b/arch/x86/xen/enlighten.c
+> @@ -25,7 +25,6 @@
+>  #include <linux/mm.h>
+>  #include <linux/page-flags.h>
+>  #include <linux/highmem.h>
+> -#include <linux/smp.h>
+>
+>  #include <xen/interface/xen.h>
+>  #include <xen/interface/physdev.h>
+> diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+> index 4ae038a..35691a2 100644
+> ===================================================================
+> --- a/arch/x86/xen/mmu.c
+> +++ b/arch/x86/xen/mmu.c
+> @@ -41,7 +41,6 @@
+>  #include <linux/sched.h>
+>  #include <linux/highmem.h>
+>  #include <linux/bug.h>
+> -#include <linux/sched.h>
+>
+>  #include <asm/pgtable.h>
+>  #include <asm/tlbflush.h>
 
-greg k-h
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html
