@@ -1,8 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 00/12] xen/paravirt_ops patches for 2.6.24
-Date: Mon, 15 Oct 2007 13:48:40 -0700
-Message-ID: <20071015204840.074767068@goop.org>
+Subject: [PATCH 02/12] paravirt: clean up lazy mode handling
+Date: Mon, 15 Oct 2007 13:48:42 -0700
+Message-ID: <20071015210114.737693952@goop.org>
+References: <20071015204840.074767068@goop.org>
 Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline; filename=paravirt-cleanup-lazy.patch
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -12,63 +14,546 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
 To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: xen-devel@lists.xensource.com, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
+Cc: Zach Amsden <zach@vmware.com>, Anthony Liguory <aliguori@us.ibm.com>, xen-devel@lists.xensource.com, Glauber de Oliveira Costa <glommer@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, Avi Kivity <avi@qumranet.com>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Jun Nakajima <jun.nakajima@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Linus,
+Currently, the set_lazy_mode pv_op is overloaded with 5 functions:
+ 1. enter lazy cpu mode
+ 2. leave lazy cpu mode
+ 3. enter lazy mmu mode
+ 4. leave lazy mmu mode
+ 5. flush pending batched operations
 
-Here's a set of patches to update paravirt_ops and Xen for 2.6.24
+This complicates each paravirt backend, since it needs to deal with
+all the possible state transitions, handling flushing, etc. In
+particular, flushing is quite distinct from the other 4 functions, and
+seems to just cause complication.
 
-A quick overview of the patchset:
+This patch removes the set_lazy_mode operation, and adds "enter" and
+"leave" lazy mode operations on mmu_ops and cpu_ops.  All the logic
+associated with enter and leaving lazy states is now in common code
+(basically BUG_ONs to make sure that no mode is current when entering
+a lazy mode, and make sure that the mode is current when leaving).
+Also, flush is handled in a common way, by simply leaving and
+re-entering the lazy mode.
 
-paravirt_ops:
-	Remove the monolithic paravirt_ops structure, and replace it with
-	smaller structures of related functions.  Also, clean up the handling
-	of lazy mode to make it easier to implement.
+The result is that the Xen, lguest and VMI lazy mode implementations
+are much simpler.
 
-x86/mm/init.c: remove a chunk of dead code
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Andi Kleen <ak@suse.de>
+Cc: Zach Amsden <zach@vmware.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Avi Kivity <avi@qumranet.com>
+Cc: Anthony Liguory <aliguori@us.ibm.com>
+Cc: "Glauber de Oliveira Costa" <glommer@gmail.com>
+Cc: Jun Nakajima <jun.nakajima@intel.com>
 
-Xen:
-	- remove duplicate includes
-	- yield if the target vcpu of an IPI is not currently running
-	- add post-batch callbacks for multicalls [*]
-	- deal with unpinning pagetables when another vcpu still [*]
-	  has a cr3 reference
-	- deal with split ptelocks by pinning each pte page
-	  separately under lock
-	- determine the kernel/hypervisor address split dynamically
-	- use the right arg structure for register_vcpu_info [*]
-	- add extra debugging output for failed multicalls
+---
+ arch/x86/kernel/paravirt_32.c |   58 +++++++++++++++++++++++++++++++++++++----
+ arch/x86/kernel/vmi_32.c      |   45 ++++++++++++++++++-------------
+ arch/x86/xen/enlighten.c      |   44 +++++++++----------------------
+ arch/x86/xen/mmu.c            |    2 -
+ arch/x86/xen/multicalls.h     |    2 -
+ arch/x86/xen/xen-ops.h        |    7 ----
+ drivers/lguest/lguest.c       |   34 ++++++++----------------
+ include/asm-x86/paravirt.h    |   52 +++++++++++++++++++++++-------------
+ 8 files changed, 140 insertions(+), 104 deletions(-)
 
-XFS:
-	- eagerly unmap vmapped areas to avoid confict with Xen
+===================================================================
+--- a/arch/x86/kernel/paravirt_32.c
++++ b/arch/x86/kernel/paravirt_32.c
+@@ -164,7 +164,6 @@ static void *get_call_destination(u8 typ
+ {
+ 	struct paravirt_patch_template tmpl = {
+ 		.pv_init_ops = pv_init_ops,
+-		.pv_misc_ops = pv_misc_ops,
+ 		.pv_time_ops = pv_time_ops,
+ 		.pv_cpu_ops = pv_cpu_ops,
+ 		.pv_irq_ops = pv_irq_ops,
+@@ -280,6 +279,49 @@ int paravirt_disable_iospace(void)
+ 	}
+ 
+ 	return ret;
++}
++
++static DEFINE_PER_CPU(enum paravirt_lazy_mode, paravirt_lazy_mode) = PARAVIRT_LAZY_NONE;
++
++static inline void enter_lazy(enum paravirt_lazy_mode mode)
++{
++	BUG_ON(x86_read_percpu(paravirt_lazy_mode) != PARAVIRT_LAZY_NONE);
++	BUG_ON(preemptible());
++
++	x86_write_percpu(paravirt_lazy_mode, mode);
++}
++
++void paravirt_leave_lazy(enum paravirt_lazy_mode mode)
++{
++	BUG_ON(x86_read_percpu(paravirt_lazy_mode) != mode);
++	BUG_ON(preemptible());
++
++	x86_write_percpu(paravirt_lazy_mode, PARAVIRT_LAZY_NONE);
++}
++
++void paravirt_enter_lazy_mmu(void)
++{
++	enter_lazy(PARAVIRT_LAZY_MMU);
++}
++
++void paravirt_leave_lazy_mmu(void)
++{
++	paravirt_leave_lazy(PARAVIRT_LAZY_MMU);
++}
++
++void paravirt_enter_lazy_cpu(void)
++{
++	enter_lazy(PARAVIRT_LAZY_CPU);
++}
++
++void paravirt_leave_lazy_cpu(void)
++{
++	paravirt_leave_lazy(PARAVIRT_LAZY_CPU);
++}
++
++enum paravirt_lazy_mode paravirt_get_lazy_mode(void)
++{
++	return x86_read_percpu(paravirt_lazy_mode);
+ }
+ 
+ struct pv_info pv_info = {
+@@ -347,6 +389,11 @@ struct pv_cpu_ops pv_cpu_ops = {
+ 
+ 	.set_iopl_mask = native_set_iopl_mask,
+ 	.io_delay = native_io_delay,
++
++	.lazy_mode = {
++		.enter = paravirt_nop,
++		.leave = paravirt_nop,
++	},
+ };
+ 
+ struct pv_apic_ops pv_apic_ops = {
+@@ -360,10 +407,6 @@ struct pv_apic_ops pv_apic_ops = {
+ #endif
+ };
+ 
+-struct pv_misc_ops pv_misc_ops = {
+-	.set_lazy_mode = paravirt_nop,
+-};
+-
+ struct pv_mmu_ops pv_mmu_ops = {
+ 	.pagetable_setup_start = native_pagetable_setup_start,
+ 	.pagetable_setup_done = native_pagetable_setup_done,
+@@ -414,6 +457,11 @@ struct pv_mmu_ops pv_mmu_ops = {
+ 	.dup_mmap = paravirt_nop,
+ 	.exit_mmap = paravirt_nop,
+ 	.activate_mm = paravirt_nop,
++
++	.lazy_mode = {
++		.enter = paravirt_nop,
++		.leave = paravirt_nop,
++	},
+ };
+ 
+ EXPORT_SYMBOL_GPL(pv_time_ops);
+===================================================================
+--- a/arch/x86/kernel/vmi_32.c
++++ b/arch/x86/kernel/vmi_32.c
+@@ -552,24 +552,22 @@ vmi_startup_ipi_hook(int phys_apicid, un
+ }
+ #endif
+ 
+-static void vmi_set_lazy_mode(enum paravirt_lazy_mode mode)
+-{
+-	static DEFINE_PER_CPU(enum paravirt_lazy_mode, lazy_mode);
+-
+-	if (!vmi_ops.set_lazy_mode)
+-		return;
+-
+-	/* Modes should never nest or overlap */
+-	BUG_ON(__get_cpu_var(lazy_mode) && !(mode == PARAVIRT_LAZY_NONE ||
+-					     mode == PARAVIRT_LAZY_FLUSH));
+-
+-	if (mode == PARAVIRT_LAZY_FLUSH) {
+-		vmi_ops.set_lazy_mode(0);
+-		vmi_ops.set_lazy_mode(__get_cpu_var(lazy_mode));
+-	} else {
+-		vmi_ops.set_lazy_mode(mode);
+-		__get_cpu_var(lazy_mode) = mode;
+-	}
++static void vmi_enter_lazy_cpu(void)
++{
++	paravirt_enter_lazy_cpu();
++	vmi_ops.set_lazy_mode(2);
++}
++
++static void vmi_enter_lazy_mmu(void)
++{
++	paravirt_enter_lazy_mmu();
++	vmi_ops.set_lazy_mode(1);
++}
++
++static void vmi_leave_lazy(void)
++{
++	paravirt_leave_lazy(paravirt_get_lazy_mode());
++	vmi_ops.set_lazy_mode(0);
+ }
+ 
+ static inline int __init check_vmi_rom(struct vrom_header *rom)
+@@ -798,7 +796,16 @@ static inline int __init activate_vmi(vo
+ 	para_wrap(pv_cpu_ops.load_esp0, vmi_load_esp0, set_kernel_stack, UpdateKernelStack);
+ 	para_fill(pv_cpu_ops.set_iopl_mask, SetIOPLMask);
+ 	para_fill(pv_cpu_ops.io_delay, IODelay);
+-	para_wrap(pv_misc_ops.set_lazy_mode, vmi_set_lazy_mode, set_lazy_mode, SetLazyMode);
++
++	para_wrap(pv_cpu_ops.lazy_mode.enter, vmi_enter_lazy_cpu,
++		  set_lazy_mode, SetLazyMode);
++	para_wrap(pv_cpu_ops.lazy_mode.leave, vmi_leave_lazy,
++		  set_lazy_mode, SetLazyMode);
++
++	para_wrap(pv_mmu_ops.lazy_mode.enter, vmi_enter_lazy_mmu,
++		  set_lazy_mode, SetLazyMode);
++	para_wrap(pv_mmu_ops.lazy_mode.leave, vmi_leave_lazy,
++		  set_lazy_mode, SetLazyMode);
+ 
+ 	/* user and kernel flush are just handled with different flags to FlushTLB */
+ 	para_wrap(pv_mmu_ops.flush_tlb_user, vmi_flush_tlb_user, _flush_tlb, FlushTLB);
+===================================================================
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -50,8 +50,6 @@
+ #include "multicalls.h"
+ 
+ EXPORT_SYMBOL_GPL(hypercall_page);
+-
+-DEFINE_PER_CPU(enum paravirt_lazy_mode, xen_lazy_mode);
+ 
+ DEFINE_PER_CPU(struct vcpu_info *, xen_vcpu);
+ DEFINE_PER_CPU(struct vcpu_info, xen_vcpu_info);
+@@ -264,29 +262,10 @@ static void xen_halt(void)
+ 		xen_safe_halt();
+ }
+ 
+-static void xen_set_lazy_mode(enum paravirt_lazy_mode mode)
+-{
+-	BUG_ON(preemptible());
+-
+-	switch (mode) {
+-	case PARAVIRT_LAZY_NONE:
+-		BUG_ON(x86_read_percpu(xen_lazy_mode) == PARAVIRT_LAZY_NONE);
+-		break;
+-
+-	case PARAVIRT_LAZY_MMU:
+-	case PARAVIRT_LAZY_CPU:
+-		BUG_ON(x86_read_percpu(xen_lazy_mode) != PARAVIRT_LAZY_NONE);
+-		break;
+-
+-	case PARAVIRT_LAZY_FLUSH:
+-		/* flush if necessary, but don't change state */
+-		if (x86_read_percpu(xen_lazy_mode) != PARAVIRT_LAZY_NONE)
+-			xen_mc_flush();
+-		return;
+-	}
+-
++static void xen_leave_lazy(void)
++{
++	paravirt_leave_lazy(paravirt_get_lazy_mode());
+ 	xen_mc_flush();
+-	x86_write_percpu(xen_lazy_mode, mode);
+ }
+ 
+ static unsigned long xen_store_tr(void)
+@@ -373,7 +352,7 @@ static void xen_load_tls(struct thread_s
+ 	 * loaded properly.  This will go away as soon as Xen has been
+ 	 * modified to not save/restore %gs for normal hypercalls.
+ 	 */
+-	if (xen_get_lazy_mode() == PARAVIRT_LAZY_CPU)
++	if (paravirt_get_lazy_mode() == PARAVIRT_LAZY_CPU)
+ 		loadsegment(gs, 0);
+ }
+ 
+@@ -993,6 +972,11 @@ static const struct pv_cpu_ops xen_cpu_o
+ 
+ 	.set_iopl_mask = xen_set_iopl_mask,
+ 	.io_delay = xen_io_delay,
++
++	.lazy_mode = {
++		.enter = paravirt_enter_lazy_cpu,
++		.leave = xen_leave_lazy,
++	},
+ };
+ 
+ static const struct pv_irq_ops xen_irq_ops __initdata = {
+@@ -1068,10 +1052,11 @@ static const struct pv_mmu_ops xen_mmu_o
+ 	.activate_mm = xen_activate_mm,
+ 	.dup_mmap = xen_dup_mmap,
+ 	.exit_mmap = xen_exit_mmap,
+-};
+-
+-static const struct pv_misc_ops xen_misc_ops __initdata = {
+-	.set_lazy_mode = xen_set_lazy_mode,
++
++	.lazy_mode = {
++		.enter = paravirt_enter_lazy_mmu,
++		.leave = xen_leave_lazy,
++	},
+ };
+ 
+ #ifdef CONFIG_SMP
+@@ -1156,7 +1141,6 @@ asmlinkage void __init xen_start_kernel(
+ 	pv_irq_ops = xen_irq_ops;
+ 	pv_apic_ops = xen_apic_ops;
+ 	pv_mmu_ops = xen_mmu_ops;
+-	pv_misc_ops = xen_misc_ops;
+ 
+ 	machine_ops = xen_machine_ops;
+ 
+===================================================================
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -154,7 +154,7 @@ void xen_set_pte_at(struct mm_struct *mm
+ 		    pte_t *ptep, pte_t pteval)
+ {
+ 	if (mm == current->mm || mm == &init_mm) {
+-		if (xen_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
++		if (paravirt_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
+ 			struct multicall_space mcs;
+ 			mcs = xen_mc_entry(0);
+ 
+===================================================================
+--- a/arch/x86/xen/multicalls.h
++++ b/arch/x86/xen/multicalls.h
+@@ -35,7 +35,7 @@ void xen_mc_flush(void);
+ /* Issue a multicall if we're not in a lazy mode */
+ static inline void xen_mc_issue(unsigned mode)
+ {
+-	if ((xen_get_lazy_mode() & mode) == 0)
++	if ((paravirt_get_lazy_mode() & mode) == 0)
+ 		xen_mc_flush();
+ 
+ 	/* restore flags saved in xen_mc_batch */
+===================================================================
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -32,13 +32,6 @@ bool xen_vcpu_stolen(int vcpu);
+ 
+ void xen_mark_init_mm_pinned(void);
+ 
+-DECLARE_PER_CPU(enum paravirt_lazy_mode, xen_lazy_mode);
+-
+-static inline unsigned xen_get_lazy_mode(void)
+-{
+-	return x86_read_percpu(xen_lazy_mode);
+-}
+-
+ void __init xen_fill_possible_map(void);
+ 
+ void __init xen_setup_vcpu_info_placement(void);
+===================================================================
+--- a/drivers/lguest/lguest.c
++++ b/drivers/lguest/lguest.c
+@@ -97,29 +97,17 @@ static cycle_t clock_base;
+  * them as a batch when lazy_mode is eventually turned off.  Because hypercalls
+  * are reasonably expensive, batching them up makes sense.  For example, a
+  * large mmap might update dozens of page table entries: that code calls
+- * lguest_lazy_mode(PARAVIRT_LAZY_MMU), does the dozen updates, then calls
+- * lguest_lazy_mode(PARAVIRT_LAZY_NONE).
++ * paravirt_enter_lazy_mmu(), does the dozen updates, then calls
++ * lguest_leave_lazy_mode().
+  *
+  * So, when we're in lazy mode, we call async_hypercall() to store the call for
+  * future processing.  When lazy mode is turned off we issue a hypercall to
+  * flush the stored calls.
+- *
+- * There's also a hack where "mode" is set to "PARAVIRT_LAZY_FLUSH" which
+- * indicates we're to flush any outstanding calls immediately.  This is used
+- * when an interrupt handler does a kmap_atomic(): the page table changes must
+- * happen immediately even if we're in the middle of a batch.  Usually we're
+- * not, though, so there's nothing to do. */
+-static enum paravirt_lazy_mode lazy_mode; /* Note: not SMP-safe! */
+-static void lguest_lazy_mode(enum paravirt_lazy_mode mode)
+-{
+-	if (mode == PARAVIRT_LAZY_FLUSH) {
+-		if (unlikely(lazy_mode != PARAVIRT_LAZY_NONE))
+-			hcall(LHCALL_FLUSH_ASYNC, 0, 0, 0);
+-	} else {
+-		lazy_mode = mode;
+-		if (mode == PARAVIRT_LAZY_NONE)
+-			hcall(LHCALL_FLUSH_ASYNC, 0, 0, 0);
+-	}
++ */
++static void lguest_leave_lazy_mode(void)
++{
++	paravirt_leave_lazy(paravirt_get_lazy_mode());
++	hcall(LHCALL_FLUSH_ASYNC, 0, 0, 0);
+ }
+ 
+ static void lazy_hcall(unsigned long call,
+@@ -127,7 +115,7 @@ static void lazy_hcall(unsigned long cal
+ 		       unsigned long arg2,
+ 		       unsigned long arg3)
+ {
+-	if (lazy_mode == PARAVIRT_LAZY_NONE)
++	if (paravirt_get_lazy_mode() == PARAVIRT_LAZY_NONE)
+ 		hcall(call, arg1, arg2, arg3);
+ 	else
+ 		async_hcall(call, arg1, arg2, arg3);
+@@ -1011,6 +999,8 @@ __init void lguest_init(void *boot)
+ 	pv_cpu_ops.write_gdt_entry = lguest_write_gdt_entry;
+ 	pv_cpu_ops.write_idt_entry = lguest_write_idt_entry;
+ 	pv_cpu_ops.wbinvd = lguest_wbinvd;
++	pv_cpu_ops.lazy_mode.enter = paravirt_enter_lazy_cpu;
++	pv_cpu_ops.lazy_mode.leave = lguest_leave_lazy_mode;
+ 
+ 	/* pagetable management */
+ 	pv_mmu_ops.write_cr3 = lguest_write_cr3;
+@@ -1022,6 +1012,8 @@ __init void lguest_init(void *boot)
+ 	pv_mmu_ops.set_pmd = lguest_set_pmd;
+ 	pv_mmu_ops.read_cr2 = lguest_read_cr2;
+ 	pv_mmu_ops.read_cr3 = lguest_read_cr3;
++	pv_mmu_ops.lazy_mode.enter = paravirt_enter_lazy_mmu;
++	pv_mmu_ops.lazy_mode.leave = lguest_leave_lazy_mode;
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	/* apic read/write intercepts */
+@@ -1033,8 +1025,6 @@ __init void lguest_init(void *boot)
+ 	/* time operations */
+ 	pv_time_ops.get_wallclock = lguest_get_wallclock;
+ 	pv_time_ops.time_init = lguest_time_init;
+-
+-	pv_misc_ops.set_lazy_mode = lguest_lazy_mode;
+ 
+ 	/* Now is a good time to look at the implementations of these functions
+ 	 * before returning to the rest of lguest_init(). */
+===================================================================
+--- a/include/asm-x86/paravirt.h
++++ b/include/asm-x86/paravirt.h
+@@ -24,15 +24,6 @@ struct tss_struct;
+ struct tss_struct;
+ struct mm_struct;
+ struct desc_struct;
+-
+-/* Lazy mode for batching updates / context switch */
+-enum paravirt_lazy_mode {
+-	PARAVIRT_LAZY_NONE = 0,
+-	PARAVIRT_LAZY_MMU = 1,
+-	PARAVIRT_LAZY_CPU = 2,
+-	PARAVIRT_LAZY_FLUSH = 3,
+-};
+-
+ 
+ /* general info */
+ struct pv_info {
+@@ -64,9 +55,10 @@ struct pv_init_ops {
+ };
+ 
+ 
+-struct pv_misc_ops {
++struct pv_lazy_ops {
+ 	/* Set deferred update mode, used for batching operations. */
+-	void (*set_lazy_mode)(enum paravirt_lazy_mode mode);
++	void (*enter)(void);
++	void (*leave)(void);
+ };
+ 
+ struct pv_time_ops {
+@@ -131,6 +123,8 @@ struct pv_cpu_ops {
+ 	/* These two are jmp to, not actually called. */
+ 	void (*irq_enable_sysexit)(void);
+ 	void (*iret)(void);
++
++	struct pv_lazy_ops lazy_mode;
+ };
+ 
+ struct pv_irq_ops {
+@@ -244,6 +238,8 @@ struct pv_mmu_ops {
+ #ifdef CONFIG_HIGHPTE
+ 	void *(*kmap_atomic_pte)(struct page *page, enum km_type type);
+ #endif
++
++	struct pv_lazy_ops lazy_mode;
+ };
+ 
+ /* This contains all the paravirt structures: we get a convenient
+@@ -252,7 +248,6 @@ struct paravirt_patch_template
+ struct paravirt_patch_template
+ {
+ 	struct pv_init_ops pv_init_ops;
+-	struct pv_misc_ops pv_misc_ops;
+ 	struct pv_time_ops pv_time_ops;
+ 	struct pv_cpu_ops pv_cpu_ops;
+ 	struct pv_irq_ops pv_irq_ops;
+@@ -262,7 +257,6 @@ struct paravirt_patch_template
+ 
+ extern struct pv_info pv_info;
+ extern struct pv_init_ops pv_init_ops;
+-extern struct pv_misc_ops pv_misc_ops;
+ extern struct pv_time_ops pv_time_ops;
+ extern struct pv_cpu_ops pv_cpu_ops;
+ extern struct pv_irq_ops pv_irq_ops;
+@@ -953,37 +947,57 @@ static inline void set_pmd(pmd_t *pmdp, 
+ }
+ #endif	/* CONFIG_X86_PAE */
+ 
++/* Lazy mode for batching updates / context switch */
++enum paravirt_lazy_mode {
++	PARAVIRT_LAZY_NONE,
++	PARAVIRT_LAZY_MMU,
++	PARAVIRT_LAZY_CPU,
++};
++
++enum paravirt_lazy_mode paravirt_get_lazy_mode(void);
++void paravirt_enter_lazy_cpu(void);
++void paravirt_leave_lazy_cpu(void);
++void paravirt_enter_lazy_mmu(void);
++void paravirt_leave_lazy_mmu(void);
++void paravirt_leave_lazy(enum paravirt_lazy_mode mode);
++
+ #define  __HAVE_ARCH_ENTER_LAZY_CPU_MODE
+ static inline void arch_enter_lazy_cpu_mode(void)
+ {
+-	PVOP_VCALL1(pv_misc_ops.set_lazy_mode, PARAVIRT_LAZY_CPU);
++	PVOP_VCALL0(pv_cpu_ops.lazy_mode.enter);
+ }
+ 
+ static inline void arch_leave_lazy_cpu_mode(void)
+ {
+-	PVOP_VCALL1(pv_misc_ops.set_lazy_mode, PARAVIRT_LAZY_NONE);
++	PVOP_VCALL0(pv_cpu_ops.lazy_mode.leave);
+ }
+ 
+ static inline void arch_flush_lazy_cpu_mode(void)
+ {
+-	PVOP_VCALL1(pv_misc_ops.set_lazy_mode, PARAVIRT_LAZY_FLUSH);
++	if (unlikely(paravirt_get_lazy_mode() == PARAVIRT_LAZY_CPU)) {
++		arch_leave_lazy_cpu_mode();
++		arch_enter_lazy_cpu_mode();
++	}
+ }
+ 
+ 
+ #define  __HAVE_ARCH_ENTER_LAZY_MMU_MODE
+ static inline void arch_enter_lazy_mmu_mode(void)
+ {
+-	PVOP_VCALL1(pv_misc_ops.set_lazy_mode, PARAVIRT_LAZY_MMU);
++	PVOP_VCALL0(pv_mmu_ops.lazy_mode.enter);
+ }
+ 
+ static inline void arch_leave_lazy_mmu_mode(void)
+ {
+-	PVOP_VCALL1(pv_misc_ops.set_lazy_mode, PARAVIRT_LAZY_NONE);
++	PVOP_VCALL0(pv_mmu_ops.lazy_mode.leave);
+ }
+ 
+ static inline void arch_flush_lazy_mmu_mode(void)
+ {
+-	PVOP_VCALL1(pv_misc_ops.set_lazy_mode, PARAVIRT_LAZY_FLUSH);
++	if (unlikely(paravirt_get_lazy_mode() == PARAVIRT_LAZY_MMU)) {
++		arch_leave_lazy_mmu_mode();
++		arch_enter_lazy_mmu_mode();
++	}
+ }
+ 
+ void _paravirt_nop(void);
 
-[*] bugfix needed for 2.6.23.  I've also cc:d them to stable@kernel.org
-
-Diffstat:
- arch/x86/kernel/alternative.c         |    4 
- arch/x86/kernel/asm-offsets_32.c      |   14 
- arch/x86/kernel/entry_32.S            |    2 
- arch/x86/kernel/paravirt_32.c         |  234 ++++++++-----
- arch/x86/kernel/vmi_32.c              |  211 ++++++------
- arch/x86/mm/init_32.c                 |   22 -
- arch/x86/xen/enlighten.c              |  295 +++++++++-------
- arch/x86/xen/mmu.c                    |  149 ++++++--
- arch/x86/xen/multicalls.c             |   52 ++
- arch/x86/xen/multicalls.h             |    5 
- arch/x86/xen/smp.c                    |   14 
- arch/x86/xen/time.c                   |    6 
- arch/x86/xen/xen-ops.h                |   10 
- drivers/char/hvc_lguest.c             |    2 
- drivers/lguest/core.c                 |    6 
- drivers/lguest/lguest.c               |  154 ++++----
- drivers/lguest/lguest_bus.c           |    2 
- fs/xfs/linux-2.6/xfs_buf.c            |   13 
- include/asm-x86/paravirt.h            |  507 ++++++++++++++++-------------
- include/asm-x86/pgtable-3level-defs.h |    2 
- include/xen/interface/vcpu.h          |    5 
- mm/Kconfig                            |    1 
- 22 files changed, 1027 insertions(+), 683 deletions(-)
-
-Thanks,
-	J
+-- 
