@@ -1,62 +1,33 @@
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-Subject: Re: [PATCH 04/12] Clean up duplicate includes in arch/i386/xen/
-Date: Mon, 15 Oct 2007 23:58:32 +0200
-Message-ID: <9a8748490710151458o73267df1tcfb35fb5ae71d598@mail.gmail.com>
-References: <20071015204840.074767068@goop.org>
-	 <20071015210114.891237072@goop.org>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [stable] [PATCH 00/12] xen/paravirt_ops patches for 2.6.24
+Date: Mon, 15 Oct 2007 14:59:50 -0700
+Message-ID: <4713E2D6.90801@goop.org>
+References: <20071015204840.074767068@goop.org> <20071015215406.GA1588@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932066AbXJOV6r@vger.kernel.org>
-In-Reply-To: <20071015210114.891237072@goop.org>
-Content-Disposition: inline
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763176AbXJOWAi@vger.kernel.org>
+In-Reply-To: <20071015215406.GA1588@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, xen-devel@lists.xensource.com, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 15/10/2007, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> This patch cleans up duplicate includes in
->         arch/i386/xen/
->
+Greg KH wrote:
+> Yeah, but you cc:ed all 12 patches to stable@.  The majority of which we
+> don't want to take, right?  Which specific ones should stable@ care
+> about?
 
-Just for the record; this patch is
-From: Jesper Juhl <jesper.juhl@gmail.com>
+Crap, sorry about that.  I'd just intended to send the overview and the
+four patches, which have explicit CC: stable lines in the patch
+descriptions.  They are:
 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> ---
->  arch/x86/xen/enlighten.c |    1 -
->  arch/x86/xen/mmu.c       |    2 --
->  2 files changed, 3 deletions(-)
->
-> ===================================================================
-> --- a/arch/x86/xen/enlighten.c
-> +++ b/arch/x86/xen/enlighten.c
-> @@ -25,7 +25,6 @@
->  #include <linux/mm.h>
->  #include <linux/page-flags.h>
->  #include <linux/highmem.h>
-> -#include <linux/smp.h>
->
->  #include <xen/interface/xen.h>
->  #include <xen/interface/physdev.h>
-> diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-> index 4ae038a..35691a2 100644
-> ===================================================================
-> --- a/arch/x86/xen/mmu.c
-> +++ b/arch/x86/xen/mmu.c
-> @@ -41,7 +41,6 @@
->  #include <linux/sched.h>
->  #include <linux/highmem.h>
->  #include <linux/bug.h>
-> -#include <linux/sched.h>
->
->  #include <asm/pgtable.h>
->  #include <asm/tlbflush.h>
+Subject: [PATCH 06/12] xen: add batch completion callbacks
+Subject: [PATCH 07/12] xen: deal with stale cr3 values when unpinning
+pagetables
+Subject: [PATCH 10/12] xen: fix incorrect vcpu_register_vcpu_info
+hypercall argument
+Subject: [PATCH 12/12] xfs: eagerly remove vmap mappings to avoid
+upsetting Xen
 
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+    J
