@@ -1,30 +1,45 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [stable] [PATCH 00/12] xen/paravirt_ops patches for 2.6.24
-Date: Mon, 15 Oct 2007 16:48:44 -0700
-Message-ID: <1192492124.17375.62.camel@bodhitayantram.eng.vmware.com>
-References: <20071015204840.074767068@goop.org>
-	 <20071015215406.GA1588@kroah.com> <4713E2D6.90801@goop.org>
-	 <200710160003.13189.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763057AbXJOXtX@vger.kernel.org>
-In-Reply-To: <200710160003.13189.ak@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>, Stable Kernel <stable@kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Keir Fraser <keir@xensource.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: LFENCE instruction (was: [rfc][patch 3/3] x86: optimise
+	barriers)
+Date: Wed, 17 Oct 2007 13:51:17 +0800
+Message-ID: <E1Ii1oL-0005I3-00__26708.2503218719$1192600516$gmane$org@gondolin.me.apana.org.au>
+References: <20071016002229.GA5851@wotan.suse.de>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20071016002229.GA5851@wotan.suse.de>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Nick Piggin <npiggin@suse.de>
+Cc: virtualization <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, mikulas@artax.karlin.mff.cuni.cz, arjan@infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2007-10-16 at 00:03 +0200, Andi Kleen wrote:
-> > Subject: [PATCH 12/12] xfs: eagerly remove vmap mappings to avoid
-> > upsetting Xen
+Nick Piggin <npiggin@suse.de> wrote:
+>
+> Also, for non-wb memory. I don't think the Intel document referenced
+> says anything about this, but the AMD document says that loads can pass
+> loads (page 8, rule b).
 > 
-> This should be probably done unconditionally because it's a undefined
-> dangerous condition everywhere.
+> This is why our rmb() is still an lfence.
 
-Should be done unconditionally.  One could remap the underlying physical
-space to include an MMIO region, and speculative reads from the
-cacheable virtual mapping of that region could move the robot arm,
-destroying the world.
+BTW, Xen (in particular, the code in drivers/xen) uses mb/rmb/wmb
+instead of smp_mb/smp_rmb/smp_wmb when it accesses memory that's
+shared with other Xen domains or the hypervisor.
 
-Zach
+The reason this is necessary is because even if a Xen domain is
+UP the hypervisor might be SMP.
+
+It would be nice if we can have these adopt the new SMP barriers
+on x86 instead of the IO ones as they currently do.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
