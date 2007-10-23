@@ -1,16 +1,16 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [git pull] lguest: paravirt boot code
-Date: Tue, 23 Oct 2007 08:55:06 +0200
-Message-ID: <200710230855.06253.borntraeger__38233.5472073921$1193122716$gmane$org@de.ibm.com>
+Date: Tue, 23 Oct 2007 17:44:15 +1000
+Message-ID: <200710231744.16296.rusty__31728.711402002$1193125609$gmane$org@rustcorp.com.au>
 References: <200710221237.14542.rusty@rustcorp.com.au>
-	<alpine.LFD.0.999.0710221927131.30120@woody.linux-foundation.org>
 	<200710231603.21620.rusty@rustcorp.com.au>
+	<200710230855.06253.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200710231603.21620.rusty@rustcorp.com.au>
+In-Reply-To: <200710230855.06253.borntraeger@de.ibm.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,38 +21,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: lguest <lguest@ozlabs.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: lguest <lguest@ozlabs.org>, "H. Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Dienstag, 23. Oktober 2007 schrieb Rusty Russell:
->=A0=A0=A0=A0=A0=A0=A0=A0git://git.kernel.org/pub/scm/linux/kernel/git/ru=
-sty/linux-2.6-lguest.git
-> This should be fairly clean: 45 lguest patches including the more gener=
-ic
-> drivers (aimed to be used by KVM as well, and hopefully others) and the=
- start
-> of separation of arch-specific from general lguest code.
+On Tuesday 23 October 2007 16:55:06 Christian Borntraeger wrote:
+> Having virtio in Linus tree would make my life easier wiring it up for
+> virtualization on s390.
 
->  drivers/net/virtio_net.c              |  435 +++++++++
->  drivers/virtio/Kconfig                |    8 +
->  drivers/virtio/Makefile               |    2 +
->  drivers/virtio/config.c               |   13 +
->  drivers/virtio/virtio.c               |  189 ++++
->  drivers/virtio/virtio_ring.c          |  313 +++++++
->  drivers/block/virtio_blk.c            |  308 +++++++
->  drivers/char/virtio_console.c         |  225 +++++
+Indeed.  And given lguest's lack of interface guarantees, it make sense to use 
+it as the first virtio guinea pig.  I expect changes as we adapt it for 
+others anyway.
 
-Having virtio in Linus tree would make my life easier wiring it up for=20
-virtualization on s390.
+> That reminds me that I promised Rusty to look at one small issue in virtio
+> net driver. Nothing that should hold of the merge. I will sent the patch
+> via Rusty when its ready.
 
-For all virtio patches:
-
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-
-That reminds me that I promised Rusty to look at one small issue in virti=
-o
-net driver. Nothing that should hold of the merge. I will sent the patch =
-via
-Rusty when its ready.=20
+Thanks,
+Rusty.
