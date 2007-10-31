@@ -1,12 +1,17 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 3/16] read/write_crX, clts and wbinvd for 64-bit paravirt
-Date: Wed, 31 Oct 2007 16:14:48 -0300
-Message-ID: <1193858118284-git-send-email-gcosta__17579.13004044$1193869075$gmane$org@redhat.com>
+Subject: [PATCH 8/16] add native functions for descriptors handling
+Date: Wed, 31 Oct 2007 16:14:53 -0300
+Message-ID: <11938581451804-git-send-email-gcosta__21287.3302436948$1193869077$gmane$org@redhat.com>
 References: <1193858101367-git-send-email-gcosta@redhat.com>
 	<11938581073775-git-send-email-gcosta@redhat.com>
 	<11938581133479-git-send-email-gcosta@redhat.com>
+	<1193858118284-git-send-email-gcosta@redhat.com>
+	<11938581242810-git-send-email-gcosta@redhat.com>
+	<1193858130443-git-send-email-gcosta@redhat.com>
+	<11938581351064-git-send-email-gcosta@redhat.com>
+	<11938581403478-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11938581133479-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11938581403478-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,149 +25,362 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces, and patch callers when needed, native
-versions for read/write_crX functions, clts and wbinvd.
+This patch turns the basic descriptor handling into native_
+functions. It is basically write_idt, load_idt, write_gdt,
+load_gdt, set_ldt, store_tr, load_tls, and the ones
+for updating a single entry.
+
+In the process of doing that, we change the definition of
+load_LDT_nolock, and caller sites have to be patched. We
+also patch call sites that now needs a typecast.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/mm/pageattr_64.c   |    3 +-
- include/asm-x86/system_64.h |   60 ++++++++++++++++++++++++++++++------------
- 2 files changed, 45 insertions(+), 18 deletions(-)
+ arch/x86/kernel/ldt_64.c         |    7 +-
+ include/asm-x86/desc_64.h        |  172 +++++++++++++++++++++++++-------------
+ include/asm-x86/mmu_context_64.h |   23 ++++--
+ 3 files changed, 132 insertions(+), 70 deletions(-)
 
-diff --git a/arch/x86/mm/pageattr_64.c b/arch/x86/mm/pageattr_64.c
-index c40afba..59a52b0 100644
---- a/arch/x86/mm/pageattr_64.c
-+++ b/arch/x86/mm/pageattr_64.c
-@@ -12,6 +12,7 @@
- #include <asm/processor.h>
- #include <asm/tlbflush.h>
- #include <asm/io.h>
-+#include <asm/paravirt.h>
+diff --git a/arch/x86/kernel/ldt_64.c b/arch/x86/kernel/ldt_64.c
+index 60e57ab..ab1ff6e 100644
+--- a/arch/x86/kernel/ldt_64.c
++++ b/arch/x86/kernel/ldt_64.c
+@@ -171,7 +171,7 @@ static int write_ldt(void __user * ptr, unsigned long bytecount, int oldmode)
+ {
+ 	struct task_struct *me = current;
+ 	struct mm_struct * mm = me->mm;
+-	__u32 entry_1, entry_2, *lp;
++	__u32 entry_1, entry_2;
+ 	int error;
+ 	struct user_desc ldt_info;
  
- pte_t *lookup_address(unsigned long address)
- { 
-@@ -77,7 +78,7 @@ static void flush_kernel_map(void *arg)
- 	   much cheaper than WBINVD. */
- 	/* clflush is still broken. Disable for now. */
- 	if (1 || !cpu_has_clflush)
--		asm volatile("wbinvd" ::: "memory");
-+		wbinvd();
- 	else list_for_each_entry(pg, l, lru) {
- 		void *adr = page_address(pg);
- 		clflush_cache_range(adr, PAGE_SIZE);
-diff --git a/include/asm-x86/system_64.h b/include/asm-x86/system_64.h
-index 4cb2384..b558cb2 100644
---- a/include/asm-x86/system_64.h
-+++ b/include/asm-x86/system_64.h
-@@ -65,53 +65,62 @@ extern void load_gs_index(unsigned);
- /*
-  * Clear and set 'TS' bit respectively
-  */
--#define clts() __asm__ __volatile__ ("clts")
-+static inline void native_clts(void)
+@@ -200,7 +200,6 @@ static int write_ldt(void __user * ptr, unsigned long bytecount, int oldmode)
+ 			goto out_unlock;
+ 	}
+ 
+-	lp = (__u32 *) ((ldt_info.entry_number << 3) + (char *) mm->context.ldt);
+ 
+    	/* Allow LDTs to be cleared by the user. */
+    	if (ldt_info.base_addr == 0 && ldt_info.limit == 0) {
+@@ -218,8 +217,8 @@ static int write_ldt(void __user * ptr, unsigned long bytecount, int oldmode)
+ 
+ 	/* Install the new entry ...  */
+ install:
+-	*lp	= entry_1;
+-	*(lp+1)	= entry_2;
++	write_ldt_entry(mm->context.ldt, ldt_info.entry_number,
++			entry_1, entry_2);
+ 	error = 0;
+ 
+ out_unlock:
+diff --git a/include/asm-x86/desc_64.h b/include/asm-x86/desc_64.h
+index 7d9c938..f7008bb 100644
+--- a/include/asm-x86/desc_64.h
++++ b/include/asm-x86/desc_64.h
+@@ -16,20 +16,18 @@
+ 
+ extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
+ 
+-#define load_TR_desc() asm volatile("ltr %w0"::"r" (GDT_ENTRY_TSS*8))
+-#define load_LDT_desc() asm volatile("lldt %w0"::"r" (GDT_ENTRY_LDT*8))
+-#define clear_LDT()  asm volatile("lldt %w0"::"r" (0))
++static inline void native_load_tr_desc(void)
 +{
-+	asm volatile ("clts");
++	asm volatile("ltr %w0"::"r" (GDT_ENTRY_TSS*8));
 +}
  
--static inline unsigned long read_cr0(void)
--{ 
-+static inline unsigned long native_read_cr0(void)
-+{
- 	unsigned long cr0;
- 	asm volatile("movq %%cr0,%0" : "=r" (cr0));
- 	return cr0;
- }
- 
--static inline void write_cr0(unsigned long val) 
--{ 
-+static inline void native_write_cr0(unsigned long val)
-+{
- 	asm volatile("movq %0,%%cr0" :: "r" (val));
- }
- 
--static inline unsigned long read_cr2(void)
-+static inline unsigned long native_read_cr2(void)
+-static inline unsigned long __store_tr(void)
++static inline unsigned long native_store_tr(void)
  {
- 	unsigned long cr2;
- 	asm volatile("movq %%cr2,%0" : "=r" (cr2));
- 	return cr2;
+        unsigned long tr;
+-
+        asm volatile ("str %w0":"=r" (tr));
+        return tr;
  }
  
--static inline void write_cr2(unsigned long val)
-+static inline void native_write_cr2(unsigned long val)
+-#define store_tr(tr) (tr) = __store_tr()
+-
+ /*
+  * This is the ldt that every process will get unless we need
+  * something other than this.
+@@ -41,62 +39,51 @@ extern struct desc_ptr cpu_gdt_descr[];
+ /* the cpu gdt accessor */
+ #define cpu_gdt(_cpu) ((struct desc_struct *)cpu_gdt_descr[_cpu].address)
+ 
+-static inline void load_gdt(const struct desc_ptr *ptr)
++static inline void native_load_gdt(const struct desc_ptr *ptr)
  {
- 	asm volatile("movq %0,%%cr2" :: "r" (val));
+ 	asm volatile("lgdt %w0"::"m" (*ptr));
  }
  
--static inline unsigned long read_cr3(void)
--{ 
-+static inline unsigned long native_read_cr3(void)
-+{
- 	unsigned long cr3;
- 	asm volatile("movq %%cr3,%0" : "=r" (cr3));
- 	return cr3;
- }
- 
--static inline void write_cr3(unsigned long val)
-+static inline void native_write_cr3(unsigned long val)
+-static inline void store_gdt(struct desc_ptr *ptr)
++static inline void native_store_gdt(struct desc_ptr *ptr)
  {
- 	asm volatile("movq %0,%%cr3" :: "r" (val) : "memory");
+-       asm("sgdt %w0":"=m" (*ptr));
++       asm volatile ("sgdt %w0":"=m" (*ptr));
  }
  
--static inline unsigned long read_cr4(void)
+-static inline void _set_gate(void *adr, unsigned type, unsigned long func, unsigned dpl, unsigned ist)  
++static inline void native_write_idt_entry(void *adr, struct gate_struct *s)
+ {
+-	struct gate_struct s; 	
+-	s.offset_low = PTR_LOW(func); 
+-	s.segment = __KERNEL_CS;
+-	s.ist = ist; 
+-	s.p = 1;
+-	s.dpl = dpl; 
+-	s.zero0 = 0;
+-	s.zero1 = 0; 
+-	s.type = type; 
+-	s.offset_middle = PTR_MIDDLE(func); 
+-	s.offset_high = PTR_HIGH(func); 
+-	/* does not need to be atomic because it is only done once at setup time */ 
+-	memcpy(adr, &s, 16); 
+-} 
+-
+-static inline void set_intr_gate(int nr, void *func) 
 -{ 
-+static inline unsigned long native_read_cr4(void)
+-	BUG_ON((unsigned)nr > 0xFF);
+-	_set_gate(&idt_table[nr], GATE_INTERRUPT, (unsigned long) func, 0, 0); 
+-} 
++	/* does not need to be atomic because
++	 * it is only done once at setup time */
++	memcpy(adr, s, 16);
++}
+ 
+-static inline void set_intr_gate_ist(int nr, void *func, unsigned ist) 
+-{ 
+-	BUG_ON((unsigned)nr > 0xFF);
+-	_set_gate(&idt_table[nr], GATE_INTERRUPT, (unsigned long) func, 0, ist); 
+-} 
++static inline void native_write_gdt_entry(void *ptr, void *entry,
++						unsigned type, unsigned size)
 +{
- 	unsigned long cr4;
- 	asm volatile("movq %%cr4,%0" : "=r" (cr4));
- 	return cr4;
++	memcpy(ptr, entry, size);
++}
+ 
+-static inline void set_system_gate(int nr, void *func) 
+-{ 
+-	BUG_ON((unsigned)nr > 0xFF);
+-	_set_gate(&idt_table[nr], GATE_INTERRUPT, (unsigned long) func, 3, 0); 
+-} 
++/*
++ * This one unfortunately can't go with the others, in below, because it has
++ * an user anxious for its definition: set_tssldt_descriptor
++ */
++#ifndef CONFIG_PARAVIRT
++#define write_gdt_entry(_ptr, _e, _type, _size) \
++		native_write_gdt_entry((_ptr), (_e), (_type), (_size))
++#endif
+ 
+-static inline void set_system_gate_ist(int nr, void *func, unsigned ist)
++static inline void write_dt_entry(struct desc_struct *dt,
++				  int entry, u32 entry_low, u32 entry_high)
+ {
+-	_set_gate(&idt_table[nr], GATE_INTERRUPT, (unsigned long) func, 3, ist);
++	((struct n_desc_struct *)dt)[entry].a = entry_low;
++	((struct n_desc_struct *)dt)[entry].b = entry_high;
  }
  
--static inline void write_cr4(unsigned long val)
--{ 
-+static inline unsigned long native_read_cr4_safe(void)
+-static inline void load_idt(const struct desc_ptr *ptr)
++static inline void native_load_idt(const struct desc_ptr *ptr)
+ {
+ 	asm volatile("lidt %w0"::"m" (*ptr));
+ }
+ 
+-static inline void store_idt(struct desc_ptr *dtr)
++static inline void native_store_idt(struct desc_ptr *dtr)
+ {
+        asm("sidt %w0":"=m" (*dtr));
+ }
+@@ -114,7 +101,7 @@ static inline void set_tssldt_descriptor(void *ptr, unsigned long tss, unsigned
+ 	d.limit1 = (size >> 16) & 0xF;
+ 	d.base2 = (PTR_MIDDLE(tss) >> 8) & 0xFF; 
+ 	d.base3 = PTR_HIGH(tss); 
+-	memcpy(ptr, &d, 16); 
++	write_gdt_entry(ptr, &d, type, 16);
+ }
+ 
+ static inline void set_tss_desc(unsigned cpu, void *addr)
+@@ -165,7 +152,7 @@ static inline void set_ldt_desc(unsigned cpu, void *addr, int size)
+ 	(info)->useable		== 0	&& \
+ 	(info)->lm		== 0)
+ 
+-static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
++static inline void native_load_tls(struct thread_struct *t, unsigned int cpu)
+ {
+ 	unsigned int i;
+ 	u64 *gdt = (u64 *)(cpu_gdt(cpu) + GDT_ENTRY_TLS_MIN);
+@@ -173,28 +160,93 @@ static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
+ 	for (i = 0; i < GDT_ENTRY_TLS_ENTRIES; i++)
+ 		gdt[i] = t->tls_array[i];
+ } 
++static inline void native_set_ldt(const void *addr,
++				  unsigned int entries)
 +{
-+	/* CR4 always exist */
-+	return native_read_cr4();
++	if (likely(entries == 0))
++		__asm__ __volatile__ ("lldt %w0" :: "r" (0));
++	else {
++		unsigned cpu = smp_processor_id();
++
++		set_tssldt_descriptor(&cpu_gdt(cpu)[GDT_ENTRY_LDT],
++					(unsigned long)addr, DESC_LDT,
++					entries * 8 - 1);
++		__asm__ __volatile__ ("lldt %w0"::"r" (GDT_ENTRY_LDT*8));
++	}
 +}
 +
-+static inline void native_write_cr4(unsigned long val)
-+{
- 	asm volatile("movq %0,%%cr4" :: "r" (val) : "memory");
- }
- 
-@@ -127,10 +136,27 @@ static inline void write_cr8(unsigned long val)
- 	asm volatile("movq %0,%%cr8" :: "r" (val) : "memory");
- }
- 
--#define stts() write_cr0(8 | read_cr0())
-+static inline void native_wbinvd(void)
-+{
-+	asm volatile("wbinvd" ::: "memory");
-+}
- 
--#define wbinvd() \
--	__asm__ __volatile__ ("wbinvd": : :"memory")
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
 +#else
-+#define clts		native_clts
-+#define wbinvd		native_wbinvd
-+#define read_cr0 	native_read_cr0
-+#define read_cr2 	native_read_cr2
-+#define read_cr3 	native_read_cr3
-+#define read_cr4 	native_read_cr4
-+#define write_cr0	native_write_cr0
-+#define write_cr2	native_write_cr2
-+#define write_cr3	native_write_cr3
-+#define write_cr4	native_write_cr4
++#define load_TR_desc()	native_load_tr_desc()
++#define load_gdt(ptr)	native_load_gdt(ptr)
++#define load_idt(ptr)	native_load_idt(ptr)
++#define load_TLS(t, cpu) native_load_tls(t, cpu)
++#define set_ldt(addr, entries)	native_set_ldt(addr, entries)
++#define store_tr(tr) (tr) = native_store_tr()
++#define store_gdt(ptr)	native_store_gdt(ptr)
++#define store_idt(ptr)	native_store_idt(ptr)
++
++#define write_idt_entry(_adr, _s) native_write_idt_entry((_adr), (_s))
++#define write_ldt_entry(_ldt, _number, _entry1, _entry2) \
++		write_dt_entry((_ldt), (_number), (_entry1), (_entry2))
 +#endif
 +
-+#define stts() write_cr0(8 | read_cr0())
++static inline void _set_gate(void *adr, unsigned type, unsigned long func,
++			     unsigned dpl, unsigned ist)
++{
++	struct gate_struct s;
++	s.offset_low = PTR_LOW(func);
++	s.segment = __KERNEL_CS;
++	s.ist = ist;
++	s.p = 1;
++	s.dpl = dpl;
++	s.zero0 = 0;
++	s.zero1 = 0;
++	s.type = type;
++	s.offset_middle = PTR_MIDDLE(func);
++	s.offset_high = PTR_HIGH(func);
++	write_idt_entry(adr, &s);
++}
++
++static inline void set_intr_gate(int nr, void *func)
++{
++	BUG_ON((unsigned)nr > 0xFF);
++	_set_gate(&idt_table[nr], GATE_INTERRUPT, (unsigned long) func, 0, 0);
++}
++
++static inline void set_intr_gate_ist(int nr, void *func, unsigned ist)
++{
++	BUG_ON((unsigned)nr > 0xFF);
++	_set_gate(&idt_table[nr], GATE_INTERRUPT, (unsigned long) func, 0, ist);
++}
++
++static inline void set_system_gate(int nr, void *func)
++{
++	BUG_ON((unsigned)nr > 0xFF);
++	_set_gate(&idt_table[nr], GATE_INTERRUPT, (unsigned long) func, 3, 0);
++}
++
++static inline void set_system_gate_ist(int nr, void *func, unsigned ist)
++{
++	_set_gate(&idt_table[nr], GATE_INTERRUPT, (unsigned long) func, 3, ist);
++}
++
++#define clear_LDT()  set_ldt(NULL, 0)
  
- #endif	/* __KERNEL__ */
+ /*
+  * load one particular LDT into the current CPU
+  */
+-static inline void load_LDT_nolock (mm_context_t *pc, int cpu)
++static inline void load_LDT_nolock(mm_context_t *pc)
+ {
+-	int count = pc->size;
+-
+-	if (likely(!count)) {
+-		clear_LDT();
+-		return;
+-	}
+-		
+-	set_ldt_desc(cpu, pc->ldt, count);
+-	load_LDT_desc();
++	set_ldt(pc->ldt, pc->size);
+ }
  
+ static inline void load_LDT(mm_context_t *pc)
+ {
+-	int cpu = get_cpu();
+-	load_LDT_nolock(pc, cpu);
+-	put_cpu();
++	preempt_disable();
++	load_LDT_nolock(pc);
++	preempt_enable();
+ }
+ 
+ extern struct desc_ptr idt_descr;
+diff --git a/include/asm-x86/mmu_context_64.h b/include/asm-x86/mmu_context_64.h
+index 0cce83a..841ee33 100644
+--- a/include/asm-x86/mmu_context_64.h
++++ b/include/asm-x86/mmu_context_64.h
+@@ -7,7 +7,16 @@
+ #include <asm/pda.h>
+ #include <asm/pgtable.h>
+ #include <asm/tlbflush.h>
++
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++#else
+ #include <asm-generic/mm_hooks.h>
++static inline void paravirt_activate_mm(struct mm_struct *prev,
++					struct mm_struct *next)
++{
++}
++#endif /* CONFIG_PARAVIRT */
+ 
+ /*
+  * possibly do the LDT unload here?
+@@ -25,7 +34,7 @@ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
+ 
+ static inline void load_cr3(pgd_t *pgd)
+ {
+-	asm volatile("movq %0,%%cr3" :: "r" (__pa(pgd)) : "memory");
++	write_cr3(__pa(pgd));
+ }
+ 
+ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next, 
+@@ -43,7 +52,7 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 		load_cr3(next->pgd);
+ 
+ 		if (unlikely(next->context.ldt != prev->context.ldt)) 
+-			load_LDT_nolock(&next->context, cpu);
++			load_LDT_nolock(&next->context);
+ 	}
+ #ifdef CONFIG_SMP
+ 	else {
+@@ -56,7 +65,7 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 			 * to make sure to use no freed page tables.
+ 			 */
+ 			load_cr3(next->pgd);
+-			load_LDT_nolock(&next->context, cpu);
++			load_LDT_nolock(&next->context);
+ 		}
+ 	}
+ #endif
+@@ -67,8 +76,10 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 	asm volatile("movl %0,%%fs"::"r"(0));  \
+ } while(0)
+ 
+-#define activate_mm(prev, next) \
+-	switch_mm((prev),(next),NULL)
+-
++#define activate_mm(prev, next) 		\
++do {						\
++	paravirt_activate_mm(prev, next);	\
++	switch_mm((prev), (next), NULL);	\
++} while (0)
+ 
+ #endif
 -- 
 1.4.4.2
