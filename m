@@ -1,13 +1,12 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 4/16] provide native irq initialization function
-Date: Wed, 31 Oct 2007 16:14:49 -0300
-Message-ID: <11938581242810-git-send-email-gcosta__25301.5211820186$1193869064$gmane$org@redhat.com>
+Subject: [PATCH 3/16] read/write_crX, clts and wbinvd for 64-bit paravirt
+Date: Wed, 31 Oct 2007 16:14:48 -0300
+Message-ID: <1193858118284-git-send-email-gcosta__17579.13004044$1193869075$gmane$org@redhat.com>
 References: <1193858101367-git-send-email-gcosta@redhat.com>
 	<11938581073775-git-send-email-gcosta@redhat.com>
 	<11938581133479-git-send-email-gcosta@redhat.com>
-	<1193858118284-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1193858118284-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11938581133479-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,57 +20,149 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-The interrupt initialization routine becomes native_init_IRQ and will
-be overriden later in case paravirt is on. The interrupt array is made visible
-for guests such lguest, that will need to have their own initialization
-mechanism (though using most of the same irq lines) later on.
+This patch introduces, and patch callers when needed, native
+versions for read/write_crX functions, clts and wbinvd.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/kernel/i8259_64.c |    7 +++++--
- include/asm-x86/irq_64.h   |    3 +++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/mm/pageattr_64.c   |    3 +-
+ include/asm-x86/system_64.h |   60 ++++++++++++++++++++++++++++++------------
+ 2 files changed, 45 insertions(+), 18 deletions(-)
 
-diff --git a/arch/x86/kernel/i8259_64.c b/arch/x86/kernel/i8259_64.c
-index 3f27ea0..892eab8 100644
---- a/arch/x86/kernel/i8259_64.c
-+++ b/arch/x86/kernel/i8259_64.c
-@@ -76,7 +76,7 @@ BUILD_16_IRQS(0xc) BUILD_16_IRQS(0xd) BUILD_16_IRQS(0xe) BUILD_16_IRQS(0xf)
- 	IRQ(x,c), IRQ(x,d), IRQ(x,e), IRQ(x,f)
+diff --git a/arch/x86/mm/pageattr_64.c b/arch/x86/mm/pageattr_64.c
+index c40afba..59a52b0 100644
+--- a/arch/x86/mm/pageattr_64.c
++++ b/arch/x86/mm/pageattr_64.c
+@@ -12,6 +12,7 @@
+ #include <asm/processor.h>
+ #include <asm/tlbflush.h>
+ #include <asm/io.h>
++#include <asm/paravirt.h>
  
- /* for the irq vectors */
--static void (*interrupt[NR_VECTORS - FIRST_EXTERNAL_VECTOR])(void) = {
-+void (*interrupt[NR_VECTORS - FIRST_EXTERNAL_VECTOR])(void) = {
- 					  IRQLIST_16(0x2), IRQLIST_16(0x3),
- 	IRQLIST_16(0x4), IRQLIST_16(0x5), IRQLIST_16(0x6), IRQLIST_16(0x7),
- 	IRQLIST_16(0x8), IRQLIST_16(0x9), IRQLIST_16(0xa), IRQLIST_16(0xb),
-@@ -448,7 +448,10 @@ void __init init_ISA_irqs (void)
- 	}
+ pte_t *lookup_address(unsigned long address)
+ { 
+@@ -77,7 +78,7 @@ static void flush_kernel_map(void *arg)
+ 	   much cheaper than WBINVD. */
+ 	/* clflush is still broken. Disable for now. */
+ 	if (1 || !cpu_has_clflush)
+-		asm volatile("wbinvd" ::: "memory");
++		wbinvd();
+ 	else list_for_each_entry(pg, l, lru) {
+ 		void *adr = page_address(pg);
+ 		clflush_cache_range(adr, PAGE_SIZE);
+diff --git a/include/asm-x86/system_64.h b/include/asm-x86/system_64.h
+index 4cb2384..b558cb2 100644
+--- a/include/asm-x86/system_64.h
++++ b/include/asm-x86/system_64.h
+@@ -65,53 +65,62 @@ extern void load_gs_index(unsigned);
+ /*
+  * Clear and set 'TS' bit respectively
+  */
+-#define clts() __asm__ __volatile__ ("clts")
++static inline void native_clts(void)
++{
++	asm volatile ("clts");
++}
+ 
+-static inline unsigned long read_cr0(void)
+-{ 
++static inline unsigned long native_read_cr0(void)
++{
+ 	unsigned long cr0;
+ 	asm volatile("movq %%cr0,%0" : "=r" (cr0));
+ 	return cr0;
  }
  
--void __init init_IRQ(void)
-+/* Overridden in paravirt.c */
-+void init_IRQ(void) __attribute__((weak, alias("native_init_IRQ")));
-+
-+void __init native_init_IRQ(void)
+-static inline void write_cr0(unsigned long val) 
+-{ 
++static inline void native_write_cr0(unsigned long val)
++{
+ 	asm volatile("movq %0,%%cr0" :: "r" (val));
+ }
+ 
+-static inline unsigned long read_cr2(void)
++static inline unsigned long native_read_cr2(void)
  {
- 	int i;
+ 	unsigned long cr2;
+ 	asm volatile("movq %%cr2,%0" : "=r" (cr2));
+ 	return cr2;
+ }
  
-diff --git a/include/asm-x86/irq_64.h b/include/asm-x86/irq_64.h
-index 5006c6e..4f02446 100644
---- a/include/asm-x86/irq_64.h
-+++ b/include/asm-x86/irq_64.h
-@@ -46,6 +46,9 @@ static __inline__ int irq_canonicalize(int irq)
- extern void fixup_irqs(cpumask_t map);
- #endif
+-static inline void write_cr2(unsigned long val)
++static inline void native_write_cr2(unsigned long val)
+ {
+ 	asm volatile("movq %0,%%cr2" :: "r" (val));
+ }
  
-+#include <linux/init.h>
-+void native_init_IRQ(void);
+-static inline unsigned long read_cr3(void)
+-{ 
++static inline unsigned long native_read_cr3(void)
++{
+ 	unsigned long cr3;
+ 	asm volatile("movq %%cr3,%0" : "=r" (cr3));
+ 	return cr3;
+ }
+ 
+-static inline void write_cr3(unsigned long val)
++static inline void native_write_cr3(unsigned long val)
+ {
+ 	asm volatile("movq %0,%%cr3" :: "r" (val) : "memory");
+ }
+ 
+-static inline unsigned long read_cr4(void)
+-{ 
++static inline unsigned long native_read_cr4(void)
++{
+ 	unsigned long cr4;
+ 	asm volatile("movq %%cr4,%0" : "=r" (cr4));
+ 	return cr4;
+ }
+ 
+-static inline void write_cr4(unsigned long val)
+-{ 
++static inline unsigned long native_read_cr4_safe(void)
++{
++	/* CR4 always exist */
++	return native_read_cr4();
++}
 +
- #define __ARCH_HAS_DO_SOFTIRQ 1
++static inline void native_write_cr4(unsigned long val)
++{
+ 	asm volatile("movq %0,%%cr4" :: "r" (val) : "memory");
+ }
  
- #endif /* _ASM_IRQ_H */
+@@ -127,10 +136,27 @@ static inline void write_cr8(unsigned long val)
+ 	asm volatile("movq %0,%%cr8" :: "r" (val) : "memory");
+ }
+ 
+-#define stts() write_cr0(8 | read_cr0())
++static inline void native_wbinvd(void)
++{
++	asm volatile("wbinvd" ::: "memory");
++}
+ 
+-#define wbinvd() \
+-	__asm__ __volatile__ ("wbinvd": : :"memory")
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt.h>
++#else
++#define clts		native_clts
++#define wbinvd		native_wbinvd
++#define read_cr0 	native_read_cr0
++#define read_cr2 	native_read_cr2
++#define read_cr3 	native_read_cr3
++#define read_cr4 	native_read_cr4
++#define write_cr0	native_write_cr0
++#define write_cr2	native_write_cr2
++#define write_cr3	native_write_cr3
++#define write_cr4	native_write_cr4
++#endif
++
++#define stts() write_cr0(8 | read_cr0())
+ 
+ #endif	/* __KERNEL__ */
+ 
 -- 
 1.4.4.2
