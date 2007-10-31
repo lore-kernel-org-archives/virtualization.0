@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 16/16] make vsmp a paravirt client
-Date: Wed, 31 Oct 2007 16:15:01 -0300
-Message-ID: <1193858187364-git-send-email-gcosta__47720.7078169615$1193869107$gmane$org@redhat.com>
+Subject: [PATCH 7/16] native versions for set pagetables
+Date: Wed, 31 Oct 2007 16:14:52 -0300
+Message-ID: <11938581403478-git-send-email-gcosta__30882.2710336701$1193869107$gmane$org@redhat.com>
 References: <1193858101367-git-send-email-gcosta@redhat.com>
 	<11938581073775-git-send-email-gcosta@redhat.com>
 	<11938581133479-git-send-email-gcosta@redhat.com>
@@ -9,17 +9,8 @@ References: <1193858101367-git-send-email-gcosta@redhat.com>
 	<11938581242810-git-send-email-gcosta@redhat.com>
 	<1193858130443-git-send-email-gcosta@redhat.com>
 	<11938581351064-git-send-email-gcosta@redhat.com>
-	<11938581403478-git-send-email-gcosta@redhat.com>
-	<11938581451804-git-send-email-gcosta@redhat.com>
-	<11938581512730-git-send-email-gcosta@redhat.com>
-	<11938581562552-git-send-email-gcosta@redhat.com>
-	<11938581612389-git-send-email-gcosta@redhat.com>
-	<11938581663639-git-send-email-gcosta@redhat.com>
-	<11938581713998-git-send-email-gcosta@redhat.com>
-	<11938581762150-git-send-email-gcosta@redhat.com>
-	<11938581812241-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11938581812241-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11938581351064-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -33,175 +24,293 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch makes vsmp a paravirt client. It now uses the whole
-infrastructure provided by pvops. When we detect we're running
-a vsmp box, we change the irq-related paravirt operations (and so,
-it have to happen quite early), and the patching function
+This patch turns the set_p{te,md,ud,gd} functions into their
+native_ versions. There is no need to patch any caller.
+
+Also, it adds pte_update() and pte_update_defer() calls whenever
+we modify a page table entry. This last part was coded to match
+i386 as close as possible.
+
+Pieces of the header are moved to below the #ifdef CONFIG_PARAVIRT
+site, as they are users of the newly defined set_* macros.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/Kconfig.x86_64    |    3 +-
- arch/x86/kernel/setup_64.c |    3 ++
- arch/x86/kernel/vsmp_64.c  |   72 +++++++++++++++++++++++++++++++++++++++----
- include/asm-x86/setup.h    |    3 +-
- 4 files changed, 71 insertions(+), 10 deletions(-)
+ include/asm-x86/pgtable_64.h |  192 ++++++++++++++++++++++++++++--------------
+ 1 files changed, 128 insertions(+), 64 deletions(-)
 
-diff --git a/arch/x86/Kconfig.x86_64 b/arch/x86/Kconfig.x86_64
-index 04734dd..544bad5 100644
---- a/arch/x86/Kconfig.x86_64
-+++ b/arch/x86/Kconfig.x86_64
-@@ -148,15 +148,14 @@ config X86_PC
- 	bool "PC-compatible"
- 	help
- 	  Choose this option if your computer is a standard PC or compatible.
--
- config X86_VSMP
- 	bool "Support for ScaleMP vSMP"
- 	depends on PCI
-+	select PARAVIRT
- 	 help
- 	  Support for ScaleMP vSMP systems.  Say 'Y' here if this kernel is
- 	  supposed to run on these EM64T-based machines.  Only choose this option
- 	  if you have one of these machines.
--
- endchoice
- 
- choice
-diff --git a/arch/x86/kernel/setup_64.c b/arch/x86/kernel/setup_64.c
-index 44a11e3..c522549 100644
---- a/arch/x86/kernel/setup_64.c
-+++ b/arch/x86/kernel/setup_64.c
-@@ -335,6 +335,9 @@ void __init setup_arch(char **cmdline_p)
- 
- 	init_memory_mapping(0, (end_pfn_map << PAGE_SHIFT));
- 
-+#ifdef CONFIG_VSMP
-+	vsmp_init();
-+#endif
- 	dmi_scan_machine();
- 
- #ifdef CONFIG_SMP
-diff --git a/arch/x86/kernel/vsmp_64.c b/arch/x86/kernel/vsmp_64.c
-index 414caf0..547d3b3 100644
---- a/arch/x86/kernel/vsmp_64.c
-+++ b/arch/x86/kernel/vsmp_64.c
-@@ -8,18 +8,70 @@
-  *
-  * Ravikiran Thirumalai <kiran@scalemp.com>,
-  * Shai Fultheim <shai@scalemp.com>
-+ * Paravirt ops integration: Glauber de Oliveira Costa <gcosta@redhat.com>
+diff --git a/include/asm-x86/pgtable_64.h b/include/asm-x86/pgtable_64.h
+index 9b0ff47..592d613 100644
+--- a/include/asm-x86/pgtable_64.h
++++ b/include/asm-x86/pgtable_64.h
+@@ -57,56 +57,107 @@ extern unsigned long empty_zero_page[PAGE_SIZE/sizeof(unsigned long)];
   */
--
- #include <linux/init.h>
- #include <linux/pci_ids.h>
- #include <linux/pci_regs.h>
- #include <asm/pci-direct.h>
- #include <asm/io.h>
+ #define PTRS_PER_PTE	512
+ 
+-#ifndef __ASSEMBLY__
++#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
++#else
++
++#define set_pte native_set_pte
++#define set_pte_at(mm, addr, ptep, pteval) set_pte(ptep, pteval)
++#define set_pmd native_set_pmd
++#define set_pud native_set_pud
++#define set_pgd native_set_pgd
++#define pte_clear(mm, addr, xp)				\
++do { 							\
++	set_pte_at(mm, addr, xp, __pte(0)); 		\
++} while (0)
+ 
+-#define pte_ERROR(e) \
+-	printk("%s:%d: bad pte %p(%016lx).\n", __FILE__, __LINE__, &(e), pte_val(e))
+-#define pmd_ERROR(e) \
+-	printk("%s:%d: bad pmd %p(%016lx).\n", __FILE__, __LINE__, &(e), pmd_val(e))
+-#define pud_ERROR(e) \
+-	printk("%s:%d: bad pud %p(%016lx).\n", __FILE__, __LINE__, &(e), pud_val(e))
+-#define pgd_ERROR(e) \
+-	printk("%s:%d: bad pgd %p(%016lx).\n", __FILE__, __LINE__, &(e), pgd_val(e))
++#define pmd_clear(xp)	do { set_pmd(xp, __pmd(0)); } while (0)
++#define pud_clear native_pud_clear
++#define pgd_clear native_pgd_clear
++#define pte_update(mm, addr, ptep)              do { } while (0)
++#define pte_update_defer(mm, addr, ptep)        do { } while (0)
+ 
+-#define pgd_none(x)	(!pgd_val(x))
+-#define pud_none(x)	(!pud_val(x))
++#endif
+ 
+-static inline void set_pte(pte_t *dst, pte_t val)
++#ifndef __ASSEMBLY__
++
++static inline void native_set_pte(pte_t *dst, pte_t val)
+ {
+-	pte_val(*dst) = pte_val(val);
++	dst->pte = pte_val(val);
+ } 
+-#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
+ 
+-static inline void set_pmd(pmd_t *dst, pmd_t val)
++static inline void native_set_pmd(pmd_t *dst, pmd_t val)
+ {
+-        pmd_val(*dst) = pmd_val(val); 
++	dst->pmd = pmd_val(val);
+ } 
+ 
+-static inline void set_pud(pud_t *dst, pud_t val)
++static inline void native_set_pud(pud_t *dst, pud_t val)
+ {
+-	pud_val(*dst) = pud_val(val);
++	dst->pud = pud_val(val);
+ }
+ 
+-static inline void pud_clear (pud_t *pud)
++static inline void native_set_pgd(pgd_t *dst, pgd_t val)
+ {
+-	set_pud(pud, __pud(0));
++	dst->pgd = pgd_val(val);
+ }
+ 
+-static inline void set_pgd(pgd_t *dst, pgd_t val)
++static inline void native_pud_clear(pud_t *pud)
+ {
+-	pgd_val(*dst) = pgd_val(val); 
+-} 
++	set_pud(pud, __pud(0));
++}
+ 
+-static inline void pgd_clear (pgd_t * pgd)
++static inline void native_pgd_clear(pgd_t *pgd)
+ {
+ 	set_pgd(pgd, __pgd(0));
+ }
+ 
+-#define ptep_get_and_clear(mm,addr,xp)	__pte(xchg(&(xp)->pte, 0))
++static inline void native_set_pte_at(struct mm_struct *mm, unsigned long addr,
++				     pte_t *ptep, pte_t pteval)
++{
++	native_set_pte(ptep, pteval);
++}
++
++static inline void native_pte_clear(struct mm_struct *mm, unsigned long addr,
++				    pte_t *ptep)
++{
++	native_set_pte_at(mm, addr, ptep, __pte(0));
++}
++
++static inline void native_pmd_clear(pmd_t *pmd)
++{
++	native_set_pmd(pmd, __pmd(0));
++}
++
++
++#define pte_ERROR(e) 					\
++	printk("%s:%d: bad pte %p(%016llx).\n",		\
++	__FILE__, __LINE__, &(e), (u64)pte_val(e))
++#define pmd_ERROR(e) 					\
++	printk("%s:%d: bad pmd %p(%016llx).\n", 	\
++	__FILE__, __LINE__, &(e), (u64)pmd_val(e))
++#define pud_ERROR(e) 					\
++	printk("%s:%d: bad pud %p(%016llx).\n",		\
++	 __FILE__, __LINE__, &(e), (u64)pud_val(e))
++#define pgd_ERROR(e) 					\
++	printk("%s:%d: bad pgd %p(%016llx).\n", 	\
++	__FILE__, __LINE__, &(e), (u64)pgd_val(e))
++
++#define pgd_none(x)	(!pgd_val(x))
++#define pud_none(x)	(!pud_val(x))
+ 
+ struct mm_struct;
+ 
+-static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm, unsigned long addr, pte_t *ptep, int full)
++static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
++				       unsigned long addr, pte_t *ptep)
++{
++	pte_t pte = __pte(xchg(&ptep->pte, 0));
++	pte_update(mm, addr, ptep);
++	return pte;
++}
++
++static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
++					    unsigned long addr, pte_t *ptep,
++					    int full)
+ {
+ 	pte_t pte;
+ 	if (full) {
+@@ -246,7 +297,6 @@ static inline unsigned long pmd_bad(pmd_t pmd)
+ 
+ #define pte_none(x)	(!pte_val(x))
+ #define pte_present(x)	(pte_val(x) & (_PAGE_PRESENT | _PAGE_PROTNONE))
+-#define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } while (0)
+ 
+ #define pages_to_mb(x) ((x) >> (20-PAGE_SHIFT))	/* FIXME: is this
+ 						   right? */
+@@ -255,11 +305,11 @@ static inline unsigned long pmd_bad(pmd_t pmd)
+ 
+ static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
+ {
+-	pte_t pte;
+-	pte_val(pte) = (page_nr << PAGE_SHIFT);
+-	pte_val(pte) |= pgprot_val(pgprot);
+-	pte_val(pte) &= __supported_pte_mask;
+-	return pte;
++	unsigned long pte;
++	pte = (page_nr << PAGE_SHIFT);
++	pte |= pgprot_val(pgprot);
++	pte &= __supported_pte_mask;
++	return __pte(pte);
+ }
+ 
+ /*
+@@ -283,30 +333,6 @@ static inline pte_t pte_mkwrite(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) |
+ static inline pte_t pte_mkhuge(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_PSE)); return pte; }
+ static inline pte_t pte_clrhuge(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_PSE)); return pte; }
+ 
+-struct vm_area_struct;
+-
+-static inline int ptep_test_and_clear_young(struct vm_area_struct *vma, unsigned long addr, pte_t *ptep)
+-{
+-	if (!pte_young(*ptep))
+-		return 0;
+-	return test_and_clear_bit(_PAGE_BIT_ACCESSED, &ptep->pte);
+-}
+-
+-static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+-{
+-	clear_bit(_PAGE_BIT_RW, &ptep->pte);
+-}
+-
+-/*
+- * Macro to mark a page protection value as "uncacheable".
+- */
+-#define pgprot_noncached(prot)	(__pgprot(pgprot_val(prot) | _PAGE_PCD | _PAGE_PWT))
+-
+-static inline int pmd_large(pmd_t pte) { 
+-	return (pmd_val(pte) & __LARGE_PTE) == __LARGE_PTE; 
+-} 	
+-
+-
+ /*
+  * Conversion functions: convert a page and protection to a page entry,
+  * and a page entry and page directory to the page they refer to.
+@@ -340,7 +366,6 @@ static inline int pmd_large(pmd_t pte) {
+ 			pmd_index(address))
+ #define pmd_none(x)	(!pmd_val(x))
+ #define pmd_present(x)	(pmd_val(x) & _PAGE_PRESENT)
+-#define pmd_clear(xp)	do { set_pmd(xp, __pmd(0)); } while (0)
+ #define pfn_pmd(nr,prot) (__pmd(((nr) << PAGE_SHIFT) | pgprot_val(prot)))
+ #define pmd_pfn(x)  ((pmd_val(x) & __PHYSICAL_MASK) >> PAGE_SHIFT)
+ 
+@@ -352,15 +377,53 @@ static inline int pmd_large(pmd_t pte) {
+ 
+ /* page, protection -> pte */
+ #define mk_pte(page, pgprot)	pfn_pte(page_to_pfn(page), (pgprot))
+-#define mk_pte_huge(entry) (pte_val(entry) |= _PAGE_PRESENT | _PAGE_PSE)
+- 
++
++static inline pte_t __mk_pte_huge(pte_t entry)
++{
++	unsigned long pte;
++	pte = pte_val(entry);
++	pte |= _PAGE_PRESENT | _PAGE_PSE;
++	return  __pte(pte);
++}
++#define mk_pte_huge(entry) ((entry) = __mk_pte_huge(entry))
++
++#include <linux/mm_types.h>
++static inline int ptep_test_and_clear_young(struct vm_area_struct *vma,
++					    unsigned long addr, pte_t *ptep)
++{
++	int ret = 0;
++	if (!pte_young(*ptep))
++		return 0;
++	ret = test_and_clear_bit(_PAGE_BIT_ACCESSED, &ptep->pte);
++	pte_update(vma->vm_mm, addr, ptep);
++	return ret;
++}
++
++static inline void ptep_set_wrprotect(struct mm_struct *mm,
++				      unsigned long addr, pte_t *ptep)
++{
++	clear_bit(_PAGE_BIT_RW, &ptep->pte);
++	pte_update(mm, addr, ptep);
++}
 +
 +/*
-+ * Interrupt control for the VSMP architecture:
++ * Macro to mark a page protection value as "uncacheable".
 + */
++#define pgprot_noncached(prot)	(__pgprot(pgprot_val(prot) | _PAGE_PCD | _PAGE_PWT))
 +
-+static inline unsigned long vsmp_save_fl(void)
++static inline int pmd_large(pmd_t pte)
 +{
-+	unsigned long flags = native_save_fl();
-+
-+	if (flags & X86_EFLAGS_IF)
-+		return X86_EFLAGS_IF;
-+	return 0;
-+}
- 
--static int __init vsmp_init(void)
-+static inline void vsmp_restore_fl(unsigned long flags)
-+{
-+	if (flags & X86_EFLAGS_IF)
-+		flags &= ~X86_EFLAGS_AC;
-+	if (!(flags & X86_EFLAGS_IF))
-+		flags &= X86_EFLAGS_AC;
-+	native_restore_fl(flags);
++	return (pmd_val(pte) & __LARGE_PTE) == __LARGE_PTE;
 +}
 +
-+static inline void vsmp_irq_disable(void)
-+{
-+	unsigned long flags = native_save_fl();
-+
-+	vsmp_restore_fl((flags & ~X86_EFLAGS_IF));
-+}
-+
-+static inline void vsmp_irq_enable(void)
-+{
-+	unsigned long flags = native_save_fl();
-+
-+	vsmp_restore_fl((flags | X86_EFLAGS_IF));
-+}
-+
-+static unsigned __init vsmp_patch(u8 type, u16 clobbers, void *ibuf,
-+				  unsigned long addr, unsigned len)
-+{
-+	switch (type) {
-+	case PARAVIRT_PATCH(pv_irq_ops.irq_enable):
-+	case PARAVIRT_PATCH(pv_irq_ops.irq_disable):
-+	case PARAVIRT_PATCH(pv_irq_ops.save_fl):
-+	case PARAVIRT_PATCH(pv_irq_ops.restore_fl):
-+		return paravirt_patch_default(type, clobbers, ibuf, addr, len);
-+	default:
-+		return native_patch(type, clobbers, ibuf, addr, len);
-+	}
-+
-+}
-+
-+int __init vsmp_init(void)
- {
- 	void *address;
--	unsigned int cap, ctl;
-+	unsigned int cap, ctl, cfg;
- 
- 	if (!early_pci_allowed())
- 		return 0;
-@@ -29,8 +81,16 @@ static int __init vsmp_init(void)
- 	    (read_pci_config_16(0, 0x1f, 0, PCI_DEVICE_ID) != PCI_DEVICE_ID_SCALEMP_VSMP_CTL))
- 		return 0;
- 
-+	/* If we are, use the distinguished irq functions */
-+	pv_irq_ops.irq_disable = vsmp_irq_disable;
-+	pv_irq_ops.irq_enable  = vsmp_irq_enable;
-+	pv_irq_ops.save_fl  = vsmp_save_fl;
-+	pv_irq_ops.restore_fl  = vsmp_restore_fl;
-+	pv_init_ops.patch = vsmp_patch;
-+
- 	/* set vSMP magic bits to indicate vSMP capable kernel */
--	address = ioremap(read_pci_config(0, 0x1f, 0, PCI_BASE_ADDRESS_0), 8);
-+	cfg = read_pci_config(0, 0x1f, 0, PCI_BASE_ADDRESS_0);
-+	address = early_ioremap(cfg, 8);
- 	cap = readl(address);
- 	ctl = readl(address + 4);
- 	printk("vSMP CTL: capabilities:0x%08x  control:0x%08x\n", cap, ctl);
-@@ -42,8 +102,6 @@ static int __init vsmp_init(void)
- 		printk("vSMP CTL: control set to:0x%08x\n", ctl);
- 	}
- 
--	iounmap(address);
-+	early_iounmap(address, 8);
- 	return 0;
+ /* Change flags of a PTE */
+-static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
++static inline pte_t pte_modify(pte_t pte_old, pgprot_t newprot)
+ { 
+-	pte_val(pte) &= _PAGE_CHG_MASK;
+-	pte_val(pte) |= pgprot_val(newprot);
+-	pte_val(pte) &= __supported_pte_mask;
+-       return pte; 
++	unsigned long pte = pte_val(pte_old);
++	pte &= _PAGE_CHG_MASK;
++	pte |= pgprot_val(newprot);
++	pte &= __supported_pte_mask;
++	return __pte(pte);
  }
--
--core_initcall(vsmp_init);
-diff --git a/include/asm-x86/setup.h b/include/asm-x86/setup.h
-index 071e054..dd7996c 100644
---- a/include/asm-x86/setup.h
-+++ b/include/asm-x86/setup.h
-@@ -58,7 +58,8 @@ void __init add_memory_region(unsigned long long start,
  
- extern unsigned long init_pg_tables_end;
- 
--
-+/* For EM64T-based VSMP machines */
-+int vsmp_init(void);
- 
- #endif /* __i386__ */
- #endif /* _SETUP */
+ #define pte_index(address) \
+@@ -387,6 +450,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ 	int __changed = !pte_same(*(__ptep), __entry);			  \
+ 	if (__changed && __dirty) {					  \
+ 		set_pte(__ptep, __entry);			  	  \
++		pte_update_defer((__vma)->vm_mm, (__address), (__ptep));  \
+ 		flush_tlb_page(__vma, __address);		  	  \
+ 	}								  \
+ 	__changed;							  \
 -- 
 1.4.4.2
