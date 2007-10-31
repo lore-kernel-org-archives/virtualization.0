@@ -1,10 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 1/7] irqflags consolidation
-Date: Wed, 31 Oct 2007 16:13:13 -0300
-Message-ID: <11938580063444-git-send-email-gcosta__9457.90667688033$1193869034$gmane$org@redhat.com>
+Subject: [PATCH 5/7] Add debugreg/load_rsp native hooks
+Date: Wed, 31 Oct 2007 16:13:17 -0300
+Message-ID: <11938580272819-git-send-email-gcosta__28035.312871407$1193869041$gmane$org@redhat.com>
 References: <1193857999499-git-send-email-gcosta@redhat.com>
+	<11938580063444-git-send-email-gcosta@redhat.com>
+	<11938580111179-git-send-email-gcosta@redhat.com>
+	<119385801745-git-send-email-gcosta@redhat.com>
+	<1193858022794-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1193857999499-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1193858022794-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,564 +22,508 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch consolidates the irqflags include files containing common
-paravirt definitions. The native definition for interrupt handling, halt,
-and such, are the same for 32 and 64 bit, and they are kept in irqflags.h.
-The differences are split in the arch-specific files.
-
-The syscall function, irq_enable_sysexit, has a very specific i386 naming,
-and its name is then changed to a more general one.
+This patch adds native hooks for debugreg handling functions,
+and for the native load_rsp0 function. The later also have its
+call sites patched. There's some room for consolidation in the
+processor*.h headers, and it is done, for paravirt related functions
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/kernel/asm-offsets_32.c |    2 +-
- arch/x86/kernel/entry_32.S       |    8 ++--
- arch/x86/kernel/paravirt_32.c    |   10 ++--
- arch/x86/kernel/vmi_32.c         |    4 +-
- arch/x86/xen/enlighten.c         |    2 +-
- include/asm-x86/irqflags.h       |  107 ++++++++++++++++++++++++++++++++++++
- include/asm-x86/irqflags_32.h    |  103 +----------------------------------
- include/asm-x86/irqflags_64.h    |  112 +++++++-------------------------------
- include/asm-x86/paravirt.h       |    9 ++--
- 9 files changed, 147 insertions(+), 210 deletions(-)
+ arch/x86/kernel/process_64.c   |    2 +-
+ arch/x86/kernel/smpboot_64.c   |    2 +-
+ include/asm-x86/msr.h          |   67 ------------------
+ include/asm-x86/processor.h    |  146 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-x86/processor_32.h |  138 +-------------------------------------
+ include/asm-x86/processor_64.h |   32 ++++-----
+ 6 files changed, 165 insertions(+), 222 deletions(-)
 
-diff --git a/arch/x86/kernel/asm-offsets_32.c b/arch/x86/kernel/asm-offsets_32.c
-index 0e45981..c1ccfab 100644
---- a/arch/x86/kernel/asm-offsets_32.c
-+++ b/arch/x86/kernel/asm-offsets_32.c
-@@ -123,7 +123,7 @@ void foo(void)
- 	OFFSET(PV_IRQ_irq_disable, pv_irq_ops, irq_disable);
- 	OFFSET(PV_IRQ_irq_enable, pv_irq_ops, irq_enable);
- 	OFFSET(PV_CPU_iret, pv_cpu_ops, iret);
--	OFFSET(PV_CPU_irq_enable_sysexit, pv_cpu_ops, irq_enable_sysexit);
-+	OFFSET(PV_CPU_irq_enable_syscall_ret, pv_cpu_ops, irq_enable_syscall_ret);
- 	OFFSET(PV_CPU_read_cr0, pv_cpu_ops, read_cr0);
- #endif
- 
-diff --git a/arch/x86/kernel/entry_32.S b/arch/x86/kernel/entry_32.S
-index dc7f938..d63609d 100644
---- a/arch/x86/kernel/entry_32.S
-+++ b/arch/x86/kernel/entry_32.S
-@@ -58,7 +58,7 @@
-  * for paravirtualization.  The following will never clobber any registers:
-  *   INTERRUPT_RETURN (aka. "iret")
-  *   GET_CR0_INTO_EAX (aka. "movl %cr0, %eax")
-- *   ENABLE_INTERRUPTS_SYSEXIT (aka "sti; sysexit").
-+ *   ENABLE_INTERRUPTS_SYSCALL_RET (aka "sti; sysexit").
-  *
-  * For DISABLE_INTERRUPTS/ENABLE_INTERRUPTS (aka "cli"/"sti"), you must
-  * specify what registers can be overwritten (CLBR_NONE, CLBR_EAX/EDX/ECX/ANY).
-@@ -351,7 +351,7 @@ sysenter_past_esp:
- 	xorl %ebp,%ebp
- 	TRACE_IRQS_ON
- 1:	mov  PT_FS(%esp), %fs
--	ENABLE_INTERRUPTS_SYSEXIT
-+	ENABLE_INTERRUPTS_SYSCALL_RET
- 	CFI_ENDPROC
- .pushsection .fixup,"ax"
- 2:	movl $0,PT_FS(%esp)
-@@ -882,10 +882,10 @@ ENTRY(native_iret)
- .previous
- END(native_iret)
- 
--ENTRY(native_irq_enable_sysexit)
-+ENTRY(native_irq_enable_syscall_ret)
- 	sti
- 	sysexit
--END(native_irq_enable_sysexit)
-+END(native_irq_enable_syscall_ret)
- #endif
- 
- KPROBE_ENTRY(int3)
-diff --git a/arch/x86/kernel/paravirt_32.c b/arch/x86/kernel/paravirt_32.c
-index 6a80d67..04f51d0 100644
---- a/arch/x86/kernel/paravirt_32.c
-+++ b/arch/x86/kernel/paravirt_32.c
-@@ -60,7 +60,7 @@ DEF_NATIVE(pv_irq_ops, irq_enable, "sti");
- DEF_NATIVE(pv_irq_ops, restore_fl, "push %eax; popf");
- DEF_NATIVE(pv_irq_ops, save_fl, "pushf; pop %eax");
- DEF_NATIVE(pv_cpu_ops, iret, "iret");
--DEF_NATIVE(pv_cpu_ops, irq_enable_sysexit, "sti; sysexit");
-+DEF_NATIVE(pv_cpu_ops, irq_enable_syscall_ret, "sti; sysexit");
- DEF_NATIVE(pv_mmu_ops, read_cr2, "mov %cr2, %eax");
- DEF_NATIVE(pv_mmu_ops, write_cr3, "mov %eax, %cr3");
- DEF_NATIVE(pv_mmu_ops, read_cr3, "mov %cr3, %eax");
-@@ -88,7 +88,7 @@ static unsigned native_patch(u8 type, u16 clobbers, void *ibuf,
- 	SITE(pv_irq_ops, restore_fl);
- 	SITE(pv_irq_ops, save_fl);
- 	SITE(pv_cpu_ops, iret);
--	SITE(pv_cpu_ops, irq_enable_sysexit);
-+	SITE(pv_cpu_ops, irq_enable_syscall_ret);
- 	SITE(pv_mmu_ops, read_cr2);
- 	SITE(pv_mmu_ops, read_cr3);
- 	SITE(pv_mmu_ops, write_cr3);
-@@ -186,7 +186,7 @@ unsigned paravirt_patch_default(u8 type, u16 clobbers, void *insnbuf,
- 		/* If the operation is a nop, then nop the callsite */
- 		ret = paravirt_patch_nop();
- 	else if (type == PARAVIRT_PATCH(pv_cpu_ops.iret) ||
--		 type == PARAVIRT_PATCH(pv_cpu_ops.irq_enable_sysexit))
-+		 type == PARAVIRT_PATCH(pv_cpu_ops.irq_enable_syscall_ret))
- 		/* If operation requires a jmp, then jmp */
- 		ret = paravirt_patch_jmp(insnbuf, opfunc, addr, len);
- 	else
-@@ -237,7 +237,7 @@ static void native_flush_tlb_single(unsigned long addr)
- 
- /* These are in entry.S */
- extern void native_iret(void);
--extern void native_irq_enable_sysexit(void);
-+extern void native_irq_enable_syscall_ret(void);
- 
- static int __init print_banner(void)
- {
-@@ -384,7 +384,7 @@ struct pv_cpu_ops pv_cpu_ops = {
- 	.write_idt_entry = write_dt_entry,
- 	.load_esp0 = native_load_esp0,
- 
--	.irq_enable_sysexit = native_irq_enable_sysexit,
-+	.irq_enable_syscall_ret = native_irq_enable_syscall_ret,
- 	.iret = native_iret,
- 
- 	.set_iopl_mask = native_set_iopl_mask,
-diff --git a/arch/x86/kernel/vmi_32.c b/arch/x86/kernel/vmi_32.c
-index f02bad6..aacce42 100644
---- a/arch/x86/kernel/vmi_32.c
-+++ b/arch/x86/kernel/vmi_32.c
-@@ -148,7 +148,7 @@ static unsigned vmi_patch(u8 type, u16 clobbers, void *insns,
- 					      insns, eip);
- 		case PARAVIRT_PATCH(pv_cpu_ops.iret):
- 			return patch_internal(VMI_CALL_IRET, len, insns, eip);
--		case PARAVIRT_PATCH(pv_cpu_ops.irq_enable_sysexit):
-+		case PARAVIRT_PATCH(pv_cpu_ops.irq_enable_syscall_ret):
- 			return patch_internal(VMI_CALL_SYSEXIT, len, insns, eip);
- 		default:
- 			break;
-@@ -870,7 +870,7 @@ static inline int __init activate_vmi(void)
- 	 * the backend.  They are performance critical anyway, so requiring
- 	 * a patch is not a big problem.
+diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
+index 6309b27..d7da3e6 100644
+--- a/arch/x86/kernel/process_64.c
++++ b/arch/x86/kernel/process_64.c
+@@ -596,7 +596,7 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
+ 	/*
+ 	 * Reload esp0, LDT and the page table pointer:
  	 */
--	pv_cpu_ops.irq_enable_sysexit = (void *)0xfeedbab0;
-+	pv_cpu_ops.irq_enable_syscall_ret = (void *)0xfeedbab0;
- 	pv_cpu_ops.iret = (void *)0xbadbab0;
+-	tss->rsp0 = next->rsp0;
++	load_esp0(tss, next);
  
+ 	/* 
+ 	 * Switch DS and ES.
+diff --git a/arch/x86/kernel/smpboot_64.c b/arch/x86/kernel/smpboot_64.c
+index 49036d0..ecd00f6 100644
+--- a/arch/x86/kernel/smpboot_64.c
++++ b/arch/x86/kernel/smpboot_64.c
+@@ -614,7 +614,7 @@ do_rest:
+ 	start_rip = setup_trampoline();
+ 
+ 	init_rsp = c_idle.idle->thread.rsp;
+-	per_cpu(init_tss,cpu).rsp0 = init_rsp;
++	load_esp0(&per_cpu(init_tss, cpu), &c_idle.idle->thread);
+ 	initial_code = start_secondary;
+ 	clear_tsk_thread_flag(c_idle.idle, TIF_FORK);
+ 
+diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
+index ba4b314..48f73c7 100644
+--- a/include/asm-x86/msr.h
++++ b/include/asm-x86/msr.h
+@@ -253,73 +253,6 @@ static inline int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
+ 			  : "=a" (low), "=d" (high) \
+ 			  : "c" (counter))
+ 
+-static inline void cpuid(int op, unsigned int *eax, unsigned int *ebx,
+-			 unsigned int *ecx, unsigned int *edx)
+-{
+-	__asm__("cpuid"
+-		: "=a" (*eax),
+-		  "=b" (*ebx),
+-		  "=c" (*ecx),
+-		  "=d" (*edx)
+-		: "0" (op));
+-}
+-
+-/* Some CPUID calls want 'count' to be placed in ecx */
+-static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
+-			       int *edx)
+-{
+-	__asm__("cpuid"
+-		: "=a" (*eax),
+-		  "=b" (*ebx),
+-		  "=c" (*ecx),
+-		  "=d" (*edx)
+-		: "0" (op), "c" (count));
+-}
+-
+-/*
+- * CPUID functions returning a single datum
+- */
+-static inline unsigned int cpuid_eax(unsigned int op)
+-{
+-	unsigned int eax;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax)
+-		: "0" (op)
+-		: "bx", "cx", "dx");
+-	return eax;
+-}
+-static inline unsigned int cpuid_ebx(unsigned int op)
+-{
+-	unsigned int eax, ebx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=b" (ebx)
+-		: "0" (op)
+-		: "cx", "dx" );
+-	return ebx;
+-}
+-static inline unsigned int cpuid_ecx(unsigned int op)
+-{
+-	unsigned int eax, ecx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=c" (ecx)
+-		: "0" (op)
+-		: "bx", "dx" );
+-	return ecx;
+-}
+-static inline unsigned int cpuid_edx(unsigned int op)
+-{
+-	unsigned int eax, edx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=d" (edx)
+-		: "0" (op)
+-		: "bx", "cx");
+-	return edx;
+-}
+-
  #ifdef CONFIG_SMP
-diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
-index 94c39aa..094b915 100644
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -953,7 +953,7 @@ static const struct pv_cpu_ops xen_cpu_ops __initdata = {
- 	.read_pmc = native_read_pmc,
- 
- 	.iret = (void *)&hypercall_page[__HYPERVISOR_iret],
--	.irq_enable_sysexit = NULL,  /* never called */
-+	.irq_enable_syscall_ret = NULL,  /* never called */
- 
- 	.load_tr_desc = paravirt_nop,
- 	.set_ldt = xen_set_ldt,
-diff --git a/include/asm-x86/irqflags.h b/include/asm-x86/irqflags.h
-index 1b695ff..fd0df93 100644
---- a/include/asm-x86/irqflags.h
-+++ b/include/asm-x86/irqflags.h
-@@ -1,5 +1,112 @@
-+#ifndef _X86_IRQFLAGS_H_
-+#define _X86_IRQFLAGS_H_
+ void rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
+ void wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
+diff --git a/include/asm-x86/processor.h b/include/asm-x86/processor.h
+index 46e1c04..a576a72 100644
+--- a/include/asm-x86/processor.h
++++ b/include/asm-x86/processor.h
+@@ -1,5 +1,151 @@
++#ifndef _X86_PROCESSOR_H_
++#define _X86_PROCESSOR_H_
 +
-+#include <asm/processor-flags.h>
++#include <linux/kernel.h>
++#include <asm/bug.h>
++
++static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
++				unsigned int *ecx, unsigned int *edx)
++{
++	/* ecx is often an input as well as an output. */
++	__asm__("cpuid"
++		: "=a" (*eax),
++		  "=b" (*ebx),
++		  "=c" (*ecx),
++		  "=d" (*edx)
++		: "0" (*eax), "2" (*ecx));
++}
++
++static inline unsigned long native_get_debugreg(int regno)
++{
++	unsigned long val = 0; 	/* Damn you, gcc! */
++
++	switch (regno) {
++	case 0:
++		asm volatile ("mov %%db0, %0" :"=r" (val)); break;
++	case 1:
++		asm volatile ("mov %%db1, %0" :"=r" (val)); break;
++	case 2:
++		asm volatile ("mov %%db2, %0" :"=r" (val)); break;
++	case 3:
++		asm volatile ("mov %%db3, %0" :"=r" (val)); break;
++	case 6:
++		asm volatile ("mov %%db6, %0" :"=r" (val)); break;
++	case 7:
++		asm volatile ("mov %%db7, %0" :"=r" (val)); break;
++	default:
++		WARN_ON(1);
++	}
++	return val;
++}
++
++static inline void native_set_debugreg(int regno, unsigned long value)
++{
++	switch (regno) {
++	case 0:
++		asm("mov %0,%%db0"	:  :"r" (value) : "memory");
++		break;
++	case 1:
++		asm("mov %0,%%db1"	:  :"r" (value) : "memory");
++		break;
++	case 2:
++		asm("mov %0,%%db2"	:  :"r" (value) : "memory");
++		break;
++	case 3:
++		asm("mov %0,%%db3"	:  :"r" (value) : "memory");
++		break;
++	case 6:
++		asm("mov %0,%%db6"	:  :"r" (value) : "memory");
++		break;
++	case 7:
++		asm("mov %0,%%db7"	:  :"r" (value) : "memory");
++		break;
++	default:
++		WARN_ON(1);
++	}
++}
 +
  #ifdef CONFIG_X86_32
- # include "irqflags_32.h"
+ # include "processor_32.h"
  #else
- # include "irqflags_64.h"
+ # include "processor_64.h"
  #endif
-+
-+#ifndef __ASSEMBLY__
-+static inline void native_irq_disable(void)
-+{
-+	asm volatile("cli": : :"memory");
-+}
-+
-+static inline void native_irq_enable(void)
-+{
-+	asm volatile("sti": : :"memory");
-+}
-+
-+static inline void native_safe_halt(void)
-+{
-+	asm volatile("sti; hlt": : :"memory");
-+}
-+
-+static inline void native_halt(void)
-+{
-+	asm volatile("hlt": : :"memory");
-+}
-+#endif /* __ASSEMBLY__ */
 +
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
 +#else
-+#define ENABLE_INTERRUPTS(x)	sti
-+#define DISABLE_INTERRUPTS(x)	cli
-+#ifndef __ASSEMBLY__
++#define paravirt_enabled() 0
++#define __cpuid native_cpuid
++#define SWAPGS	swapgs
 +
-+static inline unsigned long __raw_local_save_flags(void)
++static inline void load_esp0(struct tss_struct *tss,
++			     struct thread_struct *thread)
 +{
-+	return native_save_fl();
-+}
-+
-+static inline void raw_local_irq_restore(unsigned long flags)
-+{
-+	native_restore_fl(flags);
-+}
-+
-+static inline void raw_local_irq_disable(void)
-+{
-+	native_irq_disable();
-+}
-+
-+static inline void raw_local_irq_enable(void)
-+{
-+	native_irq_enable();
++	native_load_esp0(tss, thread);
 +}
 +
 +/*
-+ * Used in the idle loop; sti takes one instruction cycle
-+ * to complete:
++ * These special macros can be used to get or set a debugging register
 + */
-+static inline void raw_safe_halt(void)
-+{
-+	native_safe_halt();
-+}
++#define get_debugreg(var, register)				\
++	(var) = native_get_debugreg(register)
++#define set_debugreg(value, register)				\
++	native_set_debugreg(register, value)
 +
-+/*
-+ * Used when interrupts are already enabled or to
-+ * shutdown the processor:
-+ */
-+static inline void halt(void)
-+{
-+	native_halt();
-+}
-+
-+/*
-+ * For spinlocks, etc:
-+ */
-+static inline unsigned long __raw_local_irq_save(void)
-+{
-+	unsigned long flags = __raw_local_save_flags();
-+
-+	raw_local_irq_disable();
-+
-+	return flags;
-+}
-+#endif /* __ASSEMBLY__ */
++#define set_iopl_mask native_set_iopl_mask
 +#endif /* CONFIG_PARAVIRT */
 +
-+#ifndef __ASSEMBLY__
-+#define raw_local_save_flags(flags) \
-+		do { (flags) = __raw_local_save_flags(); } while (0)
-+
-+#define raw_local_irq_save(flags) \
-+		do { (flags) = __raw_local_irq_save(); } while (0)
-+
-+static inline int raw_irqs_disabled_flags(unsigned long flags)
++/*
++ * Generic CPUID function
++ * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
++ * resulting in stale register contents being returned.
++ */
++static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx,
++			 unsigned int *ecx, unsigned int *edx)
 +{
-+	return !(flags & X86_EFLAGS_IF);
++	*eax = op;
++	*ecx = 0;
++	__cpuid(eax, ebx, ecx, edx);
 +}
 +
-+static inline int raw_irqs_disabled(void)
++/* Some CPUID calls want 'count' to be placed in ecx */
++static inline void cpuid_count(int op, int count, unsigned *eax,
++			       unsigned *ebx, unsigned *ecx, unsigned *edx)
 +{
-+	unsigned long flags = __raw_local_save_flags();
-+
-+	return raw_irqs_disabled_flags(flags);
++	*eax = op;
++	*ecx = count;
++	__cpuid(eax, ebx, ecx, edx);
 +}
-+#endif /* __ASSEMBLY__ */
++
++/*
++ * CPUID functions returning a single datum
++ */
++static inline unsigned int cpuid_eax(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return eax;
++}
++static inline unsigned int cpuid_ebx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return ebx;
++}
++static inline unsigned int cpuid_ecx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return ecx;
++}
++static inline unsigned int cpuid_edx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return edx;
++}
 +#endif
-diff --git a/include/asm-x86/irqflags_32.h b/include/asm-x86/irqflags_32.h
-index d058b04..11cfbdd 100644
---- a/include/asm-x86/irqflags_32.h
-+++ b/include/asm-x86/irqflags_32.h
-@@ -26,111 +26,12 @@ static inline void native_restore_fl(unsigned long f)
- 			     :"memory", "cc");
+diff --git a/include/asm-x86/processor_32.h b/include/asm-x86/processor_32.h
+index 13976b0..a081689 100644
+--- a/include/asm-x86/processor_32.h
++++ b/include/asm-x86/processor_32.h
+@@ -134,17 +134,6 @@ extern void detect_ht(struct cpuinfo_x86 *c);
+ static inline void detect_ht(struct cpuinfo_x86 *c) {}
+ #endif
+ 
+-static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
+-					 unsigned int *ecx, unsigned int *edx)
+-{
+-	/* ecx is often an input as well as an output. */
+-	__asm__("cpuid"
+-		: "=a" (*eax),
+-		  "=b" (*ebx),
+-		  "=c" (*ecx),
+-		  "=d" (*edx)
+-		: "0" (*eax), "2" (*ecx));
+-}
+ 
+ #define load_cr3(pgdir) write_cr3(__pa(pgdir))
+ 
+@@ -508,56 +497,6 @@ static inline void native_load_esp0(struct tss_struct *tss, struct thread_struct
+ 	}
  }
  
--static inline void native_irq_disable(void)
+-
+-static inline unsigned long native_get_debugreg(int regno)
 -{
--	asm volatile("cli": : :"memory");
+-	unsigned long val = 0; 	/* Damn you, gcc! */
+-
+-	switch (regno) {
+-	case 0:
+-		asm("movl %%db0, %0" :"=r" (val)); break;
+-	case 1:
+-		asm("movl %%db1, %0" :"=r" (val)); break;
+-	case 2:
+-		asm("movl %%db2, %0" :"=r" (val)); break;
+-	case 3:
+-		asm("movl %%db3, %0" :"=r" (val)); break;
+-	case 6:
+-		asm("movl %%db6, %0" :"=r" (val)); break;
+-	case 7:
+-		asm("movl %%db7, %0" :"=r" (val)); break;
+-	default:
+-		BUG();
+-	}
+-	return val;
 -}
 -
--static inline void native_irq_enable(void)
+-static inline void native_set_debugreg(int regno, unsigned long value)
 -{
--	asm volatile("sti": : :"memory");
+-	switch (regno) {
+-	case 0:
+-		asm("movl %0,%%db0"	: /* no output */ :"r" (value));
+-		break;
+-	case 1:
+-		asm("movl %0,%%db1"	: /* no output */ :"r" (value));
+-		break;
+-	case 2:
+-		asm("movl %0,%%db2"	: /* no output */ :"r" (value));
+-		break;
+-	case 3:
+-		asm("movl %0,%%db3"	: /* no output */ :"r" (value));
+-		break;
+-	case 6:
+-		asm("movl %0,%%db6"	: /* no output */ :"r" (value));
+-		break;
+-	case 7:
+-		asm("movl %0,%%db7"	: /* no output */ :"r" (value));
+-		break;
+-	default:
+-		BUG();
+-	}
 -}
 -
--static inline void native_safe_halt(void)
--{
--	asm volatile("sti; hlt": : :"memory");
--}
--
--static inline void native_halt(void)
--{
--	asm volatile("hlt": : :"memory");
--}
--#endif	/* __ASSEMBLY__ */
--
+ /*
+  * Set IOPL bits in EFLAGS from given mask
+  */
+@@ -574,82 +513,9 @@ static inline void native_set_iopl_mask(unsigned mask)
+ 				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
+ }
+ 
 -#ifdef CONFIG_PARAVIRT
 -#include <asm/paravirt.h>
 -#else
--#ifndef __ASSEMBLY__
+-#define paravirt_enabled() 0
+-#define __cpuid native_cpuid
 -
--static inline unsigned long __raw_local_save_flags(void)
+-static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
 -{
--	return native_save_fl();
--}
--
--static inline void raw_local_irq_restore(unsigned long flags)
--{
--	native_restore_fl(flags);
--}
--
--static inline void raw_local_irq_disable(void)
--{
--	native_irq_disable();
--}
--
--static inline void raw_local_irq_enable(void)
--{
--	native_irq_enable();
+-	native_load_esp0(tss, thread);
 -}
 -
 -/*
-- * Used in the idle loop; sti takes one instruction cycle
-- * to complete:
+- * These special macros can be used to get or set a debugging register
 - */
--static inline void raw_safe_halt(void)
+-#define get_debugreg(var, register)				\
+-	(var) = native_get_debugreg(register)
+-#define set_debugreg(value, register)				\
+-	native_set_debugreg(register, value)
+-
+-#define set_iopl_mask native_set_iopl_mask
+-#endif /* CONFIG_PARAVIRT */
+-
+-/*
+- * Generic CPUID function
+- * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
+- * resulting in stale register contents being returned.
+- */
+-static inline void cpuid(unsigned int op,
+-			 unsigned int *eax, unsigned int *ebx,
+-			 unsigned int *ecx, unsigned int *edx)
 -{
--	native_safe_halt();
+-	*eax = op;
+-	*ecx = 0;
+-	__cpuid(eax, ebx, ecx, edx);
+-}
+-
+-/* Some CPUID calls want 'count' to be placed in ecx */
+-static inline void cpuid_count(unsigned int op, int count,
+-			       unsigned int *eax, unsigned int *ebx,
+-			       unsigned int *ecx, unsigned int *edx)
+-{
+-	*eax = op;
+-	*ecx = count;
+-	__cpuid(eax, ebx, ecx, edx);
 -}
 -
 -/*
-- * Used when interrupts are already enabled or to
-- * shutdown the processor:
+- * CPUID functions returning a single datum
 - */
--static inline void halt(void)
+-static inline unsigned int cpuid_eax(unsigned int op)
 -{
--	native_halt();
--}
+-	unsigned int eax, ebx, ecx, edx;
 -
--/*
-- * For spinlocks, etc:
-- */
--static inline unsigned long __raw_local_irq_save(void)
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return eax;
+-}
+-static inline unsigned int cpuid_ebx(unsigned int op)
 -{
--	unsigned long flags = __raw_local_save_flags();
+-	unsigned int eax, ebx, ecx, edx;
 -
--	raw_local_irq_disable();
--
--	return flags;
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return ebx;
 -}
--
--#else
--#define DISABLE_INTERRUPTS(clobbers)	cli
--#define ENABLE_INTERRUPTS(clobbers)	sti
--#define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
-+#elif !defined(CONFIG_PARAVIRT)	/* __ASSEMBLY__ */
-+#define ENABLE_INTERRUPTS_SYSCALL_RET	sti; sysexit
- #define INTERRUPT_RETURN		iret
- #define GET_CR0_INTO_EAX		movl %cr0, %eax
--#endif /* __ASSEMBLY__ */
- #endif /* CONFIG_PARAVIRT */
- 
--#ifndef __ASSEMBLY__
--#define raw_local_save_flags(flags) \
--		do { (flags) = __raw_local_save_flags(); } while (0)
--
--#define raw_local_irq_save(flags) \
--		do { (flags) = __raw_local_irq_save(); } while (0)
--
--static inline int raw_irqs_disabled_flags(unsigned long flags)
+-static inline unsigned int cpuid_ecx(unsigned int op)
 -{
--	return !(flags & X86_EFLAGS_IF);
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return ecx;
 -}
--
--static inline int raw_irqs_disabled(void)
--{
--	unsigned long flags = __raw_local_save_flags();
--
--	return raw_irqs_disabled_flags(flags);
--}
--#endif /* __ASSEMBLY__ */
--
- /*
-  * Do the CPU's IRQ-state tracing from assembly code. We call a
-  * C function, so save all the C-clobbered registers:
-diff --git a/include/asm-x86/irqflags_64.h b/include/asm-x86/irqflags_64.h
-index 5341ea1..88eb53f 100644
---- a/include/asm-x86/irqflags_64.h
-+++ b/include/asm-x86/irqflags_64.h
-@@ -16,7 +16,7 @@
-  * Interrupt control:
-  */
- 
--static inline unsigned long __raw_local_save_flags(void)
-+static inline unsigned long native_save_fl(void)
+-static inline unsigned int cpuid_edx(unsigned int op)
++/* We don't really have one */
++static inline void native_swapgs(void)
  {
- 	unsigned long flags;
- 
-@@ -31,10 +31,7 @@ static inline unsigned long __raw_local_save_flags(void)
- 	return flags;
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return edx;
  }
  
--#define raw_local_save_flags(flags) \
--		do { (flags) = __raw_local_save_flags(); } while (0)
--
--static inline void raw_local_irq_restore(unsigned long flags)
-+static inline void native_restore_fl(unsigned long flags)
+ /* generic versions from gas */
+diff --git a/include/asm-x86/processor_64.h b/include/asm-x86/processor_64.h
+index e4f1997..b1e6c5a 100644
+--- a/include/asm-x86/processor_64.h
++++ b/include/asm-x86/processor_64.h
+@@ -116,21 +116,13 @@ extern unsigned long mmu_cr4_features;
+ static inline void set_in_cr4 (unsigned long mask)
  {
- 	__asm__ __volatile__(
- 		"pushq %0 ; popfq"
-@@ -43,93 +40,7 @@ static inline void raw_local_irq_restore(unsigned long flags)
- 		:"memory", "cc"
- 	);
+ 	mmu_cr4_features |= mask;
+-	__asm__("movq %%cr4,%%rax\n\t"
+-		"orq %0,%%rax\n\t"
+-		"movq %%rax,%%cr4\n"
+-		: : "irg" (mask)
+-		:"ax");
++	write_cr4(read_cr4() | mask);
  }
--
--#ifdef CONFIG_X86_VSMP
--
--/*
-- * Interrupt control for the VSMP architecture:
-- */
--
--static inline void raw_local_irq_disable(void)
--{
--	unsigned long flags = __raw_local_save_flags();
--
--	raw_local_irq_restore((flags & ~X86_EFLAGS_IF) | X86_EFLAGS_AC);
--}
--
--static inline void raw_local_irq_enable(void)
--{
--	unsigned long flags = __raw_local_save_flags();
--
--	raw_local_irq_restore((flags | X86_EFLAGS_IF) & (~X86_EFLAGS_AC));
--}
--
--static inline int raw_irqs_disabled_flags(unsigned long flags)
--{
--	return !(flags & X86_EFLAGS_IF) || (flags & X86_EFLAGS_AC);
--}
--
--#else /* CONFIG_X86_VSMP */
--
--static inline void raw_local_irq_disable(void)
--{
--	__asm__ __volatile__("cli" : : : "memory");
--}
--
--static inline void raw_local_irq_enable(void)
--{
--	__asm__ __volatile__("sti" : : : "memory");
--}
--
--static inline int raw_irqs_disabled_flags(unsigned long flags)
--{
--	return !(flags & X86_EFLAGS_IF);
--}
--
--#endif
--
--/*
-- * For spinlocks, etc.:
-- */
--
--static inline unsigned long __raw_local_irq_save(void)
--{
--	unsigned long flags = __raw_local_save_flags();
--
--	raw_local_irq_disable();
--
--	return flags;
--}
--
--#define raw_local_irq_save(flags) \
--		do { (flags) = __raw_local_irq_save(); } while (0)
--
--static inline int raw_irqs_disabled(void)
--{
--	unsigned long flags = __raw_local_save_flags();
--
--	return raw_irqs_disabled_flags(flags);
--}
--
--/*
-- * Used in the idle loop; sti takes one instruction cycle
-- * to complete:
-- */
--static inline void raw_safe_halt(void)
--{
--	__asm__ __volatile__("sti; hlt" : : : "memory");
--}
--
--/*
-- * Used when interrupts are already enabled or to
-- * shutdown the processor:
-- */
--static inline void halt(void)
--{
--	__asm__ __volatile__("hlt": : :"memory");
--}
--
--#else /* __ASSEMBLY__: */
-+#else /* __ASSEMBLY__ */
- # ifdef CONFIG_TRACE_IRQFLAGS
- #  define TRACE_IRQS_ON		call trace_hardirqs_on_thunk
- #  define TRACE_IRQS_OFF	call trace_hardirqs_off_thunk
-@@ -153,4 +64,21 @@ static inline void halt(void)
- # endif
- #endif
  
-+#ifndef CONFIG_PARAVIRT
-+#define INTERRUPT_RETURN	iretq
-+#define ENABLE_INTERRUPTS_SYSCALL_RET			\
-+			movq	%gs:pda_oldrsp, %rsp;	\
-+			swapgs;				\
-+			sysretq;
-+#endif
-+/* Currently paravirt can't handle swapgs nicely when we
-+ * don't have a stack we can rely on (such as a user space
-+ * stack).  So we either find a way around these or just fault
-+ * and emulate if a guest tries to call swapgs directly.
-+ *
-+ * Either way, this is a good way to document that we don't
-+ * have a reliable stack.
-+ */
-+#define SWAPGS_UNSAFE_STACK	swapgs
+ static inline void clear_in_cr4 (unsigned long mask)
+ {
+ 	mmu_cr4_features &= ~mask;
+-	__asm__("movq %%cr4,%%rax\n\t"
+-		"andq %0,%%rax\n\t"
+-		"movq %%rax,%%cr4\n"
+-		: : "irg" (~mask)
+-		:"ax");
++	write_cr4(read_cr4() & ~mask);
+ }
+ 
+ 
+@@ -251,6 +243,12 @@ struct thread_struct {
+ 	.rsp0 = (unsigned long)&init_stack + sizeof(init_stack) \
+ }
+ 
++static inline void native_load_esp0(struct tss_struct *tss,
++				    struct thread_struct *thread)
++{
++	tss->rsp0 = thread->rsp0;
++}
 +
- #endif
-diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
-index f59d370..d81a361 100644
---- a/include/asm-x86/paravirt.h
-+++ b/include/asm-x86/paravirt.h
-@@ -121,7 +121,7 @@ struct pv_cpu_ops {
- 	u64 (*read_pmc)(void);
+ #define INIT_MMAP \
+ { &init_mm, 0, 0, NULL, PAGE_SHARED, VM_READ | VM_WRITE | VM_EXEC, 1, NULL, NULL }
  
- 	/* These two are jmp to, not actually called. */
--	void (*irq_enable_sysexit)(void);
-+	void (*irq_enable_syscall_ret)(void);
- 	void (*iret)(void);
+@@ -266,13 +264,13 @@ struct thread_struct {
+ 	set_fs(USER_DS);							 \
+ } while(0) 
  
- 	struct pv_lazy_ops lazy_mode;
-@@ -1138,9 +1138,10 @@ static inline unsigned long __raw_local_irq_save(void)
- 		  call *%cs:pv_irq_ops+PV_IRQ_irq_enable;		\
- 		  popl %edx; popl %ecx; popl %eax)
+-#define get_debugreg(var, register)				\
+-		__asm__("movq %%db" #register ", %0"		\
+-			:"=r" (var))
+-#define set_debugreg(value, register)			\
+-		__asm__("movq %0,%%db" #register		\
+-			: /* no output */			\
+-			:"r" (value))
++extern void native_swapgs(void);
++
++/* We have it for simmetry with i386 code, but we don't really use it */
++static inline void native_set_iopl_mask(unsigned mask)
++{
++
++}
  
--#define ENABLE_INTERRUPTS_SYSEXIT					       \
--	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_irq_enable_sysexit), CLBR_NONE,\
--		  jmp *%cs:pv_cpu_ops+PV_CPU_irq_enable_sysexit)
-+#define ENABLE_INTERRUPTS_SYSCALL_RET					\
-+	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_irq_enable_syscall_ret),\
-+		  CLBR_NONE,						\
-+		  jmp *%cs:pv_cpu_ops+PV_CPU_irq_enable_syscall_ret)
- 
- #define GET_CR0_INTO_EAX			\
- 	push %ecx; push %edx;			\
+ struct task_struct;
+ struct mm_struct;
 -- 
 1.4.4.2
