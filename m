@@ -1,15 +1,12 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 6/7] consolidate apic.h functions
-Date: Wed, 31 Oct 2007 16:13:18 -0300
-Message-ID: <11938580331218-git-send-email-gcosta__42626.4939051636$1193869029$gmane$org@redhat.com>
+Subject: [PATCH 3/7] tlb functions consolidation
+Date: Wed, 31 Oct 2007 16:13:15 -0300
+Message-ID: <119385801745-git-send-email-gcosta__23484.9462322474$1193869030$gmane$org@redhat.com>
 References: <1193857999499-git-send-email-gcosta@redhat.com>
 	<11938580063444-git-send-email-gcosta@redhat.com>
 	<11938580111179-git-send-email-gcosta@redhat.com>
-	<119385801745-git-send-email-gcosta@redhat.com>
-	<1193858022794-git-send-email-gcosta@redhat.com>
-	<11938580272819-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11938580272819-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11938580111179-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,169 +20,288 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch consolidates apic.h functions for i386 and x86_64.
-notice that we use u32 to be explicit about sizing requirements
-between them
+This patch consolidates part of the tlb handling functions for the x86
+architecture. In this approach, we start by the parts actually used for
+paravirt in i386.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/kernel/smpboot_64.c |   10 ++++++++--
- include/asm-x86/apic.h       |   38 ++++++++++++++++++++++++++++++++++++++
- include/asm-x86/apic_32.h    |   31 -------------------------------
- include/asm-x86/apic_64.h    |   14 --------------
- 4 files changed, 46 insertions(+), 47 deletions(-)
+ arch/x86/kernel/smp_64.c      |    5 ++-
+ include/asm-x86/tlbflush.h    |   77 +++++++++++++++++++++++++++++++++++++++++
+ include/asm-x86/tlbflush_32.h |   77 -----------------------------------------
+ include/asm-x86/tlbflush_64.h |   43 +++--------------------
+ 4 files changed, 85 insertions(+), 117 deletions(-)
 
-diff --git a/arch/x86/kernel/smpboot_64.c b/arch/x86/kernel/smpboot_64.c
-index ecd00f6..53db29d 100644
---- a/arch/x86/kernel/smpboot_64.c
-+++ b/arch/x86/kernel/smpboot_64.c
-@@ -370,7 +370,7 @@ void __cpuinit start_secondary(void)
- 
- 	unlock_ipi_call_lock();
- 
--	setup_secondary_APIC_clock();
-+	setup_secondary_clock();
- 
- 	cpu_idle();
- }
-@@ -462,6 +462,12 @@ static int __cpuinit wakeup_secondary_via_INIT(int phys_apicid, unsigned int sta
- 	num_starts = 2;
- 
- 	/*
-+	 * Paravirt wants a startup IPI hook here to set up the
-+	 * target processor state.
-+	 */
-+	startup_ipi_hook(phys_apicid, (unsigned long) start_rip,
-+			(unsigned long) init_rsp);
-+	/*
- 	 * Run STARTUP IPI loop.
- 	 */
- 	Dprintk("#startup loops: %d.\n", num_starts);
-@@ -903,7 +909,7 @@ void __init native_smp_prepare_cpus(unsigned int max_cpus)
- 	 * Set up local APIC timer on boot CPU.
- 	 */
- 
--	setup_boot_APIC_clock();
-+	setup_boot_clock();
+diff --git a/arch/x86/kernel/smp_64.c b/arch/x86/kernel/smp_64.c
+index 03fa6ed..ad063a6 100644
+--- a/arch/x86/kernel/smp_64.c
++++ b/arch/x86/kernel/smp_64.c
+@@ -166,11 +166,12 @@ out:
+ 	add_pda(irq_tlb_count, 1);
  }
  
- /*
-diff --git a/include/asm-x86/apic.h b/include/asm-x86/apic.h
-index 9fbcc0b..6f61672 100644
---- a/include/asm-x86/apic.h
-+++ b/include/asm-x86/apic.h
-@@ -1,5 +1,43 @@
-+#ifndef _X86_APIC_H_
-+#define _X86_APIC_H_
-+#include <asm/apicdef.h>
-+#include <asm/fixmap.h>
+-static void flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
+-						unsigned long va)
++void native_flush_tlb_others(const cpumask_t *cpumaskp,
++			     struct mm_struct *mm, unsigned long va)
+ {
+ 	int sender;
+ 	union smp_flush_state *f;
++	cpumask_t cpumask = *cpumaskp;
+ 
+ 	/* Caller has disabled preemption */
+ 	sender = smp_processor_id() % NUM_INVALIDATE_TLB_VECTORS;
+diff --git a/include/asm-x86/tlbflush.h b/include/asm-x86/tlbflush.h
+index 9af4cc8..93283cf 100644
+--- a/include/asm-x86/tlbflush.h
++++ b/include/asm-x86/tlbflush.h
+@@ -1,5 +1,82 @@
++#ifndef _X86_TLBFLUSH_H_
++#define _X86_TLBFLUSH_H_
 +
-+#ifdef CONFIG_X86_LOCAL_APIC
-+/*
-+ * Basic functions accessing APICs.
-+ */
 +#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
 +#else
-+#define apic_write(reg, v) native_apic_write(reg, v)
-+#define apic_write_atomic(reg, v) native_apic_write_atomic(reg, v)
-+#define apic_read(reg) native_apic_read(reg)
-+#define setup_boot_clock setup_boot_APIC_clock
-+#define setup_secondary_clock setup_secondary_APIC_clock
++#define __flush_tlb() __native_flush_tlb()
++#define __flush_tlb_global() __native_flush_tlb_global()
++#define __flush_tlb_single(addr) __native_flush_tlb_single(addr)
 +#endif
-+static __inline fastcall void native_apic_write(unsigned long reg,
-+						u32 v)
++
++static inline void __native_flush_tlb(void)
 +{
-+	*((volatile u32 *)(APIC_BASE+reg)) = v;
++	write_cr3(read_cr3());
 +}
 +
-+static __inline fastcall void native_apic_write_atomic(unsigned long reg,
-+						       u32 v)
++static inline void __native_flush_tlb_global(void)
 +{
-+	xchg((volatile unsigned long *)(APIC_BASE+reg), v);
++	unsigned long cr4 = read_cr4();
++	write_cr4(cr4 & ~X86_CR4_PGE);  /* clear PGE */
++	write_cr4(cr4);                 /* write old PGE again and flush TLBs */
 +}
 +
-+static __inline fastcall u32 native_apic_read(unsigned long reg)
++#define __native_flush_tlb_single(addr) 				\
++	__asm__ __volatile__("invlpg (%0)" ::"r" (addr) : "memory")
++
++#ifdef CONFIG_SMP
++
++#include <asm/smp.h>
++#include <linux/mm.h>
++
++#define local_flush_tlb() \
++	__flush_tlb()
++
++extern void flush_tlb_all(void);
++extern void flush_tlb_current_task(void);
++extern void flush_tlb_mm(struct mm_struct *);
++extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
++
++#define flush_tlb()	flush_tlb_current_task()
++
++static inline void flush_tlb_range(struct vm_area_struct *vma,
++				   unsigned long start, unsigned long end)
 +{
-+	return *((volatile u32 *)(APIC_BASE+reg));
++	flush_tlb_mm(vma->vm_mm);
 +}
 +
-+#endif /* CONFIG_X86_LOCAL_APIC */
++void native_flush_tlb_others(const cpumask_t *cpumask, struct mm_struct *mm,
++			     unsigned long va);
++
++#define TLBSTATE_OK	1
++#define TLBSTATE_LAZY	2
++
++#ifdef CONFIG_X86_64
++/* Roughly an IPI every 20MB with 4k pages for freeing page table
++   ranges. Cost is about 42k of memory for each CPU. */
++#define ARCH_FREE_PTE_NR 5350
++
++#else /* X86_64 */
++struct tlb_state
++{
++	struct mm_struct *active_mm;
++	int state;
++	char __cacheline_padding[L1_CACHE_BYTES-8];
++};
++DECLARE_PER_CPU(struct tlb_state, cpu_tlbstate);
++#endif /* X86_64 */
++
++#endif
++
++#ifndef CONFIG_PARAVIRT
++#define flush_tlb_others(mask, mm, va)		\
++	native_flush_tlb_others(&mask, mm, va)
++#endif
 +
  #ifdef CONFIG_X86_32
- # include "apic_32.h"
+ # include "tlbflush_32.h"
  #else
- # include "apic_64.h"
+ # include "tlbflush_64.h"
  #endif
++
 +#endif
-diff --git a/include/asm-x86/apic_32.h b/include/asm-x86/apic_32.h
-index 4091b33..dbe51b4 100644
---- a/include/asm-x86/apic_32.h
-+++ b/include/asm-x86/apic_32.h
-@@ -34,37 +34,6 @@ extern int apic_verbosity;
- extern void generic_apic_probe(void);
+diff --git a/include/asm-x86/tlbflush_32.h b/include/asm-x86/tlbflush_32.h
+index 2bd5b95..07eaf37 100644
+--- a/include/asm-x86/tlbflush_32.h
++++ b/include/asm-x86/tlbflush_32.h
+@@ -1,49 +1,8 @@
+ #ifndef _I386_TLBFLUSH_H
+ #define _I386_TLBFLUSH_H
  
- #ifdef CONFIG_X86_LOCAL_APIC
--
--/*
-- * Basic functions accessing APICs.
-- */
+-#include <linux/mm.h>
+ #include <asm/processor.h>
+ 
 -#ifdef CONFIG_PARAVIRT
 -#include <asm/paravirt.h>
 -#else
--#define apic_write native_apic_write
--#define apic_write_atomic native_apic_write_atomic
--#define apic_read native_apic_read
--#define setup_boot_clock setup_boot_APIC_clock
--#define setup_secondary_clock setup_secondary_APIC_clock
+-#define __flush_tlb() __native_flush_tlb()
+-#define __flush_tlb_global() __native_flush_tlb_global()
+-#define __flush_tlb_single(addr) __native_flush_tlb_single(addr)
 -#endif
 -
--static __inline fastcall void native_apic_write(unsigned long reg,
--						unsigned long v)
--{
--	*((volatile unsigned long *)(APIC_BASE+reg)) = v;
--}
+-#define __native_flush_tlb()						\
+-	do {								\
+-		unsigned int tmpreg;					\
+-									\
+-		__asm__ __volatile__(					\
+-			"movl %%cr3, %0;              \n"		\
+-			"movl %0, %%cr3;  # flush TLB \n"		\
+-			: "=r" (tmpreg)					\
+-			:: "memory");					\
+-	} while (0)
 -
--static __inline fastcall void native_apic_write_atomic(unsigned long reg,
--						       unsigned long v)
--{
--	xchg((volatile unsigned long *)(APIC_BASE+reg), v);
--}
--
--static __inline fastcall unsigned long native_apic_read(unsigned long reg)
--{
--	return *((volatile unsigned long *)(APIC_BASE+reg));
--}
--
- void apic_wait_icr_idle(void);
- unsigned long safe_apic_wait_icr_idle(void);
- int get_physical_broadcast(void);
-diff --git a/include/asm-x86/apic_64.h b/include/asm-x86/apic_64.h
-index 2747a11..aaba5af 100644
---- a/include/asm-x86/apic_64.h
-+++ b/include/asm-x86/apic_64.h
-@@ -34,20 +34,6 @@ extern int disable_apic_timer;
- 
- struct pt_regs;
- 
 -/*
-- * Basic functions accessing APICs.
+- * Global pages have to be flushed a bit differently. Not a real
+- * performance problem because this does not happen often.
 - */
+-#define __native_flush_tlb_global()					\
+-	do {								\
+-		unsigned int tmpreg, cr4, cr4_orig;			\
+-									\
+-		__asm__ __volatile__(					\
+-			"movl %%cr4, %2;  # turn off PGE     \n"	\
+-			"movl %2, %1;                        \n"	\
+-			"andl %3, %1;                        \n"	\
+-			"movl %1, %%cr4;                     \n"	\
+-			"movl %%cr3, %0;                     \n"	\
+-			"movl %0, %%cr3;  # flush TLB        \n"	\
+-			"movl %2, %%cr4;  # turn PGE back on \n"	\
+-			: "=&r" (tmpreg), "=&r" (cr4), "=&r" (cr4_orig)	\
+-			: "i" (~X86_CR4_PGE)				\
+-			: "memory");					\
+-	} while (0)
 -
--static __inline void apic_write(unsigned long reg, unsigned int v)
--{
--	*((volatile unsigned int *)(APIC_BASE+reg)) = v;
--}
--
--static __inline unsigned int apic_read(unsigned long reg)
--{
--	return *((volatile unsigned int *)(APIC_BASE+reg));
--}
--
- extern void apic_wait_icr_idle(void);
- extern unsigned int safe_apic_wait_icr_idle(void);
+ #define __native_flush_tlb_single(addr) 				\
+ 	__asm__ __volatile__("invlpg (%0)" ::"r" (addr) : "memory")
  
+@@ -120,44 +79,8 @@ static inline void native_flush_tlb_others(const cpumask_t *cpumask,
+ {
+ }
+ 
+-#else  /* SMP */
+-
+-#include <asm/smp.h>
+-
+-#define local_flush_tlb() \
+-	__flush_tlb()
+-
+-extern void flush_tlb_all(void);
+-extern void flush_tlb_current_task(void);
+-extern void flush_tlb_mm(struct mm_struct *);
+-extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
+-
+-#define flush_tlb()	flush_tlb_current_task()
+-
+-static inline void flush_tlb_range(struct vm_area_struct * vma, unsigned long start, unsigned long end)
+-{
+-	flush_tlb_mm(vma->vm_mm);
+-}
+-
+-void native_flush_tlb_others(const cpumask_t *cpumask, struct mm_struct *mm,
+-			     unsigned long va);
+-
+-#define TLBSTATE_OK	1
+-#define TLBSTATE_LAZY	2
+-
+-struct tlb_state
+-{
+-	struct mm_struct *active_mm;
+-	int state;
+-	char __cacheline_padding[L1_CACHE_BYTES-8];
+-};
+-DECLARE_PER_CPU(struct tlb_state, cpu_tlbstate);
+ #endif	/* SMP */
+ 
+-#ifndef CONFIG_PARAVIRT
+-#define flush_tlb_others(mask, mm, va)		\
+-	native_flush_tlb_others(&mask, mm, va)
+-#endif
+ 
+ static inline void flush_tlb_kernel_range(unsigned long start,
+ 					unsigned long end)
+diff --git a/include/asm-x86/tlbflush_64.h b/include/asm-x86/tlbflush_64.h
+index 7731fd2..d1d1097 100644
+--- a/include/asm-x86/tlbflush_64.h
++++ b/include/asm-x86/tlbflush_64.h
+@@ -6,21 +6,8 @@
+ #include <asm/processor.h>
+ #include <asm/system.h>
+ 
+-static inline void __flush_tlb(void)
+-{
+-	write_cr3(read_cr3());
+-}
+-
+-static inline void __flush_tlb_all(void)
+-{
+-	unsigned long cr4 = read_cr4();
+-	write_cr4(cr4 & ~X86_CR4_PGE);	/* clear PGE */
+-	write_cr4(cr4);			/* write old PGE again and flush TLBs */
+-}
+-
+-#define __flush_tlb_one(addr) \
+-	__asm__ __volatile__("invlpg (%0)" :: "r" (addr) : "memory")
+-
++#define __flush_tlb_one(addr) __flush_tlb_single(addr)
++#define __flush_tlb_all() __flush_tlb_global()
+ 
+ /*
+  * TLB flushing:
+@@ -63,32 +50,12 @@ static inline void flush_tlb_range(struct vm_area_struct *vma,
+ 		__flush_tlb();
+ }
+ 
+-#else
+-
+-#include <asm/smp.h>
+-
+-#define local_flush_tlb() \
+-	__flush_tlb()
+-
+-extern void flush_tlb_all(void);
+-extern void flush_tlb_current_task(void);
+-extern void flush_tlb_mm(struct mm_struct *);
+-extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
+-
+-#define flush_tlb()	flush_tlb_current_task()
+-
+-static inline void flush_tlb_range(struct vm_area_struct * vma, unsigned long start, unsigned long end)
++static inline void native_flush_tlb_others(const cpumask_t *cpumask,
++					   struct mm_struct *mm,
++					   unsigned long va)
+ {
+-	flush_tlb_mm(vma->vm_mm);
+ }
+ 
+-#define TLBSTATE_OK	1
+-#define TLBSTATE_LAZY	2
+-
+-/* Roughly an IPI every 20MB with 4k pages for freeing page table
+-   ranges. Cost is about 42k of memory for each CPU. */
+-#define ARCH_FREE_PTE_NR 5350	
+-
+ #endif
+ 
+ static inline void flush_tlb_kernel_range(unsigned long start,
 -- 
 1.4.4.2
