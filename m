@@ -1,29 +1,16 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 16/16] make vsmp a paravirt client
-Date: Wed, 31 Oct 2007 21:38:30 -0700
-Message-ID: <47295846.8000700__48480.2206782208$1193892047$gmane$org@goop.org>
+Subject: Re: [PATCH 3/16] read/write_crX, clts and wbinvd for 64-bit paravirt
+Date: Wed, 31 Oct 2007 21:48:39 -0700
+Message-ID: <47295AA7.9090507__30154.5348986567$1193892615$gmane$org@goop.org>
 References: <1193858101367-git-send-email-gcosta@redhat.com>
 	<11938581073775-git-send-email-gcosta@redhat.com>
 	<11938581133479-git-send-email-gcosta@redhat.com>
 	<1193858118284-git-send-email-gcosta@redhat.com>
-	<11938581242810-git-send-email-gcosta@redhat.com>
-	<1193858130443-git-send-email-gcosta@redhat.com>
-	<11938581351064-git-send-email-gcosta@redhat.com>
-	<11938581403478-git-send-email-gcosta@redhat.com>
-	<11938581451804-git-send-email-gcosta@redhat.com>
-	<11938581512730-git-send-email-gcosta@redhat.com>
-	<11938581562552-git-send-email-gcosta@redhat.com>
-	<11938581612389-git-send-email-gcosta@redhat.com>
-	<11938581663639-git-send-email-gcosta@redhat.com>
-	<11938581713998-git-send-email-gcosta@redhat.com>
-	<11938581762150-git-send-email-gcosta@redhat.com>
-	<11938581812241-git-send-email-gcosta@redhat.com>
-	<1193858187364-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1193858187364-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1193858118284-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -38,191 +25,80 @@ Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel
 List-Id: virtualization@lists.linuxfoundation.org
 
 Glauber de Oliveira Costa wrote:
-> This patch makes vsmp a paravirt client. It now uses the whole
-> infrastructure provided by pvops. When we detect we're running
-> a vsmp box, we change the irq-related paravirt operations (and so,
-> it have to happen quite early), and the patching function
+> This patch introduces, and patch callers when needed, native
+> versions for read/write_crX functions, clts and wbinvd.
 >
 > Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 > Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 > Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 > ---
->  arch/x86/Kconfig.x86_64    |    3 +-
->  arch/x86/kernel/setup_64.c |    3 ++
->  arch/x86/kernel/vsmp_64.c  |   72 +++++++++++++++++++++++++++++++++++++++----
->  include/asm-x86/setup.h    |    3 +-
->  4 files changed, 71 insertions(+), 10 deletions(-)
+>  arch/x86/mm/pageattr_64.c   |    3 +-
+>  include/asm-x86/system_64.h |   60 ++++++++++++++++++++++++++++++------------
+>  2 files changed, 45 insertions(+), 18 deletions(-)
 >
-> diff --git a/arch/x86/Kconfig.x86_64 b/arch/x86/Kconfig.x86_64
-> index 04734dd..544bad5 100644
-> --- a/arch/x86/Kconfig.x86_64
-> +++ b/arch/x86/Kconfig.x86_64
-> @@ -148,15 +148,14 @@ config X86_PC
->  	bool "PC-compatible"
->  	help
->  	  Choose this option if your computer is a standard PC or compatible.
-> -
->  config X86_VSMP
->  	bool "Support for ScaleMP vSMP"
->  	depends on PCI
-> +	select PARAVIRT
->  	 help
->  	  Support for ScaleMP vSMP systems.  Say 'Y' here if this kernel is
->  	  supposed to run on these EM64T-based machines.  Only choose this option
->  	  if you have one of these machines.
-> -
->  endchoice
->  
->  choice
-> diff --git a/arch/x86/kernel/setup_64.c b/arch/x86/kernel/setup_64.c
-> index 44a11e3..c522549 100644
-> --- a/arch/x86/kernel/setup_64.c
-> +++ b/arch/x86/kernel/setup_64.c
-> @@ -335,6 +335,9 @@ void __init setup_arch(char **cmdline_p)
->  
->  	init_memory_mapping(0, (end_pfn_map << PAGE_SHIFT));
->  
-> +#ifdef CONFIG_VSMP
-> +	vsmp_init();
-> +#endif
->  	dmi_scan_machine();
->  
->  #ifdef CONFIG_SMP
-> diff --git a/arch/x86/kernel/vsmp_64.c b/arch/x86/kernel/vsmp_64.c
-> index 414caf0..547d3b3 100644
-> --- a/arch/x86/kernel/vsmp_64.c
-> +++ b/arch/x86/kernel/vsmp_64.c
-> @@ -8,18 +8,70 @@
->   *
->   * Ravikiran Thirumalai <kiran@scalemp.com>,
->   * Shai Fultheim <shai@scalemp.com>
-> + * Paravirt ops integration: Glauber de Oliveira Costa <gcosta@redhat.com>
->   */
-> -
->  #include <linux/init.h>
->  #include <linux/pci_ids.h>
->  #include <linux/pci_regs.h>
->  #include <asm/pci-direct.h>
+> diff --git a/arch/x86/mm/pageattr_64.c b/arch/x86/mm/pageattr_64.c
+> index c40afba..59a52b0 100644
+> --- a/arch/x86/mm/pageattr_64.c
+> +++ b/arch/x86/mm/pageattr_64.c
+> @@ -12,6 +12,7 @@
+>  #include <asm/processor.h>
+>  #include <asm/tlbflush.h>
 >  #include <asm/io.h>
 > +#include <asm/paravirt.h>
-> +
-> +/*
-> + * Interrupt control for the VSMP architecture:
-> + */
-> +
-> +static inline unsigned long vsmp_save_fl(void)
->   
-
-No point being inline.
-
+>  
+>  pte_t *lookup_address(unsigned long address)
+>  { 
+> @@ -77,7 +78,7 @@ static void flush_kernel_map(void *arg)
+>  	   much cheaper than WBINVD. */
+>  	/* clflush is still broken. Disable for now. */
+>  	if (1 || !cpu_has_clflush)
+> -		asm volatile("wbinvd" ::: "memory");
+> +		wbinvd();
+>  	else list_for_each_entry(pg, l, lru) {
+>  		void *adr = page_address(pg);
+>  		clflush_cache_range(adr, PAGE_SIZE);
+> diff --git a/include/asm-x86/system_64.h b/include/asm-x86/system_64.h
+> index 4cb2384..b558cb2 100644
+> --- a/include/asm-x86/system_64.h
+> +++ b/include/asm-x86/system_64.h
+> @@ -65,53 +65,62 @@ extern void load_gs_index(unsigned);
+>  /*
+>   * Clear and set 'TS' bit respectively
+>   */
+> -#define clts() __asm__ __volatile__ ("clts")
+> +static inline void native_clts(void)
 > +{
-> +	unsigned long flags = native_save_fl();
-> +
-> +	if (flags & X86_EFLAGS_IF)
-> +		return X86_EFLAGS_IF;
->   
-
-Is this right, or should the if be testing _AC?  Otherwise, why not just
-"return flags & X86_EFLAGS_IF"?
-
-> +	return 0;
+> +	asm volatile ("clts");
 > +}
 >  
-> -static int __init vsmp_init(void)
-> +static inline void vsmp_restore_fl(unsigned long flags)
+> -static inline unsigned long read_cr0(void)
+> -{ 
+> +static inline unsigned long native_read_cr0(void)
 > +{
-> +	if (flags & X86_EFLAGS_IF)
-> +		flags &= ~X86_EFLAGS_AC;
-> +	if (!(flags & X86_EFLAGS_IF))
-> +		flags &= X86_EFLAGS_AC;
->   
-
-Just use "else"?
-
-> +	native_restore_fl(flags);
-> +}
-> +
-> +static inline void vsmp_irq_disable(void)
-> +{
-> +	unsigned long flags = native_save_fl();
-> +
-> +	vsmp_restore_fl((flags & ~X86_EFLAGS_IF));
->   
-
-((double paren?))
-
-> +}
-> +
-> +static inline void vsmp_irq_enable(void)
-> +{
-> +	unsigned long flags = native_save_fl();
-> +
-> +	vsmp_restore_fl((flags | X86_EFLAGS_IF));
-> +}
-> +
-> +static unsigned __init vsmp_patch(u8 type, u16 clobbers, void *ibuf,
-> +				  unsigned long addr, unsigned len)
-> +{
-> +	switch (type) {
-> +	case PARAVIRT_PATCH(pv_irq_ops.irq_enable):
-> +	case PARAVIRT_PATCH(pv_irq_ops.irq_disable):
-> +	case PARAVIRT_PATCH(pv_irq_ops.save_fl):
-> +	case PARAVIRT_PATCH(pv_irq_ops.restore_fl):
-> +		return paravirt_patch_default(type, clobbers, ibuf, addr, len);
-> +	default:
-> +		return native_patch(type, clobbers, ibuf, addr, len);
-> +	}
-> +
-> +}
-> +
-> +int __init vsmp_init(void)
->  {
->  	void *address;
-> -	unsigned int cap, ctl;
-> +	unsigned int cap, ctl, cfg;
->  
->  	if (!early_pci_allowed())
->  		return 0;
-> @@ -29,8 +81,16 @@ static int __init vsmp_init(void)
->  	    (read_pci_config_16(0, 0x1f, 0, PCI_DEVICE_ID) != PCI_DEVICE_ID_SCALEMP_VSMP_CTL))
->  		return 0;
->  
-> +	/* If we are, use the distinguished irq functions */
-> +	pv_irq_ops.irq_disable = vsmp_irq_disable;
-> +	pv_irq_ops.irq_enable  = vsmp_irq_enable;
-> +	pv_irq_ops.save_fl  = vsmp_save_fl;
-> +	pv_irq_ops.restore_fl  = vsmp_restore_fl;
-> +	pv_init_ops.patch = vsmp_patch;
-> +
->  	/* set vSMP magic bits to indicate vSMP capable kernel */
-> -	address = ioremap(read_pci_config(0, 0x1f, 0, PCI_BASE_ADDRESS_0), 8);
-> +	cfg = read_pci_config(0, 0x1f, 0, PCI_BASE_ADDRESS_0);
-> +	address = early_ioremap(cfg, 8);
->  	cap = readl(address);
->  	ctl = readl(address + 4);
->  	printk("vSMP CTL: capabilities:0x%08x  control:0x%08x\n", cap, ctl);
-> @@ -42,8 +102,6 @@ static int __init vsmp_init(void)
->  		printk("vSMP CTL: control set to:0x%08x\n", ctl);
->  	}
->  
-> -	iounmap(address);
-> +	early_iounmap(address, 8);
->  	return 0;
+>  	unsigned long cr0;
+>  	asm volatile("movq %%cr0,%0" : "=r" (cr0));
+>  	return cr0;
 >  }
-> -
-> -core_initcall(vsmp_init);
-> diff --git a/include/asm-x86/setup.h b/include/asm-x86/setup.h
-> index 071e054..dd7996c 100644
-> --- a/include/asm-x86/setup.h
-> +++ b/include/asm-x86/setup.h
-> @@ -58,7 +58,8 @@ void __init add_memory_region(unsigned long long start,
->  
->  extern unsigned long init_pg_tables_end;
->  
-> -
-> +/* For EM64T-based VSMP machines */
-> +int vsmp_init(void);
->  
->  #endif /* __i386__ */
->  #endif /* _SETUP */
 >   
+
+This is a pre-existing bug, but it seems to me that these read/write crX
+asms should have a constraint to stop the compiler from reordering them
+with respect to each other.  The brute-force approach would be to add
+"memory" clobbers, but the subtle fix would be to add a variable which
+is only used to sequence:
+
+static int __cr_seq;
+
+static inline unsigned long native_read_cr0(void)
+{
+	unsigned long cr0;
+	asm volatile("mov %%cr0, %0" : "=r" (cr0), "=m" (__cr_seq));
+}
+
+static inline void native_write_cr0(unsigned long val)
+{
+	asm volatile("mov %1, %%cr0" : "+m" (__cr_seq) : "r" (val));
+}
+
+
+    J
