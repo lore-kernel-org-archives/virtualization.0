@@ -1,7 +1,7 @@
 From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Use of virtio device IDs
-Date: Tue, 06 Nov 2007 11:16:10 -0600
-Message-ID: <4730A15A.6070001__14581.5693228089$1194369518$gmane$org@us.ibm.com>
+Subject: virtio config_ops refactoring
+Date: Tue, 06 Nov 2007 11:48:35 -0600
+Message-ID: <4730A8F3.6020008__24332.9160650775$1194371468$gmane$org@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -16,28 +16,80 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
+Cc: Dor Laor <dor.laor@qumranet.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Rusty,
+Hi,
 
-I've written a PCI virtio transport and noticed something strange.  All 
-current in-tree virtio devices register ID tables that match a specific 
-device ID, but any vendor ID.
+The current virtio config_ops do not map very well to the PCI config 
+space.  Here they are:
 
-This is incompatible with using PCI vendor/device IDs for virtio 
-vendor/device IDs since vendors control what device IDs mean.  A simple 
-solution would be to assign a fixed vendor ID to all current virtio 
-devices.  This doesn't solve the problem completely though since you 
-would create a conflict between the PCI vendor ID space and the virtio 
-vendor ID space.
+> struct virtio_config_ops
+> {
+>     void *(*find)(struct virtio_device *vdev, u8 type, unsigned *len);
+>     void (*get)(struct virtio_device *vdev, void *token,
+>             void *buf, unsigned len);
+>     void (*set)(struct virtio_device *vdev, void *token,
+>             const void *buf, unsigned len);
+>     u8 (*get_status)(struct virtio_device *vdev);
+>     void (*set_status)(struct virtio_device *vdev, u8 status);
+>     struct virtqueue *(*find_vq)(struct virtio_device *vdev,
+>                      bool (*callback)(struct virtqueue *));
+>     void (*del_vq)(struct virtqueue *vq);
+> };
 
-The only solutions seem to be virtualizing the virtio vendor/device IDs 
-(which is what I'm currently doing) or to mandate that the virtio vendor 
-ID be within the PCI vendor ID space.  It's probably not necessary to 
-make the same requirement for device IDs though.
+Semantically, find requires that a field have both a type and a length.  
+With the exception of the VIRTQUEUE field used internally by lguest, 
+type is always a unique identifier.  Since virtqueue information is not 
+a required part of the config space, it seems to me that type really 
+should be treated as a unique identifier.
 
-What are your thoughts?
+find_vq also is curious in that it is stateful in it's enumeration.  
+This adds seemingly unnecessary complexity.  The result is that in my 
+PCI virtio implementation, I have to use an opaque blob that's self 
+describing and variable length in the PCI config space.  This is not 
+very natural at all for a PCI device!
+
+Here is how I propose changing the config_ops:
+
+struct virtio_config_ops
+{
+    bool (*get)(struct virtio_device *vdev, unsigned id, void *buf, 
+unsigned len);
+    bool (*set)(struct virtio_device *vdev, unsigned id, const void 
+*buf, unsigned len);
+    u8 (*get_status)(struct virtio_device *vdev);
+    void (*set_status)(struct virtio_device *vdev, u8 status);
+    struct virtqueue *(*get_vq)(struct virtio_device *vdev, unsigned 
+index, bool (*callback)(struct virtqueue *));
+    void (*del_vq)(struct virtqueue *vq);
+};
+
+config_ops->get() returns false if the id is invalid as does ->set().  
+get_vq() returns NULL if the index is not a valid virtqueue (and we'll 
+mandate that all virtqueues are in order starting at 0).
+
+The id space is defined by the driver itself but is guaranteed to be 
+non-overlapping and starting from 0.  For instance, the block device 
+would have:
+
+/* The capacity (in 512-byte sectors). */
+#define VIRTIO_CONFIG_BLK_F_CAPACITY    0x00
+/* The maximum segment size. */
+#define VIRTIO_CONFIG_BLK_F_SIZE_MAX    0x08
+/* The maximum number of segments. */
+#define VIRTIO_CONFIG_BLK_F_SEG_MAX    0x12
+
+This maps very well to the PCI config space.  For lguest, the actual 
+config items would simply be packed in a single page.  Since lguest uses 
+the config space for virtqueues, lguest_device_desc will have to be 
+changed to also contain an array of virtqueue infos.  It doesn't prevent 
+an implementation from using the id's as opaque keys though (as one 
+might do for Xen since presumably the configuration data would be 
+represented within xenbus).
+
+If there's agreement that this approach is better, I'll start submitting 
+patches.
 
 Regards,
 
