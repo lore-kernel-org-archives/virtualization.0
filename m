@@ -1,77 +1,76 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: Use of virtio device IDs
-Date: Thu, 08 Nov 2007 10:40:44 -0600
-Message-ID: <47333C0C.7020705__41572.9701090187$1194540273$gmane$org@us.ibm.com>
-References: <4730A15A.6070001@us.ibm.com> <4730B753.2000901@us.ibm.com>
-	<4731334A.6090405@gmail.com> <47314FBD.1070505@qumranet.com>
-	<47322262.8000101@gmail.com> <4732AE9A.4070701@qumranet.com>
-	<4732D439.3020703@redhat.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 3/3] virtio PCI device
+Date: Thu, 8 Nov 2007 18:46:35 +0100
+Message-ID: <200711081846.36821.arnd@arndb.de>
+References: <11944899922822-git-send-email-aliguori@us.ibm.com>
+	<11944900152750-git-send-email-aliguori@us.ibm.com>
+	<11944900163817-git-send-email-aliguori@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4732D439.3020703@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Gregory Haskins <gregory.haskins.ml@gmail.com>, linux-kernel@vger.kernel.org, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <11944900163817-git-send-email-aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Cc: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gerd Hoffmann wrote:
-> Avi Kivity wrote:
->   
->>> You are
->>> probably better off designing something that is PV specific instead of
->>> shoehorning it in to fit a different model (at least for the things I
->>> have in mind).  
->>>       
->> Well, if we design our pv devices to look like hardware, they will fit
->> quite well.  Both to the guest OS and to user's expectations.
->>     
->
-> Disclaimer: Havn't looked at the virtio code much.
->
-> I think we should keep the door open for both models and don't nail the
->  virtio infrastructure to one of them.
->
-> For pure pv devices I don't see the point in trying to squeeze it into
-> the PCI model.  Also s390 has no PCI, so there effecticely is no way
-> around that, we must be able have some pure virtual bus like xenbus.
->   
+On Thursday 08 November 2007, Anthony Liguori wrote:
+> +/* A PCI device has it's own struct device and so does a virtio device so
+> + * we create a place for the virtio devices to show up in sysfs. =A0I th=
+ink it
+> + * would make more sense for virtio to not insist on having it's own dev=
+ice. */
+> +static struct device virtio_pci_root =3D {
+> +=A0=A0=A0=A0=A0=A0=A0.parent=A0=A0=A0=A0=A0=A0=A0=A0=A0=3D NULL,
+> +=A0=A0=A0=A0=A0=A0=A0.bus_id=A0=A0=A0=A0=A0=A0=A0=A0=A0=3D "virtio-pci",
+> +};
+> +
+> +/* Unique numbering for devices under the kvm root */
+> +static unsigned int dev_index;
+> +
 
-I don't really agree with this assessment.  There is no performance 
-advantage to using a pure virtual bus.  If you have a pure pv device 
-that looks and act like a PCI device, besides the obvious advantage of 
-easy portability to other guest OSes (since everything support PCI, but 
-porting XenBus--event to Linux 2.4.x was a royal pain), it is also very 
-easy to support the device on other VMMs.
+...
 
-For instance, the PCI device that I just posted would allow virtio 
-devices to be used trivially with HVM on Xen.  In fact, once the 
-backends are complete and merged into QEMU, the next time Xen rebases 
-QEMU they'll get the virtio PV-on-HVM drivers for free.  To me, that's a 
-pretty significant advantage.
+> +/* the PCI probing function */
+> +static int __devinit virtio_pci_probe(struct pci_dev *pci_dev,
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0 =A0 =A0 =A0const struct pci_device_id *id)
+> +{
+> +=A0=A0=A0=A0=A0=A0=A0struct virtio_pci_device *vp_dev;
+> +=A0=A0=A0=A0=A0=A0=A0int err;
+> +
+> +=A0=A0=A0=A0=A0=A0=A0/* allocate our structure and fill it out */
+> +=A0=A0=A0=A0=A0=A0=A0vp_dev =3D kzalloc(sizeof(struct virtio_pci_device)=
+, GFP_KERNEL);
+> +=A0=A0=A0=A0=A0=A0=A0if (vp_dev =3D=3D NULL)
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -ENOMEM;
+> +
+> +=A0=A0=A0=A0=A0=A0=A0vp_dev->pci_dev =3D pci_dev;
+> +=A0=A0=A0=A0=A0=A0=A0vp_dev->vdev.dev.parent =3D &virtio_pci_root;
 
-> Uhm, well, yea.  Guess you are refering to the pv-on-hvm drivers.  Been
-> there, dealt with it.  What exactly do you think is messy there?
->
-> IMHO the most messy thing is the boot problem.  hvm bios can't deal with
-> pv disks, so you can't boot with pv disks only.  "fixed" by having the
-> (boot) disk twice in the system, once via emulated ide, once as pv disk.
->  Ouch.
->   
+If you use =
 
-I have actually addressed this problem with a PV option rom for QEMU.  I 
-expect to get time to submit the QEMU patches by the end of the year.  
-See http://hg.codemonkey.ws/extboot
 
-Regards,
+	vp_dev->vdev.dev.parent =3D &pci_dev->dev;
 
-Anthony Liguori
+Then there is no need for the special kvm root device, and the actual
+virtio device shows up in a more logical place, under where it is
+really (virtually) attached.
+
+	Arnd <><
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Splunk Inc.
+Still grepping through log files to find problems?  Stop.
+Now Search log events and configuration files using AJAX and a browser.
+Download your FREE copy of Splunk now >> http://get.splunk.com/
