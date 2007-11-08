@@ -1,15 +1,15 @@
-From: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+From: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
 Subject: Re: [PATCH 3/3] virtio PCI device
-Date: Thu, 08 Nov 2007 07:54:57 -0600
-Message-ID: <47331531.8070709@us.ibm.com>
+Date: Thu, 08 Nov 2007 16:37:59 +0200
+Message-ID: <47331F47.70304@qumranet.com>
 References: <11944899922822-git-send-email-aliguori@us.ibm.com>	<11944900141678-git-send-email-aliguori@us.ibm.com>	<11944900152750-git-send-email-aliguori@us.ibm.com>
 	<11944900163817-git-send-email-aliguori@us.ibm.com>
-	<4732A8E5.6090307@qumranet.com>
+	<4732A8E5.6090307@qumranet.com> <47331531.8070709@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <4732A8E5.6090307-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <47331531.8070709-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
 	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
@@ -19,34 +19,48 @@ List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
 	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
 Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
+To: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 Cc: Rusty Russell <rusty-PBSTF//UHa40n/F98K4Iww@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> Anthony Liguori wrote:
->   
->> This is a PCI device that implements a transport for virtio.  It allows virtio
->> devices to be used by QEMU based VMMs like KVM or Xen.
+Anthony Liguori wrote:
+> Avi Kivity wrote:
+>> Anthony Liguori wrote:
+>>  
+>>> This is a PCI device that implements a transport for virtio.  It 
+>>> allows virtio
+>>> devices to be used by QEMU based VMMs like KVM or Xen.
+>>>
+>>>       
 >>
->>   
->>     
+>> Didn't see support for dma.
 >
-> Didn't see support for dma.
+> Not sure what you're expecting there.  Using dma_ops in virtio_ring?
+>
 
-Not sure what you're expecting there.  Using dma_ops in virtio_ring?
+If a pci device is capable of dma (or issuing interrupts), it will be 
+useless with pv pci.
 
->  I think that with Amit's pvdma patches you
-> can support dma-capable devices as well without too much fuss.
->   
 
-What is the use case you're thinking of?  A semi-paravirt driver that 
-does dma directly to a device?
+>>  I think that with Amit's pvdma patches you
+>> can support dma-capable devices as well without too much fuss.
+>>   
+>
+> What is the use case you're thinking of?  A semi-paravirt driver that 
+> does dma directly to a device?
 
-Regards,
+No, an unmodified driver that, by using clever tricks with dma_ops, can 
+do dma directly to guest memory.  See Amit's patches.
 
-Anthony Liguori
+In fact, why do a virtio transport at all?  It can be done either with 
+trap'n'emulate, or by directly mapping the device mmio space into the guest.
 
+
+(what use case are you considering? devices without interrupts and dma? 
+pci door stoppers?)
+
+-- 
+error compiling committee.c: too many arguments to function
 
 
 -------------------------------------------------------------------------
