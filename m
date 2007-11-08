@@ -1,49 +1,78 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [Lguest] [PATCH] virtio config_ops refactoring
-Date: Thu, 08 Nov 2007 16:49:02 -0600
-Message-ID: <4733925E.3050208@us.ibm.com>
-References: <4730A8F3.6020008@us.ibm.com>
-	<200711081320.35844.rusty__6233.15023626692$1194488552$gmane$org@rustcorp.com.au>
-	<4732774C.6020903@codemonkey.ws>
-	<200711090924.28659.rusty@rustcorp.com.au>
-	<47338EA0.6050100@codemonkey.ws>
-	<13426df10711081447o688550a4jc01be2d7f06209e0@mail.gmail.com>
+From: Dor Laor <dor.laor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 3/3] virtio PCI device
+Date: Fri, 09 Nov 2007 01:43:28 +0200
+Message-ID: <47339F20.6010602@qumranet.com>
+References: <11944899922822-git-send-email-aliguori@us.ibm.com>	<11944900141678-git-send-email-aliguori@us.ibm.com>	<11944900152750-git-send-email-aliguori@us.ibm.com>	<11944900163817-git-send-email-aliguori@us.ibm.com>	<4732A8E5.6090307@qumranet.com>
+	<47331531.8070709@us.ibm.com>
+Reply-To: dor.laor-atKUWr5tajBWk0Htik3J/w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <13426df10711081447o688550a4jc01be2d7f06209e0@mail.gmail.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ron minnich <rminnich@gmail.com>
-Cc: lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <47331531.8070709-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Cc: Rusty Russell <rusty-PBSTF//UHa40n/F98K4Iww@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>, kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-ron minnich wrote:
-> Hi, I'm sorry, I've been stuck on other things (NFS RDMA anyone?) and
-> missed part of this discussion.
+Anthony Liguori wrote:
+> Avi Kivity wrote:
+>   
+>> Anthony Liguori wrote:
+>>   
+>>     
+>>> This is a PCI device that implements a transport for virtio.  It allows virtio
+>>> devices to be used by QEMU based VMMs like KVM or Xen.
+>>>
+>>>   
+>>>     
+>>>       
+>> Didn't see support for dma.
+>>     
 >
-> Is it really the case that operations on virtio devices will involve
-> outl/inl etc.?
+> Not sure what you're expecting there.  Using dma_ops in virtio_ring?
+>
+>   
+>>  I think that with Amit's pvdma patches you
+>> can support dma-capable devices as well without too much fuss.
+>>   
+>>     
+>
+> What is the use case you're thinking of?  A semi-paravirt driver that 
+> does dma directly to a device?
+>
+> Regards,
+>
+> Anthony Liguori
+>
+>   
+You would also lose performance since pv-dma will trigger an exit for 
+each virtio io while
+virtio kicks the hypervisor after several IOs were queued.
+>
+> -------------------------------------------------------------------------
+> This SF.net email is sponsored by: Splunk Inc.
+> Still grepping through log files to find problems?  Stop.
+> Now Search log events and configuration files using AJAX and a browser.
+> Download your FREE copy of Splunk now >> http://get.splunk.com/
+> _______________________________________________
+> kvm-devel mailing list
+> kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+> https://lists.sourceforge.net/lists/listinfo/kvm-devel
+>
 >   
 
-No, this is just for the PCI virtio transport.  lguest's virtio 
-transport uses hypercalls and shared memory.
 
-Regards,
-
-Anthony Liguori
-
-> Apologies in advance for my failure to pay attention.
->
-> thanks
->
-> ron
->   
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Splunk Inc.
+Still grepping through log files to find problems?  Stop.
+Now Search log events and configuration files using AJAX and a browser.
+Download your FREE copy of Splunk now >> http://get.splunk.com/
