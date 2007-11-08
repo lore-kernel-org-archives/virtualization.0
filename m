@@ -1,14 +1,16 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [PATCH] virtio config_ops refactoring
-Date: Wed, 07 Nov 2007 20:41:16 -0600
-Message-ID: <4732774C.6020903__13814.4432487481$1194536388$gmane$org@codemonkey.ws>
-References: <4730A8F3.6020008@us.ibm.com>	<200711071704.09752.rusty@rustcorp.com.au>	<4731F64A.7080309@us.ibm.com>
-	<200711081320.35844.rusty__6233.15023626692$1194488552$gmane$org@rustcorp.com.au>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: Use of virtio device IDs
+Date: Thu, 08 Nov 2007 10:40:44 -0600
+Message-ID: <47333C0C.7020705__41572.9701090187$1194540273$gmane$org@us.ibm.com>
+References: <4730A15A.6070001@us.ibm.com> <4730B753.2000901@us.ibm.com>
+	<4731334A.6090405@gmail.com> <47314FBD.1070505@qumranet.com>
+	<47322262.8000101@gmail.com> <4732AE9A.4070701@qumranet.com>
+	<4732D439.3020703@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200711081320.35844.rusty__6233.15023626692$1194488552$gmane$org@rustcorp.com.au>
+In-Reply-To: <4732D439.3020703@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,39 +20,58 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org, lguest <lguest@ozlabs.org>, Dor Laor <dor.laor@qumranet.com>, linux-kernel@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Gregory Haskins <gregory.haskins.ml@gmail.com>, linux-kernel@vger.kernel.org, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Thursday 08 November 2007 04:30:50 Anthony Liguori wrote:
->> I would prefer that the virtio API not expose a little endian standard.
->> I'm currently converting config->get() ops to ioreadXX depending on the
->> size which already does the endianness conversion for me so this just
->> messes things up.  I think it's better to let the backend deal with
->> endianness since it's trivial to handle for both the PCI backend and the
->> lguest backend (lguest doesn't need to do any endianness conversion).
-> 
-> -ETOOMUCHMAGIC.  We should either expose all the XX interfaces (but this isn't 
-> a high-speed interface, so let's not) or not "sometimes" convert endianness.  
-> Getting surprises because a field happens to be packed into 4 bytes is 
-> counter-intuitive.
+Gerd Hoffmann wrote:
+> Avi Kivity wrote:
+>   
+>>> You are
+>>> probably better off designing something that is PV specific instead of
+>>> shoehorning it in to fit a different model (at least for the things I
+>>> have in mind).  
+>>>       
+>> Well, if we design our pv devices to look like hardware, they will fit
+>> quite well.  Both to the guest OS and to user's expectations.
+>>     
+>
+> Disclaimer: Havn't looked at the virtio code much.
+>
+> I think we should keep the door open for both models and don't nail the
+>  virtio infrastructure to one of them.
+>
+> For pure pv devices I don't see the point in trying to squeeze it into
+> the PCI model.  Also s390 has no PCI, so there effecticely is no way
+> around that, we must be able have some pure virtual bus like xenbus.
+>   
 
-Then I think it's necessary to expose the XX interfaces.  Otherwise, the 
-backend has to deal with doing all register operations at a per-byte 
-granularity which adds a whole lot of complexity on a per-device basis 
-(as opposed to a little complexity once in the transport layer).
+I don't really agree with this assessment.  There is no performance 
+advantage to using a pure virtual bus.  If you have a pure pv device 
+that looks and act like a PCI device, besides the obvious advantage of 
+easy portability to other guest OSes (since everything support PCI, but 
+porting XenBus--event to Linux 2.4.x was a royal pain), it is also very 
+easy to support the device on other VMMs.
 
-You really want to be able to rely on multi-byte atomic operations too 
-when setting values.  Otherwise, you need another register to just to 
-signal when it's okay for the device to examine any given register.
+For instance, the PCI device that I just posted would allow virtio 
+devices to be used trivially with HVM on Xen.  In fact, once the 
+backends are complete and merged into QEMU, the next time Xen rebases 
+QEMU they'll get the virtio PV-on-HVM drivers for free.  To me, that's a 
+pretty significant advantage.
+
+> Uhm, well, yea.  Guess you are refering to the pv-on-hvm drivers.  Been
+> there, dealt with it.  What exactly do you think is messy there?
+>
+> IMHO the most messy thing is the boot problem.  hvm bios can't deal with
+> pv disks, so you can't boot with pv disks only.  "fixed" by having the
+> (boot) disk twice in the system, once via emulated ide, once as pv disk.
+>  Ouch.
+>   
+
+I have actually addressed this problem with a PV option rom for QEMU.  I 
+expect to get time to submit the QEMU patches by the end of the year.  
+See http://hg.codemonkey.ws/extboot
 
 Regards,
 
 Anthony Liguori
-
-> Since your most trivial implementation is to do a byte at a time, I don't 
-> think you have a good argument on that basis either.
-> 
-> Cheers,
-> Rusty.
