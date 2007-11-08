@@ -1,36 +1,45 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH][VIRTIO] Fix vring_init() ring computations
-Date: Wed, 07 Nov 2007 19:06:07 -0600
-Message-ID: <473260FF.1030101@us.ibm.com>
-References: <11944039492411-git-send-email-aliguori@us.ibm.com> <200711071657.40992.rusty@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio config_ops refactoring
+Date: Thu, 8 Nov 2007 13:20:35 +1100
+Message-ID: <200711081320.35844.rusty__6233.15023626692$1194488552$gmane$org@rustcorp.com.au>
+References: <4730A8F3.6020008@us.ibm.com>
+	<200711071704.09752.rusty@rustcorp.com.au>
+	<4731F64A.7080309@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759798AbXKHBGT@vger.kernel.org>
-In-Reply-To: <200711071657.40992.rusty@rustcorp.com.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Rusty Russell <rusty@rusycorp.com.au>, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4731F64A.7080309@us.ibm.com>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Wednesday 07 November 2007 13:52:29 Anthony Liguori wrote:
->   
->> This patch fixes a typo in vring_init(). 
->>     
->
-> Thanks, applied.
->
-> I've put it in the new, experimental virtio git tree on git.kernel.org.
->   
+On Thursday 08 November 2007 04:30:50 Anthony Liguori wrote:
+> I would prefer that the virtio API not expose a little endian standard.
+> I'm currently converting config->get() ops to ioreadXX depending on the
+> size which already does the endianness conversion for me so this just
+> messes things up.  I think it's better to let the backend deal with
+> endianness since it's trivial to handle for both the PCI backend and the
+> lguest backend (lguest doesn't need to do any endianness conversion).
 
-Hrm, perhaps you forgot to push?  I don't see it in the tree although I 
-see the config ops refactoring.
+-ETOOMUCHMAGIC.  We should either expose all the XX interfaces (but this isn't 
+a high-speed interface, so let's not) or not "sometimes" convert endianness.  
+Getting surprises because a field happens to be packed into 4 bytes is 
+counter-intuitive.
 
-Regards,
+Since your most trivial implementation is to do a byte at a time, I don't 
+think you have a good argument on that basis either.
 
-Anthony Liguori
-
-> Cheers,
-> Rusty.
->   
+Cheers,
+Rusty.
