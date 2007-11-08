@@ -1,58 +1,56 @@
-From: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 3/3] virtio PCI device
-Date: Thu, 08 Nov 2007 17:13:37 +0200
-Message-ID: <473327A1.9080907@qumranet.com>
-References: <11944899922822-git-send-email-aliguori@us.ibm.com>	<11944900141678-git-send-email-aliguori@us.ibm.com>	<11944900152750-git-send-email-aliguori@us.ibm.com>
-	<11944900163817-git-send-email-aliguori@us.ibm.com>
-	<4732A8E5.6090307@qumranet.com> <47331531.8070709@us.ibm.com>
-	<47331F47.70304@qumranet.com> <473325EB.5090907@us.ibm.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [PATCH] virtio config_ops refactoring
+Date: Wed, 07 Nov 2007 20:41:16 -0600
+Message-ID: <4732774C.6020903__13814.4432487481$1194536388$gmane$org@codemonkey.ws>
+References: <4730A8F3.6020008@us.ibm.com>	<200711071704.09752.rusty@rustcorp.com.au>	<4731F64A.7080309@us.ibm.com>
+	<200711081320.35844.rusty__6233.15023626692$1194488552$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <473325EB.5090907-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-Cc: Rusty Russell <rusty-PBSTF//UHa40n/F98K4Iww@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200711081320.35844.rusty__6233.15023626692$1194488552$gmane$org@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org, lguest <lguest@ozlabs.org>, Dor Laor <dor.laor@qumranet.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> Avi Kivity wrote:
->> If a pci device is capable of dma (or issuing interrupts), it will be 
->> useless with pv pci.
->
-> Hrm, I think we may be talking about different things.  Are you 
-> thinking that the driver I posted allows you to do PCI pass-through 
-> over virtio?  That's not what it is.
->
-> The driver I posted is a virtio implementation that uses a PCI 
-> device.  This lets you use virtio-blk and virtio-net under KVM.  The 
-> alternative to this virtio PCI device would be a virtio transport 
-> built with hypercalls like lguest has.  I choose a PCI device because 
-> it ensured that each virtio device showed up like a normal PCI device.
->
-> Am I misunderstanding what you're asking about?
->
+Rusty Russell wrote:
+> On Thursday 08 November 2007 04:30:50 Anthony Liguori wrote:
+>> I would prefer that the virtio API not expose a little endian standard.
+>> I'm currently converting config->get() ops to ioreadXX depending on the
+>> size which already does the endianness conversion for me so this just
+>> messes things up.  I think it's better to let the backend deal with
+>> endianness since it's trivial to handle for both the PCI backend and the
+>> lguest backend (lguest doesn't need to do any endianness conversion).
+> 
+> -ETOOMUCHMAGIC.  We should either expose all the XX interfaces (but this isn't 
+> a high-speed interface, so let's not) or not "sometimes" convert endianness.  
+> Getting surprises because a field happens to be packed into 4 bytes is 
+> counter-intuitive.
 
-No, I completely misunderstood the patch.  Should review complete 
-patches rather than random hunks.
+Then I think it's necessary to expose the XX interfaces.  Otherwise, the 
+backend has to deal with doing all register operations at a per-byte 
+granularity which adds a whole lot of complexity on a per-device basis 
+(as opposed to a little complexity once in the transport layer).
 
-Sorry for the noise.
+You really want to be able to rely on multi-byte atomic operations too 
+when setting values.  Otherwise, you need another register to just to 
+signal when it's okay for the device to examine any given register.
 
--- 
-error compiling committee.c: too many arguments to function
+Regards,
 
+Anthony Liguori
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Splunk Inc.
-Still grepping through log files to find problems?  Stop.
-Now Search log events and configuration files using AJAX and a browser.
-Download your FREE copy of Splunk now >> http://get.splunk.com/
+> Since your most trivial implementation is to do a byte at a time, I don't 
+> think you have a good argument on that basis either.
+> 
+> Cheers,
+> Rusty.
