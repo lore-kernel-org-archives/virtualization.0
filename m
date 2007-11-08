@@ -1,42 +1,80 @@
-From: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 2/3] Put the virtio under the virtualization
- menu
-Date: Thu, 08 Nov 2007 08:49:00 +0200
-Message-ID: <4732B15C.8040304@qumranet.com>
-References: <11944899922822-git-send-email-aliguori@us.ibm.com>	<11944900141678-git-send-email-aliguori@us.ibm.com>
-	<11944900152750-git-send-email-aliguori@us.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: Use of virtio device IDs
+Date: Thu, 08 Nov 2007 10:17:45 +0100
+Message-ID: <4732D439.3020703__19998.4110579409$1194513605$gmane$org@redhat.com>
+References: <4730A15A.6070001@us.ibm.com> <4730B753.2000901@us.ibm.com>
+	<4731334A.6090405@gmail.com> <47314FBD.1070505@qumranet.com>
+	<47322262.8000101@gmail.com> <4732AE9A.4070701@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <11944900152750-git-send-email-aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-Cc: Rusty Russell <rusty-PBSTF//UHa40n/F98K4Iww@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4732AE9A.4070701@qumranet.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: Gregory Haskins <gregory.haskins.ml@gmail.com>, Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> This patch moves virtio under the virtualization menu and changes virtio
-> devices to not claim to only be for lguest.
->   
+Avi Kivity wrote:
+>> You are
+>> probably better off designing something that is PV specific instead of
+>> shoehorning it in to fit a different model (at least for the things I
+>> have in mind).  
+> 
+> Well, if we design our pv devices to look like hardware, they will fit
+> quite well.  Both to the guest OS and to user's expectations.
 
-Perhaps the virt menu needs to be split into a host-side support menu
-and guest-side support menu.
+Disclaimer: Havn't looked at the virtio code much.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+I think we should keep the door open for both models and don't nail the
+ virtio infrastructure to one of them.
 
+For pure pv devices I don't see the point in trying to squeeze it into
+the PCI model.  Also s390 has no PCI, so there effecticely is no way
+around that, we must be able have some pure virtual bus like xenbus.
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Splunk Inc.
-Still grepping through log files to find problems?  Stop.
-Now Search log events and configuration files using AJAX and a browser.
-Download your FREE copy of Splunk now >> http://get.splunk.com/
+IMHO the PCI model is most useful for emulated devices with a optional
+pv path.  Say the usual emulated piix3 IDE controller, give it an
+additional pv mode, so the guest can drive it in pv mode if it knows
+about it, and use the generic piix ide driver if it doesn't.  That kind
+of devices we probably want identify by pci subsystem id.
+
+>> Its not a heck of a lot of code to write a pv-centric
+>> version of these facilities.
+> 
+> It is.  Especially if you consider Windows and a gazillion versions of
+> deployed, non-pv-capable Linux systems.  For pv-friendly newer Linux,
+> it's probably doable, but why?
+> 
+> Look at the mess Xen finds itself in.
+
+Uhm, well, yea.  Guess you are refering to the pv-on-hvm drivers.  Been
+there, dealt with it.  What exactly do you think is messy there?
+
+IMHO the most messy thing is the boot problem.  hvm bios can't deal with
+pv disks, so you can't boot with pv disks only.  "fixed" by having the
+(boot) disk twice in the system, once via emulated ide, once as pv disk.
+ Ouch.
+
+Other than that I don't see major problems with the virtual bus model.
+
+> It's "necessary" in a pragmatic sense: we want to deliver drivers that
+> provide features for a wide variety of guests in a reasonable
+> timeframe.  And that means no rewriting guest OS infrastructure.
+
+At least for any udev-based linux distro there is no need to rewrite any
+guest os infrastructure.  Your virtual bus driver needs a proper uevent
+callback, the virtual device drivers a module alias, and you are done.
+udev autoloads your virtual device driver modules nicely, without any
+distro tool hacking or config file writing ...
+
+cheers,
+  Gerd
