@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 21/24] native versions for page table entries values
-Date: Fri,  9 Nov 2007 16:43:02 -0200
-Message-ID: <1194633898545-git-send-email-gcosta__13729.014414321$1194645970$gmane$org@redhat.com>
+Subject: [PATCH 20/24] tweak io_64.h for paravirt.
+Date: Fri,  9 Nov 2007 16:43:01 -0200
+Message-ID: <11946338932611-git-send-email-gcosta__28106.2706410468$1194645972$gmane$org@redhat.com>
 References: <11946337851964-git-send-email-gcosta@redhat.com>
 	<11946337933104-git-send-email-gcosta@redhat.com>
 	<11946337991750-git-send-email-gcosta@redhat.com>
@@ -21,10 +21,9 @@ References: <11946337851964-git-send-email-gcosta@redhat.com>
 	<1194633873306-git-send-email-gcosta@redhat.com>
 	<1194633878886-git-send-email-gcosta@redhat.com>
 	<11946338832681-git-send-email-gcosta@redhat.com>
-	<1194633888761-git-send-email-gco!
-	sta@redhat.com> <11946338932611-git-send-email-gcosta@redhat.com>
+	<1194633888761-git-send-email-gco! sta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11946338932611-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1194633888761-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -38,123 +37,101 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch turns the page operations (set and make a page table)
-into native_ versions. The operations itself will be later
-overriden by paravirt.
-
-It uses unsigned long long for consistency with 32-bit. So we
-have to fix fault_64.c to get rid of warnings.
+We need something here because we can't call in and out instructions
+directly. However, we have to be careful, because no indirections are
+allowed in misc_64.c , and paravirt_ops is a kind of one. So just
+call it directly there
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/mm/fault_64.c    |    8 +++---
- include/asm-x86/page_64.h |   56 +++++++++++++++++++++++++++++++++++++++++----
- 2 files changed, 55 insertions(+), 9 deletions(-)
+ arch/x86/boot/compressed/misc_64.c |    6 +++++
+ include/asm-x86/io_64.h            |   37 +++++++++++++++++++++++++++++------
+ 2 files changed, 36 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/mm/fault_64.c b/arch/x86/mm/fault_64.c
-index 161c0d1..86b7307 100644
---- a/arch/x86/mm/fault_64.c
-+++ b/arch/x86/mm/fault_64.c
-@@ -157,22 +157,22 @@ void dump_pagetable(unsigned long address)
- 	pgd = __va((unsigned long)pgd & PHYSICAL_PAGE_MASK); 
- 	pgd += pgd_index(address);
- 	if (bad_address(pgd)) goto bad;
--	printk("PGD %lx ", pgd_val(*pgd));
-+	printk("PGD %llx ", pgd_val(*pgd));
- 	if (!pgd_present(*pgd)) goto ret; 
+diff --git a/arch/x86/boot/compressed/misc_64.c b/arch/x86/boot/compressed/misc_64.c
+index 6ea015a..6640a17 100644
+--- a/arch/x86/boot/compressed/misc_64.c
++++ b/arch/x86/boot/compressed/misc_64.c
+@@ -9,6 +9,12 @@
+  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
+  */
  
- 	pud = pud_offset(pgd, address);
- 	if (bad_address(pud)) goto bad;
--	printk("PUD %lx ", pud_val(*pud));
-+	printk("PUD %llx ", pud_val(*pud));
- 	if (!pud_present(*pud))	goto ret;
++/*
++ * we have to be careful, because no indirections are allowed here, and
++ * paravirt_ops is a kind of one. As it will only run in baremetal anyway,
++ * we just keep it from happening
++ */
++#undef CONFIG_PARAVIRT
+ #define _LINUX_STRING_H_ 1
+ #define __LINUX_BITMAP_H 1
  
- 	pmd = pmd_offset(pud, address);
- 	if (bad_address(pmd)) goto bad;
--	printk("PMD %lx ", pmd_val(*pmd));
-+	printk("PMD %llx ", pmd_val(*pmd));
- 	if (!pmd_present(*pmd) || pmd_large(*pmd)) goto ret;
+diff --git a/include/asm-x86/io_64.h b/include/asm-x86/io_64.h
+index a037b07..57fcdd9 100644
+--- a/include/asm-x86/io_64.h
++++ b/include/asm-x86/io_64.h
+@@ -35,12 +35,24 @@
+   *  - Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+   */
  
- 	pte = pte_offset_kernel(pmd, address);
- 	if (bad_address(pte)) goto bad;
--	printk("PTE %lx", pte_val(*pte)); 
-+	printk("PTE %llx", pte_val(*pte));
- ret:
- 	printk("\n");
- 	return;
-diff --git a/include/asm-x86/page_64.h b/include/asm-x86/page_64.h
-index 6fdc904..b8da60c 100644
---- a/include/asm-x86/page_64.h
-+++ b/include/asm-x86/page_64.h
-@@ -65,16 +65,62 @@ typedef struct { unsigned long pgprot; } pgprot_t;
+-#define __SLOW_DOWN_IO "\noutb %%al,$0x80"
++static inline void native_io_delay(void)
++{
++	asm volatile("outb %%al,$0x80" : : : "memory");
++}
  
- extern unsigned long phys_base;
- 
--#define pte_val(x)	((x).pte)
--#define pmd_val(x)	((x).pmd)
--#define pud_val(x)	((x).pud)
--#define pgd_val(x)	((x).pgd)
--#define pgprot_val(x)	((x).pgprot)
-+static inline unsigned long long native_pte_val(pte_t pte)
-+{
-+	return pte.pte;
-+}
-+
-+static inline unsigned long long native_pud_val(pud_t pud)
-+{
-+	return pud.pud;
-+}
-+
-+
-+static inline unsigned long long native_pmd_val(pmd_t pmd)
-+{
-+	return pmd.pmd;
-+}
-+
-+static inline unsigned long long native_pgd_val(pgd_t pgd)
-+{
-+	return pgd.pgd;
-+}
-+
-+static inline pte_t native_make_pte(unsigned long long pte)
-+{
-+	return (pte_t){ pte };
-+}
-+
-+static inline pud_t native_make_pud(unsigned long long pud)
-+{
-+	return (pud_t){ pud };
-+}
-+
-+static inline pmd_t native_make_pmd(unsigned long long pmd)
-+{
-+	return (pmd_t){ pmd };
-+}
-+
-+static inline pgd_t native_make_pgd(unsigned long long pgd)
-+{
-+	return (pgd_t){ pgd };
-+}
-+
-+#ifdef CONFIG_PARAVIRT
+-#ifdef REALLY_SLOW_IO
+-#define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO
++#if defined(CONFIG_PARAVIRT)
 +#include <asm/paravirt.h>
-+#else
-+#define pte_val(x)	native_pte_val(x)
-+#define pmd_val(x)	native_pmd_val(x)
-+#define pud_val(x)	native_pud_val(x)
-+#define pgd_val(x)	native_pgd_val(x)
- 
- #define __pte(x) ((pte_t) { (x) } )
- #define __pmd(x) ((pmd_t) { (x) } )
- #define __pud(x) ((pud_t) { (x) } )
- #define __pgd(x) ((pgd_t) { (x) } )
-+#endif /* CONFIG_PARAVIRT */
+ #else
+-#define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO
 +
-+#define pgprot_val(x)	((x).pgprot)
- #define __pgprot(x)	((pgprot_t) { (x) } )
++static inline void slow_down_io(void)
++{
++	native_io_delay();
++#ifdef REALLY_SLOW_IO
++	native_io_delay();
++	native_io_delay();
++	native_io_delay();
++#endif
++}
+ #endif
  
- #endif /* !__ASSEMBLY__ */
+ /*
+@@ -52,9 +64,15 @@ static inline void out##s(unsigned x value, unsigned short port) {
+ #define __OUT2(s,s1,s2) \
+ __asm__ __volatile__ ("out" #s " %" s1 "0,%" s2 "1"
+ 
++#ifndef REALLY_SLOW_IO
++#define REALLY_SLOW_IO
++#define UNSET_REALLY_SLOW_IO
++#endif
++
+ #define __OUT(s,s1,x) \
+ __OUT1(s,x) __OUT2(s,s1,"w") : : "a" (value), "Nd" (port)); } \
+-__OUT1(s##_p,x) __OUT2(s,s1,"w") __FULL_SLOW_DOWN_IO : : "a" (value), "Nd" (port));} \
++__OUT1(s##_p, x) __OUT2(s, s1, "w") : : "a" (value), "Nd" (port)); \
++		slow_down_io(); }
+ 
+ #define __IN1(s) \
+ static inline RETURN_TYPE in##s(unsigned short port) { RETURN_TYPE _v;
+@@ -63,8 +81,13 @@ static inline RETURN_TYPE in##s(unsigned short port) { RETURN_TYPE _v;
+ __asm__ __volatile__ ("in" #s " %" s2 "1,%" s1 "0"
+ 
+ #define __IN(s,s1,i...) \
+-__IN1(s) __IN2(s,s1,"w") : "=a" (_v) : "Nd" (port) ,##i ); return _v; } \
+-__IN1(s##_p) __IN2(s,s1,"w") __FULL_SLOW_DOWN_IO : "=a" (_v) : "Nd" (port) ,##i ); return _v; } \
++__IN1(s) __IN2(s, s1, "w") : "=a" (_v) : "Nd" (port), ##i); return _v; } \
++__IN1(s##_p) __IN2(s, s1, "w") : "=a" (_v) : "Nd" (port), ##i);	  \
++				slow_down_io(); return _v; }
++
++#ifdef UNSET_REALLY_SLOW_IO
++#undef REALLY_SLOW_IO
++#endif
+ 
+ #define __INS(s) \
+ static inline void ins##s(unsigned short port, void * addr, unsigned long count) \
 -- 
 1.4.4.2
