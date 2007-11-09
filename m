@@ -1,7 +1,8 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 19/24] turn priviled operation into a macro in head_64.S
-Date: Fri,  9 Nov 2007 16:43:00 -0200
-Message-ID: <1194633888761-git-send-email-gcosta__48244.2141547382$1194643959$gmane$org@redhat.com>
+Subject: [PATCH 17/24] This patch add provisions for time related functions
+	so they
+Date: Fri,  9 Nov 2007 16:42:58 -0200
+Message-ID: <1194633878886-git-send-email-gcosta__32709.5768334859$1194643968$gmane$org@redhat.com>
 References: <11946337851964-git-send-email-gcosta@redhat.com>
 	<11946337933104-git-send-email-gcosta@redhat.com>
 	<11946337991750-git-send-email-gcosta@redhat.com>
@@ -19,10 +20,8 @@ References: <11946337851964-git-send-email-gcosta@redhat.com>
 	<11946338621966-git-send-email-gcosta@redhat.com>
 	<11946338683305-git-send-email-gcosta@redhat.com>
 	<1194633873306-git-send-email-gcosta@redhat.com>
-	<1194633878886-git-send-email-gcosta@redhat.com>
-	<11946338832681-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11946338832681-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1194633873306-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -36,44 +35,121 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-under paravirt, read cr2 cannot be issued directly anymore.
-So wrap it in a macro, defined to the operation itself in case
-paravirt is off, but to something else if we have paravirt
-in the game
+can be later replaced by paravirt versions.
+
+it basically encloses {g,s}et_wallclock inside the
+already existent functions update_persistent_clock and
+read_persistent_clock, and defines {s,g}et_wallclock
+to the core of such functions.
+
+it also allow for a later-on-game time initialization, as done
+by i386. Paravirt guests can set a function to do their own
+initialization this way.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/kernel/head_64.S |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+ arch/x86/kernel/time_64.c |   12 +++++++++---
+ include/asm-x86/time.h    |   26 +++++++++++++++++++++-----
+ 2 files changed, 30 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index b6167fe..c31b1c9 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -19,6 +19,13 @@
- #include <asm/msr.h>
- #include <asm/cache.h>
+diff --git a/arch/x86/kernel/time_64.c b/arch/x86/kernel/time_64.c
+index f88bf6b..89943d8 100644
+--- a/arch/x86/kernel/time_64.c
++++ b/arch/x86/kernel/time_64.c
+@@ -21,6 +21,8 @@
+ #include <asm/hpet.h>
+ #include <asm/nmi.h>
+ #include <asm/vgtod.h>
++#include <asm/time.h>
++#include <asm/timer.h>
  
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/asm-offsets.h>
-+#include <asm/paravirt.h>
-+#else
-+#define GET_CR2_INTO_RCX movq %cr2, %rcx
-+#endif
+ volatile unsigned long __jiffies __section_jiffies = INITIAL_JIFFIES;
+ 
+@@ -54,7 +56,7 @@ static irqreturn_t timer_event_interrupt(int irq, void *dev_id)
+ /* calibrate_cpu is used on systems with fixed rate TSCs to determine
+  * processor frequency */
+ #define TICK_COUNT 100000000
+-static unsigned int __init tsc_calibrate_cpu_khz(void)
++unsigned long __init native_calculate_cpu_khz(void)
+ {
+ 	int tsc_start, tsc_now;
+ 	int i, no_ctr_free;
+@@ -104,20 +106,23 @@ static struct irqaction irq0 = {
+ 	.name		= "timer"
+ };
+ 
+-void __init time_init(void)
++void __init hpet_time_init(void)
+ {
+ 	if (!hpet_enable())
+ 		setup_pit_timer();
+ 
+ 	setup_irq(0, &irq0);
++}
+ 
++void __init time_init(void)
++{
+ 	tsc_calibrate();
+ 
+ 	cpu_khz = tsc_khz;
+ 	if (cpu_has(&boot_cpu_data, X86_FEATURE_CONSTANT_TSC) &&
+ 		boot_cpu_data.x86_vendor == X86_VENDOR_AMD &&
+ 		boot_cpu_data.x86 == 16)
+-		cpu_khz = tsc_calibrate_cpu_khz();
++		cpu_khz = calculate_cpu_khz();
+ 
+ 	if (unsynchronized_tsc())
+ 		mark_tsc_unstable("TSCs unsynchronized");
+@@ -130,4 +135,5 @@ void __init time_init(void)
+ 	printk(KERN_INFO "time.c: Detected %d.%03d MHz processor.\n",
+ 		cpu_khz / 1000, cpu_khz % 1000);
+ 	init_tsc_clocksource();
++	late_time_init = choose_time_init();
+ }
+diff --git a/include/asm-x86/time.h b/include/asm-x86/time.h
+index b3f94cd..68779b0 100644
+--- a/include/asm-x86/time.h
++++ b/include/asm-x86/time.h
+@@ -1,8 +1,12 @@
+-#ifndef _ASMi386_TIME_H
+-#define _ASMi386_TIME_H
++#ifndef _ASMX86_TIME_H
++#define _ASMX86_TIME_H
 +
- /* we are not able to switch in one step to the final KERNEL ADRESS SPACE
-  * because we need identity-mapped pages.
-  *
-@@ -267,7 +274,7 @@ ENTRY(early_idt_handler)
- 	xorl %eax,%eax
- 	movq 8(%rsp),%rsi	# get rip
- 	movq (%rsp),%rdx
--	movq %cr2,%rcx
-+	GET_CR2_INTO_RCX
- 	leaq early_idt_msg(%rip),%rdi
- 	call early_printk
- 	cmpl $2,early_recursion_flag(%rip)
++extern void (*late_time_init)(void);
++extern void hpet_time_init(void);
+ 
+-#include <linux/efi.h>
+ #include <asm/mc146818rtc.h>
++#ifdef CONFIG_X86_32
++#include <linux/efi.h>
+ 
+ static inline unsigned long native_get_wallclock(void)
+ {
+@@ -28,8 +32,20 @@ static inline int native_set_wallclock(unsigned long nowtime)
+ 	return retval;
+ }
+ 
+-extern void (*late_time_init)(void);
+-extern void hpet_time_init(void);
++#else
++extern void native_time_init_hook(void);
++
++static inline unsigned long native_get_wallclock(void)
++{
++	return mach_get_cmos_time();
++}
++
++static inline int native_set_wallclock(unsigned long nowtime)
++{
++	return mach_set_rtc_mmss(nowtime);
++}
++
++#endif
+ 
+ #ifdef CONFIG_PARAVIRT
+ #include <asm/paravirt.h>
 -- 
 1.4.4.2
