@@ -1,49 +1,71 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH 3/3] virtio PCI device
-Date: Fri, 9 Nov 2007 12:03:53 +0100
-Message-ID: <200711091203.54665.arnd@arndb.de>
-References: <11944899922822-git-send-email-aliguori@us.ibm.com>
-	<200711081846.36821.arnd@arndb.de> <47335DC6.7090603@us.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio config_ops refactoring
+Date: Fri, 9 Nov 2007 22:54:07 +1100
+Message-ID: <200711092254.08099.rusty__12915.4695118361$1194609359$gmane$org@rustcorp.com.au>
+References: <4730A8F3.6020008@us.ibm.com>
+	<200711090924.28659.rusty@rustcorp.com.au>
+	<47338EA0.6050100@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <47335DC6.7090603-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <47338EA0.6050100@codemonkey.ws>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Cc: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org, lguest <lguest@ozlabs.org>, Dor Laor <dor.laor@qumranet.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 08 November 2007, Anthony Liguori wrote:
-> 
-> They already show up underneath of the PCI bus.  The issue is that there 
-> are two separate 'struct device's for each virtio device.  There's the 
-> PCI device (that's part of the pci_dev structure) and then there's the 
-> virtio_device one.  I thought that setting the dev.parent of the 
-> virtio_device struct device would result in having two separate entries 
-> under the PCI bus directory which would be pretty confusing 
+On Friday 09 November 2007 09:33:04 Anthony Liguori wrote:
+> I really want to make sure that if a guest tries
+> to read a 4-byte PCI config field, that it does so using an "outl"
+> instruction so that in my QEMU backend
 
-But that's what a device tree means. Think about a USB disk drive: The drive
-shows up as a child of the USB controller, which in turn is a child of
-the PCI bridge. Note that I did not suggest having the virtio parent set to
-the parent of the PCI device, but to the PCI device itself.
+So you want to enforce PCI requirements onto virtio config accesses.  This 
+doesn't seem very nice: the fact that PCI accesses use different namespaces 
+for different sizes makes sense from a primitive hardware point of view, but 
+sucks for software.  Fortunately, if you insist on byte-at-a-time they're the 
+same.
 
-I find it more confusing to have a device just hanging off the root when
-it is actually handled by the PCI subsystem.
+> switch (addr) {
+> case VIRTIO_BLK_CONFIG_MAX_SEG:
+>    return vdev->max_seg & 0xFF;
+> case VIRTIO_BLK_CONFIG_MAX_SEG + 1:
+>    return (vdev->max_seg >> 8) & 0xFF;
+> case VIRTIO_BLK_CONFIG_MAX_SEG + 2:
+>    return (vdev->max_seg >> 16) & 0xFF;
+> case VIRTIO_BLK_CONFIG_MAX_SEG + 3:
+>    return (vdev->max_seg >> 24) & 0xFF;
+> case VIRTIO_BLK_CONFIG_MAX_SIZE:
+>    return vdev->max_size & 0xFF;
+> case VIRTIO_BLK_CONFIG_MAX_SIZE + 1:
+>    return (vdev->max_size >> 8) & 0xFF;
+> case VIRTIO_BLK_CONFIG_MAX_SIZE + 2:
+>    return (vdev->max_size >> 16) & 0xFF;
+> case VIRTIO_BLK_CONFIG_MAX_SIZE + 3:
+>    return (vdev->max_size >> 24) & 0xFF;
+> ...
 
-	Arnd <><
+	struct virtio_blk_config
+	{
+		uint32_t max_seg, max_size;
+	};
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Splunk Inc.
-Still grepping through log files to find problems?  Stop.
-Now Search log events and configuration files using AJAX and a browser.
-Download your FREE copy of Splunk now >> http://get.splunk.com/
+	...
+	struct virtio_blk_config conf = { vdev->max_seg, vdev->max_size };
+
+	return ((unsigned char *)&conf)[addr];
+
+(Which strongly implies our headers should expose that nominal struct, rather 
+than numerical constants).
+
+Rusty.
