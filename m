@@ -1,7 +1,8 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 20/24] tweak io_64.h for paravirt.
-Date: Fri,  9 Nov 2007 16:43:01 -0200
-Message-ID: <11946338932611-git-send-email-gcosta__28106.2706410468$1194645972$gmane$org@redhat.com>
+Subject: [PATCH 22/24] prepare x86_64 architecture initialization for
+	paravirt
+Date: Fri,  9 Nov 2007 16:43:03 -0200
+Message-ID: <11946339033567-git-send-email-gcosta__16190.3893728324$1194645997$gmane$org@redhat.com>
 References: <11946337851964-git-send-email-gcosta@redhat.com>
 	<11946337933104-git-send-email-gcosta@redhat.com>
 	<11946337991750-git-send-email-gcosta@redhat.com>
@@ -21,9 +22,11 @@ References: <11946337851964-git-send-email-gcosta@redhat.com>
 	<1194633873306-git-send-email-gcosta@redhat.com>
 	<1194633878886-git-send-email-gcosta@redhat.com>
 	<11946338832681-git-send-email-gcosta@redhat.com>
-	<1194633888761-git-send-email-gco! sta@redhat.com>
+	<1194633888761-git-send-email-gco!
+	sta@redhat.com> <11946338932611-git-send-email-gcosta@redhat.com>
+	<1194633898545-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1194633888761-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1194633898545-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -37,101 +40,144 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need something here because we can't call in and out instructions
-directly. However, we have to be careful, because no indirections are
-allowed in misc_64.c , and paravirt_ops is a kind of one. So just
-call it directly there
+This patch prepares the x86_64 architecture initialization for
+paravirt. It requires a memory initialization step, which is done
+by implementing 64-bit version for machine_specific_memory_setup,
+and putting an ARCH_SETUP hook, for guest-dependent initialization.
+This last step is done akin to i386
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/boot/compressed/misc_64.c |    6 +++++
- include/asm-x86/io_64.h            |   37 +++++++++++++++++++++++++++++------
- 2 files changed, 36 insertions(+), 7 deletions(-)
+ arch/x86/kernel/e820_64.c  |    9 +++++++--
+ arch/x86/kernel/setup_64.c |   28 +++++++++++++++++++++++++++-
+ include/asm-x86/setup.h    |   11 ++++++++---
+ 3 files changed, 42 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/misc_64.c b/arch/x86/boot/compressed/misc_64.c
-index 6ea015a..6640a17 100644
---- a/arch/x86/boot/compressed/misc_64.c
-+++ b/arch/x86/boot/compressed/misc_64.c
-@@ -9,6 +9,12 @@
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-  */
+diff --git a/arch/x86/kernel/e820_64.c b/arch/x86/kernel/e820_64.c
+index 0128b0b..eed900b 100644
+--- a/arch/x86/kernel/e820_64.c
++++ b/arch/x86/kernel/e820_64.c
+@@ -639,8 +639,10 @@ void early_panic(char *msg)
+ 	panic(msg);
+ }
  
-+/*
-+ * we have to be careful, because no indirections are allowed here, and
-+ * paravirt_ops is a kind of one. As it will only run in baremetal anyway,
-+ * we just keep it from happening
-+ */
-+#undef CONFIG_PARAVIRT
- #define _LINUX_STRING_H_ 1
- #define __LINUX_BITMAP_H 1
+-void __init setup_memory_region(void)
++/* We're not void only for x86 32-bit compat */
++char * __init machine_specific_memory_setup(void)
+ {
++	char *who = "BIOS-e820";
+ 	/*
+ 	 * Try to copy the BIOS-supplied E820-map.
+ 	 *
+@@ -651,7 +653,10 @@ void __init setup_memory_region(void)
+ 	if (copy_e820_map(boot_params.e820_map, boot_params.e820_entries) < 0)
+ 		early_panic("Cannot find a valid memory map");
+ 	printk(KERN_INFO "BIOS-provided physical RAM map:\n");
+-	e820_print_map("BIOS-e820");
++	e820_print_map(who);
++
++	/* In case someone cares... */
++	return who;
+ }
  
-diff --git a/include/asm-x86/io_64.h b/include/asm-x86/io_64.h
-index a037b07..57fcdd9 100644
---- a/include/asm-x86/io_64.h
-+++ b/include/asm-x86/io_64.h
-@@ -35,12 +35,24 @@
-   *  - Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   */
+ static int __init parse_memopt(char *p)
+diff --git a/arch/x86/kernel/setup_64.c b/arch/x86/kernel/setup_64.c
+index 2451a63..1c9f237 100644
+--- a/arch/x86/kernel/setup_64.c
++++ b/arch/x86/kernel/setup_64.c
+@@ -39,6 +39,7 @@
+ #include <linux/dmi.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/ctype.h>
++#include <linux/uaccess.h>
  
--#define __SLOW_DOWN_IO "\noutb %%al,$0x80"
-+static inline void native_io_delay(void)
-+{
-+	asm volatile("outb %%al,$0x80" : : : "memory");
-+}
+ #include <asm/mtrr.h>
+ #include <asm/uaccess.h>
+@@ -61,6 +62,12 @@
+ #include <asm/cacheflush.h>
+ #include <asm/mce.h>
  
--#ifdef REALLY_SLOW_IO
--#define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO
-+#if defined(CONFIG_PARAVIRT)
++#ifdef CONFIG_PARAVIRT
 +#include <asm/paravirt.h>
- #else
--#define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO
-+
-+static inline void slow_down_io(void)
-+{
-+	native_io_delay();
-+#ifdef REALLY_SLOW_IO
-+	native_io_delay();
-+	native_io_delay();
-+	native_io_delay();
++#else
++#define ARCH_SETUP
 +#endif
-+}
- #endif
- 
++
  /*
-@@ -52,9 +64,15 @@ static inline void out##s(unsigned x value, unsigned short port) {
- #define __OUT2(s,s1,s2) \
- __asm__ __volatile__ ("out" #s " %" s1 "0,%" s2 "1"
- 
-+#ifndef REALLY_SLOW_IO
-+#define REALLY_SLOW_IO
-+#define UNSET_REALLY_SLOW_IO
-+#endif
+  * Machine setup..
+  */
+@@ -244,6 +251,16 @@ static void discover_ebda(void)
+ 	 * 4K EBDA area at 0x40E
+ 	 */
+ 	ebda_addr = *(unsigned short *)__va(EBDA_ADDR_POINTER);
++	/*
++	 * There can be some situations, like paravirtualized guests,
++	 * in which there is no available ebda information. In such
++	 * case, just skip it
++	 */
++	if (!ebda_addr) {
++		ebda_size = 0;
++		return;
++	}
 +
- #define __OUT(s,s1,x) \
- __OUT1(s,x) __OUT2(s,s1,"w") : : "a" (value), "Nd" (port)); } \
--__OUT1(s##_p,x) __OUT2(s,s1,"w") __FULL_SLOW_DOWN_IO : : "a" (value), "Nd" (port));} \
-+__OUT1(s##_p, x) __OUT2(s, s1, "w") : : "a" (value), "Nd" (port)); \
-+		slow_down_io(); }
+ 	ebda_addr <<= 4;
  
- #define __IN1(s) \
- static inline RETURN_TYPE in##s(unsigned short port) { RETURN_TYPE _v;
-@@ -63,8 +81,13 @@ static inline RETURN_TYPE in##s(unsigned short port) { RETURN_TYPE _v;
- __asm__ __volatile__ ("in" #s " %" s2 "1,%" s1 "0"
+ 	ebda_size = *(unsigned short *)__va(ebda_addr);
+@@ -257,6 +274,12 @@ static void discover_ebda(void)
+ 		ebda_size = 64*1024;
+ }
  
- #define __IN(s,s1,i...) \
--__IN1(s) __IN2(s,s1,"w") : "=a" (_v) : "Nd" (port) ,##i ); return _v; } \
--__IN1(s##_p) __IN2(s,s1,"w") __FULL_SLOW_DOWN_IO : "=a" (_v) : "Nd" (port) ,##i ); return _v; } \
-+__IN1(s) __IN2(s, s1, "w") : "=a" (_v) : "Nd" (port), ##i); return _v; } \
-+__IN1(s##_p) __IN2(s, s1, "w") : "=a" (_v) : "Nd" (port), ##i);	  \
-+				slow_down_io(); return _v; }
++/* Overridden in paravirt.c if CONFIG_PARAVIRT */
++void __attribute__((weak)) memory_setup(void)
++{
++       machine_specific_memory_setup();
++}
 +
-+#ifdef UNSET_REALLY_SLOW_IO
-+#undef REALLY_SLOW_IO
-+#endif
+ void __init setup_arch(char **cmdline_p)
+ {
+ 	printk(KERN_INFO "Command line: %s\n", boot_command_line);
+@@ -272,7 +295,10 @@ void __init setup_arch(char **cmdline_p)
+ 	rd_prompt = ((boot_params.hdr.ram_size & RAMDISK_PROMPT_FLAG) != 0);
+ 	rd_doload = ((boot_params.hdr.ram_size & RAMDISK_LOAD_FLAG) != 0);
+ #endif
+-	setup_memory_region();
++
++	ARCH_SETUP
++
++	memory_setup();
+ 	copy_edd();
  
- #define __INS(s) \
- static inline void ins##s(unsigned short port, void * addr, unsigned long count) \
+ 	if (!boot_params.hdr.root_flags)
+diff --git a/include/asm-x86/setup.h b/include/asm-x86/setup.h
+index 24d786e..071e054 100644
+--- a/include/asm-x86/setup.h
++++ b/include/asm-x86/setup.h
+@@ -3,6 +3,13 @@
+ 
+ #define COMMAND_LINE_SIZE 2048
+ 
++#ifndef __ASSEMBLY__
++char *machine_specific_memory_setup(void);
++#ifndef CONFIG_PARAVIRT
++#define paravirt_post_allocator_init()	do {} while (0)
++#endif
++#endif /* __ASSEMBLY__ */
++
+ #ifdef __KERNEL__
+ 
+ #ifdef __i386__
+@@ -51,9 +58,7 @@ void __init add_memory_region(unsigned long long start,
+ 
+ extern unsigned long init_pg_tables_end;
+ 
+-#ifndef CONFIG_PARAVIRT
+-#define paravirt_post_allocator_init()	do {} while (0)
+-#endif
++
+ 
+ #endif /* __i386__ */
+ #endif /* _SETUP */
 -- 
 1.4.4.2
