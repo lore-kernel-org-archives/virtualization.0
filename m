@@ -1,63 +1,49 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [Lguest] [PATCH] virtio config_ops refactoring
-Date: Thu, 08 Nov 2007 21:17:14 -0600
-Message-ID: <4733D13A.6010305__34580.7076235816$1194578329$gmane$org@codemonkey.ws>
-References: <4730A8F3.6020008@us.ibm.com><200711081320.35844.rusty__6233.15023626692$1194488552$gmane$org@rustcorp.com.au><4732774C.6020903@codemonkey.ws><200711090924.28659.rusty@rustcorp.com.au><47338EA0.6050100@codemonkey.ws>
-	<13426df10711081447o688550a4jc01be2d7f06209e0@mail.gmail.com>
-	<4733A6F5.3040202@qumranet.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 3/3] virtio PCI device
+Date: Fri, 9 Nov 2007 12:03:53 +0100
+Message-ID: <200711091203.54665.arnd@arndb.de>
+References: <11944899922822-git-send-email-aliguori@us.ibm.com>
+	<200711081846.36821.arnd@arndb.de> <47335DC6.7090603@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4733A6F5.3040202@qumranet.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dor.laor@qumranet.com
-Cc: ron minnich <rminnich@gmail.com>, lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <47335DC6.7090603-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Cc: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dor Laor wrote:
-> ron minnich wrote:
->>
->> Hi, I'm sorry, I've been stuck on other things (NFS RDMA anyone?) and
->> missed part of this discussion.
->>
->> Is it really the case that operations on virtio devices will involve
->> outl/inl etc.?
->>
-> What's the problem with them?
-> Except for the kick event it's not performance critical and the 
-> difference between pio vmexit
-> and hypercall exit is very small.
+On Thursday 08 November 2007, Anthony Liguori wrote:
+> 
+> They already show up underneath of the PCI bus.  The issue is that there 
+> are two separate 'struct device's for each virtio device.  There's the 
+> PCI device (that's part of the pci_dev structure) and then there's the 
+> virtio_device one.  I thought that setting the dev.parent of the 
+> virtio_device struct device would result in having two separate entries 
+> under the PCI bus directory which would be pretty confusing 
 
-If you're a nutty guy who's interesting in creating the most absolute 
-minimal VMM to run exotic paravirtual guests on massive clusters, then 
-requiring PIO implies that you have to have an instruction decoder which 
-is goes against the earlier goal ;-)
+But that's what a device tree means. Think about a USB disk drive: The drive
+shows up as a child of the USB controller, which in turn is a child of
+the PCI bridge. Note that I did not suggest having the virtio parent set to
+the parent of the PCI device, but to the PCI device itself.
 
-Regards,
+I find it more confusing to have a device just hanging off the root when
+it is actually handled by the PCI subsystem.
 
-Anthony Liguori
+	Arnd <><
 
-> I don't know about problems in other architectures, maybe mmio is better?
-> Dor.
->>
->>
->> Apologies in advance for my failure to pay attention.
->>
->> thanks
->>
->> ron
->> _______________________________________________
->> Lguest mailing list
->> Lguest@ozlabs.org
->> https://ozlabs.org/mailman/listinfo/lguest
->>
->
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Splunk Inc.
+Still grepping through log files to find problems?  Stop.
+Now Search log events and configuration files using AJAX and a browser.
+Download your FREE copy of Splunk now >> http://get.splunk.com/
