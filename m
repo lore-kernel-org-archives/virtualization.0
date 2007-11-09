@@ -1,14 +1,16 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 1/24] mm/sparse-vmemmap.c: make sure init_mm is included
-Date: Fri, 09 Nov 2007 15:00:48 -0800
-Message-ID: <4734E6A0.6070508__20389.3034290106$1194649407$gmane$org@goop.org>
-References: <11946337851964-git-send-email-gcosta@redhat.com>
-	<11946337933104-git-send-email-gcosta@redhat.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [PATCH] virtio config_ops refactoring
+Date: Fri, 09 Nov 2007 17:45:38 -0600
+Message-ID: <4734F122.8000102__46330.6052065038$1194652014$gmane$org@codemonkey.ws>
+References: <4730A8F3.6020008@us.ibm.com>
+	<200711090924.28659.rusty@rustcorp.com.au>
+	<47338EA0.6050100@codemonkey.ws>
+	<200711092254.08099.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11946337933104-git-send-email-gcosta@redhat.com>
+In-Reply-To: <200711092254.08099.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,38 +20,71 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <gcosta@redhat.com>
-Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, mingo@elte.hu, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, tglx@linutronix.de, Linus Torvalds <torvalds@linux-foundation.org>, akpm@linux-foundation.org, ak@suse.de
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org, Dor Laor <dor.laor@qumranet.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber de Oliveira Costa wrote:
-> mm/sparse-vmemmap.c uses init_mm in some places.  However, it is not
-> present in any of the headers currently included in the file.
+Rusty Russell wrote:
+> On Friday 09 November 2007 09:33:04 Anthony Liguori wrote:
+>   
+>> switch (addr) {
+>> case VIRTIO_BLK_CONFIG_MAX_SEG:
+>>    return vdev->max_seg & 0xFF;
+>> case VIRTIO_BLK_CONFIG_MAX_SEG + 1:
+>>    return (vdev->max_seg >> 8) & 0xFF;
+>> case VIRTIO_BLK_CONFIG_MAX_SEG + 2:
+>>    return (vdev->max_seg >> 16) & 0xFF;
+>> case VIRTIO_BLK_CONFIG_MAX_SEG + 3:
+>>    return (vdev->max_seg >> 24) & 0xFF;
+>> case VIRTIO_BLK_CONFIG_MAX_SIZE:
+>>    return vdev->max_size & 0xFF;
+>> case VIRTIO_BLK_CONFIG_MAX_SIZE + 1:
+>>    return (vdev->max_size >> 8) & 0xFF;
+>> case VIRTIO_BLK_CONFIG_MAX_SIZE + 2:
+>>    return (vdev->max_size >> 16) & 0xFF;
+>> case VIRTIO_BLK_CONFIG_MAX_SIZE + 3:
+>>    return (vdev->max_size >> 24) & 0xFF;
+>> ...
+>>     
 >
-> init_mm is defined as extern in sched.h, so we add it to the headers list
+> 	struct virtio_blk_config
+> 	{
+> 		uint32_t max_seg, max_size;
+> 	};
 >
-> Up to now, this problem was masked by the fact that functions like
-> set_pte_at() and pmd_populate_kernel() are usually macros that expand to
-> simpler variants that does not use the first parameter at all.
+> 	...
+> 	struct virtio_blk_config conf = { vdev->max_seg, vdev->max_size };
 >
-> Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> ---
->  mm/sparse-vmemmap.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+> 	return ((unsigned char *)&conf)[addr];
 >
-> diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
-> index d3b718b..22620f6 100644
-> --- a/mm/sparse-vmemmap.c
-> +++ b/mm/sparse-vmemmap.c
-> @@ -24,6 +24,7 @@
->  #include <linux/module.h>
->  #include <linux/spinlock.h>
->  #include <linux/vmalloc.h>
-> +#include <linux/sched.h>
+> (Which strongly implies our headers should expose that nominal struct, rather 
+> than numerical constants).
 >   
 
-This is already in git.
+The problem is the ABI.  We can either require that PCI configuration 
+values are accessed with natural instructions, or it makes very little 
+sense to use the PCI configuration space for virtio configuration 
+information.  If we really can't find a way to do this (and I think my 
+current implementation is the best compromise since it hides this from 
+everything else), then I think I'll switch over to just writing a PFN 
+into a PCI configuration slot and then have that page store the virtio 
+configuration information (much like is done with lguest).
 
-    J
+Either virtio config looks like a shared memory area (as lguest 
+currently implements it), or it looks like hardware registers (like 
+virtio-pci implements it).  After thinking about it for a while, I don't 
+think the two can be reconciled.  There are subtle differences between 
+the two that can't be hidden in the virtio interface.  For instance, in 
+the PCI model, you get notified when values are read/written whereas in 
+the lguest model, you don't and need explicit status bits.
+
+If you're very against the switch() magic, then I'll switch over to just 
+using a shared memory area.
+
+Regards,
+
+Anthony Liguori
+
+> Rusty.
+>
+>   
