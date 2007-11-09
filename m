@@ -1,97 +1,63 @@
-From: Anthony Liguori <aliguori-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 3/3] virtio PCI device
-Date: Thu, 08 Nov 2007 20:17:36 -0600
-Message-ID: <4733C340.8080208@us.ibm.com>
-References: <11944899922822-git-send-email-aliguori@us.ibm.com>	<11944900141678-git-send-email-aliguori@us.ibm.com>	<11944900152750-git-send-email-aliguori@us.ibm.com>
-	<11944900163817-git-send-email-aliguori@us.ibm.com>
-	<4733AC3A.20701@qumranet.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [Lguest] [PATCH] virtio config_ops refactoring
+Date: Thu, 08 Nov 2007 21:17:14 -0600
+Message-ID: <4733D13A.6010305__34580.7076235816$1194578329$gmane$org@codemonkey.ws>
+References: <4730A8F3.6020008@us.ibm.com><200711081320.35844.rusty__6233.15023626692$1194488552$gmane$org@rustcorp.com.au><4732774C.6020903@codemonkey.ws><200711090924.28659.rusty@rustcorp.com.au><47338EA0.6050100@codemonkey.ws>
+	<13426df10711081447o688550a4jc01be2d7f06209e0@mail.gmail.com>
+	<4733A6F5.3040202@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <4733AC3A.20701-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: dor.laor-atKUWr5tajBWk0Htik3J/w@public.gmane.org
-Cc: Rusty Russell <rusty-PBSTF//UHa40n/F98K4Iww@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4733A6F5.3040202@qumranet.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: dor.laor@qumranet.com
+Cc: ron minnich <rminnich@gmail.com>, lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Dor Laor wrote:
-> Anthony Liguori wrote:
->> This is a PCI device that implements a transport for virtio.  It 
->> allows virtio
->> devices to be used by QEMU based VMMs like KVM or Xen.
+> ron minnich wrote:
 >>
->> ....
->>   
-> While it's a little premature, we can start thinking of irq path 
-> improvements.
-> The current patch acks a private isr and afterwards apic eoi will also 
-> be hit since its
-> a level trig irq. This means 2 vmexits per irq.
-> We can start with regular pci irqs and move afterwards to msi.
-> Some other ugly hack options [we're better use msi]:
->    - Read the eoi directly from apic and save the first private isr ack
+>> Hi, I'm sorry, I've been stuck on other things (NFS RDMA anyone?) and
+>> missed part of this discussion.
+>>
+>> Is it really the case that operations on virtio devices will involve
+>> outl/inl etc.?
+>>
+> What's the problem with them?
+> Except for the kick event it's not performance critical and the 
+> difference between pio vmexit
+> and hypercall exit is very small.
 
-I must admit, that I don't know a whole lot about interrupt delivery.  
-If we can avoid the private ISR ack then that would certainly be a good 
-thing to do!  I think that would involve adding another bit to the 
-virtqueues to indicate whether or not there is work to be handled.  It's 
-really just moving the ISR to shared memory so that there's no plenty 
-for accessing it.
+If you're a nutty guy who's interesting in creating the most absolute 
+minimal VMM to run exotic paravirtual guests on massive clusters, then 
+requiring PIO implies that you have to have an instruction decoder which 
+is goes against the earlier goal ;-)
 
 Regards,
 
 Anthony Liguori
 
->    - Convert the specific irq line to edge triggered and dont share it
-> What do you guys think?
->> +/* A small wrapper to also acknowledge the interrupt when it's handled.
->> + * I really need an EIO hook for the vring so I can ack the 
->> interrupt once we
->> + * know that we'll be handling the IRQ but before we invoke the 
->> callback since
->> + * the callback may notify the host which results in the host 
->> attempting to
->> + * raise an interrupt that we would then mask once we acknowledged the
->> + * interrupt. */
->> +static irqreturn_t vp_interrupt(int irq, void *opaque)
->> +{
->> +    struct virtio_pci_device *vp_dev = opaque;
->> +    struct virtio_pci_vq_info *info;
->> +    irqreturn_t ret = IRQ_NONE;
->> +    u8 isr;
->> +
->> +    /* reading the ISR has the effect of also clearing it so it's very
->> +     * important to save off the value. */
->> +    isr = ioread8(vp_dev->ioaddr + VIRTIO_PCI_ISR);
->> +
->> +    /* It's definitely not us if the ISR was not high */
->> +    if (!isr)
->> +        return IRQ_NONE;
->> +
->> +    spin_lock(&vp_dev->lock);
->> +    list_for_each_entry(info, &vp_dev->virtqueues, node) {
->> +        if (vring_interrupt(irq, info->vq) == IRQ_HANDLED)
->> +            ret = IRQ_HANDLED;
->> +    }
->> +    spin_unlock(&vp_dev->lock);
->> +
->> +    return ret;
->> +}
->>   
+> I don't know about problems in other architectures, maybe mmio is better?
+> Dor.
+>>
+>>
+>> Apologies in advance for my failure to pay attention.
+>>
+>> thanks
+>>
+>> ron
+>> _______________________________________________
+>> Lguest mailing list
+>> Lguest@ozlabs.org
+>> https://ozlabs.org/mailman/listinfo/lguest
+>>
 >
-
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Splunk Inc.
-Still grepping through log files to find problems?  Stop.
-Now Search log events and configuration files using AJAX and a browser.
-Download your FREE copy of Splunk now >> http://get.splunk.com/
