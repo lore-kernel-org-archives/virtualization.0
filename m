@@ -1,16 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 7/24] consolidate msr.h
-Date: Fri,  9 Nov 2007 16:42:48 -0200
-Message-ID: <11946338263902-git-send-email-gcosta__39077.3061816164$1194643929$gmane$org@redhat.com>
+Subject: [PATCH 5/24] smp x86 consolidation
+Date: Fri,  9 Nov 2007 16:42:46 -0200
+Message-ID: <1194633815833-git-send-email-gcosta__26051.9900279634$1194643955$gmane$org@redhat.com>
 References: <11946337851964-git-send-email-gcosta@redhat.com>
 	<11946337933104-git-send-email-gcosta@redhat.com>
 	<11946337991750-git-send-email-gcosta@redhat.com>
 	<11946338053158-git-send-email-gcosta@redhat.com>
 	<11946338103068-git-send-email-gcosta@redhat.com>
-	<1194633815833-git-send-email-gcosta@redhat.com>
-	<11946338212915-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11946338212915-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11946338103068-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,574 +22,1163 @@ To: linux-kernel@vger.kernel.org
 Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch goes one step forward in consolidating the msr.h header.
-It shares code between i386 and x86_64, instead of duplicating the
-code for tsc reading, msr reading/writing, etc.
+This patch consolidates part of the pieces of smp for both architectures.
+(i386 and x86_64). It makes part the calls go through smp_ops, and shares
+code for those functions in smpcommon.c
+
+There's more room for code sharing here, but it is left as an exercise to
+the reader ;-)
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/ia32/syscall32.c        |    2 +-
- arch/x86/kernel/setup64.c        |    6 +-
- arch/x86/kernel/tsc_64.c         |   17 +++-
- arch/x86/kernel/vsyscall_64.c    |    4 +-
- arch/x86/vdso/vgetcpu.c          |    4 +-
- include/asm-x86/alternative_32.h |   17 +++-
- include/asm-x86/alternative_64.h |   27 ++++-
- include/asm-x86/msr.h            |  225 ++++++++++----------------------------
- include/asm-x86/tsc.h            |   33 +++++-
- 9 files changed, 151 insertions(+), 184 deletions(-)
+ arch/x86/kernel/Makefile_32    |    2 +-
+ arch/x86/kernel/Makefile_64    |    2 +-
+ arch/x86/kernel/smp_32.c       |  218 ------------------------------
+ arch/x86/kernel/smp_64.c       |  245 ---------------------------------
+ arch/x86/kernel/smpboot_64.c   |    8 +-
+ arch/x86/kernel/smpcommon.c    |  291 ++++++++++++++++++++++++++++++++++++++++
+ arch/x86/kernel/smpcommon_32.c |   81 -----------
+ include/asm-x86/idle.h         |   18 +++-
+ include/asm-x86/smp.h          |   66 +++++++++
+ include/asm-x86/smp_32.h       |   58 --------
+ include/asm-x86/smp_64.h       |    4 -
+ 11 files changed, 379 insertions(+), 614 deletions(-)
 
-diff --git a/arch/x86/ia32/syscall32.c b/arch/x86/ia32/syscall32.c
-index d751d96..a1247ed 100644
---- a/arch/x86/ia32/syscall32.c
-+++ b/arch/x86/ia32/syscall32.c
-@@ -82,5 +82,5 @@ void syscall32_cpu_init(void)
- 	checking_wrmsrl(MSR_IA32_SYSENTER_ESP, 0ULL);
- 	checking_wrmsrl(MSR_IA32_SYSENTER_EIP, (u64)ia32_sysenter_target);
- 
--	wrmsrl(MSR_CSTAR, ia32_cstar_target);
-+	wrmsrl(MSR_CSTAR, (u64)ia32_cstar_target);
- }
-diff --git a/arch/x86/kernel/setup64.c b/arch/x86/kernel/setup64.c
-index 3558ac7..50b7514 100644
---- a/arch/x86/kernel/setup64.c
-+++ b/arch/x86/kernel/setup64.c
-@@ -122,7 +122,7 @@ void pda_init(int cpu)
- 	asm volatile("movl %0,%%fs ; movl %0,%%gs" :: "r" (0)); 
- 	/* Memory clobbers used to order PDA accessed */
- 	mb();
--	wrmsrl(MSR_GS_BASE, pda);
-+	wrmsrl(MSR_GS_BASE, (u64)pda);
- 	mb();
- 
- 	pda->cpunumber = cpu; 
-@@ -161,8 +161,8 @@ void syscall_init(void)
- 	 * but only a 32bit target. LSTAR sets the 64bit rip. 	 
- 	 */ 
- 	wrmsrl(MSR_STAR,  ((u64)__USER32_CS)<<48  | ((u64)__KERNEL_CS)<<32); 
--	wrmsrl(MSR_LSTAR, system_call); 
--	wrmsrl(MSR_CSTAR, ignore_sysret);
-+	wrmsrl(MSR_LSTAR, (u64)system_call);
-+	wrmsrl(MSR_CSTAR, (u64)ignore_sysret);
- 
- #ifdef CONFIG_IA32_EMULATION   		
- 	syscall32_cpu_init ();
-diff --git a/arch/x86/kernel/tsc_64.c b/arch/x86/kernel/tsc_64.c
-index 9c70af4..4502539 100644
---- a/arch/x86/kernel/tsc_64.c
-+++ b/arch/x86/kernel/tsc_64.c
-@@ -30,7 +30,7 @@ static unsigned long long cycles_2_ns(unsigned long long cyc)
- 	return (cyc * cyc2ns_scale) >> NS_SCALE;
+diff --git a/arch/x86/kernel/Makefile_32 b/arch/x86/kernel/Makefile_32
+index b08179a..b0da543 100644
+--- a/arch/x86/kernel/Makefile_32
++++ b/arch/x86/kernel/Makefile_32
+@@ -20,7 +20,7 @@ obj-$(CONFIG_MICROCODE)		+= microcode.o
+ obj-$(CONFIG_PCI)		+= early-quirks.o
+ obj-$(CONFIG_APM)		+= apm_32.o
+ obj-$(CONFIG_X86_SMP)		+= smp_32.o smpboot_32.o tsc_sync.o
+-obj-$(CONFIG_SMP)		+= smpcommon_32.o
++obj-$(CONFIG_SMP)		+= smpcommon.o
+ obj-$(CONFIG_X86_TRAMPOLINE)	+= trampoline_32.o
+ obj-$(CONFIG_X86_MPPARSE)	+= mpparse_32.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic_32.o nmi_32.o
+diff --git a/arch/x86/kernel/Makefile_64 b/arch/x86/kernel/Makefile_64
+index 686de84..ffee997 100644
+--- a/arch/x86/kernel/Makefile_64
++++ b/arch/x86/kernel/Makefile_64
+@@ -17,7 +17,7 @@ obj-y				+= acpi/
+ obj-$(CONFIG_X86_MSR)		+= msr.o
+ obj-$(CONFIG_MICROCODE)		+= microcode.o
+ obj-$(CONFIG_X86_CPUID)		+= cpuid.o
+-obj-$(CONFIG_SMP)		+= smp_64.o smpboot_64.o trampoline_64.o tsc_sync.o
++obj-$(CONFIG_SMP)		+= smp_64.o smpboot_64.o trampoline_64.o tsc_sync.o smpcommon.o
+ obj-y				+= apic_64.o  nmi_64.o
+ obj-y				+= io_apic_64.o mpparse_64.o genapic_64.o genapic_flat_64.o
+ obj-$(CONFIG_KEXEC)		+= machine_kexec_64.o relocate_kernel_64.o crash.o
+diff --git a/arch/x86/kernel/smp_32.c b/arch/x86/kernel/smp_32.c
+index fcaa026..a7cc319 100644
+--- a/arch/x86/kernel/smp_32.c
++++ b/arch/x86/kernel/smp_32.c
+@@ -464,213 +464,6 @@ void flush_tlb_all(void)
+ 	on_each_cpu(do_flush_tlb_all, NULL, 1, 1);
  }
  
--unsigned long long sched_clock(void)
-+unsigned long long native_sched_clock(void)
+-/*
+- * this function sends a 'reschedule' IPI to another CPU.
+- * it goes straight through and wastes no time serializing
+- * anything. Worst case is that we lose a reschedule ...
+- */
+-static void native_smp_send_reschedule(int cpu)
+-{
+-	WARN_ON(cpu_is_offline(cpu));
+-	send_IPI_mask(cpumask_of_cpu(cpu), RESCHEDULE_VECTOR);
+-}
+-
+-/*
+- * Structure and data for smp_call_function(). This is designed to minimise
+- * static memory requirements. It also looks cleaner.
+- */
+-static DEFINE_SPINLOCK(call_lock);
+-
+-struct call_data_struct {
+-	void (*func) (void *info);
+-	void *info;
+-	atomic_t started;
+-	atomic_t finished;
+-	int wait;
+-};
+-
+-void lock_ipi_call_lock(void)
+-{
+-	spin_lock_irq(&call_lock);
+-}
+-
+-void unlock_ipi_call_lock(void)
+-{
+-	spin_unlock_irq(&call_lock);
+-}
+-
+-static struct call_data_struct *call_data;
+-
+-static void __smp_call_function(void (*func) (void *info), void *info,
+-				int nonatomic, int wait)
+-{
+-	struct call_data_struct data;
+-	int cpus = num_online_cpus() - 1;
+-
+-	if (!cpus)
+-		return;
+-
+-	data.func = func;
+-	data.info = info;
+-	atomic_set(&data.started, 0);
+-	data.wait = wait;
+-	if (wait)
+-		atomic_set(&data.finished, 0);
+-
+-	call_data = &data;
+-	mb();
+-	
+-	/* Send a message to all other CPUs and wait for them to respond */
+-	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
+-
+-	/* Wait for response */
+-	while (atomic_read(&data.started) != cpus)
+-		cpu_relax();
+-
+-	if (wait)
+-		while (atomic_read(&data.finished) != cpus)
+-			cpu_relax();
+-}
+-
+-
+-/**
+- * smp_call_function_mask(): Run a function on a set of other CPUs.
+- * @mask: The set of cpus to run on.  Must not include the current cpu.
+- * @func: The function to run. This must be fast and non-blocking.
+- * @info: An arbitrary pointer to pass to the function.
+- * @wait: If true, wait (atomically) until function has completed on other CPUs.
+- *
+-  * Returns 0 on success, else a negative status code.
+- *
+- * If @wait is true, then returns once @func has returned; otherwise
+- * it returns just before the target cpu calls @func.
+- *
+- * You must not call this function with disabled interrupts or from a
+- * hardware interrupt handler or from a bottom half handler.
+- */
+-static int
+-native_smp_call_function_mask(cpumask_t mask,
+-			      void (*func)(void *), void *info,
+-			      int wait)
+-{
+-	struct call_data_struct data;
+-	cpumask_t allbutself;
+-	int cpus;
+-
+-	/* Can deadlock when called with interrupts disabled */
+-	WARN_ON(irqs_disabled());
+-
+-	/* Holding any lock stops cpus from going down. */
+-	spin_lock(&call_lock);
+-
+-	allbutself = cpu_online_map;
+-	cpu_clear(smp_processor_id(), allbutself);
+-
+-	cpus_and(mask, mask, allbutself);
+-	cpus = cpus_weight(mask);
+-
+-	if (!cpus) {
+-		spin_unlock(&call_lock);
+-		return 0;
+-	}
+-
+-	data.func = func;
+-	data.info = info;
+-	atomic_set(&data.started, 0);
+-	data.wait = wait;
+-	if (wait)
+-		atomic_set(&data.finished, 0);
+-
+-	call_data = &data;
+-	mb();
+-
+-	/* Send a message to other CPUs */
+-	if (cpus_equal(mask, allbutself))
+-		send_IPI_allbutself(CALL_FUNCTION_VECTOR);
+-	else
+-		send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
+-
+-	/* Wait for response */
+-	while (atomic_read(&data.started) != cpus)
+-		cpu_relax();
+-
+-	if (wait)
+-		while (atomic_read(&data.finished) != cpus)
+-			cpu_relax();
+-	spin_unlock(&call_lock);
+-
+-	return 0;
+-}
+-
+-static void stop_this_cpu (void * dummy)
+-{
+-	local_irq_disable();
+-	/*
+-	 * Remove this CPU:
+-	 */
+-	cpu_clear(smp_processor_id(), cpu_online_map);
+-	disable_local_APIC();
+-	if (cpu_data(smp_processor_id()).hlt_works_ok)
+-		for(;;) halt();
+-	for (;;);
+-}
+-
+-/*
+- * this function calls the 'stop' function on all other CPUs in the system.
+- */
+-
+-static void native_smp_send_stop(void)
+-{
+-	/* Don't deadlock on the call lock in panic */
+-	int nolock = !spin_trylock(&call_lock);
+-	unsigned long flags;
+-
+-	local_irq_save(flags);
+-	__smp_call_function(stop_this_cpu, NULL, 0, 0);
+-	if (!nolock)
+-		spin_unlock(&call_lock);
+-	disable_local_APIC();
+-	local_irq_restore(flags);
+-}
+-
+-/*
+- * Reschedule call back. Nothing to do,
+- * all the work is done automatically when
+- * we return from the interrupt.
+- */
+-fastcall void smp_reschedule_interrupt(struct pt_regs *regs)
+-{
+-	ack_APIC_irq();
+-	__get_cpu_var(irq_stat).irq_resched_count++;
+-}
+-
+-fastcall void smp_call_function_interrupt(struct pt_regs *regs)
+-{
+-	void (*func) (void *info) = call_data->func;
+-	void *info = call_data->info;
+-	int wait = call_data->wait;
+-
+-	ack_APIC_irq();
+-	/*
+-	 * Notify initiating CPU that I've grabbed the data and am
+-	 * about to execute the function
+-	 */
+-	mb();
+-	atomic_inc(&call_data->started);
+-	/*
+-	 * At this point the info structure may be out of scope unless wait==1
+-	 */
+-	irq_enter();
+-	(*func)(info);
+-	__get_cpu_var(irq_stat).irq_call_count++;
+-	irq_exit();
+-
+-	if (wait) {
+-		mb();
+-		atomic_inc(&call_data->finished);
+-	}
+-}
+-
+ static int convert_apicid_to_cpu(int apic_id)
  {
- 	unsigned long a = 0;
- 
-@@ -44,6 +44,19 @@ unsigned long long sched_clock(void)
- 	return cycles_2_ns(a);
+ 	int i;
+@@ -698,14 +491,3 @@ int safe_smp_processor_id(void)
+ 	return cpuid >= 0 ? cpuid : 0;
  }
  
-+/* We need to define a real function for sched_clock, to override the
-+   weak default version */
-+#ifdef CONFIG_PARAVIRT
-+unsigned long long sched_clock(void)
+-struct smp_ops smp_ops = {
+-	.smp_prepare_boot_cpu = native_smp_prepare_boot_cpu,
+-	.smp_prepare_cpus = native_smp_prepare_cpus,
+-	.cpu_up = native_cpu_up,
+-	.smp_cpus_done = native_smp_cpus_done,
+-
+-	.smp_send_stop = native_smp_send_stop,
+-	.smp_send_reschedule = native_smp_send_reschedule,
+-	.smp_call_function_mask = native_smp_call_function_mask,
+-};
+-EXPORT_SYMBOL_GPL(smp_ops);
+diff --git a/arch/x86/kernel/smp_64.c b/arch/x86/kernel/smp_64.c
+index ce3935b..c19c68b 100644
+--- a/arch/x86/kernel/smp_64.c
++++ b/arch/x86/kernel/smp_64.c
+@@ -283,248 +283,3 @@ void flush_tlb_all(void)
+ {
+ 	on_each_cpu(do_flush_tlb_all, NULL, 1, 1);
+ }
+-
+-/*
+- * this function sends a 'reschedule' IPI to another CPU.
+- * it goes straight through and wastes no time serializing
+- * anything. Worst case is that we lose a reschedule ...
+- */
+-
+-void smp_send_reschedule(int cpu)
+-{
+-	send_IPI_mask(cpumask_of_cpu(cpu), RESCHEDULE_VECTOR);
+-}
+-
+-/*
+- * Structure and data for smp_call_function(). This is designed to minimise
+- * static memory requirements. It also looks cleaner.
+- */
+-static DEFINE_SPINLOCK(call_lock);
+-
+-struct call_data_struct {
+-	void (*func) (void *info);
+-	void *info;
+-	atomic_t started;
+-	atomic_t finished;
+-	int wait;
+-};
+-
+-static struct call_data_struct * call_data;
+-
+-void lock_ipi_call_lock(void)
+-{
+-	spin_lock_irq(&call_lock);
+-}
+-
+-void unlock_ipi_call_lock(void)
+-{
+-	spin_unlock_irq(&call_lock);
+-}
+-
+-/*
+- * this function sends a 'generic call function' IPI to all other CPU
+- * of the system defined in the mask.
+- */
+-static int __smp_call_function_mask(cpumask_t mask,
+-				    void (*func)(void *), void *info,
+-				    int wait)
+-{
+-	struct call_data_struct data;
+-	cpumask_t allbutself;
+-	int cpus;
+-
+-	allbutself = cpu_online_map;
+-	cpu_clear(smp_processor_id(), allbutself);
+-
+-	cpus_and(mask, mask, allbutself);
+-	cpus = cpus_weight(mask);
+-
+-	if (!cpus)
+-		return 0;
+-
+-	data.func = func;
+-	data.info = info;
+-	atomic_set(&data.started, 0);
+-	data.wait = wait;
+-	if (wait)
+-		atomic_set(&data.finished, 0);
+-
+-	call_data = &data;
+-	wmb();
+-
+-	/* Send a message to other CPUs */
+-	if (cpus_equal(mask, allbutself))
+-		send_IPI_allbutself(CALL_FUNCTION_VECTOR);
+-	else
+-		send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
+-
+-	/* Wait for response */
+-	while (atomic_read(&data.started) != cpus)
+-		cpu_relax();
+-
+-	if (!wait)
+-		return 0;
+-
+-	while (atomic_read(&data.finished) != cpus)
+-		cpu_relax();
+-
+-	return 0;
+-}
+-/**
+- * smp_call_function_mask(): Run a function on a set of other CPUs.
+- * @mask: The set of cpus to run on.  Must not include the current cpu.
+- * @func: The function to run. This must be fast and non-blocking.
+- * @info: An arbitrary pointer to pass to the function.
+- * @wait: If true, wait (atomically) until function has completed on other CPUs.
+- *
+- * Returns 0 on success, else a negative status code.
+- *
+- * If @wait is true, then returns once @func has returned; otherwise
+- * it returns just before the target cpu calls @func.
+- *
+- * You must not call this function with disabled interrupts or from a
+- * hardware interrupt handler or from a bottom half handler.
+- */
+-int smp_call_function_mask(cpumask_t mask,
+-			   void (*func)(void *), void *info,
+-			   int wait)
+-{
+-	int ret;
+-
+-	/* Can deadlock when called with interrupts disabled */
+-	WARN_ON(irqs_disabled());
+-
+-	spin_lock(&call_lock);
+-	ret = __smp_call_function_mask(mask, func, info, wait);
+-	spin_unlock(&call_lock);
+-	return ret;
+-}
+-EXPORT_SYMBOL(smp_call_function_mask);
+-
+-/*
+- * smp_call_function_single - Run a function on a specific CPU
+- * @func: The function to run. This must be fast and non-blocking.
+- * @info: An arbitrary pointer to pass to the function.
+- * @nonatomic: Currently unused.
+- * @wait: If true, wait until function has completed on other CPUs.
+- *
+- * Retrurns 0 on success, else a negative status code.
+- *
+- * Does not return until the remote CPU is nearly ready to execute <func>
+- * or is or has executed.
+- */
+-
+-int smp_call_function_single (int cpu, void (*func) (void *info), void *info,
+-			      int nonatomic, int wait)
+-{
+-	/* prevent preemption and reschedule on another processor */
+-	int ret, me = get_cpu();
+-
+-	/* Can deadlock when called with interrupts disabled */
+-	WARN_ON(irqs_disabled());
+-
+-	if (cpu == me) {
+-		local_irq_disable();
+-		func(info);
+-		local_irq_enable();
+-		put_cpu();
+-		return 0;
+-	}
+-
+-	ret = smp_call_function_mask(cpumask_of_cpu(cpu), func, info, wait);
+-
+-	put_cpu();
+-	return ret;
+-}
+-EXPORT_SYMBOL(smp_call_function_single);
+-
+-/*
+- * smp_call_function - run a function on all other CPUs.
+- * @func: The function to run. This must be fast and non-blocking.
+- * @info: An arbitrary pointer to pass to the function.
+- * @nonatomic: currently unused.
+- * @wait: If true, wait (atomically) until function has completed on other
+- *        CPUs.
+- *
+- * Returns 0 on success, else a negative status code. Does not return until
+- * remote CPUs are nearly ready to execute func or are or have executed.
+- *
+- * You must not call this function with disabled interrupts or from a
+- * hardware interrupt handler or from a bottom half handler.
+- * Actually there are a few legal cases, like panic.
+- */
+-int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+-			int wait)
+-{
+-	return smp_call_function_mask(cpu_online_map, func, info, wait);
+-}
+-EXPORT_SYMBOL(smp_call_function);
+-
+-static void stop_this_cpu(void *dummy)
+-{
+-	local_irq_disable();
+-	/*
+-	 * Remove this CPU:
+-	 */
+-	cpu_clear(smp_processor_id(), cpu_online_map);
+-	disable_local_APIC();
+-	for (;;)
+-		halt();
+-}
+-
+-void smp_send_stop(void)
+-{
+-	int nolock;
+-	unsigned long flags;
+-
+-	if (reboot_force)
+-		return;
+-
+-	/* Don't deadlock on the call lock in panic */
+-	nolock = !spin_trylock(&call_lock);
+-	local_irq_save(flags);
+-	__smp_call_function_mask(cpu_online_map, stop_this_cpu, NULL, 0);
+-	if (!nolock)
+-		spin_unlock(&call_lock);
+-	disable_local_APIC();
+-	local_irq_restore(flags);
+-}
+-
+-/*
+- * Reschedule call back. Nothing to do,
+- * all the work is done automatically when
+- * we return from the interrupt.
+- */
+-asmlinkage void smp_reschedule_interrupt(void)
+-{
+-	ack_APIC_irq();
+-	add_pda(irq_resched_count, 1);
+-}
+-
+-asmlinkage void smp_call_function_interrupt(void)
+-{
+-	void (*func) (void *info) = call_data->func;
+-	void *info = call_data->info;
+-	int wait = call_data->wait;
+-
+-	ack_APIC_irq();
+-	/*
+-	 * Notify initiating CPU that I've grabbed the data and am
+-	 * about to execute the function
+-	 */
+-	mb();
+-	atomic_inc(&call_data->started);
+-	/*
+-	 * At this point the info structure may be out of scope unless wait==1
+-	 */
+-	exit_idle();
+-	irq_enter();
+-	(*func)(info);
+-	add_pda(irq_call_count, 1);
+-	irq_exit();
+-	if (wait) {
+-		mb();
+-		atomic_inc(&call_data->finished);
+-	}
+-}
+-
+diff --git a/arch/x86/kernel/smpboot_64.c b/arch/x86/kernel/smpboot_64.c
+index 6f3e63c..17e54fa 100644
+--- a/arch/x86/kernel/smpboot_64.c
++++ b/arch/x86/kernel/smpboot_64.c
+@@ -864,7 +864,7 @@ void __init smp_set_apicids(void)
+  * Prepare for SMP bootup.  The MP table or ACPI has been read
+  * earlier.  Just do some sanity checking here and enable APIC mode.
+  */
+-void __init smp_prepare_cpus(unsigned int max_cpus)
++void __init native_smp_prepare_cpus(unsigned int max_cpus)
+ {
+ 	nmi_watchdog_default();
+ 	current_cpu_data = boot_cpu_data;
+@@ -908,7 +908,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
+ /*
+  * Early setup to make printk work.
+  */
+-void __init smp_prepare_boot_cpu(void)
++void __init native_smp_prepare_boot_cpu(void)
+ {
+ 	int me = smp_processor_id();
+ 	cpu_set(me, cpu_online_map);
+@@ -919,7 +919,7 @@ void __init smp_prepare_boot_cpu(void)
+ /*
+  * Entry point to boot a CPU.
+  */
+-int __cpuinit __cpu_up(unsigned int cpu)
++int __cpuinit native_cpu_up(unsigned int cpu)
+ {
+ 	int apicid = cpu_present_to_apicid(cpu);
+ 	unsigned long flags;
+@@ -977,7 +977,7 @@ int __cpuinit __cpu_up(unsigned int cpu)
+ /*
+  * Finish the SMP boot.
+  */
+-void __init smp_cpus_done(unsigned int max_cpus)
++void __init native_smp_cpus_done(unsigned int max_cpus)
+ {
+ 	smp_cleanup_boot();
+ 	setup_ioapic_dest();
+diff --git a/arch/x86/kernel/smpcommon.c b/arch/x86/kernel/smpcommon.c
+new file mode 100644
+index 0000000..e3bee40
+--- /dev/null
++++ b/arch/x86/kernel/smpcommon.c
+@@ -0,0 +1,291 @@
++/*
++ * SMP stuff which is common to all sub-architectures.
++ */
++#include <linux/cpu.h>
++#include <linux/module.h>
++#include <linux/interrupt.h>
++
++#include <asm/mach_apic.h>
++#include <asm/proto.h>
++#include <asm/apicdef.h>
++#include <asm/smp.h>
++#include <asm/idle.h>
++
++#ifdef CONFIG_X86_32
++DEFINE_PER_CPU(unsigned long, this_cpu_off);
++EXPORT_PER_CPU_SYMBOL(this_cpu_off);
++
++/* Initialize the CPU's GDT.  This is either the boot CPU doing itself
++   (still using the master per-cpu area), or a CPU doing it for a
++   secondary which will soon come up. */
++__cpuinit void init_gdt(int cpu)
 +{
-+	return paravirt_sched_clock();
++	struct desc_struct *gdt = get_cpu_gdt_table(cpu);
++
++	pack_descriptor((u32 *)&gdt[GDT_ENTRY_PERCPU].a,
++			(u32 *)&gdt[GDT_ENTRY_PERCPU].b,
++			__per_cpu_offset[cpu], 0xFFFFF,
++			0x80 | DESCTYPE_S | 0x2, 0x8);
++
++	per_cpu(this_cpu_off, cpu) = __per_cpu_offset[cpu];
++	per_cpu(cpu_number, cpu) = cpu;
 +}
-+#else
-+unsigned long long
-+sched_clock(void) __attribute__((alias("native_sched_clock")));
 +#endif
 +
++/*
++ * Structure and data for smp_call_function(). This is designed to minimise
++ * static memory requirements. It also looks cleaner.
++ */
++static DEFINE_SPINLOCK(call_lock);
 +
- static int tsc_unstable;
- 
- inline int check_tsc_unstable(void)
-@@ -256,7 +269,7 @@ static cycle_t read_tsc(void)
- 
- static cycle_t __vsyscall_fn vread_tsc(void)
- {
--	cycle_t ret = (cycle_t)get_cycles_sync();
-+	cycle_t ret = (cycle_t)vget_cycles_sync();
- 	return ret;
- }
- 
-diff --git a/arch/x86/kernel/vsyscall_64.c b/arch/x86/kernel/vsyscall_64.c
-index ad4005c..1425d02 100644
---- a/arch/x86/kernel/vsyscall_64.c
-+++ b/arch/x86/kernel/vsyscall_64.c
-@@ -190,7 +190,7 @@ time_t __vsyscall(1) vtime(time_t *t)
- long __vsyscall(2)
- vgetcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
- {
--	unsigned int dummy, p;
-+	unsigned int p;
- 	unsigned long j = 0;
- 
- 	/* Fast cache - only recompute value once per jiffies and avoid
-@@ -205,7 +205,7 @@ vgetcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
- 		p = tcache->blob[1];
- 	} else if (__vgetcpu_mode == VGETCPU_RDTSCP) {
- 		/* Load per CPU data from RDTSCP */
--		rdtscp(dummy, dummy, p);
-+		native_read_tscp(&p);
- 	} else {
- 		/* Load per CPU data from GDT */
- 		asm("lsl %1,%0" : "=r" (p) : "r" (__PER_CPU_SEG));
-diff --git a/arch/x86/vdso/vgetcpu.c b/arch/x86/vdso/vgetcpu.c
-index 91f6e85..61d0def 100644
---- a/arch/x86/vdso/vgetcpu.c
-+++ b/arch/x86/vdso/vgetcpu.c
-@@ -15,7 +15,7 @@
- 
- long __vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
- {
--	unsigned int dummy, p;
-+	unsigned int p;
- 	unsigned long j = 0;
- 
- 	/* Fast cache - only recompute value once per jiffies and avoid
-@@ -30,7 +30,7 @@ long __vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
- 		p = tcache->blob[1];
- 	} else if (*vdso_vgetcpu_mode == VGETCPU_RDTSCP) {
- 		/* Load per CPU data from RDTSCP */
--		rdtscp(dummy, dummy, p);
-+		native_read_tscp(&p);
- 	} else {
- 		/* Load per CPU data from GDT */
- 		asm("lsl %1,%0" : "=r" (p) : "r" (__PER_CPU_SEG));
-diff --git a/include/asm-x86/alternative_32.h b/include/asm-x86/alternative_32.h
-index bda6c81..1ed7708 100644
---- a/include/asm-x86/alternative_32.h
-+++ b/include/asm-x86/alternative_32.h
-@@ -101,7 +101,22 @@ static inline void alternatives_smp_switch(int smp) {}
-  * use this macro(s) if you need more than one output parameter
-  * in alternative_io
-  */
--#define ASM_OUTPUT2(a, b) a, b
-+#define ASM_OUTPUT2(a, b...) a, b
++struct call_data_struct {
++	void (*func) (void *info);
++	void *info;
++	atomic_t started;
++	atomic_t finished;
++	int wait;
++};
 +
-+#define fixup_section(code, fixup, output, input...)		\
-+		asm volatile("2: " code "\n"                    \
-+			     "1:\n\t"                           \
-+			     ".section .fixup,\"ax\"\n\t"       \
-+			     "3: "  fixup "\n\t"                \
-+			     "jmp 1b\n\t"                       \
-+			     ".previous\n\t"                    \
-+			     ".section __ex_table,\"a\"\n"      \
-+			     "   .align 4\n\t"                  \
-+			     "   .long  2b,3b\n\t"              \
-+			     ".previous"                        \
-+			     : output                           \
-+			     : input)
++static struct call_data_struct * call_data;
 +
- 
- /*
-  * Alternative inline assembly for SMP.
-diff --git a/include/asm-x86/alternative_64.h b/include/asm-x86/alternative_64.h
-index ab161e8..f080b69 100644
---- a/include/asm-x86/alternative_64.h
-+++ b/include/asm-x86/alternative_64.h
-@@ -141,14 +141,29 @@ static inline void alternatives_smp_switch(int smp) {}
-  * use this macro(s) if you need more than one output parameter
-  * in alternative_io
-  */
--#define ASM_OUTPUT2(a, b) a, b
--
--struct paravirt_patch;
-+#define ASM_OUTPUT2(a, b...) a, b
-+
-+#define fixup_section(code, fixup, output, input...)   \
-+		asm volatile("2: " code "\n"                    \
-+			     "1:\n\t"                           \
-+			     ".section .fixup,\"ax\"\n\t"       \
-+			     "3: " fixup "\n\t"                 \
-+			     " jmp 1b\n\t"                      \
-+			     ".previous\n\t"                    \
-+			     ".section __ex_table,\"a\"\n"      \
-+			     "   .align 8\n\t"                  \
-+			     "   .quad  2b,3b\n\t"              \
-+			     ".previous"                        \
-+			     : output                           \
-+			     : input)
-+
-+struct paravirt_patch_site;
- #ifdef CONFIG_PARAVIRT
--void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end);
-+void apply_paravirt(struct paravirt_patch_site *start,
-+		    struct paravirt_patch_site *end);
- #else
--static inline void
--apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
-+static inline void apply_paravirt(struct paravirt_patch_site *start,
-+				  struct paravirt_patch_site *end)
- {}
- #define __parainstructions NULL
- #define __parainstructions_end NULL
-diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
-index 48f73c7..9171564 100644
---- a/include/asm-x86/msr.h
-+++ b/include/asm-x86/msr.h
-@@ -3,8 +3,6 @@
- 
- #include <asm/msr-index.h>
- 
--#ifdef __i386__
--
- #ifdef __KERNEL__
- #ifndef __ASSEMBLY__
- 
-@@ -12,70 +10,66 @@
- 
- static inline unsigned long long native_read_msr(unsigned int msr)
- {
--	unsigned long long val;
--
--	asm volatile("rdmsr" : "=A" (val) : "c" (msr));
--	return val;
-+	unsigned long a, d;
-+	asm volatile("rdmsr" : "=a" (a), "=d" (d) : "c" (msr));
-+	return a | ((u64)d << 32);
- }
- 
- static inline unsigned long long native_read_msr_safe(unsigned int msr,
- 						      int *err)
- {
--	unsigned long long val;
--
--	asm volatile("2: rdmsr ; xorl %0,%0\n"
--		     "1:\n\t"
--		     ".section .fixup,\"ax\"\n\t"
--		     "3:  movl %3,%0 ; jmp 1b\n\t"
--		     ".previous\n\t"
--		     ".section __ex_table,\"a\"\n"
--		     "   .align 4\n\t"
--		     "   .long	2b,3b\n\t"
--		     ".previous"
--		     : "=r" (*err), "=A" (val)
--		     : "c" (msr), "i" (-EFAULT));
--
--	return val;
-+	unsigned long a, d;
-+	fixup_section("rdmsr; xor %0, %0", "mov %4, %0",
-+	ASM_OUTPUT2("=r" (*err), "=a"((a)), "=d"((d))),
-+		    "c"(msr), "i"(-EFAULT), "0"(0));
-+	return a | ((u64)d << 32);
- }
- 
--static inline void native_write_msr(unsigned int msr, unsigned long long val)
-+static inline void native_write_msr(unsigned int msr, unsigned low,
-+				    unsigned high)
- {
--	asm volatile("wrmsr" : : "c" (msr), "A"(val));
-+	asm volatile("wrmsr" : : "c" (msr), "a"(low), "d" (high));
- }
- 
- static inline int native_write_msr_safe(unsigned int msr,
--					unsigned long long val)
-+					unsigned low, unsigned high)
- {
- 	int err;
--	asm volatile("2: wrmsr ; xorl %0,%0\n"
--		     "1:\n\t"
--		     ".section .fixup,\"ax\"\n\t"
--		     "3:  movl %4,%0 ; jmp 1b\n\t"
--		     ".previous\n\t"
--		     ".section __ex_table,\"a\"\n"
--		     "   .align 4\n\t"
--		     "   .long	2b,3b\n\t"
--		     ".previous"
--		     : "=a" (err)
--		     : "c" (msr), "0" ((u32)val), "d" ((u32)(val>>32)),
--		       "i" (-EFAULT));
-+	fixup_section("wrmsr; xor %0, %0", "mov %4, %0", "=a" (err),
-+		      "c" (msr), "0" (low), "d" (high),
-+		      "i" (-EFAULT));
- 	return err;
- }
- 
- static inline unsigned long long native_read_tsc(void)
- {
--	unsigned long long val;
--	asm volatile("rdtsc" : "=A" (val));
--	return val;
-+	unsigned int low, high;
-+	asm volatile("rdtsc" : "=a" (low), "=d" (high));
-+	return low | ((u64)(high) << 32);
- }
- 
--static inline unsigned long long native_read_pmc(void)
-+static inline unsigned long long native_read_pmc(int counter)
- {
--	unsigned long long val;
--	asm volatile("rdpmc" : "=A" (val));
--	return val;
-+	unsigned long low, high;
-+	asm volatile ("rdpmc"
-+		      : "=a" (low), "=d" (high)
-+		      : "c" (counter));
-+
-+	return low | ((u64)high << 32);
- }
- 
-+static inline unsigned long long native_read_tscp(int *aux)
++void lock_ipi_call_lock(void)
 +{
-+	unsigned long low, high;
-+	asm volatile (".byte 0x0f,0x01,0xf9"
-+			: "=a" (low), "=d" (high), "=c" (*aux));
-+	return low | ((u64)high >> 32);
++	spin_lock_irq(&call_lock);
 +}
 +
-+#endif  /* ! __ASSEMBLY__ */
-+#endif  /* __KERNEL__ */
-+
-+#ifndef __ASSEMBLY__
- #ifdef CONFIG_PARAVIRT
- #include <asm/paravirt.h>
- #else
-@@ -93,20 +87,26 @@ static inline unsigned long long native_read_pmc(void)
- 		(val2) = (u32)(__val >> 32);				\
- 	} while(0)
- 
--static inline void wrmsr(u32 __msr, u32 __low, u32 __high)
-+static inline void wrmsr(unsigned int msr, unsigned int low, unsigned int high)
- {
--	native_write_msr(__msr, ((u64)__high << 32) | __low);
-+	native_write_msr(msr, low, high);
- }
- 
- #define rdmsrl(msr,val)							\
- 	((val) = native_read_msr(msr))
- 
--#define wrmsrl(msr,val)	native_write_msr(msr, val)
-+static inline void wrmsrl(unsigned int msr, unsigned long long val)
++void unlock_ipi_call_lock(void)
 +{
-+	unsigned long low, high;
-+	low = (u32)val;
-+	high = val >> 32;
-+	native_write_msr(msr, low, high);
++	spin_unlock_irq(&call_lock);
 +}
- 
- /* wrmsr with exception handling */
--static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
-+static inline int wrmsr_safe(int msr, int low, int high)
- {
--	return native_write_msr_safe(__msr, ((u64)__high << 32) | __low);
-+	return native_write_msr_safe(msr, low, high);
- }
- 
- /* rdmsr with exception handling */
-@@ -129,130 +129,28 @@ static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
- 
- #define rdpmc(counter,low,high)					\
- 	do {							\
--		u64 _l = native_read_pmc();			\
-+		u64 _l = native_read_pmc(counter);		\
- 		(low)  = (u32)_l;				\
- 		(high) = (u32)(_l >> 32);			\
--	} while(0)
--#endif	/* !CONFIG_PARAVIRT */
--
--#ifdef CONFIG_SMP
--void rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
--void wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
--int rdmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
--int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
--#else  /*  CONFIG_SMP  */
--static inline void rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h)
--{
--	rdmsr(msr_no, *l, *h);
--}
--static inline void wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
--{
--	wrmsr(msr_no, l, h);
--}
--static inline int rdmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h)
--{
--	return rdmsr_safe(msr_no, l, h);
--}
--static inline int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
--{
--	return wrmsr_safe(msr_no, l, h);
--}
--#endif  /*  CONFIG_SMP  */
--#endif  /* ! __ASSEMBLY__ */
--#endif  /* __KERNEL__ */
--
--#else   /* __i386__ */
--
--#ifndef __ASSEMBLY__
--#include <linux/errno.h>
--/*
-- * Access to machine-specific registers (available on 586 and better only)
-- * Note: the rd* operations modify the parameters directly (without using
-- * pointer indirection), this allows gcc to optimize better
-- */
-+	} while (0)
- 
--#define rdmsr(msr,val1,val2) \
--       __asm__ __volatile__("rdmsr" \
--			    : "=a" (val1), "=d" (val2) \
--			    : "c" (msr))
--
--
--#define rdmsrl(msr,val) do { unsigned long a__,b__; \
--       __asm__ __volatile__("rdmsr" \
--			    : "=a" (a__), "=d" (b__) \
--			    : "c" (msr)); \
--       val = a__ | (b__<<32); \
--} while(0)
--
--#define wrmsr(msr,val1,val2) \
--     __asm__ __volatile__("wrmsr" \
--			  : /* no outputs */ \
--			  : "c" (msr), "a" (val1), "d" (val2))
-+#define rdtscp(low, high, aux) 						\
-+	do {								\
-+		unsigned long long _val = native_read_tscp(&(aux));	\
-+		(low) = (u32)_val;					\
-+		(high) = (u32)(_val >> 32);				\
-+	} while (0)
- 
--#define wrmsrl(msr,val) wrmsr(msr,(__u32)((__u64)(val)),((__u64)(val))>>32)
-+#define rdtscpll(val, aux) (val) = native_read_tscp(&(aux))
- 
--/* wrmsr with exception handling */
--#define wrmsr_safe(msr,a,b) ({ int ret__;			\
--	asm volatile("2: wrmsr ; xorl %0,%0\n"			\
--		     "1:\n\t"					\
--		     ".section .fixup,\"ax\"\n\t"		\
--		     "3:  movl %4,%0 ; jmp 1b\n\t"		\
--		     ".previous\n\t"				\
--		     ".section __ex_table,\"a\"\n"		\
--		     "   .align 8\n\t"				\
--		     "   .quad	2b,3b\n\t"			\
--		     ".previous"				\
--		     : "=a" (ret__)				\
--		     : "c" (msr), "0" (a), "d" (b), "i" (-EFAULT)); \
--	ret__; })
-+#endif	/* !CONFIG_PARAVIRT */
- 
- #define checking_wrmsrl(msr,val) wrmsr_safe(msr,(u32)(val),(u32)((val)>>32))
- 
--#define rdmsr_safe(msr,a,b) \
--	({ int ret__;						\
--	  asm volatile ("1:       rdmsr\n"			\
--			"2:\n"					\
--			".section .fixup,\"ax\"\n"		\
--			"3:       movl %4,%0\n"			\
--			" jmp 2b\n"				\
--			".previous\n"				\
--			".section __ex_table,\"a\"\n"		\
--			" .align 8\n"				\
--			" .quad 1b,3b\n"				\
--			".previous":"=&bDS" (ret__), "=a"(*(a)), "=d"(*(b)) \
--			:"c"(msr), "i"(-EIO), "0"(0));			\
--	  ret__; })
--
--#define rdtsc(low,high) \
--     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
--
--#define rdtscl(low) \
--     __asm__ __volatile__ ("rdtsc" : "=a" (low) : : "edx")
--
--#define rdtscp(low,high,aux) \
--     asm volatile (".byte 0x0f,0x01,0xf9" : "=a" (low), "=d" (high), "=c" (aux))
--
--#define rdtscll(val) do { \
--     unsigned int __a,__d; \
--     asm volatile("rdtsc" : "=a" (__a), "=d" (__d)); \
--     (val) = ((unsigned long)__a) | (((unsigned long)__d)<<32); \
--} while(0)
--
--#define rdtscpll(val, aux) do { \
--     unsigned long __a, __d; \
--     asm volatile (".byte 0x0f,0x01,0xf9" : "=a" (__a), "=d" (__d), "=c" (aux)); \
--     (val) = (__d << 32) | __a; \
--} while (0)
--
- #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
- 
- #define write_rdtscp_aux(val) wrmsr(0xc0000103, val, 0)
- 
--#define rdpmc(counter,low,high) \
--     __asm__ __volatile__("rdpmc" \
--			  : "=a" (low), "=d" (high) \
--			  : "c" (counter))
--
- #ifdef CONFIG_SMP
- void rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
- void wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
-@@ -275,9 +173,6 @@ static inline int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
- {
- 	return wrmsr_safe(msr_no, l, h);
- }
--#endif  /* CONFIG_SMP */
--#endif  /* __ASSEMBLY__ */
--
--#endif  /* !__i386__ */
--
-+#endif  /*  CONFIG_SMP  */
-+#endif  /* ! __ASSEMBLY__ */
- #endif
-diff --git a/include/asm-x86/tsc.h b/include/asm-x86/tsc.h
-index d7b1c4e..651e6ac 100644
---- a/include/asm-x86/tsc.h
-+++ b/include/asm-x86/tsc.h
-@@ -33,7 +33,7 @@ static inline cycles_t get_cycles(void)
- }
- 
- /* Like get_cycles, but make sure the CPU is synchronized. */
--static __always_inline cycles_t get_cycles_sync(void)
-+static __always_inline cycles_t __get_cycles_sync(void)
- {
- 	unsigned long long ret;
- 	unsigned eax, edx;
-@@ -55,11 +55,40 @@ static __always_inline cycles_t get_cycles_sync(void)
- 	 */
- 	alternative_io("cpuid", ASM_NOP2, X86_FEATURE_SYNC_RDTSC,
- 			  "=a" (eax), "0" (1) : "ebx","ecx","edx","memory");
--	rdtscll(ret);
- 
++
++/**
++ * smp_call_function_mask(): Run a function on a set of other CPUs.
++ * @mask: The set of cpus to run on.  Must not include the current cpu.
++ * @func: The function to run. This must be fast and non-blocking.
++ * @info: An arbitrary pointer to pass to the function.
++ * @wait: If true, wait (atomically) until function has completed on other CPUs.
++ *
++  * Returns 0 on success, else a negative status code.
++ *
++ * If @wait is true, then returns once @func has returned; otherwise
++ * it returns just before the target cpu calls @func.
++ *
++ * You must not call this function with disabled interrupts or from a
++ * hardware interrupt handler or from a bottom half handler.
++ */
++static int
++native_smp_call_function_mask(cpumask_t mask,
++			      void (*func)(void *), void *info,
++			      int wait)
++{
++	struct call_data_struct data;
++	cpumask_t allbutself;
++	int cpus;
++
++	/* Can deadlock when called with interrupts disabled */
++	WARN_ON(irqs_disabled());
++
++	/* Holding any lock stops cpus from going down. */
++	spin_lock(&call_lock);
++
++	allbutself = cpu_online_map;
++	cpu_clear(smp_processor_id(), allbutself);
++
++	cpus_and(mask, mask, allbutself);
++	cpus = cpus_weight(mask);
++
++	if (!cpus) {
++		spin_unlock(&call_lock);
++		return 0;
++	}
++
++	data.func = func;
++	data.info = info;
++	atomic_set(&data.started, 0);
++	data.wait = wait;
++	if (wait)
++		atomic_set(&data.finished, 0);
++
++	call_data = &data;
++	mb();
++
++	/* Send a message to other CPUs */
++	if (cpus_equal(mask, allbutself))
++		send_IPI_allbutself(CALL_FUNCTION_VECTOR);
++	else
++		send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
++
++	/* Wait for response */
++	while (atomic_read(&data.started) != cpus)
++		cpu_relax();
++
++	if (wait)
++		while (atomic_read(&data.finished) != cpus)
++			cpu_relax();
++	spin_unlock(&call_lock);
++
 +	return 0;
 +}
 +
-+static __always_inline cycles_t get_cycles_sync(void)
-+{
-+	unsigned long long ret;
-+	ret = __get_cycles_sync();
-+	if (!ret)
-+		rdtscll(ret);
- 	return ret;
- }
- 
-+#ifdef CONFIG_PARAVIRT
-+/*
-+ * For paravirt guests, some functionalities are executed through function
-+ * pointers in the various pvops structures.
-+ * These function pointers exist inside the kernel and can not
-+ * be accessed by user space. To avoid this, we make a copy of the
-+ * get_cycles_sync (called in kernel) but force the use of native_read_tsc.
-+ * Ideally, the guest should set up it's own clock and vread
++/**
++ * smp_call_function(): Run a function on all other CPUs.
++ * @func: The function to run. This must be fast and non-blocking.
++ * @info: An arbitrary pointer to pass to the function.
++ * @nonatomic: Unused.
++ * @wait: If true, wait (atomically) until function has completed on other CPUs.
++ *
++ * Returns 0 on success, else a negative status code.
++ *
++ * If @wait is true, then returns once @func has returned; otherwise
++ * it returns just before the target cpu calls @func.
++ *
++ * You must not call this function with disabled interrupts or from a
++ * hardware interrupt handler or from a bottom half handler.
 + */
-+static __always_inline long long vget_cycles_sync(void)
++int smp_call_function(void (*func) (void *info), void *info, int nonatomic,
++		      int wait)
 +{
-+	unsigned long long ret;
-+	ret = __get_cycles_sync();
-+	if (!ret)
-+		ret = native_read_tsc();
++	return smp_call_function_mask(cpu_online_map, func, info, wait);
++}
++EXPORT_SYMBOL(smp_call_function);
++
++/**
++ * smp_call_function_single - Run a function on a specific CPU
++ * @cpu: The target CPU.  Cannot be the calling CPU.
++ * @func: The function to run. This must be fast and non-blocking.
++ * @info: An arbitrary pointer to pass to the function.
++ * @nonatomic: Unused.
++ * @wait: If true, wait until function has completed on other CPUs.
++ *
++ * Returns 0 on success, else a negative status code.
++ *
++ * If @wait is true, then returns once @func has returned; otherwise
++ * it returns just before the target cpu calls @func.
++ */
++int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
++			     int nonatomic, int wait)
++{
++	/* prevent preemption and reschedule on another processor */
++	int ret;
++	int me = get_cpu();
++	if (cpu == me) {
++		local_irq_disable();
++		func(info);
++		local_irq_enable();
++		put_cpu();
++		return 0;
++	}
++
++	ret = smp_call_function_mask(cpumask_of_cpu(cpu), func, info, wait);
++
++	put_cpu();
 +	return ret;
 +}
-+#else
-+# define vget_cycles_sync() get_cycles_sync()
++EXPORT_SYMBOL(smp_call_function_single);
++
++static void stop_this_cpu(void *dummy)
++{
++	local_irq_disable();
++	/*
++	 * Remove this CPU:
++	 */
++	cpu_clear(smp_processor_id(), cpu_online_map);
++	disable_local_APIC();
++#ifdef CONFIG_X86_32
++	if (cpu_data(smp_processor_id()).hlt_works_ok)
++#endif
++	for (;;)
++		halt();
++	for (;;);
++}
++
++void native_smp_send_stop(void)
++{
++	int nolock;
++	unsigned long flags;
++
++#ifdef CONFIG_X86_64
++	if (reboot_force)
++		return;
 +#endif
 +
- extern void tsc_init(void);
- extern void mark_tsc_unstable(char *reason);
- extern int unsynchronized_tsc(void);
++	/* Don't deadlock on the call lock in panic */
++	nolock = !spin_trylock(&call_lock);
++	local_irq_save(flags);
++	smp_call_function(stop_this_cpu, NULL, 0, 0);
++	if (!nolock)
++		spin_unlock(&call_lock);
++	disable_local_APIC();
++	local_irq_restore(flags);
++}
++
++asmlinkage void smp_call_function_interrupt(void)
++{
++	void (*func) (void *info) = call_data->func;
++	void *info = call_data->info;
++	int wait = call_data->wait;
++
++	ack_APIC_irq();
++	/*
++	 * Notify initiating CPU that I've grabbed the data and am
++	 * about to execute the function
++	 */
++	mb();
++	atomic_inc(&call_data->started);
++	/*
++	 * At this point the info structure may be out of scope unless wait==1
++	 */
++	exit_idle();
++	irq_enter();
++	(*func)(info);
++	/* FIXME: Put this thing in the same place for both arches */
++#ifdef CONFIG_X86_64
++	add_pda(irq_call_count, 1);
++#else
++	__get_cpu_var(irq_stat).irq_call_count++;
++#endif
++	irq_exit();
++	if (wait) {
++		mb();
++		atomic_inc(&call_data->finished);
++	}
++}
++
++/*
++ * this function sends a 'reschedule' IPI to another CPU.
++ * it goes straight through and wastes no time serializing
++ * anything. Worst case is that we lose a reschedule ...
++ */
++static void native_smp_send_reschedule(int cpu)
++{
++	WARN_ON(cpu_is_offline(cpu));
++	send_IPI_mask(cpumask_of_cpu(cpu), RESCHEDULE_VECTOR);
++}
++
++/*
++ * Reschedule call back. Nothing to do,
++ * all the work is done automatically when
++ * we return from the interrupt.
++ */
++asmlinkage void smp_reschedule_interrupt(struct pt_regs *regs)
++{
++	ack_APIC_irq();
++	/* FIXME: Put this thing in the same place for both arches */
++#ifdef CONFIG_X86_64
++	add_pda(irq_call_count, 1);
++#else
++	__get_cpu_var(irq_stat).irq_resched_count++;
++#endif
++}
++
++struct smp_ops smp_ops = {
++	.smp_prepare_boot_cpu = native_smp_prepare_boot_cpu,
++	.smp_prepare_cpus = native_smp_prepare_cpus,
++	.cpu_up = native_cpu_up,
++	.smp_cpus_done = native_smp_cpus_done,
++
++	.smp_send_stop = native_smp_send_stop,
++	.smp_send_reschedule = native_smp_send_reschedule,
++	.smp_call_function_mask = native_smp_call_function_mask,
++};
++EXPORT_SYMBOL(smp_ops);
+diff --git a/arch/x86/kernel/smpcommon_32.c b/arch/x86/kernel/smpcommon_32.c
+deleted file mode 100644
+index bbfe85a..0000000
+--- a/arch/x86/kernel/smpcommon_32.c
++++ /dev/null
+@@ -1,81 +0,0 @@
+-/*
+- * SMP stuff which is common to all sub-architectures.
+- */
+-#include <linux/module.h>
+-#include <asm/smp.h>
+-
+-DEFINE_PER_CPU(unsigned long, this_cpu_off);
+-EXPORT_PER_CPU_SYMBOL(this_cpu_off);
+-
+-/* Initialize the CPU's GDT.  This is either the boot CPU doing itself
+-   (still using the master per-cpu area), or a CPU doing it for a
+-   secondary which will soon come up. */
+-__cpuinit void init_gdt(int cpu)
+-{
+-	struct desc_struct *gdt = get_cpu_gdt_table(cpu);
+-
+-	pack_descriptor((u32 *)&gdt[GDT_ENTRY_PERCPU].a,
+-			(u32 *)&gdt[GDT_ENTRY_PERCPU].b,
+-			__per_cpu_offset[cpu], 0xFFFFF,
+-			0x80 | DESCTYPE_S | 0x2, 0x8);
+-
+-	per_cpu(this_cpu_off, cpu) = __per_cpu_offset[cpu];
+-	per_cpu(cpu_number, cpu) = cpu;
+-}
+-
+-
+-/**
+- * smp_call_function(): Run a function on all other CPUs.
+- * @func: The function to run. This must be fast and non-blocking.
+- * @info: An arbitrary pointer to pass to the function.
+- * @nonatomic: Unused.
+- * @wait: If true, wait (atomically) until function has completed on other CPUs.
+- *
+- * Returns 0 on success, else a negative status code.
+- *
+- * If @wait is true, then returns once @func has returned; otherwise
+- * it returns just before the target cpu calls @func.
+- *
+- * You must not call this function with disabled interrupts or from a
+- * hardware interrupt handler or from a bottom half handler.
+- */
+-int smp_call_function(void (*func) (void *info), void *info, int nonatomic,
+-		      int wait)
+-{
+-	return smp_call_function_mask(cpu_online_map, func, info, wait);
+-}
+-EXPORT_SYMBOL(smp_call_function);
+-
+-/**
+- * smp_call_function_single - Run a function on a specific CPU
+- * @cpu: The target CPU.  Cannot be the calling CPU.
+- * @func: The function to run. This must be fast and non-blocking.
+- * @info: An arbitrary pointer to pass to the function.
+- * @nonatomic: Unused.
+- * @wait: If true, wait until function has completed on other CPUs.
+- *
+- * Returns 0 on success, else a negative status code.
+- *
+- * If @wait is true, then returns once @func has returned; otherwise
+- * it returns just before the target cpu calls @func.
+- */
+-int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+-			     int nonatomic, int wait)
+-{
+-	/* prevent preemption and reschedule on another processor */
+-	int ret;
+-	int me = get_cpu();
+-	if (cpu == me) {
+-		local_irq_disable();
+-		func(info);
+-		local_irq_enable();
+-		put_cpu();
+-		return 0;
+-	}
+-
+-	ret = smp_call_function_mask(cpumask_of_cpu(cpu), func, info, wait);
+-
+-	put_cpu();
+-	return ret;
+-}
+-EXPORT_SYMBOL(smp_call_function_single);
+diff --git a/include/asm-x86/idle.h b/include/asm-x86/idle.h
+index d240e5b..487bca1 100644
+--- a/include/asm-x86/idle.h
++++ b/include/asm-x86/idle.h
+@@ -1,5 +1,5 @@
+-#ifndef _ASM_X86_64_IDLE_H
+-#define _ASM_X86_64_IDLE_H 1
++#ifndef _ASM_X86_IDLE_H
++#define _ASM_X86_IDLE_H 1
+ 
+ #define IDLE_START 1
+ #define IDLE_END 2
+@@ -7,7 +7,21 @@
+ struct notifier_block;
+ void idle_notifier_register(struct notifier_block *n);
+ 
++#ifdef CONFIG_X86_64
+ void enter_idle(void);
+ void exit_idle(void);
++#else
++/*
++ * i386 does not really uses it, but define them here so we can avoid ifdefs in
++ * shared locations that uses it
++ */
++static inline void enter_idle(void)
++{
++}
++static inline void exit_idle(void)
++{
++}
++#endif
++
+ 
+ #endif
+diff --git a/include/asm-x86/smp.h b/include/asm-x86/smp.h
+index f2e8319..b2f99df 100644
+--- a/include/asm-x86/smp.h
++++ b/include/asm-x86/smp.h
+@@ -1,5 +1,71 @@
++#ifndef _X86_SMP_H_
++#define _X86_SMP_H_
++
++#ifndef __ASSEMBLY__
++struct smp_ops
++{
++	void (*smp_prepare_boot_cpu)(void);
++	void (*smp_prepare_cpus)(unsigned max_cpus);
++	int (*cpu_up)(unsigned cpu);
++	void (*smp_cpus_done)(unsigned max_cpus);
++
++	void (*smp_send_stop)(void);
++	void (*smp_send_reschedule)(int cpu);
++	int (*smp_call_function_mask)(cpumask_t mask,
++				      void (*func)(void *info), void *info,
++				      int wait);
++};
++
++extern struct smp_ops smp_ops;
++
++static inline void smp_prepare_boot_cpu(void)
++{
++	smp_ops.smp_prepare_boot_cpu();
++}
++static inline void smp_prepare_cpus(unsigned int max_cpus)
++{
++	smp_ops.smp_prepare_cpus(max_cpus);
++}
++static inline int __cpu_up(unsigned int cpu)
++{
++	return smp_ops.cpu_up(cpu);
++}
++static inline void smp_cpus_done(unsigned int max_cpus)
++{
++	smp_ops.smp_cpus_done(max_cpus);
++}
++
++static inline void smp_send_stop(void)
++{
++	smp_ops.smp_send_stop();
++}
++static inline void smp_send_reschedule(int cpu)
++{
++	smp_ops.smp_send_reschedule(cpu);
++}
++
++static inline int smp_call_function_mask(cpumask_t mask,
++					 void (*func) (void *info),
++					 void *info, int wait)
++{
++	return smp_ops.smp_call_function_mask(mask, func, info, wait);
++}
++
++void native_smp_prepare_boot_cpu(void);
++void native_smp_prepare_cpus(unsigned int max_cpus);
++int native_cpu_up(unsigned int cpunum);
++void native_smp_cpus_done(unsigned int max_cpus);
++
++#ifndef CONFIG_PARAVIRT
++#define startup_ipi_hook(phys_apicid, start_eip, start_esp) 		\
++do { } while (0)
++#endif
++#endif /* __ASSEMBLY__ */
++
+ #ifdef CONFIG_X86_32
+ # include "smp_32.h"
+ #else
+ # include "smp_64.h"
+ #endif
++
++#endif
+diff --git a/include/asm-x86/smp_32.h b/include/asm-x86/smp_32.h
+index e10b7af..a53b03f 100644
+--- a/include/asm-x86/smp_32.h
++++ b/include/asm-x86/smp_32.h
+@@ -53,64 +53,6 @@ extern void cpu_uninit(void);
+ extern void remove_siblinginfo(int cpu);
+ #endif
+ 
+-struct smp_ops
+-{
+-	void (*smp_prepare_boot_cpu)(void);
+-	void (*smp_prepare_cpus)(unsigned max_cpus);
+-	int (*cpu_up)(unsigned cpu);
+-	void (*smp_cpus_done)(unsigned max_cpus);
+-
+-	void (*smp_send_stop)(void);
+-	void (*smp_send_reschedule)(int cpu);
+-	int (*smp_call_function_mask)(cpumask_t mask,
+-				      void (*func)(void *info), void *info,
+-				      int wait);
+-};
+-
+-extern struct smp_ops smp_ops;
+-
+-static inline void smp_prepare_boot_cpu(void)
+-{
+-	smp_ops.smp_prepare_boot_cpu();
+-}
+-static inline void smp_prepare_cpus(unsigned int max_cpus)
+-{
+-	smp_ops.smp_prepare_cpus(max_cpus);
+-}
+-static inline int __cpu_up(unsigned int cpu)
+-{
+-	return smp_ops.cpu_up(cpu);
+-}
+-static inline void smp_cpus_done(unsigned int max_cpus)
+-{
+-	smp_ops.smp_cpus_done(max_cpus);
+-}
+-
+-static inline void smp_send_stop(void)
+-{
+-	smp_ops.smp_send_stop();
+-}
+-static inline void smp_send_reschedule(int cpu)
+-{
+-	smp_ops.smp_send_reschedule(cpu);
+-}
+-static inline int smp_call_function_mask(cpumask_t mask,
+-					 void (*func) (void *info), void *info,
+-					 int wait)
+-{
+-	return smp_ops.smp_call_function_mask(mask, func, info, wait);
+-}
+-
+-void native_smp_prepare_boot_cpu(void);
+-void native_smp_prepare_cpus(unsigned int max_cpus);
+-int native_cpu_up(unsigned int cpunum);
+-void native_smp_cpus_done(unsigned int max_cpus);
+-
+-#ifndef CONFIG_PARAVIRT
+-#define startup_ipi_hook(phys_apicid, start_eip, start_esp) 		\
+-do { } while (0)
+-#endif
+-
+ /*
+  * This function is needed by all SMP systems. It must _always_ be valid
+  * from the initial startup. We map APIC_BASE very early in page_setup(),
+diff --git a/include/asm-x86/smp_64.h b/include/asm-x86/smp_64.h
+index ab612b0..279ff92 100644
+--- a/include/asm-x86/smp_64.h
++++ b/include/asm-x86/smp_64.h
+@@ -36,9 +36,6 @@ extern volatile unsigned long smp_invalidate_needed;
+ extern void lock_ipi_call_lock(void);
+ extern void unlock_ipi_call_lock(void);
+ extern int smp_num_siblings;
+-extern void smp_send_reschedule(int cpu);
+-extern int smp_call_function_mask(cpumask_t mask, void (*func)(void *),
+-				  void *info, int wait);
+ 
+ /*
+  * cpu_sibling_map and cpu_core_map now live
+@@ -127,4 +124,3 @@ extern unsigned int boot_cpu_id;
+ #define cpu_physical_id(cpu)		boot_cpu_id
+ #endif /* !CONFIG_SMP */
+ #endif
+-
 -- 
 1.4.4.2
