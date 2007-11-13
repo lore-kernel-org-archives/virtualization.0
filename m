@@ -1,13 +1,23 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] virtio: fix module/device unloading
-Date: Tue, 13 Nov 2007 17:35:14 +1100
-Message-ID: <200711131735.14501.rusty__18320.9285060459$1194935837$gmane$org@rustcorp.com.au>
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: Re: [PATCH 24/24] make vsmp a paravirt client
+Date: Tue, 13 Nov 2007 09:36:42 -0200
+Message-ID: <47398C4A.40806__25487.7231469893$1194953895$gmane$org@redhat.com>
+References: <11946338683305-git-send-email-gcosta@redhat.com>
+	<1194633873306-git-send-email-gcosta@redhat.com>
+	<1194633878886-git-send-email-gcosta@redhat.com>
+	<11946338832681-git-send-email-gcosta@redhat.com>
+	<1194633888761-git-send-email-gco!sta@redhat.com>
+	<11946338932611-git-send-email-gcosta@redhat.com>
+	<1194633898545-git-send-email-gcosta@redhat.com>
+	<11946339033567-git-send-email-gcosta@redhat.com>
+	<11946339082711-git-send-email-gcosta@redhat.com>
+	<11946339142999-git-send-email-gcosta@redhat.com>
+	<20071111180709.GG22277@bingen.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20071111180709.GG22277@bingen.suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,119 +27,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org
+To: Andi Kleen <ak@suse.de>
+Cc: lguest@ozlabs.org, kiran@scalemp.com, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtio code never hooked through the ->remove callback.  Although
-noone supports device removal at the moment, this code is already
-needed for module unloading.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This of course also revealed bugs in virtio_blk, virtio_net and lguest
-unloading paths.
+Andi Kleen escreveu:
+> On Fri, Nov 09, 2007 at 04:43:05PM -0200, Glauber de Oliveira Costa wrote:
+>> This patch makes vsmp a paravirt client. It now uses the whole
+>> infrastructure provided by pvops. When we detect we're running
+>> a vsmp box, we change the irq-related paravirt operations (and so,
+>> it have to happen quite early), and the patching function
+> 
+> The PARAVIRT ifdefs look wrong. Surely you don't need them at all
+> because it cannot work at all without paravirt.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+The vsmp_64.c file is now compiled unconditionally, according to which
+me and kiran agreed to. The detection code is always run, but will only
+trigger when a suitable box is found. Accordingly, the paravirt structs
+are only touched when PARAVIRT is on. Otherwise, we don't even have the
+symbols.
 
-diff -r e631b63b0e8c drivers/block/virtio_blk.c
---- a/drivers/block/virtio_blk.c	Tue Nov 13 13:57:47 2007 +1100
-+++ b/drivers/block/virtio_blk.c	Tue Nov 13 14:05:50 2007 +1100
-@@ -223,7 +223,7 @@ static int virtblk_probe(struct virtio_d
- 	err = virtio_config_val(vdev, VIRTIO_CONFIG_BLK_F_CAPACITY, &cap);
- 	if (err) {
- 		dev_err(&vdev->dev, "Bad/missing capacity in config\n");
--		goto out_put_disk;
-+		goto out_cleanup_queue;
- 	}
- 
- 	/* If capacity is too big, truncate with warning. */
-@@ -239,7 +239,7 @@ static int virtblk_probe(struct virtio_d
- 		blk_queue_max_segment_size(vblk->disk->queue, v);
- 	else if (err != -ENOENT) {
- 		dev_err(&vdev->dev, "Bad SIZE_MAX in config\n");
--		goto out_put_disk;
-+		goto out_cleanup_queue;
- 	}
- 
- 	err = virtio_config_val(vdev, VIRTIO_CONFIG_BLK_F_SEG_MAX, &v);
-@@ -247,12 +247,14 @@ static int virtblk_probe(struct virtio_d
- 		blk_queue_max_hw_segments(vblk->disk->queue, v);
- 	else if (err != -ENOENT) {
- 		dev_err(&vdev->dev, "Bad SEG_MAX in config\n");
--		goto out_put_disk;
-+		goto out_cleanup_queue;
- 	}
- 
- 	add_disk(vblk->disk);
- 	return 0;
- 
-+out_cleanup_queue:
-+	blk_cleanup_queue(vblk->disk->queue);
- out_put_disk:
- 	put_disk(vblk->disk);
- out_unregister_blkdev:
-@@ -277,6 +279,8 @@ static void virtblk_remove(struct virtio
- 	put_disk(vblk->disk);
- 	unregister_blkdev(major, "virtblk");
- 	mempool_destroy(vblk->pool);
-+	/* There should be nothing in the queue now, so no need to shutdown */
-+	vdev->config->del_vq(vblk->vq);
- 	kfree(vblk);
- }
- 
-diff -r e631b63b0e8c drivers/lguest/lguest_device.c
---- a/drivers/lguest/lguest_device.c	Tue Nov 13 13:57:47 2007 +1100
-+++ b/drivers/lguest/lguest_device.c	Tue Nov 13 14:05:50 2007 +1100
-@@ -247,6 +247,8 @@ static void lg_del_vq(struct virtqueue *
- {
- 	struct lguest_vq_info *lvq = vq->priv;
- 
-+	/* Release the interrupt */
-+	free_irq(lvq->config.irq, vq);
- 	/* Tell virtio_ring.c to free the virtqueue. */
- 	vring_del_virtqueue(vq);
- 	/* Unmap the pages containing the ring. */
-diff -r e631b63b0e8c drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c	Tue Nov 13 13:57:47 2007 +1100
-+++ b/drivers/net/virtio_net.c	Tue Nov 13 14:05:50 2007 +1100
-@@ -404,8 +404,12 @@ free:
- 
- static void virtnet_remove(struct virtio_device *vdev)
- {
--	unregister_netdev(vdev->priv);
--	free_netdev(vdev->priv);
-+	struct virtnet_info *vi = vdev->priv;
-+
-+	vdev->config->del_vq(vi->svq);
-+	vdev->config->del_vq(vi->rvq);
-+	unregister_netdev(vi->dev);
-+	free_netdev(vi->dev);
- }
- 
- static struct virtio_device_id id_table[] = {
-diff -r e631b63b0e8c drivers/virtio/virtio.c
---- a/drivers/virtio/virtio.c	Tue Nov 13 13:57:47 2007 +1100
-+++ b/drivers/virtio/virtio.c	Tue Nov 13 14:05:50 2007 +1100
-@@ -96,10 +96,23 @@ static int virtio_dev_probe(struct devic
- 	return err;
- }
- 
-+static int virtio_dev_remove(struct device *_d)
-+{
-+	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
-+	struct virtio_driver *drv = container_of(dev->dev.driver,
-+						 struct virtio_driver, driver);
-+
-+	dev->config->set_status(dev, dev->config->get_status(dev)
-+				& ~VIRTIO_CONFIG_S_DRIVER);
-+	drv->remove(dev);
-+	return 0;
-+}
-+
- int register_virtio_driver(struct virtio_driver *driver)
- {
- 	driver->driver.bus = &virtio_bus;
- 	driver->driver.probe = virtio_dev_probe;
-+	driver->driver.remove = virtio_dev_remove;
- 	return driver_register(&driver->driver);
- }
- EXPORT_SYMBOL_GPL(register_virtio_driver);
+> Also you got some white space damage.
+
+Thanks, will fix.
+
+> And the "EM64T based comment" is wrong because there are AMD based 
+> vSMPs too.
+Just got it as-is from the old Kconfig. Do you think it should be fixed
+as well?
+
+> -Andi
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Remi - http://enigmail.mozdev.org
+
+iD8DBQFHOYxKjYI8LaFUWXMRApS3AJwJSYjW4Lw3dnPR4yMNfXABnMoQQQCcDMnf
+3wBQoPjGO/8HO1Os4Y21vIU=
+=S+KO
+-----END PGP SIGNATURE-----
