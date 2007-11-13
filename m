@@ -1,35 +1,40 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [kvm-devel] [PATCH 0/24] paravirt_ops for unified x86 - that's
- me again!
-Date: Tue, 13 Nov 2007 12:26:24 -0800
-Message-ID: <473A0870.4070104__166.005505207245$1194985913$gmane$org@goop.org>
-References: <11946337851964-git-send-email-gcosta@redhat.com>
-	<200711121347.20050.amit.shah@qumranet.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [stable] [PATCH 00/12] xen/paravirt_ops patches for 2.6.24
+Date: Tue, 13 Nov 2007 15:22:58 -0800
+Message-ID: <20071113232258.GA10338@kroah.com>
+References: <20071015204840.074767068@goop.org> <20071015215406.GA1588@kroah.com> <4713E2D6.90801@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200711121347.20050.amit.shah@qumranet.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@qumranet.com>
-Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, ak@suse.de, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761359AbXKMXhc@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4713E2D6.90801@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, xen-devel@lists.xensource.com, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah wrote:
-> Glauber, are you planning on consolidating the dma_ops structure for 32- and 
-> 64-bit? 32-bit doesn't currently have a dma_mapping_ops structure, which 
-> makes paravirtualizing DMA access difficult on 32-bit.
+On Mon, Oct 15, 2007 at 02:59:50PM -0700, Jeremy Fitzhardinge wrote:
+> Greg KH wrote:
+> > Yeah, but you cc:ed all 12 patches to stable@.  The majority of which we
+> > don't want to take, right?  Which specific ones should stable@ care
+> > about?
+> 
+> Crap, sorry about that.  I'd just intended to send the overview and the
+> four patches, which have explicit CC: stable lines in the patch
+> descriptions.  They are:
+> 
+> Subject: [PATCH 06/12] xen: add batch completion callbacks
+> Subject: [PATCH 07/12] xen: deal with stale cr3 values when unpinning
+> pagetables
+> Subject: [PATCH 10/12] xen: fix incorrect vcpu_register_vcpu_info
+> hypercall argument
+> Subject: [PATCH 12/12] xfs: eagerly remove vmap mappings to avoid
+> upsetting Xen
 
+These don't apply now due to the x86 merge.  Care to backport them and
+send them to the stable@kernel.org address so we can apply them
+properly?
 
-I think it's a good idea.  While I haven't worked out the details yet,
-it seems like something I'll need for Xen dom0 support.
+thanks,
 
-    J
+greg k-h
