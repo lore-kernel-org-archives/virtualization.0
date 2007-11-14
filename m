@@ -1,32 +1,127 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [stable] [PATCH 00/12] xen/paravirt_ops patches for 2.6.24
-Date: Tue, 13 Nov 2007 16:00:30 -0800
-Message-ID: <20071114000030.GA30402@kroah.com>
-References: <20071015204840.074767068@goop.org> <4713E2D6.90801@goop.org> <20071113232258.GA10338@kroah.com> <200711140053.33584.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762040AbXKNAL2@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <200711140053.33584.ak@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Kleen <ak@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Linus Torvalds <torvalds@linux-foundation.org>, xen-devel@lists.xensource.com, LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Andrew Morton <akpm@linux-foundation.org>, Keir Fraser <keir@xensource.com>, Stable Kernel <stable@kernel.org>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: [PATCH] Remove pagesize parameter from vring_init/vring_size
+Date: Wed, 14 Nov 2007 10:06:43 -0600
+Message-ID: <11950564033349-git-send-email-aliguori@us.ibm.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 14, 2007 at 12:53:33AM +0100, Andi Kleen wrote:
-> 
-> > > Subject: [PATCH 12/12] xfs: eagerly remove vmap mappings to avoid
-> > > upsetting Xen
-> 
-> This patch was the wrong fix anyways as discussed; David Chinner
-> finally came up with a better one.
+The PAGE_SIZE constant should be used instead of taking an extra parameter.
+Moreover, once we use PAGE_SIZE, we can use PAGE_ALIGN() instead of having it
+open coded.
 
-Ok, that's good to know, if someone wants to send me the correct one,
-that would be appreciated.
+I've only compile tested the lguest launcher as I'm on a 64-bit system but I've
+tested the virtio-pci device with KVM.
 
-Although, it's not like anyone actually uses the in-kernel Xen on
-2.6.23, so it's probably not really worth it.
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 
-thanks,
-
-greg k-h
+diff --git a/Documentation/lguest/lguest.c b/Documentation/lguest/lguest.c
+index 4200839..171dead 100644
+--- a/Documentation/lguest/lguest.c
++++ b/Documentation/lguest/lguest.c
+@@ -34,6 +34,11 @@
+ #include <zlib.h>
+ #include <assert.h>
+ #include <sched.h>
++
++/* these are needed for virtio_ring.h */
++#define PAGE_SIZE (getpagesize())
++#define PAGE_ALIGN(addr) (((addr) + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
++
+ #include "linux/lguest_launcher.h"
+ #include "linux/virtio_config.h"
+ #include "linux/virtio_net.h"
+@@ -1036,7 +1041,7 @@ static void add_virtqueue(struct device *dev, unsigned int num_descs,
+ 	void *p;
+ 
+ 	/* First we need some pages for this virtqueue. */
+-	pages = (vring_size(num_descs, getpagesize()) + getpagesize() - 1)
++	pages = (vring_size(num_descs) + getpagesize() - 1)
+ 		/ getpagesize();
+ 	p = get_pages(pages);
+ 
+@@ -1046,7 +1051,7 @@ static void add_virtqueue(struct device *dev, unsigned int num_descs,
+ 	vq->config.pfn = to_guest_phys(p) / getpagesize();
+ 
+ 	/* Initialize the vring. */
+-	vring_init(&vq->vring, num_descs, p, getpagesize());
++	vring_init(&vq->vring, num_descs, p);
+ 
+ 	/* Add the configuration information to this device's descriptor. */
+ 	add_desc_field(dev, VIRTIO_CONFIG_F_VIRTQUEUE,
+diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
+index e2eec38..cbf90fc 100644
+--- a/drivers/lguest/lguest_device.c
++++ b/drivers/lguest/lguest_device.c
+@@ -200,8 +200,7 @@ static struct virtqueue *lg_find_vq(struct virtio_device *vdev,
+ 
+ 	/* Figure out how many pages the ring will take, and map that memory */
+ 	lvq->pages = lguest_map((unsigned long)lvq->config.pfn << PAGE_SHIFT,
+-				DIV_ROUND_UP(vring_size(lvq->config.num,
+-							PAGE_SIZE),
++				DIV_ROUND_UP(vring_size(lvq->config.num),
+ 					     PAGE_SIZE));
+ 	if (!lvq->pages) {
+ 		err = -ENOMEM;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 1dc04b6..8438303 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -287,7 +287,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 	if (!vq)
+ 		return NULL;
+ 
+-	vring_init(&vq->vring, num, pages, PAGE_SIZE);
++	vring_init(&vq->vring, num, pages);
+ 	vq->vq.callback = callback;
+ 	vq->vq.vdev = vdev;
+ 	vq->vq.vq_ops = &vring_vq_ops;
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 1a4ed49..f786170 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -9,6 +9,7 @@
+  *
+  * Copyright Rusty Russell IBM Corporation 2007. */
+ #include <linux/types.h>
++#include <linux/mm.h>
+ 
+ /* This marks a buffer as continuing via the next field. */
+ #define VRING_DESC_F_NEXT	1
+@@ -88,21 +89,18 @@ struct vring {
+  *	struct vring_used_elem used[num];
+  * };
+  */
+-static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+-			      unsigned int pagesize)
++static inline void vring_init(struct vring *vr, unsigned int num, void *p)
+ {
+ 	vr->num = num;
+ 	vr->desc = p;
+ 	vr->avail = p + num*sizeof(struct vring_desc);
+-	vr->used = (void *)(((unsigned long)&vr->avail->ring[num] + pagesize-1)
+-			    & ~(pagesize - 1));
++	vr->used = (void *)PAGE_ALIGN((unsigned long)&vr->avail->ring[num]);
+ }
+ 
+-static inline unsigned vring_size(unsigned int num, unsigned int pagesize)
++static inline unsigned vring_size(unsigned int num)
+ {
+-	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
+-		 + pagesize - 1) & ~(pagesize - 1))
+-		+ sizeof(__u16) * 2 + sizeof(struct vring_used_elem) * num;
++	return PAGE_ALIGN(sizeof(struct vring_desc)*num+sizeof(__u16)*(2+num))
++		+ sizeof(struct vring_used_elem) * num + sizeof(__u16) * 2;
+ }
+ 
+ #ifdef __KERNEL__
