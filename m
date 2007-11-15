@@ -1,17 +1,17 @@
 From: Greg KH <gregkh@suse.de>
-Subject: [patch 13/19] xen: fix incorrect vcpu_register_vcpu_info hypercall
-	argument
-Date: Wed, 14 Nov 2007 22:15:03 -0800
-Message-ID: <20071115061503.GN7980@kroah.com>
+Subject: [patch 14/19] xfs: eagerly remove vmap mappings to avoid upsetting
+	Xen
+Date: Wed, 14 Nov 2007 22:15:06 -0800
+Message-ID: <20071115061506.GO7980@kroah.com>
 References: <20071115054813.977066477@mini.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763839AbXKOGV1@vger.kernel.org>
-Content-Disposition: inline; filename="xen-fix-register_vcpu_info.patch"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764328AbXKOGVo@vger.kernel.org>
+Content-Disposition: inline; filename="xen-xfs-unmap.patch"
 In-Reply-To: <20071115061415.GA7980@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>, Zwane Mwaikambo <zwane@arm.linux.org.uk>, Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>, Chris Wedgwood <reviews@ml.cw.f00f.org>, Michael Krufky <mkrufky@linuxtv.org>, Chuck Ebbert <cebbert@redhat.com>, Domenico Andreoli <cavokz@gmail.com>, torvalds@linux-foundation.org, akpm@linux-foundation.org, alan@lxorguk.ukuu.org.uk, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Mark Williamson <mark.williamson@cl.cam.ac.uk>, Morten B?geskov <xen-users@morten.bogeskov.dk>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Keir Fraser <keir@xensource.com>, Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Justin Forbes <jmforbes@linuxtx.org>, Zwane Mwaikambo <zwane@arm.linux.org.uk>, Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>, Chris Wedgwood <reviews@ml.cw.f00f.org>, Michael Krufky <mkrufky@linuxtv.org>, Chuck Ebbert <cebbert@redhat.com>, Domenico Andreoli <cavokz@gmail.com>, torvalds@linux-foundation.org, akpm@linux-foundation.org, alan@lxorguk.ukuu.org.uk, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Mark Williamson <mark.williamson@cl.cam.ac.uk>, XFS masters <xfs-masters@oss.sgi.com>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Morten B?geskov <xen-users@morten.bogeskov.dk>, Keir Fraser <keir@xensource.com>, Jeremy Fitzhardinge <jeremy@xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 -stable review patch.  If anyone has any objections, please let us know.
@@ -19,47 +19,52 @@ List-Id: virtualization@lists.linuxfoundation.org
 ------------------
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 
-patch e3d2697669abbe26c08dc9b95e2a71c634d096ed in mainline.
+patch ace2e92e193126711cb3a83a3752b2c5b8396950 in mainline.
 
-The kernel's copy of struct vcpu_register_vcpu_info was out of date,
-at best causing the hypercall to fail and the guest kernel to fall
-back to the old mechanism, or worse, causing random memory corruption.
+XFS leaves stray mappings around when it vmaps memory to make it
+virtually contigious.  This upsets Xen if one of those pages is being
+recycled into a pagetable, since it finds an extra writable mapping of
+the page.
+
+This patch solves the problem in a brute force way, by making XFS
+always eagerly unmap its mappings.
+
+[ Stable: This works around a bug in 2.6.23.  We may come up with a
+better solution for mainline, but this seems like a low-impact fix for
+the stable kernel. ]
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Stable Kernel <stable@kernel.org>
+Cc: XFS masters <xfs-masters@oss.sgi.com>
 Cc: Morten =?utf-8?q?B=C3=B8geskov?= <xen-users@morten.bogeskov.dk>
 Cc: Mark Williamson <mark.williamson@cl.cam.ac.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
----
- arch/i386/xen/enlighten.c    |    2 +-
- include/xen/interface/vcpu.h |    5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/i386/xen/enlighten.c
-+++ b/arch/i386/xen/enlighten.c
-@@ -116,7 +116,7 @@ static void __init xen_vcpu_setup(int cp
- 	info.mfn = virt_to_mfn(vcpup);
- 	info.offset = offset_in_page(vcpup);
+---
+ fs/xfs/linux-2.6/xfs_buf.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+--- a/fs/xfs/linux-2.6/xfs_buf.c
++++ b/fs/xfs/linux-2.6/xfs_buf.c
+@@ -187,6 +187,19 @@ free_address(
+ {
+ 	a_list_t	*aentry;
  
--	printk(KERN_DEBUG "trying to map vcpu_info %d at %p, mfn %x, offset %d\n",
-+	printk(KERN_DEBUG "trying to map vcpu_info %d at %p, mfn %llx, offset %d\n",
- 	       cpu, vcpup, info.mfn, info.offset);
- 
- 	/* Check to see if the hypervisor will put the vcpu_info
---- a/include/xen/interface/vcpu.h
-+++ b/include/xen/interface/vcpu.h
-@@ -160,8 +160,9 @@ struct vcpu_set_singleshot_timer {
-  */
- #define VCPUOP_register_vcpu_info   10  /* arg == struct vcpu_info */
- struct vcpu_register_vcpu_info {
--    uint32_t mfn;               /* mfn of page to place vcpu_info */
--    uint32_t offset;            /* offset within page */
-+    uint64_t mfn;    /* mfn of page to place vcpu_info */
-+    uint32_t offset; /* offset within page */
-+    uint32_t rsvd;   /* unused */
- };
- 
- #endif /* __XEN_PUBLIC_VCPU_H__ */
++#ifdef CONFIG_XEN
++	/*
++	 * Xen needs to be able to make sure it can get an exclusive
++	 * RO mapping of pages it wants to turn into a pagetable.  If
++	 * a newly allocated page is also still being vmap()ed by xfs,
++	 * it will cause pagetable construction to fail.  This is a
++	 * quick workaround to always eagerly unmap pages so that Xen
++	 * is happy.
++	 */
++	vunmap(addr);
++	return;
++#endif
++
+ 	aentry = kmalloc(sizeof(a_list_t), GFP_NOWAIT);
+ 	if (likely(aentry)) {
+ 		spin_lock(&as_lock);
 
 -- 
