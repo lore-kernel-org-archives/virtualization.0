@@ -1,70 +1,49 @@
-From: Greg KH <gregkh@suse.de>
-Subject: [patch 14/19] xfs: eagerly remove vmap mappings to avoid upsetting
-	Xen
-Date: Wed, 14 Nov 2007 22:15:06 -0800
-Message-ID: <20071115061506.GO7980@kroah.com>
-References: <20071115054813.977066477@mini.kroah.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764328AbXKOGVo@vger.kernel.org>
-Content-Disposition: inline; filename="xen-xfs-unmap.patch"
-In-Reply-To: <20071115061415.GA7980@kroah.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>, Zwane Mwaikambo <zwane@arm.linux.org.uk>, Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>, Chris Wedgwood <reviews@ml.cw.f00f.org>, Michael Krufky <mkrufky@linuxtv.org>, Chuck Ebbert <cebbert@redhat.com>, Domenico Andreoli <cavokz@gmail.com>, torvalds@linux-foundation.org, akpm@linux-foundation.org, alan@lxorguk.ukuu.org.uk, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, Mark Williamson <mark.williamson@cl.cam.ac.uk>, XFS masters <xfs-masters@oss.sgi.com>, Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@muc.de>, Morten B?geskov <xen-users@morten.bogeskov.dk>, Keir Fraser <keir@xensource.com>, Jeremy Fitzhardinge <jeremy@xensource.com>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: [PATCH] Fix vring_init/vring_size to take unsigned long
+Date: Thu, 15 Nov 2007 14:59:28 -0600
+Message-ID: <11951603682689-git-send-email-aliguori@us.ibm.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
--stable review patch.  If anyone has any objections, please let us know.
+Using unsigned int resulted in silent truncation of the upper 32-bit on x86_64
+resulting in an OOPS since the ring was being initialized wrong.
 
-------------------
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+Please reconsider my previous patch to just use PAGE_ALIGN().  Open coding this
+sort of stuff, no matter how simple it seems, is just asking for this sort of
+trouble.
 
-patch ace2e92e193126711cb3a83a3752b2c5b8396950 in mainline.
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 
-XFS leaves stray mappings around when it vmaps memory to make it
-virtually contigious.  This upsets Xen if one of those pages is being
-recycled into a pagetable, since it finds an extra writable mapping of
-the page.
-
-This patch solves the problem in a brute force way, by making XFS
-always eagerly unmap its mappings.
-
-[ Stable: This works around a bug in 2.6.23.  We may come up with a
-better solution for mainline, but this seems like a low-impact fix for
-the stable kernel. ]
-
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: XFS masters <xfs-masters@oss.sgi.com>
-Cc: Morten =?utf-8?q?B=C3=B8geskov?= <xen-users@morten.bogeskov.dk>
-Cc: Mark Williamson <mark.williamson@cl.cam.ac.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
----
- fs/xfs/linux-2.6/xfs_buf.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
---- a/fs/xfs/linux-2.6/xfs_buf.c
-+++ b/fs/xfs/linux-2.6/xfs_buf.c
-@@ -187,6 +187,19 @@ free_address(
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 1a4ed49..5de09f9 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -89,7 +89,7 @@ struct vring {
+  * };
+  */
+ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+-			      unsigned int pagesize)
++			      unsigned long pagesize)
  {
- 	a_list_t	*aentry;
+ 	vr->num = num;
+ 	vr->desc = p;
+@@ -98,7 +98,7 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 			    & ~(pagesize - 1));
+ }
  
-+#ifdef CONFIG_XEN
-+	/*
-+	 * Xen needs to be able to make sure it can get an exclusive
-+	 * RO mapping of pages it wants to turn into a pagetable.  If
-+	 * a newly allocated page is also still being vmap()ed by xfs,
-+	 * it will cause pagetable construction to fail.  This is a
-+	 * quick workaround to always eagerly unmap pages so that Xen
-+	 * is happy.
-+	 */
-+	vunmap(addr);
-+	return;
-+#endif
-+
- 	aentry = kmalloc(sizeof(a_list_t), GFP_NOWAIT);
- 	if (likely(aentry)) {
- 		spin_lock(&as_lock);
-
--- 
+-static inline unsigned vring_size(unsigned int num, unsigned int pagesize)
++static inline unsigned vring_size(unsigned int num, unsigned long pagesize)
+ {
+ 	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
+ 		 + pagesize - 1) & ~(pagesize - 1))
