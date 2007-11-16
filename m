@@ -1,7 +1,10 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: [PATCH] Fix vring_init/vring_size to take unsigned long
-Date: Thu, 15 Nov 2007 14:59:28 -0600
-Message-ID: <11951603682689-git-send-email-aliguori@us.ibm.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: paravirt_alloc_pd_clone() useful?
+Date: Fri, 16 Nov 2007 11:24:22 -0800
+Message-ID: <473DEE66.1020507@goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,38 +15,13 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>Rusty Russell <rusty@rustcorp.com.au>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Using unsigned int resulted in silent truncation of the upper 32-bit on x86_64
-resulting in an OOPS since the ring was being initialized wrong.
+Do you use paravirt_alloc_pd_clone()?  I seem to you remember you
+mentioning that it doesn't help you very much.  I'm in the process of
+unifying pgalloc*, and it seems to me that it would be a bit cleaner
+without needing to worry about paravirt_alloc_pd_clone()...
 
-Please reconsider my previous patch to just use PAGE_ALIGN().  Open coding this
-sort of stuff, no matter how simple it seems, is just asking for this sort of
-trouble.
-
-Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
-
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 1a4ed49..5de09f9 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -89,7 +89,7 @@ struct vring {
-  * };
-  */
- static inline void vring_init(struct vring *vr, unsigned int num, void *p,
--			      unsigned int pagesize)
-+			      unsigned long pagesize)
- {
- 	vr->num = num;
- 	vr->desc = p;
-@@ -98,7 +98,7 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
- 			    & ~(pagesize - 1));
- }
- 
--static inline unsigned vring_size(unsigned int num, unsigned int pagesize)
-+static inline unsigned vring_size(unsigned int num, unsigned long pagesize)
- {
- 	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
- 		 + pagesize - 1) & ~(pagesize - 1))
+    J
