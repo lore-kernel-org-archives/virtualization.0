@@ -1,19 +1,20 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 5/24] smp x86 consolidation
-Date: Sat, 17 Nov 2007 10:32:25 +0100
-Message-ID: <20071117093224.GA32256__49540.5632457279$1195492647$gmane$org@elte.hu>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH 7/24] consolidate msr.h
+Date: Mon, 19 Nov 2007 17:36:39 -0500 (EST)
+Message-ID: <Pine.LNX.4.58.0711191734270.32296__31546.9660134569$1195511995$gmane$org@gandalf.stny.rr.com>
 References: <11946337851964-git-send-email-gcosta@redhat.com>
 	<11946337933104-git-send-email-gcosta@redhat.com>
 	<11946337991750-git-send-email-gcosta@redhat.com>
 	<11946338053158-git-send-email-gcosta@redhat.com>
 	<11946338103068-git-send-email-gcosta@redhat.com>
 	<1194633815833-git-send-email-gcosta@redhat.com>
-	<4734FB67.8080500@goop.org> <4735098B.7040305@redhat.com>
+	<11946338212915-git-send-email-gcosta@redhat.com>
+	<11946338263902-git-send-email-gcosta@redhat.com>
+	<20071119222151.GA11178@wavehammer.waldi.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4735098B.7040305@redhat.com>
+In-Reply-To: <20071119222151.GA11178@wavehammer.waldi.eu.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,59 +24,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <gcosta@redhat.com>
-Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, tglx@linutronix.de, akpm@linux-foundation.org, ak@suse.de
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-* Glauber de Oliveira Costa <gcosta@redhat.com> wrote:
+On Mon, 19 Nov 2007, Bastian Blank wrote:
 
-> > I'm getting link errors in 32-bit:
-> > 
-> > arch/x86/kernel/built-in.o: In function `native_smp_send_reschedule':
-> > /home/jeremy/hg/xen/paravirt/linux/arch/x86/kernel/smpcommon.c:262: undefined reference to `genapic'
-> > arch/x86/kernel/built-in.o: In function `native_smp_call_function_mask':
-> > /home/jeremy/hg/xen/paravirt/linux/arch/x86/kernel/smpcommon.c:113: undefined reference to `genapic'
-> > 
-> Ok, it compiled just fine here. I bet it's due to  one of that i386 lots
-> of variants.
+> On Fri, Nov 09, 2007 at 04:42:48PM -0200, Glauber de Oliveira Costa wrote:
+> > -	wrmsrl(MSR_CSTAR, ia32_cstar_target);
+> > +	wrmsrl(MSR_CSTAR, (u64)ia32_cstar_target);
+>
+> Hmm, why do you add explicit casts? The compiler should convert that
+> correctly on its own.
+>
+> > +static inline void wrmsrl(unsigned int msr, unsigned long long val)
+>
+> Hmm, long long is 64 bit on all x86, but why not use explicit u64 to
+> show that?
 
-this patch is causing build failures all around the place. It does not 
-build on CONFIG_X86_SUMMIT, it does not build if CONFIG_X86_GENERICARCH 
-is turned off, etc. It does not even build on UP - fix for that is 
-attached below. I've dropped this patch for now.
+(quick reply)
 
-	Ingo
+With PVOPS on it gives compiler warnings without that explict cast.
+Without looking at the code, IIRC with non-PVOPS it is a macro directly
+into asm, so it didn't matter what the cast was. But with PVOPS as a
+function, it gave compiler warnings.
 
--------------->
-Subject: x86: fix build error
-From: Ingo Molnar <mingo@elte.hu>
+Take it out and try compiling it for both i386 and x86_64. One of them
+gave warnings. But maybe it's not a problem now.
 
-fix build error on !CONFIG_SMP.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
----
- include/asm-x86/smp.h |    2 ++
- 1 file changed, 2 insertions(+)
-
-Index: linux/include/asm-x86/smp.h
-===================================================================
---- linux.orig/include/asm-x86/smp.h
-+++ linux/include/asm-x86/smp.h
-@@ -2,6 +2,7 @@
- #define _X86_SMP_H_
- 
- #ifndef __ASSEMBLY__
-+#ifdef CONFIG_SMP
- struct smp_ops
- {
- 	void (*smp_prepare_boot_cpu)(void);
-@@ -55,6 +56,7 @@ void native_smp_prepare_boot_cpu(void);
- void native_smp_prepare_cpus(unsigned int max_cpus);
- int native_cpu_up(unsigned int cpunum);
- void native_smp_cpus_done(unsigned int max_cpus);
-+#endif
- 
- #ifndef CONFIG_PARAVIRT
- #define startup_ipi_hook(phys_apicid, start_eip, start_esp) 		\
+-- Steve
