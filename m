@@ -1,13 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/2] virtio: fix net driver loop case where we fail to
-	restart
-Date: Mon, 19 Nov 2007 11:20:15 +1100
-Message-ID: <200711191120.15596.rusty__45784.4735974961$1195432236$gmane$org@rustcorp.com.au>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 2/2] virtio: free transmit skbs when notified,
+	not on next xmit.
+Date: Mon, 19 Nov 2007 11:31:08 +0100
+Message-ID: <200711191131.08630.borntraeger__23510.9737994664$1195468700$gmane$org@de.ibm.com>
+References: <200711191120.15596.rusty@rustcorp.com.au>
+	<200711191125.45065.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200711191125.45065.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,26 +21,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: lguest <lguest@ozlabs.org>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, lguest <lguest@ozlabs.org>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-skb is only NULL the first time around: it's more correct to test for
-being under-budget.
+Am Montag, 19. November 2007 schrieb Rusty Russell:
+> This fixes a potential dangling xmit problem.
+> 
+> We also suppress refill interrupts until we need them.
+> (Anthony and I have been working on performance recently, so this
+> is a WIP).
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Thanks Rusty,
+that was the 2nd next item on my todo list :-)
 
-diff -r 2a94425ac7d5 drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c	Thu Nov 15 13:47:28 2007 +1100
-+++ b/drivers/net/virtio_net.c	Thu Nov 15 23:10:44 2007 +1100
-@@ -198,8 +198,8 @@ again:
- 	if (vi->num < vi->max / 2)
- 		try_fill_recv(vi);
- 
--	/* All done? */
--	if (!skb) {
-+	/* Out of packets? */
-+	if (received < budget) {
- 		netif_rx_complete(vi->dev, napi);
- 		if (unlikely(!vi->rvq->vq_ops->restart(vi->rvq))
- 		    && netif_rx_reschedule(vi->dev, napi))
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
