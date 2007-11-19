@@ -1,13 +1,13 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: paravirt_alloc_pd_clone() useful?
-Date: Fri, 16 Nov 2007 14:00:41 -0800
-Message-ID: <1195250441.6352.207.camel@bodhitayantram.eng.vmware.com>
-References: <473DEE66.1020507@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] lguest: Fix uninitialized members in example launcher
+Date: Mon, 19 Nov 2007 11:10:25 +1100
+Message-ID: <200711191110.25836.rusty__32779.4236284264$1195431174$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <473DEE66.1020507@goop.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,17 +17,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>
+To: lguest <lguest@ozlabs.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2007-11-16 at 11:24 -0800, Jeremy Fitzhardinge wrote:
-> Do you use paravirt_alloc_pd_clone()?  I seem to you remember you
-> mentioning that it doesn't help you very much.  I'm in the process of
-> unifying pgalloc*, and it seems to me that it would be a bit cleaner
-> without needing to worry about paravirt_alloc_pd_clone()...
+Thanks valgrind!
 
-Yes, we do, and it is one of our largest performance gains.  It is
-clone_pgd_range() that turned out not to be useful.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Zach
+diff -r 1041aeb944b2 Documentation/lguest/lguest.c
+--- a/Documentation/lguest/lguest.c	Tue Nov 13 15:11:06 2007 +1100
++++ b/Documentation/lguest/lguest.c	Thu Nov 15 13:28:48 2007 +1100
+@@ -1040,6 +1040,11 @@ static void add_virtqueue(struct device 
+ 		/ getpagesize();
+ 	p = get_pages(pages);
+ 
++	/* Initialize the virtqueue */
++	vq->next = NULL;
++	vq->last_avail_idx = 0;
++	vq->dev = dev;
++
+ 	/* Initialize the configuration. */
+ 	vq->config.num = num_descs;
+ 	vq->config.irq = devices.next_irq++;
+@@ -1056,9 +1061,6 @@ static void add_virtqueue(struct device 
+ 	 * second.  */
+ 	for (i = &dev->vq; *i; i = &(*i)->next);
+ 	*i = vq;
+-
+-	/* Link virtqueue back to device. */
+-	vq->dev = dev;
+ 
+ 	/* Set the routine to call when the Guest does something to this
+ 	 * virtqueue. */
+@@ -1093,6 +1095,7 @@ static struct device *new_device(const c
+ 	dev->desc = new_dev_desc(type);
+ 	dev->handle_input = handle_input;
+ 	dev->name = name;
++	dev->vq = NULL;
+ 	return dev;
+ }
