@@ -1,20 +1,14 @@
-From: Bastian Blank <bastian@waldi.eu.org>
-Subject: Re: [PATCH 7/24] consolidate msr.h
-Date: Mon, 19 Nov 2007 23:21:51 +0100
-Message-ID: <20071119222151.GA11178__10237.0571381927$1195581608$gmane$org@wavehammer.waldi.eu.org>
-References: <11946337851964-git-send-email-gcosta@redhat.com>
-	<11946337933104-git-send-email-gcosta@redhat.com>
-	<11946337991750-git-send-email-gcosta@redhat.com>
-	<11946338053158-git-send-email-gcosta@redhat.com>
-	<11946338103068-git-send-email-gcosta@redhat.com>
-	<1194633815833-git-send-email-gcosta@redhat.com>
-	<11946338212915-git-send-email-gcosta@redhat.com>
-	<11946338263902-git-send-email-gcosta@redhat.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 1/2] virtio: fix net driver loop case where we fail to
+	restart
+Date: Tue, 20 Nov 2007 16:20:55 +0900
+Message-ID: <20071120072053.GF10490__17172.0506776639$1195581618$gmane$org@verge.net.au>
+References: <200711191120.15596.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <11946338263902-git-send-email-gcosta@redhat.com>
+In-Reply-To: <200711191120.15596.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,23 +18,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <gcosta@redhat.com>
-Cc: lguest@ozlabs.org, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, ak@suse.de, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 09, 2007 at 04:42:48PM -0200, Glauber de Oliveira Costa wrote:
-> -	wrmsrl(MSR_CSTAR, ia32_cstar_target);
-> +	wrmsrl(MSR_CSTAR, (u64)ia32_cstar_target);
+On Mon, Nov 19, 2007 at 11:20:15AM +1100, Rusty Russell wrote:
+> skb is only NULL the first time around: it's more correct to test for
+> being under-budget.
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Hmm, why do you add explicit casts? The compiler should convert that
-correctly on its own.
+That looks better to me.
 
-> +static inline void wrmsrl(unsigned int msr, unsigned long long val)
+Acked-by: Simon Horman <horms@verge.net.au>
 
-Hmm, long long is 64 bit on all x86, but why not use explicit u64 to
-show that?
-
-Bastian
+> diff -r 2a94425ac7d5 drivers/net/virtio_net.c
+> --- a/drivers/net/virtio_net.c	Thu Nov 15 13:47:28 2007 +1100
+> +++ b/drivers/net/virtio_net.c	Thu Nov 15 23:10:44 2007 +1100
+> @@ -198,8 +198,8 @@ again:
+>  	if (vi->num < vi->max / 2)
+>  		try_fill_recv(vi);
+>  
+> -	/* All done? */
+> -	if (!skb) {
+> +	/* Out of packets? */
+> +	if (received < budget) {
+>  		netif_rx_complete(vi->dev, napi);
+>  		if (unlikely(!vi->rvq->vq_ops->restart(vi->rvq))
+>  		    && netif_rx_reschedule(vi->dev, napi))
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Captain's Log, star date 21:34.5...
+Horms
