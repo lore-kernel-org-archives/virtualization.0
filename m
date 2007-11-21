@@ -1,59 +1,62 @@
-From: Zachary Amsden <zach-pghWNbHTmq7QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 3/3] virtio PCI device
-Date: Wed, 21 Nov 2007 10:22:57 -0800
-Message-ID: <1195669377.6352.247.camel@bodhitayantram.eng.vmware.com>
-References: <11944899922822-git-send-email-aliguori@us.ibm.com>
-	<11944900141678-git-send-email-aliguori@us.ibm.com>
-	<11944900152750-git-send-email-aliguori@us.ibm.com>
-	<11944900163817-git-send-email-aliguori@us.ibm.com>
-	<4742F6B7.20503@qumranet.com>	<474300AD.4060509@us.ibm.com>
-	<4743076F.8000105@qumranet.com> <47435CCB.1050506@us.ibm.com>
-	<4743DAA4.70800@qumranet.com>
+From: "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Next steps with pv_ops for Xen
+Date: Wed, 21 Nov 2007 22:05:25 +0000
+Message-ID: <1195682725.6726.48.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <4743DAA4.70800-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Avi Kivity <avi-atKUWr5tajBWk0Htik3J/w@public.gmane.org>
-Cc: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Eric Van Hensbergen <ericvanhensbergen-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, Stephen Tweedie <sct@redhat.com>, Jan Beulich <jbeulich@novell.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2007-11-21 at 09:13 +0200, Avi Kivity wrote:
+Hi all,
 
-> Where the device is implemented is an implementation detail that should 
-> be hidden from the guest, isn't that one of the strengths of 
-> virtualization?  Two examples: a file-based block device implemented in 
-> qemu gives you fancy file formats with encryption and compression, while 
-> the same device implemented in the kernel gives you a low-overhead path 
-> directly to a zillion-disk SAN volume.  Or a user-level network device 
-> capable of running with the slirp stack and no permissions vs. the 
-> kernel device running copyless most of the time and using a dma engine 
-> for the rest but requiring you to be good friends with the admin.
-> 
-> The user should expect zero reconfigurations moving a VM from one model 
-> to the other.
+I've been looking at the next steps to try to get Xen running fully on
+top of pv_ops.  To that end, I've (just) started looking at one of the
+next major jobs --- i686 dom0 on pv_ops.
 
-I think that is pretty insightful, and indeed, is probably the only
-reason we would ever consider using a virtio based driver.
+There are still a number of things needing done to reach parity with
+xen-unstable:
 
-But is this really a virtualization problem, and is virtio the right
-place to solve it?  Doesn't I/O hotplug with multipathing or NIC teaming
-provide the same infrastructure in a way that is useful in more than
-just a virtualization context?
+  x86_64 xen on pv_ops
+  Paravirt framebuffer/keyboard
+  CPU hotplug
+  Balloon
+  kexec
+  driver domains
 
-Zach
+but it looks like these can largely proceed in parallel if desired.
 
+My short-term goal with this is simply to come up with a first-pass
+merge of the linux-2.6.18-xen.hg dom0 support into the current
+kernel.org tree's pv_ops support.  No major refactoring in the first
+pass, but absolutely no *-xen.c code copying.
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Microsoft
-Defy all challenges. Microsoft(R) Visual Studio 2005.
-http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
+I'm just starting this, but at least with the version magic check (see
+
+	http://lists.xensource.com/archives/html/xen-devel/2007-11/msg00601.html
+
+) out of the way, an SMP dom0 running pv_ops gets all the way through
+start_kernel() and into rest_init() before dying with an unsupported cr0
+write.  (I'm using direct console hypercalls for printk for now, full
+xencons is not working yet.)
+
+Current goal is to get as far as I can with the normal domU boot process
+in a dom0 environment (getting console set up correctly, etc), before
+starting to piece in the additional extra bits needed for dom0 startup
+(mostly, but by no means exclusively, setup-xen.c).
+
+I'm happy to put up a git tree for this once it gets anywhere.  We'd
+need to decide which tree to track for that purpose --- Linus's, or
+perhaps the tglx or mingo x86 merge tree might make more sense.
+
+--Stephen
