@@ -1,105 +1,62 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [kvm-devel] [PATCH 3/3] virtio PCI device
-Date: Mon, 26 Nov 2007 13:18:11 -0600
-Message-ID: <474B1BF3.20901@us.ibm.com>
-References: <11944899922822-git-send-email-aliguori@us.ibm.com>	<11944900141678-git-send-email-aliguori@us.ibm.com>	<11944900152750-git-send-email-aliguori@us.ibm.com>	<11944900163817-git-send-email-aliguori@us.ibm.com>	<4742F6B7.20503@qumranet.com>	<474300AD.4060509@us.ibm.com>	<4743076F.8000105@qumranet.com> <47435CCB.1050506@us.ibm.com>	<4743DAA4.70800@qumranet.com> <4747051C.3090903@us.ibm.com> <4747122F.1070905@qumranet.com>
+From: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: Re: Next steps with pv_ops for Xen
+Date: Tue, 27 Nov 2007 08:30:57 +0000
+Message-ID: <474BE3D1.76E4.0078.0@novell.com>
+References: <1195682725.6726.48.camel@sisko.scot.redhat.com>	
+	<4744BB54.4040803@goop.org>
+	<de87b960711260602m799b365fw62af3976913d64cc@mail.gmail.com><de87b960711260602m799b365fw62af3976913d64cc@mail.gmail.com>
+	<474B15FC.4050901@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755755AbXKZTSm@vger.kernel.org>
-In-Reply-To: <4747122F.1070905@qumranet.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: Eric Van Hensbergen <ericvanhensbergen@us.ibm.com>, lguest <lguest@ozlabs.org>, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <474B15FC.4050901@goop.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Juan Quintela <juan.quintela@gmail.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> rx and tx are closely related. You rarely have one without the other.
->
-> In fact, a turned implementation should have zero kicks or interrupts 
-> for bulk transfers. The rx interrupt on the host will process new tx 
-> descriptors and fill the guest's rx queue; the guest's transmit 
-> function can also check the receive queue. I don't know if that's 
-> achievable for Linuz guests currently, but we should aim to make it 
-> possible.
-
-ATM, the net driver does a pretty good job of disabling kicks/interrupts 
-unless they are needed.  Checking for rx on tx and vice versa is a good 
-idea and could further help there.  I'll give it a try this week.
-
-> Another point is that virtio still has a lot of leading zeros in its 
-> mileage counter. We need to keep things flexible and learn from others 
-> as much as possible, especially when talking about the ABI.
-
-Yes, after thinking about it over holiday, I agree that we should at 
-least introduce a virtio-pci feature bitmask.  I'm not inclined to 
-attempt to define a hypercall ABI or anything like that right now but 
-having the feature bitmask will at least make it possible to do such a 
-thing in the future.
-
->> I'm wary of introducing the notion of hypercalls to this device 
->> because it makes the device VMM specific.  Maybe we could have the 
->> device provide an option ROM that was treated as the device "BIOS" 
->> that we could use for kicking and interrupt acking?  Any idea of how 
->> that would map to Windows?  Are there real PCI devices that use the 
->> option ROM space to provide what's essentially firmware?  
->> Unfortunately, I don't think an option ROM BIOS would map well to 
->> other architectures.
+>> It breaks with:
 >>
->>   
+>> Intel machine check architecture supported.
+>> (XEN) traps.c:1734:d0 Domain attempted WRMSR 00000404 from 00000000:0000=
+0001 to
+>> ffffffff:ffffffff.
+>> Intel machine check reporting enabled on CPU#0.
+>> general protection fault: 0000 [#1] SMP
+>> Modules linked in:
+>>  =20
 >
-> The BIOS wouldn't work even on x86 because it isn't mapped to the 
-> guest address space (at least not consistently), and doesn't know the 
-> guest's programming model (16, 32, or 64-bits? segmented or flat?)
+>Hm.  Looks like Xen is getting upset about dom0 trying to disable
+>caching.  No, wait: 0xffffffff:ffffffff?  That's strange; I wonder if
+>its just misreporting the value, because the code doesn't look like its
+>trying to write that.
 >
-> Xen uses a hypercall page to abstract these details out. However, I'm 
-> not proposing that. Simply indicate that we support hypercalls, and 
-> use some layer below to actually send them. It is the responsibility 
-> of this layer to detect if hypercalls are present and how to call them.
->
-> Hey, I think the best place for it is in paravirt_ops. We can even 
-> patch the hypercall instruction inline, and the driver doesn't need to 
-> know about it.
+>Either way, the fix is to implement xen_write_cr0, and mask off any bits
+>that Xen won't want us to set/clear (or if it doesn't allow dom0 to
+>change cr0, just ignore all updates).
 
-Yes, paravirt_ops is attractive for abstracting the hypercall calling 
-mechanism but it's still necessary to figure out how hypercalls would be 
-identified.  I think it would be necessary to define a virtio specific 
-hypercall space and use the virtio device ID to claim subspaces.
+Why do you think that's a CR0 write? The messages clearly indicate an
+MSR write, and these writes are clearly visible in intel_p{4,6}_mcheck_init=
+()
+and amd_mcheck_init(). The question is why intel_p4_mcheck_init() doesn't
+check CPUID bits before trying to touch any registers... (And similarly
+amd_mcheck_init() is checking only the MCE bit, not the MCA one.)
 
-For instance, the hypercall number could be (virtio_devid << 16) | (call 
-number).  How that translates into a hypercall would then be part of the 
-paravirt_ops abstraction.  In KVM, we may have a single virtio hypercall 
-where we pass the virtio hypercall number as one of the arguments or 
-something like that.
+But then I just noticed that Xen itself doesn't clear the MCE/MCA bits =
+either
+in emulate_forced_invalid_op(), apparently under the assumption that PV
+guests wouldn't try to make use of this feature.
 
->>>>> Not much of an argument, I know.
->>>>>
->>>>>
->>>>> wrt. number of queues, 8 queues will consume 32 bytes of pci space 
->>>>> if all you store is the ring pfn.
->>>>>             
->>>> You also at least need a num argument which takes you to 48 or 64 
->>>> depending on whether you care about strange formatting.  8 queues 
->>>> may not be enough either.  Eric and I have discussed whether the 9p 
->>>> virtio device should support multiple mounts per-virtio device and 
->>>> if so, whether each one should have it's own queue.  Any devices 
->>>> that supports this sort of multiplexing will very quickly start 
->>>> using a lot of queues.
->>>>         
->>> Make it appear as a pci function?  (though my feeling is that 
->>> multiple mounts should be different devices; we can then hotplug 
->>> mountpoints).
->>>     
->>
->> We may run out of PCI slots though :-/
->>   
->
-> Then we can start selling virtio extension chassis.
+A simple workaround would be to force mce_disabled to 1 in early Xen
+initialization.
 
-:-)  Do you know if there is a hard limit on the number of devices on a 
-PCI bus?  My concern was that it was limited by something stupid like an 
-8-bit identifier.
-
-Regards,
-
-Anthony Liguori
+Jan
