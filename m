@@ -1,10 +1,16 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 1/10] Wipe out traditional opt from x86_64 Makefile
-Date: Tue,  4 Dec 2007 09:09:55 -0200
-Message-ID: <11967666111489-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 7/10] change rdpmc interface
+Date: Tue,  4 Dec 2007 09:10:01 -0200
+Message-ID: <11967666393130-git-send-email-gcosta@redhat.com>
 References: <11967666042130-git-send-email-gcosta@redhat.com>
+	<11967666111489-git-send-email-gcosta@redhat.com>
+	<11967666161585-git-send-email-gcosta@redhat.com>
+	<11967666212496-git-send-email-gcosta@redhat.com>
+	<11967666263502-git-send-email-gcosta@redhat.com>
+	<11967666303321-git-send-email-gcosta@redhat.com>
+	<11967666351395-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11967666042130-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11967666351395-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,33 +24,55 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Among other things, using -traditional as a gcc option stops us from
-using macro token pasting, which is a feature we heavily rely on.
-
-There was still a use of -traditional in arch/x86/kernel/Makefile_64,
-which this patch removes.
-
-I don't see any problems building kernels in my x86_64 box without
--traditional.
+the rdpmc instruction gets a counter argument in rcx. However,
+the i386 version was ignoring it. To make both x86_64 and i386 versions
+the same, as well as to comply with the instruction semantics, this
+parameter is added in the i386 version
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 ---
- arch/x86/kernel/Makefile_64 |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ include/asm-x86/msr.h      |    6 +++---
+ include/asm-x86/paravirt.h |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/Makefile_64 b/arch/x86/kernel/Makefile_64
-index 5a88890..da0b1e5 100644
---- a/arch/x86/kernel/Makefile_64
-+++ b/arch/x86/kernel/Makefile_64
-@@ -4,7 +4,6 @@
+diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
+index 0296358..ce2a257 100644
+--- a/include/asm-x86/msr.h
++++ b/include/asm-x86/msr.h
+@@ -90,10 +90,10 @@ static inline unsigned long long native_read_tsc(void)
+ 	return val;
+ }
  
- extra-y 	:= head_64.o head64.o init_task.o vmlinux.lds
- CPPFLAGS_vmlinux.lds += -Ux86_64
--EXTRA_AFLAGS	:= -traditional
+-static inline unsigned long long native_read_pmc(void)
++static inline unsigned long long native_read_pmc(int counter)
+ {
+ 	unsigned long long val;
+-	asm volatile("rdpmc" : "=A" (val));
++	asm volatile("rdpmc" : "=A" (val) : "c" (counter));
+ 	return val;
+ }
  
- obj-y	:= process_64.o signal_64.o entry_64.o traps_64.o irq_64.o \
- 		ptrace_64.o time_64.o ioport_64.o ldt_64.o setup_64.o i8259_64.o sys_x86_64.o \
+@@ -150,7 +150,7 @@ static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
+ 
+ #define rdpmc(counter,low,high)					\
+ 	do {							\
+-		u64 _l = native_read_pmc();			\
++		u64 _l = native_read_pmc(counter);		\
+ 		(low)  = (u32)_l;				\
+ 		(high) = (u32)(_l >> 32);			\
+ 	} while(0)
+diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
+index f59d370..4a7be97 100644
+--- a/include/asm-x86/paravirt.h
++++ b/include/asm-x86/paravirt.h
+@@ -118,7 +118,7 @@ struct pv_cpu_ops {
+ 	int (*write_msr)(unsigned int msr, u64 val);
+ 
+ 	u64 (*read_tsc)(void);
+-	u64 (*read_pmc)(void);
++	u64 (*read_pmc)(int counter);
+ 
+ 	/* These two are jmp to, not actually called. */
+ 	void (*irq_enable_sysexit)(void);
 -- 
 1.4.4.2
