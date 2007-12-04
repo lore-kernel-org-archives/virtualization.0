@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 9/10] make fixups wordsize agnostic
-Date: Tue,  4 Dec 2007 14:03:59 -0200
-Message-ID: <1196784287349-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 6/10] introduce native_read_tscp
+Date: Tue,  4 Dec 2007 14:03:56 -0200
+Message-ID: <11967842711043-git-send-email-gcosta@redhat.com>
 References: 20071204140939.GA16328@elte.hu
 	<11967842402729-git-send-email-gcosta@redhat.com>
 	<11967842482873-git-send-email-gcosta@redhat.com>
@@ -9,11 +9,8 @@ References: 20071204140939.GA16328@elte.hu
 	<11967842573035-git-send-email-gcosta@redhat.com>
 	<11967842622658-git-send-email-gcosta@redhat.com>
 	<119678426719-git-send-email-gcosta@redhat.com>
-	<11967842711043-git-send-email-gcosta@redhat.com>
-	<11967842762820-git-send-email-gcosta@redhat.com>
-	<11967842821886-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11967842821886-git-send-email-gcosta@redhat.com>
+In-Reply-To: <119678426719-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,67 +24,111 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch uses the _ASM_ALIGN and _ASM_PTR macros
-to make the fixups in native_read/write_msr_safe look the same
-for x86_64 and i386. Besides using this macros, we also have to
-take the explicit instruction suffixes out. It's okay
-because all this instructions uses registers, and can be sized by
-them.
+Targetting paravirt, this patch introduces native_read_tscp, in
+place of rdtscp() macro. When in a paravirt guest, this will
+involve a function call, and thus, cannot be done in the vdso area.
+These users then have to call the native version directly
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/msr.h |   17 +++++++++--------
- 1 files changed, 9 insertions(+), 8 deletions(-)
+ arch/x86/kernel/vsyscall_64.c |    4 ++--
+ arch/x86/vdso/vgetcpu.c       |    4 ++--
+ include/asm-x86/msr.h         |   29 +++++++++++++++++++++--------
+ 3 files changed, 25 insertions(+), 12 deletions(-)
 
+diff --git a/arch/x86/kernel/vsyscall_64.c b/arch/x86/kernel/vsyscall_64.c
+index ad4005c..1425d02 100644
+--- a/arch/x86/kernel/vsyscall_64.c
++++ b/arch/x86/kernel/vsyscall_64.c
+@@ -190,7 +190,7 @@ time_t __vsyscall(1) vtime(time_t *t)
+ long __vsyscall(2)
+ vgetcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
+ {
+-	unsigned int dummy, p;
++	unsigned int p;
+ 	unsigned long j = 0;
+ 
+ 	/* Fast cache - only recompute value once per jiffies and avoid
+@@ -205,7 +205,7 @@ vgetcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
+ 		p = tcache->blob[1];
+ 	} else if (__vgetcpu_mode == VGETCPU_RDTSCP) {
+ 		/* Load per CPU data from RDTSCP */
+-		rdtscp(dummy, dummy, p);
++		native_read_tscp(&p);
+ 	} else {
+ 		/* Load per CPU data from GDT */
+ 		asm("lsl %1,%0" : "=r" (p) : "r" (__PER_CPU_SEG));
+diff --git a/arch/x86/vdso/vgetcpu.c b/arch/x86/vdso/vgetcpu.c
+index 3b1ae1a..c8097f1 100644
+--- a/arch/x86/vdso/vgetcpu.c
++++ b/arch/x86/vdso/vgetcpu.c
+@@ -15,11 +15,11 @@
+ 
+ long __vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused)
+ {
+-	unsigned int dummy, p;
++	unsigned int p;
+ 
+ 	if (*vdso_vgetcpu_mode == VGETCPU_RDTSCP) {
+ 		/* Load per CPU data from RDTSCP */
+-		rdtscp(dummy, dummy, p);
++		native_read_tscp(&p);
+ 	} else {
+ 		/* Load per CPU data from GDT */
+ 		asm("lsl %1,%0" : "=r" (p) : "r" (__PER_CPU_SEG));
 diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
-index 9c695c7..f3a01ca 100644
+index 5fa30bd..0296358 100644
 --- a/include/asm-x86/msr.h
 +++ b/include/asm-x86/msr.h
-@@ -29,6 +29,7 @@ static inline unsigned long long native_read_tscp(int *aux)
+@@ -3,6 +3,27 @@
+ 
+ #include <asm/msr-index.h>
+ 
++#ifdef __KERNEL__
++#ifndef __ASSEMBLY__
++static inline unsigned long long native_read_tscp(int *aux)
++{
++	unsigned long low, high;
++	asm volatile (".byte 0x0f,0x01,0xf9"
++		      : "=a" (low), "=d" (high), "=c" (*aux));
++	return low | ((u64)high >> 32);
++}
++
++#define rdtscp(low, high, aux)						\
++       do {                                                            \
++		unsigned long long _val = native_read_tscp(&(aux));     \
++		(low) = (u32)_val;                                      \
++		(high) = (u32)(_val >> 32);                             \
++       } while (0)
++
++#define rdtscpll(val, aux) (val) = native_read_tscp(&(aux))
++#endif
++#endif
++
+ #ifdef __i386__
+ 
  #ifdef __KERNEL__
- #ifndef __ASSEMBLY__
+@@ -206,8 +227,6 @@ static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
+ #define rdtscl(low) \
+      __asm__ __volatile__ ("rdtsc" : "=a" (low) : : "edx")
  
-+#include <asm/asm.h>
- #include <asm/errno.h>
+-#define rdtscp(low,high,aux) \
+-     asm volatile (".byte 0x0f,0x01,0xf9" : "=a" (low), "=d" (high), "=c" (aux))
  
- static inline unsigned long long native_read_msr(unsigned int msr)
-@@ -44,14 +45,14 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
- {
- 	unsigned long long val;
+ #define rdtscll(val) do { \
+      unsigned int __a,__d; \
+@@ -215,12 +234,6 @@ static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
+      (val) = ((unsigned long)__a) | (((unsigned long)__d)<<32); \
+ } while(0)
  
--	asm volatile("2: rdmsr ; xorl %0,%0\n"
-+	asm volatile("2: rdmsr ; xor %0,%0\n"
- 		     "1:\n\t"
- 		     ".section .fixup,\"ax\"\n\t"
--		     "3:  movl %3,%0 ; jmp 1b\n\t"
-+		     "3:  mov %3,%0 ; jmp 1b\n\t"
- 		     ".previous\n\t"
- 		     ".section __ex_table,\"a\"\n"
--		     "   .align 4\n\t"
--		     "   .long	2b,3b\n\t"
-+		     _ASM_ALIGN "\n\t"
-+		     _ASM_PTR " 2b,3b\n\t"
- 		     ".previous"
- 		     : "=r" (*err), "=A" (val)
- 		     : "c" (msr), "i" (-EFAULT));
-@@ -69,14 +70,14 @@ static inline int native_write_msr_safe(unsigned int msr,
- 					unsigned low, unsigned high)
- {
- 	int err;
--	asm volatile("2: wrmsr ; xorl %0,%0\n"
-+	asm volatile("2: wrmsr ; xor %0,%0\n"
- 		     "1:\n\t"
- 		     ".section .fixup,\"ax\"\n\t"
--		     "3:  movl %4,%0 ; jmp 1b\n\t"
-+		     "3:  mov %4,%0 ; jmp 1b\n\t"
- 		     ".previous\n\t"
- 		     ".section __ex_table,\"a\"\n"
--		     "   .align 4\n\t"
--		     "   .long	2b,3b\n\t"
-+		     _ASM_ALIGN "\n\t"
-+		     _ASM_PTR " 2b,3b\n\t"
- 		     ".previous"
- 		     : "=a" (err)
- 		     : "c" (msr), "0" (low), "d" (high),
+-#define rdtscpll(val, aux) do { \
+-     unsigned long __a, __d; \
+-     asm volatile (".byte 0x0f,0x01,0xf9" : "=a" (__a), "=d" (__d), "=c" (aux)); \
+-     (val) = (__d << 32) | __a; \
+-} while (0)
+-
+ #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
+ 
+ #define write_rdtscp_aux(val) wrmsr(0xc0000103, val, 0)
 -- 
 1.4.4.2
