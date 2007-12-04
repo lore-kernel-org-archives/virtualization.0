@@ -1,15 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 5/10] unify cpuid functions
-Date: Tue,  4 Dec 2007 14:03:55 -0200
-Message-ID: <119678426719-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 4/10] split get_cycles_sync
+Date: Tue,  4 Dec 2007 14:03:54 -0200
+Message-ID: <11967842622658-git-send-email-gcosta@redhat.com>
 References: 20071204140939.GA16328@elte.hu
 	<11967842402729-git-send-email-gcosta@redhat.com>
 	<11967842482873-git-send-email-gcosta@redhat.com>
 	<11967842531735-git-send-email-gcosta@redhat.com>
 	<11967842573035-git-send-email-gcosta@redhat.com>
-	<11967842622658-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11967842622658-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11967842573035-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,278 +22,96 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-cpuid is not very different between i386 and x86_64.
-We move away the x86_64 version from msr.h, and
-unify them at processor.h, where they belong.
+This patch splits get_cycles_sync() into  __get_cycles_sync(),
+and the rdtscll part. Paravirt guests cannot issue rdtscl directly,
+as it involves a function call in vdso area.
 
-cpuid() paravirt then comes for free.
+So, using the __get_cycles_sync() base, we introduce vget_cycles_sync,
+which then calls the native version of rdtscll. Ideally, however, a guest
+should define its own clocksource, together with a vread function
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/msr.h          |   67 ----------------------------------
- include/asm-x86/processor.h    |   78 ++++++++++++++++++++++++++++++++++++++++
- include/asm-x86/processor_32.h |   69 -----------------------------------
- 3 files changed, 78 insertions(+), 136 deletions(-)
+ arch/x86/kernel/tsc_64.c |    2 +-
+ include/asm-x86/tsc.h    |   37 +++++++++++++++++++++++++++++++++----
+ 2 files changed, 34 insertions(+), 5 deletions(-)
 
-diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
-index b3cd509..5fa30bd 100644
---- a/include/asm-x86/msr.h
-+++ b/include/asm-x86/msr.h
-@@ -230,73 +230,6 @@ static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
- 			  : "=a" (low), "=d" (high) \
- 			  : "c" (counter))
+diff --git a/arch/x86/kernel/tsc_64.c b/arch/x86/kernel/tsc_64.c
+index 5158476..4502539 100644
+--- a/arch/x86/kernel/tsc_64.c
++++ b/arch/x86/kernel/tsc_64.c
+@@ -269,7 +269,7 @@ static cycle_t read_tsc(void)
  
--static inline void cpuid(int op, unsigned int *eax, unsigned int *ebx,
--			 unsigned int *ecx, unsigned int *edx)
--{
--	__asm__("cpuid"
--		: "=a" (*eax),
--		  "=b" (*ebx),
--		  "=c" (*ecx),
--		  "=d" (*edx)
--		: "0" (op));
--}
--
--/* Some CPUID calls want 'count' to be placed in ecx */
--static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
--			       int *edx)
--{
--	__asm__("cpuid"
--		: "=a" (*eax),
--		  "=b" (*ebx),
--		  "=c" (*ecx),
--		  "=d" (*edx)
--		: "0" (op), "c" (count));
--}
--
--/*
-- * CPUID functions returning a single datum
-- */
--static inline unsigned int cpuid_eax(unsigned int op)
--{
--	unsigned int eax;
--
--	__asm__("cpuid"
--		: "=a" (eax)
--		: "0" (op)
--		: "bx", "cx", "dx");
--	return eax;
--}
--static inline unsigned int cpuid_ebx(unsigned int op)
--{
--	unsigned int eax, ebx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=b" (ebx)
--		: "0" (op)
--		: "cx", "dx" );
--	return ebx;
--}
--static inline unsigned int cpuid_ecx(unsigned int op)
--{
--	unsigned int eax, ecx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=c" (ecx)
--		: "0" (op)
--		: "bx", "dx" );
--	return ecx;
--}
--static inline unsigned int cpuid_edx(unsigned int op)
--{
--	unsigned int eax, edx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=d" (edx)
--		: "0" (op)
--		: "bx", "cx");
--	return edx;
--}
--
- #endif  /* __ASSEMBLY__ */
- 
- #endif  /* !__i386__ */
-diff --git a/include/asm-x86/processor.h b/include/asm-x86/processor.h
-index 46e1c04..dea81b7 100644
---- a/include/asm-x86/processor.h
-+++ b/include/asm-x86/processor.h
-@@ -1,5 +1,83 @@
-+#ifndef __ASM_X86_PROCESSOR_H
-+#define __ASM_X86_PROCESSOR_H
-+
-+static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
-+					 unsigned int *ecx, unsigned int *edx)
-+{
-+	/* ecx is often an input as well as an output. */
-+	__asm__("cpuid"
-+		: "=a" (*eax),
-+		  "=b" (*ebx),
-+		  "=c" (*ecx),
-+		  "=d" (*edx)
-+		: "0" (*eax), "2" (*ecx));
-+}
-+
-+
- #ifdef CONFIG_X86_32
- # include "processor_32.h"
- #else
- # include "processor_64.h"
- #endif
-+
-+#ifndef CONFIG_PARAVIRT
-+#define __cpuid native_cpuid
-+#endif
-+
-+/*
-+ * Generic CPUID function
-+ * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-+ * resulting in stale register contents being returned.
-+ */
-+static inline void cpuid(unsigned int op,
-+			 unsigned int *eax, unsigned int *ebx,
-+			 unsigned int *ecx, unsigned int *edx)
-+{
-+	*eax = op;
-+	*ecx = 0;
-+	__cpuid(eax, ebx, ecx, edx);
-+}
-+
-+/* Some CPUID calls want 'count' to be placed in ecx */
-+static inline void cpuid_count(unsigned int op, int count,
-+			       unsigned int *eax, unsigned int *ebx,
-+			       unsigned int *ecx, unsigned int *edx)
-+{
-+	*eax = op;
-+	*ecx = count;
-+	__cpuid(eax, ebx, ecx, edx);
-+}
-+
-+/*
-+ * CPUID functions returning a single datum
-+ */
-+static inline unsigned int cpuid_eax(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return eax;
-+}
-+static inline unsigned int cpuid_ebx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return ebx;
-+}
-+static inline unsigned int cpuid_ecx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return ecx;
-+}
-+static inline unsigned int cpuid_edx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return edx;
-+}
-+
-+#endif
-diff --git a/include/asm-x86/processor_32.h b/include/asm-x86/processor_32.h
-index 13976b0..12a4f83 100644
---- a/include/asm-x86/processor_32.h
-+++ b/include/asm-x86/processor_32.h
-@@ -134,18 +134,6 @@ extern void detect_ht(struct cpuinfo_x86 *c);
- static inline void detect_ht(struct cpuinfo_x86 *c) {}
- #endif
- 
--static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
--					 unsigned int *ecx, unsigned int *edx)
--{
--	/* ecx is often an input as well as an output. */
--	__asm__("cpuid"
--		: "=a" (*eax),
--		  "=b" (*ebx),
--		  "=c" (*ecx),
--		  "=d" (*edx)
--		: "0" (*eax), "2" (*ecx));
--}
--
- #define load_cr3(pgdir) write_cr3(__pa(pgdir))
- 
- /*
-@@ -578,7 +566,6 @@ static inline void native_set_iopl_mask(unsigned mask)
- #include <asm/paravirt.h>
- #else
- #define paravirt_enabled() 0
--#define __cpuid native_cpuid
- 
- static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
+ static cycle_t __vsyscall_fn vread_tsc(void)
  {
-@@ -596,62 +583,6 @@ static inline void load_esp0(struct tss_struct *tss, struct thread_struct *threa
- #define set_iopl_mask native_set_iopl_mask
- #endif /* CONFIG_PARAVIRT */
+-	cycle_t ret = (cycle_t)get_cycles_sync();
++	cycle_t ret = (cycle_t)vget_cycles_sync();
+ 	return ret;
+ }
  
--/*
-- * Generic CPUID function
-- * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-- * resulting in stale register contents being returned.
-- */
--static inline void cpuid(unsigned int op,
--			 unsigned int *eax, unsigned int *ebx,
--			 unsigned int *ecx, unsigned int *edx)
--{
--	*eax = op;
--	*ecx = 0;
--	__cpuid(eax, ebx, ecx, edx);
--}
--
--/* Some CPUID calls want 'count' to be placed in ecx */
--static inline void cpuid_count(unsigned int op, int count,
--			       unsigned int *eax, unsigned int *ebx,
--			       unsigned int *ecx, unsigned int *edx)
--{
--	*eax = op;
--	*ecx = count;
--	__cpuid(eax, ebx, ecx, edx);
--}
--
--/*
-- * CPUID functions returning a single datum
-- */
--static inline unsigned int cpuid_eax(unsigned int op)
--{
--	unsigned int eax, ebx, ecx, edx;
--
--	cpuid(op, &eax, &ebx, &ecx, &edx);
--	return eax;
--}
--static inline unsigned int cpuid_ebx(unsigned int op)
--{
--	unsigned int eax, ebx, ecx, edx;
--
--	cpuid(op, &eax, &ebx, &ecx, &edx);
--	return ebx;
--}
--static inline unsigned int cpuid_ecx(unsigned int op)
--{
--	unsigned int eax, ebx, ecx, edx;
--
--	cpuid(op, &eax, &ebx, &ecx, &edx);
--	return ecx;
--}
--static inline unsigned int cpuid_edx(unsigned int op)
--{
--	unsigned int eax, ebx, ecx, edx;
--
--	cpuid(op, &eax, &ebx, &ecx, &edx);
--	return edx;
--}
--
- /* generic versions from gas */
- #define GENERIC_NOP1	".byte 0x90\n"
- #define GENERIC_NOP2    	".byte 0x89,0xf6\n"
+diff --git a/include/asm-x86/tsc.h b/include/asm-x86/tsc.h
+index 6baab30..d6cb056 100644
+--- a/include/asm-x86/tsc.h
++++ b/include/asm-x86/tsc.h
+@@ -33,14 +33,14 @@ static inline cycles_t get_cycles(void)
+ }
+ 
+ /* Like get_cycles, but make sure the CPU is synchronized. */
+-static __always_inline cycles_t get_cycles_sync(void)
++static __always_inline cycles_t __get_cycles_sync(void)
+ {
+ 	unsigned long long ret;
+ 	unsigned eax, edx;
+ 
+ 	/*
+-  	 * Use RDTSCP if possible; it is guaranteed to be synchronous
+- 	 * and doesn't cause a VMEXIT on Hypervisors
++	 * Use RDTSCP if possible; it is guaranteed to be synchronous
++	 * and doesn't cause a VMEXIT on Hypervisors
+ 	 */
+ 	alternative_io(ASM_NOP3, ".byte 0x0f,0x01,0xf9", X86_FEATURE_RDTSCP,
+ 		       ASM_OUTPUT2("=a" (eax), "=d" (edx)),
+@@ -55,11 +55,40 @@ static __always_inline cycles_t get_cycles_sync(void)
+ 	 */
+ 	alternative_io("cpuid", ASM_NOP2, X86_FEATURE_SYNC_RDTSC,
+ 			  "=a" (eax), "0" (1) : "ebx","ecx","edx","memory");
+-	rdtscll(ret);
+ 
++	return 0;
++}
++
++static __always_inline cycles_t get_cycles_sync(void)
++{
++	unsigned long long ret;
++	ret = __get_cycles_sync();
++	if (!ret)
++		rdtscll(ret);
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_PARAVIRT
++/*
++ * For paravirt guests, some functionalities are executed through function
++ * pointers in the various pvops structures.
++ * These function pointers exist inside the kernel and can not
++ * be accessed by user space. To avoid this, we make a copy of the
++ * get_cycles_sync (called in kernel) but force the use of native_read_tsc.
++ * Ideally, the guest should set up it's own clock and vread
++ */
++static __always_inline long long vget_cycles_sync(void)
++{
++	unsigned long long ret;
++	ret = __get_cycles_sync();
++	if (!ret)
++		ret = native_read_tsc();
++	return ret;
++}
++#else
++# define vget_cycles_sync() get_cycles_sync()
++#endif
++
+ extern void tsc_init(void);
+ extern void mark_tsc_unstable(char *reason);
+ extern int unsynchronized_tsc(void);
 -- 
 1.4.4.2
