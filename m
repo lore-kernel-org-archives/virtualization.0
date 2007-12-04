@@ -1,14 +1,16 @@
-From: tgh <wwwwww4187@sina.com.cn>
+From: Derek Murray <Derek.Murray@cl.cam.ac.uk>
 Subject: Re: Re: Next steps with pv_ops for Xen
-Date: Tue, 04 Dec 2007 17:35:44 +0800
-Message-ID: <47551F70.7080300@sina.com.cn>
-References: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
-	<200712031908.11079.mark.williamson@cl.cam.ac.uk>
+Date: Tue, 04 Dec 2007 09:40:49 +0000
+Message-ID: <475520A1.6080909@cl.cam.ac.uk>
+References: <1195682725.6726.48.camel@sisko.scot.redhat.com>
+	<4753FC6A.4020601@redhat.com> <4754024C.7020905@cl.cam.ac.uk>
+	<47540FB8.8000106@redhat.com> <475417E7.9070006@cl.cam.ac.uk>
+	<47546931.2090602@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <200712031908.11079.mark.williamson@cl.cam.ac.uk>
+In-Reply-To: <47546931.2090602@redhat.com>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -17,59 +19,53 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: Mark Williamson <mark.williamson@cl.cam.ac.uk>
-Cc: xen-devel@lists.xensource.com, 'Eduardo Habkost' <ehabkost@redhat.com>, 'Juan Quintela' <quintela@redhat.com>, "'Stephen C. Tweedie'" <sct@redhat.com>, 'Jan Beulich' <jbeulich@novell.com>, 'Glauber de Oliveira Costa' <gcosta@redhat.com>, 'Chris Wright' <chrisw@sous-sol.org>, virtualization@lists.osdl.org, dgm36@cam.ac.uk, 'Gerd Hoffmann' <kraxel@redhat.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>, Jan Beulich <jbeulich@novell.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-hi
-I am not quite clear about the purpose of pv-ops , what do we want to=20
-deal with by developping "pv-ops"? is it used for HVM or for PV or KVM=20
-or something ? I have seen it for a few months in the list ,and=20
-"pv-ops"is an active project ,but i am not clear about what is the aim=20
-of "pv-ops" ,could you give me an explanation about it
+Gerd Hoffmann wrote:
+>> On this point I completely agree with you! If anyone has any less
+>> radical suggestions, then I'd be delighted to refactor the gntdev code
+>> to use them. However, I'm not currently aware of any alternative that
+>> maintains robustness to process crashes.
+> 
+> Oh, for me it isn't robust at all, it crashes on the first munmap
+> syscall.  It is the Fedora 8 kernel.  See attachment.  Didn't try
+> xensource 2.6.18 yet.
 
-Thanks in advance
+My gut feeling is that something changed in mm between 2.6.18 and 
+2.6.21, but that seems like a cop out so...
 
+> Ideas what is wrong?
 
+Since the bug appears to be in page_remove_rmap, that would tend to 
+imply that there is never a corresponding page_add_*_rmap 
+(page_add_file_rmap?). My knowledge of the Linux mm code is a bit shaky 
+here: should gntdev be doing this? Should we be using install_page (or a 
+modified version thereof) to set the PTE?
 
+Also, does a simple program that opens gntdev, maps a grant, 
+accesses/writes to the page, and unmaps it (all using the xc_gnttab_* 
+functions) work?
 
-Mark Williamson =E5=86=99=E9=81=93:
->> Hi Mark,
->>
->>    =20
->>> Maybe a change to the gntdev userspace API to allow batching
->>> of mapping requests?
->>>      =20
->> Something along the lines of the following?
->>    =20
->
-> Just like that :-D
->
-> When you said "multiple syscalls per mapping" I assumed you meant that =
-we'd=20
-> lose the batching you get by doing a mulicall.  If it's just a couple o=
-f=20
-> syscalls (plus, presumably a couple of hypercalls) per batch of mapping=
-s, my=20
-> gut says it's probably not going to hurt block performance.  My guts ha=
-ve=20
-> been wrong in (many!) ways before of course...
->
-> I guess the overhead *could* be reduced even more by just having a magi=
-c ioctl=20
-> that did all the mmap-ing stuff in one operation, but that'd probably b=
-e=20
-> really gross if it wasn't necessary!  And I doubt it'd make upstream ve=
-ry=20
-> happy...
->
-> We'll also be eliminating the overheads involved in having a blktap rin=
-g for=20
-> talking to userspace and having to move requests between that ring and =
-the=20
-> real block ring, so there's some definite wins in overheads as well.
->
-> Cheers,
-> Mark
->
->  =20
+> Who uses the gntdev device right now?
+
+Good question! I'm aware of it being used in a few research projects, 
+and it seems to work for them (though I think it is mostly used with the 
+linux-2.6.18-xen kernel). Anyone else?
+
+>> I think this would represent good progress, though I wonder if there
+>> would be a performance penalty due to performing the mapping and
+>> unmapping in user-space (multiple syscalls per mapping versus a single
+>> hypercall).
+> 
+> I'd expect the hard disk (and how I/O is scheduled) being the
+> bottleneck, not the syscall overhead.  Nevertheless I plan to benchmark
+> it once I have it up and running.
+
+Great to hear that you're working on this! Let me know if there's any 
+other help I can provide with gntdev.
+
+Cheers,
+
+Derek.
