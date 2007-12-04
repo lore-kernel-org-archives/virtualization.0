@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 10/10] integrate i386 and x86_64 code in msr.h
-Date: Tue,  4 Dec 2007 09:10:04 -0200
-Message-ID: <11967666533444-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 8/10] change write msr functions interface
+Date: Tue,  4 Dec 2007 09:10:02 -0200
+Message-ID: <11967666442665-git-send-email-gcosta@redhat.com>
 References: <11967666042130-git-send-email-gcosta@redhat.com>
 	<11967666111489-git-send-email-gcosta@redhat.com>
 	<11967666161585-git-send-email-gcosta@redhat.com>
@@ -10,10 +10,8 @@ References: <11967666042130-git-send-email-gcosta@redhat.com>
 	<11967666303321-git-send-email-gcosta@redhat.com>
 	<11967666351395-git-send-email-gcosta@redhat.com>
 	<11967666393130-git-send-email-gcosta@redhat.com>
-	<11967666442665-git-send-email-gcosta@redhat.com>
-	<11967666483411-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11967666483411-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11967666393130-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,253 +25,91 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patches proceeds with the integration of msr.h, making
-the code unified, instead of having a version for each architecture.
-We stick with the native_* functions, and then paravirt comes for free.
+This patche changes the native_write_msr() and friends interface
+to explicitly take 2 32-bit registers instead of a 64-bit value.
+The change will ease the merge with 64-bit code. As the 64-bit
+value will be passed as two registers anyway in i386,
+the PVOP_CALL interface has to account for that and use low/high parameters
+It would force the x86_64 version to be different.
+
+The change does not make i386 generated code less efficient. As said above,
+it would get the values from two registers anyway.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/msr.h |  161 ++++++++++++++-----------------------------------
- 1 files changed, 46 insertions(+), 115 deletions(-)
+ include/asm-x86/msr.h      |   19 ++++++++++---------
+ include/asm-x86/paravirt.h |    2 +-
+ 2 files changed, 11 insertions(+), 10 deletions(-)
 
 diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
-index f3a01ca..84116fa 100644
+index ce2a257..9c695c7 100644
 --- a/include/asm-x86/msr.h
 +++ b/include/asm-x86/msr.h
-@@ -5,6 +5,10 @@
- 
- #ifdef __KERNEL__
- #ifndef __ASSEMBLY__
-+
-+#include <asm/asm.h>
-+#include <asm/errno.h>
-+
- static inline unsigned long long native_read_tscp(int *aux)
- {
- 	unsigned long low, high;
-@@ -13,37 +17,36 @@ static inline unsigned long long native_read_tscp(int *aux)
- 	return low | ((u64)high >> 32);
+@@ -59,13 +59,14 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
+ 	return val;
  }
  
--#define rdtscp(low, high, aux)						\
--       do {                                                            \
--               unsigned long long _val = native_read_tscp(&(aux));     \
--               (low) = (u32)_val;                                      \
--               (high) = (u32)(_val >> 32);                             \
--       } while (0)
--
--#define rdtscpll(val, aux) (val) = native_read_tscp(&(aux))
--#endif
-+/*
-+ * i386 calling convention returns 64-bit value in edx:eax, while
-+ * x86_64 returns at rax. Also, the "A" constraint does not really
-+ * mean rdx:rax in x86_64, so we need specialized behaviour for each
-+ * architecture
-+ */
-+#ifdef CONFIG_X86_64
-+#define DECLARE_ARGS(val, low, high)	unsigned low, high
-+#define EAX_EDX_VAL(val, low, high)	(low | ((u64)(high) << 32))
-+#define EAX_EDX_ARGS(val, low, high)	"a" (low), "d" (high)
-+#define EAX_EDX_RET(val, low, high)	"=a" (low), "=d" (high)
-+#else
-+#define DECLARE_ARGS(val, low, high)	unsigned long long val
-+#define EAX_EDX_VAL(val, low, high)	(val)
-+#define EAX_EDX_ARGS(val, low, high)	"A" (val)
-+#define EAX_EDX_RET(val, low, high)	"=A" (val)
- #endif
- 
--#ifdef __i386__
--
--#ifdef __KERNEL__
--#ifndef __ASSEMBLY__
--
--#include <asm/asm.h>
--#include <asm/errno.h>
--
- static inline unsigned long long native_read_msr(unsigned int msr)
+-static inline void native_write_msr(unsigned int msr, unsigned long long val)
++static inline void native_write_msr(unsigned int msr,
++				    unsigned low, unsigned high)
  {
--	unsigned long long val;
-+	DECLARE_ARGS(val, low, high);
- 
--	asm volatile("rdmsr" : "=A" (val) : "c" (msr));
--	return val;
-+	asm volatile("rdmsr" : EAX_EDX_RET(val, low, high) : "c" (msr));
-+	return EAX_EDX_VAL(val, low, high);
+-	asm volatile("wrmsr" : : "c" (msr), "A"(val));
++	asm volatile("wrmsr" : : "c" (msr), "a"(low), "d" (high));
  }
  
- static inline unsigned long long native_read_msr_safe(unsigned int msr,
- 						      int *err)
+ static inline int native_write_msr_safe(unsigned int msr,
+-					unsigned long long val)
++					unsigned low, unsigned high)
  {
--	unsigned long long val;
-+	DECLARE_ARGS(val, low, high);
- 
- 	asm volatile("2: rdmsr ; xor %0,%0\n"
- 		     "1:\n\t"
-@@ -54,10 +57,9 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
- 		     _ASM_ALIGN "\n\t"
- 		     _ASM_PTR " 2b,3b\n\t"
+ 	int err;
+ 	asm volatile("2: wrmsr ; xorl %0,%0\n"
+@@ -78,7 +79,7 @@ static inline int native_write_msr_safe(unsigned int msr,
+ 		     "   .long	2b,3b\n\t"
  		     ".previous"
--		     : "=r" (*err), "=A" (val)
-+		     : "=r" (*err), EAX_EDX_RET(val, low, high)
- 		     : "c" (msr), "i" (-EFAULT));
--
--	return val;
-+	return EAX_EDX_VAL(val, low, high);
+ 		     : "=a" (err)
+-		     : "c" (msr), "0" ((u32)val), "d" ((u32)(val>>32)),
++		     : "c" (msr), "0" (low), "d" (high),
+ 		       "i" (-EFAULT));
+ 	return err;
  }
+@@ -114,20 +115,20 @@ static inline unsigned long long native_read_pmc(int counter)
+ 		(val2) = (u32)(__val >> 32);				\
+ 	} while(0)
  
- static inline void native_write_msr(unsigned int msr,
-@@ -87,16 +89,18 @@ static inline int native_write_msr_safe(unsigned int msr,
- 
- static inline unsigned long long native_read_tsc(void)
+-static inline void wrmsr(u32 __msr, u32 __low, u32 __high)
++static inline void wrmsr(unsigned msr, unsigned low, unsigned high)
  {
--	unsigned long long val;
--	asm volatile("rdtsc" : "=A" (val));
--	return val;
-+	DECLARE_ARGS(val, low, high);
-+
-+	asm volatile("rdtsc" : EAX_EDX_RET(val, low, high));
-+	return EAX_EDX_VAL(val, low, high);
+-	native_write_msr(__msr, ((u64)__high << 32) | __low);
++	native_write_msr(msr, low, high);
  }
  
- static inline unsigned long long native_read_pmc(int counter)
- {
--	unsigned long long val;
--	asm volatile("rdpmc" : "=A" (val) : "c" (counter));
--	return val;
-+	DECLARE_ARGS(val, low, high);
-+
-+	asm volatile("rdpmc" : EAX_EDX_RET(val, low, high) : "c" (counter));
-+	return EAX_EDX_VAL(val, low, high);
- }
- 
- #ifdef CONFIG_PARAVIRT
-@@ -124,7 +128,8 @@ static inline void wrmsr(unsigned msr, unsigned low, unsigned high)
  #define rdmsrl(msr,val)							\
  	((val) = native_read_msr(msr))
  
--#define wrmsrl(msr,val)	native_write_msr(msr, (u32)val, (u32)(val >> 32))
-+#define wrmsrl(msr,val)							\
-+	native_write_msr(msr, (u32)((u64)(val)), (u32)((u64)(val) >> 32))
+-#define wrmsrl(msr,val)	native_write_msr(msr, val)
++#define wrmsrl(msr,val)	native_write_msr(msr, (u32)val, (u32)(val >> 32))
  
  /* wrmsr with exception handling */
- static inline int wrmsr_safe(unsigned msr, unsigned low, unsigned high)
-@@ -156,101 +161,25 @@ static inline int wrmsr_safe(unsigned msr, unsigned low, unsigned high)
- 		(low)  = (u32)_l;				\
- 		(high) = (u32)(_l >> 32);			\
- 	} while(0)
--#endif	/* !CONFIG_PARAVIRT */
--
--#endif  /* ! __ASSEMBLY__ */
--#endif  /* __KERNEL__ */
- 
--#else   /* __i386__ */
--
--#ifndef __ASSEMBLY__
--#include <linux/errno.h>
--/*
-- * Access to machine-specific registers (available on 586 and better only)
-- * Note: the rd* operations modify the parameters directly (without using
-- * pointer indirection), this allows gcc to optimize better
-- */
--
--#define rdmsr(msr,val1,val2) \
--       __asm__ __volatile__("rdmsr" \
--			    : "=a" (val1), "=d" (val2) \
--			    : "c" (msr))
--
--
--#define rdmsrl(msr,val) do { unsigned long a__,b__; \
--       __asm__ __volatile__("rdmsr" \
--			    : "=a" (a__), "=d" (b__) \
--			    : "c" (msr)); \
--       val = a__ | (b__<<32); \
--} while(0)
-+#define rdtscp(low, high, aux)						\
-+       do {                                                            \
-+               unsigned long long _val = native_read_tscp(&(aux));     \
-+               (low) = (u32)_val;                                      \
-+               (high) = (u32)(_val >> 32);                             \
-+       } while (0)
- 
--#define wrmsr(msr,val1,val2) \
--     __asm__ __volatile__("wrmsr" \
--			  : /* no outputs */ \
--			  : "c" (msr), "a" (val1), "d" (val2))
-+#define rdtscpll(val, aux) (val) = native_read_tscp(&(aux))
- 
--#define wrmsrl(msr,val) wrmsr(msr,(__u32)((__u64)(val)),((__u64)(val))>>32)
-+#endif	/* !CONFIG_PARAVIRT */
- 
--/* wrmsr with exception handling */
--#define wrmsr_safe(msr,a,b) ({ int ret__;			\
--	asm volatile("2: wrmsr ; xorl %0,%0\n"			\
--		     "1:\n\t"					\
--		     ".section .fixup,\"ax\"\n\t"		\
--		     "3:  movl %4,%0 ; jmp 1b\n\t"		\
--		     ".previous\n\t"				\
--		     ".section __ex_table,\"a\"\n"		\
--		     "   .align 8\n\t"				\
--		     "   .quad	2b,3b\n\t"			\
--		     ".previous"				\
--		     : "=a" (ret__)				\
--		     : "c" (msr), "0" (a), "d" (b), "i" (-EFAULT)); \
--	ret__; })
- 
- #define checking_wrmsrl(msr,val) wrmsr_safe(msr,(u32)(val),(u32)((val)>>32))
- 
--#define rdmsr_safe(msr,a,b) \
--	({ int ret__;						\
--	  asm volatile ("1:       rdmsr\n"			\
--			"2:\n"					\
--			".section .fixup,\"ax\"\n"		\
--			"3:       movl %4,%0\n"			\
--			" jmp 2b\n"				\
--			".previous\n"				\
--			".section __ex_table,\"a\"\n"		\
--			" .align 8\n"				\
--			" .quad 1b,3b\n"				\
--			".previous":"=&bDS" (ret__), "=a"(*(a)), "=d"(*(b)) \
--			:"c"(msr), "i"(-EIO), "0"(0));			\
--	  ret__; })
--
--#define rdtsc(low,high) \
--     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
--
--#define rdtscl(low) \
--     __asm__ __volatile__ ("rdtsc" : "=a" (low) : : "edx")
--
--
--#define rdtscll(val) do { \
--     unsigned int __a,__d; \
--     asm volatile("rdtsc" : "=a" (__a), "=d" (__d)); \
--     (val) = ((unsigned long)__a) | (((unsigned long)__d)<<32); \
--} while(0)
--
- #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
- 
- #define write_rdtscp_aux(val) wrmsr(0xc0000103, val, 0)
- 
--#define rdpmc(counter,low,high) \
--     __asm__ __volatile__("rdpmc" \
--			  : "=a" (low), "=d" (high) \
--			  : "c" (counter))
--
--#endif  /* __ASSEMBLY__ */
--
--#endif  /* !__i386__ */
--
--#ifndef __ASSEMBLY__
--
- #ifdef CONFIG_SMP
- void rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
- void wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
-@@ -275,5 +204,7 @@ static inline int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
+-static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
++static inline int wrmsr_safe(unsigned msr, unsigned low, unsigned high)
+ {
+-	return native_write_msr_safe(__msr, ((u64)__high << 32) | __low);
++	return native_write_msr_safe(msr, low, high);
  }
- #endif  /* CONFIG_SMP */
- #endif /* __ASSEMBLY__ */
-+#endif /* __KERNEL__ */
-+
  
- #endif
+ /* rdmsr with exception handling */
+diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
+index 4a7be97..6f837bb 100644
+--- a/include/asm-x86/paravirt.h
++++ b/include/asm-x86/paravirt.h
+@@ -115,7 +115,7 @@ struct pv_cpu_ops {
+ 	/* MSR, PMC and TSR operations.
+ 	   err = 0/-EFAULT.  wrmsr returns 0/-EFAULT. */
+ 	u64 (*read_msr)(unsigned int msr, int *err);
+-	int (*write_msr)(unsigned int msr, u64 val);
++	int (*write_msr)(unsigned int msr, unsigned low, unsigned high);
+ 
+ 	u64 (*read_tsc)(void);
+ 	u64 (*read_pmc)(int counter);
 -- 
 1.4.4.2
