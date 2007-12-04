@@ -1,16 +1,18 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 7/8] move switch_to macro to system.h
-Date: Tue,  4 Dec 2007 14:06:27 -0200
-Message-ID: <11967844221894-git-send-email-gcosta@redhat.com>
-References: <11967843881946-git-send-email-gcosta@redhat.com>
-	<11967843943958-git-send-email-gcosta@redhat.com>
-	<11967843983411-git-send-email-gcosta@redhat.com>
-	<11967844032081-git-send-email-gcosta@redhat.com>
-	<11967844071346-git-send-email-gcosta@redhat.com>
-	<11967844123402-git-send-email-gcosta@redhat.com>
-	<11967844173360-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 8/10] change write msr functions interface
+Date: Tue,  4 Dec 2007 14:03:58 -0200
+Message-ID: <11967842821886-git-send-email-gcosta@redhat.com>
+References: 20071204140939.GA16328@elte.hu
+	<11967842402729-git-send-email-gcosta@redhat.com>
+	<11967842482873-git-send-email-gcosta@redhat.com>
+	<11967842531735-git-send-email-gcosta@redhat.com>
+	<11967842573035-git-send-email-gcosta@redhat.com>
+	<11967842622658-git-send-email-gcosta@redhat.com>
+	<119678426719-git-send-email-gcosta@redhat.com>
+	<11967842711043-git-send-email-gcosta@redhat.com>
+	<11967842762820-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11967844173360-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11967842762820-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,181 +26,91 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch moves the switch_to() macro to system.h
+This patche changes the native_write_msr() and friends interface
+to explicitly take 2 32-bit registers instead of a 64-bit value.
+The change will ease the merge with 64-bit code. As the 64-bit
+value will be passed as two registers anyway in i386,
+the PVOP_CALL interface has to account for that and use low/high parameters
+It would force the x86_64 version to be different.
 
-As those macros are fundamentally different between i386 and x86_64,
-they are enclosed around an ifdef.
+The change does not make i386 generated code less efficient. As said above,
+it would get the values from two registers anyway.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/system.h    |   61 +++++++++++++++++++++++++++++++++++++++++++
- include/asm-x86/system_32.h |   31 ----------------------
- include/asm-x86/system_64.h |   37 --------------------------
- 3 files changed, 61 insertions(+), 68 deletions(-)
+ include/asm-x86/msr.h      |   19 ++++++++++---------
+ include/asm-x86/paravirt.h |    2 +-
+ 2 files changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/include/asm-x86/system.h b/include/asm-x86/system.h
-index ecb782b..da4bcd1 100644
---- a/include/asm-x86/system.h
-+++ b/include/asm-x86/system.h
-@@ -6,8 +6,69 @@
- #include <linux/kernel.h>
+diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
+index ce2a257..9c695c7 100644
+--- a/include/asm-x86/msr.h
++++ b/include/asm-x86/msr.h
+@@ -59,13 +59,14 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
+ 	return val;
+ }
  
- #ifdef CONFIG_X86_32
-+#define AT_VECTOR_SIZE_ARCH 2 /* entries in ARCH_DLINFO */
-+
-+struct task_struct; /* one of the stranger aspects of C forward declarations */
-+extern struct task_struct *FASTCALL(__switch_to(struct task_struct *prev,
-+						struct task_struct *next));
-+
-+/*
-+ * Saving eflags is important. It switches not only IOPL between tasks,
-+ * it also protects other tasks from NT leaking through sysenter etc.
-+ */
-+#define switch_to(prev, next, last) do {				\
-+	unsigned long esi, edi;						\
-+	asm volatile("pushfl\n\t"		/* Save flags */	\
-+		     "pushl %%ebp\n\t"					\
-+		     "movl %%esp,%0\n\t"	/* save ESP */		\
-+		     "movl %5,%%esp\n\t"	/* restore ESP */	\
-+		     "movl $1f,%1\n\t"		/* save EIP */		\
-+		     "pushl %6\n\t"		/* restore EIP */	\
-+		     "jmp __switch_to\n"				\
-+		     "1:\t"						\
-+		     "popl %%ebp\n\t"					\
-+		     "popfl"						\
-+		     :"=m" (prev->thread.esp), "=m" (prev->thread.eip),	\
-+		      "=a" (last), "=S" (esi), "=D" (edi)		\
-+		     :"m" (next->thread.esp), "m" (next->thread.eip),	\
-+		      "2" (prev), "d" (next));				\
-+} while (0)
-+
- # include "system_32.h"
- #else
-+#define __SAVE(reg, offset) "movq %%" #reg ",(14-" #offset ")*8(%%rsp)\n\t"
-+#define __RESTORE(reg, offset) "movq (14-" #offset ")*8(%%rsp),%%" #reg "\n\t"
-+
-+/* frame pointer must be last for get_wchan */
-+#define SAVE_CONTEXT    "pushf ; pushq %%rbp ; movq %%rsi,%%rbp\n\t"
-+#define RESTORE_CONTEXT "movq %%rbp,%%rsi ; popq %%rbp ; popf\t"
-+
-+#define __EXTRA_CLOBBER  \
-+	, "rcx", "rbx", "rdx", "r8", "r9", "r10", "r11", \
-+	  "r12", "r13", "r14", "r15"
-+
-+/* Save restore flags to clear handle leaking NT */
-+#define switch_to(prev, next, last) \
-+	asm volatile(SAVE_CONTEXT					  \
-+	     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
-+	     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
-+	     "call __switch_to\n\t"					  \
-+	     ".globl thread_return\n"					  \
-+	     "thread_return:\n\t"					  \
-+	     "movq %%gs:%P[pda_pcurrent],%%rsi\n\t"			  \
-+	     "movq %P[thread_info](%%rsi),%%r8\n\t"			  \
-+	     LOCK_PREFIX "btr  %[tif_fork],%P[ti_flags](%%r8)\n\t"	  \
-+	     "movq %%rax,%%rdi\n\t" 					  \
-+	     "jc   ret_from_fork\n\t"					  \
-+	     RESTORE_CONTEXT						  \
-+	     : "=a" (last)					  	  \
-+	     : [next] "S" (next), [prev] "D" (prev),			  \
-+	       [threadrsp] "i" (offsetof(struct task_struct, thread.rsp)),\
-+	       [ti_flags] "i" (offsetof(struct thread_info, flags)),	  \
-+	       [tif_fork] "i" (TIF_FORK),			  	  \
-+	       [thread_info] "i" (offsetof(struct task_struct, stack)),   \
-+	       [pda_pcurrent] "i" (offsetof(struct x8664_pda, pcurrent))  \
-+	     : "memory", "cc" __EXTRA_CLOBBER)
- # include "system_64.h"
- #endif
+-static inline void native_write_msr(unsigned int msr, unsigned long long val)
++static inline void native_write_msr(unsigned int msr,
++				    unsigned low, unsigned high)
+ {
+-	asm volatile("wrmsr" : : "c" (msr), "A"(val));
++	asm volatile("wrmsr" : : "c" (msr), "a"(low), "d" (high));
+ }
  
-diff --git a/include/asm-x86/system_32.h b/include/asm-x86/system_32.h
-index 1201880..83af464 100644
---- a/include/asm-x86/system_32.h
-+++ b/include/asm-x86/system_32.h
-@@ -5,37 +5,6 @@
- #include <asm/cpufeature.h>
- #include <asm/cmpxchg.h>
+ static inline int native_write_msr_safe(unsigned int msr,
+-					unsigned long long val)
++					unsigned low, unsigned high)
+ {
+ 	int err;
+ 	asm volatile("2: wrmsr ; xorl %0,%0\n"
+@@ -78,7 +79,7 @@ static inline int native_write_msr_safe(unsigned int msr,
+ 		     "   .long	2b,3b\n\t"
+ 		     ".previous"
+ 		     : "=a" (err)
+-		     : "c" (msr), "0" ((u32)val), "d" ((u32)(val>>32)),
++		     : "c" (msr), "0" (low), "d" (high),
+ 		       "i" (-EFAULT));
+ 	return err;
+ }
+@@ -114,20 +115,20 @@ static inline unsigned long long native_read_pmc(int counter)
+ 		(val2) = (u32)(__val >> 32);				\
+ 	} while(0)
  
--#ifdef __KERNEL__
--#define AT_VECTOR_SIZE_ARCH 2 /* entries in ARCH_DLINFO */
--
--struct task_struct;	/* one of the stranger aspects of C forward declarations.. */
--extern struct task_struct * FASTCALL(__switch_to(struct task_struct *prev, struct task_struct *next));
--
--/*
-- * Saving eflags is important. It switches not only IOPL between tasks,
-- * it also protects other tasks from NT leaking through sysenter etc.
-- */
--#define switch_to(prev,next,last) do {					\
--	unsigned long esi,edi;						\
--	asm volatile("pushfl\n\t"		/* Save flags */	\
--		     "pushl %%ebp\n\t"					\
--		     "movl %%esp,%0\n\t"	/* save ESP */		\
--		     "movl %5,%%esp\n\t"	/* restore ESP */	\
--		     "movl $1f,%1\n\t"		/* save EIP */		\
--		     "pushl %6\n\t"		/* restore EIP */	\
--		     "jmp __switch_to\n"				\
--		     "1:\t"						\
--		     "popl %%ebp\n\t"					\
--		     "popfl"						\
--		     :"=m" (prev->thread.esp),"=m" (prev->thread.eip),	\
--		      "=a" (last),"=S" (esi),"=D" (edi)			\
--		     :"m" (next->thread.esp),"m" (next->thread.eip),	\
--		      "2" (prev), "d" (next));				\
--} while (0)
--
--#endif	/* __KERNEL__ */
--
--
- #include <linux/irqflags.h>
+-static inline void wrmsr(u32 __msr, u32 __low, u32 __high)
++static inline void wrmsr(unsigned msr, unsigned low, unsigned high)
+ {
+-	native_write_msr(__msr, ((u64)__high << 32) | __low);
++	native_write_msr(msr, low, high);
+ }
  
- /*
-diff --git a/include/asm-x86/system_64.h b/include/asm-x86/system_64.h
-index 80be206..89af856 100644
---- a/include/asm-x86/system_64.h
-+++ b/include/asm-x86/system_64.h
-@@ -4,43 +4,6 @@
- #include <asm/segment.h>
- #include <asm/cmpxchg.h>
+ #define rdmsrl(msr,val)							\
+ 	((val) = native_read_msr(msr))
  
--#ifdef __KERNEL__
--
--#define __SAVE(reg,offset) "movq %%" #reg ",(14-" #offset ")*8(%%rsp)\n\t"
--#define __RESTORE(reg,offset) "movq (14-" #offset ")*8(%%rsp),%%" #reg "\n\t"
--
--/* frame pointer must be last for get_wchan */
--#define SAVE_CONTEXT    "pushf ; pushq %%rbp ; movq %%rsi,%%rbp\n\t"
--#define RESTORE_CONTEXT "movq %%rbp,%%rsi ; popq %%rbp ; popf\t"
--
--#define __EXTRA_CLOBBER  \
--	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
--
--/* Save restore flags to clear handle leaking NT */
--#define switch_to(prev,next,last) \
--	asm volatile(SAVE_CONTEXT						    \
--		     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
--		     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
--		     "call __switch_to\n\t"					  \
--		     ".globl thread_return\n"					\
--		     "thread_return:\n\t"					    \
--		     "movq %%gs:%P[pda_pcurrent],%%rsi\n\t"			  \
--		     "movq %P[thread_info](%%rsi),%%r8\n\t"			  \
--		     LOCK_PREFIX "btr  %[tif_fork],%P[ti_flags](%%r8)\n\t"	  \
--		     "movq %%rax,%%rdi\n\t" 					  \
--		     "jc   ret_from_fork\n\t"					  \
--		     RESTORE_CONTEXT						    \
--		     : "=a" (last)					  	  \
--		     : [next] "S" (next), [prev] "D" (prev),			  \
--		       [threadrsp] "i" (offsetof(struct task_struct, thread.rsp)), \
--		       [ti_flags] "i" (offsetof(struct thread_info, flags)),\
--		       [tif_fork] "i" (TIF_FORK),			  \
--		       [thread_info] "i" (offsetof(struct task_struct, stack)), \
--		       [pda_pcurrent] "i" (offsetof(struct x8664_pda, pcurrent))   \
--		     : "memory", "cc" __EXTRA_CLOBBER)
--
--#endif	/* __KERNEL__ */
--
- #include <linux/irqflags.h>
+-#define wrmsrl(msr,val)	native_write_msr(msr, val)
++#define wrmsrl(msr, val) native_write_msr(msr, (u32)val, (u32)(val >> 32))
  
- #endif
+ /* wrmsr with exception handling */
+-static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
++static inline int wrmsr_safe(unsigned msr, unsigned low, unsigned high)
+ {
+-	return native_write_msr_safe(__msr, ((u64)__high << 32) | __low);
++	return native_write_msr_safe(msr, low, high);
+ }
+ 
+ /* rdmsr with exception handling */
+diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
+index 4a7be97..6f837bb 100644
+--- a/include/asm-x86/paravirt.h
++++ b/include/asm-x86/paravirt.h
+@@ -115,7 +115,7 @@ struct pv_cpu_ops {
+ 	/* MSR, PMC and TSR operations.
+ 	   err = 0/-EFAULT.  wrmsr returns 0/-EFAULT. */
+ 	u64 (*read_msr)(unsigned int msr, int *err);
+-	int (*write_msr)(unsigned int msr, u64 val);
++	int (*write_msr)(unsigned int msr, unsigned low, unsigned high);
+ 
+ 	u64 (*read_tsc)(void);
+ 	u64 (*read_pmc)(int counter);
 -- 
 1.4.4.2
