@@ -1,18 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 9/10] make fixups wordsize agnostic
-Date: Tue,  4 Dec 2007 09:10:03 -0200
-Message-ID: <11967666483411-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 5/10] unify cpuid functions
+Date: Tue,  4 Dec 2007 09:09:59 -0200
+Message-ID: <11967666303321-git-send-email-gcosta@redhat.com>
 References: <11967666042130-git-send-email-gcosta@redhat.com>
 	<11967666111489-git-send-email-gcosta@redhat.com>
 	<11967666161585-git-send-email-gcosta@redhat.com>
 	<11967666212496-git-send-email-gcosta@redhat.com>
 	<11967666263502-git-send-email-gcosta@redhat.com>
-	<11967666303321-git-send-email-gcosta@redhat.com>
-	<11967666351395-git-send-email-gcosta@redhat.com>
-	<11967666393130-git-send-email-gcosta@redhat.com>
-	<11967666442665-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11967666442665-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11967666263502-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,67 +22,278 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch uses the _ASM_ALIGN and _ASM_PTR macros
-to make the fixups in native_read/write_msr_safe look the same
-for x86_64 and i386. Besides using this macros, we also have to
-take the explicit instruction suffixes out. It's okay
-because all this instructions uses registers, and can be sized by
-them.
+cpuid is not very different between i386 and x86_64.
+We move away the x86_64 version from msr.h, and
+unify them at processor.h, where they belong.
+
+cpuid() paravirt then comes for free.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/msr.h |   17 +++++++++--------
- 1 files changed, 9 insertions(+), 8 deletions(-)
+ include/asm-x86/msr.h          |   67 ----------------------------------
+ include/asm-x86/processor.h    |   78 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-x86/processor_32.h |   69 -----------------------------------
+ 3 files changed, 78 insertions(+), 136 deletions(-)
 
 diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
-index 9c695c7..f3a01ca 100644
+index b3cd509..5fa30bd 100644
 --- a/include/asm-x86/msr.h
 +++ b/include/asm-x86/msr.h
-@@ -29,6 +29,7 @@ static inline unsigned long long native_read_tscp(int *aux)
- #ifdef __KERNEL__
- #ifndef __ASSEMBLY__
+@@ -230,73 +230,6 @@ static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
+ 			  : "=a" (low), "=d" (high) \
+ 			  : "c" (counter))
  
-+#include <asm/asm.h>
- #include <asm/errno.h>
+-static inline void cpuid(int op, unsigned int *eax, unsigned int *ebx,
+-			 unsigned int *ecx, unsigned int *edx)
+-{
+-	__asm__("cpuid"
+-		: "=a" (*eax),
+-		  "=b" (*ebx),
+-		  "=c" (*ecx),
+-		  "=d" (*edx)
+-		: "0" (op));
+-}
+-
+-/* Some CPUID calls want 'count' to be placed in ecx */
+-static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
+-			       int *edx)
+-{
+-	__asm__("cpuid"
+-		: "=a" (*eax),
+-		  "=b" (*ebx),
+-		  "=c" (*ecx),
+-		  "=d" (*edx)
+-		: "0" (op), "c" (count));
+-}
+-
+-/*
+- * CPUID functions returning a single datum
+- */
+-static inline unsigned int cpuid_eax(unsigned int op)
+-{
+-	unsigned int eax;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax)
+-		: "0" (op)
+-		: "bx", "cx", "dx");
+-	return eax;
+-}
+-static inline unsigned int cpuid_ebx(unsigned int op)
+-{
+-	unsigned int eax, ebx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=b" (ebx)
+-		: "0" (op)
+-		: "cx", "dx" );
+-	return ebx;
+-}
+-static inline unsigned int cpuid_ecx(unsigned int op)
+-{
+-	unsigned int eax, ecx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=c" (ecx)
+-		: "0" (op)
+-		: "bx", "dx" );
+-	return ecx;
+-}
+-static inline unsigned int cpuid_edx(unsigned int op)
+-{
+-	unsigned int eax, edx;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax), "=d" (edx)
+-		: "0" (op)
+-		: "bx", "cx");
+-	return edx;
+-}
+-
+ #endif  /* __ASSEMBLY__ */
  
- static inline unsigned long long native_read_msr(unsigned int msr)
-@@ -44,14 +45,14 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
+ #endif  /* !__i386__ */
+diff --git a/include/asm-x86/processor.h b/include/asm-x86/processor.h
+index 46e1c04..dea81b7 100644
+--- a/include/asm-x86/processor.h
++++ b/include/asm-x86/processor.h
+@@ -1,5 +1,83 @@
++#ifndef __ASM_X86_PROCESSOR_H
++#define __ASM_X86_PROCESSOR_H
++
++static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
++					 unsigned int *ecx, unsigned int *edx)
++{
++	/* ecx is often an input as well as an output. */
++	__asm__("cpuid"
++		: "=a" (*eax),
++		  "=b" (*ebx),
++		  "=c" (*ecx),
++		  "=d" (*edx)
++		: "0" (*eax), "2" (*ecx));
++}
++
++
+ #ifdef CONFIG_X86_32
+ # include "processor_32.h"
+ #else
+ # include "processor_64.h"
+ #endif
++
++#ifndef CONFIG_PARAVIRT
++#define __cpuid native_cpuid
++#endif
++
++/*
++ * Generic CPUID function
++ * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
++ * resulting in stale register contents being returned.
++ */
++static inline void cpuid(unsigned int op,
++			 unsigned int *eax, unsigned int *ebx,
++			 unsigned int *ecx, unsigned int *edx)
++{
++	*eax = op;
++	*ecx = 0;
++	__cpuid(eax, ebx, ecx, edx);
++}
++
++/* Some CPUID calls want 'count' to be placed in ecx */
++static inline void cpuid_count(unsigned int op, int count,
++			       unsigned int *eax, unsigned int *ebx,
++			       unsigned int *ecx, unsigned int *edx)
++{
++	*eax = op;
++	*ecx = count;
++	__cpuid(eax, ebx, ecx, edx);
++}
++
++/*
++ * CPUID functions returning a single datum
++ */
++static inline unsigned int cpuid_eax(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return eax;
++}
++static inline unsigned int cpuid_ebx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return ebx;
++}
++static inline unsigned int cpuid_ecx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return ecx;
++}
++static inline unsigned int cpuid_edx(unsigned int op)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	cpuid(op, &eax, &ebx, &ecx, &edx);
++	return edx;
++}
++
++#endif
+diff --git a/include/asm-x86/processor_32.h b/include/asm-x86/processor_32.h
+index 13976b0..12a4f83 100644
+--- a/include/asm-x86/processor_32.h
++++ b/include/asm-x86/processor_32.h
+@@ -134,18 +134,6 @@ extern void detect_ht(struct cpuinfo_x86 *c);
+ static inline void detect_ht(struct cpuinfo_x86 *c) {}
+ #endif
+ 
+-static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
+-					 unsigned int *ecx, unsigned int *edx)
+-{
+-	/* ecx is often an input as well as an output. */
+-	__asm__("cpuid"
+-		: "=a" (*eax),
+-		  "=b" (*ebx),
+-		  "=c" (*ecx),
+-		  "=d" (*edx)
+-		: "0" (*eax), "2" (*ecx));
+-}
+-
+ #define load_cr3(pgdir) write_cr3(__pa(pgdir))
+ 
+ /*
+@@ -578,7 +566,6 @@ static inline void native_set_iopl_mask(unsigned mask)
+ #include <asm/paravirt.h>
+ #else
+ #define paravirt_enabled() 0
+-#define __cpuid native_cpuid
+ 
+ static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
  {
- 	unsigned long long val;
+@@ -596,62 +583,6 @@ static inline void load_esp0(struct tss_struct *tss, struct thread_struct *threa
+ #define set_iopl_mask native_set_iopl_mask
+ #endif /* CONFIG_PARAVIRT */
  
--	asm volatile("2: rdmsr ; xorl %0,%0\n"
-+	asm volatile("2: rdmsr ; xor %0,%0\n"
- 		     "1:\n\t"
- 		     ".section .fixup,\"ax\"\n\t"
--		     "3:  movl %3,%0 ; jmp 1b\n\t"
-+		     "3:  mov %3,%0 ; jmp 1b\n\t"
- 		     ".previous\n\t"
- 		     ".section __ex_table,\"a\"\n"
--		     "   .align 4\n\t"
--		     "   .long	2b,3b\n\t"
-+		     _ASM_ALIGN "\n\t"
-+		     _ASM_PTR " 2b,3b\n\t"
- 		     ".previous"
- 		     : "=r" (*err), "=A" (val)
- 		     : "c" (msr), "i" (-EFAULT));
-@@ -69,14 +70,14 @@ static inline int native_write_msr_safe(unsigned int msr,
- 					unsigned low, unsigned high)
- {
- 	int err;
--	asm volatile("2: wrmsr ; xorl %0,%0\n"
-+	asm volatile("2: wrmsr ; xor %0,%0\n"
- 		     "1:\n\t"
- 		     ".section .fixup,\"ax\"\n\t"
--		     "3:  movl %4,%0 ; jmp 1b\n\t"
-+		     "3:  mov %4,%0 ; jmp 1b\n\t"
- 		     ".previous\n\t"
- 		     ".section __ex_table,\"a\"\n"
--		     "   .align 4\n\t"
--		     "   .long	2b,3b\n\t"
-+		     _ASM_ALIGN "\n\t"
-+		     _ASM_PTR " 2b,3b\n\t"
- 		     ".previous"
- 		     : "=a" (err)
- 		     : "c" (msr), "0" (low), "d" (high),
+-/*
+- * Generic CPUID function
+- * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
+- * resulting in stale register contents being returned.
+- */
+-static inline void cpuid(unsigned int op,
+-			 unsigned int *eax, unsigned int *ebx,
+-			 unsigned int *ecx, unsigned int *edx)
+-{
+-	*eax = op;
+-	*ecx = 0;
+-	__cpuid(eax, ebx, ecx, edx);
+-}
+-
+-/* Some CPUID calls want 'count' to be placed in ecx */
+-static inline void cpuid_count(unsigned int op, int count,
+-			       unsigned int *eax, unsigned int *ebx,
+-			       unsigned int *ecx, unsigned int *edx)
+-{
+-	*eax = op;
+-	*ecx = count;
+-	__cpuid(eax, ebx, ecx, edx);
+-}
+-
+-/*
+- * CPUID functions returning a single datum
+- */
+-static inline unsigned int cpuid_eax(unsigned int op)
+-{
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return eax;
+-}
+-static inline unsigned int cpuid_ebx(unsigned int op)
+-{
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return ebx;
+-}
+-static inline unsigned int cpuid_ecx(unsigned int op)
+-{
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return ecx;
+-}
+-static inline unsigned int cpuid_edx(unsigned int op)
+-{
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	cpuid(op, &eax, &ebx, &ecx, &edx);
+-	return edx;
+-}
+-
+ /* generic versions from gas */
+ #define GENERIC_NOP1	".byte 0x90\n"
+ #define GENERIC_NOP2    	".byte 0x89,0xf6\n"
 -- 
 1.4.4.2
