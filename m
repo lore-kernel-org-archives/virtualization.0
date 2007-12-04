@@ -1,12 +1,13 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 2/10] unify msr smp funcs
-Date: Tue,  4 Dec 2007 14:03:52 -0200
-Message-ID: <11967842531735-git-send-email-gcosta__16143.4605172419$1196794221$gmane$org@redhat.com>
+Subject: [PATCH 3/10] allow sched clock to be overridden by paravirt
+Date: Tue,  4 Dec 2007 14:03:53 -0200
+Message-ID: <11967842573035-git-send-email-gcosta__38783.6059825078$1196794223$gmane$org@redhat.com>
 References: 20071204140939.GA16328@elte.hu
 	<11967842402729-git-send-email-gcosta@redhat.com>
 	<11967842482873-git-send-email-gcosta@redhat.com>
+	<11967842531735-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11967842482873-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11967842531735-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,71 +21,47 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-The functions under #ifdef CONFIG_SMP in msr.h are the same
-for both x86_64 and i386, and this patches removes one of them,
-putting them in a single location
+This patch turns the sched_clock into native_sched_clock.
+sched clock becomes a weak symbol, which can then give its
+place to a paravirt definition.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/msr.h |   33 +++++++--------------------------
- 1 files changed, 7 insertions(+), 26 deletions(-)
+ arch/x86/kernel/tsc_64.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
 
-diff --git a/include/asm-x86/msr.h b/include/asm-x86/msr.h
-index ba4b314..b3cd509 100644
---- a/include/asm-x86/msr.h
-+++ b/include/asm-x86/msr.h
-@@ -135,29 +135,6 @@ static inline int wrmsr_safe(u32 __msr, u32 __low, u32 __high)
- 	} while(0)
- #endif	/* !CONFIG_PARAVIRT */
- 
--#ifdef CONFIG_SMP
--void rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
--void wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
--int rdmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
--int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
--#else  /*  CONFIG_SMP  */
--static inline void rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h)
--{
--	rdmsr(msr_no, *l, *h);
--}
--static inline void wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
--{
--	wrmsr(msr_no, l, h);
--}
--static inline int rdmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h)
--{
--	return rdmsr_safe(msr_no, l, h);
--}
--static inline int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
--{
--	return wrmsr_safe(msr_no, l, h);
--}
--#endif  /*  CONFIG_SMP  */
- #endif  /* ! __ASSEMBLY__ */
- #endif  /* __KERNEL__ */
- 
-@@ -320,6 +297,12 @@ static inline unsigned int cpuid_edx(unsigned int op)
- 	return edx;
+diff --git a/arch/x86/kernel/tsc_64.c b/arch/x86/kernel/tsc_64.c
+index 9c70af4..5158476 100644
+--- a/arch/x86/kernel/tsc_64.c
++++ b/arch/x86/kernel/tsc_64.c
+@@ -30,7 +30,7 @@ static unsigned long long cycles_2_ns(unsigned long long cyc)
+ 	return (cyc * cyc2ns_scale) >> NS_SCALE;
  }
  
-+#endif  /* __ASSEMBLY__ */
-+
-+#endif  /* !__i386__ */
-+
-+#ifndef __ASSEMBLY__
-+
- #ifdef CONFIG_SMP
- void rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
- void wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
-@@ -343,8 +326,6 @@ static inline int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
- 	return wrmsr_safe(msr_no, l, h);
- }
- #endif  /* CONFIG_SMP */
--#endif  /* __ASSEMBLY__ */
--
--#endif  /* !__i386__ */
-+#endif /* __ASSEMBLY__ */
+-unsigned long long sched_clock(void)
++unsigned long long native_sched_clock(void)
+ {
+ 	unsigned long a = 0;
  
- #endif
+@@ -44,6 +44,19 @@ unsigned long long sched_clock(void)
+ 	return cycles_2_ns(a);
+ }
+ 
++/* We need to define a real function for sched_clock, to override the
++   weak default version */
++#ifdef CONFIG_PARAVIRT
++unsigned long long sched_clock(void)
++{
++	return paravirt_sched_clock();
++}
++#else
++unsigned long long
++sched_clock(void) __attribute__((alias("native_sched_clock")));
++#endif
++
++
+ static int tsc_unstable;
+ 
+ inline int check_tsc_unstable(void)
 -- 
 1.4.4.2
