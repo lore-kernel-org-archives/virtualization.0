@@ -1,202 +1,51 @@
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 8/9] move switch_to macro to system.h
-Date: Wed,  5 Dec 2007 13:08:32 -0200
-Message-ID: <11968673522098-git-send-email-gcosta@redhat.com>
-References: 20071204204931.GC32018@elte.hu
-	<1196867313972-git-send-email-gcosta@redhat.com>
-	<1196867319253-git-send-email-gcosta@redhat.com>
-	<11968673241599-git-send-email-gcosta@redhat.com>
-	<11968673291072-git-send-email-gcosta@redhat.com>
-	<1196867333728-git-send-email-gcosta@redhat.com>
-	<11968673383347-git-send-email-gcosta@redhat.com>
-	<1196867342420-git-send-email-gcosta@redhat.com>
-	<11968673473254-git-send-email-gcosta@redhat.com>
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11968673473254-git-send-email-gcosta@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: Re: Next steps with pv_ops for Xen
+Date: Wed, 05 Dec 2007 17:59:57 +0000
+Message-ID: <C37C979D.19732%Keir.Fraser@cl.cam.ac.uk>
+References: <4756E481.1060201@cl.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <4756E481.1060201@cl.cam.ac.uk>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Derek Murray <Derek.Murray@cl.cam.ac.uk>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>, Jan Beulich <jbeulich@novell.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Gerd Hoffmann <kraxel@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch moves the switch_to() macro to system.h
+On 5/12/07 17:48, "Derek Murray" <Derek.Murray@cl.cam.ac.uk> wrote:
 
-As those macros are fundamentally different between i386 and x86_64,
-they are enclosed around an ifdef.
+> Keir Fraser wrote:
+>> Need to bite the bullet and fix this properly by setting a software flag in
+>> ptes that are not subject to reference counting.
+> 
+> Could we get away with testing the VM_FOREIGN flag in vm_normal_page()?
+> Although I get the impression that this wouldn't be easily justified if
+> trying to merge with upstream Linux....
 
-Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
----
- include/asm-x86/system.h    |   61 +++++++++++++++++++++++++++++++++++++++++++
- include/asm-x86/system_32.h |   31 ----------------------
- include/asm-x86/system_64.h |   36 -------------------------
- 3 files changed, 61 insertions(+), 67 deletions(-)
+Yes, this would work okay I suspect. Good enough as a stop-gap measure? Are
+there any other responsibilities that you acquire if you make use of
+VM_FOREIGN (in particular, how would this affect get_user_pages)?
 
-Index: linux-2.6-x86/include/asm-x86/system.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/system.h
-+++ linux-2.6-x86/include/asm-x86/system.h
-@@ -6,8 +6,69 @@
- #include <linux/kernel.h>
- 
- #ifdef CONFIG_X86_32
-+#define AT_VECTOR_SIZE_ARCH 2 /* entries in ARCH_DLINFO */
-+
-+struct task_struct; /* one of the stranger aspects of C forward declarations */
-+extern struct task_struct *FASTCALL(__switch_to(struct task_struct *prev,
-+						struct task_struct *next));
-+
-+/*
-+ * Saving eflags is important. It switches not only IOPL between tasks,
-+ * it also protects other tasks from NT leaking through sysenter etc.
-+ */
-+#define switch_to(prev, next, last) do {				\
-+	unsigned long esi, edi;						\
-+	asm volatile("pushfl\n\t"		/* Save flags */	\
-+		     "pushl %%ebp\n\t"					\
-+		     "movl %%esp,%0\n\t"	/* save ESP */		\
-+		     "movl %5,%%esp\n\t"	/* restore ESP */	\
-+		     "movl $1f,%1\n\t"		/* save EIP */		\
-+		     "pushl %6\n\t"		/* restore EIP */	\
-+		     "jmp __switch_to\n"				\
-+		     "1:\t"						\
-+		     "popl %%ebp\n\t"					\
-+		     "popfl"						\
-+		     :"=m" (prev->thread.sp), "=m" (prev->thread.ip),	\
-+		      "=a" (last), "=S" (esi), "=D" (edi)		\
-+		     :"m" (next->thread.sp), "m" (next->thread.ip),	\
-+		      "2" (prev), "d" (next));				\
-+} while (0)
-+
- # include "system_32.h"
- #else
-+#define __SAVE(reg, offset) "movq %%" #reg ",(14-" #offset ")*8(%%rsp)\n\t"
-+#define __RESTORE(reg, offset) "movq (14-" #offset ")*8(%%rsp),%%" #reg "\n\t"
-+
-+/* frame pointer must be last for get_wchan */
-+#define SAVE_CONTEXT    "pushf ; pushq %%rbp ; movq %%rsi,%%rbp\n\t"
-+#define RESTORE_CONTEXT "movq %%rbp,%%rsi ; popq %%rbp ; popf\t"
-+
-+#define __EXTRA_CLOBBER  \
-+	, "rcx", "rbx", "rdx", "r8", "r9", "r10", "r11", \
-+	  "r12", "r13", "r14", "r15"
-+
-+/* Save restore flags to clear handle leaking NT */
-+#define switch_to(prev, next, last) \
-+	asm volatile(SAVE_CONTEXT					  \
-+	     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
-+	     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
-+	     "call __switch_to\n\t"					  \
-+	     ".globl thread_return\n"					  \
-+	     "thread_return:\n\t"					  \
-+	     "movq %%gs:%P[pda_pcurrent],%%rsi\n\t"			  \
-+	     "movq %P[thread_info](%%rsi),%%r8\n\t"			  \
-+	     LOCK_PREFIX "btr  %[tif_fork],%P[ti_flags](%%r8)\n\t"	  \
-+	     "movq %%rax,%%rdi\n\t" 					  \
-+	     "jc   ret_from_fork\n\t"					  \
-+	     RESTORE_CONTEXT						  \
-+	     : "=a" (last)					  	  \
-+	     : [next] "S" (next), [prev] "D" (prev),			  \
-+	       [threadrsp] "i" (offsetof(struct task_struct, thread.sp)), \
-+	       [ti_flags] "i" (offsetof(struct thread_info, flags)),	  \
-+	       [tif_fork] "i" (TIF_FORK),			  	  \
-+	       [thread_info] "i" (offsetof(struct task_struct, stack)),   \
-+	       [pda_pcurrent] "i" (offsetof(struct x8664_pda, pcurrent))  \
-+	     : "memory", "cc" __EXTRA_CLOBBER)
- # include "system_64.h"
- #endif
- 
-Index: linux-2.6-x86/include/asm-x86/system_32.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/system_32.h
-+++ linux-2.6-x86/include/asm-x86/system_32.h
-@@ -5,37 +5,6 @@
- #include <asm/cpufeature.h>
- #include <asm/cmpxchg.h>
- 
--#ifdef __KERNEL__
--#define AT_VECTOR_SIZE_ARCH 2 /* entries in ARCH_DLINFO */
--
--struct task_struct;	/* one of the stranger aspects of C forward declarations.. */
--extern struct task_struct * FASTCALL(__switch_to(struct task_struct *prev, struct task_struct *next));
--
--/*
-- * Saving eflags is important. It switches not only IOPL between tasks,
-- * it also protects other tasks from NT leaking through sysenter etc.
-- */
--#define switch_to(prev,next,last) do {					\
--	unsigned long esi,edi;						\
--	asm volatile("pushfl\n\t"		/* Save flags */	\
--		     "pushl %%ebp\n\t"					\
--		     "movl %%esp,%0\n\t"	/* save ESP */		\
--		     "movl %5,%%esp\n\t"	/* restore ESP */	\
--		     "movl $1f,%1\n\t"		/* save EIP */		\
--		     "pushl %6\n\t"		/* restore EIP */	\
--		     "jmp __switch_to\n"				\
--		     "1:\t"						\
--		     "popl %%ebp\n\t"					\
--		     "popfl"						\
--		     :"=m" (prev->thread.sp),"=m" (prev->thread.ip),	\
--		      "=a" (last),"=S" (esi),"=D" (edi)			\
--		     :"m" (next->thread.sp),"m" (next->thread.ip),	\
--		      "2" (prev), "d" (next));				\
--} while (0)
--
--#endif	/* __KERNEL__ */
--
--
- #include <linux/irqflags.h>
- 
- /*
-Index: linux-2.6-x86/include/asm-x86/system_64.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/system_64.h
-+++ linux-2.6-x86/include/asm-x86/system_64.h
-@@ -4,42 +4,6 @@
- #include <asm/segment.h>
- #include <asm/cmpxchg.h>
- 
--#ifdef __KERNEL__
--
--#define __SAVE(reg,offset) "movq %%" #reg ",(14-" #offset ")*8(%%rsp)\n\t"
--#define __RESTORE(reg,offset) "movq (14-" #offset ")*8(%%rsp),%%" #reg "\n\t"
--
--/* frame pointer must be last for get_wchan */
--#define SAVE_CONTEXT    "pushf ; pushq %%rbp ; movq %%rsi,%%rbp\n\t"
--#define RESTORE_CONTEXT "movq %%rbp,%%rsi ; popq %%rbp ; popf\t"
--
--#define __EXTRA_CLOBBER  \
--	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
--
--/* Save restore flags to clear handle leaking NT */
--#define switch_to(prev,next,last) \
--	asm volatile(SAVE_CONTEXT						    \
--		     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
--		     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
--		     "call __switch_to\n\t"					  \
--		     ".globl thread_return\n"					\
--		     "thread_return:\n\t"					    \
--		     "movq %%gs:%P[pda_pcurrent],%%rsi\n\t"			  \
--		     "movq %P[thread_info](%%rsi),%%r8\n\t"			  \
--		     LOCK_PREFIX "btr  %[tif_fork],%P[ti_flags](%%r8)\n\t"	  \
--		     "movq %%rax,%%rdi\n\t" 					  \
--		     "jc   ret_from_fork\n\t"					  \
--		     RESTORE_CONTEXT						    \
--		     : "=a" (last)					  	  \
--		     : [next] "S" (next), [prev] "D" (prev),			  \
--		       [threadrsp] "i" (offsetof(struct task_struct, thread.sp)), \
--		       [ti_flags] "i" (offsetof(struct thread_info, flags)),\
--		       [tif_fork] "i" (TIF_FORK),			  \
--		       [thread_info] "i" (offsetof(struct task_struct, stack)), \
--		       [pda_pcurrent] "i" (offsetof(struct x8664_pda, pcurrent))   \
--		     : "memory", "cc" __EXTRA_CLOBBER)
--    
--#endif	/* __KERNEL__ */
- 
- #include <linux/irqflags.h>
+> Alternatively, could we use the _PAGE_GNTTAB PTE flag that is used for
+> debugging? Indeed, if we did this, could be obviate the need for the
+> PTE-zapping hook, by instead catching the case where this flag is set,
+> and unmapping the grant implicitly?
+
+Well, in the general case you don't have enough info to know which grant to
+release (a single page can be granted multiple times).
+
+> Otherwise, what would the semantics of this new flag be?
+
+It would cause pte_pfn() to return max_mapnr. It would be set for any
+foreign page mapping, and replace mfn_to_local_pfn() in pte_pfn().
+
+ -- Keir
