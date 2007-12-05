@@ -1,17 +1,18 @@
-From: Mark Williamson <mark.williamson@cl.cam.ac.uk>
+From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: Re: Next steps with pv_ops for Xen
-Date: Wed, 5 Dec 2007 03:42:19 +0000
-Message-ID: <200712050342.25373.mark.williamson@cl.cam.ac.uk>
-References: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
-	<200712031908.11079.mark.williamson@cl.cam.ac.uk>
-	<47551F70.7080300@sina.com.cn>
+Date: Wed, 05 Dec 2007 11:03:39 +0100
+Message-ID: <4756777B.6090405@redhat.com>
+References: <1195682725.6726.48.camel@sisko.scot.redhat.com>	
+	<4753FC6A.4020601@redhat.com> <4754024C.7020905@cl.cam.ac.uk>	
+	<47540FB8.8000106@redhat.com> <475417E7.9070006@cl.cam.ac.uk>	
+	<47546931.2090602@redhat.com> <475520A1.6080909@cl.cam.ac.uk>	
+	<475541A8.7030100@redhat.com>
+	<1196771999.10809.18.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <47551F70.7080300@sina.com.cn>
-Content-Disposition: inline
+In-Reply-To: <1196771999.10809.18.camel@sisko.scot.redhat.com>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -20,81 +21,44 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: tgh <wwwwww4187@sina.com.cn>
-Cc: xen-devel@lists.xensource.com, 'Eduardo Habkost' <ehabkost@redhat.com>, 'Juan Quintela' <quintela@redhat.com>, "'Stephen C. Tweedie'" <sct@redhat.com>, 'Jan Beulich' <jbeulich@novell.com>, 'Glauber de Oliveira Costa' <gcosta@redhat.com>, 'Chris Wright' <chrisw@sous-sol.org>, virtualization@lists.osdl.org, dgm36@cam.ac.uk, 'Gerd Hoffmann' <kraxel@redhat.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Derek Murray <Derek.Murray@cl.cam.ac.uk>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, Jan Beulich <jbeulich@novell.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> I am not quite clear about the purpose of pv-ops , what do we want to
-> deal with by developping "pv-ops"? is it used for HVM or for PV or KVM
-> or something ? I have seen it for a few months in the list ,and
-> "pv-ops"is an active project ,but i am not clear about what is the aim
-> of "pv-ops" ,could you give me an explanation about it
+Stephen C. Tweedie wrote:
+> I can't help wondering if this is a hint that now is the time to find a
+> better API, which doesn't have the requirement (a) that seems to be
+> causing such trouble?  Are other PV guests --- *BSD, Solaris --- going
+> to have the same problems with their VM layers if they try to implement
+> this API?
 
-PV-ops is an API within Linux which is used to support paravirtualisation.
+Well, it isn't that easy unfortunaly.  We have to separate two things here:
 
-paravirt-ops makes it possible to compile a Linux kernel which can boot on=
-=20
-bare hardware, or on Xen, or using VMI (VMware's paravirtualised interface)=
-,=20
-lguest, or any other VMM that is supported.  The resulting kernel can then=
-=20
-boot on any of those and make proper use of paravirtualisation.
+  (a) the grant table hypercall API (linux kernel <-> xen).
+  (b) the grant table device (userspace interface).
 
-=46or instance, with 2.6.23 from kernel.org you should be able to compile a=
-=20
-kernel that will boot both on bare hardware and in a Xen domU in PV mode. =
-=20
-Various tricks are used to ensure that it will run with good performance on=
-=20
-both.
+The hypercall API *is* heavily used, block and network drivers are using
+it for example.  It works quite well as long as the drivers are living
+in kernel space, thus the grants are also mapped in kernel space only.
+It isn't very hard to control map and unmap then.
 
-pv-ops mostly deals with the paravirtualisation of the CPU.  IO devices suc=
-h=20
-as block and network are handled using Xen-aware drivers rather similar to=
-=20
-those in the XenSource Linux kernels, they are not part of pv-ops.
+The problems start when the gntdev comes into play which wants allow
+userspace applications map grant references.  At this point the whole VM
+subsystem becomes involved.  And the requirement of the hypercall API to
+ do any pte manipulation using grant table hypercalls becomes a real
+burden.  The linux VM design simply doesn't allow that.
 
-Cheers,
-Mark
+Consequently the current gntdev implementation tries to get the job done
+by bypassing the VM (and hooking into it).  It establishes mappings by
+doing the page table manipulations itself in the fops->mmap function.
+It tears down mappings using the hook discussed earlier.
 
+gntdev doesn't even try to handle forking.  I wouldn't be surprised if
+that is a great way to kill Domain-0.  The xen hypervisor will most
+likely not be amused to find a pte refering to a granted (but foreign)
+page which wasn't established using the grant table interface.  Pinning
+the pgd of the child process will most likely fail and make the kernel
+BUG().
 
-> Thanks in advance
->
-> Mark Williamson =E5=86=99=E9=81=93:
-> >> Hi Mark,
-> >>
-> >>> Maybe a change to the gntdev userspace API to allow batching
-> >>> of mapping requests?
-> >>
-> >> Something along the lines of the following?
-> >
-> > Just like that :-D
-> >
-> > When you said "multiple syscalls per mapping" I assumed you meant that
-> > we'd lose the batching you get by doing a mulicall.  If it's just a
-> > couple of syscalls (plus, presumably a couple of hypercalls) per batch =
-of
-> > mappings, my gut says it's probably not going to hurt block performance=
-=2E=20
-> > My guts have been wrong in (many!) ways before of course...
-> >
-> > I guess the overhead *could* be reduced even more by just having a magic
-> > ioctl that did all the mmap-ing stuff in one operation, but that'd
-> > probably be really gross if it wasn't necessary!  And I doubt it'd make
-> > upstream very happy...
-> >
-> > We'll also be eliminating the overheads involved in having a blktap ring
-> > for talking to userspace and having to move requests between that ring
-> > and the real block ring, so there's some definite wins in overheads as
-> > well.
-> >
-> > Cheers,
-> > Mark
-
-
-
-=2D-=20
-Dave: Just a question. What use is a unicyle with no seat?  And no pedals!
-Mark: To answer a question with a question: What use is a skateboard?
-Dave: Skateboards have wheels.
-Mark: My wheel has a wheel!
+cheers,
+  Gerd
