@@ -1,12 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 2/9] put together equal pieces of system.h
-Date: Wed,  5 Dec 2007 13:08:26 -0200
-Message-ID: <11968673241599-git-send-email-gcosta__39880.9819751934$1196877389$gmane$org@redhat.com>
+Subject: [PATCH 4/9] remove references to cr8 register
+Date: Wed,  5 Dec 2007 13:08:28 -0200
+Message-ID: <1196867333728-git-send-email-gcosta__32696.4406566278$1196877405$gmane$org@redhat.com>
 References: 20071204204931.GC32018@elte.hu
 	<1196867313972-git-send-email-gcosta@redhat.com>
 	<1196867319253-git-send-email-gcosta@redhat.com>
+	<11968673241599-git-send-email-gcosta@redhat.com>
+	<11968673291072-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1196867319253-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11968673291072-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,231 +22,83 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch puts together pieces of system_{32,64}.h that
-looks like the same. It's the first step towards integration
-of this file.
+As pointed out by Andi, linux never really uses this register
+so saving and restoring is not really necessary. This patch
+removes all references to it.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- arch/x86/kernel/process_64.c |    2 +-
- include/asm-x86/system.h     |   70 ++++++++++++++++++++++++++++++++++++++++++
- include/asm-x86/system_32.h  |   59 -----------------------------------
- include/asm-x86/system_64.h  |   12 -------
- 4 files changed, 71 insertions(+), 72 deletions(-)
+ arch/x86/kernel/asm-offsets_64.c |    1 -
+ arch/x86/kernel/suspend_64.c     |    2 --
+ include/asm-x86/suspend_64.h     |    2 +-
+ include/asm-x86/system_64.h      |   12 ------------
+ 4 files changed, 1 insertions(+), 16 deletions(-)
 
-Index: linux-2.6-x86/arch/x86/kernel/process_64.c
+Index: linux-2.6-x86/arch/x86/kernel/asm-offsets_64.c
 ===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/process_64.c
-+++ linux-2.6-x86/arch/x86/kernel/process_64.c
-@@ -99,7 +99,7 @@ void exit_idle(void)
-  * We use this if we don't have any better
-  * idle routine..
-  */
--static void default_idle(void)
-+void default_idle(void)
- {
- 	current_thread_info()->status &= ~TS_POLLING;
- 	/*
-Index: linux-2.6-x86/include/asm-x86/system.h
+--- linux-2.6-x86.orig/arch/x86/kernel/asm-offsets_64.c
++++ linux-2.6-x86/arch/x86/kernel/asm-offsets_64.c
+@@ -107,7 +107,6 @@ int main(void)
+ 	ENTRY(cr2);
+ 	ENTRY(cr3);
+ 	ENTRY(cr4);
+-	ENTRY(cr8);
+ 	BLANK();
+ #undef ENTRY
+ 	DEFINE(TSS_ist, offsetof(struct tss_struct, ist));
+Index: linux-2.6-x86/arch/x86/kernel/suspend_64.c
 ===================================================================
---- linux-2.6-x86.orig/include/asm-x86/system.h
-+++ linux-2.6-x86/include/asm-x86/system.h
-@@ -1,5 +1,74 @@
-+#ifndef _ASM_X86_SYSTEM_H_
-+#define _ASM_X86_SYSTEM_H_
-+
-+#include <asm/asm.h>
-+
- #ifdef CONFIG_X86_32
- # include "system_32.h"
- #else
- # include "system_64.h"
- #endif
-+
-+#ifdef __KERNEL__
-+#define _set_base(addr, base) do { unsigned long __pr; \
-+__asm__ __volatile__ ("movw %%dx,%1\n\t" \
-+	"rorl $16,%%edx\n\t" \
-+	"movb %%dl,%2\n\t" \
-+	"movb %%dh,%3" \
-+	:"=&d" (__pr) \
-+	:"m" (*((addr)+2)), \
-+	 "m" (*((addr)+4)), \
-+	 "m" (*((addr)+7)), \
-+	 "0" (base) \
-+	); } while (0)
-+
-+#define _set_limit(addr, limit) do { unsigned long __lr; \
-+__asm__ __volatile__ ("movw %%dx,%1\n\t" \
-+	"rorl $16,%%edx\n\t" \
-+	"movb %2,%%dh\n\t" \
-+	"andb $0xf0,%%dh\n\t" \
-+	"orb %%dh,%%dl\n\t" \
-+	"movb %%dl,%2" \
-+	:"=&d" (__lr) \
-+	:"m" (*(addr)), \
-+	 "m" (*((addr)+6)), \
-+	 "0" (limit) \
-+	); } while (0)
-+
-+#define set_base(ldt, base) _set_base(((char *)&(ldt)) , (base))
-+#define set_limit(ldt, limit) _set_limit(((char *)&(ldt)) , ((limit)-1))
-+
-+/*
-+ * Save a segment register away
-+ */
-+#define savesegment(seg, value) \
-+	asm volatile("mov %%" #seg ",%0":"=rm" (value))
-+
-+static inline unsigned long get_limit(unsigned long segment)
-+{
-+	unsigned long __limit;
-+	__asm__("lsll %1,%0"
-+		:"=r" (__limit):"r" (segment));
-+	return __limit+1;
-+}
-+#endif /* __KERNEL__ */
-+
-+static inline void clflush(void *__p)
-+{
-+	asm volatile("clflush %0" : "+m" (*(char __force *)__p));
-+}
-+
-+#define nop() __asm__ __volatile__ ("nop")
-+
-+void disable_hlt(void);
-+void enable_hlt(void);
-+
-+extern int es7000_plat;
-+void cpu_idle_wait(void);
-+
-+extern unsigned long arch_align_stack(unsigned long sp);
-+extern void free_init_pages(char *what, unsigned long begin, unsigned long end);
-+
-+void default_idle(void);
-+
-+#endif
-Index: linux-2.6-x86/include/asm-x86/system_32.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/system_32.h
-+++ linux-2.6-x86/include/asm-x86/system_32.h
-@@ -34,34 +34,6 @@ extern struct task_struct * FASTCALL(__s
- 		      "2" (prev), "d" (next));				\
- } while (0)
- 
--#define _set_base(addr,base) do { unsigned long __pr; \
--__asm__ __volatile__ ("movw %%dx,%1\n\t" \
--	"rorl $16,%%edx\n\t" \
--	"movb %%dl,%2\n\t" \
--	"movb %%dh,%3" \
--	:"=&d" (__pr) \
--	:"m" (*((addr)+2)), \
--	 "m" (*((addr)+4)), \
--	 "m" (*((addr)+7)), \
--         "0" (base) \
--        ); } while(0)
--
--#define _set_limit(addr,limit) do { unsigned long __lr; \
--__asm__ __volatile__ ("movw %%dx,%1\n\t" \
--	"rorl $16,%%edx\n\t" \
--	"movb %2,%%dh\n\t" \
--	"andb $0xf0,%%dh\n\t" \
--	"orb %%dh,%%dl\n\t" \
--	"movb %%dl,%2" \
--	:"=&d" (__lr) \
--	:"m" (*(addr)), \
--	 "m" (*((addr)+6)), \
--	 "0" (limit) \
--        ); } while(0)
--
--#define set_base(ldt,base) _set_base( ((char *)&(ldt)) , (base) )
--#define set_limit(ldt,limit) _set_limit( ((char *)&(ldt)) , ((limit)-1) )
--
- /*
-  * Load a segment. Fall back on loading the zero
-  * segment if something goes wrong..
-@@ -83,12 +55,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- 		".previous"			\
- 		: :"rm" (value))
- 
--/*
-- * Save a segment register away
-- */
--#define savesegment(seg, value) \
--	asm volatile("mov %%" #seg ",%0":"=rm" (value))
--
- 
- static inline void native_clts(void)
- {
-@@ -161,11 +127,6 @@ static inline void native_wbinvd(void)
- 	asm volatile("wbinvd": : :"memory");
+--- linux-2.6-x86.orig/arch/x86/kernel/suspend_64.c
++++ linux-2.6-x86/arch/x86/kernel/suspend_64.c
+@@ -53,7 +53,6 @@ void __save_processor_state(struct saved
+ 	ctxt->cr2 = read_cr2();
+ 	ctxt->cr3 = read_cr3();
+ 	ctxt->cr4 = read_cr4();
+-	ctxt->cr8 = read_cr8();
  }
  
--static inline void clflush(void *__p)
--{
--	asm volatile("clflush %0" : "+m" (*(char __force *)__p));
--}
--
- #ifdef CONFIG_PARAVIRT
- #include <asm/paravirt.h>
- #else
-@@ -190,15 +151,6 @@ static inline void clflush(void *__p)
- 
- #endif	/* __KERNEL__ */
- 
--static inline unsigned long get_limit(unsigned long segment)
--{
--	unsigned long __limit;
--	__asm__("lsll %1,%0"
--		:"=r" (__limit):"r" (segment));
--	return __limit+1;
--}
--
--#define nop() __asm__ __volatile__ ("nop")
- 
- /*
-  * Force strict CPU ordering.
-@@ -305,15 +257,5 @@ static inline unsigned long get_limit(un
-  * disable hlt during certain critical i/o operations
-  */
- #define HAVE_DISABLE_HLT
--void disable_hlt(void);
--void enable_hlt(void);
--
--extern int es7000_plat;
--void cpu_idle_wait(void);
--
--extern unsigned long arch_align_stack(unsigned long sp);
--extern void free_init_pages(char *what, unsigned long begin, unsigned long end);
--
--void default_idle(void);
- 
- #endif
+ void save_processor_state(void)
+@@ -75,7 +74,6 @@ void __restore_processor_state(struct sa
+ 	 * control registers
+ 	 */
+ 	wrmsrl(MSR_EFER, ctxt->efer);
+-	write_cr8(ctxt->cr8);
+ 	write_cr4(ctxt->cr4);
+ 	write_cr3(ctxt->cr3);
+ 	write_cr2(ctxt->cr2);
+Index: linux-2.6-x86/include/asm-x86/suspend_64.h
+===================================================================
+--- linux-2.6-x86.orig/include/asm-x86/suspend_64.h
++++ linux-2.6-x86/include/asm-x86/suspend_64.h
+@@ -20,7 +20,7 @@ struct saved_context {
+ 	struct pt_regs regs;
+   	u16 ds, es, fs, gs, ss;
+ 	unsigned long gs_base, gs_kernel_base, fs_base;
+-	unsigned long cr0, cr2, cr3, cr4, cr8;
++	unsigned long cr0, cr2, cr3, cr4;
+ 	unsigned long efer;
+ 	u16 gdt_pad;
+ 	u16 gdt_limit;
 Index: linux-2.6-x86/include/asm-x86/system_64.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/system_64.h
 +++ linux-2.6-x86/include/asm-x86/system_64.h
-@@ -134,13 +134,6 @@ static inline void write_cr8(unsigned lo
+@@ -95,18 +95,6 @@ static inline void write_cr4(unsigned lo
+ 	asm volatile("movq %0,%%cr4" :: "r" (val) : "memory");
+ }
  
- #endif	/* __KERNEL__ */
- 
--static inline void clflush(volatile void *__p)
+-static inline unsigned long read_cr8(void)
 -{
--	asm volatile("clflush %0" : "+m" (*(char __force *)__p));
+-	unsigned long cr8;
+-	asm volatile("movq %%cr8,%0" : "=r" (cr8));
+-	return cr8;
 -}
 -
--#define nop() __asm__ __volatile__ ("nop")
+-static inline void write_cr8(unsigned long val)
+-{
+-	asm volatile("movq %0,%%cr8" :: "r" (val) : "memory");
+-}
 -
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	barrier()
-@@ -170,9 +163,4 @@ static inline void clflush(volatile void
+ #define stts() write_cr0(8 | read_cr0())
  
- #include <linux/irqflags.h>
- 
--void cpu_idle_wait(void);
--
--extern unsigned long arch_align_stack(unsigned long sp);
--extern void free_init_pages(char *what, unsigned long begin, unsigned long end);
--
- #endif
+ #define wbinvd() \
