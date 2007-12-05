@@ -1,44 +1,26 @@
-From: Derek Murray <Derek.Murray@cl.cam.ac.uk>
-Subject: Re: Re: Next steps with pv_ops for Xen
-Date: Wed, 05 Dec 2007 17:48:49 +0000
-Message-ID: <4756E481.1060201@cl.cam.ac.uk>
-References: <C37C8EDC.1971B%Keir.Fraser@cl.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <C37C8EDC.1971B%Keir.Fraser@cl.cam.ac.uk>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>, Jan Beulich <jbeulich@novell.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Gerd Hoffmann <kraxel@redhat.com>
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: [PATCH 0/9 - v2] Integrate system.h
+Date: Wed,  5 Dec 2007 13:08:24 -0200
+Message-ID: <1196867313972-git-send-email-gcosta@redhat.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: 20071204204931.GC32018@elte.hu
+References: 20071204204931.GC32018@elte.hu
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Keir Fraser wrote:
-> Need to bite the bullet and fix this properly by setting a software flag in
-> ptes that are not subject to reference counting.
+Hi,
 
-Could we get away with testing the VM_FOREIGN flag in vm_normal_page()? 
-Although I get the impression that this wouldn't be easily justified if 
-trying to merge with upstream Linux....
-
-> Unfortunately that also needs a hypervisor interface change, to allow
-> setting of those pte flags. Easily done though, and we should definitely get
-> that piece in for 3.2.0.
-
-Alternatively, could we use the _PAGE_GNTTAB PTE flag that is used for 
-debugging? Indeed, if we did this, could be obviate the need for the 
-PTE-zapping hook, by instead catching the case where this flag is set, 
-and unmapping the grant implicitly?
-
-Otherwise, what would the semantics of this new flag be?
-
-Regards,
-
-Derek.
+At Ingo's request, here it goes a new patchset, that actually
+applies ontop of the x86 tree (mm branch). Besides this issue, 
+I've also included a patch that remove the cr8 references, as Andi
+suggested.
