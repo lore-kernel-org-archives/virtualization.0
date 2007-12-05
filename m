@@ -1,17 +1,12 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Derek Murray <Derek.Murray@cl.cam.ac.uk>
 Subject: Re: Re: Next steps with pv_ops for Xen
-Date: Wed, 05 Dec 2007 10:12:02 -0800
-Message-ID: <4756E9F2.4050502@goop.org>
-References: <1195682725.6726.48.camel@sisko.scot.redhat.com>		<4753FC6A.4020601@redhat.com>
-	<4754024C.7020905@cl.cam.ac.uk>		<47540FB8.8000106@redhat.com>
-	<475417E7.9070006@cl.cam.ac.uk>		<47546931.2090602@redhat.com>
-	<475520A1.6080909@cl.cam.ac.uk>		<475541A8.7030100@redhat.com>	<1196771999.10809.18.camel@sisko.scot.redhat.com>	<4755B158.3030008@redhat.com>
-	<47569014.8080008@cl.cam.ac.uk>
+Date: Wed, 05 Dec 2007 18:15:49 +0000
+Message-ID: <4756EAD5.9050407@cl.cam.ac.uk>
+References: <C37C979D.19732%Keir.Fraser@cl.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="------------010706080902020106070903"
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <47569014.8080008@cl.cam.ac.uk>
+In-Reply-To: <C37C979D.19732%Keir.Fraser@cl.cam.ac.uk>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -20,24 +15,69 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: Derek Murray <Derek.Murray@cl.cam.ac.uk>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, Jan Beulich <jbeulich@novell.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Gerd Hoffmann <kraxel@redhat.com>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>, Jan Beulich <jbeulich@novell.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Gerd Hoffmann <kraxel@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Derek Murray wrote:
-> Ultimately, fork calls dup_mm, which calls, dup_mmap, which calls
-> copy_{page,pud,pmd,pte}_range, which calls copy_one_pte, which calls
-> set_pte_at, which hypercalls HYPERVISOR_update_va_mapping.
->
-> The hypercall will not succeed and will return an error code
-> indicating the reason for this. Therefore the PTE will not be set.
-> There appears to be no way to propagate this error through the Linux
-> VM code, because there is no concept of a PTE update failing. I could
-> add return codes to all those functions, but I don't fancy their
-> chances upstream....
+This is a multi-part message in MIME format.
+--------------010706080902020106070903
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Could we use one of the software-defined bits in the PTE to indicate
-that this is a foreign/granted PTE, and have set_pte_at behave
-differently if you pass it a pte with this bit set?
+Keir Fraser wrote:
+> Yes, this would work okay I suspect. Good enough as a stop-gap measure? Are
+> there any other responsibilities that you acquire if you make use of
+> VM_FOREIGN (in particular, how would this affect get_user_pages)?
 
-    J
+VM_FOREIGN is already set for the gntdev VMA (mostly because it's 
+directly based on the blktap code). That means that it has the array of 
+page_structs in its vm_private_data, which can be used to fulfill a 
+get_user_pages call. I've attached a patch based on this fix.
+
+Regards,
+
+Derek.
+
+--------------010706080902020106070903
+Content-Type: text/x-patch;
+ name="gntdev_vm_foreign.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="gntdev_vm_foreign.patch"
+
+# HG changeset patch
+# User dgm36@ise.cl.cam.ac.uk
+# Date 1196878124 0
+# Node ID df7d0555ec3847bd5915063d8ee79123d6ebc67a
+# Parent  ba918cb2cf7520604dee724dd80dad5ce4bee8a1
+Changed vm_normal_page to return NULL when presented with a VMA marked
+as being VM_FOREIGN.
+
+Signed-off-by: Derek Murray <Derek.Murray@cl.cam.ac.uk>
+
+diff -r ba918cb2cf75 -r df7d0555ec38 mm/memory.c
+--- a/mm/memory.c	Tue Dec 04 11:54:22 2007 +0000
++++ b/mm/memory.c	Wed Dec 05 18:08:44 2007 +0000
+@@ -395,6 +395,9 @@ struct page *vm_normal_page(struct vm_ar
+ 		if (!is_cow_mapping(vma->vm_flags))
+ 			return NULL;
+ 	}
++
++	if (unlikely(vma->vm_flags & VM_FOREIGN))
++		return NULL;
+ 
+ 	/*
+ 	 * Add some anal sanity checks for now. Eventually,
+
+--------------010706080902020106070903
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Xen-devel mailing list
+Xen-devel@lists.xensource.com
+http://lists.xensource.com/xen-devel
+
+--------------010706080902020106070903--
