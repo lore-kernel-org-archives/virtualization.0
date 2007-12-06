@@ -1,13 +1,8 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] virtio_net: Fix stalled inbound traffic on early packets
-Date: Thu, 6 Dec 2007 16:59:44 +0100
-Message-ID: <200712061659.44803.borntraeger__37700.7914394655$1196956894$gmane$org@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: [PATCH 0/19] desc_struct integration
+Date: Thu,  6 Dec 2007 14:16:21 -0200
+Message-ID: <1196957800568-git-send-email-gcosta__40775.8406400264$1196967782$gmane$org@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,46 +12,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current virtio_net driver has a startup race, which prevents any
-incoming traffic:
+Hi,
 
-If try_fill_recv submits buffers to the host system data might be
-filled in and an interrupt is sent, before napi_enable finishes.
-In that case the interrupt will kick skb_recv_done which will then
-call netif_rx_schedule. netif_rx_schedule checks, if NAPI_STATE_SCHED
-is set - which is not as we did not run napi_enable. No poll routine
-is scheduled. Furthermore, skb_recv_done returns false, we disables
-interrupts for this device.
+this is a series of patches that unify the struct desc_struct and friends
+across x86_64 and i386. As usual, it provides paravirt capabilities as a
+side-effect for x86_64.
 
-One solution is the enable napi before inbound buffer are available.
+I consider the main goal, namely, of unifying the desc_struct, an ongoing
+effort, being this the beginning. A lot of old code has to be touched to
+accomplish that. 
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- drivers/net/virtio_net.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+I don't consider this patch ready for inclusion. Basically, the main reason
+is that I change the signatures of write_idt_entry(), write_gdt_entry(), and
+write_ldt_entry(). This is needed to account for the differences between the
+two architectures. (For example, gate descriptors in x86_64 are 16-byte long
+and can't be represented by low and high entries). As my patch series were
+64-bit only, I hadn't come across the problem before.
 
-Index: kvm/drivers/net/virtio_net.c
-===================================================================
---- kvm.orig/drivers/net/virtio_net.c
-+++ kvm/drivers/net/virtio_net.c
-@@ -285,13 +285,15 @@ static int virtnet_open(struct net_devic
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 
-+	napi_enable(&vi->napi);
- 	try_fill_recv(vi);
- 
- 	/* If we didn't even get one input buffer, we're useless. */
--	if (vi->num == 0)
-+	if (vi->num == 0) {
-+		napi_disable(&vi->napi);
- 		return -ENOMEM;
-+	}
- 
--	napi_enable(&vi->napi);
- 	return 0;
- }
+I think this interface is sane, but I'd like to hear opinions. Specially
+from Jeremy and Zach, since it would touch xen and vmi code. The later, by
+the way, is _not_ included in this series. Being the interface acked, we
+still have to write it.
+
+Thanks in advance for the review in opinions to come.
