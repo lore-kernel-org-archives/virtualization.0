@@ -1,27 +1,14 @@
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 18/19] move _set_gate and its users to a common location
-Date: Thu,  6 Dec 2007 14:16:39 -0200
-Message-ID: <1196957892937-git-send-email-gcosta__2408.76332759417$1196968581$gmane$org@redhat.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 1/19] unify desc_struct
+Date: Thu, 06 Dec 2007 11:24:06 -0800
+Message-ID: <47584C56.3070804__17822.5129530349$1196969208$gmane$org@goop.org>
 References: <1196957800568-git-send-email-gcosta@redhat.com>
 	<11969578092869-git-send-email-gcosta@redhat.com>
-	<11969578142514-git-send-email-gcosta@redhat.com>
-	<11969578193406-git-send-email-gcosta@redhat.com>
-	<11969578242463-git-send-email-gcosta@redhat.com>
-	<11969578292944-git-send-email-gcosta@redhat.com>
-	<11969578343061-git-send-email-gcosta@redhat.com>
-	<11969578383955-git-send-email-gcosta@redhat.com>
-	<11969578431489-git-send-email-gcosta@redhat.com>
-	<11969578483552-git-send-email-gcosta@redhat.com>
-	<11969578534185-git-send-email-gcosta@redhat.com>
-	<11969578581299-git-send-email-gcosta@redhat.com>
-	<1196957863723-git-send-email-gcosta@redhat.com>
-	<11969578671479-git-send-email-gcosta@redhat.com>
-	<119695787262-git-send-email-gcosta@redhat.com>
-	<11969578773678-git-send-email-gcosta@redhat.com>
-	<11969578811685-git-send-email-gcosta@redhat.com>
-	<11969578862882-git-send-email-gcosta@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11969578862882-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11969578092869-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -31,307 +18,164 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
+To: Glauber de Oliveira Costa <gcosta@redhat.com>
+Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, mingo@elte.hu, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch moves _set_gate and its users to desc.h. We can now
-use common code for x86_64 and i386.
+Glauber de Oliveira Costa wrote:
+> This patch aims to make the access of struct desc_struct variables
+> equal across architectures. In this patch, I unify the i386 and x86_64
+> versions under an anonymous union, keeping the way they are accessed
+> untouched (a and b for 32-bit code, individual bit-fields for 64-bit).
+>
+> This solution is not beautiful, but will allow us to integrate common
+> code that differed by the way descriptors were used. This is to be viewed
+> incrementally. There's simply too much code to be fixed at once.
+>
+> In the future, goal is to set up in a single way of acessing
+> the desc_struct fields.
+>
+> Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+> ---
+>  arch/x86/kernel/apm_32.c       |    2 +-
+>  arch/x86/kernel/cpu/common.c   |   28 ++++++++++++++--------------
+>  arch/x86/kernel/process_64.c   |    2 +-
+>  arch/x86/kernel/traps_32.c     |    2 +-
+>  include/asm-x86/desc_defs.h    |   28 ++++++++++++++++++++--------
+>  include/asm-x86/processor_32.h |    5 +----
+>  6 files changed, 38 insertions(+), 29 deletions(-)
+>
+> diff --git a/arch/x86/kernel/apm_32.c b/arch/x86/kernel/apm_32.c
+> index 8cd9778..b8b9339 100644
+> --- a/arch/x86/kernel/apm_32.c
+> +++ b/arch/x86/kernel/apm_32.c
+> @@ -405,7 +405,7 @@ static DECLARE_WAIT_QUEUE_HEAD(apm_waitqueue);
+>  static DECLARE_WAIT_QUEUE_HEAD(apm_suspend_waitqueue);
+>  static struct apm_user *	user_list;
+>  static DEFINE_SPINLOCK(user_list_lock);
+> -static const struct desc_struct	bad_bios_desc = { 0, 0x00409200 };
+> +static const struct desc_struct	bad_bios_desc = {{{ 0, 0x00409200 }}};
+>  
+>  static const char		driver_version[] = "1.16ac";	/* no spaces */
+>  
+> diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+> index 235cd61..0fe1c1d 100644
+> --- a/arch/x86/kernel/cpu/common.c
+> +++ b/arch/x86/kernel/cpu/common.c
+> @@ -22,31 +22,31 @@
+>  #include "cpu.h"
+>  
+>  DEFINE_PER_CPU(struct gdt_page, gdt_page) = { .gdt = {
+> -	[GDT_ENTRY_KERNEL_CS] = { 0x0000ffff, 0x00cf9a00 },
+> -	[GDT_ENTRY_KERNEL_DS] = { 0x0000ffff, 0x00cf9200 },
+> -	[GDT_ENTRY_DEFAULT_USER_CS] = { 0x0000ffff, 0x00cffa00 },
+> -	[GDT_ENTRY_DEFAULT_USER_DS] = { 0x0000ffff, 0x00cff200 },
+> +	[GDT_ENTRY_KERNEL_CS] = {{{ 0x0000ffff, 0x00cf9a00 }}},
+> +	[GDT_ENTRY_KERNEL_DS] = {{{ 0x0000ffff, 0x00cf9200 }}},
+> +	[GDT_ENTRY_DEFAULT_USER_CS] = {{{ 0x0000ffff, 0x00cffa00 }}},
+> +	[GDT_ENTRY_DEFAULT_USER_DS] = {{{ 0x0000ffff, 0x00cff200 }}},
+>   
 
-Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
----
- arch/x86/kernel/traps_32.c  |   34 ----------------
- include/asm-x86/desc.h      |   88 +++++++++++++++++++++++++++++++++++++++++++
- include/asm-x86/desc_32.h   |   43 ---------------------
- include/asm-x86/desc_64.h   |   45 ----------------------
- include/asm-x86/desc_defs.h |    5 +--
- 5 files changed, 89 insertions(+), 126 deletions(-)
+I don't suppose there's some way to make all this more symbolic?
 
-diff --git a/arch/x86/kernel/traps_32.c b/arch/x86/kernel/traps_32.c
-index 6b03d88..776e19b 100644
---- a/arch/x86/kernel/traps_32.c
-+++ b/arch/x86/kernel/traps_32.c
-@@ -1102,40 +1102,6 @@ asmlinkage void math_emulate(long arg)
- 
- #endif /* CONFIG_MATH_EMULATION */
- 
--/*
-- * This needs to use 'idt_table' rather than 'idt', and
-- * thus use the _nonmapped_ version of the IDT, as the
-- * Pentium F0 0F bugfix can have resulted in the mapped
-- * IDT being write-protected.
-- */
--void set_intr_gate(unsigned int n, void *addr)
--{
--	_set_gate(n, DESCTYPE_INT, addr, __KERNEL_CS);
--}
--
--/*
-- * This routine sets up an interrupt gate at directory privilege level 3.
-- */
--static inline void set_system_intr_gate(unsigned int n, void *addr)
--{
--	_set_gate(n, DESCTYPE_INT | DESCTYPE_DPL3, addr, __KERNEL_CS);
--}
--
--static void __init set_trap_gate(unsigned int n, void *addr)
--{
--	_set_gate(n, DESCTYPE_TRAP, addr, __KERNEL_CS);
--}
--
--static void __init set_system_gate(unsigned int n, void *addr)
--{
--	_set_gate(n, DESCTYPE_TRAP | DESCTYPE_DPL3, addr, __KERNEL_CS);
--}
--
--static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
--{
--	_set_gate(n, DESCTYPE_TASK, (void *)0, (gdt_entry<<3));
--}
--
- 
- void __init trap_init(void)
- {
-diff --git a/include/asm-x86/desc.h b/include/asm-x86/desc.h
-index 1773dd2..1290757 100644
---- a/include/asm-x86/desc.h
-+++ b/include/asm-x86/desc.h
-@@ -15,6 +15,22 @@ extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
- extern struct desc_ptr cpu_gdt_descr[];
- /* the cpu gdt accessor */
- #define get_cpu_gdt_table(_cpu) ((struct desc_struct *)cpu_gdt_descr[_cpu].address)
-+
-+static inline void pack_gate(gate_desc *gate, unsigned type, unsigned long func,
-+			     unsigned dpl, unsigned ist, unsigned seg)
-+{
-+	gate->offset_low = PTR_LOW(func);
-+	gate->segment = __KERNEL_CS;
-+	gate->ist = ist;
-+	gate->p = 1;
-+	gate->dpl = dpl;
-+	gate->zero0 = 0;
-+	gate->zero1 = 0;
-+	gate->type = type;
-+	gate->offset_middle = PTR_MIDDLE(func);
-+	gate->offset_high = PTR_HIGH(func);
-+}
-+
- #else
- struct gdt_page
- {
-@@ -26,6 +42,16 @@ static inline struct desc_struct *get_cpu_gdt_table(unsigned int cpu)
- {
- 	return per_cpu(gdt_page, cpu).gdt;
- }
-+
-+static inline void pack_gate(gate_desc *gate,unsigned char type,
-+       unsigned long base, unsigned dpl, unsigned flags, unsigned short seg)
-+
-+{
-+	gate->a = (seg << 16) | (base & 0xffff);
-+	gate->b = (base & 0xffff0000) |
-+		  ((( 0x80 | type | (dpl << 5)) & 0xff) << 8);
-+}
-+
- #endif
- 
- #ifdef CONFIG_PARAVIRT
-@@ -214,6 +240,68 @@ static inline unsigned long get_desc_base(struct desc_struct *desc)
- {
- 	return desc->base0 | ((desc->base1) << 16) | ((desc->base2) << 24);
- }
-+static inline void _set_gate(int gate, unsigned type, void *addr,
-+			      unsigned dpl, unsigned ist, unsigned seg)
-+{
-+	gate_desc s;
-+	pack_gate(&s, type, (unsigned long)addr, dpl, ist, seg);
-+	/*
-+	 * does not need to be atomic because it is only done once at
-+	 * setup time
-+	 */
-+	write_idt_entry(idt_table, gate, &s);
-+}
-+
-+/*
-+ * This needs to use 'idt_table' rather than 'idt', and
-+ * thus use the _nonmapped_ version of the IDT, as the
-+ * Pentium F0 0F bugfix can have resulted in the mapped
-+ * IDT being write-protected.
-+ */
-+static inline void set_intr_gate(unsigned int n, void *addr)
-+{
-+	BUG_ON((unsigned)n > 0xFF);
-+	_set_gate(n, GATE_INTERRUPT, addr, 0, 0, __KERNEL_CS);
-+}
-+
-+/*
-+ * This routine sets up an interrupt gate at directory privilege level 3.
-+ */
-+static inline void set_system_intr_gate(unsigned int n, void *addr)
-+{
-+	BUG_ON((unsigned)n > 0xFF);
-+	_set_gate(n, GATE_INTERRUPT, addr, 0x3, 0, __KERNEL_CS);
-+}
-+
-+static inline void set_trap_gate(unsigned int n, void *addr)
-+{
-+	BUG_ON((unsigned)n > 0xFF);
-+	_set_gate(n, GATE_TRAP, addr, 0, 0, __KERNEL_CS);
-+}
-+
-+static inline void set_system_gate(unsigned int n, void *addr)
-+{
-+	BUG_ON((unsigned)n > 0xFF);
-+	_set_gate(n, GATE_TRAP, addr, 0x3, 0, __KERNEL_CS);
-+}
-+
-+static inline void set_task_gate(unsigned int n, unsigned int gdt_entry)
-+{
-+	BUG_ON((unsigned)n > 0xFF);
-+	_set_gate(n, GATE_TASK, (void *)0, 0, 0, (gdt_entry<<3));
-+}
-+
-+static inline void set_intr_gate_ist(int n, void *addr, unsigned ist)
-+{
-+	BUG_ON((unsigned)n > 0xFF);
-+	_set_gate(n, GATE_INTERRUPT, addr, 0, ist, __KERNEL_CS);
-+}
-+
-+static inline void set_system_gate_ist(int n, void *addr, unsigned ist)
-+{
-+	BUG_ON((unsigned)n > 0xFF);
-+	_set_gate(n, GATE_INTERRUPT, addr, 0x3, ist, __KERNEL_CS);
-+}
- 
- #else
- /*
-diff --git a/include/asm-x86/desc_32.h b/include/asm-x86/desc_32.h
-deleted file mode 100644
-index e8f2bc2..0000000
---- a/include/asm-x86/desc_32.h
-+++ /dev/null
-@@ -1,43 +0,0 @@
--#ifndef __ARCH_DESC_H
--#define __ARCH_DESC_H
--
--#include <asm/ldt.h>
--#include <asm/segment.h>
--#include <asm/desc_defs.h>
--
--#ifndef __ASSEMBLY__
--
--#include <linux/preempt.h>
--#include <linux/percpu.h>
--
--extern void set_intr_gate(unsigned int irq, void * addr);
--
--static inline void pack_gate(gate_desc *gate,
--	unsigned long base, unsigned short seg, unsigned char type, unsigned char flags)
--{
--	gate->a = (seg << 16) | (base & 0xffff);
--	gate->b = (base & 0xffff0000) | ((type & 0xff) << 8) | (flags & 0xff);
--}
--
--static inline void _set_gate(int gate, unsigned int type, void *addr, unsigned short seg)
--{
--	gate_desc g;
--	pack_gate(&g, (unsigned long)addr, seg, type, 0);
--	write_idt_entry(idt_table, gate, &g);
--}
--
--static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, const void *addr)
--{
--	tss_desc tss;
--	pack_descriptor(&tss, (unsigned long)addr,
--			offsetof(struct tss_struct, __cacheline_filler) - 1,
--			DESCTYPE_TSS, 0);
--	write_gdt_entry(get_cpu_gdt_table(cpu), entry, &tss, sizeof(tss));
--}
--
--
--#define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
--
--#endif /* !__ASSEMBLY__ */
--
--#endif
-diff --git a/include/asm-x86/desc_64.h b/include/asm-x86/desc_64.h
-index fd907da..de37b9b 100644
---- a/include/asm-x86/desc_64.h
-+++ b/include/asm-x86/desc_64.h
-@@ -11,51 +11,6 @@
- 
- #include <asm/segment.h>
- 
--static inline void _set_gate(int gate, unsigned type, unsigned long func,
--			     unsigned dpl, unsigned ist)
--{
--	gate_desc s;
--
--	s.offset_low = PTR_LOW(func);
--	s.segment = __KERNEL_CS;
--	s.ist = ist;
--	s.p = 1;
--	s.dpl = dpl;
--	s.zero0 = 0;
--	s.zero1 = 0;
--	s.type = type;
--	s.offset_middle = PTR_MIDDLE(func);
--	s.offset_high = PTR_HIGH(func);
--	/*
--	 * does not need to be atomic because it is only done once at
--	 * setup time
--	 */
--	write_idt_entry(idt_table, gate, &s);
--}
--
--static inline void set_intr_gate(int nr, void *func)
--{
--	BUG_ON((unsigned)nr > 0xFF);
--	_set_gate(nr, GATE_INTERRUPT, (unsigned long) func, 0, 0);
--}
--
--static inline void set_intr_gate_ist(int nr, void *func, unsigned ist)
--{
--	BUG_ON((unsigned)nr > 0xFF);
--	_set_gate(nr, GATE_INTERRUPT, (unsigned long) func, 0, ist);
--}
--
--static inline void set_system_gate(int nr, void *func)
--{
--	BUG_ON((unsigned)nr > 0xFF);
--	_set_gate(nr, GATE_INTERRUPT, (unsigned long) func, 3, 0);
--}
--
--static inline void set_system_gate_ist(int nr, void *func, unsigned ist)
--{
--	_set_gate(nr, GATE_INTERRUPT, (unsigned long) func, 3, ist);
--}
--
- static inline void set_tss_desc(unsigned cpu, void *addr)
- {
- 	struct desc_struct *d = get_cpu_gdt_table(cpu);
-diff --git a/include/asm-x86/desc_defs.h b/include/asm-x86/desc_defs.h
-index 69597f3..7759d8a 100644
---- a/include/asm-x86/desc_defs.h
-+++ b/include/asm-x86/desc_defs.h
-@@ -39,6 +39,7 @@ enum {
- 	GATE_INTERRUPT = 0xE,
- 	GATE_TRAP = 0xF,
- 	GATE_CALL = 0xC,
-+	GATE_TASK = 0x5,
- };
- 
- // 16byte gate
-@@ -60,10 +61,6 @@ enum {
- 	DESC_LDT = 0x2,
- 	DESCTYPE_LDT =	0x82,	/* present, system, DPL-0, LDT */
- 	DESCTYPE_TSS =	0x89,	/* present, system, DPL-0, 32-bit TSS */
--	DESCTYPE_TASK = 0x85,   /* present, system, DPL-0, task gate */
--	DESCTYPE_INT =  0x8e,   /* present, system, DPL-0, interrupt gate */
--	DESCTYPE_TRAP = 0x8f,   /* present, system, DPL-0, trap gate */
--	DESCTYPE_DPL3 = 0x60,   /* DPL-3 */
- 	DESCTYPE_S =	0x10,	/* !system */
- };
- 
--- 
-1.4.4.2
+>  	/*
+>  	 * Segments used for calling PnP BIOS have byte granularity.
+>  	 * They code segments and data segments have fixed 64k limits,
+>  	 * the transfer segment sizes are set at run time.
+>  	 */
+> -	[GDT_ENTRY_PNPBIOS_CS32] = { 0x0000ffff, 0x00409a00 },/* 32-bit code */
+> -	[GDT_ENTRY_PNPBIOS_CS16] = { 0x0000ffff, 0x00009a00 },/* 16-bit code */
+> -	[GDT_ENTRY_PNPBIOS_DS] = { 0x0000ffff, 0x00009200 }, /* 16-bit data */
+> -	[GDT_ENTRY_PNPBIOS_TS1] = { 0x00000000, 0x00009200 },/* 16-bit data */
+> -	[GDT_ENTRY_PNPBIOS_TS2] = { 0x00000000, 0x00009200 },/* 16-bit data */
+> +	[GDT_ENTRY_PNPBIOS_CS32] = {{{ 0x0000ffff, 0x00409a00 }}},/* 32-bit code */
+> +	[GDT_ENTRY_PNPBIOS_CS16] = {{{ 0x0000ffff, 0x00009a00 }}},/* 16-bit code */
+> +	[GDT_ENTRY_PNPBIOS_DS] = {{{ 0x0000ffff, 0x00009200 }}}, /* 16-bit data */
+> +	[GDT_ENTRY_PNPBIOS_TS1] = {{{ 0x00000000, 0x00009200 }}},/* 16-bit data */
+> +	[GDT_ENTRY_PNPBIOS_TS2] = {{{ 0x00000000, 0x00009200 }}},/* 16-bit data */
+>  	/*
+>  	 * The APM segments have byte granularity and their bases
+>  	 * are set at run time.  All have 64k limits.
+>  	 */
+> -	[GDT_ENTRY_APMBIOS_BASE] = { 0x0000ffff, 0x00409a00 },/* 32-bit code */
+> +	[GDT_ENTRY_APMBIOS_BASE] = {{{ 0x0000ffff, 0x00409a00 }}},/* 32-bit code */
+>  	/* 16-bit code */
+> -	[GDT_ENTRY_APMBIOS_BASE+1] = { 0x0000ffff, 0x00009a00 },
+> -	[GDT_ENTRY_APMBIOS_BASE+2] = { 0x0000ffff, 0x00409200 }, /* data */
+> +	[GDT_ENTRY_APMBIOS_BASE+1] = {{{ 0x0000ffff, 0x00009a00 }}},
+> +	[GDT_ENTRY_APMBIOS_BASE+2] = {{{ 0x0000ffff, 0x00409200 }}}, /* data */
+>  
+> -	[GDT_ENTRY_ESPFIX_SS] = { 0x00000000, 0x00c09200 },
+> -	[GDT_ENTRY_PERCPU] = { 0x00000000, 0x00000000 },
+> +	[GDT_ENTRY_ESPFIX_SS] = {{{ 0x00000000, 0x00c09200 }}},
+> +	[GDT_ENTRY_PERCPU] = {{{ 0x00000000, 0x00000000 }}},
+>  } };
+>  EXPORT_PER_CPU_SYMBOL_GPL(gdt_page);
+>  
+> diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
+> index 6724840..9e99cb7 100644
+> --- a/arch/x86/kernel/process_64.c
+> +++ b/arch/x86/kernel/process_64.c
+> @@ -437,7 +437,7 @@ static inline void set_32bit_tls(struct task_struct *t, int tls, u32 addr)
+>  		.limit_in_pages = 1,
+>  		.useable = 1,
+>  	};
+> -	struct n_desc_struct *desc = (void *)t->thread.tls_array;
+> +	struct desc_struct *desc = (void *)t->thread.tls_array;
+>  	desc += tls;
+>  	desc->a = LDT_entry_a(&ud);
+>  	desc->b = LDT_entry_b(&ud);
+> diff --git a/arch/x86/kernel/traps_32.c b/arch/x86/kernel/traps_32.c
+> index e15014e..94c5aea 100644
+> --- a/arch/x86/kernel/traps_32.c
+> +++ b/arch/x86/kernel/traps_32.c
+> @@ -76,7 +76,7 @@ char ignore_fpu_irq = 0;
+>   * F0 0F bug workaround.. We have a special link segment
+>   * for this.
+>   */
+> -struct desc_struct idt_table[256] __attribute__((__section__(".data.idt"))) = { {0, 0}, };
+> +struct desc_struct idt_table[256] __attribute__((__section__(".data.idt"))) = { {{{ 0, 0 }}}, };
+>  
+>  asmlinkage void divide_error(void);
+>  asmlinkage void debug(void);
+> diff --git a/include/asm-x86/desc_defs.h b/include/asm-x86/desc_defs.h
+> index 0890040..b3db064 100644
+> --- a/include/asm-x86/desc_defs.h
+> +++ b/include/asm-x86/desc_defs.h
+> @@ -11,18 +11,30 @@
+>  
+>  #include <linux/types.h>
+>  
+> +/*
+> + * FIXME: Acessing the desc_struct through its fields is more elegant,
+> + * and should be the one valid thing to do. However, a lot of open code
+> + * still touches the a and b acessors, and doing this allow us to do it
+> + * incrementally. We keep the signature as a struct, rather than an union,
+> + * so we can get rid of it transparently in the future -- glommer
+> + */
+> +#define raw_desc_struct struct { unsigned int a, b; }
+> +#define detailed_desc_struct                                   \
+> +  struct {                                                       \
+> +	u16 limit0;                                             \
+> +	u16 base0;                                              \
+> +	unsigned base1 : 8, type : 4, s : 1, dpl : 2, p : 1;    \
+> +	unsigned limit : 4, avl : 1, l : 1, d : 1, g : 1, base2 :8;\
+> +  }
+> +
+>  // 8 byte segment descriptor
+>  struct desc_struct {
+> -	u16 limit0;
+> -	u16 base0;
+> -	unsigned base1 : 8, type : 4, s : 1, dpl : 2, p : 1;
+> -	unsigned limit : 4, avl : 1, l : 1, d : 1, g : 1, base2 : 8;
+> +	union {
+> +		raw_desc_struct;
+> +		detailed_desc_struct;
+> +	};
+>  } __attribute__((packed));
+>   
+
+Is it really necessary to use #defines?  Couldn't you just define the
+structures inline, or give them names?
+
+    J
