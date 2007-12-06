@@ -1,40 +1,62 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: Re: Next steps with pv_ops for Xen
-Date: Thu, 06 Dec 2007 16:55:02 +0100
-Message-ID: <47581B56.6020705@redhat.com>
-References: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
-	<4758136D.1030002@redhat.com> <475815F1.1050902@cl.cam.ac.uk>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH] virtio_net: Fix stalled inbound traffic on early packets
+Date: Thu, 6 Dec 2007 16:59:44 +0100
+Message-ID: <200712061659.44803.borntraeger__37700.7914394655$1196956894$gmane$org@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <475815F1.1050902@cl.cam.ac.uk>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Derek Murray <Derek.Murray@cl.cam.ac.uk>
-Cc: xen-devel@lists.xensource.com, 'Eduardo Habkost' <ehabkost@redhat.com>, 'Juan Quintela' <quintela@redhat.com>, "'Stephen C. Tweedie'" <sct@redhat.com>, 'Jan Beulich' <jbeulich@novell.com>, 'Glauber de Oliveira Costa' <gcosta@redhat.com>, 'Chris Wright' <chrisw@sous-sol.org>, virtualization@lists.osdl.org, 'Mark Williamson' <mark.williamson@cl.cam.ac.uk>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+The current virtio_net driver has a startup race, which prevents any
+incoming traffic:
 
-> Which version of the Xen tools are you using? There was a bug in the
-> version released with Xen 3.1, which should have been cleaned up in the
-> subsequent minor versions. Try grabbing the patch to libxc at:
-> 
-> http://xenbits.xensource.com/xen-3.1-testing.hg?raw-rev/135d5088909f
+If try_fill_recv submits buffers to the host system data might be
+filled in and an interrupt is sent, before napi_enable finishes.
+In that case the interrupt will kick skb_recv_done which will then
+call netif_rx_schedule. netif_rx_schedule checks, if NAPI_STATE_SCHED
+is set - which is not as we did not run napi_enable. No poll routine
+is scheduled. Furthermore, skb_recv_done returns false, we disables
+interrupts for this device.
 
-Probably it is this one, according to rpm version is 3.1.0, so most
-likely the fix isn't there.
+One solution is the enable napi before inbound buffer are available.
 
-> Otherwise, if this doesn't work/is some other issue, could you post the
-> OOPS and relevant Xen console output?
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ drivers/net/virtio_net.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-There isn't any, the mapping just doesn't work (libxc returning NULL).
-
-thanks,
-  Gerd
+Index: kvm/drivers/net/virtio_net.c
+===================================================================
+--- kvm.orig/drivers/net/virtio_net.c
++++ kvm/drivers/net/virtio_net.c
+@@ -285,13 +285,15 @@ static int virtnet_open(struct net_devic
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 
++	napi_enable(&vi->napi);
+ 	try_fill_recv(vi);
+ 
+ 	/* If we didn't even get one input buffer, we're useless. */
+-	if (vi->num == 0)
++	if (vi->num == 0) {
++		napi_disable(&vi->napi);
+ 		return -ENOMEM;
++	}
+ 
+-	napi_enable(&vi->napi);
+ 	return 0;
+ }
