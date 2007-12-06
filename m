@@ -1,54 +1,47 @@
-From: Christian Borntraeger <borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] virtnet: remove double ether_setup
-Date: Thu, 6 Dec 2007 15:21:46 +0100
-Message-ID: <200712061521.46389.borntraeger@de.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: Re: Next steps with pv_ops for Xen
+Date: Thu, 06 Dec 2007 16:21:17 +0100
+Message-ID: <4758136D.1030002@redhat.com>
+References: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
-Cc: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: dgm36@cam.ac.uk
+Cc: xen-devel@lists.xensource.com, 'Eduardo Habkost' <ehabkost@redhat.com>, 'Juan Quintela' <quintela@redhat.com>, "'Stephen C. Tweedie'" <sct@redhat.com>, 'Jan Beulich' <jbeulich@novell.com>, 'Glauber de Oliveira Costa' <gcosta@redhat.com>, 'Chris Wright' <chrisw@sous-sol.org>, virtualization@lists.osdl.org, 'Mark Williamson' <mark.williamson@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Rusty,
+D.G. Murray wrote:
+> Hi Mark, 
+> 
+>> Maybe a change to the gntdev userspace API to allow batching 
+>> of mapping requests?
+> 
+> Something along the lines of the following?
+> 
+> void *xc_gnttab_map_grant_refs(int xcg_handle,
+>                                uint32_t count,
+>                                uint32_t *domids,
+>                                uint32_t *refs,
+>                                int prot); 
 
-virtnet_probe already calls alloc_etherdev, which calls ether_setup.
-There is no need to do that again.
+Yes, except that it should actually work ;)
 
-Signed-off-by: Christian Borntraeger <borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>
----
- drivers/net/virtio_net.c |    1 -
- 1 file changed, 1 deletion(-)
+It doesn't for me (Fedora 8 again).  Grab xenner 0.9 (just uploaded),
+edit blkbackd.c and flip the BATCH_MAPS from 0 to 1, compile, run, see
+it not work.
 
-Index: kvm/drivers/net/virtio_net.c
-===================================================================
---- kvm.orig/drivers/net/virtio_net.c
-+++ kvm/drivers/net/virtio_net.c
-@@ -329,11 +329,10 @@ static int virtnet_probe(struct virtio_d
- 	dev = alloc_etherdev(sizeof(struct virtnet_info));
- 	if (!dev)
- 		return -ENOMEM;
- 
- 	/* Set up network device as normal. */
--	ether_setup(dev);
- 	dev->open = virtnet_open;
- 	dev->stop = virtnet_close;
- 	dev->hard_start_xmit = start_xmit;
- 	dev->features = NETIF_F_HIGHDMA;
- 	SET_NETDEV_DEV(dev, &vdev->dev);
+With BATCH_MAPS being 0 blkbackd works nicely as blktap/tapdisk drop-in
+replacement.
 
--------------------------------------------------------------------------
-SF.Net email is sponsored by: The Future of Linux Business White Paper
-from Novell.  From the desktop to the data center, Linux is going
-mainstream.  Let it simplify your IT future.
-http://altfarm.mediaplex.com/ad/ck/8857-50307-18918-4
+cheers,
+  Gerd
