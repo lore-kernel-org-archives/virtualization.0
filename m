@@ -1,14 +1,10 @@
-From: Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>
-Subject: Re: [Xen-devel] Re: Next steps with pv_ops for Xen
-Date: Thu, 06 Dec 2007 11:55:38 -0800
-Message-ID: <475853BA.1050405@citrix.com>
-References: <C37CBE1F.10E88%Keir.Fraser@cl.cam.ac.uk>
-	<4757C826.10506@cl.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: [PATCH 1/3] [PATCH] put get_kernel_rpl in a common location
+Date: Fri,  7 Dec 2007 14:22:40 -0200
+Message-ID: <11970445742522-git-send-email-gcosta__49761.5776294426$1197054579$gmane$org@redhat.com>
+References: <119704456265-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4757C826.10506@cl.cam.ac.uk>
+In-Reply-To: <119704456265-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,35 +14,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Derek Murray <Derek.Murray@cl.cam.ac.uk>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Eduardo Habkost <ehabkost@redhat.com>, Juan Quintela <quintela@redhat.com>, Jan Beulich <jbeulich@novell.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+To: linux-kernel@vger.kernel.org
+Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Derek Murray wrote:
-> Keir Fraser wrote:
->> You'd need to track pte->grant_handle mappings somewhere, but it could
->> certainly be done this way, yes.
->
-> At the moment, blktap and gntdev provide struct pages to
-> get_user_pages by smuggling them in the vm_private_data field of the
-> relevant vm_area_struct. Could we use this field to get the handles to
-> ptep_get_and_clear_full as well?
+This macro is useful for both i386 and x86_64, so put it in a common
+location, where both arches can grab it.
 
-Yes.  Given the mm and a vaddr passed to ptep_get_and_clear, find_vma()
-will return the vma_struct.  If we assert that anyone who sets the "I'm
-foreign" bit in a pte has a standard format for the vm_private_data
-field, then we can stash a callback pointer there and make the
-appropriate callback.
+Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+---
+ include/asm-x86/segment.h    |    9 +++++++++
+ include/asm-x86/segment_32.h |    3 ---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-> Only downside that I can see is that we would need to find the vma for
-> each PTE that needs to be cleared this way (since we don't get this
-> passed to ptep_get_and_clear_full), but this is mitigated by (i) it
-> only happening in the erroneous, unclean-shutdown case, and (ii)
-> getting a hit in the mm->mmap_cache for consecutive runs of mapped
-> grants.
-
-Yes.  find_vma is fairly hot, since its used on every fault, so it
-should be reasonably fast.  And it doesn't sound like our case is
-particularly performance critical.
-
-    J
+diff --git a/include/asm-x86/segment.h b/include/asm-x86/segment.h
+index 6050682..b3a7a3e 100644
+--- a/include/asm-x86/segment.h
++++ b/include/asm-x86/segment.h
+@@ -1,5 +1,14 @@
++#ifndef _ASM_X86_SEGMENT_H_
++#define _ASM_X86_SEGMENT_H_
++
+ #ifdef CONFIG_X86_32
+ # include "segment_32.h"
+ #else
+ # include "segment_64.h"
+ #endif
++
++#ifndef CONFIG_PARAVIRT
++#define get_kernel_rpl()  0
++#endif
++
++#endif
+diff --git a/include/asm-x86/segment_32.h b/include/asm-x86/segment_32.h
+index 597a47c..ff186e3 100644
+--- a/include/asm-x86/segment_32.h
++++ b/include/asm-x86/segment_32.h
+@@ -129,9 +129,6 @@
+ #define SEGMENT_LDT		0x4
+ #define SEGMENT_GDT		0x0
+ 
+-#ifndef CONFIG_PARAVIRT
+-#define get_kernel_rpl()  0
+-#endif
+ /*
+  * Matching rules for certain types of segments.
+  */
+-- 
+1.4.4.2
