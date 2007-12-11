@@ -1,16 +1,17 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [kvm-devel] [PATCH resent] virtio_net: Fix stalled inbound
 	trafficon early packets
-Date: Tue, 11 Dec 2007 14:19:52 +0100
-Message-ID: <200712111419.52880.borntraeger__49522.7789426737$1197379304$gmane$org@de.ibm.com>
+Date: Tue, 11 Dec 2007 16:27:21 +0100
+Message-ID: <200712111627.21364.borntraeger__21996.6981131167$1197387150$gmane$org@de.ibm.com>
 References: <200712111242.28843.borntraeger@de.ibm.com>
-	<475E8716.2010500@qumranet.com> <475E892D.9060400@qumranet.com>
+	<475E892D.9060400@qumranet.com>
+	<200712111419.52880.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <475E892D.9060400@qumranet.com>
+In-Reply-To: <200712111419.52880.borntraeger@de.ibm.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,54 +26,125 @@ To: dor.laor@qumranet.com
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-2nd try. I somehow enable html on the last post
+Am Dienstag, 11. Dezember 2007 schrieb Christian Borntraeger:
+> > The way other physical NICs doing it is by dis/en/abling interrupt 
+> > using registers (look at e1000).
+> > I suggest we can export add_status and use the original code but
+> > before enabling napi add a call to add_status(dev, 
+> > VIRTIO_CONFIG_DEV_OPEN).
+> > The host won't trigger an irq until it sees the above.
+> 
+> That would also work. We already have VRING_AVAIL_F_NO_INTERRUPT in
+> virtio_ring.c - maybe we can use that. Its hidden in callback and
+> restart handling, what about adding an explicit startup?
 
-Dor Laor wrote:
-> Christian Borntraeger wrote:
->>
->> Hello Rusty,
->>
->> while implementing and testing virtio on s390 I found a problem in
->> virtio_net: The current virtio_net driver has a startup race, which
->> prevents any incoming traffic:
->>
->> If try_fill_recv submits buffers to the host system data might be
->> filled in and an interrupt is sent, before napi_enable finishes.
->> In that case the interrupt will kick skb_recv_done which will then
->> call netif_rx_schedule. netif_rx_schedule checks, if NAPI_STATE_SCHED
->> is set - which is not as we did not run napi_enable. No poll routine
->> is scheduled. Furthermore, skb_recv_done returns false, we disables
->> interrupts for this device.
->>
->> One solution is the enable napi before inbound buffer are available.
->>
-> But then you might get recv interrupt without a buffer.
+Ok, just to give an example what I thought about:
+---
+ drivers/block/virtio_blk.c   |    3 ++-
+ drivers/net/virtio_net.c     |    2 ++
+ drivers/virtio/virtio_ring.c |   16 +++++++++++++---
+ include/linux/virtio.h       |    5 +++++
+ 4 files changed, 22 insertions(+), 4 deletions(-)
 
-If I look at the current implementation (lguest) no interrupt is sent if
-there is not buffer available, no?
-On the other hand, if the host does send an interrupt when no buffer is
-available, this is also no problem. Looking at virtnet_poll, it seems it
-can cope with an empty ring. 
+Index: kvm/drivers/virtio/virtio_ring.c
+===================================================================
+--- kvm.orig/drivers/virtio/virtio_ring.c
++++ kvm/drivers/virtio/virtio_ring.c
+@@ -241,6 +241,16 @@ static bool vring_restart(struct virtque
+ 	return true;
+ }
+ 
++static void vring_startup(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	START_USE(vq);
++	if (vq->vq.callback)
++		vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
++	END_USE(vq);
++}
++
++
+ irqreturn_t vring_interrupt(int irq, void *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+@@ -265,6 +275,7 @@ static struct virtqueue_ops vring_vq_ops
+ 	.get_buf = vring_get_buf,
+ 	.kick = vring_kick,
+ 	.restart = vring_restart,
++	.startup = vring_startup,
+ 	.shutdown = vring_shutdown,
+ };
+ 
+@@ -299,9 +310,8 @@ struct virtqueue *vring_new_virtqueue(un
+ 	vq->in_use = false;
+ #endif
+ 
+-	/* No callback?  Tell other side not to bother us. */
+-	if (!callback)
+-		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
++	/* disable interrupts until we enable them */
++	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+ 
+ 	/* Put everything in free lists. */
+ 	vq->num_free = num;
+Index: kvm/include/linux/virtio.h
+===================================================================
+--- kvm.orig/include/linux/virtio.h
++++ kvm/include/linux/virtio.h
+@@ -45,6 +45,9 @@ struct virtqueue
+  *	vq: the struct virtqueue we're talking about.
+  *	This returns "false" (and doesn't re-enable) if there are pending
+  *	buffers in the queue, to avoid a race.
++ * @startup: enable callbacks
++ *	vq: the struct virtqueue we're talking abount
++ *	Returns 0 or an error
+  * @shutdown: "unadd" all buffers.
+  *	vq: the struct virtqueue we're talking about.
+  *	Remove everything from the queue.
+@@ -67,6 +70,8 @@ struct virtqueue_ops {
+ 
+ 	bool (*restart)(struct virtqueue *vq);
+ 
++	void (*startup) (struct virtqueue *vq);
++
+ 	void (*shutdown)(struct virtqueue *vq);
+ };
+ 
+Index: kvm/drivers/net/virtio_net.c
+===================================================================
+--- kvm.orig/drivers/net/virtio_net.c
++++ kvm/drivers/net/virtio_net.c
+@@ -292,6 +292,8 @@ static int virtnet_open(struct net_devic
+ 		return -ENOMEM;
+ 
+ 	napi_enable(&vi->napi);
++
++	vi->rvq->vq_ops->startup(vi->rvq);
+ 	return 0;
+ }
+ 
+Index: kvm/drivers/block/virtio_blk.c
+===================================================================
+--- kvm.orig/drivers/block/virtio_blk.c
++++ kvm/drivers/block/virtio_blk.c
+@@ -183,7 +183,8 @@ static int virtblk_probe(struct virtio_d
+ 		err = PTR_ERR(vblk->vq);
+ 		goto out_free_vblk;
+ 	}
+-
++	/* enable interrupts */
++	vblk->vq->vq_ops->startup(vblk->vq);
+ 	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
+ 	if (!vblk->pool) {
+ 		err = -ENOMEM;
 
-> The way other physical NICs doing it is by dis/en/abling interrupt 
-> using registers (look at e1000).
-> I suggest we can export add_status and use the original code but
-> before enabling napi add a call to add_status(dev, 
-> VIRTIO_CONFIG_DEV_OPEN).
-> The host won't trigger an irq until it sees the above.
 
-That would also work. We already have VRING_AVAIL_F_NO_INTERRUPT in
-virtio_ring.c - maybe we can use that. Its hidden in callback and
-restart handling, what about adding an explicit startup?
->
-> BTW: Rusty is on vacation and that's probably the reason he didn't 
-> respond.
-> Regards,
-> Dor.
 
-Ok, didnt know that. At the moment I can live with my private patch
-while we work on a final solution. Meanwhile I will try to debug virtio
-on SMP guests - I still see some strange races on our test system. (But
-block and net is now working on s390 and can cope with medium load. )
+There is still one small problem: what if the host fills up all 
+host-to-guest buffers before we call startup? So I start to think that your 
+solution is better, given that the host is not only not sending interrupts 
+but also not filling any buffers as long as VIRTIO_CONFIG_DEV_OPEN is not 
+set. I will have a look but I think that add_status needs to be called 
+after napi_enable, otherwise we have the same race.
 
 Christian
