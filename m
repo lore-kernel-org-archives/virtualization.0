@@ -1,16 +1,10 @@
-From: Dor Laor <dor.laor@gmail.com>
-Subject: Re: [kvm-devel] [virtio-net][PATCH] Don't arm tx hrtimer with a
- constant 500us each transmit
-Date: Wed, 12 Dec 2007 16:17:44 +0200
-Message-ID: <475FED88.7020304__33471.482669893$1197469184$gmane$org@qumranet.com>
-References: <475FD9E8.1060109@qumranet.com>
-	<200712121419.50400.borntraeger@de.ibm.com>
-Reply-To: dor.laor@qumranet.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: [PATCH 0/19] desc_struct integration
+Date: Wed, 12 Dec 2007 10:53:45 -0200
+Message-ID: <11974640441088-git-send-email-gcosta__43980.3489404314$1197474115$gmane$org@redhat.com>
+References: <1196957800568-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200712121419.50400.borntraeger@de.ibm.com>
+In-Reply-To: <1196957800568-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,29 +14,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel@lists.sourceforge.net, netdev@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christian Borntraeger wrote:
->
-> Am Mittwoch, 12. Dezember 2007 schrieb Dor Laor:
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -406,10 +405,10 @@ again:
->
-> Hmm, while I agree in general with the patch, I fail to find the proper
-> version of virtio_net where this patch applies. I tried kvm.git and
-> linux-2.6.git from kernel.org. Can you give me a pointer to the repository
-> where you work on virtio?
->
-Sorry for that, I added some debug prints of my one.
-Here it is: *git clone 
-git*://kvm.*qumranet*.com/home/*dor*/src/linux-2.6-nv use branch 'virtio'.
-BTW: what git repository do you use?
+Since the last version of it received no comments on the interfaces, here
+it goes a version, that I feel ready for inclusion.
 
-This patch improves my tx performance from 720Mbps to 900Mbps.
-Dor
->
-> Christian
->
+The comments regarding style, specially the elimination of the #defines in
+the desc_struct definition were merged. I also implemented the vmi
+functions,
+missing last time.
+
+Ingo, in the absense of further complaints, could you please push to the
+x86 tree?
