@@ -1,47 +1,53 @@
-From: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
-Subject: Re: [PATCH resend] virtio_net: remove double ether_setup
-Date: Wed, 12 Dec 2007 12:41:47 +1100
-Message-ID: <200712121241.48226.rusty@rustcorp.com.au>
-References: <200712111238.53960.borntraeger@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [kvm-devel] [PATCH resent] virtio_net: Fix stalled inbound
+	trafficon early packets
+Date: Wed, 12 Dec 2007 12:54:13 +1100
+Message-ID: <200712121254.13865.rusty__49630.5244196721$1197424578$gmane$org@rustcorp.com.au>
+References: <200712111242.28843.borntraeger@de.ibm.com>
+	<475E892D.9060400@qumranet.com>
+	<200712111416.12655.borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <200712111238.53960.borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200712111416.12655.borntraeger@de.ibm.com>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: kvm-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Christian Borntraeger <borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>
-Cc: kvm-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, dor.laor@qumranet.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 11 December 2007 22:38:53 Christian Borntraeger wrote:
-> Hello Rusty,
->
-> this is a small fix for virtio_net.
-> virtnet_probe already calls alloc_etherdev, which calls ether_setup.
-> There is no need to do that again.
->
-> Signed-off-by: Christian Borntraeger <borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>
+On Wednesday 12 December 2007 00:16:12 Christian Borntraeger wrote:
+> That would also work. We already have VRING_AVAIL_F_NO_INTERRUPT in
+> virtio_ring.c - maybe we can use that. Its hidden in callback and
+> restart handling, what about adding an explicit startup?
 
-Acked-by: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
+Yes, I debated whether to make this a separate hook or not; the current method 
+reduces the number of function calls without having two ways of disabling 
+callbacks.
 
-Can you send straight to akpm or davem?  I'm supposed to be on vacation at the 
-moment (and not doing a very good job :)
+In this case, simply starting devices with callbacks disabled and 
+renaming 'restart' to 'enable' (or something) and calling it at the beginning 
+is probably sufficient?
 
-Thanks,
+Thanks for all this debugging!  Will apply next week when I'm back...
+
+> Ok, didnt know that. At the moment I can live with my private patch
+> while we work on a final solution. Meanwhile I will try to debug virtio
+> on SMP guests - I still see some strange races on our test system. (But
+> block and net is now working on s390 and can cope with medium load. )
+
+Obviously SMP is not something I tested under lguest, so can believe there are 
+nasty lurking bugs.  Hope they're not too deep...
+
+Thanks!
 Rusty.
-
--------------------------------------------------------------------------
-SF.Net email is sponsored by:
-Check out the new SourceForge.net Marketplace.
-It's the best place to buy or sell services for
-just about anything Open Source.
-http://sourceforge.net/services/buy/index.php
