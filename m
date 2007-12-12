@@ -1,18 +1,13 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [kvm-devel] [PATCH resent] virtio_net: Fix stalled inbound
-	trafficon early packets
-Date: Wed, 12 Dec 2007 12:39:51 +0100
-Message-ID: <200712121239.51435.borntraeger__34296.5554017157$1197459712$gmane$org@de.ibm.com>
-References: <200712111242.28843.borntraeger@de.ibm.com>
-	<200712111416.12655.borntraeger@de.ibm.com>
-	<200712121254.13865.rusty@rustcorp.com.au>
+From: Dor Laor <dor.laor@gmail.com>
+Subject: [virtio-net][PATCH] Don't arm tx hrtimer with a constant 500us each
+ transmit
+Date: Wed, 12 Dec 2007 14:54:00 +0200
+Message-ID: <475FD9E8.1060109__40438.0474392839$1197464138$gmane$org@qumranet.com>
+Reply-To: dor.laor@qumranet.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200712121254.13865.rusty@rustcorp.com.au>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,128 +17,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, dor.laor@qumranet.com, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Mittwoch, 12. Dezember 2007 schrieb Rusty Russell:
-> On Wednesday 12 December 2007 00:16:12 Christian Borntraeger wrote:
-> > That would also work. We already have VRING_AVAIL_F_NO_INTERRUPT in
-> > virtio_ring.c - maybe we can use that. Its hidden in callback and
-> > restart handling, what about adding an explicit startup?
-> 
-> Yes, I debated whether to make this a separate hook or not; the current
-> method  reduces the number of function calls without having two ways of
-> disabling  callbacks.
-> 
-> In this case, simply starting devices with callbacks disabled and 
-> renaming 'restart' to 'enable' (or something) and calling it at the
-> beginning is probably sufficient?
+commit 763769621d271d92204ed27552d75448587c1ac0
+Author: Dor Laor <dor.laor@qumranet.com>
+Date:   Wed Dec 12 14:52:00 2007 +0200
 
-So you suggest something like the following patch? It seems to work but 
-there is still a theoretical race at startup. Therefore, I tend to agree 
-with Dor that a separate hook seems prefereable, so I am not fully sure if 
-the patch is the final solution:
+    [virtio-net][PATCH] Don't arm tx hrtimer with a constant 50us each 
+transmit
+   
+    The current start_xmit sets 500us hrtimer to kick the host.
+    The problem is that if another xmit happens before the timer was 
+fired then
+    the first xmit will have to wait additional 500us.
+    This patch does not re-arm the timer if there is existing one.
+    This will shorten the latency for tx.
+   
+    Signed-off-by: Dor Laor <dor.laor@qumranet.com>
 
-ps: Its ok to answer that after your vacation. 
-
----
- drivers/block/virtio_blk.c   |    3 ++-
- drivers/net/virtio_net.c     |    5 ++++-
- drivers/virtio/virtio_ring.c |    9 ++++-----
- include/linux/virtio.h       |    4 ++--
- 4 files changed, 12 insertions(+), 9 deletions(-)
-
-Index: kvm/drivers/virtio/virtio_ring.c
-===================================================================
---- kvm.orig/drivers/virtio/virtio_ring.c
-+++ kvm/drivers/virtio/virtio_ring.c
-@@ -220,7 +220,7 @@ static void *vring_get_buf(struct virtqu
- 	return ret;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7b051d5..8bb17d1
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -406,10 +405,10 @@ again:
+         virtio_debug(vdebug, "%s: before calling kick %d\n", 
+__FUNCTION__, __LINE__);
+         vi->svq->vq_ops->kick(vi->svq);
+         vi->out_num = 0;
+-    } else {
+-        vi->stats.hrtimer_starts++;
+-        hrtimer_start(&vi->tx_timer, ktime_set(0,500000),
+-                  HRTIMER_MODE_REL);
++    } else if (!hrtimer_is_queued(&vi->tx_timer)) {
++            vi->stats.hrtimer_starts++;
++            hrtimer_start(&vi->tx_timer, ktime_set(0,500000),
++                      HRTIMER_MODE_REL);
+     }
+     return 0;
  }
- 
--static bool vring_restart(struct virtqueue *_vq)
-+static bool vring_enable(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
-@@ -264,7 +264,7 @@ static struct virtqueue_ops vring_vq_ops
- 	.add_buf = vring_add_buf,
- 	.get_buf = vring_get_buf,
- 	.kick = vring_kick,
--	.restart = vring_restart,
-+	.enable = vring_enable,
- 	.shutdown = vring_shutdown,
- };
- 
-@@ -299,9 +299,8 @@ struct virtqueue *vring_new_virtqueue(un
- 	vq->in_use = false;
- #endif
- 
--	/* No callback?  Tell other side not to bother us. */
--	if (!callback)
--		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
-+	/* disable interrupts until we enable them */
-+	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
- 
- 	/* Put everything in free lists. */
- 	vq->num_free = num;
-Index: kvm/include/linux/virtio.h
-===================================================================
---- kvm.orig/include/linux/virtio.h
-+++ kvm/include/linux/virtio.h
-@@ -41,7 +41,7 @@ struct virtqueue
-  *	vq: the struct virtqueue we're talking about.
-  *	len: the length written into the buffer
-  *	Returns NULL or the "data" token handed to add_buf.
-- * @restart: restart callbacks after callback returned false.
-+ * @enable: restart callbacks after callback returned false.
-  *	vq: the struct virtqueue we're talking about.
-  *	This returns "false" (and doesn't re-enable) if there are pending
-  *	buffers in the queue, to avoid a race.
-@@ -65,7 +65,7 @@ struct virtqueue_ops {
- 
- 	void *(*get_buf)(struct virtqueue *vq, unsigned int *len);
- 
--	bool (*restart)(struct virtqueue *vq);
-+	bool (*enable)(struct virtqueue *vq);
- 
- 	void (*shutdown)(struct virtqueue *vq);
- };
-Index: kvm/drivers/net/virtio_net.c
-===================================================================
---- kvm.orig/drivers/net/virtio_net.c
-+++ kvm/drivers/net/virtio_net.c
-@@ -201,7 +201,7 @@ again:
- 	/* Out of packets? */
- 	if (received < budget) {
- 		netif_rx_complete(vi->dev, napi);
--		if (unlikely(!vi->rvq->vq_ops->restart(vi->rvq))
-+		if (unlikely(!vi->rvq->vq_ops->enable(vi->rvq))
- 		    && netif_rx_reschedule(vi->dev, napi))
- 			goto again;
- 	}
-@@ -292,6 +292,9 @@ static int virtnet_open(struct net_devic
- 		return -ENOMEM;
- 
- 	napi_enable(&vi->napi);
-+
-+	vi->rvq->vq_ops->enable(vi->rvq);
-+	vi->svq->vq_ops->enable(vi->svq);
- 	return 0;
- }
- 
-Index: kvm/drivers/block/virtio_blk.c
-===================================================================
---- kvm.orig/drivers/block/virtio_blk.c
-+++ kvm/drivers/block/virtio_blk.c
-@@ -183,7 +183,8 @@ static int virtblk_probe(struct virtio_d
- 		err = PTR_ERR(vblk->vq);
- 		goto out_free_vblk;
- 	}
--
-+	/* enable interrupts */
-+	vblk->vq->vq_ops->enable(vblk->vq);
- 	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
- 	if (!vblk->pool) {
- 		err = -ENOMEM;
