@@ -1,15 +1,29 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 6/6] prepare x86_64 architecture initialization for paravirt
-Date: Wed, 12 Dec 2007 10:57:27 -0200
-Message-ID: <11974642893361-git-send-email-gcosta__12070.3578381383$1197474955$gmane$org@redhat.com>
-References: <11974642471600-git-send-email-gcosta@redhat.com>
-	<11974642553841-git-send-email-gcosta@redhat.com>
-	<11974642622800-git-send-email-gcosta@redhat.com>
-	<11974642682229-git-send-email-gcosta@redhat.com>
-	<11974642754014-git-send-email-gcosta@redhat.com>
-	<11974642813710-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 19/19] unify set_tss_desc
+Date: Wed, 12 Dec 2007 10:54:04 -0200
+Message-ID: <11974641631993-git-send-email-gcosta__8736.63191819123$1197475152$gmane$org@redhat.com>
+References: <1196957800568-git-send-email-gcosta@redhat.com>
+	<11974640441088-git-send-email-gcosta@redhat.com>
+	<11974640522688-git-send-email-gcosta@redhat.com>
+	<1197464057242-git-send-email-gcosta@redhat.com>
+	<11974640653022-git-send-email-gcosta@redhat.com>
+	<1197464070228-git-send-email-gcosta@redhat.com>
+	<11974640752137-git-send-email-gcosta@redhat.com>
+	<11974640813511-git-send-email-gcosta@redhat.com>
+	<11974640872474-git-send-email-gcosta@redhat.com>
+	<11974640932406-git-send-email-gcosta@redhat.com>
+	<11974640983333-git-send-email-gcosta@redhat.com>
+	<11974641042757-git-send-email-gcosta@redhat.com>
+	<11974641102691-git-send-email-gcosta@redhat.com>
+	<11974641172402-git-send-email-gcosta@redhat.com>
+	<11974641243264-git-send-email-gcosta@redhat.com>
+	<11974641314148-git-send-email-gcosta@redhat.com>
+	<1197464139284-git-send-email-gcosta@redhat.com>
+	<1197464145737-git-send-email-gcosta@redhat.com>
+	<11974641501854-git-send-email-gcosta@redhat.com>
+	<11974641572562-git-send-email-g! costa@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11974642813710-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11974641572562-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,168 +37,146 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch prepares the x86_64 architecture initialization for
-paravirt. It requires a memory initialization step, which is done
-by implementing 64-bit version for machine_specific_memory_setup,
-and putting an ARCH_SETUP hook, for guest-dependent initialization.
-This last step is done akin to i386
+This patch unifies the set_tss_desc between i386 and x86_64,
+which can now have a common implementation. After the old
+functions are removed from desc_{32,64}.h, nothing important is
+left, and the files can be removed.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Acked-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/kernel/e820_64.c    |    9 +++++++--
- arch/x86/kernel/setup_64.c   |   28 +++++++++++++++++++++++++++-
- arch/x86/kernel/smpboot_64.c |    4 ++--
- include/asm-x86/setup.h      |   11 ++++++++---
- 4 files changed, 44 insertions(+), 8 deletions(-)
+ include/asm-x86/desc.h    |   40 +++++++++++++++++++++++++++++++++-------
+ include/asm-x86/desc_32.h |   27 ---------------------------
+ include/asm-x86/desc_64.h |   34 ----------------------------------
+ 3 files changed, 33 insertions(+), 68 deletions(-)
+ delete mode 100644 include/asm-x86/desc_32.h
+ delete mode 100644 include/asm-x86/desc_64.h
 
-diff --git a/arch/x86/kernel/e820_64.c b/arch/x86/kernel/e820_64.c
-index 8e73211..abc473b 100644
---- a/arch/x86/kernel/e820_64.c
-+++ b/arch/x86/kernel/e820_64.c
-@@ -638,8 +638,10 @@ static void early_panic(char *msg)
- 	panic(msg);
+Index: linux-2.6-x86/include/asm-x86/desc.h
+===================================================================
+--- linux-2.6-x86.orig/include/asm-x86/desc.h
++++ linux-2.6-x86/include/asm-x86/desc.h
+@@ -147,6 +147,39 @@ static inline void pack_ldt(ldt_desc *ld
+ #endif
  }
  
--void __init setup_memory_region(void)
-+/* We're not void only for x86 32-bit compat */
-+char * __init machine_specific_memory_setup(void)
- {
-+	char *who = "BIOS-e820";
- 	/*
- 	 * Try to copy the BIOS-supplied E820-map.
- 	 *
-@@ -650,7 +652,10 @@ void __init setup_memory_region(void)
- 	if (copy_e820_map(boot_params.e820_map, boot_params.e820_entries) < 0)
- 		early_panic("Cannot find a valid memory map");
- 	printk(KERN_INFO "BIOS-provided physical RAM map:\n");
--	e820_print_map("BIOS-e820");
-+	e820_print_map(who);
-+
-+	/* In case someone cares... */
-+	return who;
- }
- 
- static int __init parse_memopt(char *p)
-diff --git a/arch/x86/kernel/setup_64.c b/arch/x86/kernel/setup_64.c
-index c654c4a..b1000dd 100644
---- a/arch/x86/kernel/setup_64.c
-+++ b/arch/x86/kernel/setup_64.c
-@@ -39,6 +39,7 @@
- #include <linux/dmi.h>
- #include <linux/dma-mapping.h>
- #include <linux/ctype.h>
-+#include <linux/uaccess.h>
- 
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
-@@ -62,6 +63,12 @@
- #include <asm/mce.h>
- #include <asm/ds.h>
- 
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt.h>
-+#else
-+#define ARCH_SETUP
-+#endif
-+
- /*
-  * Machine setup..
-  */
-@@ -246,6 +253,16 @@ static void discover_ebda(void)
- 	 * 4K EBDA area at 0x40E
- 	 */
- 	ebda_addr = *(unsigned short *)__va(EBDA_ADDR_POINTER);
-+	/*
-+	 * There can be some situations, like paravirtualized guests,
-+	 * in which there is no available ebda information. In such
-+	 * case, just skip it
-+	 */
-+	if (!ebda_addr) {
-+		ebda_size = 0;
-+		return;
-+	}
-+
- 	ebda_addr <<= 4;
- 
- 	ebda_size = *(unsigned short *)__va(ebda_addr);
-@@ -259,6 +276,12 @@ static void discover_ebda(void)
- 		ebda_size = 64*1024;
- }
- 
-+/* Overridden in paravirt.c if CONFIG_PARAVIRT */
-+void __attribute__((weak)) memory_setup(void)
++static inline void pack_tss(tss_desc *tss, unsigned long addr,
++			   unsigned size, unsigned entry)
 +{
-+       machine_specific_memory_setup();
++#ifdef CONFIG_X86_64
++		set_tssldt_descriptor(tss,
++			     addr, entry, size);
++#else
++		pack_descriptor(tss, (unsigned long)addr,
++				size,
++				0x80 | entry, 0);
++#endif
 +}
 +
- void __init setup_arch(char **cmdline_p)
++static inline void __set_tss_desc(unsigned cpu, unsigned int entry, void *addr)
++{
++	struct desc_struct *d = get_cpu_gdt_table(cpu);
++	tss_desc tss;
++
++	/*
++	 * sizeof(unsigned long) coming from an extra "long" at the end
++	 * of the iobitmap. See tss_struct definition in processor.h
++	 *
++	 * -1? seg base+limit should be pointing to the address of the
++	 * last valid byte
++	 */
++	pack_tss(&tss, (unsigned long)addr,
++		IO_BITMAP_OFFSET + IO_BITMAP_BYTES + sizeof(unsigned long) - 1,
++		DESC_TSS);
++	write_gdt_entry(d, entry, &tss, sizeof(tss));
++}
++
++#define set_tss_desc(cpu, addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
++
+ static inline void native_set_ldt(const void *addr, unsigned int entries)
  {
- 	unsigned i;
-@@ -276,7 +299,10 @@ void __init setup_arch(char **cmdline_p)
- 	rd_prompt = ((boot_params.hdr.ram_size & RAMDISK_PROMPT_FLAG) != 0);
- 	rd_doload = ((boot_params.hdr.ram_size & RAMDISK_LOAD_FLAG) != 0);
- #endif
--	setup_memory_region();
-+
-+	ARCH_SETUP
-+
-+	memory_setup();
- 	copy_edd();
- 
- 	if (!boot_params.hdr.root_flags)
-diff --git a/arch/x86/kernel/smpboot_64.c b/arch/x86/kernel/smpboot_64.c
-index 0a23a30..6e42b57 100644
---- a/arch/x86/kernel/smpboot_64.c
-+++ b/arch/x86/kernel/smpboot_64.c
-@@ -369,7 +369,7 @@ void __cpuinit start_secondary(void)
- 
- 	unlock_ipi_call_lock();
- 
--	setup_secondary_APIC_clock();
-+	setup_secondary_clock();
- 
- 	cpu_idle();
+ 	if (likely(entries == 0))
+@@ -205,13 +238,6 @@ static inline void native_load_tls(struc
  }
-@@ -923,7 +923,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
- 	 * Set up local APIC timer on boot CPU.
- 	 */
+ #endif /* __ASSEMBLY__ */
  
--	setup_boot_APIC_clock();
-+	setup_boot_clock();
- }
- 
- /*
-diff --git a/include/asm-x86/setup.h b/include/asm-x86/setup.h
-index 24d786e..071e054 100644
---- a/include/asm-x86/setup.h
-+++ b/include/asm-x86/setup.h
-@@ -3,6 +3,13 @@
- 
- #define COMMAND_LINE_SIZE 2048
- 
-+#ifndef __ASSEMBLY__
-+char *machine_specific_memory_setup(void);
-+#ifndef CONFIG_PARAVIRT
-+#define paravirt_post_allocator_init()	do {} while (0)
-+#endif
-+#endif /* __ASSEMBLY__ */
-+
- #ifdef __KERNEL__
- 
- #ifdef __i386__
-@@ -51,9 +58,7 @@ void __init add_memory_region(unsigned long long start,
- 
- extern unsigned long init_pg_tables_end;
- 
--#ifndef CONFIG_PARAVIRT
--#define paravirt_post_allocator_init()	do {} while (0)
+-
+-#ifdef CONFIG_X86_32
+-# include "desc_32.h"
+-#else
+-# include "desc_64.h"
 -#endif
-+
+-
+ #ifndef __ASSEMBLY__
  
- #endif /* __i386__ */
- #endif /* _SETUP */
--- 
-1.4.4.2
+ #define _LDT_empty(info) (\
+Index: linux-2.6-x86/include/asm-x86/desc_32.h
+===================================================================
+--- linux-2.6-x86.orig/include/asm-x86/desc_32.h
++++ /dev/null
+@@ -1,27 +0,0 @@
+-#ifndef __ARCH_DESC_H
+-#define __ARCH_DESC_H
+-
+-#include <asm/ldt.h>
+-#include <asm/segment.h>
+-#include <asm/desc_defs.h>
+-
+-#ifndef __ASSEMBLY__
+-
+-#include <linux/preempt.h>
+-#include <linux/percpu.h>
+-
+-static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, const void *addr)
+-{
+-	tss_desc tss;
+-	pack_descriptor(&tss, (unsigned long)addr,
+-			offsetof(struct tss_struct, __cacheline_filler) - 1,
+-			DESC_TSS, 0);
+-	write_gdt_entry(get_cpu_gdt_table(cpu), entry, &tss, DESC_TSS);
+-}
+-
+-
+-#define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
+-
+-#endif /* !__ASSEMBLY__ */
+-
+-#endif
+Index: linux-2.6-x86/include/asm-x86/desc_64.h
+===================================================================
+--- linux-2.6-x86.orig/include/asm-x86/desc_64.h
++++ /dev/null
+@@ -1,34 +0,0 @@
+-/* Written 2000 by Andi Kleen */
+-#ifndef __ARCH_DESC_H
+-#define __ARCH_DESC_H
+-
+-#include <linux/threads.h>
+-#include <asm/ldt.h>
+-
+-#ifndef __ASSEMBLY__
+-
+-#include <linux/string.h>
+-
+-#include <asm/segment.h>
+-
+-static inline void set_tss_desc(unsigned cpu, void *addr)
+-{
+-	struct desc_struct *d = get_cpu_gdt_table(cpu);
+-	tss_desc tss;
+-
+-	/*
+-	 * sizeof(unsigned long) coming from an extra "long" at the end
+-	 * of the iobitmap. See tss_struct definition in processor.h
+-	 *
+-	 * -1? seg base+limit should be pointing to the address of the
+-	 * last valid byte
+-	 */
+-	set_tssldt_descriptor(&tss,
+-		(unsigned long)addr, DESC_TSS,
+-		IO_BITMAP_OFFSET + IO_BITMAP_BYTES + sizeof(unsigned long) - 1);
+-	write_gdt_entry(d, GDT_ENTRY_TSS, &tss, sizeof(tss_desc));
+-}
+-
+-#endif /* !__ASSEMBLY__ */
+-
+-#endif
