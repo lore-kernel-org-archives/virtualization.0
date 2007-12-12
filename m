@@ -1,18 +1,13 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [kvm-devel] [virtio-net][PATCH] Don't arm tx hrtimer with a
-	constant 500us each transmit
-Date: Wed, 12 Dec 2007 17:33:07 +0100
-Message-ID: <200712121733.07804.borntraeger__6040.35329674861$1197477348$gmane$org@de.ibm.com>
-References: <475FD9E8.1060109@qumranet.com>
-	<200712121419.50400.borntraeger@de.ibm.com>
-	<475FED88.7020304@qumranet.com>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 0/6] paravirt patches - the non-integration part
+Date: Wed, 12 Dec 2007 18:07:33 +0100
+Message-ID: <20071212170733.GA8345__2852.52136313847$1197479431$gmane$org@elte.hu>
+References: <11974642471600-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <475FED88.7020304@qumranet.com>
 Content-Disposition: inline
+In-Reply-To: <11974642471600-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,33 +17,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dor.laor@qumranet.com
-Cc: kvm-devel@lists.sourceforge.net, netdev@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: Glauber de Oliveira Costa <gcosta@redhat.com>
+Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Mittwoch, 12. Dezember 2007 schrieb Dor Laor:
-> Christian Borntraeger wrote:
-> >
-> > Am Mittwoch, 12. Dezember 2007 schrieb Dor Laor:
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -406,10 +405,10 @@ again:
-> >
-> > Hmm, while I agree in general with the patch, I fail to find the proper
-> > version of virtio_net where this patch applies. I tried kvm.git and
-> > linux-2.6.git from kernel.org. Can you give me a pointer to the 
-repository
-> > where you work on virtio?
-> >
-> Sorry for that, I added some debug prints of my one.
-> Here it is: *git clone 
-> git*://kvm.*qumranet*.com/home/*dor*/src/linux-2.6-nv use branch 'virtio'.
 
-Ah, ok. I will look into that branch.
+* Glauber de Oliveira Costa <gcosta@redhat.com> wrote:
 
-> BTW: what git repository do you use?
+> Hi,
+> 
+> This series corresponds do older patches in the paravirt series that 
+> was neither already applied, nor I will touch again. In general, they 
+> do not touch code that can be unified (at least, without being the 
+> unification a big problem on its own).
+> 
+> They passed through this list a lot of times, so I feel them ready for 
+> inclusion, unless someone opposes.
+> 
+> As with the other patches, they apply to the top of linux-2.6-x86:mm
 
-I use Avis git from kernel.org:
-git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm
+thanks, i've picked them up into x86.git, they look certainly very 
+clean.
 
-Christian
+	Ingo
