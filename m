@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 07/19] introduce ldt_desc type.
-Date: Thu, 13 Dec 2007 00:01:40 -0200
-Message-ID: <11975113484194-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 06/19] change write_idt_entry signature
+Date: Thu, 13 Dec 2007 00:01:39 -0200
+Message-ID: <1197511343355-git-send-email-gcosta__46775.1906406649$1197521461$gmane$org@redhat.com>
 References: <1196957800568-git-send-email-gcosta@redhat.com>
 	<11975113122984-git-send-email-gcosta@redhat.com>
 	<11975113194101-git-send-email-gcosta@redhat.com>
@@ -9,9 +9,8 @@ References: <1196957800568-git-send-email-gcosta@redhat.com>
 	<11975113291722-git-send-email-gcosta@redhat.com>
 	<1197511334416-git-send-email-gcosta@redhat.com>
 	<1197511338810-git-send-email-gcosta@redhat.com>
-	<1197511343355-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1197511343355-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1197511338810-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,51 +24,189 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-this patch introduces ldt_desc type to account for the differences
-in the ldt descriptor in x86_64 and i386
+this patch changes write_idt_entry signature. It now takes a gate_desc
+instead of the a and b parameters. It will allow it to be later unified
+between i386 and x86_64.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+CC: Zachary Amsden <zach@vmware.com>
+CC: Jeremy Fitzhardinge <Jeremy.Fitzhardinge.citrix.com>
 ---
- include/asm-x86/desc_64.h   |    2 +-
- include/asm-x86/desc_defs.h |    4 +++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/paravirt_32.c |    2 +-
+ arch/x86/kernel/vmi_32.c      |   10 +++++++++-
+ arch/x86/lguest/boot.c        |    9 +++++----
+ arch/x86/xen/enlighten.c      |    8 ++++----
+ include/asm-x86/desc_32.h     |   10 ++++++++--
+ include/asm-x86/paravirt.h    |    9 +++++----
+ 6 files changed, 32 insertions(+), 16 deletions(-)
 
-diff --git a/include/asm-x86/desc_64.h b/include/asm-x86/desc_64.h
-index ffc6c06..8fe1b4c 100644
---- a/include/asm-x86/desc_64.h
-+++ b/include/asm-x86/desc_64.h
-@@ -113,7 +113,7 @@ static inline void store_idt(struct desc_ptr *dtr)
- static inline void set_tssldt_descriptor(void *ptr, unsigned long tss,
- 					 unsigned type, unsigned size)
+diff --git a/arch/x86/kernel/paravirt_32.c b/arch/x86/kernel/paravirt_32.c
+index f4e3a8e..13bbc99 100644
+--- a/arch/x86/kernel/paravirt_32.c
++++ b/arch/x86/kernel/paravirt_32.c
+@@ -381,7 +381,7 @@ struct pv_cpu_ops pv_cpu_ops = {
+ 	.load_tls = native_load_tls,
+ 	.write_ldt_entry = write_dt_entry,
+ 	.write_gdt_entry = write_dt_entry,
+-	.write_idt_entry = write_dt_entry,
++	.write_idt_entry = native_write_idt_entry,
+ 	.load_sp0 = native_load_sp0,
+ 
+ 	.irq_enable_syscall_ret = native_irq_enable_syscall_ret,
+diff --git a/arch/x86/kernel/vmi_32.c b/arch/x86/kernel/vmi_32.c
+index 4cfda7d..a635b22 100644
+--- a/arch/x86/kernel/vmi_32.c
++++ b/arch/x86/kernel/vmi_32.c
+@@ -62,6 +62,7 @@ static struct {
+ 	void (*cpuid)(void /* non-c */);
+ 	void (*_set_ldt)(u32 selector);
+ 	void (*set_tr)(u32 selector);
++	void (*write_idt_entry)(struct desc_struct *, int, u32, u32);
+ 	void (*set_kernel_stack)(u32 selector, u32 sp0);
+ 	void (*allocate_page)(u32, u32, u32, u32, u32);
+ 	void (*release_page)(u32, u32);
+@@ -214,6 +215,12 @@ static void vmi_set_tr(void)
+ 	vmi_ops.set_tr(GDT_ENTRY_TSS*sizeof(struct desc_struct));
+ }
+ 
++static void vmi_write_idt_entry(gate_desc *dt, int entry, const gate_desc *g)
++{
++	u32 *idt_entry = (u32 *)g;
++	vmi_ops.write_idt_entry(dt, entry, idt_entry[0], idt_entry[2]);
++}
++
+ static void vmi_load_sp0(struct tss_struct *tss,
+ 				   struct thread_struct *thread)
  {
--	struct ldttss_desc d;
-+	struct ldttss_desc64 d;
+@@ -792,7 +799,8 @@ static inline int __init activate_vmi(void)
+ 	pv_cpu_ops.load_tls = vmi_load_tls;
+ 	para_fill(pv_cpu_ops.write_ldt_entry, WriteLDTEntry);
+ 	para_fill(pv_cpu_ops.write_gdt_entry, WriteGDTEntry);
+-	para_fill(pv_cpu_ops.write_idt_entry, WriteIDTEntry);
++	para_wrap(pv_cpu_ops.write_idt_entry, vmi_write_idt_entry,
++		  write_idt_entry, WriteIDTEntry);
+ 	para_wrap(pv_cpu_ops.load_sp0, vmi_load_sp0, set_kernel_stack, UpdateKernelStack);
+ 	para_fill(pv_cpu_ops.set_iopl_mask, SetIOPLMask);
+ 	para_fill(pv_cpu_ops.io_delay, IODelay);
+diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
+index aa0bdd5..b50c8ad 100644
+--- a/arch/x86/lguest/boot.c
++++ b/arch/x86/lguest/boot.c
+@@ -217,13 +217,14 @@ static void irq_enable(void)
+  * address of the handler, and... well, who cares?  The Guest just asks the
+  * Host to make the change anyway, because the Host controls the real IDT.
+  */
+-static void lguest_write_idt_entry(struct desc_struct *dt,
+-				   int entrynum, u32 low, u32 high)
++static void lguest_write_idt_entry(gate_desc *dt,
++				   int entrynum, const gate_desc *g)
+ {
++	u32 *desc = (u32 *)g;
+ 	/* Keep the local copy up to date. */
+-	write_dt_entry(dt, entrynum, low, high);
++	native_write_idt_entry(dt, entrynum, g);
+ 	/* Tell Host about this new entry. */
+-	hcall(LHCALL_LOAD_IDT_ENTRY, entrynum, low, high);
++	hcall(LHCALL_LOAD_IDT_ENTRY, entrynum, desc[0], desc[1]);
+ }
  
- 	memset(&d, 0, sizeof(d));
- 	d.limit0 = size & 0xFFFF;
-diff --git a/include/asm-x86/desc_defs.h b/include/asm-x86/desc_defs.h
-index 05eff93..5a58fc1 100644
---- a/include/asm-x86/desc_defs.h
-+++ b/include/asm-x86/desc_defs.h
-@@ -58,7 +58,7 @@ enum {
- };
+ /* Changing to a different IDT is very rare: we keep the IDT up-to-date every
+diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
+index 8215ea6..6dd349e 100644
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -399,8 +399,7 @@ static DEFINE_PER_CPU(struct desc_ptr, idt_desc);
  
- // LDT or TSS descriptor in the GDT. 16 bytes.
--struct ldttss_desc {
-+struct ldttss_desc64 {
- 	u16 limit0;
- 	u16 base0;
- 	unsigned base1 : 8, type : 5, dpl : 2, p : 1;
-@@ -69,8 +69,10 @@ struct ldttss_desc {
+ /* Set an IDT entry.  If the entry is part of the current IDT, then
+    also update Xen. */
+-static void xen_write_idt_entry(struct desc_struct *dt, int entrynum,
+-				u32 low, u32 high)
++static void xen_write_idt_entry(gate_desc *dt, int entrynum, const gate_desc *g)
+ {
+ 	unsigned long p = (unsigned long)&dt[entrynum];
+ 	unsigned long start, end;
+@@ -412,14 +411,15 @@ static void xen_write_idt_entry(struct desc_struct *dt, int entrynum,
  
- #ifdef CONFIG_X86_64
- typedef struct gate_struct64 gate_desc;
-+typedef struct ldttss_desc64 ldt_desc;
- #else
- typedef struct desc_struct gate_desc;
-+typedef struct desc_struct ldt_desc;
+ 	xen_mc_flush();
+ 
+-	write_dt_entry(dt, entrynum, low, high);
++	native_write_idt_entry(dt, entrynum, g);
+ 
+ 	if (p >= start && (p + 8) <= end) {
+ 		struct trap_info info[2];
++		u32 *desc = (u32 *)g;
+ 
+ 		info[1].address = 0;
+ 
+-		if (cvt_gate_to_trap(entrynum, low, high, &info[0]))
++		if (cvt_gate_to_trap(entrynum, desc[0], desc[1], &info[0]))
+ 			if (HYPERVISOR_set_trap_table(info))
+ 				BUG();
+ 	}
+diff --git a/include/asm-x86/desc_32.h b/include/asm-x86/desc_32.h
+index 77f1e5a..54b2314 100644
+--- a/include/asm-x86/desc_32.h
++++ b/include/asm-x86/desc_32.h
+@@ -70,9 +70,15 @@ static inline void pack_gate(gate_desc *gate,
+ 
+ #define write_ldt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
+ #define write_gdt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
+-#define write_idt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
++#define write_idt_entry(dt, entry, g) native_write_idt_entry(dt, entry, g)
  #endif
  
- struct desc_ptr {
++static inline void native_write_idt_entry(gate_desc *idt, int entry,
++					  const gate_desc *gate)
++{
++	memcpy(&idt[entry], gate, sizeof(*gate));
++}
++
+ static inline void write_dt_entry(struct desc_struct *dt,
+ 				  int entry, u32 entry_low, u32 entry_high)
+ {
+@@ -142,7 +148,7 @@ static inline void _set_gate(int gate, unsigned int type, void *addr, unsigned s
+ {
+ 	gate_desc g;
+ 	pack_gate(&g, (unsigned long)addr, seg, type, 0);
+-	write_idt_entry(idt_table, gate, g.a, g.b);
++	write_idt_entry(idt_table, gate, &g);
+ }
+ 
+ static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, const void *addr)
+diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
+index 0333fb6..86a9d7b 100644
+--- a/include/asm-x86/paravirt.h
++++ b/include/asm-x86/paravirt.h
+@@ -17,6 +17,7 @@
+ #include <linux/types.h>
+ #include <linux/cpumask.h>
+ #include <asm/kmap_types.h>
++#include <asm/desc_defs.h>
+ 
+ struct page;
+ struct thread_struct;
+@@ -99,8 +100,8 @@ struct pv_cpu_ops {
+ 				int entrynum, u32 low, u32 high);
+ 	void (*write_gdt_entry)(struct desc_struct *,
+ 				int entrynum, u32 low, u32 high);
+-	void (*write_idt_entry)(struct desc_struct *,
+-				int entrynum, u32 low, u32 high);
++	void (*write_idt_entry)(gate_desc *,
++				int entrynum, const gate_desc *gate);
+ 	void (*load_sp0)(struct tss_struct *tss, struct thread_struct *t);
+ 
+ 	void (*set_iopl_mask)(unsigned mask);
+@@ -667,9 +668,9 @@ static inline void write_gdt_entry(void *dt, int entry, u32 low, u32 high)
+ {
+ 	PVOP_VCALL4(pv_cpu_ops.write_gdt_entry, dt, entry, low, high);
+ }
+-static inline void write_idt_entry(void *dt, int entry, u32 low, u32 high)
++static inline void write_idt_entry(gate_desc *dt, int entry, const gate_desc *g)
+ {
+-	PVOP_VCALL4(pv_cpu_ops.write_idt_entry, dt, entry, low, high);
++	PVOP_VCALL3(pv_cpu_ops.write_idt_entry, dt, entry, g);
+ }
+ static inline void set_iopl_mask(unsigned mask)
+ {
 -- 
 1.5.0.6
