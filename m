@@ -1,18 +1,23 @@
-From: Dor Laor <dor.laor@gmail.com>
-Subject: Re: [kvm-devel] [PATCH resent] virtio_net: Fix stalled inbound
- trafficon early packets
-Date: Thu, 13 Dec 2007 15:24:07 +0200
-Message-ID: <47613277.3060403__15969.6718714715$1197552402$gmane$org@qumranet.com>
-References: <200712111242.28843.borntraeger@de.ibm.com>
-	<200712121239.51435.borntraeger@de.ibm.com>
-	<476002E7.5050301@qumranet.com>
-	<200712121914.38135.borntraeger@de.ibm.com>
-Reply-To: dor.laor@qumranet.com
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+Subject: Re: [PATCH 19/19] unify set_tss_desc
+Date: Thu, 13 Dec 2007 12:50:03 -0200
+Message-ID: <4761469B.9060507@redhat.com>
+References: <1197511363887-git-send-email-gcosta@redhat.com>
+	<11975113672937-git-send-email-gcosta@redhat.com>
+	<11975113721808-git-send-email-gcosta@redhat.com>
+	<11975113771692-git-send-email-gcosta@redhat.com>
+	<11975113821418-git-send-email-gcosta@redhat.com>
+	<11975113873364-git-send-email-gcosta@redhat.com>
+	<11975113923422-git-send-email-gcosta@redhat.com>
+	<11975113961144-git-send-email-gcosta@redhat.com>
+	<1197511401733-git-send-email-gc!osta@redhat.com>
+	<11975114062948-git-send-email-gcosta@redhat.com>
+	<20071213124633.GG31699@bingen.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200712121914.38135.borntraeger@de.ibm.com>
+In-Reply-To: <20071213124633.GG31699@bingen.suse.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,59 +27,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andi Kleen <ak@suse.de>
+Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christian Borntraeger wrote:
-> Am Mittwoch, 12. Dezember 2007 schrieb Dor Laor:
->   
->> I think the change below handles the race. Otherwise please detail the 
->> use case.
->>     
-> [...]
->   
->>> @@ -292,6 +292,9 @@ static int virtnet_open(struct net_devic
->>>                 return -ENOMEM;
->>>
->>>         napi_enable(&vi->napi);
->>> +
->>> +       vi->rvq->vq_ops->enable(vi->rvq);
->>> +       vi->svq->vq_ops->enable(vi->svq);
->>>
->>>       
->> If you change it to:
->> if (!vi->rvq->vq_ops->enable(vi->rvq))
->>     vi->rvq->vq_ops->kick(vi->rvq);
->> if (!vi->rvq->vq_ops->enable(vi->svq))
->>     vi->rvq->vq_ops->kick(vi->svq);
->>
->> You solve the race of packets already waiting in the queue without 
->> triggering the irq.
->>     
->
-> Hmm, I dont fully understand your point. I think this will work as long as 
-> the host has not consumed all inbound buffers. It will also require that 
-> the host sends an additional packet, no? If no additional packet comes the 
-> host has no reason to send an interrupt just because it got a notify 
-> hypercall. kick inside a guest also does not trigger the poll routine. 
->
-> It also wont work on the following scenario:
-> in virtnet open we will allocate buffers and send them to the host using the 
-> kick callback. The host can now use _all_ buffers for incoming data while 
-> interrupts are still disabled and the guest is not running.( Lets say the 
-> host bridge has lots of multicast traffic and the guest gets not scheduled 
-> for a while). When the guest now continues and enables the interrupts 
-> nothing happens. Doing a kick does not help, as the host code will bail out 
-> with "no dma memory for transfer".
->   
-> Christian
->
->   
-You're right I got confused somehow.
-So in that case setting the driver status field on open in addition to 
-your enable will do the trick.
-On DRIVER_OPEN the host will trigger an interrupt if the queue is not 
-empty..
-Thanks,
-Dor
+Andi Kleen wrote:
+>> +static inline void pack_tss(tss_desc *tss, unsigned long addr,
+>> +			   unsigned size, unsigned entry)
+>> +{
+>> +#ifdef CONFIG_X86_64
+>> +		set_tssldt_descriptor(tss,
+>> +			     addr, entry, size);
+>> +#else
+>> +		pack_descriptor(tss, (unsigned long)addr,
+>> +				size,
+>> +				0x80 | entry, 0);
+> 
+> It would be better if you just unified that first instead of ifdef'ing.
+> I guess i386 could get a set_tssldt_descriptor() like wrapper
+> around pack_descriptor(). 
+Good point.
+
+Thanks, Andi.
