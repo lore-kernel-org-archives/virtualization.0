@@ -1,13 +1,25 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 03/19] change gdt acessor macro name
-Date: Thu, 13 Dec 2007 11:57:51 -0200
-Message-ID: <1197554307167-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 15/19] use the same data type for tls_array.
+Date: Thu, 13 Dec 2007 11:58:03 -0200
+Message-ID: <11975543892403-git-send-email-gcosta@redhat.com>
 References: <11975113122984-git-send-email-gcosta@redhat.com>
 	<1197554287294-git-send-email-gcosta@redhat.com>
 	<11975542952896-git-send-email-gcosta@redhat.com>
 	<11975543001070-git-send-email-gcosta@redhat.com>
+	<1197554307167-git-send-email-gcosta@redhat.com>
+	<11975543173017-git-send-email-gcosta@redhat.com>
+	<11975543382698-git-send-email-gcosta@redhat.com>
+	<11975543442801-git-send-email-gcosta@redhat.com>
+	<11975543492215-git-send-email-gcosta@redhat.com>
+	<11975543543850-git-send-email-gcosta@redhat.com>
+	<11975543592701-git-send-email-gcosta@redhat.com>
+	<11975543641360-git-send-email-gcosta@redhat.com>
+	<11975543691134-git-send-email-gcosta@redhat.com>
+	<11975543742848-git-send-email-gcosta@redhat.com>
+	<11975543792334-git-send-email-gcosta@redhat.com>
+	<11975543843977-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11975543001070-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11975543843977-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,94 +33,49 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch changes the name of x86_64 macro used to access the per-cpu
-gdt. It is now equal to the i386 version, which will allow code to be shared.
+This patch changes the type of tls_array in x86_64 to
+a desc_struct. Now, both i386 and x86_64 tls_array have
+the same type, and code accessing it can be shared.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- arch/x86/kernel/setup64.c     |    2 +-
- arch/x86/kernel/suspend_64.c  |    2 +-
- arch/x86/kernel/vsyscall_64.c |    2 +-
- include/asm-x86/desc_64.h     |   10 +++++-----
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ include/asm-x86/desc_64.h      |    2 +-
+ include/asm-x86/processor_64.h |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-Index: linux-2.6-x86/arch/x86/kernel/setup64.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/setup64.c
-+++ linux-2.6-x86/arch/x86/kernel/setup64.c
-@@ -228,7 +228,7 @@ void __cpuinit cpu_init (void)
- 	 * and set up the GDT descriptor:
- 	 */
- 	if (cpu)
-- 		memcpy(cpu_gdt(cpu), cpu_gdt_table, GDT_SIZE);
-+		memcpy(get_cpu_gdt_table(cpu), cpu_gdt_table, GDT_SIZE);
- 
- 	cpu_gdt_descr[cpu].size = GDT_SIZE;
- 	load_gdt((const struct desc_ptr *)&cpu_gdt_descr[cpu]);
-Index: linux-2.6-x86/arch/x86/kernel/suspend_64.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/suspend_64.c
-+++ linux-2.6-x86/arch/x86/kernel/suspend_64.c
-@@ -118,7 +118,7 @@ void fix_processor_context(void)
- 
- 	set_tss_desc(cpu,t);	/* This just modifies memory; should not be necessary. But... This is necessary, because 386 hardware has concept of busy TSS or some similar stupidity. */
- 
--	cpu_gdt(cpu)[GDT_ENTRY_TSS].type = 9;
-+	get_cpu_gdt_table(cpu)[GDT_ENTRY_TSS].type = 9;
- 
- 	syscall_init();                         /* This sets MSR_*STAR and related */
- 	load_TR_desc();				/* This does ltr */
-Index: linux-2.6-x86/arch/x86/kernel/vsyscall_64.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/vsyscall_64.c
-+++ linux-2.6-x86/arch/x86/kernel/vsyscall_64.c
-@@ -297,7 +297,7 @@ static void __cpuinit vsyscall_set_cpu(i
- 	/* Store cpu number in limit so that it can be loaded quickly
- 	   in user space in vgetcpu.
- 	   12 bits for the CPU and 8 bits for the node. */
--	d = (unsigned long *)(cpu_gdt(cpu) + GDT_ENTRY_PER_CPU);
-+	d = (unsigned long *)(get_cpu_gdt_table(cpu) + GDT_ENTRY_PER_CPU);
- 	*d = 0x0f40000000000ULL;
- 	*d |= cpu;
- 	*d |= (node & 0xf) << 12;
-Index: linux-2.6-x86/include/asm-x86/desc_64.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/desc_64.h
-+++ linux-2.6-x86/include/asm-x86/desc_64.h
-@@ -48,7 +48,7 @@ static inline void write_ldt_entry(struc
- }
- 
- /* the cpu gdt accessor */
--#define cpu_gdt(_cpu) ((struct desc_struct *)cpu_gdt_descr[_cpu].address)
-+#define get_cpu_gdt_table(x) ((struct desc_struct *)cpu_gdt_descr[x].address)
- 
- static inline void load_gdt(const struct desc_ptr *ptr)
- {
-@@ -141,15 +141,15 @@ static inline void set_tss_desc(unsigned
- 	 * -1? seg base+limit should be pointing to the address of the
- 	 * last valid byte
- 	 */
--	set_tssldt_descriptor(&cpu_gdt(cpu)[GDT_ENTRY_TSS],
-+	set_tssldt_descriptor(&get_cpu_gdt_table(cpu)[GDT_ENTRY_TSS],
- 		(unsigned long)addr, DESC_TSS,
- 		IO_BITMAP_OFFSET + IO_BITMAP_BYTES + sizeof(unsigned long) - 1);
- }
- 
- static inline void set_ldt_desc(unsigned cpu, void *addr, int size)
- {
--	set_tssldt_descriptor(&cpu_gdt(cpu)[GDT_ENTRY_LDT], (unsigned long)addr,
--			      DESC_LDT, size * 8 - 1);
-+	set_tssldt_descriptor(&get_cpu_gdt_table(cpu)[GDT_ENTRY_LDT],
-+			     (unsigned long)addr, DESC_LDT, size * 8 - 1);
- }
- 
- #define LDT_entry_a(info) \
-@@ -183,7 +183,7 @@ static inline void set_ldt_desc(unsigned
+diff --git a/include/asm-x86/desc_64.h b/include/asm-x86/desc_64.h
+index 2dc19e2..7fd9876 100644
+--- a/include/asm-x86/desc_64.h
++++ b/include/asm-x86/desc_64.h
+@@ -150,7 +150,7 @@ static inline void set_ldt(void *addr, int entries)
  static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
  {
  	unsigned int i;
--	u64 *gdt = (u64 *)(cpu_gdt(cpu) + GDT_ENTRY_TLS_MIN);
-+	u64 *gdt = (u64 *)(get_cpu_gdt_table(cpu) + GDT_ENTRY_TLS_MIN);
+-	u64 *gdt = (u64 *)(get_cpu_gdt_table(cpu) + GDT_ENTRY_TLS_MIN);
++	struct desc_struct *gdt = (get_cpu_gdt_table(cpu) + GDT_ENTRY_TLS_MIN);
  
  	for (i = 0; i < GDT_ENTRY_TLS_ENTRIES; i++)
  		gdt[i] = t->tls_array[i];
+diff --git a/include/asm-x86/processor_64.h b/include/asm-x86/processor_64.h
+index 8efdf99..51f1970 100644
+--- a/include/asm-x86/processor_64.h
++++ b/include/asm-x86/processor_64.h
+@@ -19,6 +19,7 @@
+ #include <linux/personality.h>
+ #include <linux/cpumask.h>
+ #include <asm/processor-flags.h>
++#include <asm/desc_defs.h>
+ 
+ #define TF_MASK		0x00000100
+ #define IF_MASK		0x00000200
+@@ -244,7 +245,7 @@ struct thread_struct {
+  *               goes into MSR_IA32_DS_AREA */
+ 	unsigned long	ds_area_msr;
+ /* cached TLS descriptors. */
+-	u64 tls_array[GDT_ENTRY_TLS_ENTRIES];
++	struct desc_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
+ } __attribute__((aligned(16)));
+ 
+ #define INIT_THREAD  { \
+-- 
+1.5.0.6
