@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 08/19] modify write_ldt function
-Date: Thu, 13 Dec 2007 00:01:41 -0200
-Message-ID: <11975113532186-git-send-email-gcosta__40613.9568578967$1197521433$gmane$org@redhat.com>
+Subject: [PATCH 10/19] provide tss_desc
+Date: Thu, 13 Dec 2007 00:01:43 -0200
+Message-ID: <1197511363887-git-send-email-gcosta@redhat.com>
 References: <1196957800568-git-send-email-gcosta@redhat.com>
 	<11975113122984-git-send-email-gcosta@redhat.com>
 	<11975113194101-git-send-email-gcosta@redhat.com>
@@ -11,8 +11,10 @@ References: <1196957800568-git-send-email-gcosta@redhat.com>
 	<1197511338810-git-send-email-gcosta@redhat.com>
 	<1197511343355-git-send-email-gcosta@redhat.com>
 	<11975113484194-git-send-email-gcosta@redhat.com>
+	<11975113532186-git-send-email-gcosta@redhat.com>
+	<11975113583644-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11975113484194-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11975113583644-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,55 +28,29 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch modifies the write_ldt() function to make use
-of the new struct desc_struct instead of entry_1 and entry_2
-entries
+Provide a new type, tss_desc, to represent the tss descriptor
+in a unified way accross x86_64 and i386
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- arch/x86/kernel/ldt.c |   15 +++++++--------
- 1 files changed, 7 insertions(+), 8 deletions(-)
+ include/asm-x86/desc_defs.h |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/arch/x86/kernel/ldt.c b/arch/x86/kernel/ldt.c
-index a8cdca3..7eb0c8a 100644
---- a/arch/x86/kernel/ldt.c
-+++ b/arch/x86/kernel/ldt.c
-@@ -186,7 +186,7 @@ static int read_default_ldt(void __user *ptr, unsigned long bytecount)
- static int write_ldt(void __user *ptr, unsigned long bytecount, int oldmode)
- {
- 	struct mm_struct *mm = current->mm;
--	__u32 entry_1, entry_2;
-+	struct desc_struct ldt;
- 	int error;
- 	struct user_desc ldt_info;
+diff --git a/include/asm-x86/desc_defs.h b/include/asm-x86/desc_defs.h
+index 5a58fc1..c4d7874 100644
+--- a/include/asm-x86/desc_defs.h
++++ b/include/asm-x86/desc_defs.h
+@@ -70,9 +70,11 @@ struct ldttss_desc64 {
+ #ifdef CONFIG_X86_64
+ typedef struct gate_struct64 gate_desc;
+ typedef struct ldttss_desc64 ldt_desc;
++typedef struct ldttss_desc64 tss_desc;
+ #else
+ typedef struct desc_struct gate_desc;
+ typedef struct desc_struct ldt_desc;
++typedef struct desc_struct tss_desc;
+ #endif
  
-@@ -218,21 +218,20 @@ static int write_ldt(void __user *ptr, unsigned long bytecount, int oldmode)
- 	/* Allow LDTs to be cleared by the user. */
- 	if (ldt_info.base_addr == 0 && ldt_info.limit == 0) {
- 		if (oldmode || LDT_empty(&ldt_info)) {
--			entry_1 = 0;
--			entry_2 = 0;
-+			memset(&ldt, 0, sizeof(ldt));
- 			goto install;
- 		}
- 	}
- 
--	entry_1 = LDT_entry_a(&ldt_info);
--	entry_2 = LDT_entry_b(&ldt_info);
-+	ldt.a = LDT_entry_a(&ldt_info);
-+	ldt.b = LDT_entry_b(&ldt_info);
- 	if (oldmode)
--		entry_2 &= ~(1 << 20);
-+		ldt.avl = 0;
- 
- 	/* Install the new entry ...  */
- install:
--	write_ldt_entry(mm->context.ldt, ldt_info.entry_number, entry_1,
--			entry_2);
-+	write_ldt_entry(mm->context.ldt, ldt_info.entry_number,
-+			ldt.a, ldt.b);
- 	error = 0;
- 
- out_unlock:
+ struct desc_ptr {
 -- 
 1.5.0.6
