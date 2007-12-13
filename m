@@ -1,16 +1,15 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 06/19] change write_idt_entry signature
-Date: Thu, 13 Dec 2007 11:57:54 -0200
-Message-ID: <11975543442801-git-send-email-gcosta__21576.700724154$1197565769$gmane$org@redhat.com>
+Subject: Re: [PATCH 0/19 -v4] desc_struct integration
+Date: Thu, 13 Dec 2007 15:06:46 -0200
+Message-ID: <476166A6.8070304__44346.5529395782$1197565790$gmane$org@redhat.com>
 References: <11975113122984-git-send-email-gcosta@redhat.com>
 	<1197554287294-git-send-email-gcosta@redhat.com>
-	<11975542952896-git-send-email-gcosta@redhat.com>
-	<11975543001070-git-send-email-gcosta@redhat.com>
-	<1197554307167-git-send-email-gcosta@redhat.com>
-	<11975543173017-git-send-email-gcosta@redhat.com>
-	<11975543382698-git-send-email-gcosta@redhat.com>
+	<20071213164701.GB4865@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11975543382698-git-send-email-gcosta@redhat.com>
+In-Reply-To: <20071213164701.GB4865@elte.hu>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,193 +19,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-this patch changes write_idt_entry signature. It now takes a gate_desc
-instead of the a and b parameters. It will allow it to be later unified
-between i386 and x86_64.
-
-Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
-CC: Zachary Amsden <zach@vmware.com>
-CC: Jeremy Fitzhardinge <Jeremy.Fitzhardinge.citrix.com>
----
- arch/x86/kernel/paravirt_32.c |    2 +-
- arch/x86/kernel/vmi_32.c      |   10 +++++++++-
- arch/x86/lguest/boot.c        |    9 +++++----
- arch/x86/xen/enlighten.c      |    8 ++++----
- include/asm-x86/desc_32.h     |   10 ++++++++--
- include/asm-x86/paravirt.h    |    9 +++++----
- 6 files changed, 32 insertions(+), 16 deletions(-)
-
-diff --git a/arch/x86/kernel/paravirt_32.c b/arch/x86/kernel/paravirt_32.c
-index f4e3a8e..13bbc99 100644
---- a/arch/x86/kernel/paravirt_32.c
-+++ b/arch/x86/kernel/paravirt_32.c
-@@ -381,7 +381,7 @@ struct pv_cpu_ops pv_cpu_ops = {
- 	.load_tls = native_load_tls,
- 	.write_ldt_entry = write_dt_entry,
- 	.write_gdt_entry = write_dt_entry,
--	.write_idt_entry = write_dt_entry,
-+	.write_idt_entry = native_write_idt_entry,
- 	.load_sp0 = native_load_sp0,
- 
- 	.irq_enable_syscall_ret = native_irq_enable_syscall_ret,
-diff --git a/arch/x86/kernel/vmi_32.c b/arch/x86/kernel/vmi_32.c
-index 4cfda7d..a635b22 100644
---- a/arch/x86/kernel/vmi_32.c
-+++ b/arch/x86/kernel/vmi_32.c
-@@ -62,6 +62,7 @@ static struct {
- 	void (*cpuid)(void /* non-c */);
- 	void (*_set_ldt)(u32 selector);
- 	void (*set_tr)(u32 selector);
-+	void (*write_idt_entry)(struct desc_struct *, int, u32, u32);
- 	void (*set_kernel_stack)(u32 selector, u32 sp0);
- 	void (*allocate_page)(u32, u32, u32, u32, u32);
- 	void (*release_page)(u32, u32);
-@@ -214,6 +215,12 @@ static void vmi_set_tr(void)
- 	vmi_ops.set_tr(GDT_ENTRY_TSS*sizeof(struct desc_struct));
- }
- 
-+static void vmi_write_idt_entry(gate_desc *dt, int entry, const gate_desc *g)
-+{
-+	u32 *idt_entry = (u32 *)g;
-+	vmi_ops.write_idt_entry(dt, entry, idt_entry[0], idt_entry[2]);
-+}
-+
- static void vmi_load_sp0(struct tss_struct *tss,
- 				   struct thread_struct *thread)
- {
-@@ -792,7 +799,8 @@ static inline int __init activate_vmi(void)
- 	pv_cpu_ops.load_tls = vmi_load_tls;
- 	para_fill(pv_cpu_ops.write_ldt_entry, WriteLDTEntry);
- 	para_fill(pv_cpu_ops.write_gdt_entry, WriteGDTEntry);
--	para_fill(pv_cpu_ops.write_idt_entry, WriteIDTEntry);
-+	para_wrap(pv_cpu_ops.write_idt_entry, vmi_write_idt_entry,
-+		  write_idt_entry, WriteIDTEntry);
- 	para_wrap(pv_cpu_ops.load_sp0, vmi_load_sp0, set_kernel_stack, UpdateKernelStack);
- 	para_fill(pv_cpu_ops.set_iopl_mask, SetIOPLMask);
- 	para_fill(pv_cpu_ops.io_delay, IODelay);
-diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
-index aa0bdd5..b50c8ad 100644
---- a/arch/x86/lguest/boot.c
-+++ b/arch/x86/lguest/boot.c
-@@ -217,13 +217,14 @@ static void irq_enable(void)
-  * address of the handler, and... well, who cares?  The Guest just asks the
-  * Host to make the change anyway, because the Host controls the real IDT.
-  */
--static void lguest_write_idt_entry(struct desc_struct *dt,
--				   int entrynum, u32 low, u32 high)
-+static void lguest_write_idt_entry(gate_desc *dt,
-+				   int entrynum, const gate_desc *g)
- {
-+	u32 *desc = (u32 *)g;
- 	/* Keep the local copy up to date. */
--	write_dt_entry(dt, entrynum, low, high);
-+	native_write_idt_entry(dt, entrynum, g);
- 	/* Tell Host about this new entry. */
--	hcall(LHCALL_LOAD_IDT_ENTRY, entrynum, low, high);
-+	hcall(LHCALL_LOAD_IDT_ENTRY, entrynum, desc[0], desc[1]);
- }
- 
- /* Changing to a different IDT is very rare: we keep the IDT up-to-date every
-diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
-index 8215ea6..6dd349e 100644
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -399,8 +399,7 @@ static DEFINE_PER_CPU(struct desc_ptr, idt_desc);
- 
- /* Set an IDT entry.  If the entry is part of the current IDT, then
-    also update Xen. */
--static void xen_write_idt_entry(struct desc_struct *dt, int entrynum,
--				u32 low, u32 high)
-+static void xen_write_idt_entry(gate_desc *dt, int entrynum, const gate_desc *g)
- {
- 	unsigned long p = (unsigned long)&dt[entrynum];
- 	unsigned long start, end;
-@@ -412,14 +411,15 @@ static void xen_write_idt_entry(struct desc_struct *dt, int entrynum,
- 
- 	xen_mc_flush();
- 
--	write_dt_entry(dt, entrynum, low, high);
-+	native_write_idt_entry(dt, entrynum, g);
- 
- 	if (p >= start && (p + 8) <= end) {
- 		struct trap_info info[2];
-+		u32 *desc = (u32 *)g;
- 
- 		info[1].address = 0;
- 
--		if (cvt_gate_to_trap(entrynum, low, high, &info[0]))
-+		if (cvt_gate_to_trap(entrynum, desc[0], desc[1], &info[0]))
- 			if (HYPERVISOR_set_trap_table(info))
- 				BUG();
- 	}
-diff --git a/include/asm-x86/desc_32.h b/include/asm-x86/desc_32.h
-index 77f1e5a..54b2314 100644
---- a/include/asm-x86/desc_32.h
-+++ b/include/asm-x86/desc_32.h
-@@ -70,9 +70,15 @@ static inline void pack_gate(gate_desc *gate,
- 
- #define write_ldt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
- #define write_gdt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
--#define write_idt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
-+#define write_idt_entry(dt, entry, g) native_write_idt_entry(dt, entry, g)
- #endif
- 
-+static inline void native_write_idt_entry(gate_desc *idt, int entry,
-+					  const gate_desc *gate)
-+{
-+	memcpy(&idt[entry], gate, sizeof(*gate));
-+}
-+
- static inline void write_dt_entry(struct desc_struct *dt,
- 				  int entry, u32 entry_low, u32 entry_high)
- {
-@@ -142,7 +148,7 @@ static inline void _set_gate(int gate, unsigned int type, void *addr, unsigned s
- {
- 	gate_desc g;
- 	pack_gate(&g, (unsigned long)addr, seg, type, 0);
--	write_idt_entry(idt_table, gate, g.a, g.b);
-+	write_idt_entry(idt_table, gate, &g);
- }
- 
- static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, const void *addr)
-diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
-index 0333fb6..86a9d7b 100644
---- a/include/asm-x86/paravirt.h
-+++ b/include/asm-x86/paravirt.h
-@@ -17,6 +17,7 @@
- #include <linux/types.h>
- #include <linux/cpumask.h>
- #include <asm/kmap_types.h>
-+#include <asm/desc_defs.h>
- 
- struct page;
- struct thread_struct;
-@@ -99,8 +100,8 @@ struct pv_cpu_ops {
- 				int entrynum, u32 low, u32 high);
- 	void (*write_gdt_entry)(struct desc_struct *,
- 				int entrynum, u32 low, u32 high);
--	void (*write_idt_entry)(struct desc_struct *,
--				int entrynum, u32 low, u32 high);
-+	void (*write_idt_entry)(gate_desc *,
-+				int entrynum, const gate_desc *gate);
- 	void (*load_sp0)(struct tss_struct *tss, struct thread_struct *t);
- 
- 	void (*set_iopl_mask)(unsigned mask);
-@@ -667,9 +668,9 @@ static inline void write_gdt_entry(void *dt, int entry, u32 low, u32 high)
- {
- 	PVOP_VCALL4(pv_cpu_ops.write_gdt_entry, dt, entry, low, high);
- }
--static inline void write_idt_entry(void *dt, int entry, u32 low, u32 high)
-+static inline void write_idt_entry(gate_desc *dt, int entry, const gate_desc *g)
- {
--	PVOP_VCALL4(pv_cpu_ops.write_idt_entry, dt, entry, low, high);
-+	PVOP_VCALL3(pv_cpu_ops.write_idt_entry, dt, entry, g);
- }
- static inline void set_iopl_mask(unsigned mask)
- {
--- 
-1.5.0.6
+Ingo Molnar wrote:
+> * Glauber de Oliveira Costa <gcosta@redhat.com> wrote:
+> 
+>> Since the last version of it received no comments on the interfaces, 
+>> here it goes a version, that I feel ready for inclusion.
+>>
+>> The comments regarding style, specially the elimination of the 
+>> #defines in the desc_struct definition were merged. I also implemented 
+>> the vmi functions, missing last time.
+>>
+>> Ingo, in the absense of further complaints, could you please push to 
+>> the x86 tree?
+> 
+> well i've already included v3 in x86.git (and it's pushed out), and that 
+> was looking good already in review and in testing - could you send a 
+> v3->v4 delta too?
+Sure. The only real difference was Andi suggestion, but it was more 
+stylish. Will do soon.
