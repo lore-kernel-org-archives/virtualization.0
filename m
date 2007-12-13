@@ -1,18 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [kvm-devel] [PATCH resent] virtio_net: Fix stalled inbound
-	trafficon early packets
-Date: Thu, 13 Dec 2007 19:30:31 +0100
-Message-ID: <200712131930.31602.borntraeger__30053.3281093978$1197570791$gmane$org@de.ibm.com>
-References: <200712111242.28843.borntraeger@de.ibm.com>
-	<200712121914.38135.borntraeger@de.ibm.com>
-	<47613277.3060403@qumranet.com>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] avoid ifdefs in desc.h, getting rid of pack_ldt and
+	pack_tss
+Date: Thu, 13 Dec 2007 21:28:00 +0100
+Message-ID: <20071213202800.GD25130__26966.519005555$1197577943$gmane$org@elte.hu>
+References: <11975561713425-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47613277.3060403@qumranet.com>
 Content-Disposition: inline
+In-Reply-To: <11975561713425-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,35 +18,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dor.laor@qumranet.com
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Glauber de Oliveira Costa <gcosta@redhat.com>
+Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Donnerstag, 13. Dezember 2007 schrieb Dor Laor:
-> You're right I got confused somehow.
-> So in that case setting the driver status field on open in addition to 
-> your enable will do the trick.
-> On DRIVER_OPEN the host will trigger an interrupt if the queue is not 
-> empty..
-> Thanks,
-> Dor
 
-After looking into some other drivers, I prefer my first patch (moving 
-napi_enable) ;-)
+* Glauber de Oliveira Costa <gcosta@redhat.com> wrote:
 
-There are some drivers like xen-netfront, b44, which call napi_enable before 
-the buffers are passed to the hardware. So it seems that moving napi is 
-also a valid option.
+> By Andi Kleen's suggestion, this patch removes pack_ldt() and 
+> pack_tss() wrappers in favour of a general wrapper. It saves us an 
+> ifdef and some lines of code, but more importantly, it's more elegant.
+> 
+> No functional change is made.
+> 
+> Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 
-But maybe I can just wait until Rusty returns from vacation (I will leave 
-next week) so everything might be wonderful when I return ;-)
+thanks, applied.
 
-Rusty, if you decide to apply my patch, there is one downside: The debugging 
-code in virtio_ring sometimes triggers with a false positive:
-
-try_fill_recv calls vring_kick. Here we do a notify to the host. This might 
-cause an immediate interrupt, triggering the poll routine before vring_kick 
-can run END_USE. This is no real problem, as we dont touch the vq after 
-notify.
-
-Christian, facing 64 guest cpus unconvering all kind of races
+	Ingo
