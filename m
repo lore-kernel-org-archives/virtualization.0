@@ -1,8 +1,18 @@
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH] avoid ifdefs in desc.h, getting rid of pack_ldt and pack_tss
-Date: Thu, 13 Dec 2007 12:29:31 -0200
-Message-ID: <11975561713425-git-send-email-gcosta__11858.9046448053$1197566207$gmane$org@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [kvm-devel] [PATCH resent] virtio_net: Fix stalled inbound
+	trafficon early packets
+Date: Thu, 13 Dec 2007 19:30:31 +0100
+Message-ID: <200712131930.31602.borntraeger__30053.3281093978$1197570791$gmane$org@de.ibm.com>
+References: <200712111242.28843.borntraeger@de.ibm.com>
+	<200712121914.38135.borntraeger@de.ibm.com>
+	<47613277.3060403@qumranet.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <47613277.3060403@qumranet.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -12,111 +22,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
+To: dor.laor@qumranet.com
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-By Andi Kleen's suggestion, this patch removes pack_ldt() and pack_tss()
-wrappers in favour of a general wrapper. It saves us an ifdef and some lines
-of code, but more importantly, it's more elegant.
+Am Donnerstag, 13. Dezember 2007 schrieb Dor Laor:
+> You're right I got confused somehow.
+> So in that case setting the driver status field on open in addition to 
+> your enable will do the trick.
+> On DRIVER_OPEN the host will trigger an interrupt if the queue is not 
+> empty..
+> Thanks,
+> Dor
 
-No functional change is made.
+After looking into some other drivers, I prefer my first patch (moving 
+napi_enable) ;-)
 
-Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
----
- include/asm-x86/desc.h |   55 ++++++++++++++---------------------------------
- 1 files changed, 17 insertions(+), 38 deletions(-)
+There are some drivers like xen-netfront, b44, which call napi_enable before 
+the buffers are passed to the hardware. So it seems that moving napi is 
+also a valid option.
 
-diff --git a/include/asm-x86/desc.h b/include/asm-x86/desc.h
-index 8849666..e302a02 100644
---- a/include/asm-x86/desc.h
-+++ b/include/asm-x86/desc.h
-@@ -125,21 +125,6 @@ static inline void native_write_gdt_entry(struct desc_struct *gdt, int entry,
- 	memcpy(&gdt[entry], desc, size);
- }
- 
--static inline void set_tssldt_descriptor(struct ldttss_desc64 *d,
--					 unsigned long tss, unsigned type,
--					 unsigned size)
--{
--	memset(d, 0, sizeof(*d));
--	d->limit0 = size & 0xFFFF;
--	d->base0 = PTR_LOW(tss);
--	d->base1 = PTR_MIDDLE(tss) & 0xFF;
--	d->type = type;
--	d->p = 1;
--	d->limit1 = (size >> 16) & 0xF;
--	d->base2 = (PTR_MIDDLE(tss) >> 8) & 0xFF;
--	d->base3 = PTR_HIGH(tss);
--}
--
- static inline void pack_descriptor(struct desc_struct *desc, unsigned long base,
- 				   unsigned long limit, unsigned char type,
- 				   unsigned char flags)
-@@ -151,30 +136,24 @@ static inline void pack_descriptor(struct desc_struct *desc, unsigned long base,
- 	desc->p = 1;
- }
- 
--static inline void pack_ldt(ldt_desc *ldt, unsigned long addr,
--			   unsigned size)
--{
- 
--#ifdef CONFIG_X86_64
--		set_tssldt_descriptor(ldt,
--			     addr, DESC_LDT, size);
--#else
--		pack_descriptor(ldt, (unsigned long)addr,
--				size,
--				0x80 | DESC_LDT, 0);
--#endif
--}
--
--static inline void pack_tss(tss_desc *tss, unsigned long addr,
--			   unsigned size, unsigned entry)
-+static inline void set_tssldt_descriptor(void *d, unsigned long addr,
-+					 unsigned type, unsigned size)
- {
- #ifdef CONFIG_X86_64
--		set_tssldt_descriptor(tss,
--			     addr, entry, size);
-+	struct ldttss_desc64 *desc = d;
-+	memset(desc, 0, sizeof(*desc));
-+	desc->limit0 = size & 0xFFFF;
-+	desc->base0 = PTR_LOW(addr);
-+	desc->base1 = PTR_MIDDLE(addr) & 0xFF;
-+	desc->type = type;
-+	desc->p = 1;
-+	desc->limit1 = (size >> 16) & 0xF;
-+	desc->base2 = (PTR_MIDDLE(addr) >> 8) & 0xFF;
-+	desc->base3 = PTR_HIGH(addr);
- #else
--		pack_descriptor(tss, (unsigned long)addr,
--				size,
--				0x80 | entry, 0);
-+
-+	pack_descriptor((struct desc_struct *)d, addr, size, 0x80 | type, 0);
- #endif
- }
- 
-@@ -190,7 +169,7 @@ static inline void __set_tss_desc(unsigned cpu, unsigned int entry, void *addr)
- 	 * -1? seg base+limit should be pointing to the address of the
- 	 * last valid byte
- 	 */
--	pack_tss(&tss, (unsigned long)addr,
-+	set_tssldt_descriptor(&tss, (unsigned long)addr,
- 		IO_BITMAP_OFFSET + IO_BITMAP_BYTES + sizeof(unsigned long) - 1,
- 		DESC_TSS);
- 	write_gdt_entry(d, entry, &tss, DESC_TSS);
-@@ -206,8 +185,8 @@ static inline void native_set_ldt(const void *addr, unsigned int entries)
- 		unsigned cpu = smp_processor_id();
- 		ldt_desc ldt;
- 
--		pack_ldt(&ldt, (unsigned long)addr,
--				entries * sizeof(ldt) - 1);
-+		set_tssldt_descriptor(&ldt, (unsigned long)addr,
-+				      DESC_LDT, entries * sizeof(ldt) - 1);
- 		write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT,
- 				&ldt, DESC_LDT);
- 		__asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8));
--- 
-1.4.4.2
+But maybe I can just wait until Rusty returns from vacation (I will leave 
+next week) so everything might be wonderful when I return ;-)
+
+Rusty, if you decide to apply my patch, there is one downside: The debugging 
+code in virtio_ring sometimes triggers with a false positive:
+
+try_fill_recv calls vring_kick. Here we do a notify to the host. This might 
+cause an immediate interrupt, triggering the poll routine before vring_kick 
+can run END_USE. This is no real problem, as we dont touch the vq after 
+notify.
+
+Christian, facing 64 guest cpus unconvering all kind of races
