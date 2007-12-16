@@ -1,14 +1,10 @@
-From: Dor Laor <dor.laor@gmail.com>
-Subject: Re: virtio_net and SMP guests
-Date: Sun, 16 Dec 2007 13:55:21 +0200
-Message-ID: <47651229.4050001__35234.1316095137$1197806256$gmane$org@qumranet.com>
-References: <200712141312.05562.borntraeger@de.ibm.com>
-Reply-To: dor.laor@qumranet.com
+From: Ian Campbell <ijc@hellion.org.uk>
+Subject: [PATCH] Implement getgeo for Xen virtual block device.
+Date: Sun, 16 Dec 2007 16:35:28 +0000
+Message-ID: <1197822928.16584.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5922654915132123974=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200712141312.05562.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,124 +12,110 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christian Borntraeger wrote:
-> Rusty, Anthony, Dor,
->
-> I need your brain power :-)
->
-> On smp guests I have seen a problem with virtio (the version in curent Avi's
-> git) which do not occur on single processor guests:
->
-> kernel BUG at /space/kvm/drivers/virtio/virtio_ring.c:228!
-> illegal operation: 0001 [#1]
-> Modules linked in: ipv6
-> CPU:    2    Not tainted
-> Process swapper (pid: 0, task: 000000000f83e038, ksp: 000000000f877d70)
-> Krnl PSW : 0704000180000000 000000000045df2a (vring_restart+0x5a/0x70)
->            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:0 CC:0 PM:0 EA:3
-> Krnl GPRS: 00000000c0a80101 0000000000000000 000000000eb35000 0000000010005800
->            000000000045ded0 000000000000192f 000000000eb21000 000000000eb21000
->            000000000000000e 000000000eb21900 000000000eb21920 000000000f867cb8
->            0700000000d9b058 0000000000000010 000000000045c06a 000000000f867cb8
-> Krnl Code: 000000000045df1e: e3b0b0700004       lg      %r11,112(%r11)
->            000000000045df24: 07fe               bcr     15,%r14
->            000000000045df26: a7f40001           brc     15,45df28
->           >000000000045df2a: a7f4ffe1           brc     15,45deec
->            000000000045df2e: e31020300004       lg      %r1,48(%r2)
->            000000000045df34: a7480000           lhi     %r4,0
->            000000000045df38: 96011001           oi      1(%r1),1
->            000000000045df3c: a7f4ffef           brc     15,45df1a
-> Call Trace:
-> ([<000000000045c016>] virtnet_poll+0x96/0x42c)
->  [<000000000048cda2>] net_rx_action+0xca/0x150
->  [<0000000000137f7a>] __do_softirq+0x9e/0x130
->  [<00000000001105d6>] do_softirq+0xae/0xb4
->  [<0000000000138182>] irq_exit+0x96/0x9c
->  [<000000000010d710>] do_extint+0xcc/0xf8
->  [<00000000001135d0>] ext_no_vtime+0x16/0x1a
->  [<000000000010a57e>] cpu_idle+0x216/0x238
->
->
-> I think there is a valid code path, triggering this bug:
->
-> 	CPU1						CPU2
-> -----------------------				-----------------------
-> - virtnet_poll found no
->   more packets on queue
-> - netif_rx_complete allow
->   poll to be called
-> - vq_ops->restart is called
-> - vq Interrupts are enabled	
-> 	.		     <new packets arrive>
-> <vcpu is scheduled away>
-> 	.					- interrupt is delivered
-> 	.					- poll is called
-> 	.					- poll work is done
-> 	.					- netif_rx_complete
-> 	.					- vq_ops->restart is called
-> 	.					- check if vq interrupts are
-> 	.					  enable --> BUG
->
->   
-I didn't understand how its possible:
 
-<vcpu is scheduled away>
-	.					- interrupt is delivered
-							-vring_interrupt is called -> 
-							- skb_recv_done callback return false ->
-							vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
-
-So when the restart callback will be called the 
-BUG_ON(!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT));
-will not be issued.
-
-	.					- poll is called
-	.					- poll work is done
-	.					- netif_rx_complete
-	.					- vq_ops->restart is called
-	.					- check if vq interrupts are
-	.					  enable --> BUG
+--===============5922654915132123974==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="=-DCbjuCcicOkgj0ArjrLc"
 
 
-> The first idea was to remove this check? (See patch below). I am not sure
-> if the proper fix also requires to change vring.avail->flags to be only
-> changed by atomic bitops. Any ideas, comments?
->   
-As for now no harm can be done since it is only used in two place:
-1. vring_restart inside a napi poll calback which is protected by napi 
-poll lock
-2. vring_interrupt in the interrupt handler. While only the 
-VRING_AVAIL_F_NO_INTERRUPT bit is touched
-    there is no possible harm, once we'll use more bits it might be an 
-issue.
-So Maybe we should use atomics.
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> CC: Anthony Liguori <aliguori@us.ibm.com>
-> CC: Dor Laor <dor.laor@qumranet.com>
-> CC: Rusty Russell <rusty@rustcorp.com.au>
->
-> ---
->  drivers/virtio/virtio_ring.c |    2 --
->  1 file changed, 2 deletions(-)
->
-> Index: kvm/drivers/virtio/virtio_ring.c
-> ===================================================================
-> --- kvm.orig/drivers/virtio/virtio_ring.c
-> +++ kvm/drivers/virtio/virtio_ring.c
-> @@ -225,8 +225,6 @@ static bool vring_restart(struct virtque
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
->  	START_USE(vq);
-> -	BUG_ON(!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT));
-> -
->  	/* We optimistically turn back on interrupts, then check if there was
->  	 * more to do. */
->  	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
->
->   
+--=-DCbjuCcicOkgj0ArjrLc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi Jeremy,
+
+The below implements the getgeo hook for Xen block devices. Extracted
+from the xen-unstable tree where it has been used for ages.
+
+It is useful to have because it allows things like grub2 (used by the
+Debian installer images) to work in a guest domain without having to
+sprinkle Xen specific hacks around the place.
+
+Signed-off-by: Ian Campbell <ijc@hellion.org.uk>
+
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index 2bdebcb..b0a2e69 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -37,6 +37,7 @@
+=20
+ #include <linux/interrupt.h>
+ #include <linux/blkdev.h>
++#include <linux/hdreg.h>
+ #include <linux/module.h>
+=20
+ #include <xen/xenbus.h>
+@@ -135,6 +136,22 @@ static void blkif_restart_queue_callback(void *arg)
+ 	schedule_work(&info->work);
+ }
+=20
++int blkif_getgeo(struct block_device *bd, struct hd_geometry *hg)
++{
++	/* We don't have real geometry info, but let's at least return
++	   values consistent with the size of the device */
++	sector_t nsect =3D get_capacity(bd->bd_disk);
++	sector_t cylinders =3D nsect;
++
++	hg->heads =3D 0xff;
++	hg->sectors =3D 0x3f;
++	sector_div(cylinders, hg->heads * hg->sectors);
++	hg->cylinders =3D cylinders;
++	if ((sector_t)(hg->cylinders + 1) * hg->heads * hg->sectors < nsect)
++		hg->cylinders =3D 0xffff;
++	return 0;
++}
++
+ /*
+  * blkif_queue_request
+  *
+@@ -939,6 +956,7 @@ static struct block_device_operations xlvbd_block_fops =
+=3D
+ 	.owner =3D THIS_MODULE,
+ 	.open =3D blkif_open,
+ 	.release =3D blkif_release,
++	.getgeo =3D blkif_getgeo,
+ };
+=20
+
+
+
+--=20
+Ian Campbell
+
+'Martyrdom' is the only way a person can become famous without ability.
+		-- George Bernard Shaw
+
+--=-DCbjuCcicOkgj0ArjrLc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQBHZVPQM0+0qS9rzVkRApNAAKCv9Eb60CmCie2uDI0GbmToocG4NQCfcpEi
++VA2U+3GS5mbaomJejeAYaM=
+=H7a/
+-----END PGP SIGNATURE-----
+
+--=-DCbjuCcicOkgj0ArjrLc--
+
+
+--===============5922654915132123974==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============5922654915132123974==--
