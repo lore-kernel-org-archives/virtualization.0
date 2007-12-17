@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 19/21] [PATCH] unify asm nops
-Date: Mon, 17 Dec 2007 20:52:42 -0200
-Message-ID: <11979320603229-git-send-email-gcosta__6565.56726103208$1197943736$gmane$org@redhat.com>
+Subject: [PATCH 21/21] [PATCH] finish processor.h integration
+Date: Mon, 17 Dec 2007 20:52:44 -0200
+Message-ID: <11979320693300-git-send-email-gcosta__37699.4695085616$1197943738$gmane$org@redhat.com>
 References: <11979319641796-git-send-email-gcosta@redhat.com>
 	<1197931971748-git-send-email-gcosta@redhat.com>
 	<11979319763641-git-send-email-gcosta@redhat.com>
@@ -21,8 +21,10 @@ References: <11979319641796-git-send-email-gcosta@redhat.com>
 	<11979320451308-git-send-email-gcosta@redhat.com>
 	<1197932050948-git-send-email-gcosta@redhat.com>
 	<11979320551036-git-send-email-gcosta@redhat.com>
+	<11979320603229-git-send-email!
+	-gcosta@redhat.com> <11979320653161-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11979320551036-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11979320653161-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -36,264 +38,356 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-There's only one difference between the NOPs used in asm code for i386 and x86_64:
-i386 has a lot more variants. The code is moved to processor.h, and adjusted
-accordingly.
+What's left in processor_32.h and processor_64.h cannot be cleanly
+integrated. However, it's just a couple of definitions. They are moved
+to processor.h around ifdefs, and the original files are deleted. Note that
+there's much less headers included in the final version.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/processor.h    |   85 ++++++++++++++++++++++++++++++++++++++++
- include/asm-x86/processor_32.h |   85 ----------------------------------------
- include/asm-x86/processor_64.h |   44 --------------------
- 3 files changed, 85 insertions(+), 129 deletions(-)
+ include/asm-x86/processor.h    |  130 +++++++++++++++++++++++++++++++++++++++-
+ include/asm-x86/processor_32.h |   97 ------------------------------
+ include/asm-x86/processor_64.h |   66 --------------------
+ 3 files changed, 127 insertions(+), 166 deletions(-)
 
 Index: linux-2.6-x86/include/asm-x86/processor.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor.h
 +++ linux-2.6-x86/include/asm-x86/processor.h
-@@ -588,6 +588,91 @@ extern int bootloader_type;
- extern char ignore_fpu_irq;
- #define cache_line_size() (boot_cpu_data.x86_cache_alignment)
+@@ -2,13 +2,15 @@
+ #define __ASM_X86_PROCESSOR_H
  
-+/* generic versions from gas */
-+#define GENERIC_NOP1	".byte 0x90\n"
-+#define GENERIC_NOP2    	".byte 0x89,0xf6\n"
-+#define GENERIC_NOP3        ".byte 0x8d,0x76,0x00\n"
-+#define GENERIC_NOP4        ".byte 0x8d,0x74,0x26,0x00\n"
-+#define GENERIC_NOP5        GENERIC_NOP1 GENERIC_NOP4
-+#define GENERIC_NOP6	".byte 0x8d,0xb6,0x00,0x00,0x00,0x00\n"
-+#define GENERIC_NOP7	".byte 0x8d,0xb4,0x26,0x00,0x00,0x00,0x00\n"
-+#define GENERIC_NOP8	GENERIC_NOP1 GENERIC_NOP7
+ #include <asm/processor-flags.h>
+-
++#include <asm/desc_defs.h>
++#include <asm/msr.h>
+ #include <asm/page.h>
+ #include <asm/percpu.h>
+ #include <asm/system.h>
+ #include <asm/percpu.h>
+ #include <linux/cpumask.h>
+ #include <linux/cache.h>
++#include <linux/personality.h>
+ 
+ /*
+  * Default implementation of macro that returns current
+@@ -271,7 +273,11 @@ union i387_union {
+ 	struct i387_soft_struct soft;
+ };
+ 
+-# include "processor_32.h"
++/*
++ * the following now lives in the per cpu area:
++ * extern	int cpu_llc_id[NR_CPUS];
++ */
++DECLARE_PER_CPU(u8, cpu_llc_id);
+ #else
+ struct i387_fxsave_struct {
+ 	u16	cwd;
+@@ -291,7 +297,7 @@ union i387_union {
+ 	struct i387_fxsave_struct	fxsave;
+ };
+ 
+-# include "processor_64.h"
++DECLARE_PER_CPU(struct orig_ist, orig_ist);
+ #endif
+ 
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+@@ -774,6 +780,124 @@ static inline void prefetchw(const void 
+ }
+ 
+ #define spin_lock_prefetch(x)	prefetchw(x)
++#ifdef CONFIG_X86_32
++/*
++ * User space process size: 3GB (default).
++ */
++#define TASK_SIZE	(PAGE_OFFSET)
 +
-+/* Opteron nops */
-+#define K8_NOP1 GENERIC_NOP1
-+#define K8_NOP2	".byte 0x66,0x90\n"
-+#define K8_NOP3	".byte 0x66,0x66,0x90\n"
-+#define K8_NOP4	".byte 0x66,0x66,0x66,0x90\n"
-+#define K8_NOP5	K8_NOP3 K8_NOP2
-+#define K8_NOP6	K8_NOP3 K8_NOP3
-+#define K8_NOP7	K8_NOP4 K8_NOP3
-+#define K8_NOP8	K8_NOP4 K8_NOP4
++#define INIT_THREAD  {							\
++	.sp0 = sizeof(init_stack) + (long)&init_stack,			\
++	.vm86_info = NULL,						\
++	.sysenter_cs = __KERNEL_CS,					\
++	.io_bitmap_ptr = NULL,						\
++	.fs = __KERNEL_PERCPU,						\
++}
 +
-+/* K7 nops */
-+/* uses eax dependencies (arbitary choice) */
-+#define K7_NOP1  GENERIC_NOP1
-+#define K7_NOP2	".byte 0x8b,0xc0\n"
-+#define K7_NOP3	".byte 0x8d,0x04,0x20\n"
-+#define K7_NOP4	".byte 0x8d,0x44,0x20,0x00\n"
-+#define K7_NOP5	K7_NOP4 ASM_NOP1
-+#define K7_NOP6	".byte 0x8d,0x80,0,0,0,0\n"
-+#define K7_NOP7        ".byte 0x8D,0x04,0x05,0,0,0,0\n"
-+#define K7_NOP8        K7_NOP7 ASM_NOP1
++/*
++ * Note that the .io_bitmap member must be extra-big. This is because
++ * the CPU will access an additional byte beyond the end of the IO
++ * permission bitmap. The extra byte must be all 1 bits, and must
++ * be within the limit.
++ */
++#define INIT_TSS  {							\
++	.x86_tss = {							\
++		.sp0		= sizeof(init_stack) + (long)&init_stack, \
++		.ss0		= __KERNEL_DS,				\
++		.ss1		= __KERNEL_CS,				\
++		.io_bitmap_base	= INVALID_IO_BITMAP_OFFSET,		\
++	 },								\
++	.io_bitmap	= { [0 ... IO_BITMAP_LONGS] = ~0 },		\
++}
 +
-+/* P6 nops */
-+/* uses eax dependencies (Intel-recommended choice) */
-+#define P6_NOP1	GENERIC_NOP1
-+#define P6_NOP2	".byte 0x66,0x90\n"
-+#define P6_NOP3	".byte 0x0f,0x1f,0x00\n"
-+#define P6_NOP4	".byte 0x0f,0x1f,0x40,0\n"
-+#define P6_NOP5	".byte 0x0f,0x1f,0x44,0x00,0\n"
-+#define P6_NOP6	".byte 0x66,0x0f,0x1f,0x44,0x00,0\n"
-+#define P6_NOP7	".byte 0x0f,0x1f,0x80,0,0,0,0\n"
-+#define P6_NOP8	".byte 0x0f,0x1f,0x84,0x00,0,0,0,0\n"
++#define start_thread(regs, new_eip, new_esp) do {		\
++	__asm__("movl %0,%%gs": :"r" (0));			\
++	regs->fs = 0;						\
++	set_fs(USER_DS);					\
++	regs->ds = __USER_DS;					\
++	regs->es = __USER_DS;					\
++	regs->ss = __USER_DS;					\
++	regs->cs = __USER_CS;					\
++	regs->ip = new_eip;					\
++	regs->sp = new_esp;					\
++} while (0)
 +
-+#ifdef CONFIG_MK7
-+#define ASM_NOP1 K7_NOP1
-+#define ASM_NOP2 K7_NOP2
-+#define ASM_NOP3 K7_NOP3
-+#define ASM_NOP4 K7_NOP4
-+#define ASM_NOP5 K7_NOP5
-+#define ASM_NOP6 K7_NOP6
-+#define ASM_NOP7 K7_NOP7
-+#define ASM_NOP8 K7_NOP8
-+#elif defined(CONFIG_M686) || defined(CONFIG_MPENTIUMII) || \
-+      defined(CONFIG_MPENTIUMIII) || defined(CONFIG_MPENTIUMM) || \
-+      defined(CONFIG_MCORE2) || defined(CONFIG_PENTIUM4) || \
-+      defined(CONFIG_MPSC)
-+#define ASM_NOP1 P6_NOP1
-+#define ASM_NOP2 P6_NOP2
-+#define ASM_NOP3 P6_NOP3
-+#define ASM_NOP4 P6_NOP4
-+#define ASM_NOP5 P6_NOP5
-+#define ASM_NOP6 P6_NOP6
-+#define ASM_NOP7 P6_NOP7
-+#define ASM_NOP8 P6_NOP8
-+#elif defined(CONFIG_MK8) || defined(CONFIG_X86_64)
-+#define ASM_NOP1 K8_NOP1
-+#define ASM_NOP2 K8_NOP2
-+#define ASM_NOP3 K8_NOP3
-+#define ASM_NOP4 K8_NOP4
-+#define ASM_NOP5 K8_NOP5
-+#define ASM_NOP6 K8_NOP6
-+#define ASM_NOP7 K8_NOP7
-+#define ASM_NOP8 K8_NOP8
++
++extern unsigned long thread_saved_pc(struct task_struct *tsk);
++
++#define THREAD_SIZE_LONGS      (THREAD_SIZE/sizeof(unsigned long))
++#define KSTK_TOP(info)                                                 \
++({                                                                     \
++       unsigned long *__ptr = (unsigned long *)(info);                 \
++       (unsigned long)(&__ptr[THREAD_SIZE_LONGS]);                     \
++})
++
++/*
++ * The below -8 is to reserve 8 bytes on top of the ring0 stack.
++ * This is necessary to guarantee that the entire "struct pt_regs"
++ * is accessable even if the CPU haven't stored the SS/ESP registers
++ * on the stack (interrupt gate does not save these registers
++ * when switching to the same priv ring).
++ * Therefore beware: accessing the ss/esp fields of the
++ * "struct pt_regs" is possible, but they may contain the
++ * completely wrong values.
++ */
++#define task_pt_regs(task)                                             \
++({                                                                     \
++       struct pt_regs *__regs__;                                       \
++       __regs__ = (struct pt_regs *)(KSTK_TOP(task_stack_page(task))-8); \
++       __regs__ - 1;                                                   \
++})
++
++#define KSTK_ESP(task) (task_pt_regs(task)->sp)
++
 +#else
-+#define ASM_NOP1 GENERIC_NOP1
-+#define ASM_NOP2 GENERIC_NOP2
-+#define ASM_NOP3 GENERIC_NOP3
-+#define ASM_NOP4 GENERIC_NOP4
-+#define ASM_NOP5 GENERIC_NOP5
-+#define ASM_NOP6 GENERIC_NOP6
-+#define ASM_NOP7 GENERIC_NOP7
-+#define ASM_NOP8 GENERIC_NOP8
-+#endif
++/*
++ * User space process size. 47bits minus one guard page.
++ */
++#define TASK_SIZE64	(0x800000000000UL - 4096)
 +
-+#define ASM_NOP_MAX 8
++/* This decides where the kernel will search for a free chunk of vm
++ * space during mmap's.
++ */
++#define IA32_PAGE_OFFSET ((current->personality & ADDR_LIMIT_3GB) ? \
++			   0xc0000000 : 0xFFFFe000)
 +
- #define HAVE_ARCH_PICK_MMAP_LAYOUT 1
- #define ARCH_HAS_PREFETCHW
- #define ARCH_HAS_SPINLOCK_PREFETCH
++#define TASK_SIZE 		(test_thread_flag(TIF_IA32) ? \
++				 IA32_PAGE_OFFSET : TASK_SIZE64)
++#define TASK_SIZE_OF(child) 	((test_tsk_thread_flag(child, TIF_IA32)) ? \
++				  IA32_PAGE_OFFSET : TASK_SIZE64)
++
++#define INIT_THREAD  { \
++	.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
++}
++
++#define INIT_TSS  { \
++	.x86_tss.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
++}
++
++#define start_thread(regs, new_rip, new_rsp) do { 			     \
++	asm volatile("movl %0,%%fs; movl %0,%%es; movl %0,%%ds": :"r" (0));  \
++	load_gs_index(0);						     \
++	(regs)->ip = (new_rip);						     \
++	(regs)->sp = (new_rsp);						     \
++	write_pda(oldrsp, (new_rsp));					     \
++	(regs)->cs = __USER_CS;						     \
++	(regs)->ss = __USER_DS;						     \
++	(regs)->flags = 0x200;						     \
++	set_fs(USER_DS);						     \
++} while (0)
++
++/*
++ * Return saved PC of a blocked thread.
++ * What is this good for? it will be always the scheduler or ret_from_fork.
++ */
++#define thread_saved_pc(t) (*(unsigned long *)((t)->thread.sp - 8))
++
++#define task_pt_regs(tsk) ((struct pt_regs *)(tsk)->thread.sp0 - 1)
++#define KSTK_ESP(tsk) -1 /* sorry. doesn't work for syscall. */
++#endif /* CONFIG_X86_64 */
++
+ /* This decides where the kernel will search for a free chunk of vm
+  * space during mmap's.
+  */
 Index: linux-2.6-x86/include/asm-x86/processor_32.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor_32.h
-+++ linux-2.6-x86/include/asm-x86/processor_32.h
-@@ -18,7 +18,6 @@
- #include <linux/init.h>
- #include <asm/desc_defs.h>
- 
++++ /dev/null
+@@ -1,97 +0,0 @@
+-/*
+- * Copyright (C) 1994 Linus Torvalds
+- */
 -
- /*
-  * the following now lives in the per cpu area:
-  * extern	int cpu_llc_id[NR_CPUS];
-@@ -144,88 +143,4 @@ extern unsigned long thread_saved_pc(str
- 
- #define KSTK_ESP(task) (task_pt_regs(task)->sp)
- 
--/* generic versions from gas */
--#define GENERIC_NOP1	".byte 0x90\n"
--#define GENERIC_NOP2    	".byte 0x89,0xf6\n"
--#define GENERIC_NOP3        ".byte 0x8d,0x76,0x00\n"
--#define GENERIC_NOP4        ".byte 0x8d,0x74,0x26,0x00\n"
--#define GENERIC_NOP5        GENERIC_NOP1 GENERIC_NOP4
--#define GENERIC_NOP6	".byte 0x8d,0xb6,0x00,0x00,0x00,0x00\n"
--#define GENERIC_NOP7	".byte 0x8d,0xb4,0x26,0x00,0x00,0x00,0x00\n"
--#define GENERIC_NOP8	GENERIC_NOP1 GENERIC_NOP7
+-#ifndef __ASM_I386_PROCESSOR_H
+-#define __ASM_I386_PROCESSOR_H
 -
--/* Opteron nops */
--#define K8_NOP1 GENERIC_NOP1
--#define K8_NOP2	".byte 0x66,0x90\n" 
--#define K8_NOP3	".byte 0x66,0x66,0x90\n" 
--#define K8_NOP4	".byte 0x66,0x66,0x66,0x90\n" 
--#define K8_NOP5	K8_NOP3 K8_NOP2 
--#define K8_NOP6	K8_NOP3 K8_NOP3
--#define K8_NOP7	K8_NOP4 K8_NOP3
--#define K8_NOP8	K8_NOP4 K8_NOP4
+-#include <asm/vm86.h>
+-#include <asm/math_emu.h>
+-#include <asm/segment.h>
+-#include <asm/page.h>
+-#include <asm/types.h>
+-#include <asm/sigcontext.h>
+-#include <asm/cpufeature.h>
+-#include <asm/msr.h>
+-#include <asm/system.h>
+-#include <linux/threads.h>
+-#include <linux/init.h>
+-#include <asm/desc_defs.h>
 -
--/* K7 nops */
--/* uses eax dependencies (arbitary choice) */
--#define K7_NOP1  GENERIC_NOP1
--#define K7_NOP2	".byte 0x8b,0xc0\n" 
--#define K7_NOP3	".byte 0x8d,0x04,0x20\n"
--#define K7_NOP4	".byte 0x8d,0x44,0x20,0x00\n"
--#define K7_NOP5	K7_NOP4 ASM_NOP1
--#define K7_NOP6	".byte 0x8d,0x80,0,0,0,0\n"
--#define K7_NOP7        ".byte 0x8D,0x04,0x05,0,0,0,0\n"
--#define K7_NOP8        K7_NOP7 ASM_NOP1
+-/*
+- * the following now lives in the per cpu area:
+- * extern	int cpu_llc_id[NR_CPUS];
+- */
+-DECLARE_PER_CPU(u8, cpu_llc_id);
 -
--/* P6 nops */
--/* uses eax dependencies (Intel-recommended choice) */
--#define P6_NOP1	GENERIC_NOP1
--#define P6_NOP2	".byte 0x66,0x90\n"
--#define P6_NOP3	".byte 0x0f,0x1f,0x00\n"
--#define P6_NOP4	".byte 0x0f,0x1f,0x40,0\n"
--#define P6_NOP5	".byte 0x0f,0x1f,0x44,0x00,0\n"
--#define P6_NOP6	".byte 0x66,0x0f,0x1f,0x44,0x00,0\n"
--#define P6_NOP7	".byte 0x0f,0x1f,0x80,0,0,0,0\n"
--#define P6_NOP8	".byte 0x0f,0x1f,0x84,0x00,0,0,0,0\n"
+-/*
+- * User space process size: 3GB (default).
+- */
+-#define TASK_SIZE	(PAGE_OFFSET)
 -
--#ifdef CONFIG_MK8
--#define ASM_NOP1 K8_NOP1
--#define ASM_NOP2 K8_NOP2
--#define ASM_NOP3 K8_NOP3
--#define ASM_NOP4 K8_NOP4
--#define ASM_NOP5 K8_NOP5
--#define ASM_NOP6 K8_NOP6
--#define ASM_NOP7 K8_NOP7
--#define ASM_NOP8 K8_NOP8
--#elif defined(CONFIG_MK7)
--#define ASM_NOP1 K7_NOP1
--#define ASM_NOP2 K7_NOP2
--#define ASM_NOP3 K7_NOP3
--#define ASM_NOP4 K7_NOP4
--#define ASM_NOP5 K7_NOP5
--#define ASM_NOP6 K7_NOP6
--#define ASM_NOP7 K7_NOP7
--#define ASM_NOP8 K7_NOP8
--#elif defined(CONFIG_M686) || defined(CONFIG_MPENTIUMII) || \
--      defined(CONFIG_MPENTIUMIII) || defined(CONFIG_MPENTIUMM) || \
--      defined(CONFIG_MCORE2) || defined(CONFIG_PENTIUM4)
--#define ASM_NOP1 P6_NOP1
--#define ASM_NOP2 P6_NOP2
--#define ASM_NOP3 P6_NOP3
--#define ASM_NOP4 P6_NOP4
--#define ASM_NOP5 P6_NOP5
--#define ASM_NOP6 P6_NOP6
--#define ASM_NOP7 P6_NOP7
--#define ASM_NOP8 P6_NOP8
--#else
--#define ASM_NOP1 GENERIC_NOP1
--#define ASM_NOP2 GENERIC_NOP2
--#define ASM_NOP3 GENERIC_NOP3
--#define ASM_NOP4 GENERIC_NOP4
--#define ASM_NOP5 GENERIC_NOP5
--#define ASM_NOP6 GENERIC_NOP6
--#define ASM_NOP7 GENERIC_NOP7
--#define ASM_NOP8 GENERIC_NOP8
--#endif
+-#define INIT_THREAD  {							\
+-	.sp0 = sizeof(init_stack) + (long)&init_stack,			\
+-	.vm86_info = NULL,						\
+-	.sysenter_cs = __KERNEL_CS,					\
+-	.io_bitmap_ptr = NULL,						\
+-	.fs = __KERNEL_PERCPU,						\
+-}
 -
--#define ASM_NOP_MAX 8
+-/*
+- * Note that the .io_bitmap member must be extra-big. This is because
+- * the CPU will access an additional byte beyond the end of the IO
+- * permission bitmap. The extra byte must be all 1 bits, and must
+- * be within the limit.
+- */
+-#define INIT_TSS  {							\
+-	.x86_tss = {							\
+-		.sp0		= sizeof(init_stack) + (long)&init_stack, \
+-		.ss0		= __KERNEL_DS,				\
+-		.ss1		= __KERNEL_CS,				\
+-		.io_bitmap_base	= INVALID_IO_BITMAP_OFFSET,		\
+-	 },								\
+-	.io_bitmap	= { [ 0 ... IO_BITMAP_LONGS] = ~0 },		\
+-}
 -
- #endif /* __ASM_I386_PROCESSOR_H */
+-#define start_thread(regs, new_eip, new_esp) do {		\
+-	__asm__("movl %0,%%gs": :"r" (0));			\
+-	regs->fs = 0;						\
+-	set_fs(USER_DS);					\
+-	regs->ds = __USER_DS;					\
+-	regs->es = __USER_DS;					\
+-	regs->ss = __USER_DS;					\
+-	regs->cs = __USER_CS;					\
+-	regs->ip = new_eip;					\
+-	regs->sp = new_esp;					\
+-} while (0)
+-
+-
+-extern unsigned long thread_saved_pc(struct task_struct *tsk);
+-
+-#define THREAD_SIZE_LONGS      (THREAD_SIZE/sizeof(unsigned long))
+-#define KSTK_TOP(info)                                                 \
+-({                                                                     \
+-       unsigned long *__ptr = (unsigned long *)(info);                 \
+-       (unsigned long)(&__ptr[THREAD_SIZE_LONGS]);                     \
+-})
+-
+-/*
+- * The below -8 is to reserve 8 bytes on top of the ring0 stack.
+- * This is necessary to guarantee that the entire "struct pt_regs"
+- * is accessable even if the CPU haven't stored the SS/ESP registers
+- * on the stack (interrupt gate does not save these registers
+- * when switching to the same priv ring).
+- * Therefore beware: accessing the ss/esp fields of the
+- * "struct pt_regs" is possible, but they may contain the
+- * completely wrong values.
+- */
+-#define task_pt_regs(task)                                             \
+-({                                                                     \
+-       struct pt_regs *__regs__;                                       \
+-       __regs__ = (struct pt_regs *)(KSTK_TOP(task_stack_page(task))-8); \
+-       __regs__ - 1;                                                   \
+-})
+-
+-#define KSTK_ESP(task) (task_pt_regs(task)->sp)
+-
+-#endif /* __ASM_I386_PROCESSOR_H */
 Index: linux-2.6-x86/include/asm-x86/processor_64.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor_64.h
-+++ linux-2.6-x86/include/asm-x86/processor_64.h
-@@ -80,48 +80,4 @@ DECLARE_PER_CPU(struct orig_ist, orig_is
- #define task_pt_regs(tsk) ((struct pt_regs *)(tsk)->thread.sp0 - 1)
- #define KSTK_ESP(tsk) -1 /* sorry. doesn't work for syscall. */
- 
++++ /dev/null
+@@ -1,66 +0,0 @@
+-/*
+- * Copyright (C) 1994 Linus Torvalds
+- */
 -
--#if defined(CONFIG_MPSC) || defined(CONFIG_MCORE2)
--#define ASM_NOP1 P6_NOP1
--#define ASM_NOP2 P6_NOP2
--#define ASM_NOP3 P6_NOP3
--#define ASM_NOP4 P6_NOP4
--#define ASM_NOP5 P6_NOP5
--#define ASM_NOP6 P6_NOP6
--#define ASM_NOP7 P6_NOP7
--#define ASM_NOP8 P6_NOP8
--#else
--#define ASM_NOP1 K8_NOP1
--#define ASM_NOP2 K8_NOP2
--#define ASM_NOP3 K8_NOP3
--#define ASM_NOP4 K8_NOP4
--#define ASM_NOP5 K8_NOP5
--#define ASM_NOP6 K8_NOP6
--#define ASM_NOP7 K8_NOP7
--#define ASM_NOP8 K8_NOP8
--#endif
+-#ifndef __ASM_X86_64_PROCESSOR_H
+-#define __ASM_X86_64_PROCESSOR_H
 -
--/* Opteron nops */
--#define K8_NOP1 ".byte 0x90\n"
--#define K8_NOP2	".byte 0x66,0x90\n" 
--#define K8_NOP3	".byte 0x66,0x66,0x90\n" 
--#define K8_NOP4	".byte 0x66,0x66,0x66,0x90\n" 
--#define K8_NOP5	K8_NOP3 K8_NOP2 
--#define K8_NOP6	K8_NOP3 K8_NOP3
--#define K8_NOP7	K8_NOP4 K8_NOP3
--#define K8_NOP8	K8_NOP4 K8_NOP4
+-#include <asm/segment.h>
+-#include <asm/page.h>
+-#include <asm/types.h>
+-#include <asm/sigcontext.h>
+-#include <asm/cpufeature.h>
+-#include <linux/threads.h>
+-#include <asm/msr.h>
+-#include <asm/current.h>
+-#include <asm/system.h>
+-#include <linux/personality.h>
+-#include <asm/desc_defs.h>
 -
--/* P6 nops */
--/* uses eax dependencies (Intel-recommended choice) */
--#define P6_NOP1	".byte 0x90\n"
--#define P6_NOP2	".byte 0x66,0x90\n"
--#define P6_NOP3	".byte 0x0f,0x1f,0x00\n"
--#define P6_NOP4	".byte 0x0f,0x1f,0x40,0\n"
--#define P6_NOP5	".byte 0x0f,0x1f,0x44,0x00,0\n"
--#define P6_NOP6	".byte 0x66,0x0f,0x1f,0x44,0x00,0\n"
--#define P6_NOP7	".byte 0x0f,0x1f,0x80,0,0,0,0\n"
--#define P6_NOP8	".byte 0x0f,0x1f,0x84,0x00,0,0,0,0\n"
+-/*
+- * User space process size. 47bits minus one guard page.
+- */
+-#define TASK_SIZE64	(0x800000000000UL - 4096)
 -
--#define ASM_NOP_MAX 8
+-/* This decides where the kernel will search for a free chunk of vm
+- * space during mmap's.
+- */
+-#define IA32_PAGE_OFFSET ((current->personality & ADDR_LIMIT_3GB) ? 0xc0000000 : 0xFFFFe000)
 -
- #endif /* __ASM_X86_64_PROCESSOR_H */
+-#define TASK_SIZE 		(test_thread_flag(TIF_IA32) ? IA32_PAGE_OFFSET : TASK_SIZE64)
+-#define TASK_SIZE_OF(child) 	((test_tsk_thread_flag(child, TIF_IA32)) ? IA32_PAGE_OFFSET : TASK_SIZE64)
+-
+-
+-
+-DECLARE_PER_CPU(struct orig_ist, orig_ist);
+-
+-#define INIT_THREAD  { \
+-	.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
+-}
+-
+-#define INIT_TSS  { \
+-	.x86_tss.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
+-}
+-
+-#define start_thread(regs,new_rip,new_rsp) do { \
+-	asm volatile("movl %0,%%fs; movl %0,%%es; movl %0,%%ds": :"r" (0));	 \
+-	load_gs_index(0);							\
+-	(regs)->ip = (new_rip);						 \
+-	(regs)->sp = (new_rsp);						 \
+-	write_pda(oldrsp, (new_rsp));						 \
+-	(regs)->cs = __USER_CS;							 \
+-	(regs)->ss = __USER_DS;							 \
+-	(regs)->flags = 0x200;							 \
+-	set_fs(USER_DS);							 \
+-} while(0) 
+-
+-/*
+- * Return saved PC of a blocked thread.
+- * What is this good for? it will be always the scheduler or ret_from_fork.
+- */
+-#define thread_saved_pc(t) (*(unsigned long *)((t)->thread.sp - 8))
+-
+-#define task_pt_regs(tsk) ((struct pt_regs *)(tsk)->thread.sp0 - 1)
+-#define KSTK_ESP(tsk) -1 /* sorry. doesn't work for syscall. */
+-
+-#endif /* __ASM_X86_64_PROCESSOR_H */
