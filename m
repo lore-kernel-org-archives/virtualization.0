@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 17/21] [PATCH] move definitions to processor.h
-Date: Mon, 17 Dec 2007 20:52:40 -0200
-Message-ID: <1197932050948-git-send-email-gcosta__20293.4525245384$1197942639$gmane$org@redhat.com>
+Subject: [PATCH 16/21] [PATCH] unify mm_segment_t definition
+Date: Mon, 17 Dec 2007 20:52:39 -0200
+Message-ID: <11979320451308-git-send-email-gcosta__21558.3059042276$1197943702$gmane$org@redhat.com>
 References: <11979319641796-git-send-email-gcosta@redhat.com>
 	<1197931971748-git-send-email-gcosta@redhat.com>
 	<11979319763641-git-send-email-gcosta@redhat.com>
@@ -18,9 +18,8 @@ References: <11979319641796-git-send-email-gcosta@redhat.com>
 	<11979320302030-git-send-email-gcosta@redhat.com>
 	<11979320354186-git-send-email-gcosta@redhat.com>
 	<11979320401316-git-send-email-gcosta@redhat.com>
-	<11979320451308-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11979320451308-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11979320401316-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -34,204 +33,85 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch moves definitions that are present in only one of the files
-(between processor_32.h and processor_64.h), to processor.h. They're mostly
-structures and function definitions.
+This patch moves the mm_segment_t structure definition to processor.h
+This makes mmsegment.h file useless, and it is deleted.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- arch/x86/kernel/cpu/common.c   |    2 +-
- arch/x86/kernel/setup_64.c     |    2 +-
- include/asm-x86/processor.h    |   41 ++++++++++++++++++++++++++++++++++++++++
- include/asm-x86/processor_32.h |   35 ----------------------------------
- include/asm-x86/processor_64.h |    6 -----
- 5 files changed, 43 insertions(+), 43 deletions(-)
+ include/asm-x86/mmsegment.h      |    8 --------
+ include/asm-x86/processor.h      |    5 +++++
+ include/asm-x86/processor_32.h   |    5 -----
+ include/asm-x86/processor_64.h   |    1 -
+ include/asm-x86/thread_info_64.h |    2 +-
+ 5 files changed, 6 insertions(+), 15 deletions(-)
 
-Index: linux-2.6-x86/arch/x86/kernel/cpu/common.c
+Index: linux-2.6-x86/include/asm-x86/mmsegment.h
 ===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/cpu/common.c
-+++ linux-2.6-x86/arch/x86/kernel/cpu/common.c
-@@ -399,7 +399,7 @@ __setup("serialnumber", x86_serial_nr_se
- /*
-  * This does the hard work of actually picking apart the CPU stuff...
-  */
--static void __cpuinit identify_cpu(struct cpuinfo_x86 *c)
-+void __cpuinit identify_cpu(struct cpuinfo_x86 *c)
- {
- 	int i;
- 
-Index: linux-2.6-x86/arch/x86/kernel/setup_64.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/setup_64.c
-+++ linux-2.6-x86/arch/x86/kernel/setup_64.c
-@@ -768,7 +768,7 @@ static void __cpuinit init_amd(struct cp
- 		disable_apic_timer = 1;
- }
- 
--static void __cpuinit detect_ht(struct cpuinfo_x86 *c)
-+void __cpuinit detect_ht(struct cpuinfo_x86 *c)
- {
- #ifdef CONFIG_SMP
- 	u32 eax, ebx, ecx, edx;
+--- linux-2.6-x86.orig/include/asm-x86/mmsegment.h
++++ /dev/null
+@@ -1,8 +0,0 @@
+-#ifndef _ASM_MMSEGMENT_H
+-#define _ASM_MMSEGMENT_H 1
+-
+-typedef struct {
+-	unsigned long seg;
+-} mm_segment_t;
+-
+-#endif
 Index: linux-2.6-x86/include/asm-x86/processor.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor.h
 +++ linux-2.6-x86/include/asm-x86/processor.h
-@@ -92,7 +92,12 @@ struct cpuinfo_x86 {
- #define X86_VENDOR_NUM 9
- #define X86_VENDOR_UNKNOWN 0xff
+@@ -420,6 +420,11 @@ struct extended_sigtable {
+ 	struct extended_signature sigs[0];
+ };
  
-+/*
-+ * capabilities of CPUs
-+ */
- extern struct cpuinfo_x86 boot_cpu_data;
-+extern struct cpuinfo_x86 new_cpu_data;
-+extern struct tss_struct doublefault_tss;
- 
- #ifdef CONFIG_SMP
- DECLARE_PER_CPU(struct cpuinfo_x86, cpu_info);
-@@ -103,11 +108,22 @@ DECLARE_PER_CPU(struct cpuinfo_x86, cpu_
- #define current_cpu_data	boot_cpu_data
- #endif
- 
-+void cpu_detect(struct cpuinfo_x86 *c);
++typedef struct {
++	unsigned long seg;
++} mm_segment_t;
 +
-+extern void identify_cpu(struct cpuinfo_x86 *);
-+extern void identify_boot_cpu(void);
-+extern void identify_secondary_cpu(struct cpuinfo_x86 *);
- extern void print_cpu_info(struct cpuinfo_x86 *);
- extern void init_scattered_cpuid_features(struct cpuinfo_x86 *c);
- extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
- extern unsigned short num_cache_leaves;
- 
-+#if defined(CONFIG_X86_HT) || defined(CONFIG_X86_64)
-+extern void detect_ht(struct cpuinfo_x86 *c);
-+#else
-+static inline void detect_ht(struct cpuinfo_x86 *c) {}
-+#endif
 +
- static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
- 					 unsigned int *ecx, unsigned int *edx)
- {
-@@ -201,6 +217,11 @@ struct tss_struct {
- 
- DECLARE_PER_CPU(struct tss_struct, init_tss);
- 
-+/* Save the original ist values for checking stack pointers during debugging */
-+struct orig_ist {
-+	unsigned long ist[7];
-+};
-+
- #ifdef CONFIG_X86_32
- # include "processor_32.h"
- #else
-@@ -543,8 +564,28 @@ extern void select_idle_routine(const st
- 
- extern unsigned long boot_option_idle_override;
- 
-+extern void enable_sep_cpu(void);
-+extern int sysenter_setup(void);
-+
-+/* Defined in head.S */
-+extern struct desc_ptr early_gdt_descr;
-+
-+extern void cpu_set_gdt(int);
-+extern void switch_to_new_gdt(void);
-+extern void cpu_init(void);
-+extern void init_gdt(int cpu);
-+
-+/* from system description table in BIOS.  Mostly for MCA use, but
-+ * others may find it useful. */
-+extern unsigned int machine_id;
-+extern unsigned int machine_submodel_id;
-+extern unsigned int BIOS_revision;
-+extern unsigned int mca_pentium_flag;
-+
- /* Boot loader type from the setup header */
- extern int bootloader_type;
-+
-+extern char ignore_fpu_irq;
- #define cache_line_size() (boot_cpu_data.x86_cache_alignment)
- 
- #define HAVE_ARCH_PICK_MMAP_LAYOUT 1
+ /*
+  * create a kernel thread without removing it from tasklists
+  */
 Index: linux-2.6-x86/include/asm-x86/processor_32.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor_32.h
 +++ linux-2.6-x86/include/asm-x86/processor_32.h
-@@ -18,36 +18,12 @@
- #include <linux/init.h>
- #include <asm/desc_defs.h>
+@@ -103,11 +103,6 @@ union i387_union {
+ 	struct i387_soft_struct soft;
+ };
  
--/*
-- * capabilities of CPUs
-- */
--extern struct cpuinfo_x86 new_cpu_data;
--extern struct tss_struct doublefault_tss;
- 
- /*
-  * the following now lives in the per cpu area:
-  * extern	int cpu_llc_id[NR_CPUS];
-  */
- DECLARE_PER_CPU(u8, cpu_llc_id);
--extern char ignore_fpu_irq;
+-typedef struct {
+-	unsigned long seg;
+-} mm_segment_t;
 -
--void __init cpu_detect(struct cpuinfo_x86 *c);
 -
--extern void identify_boot_cpu(void);
--extern void identify_secondary_cpu(struct cpuinfo_x86 *);
--
--#ifdef CONFIG_X86_HT
--extern void detect_ht(struct cpuinfo_x86 *c);
--#else
--static inline void detect_ht(struct cpuinfo_x86 *c) {}
--#endif
--
--/* from system description table in BIOS.  Mostly for MCA use, but
--others may find it useful. */
--extern unsigned int machine_id;
--extern unsigned int machine_submodel_id;
--extern unsigned int BIOS_revision;
--extern unsigned int mca_pentium_flag;
- 
- /*
-  * User space process size: 3GB (default).
-@@ -277,15 +253,4 @@ static inline void prefetchw(const void 
- 			  "r" (x));
- }
- 
--extern void enable_sep_cpu(void);
--extern int sysenter_setup(void);
--
--/* Defined in head.S */
--extern struct desc_ptr early_gdt_descr;
--
--extern void cpu_set_gdt(int);
--extern void switch_to_new_gdt(void);
--extern void cpu_init(void);
--extern void init_gdt(int cpu);
--
- #endif /* __ASM_I386_PROCESSOR_H */
+ #define INIT_THREAD  {							\
+ 	.sp0 = sizeof(init_stack) + (long)&init_stack,			\
+ 	.vm86_info = NULL,						\
 Index: linux-2.6-x86/include/asm-x86/processor_64.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor_64.h
 +++ linux-2.6-x86/include/asm-x86/processor_64.h
-@@ -17,8 +17,6 @@
+@@ -14,7 +14,6 @@
+ #include <asm/msr.h>
+ #include <asm/current.h>
+ #include <asm/system.h>
+-#include <asm/mmsegment.h>
  #include <linux/personality.h>
  #include <asm/desc_defs.h>
  
--extern void identify_cpu(struct cpuinfo_x86 *);
--
- /*
-  * User space process size. 47bits minus one guard page.
-  */
-@@ -51,10 +49,6 @@ union i387_union {
- 	struct i387_fxsave_struct	fxsave;
- };
+Index: linux-2.6-x86/include/asm-x86/thread_info_64.h
+===================================================================
+--- linux-2.6-x86.orig/include/asm-x86/thread_info_64.h
++++ linux-2.6-x86/include/asm-x86/thread_info_64.h
+@@ -21,7 +21,7 @@
+ #ifndef __ASSEMBLY__
+ struct task_struct;
+ struct exec_domain;
+-#include <asm/mmsegment.h>
++#include <asm/processor.h>
  
--/* Save the original ist values for checking stack pointers during debugging */
--struct orig_ist {
--	unsigned long ist[7];
--};
- DECLARE_PER_CPU(struct orig_ist, orig_ist);
- 
- #define INIT_THREAD  { \
+ struct thread_info {
+ 	struct task_struct	*task;		/* main task structure */
