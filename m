@@ -1,7 +1,8 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 12/21] [PATCH] unify TASK_ALIGN definitions
-Date: Mon, 17 Dec 2007 20:52:35 -0200
-Message-ID: <11979320252102-git-send-email-gcosta__32674.2126061164$1197942575$gmane$org@redhat.com>
+Subject: [PATCH 13/21] [PATCH] change bitwise operations to get a void
+	parameter.
+Date: Mon, 17 Dec 2007 20:52:36 -0200
+Message-ID: <11979320302030-git-send-email-gcosta__2131.52749133787$1197942616$gmane$org@redhat.com>
 References: <11979319641796-git-send-email-gcosta@redhat.com>
 	<1197931971748-git-send-email-gcosta@redhat.com>
 	<11979319763641-git-send-email-gcosta@redhat.com>
@@ -14,8 +15,9 @@ References: <11979319641796-git-send-email-gcosta@redhat.com>
 	<11979320114180-git-send-email-gcosta@redhat.com>
 	<11979320163651-git-send-email-gcosta@redhat.com>
 	<11979320211287-git-send-email-gcosta@redhat.com>
+	<11979320252102-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11979320211287-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11979320252102-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,65 +31,174 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch moves the TASK_ALIGN constraints to common header.
-The base of it is the same for x86_64 and i386. The only difference
-is the presence of vSMP in x86_64. As it's not a worry in i386, we can
-safely use the same code for both.
+This patch changes the bitwise operations in bitops.h to get
+a void pointers as a parameter. Before this patch, a lot of warnings
+can be seen. They're gone after it.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/processor.h    |    8 ++++++++
- include/asm-x86/processor_32.h |    1 -
- include/asm-x86/processor_64.h |    8 --------
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ include/asm-x86/bitops.h |   39 ++++++++++++++++++++-------------------
+ 1 files changed, 20 insertions(+), 19 deletions(-)
 
-Index: linux-2.6-x86/include/asm-x86/processor.h
+Index: linux-2.6-x86/include/asm-x86/bitops.h
 ===================================================================
---- linux-2.6-x86.orig/include/asm-x86/processor.h
-+++ linux-2.6-x86/include/asm-x86/processor.h
-@@ -18,6 +18,14 @@ static inline void *current_text_addr(vo
- 	return pc;
+--- linux-2.6-x86.orig/include/asm-x86/bitops.h
++++ linux-2.6-x86/include/asm-x86/bitops.h
+@@ -43,7 +43,7 @@
+  * Note that @nr may be almost arbitrarily large; this function is not
+  * restricted to acting on a single-word quantity.
+  */
+-static inline void set_bit(int nr, volatile unsigned long *addr)
++static inline void set_bit(int nr, volatile void *addr)
+ {
+ 	asm volatile(LOCK_PREFIX "bts %1,%0"
+ 		     : ADDR
+@@ -59,7 +59,7 @@ static inline void set_bit(int nr, volat
+  * If it's called on the same region of memory simultaneously, the effect
+  * may be that only one operation succeeds.
+  */
+-static inline void __set_bit(int nr, volatile unsigned long *addr)
++static inline void __set_bit(int nr, volatile void *addr)
+ {
+ 	asm volatile("bts %1,%0"
+ 		     : ADDR
+@@ -77,7 +77,7 @@ static inline void __set_bit(int nr, vol
+  * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
+  * in order to ensure changes are visible on other processors.
+  */
+-static inline void clear_bit(int nr, volatile unsigned long *addr)
++static inline void clear_bit(int nr, volatile void *addr)
+ {
+ 	asm volatile(LOCK_PREFIX "btr %1,%0"
+ 		     : ADDR
+@@ -92,13 +92,13 @@ static inline void clear_bit(int nr, vol
+  * clear_bit() is atomic and implies release semantics before the memory
+  * operation. It can be used for an unlock.
+  */
+-static inline void clear_bit_unlock(unsigned nr, volatile unsigned long *addr)
++static inline void clear_bit_unlock(unsigned nr, volatile void *addr)
+ {
+ 	barrier();
+ 	clear_bit(nr, addr);
  }
  
-+#ifdef CONFIG_X86_VSMP
-+#define ARCH_MIN_TASKALIGN	(1 << INTERNODE_CACHE_SHIFT)
-+#define ARCH_MIN_MMSTRUCT_ALIGN	(1 << INTERNODE_CACHE_SHIFT)
-+#else
-+#define ARCH_MIN_TASKALIGN	16
-+#define ARCH_MIN_MMSTRUCT_ALIGN	0
-+#endif
-+
- static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
- 					 unsigned int *ecx, unsigned int *edx)
+-static inline void __clear_bit(int nr, volatile unsigned long *addr)
++static inline void __clear_bit(int nr, volatile void *addr)
  {
-Index: linux-2.6-x86/include/asm-x86/processor_32.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/processor_32.h
-+++ linux-2.6-x86/include/asm-x86/processor_32.h
-@@ -174,7 +174,6 @@ typedef struct {
- 	unsigned long seg;
- } mm_segment_t;
+ 	asm volatile("btr %1,%0" : ADDR : "Ir" (nr));
+ }
+@@ -115,7 +115,7 @@ static inline void __clear_bit(int nr, v
+  * No memory barrier is required here, because x86 cannot reorder stores past
+  * older loads. Same principle as spin_unlock.
+  */
+-static inline void __clear_bit_unlock(unsigned nr, volatile unsigned long *addr)
++static inline void __clear_bit_unlock(unsigned nr, volatile void *addr)
+ {
+ 	barrier();
+ 	__clear_bit(nr, addr);
+@@ -133,7 +133,7 @@ static inline void __clear_bit_unlock(un
+  * If it's called on the same region of memory simultaneously, the effect
+  * may be that only one operation succeeds.
+  */
+-static inline void __change_bit(int nr, volatile unsigned long *addr)
++static inline void __change_bit(int nr, volatile void *addr)
+ {
+ 	asm volatile("btc %1,%0" : ADDR : "Ir" (nr));
+ }
+@@ -147,7 +147,7 @@ static inline void __change_bit(int nr, 
+  * Note that @nr may be almost arbitrarily large; this function is not
+  * restricted to acting on a single-word quantity.
+  */
+-static inline void change_bit(int nr, volatile unsigned long *addr)
++static inline void change_bit(int nr, volatile void *addr)
+ {
+ 	asm volatile(LOCK_PREFIX "btc %1,%0"
+ 		     : ADDR : "Ir" (nr));
+@@ -161,7 +161,7 @@ static inline void change_bit(int nr, vo
+  * This operation is atomic and cannot be reordered.
+  * It also implies a memory barrier.
+  */
+-static inline int test_and_set_bit(int nr, volatile unsigned long *addr)
++static inline int test_and_set_bit(int nr, volatile void *addr)
+ {
+ 	int oldbit;
  
--#define ARCH_MIN_TASKALIGN	16
+@@ -180,7 +180,7 @@ static inline int test_and_set_bit(int n
+  *
+  * This is the same as test_and_set_bit on x86.
+  */
+-static inline int test_and_set_bit_lock(int nr, volatile unsigned long *addr)
++static inline int test_and_set_bit_lock(int nr, volatile void *addr)
+ {
+ 	return test_and_set_bit(nr, addr);
+ }
+@@ -194,7 +194,7 @@ static inline int test_and_set_bit_lock(
+  * If two examples of this operation race, one can appear to succeed
+  * but actually fail.  You must protect multiple accesses with a lock.
+  */
+-static inline int __test_and_set_bit(int nr, volatile unsigned long *addr)
++static inline int __test_and_set_bit(int nr, volatile void *addr)
+ {
+ 	int oldbit;
  
- #define INIT_THREAD  {							\
- 	.sp0 = sizeof(init_stack) + (long)&init_stack,			\
-Index: linux-2.6-x86/include/asm-x86/processor_64.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/processor_64.h
-+++ linux-2.6-x86/include/asm-x86/processor_64.h
-@@ -117,14 +117,6 @@ struct orig_ist {
- };
- DECLARE_PER_CPU(struct orig_ist, orig_ist);
+@@ -213,7 +213,7 @@ static inline int __test_and_set_bit(int
+  * This operation is atomic and cannot be reordered.
+  * It also implies a memory barrier.
+  */
+-static inline int test_and_clear_bit(int nr, volatile unsigned long *addr)
++static inline int test_and_clear_bit(int nr, volatile void *addr)
+ {
+ 	int oldbit;
  
--#ifdef CONFIG_X86_VSMP
--#define ARCH_MIN_TASKALIGN	(1 << INTERNODE_CACHE_SHIFT)
--#define ARCH_MIN_MMSTRUCT_ALIGN	(1 << INTERNODE_CACHE_SHIFT)
--#else
--#define ARCH_MIN_TASKALIGN	16
--#define ARCH_MIN_MMSTRUCT_ALIGN	0
--#endif
--
- #define INIT_THREAD  { \
- 	.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
+@@ -234,7 +234,7 @@ static inline int test_and_clear_bit(int
+  * If two examples of this operation race, one can appear to succeed
+  * but actually fail.  You must protect multiple accesses with a lock.
+  */
+-static inline int __test_and_clear_bit(int nr, volatile unsigned long *addr)
++static inline int __test_and_clear_bit(int nr, volatile void *addr)
+ {
+ 	int oldbit;
+ 
+@@ -246,7 +246,7 @@ static inline int __test_and_clear_bit(i
+ }
+ 
+ /* WARNING: non atomic and it can be reordered! */
+-static inline int __test_and_change_bit(int nr, volatile unsigned long *addr)
++static inline int __test_and_change_bit(int nr, volatile void *addr)
+ {
+ 	int oldbit;
+ 
+@@ -266,7 +266,7 @@ static inline int __test_and_change_bit(
+  * This operation is atomic and cannot be reordered.
+  * It also implies a memory barrier.
+  */
+-static inline int test_and_change_bit(int nr, volatile unsigned long *addr)
++static inline int test_and_change_bit(int nr, volatile void *addr)
+ {
+ 	int oldbit;
+ 
+@@ -278,19 +278,20 @@ static inline int test_and_change_bit(in
+ 	return oldbit;
+ }
+ 
+-static inline int constant_test_bit(int nr, const volatile unsigned long *addr)
++static inline int constant_test_bit(int nr, const volatile void *addr)
+ {
+-	return ((1UL << (nr % BITS_PER_LONG)) & (addr[nr / BITS_PER_LONG])) != 0;
++	return ((1UL << (nr % BITS_PER_LONG)) &
++		(((unsigned long *)addr)[nr / BITS_PER_LONG])) != 0;
+ }
+ 
+-static inline int variable_test_bit(int nr, volatile const unsigned long *addr)
++static inline int variable_test_bit(int nr, volatile const void *addr)
+ {
+ 	int oldbit;
+ 
+ 	asm volatile("bt %2,%1\n\t"
+ 		     "sbb %0,%0"
+ 		     : "=r" (oldbit)
+-		     : "m" (*addr), "Ir" (nr));
++		     : "m" (*(unsigned long *)addr), "Ir" (nr));
+ 
+ 	return oldbit;
  }
