@@ -1,10 +1,12 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 1/21] move tsc definitions to were they belong
-Date: Mon, 17 Dec 2007 20:52:24 -0200
-Message-ID: <1197931971748-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 3/21] [PATCH] move desc_empty to where they belong
+Date: Mon, 17 Dec 2007 20:52:26 -0200
+Message-ID: <11979319811234-git-send-email-gcosta@redhat.com>
 References: <11979319641796-git-send-email-gcosta@redhat.com>
+	<1197931971748-git-send-email-gcosta@redhat.com>
+	<11979319763641-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11979319641796-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11979319763641-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,50 +20,66 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch wipes out the definitions of tsc_disable from processor_32.h 
-and move it to tsc.h, were it belongs
+This patch moves the (duplicated) desc_empty implementation to desc.h,
+where the descriptor things belong.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/processor_32.h |    7 -------
- include/asm-x86/tsc.h          |    6 ++++++
- 2 files changed, 6 insertions(+), 7 deletions(-)
+ include/asm-x86/desc.h         |    6 ++++++
+ include/asm-x86/processor_32.h |    6 ------
+ include/asm-x86/processor_64.h |    6 ------
+ 3 files changed, 6 insertions(+), 12 deletions(-)
 
-Index: linux-2.6-x86/include/asm-x86/processor_32.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/processor_32.h
-+++ linux-2.6-x86/include/asm-x86/processor_32.h
-@@ -22,9 +22,6 @@
- #include <asm/processor-flags.h>
+diff --git a/include/asm-x86/desc.h b/include/asm-x86/desc.h
+index 161a6d6..6c781bf 100644
+--- a/include/asm-x86/desc.h
++++ b/include/asm-x86/desc.h
+@@ -71,6 +71,12 @@ static inline void pack_gate(gate_desc *gate, unsigned char type,
+ 
+ #endif
+ 
++static inline int desc_empty(const void *ptr)
++{
++	const u32 *desc = ptr;
++	return !(desc[0] | desc[1]);
++}
++
+ #ifdef CONFIG_PARAVIRT
+ #include <asm/paravirt.h>
+ #else
+diff --git a/include/asm-x86/processor_32.h b/include/asm-x86/processor_32.h
+index b9dbe46..cadeffb 100644
+--- a/include/asm-x86/processor_32.h
++++ b/include/asm-x86/processor_32.h
+@@ -21,12 +21,6 @@
+ #include <linux/init.h>
  #include <asm/desc_defs.h>
  
--/* flag for disabling the tsc */
--extern int tsc_disable;
--
- static inline int desc_empty(const void *ptr)
- {
- 	const u32 *desc = ptr;
-@@ -206,8 +203,6 @@ extern int bootloader_type;
- 
- #define HAVE_ARCH_PICK_MMAP_LAYOUT
- 
--extern void disable_TSC(void);
+-static inline int desc_empty(const void *ptr)
+-{
+-	const u32 *desc = ptr;
+-	return !(desc[0] | desc[1]);
+-}
 -
  /*
-  * Size of io_bitmap.
-  */
-Index: linux-2.6-x86/include/asm-x86/tsc.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/tsc.h
-+++ linux-2.6-x86/include/asm-x86/tsc.h
-@@ -16,6 +16,10 @@ typedef unsigned long long cycles_t;
+  * Default implementation of macro that returns current
+  * instruction pointer ("program counter").
+diff --git a/include/asm-x86/processor_64.h b/include/asm-x86/processor_64.h
+index a5d06d7..6207292 100644
+--- a/include/asm-x86/processor_64.h
++++ b/include/asm-x86/processor_64.h
+@@ -20,12 +20,6 @@
+ #include <linux/cpumask.h>
+ #include <asm/desc_defs.h>
  
- extern unsigned int cpu_khz;
- extern unsigned int tsc_khz;
-+/* flag for disabling the tsc */
-+extern int tsc_disable;
-+
-+extern void disable_TSC(void);
- 
- static inline cycles_t get_cycles(void)
- {
+-static inline int desc_empty(const void *ptr)
+-{
+-	const u32 *desc = ptr;
+-	return !(desc[0] | desc[1]);
+-}
+-
+ /*
+  * Default implementation of macro that returns current
+  * instruction pointer ("program counter").
+-- 
+1.4.4.2
