@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 9/21] [PATCH] unify tss_struct
-Date: Mon, 17 Dec 2007 20:52:32 -0200
-Message-ID: <11979320114180-git-send-email-gcosta__5549.09399147636$1197942511$gmane$org@redhat.com>
+Subject: [PATCH 7/21] [PATCH] unify common parts of processor.h
+Date: Mon, 17 Dec 2007 20:52:30 -0200
+Message-ID: <11979320011968-git-send-email-gcosta__48588.2407091141$1197942521$gmane$org@redhat.com>
 References: <11979319641796-git-send-email-gcosta@redhat.com>
 	<1197931971748-git-send-email-gcosta@redhat.com>
 	<11979319763641-git-send-email-gcosta@redhat.com>
@@ -9,10 +9,8 @@ References: <11979319641796-git-send-email-gcosta@redhat.com>
 	<11979319853319-git-send-email-gcosta@redhat.com>
 	<11979319903443-git-send-email-gcosta@redhat.com>
 	<11979319953427-git-send-email-gcosta@redhat.com>
-	<11979320011968-git-send-email-gcosta@redhat.com>
-	<1197932006634-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1197932006634-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11979319953427-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,346 +24,512 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Although slighly different, the tss_struct is very similar in x86_64 and
-i386. The really different part, which matchs the hardware vision of it, is
-now called x86_hw_tss, and each of the architectures provides yours.
-It's then used as a field in the outter tss_struct.
+This patch moves the pieces of processor_32.h and processor_64 that are
+equal to processor.h. Only what's exactly the same is moved around, the rest
+not being touched.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- arch/x86/kernel/asm-offsets_64.c |    2 +-
- arch/x86/kernel/doublefault_32.c |    2 +-
- arch/x86/kernel/process_64.c     |    2 +-
- arch/x86/kernel/setup64.c        |    4 +-
- arch/x86/kernel/smpboot_64.c     |    2 +-
- include/asm-x86/lguest.h         |    2 +-
- include/asm-x86/processor.h      |   77 ++++++++++++++++++++++++++++++++++++++
- include/asm-x86/processor_32.h   |   62 ------------------------------
- include/asm-x86/processor_64.h   |   35 +-----------------
- 9 files changed, 85 insertions(+), 103 deletions(-)
+ include/asm-x86/processor.h    |  116 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-x86/processor_32.h |  111 --------------------------------------
+ include/asm-x86/processor_64.h |  116 ----------------------------------------
+ 3 files changed, 116 insertions(+), 227 deletions(-)
 
-Index: linux-2.6-x86/arch/x86/kernel/asm-offsets_64.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/asm-offsets_64.c
-+++ linux-2.6-x86/arch/x86/kernel/asm-offsets_64.c
-@@ -109,7 +109,7 @@ int main(void)
- 	ENTRY(cr4);
- 	BLANK();
- #undef ENTRY
--	DEFINE(TSS_ist, offsetof(struct tss_struct, ist));
-+	DEFINE(TSS_ist, offsetof(struct tss_struct, x86_tss.ist));
- 	BLANK();
- 	DEFINE(crypto_tfm_ctx_offset, offsetof(struct crypto_tfm, __crt_ctx));
- 	BLANK();
-Index: linux-2.6-x86/arch/x86/kernel/doublefault_32.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/doublefault_32.c
-+++ linux-2.6-x86/arch/x86/kernel/doublefault_32.c
-@@ -33,7 +33,7 @@ static void doublefault_fn(void)
- 		printk(KERN_EMERG "double fault, tss at %08lx\n", tss);
- 
- 		if (ptr_ok(tss)) {
--			struct i386_hw_tss *t = (struct i386_hw_tss *)tss;
-+			struct x86_hw_tss *t = (struct x86_hw_tss *)tss;
- 
- 			printk(KERN_EMERG "eip = %08lx, esp = %08lx\n",
- 			       t->ip, t->sp);
-Index: linux-2.6-x86/arch/x86/kernel/process_64.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/process_64.c
-+++ linux-2.6-x86/arch/x86/kernel/process_64.c
-@@ -628,7 +628,7 @@ __switch_to(struct task_struct *prev_p, 
- 	/*
- 	 * Reload esp0, LDT and the page table pointer:
- 	 */
--	tss->sp0 = next->sp0;
-+	tss->x86_tss.sp0 = next->sp0;
- 
- 	/* 
- 	 * Switch DS and ES.
-Index: linux-2.6-x86/arch/x86/kernel/setup64.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/setup64.c
-+++ linux-2.6-x86/arch/x86/kernel/setup64.c
-@@ -258,10 +258,10 @@ void __cpuinit cpu_init (void)
- 				      v, cpu); 
- 		}
- 		estacks += PAGE_SIZE << order[v];
--		orig_ist->ist[v] = t->ist[v] = (unsigned long)estacks;
-+		orig_ist->ist[v] = t->x86_tss.ist[v] = (unsigned long)estacks;
- 	}
- 
--	t->io_bitmap_base = offsetof(struct tss_struct, io_bitmap);
-+	t->x86_tss.io_bitmap_base = offsetof(struct tss_struct, io_bitmap);
- 	/*
- 	 * <= is required because the CPU will access up to
- 	 * 8 bits beyond the end of the IO permission bitmap.
-Index: linux-2.6-x86/arch/x86/kernel/smpboot_64.c
-===================================================================
---- linux-2.6-x86.orig/arch/x86/kernel/smpboot_64.c
-+++ linux-2.6-x86/arch/x86/kernel/smpboot_64.c
-@@ -614,7 +614,7 @@ do_rest:
- 	start_rip = setup_trampoline();
- 
- 	init_rsp = c_idle.idle->thread.sp;
--	per_cpu(init_tss,cpu).sp0 = init_rsp;
-+	per_cpu(init_tss, cpu).x86_tss.sp0 = init_rsp;
- 	initial_code = start_secondary;
- 	clear_tsk_thread_flag(c_idle.idle, TIF_FORK);
- 
-Index: linux-2.6-x86/include/asm-x86/lguest.h
-===================================================================
---- linux-2.6-x86.orig/include/asm-x86/lguest.h
-+++ linux-2.6-x86/include/asm-x86/lguest.h
-@@ -51,7 +51,7 @@ struct lguest_ro_state
- 	/* Fields which are used when guest is running. */
- 	struct desc_ptr guest_idt_desc;
- 	struct desc_ptr guest_gdt_desc;
--	struct i386_hw_tss guest_tss;
-+	struct x86_hw_tss guest_tss;
- 	struct desc_struct guest_idt[IDT_ENTRIES];
- 	struct desc_struct guest_gdt[GDT_ENTRIES];
- };
 Index: linux-2.6-x86/include/asm-x86/processor.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor.h
 +++ linux-2.6-x86/include/asm-x86/processor.h
-@@ -4,6 +4,7 @@
- #include <asm/processor-flags.h>
+@@ -29,6 +29,11 @@ static inline void load_cr3(pgd_t *pgdir
+ # include "processor_64.h"
+ #endif
  
- #include <asm/page.h>
-+#include <asm/percpu.h>
- #include <asm/system.h>
- 
- /*
-@@ -35,6 +36,82 @@ static inline void load_cr3(pgd_t *pgdir
++extern void print_cpu_info(struct cpuinfo_x86 *);
++extern void init_scattered_cpuid_features(struct cpuinfo_x86 *c);
++extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
++extern unsigned short num_cache_leaves;
++
+ static inline unsigned long native_get_debugreg(int regno)
+ {
+ 	unsigned long val = 0; 	/* Damn you, gcc! */
+@@ -138,7 +143,53 @@ static inline void clear_in_cr4(unsigned
+ 	write_cr4(cr4);
  }
  
- #ifdef CONFIG_X86_32
-+/* This is the TSS defined by the hardware. */
-+struct x86_hw_tss {
-+	unsigned short	back_link, __blh;
-+	unsigned long	sp0;
-+	unsigned short	ss0, __ss0h;
-+	unsigned long	sp1;
-+	unsigned short	ss1, __ss1h;	/* ss1 caches MSR_IA32_SYSENTER_CS */
-+	unsigned long	sp2;
-+	unsigned short	ss2, __ss2h;
-+	unsigned long	__cr3;
-+	unsigned long	ip;
-+	unsigned long	flags;
-+	unsigned long	ax, cx, dx, bx;
-+	unsigned long	sp, bp, si, di;
-+	unsigned short	es, __esh;
-+	unsigned short	cs, __csh;
-+	unsigned short	ss, __ssh;
-+	unsigned short	ds, __dsh;
-+	unsigned short	fs, __fsh;
-+	unsigned short	gs, __gsh;
-+	unsigned short	ldt, __ldth;
-+	unsigned short	trace, io_bitmap_base;
-+} __attribute__((packed));
-+#else
-+struct x86_hw_tss {
-+	u32 reserved1;
-+	u64 sp0;
-+	u64 sp1;
-+	u64 sp2;
-+	u64 reserved2;
-+	u64 ist[7];
-+	u32 reserved3;
-+	u32 reserved4;
-+	u16 reserved5;
-+	u16 io_bitmap_base;
-+} __attribute__((packed)) ____cacheline_aligned;
-+#endif
++struct microcode_header {
++	unsigned int hdrver;
++	unsigned int rev;
++	unsigned int date;
++	unsigned int sig;
++	unsigned int cksum;
++	unsigned int ldrver;
++	unsigned int pf;
++	unsigned int datasize;
++	unsigned int totalsize;
++	unsigned int reserved[3];
++};
++
++struct microcode {
++	struct microcode_header hdr;
++	unsigned int bits[0];
++};
++
++typedef struct microcode microcode_t;
++typedef struct microcode_header microcode_header_t;
++
++/* microcode format is extended from prescott processors */
++struct extended_signature {
++	unsigned int sig;
++	unsigned int pf;
++	unsigned int cksum;
++};
++
++struct extended_sigtable {
++	unsigned int count;
++	unsigned int cksum;
++	unsigned int reserved[3];
++	struct extended_signature sigs[0];
++};
 +
 +/*
-+ * Size of io_bitmap.
++ * create a kernel thread without removing it from tasklists
 + */
-+#define IO_BITMAP_BITS  65536
-+#define IO_BITMAP_BYTES (IO_BITMAP_BITS/8)
-+#define IO_BITMAP_LONGS (IO_BITMAP_BYTES/sizeof(long))
-+#define IO_BITMAP_OFFSET offsetof(struct tss_struct, io_bitmap)
-+#define INVALID_IO_BITMAP_OFFSET 0x8000
-+#define INVALID_IO_BITMAP_OFFSET_LAZY 0x9000
++extern int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
 +
-+struct tss_struct {
-+	struct x86_hw_tss x86_tss;
++/* Free all resources held by a thread. */
++extern void release_thread(struct task_struct *);
 +
-+	/*
-+	 * The extra 1 is there because the CPU will access an
-+	 * additional byte beyond the end of the IO permission
-+	 * bitmap. The extra byte must be all 1 bits, and must
-+	 * be within the limit.
-+	 */
-+	unsigned long	io_bitmap[IO_BITMAP_LONGS + 1];
-+	/*
-+	 * Cache the current maximum and the last task that used the bitmap:
-+	 */
-+	unsigned long io_bitmap_max;
-+	struct thread_struct *io_bitmap_owner;
-+	/*
-+	 * pads the TSS to be cacheline-aligned (size is 0x100)
-+	 */
-+	unsigned long __cacheline_filler[35];
-+	/*
-+	 * .. and then another 0x100 bytes for emergency kernel stack
-+	 */
-+	unsigned long stack[64];
-+} __attribute__((packed));
++/* Prepare to copy thread state - unlazy all lazy status */
++extern void prepare_to_copy(struct task_struct *tsk);
+ 
++unsigned long get_wchan(struct task_struct *p);
+ 
+ /*
+  * Generic CPUID function
+@@ -196,4 +247,69 @@ static inline unsigned int cpuid_edx(uns
+ 	return edx;
+ }
+ 
++/* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
++static inline void rep_nop(void)
++{
++	__asm__ __volatile__("rep;nop": : :"memory");
++}
 +
-+DECLARE_PER_CPU(struct tss_struct, init_tss);
++/* Stop speculative execution */
++static inline void sync_core(void)
++{
++	int tmp;
++	asm volatile("cpuid" : "=a" (tmp) : "0" (1)
++					  : "ebx", "ecx", "edx", "memory");
++}
 +
-+#ifdef CONFIG_X86_32
- # include "processor_32.h"
- #else
- # include "processor_64.h"
++#define cpu_relax()   rep_nop()
++
++static inline void __monitor(const void *eax, unsigned long ecx,
++		unsigned long edx)
++{
++	/* "monitor %eax,%ecx,%edx;" */
++	asm volatile(
++		".byte 0x0f,0x01,0xc8;"
++		: :"a" (eax), "c" (ecx), "d"(edx));
++}
++
++static inline void __mwait(unsigned long eax, unsigned long ecx)
++{
++	/* "mwait %eax,%ecx;" */
++	asm volatile(
++		".byte 0x0f,0x01,0xc9;"
++		: :"a" (eax), "c" (ecx));
++}
++
++static inline void __sti_mwait(unsigned long eax, unsigned long ecx)
++{
++	/* "mwait %eax,%ecx;" */
++	asm volatile(
++		"sti; .byte 0x0f,0x01,0xc9;"
++		: :"a" (eax), "c" (ecx));
++}
++
++extern void mwait_idle_with_hints(unsigned long eax, unsigned long ecx);
++
++extern int force_mwait;
++
++extern void select_idle_routine(const struct cpuinfo_x86 *c);
++
++extern unsigned long boot_option_idle_override;
++
++/* Boot loader type from the setup header */
++extern int bootloader_type;
++#define cache_line_size() (boot_cpu_data.x86_cache_alignment)
++
++#define HAVE_ARCH_PICK_MMAP_LAYOUT 1
++#define ARCH_HAS_PREFETCHW
++#define ARCH_HAS_SPINLOCK_PREFETCH
++
++#define spin_lock_prefetch(x)	prefetchw(x)
++/* This decides where the kernel will search for a free chunk of vm
++ * space during mmap's.
++ */
++#define TASK_UNMAPPED_BASE	(PAGE_ALIGN(TASK_SIZE / 3))
++
++#define KSTK_EIP(task) (task_pt_regs(task)->ip)
++
+ #endif
 Index: linux-2.6-x86/include/asm-x86/processor_32.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor_32.h
 +++ linux-2.6-x86/include/asm-x86/processor_32.h
-@@ -81,7 +81,6 @@ struct cpuinfo_x86 {
- extern struct cpuinfo_x86 boot_cpu_data;
- extern struct cpuinfo_x86 new_cpu_data;
- extern struct tss_struct doublefault_tss;
--DECLARE_PER_CPU(struct tss_struct, init_tss);
+@@ -109,10 +109,6 @@ void __init cpu_detect(struct cpuinfo_x8
  
- #ifdef CONFIG_SMP
- DECLARE_PER_CPU(struct cpuinfo_x86, cpu_info);
-@@ -123,16 +122,6 @@ extern unsigned int mca_pentium_flag;
+ extern void identify_boot_cpu(void);
+ extern void identify_secondary_cpu(struct cpuinfo_x86 *);
+-extern void print_cpu_info(struct cpuinfo_x86 *);
+-extern void init_scattered_cpuid_features(struct cpuinfo_x86 *c);
+-extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
+-extern unsigned short num_cache_leaves;
+ 
+ #ifdef CONFIG_X86_HT
+ extern void detect_ht(struct cpuinfo_x86 *c);
+@@ -120,32 +116,6 @@ extern void detect_ht(struct cpuinfo_x86
+ static inline void detect_ht(struct cpuinfo_x86 *c) {}
+ #endif
+ 
+-/* Stop speculative execution */
+-static inline void sync_core(void)
+-{
+-	int tmp;
+-	asm volatile("cpuid" : "=a" (tmp) : "0" (1) : "ebx","ecx","edx","memory");
+-}
+-
+-static inline void __monitor(const void *eax, unsigned long ecx,
+-		unsigned long edx)
+-{
+-	/* "monitor %eax,%ecx,%edx;" */
+-	asm volatile(
+-		".byte 0x0f,0x01,0xc8;"
+-		: :"a" (eax), "c" (ecx), "d"(edx));
+-}
+-
+-static inline void __mwait(unsigned long eax, unsigned long ecx)
+-{
+-	/* "mwait %eax,%ecx;" */
+-	asm volatile(
+-		".byte 0x0f,0x01,0xc9;"
+-		: :"a" (eax), "c" (ecx));
+-}
+-
+-extern void mwait_idle_with_hints(unsigned long eax, unsigned long ecx);
+-
+ /* from system description table in BIOS.  Mostly for MCA use, but
+ others may find it useful. */
+ extern unsigned int machine_id;
+@@ -153,20 +123,11 @@ extern unsigned int machine_submodel_id;
+ extern unsigned int BIOS_revision;
+ extern unsigned int mca_pentium_flag;
+ 
+-/* Boot loader type from the setup header */
+-extern int bootloader_type;
+-
+ /*
+  * User space process size: 3GB (default).
+  */
  #define TASK_SIZE	(PAGE_OFFSET)
  
- 
--/*
-- * Size of io_bitmap.
+-/* This decides where the kernel will search for a free chunk of vm
+- * space during mmap's.
 - */
--#define IO_BITMAP_BITS  65536
--#define IO_BITMAP_BYTES (IO_BITMAP_BITS/8)
--#define IO_BITMAP_LONGS (IO_BITMAP_BYTES/sizeof(long))
--#define IO_BITMAP_OFFSET offsetof(struct tss_struct,io_bitmap)
--#define INVALID_IO_BITMAP_OFFSET 0x8000
--#define INVALID_IO_BITMAP_OFFSET_LAZY 0x9000
+-#define TASK_UNMAPPED_BASE	(PAGE_ALIGN(TASK_SIZE / 3))
 -
- struct i387_fsave_struct {
- 	long	cwd;
- 	long	swd;
-@@ -185,57 +174,6 @@ typedef struct {
- 	unsigned long seg;
- } mm_segment_t;
+-#define HAVE_ARCH_PICK_MMAP_LAYOUT
  
--struct thread_struct;
--
--/* This is the TSS defined by the hardware. */
--struct i386_hw_tss {
--	unsigned short	back_link,__blh;
--	unsigned long	sp0;
--	unsigned short	ss0,__ss0h;
--	unsigned long	sp1;
--	unsigned short	ss1,__ss1h;	/* ss1 is used to cache MSR_IA32_SYSENTER_CS */
--	unsigned long	sp2;
--	unsigned short	ss2,__ss2h;
--	unsigned long	__cr3;
--	unsigned long	ip;
--	unsigned long	flags;
--	unsigned long	ax, cx, dx, bx;
--	unsigned long	sp, bp, si, di;
--	unsigned short	es, __esh;
--	unsigned short	cs, __csh;
--	unsigned short	ss, __ssh;
--	unsigned short	ds, __dsh;
--	unsigned short	fs, __fsh;
--	unsigned short	gs, __gsh;
--	unsigned short	ldt, __ldth;
--	unsigned short	trace, io_bitmap_base;
--} __attribute__((packed));
--
--struct tss_struct {
--	struct i386_hw_tss x86_tss;
--
--	/*
--	 * The extra 1 is there because the CPU will access an
--	 * additional byte beyond the end of the IO permission
--	 * bitmap. The extra byte must be all 1 bits, and must
--	 * be within the limit.
--	 */
--	unsigned long	io_bitmap[IO_BITMAP_LONGS + 1];
--	/*
--	 * Cache the current maximum and the last task that used the bitmap:
--	 */
--	unsigned long io_bitmap_max;
--	struct thread_struct *io_bitmap_owner;
--	/*
--	 * pads the TSS to be cacheline-aligned (size is 0x100)
--	 */
--	unsigned long __cacheline_filler[35];
--	/*
--	 * .. and then another 0x100 bytes for emergency kernel stack
--	 */
--	unsigned long stack[64];
--} __attribute__((packed));
--
- #define ARCH_MIN_TASKALIGN	16
+ /*
+  * Size of io_bitmap.
+@@ -356,25 +317,9 @@ struct thread_struct {
+ 	regs->sp = new_esp;					\
+ } while (0)
  
- struct thread_struct {
+-/* Forward declaration, a strange C thing */
+-struct task_struct;
+-struct mm_struct;
+-
+-/* Free all resources held by a thread. */
+-extern void release_thread(struct task_struct *);
+-
+-/* Prepare to copy thread state - unlazy all lazy status */
+-extern void prepare_to_copy(struct task_struct *tsk);
+-
+-/*
+- * create a kernel thread without removing it from tasklists
+- */
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ extern unsigned long thread_saved_pc(struct task_struct *tsk);
+ 
+-unsigned long get_wchan(struct task_struct *p);
+-
+ #define THREAD_SIZE_LONGS      (THREAD_SIZE/sizeof(unsigned long))
+ #define KSTK_TOP(info)                                                 \
+ ({                                                                     \
+@@ -399,53 +344,8 @@ unsigned long get_wchan(struct task_stru
+        __regs__ - 1;                                                   \
+ })
+ 
+-#define KSTK_EIP(task) (task_pt_regs(task)->ip)
+ #define KSTK_ESP(task) (task_pt_regs(task)->sp)
+ 
+-
+-struct microcode_header {
+-	unsigned int hdrver;
+-	unsigned int rev;
+-	unsigned int date;
+-	unsigned int sig;
+-	unsigned int cksum;
+-	unsigned int ldrver;
+-	unsigned int pf;
+-	unsigned int datasize;
+-	unsigned int totalsize;
+-	unsigned int reserved[3];
+-};
+-
+-struct microcode {
+-	struct microcode_header hdr;
+-	unsigned int bits[0];
+-};
+-
+-typedef struct microcode microcode_t;
+-typedef struct microcode_header microcode_header_t;
+-
+-/* microcode format is extended from prescott processors */
+-struct extended_signature {
+-	unsigned int sig;
+-	unsigned int pf;
+-	unsigned int cksum;
+-};
+-
+-struct extended_sigtable {
+-	unsigned int count;
+-	unsigned int cksum;
+-	unsigned int reserved[3];
+-	struct extended_signature sigs[0];
+-};
+-
+-/* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
+-static inline void rep_nop(void)
+-{
+-	__asm__ __volatile__("rep;nop": : :"memory");
+-}
+-
+-#define cpu_relax()	rep_nop()
+-
+ static inline void native_load_sp0(struct tss_struct *tss, struct thread_struct *thread)
+ {
+ 	tss->x86_tss.sp0 = thread->sp0;
+@@ -555,7 +455,6 @@ static inline void load_sp0(struct tss_s
+    because they are microcoded there and very slow.
+    However we don't do prefetches for pre XP Athlons currently
+    That should be fixed. */
+-#define ARCH_HAS_PREFETCH
+ static inline void prefetch(const void *x)
+ {
+ 	alternative_input(ASM_NOP4,
+@@ -565,8 +464,6 @@ static inline void prefetch(const void *
+ }
+ 
+ #define ARCH_HAS_PREFETCH
+-#define ARCH_HAS_PREFETCHW
+-#define ARCH_HAS_SPINLOCK_PREFETCH
+ 
+ /* 3dnow! prefetch to get an exclusive cache line. Useful for 
+    spinlocks to avoid one state transition in the cache coherency protocol. */
+@@ -577,13 +474,7 @@ static inline void prefetchw(const void 
+ 			  X86_FEATURE_3DNOW,
+ 			  "r" (x));
+ }
+-#define spin_lock_prefetch(x)	prefetchw(x)
+-
+-extern void select_idle_routine(const struct cpuinfo_x86 *c);
+ 
+-#define cache_line_size() (boot_cpu_data.x86_cache_alignment)
+-
+-extern unsigned long boot_option_idle_override;
+ extern void enable_sep_cpu(void);
+ extern int sysenter_setup(void);
+ 
+@@ -595,6 +486,4 @@ extern void switch_to_new_gdt(void);
+ extern void cpu_init(void);
+ extern void init_gdt(int cpu);
+ 
+-extern int force_mwait;
+-
+ #endif /* __ASM_I386_PROCESSOR_H */
 Index: linux-2.6-x86/include/asm-x86/processor_64.h
 ===================================================================
 --- linux-2.6-x86.orig/include/asm-x86/processor_64.h
 +++ linux-2.6-x86/include/asm-x86/processor_64.h
-@@ -91,14 +91,6 @@ extern void identify_cpu(struct cpuinfo_
+@@ -83,11 +83,6 @@ DECLARE_PER_CPU(struct cpuinfo_x86, cpu_
+ extern char ignore_irq13;
+ 
+ extern void identify_cpu(struct cpuinfo_x86 *);
+-extern void print_cpu_info(struct cpuinfo_x86 *);
+-extern void init_scattered_cpuid_features(struct cpuinfo_x86 *c);
+-extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
+-extern unsigned short num_cache_leaves;
+-
+ 
+ /*
+  * User space process size. 47bits minus one guard page.
+@@ -102,8 +97,6 @@ extern unsigned short num_cache_leaves;
  #define TASK_SIZE 		(test_thread_flag(TIF_IA32) ? IA32_PAGE_OFFSET : TASK_SIZE64)
  #define TASK_SIZE_OF(child) 	((test_tsk_thread_flag(child, TIF_IA32)) ? IA32_PAGE_OFFSET : TASK_SIZE64)
  
+-#define TASK_UNMAPPED_BASE	PAGE_ALIGN(TASK_SIZE/3)
+-
+ /*
+  * Size of io_bitmap.
+  */
+@@ -226,68 +219,16 @@ struct thread_struct {
+ 	set_fs(USER_DS);							 \
+ } while(0) 
+ 
+-struct task_struct;
+-struct mm_struct;
+-
+-/* Free all resources held by a thread. */
+-extern void release_thread(struct task_struct *);
+-
+-/* Prepare to copy thread state - unlazy all lazy status */
+-extern void prepare_to_copy(struct task_struct *tsk);
+-
 -/*
-- * Size of io_bitmap.
+- * create a kernel thread without removing it from tasklists
 - */
--#define IO_BITMAP_BITS  65536
--#define IO_BITMAP_BYTES (IO_BITMAP_BITS/8)
--#define IO_BITMAP_LONGS (IO_BITMAP_BYTES/sizeof(long))
--#define IO_BITMAP_OFFSET offsetof(struct tss_struct,io_bitmap)
--#define INVALID_IO_BITMAP_OFFSET 0x8000
+-extern long kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+-
+ /*
+  * Return saved PC of a blocked thread.
+  * What is this good for? it will be always the scheduler or ret_from_fork.
+  */
+ #define thread_saved_pc(t) (*(unsigned long *)((t)->thread.sp - 8))
  
- struct i387_fxsave_struct {
- 	u16	cwd;
-@@ -118,32 +110,7 @@ union i387_union {
- 	struct i387_fxsave_struct	fxsave;
- };
+-extern unsigned long get_wchan(struct task_struct *p);
+ #define task_pt_regs(tsk) ((struct pt_regs *)(tsk)->thread.sp0 - 1)
+-#define KSTK_EIP(tsk) (task_pt_regs(tsk)->ip)
+ #define KSTK_ESP(tsk) -1 /* sorry. doesn't work for syscall. */
  
--struct tss_struct {
--	u32 reserved1;
--	u64 sp0;	
--	u64 sp1;
--	u64 sp2;
--	u64 reserved2;
--	u64 ist[7];
--	u32 reserved3;
--	u32 reserved4;
--	u16 reserved5;
--	u16 io_bitmap_base;
--	/*
--	 * The extra 1 is there because the CPU will access an
--	 * additional byte beyond the end of the IO permission
--	 * bitmap. The extra byte must be all 1 bits, and must
--	 * be within the limit. Thus we have:
--	 *
--	 * 128 bytes, the bitmap itself, for ports 0..0x3ff
--	 * 8 bytes, for an extra "long" of ~0UL
--	 */
--	unsigned long io_bitmap[IO_BITMAP_LONGS + 1];
--} __attribute__((packed)) ____cacheline_aligned;
+ 
+-struct microcode_header {
+-	unsigned int hdrver;
+-	unsigned int rev;
+-	unsigned int date;
+-	unsigned int sig;
+-	unsigned int cksum;
+-	unsigned int ldrver;
+-	unsigned int pf;
+-	unsigned int datasize;
+-	unsigned int totalsize;
+-	unsigned int reserved[3];
+-};
+-
+-struct microcode {
+-	struct microcode_header hdr;
+-	unsigned int bits[0];
+-};
+-
+-typedef struct microcode microcode_t;
+-typedef struct microcode_header microcode_header_t;
+-
+-/* microcode format is extended from prescott processors */
+-struct extended_signature {
+-	unsigned int sig;
+-	unsigned int pf;
+-	unsigned int cksum;
+-};
+-
+-struct extended_sigtable {
+-	unsigned int count;
+-	unsigned int cksum;
+-	unsigned int reserved[3];
+-	struct extended_signature sigs[0];
+-};
 -
 -
- extern struct cpuinfo_x86 boot_cpu_data;
--DECLARE_PER_CPU(struct tss_struct,init_tss);
- /* Save the original ist values for checking stack pointers during debugging */
- struct orig_ist {
- 	unsigned long ist[7];
-@@ -195,7 +162,7 @@ struct thread_struct {
- }
+ #if defined(CONFIG_MPSC) || defined(CONFIG_MCORE2)
+ #define ASM_NOP1 P6_NOP1
+ #define ASM_NOP2 P6_NOP2
+@@ -331,20 +272,6 @@ struct extended_sigtable {
  
- #define INIT_TSS  { \
--	.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
-+	.x86_tss.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
- }
+ #define ASM_NOP_MAX 8
  
- #define INIT_MMAP \
+-/* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
+-static inline void rep_nop(void)
+-{
+-	__asm__ __volatile__("rep;nop": : :"memory");
+-}
+-
+-/* Stop speculative execution */
+-static inline void sync_core(void)
+-{ 
+-	int tmp;
+-	asm volatile("cpuid" : "=a" (tmp) : "0" (1) : "ebx","ecx","edx","memory");
+-} 
+-
+-#define ARCH_HAS_PREFETCHW 1
+ static inline void prefetchw(void *x) 
+ { 
+ 	alternative_input("prefetcht0 (%1)",
+@@ -353,42 +280,6 @@ static inline void prefetchw(void *x) 
+ 			  "r" (x));
+ } 
+ 
+-#define ARCH_HAS_SPINLOCK_PREFETCH 1
+-
+-#define spin_lock_prefetch(x)  prefetchw(x)
+-
+-#define cpu_relax()   rep_nop()
+-
+-static inline void __monitor(const void *eax, unsigned long ecx,
+-		unsigned long edx)
+-{
+-	/* "monitor %eax,%ecx,%edx;" */
+-	asm volatile(
+-		".byte 0x0f,0x01,0xc8;"
+-		: :"a" (eax), "c" (ecx), "d"(edx));
+-}
+-
+-static inline void __mwait(unsigned long eax, unsigned long ecx)
+-{
+-	/* "mwait %eax,%ecx;" */
+-	asm volatile(
+-		".byte 0x0f,0x01,0xc9;"
+-		: :"a" (eax), "c" (ecx));
+-}
+-
+-static inline void __sti_mwait(unsigned long eax, unsigned long ecx)
+-{
+-	/* "mwait %eax,%ecx;" */
+-	asm volatile(
+-		"sti; .byte 0x0f,0x01,0xc9;"
+-		: :"a" (eax), "c" (ecx));
+-}
+-
+-extern void mwait_idle_with_hints(unsigned long eax, unsigned long ecx);
+-
+-extern int force_mwait;
+-
+-extern void select_idle_routine(const struct cpuinfo_x86 *c);
+ 
+ #define stack_current() \
+ ({								\
+@@ -397,12 +288,5 @@ extern void select_idle_routine(const st
+ 	ti->task;					\
+ })
+ 
+-#define cache_line_size() (boot_cpu_data.x86_cache_alignment)
+-
+-extern unsigned long boot_option_idle_override;
+-/* Boot loader type from the setup header */
+-extern int bootloader_type;
+-
+-#define HAVE_ARCH_PICK_MMAP_LAYOUT 1
+ 
+ #endif /* __ASM_X86_64_PROCESSOR_H */
