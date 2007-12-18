@@ -1,17 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [kvm-devel] [PATCH resent] virtio_net: Fix stalled inbound
-	trafficon early packets
-Date: Tue, 18 Dec 2007 17:54:15 +1100
-Message-ID: <200712181754.16632.rusty__10964.1679133803$1197961065$gmane$org@rustcorp.com.au>
-References: <200712111242.28843.borntraeger@de.ibm.com>
-	<47613277.3060403@qumranet.com>
-	<200712131930.31602.borntraeger@de.ibm.com>
+Subject: Re: [kvm-devel] [virtio-net][PATCH] Don't arm tx hrtimer with
+	a	constant 500us each transmit
+Date: Tue, 18 Dec 2007 18:24:56 +1100
+Message-ID: <200712181824.57235.rusty__46416.7841630571$1197962798$gmane$org@rustcorp.com.au>
+References: <475FD9E8.1060109@qumranet.com>
+	<200712181101.14916.rusty@rustcorp.com.au>
+	<47675AE0.8050808@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200712131930.31602.borntraeger@de.ibm.com>
+In-Reply-To: <47675AE0.8050808@qumranet.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,51 +22,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, dor.laor@qumranet.com, virtualization@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, dor.laor@qumranet.com, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 14 December 2007 05:30:31 Christian Borntraeger wrote:
-> Rusty, if you decide to apply my patch, there is one downside: The
-> debugging code in virtio_ring sometimes triggers with a false positive:
+On Tuesday 18 December 2007 16:30:08 Avi Kivity wrote:
+> Rusty Russell wrote:
+> >     Yes, I pondered this when I wrote the code.  On the one hand, it's a
+> > low-probability pathological corner case, on the other, your patch
+> > reduces the number of timer reprograms in the normal case.
 >
-> try_fill_recv calls vring_kick. Here we do a notify to the host. This might
-> cause an immediate interrupt, triggering the poll routine before vring_kick
-> can run END_USE. This is no real problem, as we dont touch the vq after
-> notify.
+> One thing that came up in our discussions is to let the host do the
+> timer processing instead of the guest.  When tx exit mitigation is
+> enabled, the guest bumps the queue pointer, but carefully refrains from
+> kicking the host.  The host polls the tx pointer using a timer, kicking
+> itself periodically; if polling yields no packets it disables tx exit
+> mitigation.  This saves the guest the bother of programming the timer,
+> which presumably requires an exit if the timer is the closest one to
+> expiration.
+>
+> [btw, this can be implemented in virtqueue rather than virtio-net, no?]
 
-Hmm, how about we just do something like this?  (needs previous enable_cb
-patch)
+Yes, the current patch is a hack (look at the hardcoded constant); wanted to 
+see how much it helps, if any.
 
-> Christian, facing 64 guest cpus unconvering all kind of races
+More sophisticated timer management would be a definite win... funny, I have a 
+patch here which helps that....
 
-Heroic is the word which comes to mind... :)
-
-Cheers,
 Rusty.
----
-virtio: flush buffers on open
-
-Fix bug found by Christian Borntraeger: if the other side fills all
-the registered network buffers before we enable NAPI, we will never
-get an interrupt.  The simplest fix is to process the input queue once
-on open.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff -r 1dd61213039c drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c	Tue Dec 18 17:34:18 2007 +1100
-+++ b/drivers/net/virtio_net.c	Tue Dec 18 17:47:39 2007 +1100
-@@ -326,6 +326,13 @@ static int virtnet_open(struct net_devic
- 		return -ENOMEM;
- 
- 	napi_enable(&vi->napi);
-+
-+	/* If all buffers were filled by other side before we napi_enabled, we
-+	 * won't get another interrupt, so process any outstanding packets
-+	 * now.  virtnet_poll wants re-enable the queue, so we disable here. */
-+	vi->rvq->vq_ops->disable_cb(vi->rvq);
-+	netif_rx_schedule(vi->dev, &vi->napi);
-+
- 	return 0;
- }
