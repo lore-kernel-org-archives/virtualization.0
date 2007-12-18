@@ -1,18 +1,15 @@
-From: "Glauber de Oliveira Costa" <glommer@gmail.com>
-Subject: Re: [PATCH 13/21] [PATCH] change bitwise operations to get a void
-	parameter.
-Date: Tue, 18 Dec 2007 10:40:52 -0200
-Message-ID: <5d6222a80712180440l72faa8fere9588ea6894cf1cb__8132.97906793213$1197981786$gmane$org@mail.gmail.com>
-References: <11979319641796-git-send-email-gcosta@redhat.com>
-	<11979320252102-git-send-email-gcosta@redhat.com>
-	<11979320302030-git-send-email-gcosta@redhat.com>
-	<200712181618.43852.rusty@rustcorp.com.au>
+From: Dor Laor <dor.laor@gmail.com>
+Subject: Re: [virtio-net][PATCH] Don't arm tx hrtimer with a constant 500us
+ each transmit
+Date: Tue, 18 Dec 2007 14:55:27 +0200
+Message-ID: <4767C33F.1050308__21581.8416247659$1197982610$gmane$org@qumranet.com>
+References: <475FD9E8.1060109@qumranet.com>
+	<200712181101.14916.rusty@rustcorp.com.au>
+Reply-To: dor.laor@qumranet.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1041848447573087750=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200712181618.43852.rusty@rustcorp.com.au>
-Content-Disposition: inline
+In-Reply-To: <200712181101.14916.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,33 +17,186 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu, roland@redhat.com, ak@suse.de
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Dec 18, 2007 3:18 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> On Tuesday 18 December 2007 09:52:36 Glauber de Oliveira Costa wrote:
-> > This patch changes the bitwise operations in bitops.h to get
-> > a void pointers as a parameter. Before this patch, a lot of warnings
-> > can be seen. They're gone after it.
+This is a multi-part message in MIME format.
+--===============1041848447573087750==
+Content-Type: multipart/alternative;
+	boundary="------------070200070802000402000908"
+
+This is a multi-part message in MIME format.
+--------------070200070802000402000908
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Rusty Russell wrote:
+> On Wednesday 12 December 2007 23:54:00 Dor Laor wrote:
+>   
+>> commit 763769621d271d92204ed27552d75448587c1ac0
+>> Author: Dor Laor <dor.laor@qumranet.com>
+>> Date:   Wed Dec 12 14:52:00 2007 +0200
+>>
+>>     [virtio-net][PATCH] Don't arm tx hrtimer with a constant 50us each
+>> transmit
+>>
+>>     The current start_xmit sets 500us hrtimer to kick the host.
+>>     The problem is that if another xmit happens before the timer was
+>> fired then
+>>     the first xmit will have to wait additional 500us.
+>>     This patch does not re-arm the timer if there is existing one.
+>>     This will shorten the latency for tx.
+>>     
 >
-> No, this is a backwards step!  These warnings are important for
-> non-arch-specific code: I fought hard to get them made into unsigned longs.
+> Hi Dor!
 >
-> But I'm happy for this to be applied as is, then I'll grab the git tree,
-> revert it and fix the warnings...
+>     Yes, I pondered this when I wrote the code.  On the one hand, it's a 
+> low-probability pathological corner case, on the other, your patch reduces 
+> the number of timer reprograms in the normal case.
 >
-Even before my processor.h patches, there are a lot of warnings caused by this.
-If Ingo does not mind getting more warnings, I can drop this patch
-entirely, and you (or someone else)
-can fix them later on.
+> So I've applied it, thanks!
+> Rusty.
+>
+>
+>   
+Thanks, it actually improved my tx performance in 20%!
+Expecting the host side timer with your new patch.
+Cheers,
+Dor.
+>
+>
+>   
+>>     Signed-off-by: Dor Laor <dor.laor@qumranet.com>
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 7b051d5..8bb17d1
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -406,10 +405,10 @@ again:
+>>          virtio_debug(vdebug, "%s: before calling kick %d\n",
+>> __FUNCTION__, __LINE__);
+>>          vi->svq->vq_ops->kick(vi->svq);
+>>          vi->out_num = 0;
+>> -    } else {
+>> -        vi->stats.hrtimer_starts++;
+>> -        hrtimer_start(&vi->tx_timer, ktime_set(0,500000),
+>> -                  HRTIMER_MODE_REL);
+>> +    } else if (!hrtimer_is_queued(&vi->tx_timer)) {
+>> +            vi->stats.hrtimer_starts++;
+>> +            hrtimer_start(&vi->tx_timer, ktime_set(0,500000),
+>> +                      HRTIMER_MODE_REL);
+>>      }
+>>      return 0;
+>>  }
+>>     
+>
+>
+>
+>   
 
 
--- 
-Glauber de Oliveira Costa.
-"Free as in Freedom"
-http://glommer.net
+--------------070200070802000402000908
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-"The less confident you are, the more serious you have to act."
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+Rusty Russell wrote:
+<blockquote cite="mid:200712181101.14916.rusty@rustcorp.com.au"
+ type="cite">
+  <pre wrap="">On Wednesday 12 December 2007 23:54:00 Dor Laor wrote:
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">commit 763769621d271d92204ed27552d75448587c1ac0
+Author: Dor Laor <a class="moz-txt-link-rfc2396E" href="mailto:dor.laor@qumranet.com">&lt;dor.laor@qumranet.com&gt;</a>
+Date:   Wed Dec 12 14:52:00 2007 +0200
+
+    [virtio-net][PATCH] Don't arm tx hrtimer with a constant 50us each
+transmit
+
+    The current start_xmit sets 500us hrtimer to kick the host.
+    The problem is that if another xmit happens before the timer was
+fired then
+    the first xmit will have to wait additional 500us.
+    This patch does not re-arm the timer if there is existing one.
+    This will shorten the latency for tx.
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+Hi Dor!
+
+    Yes, I pondered this when I wrote the code.  On the one hand, it's a 
+low-probability pathological corner case, on the other, your patch reduces 
+the number of timer reprograms in the normal case.
+
+So I've applied it, thanks!
+Rusty.
+
+
+  </pre>
+</blockquote>
+Thanks, it actually improved my tx performance in 20%!<br>
+Expecting the host side timer with your new patch.<br>
+Cheers,<br>
+Dor.<br>
+<blockquote cite="mid:200712181101.14916.rusty@rustcorp.com.au"
+ type="cite">
+  <pre wrap="">
+
+
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">    Signed-off-by: Dor Laor <a class="moz-txt-link-rfc2396E" href="mailto:dor.laor@qumranet.com">&lt;dor.laor@qumranet.com&gt;</a>
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7b051d5..8bb17d1
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -406,10 +405,10 @@ again:
+         virtio_debug(vdebug, "%s: before calling kick %d\n",
+__FUNCTION__, __LINE__);
+         vi-&gt;svq-&gt;vq_ops-&gt;kick(vi-&gt;svq);
+         vi-&gt;out_num = 0;
+-    } else {
+-        vi-&gt;stats.hrtimer_starts++;
+-        hrtimer_start(&amp;vi-&gt;tx_timer, ktime_set(0,500000),
+-                  HRTIMER_MODE_REL);
++    } else if (!hrtimer_is_queued(&amp;vi-&gt;tx_timer)) {
++            vi-&gt;stats.hrtimer_starts++;
++            hrtimer_start(&amp;vi-&gt;tx_timer, ktime_set(0,500000),
++                      HRTIMER_MODE_REL);
+     }
+     return 0;
+ }
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+
+
+  </pre>
+</blockquote>
+<br>
+</body>
+</html>
+
+--------------070200070802000402000908--
+
+--===============1041848447573087750==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============1041848447573087750==--
