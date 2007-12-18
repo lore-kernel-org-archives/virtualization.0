@@ -1,21 +1,21 @@
 From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 7/21] [PATCH] unify common parts of processor.h
-Date: Tue, 18 Dec 2007 15:00:34 +0100
-Message-ID: <20071218140034.GD17470__48668.1098388091$1197986658$gmane$org@elte.hu>
-References: <11979319641796-git-send-email-gcosta@redhat.com>
-	<1197931971748-git-send-email-gcosta@redhat.com>
-	<11979319763641-git-send-email-gcosta@redhat.com>
-	<11979319811234-git-send-email-gcosta@redhat.com>
-	<11979319853319-git-send-email-gcosta@redhat.com>
-	<11979319903443-git-send-email-gcosta@redhat.com>
-	<11979319953427-git-send-email-gcosta@redhat.com>
-	<11979320011968-git-send-email-gcosta@redhat.com>
-	<20071218114504.GA22832@elte.hu> <4767B78A.5030903@redhat.com>
+Subject: Re: [PATCH 21/21] [PATCH] finish processor.h integration
+Date: Tue, 18 Dec 2007 16:43:19 +0100
+Message-ID: <20071218154319.GA11369@elte.hu>
+References: <11979320401316-git-send-email-gcosta@redhat.com>
+	<11979320451308-git-send-email-gcosta@redhat.com>
+	<1197932050948-git-send-email-gcosta@redhat.com>
+	<11979320551036-git-send-email-gcosta@redhat.com>
+	<11979320603229-git-send-email!-gcosta@redhat.com>
+	<11979320653161-git-send-email-gcosta@redhat.com>
+	<11979320693300-git-send-email-gcosta@redhat.com>
+	<20071218131932.GA9457@elte.hu> <20071218133818.GA9941@elte.hu>
+	<4767CFC5.3010703@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4767B78A.5030903@redhat.com>
+In-Reply-To: <4767CFC5.3010703@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -32,19 +32,18 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 * Glauber de Oliveira Costa <gcosta@redhat.com> wrote:
 
->> due to zapping this bit of include/asm-x86/processor_32.h:
->>
->>  -/* Forward declaration, a strange C thing */
->>  -struct task_struct;
->>  -struct mm_struct;
->>
->> 	Ingo
->>
-> I'll test it with your config, and repost.
+>> here the problem is apparently caused by your patch, a careless 
+>> 'unification' of include file sections. 32-bit had this:
+>
+> Point is this patches do unification, but they are not just that, as 
+> you can see. I am attempting to cleanup headers that appears not to be 
+> used, [...]
 
-i've pushed out a new iteration of x86.git, which includes 20 out of 
-your 21 patches, so please repost relative to that tree.
-
-i have fixed the above problem by adding those 3 lines.
+do cleanups and unification in _separate_ patches. We do not want to 
+change a SINGLE LINE OF SOURCE CODE in a patch that says "unify" and 
+moves a block of code from one file to another, ok? If you see some 
+obvious cleanups do it in pre or post patches (whichever looks more 
+logical). That makes it totally bisectable and i can drop the bogus 
+cleanup patch instead of having to drop a full unification patch.
 
 	Ingo
