@@ -1,15 +1,15 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH 4/8] unify paravirt parts of system.h
-Date: Mon, 17 Dec 2007 01:27:29 +0100
-Message-ID: <200712170127.31615.rjw__49015.8089939088$1197905551$gmane$org@sisk.pl>
-References: <11967843881946-git-send-email-gcosta@redhat.com>
-	<20071205163017.GA4756@ucw.cz> <20071215131723.GF9720@elte.hu>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [virtio-net][PATCH] Don't arm tx hrtimer with a constant 500us
+	each transmit
+Date: Tue, 18 Dec 2007 11:01:12 +1100
+Message-ID: <200712181101.14916.rusty__19019.3743248985$1197936226$gmane$org@rustcorp.com.au>
+References: <475FD9E8.1060109@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20071215131723.GF9720@elte.hu>
+In-Reply-To: <475FD9E8.1060109@qumranet.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,35 +20,58 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>, chrisw@sous-sol.org, Pavel Machek <pavel@ucw.cz>, hpa@zytor.com, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org, tglx@linutronix.de
+To: dor.laor@qumranet.com
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Saturday, 15 of December 2007, Ingo Molnar wrote:
-> 
-> * Pavel Machek <pavel@ucw.cz> wrote:
-> 
-> > > Linux never uses that register. The only user is suspend 
-> > > save/restore, but that' bogus because it wasn't ever initialized by 
-> > > Linux in the first place. It could be probably all safely removed.
-> > 
-> > It probably is safe to remove... but we currently support '2.8.95 
-> > kernel loads/resumes 2.6.24 image'... which would break if 2.8 uses 
-> > cr8.
-> > 
-> > So please keep it if it is not a big problem.
-> 
-> hm, so __save_processor_state() is in essence an ABI? Could you please 
-> also send a patch that documents this prominently, in the structure 
-> itself?
+On Wednesday 12 December 2007 23:54:00 Dor Laor wrote:
+> commit 763769621d271d92204ed27552d75448587c1ac0
+> Author: Dor Laor <dor.laor@qumranet.com>
+> Date:   Wed Dec 12 14:52:00 2007 +0200
+>
+>     [virtio-net][PATCH] Don't arm tx hrtimer with a constant 50us each
+> transmit
+>
+>     The current start_xmit sets 500us hrtimer to kick the host.
+>     The problem is that if another xmit happens before the timer was
+> fired then
+>     the first xmit will have to wait additional 500us.
+>     This patch does not re-arm the timer if there is existing one.
+>     This will shorten the latency for tx.
 
-Hmm, I'm not sure if it really is an ABI part.  It doesn't communicate anything
-outside of the kernel in which it is defined.
+Hi Dor!
 
-The problem is, though, that if kernel A is used for resuming kernel B, and
-kernel B doesn't save/restore everything it will need after the resume, then
-things will break if kernel A modifies that.  So, yes, we'll need to document
-that explicitly.
+    Yes, I pondered this when I wrote the code.  On the one hand, it's a 
+low-probability pathological corner case, on the other, your patch reduces 
+the number of timer reprograms in the normal case.
 
-Greetings,
-Rafael
+So I've applied it, thanks!
+Rusty.
+
+
+
+
+
+>
+>     Signed-off-by: Dor Laor <dor.laor@qumranet.com>
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7b051d5..8bb17d1
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -406,10 +405,10 @@ again:
+>          virtio_debug(vdebug, "%s: before calling kick %d\n",
+> __FUNCTION__, __LINE__);
+>          vi->svq->vq_ops->kick(vi->svq);
+>          vi->out_num = 0;
+> -    } else {
+> -        vi->stats.hrtimer_starts++;
+> -        hrtimer_start(&vi->tx_timer, ktime_set(0,500000),
+> -                  HRTIMER_MODE_REL);
+> +    } else if (!hrtimer_is_queued(&vi->tx_timer)) {
+> +            vi->stats.hrtimer_starts++;
+> +            hrtimer_start(&vi->tx_timer, ktime_set(0,500000),
+> +                      HRTIMER_MODE_REL);
+>      }
+>      return 0;
+>  }
