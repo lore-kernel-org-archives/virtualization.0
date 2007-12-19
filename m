@@ -1,13 +1,13 @@
 From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/2] remove __init modifier from header declaration
-Date: Wed, 19 Dec 2007 11:12:36 +0100
-Message-ID: <20071219101236.GB3521__46113.1189637401$1198059329$gmane$org@elte.hu>
-References: <11979967763153-git-send-email-gcosta@redhat.com>
+Subject: Re: [PATCH] finish processor.h integration
+Date: Wed, 19 Dec 2007 11:17:36 +0100
+Message-ID: <20071219101736.GC3521@elte.hu>
+References: <1198008293639-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <11979967763153-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1198008293639-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,20 +24,211 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 * Glauber de Oliveira Costa <gcosta@redhat.com> wrote:
 
-> This patch removes the __init modifier from an extern function 
-> declaration in acpi.h.
-> 
-> Besides not being strictly needed, it requires the inclusion of 
-> linux/init.h, which is usually not even included directly, increasing 
-> header mess by a lot.
+> What's left in processor_32.h and processor_64.h cannot be cleanly 
+> integrated. However, it's just a couple of definitions. They are moved 
+> to processor.h around ifdefs, and the original files are deleted. Note 
+> that there's much less headers included in the final version.
 
-thanks, applied.
+hm, doesnt apply;
 
-btw., people have been talking about reducing the include file mess for 
-nearly a decade now, but it didnt get that much better - at least not in 
-include/asm-x86/*.h. So include file dependency flattening patches would 
-be more than welcome as well. (and unlike unification patches they have 
-no expectation of being 100% perfect, so a natural ping-pong of fixes, 
-until the changes are fully correct, would be natural.)
+ Applying patch patches/x86-finish-processor-h-integration.patch
+ patching file include/asm-x86/processor.h
+ Hunk #2 FAILED at 287.
+ Hunk #3 FAILED at 311.
+ Hunk #4 succeeded at 786 (offset -8 lines).
+ 2 out of 4 hunks FAILED -- rejects in file include/asm-x86/processor.h
+
+i fixed it up by hand - the result is below - does it look OK to you? 
+(Also, could you check latest x86.git whether i've picked up all your 
+patches correctly - the reject might be indicative of some missing 
+pieces.)
 
 	Ingo
+
+------------>
+Subject: finish processor.h integration
+From: Glauber de Oliveira Costa <gcosta@redhat.com>
+
+What's left in processor_32.h and processor_64.h cannot be cleanly
+integrated. However, it's just a couple of definitions. They are moved
+to processor.h around ifdefs, and the original files are deleted. Note that
+there's much less headers included in the final version.
+
+Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+---
+ include/asm-x86/processor.h |  140 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 137 insertions(+), 3 deletions(-)
+
+Index: linux-x86.q/include/asm-x86/processor.h
+===================================================================
+--- linux-x86.q.orig/include/asm-x86/processor.h
++++ linux-x86.q/include/asm-x86/processor.h
+@@ -7,12 +7,24 @@
+ struct task_struct;
+ struct mm_struct;
+ 
++#include <asm/vm86.h>
++#include <asm/math_emu.h>
++#include <asm/segment.h>
+ #include <asm/page.h>
+-#include <asm/percpu.h>
++#include <asm/types.h>
++#include <asm/sigcontext.h>
++#include <asm/current.h>
++#include <asm/cpufeature.h>
+ #include <asm/system.h>
++#include <asm/page.h>
+ #include <asm/percpu.h>
++#include <asm/msr.h>
++#include <asm/desc_defs.h>
++#include <linux/personality.h>
+ #include <linux/cpumask.h>
+ #include <linux/cache.h>
++#include <linux/threads.h>
++#include <linux/init.h>
+ 
+ /*
+  * Default implementation of macro that returns current
+@@ -285,9 +297,13 @@ union i387_union {
+ };
+ 
+ #ifdef CONFIG_X86_32
+-# include "processor_32.h"
++/*
++ * the following now lives in the per cpu area:
++ * extern	int cpu_llc_id[NR_CPUS];
++ */
++DECLARE_PER_CPU(u8, cpu_llc_id);
+ #else
+-# include "processor_64.h"
++DECLARE_PER_CPU(struct orig_ist, orig_ist);
+ #endif
+ 
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+@@ -770,6 +786,124 @@ static inline void prefetchw(const void 
+ }
+ 
+ #define spin_lock_prefetch(x)	prefetchw(x)
++#ifdef CONFIG_X86_32
++/*
++ * User space process size: 3GB (default).
++ */
++#define TASK_SIZE	(PAGE_OFFSET)
++
++#define INIT_THREAD  {							\
++	.sp0 = sizeof(init_stack) + (long)&init_stack,			\
++	.vm86_info = NULL,						\
++	.sysenter_cs = __KERNEL_CS,					\
++	.io_bitmap_ptr = NULL,						\
++	.fs = __KERNEL_PERCPU,						\
++}
++
++/*
++ * Note that the .io_bitmap member must be extra-big. This is because
++ * the CPU will access an additional byte beyond the end of the IO
++ * permission bitmap. The extra byte must be all 1 bits, and must
++ * be within the limit.
++ */
++#define INIT_TSS  {							\
++	.x86_tss = {							\
++		.sp0		= sizeof(init_stack) + (long)&init_stack, \
++		.ss0		= __KERNEL_DS,				\
++		.ss1		= __KERNEL_CS,				\
++		.io_bitmap_base	= INVALID_IO_BITMAP_OFFSET,		\
++	 },								\
++	.io_bitmap	= { [0 ... IO_BITMAP_LONGS] = ~0 },		\
++}
++
++#define start_thread(regs, new_eip, new_esp) do {		\
++	__asm__("movl %0,%%gs": :"r" (0));			\
++	regs->fs = 0;						\
++	set_fs(USER_DS);					\
++	regs->ds = __USER_DS;					\
++	regs->es = __USER_DS;					\
++	regs->ss = __USER_DS;					\
++	regs->cs = __USER_CS;					\
++	regs->ip = new_eip;					\
++	regs->sp = new_esp;					\
++} while (0)
++
++
++extern unsigned long thread_saved_pc(struct task_struct *tsk);
++
++#define THREAD_SIZE_LONGS      (THREAD_SIZE/sizeof(unsigned long))
++#define KSTK_TOP(info)                                                 \
++({                                                                     \
++       unsigned long *__ptr = (unsigned long *)(info);                 \
++       (unsigned long)(&__ptr[THREAD_SIZE_LONGS]);                     \
++})
++
++/*
++ * The below -8 is to reserve 8 bytes on top of the ring0 stack.
++ * This is necessary to guarantee that the entire "struct pt_regs"
++ * is accessable even if the CPU haven't stored the SS/ESP registers
++ * on the stack (interrupt gate does not save these registers
++ * when switching to the same priv ring).
++ * Therefore beware: accessing the ss/esp fields of the
++ * "struct pt_regs" is possible, but they may contain the
++ * completely wrong values.
++ */
++#define task_pt_regs(task)                                             \
++({                                                                     \
++       struct pt_regs *__regs__;                                       \
++       __regs__ = (struct pt_regs *)(KSTK_TOP(task_stack_page(task))-8); \
++       __regs__ - 1;                                                   \
++})
++
++#define KSTK_ESP(task) (task_pt_regs(task)->sp)
++
++#else
++/*
++ * User space process size. 47bits minus one guard page.
++ */
++#define TASK_SIZE64	(0x800000000000UL - 4096)
++
++/* This decides where the kernel will search for a free chunk of vm
++ * space during mmap's.
++ */
++#define IA32_PAGE_OFFSET ((current->personality & ADDR_LIMIT_3GB) ? \
++			   0xc0000000 : 0xFFFFe000)
++
++#define TASK_SIZE 		(test_thread_flag(TIF_IA32) ? \
++				 IA32_PAGE_OFFSET : TASK_SIZE64)
++#define TASK_SIZE_OF(child) 	((test_tsk_thread_flag(child, TIF_IA32)) ? \
++				  IA32_PAGE_OFFSET : TASK_SIZE64)
++
++#define INIT_THREAD  { \
++	.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
++}
++
++#define INIT_TSS  { \
++	.x86_tss.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
++}
++
++#define start_thread(regs, new_rip, new_rsp) do { 			     \
++	asm volatile("movl %0,%%fs; movl %0,%%es; movl %0,%%ds": :"r" (0));  \
++	load_gs_index(0);						     \
++	(regs)->ip = (new_rip);						     \
++	(regs)->sp = (new_rsp);						     \
++	write_pda(oldrsp, (new_rsp));					     \
++	(regs)->cs = __USER_CS;						     \
++	(regs)->ss = __USER_DS;						     \
++	(regs)->flags = 0x200;						     \
++	set_fs(USER_DS);						     \
++} while (0)
++
++/*
++ * Return saved PC of a blocked thread.
++ * What is this good for? it will be always the scheduler or ret_from_fork.
++ */
++#define thread_saved_pc(t) (*(unsigned long *)((t)->thread.sp - 8))
++
++#define task_pt_regs(tsk) ((struct pt_regs *)(tsk)->thread.sp0 - 1)
++#define KSTK_ESP(tsk) -1 /* sorry. doesn't work for syscall. */
++#endif /* CONFIG_X86_64 */
++
+ /* This decides where the kernel will search for a free chunk of vm
+  * space during mmap's.
+  */
