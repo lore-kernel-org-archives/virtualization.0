@@ -1,16 +1,16 @@
-From: Frans Pop <elendil@planet.nl>
+From: "Glauber de Oliveira Costa" <glommer@gmail.com>
 Subject: Re: [PATCH] finish processor.h integration
-Date: Tue, 18 Dec 2007 22:32:43 +0100
-Message-ID: <200712182232.45685.elendil__45880.3684953184$1198015998$gmane$org@planet.nl>
+Date: Wed, 19 Dec 2007 00:56:01 -0200
+Message-ID: <5d6222a80712181856l4f24104ei38ecd2e9f0c6422e__36118.3332199745$1198033097$gmane$org@mail.gmail.com>
 References: <1198008293639-git-send-email-gcosta@redhat.com>
 	<E1J4jSf-00024X-GN@faramir.fjphome.nl>
 	<5d6222a80712181300l707035e7mdb8a6e0d7a5ddca8@mail.gmail.com>
+	<200712182232.45685.elendil@planet.nl>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5d6222a80712181300l707035e7mdb8a6e0d7a5ddca8@mail.gmail.com>
+In-Reply-To: <200712182232.45685.elendil@planet.nl>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,26 +21,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <glommer@gmail.com>
+To: Frans Pop <elendil@planet.nl>
 Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, ak@suse.de, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 18 December 2007, Glauber de Oliveira Costa wrote:
-> On Dec 18, 2007 6:54 PM, Frans Pop <elendil@planet.nl> wrote:
-> > Glauber de Oliveira Costa wrote:
-> > > What's left in processor_32.h and processor_64.h cannot be cleanly
-> > > integrated. However, it's just a couple of definitions. They are
-> > > moved to processor.h around ifdefs, and the original files are
-> > > deleted. Note that there's much less headers included in the final
-> > > version.
+On Dec 18, 2007 7:32 PM, Frans Pop <elendil@planet.nl> wrote:
+> On Tuesday 18 December 2007, Glauber de Oliveira Costa wrote:
+> > On Dec 18, 2007 6:54 PM, Frans Pop <elendil@planet.nl> wrote:
+> > > Glauber de Oliveira Costa wrote:
+> > > > What's left in processor_32.h and processor_64.h cannot be cleanl=
+y
+> > > > integrated. However, it's just a couple of definitions. They are
+> > > > moved to processor.h around ifdefs, and the original files are
+> > > > deleted. Note that there's much less headers included in the fina=
+l
+> > > > version.
+> > >
+> > > Either I must be missing something or this patch was corrupted some=
+how.
 > >
-> > Either I must be missing something or this patch was corrupted somehow.
+> > neither.
+> > Note the else in the middle. It's just a mistake in the comment.
 >
-> neither.
-> Note the else in the middle. It's just a mistake in the comment.
+> Wouldn't an explicit second #ifdef block be a lot clearer (and improve
+> maintainability) in this case?
+>
+> An #else can easily be overlooked among other preprocessor commands or =
+when
+> #ifdefs get nested.
+>
+I don't think so. a if-then-else kind of construction is very common,
+well expected, and heavily used in kernel.
+But even if I=B4m not right, this is functionally correct, and can be
+addressed in a later cleanup patch if you really want to.
 
-Wouldn't an explicit second #ifdef block be a lot clearer (and improve 
-maintainability) in this case?
 
-An #else can easily be overlooked among other preprocessor commands or when 
-#ifdefs get nested.
+--=20
+Glauber de Oliveira Costa.
+"Free as in Freedom"
+http://glommer.net
+
+"The less confident you are, the more serious you have to act."
