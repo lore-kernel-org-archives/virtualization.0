@@ -1,9 +1,8 @@
-From: "Glauber de Oliveira Costa" <glommer@gmail.com>
+From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: [PATCH 13/15] move patching code to arch-specific file.
-Date: Thu, 20 Dec 2007 19:22:24 -0200
-Message-ID: <5d6222a80712201322t46591ce2n5cf3248aa2e1dd26__46126.1301571087$1198185915$gmane$org@mail.gmail.com>
-References: <1198181224677-git-send-email-gcosta@redhat.com>
-	<11981812771615-git-send-email-gcosta@redhat.com>
+Date: Thu, 20 Dec 2007 22:26:51 +0100
+Message-ID: <20071220212651.GA11897__35253.6552156836$1198186259$gmane$org@elte.hu>
+References: <11981812771615-git-send-email-gcosta@redhat.com>
 	<1198181309285-git-send-email-gcosta@redhat.com>
 	<11981813192341-git-send-email-gcosta@redhat.com>
 	<11981813292926-git-send-email-gcosta@redhat.com>
@@ -11,11 +10,12 @@ References: <1198181224677-git-send-email-gcosta@redhat.com>
 	<1198181348746-git-send-email-gcosta@redhat.com>
 	<11981813592589-git-send-email-gcosta@redhat.com>
 	<20071220203148.GA20826@elte.hu> <20071220203312.GA21251@elte.hu>
+	<5d6222a80712201322t46591ce2n5cf3248aa2e1dd26@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_24505_24651321.1198185744534"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20071220203312.GA21251@elte.hu>
+Content-Disposition: inline
+In-Reply-To: <5d6222a80712201322t46591ce2n5cf3248aa2e1dd26@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,169 +25,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@elte.hu>
+To: Glauber de Oliveira Costa <glommer@gmail.com>
 Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-------=_Part_24505_24651321.1198185744534
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Dec 20, 2007 6:33 PM, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Ingo Molnar <mingo@elte.hu> wrote:
->
-> > this patch adds the paravirt_patch_32.o:
+* Glauber de Oliveira Costa <glommer@gmail.com> wrote:
+
+> > > make[1]: *** No rule to make target
+> > >  `arch/x86/kernel/paravirt_patch_32.o', needed by
+> > >  `arch/x86/kernel/built-in.o'.  Stop.
 > >
-> > > -obj-$(CONFIG_PARAVIRT)             += paravirt.o
-> > > +obj-$(CONFIG_PARAVIRT)             += paravirt.o paravirt_patch_32.o
-> >
-> > but does not add that file nor any other rule to build that target, so
-> > it fails to build with the attached config:
-> >
-> > make[1]: *** No rule to make target
-> >  `arch/x86/kernel/paravirt_patch_32.o', needed by
-> >  `arch/x86/kernel/built-in.o'.  Stop.
->
-> if it's just that single missing file then please send me a patch that
-> adds that file and i'll add it to this patch. (instead of resending the
-> whole series)
+> > if it's just that single missing file then please send me a patch that
+> > adds that file and i'll add it to this patch. (instead of resending the
+> > whole series)
+> 
+> Yeah, I must have forgotten to git-add it. It was building here fine, 
+> because I clearly have the file locally ;-)
+> 
+> I'm attaching a new patch that replaces just this one.
 
-Yeah, I must have forgotten to git-add it.
-It was building here fine, because I clearly have the file locally ;-)
+thanks, this did the trick, it builds fine now.
 
-I'm attaching a new patch that replaces just this one.
-
--- 
-Glauber de Oliveira Costa.
-"Free as in Freedom"
-http://glommer.net
-
-"The less confident you are, the more serious you have to act."
-
-------=_Part_24505_24651321.1198185744534
-Content-Type: text/x-patch;
-	name=0001-move-patching-code-to-arch-specific-file.patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fafstz010
-Content-Disposition: attachment;
-	filename=0001-move-patching-code-to-arch-specific-file.patch
-
-RnJvbSA5YTkzMDdlOTc2MzkxNzc2YzBkNjNlMzY0MGQ5MDczOGUyMGU5ZWU5IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBHbGF1YmVyIGRlIE9saXZlaXJhIENvc3RhIDxnY29zdGFAcmVk
-aGF0LmNvbT4KRGF0ZTogVHVlLCAxOCBEZWMgMjAwNyAxNjo0NzozNSAtMDIwMApTdWJqZWN0OiBb
-UEFUQ0hdIFtQQVRDSF0gbW92ZSBwYXRjaGluZyBjb2RlIHRvIGFyY2gtc3BlY2lmaWMgZmlsZS4K
-ClRoZSBjb3JlIHBhdGNoaW5nIGNvZGUgZm9yIHBhcmF2aXJ0IGlzIHN1ZmZpY2llbnRseSBkaWZm
-ZXJlbnQKYW1vbmcgaTM4NiBhbmQgeDg2XzY0LCBhbmQgd2UgbW92ZSB0aGVtIHRvIHNwZWNpZmlj
-IGZpbGVzLgoKU2lnbmVkLW9mZi1ieTogR2xhdWJlciBkZSBPbGl2ZWlyYSBDb3N0YSA8Z2Nvc3Rh
-QHJlZGhhdC5jb20+Ci0tLQogYXJjaC94ODYva2VybmVsL01ha2VmaWxlXzMyICAgICAgICAgfCAg
-ICAyICstCiBhcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnQuYyAgICAgICAgICB8ICAgNTAgLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KIGFyY2gveDg2L2tlcm5lbC9wYXJhdmlydF9w
-YXRjaF8zMi5jIHwgICA0OSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiBpbmNs
-dWRlL2FzbS14ODYvcGFyYXZpcnQuaCAgICAgICAgICB8ICAgIDggKysrKysKIDQgZmlsZXMgY2hh
-bmdlZCwgNTggaW5zZXJ0aW9ucygrKSwgNTEgZGVsZXRpb25zKC0pCiBjcmVhdGUgbW9kZSAxMDA2
-NDQgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMKCmRpZmYgLS1naXQgYS9hcmNo
-L3g4Ni9rZXJuZWwvTWFrZWZpbGVfMzIgYi9hcmNoL3g4Ni9rZXJuZWwvTWFrZWZpbGVfMzIKaW5k
-ZXggY2ZiNzFhNS4uODZjNjMyNyAxMDA2NDQKLS0tIGEvYXJjaC94ODYva2VybmVsL01ha2VmaWxl
-XzMyCisrKyBiL2FyY2gveDg2L2tlcm5lbC9NYWtlZmlsZV8zMgpAQCAtNDgsNyArNDgsNyBAQCBv
-YmotJChDT05GSUdfSzhfTkIpCQkrPSBrOC5vCiBvYmotJChDT05GSUdfTUdFT0RFX0xYKQkJKz0g
-Z2VvZGVfMzIubyBtZmdwdF8zMi5vCiAKIG9iai0kKENPTkZJR19WTUkpCQkrPSB2bWlfMzIubyB2
-bWljbG9ja18zMi5vCi1vYmotJChDT05GSUdfUEFSQVZJUlQpCQkrPSBwYXJhdmlydC5vCitvYmot
-JChDT05GSUdfUEFSQVZJUlQpCQkrPSBwYXJhdmlydC5vIHBhcmF2aXJ0X3BhdGNoXzMyLm8KIG9i
-ai15CQkJCSs9IHBjc3BlYWtlci5vCiAKIG9iai0kKENPTkZJR19TQ3gyMDApCQkrPSBzY3gyMDBf
-MzIubwpkaWZmIC0tZ2l0IGEvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgYi9hcmNoL3g4Ni9r
-ZXJuZWwvcGFyYXZpcnQuYwppbmRleCBlN2MxN2NjLi44NjRiZTA0IDEwMDY0NAotLS0gYS9hcmNo
-L3g4Ni9rZXJuZWwvcGFyYXZpcnQuYworKysgYi9hcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnQuYwpA
-QCAtNTgsNTkgKzU4LDkgQEAgY2hhciAqbWVtb3J5X3NldHVwKHZvaWQpCiAJZXh0ZXJuIGNvbnN0
-IGNoYXIgc3RhcnRfIyNvcHMjI18jI25hbWVbXSwgZW5kXyMjb3BzIyNfIyNuYW1lW107CVwKIAlh
-c20oInN0YXJ0XyIgI29wcyAiXyIgI25hbWUgIjogIiBjb2RlICI7IGVuZF8iICNvcHMgIl8iICNu
-YW1lICI6IikKIAotREVGX05BVElWRShwdl9pcnFfb3BzLCBpcnFfZGlzYWJsZSwgImNsaSIpOwot
-REVGX05BVElWRShwdl9pcnFfb3BzLCBpcnFfZW5hYmxlLCAic3RpIik7Ci1ERUZfTkFUSVZFKHB2
-X2lycV9vcHMsIHJlc3RvcmVfZmwsICJwdXNoICVlYXg7IHBvcGYiKTsKLURFRl9OQVRJVkUocHZf
-aXJxX29wcywgc2F2ZV9mbCwgInB1c2hmOyBwb3AgJWVheCIpOwotREVGX05BVElWRShwdl9jcHVf
-b3BzLCBpcmV0LCAiaXJldCIpOwotREVGX05BVElWRShwdl9jcHVfb3BzLCBpcnFfZW5hYmxlX3N5
-c2NhbGxfcmV0LCAic3RpOyBzeXNleGl0Iik7Ci1ERUZfTkFUSVZFKHB2X21tdV9vcHMsIHJlYWRf
-Y3IyLCAibW92ICVjcjIsICVlYXgiKTsKLURFRl9OQVRJVkUocHZfbW11X29wcywgd3JpdGVfY3Iz
-LCAibW92ICVlYXgsICVjcjMiKTsKLURFRl9OQVRJVkUocHZfbW11X29wcywgcmVhZF9jcjMsICJt
-b3YgJWNyMywgJWVheCIpOwotREVGX05BVElWRShwdl9jcHVfb3BzLCBjbHRzLCAiY2x0cyIpOwot
-REVGX05BVElWRShwdl9jcHVfb3BzLCByZWFkX3RzYywgInJkdHNjIik7Ci0KIC8qIFVuZGVmaW5l
-ZCBpbnN0cnVjdGlvbiBmb3IgZGVhbGluZyB3aXRoIG1pc3Npbmcgb3BzIHBvaW50ZXJzLiAqLwog
-c3RhdGljIGNvbnN0IHVuc2lnbmVkIGNoYXIgdWQyYVtdID0geyAweDBmLCAweDBiIH07CiAKLXN0
-YXRpYyB1bnNpZ25lZCBuYXRpdmVfcGF0Y2godTggdHlwZSwgdTE2IGNsb2JiZXJzLCB2b2lkICpp
-YnVmLAotCQkJICAgICB1bnNpZ25lZCBsb25nIGFkZHIsIHVuc2lnbmVkIGxlbikKLXsKLQljb25z
-dCB1bnNpZ25lZCBjaGFyICpzdGFydCwgKmVuZDsKLQl1bnNpZ25lZCByZXQ7Ci0KLQlzd2l0Y2go
-dHlwZSkgewotI2RlZmluZSBTSVRFKG9wcywgeCkJCQkJCQlcCi0JY2FzZSBQQVJBVklSVF9QQVRD
-SChvcHMueCk6CQkJCVwKLQkJc3RhcnQgPSBzdGFydF8jI29wcyMjXyMjeDsJCQlcCi0JCWVuZCA9
-IGVuZF8jI29wcyMjXyMjeDsJCQkJXAotCQlnb3RvIHBhdGNoX3NpdGUKLQotCVNJVEUocHZfaXJx
-X29wcywgaXJxX2Rpc2FibGUpOwotCVNJVEUocHZfaXJxX29wcywgaXJxX2VuYWJsZSk7Ci0JU0lU
-RShwdl9pcnFfb3BzLCByZXN0b3JlX2ZsKTsKLQlTSVRFKHB2X2lycV9vcHMsIHNhdmVfZmwpOwot
-CVNJVEUocHZfY3B1X29wcywgaXJldCk7Ci0JU0lURShwdl9jcHVfb3BzLCBpcnFfZW5hYmxlX3N5
-c2NhbGxfcmV0KTsKLQlTSVRFKHB2X21tdV9vcHMsIHJlYWRfY3IyKTsKLQlTSVRFKHB2X21tdV9v
-cHMsIHJlYWRfY3IzKTsKLQlTSVRFKHB2X21tdV9vcHMsIHdyaXRlX2NyMyk7Ci0JU0lURShwdl9j
-cHVfb3BzLCBjbHRzKTsKLQlTSVRFKHB2X2NwdV9vcHMsIHJlYWRfdHNjKTsKLSN1bmRlZiBTSVRF
-Ci0KLQlwYXRjaF9zaXRlOgotCQlyZXQgPSBwYXJhdmlydF9wYXRjaF9pbnNucyhpYnVmLCBsZW4s
-IHN0YXJ0LCBlbmQpOwotCQlicmVhazsKLQotCWRlZmF1bHQ6Ci0JCXJldCA9IHBhcmF2aXJ0X3Bh
-dGNoX2RlZmF1bHQodHlwZSwgY2xvYmJlcnMsIGlidWYsIGFkZHIsIGxlbik7Ci0JCWJyZWFrOwot
-CX0KLQotCXJldHVybiByZXQ7Ci19Ci0KIHVuc2lnbmVkIHBhcmF2aXJ0X3BhdGNoX25vcCh2b2lk
-KQogewogCXJldHVybiAwOwpkaWZmIC0tZ2l0IGEvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3Bh
-dGNoXzMyLmMgYi9hcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnRfcGF0Y2hfMzIuYwpuZXcgZmlsZSBt
-b2RlIDEwMDY0NAppbmRleCAwMDAwMDAwLi44MmZjNWZjCi0tLSAvZGV2L251bGwKKysrIGIvYXJj
-aC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMKQEAgLTAsMCArMSw0OSBAQAorI2luY2x1
-ZGUgPGFzbS9wYXJhdmlydC5oPgorCitERUZfTkFUSVZFKHB2X2lycV9vcHMsIGlycV9kaXNhYmxl
-LCAiY2xpIik7CitERUZfTkFUSVZFKHB2X2lycV9vcHMsIGlycV9lbmFibGUsICJzdGkiKTsKK0RF
-Rl9OQVRJVkUocHZfaXJxX29wcywgcmVzdG9yZV9mbCwgInB1c2ggJWVheDsgcG9wZiIpOworREVG
-X05BVElWRShwdl9pcnFfb3BzLCBzYXZlX2ZsLCAicHVzaGY7IHBvcCAlZWF4Iik7CitERUZfTkFU
-SVZFKHB2X2NwdV9vcHMsIGlyZXQsICJpcmV0Iik7CitERUZfTkFUSVZFKHB2X2NwdV9vcHMsIGly
-cV9lbmFibGVfc3lzY2FsbF9yZXQsICJzdGk7IHN5c2V4aXQiKTsKK0RFRl9OQVRJVkUocHZfbW11
-X29wcywgcmVhZF9jcjIsICJtb3YgJWNyMiwgJWVheCIpOworREVGX05BVElWRShwdl9tbXVfb3Bz
-LCB3cml0ZV9jcjMsICJtb3YgJWVheCwgJWNyMyIpOworREVGX05BVElWRShwdl9tbXVfb3BzLCBy
-ZWFkX2NyMywgIm1vdiAlY3IzLCAlZWF4Iik7CitERUZfTkFUSVZFKHB2X2NwdV9vcHMsIGNsdHMs
-ICJjbHRzIik7CitERUZfTkFUSVZFKHB2X2NwdV9vcHMsIHJlYWRfdHNjLCAicmR0c2MiKTsKKwor
-dW5zaWduZWQgbmF0aXZlX3BhdGNoKHU4IHR5cGUsIHUxNiBjbG9iYmVycywgdm9pZCAqaWJ1ZiwK
-KwkJICAgICAgdW5zaWduZWQgbG9uZyBhZGRyLCB1bnNpZ25lZCBsZW4pCit7CisJY29uc3QgdW5z
-aWduZWQgY2hhciAqc3RhcnQsICplbmQ7CisJdW5zaWduZWQgcmV0OworCisjZGVmaW5lIFBBVENI
-X1NJVEUob3BzLCB4KQkJCQkJXAorCQljYXNlIFBBUkFWSVJUX1BBVENIKG9wcy54KToJCQlcCisJ
-CQlzdGFydCA9IHN0YXJ0XyMjb3BzIyNfIyN4OwkJXAorCQkJZW5kID0gZW5kXyMjb3BzIyNfIyN4
-OwkJCVwKKwkJCWdvdG8gcGF0Y2hfc2l0ZQorCXN3aXRjaCh0eXBlKSB7CisJCVBBVENIX1NJVEUo
-cHZfaXJxX29wcywgaXJxX2Rpc2FibGUpOworCQlQQVRDSF9TSVRFKHB2X2lycV9vcHMsIGlycV9l
-bmFibGUpOworCQlQQVRDSF9TSVRFKHB2X2lycV9vcHMsIHJlc3RvcmVfZmwpOworCQlQQVRDSF9T
-SVRFKHB2X2lycV9vcHMsIHNhdmVfZmwpOworCQlQQVRDSF9TSVRFKHB2X2NwdV9vcHMsIGlyZXQp
-OworCQlQQVRDSF9TSVRFKHB2X2NwdV9vcHMsIGlycV9lbmFibGVfc3lzY2FsbF9yZXQpOworCQlQ
-QVRDSF9TSVRFKHB2X21tdV9vcHMsIHJlYWRfY3IyKTsKKwkJUEFUQ0hfU0lURShwdl9tbXVfb3Bz
-LCByZWFkX2NyMyk7CisJCVBBVENIX1NJVEUocHZfbW11X29wcywgd3JpdGVfY3IzKTsKKwkJUEFU
-Q0hfU0lURShwdl9jcHVfb3BzLCBjbHRzKTsKKwkJUEFUQ0hfU0lURShwdl9jcHVfb3BzLCByZWFk
-X3RzYyk7CisKKwlwYXRjaF9zaXRlOgorCQlyZXQgPSBwYXJhdmlydF9wYXRjaF9pbnNucyhpYnVm
-LCBsZW4sIHN0YXJ0LCBlbmQpOworCQlicmVhazsKKworCWRlZmF1bHQ6CisJCXJldCA9IHBhcmF2
-aXJ0X3BhdGNoX2RlZmF1bHQodHlwZSwgY2xvYmJlcnMsIGlidWYsIGFkZHIsIGxlbik7CisJCWJy
-ZWFrOworCX0KKyN1bmRlZiBQQVRDSF9TSVRFCisJcmV0dXJuIHJldDsKK30KZGlmZiAtLWdpdCBh
-L2luY2x1ZGUvYXNtLXg4Ni9wYXJhdmlydC5oIGIvaW5jbHVkZS9hc20teDg2L3BhcmF2aXJ0LmgK
-aW5kZXggOTZkOWQzZi4uM2I3NDdkMCAxMDA2NDQKLS0tIGEvaW5jbHVkZS9hc20teDg2L3BhcmF2
-aXJ0LmgKKysrIGIvaW5jbHVkZS9hc20teDg2L3BhcmF2aXJ0LmgKQEAgLTMwOCw2ICszMDgsMTEg
-QEAgZXh0ZXJuIHN0cnVjdCBwdl9tbXVfb3BzIHB2X21tdV9vcHM7CiAjZGVmaW5lIHBhcmF2aXJ0
-X2FsdChpbnNuX3N0cmluZykJCQkJCVwKIAlfcGFyYXZpcnRfYWx0KGluc25fc3RyaW5nLCAiJWNb
-cGFyYXZpcnRfdHlwZW51bV0iLCAiJWNbcGFyYXZpcnRfY2xvYmJlcl0iKQogCisvKiBTaW1wbGUg
-aW5zdHJ1Y3Rpb24gcGF0Y2hpbmcgY29kZS4gKi8KKyNkZWZpbmUgREVGX05BVElWRShvcHMsIG5h
-bWUsIGNvZGUpIAkJCQkJXAorCWV4dGVybiBjb25zdCBjaGFyIHN0YXJ0XyMjb3BzIyNfIyNuYW1l
-W10sIGVuZF8jI29wcyMjXyMjbmFtZVtdOwlcCisJYXNtKCJzdGFydF8iICNvcHMgIl8iICNuYW1l
-ICI6ICIgY29kZSAiOyBlbmRfIiAjb3BzICJfIiAjbmFtZSAiOiIpCisKIHVuc2lnbmVkIHBhcmF2
-aXJ0X3BhdGNoX25vcCh2b2lkKTsKIHVuc2lnbmVkIHBhcmF2aXJ0X3BhdGNoX2lnbm9yZSh1bnNp
-Z25lZCBsZW4pOwogdW5zaWduZWQgcGFyYXZpcnRfcGF0Y2hfY2FsbCh2b2lkICppbnNuYnVmLApA
-QCAtMzIyLDYgKzMyNyw5IEBAIHVuc2lnbmVkIHBhcmF2aXJ0X3BhdGNoX2RlZmF1bHQodTggdHlw
-ZSwgdTE2IGNsb2JiZXJzLCB2b2lkICppbnNuYnVmLAogdW5zaWduZWQgcGFyYXZpcnRfcGF0Y2hf
-aW5zbnModm9pZCAqaW5zbmJ1ZiwgdW5zaWduZWQgbGVuLAogCQkJICAgICAgY29uc3QgY2hhciAq
-c3RhcnQsIGNvbnN0IGNoYXIgKmVuZCk7CiAKK3Vuc2lnbmVkIG5hdGl2ZV9wYXRjaCh1OCB0eXBl
-LCB1MTYgY2xvYmJlcnMsIHZvaWQgKmlidWYsCisJCSAgICAgIHVuc2lnbmVkIGxvbmcgYWRkciwg
-dW5zaWduZWQgbGVuKTsKKwogaW50IHBhcmF2aXJ0X2Rpc2FibGVfaW9zcGFjZSh2b2lkKTsKIAog
-LyoKLS0gCjEuNS4wLjYKCg==
-------=_Part_24505_24651321.1198185744534
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
-------=_Part_24505_24651321.1198185744534--
+	Ingo
