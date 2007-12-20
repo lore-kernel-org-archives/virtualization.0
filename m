@@ -1,10 +1,12 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 01/16] introduce vcpu struct
-Date: Thu, 20 Dec 2007 11:33:41 -0200
-Message-ID: <11981576442148-git-send-email-gcosta__2480.83994160897$1198157803$gmane$org@redhat.com>
+Subject: [PATCH 03/16] initialize vcpu
+Date: Thu, 20 Dec 2007 11:33:43 -0200
+Message-ID: <1198157654189-git-send-email-gcosta__44102.0512524576$1198157832$gmane$org@redhat.com>
 References: <11981576363806-git-send-email-gcosta@redhat.com>
+	<11981576442148-git-send-email-gcosta@redhat.com>
+	<11981576492807-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11981576363806-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11981576492807-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,53 +20,50 @@ To: lguest@ozlabs.org
 Cc: linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-this patch introduces a vcpu struct for lguest. In upcoming patches,
-more and more fields will be moved from the lguest struct to the vcpu
+this patch initializes the first vcpu in the initialize() routing,
+which is responsible for starting the process of putting the guest up.
+right now, as much of the fields are still not per-vcpu, it does not
+do much.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- drivers/lguest/lg.h |   15 +++++++++++++++
- 1 files changed, 15 insertions(+), 0 deletions(-)
+ drivers/lguest/lguest_user.c |   17 +++++++++++++++++
+ 1 files changed, 17 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
-index 8692489..9723732 100644
---- a/drivers/lguest/lg.h
-+++ b/drivers/lguest/lg.h
-@@ -38,6 +38,13 @@ struct lguest_pages
- #define CHANGED_GDT_TLS		4 /* Actually a subset of CHANGED_GDT */
- #define CHANGED_ALL	        3
+diff --git a/drivers/lguest/lguest_user.c b/drivers/lguest/lguest_user.c
+index 3b92a61..d1b1c26 100644
+--- a/drivers/lguest/lguest_user.c
++++ b/drivers/lguest/lguest_user.c
+@@ -88,6 +88,17 @@ static ssize_t read(struct file *file, char __user *user, size_t size,loff_t*o)
+ 	return run_guest(lg, (unsigned long __user *)user);
+ }
  
-+struct lguest;
-+
-+struct lguest_vcpu {
-+	int vcpu_id;
-+	struct lguest *lg;
-+};
-+
- /* The private info the thread maintains about the guest. */
- struct lguest
- {
-@@ -47,6 +54,9 @@ struct lguest
- 	struct lguest_data __user *lguest_data;
- 	struct task_struct *tsk;
- 	struct mm_struct *mm; 	/* == tsk->mm, but that becomes NULL on exit */
-+	struct lguest_vcpu vcpus[NR_CPUS];
-+	unsigned int nr_vcpus;
-+
- 	u32 pfn_limit;
- 	/* This provides the offset to the base of guest-physical
- 	 * memory in the Launcher. */
-@@ -92,6 +102,11 @@ struct lguest
- 	DECLARE_BITMAP(irqs_pending, LGUEST_IRQS);
- };
- 
-+static inline struct lguest *lg_of_vcpu(struct lguest_vcpu *vcpu)
++static int vcpu_start(struct lguest_vcpu *vcpu, int vcpu_id,
++		      unsigned long start_ip)
 +{
-+	return container_of((vcpu - vcpu->vcpu_id), struct lguest, vcpus[0]);
++	vcpu->vcpu_id = vcpu_id;
++
++	vcpu->lg = container_of((vcpu - vcpu_id), struct lguest, vcpus[0]);
++	vcpu->lg->nr_vcpus++;
++
++	return 0;
 +}
 +
- extern struct mutex lguest_lock;
+ /*L:020 The initialization write supplies 4 pointer sized (32 or 64 bit)
+  * values (in addition to the LHREQ_INITIALIZE value).  These are:
+  *
+@@ -134,6 +145,12 @@ static int initialize(struct file *file, const unsigned long __user *input)
+ 	lg->mem_base = (void __user *)(long)args[0];
+ 	lg->pfn_limit = args[1];
  
- /* core.c: */
++	/* This is the first cpu */
++	lg->nr_vcpus = 0;
++	err = vcpu_start(&lg->vcpus[0], 0, args[3]);
++	if (err)
++		goto release_guest;
++
+ 	/* We need a complete page for the Guest registers: they are accessible
+ 	 * to the Guest and we can only grant it access to whole pages. */
+ 	lg->regs_page = get_zeroed_page(GFP_KERNEL);
 -- 
 1.5.0.6
