@@ -1,7 +1,7 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 09/16] map_switcher_in_guest() per-vcpu
-Date: Thu, 20 Dec 2007 11:33:49 -0200
-Message-ID: <11981576833314-git-send-email-gcosta__18849.1940768019$1198158393$gmane$org@redhat.com>
+Subject: [PATCH 07/16] per-vcpu lguest timers
+Date: Thu, 20 Dec 2007 11:33:47 -0200
+Message-ID: <11981576731969-git-send-email-gcosta__7151.36862495473$1198158396$gmane$org@redhat.com>
 References: <11981576363806-git-send-email-gcosta@redhat.com>
 	<11981576442148-git-send-email-gcosta@redhat.com>
 	<11981576492807-git-send-email-gcosta@redhat.com>
@@ -9,10 +9,8 @@ References: <11981576363806-git-send-email-gcosta@redhat.com>
 	<11981576581695-git-send-email-gcosta@redhat.com>
 	<11981576632726-git-send-email-gcosta@redhat.com>
 	<11981576671720-git-send-email-gcosta@redhat.com>
-	<11981576731969-git-send-email-gcosta@redhat.com>
-	<1198157678759-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1198157678759-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11981576671720-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,61 +24,162 @@ To: lguest@ozlabs.org
 Cc: linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The switcher needs to be mapped per-vcpu, because different vcpus
-will potentially have different page tables (they don't have to,
-because threads will share the same).
-
-So our first step is the make the function receive a vcpu struct
+Here, I introduce per-vcpu timers. With this, we can have
+local expiries, needed for accounting time in smp guests
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- drivers/lguest/lg.h          |    3 ++-
- drivers/lguest/page_tables.c |    4 +++-
- drivers/lguest/x86/core.c    |    2 +-
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/lguest/hypercalls.c           |    2 +-
+ drivers/lguest/interrupts_and_traps.c |   20 ++++++++++----------
+ drivers/lguest/lg.h                   |   10 +++++-----
+ drivers/lguest/lguest_user.c          |   12 +++++++-----
+ 4 files changed, 23 insertions(+), 21 deletions(-)
 
+diff --git a/drivers/lguest/hypercalls.c b/drivers/lguest/hypercalls.c
+index 62da355..4364bc2 100644
+--- a/drivers/lguest/hypercalls.c
++++ b/drivers/lguest/hypercalls.c
+@@ -78,7 +78,7 @@ static void do_hcall(struct lguest_vcpu *vcpu, struct hcall_args *args)
+ 		guest_set_pmd(lg, args->arg1, args->arg2);
+ 		break;
+ 	case LHCALL_SET_CLOCKEVENT:
+-		guest_set_clockevent(lg, args->arg1);
++		guest_set_clockevent(vcpu, args->arg1);
+ 		break;
+ 	case LHCALL_TS:
+ 		/* This sets the TS flag, as we saw used in run_guest(). */
+diff --git a/drivers/lguest/interrupts_and_traps.c b/drivers/lguest/interrupts_and_traps.c
+index 2b66f79..189d66e 100644
+--- a/drivers/lguest/interrupts_and_traps.c
++++ b/drivers/lguest/interrupts_and_traps.c
+@@ -470,13 +470,13 @@ void copy_traps(const struct lguest *lg, struct desc_struct *idt,
+  * infrastructure to set a callback at that time.
+  *
+  * 0 means "turn off the clock". */
+-void guest_set_clockevent(struct lguest *lg, unsigned long delta)
++void guest_set_clockevent(struct lguest_vcpu *vcpu, unsigned long delta)
+ {
+ 	ktime_t expires;
+ 
+ 	if (unlikely(delta == 0)) {
+ 		/* Clock event device is shutting down. */
+-		hrtimer_cancel(&lg->hrt);
++		hrtimer_cancel(&vcpu->hrt);
+ 		return;
+ 	}
+ 
+@@ -484,25 +484,25 @@ void guest_set_clockevent(struct lguest *lg, unsigned long delta)
+ 	 * all the time between now and the timer interrupt it asked for.  This
+ 	 * is almost always the right thing to do. */
+ 	expires = ktime_add_ns(ktime_get_real(), delta);
+-	hrtimer_start(&lg->hrt, expires, HRTIMER_MODE_ABS);
++	hrtimer_start(&vcpu->hrt, expires, HRTIMER_MODE_ABS);
+ }
+ 
+ /* This is the function called when the Guest's timer expires. */
+ static enum hrtimer_restart clockdev_fn(struct hrtimer *timer)
+ {
+-	struct lguest *lg = container_of(timer, struct lguest, hrt);
++	struct lguest_vcpu *vcpu = container_of(timer, struct lguest_vcpu, hrt);
+ 
+ 	/* Remember the first interrupt is the timer interrupt. */
+-	set_bit(0, lg->irqs_pending);
++	set_bit(0, vcpu->lg->irqs_pending);
+ 	/* If the Guest is actually stopped, we need to wake it up. */
+-	if (lg->halted)
+-		wake_up_process(lg->tsk);
++	if (vcpu->lg->halted)
++		wake_up_process(vcpu->lg->tsk);
+ 	return HRTIMER_NORESTART;
+ }
+ 
+ /* This sets up the timer for this Guest. */
+-void init_clockdev(struct lguest *lg)
++void init_clockdev(struct lguest_vcpu *vcpu)
+ {
+-	hrtimer_init(&lg->hrt, CLOCK_REALTIME, HRTIMER_MODE_ABS);
+-	lg->hrt.function = clockdev_fn;
++	hrtimer_init(&vcpu->hrt, CLOCK_REALTIME, HRTIMER_MODE_ABS);
++	vcpu->hrt.function = clockdev_fn;
+ }
 diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
-index db2edd6..f6e9020 100644
+index 696cdf1..0205409 100644
 --- a/drivers/lguest/lg.h
 +++ b/drivers/lguest/lg.h
-@@ -173,7 +173,8 @@ void guest_pagetable_clear_all(struct lguest *lg);
- void guest_pagetable_flush_user(struct lguest *lg);
- void guest_set_pte(struct lguest *lg, unsigned long gpgdir,
- 		   unsigned long vaddr, pte_t val);
--void map_switcher_in_guest(struct lguest *lg, struct lguest_pages *pages);
-+void map_switcher_in_guest(struct lguest_vcpu *vcpu,
-+			   struct lguest_pages *pages);
- int demand_page(struct lguest *info, unsigned long cr2, int errcode);
- void pin_page(struct lguest *lg, unsigned long vaddr);
- unsigned long guest_pa(struct lguest *lg, unsigned long vaddr);
-diff --git a/drivers/lguest/page_tables.c b/drivers/lguest/page_tables.c
-index fffabb3..7fb8627 100644
---- a/drivers/lguest/page_tables.c
-+++ b/drivers/lguest/page_tables.c
-@@ -634,8 +634,10 @@ void free_guest_pagetable(struct lguest *lg)
-  * Guest (and not the pages for other CPUs).  We have the appropriate PTE pages
-  * for each CPU already set up, we just need to hook them in now we know which
-  * Guest is about to run on this CPU. */
--void map_switcher_in_guest(struct lguest *lg, struct lguest_pages *pages)
-+void map_switcher_in_guest(struct lguest_vcpu *vcpu,
-+			   struct lguest_pages *pages)
+@@ -47,6 +47,9 @@ struct lguest_vcpu {
+ 	/* If a hypercall was asked for, this points to the arguments. */
+ 	struct hcall_args *hcall;
+ 	u32 next_hcall;
++
++	/* Virtual clock device */
++	struct hrtimer hrt;
+ };
+ 
+ /* The private info the thread maintains about the guest. */
+@@ -95,9 +98,6 @@ struct lguest
+ 
+ 	struct lguest_arch arch;
+ 
+-	/* Virtual clock device */
+-	struct hrtimer hrt;
+-
+ 	/* Pending virtual interrupts */
+ 	DECLARE_BITMAP(irqs_pending, LGUEST_IRQS);
+ };
+@@ -150,8 +150,8 @@ void setup_default_idt_entries(struct lguest_ro_state *state,
+ 			       const unsigned long *def);
+ void copy_traps(const struct lguest *lg, struct desc_struct *idt,
+ 		const unsigned long *def);
+-void guest_set_clockevent(struct lguest *lg, unsigned long delta);
+-void init_clockdev(struct lguest *lg);
++void guest_set_clockevent(struct lguest_vcpu *vcpu, unsigned long delta);
++void init_clockdev(struct lguest_vcpu *vcpu);
+ bool check_syscall_vector(struct lguest *lg);
+ int init_interrupts(void);
+ void free_interrupts(void);
+diff --git a/drivers/lguest/lguest_user.c b/drivers/lguest/lguest_user.c
+index ae5bf4c..7481e82 100644
+--- a/drivers/lguest/lguest_user.c
++++ b/drivers/lguest/lguest_user.c
+@@ -97,6 +97,9 @@ static int vcpu_start(struct lguest_vcpu *vcpu, int vcpu_id,
  {
-+	struct lguest *lg = vcpu->lg;
- 	pte_t *switcher_pte_page = __get_cpu_var(switcher_pte_pages);
- 	pgd_t switcher_pgd;
- 	pte_t regs_pte;
-diff --git a/drivers/lguest/x86/core.c b/drivers/lguest/x86/core.c
-index 3d21c6d..9bf2213 100644
---- a/drivers/lguest/x86/core.c
-+++ b/drivers/lguest/x86/core.c
-@@ -92,7 +92,7 @@ static void copy_in_guest_info(struct lguest_vcpu *vcpu,
- 	pages->state.host_cr3 = __pa(current->mm->pgd);
- 	/* Set up the Guest's page tables to see this CPU's pages (and no
- 	 * other CPU's pages). */
--	map_switcher_in_guest(lg, pages);
-+	map_switcher_in_guest(vcpu, pages);
- 	/* Set up the two "TSS" members which tell the CPU what stack to use
- 	 * for traps which do directly into the Guest (ie. traps at privilege
- 	 * level 1). */
+ 	vcpu->vcpu_id = vcpu_id;
+ 
++	/* The timer for lguest's clock needs initialization. */
++	init_clockdev(vcpu);
++
+ 	vcpu->lg = container_of((vcpu - vcpu_id), struct lguest, vcpus[0]);
+ 	vcpu->lg->nr_vcpus++;
+ 
+@@ -176,9 +179,6 @@ static int initialize(struct file *file, const unsigned long __user *input)
+ 	 * address. */
+ 	lguest_arch_setup_regs(lg, args[3]);
+ 
+-	/* The timer for lguest's clock needs initialization. */
+-	init_clockdev(lg);
+-
+ 	/* We keep a pointer to the Launcher task (ie. current task) for when
+ 	 * other Guests want to wake this one (inter-Guest I/O). */
+ 	lg->tsk = current;
+@@ -269,6 +269,7 @@ static ssize_t write(struct file *file, const char __user *in,
+ static int close(struct inode *inode, struct file *file)
+ {
+ 	struct lguest *lg = file->private_data;
++	int i;
+ 
+ 	/* If we never successfully initialized, there's nothing to clean up */
+ 	if (!lg)
+@@ -277,8 +278,9 @@ static int close(struct inode *inode, struct file *file)
+ 	/* We need the big lock, to protect from inter-guest I/O and other
+ 	 * Launchers initializing guests. */
+ 	mutex_lock(&lguest_lock);
+-	/* Cancels the hrtimer set via LHCALL_SET_CLOCKEVENT. */
+-	hrtimer_cancel(&lg->hrt);
++	for (i = 0; i < lg->nr_vcpus; i++)
++		/* Cancels the hrtimer set via LHCALL_SET_CLOCKEVENT. */
++		hrtimer_cancel(&lg->vcpus[i].hrt);
+ 	/* Free up the shadow page tables for the Guest. */
+ 	free_guest_pagetable(lg);
+ 	/* Now all the memory cleanups are done, it's safe to release the
 -- 
 1.5.0.6
