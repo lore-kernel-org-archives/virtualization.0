@@ -1,8 +1,8 @@
 From: Dor Laor <dor.laor@gmail.com>
-Subject: [kvm-devel] [Virtio-for-kvm] [PATCH 9/13] [Mostly resend] virtio
+Subject: [kvm-devel] [Virtio-for-kvm] [PATCH 10/13] [Mostly resend] virtio
  additions
-Date: Fri, 21 Dec 2007 17:25:40 +0200
-Message-ID: <476BDAF4.2010304__912.575683514838$1198250896$gmane$org@qumranet.com>
+Date: Fri, 21 Dec 2007 17:26:08 +0200
+Message-ID: <476BDB10.7090006__22621.5250826955$1198250905$gmane$org@qumranet.com>
 Reply-To: dor.laor@qumranet.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -17,51 +17,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rus>
+To: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Rusty Russell <rusty@rustcorp.com.au>Anthony Liguori <a>
 List-Id: virtualization@lists.linuxfoundation.org
 
- From e761e0d22af833c9d0d48f191f38fc25f6a5f753 Mon Sep 17 00:00:00 2001
-From: Anthony Liguori <aliguori@us.ibm.com>
-Date: Fri, 21 Dec 2007 02:17:47 +0200
-Subject: [PATCH] Fix vring_init/vring_size to take unsigned long
+ From 7354db58f496b06369e57d9be87e9c84db087690 Mon Sep 17 00:00:00 2001
+From: Dor Laor <dor.laor@qumranet.com>
+Date: Wed, 12 Dec 2007 14:52:00 +0200
+Subject: [PATCH] Don't arm tx hrtimer with a constant 500us each transmit
 
-Using unsigned int resulted in silent truncation of the upper 32-bit on 
-x86_64
-resulting in an OOPS since the ring was being initialized wrong.
+The current start_xmit sets 500us hrtimer to kick the host.
+The problem is that if another xmit happens before the timer was fired then
+the first xmit will have to wait additional 500us.
+This patch does not re-arm the timer if there is existing one.
+This will shorten the latency for tx.
+It improves tx throughput by 20%
 
-Please reconsider my previous patch to just use PAGE_ALIGN().  Open 
-coding this
-sort of stuff, no matter how simple it seems, is just asking for this 
-sort of
-trouble.
-
-Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Dor Laor <dor.laor@qumranet.com>
 ---
- include/linux/virtio_ring.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/virtio_net.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 1a4ed49..5de09f9 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -89,7 +89,7 @@ struct vring {
-  * };
-  */
- static inline void vring_init(struct vring *vr, unsigned int num, void *p,
--                  unsigned int pagesize)
-+                  unsigned long pagesize)
- {
-     vr->num = num;
-     vr->desc = p;
-@@ -98,7 +98,7 @@ static inline void vring_init(struct vring *vr, 
-unsigned int num, void *p,
-                 & ~(pagesize - 1));
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 538cc37..0403d65 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -392,10 +392,10 @@ again:
+         vi->stats.sendq_kicks++;
+         vi->svq->vq_ops->kick(vi->svq);
+         vi->out_num = 0;
+-    } else {
+-        vi->stats.hrtimer_starts++;
+-        hrtimer_start(&vi->tx_timer, ktime_set(0,500000),
+-                  HRTIMER_MODE_REL);
++    } else if (!hrtimer_is_queued(&vi->tx_timer)) {
++                  vi->stats.hrtimer_starts++;
++                  hrtimer_start(&vi->tx_timer, ktime_set(0,500000),
++                                HRTIMER_MODE_REL);
+     }
+     return 0;
  }
- 
--static inline unsigned vring_size(unsigned int num, unsigned int pagesize)
-+static inline unsigned vring_size(unsigned int num, unsigned long pagesize)
- {
-     return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (2 + num)
-          + pagesize - 1) & ~(pagesize - 1))
 -- 
 1.5.3.3
