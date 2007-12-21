@@ -1,7 +1,7 @@
 From: Dor Laor <dor.laor@gmail.com>
-Subject: [Virtio-for-kvm] [PATCH 7/7] userspace virtio
-Date: Fri, 21 Dec 2007 16:46:01 +0200
-Message-ID: <476BD1A9.2040701__42281.9130392329$1198248468$gmane$org@qumranet.com>
+Subject: [Virtio-for-kvm] [PATCH 2/7] userspace virtio
+Date: Fri, 21 Dec 2007 16:43:33 +0200
+Message-ID: <476BD115.6060207__9448.55071506954$1198248960$gmane$org@qumranet.com>
 Reply-To: dor.laor@qumranet.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -19,260 +19,271 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rus>
 List-Id: virtualization@lists.linuxfoundation.org
 
- From f244bcad756c4f761627557bb7f315b1d8f22fb2 Mon Sep 17 00:00:00 2001
+ From 83e942e0c7634121243478fa2f4e3459b33d4a67 Mon Sep 17 00:00:00 2001
 From: Dor Laor <dor.laor@qumranet.com>
-Date: Thu, 20 Dec 2007 13:26:30 +0200
-Subject: [PATCH] [VIRTIO-NET] Rx performance improvement
- The current performance are not good enough, the problem lies
- in qemu tap handling code that caused to pass packets one at
- a time and also to copy them to a temporal buffer.
+Date: Wed, 19 Dec 2007 23:43:24 +0200
+Subject: [PATCH] virtio network device
 
-This patch prevents qemu handlers from reading the tap and instead
-it selects the tap descriptors for virtio devices.
-This eliminates copies and also batch guest notifications (interrupts).
+This patch implements the backend support for the virtio network 
+device.  The
+device is optimized for virtualized environments by limiting the number of
+guest=>host transitions per-packet.  In the best case, the number of
+transitions per-packet is < 1.
 
-Using this patch the rx performance reaches 800Mbps.
-The patch does not follow qemu's api since the intention is first to have
-a better io in kvm and then to polish it correctly.
+With some further optimizations, I have been able to obtain 1.5gbit/sec
+host=>guest with this driver (compared to the 90mbit/sec from the rtl8139
+card).  This requires additional patches not present in this series.
 
-Signed-off-by: Dor Laor <dor.laor@qumranet.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Avi Kivity <avi@qumranet.com>
+Cc: Dor Laor <dor.laor@qumranet.com>
 ---
- qemu/hw/pc.h         |    2 +-
- qemu/hw/virtio-net.c |  114 
-+++++++++++++++++++++++++++++++++++--------------
- qemu/sysemu.h        |    3 +
- qemu/vl.c            |   23 ++++++++++-
- 4 files changed, 107 insertions(+), 35 deletions(-)
+ qemu/Makefile.target |    2 +-
+ qemu/hw/pc.h         |    5 ++
+ qemu/hw/pci.c        |    5 +-
+ qemu/hw/virtio-net.c |  178 
+++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 188 insertions(+), 2 deletions(-)
+ create mode 100644 qemu/hw/virtio-net.c
 
+diff --git a/qemu/Makefile.target b/qemu/Makefile.target
+index 8b5853b..17ff6f2 100644
+--- a/qemu/Makefile.target
++++ b/qemu/Makefile.target
+@@ -464,7 +464,7 @@ VL_OBJS += rtl8139.o
+ VL_OBJS+= hypercall.o
+ 
+ # virtio devices
+-VL_OBJS += virtio.o
++VL_OBJS += virtio.o virtio-net.o
+ 
+ ifeq ($(TARGET_BASE_ARCH), i386)
+ # Hardware support
 diff --git a/qemu/hw/pc.h b/qemu/hw/pc.h
-index 95471f3..5d4c747 100644
+index beb711c..ce1a1f3 100644
 --- a/qemu/hw/pc.h
 +++ b/qemu/hw/pc.h
-@@ -145,7 +145,7 @@ void isa_ne2000_init(int base, qemu_irq irq, NICInfo 
-*nd);
- /* virtio-net.c */
+@@ -142,4 +142,9 @@ void pci_piix4_ide_init(PCIBus *bus, 
+BlockDriverState **hd_table, int devfn,
  
- void *virtio_net_init(PCIBus *bus, NICInfo *nd, int devfn);
--
-+void virtio_net_poll(void);
+ void isa_ne2000_init(int base, qemu_irq irq, NICInfo *nd);
  
- /* virtio-blk.h */
- void *virtio_blk_init(PCIBus *bus, uint16_t vendor, uint16_t device,
-diff --git a/qemu/hw/virtio-net.c b/qemu/hw/virtio-net.c
-index f6f1f28..b955a5e 100644
---- a/qemu/hw/virtio-net.c
-+++ b/qemu/hw/virtio-net.c
-@@ -60,8 +60,13 @@ typedef struct VirtIONet
-     VirtQueue *tx_vq;
-     VLANClientState *vc;
-     int can_receive;
-+    int tap_fd;
-+    struct VirtIONet *next;
-+    int do_notify;
- } VirtIONet;
- 
-+static VirtIONet *VirtIONetHead = NULL;
++/* virtio-net.c */
 +
- static VirtIONet *to_virtio_net(VirtIODevice *vdev)
- {
-     return (VirtIONet *)vdev;
-@@ -96,42 +101,81 @@ static int virtio_net_can_receive(void *opaque)
-     return (n->vdev.status & VIRTIO_CONFIG_S_DRIVER_OK) && n->can_receive;
- }
- 
--static void virtio_net_receive(void *opaque, const uint8_t *buf, int size)
-+void virtio_net_poll(void)
- {
--    VirtIONet *n = opaque;
-+    VirtIONet *vnet;
-+    int len;
-+    fd_set rfds;
-+    struct timeval tv;
-+    int max_fd = -1;
-     VirtQueueElement elem;
-     struct virtio_net_hdr *hdr;
--    int offset, i;
--
--    /* FIXME: the drivers really need to set their status better */
--    if (n->rx_vq->vring.avail == NULL) {
--    n->can_receive = 0;
--    return;
--    }
--
--    if (virtqueue_pop(n->rx_vq, &elem) == 0) {
--    /* wait until the guest adds some rx bufs */
--    n->can_receive = 0;
--    return;
--    }
--
--    hdr = (void *)elem.in_sg[0].iov_base;
--    hdr->flags = 0;
--    hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
--
--    /* copy in packet.  ugh */
--    offset = 0;
--    i = 1;
--    while (offset < size && i < elem.in_num) {
--    int len = MIN(elem.in_sg[i].iov_len, size - offset);
--    memcpy(elem.in_sg[i].iov_base, buf + offset, len);
--    offset += len;
--    i++;
--    }
-+    int did_notify;
++void *virtio_net_init(PCIBus *bus, NICInfo *nd, int devfn);
 +
-+    FD_ZERO(&rfds);
-+    tv.tv_sec = 0;
-+    tv.tv_usec = 0;
 +
-+    while (1) {
-+
-+         // Prepare the set of device to select from
-+        for (vnet = VirtIONetHead; vnet; vnet = vnet->next) {
-+
-+             vnet->do_notify = 0;
-+             //first check if the driver is ok
-+             if (!virtio_net_can_receive(vnet))
-+                 continue;
-+
-+             /* FIXME: the drivers really need to set their status 
-better */
-+             if (vnet->rx_vq->vring.avail == NULL) {
-+                vnet->can_receive = 0;
-+                continue;
-+             }
-+
-+             FD_SET(vnet->tap_fd, &rfds);
-+             if (max_fd < vnet->tap_fd) max_fd = vnet->tap_fd;
-+        }
-+       
-+        if (select(max_fd + 1, &rfds, NULL, NULL, &tv) <= 0)
-+            break;
-+
-+       // Now check who has data pending in the tap
-+        for (vnet = VirtIONetHead; vnet; vnet = vnet->next) {
-+
-+             if (!FD_ISSET(vnet->tap_fd, &rfds))
-+                 continue;
-+   
-+             if (virtqueue_pop(vnet->rx_vq, &elem) == 0) {
-+                vnet->can_receive = 0;
-+                 continue;
-+             }
-+
-+             hdr = (void *)elem.in_sg[0].iov_base;
-+             hdr->flags = 0;
-+             hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
-+again:
-+             len = readv(vnet->tap_fd, &elem.in_sg[1], elem.in_num - 1);
-+             if (len == -1)
-+                 if (errno == EINTR || errno == EAGAIN)
-+                     goto again;
-+                 else
-+                     fprintf(stderr, "reading network error %d", len);
-+
-+            virtqueue_push(vnet->rx_vq, &elem, sizeof(*hdr) + len);
-+            vnet->do_notify = 1;
-+        }
-+
-+        /* signal other side */
-+        did_notify = 0;
-+        for (vnet = VirtIONetHead; vnet; vnet = vnet->next)
-+            if (vnet->do_notify) {
-+                virtio_notify(&vnet->vdev, vnet->rx_vq);
-+                did_notify++;
-+            }
-+        if (!did_notify)
-+            break;
-+     }
- 
--    /* signal other side */
--    virtqueue_push(n->rx_vq, &elem, sizeof(*hdr) + offset);
--    virtio_notify(&n->vdev, n->rx_vq);
- }
- 
- /* TX */
-@@ -174,8 +218,12 @@ void *virtio_net_init(PCIBus *bus, NICInfo *nd, int 
-devfn)
-     n->tx_vq = virtio_add_queue(&n->vdev, 128, virtio_net_handle_tx);
-     n->can_receive = 0;
-     memcpy(n->mac, nd->macaddr, 6);
--    n->vc = qemu_new_vlan_client(nd->vlan, virtio_net_receive,
-+    n->vc = qemu_new_vlan_client(nd->vlan, NULL,
-                  virtio_net_can_receive, n);
-+    n->tap_fd = get_tap_fd(n->vc->vlan->first_client->opaque);
-+    n->next = VirtIONetHead;
-+    //push the device on top of the list
-+    VirtIONetHead = n;
- 
-     return &n->vdev;
- }
-diff --git a/qemu/sysemu.h b/qemu/sysemu.h
-index e20159d..4bedd11 100644
---- a/qemu/sysemu.h
-+++ b/qemu/sysemu.h
-@@ -66,6 +66,9 @@ void qemu_del_wait_object(HANDLE handle, 
-WaitObjectFunc *func, void *opaque);
- /* TAP win32 */
- int tap_win32_init(VLANState *vlan, const char *ifname);
- 
-+/* virtio hack for zero copy receive */
-+int get_tap_fd(void *opaque);
-+
- /* SLIRP */
- void do_info_slirp(void);
- 
-diff --git a/qemu/vl.c b/qemu/vl.c
-index 26055a4..eef602a 100644
---- a/qemu/vl.c
-+++ b/qemu/vl.c
-@@ -3885,8 +3885,26 @@ typedef struct TAPState {
-     VLANClientState *vc;
-     int fd;
-     char down_script[1024];
-+    int no_poll;
- } TAPState;
- 
-+int get_tap_fd(void *opaque)
-+{
-+    TAPState *s = opaque;
-+
-+    if (s) {
-+       s->no_poll = 1;
-+       return s->fd;
-+    }
-+    return -1;
-+}
-+
-+static int tap_read_poll(void *opaque)
-+{
-+   TAPState *s = opaque;
-+    return (!s->no_poll);
-+}
-+
- static void tap_receive(void *opaque, const uint8_t *buf, int size)
- {
-     TAPState *s = opaque;
-@@ -3930,9 +3948,10 @@ static TAPState *net_tap_fd_init(VLANState *vlan, 
-int fd)
-     if (!s)
-         return NULL;
-     s->fd = fd;
-+    s->no_poll = 0;
-     enable_sigio_timer(fd);
-     s->vc = qemu_new_vlan_client(vlan, tap_receive, NULL, s);
--    qemu_set_fd_handler(s->fd, tap_send, NULL, s);
-+    qemu_set_fd_handler2(s->fd, tap_read_poll, tap_send, NULL, s);
-     snprintf(s->vc->info_str, sizeof(s->vc->info_str), "tap: fd=%d", fd);
-     return s;
- }
-@@ -7717,6 +7736,8 @@ void main_loop_wait(int timeout)
-         slirp_select_poll(&rfds, &wfds, &xfds);
-     }
  #endif
-+    virtio_net_poll();
-+
-     qemu_aio_poll();
+diff --git a/qemu/hw/pci.c b/qemu/hw/pci.c
+index f8cbf1a..545901c 100644
+--- a/qemu/hw/pci.c
++++ b/qemu/hw/pci.c
+@@ -25,6 +25,7 @@
+ #include "pci.h"
+ #include "console.h"
+ #include "net.h"
++#include "pc.h"
  
-     if (vm_running) {
+ //#define DEBUG_PCI
+ 
+@@ -638,9 +639,11 @@ void pci_nic_init(PCIBus *bus, NICInfo *nd, int devfn)
+         pci_rtl8139_init(bus, nd, devfn);
+     } else if (strcmp(nd->model, "pcnet") == 0) {
+         pci_pcnet_init(bus, nd, devfn);
++    } else if (strcmp(nd->model, "virtio") == 0) {
++    virtio_net_init(bus, nd, devfn);
+     } else if (strcmp(nd->model, "?") == 0) {
+         fprintf(stderr, "qemu: Supported PCI NICs: i82551 i82557b i82559er"
+-                        " ne2k_pci pcnet rtl8139\n");
++                        " ne2k_pci pcnet rtl8139 virtio\n");
+         exit (1);
+     } else {
+         fprintf(stderr, "qemu: Unsupported NIC: %s\n", nd->model);
+diff --git a/qemu/hw/virtio-net.c b/qemu/hw/virtio-net.c
+new file mode 100644
+index 0000000..3320dd8
+--- /dev/null
++++ b/qemu/hw/virtio-net.c
+@@ -0,0 +1,178 @@
++/*
++ * Virtio Network Device
++ *
++ * Copyright IBM, Corp. 2007
++ *
++ * Authors:
++ *  Anthony Liguori   <aliguori@us.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2.  See
++ * the COPYING file in the top-level directory.
++ *
++ */
++
++#include "virtio.h"
++#include "net.h"
++#include "pc.h"
++
++/* from Linux's virtio_net.h */
++
++/* The ID for virtio_net */
++#define VIRTIO_ID_NET    1
++
++/* The feature bitmap for virtio net */
++#define VIRTIO_NET_F_NO_CSUM    0
++#define VIRTIO_NET_F_TSO4    1
++#define VIRTIO_NET_F_UFO    2
++#define VIRTIO_NET_F_TSO4_ECN    3
++#define VIRTIO_NET_F_TSO6    4
++#define VIRTIO_NET_F_MAC    5
++
++/* The config defining mac address (6 bytes) */
++struct virtio_net_config
++{
++    uint8_t mac[6];
++} __attribute__((packed));
++
++/* This is the first element of the scatter-gather list.  If you don't
++ * specify GSO or CSUM features, you can simply ignore the header. */
++struct virtio_net_hdr
++{
++#define VIRTIO_NET_HDR_F_NEEDS_CSUM    1    // Use csum_start, csum_offset
++    uint8_t flags;
++#define VIRTIO_NET_HDR_GSO_NONE        0    // Not a GSO frame
++#define VIRTIO_NET_HDR_GSO_TCPV4    1    // GSO frame, IPv4 TCP (TSO)
++/* FIXME: Do we need this?  If they said they can handle ECN, do they 
+care? */
++#define VIRTIO_NET_HDR_GSO_TCPV4_ECN    2    // GSO frame, IPv4 TCP w/ ECN
++#define VIRTIO_NET_HDR_GSO_UDP        3    // GSO frame, IPv4 UDP (UFO)
++#define VIRTIO_NET_HDR_GSO_TCPV6    4    // GSO frame, IPv6 TCP
++    uint8_t gso_type;
++    uint16_t gso_size;
++    uint16_t csum_start;
++    uint16_t csum_offset;
++};
++
++typedef struct VirtIONet
++{
++    VirtIODevice vdev;
++    uint8_t mac[6];
++    VirtQueue *rx_vq;
++    VirtQueue *tx_vq;
++    VLANClientState *vc;
++    int can_receive;
++} VirtIONet;
++
++static VirtIONet *to_virtio_net(VirtIODevice *vdev)
++{
++    return (VirtIONet *)vdev;
++}
++
++static void virtio_net_update_config(VirtIODevice *vdev, uint8_t *config)
++{
++    VirtIONet *n = to_virtio_net(vdev);
++    struct virtio_net_config netcfg;
++
++    memcpy(netcfg.mac, n->mac, 6);
++    memcpy(config, &netcfg, sizeof(netcfg));
++}
++
++static uint32_t virtio_net_get_features(VirtIODevice *vdev)
++{
++    return (1 << VIRTIO_NET_F_MAC);
++}
++
++/* RX */
++
++static void virtio_net_handle_rx(VirtIODevice *vdev, VirtQueue *vq)
++{
++    VirtIONet *n = to_virtio_net(vdev);
++    n->can_receive = 1;
++}
++
++static int virtio_net_can_receive(void *opaque)
++{
++    VirtIONet *n = opaque;
++
++    return (n->vdev.status & VIRTIO_CONFIG_S_DRIVER_OK) && n->can_receive;
++}
++
++static void virtio_net_receive(void *opaque, const uint8_t *buf, int size)
++{
++    VirtIONet *n = opaque;
++    VirtQueueElement elem;
++    struct virtio_net_hdr *hdr;
++    int offset, i;
++
++    /* FIXME: the drivers really need to set their status better */
++    if (n->rx_vq->vring.avail == NULL) {
++    n->can_receive = 0;
++    return;
++    }
++
++    if (virtqueue_pop(n->rx_vq, &elem) == 0) {
++    /* wait until the guest adds some rx bufs */
++    n->can_receive = 0;
++    return;
++    }
++
++    hdr = (void *)elem.in_sg[0].iov_base;
++    hdr->flags = 0;
++    hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
++
++    /* copy in packet.  ugh */
++    offset = 0;
++    i = 1;
++    while (offset < size && i < elem.in_num) {
++    int len = MIN(elem.in_sg[i].iov_len, size - offset);
++    memcpy(elem.in_sg[i].iov_base, buf + offset, len);
++    offset += len;
++    i++;
++    }
++
++    /* signal other side */
++    virtqueue_push(n->rx_vq, &elem, sizeof(*hdr) + offset);
++    virtio_notify(&n->vdev, n->rx_vq);
++}
++
++/* TX */
++static void virtio_net_handle_tx(VirtIODevice *vdev, VirtQueue *vq)
++{
++    VirtIONet *n = to_virtio_net(vdev);
++    VirtQueueElement elem;
++
++    while (virtqueue_pop(vq, &elem)) {
++    int i;
++    size_t len = 0;
++
++    /* ignore the header for now */
++    for (i = 1; i < elem.out_num; i++) {
++        qemu_send_packet(n->vc, elem.out_sg[i].iov_base,
++                 elem.out_sg[i].iov_len);
++        len += elem.out_sg[i].iov_len;
++    }
++
++    virtqueue_push(vq, &elem, sizeof(struct virtio_net_hdr) + len);
++    virtio_notify(&n->vdev, vq);
++    }
++}
++
++void *virtio_net_init(PCIBus *bus, NICInfo *nd, int devfn)
++{
++    VirtIONet *n;
++
++    n = (VirtIONet *)virtio_init_pci(bus, "virtio-net", 6900, 0x1000,
++                     0, VIRTIO_ID_NET,
++                     0x02, 0x00, 0x00,
++                     6, sizeof(VirtIONet));
++
++    n->vdev.update_config = virtio_net_update_config;
++    n->vdev.get_features = virtio_net_get_features;
++    n->rx_vq = virtio_add_queue(&n->vdev, 512, virtio_net_handle_rx);
++    n->tx_vq = virtio_add_queue(&n->vdev, 128, virtio_net_handle_tx);
++    n->can_receive = 0;
++    memcpy(n->mac, nd->macaddr, 6);
++    n->vc = qemu_new_vlan_client(nd->vlan, virtio_net_receive,
++                 virtio_net_can_receive, n);
++
++    return &n->vdev;
++}
 -- 
 1.5.3.3
