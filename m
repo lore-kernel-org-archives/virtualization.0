@@ -1,13 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [Xen-devel] Re: Next steps with pv_ops for Xen
-Date: Fri, 21 Dec 2007 13:58:27 +0100
-Message-ID: <476BB873.1080100__15036.1005719335$1198242035$gmane$org@redhat.com>
-References: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
+From: Dor Laor <dor.laor@gmail.com>
+Subject: [Virtio-for-kvm] [PATCH 0/7] userspace virtio
+Date: Fri, 21 Dec 2007 16:42:44 +0200
+Message-ID: <476BD0E4.3040509__40124.5714318522$1198248297$gmane$org@qumranet.com>
+Reply-To: dor.laor@qumranet.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,29 +16,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dgm36@cam.ac.uk
-Cc: xen-devel@lists.xensource.com, 'Eduardo Habkost' <ehabkost@redhat.com>, 'Juan Quintela' <quintela@redhat.com>, 'Jan Beulich' <jbeulich@novell.com>, 'Glauber de Oliveira Costa' <gcosta@redhat.com>, 'Chris Wright' <chrisw@sous-sol.org>, virtualization@lists.osdl.org, 'Mark Williamson' <mark.williamson@cl.cam.ac.uk>
+To: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rus>
 List-Id: virtualization@lists.linuxfoundation.org
 
-D.G. Murray wrote:
-> Hi Mark, 
-> void *xc_gnttab_map_grant_refs(int xcg_handle,
->                                uint32_t count,
->                                uint32_t *domids,
->                                uint32_t *refs,
->                                int prot); 
+This patchset updates kvm repository with Anthony's virtio 
+implementation along
+with rx performance improvements and guest reset handling.
+The original code was sent to qemu devel list 2 weeks ago.
+It contains support for network & block devices.
 
-Fedora 8 has 3.1.2 packages now, still doesn't work for me though.
+Using the performance improvement I was able to do 800Mbps for rx/tx.
+The performance improvement are not implemented in a qemu standard code but
+the intention is to first let the community have decent performance with 
+a merged virtio and
+afterwards do the polishing (there is dma support on the way for qemu).
 
-Bored at xmas?  Want try fixing it?  Fetch xenner 0.15 from
-http://dl.bytesex.org/releases/xenner/, build ("make blkbackd"), run it
-as drop-in replacement for blktap.  You have to pass the "-b" switch to
-make it try batching grant maps.  Code is in ioreq_map(), blkbackd.c.
-
-Oh, and I think the limit should better be raised.  32 requests with up
-to 11 sectors each sums up to 352 pages.  Which is way beyound the
-current 128 grants limit, so it may fail under heavy I/O load.
-
-cheers and happy xmas,
-
-  Gerd
+Enjoy [with the courtesy of Anthony & Rusty],
+Dor
