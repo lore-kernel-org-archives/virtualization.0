@@ -1,21 +1,13 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 13/15] move patching code to arch-specific file.
-Date: Thu, 20 Dec 2007 22:26:51 +0100
-Message-ID: <20071220212651.GA11897__35253.6552156836$1198186259$gmane$org@elte.hu>
-References: <11981812771615-git-send-email-gcosta@redhat.com>
-	<1198181309285-git-send-email-gcosta@redhat.com>
-	<11981813192341-git-send-email-gcosta@redhat.com>
-	<11981813292926-git-send-email-gcosta@redhat.com>
-	<11981813384090-git-send-email-gcosta@redhat.com>
-	<1198181348746-git-send-email-gcosta@redhat.com>
-	<11981813592589-git-send-email-gcosta@redhat.com>
-	<20071220203148.GA20826@elte.hu> <20071220203312.GA21251@elte.hu>
-	<5d6222a80712201322t46591ce2n5cf3248aa2e1dd26@mail.gmail.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [Xen-devel] Re: Next steps with pv_ops for Xen
+Date: Fri, 21 Dec 2007 13:58:27 +0100
+Message-ID: <476BB873.1080100__15036.1005719335$1198242035$gmane$org@redhat.com>
+References: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5d6222a80712201322t46591ce2n5cf3248aa2e1dd26@mail.gmail.com>
+In-Reply-To: <000001c835db$72d9de90$ddf4e880@pwfad.pwf.private.cam.ac.uk>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,26 +17,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <glommer@gmail.com>
-Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
+To: dgm36@cam.ac.uk
+Cc: xen-devel@lists.xensource.com, 'Eduardo Habkost' <ehabkost@redhat.com>, 'Juan Quintela' <quintela@redhat.com>, 'Jan Beulich' <jbeulich@novell.com>, 'Glauber de Oliveira Costa' <gcosta@redhat.com>, 'Chris Wright' <chrisw@sous-sol.org>, virtualization@lists.osdl.org, 'Mark Williamson' <mark.williamson@cl.cam.ac.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
+D.G. Murray wrote:
+> Hi Mark, 
+> void *xc_gnttab_map_grant_refs(int xcg_handle,
+>                                uint32_t count,
+>                                uint32_t *domids,
+>                                uint32_t *refs,
+>                                int prot); 
 
-* Glauber de Oliveira Costa <glommer@gmail.com> wrote:
+Fedora 8 has 3.1.2 packages now, still doesn't work for me though.
 
-> > > make[1]: *** No rule to make target
-> > >  `arch/x86/kernel/paravirt_patch_32.o', needed by
-> > >  `arch/x86/kernel/built-in.o'.  Stop.
-> >
-> > if it's just that single missing file then please send me a patch that
-> > adds that file and i'll add it to this patch. (instead of resending the
-> > whole series)
-> 
-> Yeah, I must have forgotten to git-add it. It was building here fine, 
-> because I clearly have the file locally ;-)
-> 
-> I'm attaching a new patch that replaces just this one.
+Bored at xmas?  Want try fixing it?  Fetch xenner 0.15 from
+http://dl.bytesex.org/releases/xenner/, build ("make blkbackd"), run it
+as drop-in replacement for blktap.  You have to pass the "-b" switch to
+make it try batching grant maps.  Code is in ioreq_map(), blkbackd.c.
 
-thanks, this did the trick, it builds fine now.
+Oh, and I think the limit should better be raised.  32 requests with up
+to 11 sectors each sums up to 352 pages.  Which is way beyound the
+current 128 grants limit, so it may fail under heavy I/O load.
 
-	Ingo
+cheers and happy xmas,
+
+  Gerd
