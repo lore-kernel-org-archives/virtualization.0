@@ -1,16 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 02/16] adapt lguest launcher to per-cpuness
-Date: Wed, 26 Dec 2007 10:35:46 +1100
-Message-ID: <200712261035.46939.rusty__22403.9937289946$1198625846$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH 04/16] per-cpu run guest
+Date: Wed, 26 Dec 2007 10:38:45 +1100
+Message-ID: <200712261038.46376.rusty__46563.6904155419$1198626123$gmane$org@rustcorp.com.au>
 References: <11981576363806-git-send-email-gcosta@redhat.com>
-	<11981576442148-git-send-email-gcosta@redhat.com>
-	<11981576492807-git-send-email-gcosta@redhat.com>
+	<1198157654189-git-send-email-gcosta@redhat.com>
+	<11981576581695-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11981576492807-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11981576581695-git-send-email-gcosta@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,18 +25,22 @@ To: Glauber de Oliveira Costa <gcosta@redhat.com>
 Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 21 December 2007 00:33:42 Glauber de Oliveira Costa wrote:
-> +		if (!vcpu_id) {
-> +			/*
-> +			 * Service input, then unset the BREAK to
-> +			 * release the Waker.
-> +			 */
-> +			handle_input(lguest_fd);
-> +			if (pwrite(lguest_fd, args, sizeof(args), 0) < 0)
-> +				err(1, "Resetting break");
-> +		}
+On Friday 21 December 2007 00:33:44 Glauber de Oliveira Costa wrote:
+> @@ -55,11 +55,15 @@ static int user_send_irq(struct lguest *lg, const
+> unsigned long __user *input) static ssize_t read(struct file *file, char
+> __user *user, size_t size,loff_t*o) {
+>  	struct lguest *lg = file->private_data;
+> +	struct lguest_vcpu *vcpu = NULL;
+> +	unsigned int vcpu_id = *o;
+>
+>  	/* You must write LHREQ_INITIALIZE first! */
+>  	if (!lg)
+>  		return -EINVAL;
+>
+> +	vcpu = &lg->vcpus[vcpu_id];
+> +
 
-I hate winged comments: those two extra lines, wasted!
+Better do a bounds check here!
 
 Cheers,
 Rusty.
