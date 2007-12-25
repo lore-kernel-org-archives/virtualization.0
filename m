@@ -1,16 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 04/16] per-cpu run guest
-Date: Wed, 26 Dec 2007 10:38:45 +1100
-Message-ID: <200712261038.46376.rusty__46563.6904155419$1198626123$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH 05/16] make write() operation smp aware
+Date: Wed, 26 Dec 2007 10:40:24 +1100
+Message-ID: <200712261040.24771.rusty__28331.3149623156$1198626137$gmane$org@rustcorp.com.au>
 References: <11981576363806-git-send-email-gcosta@redhat.com>
-	<1198157654189-git-send-email-gcosta@redhat.com>
 	<11981576581695-git-send-email-gcosta@redhat.com>
+	<11981576632726-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11981576581695-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11981576632726-git-send-email-gcosta@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,22 +25,23 @@ To: Glauber de Oliveira Costa <gcosta@redhat.com>
 Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 21 December 2007 00:33:44 Glauber de Oliveira Costa wrote:
-> @@ -55,11 +55,15 @@ static int user_send_irq(struct lguest *lg, const
-> unsigned long __user *input) static ssize_t read(struct file *file, char
-> __user *user, size_t size,loff_t*o) {
->  	struct lguest *lg = file->private_data;
-> +	struct lguest_vcpu *vcpu = NULL;
-> +	unsigned int vcpu_id = *o;
->
->  	/* You must write LHREQ_INITIALIZE first! */
->  	if (!lg)
->  		return -EINVAL;
->
-> +	vcpu = &lg->vcpus[vcpu_id];
-> +
+On Friday 21 December 2007 00:33:45 Glauber de Oliveira Costa wrote:
+> --- a/drivers/lguest/lguest_user.c
+> +++ b/drivers/lguest/lguest_user.c
+> @@ -223,14 +223,21 @@ static ssize_t write(struct file *file, const char
+...
+>  	/* If you haven't initialized, you must do that first. */
+> -	if (req != LHREQ_INITIALIZE && !lg)
+> -		return -EINVAL;
+> +	if (req != LHREQ_INITIALIZE) {
+> +		if (!lg)
+> +			return -EINVAL;
+> +		vcpu = &lg->vcpus[vcpu_id];
+> +		if (!vcpu)
+> +			return -EINVAL;
+> +	}
 
-Better do a bounds check here!
+Bounds check again...
 
 Cheers,
 Rusty.
