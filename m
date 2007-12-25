@@ -1,16 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 05/16] make write() operation smp aware
-Date: Wed, 26 Dec 2007 10:40:24 +1100
-Message-ID: <200712261040.24771.rusty__28331.3149623156$1198626137$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH 09/16] map_switcher_in_guest() per-vcpu
+Date: Wed, 26 Dec 2007 10:47:35 +1100
+Message-ID: <200712261047.35810.rusty__49129.5293359601$1198626548$gmane$org@rustcorp.com.au>
 References: <11981576363806-git-send-email-gcosta@redhat.com>
-	<11981576581695-git-send-email-gcosta@redhat.com>
-	<11981576632726-git-send-email-gcosta@redhat.com>
+	<1198157678759-git-send-email-gcosta@redhat.com>
+	<11981576833314-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11981576632726-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11981576833314-git-send-email-gcosta@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,23 +25,14 @@ To: Glauber de Oliveira Costa <gcosta@redhat.com>
 Cc: lguest@ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 21 December 2007 00:33:45 Glauber de Oliveira Costa wrote:
-> --- a/drivers/lguest/lguest_user.c
-> +++ b/drivers/lguest/lguest_user.c
-> @@ -223,14 +223,21 @@ static ssize_t write(struct file *file, const char
-...
->  	/* If you haven't initialized, you must do that first. */
-> -	if (req != LHREQ_INITIALIZE && !lg)
-> -		return -EINVAL;
-> +	if (req != LHREQ_INITIALIZE) {
-> +		if (!lg)
-> +			return -EINVAL;
-> +		vcpu = &lg->vcpus[vcpu_id];
-> +		if (!vcpu)
-> +			return -EINVAL;
-> +	}
+On Friday 21 December 2007 00:33:49 Glauber de Oliveira Costa wrote:
+> The switcher needs to be mapped per-vcpu, because different vcpus
+> will potentially have different page tables (they don't have to,
+> because threads will share the same).
+>
+> So our first step is the make the function receive a vcpu struct
 
-Bounds check again...
+Hmm, I wonder if we should call it lg_vcpu: lguest_vcpu is a little long, and 
+in total adds a fair number of lines to the code :)
 
-Cheers,
 Rusty.
