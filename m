@@ -1,17 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio_net and SMP guests
-Date: Wed, 26 Dec 2007 11:48:12 +1100
-Message-ID: <200712261148.12628.rusty__45390.9893324182$1198630220$gmane$org@rustcorp.com.au>
-References: <200712141312.05562.borntraeger@de.ibm.com>
-	<200712241154.20885.rusty@rustcorp.com.au>
-	<4770F60D.4010904@qumranet.com>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH 02/16] adapt lguest launcher to per-cpuness
+Date: Wed, 26 Dec 2007 09:24:10 -0500 (EST)
+Message-ID: <Pine.LNX.4.58.0712260915090.28862__20151.8407477581$1198679209$gmane$org@gandalf.stny.rr.com>
+References: <11981576363806-git-send-email-gcosta@redhat.com>
+	<11981576442148-git-send-email-gcosta@redhat.com>
+	<11981576492807-git-send-email-gcosta@redhat.com>
+	<200712261035.46939.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4770F60D.4010904@qumranet.com>
-Content-Disposition: inline
+In-Reply-To: <200712261035.46939.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,19 +19,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dor.laor@qumranet.com
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lguest@ozlabs.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 25 December 2007 23:22:37 Dor Laor wrote:
-> btw: I checked your Linux tree and found it a bit old, there was no tx
-> coalescing timer, it's probably good
-> for 2.6.24. Do you plan to post patchset for 25 windows?
-> Thanks,
-> Dor
 
-Hmm, should be updated now.  Will be pushing all these virtio patches for 
-2.6.25...
+On Wed, 26 Dec 2007, Rusty Russell wrote:
 
-Cheers,
-Rusty.
+> On Friday 21 December 2007 00:33:42 Glauber de Oliveira Costa wrote:
+> > +		if (!vcpu_id) {
+> > +			/*
+> > +			 * Service input, then unset the BREAK to
+> > +			 * release the Waker.
+> > +			 */
+> > +			handle_input(lguest_fd);
+> > +			if (pwrite(lguest_fd, args, sizeof(args), 0) < 0)
+> > +				err(1, "Resetting break");
+> > +		}
+>
+> I hate winged comments: those two extra lines, wasted!
+>
+
+For multiple lines, wings are a Good Thing (TM). Otherwise it looks
+sloppy.
+
+  /* Service input, then unset the BREAK to
+   * release the Waker. */
+
+extra asterisk! ok then
+
+  /* Service input, then unset the BREAK to
+     release the Waker. */
+
+Yuck, that "release" looks like it can be code, especially with parsers
+that look for comments that start with some sort of /* or *
+
+Those little wings do IMHO make the code look nicer. I know in the Linux
+community, my weight compared to you is a chihuahua compared to a
+St. Bernard.  But in this case, I believe others think that my collar is
+prettier than yours. ;-)
+
+Some one buy Rusty a bigger hard-drive to store those extra lines.
+
+-- Steve
