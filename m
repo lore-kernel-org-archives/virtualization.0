@@ -1,14 +1,14 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Xen paravirt frontend block hang
-Date: Fri, 28 Dec 2007 22:00:56 -0800
-Message-ID: <4775E298.2000505@goop.org>
-References: <4772AC8E.7010007@theshore.net> <47758352.5040504@goop.org>
-	<47759EFD.5050101@theshore.net>
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 1/2] remove __init modifier from header declaration
+Date: Mon, 31 Dec 2007 19:46:24 +0300
+Message-ID: <20071231164624.GA1738__16894.0603304238$1199121991$gmane$org@martell.zuzino.mipt.ru>
+References: <11979967763153-git-send-email-gcosta@redhat.com>
+	<20071219101236.GB3521@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47759EFD.5050101@theshore.net>
+Content-Disposition: inline
+In-Reply-To: <20071219101236.GB3521@elte.hu>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,28 +18,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Christopher S. Aker" <caker@theshore.net>
-Cc: virtualization@lists.linux-foundation.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christopher S. Aker wrote:
-> Jeremy Fitzhardinge wrote:
->> I'll try to track this down asap.  Have you tried any other kernel
->> versions?  In other words, did it just start happening, or its always
->> done it?  Also, could you try 2.6.24-rc6, just to make sure it hasn't
->> already been fixed (which is possible if its something that happened in
->> a higher layer or something).
->
-> I've only just recently started using the paravirt_ops kernels, but
-> all the ones I've tried have exhibited the problem, so I'm not sure
-> when the hang was introduced.  It doesn't happen with a xensource
-> 2.6.18 tree domU.
->
-> 2.6.23.8, 2.6.23.12, and 2.6.24-rc6 <-- pv_ops kernels I've tried that
-> have the hang.
+On Wed, Dec 19, 2007 at 11:12:36AM +0100, Ingo Molnar wrote:
+> * Glauber de Oliveira Costa <gcosta@redhat.com> wrote:
+> 
+> > This patch removes the __init modifier from an extern function 
+> > declaration in acpi.h.
+> > 
+> > Besides not being strictly needed, it requires the inclusion of 
+> > linux/init.h, which is usually not even included directly, increasing 
+> > header mess by a lot.
+> 
+> thanks, applied.
+> 
+> btw., people have been talking about reducing the include file mess for 
+> nearly a decade now,
 
-Yeah, its all fairly new code.  But the pvops blockfront shouldn't have
-any functional differences from the 2.6.18 version of the driver, so
-something seems to have got broken along the way.
+Some of us are actually doing it. ;-)
 
-    J
+> but it didnt get that much better - at least not in 
+> include/asm-x86/*.h.
+
+That's because hunting in include/linux/ is much more fruitful -- it
+decreases amount of code after preprocessing for everyone. Below are
+allyesconfig on x86_64 results for some kernels:
+
+	$ wc ../*.i
+	   79018171   229433654  2049266884 ../2.6.18.i
+	   86568111   250674099  2245115663 ../2.6.19.i
+	   85187296   247470579  2221334183 ../2.6.20.i		<===
+	   88645422   242396928  2234855428 ../2.6.21.i
+	   93897302   257990496  2377174442 ../2.6.22.i
+	   98381373   268683402  2486321956 ../2.6.23.i
+
+E.g. we can have ~1.07% decrease in cpp output despite ~126000 lines
+added between .19 and .20.
+
+> So include file dependency flattening patches would 
+> be more than welcome as well.
+
+Yup! Provided they're compile-tested sufficiently well.
+
+> (and unlike unification patches they have 
+> no expectation of being 100% perfect, so a natural ping-pong of fixes, 
+> until the changes are fully correct, would be natural.)
+
+That way you'll never clean anything especially during merge window. ;-)
