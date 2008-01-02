@@ -1,8 +1,10 @@
 From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: [PATCH 1/3] Make virtio modules GPL
-Date: Wed,  2 Jan 2008 15:01:32 -0600
-Message-ID: <1199307694277-git-send-email-aliguori__2333.26317179507$1199307849$gmane$org@us.ibm.com>
+Subject: [PATCH 3/3] Use Qumranet donated PCI vendor/device IDs
+Date: Wed,  2 Jan 2008 15:01:34 -0600
+Message-ID: <11993076953191-git-send-email-aliguori__5120.77882090143$1199307864$gmane$org@us.ibm.com>
+References: <1199307694277-git-send-email-aliguori@us.ibm.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1199307694277-git-send-email-aliguori@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -13,65 +15,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: kvm-devel@lists.sourceforge.net, Dor Laor <dor.laor@qumranet.com>
+Cc: kvm-devel@lists.sourceforge.net, Anthony Liguori <aliguori@us.ibm.com>, Dor Laor <dor.laor@qumranet.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtio modules do not advertise themselves as GPL but rely on exported
-GPL symbols.  This makes them unloadable as modules.
+Qumranet was kind enough to donate a set of vendor/device IDs for virtio
+devices.  This patch switches over to using them instead of an unreserved
+vendor ID.
 
-This patch adds the appropriate MODULE_LICENSE().
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 
-Signed-off: Anthony Liguori <aliguori@us.ibm.com>
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 54a8017..8f6040d 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -8,6 +8,8 @@
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index f8df571..36b810d 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -64,7 +64,8 @@ struct virtio_pci_vq_info
  
- #define VIRTIO_MAX_SG	(3+MAX_PHYS_SEGMENTS)
- 
-+MODULE_LICENSE("GPL");
-+
- static unsigned char virtblk_index = 'a';
- struct virtio_blk
- {
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index ebe4b03..9789e68 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -28,6 +28,8 @@
- static int napi_weight = 128;
- module_param(napi_weight, int, 0444);
- 
-+MODULE_LICENSE("GPL");
-+
- /* FIXME: MTU in config. */
- #define MAX_PACKET_LEN (ETH_HLEN+ETH_DATA_LEN)
- 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 646f716..6e27c08 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -2,6 +2,8 @@
- #include <linux/spinlock.h>
- #include <linux/virtio_config.h>
- 
-+MODULE_LICENSE("GPL");
-+
- static ssize_t device_show(struct device *_d,
- 			   struct device_attribute *attr, char *buf)
- {
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 951e4c7..15ee2fa 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -20,6 +20,8 @@
- #include <linux/virtio_ring.h>
- #include <linux/device.h>
- 
-+MODULE_LICENSE("GPL");
-+
- #ifdef DEBUG
- /* For development, we want to crash whenever the ring is screwed. */
- #define BAD_RING(vq, fmt...)			\
+ /* We have to enumerate here all virtio PCI devices. */
+ static struct pci_device_id virtio_pci_id_table[] = {
+-	{ 0x5002, 0x2258, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* Dummy entry */
++	{ 0x1af4, 0x1000, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* virtio net */
++	{ 0x1af4, 0x1001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* virtio blk */
+ 	{ 0 },
+ };
