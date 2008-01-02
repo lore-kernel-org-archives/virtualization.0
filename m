@@ -1,13 +1,10 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [Virtio-for-kvm] [PATCH 7/7] userspace virtio
-Date: Wed, 02 Jan 2008 19:22:27 +0200
-Message-ID: <477BC853.405__28014.2916054048$1199294776$gmane$org@qumranet.com>
-References: <476BD1A9.2040701@qumranet.com> <477BB5D2.6010304@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: [PATCH 2/3] Make virtio_pci license be GPL2+
+Date: Wed,  2 Jan 2008 15:01:33 -0600
+Message-ID: <11993076943581-git-send-email-aliguori@us.ibm.com>
+References: <1199307694277-git-send-email-aliguori@us.ibm.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <477BB5D2.6010304@us.ibm.com>
+In-Reply-To: <1199307694277-git-send-email-aliguori@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,28 +14,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, dor.laor@qumranet.com, virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
+Cc: kvm-devel@lists.sourceforge.net, Anthony Liguori <aliguori@us.ibm.com>, Dor Laor <dor.laor@qumranet.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> I think we should hold off on this sort of patch at first.  I know it 
-> improves performance, but it's very hack-ish.  I have a similar patch[1] 
-> that improves performance more but is even more hack-ish.
->
-> I think we have to approach this by not special cases virtio-net to know 
-> about the tap fd, but to figure out the interface that virtio-net would 
-> need to be efficient, and then refactor the net interface to look like 
-> that.  Then we can still support user, pcap, and the other network 
-> transports.
->
-> [1] http://hg.codemonkey.ws/qemu-virtio/file/75cefe566cea/aio-net.diff
->   
+This patch changes the virtio_pci license to be GPL2 or later.
 
-While you are right in principle, high performance networking is long 
-overdue in kvm so I applied that patch.  Once a mega async dma framework 
-is added to qemu, we'll just revert that patch prior to adding the glue 
-to said framework.
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 
--- 
-error compiling committee.c: too many arguments to function
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 45ff193..f8df571 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -9,8 +9,8 @@
+  * Authors:
+  *  Anthony Liguori  <aliguori@us.ibm.com>
+  *
+- * This work is licensed under the terms of the GNU GPL, version 2.  See
+- * the COPYING file in the top-level directory.
++ * This work is licensed under the terms of the GNU GPL, version 2 or later.
++ * See the COPYING file in the top-level directory.
+  *
+  */
+ 
+diff --git a/include/linux/virtio_pci.h b/include/linux/virtio_pci.h
+index 4b28409..82f22cd 100644
+--- a/include/linux/virtio_pci.h
++++ b/include/linux/virtio_pci.h
+@@ -9,8 +9,8 @@
+  * Authors:
+  *  Anthony Liguori  <aliguori@us.ibm.com>
+  *
+- * This work is licensed under the terms of the GNU GPL, version 2.  See
+- * the COPYING file in the top-level directory.
++ * This work is licensed under the terms of the GNU GPL, version 2 or later.
++ * See the COPYING file in the top-level directory.
+  *
+  */
