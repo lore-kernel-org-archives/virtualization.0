@@ -1,15 +1,14 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [RFC PATCH 01/11] Add basic support for gcc profiler
-	instrumentation
-Date: Thu, 3 Jan 2008 08:58:51 -0500 (EST)
-Message-ID: <Pine.LNX.4.58.0801030849180.1468__34736.3073881299$1199369007$gmane$org@gandalf.stny.rr.com>
-References: <20080103071609.478486470@goodmis.org>
-	<20080103072226.776141236@goodmis.org>
-	<20080103092104.GE10813@elte.hu>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: [kvm-devel] [PATCH 1/3] Make virtio modules GPL
+Date: Thu, 03 Jan 2008 09:13:15 -0600
+Message-ID: <477CFB8B.6060204__23281.739842105$1199373618$gmane$org@us.ibm.com>
+References: <1199307694277-git-send-email-aliguori@us.ibm.com>
+	<10EA09EFD8728347A513008B6B0DA77A02976D62@pdsmsx411.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080103092104.GE10813@elte.hu>
+In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A02976D62@pdsmsx411.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,43 +18,103 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@sous-sol.org>, Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Gregory Haskins <ghaskins@novell.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Steven Rostedt <srostedt@redhat.com>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, "William L. Irwin" <sparclinux@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: "Dong, Eddie" <eddie.dong@intel.com>
+Cc: kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Dong, Eddie wrote:
+> Curuious: should we consider it to be dual licensed from beginning?
+>  =20
 
-[Added Chris Wright, Rusty and Virt list because they were involved with
-this issue before]
+AFAIK, they are GPLv2+. I think Rusty was talking about dual licensing
+the headers. He'll have to comment on that though.
 
-On Thu, 3 Jan 2008, Ingo Molnar wrote:
+Regards,
 
+Anthony Liguori
+
+> thx,eddie
 >
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> > +# function tracing might turn this off:
-> > +config REGPARM
-> > +	bool
-> > +	depends on !MCOUNT
-> > +	default y
->
-> are you sure -pg really needs this?
-
-Nope! Arnaldo and I only carried it because you had it ;-)
-
-> I just carried this along the years
-> and went the path of least resistence, but we should not be
-> reintroducing the !REGPARM build mode for the kernel. I'd not be
-> surprised if there were a few issues with REGPARM + mcount, but we have
-> to figure it out before merging ...
-
-Hmm, I know paravirt-ops had an issue with mcount in the RT tree. I can't
-remember the exact issues, but it did have something to do with the way
-parameters were passed in.
-
-Chris, do you remember what the issues were?
-
-I'm also thinking that this is only an i386 issue.
-
-Thanks,
-
--- Steve
+>  =20
+>> -----Original Message-----
+>> From: kvm-devel-bounces@lists.sourceforge.net=20
+>> [mailto:kvm-devel-bounces@lists.sourceforge.net] On Behalf Of=20
+>> Anthony Liguori
+>> Sent: 2008=C4=EA1=D4=C23=C8=D5 5:02
+>> To: virtualization@lists.linux-foundation.org
+>> Cc: kvm-devel@lists.sourceforge.net
+>> Subject: [kvm-devel] [PATCH 1/3] Make virtio modules GPL
+>>
+>> The virtio modules do not advertise themselves as GPL but rely=20
+>> on exported
+>> GPL symbols.  This makes them unloadable as modules.
+>>
+>> This patch adds the appropriate MODULE_LICENSE().
+>>
+>> Signed-off: Anthony Liguori <aliguori@us.ibm.com>
+>>
+>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>> index 54a8017..8f6040d 100644
+>> --- a/drivers/block/virtio_blk.c
+>> +++ b/drivers/block/virtio_blk.c
+>> @@ -8,6 +8,8 @@
+>>
+>> #define VIRTIO_MAX_SG	(3+MAX_PHYS_SEGMENTS)
+>>
+>> +MODULE_LICENSE("GPL");
+>> +
+>> static unsigned char virtblk_index =3D 'a';
+>> struct virtio_blk
+>> {
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index ebe4b03..9789e68 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -28,6 +28,8 @@
+>> static int napi_weight =3D 128;
+>> module_param(napi_weight, int, 0444);
+>>
+>> +MODULE_LICENSE("GPL");
+>> +
+>> /* FIXME: MTU in config. */
+>> #define MAX_PACKET_LEN (ETH_HLEN+ETH_DATA_LEN)
+>>
+>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+>> index 646f716..6e27c08 100644
+>> --- a/drivers/virtio/virtio.c
+>> +++ b/drivers/virtio/virtio.c
+>> @@ -2,6 +2,8 @@
+>> #include <linux/spinlock.h>
+>> #include <linux/virtio_config.h>
+>>
+>> +MODULE_LICENSE("GPL");
+>> +
+>> static ssize_t device_show(struct device *_d,
+>> 			   struct device_attribute *attr, char *buf)
+>> {
+>> diff --git a/drivers/virtio/virtio_ring.c=20
+>> b/drivers/virtio/virtio_ring.c
+>> index 951e4c7..15ee2fa 100644
+>> --- a/drivers/virtio/virtio_ring.c
+>> +++ b/drivers/virtio/virtio_ring.c
+>> @@ -20,6 +20,8 @@
+>> #include <linux/virtio_ring.h>
+>> #include <linux/device.h>
+>>
+>> +MODULE_LICENSE("GPL");
+>> +
+>> #ifdef DEBUG
+>> /* For development, we want to crash whenever the ring is screwed. */
+>> #define BAD_RING(vq, fmt...)			\
+>>
+>> ---------------------------------------------------------------
+>> ----------
+>> This SF.net email is sponsored by: Microsoft
+>> Defy all challenges. Microsoft(R) Visual Studio 2005.
+>> http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
+>> _______________________________________________
+>> kvm-devel mailing list
+>> kvm-devel@lists.sourceforge.net
+>> https://lists.sourceforge.net/lists/listinfo/kvm-devel
+>>
+>>    =20
