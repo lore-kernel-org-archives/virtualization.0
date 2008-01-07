@@ -1,13 +1,12 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 03/16] initialize vcpu
-Date: Mon,  7 Jan 2008 11:05:24 -0200
-Message-ID: <11997111523234-git-send-email-gcosta__35929.628116037$1199711645$gmane$org@redhat.com>
+Subject: [PATCH 02/16] adapt lguest launcher to per-cpuness
+Date: Mon,  7 Jan 2008 11:05:23 -0200
+Message-ID: <11997111481113-git-send-email-gcosta__122.149595017795$1199711680$gmane$org@redhat.com>
 References: 11981576363806-git-send-email-gcosta@redhat.com
 	<1199711137195-git-send-email-gcosta@redhat.com>
 	<11997111432356-git-send-email-gcosta@redhat.com>
-	<11997111481113-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11997111481113-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11997111432356-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,53 +20,83 @@ To: lguest@ozlabs.org
 Cc: linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-this patch initializes the first vcpu in the initialize() routing,
-which is responsible for starting the process of putting the guest up.
-right now, as much of the fields are still not per-vcpu, it does not
-do much.
+This patch makes uses of pread() and pwrite() in lguest launcher
+to communicate the vcpu id to the lguest driver. The id is kept in
+a thread variable, which means we'll span in the future, vcpus as
+threads. But right now, only the infrastructure is out there.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- drivers/lguest/lguest_user.c |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+), 0 deletions(-)
+ Documentation/lguest/lguest.c |   23 ++++++++++++++++-------
+ 1 files changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/lguest/lguest_user.c b/drivers/lguest/lguest_user.c
-index 3b92a61..34be8e7 100644
---- a/drivers/lguest/lguest_user.c
-+++ b/drivers/lguest/lguest_user.c
-@@ -88,6 +88,20 @@ static ssize_t read(struct file *file, char __user *user, size_t size,loff_t*o)
- 	return run_guest(lg, (unsigned long __user *)user);
+diff --git a/Documentation/lguest/lguest.c b/Documentation/lguest/lguest.c
+index 9b0e322..4745f7e 100644
+--- a/Documentation/lguest/lguest.c
++++ b/Documentation/lguest/lguest.c
+@@ -79,6 +79,9 @@ static void *guest_base;
+ /* The maximum guest physical address allowed, and maximum possible. */
+ static unsigned long guest_limit, guest_max;
+ 
++/* a per-cpu variable indicating whose vcpu is currently running */
++static unsigned int __thread vcpu_id;
++
+ /* This is our list of devices. */
+ struct device_list
+ {
+@@ -554,7 +557,7 @@ static void wake_parent(int pipefd, int lguest_fd)
+ 			else
+ 				FD_CLR(-fd - 1, &devices.infds);
+ 		} else /* Send LHREQ_BREAK command. */
+-			write(lguest_fd, args, sizeof(args));
++			pwrite(lguest_fd, args, sizeof(args), 0);
+ 	}
  }
  
-+static int vcpu_start(struct lg_vcpu *vcpu, int vcpu_id,
-+		      unsigned long start_ip)
-+{
-+	if (vcpu_id > NR_CPUS)
-+		return -EINVAL;
-+
-+	vcpu->vcpu_id = vcpu_id;
-+
-+	vcpu->lg = container_of((vcpu - vcpu_id), struct lguest, vcpus[0]);
-+	vcpu->lg->nr_vcpus++;
-+
-+	return 0;
-+}
-+
- /*L:020 The initialization write supplies 4 pointer sized (32 or 64 bit)
-  * values (in addition to the LHREQ_INITIALIZE value).  These are:
-  *
-@@ -134,6 +148,12 @@ static int initialize(struct file *file, const unsigned long __user *input)
- 	lg->mem_base = (void __user *)(long)args[0];
- 	lg->pfn_limit = args[1];
+@@ -1511,7 +1514,8 @@ static void __attribute__((noreturn)) run_guest(int lguest_fd)
+ 		int readval;
  
-+	/* This is the first cpu */
-+	lg->nr_vcpus = 0;
-+	err = vcpu_start(&lg->vcpus[0], 0, args[3]);
-+	if (err)
-+		goto release_guest;
-+
- 	/* We need a complete page for the Guest registers: they are accessible
- 	 * to the Guest and we can only grant it access to whole pages. */
- 	lg->regs_page = get_zeroed_page(GFP_KERNEL);
+ 		/* We read from the /dev/lguest device to run the Guest. */
+-		readval = read(lguest_fd, &notify_addr, sizeof(notify_addr));
++		readval = pread(lguest_fd, &notify_addr,
++				sizeof(notify_addr), vcpu_id);
+ 
+ 		/* One unsigned long means the Guest did HCALL_NOTIFY */
+ 		if (readval == sizeof(notify_addr)) {
+@@ -1521,17 +1525,21 @@ static void __attribute__((noreturn)) run_guest(int lguest_fd)
+ 		/* ENOENT means the Guest died.  Reading tells us why. */
+ 		} else if (errno == ENOENT) {
+ 			char reason[1024] = { 0 };
+-			read(lguest_fd, reason, sizeof(reason)-1);
++			pread(lguest_fd, reason, sizeof(reason)-1, vcpu_id);
+ 			errx(1, "%s", reason);
+ 		/* EAGAIN means the Waker wanted us to look at some input.
+ 		 * Anything else means a bug or incompatible change. */
+ 		} else if (errno != EAGAIN)
+ 			err(1, "Running guest failed");
+ 
+-		/* Service input, then unset the BREAK to release the Waker. */
+-		handle_input(lguest_fd);
+-		if (write(lguest_fd, args, sizeof(args)) < 0)
+-			err(1, "Resetting break");
++		if (!vcpu_id) {
++			/* Service input, then unset the BREAK to
++			 * release the Waker. Right now, simple mecahnism
++			 * to issue it all to first vcpu */
++			handle_input(lguest_fd);
++			if (pwrite(lguest_fd, args, sizeof(args), 0) < 0)
++				err(1, "Resetting break");
++		}
+ 	}
+ }
+ /*
+@@ -1582,6 +1590,7 @@ int main(int argc, char *argv[])
+ 	devices.lastdev = &devices.dev;
+ 	devices.next_irq = 1;
+ 
++	vcpu_id = 0;
+ 	/* We need to know how much memory so we can set up the device
+ 	 * descriptor and memory pages for the devices as we parse the command
+ 	 * line.  So we quickly look through the arguments to find the amount
 -- 
 1.5.0.6
