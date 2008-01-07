@@ -1,17 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 07/16] per-vcpu lguest timers
-Date: Mon,  7 Jan 2008 11:05:28 -0200
-Message-ID: <11997111711574-git-send-email-gcosta__20984.9339131781$1199711698$gmane$org@redhat.com>
+Subject: [PATCH 04/16] per-cpu run guest
+Date: Mon,  7 Jan 2008 11:05:25 -0200
+Message-ID: <1199711157132-git-send-email-gcosta__10793.3637955741$1199711700$gmane$org@redhat.com>
 References: 11981576363806-git-send-email-gcosta@redhat.com
 	<1199711137195-git-send-email-gcosta@redhat.com>
 	<11997111432356-git-send-email-gcosta@redhat.com>
 	<11997111481113-git-send-email-gcosta@redhat.com>
 	<11997111523234-git-send-email-gcosta@redhat.com>
-	<1199711157132-git-send-email-gcosta@redhat.com>
-	<11997111623212-git-send-email-gcosta@redhat.com>
-	<11997111661344-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11997111661344-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11997111523234-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,162 +22,153 @@ To: lguest@ozlabs.org
 Cc: linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Here, I introduce per-vcpu timers. With this, we can have
-local expiries, needed for accounting time in smp guests
+This patch makes the run_guest() routine use the vcpu struct.
+This is required since in a smp guest environment, there's no
+more the notion of "running the guest", but rather, it is "running the vcpu"
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- drivers/lguest/hypercalls.c           |    2 +-
- drivers/lguest/interrupts_and_traps.c |   20 ++++++++++----------
- drivers/lguest/lg.h                   |   10 +++++-----
- drivers/lguest/lguest_user.c          |   12 +++++++-----
- 4 files changed, 23 insertions(+), 21 deletions(-)
+ drivers/lguest/core.c        |    6 ++++--
+ drivers/lguest/lg.h          |    4 ++--
+ drivers/lguest/lguest_user.c |   10 +++++++++-
+ drivers/lguest/x86/core.c    |   16 +++++++++++-----
+ 4 files changed, 26 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/lguest/hypercalls.c b/drivers/lguest/hypercalls.c
-index 9417601..1bf133e 100644
---- a/drivers/lguest/hypercalls.c
-+++ b/drivers/lguest/hypercalls.c
-@@ -78,7 +78,7 @@ static void do_hcall(struct lg_vcpu *vcpu, struct hcall_args *args)
- 		guest_set_pmd(lg, args->arg1, args->arg2);
- 		break;
- 	case LHCALL_SET_CLOCKEVENT:
--		guest_set_clockevent(lg, args->arg1);
-+		guest_set_clockevent(vcpu, args->arg1);
- 		break;
- 	case LHCALL_TS:
- 		/* This sets the TS flag, as we saw used in run_guest(). */
-diff --git a/drivers/lguest/interrupts_and_traps.c b/drivers/lguest/interrupts_and_traps.c
-index 2b66f79..3be18a6 100644
---- a/drivers/lguest/interrupts_and_traps.c
-+++ b/drivers/lguest/interrupts_and_traps.c
-@@ -470,13 +470,13 @@ void copy_traps(const struct lguest *lg, struct desc_struct *idt,
-  * infrastructure to set a callback at that time.
-  *
-  * 0 means "turn off the clock". */
--void guest_set_clockevent(struct lguest *lg, unsigned long delta)
-+void guest_set_clockevent(struct lg_vcpu *vcpu, unsigned long delta)
+diff --git a/drivers/lguest/core.c b/drivers/lguest/core.c
+index cb4c670..07a4c22 100644
+--- a/drivers/lguest/core.c
++++ b/drivers/lguest/core.c
+@@ -174,8 +174,10 @@ void __lgwrite(struct lguest *lg, unsigned long addr, const void *b,
+ /*H:030 Let's jump straight to the the main loop which runs the Guest.
+  * Remember, this is called by the Launcher reading /dev/lguest, and we keep
+  * going around and around until something interesting happens. */
+-int run_guest(struct lguest *lg, unsigned long __user *user)
++int run_guest(struct lg_vcpu *vcpu, unsigned long __user *user)
  {
- 	ktime_t expires;
++	struct lguest *lg = vcpu->lg;
++
+ 	/* We stop running once the Guest is dead. */
+ 	while (!lg->dead) {
+ 		/* First we run any hypercalls the Guest wants done. */
+@@ -226,7 +228,7 @@ int run_guest(struct lguest *lg, unsigned long __user *user)
+ 		local_irq_disable();
  
- 	if (unlikely(delta == 0)) {
- 		/* Clock event device is shutting down. */
--		hrtimer_cancel(&lg->hrt);
-+		hrtimer_cancel(&vcpu->hrt);
- 		return;
- 	}
+ 		/* Actually run the Guest until something happens. */
+-		lguest_arch_run_guest(lg);
++		lguest_arch_run_guest(vcpu);
  
-@@ -484,25 +484,25 @@ void guest_set_clockevent(struct lguest *lg, unsigned long delta)
- 	 * all the time between now and the timer interrupt it asked for.  This
- 	 * is almost always the right thing to do. */
- 	expires = ktime_add_ns(ktime_get_real(), delta);
--	hrtimer_start(&lg->hrt, expires, HRTIMER_MODE_ABS);
-+	hrtimer_start(&vcpu->hrt, expires, HRTIMER_MODE_ABS);
- }
- 
- /* This is the function called when the Guest's timer expires. */
- static enum hrtimer_restart clockdev_fn(struct hrtimer *timer)
- {
--	struct lguest *lg = container_of(timer, struct lguest, hrt);
-+	struct lg_vcpu *vcpu = container_of(timer, struct lg_vcpu, hrt);
- 
- 	/* Remember the first interrupt is the timer interrupt. */
--	set_bit(0, lg->irqs_pending);
-+	set_bit(0, vcpu->lg->irqs_pending);
- 	/* If the Guest is actually stopped, we need to wake it up. */
--	if (lg->halted)
--		wake_up_process(lg->tsk);
-+	if (vcpu->lg->halted)
-+		wake_up_process(vcpu->lg->tsk);
- 	return HRTIMER_NORESTART;
- }
- 
- /* This sets up the timer for this Guest. */
--void init_clockdev(struct lguest *lg)
-+void init_clockdev(struct lg_vcpu *vcpu)
- {
--	hrtimer_init(&lg->hrt, CLOCK_REALTIME, HRTIMER_MODE_ABS);
--	lg->hrt.function = clockdev_fn;
-+	hrtimer_init(&vcpu->hrt, CLOCK_REALTIME, HRTIMER_MODE_ABS);
-+	vcpu->hrt.function = clockdev_fn;
- }
+ 		/* Now we're ready to be interrupted or moved to other CPUs */
+ 		local_irq_enable();
 diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
-index 13a991a..9c90fd3 100644
+index 8fc1c29..271d214 100644
 --- a/drivers/lguest/lg.h
 +++ b/drivers/lguest/lg.h
-@@ -47,6 +47,9 @@ struct lg_vcpu {
- 	/* If a hypercall was asked for, this points to the arguments. */
- 	struct hcall_args *hcall;
- 	u32 next_hcall;
-+
-+	/* Virtual clock device */
-+	struct hrtimer hrt;
- };
+@@ -126,7 +126,7 @@ void __lgwrite(struct lguest *, unsigned long, const void *, unsigned);
+ 	} while(0)
+ /* (end of memory access helper routines) :*/
  
- /* The private info the thread maintains about the guest. */
-@@ -95,9 +98,6 @@ struct lguest
+-int run_guest(struct lguest *lg, unsigned long __user *user);
++int run_guest(struct lg_vcpu *vcpu, unsigned long __user *user);
  
- 	struct lguest_arch arch;
- 
--	/* Virtual clock device */
--	struct hrtimer hrt;
--
- 	/* Pending virtual interrupts */
- 	DECLARE_BITMAP(irqs_pending, LGUEST_IRQS);
- };
-@@ -145,8 +145,8 @@ void setup_default_idt_entries(struct lguest_ro_state *state,
- 			       const unsigned long *def);
- void copy_traps(const struct lguest *lg, struct desc_struct *idt,
- 		const unsigned long *def);
--void guest_set_clockevent(struct lguest *lg, unsigned long delta);
--void init_clockdev(struct lguest *lg);
-+void guest_set_clockevent(struct lg_vcpu *vcpu, unsigned long delta);
-+void init_clockdev(struct lg_vcpu *vcpu);
- bool check_syscall_vector(struct lguest *lg);
- int init_interrupts(void);
- void free_interrupts(void);
+ /* Helper macros to obtain the first 12 or the last 20 bits, this is only the
+  * first step in the migration to the kernel types.  pte_pfn is already defined
+@@ -177,7 +177,7 @@ void page_table_guest_data_init(struct lguest *lg);
+ /* <arch>/core.c: */
+ void lguest_arch_host_init(void);
+ void lguest_arch_host_fini(void);
+-void lguest_arch_run_guest(struct lguest *lg);
++void lguest_arch_run_guest(struct lg_vcpu *vcpu);
+ void lguest_arch_handle_trap(struct lguest *lg);
+ int lguest_arch_init_hypercalls(struct lguest *lg);
+ int lguest_arch_do_hcall(struct lguest *lg, struct hcall_args *args);
 diff --git a/drivers/lguest/lguest_user.c b/drivers/lguest/lguest_user.c
-index d176004..cd2b0bf 100644
+index 34be8e7..216514b 100644
 --- a/drivers/lguest/lguest_user.c
 +++ b/drivers/lguest/lguest_user.c
-@@ -104,6 +104,9 @@ static int vcpu_start(struct lg_vcpu *vcpu, int vcpu_id,
- 
- 	vcpu->vcpu_id = vcpu_id;
- 
-+	/* The timer for lguest's clock needs initialization. */
-+	init_clockdev(vcpu);
-+
- 	vcpu->lg = container_of((vcpu - vcpu_id), struct lguest, vcpus[0]);
- 	vcpu->lg->nr_vcpus++;
- 
-@@ -183,9 +186,6 @@ static int initialize(struct file *file, const unsigned long __user *input)
- 	 * address. */
- 	lguest_arch_setup_regs(lg, args[3]);
- 
--	/* The timer for lguest's clock needs initialization. */
--	init_clockdev(lg);
--
- 	/* We keep a pointer to the Launcher task (ie. current task) for when
- 	 * other Guests want to wake this one (inter-Guest I/O). */
- 	lg->tsk = current;
-@@ -276,6 +276,7 @@ static ssize_t write(struct file *file, const char __user *in,
- static int close(struct inode *inode, struct file *file)
+@@ -55,11 +55,19 @@ static int user_send_irq(struct lguest *lg, const unsigned long __user *input)
+ static ssize_t read(struct file *file, char __user *user, size_t size,loff_t*o)
  {
  	struct lguest *lg = file->private_data;
-+	int i;
++	struct lg_vcpu *vcpu = NULL;
++	unsigned int vcpu_id = *o;
  
- 	/* If we never successfully initialized, there's nothing to clean up */
+ 	/* You must write LHREQ_INITIALIZE first! */
  	if (!lg)
-@@ -284,8 +285,9 @@ static int close(struct inode *inode, struct file *file)
- 	/* We need the big lock, to protect from inter-guest I/O and other
- 	 * Launchers initializing guests. */
- 	mutex_lock(&lguest_lock);
--	/* Cancels the hrtimer set via LHCALL_SET_CLOCKEVENT. */
--	hrtimer_cancel(&lg->hrt);
-+	for (i = 0; i < lg->nr_vcpus; i++)
-+		/* Cancels the hrtimer set via LHCALL_SET_CLOCKEVENT. */
-+		hrtimer_cancel(&lg->vcpus[i].hrt);
- 	/* Free up the shadow page tables for the Guest. */
- 	free_guest_pagetable(lg);
- 	/* Now all the memory cleanups are done, it's safe to release the
+ 		return -EINVAL;
+ 
++	/* Watch out for arbitrary vcpu indexes! */
++	if (vcpu_id > lg->nr_vcpus)
++		return -EINVAL;
++
++	vcpu = &lg->vcpus[vcpu_id];
++
+ 	/* If you're not the task which owns the Guest, go away. */
+ 	if (current != lg->tsk)
+ 		return -EPERM;
+@@ -85,7 +93,7 @@ static ssize_t read(struct file *file, char __user *user, size_t size,loff_t*o)
+ 		lg->pending_notify = 0;
+ 
+ 	/* Run the Guest until something interesting happens. */
+-	return run_guest(lg, (unsigned long __user *)user);
++	return run_guest(vcpu, (unsigned long __user *)user);
+ }
+ 
+ static int vcpu_start(struct lg_vcpu *vcpu, int vcpu_id,
+diff --git a/drivers/lguest/x86/core.c b/drivers/lguest/x86/core.c
+index 482aec2..3496cd9 100644
+--- a/drivers/lguest/x86/core.c
++++ b/drivers/lguest/x86/core.c
+@@ -73,8 +73,10 @@ static DEFINE_PER_CPU(struct lguest *, last_guest);
+  * since it last ran.  We saw this set in interrupts_and_traps.c and
+  * segments.c.
+  */
+-static void copy_in_guest_info(struct lguest *lg, struct lguest_pages *pages)
++static void copy_in_guest_info(struct lg_vcpu *vcpu,
++			       struct lguest_pages *pages)
+ {
++	struct lguest *lg = vcpu->lg;
+ 	/* Copying all this data can be quite expensive.  We usually run the
+ 	 * same Guest we ran last time (and that Guest hasn't run anywhere else
+ 	 * meanwhile).  If that's not the case, we pretend everything in the
+@@ -113,14 +115,16 @@ static void copy_in_guest_info(struct lguest *lg, struct lguest_pages *pages)
+ }
+ 
+ /* Finally: the code to actually call into the Switcher to run the Guest. */
+-static void run_guest_once(struct lguest *lg, struct lguest_pages *pages)
++static void run_guest_once(struct lg_vcpu *vcpu,
++			   struct lguest_pages *pages)
+ {
+ 	/* This is a dummy value we need for GCC's sake. */
+ 	unsigned int clobber;
++	struct lguest *lg = vcpu->lg;
+ 
+ 	/* Copy the guest-specific information into this CPU's "struct
+ 	 * lguest_pages". */
+-	copy_in_guest_info(lg, pages);
++	copy_in_guest_info(vcpu, pages);
+ 
+ 	/* Set the trap number to 256 (impossible value).  If we fault while
+ 	 * switching to the Guest (bad segment registers or bug), this will
+@@ -161,8 +165,10 @@ static void run_guest_once(struct lguest *lg, struct lguest_pages *pages)
+ 
+ /*H:040 This is the i386-specific code to setup and run the Guest.  Interrupts
+  * are disabled: we own the CPU. */
+-void lguest_arch_run_guest(struct lguest *lg)
++void lguest_arch_run_guest(struct lg_vcpu *vcpu)
+ {
++	struct lguest *lg = vcpu->lg;
++
+ 	/* Remember the awfully-named TS bit?  If the Guest has asked to set it
+ 	 * we set it now, so we can trap and pass that trap to the Guest if it
+ 	 * uses the FPU. */
+@@ -180,7 +186,7 @@ void lguest_arch_run_guest(struct lguest *lg)
+ 	/* Now we actually run the Guest.  It will return when something
+ 	 * interesting happens, and we can examine its registers to see what it
+ 	 * was doing. */
+-	run_guest_once(lg, lguest_pages(raw_smp_processor_id()));
++	run_guest_once(vcpu, lguest_pages(raw_smp_processor_id()));
+ 
+ 	/* Note that the "regs" pointer contains two extra entries which are
+ 	 * not really registers: a trap number which says what interrupt or
 -- 
 1.5.0.6
