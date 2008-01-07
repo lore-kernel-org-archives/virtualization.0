@@ -1,11 +1,13 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 01/16] introduce vcpu struct
-Date: Mon,  7 Jan 2008 11:05:22 -0200
-Message-ID: <11997111432356-git-send-email-gcosta__129.436390898441$1199711524$gmane$org@redhat.com>
+Subject: [PATCH 03/16] initialize vcpu
+Date: Mon,  7 Jan 2008 11:05:24 -0200
+Message-ID: <11997111523234-git-send-email-gcosta__35929.628116037$1199711645$gmane$org@redhat.com>
 References: 11981576363806-git-send-email-gcosta@redhat.com
 	<1199711137195-git-send-email-gcosta@redhat.com>
+	<11997111432356-git-send-email-gcosta@redhat.com>
+	<11997111481113-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1199711137195-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11997111481113-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,41 +21,53 @@ To: lguest@ozlabs.org
 Cc: linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-this patch introduces a vcpu struct for lguest. In upcoming patches,
-more and more fields will be moved from the lguest struct to the vcpu
+this patch initializes the first vcpu in the initialize() routing,
+which is responsible for starting the process of putting the guest up.
+right now, as much of the fields are still not per-vcpu, it does not
+do much.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- drivers/lguest/lg.h |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
+ drivers/lguest/lguest_user.c |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
-index 8692489..8fc1c29 100644
---- a/drivers/lguest/lg.h
-+++ b/drivers/lguest/lg.h
-@@ -38,6 +38,13 @@ struct lguest_pages
- #define CHANGED_GDT_TLS		4 /* Actually a subset of CHANGED_GDT */
- #define CHANGED_ALL	        3
+diff --git a/drivers/lguest/lguest_user.c b/drivers/lguest/lguest_user.c
+index 3b92a61..34be8e7 100644
+--- a/drivers/lguest/lguest_user.c
++++ b/drivers/lguest/lguest_user.c
+@@ -88,6 +88,20 @@ static ssize_t read(struct file *file, char __user *user, size_t size,loff_t*o)
+ 	return run_guest(lg, (unsigned long __user *)user);
+ }
  
-+struct lguest;
++static int vcpu_start(struct lg_vcpu *vcpu, int vcpu_id,
++		      unsigned long start_ip)
++{
++	if (vcpu_id > NR_CPUS)
++		return -EINVAL;
 +
-+struct lg_vcpu {
-+	int vcpu_id;
-+	struct lguest *lg;
-+};
++	vcpu->vcpu_id = vcpu_id;
 +
- /* The private info the thread maintains about the guest. */
- struct lguest
- {
-@@ -47,6 +54,9 @@ struct lguest
- 	struct lguest_data __user *lguest_data;
- 	struct task_struct *tsk;
- 	struct mm_struct *mm; 	/* == tsk->mm, but that becomes NULL on exit */
-+	struct lg_vcpu vcpus[NR_CPUS];
-+	unsigned int nr_vcpus;
++	vcpu->lg = container_of((vcpu - vcpu_id), struct lguest, vcpus[0]);
++	vcpu->lg->nr_vcpus++;
 +
- 	u32 pfn_limit;
- 	/* This provides the offset to the base of guest-physical
- 	 * memory in the Launcher. */
++	return 0;
++}
++
+ /*L:020 The initialization write supplies 4 pointer sized (32 or 64 bit)
+  * values (in addition to the LHREQ_INITIALIZE value).  These are:
+  *
+@@ -134,6 +148,12 @@ static int initialize(struct file *file, const unsigned long __user *input)
+ 	lg->mem_base = (void __user *)(long)args[0];
+ 	lg->pfn_limit = args[1];
+ 
++	/* This is the first cpu */
++	lg->nr_vcpus = 0;
++	err = vcpu_start(&lg->vcpus[0], 0, args[3]);
++	if (err)
++		goto release_guest;
++
+ 	/* We need a complete page for the Guest registers: they are accessible
+ 	 * to the Guest and we can only grant it access to whole pages. */
+ 	lg->regs_page = get_zeroed_page(GFP_KERNEL);
 -- 
 1.5.0.6
