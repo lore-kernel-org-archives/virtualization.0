@@ -1,11 +1,13 @@
 From: Marcelo Tosatti <marcelo@kvack.org>
-Subject: [PATCH] KVM: add KVM_SYNC_SHADOW_WITH_USER ioctl
-Date: Tue, 8 Jan 2008 13:39:15 -0200
-Message-ID: <20080108153915.GB21726__30260.2360760377$1199824409$gmane$org@dmt>
+Subject: Re: [kvm-devel] [PATCH] kvm guest balloon driver
+Date: Tue, 8 Jan 2008 14:10:05 -0200
+Message-ID: <20080108161005.GA22168__13325.5332978026$1199824994$gmane$org@dmt>
+References: <20080108153356.GA21726@dmt> <478399D5.9030707@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <478399D5.9030707@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,63 +17,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, kvm-devel <kvm-devel@lists.sourceforge.net>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Dor Laor <dor.laor@qumranet.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Jan 08, 2008 at 09:42:13AM -0600, Anthony Liguori wrote:
+> Marcelo Tosatti wrote:
+> >Following patch introduces a KVM guest balloon driver. Communication
+> >to/from the host is performed via virtio.
+> >
 
-The host needs to zap its shadow entries before performing an inflate
-operation to avoid the guest from using stale ones.
+I'll address the other comments.
 
-So add an ioctl to interface with kvm_mmu_zap_all().
+> >+	virtballoon.dev = vdev;
+> >+	init_waitqueue_head(&virtballoon.balloon_wait);
+> >+	init_waitqueue_head(&virtballoon.rmmod_wait);
+> >+	atomic_set(&virtballoon.inflight_bufs, 0);
+> >+
+> >+	err = request_irq(pvdev->pci_dev->irq, balloon_irq, IRQF_SHARED,
+> >+			  pvdev->vdev.dev.bus_id, &virtballoon);
+> >+	if (err)
+> >+		goto out_free_vq;
+> >  
+> 
+> Why is it taking over the irq?  This is very, very wrong.  A virtio 
+> device cannot be dependent on being used on top of the virtio-pci backend.
 
-Signed-off-by: Marcelo Tosatti <mtosatti@redhat.com>
+A notification is necessary whenever the host changes the target value
+in the config space. So right now this notification is sharing the
+same IRQ as the main PCI device.
 
-Index: kvm.quilt/arch/x86/kvm/x86.c
-===================================================================
---- kvm.quilt.orig/arch/x86/kvm/x86.c
-+++ kvm.quilt/arch/x86/kvm/x86.c
-@@ -680,6 +680,7 @@ int kvm_dev_ioctl_check_extension(long e
- 	case KVM_CAP_USER_MEMORY:
- 	case KVM_CAP_SET_TSS_ADDR:
- 	case KVM_CAP_EXT_CPUID:
-+	case KVM_CAP_SYNC_SHADOW_WITH_USER:
- 		r = 1;
- 		break;
- 	case KVM_CAP_VAPIC:
-Index: kvm.quilt/include/linux/kvm.h
-===================================================================
---- kvm.quilt.orig/include/linux/kvm.h
-+++ kvm.quilt/include/linux/kvm.h
-@@ -249,6 +249,7 @@ struct kvm_vapic_addr {
- #define KVM_CAP_SET_TSS_ADDR 4
- #define KVM_CAP_EXT_CPUID 5
- #define KVM_CAP_VAPIC 6
-+#define KVM_CAP_SYNC_SHADOW_WITH_USER 7
- 
- /*
-  * ioctls for VM fds
-@@ -267,6 +268,7 @@ struct kvm_vapic_addr {
- #define KVM_GET_DIRTY_LOG         _IOW(KVMIO, 0x42, struct kvm_dirty_log)
- #define KVM_SET_MEMORY_ALIAS      _IOW(KVMIO, 0x43, struct kvm_memory_alias)
- #define KVM_GET_SUPPORTED_CPUID   _IOWR(KVMIO, 0x48, struct kvm_cpuid2)
-+#define KVM_SYNC_SHADOW_WITH_USER _IO(KVMIO, 0x49)
- /* Device model IOC */
- #define KVM_CREATE_IRQCHIP	  _IO(KVMIO,  0x60)
- #define KVM_IRQ_LINE		  _IOW(KVMIO, 0x61, struct kvm_irq_level)
-Index: kvm.quilt/virt/kvm/kvm_main.c
-===================================================================
---- kvm.quilt.orig/virt/kvm/kvm_main.c
-+++ kvm.quilt/virt/kvm/kvm_main.c
-@@ -971,6 +971,11 @@ static long kvm_vm_ioctl(struct file *fi
- 			goto out;
- 		break;
- 	}
-+	case KVM_SYNC_SHADOW_WITH_USER: {
-+		r = 0;
-+		kvm_mmu_zap_all(kvm);
-+		break;
-+	}
- 	default:
- 		r = kvm_arch_vm_ioctl(filp, ioctl, arg);
- 	}
+Do you have any suggestion on how to retrieve the IRQ of the virtio
+device, or some other notification mechanism?
