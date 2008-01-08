@@ -1,7 +1,7 @@
 From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: [PATCH] Always notify a virtio_ring when it's full
-Date: Tue,  8 Jan 2008 14:54:10 -0600
-Message-ID: <11998256502093-git-send-email-aliguori@us.ibm.com>
+Subject: [PATCH] Remove unnecessary pr_debug()
+Date: Tue,  8 Jan 2008 16:42:05 -0600
+Message-ID: <1199832125343-git-send-email-aliguori@us.ibm.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,23 +16,19 @@ To: virtualization@lists.linux-foundation.org
 Cc: Anthony Liguori <aliguori@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I saw that the tx timer was removed in your patch queue but you weren't
-notifying when full.  I decided to do it here instead of in the error case on
-add_buf for really no great reason other than I thought it made more sense
-for it to happen in the notify().
+This is not formatted correctly and really not useful, so let's just remove it.
 
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 7fa1c72..57b7ad3 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -146,7 +146,8 @@ static void vring_kick(struct virtqueue *_vq)
- 	/* Need to update avail index before checking if we should notify */
- 	mb();
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 36b810d..2882490 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -73,7 +73,6 @@ MODULE_DEVICE_TABLE(pci, virtio_pci_id_table);
  
--	if (!(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY))
-+	/* Always notify when the queue is full */
-+	if (!(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY) || !vq->num_free)
- 		/* Prod other side to tell it about changes. */
- 		vq->notify(&vq->vq);
+ static void virtio_pci_root_release(struct device *d)
+ {
+-    pr_debug("%s\n", __FUNCTION__);
+ }
+ 
+ /* A PCI device has it's own struct device and so does a virtio device so
