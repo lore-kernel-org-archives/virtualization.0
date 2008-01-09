@@ -1,11 +1,10 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH] cpu hotplug driver: userspace back end
-Date: Wed,  9 Jan 2008 08:21:06 -0200
-Message-ID: <11998740781209-git-send-email-gcosta__20071.8667977073$1199874508$gmane$org@redhat.com>
+Subject: [PATCH] cpu hotplug driver: kernel module
+Date: Wed,  9 Jan 2008 08:21:05 -0200
+Message-ID: <11998740731943-git-send-email-gcosta__12538.3047307425$1199874714$gmane$org@redhat.com>
 References: <11998740663306-git-send-email-gcosta@redhat.com>
-	<11998740731943-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11998740731943-git-send-email-gcosta@redhat.com>
+In-Reply-To: <11998740663306-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,215 +20,300 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- qemu/Makefile.target     |    2 +-
- qemu/hw/pc.c             |    4 +-
- qemu/hw/pc.h             |    3 +
- qemu/hw/virtio-hotplug.c |  111 ++++++++++++++++++++++++++++++++++++++++++++++
- qemu/monitor.c           |   11 +++++
- qemu/qemu-kvm.h          |    2 +
- 6 files changed, 131 insertions(+), 2 deletions(-)
- create mode 100644 qemu/hw/virtio-hotplug.c
+ drivers/virtio/Kconfig      |    6 +
+ drivers/virtio/Makefile     |    1 +
+ drivers/virtio/virtio_cpu.c |  226 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/virtio/virtio_pci.c |    1 +
+ kernel/cpu.c                |    2 +
+ 5 files changed, 236 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/virtio/virtio_cpu.c
 
-diff --git a/qemu/Makefile.target b/qemu/Makefile.target
-index bb7be0f..4d5679a 100644
---- a/qemu/Makefile.target
-+++ b/qemu/Makefile.target
-@@ -464,7 +464,7 @@ VL_OBJS += rtl8139.o
- VL_OBJS+= hypercall.o
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 73a414c..6665d4d 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -23,3 +23,9 @@ config VIRTIO_PCI
  
- # virtio devices
--VL_OBJS += virtio.o virtio-net.o virtio-blk.o
-+VL_OBJS += virtio.o virtio-net.o virtio-blk.o virtio-hotplug.o
+ 	  If unsure, say M.
  
- ifeq ($(TARGET_BASE_ARCH), i386)
- # Hardware support
-diff --git a/qemu/hw/pc.c b/qemu/hw/pc.c
-index 3972ab4..c9d8f89 100644
---- a/qemu/hw/pc.c
-+++ b/qemu/hw/pc.c
-@@ -1029,7 +1029,9 @@ static void pc_init1(ram_addr_t ram_size, int vga_ram_size,
-         }
-     }
- 
--#define USE_HYPERCALL
-+    virtio_hotplug_init(pci_bus);
++config VIRTIO_CPU
++	tristate "virtio-cpu"
++	depends on VIRTIO_PCI && EXPERIMENTAL
++	---help---
++	  I'll obviously put a better description later
 +
-+#undef USE_HYPERCALL
- #ifdef USE_HYPERCALL
-     pci_hypercall_init(pci_bus);
- #endif
-diff --git a/qemu/hw/pc.h b/qemu/hw/pc.h
-index 7d1832f..3e2cfb4 100644
---- a/qemu/hw/pc.h
-+++ b/qemu/hw/pc.h
-@@ -151,6 +151,9 @@ void virtio_net_poll(void);
- void *virtio_blk_init(PCIBus *bus, uint16_t vendor, uint16_t device,
- 		      BlockDriverState *bs);
- 
-+/* virtio-hotplug.c */
-+void *virtio_hotplug_init(PCIBus *bus);
-+
- /* extboot.c */
- 
- void extboot_init(BlockDriverState *bs, int cmd);
-diff --git a/qemu/hw/virtio-hotplug.c b/qemu/hw/virtio-hotplug.c
+diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+index cc84999..057ebcc 100644
+--- a/drivers/virtio/Makefile
++++ b/drivers/virtio/Makefile
+@@ -1,3 +1,4 @@
+ obj-$(CONFIG_VIRTIO) += virtio.o
+ obj-$(CONFIG_VIRTIO_RING) += virtio_ring.o
+ obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
++obj-$(CONFIG_VIRTIO_CPU) += virtio_cpu.o
+diff --git a/drivers/virtio/virtio_cpu.c b/drivers/virtio/virtio_cpu.c
 new file mode 100644
-index 0000000..e51f26f
+index 0000000..8dc0c7d
 --- /dev/null
-+++ b/qemu/hw/virtio-hotplug.c
-@@ -0,0 +1,111 @@
-+#include "virtio.h"
-+#include "net.h"
-+#include "pc.h"
-+#include "sysemu.h"
++++ b/drivers/virtio/virtio_cpu.c
+@@ -0,0 +1,226 @@
++#include <linux/virtio.h>
++#include <linux/virtio_config.h>
 +
-+typedef struct VirtIOHotplug {
-+    VirtIODevice vdev;
-+    VirtQueue *cmd_vq;
-+    int buffer_ready;
-+    struct VirtIOHotplug *next;
-+    int job_status;
-+} VirtIOHotplug;
++#include <linux/cpu.h>
++#include <linux/kthread.h>
++#include <linux/wait.h>
++#include <linux/freezer.h>
 +
-+typedef struct VirtioHotplugHdr {
-+    uint8_t cmd;
-+    uint8_t status;
-+} VirtioHotplugHdr;
-+
-+VirtIOHotplug *virtio_hotplug;
-+uint32_t attempt_buffer;
-+
-+#define VIRTIO_ID_HOTPLUG 4 /* arbitrary */
++#define VIRTIO_ID_CPU 4
 +
 +#define CMD_CPU_SET 1
 +
-+static VirtIOHotplug *to_virtio_hotplug(VirtIODevice *vdev)
++struct virtio_hotplug_hdr {
++	u8 cmd;
++	u8 status;
++};
++
++struct hotplug_buf {
++	struct virtio_hotplug_hdr hdr;
++	u32 arg;
++};
++
++struct virtio_hotplug {
++	struct virtio_device *dev;
++	struct virtqueue *cmd_receive;
++	struct task_struct *hotplug_thread;
++	wait_queue_head_t hotplug_wait;
++	u32 hotplug_target;
++	int thread_started;
++};
++
++
++static struct virtio_device_id id_table[] = {
++	{ VIRTIO_ID_CPU, VIRTIO_DEV_ANY_ID},
++	{ 0 },
++};
++
++void *__alloc_virtio_buf(int size)
 +{
-+    return (VirtIOHotplug *)vdev;
++	return kzalloc(size, GFP_KERNEL);
 +}
 +
-+static void virtio_hotplug_update_config(VirtIODevice *vdev, uint8_t *config)
++#define alloc_hotplug_buf() (__alloc_virtio_buf(sizeof(struct hotplug_buf)))
++
++static int __send_hotplug_buf(u8 cmd, struct hotplug_buf *buf,
++			      struct virtqueue *vq)
 +{
-+    /* nothing to do */
++	struct scatterlist sg[2];
++	int err = 0;
++	
++	sg_init_table(sg, 2);
++
++	sg_set_buf(&sg[0], &buf->hdr, sizeof(buf->hdr));
++	sg_set_buf(&sg[1], &buf->arg, sizeof(buf->arg));
++	
++	err = vq->vq_ops->add_buf(vq, sg, 0, 2, buf);
++	if (err)
++		return err;
++
++	vq->vq_ops->kick(vq);
++
++	return 0;
++} 
++
++/* Prepare the virtio driver to receive a command. */
++static int prepare_to_receive(struct virtio_hotplug *v)
++{
++	void *buf = alloc_hotplug_buf();
++
++	if (!buf)
++		return -ENOMEM;
++
++	return __send_hotplug_buf(0, buf, v->cmd_receive);
 +}
 +
-+static uint32_t virtio_hotplug_get_features(VirtIODevice *vdev)
++static void hotplug_add_cpus(struct virtio_hotplug *v)
 +{
-+    /* no features yet */
-+    return 0;
++	struct sys_device *dev;
++	struct virtqueue *vq = v->cmd_receive;
++	struct hotplug_buf *buf;
++	int i, len;
++	int err;
++
++	while ((buf = vq->vq_ops->get_buf(vq, &len)) != NULL) {
++		switch (buf->hdr.cmd) {
++		case CMD_CPU_SET:
++			v->hotplug_target = buf->arg;
++
++			if (v->hotplug_target > num_present_cpus())
++				v->hotplug_target = num_present_cpus();
++			break;
++		default:
++			printk("%s: Unrecognized command %d\n",
++				__func__, buf->hdr.cmd);
++			break;	
++		}
++	}
++	kfree(buf);
++
++
++	while ((i = num_online_cpus()) < v->hotplug_target) {
++		err = cpu_up(i);
++		dev = get_cpu_sysdev(i);
++		if (!err) {
++			if (dev)
++				kobject_uevent(&dev->kobj, KOBJ_ONLINE);
++		}
++	}
++
++	while ((i = num_online_cpus()) > v->hotplug_target) {
++		i--;
++		dev = get_cpu_sysdev(i);
++		err = cpu_down(i);
++		if (!err) {
++			if (dev)
++				kobject_uevent(&dev->kobj, KOBJ_ONLINE);
++		}
++	}
 +}
 +
-+static void virtio_hotplug_send(VirtIODevice *vdev, VirtQueue *vq, uint8_t cmd,
-+    			const uint32_t arg)
++static int virtio_do_hotplug(void *p)
 +{
-+    VirtQueueElement elem;
-+    VirtioHotplugHdr *hdr;
-+    uint32_t *data;
++	struct virtio_hotplug *v = p;
++	DEFINE_WAIT(wait);
++	set_freezable();
 +
-+    if (virtqueue_pop(vq, &elem) == 0) {
-+        fprintf(stderr, "pop failure\n"); 
-+        return;
-+    }
-+    
-+    hdr = (void *)elem.in_sg[0].iov_base;
-+    hdr->cmd = cmd;
-+    
-+    data = (int *)elem.in_sg[1].iov_base;
-+    *data = arg;
-+     
-+    virtqueue_push(vq, &elem, sizeof(*hdr) + elem.in_sg[1].iov_len);
-+    virtio_notify(vdev, vq);
++	for (;;) {
++		prepare_to_receive(v);
++		prepare_to_wait(&v->hotplug_wait, &wait, TASK_UNINTERRUPTIBLE);
++		v->thread_started = 1;
++		schedule();
++		finish_wait(&v->hotplug_wait, &wait);
++
++		try_to_freeze();
++
++		if (kthread_should_stop())
++			break;
++
++		hotplug_add_cpus(v);
++		v->hotplug_target = 0;
++	}
++	return 0;
 +}
 +
-+int hotplug_send_cmd(int value)
++/* We need a separate thread because cpu_up() and cpu_down() cannot
++ * be called in interrupt context */
++static bool hotplug_get_cmd(struct virtqueue *vq)
 +{
-+   
-+    if (!virtio_hotplug->buffer_ready) {
-+        attempt_buffer = value;
-+        return;
-+    }
++	struct virtio_hotplug *v = vq->vdev->priv;
 +
-+    virtio_hotplug_send(&virtio_hotplug->vdev, virtio_hotplug->cmd_vq, 
-+                        CMD_CPU_SET, value);
-+
-+    return 0;
-+}
-+
-+/* TX */
-+static void virtio_hotplug_handle_cmd(VirtIODevice *vdev, VirtQueue *vq)
-+{
-+    VirtIOHotplug *n = to_virtio_hotplug(vdev);
-+
-+    n->buffer_ready = 1;
-+
-+    if (attempt_buffer) {
-+        uint32_t value = attempt_buffer;
-+        attempt_buffer = 0;
-+        hotplug_send_cmd(value);
-+    }
++	wake_up(&v->hotplug_wait);
++	return true;
 +
 +}
 +
-+void *virtio_hotplug_init(PCIBus *bus)
++static int virtio_cpu_probe(struct virtio_device *vdev)
 +{
-+    VirtIOHotplug *n;
++	int err;
++	struct virtio_hotplug *v;
 +
-+    n = (VirtIOHotplug *)virtio_init_pci(bus, "virtio-hotplug", 0x2523, 0x2325,
-+    			     0, VIRTIO_ID_HOTPLUG,
-+    			     0xff, 0x80, 0x00,
-+    			     6, sizeof(VirtIOHotplug));
++	v = kzalloc(sizeof(*v), GFP_KERNEL);
++	if (!v)
++		return -ENOMEM;
 +
-+    n->vdev.update_config = virtio_hotplug_update_config;
-+    n->vdev.get_features = virtio_hotplug_get_features;
-+    n->cmd_vq = virtio_add_queue(&n->vdev, 128, virtio_hotplug_handle_cmd);
++	
++	if (IS_ERR(v->cmd_receive)) {
++		printk("%s: Couldn't find cmd_receive queue\n", __func__);
++		return PTR_ERR(v->cmd_receive);
++	}
++	
++	vdev->priv = v;
 +
-+    n->buffer_ready = 0;
++	init_waitqueue_head(&v->hotplug_wait);
 +
-+    virtio_hotplug = n;
-+        
-+    return &n->vdev;
++	v->thread_started = 0;
++	v->hotplug_thread = kthread_run(virtio_do_hotplug, v, 
++				     "virtio_hotplugd\n");
++
++	if (IS_ERR(v->hotplug_thread)) {
++		err = PTR_ERR(v->hotplug_thread);
++		goto out;
++	}
++
++	v->cmd_receive = vdev->config->find_vq(vdev, 0, hotplug_get_cmd);
++
++	printk("Registered virtio hotplug driver\n");
++	return 0;
++out:
++	vdev->config->del_vq(v->cmd_receive);
++	return err;
 +}
-diff --git a/qemu/monitor.c b/qemu/monitor.c
-index e03c473..f0c55c6 100644
---- a/qemu/monitor.c
-+++ b/qemu/monitor.c
-@@ -346,6 +346,16 @@ static void do_cpu_set(int index)
-         term_printf("Invalid CPU index\n");
- }
- 
-+static void do_cpu_set_nr(int value)
++
++static void virtio_cpu_remove(struct virtio_device *vdev)
 +{
-+    if ((value < 1)) {
-+       term_printf("value out of range\n");
-+       return;
-+    }
-+
-+    hotplug_send_cmd(value);
++	struct virtio_hotplug *v = vdev->priv;
++	kthread_stop(v->hotplug_thread);
++	vdev->config->del_vq(v->cmd_receive);
++	kfree(v);
 +}
 +
- static void do_info_jit(void)
- {
-     dump_exec_info(NULL, monitor_fprintf);
-@@ -1339,6 +1349,7 @@ static term_cmd_t term_cmds[] = {
-       "", "cancel the current VM migration" },
-     { "migrate_set_speed", "s", do_migrate_set_speed,
-       "value", "set maximum speed (in bytes) for migrations" },
-+    { "cpu_set", "i", do_cpu_set_nr, "value", "number of cpus in the guest" },
-     { NULL, NULL, },
++
++static struct virtio_driver virtio_cpu = {
++	.driver.name = KBUILD_MODNAME,
++	.driver.owner = THIS_MODULE,
++	.id_table = id_table,
++	.probe = virtio_cpu_probe,
++	.remove = __devexit_p(virtio_cpu_remove),
++};
++
++static int __init virtio_cpu_init(void)
++{
++	return register_virtio_driver(&virtio_cpu);
++}
++
++static void __exit virtio_cpu_exit(void)
++{
++	unregister_virtio_driver(&virtio_cpu);
++}
++
++module_init(virtio_cpu_init);
++module_exit(virtio_cpu_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Glauber de Oliveira Costa");
++MODULE_DESCRIPTION("virtio driver for cpu hotplugging");
++MODULE_VERSION("1");
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index e1fa68d..8d5a719 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -67,6 +67,7 @@ static struct pci_device_id virtio_pci_id_table[] = {
+ 	{ 0x1AF4, 0x1000, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* Dummy entry */
+ 	{ 0x1AF4, 0x1001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* Dummy entry */
+ 	{ 0x1AF4, 0x1002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* Dummy entry */
++	{ 0x2523, 0x2325, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* cpu hotplug driver */
+ 	{ 0 },
  };
  
-diff --git a/qemu/qemu-kvm.h b/qemu/qemu-kvm.h
-index e4aeb3a..6bf234d 100644
---- a/qemu/qemu-kvm.h
-+++ b/qemu/qemu-kvm.h
-@@ -48,6 +48,8 @@ void kvm_tpr_access_report(CPUState *env, uint64_t rip, int is_write);
- int handle_tpr_access(void *opaque, int vcpu,
- 			     uint64_t rip, int is_write);
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index 6b3a0c1..c432c28 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -219,6 +219,7 @@ int cpu_down(unsigned int cpu)
+ 	mutex_unlock(&cpu_add_remove_lock);
+ 	return err;
+ }
++EXPORT_SYMBOL_GPL(cpu_down);
+ #endif /*CONFIG_HOTPLUG_CPU*/
  
-+int hotplug_send_smd(int cpus);
-+
- #define ALIGN(x, y)  (((x)+(y)-1) & ~((y)-1))
- #define BITMAP_SIZE(m) (ALIGN(((m)>>TARGET_PAGE_BITS), HOST_LONG_BITS) / 8)
+ /* Requires cpu_add_remove_lock to be held */
+@@ -284,6 +285,7 @@ int __cpuinit cpu_up(unsigned int cpu)
+ 	mutex_unlock(&cpu_add_remove_lock);
+ 	return err;
+ }
++EXPORT_SYMBOL_GPL(cpu_up);
  
+ #ifdef CONFIG_PM_SLEEP_SMP
+ static cpumask_t frozen_cpus;
 -- 
 1.5.0.6
