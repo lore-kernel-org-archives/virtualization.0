@@ -1,15 +1,13 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [kvm-devel] [PATCH/RFC 0/2] CPU hotplug virtio driver
-Date: Wed, 9 Jan 2008 12:27:12 +0100
-Message-ID: <200801091227.12261.borntraeger__23670.768706552$1199878233$gmane$org@de.ibm.com>
-References: <11998740663306-git-send-email-gcosta@redhat.com>
+From: Dor Laor <dor.laor@gmail.com>
+Subject: [PATCH] Increase the tx queue to 512 descriptors to fix
+	performance problem.
+Date: Wed, 09 Jan 2008 15:23:36 +0200
+Message-ID: <1199885016.4382.22.camel__40591.0942391076$1199885124$gmane$org@localhost.localdomain>
+Reply-To: dor.laor@qumranet.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11998740663306-git-send-email-gcosta@redhat.com>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,18 +17,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel@lists.sourceforge.net
-Cc: virtualization@lists.linux-foundation.org, marcelot@redhat.com, Glauber de Oliveira Costa <gcosta@redhat.com>
+To: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Mittwoch, 9. Januar 2008 schrieb Glauber de Oliveira Costa:
-> I'm sending a first draft of my proposed cpu hotplug driver for kvm/virtio
-> The first patch is the kernel module, while the second, the userspace pci 
-device.
+Now that we have a host timer based tx wakeup it waits for 64
+packets or timeout before processing them.
+This might cause the guest to run out of tx buffers while the host
+holds them up.
 
-I personally prefer to use non paravirtualized cpu hotplug and implement the 
-existing interfaces instead in the hypervisor. (sigp/sclp for s390 and 
-maybe acpi for x86 etc.). This is not a performance critical operation.
+This is a temporal solution to quickly bring back performance to 800mbps.
+But a better fix will soon be sent (its not the only problem).
 
+Signed-off-by: Dor Laor <dor.laor@qumranet.com>
+---
+ qemu/hw/virtio-net.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Christian
+diff --git a/qemu/hw/virtio-net.c b/qemu/hw/virtio-net.c
+index 777fe2c..3d07b65 100644
+--- a/qemu/hw/virtio-net.c
++++ b/qemu/hw/virtio-net.c
+@@ -293,7 +293,7 @@ void *virtio_net_init(PCIBus *bus, NICInfo *nd, int devfn)
+     n->vdev.update_config = virtio_net_update_config;
+     n->vdev.get_features = virtio_net_get_features;
+     n->rx_vq = virtio_add_queue(&n->vdev, 512, virtio_net_handle_rx);
+-    n->tx_vq = virtio_add_queue(&n->vdev, 128, virtio_net_handle_tx);
++    n->tx_vq = virtio_add_queue(&n->vdev, 512, virtio_net_handle_tx);
+     n->can_receive = 0;
+     memcpy(n->mac, nd->macaddr, 6);
+     n->vc = qemu_new_vlan_client(nd->vlan, virtio_net_receive,
+-- 
+1.5.3.7
