@@ -1,13 +1,14 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [PATCH/RFC 0/2] CPU hotplug virtio driver
-Date: Wed, 09 Jan 2008 12:42:22 +0200
-Message-ID: <4784A50E.6050302__31329.7201217667$1199875448$gmane$org@qumranet.com>
-References: <11998740663306-git-send-email-gcosta@redhat.com>
+From: Marcelo Tosatti <marcelo@kvack.org>
+Subject: Re: [kvm-devel] [PATCH] kvm guest balloon driver
+Date: Wed, 9 Jan 2008 09:14:32 -0200
+Message-ID: <20080109111432.GB24900__13432.905675336$1199877631$gmane$org@dmt>
+References: <20080108153356.GA21726@dmt> <478399D5.9030707@codemonkey.ws>
+	<20080109100621.GL6958@v2.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11998740663306-git-send-email-gcosta@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20080109100621.GL6958@v2.random>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,38 +18,16 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber de Oliveira Costa <gcosta@redhat.com>
-Cc: kvm-devel@lists.sourceforge.net, marcelot@redhat.com, virtualization@lists.linux-foundation.org
+To: Andrea Arcangeli <andrea@qumranet.com>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber de Oliveira Costa wrote:
-> I'm sending a first draft of my proposed cpu hotplug driver for kvm/virtio
-> The first patch is the kernel module, while the second, the userspace pci device.
->
-> The host boots with the maximum cpus it should ever use, through the -smp parameter.
-> Due to real machine constraints (which qemu copies), i386 does not allow for any addition
-> of cpus after boot, so this is the most general way.
->
-> I do however, include an "attempt_buffer" in the userspace part. It's purpose is to
-> allow tools like virt-manager to set a max_cpus (-smp), and a desired number of cpus
-> in their configuration files. (and AFAICT, there's is no easy way for them to tell when the
-> backend driver is up and running)
->
-> Other than that, it should be pretty much straightforward.
->
-> Looking forward for your comments
->
->   
+On Wed, Jan 09, 2008 at 11:06:21AM +0100, Andrea Arcangeli wrote:
+> On Tue, Jan 08, 2008 at 09:42:13AM -0600, Anthony Liguori wrote:
+> > Instead of allocating a node for each page, you could use page->private 
+> 
+> page->lru is probably better for this so splice still works
+> etc... (the struct page isn't visible to the guest VM so it's free to
+> use)
 
-I would much prefer to see cpu hotplug implemented via acpi.  Such an 
-implementation would work on older kernels without change, and will also 
-work with other operating systems.  It isn't a high-speed interface so 
-virtio doesn't buy us anything.
-
-Linux appears to support it (CONFIG_ACPI_HOTPLUG_CPU) so all that's 
-needed is the host side support (likely qemu/bios only).  Of course 
-hacking on acpi is fun, if you're the kind of person than enjoys dental 
-surgery.
-
--- 
-error compiling committee.c: too many arguments to function
+Yeap, that works.
