@@ -1,16 +1,16 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: virtio_net and SMP guests
-Date: Thu, 10 Jan 2008 16:51:58 +0100
-Message-ID: <200801101651.58908.borntraeger__45905.3527949893$1199980491$gmane$org@de.ibm.com>
+Date: Fri, 11 Jan 2008 20:53:00 +1100
+Message-ID: <200801112053.01861.rusty__26786.7741561078$1200045337$gmane$org@rustcorp.com.au>
 References: <200712141312.05562.borntraeger@de.ibm.com>
-	<200801101337.40433.borntraeger@de.ibm.com>
 	<200801101639.15995.borntraeger@de.ibm.com>
+	<200801101651.58908.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200801101639.15995.borntraeger@de.ibm.com>
+In-Reply-To: <200801101651.58908.borntraeger@de.ibm.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,80 +22,14 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, netdev@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>, Dor Laor <dor.laor@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>, Dor Laor <dor.laor@qumranet.com>, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Donnerstag, 10. Januar 2008 schrieb Christian Borntraeger:
-> Am Donnerstag, 10. Januar 2008 schrieb Christian Borntraeger:
-> > Am Dienstag, 18. Dezember 2007 schrieb Rusty Russell:
-> > > To me this points to doing interrupt suppression a different way.  If 
-we
-> > > have a ->disable_cb() virtio function, and call it before we call
-> > > netif_rx_schedule, does that fix it?
-> > 
-> > The fix looks good and I agree with it.
-> > 
-> > There is one problem that I try to find for some days, but the following 
-> > BUG_ON triggers:
-> > 
-> > static void vring_disable_cb(struct virtqueue *_vq)
-> > {
-> >         struct vring_virtqueue *vq = to_vvq(_vq);
-> > 
-> >         START_USE(vq);
-> > ---->   BUG_ON(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT);
-> >         vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
-> >         END_USE(vq);
-> > }
-> 
-> Ok, I found it:
-> 
-> static int virtnet_open(struct net_device *dev)
-> {
->         struct virtnet_info *vi = netdev_priv(dev);
->         try_fill_recv(vi);
->         /* If we didn't even get one input buffer, we're useless. */
->         if (vi->num == 0)
->                 return -ENOMEM;
-> 					---> int for new packet
-> 					static void skb_recv_done(struct virtqueue *rvq)
-> 					{
->         					struct virtnet_info *vi = rvq->vdev->priv;
-> 					        /* Suppress further interrupts. */
-> 					        rvq->vq_ops->disable_cb(rvq);
-> 					        netif_rx_schedule(vi->dev, &vi->napi);
-> 					}
-> 					- poll is not yet possible, no softirq
-> 					- return from interrupt
->         napi_enable(&vi->napi);
-> 	vi->rvq->vq_ops->disable_cb(vi->rvq);
-> 					---> BUG: its already disabled
+On Friday 11 January 2008 02:51:58 Christian Borntraeger wrote:
+> What about the following patch:
 
-Btw. this problem also happens on single processor guests.
+Looks correct and in fact pretty orthodox.
 
-What about the following patch:
+I've folded this in, thanks!
 
----
- drivers/net/virtio_net.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-Index: kvm/drivers/net/virtio_net.c
-===================================================================
---- kvm.orig/drivers/net/virtio_net.c
-+++ kvm/drivers/net/virtio_net.c
-@@ -179,9 +179,12 @@ static void try_fill_recv(struct virtnet
- static void skb_recv_done(struct virtqueue *rvq)
- {
- 	struct virtnet_info *vi = rvq->vdev->priv;
--	/* Suppress further interrupts. */
--	rvq->vq_ops->disable_cb(rvq);
--	netif_rx_schedule(vi->dev, &vi->napi);
-+	/* Schedule NAPI, Suppress further interrupts if successful. */
-+
-+	if (netif_rx_schedule_prep(vi->dev, &vi->napi)) {
-+		rvq->vq_ops->disable_cb(rvq);
-+		__netif_rx_schedule(vi->dev, &vi->napi);
-+	}
- }
- 
- static int virtnet_poll(struct napi_struct *napi, int budget)
+Rusty.
