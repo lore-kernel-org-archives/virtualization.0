@@ -1,14 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Remove unnecessary pr_debug()
-Date: Fri, 11 Jan 2008 20:53:40 +1100
-Message-ID: <200801112053.40708.rusty@rustcorp.com.au>
-References: <1199832125343-git-send-email-aliguori@us.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH] virtio_rng: adopt driver to newest virtio code
+Date: Mon, 14 Jan 2008 16:51:47 +0100
+Message-ID: <200801141651.47870.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1199832125343-git-send-email-aliguori@us.ibm.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,16 +17,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 09 January 2008 09:42:05 Anthony Liguori wrote:
-> This is not formatted correctly and really not useful, so let's just remove
-> it.
->
-> Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Rusty,
 
-Thanks, applied.
+This patch changes the virtio_rng to a callback without a return value.
 
-Rusty.
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+---
+ drivers/char/hw_random/virtio-rng.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+Index: kvm/drivers/char/hw_random/virtio-rng.c
+===================================================================
+--- kvm.orig/drivers/char/hw_random/virtio-rng.c
++++ kvm/drivers/char/hw_random/virtio-rng.c
+@@ -27,13 +27,12 @@ static struct virtqueue *vq;
+ static u32 random_data;
+ static bool have_data;
+ 
+-static bool random_recv_done(struct virtqueue *vq)
++static void random_recv_done(struct virtqueue *vq)
+ {
+ 	have_data = true;
+ 
+-	/* Don't suppress callbacks: there can't be any more since we
++	/* No need to call disable_cb: there can't be any more since we
+ 	 * have used up the only buffer. */
+-	return true;
+ }
+ 
+ static void register_buffer(void)
