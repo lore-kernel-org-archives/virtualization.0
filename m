@@ -1,20 +1,12 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH] KVM simplified virtio balloon driver
-Date: Thu, 17 Jan 2008 17:35:23 -0600
-Message-ID: <478FE63B.90402__7167.2834027142$1200613129$gmane$org@us.ibm.com>
-References: <20080114200357.GA18354@dmt>
-	<1200525166.26281.103.camel@localhost.localdomain>
-	<200801171245.59510.rusty@rustcorp.com.au>
-	<200801171032.26198.borntraeger@de.ibm.com>
-	<1200565558.22385.13.camel@localhost>
-	<1200570025.26281.141.camel@localhost.localdomain>
-	<478F5E85.9020009@us.ibm.com>
-	<1200610891.26281.171.camel@localhost.localdomain>
-Mime-Version: 1.0
+From: Michael Alexander <malexand@wu-wien.ac.at>
+Subject: CfP 3rd Workshop on Virtualization in HPC Cluster and Grid
+	Computing Environments (VHPC'08)
+Date: Fri, 18 Jan 2008 00:57:58 +0100
+Message-ID: <F0817382-25D4-4279-B375-5E6CA0699CE9@wu-wien.ac.at>
+Mime-Version: 1.0 (Apple Message framework v915)
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1200610891.26281.171.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,73 +16,163 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dor.laor@qumranet.com
-Cc: Marcelo Tosatti <marcelo@kvack.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, schwidefsky@de.ibm.com, kvm-devel <kvm-devel@lists.sourceforge.net>
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dor Laor wrote:
-> On Thu, 2008-01-17 at 07:56 -0600, Anthony Liguori wrote:
->   
->> Dor Laor wrote:
->>     
->>> On Thu, 2008-01-17 at 11:25 +0100, Martin Schwidefsky wrote:
->>>   
->>>       
->>>>> Another idea: Martin added an oom notifier to the cmm driver. Before the 
->>>>> oom-killer kicks in cmm will try to free 256 pages. I think your virtio 
->>>>> balloon driver should do the same - it seems to be the correct tradeoff. 
->>>>>       
->>>>>           
->>>> Nod, you definitly want to add an oom notifier. If 256 pages is the
->>>> correct number of pages to free is debatable. We have seen long delays
->>>> for a process that quickly eats up memory if there are lots of pages in
->>>> the balloon. The problem is that the memory management tries hard to
->>>> find memory until it decides to oom kill a process, only to be stopped
->>>> in the last second by the oom notifier. The 1MB is quickly eaten up
->>>> again so the whole things starts again. The profile of such a scenario
->>>> shows that almost all cpu is burned in the page reclaim code.
->>>>
->>>>     
->>>>         
->>> Seconded, in that case we can add a config space notification from the
->>> guest to the host that will be triggered by the oom.
->>> The host will get this notification and will decide whether to allow the
->>> guest to deflate the balloon or to keep the current balloon size because
->>> the whole host is over committed.
->>>   
->>>       
->> The host doesn't decide whether to allow the guest to deflate.  Virtual 
->> memory size and resident memory side are independent in KVM.  The host 
->> decides what the RSS is but the guest is free to determine it's VSS.  
->> The host provides hints to the guest about it's RSS size (via 
->> ballooning) so the guest can optimize it's VSS size.  If guest chooses 
->> to make it's VSS size to large, it will only hurt itself (by being 
->> forced to swap by the host).
->>     
->
-> ok, this is true when the new memory controller targeted for the next
-> kernel.In that case I more then agree.
-> Nevertheless, the guest should pass the host data about it's current
-> memory usage (working set size, oom triggering, etc) so the host would 
-> change the rss limit dynamically.
->   
 
-What is the host going to do if the guest is OOMing?  There is no way 
-that the host can *verify* that the guest is OOMing so nothing prevents 
-the guest from lying about the fact that it's OOMing in an attempt to 
-get more memory.
+Apologies if you received multiple copies of this message.
 
-More importantly though, the RSS limit has nothing to do with the guest 
-OOMing.  Reducing the guest's RSS limit will result in the guest 
-swapping, not OOMing.  Only the guest can prevent itself from OOMing by 
-free'ing pages that were previously ballooned and that is what is being 
-recommended here.
 
-Regards,
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+CALL FOR PAPERS
 
-Anthony Liguori
+3rd Workshop on Virtualization in High-Performance Cluster
+and Grid Computing (VHPC'08)
 
-> Thanks,
-> Dor
->
->   
+as part of Euro-Par 2008, Las Palmas de Gran Canaria, Canary Island,
+Spain
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+
+Date: August 26-29, 2008
+
+Euro-Par 2008: http://europar2008.caos.uab.es/
+Workshop URL: http://xhpc.wu-wien.ac.at/
+
+
+SUBMISSION DEADLINE:
+Abstracts: February 4, 2008
+Full Paper: April 14, 2008
+
+
+Scope:
+Virtual machine monitors (VMMs) are becoming tightly integrated with
+standard OS distributions, leading to increased adoption in many
+application areas including scientific educational and high-performance
+computing (HPC). VMMs allow for the concurrent execution of potentially
+large numbers of virtual machines, providing encapsulation, isolation,
+and the possibility for migrating VMs between physical hosts. These
+features enable physical clusters to be treated as "computation pools",
+where a variety of execution environments can be dynamically
+instantiated on the underlying hardware. VM technology is therefore
+opening up new architectures and services for HPC in cluster and grid
+environments, but consensus has not yet emerged on the best models
+and tools. This workshop aims to bring together researchers and
+practitioners working on virtualization in HPC environments, with the
+goal of sharing experience and promoting the development of a
+research community in this emerging area.
+
+The workshop will be one day in length, composed of 20 min paper
+presentations, each followed by 10 min discussion sections.
+Presentations may be accompanied by interactive demonstrations.
+The workshop will also include a 30 min panel discussion by presenters.
+
+
+
+
+TOPICS
+
+Topics include, but are not limited to, the following subject matters:
+
+- Virtualization in cluster and grid environments
+- Workload characterizations for VM-based clusters
+- VM cluster and grid architectures
+- Cluster reliability, fault-tolerance, and security
+- Compute job entry and scheduling
+- Compute workload load leveling
+- Cluster and grid filesystems for VMs
+- VMMs, VMs and QoS guarantees
+- Research and education use cases
+- VM cluster distribution algorithms
+- MPI, PVM on virtual machines
+- System sizing
+- Hardware support for virtualization
+- High-speed interconnects in hypervisors
+- Hypervisor extensions and utilities for cluster and grid computing
+- Network architectures for VM-based clusters
+- VMMs/Hypervisors on large SMP machines
+- Performance models
+- Performance management and tuning hosts and guest VMs
+- Power considerations
+- VMM performance tuning on various load types
+- Xen/other VMM cluster/grid tools
+- High-speed Device access from VMs
+- Management, deployment of clusters and grid environments with VMs
+- Information systems for virtualized clusters
+- Management of system images for virtual machines
+- Integration with relevant standards e.g. CIM, GLUE, OGF, etc.
+
+
+PAPER SUBMISSION
+
+Papers submitted to each workshop will be reviewed by at least two
+members of the program committee and external reviewers. Submissions
+should include abstract, key words, the e-mail address of the
+corresponding author, and must not exceed 10 pages, including tables
+and figures at a main font size no smaller than 11 point. Submission
+of a paper should be regarded as a commitment that, should the paper be
+accepted, at least one of the authors will register and attend the
+conference to present the work.
+
+Accepted papers will be published in the Springer LNCS series - the
+format must be according to the Springer LNCS Style. Initial
+submissions are in PDF, accepted papers will be requested to
+provided source files.
+
+http://www.springer.de/comp/lncs/authors.html
+
+
+Submission Link:
+http://www.edas.info/newPaper.php?c=3D6123&
+
+
+
+IMPORTANT DATES
+
+
+February 4, 2008 - Abstract submissions due
+Full paper submission due: April 14, 2008
+Acceptance notification: May 3, 2008
+Camera-ready due: May 26, 2008
+Conference: August 26-29, 2008
+
+
+CHAIR
+
+
+Michael Alexander (chair), WU Vienna, Austria
+Stephen Childs (co-chair), Trinity College, Dublin, Ireland
+
+
+PROGRAM COMMITTEE
+
+
+Jussara Almeida, Federal University of Minas Gerais, Brasil
+Padmashree Apparao, Intel Corp., US
+Hassan Barada, Etisalat University College, UAE
+Volker Buege, University of Karlsruhe, Germany
+Simon Crosby, Xensource, UK
+Marcus Hardt, Forschungszentrum Karlsruhe, Germany
+Sverre Jarp, CERN, Switzerland
+Krishna Kant, Intel Corporation, US
+Yves Kemp, University of Karlsruhe, Germany
+Naoya Maruyama, Tokyo Institute of Technology, Japan
+Jean-Marc Menaud, Ecole des Mines de Nantes, France
+Jos=E9 E. Moreira, IBM Watson Research Center, US
+Yoshio Turner, HP Labs
+Andreas Unterkircher, CERN, Switzerland
+Dongyan Xu, Purdue University, US
+
+
+GENERAL INFORMATION
+
+
+The workshop will be held as part of Euro-Par 2008, Las Palmas de
+Gran Canaria, Canary Island, Spain.
+
+Euro-Par 2008: http://europar2008.caos.uab.es/
