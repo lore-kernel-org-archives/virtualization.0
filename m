@@ -1,8 +1,12 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH] fix drivers/lguest Makefile entry
-Date: Fri, 18 Jan 2008 00:16:43 -0200
-Message-ID: <12006226032537-git-send-email-gcosta__23087.4864537784$1200622731$gmane$org@redhat.com>
+Subject: [PATCH 3/10] provide a native_init_IRQ function to x86_64
+Date: Fri, 18 Jan 2008 15:20:18 -0200
+Message-ID: <12006768473571-git-send-email-gcosta__33470.8757851788$1200686771$gmane$org@redhat.com>
+References: <12006768251548-git-send-email-gcosta@redhat.com>
+	<12006768362108-git-send-email-gcosta@redhat.com>
+	<1200676842822-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1200676842822-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -12,29 +16,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: lguest@ozlabs.org
-Cc: linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-It should depend on CONFIG_LGUEST, not CONFIG_LGUEST_GUEST
+x86_64 lacks a native_init_IRQ() function, so we turn the arch's
+init_IRQ() function into a native construct
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- drivers/Makefile |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/x86/kernel/i8259_64.c  |    4 +++-
+ include/asm-x86/hw_irq_64.h |    1 +
+ 2 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/Makefile b/drivers/Makefile
-index ee1b6a5..58a17e9 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -73,7 +73,7 @@ obj-$(CONFIG_ISDN)		+= isdn/
- obj-$(CONFIG_EDAC)		+= edac/
- obj-$(CONFIG_MCA)		+= mca/
- obj-$(CONFIG_EISA)		+= eisa/
--obj-$(CONFIG_LGUEST_GUEST)	+= lguest/
-+obj-$(CONFIG_LGUEST)		+= lguest/
- obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
- obj-$(CONFIG_CPU_IDLE)		+= cpuidle/
- obj-$(CONFIG_MMC)		+= mmc/
+diff --git a/arch/x86/kernel/i8259_64.c b/arch/x86/kernel/i8259_64.c
+index cba13e0..738517e 100644
+--- a/arch/x86/kernel/i8259_64.c
++++ b/arch/x86/kernel/i8259_64.c
+@@ -456,7 +456,9 @@ void __init init_ISA_irqs (void)
+ 	}
+ }
+ 
+-void __init init_IRQ(void)
++void init_IRQ(void) __attribute__((weak, alias("native_init_IRQ")));
++
++void __init native_init_IRQ(void)
+ {
+ 	int i;
+ 
+diff --git a/include/asm-x86/hw_irq_64.h b/include/asm-x86/hw_irq_64.h
+index a346159..312a58d 100644
+--- a/include/asm-x86/hw_irq_64.h
++++ b/include/asm-x86/hw_irq_64.h
+@@ -141,6 +141,7 @@ extern void print_IO_APIC(void);
+ extern int IO_APIC_get_PCI_irq_vector(int bus, int slot, int fn);
+ extern void send_IPI(int dest, int vector);
+ extern void setup_ioapic_dest(void);
++extern void native_init_IRQ(void);
+ 
+ extern unsigned long io_apic_irqs;
+ 
 -- 
-1.5.0.6
+1.4.4.2
