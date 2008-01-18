@@ -1,14 +1,17 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 5/10] puts read and write cr8 into pv_cpu_ops
-Date: Fri, 18 Jan 2008 15:20:20 -0200
-Message-ID: <1200676857691-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 8/10] add asm_offset PARAVIRT constants
+Date: Fri, 18 Jan 2008 15:20:23 -0200
+Message-ID: <12006768732175-git-send-email-gcosta@redhat.com>
 References: <12006768251548-git-send-email-gcosta@redhat.com>
 	<12006768362108-git-send-email-gcosta@redhat.com>
 	<1200676842822-git-send-email-gcosta@redhat.com>
 	<12006768473571-git-send-email-gcosta@redhat.com>
 	<12006768521391-git-send-email-gcosta@redhat.com>
+	<1200676857691-git-send-email-gcosta@redhat.com>
+	<12006768631010-git-send-email-gcosta@redhat.com>
+	<12006768683247-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12006768521391-git-send-email-gcosta@redhat.com>
+In-Reply-To: <12006768683247-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,46 +25,37 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds room for read and write_cr8 functions back in
-pv_cpu_ops struct
+This patch adds the constant PARAVIRT needs in asm_offsets_64.c
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- include/asm-x86/paravirt.h |   15 +++++++++++++++
- 1 files changed, 15 insertions(+), 0 deletions(-)
+ arch/x86/kernel/asm-offsets_64.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
 
-diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
-index 7ff25c2..3e7ca42 100644
---- a/include/asm-x86/paravirt.h
-+++ b/include/asm-x86/paravirt.h
-@@ -101,6 +101,11 @@ struct pv_cpu_ops {
- 	unsigned long (*read_cr4)(void);
- 	void (*write_cr4)(unsigned long);
- 
-+#ifdef CONFIG_X86_64
-+	unsigned long (*read_cr8)(void);
-+	void (*write_cr8)(unsigned long);
+diff --git a/arch/x86/kernel/asm-offsets_64.c b/arch/x86/kernel/asm-offsets_64.c
+index 2b32719..494e1e0 100644
+--- a/arch/x86/kernel/asm-offsets_64.c
++++ b/arch/x86/kernel/asm-offsets_64.c
+@@ -61,6 +61,20 @@ int main(void)
+ 	ENTRY(data_offset);
+ 	BLANK();
+ #undef ENTRY
++#ifdef CONFIG_PARAVIRT
++	BLANK();
++	OFFSET(PARAVIRT_enabled, pv_info, paravirt_enabled);
++	OFFSET(PARAVIRT_PATCH_pv_cpu_ops, paravirt_patch_template, pv_cpu_ops);
++	OFFSET(PARAVIRT_PATCH_pv_irq_ops, paravirt_patch_template, pv_irq_ops);
++	OFFSET(PV_IRQ_irq_disable, pv_irq_ops, irq_disable);
++	OFFSET(PV_IRQ_irq_enable, pv_irq_ops, irq_enable);
++	OFFSET(PV_CPU_iret, pv_cpu_ops, iret);
++	OFFSET(PV_CPU_irq_enable_syscall_ret, pv_cpu_ops, irq_enable_syscall_ret);
++	OFFSET(PV_CPU_swapgs, pv_cpu_ops, swapgs);
++	OFFSET(PV_MMU_read_cr2, pv_mmu_ops, read_cr2);
 +#endif
 +
- 	/* Segment descriptor handling */
- 	void (*load_tr_desc)(void);
- 	void (*load_gdt)(const struct desc_ptr *);
-@@ -614,6 +619,16 @@ static inline void write_cr4(unsigned long x)
- 	PVOP_VCALL1(pv_cpu_ops.write_cr4, x);
- }
- 
-+static inline unsigned long read_cr8(void)
-+{
-+	return PVOP_CALL0(unsigned long, pv_cpu_ops.read_cr8);
-+}
 +
-+static inline void write_cr8(unsigned long x)
-+{
-+	PVOP_VCALL1(pv_cpu_ops.write_cr8, x);
-+}
-+
- static inline void raw_safe_halt(void)
- {
- 	PVOP_VCALL0(pv_irq_ops.safe_halt);
+ #ifdef CONFIG_IA32_EMULATION
+ #define ENTRY(entry) DEFINE(IA32_SIGCONTEXT_ ## entry, offsetof(struct sigcontext_ia32, entry))
+ 	ENTRY(ax);
 -- 
 1.4.4.2
