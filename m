@@ -1,12 +1,11 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 3/10] provide a native_init_IRQ function to x86_64
-Date: Fri, 18 Jan 2008 15:20:18 -0200
-Message-ID: <12006768473571-git-send-email-gcosta__33470.8757851788$1200686771$gmane$org@redhat.com>
+Subject: [PATCH 2/10] add stringify header
+Date: Fri, 18 Jan 2008 15:20:17 -0200
+Message-ID: <1200676842822-git-send-email-gcosta__5480.95042254335$1200686777$gmane$org@redhat.com>
 References: <12006768251548-git-send-email-gcosta@redhat.com>
 	<12006768362108-git-send-email-gcosta@redhat.com>
-	<1200676842822-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1200676842822-git-send-email-gcosta@redhat.com>
+In-Reply-To: <12006768362108-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,41 +19,24 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-x86_64 lacks a native_init_IRQ() function, so we turn the arch's
-init_IRQ() function into a native construct
+We use a __stringify construction at paravirt_patch_64.c.
+It's better practice to include the stringify header directly
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- arch/x86/kernel/i8259_64.c  |    4 +++-
- include/asm-x86/hw_irq_64.h |    1 +
- 2 files changed, 4 insertions(+), 1 deletions(-)
+ arch/x86/kernel/paravirt_patch_64.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/arch/x86/kernel/i8259_64.c b/arch/x86/kernel/i8259_64.c
-index cba13e0..738517e 100644
---- a/arch/x86/kernel/i8259_64.c
-+++ b/arch/x86/kernel/i8259_64.c
-@@ -456,7 +456,9 @@ void __init init_ISA_irqs (void)
- 	}
- }
+diff --git a/arch/x86/kernel/paravirt_patch_64.c b/arch/x86/kernel/paravirt_patch_64.c
+index cbfc4f3..7d904e1 100644
+--- a/arch/x86/kernel/paravirt_patch_64.c
++++ b/arch/x86/kernel/paravirt_patch_64.c
+@@ -1,5 +1,6 @@
+ #include <asm/paravirt.h>
+ #include <asm/asm-offsets.h>
++#include <linux/stringify.h>
  
--void __init init_IRQ(void)
-+void init_IRQ(void) __attribute__((weak, alias("native_init_IRQ")));
-+
-+void __init native_init_IRQ(void)
- {
- 	int i;
- 
-diff --git a/include/asm-x86/hw_irq_64.h b/include/asm-x86/hw_irq_64.h
-index a346159..312a58d 100644
---- a/include/asm-x86/hw_irq_64.h
-+++ b/include/asm-x86/hw_irq_64.h
-@@ -141,6 +141,7 @@ extern void print_IO_APIC(void);
- extern int IO_APIC_get_PCI_irq_vector(int bus, int slot, int fn);
- extern void send_IPI(int dest, int vector);
- extern void setup_ioapic_dest(void);
-+extern void native_init_IRQ(void);
- 
- extern unsigned long io_apic_irqs;
- 
+ DEF_NATIVE(pv_irq_ops, irq_disable, "cli");
+ DEF_NATIVE(pv_irq_ops, irq_enable, "sti");
 -- 
 1.4.4.2
