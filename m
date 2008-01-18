@@ -1,8 +1,10 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 0/10] Tree fixes for PARAVIRT
-Date: Fri, 18 Jan 2008 15:20:15 -0200
-Message-ID: <12006768251548-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 1/10] add missing parameter for lookup_address
+Date: Fri, 18 Jan 2008 15:20:16 -0200
+Message-ID: <12006768362108-git-send-email-gcosta@redhat.com>
+References: <12006768251548-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <12006768251548-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -13,14 +15,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, mingo@elte.hu, roland@redhat.com
+Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, Glauber de Oliveira Costa <gcosta@redhat.com>, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+lookup_address() receives two parameters, but efi_64.c call
+is passing only one. It's actually preventing the tree from compiling
 
-This small series provides some more fixes towards the goal
-to have the PARAVIRT selectable for x86_64. After that, just
-some more small steps are needed.
+Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
+---
+ arch/x86/kernel/efi_64.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-The first fix is not even specific for PARAVIRT, and it's actually
-preventing the whole tree from booting.
+diff --git a/arch/x86/kernel/efi_64.c b/arch/x86/kernel/efi_64.c
+index f420819..1f8bbd9 100644
+--- a/arch/x86/kernel/efi_64.c
++++ b/arch/x86/kernel/efi_64.c
+@@ -45,9 +45,10 @@ static void __init early_mapping_set_exec(unsigned long start,
+ 					  int executable)
+ {
+ 	pte_t *kpte;
++	int level;
+ 
+ 	while (start < end) {
+-		kpte = lookup_address((unsigned long)__va(start));
++		kpte = lookup_address((unsigned long)__va(start), &level);
+ 		BUG_ON(!kpte);
+ 		if (executable)
+ 			set_pte(kpte, pte_mkexec(*kpte));
+-- 
+1.4.4.2
