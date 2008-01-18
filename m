@@ -1,15 +1,23 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 0/10] Tree fixes for PARAVIRT
-Date: Fri, 18 Jan 2008 14:31:00 -0800
-Message-ID: <479128A4.9070509__49333.7795757272$1200695803$gmane$org@goop.org>
-References: <12006768251548-git-send-email-gcosta@redhat.com>	
-	<20080118203259.GA3079@elte.hu> <20080118213711.GA24979@elte.hu>
-	<1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
+Subject: Re: [PATCH 9/10] provide __parainstructions section
+Date: Fri, 18 Jan 2008 14:47:19 -0800
+Message-ID: <47912C77.5090909__12017.6130593338$1200696630$gmane$org@goop.org>
+References: <12006768251548-git-send-email-gcosta@redhat.com>
+	<12006768362108-git-send-email-gcosta@redhat.com>
+	<1200676842822-git-send-email-gcosta@redhat.com>
+	<12006768473571-git-send-email-gcosta@redhat.com>
+	<12006768521391-git-send-email-gcosta@redhat.com>
+	<1200676857691-git-send-email-gcosta@redhat.com>
+	<12006768631010-git-send-email-gcosta@redhat.com>
+	<12006768683247-git-send-email-gcosta@redhat.com>
+	<12006768732175-git-send-email-gcosta@redhat.com>
+	<12006768793416-git-send-email-gcosta@redhat.com>
+	<20080118204125.GA20904@uranus.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
+In-Reply-To: <20080118204125.GA20904@uranus.ravnborg.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,38 +27,16 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: ak@suse.de, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, Ingo Molnar <mingo@elte.hu>, virtualization@lists.linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ehabkost@redhat.com
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu, roland@redhat.com, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zachary Amsden wrote:
-> Why are we rushing so much to do 64-bit paravirt that we are breaking
-> working configurations?  If the developement is going to be this
-> chaotic, it should be done and tested out of tree until it can
-> stabilize.
+Sam Ravnborg wrote:
+> Are we going to see this for other archs than just x86?
+> If so then please add this to include/asm-generic/vmlinux.lds.h
 >   
 
-x86.git is out of the mainline tree, and it seems to be working fairly 
-smoothly.  I've come to appreciate the "lots of small patches with quick 
-turnaround" model that Ingo has been pushing.
-
-> I do not like having to continuously retest and review the x86 branch
-> because the paravirt-ops are constantly in flux and the 32-bit code
-> keeps breaking.
->   
-
-Most of the activity is pure unification, with paravirt being part of 
-that.  It doesn't help that it increases the CONFIG_ combinatorial 
-explosion, but "make randconfig" shakes things out fairly quickly.
-
-> We won't be doing 64-bit paravirt-ops for exactly this reason - is there
-> a serious justification from the performance angle on modern 64-bit
-> hardware?  If not, why justify the complexity and hackery to Linux?
->   
-
-A big part of the rationale is to unify 32 and 64 bit, so that paravirt 
-isn't a gratuitous difference between the two.  Also, 32 and 64 bit Xen 
-have almost identical interface requirements, so the work is making 
-64-bit Xen progress (and lguest64, of course).
+In theory other architectures could use a similar mechanism, but for now 
+its x86 specific.
 
     J
