@@ -1,15 +1,14 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 0/10] Tree fixes for PARAVIRT
-Date: Fri, 18 Jan 2008 23:02:00 +0100
-Message-ID: <20080118220200.GA1071__40214.2196232036$1200693971$gmane$org@elte.hu>
-References: <12006768251548-git-send-email-gcosta@redhat.com>
-	<20080118203259.GA3079@elte.hu> <20080118213711.GA24979@elte.hu>
-	<1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
+From: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2/3] Make IRQ handlers typesafe.
+Date: Fri, 18 Jan 2008 15:43:59 -0500
+Message-ID: <47910F8F.3040107__21175.1601579182$1200694224$gmane$org@pobox.com>
+References: <200801190722.26154.rusty@rustcorp.com.au>
+	<200801190725.24271.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
+In-Reply-To: <200801190725.24271.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,47 +18,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Tejun Heo <htejun@gmail.com>, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, Ash Willis <ashwillis@programmer.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-* Zachary Amsden <zach@vmware.com> wrote:
-
-> > but in exchange you broke all of 32-bit with CONFIG_PARAVIRT=y. 
-> > Which means you did not even build-test it on 32-bit, let alone boot 
-> > test it...
+Rusty Russell wrote:
+> This patch lets interrupt handler functions have their natural type
+> (ie. exactly match the data pointer type); for transition it allows
+> the old irq_handler_t type as well.
 > 
-> Why are we rushing so much to do 64-bit paravirt that we are breaking 
-> working configurations?  If the developement is going to be this 
-> chaotic, it should be done and tested out of tree until it can 
-> stabilize.
+> To do this it uses a gcc extension, cast-to-union, which allows a type
+> to be cast to any type within the union.  When used in a wrapper
+> macro, it's a simple way of allowing one of several types.
+> 
+> (Some drivers now need to be cleaned up to compile, previous patch).
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> ---
+>  include/linux/interrupt.h |   17 +++++++++++++++--
+>  include/linux/kernel.h    |    7 +++++++
+>  kernel/irq/devres.c       |   10 +++++-----
+>  kernel/irq/manage.c       |    6 +++---
+>  4 files changed, 30 insertions(+), 10 deletions(-)
+> 
+> diff -r 0fe1a980708b include/linux/interrupt.h
+> --- a/include/linux/interrupt.h	Thu Jan 17 14:48:56 2008 +1100
+> +++ b/include/linux/interrupt.h	Thu Jan 17 15:42:01 2008 +1100
+> @@ -69,13 +69,26 @@ struct irqaction {
+>  };
+>  
+>  extern irqreturn_t no_action(int cpl, void *dev_id);
+> -extern int __must_check request_irq(unsigned int, irq_handler_t handler,
+> +
+> +/* Typesafe version of request_irq.  Also takes old-style void * handlers. */
+> +#define request_irq(irq, handler, flags, name, dev_id)			\
+> +	__request_irq((irq),						\
+> +		      check_either_type((handler), irq_handler_t,	\
+> +					int (*)(int, typeof(dev_id))),	\
+> +		      (flags), (name), (dev_id))
+> +
+> +extern int __must_check __request_irq(unsigned int, irq_handler_t handler,
+>  		       unsigned long, const char *, void *);
+>  extern void free_irq(unsigned int, void *);
+>  
+>  struct device;
+>  
+> -extern int __must_check devm_request_irq(struct device *dev, unsigned int irq,
+> +#define devm_request_irq(dev, irq, handler, flags, name, dev_id)	\
+> +	__devm_request_irq((dev), (irq),				\
+> +		      check_either_type((handler), irq_handler_t,	\
+> +					int (*)(int, typeof(dev_id))),	\
+> +		      (flags), (name), (dev_id))
+> +extern int __must_check __devm_request_irq(struct device *dev, unsigned int irq,
+>  			    irq_handler_t handler, unsigned long irqflags,
+>  			    const char *devname, void *dev_id);
 
-what you see is a open feedback cycle conducted on lkml. People send 
-patches for arch/x86, and we tell them if it breaks something. The bug 
-was found before i pushed out the x86.git devel tree (and the fix is 
-below - but this shouldnt matter to you because the bug never hit a 
-public x86.git tree).
+This is ugly and unnecessary.
 
-	Ingo
+Anything that does not use irq_handler_t is broken and should be fixed 
+(as noted in last email, I think I've covered all this driver work already)
 
-Index: linux/include/asm-x86/paravirt.h
-===================================================================
---- linux.orig/include/asm-x86/paravirt.h
-+++ linux/include/asm-x86/paravirt.h
-@@ -619,6 +619,7 @@ static inline void write_cr4(unsigned lo
- 	PVOP_VCALL1(pv_cpu_ops.write_cr4, x);
- }
- 
-+#ifdef CONFIG_X86_64
- static inline unsigned long read_cr8(void)
- {
- 	return PVOP_CALL0(unsigned long, pv_cpu_ops.read_cr8);
-@@ -628,6 +629,7 @@ static inline void write_cr8(unsigned lo
- {
- 	PVOP_VCALL1(pv_cpu_ops.write_cr8, x);
- }
-+#endif
- 
- static inline void raw_safe_halt(void)
- {
+And if by definition everything uses irq_handler_t, there is no need for 
+any of this "check_either_type" silliness.
+
+	Jeff
