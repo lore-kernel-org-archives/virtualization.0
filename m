@@ -1,14 +1,15 @@
-From: Zachary Amsden <zach@vmware.com>
+From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: [PATCH 0/10] Tree fixes for PARAVIRT
-Date: Fri, 18 Jan 2008 13:54:08 -0800
-Message-ID: <1200693248.21817.157.camel__23134.6935070635$1200693003$gmane$org@bodhitayantram.eng.vmware.com>
+Date: Fri, 18 Jan 2008 23:02:00 +0100
+Message-ID: <20080118220200.GA1071__40214.2196232036$1200693971$gmane$org@elte.hu>
 References: <12006768251548-git-send-email-gcosta@redhat.com>
-	<20080118203259.GA3079@elte.hu>  <20080118213711.GA24979@elte.hu>
+	<20080118203259.GA3079@elte.hu> <20080118213711.GA24979@elte.hu>
+	<1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080118213711.GA24979@elte.hu>
+Content-Disposition: inline
+In-Reply-To: <1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,33 +19,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@elte.hu>
+To: Zachary Amsden <zach@vmware.com>
 Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2008-01-18 at 22:37 +0100, Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
+
+* Zachary Amsden <zach@vmware.com> wrote:
+
+> > but in exchange you broke all of 32-bit with CONFIG_PARAVIRT=y. 
+> > Which means you did not even build-test it on 32-bit, let alone boot 
+> > test it...
 > 
-> > > The first fix is not even specific for PARAVIRT, and it's actually 
-> > > preventing the whole tree from booting.
-> > 
-> > on CONFIG_EFI, indeed :)
-> 
-> but in exchange you broke all of 32-bit with CONFIG_PARAVIRT=y. Which 
-> means you did not even build-test it on 32-bit, let alone boot test 
-> it...
+> Why are we rushing so much to do 64-bit paravirt that we are breaking 
+> working configurations?  If the developement is going to be this 
+> chaotic, it should be done and tested out of tree until it can 
+> stabilize.
 
-Why are we rushing so much to do 64-bit paravirt that we are breaking
-working configurations?  If the developement is going to be this
-chaotic, it should be done and tested out of tree until it can
-stabilize.
+what you see is a open feedback cycle conducted on lkml. People send 
+patches for arch/x86, and we tell them if it breaks something. The bug 
+was found before i pushed out the x86.git devel tree (and the fix is 
+below - but this shouldnt matter to you because the bug never hit a 
+public x86.git tree).
 
-I do not like having to continuously retest and review the x86 branch
-because the paravirt-ops are constantly in flux and the 32-bit code
-keeps breaking.
+	Ingo
 
-We won't be doing 64-bit paravirt-ops for exactly this reason - is there
-a serious justification from the performance angle on modern 64-bit
-hardware?  If not, why justify the complexity and hackery to Linux?
-
-Zach
+Index: linux/include/asm-x86/paravirt.h
+===================================================================
+--- linux.orig/include/asm-x86/paravirt.h
++++ linux/include/asm-x86/paravirt.h
+@@ -619,6 +619,7 @@ static inline void write_cr4(unsigned lo
+ 	PVOP_VCALL1(pv_cpu_ops.write_cr4, x);
+ }
+ 
++#ifdef CONFIG_X86_64
+ static inline unsigned long read_cr8(void)
+ {
+ 	return PVOP_CALL0(unsigned long, pv_cpu_ops.read_cr8);
+@@ -628,6 +629,7 @@ static inline void write_cr8(unsigned lo
+ {
+ 	PVOP_VCALL1(pv_cpu_ops.write_cr8, x);
+ }
++#endif
+ 
+ static inline void raw_safe_halt(void)
+ {
