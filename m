@@ -1,23 +1,15 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 9/10] provide __parainstructions section
-Date: Fri, 18 Jan 2008 14:47:19 -0800
-Message-ID: <47912C77.5090909__12017.6130593338$1200696630$gmane$org@goop.org>
-References: <12006768251548-git-send-email-gcosta@redhat.com>
-	<12006768362108-git-send-email-gcosta@redhat.com>
-	<1200676842822-git-send-email-gcosta@redhat.com>
-	<12006768473571-git-send-email-gcosta@redhat.com>
-	<12006768521391-git-send-email-gcosta@redhat.com>
-	<1200676857691-git-send-email-gcosta@redhat.com>
-	<12006768631010-git-send-email-gcosta@redhat.com>
-	<12006768683247-git-send-email-gcosta@redhat.com>
-	<12006768732175-git-send-email-gcosta@redhat.com>
-	<12006768793416-git-send-email-gcosta@redhat.com>
-	<20080118204125.GA20904@uranus.ravnborg.org>
+From: Tejun Heo <htejun@gmail.com>
+Subject: Re: [PATCH 3/3] Makes lguest's irq handler typesafe
+Date: Sat, 19 Jan 2008 08:12:33 +0900
+Message-ID: <47913261.5000708__30335.166763007$1200698236$gmane$org@gmail.com>
+References: <200801190722.26154.rusty@rustcorp.com.au>
+	<200801190725.24271.rusty@rustcorp.com.au>
+	<200801190727.36567.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080118204125.GA20904@uranus.ravnborg.org>
+In-Reply-To: <200801190727.36567.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,16 +19,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu, roland@redhat.com, ak@suse.de
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, Ash Willis <ashwillis@programmer.net>, Jeff Garzik <jgarzik@pobox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sam Ravnborg wrote:
-> Are we going to see this for other archs than just x86?
-> If so then please add this to include/asm-generic/vmlinux.lds.h
->   
+Rusty Russell wrote:
+> Just a trivial example.
+> ---
+>  drivers/lguest/lguest_device.c |    3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff -r 00ab7672f658 drivers/lguest/lguest_device.c
+> --- a/drivers/lguest/lguest_device.c	Thu Jan 17 16:54:00 2008 +1100
+> +++ b/drivers/lguest/lguest_device.c	Thu Jan 17 16:59:46 2008 +1100
+> @@ -179,9 +179,8 @@ static void lg_notify(struct virtqueue *
+>  	hcall(LHCALL_NOTIFY, lvq->config.pfn << PAGE_SHIFT, 0, 0);
+>  }
+>  
+> -static irqreturn_t lguest_interrupt(int irq, void *_vq)
+> +static irqreturn_t lguest_interrupt(int irq, struct virtqueue *vq)
+>  {
+> -	struct virtqueue *vq = _vq;
+>  	struct lguest_device_desc *desc = to_lgdev(vq->vdev)->desc;
+>  
+>  	if (unlikely(desc->config_change)) {
 
-In theory other architectures could use a similar mechanism, but for now 
-its x86 specific.
+Type safety is good but I doubt this would be worth the complexity.  It
+has some benefits but there's much larger benefit in keeping things in
+straight C.  People know that functions take fixed types and are also
+familiar with the convention of passing void * for callback arguments.
+IMHO, staying in line with those common knowledges easily trumps having
+type checking on interrupt handler.
 
-    J
+Also, how often do we see a bug where things go wrong because interrupt
+handler is given the wrong type of argument?  Even when such bug
+happens, I doubt it can escape the developer's workstation if he/she is
+paying any attention to testing.
+
+Thanks.
+
+-- 
+tejun
