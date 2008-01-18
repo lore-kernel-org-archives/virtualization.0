@@ -1,17 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 3/3] Makes lguest's irq handler typesafe
-Date: Sat, 19 Jan 2008 09:17:38 +1100
-Message-ID: <200801190917.39349.rusty__38913.3354685784$1200694806$gmane$org@rustcorp.com.au>
-References: <200801190722.26154.rusty@rustcorp.com.au>
-	<200801190727.36567.rusty@rustcorp.com.au>
-	<47910FF5.20206@pobox.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 0/10] Tree fixes for PARAVIRT
+Date: Fri, 18 Jan 2008 14:31:00 -0800
+Message-ID: <479128A4.9070509__49333.7795757272$1200695803$gmane$org@goop.org>
+References: <12006768251548-git-send-email-gcosta@redhat.com>	
+	<20080118203259.GA3079@elte.hu> <20080118213711.GA24979@elte.hu>
+	<1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47910FF5.20206@pobox.com>
-Content-Disposition: inline
+In-Reply-To: <1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,33 +19,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Tejun Heo <htejun@gmail.com>, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, Ash Willis <ashwillis@programmer.net>
+To: Zachary Amsden <zach@vmware.com>
+Cc: ak@suse.de, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, Ingo Molnar <mingo@elte.hu>, virtualization@lists.linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ehabkost@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Saturday 19 January 2008 07:45:41 Jeff Garzik wrote:
-> Rusty Russell wrote:
-> > -static irqreturn_t lguest_interrupt(int irq, void *_vq)
-> > +static irqreturn_t lguest_interrupt(int irq, struct virtqueue *vq)
-> >  {
-> > -	struct virtqueue *vq = _vq;
-> >  	struct lguest_device_desc *desc = to_lgdev(vq->vdev)->desc;
->
-> Ugh.
->
-> This will be a compatibility nightmare.  I don't see how void* is so
-> evil for this, or timers.
+Zachary Amsden wrote:
+> Why are we rushing so much to do 64-bit paravirt that we are breaking
+> working configurations?  If the developement is going to be this
+> chaotic, it should be done and tested out of tree until it can
+> stabilize.
+>   
 
-The compiler checks types, and we should use it (though note that when I 
-typesafed the kthread code I didn't find any bugs, so safety arguments must 
-be muted).  The gratuitous casts back and forth are annoying and silly.
+x86.git is out of the mainline tree, and it seems to be working fairly 
+smoothly.  I've come to appreciate the "lots of small patches with quick 
+turnaround" model that Ingo has been pushing.
 
-The compatibility nightmare is one reason for the previous patch (which you  
-didn't understand, I hope it's now clear).
+> I do not like having to continuously retest and review the x86 branch
+> because the paravirt-ops are constantly in flux and the 32-bit code
+> keeps breaking.
+>   
 
-> It's not like there's a huge cost associated with a pointer alias.
+Most of the activity is pure unification, with paravirt being part of 
+that.  It doesn't help that it increases the CONFIG_ combinatorial 
+explosion, but "make randconfig" shakes things out fairly quickly.
 
-True, but this is not about performance.  It's about making code simpler and 
-compiler-checkable.
+> We won't be doing 64-bit paravirt-ops for exactly this reason - is there
+> a serious justification from the performance angle on modern 64-bit
+> hardware?  If not, why justify the complexity and hackery to Linux?
+>   
 
-Rusty.
+A big part of the rationale is to unify 32 and 64 bit, so that paravirt 
+isn't a gratuitous difference between the two.  Also, 32 and 64 bit Xen 
+have almost identical interface requirements, so the work is making 
+64-bit Xen progress (and lguest64, of course).
+
+    J
