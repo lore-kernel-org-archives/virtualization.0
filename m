@@ -1,16 +1,16 @@
-From: "Glauber de Oliveira Costa" <glommer@gmail.com>
-Subject: Re: [PATCH 0/10] Tree fixes for PARAVIRT
-Date: Fri, 18 Jan 2008 23:24:51 -0200
-Message-ID: <5d6222a80801181724p40bdedebgded1d43b052d168e__7634.29673756963$1200706080$gmane$org@mail.gmail.com>
-References: <12006768251548-git-send-email-gcosta@redhat.com>
-	<20080118203259.GA3079@elte.hu> <20080118213711.GA24979@elte.hu>
-	<1200693248.21817.157.camel@bodhitayantram.eng.vmware.com>
-	<20080118220200.GA1071@elte.hu>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 3/3] Makes lguest's irq handler typesafe
+Date: Sat, 19 Jan 2008 12:28:29 +1100
+Message-ID: <200801191228.30363.rusty__47134.3560763218$1200706250$gmane$org@rustcorp.com.au>
+References: <200801190722.26154.rusty@rustcorp.com.au>
+	<200801190727.36567.rusty@rustcorp.com.au>
+	<47913261.5000708@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080118220200.GA1071@elte.hu>
+In-Reply-To: <47913261.5000708@gmail.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,37 +21,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
+To: Tejun Heo <htejun@gmail.com>
+Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, Ash Willis <ashwillis@programmer.net>, Jeff Garzik <jgarzik@pobox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Jan 18, 2008 8:02 PM, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Zachary Amsden <zach@vmware.com> wrote:
->
-> > > but in exchange you broke all of 32-bit with CONFIG_PARAVIRT=y.
-> > > Which means you did not even build-test it on 32-bit, let alone boot
-> > > test it...
-> >
-> > Why are we rushing so much to do 64-bit paravirt that we are breaking
-> > working configurations?  If the developement is going to be this
-> > chaotic, it should be done and tested out of tree until it can
-> > stabilize.
->
-> what you see is a open feedback cycle conducted on lkml. People send
-> patches for arch/x86, and we tell them if it breaks something. The bug
-> was found before i pushed out the x86.git devel tree (and the fix is
-> below - but this shouldnt matter to you because the bug never hit a
-> public x86.git tree).
->
->         Ingo
->
-Other than this, it seems to build and boot fine.
+On Saturday 19 January 2008 10:12:33 Tejun Heo wrote:
+> Type safety is good but I doubt this would be worth the complexity.  It
+> has some benefits but there's much larger benefit in keeping things in
+> straight C.  People know that functions take fixed types and are also
+> familiar with the convention of passing void * for callback arguments.
+> IMHO, staying in line with those common knowledges easily trumps having
+> type checking on interrupt handler.
 
-Do you want me to resend ?
--- 
-Glauber de Oliveira Costa.
-"Free as in Freedom"
-http://glommer.net
+I sympathise with this argument, but I think just because people are familiar 
+with existing hacks shouldn't prevent improvement.  I think the resulting 
+code is clearer and more readable.
 
-"The less confident you are, the more serious you have to act."
+Even in the implementation, the tricky part is the check_either_type() macro: 
+the rest is straight-forward.
+
+> Also, how often do we see a bug where things go wrong because interrupt
+> handler is given the wrong type of argument?  Even when such bug
+> happens, I doubt it can escape the developer's workstation if he/she is
+> paying any attention to testing.
+
+I agree this one is unlikely.  But I am trying to spread type-safety more 
+widely (see previous kthread patches).
+
+I like changing the kernel to make life simpler for developers.  We don't do 
+enough of it.
+
+Cheers,
+Rusty.
