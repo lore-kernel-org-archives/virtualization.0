@@ -1,15 +1,15 @@
-From: Tejun Heo <htejun@gmail.com>
-Subject: Re: [PATCH 3/3] Makes lguest's irq handler typesafe
-Date: Sat, 19 Jan 2008 13:08:28 +0900
-Message-ID: <479177BC.8030200__34334.9215262153$1200715833$gmane$org@gmail.com>
-References: <200801190722.26154.rusty@rustcorp.com.au>
-	<47915515.1020905@gmail.com> <47915614.7080608@gmail.com>
-	<200801191459.49735.rusty@rustcorp.com.au>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH] KVM simplified virtio balloon driver
+Date: Sat, 19 Jan 2008 09:02:29 +0200
+Message-ID: <4791A085.8060502__30665.5007684187$1200726687$gmane$org@qumranet.com>
+References: <20080114200357.GA18354@dmt>
+	<20080115190102.GA27645@dmt>	<1200525166.26281.103.camel@localhost.localdomain>
+	<200801171245.59510.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200801191459.49735.rusty@rustcorp.com.au>
+In-Reply-To: <200801171245.59510.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,29 +20,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, Ash Willis <ashwillis@programmer.net>, Jeff Garzik <jgarzik@pobox.com>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
-
 Rusty Russell wrote:
->     There are three possibilities: (1) force everyone to use void *, (2) force 
-> everyone to be type-correct, (3) allow both with some tricks.  Currently 
-> we're on (1).  For kthread, with only dozens of users, I chose (2) (very 
-> simple, easy to understand).  I think for widespread things like timer and 
-> interrupt handlers, I think (3) is the right way to go.
+> After discussions with Anthony Liguori, it seems that the virtio
+> balloon can be made even simpler.  Here's my attempt.
+>
+> Since the balloon requires Guest cooperation anyway, there seems
+> little reason to force it to tell the Host when it wants to reuse a
+> page.  It can simply fault it in.
+>
+>   
 
-Yeah, during transition, we definitely want (3).
+Faulting is synchronous, while deflating is (or can be made) 
+asynchronous. If the host needs to do some work to get the memory, the 
+guest will be slowed down considerably.
 
->     I wanted to get this patch out there and see what the reaction was.  I can 
-> do timers next, if that's going to add fuel to the discussion.
+If we have explicit deflate, the host can call madvise(MADV_WILLNEED) or 
+actually touch the pages before the guest accesses them.
 
-I think you successfully got a very small sample of possible reactions.
- Jeff vetoing it (and for good reasons) and me a bit more positive but
-not quite sold.  Yeah, I think we need a good flame war to determine our
-heading and converting timer shouldn't take too much of your time, right?
-
-Thanks.
 
 -- 
-tejun
+Any sufficiently difficult bug is indistinguishable from a feature.
