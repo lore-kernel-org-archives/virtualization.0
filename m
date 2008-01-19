@@ -1,7 +1,7 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [kvm-devel] [PATCH] KVM simplified virtio balloon driver
 Date: Sat, 19 Jan 2008 16:37:43 -0600
-Message-ID: <47927BB7.7060805__8024.92569569058$1200782470$gmane$org@codemonkey.ws>
+Message-ID: <47927BB7.7060805__2753.57155264846$1200782610$gmane$org@codemonkey.ws>
 References: <20080114200357.GA18354@dmt>	<20080115190102.GA27645@dmt>	<1200525166.26281.103.camel@localhost.localdomain>	<200801171245.59510.rusty@rustcorp.com.au>
 	<4791A085.8060502__30665.5007684187$1200726687$gmane$org@qumranet.com>
 Mime-Version: 1.0
@@ -18,7 +18,7 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
+To: virtualization@lists.osdl.org
 Cc: Marcelo Tosatti <marcelo@kvack.org>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
