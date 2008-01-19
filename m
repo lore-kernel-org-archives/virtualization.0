@@ -1,15 +1,15 @@
-From: Tejun Heo <htejun@gmail.com>
-Subject: Re: [PATCH 3/3] Makes lguest's irq handler typesafe
-Date: Sat, 19 Jan 2008 08:12:33 +0900
-Message-ID: <47913261.5000708__30335.166763007$1200698236$gmane$org@gmail.com>
-References: <200801190722.26154.rusty@rustcorp.com.au>
-	<200801190725.24271.rusty@rustcorp.com.au>
-	<200801190727.36567.rusty@rustcorp.com.au>
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/10] add missing parameter for lookup_address
+Date: Sat, 19 Jan 2008 02:16:09 +0100
+Message-ID: <20080119011609.GA15614__22020.7391227179$1200706069$gmane$org@bingen.suse.de>
+References: <12006768251548-git-send-email-gcosta@redhat.com>
+	<12006768362108-git-send-email-gcosta@redhat.com>
+	<20080118202613.GY3627@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200801190727.36567.rusty@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <20080118202613.GY3627@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,44 +19,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, Ash Willis <ashwillis@programmer.net>, Jeff Garzik <jgarzik@pobox.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: ehabkost@redhat.com, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@elte.hu, roland@redhat.com, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> Just a trivial example.
-> ---
->  drivers/lguest/lguest_device.c |    3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+On Fri, Jan 18, 2008 at 12:26:13PM -0800, Chris Wright wrote:
+> * Glauber de Oliveira Costa (gcosta@redhat.com) wrote:
+> > lookup_address() receives two parameters, but efi_64.c call
+> > is passing only one. It's actually preventing the tree from compiling
+> > 
+> > Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 > 
-> diff -r 00ab7672f658 drivers/lguest/lguest_device.c
-> --- a/drivers/lguest/lguest_device.c	Thu Jan 17 16:54:00 2008 +1100
-> +++ b/drivers/lguest/lguest_device.c	Thu Jan 17 16:59:46 2008 +1100
-> @@ -179,9 +179,8 @@ static void lg_notify(struct virtqueue *
->  	hcall(LHCALL_NOTIFY, lvq->config.pfn << PAGE_SHIFT, 0, 0);
->  }
->  
-> -static irqreturn_t lguest_interrupt(int irq, void *_vq)
-> +static irqreturn_t lguest_interrupt(int irq, struct virtqueue *vq)
->  {
-> -	struct virtqueue *vq = _vq;
->  	struct lguest_device_desc *desc = to_lgdev(vq->vdev)->desc;
->  
->  	if (unlikely(desc->config_change)) {
+> Good catch, I know I don't test with CONFIG_EFI=y
 
-Type safety is good but I doubt this would be worth the complexity.  It
-has some benefits but there's much larger benefit in keeping things in
-straight C.  People know that functions take fixed types and are also
-familiar with the convention of passing void * for callback arguments.
-IMHO, staying in line with those common knowledges easily trumps having
-type checking on interrupt handler.
+Ah that came probably from the CPA patchset which added the parameter.
+Sorry for that.
 
-Also, how often do we see a bug where things go wrong because interrupt
-handler is given the wrong type of argument?  Even when such bug
-happens, I doubt it can escape the developer's workstation if he/she is
-paying any attention to testing.
-
-Thanks.
-
--- 
-tejun
+-Andi
