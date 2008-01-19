@@ -1,13 +1,14 @@
 From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: [PATCH 4/6] use __PAGE_KERNEL instead of _PAGE_KERNEL
-Date: Fri, 18 Jan 2008 23:59:08 -0200
-Message-ID: <1200707971507-git-send-email-gcosta__42776.7087276608$1200708560$gmane$org@redhat.com>
+Subject: [PATCH 5/6] export check_tsc_unstable
+Date: Fri, 18 Jan 2008 23:59:09 -0200
+Message-ID: <1200707976298-git-send-email-gcosta__430.219717282121$1200708657$gmane$org@redhat.com>
 References: <1200707950911-git-send-email-gcosta@redhat.com>
 	<12007079562927-git-send-email-gcosta@redhat.com>
 	<12007079613080-git-send-email-gcosta@redhat.com>
 	<12007079663929-git-send-email-gcosta@redhat.com>
+	<1200707971507-git-send-email-gcosta@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12007079663929-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1200707971507-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,37 +22,31 @@ To: lguest@ozlabs.org
 Cc: linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-x86_64 don't expose the intermediate representation with one underline,
-_PAGE_KERNEL, just the double-underlined one.
-
-Use it, to get a common ground between 32 and 64-bit
+Exporrt check_tsc_unstable function as GPL symbol. lguest is
+a user of it.
 
 Signed-off-by: Glauber de Oliveira Costa <gcosta@redhat.com>
 ---
- drivers/lguest/page_tables.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/tsc_64.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/lguest/page_tables.c b/drivers/lguest/page_tables.c
-index 399c05d..fb5ebd0 100644
---- a/drivers/lguest/page_tables.c
-+++ b/drivers/lguest/page_tables.c
-@@ -645,7 +645,7 @@ void map_switcher_in_guest(struct lg_cpu *cpu, struct lguest_pages *pages)
+diff --git a/arch/x86/kernel/tsc_64.c b/arch/x86/kernel/tsc_64.c
+index c62f3b6..947554d 100644
+--- a/arch/x86/kernel/tsc_64.c
++++ b/arch/x86/kernel/tsc_64.c
+@@ -92,10 +92,12 @@ sched_clock(void) __attribute__((alias("native_sched_clock")));
  
- 	/* Make the last PGD entry for this Guest point to the Switcher's PTE
- 	 * page for this CPU (with appropriate flags). */
--	switcher_pgd = __pgd(__pa(switcher_pte_page) | _PAGE_KERNEL);
-+	switcher_pgd = __pgd(__pa(switcher_pte_page) | __PAGE_KERNEL);
+ static int tsc_unstable;
  
- 	cpu->lg->pgdirs[cpu->cpu_pgd].pgdir[SWITCHER_PGD_INDEX] = switcher_pgd;
- 
-@@ -657,7 +657,7 @@ void map_switcher_in_guest(struct lg_cpu *cpu, struct lguest_pages *pages)
- 	 * page is already mapped there, we don't have to copy them out
- 	 * again. */
- 	pfn = __pa(cpu->regs_page) >> PAGE_SHIFT;
--	regs_pte = pfn_pte(pfn, __pgprot(_PAGE_KERNEL));
-+	regs_pte = pfn_pte(pfn, __pgprot(__PAGE_KERNEL));
- 	switcher_pte_page[(unsigned long)pages/PAGE_SIZE%PTRS_PER_PTE] = regs_pte;
+-inline int check_tsc_unstable(void)
++int check_tsc_unstable(void)
+ {
+ 	return tsc_unstable;
  }
- /*:*/
++EXPORT_SYMBOL_GPL(check_tsc_unstable);
++
+ #ifdef CONFIG_CPU_FREQ
+ 
+ /* Frequency scaling support. Adjust the TSC based timer when the cpu frequency
 -- 
 1.5.0.6
