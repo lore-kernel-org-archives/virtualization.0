@@ -1,17 +1,13 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [kvm-devel] [PATCH] KVM simplified virtio balloon driver
-Date: Sat, 19 Jan 2008 18:40:36 -0600
-Message-ID: <47929884.2010908__36132.6769263998$1200790020$gmane$org@codemonkey.ws>
-References: <20080114200357.GA18354@dmt> <20080115190102.GA27645@dmt>
-	<1200525166.26281.103.camel@localhost.localdomain>
-	<200801171245.59510.rusty@rustcorp.com.au>
-	<4791A085.8060502__30665.5007684187$1200726687$gmane$org@qumranet.com>
-	<47927BB7.7060805@codemonkey.ws> <20080120002433.GA6880@dmt>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: remove explicit pci ids from virtio_pci.c
+Date: Mon, 21 Jan 2008 11:30:50 +1100
+Message-ID: <200801211130.51401.rusty__1153.27890166572$1200884769$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080120002433.GA6880@dmt>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,43 +17,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <marcelo@kvack.org>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
+To: kvm-devel <kvm-devel@lists.sourceforge.net>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Marcelo Tosatti wrote:
-> On Sat, Jan 19, 2008 at 04:37:43PM -0600, Anthony Liguori wrote:
->   
->> Avi Kivity wrote:
->>     
->>> Rusty Russell wrote:
->>>       
->>>> After discussions with Anthony Liguori, it seems that the virtio
->>>> balloon can be made even simpler.  Here's my attempt.
->>>>
->>>> Since the balloon requires Guest cooperation anyway, there seems
->>>> little reason to force it to tell the Host when it wants to reuse a
->>>> page.  It can simply fault it in.
->>>>
->>>>  
->>>>         
->>> Faulting is synchronous, while deflating is (or can be made) 
->>> asynchronous. If the host needs to do some work to get the memory, the 
->>> guest will be slowed down considerably.
->>>       
->> Good point.  Basically, we have two page hinting operations which 
->> roughly correspond to madvise(MADV_DONTNEED) and madvise(MADV_WILLNEED).
->>     
->
-> Also, the simplified driver does not handle errors at all.
->
-> I don't think that assuming madvise() can't fail is a good thing.
->   
+Qumranet let us use their PCI vendor ID, with device ids >= 0x1000.
+We can specify that we accept all of them in the device ID table, and
+then return -ENODEV in the probe routine.
 
-I don't think the host should be communicating to the guest if madvise() 
-fails.  The notification is a hint to the host.  The guest doesn't know 
-what the host is doing in response to that hint.
+modprobe will load all the modules which match a given alias so we
+might be loaded when we're not needed, but that's the worst that can
+happen.
 
-Regards,
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/virtio/virtio_pci.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Anthony Liguori
+diff -r 4edff5e24614 drivers/virtio/virtio_pci.c
+--- a/drivers/virtio/virtio_pci.c	Sun Jan 20 21:01:32 2008 +1100
++++ b/drivers/virtio/virtio_pci.c	Mon Jan 21 11:05:19 2008 +1100
+@@ -62,10 +62,9 @@ struct virtio_pci_vq_info
+ 	struct list_head node;
+ };
+ 
+-/* We have to enumerate here all virtio PCI devices. */
++/* Qumranet donated their vendor ID and devices >= 0x1000 */
+ static struct pci_device_id virtio_pci_id_table[] = {
+-	{ 0x1af4, 0x1000, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* virtio net */
+-	{ 0x1af4, 0x1001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* virtio blk */
++	{ 0x1af4, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+ 	{ 0 },
+ };
+ 
+@@ -303,6 +302,10 @@ static int __devinit virtio_pci_probe(st
+ 	struct virtio_pci_device *vp_dev;
+ 	int err;
+ 
++	/* We only own device ids >= 0x1000 */
++	if (pci_dev->device < 0x1000)
++		return -ENODEV;
++
+ 	/* allocate our structure and fill it out */
+ 	vp_dev = kzalloc(sizeof(struct virtio_pci_device), GFP_KERNEL);
+ 	if (vp_dev == NULL)
