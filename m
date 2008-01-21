@@ -1,7 +1,7 @@
 From: Eduardo Habkost <ehabkost@redhat.com>
-Subject: [PATCH 3/4] Don't set pagetable_setup_{start,done} hooks on x86_64
-Date: Mon, 21 Jan 2008 19:48:52 -0200
-Message-ID: <1200952133-31581-4-git-send-email-ehabkost__37003.3663617962$1200952600$gmane$org@redhat.com>
+Subject: [PATCH 1/4] Add missing semicolon to SWAPGS macro
+Date: Mon, 21 Jan 2008 19:48:50 -0200
+Message-ID: <1200952133-31581-2-git-send-email-ehabkost__29754.3122353547$1200952673$gmane$org@redhat.com>
 References: <1200952133-31581-1-git-send-email-ehabkost@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1200952133-31581-1-git-send-email-ehabkost@redhat.com>
@@ -18,29 +18,25 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, mingo@elte.hu, roland@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirt_pagetable_setup_{start,done}() are not used (yet) under x86_64,
-and native_pagetable_setup_{start,done}() don't exist on x86_64. So they
-don't need to be set.
+Trivial compile fix.
 
 Signed-off-by: Eduardo Habkost <ehabkost@redhat.com>
 ---
- arch/x86/kernel/paravirt.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ include/asm-x86/paravirt.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index c67d331..37f38b7 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -367,8 +367,10 @@ struct pv_apic_ops pv_apic_ops = {
- };
- 
- struct pv_mmu_ops pv_mmu_ops = {
-+#ifndef CONFIG_X86_64
- 	.pagetable_setup_start = native_pagetable_setup_start,
- 	.pagetable_setup_done = native_pagetable_setup_done,
-+#endif
- 
- 	.read_cr2 = native_read_cr2,
- 	.write_cr2 = native_write_cr2,
+diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
+index 52bcd9d..62cecb7 100644
+--- a/include/asm-x86/paravirt.h
++++ b/include/asm-x86/paravirt.h
+@@ -1329,7 +1329,7 @@ static inline unsigned long __raw_local_irq_save(void)
+ #else
+ #define SWAPGS								\
+ 	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs), CLBR_NONE,	\
+-		  PV_SAVE_REGS						\
++		  PV_SAVE_REGS;						\
+ 		  call *pv_cpu_ops+PV_CPU_swapgs;			\
+ 		  PV_RESTORE_REGS					\
+ 		 )
 -- 
 1.5.3.4
