@@ -1,16 +1,14 @@
-From: "Dong, Eddie" <eddie.dong@intel.com>
-Subject: RE: [kvm-devel] [PATCH/RFC 0/2] CPU hotplug virtio driver
-Date: Tue, 22 Jan 2008 12:11:03 +0800
-Message-ID: <10EA09EFD8728347A513008B6B0DA77A02AF0DD0__17580.9807763018$1200975249$gmane$org@pdsmsx411.ccr.corp.intel.com>
-References: <11998740663306-git-send-email-gcosta@redhat.com><200801091227.12261.borntraeger@de.ibm.com><4784D882.1030104@redhat.com>
-	<4784DC29.1020907@qumranet.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 2/3] virtio: Net header needs gso_hdr_len
+Date: Tue, 22 Jan 2008 21:36:30 +1100
+Message-ID: <20080122103630.GA24135__6677.7212232866$1200998999$gmane$org@gondor.apana.org.au>
+References: <E1JEvnR-0006ax-00@gondolin.me.apana.org.au>
+	<200801161519.03339.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <4784DC29.1020907@qumranet.com>
+Content-Disposition: inline
+In-Reply-To: <200801161519.03339.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,27 +18,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>, Glauber de Oliveira Costa <gcosta@redhat.com>, "Zhai, Edwin" <edwin.zhai@intel.com>
-Cc: Marcelo Tosatti <marcelo@kvack.org>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> Glauber de Oliveira Costa wrote:
->> 
->> That said, if acpi is really the preference here, and this patches
->> have chance, no problem. But it will take me a little more time to
->> implement them ;-)
+On Wed, Jan 16, 2008 at 03:19:03PM +1100, Rusty Russell wrote:
+> > > It's far easier to deal with GSO if we don't have to parse the packet
+> > > to figure out the header length.  Add the field to the virtio_net_hdr
+> > > struct (and fix the spaces that somehow crept in there).
+>
+> > Why do we need this? When receiving GSO packets from an untrusted
+> > source the network stack will fill in the transport header offset
+> > after verifying that the headers are sane.
 > 
-> The power button support that was recently added at least proves that
-> the host->guest notification path works, so that's one tooth that
-> does not need pulling out.  The real trouble with acpi is
-> understanding the spec which is very badly written.   
-> 
-> _AVI
+> Thanks for clarifying; it simplifies things.
 
-Edwin implemented device hotplug support for Xen/Qemu, probably we
-can reuse the effort. 
+Actually now that I've tried your test program I can see that this
+field exists not because of GSO, but because of SG.  It tells you
+how many bytes you want to put in the skb head as opposed to the
+frag array.
 
-Edwin:
-	Can u share the device hotplug patch with Glauber?
-thx,eddie
+So this field is fine with me as long as it is named as such to
+avoid confusion since it really has nothing to do with GSO as you
+also need it for SG with large MTUs.
+
+I think this is more flexible than the Xen approach where this is
+essentially hard-coded to 64 bytes.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
