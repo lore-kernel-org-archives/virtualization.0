@@ -1,14 +1,17 @@
-From: Jeremy Fitzhardinge <Jeremy.Fitzhardinge@citrix.com>
-Subject: Re: [PATCH 0/4] paravirt_ops-64 compile fixes
-Date: Tue, 22 Jan 2008 12:05:14 -0800
-Message-ID: <47964C7A.6000609__5333.51417766443$1201032495$gmane$org@citrix.com>
-References: <1200952133-31581-1-git-send-email-ehabkost@redhat.com>	<20080122120207.GA30271@elte.hu>	<20080122123450.GU7338@blackpad>
-	<47962E1D.2090308@goop.org> <20080122194710.GC3218@elte.hu>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/3] virtio: Net header needs gso_hdr_len
+Date: Wed, 23 Jan 2008 09:06:14 +1100
+Message-ID: <200801230906.14585.rusty__9374.71727743304$1201039853$gmane$org@rustcorp.com.au>
+References: <E1JEvnR-0006ax-00@gondolin.me.apana.org.au>
+	<200801161519.03339.rusty@rustcorp.com.au>
+	<20080122103630.GA24135@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080122194710.GC3218@elte.hu>
+In-Reply-To: <20080122103630.GA24135@gondor.apana.org.au>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,40 +21,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Eduardo Pereira Habkost <ehabkost@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, anthony@codemonkey.ws, hpa@zytor.com, akpm@linux-foundation.org, tglx@linutronix.de, roland@redhat.com, ak@suse.de
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ingo Molnar wrote:
-> * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+On Tuesday 22 January 2008 21:36:30 Herbert Xu wrote:
+> On Wed, Jan 16, 2008 at 03:19:03PM +1100, Rusty Russell wrote:
+> > > > It's far easier to deal with GSO if we don't have to parse the packet
+> > > > to figure out the header length.  Add the field to the virtio_net_hdr
+> > > > struct (and fix the spaces that somehow crept in there).
+> > >
+> > > Why do we need this? When receiving GSO packets from an untrusted
+> > > source the network stack will fill in the transport header offset
+> > > after verifying that the headers are sane.
+> >
+> > Thanks for clarifying; it simplifies things.
 >
->   
->>> Maybe should this force-paravirt mode be a kernel debugging option?
->>>       
->> No, just a plain CONFIG_PARAVIRT to turn it on and off independently 
->> of everything else.
->>     
->
-> it should be a debugging option in the way that it's dependent on 
-> KERNEL_DEBUG and KERNEL_EXPERIMENTAL.
->   
+> Actually now that I've tried your test program I can see that this
+> field exists not because of GSO, but because of SG.  It tells you
+> how many bytes you want to put in the skb head as opposed to the
+> frag array.
 
-EXPERIMENTAL certainly, but not DEBUG.  Sure, CONFIG_PARAVIRT is 
-somewhat useless if you don't also configure Xen/lguest/etc, but running 
-a paravirt system on bare hardware will probably be the most common way 
-a paravirt kernel gets run (a distro will always enable it and compile 
-in whatever hypervisor support they want, but most people will end up 
-just running it on bare hardware).  Therefore, we should try to be as 
-sure as possible that PARAVIRT works well (ie, indistinguishable from 
-non-PARAVIRT) on bare hardware.
+Yes, I took it out after your comments, then realized I needed it and put it 
+back.
 
-> i dont think you shold worry about this - i think 64-bit guest support 
-> for specific hypervisors could be added even after the merge window, if 
-> it's reasonably isolated (which i'd expect it to be). It clearly cannot 
-> break anything else so it's the same category as new driver or new 
-> hardware support - more relaxed integration rules. Then we can remove 
-> the KERNEL_DEBUG and KERNEL_EXPERIMENTAL dependency as well.
+> So this field is fine with me as long as it is named as such to
+> avoid confusion since it really has nothing to do with GSO as you
+> also need it for SG with large MTUs.
 
-Good, I'm glad you feel that way.
+Hmm, how about just "hdr_len" rather than "gso_hdr_len"?
 
-    J
+Thanks,
+Rusty.
