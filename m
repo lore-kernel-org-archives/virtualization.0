@@ -1,13 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] virtio_blk: provide getgeo
-Date: Wed, 23 Jan 2008 17:56:50 +0100
-Message-ID: <200801231756.50224.borntraeger@de.ibm.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [PATCH 0/2] dm-band: The I/O bandwidth controller: Overview
+Date: Thu, 24 Jan 2008 02:25:15 +0900 (JST)
+Message-ID: <20080124.022515.226770887.ryov__12940.9000314356$1201109361$gmane$org@valinux.co.jp>
+References: <20080123.215350.193721890.ryov@valinux.co.jp>
+	<1201098755.6341.54.camel@lappy>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1201098755.6341.54.camel@lappy>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,50 +18,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+To: a.p.zijlstra@chello.nl
+Cc: containers@lists.linux-foundation.org, dm-devel@redhat.com, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty,
+Hi Peter,
 
-I currently try to make my guest boot from an virtio root device
-without having an external kernel. Some of the tools that I tried 
-expect HDIO_GETGEO to work. The most interesting value is likely
-the geo.start value to get the offset of a partition. This value
-is filled by block/ioctl.c if fops->getgeo is set. This patch also
-fills in some standard values for heads, sectors and cylinders.
+> What definition of bandwidth does it use? Does it for example account
+> for seek latency?
 
-Makes sense?
+The bandwidth in dm-band is determined by the proportion of the
+processing time of each device's tokens(I/Os) to the processing time
+of all device's tokens(I/Os).
+The processing time of one token(I/O) is determined by one I/O cycle 
+include seek latency, interrupt latency, etc...
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- drivers/block/virtio_blk.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
-Index: kvm/drivers/block/virtio_blk.c
-===================================================================
---- kvm.orig/drivers/block/virtio_blk.c
-+++ kvm/drivers/block/virtio_blk.c
-@@ -154,9 +154,20 @@ static int virtblk_ioctl(struct inode *i
- 			      (void __user *)data);
- }
- 
-+/* We provide getgeo only to please some old bootloader/partitioning tools */
-+static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
-+{
-+	/* some standard values, similar to sd */
-+	geo->heads = 1 << 6;
-+	geo->sectors = 1 << 5;
-+	geo->cylinders = get_capacity(bd->bd_disk) >> 11;
-+	return 0;
-+}
-+
- static struct block_device_operations virtblk_fops = {
--	.ioctl = virtblk_ioctl,
--	.owner = THIS_MODULE,
-+	.ioctl  = virtblk_ioctl,
-+	.owner  = THIS_MODULE,
-+	.getgeo = virtblk_getgeo,
- };
- 
- static int virtblk_probe(struct virtio_device *vdev)
+Thanks,
+Ryo Tsuruta <ryov@valinux.co.jp>
