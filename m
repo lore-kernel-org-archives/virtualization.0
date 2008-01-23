@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/3] partial checksum and GSO support for tun/tap.
-Date: Thu, 24 Jan 2008 01:10:44 +1100
-Message-ID: <200801240110.45178.rusty__243.724769871001$1201098371$gmane$org@rustcorp.com.au>
-References: <200801240107.38929.rusty@rustcorp.com.au>
+Subject: [PATCH 2/2] virtio reset support
+Date: Thu, 24 Jan 2008 01:18:08 +1100
+Message-ID: <200801240118.09032.rusty__12843.5310129591$1201098413$gmane$org@rustcorp.com.au>
+References: <200801240116.26160.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200801240107.38929.rusty@rustcorp.com.au>
+In-Reply-To: <200801240116.26160.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,387 +19,231 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
+To: kvm-devel <kvm-devel@lists.sourceforge.net>
+Cc: Dor Laor <dor.laor@gmail.com>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-(Changes since last time: we how have explicit IFF_RECV_CSUM and 
-IFF_RECV_GSO bits, and some renaming of virtio_net hdr)
+(One big patch, I'll merge it in properly later).
 
-We use the virtio_net_hdr: it is an ABI already and designed to
-encapsulate such metadata as GSO and partial checksums.
+A reset function solves three problems:
 
-IFF_VIRTIO_HDR means you will write and read a 'struct virtio_net_hdr'
-at the start of each packet.  You can always write packets with
-partial checksum and gso to the tap device using this header.
+1) It allows us to renegotiate features, eg. if we want to upgrade a
+   guest driver without rebooting the guest.
 
-IFF_RECV_CSUM means you can handle reading packets with partial
-checksums.  If IFF_RECV_GSO is also set, it means you can handle
-reading (all types of) GSO packets.
+2) It gives us a clean way of shutting down virtqueues: after a reset,
+   we know that the buffers won't be used by the guest, and
 
-Note that there is no easy way to detect if these flags are supported:
-see next patch.
+3) It helps the guest recover from messed-up drivers.
+
+So we remove the ->shutdown hook, and the only way we now remove
+feature bits is via reset.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/net/tun.c      |  259 +++++++++++++++++++++++++++++++++++++++++++------
- include/linux/if_tun.h |    6 +
- 2 files changed, 238 insertions(+), 27 deletions(-)
+ drivers/char/hw_random/virtio-rng.c |    1 -
+ drivers/lguest/lguest_device.c      |   15 ++++++++++++++-
+ drivers/net/virtio_net.c            |    2 --
+ drivers/virtio/virtio.c             |   13 ++++++++++---
+ drivers/virtio/virtio_pci.c         |   10 ++++++++++
+ drivers/virtio/virtio_ring.c        |   11 -----------
+ include/linux/virtio.h              |    5 -----
+ include/linux/virtio_config.h       |    4 ++++
+ 8 files changed, 38 insertions(+), 23 deletions(-)
 
-diff -r cb85fb035378 drivers/net/tun.c
---- a/drivers/net/tun.c	Wed Jan 23 20:06:56 2008 +1100
-+++ b/drivers/net/tun.c	Wed Jan 23 20:12:51 2008 +1100
-@@ -62,6 +62,7 @@
- #include <linux/if_ether.h>
- #include <linux/if_tun.h>
- #include <linux/crc32.h>
-+#include <linux/virtio_net.h>
- #include <net/net_namespace.h>
- 
- #include <asm/system.h>
-@@ -238,35 +239,188 @@ static unsigned int tun_chr_poll(struct 
- 	return mask;
+diff -r f9464b21ed9c drivers/char/hw_random/virtio-rng.c
+--- a/drivers/char/hw_random/virtio-rng.c	Wed Jan 23 23:52:47 2008 +1100
++++ b/drivers/char/hw_random/virtio-rng.c	Thu Jan 24 00:47:05 2008 +1100
+@@ -92,7 +92,6 @@ static void virtrng_remove(struct virtio
+ static void virtrng_remove(struct virtio_device *vdev)
+ {
+ 	hwrng_unregister(&virtio_hwrng);
+-	vq->vq_ops->shutdown(vq);
+ 	vdev->config->del_vq(vq);
  }
  
-+static struct sk_buff *copy_user_skb(size_t align, struct iovec *iv, size_t len)
-+{
-+	struct sk_buff *skb;
-+
-+	if (!(skb = alloc_skb(len + align, GFP_KERNEL)))
-+		return ERR_PTR(-ENOMEM);
-+
-+	if (align)
-+		skb_reserve(skb, align);
-+
-+	if (memcpy_fromiovec(skb_put(skb, len), iv, len)) {
-+		kfree_skb(skb);
-+		return ERR_PTR(-EFAULT);
-+	}
-+	return skb;
-+}
-+
-+/* This will fail if they give us a crazy iovec, but that's their own fault. */
-+static int get_user_skb_frags(const struct iovec *iv, size_t count,
-+			      struct skb_frag_struct *f)
-+{
-+	unsigned int i, j, num_pg = 0;
-+	int err;
-+	struct page *pages[MAX_SKB_FRAGS];
-+
-+	down_read(&current->mm->mmap_sem);
-+	for (i = 0; i < count; i++) {
-+		int n, npages;
-+		unsigned long base, len;
-+		base = (unsigned long)iv[i].iov_base;
-+		len = (unsigned long)iv[i].iov_len;
-+
-+		if (len == 0)
-+			continue;
-+
-+		/* How many pages will this take? */
-+		npages = 1 + (base + len - 1)/PAGE_SIZE - base/PAGE_SIZE;
-+		if (unlikely(num_pg + npages > MAX_SKB_FRAGS)) {
-+			err = -ENOSPC;
-+			goto fail;
-+		}
-+		n = get_user_pages(current, current->mm, base, npages,
-+				   0, 0, pages, NULL);
-+		if (unlikely(n < 0)) {
-+			err = n;
-+			goto fail;
-+		}
-+
-+		/* Transfer pages to the frag array */
-+		for (j = 0; j < n; j++) {
-+			f[num_pg].page = pages[j];
-+			if (j == 0) {
-+				f[num_pg].page_offset = offset_in_page(base);
-+				f[num_pg].size = min(len, PAGE_SIZE -
-+						     f[num_pg].page_offset);
-+			} else {
-+				f[num_pg].page_offset = 0;
-+				f[num_pg].size = min(len, PAGE_SIZE);
-+			}
-+			len -= f[num_pg].size;
-+			base += f[num_pg].size;
-+			num_pg++;
-+		}
-+
-+		if (unlikely(n != npages)) {
-+			err = -EFAULT;
-+			goto fail;
-+		}
-+	}
-+	up_read(&current->mm->mmap_sem);
-+	return num_pg;
-+
-+fail:
-+	for (i = 0; i < num_pg; i++)
-+		put_page(f[i].page);
-+	up_read(&current->mm->mmap_sem);
-+	return err;
-+}
-+
-+
-+static struct sk_buff *map_user_skb(const struct virtio_net_hdr *gso,
-+				    size_t align, struct iovec *iv,
-+				    size_t count, size_t len)
-+{
-+	struct sk_buff *skb;
-+	struct skb_shared_info *sinfo;
-+	int err;
-+
-+	if (!(skb = alloc_skb(gso->hdr_len + align, GFP_KERNEL)))
-+		return ERR_PTR(-ENOMEM);
-+
-+	if (align)
-+		skb_reserve(skb, align);
-+
-+	sinfo = skb_shinfo(skb);
-+	sinfo->gso_size = gso->gso_size;
-+	sinfo->gso_type = SKB_GSO_DODGY;
-+	switch (gso->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-+	case VIRTIO_NET_HDR_GSO_TCPV4:
-+		sinfo->gso_type |= SKB_GSO_TCPV4;
-+		break;
-+	case VIRTIO_NET_HDR_GSO_TCPV6:
-+		sinfo->gso_type |= SKB_GSO_TCPV6;
-+		break;
-+	case VIRTIO_NET_HDR_GSO_UDP:
-+		sinfo->gso_type |= SKB_GSO_UDP;
-+		break;
-+	default:
-+		err = -EINVAL;
-+		goto fail;
-+	}
-+
-+	if (gso->gso_type & VIRTIO_NET_HDR_GSO_ECN)
-+		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
-+
-+	/* Copy in the header. */
-+	if (memcpy_fromiovec(skb_put(skb, gso->hdr_len), iv, gso->hdr_len)) {
-+		err = -EFAULT;
-+		goto fail;
-+	}
-+
-+	err = get_user_skb_frags(iv, count, sinfo->frags);
-+	if (err < 0)
-+		goto fail;
-+
-+	sinfo->nr_frags = err;
-+	skb->len += len;
-+	skb->data_len += len;
-+	
-+	return skb;
-+
-+fail:
-+	kfree_skb(skb);
-+	return ERR_PTR(err);
-+}
-+
-+static inline size_t iov_total(const struct iovec *iv, unsigned long count)
-+{
-+	unsigned long i;
-+	size_t len;
-+
-+	for (i = 0, len = 0; i < count; i++)
-+		len += iv[i].iov_len;
-+
-+	return len;
-+}
-+
- /* Get packet from user space buffer */
--static __inline__ ssize_t tun_get_user(struct tun_struct *tun, struct iovec *iv, size_t count)
-+static __inline__ ssize_t tun_get_user(struct tun_struct *tun, struct iovec *iv, size_t num)
+diff -r f9464b21ed9c drivers/lguest/lguest_device.c
+--- a/drivers/lguest/lguest_device.c	Wed Jan 23 23:52:47 2008 +1100
++++ b/drivers/lguest/lguest_device.c	Thu Jan 24 00:47:05 2008 +1100
+@@ -54,7 +54,7 @@ struct lguest_device {
+  *
+  * The configuration information for a device consists of one or more
+  * virtqueues, a feature bitmaks, and some configuration bytes.  The
+- * configuration bytes don't really matter to us: the Launcher set them up, and
++ * configuration bytes don't really matter to us: the Launcher sets them up, and
+  * the driver will look at them during setup.
+  *
+  * A convenient routine to return the device's virtqueue config array:
+@@ -139,7 +139,19 @@ static u8 lg_get_status(struct virtio_de
+ 
+ static void lg_set_status(struct virtio_device *vdev, u8 status)
  {
- 	struct tun_pi pi = { 0, __constant_htons(ETH_P_IP) };
-+	struct virtio_net_hdr gso = { 0, VIRTIO_NET_HDR_GSO_NONE };
++	BUG_ON(!status);
+ 	to_lgdev(vdev)->desc->status = status;
++}
++
++/* To reset the device, we (ab)use the NOTIFY hypercall, with the descriptor
++ * address of the device.  The Host will zero the status and all the
++ * features. */
++static void lg_reset(struct virtio_device *vdev)
++{
++	unsigned long offset = (void *)to_lgdev(vdev)->desc - lguest_devices;
++
++	printk("Resetting %i\n", vdev->index);
++	hcall(LHCALL_NOTIFY, (max_pfn<<PAGE_SHIFT) + offset, 0, 0);
+ }
+ 
+ /*
+@@ -279,6 +291,7 @@ static struct virtio_config_ops lguest_c
+ 	.set = lg_set,
+ 	.get_status = lg_get_status,
+ 	.set_status = lg_set_status,
++	.reset = lg_reset,
+ 	.find_vq = lg_find_vq,
+ 	.del_vq = lg_del_vq,
+ };
+diff -r f9464b21ed9c drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c	Wed Jan 23 23:52:47 2008 +1100
++++ b/drivers/net/virtio_net.c	Thu Jan 24 00:47:05 2008 +1100
+@@ -415,12 +415,10 @@ static void virtnet_remove(struct virtio
  	struct sk_buff *skb;
--	size_t len = count, align = 0;
-+	size_t tot_len = iov_total(iv, num);
-+	size_t len = tot_len, align = 0;
  
- 	if (!(tun->flags & TUN_NO_PI)) {
--		if ((len -= sizeof(pi)) > count)
-+		if ((len -= sizeof(pi)) > tot_len)
- 			return -EINVAL;
- 
- 		if(memcpy_fromiovec((void *)&pi, iv, sizeof(pi)))
-+			return -EFAULT;
-+	}
-+	if (tun->flags & TUN_VIRTIO_HDR) {
-+		if ((len -= sizeof(gso)) > tot_len)
-+			return -EINVAL;
-+
-+		if (memcpy_fromiovec((void *)&gso, iv, sizeof(gso)))
- 			return -EFAULT;
+ 	/* Free our skbs in send and recv queues, if any. */
+-	vi->rvq->vq_ops->shutdown(vi->rvq);
+ 	while ((skb = __skb_dequeue(&vi->recv)) != NULL) {
+ 		kfree_skb(skb);
+ 		vi->num--;
  	}
+-	vi->svq->vq_ops->shutdown(vi->svq);
+ 	while ((skb = __skb_dequeue(&vi->send)) != NULL)
+ 		kfree_skb(skb);
  
- 	if ((tun->flags & TUN_TYPE_MASK) == TUN_TAP_DEV)
- 		align = NET_IP_ALIGN;
+diff -r f9464b21ed9c drivers/virtio/virtio.c
+--- a/drivers/virtio/virtio.c	Wed Jan 23 23:52:47 2008 +1100
++++ b/drivers/virtio/virtio.c	Thu Jan 24 00:47:05 2008 +1100
+@@ -104,10 +104,13 @@ static int virtio_dev_remove(struct devi
+ 	struct virtio_driver *drv = container_of(dev->dev.driver,
+ 						 struct virtio_driver, driver);
  
--	if (!(skb = alloc_skb(len + align, GFP_KERNEL))) {
-+	if (gso.gso_type != VIRTIO_NET_HDR_GSO_NONE)
-+		skb = map_user_skb(&gso, align, iv, num, len);
-+	else
-+		skb = copy_user_skb(align, iv, len);
+-	dev->config->set_status(dev, dev->config->get_status(dev)
+-				& ~(VIRTIO_CONFIG_S_DRIVER
+-				    | VIRTIO_CONFIG_S_DRIVER_OK));
++	/* This shuts down all the virtqueues, so their buffers won't
++	 * be used. */
++	dev->config->reset(dev);
+ 	drv->remove(dev);
 +
-+	if (IS_ERR(skb)) {
- 		tun->dev->stats.rx_dropped++;
--		return -ENOMEM;
--	}
++	/* Acknowledge the device's existence again, after reset. */
++	add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+ 	return 0;
+ }
+ 
+@@ -139,6 +142,10 @@ int register_virtio_device(struct virtio
+ 	dev->dev.release = virtio_device_release;
+ 	sprintf(dev->dev.bus_id, "%u", dev->index);
+ 
++	/* We always start by resetting the device, in case a previous
++	 * driver messed it up.  This also tests that code path a little. */
++	dev->config->reset(dev);
++
+ 	/* Acknowledge that we've seen the device. */
+ 	add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+ 
+diff -r f9464b21ed9c drivers/virtio/virtio_pci.c
+--- a/drivers/virtio/virtio_pci.c	Wed Jan 23 23:52:47 2008 +1100
++++ b/drivers/virtio/virtio_pci.c	Thu Jan 24 00:47:05 2008 +1100
+@@ -148,7 +148,16 @@ static void vp_set_status(struct virtio_
+ static void vp_set_status(struct virtio_device *vdev, u8 status)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
++	/* We should never be setting status to 0. */
++	BUG_ON(status == 0);
+ 	return iowrite8(status, vp_dev->ioaddr + VIRTIO_PCI_STATUS);
++}
++
++static void vp_reset(struct virtio_device *vdev)
++{
++	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
++	/* 0 status means a reset. */
++	return iowrite8(0, vp_dev->ioaddr + VIRTIO_PCI_STATUS);
+ }
+ 
+ /* the notify function used when creating a virt queue */
+@@ -291,6 +300,7 @@ static struct virtio_config_ops virtio_p
+ 	.set		= vp_set,
+ 	.get_status	= vp_get_status,
+ 	.set_status	= vp_set_status,
++	.reset		= vp_reset,
+ 	.find_vq	= vp_find_vq,
+ 	.del_vq		= vp_del_vq,
+ };
+diff -r f9464b21ed9c drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c	Wed Jan 23 23:52:47 2008 +1100
++++ b/drivers/virtio/virtio_ring.c	Thu Jan 24 00:47:05 2008 +1100
+@@ -173,16 +173,6 @@ static void detach_buf(struct vring_virt
+ 	vq->num_free++;
+ }
+ 
+-/* FIXME: We need to tell other side about removal, to synchronize. */
+-static void vring_shutdown(struct virtqueue *_vq)
+-{
+-	struct vring_virtqueue *vq = to_vvq(_vq);
+-	unsigned int i;
 -
--	if (align)
--		skb_reserve(skb, align);
--	if (memcpy_fromiovec(skb_put(skb, len), iv, len)) {
--		tun->dev->stats.rx_dropped++;
--		kfree_skb(skb);
--		return -EFAULT;
-+		return PTR_ERR(skb);
- 	}
- 
- 	switch (tun->flags & TUN_TYPE_MASK) {
-@@ -280,7 +434,13 @@ static __inline__ ssize_t tun_get_user(s
- 		break;
- 	};
- 
--	if (tun->flags & TUN_NOCHECKSUM)
-+	if (gso.flags & (1 << VIRTIO_NET_F_CSUM)) {
-+		if (!skb_partial_csum_set(skb,gso.csum_start,gso.csum_offset)) {
-+			tun->dev->stats.rx_dropped++;
-+			kfree_skb(skb);
-+			return -EINVAL;
-+		}
-+	} else if (tun->flags & TUN_NOCHECKSUM)
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
- 
- 	netif_rx_ni(skb);
-@@ -289,18 +449,7 @@ static __inline__ ssize_t tun_get_user(s
- 	tun->dev->stats.rx_packets++;
- 	tun->dev->stats.rx_bytes += len;
- 
--	return count;
+-	for (i = 0; i < vq->vring.num; i++)
+-		detach_buf(vq, i);
 -}
 -
--static inline size_t iov_total(const struct iovec *iv, unsigned long count)
--{
--	unsigned long i;
--	size_t len;
+ static inline bool more_used(const struct vring_virtqueue *vq)
+ {
+ 	return vq->last_used_idx != vq->vring.used->idx;
+@@ -287,7 +277,6 @@ static struct virtqueue_ops vring_vq_ops
+ 	.kick = vring_kick,
+ 	.disable_cb = vring_disable_cb,
+ 	.enable_cb = vring_enable_cb,
+-	.shutdown = vring_shutdown,
+ };
+ 
+ struct virtqueue *vring_new_virtqueue(unsigned int num,
+diff -r f9464b21ed9c include/linux/virtio.h
+--- a/include/linux/virtio.h	Wed Jan 23 23:52:47 2008 +1100
++++ b/include/linux/virtio.h	Thu Jan 24 00:47:05 2008 +1100
+@@ -45,9 +45,6 @@ struct virtqueue
+  *	vq: the struct virtqueue we're talking about.
+  *	This returns "false" (and doesn't re-enable) if there are pending
+  *	buffers in the queue, to avoid a race.
+- * @shutdown: "unadd" all buffers.
+- *	vq: the struct virtqueue we're talking about.
+- *	Remove everything from the queue.
+  *
+  * Locking rules are straightforward: the driver is responsible for
+  * locking.  No two operations may be invoked simultaneously.
+@@ -67,8 +64,6 @@ struct virtqueue_ops {
+ 
+ 	void (*disable_cb)(struct virtqueue *vq);
+ 	bool (*enable_cb)(struct virtqueue *vq);
 -
--	for (i = 0, len = 0; i < count; i++)
--		len += iv[i].iov_len;
--
--	return len;
-+	return tot_len;
- }
+-	void (*shutdown)(struct virtqueue *vq);
+ };
  
- static ssize_t tun_chr_aio_write(struct kiocb *iocb, const struct iovec *iv,
-@@ -313,7 +462,7 @@ static ssize_t tun_chr_aio_write(struct 
- 
- 	DBG(KERN_INFO "%s: tun_chr_write %ld\n", tun->dev->name, count);
- 
--	return tun_get_user(tun, (struct iovec *) iv, iov_total(iv, count));
-+	return tun_get_user(tun, (struct iovec *) iv, count);
- }
- 
- /* Put packet to the user space buffer */
-@@ -336,6 +485,42 @@ static __inline__ ssize_t tun_put_user(s
- 		if (memcpy_toiovec(iv, (void *) &pi, sizeof(pi)))
- 			return -EFAULT;
- 		total += sizeof(pi);
-+	}
-+	if (tun->flags & TUN_VIRTIO_HDR) {
-+		struct virtio_net_hdr gso;
-+		struct skb_shared_info *sinfo = skb_shinfo(skb);
-+
-+		if (skb_is_gso(skb)) {
-+			gso.hdr_len = skb_transport_header(skb) - skb->data;
-+			gso.gso_size = sinfo->gso_size;
-+			if (sinfo->gso_type & SKB_GSO_TCPV4)
-+				gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
-+			else if (sinfo->gso_type & SKB_GSO_TCPV6)
-+				gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-+			else if (sinfo->gso_type & SKB_GSO_UDP)
-+				gso.gso_type = VIRTIO_NET_HDR_GSO_UDP;
-+			else
-+				BUG();
-+			if (sinfo->gso_type & SKB_GSO_TCP_ECN)
-+				gso.gso_type |= VIRTIO_NET_HDR_GSO_ECN;
-+		} else
-+			gso.gso_type = VIRTIO_NET_HDR_GSO_NONE;
-+		
-+		if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+			gso.flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
-+			gso.csum_start = skb->csum_start - skb_headroom(skb);
-+			gso.csum_offset = skb->csum_offset;
-+		} else {
-+			gso.flags = 0;
-+			gso.csum_offset = gso.csum_start = 0;
-+		}
-+
-+		if ((len -= sizeof(gso)) < 0)
-+			return -EINVAL;
-+
-+		if (memcpy_toiovec(iv, (void *)&gso, sizeof(gso)))
-+			return -EFAULT;
-+		total += sizeof(gso);
- 	}
- 
- 	len = min_t(int, skb->len, len);
-@@ -523,6 +708,17 @@ static int tun_set_iff(struct file *file
- 
- 		tun_net_init(dev);
- 
-+		/* Virtio header means we can handle csum & gso. */
-+		if ((ifr->ifr_flags & (IFF_VIRTIO_HDR|IFF_RECV_CSUM)) ==
-+		    (IFF_VIRTIO_HDR|IFF_RECV_CSUM)) {
-+			dev->features = NETIF_F_SG | NETIF_F_HW_CSUM |
-+					NETIF_F_HIGHDMA | NETIF_F_FRAGLIST;
-+
-+			if (ifr->ifr_flags & IFF_RECV_GSO)
-+				dev->features |= NETIF_F_TSO | NETIF_F_UFO |
-+						 NETIF_F_TSO_ECN | NETIF_F_TSO6;
-+		}
-+
- 		if (strchr(dev->name, '%')) {
- 			err = dev_alloc_name(dev, dev->name);
- 			if (err < 0)
-@@ -543,6 +739,15 @@ static int tun_set_iff(struct file *file
- 
- 	if (ifr->ifr_flags & IFF_ONE_QUEUE)
- 		tun->flags |= TUN_ONE_QUEUE;
-+
-+	if (ifr->ifr_flags & IFF_VIRTIO_HDR)
-+		tun->flags |= TUN_VIRTIO_HDR;
-+
-+	if (ifr->ifr_flags & IFF_RECV_CSUM)
-+		tun->flags |= TUN_RECV_CSUM;
-+
-+	if (ifr->ifr_flags & IFF_RECV_GSO)
-+		tun->flags |= TUN_RECV_GSO;
- 
- 	file->private_data = tun;
- 	tun->attached = 1;
-diff -r cb85fb035378 include/linux/if_tun.h
---- a/include/linux/if_tun.h	Wed Jan 23 20:06:56 2008 +1100
-+++ b/include/linux/if_tun.h	Wed Jan 23 20:12:51 2008 +1100
-@@ -70,6 +70,9 @@ struct tun_struct {
- #define TUN_NO_PI	0x0040
- #define TUN_ONE_QUEUE	0x0080
- #define TUN_PERSIST 	0x0100	
-+#define TUN_VIRTIO_HDR	0x0200
-+#define TUN_RECV_CSUM	0x0400
-+#define TUN_RECV_GSO	0x0400
- 
- /* Ioctl defines */
- #define TUNSETNOCSUM  _IOW('T', 200, int) 
-@@ -85,6 +88,9 @@ struct tun_struct {
- #define IFF_TAP		0x0002
- #define IFF_NO_PI	0x1000
- #define IFF_ONE_QUEUE	0x2000
-+#define IFF_VIRTIO_HDR	0x4000
-+#define IFF_RECV_CSUM	0x8000
-+#define IFF_RECV_GSO	0x0800
- 
- struct tun_pi {
- 	unsigned short flags;
+ /**
+diff -r f9464b21ed9c include/linux/virtio_config.h
+--- a/include/linux/virtio_config.h	Wed Jan 23 23:52:47 2008 +1100
++++ b/include/linux/virtio_config.h	Thu Jan 24 00:47:05 2008 +1100
+@@ -43,6 +43,9 @@ struct virtio_device;
+  * @set_status: write the status byte
+  *	vdev: the virtio_device
+  *	status: the new status byte
++ * @reset: reset the device
++ *	vdev: the virtio device
++ *	After this, status and feature negotiation must be done again
+  * @find_vq: find a virtqueue and instantiate it.
+  *	vdev: the virtio_device
+  *	index: the 0-based virtqueue number in case there's more than one.
+@@ -59,6 +62,7 @@ struct virtio_config_ops
+ 		    const void *buf, unsigned len);
+ 	u8 (*get_status)(struct virtio_device *vdev);
+ 	void (*set_status)(struct virtio_device *vdev, u8 status);
++	void (*reset)(struct virtio_device *vdev);
+ 	struct virtqueue *(*find_vq)(struct virtio_device *vdev,
+ 				     unsigned index,
+ 				     void (*callback)(struct virtqueue *));
