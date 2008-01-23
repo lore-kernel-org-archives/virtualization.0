@@ -1,15 +1,13 @@
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [dm-devel] [PATCH 0/2] dm-band: The I/O bandwidth controller:
- Overview
-Date: Thu, 24 Jan 2008 01:21:03 +0900 (JST)
-Message-ID: <20080124.012103.105433865.taka__43978.8717813373$1201105876$gmane$org@valinux.co.jp>
-References: <20080123.215350.193721890.ryov@valinux.co.jp>
-	<20080123144717.GS8075@agk.fab.redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH] virtio_blk: provide getgeo
+Date: Wed, 23 Jan 2008 17:56:50 +0100
+Message-ID: <200801231756.50224.borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080123144717.GS8075@agk.fab.redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,39 +17,50 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: agk@redhat.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Rusty,
 
-> On Wed, Jan 23, 2008 at 09:53:50PM +0900, Ryo Tsuruta wrote:
-> > Dm-band gives bandwidth to each job according to its weight, 
-> > which each job can set its own value to.
-> > At this time, a job is a group of processes with the same pid or pgrp or uid.
-> 
-> It seems to rely on 'current' to classify bios and doesn't do it until the map
-> function is called, possibly in a different process context, so it won't
-> always identify the original source of the I/O correctly:
+I currently try to make my guest boot from an virtio root device
+without having an external kernel. Some of the tools that I tried 
+expect HDIO_GETGEO to work. The most interesting value is likely
+the geo.start value to get the offset of a partition. This value
+is filled by block/ioctl.c if fops->getgeo is set. This patch also
+fills in some standard values for heads, sectors and cylinders.
 
-Yes, this should be mentioned in the document with the current implementation
-as you pointed out.
+Makes sense?
 
-By the way, I think once a memory controller of cgroup is introduced, it will
-help to track down which cgroup is the original source.
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ drivers/block/virtio_blk.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-> people need to take
-> this into account when designing their group configuration and so this should
-> be mentioned in the documentation.
->
-> I've uploaded it here while we consider ways we might refine the architecture and
-> interfaces etc.:
-> 
->   http://www.kernel.org/pub/linux/kernel/people/agk/patches/2.6/editing/dm-add-band-target.patch
-> 
-> Alasdair
-> -- 
-> agk@redhat.com
-
-Thank you,
-Hirokazu Takahashi.
+Index: kvm/drivers/block/virtio_blk.c
+===================================================================
+--- kvm.orig/drivers/block/virtio_blk.c
++++ kvm/drivers/block/virtio_blk.c
+@@ -154,9 +154,20 @@ static int virtblk_ioctl(struct inode *i
+ 			      (void __user *)data);
+ }
+ 
++/* We provide getgeo only to please some old bootloader/partitioning tools */
++static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
++{
++	/* some standard values, similar to sd */
++	geo->heads = 1 << 6;
++	geo->sectors = 1 << 5;
++	geo->cylinders = get_capacity(bd->bd_disk) >> 11;
++	return 0;
++}
++
+ static struct block_device_operations virtblk_fops = {
+-	.ioctl = virtblk_ioctl,
+-	.owner = THIS_MODULE,
++	.ioctl  = virtblk_ioctl,
++	.owner  = THIS_MODULE,
++	.getgeo = virtblk_getgeo,
+ };
+ 
+ static int virtblk_probe(struct virtio_device *vdev)
