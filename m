@@ -1,12 +1,13 @@
-From: Frans Pop <elendil@planet.nl>
-Subject: Re: [PATCH 1/2] dm-band: The I/O bandwidth controller: Source code
-	patch
-Date: Wed, 23 Jan 2008 14:33:28 +0100
-Message-ID: <E1JHfjM-0003NV-BR__6865.74989599666$1201095351$gmane$org@faramir.fjphome.nl>
-References: <20080123.215350.193721890.ryov@valinux.co.jp>
-	<20080123.215632.226773739.ryov@valinux.co.jp>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 1/3] Cleanup and simplify virtnet header
+Date: Thu, 24 Jan 2008 01:07:38 +1100
+Message-ID: <200801240107.38929.rusty__8436.60255563936$1201098352$gmane$org@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-To: <20080123.215632.226773739.ryov@valinux.co.jp>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,73 +17,137 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryo Tsuruta <ryov@valinux.co.jp>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, linux-kernel@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+1) Turn GSO on virtio net into an all-or-nothing (keep checksumming
+   separate).  Having multiple bits is a pain: if you can't support something
+   you should handle it in software, which is still a performance win.
 
-I'm not qualified to comment on the code, but here are some suggestions on
-config option and comments.
+2) Make VIRTIO_NET_HDR_GSO_ECN a flag in the header, so it can apply to
+   IPv6 or v4.
 
-Cheers,
-FJP
+3) Rename VIRTIO_NET_F_NO_CSUM to VIRTIO_NET_F_CSUM (ie. means we do
+   checksumming).
 
-Ryo Tsuruta wrote:
-> +config DM_BAND
-> +	tristate "I/O band width control "
+4) Add csum and gso params to virtio_net to allow more testing.
 
-s/band width/bandwidth/
-(it seems to be used correctly elsewhere, but you may want to double-check)
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/net/virtio_net.c   |   32 ++++++++++++++++----------------
+ include/linux/virtio_net.h |   12 ++++--------
+ 2 files changed, 20 insertions(+), 24 deletions(-)
 
-> +	depends on BLK_DEV_DM
-> +	---help---
-> +	Any processes or cgroups can use the same storage
-> +	with its band-width fairly shared.
-
-s/band-width/bandwidth/
-
-The help should probably be a bit more verbose as this does not tell anybody
-much who has not already read the documentation.
-
-Maybe something like:
-<snip>
-This device-mapper target allows to define how the
-available bandwith of a storage device should be
-shared between processes or cgroups.
-
-Information on how to use dm-band is available in:
-   Documentation/device-mapper/band.txt
-</snip>
-
-> + * The following functiotons determine when and which BIOs should
-                    ^^^^^^^^^^^
-> + * be submitted to control the I/O flow.
-> + * It is possible to add a new I/O scheduling policy with it.
-
-> + *  <Method>      <description>
-> + * g_can_submit   : To determine whether a given group has a right to
-
-s/a right/the right/
-
-> + *                  submit BIOs.
-> + * 		    The larger return value the higher priority to submit.
-> + * 		    Zero means it has no right.
-
-"The larger the return value, the higher the priority [...]"
-
-> + * g_prepare_bio  : Called right before submitting each BIO.
-> + * g_restart_bios : Called when there exist some BIOs blocked but none of
-> them
-> + * 		    can't be submitted now.
-
-s/when there exist some BIOs blocked/if some BIOs exist that are blocked/ ?
-
-"none of them can't" : the double negative looks incorrect (and should be
-avoided anyway)
-
-> + *		    This method have to do something to restart to submit BIOs.
-
-s/have/has/
-
-"has to do something" : that's rather vague...
+diff -r 4fb788b18cf8 drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c	Wed Jan 23 13:07:59 2008 +1100
++++ b/drivers/net/virtio_net.c	Wed Jan 23 18:46:05 2008 +1100
+@@ -26,6 +26,10 @@
+ 
+ static int napi_weight = 128;
+ module_param(napi_weight, int, 0444);
++
++static int csum = 1, gso = 1;
++module_param(csum, int, 0444);
++module_param(gso, int, 0444);
+ 
+ MODULE_LICENSE("GPL");
+ 
+@@ -95,12 +99,9 @@ static void receive_skb(struct net_devic
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		pr_debug("GSO!\n");
+-		switch (hdr->gso_type) {
++		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+ 		case VIRTIO_NET_HDR_GSO_TCPV4:
+ 			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV4;
+-			break;
+-		case VIRTIO_NET_HDR_GSO_TCPV4_ECN:
+-			skb_shinfo(skb)->gso_type = SKB_GSO_TCP_ECN;
+ 			break;
+ 		case VIRTIO_NET_HDR_GSO_UDP:
+ 			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
+@@ -114,6 +115,9 @@ static void receive_skb(struct net_devic
+ 				       dev->name, hdr->gso_type);
+ 			goto frame_err;
+ 		}
++
++		if (hdr->gso_type & VIRTIO_NET_HDR_GSO_ECN)
++			skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
+ 
+ 		skb_shinfo(skb)->gso_size = hdr->gso_size;
+ 		if (skb_shinfo(skb)->gso_size == 0) {
+@@ -249,9 +253,7 @@ static int start_xmit(struct sk_buff *sk
+ 	if (skb_is_gso(skb)) {
+ 		hdr->hdr_len = skb_transport_header(skb) - skb->data;
+ 		hdr->gso_size = skb_shinfo(skb)->gso_size;
+-		if (skb_shinfo(skb)->gso_type & SKB_GSO_TCP_ECN)
+-			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4_ECN;
+-		else if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV4)
++		if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV4)
+ 			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+ 		else if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6)
+ 			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+@@ -259,6 +261,8 @@ static int start_xmit(struct sk_buff *sk
+ 			hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP;
+ 		else
+ 			BUG();
++		if (skb_shinfo(skb)->gso_type & SKB_GSO_TCP_ECN)
++			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+ 	} else {
+ 		hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+ 		hdr->gso_size = hdr->hdr_len = 0;
+@@ -354,17 +358,13 @@ static int virtnet_probe(struct virtio_d
+ 	SET_NETDEV_DEV(dev, &vdev->dev);
+ 
+ 	/* Do we support "hardware" checksums? */
+-	if (vdev->config->feature(vdev, VIRTIO_NET_F_NO_CSUM)) {
++	if (csum && vdev->config->feature(vdev, VIRTIO_NET_F_CSUM)) {
+ 		/* This opens up the world of extra features. */
+ 		dev->features |= NETIF_F_HW_CSUM|NETIF_F_SG|NETIF_F_FRAGLIST;
+-		if (vdev->config->feature(vdev, VIRTIO_NET_F_TSO4))
+-			dev->features |= NETIF_F_TSO;
+-		if (vdev->config->feature(vdev, VIRTIO_NET_F_UFO))
+-			dev->features |= NETIF_F_UFO;
+-		if (vdev->config->feature(vdev, VIRTIO_NET_F_TSO4_ECN))
+-			dev->features |= NETIF_F_TSO_ECN;
+-		if (vdev->config->feature(vdev, VIRTIO_NET_F_TSO6))
+-			dev->features |= NETIF_F_TSO6;
++		if (gso && vdev->config->feature(vdev, VIRTIO_NET_F_GSO)) {
++			dev->features |= NETIF_F_TSO | NETIF_F_UFO
++				| NETIF_F_TSO_ECN | NETIF_F_TSO6;
++		}
+ 	}
+ 
+ 	/* Configuration may specify what MAC to use.  Otherwise random. */
+diff -r 4fb788b18cf8 include/linux/virtio_net.h
+--- a/include/linux/virtio_net.h	Wed Jan 23 13:07:59 2008 +1100
++++ b/include/linux/virtio_net.h	Wed Jan 23 18:46:05 2008 +1100
+@@ -6,12 +6,9 @@
+ #define VIRTIO_ID_NET	1
+ 
+ /* The feature bitmap for virtio net */
+-#define VIRTIO_NET_F_NO_CSUM	0
+-#define VIRTIO_NET_F_TSO4	1
+-#define VIRTIO_NET_F_UFO	2
+-#define VIRTIO_NET_F_TSO4_ECN	3
+-#define VIRTIO_NET_F_TSO6	4
+-#define VIRTIO_NET_F_MAC	5
++#define VIRTIO_NET_F_CSUM	0	/* Can handle pkts w/ partial csum */
++#define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
++#define VIRTIO_NET_F_GSO	6	/* Can handle pkts w/ any GSO type */
+ 
+ struct virtio_net_config
+ {
+@@ -27,10 +24,9 @@ struct virtio_net_hdr
+ 	__u8 flags;
+ #define VIRTIO_NET_HDR_GSO_NONE		0	// Not a GSO frame
+ #define VIRTIO_NET_HDR_GSO_TCPV4	1	// GSO frame, IPv4 TCP (TSO)
+-/* FIXME: Do we need this?  If they said they can handle ECN, do they care? */
+-#define VIRTIO_NET_HDR_GSO_TCPV4_ECN	2	// GSO frame, IPv4 TCP w/ ECN
+ #define VIRTIO_NET_HDR_GSO_UDP		3	// GSO frame, IPv4 UDP (UFO)
+ #define VIRTIO_NET_HDR_GSO_TCPV6	4	// GSO frame, IPv6 TCP
++#define VIRTIO_NET_HDR_GSO_ECN		0x80	// TCP has ECN set
+ 	__u8 gso_type;
+ 	__u16 hdr_len;		/* Ethernet + IP + tcp/udp hdrs */
+ 	__u16 gso_size;		/* Bytes to append to gso_hdr_len per frame */
