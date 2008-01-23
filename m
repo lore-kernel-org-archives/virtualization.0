@@ -1,14 +1,16 @@
-From: Alasdair G Kergon <agk@redhat.com>
-Subject: Re: [dm-devel] [PATCH 0/2] dm-band: The I/O bandwidth controller:
-	Overview
-Date: Wed, 23 Jan 2008 14:47:17 +0000
-Message-ID: <20080123144717.GS8075__7087.82324004478$1201103220$gmane$org@agk.fab.redhat.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [PATCH 1/2] dm-band: The I/O bandwidth controller: Source code
+ patch
+Date: Thu, 24 Jan 2008 00:48:05 +0900 (JST)
+Message-ID: <20080124.004805.193714878.ryov__46617.368507623$1201103415$gmane$org@valinux.co.jp>
 References: <20080123.215350.193721890.ryov@valinux.co.jp>
+	<20080123.215632.226773739.ryov@valinux.co.jp>
+	<E1JHfjM-0003NV-BR@faramir.fjphome.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20080123.215350.193721890.ryov@valinux.co.jp>
+In-Reply-To: <E1JHfjM-0003NV-BR@faramir.fjphome.nl>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,26 +20,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryo Tsuruta <ryov@valinux.co.jp>
-Cc: containers@lists.linux-foundation.org, dm-devel@redhat.com, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: elendil@planet.nl
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 23, 2008 at 09:53:50PM +0900, Ryo Tsuruta wrote:
-> Dm-band gives bandwidth to each job according to its weight, 
-> which each job can set its own value to.
-> At this time, a job is a group of processes with the same pid or pgrp or uid.
+Hi Frans,
 
-It seems to rely on 'current' to classify bios and doesn't do it until the map
-function is called, possibly in a different process context, so it won't
-always identify the original source of the I/O correctly: people need to take
-this into account when designing their group configuration and so this should
-be mentioned in the documentation.
+> I'm not qualified to comment on the code, but here are some suggestions on
+> config option and comments.
 
-I've uploaded it here while we consider ways we might refine the architecture and
-interfaces etc.:
+Thank you for your suggstions.
+I will correct those mistakes.
 
-  http://www.kernel.org/pub/linux/kernel/people/agk/patches/2.6/editing/dm-add-band-target.patch
-
-Alasdair
--- 
-agk@redhat.com
+--
+Ryo Tsuruta <ryov@valinux.co.jp>
