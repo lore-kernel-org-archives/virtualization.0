@@ -1,7 +1,7 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [PATCH 0/2] dm-band: The I/O bandwidth controller: Overview
 Date: Wed, 23 Jan 2008 13:22:36 -0600
-Message-ID: <479793FC.70701__35339.808491017$1201116297$gmane$org@codemonkey.ws>
+Message-ID: <479793FC.70701__1456.27247770808$1201116300$gmane$org@codemonkey.ws>
 References: <20080123.215350.193721890.ryov__34610.100350301$1201092994$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
+To: Ryo Tsuruta <ryov@valinux.co.jp>
 Cc: containers@lists.linux-foundation.org, dm-devel@redhat.com, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
