@@ -1,17 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio reset support
-Date: Fri, 25 Jan 2008 08:19:39 +1100
-Message-ID: <200801250819.39484.rusty__45153.6676184789$1201209782$gmane$org@rustcorp.com.au>
-References: <200801240116.26160.rusty@rustcorp.com.au>
-	<200801240118.09032.rusty@rustcorp.com.au>
-	<1201180147.7100.35.camel@localhost.localdomain>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: [PATCH] Fix compile warnings in virtio_balloon
+Date: Thu, 24 Jan 2008 16:14:30 -0600
+Message-ID: <47990DC6.6020203@us.ibm.com>
+References: <12012049981852-git-send-email-aliguori@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="------------090602020304030000020307"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1201180147.7100.35.camel@localhost.localdomain>
-Content-Disposition: inline
+In-Reply-To: <12012049981852-git-send-email-aliguori@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,61 +16,75 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dor.laor@gmail.com
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 25 January 2008 00:09:07 Dor Laor wrote:
-> The patches really fix/simplify things :)
+This is a multi-part message in MIME format.
+--------------090602020304030000020307
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes, that's why I like reset, it solves multiple problems.
+Anthony Liguori wrote:
+> On x86_64, min was throwing a warning.  ARRAY_SIZE is unsigned long so let's
+> switch to using that for num.
+>
+> Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+>   
 
-> Did you test device open->close->open? It was broken in my last test,
+Okay, that just changed the warning to occur on i386.  Please use the 
+attached patch instead which just casts within the min macro.
 
-Well, it's not really fair, since I moved the buffer allocation and 
-deallocation to the probe and remove routines (otherwise we'd have to reset 
-on every close).
+Regards,
 
-> we cad add link indications too.
+Anthony Liguori
 
-Definitely.  We'll use the config_change callback.  It should be quite neat.
 
-> Besides that I also remembered that adding 'vq->num_free =vq->ring.num;'
-> after reset fixed part of the problems, I don't remember why (gonna
-> re-check it soon), I think it was the reset calls for (..) detach_buf
-> for all buffers regardless if they were free already.
+--------------090602020304030000020307
+Content-Type: text/x-patch;
+ name="virtio:balloon_min.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="virtio:balloon_min.diff"
 
-My initial reaction was that we don't need to do cleanup, because it's 
-nonsensical to use a virtqueue after reset (you can only really do del_vq: in 
-fact we may eventually change "reset" to "kill" which also deletes the 
-virtqueues).
+Subject: [PATCH] Fix compile warnings in virtio_balloon
+Cc: Rusty Russell <rusty@rustcorp.com.au>
 
-However, a shared interrupt might make us look at the ring again, and we'll 
-get confused.  reset() must at least reset the 'last seen' index of the 
-virtqueues (I had the same issue in the guest).
+On x86_64, min was throwing a warning. Let's explicitly cast to avoid the
+warning.
 
-BTW, here's what lguest does on the host side for reset:
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 
-/* Resetting a device is fairly easy. */
-static void reset_device(struct device *dev)
-{
-	struct virtqueue *vq;
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 9de85ae..cb7f1df 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -85,7 +85,7 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+ static void fill_balloon(struct virtio_balloon *vb, unsigned int num)
+ {
+ 	/* We can only do one array worth at a time. */
+-	num = min(num, ARRAY_SIZE(vb->pfns));
++	num = min(num, (unsigned int)ARRAY_SIZE(vb->pfns));
+ 
+ 	for (vb->num_pfns = 0; vb->num_pfns < num; vb->num_pfns++) {
+ 		struct page *page = alloc_page(GFP_HIGHUSER | __GFP_NORETRY);
+@@ -126,7 +126,7 @@ static void leak_balloon(struct virtio_balloon *vb, unsigned int num)
+ 	struct page *page;
+ 
+ 	/* We can only do one array worth at a time. */
+-	num = min(num, ARRAY_SIZE(vb->pfns));
++	num = min(num, (unsigned int)ARRAY_SIZE(vb->pfns));
+ 
+ 	for (vb->num_pfns = 0; vb->num_pfns < num; vb->num_pfns++) {
+ 		page = list_first_entry(&vb->pages, struct page, lru);
 
-	verbose("Resetting device %s\n", dev->name);
-	/* Clear the status. */
-	dev->desc->status = 0;
+--------------090602020304030000020307
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-	/* Clear any features they've acked. */
-	memset(get_feature_bits(dev) + dev->desc->feature_len, 0,
-	       dev->desc->feature_len);
-
-	/* Zero out the virtqueues. */
-	for (vq = dev->vq; vq; vq = vq->next) {
-		memset(vq->vring.desc, 0,
-		       vring_size(vq->config.num, getpagesize()));
-		vq->last_avail_idx = 0;
-	}
-}
-
-Cheers,
-Rusty.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--------------090602020304030000020307--
