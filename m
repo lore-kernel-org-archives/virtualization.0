@@ -1,77 +1,86 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH] Fix compile warnings in virtio_balloon
-Date: Fri, 25 Jan 2008 09:29:43 -0600
-Message-ID: <479A0067.4010409@us.ibm.com>
-References: <12012049981852-git-send-email-aliguori@us.ibm.com>
-	<200801251009.14305.rusty@rustcorp.com.au>
+From: "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Updated dom0 pvops for 2.6.24 available on git
+Date: Fri, 25 Jan 2008 16:37:20 +0000
+Message-ID: <1201279040.18573.14.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200801251009.14305.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
+Cc: Chris Wright <chrisw@redhat.com>, Stephen Tweedie <sct@redhat.com>, Jeremy Fitzhardinge <jeremy@goop.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Juan Quintela <quintela@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Friday 25 January 2008 07:03:18 Anthony Liguori wrote:
->   
->> On x86_64, min was throwing a warning.  ARRAY_SIZE is unsigned long so
->> let's switch to using that for num.
->>     
->
-> Creates warning on 32-bit.
->
-> How about this?
->   
-Yeah, that's fine.
+Hi,
 
-Regards,
+I've updated the dom0 pvops patches against 2.6.24, and they now have a
+new git home:
 
-Anthony Liguori
-> ===
->
-> On x86_64, min was throwing a warning.  size_t is correct for 32 and 64.
->
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
->
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -82,7 +82,7 @@ static void tell_host(struct virtio_ball
->  	wait_for_completion(&vb->acked);
->  }
->
-> -static void fill_balloon(struct virtio_balloon *vb, unsigned int num)
-> +static void fill_balloon(struct virtio_balloon *vb, size_t num)
->  {
->  	/* We can only do one array worth at a time. */
->  	num = min(num, ARRAY_SIZE(vb->pfns));
-> @@ -92,7 +92,7 @@ static void fill_balloon(struct virtio_b
->  		if (!page) {
->  			if (printk_ratelimit())
->  				dev_printk(KERN_INFO, &vb->vdev->dev,
-> -					   "Out of puff! Can't get %u pages\n",
-> +					   "Out of puff! Can't get %zu pages\n",
->  					   num);
->  			/* Sleep for at least 1/5 of a second before retry. */
->  			msleep(200);
-> @@ -121,7 +121,7 @@ static void release_pages_by_pfn(const u
->  	}
->  }
->
-> -static void leak_balloon(struct virtio_balloon *vb, unsigned int num)
-> +static void leak_balloon(struct virtio_balloon *vb, size_t num)
->  {
->  	struct page *page;
->
->   
+http://git.et.redhat.com/?p=linux-2.6-dom0-pvops.git
+git://et.redhat.com/linux-2.6-dom0-pvops.git
+
+I'm maintaining the tree in this repo in two separate forms:
+
+      * Development branch:
+
+        The master branch is an ongoing, shareable development branch,
+        currently including a fair amount of debug code and history that
+        we will not ever want to push upstream
+        
+      * Clean patch queues:
+        
+        I'm also maintaining the same tree as a completely different set
+        of patches/git history --- the tag "dom0-2.6.24-A0" is a clean
+        patch queue applying directly against upstream v2.6.24, and the
+        tag "dom0-2.6.24-A0-dev" is the corresponding tag on the master
+        branch which results in _exactly_ the same tree, but which has
+        the full development history behind it.  (git-diff-tree will
+        show they are identical for verification.)
+        
+So for patch review and upstream pushing, the dom0-2.6.24-A0 tag is what
+you want to be looking at; for development and git merging, the master
+branch is where the activity will be.
+
+New in this release:
+--------------------
+
+dom0-2.6.24-A0 adds:
+
+Initial APIC support:
+        This is a minimal brute-force merge of the 2.6.18-xen APIC code,
+        enough to get interrupts being handled and to allow other dom0
+        work to proceed; this will still need to be worked into a pvops-
+        friendly format.
+        
+PCI DMA support:
+        Adds an x86_64-style dma_mapping indirection, tested on
+        baremetal, and adds Xen pfn-to-mfn translations to allow DMA to
+        function under pvops.  This is fully pvops-friendly as it
+        stands, but does not yet support swiotlb (so for now it's for
+        development and testing on 32-bit <4GB boxes only.)
+        
+Various minor bugfixes.
+
+Status
+------
+
+Boots through to initrd/module loading, but modular drivers are still
+not working right, failing on init with a variety of symptoms including
+fatal controller errors or init timeouts.  We currently suspect problems
+in the caching/writethrough settings on the PCI accesses, but that's
+just a guess right now.
+
+The full patch will NOT boot on baremetal due to the heavy-handed APIC
+merge; but the dma-mapping patches applied alone DO boot on baremetal.
+
+Still includes lots of debug printks for irq and dma mapping, don't
+expect a quiet boot.
+
+--Stephen
