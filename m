@@ -1,15 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Fix compile warnings in virtio_balloon
-Date: Fri, 25 Jan 2008 10:09:14 +1100
-Message-ID: <200801251009.14305.rusty@rustcorp.com.au>
-References: <12012049981852-git-send-email-aliguori@us.ibm.com>
+From: yamamoto@valinux.co.jp (YAMAMOTO Takashi)
+Subject: Re: [dm-devel] [PATCH 0/2] dm-band: The I/O bandwidth controller:
+ Overview
+Date: Fri, 25 Jan 2008 15:26:41 +0900 (JST)
+Message-ID: <20080125062642.05E231E3C0C__27053.2487229959$1201242530$gmane$org@siro.lan>
+References: <20080124.191456.119427875.taka@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=us-ascii
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12012049981852-git-send-email-aliguori@us.ibm.com>
-Content-Disposition: inline
+In-Reply-To: Your message of "Thu, 24 Jan 2008 19:14:56 +0900 (JST)"
+	<20080124.191456.119427875.taka@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,49 +18,46 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: virtualization@lists.linux-foundation.org
+To: taka@valinux.co.jp
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 25 January 2008 07:03:18 Anthony Liguori wrote:
-> On x86_64, min was throwing a warning.  ARRAY_SIZE is unsigned long so
-> let's switch to using that for num.
+> Hi,
+> 
+> > > > On Wed, Jan 23, 2008 at 09:53:50PM +0900, Ryo Tsuruta wrote:
+> > > > > Dm-band gives bandwidth to each job according to its weight, 
+> > > > > which each job can set its own value to.
+> > > > > At this time, a job is a group of processes with the same pid or pgrp or uid.
+> > > > 
+> > > > It seems to rely on 'current' to classify bios and doesn't do it until the map
+> > > > function is called, possibly in a different process context, so it won't
+> > > > always identify the original source of the I/O correctly:
+> > > 
+> > > Yes, this should be mentioned in the document with the current implementation
+> > > as you pointed out.
+> > > 
+> > > By the way, I think once a memory controller of cgroup is introduced, it will
+> > > help to track down which cgroup is the original source.
+> > 
+> > do you mean to make this a part of the memory subsystem?
+> 
+> I just think if the memory subsystem is in front of us, we don't need to
+> reinvent the wheel.
+> 
+> But I don't have a concrete image how the interface between dm-band and
+> the memory subsystem should be designed yet. I'd be appreciate if some of
+> the cgroup developers give some ideas about it.
 
-Creates warning on 32-bit.
+the current implementation of memory subsystem associates pages to
+cgroups directly, rather than via tasks.  so it isn't straightforward to
+use the information for other classification mechanisms like yours which
+might not share the view of "hierarchy" with the memory subsystem.
 
-How about this?
-===
+YAMAMOTO Takashi
 
-On x86_64, min was throwing a warning.  size_t is correct for 32 and 64.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -82,7 +82,7 @@ static void tell_host(struct virtio_ball
- 	wait_for_completion(&vb->acked);
- }
- 
--static void fill_balloon(struct virtio_balloon *vb, unsigned int num)
-+static void fill_balloon(struct virtio_balloon *vb, size_t num)
- {
- 	/* We can only do one array worth at a time. */
- 	num = min(num, ARRAY_SIZE(vb->pfns));
-@@ -92,7 +92,7 @@ static void fill_balloon(struct virtio_b
- 		if (!page) {
- 			if (printk_ratelimit())
- 				dev_printk(KERN_INFO, &vb->vdev->dev,
--					   "Out of puff! Can't get %u pages\n",
-+					   "Out of puff! Can't get %zu pages\n",
- 					   num);
- 			/* Sleep for at least 1/5 of a second before retry. */
- 			msleep(200);
-@@ -121,7 +121,7 @@ static void release_pages_by_pfn(const u
- 	}
- }
- 
--static void leak_balloon(struct virtio_balloon *vb, unsigned int num)
-+static void leak_balloon(struct virtio_balloon *vb, size_t num)
- {
- 	struct page *page;
+> 
+> Thanks,
+> Hirokazu Takahashi.
+> 
+> 
+> > YAMAMOTO Takashi
