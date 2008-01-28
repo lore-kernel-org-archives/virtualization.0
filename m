@@ -1,13 +1,11 @@
-From: Frans Pop <elendil@planet.nl>
-Subject: Re: [PATCH 1/2] dm-band: The I/O bandwidth controller: Source code
-	patch
-Date: Sun, 27 Jan 2008 16:44:53 +0100
-Message-ID: <E1JJ9gj-0001SH-U2__25752.7253161699$1201448833$gmane$org@faramir.fjphome.nl>
-References: <20080123.215350.193721890.ryov@valinux.co.jp>
-	<20080123.215632.226773739.ryov@valinux.co.jp>
-	<E1JHfjM-0003NV-BR@faramir.fjphome.nl>
+From: Dor Laor <dor.laor@gmail.com>
+Subject: [PATCH] virtio_net tx performance fix
+Date: Mon, 28 Jan 2008 02:13:44 +0200
+Message-ID: <1201479224.3047.37.camel__41611.735095694$1201479421$gmane$org@localhost.localdomain>
+Reply-To: dor.laor@qumranet.com
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-1QR0LBtRKc/Zc5Nzqh1U"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-To: <E1JHfjM-0003NV-BR@faramir.fjphome.nl>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,26 +15,123 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Frans Pop <elendil@planet.nl>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com
+To: Rusty Russell <rusty@rustcorp.com.au>, Anthony Liguori <aliguori@us.ibm.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.
 List-Id: virtualization@lists.linuxfoundation.org
 
-Frans Pop wrote:
-> The help should probably be a bit more verbose as this does not tell
-> anybody much who has not already read the documentation.
-> 
-> Maybe something like:
-> <snip>
-> This device-mapper target allows to define how the
-> available bandwith of a storage device should be
-> shared between processes or cgroups.
-> 
-> Information on how to use dm-band is available in:
->    Documentation/device-mapper/band.txt
-> </snip>
 
-I just see in other Kconfig files that the last line should be:
-   <file:Documentation/device-mapper/band.txt>.
+--=-1QR0LBtRKc/Zc5Nzqh1U
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Cheers,
-FJP
+From f582caf612b446e42f1e80d5ef12c5b7322efd03 Mon Sep 17 00:00:00 2001
+From: Dor Laor <dor.laor@qumranet.com>
+Date: Mon, 28 Jan 2008 02:09:48 +0200
+Subject: [PATCH] virtio_net tx performance fix
+
+There was a problem with the location of the notify call in
+add_buff function:
+When VRING_USED_F_NO_NOTIFY is set, the host does not kick the
+guest when packets were transmitted, as a result the guest runs
+out of tx buffers sometimes. This is fine but the problem lies
+when add_buf fails, it called notify and the host sends all the
+pending tx pkts. When enable_cb was called, more_used(vq) returned
+false so eventually the skb was dropped.
+
+Moving notify from add_buf to enable_cb fixes this flow problem.
+The tx performance boosted from 220Mbps to 850Mbps.
+
+Signed-off-by: Dor Laor <dor.laor@qumranet.com>
+---
+ drivers/virtio/virtio_ring.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 3a28c13..592bbc9 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -87,8 +87,6 @@ static int vring_add_buf(struct virtqueue *_vq,
+ 	if (vq->num_free < out + in) {
+ 		pr_debug("Can't add buf len %i - avail = %i\n",
+ 			 out + in, vq->num_free);
+-		/* We notify *even if* VRING_USED_F_NO_NOTIFY is set here. */
+-		vq->notify(&vq->vq);
+ 		END_USE(vq);
+ 		return -ENOSPC;
+ 	}
+@@ -232,6 +230,7 @@ static bool vring_enable_cb(struct virtqueue *_vq)
+ 	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+ 	mb();
+ 	if (unlikely(more_used(vq))) {
++		vq->notify(&vq->vq);
+ 		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+ 		END_USE(vq);
+ 		return false;
+-- 
+1.5.3.7
+
+
+
+--=-1QR0LBtRKc/Zc5Nzqh1U
+Content-Disposition: attachment;
+	filename=0001-virtio_net-tx-performance-fix.patch
+Content-Type: application/mbox; name=0001-virtio_net-tx-performance-fix.patch
+Content-Transfer-Encoding: 7bit
+
+From f582caf612b446e42f1e80d5ef12c5b7322efd03 Mon Sep 17 00:00:00 2001
+From: Dor Laor <dor.laor@qumranet.com>
+Date: Mon, 28 Jan 2008 02:09:48 +0200
+Subject: [PATCH] virtio_net tx performance fix
+
+There was a problem with the location of the notify call in
+add_buff function:
+When VRING_USED_F_NO_NOTIFY is set, the host does not kick the
+guest when packets were transmited, as a result the guest runs
+out of tx buffers sometimes. This is fine but the problem lies
+when add_buf fails, it called notify and the host sends all the
+pending tx pkts. When enable_cb was called, more_used(vq) returned
+false so eventually the skb was droped.
+
+Moving notify from add_buf to enable_cb fixes this flow problem.
+The tx performance boosted from 220Mbps to 850Mbps.
+
+Signed-off-by: Dor Laor <dor.laor@qumranet.com>
+---
+ drivers/virtio/virtio_ring.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 3a28c13..592bbc9 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -87,8 +87,6 @@ static int vring_add_buf(struct virtqueue *_vq,
+ 	if (vq->num_free < out + in) {
+ 		pr_debug("Can't add buf len %i - avail = %i\n",
+ 			 out + in, vq->num_free);
+-		/* We notify *even if* VRING_USED_F_NO_NOTIFY is set here. */
+-		vq->notify(&vq->vq);
+ 		END_USE(vq);
+ 		return -ENOSPC;
+ 	}
+@@ -232,6 +230,7 @@ static bool vring_enable_cb(struct virtqueue *_vq)
+ 	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+ 	mb();
+ 	if (unlikely(more_used(vq))) {
++		vq->notify(&vq->vq);
+ 		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+ 		END_USE(vq);
+ 		return false;
+-- 
+1.5.3.7
+
+
+--=-1QR0LBtRKc/Zc5Nzqh1U
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--=-1QR0LBtRKc/Zc5Nzqh1U--
