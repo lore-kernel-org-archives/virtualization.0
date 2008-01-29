@@ -1,17 +1,16 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH] Use PCI revision field to indicate virtio PCI ABI
-	version
-Date: Tue, 29 Jan 2008 10:03:42 -0600
-Message-ID: <479F4E5E.6070909@us.ibm.com>
-References: <1201535999-13998-1-git-send-email-aliguori@us.ibm.com>
-	<200801291421.00278.rusty@rustcorp.com.au>
-	<479EDDCE.8000000@qumranet.com>
-	<200801292338.03916.rusty@rustcorp.com.au>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 2/2] virtio reset support
+Date: Tue, 29 Jan 2008 19:27:02 +0200
+Message-ID: <479F61E6.4010600@qumranet.com>
+References: <200801240116.26160.rusty@rustcorp.com.au>
+	<200801240118.09032.rusty@rustcorp.com.au>
+	<479C8599.60007@qumranet.com> <479DF787.2020100@us.ibm.com>
+	<479DF952.9040201@qumranet.com> <479E5B9B.4070409@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200801292338.03916.rusty@rustcorp.com.au>
+In-Reply-To: <479E5B9B.4070409@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,52 +20,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Dor Laor <dor.laor@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Tuesday 29 January 2008 19:03:26 Avi Kivity wrote:
->   
->> Rusty Russell wrote:
->>     
->>> On Tuesday 29 January 2008 02:59:59 Anthony Liguori wrote:
->>>       
->>>> As Avi pointed out, as we continue to massage the virtio PCI ABI, we can
->>>> make things a little more friendly to users by utilizing the PCI
->>>> revision field to indicate which version of the ABI we're using.  This
->>>> is a hard ABI version and incrementing it will cause the guest driver to
->>>> break.
->>>>
->>>> This is the necessary changes to virtio_pci to support this.
->>>>
->>>> Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
->>>>         
->>> Applied, thanks.
->>>       
->> But that's done at the wrong level.  Anthony agreed the revision ID
->> should indicate the device ABI, not just the virtio ABI.  If we move to
->> that level, bumping just one device rev id on the host will break all
->> devices on the guest.
->>     
+Anthony Liguori wrote:
+> Avi Kivity wrote:
+>> Anthony Liguori wrote:
+>>>
+>>> PCI-e has a common reset concept (warm and cold).  I've been looking 
+>>> around and I can't seem to find any common reset mechanism for PCI.  
+>>> Is FLR something that is per-device or a standard PCI mechanism?  If 
+>>> it's the former, than we've basically implemented FLR using this bit 
+>>> in the config space.
+>>>
+>>
+>> I believe it is a standard mechanism, albeit new, so perhaps many 
+>> devices don't implement it.
 >
-> OK, I'll drop it.
->   
+> I don't have a copy of the PCI specification handy.  Can you dig up 
+> how it's implemented?  I don't see any references in my local 
+> documentation and I couldn't find anything in Linux that referenced it 
+> at the PCI level.
+>
 
-Please pull in the patch again.
+I think it's NDA material, so even if I found it, I couldn't publish 
+it.  It can probably be reverse-engineered from the Xen patches, or 
+perhaps your employer is a PCI-SIG member so you can get access to it.
 
-> It's dumb anyway, since we can just change the ID if we want to break drivers.  
-> Having multiple ways of doing something we don't want to do seems silly.
->   
-
-I considered that too but there's no point in burning through the device 
-IDs.  This is what PCI revision IDs are meant for so we might as well 
-use them.
-
-Regards,
-
-Anthony Liguori
-
-> Cheers,
-> Rusty.
->   
+-- 
+error compiling committee.c: too many arguments to function
