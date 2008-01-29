@@ -1,16 +1,17 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH] Use PCI revision field to indicate virtio PCI ABI
 	version
-Date: Tue, 29 Jan 2008 08:16:08 -0600
-Message-ID: <479F3528.9040203@us.ibm.com>
+Date: Tue, 29 Jan 2008 15:29:53 +0100
+Message-ID: <200801291529.53808.borntraeger@de.ibm.com>
 References: <1201535999-13998-1-git-send-email-aliguori@us.ibm.com>
-	<200801291421.00278.rusty@rustcorp.com.au>
-	<479EDDCE.8000000@qumranet.com>
+	<479EDDCE.8000000@qumranet.com> <479F3528.9040203@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <479EDDCE.8000000@qumranet.com>
+In-Reply-To: <479F3528.9040203@us.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,41 +21,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Anthony Liguori <aliguori@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> Rusty Russell wrote:
->> On Tuesday 29 January 2008 02:59:59 Anthony Liguori wrote:
->>  
->>> As Avi pointed out, as we continue to massage the virtio PCI ABI, we 
->>> can
->>> make things a little more friendly to users by utilizing the PCI 
->>> revision
->>> field to indicate which version of the ABI we're using.  This is a 
->>> hard ABI
->>> version and incrementing it will cause the guest driver to break.
->>>
->>> This is the necessary changes to virtio_pci to support this.
->>>
->>> Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
->>>     
->>
->> Applied, thanks.
->>
->>   
->
-> But that's done at the wrong level.  Anthony agreed the revision ID 
-> should indicate the device ABI, not just the virtio ABI.  If we move 
-> to that level, bumping just one device rev id on the host will break 
-> all devices on the guest.
+Am Dienstag, 29. Januar 2008 schrieb Anthony Liguori:
+> That's not what I was agreeing too.  I don't want to plumb an ABI 
+> interface through virtio for each device.  This is what I didn't like 
+> about having an ABI field in the first place.  I'm thinking we should 
+> just drop both of these and instead just rely on feature bits.
 
-That's not what I was agreeing too.  I don't want to plumb an ABI 
-interface through virtio for each device.  This is what I didn't like 
-about having an ABI field in the first place.  I'm thinking we should 
-just drop both of these and instead just rely on feature bits.
+Me also updating the our prototype code to the latest levels...
 
-Regards,
+And I agree with Anthony. Feature bits seems to be a much better solution 
+than ABI versions.
 
-Anthony Liguori
+
+Christian
