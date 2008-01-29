@@ -1,16 +1,13 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH 2/2] virtio reset support
-Date: Mon, 28 Jan 2008 16:47:55 -0600
-Message-ID: <479E5B9B.4070409__15341.5176821456$1201560637$gmane$org@us.ibm.com>
-References: <200801240116.26160.rusty@rustcorp.com.au>
-	<200801240118.09032.rusty@rustcorp.com.au>
-	<479C8599.60007@qumranet.com> <479DF787.2020100@us.ibm.com>
-	<479DF952.9040201@qumranet.com>
+From: "Christopher S. Aker" <caker@theshore.net>
+Subject: Re: Xen paravirt frontend block hang
+Date: Mon, 28 Jan 2008 19:22:15 -0500
+Message-ID: <479E71B7.7060207@theshore.net>
+References: <4772AC8E.7010007@theshore.net> <47758352.5040504@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <479DF952.9040201@qumranet.com>
+In-Reply-To: <47758352.5040504@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,27 +17,52 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Dor Laor <dor.laor@gmail.com>, virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> Anthony Liguori wrote:
+Jeremy Fitzhardinge wrote:
+> Christopher S. Aker wrote on 12/26/07 2:33 PM,
+>> Sorry for the noise if this isn't the appropriate venue for this.  I
+>> posted this last month to xen-devel:
 >>
->> PCI-e has a common reset concept (warm and cold).  I've been looking 
->> around and I can't seem to find any common reset mechanism for PCI.  
->> Is FLR something that is per-device or a standard PCI mechanism?  If 
->> it's the former, than we've basically implemented FLR using this bit 
->> in the config space.
+>> http://lists.xensource.com/archives/html/xen-devel/2007-11/msg00777.html
 >>
->
-> I believe it is a standard mechanism, albeit new, so perhaps many 
-> devices don't implement it.
+>> I can reliably cause a paravirt_ops Xen guest to hang during intensive
+>> IO.  My current recipe is an untar/tar loop, without compression, of a
+>> kernel tree.  For example:
+>>
+>> wget http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.23.tar.bz2
+>> bzip2 -d linux-2.6.23.tar.bz2
+>>
+>> while true;
+>>   date
+>>   tar xf linux-2.6.23.tar
+>>   tar cf linux-2.6.23.tar linux-2.6.23
+>> done
+>>
+>> After a few loops, anything that touches the xvd device that hung will
+>> get stuck in D state.
+>>
+>> This happens on both a 2.6.16 and 2.6.18 dom0 (3.1.2 tools).  Paravirt
+>> guests I've tried that exhibit the problem: 2.6.23.8, 2.6.23.12, and
+>> 2.6.24-rc6.  It does *not* occur using the Xensource 2.6.18 domU tree
+>> from 3.1.2.  In all cases, the host continues to run fine, nothing out
+>> of the ordinary is logged on the dom0 side, xenstore reports the
+>> status of the devices is fine.
+>>
+>> Can anyone reproduce this problem, or let me know what else I can
+>> provide to help track this down? 
+> 
+> Hi,
+> 
+> I'll try to track this down asap.  Have you tried any other kernel
+> versions?  In other words, did it just start happening, or its always
+> done it?  Also, could you try 2.6.24-rc6, just to make sure it hasn't
+> already been fixed (which is possible if its something that happened in
+> a higher layer or something).
 
-I don't have a copy of the PCI specification handy.  Can you dig up how 
-it's implemented?  I don't see any references in my local documentation 
-and I couldn't find anything in Linux that referenced it at the PCI level.
+Were you able to give this a try?  Still doing it on pv_ops 2.6.24.
 
-Regards,
-
-Anthony Liguori
+Thanks,
+-Chris
