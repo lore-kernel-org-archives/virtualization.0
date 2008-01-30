@@ -1,16 +1,16 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 2/2] virtio reset support
-Date: Tue, 29 Jan 2008 19:27:02 +0200
-Message-ID: <479F61E6.4010600@qumranet.com>
-References: <200801240116.26160.rusty@rustcorp.com.au>
-	<200801240118.09032.rusty@rustcorp.com.au>
-	<479C8599.60007@qumranet.com> <479DF787.2020100@us.ibm.com>
-	<479DF952.9040201@qumranet.com> <479E5B9B.4070409@us.ibm.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [Xen-devel] dm-band: The I/O bandwidth controller: Performance
+ Report
+Date: Wed, 30 Jan 2008 12:32:02 +0900 (JST)
+Message-ID: <20080130.123202.189729685.ryov__39522.2985921011$1201664047$gmane$org@valinux.co.jp>
+References: <20080123.215350.193721890.ryov@valinux.co.jp>
+	<20080125.160720.183032233.ryov@valinux.co.jp>
+	<479ECAC9.5070709@jp.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <479E5B9B.4070409@us.ibm.com>
+In-Reply-To: <479ECAC9.5070709@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,33 +20,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Dor Laor <dor.laor@gmail.com>, virtualization@lists.linux-foundation.org
+To: inakoshi.hiroya@jp.fujitsu.com
+Cc: containers@lists.linux-foundation.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> Avi Kivity wrote:
->> Anthony Liguori wrote:
->>>
->>> PCI-e has a common reset concept (warm and cold).  I've been looking 
->>> around and I can't seem to find any common reset mechanism for PCI.  
->>> Is FLR something that is per-device or a standard PCI mechanism?  If 
->>> it's the former, than we've basically implemented FLR using this bit 
->>> in the config space.
->>>
->>
->> I believe it is a standard mechanism, albeit new, so perhaps many 
->> devices don't implement it.
->
-> I don't have a copy of the PCI specification handy.  Can you dig up 
-> how it's implemented?  I don't see any references in my local 
-> documentation and I couldn't find anything in Linux that referenced it 
-> at the PCI level.
->
+Hi,
 
-I think it's NDA material, so even if I found it, I couldn't publish 
-it.  It can probably be reverse-engineered from the Xen patches, or 
-perhaps your employer is a PCI-SIG member so you can get access to it.
+> you mean that you run 128 processes on each user-device pairs?  Namely,
+> I guess that
+> 
+>   user1: 128 processes on sdb5,
+>   user2: 128 processes on sdb5,
+>   another: 128 processes on sdb5,
+>   user2: 128 processes on sdb6.
 
--- 
-error compiling committee.c: too many arguments to function
+"User-device pairs" means "band groups", right?
+What I actually did is the followings:
+
+  user1: 128 processes on sdb5,
+  user2: 128 processes on sdb5,
+  user3: 128 processes on sdb5,
+  user4: 128 processes on sdb6.
+
+> The second preliminary studies might be:
+> - What if you use a different I/O size on each device (or device-user pair)?
+> - What if you use a different number of processes on each device (or
+> device-user pair)?
+
+There are other ideas of controlling bandwidth, limiting bytes-per-sec,
+latency time or something. I think it is possible to implement it if 
+a lot of people really require it. I feel there wouldn't be a single
+correct answer for this issue. Posting good ideas how it should work
+and submitting patches for it are also welcome.
+
+> And my impression is that it's natural dm-band is in device-mapper,
+> separated from I/O scheduler.  Because bandwidth control and I/O
+> scheduling are two different things, it may be simpler that they are
+> implemented in different layers.
+
+I would like to know how dm-band works on various configurations on
+various type of hardware. I'll try running dm-band on with other
+configurations. Any reports or impressions of dm-band on your machines
+are also welcome.
+
+Thanks,
+Ryo Tsuruta
