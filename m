@@ -1,13 +1,10 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] virtio_blk: Dont waste major numbers
-Date: Thu, 31 Jan 2008 15:53:53 +0100
-Message-ID: <200801311553.53653.borntraeger__25311.9055800655$1201791369$gmane$org@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Ian Campbell <ijc@hellion.org.uk>
+Subject: [PATCH] x86: use ELF format in compressed images.
+Date: Thu, 31 Jan 2008 21:45:18 +0000
+Message-ID: <1201815920-24669-2-git-send-email-ijc__3440.65562026135$1201816080$gmane$org@hellion.org.uk>
+References: <1201815920-24669-1-git-send-email-ijc@hellion.org.uk>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1201815920-24669-1-git-send-email-ijc@hellion.org.uk>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,113 +14,205 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Ian Campbell <ijc@hellion.org.uk>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty,
+This allows other boot loaders such as the Xen domain builder the
+opportunity to extract the ELF file.
 
-currently virtio_blk uses one major number per device. While this works
-quite well on most systems it is wasteful and will exhaust major numbers
-on larger installations.
-
-This patch allocates a major number on init and will use 16 minor numbers
-for each disk. That will allow ~64k virtio_blk disks.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Ian Campbell <ijc@hellion.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: virtualization@lists.linux-foundation.org
 ---
- drivers/block/virtio_blk.c |   28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ Documentation/i386/boot.txt       |   18 +++++++++++++
+ arch/x86/boot/Makefile            |   14 ++++++++++
+ arch/x86/boot/compressed/Makefile |    2 +-
+ arch/x86/boot/compressed/misc.c   |   49 +++++++++++++++++++++++++++++++++++++
+ arch/x86/boot/header.S            |    6 ++++
+ 5 files changed, 88 insertions(+), 1 deletions(-)
 
-Index: kvm/drivers/block/virtio_blk.c
-===================================================================
---- kvm.orig/drivers/block/virtio_blk.c
-+++ kvm/drivers/block/virtio_blk.c
-@@ -7,10 +7,13 @@
- #include <linux/scatterlist.h>
+diff --git a/Documentation/i386/boot.txt b/Documentation/i386/boot.txt
+index fc49b79..b5f5ba1 100644
+--- a/Documentation/i386/boot.txt
++++ b/Documentation/i386/boot.txt
+@@ -170,6 +170,8 @@ Offset	Proto	Name		Meaning
+ 0238/4	2.06+	cmdline_size	Maximum size of the kernel command line
+ 023C/4	2.07+	hardware_subarch Hardware subarchitecture
+ 0240/8	2.07+	hardware_subarch_data Subarchitecture-specific data
++0248/4	2.08+	compressed_payload_offset
++024C/4	2.08+	compressed_payload_length
  
- #define VIRTIO_MAX_SG	(3+MAX_PHYS_SEGMENTS)
-+#define PART_BITS 4
+ (1) For backwards compatibility, if the setup_sects field contains 0, the
+     real value is 4.
+@@ -512,6 +514,22 @@ Protocol:	2.07+
  
- MODULE_LICENSE("GPL");
+   A pointer to data that is specific to hardware subarch
  
- static unsigned char virtblk_index = 'a';
-+static int major, minor;
++Field name:	compressed_payload_offset
++Type:		read
++Offset/size:	0x248/4
++Protocol:	2.08+
 +
- struct virtio_blk
- {
- 	spinlock_t lock;
-@@ -173,10 +176,13 @@ static struct block_device_operations vi
- static int virtblk_probe(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk;
--	int err, major;
-+	int err;
- 	u64 cap;
- 	u32 v;
- 
-+	if (minor >= 1 << MINORBITS)
-+		return -ENOSPC;
++  If non-zero then this field contains the offset from the end of the
++  real-mode code to the compressed payload. The compression format
++  should be determined using the standard magic number, currently only
++  gzip is used.
++  
++Field name:	compressed_payload_length
++Type:		read
++Offset/size:	0x24c/4
++Protocol:	2.08+
 +
- 	vdev->priv = vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
- 	if (!vblk) {
- 		err = -ENOMEM;
-@@ -200,17 +206,11 @@ static int virtblk_probe(struct virtio_d
- 		goto out_free_vq;
- 	}
++  The length of the compressed payload.
  
--	major = register_blkdev(0, "virtblk");
--	if (major < 0) {
--		err = major;
--		goto out_mempool;
--	}
--
- 	/* FIXME: How many partitions?  How long is a piece of string? */
--	vblk->disk = alloc_disk(1 << 4);
-+	vblk->disk = alloc_disk(1 << PART_BITS);
- 	if (!vblk->disk) {
- 		err = -ENOMEM;
--		goto out_unregister_blkdev;
-+		goto out_mempool;
- 	}
+ **** THE KERNEL COMMAND LINE
  
- 	vblk->disk->queue = blk_init_queue(do_virtblk_request, &vblk->lock);
-@@ -221,10 +221,12 @@ static int virtblk_probe(struct virtio_d
+diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
+index 254a583..0c629dc 100644
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -86,6 +86,20 @@ $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
  
- 	sprintf(vblk->disk->disk_name, "vd%c", virtblk_index++);
- 	vblk->disk->major = major;
--	vblk->disk->first_minor = 0;
-+	vblk->disk->first_minor = minor;
- 	vblk->disk->private_data = vblk;
- 	vblk->disk->fops = &virtblk_fops;
+ SETUP_OBJS = $(addprefix $(obj)/,$(setup-y))
  
-+	minor += 1 << PART_BITS;
++sed-offsets := -e 's/^00*/0/' \
++        -e 's/^\([0-9a-fA-F]*\) . \(input_data\|input_data_end\)$$/\#define \2 0x\1/p'
 +
- 	/* If barriers are supported, tell block layer that queue is ordered */
- 	if (vdev->config->feature(vdev, VIRTIO_BLK_F_BARRIER))
- 		blk_queue_ordered(vblk->disk->queue, QUEUE_ORDERED_TAG, NULL);
-@@ -260,8 +262,6 @@ static int virtblk_probe(struct virtio_d
++quiet_cmd_offsets = OFFSETS $@
++      cmd_offsets = $(NM) $< | sed -n $(sed-offsets) > $@
++
++$(obj)/offsets.h: $(obj)/compressed/vmlinux FORCE
++	$(call if_changed,offsets)
++
++targets += offsets.h
++
++AFLAGS_header.o += -I$(obj)
++$(obj)/header.o: $(obj)/offsets.h
++
+ LDFLAGS_setup.elf	:= -T
+ $(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
+ 	$(call if_changed,ld)
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index d2b9f3b..92fdd35 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -22,7 +22,7 @@ $(obj)/vmlinux: $(src)/vmlinux_$(BITS).lds $(obj)/head_$(BITS).o $(obj)/misc.o $
+ 	$(call if_changed,ld)
+ 	@:
  
- out_put_disk:
- 	put_disk(vblk->disk);
--out_unregister_blkdev:
--	unregister_blkdev(major, "virtblk");
- out_mempool:
- 	mempool_destroy(vblk->pool);
- out_free_vq:
-@@ -302,11 +302,15 @@ static struct virtio_driver virtio_blk =
+-OBJCOPYFLAGS_vmlinux.bin := -O binary -R .note -R .comment -S
++OBJCOPYFLAGS_vmlinux.bin :=  -R .comment -S
+ $(obj)/vmlinux.bin: vmlinux FORCE
+ 	$(call if_changed,objcopy)
  
- static int __init init(void)
- {
-+	major = register_blkdev(0, "virtblk");
-+	if (major < 0)
-+		return major;
- 	return register_virtio_driver(&virtio_blk);
+diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
+index 8182e32..8a5daf5 100644
+--- a/arch/x86/boot/compressed/misc.c
++++ b/arch/x86/boot/compressed/misc.c
+@@ -15,6 +15,10 @@
+  * we just keep it from happening
+  */
+ #undef CONFIG_PARAVIRT
++#ifdef CONFIG_X86_32
++#define _ASM_DESC_H_ 1
++#endif
++
+ #ifdef CONFIG_X86_64
+ #define _LINUX_STRING_H_ 1
+ #define __LINUX_BITMAP_H 1
+@@ -22,6 +26,7 @@
+ 
+ #include <linux/linkage.h>
+ #include <linux/screen_info.h>
++#include <linux/elf.h>
+ #include <asm/io.h>
+ #include <asm/page.h>
+ #include <asm/boot.h>
+@@ -365,6 +370,49 @@ static void error(char *x)
+ 		asm("hlt");
  }
  
- static void __exit fini(void)
- {
-+	unregister_blkdev(major, "virtblk");
- 	unregister_virtio_driver(&virtio_blk);
++static void parse_elf(void *output)
++{
++#ifdef CONFIG_X86_64
++	Elf64_Ehdr ehdr;
++	Elf64_Phdr *phdrs, *phdr;
++#else
++	Elf32_Ehdr ehdr;
++	Elf32_Phdr *phdrs, *phdr;
++#endif
++	int i;
++
++	memcpy(&ehdr, output, sizeof(ehdr));
++	if(ehdr.e_ident[EI_MAG0] != ELFMAG0 ||
++	   ehdr.e_ident[EI_MAG1] != ELFMAG1 ||
++	   ehdr.e_ident[EI_MAG2] != ELFMAG2 ||
++	   ehdr.e_ident[EI_MAG3] != ELFMAG3)
++	{
++		error("Kernel is not a valid ELF file");
++		return;
++	}
++
++	putstr("Parsing ELF... ");
++
++	phdrs = malloc(sizeof(*phdrs) * ehdr.e_phnum);
++	if (!phdrs)
++		error("Failed to allocate space for phdrs");
++
++	memcpy(phdrs, output + ehdr.e_phoff, sizeof(*phdrs) * ehdr.e_phnum);
++
++	for (i=0; i<ehdr.e_phnum; i++) {
++		phdr = &phdrs[i];
++
++		switch (phdr->p_type) {
++		case PT_LOAD:
++			memcpy((void*)phdr->p_paddr,
++			       output + phdr->p_offset,
++			       phdr->p_filesz);
++			break;
++		default: /* Ignore other PT_* */ break;
++		}
++	}
++}
++
+ asmlinkage void decompress_kernel(void *rmode, memptr heap,
+ 				  uch *input_data, unsigned long input_len,
+ 				  uch *output)
+@@ -408,6 +456,7 @@ asmlinkage void decompress_kernel(void *rmode, memptr heap,
+ 	makecrc();
+ 	putstr("\nDecompressing Linux... ");
+ 	gunzip();
++	parse_elf(output);
+ 	putstr("done.\nBooting the kernel.\n");
+ 	return;
  }
- module_init(init);
+diff --git a/arch/x86/boot/header.S b/arch/x86/boot/header.S
+index 64ad901..8471658 100644
+--- a/arch/x86/boot/header.S
++++ b/arch/x86/boot/header.S
+@@ -22,6 +22,7 @@
+ #include <asm/page.h>
+ #include <asm/setup.h>
+ #include "boot.h"
++#include "offsets.h"
+ 
+ SETUPSECTS	= 4			/* default nr of setup-sectors */
+ BOOTSEG		= 0x07C0		/* original address of boot-sector */
+@@ -223,6 +224,11 @@ hardware_subarch:	.long 0			# subarchitecture, added with 2.07
+ 
+ hardware_subarch_data:	.quad 0
+ 
++compressed_payload_offset:
++			.long input_data
++compressed_payload_length:
++			.long input_data_end-input_data
++
+ # End of setup header #####################################################
+ 
+ 	.section ".inittext", "ax"
+-- 
+1.5.3.8
