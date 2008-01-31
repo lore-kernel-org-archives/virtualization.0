@@ -1,7 +1,7 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [PATCH] virtio_blk: Dont waste major numbers
 Date: Thu, 31 Jan 2008 15:50:41 -0600
-Message-ID: <47A242B1.40709__21672.1276323826$1201816496$gmane$org@codemonkey.ws>
+Message-ID: <47A242B1.40709__6591.14615195921$1201816640$gmane$org@codemonkey.ws>
 References: <200801311553.53653.borntraeger__25311.9055800655$1201791369$gmane$org@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
+To: virtualization@lists.osdl.org
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
