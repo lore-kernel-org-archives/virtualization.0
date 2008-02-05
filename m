@@ -1,12 +1,11 @@
-From: Ingo Molnar <mingo@elte.hu>
+From: Soren Hansen <soren@ubuntu.com>
 Subject: Re: [PULL] virtio updates
-Date: Tue, 5 Feb 2008 13:47:28 +0100
-Message-ID: <20080205124728.GA18701__4924.42901381782$1202215794$gmane$org@elte.hu>
+Date: Tue, 5 Feb 2008 14:35:50 +0100
+Message-ID: <20080205133550.GB22724@butch.linux2go.dk>
 References: <200802050008.13834.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="===============5758964683476023546=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <200802050008.13834.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,42 +14,62 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-* Rusty Russell <rusty@rustcorp.com.au> wrote:
+--===============5758964683476023546==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TiqCXmo5T1hvSQQg"
+Content-Disposition: inline
 
-> Rusty Russell (16):
->       virtio: balloon driver
 
-this change breaks the x86 build, as 'make randconfig' testing found it 
-after 2 iterations:
+--TiqCXmo5T1hvSQQg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  drivers/virtio/virtio_balloon.c: In function 'fill_balloon':
-  drivers/virtio/virtio_balloon.c:98: error: implicit declaration of function 'msleep'
+On Tue, Feb 05, 2008 at 12:08:13AM +1100, Rusty Russell wrote:
+>   ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-li=
+nus
+>   master
 
-the patch below fixes it.
+If I don't have an account on master.kernel.org, how can I access this
+git tree? None of the ones on the kernel.org gitweb seems to match that
+path.
 
-	Ingo
+--=20
+Soren Hansen
+Virtualisation specialist
+Ubuntu Server Team
+http://www.ubuntu.com/
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- drivers/virtio/virtio_balloon.c |    1 +
- 1 file changed, 1 insertion(+)
+--TiqCXmo5T1hvSQQg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Index: linux/drivers/virtio/virtio_balloon.c
-===================================================================
---- linux.orig/drivers/virtio/virtio_balloon.c
-+++ linux/drivers/virtio/virtio_balloon.c
-@@ -23,6 +23,7 @@
- #include <linux/swap.h>
- #include <linux/kthread.h>
- #include <linux/freezer.h>
-+#include <linux/delay.h>
- 
- struct virtio_balloon
- {
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFHqGY2onjfXui9pOMRAp65AJ9TjlCr+liyhUtlzszuvYoswJHwCQCgnddm
+l2BnU3a+n4J4cVuSbwXKB2I=
+=Axym
+-----END PGP SIGNATURE-----
+
+--TiqCXmo5T1hvSQQg--
+
+--===============5758964683476023546==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============5758964683476023546==--
