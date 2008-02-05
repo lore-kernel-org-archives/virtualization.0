@@ -1,39 +1,42 @@
-From: "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: Updated dom0 for pvops: now boots on 32-bit!
-Date: Tue, 05 Feb 2008 16:17:49 +0000
-Message-ID: <1202228269.7172.8.camel@sisko.scot.redhat.com>
-References: <1201899762.11365.10.camel@sisko.scot.redhat.com>
-	<47A3B31D.9070009@goop.org>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [PULL] virtio updates
+Date: Tue, 05 Feb 2008 13:17:38 -0600
+Message-ID: <47A8B652.4020504@codemonkey.ws>
+References: <200802050008.13834.rusty@rustcorp.com.au>
+	<20080205133550.GB22724@butch.linux2go.dk>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <47A3B31D.9070009@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Mark McLoughlin <markmc@redhat.com>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Juan Quintela <quintela@redhat.com>, Stephen Tweedie <sct@redhat.com>, Chris Wright <chrisw@sous-sol.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20080205133550.GB22724@butch.linux2go.dk>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-
-On Fri, 2008-02-01 at 16:02 -0800, Jeremy Fitzhardinge wrote:
-
-> > I've had an uptime of 40 minutes so far with it.  Under intensive disk
-> > load it locks up with a soft lockup, but still, this is good progress.
+Soren Hansen wrote:
+> On Tue, Feb 05, 2008 at 12:08:13AM +1100, Rusty Russell wrote:
+>>   ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus
+>>   master
 > 
-> There's a open report of domU lockups due to lost events, so it could be 
-> a generic event problem.
+> If I don't have an account on master.kernel.org, how can I access this
+> git tree? None of the ones on the kernel.org gitweb seems to match that
+> path.
 
-That's quite possible --- there's no specific sign of anything dom0-
-related in the lockup reports.
+git://git.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus
 
-I'll see if I can reproduce in a domU environment.
-
---Stephen
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/virtualization
