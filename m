@@ -1,15 +1,16 @@
-From: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] virtio_net: Fix open <-> interrupt race
-Date: Wed, 06 Feb 2008 06:44:23 -0500
-Message-ID: <47A99D97.4030904__13517.2571441673$1202298403$gmane$org@garzik.org>
-References: <200802051436.10841.borntraeger@de.ibm.com>
-	<200802061500.04138.rusty@rustcorp.com.au>
-	<200802060850.11923.borntraeger@de.ibm.com>
+From: xming <xmingske@gmail.com>
+Subject: Re: Xen paravirt frontend block hang
+Date: Wed, 6 Feb 2008 13:37:53 +0100
+Message-ID: <519a8b110802060437k70c099b7y7faefe63dd82039@mail.gmail.com>
+References: <4772AC8E.7010007@theshore.net> <47758352.5040504@goop.org>
+	<479E71B7.7060207@theshore.net> <479E75E3.6030601@goop.org>
+	<479E7BA4.5050306@theshore.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200802060850.11923.borntraeger@de.ibm.com>
+In-Reply-To: <479E7BA4.5050306@theshore.net>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,97 +20,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Christopher S. Aker" <caker@theshore.net>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christian Borntraeger wrote:
-> Jeff,
-> 
-> Rusty is (supposed to be) on vacation. Can you send this fix against
-> virtio_net with your next network driver fixes for 2.6.25? 
-> 
-> Thank you
-> 
-> -
-> 
-> I got the following oops during interface ifup. Unfortunately its not 
-> easily reproducable so I cant say for sure that my fix fixes this
-> problem, but I am confident and I think its correct anyway:
-> 
->    <2>kernel BUG at /space/kvm/drivers/virtio/virtio_ring.c:234!
->     <4>illegal operation: 0001 [#1] PREEMPT SMP
->     <4>Modules linked in:
->     <4>CPU: 0 Not tainted 2.6.24zlive-guest-07293-gf1ca151-dirty #91
->     <4>Process swapper (pid: 0, task: 0000000000800938, ksp: 000000000084ddb8)
->     <4>Krnl PSW : 0404300180000000 0000000000466374 (vring_disable_cb+0x30/0x34)
->     <4>           R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:0 CC:3 PM:0 EA:3
->     <4>Krnl GPRS: 0000000000000001 0000000000000001 0000000010003800 0000000000466344
->     <4>           000000000e980900 00000000008848b0 000000000084e748 0000000000000000
->     <4>           000000000087b300 0000000000001237 0000000000001237 000000000f85bdd8
->     <4>           000000000e980920 00000000001137c0 0000000000464754 000000000f85bdd8
->     <4>Krnl Code: 0000000000466368: e3b0b0700004        lg      %r11,112(%r11)
->     <4>           000000000046636e: 07fe                bcr     15,%r14
->     <4>           0000000000466370: a7f40001            brc     15,466372
->     <4>          >0000000000466374: a7f4fff6            brc     15,466360
->     <4>           0000000000466378: eb7ff0500024        stmg    %r7,%r15,80(%r15)
->     <4>           000000000046637e: a7f13e00            tmll    %r15,15872
->     <4>           0000000000466382: b90400ef            lgr     %r14,%r15
->     <4>           0000000000466386: a7840001            brc     8,466388
->     <4>Call Trace:
->     <4>([<000201500f85c000>] 0x201500f85c000)
->     <4> [<0000000000466556>] vring_interrupt+0x72/0x88
->     <4> [<00000000004801a0>] kvm_extint_handler+0x34/0x44
->     <4> [<000000000010d22c>] do_extint+0xbc/0xf8
->     <4> [<0000000000113f98>] ext_no_vtime+0x16/0x1a
->     <4> [<000000000010a182>] cpu_idle+0x216/0x238
->     <4>([<000000000010a162>] cpu_idle+0x1f6/0x238)
->     <4> [<0000000000568656>] rest_init+0xaa/0xb8
->     <4> [<000000000084ee2c>] start_kernel+0x3fc/0x490
->     <4> [<0000000000100020>] _stext+0x20/0x80
->     <4>
->     <4> <0>Kernel panic - not syncing: Fatal exception in interrupt
->     <4>
-> 
-> After looking at the code and the dump I think the following scenario
-> happened: Ifup was running on cpu2 and the interrupt arrived on cpu0.
-> Now virtnet_open on cpu 2 managed to execute napi_enable and disable_cb
-> but did not execute rx_schedule. Meanwhile on cpu 0 skb_recv_done was
-> called by vring_interrupt, executed netif_rx_schedule_prep, which
-> succeeded and therefore called disable_cb. This triggered the BUG_ON,
-> as interrupts were already disabled by cpu 2.
-> 
-> I think the proper solution is to make the call to disable_cb depend on
-> the atomic update of NAPI_STATE_SCHED by using netif_rx_schedule_prep
-> in the same way as skb_recv_done. 
-> 
-> 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-> 
-> ---
->  drivers/net/virtio_net.c |   10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> Index: kvm/drivers/net/virtio_net.c
-> ===================================================================
-> --- kvm.orig/drivers/net/virtio_net.c
-> +++ kvm/drivers/net/virtio_net.c
-> @@ -321,10 +321,12 @@ static int virtnet_open(struct net_devic
->  
->  	/* If all buffers were filled by other side before we napi_enabled, we
->  	 * won't get another interrupt, so process any outstanding packets
-> -	 * now.  virtnet_poll wants re-enable the queue, so we disable here. */
-> -	vi->rvq->vq_ops->disable_cb(vi->rvq);
-> -	netif_rx_schedule(vi->dev, &vi->napi);
-> -
-> +	 * now.  virtnet_poll wants re-enable the queue, so we disable here.
-> +	 * We synchronize against interrupts via NAPI_STATE_SCHED */
-> +	if (netif_rx_schedule_prep(dev, &vi->napi)) {
-> +		vi->rvq->vq_ops->disable_cb(vi->rvq);
-> +		__netif_rx_schedule(dev, &vi->napi);
-> +	}
->  	return 0;
->  }
+On Jan 29, 2008 2:04 AM, Christopher S. Aker <caker@theshore.net> wrote:
+> Jeremy Fitzhardinge wrote:
+> > Hm.  xming reported similar symtoms to your report, which turned out to
+> > be a result of problems with events getting lost.  This patch - which is
+> > in 2.6.24 - resolved the issue.  Stock 2.6.24 still has this problem for
+> > you?  Can you also reproduce it with lots of console output?
+>
+> Looks like my tree has this changeset already (stock 2.6.24), so that's
+> not it :/ ... I'll try flooding the console with output.
+>
+> For what it's worth, it does it on both non-smp and smp compiled domU
+> kernels.  smp kernels continue to function after triggering the hang,
+> however one CPU gets stuck in iowait -- but I am able to continue to
+> read from the xvd device.
+>
+> Are you able to reproduce it with the shell script I provided?  It takes
+> maybe 3 or 4 times through the loop to trigger.
+>
+> -Chris
 
-applied
+I cannot trigger this neither with my tests
+(http://marc.info/?l=linux-kernel&m=120066005505315&w=2)
+nor with your test after 12 loops:
+
+Wed Feb  6 13:20:41 CET 2008
+Wed Feb  6 13:21:31 CET 2008
+Wed Feb  6 13:22:39 CET 2008
+Wed Feb  6 13:23:46 CET 2008
+Wed Feb  6 13:24:53 CET 2008
+Wed Feb  6 13:26:04 CET 2008
+Wed Feb  6 13:27:13 CET 2008
+Wed Feb  6 13:28:19 CET 2008
+Wed Feb  6 13:29:31 CET 2008
+Wed Feb  6 13:30:40 CET 2008
+Wed Feb  6 13:31:52 CET 2008
+Wed Feb  6 13:33:02 CET 2008
+
+But I do have one problem after I upgraded to xen 3.2, the 2.6.23.x domU do
+not boot any more and 2.6.24 does boot but will hang after cpufreq changes
+the frequency.
+
+x.
