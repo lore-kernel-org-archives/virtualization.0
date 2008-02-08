@@ -1,13 +1,15 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] virtio_ring: make structure defines packed
-Date: Fri, 8 Feb 2008 14:01:21 +0100
-Message-ID: <200802081401.21194.borntraeger__37504.2502106682$1202475849$gmane$org@de.ibm.com>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: [PATCH 3/3] Interface to query tun/tap features.
+Date: Thu, 07 Feb 2008 21:07:02 -0800
+Message-ID: <47ABE376.2090508__39338.1143258468$1202485079$gmane$org@qualcomm.com>
+References: <200801240107.38929.rusty@rustcorp.com.au>
+	<200801240110.45178.rusty@rustcorp.com.au>
+	<200801240114.18571.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <200801240114.18571.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,60 +19,128 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently the virtio_ring structure are not declared packed, but they 
-describe an hardware like interface. We should not allow compilers to make 
-alignments and optimizations that can be different between the guest and 
-host compiler.
+Hi Rusty,
 
-I propose to declare all structures that are in shared memory as packed.
+Sorry for delay in reply. I totally missed this one. Need to fix my mail filters. 
+See below.
 
-Does anybody see a problem with packed?
+Rusty Russell wrote:
+> (No real change, just updated with new bits)
+> 
+> The problem with introducing IFF_RECV_CSUM and IFF_RECV_GSO is that
+> they need to set dev->features to enable GSO and/or checksumming,
+> which is supposed to be done before register_netdevice(), ie. as part
+> of TUNSETIFF.
+> 
+> Unfortunately, TUNSETIFF has always just ignored flags it doesn't understand,
+> so there's no good way of detecting whether the kernel supports IFF_GSO_HDR.
+> 
+> This patch implements a TUNGETFEATURES ioctl which returns all the valid IFF
+> flags.  It could be extended later to include other features.
+> 
+> Here's an example program which uses it:
+> 
+> #include <linux/if_tun.h>
+> #include <sys/types.h>
+> #include <sys/ioctl.h>
+> #include <sys/stat.h>
+> #include <fcntl.h>
+> #include <err.h>
+> #include <stdio.h>
+> 
+> static struct {
+> 	unsigned int flag;
+> 	const char *name;
+> } known_flags[] = {
+> 	{ IFF_TUN, "TUN" },
+> 	{ IFF_TAP, "TAP" },
+> 	{ IFF_NO_PI, "NO_PI" },
+> 	{ IFF_ONE_QUEUE, "ONE_QUEUE" },
+> 	{ IFF_VIRTIO_HDR, "VIRTIO_HDR" },
+> 	{ IFF_RECV_CSUM, "RECV_CSUM" },
+> 	{ IFF_RECV_GSO, "RECV_GSO" },
+> };
+> 
+> int main()
+> {
+> 	unsigned int features, i;
+> 
+> 	int netfd = open("/dev/net/tun", O_RDWR);
+> 	if (netfd < 0)
+> 		err(1, "Opening /dev/net/tun");
+> 
+> 	if (ioctl(netfd, TUNGETFEATURES, &features) != 0) {
+> 		printf("Kernel does not support TUNGETFEATURES, guessing\n");
+> 		features = (IFF_TUN|IFF_TAP|IFF_NO_PI|IFF_ONE_QUEUE);
+> 	}
+> 	printf("Available features are: ");
+> 	for (i = 0; i < sizeof(known_flags)/sizeof(known_flags[0]); i++) {
+> 		if (features & known_flags[i].flag) {
+> 			features &= ~known_flags[i].flag;
+> 			printf("%s ", known_flags[i].name);
+> 		}
+> 	}
+> 	if (features)
+> 		printf("(UNKNOWN %#x)", features);
+> 	printf("\n");
+> 	return 0;
+> }
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> ---
+>  drivers/net/tun.c      |    9 +++++++++
+>  include/linux/if_tun.h |    3 +++
+>  2 files changed, 12 insertions(+)
+> 
+> diff -r c0e7a8b99325 drivers/net/tun.c
+> --- a/drivers/net/tun.c	Wed Jan 23 20:12:51 2008 +1100
+> +++ b/drivers/net/tun.c	Wed Jan 23 20:17:28 2008 +1100
+> @@ -790,6 +790,15 @@ static int tun_chr_ioctl(struct inode *i
+>  		return 0;
+>  	}
+>  
+> +	if (cmd == TUNGETFEATURES) {
+> +		/* Currently this just means: "what IFF flags are valid?".
+> +		 * This is needed because we never checked for invalid flags on
+> +		 * TUNSETIFF.  This was introduced with IFF_GSO_HDR, so if a
+> +		 * kernel doesn't have this ioctl, it doesn't have GSO header
+> +		 * support. */
+> +		return put_user(IFF_ALL_FLAGS, (unsigned int __user*)argp);
+> +	}
+> +
+>  	if (!tun)
+>  		return -EBADFD;
+>  
+> diff -r c0e7a8b99325 include/linux/if_tun.h
+> --- a/include/linux/if_tun.h	Wed Jan 23 20:12:51 2008 +1100
+> +++ b/include/linux/if_tun.h	Wed Jan 23 20:17:28 2008 +1100
+> @@ -82,6 +82,7 @@ struct tun_struct {
+>  #define TUNSETOWNER   _IOW('T', 204, int)
+>  #define TUNSETLINK    _IOW('T', 205, int)
+>  #define TUNSETGROUP   _IOW('T', 206, int)
+> +#define TUNGETFEATURES _IOR('T', 207, unsigned int)
+>  
+>  /* TUNSETIFF ifr flags */
+>  #define IFF_TUN		0x0001
+> @@ -91,6 +92,8 @@ struct tun_struct {
+>  #define IFF_VIRTIO_HDR	0x4000
+>  #define IFF_RECV_CSUM	0x8000
+>  #define IFF_RECV_GSO	0x0800
+> +#define IFF_ALL_FLAGS (IFF_TUN | IFF_TAP | IFF_NO_PI | IFF_ONE_QUEUE | \
+> +		       IFF_VIRTIO_HDR | IFF_RECV_CSUM | IFF_RECV_GSO)
+>  
+>  struct tun_pi {
+>  	unsigned short flags;
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- include/linux/virtio_ring.h |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Definitely Ack this one. Query interface makes perfect sense.
+I'll reply to the GSO itself shortly.
 
-Index: kvm/include/linux/virtio_ring.h
-===================================================================
---- kvm.orig/include/linux/virtio_ring.h
-+++ kvm/include/linux/virtio_ring.h
-@@ -35,14 +35,14 @@ struct vring_desc
- 	__u16 flags;
- 	/* We chain unused descriptors via this, too */
- 	__u16 next;
--};
-+} __attribute__ ((packed));
- 
- struct vring_avail
- {
- 	__u16 flags;
- 	__u16 idx;
- 	__u16 ring[];
--};
-+} __attribute__ ((packed));
- 
- /* u32 is used here for ids for padding reasons. */
- struct vring_used_elem
-@@ -51,14 +51,15 @@ struct vring_used_elem
- 	__u32 id;
- 	/* Total length of the descriptor chain which was used (written to) */
- 	__u32 len;
--};
-+} __attribute__ ((packed));
- 
- struct vring_used
- {
- 	__u16 flags;
- 	__u16 idx;
-+	__u32 padding;
- 	struct vring_used_elem ring[];
--};
-+} __attribute__ ((packed));
- 
- struct vring {
- 	unsigned int num;
+I was going to create git tree for tun changes for awhile now. Looks like the time has come.
+I'll do that asap.
+
+Thanx
+Max
