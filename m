@@ -1,17 +1,12 @@
-From: xming <xmingske@gmail.com>
-Subject: Re: Xen paravirt frontend block hang
-Date: Thu, 7 Feb 2008 15:12:49 +0100
-Message-ID: <519a8b110802070612j2a1717f3s6aa25eeea8b7d18a@mail.gmail.com>
-References: <4772AC8E.7010007@theshore.net> <47758352.5040504@goop.org>
-	<479E71B7.7060207@theshore.net> <479E75E3.6030601@goop.org>
-	<479E7BA4.5050306@theshore.net>
-	<519a8b110802060437k70c099b7y7faefe63dd82039@mail.gmail.com>
-	<47AA845E.8020708@goop.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH] virtio_ring: make structure defines packed
+Date: Fri, 8 Feb 2008 14:01:21 +0100
+Message-ID: <200802081401.21194.borntraeger__37504.2502106682$1202475849$gmane$org@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47AA845E.8020708@goop.org>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,32 +17,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Feb 7, 2008 5:09 AM, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> xming wrote:
-> > But I do have one problem after I upgraded to xen 3.2, the 2.6.23.x domU do
-> > not boot any more and 2.6.24 does boot but will hang after cpufreq changes
-> > the frequency.
-> >
->
-> Interesting.  Do you mean dom0 cpufreq frequency changes will cause the
-> domU to hang?
->
->     J
->
+Currently the virtio_ring structure are not declared packed, but they 
+describe an hardware like interface. We should not allow compilers to make 
+alignments and optimizations that can be different between the guest and 
+host compiler.
 
-Yes, when Dom0 changes freq while domU is doing something will trigger this.
-When using "on demand" will trigger this very eassily.
+I propose to declare all structures that are in shared memory as packed.
 
-This is from xm top when a domU hangs:
+Does anybody see a problem with packed?
 
-    test32 ------       4018   98.8     131072    6.4     131072
-6.4     1    1     4516    50087    1        0   433908   300403
-3084907223
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ include/linux/virtio_ring.h |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-So it appers to be running (eating CPU) sometimes the state is "r"
-sometimes "-",
-but both console and network are dead.
+Index: kvm/include/linux/virtio_ring.h
+===================================================================
+--- kvm.orig/include/linux/virtio_ring.h
++++ kvm/include/linux/virtio_ring.h
+@@ -35,14 +35,14 @@ struct vring_desc
+ 	__u16 flags;
+ 	/* We chain unused descriptors via this, too */
+ 	__u16 next;
+-};
++} __attribute__ ((packed));
+ 
+ struct vring_avail
+ {
+ 	__u16 flags;
+ 	__u16 idx;
+ 	__u16 ring[];
+-};
++} __attribute__ ((packed));
+ 
+ /* u32 is used here for ids for padding reasons. */
+ struct vring_used_elem
+@@ -51,14 +51,15 @@ struct vring_used_elem
+ 	__u32 id;
+ 	/* Total length of the descriptor chain which was used (written to) */
+ 	__u32 len;
+-};
++} __attribute__ ((packed));
+ 
+ struct vring_used
+ {
+ 	__u16 flags;
+ 	__u16 idx;
++	__u32 padding;
+ 	struct vring_used_elem ring[];
+-};
++} __attribute__ ((packed));
+ 
+ struct vring {
+ 	unsigned int num;
