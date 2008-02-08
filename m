@@ -1,15 +1,14 @@
 From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [PATCH 3/3] Interface to query tun/tap features.
-Date: Thu, 07 Feb 2008 21:07:02 -0800
-Message-ID: <47ABE376.2090508__39338.1143258468$1202485079$gmane$org@qualcomm.com>
+Subject: Re: [PATCH 2/3] partial checksum and GSO support for tun/tap.
+Date: Thu, 07 Feb 2008 21:39:03 -0800
+Message-ID: <47ABEAF7.8020508__15220.1614728712$1202485424$gmane$org@qualcomm.com>
 References: <200801240107.38929.rusty@rustcorp.com.au>
 	<200801240110.45178.rusty@rustcorp.com.au>
-	<200801240114.18571.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200801240114.18571.rusty@rustcorp.com.au>
+In-Reply-To: <200801240110.45178.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,124 +22,49 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: netdev@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Rusty,
-
-Sorry for delay in reply. I totally missed this one. Need to fix my mail filters. 
-See below.
-
 Rusty Russell wrote:
-> (No real change, just updated with new bits)
+> (Changes since last time: we how have explicit IFF_RECV_CSUM and 
+> IFF_RECV_GSO bits, and some renaming of virtio_net hdr)
 > 
-> The problem with introducing IFF_RECV_CSUM and IFF_RECV_GSO is that
-> they need to set dev->features to enable GSO and/or checksumming,
-> which is supposed to be done before register_netdevice(), ie. as part
-> of TUNSETIFF.
+> We use the virtio_net_hdr: it is an ABI already and designed to
+> encapsulate such metadata as GSO and partial checksums.
 > 
-> Unfortunately, TUNSETIFF has always just ignored flags it doesn't understand,
-> so there's no good way of detecting whether the kernel supports IFF_GSO_HDR.
+> IFF_VIRTIO_HDR means you will write and read a 'struct virtio_net_hdr'
+> at the start of each packet.  You can always write packets with
+> partial checksum and gso to the tap device using this header.
 > 
-> This patch implements a TUNGETFEATURES ioctl which returns all the valid IFF
-> flags.  It could be extended later to include other features.
-> 
-> Here's an example program which uses it:
-> 
-> #include <linux/if_tun.h>
-> #include <sys/types.h>
-> #include <sys/ioctl.h>
-> #include <sys/stat.h>
-> #include <fcntl.h>
-> #include <err.h>
-> #include <stdio.h>
-> 
-> static struct {
-> 	unsigned int flag;
-> 	const char *name;
-> } known_flags[] = {
-> 	{ IFF_TUN, "TUN" },
-> 	{ IFF_TAP, "TAP" },
-> 	{ IFF_NO_PI, "NO_PI" },
-> 	{ IFF_ONE_QUEUE, "ONE_QUEUE" },
-> 	{ IFF_VIRTIO_HDR, "VIRTIO_HDR" },
-> 	{ IFF_RECV_CSUM, "RECV_CSUM" },
-> 	{ IFF_RECV_GSO, "RECV_GSO" },
-> };
-> 
-> int main()
-> {
-> 	unsigned int features, i;
-> 
-> 	int netfd = open("/dev/net/tun", O_RDWR);
-> 	if (netfd < 0)
-> 		err(1, "Opening /dev/net/tun");
-> 
-> 	if (ioctl(netfd, TUNGETFEATURES, &features) != 0) {
-> 		printf("Kernel does not support TUNGETFEATURES, guessing\n");
-> 		features = (IFF_TUN|IFF_TAP|IFF_NO_PI|IFF_ONE_QUEUE);
-> 	}
-> 	printf("Available features are: ");
-> 	for (i = 0; i < sizeof(known_flags)/sizeof(known_flags[0]); i++) {
-> 		if (features & known_flags[i].flag) {
-> 			features &= ~known_flags[i].flag;
-> 			printf("%s ", known_flags[i].name);
-> 		}
-> 	}
-> 	if (features)
-> 		printf("(UNKNOWN %#x)", features);
-> 	printf("\n");
-> 	return 0;
-> }
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> ---
->  drivers/net/tun.c      |    9 +++++++++
->  include/linux/if_tun.h |    3 +++
->  2 files changed, 12 insertions(+)
-> 
-> diff -r c0e7a8b99325 drivers/net/tun.c
-> --- a/drivers/net/tun.c	Wed Jan 23 20:12:51 2008 +1100
-> +++ b/drivers/net/tun.c	Wed Jan 23 20:17:28 2008 +1100
-> @@ -790,6 +790,15 @@ static int tun_chr_ioctl(struct inode *i
->  		return 0;
->  	}
->  
-> +	if (cmd == TUNGETFEATURES) {
-> +		/* Currently this just means: "what IFF flags are valid?".
-> +		 * This is needed because we never checked for invalid flags on
-> +		 * TUNSETIFF.  This was introduced with IFF_GSO_HDR, so if a
-> +		 * kernel doesn't have this ioctl, it doesn't have GSO header
-> +		 * support. */
-> +		return put_user(IFF_ALL_FLAGS, (unsigned int __user*)argp);
-> +	}
-> +
->  	if (!tun)
->  		return -EBADFD;
->  
-> diff -r c0e7a8b99325 include/linux/if_tun.h
-> --- a/include/linux/if_tun.h	Wed Jan 23 20:12:51 2008 +1100
-> +++ b/include/linux/if_tun.h	Wed Jan 23 20:17:28 2008 +1100
-> @@ -82,6 +82,7 @@ struct tun_struct {
->  #define TUNSETOWNER   _IOW('T', 204, int)
->  #define TUNSETLINK    _IOW('T', 205, int)
->  #define TUNSETGROUP   _IOW('T', 206, int)
-> +#define TUNGETFEATURES _IOR('T', 207, unsigned int)
->  
->  /* TUNSETIFF ifr flags */
->  #define IFF_TUN		0x0001
-> @@ -91,6 +92,8 @@ struct tun_struct {
->  #define IFF_VIRTIO_HDR	0x4000
->  #define IFF_RECV_CSUM	0x8000
->  #define IFF_RECV_GSO	0x0800
-> +#define IFF_ALL_FLAGS (IFF_TUN | IFF_TAP | IFF_NO_PI | IFF_ONE_QUEUE | \
-> +		       IFF_VIRTIO_HDR | IFF_RECV_CSUM | IFF_RECV_GSO)
->  
->  struct tun_pi {
->  	unsigned short flags;
+> IFF_RECV_CSUM means you can handle reading packets with partial
+> checksums.  If IFF_RECV_GSO is also set, it means you can handle
+> reading (all types of) GSO packets.
+>
+> Note that there is no easy way to detect if these flags are supported:
+> see next patch.
 
-Definitely Ack this one. Query interface makes perfect sense.
-I'll reply to the GSO itself shortly.
+Again sorry for delay in replying. Here are my thoughts on this.
 
-I was going to create git tree for tun changes for awhile now. Looks like the time has come.
-I'll do that asap.
+I like the approach in general. Certainly the part that creates skbs out of the user-space
+pages looks good. And it's fits nicely into existing TUN driver model.
+However I actually wanted to change the model :). In particular I'm talking about 
+	"syscall per packet" 
+After messing around with things like libe1000.sf.net I'd like to make TUN/TAP driver look 
+more like modern nic's to the user-space. In other words I'm thinking about introducing RX and
+TX rings that the user-space can then mmap() and write/read packets descriptors to/from.
+That will saves the number of system calls that the user-space app needs to do. That by 
+itself saves a lot of overhead, combined with the GSO it's be lightning fast.
 
-Thanx
+I'm going to send you a version that I cooked up awhile ago in a private email. Do not want
+to spam netdev :). It's not quite the RX/TX ring model but I'll give you an idea.
+I did some profiling and PPS (packets per second) numbers that user-space can handle literally 
+sky rocketed.
+
+btw We had a long discussion with Eugeniy Polakov on mapping user-pages vs mmap()ing large
+kernel buffer and doing normal memcpy() (ie instead of copy_to/fromuser()) in the kernel.
+On small packets overhead of get_user_pages() eats up all the benefits. So we should think
+of some scheme that nicely combines the two. Kind of like "copy break" that latest net 
+drivers do these days.
+
+Also btw why call it VIRTIO ? For example I'm actually interested in speeding up tunning
+and general network apps. We have wireless basestation apps here that need to handle packets
+in user-space. Those kind things have nothing to with virtualization.
+
 Max
