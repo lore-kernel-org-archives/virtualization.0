@@ -1,7 +1,7 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [kvm-devel] [PATCH] virtio_ring: make structure defines packed
 Date: Sat, 09 Feb 2008 18:51:14 -0600
-Message-ID: <47AE4A82.3030504__44893.0276012563$1202607066$gmane$org@codemonkey.ws>
+Message-ID: <47AE4A82.3030504__49080.3238972605$1202608509$gmane$org@codemonkey.ws>
 References: <200802081401.21194.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
