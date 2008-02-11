@@ -1,10 +1,8 @@
 From: Glauber Costa <gcosta@redhat.com>
-Subject: [PATCH 2/5] [PATCH] make vsmp_init void, instead of static int
-Date: Mon, 11 Feb 2008 17:16:02 -0200
-Message-ID: <1202757365-18634-2-git-send-email-gcosta__1086.18407180092$1202770914$gmane$org@redhat.com>
-References: <1202757365-18634-1-git-send-email-gcosta@redhat.com>
+Subject: [PATCH 1/5] Change vsmp compile dependency
+Date: Mon, 11 Feb 2008 17:16:01 -0200
+Message-ID: <1202757365-18634-1-git-send-email-gcosta__40655.4970810705$1202772379$gmane$org@redhat.com>
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1202757365-18634-1-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,49 +16,28 @@ To: linux-kernel@vger.kernel.org
 Cc: ehabkost@redhat.com, shai@scalemp.com, ak@suse.de, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, tglx@linutronix.de, kiran@scalemp.com, anthony@codemonkey.ws, akpm@linux-foundation.org, Glauber Costa <gcosta@redhat.com>, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
+Change Makefile so vsmp_64.o object is dependent
+on PARAVIRT, rather than X86_VSMP
+
 Signed-off-by: Glauber Costa <gcosta@redhat.com>
 Signed-off-by: Ravikiran Thirumalai <kiran@scalemp.com>
 Acked-by: Shai Fultheim <shai@scalemp.com>
 ---
- arch/x86/kernel/vsmp_64.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kernel/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86/kernel/vsmp_64.c b/arch/x86/kernel/vsmp_64.c
-index d971210..9766917 100644
---- a/arch/x86/kernel/vsmp_64.c
-+++ b/arch/x86/kernel/vsmp_64.c
-@@ -16,20 +16,20 @@ #include <linux/pci_regs.h>
- #include <asm/pci-direct.h>
- #include <asm/io.h>
- 
--static int __init vsmp_init(void)
-+static void __init vsmp_init(void)
- {
- 	void *address;
- 	unsigned int cap, ctl;
- 
- 	if (!early_pci_allowed())
--		return 0;
-+		return;
- 
- 	/* Check if we are running on a ScaleMP vSMP box */
- 	if ((read_pci_config_16(0, 0x1f, 0, PCI_VENDOR_ID) !=
- 	     PCI_VENDOR_ID_SCALEMP) ||
- 	    (read_pci_config_16(0, 0x1f, 0, PCI_DEVICE_ID) !=
- 	     PCI_DEVICE_ID_SCALEMP_VSMP_CTL))
--		return 0;
-+		return;
- 
- 	/* set vSMP magic bits to indicate vSMP capable kernel */
- 	address = ioremap(read_pci_config(0, 0x1f, 0, PCI_BASE_ADDRESS_0), 8);
-@@ -46,7 +46,7 @@ static int __init vsmp_init(void)
- 	}
- 
- 	iounmap(address);
--	return 0;
-+	return;
- }
- 
- core_initcall(vsmp_init);
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index 21dc1a0..71a92a2 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -52,7 +52,7 @@ obj-$(CONFIG_KEXEC)		+= relocate_kernel_
+ obj-$(CONFIG_CRASH_DUMP)	+= crash_dump_$(BITS).o
+ obj-$(CONFIG_X86_NUMAQ)		+= numaq_32.o
+ obj-$(CONFIG_X86_SUMMIT_NUMA)	+= summit_32.o
+-obj-$(CONFIG_X86_VSMP)		+= vsmp_64.o
++obj-$(CONFIG_PARAVIRT)		+= vsmp_64.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+ obj-$(CONFIG_MODULES)		+= module_$(BITS).o
+ obj-$(CONFIG_ACPI_SRAT) 	+= srat_32.o
 -- 
 1.4.2
