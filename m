@@ -1,13 +1,16 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [kvm-devel] [PATCH] virtio_ring: make structure defines packed
-Date: Sat, 09 Feb 2008 18:51:14 -0600
-Message-ID: <47AE4A82.3030504__49581.7399853424$1202635247$gmane$org@codemonkey.ws>
+Date: Mon, 11 Feb 2008 13:55:22 +0100
+Message-ID: <200802111355.22449.borntraeger__37118.1583068848$1202737074$gmane$org@de.ibm.com>
 References: <200802081401.21194.borntraeger@de.ibm.com>
+	<13426df10802092232w327a96f9ueca5370df826a674@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200802081401.21194.borntraeger@de.ibm.com>
+In-Reply-To: <13426df10802092232w327a96f9ueca5370df826a674@mail.gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,45 +20,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+To: ron minnich <rminnich@gmail.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Christian,
+Am Sonntag, 10. Februar 2008 schrieb ron minnich:
+> The problem for me is that gcc packed is not compatible with the plan
+> 9 C compiler. So, for a truly heterogeneous setup, you are going to
+> have
+> to have code to marshall the structures when transferring between
+> domains, and you are better off not trying to fake it with packed --
+> it can actually make the
+> marshalling less efficient.
 
-Christian Borntraeger wrote:
->  struct vring_used
->  {
->  	__u16 flags;
->  	__u16 idx;
-> +	__u32 padding;
->  	struct vring_used_elem ring[];
-> -};
-> +} __attribute__ ((packed));
->   
+Ok, I am conviced. The packed idea came up for mixed platform setups, but 
+you are right - this reuqires much more.
 
-This padding that you've put in is not something that would normally 
-occur on x86.  I've checked with GCC on 32-bit and 64-bit and neither 
-would include that padding.  Is that padding included on s390?
-
-I don't think we can do this on x86 at this point as it changes the 
-ABI.  FWIW, I agree with Arnd also that we should not explicitly pad 
-structures that are naturally aligned anyway.
-
-Regards,
-
-Anthony Liguori
-
-
->  struct vring {
->  	unsigned int num;
->
-> -------------------------------------------------------------------------
-> This SF.net email is sponsored by: Microsoft
-> Defy all challenges. Microsoft(R) Visual Studio 2008.
-> http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
-> _______________________________________________
-> kvm-devel mailing list
-> kvm-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/kvm-devel
->   
+Christian
