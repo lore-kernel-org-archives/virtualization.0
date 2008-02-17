@@ -1,16 +1,17 @@
 From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 3/5] [PATCH] call vsmp_init explicitly
-Date: Sun, 17 Feb 2008 19:04:25 +0100
-Message-ID: <20080217180425.GV6006__43323.2337855317$1203271601$gmane$org@elte.hu>
+Subject: Re: [PATCH 4/5] [PATCH] introduce paravirt helpers
+Date: Sun, 17 Feb 2008 19:05:09 +0100
+Message-ID: <20080217180509.GW6006@elte.hu>
 References: <1202757365-18634-1-git-send-email-gcosta@redhat.com>
 	<1202757365-18634-2-git-send-email-gcosta@redhat.com>
 	<1202757365-18634-3-git-send-email-gcosta@redhat.com>
+	<1202757365-18634-4-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1202757365-18634-3-git-send-email-gcosta@redhat.com>
+In-Reply-To: <1202757365-18634-4-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,17 +28,13 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 * Glauber Costa <gcosta@redhat.com> wrote:
 
-> --- a/arch/x86/kernel/setup_64.c
-> +++ b/arch/x86/kernel/setup_64.c
-> @@ -346,6 +346,10 @@ #endif
->  	if (efi_enabled)
->  		efi_init();
->  
-> +#ifdef	CONFIG_PARAVIRT
-> +	vsmp_init();
-> +#endif
+>  config X86_VSMP
+>  	bool "Support for ScaleMP vSMP"
+>  	depends on X86_64 && PCI
+> -	 help
+> +	select PARAVIRT
+> +	help
 
-that #ifdef should be in setup.h, instead of polluting a .c file with 
-it.
+hm, what's the idea here?
 
 	Ingo
