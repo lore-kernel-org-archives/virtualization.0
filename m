@@ -1,14 +1,19 @@
-From: Keith Owens <kaos@ocs.com.au>
-Subject: Re: paravirt_ops support in IA64
-Date: Tue, 19 Feb 2008 11:13:46 +1100
-Message-ID: <32163.1203380026@ocs10w>
-References: <20080218113116.GD8023%yamahata@valinux.co.jp>
+From: Ravikiran Thirumalai <kiran@scalemp.com>
+Subject: Re: [PATCH 4/5] [PATCH] introduce paravirt helpers
+Date: Tue, 19 Feb 2008 11:59:52 -0800
+Message-ID: <20080219195951.GU6209@localdomain>
+References: <1202757365-18634-1-git-send-email-gcosta@redhat.com>
+	<1202757365-18634-2-git-send-email-gcosta@redhat.com>
+	<1202757365-18634-3-git-send-email-gcosta@redhat.com>
+	<1202757365-18634-4-git-send-email-gcosta@redhat.com>
+	<20080217180509.GW6006@elte.hu>
+	<5d6222a80802171256l6e178eb8h1080bfd5a6b95ef3@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: Your message of "Mon, 18 Feb 2008 20:31:16 +0900."
-	<20080218113116.GD8023%yamahata@valinux.co.jp>
+Content-Disposition: inline
+In-Reply-To: <5d6222a80802171256l6e178eb8h1080bfd5a6b95ef3@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,68 +23,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: Jack Steiner <steiner@sgi.com>, linux-ia64@vger.kernel.org, "Dong,
-	Eddie" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org, Robin Holt <holt@sgi.com>, Christoph Lameter <clameter@sgi.com>, "Zhang,
-	Xiantao" <xiantao.zhang@intel.com>, xen-ia64-devel <xen-ia64-devel@lists.xensource.com>
+To: Glauber Costa <glommer@gmail.com>
+Cc: ehabkost@redhat.com, shai@scalemp.com, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Glauber Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, Ingo Molnar <mingo@elte.hu>, virtualization@lists.linux-foundation.org, tglx@linutronix.de, ak@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Isaku Yamahata (on Mon, 18 Feb 2008 20:31:16 +0900) wrote:
->On Mon, Feb 18, 2008 at 11:28:41AM +0800, Dong, Eddie wrote:
->> 	2: Same IVT source code, but dual/mulitple compile to generate
->> dual/multiple IVT table. I.e. we replace those primitive ops (sensitive
->> instructions) with a MACRO which uses compile option for different
->> hypervisor type. 
->> 		The pseudo code of the MACRO could be: (take read CR.IVR
->> as example)
->> 
->> AltA:
->> #define ASM_READ_IVR	/* read IVR to GR24 */
->> #ifdef XEN
->> 	breg1 = return address
->> 	br    xen_readivr
->> #else	/* native
->> 	mov  GR24=CR.IVR;
->> #endif
->> 		Or
->> AltB:
->> #define ASM_READ_IVR	/* read IVR to GR24 */
->> #ifdef XEN
->> 	in place code of function xen_readivr
->> #else	/* native
->> 	mov  GR24=CR.IVR;
->> #endif
->> 
->> 		From maintenance effort point of view, it is minimized,
->> but not exactly what X86 pv_ops look like.
->> 
->> 		Both approach will cause code size issue, but altB is
->> much worse in this area, while AltA need one additional BR clobber
->> register
+On Sun, Feb 17, 2008 at 06:56:56PM -0200, Glauber Costa wrote:
+>On Feb 17, 2008 4:05 PM, Ingo Molnar <mingo@elte.hu> wrote:
+>>
+>> * Glauber Costa <gcosta@redhat.com> wrote:
+>>
+>> >  config X86_VSMP
+>> >       bool "Support for ScaleMP vSMP"
+>> >       depends on X86_64 && PCI
+>> > -      help
+>> > +     select PARAVIRT
+>> > +     help
+>>
+>> hm, what's the idea here?
 >
+>guys from scalemp can probably give a better picture if needed,
+>but in a nutshell, there are two aspects involved with the vsmp
+>support. The first one
+>is special L1 alignments, and the second, specialized irq handling routines.
 >
->Pros:
->- single code
->- hopefull less maintenance cost compared to #1
->
->Cons:
->- requires restriction on register usage. And we need to define its
->  convension.
->  When modifying ivt.S in the future after converting ivt.S,
->  those convesion must be kept in mind.
->- suboptimal for paravirtualized case compared to #1 case
+>Only the second one is paravirt in itself, and are the ones addressed
+>in this patch.
+>The specialized routines now goes through paravirt ops. So when using
+>a vsmp machine,
+>paravirt has to be selected, in order to enable such functions.
 
-Please, please, please do _NOT_ hide register numbers inside small
-macros like this.  It makes it far too easy to miss register side
-effects when looking at IA64 assembler code.  Instead make the register
-usage a parameter to the macro, so a human looking at the source code
-can see which registers are being used.  The macros in
-include/asm-ia64/mca_asm.h are good examples of this approach.  IOW
+Thanks Glauber.  Well put.
 
-#define ASM_READ_IVR(breg, greg) ... move greg=cr.ivr
+That said, future revs of vSMP will have the ability to work optimally even
+without the paravirtualized irq ops.  This is an upcoming feature, and did not
+exist when we tested the paravirt ops 2-3 months ago.  So, it will be
+better, now, not to select PARAVIRT while selecting X86_VSMP.  Then,
+CONFIG_VSMP will just select the cacheline padding to be used and PARAVIRT
+will be needed if irq operations need to be paravirtualized.
 
-	ASM_READ_IVR(breg1, gr24)	# make it obvious which registers are hit
+I shall submit a patch to that effect.
 
-For large macros like SAVE_ALL there is no choice but to hide register
-side effects inside the macro, but that should be the exception, not
-the rule.
+Thanks,
+Kiran
