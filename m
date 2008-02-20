@@ -1,19 +1,16 @@
-From: Ravikiran Thirumalai <kiran@scalemp.com>
-Subject: Re: [PATCH 4/5] [PATCH] introduce paravirt helpers
-Date: Tue, 19 Feb 2008 11:59:52 -0800
-Message-ID: <20080219195951.GU6209@localdomain>
-References: <1202757365-18634-1-git-send-email-gcosta@redhat.com>
-	<1202757365-18634-2-git-send-email-gcosta@redhat.com>
-	<1202757365-18634-3-git-send-email-gcosta@redhat.com>
-	<1202757365-18634-4-git-send-email-gcosta@redhat.com>
-	<20080217180509.GW6006@elte.hu>
-	<5d6222a80802171256l6e178eb8h1080bfd5a6b95ef3@mail.gmail.com>
+From: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH resend] virtio_net: Fix oops on early interrupts -
+	introduced by virtio reset code
+Date: Wed, 20 Feb 2008 11:51:22 -0500
+Message-ID: <47BC5A8A.3010407__4073.4258750037$1203526424$gmane$org@garzik.org>
+References: <200802111411.15745.borntraeger@de.ibm.com>
+	<47B069E0.9040905@us.ibm.com>
+	<200802181002.51645.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5d6222a80802171256l6e178eb8h1080bfd5a6b95ef3@mail.gmail.com>
+In-Reply-To: <200802181002.51645.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,45 +20,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber Costa <glommer@gmail.com>
-Cc: ehabkost@redhat.com, shai@scalemp.com, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Glauber Costa <gcosta@redhat.com>, chrisw@sous-sol.org, anthony@codemonkey.ws, Ingo Molnar <mingo@elte.hu>, virtualization@lists.linux-foundation.org, tglx@linutronix.de, ak@suse.de
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Feb 17, 2008 at 06:56:56PM -0200, Glauber Costa wrote:
->On Feb 17, 2008 4:05 PM, Ingo Molnar <mingo@elte.hu> wrote:
->>
->> * Glauber Costa <gcosta@redhat.com> wrote:
->>
->> >  config X86_VSMP
->> >       bool "Support for ScaleMP vSMP"
->> >       depends on X86_64 && PCI
->> > -      help
->> > +     select PARAVIRT
->> > +     help
->>
->> hm, what's the idea here?
->
->guys from scalemp can probably give a better picture if needed,
->but in a nutshell, there are two aspects involved with the vsmp
->support. The first one
->is special L1 alignments, and the second, specialized irq handling routines.
->
->Only the second one is paravirt in itself, and are the ones addressed
->in this patch.
->The specialized routines now goes through paravirt ops. So when using
->a vsmp machine,
->paravirt has to be selected, in order to enable such functions.
+Christian Borntraeger wrote:
+> Am Montag, 11. Februar 2008 schrieb Anthony Liguori:
+>> The reset support is in Linus's tree so we should try to push it for -rc2.
+> 
+> You are right. My repository was borked. will push it to Jeff Garzik. Thanks
+> 
+> Jeff can you schedule this fix into your network driver updates? Thanks
+> ---
+> 
+> 
+> With the latest virtio_reset patches I got the following oops:
+> 
+> Unable to handle kernel pointer dereference at virtual kernel address 0000000000000000
+> Oops: 0004 [#1] PREEMPT SMP
+> Modules linked in:
+> CPU: 1 Not tainted 2.6.24zlive-guest-10577-g63f5307-dirty #168
+> Process swapper (pid: 0, task: 000000000f866040, ksp: 000000000f86fd78)
+> Krnl PSW : 0404100180000000 000000000047598a (skb_recv_done+0x52/0x98)
+>            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:0 CC:1 PM:0 EA:3
+> Krnl GPRS: 0000000000000001 0000000000000000 000000000efd0e60 0000000000000001
+>            0000000000000000 000000000f866040 0000000000000000 0000000000000000
+>            00000000008de4c8 0000000000001237 0000000000001237 000000000f977dd8
+>            0000000000000020 00000000001132bc 000000000f977e08 000000000f977dd8
+> Krnl Code: 000000000047597c: e31040300004       lg      %r1,48(%r4)
+>            0000000000475982: b9040001           lgr     %r0,%r1
+>            0000000000475986: b9810003           ogr     %r0,%r3
+>           >000000000047598a: eb1040300030       csg     %r1,%r0,48(%r4)
+>            0000000000475990: a744fff9           brc     4,475982
+>            0000000000475994: a7110001           tmll    %r1,1
+>            0000000000475998: a7840009           brc     8,4759aa
+>            000000000047599c: e340b0b80004       lg      %r4,184(%r11)
+> Call Trace:
+> ([<000001500f978000>] 0x1500f978000)
+>  [<00000000004779a6>] vring_interrupt+0x72/0x88
+>  [<0000000000491d9c>] kvm_extint_handler+0x34/0x44
+>  [<000000000010d2d4>] do_extint+0xc0/0xfc
+>  [<0000000000113b5a>] ext_no_vtime+0x1c/0x20
+>  [<000000000010a0b6>] cpu_idle+0x21a/0x230
+> ([<000000000010a096>] cpu_idle+0x1fa/0x230)
+>  [<000000000057dfe4>] start_secondary+0xa0/0xb4
+> 
+> We must initialize vdev->priv before we use the notify hypercall as 
+> vdev->priv is used in skb_recv_done. So lets move the assignment of 
+> vdev->priv before we call try_fill_recv.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Acked-by: Anthony Liguori <aliguori@us.ibm.com>
+> 
+> ---
+>  drivers/net/virtio_net.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks Glauber.  Well put.
-
-That said, future revs of vSMP will have the ability to work optimally even
-without the paravirtualized irq ops.  This is an upcoming feature, and did not
-exist when we tested the paravirt ops 2-3 months ago.  So, it will be
-better, now, not to select PARAVIRT while selecting X86_VSMP.  Then,
-CONFIG_VSMP will just select the cacheline padding to be used and PARAVIRT
-will be needed if irq operations need to be paravirtualized.
-
-I shall submit a patch to that effect.
-
-Thanks,
-Kiran
+applied
