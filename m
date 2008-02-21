@@ -1,18 +1,18 @@
 From: yamahata@valinux.co.jp
-Subject: [PATCH 20/28] ia64/xen: domU xen machine vector without dma api.
-Date: Thu, 21 Feb 2008 18:17:51 +0900
-Message-ID: <20080221091904.811793000__31615.7241388739$1203633842$gmane$org@ls.local.valinux.co.jp>
+Subject: [PATCH 09/28] ia64/xen: paravirtualize pal_call_static().
+Date: Thu, 21 Feb 2008 18:17:40 +0900
+Message-ID: <20080221091901.505070000__41826.5661960051$1203633844$gmane$org@ls.local.valinux.co.jp>
 References: <20080221091731.641745000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20080221223141.GU17530%yamahata@valinux.co.jp>
+Resent-Message-ID: <20080221223141.GJ17530%yamahata@valinux.co.jp>
 Resent-To: linux-ia64@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
         kvm-ia64-devel@lists.sourceforge.net
 Content-Disposition: inline;
-	filename=0020-ia64-xen-domU-xen-machine-vector-without-dma-api.patch
+	filename=0009-ia64-xen-paravirtualize-pal_call_static.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,89 +29,149 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/acpi.c        |    6 ++++++
- arch/ia64/xen/machvec.c        |    4 ++++
- include/asm-ia64/machvec.h     |    2 ++
- include/asm-ia64/machvec_xen.h |   22 ++++++++++++++++++++++
- 4 files changed, 34 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/xen/machvec.c
- create mode 100644 include/asm-ia64/machvec_xen.h
+ arch/ia64/kernel/pal.S        |    5 ++-
+ arch/ia64/xen/xenpal.S        |   76 +++++++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/privop.h     |    1 +
+ include/asm-ia64/xen/privop.h |    1 +
+ 4 files changed, 81 insertions(+), 2 deletions(-)
+ create mode 100644 arch/ia64/xen/xenpal.S
 
-diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
-index 78f28d8..9c17a46 100644
---- a/arch/ia64/kernel/acpi.c
-+++ b/arch/ia64/kernel/acpi.c
-@@ -118,6 +118,10 @@ acpi_get_sysname(void)
- 		return "hpzx1";
- 	} else if (!strcmp(hdr->oem_id, "SGI")) {
- 		return "sn2";
-+#ifdef CONFIG_XEN
-+	} else if (is_running_on_xen() && !strcmp(hdr->oem_id, "XEN")) {
-+		return "xen";
-+#endif
- 	}
+diff --git a/arch/ia64/kernel/pal.S b/arch/ia64/kernel/pal.S
+index 0b53344..de7252d 100644
+--- a/arch/ia64/kernel/pal.S
++++ b/arch/ia64/kernel/pal.S
+@@ -16,6 +16,7 @@
+ #include <asm/processor.h>
  
- 	return "dig";
-@@ -132,6 +136,8 @@ acpi_get_sysname(void)
- 	return "sn2";
- # elif defined (CONFIG_IA64_DIG)
- 	return "dig";
-+# elif defined (CONFIG_IA64_XEN)
-+	return "xen";
- # else
- #	error Unknown platform.  Fix acpi.c.
- # endif
-diff --git a/arch/ia64/xen/machvec.c b/arch/ia64/xen/machvec.c
-new file mode 100644
-index 0000000..4ad588a
---- /dev/null
-+++ b/arch/ia64/xen/machvec.c
-@@ -0,0 +1,4 @@
-+#define MACHVEC_PLATFORM_NAME           xen
-+#define MACHVEC_PLATFORM_HEADER         <asm/machvec_xen.h>
-+#include <asm/machvec_init.h>
-+
-diff --git a/include/asm-ia64/machvec.h b/include/asm-ia64/machvec.h
-index c201a20..cea8d63 100644
---- a/include/asm-ia64/machvec.h
-+++ b/include/asm-ia64/machvec.h
-@@ -120,6 +120,8 @@ extern void machvec_tlb_migrate_finish (struct mm_struct *);
- #  include <asm/machvec_hpzx1_swiotlb.h>
- # elif defined (CONFIG_IA64_SGI_SN2)
- #  include <asm/machvec_sn2.h>
-+# elif defined (CONFIG_IA64_XEN)
-+#  include <asm/machvec_xen.h>
- # elif defined (CONFIG_IA64_GENERIC)
+ 	.data
++	.globl pal_entry_point
+ pal_entry_point:
+ 	data8 ia64_pal_default_handler
+ 	.text
+@@ -52,7 +53,7 @@ END(ia64_pal_default_handler)
+  * in0         Index of PAL service
+  * in1 - in3   Remaining PAL arguments
+  */
+-GLOBAL_ENTRY(ia64_pal_call_static)
++GLOBAL_ENTRY(__ia64_pal_call_static)
+ 	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(4)
+ 	alloc loc1 = ar.pfs,4,5,0,0
+ 	movl loc2 = pal_entry_point
+@@ -86,7 +87,7 @@ GLOBAL_ENTRY(ia64_pal_call_static)
+ 	;;
+ 	srlz.d				// seralize restoration of psr.l
+ 	br.ret.sptk.many b0
+-END(ia64_pal_call_static)
++END(__ia64_pal_call_static)
  
- # ifdef MACHVEC_PLATFORM_HEADER
-diff --git a/include/asm-ia64/machvec_xen.h b/include/asm-ia64/machvec_xen.h
+ /*
+  * Make a PAL call using the stacked registers calling convention.
+diff --git a/arch/ia64/xen/xenpal.S b/arch/ia64/xen/xenpal.S
 new file mode 100644
-index 0000000..ed0f84d
+index 0000000..cf8dff9
 --- /dev/null
-+++ b/include/asm-ia64/machvec_xen.h
-@@ -0,0 +1,22 @@
-+#ifndef _ASM_IA64_MACHVEC_XEN_h
-+#define _ASM_IA64_MACHVEC_XEN_h
-+
-+extern ia64_mv_setup_t			xen_setup;
-+extern ia64_mv_cpu_init_t		xen_cpu_init;
-+extern ia64_mv_irq_init_t		xen_irq_init;
-+extern ia64_mv_send_ipi_t		xen_platform_send_ipi;
-+
++++ b/arch/ia64/xen/xenpal.S
+@@ -0,0 +1,76 @@
 +/*
-+ * This stuff has dual use!
++ * ia64/xen/xenpal.S
 + *
-+ * For a generic kernel, the macros are used to initialize the
-+ * platform's machvec structure.  When compiling a non-generic kernel,
-+ * the macros are used directly.
++ * Alternate PAL  routines for Xen.  Heavily leveraged from
++ *   ia64/kernel/pal.S
++ *
++ * Copyright (C) 2005 Hewlett-Packard Co
++ *	Dan Magenheimer <dan.magenheimer@.hp.com>
 + */
-+#define platform_name				"xen"
-+#define platform_setup				xen_setup
-+#define platform_cpu_init			xen_cpu_init
-+#define platform_irq_init			xen_irq_init
-+#define platform_send_ipi			xen_platform_send_ipi
 +
-+#endif /* _ASM_IA64_MACHVEC_XEN_h */
++#include <asm/asmmacro.h>
++#include <asm/processor.h>
++#include <asm/paravirt_nop.h>
++
++GLOBAL_ENTRY(xen_pal_call_static)
++#ifdef CONFIG_XEN
++	BR_IF_NATIVE(__ia64_pal_call_static, r22, p7)
++#endif
++	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(5)
++	alloc loc1 = ar.pfs,4,5,0,0
++	movl loc2 = pal_entry_point
++1:	{
++	  mov r28 = in0
++	  mov r29 = in1
++	  mov r8 = ip
++	}
++	;;
++	ld8 loc2 = [loc2]		// loc2 <- entry point
++	adds r8 = 1f-1b,r8
++	mov loc4=ar.rsc			// save RSE configuration
++	;;
++	mov ar.rsc=0			// put RSE in enforced lazy, LE mode
++#ifdef CONFIG_XEN
++	mov r9 = r8
++	XEN_HYPER_GET_PSR
++	;;
++	mov loc3 = r8
++	mov r8 = r9
++	;;
++#else
++	mov loc3 = psr
++#endif
++	mov loc0 = rp
++	.body
++	mov r30 = in2
++
++#ifdef CONFIG_XEN
++	// this is low priority for paravirtualization, but is called
++	// from the idle loop so confuses privop counting
++	movl r31=XSI_PSR_I_ADDR
++	;;
++	ld8 r31=[r31]
++	mov r22=1
++	;;
++	st1 [r31]=r22
++	;;
++	mov r31 = in3
++	mov b7 = loc2
++	;;
++#else
++	mov r31 = in3
++	mov b7 = loc2
++
++(p7)	rsm psr.i
++	;;
++#endif
++	mov rp = r8
++	br.cond.sptk.many b7
++1:	mov psr.l = loc3
++	mov ar.rsc = loc4		// restore RSE configuration
++	mov ar.pfs = loc1
++	mov rp = loc0
++	;;
++	srlz.d				// seralize restoration of psr.l
++	br.ret.sptk.many b0
++END(xen_pal_call_static)
+diff --git a/include/asm-ia64/privop.h b/include/asm-ia64/privop.h
+index b8dce79..09c14ae 100644
+--- a/include/asm-ia64/privop.h
++++ b/include/asm-ia64/privop.h
+@@ -21,6 +21,7 @@
+ #define ia64_leave_syscall		__ia64_leave_syscall
+ #define ia64_work_processed_syscall	__ia64_work_processed_syscall
+ #define ia64_leave_kernel		__ia64_leave_kernel
++#define ia64_pal_call_static		__ia64_pal_call_static
+ #endif /* !IA64_PARAVIRTUALIZED_ENTRY */
+ 
+ #endif /* _ASM_IA64_PRIVOP_H */
+diff --git a/include/asm-ia64/xen/privop.h b/include/asm-ia64/xen/privop.h
+index c8a5a0d..0fa8aa6 100644
+--- a/include/asm-ia64/xen/privop.h
++++ b/include/asm-ia64/xen/privop.h
+@@ -79,6 +79,7 @@
+ #define ia64_leave_syscall		xen_leave_syscall
+ #define ia64_work_processed_syscall	xen_work_processed_syscall_with_check
+ #define ia64_leave_kernel		xen_leave_kernel
++#define ia64_pal_call_static		xen_pal_call_static
+ #endif /* !CONFIG_PARAVIRT_ENTRY */
+ 
+ #ifdef CONFIG_XEN
 -- 
 1.5.3
 
