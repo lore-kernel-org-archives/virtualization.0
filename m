@@ -1,36 +1,31 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 00/11] Xen arch portability patches
-Date: Thu, 21 Feb 2008 11:35:03 -0800
-Message-ID: <47BDD267.9010706__17464.7389016629$1203622980$gmane$org@goop.org>
-References: <20080221084530.470680000@ls.local.valinux.co.jp>
+Subject: Re: [PATCH 0/2] xen pvfb: Para-virtual framebuffer,	keyboard and
+ pointer
+Date: Thu, 21 Feb 2008 11:45:03 -0800
+Message-ID: <47BDD4BF.3000808@goop.org>
+References: <871w76ejdg.fsf@pike.pond.sub.org> <87hcg2cyti.fsf@pike.pond.sub.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080221084530.470680000@ls.local.valinux.co.jp>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: yamahata@valinux.co.jp
-Cc: xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, xen-ia64-devel@lists.xensource.com
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <87hcg2cyti.fsf@pike.pond.sub.org>
+Sender: linux-input-owner@vger.kernel.org
+To: Markus Armbruster <armbru@redhat.com>
+Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-yamahata@valinux.co.jp wrote:
-> Hi. Recently the xen-ia64 community started to make efforts to merge 
-> xen/ia64 Linux to upstream. The first step is to merge up domU portion.
-> This patchset is preliminary for xen/ia64 domU linux making the current
-> xen/x86 domU code more arch generic and adding missing definitions and
-> files.
->   
+Markus Armbruster wrote:
+> Forgot to mention: This patch depends on
+>
+>     Subject: [PATCH] xen: Make xen-blkfront write its protocol ABI to xenstore
+>     From: Markus Armbruster <>
+>     Date: Thu, 06 Dec 2007 14:45:53 +0100
+>
+> http://lkml.org/lkml/2007/12/6/132
+>
+> Sorry!
 
-I haven't looked at the whole series yet, but this seems fine in 
-principle.  One thing: using attachments to post makes it hard to do 
-inline comments on the patches.
+Sorry, I haven't pushed this upstream yet, since there didn't seem to be 
+any particular urgency.  What's the dependency?
 
     J
