@@ -1,15 +1,19 @@
 From: yamahata@valinux.co.jp
-Subject: [PATCH 00/28] ia64/xen domU paravirtualization
-Date: Thu, 21 Feb 2008 18:17:31 +0900
-Message-ID: <20080221091731.641745000__21921.9617582441$1203633829$gmane$org@ls.local.valinux.co.jp>
+Subject: [PATCH 06/28] ia64/xen: define xen assembler constants which will be
+	used later.
+Date: Thu, 21 Feb 2008 18:17:37 +0900
+Message-ID: <20080221091900.588162000__45212.5410353348$1203633837$gmane$org@ls.local.valinux.co.jp>
+References: <20080221091731.641745000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20080221223141.GA17530%yamahata@valinux.co.jp>
+Resent-Message-ID: <20080221223141.GG17530%yamahata@valinux.co.jp>
 Resent-To: linux-ia64@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
         kvm-ia64-devel@lists.sourceforge.net
+Content-Disposition: inline;
+	filename=0006-ia64-xen-define-xen-assembler-constants-which-will.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,103 +27,129 @@ To: linux-ia64@vger.kernel.org
 Cc: xen-ia64-devel@lists.xensource.com, kvm-ia64-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi linux/ia64 developers. 
-Few days before Eddie posted the mail for Linux/IA64 paravirtualization.
-But only a few responded partially because there was no reviewable patches.
-Here is the patches for xen/ia64 Linux paravirtualization.
 
-The goal is to merge IA64 xen Linux paravirtualization for both domU and dom0
-eventually. However the first step is to merge domU portion.
-As you can see from the current patchset, abstraction and many clean up
-must be done before merge.
-Before starting cleaning up, we want to discuss with linux ia64 developers.
-Please comment. Especially the first blocker is the paravirtualization of
-the hand written assembly code as Eddie already tried to discuss.
-The corresponding patch is
-"ia64/xen: xen hand written assembly code paravirtualization."
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/asm-offsets.c |   25 ++++++++++++++
+ include/asm-ia64/xen/privop.h  |   73 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 98 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/privop.h
 
-NOTE:
-This patchset depends on another patchset which I sent out as
-"Xen arch portability patches."
-
-thansk,
-
-Diffstat:
- arch/ia64/Kconfig                        |   76 +
- arch/ia64/Makefile                       |   12 +-
- arch/ia64/configs/xen_domu_wip_defconfig |  854 ++++++++++++
- arch/ia64/kernel/Makefile                |   63 +
- arch/ia64/kernel/acpi.c                  |    6 +
- arch/ia64/kernel/asm-offsets.c           |   25 +
- arch/ia64/kernel/entry.S                 |   41 +-
- arch/ia64/kernel/fsys.S                  |   41 +
- arch/ia64/kernel/gate.S                  |   55 +
- arch/ia64/kernel/gate.lds.S              |   18 +
- arch/ia64/kernel/head.S                  |    6 +
- arch/ia64/kernel/iosapic.c               |   89 ++-
- arch/ia64/kernel/irq_ia64.c              |  363 +++++-
- arch/ia64/kernel/mca.c                   |   22 +
- arch/ia64/kernel/module.c                |   32 +
- arch/ia64/kernel/pal.S                   |    5 +-
- arch/ia64/kernel/paravirt_alt.c          |  118 ++
- arch/ia64/kernel/paravirt_core.c         |  201 +++
- arch/ia64/kernel/paravirt_entry.c        |   99 ++
- arch/ia64/kernel/paravirt_nop.c          |   49 +
- arch/ia64/kernel/paravirtentry.S         |   37 +
- arch/ia64/kernel/patch.c                 |   28 +
- arch/ia64/kernel/salinfo.c               |   44 +
- arch/ia64/kernel/setup.c                 |  121 ++
- arch/ia64/kernel/smpboot.c               |    4 +
- arch/ia64/kernel/time.c                  |  204 +++
- arch/ia64/kernel/vmlinux.lds.S           |   41 +
- arch/ia64/kernel/xengate-data.S          |    3 +
- arch/ia64/mm/init.c                      |   22 +-
- arch/ia64/xen/Kconfig                    |   29 +
- arch/ia64/xen/Makefile                   |   11 +
- arch/ia64/xen/hypercall.S                |  141 ++
- arch/ia64/xen/hypervisor.c               |  228 +++
- arch/ia64/xen/machvec.c                  |    4 +
- arch/ia64/xen/paravirt_xen.c             |  242 ++++
- arch/ia64/xen/privops_asm.S              |  221 +++
- arch/ia64/xen/privops_c.c                |  279 ++++
- arch/ia64/xen/util.c                     |  101 ++
- arch/ia64/xen/xcom_asm.S                 |   27 +
- arch/ia64/xen/xcom_hcall.c               |  458 +++++++
- arch/ia64/xen/xencomm.c                  |  108 ++
- arch/ia64/xen/xenentry.S                 |  798 +++++++++++
- arch/ia64/xen/xenivt.S                   | 2204 ++++++++++++++++++++++++++++++
- arch/ia64/xen/xenminstate.h              |  320 +++++
- arch/ia64/xen/xenpal.S                   |   76 +
- arch/ia64/xen/xensetup.S                 |   50 +
- include/asm-ia64/gcc_intrin.h            |   58 +-
- include/asm-ia64/hw_irq.h                |   10 +
- include/asm-ia64/intel_intrin.h          |   64 +-
- include/asm-ia64/intrinsics.h            |   12 +
- include/asm-ia64/iosapic.h               |    2 +
- include/asm-ia64/irq.h                   |   33 +
- include/asm-ia64/machvec.h               |    2 +
- include/asm-ia64/machvec_xen.h           |   22 +
- include/asm-ia64/meminit.h               |    7 +
- include/asm-ia64/mmu_context.h           |    6 +-
- include/asm-ia64/module.h                |    6 +
- include/asm-ia64/page.h                  |   11 +
- include/asm-ia64/paravirt_alt.h          |   82 ++
- include/asm-ia64/paravirt_core.h         |   54 +
- include/asm-ia64/paravirt_entry.h        |   62 +
- include/asm-ia64/paravirt_nop.h          |   46 +
- include/asm-ia64/privop.h                |   67 +
- include/asm-ia64/privop_paravirt.h       |  587 ++++++++
- include/asm-ia64/sal.h                   |   36 +
- include/asm-ia64/sync_bitops.h           |   61 +
- include/asm-ia64/system.h                |    4 +-
- include/asm-ia64/xen/hypercall.h         |  426 ++++++
- include/asm-ia64/xen/hypervisor.h        |  249 ++++
- include/asm-ia64/xen/interface.h         |  686 ++++++++++
- include/asm-ia64/xen/page.h              |   19 +
- include/asm-ia64/xen/privop.h            |  609 +++++++++
- include/asm-ia64/xen/xcom_hcall.h        |   55 +
- include/asm-ia64/xen/xencomm.h           |   33 +
- 74 files changed, 11190 insertions(+), 95 deletions(-)
+diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
+index 0aebc6f..b432638 100644
+--- a/arch/ia64/kernel/asm-offsets.c
++++ b/arch/ia64/kernel/asm-offsets.c
+@@ -278,4 +278,29 @@ void foo(void)
+ 		offsetof (struct itc_jitter_data_t, itc_jitter));
+ 	DEFINE(IA64_ITC_LASTCYCLE_OFFSET,
+ 		offsetof (struct itc_jitter_data_t, itc_lastcycle));
++
++#ifdef CONFIG_XEN
++	BLANK();
++
++#define DEFINE_MAPPED_REG_OFS(sym, field) \
++	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(mapped_regs_t, field)))
++
++	DEFINE_MAPPED_REG_OFS(XSI_PSR_I_ADDR_OFS, interrupt_mask_addr);
++	DEFINE_MAPPED_REG_OFS(XSI_IPSR_OFS, ipsr);
++	DEFINE_MAPPED_REG_OFS(XSI_IIP_OFS, iip);
++	DEFINE_MAPPED_REG_OFS(XSI_IFS_OFS, ifs);
++	DEFINE_MAPPED_REG_OFS(XSI_PRECOVER_IFS_OFS, precover_ifs);
++	DEFINE_MAPPED_REG_OFS(XSI_ISR_OFS, isr);
++	DEFINE_MAPPED_REG_OFS(XSI_IFA_OFS, ifa);
++	DEFINE_MAPPED_REG_OFS(XSI_IIPA_OFS, iipa);
++	DEFINE_MAPPED_REG_OFS(XSI_IIM_OFS, iim);
++	DEFINE_MAPPED_REG_OFS(XSI_IHA_OFS, iha);
++	DEFINE_MAPPED_REG_OFS(XSI_ITIR_OFS, itir);
++	DEFINE_MAPPED_REG_OFS(XSI_PSR_IC_OFS, interrupt_collection_enabled);
++	DEFINE_MAPPED_REG_OFS(XSI_BANKNUM_OFS, banknum);
++	DEFINE_MAPPED_REG_OFS(XSI_BANK0_R16_OFS, bank0_regs[0]);
++	DEFINE_MAPPED_REG_OFS(XSI_BANK1_R16_OFS, bank1_regs[0]);
++	DEFINE_MAPPED_REG_OFS(XSI_B0NATS_OFS, vbnat);
++	DEFINE_MAPPED_REG_OFS(XSI_B1NATS_OFS, vnat);
++#endif /* CONFIG_XEN */
+ }
+diff --git a/include/asm-ia64/xen/privop.h b/include/asm-ia64/xen/privop.h
+new file mode 100644
+index 0000000..dd3e5ec
+--- /dev/null
++++ b/include/asm-ia64/xen/privop.h
+@@ -0,0 +1,73 @@
++#ifndef _ASM_IA64_XEN_PRIVOP_H
++#define _ASM_IA64_XEN_PRIVOP_H
++
++/*
++ * Copyright (C) 2005 Hewlett-Packard Co
++ *	Dan Magenheimer <dan.magenheimer@hp.com>
++ *
++ * Paravirtualizations of privileged operations for Xen/ia64
++ *
++ *
++ * inline privop and paravirt_alt support
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ */
++
++#ifndef __ASSEMBLY__
++#include <linux/types.h>		/* arch-ia64.h requires uint64_t */
++#include <linux/stringify.h>
++#endif
++#include <asm/xen/interface.h>
++
++/* At 1 MB, before per-cpu space but still addressable using addl instead
++   of movl. */
++#define XSI_BASE			0xfffffffffff00000
++
++/* Address of mapped regs.  */
++#define XMAPPEDREGS_BASE		(XSI_BASE + XSI_SIZE)
++
++#ifdef __ASSEMBLY__
++#define XEN_HYPER_RFI			break HYPERPRIVOP_RFI
++#define XEN_HYPER_RSM_PSR_DT		break HYPERPRIVOP_RSM_DT
++#define XEN_HYPER_SSM_PSR_DT		break HYPERPRIVOP_SSM_DT
++#define XEN_HYPER_COVER			break HYPERPRIVOP_COVER
++#define XEN_HYPER_ITC_D			break HYPERPRIVOP_ITC_D
++#define XEN_HYPER_ITC_I			break HYPERPRIVOP_ITC_I
++#define XEN_HYPER_SSM_I			break HYPERPRIVOP_SSM_I
++#define XEN_HYPER_GET_IVR		break HYPERPRIVOP_GET_IVR
++#define XEN_HYPER_GET_TPR		break HYPERPRIVOP_GET_TPR
++#define XEN_HYPER_SET_TPR		break HYPERPRIVOP_SET_TPR
++#define XEN_HYPER_EOI			break HYPERPRIVOP_EOI
++#define XEN_HYPER_SET_ITM		break HYPERPRIVOP_SET_ITM
++#define XEN_HYPER_THASH			break HYPERPRIVOP_THASH
++#define XEN_HYPER_PTC_GA		break HYPERPRIVOP_PTC_GA
++#define XEN_HYPER_ITR_D			break HYPERPRIVOP_ITR_D
++#define XEN_HYPER_GET_RR		break HYPERPRIVOP_GET_RR
++#define XEN_HYPER_SET_RR		break HYPERPRIVOP_SET_RR
++#define XEN_HYPER_SET_KR		break HYPERPRIVOP_SET_KR
++#define XEN_HYPER_FC			break HYPERPRIVOP_FC
++#define XEN_HYPER_GET_CPUID		break HYPERPRIVOP_GET_CPUID
++#define XEN_HYPER_GET_PMD		break HYPERPRIVOP_GET_PMD
++#define XEN_HYPER_GET_EFLAG		break HYPERPRIVOP_GET_EFLAG
++#define XEN_HYPER_SET_EFLAG		break HYPERPRIVOP_SET_EFLAG
++#define XEN_HYPER_GET_PSR		break HYPERPRIVOP_GET_PSR
++#define XEN_HYPER_SET_RR0_TO_RR4	break HYPERPRIVOP_SET_RR0_TO_RR4
++
++#define XSI_IFS				(XSI_BASE + XSI_IFS_OFS)
++#define XSI_PRECOVER_IFS		(XSI_BASE + XSI_PRECOVER_IFS_OFS)
++#define XSI_IFA				(XSI_BASE + XSI_IFA_OFS)
++#define XSI_ISR				(XSI_BASE + XSI_ISR_OFS)
++#define XSI_IIM				(XSI_BASE + XSI_IIM_OFS)
++#define XSI_ITIR			(XSI_BASE + XSI_ITIR_OFS)
++#define XSI_PSR_I_ADDR			(XSI_BASE + XSI_PSR_I_ADDR_OFS)
++#define XSI_PSR_IC			(XSI_BASE + XSI_PSR_IC_OFS)
++#define XSI_IPSR			(XSI_BASE + XSI_IPSR_OFS)
++#define XSI_IIP				(XSI_BASE + XSI_IIP_OFS)
++#define XSI_B1NAT			(XSI_BASE + XSI_B1NATS_OFS)
++#define XSI_BANK1_R16			(XSI_BASE + XSI_BANK1_R16_OFS)
++#define XSI_BANKNUM			(XSI_BASE + XSI_BANKNUM_OFS)
++#define XSI_IHA				(XSI_BASE + XSI_IHA_OFS)
++#endif
++
++#endif /* _ASM_IA64_XEN_PRIVOP_H */
+-- 
+1.5.3
 
 -- 
 yamahata
