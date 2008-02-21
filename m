@@ -1,18 +1,18 @@
 From: yamahata@valinux.co.jp
-Subject: [PATCH 17/28] ia64/xen: domU initialization code.
-Date: Thu, 21 Feb 2008 18:17:48 +0900
-Message-ID: <20080221091903.911741000__37585.4293503382$1203635206$gmane$org@ls.local.valinux.co.jp>
+Subject: [PATCH 11/28] ia64: introduce basic facilities for binary patching.
+Date: Thu, 21 Feb 2008 18:17:42 +0900
+Message-ID: <20080221091902.112427000__6239.32242529026$1203635209$gmane$org@ls.local.valinux.co.jp>
 References: <20080221091731.641745000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20080221223141.GR17530%yamahata@valinux.co.jp>
+Resent-Message-ID: <20080221223141.GL17530%yamahata@valinux.co.jp>
 Resent-To: linux-ia64@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
         kvm-ia64-devel@lists.sourceforge.net
 Content-Disposition: inline;
-	filename=0017-ia64-xen-domU-initialization-code.patch
+	filename=0011-ia64-introduce-basic-facilities-for-binary-patching.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,247 +29,949 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/Makefile         |   12 ++++-
- arch/ia64/kernel/setup.c   |  121 ++++++++++++++++++++++++++++++++++++++++++++
- arch/ia64/kernel/smpboot.c |    4 ++
- arch/ia64/xen/Makefile     |    4 ++
- 4 files changed, 139 insertions(+), 2 deletions(-)
+ arch/ia64/Kconfig                 |   72 +++++++++++++
+ arch/ia64/kernel/Makefile         |    5 +
+ arch/ia64/kernel/paravirt_alt.c   |  118 ++++++++++++++++++++++
+ arch/ia64/kernel/paravirt_core.c  |  201 +++++++++++++++++++++++++++++++++++++
+ arch/ia64/kernel/paravirt_entry.c |   99 ++++++++++++++++++
+ arch/ia64/kernel/paravirt_nop.c   |   49 +++++++++
+ arch/ia64/kernel/vmlinux.lds.S    |   35 +++++++
+ include/asm-ia64/module.h         |    6 +
+ include/asm-ia64/paravirt_alt.h   |   82 +++++++++++++++
+ include/asm-ia64/paravirt_core.h  |   54 ++++++++++
+ include/asm-ia64/paravirt_entry.h |   62 +++++++++++
+ include/asm-ia64/paravirt_nop.h   |   46 +++++++++
+ 12 files changed, 829 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/kernel/paravirt_alt.c
+ create mode 100644 arch/ia64/kernel/paravirt_core.c
+ create mode 100644 arch/ia64/kernel/paravirt_entry.c
+ create mode 100644 arch/ia64/kernel/paravirt_nop.c
+ create mode 100644 include/asm-ia64/paravirt_alt.h
+ create mode 100644 include/asm-ia64/paravirt_core.h
+ create mode 100644 include/asm-ia64/paravirt_entry.h
+ create mode 100644 include/asm-ia64/paravirt_nop.h
 
-diff --git a/arch/ia64/Makefile b/arch/ia64/Makefile
-index b916ccf..36be3bf 100644
---- a/arch/ia64/Makefile
-+++ b/arch/ia64/Makefile
-@@ -45,6 +45,12 @@ ifeq ($(call cc-version),0304)
- endif
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index dff9edf..bc84008 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -110,6 +110,78 @@ config AUDIT_ARCH
+ 	bool
+ 	default y
  
- KBUILD_CFLAGS += $(cflags-y)
++menuconfig PARAVIRT_GUEST
++	bool "Paravirtualized guest support"
++	help
++	  Say Y here to get to see options related to running Linux under
++	  various hypervisors.  This option alone does not add any kernel code.
 +
-+cppflags-$(CONFIG_XEN) += \
-+	-D__XEN_INTERFACE_VERSION__=$(CONFIG_XEN_INTERFACE_VERSION)
++	  If you say N, all options in this submenu will be skipped and disabled.
 +
-+KBUILD_CPPFLAGS += $(cppflags-y)
++if PARAVIRT_GUEST
 +
- head-y := arch/ia64/kernel/head.o arch/ia64/kernel/init_task.o
++config PARAVIRT
++	bool
++	default y
++	help
++	  This changes the kernel so it can modify itself when it is run
++	  under a hypervisor, potentially improving performance significantly
++	  over full virtualization.  However, when run without a hypervisor
++	  the kernel is theoretically slower and slightly larger.
++
++config PARAVIRT_ALT
++	bool "paravirt_alt binary patching infrastructure"
++	depends on PARAVIRT
++	default y
++	help
++	  The binary patching infratstructure to replace some privileged
++	  instructions with hypervisor specific instrutions.
++	  There are several sensitive(i.e. non-virtualizable) instructions and
++	  performance critical privileged instructions which Xen
++	  paravirtualize as hyperprivops.
++	  For transparent paravirtualization (i.e. single binary should run
++	  on both baremetal and xen environment), xenLinux/IA64 needs
++	  something like "if (is_running_on_xen()) {} else {}" where
++	  is_running_on_xen() is determined at boot time.
++	  This configuration tries to eliminate the overheads for hyperprivops
++	  by annotating such instructions and replacing them with hyperprivops
++	  at boot time.
++
++config PARAVIRT_ENTRY
++	bool "paravirt entry"
++	depends on PARAVIRT
++	default y
++	help
++	  The entry point hooking infrastructure to change the execution path
++	  at the boot time.
++	  There are several paravirtualized paths in hand coded assembly code
++	  which isn't binary patched easily by the paravirt_alt infrastructure.
++	  E.g. ia64_switch_to, ia64_leave_syscall, ia64_leave_kernel and
++	  ia64_pal_call_static.
++	  For those hand written assembly code, change the execution path
++	  by hooking them and jumping to hand paravirtualized code.
++
++config PARAVIRT_NOP_B_PATCH
++	bool "paravirt branch if native"
++	depends on PARAVIRT
++	default y
++	help
++	  paravirt branch if native
++	  There are several paravirtualized paths in hand coded assembly code.
++	  For transparent paravirtualization, there are codes like
++	  GLOBAL_ENTRY(xen_xxx)
++	  'movl reg=running_on_xen;;'
++	  'ld4 reg=[reg];;'
++	  'cmp.e1 pred,p0=reg,r0'
++	  '(pred) br.cond.sptk.many <native_xxx>;;'
++	  To reduce overhead when running on bare metal, just
++	  "br.cond.sptk.many <native_xxx>" and replace it with 'nop.b 0'
++	  when running on xen.
++
++#source "arch/ia64/xen/Kconfig"
++
++endif
++
+ choice
+ 	prompt "System type"
+ 	default IA64_GENERIC
+diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+index 33e5a59..d0e22bb 100644
+--- a/arch/ia64/kernel/Makefile
++++ b/arch/ia64/kernel/Makefile
+@@ -36,6 +36,11 @@ obj-$(CONFIG_PCI_MSI)		+= msi_ia64.o
+ mca_recovery-y			+= mca_drv.o mca_drv_asm.o
+ obj-$(CONFIG_IA64_MC_ERR_INJECT)+= err_inject.o
  
- libs-y				+= arch/ia64/lib/
-@@ -54,7 +60,9 @@ core-$(CONFIG_IA64_DIG) 	+= arch/ia64/dig/
- core-$(CONFIG_IA64_GENERIC) 	+= arch/ia64/dig/
- core-$(CONFIG_IA64_HP_ZX1)	+= arch/ia64/dig/
- core-$(CONFIG_IA64_HP_ZX1_SWIOTLB) += arch/ia64/dig/
-+core-$(CONFIG_IA64_XEN)		+= arch/ia64/dig/
- core-$(CONFIG_IA64_SGI_SN2)	+= arch/ia64/sn/
-+core-$(CONFIG_XEN)		+= arch/ia64/xen/
- 
- drivers-$(CONFIG_PCI)		+= arch/ia64/pci/
- drivers-$(CONFIG_IA64_HP_SIM)	+= arch/ia64/hp/sim/
-@@ -87,8 +95,8 @@ CLEAN_FILES += vmlinux.gz bootloader
- boot:	lib/lib.a vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) $@
- 
--install: vmlinux.gz
--	sh $(srctree)/arch/ia64/install.sh $(KERNELRELEASE) $< System.map "$(INSTALL_PATH)"
-+install:
-+	-yes | sh $(srctree)/arch/ia64/install.sh $(KERNELRELEASE) vmlinux.gz System.map "$(INSTALL_PATH)"
- 
- define archhelp
-   echo '* compressed	- Build compressed kernel image'
-diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
-index ebd1a09..0c103b5 100644
---- a/arch/ia64/kernel/setup.c
-+++ b/arch/ia64/kernel/setup.c
-@@ -61,6 +61,12 @@
- #include <asm/system.h>
- #include <asm/unistd.h>
- #include <asm/hpsim.h>
-+#ifdef CONFIG_XEN
-+#include <xen/features.h>
-+#include <asm/xen/hypervisor.h>
-+#include <asm/xen/xencomm.h>
-+#endif
-+#include <linux/dma-mapping.h>
- 
- #if defined(CONFIG_SMP) && (IA64_CPU_SIZE > PAGE_SIZE)
- # error "struct cpuinfo_ia64 too big!"
-@@ -71,6 +77,34 @@ unsigned long __per_cpu_offset[NR_CPUS];
- EXPORT_SYMBOL(__per_cpu_offset);
- #endif
- 
-+#ifdef CONFIG_XEN
-+static void
-+xen_panic_hypercall(struct unw_frame_info *info, void *arg)
++obj-$(CONFIG_PARAVIRT)		+= paravirt_core.o
++obj-$(CONFIG_PARAVIRT_ALT)	+= paravirt_alt.o
++obj-$(CONFIG_PARAVIRT_ENTRY)	+= paravirt_entry.o paravirtentry.o
++obj-$(CONFIG_PARAVIRT_NOP_B_PATCH) += paravirt_nop.o
++
+ obj-$(CONFIG_IA64_ESI)		+= esi.o
+ ifneq ($(CONFIG_IA64_ESI),)
+ obj-y				+= esi_stub.o	# must be in kernel proper
+diff --git a/arch/ia64/kernel/paravirt_alt.c b/arch/ia64/kernel/paravirt_alt.c
+new file mode 100644
+index 0000000..d0a34a7
+--- /dev/null
++++ b/arch/ia64/kernel/paravirt_alt.c
+@@ -0,0 +1,118 @@
++/******************************************************************************
++ * linux/arch/ia64/xen/paravirt_alt.c
++ *
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <asm/paravirt_core.h>
++
++extern const char nop_bundle[];
++extern const unsigned long nop_bundle_size;
++
++static void __init_or_module
++fill_nop(void *sbundle, void *ebundle)
 +{
-+	current->thread.ksp = (__u64)info->sw - 16;
-+	HYPERVISOR_shutdown(SHUTDOWN_crash);
-+	/* we're never actually going to get here... */
-+}
++	void *bundle = sbundle;
++	BUG_ON((((unsigned long)sbundle) % sizeof(bundle_t)) != 0);
++	BUG_ON((((unsigned long)ebundle) % sizeof(bundle_t)) != 0);
 +
-+static int
-+xen_panic_event(struct notifier_block *this, unsigned long event, void *ptr)
-+{
-+	unw_init_running(xen_panic_hypercall, NULL);
-+	/* we're never actually going to get here... */
-+	return NOTIFY_DONE;
-+}
++	while (bundle < ebundle) {
++		memcpy(bundle, nop_bundle, nop_bundle_size);
 +
-+static struct notifier_block xen_panic_block = {
-+	xen_panic_event, NULL, 0 /* try to go last */
-+};
-+
-+void xen_pm_power_off(void)
-+{
-+	local_irq_disable();
-+	HYPERVISOR_shutdown(SHUTDOWN_poweroff);
-+}
-+#endif
-+
- DEFINE_PER_CPU(struct cpuinfo_ia64, cpu_info);
- DEFINE_PER_CPU(unsigned long, local_per_cpu_offset);
- unsigned long ia64_cycles_per_usec;
-@@ -288,6 +322,14 @@ reserve_memory (void)
- 	rsvd_region[n].end   = (unsigned long) ia64_imva(_end);
- 	n++;
- 
-+#ifdef CONFIG_XEN
-+	if (is_running_on_xen()) {
-+		rsvd_region[n].start = (unsigned long)__va((HYPERVISOR_shared_info->arch.start_info_pfn << PAGE_SHIFT));
-+		rsvd_region[n].end   = rsvd_region[n].start + PAGE_SIZE;
-+		n++;
++		bundle += nop_bundle_size;
 +	}
-+#endif
++}
 +
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (ia64_boot_param->initrd_start) {
- 		rsvd_region[n].start = (unsigned long)__va(ia64_boot_param->initrd_start);
-@@ -466,6 +508,24 @@ setup_arch (char **cmdline_p)
- {
- 	unw_init();
- 
-+#ifdef CONFIG_XEN
-+	if (is_running_on_xen()) {
-+		struct shared_info *s = HYPERVISOR_shared_info;
-+		xen_start_info = __va(s->arch.start_info_pfn << PAGE_SHIFT);
++void __init_or_module
++paravirt_alt_bundle_patch_apply(struct paravirt_alt_bundle_patch *start,
++				struct paravirt_alt_bundle_patch *end,
++				unsigned long(*patch)(void *sbundle,
++						      void *ebundle,
++						      unsigned long type))
++{
++	struct paravirt_alt_bundle_patch *p;
 +
-+		/* Must be done before any hypercall.  */
-+		xencomm_initialize();
++	for (p = start; p < end; p++) {
++		unsigned long used;
 +
-+		xen_setup_features();
-+		/* Register a call for panic conditions. */
-+		atomic_notifier_chain_register(&panic_notifier_list,
-+					       &xen_panic_block);
-+		pm_power_off = xen_pm_power_off;
++		used = (*patch)(p->sbundle, p->ebundle, p->type);
++		if (used == 0)
++			continue;
 +
-+		xen_ia64_enable_opt_feature();
++		fill_nop(p->sbundle + used, p->ebundle);
++		paravirt_flush_i_cache_range(p->sbundle,
++					     p->ebundle - p->sbundle);
 +	}
++	ia64_sync_i();
++	ia64_srlz_i();
++}
++
++/*
++ * nop.i, nop.m, nop.f instruction are same format.
++ * but nop.b has differennt format.
++ * This doesn't support nop.b for now.
++ */
++static void __init_or_module
++fill_nop_inst(unsigned long stag, unsigned long etag)
++{
++	extern const bundle_t nop_mfi_inst_bundle[];
++	unsigned long tag;
++	const cmp_inst_t nop_inst = paravirt_read_slot0(nop_mfi_inst_bundle);
++
++	for (tag = stag; tag < etag; tag = paravirt_get_next_tag(tag))
++		paravirt_write_inst(tag, nop_inst);
++}
++
++void __init_or_module
++paravirt_alt_inst_patch_apply(struct paravirt_alt_inst_patch *start,
++			      struct paravirt_alt_inst_patch *end,
++			      unsigned long (*patch)(unsigned long stag,
++						     unsigned long etag,
++						     unsigned long type))
++{
++	struct paravirt_alt_inst_patch *p;
++
++	for (p = start; p < end; p++) {
++		unsigned long tag;
++		bundle_t *sbundle;
++		bundle_t *ebundle;
++
++		tag = (*patch)(p->stag, p->etag, p->type);
++		if (tag == p->stag)
++			continue;
++
++		fill_nop_inst(tag, p->etag);
++		sbundle = paravirt_get_bundle(p->stag);
++		ebundle = paravirt_get_bundle(p->etag) + 1;
++		paravirt_flush_i_cache_range(sbundle, (ebundle - sbundle) *
++					     sizeof(bundle_t));
++	}
++	ia64_sync_i();
++	ia64_srlz_i();
++}
++
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "linux"
++ * c-basic-offset: 8
++ * tab-width: 8
++ * indent-tabs-mode: t
++ * End:
++ */
+diff --git a/arch/ia64/kernel/paravirt_core.c b/arch/ia64/kernel/paravirt_core.c
+new file mode 100644
+index 0000000..6b7c70f
+--- /dev/null
++++ b/arch/ia64/kernel/paravirt_core.c
+@@ -0,0 +1,201 @@
++/******************************************************************************
++ * linux/arch/ia64/xen/paravirt_core.c
++ *
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <asm/paravirt_core.h>
++
++/*
++ * flush_icache_range() can't be used here.
++ * we are here before cpu_init() which initializes
++ * ia64_i_cache_stride_shift. flush_icache_range() uses it.
++ */
++void __init_or_module
++paravirt_flush_i_cache_range(const void *instr, unsigned long size)
++{
++	unsigned long i;
++
++	for (i = 0; i < size; i += sizeof(bundle_t))
++		asm volatile ("fc.i %0":: "r"(instr + i): "memory");
++}
++
++bundle_t* __init_or_module
++paravirt_get_bundle(unsigned long tag)
++{
++	return (bundle_t *)(tag & ~3UL);
++}
++
++unsigned long __init_or_module
++paravirt_get_slot(unsigned long tag)
++{
++	return tag & 3UL;
++}
++
++#if 0
++unsigned long __init_or_module
++paravirt_get_num_inst(unsigned long stag, unsigned long etag)
++{
++	bundle_t *sbundle = paravirt_get_bundle(stag);
++	unsigned long sslot = paravirt_get_slot(stag);
++	bundle_t *ebundle = paravirt_get_bundle(etag);
++	unsigned long eslot = paravirt_get_slot(etag);
++
++	return (ebundle - sbundle) * 3 + eslot - sslot + 1;
++}
 +#endif
 +
- 	ia64_patch_vtop((u64) __start___vtop_patchlist, (u64) __end___vtop_patchlist);
- 
- 	*cmdline_p = __va(ia64_boot_param->command_line);
-@@ -518,6 +578,59 @@ setup_arch (char **cmdline_p)
- 	acpi_boot_init();
- #endif
- 
-+#ifdef CONFIG_XEN
-+	if (is_running_on_xen()) {
-+		printk(KERN_INFO
-+		       "Running on Xen! start_info_pfn=0x%lx nr_pages=%ld "
-+		       "flags=0x%x\n",
-+		       HYPERVISOR_shared_info->arch.start_info_pfn,
-+		       xen_start_info->nr_pages, xen_start_info->flags);
++unsigned long __init_or_module
++paravirt_get_next_tag(unsigned long tag)
++{
++	unsigned long slot = paravirt_get_slot(tag);
 +
-+		/*
-+		 * If a console= is NOT specified, we assume using the
-+		 * xencons console is desired.  By default, this is xvc0
-+		 * for both dom0 and domU.
-+		 */
-+		if (!strstr(*cmdline_p, "console=")) {
-+			char *p, *q, name[5] = "xvc";
-+			int offset = 0;
++	switch (slot) {
++	case 0:
++	case 1:
++		return tag + 1;
++	case 2: {
++		bundle_t *bundle = paravirt_get_bundle(tag);
++		return (unsigned long)(bundle + 1);
++	}
++	default:
++		BUG();
++	}
++	/* NOTREACHED */
++}
 +
-+#if defined(CONFIG_VGA_CONSOLE)
-+			/*
-+			 * conswitchp might be set intelligently from the
-+			 * PCDP code.  If set to VGA console, use it.
-+			 */
-+			if (is_initial_xendomain() && conswitchp == &vga_con)
-+				strncpy(name, "tty", 3);
-+#endif
++cmp_inst_t __init_or_module
++paravirt_read_slot0(const bundle_t *bundle)
++{
++	cmp_inst_t inst;
++	inst.l = bundle->quad0.slot0;
++	return inst;
++}
 +
-+			p = strstr(*cmdline_p, "xencons=");
++cmp_inst_t __init_or_module
++paravirt_read_slot1(const bundle_t *bundle)
++{
++	cmp_inst_t inst;
++	inst.l = bundle->quad0.slot1_p0 |
++		((unsigned long long)bundle->quad1.slot1_p1 << 18UL);
++	return inst;
++}
 +
-+			if (p) {
-+				p += 8;
-+				if (!strncmp(p, "ttyS", 4)) {
-+					strncpy(name, p, 4);
-+					p += 4;
-+					offset = simple_strtol(p, &q, 10);
-+					if (p == q)
-+						offset = 0;
-+				} else if (!strncmp(p, "tty", 3) ||
-+					   !strncmp(p, "xvc", 3)) {
-+					strncpy(name, p, 3);
-+					p += 3;
-+					offset = simple_strtol(p, &q, 10);
-+					if (p == q)
-+						offset = 0;
-+				} else if (!strncmp(p, "off", 3))
-+					offset = -1;
-+			}
++cmp_inst_t __init_or_module
++paravirt_read_slot2(const bundle_t *bundle)
++{
++	cmp_inst_t inst;
++	inst.l = bundle->quad1.slot2;
++	return inst;
++}
 +
-+			if (offset >= 0)
-+				add_preferred_console(name, offset, NULL);
++cmp_inst_t __init_or_module
++paravirt_read_inst(unsigned long tag)
++{
++	bundle_t *bundle = paravirt_get_bundle(tag);
++	unsigned long slot = paravirt_get_slot(tag);
++
++	switch (slot) {
++	case 0:
++		return paravirt_read_slot0(bundle);
++	case 1:
++		return paravirt_read_slot1(bundle);
++	case 2:
++		return paravirt_read_slot2(bundle);
++	default:
++		BUG();
++	}
++	/* NOTREACHED */
++}
++
++void __init_or_module
++paravirt_write_slot0(bundle_t *bundle, cmp_inst_t inst)
++{
++	bundle->quad0.slot0 = inst.l;
++}
++
++void __init_or_module
++paravirt_write_slot1(bundle_t *bundle, cmp_inst_t inst)
++{
++	bundle->quad0.slot1_p0 = inst.l;
++	bundle->quad1.slot1_p1 = inst.l >> 18UL;
++}
++
++void __init_or_module
++paravirt_write_slot2(bundle_t *bundle, cmp_inst_t inst)
++{
++	bundle->quad1.slot2 = inst.l;
++}
++
++void __init_or_module
++paravirt_write_inst(unsigned long tag, cmp_inst_t inst)
++{
++	bundle_t *bundle = paravirt_get_bundle(tag);
++	unsigned long slot = paravirt_get_slot(tag);
++
++	switch (slot) {
++	case 0:
++		paravirt_write_slot0(bundle, inst);
++		break;
++	case 1:
++		paravirt_write_slot1(bundle, inst);
++		break;
++	case 2:
++		paravirt_write_slot2(bundle, inst);
++		break;
++	default:
++		BUG();
++	}
++	paravirt_flush_i_cache_range(bundle, sizeof(*bundle));
++}
++
++/* for debug */
++void
++print_bundle(const bundle_t *bundle)
++{
++	const unsigned long *quad = (const unsigned long *)bundle;
++	cmp_inst_t slot0 = paravirt_read_slot0(bundle);
++	cmp_inst_t slot1 = paravirt_read_slot1(bundle);
++	cmp_inst_t slot2 = paravirt_read_slot2(bundle);
++
++	printk(KERN_DEBUG
++	       "bundle 0x%p 0x%016lx 0x%016lx\n", bundle, quad[0], quad[1]);
++	printk(KERN_DEBUG
++	       "bundle template 0x%x\n",
++	       bundle->quad0.template);
++	printk(KERN_DEBUG
++	       "slot0 0x%lx slot1_p0 0x%lx slot1_p1 0x%lx slot2 0x%lx\n",
++	       (unsigned long)bundle->quad0.slot0,
++	       (unsigned long)bundle->quad0.slot1_p0,
++	       (unsigned long)bundle->quad1.slot1_p1,
++	       (unsigned long)bundle->quad1.slot2);
++	printk(KERN_DEBUG
++	       "slot0 0x%016llx slot1 0x%016llx slot2 0x%016llx\n",
++	       slot0.l, slot1.l, slot2.l);
++}
++
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "linux"
++ * c-basic-offset: 8
++ * tab-width: 8
++ * indent-tabs-mode: t
++ * End:
++ */
+diff --git a/arch/ia64/kernel/paravirt_entry.c b/arch/ia64/kernel/paravirt_entry.c
+new file mode 100644
+index 0000000..708287a
+--- /dev/null
++++ b/arch/ia64/kernel/paravirt_entry.c
+@@ -0,0 +1,99 @@
++/******************************************************************************
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <asm/paravirt_core.h>
++#include <asm/paravirt_entry.h>
++
++/* br.cond.sptk.many <target25>	B1 */
++typedef union inst_b1 {
++	cmp_inst_t inst;
++	struct {
++		unsigned long qp: 6;
++		unsigned long btype: 3;
++		unsigned long unused: 3;
++		unsigned long p: 1;
++		unsigned long imm20b: 20;
++		unsigned long wh: 2;
++		unsigned long d: 1;
++		unsigned long s: 1;
++		unsigned long opcode: 4;
++	};
++	unsigned long l;
++} inst_b1_t;
++
++static void __init
++__paravirt_entry_apply(unsigned long tag, const void *target)
++{
++	bundle_t *bundle = paravirt_get_bundle(tag);
++	cmp_inst_t inst = paravirt_read_inst(tag);
++	unsigned long target25 = (unsigned long)target - (unsigned long)bundle;
++	inst_b1_t inst_b1;
++
++	inst_b1.l = inst.l;
++	if (target25 & (1UL << 63))
++		inst_b1.s = 1;
++	else
++		inst_b1.s = 0;
++
++	inst_b1.imm20b = target25 >> 4;
++	inst.l = inst_b1.l;
++
++	paravirt_write_inst(tag, inst);
++	paravirt_flush_i_cache_range(bundle, sizeof(*bundle));
++}
++
++static void __init
++paravirt_entry_apply(const struct paravirt_entry_patch *entry_patch,
++		     const struct paravirt_entry *entries,
++		     unsigned int nr_entries)
++{
++	unsigned int i;
++	for (i = 0; i < nr_entries; i++) {
++		if (entry_patch->type == entries[i].type) {
++			__paravirt_entry_apply(entry_patch->tag,
++					       entries[i].entry);
++			break;
 +		}
 +	}
-+#endif
++}
 +
- #ifdef CONFIG_VT
- 	if (!conswitchp) {
- # if defined(CONFIG_DUMMY_CONSOLE)
-@@ -537,6 +650,14 @@ setup_arch (char **cmdline_p)
- #endif
++void __init
++paravirt_entry_patch_apply(const struct paravirt_entry_patch *start,
++			   const struct paravirt_entry_patch *end,
++			   const struct paravirt_entry *entries,
++			   unsigned int nr_entries)
++{
++	const struct paravirt_entry_patch *p;
++	for (p = start; p < end; p++)
++		paravirt_entry_apply(p, entries, nr_entries);
++
++	ia64_sync_i();
++	ia64_srlz_i();
++}
++
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "linux"
++ * c-basic-offset: 8
++ * tab-width: 8
++ * indent-tabs-mode: t
++ * End:
++ */
+diff --git a/arch/ia64/kernel/paravirt_nop.c b/arch/ia64/kernel/paravirt_nop.c
+new file mode 100644
+index 0000000..ee5a204
+--- /dev/null
++++ b/arch/ia64/kernel/paravirt_nop.c
+@@ -0,0 +1,49 @@
++/******************************************************************************
++ * linux/arch/ia64/xen/paravirt_nop.c
++ *
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <asm/paravirt_core.h>
++#include <asm/paravirt_nop.h>
++
++void __init_or_module
++paravirt_nop_b_patch_apply(const struct paravirt_nop_patch *start,
++			   const struct paravirt_nop_patch *end)
++{
++	extern const bundle_t nop_b_inst_bundle;
++	const cmp_inst_t nop_b_inst = paravirt_read_slot0(&nop_b_inst_bundle);
++	const struct paravirt_nop_patch *p;
++
++	for (p = start; p < end; p++)
++		paravirt_write_inst(p->tag, nop_b_inst);
++
++	ia64_sync_i();
++	ia64_srlz_i();
++}
++
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "linux"
++ * c-basic-offset: 8
++ * tab-width: 8
++ * indent-tabs-mode: t
++ * End:
++ */
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index 80622ac..0cbe0a1 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -163,6 +163,41 @@ SECTIONS
+ 	  __end___mckinley_e9_bundles = .;
+ 	}
  
- 	/* enable IA-64 Machine Check Abort Handling unless disabled */
-+#ifdef CONFIG_XEN
-+	if (is_running_on_xen() && !is_initial_xendomain()) {
-+		nomca = 1;
-+#if !defined(CONFIG_VT) || !defined(CONFIG_DUMMY_CONSOLE)
-+		conswitchp = NULL;
-+#endif
++#if defined(CONFIG_PARAVIRT_ALT)
++  . = ALIGN(16);
++  .paravirt_bundles : AT(ADDR(.paravirt_bundles) - LOAD_OFFSET)
++	{
++	  __start_paravirt_bundles = .;
++          *(.paravirt_bundles)
++	  __stop_paravirt_bundles = .;
++	}
++  . = ALIGN(16);
++  .paravirt_insts : AT(ADDR(.paravirt_insts) - LOAD_OFFSET)
++	{
++	  __start_paravirt_insts = .;
++          *(.paravirt_insts)
++	  __stop_paravirt_insts = .;
 +	}
 +#endif
- 	if (!nomca)
- 		ia64_mca_init();
- 
-diff --git a/arch/ia64/kernel/smpboot.c b/arch/ia64/kernel/smpboot.c
-index 32ee597..2da0a00 100644
---- a/arch/ia64/kernel/smpboot.c
-+++ b/arch/ia64/kernel/smpboot.c
-@@ -642,6 +642,10 @@ void __devinit smp_prepare_boot_cpu(void)
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	cpu_set(smp_processor_id(), cpu_callin_map);
- 	per_cpu(cpu_state, smp_processor_id()) = CPU_ONLINE;
-+#ifdef CONFIG_XEN
-+	if (is_running_on_xen())
-+		xen_setup_vcpu_info_placement();
++#if defined(CONFIG_PARAVIRT_NOP_B_PATCH)
++  . = ALIGN(16);
++  .paravirt_nop_b : AT(ADDR(.paravirt_nop_b) - LOAD_OFFSET)
++	{
++	  __start_paravirt_nop_b = .;
++	  *(.paravirt_nop_b)
++	  __stop_paravirt_nop_b = .;
++	}
 +#endif
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index c219358..91ffafe 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -2,6 +2,10 @@
- # Makefile for Xen components
- #
- 
-+obj-y := hypercall.o xenivt.o xenentry.o xensetup.o xenpal.o \
-+	 hypervisor.o util.o xencomm.o xcom_hcall.o xcom_asm.o
++#if defined(CONFIG_PARAVIRT_ENTRY)
++  . = ALIGN(16);
++  .paravirt_entry : AT(ADDR(.paravirt_entry) - LOAD_OFFSET)
++	{
++	  __start_paravirt_entry = .;
++	  *(.paravirt_entry)
++	  __stop_paravirt_entry = .;
++	}
++#endif
 +
-+obj-$(CONFIG_IA64_GENERIC) += machvec.o
- obj-$(CONFIG_PARAVIRT_ALT) += paravirt_xen.o privops_asm.o privops_c.o
- obj-$(CONFIG_PARAVIRT_NOP_B_PATCH) += paravirt_xen.o
- obj-$(CONFIG_PARAVIRT_ENTRY) += paravirt_xen.o
+ #if defined(CONFIG_IA64_GENERIC)
+   /* Machine Vector */
+   . = ALIGN(16);
+diff --git a/include/asm-ia64/module.h b/include/asm-ia64/module.h
+index d2da61e..44f63ff 100644
+--- a/include/asm-ia64/module.h
++++ b/include/asm-ia64/module.h
+@@ -16,6 +16,12 @@ struct mod_arch_specific {
+ 	struct elf64_shdr *got;		/* global offset table */
+ 	struct elf64_shdr *opd;		/* official procedure descriptors */
+ 	struct elf64_shdr *unwind;	/* unwind-table section */
++#ifdef CONFIG_PARAVIRT_ALT
++	struct elf64_shdr *paravirt_bundles;
++					/* paravirt_alt_bundle_patch table */
++	struct elf64_shdr *paravirt_insts;
++					/* paravirt_alt_inst_patch table */
++#endif
+ 	unsigned long gp;		/* global-pointer for module */
+ 
+ 	void *core_unw_table;		/* core unwind-table cookie returned by unwinder */
+diff --git a/include/asm-ia64/paravirt_alt.h b/include/asm-ia64/paravirt_alt.h
+new file mode 100644
+index 0000000..34c5473
+--- /dev/null
++++ b/include/asm-ia64/paravirt_alt.h
+@@ -0,0 +1,82 @@
++/******************************************************************************
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifndef __ASM_PARAVIRT_ALT_H
++#define __ASM_PARAVIRT_ALT_H
++
++#ifndef __ASSEMBLER__
++/* for binary patch */
++struct paravirt_alt_bundle_patch {
++	void		*sbundle;
++	void		*ebundle;
++	unsigned long	type;
++};
++
++/* label means the beginning of new bundle */
++#define paravirt_alt_bundle(instr, privop)				\
++	"\t1:\n"							\
++	"\t" instr "\n"							\
++	"\t2:\n"							\
++	"\t.section .paravirt_bundles, \"a\"\n"				\
++	"\t.previous\n"							\
++	"\t.xdata8 \".paravirt_bundles\", 1b, 2b, "			\
++	__stringify(privop) "\n"
++
++struct paravirt_alt_inst_patch {
++	unsigned long	stag;
++	unsigned long	etag;
++	unsigned long	type;
++};
++
++#define paravirt_alt_inst(instr, privop)				\
++	"\t[1:]\n"							\
++	"\t" instr "\n"							\
++	"\t[2:]\n"							\
++	"\t.section .paravirt_insts, \"a\"\n"				\
++	"\t.previous\n"							\
++	"\t.xdata8 \".paravirt_insts\", 1b, 2b, "			\
++	__stringify(privop) "\n"
++
++void
++paravirt_alt_bundle_patch_apply(struct paravirt_alt_bundle_patch *start,
++				struct paravirt_alt_bundle_patch *end,
++				unsigned long(*patch)(void *sbundle,
++						      void *ebundle,
++						      unsigned long type));
++
++void
++paravirt_alt_inst_patch_apply(struct paravirt_alt_inst_patch *start,
++			      struct paravirt_alt_inst_patch *end,
++			      unsigned long (*patch)(unsigned long stag,
++						     unsigned long etag,
++						     unsigned long type));
++#endif /* __ASSEMBLER__ */
++
++#endif /* __ASM_PARAVIRT_ALT_H */
++
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "linux"
++ * c-basic-offset: 8
++ * tab-width: 8
++ * indent-tabs-mode: t
++ * End:
++ */
+diff --git a/include/asm-ia64/paravirt_core.h b/include/asm-ia64/paravirt_core.h
+new file mode 100644
+index 0000000..9979740
+--- /dev/null
++++ b/include/asm-ia64/paravirt_core.h
+@@ -0,0 +1,54 @@
++/******************************************************************************
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifndef __ASM_PARAVIRT_CORE_H
++#define __ASM_PARAVIRT_CORE_H
++
++#include <asm/kprobes.h>
++
++void paravirt_flush_i_cache_range(const void *instr, unsigned long size);
++
++bundle_t *paravirt_get_bundle(unsigned long tag);
++unsigned long paravirt_get_slot(unsigned long tag);
++unsigned long paravirt_get_next_tag(unsigned long tag);
++
++cmp_inst_t paravirt_read_slot0(const bundle_t *bundle);
++cmp_inst_t paravirt_read_slot1(const bundle_t *bundle);
++cmp_inst_t paravirt_read_slot2(const bundle_t *bundle);
++cmp_inst_t paravirt_read_inst(unsigned long tag);
++
++void paravirt_write_slot0(bundle_t *bundle, cmp_inst_t inst);
++void paravirt_write_slot1(bundle_t *bundle, cmp_inst_t inst);
++void paravirt_write_slot2(bundle_t *bundle, cmp_inst_t inst);
++void paravirt_write_inst(unsigned long tag, cmp_inst_t inst);
++
++void print_bundle(const bundle_t *bundle);
++
++#endif /* __ASM_PARAVIRT_CORE_H */
++
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "linux"
++ * c-basic-offset: 8
++ * tab-width: 8
++ * indent-tabs-mode: t
++ * End:
++ */
+diff --git a/include/asm-ia64/paravirt_entry.h b/include/asm-ia64/paravirt_entry.h
+new file mode 100644
+index 0000000..857fd37
+--- /dev/null
++++ b/include/asm-ia64/paravirt_entry.h
+@@ -0,0 +1,62 @@
++/******************************************************************************
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifndef __ASM_PARAVIRT_ENTRY_H
++#define __ASM_PARAVIRT_ENTRY_H
++
++#ifdef __ASSEMBLY__
++
++#define BR_COND_SPTK_MANY(target, type)		\
++	[1:] ;					\
++	br.cond.sptk.many target;; ;		\
++	.section .paravirt_entry, "a" ;		\
++	.previous ;				\
++	.xdata8 ".paravirt_entry", 1b, type
++
++#else /* __ASSEMBLY__ */
++
++struct paravirt_entry_patch {
++	unsigned long	tag;
++	unsigned long	type;
++};
++
++struct paravirt_entry {
++	void		*entry;
++	unsigned long	type;
++};
++
++void
++paravirt_entry_patch_apply(const struct paravirt_entry_patch *start,
++			   const struct paravirt_entry_patch *end,
++			   const struct paravirt_entry *entries,
++			   unsigned int nr_entries);
++
++#endif /* __ASSEMBLY__ */
++
++#endif /* __ASM_PARAVIRT_ENTRY_H */
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "linux"
++ * c-basic-offset: 8
++ * tab-width: 8
++ * indent-tabs-mode: t
++ * End:
++ */
+diff --git a/include/asm-ia64/paravirt_nop.h b/include/asm-ia64/paravirt_nop.h
+new file mode 100644
+index 0000000..2b05430
+--- /dev/null
++++ b/include/asm-ia64/paravirt_nop.h
+@@ -0,0 +1,46 @@
++/******************************************************************************
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifndef __ASM_PARAVIRT_OPS_H
++#define __ASM_PARAVIRT_OPS_H
++
++#ifndef __ASSEMBLY__
++
++struct paravirt_nop_patch {
++	unsigned long	tag;
++};
++
++void
++paravirt_nop_b_patch_apply(const struct paravirt_nop_patch *start,
++			   const struct paravirt_nop_patch *end);
++
++#endif /* !__ASSEMBLEY__ */
++
++#endif /* __ASM_PARAVIRT_OPS_H */
++
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "linux"
++ * c-basic-offset: 8
++ * tab-width: 8
++ * indent-tabs-mode: t
++ * End:
++ */
 -- 
 1.5.3
 
