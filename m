@@ -1,31 +1,46 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 0/2] xen pvfb: Para-virtual framebuffer,	keyboard and
- pointer
-Date: Thu, 21 Feb 2008 11:45:03 -0800
-Message-ID: <47BDD4BF.3000808@goop.org>
-References: <871w76ejdg.fsf@pike.pond.sub.org> <87hcg2cyti.fsf@pike.pond.sub.org>
+Subject: Re: [PATCH 06/11] xen: move arch/x86/xen/events.c undedr drivers/xen
+	and split out arch specific part.
+Date: Thu, 21 Feb 2008 11:38:18 -0800
+Message-ID: <47BDD32A.6030201__18861.6176405505$1203623412$gmane$org@goop.org>
+References: <20080221084530.470680000@ls.local.valinux.co.jp>
+	<20080221091002.222498000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <87hcg2cyti.fsf@pike.pond.sub.org>
-Sender: linux-input-owner@vger.kernel.org
-To: Markus Armbruster <armbru@redhat.com>
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20080221091002.222498000@ls.local.valinux.co.jp>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: yamahata@valinux.co.jp
+Cc: xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Markus Armbruster wrote:
-> Forgot to mention: This patch depends on
->
->     Subject: [PATCH] xen: Make xen-blkfront write its protocol ABI to xenstore
->     From: Markus Armbruster <>
->     Date: Thu, 06 Dec 2007 14:45:53 +0100
->
-> http://lkml.org/lkml/2007/12/6/132
->
-> Sorry!
+yamahata@valinux.co.jp wrote:
+> diff --git a/arch/x86/xen/events.c b/drivers/xen/events.c
+> similarity index 95%
+> rename from arch/x86/xen/events.c
+> rename to drivers/xen/events.c
+> index dcf613e..7474739 100644
+> --- a/arch/x86/xen/events.c
+> +++ b/drivers/xen/events.c
+> @@ -37,7 +37,9 @@
+>  #include <xen/interface/xen.h>
+>  #include <xen/interface/event_channel.h>
+>  
+> -#include "xen-ops.h"
+> +#ifdef CONFIG_X86
+> +# include "../arch/x86/xen/xen-ops.h"
+> +#endif
 
-Sorry, I haven't pushed this upstream yet, since there didn't seem to be 
-any particular urgency.  What's the dependency?
+Hm.  Perhaps it would be better to move whatever definition you need 
+into a header in a common place (or move xen-ops.h entirely).
 
     J
