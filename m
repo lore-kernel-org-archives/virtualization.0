@@ -1,42 +1,36 @@
-From: Markus Armbruster <armbru@redhat.com>
-Subject: Re: [PATCH 1/2] fbdev: Make deferred I/O work as advertized
-Date: Thu, 21 Feb 2008 18:31:40 +0100
-Message-ID: <878x1ecj2b.fsf@pike.pond.sub.org>
-References: <871w76ejdg.fsf@pike.pond.sub.org>
-	<87ve4id4rb.fsf@pike.pond.sub.org>
-	<45a44e480802210830o1041e612sa532acde52e42748@mail.gmail.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 00/11] Xen arch portability patches
+Date: Thu, 21 Feb 2008 11:35:03 -0800
+Message-ID: <47BDD267.9010706__17464.7389016629$1203622980$gmane$org@goop.org>
+References: <20080221084530.470680000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <45a44e480802210830o1041e612sa532acde52e42748@mail.gmail.com> (Jaya Kumar's message of "Fri\, 22 Feb 2008 00\:30\:58 +0800")
-Sender: linux-input-owner@vger.kernel.org
-To: Jaya Kumar <jayakumar.lkml@gmail.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, adaplas@pol.net, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, akpm@linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20080221084530.470680000@ls.local.valinux.co.jp>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: yamahata@valinux.co.jp
+Cc: xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Jaya Kumar" <jayakumar.lkml@gmail.com> writes:
+yamahata@valinux.co.jp wrote:
+> Hi. Recently the xen-ia64 community started to make efforts to merge 
+> xen/ia64 Linux to upstream. The first step is to merge up domU portion.
+> This patchset is preliminary for xen/ia64 domU linux making the current
+> xen/x86 domU code more arch generic and adding missing definitions and
+> files.
+>   
 
-> On Thu, Feb 21, 2008 at 5:43 PM, Markus Armbruster <armbru@redhat.com> wrote:
->>  Fix extracted from this linux-fbdev-devel message:
->
-> Hi Markus,
->
-> Yes, this was discussed back in November on linux-mm and hence my
-> patch. I didn't push for it to be merged by itself because I don't
-> think it makes sense to merge it separately from the full metronomefb
-> patch. As far as I can tell, only hecubafb and metronomefb seem to be
-> the consumers.
->
-> Out of curiosity, are you using defio or planning to use it? I would
-> love to hear back from people who are using it.
->
-> Thanks,
-> jaya
+I haven't looked at the whole series yet, but this seems fine in 
+principle.  One thing: using attachments to post makes it hard to do 
+inline comments on the patches.
 
-Converting to fb_defio made xen-fbfront quite a bit simpler and much
-more maintainable.  Excellent match.
-
-It took me a bit of time to find your fix, mostly because I assumed my
-own code was broken, not fb_defio.  It's best not to make assumptions
-about who uses your code; if it's any good, chances are somebody will
-find a use you never imagined.
+    J
