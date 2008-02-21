@@ -1,19 +1,18 @@
 From: yamahata@valinux.co.jp
-Subject: [PATCH 06/28] ia64/xen: define xen assembler constants which will be
-	used later.
-Date: Thu, 21 Feb 2008 18:17:37 +0900
-Message-ID: <20080221091900.588162000__45212.5410353348$1203633837$gmane$org@ls.local.valinux.co.jp>
+Subject: [PATCH 20/28] ia64/xen: domU xen machine vector without dma api.
+Date: Thu, 21 Feb 2008 18:17:51 +0900
+Message-ID: <20080221091904.811793000__31615.7241388739$1203633842$gmane$org@ls.local.valinux.co.jp>
 References: <20080221091731.641745000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20080221223141.GG17530%yamahata@valinux.co.jp>
+Resent-Message-ID: <20080221223141.GU17530%yamahata@valinux.co.jp>
 Resent-To: linux-ia64@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
         kvm-ia64-devel@lists.sourceforge.net
 Content-Disposition: inline;
-	filename=0006-ia64-xen-define-xen-assembler-constants-which-will.patch
+	filename=0020-ia64-xen-domU-xen-machine-vector-without-dma-api.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -30,124 +29,89 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/asm-offsets.c |   25 ++++++++++++++
- include/asm-ia64/xen/privop.h  |   73 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 98 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/privop.h
+ arch/ia64/kernel/acpi.c        |    6 ++++++
+ arch/ia64/xen/machvec.c        |    4 ++++
+ include/asm-ia64/machvec.h     |    2 ++
+ include/asm-ia64/machvec_xen.h |   22 ++++++++++++++++++++++
+ 4 files changed, 34 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/xen/machvec.c
+ create mode 100644 include/asm-ia64/machvec_xen.h
 
-diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
-index 0aebc6f..b432638 100644
---- a/arch/ia64/kernel/asm-offsets.c
-+++ b/arch/ia64/kernel/asm-offsets.c
-@@ -278,4 +278,29 @@ void foo(void)
- 		offsetof (struct itc_jitter_data_t, itc_jitter));
- 	DEFINE(IA64_ITC_LASTCYCLE_OFFSET,
- 		offsetof (struct itc_jitter_data_t, itc_lastcycle));
-+
+diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
+index 78f28d8..9c17a46 100644
+--- a/arch/ia64/kernel/acpi.c
++++ b/arch/ia64/kernel/acpi.c
+@@ -118,6 +118,10 @@ acpi_get_sysname(void)
+ 		return "hpzx1";
+ 	} else if (!strcmp(hdr->oem_id, "SGI")) {
+ 		return "sn2";
 +#ifdef CONFIG_XEN
-+	BLANK();
-+
-+#define DEFINE_MAPPED_REG_OFS(sym, field) \
-+	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(mapped_regs_t, field)))
-+
-+	DEFINE_MAPPED_REG_OFS(XSI_PSR_I_ADDR_OFS, interrupt_mask_addr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IPSR_OFS, ipsr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIP_OFS, iip);
-+	DEFINE_MAPPED_REG_OFS(XSI_IFS_OFS, ifs);
-+	DEFINE_MAPPED_REG_OFS(XSI_PRECOVER_IFS_OFS, precover_ifs);
-+	DEFINE_MAPPED_REG_OFS(XSI_ISR_OFS, isr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IFA_OFS, ifa);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIPA_OFS, iipa);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIM_OFS, iim);
-+	DEFINE_MAPPED_REG_OFS(XSI_IHA_OFS, iha);
-+	DEFINE_MAPPED_REG_OFS(XSI_ITIR_OFS, itir);
-+	DEFINE_MAPPED_REG_OFS(XSI_PSR_IC_OFS, interrupt_collection_enabled);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANKNUM_OFS, banknum);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANK0_R16_OFS, bank0_regs[0]);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANK1_R16_OFS, bank1_regs[0]);
-+	DEFINE_MAPPED_REG_OFS(XSI_B0NATS_OFS, vbnat);
-+	DEFINE_MAPPED_REG_OFS(XSI_B1NATS_OFS, vnat);
-+#endif /* CONFIG_XEN */
- }
-diff --git a/include/asm-ia64/xen/privop.h b/include/asm-ia64/xen/privop.h
++	} else if (is_running_on_xen() && !strcmp(hdr->oem_id, "XEN")) {
++		return "xen";
++#endif
+ 	}
+ 
+ 	return "dig";
+@@ -132,6 +136,8 @@ acpi_get_sysname(void)
+ 	return "sn2";
+ # elif defined (CONFIG_IA64_DIG)
+ 	return "dig";
++# elif defined (CONFIG_IA64_XEN)
++	return "xen";
+ # else
+ #	error Unknown platform.  Fix acpi.c.
+ # endif
+diff --git a/arch/ia64/xen/machvec.c b/arch/ia64/xen/machvec.c
 new file mode 100644
-index 0000000..dd3e5ec
+index 0000000..4ad588a
 --- /dev/null
-+++ b/include/asm-ia64/xen/privop.h
-@@ -0,0 +1,73 @@
-+#ifndef _ASM_IA64_XEN_PRIVOP_H
-+#define _ASM_IA64_XEN_PRIVOP_H
++++ b/arch/ia64/xen/machvec.c
+@@ -0,0 +1,4 @@
++#define MACHVEC_PLATFORM_NAME           xen
++#define MACHVEC_PLATFORM_HEADER         <asm/machvec_xen.h>
++#include <asm/machvec_init.h>
++
+diff --git a/include/asm-ia64/machvec.h b/include/asm-ia64/machvec.h
+index c201a20..cea8d63 100644
+--- a/include/asm-ia64/machvec.h
++++ b/include/asm-ia64/machvec.h
+@@ -120,6 +120,8 @@ extern void machvec_tlb_migrate_finish (struct mm_struct *);
+ #  include <asm/machvec_hpzx1_swiotlb.h>
+ # elif defined (CONFIG_IA64_SGI_SN2)
+ #  include <asm/machvec_sn2.h>
++# elif defined (CONFIG_IA64_XEN)
++#  include <asm/machvec_xen.h>
+ # elif defined (CONFIG_IA64_GENERIC)
+ 
+ # ifdef MACHVEC_PLATFORM_HEADER
+diff --git a/include/asm-ia64/machvec_xen.h b/include/asm-ia64/machvec_xen.h
+new file mode 100644
+index 0000000..ed0f84d
+--- /dev/null
++++ b/include/asm-ia64/machvec_xen.h
+@@ -0,0 +1,22 @@
++#ifndef _ASM_IA64_MACHVEC_XEN_h
++#define _ASM_IA64_MACHVEC_XEN_h
++
++extern ia64_mv_setup_t			xen_setup;
++extern ia64_mv_cpu_init_t		xen_cpu_init;
++extern ia64_mv_irq_init_t		xen_irq_init;
++extern ia64_mv_send_ipi_t		xen_platform_send_ipi;
 +
 +/*
-+ * Copyright (C) 2005 Hewlett-Packard Co
-+ *	Dan Magenheimer <dan.magenheimer@hp.com>
++ * This stuff has dual use!
 + *
-+ * Paravirtualizations of privileged operations for Xen/ia64
-+ *
-+ *
-+ * inline privop and paravirt_alt support
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
++ * For a generic kernel, the macros are used to initialize the
++ * platform's machvec structure.  When compiling a non-generic kernel,
++ * the macros are used directly.
 + */
++#define platform_name				"xen"
++#define platform_setup				xen_setup
++#define platform_cpu_init			xen_cpu_init
++#define platform_irq_init			xen_irq_init
++#define platform_send_ipi			xen_platform_send_ipi
 +
-+#ifndef __ASSEMBLY__
-+#include <linux/types.h>		/* arch-ia64.h requires uint64_t */
-+#include <linux/stringify.h>
-+#endif
-+#include <asm/xen/interface.h>
-+
-+/* At 1 MB, before per-cpu space but still addressable using addl instead
-+   of movl. */
-+#define XSI_BASE			0xfffffffffff00000
-+
-+/* Address of mapped regs.  */
-+#define XMAPPEDREGS_BASE		(XSI_BASE + XSI_SIZE)
-+
-+#ifdef __ASSEMBLY__
-+#define XEN_HYPER_RFI			break HYPERPRIVOP_RFI
-+#define XEN_HYPER_RSM_PSR_DT		break HYPERPRIVOP_RSM_DT
-+#define XEN_HYPER_SSM_PSR_DT		break HYPERPRIVOP_SSM_DT
-+#define XEN_HYPER_COVER			break HYPERPRIVOP_COVER
-+#define XEN_HYPER_ITC_D			break HYPERPRIVOP_ITC_D
-+#define XEN_HYPER_ITC_I			break HYPERPRIVOP_ITC_I
-+#define XEN_HYPER_SSM_I			break HYPERPRIVOP_SSM_I
-+#define XEN_HYPER_GET_IVR		break HYPERPRIVOP_GET_IVR
-+#define XEN_HYPER_GET_TPR		break HYPERPRIVOP_GET_TPR
-+#define XEN_HYPER_SET_TPR		break HYPERPRIVOP_SET_TPR
-+#define XEN_HYPER_EOI			break HYPERPRIVOP_EOI
-+#define XEN_HYPER_SET_ITM		break HYPERPRIVOP_SET_ITM
-+#define XEN_HYPER_THASH			break HYPERPRIVOP_THASH
-+#define XEN_HYPER_PTC_GA		break HYPERPRIVOP_PTC_GA
-+#define XEN_HYPER_ITR_D			break HYPERPRIVOP_ITR_D
-+#define XEN_HYPER_GET_RR		break HYPERPRIVOP_GET_RR
-+#define XEN_HYPER_SET_RR		break HYPERPRIVOP_SET_RR
-+#define XEN_HYPER_SET_KR		break HYPERPRIVOP_SET_KR
-+#define XEN_HYPER_FC			break HYPERPRIVOP_FC
-+#define XEN_HYPER_GET_CPUID		break HYPERPRIVOP_GET_CPUID
-+#define XEN_HYPER_GET_PMD		break HYPERPRIVOP_GET_PMD
-+#define XEN_HYPER_GET_EFLAG		break HYPERPRIVOP_GET_EFLAG
-+#define XEN_HYPER_SET_EFLAG		break HYPERPRIVOP_SET_EFLAG
-+#define XEN_HYPER_GET_PSR		break HYPERPRIVOP_GET_PSR
-+#define XEN_HYPER_SET_RR0_TO_RR4	break HYPERPRIVOP_SET_RR0_TO_RR4
-+
-+#define XSI_IFS				(XSI_BASE + XSI_IFS_OFS)
-+#define XSI_PRECOVER_IFS		(XSI_BASE + XSI_PRECOVER_IFS_OFS)
-+#define XSI_IFA				(XSI_BASE + XSI_IFA_OFS)
-+#define XSI_ISR				(XSI_BASE + XSI_ISR_OFS)
-+#define XSI_IIM				(XSI_BASE + XSI_IIM_OFS)
-+#define XSI_ITIR			(XSI_BASE + XSI_ITIR_OFS)
-+#define XSI_PSR_I_ADDR			(XSI_BASE + XSI_PSR_I_ADDR_OFS)
-+#define XSI_PSR_IC			(XSI_BASE + XSI_PSR_IC_OFS)
-+#define XSI_IPSR			(XSI_BASE + XSI_IPSR_OFS)
-+#define XSI_IIP				(XSI_BASE + XSI_IIP_OFS)
-+#define XSI_B1NAT			(XSI_BASE + XSI_B1NATS_OFS)
-+#define XSI_BANK1_R16			(XSI_BASE + XSI_BANK1_R16_OFS)
-+#define XSI_BANKNUM			(XSI_BASE + XSI_BANKNUM_OFS)
-+#define XSI_IHA				(XSI_BASE + XSI_IHA_OFS)
-+#endif
-+
-+#endif /* _ASM_IA64_XEN_PRIVOP_H */
++#endif /* _ASM_IA64_MACHVEC_XEN_h */
 -- 
 1.5.3
 
