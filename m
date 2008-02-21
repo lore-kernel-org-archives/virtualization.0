@@ -1,18 +1,18 @@
 From: yamahata@valinux.co.jp
-Subject: [PATCH 23/28] ia64/xen: sal paravirtualization.
-Date: Thu, 21 Feb 2008 18:17:54 +0900
-Message-ID: <20080221091905.709559000__27659.3291004703$1203635038$gmane$org@ls.local.valinux.co.jp>
+Subject: [PATCH 27/28] ia64/xen: update Kconfig to allow xen domU Linux
+Date: Thu, 21 Feb 2008 18:17:58 +0900
+Message-ID: <20080221091906.904111000__38069.579008925$1203635186$gmane$org@ls.local.valinux.co.jp>
 References: <20080221091731.641745000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20080221223141.GX17530%yamahata@valinux.co.jp>
+Resent-Message-ID: <20080221223141.GB17530%yamahata@valinux.co.jp>
 Resent-To: linux-ia64@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
         kvm-ia64-devel@lists.sourceforge.net
 Content-Disposition: inline;
-	filename=0023-ia64-xen-sal-paravirtualization.patch
+	filename=0027-ia64-xen-update-Kconfig-to-allow-xen-domU-Linux.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,130 +29,70 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/salinfo.c |   44 ++++++++++++++++++++++++++++++++++++++++++++
- include/asm-ia64/sal.h     |   36 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 80 insertions(+), 0 deletions(-)
+ arch/ia64/Kconfig     |    6 +++++-
+ arch/ia64/xen/Kconfig |   29 +++++++++++++++++++++++++++++
+ 2 files changed, 34 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/Kconfig
 
-diff --git a/arch/ia64/kernel/salinfo.c b/arch/ia64/kernel/salinfo.c
-index 779c3cc..91bc631 100644
---- a/arch/ia64/kernel/salinfo.c
-+++ b/arch/ia64/kernel/salinfo.c
-@@ -378,6 +378,25 @@ salinfo_log_open(struct inode *inode, struct file *file)
- 		data->open = 0;
- 		return -ENOMEM;
- 	}
-+#ifdef CONFIG_XEN
-+	if (is_running_on_xen()) {
-+		ia64_mca_xencomm_t *entry;
-+		unsigned long flags;
-+
-+		entry = vmalloc(sizeof(ia64_mca_xencomm_t));
-+		if (!entry) {
-+			data->open = 0;
-+			vfree(data->log_buffer);
-+			return -ENOMEM;
-+		}
-+		entry->record = data->log_buffer;
-+		entry->handle = xencomm_map(data->log_buffer,
-+					ia64_sal_get_state_info_size(data->type));
-+		spin_lock_irqsave(&ia64_mca_xencomm_lock, flags);
-+		list_add(&entry->list, &ia64_mca_xencomm_list);
-+		spin_unlock_irqrestore(&ia64_mca_xencomm_lock, flags);
-+	}
-+#endif
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index bc84008..31313bc 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -178,7 +178,7 @@ config PARAVIRT_NOP_B_PATCH
+ 	  "br.cond.sptk.many <native_xxx>" and replace it with 'nop.b 0'
+ 	  when running on xen.
  
- 	return 0;
- }
-@@ -389,6 +408,31 @@ salinfo_log_release(struct inode *inode, struct file *file)
- 	struct salinfo_data *data = entry->data;
+-#source "arch/ia64/xen/Kconfig"
++source "arch/ia64/xen/Kconfig"
  
- 	if (data->state == STATE_NO_DATA) {
-+#ifdef CONFIG_XEN
-+		if (is_running_on_xen()) {
-+			struct list_head *pos, *n;
-+			ia64_mca_xencomm_t *found_entry = NULL;
-+			unsigned long flags;
-+
-+			spin_lock_irqsave(&ia64_mca_xencomm_lock, flags);
-+			list_for_each_safe(pos, n, &ia64_mca_xencomm_list) {
-+				ia64_mca_xencomm_t *entry;
-+
-+				entry = list_entry(pos, ia64_mca_xencomm_t,
-+						   list);
-+				if (entry->record == data->log_buffer) {
-+					list_del(&entry->list);
-+					found_entry = entry;
-+					break;
-+				}
-+			}
-+			spin_unlock_irqrestore(&ia64_mca_xencomm_lock, flags);
-+			if (found_entry) {
-+				xencomm_free(found_entry->handle);
-+				vfree(found_entry);
-+			}
-+		}
-+#endif
- 		vfree(data->log_buffer);
- 		vfree(data->oemdata);
- 		data->log_buffer = NULL;
-diff --git a/include/asm-ia64/sal.h b/include/asm-ia64/sal.h
-index 2251118..3c20a58 100644
---- a/include/asm-ia64/sal.h
-+++ b/include/asm-ia64/sal.h
-@@ -42,6 +42,9 @@
- #include <asm/pal.h>
- #include <asm/system.h>
- #include <asm/fpu.h>
-+#ifdef CONFIG_XEN
-+#include <asm/xen/xencomm.h>
-+#endif
+ endif
  
- extern spinlock_t sal_lock;
+@@ -238,6 +238,10 @@ config IA64_HP_SIM
+ 	bool "Ski-simulator"
+ 	select SWIOTLB
  
-@@ -679,10 +682,43 @@ ia64_sal_clear_state_info (u64 sal_info_type)
- /* Get the processor and platform information logged by SAL with respect to the machine
-  * state at the time of the MCAs, INITs, CMCs, or CPEs.
-  */
-+#ifdef CONFIG_XEN
-+static inline u64 ia64_sal_get_state_info_size (u64 sal_info_type);
-+typedef struct ia64_mca_xencomm_t {
-+	void *record;
-+	struct xencomm_handle *handle;
-+	struct list_head list;
-+} ia64_mca_xencomm_t;
-+extern struct list_head ia64_mca_xencomm_list;
-+extern spinlock_t ia64_mca_xencomm_lock;
-+#endif
++config IA64_XEN
++	bool "Xen guest"
++	depends on XEN
 +
- static inline u64
- ia64_sal_get_state_info (u64 sal_info_type, u64 *sal_info)
- {
- 	struct ia64_sal_retval isrv;
-+#ifdef CONFIG_XEN
-+	if (is_running_on_xen()) {
-+		ia64_mca_xencomm_t *entry;
-+		struct xencomm_handle *desc = NULL;
-+		unsigned long flags;
+ endchoice
+ 
+ choice
+diff --git a/arch/ia64/xen/Kconfig b/arch/ia64/xen/Kconfig
+new file mode 100644
+index 0000000..30f54c3
+--- /dev/null
++++ b/arch/ia64/xen/Kconfig
+@@ -0,0 +1,29 @@
++#
++# This Kconfig describes xen/ia64 options
++#
 +
-+		spin_lock_irqsave(&ia64_mca_xencomm_lock, flags);
-+		list_for_each_entry(entry, &ia64_mca_xencomm_list, list) {
-+			if (entry->record == sal_info) {
-+				desc = entry->handle;
-+				break;
-+			}
-+		}
-+		spin_unlock_irqrestore(&ia64_mca_xencomm_lock, flags);
++config XEN
++	bool "Xen hypervisor support"
++	default y
++	select PARAVIRT
++	select PARAVIRT_ALT
++	select PARAVIRT_ENTRY
++	select PARAVIRT_NOP_B_PATCH
++	select XEN_XENCOMM
++	select IA64_XEN
++	help
++	  Enable Xen hypervisor support.  Resulting kernel runs
++	  both as a guest OS on Xen and natively on hardware.
 +
-+		if (desc == NULL)
-+			return 0;
++if XEN
++config XEN_INTERFACE_VERSION
++	hex
++	default 0x00030207
 +
-+		SAL_CALL_REENTRANT(isrv, SAL_GET_STATE_INFO, sal_info_type, 0,
-+				   desc, 0, 0, 0, 0);
-+	} else
-+#endif
- 	SAL_CALL_REENTRANT(isrv, SAL_GET_STATE_INFO, sal_info_type, 0,
- 	              sal_info, 0, 0, 0, 0);
- 	if (isrv.status)
++config XEN_XENCOMM
++	def_bool y
++
++config NO_IDLE_HZ
++	def_bool y
++
++endif
 -- 
 1.5.3
 
