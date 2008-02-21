@@ -1,79 +1,58 @@
-From: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH resend] virtio_net: Fix oops on early interrupts -
-	introduced by virtio reset code
-Date: Wed, 20 Feb 2008 11:51:22 -0500
-Message-ID: <47BC5A8A.3010407__4073.4258750037$1203526424$gmane$org@garzik.org>
-References: <200802111411.15745.borntraeger@de.ibm.com>
-	<47B069E0.9040905@us.ibm.com>
-	<200802181002.51645.borntraeger@de.ibm.com>
+From: Markus Armbruster <armbru@redhat.com>
+Subject: [PATCH 0/2] xen pvfb: Para-virtual framebuffer, keyboard and pointer
+Date: Thu, 21 Feb 2008 10:42:03 +0100
+Message-ID: <871w76ejdg.fsf@pike.pond.sub.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200802181002.51645.borntraeger@de.ibm.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, adaplas@pol.net, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christian Borntraeger wrote:
-> Am Montag, 11. Februar 2008 schrieb Anthony Liguori:
->> The reset support is in Linus's tree so we should try to push it for -rc2.
-> 
-> You are right. My repository was borked. will push it to Jeff Garzik. Thanks
-> 
-> Jeff can you schedule this fix into your network driver updates? Thanks
-> ---
-> 
-> 
-> With the latest virtio_reset patches I got the following oops:
-> 
-> Unable to handle kernel pointer dereference at virtual kernel address 0000000000000000
-> Oops: 0004 [#1] PREEMPT SMP
-> Modules linked in:
-> CPU: 1 Not tainted 2.6.24zlive-guest-10577-g63f5307-dirty #168
-> Process swapper (pid: 0, task: 000000000f866040, ksp: 000000000f86fd78)
-> Krnl PSW : 0404100180000000 000000000047598a (skb_recv_done+0x52/0x98)
->            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:0 CC:1 PM:0 EA:3
-> Krnl GPRS: 0000000000000001 0000000000000000 000000000efd0e60 0000000000000001
->            0000000000000000 000000000f866040 0000000000000000 0000000000000000
->            00000000008de4c8 0000000000001237 0000000000001237 000000000f977dd8
->            0000000000000020 00000000001132bc 000000000f977e08 000000000f977dd8
-> Krnl Code: 000000000047597c: e31040300004       lg      %r1,48(%r4)
->            0000000000475982: b9040001           lgr     %r0,%r1
->            0000000000475986: b9810003           ogr     %r0,%r3
->           >000000000047598a: eb1040300030       csg     %r1,%r0,48(%r4)
->            0000000000475990: a744fff9           brc     4,475982
->            0000000000475994: a7110001           tmll    %r1,1
->            0000000000475998: a7840009           brc     8,4759aa
->            000000000047599c: e340b0b80004       lg      %r4,184(%r11)
-> Call Trace:
-> ([<000001500f978000>] 0x1500f978000)
->  [<00000000004779a6>] vring_interrupt+0x72/0x88
->  [<0000000000491d9c>] kvm_extint_handler+0x34/0x44
->  [<000000000010d2d4>] do_extint+0xc0/0xfc
->  [<0000000000113b5a>] ext_no_vtime+0x1c/0x20
->  [<000000000010a0b6>] cpu_idle+0x21a/0x230
-> ([<000000000010a096>] cpu_idle+0x1fa/0x230)
->  [<000000000057dfe4>] start_secondary+0xa0/0xb4
-> 
-> We must initialize vdev->priv before we use the notify hypercall as 
-> vdev->priv is used in skb_recv_done. So lets move the assignment of 
-> vdev->priv before we call try_fill_recv.
-> 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Acked-by: Anthony Liguori <aliguori@us.ibm.com>
-> 
-> ---
->  drivers/net/virtio_net.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+This is a pair of Xen para-virtual frontend device drivers:
+drivers/video/xen-fbfront.c provides a framebuffer, and
+drivers/input/xen-kbdfront provides keyboard and mouse.
 
-applied
+The backends run in dom0 user space.
+
+I started with the Xen version at
+http://xenbits.xensource.com/linux-2.6.18-xen.hg?rev/ca05cf1a9bdc
+
+Differences to that Xen version, for those who care:
+
+* Rewritten on top of fb deferred I/O
+
+* IRQ handler names visible in /proc and /sys match the driver names.
+
+* Use framebuffer helper functions appropriate for framebuffer in
+  system RAM.
+
+* write() refreshes the framebuffer properly.
+
+* off-by-one height of some screen refreshs fixed.
+
+* Crash when register_framebuffer() fails fixed.
+
+* Test for empty ring in input_handler() fixed.
+
+* Deadlock in xen-kbdfront resume fixed.
+
+* General clean up.
+
+I have a step-by-step patch series from that Xen version to my
+version, if anybody is interested.  Might be useful for reviewers
+familiar with the Xen version.
+
+The patch consists of two parts:
+
+1. fbdev: Make deferred I/O work as advertized
+
+   I need fb deferred I/O, but is utterly broken.  A fix has been
+   floating around on linux-fbdev-devel as part of a larger patch,
+   which as far as I know has not been merged anywhere, yet.  This is
+   just the fix.
+
+2. xen pvfb: Para-virtual framebuffer, keyboard and pointer driver
+
+   The actual drivers.
