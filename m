@@ -1,33 +1,85 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 0/2] xen pvfb: Para-virtual framebuffer,	keyboard and
- pointer
-Date: Thu, 21 Feb 2008 14:33:05 -0800
-Message-ID: <47BDFC21.6010604@goop.org>
-References: <871w76ejdg.fsf@pike.pond.sub.org>	<87hcg2cyti.fsf@pike.pond.sub.org> <47BDD4BF.3000808@goop.org> <871w76ca0i.fsf@pike.pond.sub.org>
+From: yamahata@valinux.co.jp
+Subject: [PATCH 01/28] ia64/xen: introduce ia64_set_rr0_to_rr4() to make
+	kernel paravirtualization friendly.
+Date: Thu, 21 Feb 2008 18:17:32 +0900
+Message-ID: <20080221091859.088174000__27237.3702297502$1203633596$gmane$org@ls.local.valinux.co.jp>
+References: <20080221091731.641745000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1765918AbYBUWge@vger.kernel.org>
-In-Reply-To: <871w76ca0i.fsf@pike.pond.sub.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Markus Armbruster <armbru@redhat.com>
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Resent-Message-ID: <20080221223141.GB17530%yamahata@valinux.co.jp>
+Resent-To: linux-ia64@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        kvm-ia64-devel@lists.sourceforge.net
+Content-Disposition: inline;
+	filename=0001-ia64-xen-introduce-ia64_set_rr0_to_rr4-to-make-ke.patch
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-ia64@vger.kernel.org
+Cc: xen-ia64-devel@lists.xensource.com, kvm-ia64-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Markus Armbruster wrote:
-> Here's the description again:
->
->     Frontends are expected to write their protocol ABI to xenstore.  Since
->     the protocol ABI defaults to the backend's native ABI, things work
->     fine without that as long as the frontend's native ABI is identical to
->     the backend's native ABI.  This is not the case for xen-blkfront
->     running 32-on-64, because its ABI differs between 32 and 64 bit, and
->     thus needs this fix.
->
-> I can break the dependency by putting the same bug that is now in
-> xen-blkfront into xen-fbfront and xen-kbdfront.
->   
+ia64/Xen will replace setting rr[0-4] with single hypercall later.
 
-Right, I see.  The dependency is on the protocols.h changes.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ include/asm-ia64/intrinsics.h  |   10 ++++++++++
+ include/asm-ia64/mmu_context.h |    6 +-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-    J
+diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
+index f1135b5..c206755 100644
+--- a/include/asm-ia64/intrinsics.h
++++ b/include/asm-ia64/intrinsics.h
+@@ -18,6 +18,15 @@
+ # include <asm/gcc_intrin.h>
+ #endif
+ 
++#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
++do {								\
++	ia64_set_rr(0x0000000000000000UL, (val0));		\
++	ia64_set_rr(0x2000000000000000UL, (val1));		\
++	ia64_set_rr(0x4000000000000000UL, (val2));		\
++	ia64_set_rr(0x6000000000000000UL, (val3));		\
++	ia64_set_rr(0x8000000000000000UL, (val4));		\
++} while (0)
++
+ /*
+  * Force an unresolved reference if someone tries to use
+  * ia64_fetch_and_add() with a bad value.
+@@ -183,4 +192,5 @@ extern long ia64_cmpxchg_called_with_bad_pointer (void);
+ #endif /* !CONFIG_IA64_DEBUG_CMPXCHG */
+ 
+ #endif
++#include <asm/privop.h>
+ #endif /* _ASM_IA64_INTRINSICS_H */
+diff --git a/include/asm-ia64/mmu_context.h b/include/asm-ia64/mmu_context.h
+index cef2400..040bc87 100644
+--- a/include/asm-ia64/mmu_context.h
++++ b/include/asm-ia64/mmu_context.h
+@@ -152,11 +152,7 @@ reload_context (nv_mm_context_t context)
+ #  endif
+ #endif
+ 
+-	ia64_set_rr(0x0000000000000000UL, rr0);
+-	ia64_set_rr(0x2000000000000000UL, rr1);
+-	ia64_set_rr(0x4000000000000000UL, rr2);
+-	ia64_set_rr(0x6000000000000000UL, rr3);
+-	ia64_set_rr(0x8000000000000000UL, rr4);
++	ia64_set_rr0_to_rr4(rr0, rr1, rr2, rr3, rr4);
+ 	ia64_srlz_i();			/* srlz.i implies srlz.d */
+ }
+ 
+-- 
+1.5.3
+
+-- 
+yamahata
