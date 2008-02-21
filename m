@@ -1,18 +1,19 @@
 From: yamahata@valinux.co.jp
-Subject: [PATCH 11/28] ia64: introduce basic facilities for binary patching.
-Date: Thu, 21 Feb 2008 18:17:42 +0900
-Message-ID: <20080221091902.112427000__6239.32242529026$1203635209$gmane$org@ls.local.valinux.co.jp>
+Subject: [PATCH 19/28] ia64/xen: xen domU irq chip introducing some helper
+	functions, xen_send_ipi.
+Date: Thu, 21 Feb 2008 18:17:50 +0900
+Message-ID: <20080221091904.517166000__4489.13267250663$1203635222$gmane$org@ls.local.valinux.co.jp>
 References: <20080221091731.641745000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20080221223141.GL17530%yamahata@valinux.co.jp>
+Resent-Message-ID: <20080221223141.GT17530%yamahata@valinux.co.jp>
 Resent-To: linux-ia64@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
         kvm-ia64-devel@lists.sourceforge.net
 Content-Disposition: inline;
-	filename=0011-ia64-introduce-basic-facilities-for-binary-patching.patch
+	filename=0019-ia64-xen-xen-domU-irq-chip-introducing-some-helper.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -29,949 +30,521 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/Kconfig                 |   72 +++++++++++++
- arch/ia64/kernel/Makefile         |    5 +
- arch/ia64/kernel/paravirt_alt.c   |  118 ++++++++++++++++++++++
- arch/ia64/kernel/paravirt_core.c  |  201 +++++++++++++++++++++++++++++++++++++
- arch/ia64/kernel/paravirt_entry.c |   99 ++++++++++++++++++
- arch/ia64/kernel/paravirt_nop.c   |   49 +++++++++
- arch/ia64/kernel/vmlinux.lds.S    |   35 +++++++
- include/asm-ia64/module.h         |    6 +
- include/asm-ia64/paravirt_alt.h   |   82 +++++++++++++++
- include/asm-ia64/paravirt_core.h  |   54 ++++++++++
- include/asm-ia64/paravirt_entry.h |   62 +++++++++++
- include/asm-ia64/paravirt_nop.h   |   46 +++++++++
- 12 files changed, 829 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirt_alt.c
- create mode 100644 arch/ia64/kernel/paravirt_core.c
- create mode 100644 arch/ia64/kernel/paravirt_entry.c
- create mode 100644 arch/ia64/kernel/paravirt_nop.c
- create mode 100644 include/asm-ia64/paravirt_alt.h
- create mode 100644 include/asm-ia64/paravirt_core.h
- create mode 100644 include/asm-ia64/paravirt_entry.h
- create mode 100644 include/asm-ia64/paravirt_nop.h
+ arch/ia64/kernel/irq_ia64.c |  363 ++++++++++++++++++++++++++++++++++++++++++-
+ arch/ia64/xen/hypercall.S   |   10 ++
+ include/asm-ia64/hw_irq.h   |   10 ++
+ include/asm-ia64/irq.h      |   33 ++++
+ 4 files changed, 414 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-index dff9edf..bc84008 100644
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -110,6 +110,78 @@ config AUDIT_ARCH
- 	bool
- 	default y
+diff --git a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
+index 0b52f19..b5dcb49 100644
+--- a/arch/ia64/kernel/irq_ia64.c
++++ b/arch/ia64/kernel/irq_ia64.c
+@@ -30,6 +30,9 @@
+ #include <linux/threads.h>
+ #include <linux/bitops.h>
+ #include <linux/irq.h>
++#ifdef CONFIG_XEN
++#include <linux/cpu.h>
++#endif
  
-+menuconfig PARAVIRT_GUEST
-+	bool "Paravirtualized guest support"
-+	help
-+	  Say Y here to get to see options related to running Linux under
-+	  various hypervisors.  This option alone does not add any kernel code.
-+
-+	  If you say N, all options in this submenu will be skipped and disabled.
-+
-+if PARAVIRT_GUEST
-+
-+config PARAVIRT
-+	bool
-+	default y
-+	help
-+	  This changes the kernel so it can modify itself when it is run
-+	  under a hypervisor, potentially improving performance significantly
-+	  over full virtualization.  However, when run without a hypervisor
-+	  the kernel is theoretically slower and slightly larger.
-+
-+config PARAVIRT_ALT
-+	bool "paravirt_alt binary patching infrastructure"
-+	depends on PARAVIRT
-+	default y
-+	help
-+	  The binary patching infratstructure to replace some privileged
-+	  instructions with hypervisor specific instrutions.
-+	  There are several sensitive(i.e. non-virtualizable) instructions and
-+	  performance critical privileged instructions which Xen
-+	  paravirtualize as hyperprivops.
-+	  For transparent paravirtualization (i.e. single binary should run
-+	  on both baremetal and xen environment), xenLinux/IA64 needs
-+	  something like "if (is_running_on_xen()) {} else {}" where
-+	  is_running_on_xen() is determined at boot time.
-+	  This configuration tries to eliminate the overheads for hyperprivops
-+	  by annotating such instructions and replacing them with hyperprivops
-+	  at boot time.
-+
-+config PARAVIRT_ENTRY
-+	bool "paravirt entry"
-+	depends on PARAVIRT
-+	default y
-+	help
-+	  The entry point hooking infrastructure to change the execution path
-+	  at the boot time.
-+	  There are several paravirtualized paths in hand coded assembly code
-+	  which isn't binary patched easily by the paravirt_alt infrastructure.
-+	  E.g. ia64_switch_to, ia64_leave_syscall, ia64_leave_kernel and
-+	  ia64_pal_call_static.
-+	  For those hand written assembly code, change the execution path
-+	  by hooking them and jumping to hand paravirtualized code.
-+
-+config PARAVIRT_NOP_B_PATCH
-+	bool "paravirt branch if native"
-+	depends on PARAVIRT
-+	default y
-+	help
-+	  paravirt branch if native
-+	  There are several paravirtualized paths in hand coded assembly code.
-+	  For transparent paravirtualization, there are codes like
-+	  GLOBAL_ENTRY(xen_xxx)
-+	  'movl reg=running_on_xen;;'
-+	  'ld4 reg=[reg];;'
-+	  'cmp.e1 pred,p0=reg,r0'
-+	  '(pred) br.cond.sptk.many <native_xxx>;;'
-+	  To reduce overhead when running on bare metal, just
-+	  "br.cond.sptk.many <native_xxx>" and replace it with 'nop.b 0'
-+	  when running on xen.
-+
-+#source "arch/ia64/xen/Kconfig"
-+
-+endif
-+
- choice
- 	prompt "System type"
- 	default IA64_GENERIC
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index 33e5a59..d0e22bb 100644
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -36,6 +36,11 @@ obj-$(CONFIG_PCI_MSI)		+= msi_ia64.o
- mca_recovery-y			+= mca_drv.o mca_drv_asm.o
- obj-$(CONFIG_IA64_MC_ERR_INJECT)+= err_inject.o
+ #include <asm/delay.h>
+ #include <asm/intrinsics.h>
+@@ -204,6 +207,13 @@ assign_irq_vector (int irq)
  
-+obj-$(CONFIG_PARAVIRT)		+= paravirt_core.o
-+obj-$(CONFIG_PARAVIRT_ALT)	+= paravirt_alt.o
-+obj-$(CONFIG_PARAVIRT_ENTRY)	+= paravirt_entry.o paravirtentry.o
-+obj-$(CONFIG_PARAVIRT_NOP_B_PATCH) += paravirt_nop.o
-+
- obj-$(CONFIG_IA64_ESI)		+= esi.o
- ifneq ($(CONFIG_IA64_ESI),)
- obj-y				+= esi_stub.o	# must be in kernel proper
-diff --git a/arch/ia64/kernel/paravirt_alt.c b/arch/ia64/kernel/paravirt_alt.c
-new file mode 100644
-index 0000000..d0a34a7
---- /dev/null
-+++ b/arch/ia64/kernel/paravirt_alt.c
-@@ -0,0 +1,118 @@
-+/******************************************************************************
-+ * linux/arch/ia64/xen/paravirt_alt.c
-+ *
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <asm/paravirt_core.h>
-+
-+extern const char nop_bundle[];
-+extern const unsigned long nop_bundle_size;
-+
-+static void __init_or_module
-+fill_nop(void *sbundle, void *ebundle)
-+{
-+	void *bundle = sbundle;
-+	BUG_ON((((unsigned long)sbundle) % sizeof(bundle_t)) != 0);
-+	BUG_ON((((unsigned long)ebundle) % sizeof(bundle_t)) != 0);
-+
-+	while (bundle < ebundle) {
-+		memcpy(bundle, nop_bundle, nop_bundle_size);
-+
-+		bundle += nop_bundle_size;
+ 	vector = -ENOSPC;
+ 
++#ifdef CONFIG_XEN
++	if (is_running_on_xen()) {
++		extern int xen_assign_irq_vector(int);
++		return xen_assign_irq_vector(irq);
 +	}
-+}
-+
-+void __init_or_module
-+paravirt_alt_bundle_patch_apply(struct paravirt_alt_bundle_patch *start,
-+				struct paravirt_alt_bundle_patch *end,
-+				unsigned long(*patch)(void *sbundle,
-+						      void *ebundle,
-+						      unsigned long type))
-+{
-+	struct paravirt_alt_bundle_patch *p;
-+
-+	for (p = start; p < end; p++) {
-+		unsigned long used;
-+
-+		used = (*patch)(p->sbundle, p->ebundle, p->type);
-+		if (used == 0)
-+			continue;
-+
-+		fill_nop(p->sbundle + used, p->ebundle);
-+		paravirt_flush_i_cache_range(p->sbundle,
-+					     p->ebundle - p->sbundle);
-+	}
-+	ia64_sync_i();
-+	ia64_srlz_i();
-+}
-+
-+/*
-+ * nop.i, nop.m, nop.f instruction are same format.
-+ * but nop.b has differennt format.
-+ * This doesn't support nop.b for now.
-+ */
-+static void __init_or_module
-+fill_nop_inst(unsigned long stag, unsigned long etag)
-+{
-+	extern const bundle_t nop_mfi_inst_bundle[];
-+	unsigned long tag;
-+	const cmp_inst_t nop_inst = paravirt_read_slot0(nop_mfi_inst_bundle);
-+
-+	for (tag = stag; tag < etag; tag = paravirt_get_next_tag(tag))
-+		paravirt_write_inst(tag, nop_inst);
-+}
-+
-+void __init_or_module
-+paravirt_alt_inst_patch_apply(struct paravirt_alt_inst_patch *start,
-+			      struct paravirt_alt_inst_patch *end,
-+			      unsigned long (*patch)(unsigned long stag,
-+						     unsigned long etag,
-+						     unsigned long type))
-+{
-+	struct paravirt_alt_inst_patch *p;
-+
-+	for (p = start; p < end; p++) {
-+		unsigned long tag;
-+		bundle_t *sbundle;
-+		bundle_t *ebundle;
-+
-+		tag = (*patch)(p->stag, p->etag, p->type);
-+		if (tag == p->stag)
-+			continue;
-+
-+		fill_nop_inst(tag, p->etag);
-+		sbundle = paravirt_get_bundle(p->stag);
-+		ebundle = paravirt_get_bundle(p->etag) + 1;
-+		paravirt_flush_i_cache_range(sbundle, (ebundle - sbundle) *
-+					     sizeof(bundle_t));
-+	}
-+	ia64_sync_i();
-+	ia64_srlz_i();
-+}
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/arch/ia64/kernel/paravirt_core.c b/arch/ia64/kernel/paravirt_core.c
-new file mode 100644
-index 0000000..6b7c70f
---- /dev/null
-+++ b/arch/ia64/kernel/paravirt_core.c
-@@ -0,0 +1,201 @@
-+/******************************************************************************
-+ * linux/arch/ia64/xen/paravirt_core.c
-+ *
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <asm/paravirt_core.h>
-+
-+/*
-+ * flush_icache_range() can't be used here.
-+ * we are here before cpu_init() which initializes
-+ * ia64_i_cache_stride_shift. flush_icache_range() uses it.
-+ */
-+void __init_or_module
-+paravirt_flush_i_cache_range(const void *instr, unsigned long size)
-+{
-+	unsigned long i;
-+
-+	for (i = 0; i < size; i += sizeof(bundle_t))
-+		asm volatile ("fc.i %0":: "r"(instr + i): "memory");
-+}
-+
-+bundle_t* __init_or_module
-+paravirt_get_bundle(unsigned long tag)
-+{
-+	return (bundle_t *)(tag & ~3UL);
-+}
-+
-+unsigned long __init_or_module
-+paravirt_get_slot(unsigned long tag)
-+{
-+	return tag & 3UL;
-+}
-+
-+#if 0
-+unsigned long __init_or_module
-+paravirt_get_num_inst(unsigned long stag, unsigned long etag)
-+{
-+	bundle_t *sbundle = paravirt_get_bundle(stag);
-+	unsigned long sslot = paravirt_get_slot(stag);
-+	bundle_t *ebundle = paravirt_get_bundle(etag);
-+	unsigned long eslot = paravirt_get_slot(etag);
-+
-+	return (ebundle - sbundle) * 3 + eslot - sslot + 1;
-+}
 +#endif
 +
-+unsigned long __init_or_module
-+paravirt_get_next_tag(unsigned long tag)
-+{
-+	unsigned long slot = paravirt_get_slot(tag);
+ 	spin_lock_irqsave(&vector_lock, flags);
+ 	for_each_online_cpu(cpu) {
+ 		domain = vector_allocation_domain(cpu);
+@@ -227,6 +237,14 @@ free_irq_vector (int vector)
+ 	if (vector < IA64_FIRST_DEVICE_VECTOR ||
+ 	    vector > IA64_LAST_DEVICE_VECTOR)
+ 		return;
 +
-+	switch (slot) {
-+	case 0:
-+	case 1:
-+		return tag + 1;
-+	case 2: {
-+		bundle_t *bundle = paravirt_get_bundle(tag);
-+		return (unsigned long)(bundle + 1);
++#ifdef CONFIG_XEN
++	if (is_running_on_xen()) {
++		extern void xen_free_irq_vector(int);
++		xen_free_irq_vector(vector);
++		return;
 +	}
-+	default:
-+		BUG();
-+	}
-+	/* NOTREACHED */
-+}
++#endif
+ 	clear_irq_vector(vector);
+ }
+ 
+@@ -555,12 +573,343 @@ static struct irqaction tlb_irqaction = {
+ 
+ #endif
+ 
++#ifdef CONFIG_XEN
++#include <xen/events.h>
++#include <xen/interface/callback.h>
 +
-+cmp_inst_t __init_or_module
-+paravirt_read_slot0(const bundle_t *bundle)
++static DEFINE_PER_CPU(int, timer_irq) = -1;
++static DEFINE_PER_CPU(int, ipi_irq) = -1;
++static DEFINE_PER_CPU(int, resched_irq) = -1;
++static DEFINE_PER_CPU(int, cmc_irq) = -1;
++static DEFINE_PER_CPU(int, cmcp_irq) = -1;
++static DEFINE_PER_CPU(int, cpep_irq) = -1;
++static char timer_name[NR_CPUS][15];
++static char ipi_name[NR_CPUS][15];
++static char resched_name[NR_CPUS][15];
++static char cmc_name[NR_CPUS][15];
++static char cmcp_name[NR_CPUS][15];
++static char cpep_name[NR_CPUS][15];
++
++struct saved_irq {
++	unsigned int irq;
++	struct irqaction *action;
++};
++/* 16 should be far optimistic value, since only several percpu irqs
++ * are registered early.
++ */
++#define MAX_LATE_IRQ	16
++static struct saved_irq saved_percpu_irqs[MAX_LATE_IRQ];
++static unsigned short late_irq_cnt = 0;
++static unsigned short saved_irq_cnt = 0;
++static int xen_slab_ready = 0;
++
++#ifdef CONFIG_SMP
++/* Dummy stub. Though we may check RESCHEDULE_VECTOR before __do_IRQ,
++ * it ends up to issue several memory accesses upon percpu data and
++ * thus adds unnecessary traffic to other paths.
++ */
++static irqreturn_t
++xen_dummy_handler(int irq, void *dev_id)
 +{
-+	cmp_inst_t inst;
-+	inst.l = bundle->quad0.slot0;
-+	return inst;
++
++	return IRQ_HANDLED;
 +}
 +
-+cmp_inst_t __init_or_module
-+paravirt_read_slot1(const bundle_t *bundle)
-+{
-+	cmp_inst_t inst;
-+	inst.l = bundle->quad0.slot1_p0 |
-+		((unsigned long long)bundle->quad1.slot1_p1 << 18UL);
-+	return inst;
-+}
++static struct irqaction xen_resched_irqaction = {
++	.handler =	xen_dummy_handler,
++	.flags =	IRQF_DISABLED,
++	.name =		"resched"
++};
 +
-+cmp_inst_t __init_or_module
-+paravirt_read_slot2(const bundle_t *bundle)
-+{
-+	cmp_inst_t inst;
-+	inst.l = bundle->quad1.slot2;
-+	return inst;
-+}
-+
-+cmp_inst_t __init_or_module
-+paravirt_read_inst(unsigned long tag)
-+{
-+	bundle_t *bundle = paravirt_get_bundle(tag);
-+	unsigned long slot = paravirt_get_slot(tag);
-+
-+	switch (slot) {
-+	case 0:
-+		return paravirt_read_slot0(bundle);
-+	case 1:
-+		return paravirt_read_slot1(bundle);
-+	case 2:
-+		return paravirt_read_slot2(bundle);
-+	default:
-+		BUG();
-+	}
-+	/* NOTREACHED */
-+}
-+
-+void __init_or_module
-+paravirt_write_slot0(bundle_t *bundle, cmp_inst_t inst)
-+{
-+	bundle->quad0.slot0 = inst.l;
-+}
-+
-+void __init_or_module
-+paravirt_write_slot1(bundle_t *bundle, cmp_inst_t inst)
-+{
-+	bundle->quad0.slot1_p0 = inst.l;
-+	bundle->quad1.slot1_p1 = inst.l >> 18UL;
-+}
-+
-+void __init_or_module
-+paravirt_write_slot2(bundle_t *bundle, cmp_inst_t inst)
-+{
-+	bundle->quad1.slot2 = inst.l;
-+}
-+
-+void __init_or_module
-+paravirt_write_inst(unsigned long tag, cmp_inst_t inst)
-+{
-+	bundle_t *bundle = paravirt_get_bundle(tag);
-+	unsigned long slot = paravirt_get_slot(tag);
-+
-+	switch (slot) {
-+	case 0:
-+		paravirt_write_slot0(bundle, inst);
-+		break;
-+	case 1:
-+		paravirt_write_slot1(bundle, inst);
-+		break;
-+	case 2:
-+		paravirt_write_slot2(bundle, inst);
-+		break;
-+	default:
-+		BUG();
-+	}
-+	paravirt_flush_i_cache_range(bundle, sizeof(*bundle));
-+}
-+
-+/* for debug */
-+void
-+print_bundle(const bundle_t *bundle)
-+{
-+	const unsigned long *quad = (const unsigned long *)bundle;
-+	cmp_inst_t slot0 = paravirt_read_slot0(bundle);
-+	cmp_inst_t slot1 = paravirt_read_slot1(bundle);
-+	cmp_inst_t slot2 = paravirt_read_slot2(bundle);
-+
-+	printk(KERN_DEBUG
-+	       "bundle 0x%p 0x%016lx 0x%016lx\n", bundle, quad[0], quad[1]);
-+	printk(KERN_DEBUG
-+	       "bundle template 0x%x\n",
-+	       bundle->quad0.template);
-+	printk(KERN_DEBUG
-+	       "slot0 0x%lx slot1_p0 0x%lx slot1_p1 0x%lx slot2 0x%lx\n",
-+	       (unsigned long)bundle->quad0.slot0,
-+	       (unsigned long)bundle->quad0.slot1_p0,
-+	       (unsigned long)bundle->quad1.slot1_p1,
-+	       (unsigned long)bundle->quad1.slot2);
-+	printk(KERN_DEBUG
-+	       "slot0 0x%016llx slot1 0x%016llx slot2 0x%016llx\n",
-+	       slot0.l, slot1.l, slot2.l);
-+}
++static struct irqaction xen_tlb_irqaction = {
++	.handler =	xen_dummy_handler,
++	.flags =	IRQF_DISABLED,
++	.name =		"tlb_flush"
++};
++#endif
 +
 +/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
++ * This is xen version percpu irq registration, which needs bind
++ * to xen specific evtchn sub-system. One trick here is that xen
++ * evtchn binding interface depends on kmalloc because related
++ * port needs to be freed at device/cpu down. So we cache the
++ * registration on BSP before slab is ready and then deal them
++ * at later point. For rest instances happening after slab ready,
++ * we hook them to xen evtchn immediately.
++ *
++ * FIXME: MCA is not supported by far, and thus "nomca" boot param is
++ * required.
 + */
-diff --git a/arch/ia64/kernel/paravirt_entry.c b/arch/ia64/kernel/paravirt_entry.c
-new file mode 100644
-index 0000000..708287a
---- /dev/null
-+++ b/arch/ia64/kernel/paravirt_entry.c
-@@ -0,0 +1,99 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <asm/paravirt_core.h>
-+#include <asm/paravirt_entry.h>
-+
-+/* br.cond.sptk.many <target25>	B1 */
-+typedef union inst_b1 {
-+	cmp_inst_t inst;
-+	struct {
-+		unsigned long qp: 6;
-+		unsigned long btype: 3;
-+		unsigned long unused: 3;
-+		unsigned long p: 1;
-+		unsigned long imm20b: 20;
-+		unsigned long wh: 2;
-+		unsigned long d: 1;
-+		unsigned long s: 1;
-+		unsigned long opcode: 4;
-+	};
-+	unsigned long l;
-+} inst_b1_t;
-+
-+static void __init
-+__paravirt_entry_apply(unsigned long tag, const void *target)
++static void
++xen_register_percpu_irq(unsigned int cpu, unsigned int vec,
++			 struct irqaction *action, int save)
 +{
-+	bundle_t *bundle = paravirt_get_bundle(tag);
-+	cmp_inst_t inst = paravirt_read_inst(tag);
-+	unsigned long target25 = (unsigned long)target - (unsigned long)bundle;
-+	inst_b1_t inst_b1;
++	irq_desc_t *desc;
++	int irq = 0;
 +
-+	inst_b1.l = inst.l;
-+	if (target25 & (1UL << 63))
-+		inst_b1.s = 1;
-+	else
-+		inst_b1.s = 0;
-+
-+	inst_b1.imm20b = target25 >> 4;
-+	inst.l = inst_b1.l;
-+
-+	paravirt_write_inst(tag, inst);
-+	paravirt_flush_i_cache_range(bundle, sizeof(*bundle));
-+}
-+
-+static void __init
-+paravirt_entry_apply(const struct paravirt_entry_patch *entry_patch,
-+		     const struct paravirt_entry *entries,
-+		     unsigned int nr_entries)
-+{
-+	unsigned int i;
-+	for (i = 0; i < nr_entries; i++) {
-+		if (entry_patch->type == entries[i].type) {
-+			__paravirt_entry_apply(entry_patch->tag,
-+					       entries[i].entry);
++	if (xen_slab_ready) {
++		switch (vec) {
++		case IA64_TIMER_VECTOR:
++			sprintf(timer_name[cpu], "%s%d", action->name, cpu);
++			irq = bind_virq_to_irqhandler(VIRQ_ITC, cpu,
++				action->handler, action->flags,
++				timer_name[cpu], action->dev_id);
++			per_cpu(timer_irq, cpu) = irq;
++			break;
++		case IA64_IPI_RESCHEDULE:
++			sprintf(resched_name[cpu], "%s%d", action->name, cpu);
++			irq = bind_ipi_to_irqhandler(RESCHEDULE_VECTOR, cpu,
++				action->handler, action->flags,
++				resched_name[cpu], action->dev_id);
++			per_cpu(resched_irq, cpu) = irq;
++			break;
++		case IA64_IPI_VECTOR:
++			sprintf(ipi_name[cpu], "%s%d", action->name, cpu);
++			irq = bind_ipi_to_irqhandler(IPI_VECTOR, cpu,
++				action->handler, action->flags,
++				ipi_name[cpu], action->dev_id);
++			per_cpu(ipi_irq, cpu) = irq;
++			break;
++		case IA64_CMC_VECTOR:
++			sprintf(cmc_name[cpu], "%s%d", action->name, cpu);
++			irq = bind_virq_to_irqhandler(VIRQ_MCA_CMC, cpu,
++						      action->handler,
++						      action->flags,
++						      cmc_name[cpu],
++						      action->dev_id);
++			per_cpu(cmc_irq, cpu) = irq;
++			break;
++		case IA64_CMCP_VECTOR:
++			sprintf(cmcp_name[cpu], "%s%d", action->name, cpu);
++			irq = bind_ipi_to_irqhandler(CMCP_VECTOR, cpu,
++						     action->handler,
++						     action->flags,
++						     cmcp_name[cpu],
++						     action->dev_id);
++			per_cpu(cmcp_irq, cpu) = irq;
++			break;
++		case IA64_CPEP_VECTOR:
++			sprintf(cpep_name[cpu], "%s%d", action->name, cpu);
++			irq = bind_ipi_to_irqhandler(CPEP_VECTOR, cpu,
++						     action->handler,
++						     action->flags,
++						     cpep_name[cpu],
++						     action->dev_id);
++			per_cpu(cpep_irq, cpu) = irq;
++			break;
++		case IA64_CPE_VECTOR:
++		case IA64_MCA_RENDEZ_VECTOR:
++		case IA64_PERFMON_VECTOR:
++		case IA64_MCA_WAKEUP_VECTOR:
++		case IA64_SPURIOUS_INT_VECTOR:
++			/* No need to complain, these aren't supported. */
++			break;
++		default:
++			printk(KERN_WARNING "Percpu irq %d is unsupported "
++			       "by xen!\n", vec);
 +			break;
 +		}
++		BUG_ON(irq < 0);
++
++		if (irq > 0) {
++			/*
++			 * Mark percpu.  Without this, migrate_irqs() will
++			 * mark the interrupt for migrations and trigger it
++			 * on cpu hotplug.
++			 */
++			desc = irq_desc + irq;
++			desc->status |= IRQ_PER_CPU;
++		}
 +	}
++
++	/* For BSP, we cache registered percpu irqs, and then re-walk
++	 * them when initializing APs
++	 */
++	if (!cpu && save) {
++		BUG_ON(saved_irq_cnt == MAX_LATE_IRQ);
++		saved_percpu_irqs[saved_irq_cnt].irq = vec;
++		saved_percpu_irqs[saved_irq_cnt].action = action;
++		saved_irq_cnt++;
++		if (!xen_slab_ready)
++			late_irq_cnt++;
++	}
++}
++
++static void
++xen_bind_early_percpu_irq(void)
++{
++	int i;
++
++	xen_slab_ready = 1;
++	/* There's no race when accessing this cached array, since only
++	 * BSP will face with such step shortly
++	 */
++	for (i = 0; i < late_irq_cnt; i++)
++		xen_register_percpu_irq(smp_processor_id(),
++					saved_percpu_irqs[i].irq,
++					saved_percpu_irqs[i].action, 0);
++}
++
++/* FIXME: There's no obvious point to check whether slab is ready. So
++ * a hack is used here by utilizing a late time hook.
++ */
++extern void (*late_time_init)(void);
++extern char xen_event_callback;
++extern void xen_init_IRQ(void);
++
++#ifdef CONFIG_HOTPLUG_CPU
++static int __devinit
++unbind_evtchn_callback(struct notifier_block *nfb,
++		       unsigned long action, void *hcpu)
++{
++	unsigned int cpu = (unsigned long)hcpu;
++
++	if (action == CPU_DEAD) {
++		/* Unregister evtchn.  */
++		if (per_cpu(cpep_irq, cpu) >= 0) {
++			unbind_from_irqhandler(per_cpu(cpep_irq, cpu), NULL);
++			per_cpu(cpep_irq, cpu) = -1;
++		}
++		if (per_cpu(cmcp_irq, cpu) >= 0) {
++			unbind_from_irqhandler(per_cpu(cmcp_irq, cpu), NULL);
++			per_cpu(cmcp_irq, cpu) = -1;
++		}
++		if (per_cpu(cmc_irq, cpu) >= 0) {
++			unbind_from_irqhandler(per_cpu(cmc_irq, cpu), NULL);
++			per_cpu(cmc_irq, cpu) = -1;
++		}
++		if (per_cpu(ipi_irq, cpu) >= 0) {
++			unbind_from_irqhandler(per_cpu(ipi_irq, cpu), NULL);
++			per_cpu(ipi_irq, cpu) = -1;
++		}
++		if (per_cpu(resched_irq, cpu) >= 0) {
++			unbind_from_irqhandler(per_cpu(resched_irq, cpu),
++						NULL);
++			per_cpu(resched_irq, cpu) = -1;
++		}
++		if (per_cpu(timer_irq, cpu) >= 0) {
++			unbind_from_irqhandler(per_cpu(timer_irq, cpu), NULL);
++			per_cpu(timer_irq, cpu) = -1;
++		}
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block unbind_evtchn_notifier = {
++	.notifier_call = unbind_evtchn_callback,
++	.priority = 0
++};
++#endif
++
++DECLARE_PER_CPU(int, ipi_to_irq[NR_IPIS]);
++void xen_smp_intr_init_early(unsigned int cpu)
++{
++#ifdef CONFIG_SMP
++	unsigned int i;
++
++	for (i = 0; i < saved_irq_cnt; i++)
++		xen_register_percpu_irq(cpu, saved_percpu_irqs[i].irq,
++					saved_percpu_irqs[i].action, 0);
++#endif
++}
++
++void xen_smp_intr_init(void)
++{
++#ifdef CONFIG_SMP
++	unsigned int cpu = smp_processor_id();
++	struct callback_register event = {
++		.type = CALLBACKTYPE_event,
++		.address = (unsigned long)&xen_event_callback,
++	};
++
++	if (cpu == 0) {
++		/* Initialization was already done for boot cpu.  */
++#ifdef CONFIG_HOTPLUG_CPU
++		/* Register the notifier only once.  */
++		register_cpu_notifier(&unbind_evtchn_notifier);
++#endif
++		return;
++	}
++
++	/* This should be piggyback when setup vcpu guest context */
++	BUG_ON(HYPERVISOR_callback_op(CALLBACKOP_register, &event));
++#endif /* CONFIG_SMP */
 +}
 +
 +void __init
-+paravirt_entry_patch_apply(const struct paravirt_entry_patch *start,
-+			   const struct paravirt_entry_patch *end,
-+			   const struct paravirt_entry *entries,
-+			   unsigned int nr_entries)
++xen_irq_init(void)
 +{
-+	const struct paravirt_entry_patch *p;
-+	for (p = start; p < end; p++)
-+		paravirt_entry_apply(p, entries, nr_entries);
++	struct callback_register event = {
++		.type = CALLBACKTYPE_event,
++		.address = (unsigned long)&xen_event_callback,
++	};
 +
-+	ia64_sync_i();
-+	ia64_srlz_i();
++	xen_init_IRQ();
++	BUG_ON(HYPERVISOR_callback_op(CALLBACKOP_register, &event));
++	late_time_init = xen_bind_early_percpu_irq;
 +}
 +
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/arch/ia64/kernel/paravirt_nop.c b/arch/ia64/kernel/paravirt_nop.c
-new file mode 100644
-index 0000000..ee5a204
---- /dev/null
-+++ b/arch/ia64/kernel/paravirt_nop.c
-@@ -0,0 +1,49 @@
-+/******************************************************************************
-+ * linux/arch/ia64/xen/paravirt_nop.c
-+ *
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <asm/paravirt_core.h>
-+#include <asm/paravirt_nop.h>
-+
-+void __init_or_module
-+paravirt_nop_b_patch_apply(const struct paravirt_nop_patch *start,
-+			   const struct paravirt_nop_patch *end)
++void
++xen_platform_send_ipi(int cpu, int vector, int delivery_mode, int redirect)
 +{
-+	extern const bundle_t nop_b_inst_bundle;
-+	const cmp_inst_t nop_b_inst = paravirt_read_slot0(&nop_b_inst_bundle);
-+	const struct paravirt_nop_patch *p;
++	int irq = -1;
 +
-+	for (p = start; p < end; p++)
-+		paravirt_write_inst(p->tag, nop_b_inst);
++#ifdef CONFIG_SMP
++	/* TODO: we need to call vcpu_up here */
++	if (unlikely(vector == ap_wakeup_vector)) {
++		extern void xen_send_ipi(int cpu, int vec);
 +
-+	ia64_sync_i();
-+	ia64_srlz_i();
++		/* XXX
++		 * This should be in __cpu_up(cpu) in ia64 smpboot.c
++		 * like x86. But don't want to modify it,
++		 * keep it untouched.
++		 */
++		xen_smp_intr_init_early(cpu);
++
++		xen_send_ipi(cpu, vector);
++		/* vcpu_prepare_and_up(cpu); */
++		return;
++	}
++#endif
++
++	switch (vector) {
++	case IA64_IPI_VECTOR:
++		irq = per_cpu(ipi_to_irq, cpu)[IPI_VECTOR];
++		break;
++	case IA64_IPI_RESCHEDULE:
++		irq = per_cpu(ipi_to_irq, cpu)[RESCHEDULE_VECTOR];
++		break;
++	case IA64_CMCP_VECTOR:
++		irq = per_cpu(ipi_to_irq, cpu)[CMCP_VECTOR];
++		break;
++	case IA64_CPEP_VECTOR:
++		irq = per_cpu(ipi_to_irq, cpu)[CPEP_VECTOR];
++		break;
++	default:
++		printk(KERN_WARNING "Unsupported IPI type 0x%x\n",
++		       vector);
++		irq = 0;
++		break;
++	}
++
++	BUG_ON(irq < 0);
++	notify_remote_via_irq(irq);
++	return;
 +}
++#endif /* CONFIG_XEN */
 +
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index 80622ac..0cbe0a1 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -163,6 +163,41 @@ SECTIONS
- 	  __end___mckinley_e9_bundles = .;
- 	}
+ void
+ register_percpu_irq (ia64_vector vec, struct irqaction *action)
+ {
+ 	irq_desc_t *desc;
+ 	unsigned int irq;
  
-+#if defined(CONFIG_PARAVIRT_ALT)
-+  . = ALIGN(16);
-+  .paravirt_bundles : AT(ADDR(.paravirt_bundles) - LOAD_OFFSET)
-+	{
-+	  __start_paravirt_bundles = .;
-+          *(.paravirt_bundles)
-+	  __stop_paravirt_bundles = .;
-+	}
-+  . = ALIGN(16);
-+  .paravirt_insts : AT(ADDR(.paravirt_insts) - LOAD_OFFSET)
-+	{
-+	  __start_paravirt_insts = .;
-+          *(.paravirt_insts)
-+	  __stop_paravirt_insts = .;
-+	}
-+#endif
-+#if defined(CONFIG_PARAVIRT_NOP_B_PATCH)
-+  . = ALIGN(16);
-+  .paravirt_nop_b : AT(ADDR(.paravirt_nop_b) - LOAD_OFFSET)
-+	{
-+	  __start_paravirt_nop_b = .;
-+	  *(.paravirt_nop_b)
-+	  __stop_paravirt_nop_b = .;
-+	}
-+#endif
-+#if defined(CONFIG_PARAVIRT_ENTRY)
-+  . = ALIGN(16);
-+  .paravirt_entry : AT(ADDR(.paravirt_entry) - LOAD_OFFSET)
-+	{
-+	  __start_paravirt_entry = .;
-+	  *(.paravirt_entry)
-+	  __stop_paravirt_entry = .;
-+	}
++#ifdef CONFIG_XEN
++	if (is_running_on_xen())
++		return xen_register_percpu_irq(smp_processor_id(),
++					       vec, action, 1);
 +#endif
 +
- #if defined(CONFIG_IA64_GENERIC)
-   /* Machine Vector */
-   . = ALIGN(16);
-diff --git a/include/asm-ia64/module.h b/include/asm-ia64/module.h
-index d2da61e..44f63ff 100644
---- a/include/asm-ia64/module.h
-+++ b/include/asm-ia64/module.h
-@@ -16,6 +16,12 @@ struct mod_arch_specific {
- 	struct elf64_shdr *got;		/* global offset table */
- 	struct elf64_shdr *opd;		/* official procedure descriptors */
- 	struct elf64_shdr *unwind;	/* unwind-table section */
-+#ifdef CONFIG_PARAVIRT_ALT
-+	struct elf64_shdr *paravirt_bundles;
-+					/* paravirt_alt_bundle_patch table */
-+	struct elf64_shdr *paravirt_insts;
-+					/* paravirt_alt_inst_patch table */
+ 	irq = vec;
+ 	BUG_ON(bind_irq_vector(irq, vec, CPU_MASK_ALL));
+ 	desc = irq_desc + irq;
+@@ -576,8 +925,18 @@ init_IRQ (void)
+ 	register_percpu_irq(IA64_SPURIOUS_INT_VECTOR, NULL);
+ #ifdef CONFIG_SMP
+ 	register_percpu_irq(IA64_IPI_VECTOR, &ipi_irqaction);
+-	register_percpu_irq(IA64_IPI_RESCHEDULE, &resched_irqaction);
+-	register_percpu_irq(IA64_IPI_LOCAL_TLB_FLUSH, &tlb_irqaction);
++#ifdef CONFIG_XEN
++	if (is_running_on_xen()) {
++		register_percpu_irq(IA64_IPI_RESCHEDULE,
++				    &xen_resched_irqaction);
++		register_percpu_irq(IA64_IPI_LOCAL_TLB_FLUSH,
++				    &xen_tlb_irqaction);
++	} else
 +#endif
- 	unsigned long gp;		/* global-pointer for module */
++	{
++		register_percpu_irq(IA64_IPI_RESCHEDULE, &resched_irqaction);
++		register_percpu_irq(IA64_IPI_LOCAL_TLB_FLUSH, &tlb_irqaction);
++	}
+ #endif
+ #ifdef CONFIG_PERFMON
+ 	pfm_init_percpu();
+diff --git a/arch/ia64/xen/hypercall.S b/arch/ia64/xen/hypercall.S
+index 7c5242b..3fad2fe 100644
+--- a/arch/ia64/xen/hypercall.S
++++ b/arch/ia64/xen/hypercall.S
+@@ -123,6 +123,16 @@ END(xen_set_eflag)
+ #endif /* CONFIG_IA32_SUPPORT */
+ #endif /* ASM_SUPPORTED */
  
- 	void *core_unw_table;		/* core unwind-table cookie returned by unwinder */
-diff --git a/include/asm-ia64/paravirt_alt.h b/include/asm-ia64/paravirt_alt.h
-new file mode 100644
-index 0000000..34c5473
---- /dev/null
-+++ b/include/asm-ia64/paravirt_alt.h
-@@ -0,0 +1,82 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
++GLOBAL_ENTRY(xen_send_ipi)
++	mov r14=r32
++	mov r15=r33
++	mov r2=0x400
++	break 0x1000
++	;;
++	br.ret.sptk.many rp
++	;;
++END(xen_send_ipi)
 +
-+#ifndef __ASM_PARAVIRT_ALT_H
-+#define __ASM_PARAVIRT_ALT_H
-+
-+#ifndef __ASSEMBLER__
-+/* for binary patch */
-+struct paravirt_alt_bundle_patch {
-+	void		*sbundle;
-+	void		*ebundle;
-+	unsigned long	type;
-+};
-+
-+/* label means the beginning of new bundle */
-+#define paravirt_alt_bundle(instr, privop)				\
-+	"\t1:\n"							\
-+	"\t" instr "\n"							\
-+	"\t2:\n"							\
-+	"\t.section .paravirt_bundles, \"a\"\n"				\
-+	"\t.previous\n"							\
-+	"\t.xdata8 \".paravirt_bundles\", 1b, 2b, "			\
-+	__stringify(privop) "\n"
-+
-+struct paravirt_alt_inst_patch {
-+	unsigned long	stag;
-+	unsigned long	etag;
-+	unsigned long	type;
-+};
-+
-+#define paravirt_alt_inst(instr, privop)				\
-+	"\t[1:]\n"							\
-+	"\t" instr "\n"							\
-+	"\t[2:]\n"							\
-+	"\t.section .paravirt_insts, \"a\"\n"				\
-+	"\t.previous\n"							\
-+	"\t.xdata8 \".paravirt_insts\", 1b, 2b, "			\
-+	__stringify(privop) "\n"
-+
-+void
-+paravirt_alt_bundle_patch_apply(struct paravirt_alt_bundle_patch *start,
-+				struct paravirt_alt_bundle_patch *end,
-+				unsigned long(*patch)(void *sbundle,
-+						      void *ebundle,
-+						      unsigned long type));
-+
-+void
-+paravirt_alt_inst_patch_apply(struct paravirt_alt_inst_patch *start,
-+			      struct paravirt_alt_inst_patch *end,
-+			      unsigned long (*patch)(unsigned long stag,
-+						     unsigned long etag,
-+						     unsigned long type));
-+#endif /* __ASSEMBLER__ */
-+
-+#endif /* __ASM_PARAVIRT_ALT_H */
-+
+ GLOBAL_ENTRY(__hypercall)
+ 	mov r2=r37
+ 	break 0x1000
+diff --git a/include/asm-ia64/hw_irq.h b/include/asm-ia64/hw_irq.h
+index 7e6e377..357f5a8 100644
+--- a/include/asm-ia64/hw_irq.h
++++ b/include/asm-ia64/hw_irq.h
+@@ -15,7 +15,11 @@
+ #include <asm/ptrace.h>
+ #include <asm/smp.h>
+ 
++#ifndef CONFIG_XEN
+ typedef u8 ia64_vector;
++#else
++typedef u16 ia64_vector;
++#endif
+ 
+ /*
+  * 0 special
+@@ -114,6 +118,12 @@ extern void destroy_and_reserve_irq (unsigned int irq);
+ 
+ static inline void ia64_resend_irq(unsigned int vector)
+ {
++#ifdef CONFIG_XEN
++	extern int resend_irq_on_evtchn(unsigned int i);
++	if (is_running_on_xen())
++		resend_irq_on_evtchn(vector);
++	else
++#endif /* CONFIG_XEN */
+ 	platform_send_ipi(smp_processor_id(), vector, IA64_IPI_DM_INT, 0);
+ }
+ 
+diff --git a/include/asm-ia64/irq.h b/include/asm-ia64/irq.h
+index a66d268..aead249 100644
+--- a/include/asm-ia64/irq.h
++++ b/include/asm-ia64/irq.h
+@@ -14,6 +14,7 @@
+ #include <linux/types.h>
+ #include <linux/cpumask.h>
+ 
++#ifndef CONFIG_XEN
+ #define NR_VECTORS	256
+ 
+ #if (NR_VECTORS + 32 * NR_CPUS) < 1024
+@@ -21,6 +22,38 @@
+ #else
+ #define NR_IRQS 1024
+ #endif
++#else
 +/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/include/asm-ia64/paravirt_core.h b/include/asm-ia64/paravirt_core.h
-new file mode 100644
-index 0000000..9979740
---- /dev/null
-+++ b/include/asm-ia64/paravirt_core.h
-@@ -0,0 +1,54 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
++ * The flat IRQ space is divided into two regions:
++ *  1. A one-to-one mapping of real physical IRQs. This space is only used
++ *     if we have physical device-access privilege. This region is at the
++ *     start of the IRQ space so that existing device drivers do not need
++ *     to be modified to translate physical IRQ numbers into our IRQ space.
++ *  3. A dynamic mapping of inter-domain and Xen-sourced virtual IRQs. These
++ *     are bound using the provided bind/unbind functions.
 + */
 +
-+#ifndef __ASM_PARAVIRT_CORE_H
-+#define __ASM_PARAVIRT_CORE_H
++#define PIRQ_BASE		0
++#define NR_PIRQS		256
 +
-+#include <asm/kprobes.h>
++#define DYNIRQ_BASE		(PIRQ_BASE + NR_PIRQS)
++#define NR_DYNIRQS		(CONFIG_NR_CPUS * 8)
 +
-+void paravirt_flush_i_cache_range(const void *instr, unsigned long size);
++#define NR_IRQS			(NR_PIRQS + NR_DYNIRQS)
++#define NR_IRQ_VECTORS		NR_IRQS
 +
-+bundle_t *paravirt_get_bundle(unsigned long tag);
-+unsigned long paravirt_get_slot(unsigned long tag);
-+unsigned long paravirt_get_next_tag(unsigned long tag);
++#define pirq_to_irq(_x)		((_x) + PIRQ_BASE)
++#define irq_to_pirq(_x)		((_x) - PIRQ_BASE)
 +
-+cmp_inst_t paravirt_read_slot0(const bundle_t *bundle);
-+cmp_inst_t paravirt_read_slot1(const bundle_t *bundle);
-+cmp_inst_t paravirt_read_slot2(const bundle_t *bundle);
-+cmp_inst_t paravirt_read_inst(unsigned long tag);
++#define dynirq_to_irq(_x)	((_x) + DYNIRQ_BASE)
++#define irq_to_dynirq(_x)	((_x) - DYNIRQ_BASE)
 +
-+void paravirt_write_slot0(bundle_t *bundle, cmp_inst_t inst);
-+void paravirt_write_slot1(bundle_t *bundle, cmp_inst_t inst);
-+void paravirt_write_slot2(bundle_t *bundle, cmp_inst_t inst);
-+void paravirt_write_inst(unsigned long tag, cmp_inst_t inst);
-+
-+void print_bundle(const bundle_t *bundle);
-+
-+#endif /* __ASM_PARAVIRT_CORE_H */
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/include/asm-ia64/paravirt_entry.h b/include/asm-ia64/paravirt_entry.h
-new file mode 100644
-index 0000000..857fd37
---- /dev/null
-+++ b/include/asm-ia64/paravirt_entry.h
-@@ -0,0 +1,62 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef __ASM_PARAVIRT_ENTRY_H
-+#define __ASM_PARAVIRT_ENTRY_H
-+
-+#ifdef __ASSEMBLY__
-+
-+#define BR_COND_SPTK_MANY(target, type)		\
-+	[1:] ;					\
-+	br.cond.sptk.many target;; ;		\
-+	.section .paravirt_entry, "a" ;		\
-+	.previous ;				\
-+	.xdata8 ".paravirt_entry", 1b, type
-+
-+#else /* __ASSEMBLY__ */
-+
-+struct paravirt_entry_patch {
-+	unsigned long	tag;
-+	unsigned long	type;
-+};
-+
-+struct paravirt_entry {
-+	void		*entry;
-+	unsigned long	type;
-+};
-+
-+void
-+paravirt_entry_patch_apply(const struct paravirt_entry_patch *start,
-+			   const struct paravirt_entry_patch *end,
-+			   const struct paravirt_entry *entries,
-+			   unsigned int nr_entries);
-+
-+#endif /* __ASSEMBLY__ */
-+
-+#endif /* __ASM_PARAVIRT_ENTRY_H */
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/include/asm-ia64/paravirt_nop.h b/include/asm-ia64/paravirt_nop.h
-new file mode 100644
-index 0000000..2b05430
---- /dev/null
-+++ b/include/asm-ia64/paravirt_nop.h
-@@ -0,0 +1,46 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef __ASM_PARAVIRT_OPS_H
-+#define __ASM_PARAVIRT_OPS_H
-+
-+#ifndef __ASSEMBLY__
-+
-+struct paravirt_nop_patch {
-+	unsigned long	tag;
-+};
-+
-+void
-+paravirt_nop_b_patch_apply(const struct paravirt_nop_patch *start,
-+			   const struct paravirt_nop_patch *end);
-+
-+#endif /* !__ASSEMBLEY__ */
-+
-+#endif /* __ASM_PARAVIRT_OPS_H */
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
++#define RESCHEDULE_VECTOR	0
++#define IPI_VECTOR		1
++#define CMCP_VECTOR		2
++#define CPEP_VECTOR		3
++#define NR_IPIS			4
++#endif /* CONFIG_XEN */
+ 
+ static __inline__ int
+ irq_canonicalize (int irq)
 -- 
 1.5.3
 
