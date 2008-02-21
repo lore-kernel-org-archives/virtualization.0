@@ -1,15 +1,18 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 19/28] ia64/xen: xen domU irq chip introducing some helper
-	functions, xen_send_ipi.
-Date: Thu, 21 Feb 2008 15:22:54 -0800
-Message-ID: <47BE07CE.5090008__46701.935659121$1203636483$gmane$org@goop.org>
+From: yamahata@valinux.co.jp
+Subject: [PATCH 22/28] ia64/xen: mca paravirtualization
+Date: Thu, 21 Feb 2008 18:17:53 +0900
+Message-ID: <20080221091905.408446000__38428.7829198458$1203636954$gmane$org@ls.local.valinux.co.jp>
 References: <20080221091731.641745000@ls.local.valinux.co.jp>
-	<20080221091904.517166000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080221091904.517166000@ls.local.valinux.co.jp>
+Resent-Message-ID: <20080221223141.GW17530%yamahata@valinux.co.jp>
+Resent-To: linux-ia64@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        kvm-ia64-devel@lists.sourceforge.net
+Content-Disposition: inline;
+	filename=0022-ia64-xen-mca-paravirtualization.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,52 +22,56 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: yamahata@valinux.co.jp
-Cc: virtualization@lists.linux-foundation.org, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
+To: linux-ia64@vger.kernel.org
+Cc: xen-ia64-devel@lists.xensource.com, kvm-ia64-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-yamahata@valinux.co.jp wrote:
-> diff --git a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
-> index 0b52f19..b5dcb49 100644
-> --- a/arch/ia64/kernel/irq_ia64.c
-> +++ b/arch/ia64/kernel/irq_ia64.c
-> @@ -30,6 +30,9 @@
->  #include <linux/threads.h>
->  #include <linux/bitops.h>
->  #include <linux/irq.h>
-> +#ifdef CONFIG_XEN
-> +#include <linux/cpu.h>
-> +#endif
->  
->  #include <asm/delay.h>
->  #include <asm/intrinsics.h>
-> @@ -204,6 +207,13 @@ assign_irq_vector (int irq)
->  
->  	vector = -ENOSPC;
->  
-> +#ifdef CONFIG_XEN
-> +	if (is_running_on_xen()) {
-> +		extern int xen_assign_irq_vector(int);
-> +		return xen_assign_irq_vector(irq);
-> +	}
-> +#endif
->   
 
-No extern prototypes in .c files; definitely not nested in block scope 
-(here and elsewhere in the series).
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/mca.c |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+), 0 deletions(-)
 
-> +static char timer_name[NR_CPUS][15];
-> +static char ipi_name[NR_CPUS][15];
-> +static char resched_name[NR_CPUS][15];
-> +static char cmc_name[NR_CPUS][15];
-> +static char cmcp_name[NR_CPUS][15];
-> +static char cpep_name[NR_CPUS][15];
+diff --git a/arch/ia64/kernel/mca.c b/arch/ia64/kernel/mca.c
+index 6e17aed..94f1023 100644
+--- a/arch/ia64/kernel/mca.c
++++ b/arch/ia64/kernel/mca.c
+@@ -339,11 +339,33 @@ typedef struct ia64_state_log_s
+ 
+ static ia64_state_log_t ia64_state_log[IA64_MAX_LOG_TYPES];
+ 
++#ifdef CONFIG_XEN
++DEFINE_SPINLOCK(ia64_mca_xencomm_lock);
++LIST_HEAD(ia64_mca_xencomm_list);
++
++#define IA64_MCA_XENCOMM_ALLOCATE(rec, desc) \
++	if (is_running_on_xen()) { \
++		ia64_mca_xencomm_t *entry; \
++		entry = alloc_bootmem(sizeof(ia64_mca_xencomm_t)); \
++		entry->record = rec; \
++		entry->handle = desc; \
++		list_add(&entry->list, &ia64_mca_xencomm_list); \
++	}
++#define IA64_LOG_ALLOCATE(it, size) \
++	{ia64_err_rec_t *rec; \
++	ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)] = rec = \
++		(ia64_err_rec_t *)alloc_bootmem(size); \
++	IA64_MCA_XENCOMM_ALLOCATE(rec, xencomm_map(rec, size)); \
++	ia64_state_log[it].isl_log[IA64_LOG_NEXT_INDEX(it)] = rec = \
++		(ia64_err_rec_t *)alloc_bootmem(size); \
++	IA64_MCA_XENCOMM_ALLOCATE(rec, xencomm_map(rec, size));}
++#else
+ #define IA64_LOG_ALLOCATE(it, size) \
+ 	{ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)] = \
+ 		(ia64_err_rec_t *)alloc_bootmem(size); \
+ 	ia64_state_log[it].isl_log[IA64_LOG_NEXT_INDEX(it)] = \
+ 		(ia64_err_rec_t *)alloc_bootmem(size);}
++#endif
+ #define IA64_LOG_LOCK_INIT(it) spin_lock_init(&ia64_state_log[it].isl_lock)
+ #define IA64_LOG_LOCK(it)      spin_lock_irqsave(&ia64_state_log[it].isl_lock, s)
+ #define IA64_LOG_UNLOCK(it)    spin_unlock_irqrestore(&ia64_state_log[it].isl_lock,s)
+-- 
+1.5.3
 
-Why not use percpu?
-
-> +/* FIXME: There's no obvious point to check whether slab is ready. So
-> + * a hack is used here by utilizing a late time hook.
-> + */
-Could you hook onto paravirt_post_allocator_init()?
-
-    J
+-- 
+yamahata
