@@ -1,44 +1,55 @@
-From: Markus Armbruster <armbru@redhat.com>
-Subject: Re: [PATCH 0/2] xen pvfb: Para-virtual framebuffer,	keyboard and pointer
-Date: Thu, 21 Feb 2008 21:47:09 +0100
-Message-ID: <871w76ca0i.fsf@pike.pond.sub.org>
-References: <871w76ejdg.fsf@pike.pond.sub.org>
-	<87hcg2cyti.fsf@pike.pond.sub.org> <47BDD4BF.3000808@goop.org>
+From: yamahata@valinux.co.jp
+Subject: [PATCH 00/11] Xen arch portability patches
+Date: Thu, 21 Feb 2008 17:45:30 +0900
+Message-ID: <20080221084530.470680000__35509.5411222011$1203629424$gmane$org@ls.local.valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <47BDD4BF.3000808@goop.org> (Jeremy Fitzhardinge's message of "Thu\, 21 Feb 2008 11\:45\:03 -0800")
-Sender: linux-input-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Resent-Message-ID: <20080221212809.GD16885%yamahata@valinux.co.jp>
+Resent-To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge <jeremy@goop.org> writes:
+Hi. Recently the xen-ia64 community started to make efforts to merge 
+xen/ia64 Linux to upstream. The first step is to merge up domU portion.
+This patchset is preliminary for xen/ia64 domU linux making the current
+xen/x86 domU code more arch generic and adding missing definitions and
+files.
 
-> Markus Armbruster wrote:
->> Forgot to mention: This patch depends on
->>
->>     Subject: [PATCH] xen: Make xen-blkfront write its protocol ABI to xenstore
->>     From: Markus Armbruster <>
->>     Date: Thu, 06 Dec 2007 14:45:53 +0100
->>
->> http://lkml.org/lkml/2007/12/6/132
->>
->> Sorry!
->
-> Sorry, I haven't pushed this upstream yet, since there didn't seem to
-> be any particular urgency.  What's the dependency?
->
->    J
+Diffstat:
+ arch/x86/xen/Makefile                |    4 +-
+ arch/x86/xen/grant-table.c           |   91 +++++++++++++
+ drivers/xen/Makefile                 |    3 +-
+ {arch/x86 => drivers}/xen/events.c   |   34 ++++--
+ {arch/x86 => drivers}/xen/features.c |    0 
+ drivers/xen/grant-table.c            |   37 +-----
+ drivers/xen/xenbus/xenbus_client.c   |    6 +-
+ drivers/xen/xencomm.c                |  232 ++++++++++++++++++++++++++++++++++
+ include/asm-x86/xen/hypervisor.h     |   10 ++
+ include/asm-x86/xen/interface.h      |   24 ++++
+ include/{ => asm-x86}/xen/page.h     |    0 
+ include/xen/events.h                 |    1 +
+ include/xen/grant_table.h            |    6 +
+ include/xen/interface/callback.h     |  119 +++++++++++++++++
+ include/xen/interface/grant_table.h  |   11 ++-
+ include/xen/interface/vcpu.h         |    5 +
+ include/xen/interface/xen.h          |   22 +++-
+ include/xen/interface/xencomm.h      |   41 ++++++
+ include/xen/page.h                   |  181 +--------------------------
+ include/xen/xencomm.h                |   77 +++++++++++
+ 20 files changed, 673 insertions(+), 231 deletions(-)
 
-Here's the description again:
-
-    Frontends are expected to write their protocol ABI to xenstore.  Since
-    the protocol ABI defaults to the backend's native ABI, things work
-    fine without that as long as the frontend's native ABI is identical to
-    the backend's native ABI.  This is not the case for xen-blkfront
-    running 32-on-64, because its ABI differs between 32 and 64 bit, and
-    thus needs this fix.
-
-I can break the dependency by putting the same bug that is now in
-xen-blkfront into xen-fbfront and xen-kbdfront.
+-- 
+yamahata
