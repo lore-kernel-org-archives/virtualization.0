@@ -1,63 +1,33 @@
-From: yamahata@valinux.co.jp
-Subject: [PATCH 03/28] ia64/xen: increase IA64_MAX_RSVD_REGIONS.
-Date: Thu, 21 Feb 2008 18:17:34 +0900
-Message-ID: <20080221091859.683388000__42668.3532576591$1203633370$gmane$org@ls.local.valinux.co.jp>
-References: <20080221091731.641745000@ls.local.valinux.co.jp>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 0/2] xen pvfb: Para-virtual framebuffer,	keyboard and
+ pointer
+Date: Thu, 21 Feb 2008 14:33:05 -0800
+Message-ID: <47BDFC21.6010604@goop.org>
+References: <871w76ejdg.fsf@pike.pond.sub.org>	<87hcg2cyti.fsf@pike.pond.sub.org> <47BDD4BF.3000808@goop.org> <871w76ca0i.fsf@pike.pond.sub.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20080221223141.GD17530%yamahata@valinux.co.jp>
-Resent-To: linux-ia64@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        kvm-ia64-devel@lists.sourceforge.net
-Content-Disposition: inline;
-	filename=0003-ia64-xen-increase-IA64_MAX_RSVD_REGIONS.patch
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-ia64@vger.kernel.org
-Cc: xen-ia64-devel@lists.xensource.com, kvm-ia64-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1765918AbYBUWge@vger.kernel.org>
+In-Reply-To: <871w76ca0i.fsf@pike.pond.sub.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Markus Armbruster <armbru@redhat.com>
+Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xenlinux/ia64 needs to reserve one more region passed from xen hypervisor
-as start info.
+Markus Armbruster wrote:
+> Here's the description again:
+>
+>     Frontends are expected to write their protocol ABI to xenstore.  Since
+>     the protocol ABI defaults to the backend's native ABI, things work
+>     fine without that as long as the frontend's native ABI is identical to
+>     the backend's native ABI.  This is not the case for xen-blkfront
+>     running 32-on-64, because its ABI differs between 32 and 64 bit, and
+>     thus needs this fix.
+>
+> I can break the dependency by putting the same bug that is now in
+> xen-blkfront into xen-fbfront and xen-kbdfront.
+>   
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- include/asm-ia64/meminit.h |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+Right, I see.  The dependency is on the protocols.h changes.
 
-diff --git a/include/asm-ia64/meminit.h b/include/asm-ia64/meminit.h
-index f93308f..7c12c08 100644
---- a/include/asm-ia64/meminit.h
-+++ b/include/asm-ia64/meminit.h
-@@ -18,10 +18,17 @@
-  * 	- crash dumping code reserved region
-  * 	- Kernel memory map built from EFI memory map
-  * 	- ELF core header
-+ * ifdef CONFIG_XEN
-+ *	- xen start info
-+ * endif
-  *
-  * More could be added if necessary
-  */
-+#ifdef CONFIG_XEN
- #define IA64_MAX_RSVD_REGIONS 8
-+#else
-+#define IA64_MAX_RSVD_REGIONS 9
-+#endif
- 
- struct rsvd_region {
- 	unsigned long start;	/* virtual address of beginning of element */
--- 
-1.5.3
-
--- 
-yamahata
+    J
