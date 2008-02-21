@@ -1,18 +1,17 @@
 From: yamahata@valinux.co.jp
-Subject: [PATCH 04/11] xen: add missing definitions in
-	include/xen/interface/vcpu.h which ia64/xen needs
-Date: Thu, 21 Feb 2008 17:45:34 +0900
-Message-ID: <20080221091001.724085000__27341.0563626841$1203629436$gmane$org@ls.local.valinux.co.jp>
+Subject: [PATCH 09/11] xen: make grant table arch portable.
+Date: Thu, 21 Feb 2008 17:45:39 +0900
+Message-ID: <20080221091003.143438000__16337.1372422718$1203629437$gmane$org@ls.local.valinux.co.jp>
 References: <20080221084530.470680000@ls.local.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20080221212817.GH16885%yamahata@valinux.co.jp>
+Resent-Message-ID: <20080221212829.GM16885%yamahata@valinux.co.jp>
 Resent-To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
         virtualization@lists.linux-foundation.org
 Content-Disposition: inline;
-	filename=0004-xen-add-missing-definitions-in-include-xen-interfac.patch
+	filename=0009-xen-make-grant-table-arch-portable.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,55 +25,202 @@ To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 Cc: xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+split out x86 specific part from grant-table.c
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/xen/interface/vcpu.h |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+ arch/x86/xen/Makefile      |    2 +-
+ arch/x86/xen/grant-table.c |   91 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/xen/grant-table.c  |   35 +---------------
+ include/xen/grant_table.h  |    6 +++
+ 4 files changed, 101 insertions(+), 33 deletions(-)
+ create mode 100644 arch/x86/xen/grant-table.c
 
-diff --git a/include/xen/interface/vcpu.h b/include/xen/interface/vcpu.h
-index b05d8a6..87e6f8a 100644
---- a/include/xen/interface/vcpu.h
-+++ b/include/xen/interface/vcpu.h
-@@ -85,6 +85,7 @@ struct vcpu_runstate_info {
- 		 */
- 		uint64_t time[4];
- };
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_runstate_info);
+diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
+index 95c5926..3d8df98 100644
+--- a/arch/x86/xen/Makefile
++++ b/arch/x86/xen/Makefile
+@@ -1,4 +1,4 @@
+ obj-y		:= enlighten.o setup.o multicalls.o mmu.o \
+-			time.o manage.o xen-asm.o
++			time.o manage.o xen-asm.o grant-table.o
  
- /* VCPU is currently running on a physical CPU. */
- #define RUNSTATE_running  0
-@@ -119,6 +120,7 @@ struct vcpu_runstate_info {
- #define VCPUOP_register_runstate_memory_area 5
- struct vcpu_register_runstate_memory_area {
- 		union {
-+				GUEST_HANDLE(vcpu_runstate_info) h;
- 				struct vcpu_runstate_info *v;
- 				uint64_t p;
- 		} addr;
-@@ -134,6 +136,7 @@ struct vcpu_register_runstate_memory_area {
- struct vcpu_set_periodic_timer {
- 		uint64_t period_ns;
- };
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_set_periodic_timer);
+ obj-$(CONFIG_SMP)	+= smp.o
+diff --git a/arch/x86/xen/grant-table.c b/arch/x86/xen/grant-table.c
+new file mode 100644
+index 0000000..49ba9b5
+--- /dev/null
++++ b/arch/x86/xen/grant-table.c
+@@ -0,0 +1,91 @@
++/******************************************************************************
++ * grant_table.c
++ * x86 specific part
++ *
++ * Granting foreign access to our memory reservation.
++ *
++ * Copyright (c) 2005-2006, Christopher Clark
++ * Copyright (c) 2004-2005, K A Fraser
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan. Split out x86 specific part.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
++
++#include <xen/interface/xen.h>
++#include <xen/page.h>
++#include <xen/grant_table.h>
++
++#include <asm/pgtable.h>
++
++static int map_pte_fn(pte_t *pte, struct page *pmd_page,
++		      unsigned long addr, void *data)
++{
++	unsigned long **frames = (unsigned long **)data;
++
++	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
++	(*frames)++;
++	return 0;
++}
++
++static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
++			unsigned long addr, void *data)
++{
++
++	set_pte_at(&init_mm, addr, pte, __pte(0));
++	return 0;
++}
++
++int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
++			   unsigned long max_nr_gframes,
++			   struct grant_entry **__shared)
++{
++	int rc;
++	struct grant_entry *shared = *__shared;
++
++	if (shared == NULL) {
++		struct vm_struct *area =
++			xen_alloc_vm_area(PAGE_SIZE * max_nr_gframes);
++		BUG_ON(area == NULL);
++		shared = area->addr;
++		*__shared = shared;
++	}
++
++	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
++				 PAGE_SIZE * nr_gframes,
++				 map_pte_fn, &frames);
++	return rc;
++}
++
++void arch_gnttab_unmap_shared(struct grant_entry *shared,
++			      unsigned long nr_gframes)
++{
++	apply_to_page_range(&init_mm, (unsigned long)shared,
++			    PAGE_SIZE * nr_gframes, unmap_pte_fn, NULL);
++}
+diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
+index 9fcde20..22f5104 100644
+--- a/drivers/xen/grant-table.c
++++ b/drivers/xen/grant-table.c
+@@ -435,24 +435,6 @@ static inline unsigned int max_nr_grant_frames(void)
+ 	return xen_max;
+ }
  
- /*
-  * Set or stop a VCPU's single-shot timer. Every VCPU has one single-shot
-@@ -145,6 +148,7 @@ struct vcpu_set_singleshot_timer {
- 		uint64_t timeout_abs_ns;
- 		uint32_t flags;			   /* VCPU_SSHOTTMR_??? */
- };
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_set_singleshot_timer);
+-static int map_pte_fn(pte_t *pte, struct page *pmd_page,
+-		      unsigned long addr, void *data)
+-{
+-	unsigned long **frames = (unsigned long **)data;
+-
+-	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
+-	(*frames)++;
+-	return 0;
+-}
+-
+-static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
+-			unsigned long addr, void *data)
+-{
+-
+-	set_pte_at(&init_mm, addr, pte, __pte(0));
+-	return 0;
+-}
+-
+ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
+ {
+ 	struct gnttab_setup_table setup;
+@@ -476,17 +458,9 @@ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
  
- /* Flags to VCPUOP_set_singleshot_timer. */
-  /* Require the timeout to be in the future (return -ETIME if it's passed). */
-@@ -164,5 +168,6 @@ struct vcpu_register_vcpu_info {
-     uint32_t offset; /* offset within page */
-     uint32_t rsvd;   /* unused */
- };
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_register_vcpu_info);
+ 	BUG_ON(rc || setup.status);
  
- #endif /* __XEN_PUBLIC_VCPU_H__ */
+-	if (shared == NULL) {
+-		struct vm_struct *area;
+-		area = xen_alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
+-		BUG_ON(area == NULL);
+-		shared = area->addr;
+-	}
+-	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
+-				 PAGE_SIZE * nr_gframes,
+-				 map_pte_fn, &frames);
++	rc = arch_gnttab_map_shared(frames, nr_gframes, max_nr_grant_frames(),
++				    &shared);
+ 	BUG_ON(rc);
+-	frames -= nr_gframes; /* adjust after map_pte_fn() */
+ 
+ 	kfree(frames);
+ 
+@@ -502,10 +476,7 @@ static int gnttab_resume(void)
+ 
+ static int gnttab_suspend(void)
+ {
+-	apply_to_page_range(&init_mm, (unsigned long)shared,
+-			    PAGE_SIZE * nr_grant_frames,
+-			    unmap_pte_fn, NULL);
+-
++	arch_gnttab_unmap_shared(shared, nr_grant_frames);
+ 	return 0;
+ }
+ 
+diff --git a/include/xen/grant_table.h b/include/xen/grant_table.h
+index 761c834..50ca16e 100644
+--- a/include/xen/grant_table.h
++++ b/include/xen/grant_table.h
+@@ -102,6 +102,12 @@ void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
+ void gnttab_grant_foreign_transfer_ref(grant_ref_t, domid_t domid,
+ 				       unsigned long pfn);
+ 
++int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
++			   unsigned long max_nr_gframes,
++			   struct grant_entry **__shared);
++void arch_gnttab_unmap_shared(struct grant_entry *shared,
++			      unsigned long nr_gframes);
++
+ #define gnttab_map_vaddr(map) ((void *)(map.host_virt_addr))
+ 
+ #endif /* __ASM_GNTTAB_H__ */
 -- 
 1.5.3
 
