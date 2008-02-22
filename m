@@ -1,119 +1,140 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH 04/28] ia64/xen: introduce synch bitops which is necessary
-	for ia64/xen support.
-Date: Fri, 22 Feb 2008 15:13:23 +0900
-Message-ID: <20080222061323.GC16685%yamahata__35583.7888004773$1203660950$gmane$org@valinux.co.jp>
-References: <12036570473924-git-send-email-yamahata@valinux.co.jp>
-	<12036570474076-git-send-email-yamahata@valinux.co.jp>
-	<20080222054228.GM11391@sgi.com>
+From: Markus Armbruster <armbru@redhat.com>
+Subject: Re: [PATCH 2/2] xen pvfb: Para-virtual framebuffer,	keyboard and pointer driver
+Date: Fri, 22 Feb 2008 07:31:43 +0100
+Message-ID: <8763whbiy8.fsf@pike.pond.sub.org>
+References: <871w76ejdg.fsf@pike.pond.sub.org>
+	<87skzmd4qc.fsf@pike.pond.sub.org> <47BDDF97.7070001@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20080222054228.GM11391@sgi.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Robin Holt <holt@sgi.com>
-Cc: xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <47BDDF97.7070001@goop.org> (Jeremy Fitzhardinge's message of "Thu\, 21 Feb 2008 12\:31\:19 -0800")
+Sender: linux-input-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 21, 2008 at 11:42:28PM -0600, Robin Holt wrote:
-> > +#define ADDR (*(volatile long *) addr)
-> 
-> This seems like a leftover #define.  Additionally, ADDR seems a bit
-> vague and easily misused.  Since I don't see it used anywhere else in
-> that patch, I will assume it should be tossed, but reserve the right to
-> rescind this comment later.
+Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
-It's a leftover from i386 version so that I eliminated it.
+> Markus Armbruster wrote:
+>> This is a pair of Xen para-virtual frontend device drivers:
+>> drivers/video/xen-fbfront.c provides a framebuffer, and
+>> drivers/input/xen-kbdfront provides keyboard and mouse.
+>>   
+>
+> Unless they're actually inter-dependent, could you post this as two
+> separate patches?  I don't know anything about these parts of the
+> kernel, so it would be nice to make it very obvious which changes are
+> fb vs mouse/keyboard.
 
+I could do that do that, but the intermediate step (one driver, not
+the other) is somewhat problematic: the backend in dom0 needs both
+drivers, and will refuse to complete device initialization unless
+they're both present.
 
-ia64/xen: introduce synch bitops which is necessary for ia64/xen support.
+> (I guess input/* vs video/* should make it obvious, but it looks like
+> input has a config dependency on fb, so I'll avoid making too many
+> presumptions...)
 
+Framebuffer: fbif.h xen-fbfront.c
+Keyboard/mouse: kbdif.h xen-kbdfront.h
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- include/asm-ia64/sync_bitops.h |   59 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 59 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/sync_bitops.h
+I added the config dependency because having one without the other
+doesn't make sense, as explained above.
 
-diff --git a/include/asm-ia64/sync_bitops.h b/include/asm-ia64/sync_bitops.h
-new file mode 100644
-index 0000000..f56cd90
---- /dev/null
-+++ b/include/asm-ia64/sync_bitops.h
-@@ -0,0 +1,59 @@
-+#ifndef _ASM_IA64_SYNC_BITOPS_H
-+#define _ASM_IA64_SYNC_BITOPS_H
-+
-+/*
-+ * Copyright 1992, Linus Torvalds.
-+ * Heavily modified to provide guaranteed strong synchronisation
-+ * when communicating with Xen or other guest OSes running on other CPUs.
-+ */
-+
-+static inline void sync_set_bit(int nr, volatile void *addr)
-+{
-+	set_bit(nr, addr);
-+}
-+
-+static inline void sync_clear_bit(int nr, volatile void *addr)
-+{
-+	clear_bit(nr, addr);
-+}
-+
-+static inline void sync_change_bit(int nr, volatile void *addr)
-+{
-+	change_bit(nr, addr);
-+}
-+
-+static inline int sync_test_and_set_bit(int nr, volatile void *addr)
-+{
-+	return test_and_set_bit(nr, addr);
-+}
-+
-+static inline int sync_test_and_clear_bit(int nr, volatile void *addr)
-+{
-+	return test_and_clear_bit(nr, addr);
-+}
-+
-+static inline int sync_test_and_change_bit(int nr, volatile void *addr)
-+{
-+	return test_and_change_bit(nr, addr);
-+}
-+
-+static inline int sync_const_test_bit(int nr, const volatile void *addr)
-+{
-+	return test_bit(nr, addr);
-+}
-+
-+static inline int sync_var_test_bit(int nr, volatile void *addr)
-+{
-+	return test_bit(nr, addr);
-+}
-+
-+#define sync_cmpxchg	ia64_cmpxchg4_acq
-+
-+#define sync_test_bit(nr,addr)			\
-+	(__builtin_constant_p(nr) ?		\
-+	 sync_const_test_bit((nr), (addr)) :	\
-+	 sync_var_test_bit((nr), (addr)))
-+
-+#define sync_cmpxchg_subword sync_cmpxchg
-+
-+#endif /* _ASM_IA64_SYNC_BITOPS_H */
--- 
-1.5.3
+Still want it split into two separate patches?
 
+> (Couple of comments below)
+>
+>    J
+>
+>> The backends run in dom0 user space.
+>>
+>> Signed-off-by: Markus Armbruster <armbru@redhat.com>
+>>
+>> ---
+[...]
+>> diff --git a/drivers/input/xen-kbdfront.c b/drivers/input/xen-kbdfront.c
+>> new file mode 100644
+>> index 0000000..84f65cf
+>> --- /dev/null
+>> +++ b/drivers/input/xen-kbdfront.c
+>> @@ -0,0 +1,337 @@
+[...]
+>> +static int __devinit xenkbd_probe(struct xenbus_device *dev,
+>> +				  const struct xenbus_device_id *id)
+>> +{
+[...]
+>> +	if (ret < 0)
+>> +		goto error;
+>> +
+>> +	return 0;
+>> +
+>> + error_nomem:
+>> +	ret = -ENOMEM;
+>> +	xenbus_dev_fatal(dev, ret, "allocating device memory");
+>> + error:
+>> +	xenkbd_remove(dev);
+>>   
+>
+> This is happy if dev->info is only partially initialized?
 
+It's designed that way.  dev->info is initialized so that
+xenkbd_remove() does nothing.  Then stuff is stored into dev->info
+only when it's sufficiently initialized for xenkbd_remove() to clean
+it up.
 
--- 
-yamahata
+>> +	return ret;
+>> +}
+>> +
+>> +static int xenkbd_resume(struct xenbus_device *dev)
+>> +{
+>> +	struct xenkbd_info *info = dev->dev.driver_data;
+>> +
+>> +	xenkbd_disconnect_backend(info);
+>> +	memset(info->page, 0, PAGE_SIZE);
+>> +	return xenkbd_connect_backend(dev, info);
+>> +}
+>> +
+>> +static int xenkbd_remove(struct xenbus_device *dev)
+>> +{
+>> +	struct xenkbd_info *info = dev->dev.driver_data;
+>> +
+>> +	xenkbd_disconnect_backend(info);
+>> +	input_unregister_device(info->kbd);
+>> +	input_unregister_device(info->ptr);
+>>   
+>
+> Does this free kdb and ptr?
+
+Yes.  xenkbd_probe() initializes info->kbd and info->ptr to null, and
+changes that to the device only after input_register_device()
+succeeds.  If something goes wrong between input_allocate_device() and
+input_register_device(), xenkbd_probe() frees the device with
+input_free_device().  This is how input_register_device() wants to be
+used according to its function comment:
+
+    /**
+     * input_register_device - register device with input core
+     * @dev: device to be registered
+     *
+     * This function registers device with input core. The device must be
+     * allocated with input_allocate_device() and all it's capabilities
+     * set up before registering.
+     * If function fails the device must be freed with input_free_device().
+     * Once device has been successfully registered it can be unregistered
+     * with input_unregister_device(); input_free_device() should not be
+     * called in this case.
+     */
+
+There's another bug here: must not call input_unregister_device() when
+the device is still null.  Man, I remember checking cleanup multiple
+times when this stuff went into Xen (i.e. quite some time ago), and I
+still missed this one.  Going to check cleanup *again*.
+
+>> +	free_page((unsigned long)info->page);
+>> +	kfree(info);
+>> +	return 0;
+>> +}
+[...]
+
+Thanks!
