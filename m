@@ -1,16 +1,16 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH 24/28] ia64/xen: time paravirtualization
-Date: Fri, 22 Feb 2008 12:57:42 +0900
-Message-ID: <20080222035742.GC2406%yamahata__40289.8514447317$1203652803$gmane$org@valinux.co.jp>
-References: <20080221091731.641745000@ls.local.valinux.co.jp>
-	<20080221091906.007909000@ls.local.valinux.co.jp>
-	<47BE0508.7080203@goop.org>
+Subject: Re: [PATCH 03/28] ia64/xen: increase IA64_MAX_RSVD_REGIONS.
+Date: Fri, 22 Feb 2008 15:02:30 +0900
+Message-ID: <20080222060230.GB16685%yamahata__49792.444081004$1203660374$gmane$org@valinux.co.jp>
+References: <12036570473924-git-send-email-yamahata@valinux.co.jp>
+	<12036570474112-git-send-email-yamahata@valinux.co.jp>
+	<20080222053316.GL11391@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <47BE0508.7080203@goop.org>
+In-Reply-To: <20080222053316.GL11391@sgi.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,34 +20,84 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: virtualization@lists.linux-foundation.org, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
+To: Robin Holt <holt@sgi.com>
+Cc: virtualization@lists.linux-foundation.org, linux-ia64@vger.kernel.org, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 21, 2008 at 03:11:04PM -0800, Jeremy Fitzhardinge wrote:
-> yamahata@valinux.co.jp wrote:
-> >diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
-> >index 17fda52..1bb0362 100644
-> >--- a/arch/ia64/kernel/time.c
-> >+++ b/arch/ia64/kernel/time.c
-> >@@ -29,6 +29,14 @@
-> > #include <asm/sections.h>
-> > #include <asm/system.h>
+On Thu, Feb 21, 2008 at 11:33:16PM -0600, Robin Holt wrote:
+> On Fri, Feb 22, 2008 at 02:10:19PM +0900, Isaku Yamahata wrote:
+> > Xenlinux/ia64 needs to reserve one more region passed from xen hypervisor
+> > as start info.
 > > 
-> >+#include <asm/xen/hypervisor.h>
-> >+#ifdef CONFIG_XEN
-> >+#include <linux/kernel_stat.h>
-> >+#include <linux/posix-timers.h>
-> >+#include <xen/interface/vcpu.h>
-> >+#include <asm/percpu.h>
-> >+#endif
-> >+
+> > Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+> > ---
+> >  include/asm-ia64/meminit.h |    7 +++++++
+> >  1 files changed, 7 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/include/asm-ia64/meminit.h b/include/asm-ia64/meminit.h
+> > index f93308f..7c12c08 100644
+> > --- a/include/asm-ia64/meminit.h
+> > +++ b/include/asm-ia64/meminit.h
+> > @@ -18,10 +18,17 @@
+> >   * 	- crash dumping code reserved region
+> >   * 	- Kernel memory map built from EFI memory map
+> >   * 	- ELF core header
+> > + * ifdef CONFIG_XEN
+> > + *	- xen start info
+> > + * endif
+> >   *
+> >   * More could be added if necessary
+> >   */
+> > +#ifdef CONFIG_XEN
+> >  #define IA64_MAX_RSVD_REGIONS 8
+> > +#else
+> > +#define IA64_MAX_RSVD_REGIONS 9
+> > +#endif
 > 
-> ia64 doesn't use clocksources yet?  Couldn't you share a lot of this 
-> with the 32-bit Xen time code (esp stolen time accounting)?
+> This one seems upside down to me.  You are saying there is an additional
+> region when CONFIG_XEN, but you are defining it larger for !CONFIG_XEN.
+> I concede the point that I know nothing about Xen, so please straighten
+> me out here.
 
-It does. I'll look into sharing code.
-(Probably after cpu paravirtualization)
+Thank you for review. You're absolutely correct.
+
+---
+ia64/xen: increase IA64_MAX_RSVD_REGIONS.
+
+Xenlinux/ia64 needs to reserve one more region passed from xen hypervisor
+as start info.
+
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ include/asm-ia64/meminit.h |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/include/asm-ia64/meminit.h b/include/asm-ia64/meminit.h
+index f93308f..3de9c74 100644
+--- a/include/asm-ia64/meminit.h
++++ b/include/asm-ia64/meminit.h
+@@ -18,10 +18,17 @@
+  * 	- crash dumping code reserved region
+  * 	- Kernel memory map built from EFI memory map
+  * 	- ELF core header
++ * ifdef CONFIG_XEN
++ *	- xen start info
++ * endif
+  *
+  * More could be added if necessary
+  */
++#ifndef CONFIG_XEN
+ #define IA64_MAX_RSVD_REGIONS 8
++#else
++#define IA64_MAX_RSVD_REGIONS 9
++#endif
+ 
+ struct rsvd_region {
+ 	unsigned long start;	/* virtual address of beginning of element */
+-- 
+1.5.3
+
+
 
 -- 
 yamahata
