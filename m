@@ -1,15 +1,14 @@
-From: Keith Owens <kaos@ocs.com.au>
-Subject: Re: [kvm-ia64-devel] [PATCH 0/4] ia64/xen: paravirtualization of hand
-	written assembly code
-Date: Tue, 26 Feb 2008 13:35:48 +1100
-Message-ID: <28263.1203993348__9602.7385713116$1203993470$gmane$org@ocs10w>
-References: <1203951869.47c2d8fd37258@imp.free.fr>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 2/8] ia64/pv_ops: preparation for paravirtualizatin of
+	switch_leave.S and ivt.S
+Date: Tue, 26 Feb 2008 22:58:53 +0900
+Message-ID: <1204034339620-git-send-email-yamahata__3827.18710829995$1204034559$gmane$org@valinux.co.jp>
+References: <1204034339752-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: Your message of "Mon, 25 Feb 2008 16:04:29 BST."
-	<1203951869.47c2d8fd37258@imp.free.fr>
+In-Reply-To: <1204034339752-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,54 +18,181 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tgingold@free.fr
-Cc: virtualization@lists.linux-foundation.org, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
+To: linux-ia64@vger.kernel.org
+Cc: xen-ia64-devel@lists.xensource.com, kvm-ia64-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-tgingold@free.fr (on Mon, 25 Feb 2008 16:04:29 +0100) wrote:
->Quoting Keith Owens <kaos@ocs.com.au>:
->
->> tgingold@free.fr (on Mon, 25 Feb 2008 13:54:48 +0100) wrote:
->> >Quoting Keith Owens <kaos@ocs.com.au>:
->> >{...}
->> >> A combination of options (2) and (3) would work.  Have a single source
->> >> file for the IVT, using conditional macros.  Use that source file to
->> >> build (at least) two copies of the IVT, for native and any virtualized
->> >> modes.  The native copy of the IVT starts at label ia64_ivt in section
->> >> .text.ivt, as it does now.  Any IVT versions for virtualized mode are
->> >> defined as __cpuinitdata, so they are discarded after boot, unless
->> >> CONFIG_HOTPLUG_CPU=y.  arch/ia64/kernel/head.S copies the relevant
->> >> virtualized version over ia64_ivt when necessary, before initializing
->> >> cr.iva.
->> >>
->> >> Single source for maintenance.  No indirect function overhead at run
->> >> time.  Binary patching at boot time for the right mode.  No wasted
->> >> space in the kernel.
->> >
->> >Good idea.  The linker script will be slightly more complex however...
->>
->> Don't see why the linker script needs to change at all.  The existing
->> native IVT is at label ia64_ivt in section .text.ivt, as it is now.
->> arch/ia64/kernel/head.S simply overwrites ia64_ivt with 32K of data for
->> the virtualized IVT, copying from another data area.  AFAICT, nothing
->> in that process requires linker changes.
->
->Humm, what about relative jumps ?  The object code must be linked as if it were
->at .text.ivt.  I suppose this is doable with OVERLAY in linker script.
+make some symbol global and add some hooks.
+define __IA64_ASM_PARAVIRTUALIZED_NATIVE to tell its native compilation
+when compiling ivt.S and switch_leave.S
 
-Looking into this in more detail, it is a little trickier than I thought.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/Makefile       |    6 ++++++
+ arch/ia64/kernel/entry.S        |    4 ++--
+ arch/ia64/kernel/minstate.h     |    2 ++
+ arch/ia64/kernel/switch_leave.S |   19 ++++++++++---------
+ include/asm-ia64/privop.h       |   26 ++++++++++++++++++++++++++
+ 5 files changed, 46 insertions(+), 11 deletions(-)
+ create mode 100644 include/asm-ia64/privop.h
 
-Relative jumps need to be fixed up after the copy.  Scan the
-virtualized IVT, identify relative addresses that refer outside the
-IVT, adjust them by the difference between ia64_ivt and the original
-start of the virtualized IVT.  It should only be branch class
-instructions that need adjusting.
-
-Using OVERLAY tricks in the linker would fix the relative jumps but
-then LOAD_PHYSICAL becomes a problem, the .xdata4 ".data.patch.vtop"
-entries would be wrong.
-
-Come to think of it, LOAD_PHYSICAL is a problem in either case.  If the
-native and virtualized IVT's both use LOAD_PHYSICAL then the
-.data.patch.vtop entries will need fixing.  There are only two
-LOAD_PHYSICAL references in ivt.S, maybe they can be replaced?
+diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+index f9bc3c4..9281bf6 100644
+--- a/arch/ia64/kernel/Makefile
++++ b/arch/ia64/kernel/Makefile
+@@ -70,3 +70,9 @@ $(obj)/gate-syms.o: $(obj)/gate.lds $(obj)/gate.o FORCE
+ # We must build gate.so before we can assemble it.
+ # Note: kbuild does not track this dependency due to usage of .incbin
+ $(obj)/gate-data.o: $(obj)/gate.so
++
++#
++# native ivt.S and switch_leave.S
++#
++AFLAGS_ivt.o += -D__IA64_ASM_PARAVIRTUALIZED_NATIVE
++AFLAGS_switch_leave.o += -D__IA64_ASM_PARAVIRTUALIZED_NATIVE
+diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
+index df8dcc9..de91f61 100644
+--- a/arch/ia64/kernel/entry.S
++++ b/arch/ia64/kernel/entry.S
+@@ -304,7 +304,7 @@ END(save_switch_stack)
+  *	- b7 holds address to return to
+  *	- must not touch r8-r11
+  */
+-ENTRY(load_switch_stack)
++GLOBAL_ENTRY(load_switch_stack)
+ 	.prologue
+ 	.altrp b7
+ 
+@@ -624,7 +624,7 @@ END(ia64_invoke_schedule_tail)
+ 	 * be set up by the caller.  We declare 8 input registers so the system call
+ 	 * args get preserved, in case we need to restart a system call.
+ 	 */
+-ENTRY(notify_resume_user)
++GLOBAL_ENTRY(notify_resume_user)
+ 	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(8)
+ 	alloc loc1=ar.pfs,8,2,3,0 // preserve all eight input regs in case of syscall restart!
+ 	mov r9=ar.unat
+diff --git a/arch/ia64/kernel/minstate.h b/arch/ia64/kernel/minstate.h
+index c9ac8ba..3dfd36c 100644
+--- a/arch/ia64/kernel/minstate.h
++++ b/arch/ia64/kernel/minstate.h
+@@ -3,6 +3,7 @@
+ 
+ #include "entry.h"
+ 
++#ifdef __IA64_ASM_PARAVIRTUALIZED_NATIVE
+ /*
+  * DO_SAVE_MIN switches to the kernel stacks (if necessary) and saves
+  * the minimum state necessary that allows us to turn psr.ic back
+@@ -129,6 +130,7 @@
+ 	;;											\
+ 	bsw.1;			/* switch back to bank 1 (must be last in insn group) */	\
+ 	;;
++#endif /* __IA64_ASM_PARAVIRTUALIZED_NATIVE */
+ 
+ /*
+  * SAVE_REST saves the remainder of pt_regs (with psr.ic on).
+diff --git a/arch/ia64/kernel/switch_leave.S b/arch/ia64/kernel/switch_leave.S
+index 5ca5b84..b235917 100644
+--- a/arch/ia64/kernel/switch_leave.S
++++ b/arch/ia64/kernel/switch_leave.S
+@@ -53,7 +53,7 @@
+  *	called.  The code starting at .map relies on this.  The rest of the code
+  *	doesn't care about the interrupt masking status.
+  */
+-GLOBAL_ENTRY(ia64_switch_to)
++GLOBAL_ENTRY(__ia64_switch_to)
+ 	.prologue
+ 	alloc r16=ar.pfs,1,0,0,0
+ 	DO_SAVE_SWITCH_STACK
+@@ -107,7 +107,7 @@ GLOBAL_ENTRY(ia64_switch_to)
+ 	;;
+ 	srlz.d
+ 	br.cond.sptk .done
+-END(ia64_switch_to)
++END(__ia64_switch_to)
+ 
+ /*
+  * ia64_leave_syscall(): Same as ia64_leave_kernel, except that it doesn't
+@@ -153,7 +153,7 @@ END(ia64_switch_to)
+  *	      ar.csd: cleared
+  *	      ar.ssd: cleared
+  */
+-ENTRY(ia64_leave_syscall)
++GLOBAL_ENTRY(__ia64_leave_syscall)
+ 	PT_REGS_UNWIND_INFO(0)
+ 	/*
+ 	 * work.need_resched etc. mustn't get changed by this CPU before it returns to
+@@ -163,7 +163,7 @@ ENTRY(ia64_leave_syscall)
+ 	 * extra work.  We always check for extra work when returning to user-level.
+ 	 * With CONFIG_PREEMPT, we also check for extra work when the preempt_count
+ 	 * is 0.  After extra work processing has been completed, execution
+-	 * resumes at .work_processed_syscall with p6 set to 1 if the extra-work-check
++	 * resumes at ia64_work_processed_syscall with p6 set to 1 if the extra-work-check
+ 	 * needs to be redone.
+ 	 */
+ #ifdef CONFIG_PREEMPT
+@@ -181,7 +181,8 @@ ENTRY(ia64_leave_syscall)
+ 	cmp.eq pLvSys,p0=r0,r0		// pLvSys=1: leave from syscall
+ (pUStk)	cmp.eq.unc p6,p0=r0,r0		// p6 <- pUStk
+ #endif
+-.work_processed_syscall:
++.global __ia64_work_processed_syscall;
++__ia64_work_processed_syscall:
+ 	adds r2=PT(LOADRS)+16,r12
+ 	adds r3=PT(AR_BSPSTORE)+16,r12
+ 	adds r18=TI_FLAGS+IA64_TASK_SIZE,r13
+@@ -260,9 +261,9 @@ ENTRY(ia64_leave_syscall)
+ 	mov.m ar.ssd=r0			// M2   clear ar.ssd
+ 	mov f11=f0			// F    clear f11
+ 	br.cond.sptk.many rbs_switch	// B
+-END(ia64_leave_syscall)
++END(__ia64_leave_syscall)
+ 
+-GLOBAL_ENTRY(ia64_leave_kernel)
++GLOBAL_ENTRY(__ia64_leave_kernel)
+ 	PT_REGS_UNWIND_INFO(0)
+ 	/*
+ 	 * work.need_resched etc. mustn't get changed by this CPU before it returns to
+@@ -590,5 +591,5 @@ ia64_work_pending_syscall_end:
+ 	;;
+ 	ld8 r8=[r2]
+ 	ld8 r10=[r3]
+-	br.cond.sptk.many .work_processed_syscall	// re-check
+-END(ia64_leave_kernel)
++	br.cond.sptk.many ia64_work_processed_syscall	// re-check
++END(__ia64_leave_kernel)
+diff --git a/include/asm-ia64/privop.h b/include/asm-ia64/privop.h
+new file mode 100644
+index 0000000..b8dce79
+--- /dev/null
++++ b/include/asm-ia64/privop.h
+@@ -0,0 +1,26 @@
++#ifndef _ASM_IA64_PRIVOP_H
++#define _ASM_IA64_PRIVOP_H
++
++#ifndef _ASM_IA64_INTRINSICS_H
++#error "don't include privop.h directly. instead include intrinsics.h"
++#endif
++/*
++ * Copyright (C) 2005 Hewlett-Packard Co
++ *	Dan Magenheimer <dan.magenheimer@hp.com>
++ *
++ */
++
++#ifdef CONFIG_XEN
++#include <asm/xen/privop.h>
++#endif
++
++/* fallback for native case */
++
++#ifndef IA64_PARAVIRTUALIZED_ENTRY
++#define ia64_switch_to			__ia64_switch_to
++#define ia64_leave_syscall		__ia64_leave_syscall
++#define ia64_work_processed_syscall	__ia64_work_processed_syscall
++#define ia64_leave_kernel		__ia64_leave_kernel
++#endif /* !IA64_PARAVIRTUALIZED_ENTRY */
++
++#endif /* _ASM_IA64_PRIVOP_H */
+-- 
+1.5.3
