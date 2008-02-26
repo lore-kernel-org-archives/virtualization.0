@@ -1,12 +1,14 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 0/8] RFC: ia64/xen TAKE 2: paravirtualization of hand written
-	assembly code
-Date: Tue, 26 Feb 2008 22:58:51 +0900
-Message-ID: <1204034339752-git-send-email-yamahata__28832.8460920185$1204034598$gmane$org@valinux.co.jp>
+Subject: [PATCH 3/8] ia64/pv_ops: paravirtualization hand written assnbly
+	code. inst_native.h
+Date: Tue, 26 Feb 2008 22:58:54 +0900
+Message-ID: <12040343393190-git-send-email-yamahata__19997.9145465933$1204034604$gmane$org@valinux.co.jp>
+References: <1204034339752-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1204034339752-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,37 +22,170 @@ To: linux-ia64@vger.kernel.org
 Cc: xen-ia64-devel@lists.xensource.com, kvm-ia64-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi. I rewrote the patch according to the comments. I adopted generating
-in-place code because it looks the quickest way.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/inst_native.h |  153 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 153 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/kernel/inst_native.h
 
-The point Eddie wanted to discuss is how to generate code and its ABI.
-i.e. in-place generating v.s. direct jump v.s. indirect function call
-Indirect function call doesn't make sense because ivt.S is compiled
-multi times. And it is up to pv instances to choose in-place generating
-or direct jump. So what we should define is its clobbered registers.
-The ABI which this patch adopted is xen biased. Presumably we want to
-twist those macros to make more hypervisor neutral. (i.e. add more
-clobbered registers) Please comment.
-
-
-TODO:
-- more clean ups
-  some macro needs clean up to be aware register usage r8, r9.
-- Free xen_ivt ares somehow. No waste kernel space
-  From Keith Owens idea.
-  Probably after defining ABI because this is just optimization.
-
-Changes from TAKE 1:
-Single IVT source code. compile multitimes using assembler macros.
-
-Diffstat:
- arch/ia64/kernel/Makefile                          |   32 +-
- arch/ia64/kernel/entry.S                           |  568 +------------------
- arch/ia64/kernel/inst_native.h                     |  153 +++++
- arch/ia64/kernel/ivt.S                             |  159 +++---
- arch/ia64/kernel/minstate.h                        |    2 +
- arch/ia64/kernel/switch_leave.S                    |  609 ++++++++++++++++++++
- arch/ia64/xen/inst_xen.h                           |  307 ++++++++++
- arch/ia64/{kernel/minstate.h => xen/xenminstate.h} |   95 +---
- include/asm-ia64/privop.h                          |   26 +
- 9 files changed, 1245 insertions(+), 706 deletions(-)
+diff --git a/arch/ia64/kernel/inst_native.h b/arch/ia64/kernel/inst_native.h
+new file mode 100644
+index 0000000..3ba88f4
+--- /dev/null
++++ b/arch/ia64/kernel/inst_native.h
+@@ -0,0 +1,153 @@
++/******************************************************************************
++ * inst_native.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#define IA64_ASM_PARAVIRTUALIZED_NATIVE
++
++#undef BR_IF_NATIVE
++#define BR_IF_NATIVE(targ, reg, pred)		/* nothing */
++
++#define __paravirt_switch_to			__ia64_switch_to
++#define __paravirt_leave_syscall		__ia64_leave_syscall
++#define __paravirt_work_processed_syscall	__ia64_work_processed_syscall
++#define __paravirt_leave_kernel			__ia64_leave_kernel
++#define __paravirt_pending_syscall_end		ia64_work_pending_syscall_end
++#define __paravirt_work_processed_syscall_target \
++						ia64_work_processed_syscall
++
++#define MOV_FROM_IFA(reg)	\
++	mov reg = cr.ifa
++
++#define MOV_FROM_ITIR(reg)	\
++	mov reg = cr.itir
++
++#define MOV_FROM_ISR(reg)	\
++	mov reg = cr.isr
++
++#define MOV_FROM_IHA(reg)	\
++	mov reg = cr.iha
++
++#define MOV_FROM_IPSR(reg)	\
++	mov reg = cr.ipsr
++
++#define MOV_FROM_IIM(reg)	\
++	mov reg = cr.iim
++
++#define MOV_FROM_IIP(reg)	\
++	mov reg = cr.iip
++
++#if 0
++#define MOV_FROM_IVR(reg, clob)	\
++	mov reg = cr.ivr
++#else
++#define MOV_FROM_IVR(reg)	\
++	mov reg = cr.ivr
++#endif
++
++#define MOV_FROM_PSR(pred, reg, clob)	\
++	(pred) mov reg = psr
++
++#define MOV_TO_IFA(reg, clob)	\
++	mov cr.ifa = reg
++
++#define MOV_TO_ITIR(pred, reg, clob)	\
++	(pred) mov cr.itir = reg
++
++#define MOV_TO_IHA(pred, reg, clob)	\
++	(pred) mov cr.iha = reg
++
++#define MOV_TO_IPSR(reg, clob)	\
++	mov cr.ipsr = reg
++
++#define MOV_TO_IFS(pred, reg, clob)	\
++	(pred) mov cr.ifs = reg
++
++#define MOV_TO_IIP(reg, clob)	\
++	mov cr.iip = reg
++
++#if 0
++#define MOV_TO_KR(kr, reg, clob0, clob1)	\
++	mov IA64_KR(kr) = reg
++#else
++#define MOV_TO_KR(kr, reg)	\
++	mov IA64_KR(kr) = reg
++#endif
++
++#define ITC_I(pred, reg, clob)	\
++	(pred) itc.i reg
++
++#define ITC_D(pred, reg, clob)	\
++	(pred) itc.d reg
++
++#define ITC_I_AND_D(pred_i, pred_d, reg, clob)	\
++	(pred_i) itc.i reg;			\
++	(pred_d) itc.d reg
++
++#define THASH(pred, reg0, reg1, clob)		\
++	(pred) thash reg0 = reg1
++
++#define SSM_PSR_IC_AND_DEFAULT_BITS(clob0, clob1)			\
++	ssm psr.ic | PSR_DEFAULT_BITS					\
++	;;								\
++	srlz.i /* guarantee that interruption collectin is on */	\
++	;;
++
++#define SSM_PSR_IC_AND_SRLZ_D(clob0, clob1)	\
++	ssm psr.ic;				\
++	;;					\
++	srlz.d
++
++#define RSM_PSR_IC(clob)	\
++	rsm psr.ic
++
++#define SSM_PSR_I(pred, clob)	\
++	(pred) ssm psr.i
++
++#define RSM_PSR_I(pred, clob0, clob1)	\
++	(pred) rsm psr.i
++
++#define RSM_PSR_I_IC(clob0, clob1, clob2)	\
++	rsm psr.i | psr.ic
++
++#define RSM_PSR_DT		\
++	rsm psr.dt		\
++
++#define RSM_PSR_DT_AND_SRLZ_I	\
++	rsm psr.dt		\
++	;;			\
++	srlz.i
++
++#define SSM_PSR_DT_AND_SRLZ_I	\
++	ssm psr.dt		\
++	;;			\
++	srlz.i
++
++#define BSW_0(clob0, clob1, clob2)	\
++	bsw.0
++
++#define BSW_1(clob0, clob1)	\
++	bsw.1
++
++#define CONVER	\
++	cover
++
++#define RFI	\
++	rfi
+-- 
+1.5.3
