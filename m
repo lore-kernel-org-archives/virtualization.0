@@ -1,36 +1,48 @@
-From: "Jaya Kumar" <jayakumar.lkml@gmail.com>
-Subject: Re: [PATCH 2/3] fbdev: Make deferred I/O work as advertized
-Date: Tue, 26 Feb 2008 10:01:16 -0500
-Message-ID: <45a44e480802260701o7c616e3bjd5f86f4143be791b@mail.gmail.com>
-References: <87tzjx6vj3.fsf@pike.pond.sub.org>
-	 <87k5kt6vd3.fsf@pike.pond.sub.org>
-	 <45a44e480802260611l5a8d0bc9k9cc967bc73b88fac@mail.gmail.com>
-	 <871w6z6ajs.fsf@pike.pond.sub.org>
+From: Keith Owens <kaos@ocs.com.au>
+Subject: Re: [PATCH 4/8] ia64/pv_ops: paravirtualize
+	arch/ia64/kernel/switch_leave.S
+Date: Wed, 27 Feb 2008 08:14:21 +1100
+Message-ID: <4471.1204060461__20399.2524104708$1204060784$gmane$org@ocs10w>
+References: <12040343393726-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <871w6z6ajs.fsf@pike.pond.sub.org>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
-To: Markus Armbruster <armbru@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, adaplas@pol.net, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, akpm@linux-foundation.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-reply-to: Your message of "Tue, 26 Feb 2008 22:58:55 +0900."
+	<12040343393726-git-send-email-yamahata@valinux.co.jp>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 26, 2008 at 9:45 AM, Markus Armbruster <armbru@redhat.com> wrote:
->
->  What about pushing the fb_defio fixes independently of any new
->  fb_defio users?  If fb_defio was worth merging into Linus's tree, it
->  should be worth fixing there, whether new users are in shape already
->  or not.
+Isaku Yamahata (on Tue, 26 Feb 2008 22:58:55 +0900) wrote:
+> /*
+>  * ia64_leave_syscall(): Same as ia64_leave_kernel, except that it doesn't
+>@@ -153,7 +165,8 @@ END(__ia64_switch_to)
+>  *	      ar.csd: cleared
+>  *	      ar.ssd: cleared
+>  */
+>-GLOBAL_ENTRY(__ia64_leave_syscall)
+>+GLOBAL_ENTRY(__paravirt_leave_syscall)
+>+	BR_IF_NATIVE(__ia64_leave_syscall, r22, p7)
+> 	PT_REGS_UNWIND_INFO(0)
 
-I think that Andrew's message is saying that there may be a race
-condition in the defio patch itself as opposed to the defio user
-patch.
+Move BR_IF_NATIVE after PT_REGS_UNWIND_INFO.  PT_REGS_UNWIND_INFO must
+define the unwind state at slot 0 of this function to get correct
+unwind state.  When virtualized, BR_IF_NATIVE will generate extra code
+and move the unwind data past slot 0, breaking the backtrace.
 
-If there is no race condition or other problems, then I think it would
-make sense to merge the defio patch independent of metronomefb or
-other new patches that use defio.
+>-GLOBAL_ENTRY(__ia64_leave_kernel)
+>+GLOBAL_ENTRY(__paravirt_leave_kernel)
+>+	BR_IF_NATIVE(__ia64_leave_kernel, r22, p7)
+> 	PT_REGS_UNWIND_INFO(0)
 
-Thanks,
-jaya
+Ditto.
