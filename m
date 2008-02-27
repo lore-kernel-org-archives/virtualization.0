@@ -1,8 +1,8 @@
 From: Akio Takebe <takebe_akio@jp.fujitsu.com>
 Subject: Re: [Xen-ia64-devel] [PATCH 7/8] ia64/xen: paravirtualize minstate.h,
 	DO_SAVE_MIN.
-Date: Wed, 27 Feb 2008 10:32:00 +0900
-Message-ID: <5C878E08C9E9Btakebe_akio__43983.0302064822$1204076001$gmane$org@jp.fujitsu.com>
+Date: Wed, 27 Feb 2008 10:35:33 +0900
+Message-ID: <6C878E10BB9F9takebe_akio__34439.8553403609$1204076291$gmane$org@jp.fujitsu.com>
 References: <1204034339752-git-send-email-yamahata@valinux.co.jp>
 	<12040343392692-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
@@ -25,6 +25,7 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Hi, Isaku
 
+>Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 >---
 > arch/ia64/xen/xenminstate.h |  148 ++++++++++++++++++++++++++++++++++++++++
 >+++
@@ -45,9 +46,63 @@ Hi, Isaku
 >+#include "entry.h"
 >+#endif
 >+
->
-we don't have arch/ia64/xen/entry.h,
-so the above ifdef is not necessary.
+>+#ifdef __IA64_ASM_PARAVIRTUALIZED_XEN
+>+/*
+>+ * DO_SAVE_MIN switches to the kernel stacks (if necessary) and saves
+>+ * the minimum state necessary that allows us to turn psr.ic back
+>+ * on.
+>+ *
+>+ * Assumed state upon entry:
+>+ *	psr.ic: off
+>+ *	r31:	contains saved predicates (pr)
+>+ *
+>+ * Upon exit, the state is as follows:
+>+ *	psr.ic: off
+>+ *	 r2 = points to &pt_regs.r16
+>+ *	 r8 = contents of ar.ccv
+>+ *	 r9 = contents of ar.csd
+>+ *	r10 = contents of ar.ssd
+>+ *	r11 = FPSR_DEFAULT
+>+ *	r12 = kernel sp (kernel virtual address)
+>+ *	r13 = points to current task_struct (kernel virtual address)
+>+ *	p15 = TRUE if psr.i is set in cr.ipsr
+>+ *	predicate registers (other than p2, p3, and p15), b6, r3, r14, r15:
+>+ *		preserved
+>+ * CONFIG_XEN note: p6/p7 are not preserved
+>+ *
+>+ * Note that psr.ic is NOT turned on by this macro.  This is so that
+>+ * we can pass interruption state as arguments to a handler.
+>+ */
+>+#define DO_SAVE_MIN(COVER,SAVE_IFS,EXTRA)					
+		\
+>+	mov r16=IA64_KR(CURRENT);	/* M */					
+		\
+>+	mov r27=ar.rsc;			/* M */					
+		\
+>+	mov r20=r1;			/* A */					
+		\
+>+	mov r25=ar.unat;		/* M */					
+		\
+>+	/* mov r29=cr.ipsr;		/* M */					
+		\
+>+	movl r29=XSI_IPSR;;							
+		\
+>+	ld8 r29=[r29];;								
+		\
+>+	mov r26=ar.pfs;			/* I */					
+		\
+>+	/* mov r28=cr.iip;		/* M */					
+		\
+>+	movl r28=XSI_IIP;;							
+		\
+>+	ld8 r28=[r28];;								
+		\
+>+	mov r21=ar.fpsr;		/* M */					
+		\
+>+	COVER;				/* B;; (or nothing) */			
+		\
+We may mis-read the above COVER as COVER in arch/ia64/xen/inst_xen.h.
+Why don't chage the name?
 
 Best Regards,
 
