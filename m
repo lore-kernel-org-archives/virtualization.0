@@ -1,12 +1,18 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: Xen paravirt frontend block hang
-Date: Thu, 28 Feb 2008 12:00:47 -0800
-Message-ID: <47C712EF.1060703__32382.4290921495$1204229848$gmane$org@goop.org>
-References: <4772AC8E.7010007@theshore.net>
+Date: Thu, 28 Feb 2008 12:03:00 -0800
+Message-ID: <47C71374.8010808__5609.35431062735$1204229874$gmane$org@goop.org>
+References: <4772AC8E.7010007@theshore.net> <47758352.5040504@goop.org>	
+	<479E71B7.7060207@theshore.net> <479E75E3.6030601@goop.org>	
+	<479E7BA4.5050306@theshore.net>	
+	<519a8b110802060437k70c099b7y7faefe63dd82039@mail.gmail.com>	
+	<47AA845E.8020708@goop.org>
+	<519a8b110802070612j2a1717f3s6aa25eeea8b7d18a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------010604020402030607030701"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4772AC8E.7010007@theshore.net>
+In-Reply-To: <519a8b110802070612j2a1717f3s6aa25eeea8b7d18a@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,153 +22,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Christopher S. Aker" <caker@theshore.net>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: xming <xmingske@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, virtualization@lists.linux-foundation.org, Xen-devel <xen-devel@lists.xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------010604020402030607030701
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+xming wrote:
+> On Feb 7, 2008 5:09 AM, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>   
+>> xming wrote:
+>>     
+>>> But I do have one problem after I upgraded to xen 3.2, the 2.6.23.x domU do
+>>> not boot any more and 2.6.24 does boot but will hang after cpufreq changes
+>>> the frequency.
+>>>
+>>>       
+>> Interesting.  Do you mean dom0 cpufreq frequency changes will cause the
+>> domU to hang?
+>>
+>>     J
+>>
+>>     
+>
+> Yes, when Dom0 changes freq while domU is doing something will trigger this.
+> When using "on demand" will trigger this very eassily.
+>
+> This is from xm top when a domU hangs:
+>
+>     test32 ------       4018   98.8     131072    6.4     131072
+> 6.4     1    1     4516    50087    1        0   433908   300403
+> 3084907223
+>
+> So it appers to be running (eating CPU) sometimes the state is "r"
+> sometimes "-",
+> but both console and network are dead.
+>   
 
-Christopher S. Aker wrote:
-> Sorry for the noise if this isn't the appropriate venue for this.  I 
-> posted this last month to xen-devel:
->
-> http://lists.xensource.com/archives/html/xen-devel/2007-11/msg00777.html
->
-> I can reliably cause a paravirt_ops Xen guest to hang during intensive 
-> IO.  My current recipe is an untar/tar loop, without compression, of a 
-> kernel tree.  For example:
->
-> wget http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.23.tar.bz2
-> bzip2 -d linux-2.6.23.tar.bz2
->
-> while true;
->   echo `date`
->   tar xf linux-2.6.23.tar
->   tar cf linux-2.6.23.tar linux-2.6.23
-> done
->
-> After a few loops, anything that touches the xvd device that hung will 
-> get stuck in D state.
-
-I've been running this all night without seeing any problem.  I'm using 
-current x86.git#testing with a few local patches, but nothing especially 
-relevent-looking.
-
-Could you try the attached patch to see if it makes any difference?
+I haven't tried to repro this yet, but I suspect I won't be able to 
+because all my test machines have constant_tsc.  Does CPU change TSC 
+rate on processor speed changes?
 
     J
-
->
-> This happens on both a 2.6.16 and 2.6.18 dom0 (3.1.2 tools).  Paravirt 
-> guests I've tried that exhibit the problem: 2.6.23.8, 2.6.23.12, and 
-> 2.6.24-rc6.  It does *not* occur using the Xensource 2.6.18 domU tree 
-> from 3.1.2.  In all cases, the host continues to run fine, nothing out 
-> of the ordinary is logged on the dom0 side, xenstore reports the 
-> status of the devices is fine.
->
-> Can anyone reproduce this problem, or let me know what else I can 
-> provide to help track this down?
->
-> Thanks,
-> -Chris
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
-
-
---------------010604020402030607030701
-Content-Type: text/x-patch;
- name="xen-indirect-iret.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="xen-indirect-iret.patch"
-
-Subject: xen: use iret instruction all the time
-
-Change iret implementation to not be dependent on direct-access vcpu
-structure.
-
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-
----
- arch/x86/xen/enlighten.c |    3 +--
- arch/x86/xen/xen-asm.S   |   11 +++--------
- arch/x86/xen/xen-ops.h   |    2 +-
- 3 files changed, 5 insertions(+), 11 deletions(-)
-
-===================================================================
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -860,7 +860,6 @@ void __init xen_setup_vcpu_info_placemen
- 		pv_irq_ops.irq_disable = xen_irq_disable_direct;
- 		pv_irq_ops.irq_enable = xen_irq_enable_direct;
- 		pv_mmu_ops.read_cr2 = xen_read_cr2_direct;
--		pv_cpu_ops.iret = xen_iret_direct;
- 	}
- }
- 
-@@ -964,7 +963,7 @@ static const struct pv_cpu_ops xen_cpu_o
- 	.read_tsc = native_read_tsc,
- 	.read_pmc = native_read_pmc,
- 
--	.iret = (void *)&hypercall_page[__HYPERVISOR_iret],
-+	.iret = xen_iret,
- 	.irq_enable_syscall_ret = NULL,  /* never called */
- 
- 	.load_tr_desc = paravirt_nop,
-===================================================================
---- a/arch/x86/xen/xen-asm.S
-+++ b/arch/x86/xen/xen-asm.S
-@@ -130,13 +130,8 @@ ENDPATCH(xen_restore_fl_direct)
- 	current stack state in whatever form its in, we keep things
- 	simple by only using a single register which is pushed/popped
- 	on the stack.
--
--	Non-direct iret could be done in the same way, but it would
--	require an annoying amount of code duplication.  We'll assume
--	that direct mode will be the common case once the hypervisor
--	support becomes commonplace.
-  */
--ENTRY(xen_iret_direct)
-+ENTRY(xen_iret)
- 	/* test eflags for special cases */
- 	testl $(X86_EFLAGS_VM | XEN_EFLAGS_NMI), 8(%esp)
- 	jnz hyper_iret
-@@ -150,9 +145,9 @@ ENTRY(xen_iret_direct)
- 	GET_THREAD_INFO(%eax)
- 	movl TI_cpu(%eax),%eax
- 	movl __per_cpu_offset(,%eax,4),%eax
--	lea per_cpu__xen_vcpu_info(%eax),%eax
-+	mov per_cpu__xen_vcpu(%eax),%eax
- #else
--	movl $per_cpu__xen_vcpu_info, %eax
-+	movl per_cpu__xen_vcpu, %eax
- #endif
- 
- 	/* check IF state we're restoring */
-===================================================================
---- a/arch/x86/xen/xen-ops.h
-+++ b/arch/x86/xen/xen-ops.h
-@@ -63,5 +63,5 @@ DECL_ASM(unsigned long, xen_save_fl_dire
- DECL_ASM(unsigned long, xen_save_fl_direct, void);
- DECL_ASM(void, xen_restore_fl_direct, unsigned long);
- 
--void xen_iret_direct(void);
-+void xen_iret(void);
- #endif /* XEN_OPS_H */
-
---------------010604020402030607030701
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---------------010604020402030607030701--
