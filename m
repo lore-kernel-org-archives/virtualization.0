@@ -1,14 +1,12 @@
-From: "Dong, Eddie" <eddie.dong@intel.com>
-Subject: RE: [PATCH 0/5] RFC: ia64/pv_ops: ia64 intrinsics paravirtualization
-Date: Fri, 29 Feb 2008 01:21:27 +0800
-Message-ID: <10EA09EFD8728347A513008B6B0DA77A02D767E9__41307.1693307304$1204220076$gmane$org@pdsmsx411.ccr.corp.intel.com>
-References: <12041926372068-git-send-email-yamahata@valinux.co.jp>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: Xen paravirt frontend block hang
+Date: Thu, 28 Feb 2008 12:00:47 -0800
+Message-ID: <47C712EF.1060703__32382.4290921495$1204229848$gmane$org@goop.org>
+References: <4772AC8E.7010007@theshore.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="------------010604020402030607030701"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <12041926372068-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <4772AC8E.7010007@theshore.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,196 +16,153 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>, linux-ia64@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
+To: "Christopher S. Aker" <caker@theshore.net>
+Cc: Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Isaku Yamahata wrote:
-> Hi. Thank you for comments on asm code paravirtualization.
-> Its direction is getting clear. Although it hasn't been finished yet,
-> I'd like to start discussion on ia64 intrinsics paravirtualization.
-> This patch set is just for discussion so that it is a subset of
-> xen Linux/ia64 domU paravirtualization, not self complete.
-> You can get the full patched tree by typing
-> git clone
-> http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
-> 
-> 
-> A paravirtualized guest wants to replace ia64 intrinsics, i.e.
-> the operations defined in include/asm-ia64/gcc_instrin.h or
-> include/asm-ia64/intel_instrin.h, with its own version.
-> (At least xenLinux/ia64 does.)
-> So we need a sort of interface to do so.
-> I want to discuss on which direction to go for, please comment.
-> 
-> 
-> This paravirtualization corresponds to the part of x86 pv_ops,
->   Performance critical code written in C. They are basically indirect
->   function call via pv_xxx_ops. For performance, each pv instance is
->   allowed to binary patch in order to replace function call
->   instruction with their predefined instructions in place.
->   The ia64 intrinsics corresonds to this kind of interface.
-> 
-> The discussion points so far are
-> - binary patching should be mandatory or optional?
->   The current patch requires binary patch, but some people think
->   requiring binary patch for pv instances is a bad idea.
->   I think by providing reasonable helper functions set, binary patch
->   won't be burden for pv instances.
-> 
-> - How differ from x86 pv_ops?
->   Some people think that the very similarity to x86 pv_ops is
->   important. I guess they're thinking so considering maintenance
->   cost. Anyway ia64 is already different from x86, so such difference
->   doesn't matter as long as ia64 paravirtualization interface is
-> clean enough for maintenance. 
-> 
-> Note: the way can differ from one operation from another, but it
-> might cause some inconsistency.
-> The following ways are proposed so far.
-> 
-> 
-> * Option 1: the current way
-> The code would look like
->         static inline unsigned long
->         paravirt_get_cpuid(int index)
->         {
->                 register __u64 ia64_intri_res asm ("r8");
->                 register __u64 __index asm ("r8") = index;
->                 asm volatile (paravirt_alt_inst("mov %0=cpuid[%r1]",
->                                            PARAVIRT_INST_GET_CPUID):
->                               "=r"(ia64_intri_res): "0O"(__index));
->                 return ia64_intri_res;
->         }
->         #define ia64_get_cpuid  paravirt_get_cpuid
-> 
->         note:
->         Using r8 is derived from xen hypercall abi.
->         We have to define which register should be used or can be
-> clobbered. 
-> 
->   Pros:
->   - in-place binary patch is possible.
->     (We may want to pad with nop. How many?)
->   - native case performance is good.
->   - native case doesn't need any modification.
-> 
->   Cons:
->   - binary patch is required for pv instances.
->   - Probably current implementation might be too xen-biased.
->     Reviewing them would be necessary for hypervisor neutrality.
-> 
-> * Option 2: direct branch
-> The code would look like
->         static inline unsigned long
->         paravirt_get_cpuid(int index)
->         {
->                register __u64 ia64_intri_res asm ("r8");
->                register __u64 __index asm ("r8") = index;
->                register __u64 ret_addr asm ("r9");
->                asm volatile (paravirt_alt_inst(
->                         "br.cond b0=native_get_cpuid",
->                         /* or brl.cond for fast hypercall */
->                          PARAVIRT_INST_GET_CPUID):
->                              "=r"(ia64_intri_res), "=r"(ret_addr):
->                              "0O"(__index)"
->                              "b0");
->                return ia64_intri_res;
->         }
->         #define ia64_get_cpuid  paravirt_get_cpuid
-> 
->         note:
->         Using r8 is derived from xen hypercall abi.
->         We have to define which register should be used or can be
-> clobbered. 
-> 
->   Pros:
->   - in-place binary patch is possible.
->     (We may want to pad with nop. How many?)
->   - so that performance would be good for native case using it.
-> 
->   Cons:
->   - binary patch is required for pv instances.
->   - native case needs binary patch for optimal performance.
-> 
-> * Option 3: indirect branch
-> The code would look like
->         static inline unsigned long
->         paravirt_get_cpuid(int index)
->         {
->                register __u64 ia64_intri_res asm ("r8");
->                register __u64 __index asm ("r8") = index;
->                register __u64 func asm ("r9");
->                asm volatile (paravirt_alt_inst(
->                         "mov %1 = pv_cpu_ops"
->                         "add %1 = %1, PV_CPU_GET_CPUID_OFFSET"
->                         "ld8 %1 = [%1]"
->                         "mov b1 = %1"
->                         "br.cond b0=b1"
->                          PARAVIRT_INST_GET_CPUID):
->                              "=r"(ia64_intri_res),
->                              "=r"(func):
->                              "0O"(__index):
->                              "b0", "b1");
->                return ia64_intri_res;
->         }
->         #define ia64_get_cpuid  paravirt_get_cpuid
-> 
->         note:
->         Using r8 is derived from xen hypercall abi.
->         We have to define which register should be used or can be
-> clobbered. 
-> 
->   Pros:
->   - binary patching isn't required for pv instances.
->   - in-place binary patch is possible
->     (We may want to pad with nop. How many?)
->   - so that performance would be good for native case using it.
-> 
->   Cons:
->   - use more spaces than the option #2.
->   - For optimal performance binary patch is necessary anyway.
-> 
-> * Option 4: indirect function call
-> The code would look like
->         struct pv_cpu_ops {
->                 unsigned long (*get_cpuid)(unsigned long index)
->                 ....
->         };
->         extern struct pv_cpu_ops pv_cpu_ops;
->         ...
->         static inline unsigned long
->         paravirt_get_cpuid(unsigned long index)
->         {
->                 return pv_cpu_ops->get_cpuid(index);
->         }
->         #define ia64_get_cpuid  paravirt_get_cpuid
-> 
->   Pros:
->   - Binary patch isn't required.
->   - indirect function call is the very way x86 pv_ops adopted.
->   - If hypervisor supports fast hypercall using gate page,
->     it may want to use function call.
-> 
->   Cons:
->   - Binary patch is difficult.
->     ia64 function call uses stacked registers, so that marking br.call
->     instruction is difficult.
->   - so that the performance is suboptimal especially for native case.
-> 
+This is a multi-part message in MIME format.
+--------------010604020402030607030701
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I am not sure if this statement is true. We can still patching it. For
-example
-using same inline asm code for paravirt_get_cpuid definition and it
-could be
-exactly same with X86.
+Christopher S. Aker wrote:
+> Sorry for the noise if this isn't the appropriate venue for this.  I 
+> posted this last month to xen-devel:
+>
+> http://lists.xensource.com/archives/html/xen-devel/2007-11/msg00777.html
+>
+> I can reliably cause a paravirt_ops Xen guest to hang during intensive 
+> IO.  My current recipe is an untar/tar loop, without compression, of a 
+> kernel tree.  For example:
+>
+> wget http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.23.tar.bz2
+> bzip2 -d linux-2.6.23.tar.bz2
+>
+> while true;
+>   echo `date`
+>   tar xf linux-2.6.23.tar
+>   tar cf linux-2.6.23.tar linux-2.6.23
+> done
+>
+> After a few loops, anything that touches the xvd device that hung will 
+> get stuck in D state.
 
->   Possibly the alternative is direct function call. At boot time,
->   scan all text detecting branch instructions which jumps to given
->   functions and binary patch branch target.
-> 
-> 
-> My current preference is option #1 or #2 making abi more hypervisor
-> neutral. 
-> 
-> thanks,
+I've been running this all night without seeing any problem.  I'm using 
+current x86.git#testing with a few local patches, but nothing especially 
+relevent-looking.
+
+Could you try the attached patch to see if it makes any difference?
+
+    J
+
+>
+> This happens on both a 2.6.16 and 2.6.18 dom0 (3.1.2 tools).  Paravirt 
+> guests I've tried that exhibit the problem: 2.6.23.8, 2.6.23.12, and 
+> 2.6.24-rc6.  It does *not* occur using the Xensource 2.6.18 domU tree 
+> from 3.1.2.  In all cases, the host continues to run fine, nothing out 
+> of the ordinary is logged on the dom0 side, xenstore reports the 
+> status of the devices is fine.
+>
+> Can anyone reproduce this problem, or let me know what else I can 
+> provide to help track this down?
+>
+> Thanks,
+> -Chris
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/virtualization
+
+
+--------------010604020402030607030701
+Content-Type: text/x-patch;
+ name="xen-indirect-iret.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="xen-indirect-iret.patch"
+
+Subject: xen: use iret instruction all the time
+
+Change iret implementation to not be dependent on direct-access vcpu
+structure.
+
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+
+---
+ arch/x86/xen/enlighten.c |    3 +--
+ arch/x86/xen/xen-asm.S   |   11 +++--------
+ arch/x86/xen/xen-ops.h   |    2 +-
+ 3 files changed, 5 insertions(+), 11 deletions(-)
+
+===================================================================
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -860,7 +860,6 @@ void __init xen_setup_vcpu_info_placemen
+ 		pv_irq_ops.irq_disable = xen_irq_disable_direct;
+ 		pv_irq_ops.irq_enable = xen_irq_enable_direct;
+ 		pv_mmu_ops.read_cr2 = xen_read_cr2_direct;
+-		pv_cpu_ops.iret = xen_iret_direct;
+ 	}
+ }
+ 
+@@ -964,7 +963,7 @@ static const struct pv_cpu_ops xen_cpu_o
+ 	.read_tsc = native_read_tsc,
+ 	.read_pmc = native_read_pmc,
+ 
+-	.iret = (void *)&hypercall_page[__HYPERVISOR_iret],
++	.iret = xen_iret,
+ 	.irq_enable_syscall_ret = NULL,  /* never called */
+ 
+ 	.load_tr_desc = paravirt_nop,
+===================================================================
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -130,13 +130,8 @@ ENDPATCH(xen_restore_fl_direct)
+ 	current stack state in whatever form its in, we keep things
+ 	simple by only using a single register which is pushed/popped
+ 	on the stack.
+-
+-	Non-direct iret could be done in the same way, but it would
+-	require an annoying amount of code duplication.  We'll assume
+-	that direct mode will be the common case once the hypervisor
+-	support becomes commonplace.
+  */
+-ENTRY(xen_iret_direct)
++ENTRY(xen_iret)
+ 	/* test eflags for special cases */
+ 	testl $(X86_EFLAGS_VM | XEN_EFLAGS_NMI), 8(%esp)
+ 	jnz hyper_iret
+@@ -150,9 +145,9 @@ ENTRY(xen_iret_direct)
+ 	GET_THREAD_INFO(%eax)
+ 	movl TI_cpu(%eax),%eax
+ 	movl __per_cpu_offset(,%eax,4),%eax
+-	lea per_cpu__xen_vcpu_info(%eax),%eax
++	mov per_cpu__xen_vcpu(%eax),%eax
+ #else
+-	movl $per_cpu__xen_vcpu_info, %eax
++	movl per_cpu__xen_vcpu, %eax
+ #endif
+ 
+ 	/* check IF state we're restoring */
+===================================================================
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -63,5 +63,5 @@ DECL_ASM(unsigned long, xen_save_fl_dire
+ DECL_ASM(unsigned long, xen_save_fl_direct, void);
+ DECL_ASM(void, xen_restore_fl_direct, unsigned long);
+ 
+-void xen_iret_direct(void);
++void xen_iret(void);
+ #endif /* XEN_OPS_H */
+
+--------------010604020402030607030701
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--------------010604020402030607030701--
