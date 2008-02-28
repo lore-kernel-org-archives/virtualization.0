@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 2/5] ia64: introduce basic facilities for binary patching.
-Date: Thu, 28 Feb 2008 18:57:14 +0900
-Message-ID: <12041926371106-git-send-email-yamahata__44363.0655216568$1204193543$gmane$org@valinux.co.jp>
+Subject: [PATCH 5/5] ia64/pv_ops/xen: xen privileged instruction intrinsics
+	with binary patch.
+Date: Thu, 28 Feb 2008 18:57:17 +0900
+Message-ID: <120419263771-git-send-email-yamahata__9605.18534197963$1204193815$gmane$org@valinux.co.jp>
 References: <12041926372068-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,137 +22,97 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, eddie.dong@intel.com, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+With binary patching, make intrinsics paravirtualization hypervisor neutral.
+So far xen intrinsics doesn't allow another hypervisor.
+Binary patch marked privileged operations which needs paravirtualization
+if running on xen at early boot time.
+
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/Kconfig                 |   72 +++++++++++++
- arch/ia64/kernel/Makefile         |    5 +
- arch/ia64/kernel/paravirt_alt.c   |  118 ++++++++++++++++++++++
- arch/ia64/kernel/paravirt_core.c  |  201 +++++++++++++++++++++++++++++++++++++
- arch/ia64/kernel/paravirt_entry.c |   99 ++++++++++++++++++
- arch/ia64/kernel/paravirt_nop.c   |   49 +++++++++
- arch/ia64/kernel/vmlinux.lds.S    |   35 +++++++
- include/asm-ia64/module.h         |    6 +
- include/asm-ia64/paravirt_alt.h   |   82 +++++++++++++++
- include/asm-ia64/paravirt_core.h  |   54 ++++++++++
- include/asm-ia64/paravirt_entry.h |   62 +++++++++++
- include/asm-ia64/paravirt_nop.h   |   46 +++++++++
- 12 files changed, 829 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirt_alt.c
- create mode 100644 arch/ia64/kernel/paravirt_core.c
- create mode 100644 arch/ia64/kernel/paravirt_entry.c
- create mode 100644 arch/ia64/kernel/paravirt_nop.c
- create mode 100644 include/asm-ia64/paravirt_alt.h
- create mode 100644 include/asm-ia64/paravirt_core.h
- create mode 100644 include/asm-ia64/paravirt_entry.h
- create mode 100644 include/asm-ia64/paravirt_nop.h
+ arch/ia64/kernel/module.c     |   32 +++++
+ arch/ia64/xen/Makefile        |    7 +
+ arch/ia64/xen/paravirt_xen.c  |  242 +++++++++++++++++++++++++++++++++++
+ arch/ia64/xen/privops_asm.S   |  221 ++++++++++++++++++++++++++++++++
+ arch/ia64/xen/privops_c.c     |  279 +++++++++++++++++++++++++++++++++++++++++
+ arch/ia64/xen/xensetup.S      |   10 ++
+ include/asm-ia64/xen/privop.h |   24 ++++
+ 7 files changed, 815 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/xen/Makefile
+ create mode 100644 arch/ia64/xen/paravirt_xen.c
+ create mode 100644 arch/ia64/xen/privops_asm.S
+ create mode 100644 arch/ia64/xen/privops_c.c
 
-diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-index dff9edf..bc84008 100644
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -110,6 +110,78 @@ config AUDIT_ARCH
- 	bool
- 	default y
+diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
+index e58f436..2806f70 100644
+--- a/arch/ia64/kernel/module.c
++++ b/arch/ia64/kernel/module.c
+@@ -454,6 +454,14 @@ module_frob_arch_sections (Elf_Ehdr *ehdr, Elf_Shdr *sechdrs, char *secstrings,
+ 			mod->arch.opd = s;
+ 		else if (strcmp(".IA_64.unwind", secstrings + s->sh_name) == 0)
+ 			mod->arch.unwind = s;
++#ifdef CONFIG_PARAVIRT_ALT
++		else if (strcmp(".paravirt_bundles",
++				secstrings + s->sh_name) == 0)
++			mod->arch.paravirt_bundles = s;
++		else if (strcmp(".paravirt_insts",
++				secstrings + s->sh_name) == 0)
++			mod->arch.paravirt_insts = s;
++#endif
  
-+menuconfig PARAVIRT_GUEST
-+	bool "Paravirtualized guest support"
-+	help
-+	  Say Y here to get to see options related to running Linux under
-+	  various hypervisors.  This option alone does not add any kernel code.
+ 	if (!mod->arch.core_plt || !mod->arch.init_plt || !mod->arch.got || !mod->arch.opd) {
+ 		printk(KERN_ERR "%s: sections missing\n", mod->name);
+@@ -929,6 +937,30 @@ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mo
+ 	DEBUGP("%s: init: entry=%p\n", __FUNCTION__, mod->init);
+ 	if (mod->arch.unwind)
+ 		register_unwind_table(mod);
++#ifdef CONFIG_PARAVIRT_ALT
++	if (mod->arch.paravirt_bundles) {
++		struct paravirt_alt_bundle_patch *start =
++			(struct paravirt_alt_bundle_patch *)
++			mod->arch.paravirt_bundles->sh_addr;
++		struct paravirt_alt_bundle_patch *end =
++			(struct paravirt_alt_bundle_patch *)
++			(mod->arch.paravirt_bundles->sh_addr +
++			 mod->arch.paravirt_bundles->sh_size);
 +
-+	  If you say N, all options in this submenu will be skipped and disabled.
++		xen_alt_bundle_patch_module(start, end);
++	}
++	if (mod->arch.paravirt_insts) {
++		struct paravirt_alt_inst_patch *start =
++			(struct paravirt_alt_inst_patch *)
++			mod->arch.paravirt_insts->sh_addr;
++		struct paravirt_alt_inst_patch *end =
++			(struct paravirt_alt_inst_patch *)
++			(mod->arch.paravirt_insts->sh_addr +
++			 mod->arch.paravirt_insts->sh_size);
 +
-+if PARAVIRT_GUEST
-+
-+config PARAVIRT
-+	bool
-+	default y
-+	help
-+	  This changes the kernel so it can modify itself when it is run
-+	  under a hypervisor, potentially improving performance significantly
-+	  over full virtualization.  However, when run without a hypervisor
-+	  the kernel is theoretically slower and slightly larger.
-+
-+config PARAVIRT_ALT
-+	bool "paravirt_alt binary patching infrastructure"
-+	depends on PARAVIRT
-+	default y
-+	help
-+	  The binary patching infratstructure to replace some privileged
-+	  instructions with hypervisor specific instrutions.
-+	  There are several sensitive(i.e. non-virtualizable) instructions and
-+	  performance critical privileged instructions which Xen
-+	  paravirtualize as hyperprivops.
-+	  For transparent paravirtualization (i.e. single binary should run
-+	  on both baremetal and xen environment), xenLinux/IA64 needs
-+	  something like "if (is_running_on_xen()) {} else {}" where
-+	  is_running_on_xen() is determined at boot time.
-+	  This configuration tries to eliminate the overheads for hyperprivops
-+	  by annotating such instructions and replacing them with hyperprivops
-+	  at boot time.
-+
-+config PARAVIRT_ENTRY
-+	bool "paravirt entry"
-+	depends on PARAVIRT
-+	default y
-+	help
-+	  The entry point hooking infrastructure to change the execution path
-+	  at the boot time.
-+	  There are several paravirtualized paths in hand coded assembly code
-+	  which isn't binary patched easily by the paravirt_alt infrastructure.
-+	  E.g. ia64_switch_to, ia64_leave_syscall, ia64_leave_kernel and
-+	  ia64_pal_call_static.
-+	  For those hand written assembly code, change the execution path
-+	  by hooking them and jumping to hand paravirtualized code.
-+
-+config PARAVIRT_NOP_B_PATCH
-+	bool "paravirt branch if native"
-+	depends on PARAVIRT
-+	default y
-+	help
-+	  paravirt branch if native
-+	  There are several paravirtualized paths in hand coded assembly code.
-+	  For transparent paravirtualization, there are codes like
-+	  GLOBAL_ENTRY(xen_xxx)
-+	  'movl reg=running_on_xen;;'
-+	  'ld4 reg=[reg];;'
-+	  'cmp.e1 pred,p0=reg,r0'
-+	  '(pred) br.cond.sptk.many <native_xxx>;;'
-+	  To reduce overhead when running on bare metal, just
-+	  "br.cond.sptk.many <native_xxx>" and replace it with 'nop.b 0'
-+	  when running on xen.
-+
-+#source "arch/ia64/xen/Kconfig"
-+
-+endif
-+
- choice
- 	prompt "System type"
- 	default IA64_GENERIC
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index 9281bf6..185e0e2 100644
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -36,6 +36,11 @@ obj-$(CONFIG_PCI_MSI)		+= msi_ia64.o
- mca_recovery-y			+= mca_drv.o mca_drv_asm.o
- obj-$(CONFIG_IA64_MC_ERR_INJECT)+= err_inject.o
++		xen_alt_inst_patch_module(start, end);
++	}
++#endif
+ 	return 0;
+ }
  
-+obj-$(CONFIG_PARAVIRT)		+= paravirt_core.o
-+obj-$(CONFIG_PARAVIRT_ALT)	+= paravirt_alt.o
-+obj-$(CONFIG_PARAVIRT_ENTRY)	+= paravirt_entry.o paravirtentry.o
-+obj-$(CONFIG_PARAVIRT_NOP_B_PATCH) += paravirt_nop.o
-+
- obj-$(CONFIG_IA64_ESI)		+= esi.o
- ifneq ($(CONFIG_IA64_ESI),)
- obj-y				+= esi_stub.o	# must be in kernel proper
-diff --git a/arch/ia64/kernel/paravirt_alt.c b/arch/ia64/kernel/paravirt_alt.c
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
 new file mode 100644
-index 0000000..d0a34a7
+index 0000000..c219358
 --- /dev/null
-+++ b/arch/ia64/kernel/paravirt_alt.c
-@@ -0,0 +1,118 @@
++++ b/arch/ia64/xen/Makefile
+@@ -0,0 +1,7 @@
++#
++# Makefile for Xen components
++#
++
++obj-$(CONFIG_PARAVIRT_ALT) += paravirt_xen.o privops_asm.o privops_c.o
++obj-$(CONFIG_PARAVIRT_NOP_B_PATCH) += paravirt_xen.o
++obj-$(CONFIG_PARAVIRT_ENTRY) += paravirt_xen.o
+diff --git a/arch/ia64/xen/paravirt_xen.c b/arch/ia64/xen/paravirt_xen.c
+new file mode 100644
+index 0000000..57b9dfd
+--- /dev/null
++++ b/arch/ia64/xen/paravirt_xen.c
+@@ -0,0 +1,242 @@
 +/******************************************************************************
-+ * linux/arch/ia64/xen/paravirt_alt.c
++ * linux/arch/ia64/xen/paravirt_xen.c
 + *
 + * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -172,403 +133,215 @@ index 0000000..d0a34a7
 + *
 + */
 +
++#include <linux/types.h>
++#include <linux/string.h>
++#include <linux/init.h>
++#include <asm/intrinsics.h>
++#include <asm/bugs.h>
++#include <asm/kprobes.h> /* for bundle_t */
 +#include <asm/paravirt_core.h>
 +
-+extern const char nop_bundle[];
-+extern const unsigned long nop_bundle_size;
++#ifdef CONFIG_PARAVIRT_ALT
++struct xen_alt_bundle_patch_elem {
++	const void	*sbundle;
++	const void	*ebundle;
++	unsigned long	type;
++};
 +
-+static void __init_or_module
-+fill_nop(void *sbundle, void *ebundle)
++static unsigned long __init_or_module
++__xen_alt_bundle_patch(void *sbundle, void *ebundle, unsigned long type)
 +{
-+	void *bundle = sbundle;
++	extern const struct xen_alt_bundle_patch_elem xen_alt_bundle_array[];
++	extern const unsigned long xen_alt_bundle_array_size;
++
++	unsigned long used = 0;
++	unsigned long i;
++
 +	BUG_ON((((unsigned long)sbundle) % sizeof(bundle_t)) != 0);
 +	BUG_ON((((unsigned long)ebundle) % sizeof(bundle_t)) != 0);
 +
-+	while (bundle < ebundle) {
-+		memcpy(bundle, nop_bundle, nop_bundle_size);
-+
-+		bundle += nop_bundle_size;
-+	}
-+}
-+
-+void __init_or_module
-+paravirt_alt_bundle_patch_apply(struct paravirt_alt_bundle_patch *start,
-+				struct paravirt_alt_bundle_patch *end,
-+				unsigned long(*patch)(void *sbundle,
-+						      void *ebundle,
-+						      unsigned long type))
-+{
-+	struct paravirt_alt_bundle_patch *p;
-+
-+	for (p = start; p < end; p++) {
-+		unsigned long used;
-+
-+		used = (*patch)(p->sbundle, p->ebundle, p->type);
-+		if (used == 0)
-+			continue;
-+
-+		fill_nop(p->sbundle + used, p->ebundle);
-+		paravirt_flush_i_cache_range(p->sbundle,
-+					     p->ebundle - p->sbundle);
-+	}
-+	ia64_sync_i();
-+	ia64_srlz_i();
-+}
-+
-+/*
-+ * nop.i, nop.m, nop.f instruction are same format.
-+ * but nop.b has differennt format.
-+ * This doesn't support nop.b for now.
-+ */
-+static void __init_or_module
-+fill_nop_inst(unsigned long stag, unsigned long etag)
-+{
-+	extern const bundle_t nop_mfi_inst_bundle[];
-+	unsigned long tag;
-+	const cmp_inst_t nop_inst = paravirt_read_slot0(nop_mfi_inst_bundle);
-+
-+	for (tag = stag; tag < etag; tag = paravirt_get_next_tag(tag))
-+		paravirt_write_inst(tag, nop_inst);
-+}
-+
-+void __init_or_module
-+paravirt_alt_inst_patch_apply(struct paravirt_alt_inst_patch *start,
-+			      struct paravirt_alt_inst_patch *end,
-+			      unsigned long (*patch)(unsigned long stag,
-+						     unsigned long etag,
-+						     unsigned long type))
-+{
-+	struct paravirt_alt_inst_patch *p;
-+
-+	for (p = start; p < end; p++) {
-+		unsigned long tag;
-+		bundle_t *sbundle;
-+		bundle_t *ebundle;
-+
-+		tag = (*patch)(p->stag, p->etag, p->type);
-+		if (tag == p->stag)
-+			continue;
-+
-+		fill_nop_inst(tag, p->etag);
-+		sbundle = paravirt_get_bundle(p->stag);
-+		ebundle = paravirt_get_bundle(p->etag) + 1;
-+		paravirt_flush_i_cache_range(sbundle, (ebundle - sbundle) *
-+					     sizeof(bundle_t));
-+	}
-+	ia64_sync_i();
-+	ia64_srlz_i();
-+}
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/arch/ia64/kernel/paravirt_core.c b/arch/ia64/kernel/paravirt_core.c
-new file mode 100644
-index 0000000..6b7c70f
---- /dev/null
-+++ b/arch/ia64/kernel/paravirt_core.c
-@@ -0,0 +1,201 @@
-+/******************************************************************************
-+ * linux/arch/ia64/xen/paravirt_core.c
-+ *
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <asm/paravirt_core.h>
-+
-+/*
-+ * flush_icache_range() can't be used here.
-+ * we are here before cpu_init() which initializes
-+ * ia64_i_cache_stride_shift. flush_icache_range() uses it.
-+ */
-+void __init_or_module
-+paravirt_flush_i_cache_range(const void *instr, unsigned long size)
-+{
-+	unsigned long i;
-+
-+	for (i = 0; i < size; i += sizeof(bundle_t))
-+		asm volatile ("fc.i %0":: "r"(instr + i): "memory");
-+}
-+
-+bundle_t* __init_or_module
-+paravirt_get_bundle(unsigned long tag)
-+{
-+	return (bundle_t *)(tag & ~3UL);
-+}
-+
-+unsigned long __init_or_module
-+paravirt_get_slot(unsigned long tag)
-+{
-+	return tag & 3UL;
-+}
-+
-+#if 0
-+unsigned long __init_or_module
-+paravirt_get_num_inst(unsigned long stag, unsigned long etag)
-+{
-+	bundle_t *sbundle = paravirt_get_bundle(stag);
-+	unsigned long sslot = paravirt_get_slot(stag);
-+	bundle_t *ebundle = paravirt_get_bundle(etag);
-+	unsigned long eslot = paravirt_get_slot(etag);
-+
-+	return (ebundle - sbundle) * 3 + eslot - sslot + 1;
-+}
-+#endif
-+
-+unsigned long __init_or_module
-+paravirt_get_next_tag(unsigned long tag)
-+{
-+	unsigned long slot = paravirt_get_slot(tag);
-+
-+	switch (slot) {
-+	case 0:
-+	case 1:
-+		return tag + 1;
-+	case 2: {
-+		bundle_t *bundle = paravirt_get_bundle(tag);
-+		return (unsigned long)(bundle + 1);
-+	}
-+	default:
-+		BUG();
-+	}
-+	/* NOTREACHED */
-+}
-+
-+cmp_inst_t __init_or_module
-+paravirt_read_slot0(const bundle_t *bundle)
-+{
-+	cmp_inst_t inst;
-+	inst.l = bundle->quad0.slot0;
-+	return inst;
-+}
-+
-+cmp_inst_t __init_or_module
-+paravirt_read_slot1(const bundle_t *bundle)
-+{
-+	cmp_inst_t inst;
-+	inst.l = bundle->quad0.slot1_p0 |
-+		((unsigned long long)bundle->quad1.slot1_p1 << 18UL);
-+	return inst;
-+}
-+
-+cmp_inst_t __init_or_module
-+paravirt_read_slot2(const bundle_t *bundle)
-+{
-+	cmp_inst_t inst;
-+	inst.l = bundle->quad1.slot2;
-+	return inst;
-+}
-+
-+cmp_inst_t __init_or_module
-+paravirt_read_inst(unsigned long tag)
-+{
-+	bundle_t *bundle = paravirt_get_bundle(tag);
-+	unsigned long slot = paravirt_get_slot(tag);
-+
-+	switch (slot) {
-+	case 0:
-+		return paravirt_read_slot0(bundle);
-+	case 1:
-+		return paravirt_read_slot1(bundle);
-+	case 2:
-+		return paravirt_read_slot2(bundle);
-+	default:
-+		BUG();
-+	}
-+	/* NOTREACHED */
-+}
-+
-+void __init_or_module
-+paravirt_write_slot0(bundle_t *bundle, cmp_inst_t inst)
-+{
-+	bundle->quad0.slot0 = inst.l;
-+}
-+
-+void __init_or_module
-+paravirt_write_slot1(bundle_t *bundle, cmp_inst_t inst)
-+{
-+	bundle->quad0.slot1_p0 = inst.l;
-+	bundle->quad1.slot1_p1 = inst.l >> 18UL;
-+}
-+
-+void __init_or_module
-+paravirt_write_slot2(bundle_t *bundle, cmp_inst_t inst)
-+{
-+	bundle->quad1.slot2 = inst.l;
-+}
-+
-+void __init_or_module
-+paravirt_write_inst(unsigned long tag, cmp_inst_t inst)
-+{
-+	bundle_t *bundle = paravirt_get_bundle(tag);
-+	unsigned long slot = paravirt_get_slot(tag);
-+
-+	switch (slot) {
-+	case 0:
-+		paravirt_write_slot0(bundle, inst);
-+		break;
-+	case 1:
-+		paravirt_write_slot1(bundle, inst);
-+		break;
-+	case 2:
-+		paravirt_write_slot2(bundle, inst);
-+		break;
-+	default:
-+		BUG();
-+	}
-+	paravirt_flush_i_cache_range(bundle, sizeof(*bundle));
-+}
-+
-+/* for debug */
-+void
-+print_bundle(const bundle_t *bundle)
-+{
-+	const unsigned long *quad = (const unsigned long *)bundle;
-+	cmp_inst_t slot0 = paravirt_read_slot0(bundle);
-+	cmp_inst_t slot1 = paravirt_read_slot1(bundle);
-+	cmp_inst_t slot2 = paravirt_read_slot2(bundle);
-+
-+	printk(KERN_DEBUG
-+	       "bundle 0x%p 0x%016lx 0x%016lx\n", bundle, quad[0], quad[1]);
-+	printk(KERN_DEBUG
-+	       "bundle template 0x%x\n",
-+	       bundle->quad0.template);
-+	printk(KERN_DEBUG
-+	       "slot0 0x%lx slot1_p0 0x%lx slot1_p1 0x%lx slot2 0x%lx\n",
-+	       (unsigned long)bundle->quad0.slot0,
-+	       (unsigned long)bundle->quad0.slot1_p0,
-+	       (unsigned long)bundle->quad1.slot1_p1,
-+	       (unsigned long)bundle->quad1.slot2);
-+	printk(KERN_DEBUG
-+	       "slot0 0x%016llx slot1 0x%016llx slot2 0x%016llx\n",
-+	       slot0.l, slot1.l, slot2.l);
-+}
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/arch/ia64/kernel/paravirt_entry.c b/arch/ia64/kernel/paravirt_entry.c
-new file mode 100644
-index 0000000..708287a
---- /dev/null
-+++ b/arch/ia64/kernel/paravirt_entry.c
-@@ -0,0 +1,99 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <asm/paravirt_core.h>
-+#include <asm/paravirt_entry.h>
-+
-+/* br.cond.sptk.many <target25>	B1 */
-+typedef union inst_b1 {
-+	cmp_inst_t inst;
-+	struct {
-+		unsigned long qp: 6;
-+		unsigned long btype: 3;
-+		unsigned long unused: 3;
-+		unsigned long p: 1;
-+		unsigned long imm20b: 20;
-+		unsigned long wh: 2;
-+		unsigned long d: 1;
-+		unsigned long s: 1;
-+		unsigned long opcode: 4;
-+	};
-+	unsigned long l;
-+} inst_b1_t;
-+
-+static void __init
-+__paravirt_entry_apply(unsigned long tag, const void *target)
-+{
-+	bundle_t *bundle = paravirt_get_bundle(tag);
-+	cmp_inst_t inst = paravirt_read_inst(tag);
-+	unsigned long target25 = (unsigned long)target - (unsigned long)bundle;
-+	inst_b1_t inst_b1;
-+
-+	inst_b1.l = inst.l;
-+	if (target25 & (1UL << 63))
-+		inst_b1.s = 1;
-+	else
-+		inst_b1.s = 0;
-+
-+	inst_b1.imm20b = target25 >> 4;
-+	inst.l = inst_b1.l;
-+
-+	paravirt_write_inst(tag, inst);
-+	paravirt_flush_i_cache_range(bundle, sizeof(*bundle));
-+}
-+
-+static void __init
-+paravirt_entry_apply(const struct paravirt_entry_patch *entry_patch,
-+		     const struct paravirt_entry *entries,
-+		     unsigned int nr_entries)
-+{
-+	unsigned int i;
-+	for (i = 0; i < nr_entries; i++) {
-+		if (entry_patch->type == entries[i].type) {
-+			__paravirt_entry_apply(entry_patch->tag,
-+					       entries[i].entry);
++	for (i = 0;
++	     i < xen_alt_bundle_array_size / sizeof(xen_alt_bundle_array[0]);
++	     i++) {
++		const struct xen_alt_bundle_patch_elem *p =
++			&xen_alt_bundle_array[i];
++		if (p->type == type) {
++			used = p->ebundle - p->sbundle;
++			BUG_ON(used > ebundle - sbundle);
++			memcpy(sbundle, p->sbundle, used);
 +			break;
 +		}
 +	}
++
++	return used;
 +}
++
++static void __init
++xen_alt_bundle_patch(void)
++{
++	extern struct paravirt_alt_bundle_patch __start_paravirt_bundles[];
++	extern struct paravirt_alt_bundle_patch __stop_paravirt_bundles[];
++
++	paravirt_alt_bundle_patch_apply(__start_paravirt_bundles,
++					__stop_paravirt_bundles,
++					&__xen_alt_bundle_patch);
++}
++
++#ifdef CONFIG_MODULES
++void
++xen_alt_bundle_patch_module(struct paravirt_alt_bundle_patch *start,
++			    struct paravirt_alt_bundle_patch *end)
++{
++	if (is_running_on_xen())
++		paravirt_alt_bundle_patch_apply(start, end,
++						&__xen_alt_bundle_patch);
++}
++#endif /* CONFIG_MODULES */
++
++
++/*
++ * all the native instructions of hyperprivops are M-form or I-form
++ * mov ar.<imm>=r1	I26, M29
++ * mov r1=ar.<imm>	I28, M31
++ * mov r1=cr.<imm>	M32
++ * mov cr.<imm>=r1	M33
++ * mov r1=psr		M36
++ * mov indirect<r1>=r2	M42
++ * mov r1=indirect<r2>	M43
++ * ptc.ga		M45
++ * thash r1=r2		M46
++ *
++ * break.{m, i} instrucitions format are same.
++ * So we can safely replace all signle instruction which is target of
++ * hyperpviops with break.{m, i} imm21 hyperprivops.
++ */
++
++struct xen_alt_inst_patch_elem {
++	unsigned long stag;
++	unsigned long etag;
++	unsigned long type;
++};
++
++unsigned long
++__xen_alt_inst_patch(unsigned long stag, unsigned long etag,
++		     unsigned long type)
++{
++	extern const struct xen_alt_inst_patch_elem xen_alt_inst_array[];
++	extern const unsigned long xen_alt_inst_array_size;
++
++	unsigned long dest_tag = stag;
++	unsigned long i;
++
++	for (i = 0;
++	     i < xen_alt_inst_array_size / sizeof(xen_alt_inst_array[0]);
++	     i++) {
++		const struct xen_alt_inst_patch_elem *p =
++			&xen_alt_inst_array[i];
++		if (p->type == type) {
++			unsigned long src_tag;
++
++			for (src_tag = p->stag;
++			     src_tag < p->etag;
++			     src_tag = paravirt_get_next_tag(src_tag)) {
++				const cmp_inst_t inst =
++					paravirt_read_inst(src_tag);
++				paravirt_write_inst(dest_tag, inst);
++
++				BUG_ON(dest_tag >= etag);
++				dest_tag = paravirt_get_next_tag(dest_tag);
++			}
++			break;
++		}
++	}
++
++	return dest_tag;
++}
++
++void
++xen_alt_inst_patch(void)
++{
++	extern struct paravirt_alt_inst_patch __start_paravirt_insts[];
++	extern struct paravirt_alt_inst_patch __stop_paravirt_insts[];
++
++	paravirt_alt_inst_patch_apply(__start_paravirt_insts,
++				      __stop_paravirt_insts,
++				      &__xen_alt_inst_patch);
++}
++
++#ifdef CONFIG_MODULES
++void
++xen_alt_inst_patch_module(struct paravirt_alt_inst_patch *start,
++			  struct paravirt_alt_inst_patch *end)
++{
++	if (is_running_on_xen())
++		paravirt_alt_inst_patch_apply(start, end,
++					      &__xen_alt_inst_patch);
++}
++#endif
++
++#else
++#define xen_alt_bundle_patch()	do { } while (0)
++#define xen_alt_inst_patch()	do { } while (0)
++#endif /* CONFIG_PARAVIRT_ALT */
++
++
++#ifdef CONFIG_PARAVIRT_NOP_B_PATCH
++#include <asm/paravirt_nop.h>
++static void __init
++xen_nop_b_patch(void)
++{
++	extern const struct paravirt_nop_patch __start_paravirt_nop_b[];
++	extern const struct paravirt_nop_patch __stop_paravirt_nop_b[];
++
++	paravirt_nop_b_patch_apply(__start_paravirt_nop_b,
++				   __stop_paravirt_nop_b);
++}
++#else
++#define xen_nop_b_patch()	do { } while (0)
++#endif
++
++
++#ifdef CONFIG_PARAVIRT_ENTRY
++
++#include <asm/paravirt_entry.h>
++
++extern void *xen_switch_to;
++extern void *xen_leave_syscall;
++extern void *xen_leave_kernel;
++extern void *xen_pal_call_static;
++extern void *xen_work_processed_syscall;
++
++const static struct paravirt_entry xen_entries[] __initdata = {
++	{&xen_switch_to,		PARAVIRT_ENTRY_SWITCH_TO},
++	{&xen_leave_syscall,		PARAVIRT_ENTRY_LEAVE_SYSCALL},
++	{&xen_leave_kernel,		PARAVIRT_ENTRY_LEAVE_KERNEL},
++	{&xen_pal_call_static,		PARAVIRT_ENTRY_PAL_CALL_STATIC},
++	{&xen_work_processed_syscall,	PARAVIRT_ENTRY_WORK_PROCESSED_SYSCALL},
++};
 +
 +void __init
-+paravirt_entry_patch_apply(const struct paravirt_entry_patch *start,
-+			   const struct paravirt_entry_patch *end,
-+			   const struct paravirt_entry *entries,
-+			   unsigned int nr_entries)
++xen_entry_patch(void)
 +{
-+	const struct paravirt_entry_patch *p;
-+	for (p = start; p < end; p++)
-+		paravirt_entry_apply(p, entries, nr_entries);
++	extern const struct paravirt_entry_patch __start_paravirt_entry[];
++	extern const struct paravirt_entry_patch __stop_paravirt_entry[];
 +
-+	ia64_sync_i();
-+	ia64_srlz_i();
++	paravirt_entry_patch_apply(__start_paravirt_entry,
++				   __stop_paravirt_entry,
++				   xen_entries,
++				   sizeof(xen_entries)/sizeof(xen_entries[0]));
++}
++#else
++#define xen_entry_patch()	do { } while (0)
++#endif
++
++
++void __init
++xen_paravirt_patch(void)
++{
++	xen_alt_bundle_patch();
++	xen_alt_inst_patch();
++	xen_nop_b_patch();
++	xen_entry_patch();
 +}
 +
 +/*
@@ -580,14 +353,14 @@ index 0000000..708287a
 + * indent-tabs-mode: t
 + * End:
 + */
-diff --git a/arch/ia64/kernel/paravirt_nop.c b/arch/ia64/kernel/paravirt_nop.c
+diff --git a/arch/ia64/xen/privops_asm.S b/arch/ia64/xen/privops_asm.S
 new file mode 100644
-index 0000000..ee5a204
+index 0000000..40e400e
 --- /dev/null
-+++ b/arch/ia64/kernel/paravirt_nop.c
-@@ -0,0 +1,49 @@
++++ b/arch/ia64/xen/privops_asm.S
+@@ -0,0 +1,221 @@
 +/******************************************************************************
-+ * linux/arch/ia64/xen/paravirt_nop.c
++ * linux/arch/ia64/xen/privop_s.S
 + *
 + * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -608,363 +381,558 @@ index 0000000..ee5a204
 + *
 + */
 +
-+#include <asm/paravirt_core.h>
-+#include <asm/paravirt_nop.h>
++#include <asm/intrinsics.h>
++#include <linux/init.h>
++#include <asm/paravirt_alt.h>
++
++#ifdef CONFIG_MODULES
++#define __INIT_OR_MODULE	.text
++#define __INITDATA_OR_MODULE	.data
++#else
++#define __INIT_OR_MODULE	__INIT
++#define __INITDATA_OR_MODULE	__INITDATA
++#endif /* CONFIG_MODULES */
++
++	__INIT_OR_MODULE
++	.align 32
++	.proc nop_b_inst_bundle
++	.global nop_b_inst_bundle
++nop_b_inst_bundle:
++	{
++		nop.b 0
++		nop.b 0
++		nop.b 0
++	}
++	.endp nop_b_inst_bundle
++	__FINIT
++
++	/* NOTE: nop.[mfi] has same format */
++	__INIT_OR_MODULE
++	.align 32
++	.proc nop_mfi_inst_bundle
++	.global nop_mfi_inst_bundle
++nop_mfi_inst_bundle:
++	{
++		nop.m 0
++		nop.f 0
++		nop.i 0
++	}
++	.endp nop_mfi_inst_bundle
++	__FINIT
++
++	__INIT_OR_MODULE
++	.align 32
++	.proc nop_bundle
++	.global nop_bundle
++nop_bundle:
++nop_bundle_start:
++	{
++		nop 0
++		nop 0
++		nop 0
++	}
++nop_bundle_end:
++	.endp nop_bundle
++	__FINIT
++
++	__INITDATA_OR_MODULE
++	.align 8
++	.global nop_bundle_size
++nop_bundle_size:
++	data8	nop_bundle_end - nop_bundle_start
++
++#define DEFINE_PRIVOP(name, instr)					\
++	.align 32;							\
++	.proc  xen_ ## name ## _instr;					\
++	xen_ ## name ## _instr:;					\
++	xen_ ## name ## _instr_start:;					\
++	{;								\
++	[xen_ ## name ## _stag:]					\
++		instr;							\
++	[xen_ ## name ## _etag:]					\
++		nop 0;							\
++		nop 0;							\
++	};								\
++	xen_ ## name ## _instr_end:;					\
++	.endp  xen_ ## name ## _instr;
++
++	__INIT_OR_MODULE
++	DEFINE_PRIVOP(rfi,		XEN_HYPER_RFI)
++	DEFINE_PRIVOP(rsm_psr_dt,	XEN_HYPER_RSM_PSR_DT)
++	DEFINE_PRIVOP(ssm_psr_dt,	XEN_HYPER_SSM_PSR_DT)
++	DEFINE_PRIVOP(cover,		XEN_HYPER_COVER)
++	DEFINE_PRIVOP(itc_d,		XEN_HYPER_ITC_D)
++	DEFINE_PRIVOP(itc_i,		XEN_HYPER_ITC_I)
++	DEFINE_PRIVOP(ssm_i,		XEN_HYPER_SSM_I)
++	DEFINE_PRIVOP(get_ivr,		XEN_HYPER_GET_IVR)
++	DEFINE_PRIVOP(get_tpr,		XEN_HYPER_GET_TPR)
++	DEFINE_PRIVOP(set_tpr,		XEN_HYPER_SET_TPR)
++	DEFINE_PRIVOP(eoi,		XEN_HYPER_EOI)
++	DEFINE_PRIVOP(set_itm,		XEN_HYPER_SET_ITM)
++	DEFINE_PRIVOP(thash,		XEN_HYPER_THASH)
++	DEFINE_PRIVOP(ptc_ga,		XEN_HYPER_PTC_GA)
++	DEFINE_PRIVOP(itr_d,		XEN_HYPER_ITR_D)
++	DEFINE_PRIVOP(get_rr,		XEN_HYPER_GET_RR)
++	DEFINE_PRIVOP(set_rr,		XEN_HYPER_SET_RR)
++	DEFINE_PRIVOP(set_kr,		XEN_HYPER_SET_KR)
++	DEFINE_PRIVOP(fc,		XEN_HYPER_FC)
++	DEFINE_PRIVOP(get_cpuid,	XEN_HYPER_GET_CPUID)
++	DEFINE_PRIVOP(get_pmd,		XEN_HYPER_GET_PMD)
++	DEFINE_PRIVOP(get_eflag,	XEN_HYPER_GET_EFLAG)
++	DEFINE_PRIVOP(set_eflag,	XEN_HYPER_SET_EFLAG)
++	DEFINE_PRIVOP(get_psr,		XEN_HYPER_GET_PSR)
++	DEFINE_PRIVOP(set_rr0_to_rr4,	XEN_HYPER_SET_RR0_TO_RR4)
++	__FINIT
++
++
++#define PARAVIRT_ALT_BUNDLE_ELEM(name, type)				\
++	data8 xen_ ## name ## _instr_start;				\
++	data8 xen_ ## name ## _instr_end;				\
++	data8 type;
++
++	__INITDATA_OR_MODULE
++	.align 8
++	.global xen_alt_bundle_array
++xen_alt_bundle_array:
++xen_alt_bundle_array_start:
++	PARAVIRT_ALT_BUNDLE_ELEM(rfi,		PARAVIRT_INST_RFI)
++	PARAVIRT_ALT_BUNDLE_ELEM(rsm_psr_dt,	PARAVIRT_INST_RSM_DT)
++	PARAVIRT_ALT_BUNDLE_ELEM(ssm_psr_dt,	PARAVIRT_INST_SSM_DT)
++	PARAVIRT_ALT_BUNDLE_ELEM(cover,		PARAVIRT_INST_COVER)
++	PARAVIRT_ALT_BUNDLE_ELEM(itc_d,		PARAVIRT_INST_ITC_D)
++	PARAVIRT_ALT_BUNDLE_ELEM(itc_i,		PARAVIRT_INST_ITC_I)
++	PARAVIRT_ALT_BUNDLE_ELEM(ssm_i,		PARAVIRT_INST_SSM_I)
++	PARAVIRT_ALT_BUNDLE_ELEM(get_ivr,	PARAVIRT_INST_GET_IVR)
++	PARAVIRT_ALT_BUNDLE_ELEM(get_tpr,	PARAVIRT_INST_GET_TPR)
++	PARAVIRT_ALT_BUNDLE_ELEM(set_tpr,	PARAVIRT_INST_SET_TPR)
++	PARAVIRT_ALT_BUNDLE_ELEM(eoi,		PARAVIRT_INST_EOI)
++	PARAVIRT_ALT_BUNDLE_ELEM(set_itm,	PARAVIRT_INST_SET_ITM)
++	PARAVIRT_ALT_BUNDLE_ELEM(thash,		PARAVIRT_INST_THASH)
++	PARAVIRT_ALT_BUNDLE_ELEM(ptc_ga,	PARAVIRT_INST_PTC_GA)
++	PARAVIRT_ALT_BUNDLE_ELEM(itr_d,		PARAVIRT_INST_ITR_D)
++	PARAVIRT_ALT_BUNDLE_ELEM(get_rr,	PARAVIRT_INST_GET_RR)
++	PARAVIRT_ALT_BUNDLE_ELEM(set_rr,	PARAVIRT_INST_SET_RR)
++	PARAVIRT_ALT_BUNDLE_ELEM(set_kr,	PARAVIRT_INST_SET_KR)
++	PARAVIRT_ALT_BUNDLE_ELEM(fc,		PARAVIRT_INST_FC)
++	PARAVIRT_ALT_BUNDLE_ELEM(get_cpuid,	PARAVIRT_INST_GET_CPUID)
++	PARAVIRT_ALT_BUNDLE_ELEM(get_pmd,	PARAVIRT_INST_GET_PMD)
++	PARAVIRT_ALT_BUNDLE_ELEM(get_eflag,	PARAVIRT_INST_GET_EFLAG)
++	PARAVIRT_ALT_BUNDLE_ELEM(set_eflag,	PARAVIRT_INST_SET_EFLAG)
++	PARAVIRT_ALT_BUNDLE_ELEM(get_psr,	PARAVIRT_INST_GET_PSR)
++
++	PARAVIRT_ALT_BUNDLE_ELEM(ssm_i,		PARAVIRT_BNDL_SSM_I)
++	PARAVIRT_ALT_BUNDLE_ELEM(rsm_i,		PARAVIRT_BNDL_RSM_I)
++	PARAVIRT_ALT_BUNDLE_ELEM(get_psr_i,	PARAVIRT_BNDL_GET_PSR_I)
++	PARAVIRT_ALT_BUNDLE_ELEM(intrin_local_irq_restore,
++					PARAVIRT_BNDL_INTRIN_LOCAL_IRQ_RESTORE)
++xen_alt_bundle_array_end:
++
++	.align 8
++	.global xen_alt_bundle_array_size
++xen_alt_bundle_array_size:
++	.long xen_alt_bundle_array_end - xen_alt_bundle_array_start
++
++
++#define PARAVIRT_ALT_INST_ELEM(name, type)				\
++	data8 xen_ ## name ## _stag ;					\
++	data8 xen_ ## name ## _etag ;					\
++	data8 type
++
++	__INITDATA_OR_MODULE
++	.align 8
++	.global xen_alt_inst_array
++xen_alt_inst_array:
++xen_alt_inst_array_start:
++	PARAVIRT_ALT_INST_ELEM(rfi,		PARAVIRT_INST_RFI)
++	PARAVIRT_ALT_INST_ELEM(rsm_psr_dt,	PARAVIRT_INST_RSM_DT)
++	PARAVIRT_ALT_INST_ELEM(ssm_psr_dt,	PARAVIRT_INST_SSM_DT)
++	PARAVIRT_ALT_INST_ELEM(cover,		PARAVIRT_INST_COVER)
++	PARAVIRT_ALT_INST_ELEM(itc_d,		PARAVIRT_INST_ITC_D)
++	PARAVIRT_ALT_INST_ELEM(itc_i,		PARAVIRT_INST_ITC_I)
++	PARAVIRT_ALT_INST_ELEM(ssm_i,		PARAVIRT_INST_SSM_I)
++	PARAVIRT_ALT_INST_ELEM(get_ivr,		PARAVIRT_INST_GET_IVR)
++	PARAVIRT_ALT_INST_ELEM(get_tpr,		PARAVIRT_INST_GET_TPR)
++	PARAVIRT_ALT_INST_ELEM(set_tpr,		PARAVIRT_INST_SET_TPR)
++	PARAVIRT_ALT_INST_ELEM(eoi,		PARAVIRT_INST_EOI)
++	PARAVIRT_ALT_INST_ELEM(set_itm,		PARAVIRT_INST_SET_ITM)
++	PARAVIRT_ALT_INST_ELEM(thash,		PARAVIRT_INST_THASH)
++	PARAVIRT_ALT_INST_ELEM(ptc_ga,		PARAVIRT_INST_PTC_GA)
++	PARAVIRT_ALT_INST_ELEM(itr_d,		PARAVIRT_INST_ITR_D)
++	PARAVIRT_ALT_INST_ELEM(get_rr,		PARAVIRT_INST_GET_RR)
++	PARAVIRT_ALT_INST_ELEM(set_rr,		PARAVIRT_INST_SET_RR)
++	PARAVIRT_ALT_INST_ELEM(set_kr,		PARAVIRT_INST_SET_KR)
++	PARAVIRT_ALT_INST_ELEM(fc,		PARAVIRT_INST_FC)
++	PARAVIRT_ALT_INST_ELEM(get_cpuid,	PARAVIRT_INST_GET_CPUID)
++	PARAVIRT_ALT_INST_ELEM(get_pmd,		PARAVIRT_INST_GET_PMD)
++	PARAVIRT_ALT_INST_ELEM(get_eflag,	PARAVIRT_INST_GET_EFLAG)
++	PARAVIRT_ALT_INST_ELEM(set_eflag,	PARAVIRT_INST_SET_EFLAG)
++	PARAVIRT_ALT_INST_ELEM(get_psr,		PARAVIRT_INST_GET_PSR)
++	PARAVIRT_ALT_INST_ELEM(set_rr0_to_rr4,	PARAVIRT_INST_SET_RR0_TO_RR4)
++
++	PARAVIRT_ALT_INST_ELEM(ssm_i,		PARAVIRT_BNDL_SSM_I)
++	PARAVIRT_ALT_INST_ELEM(rsm_i,		PARAVIRT_BNDL_RSM_I)
++	PARAVIRT_ALT_INST_ELEM(get_psr_i,	PARAVIRT_BNDL_GET_PSR_I)
++	PARAVIRT_ALT_INST_ELEM(intrin_local_irq_restore,
++					PARAVIRT_BNDL_INTRIN_LOCAL_IRQ_RESTORE)
++xen_alt_inst_array_end:
++
++	.align 8
++	.global xen_alt_inst_array_size
++xen_alt_inst_array_size:
++	.long xen_alt_inst_array_end - xen_alt_inst_array_start
+diff --git a/arch/ia64/xen/privops_c.c b/arch/ia64/xen/privops_c.c
+new file mode 100644
+index 0000000..0fa2e23
+--- /dev/null
++++ b/arch/ia64/xen/privops_c.c
+@@ -0,0 +1,279 @@
++/******************************************************************************
++ * arch/ia64/xen/privops_c.c
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <linux/linkage.h>
++#include <linux/init.h>
++#include <linux/module.h>
++
++#include <xen/interface/xen.h>
++
++#include <asm/asm-offsets.h>
++#define XEN_PSR_I_ADDR_ADDR	((uint8_t **)(XSI_BASE + XSI_PSR_I_ADDR_OFS))
++
 +
 +void __init_or_module
-+paravirt_nop_b_patch_apply(const struct paravirt_nop_patch *start,
-+			   const struct paravirt_nop_patch *end)
++xen_privop_ssm_i(void)
 +{
-+	extern const bundle_t nop_b_inst_bundle;
-+	const cmp_inst_t nop_b_inst = paravirt_read_slot0(&nop_b_inst_bundle);
-+	const struct paravirt_nop_patch *p;
++	/*
++	 * int masked = !xen_get_virtual_psr_i();
++	 *	// masked = *(*XEN_MAPPEDREGS->interrupt_mask_addr)
++	 * xen_set_virtual_psr_i(1)
++	 *	// *(*XEN_MAPPEDREGS->interrupt_mask_addr) = 0
++	 * // compiler barrier
++	 * if (masked) {
++	 *	uint8_t* pend_int_addr =
++	 *		(uint8_t*)(*XEN_MAPPEDREGS->interrupt_mask_addr) - 1;
++	 *	uint8_t pending = *pend_int_addr;
++	 *	if (pending)
++	 *		XEN_HYPER_SSM_I
++	 * }
++	 */
++	register uint8_t *tmp asm ("r8");
++	register int masked asm ("r9");
++	register uint8_t *pending_intr_addr asm ("r10");
 +
-+	for (p = start; p < end; p++)
-+		paravirt_write_inst(p->tag, nop_b_inst);
++	asm volatile(".global xen_ssm_i_instr\n\t"
++		     "xen_ssm_i_instr:\n\t"
++		     ".global xen_ssm_i_instr_start\n\t"
++		     "xen_ssm_i_instr_start:\n\t"
++		     ".global xen_ssm_i_stag\n\t"
++		     "[xen_ssm_i_stag:]\n\t"
++		     /* tmp = &XEN_MAPPEDREGS->interrupt_mask_addr */
++		     "mov %[tmp]=%[XEN_PSR_I_ADDR_ADDR_IMM]\n\t"
++		     ";;\n\t"
++		     /* tmp = *XEN_MAPPEDREGS->interrupt_mask_addr */
++		     "ld8 %[tmp]=[%[tmp]]\n\t"
++		     ";;\n\t"
++		     /* pending_intr_addr = tmp - 1 */
++		     "add %[pending_intr_addr]=-1,%[tmp]\n\t"
++		     /* masked = *tmp */
++		     "ld1 %[masked]=[%[tmp]]\n\t"
++		     ";;\n\t"
++		     /* *tmp = 0 */
++		     "st1 [%[tmp]]=r0\n\t"
++		     /* p6 = !masked */
++		     "cmp.ne.unc p6,p0=%[masked],r0\n\t"
++		     ";;\n\t"
++		     /* tmp = *pending_intr_addr */
++		     "(p6) ld1 %[tmp]=[%[pending_intr_addr]]\n\t"
++		     ";;\n\t"
++		     /* p7 = p6 && !tmp */
++		     "(p6) cmp.ne.unc p7,p0=%[tmp],r0\n\t"
++		     ";;\n\t"
++		     "(p7) break %[HYPERPRIVOP_SSM_I_IMM]\n\t"
++		     ".global xen_ssm_i_etag\n\t"
++		     "[xen_ssm_i_etag:]\n\t"
++		     ".global xen_ssm_i_instr_end\n\t"
++		     "xen_ssm_i_instr_end:\n\t"
++		     :
++		     [tmp] "=r"(tmp),
++		     [pending_intr_addr] "=r"(pending_intr_addr),
++		     [masked] "=r"(masked),
 +
-+	ia64_sync_i();
-+	ia64_srlz_i();
++		     "=m"(**((uint8_t **)XEN_PSR_I_ADDR_ADDR))
++		     :
++		     [XEN_PSR_I_ADDR_ADDR_IMM] "i"(XEN_PSR_I_ADDR_ADDR),
++		     [HYPERPRIVOP_SSM_I_IMM] "i"(HYPERPRIVOP_SSM_I),
++
++		     "m"(*((uint8_t *)XEN_PSR_I_ADDR_ADDR)),
++		     "m"(**((uint8_t **)XEN_PSR_I_ADDR_ADDR)),
++		     "m"(*(*((uint8_t **)XEN_PSR_I_ADDR_ADDR) - 1))
++		     :
++		     "memory",
++		     /*
++		      * predicate registers can't be specified as C variables
++		      * so that we use p6, p7, p8 here.
++		      */
++		     "p6", /* is_old */
++		     "p7"  /* is_pending */
++		);
 +}
 +
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index 80622ac..0cbe0a1 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -163,6 +163,41 @@ SECTIONS
- 	  __end___mckinley_e9_bundles = .;
- 	}
++void __init_or_module
++xen_privop_rsm_i(void)
++{
++	/*
++	 * psr_i_addr_addr = XEN_MAPPEDREGS->interrupt_mask_addr
++	 *                 = XEN_PSR_I_ADDR_ADDR;
++	 * psr_i_addr = *psr_i_addr_addr;
++	 * *psr_i_addr = 1;
++	 */
++	register unsigned long psr_i_addr asm("r8");
++	register uint8_t mask asm ("r9");
++	asm volatile (".global xen_rsm_i_instr\n\t"
++		      "xen_rsm_i_instr:\n\t"
++		      ".global xen_rsm_i_instr_start\n\t"
++		      "xen_rsm_i_instr_start:\n\t"
++		      ".global xen_rsm_i_stag\n\t"
++		      "[xen_rsm_i_stag:]\n\t"
++		      "mov %[psr_i_addr]=%[XEN_PSR_I_ADDR_ADDR_IMM]\n\t"
++		      "mov %[mask]=%[ONE_IMM]\n\t"
++		      ";;\n\t"
++		      "ld8 %[psr_i_addr]=[%[psr_i_addr]]\n\t"
++		      ";;\n\t"
++		      "st1 [%[psr_i_addr]]=%[mask]\n\t"
++		      ".global xen_rsm_i_etag\n\t"
++		      "[xen_rsm_i_etag:]\n\t"
++		      ".global xen_rsm_i_instr_end\n\t"
++		      "xen_rsm_i_instr_end:\n\t"
++		      :
++		      [psr_i_addr] "=r"(psr_i_addr),
++		      [mask] "=r"(mask),
++		      "=m"(**((uint8_t **)XEN_PSR_I_ADDR_ADDR)):
++		      [XEN_PSR_I_ADDR_ADDR_IMM] "i"(XEN_PSR_I_ADDR_ADDR),
++		      [ONE_IMM] "i"(1),
++		      "m"(*((uint8_t **)XEN_PSR_I_ADDR_ADDR)):
++		      "memory");
++}
++
++void __init_or_module
++xen_privop_ia64_intrin_local_irq_restore(unsigned long val)
++{
++	/*
++	 * psr_i_addr_addr = XEN_PSR_I_ADDR_ADDR
++	 * psr_i_addr = *psr_i_addr_addr
++	 * pending_intr_addr = psr_i_addr - 1
++	 * if (val & IA64_PSR_I) {
++	 *   masked = *psr_i_addr
++	 *   *psr_i_addr = 0
++	 *   compiler barrier
++	 *   if (masked) {
++	 *	uint8_t pending = *pending_intr_addr;
++	 *	if (pending)
++	 *		XEN_HYPER_SSM_I
++	 *   }
++	 * } else {
++	 *   *psr_i_addr = 1
++	 * }
++	 */
++
++	register unsigned long __val asm("r8") = val;
++	register uint8_t *psr_i_addr asm ("r9");
++	register uint8_t *pending_intr_addr asm ("r10");
++	register uint8_t masked asm ("r11");
++	register unsigned long one_or_pending asm ("r8");
++
++	asm volatile (
++		".global xen_intrin_local_irq_restore_instr\n\t"
++		"xen_intrin_local_irq_restore_instr:\n\t"
++		".global xen_intrin_local_irq_restore_instr_start\n\t"
++		"xen_intrin_local_irq_restore_instr_start:\n\t"
++		".global xen_intrin_local_irq_restore_stag\n\t"
++		"[xen_intrin_local_irq_restore_stag:]\n\t"
++		"tbit.nz p6,p7=%[val],%[IA64_PSR_I_BIT_IMM]\n\t"
++		"mov %[psr_i_addr]=%[XEN_PSR_I_ADDR_ADDR_IMM]\n\t"
++		";;\n\t"
++		"ld8 %[psr_i_addr]=[%[psr_i_addr]]\n\t"
++		"(p7)mov %[one_or_pending]=%[ONE_IMM]\n\t"
++		";;\n\t"
++		"add %[pending_intr_addr]=-1,%[psr_i_addr]\n\t"
++		";;\n\t"
++		"(p6) ld1 %[masked]=[%[psr_i_addr]]\n\t"
++		"(p7) st1 [%[psr_i_addr]]=%[one_or_pending]\n\t"
++		";;\n\t"
++		"(p6) st1 [%[psr_i_addr]]=r0\n\t"
++		"(p6) cmp.ne.unc p8,p0=%[masked],r0\n\t"
++		"(p6) ld1 %[one_or_pending]=[%[pending_intr_addr]]\n\t"
++		";;\n\t"
++		"(p8) cmp.eq.unc p9,p0=%[one_or_pending],r0\n\t"
++		";;\n\t"
++		"(p9) break %[HYPERPRIVOP_SSM_I_IMM]\n\t"
++		".global xen_intrin_local_irq_restore_etag\n\t"
++		"[xen_intrin_local_irq_restore_etag:]\n\t"
++		".global xen_intrin_local_irq_restore_instr_end\n\t"
++		"xen_intrin_local_irq_restore_instr_end:\n\t"
++		:
++		[psr_i_addr] "=r"(psr_i_addr),
++		[pending_intr_addr] "=r"(pending_intr_addr),
++		[masked] "=r"(masked),
++		[one_or_pending] "=r"(one_or_pending),
++
++		"=m"(**((uint8_t **)XEN_PSR_I_ADDR_ADDR))
++		:
++		[val] "r"(__val),
++		[IA64_PSR_I_BIT_IMM] "i"(IA64_PSR_I_BIT),
++		[ONE_IMM] "i"(1),
++
++		[XEN_PSR_I_ADDR_ADDR_IMM] "i"(XEN_PSR_I_ADDR_ADDR),
++		[HYPERPRIVOP_SSM_I_IMM] "i"(HYPERPRIVOP_SSM_I),
++
++		"m"(*((uint8_t *)XEN_PSR_I_ADDR_ADDR)),
++		"m"(**((uint8_t **)XEN_PSR_I_ADDR_ADDR)),
++		"m"(*(*((uint8_t **)XEN_PSR_I_ADDR_ADDR) - 1))
++		:
++		"memory",
++		"p6", /* is_psr_i_set  */
++		"p7", /* not_psr_i_set */
++		"p8", /* is_masked && is_psr_i_set */
++		"p9"  /* is_pending && is_masked && is_psr_i_set */
++		);
++}
++
++unsigned long __init_or_module
++xen_privop_get_psr_i(void)
++{
++	/*
++	 * tmp = XEN_MAPPEDREGS->interrupt_mask_addr = XEN_PSR_I_ADDR_ADDR;
++	 * tmp = *tmp
++	 * tmp = *tmp;
++	 * psr_i = tmp? 0: IA64_PSR_I;
++	 */
++	register unsigned long psr_i asm ("r8");
++	register unsigned long tmp asm ("r9");
++
++	asm volatile (".global xen_get_psr_i_instr\n\t"
++		      "xen_get_psr_i_instr:\n\t"
++		      ".global xen_get_psr_i_instr_start\n\t"
++		      "xen_get_psr_i_instr_start:\n\t"
++		      ".global xen_get_psr_i_stag\n\t"
++		      "[xen_get_psr_i_stag:]\n\t"
++		      /* tmp = XEN_PSR_I_ADDR_ADDR */
++		      "mov %[tmp]=%[XEN_PSR_I_ADDR_ADDR_IMM]\n\t"
++		      ";;\n\t"
++		      /* tmp = *tmp = *XEN_PSR_I_ADDR_ADDR */
++		      "ld8 %[tmp]=[%[tmp]]\n\t"
++		      /* psr_i = 0 */
++		      "mov %[psr_i]=0\n\t"
++		      ";;\n\t"
++		      /* tmp = *(uint8_t*)tmp */
++		      "ld1 %[tmp]=[%[tmp]]\n\t"
++		      ";;\n\t"
++		      /* if (!tmp) psr_i = IA64_PSR_I */
++		      "cmp.eq.unc p6,p0=%[tmp],r0\n\t"
++		      ";;\n\t"
++		      "(p6) mov %[psr_i]=%[IA64_PSR_I_IMM]\n\t"
++		      ".global xen_get_psr_i_etag\n\t"
++		      "[xen_get_psr_i_etag:]\n\t"
++		      ".global xen_get_psr_i_instr_end\n\t"
++		      "xen_get_psr_i_instr_end:\n\t"
++		      :
++		      [tmp] "=r"(tmp),
++		      [psr_i] "=r"(psr_i)
++		      :
++		      [XEN_PSR_I_ADDR_ADDR_IMM] "i"(XEN_PSR_I_ADDR_ADDR),
++		      [IA64_PSR_I_IMM] "i"(IA64_PSR_I),
++		      "m"(*((uint8_t **)XEN_PSR_I_ADDR_ADDR)),
++		      "m"(**((uint8_t **)XEN_PSR_I_ADDR_ADDR))
++		      :
++		      "p6");
++	return psr_i;
++}
+diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
+index 17ad297..2d3d5d4 100644
+--- a/arch/ia64/xen/xensetup.S
++++ b/arch/ia64/xen/xensetup.S
+@@ -35,6 +35,16 @@ GLOBAL_ENTRY(early_xen_setup)
+ (isBP)	movl r28=XSI_BASE;;
+ (isBP)	break 0x1000;;
  
-+#if defined(CONFIG_PARAVIRT_ALT)
-+  . = ALIGN(16);
-+  .paravirt_bundles : AT(ADDR(.paravirt_bundles) - LOAD_OFFSET)
-+	{
-+	  __start_paravirt_bundles = .;
-+          *(.paravirt_bundles)
-+	  __stop_paravirt_bundles = .;
-+	}
-+  . = ALIGN(16);
-+  .paravirt_insts : AT(ADDR(.paravirt_insts) - LOAD_OFFSET)
-+	{
-+	  __start_paravirt_insts = .;
-+          *(.paravirt_insts)
-+	  __stop_paravirt_insts = .;
-+	}
-+#endif
-+#if defined(CONFIG_PARAVIRT_NOP_B_PATCH)
-+  . = ALIGN(16);
-+  .paravirt_nop_b : AT(ADDR(.paravirt_nop_b) - LOAD_OFFSET)
-+	{
-+	  __start_paravirt_nop_b = .;
-+	  *(.paravirt_nop_b)
-+	  __stop_paravirt_nop_b = .;
-+	}
-+#endif
-+#if defined(CONFIG_PARAVIRT_ENTRY)
-+  . = ALIGN(16);
-+  .paravirt_entry : AT(ADDR(.paravirt_entry) - LOAD_OFFSET)
-+	{
-+	  __start_paravirt_entry = .;
-+	  *(.paravirt_entry)
-+	  __stop_paravirt_entry = .;
-+	}
++#ifdef CONFIG_PARAVIRT
++	/* patch privops */
++(isBP)	mov r4=rp
++	;;
++(isBP)	br.call.sptk.many rp=xen_paravirt_patch
++	;;
++(isBP)	mov rp=r4
++	;;
 +#endif
 +
- #if defined(CONFIG_IA64_GENERIC)
-   /* Machine Vector */
-   . = ALIGN(16);
-diff --git a/include/asm-ia64/module.h b/include/asm-ia64/module.h
-index d2da61e..44f63ff 100644
---- a/include/asm-ia64/module.h
-+++ b/include/asm-ia64/module.h
-@@ -16,6 +16,12 @@ struct mod_arch_specific {
- 	struct elf64_shdr *got;		/* global offset table */
- 	struct elf64_shdr *opd;		/* official procedure descriptors */
- 	struct elf64_shdr *unwind;	/* unwind-table section */
+ 	br.ret.sptk.many rp
+ 	;;
+ END(early_xen_setup)
+diff --git a/include/asm-ia64/xen/privop.h b/include/asm-ia64/xen/privop.h
+index 95e8e8a..d59cc31 100644
+--- a/include/asm-ia64/xen/privop.h
++++ b/include/asm-ia64/xen/privop.h
+@@ -557,6 +557,18 @@ do {									\
+ 
+ #endif /* ASM_SUPPORTED && !CONFIG_PARAVIRT_ALT */
+ 
 +#ifdef CONFIG_PARAVIRT_ALT
-+	struct elf64_shdr *paravirt_bundles;
-+					/* paravirt_alt_bundle_patch table */
-+	struct elf64_shdr *paravirt_insts;
-+					/* paravirt_alt_inst_patch table */
++#if defined(CONFIG_MODULES) && defined(CONFIG_XEN)
++void xen_alt_bundle_patch_module(struct paravirt_alt_bundle_patch *start,
++				 struct paravirt_alt_bundle_patch *end);
++void xen_alt_inst_patch_module(struct paravirt_alt_inst_patch *start,
++			       struct paravirt_alt_inst_patch *end);
++#else
++#define xen_alt_bundle_patch_module(start, end)	do { } while (0)
++#define xen_alt_inst_patch_module(start, end)	do { } while (0)
 +#endif
- 	unsigned long gp;		/* global-pointer for module */
++#endif /* CONFIG_PARAVIRT_ALT */
++
+ #endif /* !__ASSEMBLY__ */
  
- 	void *core_unw_table;		/* core unwind-table cookie returned by unwinder */
-diff --git a/include/asm-ia64/paravirt_alt.h b/include/asm-ia64/paravirt_alt.h
-new file mode 100644
-index 0000000..34c5473
---- /dev/null
-+++ b/include/asm-ia64/paravirt_alt.h
-@@ -0,0 +1,82 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef __ASM_PARAVIRT_ALT_H
-+#define __ASM_PARAVIRT_ALT_H
-+
-+#ifndef __ASSEMBLER__
-+/* for binary patch */
-+struct paravirt_alt_bundle_patch {
-+	void		*sbundle;
-+	void		*ebundle;
-+	unsigned long	type;
-+};
-+
-+/* label means the beginning of new bundle */
-+#define paravirt_alt_bundle(instr, privop)				\
-+	"\t1:\n"							\
-+	"\t" instr "\n"							\
-+	"\t2:\n"							\
-+	"\t.section .paravirt_bundles, \"a\"\n"				\
-+	"\t.previous\n"							\
-+	"\t.xdata8 \".paravirt_bundles\", 1b, 2b, "			\
-+	__stringify(privop) "\n"
-+
-+struct paravirt_alt_inst_patch {
-+	unsigned long	stag;
-+	unsigned long	etag;
-+	unsigned long	type;
-+};
-+
-+#define paravirt_alt_inst(instr, privop)				\
-+	"\t[1:]\n"							\
-+	"\t" instr "\n"							\
-+	"\t[2:]\n"							\
-+	"\t.section .paravirt_insts, \"a\"\n"				\
-+	"\t.previous\n"							\
-+	"\t.xdata8 \".paravirt_insts\", 1b, 2b, "			\
-+	__stringify(privop) "\n"
-+
-+void
-+paravirt_alt_bundle_patch_apply(struct paravirt_alt_bundle_patch *start,
-+				struct paravirt_alt_bundle_patch *end,
-+				unsigned long(*patch)(void *sbundle,
-+						      void *ebundle,
-+						      unsigned long type));
-+
-+void
-+paravirt_alt_inst_patch_apply(struct paravirt_alt_inst_patch *start,
-+			      struct paravirt_alt_inst_patch *end,
-+			      unsigned long (*patch)(unsigned long stag,
-+						     unsigned long etag,
-+						     unsigned long type));
-+#endif /* __ASSEMBLER__ */
-+
-+#endif /* __ASM_PARAVIRT_ALT_H */
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/include/asm-ia64/paravirt_core.h b/include/asm-ia64/paravirt_core.h
-new file mode 100644
-index 0000000..9979740
---- /dev/null
-+++ b/include/asm-ia64/paravirt_core.h
-@@ -0,0 +1,54 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef __ASM_PARAVIRT_CORE_H
-+#define __ASM_PARAVIRT_CORE_H
-+
-+#include <asm/kprobes.h>
-+
-+void paravirt_flush_i_cache_range(const void *instr, unsigned long size);
-+
-+bundle_t *paravirt_get_bundle(unsigned long tag);
-+unsigned long paravirt_get_slot(unsigned long tag);
-+unsigned long paravirt_get_next_tag(unsigned long tag);
-+
-+cmp_inst_t paravirt_read_slot0(const bundle_t *bundle);
-+cmp_inst_t paravirt_read_slot1(const bundle_t *bundle);
-+cmp_inst_t paravirt_read_slot2(const bundle_t *bundle);
-+cmp_inst_t paravirt_read_inst(unsigned long tag);
-+
-+void paravirt_write_slot0(bundle_t *bundle, cmp_inst_t inst);
-+void paravirt_write_slot1(bundle_t *bundle, cmp_inst_t inst);
-+void paravirt_write_slot2(bundle_t *bundle, cmp_inst_t inst);
-+void paravirt_write_inst(unsigned long tag, cmp_inst_t inst);
-+
-+void print_bundle(const bundle_t *bundle);
-+
-+#endif /* __ASM_PARAVIRT_CORE_H */
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/include/asm-ia64/paravirt_entry.h b/include/asm-ia64/paravirt_entry.h
-new file mode 100644
-index 0000000..857fd37
---- /dev/null
-+++ b/include/asm-ia64/paravirt_entry.h
-@@ -0,0 +1,62 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef __ASM_PARAVIRT_ENTRY_H
-+#define __ASM_PARAVIRT_ENTRY_H
-+
-+#ifdef __ASSEMBLY__
-+
-+#define BR_COND_SPTK_MANY(target, type)		\
-+	[1:] ;					\
-+	br.cond.sptk.many target;; ;		\
-+	.section .paravirt_entry, "a" ;		\
-+	.previous ;				\
-+	.xdata8 ".paravirt_entry", 1b, type
-+
-+#else /* __ASSEMBLY__ */
-+
-+struct paravirt_entry_patch {
-+	unsigned long	tag;
-+	unsigned long	type;
-+};
-+
-+struct paravirt_entry {
-+	void		*entry;
-+	unsigned long	type;
-+};
-+
-+void
-+paravirt_entry_patch_apply(const struct paravirt_entry_patch *start,
-+			   const struct paravirt_entry_patch *end,
-+			   const struct paravirt_entry *entries,
-+			   unsigned int nr_entries);
-+
-+#endif /* __ASSEMBLY__ */
-+
-+#endif /* __ASM_PARAVIRT_ENTRY_H */
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
-diff --git a/include/asm-ia64/paravirt_nop.h b/include/asm-ia64/paravirt_nop.h
-new file mode 100644
-index 0000000..2b05430
---- /dev/null
-+++ b/include/asm-ia64/paravirt_nop.h
-@@ -0,0 +1,46 @@
-+/******************************************************************************
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef __ASM_PARAVIRT_OPS_H
-+#define __ASM_PARAVIRT_OPS_H
-+
-+#ifndef __ASSEMBLY__
-+
-+struct paravirt_nop_patch {
-+	unsigned long	tag;
-+};
-+
-+void
-+paravirt_nop_b_patch_apply(const struct paravirt_nop_patch *start,
-+			   const struct paravirt_nop_patch *end);
-+
-+#endif /* !__ASSEMBLEY__ */
-+
-+#endif /* __ASM_PARAVIRT_OPS_H */
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "linux"
-+ * c-basic-offset: 8
-+ * tab-width: 8
-+ * indent-tabs-mode: t
-+ * End:
-+ */
+ /* these routines utilize privilege-sensitive or performance-sensitive
+@@ -573,12 +585,24 @@ do {									\
+ 
+ #ifdef CONFIG_XEN
+ #ifdef __ASSEMBLY__
++#ifdef CONFIG_PARAVIRT_ENTRY
++#define BR_IF_NATIVE(target, reg_unused, pred_unused)	/* nothing */
++#elif defined(CONFIG_PARAVIRT_NOP_B_PATCH)
++#define BR_IF_NATIVE(target, reg_unused, pred_unused)	\
++	.body ;						\
++	[1:] ;						\
++	br.cond.sptk.many target;; ;			\
++	.section .paravirt_nop_b, "a" ;			\
++	.previous ;					\
++	.xdata8 ".paravirt_nop_b", 1b
++#else
+ #define BR_IF_NATIVE(target, reg, pred)		\
+ 	.body ;					\
+ 	movl reg=running_on_xen;; ;		\
+ 	ld4 reg=[reg];; ;			\
+ 	cmp.eq pred,p0=reg,r0 ;			\
+ 	(pred)	br.cond.sptk.many target;;
++#endif
+ #endif /* __ASSEMBLY__ */
+ #endif
+ 
 -- 
 1.5.3
