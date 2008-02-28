@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 3/5] ia64/pv_ops: define ia64 privileged instruction
-	intrinsics for paravirtualized guest kernel.
-Date: Thu, 28 Feb 2008 18:57:15 +0900
-Message-ID: <12041926371187-git-send-email-yamahata__35111.159264534$1204193104$gmane$org@valinux.co.jp>
+Subject: [PATCH 4/5] ia64/xen: introduce xen paravirtualized intrinsic
+	operations for privileged instruction.
+Date: Thu, 28 Feb 2008 18:57:16 +0900
+Message-ID: <12041926373142-git-send-email-yamahata__36854.1083801121$1204193268$gmane$org@valinux.co.jp>
 References: <12041926372068-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,633 +22,616 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, eddie.dong@intel.com, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make ia64 privileged instruction intrinsics paravirtualizable with binary
-patching allowing each pv instances to override each intrinsics.
-Mark privileged instructions which needs paravirtualization and allow pv
-instance can binary patch at early boot time.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/paravirtentry.S   |   37 +++
- include/asm-ia64/privop.h          |    4 +
- include/asm-ia64/privop_paravirt.h |  587 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 628 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirtentry.S
- create mode 100644 include/asm-ia64/privop_paravirt.h
+ arch/ia64/xen/hypercall.S     |  124 +++++++++++
+ include/asm-ia64/xen/privop.h |  489 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 613 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/xen/hypercall.S
 
-diff --git a/arch/ia64/kernel/paravirtentry.S b/arch/ia64/kernel/paravirtentry.S
+diff --git a/arch/ia64/xen/hypercall.S b/arch/ia64/xen/hypercall.S
 new file mode 100644
-index 0000000..013511f
+index 0000000..a96f278
 --- /dev/null
-+++ b/arch/ia64/kernel/paravirtentry.S
-@@ -0,0 +1,37 @@
-+/******************************************************************************
-+ * linux/arch/ia64/xen/paravirtentry.S
++++ b/arch/ia64/xen/hypercall.S
+@@ -0,0 +1,124 @@
++/*
++ * Support routines for Xen hypercalls
 + *
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
++ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
 + */
 +
-+#include <asm/types.h>
 +#include <asm/asmmacro.h>
-+#include <asm/paravirt_entry.h>
-+#include <asm/privop_paravirt.h>
++#include <asm/intrinsics.h>
 +
-+#define BRANCH(sym, type)					\
-+	GLOBAL_ENTRY(paravirt_ ## sym) ;			\
-+		BR_COND_SPTK_MANY(native_ ## sym, type) ;	\
-+	END(paravirt_ ## sym)
-+
-+	BRANCH(switch_to,		PARAVIRT_ENTRY_SWITCH_TO)
-+	BRANCH(leave_syscall,		PARAVIRT_ENTRY_LEAVE_SYSCALL)
-+	BRANCH(work_processed_syscall,	PARAVIRT_ENTRY_WORK_PROCESSED_SYSCALL)
-+	BRANCH(leave_kernel,		PARAVIRT_ENTRY_LEAVE_KERNEL)
-+	BRANCH(pal_call_static,		PARAVIRT_ENTRY_PAL_CALL_STATIC)
-diff --git a/include/asm-ia64/privop.h b/include/asm-ia64/privop.h
-index b0b74fd..69591e0 100644
---- a/include/asm-ia64/privop.h
-+++ b/include/asm-ia64/privop.h
-@@ -10,6 +10,10 @@
-  *
-  */
- 
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/privop_paravirt.h>
++#ifdef __INTEL_COMPILER
++# undef ASM_SUPPORTED
++#else
++# define ASM_SUPPORTED
 +#endif
 +
- #ifdef CONFIG_XEN
- #include <asm/xen/privop.h>
++#ifndef ASM_SUPPORTED
++GLOBAL_ENTRY(xen_get_psr)
++	XEN_HYPER_GET_PSR
++	br.ret.sptk.many rp
++	;;
++END(xen_get_psr)
++
++GLOBAL_ENTRY(xen_get_ivr)
++	XEN_HYPER_GET_IVR
++	br.ret.sptk.many rp
++	;;
++END(xen_get_ivr)
++
++GLOBAL_ENTRY(xen_get_tpr)
++	XEN_HYPER_GET_TPR
++	br.ret.sptk.many rp
++	;;
++END(xen_get_tpr)
++
++GLOBAL_ENTRY(xen_set_tpr)
++	mov r8=r32
++	XEN_HYPER_SET_TPR
++	br.ret.sptk.many rp
++	;;
++END(xen_set_tpr)
++
++GLOBAL_ENTRY(xen_eoi)
++	mov r8=r32
++	XEN_HYPER_EOI
++	br.ret.sptk.many rp
++	;;
++END(xen_eoi)
++
++GLOBAL_ENTRY(xen_thash)
++	mov r8=r32
++	XEN_HYPER_THASH
++	br.ret.sptk.many rp
++	;;
++END(xen_thash)
++
++GLOBAL_ENTRY(xen_set_itm)
++	mov r8=r32
++	XEN_HYPER_SET_ITM
++	br.ret.sptk.many rp
++	;;
++END(xen_set_itm)
++
++GLOBAL_ENTRY(xen_ptcga)
++	mov r8=r32
++	mov r9=r33
++	XEN_HYPER_PTC_GA
++	br.ret.sptk.many rp
++	;;
++END(xen_ptcga)
++
++GLOBAL_ENTRY(xen_get_rr)
++	mov r8=r32
++	XEN_HYPER_GET_RR
++	br.ret.sptk.many rp
++	;;
++END(xen_get_rr)
++
++GLOBAL_ENTRY(xen_set_rr)
++	mov r8=r32
++	mov r9=r33
++	XEN_HYPER_SET_RR
++	br.ret.sptk.many rp
++	;;
++END(xen_set_rr)
++
++GLOBAL_ENTRY(xen_set_kr)
++	mov r8=r32
++	mov r9=r33
++	XEN_HYPER_SET_KR
++	br.ret.sptk.many rp
++END(xen_set_kr)
++
++GLOBAL_ENTRY(xen_fc)
++	mov r8=r32
++	XEN_HYPER_FC
++	br.ret.sptk.many rp
++END(xen_fc)
++
++GLOBAL_ENTRY(xen_get_cpuid)
++	mov r8=r32
++	XEN_HYPER_GET_CPUID
++	br.ret.sptk.many rp
++END(xen_get_cpuid)
++
++GLOBAL_ENTRY(xen_get_pmd)
++	mov r8=r32
++	XEN_HYPER_GET_PMD
++	br.ret.sptk.many rp
++END(xen_get_pmd)
++
++#ifdef CONFIG_IA32_SUPPORT
++GLOBAL_ENTRY(xen_get_eflag)
++	XEN_HYPER_GET_EFLAG
++	br.ret.sptk.many rp
++END(xen_get_eflag)
++
++// some bits aren't set if pl!=0, see SDM vol1 3.1.8
++GLOBAL_ENTRY(xen_set_eflag)
++	mov r8=r32
++	XEN_HYPER_SET_EFLAG
++	br.ret.sptk.many rp
++END(xen_set_eflag)
++#endif /* CONFIG_IA32_SUPPORT */
++#endif /* ASM_SUPPORTED */
+diff --git a/include/asm-ia64/xen/privop.h b/include/asm-ia64/xen/privop.h
+index 0fa8aa6..95e8e8a 100644
+--- a/include/asm-ia64/xen/privop.h
++++ b/include/asm-ia64/xen/privop.h
+@@ -70,6 +70,495 @@
+ #define XSI_IHA				(XSI_BASE + XSI_IHA_OFS)
  #endif
-diff --git a/include/asm-ia64/privop_paravirt.h b/include/asm-ia64/privop_paravirt.h
-new file mode 100644
-index 0000000..bd7de70
---- /dev/null
-+++ b/include/asm-ia64/privop_paravirt.h
-@@ -0,0 +1,587 @@
-+/******************************************************************************
-+ * privops_paravirt.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef _ASM_IA64_PRIVOP_PARAVIRT_H
-+#define _ASM_IA64_PRIVOP_PARAVIRT_H
-+
-+#define PARAVIRT_INST_START			0x1
-+#define PARAVIRT_INST_RFI			(PARAVIRT_INST_START + 0x0)
-+#define PARAVIRT_INST_RSM_DT			(PARAVIRT_INST_START + 0x1)
-+#define PARAVIRT_INST_SSM_DT			(PARAVIRT_INST_START + 0x2)
-+#define PARAVIRT_INST_COVER			(PARAVIRT_INST_START + 0x3)
-+#define PARAVIRT_INST_ITC_D			(PARAVIRT_INST_START + 0x4)
-+#define PARAVIRT_INST_ITC_I			(PARAVIRT_INST_START + 0x5)
-+#define PARAVIRT_INST_SSM_I			(PARAVIRT_INST_START + 0x6)
-+#define PARAVIRT_INST_GET_IVR			(PARAVIRT_INST_START + 0x7)
-+#define PARAVIRT_INST_GET_TPR			(PARAVIRT_INST_START + 0x8)
-+#define PARAVIRT_INST_SET_TPR			(PARAVIRT_INST_START + 0x9)
-+#define PARAVIRT_INST_EOI			(PARAVIRT_INST_START + 0xa)
-+#define PARAVIRT_INST_SET_ITM			(PARAVIRT_INST_START + 0xb)
-+#define PARAVIRT_INST_THASH			(PARAVIRT_INST_START + 0xc)
-+#define PARAVIRT_INST_PTC_GA			(PARAVIRT_INST_START + 0xd)
-+#define PARAVIRT_INST_ITR_D			(PARAVIRT_INST_START + 0xe)
-+#define PARAVIRT_INST_GET_RR			(PARAVIRT_INST_START + 0xf)
-+#define PARAVIRT_INST_SET_RR			(PARAVIRT_INST_START + 0x10)
-+#define PARAVIRT_INST_SET_KR			(PARAVIRT_INST_START + 0x11)
-+#define PARAVIRT_INST_FC			(PARAVIRT_INST_START + 0x12)
-+#define PARAVIRT_INST_GET_CPUID			(PARAVIRT_INST_START + 0x13)
-+#define PARAVIRT_INST_GET_PMD			(PARAVIRT_INST_START + 0x14)
-+#define PARAVIRT_INST_GET_EFLAG			(PARAVIRT_INST_START + 0x15)
-+#define PARAVIRT_INST_SET_EFLAG			(PARAVIRT_INST_START + 0x16)
-+#define PARAVIRT_INST_RSM_BE			(PARAVIRT_INST_START + 0x17)
-+#define PARAVIRT_INST_GET_PSR			(PARAVIRT_INST_START + 0x18)
-+#define PARAVIRT_INST_SET_RR0_TO_RR4		(PARAVIRT_INST_START + 0x19)
-+
-+#define PARAVIRT_BNDL_START			0x10000000
-+#define PARAVIRT_BNDL_SSM_I			(PARAVIRT_BNDL_START + 0x0)
-+#define PARAVIRT_BNDL_RSM_I			(PARAVIRT_BNDL_START + 0x1)
-+#define PARAVIRT_BNDL_GET_PSR_I			(PARAVIRT_BNDL_START + 0x2)
-+#define PARAVIRT_BNDL_INTRIN_LOCAL_IRQ_RESTORE	(PARAVIRT_BNDL_START + 0x3)
-+
-+/*
-+ * struct task_struct* (*ia64_switch_to)(void* next_task);
-+ * void *ia64_leave_syscall;
-+ * void *ia64_work_processed_syscall
-+ * void *ia64_leave_kernel;
-+ * struct ia64_pal_retval (*pal_call_static)(u64, u64, u64, u64, u64);
-+ */
-+
-+#define PARAVIRT_ENTRY_START			0x20000000
-+#define PARAVIRT_ENTRY_SWITCH_TO		(PARAVIRT_ENTRY_START + 0)
-+#define PARAVIRT_ENTRY_LEAVE_SYSCALL		(PARAVIRT_ENTRY_START + 1)
-+#define PARAVIRT_ENTRY_WORK_PROCESSED_SYSCALL	(PARAVIRT_ENTRY_START + 2)
-+#define PARAVIRT_ENTRY_LEAVE_KERNEL		(PARAVIRT_ENTRY_START + 3)
-+#define PARAVIRT_ENTRY_PAL_CALL_STATIC		(PARAVIRT_ENTRY_START + 4)
-+
-+
-+#ifndef __ASSEMBLER__
-+
-+#include <linux/stringify.h>
-+#include <linux/types.h>
-+#include <asm/paravirt_alt.h>
-+#include <asm/kregs.h> /* for IA64_PSR_I */
-+#include <asm/xen/interface.h>
+ 
++#ifndef __ASSEMBLY__
++#define	XEN_HYPER_SSM_I		asm("break %0" : : "i" (HYPERPRIVOP_SSM_I))
++#define	XEN_HYPER_GET_IVR	asm("break %0" : : "i" (HYPERPRIVOP_GET_IVR))
 +
 +/************************************************/
 +/* Instructions paravirtualized for correctness */
 +/************************************************/
++
++/* "fc" and "thash" are privilege-sensitive instructions, meaning they
++ *  may have different semantics depending on whether they are executed
++ *  at PL0 vs PL!=0.  When paravirtualized, these instructions mustn't
++ *  be allowed to execute directly, lest incorrect semantics result. */
++#ifdef ASM_SUPPORTED
++static inline void
++xen_fc(unsigned long addr)
++{
++	register __u64 __addr asm ("r8") = addr;
++	asm volatile ("break %0":: "i"(HYPERPRIVOP_FC), "r"(__addr));
++}
++
++static inline unsigned long
++xen_thash(unsigned long addr)
++{
++	register __u64 ia64_intri_res asm ("r8");
++	register __u64 __addr asm ("r8") = addr;
++	asm volatile ("break %1":
++		      "=r"(ia64_intri_res):
++		      "i"(HYPERPRIVOP_THASH), "0"(__addr));
++	return ia64_intri_res;
++}
++#else
++extern void xen_fc(unsigned long addr);
++extern unsigned long xen_thash(unsigned long addr);
++#endif
++
 +/* Note that "ttag" and "cover" are also privilege-sensitive; "ttag"
-+ * is not currently used (though it may be in a long-format VHPT system!) */
++ * is not currently used (though it may be in a long-format VHPT system!)
++ * and the semantics of cover only change if psr.ic is off which is very
++ * rare (and currently non-existent outside of assembly code */
++
++/* There are also privilege-sensitive registers.  These registers are
++ * readable at any privilege level but only writable at PL0. */
 +#ifdef ASM_SUPPORTED
 +static inline unsigned long
-+paravirt_fc(unsigned long addr)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	register __u64 __addr asm ("r8") = addr;
-+	asm volatile (paravirt_alt_inst("fc %1", PARAVIRT_INST_THASH):
-+		      "=r"(ia64_intri_res): "0"(__addr): "memory");
-+	return ia64_intri_res;
-+}
-+#define paravirt_fc(addr)	paravirt_fc((unsigned long)addr)
-+
-+static inline unsigned long
-+paravirt_thash(unsigned long addr)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	register __u64 __addr asm ("r8") = addr;
-+	asm volatile (paravirt_alt_inst("thash %0=%1", PARAVIRT_INST_THASH):
-+		      "=r"(ia64_intri_res): "0"(__addr));
-+	return ia64_intri_res;
-+}
-+
-+static inline unsigned long
-+paravirt_get_cpuid(int index)
++xen_get_cpuid(int index)
 +{
 +	register __u64 ia64_intri_res asm ("r8");
 +	register __u64 __index asm ("r8") = index;
-+	asm volatile (paravirt_alt_inst("mov %0=cpuid[%r1]",
-+				   PARAVIRT_INST_GET_CPUID):
-+		      "=r"(ia64_intri_res): "0O"(__index));
++	asm volatile ("break %1":
++		      "=r"(ia64_intri_res):
++		      "i"(HYPERPRIVOP_GET_CPUID), "0"(__index));
 +	return ia64_intri_res;
 +}
 +
 +static inline unsigned long
-+paravirt_get_pmd(int index)
++xen_get_pmd(int index)
 +{
 +	register __u64 ia64_intri_res asm ("r8");
 +	register __u64 __index asm ("r8") = index;
-+	asm volatile (paravirt_alt_inst("mov %0=pmd[%1]",
-+					PARAVIRT_INST_GET_PMD):
-+		      "=r"(ia64_intri_res): "0"(__index));
++	asm volatile ("break %1":
++		      "=r"(ia64_intri_res):
++		      "i"(HYPERPRIVOP_GET_PMD), "0O"(__index));
 +	return ia64_intri_res;
 +}
++#else
++extern unsigned long xen_get_cpuid(int index);
++extern unsigned long xen_get_pmd(int index);
++#endif
 +
++#ifdef ASM_SUPPORTED
 +static inline unsigned long
-+paravirt_get_eflag(void)
++xen_get_eflag(void)
 +{
 +	register __u64 ia64_intri_res asm ("r8");
-+	asm volatile (paravirt_alt_inst("mov %0=ar%1",
-+					PARAVIRT_INST_GET_EFLAG):
-+		"=r"(ia64_intri_res):
-+		"i"(_IA64_REG_AR_EFLAG - _IA64_REG_AR_KR0): "memory");
++	asm volatile ("break %1":
++		      "=r"(ia64_intri_res): "i"(HYPERPRIVOP_GET_EFLAG));
 +	return ia64_intri_res;
 +}
 +
 +static inline void
-+paravirt_set_eflag(unsigned long val)
++xen_set_eflag(unsigned long val)
 +{
 +	register __u64 __val asm ("r8") = val;
-+	asm volatile (paravirt_alt_inst("mov ar%0=%1",
-+					PARAVIRT_INST_SET_EFLAG)::
-+		      "i"(_IA64_REG_AR_EFLAG - _IA64_REG_AR_KR0), "r"(__val):
-+		      "memory");
++	asm volatile ("break %0":: "i"(HYPERPRIVOP_SET_EFLAG), "r"(__val));
 +}
++#else
++extern unsigned long xen_get_eflag(void);	/* see xen_ia64_getreg */
++extern void xen_set_eflag(unsigned long);	/* see xen_ia64_setreg */
++#endif
 +
 +/************************************************/
 +/* Instructions paravirtualized for performance */
 +/************************************************/
 +
++/* Xen uses memory-mapped virtual privileged registers for access to many
++ * performance-sensitive privileged registers.  Some, like the processor
++ * status register (psr), are broken up into multiple memory locations.
++ * Others, like "pend", are abstractions based on privileged registers.
++ * "Pend" is guaranteed to be set if reading cr.ivr would return a
++ * (non-spurious) interrupt. */
++#define XEN_MAPPEDREGS ((struct mapped_regs *)XMAPPEDREGS_BASE)
++
++#define XSI_PSR_I			\
++	(*XEN_MAPPEDREGS->interrupt_mask_addr)
++#define xen_get_virtual_psr_i()		\
++	(!XSI_PSR_I)
++#define xen_set_virtual_psr_i(_val)	\
++	({ XSI_PSR_I = (uint8_t)(_val) ? 0 : 1; })
++#define xen_set_virtual_psr_ic(_val)	\
++	({ XEN_MAPPEDREGS->interrupt_collection_enabled = _val ? 1 : 0; })
++#define xen_get_virtual_pend()		\
++	(*(((uint8_t *)XEN_MAPPEDREGS->interrupt_mask_addr) - 1))
++
++/* Hyperprivops are "break" instructions with a well-defined API.
++ * In particular, the virtual psr.ic bit must be off; in this way
++ * it is guaranteed to never conflict with a linux break instruction.
++ * Normally, this is done in a xen stub but this one is frequent enough
++ * that we inline it */
++#define xen_hyper_ssm_i()						\
++({									\
++	XEN_HYPER_SSM_I;						\
++})
++
++/* turning off interrupts can be paravirtualized simply by writing
++ * to a memory-mapped virtual psr.i bit (implemented as a 16-bit bool) */
++#define xen_rsm_i()							\
++do {									\
++	xen_set_virtual_psr_i(0);					\
++	barrier();							\
++} while (0)
++
++/* turning on interrupts is a bit more complicated.. write to the
++ * memory-mapped virtual psr.i bit first (to avoid race condition),
++ * then if any interrupts were pending, we have to execute a hyperprivop
++ * to ensure the pending interrupt gets delivered; else we're done! */
++#define xen_ssm_i()							\
++do {									\
++	int old = xen_get_virtual_psr_i();				\
++	xen_set_virtual_psr_i(1);					\
++	barrier();							\
++	if (!old && xen_get_virtual_pend())				\
++		xen_hyper_ssm_i();					\
++} while (0)
++
++#define xen_ia64_intrin_local_irq_restore(x)				\
++do {									\
++     if (is_running_on_xen()) {						\
++	     if ((x) & IA64_PSR_I)					\
++		     xen_ssm_i();					\
++	     else							\
++		     xen_rsm_i();					\
++     } else {								\
++	     native_intrin_local_irq_restore((x));			\
++     }									\
++} while (0)
++
++#define	xen_get_psr_i()							\
++({									\
++									\
++	(is_running_on_xen()) ?						\
++		(xen_get_virtual_psr_i() ? IA64_PSR_I : 0)		\
++		: native_get_psr_i()					\
++})
++
++#define xen_ia64_ssm(mask)						\
++do {									\
++	if ((mask) == IA64_PSR_I) {					\
++		if (is_running_on_xen())				\
++			xen_ssm_i(); 					\
++		else							\
++			native_ssm(mask);				\
++	} else {							\
++		native_ssm(mask);					\
++	}								\
++} while (0)
++
++#define xen_ia64_rsm(mask)						\
++do {									\
++	if ((mask) == IA64_PSR_I) {					\
++		if (is_running_on_xen())				\
++			xen_rsm_i(); 					\
++		else							\
++			native_rsm(mask);				\
++	} else {							\
++		native_rsm(mask);					\
++	}								\
++} while (0)
++
++/* Although all privileged operations can be left to trap and will
++ * be properly handled by Xen, some are frequent enough that we use
++ * hyperprivops for performance. */
++
++#ifndef ASM_SUPPORTED
++extern unsigned long xen_get_psr(void);
++extern unsigned long xen_get_ivr(void);
++extern unsigned long xen_get_tpr(void);
++extern void xen_set_itm(unsigned long);
++extern void xen_set_tpr(unsigned long);
++extern void xen_eoi(unsigned long);
++extern void xen_set_rr(unsigned long index, unsigned long val);
++extern unsigned long xen_get_rr(unsigned long index);
++extern void xen_set_kr(unsigned long index, unsigned long val);
++extern void xen_ptcga(unsigned long addr, unsigned long size);
++#else
 +static inline unsigned long
-+paravirt_get_psr(void)
++xen_get_psr(void)
 +{
 +	register __u64 ia64_intri_res asm ("r8");
-+	asm volatile (paravirt_alt_inst("mov %0=psr", PARAVIRT_INST_GET_PSR):
-+		      "=r"(ia64_intri_res));
++	asm volatile ("break %1":
++		      "=r"(ia64_intri_res): "i"(HYPERPRIVOP_GET_PSR));
 +	return ia64_intri_res;
 +}
 +
 +static inline unsigned long
-+paravirt_get_ivr(void)
++xen_get_ivr(void)
 +{
 +	register __u64 ia64_intri_res asm ("r8");
-+	asm volatile (paravirt_alt_inst("mov %0=cr%1", PARAVIRT_INST_GET_IVR):
-+		      "=r"(ia64_intri_res):
-+		      "i" (_IA64_REG_CR_IVR - _IA64_REG_CR_DCR));
++	asm volatile ("break %1":
++		      "=r"(ia64_intri_res): "i"(HYPERPRIVOP_GET_IVR));
 +	return ia64_intri_res;
 +}
 +
 +static inline unsigned long
-+paravirt_get_tpr(void)
++xen_get_tpr(void)
 +{
 +	register __u64 ia64_intri_res asm ("r8");
-+	asm volatile (paravirt_alt_inst("mov %0=cr%1", PARAVIRT_INST_GET_TPR):
-+		      "=r"(ia64_intri_res):
-+		      "i" (_IA64_REG_CR_TPR - _IA64_REG_CR_DCR));
++	asm volatile ("break %1":
++		      "=r"(ia64_intri_res): "i"(HYPERPRIVOP_GET_TPR));
 +	return ia64_intri_res;
 +}
 +
 +static inline void
-+paravirt_set_tpr(unsigned long val)
++xen_set_tpr(unsigned long val)
 +{
 +	register __u64 __val asm ("r8") = val;
-+	asm volatile (paravirt_alt_inst("mov cr%0=%1", PARAVIRT_INST_SET_TPR)::
-+		      "i" (_IA64_REG_CR_TPR - _IA64_REG_CR_DCR), "r"(__val):
-+		      "memory");
++	asm volatile ("break %0"::
++		      "i"(HYPERPRIVOP_GET_TPR), "r"(__val));
 +}
 +
 +static inline void
-+paravirt_eoi(unsigned long val)
++xen_eoi(unsigned long val)
 +{
 +	register __u64 __val asm ("r8") = val;
-+	asm volatile (paravirt_alt_inst("mov cr%0=%1", PARAVIRT_INST_EOI)::
-+		      "i" (_IA64_REG_CR_EOI - _IA64_REG_CR_DCR), "r"(__val):
-+		      "memory");
++	asm volatile ("break %0"::
++		      "i"(HYPERPRIVOP_EOI), "r"(__val));
 +}
 +
 +static inline void
-+paravirt_set_itm(unsigned long val)
++xen_set_itm(unsigned long val)
 +{
 +	register __u64 __val asm ("r8") = val;
-+	asm volatile (paravirt_alt_inst("mov cr%0=%1", PARAVIRT_INST_SET_ITM)::
-+		      "i" (_IA64_REG_CR_ITM - _IA64_REG_CR_DCR), "r"(__val):
-+		      "memory");
++	asm volatile ("break %0":: "i"(HYPERPRIVOP_SET_ITM), "r"(__val));
 +}
 +
 +static inline void
-+paravirt_ptcga(unsigned long addr, unsigned long size)
++xen_ptcga(unsigned long addr, unsigned long size)
 +{
 +	register __u64 __addr asm ("r8") = addr;
 +	register __u64 __size asm ("r9") = size;
-+	asm volatile (paravirt_alt_inst("ptc.ga %0,%1", PARAVIRT_INST_PTC_GA)::
-+		      "r"(__addr), "r"(__size): "memory");
-+	ia64_dv_serialize_data();
++	asm volatile ("break %0"::
++		      "i"(HYPERPRIVOP_PTC_GA), "r"(__addr), "r"(__size));
 +}
 +
 +static inline unsigned long
-+paravirt_get_rr(unsigned long index)
++xen_get_rr(unsigned long index)
 +{
 +	register __u64 ia64_intri_res asm ("r8");
 +	register __u64 __index asm ("r8") = index;
-+	asm volatile (paravirt_alt_inst("mov %0=rr[%1]", PARAVIRT_INST_GET_RR):
-+		      "=r"(ia64_intri_res) : "0" (__index));
++	asm volatile ("break %1":
++		      "=r"(ia64_intri_res):
++		      "i"(HYPERPRIVOP_GET_RR), "0"(__index));
 +	return ia64_intri_res;
 +}
 +
 +static inline void
-+paravirt_set_rr(unsigned long index, unsigned long val)
++xen_set_rr(unsigned long index, unsigned long val)
 +{
 +	register __u64 __index asm ("r8") = index;
 +	register __u64 __val asm ("r9") = val;
-+	asm volatile (paravirt_alt_inst("mov rr[%0]=%1", PARAVIRT_INST_SET_RR)::
-+		      "r"(__index), "r"(__val): "memory");
++	asm volatile ("break %0"::
++		      "i"(HYPERPRIVOP_SET_RR), "r"(__index), "r"(__val));
 +}
 +
 +static inline void
-+paravirt_set_rr0_to_rr4(unsigned long val0, unsigned long val1,
-+			unsigned long val2, unsigned long val3,
-+			unsigned long val4)
++xen_set_rr0_to_rr4(unsigned long val0, unsigned long val1,
++		   unsigned long val2, unsigned long val3, unsigned long val4)
 +{
 +	register __u64 __val0 asm ("r8") = val0;
 +	register __u64 __val1 asm ("r9") = val1;
 +	register __u64 __val2 asm ("r10") = val2;
 +	register __u64 __val3 asm ("r11") = val3;
 +	register __u64 __val4 asm ("r14") = val4;
-+	asm volatile (paravirt_alt_inst("\t;;\n"
-+					"\t{.mmi\n"
-+					"\tmov rr[%0]=%1\n"
-+					/*
-+					 * without this stop bit
-+					 * assembler complains.
-+					 */
-+					"\t;;\n"
-+					"\tmov rr[%2]=%3\n"
-+					"\tnop.i 0\n"
-+					"\t}\n"
-+					"\t{.mmi\n"
-+					"\tmov rr[%4]=%5\n"
-+					"\tmov rr[%6]=%7\n"
-+					"\tnop.i 0\n"
-+					"\t}\n"
-+					"\tmov rr[%8]=%9;;\n",
-+					PARAVIRT_INST_SET_RR0_TO_RR4)::
-+		      "r"(0x0000000000000000UL), "r"(__val0),
-+		      "r"(0x2000000000000000UL), "r"(__val1),
-+		      "r"(0x4000000000000000UL), "r"(__val2),
-+		      "r"(0x6000000000000000UL), "r"(__val3),
-+		      "r"(0x8000000000000000UL), "r"(__val4) :
-+		      "memory");
++	asm volatile ("break %0" ::
++		      "i"(HYPERPRIVOP_SET_RR0_TO_RR4),
++		      "r"(__val0), "r"(__val1),
++		      "r"(__val2), "r"(__val3), "r"(__val4));
 +}
 +
 +static inline void
-+paravirt_set_kr(unsigned long index, unsigned long val)
++xen_set_kr(unsigned long index, unsigned long val)
 +{
-+	register __u64 __index asm ("r8") = index - _IA64_REG_AR_KR0;
++	register __u64 __index asm ("r8") = index;
 +	register __u64 __val asm ("r9") = val;
-+
-+	/*
-+	 * asm volatile ("break %0"::
-+	 *	      "i"(PARAVIRT_INST_SET_KR), "r"(__index), "r"(__val));
-+	 */
-+#ifndef BUILD_BUG_ON
-+#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
++	asm volatile ("break %0"::
++		      "i"(HYPERPRIVOP_SET_KR), "r"(__index), "r"(__val));
++}
 +#endif
-+	BUILD_BUG_ON(!__builtin_constant_p(__index));
-+	switch (index) {
-+	case _IA64_REG_AR_KR0:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR0 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR1:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR1 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR2:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					    PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR2 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR3:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR3 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR4:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR4 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR5:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR5 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR6:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR6 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR7:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR7 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	default: {
-+		extern void compile_error_ar_kr_index_must_be_copmile_time_constant(void);
-+		compile_error_ar_kr_index_must_be_copmile_time_constant();
-+		break;
-+	}
-+	}
-+}
-+#endif /* ASM_SUPPORTED */
 +
-+static inline unsigned long
-+paravirt_getreg(unsigned long regnum)
-+{
-+	__u64 ia64_intri_res;
++/* Note: It may look wrong to test for is_running_on_xen() in each case.
++ * However regnum is always a constant so, as written, the compiler
++ * eliminates the switch statement, whereas is_running_on_xen() must be
++ * tested dynamically. */
++#define xen_ia64_getreg(regnum)						\
++({									\
++	__u64 ia64_intri_res;						\
++									\
++	switch (regnum) {						\
++	case _IA64_REG_PSR:						\
++		ia64_intri_res = (is_running_on_xen()) ?		\
++			xen_get_psr() :					\
++			native_getreg(regnum);				\
++		break;							\
++	case _IA64_REG_CR_IVR:						\
++		ia64_intri_res = (is_running_on_xen()) ?		\
++			xen_get_ivr() :					\
++			native_getreg(regnum);				\
++		break;							\
++	case _IA64_REG_CR_TPR:						\
++		ia64_intri_res = (is_running_on_xen()) ?		\
++			xen_get_tpr() :					\
++			native_getreg(regnum);				\
++		break;							\
++	case _IA64_REG_AR_EFLAG:					\
++		ia64_intri_res = (is_running_on_xen()) ?		\
++			xen_get_eflag() :				\
++			native_getreg(regnum);				\
++		break;							\
++	default:							\
++		ia64_intri_res = native_getreg(regnum);			\
++		break;							\
++	}								\
++	ia64_intri_res;							\
++})
 +
-+	switch (regnum) {
-+	case _IA64_REG_PSR:
-+		ia64_intri_res = paravirt_get_psr();
-+		break;
-+	case _IA64_REG_CR_IVR:
-+		ia64_intri_res = paravirt_get_ivr();
-+		break;
-+	case _IA64_REG_CR_TPR:
-+		ia64_intri_res = paravirt_get_tpr();
-+		break;
-+	case _IA64_REG_AR_EFLAG:
-+		ia64_intri_res = paravirt_get_eflag();
-+		break;
-+	default:
-+		ia64_intri_res = native_getreg(regnum);
-+		break;
-+	}
-+	return ia64_intri_res;
-+ }
++#define xen_ia64_setreg(regnum, val)					\
++({									\
++	switch (regnum) {						\
++	case _IA64_REG_AR_KR0 ... _IA64_REG_AR_KR7:			\
++		(is_running_on_xen()) ?					\
++			xen_set_kr(((regnum)-_IA64_REG_AR_KR0), (val)) :\
++			native_setreg((regnum), (val));			\
++		break;							\
++	case _IA64_REG_CR_ITM:						\
++		(is_running_on_xen()) ?					\
++			xen_set_itm(val) :				\
++			native_setreg((regnum), (val));			\
++		break;							\
++	case _IA64_REG_CR_TPR:						\
++		(is_running_on_xen()) ?					\
++			xen_set_tpr(val) :				\
++			native_setreg((regnum), (val));			\
++		break;							\
++	case _IA64_REG_CR_EOI:						\
++		(is_running_on_xen()) ?					\
++			xen_eoi(val) :					\
++			native_setreg((regnum), (val));			\
++		break;							\
++	case _IA64_REG_AR_EFLAG:					\
++		(is_running_on_xen()) ?					\
++			xen_set_eflag(val) :				\
++			native_setreg((regnum), (val));			\
++		break;							\
++	default:							\
++		native_setreg((regnum), (val));				\
++		break;							\
++	}								\
++})
 +
-+static inline void
-+paravirt_setreg(unsigned long regnum, unsigned long val)
-+{
-+	switch (regnum) {
-+	case _IA64_REG_AR_KR0 ... _IA64_REG_AR_KR7:
-+		paravirt_set_kr(regnum, val);
-+		break;
-+	case _IA64_REG_CR_ITM:
-+		paravirt_set_itm(val);
-+		break;
-+	case _IA64_REG_CR_TPR:
-+		paravirt_set_tpr(val);
-+		break;
-+	case _IA64_REG_CR_EOI:
-+		paravirt_eoi(val);
-+		break;
-+	case _IA64_REG_AR_EFLAG:
-+		paravirt_set_eflag(val);
-+		break;
-+	default:
-+		native_setreg(regnum, val);
-+		break;
-+	}
-+}
-+
-+#ifdef ASM_SUPPORTED
-+
-+#define NOP_BUNDLE				\
-+	"{\n\t"					\
-+	"nop 0\n\t"				\
-+	"nop 0\n\t"				\
-+	"nop 0\n\t"				\
-+	"}\n\t"
-+
-+static inline void
-+paravirt_ssm_i(void)
-+{
-+	/* five bundles */
-+	asm volatile (paravirt_alt_bundle("{\n\t"
-+					  "ssm psr.i\n\t"
-+					  "nop 0\n\t"
-+					  "nop 0\n\t"
-+					  "}\n\t"
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE,
-+					  PARAVIRT_BNDL_SSM_I):::
-+		      "r8", "r9", "r10",
-+		      "p6", "p7",
-+		      "memory");
-+}
-+
-+static inline void
-+paravirt_rsm_i(void)
-+{
-+	/* two budles */
-+	asm volatile (paravirt_alt_bundle("{\n\t"
-+					  "rsm psr.i\n\t"
-+					  "nop 0\n\t"
-+					  "nop 0\n\t"
-+					  "}\n\t"
-+					  NOP_BUNDLE,
-+					  PARAVIRT_BNDL_RSM_I):::
-+		      "r8", "r9",
-+		      "memory");
-+}
-+
-+static inline unsigned long
-+paravirt_get_psr_i(void)
-+{
-+	register unsigned long psr_i asm ("r8");
-+	register unsigned long mask asm ("r9");
-+
-+	/* three bundles */
-+	asm volatile (paravirt_alt_bundle("{\n\t"
-+					  "mov %0=psr\n\t"
-+					  "mov %1=%2\n\t"
-+					  ";;\n\t"
-+					  "and %0=%0,%1\n\t"
-+					  "}\n\t"
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE,
-+					  PARAVIRT_BNDL_GET_PSR_I):
-+		      "=r"(psr_i),
-+		      "=r"(mask)
-+		      :
-+		      "i"(IA64_PSR_I)
-+		      :
-+		      /* "r8", "r9", */
-+		      "p6");
-+	return psr_i;
-+}
-+
-+static inline void
-+paravirt_intrin_local_irq_restore(unsigned long flags)
-+{
-+	register unsigned long __flags asm ("r8") = flags;
-+
-+	/* six bundles */
-+	asm volatile (paravirt_alt_bundle(";;\n\t"
-+					  "{\n\t"
-+					  "cmp.ne p6,p7=%0,r0;;\n\t"
-+					  "(p6) ssm psr.i;\n\t"
-+					  "nop 0\n\t"
-+					  "}\n\t"
-+					  "{\n\t"
-+					  "(p7) rsm psr.i;;\n\t"
-+					  "(p6) srlz.d\n\t"
-+					  "nop 0\n\t"
-+					  "}\n\t"
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE,
-+					  PARAVIRT_BNDL_INTRIN_LOCAL_IRQ_RESTORE)::
-+		      "r"(__flags) :
-+		      /* "r8",*/ "r9", "r10", "r11",
-+		      "p6", "p7", "p8", "p9",
-+		      "memory");
-+
-+}
-+
-+#undef NOP_BUNDLE
-+
-+#endif /* ASM_SUPPORTED */
-+
-+static inline void
-+paravirt_ssm(unsigned long mask)
-+{
-+	if (mask == IA64_PSR_I)
-+		paravirt_ssm_i();
-+	else
-+		native_ssm(mask);
-+}
-+
-+static inline void
-+paravirt_rsm(unsigned long mask)
-+{
-+	if (mask == IA64_PSR_I)
-+		paravirt_rsm_i();
-+	else
-+		native_rsm(mask);
-+}
-+
-+#if defined(ASM_SUPPORTED) && defined(CONFIG_PARAVIRT_ALT)
++#if defined(ASM_SUPPORTED) && !defined(CONFIG_PARAVIRT_ALT)
 +
 +#define IA64_PARAVIRTUALIZED_PRIVOP
 +
-+#define ia64_fc(addr)			paravirt_fc(addr)
-+#define ia64_thash(addr)		paravirt_thash(addr)
-+#define ia64_get_cpuid(i)		paravirt_get_cpuid(i)
-+#define ia64_get_pmd(i)			paravirt_get_pmd(i)
-+#define ia64_ptcga(addr, size)		paravirt_ptcga((addr), (size))
-+#define ia64_set_rr(index, val)		paravirt_set_rr((index), (val))
-+#define ia64_get_rr(index)		paravirt_get_rr(index)
-+#define ia64_getreg(regnum)		paravirt_getreg(regnum)
-+#define ia64_setreg(regnum, val)	paravirt_setreg((regnum), (val))
-+#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)		\
-+	paravirt_set_rr0_to_rr4((val0), (val1), (val2), (val3), (val4))
++#define ia64_fc(addr)							\
++do {									\
++	if (is_running_on_xen())					\
++		xen_fc((unsigned long)(addr));				\
++	else								\
++		native_fc(addr);					\
++} while (0)
 +
-+#define ia64_ssm(mask)			paravirt_ssm(mask)
-+#define ia64_rsm(mask)			paravirt_rsm(mask)
-+#define ia64_get_psr_i()		paravirt_get_psr_i()
-+#define ia64_intrin_local_irq_restore(x)	\
-+	paravirt_intrin_local_irq_restore(x)
++#define ia64_thash(addr)						\
++({									\
++	unsigned long ia64_intri_res;					\
++	if (is_running_on_xen())					\
++		ia64_intri_res =					\
++			xen_thash((unsigned long)(addr));		\
++	else								\
++		ia64_intri_res = native_thash(addr);			\
++	ia64_intri_res;							\
++})
++
++#define ia64_get_cpuid(i)						\
++({									\
++	unsigned long ia64_intri_res;					\
++	if (is_running_on_xen())					\
++		ia64_intri_res = xen_get_cpuid(i);			\
++	else								\
++		ia64_intri_res = native_get_cpuid(i);			\
++	ia64_intri_res;							\
++})
++
++#define ia64_get_pmd(i)							\
++({									\
++	unsigned long ia64_intri_res;					\
++	if (is_running_on_xen())					\
++		ia64_intri_res = xen_get_pmd(i);			\
++	else								\
++		ia64_intri_res = native_get_pmd(i);			\
++	ia64_intri_res;							\
++})
++
++
++#define ia64_ptcga(addr, size)						\
++do {									\
++	if (is_running_on_xen())					\
++		xen_ptcga((addr), (size));				\
++	else								\
++		native_ptcga((addr), (size));				\
++} while (0)
++
++#define ia64_set_rr(index, val)						\
++do {									\
++	if (is_running_on_xen())					\
++		xen_set_rr((index), (val));				\
++	else								\
++		native_set_rr((index), (val));				\
++} while (0)
++
++#define ia64_get_rr(index)						\
++({									\
++	__u64 ia64_intri_res;						\
++	if (is_running_on_xen())					\
++		ia64_intri_res = xen_get_rr((index));			\
++	else								\
++		ia64_intri_res = native_get_rr((index));		\
++	ia64_intri_res;							\
++})
++
++#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)		\
++do {									\
++	if (is_running_on_xen())					\
++		xen_set_rr0_to_rr4((val0), (val1), (val2),		\
++				   (val3), (val4));			\
++	else								\
++		native_set_rr0_to_rr4((val0), (val1), (val2),		\
++				      (val3), (val4));			\
++} while (0)
++
++#define ia64_getreg			xen_ia64_getreg
++#define ia64_setreg			xen_ia64_setreg
++#define ia64_ssm			xen_ia64_ssm
++#define ia64_rsm			xen_ia64_rsm
++#define ia64_intrin_local_irq_restore	xen_ia64_intrin_local_irq_restore
++#define ia64_get_psr_i			xen_get_psr_i
 +
 +/* the remainder of these are not performance-sensitive so its
 + * OK to not paravirtualize and just take a privop trap and emulate */
@@ -670,22 +653,12 @@ index 0000000..bd7de70
 +#define ia64_ptri			native_ptri
 +#define ia64_ptrd			native_ptrd
 +
-+#endif /* ASM_SUPPORTED && CONFIG_PARAVIRT_ALT */
++#endif /* ASM_SUPPORTED && !CONFIG_PARAVIRT_ALT */
 +
-+#endif /* __ASSEMBLER__*/
++#endif /* !__ASSEMBLY__ */
 +
-+/* these routines utilize privilege-sensitive or performance-sensitive
-+ * privileged instructions so the code must be replaced with
-+ * paravirtualized versions */
-+#ifdef CONFIG_PARAVIRT_ENTRY
-+#define IA64_PARAVIRTUALIZED_ENTRY
-+#define ia64_switch_to			paravirt_switch_to
-+#define ia64_work_processed_syscall	paravirt_work_processed_syscall
-+#define ia64_leave_syscall		paravirt_leave_syscall
-+#define ia64_leave_kernel		paravirt_leave_kernel
-+#define ia64_pal_call_static		paravirt_pal_call_static
-+#endif /* CONFIG_PARAVIRT_ENTRY */
-+
-+#endif /* _ASM_IA64_PRIVOP_PARAVIRT_H */
+ /* these routines utilize privilege-sensitive or performance-sensitive
+  * privileged instructions so the code must be replaced with
+  * paravirtualized versions */
 -- 
 1.5.3
