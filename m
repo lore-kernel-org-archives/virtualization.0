@@ -1,18 +1,15 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Xen paravirt frontend block hang
-Date: Thu, 28 Feb 2008 12:03:00 -0800
-Message-ID: <47C71374.8010808__5609.35431062735$1204229874$gmane$org@goop.org>
-References: <4772AC8E.7010007@theshore.net> <47758352.5040504@goop.org>	
-	<479E71B7.7060207@theshore.net> <479E75E3.6030601@goop.org>	
-	<479E7BA4.5050306@theshore.net>	
-	<519a8b110802060437k70c099b7y7faefe63dd82039@mail.gmail.com>	
-	<47AA845E.8020708@goop.org>
-	<519a8b110802070612j2a1717f3s6aa25eeea8b7d18a@mail.gmail.com>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: Re: [PATCH 0/5] RFC: ia64/pv_ops: ia64 intrinsics paravirtualization
+Date: Fri, 29 Feb 2008 11:45:49 +0900
+Message-ID: <20080229024549.GB11349%yamahata__44813.8021900833$1204253376$gmane$org@valinux.co.jp>
+References: <12041926372068-git-send-email-yamahata@valinux.co.jp>
+	<10EA09EFD8728347A513008B6B0DA77A02D767E9@pdsmsx411.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <519a8b110802070612j2a1717f3s6aa25eeea8b7d18a@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A02D767E9@pdsmsx411.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,43 +19,59 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xming <xmingske@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, virtualization@lists.linux-foundation.org, Xen-devel <xen-devel@lists.xensource.com>
+To: "Dong, Eddie" <eddie.dong@intel.com>
+Cc: virtualization@lists.linux-foundation.org, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-xming wrote:
-> On Feb 7, 2008 5:09 AM, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
->   
->> xming wrote:
->>     
->>> But I do have one problem after I upgraded to xen 3.2, the 2.6.23.x domU do
->>> not boot any more and 2.6.24 does boot but will hang after cpufreq changes
->>> the frequency.
->>>
->>>       
->> Interesting.  Do you mean dom0 cpufreq frequency changes will cause the
->> domU to hang?
->>
->>     J
->>
->>     
->
-> Yes, when Dom0 changes freq while domU is doing something will trigger this.
-> When using "on demand" will trigger this very eassily.
->
-> This is from xm top when a domU hangs:
->
->     test32 ------       4018   98.8     131072    6.4     131072
-> 6.4     1    1     4516    50087    1        0   433908   300403
-> 3084907223
->
-> So it appers to be running (eating CPU) sometimes the state is "r"
-> sometimes "-",
-> but both console and network are dead.
->   
+On Fri, Feb 29, 2008 at 01:21:27AM +0800, Dong, Eddie wrote:
 
-I haven't tried to repro this yet, but I suspect I won't be able to 
-because all my test machines have constant_tsc.  Does CPU change TSC 
-rate on processor speed changes?
+> > * Option 4: indirect function call
+> > The code would look like
+> >         struct pv_cpu_ops {
+> >                 unsigned long (*get_cpuid)(unsigned long index)
+> >                 ....
+> >         };
+> >         extern struct pv_cpu_ops pv_cpu_ops;
+> >         ...
+> >         static inline unsigned long
+> >         paravirt_get_cpuid(unsigned long index)
+> >         {
+> >                 return pv_cpu_ops->get_cpuid(index);
+> >         }
+> >         #define ia64_get_cpuid  paravirt_get_cpuid
+> > 
+> >   Pros:
+> >   - Binary patch isn't required.
+> >   - indirect function call is the very way x86 pv_ops adopted.
+> >   - If hypervisor supports fast hypercall using gate page,
+> >     it may want to use function call.
+> > 
+> >   Cons:
+> >   - Binary patch is difficult.
+> >     ia64 function call uses stacked registers, so that marking br.call
+> >     instruction is difficult.
+> >   - so that the performance is suboptimal especially for native case.
+> > 
+> 
+> I am not sure if this statement is true. We can still patching it. For
+> example
+> using same inline asm code for paravirt_get_cpuid definition and it
+> could be
+> exactly same with X86.
 
-    J
+Stacked registers must be allocated by alloc instruction.
+And it is issued in caller function's prologue. I.e. gcc maintains
+how many local registers (sol) and output output registers (sof - sol)
+are used.
+So if we call function from inline assembly, we have to tell to gcc 
+how many output registers are used. I haven't found the way to do
+that.
+On the other hand On x86, just telling clobbered registers is okay.
+
+Even if we find the way to tell it to gcc, the next issue it how to
+determin how many local registers (sol).
+In assembler source code we can refer function arguments as out0...,
+but when binary patching we have to determin its register number.
+
+-- 
+yamahata
