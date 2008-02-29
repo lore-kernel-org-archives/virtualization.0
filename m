@@ -1,11 +1,12 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: I/O bandwidth control on KVM
-Date: Fri, 29 Feb 2008 21:05:31 +0900 (JST)
-Message-ID: <20080229.210531.226799765.ryov__28298.7898834564$1204287044$gmane$org@valinux.co.jp>
+From: "Amit Shah" <amitshah@gmx.net>
+Subject: [PATCH] VIRTIO NET: Enable netpoll interface for netconsole logging
+Date: Fri, 29 Feb 2008 16:24:50 +0530
+Message-ID: <877aabc40802290254k2ecc559at2a3bc9740cd82ebc__26680.1229947761$1204301913$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,85 +16,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel@lists.sourceforge.net, dm-devel@redhat.com, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello all,
+Add a new poll_controller handler that the netpoll interface needs.
 
-I've implemented a block device which throttles block I/O bandwidth, 
-which I called dm-ioband, and been trying to throttle I/O bandwidth on
-KVM environment. But unfortunately it doesn't work well, the number of
-issued I/Os is not according to the bandwidth setting.
-On the other hand, I got the good result when accessing directly to
-the local disk on the local machine.
+This enables netconsole logging from a kvm guest over the virtio
+net interface.
 
-I'm not so familiar with KVM. Could anyone give me any advice?
+Signed-off-by: Amit Shah <amitshah@gmx.net>
+---
+ drivers/net/virtio_net.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
 
-For dm-ioband details, please see the website at
-http://people.valinux.co.jp/~ryov/dm-ioband/
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index fdc2367..3f3d334 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -294,6 +294,15 @@ again:
+ 	return 0;
+ }
 
-                       The number of issued I/Os
-     --------------------------------------------------------------
-    |       device         |       sda11       |       sda12       |
-    |    weight setting    |        80%        |        20%        |
-    |----------------------+-------------------+-------------------|
-    | KVM |      I/Os      |       4397        |       2902        |
-    |     | ratio to total |       60.2%       |       39.8%       |
-    |-----+----------------+-------------------+-------------------|
-    |local|      I/Os      |       5447        |       1314        |
-    |     | ratio to total |       80.6%       |       19.4%       |
-     --------------------------------------------------------------
++#ifdef CONFIG_NET_POLL_CONTROLLER
++static void virtnet_netpoll(struct net_device *dev)
++{
++	struct virtnet_info *vi = netdev_priv(dev);
++
++	napi_schedule(&vi->napi);
++}
++#endif
++
+ static int virtnet_open(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+@@ -336,6 +345,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	dev->stop = virtnet_close;
+ 	dev->hard_start_xmit = start_xmit;
+ 	dev->features = NETIF_F_HIGHDMA;
++#ifdef CONFIG_NET_POLL_CONTROLLER
++	dev->poll_controller = virtnet_netpoll;
++#endif
+ 	SET_NETDEV_DEV(dev, &vdev->dev);
 
-The test environment and the procedure are as follow:
+ 	/* Do we support "hardware" checksums? */
+-- 
+1.5.2.5
 
-  o Prepare two partitions sda11 and sda12.
-  o Create two bandwidth control devices, each device is mapped to the
-    sda11 and sda12 respectively.
-  o Give weights of 80 and 20 to each bandwidth control device respectively.
-  o Run two virtual machines, the virtual machine's disk is mapped to
-    the each bandwidth control device.
-  o Run 128 processes issuing random read/write direct I/O with 4KB data
-    on each virtual machine at the same time respectively.
-  o Count up the number of I/Os which have done in 60 seconds.
-
-                        Access through KVM
-  +---------------------------+     +--------------------------+
-  | Virtual Machine 1 (VM1)   |     | Virtual Machine 2 (VM2)  |
-  |    in cgroup "ioband1"    |     |    in cgroup "ioband2"   |
-  |                           |     |                          |
-  | Read/Write with O_DIRECT  |     | Read/Write with O_DIRECT |
-  |       process x 128       |     |       process x 128      |  
-  |             |             |     |             |            |
-  |             V             |     |             V            |
-  |         /dev/vda1         |     |         /dev/vda1        |
-  +-------------|-------------+     +-------------|------------+
-  +-------------V---------------------------------V------------+
-  |     /dev/mapper/ioband1      |     /dev/mapper/ioband2     |
-  | 80% for cgroup "ioband1"     | 20% for cgroup "ioband2"    |
-  |                              |                             |
-  |    Control I/O bandwidth according to the cgroup tasks     |
-  +-------------|---------------------------------|------------+
-  +-------------V-------------+     +-------------|------------+
-  |        /dev/sda11         |     |         /dev/sda12       |
-  +---------------------------+     +--------------------------+
-
-                          Direct access
-  +---------------------------+     +--------------------------+
-  | cgroup "ioband1"          |     | cgroup "ioband2"         |
-  |                           |     |                          |
-  | Read/Write with O_DIRECT  |     | Read/Write with O_DIRECT |
-  |       process x 128       |     |       process x 128      |  
-  |             |             |     |             |            |
-  +-------------|-------------+     +-------------|------------+
-  +-------------V---------------------------------V------------+
-  |     /dev/mapper/ioband1      |    /dev/mapper/ioband2      |
-  | 80% for cgroup "ioband1"     | 20% for cgroup "ioband2"    |
-  |                              |                             |
-  |     Control I/O bandwidth according to the cgroup tasks    |
-  +-------------|---------------------------------|------------+
-  +-------------V-------------+     +-------------|------------+
-  |        /dev/sda11         |     |         /dev/sda12       |
-  +---------------------------+     +--------------------------+
-
-Thanks,
-Ryo Tsuruta
+-- 
+Amit Shah
+http://www.amitshah.net/
