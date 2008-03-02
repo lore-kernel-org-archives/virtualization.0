@@ -1,13 +1,13 @@
-From: "Christopher S. Aker" <caker@theshore.net>
-Subject: Re: Xen paravirt frontend block hang
-Date: Sat, 01 Mar 2008 19:43:04 -0500
-Message-ID: <47C9F818.4020200__20954.4934718453$1204418764$gmane$org@theshore.net>
-References: <4772AC8E.7010007@theshore.net> <47C712EF.1060703@goop.org>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: I/O bandwidth control on KVM
+Date: Sat, 01 Mar 2008 22:18:03 -0600
+Message-ID: <47CA2A7B.8000400__43955.8959137232$1204431751$gmane$org@codemonkey.ws>
+References: <20080229.210531.226799765.ryov__28298.7898834564$1204287044$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47C712EF.1060703@goop.org>
+In-Reply-To: <20080229.210531.226799765.ryov__28298.7898834564$1204287044$gmane$org@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,30 +17,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: kvm-devel@lists.sourceforge.net, dm-devel@redhat.com, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> I've been running this all night without seeing any problem.  I'm using 
-> current x86.git#testing with a few local patches, but nothing especially 
-> relevent-looking.
+Hi Ryo,
 
-Meh .. what backend are you using?  We're using LVM volumes exported 
-directly into the domUs like so:
+Ryo Tsuruta wrote:
+> Hello all,
+> 
+> I've implemented a block device which throttles block I/O bandwidth, 
+> which I called dm-ioband, and been trying to throttle I/O bandwidth on
+> KVM environment. But unfortunately it doesn't work well, the number of
+> issued I/Os is not according to the bandwidth setting.
+> On the other hand, I got the good result when accessing directly to
+> the local disk on the local machine.
+> 
+> I'm not so familiar with KVM. Could anyone give me any advice?
 
-disk =[ 'phy:vg1/xencaker-56392,xvda,w', ... ]
+If you are using virtio drivers in the guest (which I presume you are 
+given the reference to /dev/vda), try using the following -drive syntax:
 
-> Could you try the attached patch to see if it makes any difference?
+-drive file=/dev/mapper/ioband1,if=virtio,boot=on,cache=off
 
-Unfortunately we're still in the same place... pv_ops kernels are still 
-hanging after heavy disk IO:
+This will force the use of O_DIRECT.  By default, QEMU does not open 
+with O_DIRECT so you'll see page cache effects.
 
-works - 2.6.18.x (from xen-unstable)
-hangs - 2.6.25-rc3-git3
-hangs - 2.6.25-rc3-git3 + your patch
+Regards,
 
-Any other suggestions or debugging I can provide that would be useful to 
-squash this?
-
--Chris
+Anthony Liguori
