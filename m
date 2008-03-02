@@ -1,14 +1,14 @@
-From: "Christopher S. Aker" <caker@theshore.net>
-Subject: Re: Xen paravirt frontend block hang
-Date: Sun, 02 Mar 2008 11:03:10 -0500
-Message-ID: <47CACFBE.5010007__27521.950499113$1204474074$gmane$org@theshore.net>
-References: <4772AC8E.7010007@theshore.net> <47C712EF.1060703@goop.org>
-	<47C9F818.4020200@theshore.net> <47CAC931.1000107@goop.org>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: I/O bandwidth control on KVM
+Date: Sun, 02 Mar 2008 18:45:59 +0200
+Message-ID: <47CAD9C7.90900__14524.7516026304$1204476560$gmane$org@qumranet.com>
+References: <20080229.210531.226799765.ryov__28298.7898834564$1204287044$gmane$org@valinux.co.jp>
+	<47CA2A7B.8000400@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47CAC931.1000107@goop.org>
+In-Reply-To: <47CA2A7B.8000400@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,17 +18,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: kvm-devel@lists.sourceforge.net, dm-devel@redhat.com, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Are you running an SMP or UP domain?  I found I could get hangs very 
-> easily with UP (but I need confirm it isn't a result of some other very 
-> experimental patches).
+Anthony Liguori wrote:
+> Hi Ryo,
+>
+> Ryo Tsuruta wrote:
+>   
+>> Hello all,
+>>
+>> I've implemented a block device which throttles block I/O bandwidth, 
+>> which I called dm-ioband, and been trying to throttle I/O bandwidth on
+>> KVM environment. But unfortunately it doesn't work well, the number of
+>> issued I/Os is not according to the bandwidth setting.
+>> On the other hand, I got the good result when accessing directly to
+>> the local disk on the local machine.
+>>
+>> I'm not so familiar with KVM. Could anyone give me any advice?
+>>     
+>
+> If you are using virtio drivers in the guest (which I presume you are 
+> given the reference to /dev/vda), try using the following -drive syntax:
+>
+> -drive file=/dev/mapper/ioband1,if=virtio,boot=on,cache=off
+>
+> This will force the use of O_DIRECT.  By default, QEMU does not open 
+> with O_DIRECT so you'll see page cache effects.
+>
+>   
 
-The hang occurs with both SMP and UP compiled pv_ops kernels.  SMP 
-kernels are still slightly responsive after the hang occurs, which makes 
-me think only one proc gets stuck at a time, not the entire kernel.
+Good point.  But IIRC cache=off is not limited to virtio?
 
--Chris
+
+-- 
+error compiling committee.c: too many arguments to function
