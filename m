@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 33/50] ia64/xen: detect xen environment at early boot time and
-	do minimal initialization.
-Date: Thu,  6 Mar 2008 03:18:48 +0900
-Message-ID: <12047411463625-git-send-email-yamahata__27922.2346646295$1204749355$gmane$org@valinux.co.jp>
+Subject: [PATCH 08/50] xen: replace callers of alloc_vm_area()/free_vm_area()
+	with xen_ prefixed one.
+Date: Thu,  6 Mar 2008 03:18:23 +0900
+Message-ID: <12047411463827-git-send-email-yamahata__24984.524845104$1204749409$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,143 +22,86 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently it detects by checking psr.cpl != 0.
-It's ok for now, but more abstraction would be needed later like x86.
-Presumably extending booting protocol (i.e. extending struct ia64_boot_param)
-or multi entry points depending on hypervisor would be necessary.
+Don't use alloc_vm_area()/free_vm_area() directly, instead define
+xen_alloc_vm_area()/xen_free_vm_area() and use them.
+
+alloc_vm_area()/free_vm_area() are used to allocate/free area which
+are for grant table mapping. Xen/x86 grant table is based on virtual
+address so that alloc_vm_area()/free_vm_area() are suitable.
+On the other hand Xen/ia64 (and Xen/powerpc) grant table is based on
+pseudo physical address (guest physical address) so that allocation
+should be done differently.
+The original version of xenified Linux/IA64 have its own
+allocate_vm_area()/free_vm_area() definitions which don't allocate vm area
+contradictory to those names.
+Now vanilla Linux already has its definitions so that it's impossible
+to have IA64 definitions of allocate_vm_area()/free_vm_area().
+Instead introduce xen_allocate_vm_area()/xen_free_vm_area() and use them.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/head.S           |    6 ++++
- arch/ia64/xen/xensetup.S          |   40 +++++++++++++++++++++++++++
- include/asm-ia64/xen/hypervisor.h |   55 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 101 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/xen/xensetup.S
- create mode 100644 include/asm-ia64/xen/hypervisor.h
+ drivers/xen/grant-table.c          |    2 +-
+ drivers/xen/xenbus/xenbus_client.c |    6 +++---
+ include/asm-x86/xen/hypervisor.h   |    3 +++
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/ia64/kernel/head.S b/arch/ia64/kernel/head.S
-index d3a41d5..2f8d770 100644
---- a/arch/ia64/kernel/head.S
-+++ b/arch/ia64/kernel/head.S
-@@ -367,6 +367,12 @@ start_ap:
- 	;;
- (isBP)	st8 [r2]=r28		// save the address of the boot param area passed by the bootloader
+diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
+index 95016fd..9fcde20 100644
+--- a/drivers/xen/grant-table.c
++++ b/drivers/xen/grant-table.c
+@@ -478,7 +478,7 @@ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
  
-+#ifdef CONFIG_XEN
-+	//  Note: isBP is used by the subprogram.
-+	br.call.sptk.many rp=early_xen_setup
-+	;;
-+#endif
+ 	if (shared == NULL) {
+ 		struct vm_struct *area;
+-		area = alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
++		area = xen_alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
+ 		BUG_ON(area == NULL);
+ 		shared = area->addr;
+ 	}
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index 9fd2f70..0f86b0f 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -399,7 +399,7 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
+ 
+ 	*vaddr = NULL;
+ 
+-	area = alloc_vm_area(PAGE_SIZE);
++	area = xen_alloc_vm_area(PAGE_SIZE);
+ 	if (!area)
+ 		return -ENOMEM;
+ 
+@@ -409,7 +409,7 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
+ 		BUG();
+ 
+ 	if (op.status != GNTST_okay) {
+-		free_vm_area(area);
++		xen_free_vm_area(area);
+ 		xenbus_dev_fatal(dev, op.status,
+ 				 "mapping in shared page %d from domain %d",
+ 				 gnt_ref, dev->otherend_id);
+@@ -508,7 +508,7 @@ int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr)
+ 		BUG();
+ 
+ 	if (op.status == GNTST_okay)
+-		free_vm_area(area);
++		xen_free_vm_area(area);
+ 	else
+ 		xenbus_dev_error(dev, op.status,
+ 				 "unmapping page at handle %d error %d",
+diff --git a/include/asm-x86/xen/hypervisor.h b/include/asm-x86/xen/hypervisor.h
+index 138ee8a..31836ad 100644
+--- a/include/asm-x86/xen/hypervisor.h
++++ b/include/asm-x86/xen/hypervisor.h
+@@ -57,6 +57,9 @@ extern struct shared_info *HYPERVISOR_shared_info;
+ extern struct start_info *xen_start_info;
+ #define is_initial_xendomain() (xen_start_info->flags & SIF_INITDOMAIN)
+ 
++#define xen_alloc_vm_area(size)	alloc_vm_area(size)
++#define xen_free_vm_area(area)	free_vm_area(area)
 +
- #ifdef CONFIG_SMP
- (isAP)	br.call.sptk.many rp=start_secondary
- .ret0:
-diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
-new file mode 100644
-index 0000000..17ad297
---- /dev/null
-+++ b/arch/ia64/xen/xensetup.S
-@@ -0,0 +1,40 @@
-+/*
-+ * Support routines for Xen
-+ *
-+ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
-+ */
-+
-+#include <asm/processor.h>
-+#include <asm/asmmacro.h>
-+
-+	.section .data.read_mostly
-+	.align 8
-+	.global running_on_xen
-+running_on_xen:
-+	data4 0
-+	.previous
-+
-+#define isBP	p3	// are we the Bootstrap Processor?
-+
-+	.text
-+GLOBAL_ENTRY(early_xen_setup)
-+	mov r8=ar.rsc		// Initialized in head.S
-+(isBP)	movl r9=running_on_xen;;
-+	extr.u r8=r8,2,2;;	// Extract pl fields
-+	cmp.eq p7,p0=r8,r0	// p7: !running on xen
-+	mov r8=1		// booleanize.
-+(p7)	br.ret.sptk.many rp;;
-+(isBP)	st4 [r9]=r8
-+	movl r10=xen_ivt;;
-+
-+	mov cr.iva=r10
-+
-+	/* Set xsi base.  */
-+#define FW_HYPERCALL_SET_SHARED_INFO_VA			0x600
-+(isBP)	mov r2=FW_HYPERCALL_SET_SHARED_INFO_VA
-+(isBP)	movl r28=XSI_BASE;;
-+(isBP)	break 0x1000;;
-+
-+	br.ret.sptk.many rp
-+	;;
-+END(early_xen_setup)
-diff --git a/include/asm-ia64/xen/hypervisor.h b/include/asm-ia64/xen/hypervisor.h
-new file mode 100644
-index 0000000..78c5635
---- /dev/null
-+++ b/include/asm-ia64/xen/hypervisor.h
-@@ -0,0 +1,55 @@
-+/******************************************************************************
-+ * hypervisor.h
-+ *
-+ * Linux-specific hypervisor handling.
-+ *
-+ * Copyright (c) 2002-2004, K A Fraser
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
-+ */
-+
-+#ifndef _ASM_IA64_XEN_HYPERVISOR_H
-+#define _ASM_IA64_XEN_HYPERVISOR_H
-+
-+#ifdef CONFIG_XEN
-+/* running_on_xen is set before executing any C code by early_xen_setup */
-+extern const int running_on_xen;
-+#define is_running_on_xen()			(running_on_xen)
-+#else /* CONFIG_XEN */
-+# ifdef CONFIG_VMX_GUEST
-+#  define is_running_on_xen()			(1)
-+# else /* CONFIG_VMX_GUEST */
-+#  define is_running_on_xen()			(0)
-+# endif /* CONFIG_VMX_GUEST */
-+#endif /* CONFIG_XEN */
-+
-+#ifdef CONFIG_XEN_PRIVILEGED_GUEST
-+#define is_initial_xendomain()						\
-+	(is_running_on_xen() ? xen_start_info->flags & SIF_INITDOMAIN : 0)
-+#else
-+#define is_initial_xendomain() 0
-+#endif
-+
-+#endif /* _ASM_IA64_XEN_HYPERVISOR_H */
+ /* arch/i386/mach-xen/evtchn.c */
+ /* Force a proper event-channel callback from Xen. */
+ extern void force_evtchn_callback(void);
 -- 
 1.5.3
