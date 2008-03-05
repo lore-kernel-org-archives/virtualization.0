@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 01/50] xen: add missing __HYPERVISOR_arch_[0-7] definisions
-	which ia64 needs.
-Date: Thu,  6 Mar 2008 03:18:16 +0900
-Message-ID: <12047411452300-git-send-email-yamahata__674.599959939037$1204741578$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/50] xen: add missing VIRQ_ARCH_[0-7] definitions which
+	ia64/xen needs.
+Date: Thu,  6 Mar 2008 03:18:17 +0900
+Message-ID: <1204741145564-git-send-email-yamahata__24512.6365255148$1204741678$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,29 +24,32 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/xen/interface/xen.h |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
+ include/xen/interface/xen.h |   12 +++++++++++-
+ 1 files changed, 11 insertions(+), 1 deletions(-)
 
 diff --git a/include/xen/interface/xen.h b/include/xen/interface/xen.h
-index 518a5bf..87ad143 100644
+index 87ad143..9b018da 100644
 --- a/include/xen/interface/xen.h
 +++ b/include/xen/interface/xen.h
-@@ -58,6 +58,16 @@
- #define __HYPERVISOR_physdev_op           33
- #define __HYPERVISOR_hvm_op               34
+@@ -78,8 +78,18 @@
+ #define VIRQ_CONSOLE    2  /* (DOM0) Bytes received on emergency console. */
+ #define VIRQ_DOM_EXC    3  /* (DOM0) Exceptional event for some domain.   */
+ #define VIRQ_DEBUGGER   6  /* (DOM0) A domain has paused for debugging.   */
+-#define NR_VIRQS        8
  
-+/* Architecture-specific hypercall definitions. */
-+#define __HYPERVISOR_arch_0               48
-+#define __HYPERVISOR_arch_1               49
-+#define __HYPERVISOR_arch_2               50
-+#define __HYPERVISOR_arch_3               51
-+#define __HYPERVISOR_arch_4               52
-+#define __HYPERVISOR_arch_5               53
-+#define __HYPERVISOR_arch_6               54
-+#define __HYPERVISOR_arch_7               55
++/* Architecture-specific VIRQ definitions. */
++#define VIRQ_ARCH_0    16
++#define VIRQ_ARCH_1    17
++#define VIRQ_ARCH_2    18
++#define VIRQ_ARCH_3    19
++#define VIRQ_ARCH_4    20
++#define VIRQ_ARCH_5    21
++#define VIRQ_ARCH_6    22
++#define VIRQ_ARCH_7    23
 +
++#define NR_VIRQS       24
  /*
-  * VIRTUAL INTERRUPTS
+  * MMU-UPDATE REQUESTS
   *
 -- 
 1.5.3
