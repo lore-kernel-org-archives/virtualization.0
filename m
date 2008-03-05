@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 19/50] ia64/pv_ops: define ia64 privileged instruction
-	intrinsics for paravirtualized guest kernel.
-Date: Thu,  6 Mar 2008 03:18:34 +0900
-Message-ID: <12047411461061-git-send-email-yamahata__18862.5396731824$1204754854$gmane$org@valinux.co.jp>
+Subject: [PATCH 18/50] ia64/pv_ops: preparation for ia64 intrinsics operations
+	paravirtualization
+Date: Thu,  6 Mar 2008 03:18:33 +0900
+Message-ID: <12047411463902-git-send-email-yamahata__3516.07287670976$1204754858$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,638 +22,365 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make ia64 privileged instruction intrinsics paravirtualizable with binary
-patching allowing each pv instances to override each intrinsics.
-Mark privileged instructions which needs paravirtualization and allow pv
-instance can binary patch at early boot time.
+To make them overridable cleanly, change their prefix from ia64_ to native_
+and define ia64_ to native_.
+Later ia64_xxx would be redeinfed to pv_ops'ed one.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/paravirtentry.S   |   37 +++
- include/asm-ia64/privop.h          |    4 +
- include/asm-ia64/privop_paravirt.h |  587 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 628 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirtentry.S
- create mode 100644 include/asm-ia64/privop_paravirt.h
+ include/asm-ia64/gcc_intrin.h   |   58 +++++++++++++++++-----------------
+ include/asm-ia64/intel_intrin.h |   64 +++++++++++++++++++-------------------
+ include/asm-ia64/intrinsics.h   |   14 ++++----
+ include/asm-ia64/privop.h       |   36 ++++++++++++++++++++++
+ 4 files changed, 104 insertions(+), 68 deletions(-)
 
-diff --git a/arch/ia64/kernel/paravirtentry.S b/arch/ia64/kernel/paravirtentry.S
-new file mode 100644
-index 0000000..013511f
---- /dev/null
-+++ b/arch/ia64/kernel/paravirtentry.S
-@@ -0,0 +1,37 @@
-+/******************************************************************************
-+ * linux/arch/ia64/xen/paravirtentry.S
-+ *
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <asm/types.h>
-+#include <asm/asmmacro.h>
-+#include <asm/paravirt_entry.h>
-+#include <asm/privop_paravirt.h>
-+
-+#define BRANCH(sym, type)					\
-+	GLOBAL_ENTRY(paravirt_ ## sym) ;			\
-+		BR_COND_SPTK_MANY(native_ ## sym, type) ;	\
-+	END(paravirt_ ## sym)
-+
-+	BRANCH(switch_to,		PARAVIRT_ENTRY_SWITCH_TO)
-+	BRANCH(leave_syscall,		PARAVIRT_ENTRY_LEAVE_SYSCALL)
-+	BRANCH(work_processed_syscall,	PARAVIRT_ENTRY_WORK_PROCESSED_SYSCALL)
-+	BRANCH(leave_kernel,		PARAVIRT_ENTRY_LEAVE_KERNEL)
-+	BRANCH(pal_call_static,		PARAVIRT_ENTRY_PAL_CALL_STATIC)
+diff --git a/include/asm-ia64/gcc_intrin.h b/include/asm-ia64/gcc_intrin.h
+index de2ed2c..31db638 100644
+--- a/include/asm-ia64/gcc_intrin.h
++++ b/include/asm-ia64/gcc_intrin.h
+@@ -28,7 +28,7 @@ extern void ia64_bad_param_for_getreg (void);
+ register unsigned long ia64_r13 asm ("r13") __used;
+ #endif
+ 
+-#define ia64_setreg(regnum, val)						\
++#define native_setreg(regnum, val)						\
+ ({										\
+ 	switch (regnum) {							\
+ 	    case _IA64_REG_PSR_L:						\
+@@ -57,7 +57,7 @@ register unsigned long ia64_r13 asm ("r13") __used;
+ 	}									\
+ })
+ 
+-#define ia64_getreg(regnum)							\
++#define native_getreg(regnum)							\
+ ({										\
+ 	__u64 ia64_intri_res;							\
+ 										\
+@@ -94,7 +94,7 @@ register unsigned long ia64_r13 asm ("r13") __used;
+ 
+ #define ia64_hint_pause 0
+ 
+-#define ia64_hint(mode)						\
++#define native_hint(mode)						\
+ ({								\
+ 	switch (mode) {						\
+ 	case ia64_hint_pause:					\
+@@ -381,7 +381,7 @@ register unsigned long ia64_r13 asm ("r13") __used;
+ 
+ #define ia64_invala() asm volatile ("invala" ::: "memory")
+ 
+-#define ia64_thash(addr)							\
++#define native_thash(addr)							\
+ ({										\
+ 	__u64 ia64_intri_res;							\
+ 	asm volatile ("thash %0=%1" : "=r"(ia64_intri_res) : "r" (addr));	\
+@@ -401,18 +401,18 @@ register unsigned long ia64_r13 asm ("r13") __used;
+ 
+ #define ia64_nop(x)	asm volatile ("nop %0"::"i"(x));
+ 
+-#define ia64_itci(addr)	asm volatile ("itc.i %0;;" :: "r"(addr) : "memory")
++#define native_itci(addr)	asm volatile ("itc.i %0;;" :: "r"(addr) : "memory")
+ 
+-#define ia64_itcd(addr)	asm volatile ("itc.d %0;;" :: "r"(addr) : "memory")
++#define native_itcd(addr)	asm volatile ("itc.d %0;;" :: "r"(addr) : "memory")
+ 
+ 
+-#define ia64_itri(trnum, addr) asm volatile ("itr.i itr[%0]=%1"				\
++#define native_itri(trnum, addr) asm volatile ("itr.i itr[%0]=%1"			\
+ 					     :: "r"(trnum), "r"(addr) : "memory")
+ 
+-#define ia64_itrd(trnum, addr) asm volatile ("itr.d dtr[%0]=%1"				\
++#define native_itrd(trnum, addr) asm volatile ("itr.d dtr[%0]=%1"			\
+ 					     :: "r"(trnum), "r"(addr) : "memory")
+ 
+-#define ia64_tpa(addr)								\
++#define native_tpa(addr)							\
+ ({										\
+ 	__u64 ia64_pa;								\
+ 	asm volatile ("tpa %0 = %1" : "=r"(ia64_pa) : "r"(addr) : "memory");	\
+@@ -422,22 +422,22 @@ register unsigned long ia64_r13 asm ("r13") __used;
+ #define __ia64_set_dbr(index, val)						\
+ 	asm volatile ("mov dbr[%0]=%1" :: "r"(index), "r"(val) : "memory")
+ 
+-#define ia64_set_ibr(index, val)						\
++#define native_set_ibr(index, val)						\
+ 	asm volatile ("mov ibr[%0]=%1" :: "r"(index), "r"(val) : "memory")
+ 
+-#define ia64_set_pkr(index, val)						\
++#define native_set_pkr(index, val)						\
+ 	asm volatile ("mov pkr[%0]=%1" :: "r"(index), "r"(val) : "memory")
+ 
+-#define ia64_set_pmc(index, val)						\
++#define native_set_pmc(index, val)						\
+ 	asm volatile ("mov pmc[%0]=%1" :: "r"(index), "r"(val) : "memory")
+ 
+-#define ia64_set_pmd(index, val)						\
++#define native_set_pmd(index, val)						\
+ 	asm volatile ("mov pmd[%0]=%1" :: "r"(index), "r"(val) : "memory")
+ 
+-#define ia64_set_rr(index, val)							\
++#define native_set_rr(index, val)							\
+ 	asm volatile ("mov rr[%0]=%1" :: "r"(index), "r"(val) : "memory");
+ 
+-#define ia64_get_cpuid(index)								\
++#define native_get_cpuid(index)								\
+ ({											\
+ 	__u64 ia64_intri_res;								\
+ 	asm volatile ("mov %0=cpuid[%r1]" : "=r"(ia64_intri_res) : "rO"(index));	\
+@@ -451,21 +451,21 @@ register unsigned long ia64_r13 asm ("r13") __used;
+ 	ia64_intri_res;								\
+ })
+ 
+-#define ia64_get_ibr(index)							\
++#define native_get_ibr(index)							\
+ ({										\
+ 	__u64 ia64_intri_res;							\
+ 	asm volatile ("mov %0=ibr[%1]" : "=r"(ia64_intri_res) : "r"(index));	\
+ 	ia64_intri_res;								\
+ })
+ 
+-#define ia64_get_pkr(index)							\
++#define native_get_pkr(index)							\
+ ({										\
+ 	__u64 ia64_intri_res;							\
+ 	asm volatile ("mov %0=pkr[%1]" : "=r"(ia64_intri_res) : "r"(index));	\
+ 	ia64_intri_res;								\
+ })
+ 
+-#define ia64_get_pmc(index)							\
++#define native_get_pmc(index)							\
+ ({										\
+ 	__u64 ia64_intri_res;							\
+ 	asm volatile ("mov %0=pmc[%1]" : "=r"(ia64_intri_res) : "r"(index));	\
+@@ -473,48 +473,48 @@ register unsigned long ia64_r13 asm ("r13") __used;
+ })
+ 
+ 
+-#define ia64_get_pmd(index)							\
++#define native_get_pmd(index)							\
+ ({										\
+ 	__u64 ia64_intri_res;							\
+ 	asm volatile ("mov %0=pmd[%1]" : "=r"(ia64_intri_res) : "r"(index));	\
+ 	ia64_intri_res;								\
+ })
+ 
+-#define ia64_get_rr(index)							\
++#define native_get_rr(index)							\
+ ({										\
+ 	__u64 ia64_intri_res;							\
+ 	asm volatile ("mov %0=rr[%1]" : "=r"(ia64_intri_res) : "r" (index));	\
+ 	ia64_intri_res;								\
+ })
+ 
+-#define ia64_fc(addr)	asm volatile ("fc %0" :: "r"(addr) : "memory")
++#define native_fc(addr)	asm volatile ("fc %0" :: "r"(addr) : "memory")
+ 
+ 
+ #define ia64_sync_i()	asm volatile (";; sync.i" ::: "memory")
+ 
+-#define ia64_ssm(mask)	asm volatile ("ssm %0":: "i"((mask)) : "memory")
+-#define ia64_rsm(mask)	asm volatile ("rsm %0":: "i"((mask)) : "memory")
++#define native_ssm(mask)	asm volatile ("ssm %0":: "i"((mask)) : "memory")
++#define native_rsm(mask)	asm volatile ("rsm %0":: "i"((mask)) : "memory")
+ #define ia64_sum(mask)	asm volatile ("sum %0":: "i"((mask)) : "memory")
+ #define ia64_rum(mask)	asm volatile ("rum %0":: "i"((mask)) : "memory")
+ 
+-#define ia64_ptce(addr)	asm volatile ("ptc.e %0" :: "r"(addr))
++#define native_ptce(addr)	asm volatile ("ptc.e %0" :: "r"(addr))
+ 
+-#define ia64_ptcga(addr, size)							\
++#define native_ptcga(addr, size)							\
+ do {										\
+ 	asm volatile ("ptc.ga %0,%1" :: "r"(addr), "r"(size) : "memory");	\
+ 	ia64_dv_serialize_data();						\
+ } while (0)
+ 
+-#define ia64_ptcl(addr, size)							\
++#define native_ptcl(addr, size)							\
+ do {										\
+ 	asm volatile ("ptc.l %0,%1" :: "r"(addr), "r"(size) : "memory");	\
+ 	ia64_dv_serialize_data();						\
+ } while (0)
+ 
+-#define ia64_ptri(addr, size)						\
++#define native_ptri(addr, size)						\
+ 	asm volatile ("ptr.i %0,%1" :: "r"(addr), "r"(size) : "memory")
+ 
+-#define ia64_ptrd(addr, size)						\
++#define native_ptrd(addr, size)						\
+ 	asm volatile ("ptr.d %0,%1" :: "r"(addr), "r"(size) : "memory")
+ 
+ /* Values for lfhint in ia64_lfetch and ia64_lfetch_fault */
+@@ -596,7 +596,7 @@ do {										\
+         }								\
+ })
+ 
+-#define ia64_intrin_local_irq_restore(x)			\
++#define native_intrin_local_irq_restore(x)			\
+ do {								\
+ 	asm volatile (";;   cmp.ne p6,p7=%0,r0;;"		\
+ 		      "(p6) ssm psr.i;"				\
+diff --git a/include/asm-ia64/intel_intrin.h b/include/asm-ia64/intel_intrin.h
+index a520d10..ab3c8a3 100644
+--- a/include/asm-ia64/intel_intrin.h
++++ b/include/asm-ia64/intel_intrin.h
+@@ -16,8 +16,8 @@
+ 		 	 * intrinsic
+ 		 	 */
+ 
+-#define ia64_getreg		__getReg
+-#define ia64_setreg		__setReg
++#define native_getreg		__getReg
++#define native_setreg		__setReg
+ 
+ #define ia64_hint		__hint
+ #define ia64_hint_pause		__hint_pause
+@@ -33,16 +33,16 @@
+ #define ia64_getf_exp		__getf_exp
+ #define ia64_shrp		_m64_shrp
+ 
+-#define ia64_tpa		__tpa
++#define native_tpa		__tpa
+ #define ia64_invala		__invala
+ #define ia64_invala_gr		__invala_gr
+ #define ia64_invala_fr		__invala_fr
+ #define ia64_nop		__nop
+ #define ia64_sum		__sum
+-#define ia64_ssm		__ssm
++#define native_ssm		__ssm
+ #define ia64_rum		__rum
+-#define ia64_rsm		__rsm
+-#define ia64_fc 		__fc
++#define native_rsm		__rsm
++#define native_fc 		__fc
+ 
+ #define ia64_ldfs		__ldfs
+ #define ia64_ldfd		__ldfd
+@@ -80,24 +80,24 @@
+ 
+ #define __ia64_set_dbr(index, val)	\
+ 		__setIndReg(_IA64_REG_INDR_DBR, index, val)
+-#define ia64_set_ibr(index, val)	\
++#define native_set_ibr(index, val)	\
+ 		__setIndReg(_IA64_REG_INDR_IBR, index, val)
+-#define ia64_set_pkr(index, val)	\
++#define native_set_pkr(index, val)	\
+ 		__setIndReg(_IA64_REG_INDR_PKR, index, val)
+-#define ia64_set_pmc(index, val)	\
++#define native_set_pmc(index, val)	\
+ 		__setIndReg(_IA64_REG_INDR_PMC, index, val)
+-#define ia64_set_pmd(index, val)	\
++#define native_set_pmd(index, val)	\
+ 		__setIndReg(_IA64_REG_INDR_PMD, index, val)
+-#define ia64_set_rr(index, val)	\
++#define native_set_rr(index, val)	\
+ 		__setIndReg(_IA64_REG_INDR_RR, index, val)
+ 
+-#define ia64_get_cpuid(index) 	__getIndReg(_IA64_REG_INDR_CPUID, index)
++#define native_get_cpuid(index)	__getIndReg(_IA64_REG_INDR_CPUID, index)
+ #define __ia64_get_dbr(index) 	__getIndReg(_IA64_REG_INDR_DBR, index)
+-#define ia64_get_ibr(index) 	__getIndReg(_IA64_REG_INDR_IBR, index)
+-#define ia64_get_pkr(index) 	__getIndReg(_IA64_REG_INDR_PKR, index)
+-#define ia64_get_pmc(index) 	__getIndReg(_IA64_REG_INDR_PMC, index)
+-#define ia64_get_pmd(index)  	__getIndReg(_IA64_REG_INDR_PMD, index)
+-#define ia64_get_rr(index) 	__getIndReg(_IA64_REG_INDR_RR, index)
++#define native_get_ibr(index) 	__getIndReg(_IA64_REG_INDR_IBR, index)
++#define native_get_pkr(index) 	__getIndReg(_IA64_REG_INDR_PKR, index)
++#define native_get_pmc(index) 	__getIndReg(_IA64_REG_INDR_PMC, index)
++#define native_get_pmd(index)  	__getIndReg(_IA64_REG_INDR_PMD, index)
++#define native_get_rr(index) 	__getIndReg(_IA64_REG_INDR_RR, index)
+ 
+ #define ia64_srlz_d		__dsrlz
+ #define ia64_srlz_i		__isrlz
+@@ -119,18 +119,18 @@
+ #define ia64_ld8_acq		__ld8_acq
+ 
+ #define ia64_sync_i		__synci
+-#define ia64_thash		__thash
+-#define ia64_ttag		__ttag
+-#define ia64_itcd		__itcd
+-#define ia64_itci		__itci
+-#define ia64_itrd		__itrd
+-#define ia64_itri		__itri
+-#define ia64_ptce		__ptce
+-#define ia64_ptcl		__ptcl
+-#define ia64_ptcg		__ptcg
+-#define ia64_ptcga		__ptcga
+-#define ia64_ptri		__ptri
+-#define ia64_ptrd		__ptrd
++#define native_thash		__thash
++#define native_ttag		__ttag
++#define native_itcd		__itcd
++#define native_itci		__itci
++#define native_itrd		__itrd
++#define native_itri		__itri
++#define native_ptce		__ptce
++#define native_ptcl		__ptcl
++#define native_ptcg		__ptcg
++#define native_ptcga		__ptcga
++#define native_ptri		__ptri
++#define native_ptrd		__ptrd
+ #define ia64_dep_mi		_m64_dep_mi
+ 
+ /* Values for lfhint in __lfetch and __lfetch_fault */
+@@ -145,13 +145,13 @@
+ #define ia64_lfetch_fault	__lfetch_fault
+ #define ia64_lfetch_fault_excl	__lfetch_fault_excl
+ 
+-#define ia64_intrin_local_irq_restore(x)		\
++#define native_intrin_local_irq_restore(x)		\
+ do {							\
+ 	if ((x) != 0) {					\
+-		ia64_ssm(IA64_PSR_I);			\
++		native_ssm(IA64_PSR_I);			\
+ 		ia64_srlz_d();				\
+ 	} else {					\
+-		ia64_rsm(IA64_PSR_I);			\
++		native_rsm(IA64_PSR_I);			\
+ 	}						\
+ } while (0)
+ 
+diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
+index 5800ad0..3a58069 100644
+--- a/include/asm-ia64/intrinsics.h
++++ b/include/asm-ia64/intrinsics.h
+@@ -18,15 +18,15 @@
+ # include <asm/gcc_intrin.h>
+ #endif
+ 
+-#define ia64_get_psr_i()	(ia64_getreg(_IA64_REG_PSR) & IA64_PSR_I)
++#define native_get_psr_i()	(native_getreg(_IA64_REG_PSR) & IA64_PSR_I)
+ 
+-#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
++#define native_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
+ do {								\
+-	ia64_set_rr(0x0000000000000000UL, (val0));		\
+-	ia64_set_rr(0x2000000000000000UL, (val1));		\
+-	ia64_set_rr(0x4000000000000000UL, (val2));		\
+-	ia64_set_rr(0x6000000000000000UL, (val3));		\
+-	ia64_set_rr(0x8000000000000000UL, (val4));		\
++	native_set_rr(0x0000000000000000UL, (val0));		\
++	native_set_rr(0x2000000000000000UL, (val1));		\
++	native_set_rr(0x4000000000000000UL, (val2));		\
++	native_set_rr(0x6000000000000000UL, (val3));		\
++	native_set_rr(0x8000000000000000UL, (val4));		\
+ } while (0)
+ 
+ /*
 diff --git a/include/asm-ia64/privop.h b/include/asm-ia64/privop.h
-index b0b74fd..69591e0 100644
+index 7b9de4f..b0b74fd 100644
 --- a/include/asm-ia64/privop.h
 +++ b/include/asm-ia64/privop.h
-@@ -10,6 +10,10 @@
-  *
-  */
+@@ -16,6 +16,42 @@
  
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/privop_paravirt.h>
-+#endif
-+
- #ifdef CONFIG_XEN
- #include <asm/xen/privop.h>
- #endif
-diff --git a/include/asm-ia64/privop_paravirt.h b/include/asm-ia64/privop_paravirt.h
-new file mode 100644
-index 0000000..bd7de70
---- /dev/null
-+++ b/include/asm-ia64/privop_paravirt.h
-@@ -0,0 +1,587 @@
-+/******************************************************************************
-+ * privops_paravirt.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef _ASM_IA64_PRIVOP_PARAVIRT_H
-+#define _ASM_IA64_PRIVOP_PARAVIRT_H
-+
-+#define PARAVIRT_INST_START			0x1
-+#define PARAVIRT_INST_RFI			(PARAVIRT_INST_START + 0x0)
-+#define PARAVIRT_INST_RSM_DT			(PARAVIRT_INST_START + 0x1)
-+#define PARAVIRT_INST_SSM_DT			(PARAVIRT_INST_START + 0x2)
-+#define PARAVIRT_INST_COVER			(PARAVIRT_INST_START + 0x3)
-+#define PARAVIRT_INST_ITC_D			(PARAVIRT_INST_START + 0x4)
-+#define PARAVIRT_INST_ITC_I			(PARAVIRT_INST_START + 0x5)
-+#define PARAVIRT_INST_SSM_I			(PARAVIRT_INST_START + 0x6)
-+#define PARAVIRT_INST_GET_IVR			(PARAVIRT_INST_START + 0x7)
-+#define PARAVIRT_INST_GET_TPR			(PARAVIRT_INST_START + 0x8)
-+#define PARAVIRT_INST_SET_TPR			(PARAVIRT_INST_START + 0x9)
-+#define PARAVIRT_INST_EOI			(PARAVIRT_INST_START + 0xa)
-+#define PARAVIRT_INST_SET_ITM			(PARAVIRT_INST_START + 0xb)
-+#define PARAVIRT_INST_THASH			(PARAVIRT_INST_START + 0xc)
-+#define PARAVIRT_INST_PTC_GA			(PARAVIRT_INST_START + 0xd)
-+#define PARAVIRT_INST_ITR_D			(PARAVIRT_INST_START + 0xe)
-+#define PARAVIRT_INST_GET_RR			(PARAVIRT_INST_START + 0xf)
-+#define PARAVIRT_INST_SET_RR			(PARAVIRT_INST_START + 0x10)
-+#define PARAVIRT_INST_SET_KR			(PARAVIRT_INST_START + 0x11)
-+#define PARAVIRT_INST_FC			(PARAVIRT_INST_START + 0x12)
-+#define PARAVIRT_INST_GET_CPUID			(PARAVIRT_INST_START + 0x13)
-+#define PARAVIRT_INST_GET_PMD			(PARAVIRT_INST_START + 0x14)
-+#define PARAVIRT_INST_GET_EFLAG			(PARAVIRT_INST_START + 0x15)
-+#define PARAVIRT_INST_SET_EFLAG			(PARAVIRT_INST_START + 0x16)
-+#define PARAVIRT_INST_RSM_BE			(PARAVIRT_INST_START + 0x17)
-+#define PARAVIRT_INST_GET_PSR			(PARAVIRT_INST_START + 0x18)
-+#define PARAVIRT_INST_SET_RR0_TO_RR4		(PARAVIRT_INST_START + 0x19)
-+
-+#define PARAVIRT_BNDL_START			0x10000000
-+#define PARAVIRT_BNDL_SSM_I			(PARAVIRT_BNDL_START + 0x0)
-+#define PARAVIRT_BNDL_RSM_I			(PARAVIRT_BNDL_START + 0x1)
-+#define PARAVIRT_BNDL_GET_PSR_I			(PARAVIRT_BNDL_START + 0x2)
-+#define PARAVIRT_BNDL_INTRIN_LOCAL_IRQ_RESTORE	(PARAVIRT_BNDL_START + 0x3)
-+
-+/*
-+ * struct task_struct* (*ia64_switch_to)(void* next_task);
-+ * void *ia64_leave_syscall;
-+ * void *ia64_work_processed_syscall
-+ * void *ia64_leave_kernel;
-+ * struct ia64_pal_retval (*pal_call_static)(u64, u64, u64, u64, u64);
-+ */
-+
-+#define PARAVIRT_ENTRY_START			0x20000000
-+#define PARAVIRT_ENTRY_SWITCH_TO		(PARAVIRT_ENTRY_START + 0)
-+#define PARAVIRT_ENTRY_LEAVE_SYSCALL		(PARAVIRT_ENTRY_START + 1)
-+#define PARAVIRT_ENTRY_WORK_PROCESSED_SYSCALL	(PARAVIRT_ENTRY_START + 2)
-+#define PARAVIRT_ENTRY_LEAVE_KERNEL		(PARAVIRT_ENTRY_START + 3)
-+#define PARAVIRT_ENTRY_PAL_CALL_STATIC		(PARAVIRT_ENTRY_START + 4)
-+
-+
-+#ifndef __ASSEMBLER__
-+
-+#include <linux/stringify.h>
-+#include <linux/types.h>
-+#include <asm/paravirt_alt.h>
-+#include <asm/kregs.h> /* for IA64_PSR_I */
-+#include <asm/xen/interface.h>
-+
-+/************************************************/
-+/* Instructions paravirtualized for correctness */
-+/************************************************/
-+/* Note that "ttag" and "cover" are also privilege-sensitive; "ttag"
-+ * is not currently used (though it may be in a long-format VHPT system!) */
-+#ifdef ASM_SUPPORTED
-+static inline unsigned long
-+paravirt_fc(unsigned long addr)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	register __u64 __addr asm ("r8") = addr;
-+	asm volatile (paravirt_alt_inst("fc %1", PARAVIRT_INST_THASH):
-+		      "=r"(ia64_intri_res): "0"(__addr): "memory");
-+	return ia64_intri_res;
-+}
-+#define paravirt_fc(addr)	paravirt_fc((unsigned long)addr)
-+
-+static inline unsigned long
-+paravirt_thash(unsigned long addr)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	register __u64 __addr asm ("r8") = addr;
-+	asm volatile (paravirt_alt_inst("thash %0=%1", PARAVIRT_INST_THASH):
-+		      "=r"(ia64_intri_res): "0"(__addr));
-+	return ia64_intri_res;
-+}
-+
-+static inline unsigned long
-+paravirt_get_cpuid(int index)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	register __u64 __index asm ("r8") = index;
-+	asm volatile (paravirt_alt_inst("mov %0=cpuid[%r1]",
-+				   PARAVIRT_INST_GET_CPUID):
-+		      "=r"(ia64_intri_res): "0O"(__index));
-+	return ia64_intri_res;
-+}
-+
-+static inline unsigned long
-+paravirt_get_pmd(int index)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	register __u64 __index asm ("r8") = index;
-+	asm volatile (paravirt_alt_inst("mov %0=pmd[%1]",
-+					PARAVIRT_INST_GET_PMD):
-+		      "=r"(ia64_intri_res): "0"(__index));
-+	return ia64_intri_res;
-+}
-+
-+static inline unsigned long
-+paravirt_get_eflag(void)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	asm volatile (paravirt_alt_inst("mov %0=ar%1",
-+					PARAVIRT_INST_GET_EFLAG):
-+		"=r"(ia64_intri_res):
-+		"i"(_IA64_REG_AR_EFLAG - _IA64_REG_AR_KR0): "memory");
-+	return ia64_intri_res;
-+}
-+
-+static inline void
-+paravirt_set_eflag(unsigned long val)
-+{
-+	register __u64 __val asm ("r8") = val;
-+	asm volatile (paravirt_alt_inst("mov ar%0=%1",
-+					PARAVIRT_INST_SET_EFLAG)::
-+		      "i"(_IA64_REG_AR_EFLAG - _IA64_REG_AR_KR0), "r"(__val):
-+		      "memory");
-+}
-+
-+/************************************************/
-+/* Instructions paravirtualized for performance */
-+/************************************************/
-+
-+static inline unsigned long
-+paravirt_get_psr(void)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	asm volatile (paravirt_alt_inst("mov %0=psr", PARAVIRT_INST_GET_PSR):
-+		      "=r"(ia64_intri_res));
-+	return ia64_intri_res;
-+}
-+
-+static inline unsigned long
-+paravirt_get_ivr(void)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	asm volatile (paravirt_alt_inst("mov %0=cr%1", PARAVIRT_INST_GET_IVR):
-+		      "=r"(ia64_intri_res):
-+		      "i" (_IA64_REG_CR_IVR - _IA64_REG_CR_DCR));
-+	return ia64_intri_res;
-+}
-+
-+static inline unsigned long
-+paravirt_get_tpr(void)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	asm volatile (paravirt_alt_inst("mov %0=cr%1", PARAVIRT_INST_GET_TPR):
-+		      "=r"(ia64_intri_res):
-+		      "i" (_IA64_REG_CR_TPR - _IA64_REG_CR_DCR));
-+	return ia64_intri_res;
-+}
-+
-+static inline void
-+paravirt_set_tpr(unsigned long val)
-+{
-+	register __u64 __val asm ("r8") = val;
-+	asm volatile (paravirt_alt_inst("mov cr%0=%1", PARAVIRT_INST_SET_TPR)::
-+		      "i" (_IA64_REG_CR_TPR - _IA64_REG_CR_DCR), "r"(__val):
-+		      "memory");
-+}
-+
-+static inline void
-+paravirt_eoi(unsigned long val)
-+{
-+	register __u64 __val asm ("r8") = val;
-+	asm volatile (paravirt_alt_inst("mov cr%0=%1", PARAVIRT_INST_EOI)::
-+		      "i" (_IA64_REG_CR_EOI - _IA64_REG_CR_DCR), "r"(__val):
-+		      "memory");
-+}
-+
-+static inline void
-+paravirt_set_itm(unsigned long val)
-+{
-+	register __u64 __val asm ("r8") = val;
-+	asm volatile (paravirt_alt_inst("mov cr%0=%1", PARAVIRT_INST_SET_ITM)::
-+		      "i" (_IA64_REG_CR_ITM - _IA64_REG_CR_DCR), "r"(__val):
-+		      "memory");
-+}
-+
-+static inline void
-+paravirt_ptcga(unsigned long addr, unsigned long size)
-+{
-+	register __u64 __addr asm ("r8") = addr;
-+	register __u64 __size asm ("r9") = size;
-+	asm volatile (paravirt_alt_inst("ptc.ga %0,%1", PARAVIRT_INST_PTC_GA)::
-+		      "r"(__addr), "r"(__size): "memory");
-+	ia64_dv_serialize_data();
-+}
-+
-+static inline unsigned long
-+paravirt_get_rr(unsigned long index)
-+{
-+	register __u64 ia64_intri_res asm ("r8");
-+	register __u64 __index asm ("r8") = index;
-+	asm volatile (paravirt_alt_inst("mov %0=rr[%1]", PARAVIRT_INST_GET_RR):
-+		      "=r"(ia64_intri_res) : "0" (__index));
-+	return ia64_intri_res;
-+}
-+
-+static inline void
-+paravirt_set_rr(unsigned long index, unsigned long val)
-+{
-+	register __u64 __index asm ("r8") = index;
-+	register __u64 __val asm ("r9") = val;
-+	asm volatile (paravirt_alt_inst("mov rr[%0]=%1", PARAVIRT_INST_SET_RR)::
-+		      "r"(__index), "r"(__val): "memory");
-+}
-+
-+static inline void
-+paravirt_set_rr0_to_rr4(unsigned long val0, unsigned long val1,
-+			unsigned long val2, unsigned long val3,
-+			unsigned long val4)
-+{
-+	register __u64 __val0 asm ("r8") = val0;
-+	register __u64 __val1 asm ("r9") = val1;
-+	register __u64 __val2 asm ("r10") = val2;
-+	register __u64 __val3 asm ("r11") = val3;
-+	register __u64 __val4 asm ("r14") = val4;
-+	asm volatile (paravirt_alt_inst("\t;;\n"
-+					"\t{.mmi\n"
-+					"\tmov rr[%0]=%1\n"
-+					/*
-+					 * without this stop bit
-+					 * assembler complains.
-+					 */
-+					"\t;;\n"
-+					"\tmov rr[%2]=%3\n"
-+					"\tnop.i 0\n"
-+					"\t}\n"
-+					"\t{.mmi\n"
-+					"\tmov rr[%4]=%5\n"
-+					"\tmov rr[%6]=%7\n"
-+					"\tnop.i 0\n"
-+					"\t}\n"
-+					"\tmov rr[%8]=%9;;\n",
-+					PARAVIRT_INST_SET_RR0_TO_RR4)::
-+		      "r"(0x0000000000000000UL), "r"(__val0),
-+		      "r"(0x2000000000000000UL), "r"(__val1),
-+		      "r"(0x4000000000000000UL), "r"(__val2),
-+		      "r"(0x6000000000000000UL), "r"(__val3),
-+		      "r"(0x8000000000000000UL), "r"(__val4) :
-+		      "memory");
-+}
-+
-+static inline void
-+paravirt_set_kr(unsigned long index, unsigned long val)
-+{
-+	register __u64 __index asm ("r8") = index - _IA64_REG_AR_KR0;
-+	register __u64 __val asm ("r9") = val;
-+
-+	/*
-+	 * asm volatile ("break %0"::
-+	 *	      "i"(PARAVIRT_INST_SET_KR), "r"(__index), "r"(__val));
-+	 */
-+#ifndef BUILD_BUG_ON
-+#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
-+#endif
-+	BUILD_BUG_ON(!__builtin_constant_p(__index));
-+	switch (index) {
-+	case _IA64_REG_AR_KR0:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR0 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR1:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR1 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR2:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					    PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR2 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR3:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR3 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR4:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR4 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR5:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR5 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR6:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR6 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	case _IA64_REG_AR_KR7:
-+		asm volatile (paravirt_alt_inst("mov ar%0=%2",
-+					   PARAVIRT_INST_SET_KR)::
-+			      "i" (_IA64_REG_AR_KR7 - _IA64_REG_AR_KR0),
-+			      "r"(__index), "r"(__val):
-+			      "memory");
-+		break;
-+	default: {
-+		extern void compile_error_ar_kr_index_must_be_copmile_time_constant(void);
-+		compile_error_ar_kr_index_must_be_copmile_time_constant();
-+		break;
-+	}
-+	}
-+}
-+#endif /* ASM_SUPPORTED */
-+
-+static inline unsigned long
-+paravirt_getreg(unsigned long regnum)
-+{
-+	__u64 ia64_intri_res;
-+
-+	switch (regnum) {
-+	case _IA64_REG_PSR:
-+		ia64_intri_res = paravirt_get_psr();
-+		break;
-+	case _IA64_REG_CR_IVR:
-+		ia64_intri_res = paravirt_get_ivr();
-+		break;
-+	case _IA64_REG_CR_TPR:
-+		ia64_intri_res = paravirt_get_tpr();
-+		break;
-+	case _IA64_REG_AR_EFLAG:
-+		ia64_intri_res = paravirt_get_eflag();
-+		break;
-+	default:
-+		ia64_intri_res = native_getreg(regnum);
-+		break;
-+	}
-+	return ia64_intri_res;
-+ }
-+
-+static inline void
-+paravirt_setreg(unsigned long regnum, unsigned long val)
-+{
-+	switch (regnum) {
-+	case _IA64_REG_AR_KR0 ... _IA64_REG_AR_KR7:
-+		paravirt_set_kr(regnum, val);
-+		break;
-+	case _IA64_REG_CR_ITM:
-+		paravirt_set_itm(val);
-+		break;
-+	case _IA64_REG_CR_TPR:
-+		paravirt_set_tpr(val);
-+		break;
-+	case _IA64_REG_CR_EOI:
-+		paravirt_eoi(val);
-+		break;
-+	case _IA64_REG_AR_EFLAG:
-+		paravirt_set_eflag(val);
-+		break;
-+	default:
-+		native_setreg(regnum, val);
-+		break;
-+	}
-+}
-+
-+#ifdef ASM_SUPPORTED
-+
-+#define NOP_BUNDLE				\
-+	"{\n\t"					\
-+	"nop 0\n\t"				\
-+	"nop 0\n\t"				\
-+	"nop 0\n\t"				\
-+	"}\n\t"
-+
-+static inline void
-+paravirt_ssm_i(void)
-+{
-+	/* five bundles */
-+	asm volatile (paravirt_alt_bundle("{\n\t"
-+					  "ssm psr.i\n\t"
-+					  "nop 0\n\t"
-+					  "nop 0\n\t"
-+					  "}\n\t"
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE,
-+					  PARAVIRT_BNDL_SSM_I):::
-+		      "r8", "r9", "r10",
-+		      "p6", "p7",
-+		      "memory");
-+}
-+
-+static inline void
-+paravirt_rsm_i(void)
-+{
-+	/* two budles */
-+	asm volatile (paravirt_alt_bundle("{\n\t"
-+					  "rsm psr.i\n\t"
-+					  "nop 0\n\t"
-+					  "nop 0\n\t"
-+					  "}\n\t"
-+					  NOP_BUNDLE,
-+					  PARAVIRT_BNDL_RSM_I):::
-+		      "r8", "r9",
-+		      "memory");
-+}
-+
-+static inline unsigned long
-+paravirt_get_psr_i(void)
-+{
-+	register unsigned long psr_i asm ("r8");
-+	register unsigned long mask asm ("r9");
-+
-+	/* three bundles */
-+	asm volatile (paravirt_alt_bundle("{\n\t"
-+					  "mov %0=psr\n\t"
-+					  "mov %1=%2\n\t"
-+					  ";;\n\t"
-+					  "and %0=%0,%1\n\t"
-+					  "}\n\t"
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE,
-+					  PARAVIRT_BNDL_GET_PSR_I):
-+		      "=r"(psr_i),
-+		      "=r"(mask)
-+		      :
-+		      "i"(IA64_PSR_I)
-+		      :
-+		      /* "r8", "r9", */
-+		      "p6");
-+	return psr_i;
-+}
-+
-+static inline void
-+paravirt_intrin_local_irq_restore(unsigned long flags)
-+{
-+	register unsigned long __flags asm ("r8") = flags;
-+
-+	/* six bundles */
-+	asm volatile (paravirt_alt_bundle(";;\n\t"
-+					  "{\n\t"
-+					  "cmp.ne p6,p7=%0,r0;;\n\t"
-+					  "(p6) ssm psr.i;\n\t"
-+					  "nop 0\n\t"
-+					  "}\n\t"
-+					  "{\n\t"
-+					  "(p7) rsm psr.i;;\n\t"
-+					  "(p6) srlz.d\n\t"
-+					  "nop 0\n\t"
-+					  "}\n\t"
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE
-+					  NOP_BUNDLE,
-+					  PARAVIRT_BNDL_INTRIN_LOCAL_IRQ_RESTORE)::
-+		      "r"(__flags) :
-+		      /* "r8",*/ "r9", "r10", "r11",
-+		      "p6", "p7", "p8", "p9",
-+		      "memory");
-+
-+}
-+
-+#undef NOP_BUNDLE
-+
-+#endif /* ASM_SUPPORTED */
-+
-+static inline void
-+paravirt_ssm(unsigned long mask)
-+{
-+	if (mask == IA64_PSR_I)
-+		paravirt_ssm_i();
-+	else
-+		native_ssm(mask);
-+}
-+
-+static inline void
-+paravirt_rsm(unsigned long mask)
-+{
-+	if (mask == IA64_PSR_I)
-+		paravirt_rsm_i();
-+	else
-+		native_rsm(mask);
-+}
-+
-+#if defined(ASM_SUPPORTED) && defined(CONFIG_PARAVIRT_ALT)
-+
-+#define IA64_PARAVIRTUALIZED_PRIVOP
-+
-+#define ia64_fc(addr)			paravirt_fc(addr)
-+#define ia64_thash(addr)		paravirt_thash(addr)
-+#define ia64_get_cpuid(i)		paravirt_get_cpuid(i)
-+#define ia64_get_pmd(i)			paravirt_get_pmd(i)
-+#define ia64_ptcga(addr, size)		paravirt_ptcga((addr), (size))
-+#define ia64_set_rr(index, val)		paravirt_set_rr((index), (val))
-+#define ia64_get_rr(index)		paravirt_get_rr(index)
-+#define ia64_getreg(regnum)		paravirt_getreg(regnum)
-+#define ia64_setreg(regnum, val)	paravirt_setreg((regnum), (val))
-+#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)		\
-+	paravirt_set_rr0_to_rr4((val0), (val1), (val2), (val3), (val4))
-+
-+#define ia64_ssm(mask)			paravirt_ssm(mask)
-+#define ia64_rsm(mask)			paravirt_rsm(mask)
-+#define ia64_get_psr_i()		paravirt_get_psr_i()
-+#define ia64_intrin_local_irq_restore(x)	\
-+	paravirt_intrin_local_irq_restore(x)
-+
-+/* the remainder of these are not performance-sensitive so its
-+ * OK to not paravirtualize and just take a privop trap and emulate */
+ /* fallback for native case */
+ 
++#ifndef IA64_PARAVIRTUALIZED_PRIVOP
++#ifndef __ASSEMBLY
++#define ia64_getreg			native_getreg
++#define ia64_setreg			native_setreg
 +#define ia64_hint			native_hint
-+#define ia64_set_pmd			native_set_pmd
++#define ia64_thash			native_thash
 +#define ia64_itci			native_itci
 +#define ia64_itcd			native_itcd
 +#define ia64_itri			native_itri
@@ -662,30 +389,30 @@ index 0000000..bd7de70
 +#define ia64_set_ibr			native_set_ibr
 +#define ia64_set_pkr			native_set_pkr
 +#define ia64_set_pmc			native_set_pmc
++#define ia64_set_pmd			native_set_pmd
++#define ia64_set_rr			native_set_rr
++#define ia64_get_cpuid			native_get_cpuid
 +#define ia64_get_ibr			native_get_ibr
 +#define ia64_get_pkr			native_get_pkr
 +#define ia64_get_pmc			native_get_pmc
++#define ia64_get_pmd			native_get_pmd
++#define ia64_get_rr			native_get_rr
++#define ia64_fc				native_fc
++#define ia64_ssm			native_ssm
++#define ia64_rsm			native_rsm
 +#define ia64_ptce			native_ptce
++#define ia64_ptcga			native_ptcga
 +#define ia64_ptcl			native_ptcl
 +#define ia64_ptri			native_ptri
 +#define ia64_ptrd			native_ptrd
++#define ia64_get_psr_i			native_get_psr_i
++#define ia64_intrin_local_irq_restore	native_intrin_local_irq_restore
++#define ia64_set_rr0_to_rr4		native_set_rr0_to_rr4
++#endif /* !__ASSEMBLY */
++#endif /* !IA64_PARAVIRTUALIZED_PRIVOP */
 +
-+#endif /* ASM_SUPPORTED && CONFIG_PARAVIRT_ALT */
-+
-+#endif /* __ASSEMBLER__*/
-+
-+/* these routines utilize privilege-sensitive or performance-sensitive
-+ * privileged instructions so the code must be replaced with
-+ * paravirtualized versions */
-+#ifdef CONFIG_PARAVIRT_ENTRY
-+#define IA64_PARAVIRTUALIZED_ENTRY
-+#define ia64_switch_to			paravirt_switch_to
-+#define ia64_work_processed_syscall	paravirt_work_processed_syscall
-+#define ia64_leave_syscall		paravirt_leave_syscall
-+#define ia64_leave_kernel		paravirt_leave_kernel
-+#define ia64_pal_call_static		paravirt_pal_call_static
-+#endif /* CONFIG_PARAVIRT_ENTRY */
-+
-+#endif /* _ASM_IA64_PRIVOP_PARAVIRT_H */
+ #ifndef IA64_PARAVIRTUALIZED_ENTRY
+ #define ia64_switch_to			native_switch_to
+ #define ia64_leave_syscall		native_leave_syscall
 -- 
 1.5.3
