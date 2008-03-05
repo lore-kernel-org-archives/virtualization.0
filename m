@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 49/50] ia64/pv_ops/xen: define xen pv_iosapic_ops.
-Date: Thu,  6 Mar 2008 03:19:04 +0900
-Message-ID: <12047411463523-git-send-email-yamahata__24505.9671266519$1204743771$gmane$org@valinux.co.jp>
+Subject: [PATCH 34/50] ia64/xen: helper functions for xen fault handlers.
+Date: Thu,  6 Mar 2008 03:18:49 +0900
+Message-ID: <12047411461064-git-send-email-yamahata__24858.8842725896$1204743784$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,86 +21,77 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/xen_pv_ops.c |   53 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 53 insertions(+), 0 deletions(-)
+ arch/ia64/xen/xenivt.S |   59 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 59 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/xen/xenivt.S
 
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index a2a7493..c35bb23 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -21,6 +21,7 @@
-  */
- 
- #include <linux/console.h>
-+#include <linux/irq.h>
- #include <linux/kernel.h>
- #include <linux/notifier.h>
- #include <linux/pm.h>
-@@ -251,6 +252,57 @@ static const struct pv_init_ops xen_init_ops __initdata = {
- 
- 
- /***************************************************************************
-+ * pv_iosapic_ops
-+ * iosapic read/write hooks.
+diff --git a/arch/ia64/xen/xenivt.S b/arch/ia64/xen/xenivt.S
+new file mode 100644
+index 0000000..99bb37a
+--- /dev/null
++++ b/arch/ia64/xen/xenivt.S
+@@ -0,0 +1,59 @@
++/*
++ * arch/ia64/xen/ivt.S
++ *
++ * Copyright (C) 2005 Hewlett-Packard Co
++ *	Dan Magenheimer <dan.magenheimer@hp.com>
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *                    pv_ops.
 + */
-+static void
-+xen_pcat_compat_init(void)
-+{
-+	/* nothing */
-+}
 +
-+static struct irq_chip*
-+xen_iosapic_get_irq_chip(unsigned long trigger)
-+{
-+	return NULL;
-+}
++#include <asm/asmmacro.h>
++#include <asm/kregs.h>
++#include <asm/pgtable.h>
 +
-+static unsigned int
-+xen_iosapic_read(char __iomem *iosapic, unsigned int reg)
-+{
-+	struct physdev_apic apic_op;
-+	int ret;
++#define __IA64_ASM_PARAVIRTUALIZED_XEN
++#include "inst_xen.h"
++#include "xenminstate.h"
++#include "../kernel/minstate.h"
 +
-+	apic_op.apic_physbase = (unsigned long)iosapic -
-+					__IA64_UNCACHED_OFFSET;
-+	apic_op.reg = reg;
-+	ret = HYPERVISOR_physdev_op(PHYSDEVOP_apic_read, &apic_op);
-+	if (ret)
-+		return ret;
-+	return apic_op.value;
-+}
++	.section .text,"ax"
++GLOBAL_ENTRY(xen_event_callback)
++	mov r31=pr		// prepare to save predicates
++	;;
++	SAVE_MIN_WITH_COVER	// uses r31; defines r2 and r3
++	;;
++	movl r3=XSI_PSR_IC
++	mov r14=1
++	;;
++	st4 [r3]=r14
++	;;
++	adds r3=8,r2		// set up second base pointer for SAVE_REST
++	srlz.i			// ensure everybody knows psr.ic is back on
++	;;
++	SAVE_REST
++	;;
++1:
++	alloc r14=ar.pfs,0,0,1,0 // must be first in an insn group
++	add out0=16,sp		// pass pointer to pt_regs as first arg
++	;;
++	br.call.sptk.many b0=xen_evtchn_do_upcall
++	;;
++	movl r20=XSI_PSR_I_ADDR
++	;;
++	ld8 r20=[r20]
++	;;
++	adds r20=-1,r20		// vcpu_info->evtchn_upcall_pending
++	;;
++	ld1 r20=[r20]
++	;;
++	cmp.ne p6,p0=r20,r0	// if there are pending events,
++	(p6) br.spnt.few 1b	// call evtchn_do_upcall again.
++	br.sptk.many ia64_leave_kernel
++END(xen_event_callback)
 +
-+static void
-+xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
-+{
-+	struct physdev_apic apic_op;
-+
-+	apic_op.apic_physbase = (unsigned long)iosapic -
-+					__IA64_UNCACHED_OFFSET;
-+	apic_op.reg = reg;
-+	apic_op.value = val;
-+	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
-+}
-+
-+static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
-+	.pcat_compat_init = xen_pcat_compat_init,
-+	.get_irq_chip = xen_iosapic_get_irq_chip,
-+
-+	.__read = xen_iosapic_read,
-+	.__write = xen_iosapic_write,
-+};
-+
-+/***************************************************************************
-  * pv_ops initialization
-  */
- 
-@@ -260,4 +312,5 @@ xen_setup_pv_ops(void)
- 	xen_info_init();
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
-+	pv_iosapic_ops = xen_iosapic_ops;
- }
++GLOBAL_ENTRY(xen_bsw1)
++	XEN_BSW_1(r14)
++	br.ret.sptk.many b0
++END(xen_bsw1)
 -- 
 1.5.3
