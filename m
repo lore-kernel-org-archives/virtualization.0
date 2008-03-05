@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 16/50] ia64/pv_ops: hook pal_call_static() for
-	paravirtualization.
-Date: Thu,  6 Mar 2008 03:18:31 +0900
-Message-ID: <12047411461848-git-send-email-yamahata__14704.1264492602$1204749236$gmane$org@valinux.co.jp>
+Subject: [PATCH 36/50] ia64/pv_ops/xen: paravirtualize DO_SAVE_MIN.
+Date: Thu,  6 Mar 2008 03:18:51 +0900
+Message-ID: <1204741146486-git-send-email-yamahata__12706.0605599128$1204749301$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,54 +21,154 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/pal.S    |    5 +++--
- include/asm-ia64/privop.h |    1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/ia64/xen/xenminstate.h |  137 +++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 137 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/xen/xenminstate.h
 
-diff --git a/arch/ia64/kernel/pal.S b/arch/ia64/kernel/pal.S
-index 0b53344..d52fd70 100644
---- a/arch/ia64/kernel/pal.S
-+++ b/arch/ia64/kernel/pal.S
-@@ -16,6 +16,7 @@
- #include <asm/processor.h>
- 
- 	.data
-+	.globl pal_entry_point
- pal_entry_point:
- 	data8 ia64_pal_default_handler
- 	.text
-@@ -52,7 +53,7 @@ END(ia64_pal_default_handler)
-  * in0         Index of PAL service
-  * in1 - in3   Remaining PAL arguments
-  */
--GLOBAL_ENTRY(ia64_pal_call_static)
-+GLOBAL_ENTRY(native_pal_call_static)
- 	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(4)
- 	alloc loc1 = ar.pfs,4,5,0,0
- 	movl loc2 = pal_entry_point
-@@ -86,7 +87,7 @@ GLOBAL_ENTRY(ia64_pal_call_static)
- 	;;
- 	srlz.d				// seralize restoration of psr.l
- 	br.ret.sptk.many b0
--END(ia64_pal_call_static)
-+END(native_pal_call_static)
- 
- /*
-  * Make a PAL call using the stacked registers calling convention.
-diff --git a/include/asm-ia64/privop.h b/include/asm-ia64/privop.h
-index 11d26f7..7b9de4f 100644
---- a/include/asm-ia64/privop.h
-+++ b/include/asm-ia64/privop.h
-@@ -21,6 +21,7 @@
- #define ia64_leave_syscall		native_leave_syscall
- #define ia64_work_processed_syscall	native_work_processed_syscall
- #define ia64_leave_kernel		native_leave_kernel
-+#define ia64_pal_call_static		native_pal_call_static
- #endif /* !IA64_PARAVIRTUALIZED_ENTRY */
- 
- #endif /* _ASM_IA64_PRIVOP_H */
+diff --git a/arch/ia64/xen/xenminstate.h b/arch/ia64/xen/xenminstate.h
+new file mode 100644
+index 0000000..67bbf79
+--- /dev/null
++++ b/arch/ia64/xen/xenminstate.h
+@@ -0,0 +1,137 @@
++#ifdef __IA64_ASM_PARAVIRTUALIZED_XEN
++/*
++ * DO_SAVE_MIN switches to the kernel stacks (if necessary) and saves
++ * the minimum state necessary that allows us to turn psr.ic back
++ * on.
++ *
++ * Assumed state upon entry:
++ *	psr.ic: off
++ *	r31:	contains saved predicates (pr)
++ *
++ * Upon exit, the state is as follows:
++ *	psr.ic: off
++ *	 r2 = points to &pt_regs.r16
++ *	 r8 = contents of ar.ccv
++ *	 r9 = contents of ar.csd
++ *	r10 = contents of ar.ssd
++ *	r11 = FPSR_DEFAULT
++ *	r12 = kernel sp (kernel virtual address)
++ *	r13 = points to current task_struct (kernel virtual address)
++ *	p15 = TRUE if psr.i is set in cr.ipsr
++ *	predicate registers (other than p2, p3, and p15), b6, r3, r14, r15:
++ *		preserved
++ * CONFIG_XEN note: p6/p7 are not preserved
++ *
++ * Note that psr.ic is NOT turned on by this macro.  This is so that
++ * we can pass interruption state as arguments to a handler.
++ */
++#define DO_SAVE_MIN(__COVER,SAVE_IFS,EXTRA)							\
++	mov r16=IA64_KR(CURRENT);	/* M */							\
++	mov r27=ar.rsc;			/* M */							\
++	mov r20=r1;			/* A */							\
++	mov r25=ar.unat;		/* M */							\
++	MOV_FROM_IPSR(r29);		/* M */							\
++	mov r26=ar.pfs;			/* I */							\
++	MOV_FROM_IIP(r28);		/* M */							\
++	mov r21=ar.fpsr;		/* M */							\
++	__COVER;			/* B;; (or nothing) */					\
++	;;											\
++	adds r16=IA64_TASK_THREAD_ON_USTACK_OFFSET,r16;						\
++	;;											\
++	ld1 r17=[r16];				/* load current->thread.on_ustack flag */	\
++	st1 [r16]=r0;				/* clear current->thread.on_ustack flag */	\
++	adds r1=-IA64_TASK_THREAD_ON_USTACK_OFFSET,r16						\
++	/* switch from user to kernel RBS: */							\
++	;;											\
++	invala;				/* M */							\
++	/* SAVE_IFS;*/ /* see xen special handling below */					\
++	cmp.eq pKStk,pUStk=r0,r17;		/* are we in kernel mode already? */		\
++	;;											\
++(pUStk)	mov ar.rsc=0;		/* set enforced lazy mode, pl 0, little-endian, loadrs=0 */	\
++	;;											\
++(pUStk)	mov.m r24=ar.rnat;									\
++(pUStk)	addl r22=IA64_RBS_OFFSET,r1;			/* compute base of RBS */		\
++(pKStk) mov r1=sp;					/* get sp  */				\
++	;;											\
++(pUStk) lfetch.fault.excl.nt1 [r22];								\
++(pUStk)	addl r1=IA64_STK_OFFSET-IA64_PT_REGS_SIZE,r1;	/* compute base of memory stack */	\
++(pUStk)	mov r23=ar.bspstore;				/* save ar.bspstore */			\
++	;;											\
++(pUStk)	mov ar.bspstore=r22;				/* switch to kernel RBS */		\
++(pKStk) addl r1=-IA64_PT_REGS_SIZE,r1;			/* if in kernel mode, use sp (r12) */	\
++	;;											\
++(pUStk)	mov r18=ar.bsp;										\
++(pUStk)	mov ar.rsc=0x3;		/* set eager mode, pl 0, little-endian, loadrs=0 */		\
++	adds r17=2*L1_CACHE_BYTES,r1;		/* really: biggest cache-line size */		\
++	adds r16=PT(CR_IPSR),r1;								\
++	;;											\
++	lfetch.fault.excl.nt1 [r17],L1_CACHE_BYTES;						\
++	st8 [r16]=r29;		/* save cr.ipsr */						\
++	;;											\
++	lfetch.fault.excl.nt1 [r17];								\
++	tbit.nz p15,p0=r29,IA64_PSR_I_BIT;							\
++	mov r29=b0										\
++	;;											\
++	adds r16=PT(R8),r1;	/* initialize first base pointer */				\
++	adds r17=PT(R9),r1;	/* initialize second base pointer */				\
++(pKStk)	mov r18=r0;		/* make sure r18 isn't NaT */					\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r8,16;								\
++.mem.offset 8,0; st8.spill [r17]=r9,16;								\
++        ;;											\
++.mem.offset 0,0; st8.spill [r16]=r10,24;							\
++.mem.offset 8,0; st8.spill [r17]=r11,24;							\
++        ;;											\
++	/* xen special handling for possibly lazy cover */					\
++	/* XXX: SAVE_MIN case in dispatch_ia32_handler: mov r30=r0 */				\
++	movl r8=XSI_PRECOVER_IFS;								\
++	;;											\
++	ld8 r30=[r8];										\
++	;;											\
++	st8 [r16]=r28,16;	/* save cr.iip */						\
++	st8 [r17]=r30,16;	/* save cr.ifs */						\
++(pUStk)	sub r18=r18,r22;	/* r18=RSE.ndirty*8 */						\
++	mov r8=ar.ccv;										\
++	mov r9=ar.csd;										\
++	mov r10=ar.ssd;										\
++	movl r11=FPSR_DEFAULT;   /* L-unit */							\
++	;;											\
++	st8 [r16]=r25,16;	/* save ar.unat */						\
++	st8 [r17]=r26,16;	/* save ar.pfs */						\
++	shl r18=r18,16;		/* compute ar.rsc to be used for "loadrs" */			\
++	;;											\
++	st8 [r16]=r27,16;	/* save ar.rsc */						\
++(pUStk)	st8 [r17]=r24,16;	/* save ar.rnat */						\
++(pKStk)	adds r17=16,r17;	/* skip over ar_rnat field */					\
++	;;			/* avoid RAW on r16 & r17 */					\
++(pUStk)	st8 [r16]=r23,16;	/* save ar.bspstore */						\
++	st8 [r17]=r31,16;	/* save predicates */						\
++(pKStk)	adds r16=16,r16;	/* skip over ar_bspstore field */				\
++	;;											\
++	st8 [r16]=r29,16;	/* save b0 */							\
++	st8 [r17]=r18,16;	/* save ar.rsc value for "loadrs" */				\
++	cmp.eq pNonSys,pSys=r0,r0	/* initialize pSys=0, pNonSys=1 */			\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r20,16;	/* save original r1 */				\
++.mem.offset 8,0; st8.spill [r17]=r12,16;							\
++	adds r12=-16,r1;	/* switch to kernel memory stack (with 16 bytes of scratch) */	\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r13,16;							\
++.mem.offset 8,0; st8.spill [r17]=r21,16;	/* save ar.fpsr */				\
++	mov r13=IA64_KR(CURRENT);	/* establish `current' */				\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r15,16;							\
++.mem.offset 8,0; st8.spill [r17]=r14,16;							\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r2,16;								\
++.mem.offset 8,0; st8.spill [r17]=r3,16;								\
++	;;											\
++	EXTRA;											\
++	BSW_1(r2, r14);										\
++	adds r2=IA64_PT_REGS_R16_OFFSET,r1;							\
++	;;											\
++	movl r1=__gp;		/* establish kernel global pointer */				\
++	;;											\
++	/*bsw.1;*/		/* switch back to bank 1 (must be last in insn group) */	\
++	;;
++#endif /* __IA64_ASM_PARAVIRTUALIZED_XEN */
 -- 
 1.5.3
