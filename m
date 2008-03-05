@@ -1,16 +1,15 @@
-From: Max Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: [PATCH 2/3] partial checksum and GSO support for tun/tap.
-Date: Tue, 04 Mar 2008 12:08:58 -0800
-Message-ID: <47CDAC5A.1070103__3425.77519263632$1204661624$gmane$org@qualcomm.com>
-References: <200801240107.38929.rusty@rustcorp.com.au>
-	<200803041202.17202.rusty@rustcorp.com.au>
-	<47CCD930.3040200@qualcomm.com>
-	<200803041847.45500.rusty@rustcorp.com.au>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [kvm-devel] I/O bandwidth control on KVM
+Date: Thu, 06 Mar 2008 00:53:53 +0900 (JST)
+Message-ID: <20080306.005353.104038921.ryov__34941.4698700004$1204732798$gmane$org@valinux.co.jp>
+References: <20080229.210531.226799765.ryov__28298.7898834564$1204287044$gmane$org@valinux.co.jp>
+	<47CA2A7B.8000400@codemonkey.ws>
+	<20080304.154109.193687573.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200803041847.45500.rusty@rustcorp.com.au>
+In-Reply-To: <20080304.154109.193687573.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,51 +19,64 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.linux-foundation.org
+To: anthony@codemonkey.ws
+Cc: kvm-devel@lists.sourceforge.net, dm-devel@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Tuesday 04 March 2008 16:08:00 Max Krasnyansky wrote:
->>> The problem with this approach is that for what I'm doing, the packets
->>> aren't nicely arranged somewhere; they're in random process memory.
->> That's fine. RX/TX descriptors would not contain the data itself. They'd
->> contain pointers to actual packets (ie just like the NIC takes physical
->> memory address and DMAs data in/out).
->> The allows for sending/receiving packets without syscalls and fits nicely
->> with the async schemes like GSO.
-> 
-> Yes, yes it does.  That would be a very nice extension (it's orthogonal to 
-> this patch though, so should we get Dave to take these for 2.6.25?).
-It's orthogonal in general I agree. The only concern is whether we should keep 
-extending existing driver API (ie adding more flags like TUN_NO_PI, etc) or go 
-straight to the new/better ring based API. I do not have a strong preference 
-one way or the other. So I guess I'm saying I'd be ok with Dave taking them 
-for 2.6.25, but that API may be obsolete when the ring based thing comes out.
+Hi,
 
-> And as it happens, virtio already has such a structure: virtio_ring.  See 
-> linux/virtio_ring.h.
-I'll take a look.
+> If you are using virtio drivers in the guest (which I presume you are 
+> given the reference to /dev/vda), try using the following -drive syntax:
+> 
+> -drive file=/dev/mapper/ioband1,if=virtio,boot=on,cache=off
+> 
+> This will force the use of O_DIRECT.  By default, QEMU does not open 
+> with O_DIRECT so you'll see page cache effects.
 
->>> The structure is for virtio, I'm just borrowing it for tap because it's
->>> already there.  We could rename it and move it out to its own header, but
->>> if so we should do that before 2.6.25 is released.
->> If we do the whole enchilada with the RX/TX rings then we probably do not
->> even need it. I'm thinking that RX/TX descriptor would include everything
->> you need for the GSO and stuff.
->> I meant do not need it for the TUN/TAP driver that is. Is it used anywhere
->> else ?
-> 
-> Just for the linux virtio drivers.  Reusing it for tun/tap was an 
-> afterthought.  It just meant I could pass the same structure straight thru, 
-> though, which is nice.
-> 
-> The userspace->kernel problem is very similar to the guest->host problem, so 
-> it doesn't surprise me if we end up with very similar (identical?) 
-> interfaces.
-> 
-> Take a look at virtio_ring.h, virtio_ring.c and Documentation/lguest/lguest.c 
-> to see how we use it...
-Thanx for the pointers.
+I tried the test with "cache=off" option, here is the result. 
 
-Max
+                       The number of issued I/Os
+     --------------------------------------------------------------------
+    |             device         |       sda11       |       sda12       |
+    |          weight setting    |        80%        |        20%        |
+    |----------------------------+-------------------+-------------------|
+    | KVM       |      I/Os      |       5217        |       5623        |
+    | cache=off | ratio to total |       48.1%       |       51.9%       |
+    |-----------+----------------+-------------------+-------------------|
+    | KVM       |      I/Os      |       4397        |       2902        |
+    | cache=on  | ratio to total |       60.2%       |       39.8%       |
+    |-----------+----------------+-------------------+-------------------|
+    |local      |      I/Os      |       5447        |       1314        |
+    |           | ratio to total |       80.6%       |       19.4%       |
+     --------------------------------------------------------------------
+
+I could see the page cache effect through the /sys/block/sda/sda[12]/stat,
+O_DIRECT was taking effect. However, the bandwidth control didn't work.
+
+I also did another test. The difference from the previous test is that
+the weights were assigned on a per partition basis instead of a per
+cgroup basis.
+It worked fine on Xen and local processes, but unfortunately it didn't
+work on KVM.
+
+                       The number of issued I/Os
+            The weights were assigned on a per partition basis
+     --------------------------------------------------------------------
+    |             device         |       sda11       |       sda12       |
+    |          weight setting    |        80%        |        20%        |
+    |----------------------------+-------------------+-------------------|
+    | KVM       |      I/Os      |       5905        |       5873        |
+    | cache=off | ratio to total |       50.1%       |       49.9%       |
+    |-----------+----------------+-------------------+-------------------|
+    |local      |      I/Os      |       6929        |       1629        |
+    |           | ratio to total |       81.0%       |       19.0%       |
+    |--------------------------------------------------------------------|
+    | Xen       |      I/Os      |       8534        |       2360        |
+    |           | ratio to total |       78.3%       |       21.7%       |
+     --------------------------------------------------------------------
+
+I don't understand what was going on. I'd be appreciate if you could give
+me other suggestions.
+
+Thanks,
+Ryo Tsuruta
