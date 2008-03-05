@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 09/50] xen: make grant table arch portable.
-Date: Thu,  6 Mar 2008 03:18:24 +0900
-Message-ID: <12047411462402-git-send-email-yamahata__46388.3059368984$1204749188$gmane$org@valinux.co.jp>
+Subject: [PATCH 16/50] ia64/pv_ops: hook pal_call_static() for
+	paravirtualization.
+Date: Thu,  6 Mar 2008 03:18:31 +0900
+Message-ID: <12047411461848-git-send-email-yamahata__14704.1264492602$1204749236$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,201 +22,54 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-split out x86 specific part from grant-table.c
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/x86/xen/Makefile      |    2 +-
- arch/x86/xen/grant-table.c |   91 ++++++++++++++++++++++++++++++++++++++++++++
- drivers/xen/grant-table.c  |   35 +---------------
- include/xen/grant_table.h  |    6 +++
- 4 files changed, 101 insertions(+), 33 deletions(-)
- create mode 100644 arch/x86/xen/grant-table.c
+ arch/ia64/kernel/pal.S    |    5 +++--
+ include/asm-ia64/privop.h |    1 +
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
-index 95c5926..3d8df98 100644
---- a/arch/x86/xen/Makefile
-+++ b/arch/x86/xen/Makefile
-@@ -1,4 +1,4 @@
- obj-y		:= enlighten.o setup.o multicalls.o mmu.o \
--			time.o manage.o xen-asm.o
-+			time.o manage.o xen-asm.o grant-table.o
+diff --git a/arch/ia64/kernel/pal.S b/arch/ia64/kernel/pal.S
+index 0b53344..d52fd70 100644
+--- a/arch/ia64/kernel/pal.S
++++ b/arch/ia64/kernel/pal.S
+@@ -16,6 +16,7 @@
+ #include <asm/processor.h>
  
- obj-$(CONFIG_SMP)	+= smp.o
-diff --git a/arch/x86/xen/grant-table.c b/arch/x86/xen/grant-table.c
-new file mode 100644
-index 0000000..49ba9b5
---- /dev/null
-+++ b/arch/x86/xen/grant-table.c
-@@ -0,0 +1,91 @@
-+/******************************************************************************
-+ * grant_table.c
-+ * x86 specific part
-+ *
-+ * Granting foreign access to our memory reservation.
-+ *
-+ * Copyright (c) 2005-2006, Christopher Clark
-+ * Copyright (c) 2004-2005, K A Fraser
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan. Split out x86 specific part.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/vmalloc.h>
-+
-+#include <xen/interface/xen.h>
-+#include <xen/page.h>
-+#include <xen/grant_table.h>
-+
-+#include <asm/pgtable.h>
-+
-+static int map_pte_fn(pte_t *pte, struct page *pmd_page,
-+		      unsigned long addr, void *data)
-+{
-+	unsigned long **frames = (unsigned long **)data;
-+
-+	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
-+	(*frames)++;
-+	return 0;
-+}
-+
-+static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
-+			unsigned long addr, void *data)
-+{
-+
-+	set_pte_at(&init_mm, addr, pte, __pte(0));
-+	return 0;
-+}
-+
-+int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
-+			   unsigned long max_nr_gframes,
-+			   struct grant_entry **__shared)
-+{
-+	int rc;
-+	struct grant_entry *shared = *__shared;
-+
-+	if (shared == NULL) {
-+		struct vm_struct *area =
-+			xen_alloc_vm_area(PAGE_SIZE * max_nr_gframes);
-+		BUG_ON(area == NULL);
-+		shared = area->addr;
-+		*__shared = shared;
-+	}
-+
-+	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
-+				 PAGE_SIZE * nr_gframes,
-+				 map_pte_fn, &frames);
-+	return rc;
-+}
-+
-+void arch_gnttab_unmap_shared(struct grant_entry *shared,
-+			      unsigned long nr_gframes)
-+{
-+	apply_to_page_range(&init_mm, (unsigned long)shared,
-+			    PAGE_SIZE * nr_gframes, unmap_pte_fn, NULL);
-+}
-diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
-index 9fcde20..22f5104 100644
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -435,24 +435,6 @@ static inline unsigned int max_nr_grant_frames(void)
- 	return xen_max;
- }
+ 	.data
++	.globl pal_entry_point
+ pal_entry_point:
+ 	data8 ia64_pal_default_handler
+ 	.text
+@@ -52,7 +53,7 @@ END(ia64_pal_default_handler)
+  * in0         Index of PAL service
+  * in1 - in3   Remaining PAL arguments
+  */
+-GLOBAL_ENTRY(ia64_pal_call_static)
++GLOBAL_ENTRY(native_pal_call_static)
+ 	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(4)
+ 	alloc loc1 = ar.pfs,4,5,0,0
+ 	movl loc2 = pal_entry_point
+@@ -86,7 +87,7 @@ GLOBAL_ENTRY(ia64_pal_call_static)
+ 	;;
+ 	srlz.d				// seralize restoration of psr.l
+ 	br.ret.sptk.many b0
+-END(ia64_pal_call_static)
++END(native_pal_call_static)
  
--static int map_pte_fn(pte_t *pte, struct page *pmd_page,
--		      unsigned long addr, void *data)
--{
--	unsigned long **frames = (unsigned long **)data;
--
--	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
--	(*frames)++;
--	return 0;
--}
--
--static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
--			unsigned long addr, void *data)
--{
--
--	set_pte_at(&init_mm, addr, pte, __pte(0));
--	return 0;
--}
--
- static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
- {
- 	struct gnttab_setup_table setup;
-@@ -476,17 +458,9 @@ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
+ /*
+  * Make a PAL call using the stacked registers calling convention.
+diff --git a/include/asm-ia64/privop.h b/include/asm-ia64/privop.h
+index 11d26f7..7b9de4f 100644
+--- a/include/asm-ia64/privop.h
++++ b/include/asm-ia64/privop.h
+@@ -21,6 +21,7 @@
+ #define ia64_leave_syscall		native_leave_syscall
+ #define ia64_work_processed_syscall	native_work_processed_syscall
+ #define ia64_leave_kernel		native_leave_kernel
++#define ia64_pal_call_static		native_pal_call_static
+ #endif /* !IA64_PARAVIRTUALIZED_ENTRY */
  
- 	BUG_ON(rc || setup.status);
- 
--	if (shared == NULL) {
--		struct vm_struct *area;
--		area = xen_alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
--		BUG_ON(area == NULL);
--		shared = area->addr;
--	}
--	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
--				 PAGE_SIZE * nr_gframes,
--				 map_pte_fn, &frames);
-+	rc = arch_gnttab_map_shared(frames, nr_gframes, max_nr_grant_frames(),
-+				    &shared);
- 	BUG_ON(rc);
--	frames -= nr_gframes; /* adjust after map_pte_fn() */
- 
- 	kfree(frames);
- 
-@@ -502,10 +476,7 @@ static int gnttab_resume(void)
- 
- static int gnttab_suspend(void)
- {
--	apply_to_page_range(&init_mm, (unsigned long)shared,
--			    PAGE_SIZE * nr_grant_frames,
--			    unmap_pte_fn, NULL);
--
-+	arch_gnttab_unmap_shared(shared, nr_grant_frames);
- 	return 0;
- }
- 
-diff --git a/include/xen/grant_table.h b/include/xen/grant_table.h
-index 761c834..50ca16e 100644
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -102,6 +102,12 @@ void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
- void gnttab_grant_foreign_transfer_ref(grant_ref_t, domid_t domid,
- 				       unsigned long pfn);
- 
-+int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
-+			   unsigned long max_nr_gframes,
-+			   struct grant_entry **__shared);
-+void arch_gnttab_unmap_shared(struct grant_entry *shared,
-+			      unsigned long nr_gframes);
-+
- #define gnttab_map_vaddr(map) ((void *)(map.host_virt_addr))
- 
- #endif /* __ASM_GNTTAB_H__ */
+ #endif /* _ASM_IA64_PRIVOP_H */
 -- 
 1.5.3
