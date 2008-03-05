@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 28/50] ia64/pv_ops: introduce pv_irq_ops and its hooks.
-Date: Thu,  6 Mar 2008 03:18:43 +0900
-Message-ID: <12047411461988-git-send-email-yamahata__18860.0635425702$1204745944$gmane$org@valinux.co.jp>
+Subject: [PATCH 27/50] ia64/pv_ops: introduce pv_iosapic_ops and its hooks.
+Date: Thu,  6 Mar 2008 03:18:42 +0900
+Message-ID: <12047411462958-git-send-email-yamahata__18460.4674963795$1204745947$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,238 +24,218 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/irq_ia64.c |   21 ++++++++++----
- arch/ia64/kernel/paravirt.c |   22 +++++++++++++++
- include/asm-ia64/hw_irq.h   |   20 ++++++++++---
- include/asm-ia64/paravirt.h |   63 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 115 insertions(+), 11 deletions(-)
+ arch/ia64/kernel/iosapic.c  |   43 +++++++++++++++++++++++++++----------------
+ arch/ia64/kernel/paravirt.c |   30 ++++++++++++++++++++++++++++++
+ include/asm-ia64/iosapic.h  |   18 ++++++++++++++++--
+ include/asm-ia64/paravirt.h |   40 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 113 insertions(+), 18 deletions(-)
 
-diff --git a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
-index 2b8cf6e..5259faa 100644
---- a/arch/ia64/kernel/irq_ia64.c
-+++ b/arch/ia64/kernel/irq_ia64.c
-@@ -196,7 +196,7 @@ static void clear_irq_vector(int irq)
+diff --git a/arch/ia64/kernel/iosapic.c b/arch/ia64/kernel/iosapic.c
+index 7b32922..7380d6d 100644
+--- a/arch/ia64/kernel/iosapic.c
++++ b/arch/ia64/kernel/iosapic.c
+@@ -587,6 +587,15 @@ static inline int irq_is_shared (int irq)
+ 	return (iosapic_intr_info[irq].count > 1);
  }
  
- int
--assign_irq_vector (int irq)
-+native_assign_irq_vector (int irq)
- {
- 	unsigned long flags;
- 	int vector, cpu;
-@@ -222,7 +222,7 @@ assign_irq_vector (int irq)
- }
++struct irq_chip*
++native_iosapic_get_irq_chip(unsigned long trigger)
++{
++	if (trigger == IOSAPIC_EDGE)
++		return &irq_type_iosapic_edge;
++	else
++		return &irq_type_iosapic_level;
++}
++
+ static int
+ register_intr (unsigned int gsi, int irq, unsigned char delivery,
+ 	       unsigned long polarity, unsigned long trigger)
+@@ -637,13 +646,10 @@ register_intr (unsigned int gsi, int irq, unsigned char delivery,
+ 	iosapic_intr_info[irq].dmode    = delivery;
+ 	iosapic_intr_info[irq].trigger  = trigger;
  
- void
--free_irq_vector (int vector)
-+native_free_irq_vector (int vector)
- {
- 	if (vector < IA64_FIRST_DEVICE_VECTOR ||
- 	    vector > IA64_LAST_DEVICE_VECTOR)
-@@ -623,7 +623,7 @@ static struct irqaction tlb_irqaction = {
- #endif
+-	if (trigger == IOSAPIC_EDGE)
+-		irq_type = &irq_type_iosapic_edge;
+-	else
+-		irq_type = &irq_type_iosapic_level;
++	irq_type = iosapic_get_irq_chip(trigger);
  
- void
--register_percpu_irq (ia64_vector vec, struct irqaction *action)
-+native_register_percpu_irq (ia64_vector vec, struct irqaction *action)
- {
- 	irq_desc_t *desc;
- 	unsigned int irq;
-@@ -638,13 +638,21 @@ register_percpu_irq (ia64_vector vec, struct irqaction *action)
+ 	idesc = irq_desc + irq;
+-	if (idesc->chip != irq_type) {
++	if (irq_type != NULL && idesc->chip != irq_type) {
+ 		if (idesc->chip != &no_irq_type)
+ 			printk(KERN_WARNING
+ 			       "%s: changing vector %d from %s to %s\n",
+@@ -976,6 +982,20 @@ iosapic_override_isa_irq (unsigned int isa_irq, unsigned int gsi,
  }
  
  void __init
-+native_init_IRQ_early(void)
++native_iosapic_pcat_compat_init(void)
 +{
-+#ifdef CONFIG_SMP
-+	register_percpu_irq(IA64_IPI_RESCHEDULE, &resched_irqaction);
-+	register_percpu_irq(IA64_IPI_LOCAL_TLB_FLUSH, &tlb_irqaction);
-+#endif
++	/*
++	 * Disable the compatibility mode interrupts (8259 style),
++	 * needs IN/OUT support enabled.
++	 */
++	printk(KERN_INFO
++	       "%s: Disabling PC-AT compatible 8259 interrupts\n",
++	       __FUNCTION__);
++	outb(0xff, 0xA1);
++	outb(0xff, 0x21);
 +}
 +
 +void __init
- init_IRQ (void)
+ iosapic_system_init (int system_pcat_compat)
  {
-+	paravirt_init_IRQ_early();
- 	register_percpu_irq(IA64_SPURIOUS_INT_VECTOR, NULL);
- #ifdef CONFIG_SMP
- 	register_percpu_irq(IA64_IPI_VECTOR, &ipi_irqaction);
--	register_percpu_irq(IA64_IPI_RESCHEDULE, &resched_irqaction);
--	register_percpu_irq(IA64_IPI_LOCAL_TLB_FLUSH, &tlb_irqaction);
- #if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_DIG)
- 	if (vector_domain_type != VECTOR_DOMAIN_NONE) {
- 		BUG_ON(IA64_FIRST_DEVICE_VECTOR != IA64_IRQ_MOVE_VECTOR);
-@@ -657,10 +665,11 @@ init_IRQ (void)
- 	pfm_init_percpu();
- #endif
- 	platform_irq_init();
-+	paravirt_init_IRQ_late();
+ 	int irq;
+@@ -989,17 +1009,8 @@ iosapic_system_init (int system_pcat_compat)
+ 	}
+ 
+ 	pcat_compat = system_pcat_compat;
+-	if (pcat_compat) {
+-		/*
+-		 * Disable the compatibility mode interrupts (8259 style),
+-		 * needs IN/OUT support enabled.
+-		 */
+-		printk(KERN_INFO
+-		       "%s: Disabling PC-AT compatible 8259 interrupts\n",
+-		       __FUNCTION__);
+-		outb(0xff, 0xA1);
+-		outb(0xff, 0x21);
+-	}
++	if (pcat_compat)
++		iosapic_pcat_compat_init();
  }
  
- void
--ia64_send_ipi (int cpu, int vector, int delivery_mode, int redirect)
-+native_send_ipi (int cpu, int vector, int delivery_mode, int redirect)
- {
- 	void __iomem *ipi_addr;
- 	unsigned long ipi_data;
+ static inline int
 diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 7e6a2d0..ce0b23b 100644
+index 4282b00..7e6a2d0 100644
 --- a/arch/ia64/kernel/paravirt.c
 +++ b/arch/ia64/kernel/paravirt.c
-@@ -70,3 +70,25 @@ struct pv_iosapic_ops pv_iosapic_ops = {
- 	.__read = native_iosapic_read,
- 	.__write = native_iosapic_write,
- };
+@@ -22,6 +22,12 @@
+ 
+ #include <linux/init.h>
+ 
++#include <linux/compiler.h>
++#include <linux/io.h>
++#include <linux/irq.h>
++#include <linux/types.h>
 +
++#include <asm/iosapic.h>
+ #include <asm/paravirt.h>
+ 
+ /***************************************************************************
+@@ -40,3 +46,27 @@ struct pv_info pv_info = {
+ 
+ struct pv_init_ops pv_init_ops;
+ 
 +/***************************************************************************
-+ * pv_irq_ops
-+ * irq operations
++ * pv_iosapic_ops
++ * iosapic read/write hooks.
 + */
 +
-+void
-+ia64_send_ipi(int cpu, int vector, int delivery_mode, int redirect)
++static unsigned int
++native_iosapic_read(char __iomem *iosapic, unsigned int reg)
 +{
-+	pv_irq_ops.send_ipi(cpu, vector, delivery_mode, redirect);
++	return __native_iosapic_read(iosapic, reg);
 +}
 +
-+struct pv_irq_ops pv_irq_ops = {
-+	.init_IRQ_early = native_init_IRQ_early,
++static void
++native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++{
++	__native_iosapic_write(iosapic, reg, val);
++}
 +
-+	.assign_irq_vector = native_assign_irq_vector,
-+	.free_irq_vector = native_free_irq_vector,
-+	.register_percpu_irq = native_register_percpu_irq,
++struct pv_iosapic_ops pv_iosapic_ops = {
++	.pcat_compat_init = native_iosapic_pcat_compat_init,
++	.get_irq_chip = native_iosapic_get_irq_chip,
 +
-+	.send_ipi = native_send_ipi,
-+	.resend_irq = native_resend_irq,
++	.__read = native_iosapic_read,
++	.__write = native_iosapic_write,
 +};
-diff --git a/include/asm-ia64/hw_irq.h b/include/asm-ia64/hw_irq.h
-index 76366dc..678efec 100644
---- a/include/asm-ia64/hw_irq.h
-+++ b/include/asm-ia64/hw_irq.h
-@@ -104,13 +104,23 @@ DECLARE_PER_CPU(int[IA64_NUM_VECTORS], vector_irq);
+diff --git a/include/asm-ia64/iosapic.h b/include/asm-ia64/iosapic.h
+index a3a4288..73ee754 100644
+--- a/include/asm-ia64/iosapic.h
++++ b/include/asm-ia64/iosapic.h
+@@ -55,13 +55,27 @@
  
- extern struct hw_interrupt_type irq_type_ia64_lsapic;	/* CPU-internal interrupt controller */
+ #define NR_IOSAPICS			256
  
+-static inline unsigned int __iosapic_read(char __iomem *iosapic, unsigned int reg)
 +#ifdef CONFIG_PARAVIRT_GUEST
 +#include <asm/paravirt.h>
 +#else
-+#define assign_irq_vector	native_assign_irq_vector
-+#define free_irq_vector		native_free_irq_vector
-+#define ia64_send_ipi		native_send_ipi
-+#define ia64_resend_irq		native_resend_irq
++#define iosapic_pcat_compat_init	native_iosapic_pcat_compat_init
++#define __iosapic_read			__native_iosapic_read
++#define __iosapic_write			__native_iosapic_write
++#define iosapic_get_irq_chip		native_iosapic_get_irq_chip
 +#endif
 +
-+extern void native_init_IRQ_early(void);
- extern int bind_irq_vector(int irq, int vector, cpumask_t domain);
--extern int assign_irq_vector (int irq);	/* allocate a free vector */
--extern void free_irq_vector (int vector);
-+extern int native_assign_irq_vector (int irq);	/* allocate a free vector */
-+extern void native_free_irq_vector (int vector);
- extern int reserve_irq_vector (int vector);
- extern void __setup_vector_irq(int cpu);
--extern void ia64_send_ipi (int cpu, int vector, int delivery_mode, int redirect);
--extern void register_percpu_irq (ia64_vector vec, struct irqaction *action);
-+extern void native_send_ipi (int cpu, int vector, int delivery_mode, int redirect);
-+extern void native_register_percpu_irq (ia64_vector vec, struct irqaction *action);
- extern int check_irq_used (int irq);
- extern void destroy_and_reserve_irq (unsigned int irq);
- 
-@@ -122,7 +132,7 @@ static inline int irq_prepare_move(int irq, int cpu) { return 0; }
- static inline void irq_complete_move(unsigned int irq) {}
- #endif
- 
--static inline void ia64_resend_irq(unsigned int vector)
-+static inline void native_resend_irq(unsigned int vector)
++extern void __init native_iosapic_pcat_compat_init(void);
++extern struct irq_chip *native_iosapic_get_irq_chip(unsigned long trigger);
++
++static inline unsigned int
++__native_iosapic_read(char __iomem *iosapic, unsigned int reg)
  {
- 	platform_send_ipi(smp_processor_id(), vector, IA64_IPI_DM_INT, 0);
+ 	writel(reg, iosapic + IOSAPIC_REG_SELECT);
+ 	return readl(iosapic + IOSAPIC_WINDOW);
  }
+ 
+-static inline void __iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++static inline void
++__native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
+ {
+ 	writel(reg, iosapic + IOSAPIC_REG_SELECT);
+ 	writel(val, iosapic + IOSAPIC_WINDOW);
 diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index 9efeda9..ace6653 100644
+index dd585fc..9efeda9 100644
 --- a/include/asm-ia64/paravirt.h
 +++ b/include/asm-ia64/paravirt.h
-@@ -28,6 +28,7 @@
- 
- #ifndef __ASSEMBLY__
- 
-+#include <asm/hw_irq.h>
- #include <asm/meminit.h>
- 
- /******************************************************************************
-@@ -192,6 +193,65 @@ __iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
- 	return pv_iosapic_ops.__write(iosapic, reg, val);
+@@ -152,6 +152,46 @@ paravirt_inst_patch_module(struct paravirt_alt_inst_patch *start,
+ 		pv_init_ops.inst_patch_module(start, end);
  }
  
 +/******************************************************************************
-+ * replacement of irq operations.
++ * replacement of iosapic operations.
 + */
 +
-+struct pv_irq_ops {
-+	void (*init_IRQ_early)(void);
-+	void (*init_IRQ_late)(void);
++struct pv_iosapic_ops {
++	void (*pcat_compat_init)(void);
 +
-+	int (*assign_irq_vector)(int irq);
-+	void (*free_irq_vector)(int vector);
++	struct irq_chip *(*get_irq_chip)(unsigned long trigger);
 +
-+	void (*register_percpu_irq)(ia64_vector vec,
-+				    struct irqaction *action);
-+
-+	void (*send_ipi)(int cpu, int vector, int delivery_mode, int redirect);
-+	void (*resend_irq)(unsigned int vector);
++	unsigned int (*__read)(char __iomem *iosapic, unsigned int reg);
++	void (*__write)(char __iomem *iosapic, unsigned int reg, u32 val);
 +};
 +
-+extern struct pv_irq_ops pv_irq_ops;
++extern struct pv_iosapic_ops pv_iosapic_ops;
 +
 +static inline void
-+paravirt_init_IRQ_early(void)
++iosapic_pcat_compat_init(void)
 +{
-+	pv_irq_ops.init_IRQ_early();
++	if (pv_iosapic_ops.pcat_compat_init)
++		pv_iosapic_ops.pcat_compat_init();
++}
++
++static inline struct irq_chip*
++iosapic_get_irq_chip(unsigned long trigger)
++{
++	return pv_iosapic_ops.get_irq_chip(trigger);
++}
++
++static inline unsigned int
++__iosapic_read(char __iomem *iosapic, unsigned int reg)
++{
++	return pv_iosapic_ops.__read(iosapic, reg);
 +}
 +
 +static inline void
-+paravirt_init_IRQ_late(void)
++__iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
 +{
-+	if (pv_irq_ops.init_IRQ_late)
-+		pv_irq_ops.init_IRQ_late();
-+}
-+
-+static inline int
-+assign_irq_vector(int irq)
-+{
-+	return pv_irq_ops.assign_irq_vector(irq);
-+}
-+
-+static inline void
-+free_irq_vector(int vector)
-+{
-+	return pv_irq_ops.free_irq_vector(vector);
-+}
-+
-+static inline void
-+register_percpu_irq(ia64_vector vec, struct irqaction *action)
-+{
-+	pv_irq_ops.register_percpu_irq(vec, action);
-+}
-+
-+void ia64_send_ipi(int cpu, int vector, int delivery_mode, int redirect);
-+
-+static inline void
-+ia64_resend_irq(unsigned int vector)
-+{
-+	pv_irq_ops.resend_irq(vector);
++	return pv_iosapic_ops.__write(iosapic, reg, val);
 +}
 +
  #endif /* __ASSEMBLY__ */
  
  #else
-@@ -213,6 +273,9 @@ __iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
- #define paravirt_bundle_patch_module(start, end)	do { } while (0)
- #define paravirt_inst_patch_module(start, end)		do { } while (0)
- 
-+#define paravirt_init_IRQ_early()			do { } while (0)
-+#define paravirt_init_IRQ_late()			do { } while (0)
-+
- #endif /* __ASSEMBLY__ */
- 
- 
 -- 
 1.5.3
