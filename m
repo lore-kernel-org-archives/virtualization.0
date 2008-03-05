@@ -1,14 +1,11 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 41/50] ia64/xen: introduce xen hypercall routines necessary
-	for domU.
-Date: Thu,  6 Mar 2008 03:18:56 +0900
-Message-ID: <12047411461252-git-send-email-yamahata__33399.693753063$1204745927$gmane$org@valinux.co.jp>
-References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 00/50] ia64/xen take 3: ia64/xen domU paravirtualization
+Date: Thu,  6 Mar 2008 03:18:15 +0900
+Message-ID: <12047411453864-git-send-email-yamahata__3504.04725545577$1204745941$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,459 +19,158 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/xen/hypercall.S        |    7 +
- include/asm-ia64/xen/hypercall.h |  426 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 433 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/hypercall.h
+Hi. This patchset implements xen/ia64 domU support.
+Qing He and Eddie Dong also has been woring on pv_ops so that
+I want to discuss before going further and avoid duplicated work.
+I suppose that Eddie will also post his own patch. So reviewing both
+patches, we can reach to better pv_ops interface.
 
-diff --git a/arch/ia64/xen/hypercall.S b/arch/ia64/xen/hypercall.S
-index a96f278..7c5242b 100644
---- a/arch/ia64/xen/hypercall.S
-+++ b/arch/ia64/xen/hypercall.S
-@@ -122,3 +122,10 @@ GLOBAL_ENTRY(xen_set_eflag)
- END(xen_set_eflag)
- #endif /* CONFIG_IA32_SUPPORT */
- #endif /* ASM_SUPPORTED */
-+
-+GLOBAL_ENTRY(__hypercall)
-+	mov r2=r37
-+	break 0x1000
-+	br.ret.sptk.many b0
-+	;;
-+END(__hypercall)
-diff --git a/include/asm-ia64/xen/hypercall.h b/include/asm-ia64/xen/hypercall.h
-new file mode 100644
-index 0000000..a266e44
---- /dev/null
-+++ b/include/asm-ia64/xen/hypercall.h
-@@ -0,0 +1,426 @@
-+/******************************************************************************
-+ * hypercall.h
-+ *
-+ * Linux-specific hypervisor handling.
-+ *
-+ * Copyright (c) 2002-2004, K A Fraser
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
-+ */
-+
-+#ifndef _ASM_IA64_XEN_HYPERCALL_H
-+#define _ASM_IA64_XEN_HYPERCALL_H
-+
-+#ifndef _ASM_IA64_XEN_HYPERVISOR_H
-+# error "please don't include this file directly"
-+#endif
-+
-+#include <asm/xen/xcom_hcall.h>
-+struct xencomm_handle;
-+extern unsigned long __hypercall(unsigned long a1, unsigned long a2,
-+				 unsigned long a3, unsigned long a4,
-+				 unsigned long a5, unsigned long cmd);
-+
-+/*
-+ * Assembler stubs for hyper-calls.
-+ */
-+
-+#define _hypercall0(type, name)					\
-+({								\
-+	long __res;						\
-+	__res = __hypercall(0, 0, 0, 0, 0, __HYPERVISOR_##name);\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall1(type, name, a1)				\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			     0, 0, 0, 0, __HYPERVISOR_##name);	\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall2(type, name, a1, a2)				\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			    (unsigned long)a2,			\
-+			    0, 0, 0, __HYPERVISOR_##name);	\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall3(type, name, a1, a2, a3)			\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			    (unsigned long)a2,			\
-+			    (unsigned long)a3,			\
-+			    0, 0, __HYPERVISOR_##name);		\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall4(type, name, a1, a2, a3, a4)			\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			    (unsigned long)a2,			\
-+			    (unsigned long)a3,			\
-+			    (unsigned long)a4,			\
-+			    0, __HYPERVISOR_##name);		\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall5(type, name, a1, a2, a3, a4, a5)		\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			    (unsigned long)a2,			\
-+			    (unsigned long)a3,			\
-+			    (unsigned long)a4,			\
-+			    (unsigned long)a5,			\
-+			    __HYPERVISOR_##name);		\
-+	(type)__res;						\
-+})
-+
-+
-+static inline int
-+xencomm_arch_hypercall_sched_op(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, sched_op, cmd, arg);
-+}
-+
-+static inline long
-+HYPERVISOR_set_timer_op(u64 timeout)
-+{
-+	unsigned long timeout_hi = (unsigned long)(timeout >> 32);
-+	unsigned long timeout_lo = (unsigned long)timeout;
-+	return _hypercall2(long, set_timer_op, timeout_lo, timeout_hi);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_multicall(struct xencomm_handle *call_list,
-+				 int nr_calls)
-+{
-+	return _hypercall2(int, multicall, call_list, nr_calls);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_memory_op(unsigned int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, memory_op, cmd, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_event_channel_op(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, event_channel_op, cmd, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_xen_version(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, xen_version, cmd, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_console_io(int cmd, int count,
-+				  struct xencomm_handle *str)
-+{
-+	return _hypercall3(int, console_io, cmd, count, str);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_physdev_op(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, physdev_op, cmd, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_grant_table_op(unsigned int cmd,
-+				      struct xencomm_handle *uop,
-+				      unsigned int count)
-+{
-+	return _hypercall3(int, grant_table_op, cmd, uop, count);
-+}
-+
-+int HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count);
-+
-+extern int xencomm_arch_hypercall_suspend(struct xencomm_handle *arg);
-+
-+static inline int
-+xencomm_arch_hypercall_callback_op(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, callback_op, cmd, arg);
-+}
-+
-+static inline unsigned long
-+xencomm_arch_hypercall_hvm_op(int cmd, void *arg)
-+{
-+	return _hypercall2(unsigned long, hvm_op, cmd, arg);
-+}
-+
-+static inline long
-+xencomm_arch_hypercall_vcpu_op(int cmd, int cpu, void *arg)
-+{
-+	return _hypercall3(long, vcpu_op, cmd, cpu, arg);
-+}
-+
-+static inline int
-+HYPERVISOR_physdev_op(int cmd, void *arg)
-+{
-+	switch (cmd) {
-+	case PHYSDEVOP_eoi:
-+		return _hypercall1(int, ia64_fast_eoi,
-+				   ((struct physdev_eoi *)arg)->irq);
-+	default:
-+		return xencomm_hypercall_physdev_op(cmd, arg);
-+	}
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_xenoprof_op(int op, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, xenoprof_op, op, arg);
-+}
-+
-+static inline long
-+xencomm_arch_hypercall_opt_feature(struct xencomm_handle *arg)
-+{
-+	return _hypercall1(long, opt_feature, arg);
-+}
-+
-+#define xen_do_IRQ(irq, regs)		\
-+do {					\
-+	struct pt_regs *old_regs;	\
-+	old_regs = set_irq_regs(regs);	\
-+	irq_enter();			\
-+	__do_IRQ(irq);			\
-+	irq_exit();			\
-+	set_irq_regs(old_regs);		\
-+} while (0)
-+#define irq_ctx_init(cpu)	do { } while (0)
-+
-+#include <linux/err.h>
-+#ifdef HAVE_XEN_PLATFORM_COMPAT_H
-+#include <xen/platform-compat.h>
-+#endif
-+
-+static inline unsigned long
-+__HYPERVISOR_ioremap(unsigned long ioaddr, unsigned long size)
-+{
-+	return _hypercall3(unsigned long, ia64_dom0vp_op,
-+			   IA64_DOM0VP_ioremap, ioaddr, size);
-+}
-+
-+static inline unsigned long
-+HYPERVISOR_ioremap(unsigned long ioaddr, unsigned long size)
-+{
-+	unsigned long ret = ioaddr;
-+	if (is_running_on_xen()) {
-+		ret = __HYPERVISOR_ioremap(ioaddr, size);
-+		if (unlikely(ret == -ENOSYS))
-+			panic("hypercall %s failed with %ld. "
-+			      "Please check Xen and Linux config mismatch\n",
-+			      __func__, -ret);
-+		else if (unlikely(IS_ERR_VALUE(ret)))
-+			ret = ioaddr;
-+	}
-+	return ret;
-+}
-+
-+static inline unsigned long
-+__HYPERVISOR_phystomach(unsigned long gpfn)
-+{
-+	return _hypercall2(unsigned long, ia64_dom0vp_op,
-+			   IA64_DOM0VP_phystomach, gpfn);
-+}
-+
-+static inline unsigned long
-+HYPERVISOR_phystomach(unsigned long gpfn)
-+{
-+	unsigned long ret = gpfn;
-+	if (is_running_on_xen())
-+		ret = __HYPERVISOR_phystomach(gpfn);
-+	return ret;
-+}
-+
-+static inline unsigned long
-+__HYPERVISOR_machtophys(unsigned long mfn)
-+{
-+	return _hypercall2(unsigned long, ia64_dom0vp_op,
-+			   IA64_DOM0VP_machtophys, mfn);
-+}
-+
-+static inline unsigned long
-+HYPERVISOR_machtophys(unsigned long mfn)
-+{
-+	unsigned long ret = mfn;
-+	if (is_running_on_xen())
-+		ret = __HYPERVISOR_machtophys(mfn);
-+	return ret;
-+}
-+
-+static inline unsigned long
-+__HYPERVISOR_zap_physmap(unsigned long gpfn, unsigned int extent_order)
-+{
-+	return _hypercall3(unsigned long, ia64_dom0vp_op,
-+			   IA64_DOM0VP_zap_physmap, gpfn, extent_order);
-+}
-+
-+static inline unsigned long
-+HYPERVISOR_zap_physmap(unsigned long gpfn, unsigned int extent_order)
-+{
-+	unsigned long ret = 0;
-+	if (is_running_on_xen())
-+		ret = __HYPERVISOR_zap_physmap(gpfn, extent_order);
-+	return ret;
-+}
-+
-+static inline unsigned long
-+__HYPERVISOR_add_physmap(unsigned long gpfn, unsigned long mfn,
-+			 unsigned long flags, domid_t domid)
-+{
-+	return _hypercall5(unsigned long, ia64_dom0vp_op,
-+			   IA64_DOM0VP_add_physmap, gpfn, mfn, flags, domid);
-+}
-+
-+static inline unsigned long
-+HYPERVISOR_add_physmap(unsigned long gpfn, unsigned long mfn,
-+		       unsigned long flags, domid_t domid)
-+{
-+	unsigned long ret = 0;
-+	BUG_ON(!is_running_on_xen());
-+	if (is_running_on_xen())
-+		ret = __HYPERVISOR_add_physmap(gpfn, mfn, flags, domid);
-+	return ret;
-+}
-+
-+static inline unsigned long
-+__HYPERVISOR_add_physmap_with_gmfn(unsigned long gpfn, unsigned long gmfn,
-+				   unsigned long flags, domid_t domid)
-+{
-+	return _hypercall5(unsigned long, ia64_dom0vp_op,
-+			   IA64_DOM0VP_add_physmap_with_gmfn,
-+			   gpfn, gmfn, flags, domid);
-+}
-+
-+static inline unsigned long
-+HYPERVISOR_add_physmap_with_gmfn(unsigned long gpfn, unsigned long gmfn,
-+				 unsigned long flags, domid_t domid)
-+{
-+	unsigned long ret = 0;
-+	BUG_ON(!is_running_on_xen());
-+	if (is_running_on_xen())
-+		ret = __HYPERVISOR_add_physmap_with_gmfn(gpfn, gmfn,
-+							 flags, domid);
-+	return ret;
-+}
-+
-+#ifdef CONFIG_XEN_IA64_EXPOSE_P2M
-+static inline unsigned long
-+HYPERVISOR_expose_p2m(unsigned long conv_start_gpfn,
-+		      unsigned long assign_start_gpfn,
-+		      unsigned long expose_size, unsigned long granule_pfn)
-+{
-+	return _hypercall5(unsigned long, ia64_dom0vp_op,
-+			   IA64_DOM0VP_expose_p2m, conv_start_gpfn,
-+			   assign_start_gpfn, expose_size, granule_pfn);
-+}
-+
-+static inline int
-+xencomm_arch_expose_foreign_p2m(unsigned long gpfn,
-+				domid_t domid, struct xencomm_handle *arg,
-+				unsigned long flags)
-+{
-+	return _hypercall5(int, ia64_dom0vp_op,
-+			   IA64_DOM0VP_expose_foreign_p2m,
-+			   gpfn, domid, arg, flags);
-+}
-+
-+static inline int
-+HYPERVISOR_unexpose_foreign_p2m(unsigned long gpfn, domid_t domid)
-+{
-+	return _hypercall3(int, ia64_dom0vp_op,
-+			   IA64_DOM0VP_unexpose_foreign_p2m, gpfn, domid);
-+}
-+#endif
-+
-+static inline int
-+xencomm_arch_hypercall_perfmon_op(unsigned long cmd,
-+				  struct xencomm_handle *arg,
-+				  unsigned long count)
-+{
-+	return _hypercall4(int, ia64_dom0vp_op,
-+			   IA64_DOM0VP_perfmon, cmd, arg, count);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_fpswa_revision(struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, ia64_dom0vp_op,
-+			   IA64_DOM0VP_fpswa_revision, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_ia64_debug_op(unsigned long cmd,
-+				     unsigned long domain,
-+				     struct xencomm_handle *arg)
-+{
-+	return _hypercall3(int, ia64_debug_op, cmd, domain, arg);
-+}
-+
-+static inline int
-+HYPERVISOR_add_io_space(unsigned long phys_base,
-+			unsigned long sparse,
-+			unsigned long space_number)
-+{
-+	return _hypercall4(int, ia64_dom0vp_op, IA64_DOM0VP_add_io_space,
-+			   phys_base, sparse, space_number);
-+}
-+
-+/* for balloon driver */
-+#define HYPERVISOR_update_va_mapping(va, new_val, flags) (0)
-+
-+/* Use xencomm to do hypercalls.  */
-+#define HYPERVISOR_sched_op xencomm_hypercall_sched_op
-+#define HYPERVISOR_event_channel_op xencomm_hypercall_event_channel_op
-+#define HYPERVISOR_callback_op xencomm_hypercall_callback_op
-+#define HYPERVISOR_multicall xencomm_hypercall_multicall
-+#define HYPERVISOR_xen_version xencomm_hypercall_xen_version
-+#define HYPERVISOR_console_io xencomm_hypercall_console_io
-+#define HYPERVISOR_hvm_op xencomm_hypercall_hvm_op
-+#define HYPERVISOR_memory_op xencomm_hypercall_memory_op
-+#define HYPERVISOR_xenoprof_op xencomm_hypercall_xenoprof_op
-+#define HYPERVISOR_perfmon_op xencomm_hypercall_perfmon_op
-+#define HYPERVISOR_fpswa_revision xencomm_hypercall_fpswa_revision
-+#define HYPERVISOR_suspend xencomm_hypercall_suspend
-+#define HYPERVISOR_vcpu_op xencomm_hypercall_vcpu_op
-+#define HYPERVISOR_opt_feature xencomm_hypercall_opt_feature
-+#define HYPERVISOR_kexec_op xencomm_hypercall_kexec_op
-+
-+/* to compile gnttab_copy_grant_page() in drivers/xen/core/gnttab.c */
-+#define HYPERVISOR_mmu_update(req, count, success_count, domid) ({ BUG(); 0; })
-+
-+#endif /* _ASM_IA64_XEN_HYPERCALL_H */
--- 
-1.5.3
+
+- I didn't changed the ia64 intrinsic paravirtulization abi from
+  the last post. Presumably it would be better to discuss with
+  the Eddie's patch.
+
+- I implemented The basic portion of domU pv_ops.
+  They may need the interface refinement. Probably Eddie has
+  his own opinion.
+
+- This time I dropped the patches which hasn't been pv_ops'fied yet 
+  because they aren't changed from the last post.
+
+You can also get the full source from
+http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
+branch: xen-ia64-2008mar06
+
+The patchset are organized as follows
+- xen arch portability.
+  Generalizes x86 xen patches for ia64 support.
+- some preliminary patches.
+  Make kernel paravirtualization friendly.
+- introduce pv_ops and the definitions for native.
+- basic helper functions for xen ia64 support.
+- introduce the pv_ops instance for xen/ia64.
+
+
+TODO:
+- discuss and define intrinsic paravirtualization abi.
+- discuss pv_ops.
+- more pv_ops for domU
+  - mca/sal call
+  - timer
+  - gate page
+  - fsys
+- support save/restore/live migration
+- more clean ups
+  - remove unnecessary if (is_running_on_xen()).
+- Free xen_ivt areas somehow. No waste kernel space
+  From Keith Owens idea.
+  Probably after defining ABI because this is just optimization.
+- dom0
+  consider after finishing domU/ia64 merge.
+
+
+Changes from take 2:
+- many clean ups following to comments.
+- clean up:assembly instruction macro.
+- introduced pv_ops: pv_info, pv_init_ops, pv_iosapic_ops, pv_irq_ops.
+
+Changes from take 1:
+Single IVT source code. compile multitimes using assembler macros.
+
+thanks,
+
+Diffstat:
+ arch/ia64/Kconfig                                  |   72 +++
+ arch/ia64/kernel/Makefile                          |   30 +-
+ arch/ia64/kernel/acpi.c                            |    4 +
+ arch/ia64/kernel/asm-offsets.c                     |   25 +
+ arch/ia64/kernel/entry.S                           |  568 +------------------
+ arch/ia64/kernel/head.S                            |    6 +
+ arch/ia64/kernel/inst_native.h                     |  183 ++++++
+ arch/ia64/kernel/inst_paravirt.h                   |   28 +
+ arch/ia64/kernel/iosapic.c                         |   43 +-
+ arch/ia64/kernel/irq_ia64.c                        |   21 +-
+ arch/ia64/kernel/ivt.S                             |  153 +++---
+ arch/ia64/kernel/minstate.h                        |   10 +-
+ arch/ia64/kernel/module.c                          |   32 +
+ arch/ia64/kernel/pal.S                             |    5 +-
+ arch/ia64/kernel/paravirt.c                        |   94 +++
+ arch/ia64/kernel/paravirt_alt.c                    |  118 ++++
+ arch/ia64/kernel/paravirt_core.c                   |  201 +++++++
+ arch/ia64/kernel/paravirt_entry.c                  |   99 ++++
+ arch/ia64/kernel/paravirt_nop.c                    |   49 ++
+ arch/ia64/kernel/paravirtentry.S                   |   37 ++
+ arch/ia64/kernel/setup.c                           |   14 +
+ arch/ia64/kernel/smpboot.c                         |    2 +
+ arch/ia64/kernel/switch_leave.S                    |  603 +++++++++++++++++++
+ arch/ia64/kernel/vmlinux.lds.S                     |   35 ++
+ arch/ia64/xen/Makefile                             |    9 +
+ arch/ia64/xen/hypercall.S                          |  141 +++++
+ arch/ia64/xen/hypervisor.c                         |  235 ++++++++
+ arch/ia64/xen/inst_xen.h                           |  503 ++++++++++++++++
+ arch/ia64/xen/irq_xen.c                            |  435 ++++++++++++++
+ arch/ia64/xen/irq_xen.h                            |    8 +
+ arch/ia64/xen/machvec.c                            |    4 +
+ arch/ia64/xen/paravirt_xen.c                       |  242 ++++++++
+ arch/ia64/xen/privops_asm.S                        |  221 +++++++
+ arch/ia64/xen/privops_c.c                          |  279 +++++++++
+ arch/ia64/xen/util.c                               |  101 ++++
+ arch/ia64/xen/xcom_asm.S                           |   27 +
+ arch/ia64/xen/xcom_hcall.c                         |  458 +++++++++++++++
+ arch/ia64/xen/xen_pv_ops.c                         |  319 ++++++++++
+ arch/ia64/xen/xencomm.c                            |  108 ++++
+ arch/ia64/xen/xenivt.S                             |   59 ++
+ arch/ia64/{kernel/minstate.h => xen/xenminstate.h} |   96 +---
+ arch/ia64/xen/xenpal.S                             |   76 +++
+ arch/ia64/xen/xensetup.S                           |   60 ++
+ arch/x86/xen/Makefile                              |    4 +-
+ arch/x86/xen/grant-table.c                         |   91 +++
+ arch/x86/xen/xen-ops.h                             |    2 +-
+ drivers/xen/Makefile                               |    3 +-
+ {arch/x86 => drivers}/xen/events.c                 |   33 +-
+ {arch/x86 => drivers}/xen/features.c               |    0 
+ drivers/xen/grant-table.c                          |   37 +--
+ drivers/xen/xenbus/xenbus_client.c                 |    6 +-
+ drivers/xen/xencomm.c                              |  232 ++++++++
+ include/asm-ia64/gcc_intrin.h                      |   58 +-
+ include/asm-ia64/hw_irq.h                          |   24 +-
+ include/asm-ia64/intel_intrin.h                    |   64 +-
+ include/asm-ia64/intrinsics.h                      |   12 +
+ include/asm-ia64/iosapic.h                         |   18 +-
+ include/asm-ia64/irq.h                             |   33 ++
+ include/asm-ia64/machvec.h                         |    2 +
+ include/asm-ia64/machvec_xen.h                     |   22 +
+ include/asm-ia64/meminit.h                         |    3 +-
+ include/asm-ia64/mmu_context.h                     |    6 +-
+ include/asm-ia64/module.h                          |    6 +
+ include/asm-ia64/page.h                            |    8 +
+ include/asm-ia64/paravirt.h                        |  284 +++++++++
+ include/asm-ia64/paravirt_alt.h                    |   82 +++
+ include/asm-ia64/paravirt_core.h                   |   54 ++
+ include/asm-ia64/paravirt_entry.h                  |   62 ++
+ include/asm-ia64/paravirt_nop.h                    |   46 ++
+ include/asm-ia64/privop.h                          |   67 +++
+ include/asm-ia64/privop_paravirt.h                 |  587 +++++++++++++++++++
+ include/asm-ia64/sync_bitops.h                     |   59 ++
+ include/asm-ia64/system.h                          |    4 +-
+ include/asm-ia64/xen/hypercall.h                   |  426 ++++++++++++++
+ include/asm-ia64/xen/hypervisor.h                  |  249 ++++++++
+ include/asm-ia64/xen/interface.h                   |  585 +++++++++++++++++++
+ include/asm-ia64/xen/page.h                        |   41 ++
+ include/asm-ia64/xen/privop.h                      |  609 ++++++++++++++++++++
+ include/asm-ia64/xen/xcom_hcall.h                  |   55 ++
+ include/asm-ia64/xen/xencomm.h                     |   33 ++
+ include/asm-x86/xen/hypervisor.h                   |   10 +
+ include/asm-x86/xen/interface.h                    |   24 +
+ include/{ => asm-x86}/xen/page.h                   |    0 
+ include/xen/events.h                               |    1 +
+ include/xen/grant_table.h                          |    6 +
+ include/xen/interface/callback.h                   |  119 ++++
+ include/xen/interface/grant_table.h                |   11 +-
+ include/xen/interface/vcpu.h                       |    5 +
+ include/xen/interface/xen.h                        |   22 +-
+ include/xen/interface/xencomm.h                    |   41 ++
+ include/xen/page.h                                 |  181 +------
+ include/xen/xen-ops.h                              |    6 +
+ include/xen/xencomm.h                              |   77 +++
+ 93 files changed, 9174 insertions(+), 1049 deletions(-)
