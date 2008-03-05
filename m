@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 32/50] ia64/xen: define xen assembler constants which will be
-	used later.
-Date: Thu,  6 Mar 2008 03:18:47 +0900
-Message-ID: <12047411463153-git-send-email-yamahata__7588.93427341736$1204749707$gmane$org@valinux.co.jp>
+Subject: [PATCH 23/50] ia64/pv_ops: paravirtualize
+	arch/ia64/kernel/switch_leave.S
+Date: Thu,  6 Mar 2008 03:18:38 +0900
+Message-ID: <12047411463332-git-send-email-yamahata__8825.87513556263$1204749786$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,123 +24,256 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/asm-offsets.c |   25 ++++++++++++++
- include/asm-ia64/xen/privop.h  |   73 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 98 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/privop.h
+ arch/ia64/kernel/switch_leave.S |   80 +++++++++++++++++++++-----------------
+ 1 files changed, 44 insertions(+), 36 deletions(-)
 
-diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
-index 0aebc6f..1a81c64 100644
---- a/arch/ia64/kernel/asm-offsets.c
-+++ b/arch/ia64/kernel/asm-offsets.c
-@@ -278,4 +278,29 @@ void foo(void)
- 		offsetof (struct itc_jitter_data_t, itc_jitter));
- 	DEFINE(IA64_ITC_LASTCYCLE_OFFSET,
- 		offsetof (struct itc_jitter_data_t, itc_lastcycle));
+diff --git a/arch/ia64/kernel/switch_leave.S b/arch/ia64/kernel/switch_leave.S
+index 9918160..d6d0f08 100644
+--- a/arch/ia64/kernel/switch_leave.S
++++ b/arch/ia64/kernel/switch_leave.S
+@@ -44,16 +44,17 @@
+ #include <asm/pgtable.h>
+ #include <asm/thread_info.h>
+ 
++#include "inst_paravirt.h"
+ #include "minstate.h"
+ 
+-
+ /*
+  * prev_task <- ia64_switch_to(struct task_struct *next)
+  *	With Ingo's new scheduler, interrupts are disabled when this routine gets
+  *	called.  The code starting at .map relies on this.  The rest of the code
+  *	doesn't care about the interrupt masking status.
+  */
+-GLOBAL_ENTRY(native_switch_to)
++GLOBAL_ENTRY(__paravirt_switch_to)
++	BR_IF_NATIVE(native_switch_to, r22, p7)
+ 	.prologue
+ 	alloc r16=ar.pfs,1,0,0,0
+ 	DO_SAVE_SWITCH_STACK
+@@ -77,7 +78,7 @@ GLOBAL_ENTRY(native_switch_to)
+ 	;;
+ .done:
+ 	ld8 sp=[r21]			// load kernel stack pointer of new task
+-	mov IA64_KR(CURRENT)=in0	// update "current" application register
++	MOV_TO_KR(CURRENT, in0, r8, r9)		// update "current" application register
+ 	mov r8=r13			// return pointer to previously running task
+ 	mov r13=in0			// set "current" pointer
+ 	;;
+@@ -89,25 +90,30 @@ GLOBAL_ENTRY(native_switch_to)
+ 	br.ret.sptk.many rp		// boogie on out in new context
+ 
+ .map:
+-	rsm psr.ic			// interrupts (psr.i) are already disabled here
++	RSM_PSR_IC(r25)			// interrupts (psr.i) are already disabled here
+ 	movl r25=PAGE_KERNEL
+ 	;;
+ 	srlz.d
+ 	or r23=r25,r20			// construct PA | page properties
+ 	mov r25=IA64_GRANULE_SHIFT<<2
+ 	;;
+-	mov cr.itir=r25
+-	mov cr.ifa=in0			// VA of next task...
++	MOV_TO_ITIR(p0, r25, r8)
++	MOV_TO_IFA(in0, r8)		// VA of next task...
+ 	;;
+ 	mov r25=IA64_TR_CURRENT_STACK
+-	mov IA64_KR(CURRENT_STACK)=r26	// remember last page we mapped...
++	MOV_TO_KR(CURRENT_STACK, r26, r8, r9)	// remember last page we mapped...
+ 	;;
+ 	itr.d dtr[r25]=r23		// wire in new mapping...
+-	ssm psr.ic			// reenable the psr.ic bit
+-	;;
+-	srlz.d
++	SSM_PSR_IC_AND_SRLZ_D(r8, r9)	// reenable the psr.ic bit
+ 	br.cond.sptk .done
+-END(native_switch_to)
++END(__paravirt_switch_to)
 +
-+#ifdef CONFIG_XEN
-+	BLANK();
-+
-+#define DEFINE_MAPPED_REG_OFS(sym, field) \
-+	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
-+
-+	DEFINE_MAPPED_REG_OFS(XSI_PSR_I_ADDR_OFS, interrupt_mask_addr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IPSR_OFS, ipsr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIP_OFS, iip);
-+	DEFINE_MAPPED_REG_OFS(XSI_IFS_OFS, ifs);
-+	DEFINE_MAPPED_REG_OFS(XSI_PRECOVER_IFS_OFS, precover_ifs);
-+	DEFINE_MAPPED_REG_OFS(XSI_ISR_OFS, isr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IFA_OFS, ifa);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIPA_OFS, iipa);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIM_OFS, iim);
-+	DEFINE_MAPPED_REG_OFS(XSI_IHA_OFS, iha);
-+	DEFINE_MAPPED_REG_OFS(XSI_ITIR_OFS, itir);
-+	DEFINE_MAPPED_REG_OFS(XSI_PSR_IC_OFS, interrupt_collection_enabled);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANKNUM_OFS, banknum);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANK0_R16_OFS, bank0_regs[0]);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANK1_R16_OFS, bank1_regs[0]);
-+	DEFINE_MAPPED_REG_OFS(XSI_B0NATS_OFS, vbnat);
-+	DEFINE_MAPPED_REG_OFS(XSI_B1NATS_OFS, vnat);
-+#endif /* CONFIG_XEN */
- }
-diff --git a/include/asm-ia64/xen/privop.h b/include/asm-ia64/xen/privop.h
-new file mode 100644
-index 0000000..dd3e5ec
---- /dev/null
-+++ b/include/asm-ia64/xen/privop.h
-@@ -0,0 +1,73 @@
-+#ifndef _ASM_IA64_XEN_PRIVOP_H
-+#define _ASM_IA64_XEN_PRIVOP_H
-+
-+/*
-+ * Copyright (C) 2005 Hewlett-Packard Co
-+ *	Dan Magenheimer <dan.magenheimer@hp.com>
-+ *
-+ * Paravirtualizations of privileged operations for Xen/ia64
-+ *
-+ *
-+ * inline privop and paravirt_alt support
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ */
-+
-+#ifndef __ASSEMBLY__
-+#include <linux/types.h>		/* arch-ia64.h requires uint64_t */
-+#include <linux/stringify.h>
-+#endif
-+#include <asm/xen/interface.h>
-+
-+/* At 1 MB, before per-cpu space but still addressable using addl instead
-+   of movl. */
-+#define XSI_BASE			0xfffffffffff00000
-+
-+/* Address of mapped regs.  */
-+#define XMAPPEDREGS_BASE		(XSI_BASE + XSI_SIZE)
-+
-+#ifdef __ASSEMBLY__
-+#define XEN_HYPER_RFI			break HYPERPRIVOP_RFI
-+#define XEN_HYPER_RSM_PSR_DT		break HYPERPRIVOP_RSM_DT
-+#define XEN_HYPER_SSM_PSR_DT		break HYPERPRIVOP_SSM_DT
-+#define XEN_HYPER_COVER			break HYPERPRIVOP_COVER
-+#define XEN_HYPER_ITC_D			break HYPERPRIVOP_ITC_D
-+#define XEN_HYPER_ITC_I			break HYPERPRIVOP_ITC_I
-+#define XEN_HYPER_SSM_I			break HYPERPRIVOP_SSM_I
-+#define XEN_HYPER_GET_IVR		break HYPERPRIVOP_GET_IVR
-+#define XEN_HYPER_GET_TPR		break HYPERPRIVOP_GET_TPR
-+#define XEN_HYPER_SET_TPR		break HYPERPRIVOP_SET_TPR
-+#define XEN_HYPER_EOI			break HYPERPRIVOP_EOI
-+#define XEN_HYPER_SET_ITM		break HYPERPRIVOP_SET_ITM
-+#define XEN_HYPER_THASH			break HYPERPRIVOP_THASH
-+#define XEN_HYPER_PTC_GA		break HYPERPRIVOP_PTC_GA
-+#define XEN_HYPER_ITR_D			break HYPERPRIVOP_ITR_D
-+#define XEN_HYPER_GET_RR		break HYPERPRIVOP_GET_RR
-+#define XEN_HYPER_SET_RR		break HYPERPRIVOP_SET_RR
-+#define XEN_HYPER_SET_KR		break HYPERPRIVOP_SET_KR
-+#define XEN_HYPER_FC			break HYPERPRIVOP_FC
-+#define XEN_HYPER_GET_CPUID		break HYPERPRIVOP_GET_CPUID
-+#define XEN_HYPER_GET_PMD		break HYPERPRIVOP_GET_PMD
-+#define XEN_HYPER_GET_EFLAG		break HYPERPRIVOP_GET_EFLAG
-+#define XEN_HYPER_SET_EFLAG		break HYPERPRIVOP_SET_EFLAG
-+#define XEN_HYPER_GET_PSR		break HYPERPRIVOP_GET_PSR
-+#define XEN_HYPER_SET_RR0_TO_RR4	break HYPERPRIVOP_SET_RR0_TO_RR4
-+
-+#define XSI_IFS				(XSI_BASE + XSI_IFS_OFS)
-+#define XSI_PRECOVER_IFS		(XSI_BASE + XSI_PRECOVER_IFS_OFS)
-+#define XSI_IFA				(XSI_BASE + XSI_IFA_OFS)
-+#define XSI_ISR				(XSI_BASE + XSI_ISR_OFS)
-+#define XSI_IIM				(XSI_BASE + XSI_IIM_OFS)
-+#define XSI_ITIR			(XSI_BASE + XSI_ITIR_OFS)
-+#define XSI_PSR_I_ADDR			(XSI_BASE + XSI_PSR_I_ADDR_OFS)
-+#define XSI_PSR_IC			(XSI_BASE + XSI_PSR_IC_OFS)
-+#define XSI_IPSR			(XSI_BASE + XSI_IPSR_OFS)
-+#define XSI_IIP				(XSI_BASE + XSI_IIP_OFS)
-+#define XSI_B1NAT			(XSI_BASE + XSI_B1NATS_OFS)
-+#define XSI_BANK1_R16			(XSI_BASE + XSI_BANK1_R16_OFS)
-+#define XSI_BANKNUM			(XSI_BASE + XSI_BANKNUM_OFS)
-+#define XSI_IHA				(XSI_BASE + XSI_IHA_OFS)
-+#endif
-+
-+#endif /* _ASM_IA64_XEN_PRIVOP_H */
++#ifdef IA64_ASM_PARAVIRTUALIZED_XEN
++GLOBAL_ENTRY(xen_work_processed_syscall_with_check)
++	BR_IF_NATIVE(native_work_processed_syscall, r2, p7)
++	br.cond.sptk xen_work_processed_syscall
++END(xen_work_processed_syscall_with_check)
++#endif /* IA64_ASM_PARAVIRTUALIZED_XEN */
+ 
+ /*
+  * ia64_leave_syscall(): Same as ia64_leave_kernel, except that it doesn't
+@@ -153,8 +159,9 @@ END(native_switch_to)
+  *	      ar.csd: cleared
+  *	      ar.ssd: cleared
+  */
+-GLOBAL_ENTRY(native_leave_syscall)
++GLOBAL_ENTRY(__paravirt_leave_syscall)
+ 	PT_REGS_UNWIND_INFO(0)
++	BR_IF_NATIVE(native_leave_syscall, r22, p7)
+ 	/*
+ 	 * work.need_resched etc. mustn't get changed by this CPU before it returns to
+ 	 * user- or fsys-mode, hence we disable interrupts early on.
+@@ -177,12 +184,12 @@ GLOBAL_ENTRY(native_leave_syscall)
+ 	;;
+ 	cmp.eq p6,p0=r21,r0		// p6 <- pUStk || (preempt_count == 0)
+ #else /* !CONFIG_PREEMPT */
+-(pUStk)	rsm psr.i
++	RSM_PSR_I(pUStk, r2, r18)
+ 	cmp.eq pLvSys,p0=r0,r0		// pLvSys=1: leave from syscall
+ (pUStk)	cmp.eq.unc p6,p0=r0,r0		// p6 <- pUStk
+ #endif
+-.global native_work_processed_syscall;
+-native_work_processed_syscall:
++.global __paravirt_work_processed_syscall;
++__paravirt_work_processed_syscall:
+ 	adds r2=PT(LOADRS)+16,r12
+ 	adds r3=PT(AR_BSPSTORE)+16,r12
+ 	adds r18=TI_FLAGS+IA64_TASK_SIZE,r13
+@@ -205,7 +212,7 @@ native_work_processed_syscall:
+ (pNonSys) break 0		//      bug check: we shouldn't be here if pNonSys is TRUE!
+ 	;;
+ 	invala			// M0|1 invalidate ALAT
+-	rsm psr.i | psr.ic	// M2   turn off interrupts and interruption collection
++	RSM_PSR_I_IC(r28, r29, r30)	// M2   turn off interrupts and interruption collection
+ 	cmp.eq p9,p0=r0,r0	// A    set p9 to indicate that we should restore cr.ifs
+ 
+ 	ld8 r29=[r2],16		// M0|1 load cr.ipsr
+@@ -217,7 +224,7 @@ native_work_processed_syscall:
+ (pUStk) add r14=IA64_TASK_THREAD_ON_USTACK_OFFSET,r13
+ 	;;
+ 	ld8 r26=[r2],PT(B0)-PT(AR_PFS)	// M0|1 load ar.pfs
+-(pKStk)	mov r22=psr			// M2   read PSR now that interrupts are disabled
++	MOV_FROM_PSR(pKStk, r22, r21)	// M2   read PSR now that interrupts are disabled
+ 	nop 0
+ 	;;
+ 	ld8 r21=[r2],PT(AR_RNAT)-PT(B0) // M0|1 load b0
+@@ -246,7 +253,7 @@ native_work_processed_syscall:
+ 
+ 	srlz.d				// M0   ensure interruption collection is off (for cover)
+ 	shr.u r18=r19,16		// I0|1 get byte size of existing "dirty" partition
+-	cover				// B    add current frame into dirty partition & set cr.ifs
++	COVER				// B    add current frame into dirty partition & set cr.ifs
+ 	;;
+ 	mov r19=ar.bsp			// M2   get new backing store pointer
+ 	mov f10=f0			// F    clear f10
+@@ -261,10 +268,11 @@ native_work_processed_syscall:
+ 	mov.m ar.ssd=r0			// M2   clear ar.ssd
+ 	mov f11=f0			// F    clear f11
+ 	br.cond.sptk.many rbs_switch	// B
+-END(native_leave_syscall)
++END(__paravirt_leave_syscall)
+ 
+-GLOBAL_ENTRY(native_leave_kernel)
++GLOBAL_ENTRY(__paravirt_leave_kernel)
+ 	PT_REGS_UNWIND_INFO(0)
++	BR_IF_NATIVE(native_leave_kernel, r22, p7)
+ 	/*
+ 	 * work.need_resched etc. mustn't get changed by this CPU before it returns to
+ 	 * user- or fsys-mode, hence we disable interrupts early on.
+@@ -287,7 +295,7 @@ GLOBAL_ENTRY(native_leave_kernel)
+ 	;;
+ 	cmp.eq p6,p0=r21,r0		// p6 <- pUStk || (preempt_count == 0)
+ #else
+-(pUStk)	rsm psr.i
++	RSM_PSR_I(pUStk, r17, r31)
+ 	cmp.eq p0,pLvSys=r0,r0		// pLvSys=0: leave from kernel
+ (pUStk)	cmp.eq.unc p6,p0=r0,r0		// p6 <- pUStk
+ #endif
+@@ -335,7 +343,7 @@ GLOBAL_ENTRY(native_leave_kernel)
+ 	mov ar.csd=r30
+ 	mov ar.ssd=r31
+ 	;;
+-	rsm psr.i | psr.ic	// initiate turning off of interrupt and interruption collection
++	RSM_PSR_I_IC(r23, r22, r25)	// initiate turning off of interrupt and interruption collection
+ 	invala			// invalidate ALAT
+ 	;;
+ 	ld8.fill r22=[r2],24
+@@ -367,13 +375,13 @@ GLOBAL_ENTRY(native_leave_kernel)
+ 	mov ar.ccv=r15
+ 	;;
+ 	ldf.fill f11=[r2]
+-	bsw.0			// switch back to bank 0 (no stop bit required beforehand...)
++	BSW_0(r2, r3, r15)	// switch back to bank 0 (no stop bit required beforehand...)
+ 	;;
+ (pUStk)	mov r18=IA64_KR(CURRENT)// M2 (12 cycle read latency)
+ 	adds r16=PT(CR_IPSR)+16,r12
+ 	adds r17=PT(CR_IIP)+16,r12
+ 
+-(pKStk)	mov r22=psr		// M2 read PSR now that interrupts are disabled
++	MOV_FROM_PSR(pKStk, r22, r29)	// M2 read PSR now that interrupts are disabled
+ 	nop.i 0
+ 	nop.i 0
+ 	;;
+@@ -421,7 +429,7 @@ GLOBAL_ENTRY(native_leave_kernel)
+ 	 * NOTE: alloc, loadrs, and cover can't be predicated.
+ 	 */
+ (pNonSys) br.cond.dpnt dont_preserve_current_frame
+-	cover				// add current frame into dirty partition and set cr.ifs
++	COVER				// add current frame into dirty partition and set cr.ifs
+ 	;;
+ 	mov r19=ar.bsp			// get new backing store pointer
+ rbs_switch:
+@@ -524,16 +532,16 @@ skip_rbs_switch:
+ (pKStk)	dep r29=r22,r29,21,1	// I0 update ipsr.pp with psr.pp
+ (pLvSys)mov r16=r0		// A  clear r16 for leave_syscall, no-op otherwise
+ 	;;
+-	mov cr.ipsr=r29		// M2
++	MOV_TO_IPSR(r29, r25)	// M2
+ 	mov ar.pfs=r26		// I0
+ (pLvSys)mov r17=r0		// A  clear r17 for leave_syscall, no-op otherwise
+ 
+-(p9)	mov cr.ifs=r30		// M2
++	MOV_TO_IFS(p9, r30, r25)// M2
+ 	mov b0=r21		// I0
+ (pLvSys)mov r18=r0		// A  clear r18 for leave_syscall, no-op otherwise
+ 
+ 	mov ar.fpsr=r20		// M2
+-	mov cr.iip=r28		// M2
++	MOV_TO_IIP(r28, r25)	// M2
+ 	nop 0
+ 	;;
+ (pUStk)	mov ar.rnat=r24		// M2 must happen with RSE in lazy mode
+@@ -542,7 +550,7 @@ skip_rbs_switch:
+ 
+ 	mov ar.rsc=r27		// M2
+ 	mov pr=r31,-1		// I0
+-	rfi			// B
++	RFI			// B
+ 
+ 	/*
+ 	 * On entry:
+@@ -568,28 +576,28 @@ skip_rbs_switch:
+ #endif
+ 	br.call.spnt.many rp=schedule
+ .ret9:	cmp.eq p6,p0=r0,r0				// p6 <- 1
+-	rsm psr.i		// disable interrupts
++	RSM_PSR_I(p0, r2, r20)	// disable interrupts
+ 	;;
+ #ifdef CONFIG_PREEMPT
+ (pKStk)	adds r20=TI_PRE_COUNT+IA64_TASK_SIZE,r13
+ 	;;
+ (pKStk)	st4 [r20]=r0		// preempt_count() <- 0
+ #endif
+-(pLvSys)br.cond.sptk.few  ia64_work_pending_syscall_end
++(pLvSys)br.cond.sptk.few  __paravirt_pending_syscall_end
+ 	br.cond.sptk.many .work_processed_kernel	// re-check
+ 
+ .notify:
+ (pUStk)	br.call.spnt.many rp=notify_resume_user
+ .ret10:	cmp.ne p6,p0=r0,r0				// p6 <- 0
+-(pLvSys)br.cond.sptk.few  ia64_work_pending_syscall_end
++(pLvSys)br.cond.sptk.few  __paravirt_pending_syscall_end
+ 	br.cond.sptk.many .work_processed_kernel	// don't re-check
+ 
+-.global ia64_work_pending_syscall_end;
+-ia64_work_pending_syscall_end:
++.global __paravirt_pending_syscall_end;
++__paravirt_pending_syscall_end:
+ 	adds r2=PT(R8)+16,r12
+ 	adds r3=PT(R10)+16,r12
+ 	;;
+ 	ld8 r8=[r2]
+ 	ld8 r10=[r3]
+-	br.cond.sptk.many ia64_work_processed_syscall	// re-check
+-END(native_leave_kernel)
++	br.cond.sptk.many __paravirt_work_processed_syscall_target	// re-check
++END(__paravirt_leave_kernel)
 -- 
 1.5.3
