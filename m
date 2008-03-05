@@ -1,14 +1,16 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 10/50] xen: import include/xen/interface/callback.h which
-	ia64/xen needs.
-Date: Thu,  6 Mar 2008 03:18:25 +0900
-Message-ID: <1204741146462-git-send-email-yamahata__33685.408315114$1204754868$gmane$org@valinux.co.jp>
-References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
+From: Dor Laor <dor.laor@gmail.com>
+Subject: Re: [Lguest] networking in lguest: strange error: lguest: Guest
+	moved used index from 6 to 256
+Date: Thu, 06 Mar 2008 01:03:59 +0200
+Message-ID: <1204758239.4708.25.camel__30005.6932414465$1204759007$gmane$org@localhost.localdomain>
+References: <1204560316.47cc21bc513ed@webmail.alinto.com>
+	<200803052206.31266.rusty@rustcorp.com.au>
+Reply-To: dor.laor@qumranet.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12047411453864-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <200803052206.31266.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,140 +20,58 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
+To: Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@us.ibm.com>, Av
+Cc: lguest@ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- include/xen/interface/callback.h |  119 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 119 insertions(+), 0 deletions(-)
- create mode 100644 include/xen/interface/callback.h
 
-diff --git a/include/xen/interface/callback.h b/include/xen/interface/callback.h
-new file mode 100644
-index 0000000..04c8b5d
---- /dev/null
-+++ b/include/xen/interface/callback.h
-@@ -0,0 +1,119 @@
-+/******************************************************************************
-+ * callback.h
-+ *
-+ * Register guest OS callbacks with Xen.
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this software and associated documentation files (the "Software"), to
-+ * deal in the Software without restriction, including without limitation the
-+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-+ * sell copies of the Software, and to permit persons to whom the Software is
-+ * furnished to do so, subject to the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-+ * DEALINGS IN THE SOFTWARE.
-+ *
-+ * Copyright (c) 2006, Ian Campbell
-+ */
-+
-+#ifndef __XEN_PUBLIC_CALLBACK_H__
-+#define __XEN_PUBLIC_CALLBACK_H__
-+
-+#include "xen.h"
-+
-+/*
-+ * Prototype for this hypercall is:
-+ *   long callback_op(int cmd, void *extra_args)
-+ * @cmd        == CALLBACKOP_??? (callback operation).
-+ * @extra_args == Operation-specific extra arguments (NULL if none).
-+ */
-+
-+/* ia64, x86: Callback for event delivery. */
-+#define CALLBACKTYPE_event                 0
-+
-+/* x86: Failsafe callback when guest state cannot be restored by Xen. */
-+#define CALLBACKTYPE_failsafe              1
-+
-+/* x86/64 hypervisor: Syscall by 64-bit guest app ('64-on-64-on-64'). */
-+#define CALLBACKTYPE_syscall               2
-+
-+/*
-+ * x86/32 hypervisor: Only available on x86/32 when supervisor_mode_kernel
-+ *     feature is enabled. Do not use this callback type in new code.
-+ */
-+#define CALLBACKTYPE_sysenter_deprecated   3
-+
-+/* x86: Callback for NMI delivery. */
-+#define CALLBACKTYPE_nmi                   4
-+
-+/*
-+ * x86: sysenter is only available as follows:
-+ * - 32-bit hypervisor: with the supervisor_mode_kernel feature enabled
-+ * - 64-bit hypervisor: 32-bit guest applications on Intel CPUs
-+ *                      ('32-on-32-on-64', '32-on-64-on-64')
-+ *                      [nb. also 64-bit guest applications on Intel CPUs
-+ *                           ('64-on-64-on-64'), but syscall is preferred]
-+ */
-+#define CALLBACKTYPE_sysenter              5
-+
-+/*
-+ * x86/64 hypervisor: Syscall by 32-bit guest app on AMD CPUs
-+ *                    ('32-on-32-on-64', '32-on-64-on-64')
-+ */
-+#define CALLBACKTYPE_syscall32             7
-+
-+/*
-+ * Disable event deliver during callback? This flag is ignored for event and
-+ * NMI callbacks: event delivery is unconditionally disabled.
-+ */
-+#define _CALLBACKF_mask_events             0
-+#define CALLBACKF_mask_events              (1U << _CALLBACKF_mask_events)
-+
-+/*
-+ * Register a callback.
-+ */
-+#define CALLBACKOP_register                0
-+struct callback_register {
-+    uint16_t type;
-+    uint16_t flags;
-+    xen_callback_t address;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(callback_register);
-+
-+/*
-+ * Unregister a callback.
-+ *
-+ * Not all callbacks can be unregistered. -EINVAL will be returned if
-+ * you attempt to unregister such a callback.
-+ */
-+#define CALLBACKOP_unregister              1
-+struct callback_unregister {
-+    uint16_t type;
-+    uint16_t _unused;
-+};
-+DEFINE_GUEST_HANDLE_STRUCT(callback_unregister);
-+
-+#if __XEN_INTERFACE_VERSION__ < 0x00030207
-+#undef CALLBACKTYPE_sysenter
-+#define CALLBACKTYPE_sysenter CALLBACKTYPE_sysenter_deprecated
-+#endif
-+
-+#endif /* __XEN_PUBLIC_CALLBACK_H__ */
-+
-+/*
-+ * Local variables:
-+ * mode: C
-+ * c-set-style: "BSD"
-+ * c-basic-offset: 4
-+ * tab-width: 4
-+ * indent-tabs-mode: nil
-+ * End:
-+ */
--- 
-1.5.3
+On Wed, 2008-03-05 at 22:06 +1100, Rusty Russell wrote:
+> On Tuesday 04 March 2008 03:05:16 octane indice wrote:
+> > Hello
+> >
+> > I have some difficulty to use network inside lguest.
+> > I use a slackware 12 for guest and host with a 2.6.24 kernel.
+> >
+> > I boot lguest like that:
+> > # tunctl
+> > # ifconfig tap0 192.168.19.1
+> > # lguest --tunnet=192.168.19.1 --block=/var/samba/iso/lguest.img 48
+> > /usr/src/linux/arch/i386/boot/bzImage root=/dev/vda rw
+> >
+> > The init script files try to do a DHCP. It doesn't work (I do'nt have a
+> > DHCP server).
+> >
+> > If in the host I try to configure the eth0, lguest crashes strangely:
+> > root@slack12:~# ifconfig eth0 192.168.19.5
+> > root@slack12:~# lguest: Guest moved used index from 6 to 256
+> 
+> Damn.  This is fixed in Linus' tree, but I've reproduced it here for 2.6.24.
+> 
+> It's non-trivial to repair, unfortunately (2.6.25 has a complete
+> reset 
+> infrastructure for this).  It will occur whenever the network device is 
+> reopened, after packets were sent (or received).
+> 
+> The workaround is to disable the dhcp in the init scripts...
+> 
+
+You can also try to use backport scripts that automatically backport
+virtio to older guest kernels >= 2.6.18.
+It was written by Anthony Liguori and was decorated also by Avi and
+myself.
+Seems to work reliably with kvm, should do the same trick for lguest.
+You can download it from
+git://kvm.qumranet.com/home/dor/src/kvm-guest-drivers-linux
+
+Anthony, you can update your mercurial repository with our changes.
+
+Cheers,
+Dor
+
+
+> Thanks for the report,
+> Rusty.
+> _______________________________________________
+> Lguest mailing list
+> Lguest@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/lguest
