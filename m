@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 07/50] xen: make include/xen/page.h portable moving those
-	definitions under asm dir.
-Date: Thu,  6 Mar 2008 03:18:22 +0900
-Message-ID: <12047411462120-git-send-email-yamahata__16619.6622573354$1204745834$gmane$org@valinux.co.jp>
+Subject: [PATCH 41/50] ia64/xen: introduce xen hypercall routines necessary
+	for domU.
+Date: Thu,  6 Mar 2008 03:18:56 +0900
+Message-ID: <12047411461252-git-send-email-yamahata__33399.693753063$1204745927$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,206 +22,459 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Those definitions in include/asm/xen/page.h are arch specific.
-ia64/xen wants to define its own version. So move them to arch specific
-directory and keep include/xen/page.h in order not to break compilation.
-
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/{ => asm-x86}/xen/page.h |    0 
- include/xen/page.h               |  181 +-------------------------------------
- 2 files changed, 1 insertions(+), 180 deletions(-)
- copy include/{ => asm-x86}/xen/page.h (100%)
+ arch/ia64/xen/hypercall.S        |    7 +
+ include/asm-ia64/xen/hypercall.h |  426 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 433 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/hypercall.h
 
-diff --git a/include/xen/page.h b/include/asm-x86/xen/page.h
-similarity index 100%
-copy from include/xen/page.h
-copy to include/asm-x86/xen/page.h
-diff --git a/include/xen/page.h b/include/xen/page.h
-index 031ef22..eaf85fa 100644
---- a/include/xen/page.h
-+++ b/include/xen/page.h
-@@ -1,180 +1 @@
--#ifndef __XEN_PAGE_H
--#define __XEN_PAGE_H
--
--#include <linux/pfn.h>
--
--#include <asm/uaccess.h>
--#include <asm/pgtable.h>
--
--#include <xen/features.h>
--
--#ifdef CONFIG_X86_PAE
--/* Xen machine address */
--typedef struct xmaddr {
--	unsigned long long maddr;
--} xmaddr_t;
--
--/* Xen pseudo-physical address */
--typedef struct xpaddr {
--	unsigned long long paddr;
--} xpaddr_t;
--#else
--/* Xen machine address */
--typedef struct xmaddr {
--	unsigned long maddr;
--} xmaddr_t;
--
--/* Xen pseudo-physical address */
--typedef struct xpaddr {
--	unsigned long paddr;
--} xpaddr_t;
--#endif
--
--#define XMADDR(x)	((xmaddr_t) { .maddr = (x) })
--#define XPADDR(x)	((xpaddr_t) { .paddr = (x) })
--
--/**** MACHINE <-> PHYSICAL CONVERSION MACROS ****/
--#define INVALID_P2M_ENTRY	(~0UL)
--#define FOREIGN_FRAME_BIT	(1UL<<31)
--#define FOREIGN_FRAME(m)	((m) | FOREIGN_FRAME_BIT)
--
--extern unsigned long *phys_to_machine_mapping;
--
--static inline unsigned long pfn_to_mfn(unsigned long pfn)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return pfn;
--
--	return phys_to_machine_mapping[(unsigned int)(pfn)] &
--		~FOREIGN_FRAME_BIT;
--}
--
--static inline int phys_to_machine_mapping_valid(unsigned long pfn)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return 1;
--
--	return (phys_to_machine_mapping[pfn] != INVALID_P2M_ENTRY);
--}
--
--static inline unsigned long mfn_to_pfn(unsigned long mfn)
--{
--	unsigned long pfn;
--
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return mfn;
--
--#if 0
--	if (unlikely((mfn >> machine_to_phys_order) != 0))
--		return max_mapnr;
--#endif
--
--	pfn = 0;
--	/*
--	 * The array access can fail (e.g., device space beyond end of RAM).
--	 * In such cases it doesn't matter what we return (we return garbage),
--	 * but we must handle the fault without crashing!
--	 */
--	__get_user(pfn, &machine_to_phys_mapping[mfn]);
--
--	return pfn;
--}
--
--static inline xmaddr_t phys_to_machine(xpaddr_t phys)
--{
--	unsigned offset = phys.paddr & ~PAGE_MASK;
--	return XMADDR(PFN_PHYS((u64)pfn_to_mfn(PFN_DOWN(phys.paddr))) | offset);
--}
--
--static inline xpaddr_t machine_to_phys(xmaddr_t machine)
--{
--	unsigned offset = machine.maddr & ~PAGE_MASK;
--	return XPADDR(PFN_PHYS((u64)mfn_to_pfn(PFN_DOWN(machine.maddr))) | offset);
--}
--
--/*
-- * We detect special mappings in one of two ways:
-- *  1. If the MFN is an I/O page then Xen will set the m2p entry
-- *     to be outside our maximum possible pseudophys range.
-- *  2. If the MFN belongs to a different domain then we will certainly
-- *     not have MFN in our p2m table. Conversely, if the page is ours,
-- *     then we'll have p2m(m2p(MFN))==MFN.
-- * If we detect a special mapping then it doesn't have a 'struct page'.
-- * We force !pfn_valid() by returning an out-of-range pointer.
-- *
-- * NB. These checks require that, for any MFN that is not in our reservation,
-- * there is no PFN such that p2m(PFN) == MFN. Otherwise we can get confused if
-- * we are foreign-mapping the MFN, and the other domain as m2p(MFN) == PFN.
-- * Yikes! Various places must poke in INVALID_P2M_ENTRY for safety.
-- *
-- * NB2. When deliberately mapping foreign pages into the p2m table, you *must*
-- *      use FOREIGN_FRAME(). This will cause pte_pfn() to choke on it, as we
-- *      require. In all the cases we care about, the FOREIGN_FRAME bit is
-- *      masked (e.g., pfn_to_mfn()) so behaviour there is correct.
-- */
--static inline unsigned long mfn_to_local_pfn(unsigned long mfn)
--{
--	extern unsigned long max_mapnr;
--	unsigned long pfn = mfn_to_pfn(mfn);
--	if ((pfn < max_mapnr)
--	    && !xen_feature(XENFEAT_auto_translated_physmap)
--	    && (phys_to_machine_mapping[pfn] != mfn))
--		return max_mapnr; /* force !pfn_valid() */
--	return pfn;
--}
--
--static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap)) {
--		BUG_ON(pfn != mfn && mfn != INVALID_P2M_ENTRY);
--		return;
--	}
--	phys_to_machine_mapping[pfn] = mfn;
--}
--
--/* VIRT <-> MACHINE conversion */
--#define virt_to_machine(v)	(phys_to_machine(XPADDR(__pa(v))))
--#define virt_to_mfn(v)		(pfn_to_mfn(PFN_DOWN(__pa(v))))
--#define mfn_to_virt(m)		(__va(mfn_to_pfn(m) << PAGE_SHIFT))
--
--#ifdef CONFIG_X86_PAE
--#define pte_mfn(_pte) (((_pte).pte_low >> PAGE_SHIFT) |			\
--		       (((_pte).pte_high & 0xfff) << (32-PAGE_SHIFT)))
--
--static inline pte_t mfn_pte(unsigned long page_nr, pgprot_t pgprot)
--{
--	pte_t pte;
--
--	pte.pte_high = (page_nr >> (32 - PAGE_SHIFT)) |
--		(pgprot_val(pgprot) >> 32);
--	pte.pte_high &= (__supported_pte_mask >> 32);
--	pte.pte_low = ((page_nr << PAGE_SHIFT) | pgprot_val(pgprot));
--	pte.pte_low &= __supported_pte_mask;
--
--	return pte;
--}
--
--static inline unsigned long long pte_val_ma(pte_t x)
--{
--	return x.pte;
--}
--#define pmd_val_ma(v) ((v).pmd)
--#define pud_val_ma(v) ((v).pgd.pgd)
--#define __pte_ma(x)	((pte_t) { .pte = (x) })
--#define __pmd_ma(x)	((pmd_t) { (x) } )
--#else  /* !X86_PAE */
--#define pte_mfn(_pte) ((_pte).pte_low >> PAGE_SHIFT)
--#define mfn_pte(pfn, prot)	__pte_ma(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
--#define pte_val_ma(x)	((x).pte)
--#define pmd_val_ma(v)	((v).pud.pgd.pgd)
--#define __pte_ma(x)	((pte_t) { (x) } )
--#endif	/* CONFIG_X86_PAE */
--
--#define pgd_val_ma(x)	((x).pgd)
--
--
--xmaddr_t arbitrary_virt_to_machine(unsigned long address);
--void make_lowmem_page_readonly(void *vaddr);
--void make_lowmem_page_readwrite(void *vaddr);
--
--#endif /* __XEN_PAGE_H */
-+#include <asm/xen/page.h>
+diff --git a/arch/ia64/xen/hypercall.S b/arch/ia64/xen/hypercall.S
+index a96f278..7c5242b 100644
+--- a/arch/ia64/xen/hypercall.S
++++ b/arch/ia64/xen/hypercall.S
+@@ -122,3 +122,10 @@ GLOBAL_ENTRY(xen_set_eflag)
+ END(xen_set_eflag)
+ #endif /* CONFIG_IA32_SUPPORT */
+ #endif /* ASM_SUPPORTED */
++
++GLOBAL_ENTRY(__hypercall)
++	mov r2=r37
++	break 0x1000
++	br.ret.sptk.many b0
++	;;
++END(__hypercall)
+diff --git a/include/asm-ia64/xen/hypercall.h b/include/asm-ia64/xen/hypercall.h
+new file mode 100644
+index 0000000..a266e44
+--- /dev/null
++++ b/include/asm-ia64/xen/hypercall.h
+@@ -0,0 +1,426 @@
++/******************************************************************************
++ * hypercall.h
++ *
++ * Linux-specific hypervisor handling.
++ *
++ * Copyright (c) 2002-2004, K A Fraser
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#ifndef _ASM_IA64_XEN_HYPERCALL_H
++#define _ASM_IA64_XEN_HYPERCALL_H
++
++#ifndef _ASM_IA64_XEN_HYPERVISOR_H
++# error "please don't include this file directly"
++#endif
++
++#include <asm/xen/xcom_hcall.h>
++struct xencomm_handle;
++extern unsigned long __hypercall(unsigned long a1, unsigned long a2,
++				 unsigned long a3, unsigned long a4,
++				 unsigned long a5, unsigned long cmd);
++
++/*
++ * Assembler stubs for hyper-calls.
++ */
++
++#define _hypercall0(type, name)					\
++({								\
++	long __res;						\
++	__res = __hypercall(0, 0, 0, 0, 0, __HYPERVISOR_##name);\
++	(type)__res;						\
++})
++
++#define _hypercall1(type, name, a1)				\
++({								\
++	long __res;						\
++	__res = __hypercall((unsigned long)a1,			\
++			     0, 0, 0, 0, __HYPERVISOR_##name);	\
++	(type)__res;						\
++})
++
++#define _hypercall2(type, name, a1, a2)				\
++({								\
++	long __res;						\
++	__res = __hypercall((unsigned long)a1,			\
++			    (unsigned long)a2,			\
++			    0, 0, 0, __HYPERVISOR_##name);	\
++	(type)__res;						\
++})
++
++#define _hypercall3(type, name, a1, a2, a3)			\
++({								\
++	long __res;						\
++	__res = __hypercall((unsigned long)a1,			\
++			    (unsigned long)a2,			\
++			    (unsigned long)a3,			\
++			    0, 0, __HYPERVISOR_##name);		\
++	(type)__res;						\
++})
++
++#define _hypercall4(type, name, a1, a2, a3, a4)			\
++({								\
++	long __res;						\
++	__res = __hypercall((unsigned long)a1,			\
++			    (unsigned long)a2,			\
++			    (unsigned long)a3,			\
++			    (unsigned long)a4,			\
++			    0, __HYPERVISOR_##name);		\
++	(type)__res;						\
++})
++
++#define _hypercall5(type, name, a1, a2, a3, a4, a5)		\
++({								\
++	long __res;						\
++	__res = __hypercall((unsigned long)a1,			\
++			    (unsigned long)a2,			\
++			    (unsigned long)a3,			\
++			    (unsigned long)a4,			\
++			    (unsigned long)a5,			\
++			    __HYPERVISOR_##name);		\
++	(type)__res;						\
++})
++
++
++static inline int
++xencomm_arch_hypercall_sched_op(int cmd, struct xencomm_handle *arg)
++{
++	return _hypercall2(int, sched_op, cmd, arg);
++}
++
++static inline long
++HYPERVISOR_set_timer_op(u64 timeout)
++{
++	unsigned long timeout_hi = (unsigned long)(timeout >> 32);
++	unsigned long timeout_lo = (unsigned long)timeout;
++	return _hypercall2(long, set_timer_op, timeout_lo, timeout_hi);
++}
++
++static inline int
++xencomm_arch_hypercall_multicall(struct xencomm_handle *call_list,
++				 int nr_calls)
++{
++	return _hypercall2(int, multicall, call_list, nr_calls);
++}
++
++static inline int
++xencomm_arch_hypercall_memory_op(unsigned int cmd, struct xencomm_handle *arg)
++{
++	return _hypercall2(int, memory_op, cmd, arg);
++}
++
++static inline int
++xencomm_arch_hypercall_event_channel_op(int cmd, struct xencomm_handle *arg)
++{
++	return _hypercall2(int, event_channel_op, cmd, arg);
++}
++
++static inline int
++xencomm_arch_hypercall_xen_version(int cmd, struct xencomm_handle *arg)
++{
++	return _hypercall2(int, xen_version, cmd, arg);
++}
++
++static inline int
++xencomm_arch_hypercall_console_io(int cmd, int count,
++				  struct xencomm_handle *str)
++{
++	return _hypercall3(int, console_io, cmd, count, str);
++}
++
++static inline int
++xencomm_arch_hypercall_physdev_op(int cmd, struct xencomm_handle *arg)
++{
++	return _hypercall2(int, physdev_op, cmd, arg);
++}
++
++static inline int
++xencomm_arch_hypercall_grant_table_op(unsigned int cmd,
++				      struct xencomm_handle *uop,
++				      unsigned int count)
++{
++	return _hypercall3(int, grant_table_op, cmd, uop, count);
++}
++
++int HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count);
++
++extern int xencomm_arch_hypercall_suspend(struct xencomm_handle *arg);
++
++static inline int
++xencomm_arch_hypercall_callback_op(int cmd, struct xencomm_handle *arg)
++{
++	return _hypercall2(int, callback_op, cmd, arg);
++}
++
++static inline unsigned long
++xencomm_arch_hypercall_hvm_op(int cmd, void *arg)
++{
++	return _hypercall2(unsigned long, hvm_op, cmd, arg);
++}
++
++static inline long
++xencomm_arch_hypercall_vcpu_op(int cmd, int cpu, void *arg)
++{
++	return _hypercall3(long, vcpu_op, cmd, cpu, arg);
++}
++
++static inline int
++HYPERVISOR_physdev_op(int cmd, void *arg)
++{
++	switch (cmd) {
++	case PHYSDEVOP_eoi:
++		return _hypercall1(int, ia64_fast_eoi,
++				   ((struct physdev_eoi *)arg)->irq);
++	default:
++		return xencomm_hypercall_physdev_op(cmd, arg);
++	}
++}
++
++static inline int
++xencomm_arch_hypercall_xenoprof_op(int op, struct xencomm_handle *arg)
++{
++	return _hypercall2(int, xenoprof_op, op, arg);
++}
++
++static inline long
++xencomm_arch_hypercall_opt_feature(struct xencomm_handle *arg)
++{
++	return _hypercall1(long, opt_feature, arg);
++}
++
++#define xen_do_IRQ(irq, regs)		\
++do {					\
++	struct pt_regs *old_regs;	\
++	old_regs = set_irq_regs(regs);	\
++	irq_enter();			\
++	__do_IRQ(irq);			\
++	irq_exit();			\
++	set_irq_regs(old_regs);		\
++} while (0)
++#define irq_ctx_init(cpu)	do { } while (0)
++
++#include <linux/err.h>
++#ifdef HAVE_XEN_PLATFORM_COMPAT_H
++#include <xen/platform-compat.h>
++#endif
++
++static inline unsigned long
++__HYPERVISOR_ioremap(unsigned long ioaddr, unsigned long size)
++{
++	return _hypercall3(unsigned long, ia64_dom0vp_op,
++			   IA64_DOM0VP_ioremap, ioaddr, size);
++}
++
++static inline unsigned long
++HYPERVISOR_ioremap(unsigned long ioaddr, unsigned long size)
++{
++	unsigned long ret = ioaddr;
++	if (is_running_on_xen()) {
++		ret = __HYPERVISOR_ioremap(ioaddr, size);
++		if (unlikely(ret == -ENOSYS))
++			panic("hypercall %s failed with %ld. "
++			      "Please check Xen and Linux config mismatch\n",
++			      __func__, -ret);
++		else if (unlikely(IS_ERR_VALUE(ret)))
++			ret = ioaddr;
++	}
++	return ret;
++}
++
++static inline unsigned long
++__HYPERVISOR_phystomach(unsigned long gpfn)
++{
++	return _hypercall2(unsigned long, ia64_dom0vp_op,
++			   IA64_DOM0VP_phystomach, gpfn);
++}
++
++static inline unsigned long
++HYPERVISOR_phystomach(unsigned long gpfn)
++{
++	unsigned long ret = gpfn;
++	if (is_running_on_xen())
++		ret = __HYPERVISOR_phystomach(gpfn);
++	return ret;
++}
++
++static inline unsigned long
++__HYPERVISOR_machtophys(unsigned long mfn)
++{
++	return _hypercall2(unsigned long, ia64_dom0vp_op,
++			   IA64_DOM0VP_machtophys, mfn);
++}
++
++static inline unsigned long
++HYPERVISOR_machtophys(unsigned long mfn)
++{
++	unsigned long ret = mfn;
++	if (is_running_on_xen())
++		ret = __HYPERVISOR_machtophys(mfn);
++	return ret;
++}
++
++static inline unsigned long
++__HYPERVISOR_zap_physmap(unsigned long gpfn, unsigned int extent_order)
++{
++	return _hypercall3(unsigned long, ia64_dom0vp_op,
++			   IA64_DOM0VP_zap_physmap, gpfn, extent_order);
++}
++
++static inline unsigned long
++HYPERVISOR_zap_physmap(unsigned long gpfn, unsigned int extent_order)
++{
++	unsigned long ret = 0;
++	if (is_running_on_xen())
++		ret = __HYPERVISOR_zap_physmap(gpfn, extent_order);
++	return ret;
++}
++
++static inline unsigned long
++__HYPERVISOR_add_physmap(unsigned long gpfn, unsigned long mfn,
++			 unsigned long flags, domid_t domid)
++{
++	return _hypercall5(unsigned long, ia64_dom0vp_op,
++			   IA64_DOM0VP_add_physmap, gpfn, mfn, flags, domid);
++}
++
++static inline unsigned long
++HYPERVISOR_add_physmap(unsigned long gpfn, unsigned long mfn,
++		       unsigned long flags, domid_t domid)
++{
++	unsigned long ret = 0;
++	BUG_ON(!is_running_on_xen());
++	if (is_running_on_xen())
++		ret = __HYPERVISOR_add_physmap(gpfn, mfn, flags, domid);
++	return ret;
++}
++
++static inline unsigned long
++__HYPERVISOR_add_physmap_with_gmfn(unsigned long gpfn, unsigned long gmfn,
++				   unsigned long flags, domid_t domid)
++{
++	return _hypercall5(unsigned long, ia64_dom0vp_op,
++			   IA64_DOM0VP_add_physmap_with_gmfn,
++			   gpfn, gmfn, flags, domid);
++}
++
++static inline unsigned long
++HYPERVISOR_add_physmap_with_gmfn(unsigned long gpfn, unsigned long gmfn,
++				 unsigned long flags, domid_t domid)
++{
++	unsigned long ret = 0;
++	BUG_ON(!is_running_on_xen());
++	if (is_running_on_xen())
++		ret = __HYPERVISOR_add_physmap_with_gmfn(gpfn, gmfn,
++							 flags, domid);
++	return ret;
++}
++
++#ifdef CONFIG_XEN_IA64_EXPOSE_P2M
++static inline unsigned long
++HYPERVISOR_expose_p2m(unsigned long conv_start_gpfn,
++		      unsigned long assign_start_gpfn,
++		      unsigned long expose_size, unsigned long granule_pfn)
++{
++	return _hypercall5(unsigned long, ia64_dom0vp_op,
++			   IA64_DOM0VP_expose_p2m, conv_start_gpfn,
++			   assign_start_gpfn, expose_size, granule_pfn);
++}
++
++static inline int
++xencomm_arch_expose_foreign_p2m(unsigned long gpfn,
++				domid_t domid, struct xencomm_handle *arg,
++				unsigned long flags)
++{
++	return _hypercall5(int, ia64_dom0vp_op,
++			   IA64_DOM0VP_expose_foreign_p2m,
++			   gpfn, domid, arg, flags);
++}
++
++static inline int
++HYPERVISOR_unexpose_foreign_p2m(unsigned long gpfn, domid_t domid)
++{
++	return _hypercall3(int, ia64_dom0vp_op,
++			   IA64_DOM0VP_unexpose_foreign_p2m, gpfn, domid);
++}
++#endif
++
++static inline int
++xencomm_arch_hypercall_perfmon_op(unsigned long cmd,
++				  struct xencomm_handle *arg,
++				  unsigned long count)
++{
++	return _hypercall4(int, ia64_dom0vp_op,
++			   IA64_DOM0VP_perfmon, cmd, arg, count);
++}
++
++static inline int
++xencomm_arch_hypercall_fpswa_revision(struct xencomm_handle *arg)
++{
++	return _hypercall2(int, ia64_dom0vp_op,
++			   IA64_DOM0VP_fpswa_revision, arg);
++}
++
++static inline int
++xencomm_arch_hypercall_ia64_debug_op(unsigned long cmd,
++				     unsigned long domain,
++				     struct xencomm_handle *arg)
++{
++	return _hypercall3(int, ia64_debug_op, cmd, domain, arg);
++}
++
++static inline int
++HYPERVISOR_add_io_space(unsigned long phys_base,
++			unsigned long sparse,
++			unsigned long space_number)
++{
++	return _hypercall4(int, ia64_dom0vp_op, IA64_DOM0VP_add_io_space,
++			   phys_base, sparse, space_number);
++}
++
++/* for balloon driver */
++#define HYPERVISOR_update_va_mapping(va, new_val, flags) (0)
++
++/* Use xencomm to do hypercalls.  */
++#define HYPERVISOR_sched_op xencomm_hypercall_sched_op
++#define HYPERVISOR_event_channel_op xencomm_hypercall_event_channel_op
++#define HYPERVISOR_callback_op xencomm_hypercall_callback_op
++#define HYPERVISOR_multicall xencomm_hypercall_multicall
++#define HYPERVISOR_xen_version xencomm_hypercall_xen_version
++#define HYPERVISOR_console_io xencomm_hypercall_console_io
++#define HYPERVISOR_hvm_op xencomm_hypercall_hvm_op
++#define HYPERVISOR_memory_op xencomm_hypercall_memory_op
++#define HYPERVISOR_xenoprof_op xencomm_hypercall_xenoprof_op
++#define HYPERVISOR_perfmon_op xencomm_hypercall_perfmon_op
++#define HYPERVISOR_fpswa_revision xencomm_hypercall_fpswa_revision
++#define HYPERVISOR_suspend xencomm_hypercall_suspend
++#define HYPERVISOR_vcpu_op xencomm_hypercall_vcpu_op
++#define HYPERVISOR_opt_feature xencomm_hypercall_opt_feature
++#define HYPERVISOR_kexec_op xencomm_hypercall_kexec_op
++
++/* to compile gnttab_copy_grant_page() in drivers/xen/core/gnttab.c */
++#define HYPERVISOR_mmu_update(req, count, success_count, domid) ({ BUG(); 0; })
++
++#endif /* _ASM_IA64_XEN_HYPERCALL_H */
 -- 
 1.5.3
