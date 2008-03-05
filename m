@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 04/50] xen: add missing definitions in
-	include/xen/interface/vcpu.h which ia64/xen needs
-Date: Thu,  6 Mar 2008 03:18:19 +0900
-Message-ID: <1204741145301-git-send-email-yamahata__19350.8148579442$1204741872$gmane$org@valinux.co.jp>
+Subject: [PATCH 05/50] xen: move features.c from arch/x86/xen/features.c to
+	drivers/xen.
+Date: Thu,  6 Mar 2008 03:18:20 +0900
+Message-ID: <12047411452627-git-send-email-yamahata__38583.2115346149$1204743224$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,53 +22,37 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, virtualization@lists.linux-foundation.org, kvm-ia64-devel@lists.sourceforge.net, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+ia64/xen also uses it too, so move it into common place.
+
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/xen/interface/vcpu.h |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+ arch/x86/xen/Makefile                |    2 +-
+ drivers/xen/Makefile                 |    2 +-
+ {arch/x86 => drivers}/xen/features.c |    0 
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ rename {arch/x86 => drivers}/xen/features.c (100%)
 
-diff --git a/include/xen/interface/vcpu.h b/include/xen/interface/vcpu.h
-index b05d8a6..87e6f8a 100644
---- a/include/xen/interface/vcpu.h
-+++ b/include/xen/interface/vcpu.h
-@@ -85,6 +85,7 @@ struct vcpu_runstate_info {
- 		 */
- 		uint64_t time[4];
- };
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_runstate_info);
+diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
+index 343df24..c5e9aa4 100644
+--- a/arch/x86/xen/Makefile
++++ b/arch/x86/xen/Makefile
+@@ -1,4 +1,4 @@
+-obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o \
++obj-y		:= enlighten.o setup.o multicalls.o mmu.o \
+ 			events.o time.o manage.o xen-asm.o
  
- /* VCPU is currently running on a physical CPU. */
- #define RUNSTATE_running  0
-@@ -119,6 +120,7 @@ struct vcpu_runstate_info {
- #define VCPUOP_register_runstate_memory_area 5
- struct vcpu_register_runstate_memory_area {
- 		union {
-+				GUEST_HANDLE(vcpu_runstate_info) h;
- 				struct vcpu_runstate_info *v;
- 				uint64_t p;
- 		} addr;
-@@ -134,6 +136,7 @@ struct vcpu_register_runstate_memory_area {
- struct vcpu_set_periodic_timer {
- 		uint64_t period_ns;
- };
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_set_periodic_timer);
- 
- /*
-  * Set or stop a VCPU's single-shot timer. Every VCPU has one single-shot
-@@ -145,6 +148,7 @@ struct vcpu_set_singleshot_timer {
- 		uint64_t timeout_abs_ns;
- 		uint32_t flags;			   /* VCPU_SSHOTTMR_??? */
- };
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_set_singleshot_timer);
- 
- /* Flags to VCPUOP_set_singleshot_timer. */
-  /* Require the timeout to be in the future (return -ETIME if it's passed). */
-@@ -164,5 +168,6 @@ struct vcpu_register_vcpu_info {
-     uint32_t offset; /* offset within page */
-     uint32_t rsvd;   /* unused */
- };
-+DEFINE_GUEST_HANDLE_STRUCT(vcpu_register_vcpu_info);
- 
- #endif /* __XEN_PUBLIC_VCPU_H__ */
+ obj-$(CONFIG_SMP)	+= smp.o
+diff --git a/drivers/xen/Makefile b/drivers/xen/Makefile
+index 56592f0..609fdda 100644
+--- a/drivers/xen/Makefile
++++ b/drivers/xen/Makefile
+@@ -1,2 +1,2 @@
+-obj-y	+= grant-table.o
++obj-y	+= grant-table.o features.o
+ obj-y	+= xenbus/
+diff --git a/arch/x86/xen/features.c b/drivers/xen/features.c
+similarity index 100%
+rename from arch/x86/xen/features.c
+rename to drivers/xen/features.c
 -- 
 1.5.3
