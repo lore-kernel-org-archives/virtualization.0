@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 25/50] ia64/pv_ops: introduce pv_info
-Date: Thu,  6 Mar 2008 03:18:40 +0900
-Message-ID: <12047411462778-git-send-email-yamahata__16325.664605438$1204743564$gmane$org@valinux.co.jp>
+Subject: [PATCH 46/50] ia64/xen: define xen related address conversion helper
+	functions for domU
+Date: Thu,  6 Mar 2008 03:19:01 +0900
+Message-ID: <12047411464035-git-send-email-yamahata__16207.2208164775$1204743699$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,132 +24,74 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/Makefile   |    2 +
- arch/ia64/kernel/paravirt.c |   34 ++++++++++++++++++++++++
- include/asm-ia64/paravirt.h |   61 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 97 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirt.c
- create mode 100644 include/asm-ia64/paravirt.h
+ include/asm-ia64/page.h     |    8 ++++++++
+ include/asm-ia64/xen/page.h |   41 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 49 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/page.h
 
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index 185e0e2..7849bc3 100644
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -41,6 +41,8 @@ obj-$(CONFIG_PARAVIRT_ALT)	+= paravirt_alt.o
- obj-$(CONFIG_PARAVIRT_ENTRY)	+= paravirt_entry.o paravirtentry.o
- obj-$(CONFIG_PARAVIRT_NOP_B_PATCH) += paravirt_nop.o
+diff --git a/include/asm-ia64/page.h b/include/asm-ia64/page.h
+index 4999a6c..5508dc2 100644
+--- a/include/asm-ia64/page.h
++++ b/include/asm-ia64/page.h
+@@ -227,4 +227,12 @@ get_order (unsigned long size)
+ 					 (((current->personality & READ_IMPLIES_EXEC) != 0)	\
+ 					  ? VM_EXEC : 0))
  
-+obj-$(CONFIG_PARAVIRT_GUEST)	+= paravirt.o
++/*
++ * XXX: to compile
++ * after pv_ops'fication of xen paravirtualization, this should be removed.
++ */
++#if !defined(__ASSEMBLY__) && defined(CONFIG_XEN)
++#include <asm/xen/page.h>
++#endif /* !__ASSEMBLY__ && CONFIG_XEN */
 +
- obj-$(CONFIG_IA64_ESI)		+= esi.o
- ifneq ($(CONFIG_IA64_ESI),)
- obj-y				+= esi_stub.o	# must be in kernel proper
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
+ #endif /* _ASM_IA64_PAGE_H */
+diff --git a/include/asm-ia64/xen/page.h b/include/asm-ia64/xen/page.h
 new file mode 100644
-index 0000000..b31fa91
+index 0000000..c562036
 --- /dev/null
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -0,0 +1,34 @@
-+/******************************************************************************
-+ * arch/ia64/kernel/paravirt.c
-+ *
-+ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
++++ b/include/asm-ia64/xen/page.h
+@@ -0,0 +1,41 @@
++#ifndef _ASM_IA64_XEN_PAGE_H
++#define _ASM_IA64_XEN_PAGE_H
 +
-+#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/xen/hypervisor.h>
++#include <asm/xen/hypercall.h>
++#include <xen/features.h>
++#include <xen/interface/xen.h>
 +
-+#include <asm/paravirt.h>
-+
-+/***************************************************************************
-+ * general info
-+ */
-+struct pv_info pv_info = {
-+	.kernel_rpl = 0,
-+	.paravirt_enabled = 0,
-+	.name = "bare hardware"
-+};
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-new file mode 100644
-index 0000000..c2d4809
---- /dev/null
-+++ b/include/asm-ia64/paravirt.h
-@@ -0,0 +1,61 @@
-+/******************************************************************************
-+ * include/asm-ia64/paravirt.h
-+ *
-+ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+
-+#ifndef __ASM_PARAVIRT_H
-+#define __ASM_PARAVIRT_H
-+
-+#ifdef CONFIG_PARAVIRT_GUEST
-+
-+#ifndef __ASSEMBLY__
-+
-+/******************************************************************************
-+ * general info
-+ */
-+struct pv_info {
-+	unsigned int kernel_rpl;
-+        int paravirt_enabled;
-+        const char *name;
-+};
-+
-+extern struct pv_info pv_info;
-+
-+static inline int paravirt_enabled(void)
++static inline unsigned long mfn_to_pfn(unsigned long mfn)
 +{
-+	return pv_info.paravirt_enabled;
++	return mfn;
 +}
 +
-+static inline unsigned int get_kernel_rpl(void)
++static inline unsigned long pfn_to_mfn(unsigned long pfn)
 +{
-+	return pv_info.kernel_rpl;
++	return pfn;
 +}
 +
-+#endif /* __ASSEMBLY__ */
++static inline void *mfn_to_virt(unsigned long mfn)
++{
++	return __va(mfn << PAGE_SHIFT);
++}
 +
-+#else
-+/* fallback for native case */
++static inline unsigned long virt_to_mfn(void *virt)
++{
++	return __pa(virt) >> PAGE_SHIFT;
++}
 +
-+/* XXX: TODO */
++/* for tpmfront.c */
++static inline unsigned long virt_to_machine(void *virt)
++{
++	return __pa(virt);
++}
 +
-+#endif /* CONFIG_PARAVIRT_GUEST */
++static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
++{
++	/* nothing */
++}
 +
-+#endif /* __ASM_PARAVIRT_H */
++#endif /* _ASM_IA64_XEN_PAGE_H */
 -- 
 1.5.3
