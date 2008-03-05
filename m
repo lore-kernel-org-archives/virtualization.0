@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 47/50] ia64/pv_ops/xen: define xen pv_info.
-Date: Thu,  6 Mar 2008 03:19:02 +0900
-Message-ID: <12047411462067-git-send-email-yamahata__13230.4656472572$1204749627$gmane$org@valinux.co.jp>
+Subject: [PATCH 32/50] ia64/xen: define xen assembler constants which will be
+	used later.
+Date: Thu,  6 Mar 2008 03:18:47 +0900
+Message-ID: <12047411463153-git-send-email-yamahata__7588.93427341736$1204749707$gmane$org@valinux.co.jp>
 References: <12047411453864-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,120 +24,123 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile     |    2 +
- arch/ia64/xen/xen_pv_ops.c |   69 ++++++++++++++++++++++++++++++++++++++++++++
- arch/ia64/xen/xensetup.S   |   10 ++++++
- 3 files changed, 81 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/xen/xen_pv_ops.c
+ arch/ia64/kernel/asm-offsets.c |   25 ++++++++++++++
+ include/asm-ia64/xen/privop.h  |   73 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 98 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/privop.h
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index c219358..4b1db56 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -2,6 +2,8 @@
- # Makefile for Xen components
- #
- 
-+obj-y := xen_pv_ops.o
+diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
+index 0aebc6f..1a81c64 100644
+--- a/arch/ia64/kernel/asm-offsets.c
++++ b/arch/ia64/kernel/asm-offsets.c
+@@ -278,4 +278,29 @@ void foo(void)
+ 		offsetof (struct itc_jitter_data_t, itc_jitter));
+ 	DEFINE(IA64_ITC_LASTCYCLE_OFFSET,
+ 		offsetof (struct itc_jitter_data_t, itc_lastcycle));
 +
- obj-$(CONFIG_PARAVIRT_ALT) += paravirt_xen.o privops_asm.o privops_c.o
- obj-$(CONFIG_PARAVIRT_NOP_B_PATCH) += paravirt_xen.o
- obj-$(CONFIG_PARAVIRT_ENTRY) += paravirt_xen.o
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
++#ifdef CONFIG_XEN
++	BLANK();
++
++#define DEFINE_MAPPED_REG_OFS(sym, field) \
++	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
++
++	DEFINE_MAPPED_REG_OFS(XSI_PSR_I_ADDR_OFS, interrupt_mask_addr);
++	DEFINE_MAPPED_REG_OFS(XSI_IPSR_OFS, ipsr);
++	DEFINE_MAPPED_REG_OFS(XSI_IIP_OFS, iip);
++	DEFINE_MAPPED_REG_OFS(XSI_IFS_OFS, ifs);
++	DEFINE_MAPPED_REG_OFS(XSI_PRECOVER_IFS_OFS, precover_ifs);
++	DEFINE_MAPPED_REG_OFS(XSI_ISR_OFS, isr);
++	DEFINE_MAPPED_REG_OFS(XSI_IFA_OFS, ifa);
++	DEFINE_MAPPED_REG_OFS(XSI_IIPA_OFS, iipa);
++	DEFINE_MAPPED_REG_OFS(XSI_IIM_OFS, iim);
++	DEFINE_MAPPED_REG_OFS(XSI_IHA_OFS, iha);
++	DEFINE_MAPPED_REG_OFS(XSI_ITIR_OFS, itir);
++	DEFINE_MAPPED_REG_OFS(XSI_PSR_IC_OFS, interrupt_collection_enabled);
++	DEFINE_MAPPED_REG_OFS(XSI_BANKNUM_OFS, banknum);
++	DEFINE_MAPPED_REG_OFS(XSI_BANK0_R16_OFS, bank0_regs[0]);
++	DEFINE_MAPPED_REG_OFS(XSI_BANK1_R16_OFS, bank1_regs[0]);
++	DEFINE_MAPPED_REG_OFS(XSI_B0NATS_OFS, vbnat);
++	DEFINE_MAPPED_REG_OFS(XSI_B1NATS_OFS, vnat);
++#endif /* CONFIG_XEN */
+ }
+diff --git a/include/asm-ia64/xen/privop.h b/include/asm-ia64/xen/privop.h
 new file mode 100644
-index 0000000..18aa2f6
+index 0000000..dd3e5ec
 --- /dev/null
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -0,0 +1,69 @@
-+/******************************************************************************
-+ * arch/ia64/xen/xen_pv_ops.c
++++ b/include/asm-ia64/xen/privop.h
+@@ -0,0 +1,73 @@
++#ifndef _ASM_IA64_XEN_PRIVOP_H
++#define _ASM_IA64_XEN_PRIVOP_H
++
++/*
++ * Copyright (C) 2005 Hewlett-Packard Co
++ *	Dan Magenheimer <dan.magenheimer@hp.com>
 + *
-+ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
++ * Paravirtualizations of privileged operations for Xen/ia64
++ *
++ *
++ * inline privop and paravirt_alt support
++ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
 + */
 +
-+#include <linux/console.h>
-+#include <linux/kernel.h>
-+#include <linux/notifier.h>
-+#include <linux/pm.h>
-+#include <linux/sched.h>
-+#include <linux/string.h>
++#ifndef __ASSEMBLY__
++#include <linux/types.h>		/* arch-ia64.h requires uint64_t */
++#include <linux/stringify.h>
++#endif
++#include <asm/xen/interface.h>
 +
-+#include <asm/paravirt.h>
-+#include <asm/unwind.h>
++/* At 1 MB, before per-cpu space but still addressable using addl instead
++   of movl. */
++#define XSI_BASE			0xfffffffffff00000
 +
-+#include <xen/features.h>
-+#include <asm/xen/hypervisor.h>
-+#include <asm/xen/xencomm.h>
++/* Address of mapped regs.  */
++#define XMAPPEDREGS_BASE		(XSI_BASE + XSI_SIZE)
 +
-+/***************************************************************************
-+ * general info
-+ */
-+static struct pv_info xen_info __initdata = {
-+	.kernel_rpl = 2,	/* or 1: determin at runtime */
-+	.paravirt_enabled = 1,
-+	.name = "Xen/ia64",
-+};
++#ifdef __ASSEMBLY__
++#define XEN_HYPER_RFI			break HYPERPRIVOP_RFI
++#define XEN_HYPER_RSM_PSR_DT		break HYPERPRIVOP_RSM_DT
++#define XEN_HYPER_SSM_PSR_DT		break HYPERPRIVOP_SSM_DT
++#define XEN_HYPER_COVER			break HYPERPRIVOP_COVER
++#define XEN_HYPER_ITC_D			break HYPERPRIVOP_ITC_D
++#define XEN_HYPER_ITC_I			break HYPERPRIVOP_ITC_I
++#define XEN_HYPER_SSM_I			break HYPERPRIVOP_SSM_I
++#define XEN_HYPER_GET_IVR		break HYPERPRIVOP_GET_IVR
++#define XEN_HYPER_GET_TPR		break HYPERPRIVOP_GET_TPR
++#define XEN_HYPER_SET_TPR		break HYPERPRIVOP_SET_TPR
++#define XEN_HYPER_EOI			break HYPERPRIVOP_EOI
++#define XEN_HYPER_SET_ITM		break HYPERPRIVOP_SET_ITM
++#define XEN_HYPER_THASH			break HYPERPRIVOP_THASH
++#define XEN_HYPER_PTC_GA		break HYPERPRIVOP_PTC_GA
++#define XEN_HYPER_ITR_D			break HYPERPRIVOP_ITR_D
++#define XEN_HYPER_GET_RR		break HYPERPRIVOP_GET_RR
++#define XEN_HYPER_SET_RR		break HYPERPRIVOP_SET_RR
++#define XEN_HYPER_SET_KR		break HYPERPRIVOP_SET_KR
++#define XEN_HYPER_FC			break HYPERPRIVOP_FC
++#define XEN_HYPER_GET_CPUID		break HYPERPRIVOP_GET_CPUID
++#define XEN_HYPER_GET_PMD		break HYPERPRIVOP_GET_PMD
++#define XEN_HYPER_GET_EFLAG		break HYPERPRIVOP_GET_EFLAG
++#define XEN_HYPER_SET_EFLAG		break HYPERPRIVOP_SET_EFLAG
++#define XEN_HYPER_GET_PSR		break HYPERPRIVOP_GET_PSR
++#define XEN_HYPER_SET_RR0_TO_RR4	break HYPERPRIVOP_SET_RR0_TO_RR4
 +
-+#define IA64_RSC_PL_SHIFT	2
-+#define IA64_RSC_PL_BIT_SIZE	2
-+#define IA64_RSC_PL_MASK	((1UL << (IA64_RSC_PL_BIT_SIZE - 1)) << IA64_RSC_PL_SHIFT)
-+
-+static void __init
-+xen_info_init(void)
-+{
-+	/* Xenified Linux/ia64 may run on pl = 1 or 2.
-+	 * determin at run time. */
-+	unsigned long rsc = ia64_getreg(_IA64_REG_AR_RSC);
-+	unsigned int rpl = (rsc & IA64_RSC_PL_MASK) >> IA64_RSC_PL_SHIFT;
-+	xen_info.kernel_rpl = rpl;
-+}
-+
-+/***************************************************************************
-+ * pv_ops initialization
-+ */
-+
-+void __init
-+xen_setup_pv_ops(void)
-+{
-+	xen_info_init();
-+	pv_info = xen_info;
-+}
-diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
-index 2d3d5d4..cb3432b 100644
---- a/arch/ia64/xen/xensetup.S
-+++ b/arch/ia64/xen/xensetup.S
-@@ -35,6 +35,16 @@ GLOBAL_ENTRY(early_xen_setup)
- (isBP)	movl r28=XSI_BASE;;
- (isBP)	break 0x1000;;
- 
-+#ifdef CONFIG_PARAVIRT_GUEST
-+	/* patch privops */
-+(isBP)	mov r4=rp
-+	;;
-+(isBP)	br.call.sptk.many rp=xen_setup_pv_ops
-+	;;
-+(isBP)	mov rp=r4
-+	;;
++#define XSI_IFS				(XSI_BASE + XSI_IFS_OFS)
++#define XSI_PRECOVER_IFS		(XSI_BASE + XSI_PRECOVER_IFS_OFS)
++#define XSI_IFA				(XSI_BASE + XSI_IFA_OFS)
++#define XSI_ISR				(XSI_BASE + XSI_ISR_OFS)
++#define XSI_IIM				(XSI_BASE + XSI_IIM_OFS)
++#define XSI_ITIR			(XSI_BASE + XSI_ITIR_OFS)
++#define XSI_PSR_I_ADDR			(XSI_BASE + XSI_PSR_I_ADDR_OFS)
++#define XSI_PSR_IC			(XSI_BASE + XSI_PSR_IC_OFS)
++#define XSI_IPSR			(XSI_BASE + XSI_IPSR_OFS)
++#define XSI_IIP				(XSI_BASE + XSI_IIP_OFS)
++#define XSI_B1NAT			(XSI_BASE + XSI_B1NATS_OFS)
++#define XSI_BANK1_R16			(XSI_BASE + XSI_BANK1_R16_OFS)
++#define XSI_BANKNUM			(XSI_BASE + XSI_BANKNUM_OFS)
++#define XSI_IHA				(XSI_BASE + XSI_IHA_OFS)
 +#endif
 +
- #ifdef CONFIG_PARAVIRT
- 	/* patch privops */
- (isBP)	mov r4=rp
++#endif /* _ASM_IA64_XEN_PRIVOP_H */
 -- 
 1.5.3
