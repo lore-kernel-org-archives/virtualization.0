@@ -1,15 +1,14 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [kvm-devel] I/O bandwidth control on KVM
-Date: Thu, 06 Mar 2008 21:23:05 +0900 (JST)
-Message-ID: <20080306.212305.104034101.ryov__7661.13252980194$1204806528$gmane$org@valinux.co.jp>
-References: <20080304.154109.193687573.ryov@valinux.co.jp>
-	<20080306.005353.104038921.ryov@valinux.co.jp>
-	<47CECA91.2010507@codemonkey.ws>
+Date: Thu, 06 Mar 2008 10:05:59 -0600
+Message-ID: <47D01667.10809__11340.4284733862$1204819998$gmane$org@codemonkey.ws>
+References: <20080304.154109.193687573.ryov@valinux.co.jp>	<20080306.005353.104038921.ryov@valinux.co.jp>	<47CECA91.2010507@codemonkey.ws>
+	<20080306.212305.104034101.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47CECA91.2010507@codemonkey.ws>
+In-Reply-To: <20080306.212305.104034101.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,69 +18,92 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: anthony@codemonkey.ws
+To: Ryo Tsuruta <ryov@valinux.co.jp>
 Cc: kvm-devel@lists.sourceforge.net, dm-devel@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Anthony.
+Ryo Tsuruta wrote:
+> Hi Anthony.
+>
+>   
+>> The attached patch implements AIO support for the virtio backend so if this is the case, you should see the proper proportions.
+>>     
+>
+> First, thank you very much for making the patch. 
+> I ran the same test program on KVM with the patch but I wasn't able to
+> get good results.
+> I checked the dm-ioband log, the I/Os didn't seem to be issued simultaneously.
+>   
 
-> The attached patch implements AIO support for the virtio backend so if this is the case, you should see the proper proportions.
+There's an aio_init in block-raw-posix.c that sets the thread count to 
+1.  If you #if 0 out that block, or increase the threads to something 
+higher (like 16), you should see multiple simultaneous requests.  Sorry 
+about that, I had that in a different patch in my tree.
 
-First, thank you very much for making the patch. 
-I ran the same test program on KVM with the patch but I wasn't able to
-get good results.
-I checked the dm-ioband log, the I/Os didn't seem to be issued simultaneously.
-It looked like the next I/O was blocked until the previous I/O was completed.
+> It looked like the next I/O was blocked until the previous I/O was completed.
+>
+>                  The number of issued I/Os for 60 seconds
+>      --------------------------------------------------------------------
+>     |             device         |       sda11       |       sda12       |
+>     |          weight setting    |        80%        |        20%        |
+>     |-----------+----------------+-------------------+-------------------|
+>     | KVM AIO   |      I/Os      |       4596        |       4728        |
+>     |           | ratio to total |       49.3%       |       50.7%       |
+>     |-----------+----------------+-------------------+-------------------|
+>     | KVM       |      I/Os      |       5217        |       5623        |
+>     |           | ratio to total |       48.1%       |       51.9%       |
+>      --------------------------------------------------------------------
+>
+> Here is an another test result, which is very interesting.
+> I/Os were issued from a KVM virtual machine and from the host machine
+> simultaneously. 
+>
+>
+>             The number of issued I/Os for 60 seconds
+>      --------------------------------------------------------
+>     | issue from     |  Virtual Machine  |    Host Machine   |
+>     |      device    |       sda11       |       sda12       |
+>     | weight setting |        80%        |        20%        |
+>     |----------------+-------------------+-------------------|
+>     |      I/Os      |        191        |       9466        |
+>     | ratio to total |        2.0%       |       98.0%       |
+>      --------------------------------------------------------
+>
+> The most I/Os that were processed were the I/Os issued by the host machine.
+> There might exist another bottleneck somewhere as well.
+>   
 
-                 The number of issued I/Os for 60 seconds
-     --------------------------------------------------------------------
-    |             device         |       sda11       |       sda12       |
-    |          weight setting    |        80%        |        20%        |
-    |-----------+----------------+-------------------+-------------------|
-    | KVM AIO   |      I/Os      |       4596        |       4728        |
-    |           | ratio to total |       49.3%       |       50.7%       |
-    |-----------+----------------+-------------------+-------------------|
-    | KVM       |      I/Os      |       5217        |       5623        |
-    |           | ratio to total |       48.1%       |       51.9%       |
-     --------------------------------------------------------------------
+The virtio block backend isn't quite optimal right now.  I have some 
+patches (that are currently suffering bitrot) that switch over to 
+linux-aio which allows zero-copy and for proper barrier support (so the 
+guest block device will use an ordered queue).  The QEMU aio 
+infrastructure makes it tough to integrate it properly though.
 
-Here is an another test result, which is very interesting.
-I/Os were issued from a KVM virtual machine and from the host machine
-simultaneously. 
+Regards,
 
+Anthony Liguori
 
-            The number of issued I/Os for 60 seconds
-     --------------------------------------------------------
-    | issue from     |  Virtual Machine  |    Host Machine   |
-    |      device    |       sda11       |       sda12       |
-    | weight setting |        80%        |        20%        |
-    |----------------+-------------------+-------------------|
-    |      I/Os      |        191        |       9466        |
-    | ratio to total |        2.0%       |       98.0%       |
-     --------------------------------------------------------
-
-The most I/Os that were processed were the I/Os issued by the host machine.
-There might exist another bottleneck somewhere as well.
-Here is a block diagram representing the test.
-
-    +---------------------------+
-    | Virtual Machine           |
-    |                           |
-    | Read/Write with O_DIRECT  |     +--------------------------+
-    |       process x 128       |     | Host Machine             |  
-    |             |             |     |                          |
-    |             V             |     | Read/Write with O_DIRECT |
-    |         /dev/vda1         |     |       process x 128      |
-    +-------------|-------------+     +-------------|------------+
-    +-------------V---------------------------------V------------+
-    |     /dev/mapper/ioband1      |     /dev/mapper/ioband2     |
-    |         80% weight           |         20% weight          |
-    |                              |                             |
-    |    Control I/O bandwidth according to the weights          |
-    +-------------|---------------------------------|------------+
-    +-------------V-------------+     +-------------|------------+
-    |        /dev/sda11         |     |         /dev/sda12       |
-    +---------------------------+     +--------------------------+
-
-Thanks,
-Ryo Tsuruta
+> Here is a block diagram representing the test.
+>
+>     +---------------------------+
+>     | Virtual Machine           |
+>     |                           |
+>     | Read/Write with O_DIRECT  |     +--------------------------+
+>     |       process x 128       |     | Host Machine             |  
+>     |             |             |     |                          |
+>     |             V             |     | Read/Write with O_DIRECT |
+>     |         /dev/vda1         |     |       process x 128      |
+>     +-------------|-------------+     +-------------|------------+
+>     +-------------V---------------------------------V------------+
+>     |     /dev/mapper/ioband1      |     /dev/mapper/ioband2     |
+>     |         80% weight           |         20% weight          |
+>     |                              |                             |
+>     |    Control I/O bandwidth according to the weights          |
+>     +-------------|---------------------------------|------------+
+>     +-------------V-------------+     +-------------|------------+
+>     |        /dev/sda11         |     |         /dev/sda12       |
+>     +---------------------------+     +--------------------------+
+>
+> Thanks,
+> Ryo Tsuruta
+>   
