@@ -1,18 +1,15 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [Lguest] networking in lguest: strange error: lguest: Guest	moved
-	used index from 6 to 256
-Date: Thu, 06 Mar 2008 12:45:26 +0200
-Message-ID: <47CFCB46.7000300__17214.1578667381$1204800887$gmane$org@qumranet.com>
-References: <1204560316.47cc21bc513ed@webmail.alinto.com>	
-	<200803052206.31266.rusty@rustcorp.com.au>	
-	<1204758239.4708.25.camel@localhost.localdomain>	
-	<47CF2871.4070302@us.ibm.com>
-	<1204759849.4708.36.camel@localhost.localdomain>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [kvm-devel] I/O bandwidth control on KVM
+Date: Thu, 06 Mar 2008 21:23:05 +0900 (JST)
+Message-ID: <20080306.212305.104034101.ryov__7661.13252980194$1204806528$gmane$org@valinux.co.jp>
+References: <20080304.154109.193687573.ryov@valinux.co.jp>
+	<20080306.005353.104038921.ryov@valinux.co.jp>
+	<47CECA91.2010507@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1204759849.4708.36.camel@localhost.localdomain>
+In-Reply-To: <47CECA91.2010507@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,32 +19,69 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dor.laor@qumranet.com
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <aliguori@us.ibm.com>, lguest@ozlabs.org, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: anthony@codemonkey.ws
+Cc: kvm-devel@lists.sourceforge.net, dm-devel@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dor Laor wrote:
-> On Wed, 2008-03-05 at 17:10 -0600, Anthony Liguori wrote:
->   
->> Dor Laor wrote:
->>     
->>> Seems to work reliably with kvm, should do the same trick for lguest.
->>> You can download it from
->>> git://kvm.qumranet.com/home/dor/src/kvm-guest-drivers-linux
->>>
->>> Anthony, you can update your mercurial repository with our changes.
->>>   
->>>       
->> Hrm, I thought we were standardizing on 
->> http://www.kernel.org/pub/scm/virt/kvm/kvm-guest-drivers-linux.git
->>
->>     
->
-> Better this way, attached 3 patches needed for compilation.
->
->   
+Hi Anthony.
 
-Applied (as you saw), thanks -- but please, one patch per email next time.
+> The attached patch implements AIO support for the virtio backend so if this is the case, you should see the proper proportions.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+First, thank you very much for making the patch. 
+I ran the same test program on KVM with the patch but I wasn't able to
+get good results.
+I checked the dm-ioband log, the I/Os didn't seem to be issued simultaneously.
+It looked like the next I/O was blocked until the previous I/O was completed.
+
+                 The number of issued I/Os for 60 seconds
+     --------------------------------------------------------------------
+    |             device         |       sda11       |       sda12       |
+    |          weight setting    |        80%        |        20%        |
+    |-----------+----------------+-------------------+-------------------|
+    | KVM AIO   |      I/Os      |       4596        |       4728        |
+    |           | ratio to total |       49.3%       |       50.7%       |
+    |-----------+----------------+-------------------+-------------------|
+    | KVM       |      I/Os      |       5217        |       5623        |
+    |           | ratio to total |       48.1%       |       51.9%       |
+     --------------------------------------------------------------------
+
+Here is an another test result, which is very interesting.
+I/Os were issued from a KVM virtual machine and from the host machine
+simultaneously. 
+
+
+            The number of issued I/Os for 60 seconds
+     --------------------------------------------------------
+    | issue from     |  Virtual Machine  |    Host Machine   |
+    |      device    |       sda11       |       sda12       |
+    | weight setting |        80%        |        20%        |
+    |----------------+-------------------+-------------------|
+    |      I/Os      |        191        |       9466        |
+    | ratio to total |        2.0%       |       98.0%       |
+     --------------------------------------------------------
+
+The most I/Os that were processed were the I/Os issued by the host machine.
+There might exist another bottleneck somewhere as well.
+Here is a block diagram representing the test.
+
+    +---------------------------+
+    | Virtual Machine           |
+    |                           |
+    | Read/Write with O_DIRECT  |     +--------------------------+
+    |       process x 128       |     | Host Machine             |  
+    |             |             |     |                          |
+    |             V             |     | Read/Write with O_DIRECT |
+    |         /dev/vda1         |     |       process x 128      |
+    +-------------|-------------+     +-------------|------------+
+    +-------------V---------------------------------V------------+
+    |     /dev/mapper/ioband1      |     /dev/mapper/ioband2     |
+    |         80% weight           |         20% weight          |
+    |                              |                             |
+    |    Control I/O bandwidth according to the weights          |
+    +-------------|---------------------------------|------------+
+    +-------------V-------------+     +-------------|------------+
+    |        /dev/sda11         |     |         /dev/sda12       |
+    +---------------------------+     +--------------------------+
+
+Thanks,
+Ryo Tsuruta
