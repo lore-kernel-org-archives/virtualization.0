@@ -1,15 +1,12 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [kvm-devel] I/O bandwidth control on KVM
-Date: Mon, 10 Mar 2008 21:05:04 +0900 (JST)
-Message-ID: <20080310.210504.112608852.ryov__30614.3112168231$1205151083$gmane$org@valinux.co.jp>
-References: <47CECA91.2010507@codemonkey.ws>
-	<20080306.212305.104034101.ryov@valinux.co.jp>
-	<47D01667.10809@codemonkey.ws>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 1/4] virtio: Use spin_lock_irqsave/restore for virtio-pci
+Date: Tue, 11 Mar 2008 23:03:22 +1100
+Message-ID: <200803112303.22984.rusty__47121.6373298832$1205237277$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47D01667.10809@codemonkey.ws>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,56 +16,79 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: anthony@codemonkey.ws
-Cc: kvm-devel@lists.sourceforge.net, dm-devel@redhat.com, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Anthony,
+From: Anthony Liguori <aliguori@us.ibm.com>
 
-> There's an aio_init in block-raw-posix.c that sets the thread count to 
-> 1.  If you #if 0 out that block, or increase the threads to something 
-> higher (like 16), you should see multiple simultaneous requests.  Sorry 
-> about that, I had that in a different patch in my tree.
+virtio-pci acquires its spin lock in an interrupt context so it's necessary
+to use spin_lock_irqsave/restore variants.  This patch fixes guest SMP when
+using virtio devices in KVM.
 
-Thank you for your suggestion. I tried commenting out the calling
-aio_init(), the AIO functions use aio_threads=20 and aio_num=64 as
-default, but the results were the same as I have tested before, the
-number of I/Os was divided into equal proportion.
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/virtio/virtio_pci.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-Then, I changed "io_throttle" value to 1(default is 4). "io_throttle"
-is a dm-ioband's configuration parameter, when the number of BIOs in
-progress exceeds this value, dm-ioband starts to control the bandwidth. 
-And then the bandwidth control seemed to work much better, but sometimes
-I wasn't able to get the proper proportions. As these results indicate,
-the number of simultaneous I/O requests issued from two KVM virtual
-machines was less than 4.
-
-     The number of issued I/Os for 60 seconds (io_throttle = 1)
-     --------------------------------------------------------
-    | weight setting  |    sda11     |   sda12     |  total  |
-    |  sda11 : sda12  |    I/Os(%)   |   I/Os(%)   |  I/Os   |
-    |-----------------+--------------+-------------|---------|
-    |     80:20 #1    |  7264(75.8%) | 2324(24.2%) |   9588  |
-    |     80:20 #2    |  7147(71.1%) | 2899(28.9%) |  10046  |
-    |-----------------+--------------+-------------|---------|
-    |     50:50 #1    |  5162(55.5%) | 4146(44.5%) |   9308  |
-    |     50:50 #2    |  4666(49.3%) | 4793(50.7%) |   9459  |
-    |-----------------+--------------+-------------|---------|
-    |     20:80 #1    |  3574(39.8%) | 5402(60.2%) |   8976  |
-    |     20:80 #2    |  2038(21.4%) | 7499(78.6%) |   9537  |
-    |-----------------+--------------+-------------|---------|
-    |     10:90 #1    |  2027(21.1%) | 7602(78.9%) |   9629  |
-    |     10:90 #2    |  1556(16.4%) | 7935(83.6%) |   9491  |
-     --------------------------------------------------------
-
-> The virtio block backend isn't quite optimal right now.  I have some 
-> patches (that are currently suffering bitrot) that switch over to 
-> linux-aio which allows zero-copy and for proper barrier support (so the 
-> guest block device will use an ordered queue).  The QEMU aio 
-> infrastructure makes it tough to integrate it properly though.
-
-That's good idea. I hope your work is going well and look forward to
-releasing the patches.
-
-Thanks,
-Ryo Tsuruta
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 26f787d..59a8f73 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -177,6 +177,7 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ 	struct virtio_pci_device *vp_dev = opaque;
+ 	struct virtio_pci_vq_info *info;
+ 	irqreturn_t ret = IRQ_NONE;
++	unsigned long flags;
+ 	u8 isr;
+ 
+ 	/* reading the ISR has the effect of also clearing it so it's very
+@@ -197,12 +198,12 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ 			drv->config_changed(&vp_dev->vdev);
+ 	}
+ 
+-	spin_lock(&vp_dev->lock);
++	spin_lock_irqsave(&vp_dev->lock, flags);
+ 	list_for_each_entry(info, &vp_dev->virtqueues, node) {
+ 		if (vring_interrupt(irq, info->vq) == IRQ_HANDLED)
+ 			ret = IRQ_HANDLED;
+ 	}
+-	spin_unlock(&vp_dev->lock);
++	spin_unlock_irqrestore(&vp_dev->lock, flags);
+ 
+ 	return ret;
+ }
+@@ -214,6 +215,7 @@ static struct virtqueue *vp_find_vq(struct virtio_device *vdev, unsigned index,
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	struct virtio_pci_vq_info *info;
+ 	struct virtqueue *vq;
++	unsigned long flags;
+ 	u16 num;
+ 	int err;
+ 
+@@ -255,9 +257,9 @@ static struct virtqueue *vp_find_vq(struct virtio_device *vdev, unsigned index,
+ 	vq->priv = info;
+ 	info->vq = vq;
+ 
+-	spin_lock(&vp_dev->lock);
++	spin_lock_irqsave(&vp_dev->lock, flags);
+ 	list_add(&info->node, &vp_dev->virtqueues);
+-	spin_unlock(&vp_dev->lock);
++	spin_unlock_irqrestore(&vp_dev->lock, flags);
+ 
+ 	return vq;
+ 
+@@ -274,10 +276,11 @@ static void vp_del_vq(struct virtqueue *vq)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+ 	struct virtio_pci_vq_info *info = vq->priv;
++	unsigned long flags;
+ 
+-	spin_lock(&vp_dev->lock);
++	spin_lock_irqsave(&vp_dev->lock, flags);
+ 	list_del(&info->node);
+-	spin_unlock(&vp_dev->lock);
++	spin_unlock_irqrestore(&vp_dev->lock, flags);
+ 
+ 	vring_del_virtqueue(vq);
