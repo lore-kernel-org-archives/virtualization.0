@@ -1,68 +1,47 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 4/4] virtio: Enable netpoll interface for netconsole logging
-Date: Tue, 11 Mar 2008 23:06:30 +1100
-Message-ID: <200803112306.30687.rusty__29235.747017856$1205237452$gmane$org@rustcorp.com.au>
-References: <200803112303.22984.rusty@rustcorp.com.au>
-	<200803112304.21680.rusty@rustcorp.com.au>
-	<200803112305.23648.rusty@rustcorp.com.au>
+From: "Rami Tamir" <ramit@qumranet.com>
+Subject: KVM developer forum 2008
+Date: Tue, 11 Mar 2008 08:18:04 -0700
+Message-ID: <64F9B87B6B770947A9F8391472E0321611B350DE@ehost011-8.exch011.intermedia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200803112305.23648.rusty@rustcorp.com.au>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amitshah@gmx.net>, linux-kernel@vger.kernel.org
+Return-path: <kvm-devel-bounces@lists.sourceforge.net>
+Content-class: urn:content-classes:message
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel@lists.sourceforge.net>
+List-Help: <mailto:kvm-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: kvm-devel-bounces@lists.sourceforge.net
+Errors-To: kvm-devel-bounces@lists.sourceforge.net
+To: kvm-devel@lists.sourceforge.net, virtualization@lists.osdl.org, kvm-ia64-devel@lists.sourceforge.net, kvm-ppc-devel@lists.sourceforge.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Amit Shah" <amitshah@gmx.net>
+We'd like to invite all of you to attend the second annual KVM Forum.
+Following the success of the last year's event, we'd like to keep the
+format similar. The purpose of the forum is to bring together
+developers, testers and other technical individuals from within the
+community to discuss the state of KVM today. We will also review and
+shape the future roadmap of KVM, examine development challenges, and
+agree on modes of collaboration needed for common development.
 
-Add a new poll_controller handler that the netpoll interface needs.
+The KVM Forum 2008 will also give developers an opportunity to update
+the community on the work that they are doing and coordinate efforts for
+the betterment of KVM and Linux virtualization.
 
-This enables netconsole logging from a kvm guest over the virtio
-net interface.
+Please reserve these dates, the event will take on June 11th - 13th, at
+Marriot Napa Valley, California, USA. For those of you who want to get
+there earlier, we will be holding a reception cocktail on June 10th
+evening time. The registration web site will be up shortly as will the
+call for papers
 
-Signed-off-by: Amit Shah <amitshah@gmx.net>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/net/virtio_net.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+For suggestions and comments please e-mail kvmforum2008@qumranet.com.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -294,6 +294,15 @@ again:
- 	return 0;
- }
- 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+static void virtnet_netpoll(struct net_device *dev)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
-+	napi_schedule(&vi->napi);
-+}
-+#endif
-+
- static int virtnet_open(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -336,6 +345,9 @@ static int virtnet_probe(struct virtio_d
- 	dev->stop = virtnet_close;
- 	dev->hard_start_xmit = start_xmit;
- 	dev->features = NETIF_F_HIGHDMA;
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	dev->poll_controller = virtnet_netpoll;
-+#endif
- 	SET_NETDEV_DEV(dev, &vdev->dev);
- 
- 	/* Do we support "hardware" checksums? */
+
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Microsoft
+Defy all challenges. Microsoft(R) Visual Studio 2008.
+http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
