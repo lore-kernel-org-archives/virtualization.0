@@ -1,13 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/4] virtio: Fix sysfs bits to have proper block symlink
-Date: Tue, 11 Mar 2008 23:04:21 +1100
-Message-ID: <200803112304.21680.rusty__25933.1082030714$1205237303$gmane$org@rustcorp.com.au>
+Subject: [PATCH 3/4] virtio: handle > 2 billion page balloon targets
+Date: Tue, 11 Mar 2008 23:05:23 +1100
+Message-ID: <200803112305.23648.rusty__22125.373062636$1205237372$gmane$org@rustcorp.com.au>
 References: <200803112303.22984.rusty@rustcorp.com.au>
+	<200803112304.21680.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200803112303.22984.rusty@rustcorp.com.au>
+In-Reply-To: <200803112304.21680.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,26 +23,33 @@ To: virtualization@lists.linux-foundation.org
 Cc: Jeremy Katz <katzj@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jeremy Katz <katzj@redhat.com>
+If the host asks for a huge target towards_target() can overflow, and
+we up oops as we try to release more pages than we have.  The simple
+fix is to use a 64-bit value.
 
-Fix up so that the virtio_blk devices in sysfs link correctly to their
-block device.  This then allows them to be detected by hal, etc
-
-Signed-off-by: Jeremy Katz <katzj@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/block/virtio_blk.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/virtio/virtio_balloon.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 3b1a68d..0cfbe8c 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -238,6 +238,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	vblk->disk->first_minor = index_to_minor(index);
- 	vblk->disk->private_data = vblk;
- 	vblk->disk->fops = &virtblk_fops;
-+	vblk->disk->driverfs_dev = &vdev->dev;
- 	index++;
+diff -r fd0c80dbbd95 drivers/virtio/virtio_balloon.c
+--- a/drivers/virtio/virtio_balloon.c	Tue Mar 11 09:21:00 2008 +1100
++++ b/drivers/virtio/virtio_balloon.c	Tue Mar 11 11:25:52 2008 +1100
+@@ -152,7 +152,7 @@ static void virtballoon_changed(struct v
+ 	wake_up(&vb->config_change);
+ }
  
- 	/* If barriers are supported, tell block layer that queue is ordered */
+-static inline int towards_target(struct virtio_balloon *vb)
++static inline s64 towards_target(struct virtio_balloon *vb)
+ {
+ 	u32 v;
+ 	__virtio_config_val(vb->vdev,
+@@ -176,7 +183,7 @@ static int balloon(void *_vballoon)
+ 
+ 	set_freezable();
+ 	while (!kthread_should_stop()) {
+-		int diff;
++		s64 diff;
+ 
+ 		try_to_freeze();
+ 		wait_event_interruptible(vb->config_change,
