@@ -1,26 +1,54 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.25-rc5-mm1 (paravirt/vsmp/no PCI)
-Date: Wed, 12 Mar 2008 08:14:25 +0100
-Message-ID: <20080312071425.GA21891@elte.hu>
-References: <20080311011434.ad8c8d7d.akpm@linux-foundation.org> <20080311100955.ca113f90.randy.dunlap@oracle.com> <47D6CD04.8060303@goop.org> <20080312001040.GA6434@localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752843AbYCLHPn@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080312001040.GA6434@localdomain>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 0/6] Guest page hinting version 6.
+Date: Wed, 12 Mar 2008 14:21:32 +0100
+Message-ID: <20080312132132.520833247@de.ibm.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753859AbYCLN1Z@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Randy Dunlap <randy.dunlap@oracle.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, Glauber de Oliveira Costa <glommer@gmail.com>, shai@scalex86.org
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, hugh@veritas.com, zach@vmware.com, frankeh@watson.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Greetings,
+I've dedusted the guest page hinting patches and ported them to todays
+upstream git tree. There is one reject if applied to 2.6.24-rc5-mm1 but
+that is easy to fix. The code stills works as expected on my test system.
 
-* Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+Our z/VM performance team recently published a report on guest page
+hinting vs. the ballooner approach on SLES10 for a farm of web servers.
+The code on SLES10 differs a bit from the upstream variant but the
+performance results should be still valid.  You will find the report
+here:
 
-> Would anyone have objection to have PARAVIRT depend on PCI, since the 
-> vsmp paravirt bits depend on PCI cfg space to determine if the system 
-> is vsmp?  If not, this patch would suffice.
+  http://www.vm.ibm.com/perf/reports/zvm/html/530cmm.html
 
-hm, that's not a good idea - there's nothing in lguest, Xen and even KVM 
-that is inherently tied to PCI.
+(the VMRM-CMM the web page speaks about is the balloon approach,
+ CMMA is the guest page hinting).
 
-	Ingo
+Both approaches to the memory overcommit problem show comparable benefits
+for this workload, with an advantage for guest page hinting for large
+number of guests. For other workloads your mileage may vary.
+
+The main benefit for guest page hinting vs. the ballooner is that there
+is no need for a monitor that keeps track of the memory usage of all the
+guests, a complex algorithm that calculates the working set sizes and for
+the calls into the guest kernel to control the size of the balloons.
+The host just does normal LRU based paging. If the host picks one of the
+pages the guest can recreate, the host can throw it away instead of writing
+it to the paging device. Simple and elegant.
+The main disadvantage is the added complexity that is introduced to the
+guests memory management code to do the page state changes and to deal
+with discard faults.
+
+The last versions of the patches do not differ much, I consider the code
+to be stable. My question now is how to proceed with the code. I sure
+would love to see the code going upstream some day but that depends on
+the mm developers as the code adds complexity that needs to be supported.
+If the general feeling is that the advantages of this approach do not
+warrent for the added complexity this will likely be the last time you
+will hear about guest page hinting. 
+
+--
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
