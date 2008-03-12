@@ -1,10 +1,10 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 5/6] Guest page hinting: minor fault optimization.
-Date: Wed, 12 Mar 2008 14:21:37 +0100
-Message-ID: <20080312132704.238134046@de.ibm.com>
+Subject: [patch 3/6] Guest page hinting: mlocked pages.
+Date: Wed, 12 Mar 2008 14:21:35 +0100
+Message-ID: <20080312132703.689828503@de.ibm.com>
 References: <20080312132132.520833247@de.ibm.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754529AbYCLN2t@vger.kernel.org>
-Content-Disposition: inline; filename=005-hva-nohv.diff
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754000AbYCLN1k@vger.kernel.org>
+Content-Disposition: inline; filename=003-hva-mlock.diff
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org
 Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, hugh@veritas.com, zach@vmware.com, frankeh@watson.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>
@@ -14,262 +14,143 @@ From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 From: Hubertus Franke <frankeh@watson.ibm.com>
 From: Himanshu Raj
 
-On of the challenges of the guest page hinting scheme is the cost for
-the state transitions. If the cost gets too high the whole concept of
-page state information is in question. Therefore it is important to
-avoid the state transitions when possible. One place where the state
-transitions can be avoided are minor faults. Why change the page state
-to stable in find_get_page and back in page_add_anon_rmap/
-page_add_file_rmap if the discarded pages can be handled by the discard
-fault handler? If the page is in page/swap cache just map it even if it
-is already discarded. The first access to the page will cause a discard
-fault which needs to be able to deal with this kind of situation anyway
-because of other races in the memory management.
+Add code to get mlock() working with guest page hinting. The problem
+with mlock is that locked pages may not be removed from page cache.
+That means they need to be stable. page_make_volatile needs a way to
+check if a page has been locked. To avoid traversing vma lists - which
+would hurt performance a lot - a field is added in the struct
+address_space. This field is set in mlock_fixup if a vma gets mlocked.
+The bit never gets removed - once a file had an mlocked vma all future
+pages added to it will stay stable.
 
-The special find_get_page_nodiscard variant introduced for volatile
-swap cache is used which does not change the page state. The calls to
-find_get_page in filemap_nopage and lookup_swap_cache are replaced with
-find_get_page_nodiscard. By the use of this function a new race is
-created. If a minor fault races with the discard of a page the page may
-not get mapped to the page table because the discard handler removed
-the page from the cache which removes the page->mapping that is needed
-to find the page table entry. A check for the discarded bit is added to
-do_swap_page and do_no_page. The page table lock for the pte takes care
-of the synchronization.
-
-That removes the state transitions on the minor fault path. A page that
-has been mapped will eventually be unmapped again. On the unmap path
-each page that has been removed from the page table is freed with a
-call to page_cache_release. In general that causes an unnecessary page
-state transition from volatile to volatile. To get rid of these state
-transitions as well a special variants of page_cache_release is added
-that does not attempt to make the page volatile.
-page_cache_release_nocheck is then used in free_page_and_swap_cache
-and release_pages. This makes the unmap of ptes state transitions free.
+The pages of an mlocked area are made present in the linux page table by
+a call to make_pages_present which calls get_user_pages and follow_page.
+The follow_page function is called for each page in the mlocked vma,
+if the VM_LOCKED bit in the vma flags is set the page is made stable.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- include/linux/pagemap.h |    4 ++++
- include/linux/swap.h    |    2 +-
- mm/filemap.c            |   35 ++++++++++++++++++++++++++++++++---
- mm/fremap.c             |    1 +
- mm/memory.c             |    4 ++--
- mm/rmap.c               |    4 +---
- mm/shmem.c              |    7 +++++++
- mm/swap_state.c         |    4 ++--
- 8 files changed, 50 insertions(+), 11 deletions(-)
+ include/linux/fs.h |   10 ++++++++++
+ mm/memory.c        |    5 +++--
+ mm/mlock.c         |    3 +++
+ mm/page-states.c   |    5 ++++-
+ mm/rmap.c          |   13 +++++++++++--
+ 5 files changed, 31 insertions(+), 5 deletions(-)
 
-Index: linux-2.6/include/linux/pagemap.h
+Index: linux-2.6/include/linux/fs.h
 ===================================================================
---- linux-2.6.orig/include/linux/pagemap.h
-+++ linux-2.6/include/linux/pagemap.h
-@@ -63,11 +63,15 @@ static inline void mapping_set_gfp_mask(
- #ifdef CONFIG_PAGE_STATES
- extern struct page * find_get_page_nodiscard(struct address_space *mapping,
- 					     unsigned long index);
-+extern struct page * find_lock_page_nodiscard(struct address_space *mapping,
-+					      unsigned long index);
- #define page_cache_release(page)	put_page_check(page)
- #else
- #define find_get_page_nodiscard(mapping, index) find_get_page(mapping, index)
-+#define find_lock_page_nodiscard(mapping, index) find_lock_page(mapping, index)
- #define page_cache_release(page)	put_page(page)
- #endif
-+#define page_cache_release_nocheck(page)	put_page(page)
- void release_pages(struct page **pages, int nr, int cold);
- 
- #ifdef CONFIG_NUMA
-Index: linux-2.6/include/linux/swap.h
-===================================================================
---- linux-2.6.orig/include/linux/swap.h
-+++ linux-2.6/include/linux/swap.h
-@@ -288,7 +288,7 @@ static inline void disable_swap_token(vo
- /* only sparc can not include linux/pagemap.h in this file
-  * so leave page_cache_release and release_pages undeclared... */
- #define free_page_and_swap_cache(page) \
--	page_cache_release(page)
-+	page_cache_release_nocheck(page)
- #define free_pages_and_swap_cache(pages, nr) \
- 	release_pages((pages), (nr), 0);
- 
-Index: linux-2.6/mm/filemap.c
-===================================================================
---- linux-2.6.orig/mm/filemap.c
-+++ linux-2.6/mm/filemap.c
-@@ -554,6 +554,35 @@ struct page * find_get_page_nodiscard(st
- 
- EXPORT_SYMBOL(find_get_page_nodiscard);
- 
-+struct page *find_lock_page_nodiscard(struct address_space *mapping,
-+				      unsigned long offset)
-+{
-+	struct page *page;
-+
-+	read_lock_irq(&mapping->tree_lock);
-+repeat:
-+	page = radix_tree_lookup(&mapping->page_tree, offset);
-+	if (page) {
-+		page_cache_get(page);
-+		if (TestSetPageLocked(page)) {
-+			read_unlock_irq(&mapping->tree_lock);
-+			__lock_page(page);
-+			read_lock_irq(&mapping->tree_lock);
-+
-+			/* Has the page been truncated while we slept? */
-+			if (unlikely(page->mapping != mapping ||
-+				     page->index != offset)) {
-+				unlock_page(page);
-+				page_cache_release(page);
-+				goto repeat;
-+			}
-+		}
-+	}
-+	read_unlock_irq(&mapping->tree_lock);
-+	return page;
-+}
-+EXPORT_SYMBOL(find_lock_page_nodiscard);
-+
- #endif
- 
- /*
-@@ -1424,7 +1453,7 @@ int filemap_fault(struct vm_area_struct 
- 	 * Do we have something in the page cache already?
- 	 */
- retry_find:
--	page = find_lock_page(mapping, vmf->pgoff);
-+	page = find_lock_page_nodiscard(mapping, vmf->pgoff);
+--- linux-2.6.orig/include/linux/fs.h
++++ linux-2.6/include/linux/fs.h
+@@ -513,6 +513,9 @@ struct address_space {
+ 	spinlock_t		private_lock;	/* for use by the address_space */
+ 	struct list_head	private_list;	/* ditto */
+ 	struct address_space	*assoc_mapping;	/* ditto */
++#ifdef CONFIG_PAGE_STATES
++	unsigned int		mlocked;	/* set if VM_LOCKED vmas present */
++#endif
+ } __attribute__((aligned(sizeof(long))));
  	/*
- 	 * For sequential accesses, we use the generic readahead logic.
+ 	 * On most architectures that alignment is already the case; but
+@@ -520,6 +523,13 @@ struct address_space {
+ 	 * of struct page's "mapping" pointer be used for PAGE_MAPPING_ANON.
  	 */
-@@ -1432,7 +1461,7 @@ retry_find:
- 		if (!page) {
- 			page_cache_sync_readahead(mapping, ra, file,
- 							   vmf->pgoff, 1);
--			page = find_lock_page(mapping, vmf->pgoff);
-+			page = find_lock_page_nodiscard(mapping, vmf->pgoff);
- 			if (!page)
- 				goto no_cached_page;
- 		}
-@@ -1471,7 +1500,7 @@ retry_find:
- 				start = vmf->pgoff - ra_pages / 2;
- 			do_page_cache_readahead(mapping, file, start, ra_pages);
- 		}
--		page = find_lock_page(mapping, vmf->pgoff);
-+		page = find_lock_page_nodiscard(mapping, vmf->pgoff);
- 		if (!page)
- 			goto no_cached_page;
- 	}
-Index: linux-2.6/mm/fremap.c
-===================================================================
---- linux-2.6.orig/mm/fremap.c
-+++ linux-2.6/mm/fremap.c
-@@ -15,6 +15,7 @@
- #include <linux/rmap.h>
- #include <linux/module.h>
- #include <linux/syscalls.h>
-+#include <linux/page-states.h>
  
- #include <asm/mmu_context.h>
- #include <asm/cacheflush.h>
++static inline void mapping_set_mlocked(struct address_space *mapping)
++{
++#ifdef CONFIG_PAGE_STATES
++	mapping->mlocked = 1;
++#endif
++}
++
+ struct block_device {
+ 	dev_t			bd_dev;  /* not a kdev_t - it's a search key */
+ 	struct inode *		bd_inode;	/* will die */
 Index: linux-2.6/mm/memory.c
 ===================================================================
 --- linux-2.6.orig/mm/memory.c
 +++ linux-2.6/mm/memory.c
-@@ -2131,7 +2131,7 @@ static int do_swap_page(struct mm_struct
- 	 * Back out if somebody else already faulted in this pte.
- 	 */
- 	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
--	if (unlikely(!pte_same(*page_table, orig_pte)))
-+	if (unlikely(!pte_same(*page_table, orig_pte) || PageDiscarded(page)))
- 		goto out_nomap;
+@@ -987,9 +987,10 @@ struct page *follow_page(struct vm_area_
+ 	if (flags & FOLL_GET)
+ 		get_page(page);
  
- 	if (unlikely(!PageUptodate(page))) {
-@@ -2364,7 +2364,7 @@ retry:
- 	 * handle that later.
+-	if (flags & FOLL_GET) {
++	if ((flags & FOLL_GET) || (vma->vm_flags & VM_LOCKED)) {
+ 		/*
+-		 * The page is made stable if a reference is acquired.
++		 * The page is made stable if a reference is acquired or
++		 * the vm area is locked.
+ 		 * If the caller does not get a reference it implies that
+ 		 * the caller can deal with page faults in case the page
+ 		 * is swapped out. In this case the caller can deal with
+Index: linux-2.6/mm/mlock.c
+===================================================================
+--- linux-2.6.orig/mm/mlock.c
++++ linux-2.6/mm/mlock.c
+@@ -12,6 +12,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/sched.h>
+ #include <linux/module.h>
++#include <linux/fs.h>
+ 
+ int can_do_mlock(void)
+ {
+@@ -71,6 +72,8 @@ success:
  	 */
- 	/* Only go through if we didn't race with anybody else... */
--	if (likely(pte_same(*page_table, orig_pte))) {
-+	if (likely(pte_same(*page_table, orig_pte) && !PageDiscarded(page))) {
- 		flush_icache_page(vma, page);
- 		entry = mk_pte(page, vma->vm_page_prot);
- 		if (flags & FAULT_FLAG_WRITE)
+ 	pages = (end - start) >> PAGE_SHIFT;
+ 	if (newflags & VM_LOCKED) {
++		if (vma->vm_file && vma->vm_file->f_mapping)
++			mapping_set_mlocked(vma->vm_file->f_mapping);
+ 		pages = -pages;
+ 		if (!(newflags & VM_IO))
+ 			ret = make_pages_present(start, end);
+Index: linux-2.6/mm/page-states.c
+===================================================================
+--- linux-2.6.orig/mm/page-states.c
++++ linux-2.6/mm/page-states.c
+@@ -29,6 +29,8 @@
+  */
+ static inline int check_bits(struct page *page)
+ {
++	struct address_space *mapping;
++
+ 	/*
+ 	 * There are several conditions that prevent a page from becoming
+ 	 * volatile. The first check is for the page bits.
+@@ -52,7 +54,8 @@ static inline int check_bits(struct page
+ 	 * it volatile. It will be freed soon. And if the mapping ever
+ 	 * had locked pages all pages of the mapping will stay stable.
+ 	 */
+-	return page_mapping(page) != NULL;
++	mapping = page_mapping(page);
++	return mapping && !mapping->mlocked;
+ }
+ 
+ /*
 Index: linux-2.6/mm/rmap.c
 ===================================================================
 --- linux-2.6.orig/mm/rmap.c
 +++ linux-2.6/mm/rmap.c
-@@ -593,7 +593,6 @@ void page_add_anon_rmap(struct page *pag
- 		 */
- 		mem_cgroup_uncharge_page(page);
- 	}
--	page_make_volatile(page, 1);
- }
- 
- /*
-@@ -630,7 +629,6 @@ void page_add_file_rmap(struct page *pag
- 		 * This takes care of balancing the reference counts
- 		 */
- 		mem_cgroup_uncharge_page(page);
--	page_make_volatile(page, 1);
- }
- 
- #ifdef CONFIG_DEBUG_VM
-@@ -795,7 +793,7 @@ static int try_to_unmap_one(struct page 
- 	}
- 
- 	page_remove_rmap(page, vma);
--	page_cache_release(page);
-+	page_cache_release_nocheck(page);
- 
- out_unmap:
- 	pte_unmap_unlock(pte, ptl);
-Index: linux-2.6/mm/shmem.c
-===================================================================
---- linux-2.6.orig/mm/shmem.c
-+++ linux-2.6/mm/shmem.c
-@@ -50,6 +50,7 @@
- #include <linux/migrate.h>
- #include <linux/highmem.h>
- #include <linux/seq_file.h>
-+#include <linux/page-states.h>
- 
- #include <asm/uaccess.h>
- #include <asm/div64.h>
-@@ -1290,6 +1291,12 @@ repeat:
- 	if (swap.val) {
- 		/* Look it up and read it in.. */
- 		swappage = lookup_swap_cache(swap);
-+		if (swappage && unlikely(!page_make_stable(swappage))) {
-+			shmem_swp_unmap(entry);
-+			spin_unlock(&info->lock);
-+			page_discard(swappage);
-+			goto repeat;
+@@ -722,8 +722,17 @@ static int try_to_unmap_one(struct page 
+ 	 */
+ 	if (!migration && ((vma->vm_flags & VM_LOCKED) ||
+ 			(ptep_clear_flush_young(vma, address, pte)))) {
+-		ret = SWAP_FAIL;
+-		goto out_unmap;
++		/*
++		 * Check for discarded pages. This can happen if there have
++		 * been discarded pages before a vma gets mlocked. The code
++		 * in make_pages_present will force all discarded pages out
++		 * and reload them. That happens after the VM_LOCKED bit
++		 * has been set.
++		 */
++		if (likely(!PageDiscarded(page))) {
++			ret = SWAP_FAIL;
++			goto out_unmap;
 +		}
- 		if (!swappage) {
- 			shmem_swp_unmap(entry);
- 			/* here we actually do the io */
-Index: linux-2.6/mm/swap_state.c
-===================================================================
---- linux-2.6.orig/mm/swap_state.c
-+++ linux-2.6/mm/swap_state.c
-@@ -228,7 +228,7 @@ static inline void free_swap_cache(struc
- void free_page_and_swap_cache(struct page *page)
- {
- 	free_swap_cache(page);
--	page_cache_release(page);
-+	page_cache_release_nocheck(page);
- }
+ 	}
  
- /*
-@@ -262,7 +262,7 @@ struct page * lookup_swap_cache(swp_entr
- {
- 	struct page *page;
- 
--	page = find_get_page(&swapper_space, entry.val);
-+	page = find_get_page_nodiscard(&swapper_space, entry.val);
- 
- 	if (page)
- 		INC_CACHE_INFO(find_success);
+ 	/* Nuke the page table entry. */
 
 -- 
 blue skies,
