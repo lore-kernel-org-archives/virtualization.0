@@ -1,39 +1,22 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 0/6] Guest page hinting version 6.
-Date: Thu, 13 Mar 2008 10:47:07 +0100
-Message-ID: <1205401627.26537.40.camel@localhost>
-References: <20080312132132.520833247@de.ibm.com>
-	 <200803130941.48480.rusty@rustcorp.com.au>
-Reply-To: schwidefsky@de.ibm.com
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch 6/6] Guest page hinting: s390 support.
+Date: Thu, 13 Mar 2008 09:07:16 -0700
+Message-ID: <47D95134.6030503@goop.org>
+References: <20080312132132.520833247@de.ibm.com>	<20080312132704.474209626@de.ibm.com>	<47D802A2.1030406@goop.org>	<1205339285.8851.13.camel@localhost>	<47D8085E.9030701@goop.org>	<1205341164.8851.44.camel@localhost>	<47D81771.5070400@goop.org>	<47D8373C.40105@codemonkey.ws>	<47D840E3.5090902@goop.org>	<47D8436F.9080901@codemonkey.ws>  <47D84CEB.6050300@goop.org> <1205401508.26537.37.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754863AbYCMJrZ@vger.kernel.org>
-In-Reply-To: <200803130941.48480.rusty@rustcorp.com.au>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755504AbYCMQJU@vger.kernel.org>
+In-Reply-To: <1205401508.26537.37.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, hugh@veritas.com
+To: schwidefsky@de.ibm.com
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, akpm@osdl.org, linux-s390@vger.kernel.org, frankeh@watson.ibm.com, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Anthony Liguori <anthony@codemonkey.ws>, hugh@veritas.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2008-03-13 at 09:41 +1100, Rusty Russell wrote:
-> On Thursday 13 March 2008 00:21:32 Martin Schwidefsky wrote:
-> > My question now is how to proceed with the code. I sure
-> > would love to see the code going upstream some day but that depends on
-> > the mm developers as the code adds complexity that needs to be supported.
-> 
-> Well, I want this feature, but I agree about complexity.
-> 
-> AFAICT, the trivial subset of this is the hinting of Unused pages.  It seems 
-> that would buy us something, and perhaps be a stepping stone to full page 
-> hinting?
+Martin Schwidefsky wrote:
+> Vz->Vr cannot happen. This would be a bug in the host.
+>   
 
-I've been there but the unused page thing is so small that it doesn't
-make sense to separate it from the patches. If I don't see any progress
-then I will come up with a patch that adds the Unused state transitions
-to the arch files of s390.
+Does that mean that Vz is effectively identical to Uz?
 
--- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
+    J
