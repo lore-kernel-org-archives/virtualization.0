@@ -1,71 +1,52 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 0/6] Guest page hinting version 6.
-Date: Mon, 17 Mar 2008 10:21:40 +0100
-Message-ID: <1205745700.16137.14.camel@localhost>
-References: <20080312132132.520833247@de.ibm.com>
-	 <Pine.LNX.4.64.0803131627450.17244@blonde.site> <47D9754B.1030509@goop.org>
-	 <1205530358.14987.32.camel@bodhitayantram.eng.vmware.com>
-Reply-To: schwidefsky@de.ibm.com
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] 2.6.25 virtio fixes
+Date: Mon, 17 Mar 2008 23:10:22 +1100
+Message-ID: <200803172310.22732.rusty__36965.8924792477$1205756082$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755379AbYCQIWH@vger.kernel.org>
-In-Reply-To: <1205530358.14987.32.camel@bodhitayantram.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rusty@rustcorp.com.au, andrea@qumranet.com, clameter@sgi.com, a.p.zijlstra@chello.nl, Keir Fraser <keir@xensource.com>, Ian Pratt <ian.pratt@xensource.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Amit Shah <amitshah@gmx.net>, Jeremy Katz <katzj@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2008-03-14 at 14:32 -0700, Zachary Amsden wrote:
-> On Fri, 2008-03-14 at 11:30 -0700, Jeremy Fitzhardinge wrote:
-> > Zachary Amsden wrote:
-> > > How about a fake hypervisor, which is really just a random page evictor,
-> > > following the rules of CMM?
-> > >   
-> > 
-> > Probably simpler to just have variants of the page_set_* functions which 
-> > simulate the worst-possible host action immediately (ie, stealing pages, 
-> > logically swapping them, etc).  That wouldn't give you full coverage, 
-> > but it would go some way.  An async variant which schedules a change in 
-> > a few milliseconds would help too.
-> > 
-> > I guess that's equivalent to having a special-purpose hypervisor built 
-> > into the kernel (hm, sounds familiar...).
-> 
-> It needn't be that hard on s390, I believe you don't need to worry about
-> PTEs becoming asynchronous when stealing a page, since if I understand
-> the hypervisor architecture, there is a per-page mapping level
-> available, allowing you to generate discard faults on access.  It might
-> be possible to use this mapping layer without implementing a full blown
-> hypervisor.  Martin?
+The following changes since commit a978b30af3bab0dd9af9350eeda25e76123fa28e:
+  Linus Torvalds (1):
+        Linux 2.6.25-rc6
 
-Yes, on s390 the PTEs cannot be asynchronous because there is no need to
-synchronize them in the first place. A mapping layer with all primitives
-without using the SIE instruction will be difficult. For one we cannot
-use the ESSA instruction which isolates the state changes and host page
-table is tied to the SIE. The page state is stored in the page table
-extension and the discard state is basically a specially marked invalid
-pte in the host table. A mapping layer with some restrictions is
-certainly possible.
+are available in the git repository at:
 
-> For x86, at discard time, you would have to manually walk and invalidate
-> any PTEs potentially mapping the discarded page, but there is already
-> this great thing called Xen paravirt-ops which actually does that for
-> completely different reasons (PT page protection).
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
 
-If you have to walk the guest page tables you call into the guest, no ?
-I would characterize this more as a ballooner since you need guest
-activity to do the page stealing. The trick with guest page hinting is
-that you do NOT call into the guest to do the discard. You'll a nested
-page table for that I'm afraid.
+Amit Shah (1):
+      virtio: Enable netpoll interface for netconsole logging
 
-> I think a random exponential distribution for discard would be needed to
-> catch all the racey failure modes.
+Anthony Liguori (1):
+      virtio: Use spin_lock_irqsave/restore for virtio-pci
 
-We had quite a few of these racy failures. Nasty. Hard to find.
+Christian Borntraeger (1):
+      virtio: fix race in enable_cb
 
--- 
-blue skies,
-  Martin.
+Jeremy Katz (1):
+      virtio: Fix sysfs bits to have proper block symlink
 
-"Reality continues to ruin my life." - Calvin.
+Rusty Russell (1):
+      virtio: handle > 2 billion page balloon targets
+
+ drivers/block/virtio_blk.c      |    1 +
+ drivers/net/virtio_net.c        |   22 +++++++++++++++++++---
+ drivers/virtio/virtio_balloon.c |    4 ++--
+ drivers/virtio/virtio_pci.c     |   15 +++++++++------
+ drivers/virtio/virtio_ring.c    |    1 -
+ include/linux/virtio.h          |    5 +++--
+ 6 files changed, 34 insertions(+), 14 deletions(-)
