@@ -1,15 +1,18 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [Xen-devel] Re: Xen paravirt frontend block hang
-Date: Tue, 18 Mar 2008 09:01:31 -0700
-Message-ID: <47DFE75B.7080404__49114.6479537294$1205856487$gmane$org@goop.org>
-References: <4772AC8E.7010007@theshore.net>
-	<47C712EF.1060703@goop.org>	<47C9F818.4020200@theshore.net>
-	<47CAC931.1000107@goop.org> <47CACFBE.5010007@theshore.net>
+Subject: Re: Xen paravirt frontend block hang
+Date: Tue, 18 Mar 2008 09:02:55 -0700
+Message-ID: <47DFE7AF.7090402@goop.org>
+References: <4772AC8E.7010007@theshore.net> <47758352.5040504@goop.org>	
+	<479E71B7.7060207@theshore.net> <479E75E3.6030601@goop.org>	
+	<479E7BA4.5050306@theshore.net>	
+	<519a8b110802060437k70c099b7y7faefe63dd82039@mail.gmail.com>	
+	<47AA845E.8020708@goop.org>
+	<519a8b110802070612j2a1717f3s6aa25eeea8b7d18a@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47CACFBE.5010007@theshore.net>
+In-Reply-To: <519a8b110802070612j2a1717f3s6aa25eeea8b7d18a@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,29 +22,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Christopher S. Aker" <caker@theshore.net>
-Cc: xming <xmingske@gmail.com>, Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: xming <xmingske@gmail.com>
+Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christopher S. Aker wrote:
-> Jeremy Fitzhardinge wrote:
->> Are you running an SMP or UP domain?  I found I could get hangs very 
->> easily with UP (but I need confirm it isn't a result of some other 
->> very experimental patches).
+xming wrote:
+> On Feb 7, 2008 5:09 AM, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>   
+>> xming wrote:
+>>     
+>>> But I do have one problem after I upgraded to xen 3.2, the 2.6.23.x domU do
+>>> not boot any more and 2.6.24 does boot but will hang after cpufreq changes
+>>> the frequency.
+>>>
+>>>       
+>> Interesting.  Do you mean dom0 cpufreq frequency changes will cause the
+>> domU to hang?
+>>
+>>     J
+>>
+>>     
 >
-> The hang occurs with both SMP and UP compiled pv_ops kernels.  SMP 
-> kernels are still slightly responsive after the hang occurs, which 
-> makes me think only one proc gets stuck at a time, not the entire kernel. 
+> Yes, when Dom0 changes freq while domU is doing something will trigger this.
+> When using "on demand" will trigger this very eassily.
+>
+> This is from xm top when a domU hangs:
+>
+>     test32 ------       4018   98.8     131072    6.4     131072
+> 6.4     1    1     4516    50087    1        0   433908   300403
+> 3084907223
+>
+> So it appers to be running (eating CPU) sometimes the state is "r"
+> sometimes "-",
+> but both console and network are dead.
+>   
 
-The patch I posted yesterday - "xen: fix RMW when unmasking events" - 
-should definitively fix the hanging-under-load bugs (I hope).  It 
-problem came from returning to userspace with pending events, which 
-would leave them hanging around on the vcpu unprocessed, and eventually 
-everything would deadlock.  This was caused by using an unlocked 
-read-modify-write operation on the event pending flag - which can be set 
-by another (real) cpu - meaning that the pending event wasn't noticed 
-until too late.  It would only be a problem on an SMP host.
-
-The patch should back-apply to 2.6.24.
+Which version of Xen did you try this on?  Some versions of xen-unstable 
+had horribly broken cpufreq support, in which it was failing to keep 
+track of cpu speed changes.  Current versions should be OK.
 
     J
