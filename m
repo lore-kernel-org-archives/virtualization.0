@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [kvm-devel] [RFC PATCH 1/5] lguest: mmap backing file
-Date: Fri, 21 Mar 2008 09:12:24 +1100
-Message-ID: <200803210912.25648.rusty__12233.9555681267$1206051436$gmane$org@rustcorp.com.au>
+Subject: Re: [kvm-devel] [RFC PATCH 0/4] Inter-guest virtio I/O example with
+	lguest
+Date: Fri, 21 Mar 2008 09:14:05 +1100
+Message-ID: <200803210914.05476.rusty__22331.785146571$1206051499$gmane$org@rustcorp.com.au>
 References: <200803201659.14344.rusty@rustcorp.com.au>
-	<200803201705.44422.rusty@rustcorp.com.au>
-	<47E26EE1.5030706@codemonkey.ws>
+	<47E20A35.2000600@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47E26EE1.5030706@codemonkey.ws>
+In-Reply-To: <47E20A35.2000600@qumranet.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,39 +20,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
+To: Avi Kivity <avi@qumranet.com>
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 21 March 2008 01:04:17 Anthony Liguori wrote:
+On Thursday 20 March 2008 17:54:45 Avi Kivity wrote:
 > Rusty Russell wrote:
-> > From: Paul TBBle Hampson <Paul.Hampson@Pobox.com>
+> > Hi all,
 > >
-> > This creates a file in $HOME/.lguest/ to directly back the RAM and DMA
-> > memory mappings created by map_zeroed_pages.
+> >    Just finished my prototype of inter-guest virtio, using networking as
+> > an example.  Each guest mmaps the other's address space and uses a FIFO
+> > for notifications.
 >
-> I created a test program recently that measured the latency of a
-> reads/writes to an mmap() file in /dev/shm and in a normal filesystem.
-> Even after unlinking the underlying file, the write latency was much
-> better with a mmap()'d file in /dev/shm.
+> Isn't that a security hole (hole? chasm)?  If the two guests can access
+> each other's memory, they might as well be just one guest, and
+> communicate internally.
 
-How odd!  Do you have any idea why?
+Sorry, sloppy language on my part.  Each launcher process maps the other 
+guest's memory as well: ie. copying occurs in the host.
 
-> /dev/shm is not really for general use.  I think we'll want to have our
-> own tmpfs mount that we use to create VM images.
+> My feeling is that the host needs to copy the data, using dma if
+> available.  Another option is to have one guest map the other's memory
+> for read and write, while the other guest is unprivileged.  This allows
+> one privileged guest to provide services for other, unprivileged guests,
+> like domain 0 or driver domains in Xen.
 
-If we're going to mod the kernel, how about a "mmap this part of their address 
-space" and having the kernel keep the mappings in sync.  But I think that if 
-we want to get speed, we should probably be doing the copy between address 
-spaces in-kernel so we can do lightweight exits.
-
-> I also prefer to use a 
-> unix socket for communication, unlink the file immediately after open,
-> and then pass the fd via SCM_RIGHTS to the other process.
-
-Yeah, I shied away from that because cred passing kills whole litters of 
-puppies.  It makes for better encapsulation tho, so I'd do it that way in a 
-serious implementation.
+One having privilege is possible, even trivial with the current patch (it's 
+actually doing a completely generic inter-virtio-ring shuffle).  I chose the 
+symmetrical approach for this demo for no particularly good reason.
 
 Cheers,
 Rusty.
