@@ -1,7 +1,7 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 11/15] kvm-s390: add kvm to kconfig on s390
-Date: Thu, 20 Mar 2008 17:25:17 +0100
-Message-ID: <1206030317.6690.62.camel__18365.1465610184$1206031137$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 14/15] guest: detect when running on kvm
+Date: Thu, 20 Mar 2008 17:25:26 +0100
+Message-ID: <1206030326.6690.65.camel__9325.3560517498$1206031267$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,83 +22,87 @@ Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com,
 	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Carsten Otte <cotte@de.ibm.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Carsten Otte <cotte@de.ibm.com>
 
-This patch adds the virtualization submenu and the kvm option to the kernel
-config. It also defines HAVE_KVM for 64bit kernels.
+This patch adds functionality to detect if the kernel runs under the KVM
+hypervisor. A macro MACHINE_IS_KVM is exported for device drivers. This
+allows drivers to skip device detection if the systems runs non-virtualized.
+We also define a preferred console to avoid having the ttyS0, which is a line
+mode only console.
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- arch/s390/Kconfig     |    3 +++
- arch/s390/kvm/Kconfig |   43 +++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 46 insertions(+)
+ arch/s390/Kconfig        |    7 +++++++
+ arch/s390/kernel/early.c |    4 ++++
+ arch/s390/kernel/setup.c |   10 +++++++---
+ include/asm-s390/setup.h |    1 +
+ 4 files changed, 19 insertions(+), 3 deletions(-)
 
 Index: kvm/arch/s390/Kconfig
 ===================================================================
 --- kvm.orig/arch/s390/Kconfig
 +++ kvm/arch/s390/Kconfig
-@@ -66,6 +66,7 @@ config S390
- 	select HAVE_OPROFILE
- 	select HAVE_KPROBES
- 	select HAVE_KRETPROBES
-+	select HAVE_KVM if 64BIT
+@@ -533,6 +533,13 @@ config ZFCPDUMP
+ 	  Select this option if you want to build an zfcpdump enabled kernel.
+ 	  Refer to <file:Documentation/s390/zfcpdump.txt> for more details on this.
  
- source "init/Kconfig"
++config S390_GUEST
++bool "s390 guest support (EXPERIMENTAL)"
++	depends on 64BIT && EXPERIMENTAL
++	select VIRTIO
++	select VIRTIO_RING
++	help
++	  Select this option if you want to run the kernel under s390 linux
+ endmenu
  
-@@ -553,3 +554,5 @@ source "security/Kconfig"
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
-+
-+source "arch/s390/kvm/Kconfig"
-Index: kvm/arch/s390/kvm/Kconfig
+ source "net/Kconfig"
+Index: kvm/arch/s390/kernel/early.c
 ===================================================================
---- /dev/null
-+++ kvm/arch/s390/kvm/Kconfig
-@@ -0,0 +1,43 @@
-+#
-+# KVM configuration
-+#
-+config HAVE_KVM
-+       bool
+--- kvm.orig/arch/s390/kernel/early.c
++++ kvm/arch/s390/kernel/early.c
+@@ -143,6 +143,10 @@ static noinline __init void detect_machi
+ 	/* Running on a P/390 ? */
+ 	if (cpuinfo->cpu_id.machine == 0x7490)
+ 		machine_flags |= 4;
 +
-+menuconfig VIRTUALIZATION
-+	bool "Virtualization"
-+	default y
-+	---help---
-+	  Say Y here to get to see options for using your Linux host to run other
-+	  operating systems inside virtual machines (guests).
-+	  This option alone does not add any kernel code.
-+
-+	  If you say N, all options in this submenu will be skipped and disabled.
-+
-+if VIRTUALIZATION
-+
-+config KVM
-+	tristate "Kernel-based Virtual Machine (KVM) support"
-+	depends on HAVE_KVM && EXPERIMENTAL
-+	select PREEMPT_NOTIFIERS
-+	select ANON_INODES
-+	select S390_SWITCH_AMODE
-+	select PREEMPT
-+	---help---
-+	  Support hosting paravirtualized guest machines using the SIE
-+	  virtualization capability on the mainframe. This should work
-+	  on any 64bit machine.
-+
-+	  This module provides access to the hardware capabilities through
-+	  a character device node named /dev/kvm.
-+
-+	  To compile this as a module, choose M here: the module
-+	  will be called kvm.
-+
-+	  If unsure, say N.
-+
-+# OK, it's a little counter-intuitive to do this, but it puts it neatly under
-+# the virtualization menu.
-+source drivers/virtio/Kconfig
-+
-+endif # VIRTUALIZATION
++	/* Running under KVM ? */
++	if (cpuinfo->cpu_id.version == 0xfe)
++		machine_flags |= 64;
+ }
+ 
+ #ifdef CONFIG_64BIT
+Index: kvm/arch/s390/kernel/setup.c
+===================================================================
+--- kvm.orig/arch/s390/kernel/setup.c
++++ kvm/arch/s390/kernel/setup.c
+@@ -793,9 +793,13 @@ setup_arch(char **cmdline_p)
+ 	       "This machine has an IEEE fpu\n" :
+ 	       "This machine has no IEEE fpu\n");
+ #else /* CONFIG_64BIT */
+-	printk((MACHINE_IS_VM) ?
+-	       "We are running under VM (64 bit mode)\n" :
+-	       "We are running native (64 bit mode)\n");
++	if (MACHINE_IS_VM)
++		printk("We are running under VM (64 bit mode)\n");
++	else if (MACHINE_IS_KVM) {
++		printk("We are running under KVM (64 bit mode)\n");
++		add_preferred_console("ttyS", 1, NULL);
++	} else
++		printk("We are running native (64 bit mode)\n");
+ #endif /* CONFIG_64BIT */
+ 
+ 	/* Save unparsed command line copy for /proc/cmdline */
+Index: kvm/include/asm-s390/setup.h
+===================================================================
+--- kvm.orig/include/asm-s390/setup.h
++++ kvm/include/asm-s390/setup.h
+@@ -62,6 +62,7 @@ extern unsigned long machine_flags;
+ #define MACHINE_IS_VM		(machine_flags & 1)
+ #define MACHINE_IS_P390		(machine_flags & 4)
+ #define MACHINE_HAS_MVPG	(machine_flags & 16)
++#define MACHINE_IS_KVM		(machine_flags & 64)
+ #define MACHINE_HAS_IDTE	(machine_flags & 128)
+ #define MACHINE_HAS_DIAG9C	(machine_flags & 256)
