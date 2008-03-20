@@ -1,16 +1,16 @@
-From: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [RFC/PATCH 01/15] preparation: provide hook to enable pgstes
-	in	user pagetable
-Date: Thu, 20 Mar 2008 12:13:25 -0700
-Message-ID: <1206040405.8232.24.camel__34676.2832291008$1206044178$gmane$org@nimitz.home.sr71.net>
-References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
-	<1206030278.6690.52.camel@cotte.boeblingen.de.ibm.com>
-	<47E29EC6.5050403@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [kvm-devel] [RFC PATCH 1/5] lguest: mmap backing file
+Date: Fri, 21 Mar 2008 09:12:24 +1100
+Message-ID: <200803210912.25648.rusty__12233.9555681267$1206051436$gmane$org@rustcorp.com.au>
+References: <200803201659.14344.rusty@rustcorp.com.au>
+	<200803201705.44422.rusty@rustcorp.com.au>
+	<47E26EE1.5030706@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47E29EC6.5050403@goop.org>
+In-Reply-To: <47E26EE1.5030706@codemonkey.ws>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,25 +20,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Carsten Otte <cotte@de.ibm.com>, aliguori@us.ibm.com, EHRHARDT@de.ibm.com, hollisb@us.ibm.com, arnd@arndb.de, borntraeger@de.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2008-03-20 at 10:28 -0700, Jeremy Fitzhardinge wrote:
-> Carsten Otte wrote:
-> > +struct mm_struct *dup_mm(struct task_struct *tsk);
-> 
-> No prototypes in .c files.  Put this in an appropriate header.
+On Friday 21 March 2008 01:04:17 Anthony Liguori wrote:
+> Rusty Russell wrote:
+> > From: Paul TBBle Hampson <Paul.Hampson@Pobox.com>
+> >
+> > This creates a file in $HOME/.lguest/ to directly back the RAM and DMA
+> > memory mappings created by map_zeroed_pages.
+>
+> I created a test program recently that measured the latency of a
+> reads/writes to an mmap() file in /dev/shm and in a normal filesystem.
+> Even after unlinking the underlying file, the write latency was much
+> better with a mmap()'d file in /dev/shm.
 
-Well, and more fundamentally: do we really want dup_mm() able to be
-called from other code?
+How odd!  Do you have any idea why?
 
-Maybe we need a bit more detailed justification why fork() itself isn't
-good enough.  It looks to me like they basically need an arch-specific
-argument to fork, telling the new process's page tables to take the
-fancy new bit.
+> /dev/shm is not really for general use.  I think we'll want to have our
+> own tmpfs mount that we use to create VM images.
 
-I'm really curious how this new stuff is going to get used.  Are you
-basically replacing fork() when creating kvm guests?
+If we're going to mod the kernel, how about a "mmap this part of their address 
+space" and having the kernel keep the mappings in sync.  But I think that if 
+we want to get speed, we should probably be doing the copy between address 
+spaces in-kernel so we can do lightweight exits.
 
--- Dave
+> I also prefer to use a 
+> unix socket for communication, unlink the file immediately after open,
+> and then pass the fd via SCM_RIGHTS to the other process.
+
+Yeah, I shied away from that because cred passing kills whole litters of 
+puppies.  It makes for better encapsulation tho, so I'd do it that way in a 
+serious implementation.
+
+Cheers,
+Rusty.
