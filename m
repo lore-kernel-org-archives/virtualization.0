@@ -1,15 +1,14 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [kvm-devel] [RFC PATCH 0/4] Inter-guest virtio I/O example with
-	lguest
-Date: Thu, 20 Mar 2008 08:55:13 -0500
-Message-ID: <47E26CC1.8080900__42753.3790855252$1206021688$gmane$org@codemonkey.ws>
+Subject: Re: [kvm-devel] [RFC PATCH 1/5] lguest: mmap backing file
+Date: Thu, 20 Mar 2008 09:04:17 -0500
+Message-ID: <47E26EE1.5030706__11849.0669447512$1206022262$gmane$org@codemonkey.ws>
 References: <200803201659.14344.rusty@rustcorp.com.au>
-	<47E20A35.2000600@qumranet.com>
+	<200803201705.44422.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47E20A35.2000600@qumranet.com>
+In-Reply-To: <200803201705.44422.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,42 +18,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> Rusty Russell wrote:
->   
->> Hi all,
->>
->>    Just finished my prototype of inter-guest virtio, using networking as an 
->> example.  Each guest mmaps the other's address space and uses a FIFO for 
->> notifications.
->>
->>   
->>     
+Rusty Russell wrote:
+> From: Paul TBBle Hampson <Paul.Hampson@Pobox.com>
 >
-> Isn't that a security hole (hole? chasm)?  If the two guests can access 
-> each other's memory, they might as well be just one guest, and 
-> communicate internally.
+> This creates a file in $HOME/.lguest/ to directly back the RAM and DMA memory
+> mappings created by map_zeroed_pages.
 >   
 
-Each guest's host userspace mmaps the other guest's address space.  The 
-userspace then does a copy on both the tx and rx paths.
+I created a test program recently that measured the latency of a 
+reads/writes to an mmap() file in /dev/shm and in a normal filesystem.  
+Even after unlinking the underlying file, the write latency was much 
+better with a mmap()'d file in /dev/shm.
 
-Conceivably, this could be done as a read-only mapping so that each 
-guest userspace copies only the rx packets.  That's about as secure as 
-you're going to get with this approach I think.
+/dev/shm is not really for general use.  I think we'll want to have our 
+own tmpfs mount that we use to create VM images.  I also prefer to use a 
+unix socket for communication, unlink the file immediately after open, 
+and then pass the fd via SCM_RIGHTS to the other process.
 
 Regards,
 
 Anthony Liguori
-
-> My feeling is that the host needs to copy the data, using dma if 
-> available.  Another option is to have one guest map the other's memory 
-> for read and write, while the other guest is unprivileged.  This allows 
-> one privileged guest to provide services for other, unprivileged guests, 
-> like domain 0 or driver domains in Xen.
->
->   
