@@ -1,14 +1,15 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] virtio_blk: Dont waste major numbers
-Date: Thu, 20 Mar 2008 10:38:31 -0700
-Message-ID: <47E2A117.4090607__10686.2587076195$1206035119$gmane$org@zytor.com>
-References: <200801311553.53653.borntraeger__25311.9055800655$1201791369$gmane$org@de.ibm.com>
-	<47A242B1.40709@codemonkey.ws>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [kvm-devel] [RFC/PATCH 14/15] guest: detect when running on kvm
+Date: Thu, 20 Mar 2008 13:53:57 -0400
+Message-ID: <20080320175357.GA30959__21598.3874201358$1206036694$gmane$org@infradead.org>
+References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
+	<1206030326.6690.65.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47A242B1.40709@codemonkey.ws>
+Content-Disposition: inline
+In-Reply-To: <1206030326.6690.65.camel@cotte.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,37 +19,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org
+To: Carsten Otte <cotte@de.ibm.com>
+Cc: EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang,
+	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
-> Christian Borntraeger wrote:
->> Rusty,
->>
->> currently virtio_blk uses one major number per device. While this works
->> quite well on most systems it is wasteful and will exhaust major numbers
->> on larger installations.
->>
->> This patch allocates a major number on init and will use 16 minor numbers
->> for each disk. That will allow ~64k virtio_blk disks.
->>
-> 
-> There's are some other limitations to the number of virtio block 
-> devices.  For instances...
-> 
->>      sprintf(vblk->disk->disk_name, "vd%c", virtblk_index++);
-> 
-> This gets bogus after 64 disks.  We also have a hard limit for 
-> virtio-pci based on the number of PCI slots available.  One thing I was 
-> considering was whether we should try to support multiple disks per 
-> virtio device.
-> 
+On Thu, Mar 20, 2008 at 05:25:26PM +0100, Carsten Otte wrote:
+> @@ -143,6 +143,10 @@ static noinline __init void detect_machi
+>  	/* Running on a P/390 ? */
+>  	if (cpuinfo->cpu_id.machine == 0x7490)
+>  		machine_flags |= 4;
+> +
+> +	/* Running under KVM ? */
+> +	if (cpuinfo->cpu_id.version == 0xfe)
+> +		machine_flags |= 64;
 
-I would much rather prefer a /dev/vd/dXpY naming scheme, similar to 
-cciss and other large disk installations.
-
-Unfortunately yet another side effect of people not habitually 
-registering major numbers is that the namespace is not as well maintained.
-
-	-hpa
+Shouldn't these have symbolic names?
