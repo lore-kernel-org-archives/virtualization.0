@@ -1,18 +1,13 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [kvm-devel] [RFC PATCH 0/4] Inter-guest virtio I/O example with
-	lguest
-Date: Thu, 20 Mar 2008 10:52:27 -0500
-Message-ID: <47E2883B.7050108__40481.3301320702$1206028783$gmane$org@codemonkey.ws>
-References: <200803201659.14344.rusty@rustcorp.com.au>
-	<47E20A35.2000600@qumranet.com> <47E26CC1.8080900@codemonkey.ws>
-	<47E27461.4090404@qumranet.com> <47E2771A.4060405@codemonkey.ws>
-	<47E27AE7.7090503@qumranet.com> <47E27D1E.2090203@codemonkey.ws>
-	<47E28482.9010501@qumranet.com>
+From: Carsten Otte <cotte@de.ibm.com>
+Subject: [RFC/PATCH 04/15] preparation: split sysinfo defintions for kvm use
+Date: Thu, 20 Mar 2008 17:24:55 +0100
+Message-ID: <1206030295.6690.55.camel__29347.9338557974$1206030521$gmane$org@cotte.boeblingen.de.ibm.com>
+References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47E28482.9010501@qumranet.com>
+In-Reply-To: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,25 +17,259 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, kvm-devel@lists.sourceforge.net, Avi Kivity <avi@qumranet.com>
+Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang,
+	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
->
-> I disagree.  A driver domain is shared between multiple guests, and if 
-> one of the guests manages to break into qemu then it can see other 
-> guest's data.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-You still don't strictly need to do things in the kernel if this is your 
-concern.  You can have another process map both guest's address spaces 
-and do the copying on behalf of each guest if you're paranoid about 
-escaping into QEMU.
+drivers/s390/sysinfo.c uses the store system information intruction to query
+the system about information of the machine, the LPAR and additional 
+hypervisors. KVM has to implement the host part for this instruction. 
 
-> [Driver domains are a horrible idea IMO, but that's another story]
+To avoid code duplication, this patch splits the common definitions from
+sysinfo.c into a separate header file include/asm-s390/sysinfo.h for KVM use.
 
-I don't disagree :-)
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Carsten Otte <cotte@de.ibm.com>
+---
+ drivers/s390/sysinfo.c     |  100 ----------------------------------------
+ include/asm-s390/sysinfo.h |  112 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 113 insertions(+), 99 deletions(-)
 
-Regards,
-
-Anthony Liguori
+Index: kvm/drivers/s390/sysinfo.c
+===================================================================
+--- kvm.orig/drivers/s390/sysinfo.c
++++ kvm/drivers/s390/sysinfo.c
+@@ -11,111 +11,13 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ #include <asm/ebcdic.h>
++#include <asm/sysinfo.h>
+ 
+ /* Sigh, math-emu. Don't ask. */
+ #include <asm/sfp-util.h>
+ #include <math-emu/soft-fp.h>
+ #include <math-emu/single.h>
+ 
+-struct sysinfo_1_1_1 {
+-	char reserved_0[32];
+-	char manufacturer[16];
+-	char type[4];
+-	char reserved_1[12];
+-	char model_capacity[16];
+-	char sequence[16];
+-	char plant[4];
+-	char model[16];
+-};
+-
+-struct sysinfo_1_2_1 {
+-	char reserved_0[80];
+-	char sequence[16];
+-	char plant[4];
+-	char reserved_1[2];
+-	unsigned short cpu_address;
+-};
+-
+-struct sysinfo_1_2_2 {
+-	char format;
+-	char reserved_0[1];
+-	unsigned short acc_offset;
+-	char reserved_1[24];
+-	unsigned int secondary_capability;
+-	unsigned int capability;
+-	unsigned short cpus_total;
+-	unsigned short cpus_configured;
+-	unsigned short cpus_standby;
+-	unsigned short cpus_reserved;
+-	unsigned short adjustment[0];
+-};
+-
+-struct sysinfo_1_2_2_extension {
+-	unsigned int alt_capability;
+-	unsigned short alt_adjustment[0];
+-};
+-
+-struct sysinfo_2_2_1 {
+-	char reserved_0[80];
+-	char sequence[16];
+-	char plant[4];
+-	unsigned short cpu_id;
+-	unsigned short cpu_address;
+-};
+-
+-struct sysinfo_2_2_2 {
+-	char reserved_0[32];
+-	unsigned short lpar_number;
+-	char reserved_1;
+-	unsigned char characteristics;
+-	unsigned short cpus_total;
+-	unsigned short cpus_configured;
+-	unsigned short cpus_standby;
+-	unsigned short cpus_reserved;
+-	char name[8];
+-	unsigned int caf;
+-	char reserved_2[16];
+-	unsigned short cpus_dedicated;
+-	unsigned short cpus_shared;
+-};
+-
+-#define LPAR_CHAR_DEDICATED	(1 << 7)
+-#define LPAR_CHAR_SHARED	(1 << 6)
+-#define LPAR_CHAR_LIMITED	(1 << 5)
+-
+-struct sysinfo_3_2_2 {
+-	char reserved_0[31];
+-	unsigned char count;
+-	struct {
+-		char reserved_0[4];
+-		unsigned short cpus_total;
+-		unsigned short cpus_configured;
+-		unsigned short cpus_standby;
+-		unsigned short cpus_reserved;
+-		char name[8];
+-		unsigned int caf;
+-		char cpi[16];
+-		char reserved_1[24];
+-
+-	} vm[8];
+-};
+-
+-static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
+-{
+-	register int r0 asm("0") = (fc << 28) | sel1;
+-	register int r1 asm("1") = sel2;
+-
+-	asm volatile(
+-		"   stsi 0(%2)\n"
+-		"0: jz   2f\n"
+-		"1: lhi  %0,%3\n"
+-		"2:\n"
+-		EX_TABLE(0b,1b)
+-		: "+d" (r0) : "d" (r1), "a" (sysinfo), "K" (-ENOSYS)
+-		: "cc", "memory" );
+-	return r0;
+-}
+-
+ static inline int stsi_0(void)
+ {
+ 	int rc = stsi (NULL, 0, 0, 0);
+Index: kvm/include/asm-s390/sysinfo.h
+===================================================================
+--- /dev/null
++++ kvm/include/asm-s390/sysinfo.h
+@@ -0,0 +1,112 @@
++/*
++ * definition for store system information stsi
++ *
++ * Copyright IBM Corp. 2001,2008
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ *    Author(s): Ulrich Weigand <weigand@de.ibm.com>
++ *               Christian Borntraeger <borntraeger@de.ibm.com>
++ */
++
++struct sysinfo_1_1_1 {
++	char reserved_0[32];
++	char manufacturer[16];
++	char type[4];
++	char reserved_1[12];
++	char model_capacity[16];
++	char sequence[16];
++	char plant[4];
++	char model[16];
++};
++
++struct sysinfo_1_2_1 {
++	char reserved_0[80];
++	char sequence[16];
++	char plant[4];
++	char reserved_1[2];
++	unsigned short cpu_address;
++};
++
++struct sysinfo_1_2_2 {
++	char format;
++	char reserved_0[1];
++	unsigned short acc_offset;
++	char reserved_1[24];
++	unsigned int secondary_capability;
++	unsigned int capability;
++	unsigned short cpus_total;
++	unsigned short cpus_configured;
++	unsigned short cpus_standby;
++	unsigned short cpus_reserved;
++	unsigned short adjustment[0];
++};
++
++struct sysinfo_1_2_2_extension {
++	unsigned int alt_capability;
++	unsigned short alt_adjustment[0];
++};
++
++struct sysinfo_2_2_1 {
++	char reserved_0[80];
++	char sequence[16];
++	char plant[4];
++	unsigned short cpu_id;
++	unsigned short cpu_address;
++};
++
++struct sysinfo_2_2_2 {
++	char reserved_0[32];
++	unsigned short lpar_number;
++	char reserved_1;
++	unsigned char characteristics;
++	unsigned short cpus_total;
++	unsigned short cpus_configured;
++	unsigned short cpus_standby;
++	unsigned short cpus_reserved;
++	char name[8];
++	unsigned int caf;
++	char reserved_2[16];
++	unsigned short cpus_dedicated;
++	unsigned short cpus_shared;
++};
++
++#define LPAR_CHAR_DEDICATED	(1 << 7)
++#define LPAR_CHAR_SHARED	(1 << 6)
++#define LPAR_CHAR_LIMITED	(1 << 5)
++
++struct sysinfo_3_2_2 {
++	char reserved_0[31];
++	unsigned char count;
++	struct {
++		char reserved_0[4];
++		unsigned short cpus_total;
++		unsigned short cpus_configured;
++		unsigned short cpus_standby;
++		unsigned short cpus_reserved;
++		char name[8];
++		unsigned int caf;
++		char cpi[16];
++		char reserved_1[24];
++
++	} vm[8];
++};
++
++static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
++{
++	register int r0 asm("0") = (fc << 28) | sel1;
++	register int r1 asm("1") = sel2;
++
++	asm volatile(
++		"   stsi 0(%2)\n"
++		"0: jz   2f\n"
++		"1: lhi  %0,%3\n"
++		"2:\n"
++		EX_TABLE(0b, 1b)
++		: "+d" (r0) : "d" (r1), "a" (sysinfo), "K" (-ENOSYS)
++		: "cc", "memory");
++	return r0;
++}
++
