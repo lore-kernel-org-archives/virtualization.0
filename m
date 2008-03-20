@@ -1,7 +1,7 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 08/15] kvm-s390: intercepts for privileged instructions
-Date: Thu, 20 Mar 2008 17:25:08 +0100
-Message-ID: <1206030308.6690.59.camel__31775.7163815715$1206030979$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 09/15] kvm-s390: interprocessor communication via sigp
+Date: Thu, 20 Mar 2008 17:25:11 +0100
+Message-ID: <1206030311.6690.60.camel__33377.6930267506$1206031082$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,30 +25,38 @@ List-Id: virtualization@lists.linuxfoundation.org
 From: Carsten Otte <cotte@de.ibm.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This patch introduces in-kernel handling of some intercepts for privileged
-instructions:
-handle_set_prefix()        sets the prefix register of the local cpu
-handle_store_prefix()      stores the content of the prefix register to memory
-handle_store_cpu_address() stores the cpu number of the current cpu to memory
-handle_skey()              just decrements the instruction address and retries
-handle_stsch()             delivers condition code 3 "operation not supported"
-handle_chsc()              same here
-handle_stfl()              stores the facility list which contains the
-                           capabilities of the cpu
-handle_stidp()             stores cpu type/model/revision and such
-handle_stsi()              stores information about the system topology
+This patch introduces in-kernel handling of _some_ sigp interprocessor
+signals (similar to ipi).
+kvm_s390_handle_sigp() decodes the sigp instruction and calls individual
+handlers depending on the operation requested:
+- sigp sense tries to retrieve information such as existence or running state
+  of the remote cpu
+- sigp emergency sends an external interrupt to the remove cpu
+- sigp stop stops a remove cpu
+- sigp stop store status stops a remote cpu, and stores its entire internal
+  state to the cpus lowcore
+- sigp set arch sets the architecture mode of the remote cpu. setting to
+  ESAME (s390x 64bit) is accepted, setting to ESA/S390 (s390, 31 or 24 bit) is
+  denied, all others are passed to userland
+- sigp set prefix sets the prefix register of a remote cpu
+
+For implementation of this, the stop intercept indication starts to get reused
+on purpose: a set of action bits defines what to do once a cpu gets stopped:
+ACTION_STOP_ON_STOP  really stops the cpu when a stop intercept is recognized
+ACTION_STORE_ON_STOP stores the cpu status to lowcore when a stop intercept is
+                     recognized
 
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
  arch/s390/kvm/Makefile      |    2 
- arch/s390/kvm/intercept.c   |    1 
- arch/s390/kvm/kvm-s390.c    |   11 +
- arch/s390/kvm/kvm-s390.h    |    3 
- arch/s390/kvm/priv.c        |  322 ++++++++++++++++++++++++++++++++++++++++++++
- include/asm-s390/kvm_host.h |   13 +
- 6 files changed, 351 insertions(+), 1 deletion(-)
+ arch/s390/kvm/intercept.c   |   22 +++
+ arch/s390/kvm/kvm-s390.c    |    7 +
+ arch/s390/kvm/kvm-s390.h    |    7 +
+ arch/s390/kvm/sigp.c        |  289 ++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-s390/kvm_host.h |   12 +
+ 6 files changed, 336 insertions(+), 3 deletions(-)
 
 Index: kvm/arch/s390/kvm/Makefile
 ===================================================================
@@ -58,8 +66,8 @@ Index: kvm/arch/s390/kvm/Makefile
  
  EXTRA_CFLAGS += -Ivirt/kvm -Iarch/s390/kvm
  
--kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o
-+kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o priv.o
+-kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o priv.o
++kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o priv.o sigp.o
  obj-$(CONFIG_KVM) += kvm.o
 Index: kvm/arch/s390/kvm/intercept.c
 ===================================================================
@@ -69,58 +77,88 @@ Index: kvm/arch/s390/kvm/intercept.c
  }
  
  static intercept_handler_t instruction_handlers[256] = {
-+	[0xb2] = kvm_s390_handle_priv,
++	[0xae] = kvm_s390_handle_sigp,
+ 	[0xb2] = kvm_s390_handle_priv,
  	[0xb7] = handle_lctl,
  	[0xeb] = handle_lctg,
- };
+@@ -122,10 +123,27 @@ static int handle_noop(struct kvm_vcpu *
+ 
+ static int handle_stop(struct kvm_vcpu *vcpu)
+ {
++	int rc;
++
+ 	vcpu->stat.exit_stop_request++;
+-	VCPU_EVENT(vcpu, 3, "%s", "cpu stopped");
+ 	atomic_clear_mask(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
+-	return -ENOTSUPP;
++	spin_lock_bh(&vcpu->arch.local_int.lock);
++	if (vcpu->arch.local_int.action_bits & ACTION_STORE_ON_STOP) {
++		vcpu->arch.local_int.action_bits &= ~ACTION_STORE_ON_STOP;
++		rc = __kvm_s390_vcpu_store_status(vcpu,
++						  KVM_S390_STORE_STATUS_NOADDR);
++		if (rc >= 0)
++			rc = -ENOTSUPP;
++	}
++
++	if (vcpu->arch.local_int.action_bits & ACTION_STOP_ON_STOP) {
++		vcpu->arch.local_int.action_bits &= ~ACTION_STOP_ON_STOP;
++		VCPU_EVENT(vcpu, 3, "%s", "cpu stopped");
++		rc = -ENOTSUPP;
++	} else
++		rc = 0;
++	spin_unlock_bh(&vcpu->arch.local_int.lock);
++	return rc;
+ }
+ 
+ static int handle_validity(struct kvm_vcpu *vcpu)
 Index: kvm/arch/s390/kvm/kvm-s390.c
 ===================================================================
 --- kvm.orig/arch/s390/kvm/kvm-s390.c
 +++ kvm/arch/s390/kvm/kvm-s390.c
-@@ -48,6 +48,15 @@ struct kvm_stats_debugfs_item debugfs_en
- 	{ "deliver_restart_signal", VCPU_STAT(deliver_restart_signal) },
- 	{ "deliver_program_interruption", VCPU_STAT(deliver_program_int) },
- 	{ "exit_wait_state", VCPU_STAT(exit_wait_state) },
-+	{ "instruction_stidp", VCPU_STAT(instruction_stidp) },
-+	{ "instruction_spx", VCPU_STAT(instruction_spx) },
-+	{ "instruction_stpx", VCPU_STAT(instruction_stpx) },
-+	{ "instruction_stap", VCPU_STAT(instruction_stap) },
-+	{ "instruction_storage_key", VCPU_STAT(instruction_storage_key) },
-+	{ "instruction_stsch", VCPU_STAT(instruction_stsch) },
-+	{ "instruction_chsc", VCPU_STAT(instruction_chsc) },
-+	{ "instruction_stsi", VCPU_STAT(instruction_stsi) },
-+	{ "instruction_stfl", VCPU_STAT(instruction_stfl) },
+@@ -57,6 +57,12 @@ struct kvm_stats_debugfs_item debugfs_en
+ 	{ "instruction_chsc", VCPU_STAT(instruction_chsc) },
+ 	{ "instruction_stsi", VCPU_STAT(instruction_stsi) },
+ 	{ "instruction_stfl", VCPU_STAT(instruction_stfl) },
++	{ "instruction_sigp_sense", VCPU_STAT(instruction_sigp_sense) },
++	{ "instruction_sigp_emergency", VCPU_STAT(instruction_sigp_emergency) },
++	{ "instruction_sigp_stop", VCPU_STAT(instruction_sigp_stop) },
++	{ "instruction_sigp_set_arch", VCPU_STAT(instruction_sigp_arch) },
++	{ "instruction_sigp_set_prefix", VCPU_STAT(instruction_sigp_prefix) },
++	{ "instruction_sigp_restart", VCPU_STAT(instruction_sigp_restart) },
  	{ NULL }
  };
  
-@@ -249,6 +258,8 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu 
- 	vcpu->arch.sie_block->eca   = 0xC1002001U;
- 	setup_timer(&vcpu->arch.ckc_timer, kvm_s390_idle_wakeup,
- 		 (unsigned long) vcpu);
-+	get_cpu_id(&vcpu->arch.cpu_id);
-+	vcpu->arch.cpu_id.version = 0xfe;
- 	return 0;
- }
+@@ -290,6 +296,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(st
+ 	spin_lock_bh(&kvm->arch.float_int.lock);
+ 	kvm->arch.float_int.local_int[id] = &vcpu->arch.local_int;
+ 	init_waitqueue_head(&vcpu->arch.local_int.wq);
++	vcpu->arch.local_int.cpuflags = &vcpu->arch.sie_block->cpuflags;
+ 	spin_unlock_bh(&kvm->arch.float_int.lock);
  
+ 	rc = kvm_vcpu_init(vcpu, kvm, id);
 Index: kvm/arch/s390/kvm/kvm-s390.h
 ===================================================================
 --- kvm.orig/arch/s390/kvm/kvm-s390.h
 +++ kvm/arch/s390/kvm/kvm-s390.h
-@@ -47,4 +47,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
- int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 		struct kvm_s390_interrupt *s390int);
- int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code);
+@@ -50,4 +50,11 @@ int kvm_s390_inject_program_int(struct k
+ 
+ /* implemented in priv.c */
+ int kvm_s390_handle_priv(struct kvm_vcpu *vcpu);
 +
-+/* implemented in priv.c */
-+int kvm_s390_handle_priv(struct kvm_vcpu *vcpu);
++/* implemented in sigp.c */
++int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
++
++/* implemented in kvm-s390.c */
++int __kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu,
++				 unsigned long addr);
  #endif
-Index: kvm/arch/s390/kvm/priv.c
+Index: kvm/arch/s390/kvm/sigp.c
 ===================================================================
 --- /dev/null
-+++ kvm/arch/s390/kvm/priv.c
-@@ -0,0 +1,322 @@
++++ kvm/arch/s390/kvm/sigp.c
+@@ -0,0 +1,289 @@
 +/*
-+ * priv.c - handling privileged instructions
++ * sigp.c - handlinge interprocessor communication
 + *
 + * Copyright IBM Corp. 2008
 + *
@@ -133,342 +171,315 @@ Index: kvm/arch/s390/kvm/priv.c
 + */
 +
 +#include <linux/kvm.h>
-+#include <linux/errno.h>
-+#include <asm/current.h>
-+#include <asm/debug.h>
-+#include <asm/ebcdic.h>
-+#include <asm/sysinfo.h>
++#include <linux/kvm_host.h>
 +#include "gaccess.h"
 +#include "kvm-s390.h"
 +
-+static int handle_set_prefix(struct kvm_vcpu *vcpu)
-+{
-+	int base2 = vcpu->arch.sie_block->ipb >> 28;
-+	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
-+	u64 operand2;
-+	u32 address = 0;
-+	u8 tmp;
++/* sigp order codes */
++#define SIGP_SENSE             0x01
++#define SIGP_EXTERNAL_CALL     0x02
++#define SIGP_EMERGENCY         0x03
++#define SIGP_START             0x04
++#define SIGP_STOP              0x05
++#define SIGP_RESTART           0x06
++#define SIGP_STOP_STORE_STATUS 0x09
++#define SIGP_INITIAL_CPU_RESET 0x0b
++#define SIGP_CPU_RESET         0x0c
++#define SIGP_SET_PREFIX        0x0d
++#define SIGP_STORE_STATUS_ADDR 0x0e
++#define SIGP_SET_ARCH          0x12
 +
-+	vcpu->stat.instruction_spx++;
++/* cpu status bits */
++#define SIGP_STAT_EQUIPMENT_CHECK   0x80000000UL
++#define SIGP_STAT_INCORRECT_STATE   0x00000200UL
++#define SIGP_STAT_INVALID_PARAMETER 0x00000100UL
++#define SIGP_STAT_EXT_CALL_PENDING  0x00000080UL
++#define SIGP_STAT_STOPPED           0x00000040UL
++#define SIGP_STAT_OPERATOR_INTERV   0x00000020UL
++#define SIGP_STAT_CHECK_STOP        0x00000010UL
++#define SIGP_STAT_INOPERATIVE       0x00000004UL
++#define SIGP_STAT_INVALID_ORDER     0x00000002UL
++#define SIGP_STAT_RECEIVER_CHECK    0x00000001UL
 +
-+	operand2 = disp2;
-+	if (base2)
-+		operand2 += vcpu->arch.guest_gprs[base2];
 +
-+	/* must be word boundary */
-+	if (operand2 & 3) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	/* get the value */
-+	if (get_guest_u32(vcpu, operand2, &address)) {
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		goto out;
-+	}
-+
-+	address = address & 0x7fffe000u;
-+
-+	/* make sure that the new value is valid memory */
-+	if (copy_from_guest_absolute(vcpu, &tmp, address, 1) ||
-+	   (copy_from_guest_absolute(vcpu, &tmp, address + PAGE_SIZE, 1))) {
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		goto out;
-+	}
-+
-+	vcpu->arch.sie_block->prefix = address;
-+	vcpu->arch.sie_block->ihcpu = 0xffff;
-+
-+	VCPU_EVENT(vcpu, 5, "setting prefix to %x", address);
-+out:
-+	return 0;
-+}
-+
-+static int handle_store_prefix(struct kvm_vcpu *vcpu)
-+{
-+	int base2 = vcpu->arch.sie_block->ipb >> 28;
-+	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
-+	u64 operand2;
-+	u32 address;
-+
-+	vcpu->stat.instruction_stpx++;
-+	operand2 = disp2;
-+	if (base2)
-+		operand2 += vcpu->arch.guest_gprs[base2];
-+
-+	/* must be word boundary */
-+	if (operand2 & 3) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	address = vcpu->arch.sie_block->prefix;
-+	address = address & 0x7fffe000u;
-+
-+	/* get the value */
-+	if (put_guest_u32(vcpu, operand2, address)) {
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		goto out;
-+	}
-+
-+	VCPU_EVENT(vcpu, 5, "storing prefix to %x", address);
-+out:
-+	return 0;
-+}
-+
-+static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
-+{
-+	int base2 = vcpu->arch.sie_block->ipb >> 28;
-+	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
-+	u64 useraddr;
-+	int rc;
-+
-+	vcpu->stat.instruction_stap++;
-+	useraddr = disp2;
-+	if (base2)
-+		useraddr += vcpu->arch.guest_gprs[base2];
-+
-+	if (useraddr & 1) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	rc = put_guest_u16(vcpu, useraddr, vcpu->vcpu_id);
-+	if (rc == -EFAULT) {
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		goto out;
-+	}
-+
-+	VCPU_EVENT(vcpu, 5, "storing cpu address to %lx", useraddr);
-+out:
-+	return 0;
-+}
-+
-+static int handle_skey(struct kvm_vcpu *vcpu)
-+{
-+	vcpu->stat.instruction_storage_key++;
-+	vcpu->arch.sie_block->gpsw.addr -= 4;
-+	VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
-+	return 0;
-+}
-+
-+static int handle_stsch(struct kvm_vcpu *vcpu)
-+{
-+	vcpu->stat.instruction_stsch++;
-+	VCPU_EVENT(vcpu, 4, "%s", "store subchannel - CC3");
-+	/* condition code 3 */
-+	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
-+	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
-+	return 0;
-+}
-+
-+static int handle_chsc(struct kvm_vcpu *vcpu)
-+{
-+	vcpu->stat.instruction_chsc++;
-+	VCPU_EVENT(vcpu, 4, "%s", "channel subsystem call - CC3");
-+	/* condition code 3 */
-+	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
-+	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
-+	return 0;
-+}
-+
-+static unsigned int stfl(void)
-+{
-+	asm volatile(
-+		"	.insn	s,0xb2b10000,0(0)\n" /* stfl */
-+		"0:\n"
-+		EX_TABLE(0b, 0b));
-+	return S390_lowcore.stfl_fac_list;
-+}
-+
-+static int handle_stfl(struct kvm_vcpu *vcpu)
-+{
-+	unsigned int facility_list = stfl();
-+	int rc;
-+
-+	vcpu->stat.instruction_stfl++;
-+	facility_list &= ~(1UL<<24); /* no stfle */
-+
-+	rc = copy_to_guest(vcpu, offsetof(struct _lowcore, stfl_fac_list),
-+			   &facility_list, sizeof(facility_list));
-+	if (rc == -EFAULT)
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+	else
-+		VCPU_EVENT(vcpu, 5, "store facility list value %x",
-+			   facility_list);
-+
-+	return 0;
-+}
-+
-+static int handle_stidp(struct kvm_vcpu *vcpu)
-+{
-+	int base2 = vcpu->arch.sie_block->ipb >> 28;
-+	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
-+	u64 operand2;
-+	int rc;
-+
-+	vcpu->stat.instruction_stidp++;
-+	operand2 = disp2;
-+	if (base2)
-+		operand2 += vcpu->arch.guest_gprs[base2];
-+
-+	if (operand2 & 7) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	rc = put_guest_u64(vcpu, operand2, vcpu->arch.stidp_data);
-+	if (rc == -EFAULT) {
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		goto out;
-+	}
-+
-+	VCPU_EVENT(vcpu, 5, "%s", "store cpu id");
-+out:
-+	return 0;
-+}
-+
-+static void handle_stsi_3_2_2(struct kvm_vcpu *vcpu, struct sysinfo_3_2_2 *mem)
++static int __sigp_sense(struct kvm_vcpu *vcpu, u16 cpu_addr, u64 *reg)
 +{
 +	struct float_interrupt *fi = &vcpu->kvm->arch.float_int;
-+	int cpus = 0;
-+	int n;
++	int rc;
++
++	if (cpu_addr >= KVM_MAX_VCPUS)
++		return 3; /* not operational */
 +
 +	spin_lock_bh(&fi->lock);
-+	for (n = 0; n < KVM_MAX_VCPUS; n++)
-+		if (fi->local_int[n])
-+			cpus++;
++	if (fi->local_int[cpu_addr] == NULL)
++		rc = 3; /* not operational */
++	else if (atomic_read(fi->local_int[cpu_addr]->cpuflags)
++		 & CPUSTAT_RUNNING) {
++		*reg &= 0xffffffff00000000UL;
++		rc = 1; /* status stored */
++	} else {
++		*reg &= 0xffffffff00000000UL;
++		*reg |= SIGP_STAT_STOPPED;
++		rc = 1; /* status stored */
++	}
 +	spin_unlock_bh(&fi->lock);
 +
-+	/* deal with other level 3 hypervisors */
-+	if (stsi(mem, 3, 2, 2) == -ENOSYS)
-+		mem->count = 0;
-+	if (mem->count < 8)
-+		mem->count++;
-+	for (n = mem->count - 1; n > 0 ; n--)
-+		memcpy(&mem->vm[n], &mem->vm[n - 1], sizeof(mem->vm[0]));
-+
-+	mem->vm[0].cpus_total = cpus;
-+	mem->vm[0].cpus_configured = cpus;
-+	mem->vm[0].cpus_standby = 0;
-+	mem->vm[0].cpus_reserved = 0;
-+	mem->vm[0].caf = 1000;
-+	memcpy(mem->vm[0].name, "KVMguest", 8);
-+	ASCEBC(mem->vm[0].name, 8);
-+	memcpy(mem->vm[0].cpi, "KVM/Linux       ", 16);
-+	ASCEBC(mem->vm[0].cpi, 16);
++	VCPU_EVENT(vcpu, 4, "sensed status of cpu %x rc %x", cpu_addr, rc);
++	return rc;
 +}
 +
-+static int handle_stsi(struct kvm_vcpu *vcpu)
++static int __sigp_emergency(struct kvm_vcpu *vcpu, u16 cpu_addr)
 +{
-+	int fc = (vcpu->arch.guest_gprs[0] & 0xf0000000) >> 28;
-+	int sel1 = vcpu->arch.guest_gprs[0] & 0xff;
-+	int sel2 = vcpu->arch.guest_gprs[1] & 0xffff;
-+	int base2 = vcpu->arch.sie_block->ipb >> 28;
-+	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
-+	u64 operand2;
-+	unsigned long mem;
++	struct float_interrupt *fi = &vcpu->kvm->arch.float_int;
++	struct local_interrupt *li;
++	struct interrupt_info *inti;
++	int rc;
 +
-+	vcpu->stat.instruction_stsi++;
-+	VCPU_EVENT(vcpu, 4, "stsi: fc: %x sel1: %x sel2: %x", fc, sel1, sel2);
++	if (cpu_addr >= KVM_MAX_VCPUS)
++		return 3; /* not operational */
 +
-+	operand2 = disp2;
-+	if (base2)
-+		operand2 += vcpu->arch.guest_gprs[base2];
++	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
++	if (!inti)
++		return -ENOMEM;
 +
-+	if (operand2 & 0xfff && fc > 0)
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++	inti->type = KVM_S390_INT_EMERGENCY;
 +
-+	switch (fc) {
++	spin_lock_bh(&fi->lock);
++	li = fi->local_int[cpu_addr];
++	if (li == NULL) {
++		rc = 3; /* not operational */
++		kfree(inti);
++		goto unlock;
++	}
++	spin_lock_bh(&li->lock);
++	list_add_tail(&inti->list, &li->list);
++	atomic_set(&li->active, 1);
++	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
++	if (waitqueue_active(&li->wq))
++		wake_up_interruptible(&li->wq);
++	spin_unlock_bh(&li->lock);
++	rc = 0; /* order accepted */
++unlock:
++	spin_unlock_bh(&fi->lock);
++	VCPU_EVENT(vcpu, 4, "sent sigp emerg to cpu %x", cpu_addr);
++	return rc;
++}
++
++static int __sigp_stop(struct kvm_vcpu *vcpu, u16 cpu_addr, int store)
++{
++	struct float_interrupt *fi = &vcpu->kvm->arch.float_int;
++	struct local_interrupt *li;
++	struct interrupt_info *inti;
++	int rc;
++
++	if (cpu_addr >= KVM_MAX_VCPUS)
++		return 3; /* not operational */
++
++	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
++	if (!inti)
++		return -ENOMEM;
++
++	inti->type = KVM_S390_SIGP_STOP;
++
++	spin_lock_bh(&fi->lock);
++	li = fi->local_int[cpu_addr];
++	if (li == NULL) {
++		rc = 3; /* not operational */
++		kfree(inti);
++		goto unlock;
++	}
++	spin_lock_bh(&li->lock);
++	list_add_tail(&inti->list, &li->list);
++	atomic_set(&li->active, 1);
++	atomic_set_mask(CPUSTAT_STOP_INT, li->cpuflags);
++	if (store)
++		li->action_bits |= ACTION_STORE_ON_STOP;
++	li->action_bits |= ACTION_STOP_ON_STOP;
++	if (waitqueue_active(&li->wq))
++		wake_up_interruptible(&li->wq);
++	spin_unlock_bh(&li->lock);
++	rc = 0; /* order accepted */
++unlock:
++	spin_unlock_bh(&fi->lock);
++	VCPU_EVENT(vcpu, 4, "sent sigp stop to cpu %x", cpu_addr);
++	return rc;
++}
++
++static int __sigp_set_arch(struct kvm_vcpu *vcpu, u32 parameter)
++{
++	int rc;
++	parameter = parameter & 0xff;
++
++	switch (parameter) {
 +	case 0:
-+		vcpu->arch.guest_gprs[0] = 3 << 28;
-+		vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
-+		return 0;
-+	case 1: /* same handling for 1 and 2 */
-+	case 2:
-+		mem = get_zeroed_page(GFP_KERNEL);
-+		if (!mem)
-+			goto out_fail;
-+		if (stsi((void *) mem, fc, sel1, sel2) == -ENOSYS)
-+			goto out_mem;
++		printk(KERN_WARNING "kvm: request to switch to ESA/390 mode"
++							" not supported");
++		rc = 3; /* not operational */
 +		break;
-+	case 3:
-+		if (sel1 != 2 || sel2 != 2)
-+			goto out_fail;
-+		mem = get_zeroed_page(GFP_KERNEL);
-+		if (!mem)
-+			goto out_fail;
-+		handle_stsi_3_2_2(vcpu, (void *) mem);
++	case 1:
++	case 2:
++		rc = 0; /* order accepted */
 +		break;
 +	default:
-+		goto out_fail;
++		rc = -ENOTSUPP;
 +	}
-+
-+	if (copy_to_guest_absolute(vcpu, operand2, (void *) mem, PAGE_SIZE)) {
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		goto out_mem;
-+	}
-+	free_page(mem);
-+	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
-+	vcpu->arch.guest_gprs[0] = 0;
-+	return 0;
-+out_mem:
-+	free_page(mem);
-+out_fail:
-+	/* condition code 3 */
-+	vcpu->arch.sie_block->gpsw.mask |= 3ul << 44;
-+	return 0;
++	return rc;
 +}
 +
-+static intercept_handler_t priv_handlers[256] = {
-+	[0x02] = handle_stidp,
-+	[0x10] = handle_set_prefix,
-+	[0x11] = handle_store_prefix,
-+	[0x12] = handle_store_cpu_address,
-+	[0x29] = handle_skey,
-+	[0x2a] = handle_skey,
-+	[0x2b] = handle_skey,
-+	[0x34] = handle_stsch,
-+	[0x5f] = handle_chsc,
-+	[0x7d] = handle_stsi,
-+	[0xb1] = handle_stfl,
-+};
-+
-+int kvm_s390_handle_priv(struct kvm_vcpu *vcpu)
++static int __sigp_set_prefix(struct kvm_vcpu *vcpu, u16 cpu_addr, u32 address,
++			     u64 *reg)
 +{
-+	if (priv_handlers[vcpu->arch.sie_block->ipa & 0x00ff])
-+		return priv_handlers[vcpu->arch.sie_block->ipa & 0x00ff]
-+			(vcpu);
++	struct float_interrupt *fi = &vcpu->kvm->arch.float_int;
++	struct local_interrupt *li;
++	struct interrupt_info *inti;
++	int rc;
++	u8 tmp;
++
++	/* make sure that the new value is valid memory */
++	address = address & 0x7fffe000u;
++	if ((copy_from_guest(vcpu, &tmp,
++		(u64) (address + vcpu->kvm->arch.guest_origin) , 1)) ||
++	   (copy_from_guest(vcpu, &tmp, (u64) (address +
++			vcpu->kvm->arch.guest_origin + PAGE_SIZE), 1))) {
++		*reg |= SIGP_STAT_INVALID_PARAMETER;
++		return 1; /* invalid parameter */
++	}
++
++	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
++	if (!inti)
++		return 2; /* busy */
++
++	spin_lock_bh(&fi->lock);
++	li = fi->local_int[cpu_addr];
++
++	if ((cpu_addr >= KVM_MAX_VCPUS) || (li == NULL)) {
++		rc = 1; /* incorrect state */
++		*reg &= SIGP_STAT_INCORRECT_STATE;
++		kfree(inti);
++		goto out_fi;
++	}
++
++	spin_lock_bh(&li->lock);
++	/* cpu must be in stopped state */
++	if (atomic_read(li->cpuflags) & CPUSTAT_RUNNING) {
++		rc = 1; /* incorrect state */
++		*reg &= SIGP_STAT_INCORRECT_STATE;
++		kfree(inti);
++		goto out_li;
++	}
++
++	inti->type = KVM_S390_SIGP_SET_PREFIX;
++	inti->prefix.address = address;
++
++	list_add_tail(&inti->list, &li->list);
++	atomic_set(&li->active, 1);
++	if (waitqueue_active(&li->wq))
++		wake_up_interruptible(&li->wq);
++	rc = 0; /* order accepted */
++
++	VCPU_EVENT(vcpu, 4, "set prefix of cpu %02x to %x", cpu_addr, address);
++out_li:
++	spin_unlock_bh(&li->lock);
++out_fi:
++	spin_unlock_bh(&fi->lock);
++	return rc;
++}
++
++int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
++{
++	int r1 = (vcpu->arch.sie_block->ipa & 0x00f0) >> 4;
++	int r3 = vcpu->arch.sie_block->ipa & 0x000f;
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u32 parameter;
++	u16 cpu_addr = vcpu->arch.guest_gprs[r3];
++	u8 order_code;
++	int rc;
++
++	order_code = disp2;
++	if (base2)
++		order_code += vcpu->arch.guest_gprs[base2];
++
++	if (r1 % 2)
++		parameter = vcpu->arch.guest_gprs[r1];
++	else
++		parameter = vcpu->arch.guest_gprs[r1 + 1];
++
++	switch (order_code) {
++	case SIGP_SENSE:
++		vcpu->stat.instruction_sigp_sense++;
++		rc = __sigp_sense(vcpu, cpu_addr,
++				  &vcpu->arch.guest_gprs[r1]);
++		break;
++	case SIGP_EMERGENCY:
++		vcpu->stat.instruction_sigp_emergency++;
++		rc = __sigp_emergency(vcpu, cpu_addr);
++		break;
++	case SIGP_STOP:
++		vcpu->stat.instruction_sigp_stop++;
++		rc = __sigp_stop(vcpu, cpu_addr, 0);
++		break;
++	case SIGP_STOP_STORE_STATUS:
++		vcpu->stat.instruction_sigp_stop++;
++		rc = __sigp_stop(vcpu, cpu_addr, 1);
++		break;
++	case SIGP_SET_ARCH:
++		vcpu->stat.instruction_sigp_arch++;
++		rc = __sigp_set_arch(vcpu, parameter);
++		break;
++	case SIGP_SET_PREFIX:
++		vcpu->stat.instruction_sigp_prefix++;
++		rc = __sigp_set_prefix(vcpu, cpu_addr, parameter,
++				       &vcpu->arch.guest_gprs[r1]);
++		break;
++	case SIGP_RESTART:
++		vcpu->stat.instruction_sigp_restart++;
++		/* user space must know about restart */
++	default:
 +		return -ENOTSUPP;
++	}
++
++	if (rc < 0)
++		return rc;
++
++	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
++	vcpu->arch.sie_block->gpsw.mask |= (rc & 3ul) << 44;
++	return 0;
 +}
 Index: kvm/include/asm-s390/kvm_host.h
 ===================================================================
 --- kvm.orig/include/asm-s390/kvm_host.h
 +++ kvm/include/asm-s390/kvm_host.h
-@@ -111,6 +111,15 @@ struct kvm_vcpu_stat {
- 	u32 deliver_restart_signal;
- 	u32 deliver_program_int;
- 	u32 exit_wait_state;
-+	u32 instruction_stidp;
-+	u32 instruction_spx;
-+	u32 instruction_stpx;
-+	u32 instruction_stap;
-+	u32 instruction_storage_key;
-+	u32 instruction_stsch;
-+	u32 instruction_chsc;
-+	u32 instruction_stsi;
-+	u32 instruction_stfl;
+@@ -120,6 +120,12 @@ struct kvm_vcpu_stat {
+ 	u32 instruction_chsc;
+ 	u32 instruction_stsi;
+ 	u32 instruction_stfl;
++	u32 instruction_sigp_sense;
++	u32 instruction_sigp_emergency;
++	u32 instruction_sigp_stop;
++	u32 instruction_sigp_arch;
++	u32 instruction_sigp_prefix;
++	u32 instruction_sigp_restart;
  };
  
  struct io_info {
-@@ -180,6 +189,10 @@ struct kvm_vcpu_arch {
- 	unsigned int      guest_acrs[NUM_ACRS];
- 	struct local_interrupt local_int;
- 	struct timer_list ckc_timer;
-+	union  {
-+		cpuid_t	  cpu_id;
-+		u64	  stidp_data;
-+	};
+@@ -161,6 +167,10 @@ struct interrupt_info {
+ 	};
  };
  
- struct kvm_vm_stat {
++/* for local_interrupt.action_flags */
++#define ACTION_STORE_ON_STOP 1
++#define ACTION_STOP_ON_STOP  2
++
+ struct local_interrupt {
+ 	spinlock_t lock;
+ 	struct list_head list;
+@@ -168,6 +178,8 @@ struct local_interrupt {
+ 	struct float_interrupt *float_int;
+ 	int timer_due; /* event indicator for waitqueue below */
+ 	wait_queue_head_t wq;
++	atomic_t *cpuflags;
++	unsigned int action_bits;
+ };
+ 
+ struct float_interrupt {
