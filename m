@@ -1,14 +1,14 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [kvm-devel] [RFC PATCH 1/5] lguest: mmap backing file
-Date: Thu, 20 Mar 2008 09:04:17 -0500
-Message-ID: <47E26EE1.5030706__11849.0669447512$1206022262$gmane$org@codemonkey.ws>
+Subject: Re: [kvm-devel] [RFC PATCH 0/4] Inter-guest virtio I/O example with
+	lguest
+Date: Thu, 20 Mar 2008 09:11:35 -0500
+Message-ID: <47E27097.7070302__39695.7445810132$1206022575$gmane$org@codemonkey.ws>
 References: <200803201659.14344.rusty@rustcorp.com.au>
-	<200803201705.44422.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200803201705.44422.rusty@rustcorp.com.au>
+In-Reply-To: <200803201659.14344.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,22 +23,56 @@ Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, vir
 List-Id: virtualization@lists.linuxfoundation.org
 
 Rusty Russell wrote:
-> From: Paul TBBle Hampson <Paul.Hampson@Pobox.com>
+> Hi all,
 >
-> This creates a file in $HOME/.lguest/ to directly back the RAM and DMA memory
-> mappings created by map_zeroed_pages.
+>    Just finished my prototype of inter-guest virtio, using networking as an 
+> example.  Each guest mmaps the other's address space and uses a FIFO for 
+> notifications.
+>
+>    There are two issues with this approach.  The first is that neither guest 
+> can change its mappings.  See patch 1.
+
+Avi mentioned that with MMU notifiers, it may be possible to introduce a 
+new kernel mechanism whereas you could map an arbitrary region of one 
+process's memory into another process.  This would address this problem 
+quite nicely.
+
+>   The second is that our feature 
+> configuration is "host presents, guest chooses" which breaks down when we 
+> don't know the capabilities of each guest.  In particular, TSO capability for 
+> networking.
+>    There are three possible solutions:
+> 1) Just offer the lowest common denominator to both sides (ie. no features). 
+>    This is what I do with lguest in these patches.
+> 2) Offer something and handle the case where one Guest accepts and another
+>    doesn't by emulating it.  ie. de-TSO the packets manually.
+> 3) "Hot unplug" the device from the guest which asks for the greater features,
+>    then re-add it offering less features.  Requires hotplug in the guest OS.
+>   
+4) Add a feature negotiation feature.  The feature that gets set is the 
+"feature negotiate" feature.  If a guest doesn't support feature 
+negotiation, you end up with the least-common denominator (no 
+features).  If both guests support feature negotiation, you can then add 
+something new to determine the true common subset.
+
+> I haven't tuned or even benchmarked these patches, but it pings!
 >   
 
-I created a test program recently that measured the latency of a 
-reads/writes to an mmap() file in /dev/shm and in a normal filesystem.  
-Even after unlinking the underlying file, the write latency was much 
-better with a mmap()'d file in /dev/shm.
-
-/dev/shm is not really for general use.  I think we'll want to have our 
-own tmpfs mount that we use to create VM images.  I also prefer to use a 
-unix socket for communication, unlink the file immediately after open, 
-and then pass the fd via SCM_RIGHTS to the other process.
+Very nice!  It's particularly cool that it was possible entirely in 
+userspace.
 
 Regards,
 
 Anthony Liguori
+
+> Rusty.
+>
+> -------------------------------------------------------------------------
+> This SF.net email is sponsored by: Microsoft
+> Defy all challenges. Microsoft(R) Visual Studio 2008.
+> http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
+> _______________________________________________
+> kvm-devel mailing list
+> kvm-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/kvm-devel
+>   
