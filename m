@@ -1,7 +1,7 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 14/15] guest: detect when running on kvm
-Date: Thu, 20 Mar 2008 17:25:26 +0100
-Message-ID: <1206030326.6690.65.camel__9325.3560517498$1206031267$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 13/15] kvm-s390: update maintainers
+Date: Thu, 20 Mar 2008 17:25:23 +0100
+Message-ID: <1206030323.6690.64.camel__48374.6182326742$1206031272$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,86 +23,34 @@ Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com,
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-From: Carsten Otte <cotte@de.ibm.com>
 
-This patch adds functionality to detect if the kernel runs under the KVM
-hypervisor. A macro MACHINE_IS_KVM is exported for device drivers. This
-allows drivers to skip device detection if the systems runs non-virtualized.
-We also define a preferred console to avoid having the ttyS0, which is a line
-mode only console.
+This patch adds an entry for kvm on s390 to the MAINTAINERS file :-). We intend
+to push all patches regarding this via Avi's kvm.git.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- arch/s390/Kconfig        |    7 +++++++
- arch/s390/kernel/early.c |    4 ++++
- arch/s390/kernel/setup.c |   10 +++++++---
- include/asm-s390/setup.h |    1 +
- 4 files changed, 19 insertions(+), 3 deletions(-)
+ MAINTAINERS |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Index: kvm/arch/s390/Kconfig
+Index: kvm/MAINTAINERS
 ===================================================================
---- kvm.orig/arch/s390/Kconfig
-+++ kvm/arch/s390/Kconfig
-@@ -533,6 +533,13 @@ config ZFCPDUMP
- 	  Select this option if you want to build an zfcpdump enabled kernel.
- 	  Refer to <file:Documentation/s390/zfcpdump.txt> for more details on this.
+--- kvm.orig/MAINTAINERS
++++ kvm/MAINTAINERS
+@@ -2296,6 +2296,16 @@ L:	kvm-ia64-devel@lists.sourceforge.net
+ W:	kvm.sourceforge.net
+ S:	Supported
  
-+config S390_GUEST
-+bool "s390 guest support (EXPERIMENTAL)"
-+	depends on 64BIT && EXPERIMENTAL
-+	select VIRTIO
-+	select VIRTIO_RING
-+	help
-+	  Select this option if you want to run the kernel under s390 linux
- endmenu
- 
- source "net/Kconfig"
-Index: kvm/arch/s390/kernel/early.c
-===================================================================
---- kvm.orig/arch/s390/kernel/early.c
-+++ kvm/arch/s390/kernel/early.c
-@@ -143,6 +143,10 @@ static noinline __init void detect_machi
- 	/* Running on a P/390 ? */
- 	if (cpuinfo->cpu_id.machine == 0x7490)
- 		machine_flags |= 4;
++KERNEL VIRTUAL MACHINE for s390 (KVM/s390)
++P:	Carsten Otte
++M:	cotte@de.ibm.com
++P:	Christian Borntraeger
++M:	borntraeger@de.ibm.com
++M:	linux390@de.ibm.com
++L:	linux-s390@vger.kernel.org
++W:	http://www.ibm.com/developerworks/linux/linux390/
++S:	Supported
 +
-+	/* Running under KVM ? */
-+	if (cpuinfo->cpu_id.version == 0xfe)
-+		machine_flags |= 64;
- }
- 
- #ifdef CONFIG_64BIT
-Index: kvm/arch/s390/kernel/setup.c
-===================================================================
---- kvm.orig/arch/s390/kernel/setup.c
-+++ kvm/arch/s390/kernel/setup.c
-@@ -793,9 +793,13 @@ setup_arch(char **cmdline_p)
- 	       "This machine has an IEEE fpu\n" :
- 	       "This machine has no IEEE fpu\n");
- #else /* CONFIG_64BIT */
--	printk((MACHINE_IS_VM) ?
--	       "We are running under VM (64 bit mode)\n" :
--	       "We are running native (64 bit mode)\n");
-+	if (MACHINE_IS_VM)
-+		printk("We are running under VM (64 bit mode)\n");
-+	else if (MACHINE_IS_KVM) {
-+		printk("We are running under KVM (64 bit mode)\n");
-+		add_preferred_console("ttyS", 1, NULL);
-+	} else
-+		printk("We are running native (64 bit mode)\n");
- #endif /* CONFIG_64BIT */
- 
- 	/* Save unparsed command line copy for /proc/cmdline */
-Index: kvm/include/asm-s390/setup.h
-===================================================================
---- kvm.orig/include/asm-s390/setup.h
-+++ kvm/include/asm-s390/setup.h
-@@ -62,6 +62,7 @@ extern unsigned long machine_flags;
- #define MACHINE_IS_VM		(machine_flags & 1)
- #define MACHINE_IS_P390		(machine_flags & 4)
- #define MACHINE_HAS_MVPG	(machine_flags & 16)
-+#define MACHINE_IS_KVM		(machine_flags & 64)
- #define MACHINE_HAS_IDTE	(machine_flags & 128)
- #define MACHINE_HAS_DIAG9C	(machine_flags & 256)
+ KEXEC
+ P:	Eric Biederman
+ M:	ebiederm@xmission.com
