@@ -1,14 +1,16 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Xen common code across architecture
-Date: Thu, 20 Mar 2008 07:23:04 -0700
-Message-ID: <47E27348.5090705__57.9169056893036$1206023554$gmane$org@goop.org>
-References: <12047411453864-git-send-email-yamahata@valinux.co.jp>	<12047411473158-git-send-email-yamahata@valinux.co.jp>
-	<10EA09EFD8728347A513008B6B0DA77A02EF8C3A@pdsmsx411.ccr.corp.intel.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [kvm-devel] [RFC PATCH 0/4] Inter-guest virtio I/O example with
+	lguest
+Date: Thu, 20 Mar 2008 09:39:22 -0500
+Message-ID: <47E2771A.4060405__36249.3987348445$1206024229$gmane$org@codemonkey.ws>
+References: <200803201659.14344.rusty@rustcorp.com.au>
+	<47E20A35.2000600@qumranet.com> <47E26CC1.8080900@codemonkey.ws>
+	<47E27461.4090404@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A02EF8C3A@pdsmsx411.ccr.corp.intel.com>
+In-Reply-To: <47E27461.4090404@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,16 +20,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Dong, Eddie" <eddie.dong@intel.com>
-Cc: linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, xen-ia64-devel@lists.xensource.com
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dong, Eddie wrote:
-> 	Current xen kernel codes are in arch/x86/xen, but xen dynamic
-> irqchip (events.c) are common for other architectures such as IA64. We
-> are in progress with enabling pv_ops for IA64 now and want to reuse same
-> code, do we need to move the code to some place common? suggestions?
+Avi Kivity wrote:
+> Anthony Liguori wrote:
+>> Avi Kivity wrote:
+>>
+>> Each guest's host userspace mmaps the other guest's address space.  
+>> The userspace then does a copy on both the tx and rx paths.
+>>
+>
+> Well, that's better security-wise (I'd still prefer to avoid it, so we 
+> can run each guest under a separate uid), but then we lose performance 
+> wise.
 
-I'm fine with moving common stuff like that to drivers/xen/.
+What performance win?  I'm not sure the copies can be eliminated in the 
+case of interguest IO.
 
-    J
+Fast interguest IO means mmap()'ing the other guest's address space 
+read-only.  If you had a pv dma registration api you could conceivably 
+only allow the active dma entries to be mapped but my fear would be that 
+the zap'ing on unregister would hurt performance.
+
+>> Conceivably, this could be done as a read-only mapping so that each 
+>> guest userspace copies only the rx packets.  That's about as secure 
+>> as you're going to get with this approach I think.
+>>
+>
+> Maybe we can terminate the virtio queue in the host kernel as a pipe, 
+> and splice pipes together.
+>
+> That gives us guest-guest and guest-process communications, and if you 
+> use aio the kernel can use a dma engine for the copy.
+
+Ah, so you're looking to use a DMA engine for accelerated copy.  Perhaps 
+the answer is to expose the DMA engine via a userspace API?
+
+Regards,
+
+Anthony Liguori
