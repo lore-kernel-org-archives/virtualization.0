@@ -1,15 +1,13 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [RFC/PATCH 01/15] preparation: provide hook to enable pgstes
-	in	user pagetable
-Date: Thu, 20 Mar 2008 10:28:38 -0700
-Message-ID: <47E29EC6.5050403__42651.6075422571$1206034592$gmane$org@goop.org>
-References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
-	<1206030278.6690.52.camel@cotte.boeblingen.de.ibm.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] virtio_blk: Dont waste major numbers
+Date: Thu, 20 Mar 2008 10:36:53 -0700
+Message-ID: <47E2A0B5.8090707__8476.22407968647$1206034951$gmane$org@zytor.com>
+References: <200801311553.53653.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206030278.6690.52.camel@cotte.boeblingen.de.ibm.com>
+In-Reply-To: <200801311553.53653.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,14 +17,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carsten Otte <cotte@de.ibm.com>
-Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, hollisb@us.ibm.com, arnd@arndb.de, borntraeger@de.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Carsten Otte wrote:
-> +struct mm_struct *dup_mm(struct task_struct *tsk);
->   
+Christian Borntraeger wrote:
+> Rusty,
+> 
+> currently virtio_blk uses one major number per device. While this works
+> quite well on most systems it is wasteful and will exhaust major numbers
+> on larger installations.
+> 
+> This patch allocates a major number on init and will use 16 minor numbers
+> for each disk. That will allow ~64k virtio_blk disks.
+> 
 
-No prototypes in .c files.  Put this in an appropriate header.
+Would it be too much to allow 64 minors (63 partitions)?  I have run out 
+of 16, myself, but never 64.
 
-    J
+	-hpa
