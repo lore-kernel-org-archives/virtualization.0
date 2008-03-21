@@ -1,19 +1,18 @@
-From: Carsten Otte <cotte@de.ibm.com>
-Subject: Re: [kvm-devel] [RFC/PATCH 14/15] guest: detect when running on kvm
-Date: Fri, 21 Mar 2008 15:33:29 +0100
-Message-ID: <1206110009.8363.3.camel__49850.1430186026$1206110684$gmane$org@cotte.boeblingen.de.ibm.com>
+From: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [kvm-devel] [RFC/PATCH 01/15] preparation: provide hook to
+	enable pgstes	in	user pagetable
+Date: Fri, 21 Mar 2008 11:29:36 -0700
+Message-ID: <1206124176.30471.27.camel@nimitz.home.sr71.net>
 References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
-	<1206030326.6690.65.camel@cotte.boeblingen.de.ibm.com>
-	<20080320175357.GA30959@infradead.org> <47E2CAFF.3070203@de.ibm.com>
-	<20080320194137.GA9975@infradead.org> <47E2D034.4090600@de.ibm.com>
-	<20080320212255.GA4225@osiris.boeblingen.de.ibm.com>
-	<47E39804.4030605@de.ibm.com>
-	<20080321140603.GC4128@osiris.boeblingen.de.ibm.com>
+	<1206030278.6690.52.camel@cotte.boeblingen.de.ibm.com>
+	<47E29EC6.5050403@goop.org>
+	<1206040405.8232.24.camel@nimitz.home.sr71.net>
+	<47E2CAAC.6020903@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080321140603.GC4128@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <47E2CAAC.6020903@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,92 +22,76 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: carsteno@linux.vnet.ibm.com, Christian Ehrhardt <EHRHARDT@de.ibm.com>, arnd@arndb.de, hollisb@us.ibm.com, carsteno@de.ibm.com, heicars2@linux.vnet.ibm.com, mschwid2@linux.vnet.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, kvm-devel@lists.sourceforge.net, borntrae@linux.vnet.ibm.com, rvdheij@gmail.com, Olaf Schnapper <os@de.ibm.com>, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
+To: carsteno@de.ibm.com
+Cc: Christian Ehrhardt <EHRHARDT@de.ibm.com>, hollisb@us.ibm.com, arnd@arndb.de, kvm-devel@lists.sourceforge.net, mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, jeroney@us.ibm.com, borntrae@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, rvdheij@gmail.com, Olaf Schnapper <os@de.ibm.com>, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Freitag, den 21.03.2008, 15:06 +0100 schrieb Heiko Carstens:
-> Just introduce something like MACHINE_FLAG_KVM. The rest can be converted
-> later. Unless you're bored and feel like fiddling around with assembly code :)
-I've done that patch this morning already, see below. I agree with HCH
-that we should do that, but after the kvm merge. I don't want kvm-s390
-conflict with Martin's patches. This is just a beautification, and can
-safely wait a release cycle.
----
- arch/s390/kernel/early.c |    6 +++---
- include/asm-s390/setup.h |   32 ++++++++++++++++++++++----------
- 2 files changed, 25 insertions(+), 13 deletions(-)
+On Thu, 2008-03-20 at 21:35 +0100, Carsten Otte wrote:
+> Dave Hansen wrote:
+> > Well, and more fundamentally: do we really want dup_mm() able to be
+> > called from other code?
+> > 
+> > Maybe we need a bit more detailed justification why fork() itself isn't
+> > good enough.  It looks to me like they basically need an arch-specific
+> > argument to fork, telling the new process's page tables to take the
+> > fancy new bit.
+> > 
+> > I'm really curious how this new stuff is going to get used.  Are you
+> > basically replacing fork() when creating kvm guests?
+> No. The trick is, that we do need bigger page tables when running 
+> guests: our page tables are usually 2k, but when running a guest 
+> they're 4k to track both guest and host dirty&reference information. 
+> This looks like this:
+> *----------*
+> *2k PTE's  *
+> *----------*
+> *2k PGSTE  *
+> *----------*
+> We don't want to waste precious memory for all page tables. We'd like 
+> to have one kernel image that runs regular server workload _and_ 
+> guests.
 
-Index: linux-host/arch/s390/kernel/early.c
-===================================================================
---- linux-host.orig/arch/s390/kernel/early.c
-+++ linux-host/arch/s390/kernel/early.c
-@@ -138,15 +138,15 @@ static noinline __init void detect_machi
- 
- 	/* Running under z/VM ? */
- 	if (cpuinfo->cpu_id.version == 0xff)
--		machine_flags |= 1;
-+		machine_flags |= MACHINE_FLAG_VM;
- 
- 	/* Running on a P/390 ? */
- 	if (cpuinfo->cpu_id.machine == 0x7490)
--		machine_flags |= 4;
-+		machine_flags |= MACHINE_FLAG_P390;
- 
- 	/* Running under KVM ? */
- 	if (cpuinfo->cpu_id.version == 0xfe)
--		machine_flags |= 64;
-+		machine_flags |= MACHINE_FLAG_KVM;
- }
- 
- #ifdef CONFIG_64BIT
-Index: linux-host/include/asm-s390/setup.h
-===================================================================
---- linux-host.orig/include/asm-s390/setup.h
-+++ linux-host/include/asm-s390/setup.h
-@@ -59,23 +59,35 @@ extern unsigned int s390_noexec;
-  */
- extern unsigned long machine_flags;
- 
--#define MACHINE_IS_VM		(machine_flags & 1)
--#define MACHINE_IS_P390		(machine_flags & 4)
--#define MACHINE_HAS_MVPG	(machine_flags & 16)
--#define MACHINE_IS_KVM		(machine_flags & 64)
--#define MACHINE_HAS_IDTE	(machine_flags & 128)
--#define MACHINE_HAS_DIAG9C	(machine_flags & 256)
-+#define MACHINE_FLAG_VM		1
-+#define MACHINE_FLAG_IEEE	2
-+#define MACHINE_FLAG_P390	4
-+#define MACHINE_FLAG_CSP	8
-+#define MACHINE_FLAG_MVPG	16
-+#define MACHINE_FLAG_DIAG44	32
-+#define MACHINE_FLAG_KVM	64
-+#define MACHINE_FLAG_IDTE	128
-+#define MACHINE_FLAG_DIAG9C	256
-+#define MACHINE_FLAG_MVCOS	512
-+
-+
-+#define MACHINE_IS_VM		(machine_flags & MACHINE_FLAG_VM)
-+#define MACHINE_IS_KVM		(machine_flags & MACHINE_FLAG_KVM)
-+#define MACHINE_IS_P390		(machine_flags & MACHINE_FLAG_P390)
-+#define MACHINE_HAS_MVPG	(machine_flags & MACHINE_FLAG_MVPG)
-+#define MACHINE_HAS_IDTE	(machine_flags & MACHINE_FLAG_IDTE)
-+#define MACHINE_HAS_DIAG9C	(machine_flags & MACHINE_FLAG_DIAG9C)
- 
- #ifndef __s390x__
--#define MACHINE_HAS_IEEE	(machine_flags & 2)
--#define MACHINE_HAS_CSP		(machine_flags & 8)
-+#define MACHINE_HAS_IEEE	(machine_flags & MACHINE_FLAG_IEEE)
-+#define MACHINE_HAS_CSP		(machine_flags & MACHINE_FLAG_CSP)
- #define MACHINE_HAS_DIAG44	(1)
- #define MACHINE_HAS_MVCOS	(0)
- #else /* __s390x__ */
- #define MACHINE_HAS_IEEE	(1)
- #define MACHINE_HAS_CSP		(1)
--#define MACHINE_HAS_DIAG44	(machine_flags & 32)
--#define MACHINE_HAS_MVCOS	(machine_flags & 512)
-+#define MACHINE_HAS_DIAG44	(machine_flags & MACHINE_FLAG_DIAG44)
-+#define MACHINE_HAS_MVCOS	(machine_flags & MACHINE_FLAG_MVCOS)
- #endif /* __s390x__ */
- 
- #define MACHINE_HAS_SCLP	(!MACHINE_IS_P390)
+That makes a lot of sense.
+
+Is that layout (the shadow and regular stacked together) specified in
+hardware somehow, or was it just chosen?
+
+What you've done with dup_mm() is probably the brute-force way that I
+would have done it had I just been trying to make a proof of concept or
+something.  I'm worried that there are a bunch of corner cases that
+haven't been considered.
+
+What if someone else is poking around with ptrace or something similar
+and they bump the mm_users:
+
++       if (tsk->mm->context.pgstes)
++               return 0;
++       if (!tsk->mm || atomic_read(&tsk->mm->mm_users) > 1 ||
++           tsk->mm != tsk->active_mm || tsk->mm->ioctx_list)
++               return -EINVAL;
+-------->HERE
++       tsk->mm->context.pgstes = 1;    /* dirty little tricks .. */
++       mm = dup_mm(tsk);
+
+It'll race, possibly fault in some other pages, and those faults will be
+lost during the dup_mm().  I think you need to be able to lock out all
+of the users of access_process_vm() before you go and do this.  You also
+need to make sure that anyone who has looked at task->mm doesn't go and
+get a reference to it and get confused later when it isn't the task->mm
+any more.
+
+> Therefore, we need to reallocate the page table after fork() 
+> once we know that task is going to be a hypervisor. That's what this 
+> code does: reallocate a bigger page table to accomondate the extra 
+> information. The task needs to be single-threaded when calling for 
+> extended page tables.
+> 
+> Btw: at fork() time, we cannot tell whether or not the user's going to 
+> be a hypervisor. Therefore we cannot do this in fork.
+
+Can you convert the page tables at a later time without doing a
+wholesale replacement of the mm?  It should be a bit easier to keep
+people off the pagetables than keep their grubby mitts off the mm
+itself.
+
+-- Dave
