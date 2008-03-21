@@ -1,16 +1,15 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [kvm-devel] [RFC PATCH 1/5] lguest: mmap backing file
-Date: Thu, 20 Mar 2008 18:46:39 -0500
-Message-ID: <47E2F75F.2040808__29716.4781055928$1206056958$gmane$org@codemonkey.ws>
-References: <200803201659.14344.rusty@rustcorp.com.au>
-	<200803201705.44422.rusty@rustcorp.com.au>
-	<47E26EE1.5030706@codemonkey.ws>
-	<200803210912.25648.rusty@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC/PATCH 15/15] guest: virtio device support, and kvm hypercalls
+Date: Fri, 21 Mar 2008 11:24:49 +1100
+Message-ID: <200803211124.49829.rusty__7132.07463636554$1206059394$gmane$org@rustcorp.com.au>
+References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
+	<1206030328.6690.66.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200803210912.25648.rusty@rustcorp.com.au>
+In-Reply-To: <1206030328.6690.66.camel@cotte.boeblingen.de.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,54 +19,64 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
+To: Carsten Otte <cotte@de.ibm.com>
+Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang,
+	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> How odd!  Do you have any idea why?
->   
+On Friday 21 March 2008 03:25:28 Carsten Otte wrote:
+> +static void kvm_set_status(struct virtio_device *vdev, u8 status)
+> +{
+> +	BUG_ON(!status);
+> +	to_kvmdev(vdev)->desc->status = status;
+> +}
+> +
+> +/*
+> + * To reset the device, we (ab)use the NOTIFY hypercall, with the descriptor
+> + * address of the device.  The Host will zero the status and all the 
+> + * features. 
+> + */
+> +static void kvm_reset(struct virtio_device *vdev)
+> +{
+> +	unsigned long offset = (void *)to_kvmdev(vdev)->desc - kvm_devices;
+> +
+> +	kvm_hypercall1(1237, (max_pfn<<PAGE_SHIFT) + offset);
+> +}
 
-Nope, but part of the reason I did this was I recalled a similar 
-discussion relating to kqemu and why it used /dev/shm.  I thought it was 
-only an issue with older kernels but apparently not.
+I'd recommend a hypercall after set_status, as well as reset.  The
+reason lguest doesn't do this is that we don't do feature negotiation
+(assuming guest kernel matches host kernel).  In general, the host
+needs to know when the VIRTIO_CONFIG_S_DRIVER_OK is set so it can see
+what features the guest driver accepted.
 
->> /dev/shm is not really for general use.  I think we'll want to have our
->> own tmpfs mount that we use to create VM images.
->>     
->
-> If we're going to mod the kernel, how about a "mmap this part of their address 
-> space" and having the kernel keep the mappings in sync.  But I think that if 
-> we want to get speed, we should probably be doing the copy between address 
-> spaces in-kernel so we can do lightweight exits.
->   
+Overloading the notify hypercall is kind of a hack too, but it works so
+no real need to change that.
 
-I don't think lightweight exits help the situation very much.  The 
-difference between a light weight and heavy weight exit is only 3-4k 
-cycles or so.
+> + * The root device for the kvm virtio devices.
+> + * This makes them appear as /sys/devices/kvm/0,1,2 not /sys/devices/0,1,2.
+> + */ 
+> +static struct device kvm_root = {
+> +	.parent = NULL,
+> +	.bus_id = "kvm_s390",
+> +};
 
-in-kernel doesn't make the situation much easier.  You have to map pages 
-in from a different task.  It's a lot easier if you have both guest 
-mapped in userspace.
+You mean /sys/devices/kvm_s390/0,1,2?
 
->> I also prefer to use a 
->> unix socket for communication, unlink the file immediately after open,
->> and then pass the fd via SCM_RIGHTS to the other process.
->>     
->
-> Yeah, I shied away from that because cred passing kills whole litters of 
-> puppies.  It makes for better encapsulation tho, so I'd do it that way in a 
-> serious implementation.
->   
+> +static int __init kvm_devices_init(void)
+> +{
+> +	if (!MACHINE_IS_KVM)
+> +		return -ENODEV;
+> +
+> +	if (device_register(&kvm_root) != 0)
+> +		panic("Could not register kvm root");
+> +
+> +	if (add_shared_memory((max_pfn) << PAGE_SHIFT, PAGE_SIZE)) {
+> +		device_unregister(&kvm_root);
+> +		return -ENOMEM;
+> +	}
 
-I'm working on an implementation for KVM at the moment.  Instead of just 
-supporting two guests, I'm looking to support N-guests and provide a 
-simple switch.  I'll have patches soon.
+Hmm, panic on device_register fail, but -ENOMEM on add_shared_memory fail?
+My theory was that since this is boot time, panic() is the right thing.
 
-Regards,
-
-Anthony Liguori
-
-> Cheers,
-> Rusty.
->   
+Cheers,
+Rusty.
