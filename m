@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC/PATCH 15/15] guest: virtio device support, and kvm hypercalls
-Date: Fri, 21 Mar 2008 11:24:49 +1100
-Message-ID: <200803211124.49829.rusty__7132.07463636554$1206059394$gmane$org@rustcorp.com.au>
-References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
-	<1206030328.6690.66.camel@cotte.boeblingen.de.ibm.com>
+Subject: Re: [Lguest] [RFC PATCH 1/5] lguest: mmap backing file
+Date: Fri, 21 Mar 2008 11:29:03 +1100
+Message-ID: <200803211129.03820.rusty__17548.7446868376$1206059680$gmane$org@rustcorp.com.au>
+References: <200803201659.14344.rusty@rustcorp.com.au>
+	<200803201705.44422.rusty@rustcorp.com.au>
+	<1206000960.6873.124.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206030328.6690.66.camel@cotte.boeblingen.de.ibm.com>
+In-Reply-To: <1206000960.6873.124.camel@localhost.localdomain>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,64 +20,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carsten Otte <cotte@de.ibm.com>
-Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang,
-	Xiantao" <xiantao.zhang@intel.com>
+To: echo@echoreply.us
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 21 March 2008 03:25:28 Carsten Otte wrote:
-> +static void kvm_set_status(struct virtio_device *vdev, u8 status)
-> +{
-> +	BUG_ON(!status);
-> +	to_kvmdev(vdev)->desc->status = status;
-> +}
-> +
-> +/*
-> + * To reset the device, we (ab)use the NOTIFY hypercall, with the descriptor
-> + * address of the device.  The Host will zero the status and all the 
-> + * features. 
-> + */
-> +static void kvm_reset(struct virtio_device *vdev)
-> +{
-> +	unsigned long offset = (void *)to_kvmdev(vdev)->desc - kvm_devices;
-> +
-> +	kvm_hypercall1(1237, (max_pfn<<PAGE_SHIFT) + offset);
-> +}
+On Thursday 20 March 2008 19:16:00 Tim Post wrote:
+> On Thu, 2008-03-20 at 17:05 +1100, Rusty Russell wrote:
+> > +       snprintf(memfile_path, PATH_MAX, "%s/.lguest",
+> > getenv("HOME") ?: "");
+>
+> Hi Rusty,
+>
+> Is that safe if being run via setuid/gid or shared root? It might be
+> better to just look it up in /etc/passwd against the real UID,
+> considering that anyone can change (or null) that env string.
 
-I'd recommend a hypercall after set_status, as well as reset.  The
-reason lguest doesn't do this is that we don't do feature negotiation
-(assuming guest kernel matches host kernel).  In general, the host
-needs to know when the VIRTIO_CONFIG_S_DRIVER_OK is set so it can see
-what features the guest driver accepted.
+Hi Tim,
 
-Overloading the notify hypercall is kind of a hack too, but it works so
-no real need to change that.
-
-> + * The root device for the kvm virtio devices.
-> + * This makes them appear as /sys/devices/kvm/0,1,2 not /sys/devices/0,1,2.
-> + */ 
-> +static struct device kvm_root = {
-> +	.parent = NULL,
-> +	.bus_id = "kvm_s390",
-> +};
-
-You mean /sys/devices/kvm_s390/0,1,2?
-
-> +static int __init kvm_devices_init(void)
-> +{
-> +	if (!MACHINE_IS_KVM)
-> +		return -ENODEV;
-> +
-> +	if (device_register(&kvm_root) != 0)
-> +		panic("Could not register kvm root");
-> +
-> +	if (add_shared_memory((max_pfn) << PAGE_SHIFT, PAGE_SIZE)) {
-> +		device_unregister(&kvm_root);
-> +		return -ENOMEM;
-> +	}
-
-Hmm, panic on device_register fail, but -ENOMEM on add_shared_memory fail?
-My theory was that since this is boot time, panic() is the right thing.
+    Fair point: it is bogus in this usage case.  Of course, setuid-ing lguest 
+is dumb anyway, since you could use --block= to read and write any file in 
+the filesystem.  The mid-term goal is to allow non-root to run lguest, which 
+fixes this problem (we don't allow that at the moment, as the guest can pin 
+memory).
 
 Cheers,
 Rusty.
