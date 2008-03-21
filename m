@@ -1,13 +1,19 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [RFC/PATCH 00/15] kvm on big iron
-Date: Fri, 21 Mar 2008 13:02:33 +0200
-Message-ID: <47E395C9.6050201__17474.5287550197$1206097799$gmane$org@qumranet.com>
-References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
+From: Carsten Otte <cotte@de.ibm.com>
+Subject: Re: [kvm-devel] [RFC/PATCH 14/15] guest: detect when running on kvm
+Date: Fri, 21 Mar 2008 12:12:04 +0100
+Message-ID: <47E39804.4030605__25316.667444031$1206098310$gmane$org@de.ibm.com>
+References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
+	<1206030326.6690.65.camel@cotte.boeblingen.de.ibm.com>
+	<20080320175357.GA30959@infradead.org>
+	<47E2CAFF.3070203@de.ibm.com> <20080320194137.GA9975@infradead.org>
+	<47E2D034.4090600@de.ibm.com>
+	<20080320212255.GA4225@osiris.boeblingen.de.ibm.com>
+Reply-To: carsteno@de.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
+In-Reply-To: <20080320212255.GA4225@osiris.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,27 +23,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carsten Otte <cotte@de.ibm.com>
-Cc: Rik van Riel <riel@redhat.com>, EHRHARDT@de.ibm.com, Andrea Arcangeli <andrea@qumranet.com>, arnd@arndb.de, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang,
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: carsteno@linux.vnet.ibm.com, Christian Ehrhardt <EHRHARDT@de.ibm.com>, arnd@arndb.de, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, heicars2@linux.vnet.ibm.com, mschwid2@linux.vnet.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, borntrae@linux.vnet.ibm.com, rvdheij@gmail.com, Olaf Schnapper <os@de.ibm.com>, jblunck@suse.de, "Zhang,
 	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Carsten Otte wrote:
-> This patch series introduces a backend for kvm to run on IBM System z
-> machines that uses the mainframe's sie virtualization capability. This
-> work runs 64bit guests on z800/z890/z900/z990/z9/z10 class machines with
-> a 64bit linux host. Userspace will follow once we're done brushing it
-> over.
->   
-
-I'm slightly worried about the changes to non arch code.  Perhaps Andrea 
-or Rik can look over the mm/ changes and ack?
-
-Other than that, and the few minor comments that popped up, this (very 
-nice) patchset will be very easy to merge.  IIRC you mentioned it is 
-possible for me to get an s390 account; this will be very useful in 
-avoiding breaking this port, as happens quite often with ppc and ia64.  
-I'd like to be able to do both build and run testing.
-
--- 
-Any sufficiently difficult bug is indistinguishable from a feature.
+MAILER-DAEMON@linux.ibm.com wrote:
+> Since when do we have symbolic names for the bits?
+> It was always on my todo list to do a cleanup and replace the numbers
+> we use everywhere with names. Especially since we have clashes from time
+> to time... but that didn't hurt enough yet, obviously.
+> But now that you volunteered to take care of this... :)
+Right. We only have defines for (machine_flags & bit). Looks to me 
+like the bits really should have a name on them. I've created a patch 
+that does this, but I want to talk it over with Martin before sending 
+that one out.
