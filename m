@@ -1,16 +1,20 @@
-From: Carsten Otte <cotte@de.ibm.com>
-Subject: Re: [kvm-devel] [RFC/PATCH 06/15] kvm-s390: sie intercept handling
-Date: Fri, 21 Mar 2008 12:26:29 +0100
-Message-ID: <47E39B65.6010201__37452.3696526468$1206099146$gmane$org@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [kvm-devel] [RFC/PATCH 14/15] guest: detect when running on kvm
+Date: Fri, 21 Mar 2008 15:06:03 +0100
+Message-ID: <20080321140603.GC4128__24169.8704231114$1206108561$gmane$org@osiris.boeblingen.de.ibm.com>
 References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>
-	<1206030302.6690.57.camel@cotte.boeblingen.de.ibm.com>
-	<47E393A5.2010602@qumranet.com>
-Reply-To: carsteno@de.ibm.com
+	<1206030326.6690.65.camel@cotte.boeblingen.de.ibm.com>
+	<20080320175357.GA30959@infradead.org>
+	<47E2CAFF.3070203@de.ibm.com> <20080320194137.GA9975@infradead.org>
+	<47E2D034.4090600@de.ibm.com>
+	<20080320212255.GA4225@osiris.boeblingen.de.ibm.com>
+	<47E39804.4030605@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47E393A5.2010602@qumranet.com>
+Content-Disposition: inline
+In-Reply-To: <47E39804.4030605@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,37 +24,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: Christian Ehrhardt <EHRHARDT@de.ibm.com>, arnd@arndb.de, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, jeroney@us.ibm.com, borntrae@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, rvdheij@gmail.com, Olaf Schnapper <os@de.ibm.com>, jblunck@suse.de, "Zhang,
+To: carsteno@de.ibm.com
+Cc: carsteno@linux.vnet.ibm.com, Christian Ehrhardt <EHRHARDT@de.ibm.com>, arnd@arndb.de, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, heicars2@linux.vnet.ibm.com, mschwid2@linux.vnet.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, borntrae@linux.vnet.ibm.com, rvdheij@gmail.com, Olaf Schnapper <os@de.ibm.com>, jblunck@suse.de, "Zhang,
 	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity wrote:
-> Carsten Otte wrote:
->>  
->>  /* for KVM_RUN, returned by mmap(vcpu_fd, offset=0) */
->>  struct kvm_run {
->> @@ -138,6 +139,14 @@ struct kvm_run {
->>              __u32 is_write;
->>              __u32 pad;
->>          } tpr_access;
->> +        /* KVM_EXIT_S390_SIEIC */
->> +        struct {
->> +            __u8 icptcode;
->> +            __u64 mask; /* psw upper half */
->> +            __u64 addr; /* psw lower half */
->> +            __u16 ipa;
->> +            __u32 ipb;
->> +        } s390_sieic;
->>          /* Fix the size of the union. */
->>          char padding[256];
->>      };
->>
->>   
-> 
-> Do you support 32-bit userspace on 64-bit kernel?  If so, this is likely 
-> badly aligned.
-32bit userspace is not pracitcal, current enterprise distributions 
-come with 64bit only on s390. Nevertheless, I don't get your point on 
-allignment. What is the problem caused by the struct, and how can I 
-solve it?
+On Fri, Mar 21, 2008 at 12:12:04PM +0100, Carsten Otte wrote:
+> MAILER-DAEMON@linux.ibm.com wrote:
+>> Since when do we have symbolic names for the bits?
+>> It was always on my todo list to do a cleanup and replace the numbers
+>> we use everywhere with names. Especially since we have clashes from time
+>> to time... but that didn't hurt enough yet, obviously.
+>> But now that you volunteered to take care of this... :)
+> Right. We only have defines for (machine_flags & bit). Looks to me like 
+> the bits really should have a name on them. I've created a patch that 
+> does this, but I want to talk it over with Martin before sending that one 
+> out.
+
+Just introduce something like MACHINE_FLAG_KVM. The rest can be converted
+later. Unless you're bored and feel like fiddling around with assembly code :)
