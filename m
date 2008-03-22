@@ -1,15 +1,13 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 01/15 v2] preparation: provide hook to enable pgstes in
-	user pagetable
-Date: Sat, 22 Mar 2008 18:02:37 +0100
-Message-ID: <1206205357.7177.83.camel__45137.9071492285$1206205986$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 00/15 v2] kvm on big iron
+Date: Sat, 22 Mar 2008 18:02:34 +0100
+Message-ID: <1206205354.7177.82.camel__40054.8441721641$1206206038$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
-	<1206203560.7177.45.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206203560.7177.45.camel@cotte.boeblingen.de.ibm.com>
+In-Reply-To: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,229 +22,50 @@ Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com,
 	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+This patch series introduces a backend for kvm to run on IBM System z
+machines (aka s390x) that uses the mainframe's sie virtualization
+capability. Many thanks for the review feedback we have received so far,
+I do greatly appreciate it!
 
-The SIE instruction on s390 uses the 2nd half of the page table page to
-virtualize the storage keys of a guest. This patch offers the s390_enable_sie
-function, which reorganizes the page tables of a single-threaded process to
-reserve space in the page table:
-s390_enable_sie makes sure that the process is single threaded and then uses
-dup_mm to create a new mm with reorganized page tables. The old mm is freed 
-and the process has now a page status extended field after every page table.
+The first submission didn't draw much attention of elder vm magicians on
+linux-mm. I am adding Nick, Hugh and Andrew explicitly to the first two
+patches. Please do comment on our common code change buried in there. Is
+this acceptable for you? Who else does need to review them?
 
-Code that wants to exploit pgstes should SELECT CONFIG_PGSTE.
+Changes from the Version 1:
+- include Feedback from Randy Dunlap on the Documentation
+- include Feedback from Jeremy Fitzhardinge, the prototype for dup_mm
+  has moved to include/linux/sched.h
+- rebase to current kvm.git hash g361be34. Thank you Avi for pulling
+  in the fix we need, and for moving KVM_MAX_VCPUS to include/arch :-).
 
-This patch has a small common code hit, namely making dup_mm non-static.
+Todo list:
+- I've created a patch for Christoph Helwig's feedback about symbolic
+names for machine_flags. This change is independent of the kvm port, and
+I will submit it for review to Martin.
+- Rusty Russell has provided feedback that improves patch #15. Christian
+is looking into that and will likely update that patch. If this goes in
+before, we can safely do an add-on patch on top of #15.
+- an open comment from Dave Hansen about a possible race enable_sie
+versus ptrace in patch #1 exceeds my basic vm knowledge and needs to be
+answered by Martin or Heiko
 
-Edit (Carsten): I've modified Martin's patch, following Jeremy Fitzhardinge's
-review feedback. Now we do have the prototype for dup_mm in
-include/linux/sched.h.
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Carsten Otte <cotte@de.ibm.com>
----
-
- arch/s390/Kconfig              |    4 +++
- arch/s390/kernel/setup.c       |    4 +++
- arch/s390/mm/pgtable.c         |   53 ++++++++++++++++++++++++++++++++++++++---
- include/asm-s390/mmu.h         |    1 
- include/asm-s390/mmu_context.h |    8 +++++-
- include/asm-s390/pgtable.h     |    1 
- include/linux/sched.h          |    2 +
- kernel/fork.c                  |    2 -
- 8 files changed, 70 insertions(+), 5 deletions(-)
-
-Index: linux-host/arch/s390/Kconfig
-===================================================================
---- linux-host.orig/arch/s390/Kconfig
-+++ linux-host/arch/s390/Kconfig
-@@ -55,6 +55,10 @@ config GENERIC_LOCKBREAK
- 	default y
- 	depends on SMP && PREEMPT
- 
-+config PGSTE
-+	bool
-+	default y if KVM
-+
- mainmenu "Linux Kernel Configuration"
- 
- config S390
-Index: linux-host/arch/s390/kernel/setup.c
-===================================================================
---- linux-host.orig/arch/s390/kernel/setup.c
-+++ linux-host/arch/s390/kernel/setup.c
-@@ -315,7 +315,11 @@ static int __init early_parse_ipldelay(c
- early_param("ipldelay", early_parse_ipldelay);
- 
- #ifdef CONFIG_S390_SWITCH_AMODE
-+#ifdef CONFIG_PGSTE
-+unsigned int switch_amode = 1;
-+#else
- unsigned int switch_amode = 0;
-+#endif
- EXPORT_SYMBOL_GPL(switch_amode);
- 
- static void set_amode_and_uaccess(unsigned long user_amode,
-Index: linux-host/arch/s390/mm/pgtable.c
-===================================================================
---- linux-host.orig/arch/s390/mm/pgtable.c
-+++ linux-host/arch/s390/mm/pgtable.c
-@@ -30,11 +30,27 @@
- #define TABLES_PER_PAGE	4
- #define FRAG_MASK	15UL
- #define SECOND_HALVES	10UL
-+
-+void clear_table_pgstes(unsigned long *table)
-+{
-+	clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE/4);
-+	memset(table + 256, 0, PAGE_SIZE/4);
-+	clear_table(table + 512, _PAGE_TYPE_EMPTY, PAGE_SIZE/4);
-+	memset(table + 768, 0, PAGE_SIZE/4);
-+}
-+
- #else
- #define ALLOC_ORDER	2
- #define TABLES_PER_PAGE	2
- #define FRAG_MASK	3UL
- #define SECOND_HALVES	2UL
-+
-+void clear_table_pgstes(unsigned long *table)
-+{
-+	clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE/2);
-+	memset(table + 256, 0, PAGE_SIZE/2);
-+}
-+
- #endif
- 
- unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec)
-@@ -153,7 +169,7 @@ unsigned long *page_table_alloc(struct m
- 	unsigned long *table;
- 	unsigned long bits;
- 
--	bits = mm->context.noexec ? 3UL : 1UL;
-+	bits = (mm->context.noexec || mm->context.pgstes) ? 3UL : 1UL;
- 	spin_lock(&mm->page_table_lock);
- 	page = NULL;
- 	if (!list_empty(&mm->context.pgtable_list)) {
-@@ -170,7 +186,10 @@ unsigned long *page_table_alloc(struct m
- 		pgtable_page_ctor(page);
- 		page->flags &= ~FRAG_MASK;
- 		table = (unsigned long *) page_to_phys(page);
--		clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE);
-+		if (mm->context.pgstes)
-+			clear_table_pgstes(table);
-+		else
-+			clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE);
- 		spin_lock(&mm->page_table_lock);
- 		list_add(&page->lru, &mm->context.pgtable_list);
- 	}
-@@ -191,7 +210,7 @@ void page_table_free(struct mm_struct *m
- 	struct page *page;
- 	unsigned long bits;
- 
--	bits = mm->context.noexec ? 3UL : 1UL;
-+	bits = (mm->context.noexec || mm->context.pgstes) ? 3UL : 1UL;
- 	bits <<= (__pa(table) & (PAGE_SIZE - 1)) / 256 / sizeof(unsigned long);
- 	page = pfn_to_page(__pa(table) >> PAGE_SHIFT);
- 	spin_lock(&mm->page_table_lock);
-@@ -228,3 +247,31 @@ void disable_noexec(struct mm_struct *mm
- 	mm->context.noexec = 0;
- 	update_mm(mm, tsk);
- }
-+
-+/*
-+ * switch on pgstes for its userspace process (for kvm)
-+ */
-+int s390_enable_sie(void)
-+{
-+	struct task_struct *tsk = current;
-+	struct mm_struct *mm;
-+
-+	if (tsk->mm->context.pgstes)
-+		return 0;
-+	if (!tsk->mm || atomic_read(&tsk->mm->mm_users) > 1 ||
-+	    tsk->mm != tsk->active_mm || tsk->mm->ioctx_list)
-+		return -EINVAL;
-+	tsk->mm->context.pgstes = 1;	/* dirty little tricks .. */
-+	mm = dup_mm(tsk);
-+	tsk->mm->context.pgstes = 0;
-+	if (!mm)
-+		return -ENOMEM;
-+	mmput(tsk->mm);
-+	tsk->mm = tsk->active_mm = mm;
-+	preempt_disable();
-+	update_mm(mm, tsk);
-+	cpu_set(smp_processor_id(), mm->cpu_vm_mask);
-+	preempt_enable();
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(s390_enable_sie);
-Index: linux-host/include/asm-s390/mmu.h
-===================================================================
---- linux-host.orig/include/asm-s390/mmu.h
-+++ linux-host/include/asm-s390/mmu.h
-@@ -7,6 +7,7 @@ typedef struct {
- 	unsigned long asce_bits;
- 	unsigned long asce_limit;
- 	int noexec;
-+	int pgstes;
- } mm_context_t;
- 
- #endif
-Index: linux-host/include/asm-s390/mmu_context.h
-===================================================================
---- linux-host.orig/include/asm-s390/mmu_context.h
-+++ linux-host/include/asm-s390/mmu_context.h
-@@ -20,7 +20,13 @@ static inline int init_new_context(struc
- #ifdef CONFIG_64BIT
- 	mm->context.asce_bits |= _ASCE_TYPE_REGION3;
- #endif
--	mm->context.noexec = s390_noexec;
-+	if (current->mm->context.pgstes) {
-+		mm->context.noexec = 0;
-+		mm->context.pgstes = 1;
-+	} else {
-+		mm->context.noexec = s390_noexec;
-+		mm->context.pgstes = 0;
-+	}
- 	mm->context.asce_limit = STACK_TOP_MAX;
- 	crst_table_init((unsigned long *) mm->pgd, pgd_entry_type(mm));
- 	return 0;
-Index: linux-host/include/asm-s390/pgtable.h
-===================================================================
---- linux-host.orig/include/asm-s390/pgtable.h
-+++ linux-host/include/asm-s390/pgtable.h
-@@ -966,6 +966,7 @@ static inline pte_t mk_swap_pte(unsigned
- 
- extern int add_shared_memory(unsigned long start, unsigned long size);
- extern int remove_shared_memory(unsigned long start, unsigned long size);
-+extern int s390_enable_sie(void);
- 
- /*
-  * No page table caches to initialise
-Index: linux-host/kernel/fork.c
-===================================================================
---- linux-host.orig/kernel/fork.c
-+++ linux-host/kernel/fork.c
-@@ -498,7 +498,7 @@ void mm_release(struct task_struct *tsk,
-  * Allocate a new mm structure and copy contents from the
-  * mm structure of the passed in task structure.
-  */
--static struct mm_struct *dup_mm(struct task_struct *tsk)
-+struct mm_struct *dup_mm(struct task_struct *tsk)
- {
- 	struct mm_struct *mm, *oldmm = current->mm;
- 	int err;
-Index: linux-host/include/linux/sched.h
-===================================================================
---- linux-host.orig/include/linux/sched.h
-+++ linux-host/include/linux/sched.h
-@@ -1758,6 +1758,8 @@ extern void mmput(struct mm_struct *);
- extern struct mm_struct *get_task_mm(struct task_struct *task);
- /* Remove the current tasks stale references to the old mm_struct */
- extern void mm_release(struct task_struct *, struct mm_struct *);
-+/* Allocate a new mm structure and copy contents from tsk->mm */
-+extern struct mm_struct *dup_mm(struct task_struct *tsk);
- 
- extern int  copy_thread(int, unsigned long, unsigned long, unsigned long, struct task_struct *, struct pt_regs *);
- extern void flush_thread(void);
+The patch queue consists of the following patches:
+[RFC/PATCH 01/15] preparation: provide hook to enable pgstes in user 
+                               pagetable
+[RFC/PATCH 02/15] preparation: host memory management changes for s390 
+                               kvm
+[RFC/PATCH 03/15] preparation: address of the 64bit extint parm in 
+                               lowcore
+[RFC/PATCH 04/15] preparation: split sysinfo defintions for kvm use
+[RFC/PATCH 05/15] kvm-s390: s390 arch backend for the kvm kernel module
+[RFC/PATCH 06/15] kvm-s390: sie intercept handling
+[RFC/PATCH 07/15] kvm-s390: interrupt subsystem, cpu timer, waitpsw
+[RFC/PATCH 08/15] kvm-s390: intercepts for privileged instructions
+[RFC/PATCH 09/15] kvm-s390: interprocessor communication via sigp
+[RFC/PATCH 10/15] kvm-s390: intercepts for diagnose instructions
+[RFC/PATCH 11/15] kvm-s390: add kvm to kconfig on s390
+[RFC/PATCH 12/15] kvm-s390: API documentation
+[RFC/PATCH 13/15] kvm-s390: update maintainers
+[RFC/PATCH 14/15] guest: detect when running on kvm
+[RFC/PATCH 15/15] guest: virtio device support, and kvm hypercalls
