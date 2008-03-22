@@ -1,7 +1,7 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 06/15 v2] kvm-s390: sie intercept handling
-Date: Sat, 22 Mar 2008 18:02:46 +0100
-Message-ID: <1206205366.7177.88.camel__11160.3083940738$1206206573$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 04/15 v2] preparation: split sysinfo defintions for kvm use
+Date: Sat, 22 Mar 2008 18:02:42 +0100
+Message-ID: <1206205362.7177.86.camel__44611.0987490558$1206206676$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 	<1206203560.7177.45.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
@@ -23,269 +23,254 @@ Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com,
 	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Carsten Otte <cotte@de.ibm.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This path introduces handling of sie intercepts in three flavors: Intercepts
-are either handled completely in-kernel by kvm_handle_sie_intercept(),
-or passed to userspace with corresponding data in struct kvm_run in case
-kvm_handle_sie_intercept() returns -ENOTSUPP.
-In case of partial execution in kernel with the need of userspace support,
-kvm_handle_sie_intercept() may choose to set up struct kvm_run and return
--EREMOTE.
+drivers/s390/sysinfo.c uses the store system information intruction to query
+the system about information of the machine, the LPAR and additional 
+hypervisors. KVM has to implement the host part for this instruction. 
 
-The trivial intercept reasons are handled in this patch:
-handle_noop() just does nothing for intercepts that don't require our support
-  at all
-handle_stop() is called when a cpu enters stopped state, and it drops out to
-  userland after updating our vcpu state
-handle_validity() faults in the cpu lowcore if needed, or passes the request
-  to userland
+To avoid code duplication, this patch splits the common definitions from
+sysinfo.c into a separate header file include/asm-s390/sysinfo.h for KVM use.
 
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- arch/s390/kvm/Makefile      |    2 -
- arch/s390/kvm/intercept.c   |   83 ++++++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.c    |   46 +++++++++++++++++++++++-
- arch/s390/kvm/kvm-s390.h    |    6 +++
- include/asm-s390/kvm_host.h |    4 ++
- include/linux/kvm.h         |    9 ++++
- 6 files changed, 148 insertions(+), 2 deletions(-)
+ drivers/s390/sysinfo.c     |  100 ----------------------------------------
+ include/asm-s390/sysinfo.h |  112 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 113 insertions(+), 99 deletions(-)
 
-Index: linux-host/arch/s390/kvm/Makefile
+Index: kvm/drivers/s390/sysinfo.c
 ===================================================================
---- linux-host.orig/arch/s390/kvm/Makefile
-+++ linux-host/arch/s390/kvm/Makefile
-@@ -10,5 +10,5 @@ common-objs = $(addprefix ../../../virt/
+--- kvm.orig/drivers/s390/sysinfo.c
++++ kvm/drivers/s390/sysinfo.c
+@@ -11,111 +11,13 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ #include <asm/ebcdic.h>
++#include <asm/sysinfo.h>
  
- EXTRA_CFLAGS += -Ivirt/kvm -Iarch/s390/kvm
+ /* Sigh, math-emu. Don't ask. */
+ #include <asm/sfp-util.h>
+ #include <math-emu/soft-fp.h>
+ #include <math-emu/single.h>
  
--kvm-objs := $(common-objs) kvm-s390.o sie64a.o
-+kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o
- obj-$(CONFIG_KVM) += kvm.o
-Index: linux-host/arch/s390/kvm/intercept.c
+-struct sysinfo_1_1_1 {
+-	char reserved_0[32];
+-	char manufacturer[16];
+-	char type[4];
+-	char reserved_1[12];
+-	char model_capacity[16];
+-	char sequence[16];
+-	char plant[4];
+-	char model[16];
+-};
+-
+-struct sysinfo_1_2_1 {
+-	char reserved_0[80];
+-	char sequence[16];
+-	char plant[4];
+-	char reserved_1[2];
+-	unsigned short cpu_address;
+-};
+-
+-struct sysinfo_1_2_2 {
+-	char format;
+-	char reserved_0[1];
+-	unsigned short acc_offset;
+-	char reserved_1[24];
+-	unsigned int secondary_capability;
+-	unsigned int capability;
+-	unsigned short cpus_total;
+-	unsigned short cpus_configured;
+-	unsigned short cpus_standby;
+-	unsigned short cpus_reserved;
+-	unsigned short adjustment[0];
+-};
+-
+-struct sysinfo_1_2_2_extension {
+-	unsigned int alt_capability;
+-	unsigned short alt_adjustment[0];
+-};
+-
+-struct sysinfo_2_2_1 {
+-	char reserved_0[80];
+-	char sequence[16];
+-	char plant[4];
+-	unsigned short cpu_id;
+-	unsigned short cpu_address;
+-};
+-
+-struct sysinfo_2_2_2 {
+-	char reserved_0[32];
+-	unsigned short lpar_number;
+-	char reserved_1;
+-	unsigned char characteristics;
+-	unsigned short cpus_total;
+-	unsigned short cpus_configured;
+-	unsigned short cpus_standby;
+-	unsigned short cpus_reserved;
+-	char name[8];
+-	unsigned int caf;
+-	char reserved_2[16];
+-	unsigned short cpus_dedicated;
+-	unsigned short cpus_shared;
+-};
+-
+-#define LPAR_CHAR_DEDICATED	(1 << 7)
+-#define LPAR_CHAR_SHARED	(1 << 6)
+-#define LPAR_CHAR_LIMITED	(1 << 5)
+-
+-struct sysinfo_3_2_2 {
+-	char reserved_0[31];
+-	unsigned char count;
+-	struct {
+-		char reserved_0[4];
+-		unsigned short cpus_total;
+-		unsigned short cpus_configured;
+-		unsigned short cpus_standby;
+-		unsigned short cpus_reserved;
+-		char name[8];
+-		unsigned int caf;
+-		char cpi[16];
+-		char reserved_1[24];
+-
+-	} vm[8];
+-};
+-
+-static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
+-{
+-	register int r0 asm("0") = (fc << 28) | sel1;
+-	register int r1 asm("1") = sel2;
+-
+-	asm volatile(
+-		"   stsi 0(%2)\n"
+-		"0: jz   2f\n"
+-		"1: lhi  %0,%3\n"
+-		"2:\n"
+-		EX_TABLE(0b,1b)
+-		: "+d" (r0) : "d" (r1), "a" (sysinfo), "K" (-ENOSYS)
+-		: "cc", "memory" );
+-	return r0;
+-}
+-
+ static inline int stsi_0(void)
+ {
+ 	int rc = stsi (NULL, 0, 0, 0);
+Index: kvm/include/asm-s390/sysinfo.h
 ===================================================================
 --- /dev/null
-+++ linux-host/arch/s390/kvm/intercept.c
-@@ -0,0 +1,83 @@
++++ kvm/include/asm-s390/sysinfo.h
+@@ -0,0 +1,112 @@
 +/*
-+ * intercept.c - in-kernel handling for sie intercepts
++ * definition for store system information stsi
 + *
-+ * Copyright IBM Corp. 2008
++ * Copyright IBM Corp. 2001,2008
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License (version 2 only)
 + * as published by the Free Software Foundation.
 + *
-+ *    Author(s): Carsten Otte <cotte@de.ibm.com>
++ *    Author(s): Ulrich Weigand <weigand@de.ibm.com>
 + *               Christian Borntraeger <borntraeger@de.ibm.com>
 + */
 +
-+#include <linux/kvm_host.h>
-+#include <linux/errno.h>
-+#include <linux/pagemap.h>
-+
-+#include <asm/kvm_host.h>
-+
-+#include "kvm-s390.h"
-+
-+static int handle_noop(struct kvm_vcpu *vcpu)
-+{
-+	switch (vcpu->arch.sie_block->icptcode) {
-+	case 0x10:
-+		vcpu->stat.exit_external_request++;
-+		break;
-+	case 0x14:
-+		vcpu->stat.exit_external_interrupt++;
-+		break;
-+	default:
-+		break; /* nothing */
-+	}
-+	return 0;
-+}
-+
-+static int handle_stop(struct kvm_vcpu *vcpu)
-+{
-+	vcpu->stat.exit_stop_request++;
-+	VCPU_EVENT(vcpu, 3, "%s", "cpu stopped");
-+	atomic_clear_mask(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
-+	return -ENOTSUPP;
-+}
-+
-+static int handle_validity(struct kvm_vcpu *vcpu)
-+{
-+	int viwhy = vcpu->arch.sie_block->ipb >> 16;
-+	vcpu->stat.exit_validity++;
-+	if (viwhy == 0x37) {
-+		fault_in_pages_writeable((char __user *)
-+				vcpu->kvm->arch.guest_origin +
-+				vcpu->arch.sie_block->prefix, PAGE_SIZE);
-+		return 0;
-+	}
-+	VCPU_EVENT(vcpu, 2, "unhandled validity intercept code %d",
-+		viwhy);
-+	return -ENOTSUPP;
-+}
-+
-+static const intercept_handler_t intercept_funcs[0x48 >> 2] = {
-+	[0x00 >> 2] = handle_noop,
-+	[0x10 >> 2] = handle_noop,
-+	[0x14 >> 2] = handle_noop,
-+	[0x20 >> 2] = handle_validity,
-+	[0x28 >> 2] = handle_stop,
++struct sysinfo_1_1_1 {
++	char reserved_0[32];
++	char manufacturer[16];
++	char type[4];
++	char reserved_1[12];
++	char model_capacity[16];
++	char sequence[16];
++	char plant[4];
++	char model[16];
 +};
 +
-+int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
++struct sysinfo_1_2_1 {
++	char reserved_0[80];
++	char sequence[16];
++	char plant[4];
++	char reserved_1[2];
++	unsigned short cpu_address;
++};
++
++struct sysinfo_1_2_2 {
++	char format;
++	char reserved_0[1];
++	unsigned short acc_offset;
++	char reserved_1[24];
++	unsigned int secondary_capability;
++	unsigned int capability;
++	unsigned short cpus_total;
++	unsigned short cpus_configured;
++	unsigned short cpus_standby;
++	unsigned short cpus_reserved;
++	unsigned short adjustment[0];
++};
++
++struct sysinfo_1_2_2_extension {
++	unsigned int alt_capability;
++	unsigned short alt_adjustment[0];
++};
++
++struct sysinfo_2_2_1 {
++	char reserved_0[80];
++	char sequence[16];
++	char plant[4];
++	unsigned short cpu_id;
++	unsigned short cpu_address;
++};
++
++struct sysinfo_2_2_2 {
++	char reserved_0[32];
++	unsigned short lpar_number;
++	char reserved_1;
++	unsigned char characteristics;
++	unsigned short cpus_total;
++	unsigned short cpus_configured;
++	unsigned short cpus_standby;
++	unsigned short cpus_reserved;
++	char name[8];
++	unsigned int caf;
++	char reserved_2[16];
++	unsigned short cpus_dedicated;
++	unsigned short cpus_shared;
++};
++
++#define LPAR_CHAR_DEDICATED	(1 << 7)
++#define LPAR_CHAR_SHARED	(1 << 6)
++#define LPAR_CHAR_LIMITED	(1 << 5)
++
++struct sysinfo_3_2_2 {
++	char reserved_0[31];
++	unsigned char count;
++	struct {
++		char reserved_0[4];
++		unsigned short cpus_total;
++		unsigned short cpus_configured;
++		unsigned short cpus_standby;
++		unsigned short cpus_reserved;
++		char name[8];
++		unsigned int caf;
++		char cpi[16];
++		char reserved_1[24];
++
++	} vm[8];
++};
++
++static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
 +{
-+	intercept_handler_t func;
-+	u8 code = vcpu->arch.sie_block->icptcode;
++	register int r0 asm("0") = (fc << 28) | sel1;
++	register int r1 asm("1") = sel2;
 +
-+	if (code & 3 || code > 0x48)
-+		return -ENOTSUPP;
-+
-+	func = intercept_funcs[code >> 2];
-+
-+	if (func)
-+		return func(vcpu);
-+
-+	return -ENOTSUPP;
++	asm volatile(
++		"   stsi 0(%2)\n"
++		"0: jz   2f\n"
++		"1: lhi  %0,%3\n"
++		"2:\n"
++		EX_TABLE(0b, 1b)
++		: "+d" (r0) : "d" (r1), "a" (sysinfo), "K" (-ENOSYS)
++		: "cc", "memory");
++	return r0;
 +}
 +
-Index: linux-host/arch/s390/kvm/kvm-s390.c
-===================================================================
---- linux-host.orig/arch/s390/kvm/kvm-s390.c
-+++ linux-host/arch/s390/kvm/kvm-s390.c
-@@ -23,12 +23,17 @@
- #include <asm/lowcore.h>
- #include <asm/pgtable.h>
- 
-+#include "kvm-s390.h"
- #include "gaccess.h"
- 
- #define VCPU_STAT(x) offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU
- 
- struct kvm_stats_debugfs_item debugfs_entries[] = {
- 	{ "userspace_handled", VCPU_STAT(exit_userspace) },
-+	{ "exit_validity", VCPU_STAT(exit_validity) },
-+	{ "exit_stop_request", VCPU_STAT(exit_stop_request) },
-+	{ "exit_external_request", VCPU_STAT(exit_external_request) },
-+	{ "exit_external_interrupt", VCPU_STAT(exit_external_interrupt) },
- 	{ NULL }
- };
- 
-@@ -384,6 +389,7 @@ static void __vcpu_run(struct kvm_vcpu *
- 
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- {
-+	int rc;
- 	sigset_t sigsaved;
- 
- 	vcpu_load(vcpu);
-@@ -393,7 +399,45 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_v
- 
- 	atomic_set_mask(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
- 
--	__vcpu_run(vcpu);
-+	switch (kvm_run->exit_reason) {
-+	case KVM_EXIT_S390_SIEIC:
-+		vcpu->arch.sie_block->gpsw.mask = kvm_run->s390_sieic.mask;
-+		vcpu->arch.sie_block->gpsw.addr = kvm_run->s390_sieic.addr;
-+		break;
-+	case KVM_EXIT_UNKNOWN:
-+	case KVM_EXIT_S390_RESET:
-+		break;
-+	default:
-+		BUG();
-+	}
-+
-+	might_sleep();
-+
-+	do {
-+		__vcpu_run(vcpu);
-+
-+		rc = kvm_handle_sie_intercept(vcpu);
-+	} while (!signal_pending(current) && !rc);
-+
-+	if ((rc == 0) && signal_pending(current))
-+		rc = -EINTR;
-+
-+	if (rc == -ENOTSUPP) {
-+		/* intercept cannot be handled in-kernel, prepare kvm-run */
-+		kvm_run->exit_reason         = KVM_EXIT_S390_SIEIC;
-+		kvm_run->s390_sieic.icptcode = vcpu->arch.sie_block->icptcode;
-+		kvm_run->s390_sieic.mask     = vcpu->arch.sie_block->gpsw.mask;
-+		kvm_run->s390_sieic.addr     = vcpu->arch.sie_block->gpsw.addr;
-+		kvm_run->s390_sieic.ipa      = vcpu->arch.sie_block->ipa;
-+		kvm_run->s390_sieic.ipb      = vcpu->arch.sie_block->ipb;
-+		rc = 0;
-+	}
-+
-+	if (rc == -EREMOTE) {
-+		/* intercept was handled, but userspace support is needed
-+		 * kvm_run has been prepared by the handler */
-+		rc = 0;
-+	}
- 
- 	if (vcpu->sigset_active)
- 		sigprocmask(SIG_SETMASK, &sigsaved, NULL);
-Index: linux-host/arch/s390/kvm/kvm-s390.h
-===================================================================
---- linux-host.orig/arch/s390/kvm/kvm-s390.h
-+++ linux-host/arch/s390/kvm/kvm-s390.h
-@@ -13,6 +13,12 @@
- 
- #ifndef ARCH_S390_KVM_S390_H
- #define ARCH_S390_KVM_S390_H
-+#include <linux/kvm_host.h>
-+
-+typedef  int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
-+
-+extern int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu);
-+
- #define VM_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
- do { \
- 	debug_sprintf_event(d_kvm->arch.dbf, d_loglevel, d_string "\n", \
-Index: linux-host/include/asm-s390/kvm_host.h
-===================================================================
---- linux-host.orig/include/asm-s390/kvm_host.h
-+++ linux-host/include/asm-s390/kvm_host.h
-@@ -101,6 +101,10 @@ struct sie_block {
- 
- struct kvm_vcpu_stat {
- 	u32 exit_userspace;
-+	u32 exit_external_request;
-+	u32 exit_external_interrupt;
-+	u32 exit_stop_request;
-+	u32 exit_validity;
- };
- 
- struct kvm_vcpu_arch {
-Index: linux-host/include/linux/kvm.h
-===================================================================
---- linux-host.orig/include/linux/kvm.h
-+++ linux-host/include/linux/kvm.h
-@@ -74,6 +74,7 @@ struct kvm_irqchip {
- #define KVM_EXIT_INTR             10
- #define KVM_EXIT_SET_TPR          11
- #define KVM_EXIT_TPR_ACCESS       12
-+#define KVM_EXIT_S390_SIEIC       13
- 
- /* for KVM_RUN, returned by mmap(vcpu_fd, offset=0) */
- struct kvm_run {
-@@ -138,6 +139,14 @@ struct kvm_run {
- 			__u32 is_write;
- 			__u32 pad;
- 		} tpr_access;
-+		/* KVM_EXIT_S390_SIEIC */
-+		struct {
-+			__u8 icptcode;
-+			__u64 mask; /* psw upper half */
-+			__u64 addr; /* psw lower half */
-+			__u16 ipa;
-+			__u32 ipb;
-+		} s390_sieic;
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
