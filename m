@@ -1,8 +1,8 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 02/15 v2] preparation: host memory management changes
-	for s390 kvm
-Date: Sat, 22 Mar 2008 18:02:39 +0100
-Message-ID: <1206205359.7177.84.camel__33746.7245678001$1206206337$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 03/15 v2] preparation: address of the 64bit extint parm
+	in lowcore
+Date: Sat, 22 Mar 2008 18:02:40 +0100
+Message-ID: <1206205360.7177.85.camel__7545.06403250179$1206206337$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 	<1206203560.7177.45.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
@@ -19,234 +19,62 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, kvm-devel@lists.sourceforge.net, Avi Kivity <avi@qumranet.com>, Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@linux-founda>
+To: virtualization@lists.linux-foundation.org, kvm-devel@lists.sourceforge.net, Avi Kivity <avi@qumranet.com>
 Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang,
 	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This patch changes the s390 memory management defintions to use the pgste field
-for dirty and reference bit tracking of host and guest code. Usually on s390, 
-dirty and referenced are tracked in storage keys, which belong to the physical
-page. This changes with virtualization: The guest and host dirty/reference bits
-are defined to be the logical OR of the values for the mapping and the physical
-page. This patch implements the necessary changes in pgtable.h for s390.
+The address 0x11b8 is used by z/VM for pfault and diag 250 I/O to
+provide a 64 bit extint parameter. virtio uses the same address, so
+its time to update the lowcore structure.
 
-
-There is a common code change in mm/rmap.c, the call to page_test_and_clear_young
-must be moved. This is a no-op for all architecture but s390. page_referenced
-checks the referenced bits for the physiscal page and for all mappings:
-o The physical page is checked with page_test_and_clear_young.
-o The mappings are checked with ptep_test_and_clear_young and friends.
-
-Without pgstes (the current implementation on Linux s390) the physical page
-check is implemented but the mapping callbacks are no-ops because dirty 
-and referenced are not tracked in the s390 page tables. The pgstes introduces 
-guest and host dirty and reference bits for s390 in the host mapping. These
-mapping must be checked before page_test_and_clear_young resets the reference
-bit. 
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- include/asm-s390/pgtable.h |  109 +++++++++++++++++++++++++++++++++++++++++++--
- mm/rmap.c                  |    7 +-
- 2 files changed, 110 insertions(+), 6 deletions(-)
+ include/asm-s390/lowcore.h |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-Index: linux-host/include/asm-s390/pgtable.h
+Index: kvm/include/asm-s390/lowcore.h
 ===================================================================
---- linux-host.orig/include/asm-s390/pgtable.h
-+++ linux-host/include/asm-s390/pgtable.h
-@@ -30,6 +30,7 @@
-  */
- #ifndef __ASSEMBLY__
- #include <linux/mm_types.h>
-+#include <asm/atomic.h>
- #include <asm/bug.h>
- #include <asm/processor.h>
+--- kvm.orig/include/asm-s390/lowcore.h
++++ kvm/include/asm-s390/lowcore.h
+@@ -380,27 +380,32 @@ struct _lowcore
+         /* whether the kernel died with panic() or not */
+         __u32        panic_magic;              /* 0xe00 */
  
-@@ -258,6 +259,13 @@ extern char empty_zero_page[PAGE_SIZE];
-  * swap pte is 1011 and 0001, 0011, 0101, 0111 are invalid.
-  */
+-	__u8         pad13[0x1200-0xe04];      /* 0xe04 */
++	__u8         pad13[0x11b8-0xe04];      /* 0xe04 */
++
++	/* 64 bit extparam used for pfault, diag 250 etc  */
++	__u64        ext_params2;               /* 0x11B8 */
++
++	__u8         pad14[0x1200-0x11C0];      /* 0x11C0 */
  
-+/* Page status extended for virtualization */
-+#define _PAGE_RCP_PCL	0x0080000000000000UL
-+#define _PAGE_RCP_HR	0x0040000000000000UL
-+#define _PAGE_RCP_HC	0x0020000000000000UL
-+#define _PAGE_RCP_GR	0x0004000000000000UL
-+#define _PAGE_RCP_GC	0x0002000000000000UL
-+
- #ifndef __s390x__
+         /* System info area */ 
  
- /* Bits in the segment table address-space-control-element */
-@@ -513,6 +521,67 @@ static inline int pte_file(pte_t pte)
- #define __HAVE_ARCH_PTE_SAME
- #define pte_same(a,b)  (pte_val(a) == pte_val(b))
+ 	__u64        floating_pt_save_area[16]; /* 0x1200 */
+ 	__u64        gpregs_save_area[16];      /* 0x1280 */
+ 	__u32        st_status_fixed_logout[4]; /* 0x1300 */
+-	__u8         pad14[0x1318-0x1310];      /* 0x1310 */
++	__u8         pad15[0x1318-0x1310];      /* 0x1310 */
+ 	__u32        prefixreg_save_area;       /* 0x1318 */
+ 	__u32        fpt_creg_save_area;        /* 0x131c */
+-	__u8         pad15[0x1324-0x1320];      /* 0x1320 */
++	__u8         pad16[0x1324-0x1320];      /* 0x1320 */
+ 	__u32        tod_progreg_save_area;     /* 0x1324 */
+ 	__u32        cpu_timer_save_area[2];    /* 0x1328 */
+ 	__u32        clock_comp_save_area[2];   /* 0x1330 */
+-	__u8         pad16[0x1340-0x1338];      /* 0x1338 */ 
++	__u8         pad17[0x1340-0x1338];      /* 0x1338 */
+ 	__u32        access_regs_save_area[16]; /* 0x1340 */ 
+ 	__u64        cregs_save_area[16];       /* 0x1380 */
  
-+static inline void rcp_lock(pte_t *ptep)
-+{
-+#ifdef CONFIG_PGSTE
-+	atomic64_t *rcp = (atomic64_t *) (ptep + PTRS_PER_PTE);
-+	preempt_disable();
-+	atomic64_set_mask(_PAGE_RCP_PCL, rcp);
-+#endif
-+}
-+
-+static inline void rcp_unlock(pte_t *ptep)
-+{
-+#ifdef CONFIG_PGSTE
-+	atomic64_t *rcp = (atomic64_t *) (ptep + PTRS_PER_PTE);
-+	atomic64_clear_mask(_PAGE_RCP_PCL, rcp);
-+	preempt_enable();
-+#endif
-+}
-+
-+static inline void rcp_set_bits(pte_t *ptep, unsigned long val)
-+{
-+#ifdef CONFIG_PGSTE
-+	*(unsigned long *) (ptep + PTRS_PER_PTE) |= val;
-+#endif
-+}
-+
-+static inline int rcp_test_and_clear_bits(pte_t *ptep, unsigned long val)
-+{
-+#ifdef CONFIG_PGSTE
-+	unsigned long ret;
-+
-+	ret = *(unsigned long *) (ptep + PTRS_PER_PTE);
-+	*(unsigned long *) (ptep + PTRS_PER_PTE) &= ~val;
-+	return (ret & val) == val;
-+#else
-+	return 0;
-+#endif
-+}
-+
-+
-+/* forward declaration for SetPageUptodate in page-flags.h*/
-+static inline void page_clear_dirty(struct page *page);
-+#include <linux/page-flags.h>
-+
-+static inline void ptep_rcp_copy(pte_t *ptep)
-+{
-+#ifdef CONFIG_PGSTE
-+	struct page *page = virt_to_page(pte_val(*ptep));
-+	unsigned int skey;
-+
-+	skey = page_get_storage_key(page_to_phys(page));
-+	if (skey & _PAGE_CHANGED)
-+		rcp_set_bits(ptep, _PAGE_RCP_GC);
-+	if (skey & _PAGE_REFERENCED)
-+		rcp_set_bits(ptep, _PAGE_RCP_GR);
-+	if (rcp_test_and_clear_bits(ptep, _PAGE_RCP_HC))
-+		SetPageDirty(page);
-+	if (rcp_test_and_clear_bits(ptep, _PAGE_RCP_HR))
-+		SetPageReferenced(page);
-+#endif
-+}
-+
- /*
-  * query functions pte_write/pte_dirty/pte_young only work if
-  * pte_present() is true. Undefined behaviour if not..
-@@ -599,6 +668,8 @@ static inline void pmd_clear(pmd_t *pmd)
+ 	/* align to the top of the prefix area */
  
- static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
- {
-+	if (mm->context.pgstes)
-+		ptep_rcp_copy(ptep);
- 	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
- 	if (mm->context.noexec)
- 		pte_val(ptep[PTRS_PER_PTE]) = _PAGE_TYPE_EMPTY;
-@@ -667,6 +738,22 @@ static inline pte_t pte_mkyoung(pte_t pt
- static inline int ptep_test_and_clear_young(struct vm_area_struct *vma,
- 					    unsigned long addr, pte_t *ptep)
- {
-+#ifdef CONFIG_PGSTE
-+	unsigned long physpage;
-+	int young;
-+
-+	if (!vma->vm_mm->context.pgstes)
-+		return 0;
-+	physpage = pte_val(*ptep) & PAGE_MASK;
-+
-+	young = ((page_get_storage_key(physpage) & _PAGE_REFERENCED) != 0);
-+	rcp_lock(ptep);
-+	if (young)
-+		rcp_set_bits(ptep, _PAGE_RCP_GR);
-+	young |= rcp_test_and_clear_bits(ptep, _PAGE_RCP_HR);
-+	rcp_unlock(ptep);
-+	return young;
-+#endif
- 	return 0;
- }
- 
-@@ -674,7 +761,13 @@ static inline int ptep_test_and_clear_yo
- static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
- 					 unsigned long address, pte_t *ptep)
- {
--	/* No need to flush TLB; bits are in storage key */
-+	/* No need to flush TLB
-+	 * On s390 reference bits are in storage key and never in TLB
-+	 * With virtualization we handle the reference bit, without we
-+	 * we can simply return */
-+#ifdef CONFIG_PGSTE
-+	return ptep_test_and_clear_young(vma, address, ptep);
-+#endif
- 	return 0;
- }
- 
-@@ -693,15 +786,25 @@ static inline void __ptep_ipte(unsigned 
- 			: "=m" (*ptep) : "m" (*ptep),
- 			  "a" (pto), "a" (address));
- 	}
--	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
- }
- 
- static inline void ptep_invalidate(struct mm_struct *mm,
- 				   unsigned long address, pte_t *ptep)
- {
-+	if (mm->context.pgstes) {
-+		rcp_lock(ptep);
-+		__ptep_ipte(address, ptep);
-+		ptep_rcp_copy(ptep);
-+		pte_val(*ptep) = _PAGE_TYPE_EMPTY;
-+		rcp_unlock(ptep);
-+		return;
-+	}
- 	__ptep_ipte(address, ptep);
--	if (mm->context.noexec)
-+	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
-+	if (mm->context.noexec) {
- 		__ptep_ipte(address, ptep + PTRS_PER_PTE);
-+		pte_val(*(ptep + PTRS_PER_PTE)) = _PAGE_TYPE_EMPTY;
-+	}
- }
- 
- /*
-Index: linux-host/mm/rmap.c
-===================================================================
---- linux-host.orig/mm/rmap.c
-+++ linux-host/mm/rmap.c
-@@ -413,9 +413,6 @@ int page_referenced(struct page *page, i
- {
- 	int referenced = 0;
- 
--	if (page_test_and_clear_young(page))
--		referenced++;
--
- 	if (TestClearPageReferenced(page))
- 		referenced++;
- 
-@@ -433,6 +430,10 @@ int page_referenced(struct page *page, i
- 			unlock_page(page);
- 		}
- 	}
-+
-+	if (page_test_and_clear_young(page))
-+		referenced++;
-+
- 	return referenced;
- }
+-	__u8         pad17[0x2000-0x1400];      /* 0x1400 */
++	__u8         pad18[0x2000-0x1400];      /* 0x1400 */
+ #endif /* !__s390x__ */
+ } __attribute__((packed)); /* End structure*/
