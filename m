@@ -1,7 +1,7 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 14/15 v2] guest: detect when running on kvm
-Date: Sat, 22 Mar 2008 18:03:03 +0100
-Message-ID: <1206205383.7177.96.camel__17325.9693234742$1206224714$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 08/15 v2] kvm-s390: intercepts for privileged instructions
+Date: Sat, 22 Mar 2008 18:02:50 +0100
+Message-ID: <1206205370.7177.90.camel__4420.4170503237$1206229615$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 	<1206203560.7177.45.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
@@ -23,87 +23,453 @@ Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com,
 	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
 From: Carsten Otte <cotte@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This patch adds functionality to detect if the kernel runs under the KVM
-hypervisor. A macro MACHINE_IS_KVM is exported for device drivers. This
-allows drivers to skip device detection if the systems runs non-virtualized.
-We also define a preferred console to avoid having the ttyS0, which is a line
-mode only console.
+This patch introduces in-kernel handling of some intercepts for privileged
+instructions:
+handle_set_prefix()        sets the prefix register of the local cpu
+handle_store_prefix()      stores the content of the prefix register to memory
+handle_store_cpu_address() stores the cpu number of the current cpu to memory
+handle_skey()              just decrements the instruction address and retries
+handle_stsch()             delivers condition code 3 "operation not supported"
+handle_chsc()              same here
+handle_stfl()              stores the facility list which contains the
+                           capabilities of the cpu
+handle_stidp()             stores cpu type/model/revision and such
+handle_stsi()              stores information about the system topology
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- arch/s390/Kconfig        |    7 +++++++
- arch/s390/kernel/early.c |    4 ++++
- arch/s390/kernel/setup.c |   10 +++++++---
- include/asm-s390/setup.h |    1 +
- 4 files changed, 19 insertions(+), 3 deletions(-)
+ arch/s390/kvm/Makefile      |    2 
+ arch/s390/kvm/intercept.c   |    1 
+ arch/s390/kvm/kvm-s390.c    |   11 +
+ arch/s390/kvm/kvm-s390.h    |    3 
+ arch/s390/kvm/priv.c        |  322 ++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-s390/kvm_host.h |   13 +
+ 6 files changed, 351 insertions(+), 1 deletion(-)
 
-Index: kvm/arch/s390/Kconfig
+Index: linux-host/arch/s390/kvm/Makefile
 ===================================================================
---- kvm.orig/arch/s390/Kconfig
-+++ kvm/arch/s390/Kconfig
-@@ -533,6 +533,13 @@ config ZFCPDUMP
- 	  Select this option if you want to build an zfcpdump enabled kernel.
- 	  Refer to <file:Documentation/s390/zfcpdump.txt> for more details on this.
+--- linux-host.orig/arch/s390/kvm/Makefile
++++ linux-host/arch/s390/kvm/Makefile
+@@ -10,5 +10,5 @@ common-objs = $(addprefix ../../../virt/
  
-+config S390_GUEST
-+bool "s390 guest support (EXPERIMENTAL)"
-+	depends on 64BIT && EXPERIMENTAL
-+	select VIRTIO
-+	select VIRTIO_RING
-+	help
-+	  Select this option if you want to run the kernel under s390 linux
- endmenu
+ EXTRA_CFLAGS += -Ivirt/kvm -Iarch/s390/kvm
  
- source "net/Kconfig"
-Index: kvm/arch/s390/kernel/early.c
+-kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o
++kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o priv.o
+ obj-$(CONFIG_KVM) += kvm.o
+Index: linux-host/arch/s390/kvm/intercept.c
 ===================================================================
---- kvm.orig/arch/s390/kernel/early.c
-+++ kvm/arch/s390/kernel/early.c
-@@ -143,6 +143,10 @@ static noinline __init void detect_machi
- 	/* Running on a P/390 ? */
- 	if (cpuinfo->cpu_id.machine == 0x7490)
- 		machine_flags |= 4;
-+
-+	/* Running under KVM ? */
-+	if (cpuinfo->cpu_id.version == 0xfe)
-+		machine_flags |= 64;
+--- linux-host.orig/arch/s390/kvm/intercept.c
++++ linux-host/arch/s390/kvm/intercept.c
+@@ -100,6 +100,7 @@ static int handle_lctl(struct kvm_vcpu *
  }
  
- #ifdef CONFIG_64BIT
-Index: kvm/arch/s390/kernel/setup.c
+ static intercept_handler_t instruction_handlers[256] = {
++	[0xb2] = kvm_s390_handle_priv,
+ 	[0xb7] = handle_lctl,
+ 	[0xeb] = handle_lctg,
+ };
+Index: linux-host/arch/s390/kvm/kvm-s390.c
 ===================================================================
---- kvm.orig/arch/s390/kernel/setup.c
-+++ kvm/arch/s390/kernel/setup.c
-@@ -793,9 +793,13 @@ setup_arch(char **cmdline_p)
- 	       "This machine has an IEEE fpu\n" :
- 	       "This machine has no IEEE fpu\n");
- #else /* CONFIG_64BIT */
--	printk((MACHINE_IS_VM) ?
--	       "We are running under VM (64 bit mode)\n" :
--	       "We are running native (64 bit mode)\n");
-+	if (MACHINE_IS_VM)
-+		printk("We are running under VM (64 bit mode)\n");
-+	else if (MACHINE_IS_KVM) {
-+		printk("We are running under KVM (64 bit mode)\n");
-+		add_preferred_console("ttyS", 1, NULL);
-+	} else
-+		printk("We are running native (64 bit mode)\n");
- #endif /* CONFIG_64BIT */
+--- linux-host.orig/arch/s390/kvm/kvm-s390.c
++++ linux-host/arch/s390/kvm/kvm-s390.c
+@@ -48,6 +48,15 @@ struct kvm_stats_debugfs_item debugfs_en
+ 	{ "deliver_restart_signal", VCPU_STAT(deliver_restart_signal) },
+ 	{ "deliver_program_interruption", VCPU_STAT(deliver_program_int) },
+ 	{ "exit_wait_state", VCPU_STAT(exit_wait_state) },
++	{ "instruction_stidp", VCPU_STAT(instruction_stidp) },
++	{ "instruction_spx", VCPU_STAT(instruction_spx) },
++	{ "instruction_stpx", VCPU_STAT(instruction_stpx) },
++	{ "instruction_stap", VCPU_STAT(instruction_stap) },
++	{ "instruction_storage_key", VCPU_STAT(instruction_storage_key) },
++	{ "instruction_stsch", VCPU_STAT(instruction_stsch) },
++	{ "instruction_chsc", VCPU_STAT(instruction_chsc) },
++	{ "instruction_stsi", VCPU_STAT(instruction_stsi) },
++	{ "instruction_stfl", VCPU_STAT(instruction_stfl) },
+ 	{ NULL }
+ };
  
- 	/* Save unparsed command line copy for /proc/cmdline */
-Index: kvm/include/asm-s390/setup.h
+@@ -249,6 +258,8 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu 
+ 	vcpu->arch.sie_block->eca   = 0xC1002001U;
+ 	setup_timer(&vcpu->arch.ckc_timer, kvm_s390_idle_wakeup,
+ 		 (unsigned long) vcpu);
++	get_cpu_id(&vcpu->arch.cpu_id);
++	vcpu->arch.cpu_id.version = 0xfe;
+ 	return 0;
+ }
+ 
+Index: linux-host/arch/s390/kvm/kvm-s390.h
 ===================================================================
---- kvm.orig/include/asm-s390/setup.h
-+++ kvm/include/asm-s390/setup.h
-@@ -62,6 +62,7 @@ extern unsigned long machine_flags;
- #define MACHINE_IS_VM		(machine_flags & 1)
- #define MACHINE_IS_P390		(machine_flags & 4)
- #define MACHINE_HAS_MVPG	(machine_flags & 16)
-+#define MACHINE_IS_KVM		(machine_flags & 64)
- #define MACHINE_HAS_IDTE	(machine_flags & 128)
- #define MACHINE_HAS_DIAG9C	(machine_flags & 256)
+--- linux-host.orig/arch/s390/kvm/kvm-s390.h
++++ linux-host/arch/s390/kvm/kvm-s390.h
+@@ -47,4 +47,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
+ 		struct kvm_s390_interrupt *s390int);
+ int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code);
++
++/* implemented in priv.c */
++int kvm_s390_handle_priv(struct kvm_vcpu *vcpu);
+ #endif
+Index: linux-host/arch/s390/kvm/priv.c
+===================================================================
+--- /dev/null
++++ linux-host/arch/s390/kvm/priv.c
+@@ -0,0 +1,322 @@
++/*
++ * priv.c - handling privileged instructions
++ *
++ * Copyright IBM Corp. 2008
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ *    Author(s): Carsten Otte <cotte@de.ibm.com>
++ *               Christian Borntraeger <borntraeger@de.ibm.com>
++ */
++
++#include <linux/kvm.h>
++#include <linux/errno.h>
++#include <asm/current.h>
++#include <asm/debug.h>
++#include <asm/ebcdic.h>
++#include <asm/sysinfo.h>
++#include "gaccess.h"
++#include "kvm-s390.h"
++
++static int handle_set_prefix(struct kvm_vcpu *vcpu)
++{
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 operand2;
++	u32 address = 0;
++	u8 tmp;
++
++	vcpu->stat.instruction_spx++;
++
++	operand2 = disp2;
++	if (base2)
++		operand2 += vcpu->arch.guest_gprs[base2];
++
++	/* must be word boundary */
++	if (operand2 & 3) {
++		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++		goto out;
++	}
++
++	/* get the value */
++	if (get_guest_u32(vcpu, operand2, &address)) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	address = address & 0x7fffe000u;
++
++	/* make sure that the new value is valid memory */
++	if (copy_from_guest_absolute(vcpu, &tmp, address, 1) ||
++	   (copy_from_guest_absolute(vcpu, &tmp, address + PAGE_SIZE, 1))) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	vcpu->arch.sie_block->prefix = address;
++	vcpu->arch.sie_block->ihcpu = 0xffff;
++
++	VCPU_EVENT(vcpu, 5, "setting prefix to %x", address);
++out:
++	return 0;
++}
++
++static int handle_store_prefix(struct kvm_vcpu *vcpu)
++{
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 operand2;
++	u32 address;
++
++	vcpu->stat.instruction_stpx++;
++	operand2 = disp2;
++	if (base2)
++		operand2 += vcpu->arch.guest_gprs[base2];
++
++	/* must be word boundary */
++	if (operand2 & 3) {
++		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++		goto out;
++	}
++
++	address = vcpu->arch.sie_block->prefix;
++	address = address & 0x7fffe000u;
++
++	/* get the value */
++	if (put_guest_u32(vcpu, operand2, address)) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	VCPU_EVENT(vcpu, 5, "storing prefix to %x", address);
++out:
++	return 0;
++}
++
++static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
++{
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 useraddr;
++	int rc;
++
++	vcpu->stat.instruction_stap++;
++	useraddr = disp2;
++	if (base2)
++		useraddr += vcpu->arch.guest_gprs[base2];
++
++	if (useraddr & 1) {
++		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++		goto out;
++	}
++
++	rc = put_guest_u16(vcpu, useraddr, vcpu->vcpu_id);
++	if (rc == -EFAULT) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	VCPU_EVENT(vcpu, 5, "storing cpu address to %lx", useraddr);
++out:
++	return 0;
++}
++
++static int handle_skey(struct kvm_vcpu *vcpu)
++{
++	vcpu->stat.instruction_storage_key++;
++	vcpu->arch.sie_block->gpsw.addr -= 4;
++	VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
++	return 0;
++}
++
++static int handle_stsch(struct kvm_vcpu *vcpu)
++{
++	vcpu->stat.instruction_stsch++;
++	VCPU_EVENT(vcpu, 4, "%s", "store subchannel - CC3");
++	/* condition code 3 */
++	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
++	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
++	return 0;
++}
++
++static int handle_chsc(struct kvm_vcpu *vcpu)
++{
++	vcpu->stat.instruction_chsc++;
++	VCPU_EVENT(vcpu, 4, "%s", "channel subsystem call - CC3");
++	/* condition code 3 */
++	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
++	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
++	return 0;
++}
++
++static unsigned int stfl(void)
++{
++	asm volatile(
++		"	.insn	s,0xb2b10000,0(0)\n" /* stfl */
++		"0:\n"
++		EX_TABLE(0b, 0b));
++	return S390_lowcore.stfl_fac_list;
++}
++
++static int handle_stfl(struct kvm_vcpu *vcpu)
++{
++	unsigned int facility_list = stfl();
++	int rc;
++
++	vcpu->stat.instruction_stfl++;
++	facility_list &= ~(1UL<<24); /* no stfle */
++
++	rc = copy_to_guest(vcpu, offsetof(struct _lowcore, stfl_fac_list),
++			   &facility_list, sizeof(facility_list));
++	if (rc == -EFAULT)
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++	else
++		VCPU_EVENT(vcpu, 5, "store facility list value %x",
++			   facility_list);
++
++	return 0;
++}
++
++static int handle_stidp(struct kvm_vcpu *vcpu)
++{
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 operand2;
++	int rc;
++
++	vcpu->stat.instruction_stidp++;
++	operand2 = disp2;
++	if (base2)
++		operand2 += vcpu->arch.guest_gprs[base2];
++
++	if (operand2 & 7) {
++		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++		goto out;
++	}
++
++	rc = put_guest_u64(vcpu, operand2, vcpu->arch.stidp_data);
++	if (rc == -EFAULT) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	VCPU_EVENT(vcpu, 5, "%s", "store cpu id");
++out:
++	return 0;
++}
++
++static void handle_stsi_3_2_2(struct kvm_vcpu *vcpu, struct sysinfo_3_2_2 *mem)
++{
++	struct float_interrupt *fi = &vcpu->kvm->arch.float_int;
++	int cpus = 0;
++	int n;
++
++	spin_lock_bh(&fi->lock);
++	for (n = 0; n < KVM_MAX_VCPUS; n++)
++		if (fi->local_int[n])
++			cpus++;
++	spin_unlock_bh(&fi->lock);
++
++	/* deal with other level 3 hypervisors */
++	if (stsi(mem, 3, 2, 2) == -ENOSYS)
++		mem->count = 0;
++	if (mem->count < 8)
++		mem->count++;
++	for (n = mem->count - 1; n > 0 ; n--)
++		memcpy(&mem->vm[n], &mem->vm[n - 1], sizeof(mem->vm[0]));
++
++	mem->vm[0].cpus_total = cpus;
++	mem->vm[0].cpus_configured = cpus;
++	mem->vm[0].cpus_standby = 0;
++	mem->vm[0].cpus_reserved = 0;
++	mem->vm[0].caf = 1000;
++	memcpy(mem->vm[0].name, "KVMguest", 8);
++	ASCEBC(mem->vm[0].name, 8);
++	memcpy(mem->vm[0].cpi, "KVM/Linux       ", 16);
++	ASCEBC(mem->vm[0].cpi, 16);
++}
++
++static int handle_stsi(struct kvm_vcpu *vcpu)
++{
++	int fc = (vcpu->arch.guest_gprs[0] & 0xf0000000) >> 28;
++	int sel1 = vcpu->arch.guest_gprs[0] & 0xff;
++	int sel2 = vcpu->arch.guest_gprs[1] & 0xffff;
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 operand2;
++	unsigned long mem;
++
++	vcpu->stat.instruction_stsi++;
++	VCPU_EVENT(vcpu, 4, "stsi: fc: %x sel1: %x sel2: %x", fc, sel1, sel2);
++
++	operand2 = disp2;
++	if (base2)
++		operand2 += vcpu->arch.guest_gprs[base2];
++
++	if (operand2 & 0xfff && fc > 0)
++		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++
++	switch (fc) {
++	case 0:
++		vcpu->arch.guest_gprs[0] = 3 << 28;
++		vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
++		return 0;
++	case 1: /* same handling for 1 and 2 */
++	case 2:
++		mem = get_zeroed_page(GFP_KERNEL);
++		if (!mem)
++			goto out_fail;
++		if (stsi((void *) mem, fc, sel1, sel2) == -ENOSYS)
++			goto out_mem;
++		break;
++	case 3:
++		if (sel1 != 2 || sel2 != 2)
++			goto out_fail;
++		mem = get_zeroed_page(GFP_KERNEL);
++		if (!mem)
++			goto out_fail;
++		handle_stsi_3_2_2(vcpu, (void *) mem);
++		break;
++	default:
++		goto out_fail;
++	}
++
++	if (copy_to_guest_absolute(vcpu, operand2, (void *) mem, PAGE_SIZE)) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out_mem;
++	}
++	free_page(mem);
++	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
++	vcpu->arch.guest_gprs[0] = 0;
++	return 0;
++out_mem:
++	free_page(mem);
++out_fail:
++	/* condition code 3 */
++	vcpu->arch.sie_block->gpsw.mask |= 3ul << 44;
++	return 0;
++}
++
++static intercept_handler_t priv_handlers[256] = {
++	[0x02] = handle_stidp,
++	[0x10] = handle_set_prefix,
++	[0x11] = handle_store_prefix,
++	[0x12] = handle_store_cpu_address,
++	[0x29] = handle_skey,
++	[0x2a] = handle_skey,
++	[0x2b] = handle_skey,
++	[0x34] = handle_stsch,
++	[0x5f] = handle_chsc,
++	[0x7d] = handle_stsi,
++	[0xb1] = handle_stfl,
++};
++
++int kvm_s390_handle_priv(struct kvm_vcpu *vcpu)
++{
++	if (priv_handlers[vcpu->arch.sie_block->ipa & 0x00ff])
++		return priv_handlers[vcpu->arch.sie_block->ipa & 0x00ff]
++			(vcpu);
++		return -ENOTSUPP;
++}
+Index: linux-host/include/asm-s390/kvm_host.h
+===================================================================
+--- linux-host.orig/include/asm-s390/kvm_host.h
++++ linux-host/include/asm-s390/kvm_host.h
+@@ -119,6 +119,15 @@ struct kvm_vcpu_stat {
+ 	u32 deliver_restart_signal;
+ 	u32 deliver_program_int;
+ 	u32 exit_wait_state;
++	u32 instruction_stidp;
++	u32 instruction_spx;
++	u32 instruction_stpx;
++	u32 instruction_stap;
++	u32 instruction_storage_key;
++	u32 instruction_stsch;
++	u32 instruction_chsc;
++	u32 instruction_stsi;
++	u32 instruction_stfl;
+ };
+ 
+ struct io_info {
+@@ -188,6 +197,10 @@ struct kvm_vcpu_arch {
+ 	unsigned int      guest_acrs[NUM_ACRS];
+ 	struct local_interrupt local_int;
+ 	struct timer_list ckc_timer;
++	union  {
++		cpuid_t	  cpu_id;
++		u64	  stidp_data;
++	};
+ };
+ 
+ struct kvm_vm_stat {
