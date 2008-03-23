@@ -1,14 +1,15 @@
 From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [RFC PATCH 1/5] lguest: mmap backing file
-Date: Sun, 23 Mar 2008 11:11:02 +0200
-Message-ID: <47E61EA6.4080506__19298.8950912424$1206263590$gmane$org@qumranet.com>
-References: <200803201659.14344.rusty@rustcorp.com.au>	<200803201705.44422.rusty@rustcorp.com.au>	<47E26EE1.5030706@codemonkey.ws>	<200803210912.25648.rusty@rustcorp.com.au>
-	<47E2F75F.2040808@codemonkey.ws>
+Subject: Re: [kvm-devel] [RFC/PATCH 01/15] preparation: provide hook	to	enable
+	pgstes in user pagetable
+Date: Sun, 23 Mar 2008 12:15:22 +0200
+Message-ID: <47E62DBA.4050102__43324.9008180157$1206267468$gmane$org@qumranet.com>
+References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>	<1206030278.6690.52.camel@cotte.boeblingen.de.ibm.com>	<47E29EC6.5050403@goop.org>	<1206040405.8232.24.camel@nimitz.home.sr71.net>	<47E2CAAC.6020903@de.ibm.com>	<1206124176.30471.27.camel@nimitz.home.sr71.net>
+	<20080322175705.GD6367@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47E2F75F.2040808@codemonkey.ws>
+In-Reply-To: <20080322175705.GD6367@osiris.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,37 +19,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, lguest <lguest@ozlabs.org>, virtualization@lists.linux-foundation.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Christian Ehrhardt <EHRHARDT@de.ibm.com>, hollisb@us.ibm.com, arnd@arndb.de, carsteno@de.ibm.com, heicars2@linux.vnet.ibm.com, Dave Hansen <haveblue@us.ibm.com>, jeroney@us.ibm.com, borntrae@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, mschwid2@linux.vnet.ibm.com, rvdheij@gmail.com, Olaf Schnapper <os@de.ibm.com>, jblunck@suse.de, "Zhang,
+	Xiantao" <xiantao.zhang@intel.com>, kvm-devel@lists.sourceforge.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori wrote:
->>>     
+Heiko Carstens wrote:
+>> What you've done with dup_mm() is probably the brute-force way that I
+>> would have done it had I just been trying to make a proof of concept or
+>> something.  I'm worried that there are a bunch of corner cases that
+>> haven't been considered.
+>>
+>> What if someone else is poking around with ptrace or something similar
+>> and they bump the mm_users:
+>>
+>> +       if (tsk->mm->context.pgstes)
+>> +               return 0;
+>> +       if (!tsk->mm || atomic_read(&tsk->mm->mm_users) > 1 ||
+>> +           tsk->mm != tsk->active_mm || tsk->mm->ioctx_list)
+>> +               return -EINVAL;
+>> -------->HERE
+>> +       tsk->mm->context.pgstes = 1;    /* dirty little tricks .. */
+>> +       mm = dup_mm(tsk);
+>>
+>> It'll race, possibly fault in some other pages, and those faults will be
+>> lost during the dup_mm().  I think you need to be able to lock out all
+>> of the users of access_process_vm() before you go and do this.  You also
+>> need to make sure that anyone who has looked at task->mm doesn't go and
+>> get a reference to it and get confused later when it isn't the task->mm
+>> any more.
+>>
+>>     
+>>> Therefore, we need to reallocate the page table after fork() 
+>>> once we know that task is going to be a hypervisor. That's what this 
+>>> code does: reallocate a bigger page table to accomondate the extra 
+>>> information. The task needs to be single-threaded when calling for 
+>>> extended page tables.
+>>>
+>>> Btw: at fork() time, we cannot tell whether or not the user's going to 
+>>> be a hypervisor. Therefore we cannot do this in fork.
 >>>       
->> If we're going to mod the kernel, how about a "mmap this part of their address 
->> space" and having the kernel keep the mappings in sync.  But I think that if 
->> we want to get speed, we should probably be doing the copy between address 
->> spaces in-kernel so we can do lightweight exits.
->>   
+>> Can you convert the page tables at a later time without doing a
+>> wholesale replacement of the mm?  It should be a bit easier to keep
+>> people off the pagetables than keep their grubby mitts off the mm
+>> itself.
 >>     
 >
-> I don't think lightweight exits help the situation very much.  The 
-> difference between a light weight and heavy weight exit is only 3-4k 
-> cycles or so.
+> Yes, as far as I can see you're right. And whatever we do in arch code,
+> after all it's just a work around to avoid a new clone flag.
+> If something like clone() with CLONE_KVM would be useful for more
+> architectures than just s390 then maybe we should try to get a flag.
+>
+> Oh... there are just two unused clone flag bits left. Looks like the
+> namespace changes ate up a lot of them lately.
+>
+> Well, we could still play dirty tricks like setting a bit in current
+> via whatever mechanism which indicates child-wants-extended-page-tables
+> and then just fork and be happy.
 >   
 
-On what host cpu?  IIRC the difference was bigger on Intel (and in 
-relative terms, set to increase).
-
-> in-kernel doesn't make the situation much easier.  You have to map pages 
-> in from a different task.  It's a lot easier if you have both guest 
-> mapped in userspace.
->   
-
-The kernel already has everything mapped (kmap_atomic() is an addition 
-on x86_64).
-
-
+How about taking mmap_sem for write and converting all page tables 
+in-place?  I'd rather avoid the need to fork() when creating a VM.
 
 -- 
 error compiling committee.c: too many arguments to function
