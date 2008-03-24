@@ -1,21 +1,16 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [RFC/PATCH 01/15] preparation: provide	hook	to	enable
-	pgstes in user pagetable
-Date: Mon, 24 Mar 2008 08:57:49 +0200
-Message-ID: <47E750ED.7060509__39823.1773324825$1206342363$gmane$org@qumranet.com>
-References: <1206028710.6690.21.camel@cotte.boeblingen.de.ibm.com>	
-	<1206030278.6690.52.camel@cotte.boeblingen.de.ibm.com>	
-	<47E29EC6.5050403@goop.org>	<1206040405.8232.24.camel@nimitz.home.sr71.net>	
-	<47E2CAAC.6020903@de.ibm.com>	
-	<1206124176.30471.27.camel@nimitz.home.sr71.net>	
-	<20080322175705.GD6367@osiris.boeblingen.de.ibm.com>	
-	<47E62DBA.4050102@qumranet.com>
-	<1206296609.10233.5.camel@localhost>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [RFC/PATCH 01/15 v2] preparation: provide hook to enable pgstes
+	in user pagetable
+Date: Mon, 24 Mar 2008 14:50:02 -0700
+Message-ID: <20080324145002.d59f9372.akpm__28142.2659442343$1206395590$gmane$org@linux-foundation.org>
+References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
+	<1206203560.7177.45.camel@cotte.boeblingen.de.ibm.com>
+	<1206205357.7177.83.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206296609.10233.5.camel@localhost>
+In-Reply-To: <1206205357.7177.83.camel@cotte.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,50 +20,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: schwidefsky@de.ibm.com
-Cc: Christian Ehrhardt <EHRHARDT@de.ibm.com>, hollisb@us.ibm.com, arnd@arndb.de, carsteno@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <haveblue@us.ibm.com>, jeroney@us.ibm.com, borntrae@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, rvdheij@gmail.com, Olaf Schnapper <os@de.ibm.com>, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>, kvm-devel@lists.sourceforge.net
+To: Carsten Otte <cotte@de.ibm.com>
+Cc: npiggin@suse.de, aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, borntraeger@de.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, schwidefsky@de.ibm.com, hugh@veritas.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, xiantao.zhang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Martin Schwidefsky wrote:
-> On Sun, 2008-03-23 at 12:15 +0200, Avi Kivity wrote:
->   
->>>> Can you convert the page tables at a later time without doing a
->>>> wholesale replacement of the mm?  It should be a bit easier to keep
->>>> people off the pagetables than keep their grubby mitts off the mm
->>>> itself.
->>>>     
->>>>         
->>> Yes, as far as I can see you're right. And whatever we do in arch code,
->>> after all it's just a work around to avoid a new clone flag.
->>> If something like clone() with CLONE_KVM would be useful for more
->>> architectures than just s390 then maybe we should try to get a flag.
->>>
->>> Oh... there are just two unused clone flag bits left. Looks like the
->>> namespace changes ate up a lot of them lately.
->>>
->>> Well, we could still play dirty tricks like setting a bit in current
->>> via whatever mechanism which indicates child-wants-extended-page-tables
->>> and then just fork and be happy.
->>>   
->>>       
->> How about taking mmap_sem for write and converting all page tables 
->> in-place?  I'd rather avoid the need to fork() when creating a VM.
->>     
+On Sat, 22 Mar 2008 18:02:37 +0100
+Carsten Otte <cotte@de.ibm.com> wrote:
+
+> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> The SIE instruction on s390 uses the 2nd half of the page table page to
+> virtualize the storage keys of a guest. This patch offers the s390_enable_sie
+> function, which reorganizes the page tables of a single-threaded process to
+> reserve space in the page table:
+> s390_enable_sie makes sure that the process is single threaded and then uses
+> dup_mm to create a new mm with reorganized page tables. The old mm is freed 
+> and the process has now a page status extended field after every page table.
+> 
+> Code that wants to exploit pgstes should SELECT CONFIG_PGSTE.
+> 
+> This patch has a small common code hit, namely making dup_mm non-static.
+> 
+> Edit (Carsten): I've modified Martin's patch, following Jeremy Fitzhardinge's
+> review feedback. Now we do have the prototype for dup_mm in
+> include/linux/sched.h.
+> 
+> ...
 >
-> That was my initial approach as well. If all the page table allocations
-> can be fullfilled the code is not too complicated. To handle allocation
-> failures gets tricky. At this point I realized that dup_mmap already
-> does what we want to do. It walks all the page tables, allocates new
-> page tables and copies the ptes. In principle I would reinvent the wheel
-> if we can not use dup_mmap
+> --- linux-host.orig/kernel/fork.c
+> +++ linux-host/kernel/fork.c
+> @@ -498,7 +498,7 @@ void mm_release(struct task_struct *tsk,
+>   * Allocate a new mm structure and copy contents from the
+>   * mm structure of the passed in task structure.
+>   */
+> -static struct mm_struct *dup_mm(struct task_struct *tsk)
+> +struct mm_struct *dup_mm(struct task_struct *tsk)
+>  {
+>  	struct mm_struct *mm, *oldmm = current->mm;
+>  	int err;
 
-Well, dup_mm() can't work (and now that I think about it, for more 
-reasons -- what if the process has threads?).
+ack
 
-I don't think conversion is too bad.  You'd need a four-level loop to 
-allocate and convert, and another loop to deallocate in case of error.  
-If, as I don't doubt, s390 hardware can modify the ptes, you'd need 
-cmpxchg to read and clear a pte in one operation.
+> --- linux-host.orig/include/linux/sched.h
+> +++ linux-host/include/linux/sched.h
+> @@ -1758,6 +1758,8 @@ extern void mmput(struct mm_struct *);
+>  extern struct mm_struct *get_task_mm(struct task_struct *task);
+>  /* Remove the current tasks stale references to the old mm_struct */
+>  extern void mm_release(struct task_struct *, struct mm_struct *);
+> +/* Allocate a new mm structure and copy contents from tsk->mm */
+> +extern struct mm_struct *dup_mm(struct task_struct *tsk);
+>  
+>  extern int  copy_thread(int, unsigned long, unsigned long, unsigned long, struct task_struct *, struct pt_regs *);
+>  extern void flush_thread(void);
+> 
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+hm, why did we put these in sched.h?
+
+oh well - acked-by-me.
