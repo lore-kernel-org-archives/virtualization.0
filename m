@@ -1,7 +1,8 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 04/15 v3] preparation: split sysinfo defintions for kvm use
-Date: Tue, 25 Mar 2008 18:47:18 +0100
-Message-ID: <1206467238.6507.40.camel__14277.9317255647$1206467613$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 03/15 v3] preparation: address of the 64bit extint parm
+	in lowcore
+Date: Tue, 25 Mar 2008 18:47:15 +0100
+Message-ID: <1206467235.6507.39.camel__6170.40119036591$1206467618$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 	<1206205354.7177.82.camel@cotte.boeblingen.de.ibm.com>
 	<1206458154.6217.12.camel@cotte.boeblingen.de.ibm.com>
@@ -25,252 +26,55 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-drivers/s390/sysinfo.c uses the store system information intruction to query
-the system about information of the machine, the LPAR and additional 
-hypervisors. KVM has to implement the host part for this instruction. 
-
-To avoid code duplication, this patch splits the common definitions from
-sysinfo.c into a separate header file include/asm-s390/sysinfo.h for KVM use.
+The address 0x11b8 is used by z/VM for pfault and diag 250 I/O to
+provide a 64 bit extint parameter. virtio uses the same address, so
+its time to update the lowcore structure.
 
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- drivers/s390/sysinfo.c     |  100 ----------------------------------------
- include/asm-s390/sysinfo.h |  112 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 113 insertions(+), 99 deletions(-)
+ include/asm-s390/lowcore.h |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-Index: kvm/drivers/s390/sysinfo.c
+Index: kvm/include/asm-s390/lowcore.h
 ===================================================================
---- kvm.orig/drivers/s390/sysinfo.c
-+++ kvm/drivers/s390/sysinfo.c
-@@ -11,111 +11,13 @@
- #include <linux/init.h>
- #include <linux/delay.h>
- #include <asm/ebcdic.h>
-+#include <asm/sysinfo.h>
+--- kvm.orig/include/asm-s390/lowcore.h
++++ kvm/include/asm-s390/lowcore.h
+@@ -380,27 +380,32 @@ struct _lowcore
+         /* whether the kernel died with panic() or not */
+         __u32        panic_magic;              /* 0xe00 */
  
- /* Sigh, math-emu. Don't ask. */
- #include <asm/sfp-util.h>
- #include <math-emu/soft-fp.h>
- #include <math-emu/single.h>
+-	__u8         pad13[0x1200-0xe04];      /* 0xe04 */
++	__u8         pad13[0x11b8-0xe04];      /* 0xe04 */
++
++	/* 64 bit extparam used for pfault, diag 250 etc  */
++	__u64        ext_params2;               /* 0x11B8 */
++
++	__u8         pad14[0x1200-0x11C0];      /* 0x11C0 */
  
--struct sysinfo_1_1_1 {
--	char reserved_0[32];
--	char manufacturer[16];
--	char type[4];
--	char reserved_1[12];
--	char model_capacity[16];
--	char sequence[16];
--	char plant[4];
--	char model[16];
--};
--
--struct sysinfo_1_2_1 {
--	char reserved_0[80];
--	char sequence[16];
--	char plant[4];
--	char reserved_1[2];
--	unsigned short cpu_address;
--};
--
--struct sysinfo_1_2_2 {
--	char format;
--	char reserved_0[1];
--	unsigned short acc_offset;
--	char reserved_1[24];
--	unsigned int secondary_capability;
--	unsigned int capability;
--	unsigned short cpus_total;
--	unsigned short cpus_configured;
--	unsigned short cpus_standby;
--	unsigned short cpus_reserved;
--	unsigned short adjustment[0];
--};
--
--struct sysinfo_1_2_2_extension {
--	unsigned int alt_capability;
--	unsigned short alt_adjustment[0];
--};
--
--struct sysinfo_2_2_1 {
--	char reserved_0[80];
--	char sequence[16];
--	char plant[4];
--	unsigned short cpu_id;
--	unsigned short cpu_address;
--};
--
--struct sysinfo_2_2_2 {
--	char reserved_0[32];
--	unsigned short lpar_number;
--	char reserved_1;
--	unsigned char characteristics;
--	unsigned short cpus_total;
--	unsigned short cpus_configured;
--	unsigned short cpus_standby;
--	unsigned short cpus_reserved;
--	char name[8];
--	unsigned int caf;
--	char reserved_2[16];
--	unsigned short cpus_dedicated;
--	unsigned short cpus_shared;
--};
--
--#define LPAR_CHAR_DEDICATED	(1 << 7)
--#define LPAR_CHAR_SHARED	(1 << 6)
--#define LPAR_CHAR_LIMITED	(1 << 5)
--
--struct sysinfo_3_2_2 {
--	char reserved_0[31];
--	unsigned char count;
--	struct {
--		char reserved_0[4];
--		unsigned short cpus_total;
--		unsigned short cpus_configured;
--		unsigned short cpus_standby;
--		unsigned short cpus_reserved;
--		char name[8];
--		unsigned int caf;
--		char cpi[16];
--		char reserved_1[24];
--
--	} vm[8];
--};
--
--static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
--{
--	register int r0 asm("0") = (fc << 28) | sel1;
--	register int r1 asm("1") = sel2;
--
--	asm volatile(
--		"   stsi 0(%2)\n"
--		"0: jz   2f\n"
--		"1: lhi  %0,%3\n"
--		"2:\n"
--		EX_TABLE(0b,1b)
--		: "+d" (r0) : "d" (r1), "a" (sysinfo), "K" (-ENOSYS)
--		: "cc", "memory" );
--	return r0;
--}
--
- static inline int stsi_0(void)
- {
- 	int rc = stsi (NULL, 0, 0, 0);
-Index: kvm/include/asm-s390/sysinfo.h
-===================================================================
---- /dev/null
-+++ kvm/include/asm-s390/sysinfo.h
-@@ -0,0 +1,112 @@
-+/*
-+ * definition for store system information stsi
-+ *
-+ * Copyright IBM Corp. 2001,2008
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License (version 2 only)
-+ * as published by the Free Software Foundation.
-+ *
-+ *    Author(s): Ulrich Weigand <weigand@de.ibm.com>
-+ *               Christian Borntraeger <borntraeger@de.ibm.com>
-+ */
-+
-+struct sysinfo_1_1_1 {
-+	char reserved_0[32];
-+	char manufacturer[16];
-+	char type[4];
-+	char reserved_1[12];
-+	char model_capacity[16];
-+	char sequence[16];
-+	char plant[4];
-+	char model[16];
-+};
-+
-+struct sysinfo_1_2_1 {
-+	char reserved_0[80];
-+	char sequence[16];
-+	char plant[4];
-+	char reserved_1[2];
-+	unsigned short cpu_address;
-+};
-+
-+struct sysinfo_1_2_2 {
-+	char format;
-+	char reserved_0[1];
-+	unsigned short acc_offset;
-+	char reserved_1[24];
-+	unsigned int secondary_capability;
-+	unsigned int capability;
-+	unsigned short cpus_total;
-+	unsigned short cpus_configured;
-+	unsigned short cpus_standby;
-+	unsigned short cpus_reserved;
-+	unsigned short adjustment[0];
-+};
-+
-+struct sysinfo_1_2_2_extension {
-+	unsigned int alt_capability;
-+	unsigned short alt_adjustment[0];
-+};
-+
-+struct sysinfo_2_2_1 {
-+	char reserved_0[80];
-+	char sequence[16];
-+	char plant[4];
-+	unsigned short cpu_id;
-+	unsigned short cpu_address;
-+};
-+
-+struct sysinfo_2_2_2 {
-+	char reserved_0[32];
-+	unsigned short lpar_number;
-+	char reserved_1;
-+	unsigned char characteristics;
-+	unsigned short cpus_total;
-+	unsigned short cpus_configured;
-+	unsigned short cpus_standby;
-+	unsigned short cpus_reserved;
-+	char name[8];
-+	unsigned int caf;
-+	char reserved_2[16];
-+	unsigned short cpus_dedicated;
-+	unsigned short cpus_shared;
-+};
-+
-+#define LPAR_CHAR_DEDICATED	(1 << 7)
-+#define LPAR_CHAR_SHARED	(1 << 6)
-+#define LPAR_CHAR_LIMITED	(1 << 5)
-+
-+struct sysinfo_3_2_2 {
-+	char reserved_0[31];
-+	unsigned char count;
-+	struct {
-+		char reserved_0[4];
-+		unsigned short cpus_total;
-+		unsigned short cpus_configured;
-+		unsigned short cpus_standby;
-+		unsigned short cpus_reserved;
-+		char name[8];
-+		unsigned int caf;
-+		char cpi[16];
-+		char reserved_1[24];
-+
-+	} vm[8];
-+};
-+
-+static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
-+{
-+	register int r0 asm("0") = (fc << 28) | sel1;
-+	register int r1 asm("1") = sel2;
-+
-+	asm volatile(
-+		"   stsi 0(%2)\n"
-+		"0: jz   2f\n"
-+		"1: lhi  %0,%3\n"
-+		"2:\n"
-+		EX_TABLE(0b, 1b)
-+		: "+d" (r0) : "d" (r1), "a" (sysinfo), "K" (-ENOSYS)
-+		: "cc", "memory");
-+	return r0;
-+}
-+
+         /* System info area */ 
+ 
+ 	__u64        floating_pt_save_area[16]; /* 0x1200 */
+ 	__u64        gpregs_save_area[16];      /* 0x1280 */
+ 	__u32        st_status_fixed_logout[4]; /* 0x1300 */
+-	__u8         pad14[0x1318-0x1310];      /* 0x1310 */
++	__u8         pad15[0x1318-0x1310];      /* 0x1310 */
+ 	__u32        prefixreg_save_area;       /* 0x1318 */
+ 	__u32        fpt_creg_save_area;        /* 0x131c */
+-	__u8         pad15[0x1324-0x1320];      /* 0x1320 */
++	__u8         pad16[0x1324-0x1320];      /* 0x1320 */
+ 	__u32        tod_progreg_save_area;     /* 0x1324 */
+ 	__u32        cpu_timer_save_area[2];    /* 0x1328 */
+ 	__u32        clock_comp_save_area[2];   /* 0x1330 */
+-	__u8         pad16[0x1340-0x1338];      /* 0x1338 */ 
++	__u8         pad17[0x1340-0x1338];      /* 0x1338 */
+ 	__u32        access_regs_save_area[16]; /* 0x1340 */ 
+ 	__u64        cregs_save_area[16];       /* 0x1380 */
+ 
+ 	/* align to the top of the prefix area */
+ 
+-	__u8         pad17[0x2000-0x1400];      /* 0x1400 */
++	__u8         pad18[0x2000-0x1400];      /* 0x1400 */
+ #endif /* !__s390x__ */
+ } __attribute__((packed)); /* End structure*/
