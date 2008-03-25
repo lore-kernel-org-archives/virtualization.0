@@ -1,8 +1,7 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 02/15 v3] preparation: host memory management changes
-	for s390 kvm
-Date: Tue, 25 Mar 2008 18:47:12 +0100
-Message-ID: <1206467232.6507.38.camel__16290.5403100469$1206467442$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 08/15 v3] kvm-s390: intercepts for privileged instructions
+Date: Tue, 25 Mar 2008 18:47:29 +0100
+Message-ID: <1206467249.6507.44.camel__49853.1535304666$1206467465$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 	<1206205354.7177.82.camel@cotte.boeblingen.de.ibm.com>
 	<1206458154.6217.12.camel@cotte.boeblingen.de.ibm.com>
@@ -21,216 +20,456 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org, kvm-devel@lists.sourceforge.net, Avi Kivity <avi@qumranet.com>
-Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, Linux Memory Management List <linux-mm@kvack.org>, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, os@de.ibm.com, jblunck@suse.de, rvdheij@gmail.com, "Zhang,
-	Xiantao" <xiantao.zhang@intel.com>
+Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, borntraeger@de.ibm.com, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Carsten Otte <cotte@de.ibm.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This patch changes the s390 memory management defintions to use the pgste field
-for dirty and reference bit tracking of host and guest code. Usually on s390, 
-dirty and referenced are tracked in storage keys, which belong to the physical
-page. This changes with virtualization: The guest and host dirty/reference bits
-are defined to be the logical OR of the values for the mapping and the physical
-page. This patch implements the necessary changes in pgtable.h for s390.
+This patch introduces in-kernel handling of some intercepts for privileged
+instructions:
+handle_set_prefix()        sets the prefix register of the local cpu
+handle_store_prefix()      stores the content of the prefix register to memory
+handle_store_cpu_address() stores the cpu number of the current cpu to memory
+handle_skey()              just decrements the instruction address and retries
+handle_stsch()             delivers condition code 3 "operation not supported"
+handle_chsc()              same here
+handle_stfl()              stores the facility list which contains the
+                           capabilities of the cpu
+handle_stidp()             stores cpu type/model/revision and such
+handle_stsi()              stores information about the system topology
 
-
-There is a common code change in mm/rmap.c, the call to page_test_and_clear_young
-must be moved. This is a no-op for all architecture but s390. page_referenced
-checks the referenced bits for the physiscal page and for all mappings:
-o The physical page is checked with page_test_and_clear_young.
-o The mappings are checked with ptep_test_and_clear_young and friends.
-
-Without pgstes (the current implementation on Linux s390) the physical page
-check is implemented but the mapping callbacks are no-ops because dirty 
-and referenced are not tracked in the s390 page tables. The pgstes introduces 
-guest and host dirty and reference bits for s390 in the host mapping. These
-mapping must be checked before page_test_and_clear_young resets the reference
-bit. 
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- include/asm-s390/pgtable.h |   92 +++++++++++++++++++++++++++++++++++++++++++--
- mm/rmap.c                  |    7 +--
- 2 files changed, 93 insertions(+), 6 deletions(-)
+ arch/s390/kvm/Makefile      |    2 
+ arch/s390/kvm/intercept.c   |    1 
+ arch/s390/kvm/kvm-s390.c    |   11 +
+ arch/s390/kvm/kvm-s390.h    |    3 
+ arch/s390/kvm/priv.c        |  322 ++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-s390/kvm_host.h |   13 +
+ 6 files changed, 351 insertions(+), 1 deletion(-)
 
-Index: kvm/include/asm-s390/pgtable.h
+Index: linux-host/arch/s390/kvm/Makefile
 ===================================================================
---- kvm.orig/include/asm-s390/pgtable.h
-+++ kvm/include/asm-s390/pgtable.h
-@@ -30,6 +30,7 @@
-  */
- #ifndef __ASSEMBLY__
- #include <linux/mm_types.h>
-+#include <asm/bitops.h>
- #include <asm/bug.h>
- #include <asm/processor.h>
+--- linux-host.orig/arch/s390/kvm/Makefile
++++ linux-host/arch/s390/kvm/Makefile
+@@ -10,5 +10,5 @@ common-objs = $(addprefix ../../../virt/
  
-@@ -258,6 +259,13 @@ extern char empty_zero_page[PAGE_SIZE];
-  * swap pte is 1011 and 0001, 0011, 0101, 0111 are invalid.
-  */
+ EXTRA_CFLAGS += -Ivirt/kvm -Iarch/s390/kvm
  
-+/* Page status table bits for virtualization */
-+#define RCP_PCL_BIT	55
-+#define RCP_HR_BIT	54
-+#define RCP_HC_BIT	53
-+#define RCP_GR_BIT	50
-+#define RCP_GC_BIT	49
+-kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o
++kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o priv.o
+ obj-$(CONFIG_KVM) += kvm.o
+Index: linux-host/arch/s390/kvm/intercept.c
+===================================================================
+--- linux-host.orig/arch/s390/kvm/intercept.c
++++ linux-host/arch/s390/kvm/intercept.c
+@@ -100,6 +100,7 @@ static int handle_lctl(struct kvm_vcpu *
+ }
+ 
+ static intercept_handler_t instruction_handlers[256] = {
++	[0xb2] = kvm_s390_handle_priv,
+ 	[0xb7] = handle_lctl,
+ 	[0xeb] = handle_lctg,
+ };
+Index: linux-host/arch/s390/kvm/kvm-s390.c
+===================================================================
+--- linux-host.orig/arch/s390/kvm/kvm-s390.c
++++ linux-host/arch/s390/kvm/kvm-s390.c
+@@ -48,6 +48,15 @@ struct kvm_stats_debugfs_item debugfs_en
+ 	{ "deliver_restart_signal", VCPU_STAT(deliver_restart_signal) },
+ 	{ "deliver_program_interruption", VCPU_STAT(deliver_program_int) },
+ 	{ "exit_wait_state", VCPU_STAT(exit_wait_state) },
++	{ "instruction_stidp", VCPU_STAT(instruction_stidp) },
++	{ "instruction_spx", VCPU_STAT(instruction_spx) },
++	{ "instruction_stpx", VCPU_STAT(instruction_stpx) },
++	{ "instruction_stap", VCPU_STAT(instruction_stap) },
++	{ "instruction_storage_key", VCPU_STAT(instruction_storage_key) },
++	{ "instruction_stsch", VCPU_STAT(instruction_stsch) },
++	{ "instruction_chsc", VCPU_STAT(instruction_chsc) },
++	{ "instruction_stsi", VCPU_STAT(instruction_stsi) },
++	{ "instruction_stfl", VCPU_STAT(instruction_stfl) },
+ 	{ NULL }
+ };
+ 
+@@ -249,6 +258,8 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu 
+ 	vcpu->arch.sie_block->eca   = 0xC1002001U;
+ 	setup_timer(&vcpu->arch.ckc_timer, kvm_s390_idle_wakeup,
+ 		 (unsigned long) vcpu);
++	get_cpu_id(&vcpu->arch.cpu_id);
++	vcpu->arch.cpu_id.version = 0xfe;
+ 	return 0;
+ }
+ 
+Index: linux-host/arch/s390/kvm/kvm-s390.h
+===================================================================
+--- linux-host.orig/arch/s390/kvm/kvm-s390.h
++++ linux-host/arch/s390/kvm/kvm-s390.h
+@@ -47,4 +47,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
+ 		struct kvm_s390_interrupt *s390int);
+ int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code);
 +
- #ifndef __s390x__
- 
- /* Bits in the segment table address-space-control-element */
-@@ -513,6 +521,48 @@ static inline int pte_file(pte_t pte)
- #define __HAVE_ARCH_PTE_SAME
- #define pte_same(a,b)  (pte_val(a) == pte_val(b))
- 
-+static inline void rcp_lock(pte_t *ptep)
++/* implemented in priv.c */
++int kvm_s390_handle_priv(struct kvm_vcpu *vcpu);
+ #endif
+Index: linux-host/arch/s390/kvm/priv.c
+===================================================================
+--- /dev/null
++++ linux-host/arch/s390/kvm/priv.c
+@@ -0,0 +1,322 @@
++/*
++ * priv.c - handling privileged instructions
++ *
++ * Copyright IBM Corp. 2008
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ *    Author(s): Carsten Otte <cotte@de.ibm.com>
++ *               Christian Borntraeger <borntraeger@de.ibm.com>
++ */
++
++#include <linux/kvm.h>
++#include <linux/errno.h>
++#include <asm/current.h>
++#include <asm/debug.h>
++#include <asm/ebcdic.h>
++#include <asm/sysinfo.h>
++#include "gaccess.h"
++#include "kvm-s390.h"
++
++static int handle_set_prefix(struct kvm_vcpu *vcpu)
 +{
-+#ifdef CONFIG_PGSTE
-+	unsigned long *pgste = (unsigned long *) (ptep + PTRS_PER_PTE);
-+	preempt_disable();
-+	while (test_and_set_bit(RCP_PCL_BIT, pgste))
-+		;
-+#endif
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 operand2;
++	u32 address = 0;
++	u8 tmp;
++
++	vcpu->stat.instruction_spx++;
++
++	operand2 = disp2;
++	if (base2)
++		operand2 += vcpu->arch.guest_gprs[base2];
++
++	/* must be word boundary */
++	if (operand2 & 3) {
++		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++		goto out;
++	}
++
++	/* get the value */
++	if (get_guest_u32(vcpu, operand2, &address)) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	address = address & 0x7fffe000u;
++
++	/* make sure that the new value is valid memory */
++	if (copy_from_guest_absolute(vcpu, &tmp, address, 1) ||
++	   (copy_from_guest_absolute(vcpu, &tmp, address + PAGE_SIZE, 1))) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	vcpu->arch.sie_block->prefix = address;
++	vcpu->arch.sie_block->ihcpu = 0xffff;
++
++	VCPU_EVENT(vcpu, 5, "setting prefix to %x", address);
++out:
++	return 0;
 +}
 +
-+static inline void rcp_unlock(pte_t *ptep)
++static int handle_store_prefix(struct kvm_vcpu *vcpu)
 +{
-+#ifdef CONFIG_PGSTE
-+	unsigned long *pgste = (unsigned long *) (ptep + PTRS_PER_PTE);
-+	clear_bit(RCP_PCL_BIT, pgste);
-+	preempt_enable();
-+#endif
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 operand2;
++	u32 address;
++
++	vcpu->stat.instruction_stpx++;
++	operand2 = disp2;
++	if (base2)
++		operand2 += vcpu->arch.guest_gprs[base2];
++
++	/* must be word boundary */
++	if (operand2 & 3) {
++		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++		goto out;
++	}
++
++	address = vcpu->arch.sie_block->prefix;
++	address = address & 0x7fffe000u;
++
++	/* get the value */
++	if (put_guest_u32(vcpu, operand2, address)) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	VCPU_EVENT(vcpu, 5, "storing prefix to %x", address);
++out:
++	return 0;
 +}
 +
-+/* forward declaration for SetPageUptodate in page-flags.h*/
-+static inline void page_clear_dirty(struct page *page);
-+#include <linux/page-flags.h>
-+
-+static inline void ptep_rcp_copy(pte_t *ptep)
++static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
 +{
-+#ifdef CONFIG_PGSTE
-+	struct page *page = virt_to_page(pte_val(*ptep));
-+	unsigned int skey;
-+	unsigned long *pgste = (unsigned long *) (ptep + PTRS_PER_PTE);
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 useraddr;
++	int rc;
 +
-+	skey = page_get_storage_key(page_to_phys(page));
-+	if (skey & _PAGE_CHANGED)
-+		set_bit(RCP_GC_BIT, pgste);
-+	if (skey & _PAGE_REFERENCED)
-+		set_bit(RCP_GR_BIT, pgste);
-+	if (test_and_clear_bit(RCP_HC_BIT, pgste))
-+		SetPageDirty(page);
-+	if (test_and_clear_bit(RCP_HR_BIT, pgste))
-+		SetPageReferenced(page);
-+#endif
++	vcpu->stat.instruction_stap++;
++	useraddr = disp2;
++	if (base2)
++		useraddr += vcpu->arch.guest_gprs[base2];
++
++	if (useraddr & 1) {
++		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++		goto out;
++	}
++
++	rc = put_guest_u16(vcpu, useraddr, vcpu->vcpu_id);
++	if (rc == -EFAULT) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	VCPU_EVENT(vcpu, 5, "storing cpu address to %lx", useraddr);
++out:
++	return 0;
 +}
 +
- /*
-  * query functions pte_write/pte_dirty/pte_young only work if
-  * pte_present() is true. Undefined behaviour if not..
-@@ -599,6 +649,8 @@ static inline void pmd_clear(pmd_t *pmd)
- 
- static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
- {
-+	if (mm->context.pgstes)
-+		ptep_rcp_copy(ptep);
- 	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
- 	if (mm->context.noexec)
- 		pte_val(ptep[PTRS_PER_PTE]) = _PAGE_TYPE_EMPTY;
-@@ -667,6 +719,24 @@ static inline pte_t pte_mkyoung(pte_t pt
- static inline int ptep_test_and_clear_young(struct vm_area_struct *vma,
- 					    unsigned long addr, pte_t *ptep)
- {
-+#ifdef CONFIG_PGSTE
-+	unsigned long physpage;
-+	int young;
-+	unsigned long *pgste;
++static int handle_skey(struct kvm_vcpu *vcpu)
++{
++	vcpu->stat.instruction_storage_key++;
++	vcpu->arch.sie_block->gpsw.addr -= 4;
++	VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
++	return 0;
++}
 +
-+	if (!vma->vm_mm->context.pgstes)
++static int handle_stsch(struct kvm_vcpu *vcpu)
++{
++	vcpu->stat.instruction_stsch++;
++	VCPU_EVENT(vcpu, 4, "%s", "store subchannel - CC3");
++	/* condition code 3 */
++	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
++	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
++	return 0;
++}
++
++static int handle_chsc(struct kvm_vcpu *vcpu)
++{
++	vcpu->stat.instruction_chsc++;
++	VCPU_EVENT(vcpu, 4, "%s", "channel subsystem call - CC3");
++	/* condition code 3 */
++	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
++	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
++	return 0;
++}
++
++static unsigned int stfl(void)
++{
++	asm volatile(
++		"	.insn	s,0xb2b10000,0(0)\n" /* stfl */
++		"0:\n"
++		EX_TABLE(0b, 0b));
++	return S390_lowcore.stfl_fac_list;
++}
++
++static int handle_stfl(struct kvm_vcpu *vcpu)
++{
++	unsigned int facility_list = stfl();
++	int rc;
++
++	vcpu->stat.instruction_stfl++;
++	facility_list &= ~(1UL<<24); /* no stfle */
++
++	rc = copy_to_guest(vcpu, offsetof(struct _lowcore, stfl_fac_list),
++			   &facility_list, sizeof(facility_list));
++	if (rc == -EFAULT)
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++	else
++		VCPU_EVENT(vcpu, 5, "store facility list value %x",
++			   facility_list);
++
++	return 0;
++}
++
++static int handle_stidp(struct kvm_vcpu *vcpu)
++{
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 operand2;
++	int rc;
++
++	vcpu->stat.instruction_stidp++;
++	operand2 = disp2;
++	if (base2)
++		operand2 += vcpu->arch.guest_gprs[base2];
++
++	if (operand2 & 7) {
++		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++		goto out;
++	}
++
++	rc = put_guest_u64(vcpu, operand2, vcpu->arch.stidp_data);
++	if (rc == -EFAULT) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out;
++	}
++
++	VCPU_EVENT(vcpu, 5, "%s", "store cpu id");
++out:
++	return 0;
++}
++
++static void handle_stsi_3_2_2(struct kvm_vcpu *vcpu, struct sysinfo_3_2_2 *mem)
++{
++	struct float_interrupt *fi = &vcpu->kvm->arch.float_int;
++	int cpus = 0;
++	int n;
++
++	spin_lock_bh(&fi->lock);
++	for (n = 0; n < KVM_MAX_VCPUS; n++)
++		if (fi->local_int[n])
++			cpus++;
++	spin_unlock_bh(&fi->lock);
++
++	/* deal with other level 3 hypervisors */
++	if (stsi(mem, 3, 2, 2) == -ENOSYS)
++		mem->count = 0;
++	if (mem->count < 8)
++		mem->count++;
++	for (n = mem->count - 1; n > 0 ; n--)
++		memcpy(&mem->vm[n], &mem->vm[n - 1], sizeof(mem->vm[0]));
++
++	mem->vm[0].cpus_total = cpus;
++	mem->vm[0].cpus_configured = cpus;
++	mem->vm[0].cpus_standby = 0;
++	mem->vm[0].cpus_reserved = 0;
++	mem->vm[0].caf = 1000;
++	memcpy(mem->vm[0].name, "KVMguest", 8);
++	ASCEBC(mem->vm[0].name, 8);
++	memcpy(mem->vm[0].cpi, "KVM/Linux       ", 16);
++	ASCEBC(mem->vm[0].cpi, 16);
++}
++
++static int handle_stsi(struct kvm_vcpu *vcpu)
++{
++	int fc = (vcpu->arch.guest_gprs[0] & 0xf0000000) >> 28;
++	int sel1 = vcpu->arch.guest_gprs[0] & 0xff;
++	int sel2 = vcpu->arch.guest_gprs[1] & 0xffff;
++	int base2 = vcpu->arch.sie_block->ipb >> 28;
++	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
++	u64 operand2;
++	unsigned long mem;
++
++	vcpu->stat.instruction_stsi++;
++	VCPU_EVENT(vcpu, 4, "stsi: fc: %x sel1: %x sel2: %x", fc, sel1, sel2);
++
++	operand2 = disp2;
++	if (base2)
++		operand2 += vcpu->arch.guest_gprs[base2];
++
++	if (operand2 & 0xfff && fc > 0)
++		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++
++	switch (fc) {
++	case 0:
++		vcpu->arch.guest_gprs[0] = 3 << 28;
++		vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
 +		return 0;
-+	physpage = pte_val(*ptep) & PAGE_MASK;
-+	pgste = (unsigned long *) (ptep + PTRS_PER_PTE);
++	case 1: /* same handling for 1 and 2 */
++	case 2:
++		mem = get_zeroed_page(GFP_KERNEL);
++		if (!mem)
++			goto out_fail;
++		if (stsi((void *) mem, fc, sel1, sel2) == -ENOSYS)
++			goto out_mem;
++		break;
++	case 3:
++		if (sel1 != 2 || sel2 != 2)
++			goto out_fail;
++		mem = get_zeroed_page(GFP_KERNEL);
++		if (!mem)
++			goto out_fail;
++		handle_stsi_3_2_2(vcpu, (void *) mem);
++		break;
++	default:
++		goto out_fail;
++	}
 +
-+	young = ((page_get_storage_key(physpage) & _PAGE_REFERENCED) != 0);
-+	rcp_lock(ptep);
-+	if (young)
-+		set_bit(RCP_GR_BIT, pgste);
-+	young |= test_and_clear_bit(RCP_HR_BIT, pgste);
-+	rcp_unlock(ptep);
-+	return young;
-+#endif
- 	return 0;
- }
- 
-@@ -674,7 +744,13 @@ static inline int ptep_test_and_clear_yo
- static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
- 					 unsigned long address, pte_t *ptep)
- {
--	/* No need to flush TLB; bits are in storage key */
-+	/* No need to flush TLB
-+	 * On s390 reference bits are in storage key and never in TLB
-+	 * With virtualization we handle the reference bit, without we
-+	 * we can simply return */
-+#ifdef CONFIG_PGSTE
-+	return ptep_test_and_clear_young(vma, address, ptep);
-+#endif
- 	return 0;
- }
- 
-@@ -693,15 +769,25 @@ static inline void __ptep_ipte(unsigned 
- 			: "=m" (*ptep) : "m" (*ptep),
- 			  "a" (pto), "a" (address));
- 	}
--	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
- }
- 
- static inline void ptep_invalidate(struct mm_struct *mm,
- 				   unsigned long address, pte_t *ptep)
- {
-+	if (mm->context.pgstes) {
-+		rcp_lock(ptep);
-+		__ptep_ipte(address, ptep);
-+		ptep_rcp_copy(ptep);
-+		pte_val(*ptep) = _PAGE_TYPE_EMPTY;
-+		rcp_unlock(ptep);
-+		return;
++	if (copy_to_guest_absolute(vcpu, operand2, (void *) mem, PAGE_SIZE)) {
++		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++		goto out_mem;
 +	}
- 	__ptep_ipte(address, ptep);
--	if (mm->context.noexec)
-+	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
-+	if (mm->context.noexec) {
- 		__ptep_ipte(address, ptep + PTRS_PER_PTE);
-+		pte_val(*(ptep + PTRS_PER_PTE)) = _PAGE_TYPE_EMPTY;
-+	}
- }
- 
- /*
-Index: kvm/mm/rmap.c
++	free_page(mem);
++	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
++	vcpu->arch.guest_gprs[0] = 0;
++	return 0;
++out_mem:
++	free_page(mem);
++out_fail:
++	/* condition code 3 */
++	vcpu->arch.sie_block->gpsw.mask |= 3ul << 44;
++	return 0;
++}
++
++static intercept_handler_t priv_handlers[256] = {
++	[0x02] = handle_stidp,
++	[0x10] = handle_set_prefix,
++	[0x11] = handle_store_prefix,
++	[0x12] = handle_store_cpu_address,
++	[0x29] = handle_skey,
++	[0x2a] = handle_skey,
++	[0x2b] = handle_skey,
++	[0x34] = handle_stsch,
++	[0x5f] = handle_chsc,
++	[0x7d] = handle_stsi,
++	[0xb1] = handle_stfl,
++};
++
++int kvm_s390_handle_priv(struct kvm_vcpu *vcpu)
++{
++	if (priv_handlers[vcpu->arch.sie_block->ipa & 0x00ff])
++		return priv_handlers[vcpu->arch.sie_block->ipa & 0x00ff]
++			(vcpu);
++		return -ENOTSUPP;
++}
+Index: linux-host/include/asm-s390/kvm_host.h
 ===================================================================
---- kvm.orig/mm/rmap.c
-+++ kvm/mm/rmap.c
-@@ -413,9 +413,6 @@ int page_referenced(struct page *page, i
- {
- 	int referenced = 0;
+--- linux-host.orig/include/asm-s390/kvm_host.h
++++ linux-host/include/asm-s390/kvm_host.h
+@@ -119,6 +119,15 @@ struct kvm_vcpu_stat {
+ 	u32 deliver_restart_signal;
+ 	u32 deliver_program_int;
+ 	u32 exit_wait_state;
++	u32 instruction_stidp;
++	u32 instruction_spx;
++	u32 instruction_stpx;
++	u32 instruction_stap;
++	u32 instruction_storage_key;
++	u32 instruction_stsch;
++	u32 instruction_chsc;
++	u32 instruction_stsi;
++	u32 instruction_stfl;
+ };
  
--	if (page_test_and_clear_young(page))
--		referenced++;
--
- 	if (TestClearPageReferenced(page))
- 		referenced++;
+ struct io_info {
+@@ -188,6 +197,10 @@ struct kvm_vcpu_arch {
+ 	unsigned int      guest_acrs[NUM_ACRS];
+ 	struct local_interrupt local_int;
+ 	struct timer_list ckc_timer;
++	union  {
++		cpuid_t	  cpu_id;
++		u64	  stidp_data;
++	};
+ };
  
-@@ -433,6 +430,10 @@ int page_referenced(struct page *page, i
- 			unlock_page(page);
- 		}
- 	}
-+
-+	if (page_test_and_clear_young(page))
-+		referenced++;
-+
- 	return referenced;
- }
+ struct kvm_vm_stat {
