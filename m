@@ -1,7 +1,7 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 10/15 v3] kvm-s390: intercepts for diagnose instructions
-Date: Tue, 25 Mar 2008 18:47:34 +0100
-Message-ID: <1206467254.6507.46.camel__16071.766606956$1206467689$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 12/15 v3] kvm-s390: API documentation
+Date: Tue, 25 Mar 2008 18:47:38 +0100
+Message-ID: <1206467258.6507.48.camel__47334.0209144682$1206467809$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 	<1206205354.7177.82.camel@cotte.boeblingen.de.ibm.com>
 	<1206458154.6217.12.camel@cotte.boeblingen.de.ibm.com>
@@ -24,198 +24,142 @@ Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com,
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Carsten Otte <cotte@de.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This patch introduces interpretation of some diagnose instruction intercepts.
-Diagnose is our classic architected way of doing a hypercall. This patch
-features the following diagnose codes:
-- vm storage size, that tells the guest about its memory layout
-- time slice end, which is used by the guest to indicate that it waits
-  for a lock and thus cannot use up its time slice in a useful way
-- ipl functions, which a guest can use to reset and reboot itself
+This patch adds Documentation/s390/kvm.txt, which describes specifics of kvm's
+user interface that are unique to s390 architecture.
 
-In order to implement ipl functions, we also introduce an exit reason that
-causes userspace to perform various resets on the virtual machine. All resets
-are described in the principles of operation book, except KVM_S390_RESET_IPL
-which causes a reboot of the machine.
-
-Acked-by: Martin Schwidefsky <martin.schwidefsky@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- arch/s390/kvm/Makefile      |    2 -
- arch/s390/kvm/diag.c        |   67 ++++++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/intercept.c   |    1 
- arch/s390/kvm/kvm-s390.c    |    1 
- arch/s390/kvm/kvm-s390.h    |    2 +
- include/asm-s390/kvm_host.h |    5 ++-
- include/linux/kvm.h         |    8 +++++
- 7 files changed, 84 insertions(+), 2 deletions(-)
+ Documentation/s390/kvm.txt |  125 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 125 insertions(+)
 
-Index: linux-host/arch/s390/kvm/Makefile
-===================================================================
---- linux-host.orig/arch/s390/kvm/Makefile
-+++ linux-host/arch/s390/kvm/Makefile
-@@ -10,5 +10,5 @@ common-objs = $(addprefix ../../../virt/
- 
- EXTRA_CFLAGS += -Ivirt/kvm -Iarch/s390/kvm
- 
--kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o priv.o sigp.o
-+kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o interrupt.o priv.o sigp.o diag.o
- obj-$(CONFIG_KVM) += kvm.o
-Index: linux-host/arch/s390/kvm/diag.c
+Index: linux-host/Documentation/s390/kvm.txt
 ===================================================================
 --- /dev/null
-+++ linux-host/arch/s390/kvm/diag.c
-@@ -0,0 +1,67 @@
-+/*
-+ * diag.c - handling diagnose instructions
-+ *
-+ * Copyright IBM Corp. 2008
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License (version 2 only)
-+ * as published by the Free Software Foundation.
-+ *
-+ *    Author(s): Carsten Otte <cotte@de.ibm.com>
-+ *               Christian Borntraeger <borntraeger@de.ibm.com>
-+ */
++++ linux-host/Documentation/s390/kvm.txt
+@@ -0,0 +1,125 @@
++*** BIG FAT WARNING ***
++The kvm module is currently in EXPERIMENTAL state for s390. This means that
++the interface to the module is not yet considered to remain stable. Thus, be
++prepared that we keep breaking your userspace application and guest
++compatibility over and over again until we feel happy with the result. Make sure
++your guest kernel, your host kernel, and your userspace launcher are in a
++consistent state.
 +
-+#include <linux/kvm.h>
-+#include <linux/kvm_host.h>
-+#include "kvm-s390.h"
++This Documentation describes the unique ioctl calls to /dev/kvm, the resulting
++kvm-vm file descriptors, and the kvm-vcpu file descriptors that differ from x86.
 +
-+static int __diag_time_slice_end(struct kvm_vcpu *vcpu)
-+{
-+	VCPU_EVENT(vcpu, 5, "%s", "diag time slice end");
-+	vcpu->stat.diagnose_44++;
-+	vcpu_put(vcpu);
-+	schedule();
-+	vcpu_load(vcpu);
-+	return 0;
-+}
++1. ioctl calls to /dev/kvm
++KVM does support the following ioctls on s390 that are common with other
++architectures and do behave the same:
++KVM_GET_API_VERSION
++KVM_CREATE_VM		(*) see note
++KVM_CHECK_EXTENSION
++KVM_GET_VCPU_MMAP_SIZE
 +
-+static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
-+{
-+	unsigned int reg = vcpu->arch.sie_block->ipa & 0xf;
-+	unsigned long subcode = vcpu->arch.guest_gprs[reg] & 0xffff;
++Notes:
++* KVM_CREATE_VM may fail on s390, if the calling process has multiple
++threads and has not called KVM_S390_ENABLE_SIE before.
 +
-+	VCPU_EVENT(vcpu, 5, "diag ipl functions, subcode %lx", subcode);
-+	switch (subcode) {
-+	case 3:
-+		vcpu->run->s390_reset_flags = KVM_S390_RESET_CLEAR;
-+		break;
-+	case 4:
-+		vcpu->run->s390_reset_flags = 0;
-+		break;
-+	default:
-+		return -ENOTSUPP;
-+	}
++In addition, on s390 the following architecture specific ioctls are supported:
++ioctl:		KVM_S390_ENABLE_SIE
++args:		none
++see also:	include/linux/kvm.h
++This call causes the kernel to switch on PGSTE in the user page table. This
++operation is needed in order to run a virtual machine, and it requires the
++calling process to be single-threaded. Note that the first call to KVM_CREATE_VM
++will implicitly try to switch on PGSTE if the user process has not called
++KVM_S390_ENABLE_SIE before. User processes that want to launch multiple threads
++before creating a virtual machine have to call KVM_S390_ENABLE_SIE, or will
++observe an error calling KVM_CREATE_VM. Switching on PGSTE is a one-time
++operation, is not reversible, and will persist over the entire lifetime of
++the calling process. It does not have any user-visible effect other than a small
++performance penalty.
 +
-+	atomic_clear_mask(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
-+	vcpu->run->s390_reset_flags |= KVM_S390_RESET_SUBSYSTEM;
-+	vcpu->run->s390_reset_flags |= KVM_S390_RESET_IPL;
-+	vcpu->run->s390_reset_flags |= KVM_S390_RESET_CPU_INIT;
-+	vcpu->run->exit_reason = KVM_EXIT_S390_RESET;
-+	VCPU_EVENT(vcpu, 3, "requesting userspace resets %lx",
-+	  vcpu->run->s390_reset_flags);
-+	return -EREMOTE;
-+}
++2. ioctl calls to the kvm-vm file descriptor
++KVM does support the following ioctls on s390 that are common with other
++architectures and do behave the same:
++KVM_CREATE_VCPU
++KVM_SET_USER_MEMORY_REGION      (*) see note
++KVM_GET_DIRTY_LOG		(**) see note
 +
-+int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
-+{
-+	int code = (vcpu->arch.sie_block->ipb & 0xfff0000) >> 16;
++Notes:
++*  kvm does only allow exactly one memory slot on s390, which has to start
++   at guest absolute address zero and at a user address that is aligned on any
++   page boundary. This hardware "limitation" allows us to have a few unique
++   optimizations. The memory slot doesn't have to be filled
++   with memory actually, it may contain sparse holes. That said, with different
++   user memory layout this does still allow a large flexibility when
++   doing the guest memory setup.
++** KVM_GET_DIRTY_LOG doesn't work properly yet. The user will receive an empty
++log. This ioctl call is only needed for guest migration, and we intend to
++implement this one in the future.
 +
-+	switch (code) {
-+	case 0x44:
-+		return __diag_time_slice_end(vcpu);
-+	case 0x308:
-+		return __diag_ipl_functions(vcpu);
-+	default:
-+		return -ENOTSUPP;
-+	}
-+}
-Index: linux-host/arch/s390/kvm/intercept.c
-===================================================================
---- linux-host.orig/arch/s390/kvm/intercept.c
-+++ linux-host/arch/s390/kvm/intercept.c
-@@ -100,6 +100,7 @@ static int handle_lctl(struct kvm_vcpu *
- }
- 
- static intercept_handler_t instruction_handlers[256] = {
-+	[0x83] = kvm_s390_handle_diag,
- 	[0xae] = kvm_s390_handle_sigp,
- 	[0xb2] = kvm_s390_handle_priv,
- 	[0xb7] = handle_lctl,
-Index: linux-host/arch/s390/kvm/kvm-s390.c
-===================================================================
---- linux-host.orig/arch/s390/kvm/kvm-s390.c
-+++ linux-host/arch/s390/kvm/kvm-s390.c
-@@ -63,6 +63,7 @@ struct kvm_stats_debugfs_item debugfs_en
- 	{ "instruction_sigp_set_arch", VCPU_STAT(instruction_sigp_arch) },
- 	{ "instruction_sigp_set_prefix", VCPU_STAT(instruction_sigp_prefix) },
- 	{ "instruction_sigp_restart", VCPU_STAT(instruction_sigp_restart) },
-+	{ "diagnose_44", VCPU_STAT(diagnose_44) },
- 	{ NULL }
- };
- 
-Index: linux-host/arch/s390/kvm/kvm-s390.h
-===================================================================
---- linux-host.orig/arch/s390/kvm/kvm-s390.h
-+++ linux-host/arch/s390/kvm/kvm-s390.h
-@@ -57,4 +57,6 @@ int kvm_s390_handle_sigp(struct kvm_vcpu
- /* implemented in kvm-s390.c */
- int __kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu,
- 				 unsigned long addr);
-+/* implemented in diag.c */
-+int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
- #endif
-Index: linux-host/include/asm-s390/kvm_host.h
-===================================================================
---- linux-host.orig/include/asm-s390/kvm_host.h
-+++ linux-host/include/asm-s390/kvm_host.h
-@@ -94,7 +94,9 @@ struct sie_block {
- 	psw_t	gpsw;			/* 0x0090 */
- 	__u64	gg14;			/* 0x00a0 */
- 	__u64	gg15;			/* 0x00a8 */
--	__u8	reservedb0[80];		/* 0x00b0 */
-+	__u8	reservedb0[30];		/* 0x00b0 */
-+	__u16   iprcc;			/* 0x00ce */
-+	__u8	reservedd0[48];		/* 0x00d0 */
- 	__u64	gcr[16];		/* 0x0100 */
- 	__u64	gbea;			/* 0x0180 */
- 	__u8	reserved188[120];	/* 0x0188 */
-@@ -134,6 +136,7 @@ struct kvm_vcpu_stat {
- 	u32 instruction_sigp_arch;
- 	u32 instruction_sigp_prefix;
- 	u32 instruction_sigp_restart;
-+	u32 diagnose_44;
- };
- 
- struct io_info {
-Index: linux-host/include/linux/kvm.h
-===================================================================
---- linux-host.orig/include/linux/kvm.h
-+++ linux-host/include/linux/kvm.h
-@@ -75,6 +75,7 @@ struct kvm_irqchip {
- #define KVM_EXIT_SET_TPR          11
- #define KVM_EXIT_TPR_ACCESS       12
- #define KVM_EXIT_S390_SIEIC       13
-+#define KVM_EXIT_S390_RESET       14
- 
- /* for KVM_RUN, returned by mmap(vcpu_fd, offset=0) */
- struct kvm_run {
-@@ -147,6 +148,13 @@ struct kvm_run {
- 			__u16 ipa;
- 			__u32 ipb;
- 		} s390_sieic;
-+		/* KVM_EXIT_S390_RESET */
-+#define KVM_S390_RESET_POR       1
-+#define KVM_S390_RESET_CLEAR     2
-+#define KVM_S390_RESET_SUBSYSTEM 4
-+#define KVM_S390_RESET_CPU_INIT  8
-+#define KVM_S390_RESET_IPL       16
-+		__u64 s390_reset_flags;
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
++In addition, on s390 the following architecture specific ioctls for the kvm-vm
++file descriptor are supported:
++ioctl:		KVM_S390_INTERRUPT
++args:		struct kvm_s390_interrupt *
++see also:	include/linux/kvm.h
++This ioctl is used to submit a floating interrupt for a virtual machine.
++Floating interrupts may be delivered to any virtual cpu in the configuration.
++Only some interrupt types defined in include/linux/kvm.h make sense when
++submitted as floating interrupts. The following interrupts are not considered
++to be useful as floating interrupts, and a call to inject them will result in
++-EINVAL error code: program interrupts and interprocessor signals. Valid
++floating interrupts are:
++KVM_S390_INT_VIRTIO
++KVM_S390_INT_SERVICE
++
++3. ioctl calls to the kvm-vcpu file descriptor
++KVM does support the following ioctls on s390 that are common with other
++architectures and do behave the same:
++KVM_RUN
++KVM_GET_REGS
++KVM_SET_REGS
++KVM_GET_SREGS
++KVM_SET_SREGS
++KVM_GET_FPU
++KVM_SET_FPU
++
++In addition, on s390 the following architecture specific ioctls for the
++kvm-vcpu file descriptor are supported:
++ioctl:		KVM_S390_INTERRUPT
++args:		struct kvm_s390_interrupt *
++see also:	include/linux/kvm.h
++This ioctl is used to submit an interrupt for a specific virtual cpu.
++Only some interrupt types defined in include/linux/kvm.h make sense when
++submitted for a specific cpu. The following interrupts are not considered
++to be useful, and a call to inject them will result in -EINVAL error code:
++service processor calls and virtio interrupts. Valid interrupt types are:
++KVM_S390_PROGRAM_INT
++KVM_S390_SIGP_STOP
++KVM_S390_RESTART
++KVM_S390_SIGP_SET_PREFIX
++KVM_S390_INT_EMERGENCY
++
++ioctl:		KVM_S390_STORE_STATUS
++args:		unsigned long
++see also:	include/linux/kvm.h
++This ioctl stores the state of the cpu at the guest real address given as
++argument, unless one of the following values defined in include/linux/kvm.h
++is given as arguement:
++KVM_S390_STORE_STATUS_NOADDR - the CPU stores its status to the save area in
++absolute lowcore as defined by the principles of operation
++KVM_S390_STORE_STATUS_PREFIXED - the CPU stores its status to the save area in
++its prefix page just like the dump tool that comes with zipl. This is useful
++to create a system dump for use with lkcdutils or crash.
++
++ioctl:		KVM_S390_SET_INITIAL_PSW
++args:		struct kvm_s390_psw *
++see also:	include/linux/kvm.h
++This ioctl can be used to set the processor status word (psw) of a stopped cpu
++prior to running it with KVM_RUN. Note that this call is not required to modify
++the psw during sie intercepts that fall back to userspace because struct kvm_run
++does contain the psw, and this value is evaluated during reentry of KVM_RUN
++after the intercept exit was recognized.
++
++ioctl:		KVM_S390_INITIAL_RESET
++args:		none
++see also:	include/linux/kvm.h
++This ioctl can be used to perform an initial cpu reset as defined by the
++principles of operation. The target cpu has to be in stopped state.
