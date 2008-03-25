@@ -1,7 +1,8 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 06/15 v3] kvm-s390: sie intercept handling
-Date: Tue, 25 Mar 2008 18:47:23 +0100
-Message-ID: <1206467243.6507.42.camel__16305.1688847647$1206467585$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 01/15 v3] preparation: provide hook to enable pgstes in
+	user pagetable
+Date: Tue, 25 Mar 2008 18:47:10 +0100
+Message-ID: <1206467230.6507.37.camel__34562.0715794668$1206467602$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 	<1206205354.7177.82.camel@cotte.boeblingen.de.ibm.com>
 	<1206458154.6217.12.camel@cotte.boeblingen.de.ibm.com>
@@ -20,272 +21,247 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org, kvm-devel@lists.sourceforge.net, Avi Kivity <avi@qumranet.com>
-Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, borntraeger@de.ibm.com, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
+Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, Linux Memory Management List <linux-mm@kvack.org>, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, os@de.ibm.com, jblunck@suse.de, rvdheij@gmail.com, "Zhang,
+	Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 From: Carsten Otte <cotte@de.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This path introduces handling of sie intercepts in three flavors: Intercepts
-are either handled completely in-kernel by kvm_handle_sie_intercept(),
-or passed to userspace with corresponding data in struct kvm_run in case
-kvm_handle_sie_intercept() returns -ENOTSUPP.
-In case of partial execution in kernel with the need of userspace support,
-kvm_handle_sie_intercept() may choose to set up struct kvm_run and return
--EREMOTE.
+The SIE instruction on s390 uses the 2nd half of the page table page to
+virtualize the storage keys of a guest. This patch offers the s390_enable_sie
+function, which reorganizes the page tables of a single-threaded process to
+reserve space in the page table:
+s390_enable_sie makes sure that the process is single threaded and then uses
+dup_mm to create a new mm with reorganized page tables. The old mm is freed 
+and the process has now a page status extended field after every page table.
 
-The trivial intercept reasons are handled in this patch:
-handle_noop() just does nothing for intercepts that don't require our support
-  at all
-handle_stop() is called when a cpu enters stopped state, and it drops out to
-  userland after updating our vcpu state
-handle_validity() faults in the cpu lowcore if needed, or passes the request
-  to userland
+Code that wants to exploit pgstes should SELECT CONFIG_PGSTE.
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+This patch has a small common code hit, namely making dup_mm non-static.
+
+Edit (Carsten): I've modified Martin's patch, following Jeremy Fitzhardinge's
+review feedback. Now we do have the prototype for dup_mm in
+include/linux/sched.h. Following Martin's suggestion, s390_enable_sie() does now
+call task_lock() to prevent race against ptrace modification of mm_users.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
- arch/s390/kvm/Makefile      |    2 -
- arch/s390/kvm/intercept.c   |   83 ++++++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.c    |   46 +++++++++++++++++++++++-
- arch/s390/kvm/kvm-s390.h    |    6 +++
- include/asm-s390/kvm_host.h |    4 ++
- include/linux/kvm.h         |    9 ++++
- 6 files changed, 148 insertions(+), 2 deletions(-)
 
-Index: linux-host/arch/s390/kvm/Makefile
+ arch/s390/Kconfig              |    4 ++
+ arch/s390/kernel/setup.c       |    4 ++
+ arch/s390/mm/pgtable.c         |   65 +++++++++++++++++++++++++++++++++++++++--
+ include/asm-s390/mmu.h         |    1 
+ include/asm-s390/mmu_context.h |    8 ++++-
+ include/asm-s390/pgtable.h     |    1 
+ include/linux/sched.h          |    2 +
+ kernel/fork.c                  |    2 -
+ 8 files changed, 82 insertions(+), 5 deletions(-)
+
+Index: linux-host/arch/s390/Kconfig
 ===================================================================
---- linux-host.orig/arch/s390/kvm/Makefile
-+++ linux-host/arch/s390/kvm/Makefile
-@@ -10,5 +10,5 @@ common-objs = $(addprefix ../../../virt/
+--- linux-host.orig/arch/s390/Kconfig
++++ linux-host/arch/s390/Kconfig
+@@ -55,6 +55,10 @@ config GENERIC_LOCKBREAK
+ 	default y
+ 	depends on SMP && PREEMPT
  
- EXTRA_CFLAGS += -Ivirt/kvm -Iarch/s390/kvm
++config PGSTE
++	bool
++	default y if KVM
++
+ mainmenu "Linux Kernel Configuration"
  
--kvm-objs := $(common-objs) kvm-s390.o sie64a.o
-+kvm-objs := $(common-objs) kvm-s390.o sie64a.o intercept.o
- obj-$(CONFIG_KVM) += kvm.o
-Index: linux-host/arch/s390/kvm/intercept.c
+ config S390
+Index: linux-host/arch/s390/kernel/setup.c
 ===================================================================
---- /dev/null
-+++ linux-host/arch/s390/kvm/intercept.c
-@@ -0,0 +1,83 @@
+--- linux-host.orig/arch/s390/kernel/setup.c
++++ linux-host/arch/s390/kernel/setup.c
+@@ -315,7 +315,11 @@ static int __init early_parse_ipldelay(c
+ early_param("ipldelay", early_parse_ipldelay);
+ 
+ #ifdef CONFIG_S390_SWITCH_AMODE
++#ifdef CONFIG_PGSTE
++unsigned int switch_amode = 1;
++#else
+ unsigned int switch_amode = 0;
++#endif
+ EXPORT_SYMBOL_GPL(switch_amode);
+ 
+ static void set_amode_and_uaccess(unsigned long user_amode,
+Index: linux-host/arch/s390/mm/pgtable.c
+===================================================================
+--- linux-host.orig/arch/s390/mm/pgtable.c
++++ linux-host/arch/s390/mm/pgtable.c
+@@ -30,11 +30,27 @@
+ #define TABLES_PER_PAGE	4
+ #define FRAG_MASK	15UL
+ #define SECOND_HALVES	10UL
++
++void clear_table_pgstes(unsigned long *table)
++{
++	clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE/4);
++	memset(table + 256, 0, PAGE_SIZE/4);
++	clear_table(table + 512, _PAGE_TYPE_EMPTY, PAGE_SIZE/4);
++	memset(table + 768, 0, PAGE_SIZE/4);
++}
++
+ #else
+ #define ALLOC_ORDER	2
+ #define TABLES_PER_PAGE	2
+ #define FRAG_MASK	3UL
+ #define SECOND_HALVES	2UL
++
++void clear_table_pgstes(unsigned long *table)
++{
++	clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE/2);
++	memset(table + 256, 0, PAGE_SIZE/2);
++}
++
+ #endif
+ 
+ unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec)
+@@ -153,7 +169,7 @@ unsigned long *page_table_alloc(struct m
+ 	unsigned long *table;
+ 	unsigned long bits;
+ 
+-	bits = mm->context.noexec ? 3UL : 1UL;
++	bits = (mm->context.noexec || mm->context.pgstes) ? 3UL : 1UL;
+ 	spin_lock(&mm->page_table_lock);
+ 	page = NULL;
+ 	if (!list_empty(&mm->context.pgtable_list)) {
+@@ -170,7 +186,10 @@ unsigned long *page_table_alloc(struct m
+ 		pgtable_page_ctor(page);
+ 		page->flags &= ~FRAG_MASK;
+ 		table = (unsigned long *) page_to_phys(page);
+-		clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE);
++		if (mm->context.pgstes)
++			clear_table_pgstes(table);
++		else
++			clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE);
+ 		spin_lock(&mm->page_table_lock);
+ 		list_add(&page->lru, &mm->context.pgtable_list);
+ 	}
+@@ -191,7 +210,7 @@ void page_table_free(struct mm_struct *m
+ 	struct page *page;
+ 	unsigned long bits;
+ 
+-	bits = mm->context.noexec ? 3UL : 1UL;
++	bits = (mm->context.noexec || mm->context.pgstes) ? 3UL : 1UL;
+ 	bits <<= (__pa(table) & (PAGE_SIZE - 1)) / 256 / sizeof(unsigned long);
+ 	page = pfn_to_page(__pa(table) >> PAGE_SHIFT);
+ 	spin_lock(&mm->page_table_lock);
+@@ -228,3 +247,43 @@ void disable_noexec(struct mm_struct *mm
+ 	mm->context.noexec = 0;
+ 	update_mm(mm, tsk);
+ }
++
 +/*
-+ * intercept.c - in-kernel handling for sie intercepts
-+ *
-+ * Copyright IBM Corp. 2008
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License (version 2 only)
-+ * as published by the Free Software Foundation.
-+ *
-+ *    Author(s): Carsten Otte <cotte@de.ibm.com>
-+ *               Christian Borntraeger <borntraeger@de.ibm.com>
++ * switch on pgstes for its userspace process (for kvm)
 + */
-+
-+#include <linux/kvm_host.h>
-+#include <linux/errno.h>
-+#include <linux/pagemap.h>
-+
-+#include <asm/kvm_host.h>
-+
-+#include "kvm-s390.h"
-+
-+static int handle_noop(struct kvm_vcpu *vcpu)
++int s390_enable_sie(void)
 +{
-+	switch (vcpu->arch.sie_block->icptcode) {
-+	case 0x10:
-+		vcpu->stat.exit_external_request++;
-+		break;
-+	case 0x14:
-+		vcpu->stat.exit_external_interrupt++;
-+		break;
-+	default:
-+		break; /* nothing */
-+	}
-+	return 0;
-+}
-+
-+static int handle_stop(struct kvm_vcpu *vcpu)
-+{
-+	vcpu->stat.exit_stop_request++;
-+	VCPU_EVENT(vcpu, 3, "%s", "cpu stopped");
-+	atomic_clear_mask(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
-+	return -ENOTSUPP;
-+}
-+
-+static int handle_validity(struct kvm_vcpu *vcpu)
-+{
-+	int viwhy = vcpu->arch.sie_block->ipb >> 16;
-+	vcpu->stat.exit_validity++;
-+	if (viwhy == 0x37) {
-+		fault_in_pages_writeable((char __user *)
-+				vcpu->kvm->arch.guest_origin +
-+				vcpu->arch.sie_block->prefix, PAGE_SIZE);
-+		return 0;
-+	}
-+	VCPU_EVENT(vcpu, 2, "unhandled validity intercept code %d",
-+		viwhy);
-+	return -ENOTSUPP;
-+}
-+
-+static const intercept_handler_t intercept_funcs[0x48 >> 2] = {
-+	[0x00 >> 2] = handle_noop,
-+	[0x10 >> 2] = handle_noop,
-+	[0x14 >> 2] = handle_noop,
-+	[0x20 >> 2] = handle_validity,
-+	[0x28 >> 2] = handle_stop,
-+};
-+
-+int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
-+{
-+	intercept_handler_t func;
-+	u8 code = vcpu->arch.sie_block->icptcode;
-+
-+	if (code & 3 || code > 0x48)
-+		return -ENOTSUPP;
-+
-+	func = intercept_funcs[code >> 2];
-+
-+	if (func)
-+		return func(vcpu);
-+
-+	return -ENOTSUPP;
-+}
-+
-Index: linux-host/arch/s390/kvm/kvm-s390.c
-===================================================================
---- linux-host.orig/arch/s390/kvm/kvm-s390.c
-+++ linux-host/arch/s390/kvm/kvm-s390.c
-@@ -23,12 +23,17 @@
- #include <asm/lowcore.h>
- #include <asm/pgtable.h>
- 
-+#include "kvm-s390.h"
- #include "gaccess.h"
- 
- #define VCPU_STAT(x) offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU
- 
- struct kvm_stats_debugfs_item debugfs_entries[] = {
- 	{ "userspace_handled", VCPU_STAT(exit_userspace) },
-+	{ "exit_validity", VCPU_STAT(exit_validity) },
-+	{ "exit_stop_request", VCPU_STAT(exit_stop_request) },
-+	{ "exit_external_request", VCPU_STAT(exit_external_request) },
-+	{ "exit_external_interrupt", VCPU_STAT(exit_external_interrupt) },
- 	{ NULL }
- };
- 
-@@ -384,6 +389,7 @@ static void __vcpu_run(struct kvm_vcpu *
- 
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- {
++	struct task_struct *tsk = current;
++	struct mm_struct *mm;
 +	int rc;
- 	sigset_t sigsaved;
- 
- 	vcpu_load(vcpu);
-@@ -393,7 +399,45 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_v
- 
- 	atomic_set_mask(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
- 
--	__vcpu_run(vcpu);
-+	switch (kvm_run->exit_reason) {
-+	case KVM_EXIT_S390_SIEIC:
-+		vcpu->arch.sie_block->gpsw.mask = kvm_run->s390_sieic.mask;
-+		vcpu->arch.sie_block->gpsw.addr = kvm_run->s390_sieic.addr;
-+		break;
-+	case KVM_EXIT_UNKNOWN:
-+	case KVM_EXIT_S390_RESET:
-+		break;
-+	default:
-+		BUG();
-+	}
 +
-+	might_sleep();
++	task_lock(tsk);
 +
-+	do {
-+		__vcpu_run(vcpu);
++	rc = 0;
++	if (tsk->mm->context.pgstes)
++		goto unlock;
 +
-+		rc = kvm_handle_sie_intercept(vcpu);
-+	} while (!signal_pending(current) && !rc);
++	rc = -EINVAL;
++	if (!tsk->mm || atomic_read(&tsk->mm->mm_users) > 1 ||
++	    tsk->mm != tsk->active_mm || tsk->mm->ioctx_list)
++		goto unlock;
 +
-+	if ((rc == 0) && signal_pending(current))
-+		rc = -EINTR;
++	tsk->mm->context.pgstes = 1;	/* dirty little tricks .. */
++	mm = dup_mm(tsk);
++	tsk->mm->context.pgstes = 0;
 +
-+	if (rc == -ENOTSUPP) {
-+		/* intercept cannot be handled in-kernel, prepare kvm-run */
-+		kvm_run->exit_reason         = KVM_EXIT_S390_SIEIC;
-+		kvm_run->s390_sieic.icptcode = vcpu->arch.sie_block->icptcode;
-+		kvm_run->s390_sieic.mask     = vcpu->arch.sie_block->gpsw.mask;
-+		kvm_run->s390_sieic.addr     = vcpu->arch.sie_block->gpsw.addr;
-+		kvm_run->s390_sieic.ipa      = vcpu->arch.sie_block->ipa;
-+		kvm_run->s390_sieic.ipb      = vcpu->arch.sie_block->ipb;
-+		rc = 0;
-+	}
-+
-+	if (rc == -EREMOTE) {
-+		/* intercept was handled, but userspace support is needed
-+		 * kvm_run has been prepared by the handler */
-+		rc = 0;
-+	}
- 
- 	if (vcpu->sigset_active)
- 		sigprocmask(SIG_SETMASK, &sigsaved, NULL);
-Index: linux-host/arch/s390/kvm/kvm-s390.h
++	rc = -ENOMEM;
++	if (!mm)
++		goto unlock;
++	mmput(tsk->mm);
++	tsk->mm = tsk->active_mm = mm;
++	preempt_disable();
++	update_mm(mm, tsk);
++	cpu_set(smp_processor_id(), mm->cpu_vm_mask);
++	preempt_enable();
++	rc = 0;
++unlock:
++	task_unlock(tsk);
++	return rc;
++}
++EXPORT_SYMBOL_GPL(s390_enable_sie);
+Index: linux-host/include/asm-s390/mmu.h
 ===================================================================
---- linux-host.orig/arch/s390/kvm/kvm-s390.h
-+++ linux-host/arch/s390/kvm/kvm-s390.h
-@@ -13,6 +13,12 @@
+--- linux-host.orig/include/asm-s390/mmu.h
++++ linux-host/include/asm-s390/mmu.h
+@@ -7,6 +7,7 @@ typedef struct {
+ 	unsigned long asce_bits;
+ 	unsigned long asce_limit;
+ 	int noexec;
++	int pgstes;
+ } mm_context_t;
  
- #ifndef ARCH_S390_KVM_S390_H
- #define ARCH_S390_KVM_S390_H
-+#include <linux/kvm_host.h>
-+
-+typedef  int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
-+
-+extern int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu);
-+
- #define VM_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
- do { \
- 	debug_sprintf_event(d_kvm->arch.dbf, d_loglevel, d_string "\n", \
-Index: linux-host/include/asm-s390/kvm_host.h
+ #endif
+Index: linux-host/include/asm-s390/mmu_context.h
 ===================================================================
---- linux-host.orig/include/asm-s390/kvm_host.h
-+++ linux-host/include/asm-s390/kvm_host.h
-@@ -101,6 +101,10 @@ struct sie_block {
- 
- struct kvm_vcpu_stat {
- 	u32 exit_userspace;
-+	u32 exit_external_request;
-+	u32 exit_external_interrupt;
-+	u32 exit_stop_request;
-+	u32 exit_validity;
- };
- 
- struct kvm_vcpu_arch {
-Index: linux-host/include/linux/kvm.h
+--- linux-host.orig/include/asm-s390/mmu_context.h
++++ linux-host/include/asm-s390/mmu_context.h
+@@ -20,7 +20,13 @@ static inline int init_new_context(struc
+ #ifdef CONFIG_64BIT
+ 	mm->context.asce_bits |= _ASCE_TYPE_REGION3;
+ #endif
+-	mm->context.noexec = s390_noexec;
++	if (current->mm->context.pgstes) {
++		mm->context.noexec = 0;
++		mm->context.pgstes = 1;
++	} else {
++		mm->context.noexec = s390_noexec;
++		mm->context.pgstes = 0;
++	}
+ 	mm->context.asce_limit = STACK_TOP_MAX;
+ 	crst_table_init((unsigned long *) mm->pgd, pgd_entry_type(mm));
+ 	return 0;
+Index: linux-host/include/asm-s390/pgtable.h
 ===================================================================
---- linux-host.orig/include/linux/kvm.h
-+++ linux-host/include/linux/kvm.h
-@@ -74,6 +74,7 @@ struct kvm_irqchip {
- #define KVM_EXIT_INTR             10
- #define KVM_EXIT_SET_TPR          11
- #define KVM_EXIT_TPR_ACCESS       12
-+#define KVM_EXIT_S390_SIEIC       13
+--- linux-host.orig/include/asm-s390/pgtable.h
++++ linux-host/include/asm-s390/pgtable.h
+@@ -966,6 +966,7 @@ static inline pte_t mk_swap_pte(unsigned
  
- /* for KVM_RUN, returned by mmap(vcpu_fd, offset=0) */
- struct kvm_run {
-@@ -138,6 +139,14 @@ struct kvm_run {
- 			__u32 is_write;
- 			__u32 pad;
- 		} tpr_access;
-+		/* KVM_EXIT_S390_SIEIC */
-+		struct {
-+			__u8 icptcode;
-+			__u64 mask; /* psw upper half */
-+			__u64 addr; /* psw lower half */
-+			__u16 ipa;
-+			__u32 ipb;
-+		} s390_sieic;
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
+ extern int add_shared_memory(unsigned long start, unsigned long size);
+ extern int remove_shared_memory(unsigned long start, unsigned long size);
++extern int s390_enable_sie(void);
+ 
+ /*
+  * No page table caches to initialise
+Index: linux-host/kernel/fork.c
+===================================================================
+--- linux-host.orig/kernel/fork.c
++++ linux-host/kernel/fork.c
+@@ -498,7 +498,7 @@ void mm_release(struct task_struct *tsk,
+  * Allocate a new mm structure and copy contents from the
+  * mm structure of the passed in task structure.
+  */
+-static struct mm_struct *dup_mm(struct task_struct *tsk)
++struct mm_struct *dup_mm(struct task_struct *tsk)
+ {
+ 	struct mm_struct *mm, *oldmm = current->mm;
+ 	int err;
+Index: linux-host/include/linux/sched.h
+===================================================================
+--- linux-host.orig/include/linux/sched.h
++++ linux-host/include/linux/sched.h
+@@ -1758,6 +1758,8 @@ extern void mmput(struct mm_struct *);
+ extern struct mm_struct *get_task_mm(struct task_struct *task);
+ /* Remove the current tasks stale references to the old mm_struct */
+ extern void mm_release(struct task_struct *, struct mm_struct *);
++/* Allocate a new mm structure and copy contents from tsk->mm */
++extern struct mm_struct *dup_mm(struct task_struct *tsk);
+ 
+ extern int  copy_thread(int, unsigned long, unsigned long, unsigned long, struct task_struct *, struct pt_regs *);
+ extern void flush_thread(void);
