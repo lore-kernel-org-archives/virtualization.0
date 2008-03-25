@@ -1,16 +1,16 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [RFC/PATCH 02/15 v2] preparation: host memory management
-	changes for s390 kvm
-Date: Mon, 24 Mar 2008 14:52:09 -0700
-Message-ID: <20080324145209.23920166.akpm__45502.4096220315$1206395701$gmane$org@linux-foundation.org>
-References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
-	<1206203560.7177.45.camel@cotte.boeblingen.de.ibm.com>
-	<1206205359.7177.84.camel@cotte.boeblingen.de.ibm.com>
+From: "Christopher S. Aker" <caker@theshore.net>
+Subject: Re: [Xen-devel] Re: Xen paravirt frontend block hang
+Date: Mon, 24 Mar 2008 21:37:42 -0400
+Message-ID: <47E85766.7020108__10653.2650221654$1206409330$gmane$org@theshore.net>
+References: <4772AC8E.7010007@theshore.net>
+	<47C712EF.1060703@goop.org>	<47C9F818.4020200@theshore.net>
+	<47CAC931.1000107@goop.org> <47CACFBE.5010007@theshore.net>
+	<47DFE75B.7080404@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206205359.7177.84.camel@cotte.boeblingen.de.ibm.com>
+In-Reply-To: <47DFE75B.7080404@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,60 +20,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carsten Otte <cotte@de.ibm.com>
-Cc: npiggin@suse.de, aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, borntraeger@de.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, schwidefsky@de.ibm.com, hugh@veritas.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, xiantao.zhang@intel.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xming <xmingske@gmail.com>, Xen-devel <xen-devel@lists.xensource.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 22 Mar 2008 18:02:39 +0100
-Carsten Otte <cotte@de.ibm.com> wrote:
+Jeremy Fitzhardinge wrote:
+> Christopher S. Aker wrote:
+>> Jeremy Fitzhardinge wrote:
+>>> Are you running an SMP or UP domain?  I found I could get hangs very 
+>>> easily with UP (but I need confirm it isn't a result of some other 
+>>> very experimental patches).
+>>
+>> The hang occurs with both SMP and UP compiled pv_ops kernels.  SMP 
+>> kernels are still slightly responsive after the hang occurs, which 
+>> makes me think only one proc gets stuck at a time, not the entire kernel. 
+> 
+> The patch I posted yesterday - "xen: fix RMW when unmasking events" - 
+> should definitively fix the hanging-under-load bugs (I hope). 
 
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> From: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> This patch changes the s390 memory management defintions to use the pgste field
-> for dirty and reference bit tracking of host and guest code. Usually on s390, 
-> dirty and referenced are tracked in storage keys, which belong to the physical
-> page. This changes with virtualization: The guest and host dirty/reference bits
-> are defined to be the logical OR of the values for the mapping and the physical
-> page. This patch implements the necessary changes in pgtable.h for s390.
-> 
-> 
-> There is a common code change in mm/rmap.c, the call to page_test_and_clear_young
-> must be moved. This is a no-op for all architecture but s390. page_referenced
-> checks the referenced bits for the physiscal page and for all mappings:
-> o The physical page is checked with page_test_and_clear_young.
-> o The mappings are checked with ptep_test_and_clear_young and friends.
-> 
-> Without pgstes (the current implementation on Linux s390) the physical page
-> check is implemented but the mapping callbacks are no-ops because dirty 
-> and referenced are not tracked in the s390 page tables. The pgstes introduces 
-> guest and host dirty and reference bits for s390 in the host mapping. These
-> mapping must be checked before page_test_and_clear_young resets the reference
-> bit. 
->
-> ...
->
-> --- linux-host.orig/mm/rmap.c
-> +++ linux-host/mm/rmap.c
-> @@ -413,9 +413,6 @@ int page_referenced(struct page *page, i
->  {
->  	int referenced = 0;
->  
-> -	if (page_test_and_clear_young(page))
-> -		referenced++;
-> -
->  	if (TestClearPageReferenced(page))
->  		referenced++;
->  
-> @@ -433,6 +430,10 @@ int page_referenced(struct page *page, i
->  			unlock_page(page);
->  		}
->  	}
-> +
-> +	if (page_test_and_clear_young(page))
-> +		referenced++;
-> +
->  	return referenced;
->  }
+Confirmed-by: caker@theshore.net
 
-ack.
+Nice work!
+
+-Chris
