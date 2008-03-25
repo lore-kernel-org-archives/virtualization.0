@@ -1,14 +1,15 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: [RFC/PATCH 00/15 v3] kvm on big iron
-Date: Tue, 25 Mar 2008 18:47:07 +0100
-Message-ID: <1206467227.6507.36.camel__35281.058777082$1206467609$gmane$org@cotte.boeblingen.de.ibm.com>
+Subject: [RFC/PATCH 04/15 v3] preparation: split sysinfo defintions for kvm use
+Date: Tue, 25 Mar 2008 18:47:18 +0100
+Message-ID: <1206467238.6507.40.camel__14277.9317255647$1206467613$gmane$org@cotte.boeblingen.de.ibm.com>
 References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
 	<1206205354.7177.82.camel@cotte.boeblingen.de.ibm.com>
+	<1206458154.6217.12.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206205354.7177.82.camel@cotte.boeblingen.de.ibm.com>
+In-Reply-To: <1206458154.6217.12.camel@cotte.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,53 +20,257 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org, kvm-devel@lists.sourceforge.net, Avi Kivity <avi@qumranet.com>
-Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, Linux Memory Management List <linux-mm@kvack.org>, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, os@de.ibm.com, jblunck@suse.de, rvdheij@gmail.com, "Zhang,
-	Xiantao" <xiantao.zhang@intel.com>
+Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, borntraeger@de.ibm.com, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Many thanks for the review feedback we have received so far,
-and many thanks to Andrew for reviewing our common code memory
-management changes. I do greatly appreciate that :-).
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-All important parts have been reviewed, all review feedback has been
-integrated in the code. Therefore we would like to ask for inclusion of
-our work into kvm.git.
+drivers/s390/sysinfo.c uses the store system information intruction to query
+the system about information of the machine, the LPAR and additional 
+hypervisors. KVM has to implement the host part for this instruction. 
 
-Changes from Version 1:
-- include feedback from Randy Dunlap on the documentation
-- include feedback from Jeremy Fitzhardinge, the prototype for dup_mm
-  has moved to include/linux/sched.h
-- rebase to current kvm.git hash g361be34. Thank you Avi for pulling
-  in the fix we need, and for moving KVM_MAX_VCPUS to include/arch :-).
+To avoid code duplication, this patch splits the common definitions from
+sysinfo.c into a separate header file include/asm-s390/sysinfo.h for KVM use.
 
-Changes from Version 2:
-- include feedback from Rusty Russell on the virtio patch
-- include fix for race s390_enable_sie() versus ptrace spotted by Dave 
-  Hansen: we now do task_lock() to protect mm_users from update while 
-  we're growing the page table. Good catch, Dave :-).
-- rebase to current kvm.git hash g680615e
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Carsten Otte <cotte@de.ibm.com>
+---
+ drivers/s390/sysinfo.c     |  100 ----------------------------------------
+ include/asm-s390/sysinfo.h |  112 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 113 insertions(+), 99 deletions(-)
 
-Todo list:
-- I've created a patch for Christoph Helwig's feedback about symbolic
-names for machine_flags. This change is independent of the kvm port, and
-I will submit it for review to Martin.
-
-The patch queue consists of the following patches:
-[RFC/PATCH 01/15] preparation: provide hook to enable pgstes in user 
-                               pagetable
-[RFC/PATCH 02/15] preparation: host memory management changes for s390 
-                               kvm
-[RFC/PATCH 03/15] preparation: address of the 64bit extint parm in 
-                               lowcore
-[RFC/PATCH 04/15] preparation: split sysinfo defintions for kvm use
-[RFC/PATCH 05/15] kvm-s390: s390 arch backend for the kvm kernel module
-[RFC/PATCH 06/15] kvm-s390: sie intercept handling
-[RFC/PATCH 07/15] kvm-s390: interrupt subsystem, cpu timer, waitpsw
-[RFC/PATCH 08/15] kvm-s390: intercepts for privileged instructions
-[RFC/PATCH 09/15] kvm-s390: interprocessor communication via sigp
-[RFC/PATCH 10/15] kvm-s390: intercepts for diagnose instructions
-[RFC/PATCH 11/15] kvm-s390: add kvm to kconfig on s390
-[RFC/PATCH 12/15] kvm-s390: API documentation
-[RFC/PATCH 13/15] kvm-s390: update maintainers
-[RFC/PATCH 14/15] guest: detect when running on kvm
-[RFC/PATCH 15/15] guest: virtio device support, and kvm hypercalls
+Index: kvm/drivers/s390/sysinfo.c
+===================================================================
+--- kvm.orig/drivers/s390/sysinfo.c
++++ kvm/drivers/s390/sysinfo.c
+@@ -11,111 +11,13 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ #include <asm/ebcdic.h>
++#include <asm/sysinfo.h>
+ 
+ /* Sigh, math-emu. Don't ask. */
+ #include <asm/sfp-util.h>
+ #include <math-emu/soft-fp.h>
+ #include <math-emu/single.h>
+ 
+-struct sysinfo_1_1_1 {
+-	char reserved_0[32];
+-	char manufacturer[16];
+-	char type[4];
+-	char reserved_1[12];
+-	char model_capacity[16];
+-	char sequence[16];
+-	char plant[4];
+-	char model[16];
+-};
+-
+-struct sysinfo_1_2_1 {
+-	char reserved_0[80];
+-	char sequence[16];
+-	char plant[4];
+-	char reserved_1[2];
+-	unsigned short cpu_address;
+-};
+-
+-struct sysinfo_1_2_2 {
+-	char format;
+-	char reserved_0[1];
+-	unsigned short acc_offset;
+-	char reserved_1[24];
+-	unsigned int secondary_capability;
+-	unsigned int capability;
+-	unsigned short cpus_total;
+-	unsigned short cpus_configured;
+-	unsigned short cpus_standby;
+-	unsigned short cpus_reserved;
+-	unsigned short adjustment[0];
+-};
+-
+-struct sysinfo_1_2_2_extension {
+-	unsigned int alt_capability;
+-	unsigned short alt_adjustment[0];
+-};
+-
+-struct sysinfo_2_2_1 {
+-	char reserved_0[80];
+-	char sequence[16];
+-	char plant[4];
+-	unsigned short cpu_id;
+-	unsigned short cpu_address;
+-};
+-
+-struct sysinfo_2_2_2 {
+-	char reserved_0[32];
+-	unsigned short lpar_number;
+-	char reserved_1;
+-	unsigned char characteristics;
+-	unsigned short cpus_total;
+-	unsigned short cpus_configured;
+-	unsigned short cpus_standby;
+-	unsigned short cpus_reserved;
+-	char name[8];
+-	unsigned int caf;
+-	char reserved_2[16];
+-	unsigned short cpus_dedicated;
+-	unsigned short cpus_shared;
+-};
+-
+-#define LPAR_CHAR_DEDICATED	(1 << 7)
+-#define LPAR_CHAR_SHARED	(1 << 6)
+-#define LPAR_CHAR_LIMITED	(1 << 5)
+-
+-struct sysinfo_3_2_2 {
+-	char reserved_0[31];
+-	unsigned char count;
+-	struct {
+-		char reserved_0[4];
+-		unsigned short cpus_total;
+-		unsigned short cpus_configured;
+-		unsigned short cpus_standby;
+-		unsigned short cpus_reserved;
+-		char name[8];
+-		unsigned int caf;
+-		char cpi[16];
+-		char reserved_1[24];
+-
+-	} vm[8];
+-};
+-
+-static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
+-{
+-	register int r0 asm("0") = (fc << 28) | sel1;
+-	register int r1 asm("1") = sel2;
+-
+-	asm volatile(
+-		"   stsi 0(%2)\n"
+-		"0: jz   2f\n"
+-		"1: lhi  %0,%3\n"
+-		"2:\n"
+-		EX_TABLE(0b,1b)
+-		: "+d" (r0) : "d" (r1), "a" (sysinfo), "K" (-ENOSYS)
+-		: "cc", "memory" );
+-	return r0;
+-}
+-
+ static inline int stsi_0(void)
+ {
+ 	int rc = stsi (NULL, 0, 0, 0);
+Index: kvm/include/asm-s390/sysinfo.h
+===================================================================
+--- /dev/null
++++ kvm/include/asm-s390/sysinfo.h
+@@ -0,0 +1,112 @@
++/*
++ * definition for store system information stsi
++ *
++ * Copyright IBM Corp. 2001,2008
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ *    Author(s): Ulrich Weigand <weigand@de.ibm.com>
++ *               Christian Borntraeger <borntraeger@de.ibm.com>
++ */
++
++struct sysinfo_1_1_1 {
++	char reserved_0[32];
++	char manufacturer[16];
++	char type[4];
++	char reserved_1[12];
++	char model_capacity[16];
++	char sequence[16];
++	char plant[4];
++	char model[16];
++};
++
++struct sysinfo_1_2_1 {
++	char reserved_0[80];
++	char sequence[16];
++	char plant[4];
++	char reserved_1[2];
++	unsigned short cpu_address;
++};
++
++struct sysinfo_1_2_2 {
++	char format;
++	char reserved_0[1];
++	unsigned short acc_offset;
++	char reserved_1[24];
++	unsigned int secondary_capability;
++	unsigned int capability;
++	unsigned short cpus_total;
++	unsigned short cpus_configured;
++	unsigned short cpus_standby;
++	unsigned short cpus_reserved;
++	unsigned short adjustment[0];
++};
++
++struct sysinfo_1_2_2_extension {
++	unsigned int alt_capability;
++	unsigned short alt_adjustment[0];
++};
++
++struct sysinfo_2_2_1 {
++	char reserved_0[80];
++	char sequence[16];
++	char plant[4];
++	unsigned short cpu_id;
++	unsigned short cpu_address;
++};
++
++struct sysinfo_2_2_2 {
++	char reserved_0[32];
++	unsigned short lpar_number;
++	char reserved_1;
++	unsigned char characteristics;
++	unsigned short cpus_total;
++	unsigned short cpus_configured;
++	unsigned short cpus_standby;
++	unsigned short cpus_reserved;
++	char name[8];
++	unsigned int caf;
++	char reserved_2[16];
++	unsigned short cpus_dedicated;
++	unsigned short cpus_shared;
++};
++
++#define LPAR_CHAR_DEDICATED	(1 << 7)
++#define LPAR_CHAR_SHARED	(1 << 6)
++#define LPAR_CHAR_LIMITED	(1 << 5)
++
++struct sysinfo_3_2_2 {
++	char reserved_0[31];
++	unsigned char count;
++	struct {
++		char reserved_0[4];
++		unsigned short cpus_total;
++		unsigned short cpus_configured;
++		unsigned short cpus_standby;
++		unsigned short cpus_reserved;
++		char name[8];
++		unsigned int caf;
++		char cpi[16];
++		char reserved_1[24];
++
++	} vm[8];
++};
++
++static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
++{
++	register int r0 asm("0") = (fc << 28) | sel1;
++	register int r1 asm("1") = sel2;
++
++	asm volatile(
++		"   stsi 0(%2)\n"
++		"0: jz   2f\n"
++		"1: lhi  %0,%3\n"
++		"2:\n"
++		EX_TABLE(0b, 1b)
++		: "+d" (r0) : "d" (r1), "a" (sysinfo), "K" (-ENOSYS)
++		: "cc", "memory");
++	return r0;
++}
++
