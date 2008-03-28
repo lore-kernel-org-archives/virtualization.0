@@ -1,15 +1,12 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [RFC/PATCH 00/15 v3] kvm on big iron
-Date: Thu, 27 Mar 2008 14:02:53 +0200
-Message-ID: <47EB8CED.60002__27703.7021275193$1206619805$gmane$org@qumranet.com>
-References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>	
-	<1206205354.7177.82.camel@cotte.boeblingen.de.ibm.com>
-	<1206467227.6507.36.camel@cotte.boeblingen.de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] virtio_pci rmmod fix and lguest documentation/comment updates
+Date: Fri, 28 Mar 2008 11:16:10 +1100
+Message-ID: <200803281116.10314.rusty__1189.43838538161$1206663640$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206467227.6507.36.camel@cotte.boeblingen.de.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,38 +16,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carsten Otte <cotte@de.ibm.com>
-Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, arnd@arndb.de, hollisb@us.ibm.com, borntraeger@de.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, os@de.ibm.com, jblunck@suse.de, rvdheij@gmail.com, "Zhang,
-	Xiantao" <xiantao.zhang@intel.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Carsten Otte wrote:
-> Many thanks for the review feedback we have received so far,
-> and many thanks to Andrew for reviewing our common code memory
-> management changes. I do greatly appreciate that :-).
->
-> All important parts have been reviewed, all review feedback has been
-> integrated in the code. Therefore we would like to ask for inclusion of
-> our work into kvm.git.
->
-> Changes from Version 1:
-> - include feedback from Randy Dunlap on the documentation
-> - include feedback from Jeremy Fitzhardinge, the prototype for dup_mm
->   has moved to include/linux/sched.h
-> - rebase to current kvm.git hash g361be34. Thank you Avi for pulling
->   in the fix we need, and for moving KVM_MAX_VCPUS to include/arch :-).
->
-> Changes from Version 2:
-> - include feedback from Rusty Russell on the virtio patch
-> - include fix for race s390_enable_sie() versus ptrace spotted by Dave 
->   Hansen: we now do task_lock() to protect mm_users from update while 
->   we're growing the page table. Good catch, Dave :-).
-> - rebase to current kvm.git hash g680615e
->
->   
+The following changes since commit 3085354de635179d70c240e6d942bcbd1d93056c:
+  Ingo Molnar (1):
+        x86: prefetch fix #2
 
-Applied all, thanks.
+are available in the git repository at:
 
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
 
--- 
-error compiling committee.c: too many arguments to function
+Anthony Liguori (1):
+      virtio_pci: unregister virtio device at device remove
+
+Paul Bolle (1):
+      lguest: lguest.txt documentation fix
+
+Rusty Russell (2):
+      lguest: Don't need comment terminator before disk section.
+      lguest: comment documentation update.
+
+Tim Ansell (1):
+      lguest: Add puppies which where previously missing.
+
+ Documentation/lguest/lguest.c         |   70 ++++++++++++----------
+ Documentation/lguest/lguest.txt       |   19 ++++--
+ arch/x86/lguest/boot.c                |  108 +++++++++++++++++++--------------
+ arch/x86/lguest/i386_head.S           |   15 +++-
+ drivers/lguest/Makefile               |    8 +++
+ drivers/lguest/core.c                 |   18 +++---
+ drivers/lguest/hypercalls.c           |   11 +++-
+ drivers/lguest/interrupts_and_traps.c |    7 +-
+ drivers/lguest/lguest_device.c        |   11 ++--
+ drivers/lguest/lguest_user.c          |   30 ++++++---
+ drivers/lguest/page_tables.c          |   32 ++++++----
+ drivers/lguest/x86/core.c             |   33 ++++++----
+ drivers/lguest/x86/switcher_32.S      |    8 +-
+ drivers/virtio/virtio_pci.c           |    1 +
+ include/asm-x86/lguest_hcall.h        |    2 +-
+ include/linux/lguest_launcher.h       |    6 ++-
+ 16 files changed, 229 insertions(+), 150 deletions(-)
