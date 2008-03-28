@@ -1,15 +1,15 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 08/12] xen: add resend_irq_on_evtchn() definition into
-	events.c.
-Date: Fri, 28 Mar 2008 13:29:54 -0700
-Message-ID: <47ED5542.2060503__7204.74766935713$1206736520$gmane$org@goop.org>
+Subject: Re: [PATCH 10/12] xen: replace callers of
+	alloc_vm_area()/free_vm_area() with xen_ prefixed one.
+Date: Fri, 28 Mar 2008 13:31:55 -0700
+Message-ID: <47ED55BB.6050101__46181.3116017312$1206736643$gmane$org@goop.org>
 References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
-	<1206704418876-git-send-email-yamahata@valinux.co.jp>
+	<1206704418191-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206704418876-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <1206704418191-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,74 +24,88 @@ Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.lin
 List-Id: virtualization@lists.linuxfoundation.org
 
 Isaku Yamahata wrote:
-> Define resend_irq_on_evtchn() which ia64/xen uses.
-> Although it isn't used by current x86/xen code, it's arch generic
-> so that put it into common code.
-> make ipi_to_irq[] visible removing static because
-> ia64/xen needs to access the variable from ia64 specific code
->   
-
-What kind of access?  Would it be better to add some accessor functions?
-
-If nothing else, it needs to be prefixed with xen_ if it goes non-static.
-
-(As should resend_irq_on_evtchn(), but I'm less concerned about a name 
-collision.)
-
-    J
-
+> Don't use alloc_vm_area()/free_vm_area() directly, instead define
+> xen_alloc_vm_area()/xen_free_vm_area() and use them.
+>
+> alloc_vm_area()/free_vm_area() are used to allocate/free area which
+> are for grant table mapping. Xen/x86 grant table is based on virtual
+> address so that alloc_vm_area()/free_vm_area() are suitable.
+> On the other hand Xen/ia64 (and Xen/powerpc) grant table is based on
+> pseudo physical address (guest physical address) so that allocation
+> should be done differently.
+> The original version of xenified Linux/IA64 have its own
+> allocate_vm_area()/free_vm_area() definitions which don't allocate vm area
+> contradictory to those names.
+> Now vanilla Linux already has its definitions so that it's impossible
+> to have IA64 definitions of allocate_vm_area()/free_vm_area().
+> Instead introduce xen_allocate_vm_area()/xen_free_vm_area() and use them.
+>
 > Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 > ---
->  drivers/xen/events.c |   18 +++++++++++++++++-
->  include/xen/events.h |    1 +
->  2 files changed, 18 insertions(+), 1 deletions(-)
+>  drivers/xen/grant-table.c          |    2 +-
+>  drivers/xen/xenbus/xenbus_client.c |    6 +++---
+>  include/asm-x86/xen/hypervisor.h   |    3 +++
+>  3 files changed, 7 insertions(+), 4 deletions(-)
 >
-> diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-> index 2396b44..1c2c193 100644
-> --- a/drivers/xen/events.c
-> +++ b/drivers/xen/events.c
-> @@ -48,7 +48,7 @@ static DEFINE_SPINLOCK(irq_mapping_update_lock);
->  static DEFINE_PER_CPU(int, virq_to_irq[NR_VIRQS]) = {[0 ... NR_VIRQS-1] = -1};
+> diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
+> index 95016fd..9fcde20 100644
+> --- a/drivers/xen/grant-table.c
+> +++ b/drivers/xen/grant-table.c
+> @@ -478,7 +478,7 @@ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
 >  
->  /* IRQ <-> IPI mapping */
-> -static DEFINE_PER_CPU(int, ipi_to_irq[XEN_NR_IPIS]) = {[0 ... XEN_NR_IPIS-1] = -1};
-> +DEFINE_PER_CPU(int, ipi_to_irq[XEN_NR_IPIS]) = {[0 ... XEN_NR_IPIS-1] = -1};
+>  	if (shared == NULL) {
+>  		struct vm_struct *area;
+> -		area = alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
+> +		area = xen_alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
+>  		BUG_ON(area == NULL);
+>  		shared = area->addr;
+>  	}
+> diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+> index 9fd2f70..0f86b0f 100644
+> --- a/drivers/xen/xenbus/xenbus_client.c
+> +++ b/drivers/xen/xenbus/xenbus_client.c
+> @@ -399,7 +399,7 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
 >  
->  /* Packed IRQ information: binding type, sub-type index, and event channel. */
->  struct packed_irq
-> @@ -586,6 +586,22 @@ static void set_affinity_irq(unsigned irq, cpumask_t dest)
->  	rebind_irq_to_cpu(irq, tcpu);
->  }
+>  	*vaddr = NULL;
 >  
-> +int resend_irq_on_evtchn(unsigned int irq)
-> +{
-> +	int masked, evtchn = evtchn_from_irq(irq);
-> +	struct shared_info *s = HYPERVISOR_shared_info;
+> -	area = alloc_vm_area(PAGE_SIZE);
+> +	area = xen_alloc_vm_area(PAGE_SIZE);
+>  	if (!area)
+>  		return -ENOMEM;
+>  
+> @@ -409,7 +409,7 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
+>  		BUG();
+>  
+>  	if (op.status != GNTST_okay) {
+> -		free_vm_area(area);
+> +		xen_free_vm_area(area);
+>  		xenbus_dev_fatal(dev, op.status,
+>  				 "mapping in shared page %d from domain %d",
+>  				 gnt_ref, dev->otherend_id);
+> @@ -508,7 +508,7 @@ int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr)
+>  		BUG();
+>  
+>  	if (op.status == GNTST_okay)
+> -		free_vm_area(area);
+> +		xen_free_vm_area(area);
+>  	else
+>  		xenbus_dev_error(dev, op.status,
+>  				 "unmapping page at handle %d error %d",
+> diff --git a/include/asm-x86/xen/hypervisor.h b/include/asm-x86/xen/hypervisor.h
+> index 767a361..31e526d 100644
+> --- a/include/asm-x86/xen/hypervisor.h
+> +++ b/include/asm-x86/xen/hypervisor.h
+> @@ -57,6 +57,9 @@ extern struct shared_info *HYPERVISOR_shared_info;
+>  extern struct start_info *xen_start_info;
+>  #define is_initial_xendomain() (xen_start_info->flags & SIF_INITDOMAIN)
+>  
+> +#define xen_alloc_vm_area(size)	alloc_vm_area(size)
+> +#define xen_free_vm_area(area)	free_vm_area(area)
 > +
-> +	if (!VALID_EVTCHN(evtchn))
-> +		return 1;
-> +
-> +	masked = sync_test_and_set_bit(evtchn, s->evtchn_mask);
-> +	sync_set_bit(evtchn, s->evtchn_pending);
-> +	if (!masked)
-> +		unmask_evtchn(evtchn);
-> +
-> +	return 1;
-> +}
-> +
->  static void enable_dynirq(unsigned int irq)
->  {
->  	int evtchn = evtchn_from_irq(irq);
-> diff --git a/include/xen/events.h b/include/xen/events.h
-> index 2bde54d..574cfa4 100644
-> --- a/include/xen/events.h
-> +++ b/include/xen/events.h
-> @@ -37,6 +37,7 @@ int bind_ipi_to_irqhandler(enum ipi_vector ipi,
->  void unbind_from_irqhandler(unsigned int irq, void *dev_id);
->  
->  void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector);
-> +int resend_irq_on_evtchn(unsigned int irq);
->  
->  static inline void notify_remote_via_evtchn(int port)
->  {
 >   
+
+This change looks fine overall, but asm/xen/hypervisor.h seems to be 
+turning into a bit of a dumping-ground.  I wonder if we can't come up 
+with a better-named header...
+
+    J
