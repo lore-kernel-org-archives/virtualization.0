@@ -1,14 +1,13 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 09/12] xen: make include/xen/page.h portable moving those
-	definitions under asm dir.
-Date: Fri, 28 Mar 2008 20:40:15 +0900
-Message-ID: <12067044183655-git-send-email-yamahata__42261.2689006657$1206705311$gmane$org@valinux.co.jp>
-References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
+From: Akio Takebe <takebe_akio@jp.fujitsu.com>
+Subject: Re: [14/17][PATCH] kvm/ia64: Add guest interruption injection support.
+Date: Fri, 28 Mar 2008 21:36:48 +0900
+Message-ID: <87C890D0641F40takebe_akio__34817.5541418188$1206707877$gmane$org@jp.fujitsu.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDCFF7EF2@pdsmsx415.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12067044183207-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDCFF7EF2@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,198 +17,110 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jeremy@goop.org
-Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com
+To: "Zhang, Xiantao" <xiantao.zhang@intel.com>, Avi Kivity <avi@qumranet.com>, "Luck, Tony" <tony.luck@intel.com>, "Xu, Anthony" <anthony.xu@intel.com>, Jes Sorensen <jes>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The definitions in include/asm/xen/page.h are arch specific.
-ia64/xen wants to define its own version. So move them to arch specific
-directory and keep include/xen/page.h in order not to break compilation.
+Hi, Xiantao
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- include/{ => asm-x86}/xen/page.h |    0 
- include/xen/page.h               |  169 +-------------------------------------
- 2 files changed, 1 insertions(+), 168 deletions(-)
- copy include/{ => asm-x86}/xen/page.h (100%)
+It's good, I have some small comments.
 
-diff --git a/include/xen/page.h b/include/asm-x86/xen/page.h
-similarity index 100%
-copy from include/xen/page.h
-copy to include/asm-x86/xen/page.h
-diff --git a/include/xen/page.h b/include/xen/page.h
-index 0179930..eaf85fa 100644
---- a/include/xen/page.h
-+++ b/include/xen/page.h
-@@ -1,168 +1 @@
--#ifndef __XEN_PAGE_H
--#define __XEN_PAGE_H
--
--#include <linux/pfn.h>
--
--#include <asm/uaccess.h>
--#include <asm/pgtable.h>
--
--#include <xen/features.h>
--
--/* Xen machine address */
--typedef struct xmaddr {
--	phys_addr_t maddr;
--} xmaddr_t;
--
--/* Xen pseudo-physical address */
--typedef struct xpaddr {
--	phys_addr_t paddr;
--} xpaddr_t;
--
--#define XMADDR(x)	((xmaddr_t) { .maddr = (x) })
--#define XPADDR(x)	((xpaddr_t) { .paddr = (x) })
--
--/**** MACHINE <-> PHYSICAL CONVERSION MACROS ****/
--#define INVALID_P2M_ENTRY	(~0UL)
--#define FOREIGN_FRAME_BIT	(1UL<<31)
--#define FOREIGN_FRAME(m)	((m) | FOREIGN_FRAME_BIT)
--
--extern unsigned long *phys_to_machine_mapping;
--
--static inline unsigned long pfn_to_mfn(unsigned long pfn)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return pfn;
--
--	return phys_to_machine_mapping[(unsigned int)(pfn)] &
--		~FOREIGN_FRAME_BIT;
--}
--
--static inline int phys_to_machine_mapping_valid(unsigned long pfn)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return 1;
--
--	return (phys_to_machine_mapping[pfn] != INVALID_P2M_ENTRY);
--}
--
--static inline unsigned long mfn_to_pfn(unsigned long mfn)
--{
--	unsigned long pfn;
--
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return mfn;
--
--#if 0
--	if (unlikely((mfn >> machine_to_phys_order) != 0))
--		return max_mapnr;
--#endif
--
--	pfn = 0;
--	/*
--	 * The array access can fail (e.g., device space beyond end of RAM).
--	 * In such cases it doesn't matter what we return (we return garbage),
--	 * but we must handle the fault without crashing!
--	 */
--	__get_user(pfn, &machine_to_phys_mapping[mfn]);
--
--	return pfn;
--}
--
--static inline xmaddr_t phys_to_machine(xpaddr_t phys)
--{
--	unsigned offset = phys.paddr & ~PAGE_MASK;
--	return XMADDR(PFN_PHYS((u64)pfn_to_mfn(PFN_DOWN(phys.paddr))) | offset);
--}
--
--static inline xpaddr_t machine_to_phys(xmaddr_t machine)
--{
--	unsigned offset = machine.maddr & ~PAGE_MASK;
--	return XPADDR(PFN_PHYS((u64)mfn_to_pfn(PFN_DOWN(machine.maddr))) | offset);
--}
--
--/*
-- * We detect special mappings in one of two ways:
-- *  1. If the MFN is an I/O page then Xen will set the m2p entry
-- *     to be outside our maximum possible pseudophys range.
-- *  2. If the MFN belongs to a different domain then we will certainly
-- *     not have MFN in our p2m table. Conversely, if the page is ours,
-- *     then we'll have p2m(m2p(MFN))==MFN.
-- * If we detect a special mapping then it doesn't have a 'struct page'.
-- * We force !pfn_valid() by returning an out-of-range pointer.
-- *
-- * NB. These checks require that, for any MFN that is not in our reservation,
-- * there is no PFN such that p2m(PFN) == MFN. Otherwise we can get confused if
-- * we are foreign-mapping the MFN, and the other domain as m2p(MFN) == PFN.
-- * Yikes! Various places must poke in INVALID_P2M_ENTRY for safety.
-- *
-- * NB2. When deliberately mapping foreign pages into the p2m table, you *must*
-- *      use FOREIGN_FRAME(). This will cause pte_pfn() to choke on it, as we
-- *      require. In all the cases we care about, the FOREIGN_FRAME bit is
-- *      masked (e.g., pfn_to_mfn()) so behaviour there is correct.
-- */
--static inline unsigned long mfn_to_local_pfn(unsigned long mfn)
--{
--	extern unsigned long max_mapnr;
--	unsigned long pfn = mfn_to_pfn(mfn);
--	if ((pfn < max_mapnr)
--	    && !xen_feature(XENFEAT_auto_translated_physmap)
--	    && (phys_to_machine_mapping[pfn] != mfn))
--		return max_mapnr; /* force !pfn_valid() */
--	return pfn;
--}
--
--static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap)) {
--		BUG_ON(pfn != mfn && mfn != INVALID_P2M_ENTRY);
--		return;
--	}
--	phys_to_machine_mapping[pfn] = mfn;
--}
--
--/* VIRT <-> MACHINE conversion */
--#define virt_to_machine(v)	(phys_to_machine(XPADDR(__pa(v))))
--#define virt_to_mfn(v)		(pfn_to_mfn(PFN_DOWN(__pa(v))))
--#define mfn_to_virt(m)		(__va(mfn_to_pfn(m) << PAGE_SHIFT))
--
--static inline unsigned long pte_mfn(pte_t pte)
--{
--	return (pte.pte & ~_PAGE_NX) >> PAGE_SHIFT;
--}
--
--static inline pte_t mfn_pte(unsigned long page_nr, pgprot_t pgprot)
--{
--	pte_t pte;
--
--	pte.pte = ((phys_addr_t)page_nr << PAGE_SHIFT) |
--		(pgprot_val(pgprot) & __supported_pte_mask);
--
--	return pte;
--}
--
--static inline pteval_t pte_val_ma(pte_t pte)
--{
--	return pte.pte;
--}
--
--static inline pte_t __pte_ma(pteval_t x)
--{
--	return (pte_t) { .pte = x };
--}
--
--#ifdef CONFIG_X86_PAE
--#define pmd_val_ma(v) ((v).pmd)
--#define pud_val_ma(v) ((v).pgd.pgd)
--#define __pmd_ma(x)	((pmd_t) { (x) } )
--#else  /* !X86_PAE */
--#define pmd_val_ma(v)	((v).pud.pgd.pgd)
--#endif	/* CONFIG_X86_PAE */
--
--#define pgd_val_ma(x)	((x).pgd)
--
--
--xmaddr_t arbitrary_virt_to_machine(unsigned long address);
--void make_lowmem_page_readonly(void *vaddr);
--void make_lowmem_page_readwrite(void *vaddr);
--
--#endif /* __XEN_PAGE_H */
-+#include <asm/xen/page.h>
--- 
-1.5.3
+>+
+>+/* SDM vol2 5.5 - IVA based interruption handling */
+>+#define INITIAL_PSR_VALUE_AT_INTERRUPTION 0x0000001808028034
+>+
+Xen also use this value, you had better use macros of PSR bits.
+Or you can add the same comments as Xen.
+
+
+>+
+>+/*
+>+ * Handle floating-point assist faults and traps for domain.
+>+ */
+>+unsigned long vmm_handle_fpu_swa(int fp_fault, REGS *regs, unsigned
+>long isr)
+>+{
+>+	struct kvm_vcpu *v = current_vcpu;
+>+	IA64_BUNDLE bundle;
+>+	unsigned long fault_ip;
+>+	fpswa_ret_t ret;
+>+
+>+	fault_ip = regs->cr_iip;
+>+	/*
+>+	 * When the FP trap occurs, the trapping instruction is
+>completed.
+>+	 * If ipsr.ri == 0, there is the trapping instruction in
+>previous
+>+	 * bundle.
+>+	 */
+>+	if (!fp_fault && (ia64_psr(regs)->ri == 0))
+>+		fault_ip -= 16;
+>+
+>+	if (fetch_code(v, fault_ip, &bundle))
+>+		return -EAGAIN;
+>+
+>+	if (!bundle.i64[0] && !bundle.i64[1]) {
+>+		return -EACCES;
+>+	}
+>+
+>+	ret = vmm_fp_emulate(fp_fault, &bundle, &regs->cr_ipsr,
+>&regs->ar_fpsr,
+>+			&isr, &regs->pr, &regs->cr_ifs, regs);
+>+	return ret.status;
+>+}
+>+
+>+void reflect_interruption(u64 ifa, u64 isr, u64 iim,
+>+		u64 vec, REGS *regs)
+>+{
+>+	u64 vector;
+>+	int status ;
+>+	VCPU *vcpu = current_vcpu;
+>+	u64 vpsr = VCPU(vcpu, vpsr);
+>+
+>+	vector = vec2off[vec];
+>+
+>+	if (!(vpsr & IA64_PSR_IC) && (vector !=
+>IA64_DATA_NESTED_TLB_VECTOR)) {
+>+		panic_vm(vcpu);
+>+		return;
+>+	}
+>+
+>+	switch (vec) {
+>+	case 32:
+I want to add a comment of IA64_FP_FAULT_VECTOR.
+
+>+		status = vmm_handle_fpu_swa(1, regs, isr);
+>+		if (!status) {
+>+			vcpu_increment_iip(vcpu);
+>+			return;
+>+		} else if (-EAGAIN == status)
+>+			return;
+>+		break;
+>+	case 33:
+ditto, I want to add a comments of IA64_FP_TRAP_VECTOR.
+
+>+		status = vmm_handle_fpu_swa(0, regs, isr);
+>+		if (!status)
+>+			return ;
+>+		else if (-EAGAIN == status) {
+>+			vcpu_decrement_iip(vcpu);
+>+			return ;
+>+		}
+>+		break;
+>+	}
+>+
+>+	VCPU(vcpu, isr) = isr;
+>+	VCPU(vcpu, iipa) = regs->cr_iip;
+>+	if (vector == IA64_BREAK_VECTOR || vector ==
+>IA64_SPECULATION_VECTOR)
+>+		VCPU(vcpu, iim) = iim;
+>+	else {
+>+		set_ifa_itir_iha(vcpu, ifa, 1, 1, 1);
+>+	}
+>+	inject_guest_interruption(vcpu, vector);
+>+}
+>+
+>
+
+Best Regards,
+
+Akio Takebe
