@@ -1,12 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio_pci rmmod fix and lguest documentation/comment updates
-Date: Fri, 28 Mar 2008 11:16:10 +1100
-Message-ID: <200803281116.10314.rusty__1189.43838538161$1206663640$gmane$org@rustcorp.com.au>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 02/12] xen: add missing VIRQ_ARCH_[0-7] definitions which
+	ia64/xen needs.
+Date: Fri, 28 Mar 2008 20:40:08 +0900
+Message-ID: <12067044181738-git-send-email-yamahata__46909.1849322014$1206704749$gmane$org@valinux.co.jp>
+References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <12067044183207-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,45 +18,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: lguest <lguest@ozlabs.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jeremy@goop.org
+Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 3085354de635179d70c240e6d942bcbd1d93056c:
-  Ingo Molnar (1):
-        x86: prefetch fix #2
+Add xen VIRQ numbers defined for arch specific use.
+ia64/xen domU uses VIRQ_ARCH_0 for virtual itc timer.
+Although all those constants aren't used yet by ia64
+at this moment, add all arch specific VIRQ numbers.
 
-are available in the git repository at:
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ include/xen/interface/xen.h |   12 +++++++++++-
+ 1 files changed, 11 insertions(+), 1 deletions(-)
 
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
-
-Anthony Liguori (1):
-      virtio_pci: unregister virtio device at device remove
-
-Paul Bolle (1):
-      lguest: lguest.txt documentation fix
-
-Rusty Russell (2):
-      lguest: Don't need comment terminator before disk section.
-      lguest: comment documentation update.
-
-Tim Ansell (1):
-      lguest: Add puppies which where previously missing.
-
- Documentation/lguest/lguest.c         |   70 ++++++++++++----------
- Documentation/lguest/lguest.txt       |   19 ++++--
- arch/x86/lguest/boot.c                |  108 +++++++++++++++++++--------------
- arch/x86/lguest/i386_head.S           |   15 +++-
- drivers/lguest/Makefile               |    8 +++
- drivers/lguest/core.c                 |   18 +++---
- drivers/lguest/hypercalls.c           |   11 +++-
- drivers/lguest/interrupts_and_traps.c |    7 +-
- drivers/lguest/lguest_device.c        |   11 ++--
- drivers/lguest/lguest_user.c          |   30 ++++++---
- drivers/lguest/page_tables.c          |   32 ++++++----
- drivers/lguest/x86/core.c             |   33 ++++++----
- drivers/lguest/x86/switcher_32.S      |    8 +-
- drivers/virtio/virtio_pci.c           |    1 +
- include/asm-x86/lguest_hcall.h        |    2 +-
- include/linux/lguest_launcher.h       |    6 ++-
- 16 files changed, 229 insertions(+), 150 deletions(-)
+diff --git a/include/xen/interface/xen.h b/include/xen/interface/xen.h
+index 87ad143..9b018da 100644
+--- a/include/xen/interface/xen.h
++++ b/include/xen/interface/xen.h
+@@ -78,8 +78,18 @@
+ #define VIRQ_CONSOLE    2  /* (DOM0) Bytes received on emergency console. */
+ #define VIRQ_DOM_EXC    3  /* (DOM0) Exceptional event for some domain.   */
+ #define VIRQ_DEBUGGER   6  /* (DOM0) A domain has paused for debugging.   */
+-#define NR_VIRQS        8
+ 
++/* Architecture-specific VIRQ definitions. */
++#define VIRQ_ARCH_0    16
++#define VIRQ_ARCH_1    17
++#define VIRQ_ARCH_2    18
++#define VIRQ_ARCH_3    19
++#define VIRQ_ARCH_4    20
++#define VIRQ_ARCH_5    21
++#define VIRQ_ARCH_6    22
++#define VIRQ_ARCH_7    23
++
++#define NR_VIRQS       24
+ /*
+  * MMU-UPDATE REQUESTS
+  *
+-- 
+1.5.3
