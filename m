@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 01/12] xen: add missing __HYPERVISOR_arch_[0-7] definisions
-	which ia64 needs.
-Date: Fri, 28 Mar 2008 20:40:07 +0900
-Message-ID: <12067044184147-git-send-email-yamahata__38693.7970332385$1206705242$gmane$org@valinux.co.jp>
+Subject: [PATCH 05/12] xen: move features.c from arch/x86/xen/features.c to
+	drivers/xen.
+Date: Fri, 28 Mar 2008 20:40:11 +0900
+Message-ID: <1206704418807-git-send-email-yamahata__43321.8805389062$1206705295$gmane$org@valinux.co.jp>
 References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,36 +22,38 @@ To: jeremy@goop.org
 Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add xen hypercall numbers defined for arch specific use.
-ia64/xen domU uses __HYPERVISOR_arch_1 to manipulate paravirtualized
-IOSAPIC. Although all those constants aren't used yet by IA64 at this
-moment, add all arch specific hypercall numbers.
+ia64/xen also uses it too. Move it into common place so that
+ia64/xen can share the code.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/xen/interface/xen.h |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
+ arch/x86/xen/Makefile                |    2 +-
+ drivers/xen/Makefile                 |    2 +-
+ {arch/x86 => drivers}/xen/features.c |    0 
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ rename {arch/x86 => drivers}/xen/features.c (100%)
 
-diff --git a/include/xen/interface/xen.h b/include/xen/interface/xen.h
-index 518a5bf..87ad143 100644
---- a/include/xen/interface/xen.h
-+++ b/include/xen/interface/xen.h
-@@ -58,6 +58,16 @@
- #define __HYPERVISOR_physdev_op           33
- #define __HYPERVISOR_hvm_op               34
+diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
+index 343df24..c5e9aa4 100644
+--- a/arch/x86/xen/Makefile
++++ b/arch/x86/xen/Makefile
+@@ -1,4 +1,4 @@
+-obj-y		:= enlighten.o setup.o features.o multicalls.o mmu.o \
++obj-y		:= enlighten.o setup.o multicalls.o mmu.o \
+ 			events.o time.o manage.o xen-asm.o
  
-+/* Architecture-specific hypercall definitions. */
-+#define __HYPERVISOR_arch_0               48
-+#define __HYPERVISOR_arch_1               49
-+#define __HYPERVISOR_arch_2               50
-+#define __HYPERVISOR_arch_3               51
-+#define __HYPERVISOR_arch_4               52
-+#define __HYPERVISOR_arch_5               53
-+#define __HYPERVISOR_arch_6               54
-+#define __HYPERVISOR_arch_7               55
-+
- /*
-  * VIRTUAL INTERRUPTS
-  *
+ obj-$(CONFIG_SMP)	+= smp.o
+diff --git a/drivers/xen/Makefile b/drivers/xen/Makefile
+index 56592f0..609fdda 100644
+--- a/drivers/xen/Makefile
++++ b/drivers/xen/Makefile
+@@ -1,2 +1,2 @@
+-obj-y	+= grant-table.o
++obj-y	+= grant-table.o features.o
+ obj-y	+= xenbus/
+diff --git a/arch/x86/xen/features.c b/drivers/xen/features.c
+similarity index 100%
+rename from arch/x86/xen/features.c
+rename to drivers/xen/features.c
 -- 
 1.5.3
