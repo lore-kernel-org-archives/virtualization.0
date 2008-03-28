@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 10/12] xen: replace callers of alloc_vm_area()/free_vm_area()
-	with xen_ prefixed one.
-Date: Fri, 28 Mar 2008 20:40:16 +0900
-Message-ID: <1206704418191-git-send-email-yamahata__48031.8934460685$1206705296$gmane$org@valinux.co.jp>
+Subject: [PATCH 11/12] xen: make grant table arch portable.
+Date: Fri, 28 Mar 2008 20:40:17 +0900
+Message-ID: <12067044182586-git-send-email-yamahata__49644.0656054348$1206705308$gmane$org@valinux.co.jp>
 References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,86 +21,206 @@ To: jeremy@goop.org
 Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Don't use alloc_vm_area()/free_vm_area() directly, instead define
-xen_alloc_vm_area()/xen_free_vm_area() and use them.
-
-alloc_vm_area()/free_vm_area() are used to allocate/free area which
-are for grant table mapping. Xen/x86 grant table is based on virtual
-address so that alloc_vm_area()/free_vm_area() are suitable.
-On the other hand Xen/ia64 (and Xen/powerpc) grant table is based on
-pseudo physical address (guest physical address) so that allocation
-should be done differently.
-The original version of xenified Linux/IA64 have its own
-allocate_vm_area()/free_vm_area() definitions which don't allocate vm area
-contradictory to those names.
-Now vanilla Linux already has its definitions so that it's impossible
-to have IA64 definitions of allocate_vm_area()/free_vm_area().
-Instead introduce xen_allocate_vm_area()/xen_free_vm_area() and use them.
+split out x86 specific part from grant-table.c and
+allow ia64/xen specific initialization.
+ia64/xen grant table is based on pseudo physical address
+(guest physical address) unlike x86/xen. On ia64 init_mm
+doesn't map identity straight mapped area.
+ia64/xen specific grant table initialization is necessary.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- drivers/xen/grant-table.c          |    2 +-
- drivers/xen/xenbus/xenbus_client.c |    6 +++---
- include/asm-x86/xen/hypervisor.h   |    3 +++
- 3 files changed, 7 insertions(+), 4 deletions(-)
+ arch/x86/xen/Makefile      |    2 +-
+ arch/x86/xen/grant-table.c |   91 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/xen/grant-table.c  |   35 +---------------
+ include/xen/grant_table.h  |    6 +++
+ 4 files changed, 101 insertions(+), 33 deletions(-)
+ create mode 100644 arch/x86/xen/grant-table.c
 
+diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
+index 95c5926..3d8df98 100644
+--- a/arch/x86/xen/Makefile
++++ b/arch/x86/xen/Makefile
+@@ -1,4 +1,4 @@
+ obj-y		:= enlighten.o setup.o multicalls.o mmu.o \
+-			time.o manage.o xen-asm.o
++			time.o manage.o xen-asm.o grant-table.o
+ 
+ obj-$(CONFIG_SMP)	+= smp.o
+diff --git a/arch/x86/xen/grant-table.c b/arch/x86/xen/grant-table.c
+new file mode 100644
+index 0000000..49ba9b5
+--- /dev/null
++++ b/arch/x86/xen/grant-table.c
+@@ -0,0 +1,91 @@
++/******************************************************************************
++ * grant_table.c
++ * x86 specific part
++ *
++ * Granting foreign access to our memory reservation.
++ *
++ * Copyright (c) 2005-2006, Christopher Clark
++ * Copyright (c) 2004-2005, K A Fraser
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan. Split out x86 specific part.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
++
++#include <xen/interface/xen.h>
++#include <xen/page.h>
++#include <xen/grant_table.h>
++
++#include <asm/pgtable.h>
++
++static int map_pte_fn(pte_t *pte, struct page *pmd_page,
++		      unsigned long addr, void *data)
++{
++	unsigned long **frames = (unsigned long **)data;
++
++	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
++	(*frames)++;
++	return 0;
++}
++
++static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
++			unsigned long addr, void *data)
++{
++
++	set_pte_at(&init_mm, addr, pte, __pte(0));
++	return 0;
++}
++
++int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
++			   unsigned long max_nr_gframes,
++			   struct grant_entry **__shared)
++{
++	int rc;
++	struct grant_entry *shared = *__shared;
++
++	if (shared == NULL) {
++		struct vm_struct *area =
++			xen_alloc_vm_area(PAGE_SIZE * max_nr_gframes);
++		BUG_ON(area == NULL);
++		shared = area->addr;
++		*__shared = shared;
++	}
++
++	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
++				 PAGE_SIZE * nr_gframes,
++				 map_pte_fn, &frames);
++	return rc;
++}
++
++void arch_gnttab_unmap_shared(struct grant_entry *shared,
++			      unsigned long nr_gframes)
++{
++	apply_to_page_range(&init_mm, (unsigned long)shared,
++			    PAGE_SIZE * nr_gframes, unmap_pte_fn, NULL);
++}
 diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
-index 95016fd..9fcde20 100644
+index 9fcde20..22f5104 100644
 --- a/drivers/xen/grant-table.c
 +++ b/drivers/xen/grant-table.c
-@@ -478,7 +478,7 @@ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
+@@ -435,24 +435,6 @@ static inline unsigned int max_nr_grant_frames(void)
+ 	return xen_max;
+ }
  
- 	if (shared == NULL) {
- 		struct vm_struct *area;
--		area = alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
-+		area = xen_alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
- 		BUG_ON(area == NULL);
- 		shared = area->addr;
- 	}
-diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
-index 9fd2f70..0f86b0f 100644
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -399,7 +399,7 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
+-static int map_pte_fn(pte_t *pte, struct page *pmd_page,
+-		      unsigned long addr, void *data)
+-{
+-	unsigned long **frames = (unsigned long **)data;
+-
+-	set_pte_at(&init_mm, addr, pte, mfn_pte((*frames)[0], PAGE_KERNEL));
+-	(*frames)++;
+-	return 0;
+-}
+-
+-static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
+-			unsigned long addr, void *data)
+-{
+-
+-	set_pte_at(&init_mm, addr, pte, __pte(0));
+-	return 0;
+-}
+-
+ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
+ {
+ 	struct gnttab_setup_table setup;
+@@ -476,17 +458,9 @@ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
  
- 	*vaddr = NULL;
+ 	BUG_ON(rc || setup.status);
  
--	area = alloc_vm_area(PAGE_SIZE);
-+	area = xen_alloc_vm_area(PAGE_SIZE);
- 	if (!area)
- 		return -ENOMEM;
+-	if (shared == NULL) {
+-		struct vm_struct *area;
+-		area = xen_alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
+-		BUG_ON(area == NULL);
+-		shared = area->addr;
+-	}
+-	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
+-				 PAGE_SIZE * nr_gframes,
+-				 map_pte_fn, &frames);
++	rc = arch_gnttab_map_shared(frames, nr_gframes, max_nr_grant_frames(),
++				    &shared);
+ 	BUG_ON(rc);
+-	frames -= nr_gframes; /* adjust after map_pte_fn() */
  
-@@ -409,7 +409,7 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
- 		BUG();
+ 	kfree(frames);
  
- 	if (op.status != GNTST_okay) {
--		free_vm_area(area);
-+		xen_free_vm_area(area);
- 		xenbus_dev_fatal(dev, op.status,
- 				 "mapping in shared page %d from domain %d",
- 				 gnt_ref, dev->otherend_id);
-@@ -508,7 +508,7 @@ int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr)
- 		BUG();
+@@ -502,10 +476,7 @@ static int gnttab_resume(void)
  
- 	if (op.status == GNTST_okay)
--		free_vm_area(area);
-+		xen_free_vm_area(area);
- 	else
- 		xenbus_dev_error(dev, op.status,
- 				 "unmapping page at handle %d error %d",
-diff --git a/include/asm-x86/xen/hypervisor.h b/include/asm-x86/xen/hypervisor.h
-index 767a361..31e526d 100644
---- a/include/asm-x86/xen/hypervisor.h
-+++ b/include/asm-x86/xen/hypervisor.h
-@@ -57,6 +57,9 @@ extern struct shared_info *HYPERVISOR_shared_info;
- extern struct start_info *xen_start_info;
- #define is_initial_xendomain() (xen_start_info->flags & SIF_INITDOMAIN)
+ static int gnttab_suspend(void)
+ {
+-	apply_to_page_range(&init_mm, (unsigned long)shared,
+-			    PAGE_SIZE * nr_grant_frames,
+-			    unmap_pte_fn, NULL);
+-
++	arch_gnttab_unmap_shared(shared, nr_grant_frames);
+ 	return 0;
+ }
  
-+#define xen_alloc_vm_area(size)	alloc_vm_area(size)
-+#define xen_free_vm_area(area)	free_vm_area(area)
+diff --git a/include/xen/grant_table.h b/include/xen/grant_table.h
+index 761c834..50ca16e 100644
+--- a/include/xen/grant_table.h
++++ b/include/xen/grant_table.h
+@@ -102,6 +102,12 @@ void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
+ void gnttab_grant_foreign_transfer_ref(grant_ref_t, domid_t domid,
+ 				       unsigned long pfn);
+ 
++int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
++			   unsigned long max_nr_gframes,
++			   struct grant_entry **__shared);
++void arch_gnttab_unmap_shared(struct grant_entry *shared,
++			      unsigned long nr_gframes);
 +
- /* arch/i386/mach-xen/evtchn.c */
- /* Force a proper event-channel callback from Xen. */
- extern void force_evtchn_callback(void);
+ #define gnttab_map_vaddr(map) ((void *)(map.host_virt_addr))
+ 
+ #endif /* __ASM_GNTTAB_H__ */
 -- 
 1.5.3
