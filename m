@@ -1,14 +1,13 @@
 From: Akio Takebe <takebe_akio@jp.fujitsu.com>
-Subject: Re: [12/17][PATCH] kvm/ia64: add optimization for some virtulization
-	faults
-Date: Fri, 28 Mar 2008 23:34:22 +0900
-Message-ID: <8AC890E0D055F0takebe_akio__25760.2910664447$1206715424$gmane$org@jp.fujitsu.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDCFF7EF4@pdsmsx415.ccr.corp.intel.com>
+Subject: Re: [17/17][PATCH] kvm/ia64: How to boot up guests on kvm/ia64
+Date: Fri, 28 Mar 2008 23:40:34 +0900
+Message-ID: <8BC890E1ADECDFtakebe_akio__13791.8646251366$1206715662$gmane$org@jp.fujitsu.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDCFF7EEF@pdsmsx415.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDCFF7EF4@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDCFF7EEF@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,18 +22,30 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Hi,
 
->>From 2dbf7c93ff5e36a221761c690ff12e7be48a6bb2 Mon Sep 17 00:00:00 2001
->From: Xiantao Zhang <xiantao.zhang@intel.com>
->Date: Wed, 12 Mar 2008 13:49:38 +0800
->Subject: [PATCH] kvm/ia64: add optimization for some virtulization
->faults
->
->optvfault.S adds optimization for some performance-critical
->virtualization
->faults.
->Signed-off-by: Anthony Xu <anthony.xu@intel.com>
->Signed-off-by: Xiantao Zhang <xiantao.zhang@intel.com>
-It looks good.
+I found 3 typos.
+
+>+3. Get Guest Firmware named as Flash.fd, and put it under right place:
+>+	(1) If you have the guest firmware (binary)released by Intel
+>Corp for Xen, you can use it directly.
+>+	(2) If you want to build a guest firmware form souce code.
+souce ---> source
+
+>+5. Known possbile issue on some platforms with old Firmware
+>+
+possbile ---> possible
+
+>+(2): Applying the below patch to kernel source.
+>+diff --git a/arch/ia64/kernel/pal.S b/arch/ia64/kernel/pal.S
+>+index 0b53344..f02b0f7 100644
+>+--- a/arch/ia64/kernel/pal.S
+>++++ b/arch/ia64/kernel/pal.S
+>+@@ -84,7 +84,8 @@ GLOBAL_ENTRY(ia64_pal_call_static)
+>+ 	mov ar.pfs = loc1
+>+ 	mov rp = loc0
+>+ 	;;
+>+-	srlz.d				// seralize restoration of psr.l
+>++	srlz.i			// seralize restoration of psr.l
+seralize ---> serialize
 
 Best Regards,
 
