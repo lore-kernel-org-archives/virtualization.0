@@ -1,15 +1,14 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 09/12] xen: make include/xen/page.h portable moving those
-	definitions under asm dir.
-Date: Fri, 28 Mar 2008 13:41:12 -0700
-Message-ID: <47ED57E8.4050506__9469.01276843182$1206737062$gmane$org@goop.org>
-References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
-	<12067044183655-git-send-email-yamahata@valinux.co.jp>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-ia64-devel] [02/17][PATCH] Implement smp_call_function_mask
+	for ia64
+Date: Sun, 30 Mar 2008 14:42:03 +0300
+Message-ID: <47EF7C8B.90902__26829.8881281682$1206877501$gmane$org@qumranet.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDCFF7EFE@pdsmsx415.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12067044183655-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDCFF7EFE@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,203 +18,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, xen-ia64-devel@lists.xensource.com
+To: "Zhang, Xiantao" <xiantao.zhang@intel.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, kvm-devel@lists.sourceforge.net, Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org, "Xu,
+	Anthony" <anthony.xu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Isaku Yamahata wrote:
-> The definitions in include/asm/xen/page.h are arch specific.
-> ia64/xen wants to define its own version. So move them to arch specific
-> directory and keep include/xen/page.h in order not to break compilation.
->
-> Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-> ---
->  include/{ => asm-x86}/xen/page.h |    0 
->  include/xen/page.h               |  169 +-------------------------------------
->  2 files changed, 1 insertions(+), 168 deletions(-)
->  copy include/{ => asm-x86}/xen/page.h (100%)
->
-> diff --git a/include/xen/page.h b/include/asm-x86/xen/page.h
-> similarity index 100%
-> copy from include/xen/page.h
-> copy to include/asm-x86/xen/page.h
-> diff --git a/include/xen/page.h b/include/xen/page.h
+Zhang, Xiantao wrote:
+>  
+> diff --git a/include/linux/smp.h b/include/linux/smp.h
+> index 55232cc..b71820b 100644
+> --- a/include/linux/smp.h
+> +++ b/include/linux/smp.h
+> @@ -56,6 +56,9 @@ int smp_call_function(void(*func)(void *info), void
+> *info, int retry, int wait);
+>  
+>  int smp_call_function_single(int cpuid, void (*func) (void *info), void
+> *info,
+>  				int retry, int wait);
+> +int smp_call_function_mask(cpumask_t mask,
+> +			   void (*func)(void *), void *info,
+> +			   int wait);
+>  
 >   
 
-Is this a magic git-format patch, or is it simply missing 
-asm-x86/xen/page.h?
+For all other archs, smp_call_function_mask() is declared in <asm/smp.h> 
+so please define it there.  A separate patch can move the declarations 
+to <linux/smp.h>, since it makes sense to have just one declaration (and 
+the uniprocessor version is declared there anyway).
 
-> index 0179930..eaf85fa 100644
-> --- a/include/xen/page.h
-> +++ b/include/xen/page.h
-> @@ -1,168 +1 @@
-> -#ifndef __XEN_PAGE_H
-> -#define __XEN_PAGE_H
-> -
-> -#include <linux/pfn.h>
-> -
-> -#include <asm/uaccess.h>
-> -#include <asm/pgtable.h>
-> -
-> -#include <xen/features.h>
-> -
-> -/* Xen machine address */
-> -typedef struct xmaddr {
-> -	phys_addr_t maddr;
-> -} xmaddr_t;
-> -
-> -/* Xen pseudo-physical address */
-> -typedef struct xpaddr {
-> -	phys_addr_t paddr;
-> -} xpaddr_t;
-> -
-> -#define XMADDR(x)	((xmaddr_t) { .maddr = (x) })
-> -#define XPADDR(x)	((xpaddr_t) { .paddr = (x) })
-> -
-> -/**** MACHINE <-> PHYSICAL CONVERSION MACROS ****/
-> -#define INVALID_P2M_ENTRY	(~0UL)
-> -#define FOREIGN_FRAME_BIT	(1UL<<31)
-> -#define FOREIGN_FRAME(m)	((m) | FOREIGN_FRAME_BIT)
-> -
-> -extern unsigned long *phys_to_machine_mapping;
-> -
-> -static inline unsigned long pfn_to_mfn(unsigned long pfn)
-> -{
-> -	if (xen_feature(XENFEAT_auto_translated_physmap))
-> -		return pfn;
-> -
-> -	return phys_to_machine_mapping[(unsigned int)(pfn)] &
-> -		~FOREIGN_FRAME_BIT;
-> -}
-> -
-> -static inline int phys_to_machine_mapping_valid(unsigned long pfn)
-> -{
-> -	if (xen_feature(XENFEAT_auto_translated_physmap))
-> -		return 1;
-> -
-> -	return (phys_to_machine_mapping[pfn] != INVALID_P2M_ENTRY);
-> -}
-> -
-> -static inline unsigned long mfn_to_pfn(unsigned long mfn)
-> -{
-> -	unsigned long pfn;
-> -
-> -	if (xen_feature(XENFEAT_auto_translated_physmap))
-> -		return mfn;
-> -
-> -#if 0
-> -	if (unlikely((mfn >> machine_to_phys_order) != 0))
-> -		return max_mapnr;
-> -#endif
-> -
-> -	pfn = 0;
-> -	/*
-> -	 * The array access can fail (e.g., device space beyond end of RAM).
-> -	 * In such cases it doesn't matter what we return (we return garbage),
-> -	 * but we must handle the fault without crashing!
-> -	 */
-> -	__get_user(pfn, &machine_to_phys_mapping[mfn]);
-> -
-> -	return pfn;
-> -}
-> -
-> -static inline xmaddr_t phys_to_machine(xpaddr_t phys)
-> -{
-> -	unsigned offset = phys.paddr & ~PAGE_MASK;
-> -	return XMADDR(PFN_PHYS((u64)pfn_to_mfn(PFN_DOWN(phys.paddr))) | offset);
-> -}
-> -
-> -static inline xpaddr_t machine_to_phys(xmaddr_t machine)
-> -{
-> -	unsigned offset = machine.maddr & ~PAGE_MASK;
-> -	return XPADDR(PFN_PHYS((u64)mfn_to_pfn(PFN_DOWN(machine.maddr))) | offset);
-> -}
-> -
-> -/*
-> - * We detect special mappings in one of two ways:
-> - *  1. If the MFN is an I/O page then Xen will set the m2p entry
-> - *     to be outside our maximum possible pseudophys range.
-> - *  2. If the MFN belongs to a different domain then we will certainly
-> - *     not have MFN in our p2m table. Conversely, if the page is ours,
-> - *     then we'll have p2m(m2p(MFN))==MFN.
-> - * If we detect a special mapping then it doesn't have a 'struct page'.
-> - * We force !pfn_valid() by returning an out-of-range pointer.
-> - *
-> - * NB. These checks require that, for any MFN that is not in our reservation,
-> - * there is no PFN such that p2m(PFN) == MFN. Otherwise we can get confused if
-> - * we are foreign-mapping the MFN, and the other domain as m2p(MFN) == PFN.
-> - * Yikes! Various places must poke in INVALID_P2M_ENTRY for safety.
-> - *
-> - * NB2. When deliberately mapping foreign pages into the p2m table, you *must*
-> - *      use FOREIGN_FRAME(). This will cause pte_pfn() to choke on it, as we
-> - *      require. In all the cases we care about, the FOREIGN_FRAME bit is
-> - *      masked (e.g., pfn_to_mfn()) so behaviour there is correct.
-> - */
-> -static inline unsigned long mfn_to_local_pfn(unsigned long mfn)
-> -{
-> -	extern unsigned long max_mapnr;
-> -	unsigned long pfn = mfn_to_pfn(mfn);
-> -	if ((pfn < max_mapnr)
-> -	    && !xen_feature(XENFEAT_auto_translated_physmap)
-> -	    && (phys_to_machine_mapping[pfn] != mfn))
-> -		return max_mapnr; /* force !pfn_valid() */
-> -	return pfn;
-> -}
-> -
-> -static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
-> -{
-> -	if (xen_feature(XENFEAT_auto_translated_physmap)) {
-> -		BUG_ON(pfn != mfn && mfn != INVALID_P2M_ENTRY);
-> -		return;
-> -	}
-> -	phys_to_machine_mapping[pfn] = mfn;
-> -}
-> -
-> -/* VIRT <-> MACHINE conversion */
-> -#define virt_to_machine(v)	(phys_to_machine(XPADDR(__pa(v))))
-> -#define virt_to_mfn(v)		(pfn_to_mfn(PFN_DOWN(__pa(v))))
-> -#define mfn_to_virt(m)		(__va(mfn_to_pfn(m) << PAGE_SHIFT))
-> -
-> -static inline unsigned long pte_mfn(pte_t pte)
-> -{
-> -	return (pte.pte & ~_PAGE_NX) >> PAGE_SHIFT;
-> -}
-> -
-> -static inline pte_t mfn_pte(unsigned long page_nr, pgprot_t pgprot)
-> -{
-> -	pte_t pte;
-> -
-> -	pte.pte = ((phys_addr_t)page_nr << PAGE_SHIFT) |
-> -		(pgprot_val(pgprot) & __supported_pte_mask);
-> -
-> -	return pte;
-> -}
-> -
-> -static inline pteval_t pte_val_ma(pte_t pte)
-> -{
-> -	return pte.pte;
-> -}
-> -
-> -static inline pte_t __pte_ma(pteval_t x)
-> -{
-> -	return (pte_t) { .pte = x };
-> -}
-> -
-> -#ifdef CONFIG_X86_PAE
-> -#define pmd_val_ma(v) ((v).pmd)
-> -#define pud_val_ma(v) ((v).pgd.pgd)
-> -#define __pmd_ma(x)	((pmd_t) { (x) } )
-> -#else  /* !X86_PAE */
-> -#define pmd_val_ma(v)	((v).pud.pgd.pgd)
-> -#endif	/* CONFIG_X86_PAE */
-> -
-> -#define pgd_val_ma(x)	((x).pgd)
-> -
-> -
-> -xmaddr_t arbitrary_virt_to_machine(unsigned long address);
-> -void make_lowmem_page_readonly(void *vaddr);
-> -void make_lowmem_page_readwrite(void *vaddr);
-> -
-> -#endif /* __XEN_PAGE_H */
-> +#include <asm/xen/page.h>
->   
+
+-- 
+error compiling committee.c: too many arguments to function
