@@ -1,14 +1,15 @@
 From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-ia64-devel] [02/17][PATCH] Implement smp_call_function_mask
-	for ia64
-Date: Sun, 30 Mar 2008 14:42:03 +0300
-Message-ID: <47EF7C8B.90902__26829.8881281682$1206877501$gmane$org@qumranet.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDCFF7EFE@pdsmsx415.ccr.corp.intel.com>
+Subject: Re: [PATCH 09/12] xen: make include/xen/page.h portable moving those
+	definitions under asm dir.
+Date: Sun, 30 Mar 2008 16:41:52 +0300
+Message-ID: <47EF98A0.4020903__429.754510014568$1206884660$gmane$org@qumranet.com>
+References: <12067044183207-git-send-email-yamahata@valinux.co.jp>	<12067044183655-git-send-email-yamahata@valinux.co.jp>
+	<47ED57E8.4050506@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDCFF7EFE@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <47ED57E8.4050506@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,34 +19,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhang, Xiantao" <xiantao.zhang@intel.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, kvm-devel@lists.sourceforge.net, Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org, "Xu,
-	Anthony" <anthony.xu@intel.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, Isaku Yamahata <yamahata@valinux.co.jp>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zhang, Xiantao wrote:
->  
-> diff --git a/include/linux/smp.h b/include/linux/smp.h
-> index 55232cc..b71820b 100644
-> --- a/include/linux/smp.h
-> +++ b/include/linux/smp.h
-> @@ -56,6 +56,9 @@ int smp_call_function(void(*func)(void *info), void
-> *info, int retry, int wait);
->  
->  int smp_call_function_single(int cpuid, void (*func) (void *info), void
-> *info,
->  				int retry, int wait);
-> +int smp_call_function_mask(cpumask_t mask,
-> +			   void (*func)(void *), void *info,
-> +			   int wait);
->  
+Jeremy Fitzhardinge wrote:
+> Isaku Yamahata wrote:
+>   
+>> The definitions in include/asm/xen/page.h are arch specific.
+>> ia64/xen wants to define its own version. So move them to arch specific
+>> directory and keep include/xen/page.h in order not to break compilation.
+>>
+>> Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+>> ---
+>>  include/{ => asm-x86}/xen/page.h |    0 
+>>  include/xen/page.h               |  169 +-------------------------------------
+>>  2 files changed, 1 insertions(+), 168 deletions(-)
+>>  copy include/{ => asm-x86}/xen/page.h (100%)
+>>
+>> diff --git a/include/xen/page.h b/include/asm-x86/xen/page.h
+>> similarity index 100%
+>> copy from include/xen/page.h
+>> copy to include/asm-x86/xen/page.h
+>> diff --git a/include/xen/page.h b/include/xen/page.h
+>>   
+>>     
+>
+> Is this a magic git-format patch, or is it simply missing 
+> asm-x86/xen/page.h?
+>
 >   
 
-For all other archs, smp_call_function_mask() is declared in <asm/smp.h> 
-so please define it there.  A separate patch can move the declarations 
-to <linux/smp.h>, since it makes sense to have just one declaration (and 
-the uniprocessor version is declared there anyway).
+Magic git format.  Look at lines beginning with 'copy' above.
 
+(a better result would have been a move along with a creation of a new 
+include/xen/page.h)
 
 -- 
 error compiling committee.c: too many arguments to function
