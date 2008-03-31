@@ -1,14 +1,16 @@
-From: Carsten Otte <cotte@de.ibm.com>
-Subject: Re: [04/17] [PATCH] Add kvm arch-specific core code for kvm/ia64.-V8
-Date: Mon, 31 Mar 2008 16:52:21 +0200
-Message-ID: <47F0FAA5.2090109__29370.9793048494$1206975604$gmane$org@de.ibm.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC01048245@pdsmsx415.ccr.corp.intel.com>
-Reply-To: carsteno@de.ibm.com
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 12/12] xen: import arch generic part of xencomm.
+Date: Mon, 31 Mar 2008 08:01:13 -0700
+Message-ID: <47F0FCB9.8050407__46131.5003376969$1206976099$gmane$org@goop.org>
+References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
+	<12067044184070-git-send-email-yamahata@valinux.co.jp>
+	<47ED508C.2000608@goop.org>
+	<20080331094927.GI17609%yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048245@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <20080331094927.GI17609%yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,151 +20,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhang, Xiantao" <xiantao.zhang@intel.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, kvm-devel@lists.sourceforge.net, Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org, "Xu,
-	Anthony" <anthony.xu@intel.com>
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zhang, Xiantao wrote:
-> +static struct kvm_vcpu *lid_to_vcpu(struct kvm *kvm, unsigned long id,
-> +			unsigned long eid)
-> +{
-> +	ia64_lid_t lid;
-> +	int i;
-> +
-> +	for (i = 0; i < KVM_MAX_VCPUS; i++) {
-> +		if (kvm->vcpus[i]) {
-> +			lid.val = VCPU_LID(kvm->vcpus[i]);
-> +			if (lid.id == id && lid.eid == eid)
-> +				return kvm->vcpus[i];
-> +		}
-> +	}
-> +
-> +	return NULL;
-> +}
-> +
-> +static int handle_ipi(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-> +{
-> +	struct exit_ctl_data *p = kvm_get_exit_data(vcpu);
-> +	struct kvm_vcpu *target_vcpu;
-> +	struct kvm_pt_regs *regs;
-> +	ia64_ipi_a addr = p->u.ipi_data.addr;
-> +	ia64_ipi_d data = p->u.ipi_data.data;
-> +
-> +	target_vcpu = lid_to_vcpu(vcpu->kvm, addr.id, addr.eid);
-> +	if (!target_vcpu)
-> +		return handle_vm_error(vcpu, kvm_run);
-> +
-> +	if (!target_vcpu->arch.launched) {
-> +		regs = vcpu_regs(target_vcpu);
-> +
-> +		regs->cr_iip = vcpu->kvm->arch.rdv_sal_data.boot_ip;
-> +		regs->r1 = vcpu->kvm->arch.rdv_sal_data.boot_gp;
-> +
-> +		target_vcpu->arch.mp_state = VCPU_MP_STATE_RUNNABLE;
-> +		if (waitqueue_active(&target_vcpu->wq))
-> +			wake_up_interruptible(&target_vcpu->wq);
-> +	} else {
-> +		vcpu_deliver_ipi(target_vcpu, data.dm, data.vector);
-> +		if (target_vcpu != vcpu)
-> +			kvm_vcpu_kick(target_vcpu);
-> +	}
-> +
-> +	return 1;
-> +}
-*Shrug*. This looks highly racy to me. You do access various values in 
-target_vcpu without any lock! I know that taking the target vcpu's 
-lock does'nt work because that one is held all the time during 
-KVM_VCPU_RUN. My solution to that was struct local_interrupt, which 
-has its own lock, and has the waitqueue plus everything I need to send 
-a sigp [that's our flavor of ipi].
+Isaku Yamahata wrote:
+> On Fri, Mar 28, 2008 at 01:09:48PM -0700, Jeremy Fitzhardinge wrote:
+>   
+>> Isaku Yamahata wrote:
+>>     
+>>> On xen/ia64 and xen/powerpc hypercall arguments are passed by pseudo
+>>> physical address (guest physical address) so that it's necessary to
+>>> convert from virtual address into pseudo physical address. The frame
+>>> work is called xencomm.
+>>> Import arch generic part of xencomm.
+>>>
+>>> Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+>>> ---
+>>> drivers/xen/Makefile            |    1 +
+>>> drivers/xen/xencomm.c           |  232 
+>>> +++++++++++++++++++++++++++++++++++++++
+>>> include/xen/interface/xencomm.h |   41 +++++++
+>>> include/xen/xencomm.h           |   77 +++++++++++++
+>>>  
+>>>       
+>> There's no Kconfig for this.
+>>
+>> What ends up using xencomm?  Could we defer adding it until there's an 
+>> in-tree user?
+>>     
+>
+> We are in a dilemma.
+> ia64/xen needs xencomm so that it needs common xencomm code.
+> However merging common xencomm code needs the real user i.e. ia64/xen.
+>
+> Another user of xencomm is powerpc/xen which isn't merged into
+> upstream. So another choice would be
+> - put the file into ia64 specific directory and
+>   merge the file through linux-ia64.
+>   When another user appears (possibly powerpc/xen),
+>   move the file into common place (drivers/xen).
+>
+> We're now struggling for ia64/xen domU merge, so we want to make
+> ia64/xen domU patch series as small as possible.
+> Putting the file into drivers/xen is desirable for that.
+> However either way is ok.
+> Which way do you want (putting common dir or ia64 specfic dir)?
 
-> +int kvm_emulate_halt(struct kvm_vcpu *vcpu)
-> +{
-> +
-> +	ktime_t kt;
-> +	long itc_diff;
-> +	unsigned long vcpu_now_itc;
-> +
-> +	unsigned long expires;
-> +	struct hrtimer *p_ht = &vcpu->arch.hlt_timer;
-That makes me jealous, I'd love to have hrtimer on s390 for this. I've 
-got to round up to the next jiffie. *Sigh*
+No, it's fine as-is.
 
-> +int kvm_arch_vcpu_ioctl_set_sregs(struct kvm_vcpu *vcpu,
-> +		struct kvm_sregs *sregs)
-> +{
-> +	printk(KERN_WARNING"kvm:kvm_arch_vcpu_ioctl_set_sregs
-> called!!\n");
-> +	return 0;
-> +}
-> +
-> +int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
-> +		struct kvm_sregs *sregs)
-> +{
-> +	printk(KERN_WARNING"kvm:kvm_arch_vcpu_ioctl_get_sregs
-> called!!\n");
-> +	return 0;
-> +
-> +}
-Suggestion: if get/set sregs does'nt seem useful on ia64, why not 
-return -EINVAL? In that case, you could also not print a kern warning, 
-the user will either handle that situation or complain.
-
-> +int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
-> +{
-<snip>
-> +	/*FIXME:Need to removed it later!!\n*/
-> +	vcpu->arch.apic = kzalloc(sizeof(struct kvm_lapic), GFP_KERNEL);
-> +	vcpu->arch.apic->vcpu = vcpu;
-Fixme!
-
-> +static int vti_vcpu_setup(struct kvm_vcpu *vcpu, int id)
-> +{
-> +	unsigned long psr;
-> +	int r;
-> +
-> +	local_irq_save(psr);
-> +	r = kvm_insert_vmm_mapping(vcpu);
-> +	if (r)
-> +		goto fail;
-> +	r = kvm_vcpu_init(vcpu, vcpu->kvm, id);
-> +	if (r)
-> +		goto fail;
-Maybe change to return r, rather then goto fail?
-
-> +int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu
-> *fpu)
-> +{
-> +	printk(KERN_WARNING"kvm:IA64 doesn't need to export"
-> +			"fpu to userspace!\n");
-> +	return 0;
-> +}
-> +
-> +int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu
-> *fpu)
-> +{
-> +	printk(KERN_WARNING"kvm:IA64 doesn't need to export"
-> +					"fpu to userspace !\n");
-> +	return 0;
-> +}
-maybe -EINVAL?
-
-> +static int find_highest_bits(int *dat)
-> +{
-> +	u32  bits, bitnum;
-> +	int i;
-> +
-> +	/* loop for all 256 bits */
-> +	for (i = 7; i >= 0 ; i--) {
-> +		bits = dat[i];
-> +		if (bits) {
-> +			bitnum = fls(bits);
-> +			return i * 32 + bitnum - 1;
-> +		}
-> +	}
-> +
-> +	return -1;
-> +}
-Should be in asm/bitops.h. Look at find_first_bit() and friends, this 
-is duplicate.
+    J
