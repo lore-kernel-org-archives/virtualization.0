@@ -1,17 +1,13 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [RFC/PATCH 07/15 v3] kvm-s390: interrupt subsystem, cpu timer,
-	waitpsw
-Date: Mon, 31 Mar 2008 07:43:57 +0200
-Message-ID: <200803310743.58580.arnd__8733.37862217358$1206942471$gmane$org@arndb.de>
-References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
-	<1206458154.6217.12.camel@cotte.boeblingen.de.ibm.com>
-	<1206467246.6507.43.camel@cotte.boeblingen.de.ibm.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: xen: Make hvc0 the preferred console in domU
+Date: Sun, 30 Mar 2008 23:36:56 -0700
+Message-ID: <47F08688.6050206__17429.9391372644$1206945779$gmane$org@goop.org>
+References: <87zltm1p0s.fsf@pike.pond.sub.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1206467246.6507.43.camel@cotte.boeblingen.de.ibm.com>
-Content-Disposition: inline
+In-Reply-To: <87zltm1p0s.fsf@pike.pond.sub.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,21 +17,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carsten Otte <cotte@de.ibm.com>
-Cc: aliguori@us.ibm.com, EHRHARDT@de.ibm.com, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
+To: Markus Armbruster <armbru@redhat.com>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 25 March 2008, Carsten Otte wrote:
+Markus Armbruster wrote:
+> This makes the Xen console just work.  Before, you had to ask for it
+> on the kernel command line with console=hvc0
+>   
 
-> +	case KVM_S390_SIGP_SET_PREFIX:
-> +		VCPU_EVENT(vcpu, 4, "interrupt: set prefix to %x",
-> +			   inti->prefix.address);
-> +		vcpu->stat.deliver_prefix_signal++;
-> +		vcpu->arch.sie_block->prefix = inti->prefix.address;
-> +		vcpu->arch.sie_block->ihcpu = 0xffff;
-> +		break;
+I see that this has been causing issues when people expect the pvfb 
+driver to be the console.  Should we make it a config option, which 
+depends on !XENFB?
 
-This smells like a security bug. What happens if the guest sets the prefix
-to an address outside of its address range?
-
-	Arnd <><
+    J
