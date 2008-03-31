@@ -1,14 +1,14 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: Re: [01/17]PATCH  Add API for allocating dynamic TR resouce. V8
-Date: Mon, 31 Mar 2008 15:41:41 +0200
-Message-ID: <47F0EA15.9030408__12454.2089798071$1206971444$gmane$org@de.ibm.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC0104823F@pdsmsx415.ccr.corp.intel.com>
+Subject: Re: [03/15][PATCH] kvm/ia64: Add header files for kvm/ia64. V8
+Date: Mon, 31 Mar 2008 15:46:32 +0200
+Message-ID: <47F0EB38.2090700__36327.7412056506$1206972069$gmane$org@de.ibm.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDC01048243@pdsmsx415.ccr.corp.intel.com>
 Reply-To: carsteno@de.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC0104823F@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048243@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,56 +24,139 @@ Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-dev
 List-Id: virtualization@lists.linuxfoundation.org
 
 Zhang, Xiantao wrote:
-> +/*  mca_insert_tr
-> + *
-> + *  Switch rid when TR reload and needed!
-> + *  iord: 1: itr, 2: itr;
-> + *
-> +*/
-> +static void mca_insert_tr(u64 iord)
-> +{
+> +typedef union context {
+> +	/* 8K size */
+> +	char	dummy[KVM_CONTEXT_SIZE];
+> +	struct {
+> +		unsigned long       psr;
+> +		unsigned long       pr;
+> +		unsigned long       caller_unat;
+> +		unsigned long       pad;
+> +		unsigned long       gr[32];
+> +		unsigned long       ar[128];
+> +		unsigned long       br[8];
+> +		unsigned long       cr[128];
+> +		unsigned long       rr[8];
+> +		unsigned long       ibr[8];
+> +		unsigned long       dbr[8];
+> +		unsigned long       pkr[8];
+> +		struct ia64_fpreg   fr[128];
+> +	};
+> +} context_t;
+This looks ugly to me. I'd rather prefer to have a straight struct 
+with elements psr...fr[], and cast the pointer to char* when needed. 
+KVM_CONTEXT_SIZE can be used as parameter to kzalloc() on allocation, 
+it's too large to be on stack anyway.
+
+> +typedef struct thash_data {
+> +	union {
+> +		struct {
+> +			unsigned long p    :  1; /* 0 */
+> +			unsigned long rv1  :  1; /* 1 */
+> +			unsigned long ma   :  3; /* 2-4 */
+> +			unsigned long a    :  1; /* 5 */
+> +			unsigned long d    :  1; /* 6 */
+> +			unsigned long pl   :  2; /* 7-8 */
+> +			unsigned long ar   :  3; /* 9-11 */
+> +			unsigned long ppn  : 38; /* 12-49 */
+> +			unsigned long rv2  :  2; /* 50-51 */
+> +			unsigned long ed   :  1; /* 52 */
+> +			unsigned long ig1  : 11; /* 53-63 */
+> +		};
+> +		struct {
+> +			unsigned long __rv1 : 53;     /* 0-52 */
+> +			unsigned long contiguous : 1; /*53 */
+> +			unsigned long tc : 1;         /* 54 TR or TC */
+> +			unsigned long cl : 1;
+> +			/* 55 I side or D side cache line */
+> +			unsigned long len  :  4;      /* 56-59 */
+> +			unsigned long io  : 1;	/* 60 entry is for io or
+> not */
+> +			unsigned long nomap : 1;
+> +			/* 61 entry cann't be inserted into machine
+> TLB.*/
+> +			unsigned long checked : 1;
+> +			/* 62 for VTLB/VHPT sanity check */
+> +			unsigned long invalid : 1;
+> +			/* 63 invalid entry */
+> +		};
+> +		unsigned long page_flags;
+> +	};                  /* same for VHPT and TLB */
 > +
-> +	int i;
-> +	u64 old_rr;
-> +	struct ia64_tr_entry *p;
-> +	unsigned long psr;
-> +	int cpu = smp_processor_id();
-What if CONFIG_PREEMPT is on, and we're being preempted and scheduled 
-to a different CPU here? Are we running preempt disabled here? If so, 
-the function header should state that this function needs to be called 
-preempt_disabled.
+> +	union {
+> +		struct {
+> +			unsigned long rv3  :  2;
+> +			unsigned long ps   :  6;
+> +			unsigned long key  : 24;
+> +			unsigned long rv4  : 32;
+> +		};
+> +		unsigned long itir;
+> +	};
+> +	union {
+> +		struct {
+> +			unsigned long ig2  :  12;
+> +			unsigned long vpn  :  49;
+> +			unsigned long vrn  :   3;
+> +		};
+> +		unsigned long ifa;
+> +		unsigned long vadr;
+> +		struct {
+> +			unsigned long tag  :  63;
+> +			unsigned long ti   :  1;
+> +		};
+> +		unsigned long etag;
+> +	};
+> +	union {
+> +		struct thash_data *next;
+> +		unsigned long rid;
+> +		unsigned long gpaddr;
+> +	};
+> +} thash_data_t;
+A matter of taste, but I'd prefer unsigned long mask, and
+#define MASK_BIT_FOR_PURPUSE over bitfields. This structure could be 
+much smaller that way.
 
-> +/*
-> + * ia64_insert_tr in virtual mode. Allocate a TR slot
-> + *
-> + * target_mask : 0x1 : itr, 0x2 : dtr, 0x3 : idtr
-> + *
-> + * va 	: virtual address.
-> + * pte 	: pte entries inserted.
-> + * log_size: range to be covered.
-> + *
-> + * Return value:  <0 :  error No.
-> + *
-> + *		  >=0 : slot number allocated for TR.
-> + */
-> +int ia64_itr_entry(u64 target_mask, u64 va, u64 pte, u64 log_size)
-> +{
-> +	int i, r;
-> +	unsigned long psr;
-> +	struct ia64_tr_entry *p;
-> +	int cpu = smp_processor_id();
-Same here.
-
-> +/*
-> + * ia64_purge_tr
-> + *
-> + * target_mask: 0x1: purge itr, 0x2 : purge dtr, 0x3 purge idtr.
-> + *
-> + * slot: slot number to be freed.
-> + */
-> +void ia64_ptr_entry(u64 target_mask, int slot)
-> +{
-> +	int cpu = smp_processor_id();
-> +	int i;
-> +	struct ia64_tr_entry *p;
-Here again.
+> +struct kvm_regs {
+> +	char *saved_guest;
+> +	char *saved_stack;
+> +	struct saved_vpd vpd;
+> +	/*Arch-regs*/
+> +	int mp_state;
+> +	unsigned long vmm_rr;
+> +	/* TR and TC.  */
+> +	struct thash_data itrs[NITRS];
+> +	struct thash_data dtrs[NDTRS];
+> +	/* Bit is set if there is a tr/tc for the region.  */
+> +	unsigned char itr_regions;
+> +	unsigned char dtr_regions;
+> +	unsigned char tc_regions;
+> +
+> +	char irq_check;
+> +	unsigned long saved_itc;
+> +	unsigned long itc_check;
+> +	unsigned long timer_check;
+> +	unsigned long timer_pending;
+> +	unsigned long last_itc;
+> +
+> +	unsigned long vrr[8];
+> +	unsigned long ibr[8];
+> +	unsigned long dbr[8];
+> +	unsigned long insvc[4];		/* Interrupt in service.  */
+> +	unsigned long xtp;
+> +
+> +	unsigned long metaphysical_rr0; /* from kvm_arch (so is pinned)
+> */
+> +	unsigned long metaphysical_rr4;	/* from kvm_arch (so is pinned)
+> */
+> +	unsigned long metaphysical_saved_rr0; /* from kvm_arch
+> */
+> +	unsigned long metaphysical_saved_rr4; /* from kvm_arch
+> */
+> +	unsigned long fp_psr;       /*used for lazy float register */
+> +	unsigned long saved_gp;
+> +	/*for phycial  emulation */
+> +};
+This looks like it does'nt just have guest register content in it. It 
+seems to me preferable to have another ioctl different from 
+KVM_GET_REGS/KVM_SET_REGS to read and set the rest of the content and 
+seperate it from struct kvm_regs.
