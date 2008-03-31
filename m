@@ -1,17 +1,16 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH 08/12] xen: add resend_irq_on_evtchn() definition into
-	events.c.
-Date: Mon, 31 Mar 2008 18:36:22 +0900
-Message-ID: <20080331093622.GH17609%yamahata__4858.35186341337$1206956580$gmane$org@valinux.co.jp>
+Subject: Re: [PATCH 12/12] xen: import arch generic part of xencomm.
+Date: Mon, 31 Mar 2008 18:49:27 +0900
+Message-ID: <20080331094927.GI17609%yamahata__27906.1106885367$1206957234$gmane$org@valinux.co.jp>
 References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
-	<1206704418876-git-send-email-yamahata@valinux.co.jp>
-	<47ED5542.2060503@goop.org>
+	<12067044184070-git-send-email-yamahata@valinux.co.jp>
+	<47ED508C.2000608@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <47ED5542.2060503@goop.org>
+In-Reply-To: <47ED508C.2000608@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,86 +24,45 @@ To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 28, 2008 at 01:29:54PM -0700, Jeremy Fitzhardinge wrote:
+On Fri, Mar 28, 2008 at 01:09:48PM -0700, Jeremy Fitzhardinge wrote:
 > Isaku Yamahata wrote:
-> >Define resend_irq_on_evtchn() which ia64/xen uses.
-> >Although it isn't used by current x86/xen code, it's arch generic
-> >so that put it into common code.
-> >make ipi_to_irq[] visible removing static because
-> >ia64/xen needs to access the variable from ia64 specific code
+> >On xen/ia64 and xen/powerpc hypercall arguments are passed by pseudo
+> >physical address (guest physical address) so that it's necessary to
+> >convert from virtual address into pseudo physical address. The frame
+> >work is called xencomm.
+> >Import arch generic part of xencomm.
+> >
+> >Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+> >---
+> > drivers/xen/Makefile            |    1 +
+> > drivers/xen/xencomm.c           |  232 
+> > +++++++++++++++++++++++++++++++++++++++
+> > include/xen/interface/xencomm.h |   41 +++++++
+> > include/xen/xencomm.h           |   77 +++++++++++++
 > >  
 > 
-> What kind of access?  Would it be better to add some accessor functions?
+> There's no Kconfig for this.
 > 
-> If nothing else, it needs to be prefixed with xen_ if it goes non-static.
-> 
-> (As should resend_irq_on_evtchn(), but I'm less concerned about a name 
-> collision.)
+> What ends up using xencomm?  Could we defer adding it until there's an 
+> in-tree user?
 
-After revising code, I found the access to ipi_to_irq[] isn't necessary
-by calling xen_send_IPI_one(). so dropped the line.
+We are in a dilemma.
+ia64/xen needs xencomm so that it needs common xencomm code.
+However merging common xencomm code needs the real user i.e. ia64/xen.
 
-changes from the previous one.
-- dropped ipi_to_irq[] change.
+Another user of xencomm is powerpc/xen which isn't merged into
+upstream. So another choice would be
+- put the file into ia64 specific directory and
+  merge the file through linux-ia64.
+  When another user appears (possibly powerpc/xen),
+  move the file into common place (drivers/xen).
 
+We're now struggling for ia64/xen domU merge, so we want to make
+ia64/xen domU patch series as small as possible.
+Putting the file into drivers/xen is desirable for that.
+However either way is ok.
+Which way do you want (putting common dir or ia64 specfic dir)?
 
-From 0b7806fd86c9dcbcd46946aeefedb7acf8d37451 Mon Sep 17 00:00:00 2001
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Date: Mon, 31 Mar 2008 17:45:32 -0700
-Subject: [PATCH 008/112] xen: add resend_irq_on_evtchn() definition into events.c.
-
-Define resend_irq_on_evtchn() which ia64/xen uses.
-Although it isn't used by current x86/xen code, it's arch generic
-so that put it into common code.
-
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- drivers/xen/events.c |   16 ++++++++++++++++
- include/xen/events.h |    1 +
- 2 files changed, 17 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-index 2396b44..4f0f22b 100644
---- a/drivers/xen/events.c
-+++ b/drivers/xen/events.c
-@@ -586,6 +586,22 @@ static void set_affinity_irq(unsigned irq, cpumask_t dest)
- 	rebind_irq_to_cpu(irq, tcpu);
- }
- 
-+int resend_irq_on_evtchn(unsigned int irq)
-+{
-+	int masked, evtchn = evtchn_from_irq(irq);
-+	struct shared_info *s = HYPERVISOR_shared_info;
-+
-+	if (!VALID_EVTCHN(evtchn))
-+		return 1;
-+
-+	masked = sync_test_and_set_bit(evtchn, s->evtchn_mask);
-+	sync_set_bit(evtchn, s->evtchn_pending);
-+	if (!masked)
-+		unmask_evtchn(evtchn);
-+
-+	return 1;
-+}
-+
- static void enable_dynirq(unsigned int irq)
- {
- 	int evtchn = evtchn_from_irq(irq);
-diff --git a/include/xen/events.h b/include/xen/events.h
-index d99a3e0..acd8e06 100644
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -31,6 +31,7 @@ int bind_ipi_to_irqhandler(enum ipi_vector ipi,
- void unbind_from_irqhandler(unsigned int irq, void *dev_id);
- 
- void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector);
-+int resend_irq_on_evtchn(unsigned int irq);
- 
- static inline void notify_remote_via_evtchn(int port)
- {
--- 
-1.5.3
-
-
+thanks,
 -- 
 yamahata
