@@ -1,16 +1,17 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH 12/12] xen: import arch generic part of xencomm.
-Date: Mon, 31 Mar 2008 18:49:27 +0900
-Message-ID: <20080331094927.GI17609%yamahata__27906.1106885367$1206957234$gmane$org@valinux.co.jp>
+Subject: Re: [PATCH 10/12] xen: replace callers of
+	alloc_vm_area()/free_vm_area() with xen_ prefixed one.
+Date: Mon, 31 Mar 2008 19:11:34 +0900
+Message-ID: <20080331101134.GJ17609%yamahata__47905.570959165$1206958590$gmane$org@valinux.co.jp>
 References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
-	<12067044184070-git-send-email-yamahata@valinux.co.jp>
-	<47ED508C.2000608@goop.org>
+	<1206704418191-git-send-email-yamahata@valinux.co.jp>
+	<47ED55BB.6050101@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <47ED508C.2000608@goop.org>
+In-Reply-To: <47ED55BB.6050101@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,45 +25,120 @@ To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 28, 2008 at 01:09:48PM -0700, Jeremy Fitzhardinge wrote:
-> Isaku Yamahata wrote:
-> >On xen/ia64 and xen/powerpc hypercall arguments are passed by pseudo
-> >physical address (guest physical address) so that it's necessary to
-> >convert from virtual address into pseudo physical address. The frame
-> >work is called xencomm.
-> >Import arch generic part of xencomm.
-> >
-> >Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-> >---
-> > drivers/xen/Makefile            |    1 +
-> > drivers/xen/xencomm.c           |  232 
-> > +++++++++++++++++++++++++++++++++++++++
-> > include/xen/interface/xencomm.h |   41 +++++++
-> > include/xen/xencomm.h           |   77 +++++++++++++
-> >  
-> 
-> There's no Kconfig for this.
-> 
-> What ends up using xencomm?  Could we defer adding it until there's an 
-> in-tree user?
+On Fri, Mar 28, 2008 at 01:31:55PM -0700, Jeremy Fitzhardinge wrote:
+> This change looks fine overall, but asm/xen/hypervisor.h seems to be 
+> turning into a bit of a dumping-ground.  I wonder if we can't come up 
+> with a better-named header...
 
-We are in a dilemma.
-ia64/xen needs xencomm so that it needs common xencomm code.
-However merging common xencomm code needs the real user i.e. ia64/xen.
+How about include/asm/xen/grant_table.h?
+xen_{alloc, free}_vm_area() are used for allocate/free grant table
+mappable area. So they are grant table related operations.
 
-Another user of xencomm is powerpc/xen which isn't merged into
-upstream. So another choice would be
-- put the file into ia64 specific directory and
-  merge the file through linux-ia64.
-  When another user appears (possibly powerpc/xen),
-  move the file into common place (drivers/xen).
+changes from the previsous one:
+- move the declarations from asm/xen/hypervisor.h into
+  asm/xen/grant_table.h
 
-We're now struggling for ia64/xen domU merge, so we want to make
-ia64/xen domU patch series as small as possible.
-Putting the file into drivers/xen is desirable for that.
-However either way is ok.
-Which way do you want (putting common dir or ia64 specfic dir)?
+From 4c36bb857fda0f4ddaad5ccf07da83d2e15881f5 Mon Sep 17 00:00:00 2001
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Date: Mon, 31 Mar 2008 19:03:43 -0700
+Subject: [PATCH 010/113] xen: replace callers of alloc_vm_area()/free_vm_area() with xen_ prefixed one.
 
-thanks,
+Don't use alloc_vm_area()/free_vm_area() directly, instead define
+xen_alloc_vm_area()/xen_free_vm_area() and use them.
+
+alloc_vm_area()/free_vm_area() are used to allocate/free area which
+are for grant table mapping. Xen/x86 grant table is based on virtual
+address so that alloc_vm_area()/free_vm_area() are suitable.
+On the other hand Xen/ia64 (and Xen/powerpc) grant table is based on
+pseudo physical address (guest physical address) so that allocation
+should be done differently.
+The original version of xenified Linux/IA64 have its own
+allocate_vm_area()/free_vm_area() definitions which don't allocate vm area
+contradictory to those names.
+Now vanilla Linux already has its definitions so that it's impossible
+to have IA64 definitions of allocate_vm_area()/free_vm_area().
+Instead introduce xen_allocate_vm_area()/xen_free_vm_area() and use them.
+
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ drivers/xen/grant-table.c          |    2 +-
+ drivers/xen/xenbus/xenbus_client.c |    6 +++---
+ include/asm-x86/xen/grant_table.h  |    7 +++++++
+ include/xen/grant_table.h          |    1 +
+ 4 files changed, 12 insertions(+), 4 deletions(-)
+ create mode 100644 include/asm-x86/xen/grant_table.h
+
+diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
+index 95016fd..9fcde20 100644
+--- a/drivers/xen/grant-table.c
++++ b/drivers/xen/grant-table.c
+@@ -478,7 +478,7 @@ static int gnttab_map(unsigned int start_idx, unsigned int end_idx)
+ 
+ 	if (shared == NULL) {
+ 		struct vm_struct *area;
+-		area = alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
++		area = xen_alloc_vm_area(PAGE_SIZE * max_nr_grant_frames());
+ 		BUG_ON(area == NULL);
+ 		shared = area->addr;
+ 	}
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index 9fd2f70..0f86b0f 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -399,7 +399,7 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
+ 
+ 	*vaddr = NULL;
+ 
+-	area = alloc_vm_area(PAGE_SIZE);
++	area = xen_alloc_vm_area(PAGE_SIZE);
+ 	if (!area)
+ 		return -ENOMEM;
+ 
+@@ -409,7 +409,7 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
+ 		BUG();
+ 
+ 	if (op.status != GNTST_okay) {
+-		free_vm_area(area);
++		xen_free_vm_area(area);
+ 		xenbus_dev_fatal(dev, op.status,
+ 				 "mapping in shared page %d from domain %d",
+ 				 gnt_ref, dev->otherend_id);
+@@ -508,7 +508,7 @@ int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr)
+ 		BUG();
+ 
+ 	if (op.status == GNTST_okay)
+-		free_vm_area(area);
++		xen_free_vm_area(area);
+ 	else
+ 		xenbus_dev_error(dev, op.status,
+ 				 "unmapping page at handle %d error %d",
+diff --git a/include/asm-x86/xen/grant_table.h b/include/asm-x86/xen/grant_table.h
+new file mode 100644
+index 0000000..2444d45
+--- /dev/null
++++ b/include/asm-x86/xen/grant_table.h
+@@ -0,0 +1,7 @@
++#ifndef __XEN_GRANT_TABLE_H
++#define __XEN_GRANT_TABLE_H
++
++#define xen_alloc_vm_area(size)	alloc_vm_area(size)
++#define xen_free_vm_area(area)	free_vm_area(area)
++
++#endif /* __XEN_GRANT_TABLE_H */
+diff --git a/include/xen/grant_table.h b/include/xen/grant_table.h
+index 761c834..d282292 100644
+--- a/include/xen/grant_table.h
++++ b/include/xen/grant_table.h
+@@ -39,6 +39,7 @@
+ 
+ #include <asm/xen/hypervisor.h>
+ #include <xen/interface/grant_table.h>
++#include <asm/xen/grant_table.h>
+ 
+ /* NR_GRANT_FRAMES must be less than or equal to that configured in Xen */
+ #define NR_GRANT_FRAMES 4
+-- 
+1.5.3
+
 -- 
 yamahata
