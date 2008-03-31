@@ -1,13 +1,14 @@
-From: Jes Sorensen <jes@sgi.com>
-Subject: Re: [05/17][PATCH] kvm/ia64 : Add head files for kvm/ia64
-Date: Mon, 31 Mar 2008 14:33:47 +0200
-Message-ID: <47F0DA2B.9070403__16192.2737294391$1206975048$gmane$org@sgi.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC01048246@pdsmsx415.ccr.corp.intel.com>
+From: Carsten Otte <cotte@de.ibm.com>
+Subject: Re: [04/17] [PATCH] Add kvm arch-specific core code for kvm/ia64.-V8
+Date: Mon, 31 Mar 2008 16:52:21 +0200
+Message-ID: <47F0FAA5.2090109__29370.9793048494$1206975604$gmane$org@de.ibm.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDC01048245@pdsmsx415.ccr.corp.intel.com>
+Reply-To: carsteno@de.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048246@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048245@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,192 +19,150 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Zhang, Xiantao" <xiantao.zhang@intel.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org, "Xu,
+Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, kvm-devel@lists.sourceforge.net, Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org, "Xu,
 	Anthony" <anthony.xu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Xiantao,
-
-More comments.
-
 Zhang, Xiantao wrote:
->>From 696b9eea9f5001a7b7a07c0e58514aa10306b91a Mon Sep 17 00:00:00 2001
-> From: Xiantao Zhang <xiantao.zhang@intel.com>
-> Date: Fri, 28 Mar 2008 09:51:36 +0800
-> Subject: [PATCH] KVM:IA64 : Add head files for kvm/ia64
-> 
-> ia64_regs: some defintions for special registers
-> which aren't defined in asm-ia64/ia64regs.
-
-Please put missing definitions of registers into asm-ia64/ia64regs.h if
-they are official definitions from the spec.
-
-> kvm_minstate.h : Marcos about Min save routines.
-> lapic.h: apic structure definition.
-> vcpu.h : routions related to vcpu virtualization.
-> vti.h  : Some macros or routines for VT support on Itanium.
-> Signed-off-by: Xiantao Zhang <xiantao.zhang@intel.com>
-
-> +/*
-> + * Flushrs instruction stream.
-> + */
-> +#define ia64_flushrs() asm volatile ("flushrs;;":::"memory")
-> +
-> +#define ia64_loadrs() asm volatile ("loadrs;;":::"memory")
-
-Please put these into include/asm-ia64/gcc_intrin.h
-
-> +#define ia64_get_rsc()
-> \
-> +({
-> \
-> +	unsigned long val;
-> \
-> +	asm volatile ("mov %0=ar.rsc;;" : "=r"(val) :: "memory");
-> \
-> +	val;
-> \
-> +})
-> +
-> +#define ia64_set_rsc(val)					\
-> +	asm volatile ("mov ar.rsc=%0;;" :: "r"(val) : "memory")
-
-Please update the ia64_get/set_reg macros to handle the RSC register
-and use those macros.
-
-> +#define ia64_get_bspstore()
-> \
-> +({
-> \
-> +	unsigned long val;
-> \
-> +	asm volatile ("mov %0=ar.bspstore;;" : "=r"(val) :: "memory");
-> \
-> +	val;
-> \
-> +})
-
-Ditto for for AR.BSPSTORE
-
-> +#define ia64_get_rnat()
-> \
-> +({
-> \
-> +	unsigned long val;
-> \
-> +	asm volatile ("mov %0=ar.rnat;" : "=r"(val) :: "memory");
-> \
-> +	val;
-> \
-> +})
-
-Ditto for AR.RNAT
-
-> +static inline unsigned long ia64_get_itc(void)
+> +static struct kvm_vcpu *lid_to_vcpu(struct kvm *kvm, unsigned long id,
+> +			unsigned long eid)
 > +{
-> +	unsigned long result;
-> +	result = ia64_getreg(_IA64_REG_AR_ITC);
-> +	return result;
-> +}
-
-This exists in include/asm-ia64/delay.h
-
-> +static inline void ia64_set_dcr(unsigned long dcr)
-> +{
-> +	ia64_setreg(_IA64_REG_CR_DCR, dcr);
-> +}
-
-Please just call ia64_setreg() in your code rather than defining a
-wrapper for it.
-
-> +#define ia64_ttag(addr)
-> \
-> +({
-> \
-> +	__u64 ia64_intri_res;
-> \
-> +	asm volatile ("ttag %0=%1" : "=r"(ia64_intri_res) : "r" (addr));
-> \
-> +	ia64_intri_res;
-> \
-> +})
-
-Please add to include/asm-ia64/gcc_intrin.h instead.
-
-> diff --git a/arch/ia64/kvm/lapic.h b/arch/ia64/kvm/lapic.h
-> new file mode 100644
-> index 0000000..152cbdc
-> --- /dev/null
-> +++ b/arch/ia64/kvm/lapic.h
-> @@ -0,0 +1,27 @@
-> +#ifndef __KVM_IA64_LAPIC_H
-> +#define __KVM_IA64_LAPIC_H
+> +	ia64_lid_t lid;
+> +	int i;
 > +
-> +#include "iodev.h"
-
-I don't understand why iodev.h is included here?
-
-> --- /dev/null
-> +++ b/arch/ia64/kvm/vcpu.h
-
-The formatting of this file is dodgy, please try and make it comply with
-the Linux standards in Documentation/CodingStyle
-
-> +#define _vmm_raw_spin_lock(x)
-> \
-[snip]
+> +	for (i = 0; i < KVM_MAX_VCPUS; i++) {
+> +		if (kvm->vcpus[i]) {
+> +			lid.val = VCPU_LID(kvm->vcpus[i]);
+> +			if (lid.id == id && lid.eid == eid)
+> +				return kvm->vcpus[i];
+> +		}
+> +	}
 > +
-> +#define _vmm_raw_spin_unlock(x)				\
-
-Could you explain the reasoning behind these two macros? Whenever I see
-open coded spin lock modifications like these, I have to admit I get a
-bit worried.
-
-> +typedef struct kvm_vcpu VCPU;
-> +typedef struct kvm_pt_regs REGS;
-> +typedef enum { DATA_REF, NA_REF, INST_REF, RSE_REF } vhpt_ref_t;
-> +typedef enum { INSTRUCTION, DATA, REGISTER } miss_type;
-
-ARGH! Please see previous mail about typedefs! I suspect this is code
-inherited from Xen ? Xen has a lot of really nasty and pointless
-typedefs like these :-(
-
-> +static inline void vcpu_set_dbr(VCPU *vcpu, u64 reg, u64 val)
-> +{
-> +	/* TODO: need to virtualize */
-> +	__ia64_set_dbr(reg, val);
+> +	return NULL;
 > +}
 > +
-> +static inline void vcpu_set_ibr(VCPU *vcpu, u64 reg, u64 val)
+> +static int handle_ipi(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
 > +{
-> +	/* TODO: need to virtualize */
-> +	ia64_set_ibr(reg, val);
+> +	struct exit_ctl_data *p = kvm_get_exit_data(vcpu);
+> +	struct kvm_vcpu *target_vcpu;
+> +	struct kvm_pt_regs *regs;
+> +	ia64_ipi_a addr = p->u.ipi_data.addr;
+> +	ia64_ipi_d data = p->u.ipi_data.data;
+> +
+> +	target_vcpu = lid_to_vcpu(vcpu->kvm, addr.id, addr.eid);
+> +	if (!target_vcpu)
+> +		return handle_vm_error(vcpu, kvm_run);
+> +
+> +	if (!target_vcpu->arch.launched) {
+> +		regs = vcpu_regs(target_vcpu);
+> +
+> +		regs->cr_iip = vcpu->kvm->arch.rdv_sal_data.boot_ip;
+> +		regs->r1 = vcpu->kvm->arch.rdv_sal_data.boot_gp;
+> +
+> +		target_vcpu->arch.mp_state = VCPU_MP_STATE_RUNNABLE;
+> +		if (waitqueue_active(&target_vcpu->wq))
+> +			wake_up_interruptible(&target_vcpu->wq);
+> +	} else {
+> +		vcpu_deliver_ipi(target_vcpu, data.dm, data.vector);
+> +		if (target_vcpu != vcpu)
+> +			kvm_vcpu_kick(target_vcpu);
+> +	}
+> +
+> +	return 1;
+> +}
+*Shrug*. This looks highly racy to me. You do access various values in 
+target_vcpu without any lock! I know that taking the target vcpu's 
+lock does'nt work because that one is held all the time during 
+KVM_VCPU_RUN. My solution to that was struct local_interrupt, which 
+has its own lock, and has the waitqueue plus everything I need to send 
+a sigp [that's our flavor of ipi].
+
+> +int kvm_emulate_halt(struct kvm_vcpu *vcpu)
+> +{
+> +
+> +	ktime_t kt;
+> +	long itc_diff;
+> +	unsigned long vcpu_now_itc;
+> +
+> +	unsigned long expires;
+> +	struct hrtimer *p_ht = &vcpu->arch.hlt_timer;
+That makes me jealous, I'd love to have hrtimer on s390 for this. I've 
+got to round up to the next jiffie. *Sigh*
+
+> +int kvm_arch_vcpu_ioctl_set_sregs(struct kvm_vcpu *vcpu,
+> +		struct kvm_sregs *sregs)
+> +{
+> +	printk(KERN_WARNING"kvm:kvm_arch_vcpu_ioctl_set_sregs
+> called!!\n");
+> +	return 0;
 > +}
 > +
-> +static inline u64 vcpu_get_dbr(VCPU *vcpu, u64 reg)
+> +int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
+> +		struct kvm_sregs *sregs)
 > +{
-> +	/* TODO: need to virtualize */
-> +	return ((u64)__ia64_get_dbr(reg));
+> +	printk(KERN_WARNING"kvm:kvm_arch_vcpu_ioctl_get_sregs
+> called!!\n");
+> +	return 0;
+> +
+> +}
+Suggestion: if get/set sregs does'nt seem useful on ia64, why not 
+return -EINVAL? In that case, you could also not print a kern warning, 
+the user will either handle that situation or complain.
+
+> +int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
+> +{
+<snip>
+> +	/*FIXME:Need to removed it later!!\n*/
+> +	vcpu->arch.apic = kzalloc(sizeof(struct kvm_lapic), GFP_KERNEL);
+> +	vcpu->arch.apic->vcpu = vcpu;
+Fixme!
+
+> +static int vti_vcpu_setup(struct kvm_vcpu *vcpu, int id)
+> +{
+> +	unsigned long psr;
+> +	int r;
+> +
+> +	local_irq_save(psr);
+> +	r = kvm_insert_vmm_mapping(vcpu);
+> +	if (r)
+> +		goto fail;
+> +	r = kvm_vcpu_init(vcpu, vcpu->kvm, id);
+> +	if (r)
+> +		goto fail;
+Maybe change to return r, rather then goto fail?
+
+> +int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu
+> *fpu)
+> +{
+> +	printk(KERN_WARNING"kvm:IA64 doesn't need to export"
+> +			"fpu to userspace!\n");
+> +	return 0;
 > +}
 > +
-> +static inline u64 vcpu_get_ibr(VCPU *vcpu, u64 reg)
+> +int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu
+> *fpu)
 > +{
-> +	/* TODO: need to virtualize */
-> +	return ((u64)ia64_get_ibr(reg));
+> +	printk(KERN_WARNING"kvm:IA64 doesn't need to export"
+> +					"fpu to userspace !\n");
+> +	return 0;
 > +}
+maybe -EINVAL?
 
-More wrapper macros that really should just use ia64_get/set_reg()
-directly in the code.
-
-
-> diff --git a/arch/ia64/kvm/vti.h b/arch/ia64/kvm/vti.h
-> new file mode 100644
-> index 0000000..591ab22
-[ship]
-> +/* -*-  Mode:C; c-basic-offset:4; tab-width:4; indent-tabs-mode:nil -*-
-> */
-
-Evil formatting again!
-
-Cheers,
-Jes
+> +static int find_highest_bits(int *dat)
+> +{
+> +	u32  bits, bitnum;
+> +	int i;
+> +
+> +	/* loop for all 256 bits */
+> +	for (i = 7; i >= 0 ; i--) {
+> +		bits = dat[i];
+> +		if (bits) {
+> +			bitnum = fls(bits);
+> +			return i * 32 + bitnum - 1;
+> +		}
+> +	}
+> +
+> +	return -1;
+> +}
+Should be in asm/bitops.h. Look at find_first_bit() and friends, this 
+is duplicate.
