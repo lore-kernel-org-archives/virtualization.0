@@ -1,16 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 12/12] xen: import arch generic part of xencomm.
-Date: Mon, 31 Mar 2008 08:01:13 -0700
-Message-ID: <47F0FCB9.8050407__46131.5003376969$1206976099$gmane$org@goop.org>
-References: <12067044183207-git-send-email-yamahata@valinux.co.jp>
-	<12067044184070-git-send-email-yamahata@valinux.co.jp>
-	<47ED508C.2000608@goop.org>
-	<20080331094927.GI17609%yamahata@valinux.co.jp>
+Subject: Re: [02/17][PATCH] Implement smp_call_function_mask for ia64 - V8
+Date: Mon, 31 Mar 2008 08:02:22 -0700
+Message-ID: <47F0FCFE.5010106__28820.9146274768$1206976217$gmane$org@goop.org>
+References: <42DFA526FC41B1429CE7279EF83C6BDC01048240@pdsmsx415.ccr.corp.intel.com>
+	<47F0AB18.2010707@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080331094927.GI17609%yamahata@valinux.co.jp>
+In-Reply-To: <47F0AB18.2010707@sgi.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,53 +18,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, xen-ia64-devel@lists.xensource.com
+To: Jes Sorensen <jes@sgi.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org, "Xu,
+	Anthony" <anthony.xu@intel.com>, "Zhang, Xiantao" <xiantao.zhang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Isaku Yamahata wrote:
-> On Fri, Mar 28, 2008 at 01:09:48PM -0700, Jeremy Fitzhardinge wrote:
+Jes Sorensen wrote:
+> I'm a little wary of the performance impact of this change. Doing a
+> cpumask compare on all smp_call_function calls seems a little expensive.
+> Maybe it's just noise in the big picture compared to the actual cost of
+> the IPIs, but I thought I'd bring it up.
+>
+> Keep in mind that a cpumask can be fairly big these days, max NR_CPUS
+> is currently 4096. For those booting a kernel with NR_CPUS at 4096 on
+> a dual CPU machine, it would be a bit expensive.
 >   
->> Isaku Yamahata wrote:
->>     
->>> On xen/ia64 and xen/powerpc hypercall arguments are passed by pseudo
->>> physical address (guest physical address) so that it's necessary to
->>> convert from virtual address into pseudo physical address. The frame
->>> work is called xencomm.
->>> Import arch generic part of xencomm.
->>>
->>> Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
->>> ---
->>> drivers/xen/Makefile            |    1 +
->>> drivers/xen/xencomm.c           |  232 
->>> +++++++++++++++++++++++++++++++++++++++
->>> include/xen/interface/xencomm.h |   41 +++++++
->>> include/xen/xencomm.h           |   77 +++++++++++++
->>>  
->>>       
->> There's no Kconfig for this.
->>
->> What ends up using xencomm?  Could we defer adding it until there's an 
->> in-tree user?
->>     
->
-> We are in a dilemma.
-> ia64/xen needs xencomm so that it needs common xencomm code.
-> However merging common xencomm code needs the real user i.e. ia64/xen.
->
-> Another user of xencomm is powerpc/xen which isn't merged into
-> upstream. So another choice would be
-> - put the file into ia64 specific directory and
->   merge the file through linux-ia64.
->   When another user appears (possibly powerpc/xen),
->   move the file into common place (drivers/xen).
->
-> We're now struggling for ia64/xen domU merge, so we want to make
-> ia64/xen domU patch series as small as possible.
-> Putting the file into drivers/xen is desirable for that.
-> However either way is ok.
-> Which way do you want (putting common dir or ia64 specfic dir)?
 
-No, it's fine as-is.
+Unless your hardware has remarkably fast IPIs, I think really the cost 
+of scanning 512 bytes is going to be in the noise...
+
+This change has been on the x86 side for ages, and not even Ingo made a 
+peep about it ;)
+
+> Why not keep smp_call_function() the way it was before, rather than
+> implementing it via the call to smp_call_function_mask()?
+>   
+
+Because Xen needs a different core implementation (because of its 
+different IPI implementation), and it would be better to just have to do 
+one of them rather than N.
 
     J
