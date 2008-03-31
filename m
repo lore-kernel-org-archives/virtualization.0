@@ -1,13 +1,13 @@
 From: Jes Sorensen <jes@sgi.com>
-Subject: Re: [04/17] [PATCH] Add kvm arch-specific core code for kvm/ia64.-V8
-Date: Mon, 31 Mar 2008 14:01:59 +0200
-Message-ID: <47F0D2B7.7080607__14739.0356324197$1206975003$gmane$org@sgi.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC01048245@pdsmsx415.ccr.corp.intel.com>
+Subject: Re: [03/15][PATCH] kvm/ia64: Add header files for kvm/ia64. V8
+Date: Mon, 31 Mar 2008 13:41:45 +0200
+Message-ID: <47F0CDF9.3040202__9832.08049224249$1206975004$gmane$org@sgi.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDC01048243@pdsmsx415.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048245@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048243@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,46 +22,71 @@ Cc: Carsten Otte <cotte@de.ibm.com>, "Luck, Tony" <tony.luck@intel.com>, linux-i
 	Anthony" <anthony.xu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zhang, Xiantao wrote:
->>From 62895ff991d48398a77afdbf7f2bef127e802230 Mon Sep 17 00:00:00 2001
-> From: Xiantao Zhang <xiantao.zhang@intel.com>
-> Date: Fri, 28 Mar 2008 09:49:57 +0800
-> Subject: [PATCH] KVM: IA64: Add kvm arch-specific core code for
-> kvm/ia64.
-> 
-> kvm_ia64.c is created to handle kvm ia64-specific core logic.
-> Signed-off-by: Xiantao Zhang <xiantao.zhang@intel.com>
+Hi Xiantao,
 
-More comments, a couple of bugs in this one.
-
-> +#include <linux/module.h>
-> +#include <linux/vmalloc.h>
-
-Don't think you need vmalloc.h here.
-
-> +int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs
-> *regs)
-> +{
-[snip]
-> +	copy_from_user(&vcpu->arch.guest, regs->saved_guest,
-> +						sizeof(union context));
-> +	copy_from_user(vcpu + 1, regs->saved_stack + sizeof(struct
-> kvm_vcpu),
-> +			IA64_STK_OFFSET - sizeof(struct kvm_vcpu));
-
-You need to check the return values from copy_from_user() here and
-deal with possible failure.
-
-> +	vcpu->arch.apic = kzalloc(sizeof(struct kvm_lapic), GFP_KERNEL);
-> +	vcpu->arch.apic->vcpu = vcpu;
-
-Whoops! Missing NULL pointer check here after the kzalloc.
-
-> +	copy_to_user(regs->saved_guest, &vcpu->arch.guest,
-> +					sizeof(union context));
-> +	copy_to_user(regs->saved_stack, (void *)vcpu, IA64_STK_OFFSET);
-
-Same problem as above - check the return values.
+Some more nit-picking, though some of this is a bit more important
+to fixup.
 
 Cheers,
 Jes
+
+
+> +typedef struct thash_data {
+
+Urgh! argh! Please avoid typedefs unless you really need them, see
+Chapter 5 of Documentation/CodingStyle for details.
+
+> diff --git a/include/asm-ia64/kvm_host.h b/include/asm-ia64/kvm_host.h
+> new file mode 100644
+> index 0000000..522bde0
+> --- /dev/null
+> +++ b/include/asm-ia64/kvm_host.h
+> @@ -0,0 +1,530 @@
+> +/* -*-  Mode:C; c-basic-offset:4; tab-width:4; indent-tabs-mode:nil -*-
+> */
+
+The standard indentation for Linux is 8 characters using tabs. If
+possible it's preferred to comply with that to make the entire kernel
+tree easier for everybody to deal with. See CodingStyle for details.
+
+> +struct kvm_mmio_req {
+> +	uint64_t addr;          /*  physical address		*/
+> +	uint64_t size;          /*  size in bytes		*/
+> +	uint64_t data;          /*  data (or paddr of data)     */
+> +	uint8_t state:4;
+> +	uint8_t dir:1;          /*  1=read, 0=write             */
+> +};
+> +typedef struct kvm_mmio_req mmio_req_t;
+
+More typedefs
+
+> +/*Pal data struct */
+> +typedef struct pal_call{
+
+and again.
+
+> +	/*In area*/
+> +	uint64_t gr28;
+> +	uint64_t gr29;
+> +	uint64_t gr30;
+> +	uint64_t gr31;
+> +	/*Out area*/
+> +	struct ia64_pal_retval ret;
+> +} pal_call_t;
+> +
+> +/* Sal data structure */
+> +typedef struct sal_call{
+and again...
+
+> +	/*In area*/
+> +	uint64_t in0;
+> +	uint64_t in1;
+> +	uint64_t in2;
+> +	uint64_t in3;
+> +	uint64_t in4;
+> +	uint64_t in5;
+> +	uint64_t in6;
+> +	uint64_t in7;
+> +	/*Our area*/
+> +	struct sal_ret_values ret;
+> +} sal_call_t;
