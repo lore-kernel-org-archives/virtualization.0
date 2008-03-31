@@ -1,13 +1,14 @@
-From: Akio Takebe <takebe_akio@jp.fujitsu.com>
-Subject: Re: [17/17][PATCH] kvm/ia64: How to boot up guests on kvm/ia64 -V8
-Date: Mon, 31 Mar 2008 19:51:54 +0900
-Message-ID: <A0C8931D3BDA53takebe_akio__32693.8819177032$1206961046$gmane$org@jp.fujitsu.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC01048261@pdsmsx415.ccr.corp.intel.com>
+From: Carsten Otte <cotte@de.ibm.com>
+Subject: Re: [01/17]PATCH  Add API for allocating dynamic TR resouce. V8
+Date: Mon, 31 Mar 2008 15:41:41 +0200
+Message-ID: <47F0EA15.9030408__12454.2089798071$1206971444$gmane$org@de.ibm.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDC0104823F@pdsmsx415.ccr.corp.intel.com>
+Reply-To: carsteno@de.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048261@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC0104823F@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,24 +18,62 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhang, Xiantao" <xiantao.zhang@intel.com>, Avi Kivity <avi@qumranet.com>, "Luck, Tony" <tony.luck@intel.com>, "Xu, Anthony" <anthony.xu@intel.com>, Jes Sorensen <jes>
+To: "Zhang, Xiantao" <xiantao.zhang@intel.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, kvm-devel@lists.sourceforge.net, Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org, "Xu,
+	Anthony" <anthony.xu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Xiantao
+Zhang, Xiantao wrote:
+> +/*  mca_insert_tr
+> + *
+> + *  Switch rid when TR reload and needed!
+> + *  iord: 1: itr, 2: itr;
+> + *
+> +*/
+> +static void mca_insert_tr(u64 iord)
+> +{
+> +
+> +	int i;
+> +	u64 old_rr;
+> +	struct ia64_tr_entry *p;
+> +	unsigned long psr;
+> +	int cpu = smp_processor_id();
+What if CONFIG_PREEMPT is on, and we're being preempted and scheduled 
+to a different CPU here? Are we running preempt disabled here? If so, 
+the function header should state that this function needs to be called 
+preempt_disabled.
 
->+3. Get Guest Firmware named as Flash.fd, and put it under right place:
->+	(1) If you have the guest firmware (binary)released by Intel
->Corp for Xen, you can use it directly.
->+	(2) If you want to build a guest firmware form source code.
->Please download the source from
->+		hg clone
->http://xenbits.xensource.com/ext/efi-vfirmware.hg
->+		Use the Guide of the source to build open Guest
->Firmware.
-The Guide is not include in this README,
-so we may make a link to the Guide in wiki.
-Or we may add a link to binary release of GFW.
+> +/*
+> + * ia64_insert_tr in virtual mode. Allocate a TR slot
+> + *
+> + * target_mask : 0x1 : itr, 0x2 : dtr, 0x3 : idtr
+> + *
+> + * va 	: virtual address.
+> + * pte 	: pte entries inserted.
+> + * log_size: range to be covered.
+> + *
+> + * Return value:  <0 :  error No.
+> + *
+> + *		  >=0 : slot number allocated for TR.
+> + */
+> +int ia64_itr_entry(u64 target_mask, u64 va, u64 pte, u64 log_size)
+> +{
+> +	int i, r;
+> +	unsigned long psr;
+> +	struct ia64_tr_entry *p;
+> +	int cpu = smp_processor_id();
+Same here.
 
-Best Regards,
-
-Akio Takebe
+> +/*
+> + * ia64_purge_tr
+> + *
+> + * target_mask: 0x1: purge itr, 0x2 : purge dtr, 0x3 purge idtr.
+> + *
+> + * slot: slot number to be freed.
+> + */
+> +void ia64_ptr_entry(u64 target_mask, int slot)
+> +{
+> +	int cpu = smp_processor_id();
+> +	int i;
+> +	struct ia64_tr_entry *p;
+Here again.
