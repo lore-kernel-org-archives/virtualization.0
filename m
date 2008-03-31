@@ -1,13 +1,13 @@
 From: Jes Sorensen <jes@sgi.com>
-Subject: Re: [01/17]PATCH  Add API for allocating dynamic TR resouce. V8
-Date: Mon, 31 Mar 2008 11:03:45 +0200
-Message-ID: <47F0A8F1.2090109__39941.48144634$1206974970$gmane$org@sgi.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC0104823F@pdsmsx415.ccr.corp.intel.com>
+Subject: Re: [02/17][PATCH] Implement smp_call_function_mask for ia64 - V8
+Date: Mon, 31 Mar 2008 11:12:56 +0200
+Message-ID: <47F0AB18.2010707__22921.2882266895$1206974987$gmane$org@sgi.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDC01048240@pdsmsx415.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC0104823F@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048240@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,36 +22,29 @@ Cc: Carsten Otte <cotte@de.ibm.com>, "Luck, Tony" <tony.luck@intel.com>, linux-i
 	Anthony" <anthony.xu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Zhang, Xiantao wrote:
+>>From 697d50286088e98da5ac8653c80aaa96c81abf87 Mon Sep 17 00:00:00 2001
+> From: Xiantao Zhang <xiantao.zhang@intel.com>
+> Date: Mon, 31 Mar 2008 09:50:24 +0800
+> Subject: [PATCH] KVM:IA64: Implement smp_call_function_mask for ia64
+> 
+> This function provides more flexible interface for smp
+> infrastructure.
+> Signed-off-by: Xiantao Zhang <xiantao.zhang@intel.com>
+
 Hi Xiantao,
 
-I general I think the code in this patch is fine. I have a couple of
-nit-picking comments:
+I'm a little wary of the performance impact of this change. Doing a
+cpumask compare on all smp_call_function calls seems a little expensive.
+Maybe it's just noise in the big picture compared to the actual cost of
+the IPIs, but I thought I'd bring it up.
 
-> +	if (target_mask&0x1) {
+Keep in mind that a cpumask can be fairly big these days, max NR_CPUS
+is currently 4096. For those booting a kernel with NR_CPUS at 4096 on
+a dual CPU machine, it would be a bit expensive.
 
-The formatting here isn't quite what most of the kernel does. It would
-be better if you added spaces so it's a little easier to read, ie:
-
-	if (target_mask & 0x1) {
-
-> +		p = &__per_cpu_idtrs[cpu][0][0];
-> +		for (i = IA64_TR_ALLOC_BASE; i <= per_cpu(ia64_tr_used,
-> cpu);
-> +								i++,
-> p++) {
-> +			if (p->pte&0x1)
-
-Same thing here.
-
-> +#define RR_TO_RID(rr) ((rr)<<32>>40)
-
-I would prefer to have this one defined like this:
-
-#define RR_TO_RID(rr)	(rr >> 8) & 0xffffff
-
-It should generate the same code, but is more intuitive for the reader.
-
-Otherwise I think this patch is fine - this is really just cosmetics.
+Why not keep smp_call_function() the way it was before, rather than
+implementing it via the call to smp_call_function_mask()?
 
 Cheers,
 Jes
