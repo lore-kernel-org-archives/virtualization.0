@@ -1,16 +1,16 @@
 From: Carsten Otte <cotte@de.ibm.com>
-Subject: Re: [01/17]PATCH  Add API for allocating dynamic TR resouce. V8
-Date: Tue, 01 Apr 2008 09:48:09 +0200
-Message-ID: <47F1E8B9.3010806__29996.3845209733$1207036501$gmane$org@de.ibm.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC0104823F@pdsmsx415.ccr.corp.intel.com>
-	<47F0EA15.9030408@de.ibm.com>
-	<42DFA526FC41B1429CE7279EF83C6BDC010483DA@pdsmsx415.ccr.corp.intel.com>
+Subject: Re: [04/17] [PATCH] Add kvm arch-specific core code for kvm/ia64.-V8
+Date: Tue, 01 Apr 2008 09:53:28 +0200
+Message-ID: <47F1E9F8.6010801__41514.5347979434$1207036860$gmane$org@de.ibm.com>
+References: <42DFA526FC41B1429CE7279EF83C6BDC01048245@pdsmsx415.ccr.corp.intel.com>
+	<47F0FAA5.2090109@de.ibm.com>
+	<42DFA526FC41B1429CE7279EF83C6BDC01048488@pdsmsx415.ccr.corp.intel.com>
 Reply-To: carsteno@de.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC010483DA@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048488@pdsmsx415.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,30 +25,13 @@ Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-dev
 List-Id: virtualization@lists.linuxfoundation.org
 
 Zhang, Xiantao wrote:
-> Carsten Otte wrote:
->> Zhang, Xiantao wrote:
->>> +/*  mca_insert_tr
->>> + *
->>> + *  Switch rid when TR reload and needed!
->>> + *  iord: 1: itr, 2: itr;
->>> + *
->>> +*/
->>> +static void mca_insert_tr(u64 iord)
->>> +{
->>> +
->>> +	int i;
->>> +	u64 old_rr;
->>> +	struct ia64_tr_entry *p;
->>> +	unsigned long psr;
->>> +	int cpu = smp_processor_id();
->> What if CONFIG_PREEMPT is on, and we're being preempted and scheduled
->> to a different CPU here? Are we running preempt disabled here? If so,
->> the function header should state that this function needs to be called
->> preempt_disabled.
-> 
-> The function insert one TR to local TLB, and doesn't allow preempt
-> before and after the call, so the caller should be with preempt_disable
-> before calling into this routine. 
-> Maybe the descripiton of this function should contain "Called with
-> preempt disabled!".  Does it make sense ?
-Yea, I think a comment would help in that case :-).
+> Hi, Carsten 
+>      Why do you think it is racy?  In this function,
+> target_vcpu->arch.launched should be set to 1 for the first run, and
+> keep its value all the time.  Except the first IPI to wake up the vcpu,
+> all IPIs received by target vcpu should go into "else" condition. So you
+> mean the race condition exist in "else"  code ?
+For example to lock against destroying that vcpu. Or, the waitqueue 
+may become active after if (waitqueue_active()) and before 
+wake_up_interruptible(). In that case, the target vcpu might sleep and 
+not get waken up by the ipi.
