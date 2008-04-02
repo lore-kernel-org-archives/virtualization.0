@@ -1,17 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [RFC/PATCH 05/15 v3] kvm-s390: s390 arch backend for the kvm
-	kernel module
-Date: Wed, 2 Apr 2008 12:20:05 +0200
-Message-ID: <200804021220.05496.borntraeger__47736.098469659$1207131911$gmane$org@de.ibm.com>
-References: <1206030270.6690.51.camel@cotte.boeblingen.de.ibm.com>
-	<1206467240.6507.41.camel@cotte.boeblingen.de.ibm.com>
-	<200803310736.58001.arnd@arndb.de>
+From: Markus Armbruster <armbru@redhat.com>
+Subject: Re: xen: Make hvc0 the preferred console in domU
+Date: Wed, 02 Apr 2008 16:56:45 +0200
+Message-ID: <87iqz0e24y.fsf__841.382172848348$1207148576$gmane$org@pike.pond.sub.org>
+References: <87zltm1p0s.fsf@pike.pond.sub.org> <47F08688.6050206@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200803310736.58001.arnd@arndb.de>
-Content-Disposition: inline
+In-Reply-To: <47F08688.6050206@goop.org> (Jeremy Fitzhardinge's message of
+	"Sun\, 30 Mar 2008 23\:36\:56 -0700")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,42 +18,161 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Carsten Otte <cotte@de.ibm.com>, aliguori@us.ibm.com, EHRHARDT@de.ibm.com, Arnd Bergmann <arnd@arndb.de>, hollisb@us.ibm.com, kvm-devel@lists.sourceforge.net, heiko.carstens@de.ibm.com, jeroney@us.ibm.com, oliver.paukstadt@millenux.com, schwidefsky@de.ibm.com, rvdheij@gmail.com, os@de.ibm.com, jblunck@suse.de, "Zhang, Xiantao" <xiantao.zhang@intel.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Montag, 31. M=E4rz 2008 schrieb Arnd Bergmann:
+Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
-Hello Arnd,
+> Markus Armbruster wrote:
+>> This makes the Xen console just work.  Before, you had to ask for it
+>> on the kernel command line with console=hvc0
+>>   
+>
+> I see that this has been causing issues when people expect the pvfb
+> driver to be the console.  Should we make it a config option, which
+> depends on !XENFB?
+>
+>    J
 
-thanks for the review.
+This turns out to a thornier problem than one might think.
 
-> On Tuesday 25 March 2008, Carsten Otte wrote:
-> =
+Consoles tty, hvc and ttyS register in this order.
 
-> > +
-> > +static inline void __user *__guestaddr_to_user(struct kvm_vcpu *vcpu,
-> > +					       u64 guestaddr)
-> > +{
-> > +	u64 prefix  =3D vcpu->arch.sie_block->prefix;
-> > +	u64 origin  =3D vcpu->kvm->arch.guest_origin;
-> > +	u64 memsize =3D vcpu->kvm->arch.guest_memsize;
-> > +
-> > +	if (guestaddr < 2 * PAGE_SIZE)
-> > +		guestaddr +=3D prefix;
-> > +	else if ((guestaddr >=3D prefix) && (guestaddr < prefix + 2 * =
+Unless the kernel command line dictates otherwise, the first one to
+register becomes the preferred console (the one behind /dev/console).
+This is tty.  Except we patched things so that hvc wins over tty in
+domU.  That's what we want there; tty is the dummy console there.
 
-PAGE_SIZE))
-> > +		guestaddr -=3D prefix;
-> =
+Enter PV framebuffer.  It turns tty into a useful console, which we
+want to use.  But the PVFB is created only if it's enabled for this
+domain, and we learn that from xenstore.
 
-> What happens if prefix is set to 4096? Does this do the right thing
-> according to the architecture definition?
+Problem: when tty registers, we can't yet know whether the PVFB is
+enabled.  By the time we can know, the console setup game is over.
 
-The z/architecture and the instructions (spx + sigp set prefix) dont allow =
+The non-pvops PVFB has the same problem.  Jeremy Katz solved it there
+with a fairly gross hack: right after the Xen console is up, at the
+end of xencons_init(), we forcefully make the Xen console the
+preferred console if the PVFB is disabled:
 
-4096 as prefix address. When setting a prefix, bits 1-18 (IBM numbering =
+        /* Check about framebuffer messing up the console */
+        if (!is_initial_xendomain() &&
+	    !xenbus_exists(XBT_NIL, "device", "vfb")) {
+		/* FIXME: this is ugly */
+		unregister_console(&kcons_info);
+		kcons_info.flags |= CON_CONSDEV;
+		register_console(&kcons_info);
+	}
 
-scheme) are used and appended with 13 zero to the right. That means prefix =
+Aside: we tried to get that into linux-2.6.18-xen.hg a couple of times
+before we gave up.  If you use that tree unmodified, you simply get no
+working console when you diable the PVFB.
 
-address is always a multiple of 8192.
+I append the straight pvops port of this hack.
+
+Instead of putting hvc_force_consdev() into hvc_console.c, we could
+also have a force_console() in kernel/printk.c, like this:
+
+void
+force_console(char *name, int index)
+{
+	struct console *c, *cc;
+
+	acquire_console_sem();
+	for (c = console_drivers; c->next; c = c->next) {
+		cc = c->next;
+		if (!strcmp(cc->name, name) && cc->index == index) {
+			c->next = c->next->next;
+			cc->next = console_drivers;
+			console_drivers->flags &= ~CON_CONSDEV;
+			console_drivers = cc;
+			cc->flags |= CON_CONSDEV;
+			break;
+		}
+	}
+	release_console_sem();
+}
+
+If one of these two hacks is acceptable, I'll prepare a proper patch.
+If not, I'd appreciate advice on how to solve this better.
+
+Markus
+
+
+
+diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
+index a94605e..54e7b46 100644
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -1211,8 +1211,10 @@ asmlinkage void __init xen_start_kernel(void)
+ 		? __pa(xen_start_info->mod_start) : 0;
+ 	boot_params.hdr.ramdisk_size = xen_start_info->mod_len;
+ 
+-	if (!is_initial_xendomain())
++	if (!is_initial_xendomain()) {
+ 		add_preferred_console("hvc", 0, NULL);
++		add_preferred_console("tty", 0, NULL);
++	}
+ 
+ 	/* Start the world */
+ 	start_kernel();
+diff --git a/drivers/char/hvc_console.c b/drivers/char/hvc_console.c
+index 44160d5..11904ad 100644
+--- a/drivers/char/hvc_console.c
++++ b/drivers/char/hvc_console.c
+@@ -299,6 +299,13 @@ int hvc_instantiate(uint32_t vtermno, int index, struct hv_ops *ops)
+ 	return 0;
+ }
+ 
++void hvc_force_consdev(void)
++{
++	unregister_console(&hvc_con_driver);
++	hvc_con_driver.flags |= CON_ENABLED | CON_CONSDEV;
++	register_console(&hvc_con_driver);
++}
++
+ /* Wake the sleeping khvcd */
+ static void hvc_kick(void)
+ {
+diff --git a/drivers/char/hvc_console.h b/drivers/char/hvc_console.h
+index 8c59818..ee98bb0 100644
+--- a/drivers/char/hvc_console.h
++++ b/drivers/char/hvc_console.h
+@@ -54,6 +54,9 @@ struct hvc_struct;
+ /* Register a vterm and a slot index for use as a console (console_init) */
+ extern int hvc_instantiate(uint32_t vtermno, int index, struct hv_ops *ops);
+ 
++/* Forcefully make hvc the preferred console driver (hack) */
++extern void hvc_force_consdev(void);
++
+ /* register a vterm for hvc tty operation (module_init or hotplug add) */
+ extern struct hvc_struct * __devinit hvc_alloc(uint32_t vtermno, int irq,
+ 				struct hv_ops *ops, int outbuf_size);
+diff --git a/drivers/char/hvc_xen.c b/drivers/char/hvc_xen.c
+index dd68f85..7ccbec2 100644
+--- a/drivers/char/hvc_xen.c
++++ b/drivers/char/hvc_xen.c
+@@ -29,6 +29,7 @@
+ #include <xen/events.h>
+ #include <xen/interface/io/console.h>
+ #include <xen/hvc-console.h>
++#include <xen/xenbus.h>
+ 
+ #include "hvc_console.h"
+ 
+@@ -104,6 +105,14 @@ static int __init xen_init(void)
+ 	if (!is_running_on_xen())
+ 		return 0;
+ 
++	printk(KERN_DEBUG "hvc xen_init()\n");
++        /* Check about framebuffer messing up the console */
++        if (!is_initial_xendomain() &&
++	    !xenbus_exists(XBT_NIL, "device", "vfb")) {
++		/* disgusting kludge */
++		hvc_force_consdev();
++	}
++
+ 	xencons_irq = bind_evtchn_to_irq(xen_start_info->console.domU.evtchn);
+ 	if (xencons_irq < 0)
+ 		xencons_irq = 0 /* NO_IRQ */;
