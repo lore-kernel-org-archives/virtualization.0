@@ -1,91 +1,43 @@
-From: Ian Campbell <ijc@hellion.org.uk>
-Subject: Re: [PATCHv3 1/3] x86: use ELF format in compressed images.
-Date: Sun, 06 Apr 2008 11:22:24 +0100
-Message-ID: <1207477344.28696.25.camel__28293.3627175682$1207477476$gmane$org@localhost.localdomain>
-References: <1202936100-30859-1-git-send-email-ijc@hellion.org.uk>
-	<9d3a007a2bfe774201b6deed5115a0cc8182bbb4.1202935389.git.ijc@hellion.org.uk>
-	<86802c440804060003q43f14122vd527514daf77cb89@mail.gmail.com>
+From: "Rami Tamir" <ramit@qumranet.com>
+Subject: KVM developer forum 2008 - registration is now open
+Date: Sun, 6 Apr 2008 09:41:38 -0700
+Message-ID: <64F9B87B6B770947A9F8391472E03216122DC60B@ehost011-8.exch011.intermedia.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7511115943796309218=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <86802c440804060003q43f14122vd527514daf77cb89@mail.gmail.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yinghai Lu <yhlu.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-devel-bounces@lists.sourceforge.net>
+Content-class: urn:content-classes:message
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel@lists.sourceforge.net>
+List-Help: <mailto:kvm-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: kvm-devel-bounces@lists.sourceforge.net
+Errors-To: kvm-devel-bounces@lists.sourceforge.net
+To: kvm-devel@lists.sourceforge.net, virtualization@lists.osdl.org, kvm-ia64-devel@lists.sourceforge.net, kvm-ppc-devel@lists.sourceforge.net
 List-Id: virtualization@lists.linuxfoundation.org
 
+The registration site for KVM developer forum 2008 is now open
+(http://kforum.qumranet.com/KVMForum/register_now.php )
 
---===============7511115943796309218==
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1lmwKiTOPsysIfgWLmhL"
+The participation fee is US$ 695 for early bird subscribers up to May
+1st, 2008. After May 1st 2008, the participation fee is US$ 790. 
 
+Developers whose registration fee is not paid by an employer or
+organization can attend for free. Please contact the event team if you
+are interested in registering as an "unaffiliated" attendee.
 
---=-1lmwKiTOPsysIfgWLmhL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+To get more details and register please go to:
+http://kforum.qumranet.com/KVMForum/about_kvmforum.php
 
-
-On Sun, 2008-04-06 at 00:03 -0700, Yinghai Lu wrote:
-> so will cost every bzImage extra memory copy? that could be 18M or
-> even more big.
-
-Is it a huge deal for something that happens exactly once on boot? How
-does the time take compare with the time to do the decompression?
-
-18M seems like an awfully large kernel image to me. My distro (Debian)
-kernel is more like 3M uncompressed. If someone was interested in fast
-booting presumably they would either build a kernel with exactly what
-they need.
-
-> wonder if can have one some other kind elf format, and offset load
-> address to avoid that mem copy.
-
-I guess you could reduce the load address by sizeof(headers) and add a
-dest =3D=3D (output + phdr->p_offset) test before the copy.
-
-Another possibility, which is much more complex, is that the ELF parsing
-could be integrated into the decompressor such that the data is
-decompressed into the correct location directly.
-
-Ian.
-
---=20
-Ian Campbell
-
-People who have no faults are terrible; there is no way of taking
-advantage of them.
-
---=-1lmwKiTOPsysIfgWLmhL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQBH+KRgM0+0qS9rzVkRAvSqAJ9S4A+gBdV4Q3L81u518oe8UHrCVwCfT4fe
-PWSbeCIcOp8/OABj5DEZaNI=
-=OLlf
------END PGP SIGNATURE-----
-
---=-1lmwKiTOPsysIfgWLmhL--
+See you all there.
+Rami
 
 
---===============7511115943796309218==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============7511115943796309218==--
+-------------------------------------------------------------------------
+This SF.net email is sponsored by the 2008 JavaOne(SM) Conference 
+Register now and save $200. Hurry, offer ends at 11:59 p.m., 
+Monday, April 7! Use priority code J8TLD2. 
+http://ad.doubleclick.net/clk;198757673;13503038;p?http://java.sun.com/javaone
