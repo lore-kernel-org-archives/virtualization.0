@@ -1,13 +1,17 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [PATCH] virtio: remove overzealous BUG_ON.
-Date: Mon, 07 Apr 2008 08:50:24 -0500
-Message-ID: <47FA26A0.3020701__14798.4822783203$1207576577$gmane$org@codemonkey.ws>
-References: <200804071430.28399.rusty__35361.6672721275$1207542780$gmane$org@rustcorp.com.au>
+From: "Yinghai Lu" <yhlu.kernel@gmail.com>
+Subject: Re: [PATCHv3 1/3] x86: use ELF format in compressed images.
+Date: Sun, 6 Apr 2008 10:19:28 -0700
+Message-ID: <86802c440804061019t1cc0e66ejee69b5d90f052b0d__27084.0641031556$1207580224$gmane$org@mail.gmail.com>
+References: <1202936100-30859-1-git-send-email-ijc@hellion.org.uk>
+	<9d3a007a2bfe774201b6deed5115a0cc8182bbb4.1202935389.git.ijc@hellion.org.uk>
+	<86802c440804060003q43f14122vd527514daf77cb89@mail.gmail.com>
+	<47F8FC9C.9090603@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804071430.28399.rusty__35361.6672721275$1207542780$gmane$org@rustcorp.com.au>
+In-Reply-To: <47F8FC9C.9090603@zytor.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,24 +21,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Ian Campbell <ijc@hellion.org.uk>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> The 'disable_cb' callback is designed as an optimization to tell the host
-> we don't need callbacks now.  As it is not reliable, the debug check is
-> overzealous: it can happen on two CPUs at the same time.  Document this.
-> 
-> Even if it were reliable, the virtio_net driver doesn't disable
-> callbacks on transmit so the START_USE/END_USE debugging reentrance
-> protection can be easily tripped even on UP.
-> 
-> Thanks to Balaji Rao for the bug report and testing.
+On Sun, Apr 6, 2008 at 9:38 AM, H. Peter Anvin <hpa@zytor.com> wrote:
+> Yinghai Lu wrote:
+>
+> > so will cost every bzImage extra memory copy? that could be 18M or
+> > even more big.
+> >
+>
+>  I wouldn't worry about that.  You will typically have several copies of the
+> images during the execution of the boot loader.
 
-I think the printk() in start_xmit should be removed too (or at least 
-rate limited).
+i put all drivers needed in kernel.
+1. bootloader copy bzImage (6M) to memory
+2. arch/x86/boot/compressed/head_32.S, will copy bzImage to end of
+buffer to do uncompress on possiton.
+3. parse_elf will copy the vmlinux (the uncompressed, that is some big, 18M)
 
-Regards,
+I suggest that could have special elf header, and will only have one
+PT_LOAD, and avoid the copy, and just offset start address of
+uncompressed kernel for jump later.
 
-Anthony Liguori
+YH
