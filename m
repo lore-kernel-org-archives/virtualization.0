@@ -1,43 +1,33 @@
-From: "Rami Tamir" <ramit@qumranet.com>
-Subject: KVM developer forum 2008 - registration is now open
-Date: Sun, 6 Apr 2008 09:41:38 -0700
-Message-ID: <64F9B87B6B770947A9F8391472E03216122DC60B@ehost011-8.exch011.intermedia.net>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCHv3 1/3] x86: use ELF format in compressed images.
+Date: Sun, 06 Apr 2008 09:38:52 -0700
+Message-ID: <47F8FC9C.9090603__25300.2063524493$1207500295$gmane$org@zytor.com>
+References: <1202936100-30859-1-git-send-email-ijc@hellion.org.uk>	
+	<9d3a007a2bfe774201b6deed5115a0cc8182bbb4.1202935389.git.ijc@hellion.org.uk>
+	<86802c440804060003q43f14122vd527514daf77cb89@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces@lists.sourceforge.net>
-Content-class: urn:content-classes:message
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel@lists.sourceforge.net>
-List-Help: <mailto:kvm-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: kvm-devel-bounces@lists.sourceforge.net
-Errors-To: kvm-devel-bounces@lists.sourceforge.net
-To: kvm-devel@lists.sourceforge.net, virtualization@lists.osdl.org, kvm-ia64-devel@lists.sourceforge.net, kvm-ppc-devel@lists.sourceforge.net
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <86802c440804060003q43f14122vd527514daf77cb89@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Yinghai Lu <yhlu.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Ian Campbell <ijc@hellion.org.uk>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The registration site for KVM developer forum 2008 is now open
-(http://kforum.qumranet.com/KVMForum/register_now.php )
+Yinghai Lu wrote:
+> so will cost every bzImage extra memory copy? that could be 18M or
+> even more big.
 
-The participation fee is US$ 695 for early bird subscribers up to May
-1st, 2008. After May 1st 2008, the participation fee is US$ 790. 
+I wouldn't worry about that.  You will typically have several copies of 
+the images during the execution of the boot loader.
 
-Developers whose registration fee is not paid by an employer or
-organization can attend for free. Please contact the event team if you
-are interested in registering as an "unaffiliated" attendee.
-
-To get more details and register please go to:
-http://kforum.qumranet.com/KVMForum/about_kvmforum.php
-
-See you all there.
-Rami
-
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by the 2008 JavaOne(SM) Conference 
-Register now and save $200. Hurry, offer ends at 11:59 p.m., 
-Monday, April 7! Use priority code J8TLD2. 
-http://ad.doubleclick.net/clk;198757673;13503038;p?http://java.sun.com/javaone
+	-hpa
