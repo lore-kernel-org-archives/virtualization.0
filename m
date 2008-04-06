@@ -1,13 +1,14 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [Patch][00/18] kvm-ia64 for kernel V10
-Date: Sun, 06 Apr 2008 12:08:56 +0300
-Message-ID: <47F89328.9020605__45746.4836807505$1207473048$gmane$org@qumranet.com>
-References: <42DFA526FC41B1429CE7279EF83C6BDC01048C4A@pdsmsx415.ccr.corp.intel.com>
+From: Ian Campbell <ijc@hellion.org.uk>
+Subject: Re: [PATCHv3 1/3] x86: use ELF format in compressed images.
+Date: Sun, 06 Apr 2008 11:22:24 +0100
+Message-ID: <1207477344.28696.25.camel__28293.3627175682$1207477476$gmane$org@localhost.localdomain>
+References: <1202936100-30859-1-git-send-email-ijc@hellion.org.uk>
+	<9d3a007a2bfe774201b6deed5115a0cc8182bbb4.1202935389.git.ijc@hellion.org.uk>
+	<86802c440804060003q43f14122vd527514daf77cb89@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7511115943796309218=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <42DFA526FC41B1429CE7279EF83C6BDC01048C4A@pdsmsx415.ccr.corp.intel.com>
+In-Reply-To: <86802c440804060003q43f14122vd527514daf77cb89@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,24 +16,76 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhang, Xiantao" <xiantao.zhang@intel.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org, kvm-ia64-devel@lists.sourceforge.net, kvm-devel@lists.sourceforge.net, Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org, "Xu,
-	Anthony" <anthony.xu@intel.com>
+To: Yinghai Lu <yhlu.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Zhang, Xiantao wrote:
-> Compared with V9, just fixed indentation issues  in patch 12. I put it
-> the patchset in
-> git://git.kernel.org/pub/scm/linux/kernel/git/xiantao/kvm-ia64.git
-> kvm-ia64-mc10. Please help to review.
-> Specially, the first two patches (TR Management patch and
-> smp_call_function_mask patch) needs Tony's review and Ack. Thanks:-)
->   
 
-Rebased and merged the latest version into kvm.git.  Thanks.
+--===============7511115943796309218==
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1lmwKiTOPsysIfgWLmhL"
 
 
--- 
-error compiling committee.c: too many arguments to function
+--=-1lmwKiTOPsysIfgWLmhL
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+
+On Sun, 2008-04-06 at 00:03 -0700, Yinghai Lu wrote:
+> so will cost every bzImage extra memory copy? that could be 18M or
+> even more big.
+
+Is it a huge deal for something that happens exactly once on boot? How
+does the time take compare with the time to do the decompression?
+
+18M seems like an awfully large kernel image to me. My distro (Debian)
+kernel is more like 3M uncompressed. If someone was interested in fast
+booting presumably they would either build a kernel with exactly what
+they need.
+
+> wonder if can have one some other kind elf format, and offset load
+> address to avoid that mem copy.
+
+I guess you could reduce the load address by sizeof(headers) and add a
+dest =3D=3D (output + phdr->p_offset) test before the copy.
+
+Another possibility, which is much more complex, is that the ELF parsing
+could be integrated into the decompressor such that the data is
+decompressed into the correct location directly.
+
+Ian.
+
+--=20
+Ian Campbell
+
+People who have no faults are terrible; there is no way of taking
+advantage of them.
+
+--=-1lmwKiTOPsysIfgWLmhL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQBH+KRgM0+0qS9rzVkRAvSqAJ9S4A+gBdV4Q3L81u518oe8UHrCVwCfT4fe
+PWSbeCIcOp8/OABj5DEZaNI=
+=OLlf
+-----END PGP SIGNATURE-----
+
+--=-1lmwKiTOPsysIfgWLmhL--
+
+
+--===============7511115943796309218==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============7511115943796309218==--
