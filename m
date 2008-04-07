@@ -1,15 +1,14 @@
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [PATCH RFC 3/5] tun: vringfd receive support.
-Date: Tue, 08 Apr 2008 12:49:15 -0700
-Message-ID: <47FBCC3B.7080104__4323.94810854948$1207684374$gmane$org@qualcomm.com>
+From: corbet@lwn.net (Jonathan Corbet)
+Subject: Re: [PATCH RFC 1/5] vringfd syscall
+Date: Mon, 07 Apr 2008 11:54:34 -0600
+Message-ID: <12555.1207590874__10527.012931607$1207714677$gmane$org@vena.lwn.net>
 References: <200804052202.09157.rusty@rustcorp.com.au>
-	<200804052204.28518.rusty@rustcorp.com.au>
-	<200804052205.43824.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804052205.43824.rusty@rustcorp.com.au>
+In-reply-to: Your message of "Sat, 05 Apr 2008 22:02:08 +1000."
+	<200804052202.09157.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,37 +19,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> This patch modifies tun to allow a vringfd to specify the receive
-> buffer.  Because we can't copy to userspace in bh context, we queue
-> like normal then use the "pull" hook to actually do the copy.
-> 
-> More thought needs to be put into the possible races with ring
-> registration and a simultaneous close, for example (see FIXME).
-> 
-> We use struct virtio_net_hdr prepended to packets in the ring to allow
-> userspace to receive GSO packets in future (at the moment, the tun
-> driver doesn't tell the stack it can handle them, so these cases are
-> never taken).
+Hey, Rusty,
 
-In general the code looks good. The only thing I could not convince myself in
-is whether having generic ring buffer makes sense or not.
-At least the TUN driver would be more efficient if it had its own simple ring
- implementation. Less indirection, fewer callbacks, fewer if()s, etc. TUN
-already has the file descriptor and having two additional fds for rx and tx
-ring is a waste (think of a VPN server that has to have a bunch of TUN fds).
-Also as I mentioned before Jamal and I wanted to expose some of the SKB fields
-through TUN device. With the rx/tx rings the natural way of doing that would
-be the ring descriptor itself. It can of course be done the same way we copy
-proto info (PI) and GSO stuff before the packet but that means more
-copy_to_user() calls and yet more checks.
+> For virtualization, we've developed virtio_ring for efficient communication.
+> This would also work well for userspace-kernel communication, particularly
+> for things like the tun device.  By using the same ABI, we can join guests
+> to the host kernel trivially.
 
-So. What am I missing ? Why do we need generic ring for the TUN ? I looked at
-the lguest code a bit and it seems that we need a bunch of network specific
-code anyway. The cool thing is that you can now mmap the rings into the guest
- directly but the same thing can be done with TUN specific rings.
+I'm *sure* you meant to document that somewhat non-trivial proposed new
+kernel API as soon as you got a moment.  But, since I went to the
+trouble of reverse engineering it, I decided not to wait and to make a
+little unreliable guide of my own.  For those who are curious about how
+vringfd() is meant to work (or about how badly I misunderstood it), the
+info is at:
 
-Max
+	http://lwn.net/SubscriberLink/276856/8c927025c53ad7ce/
+
+Hopefully it will be helpful,
+
+jon
