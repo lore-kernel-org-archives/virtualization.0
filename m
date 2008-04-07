@@ -1,7 +1,7 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [PATCH] virtio: remove overzealous BUG_ON.
 Date: Mon, 07 Apr 2008 08:50:24 -0500
-Message-ID: <47FA26A0.3020701__36607.1307719269$1207576429$gmane$org@codemonkey.ws>
+Message-ID: <47FA26A0.3020701__14798.4822783203$1207576577$gmane$org@codemonkey.ws>
 References: <200804071430.28399.rusty__35361.6672721275$1207542780$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: virtualization@lists.osdl.org
 Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
