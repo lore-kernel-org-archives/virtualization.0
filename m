@@ -1,14 +1,14 @@
-From: "Yinghai Lu" <yhlu.kernel@gmail.com>
-Subject: Re: [PATCHv3 1/3] x86: use ELF format in compressed images.
-Date: Sun, 6 Apr 2008 00:03:05 -0700
-Message-ID: <86802c440804060003q43f14122vd527514daf77cb89__16913.4758915336$1207580240$gmane$org@mail.gmail.com>
-References: <1202936100-30859-1-git-send-email-ijc@hellion.org.uk>
-	<9d3a007a2bfe774201b6deed5115a0cc8182bbb4.1202935389.git.ijc@hellion.org.uk>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: remove overzealous BUG_ON.
+Date: Tue, 8 Apr 2008 06:09:12 +1000
+Message-ID: <200804080609.12891.rusty@rustcorp.com.au>
+References: <200804071430.28399.rusty__35361.6672721275$1207542780$gmane$org@rustcorp.com.au>
+	<47FA26A0.3020701@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9d3a007a2bfe774201b6deed5115a0cc8182bbb4.1202935389.git.ijc@hellion.org.uk>
+In-Reply-To: <47FA26A0.3020701@codemonkey.ws>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,179 +19,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Campbell <ijc@hellion.org.uk>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
+To: virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.osdl.org, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 13, 2008 at 1:54 PM, Ian Campbell <ijc@hellion.org.uk> wrote:
-> This allows other boot loaders such as the Xen domain builder the
->  opportunity to extract the ELF file.
+On Monday 07 April 2008 23:50:24 Anthony Liguori wrote:
+> Rusty Russell wrote:
+> > The 'disable_cb' callback is designed as an optimization to tell the host
+> > we don't need callbacks now.  As it is not reliable, the debug check is
+> > overzealous: it can happen on two CPUs at the same time.  Document this.
+> >
+> > Even if it were reliable, the virtio_net driver doesn't disable
+> > callbacks on transmit so the START_USE/END_USE debugging reentrance
+> > protection can be easily tripped even on UP.
+> >
+> > Thanks to Balaji Rao for the bug report and testing.
 >
->  Signed-off-by: Ian Campbell <ijc@hellion.org.uk>
->  Cc: Thomas Gleixner <tglx@linutronix.de>
->  Cc: Ingo Molnar <mingo@redhat.com>
->  Cc: H. Peter Anvin <hpa@zytor.com>
->  Cc: Jeremy Fitzhardinge <jeremy@goop.org>
->  Cc: virtualization@lists.linux-foundation.org
->  ---
->   Documentation/i386/boot.txt       |   18 ++++++++++++
->   arch/x86/boot/Makefile            |   14 +++++++++
->   arch/x86/boot/compressed/Makefile |    2 +-
->   arch/x86/boot/compressed/misc.c   |   56 +++++++++++++++++++++++++++++++++++++
->   arch/x86/boot/header.S            |    6 ++++
->   5 files changed, 95 insertions(+), 1 deletions(-)
->
->  diff --git a/Documentation/i386/boot.txt b/Documentation/i386/boot.txt
->  index fc49b79..b5f5ba1 100644
->  --- a/Documentation/i386/boot.txt
->  +++ b/Documentation/i386/boot.txt
->  @@ -170,6 +170,8 @@ Offset      Proto   Name            Meaning
->   0238/4 2.06+   cmdline_size    Maximum size of the kernel command line
->   023C/4 2.07+   hardware_subarch Hardware subarchitecture
->   0240/8 2.07+   hardware_subarch_data Subarchitecture-specific data
->  +0248/4 2.08+   compressed_payload_offset
->  +024C/4 2.08+   compressed_payload_length
->
->   (1) For backwards compatibility, if the setup_sects field contains 0, the
->      real value is 4.
->  @@ -512,6 +514,22 @@ Protocol:  2.07+
->
->    A pointer to data that is specific to hardware subarch
->
->  +Field name:    compressed_payload_offset
->  +Type:          read
->  +Offset/size:   0x248/4
->  +Protocol:      2.08+
->  +
->  +  If non-zero then this field contains the offset from the end of the
->  +  real-mode code to the compressed payload. The compression format
->  +  should be determined using the standard magic number, currently only
->  +  gzip is used.
->  +
->  +Field name:    compressed_payload_length
->  +Type:          read
->  +Offset/size:   0x24c/4
->  +Protocol:      2.08+
->  +
->  +  The length of the compressed payload.
->
->   **** THE KERNEL COMMAND LINE
->
->  diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
->  index f88458e..9695aff 100644
->  --- a/arch/x86/boot/Makefile
->  +++ b/arch/x86/boot/Makefile
->  @@ -94,6 +94,20 @@ $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
->
->   SETUP_OBJS = $(addprefix $(obj)/,$(setup-y))
->
->  +sed-offsets := -e 's/^00*/0/' \
->  +        -e 's/^\([0-9a-fA-F]*\) . \(input_data\|input_data_end\)$$/\#define \2 0x\1/p'
->  +
->  +quiet_cmd_offsets = OFFSETS $@
->  +      cmd_offsets = $(NM) $< | sed -n $(sed-offsets) > $@
->  +
->  +$(obj)/offsets.h: $(obj)/compressed/vmlinux FORCE
->  +       $(call if_changed,offsets)
->  +
->  +targets += offsets.h
->  +
->  +AFLAGS_header.o += -I$(obj)
->  +$(obj)/header.o: $(obj)/offsets.h
->  +
->   LDFLAGS_setup.elf      := -T
->   $(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
->         $(call if_changed,ld)
->  diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
->  index d2b9f3b..92fdd35 100644
->  --- a/arch/x86/boot/compressed/Makefile
->  +++ b/arch/x86/boot/compressed/Makefile
->  @@ -22,7 +22,7 @@ $(obj)/vmlinux: $(src)/vmlinux_$(BITS).lds $(obj)/head_$(BITS).o $(obj)/misc.o $
->         $(call if_changed,ld)
->         @:
->
->  -OBJCOPYFLAGS_vmlinux.bin := -O binary -R .note -R .comment -S
->  +OBJCOPYFLAGS_vmlinux.bin :=  -R .comment -S
->   $(obj)/vmlinux.bin: vmlinux FORCE
->         $(call if_changed,objcopy)
->
->  diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
->  index 8182e32..69aec2f 100644
->  --- a/arch/x86/boot/compressed/misc.c
->  +++ b/arch/x86/boot/compressed/misc.c
->  @@ -15,6 +15,10 @@
->   * we just keep it from happening
->   */
->   #undef CONFIG_PARAVIRT
->  +#ifdef CONFIG_X86_32
->  +#define _ASM_DESC_H_ 1
->  +#endif
->  +
->   #ifdef CONFIG_X86_64
->   #define _LINUX_STRING_H_ 1
->   #define __LINUX_BITMAP_H 1
->  @@ -22,6 +26,7 @@
->
->   #include <linux/linkage.h>
->   #include <linux/screen_info.h>
->  +#include <linux/elf.h>
->   #include <asm/io.h>
->   #include <asm/page.h>
->   #include <asm/boot.h>
->  @@ -365,6 +370,56 @@ static void error(char *x)
->                 asm("hlt");
->   }
->
->  +static void parse_elf(void *output)
->  +{
->  +#ifdef CONFIG_X86_64
->  +       Elf64_Ehdr ehdr;
->  +       Elf64_Phdr *phdrs, *phdr;
->  +#else
->  +       Elf32_Ehdr ehdr;
->  +       Elf32_Phdr *phdrs, *phdr;
->  +#endif
->  +       void *dest;
->  +       int i;
->  +
->  +       memcpy(&ehdr, output, sizeof(ehdr));
->  +       if(ehdr.e_ident[EI_MAG0] != ELFMAG0 ||
->  +          ehdr.e_ident[EI_MAG1] != ELFMAG1 ||
->  +          ehdr.e_ident[EI_MAG2] != ELFMAG2 ||
->  +          ehdr.e_ident[EI_MAG3] != ELFMAG3)
->  +       {
->  +               error("Kernel is not a valid ELF file");
->  +               return;
->  +       }
->  +
->  +       putstr("Parsing ELF... ");
->  +
->  +       phdrs = malloc(sizeof(*phdrs) * ehdr.e_phnum);
->  +       if (!phdrs)
->  +               error("Failed to allocate space for phdrs");
->  +
->  +       memcpy(phdrs, output + ehdr.e_phoff, sizeof(*phdrs) * ehdr.e_phnum);
->  +
->  +       for (i=0; i<ehdr.e_phnum; i++) {
->  +               phdr = &phdrs[i];
->  +
->  +               switch (phdr->p_type) {
->  +               case PT_LOAD:
->  +#ifdef CONFIG_RELOCATABLE
->  +                       dest = output;
->  +                       dest += (phdr->p_paddr - LOAD_PHYSICAL_ADDR);
->  +#else
->  +                       dest = (void*)(phdr->p_paddr);
->  +#endif
->  +                       memcpy(dest,
->  +                              output + phdr->p_offset,
->  +                              phdr->p_filesz);
->  +                       break;
+> I think the printk() in start_xmit should be removed too (or at least
+> rate limited).
 
-so will cost every bzImage extra memory copy? that could be 18M or
-even more big.
+Yep, please send patch.  I'm about to jump on a plane, so consider this a 
+pre-canned ack.
 
-wonder if can have one some other kind elf format, and offset load
-address to avoid that mem copy.
-
-YH
+Thanks,
+Rusty.
