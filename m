@@ -1,11 +1,14 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Call for Presentations: KVM Forum 2008
-Date: Tue, 08 Apr 2008 03:17:26 +0300
-Message-ID: <47FAB996.30101__18311.3543586389$1207613996$gmane$org@qumranet.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC 1/5] vringfd syscall
+Date: Tue, 8 Apr 2008 08:34:55 +1000
+Message-ID: <200804080834.56943.rusty__23132.3831867941$1207620378$gmane$org@rustcorp.com.au>
+References: <12555.1207590874@vena.lwn.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <12555.1207590874@vena.lwn.net>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,32 +18,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel <kvm-devel@lists.sourceforge.net>, kvm-ia64-devel@lists.sourceforge.net, kvm-ppc-devel <kvm-ppc-devel@lists.sourceforge.net>, virtualization <virtualiza>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-[Note: KVM Forum registration is now open at 
-http://kforum.qumranet.com/KVMForum/about_kvmforum.php]
+On Tuesday 08 April 2008 03:54:34 Jonathan Corbet wrote:
+> Hey, Rusty,
+>
+> > For virtualization, we've developed virtio_ring for efficient
+> > communication. This would also work well for userspace-kernel
+> > communication, particularly for things like the tun device.  By using the
+> > same ABI, we can join guests to the host kernel trivially.
+>
+> I'm *sure* you meant to document that somewhat non-trivial proposed new
+> kernel API as soon as you got a moment.
 
-This is the Call for Presentations for the second annual KVM Developer's
-Forum, to be held on June 10-13, 2008, in Napa, California, USA [1].  We
-are looking for presentations on KVM development, quality assurance,
-management, security, interoperability, architecture support, and 
-interesting use cases.  Presentations are 50 minutes in length; there 
-are also 25-minute mini-presentation slots available.
+Actually, yes.  But I wanted to get it out there before I start the treck 
+across to the virtualization summit.
 
-KVM Forum presentations are an excellent way to inform the KVM 
-development community about your work, and to gather valuable feedback 
-about your approach.
+A few points:
+'The page alignment for the used array is important - that array might be 
+mapped separately into kernel space.'
+   Well, the used array is written by one side only, so it's possible to split 
+the ring here and make each part r/o to the other side.  More importantly, a 
+page boundary is almost certainly a cacheline boundary, and we already have a 
+userspace interface for it.
 
-Please send your presentation proposal to the KVM Forum 2008 Content
-Committee at kf2008-cfp@qumranet.com by April 20th.
+'Note that the flags fields in the vring_avail and vring_used structures 
+appear to be unused.'
+   virtio uses these for wakeup/interrupt suppression.  It's a cheap way to 
+avoid hypercalls, and we can use them the same way to avoid system calls (you 
+set the suppression bit while you're actually looking at the ring).
 
-KVM Forum 2008 Content Committee:
- Dor Laor
- Anthony Liguori
- Avi Kivity
+The need for the kmap (and hence the atomic horror) has now been alleviated: I 
+changed the shinfo destructor code to allow the destructor to hold onto the 
+skb data so it can queue it and free it later.
 
-[1] http://kforum.qumranet.com/KVMForum/about_kvmforum.php
+BTW, the only place currently where both output and input buffers are used is 
+the virtio_blk driver doing a read, where the header describes the operation, 
+and the other buffers are overwritten with the data.
 
--- 
-Any sufficiently difficult bug is indistinguishable from a feature.
+Thanks!
+Rusty.
