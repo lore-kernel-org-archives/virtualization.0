@@ -1,17 +1,12 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCHv3 1/3] x86: use ELF format in compressed images.
-Date: Sun, 06 Apr 2008 10:25:28 -0700
-Message-ID: <47F90788.90304__10050.3378817395$1207503152$gmane$org@zytor.com>
-References: <1202936100-30859-1-git-send-email-ijc@hellion.org.uk>	
-	<9d3a007a2bfe774201b6deed5115a0cc8182bbb4.1202935389.git.ijc@hellion.org.uk>	
-	<86802c440804060003q43f14122vd527514daf77cb89@mail.gmail.com>	
-	<47F8FC9C.9090603@zytor.com>
-	<86802c440804061019t1cc0e66ejee69b5d90f052b0d@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: remove overzealous BUG_ON.
+Date: Mon, 7 Apr 2008 14:30:28 +1000
+Message-ID: <200804071430.28399.rusty__35361.6672721275$1207542780$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <86802c440804061019t1cc0e66ejee69b5d90f052b0d@mail.gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,42 +16,56 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yinghai Lu <yhlu.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Ian Campbell <ijc@hellion.org.uk>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+To: Balaji Rao <balajirrao@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Yinghai Lu wrote:
-> On Sun, Apr 6, 2008 at 9:38 AM, H. Peter Anvin <hpa@zytor.com> wrote:
->> Yinghai Lu wrote:
->>
->>> so will cost every bzImage extra memory copy? that could be 18M or
->>> even more big.
->>>
->>  I wouldn't worry about that.  You will typically have several copies of the
->> images during the execution of the boot loader.
-> 
-> i put all drivers needed in kernel.
-> 1. bootloader copy bzImage (6M) to memory
-> 2. arch/x86/boot/compressed/head_32.S, will copy bzImage to end of
-> buffer to do uncompress on possiton.
-> 3. parse_elf will copy the vmlinux (the uncompressed, that is some big, 18M)
-> 
-> I suggest that could have special elf header, and will only have one
-> PT_LOAD, and avoid the copy, and just offset start address of
-> uncompressed kernel for jump later.
+The 'disable_cb' callback is designed as an optimization to tell the host
+we don't need callbacks now.  As it is not reliable, the debug check is
+overzealous: it can happen on two CPUs at the same time.  Document this.
 
-Once again, I think you will have a hard time measuring the time difference.
+Even if it were reliable, the virtio_net driver doesn't disable
+callbacks on transmit so the START_USE/END_USE debugging reentrance
+protection can be easily tripped even on UP.
 
-The start address of the uncompressed kernel is defined at compile time. 
-  Typically it is set based on alignment constraints in the hardware; 
-for x86-32 is is normally 1 MB but for reasonably large hardware 16 MB 
-is better (in fact, I have proposed making 16 MB the default.)  Recovery 
-kernels are frequently compiled with completely different addresses.
+Thanks to Balaji Rao for the bug report and testing.
 
-With your proposal, this would no longer be possible to be a 
-configurable option, which would be a major loss -- a major loss of 
-functionality for a small fraction of time at bootup time (which is 
-almost certainly dwarfed by all the other copying and initialization 
-that happens at boot time.)
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+CC: Balaji Rao <balajirrao@gmail.com>
 
-	-hpa
+diff -r 0b3e64be7696 drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c	Mon Apr 07 07:40:08 2008 +1000
++++ b/drivers/virtio/virtio_ring.c	Mon Apr 07 13:37:03 2008 +1000
+@@ -214,10 +215,7 @@ static void vring_disable_cb(struct virt
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+-	START_USE(vq);
+-	BUG_ON(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT);
+ 	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+-	END_USE(vq);
+ }
+ 
+ static bool vring_enable_cb(struct virtqueue *_vq)
+diff -r 0b3e64be7696 include/linux/virtio.h
+--- a/include/linux/virtio.h	Mon Apr 07 07:40:08 2008 +1000
++++ b/include/linux/virtio.h	Mon Apr 07 13:37:03 2008 +1000
+@@ -41,6 +41,8 @@ struct virtqueue
+  *	Returns NULL or the "data" token handed to add_buf.
+  * @disable_cb: disable callbacks
+  *	vq: the struct virtqueue we're talking about.
++ *	Note that this is not necessarily synchronous, hence unreliable and only
++ *	useful as an optimization.
+  * @enable_cb: restart callbacks after disable_cb.
+  *	vq: the struct virtqueue we're talking about.
+  *	This re-enables callbacks; it returns "false" if there are pending
+@@ -48,7 +50,8 @@ struct virtqueue
+  *	checking for more work, and enabling callbacks.
+  *
+  * Locking rules are straightforward: the driver is responsible for
+- * locking.  No two operations may be invoked simultaneously.
++ * locking.  No two operations may be invoked simultaneously, with the exception
++ * of @disable_cb.
+  *
+  * All operations can be called in any context.
+  */
