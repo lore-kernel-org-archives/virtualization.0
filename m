@@ -1,15 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio: remove overzealous BUG_ON.
-Date: Tue, 8 Apr 2008 06:09:12 +1000
-Message-ID: <200804080609.12891.rusty@rustcorp.com.au>
-References: <200804071430.28399.rusty__35361.6672721275$1207542780$gmane$org@rustcorp.com.au>
-	<47FA26A0.3020701@codemonkey.ws>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: [PATCH] virtio_net: remove overzealous printk
+Date: Mon,  7 Apr 2008 15:33:16 -0500
+Message-ID: <1207600396-28454-1-git-send-email-aliguori__9745.57249942354$1207600586$gmane$org@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47FA26A0.3020701@codemonkey.ws>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,27 +15,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: virtualization@lists.osdl.org, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: netdev@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Monday 07 April 2008 23:50:24 Anthony Liguori wrote:
-> Rusty Russell wrote:
-> > The 'disable_cb' callback is designed as an optimization to tell the host
-> > we don't need callbacks now.  As it is not reliable, the debug check is
-> > overzealous: it can happen on two CPUs at the same time.  Document this.
-> >
-> > Even if it were reliable, the virtio_net driver doesn't disable
-> > callbacks on transmit so the START_USE/END_USE debugging reentrance
-> > protection can be easily tripped even on UP.
-> >
-> > Thanks to Balaji Rao for the bug report and testing.
->
-> I think the printk() in start_xmit should be removed too (or at least
-> rate limited).
+The 'disable_cb' is really just a hint and as such, it's possible for more
+work to get queued up while callbacks are disabled.  Under stress with an
+SMP guest, this printk triggers very frequently.  There is no race here, this
+is how things are designed to work so let's just remove the printk.
 
-Yep, please send patch.  I'm about to jump on a plane, so consider this a 
-pre-canned ack.
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Thanks,
-Rusty.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index b58472c..d1a200f 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -284,7 +284,6 @@ again:
+ 		/* Activate callback for using skbs: if this returns false it
+ 		 * means some were used in the meantime. */
+ 		if (unlikely(!vi->svq->vq_ops->enable_cb(vi->svq))) {
+-			printk("Unlikely: restart svq race\n");
+ 			vi->svq->vq_ops->disable_cb(vi->svq);
+ 			netif_start_queue(dev);
+ 			goto again;
