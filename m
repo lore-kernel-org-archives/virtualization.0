@@ -1,7 +1,7 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: [PATCH] virtio_net: remove overzealous printk
-Date: Mon,  7 Apr 2008 15:33:16 -0500
-Message-ID: <1207600396-28454-1-git-send-email-aliguori__9745.57249942354$1207600586$gmane$org@us.ibm.com>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Call for Presentations: KVM Forum 2008
+Date: Tue, 08 Apr 2008 03:17:26 +0300
+Message-ID: <47FAB996.30101__18311.3543586389$1207613996$gmane$org@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,27 +15,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: netdev@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kvm-devel <kvm-devel@lists.sourceforge.net>, kvm-ia64-devel@lists.sourceforge.net, kvm-ppc-devel <kvm-ppc-devel@lists.sourceforge.net>, virtualization <virtualiza>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The 'disable_cb' is really just a hint and as such, it's possible for more
-work to get queued up while callbacks are disabled.  Under stress with an
-SMP guest, this printk triggers very frequently.  There is no race here, this
-is how things are designed to work so let's just remove the printk.
+[Note: KVM Forum registration is now open at 
+http://kforum.qumranet.com/KVMForum/about_kvmforum.php]
 
-Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+This is the Call for Presentations for the second annual KVM Developer's
+Forum, to be held on June 10-13, 2008, in Napa, California, USA [1].  We
+are looking for presentations on KVM development, quality assurance,
+management, security, interoperability, architecture support, and 
+interesting use cases.  Presentations are 50 minutes in length; there 
+are also 25-minute mini-presentation slots available.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index b58472c..d1a200f 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -284,7 +284,6 @@ again:
- 		/* Activate callback for using skbs: if this returns false it
- 		 * means some were used in the meantime. */
- 		if (unlikely(!vi->svq->vq_ops->enable_cb(vi->svq))) {
--			printk("Unlikely: restart svq race\n");
- 			vi->svq->vq_ops->disable_cb(vi->svq);
- 			netif_start_queue(dev);
- 			goto again;
+KVM Forum presentations are an excellent way to inform the KVM 
+development community about your work, and to gather valuable feedback 
+about your approach.
+
+Please send your presentation proposal to the KVM Forum 2008 Content
+Committee at kf2008-cfp@qumranet.com by April 20th.
+
+KVM Forum 2008 Content Committee:
+ Dor Laor
+ Anthony Liguori
+ Avi Kivity
+
+[1] http://kforum.qumranet.com/KVMForum/about_kvmforum.php
+
+-- 
+Any sufficiently difficult bug is indistinguishable from a feature.
