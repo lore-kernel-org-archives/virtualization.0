@@ -1,15 +1,11 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH RFC 2/5] vringfd base/offset
-Date: Tue, 8 Apr 2008 07:14:36 +0200
-Message-ID: <200804080714.37011.arnd__21925.4609699876$1207631818$gmane$org@arndb.de>
-References: <200804052202.09157.rusty@rustcorp.com.au>
-	<200804052204.28518.rusty@rustcorp.com.au>
+From: Glauber Costa <gcosta@redhat.com>
+Subject: [PATCH] use NR_IRQS for irq count
+Date: Tue,  8 Apr 2008 14:04:36 -0300
+Message-ID: <12076742761764-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804052204.28518.rusty@rustcorp.com.au>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,24 +15,75 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>
+To: kvm-devel@lists.sourceforge.net
+Cc: Glauber Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Saturday 05 April 2008, Rusty Russell wrote:
-> =A0static const struct file_operations vring_fops =3D {
-> =A0=A0=A0=A0=A0=A0=A0=A0.release=A0=A0=A0=A0=A0=A0=A0=A0=3D vring_release,
-> =A0=A0=A0=A0=A0=A0=A0=A0.write=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=3D vring_wri=
-te,
-> =A0=A0=A0=A0=A0=A0=A0=A0.poll=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=3D vring_p=
-oll,
-> +=A0=A0=A0=A0=A0=A0=A0.ioctl=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=3D vring_ioctl,
-> =A0};
+Instead of artificially limiting irq numbers, use arch provided NR_IRQS
 
-This should also set the .compat_ioctl pointer. If the argument =
+Signed-off-by: Glauber Costa <gcosta@redhat.com>
+---
+ irqhook/irqhook_main.c |   16 +++++++---------
+ 1 files changed, 7 insertions(+), 9 deletions(-)
 
-is defined as an actual memory location instead of a pointer,
-you also don't need the compat_ptr() conversion for s390x, so
-both can point to the same vring_ioctl function.
-
-	Arnd <><
+diff --git a/irqhook/irqhook_main.c b/irqhook/irqhook_main.c
+index 5f414d1..828c70a 100644
+--- a/irqhook/irqhook_main.c
++++ b/irqhook/irqhook_main.c
+@@ -31,15 +31,13 @@ #define ERROR(fmt, args...) printk("<1>"
+ static spinlock_t irqh_lock;
+ static wait_queue_head_t irqh_proc_list;
+ 
+-enum {NINTR = 256};
+-
+-static DECLARE_BITMAP(pending, NINTR);
+-static DECLARE_BITMAP(handled, NINTR);
++static DECLARE_BITMAP(pending, NR_IRQS);
++static DECLARE_BITMAP(handled, NR_IRQS);
+ 
+ #define irqh_on(which, bit)	test_bit(bit, which)
+ #define irqh_set(which, bit)	set_bit(bit, which)
+ #define irqh_clear(which, bit)	clear_bit(bit, which)
+-#define irqh_ffs(which)		find_first_bit(which, NINTR)
++#define irqh_ffs(which)		find_first_bit(which, NR_IRQS)
+ 
+ static irqreturn_t
+ irqh_interrupt(int irq, void *p)
+@@ -92,7 +90,7 @@ irqh_dev_write(struct file *fp, const ch
+ 		if (pdp) {
+ 			if (pci_enable_device(pdp))
+ 				ERROR("device not enabled\n");
+-			if ((unsigned)(n = pdp->irq) >= NINTR) {
++			if ((unsigned)(n = pdp->irq) >= NR_IRQS) {
+ 				ERROR("device has invalid IRQ set\n");
+ 				return -EINVAL;
+ 			}
+@@ -107,7 +105,7 @@ irqh_dev_write(struct file *fp, const ch
+ 		irqh_set(handled, n);
+ 		goto done;
+ 	}
+-	if ((unsigned)n >= NINTR)
++	if ((unsigned)n >= NR_IRQS)
+ 		return -EINVAL;
+ 	if (arg[0] == '-') {
+ 		if (pdp)
+@@ -135,7 +133,7 @@ irqh_dev_read(struct file *fp, char *buf
+ 		return -EINVAL;
+ 	spin_lock_irq(&irqh_lock);
+ 	while (!signal_pending(current)) {
+-		if ((n = irqh_ffs(pending)) < NINTR) {
++		if ((n = irqh_ffs(pending)) < NR_IRQS) {
+ 			if ((m = sprintf(b, "%d", n) + 1) > size)
+ 				m = size;
+ 			if (copy_to_user(buf, b, m))
+@@ -203,7 +201,7 @@ irqh_cleanup(void)
+ 
+ 	DPRINTK("ENTER\n");
+ 	
+-	while ((n = irqh_ffs(handled)) < NINTR) {
++	while ((n = irqh_ffs(handled)) < NR_IRQS) {
+ 		irqh_clear(handled, n);
+ 		free_irq(n, (void *)irqh_interrupt);
+ 	}
+-- 
+1.4.2
