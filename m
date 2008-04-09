@@ -1,14 +1,14 @@
-From: Amit Shah <amit.shah@qumranet.com>
-Subject: Re: [PATCH] use NR_IRQS for irq count
-Date: Wed, 9 Apr 2008 10:13:10 +0530
-Message-ID: <200804091013.11149.amit.shah__46561.1279978932$1207716394$gmane$org@qumranet.com>
-References: <12076742761764-git-send-email-gcosta@redhat.com>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 03/15] ia64/pv_ops: preparation: introduce ia64_get_psr_i() to
+	make kernel paravirtualization friendly.
+Date: Wed,  9 Apr 2008 13:48:56 +0900
+Message-ID: <12077165483611-git-send-email-yamahata__44321.8507025906$1207716727$gmane$org@valinux.co.jp>
+References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12076742761764-git-send-email-gcosta@redhat.com>
-Content-Disposition: inline
+In-Reply-To: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,19 +18,55 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber Costa <gcosta@redhat.com>
-Cc: kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
+To: linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* On Tuesday 08 April 2008 22:34:36 Glauber Costa wrote:
-> Instead of artificially limiting irq numbers, use arch provided NR_IRQS
->
-> Signed-off-by: Glauber Costa <gcosta@redhat.com>
+__local_irq_save() and local_save_flags() are used to mask interruptions.
+They read all psr bits that requres whole bit emulation.
+On the other hand, reading only psr.i, the single bit, can be virtualized
+cheaply.
 
-Thanks, applied.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ include/asm-ia64/intrinsics.h |    2 ++
+ include/asm-ia64/system.h     |    4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-Going forward, we're going to use the in-kernel approach for interrupt 
-injection (which already has this change). The irqhook module will stay 
-around for testing / debugging purposes (will be used with -no-kvm-irqchip).
-
-Amit.
+diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
+index 72f0383..aae6013 100644
+--- a/include/asm-ia64/intrinsics.h
++++ b/include/asm-ia64/intrinsics.h
+@@ -18,6 +18,8 @@
+ # include <asm/gcc_intrin.h>
+ #endif
+ 
++#define ia64_get_psr_i()	(ia64_getreg(_IA64_REG_PSR) & IA64_PSR_I)
++
+ #define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
+ do {								\
+ 	ia64_set_rr(0x0000000000000000UL, (val0));		\
+diff --git a/include/asm-ia64/system.h b/include/asm-ia64/system.h
+index 595112b..2bca73e 100644
+--- a/include/asm-ia64/system.h
++++ b/include/asm-ia64/system.h
+@@ -125,7 +125,7 @@ extern struct ia64_boot_param {
+ #define __local_irq_save(x)			\
+ do {						\
+ 	ia64_stop();				\
+-	(x) = ia64_getreg(_IA64_REG_PSR);	\
++	(x) = ia64_get_psr_i();			\
+ 	ia64_stop();				\
+ 	ia64_rsm(IA64_PSR_I);			\
+ } while (0)
+@@ -173,7 +173,7 @@ do {								\
+ #endif /* !CONFIG_IA64_DEBUG_IRQ */
+ 
+ #define local_irq_enable()	({ ia64_stop(); ia64_ssm(IA64_PSR_I); ia64_srlz_d(); })
+-#define local_save_flags(flags)	({ ia64_stop(); (flags) = ia64_getreg(_IA64_REG_PSR); })
++#define local_save_flags(flags)	({ ia64_stop(); (flags) = ia64_get_psr_i(); })
+ 
+ #define irqs_disabled()				\
+ ({						\
+-- 
+1.5.3
