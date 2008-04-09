@@ -1,17 +1,14 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH 01/23] ia64/xen: introduce synch bitops which is necessary
-	for	ia64/xen support.
-Date: Wed, 9 Apr 2008 18:01:39 +0900
-Message-ID: <20080409090139.GA2583%yamahata__35884.9165183075$1207731869$gmane$org@valinux.co.jp>
-References: <12077166301391-git-send-email-yamahata@valinux.co.jp>
-	<12077166303062-git-send-email-yamahata@valinux.co.jp>
-	<47FC4F9F.4060301@goop.org>
+From: Glauber Costa <gcosta@redhat.com>
+Subject: Re: [PATCH] use NR_IRQS for irq count
+Date: Wed, 09 Apr 2008 09:11:10 -0300
+Message-ID: <47FCB25E.1070606@redhat.com>
+References: <12076742761764-git-send-email-gcosta@redhat.com>
+	<200804091013.11149.amit.shah@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <47FC4F9F.4060301@goop.org>
+In-Reply-To: <200804091013.11149.amit.shah@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,27 +18,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, linux-ia64@vger.kernel.org, xen-ia64-devel@lists.xensource.com
+To: Amit Shah <amit.shah@qumranet.com>
+Cc: kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 09, 2008 at 12:09:51AM -0500, Jeremy Fitzhardinge wrote:
-
-> >+#define sync_cmpxchg	ia64_cmpxchg4_acq
-> >  
+Amit Shah wrote:
+> * On Tuesday 08 April 2008 22:34:36 Glauber Costa wrote:
+>> Instead of artificially limiting irq numbers, use arch provided NR_IRQS
+>>
+>> Signed-off-by: Glauber Costa <gcosta@redhat.com>
 > 
-> Please always use arguments with function-like macros, to prevent 
-> accidental namespace clashes.
-
-Will fix.
-
-> >+#define sync_cmpxchg_subword sync_cmpxchg
-> >  
+> Thanks, applied.
 > 
-> Ditto.
-
-It looks like that sync_cmpxchg_subword isn't used any more.
-Is it safe to eliminate sync_cmpxchg_subword?
-
--- 
-yamahata
+> Going forward, we're going to use the in-kernel approach for interrupt 
+> injection (which already has this change). The irqhook module will stay 
+> around for testing / debugging purposes (will be used with -no-kvm-irqchip).
+> 
+> Amit.
+Is it already in your tree?
