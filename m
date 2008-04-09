@@ -1,15 +1,13 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 01/23] ia64/xen: introduce synch bitops which is necessary
-	for	ia64/xen support.
-Date: Wed, 09 Apr 2008 00:09:51 -0500
-Message-ID: <47FC4F9F.4060301__26113.7617672377$1207717930$gmane$org@goop.org>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 18/23] ia64/pv_ops/xen: implement xen pv_iosapic_ops.
+Date: Wed,  9 Apr 2008 13:50:25 +0900
+Message-ID: <1207716630468-git-send-email-yamahata__27245.7574298189$1207717930$gmane$org@valinux.co.jp>
 References: <12077166301391-git-send-email-yamahata@valinux.co.jp>
-	<12077166303062-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12077166303062-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <12077166301391-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,89 +17,87 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, linux-ia64@vger.kernel.org, xen-ia64-devel@lists.xensource.com
+To: linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Isaku Yamahata wrote:
-> define sync bitops which is necessary for ia64/xen.
->
-> Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-> ---
->  include/asm-ia64/sync_bitops.h |   59 ++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 59 insertions(+), 0 deletions(-)
->  create mode 100644 include/asm-ia64/sync_bitops.h
->
-> diff --git a/include/asm-ia64/sync_bitops.h b/include/asm-ia64/sync_bitops.h
-> new file mode 100644
-> index 0000000..f56cd90
-> --- /dev/null
-> +++ b/include/asm-ia64/sync_bitops.h
-> @@ -0,0 +1,59 @@
-> +#ifndef _ASM_IA64_SYNC_BITOPS_H
-> +#define _ASM_IA64_SYNC_BITOPS_H
-> +
-> +/*
-> + * Copyright 1992, Linus Torvalds.
-> + * Heavily modified to provide guaranteed strong synchronisation
-> + * when communicating with Xen or other guest OSes running on other CPUs.
-> + */
-> +
-> +static inline void sync_set_bit(int nr, volatile void *addr)
-> +{
-> +	set_bit(nr, addr);
-> +}
-> +
-> +static inline void sync_clear_bit(int nr, volatile void *addr)
-> +{
-> +	clear_bit(nr, addr);
-> +}
-> +
-> +static inline void sync_change_bit(int nr, volatile void *addr)
-> +{
-> +	change_bit(nr, addr);
-> +}
-> +
-> +static inline int sync_test_and_set_bit(int nr, volatile void *addr)
-> +{
-> +	return test_and_set_bit(nr, addr);
-> +}
-> +
-> +static inline int sync_test_and_clear_bit(int nr, volatile void *addr)
-> +{
-> +	return test_and_clear_bit(nr, addr);
-> +}
-> +
-> +static inline int sync_test_and_change_bit(int nr, volatile void *addr)
-> +{
-> +	return test_and_change_bit(nr, addr);
-> +}
-> +
-> +static inline int sync_const_test_bit(int nr, const volatile void *addr)
-> +{
-> +	return test_bit(nr, addr);
-> +}
-> +
-> +static inline int sync_var_test_bit(int nr, volatile void *addr)
-> +{
-> +	return test_bit(nr, addr);
-> +}
-> +
-> +#define sync_cmpxchg	ia64_cmpxchg4_acq
->   
+implement xen pv_iosapic_ops for xen paravirtualized
+iosapic.
 
-Please always use arguments with function-like macros, to prevent 
-accidental namespace clashes.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/xen/xen_pv_ops.c |   52 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 52 insertions(+), 0 deletions(-)
 
-> +
-> +#define sync_test_bit(nr,addr)			\
-> +	(__builtin_constant_p(nr) ?		\
-> +	 sync_const_test_bit((nr), (addr)) :	\
-> +	 sync_var_test_bit((nr), (addr)))
-> +
-> +#define sync_cmpxchg_subword sync_cmpxchg
->   
-
-Ditto.
-
-    J
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index e483d47..97c882a 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -290,6 +290,57 @@ const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
+ };
+ 
+ /***************************************************************************
++ * pv_iosapic_ops
++ * iosapic read/write hooks.
++ */
++static void
++xen_pcat_compat_init(void)
++{
++	/* nothing */
++}
++
++static struct irq_chip*
++xen_iosapic_get_irq_chip(unsigned long trigger)
++{
++	return NULL;
++}
++
++static unsigned int
++xen_iosapic_read(char __iomem *iosapic, unsigned int reg)
++{
++	struct physdev_apic apic_op;
++	int ret;
++
++	apic_op.apic_physbase = (unsigned long)iosapic -
++					__IA64_UNCACHED_OFFSET;
++	apic_op.reg = reg;
++	ret = HYPERVISOR_physdev_op(PHYSDEVOP_apic_read, &apic_op);
++	if (ret)
++		return ret;
++	return apic_op.value;
++}
++
++static void
++xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++{
++	struct physdev_apic apic_op;
++
++	apic_op.apic_physbase = (unsigned long)iosapic -
++					__IA64_UNCACHED_OFFSET;
++	apic_op.reg = reg;
++	apic_op.value = val;
++	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
++}
++
++static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
++	.pcat_compat_init = xen_pcat_compat_init,
++	.get_irq_chip = xen_iosapic_get_irq_chip,
++
++	.__read = xen_iosapic_read,
++	.__write = xen_iosapic_write,
++};
++
++/***************************************************************************
+  * pv_ops initialization
+  */
+ 
+@@ -300,6 +351,7 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_cpu_ops = xen_cpu_ops;
++	pv_iosapic_ops = xen_iosapic_ops;
+ 
+ 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+ }
+-- 
+1.5.3
