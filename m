@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 10/15] ia64/pv_ops: paravirtualize entry.S
-Date: Wed,  9 Apr 2008 13:49:03 +0900
-Message-ID: <1207716549278-git-send-email-yamahata__29539.7530346692$1207717304$gmane$org@valinux.co.jp>
+Subject: [PATCH 09/15] ia64/pv_ops: paravirtualize ivt.S
+Date: Wed,  9 Apr 2008 13:49:02 +0900
+Message-ID: <1207716549646-git-send-email-yamahata__33485.4675493718$1207717310$gmane$org@valinux.co.jp>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,536 +21,699 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize ia64_swtich_to, ia64_leave_syscall and ia64_leave_kernel.
-They include sensitive or performance critical privileged instructions
-so that they need paravirtualization.
-To paravirtualize them by single source and multi compile
-they are converted into indirect jump. And define each pv instances.
+paravirtualize ivt.S which implements fault handler in hand written
+assembly code.
+They includes sensitive or performance critical privileged instructions.
+So they need paravirtualization.
 
+Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/Makefile          |    2 +-
- arch/ia64/kernel/entry.S           |  107 +++++++++++++++++++++++-------------
- arch/ia64/kernel/paravirt.c        |   19 ++++++
- arch/ia64/kernel/paravirtentry.S   |   60 ++++++++++++++++++++
- include/asm-ia64/native/inst.h     |    8 +++
- include/asm-ia64/paravirt_privop.h |   23 ++++++++
- 6 files changed, 179 insertions(+), 40 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirtentry.S
+ arch/ia64/kernel/ivt.S |  223 ++++++++++++++++++++++++------------------------
+ 1 files changed, 113 insertions(+), 110 deletions(-)
 
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index a462669..7232273 100644
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -36,7 +36,7 @@ obj-$(CONFIG_PCI_MSI)		+= msi_ia64.o
- mca_recovery-y			+= mca_drv.o mca_drv_asm.o
- obj-$(CONFIG_IA64_MC_ERR_INJECT)+= err_inject.o
- 
--obj-$(CONFIG_PARAVIRT)		+= paravirt.o
-+obj-$(CONFIG_PARAVIRT)		+= paravirt.o paravirtentry.o
- 
- obj-$(CONFIG_IA64_ESI)		+= esi.o
- ifneq ($(CONFIG_IA64_ESI),)
-diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
-index 3c331c4..655c1ee 100644
---- a/arch/ia64/kernel/entry.S
-+++ b/arch/ia64/kernel/entry.S
-@@ -23,6 +23,11 @@
-  * 11/07/2000
-  */
- /*
+diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
+index 34f44d8..d516bf4 100644
+--- a/arch/ia64/kernel/ivt.S
++++ b/arch/ia64/kernel/ivt.S
+@@ -12,6 +12,14 @@
+  *
+  * 00/08/23 Asit Mallick <asit.k.mallick@intel.com> TLB handling for SMP
+  * 00/12/20 David Mosberger-Tang <davidm@hpl.hp.com> DTLB/ITLB handler now uses virtual PT.
++ *
++ * Copyright (C) 2005 Hewlett-Packard Co
++ *	Dan Magenheimer <dan.magenheimer@hp.com>
++ *      Xen paravirtualization
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
 + *                    pv_ops.
-+ */
-+/*
-  * Global (preserved) predicate usage on syscall entry/exit path:
-  *
-  *	pKStk:		See entry.h.
-@@ -45,6 +50,7 @@
++ *      Yaozu (Eddie) Dong <eddie.dong@intel.com>
+  */
+ /*
+  * This file defines the interruption vector table used by the CPU.
+@@ -102,13 +110,13 @@ ENTRY(vhpt_miss)
+ 	 *	- the faulting virtual address uses unimplemented address bits
+ 	 *	- the faulting virtual address has no valid page table mapping
+ 	 */
+-	mov r16=cr.ifa				// get address that caused the TLB miss
++	MOV_FROM_IFA(r16)			// get address that caused the TLB miss
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	movl r18=PAGE_SHIFT
+-	mov r25=cr.itir
++	MOV_FROM_ITIR(r25)
+ #endif
+ 	;;
+-	rsm psr.dt				// use physical addressing for data
++	RSM_PSR_DT				// use physical addressing for data
+ 	mov r31=pr				// save the predicate registers
+ 	mov r19=IA64_KR(PT_BASE)		// get page table base address
+ 	shl r21=r16,3				// shift bit 60 into sign bit
+@@ -168,21 +176,20 @@ ENTRY(vhpt_miss)
+ 	dep r21=r19,r20,3,(PAGE_SHIFT-3)	// r21=pte_offset(pmd,addr)
+ 	;;
+ (p7)	ld8 r18=[r21]				// read *pte
+-	mov r19=cr.isr				// cr.isr bit 32 tells us if this is an insn miss
++	MOV_FROM_ISR(r19)			// cr.isr bit 32 tells us if this is an insn miss
+ 	;;
+ (p7)	tbit.z p6,p7=r18,_PAGE_P_BIT		// page present bit cleared?
+-	mov r22=cr.iha				// get the VHPT address that caused the TLB miss
++	MOV_FROM_IHA(r22)			// get the VHPT address that caused the TLB miss
+ 	;;					// avoid RAW on p7
+ (p7)	tbit.nz.unc p10,p11=r19,32		// is it an instruction TLB miss?
+ 	dep r23=0,r20,0,PAGE_SHIFT		// clear low bits to get page address
+ 	;;
+-(p10)	itc.i r18				// insert the instruction TLB entry
+-(p11)	itc.d r18				// insert the data TLB entry
++	ITC_I_AND_D(p10, p11, r18, r24)		// insert the instruction TLB entry and
++						// insert the data TLB entry
+ (p6)	br.cond.spnt.many page_fault		// handle bad address/page not present (page fault)
+-	mov cr.ifa=r22
+-
++	MOV_TO_IFA(r22, r24)
+ #ifdef CONFIG_HUGETLB_PAGE
+-(p8)	mov cr.itir=r25				// change to default page-size for VHPT
++	MOV_TO_ITIR(p8, r25, r24)		// change to default page-size for VHPT
+ #endif
  
- #include "minstate.h"
- 
-+#ifdef __IA64_ASM_PARAVIRTUALIZED_NATIVE
  	/*
- 	 * execve() is special because in case of success, we need to
- 	 * setup a null register window frame.
-@@ -173,6 +179,7 @@ GLOBAL_ENTRY(sys_clone)
- 	mov rp=loc0
- 	br.ret.sptk.many rp
- END(sys_clone)
+@@ -192,7 +199,7 @@ ENTRY(vhpt_miss)
+ 	 */
+ 	adds r24=__DIRTY_BITS_NO_ED|_PAGE_PL_0|_PAGE_AR_RW,r23
+ 	;;
+-(p7)	itc.d r24
++	ITC_D(p7, r24, r25)
+ 	;;
+ #ifdef CONFIG_SMP
+ 	/*
+@@ -234,7 +241,7 @@ ENTRY(vhpt_miss)
+ #endif
+ 
+ 	mov pr=r31,-1				// restore predicate registers
+-	rfi
++	RFI
+ END(vhpt_miss)
+ 
+ 	.org ia64_ivt+0x400
+@@ -248,11 +255,11 @@ ENTRY(itlb_miss)
+ 	 * mode, walk the page table, and then re-execute the PTE read and
+ 	 * go on normally after that.
+ 	 */
+-	mov r16=cr.ifa				// get virtual address
++	MOV_FROM_IFA(r16)			// get virtual address
+ 	mov r29=b0				// save b0
+ 	mov r31=pr				// save predicates
+ .itlb_fault:
+-	mov r17=cr.iha				// get virtual address of PTE
++	MOV_FROM_IHA(r17)			// get virtual address of PTE
+ 	movl r30=1f				// load nested fault continuation point
+ 	;;
+ 1:	ld8 r18=[r17]				// read *pte
+@@ -261,7 +268,7 @@ ENTRY(itlb_miss)
+ 	tbit.z p6,p0=r18,_PAGE_P_BIT		// page present bit cleared?
+ (p6)	br.cond.spnt page_fault
+ 	;;
+-	itc.i r18
++	ITC_I(p0, r18, r19)
+ 	;;
+ #ifdef CONFIG_SMP
+ 	/*
+@@ -278,7 +285,7 @@ ENTRY(itlb_miss)
+ (p7)	ptc.l r16,r20
+ #endif
+ 	mov pr=r31,-1
+-	rfi
++	RFI
+ END(itlb_miss)
+ 
+ 	.org ia64_ivt+0x0800
+@@ -292,11 +299,11 @@ ENTRY(dtlb_miss)
+ 	 * mode, walk the page table, and then re-execute the PTE read and
+ 	 * go on normally after that.
+ 	 */
+-	mov r16=cr.ifa				// get virtual address
++	MOV_FROM_IFA(r16)			// get virtual address
+ 	mov r29=b0				// save b0
+ 	mov r31=pr				// save predicates
+ dtlb_fault:
+-	mov r17=cr.iha				// get virtual address of PTE
++	MOV_FROM_IHA(r17)			// get virtual address of PTE
+ 	movl r30=1f				// load nested fault continuation point
+ 	;;
+ 1:	ld8 r18=[r17]				// read *pte
+@@ -305,7 +312,7 @@ dtlb_fault:
+ 	tbit.z p6,p0=r18,_PAGE_P_BIT		// page present bit cleared?
+ (p6)	br.cond.spnt page_fault
+ 	;;
+-	itc.d r18
++	ITC_D(p0, r18, r19)
+ 	;;
+ #ifdef CONFIG_SMP
+ 	/*
+@@ -322,7 +329,7 @@ dtlb_fault:
+ (p7)	ptc.l r16,r20
+ #endif
+ 	mov pr=r31,-1
+-	rfi
++	RFI
+ END(dtlb_miss)
+ 
+ 	.org ia64_ivt+0x0c00
+@@ -330,9 +337,9 @@ END(dtlb_miss)
+ // 0x0c00 Entry 3 (size 64 bundles) Alt ITLB (19)
+ ENTRY(alt_itlb_miss)
+ 	DBG_FAULT(3)
+-	mov r16=cr.ifa		// get address that caused the TLB miss
++	MOV_FROM_IFA(r16)	// get address that caused the TLB miss
+ 	movl r17=PAGE_KERNEL
+-	mov r21=cr.ipsr
++	MOV_FROM_IPSR(p0,r21)
+ 	movl r19=(((1 << IA64_MAX_PHYS_BITS) - 1) & ~0xfff)
+ 	mov r31=pr
+ 	;;
+@@ -341,9 +348,9 @@ ENTRY(alt_itlb_miss)
+ 	;;
+ 	cmp.gt p8,p0=6,r22			// user mode
+ 	;;
+-(p8)	thash r17=r16
++	THASH(p8, r17, r16, r23)
+ 	;;
+-(p8)	mov cr.iha=r17
++	MOV_TO_IHA(p8, r17, r23)
+ (p8)	mov r29=b0				// save b0
+ (p8)	br.cond.dptk .itlb_fault
+ #endif
+@@ -358,9 +365,9 @@ ENTRY(alt_itlb_miss)
+ 	or r19=r19,r18		// set bit 4 (uncached) if the access was to region 6
+ (p8)	br.cond.spnt page_fault
+ 	;;
+-	itc.i r19		// insert the TLB entry
++	ITC_I(p0, r19, r18)	// insert the TLB entry
+ 	mov pr=r31,-1
+-	rfi
++	RFI
+ END(alt_itlb_miss)
+ 
+ 	.org ia64_ivt+0x1000
+@@ -368,11 +375,11 @@ END(alt_itlb_miss)
+ // 0x1000 Entry 4 (size 64 bundles) Alt DTLB (7,46)
+ ENTRY(alt_dtlb_miss)
+ 	DBG_FAULT(4)
+-	mov r16=cr.ifa		// get address that caused the TLB miss
++	MOV_FROM_IFA(r16)	// get address that caused the TLB miss
+ 	movl r17=PAGE_KERNEL
+-	mov r20=cr.isr
++	MOV_FROM_ISR(r20)
+ 	movl r19=(((1 << IA64_MAX_PHYS_BITS) - 1) & ~0xfff)
+-	mov r21=cr.ipsr
++	MOV_FROM_IPSR(p0,r21)
+ 	mov r31=pr
+ 	mov r24=PERCPU_ADDR
+ 	;;
+@@ -381,9 +388,9 @@ ENTRY(alt_dtlb_miss)
+ 	;;
+ 	cmp.gt p8,p0=6,r22			// access to region 0-5
+ 	;;
+-(p8)	thash r17=r16
++	THASH(p8, r17, r16, r25)
+ 	;;
+-(p8)	mov cr.iha=r17
++	MOV_TO_IHA(r17, r25)
+ (p8)	mov r29=b0				// save b0
+ (p8)	br.cond.dptk dtlb_fault
+ #endif
+@@ -402,7 +409,7 @@ ENTRY(alt_dtlb_miss)
+ 	tbit.nz p9,p0=r20,IA64_ISR_NA_BIT	// is non-access bit on?
+ 	;;
+ (p10)	sub r19=r19,r26
+-(p10)	mov cr.itir=r25
++	MOV_TO_ITIR(p10, r25, r24)
+ 	cmp.ne p8,p0=r0,r23
+ (p9)	cmp.eq.or.andcm p6,p7=IA64_ISR_CODE_LFETCH,r22	// check isr.code field
+ (p12)	dep r17=-1,r17,4,1			// set ma=UC for region 6 addr
+@@ -411,11 +418,11 @@ ENTRY(alt_dtlb_miss)
+ 	dep r21=-1,r21,IA64_PSR_ED_BIT,1
+ 	;;
+ 	or r19=r19,r17		// insert PTE control bits into r19
+-(p6)	mov cr.ipsr=r21
++	MOV_FROM_IPSR(p6,r21)
+ 	;;
+-(p7)	itc.d r19		// insert the TLB entry
++	ITC_D(p7, r19, r18)	// insert the TLB entry
+ 	mov pr=r31,-1
+-	rfi
++	RFI
+ END(alt_dtlb_miss)
+ 
+ 	.org ia64_ivt+0x1400
+@@ -444,10 +451,10 @@ ENTRY(nested_dtlb_miss)
+ 	 *
+ 	 * Clobbered:	b0, r18, r19, r21, r22, psr.dt (cleared)
+ 	 */
+-	rsm psr.dt				// switch to using physical data addressing
++	RSM_PSR_DT_AND_SRLZ_I			// switch to using physical data addressing
+ 	mov r19=IA64_KR(PT_BASE)		// get the page table base address
+ 	shl r21=r16,3				// shift bit 60 into sign bit
+-	mov r18=cr.itir
++	MOV_FROM_ITIR(r18)
+ 	;;
+ 	shr.u r17=r16,61			// get the region number into r17
+ 	extr.u r18=r18,2,6			// get the faulting page size
+@@ -510,21 +517,15 @@ END(ikey_miss)
+ 	//-----------------------------------------------------------------------------------
+ 	// call do_page_fault (predicates are in r31, psr.dt may be off, r16 is faulting address)
+ ENTRY(page_fault)
+-	ssm psr.dt
+-	;;
+-	srlz.i
++	SSM_PSR_DT_AND_SRLZ_I
+ 	;;
+ 	SAVE_MIN_WITH_COVER
+ 	alloc r15=ar.pfs,0,0,3,0
+-	mov out0=cr.ifa
+-	mov out1=cr.isr
++	MOV_FROM_IFA(out0)
++	MOV_FROM_ISR(out1)
++	SSM_PSR_IC_AND_DEFAULT_BITS(r14, r3)
+ 	adds r3=8,r2				// set up second base pointer
+-	;;
+-	ssm psr.ic | PSR_DEFAULT_BITS
+-	;;
+-	srlz.i					// guarantee that interruption collectin is on
+-	;;
+-(p15)	ssm psr.i				// restore psr.i
++	SSM_PSR_I(p15, r14)			// restore psr.i
+ 	movl r14=ia64_leave_kernel
+ 	;;
+ 	SAVE_REST
+@@ -556,10 +557,10 @@ ENTRY(dirty_bit)
+ 	 * page table TLB entry isn't present, we take a nested TLB miss hit where we look
+ 	 * up the physical address of the L3 PTE and then continue at label 1 below.
+ 	 */
+-	mov r16=cr.ifa				// get the address that caused the fault
++	MOV_FROM_IFA(r16)			// get the address that caused the fault
+ 	movl r30=1f				// load continuation point in case of nested fault
+ 	;;
+-	thash r17=r16				// compute virtual address of L3 PTE
++	THASH(p0, r17, r16, r18)		// compute virtual address of L3 PTE
+ 	mov r29=b0				// save b0 in case of nested fault
+ 	mov r31=pr				// save pr
+ #ifdef CONFIG_SMP
+@@ -576,7 +577,7 @@ ENTRY(dirty_bit)
+ 	;;
+ (p6)	cmp.eq p6,p7=r26,r18			// Only compare if page is present
+ 	;;
+-(p6)	itc.d r25				// install updated PTE
++	ITC_D(p6, r25, r18)			// install updated PTE
+ 	;;
+ 	/*
+ 	 * Tell the assemblers dependency-violation checker that the above "itc" instructions
+@@ -602,7 +603,7 @@ ENTRY(dirty_bit)
+ 	itc.d r18				// install updated PTE
+ #endif
+ 	mov pr=r31,-1				// restore pr
+-	rfi
++	RFI
+ END(dirty_bit)
+ 
+ 	.org ia64_ivt+0x2400
+@@ -611,22 +612,22 @@ END(dirty_bit)
+ ENTRY(iaccess_bit)
+ 	DBG_FAULT(9)
+ 	// Like Entry 8, except for instruction access
+-	mov r16=cr.ifa				// get the address that caused the fault
++	MOV_FROM_IFA(r16)			// get the address that caused the fault
+ 	movl r30=1f				// load continuation point in case of nested fault
+ 	mov r31=pr				// save predicates
+ #ifdef CONFIG_ITANIUM
+ 	/*
+ 	 * Erratum 10 (IFA may contain incorrect address) has "NoFix" status.
+ 	 */
+-	mov r17=cr.ipsr
++	MOV_FROM_IPSR(p0,r17)
+ 	;;
+-	mov r18=cr.iip
++	MOV_FROM_IIP(r18)
+ 	tbit.z p6,p0=r17,IA64_PSR_IS_BIT	// IA64 instruction set?
+ 	;;
+ (p6)	mov r16=r18				// if so, use cr.iip instead of cr.ifa
+ #endif /* CONFIG_ITANIUM */
+ 	;;
+-	thash r17=r16				// compute virtual address of L3 PTE
++	THASH(p0, r17, r16, r18)		// compute virtual address of L3 PTE
+ 	mov r29=b0				// save b0 in case of nested fault)
+ #ifdef CONFIG_SMP
+ 	mov r28=ar.ccv				// save ar.ccv
+@@ -642,7 +643,7 @@ ENTRY(iaccess_bit)
+ 	;;
+ (p6)	cmp.eq p6,p7=r26,r18			// Only if page present
+ 	;;
+-(p6)	itc.i r25				// install updated PTE
++	ITC_I(p6, r25, r26)			// install updated PTE
+ 	;;
+ 	/*
+ 	 * Tell the assemblers dependency-violation checker that the above "itc" instructions
+@@ -668,7 +669,7 @@ ENTRY(iaccess_bit)
+ 	itc.i r18				// install updated PTE
+ #endif /* !CONFIG_SMP */
+ 	mov pr=r31,-1
+-	rfi
++	RFI
+ END(iaccess_bit)
+ 
+ 	.org ia64_ivt+0x2800
+@@ -677,10 +678,10 @@ END(iaccess_bit)
+ ENTRY(daccess_bit)
+ 	DBG_FAULT(10)
+ 	// Like Entry 8, except for data access
+-	mov r16=cr.ifa				// get the address that caused the fault
++	MOV_FROM_IFA(r16)			// get the address that caused the fault
+ 	movl r30=1f				// load continuation point in case of nested fault
+ 	;;
+-	thash r17=r16				// compute virtual address of L3 PTE
++	THASH(p0, r17, r16, r18)		// compute virtual address of L3 PTE
+ 	mov r31=pr
+ 	mov r29=b0				// save b0 in case of nested fault)
+ #ifdef CONFIG_SMP
+@@ -697,7 +698,7 @@ ENTRY(daccess_bit)
+ 	;;
+ (p6)	cmp.eq p6,p7=r26,r18			// Only if page is present
+ 	;;
+-(p6)	itc.d r25				// install updated PTE
++	ITC_D(p6, r25, r26)			// install updated PTE
+ 	/*
+ 	 * Tell the assemblers dependency-violation checker that the above "itc" instructions
+ 	 * cannot possibly affect the following loads:
+@@ -721,7 +722,7 @@ ENTRY(daccess_bit)
+ #endif
+ 	mov b0=r29				// restore b0
+ 	mov pr=r31,-1
+-	rfi
++	RFI
+ END(daccess_bit)
+ 
+ 	.org ia64_ivt+0x2c00
+@@ -745,10 +746,10 @@ ENTRY(break_fault)
+ 	 */
+ 	DBG_FAULT(11)
+ 	mov.m r16=IA64_KR(CURRENT)		// M2 r16 <- current task (12 cyc)
+-	mov r29=cr.ipsr				// M2 (12 cyc)
++	MOV_FROM_IPSR(p0,r29)			// M2 (12 cyc)
+ 	mov r31=pr				// I0 (2 cyc)
+ 
+-	mov r17=cr.iim				// M2 (2 cyc)
++	MOV_FROM_IIM(r17)			// M2 (2 cyc)
+ 	mov.m r27=ar.rsc			// M2 (12 cyc)
+ 	mov r18=__IA64_BREAK_SYSCALL		// A
+ 
+@@ -767,7 +768,7 @@ ENTRY(break_fault)
+ 	nop.m 0
+ 	movl r30=sys_call_table			// X
+ 
+-	mov r28=cr.iip				// M2 (2 cyc)
++	MOV_FROM_IIP(r28)			// M2 (2 cyc)
+ 	cmp.eq p0,p7=r18,r17			// I0 is this a system call?
+ (p7)	br.cond.spnt non_syscall		// B  no ->
+ 	//
+@@ -831,10 +832,10 @@ ENTRY(break_fault)
+ 1:
+ 	mov ar.rsc=0x3				// M2   set eager mode, pl 0, LE, loadrs=0
+ 	nop 0
+-	bsw.1					// B (6 cyc) regs are saved, switch to bank 1
++	BSW_1(r2, r14)				// B (6 cyc) regs are saved, switch to bank 1
+ 	;;
+ 
+-	ssm psr.ic | PSR_DEFAULT_BITS		// M2	now it's safe to re-enable intr.-collection
++	SSM_PSR_IC_AND_DEFAULT_BITS(r3, r16)	// M2	now it's safe to re-enable intr.-collection
+ 	movl r3=ia64_ret_from_syscall		// X
+ 	;;
+ 
+@@ -842,7 +843,7 @@ ENTRY(break_fault)
+ 	mov rp=r3				// I0   set the real return addr
+ (p10)	br.cond.spnt.many ia64_ret_from_syscall	// B    return if bad call-frame or r15 is a NaT
+ 
+-(p15)	ssm psr.i				// M2   restore psr.i
++	SSM_PSR_I(p15, r16)			// M2   restore psr.i
+ (p14)	br.call.sptk.many b6=b6			// B    invoke syscall-handker (ignore return addr)
+ 	br.cond.spnt.many ia64_trace_syscall	// B	do syscall-tracing thingamagic
+ 	// NOT REACHED
+@@ -866,7 +867,7 @@ ENTRY(interrupt)
+ 	mov r31=pr		// prepare to save predicates
+ 	;;
+ 	SAVE_MIN_WITH_COVER	// uses r31; defines r2 and r3
+-	ssm psr.ic | PSR_DEFAULT_BITS
++	SSM_PSR_IC_AND_DEFAULT_BITS(r3, r14)
+ 	;;
+ 	adds r3=8,r2		// set up second base pointer for SAVE_REST
+ 	srlz.i			// ensure everybody knows psr.ic is back on
+@@ -875,7 +876,7 @@ ENTRY(interrupt)
+ 	;;
+ 	MCA_RECOVER_RANGE(interrupt)
+ 	alloc r14=ar.pfs,0,0,2,0 // must be first in an insn group
+-	mov out0=cr.ivr		// pass cr.ivr as first arg
++	MOV_FROM_IVR(out0, r8)	// pass cr.ivr as first arg
+ 	add out1=16,sp		// pass pointer to pt_regs as second arg
+ 	;;
+ 	srlz.d			// make sure we see the effect of cr.ivr
+@@ -944,6 +945,7 @@ END(interrupt)
+ 	 *	- ar.fpsr: set to kernel settings
+ 	 *	-  b6: preserved (same as on entry)
+ 	 */
++#ifdef __IA64_ASM_PARAVIRTUALIZED_NATIVE
+ GLOBAL_ENTRY(ia64_syscall_setup)
+ #if PT(B6) != 0
+ # error This code assumes that b6 is the first field in pt_regs.
+@@ -1035,6 +1037,7 @@ GLOBAL_ENTRY(ia64_syscall_setup)
+ (p10)	mov r8=-EINVAL
+ 	br.ret.sptk.many b7
+ END(ia64_syscall_setup)
 +#endif /* __IA64_ASM_PARAVIRTUALIZED_NATIVE */
  
- /*
-  * prev_task <- ia64_switch_to(struct task_struct *next)
-@@ -180,7 +187,7 @@ END(sys_clone)
-  *	called.  The code starting at .map relies on this.  The rest of the code
-  *	doesn't care about the interrupt masking status.
-  */
--GLOBAL_ENTRY(ia64_switch_to)
-+GLOBAL_ENTRY(__paravirt_switch_to)
+ 	.org ia64_ivt+0x3c00
+ /////////////////////////////////////////////////////////////////////////////////////////
+@@ -1055,11 +1058,11 @@ ENTRY(dispatch_illegal_op_fault)
  	.prologue
- 	alloc r16=ar.pfs,1,0,0,0
- 	DO_SAVE_SWITCH_STACK
-@@ -204,7 +211,7 @@ GLOBAL_ENTRY(ia64_switch_to)
+ 	.body
+ 	SAVE_MIN_WITH_COVER
+-	ssm psr.ic | PSR_DEFAULT_BITS
++	SSM_PSR_IC_AND_DEFAULT_BITS(r3,r24)
  	;;
- .done:
- 	ld8 sp=[r21]			// load kernel stack pointer of new task
--	mov IA64_KR(CURRENT)=in0	// update "current" application register
-+	MOV_TO_KR(CURRENT, in0, r8, r9)		// update "current" application register
- 	mov r8=r13			// return pointer to previously running task
- 	mov r13=in0			// set "current" pointer
+ 	srlz.i		// guarantee that interruption collection is on
  	;;
-@@ -216,26 +223,25 @@ GLOBAL_ENTRY(ia64_switch_to)
- 	br.ret.sptk.many rp		// boogie on out in new context
+-(p15)	ssm psr.i	// restore psr.i
++	SSM_PSR_I(p15,r3)	// restore psr.i
+ 	adds r3=8,r2	// set up second base pointer for SAVE_REST
+ 	;;
+ 	alloc r14=ar.pfs,0,0,1,0	// must be first in insn group
+@@ -1107,15 +1110,15 @@ ENTRY(non_syscall)
+ 	// suitable spot...
  
- .map:
--	rsm psr.ic			// interrupts (psr.i) are already disabled here
-+	RSM_PSR_IC(r25)			// interrupts (psr.i) are already disabled here
- 	movl r25=PAGE_KERNEL
+ 	alloc r14=ar.pfs,0,0,2,0
+-	mov out0=cr.iim
++	MOV_FROM_IIM(out0)
+ 	add out1=16,sp
+ 	adds r3=8,r2			// set up second base pointer for SAVE_REST
+ 
+-	ssm psr.ic | PSR_DEFAULT_BITS
++	SSM_PSR_IC_AND_DEFAULT_BITS(r15,r24)
+ 	;;
+ 	srlz.i				// guarantee that interruption collection is on
+ 	;;
+-(p15)	ssm psr.i			// restore psr.i
++	SSM_PSR_I(p15,r15)		// restore psr.i
+ 	movl r15=ia64_leave_kernel
+ 	;;
+ 	SAVE_REST
+@@ -1141,14 +1144,14 @@ ENTRY(dispatch_unaligned_handler)
+ 	SAVE_MIN_WITH_COVER
+ 	;;
+ 	alloc r14=ar.pfs,0,0,2,0		// now it's safe (must be first in insn group!)
+-	mov out0=cr.ifa
++	MOV_FROM_IFA(out0)
+ 	adds out1=16,sp
+ 
+-	ssm psr.ic | PSR_DEFAULT_BITS
++	SSM_PSR_IC_AND_DEFAULT_BITS(r3,r24)
+ 	;;
+ 	srlz.i					// guarantee that interruption collection is on
+ 	;;
+-(p15)	ssm psr.i				// restore psr.i
++	SSM_PSR_I(p15,r3)			// restore psr.i
+ 	adds r3=8,r2				// set up second base pointer
+ 	;;
+ 	SAVE_REST
+@@ -1180,17 +1183,17 @@ ENTRY(dispatch_to_fault_handler)
+ 	 */
+ 	SAVE_MIN_WITH_COVER_R19
+ 	alloc r14=ar.pfs,0,0,5,0
+-	mov out0=r15
+-	mov out1=cr.isr
+-	mov out2=cr.ifa
+-	mov out3=cr.iim
+-	mov out4=cr.itir
++	MOV_FROM_ISR(out1)
++	MOV_FROM_IFA(out2)
++	MOV_FROM_IIM(out3)
++	MOV_FROM_ITIR(out4)
+ 	;;
+-	ssm psr.ic | PSR_DEFAULT_BITS
++	SSM_PSR_IC_AND_DEFAULT_BITS(r3, out0)
++	mov out0=r15
+ 	;;
+ 	srlz.i					// guarantee that interruption collection is on
+ 	;;
+-(p15)	ssm psr.i				// restore psr.i
++	SSM_PSR_I(p15,r3)			// restore psr.i
+ 	adds r3=8,r2				// set up second base pointer for SAVE_REST
+ 	;;
+ 	SAVE_REST
+@@ -1209,8 +1212,8 @@ END(dispatch_to_fault_handler)
+ // 0x5000 Entry 20 (size 16 bundles) Page Not Present (10,22,49)
+ ENTRY(page_not_present)
+ 	DBG_FAULT(20)
+-	mov r16=cr.ifa
+-	rsm psr.dt
++	MOV_FROM_IFA(r16)
++	RSM_PSR_DT
+ 	/*
+ 	 * The Linux page fault handler doesn't expect non-present pages to be in
+ 	 * the TLB.  Flush the existing entry now, so we meet that expectation.
+@@ -1229,8 +1232,8 @@ END(page_not_present)
+ // 0x5100 Entry 21 (size 16 bundles) Key Permission (13,25,52)
+ ENTRY(key_permission)
+ 	DBG_FAULT(21)
+-	mov r16=cr.ifa
+-	rsm psr.dt
++	MOV_FROM_IFA(r16)
++	RSM_PSR_DT
+ 	mov r31=pr
  	;;
  	srlz.d
- 	or r23=r25,r20			// construct PA | page properties
- 	mov r25=IA64_GRANULE_SHIFT<<2
+@@ -1242,8 +1245,8 @@ END(key_permission)
+ // 0x5200 Entry 22 (size 16 bundles) Instruction Access Rights (26)
+ ENTRY(iaccess_rights)
+ 	DBG_FAULT(22)
+-	mov r16=cr.ifa
+-	rsm psr.dt
++	MOV_FROM_IFA(r16)
++	RSM_PSR_DT
+ 	mov r31=pr
  	;;
--	mov cr.itir=r25
--	mov cr.ifa=in0			// VA of next task...
-+	MOV_TO_ITIR(p0, r25, r8)
-+	MOV_TO_IFA(in0, r8)		// VA of next task...
+ 	srlz.d
+@@ -1255,8 +1258,8 @@ END(iaccess_rights)
+ // 0x5300 Entry 23 (size 16 bundles) Data Access Rights (14,53)
+ ENTRY(daccess_rights)
+ 	DBG_FAULT(23)
+-	mov r16=cr.ifa
+-	rsm psr.dt
++	MOV_FROM_IFA(r16)
++	RSM_PSR_DT
+ 	mov r31=pr
  	;;
- 	mov r25=IA64_TR_CURRENT_STACK
--	mov IA64_KR(CURRENT_STACK)=r26	// remember last page we mapped...
-+	MOV_TO_KR(CURRENT_STACK, r26, r8, r9)	// remember last page we mapped...
+ 	srlz.d
+@@ -1268,7 +1271,7 @@ END(daccess_rights)
+ // 0x5400 Entry 24 (size 16 bundles) General Exception (5,32,34,36,38,39)
+ ENTRY(general_exception)
+ 	DBG_FAULT(24)
+-	mov r16=cr.isr
++	MOV_FROM_ISR(r16)
+ 	mov r31=pr
  	;;
- 	itr.d dtr[r25]=r23		// wire in new mapping...
--	ssm psr.ic			// reenable the psr.ic bit
--	;;
--	srlz.d
-+	SSM_PSR_IC_AND_SRLZ_D(r8, r9)	// reenable the psr.ic bit
- 	br.cond.sptk .done
--END(ia64_switch_to)
-+END(__paravirt_switch_to)
+ 	cmp4.eq p6,p0=0,r16
+@@ -1297,8 +1300,8 @@ END(disabled_fp_reg)
+ ENTRY(nat_consumption)
+ 	DBG_FAULT(26)
  
-+#ifdef __IA64_ASM_PARAVIRTUALIZED_NATIVE
- /*
-  * Note that interrupts are enabled during save_switch_stack and load_switch_stack.  This
-  * means that we may get an interrupt with "sp" pointing to the new kernel stack while
-@@ -375,7 +381,7 @@ END(save_switch_stack)
-  *	- b7 holds address to return to
-  *	- must not touch r8-r11
-  */
--ENTRY(load_switch_stack)
-+GLOBAL_ENTRY(load_switch_stack)
- 	.prologue
- 	.altrp b7
+-	mov r16=cr.ipsr
+-	mov r17=cr.isr
++	MOV_FROM_IPSR(p0,r16);
++	MOV_FROM_ISR(r17);
+ 	mov r31=pr				// save PR
+ 	;;
+ 	and r18=0xf,r17				// r18 = cr.ipsr.code{3:0}
+@@ -1308,10 +1311,10 @@ ENTRY(nat_consumption)
+ 	dep r16=-1,r16,IA64_PSR_ED_BIT,1
+ (p6)	br.cond.spnt 1f		// branch if (cr.ispr.na == 0 || cr.ipsr.code{3:0} != LFETCH)
+ 	;;
+-	mov cr.ipsr=r16		// set cr.ipsr.na
++	MOV_TO_IPSR(r16,r18);
+ 	mov pr=r31,-1
+ 	;;
+-	rfi
++	RFI
  
-@@ -570,7 +576,7 @@ GLOBAL_ENTRY(ia64_trace_syscall)
- 	br.call.sptk.many rp=syscall_trace_leave // give parent a chance to catch return value
- .ret3:
- (pUStk)	cmp.eq.unc p6,p0=r0,r0			// p6 <- pUStk
--	br.cond.sptk .work_pending_syscall_end
-+	br.cond.sptk ia64_work_pending_syscall_end
- 
- strace_error:
- 	ld8 r3=[r2]				// load pt_regs.r8
-@@ -635,8 +641,17 @@ GLOBAL_ENTRY(ia64_ret_from_syscall)
- 	adds r2=PT(R8)+16,sp			// r2 = &pt_regs.r8
- 	mov r10=r0				// clear error indication in r10
- (p7)	br.cond.spnt handle_syscall_error	// handle potential syscall failure
-+#ifdef CONFIG_PARAVIRT
-+	;;
-+	br.cond.sptk.few ia64_leave_syscall
-+	;;
-+#endif /* CONFIG_PARAVIRT */
- END(ia64_ret_from_syscall)
-+#ifndef CONFIG_PARAVIRT
- 	// fall through
-+#endif
-+#endif /* __IA64_ASM_PARAVIRTUALIZED_NATIVE */
-+
- /*
-  * ia64_leave_syscall(): Same as ia64_leave_kernel, except that it doesn't
-  *	need to switch to bank 0 and doesn't restore the scratch registers.
-@@ -681,7 +696,7 @@ END(ia64_ret_from_syscall)
-  *	      ar.csd: cleared
-  *	      ar.ssd: cleared
-  */
--ENTRY(ia64_leave_syscall)
-+GLOBAL_ENTRY(__paravirt_leave_syscall)
- 	PT_REGS_UNWIND_INFO(0)
- 	/*
- 	 * work.need_resched etc. mustn't get changed by this CPU before it returns to
-@@ -691,7 +706,7 @@ ENTRY(ia64_leave_syscall)
- 	 * extra work.  We always check for extra work when returning to user-level.
- 	 * With CONFIG_PREEMPT, we also check for extra work when the preempt_count
- 	 * is 0.  After extra work processing has been completed, execution
--	 * resumes at .work_processed_syscall with p6 set to 1 if the extra-work-check
-+	 * resumes at ia64_work_processed_syscall with p6 set to 1 if the extra-work-check
- 	 * needs to be redone.
+ 1:	mov pr=r31,-1
+ 	;;
+@@ -1333,26 +1336,26 @@ ENTRY(speculation_vector)
+ 	 *
+ 	 * cr.imm contains zero_ext(imm21)
  	 */
- #ifdef CONFIG_PREEMPT
-@@ -705,11 +720,12 @@ ENTRY(ia64_leave_syscall)
+-	mov r18=cr.iim
++	MOV_FROM_IIM(r18)
  	;;
- 	cmp.eq p6,p0=r21,r0		// p6 <- pUStk || (preempt_count == 0)
- #else /* !CONFIG_PREEMPT */
--(pUStk)	rsm psr.i
-+	RSM_PSR_I(pUStk, r2, r18)
- 	cmp.eq pLvSys,p0=r0,r0		// pLvSys=1: leave from syscall
- (pUStk)	cmp.eq.unc p6,p0=r0,r0		// p6 <- pUStk
- #endif
--.work_processed_syscall:
-+.global __paravirt_work_processed_syscall;
-+__paravirt_work_processed_syscall:
- 	adds r2=PT(LOADRS)+16,r12
- 	adds r3=PT(AR_BSPSTORE)+16,r12
- 	adds r18=TI_FLAGS+IA64_TASK_SIZE,r13
-@@ -732,7 +748,7 @@ ENTRY(ia64_leave_syscall)
- (pNonSys) break 0		//      bug check: we shouldn't be here if pNonSys is TRUE!
+-	mov r17=cr.iip
++	MOV_FROM_IIP(r17)
+ 	shl r18=r18,43			// put sign bit in position (43=64-21)
  	;;
- 	invala			// M0|1 invalidate ALAT
--	rsm psr.i | psr.ic	// M2   turn off interrupts and interruption collection
-+	RSM_PSR_I_IC(r28, r29, r30)	// M2   turn off interrupts and interruption collection
- 	cmp.eq p9,p0=r0,r0	// A    set p9 to indicate that we should restore cr.ifs
  
- 	ld8 r29=[r2],16		// M0|1 load cr.ipsr
-@@ -744,7 +760,7 @@ ENTRY(ia64_leave_syscall)
- (pUStk) add r14=IA64_TASK_THREAD_ON_USTACK_OFFSET,r13
+-	mov r16=cr.ipsr
++	MOV_FROM_IPSR(p0,r16)
+ 	shr r18=r18,39			// sign extend (39=43-4)
  	;;
- 	ld8 r26=[r2],PT(B0)-PT(AR_PFS)	// M0|1 load ar.pfs
--(pKStk)	mov r22=psr			// M2   read PSR now that interrupts are disabled
-+	MOV_FROM_PSR(pKStk, r22, r21)	// M2   read PSR now that interrupts are disabled
- 	nop 0
+ 
+ 	add r17=r17,r18			// now add the offset
  	;;
- 	ld8 r21=[r2],PT(AR_RNAT)-PT(B0) // M0|1 load b0
-@@ -773,7 +789,7 @@ ENTRY(ia64_leave_syscall)
- 
- 	srlz.d				// M0   ensure interruption collection is off (for cover)
- 	shr.u r18=r19,16		// I0|1 get byte size of existing "dirty" partition
--	cover				// B    add current frame into dirty partition & set cr.ifs
-+	COVER				// B    add current frame into dirty partition & set cr.ifs
+-	mov cr.iip=r17
++	MOV_FROM_IIP(r17)
+ 	dep r16=0,r16,41,2		// clear EI
  	;;
- 	mov r19=ar.bsp			// M2   get new backing store pointer
- 	mov f10=f0			// F    clear f10
-@@ -788,8 +804,9 @@ ENTRY(ia64_leave_syscall)
- 	mov.m ar.ssd=r0			// M2   clear ar.ssd
- 	mov f11=f0			// F    clear f11
- 	br.cond.sptk.many rbs_switch	// B
--END(ia64_leave_syscall)
-+END(__paravirt_leave_syscall)
  
-+#ifdef __IA64_ASM_PARAVIRTUALIZED_NATIVE
- #ifdef CONFIG_IA32_SUPPORT
- GLOBAL_ENTRY(ia64_ret_from_ia32_execve)
- 	PT_REGS_UNWIND_INFO(0)
-@@ -800,10 +817,20 @@ GLOBAL_ENTRY(ia64_ret_from_ia32_execve)
- 	st8.spill [r2]=r8	// store return value in slot for r8 and set unat bit
- 	.mem.offset 8,0
- 	st8.spill [r3]=r0	// clear error indication in slot for r10 and set unat bit
-+#ifdef CONFIG_PARAVIRT
-+	;;
-+	// don't fall through, ia64_leave_kernel may be #define'd
-+	br.cond.sptk.few ia64_leave_kernel
-+	;;
-+#endif /* CONFIG_PARAVIRT */
- END(ia64_ret_from_ia32_execve)
-+#ifndef CONFIG_PARAVIRT
- 	// fall through
-+#endif
- #endif /* CONFIG_IA32_SUPPORT */
--GLOBAL_ENTRY(ia64_leave_kernel)
-+#endif /* __IA64_ASM_PARAVIRTUALIZED_NATIVE */
-+
-+GLOBAL_ENTRY(__paravirt_leave_kernel)
- 	PT_REGS_UNWIND_INFO(0)
- 	/*
- 	 * work.need_resched etc. mustn't get changed by this CPU before it returns to
-@@ -827,7 +854,7 @@ GLOBAL_ENTRY(ia64_leave_kernel)
+-	mov cr.ipsr=r16
++	MOV_FROM_IPSR(p0,r16)
  	;;
- 	cmp.eq p6,p0=r21,r0		// p6 <- pUStk || (preempt_count == 0)
- #else
--(pUStk)	rsm psr.i
-+	RSM_PSR_I(pUStk, r17, r31)
- 	cmp.eq p0,pLvSys=r0,r0		// pLvSys=0: leave from kernel
- (pUStk)	cmp.eq.unc p6,p0=r0,r0		// p6 <- pUStk
- #endif
-@@ -875,7 +902,7 @@ GLOBAL_ENTRY(ia64_leave_kernel)
- 	mov ar.csd=r30
- 	mov ar.ssd=r31
+ 
+-	rfi				// and go back
++	RFI
+ END(speculation_vector)
+ 
+ 	.org ia64_ivt+0x5800
+@@ -1490,11 +1493,11 @@ ENTRY(ia32_intercept)
+ 	DBG_FAULT(46)
+ #ifdef	CONFIG_IA32_SUPPORT
+ 	mov r31=pr
+-	mov r16=cr.isr
++	MOV_FROM_ISR(r16)
  	;;
--	rsm psr.i | psr.ic	// initiate turning off of interrupt and interruption collection
-+	RSM_PSR_I_IC(r23, r22, r25)	// initiate turning off of interrupt and interruption collection
- 	invala			// invalidate ALAT
+ 	extr.u r17=r16,16,8	// get ISR.code
+ 	mov r18=ar.eflag
+-	mov r19=cr.iim		// old eflag value
++	MOV_FROM_IIM(r19)	// old eflag value
  	;;
- 	ld8.fill r22=[r2],24
-@@ -907,13 +934,13 @@ GLOBAL_ENTRY(ia64_leave_kernel)
- 	mov ar.ccv=r15
+ 	cmp.ne p6,p0=2,r17
+ (p6)	br.cond.spnt 1f		// not a system flag fault
+@@ -1506,7 +1509,7 @@ ENTRY(ia32_intercept)
+ (p6)	br.cond.spnt 1f		// eflags.ac bit didn't change
  	;;
- 	ldf.fill f11=[r2]
--	bsw.0			// switch back to bank 0 (no stop bit required beforehand...)
-+	BSW_0(r2, r3, r15)	// switch back to bank 0 (no stop bit required beforehand...)
+ 	mov pr=r31,-1		// restore predicate registers
+-	rfi
++	RFI
+ 
+ 1:
+ #endif	// CONFIG_IA32_SUPPORT
+@@ -1660,12 +1663,12 @@ END(ia32_interrupt)
+ ENTRY(dispatch_to_ia32_handler)
+ 	SAVE_MIN
  	;;
- (pUStk)	mov r18=IA64_KR(CURRENT)// M2 (12 cycle read latency)
- 	adds r16=PT(CR_IPSR)+16,r12
- 	adds r17=PT(CR_IIP)+16,r12
- 
--(pKStk)	mov r22=psr		// M2 read PSR now that interrupts are disabled
-+	MOV_FROM_PSR(pKStk, r22, r29)	// M2 read PSR now that interrupts are disabled
- 	nop.i 0
- 	nop.i 0
+-	mov r14=cr.isr
+-	ssm psr.ic | PSR_DEFAULT_BITS
++	MOV_FROM_ISR(r14)
++	SSM_PSR_IC_AND_DEFAULT_BITS(r3,r24)
  	;;
-@@ -961,7 +988,7 @@ GLOBAL_ENTRY(ia64_leave_kernel)
- 	 * NOTE: alloc, loadrs, and cover can't be predicated.
- 	 */
- (pNonSys) br.cond.dpnt dont_preserve_current_frame
--	cover				// add current frame into dirty partition and set cr.ifs
-+	COVER				// add current frame into dirty partition and set cr.ifs
+ 	srlz.i					// guarantee that interruption collection is on
  	;;
- 	mov r19=ar.bsp			// get new backing store pointer
- rbs_switch:
-@@ -1064,16 +1091,16 @@ skip_rbs_switch:
- (pKStk)	dep r29=r22,r29,21,1	// I0 update ipsr.pp with psr.pp
- (pLvSys)mov r16=r0		// A  clear r16 for leave_syscall, no-op otherwise
+-(p15)	ssm psr.i
++	SSM_PSR_I(p15,r3)
+ 	adds r3=8,r2		// Base pointer for SAVE_REST
  	;;
--	mov cr.ipsr=r29		// M2
-+	MOV_TO_IPSR(r29, r25)	// M2
- 	mov ar.pfs=r26		// I0
- (pLvSys)mov r17=r0		// A  clear r17 for leave_syscall, no-op otherwise
- 
--(p9)	mov cr.ifs=r30		// M2
-+	MOV_TO_IFS(p9, r30, r25)// M2
- 	mov b0=r21		// I0
- (pLvSys)mov r18=r0		// A  clear r18 for leave_syscall, no-op otherwise
- 
- 	mov ar.fpsr=r20		// M2
--	mov cr.iip=r28		// M2
-+	MOV_TO_IIP(r28, r25)	// M2
- 	nop 0
- 	;;
- (pUStk)	mov ar.rnat=r24		// M2 must happen with RSE in lazy mode
-@@ -1082,7 +1109,7 @@ skip_rbs_switch:
- 
- 	mov ar.rsc=r27		// M2
- 	mov pr=r31,-1		// I0
--	rfi			// B
-+	RFI			// B
- 
- 	/*
- 	 * On entry:
-@@ -1108,32 +1135,33 @@ skip_rbs_switch:
- #endif
- 	br.call.spnt.many rp=schedule
- .ret9:	cmp.eq p6,p0=r0,r0				// p6 <- 1
--	rsm psr.i		// disable interrupts
-+	RSM_PSR_I(p0, r2, r20)	// disable interrupts
- 	;;
- #ifdef CONFIG_PREEMPT
- (pKStk)	adds r20=TI_PRE_COUNT+IA64_TASK_SIZE,r13
- 	;;
- (pKStk)	st4 [r20]=r0		// preempt_count() <- 0
- #endif
--(pLvSys)br.cond.sptk.few  .work_pending_syscall_end
-+(pLvSys)br.cond.sptk.few  __paravirt_pending_syscall_end
- 	br.cond.sptk.many .work_processed_kernel	// re-check
- 
- .notify:
- (pUStk)	br.call.spnt.many rp=notify_resume_user
- .ret10:	cmp.ne p6,p0=r0,r0				// p6 <- 0
--(pLvSys)br.cond.sptk.few  .work_pending_syscall_end
-+(pLvSys)br.cond.sptk.few  __paravirt_pending_syscall_end
- 	br.cond.sptk.many .work_processed_kernel	// don't re-check
- 
--.work_pending_syscall_end:
-+.global __paravirt_pending_syscall_end;
-+__paravirt_pending_syscall_end:
- 	adds r2=PT(R8)+16,r12
- 	adds r3=PT(R10)+16,r12
- 	;;
- 	ld8 r8=[r2]
- 	ld8 r10=[r3]
--	br.cond.sptk.many .work_processed_syscall	// re-check
--
--END(ia64_leave_kernel)
-+	br.cond.sptk.many __paravirt_work_processed_syscall_target	// re-check
-+END(__paravirt_leave_kernel)
- 
-+#ifdef __IA64_ASM_PARAVIRTUALIZED_NATIVE
- ENTRY(handle_syscall_error)
- 	/*
- 	 * Some system calls (e.g., ptrace, mmap) can return arbitrary values which could
-@@ -1172,7 +1200,7 @@ END(ia64_invoke_schedule_tail)
- 	 * be set up by the caller.  We declare 8 input registers so the system call
- 	 * args get preserved, in case we need to restart a system call.
- 	 */
--ENTRY(notify_resume_user)
-+GLOBAL_ENTRY(notify_resume_user)
- 	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(8)
- 	alloc loc1=ar.pfs,8,2,3,0 // preserve all eight input regs in case of syscall restart!
- 	mov r9=ar.unat
-@@ -1234,7 +1262,7 @@ ENTRY(sys_rt_sigreturn)
- 	adds sp=16,sp
- 	;;
- 	ld8 r9=[sp]				// load new ar.unat
--	mov.sptk b7=r8,ia64_leave_kernel
-+	mov.sptk b7=r8,ia64_native_leave_kernel
- 	;;
- 	mov ar.unat=r9
- 	br.many b7
-@@ -1593,3 +1621,4 @@ sys_call_table:
- 	data8 sys_timerfd_gettime
- 
- 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
-+#endif /* __IA64_ASM_PARAVIRTUALIZED_NATIVE */
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index bcfcb8b..6d7ae59 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -284,3 +284,22 @@ struct pv_cpu_ops pv_cpu_ops = {
- 	.intrin_local_irq_restore
- 			= ia64_native_intrin_local_irq_restore_func,
- };
-+
-+/******************************************************************************
-+ * replacement of hand written assembly codes.
-+ */
-+
-+void
-+paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch)
-+{
-+	extern unsigned long paravirt_switch_to_targ;
-+	extern unsigned long paravirt_leave_syscall_targ;
-+	extern unsigned long paravirt_work_processed_syscall_targ;
-+	extern unsigned long paravirt_leave_kernel_targ;
-+
-+	paravirt_switch_to_targ = cpu_asm_switch->switch_to;
-+	paravirt_leave_syscall_targ = cpu_asm_switch->leave_syscall;
-+	paravirt_work_processed_syscall_targ =
-+		cpu_asm_switch->work_processed_syscall;
-+	paravirt_leave_kernel_targ = cpu_asm_switch->leave_kernel;
-+}
-diff --git a/arch/ia64/kernel/paravirtentry.S b/arch/ia64/kernel/paravirtentry.S
-new file mode 100644
-index 0000000..2f42fcb
---- /dev/null
-+++ b/arch/ia64/kernel/paravirtentry.S
-@@ -0,0 +1,60 @@
-+/******************************************************************************
-+ * linux/arch/ia64/xen/paravirtentry.S
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <asm/asmmacro.h>
-+#include <asm/asm-offsets.h>
-+#include "entry.h"
-+
-+#define DATA8(sym, init_value)			\
-+	.pushsection .data.read_mostly ;	\
-+	.align 8 ;				\
-+	.global sym ;				\
-+	sym: ;					\
-+	data8 init_value ;			\
-+	.popsection
-+
-+#define BRANCH(targ, reg, breg)		\
-+	movl reg=targ ;			\
-+	;;				\
-+	ld8 reg=[reg] ;			\
-+	;;				\
-+	mov breg=reg ;			\
-+	br.cond.sptk.many breg
-+
-+#define BRANCH_PROC(sym, reg, breg)				\
-+	DATA8(paravirt_ ## sym ## _targ, ia64_native_ ## sym) ; \
-+	GLOBAL_ENTRY(paravirt_ ## sym) ;			\
-+		BRANCH(paravirt_ ## sym ## _targ, reg, breg) ;	\
-+	END(paravirt_ ## sym)
-+
-+#define BRANCH_PROC_UNWINFO(sym, reg, breg)			\
-+	DATA8(paravirt_ ## sym ## _targ, ia64_native_ ## sym) ; \
-+	GLOBAL_ENTRY(paravirt_ ## sym) ;			\
-+		PT_REGS_UNWIND_INFO(0) ;			\
-+		BRANCH(paravirt_ ## sym ## _targ, reg, breg) ;	\
-+	END(paravirt_ ## sym)
-+
-+
-+BRANCH_PROC(switch_to, r22, b7)
-+BRANCH_PROC_UNWINFO(leave_syscall, r22, b7)
-+BRANCH_PROC(work_processed_syscall, r2, b7)
-+BRANCH_PROC_UNWINFO(leave_kernel, r22, b7)
-diff --git a/include/asm-ia64/native/inst.h b/include/asm-ia64/native/inst.h
-index c167b7d..1855dae 100644
---- a/include/asm-ia64/native/inst.h
-+++ b/include/asm-ia64/native/inst.h
-@@ -22,6 +22,14 @@
- 
- #define DO_SAVE_MIN		IA64_NATIVE_DO_SAVE_MIN
- 
-+#define __paravirt_switch_to			ia64_native_switch_to
-+#define __paravirt_leave_syscall		ia64_native_leave_syscall
-+#define __paravirt_work_processed_syscall	ia64_native_work_processed_syscall
-+#define __paravirt_leave_kernel			ia64_native_leave_kernel
-+#define __paravirt_pending_syscall_end		ia64_work_pending_syscall_end
-+#define __paravirt_work_processed_syscall_target \
-+						ia64_work_processed_syscall
-+
- #ifdef CONFIG_PARAVIRT_GUEST_ASM_CLOBBER_CHECK
- # define PARAVIRT_POISON	0xdeadbeefbaadf00d
- # define CLOBBER(clob)				\
-diff --git a/include/asm-ia64/paravirt_privop.h b/include/asm-ia64/paravirt_privop.h
-index 7b133ae..52482e6 100644
---- a/include/asm-ia64/paravirt_privop.h
-+++ b/include/asm-ia64/paravirt_privop.h
-@@ -80,12 +80,35 @@ extern unsigned long ia64_native_getreg_func(int regnum);
- 			ia64_native_rsm(mask);	\
- 	} while (0)
- 
-+/******************************************************************************
-+ * replacement of hand written assembly codes.
-+ */
-+struct pv_cpu_asm_switch {
-+	unsigned long switch_to;
-+	unsigned long leave_syscall;
-+	unsigned long work_processed_syscall;
-+	unsigned long leave_kernel;
-+};
-+void paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch);
-+
- #endif /* __ASSEMBLY__ */
- 
-+#define IA64_PARAVIRT_ASM_FUNC(name)	paravirt_ ## name
-+
- #else
- 
- /* fallback for native case */
-+#define IA64_PARAVIRT_ASM_FUNC(name)	ia64_native_ ## name
- 
- #endif /* CONFIG_PARAVIRT */
- 
-+/* these routines utilize privilege-sensitive or performance-sensitive
-+ * privileged instructions so the code must be replaced with
-+ * paravirtualized versions */
-+#define ia64_switch_to			IA64_PARAVIRT_ASM_FUNC(switch_to)
-+#define ia64_leave_syscall		IA64_PARAVIRT_ASM_FUNC(leave_syscall)
-+#define ia64_work_processed_syscall	\
-+	IA64_PARAVIRT_ASM_FUNC(work_processed_syscall)
-+#define ia64_leave_kernel		IA64_PARAVIRT_ASM_FUNC(leave_kernel)
-+
- #endif /* _ASM_IA64_PARAVIRT_PRIVOP_H */
+ 	SAVE_REST
 -- 
 1.5.3
