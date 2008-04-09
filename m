@@ -1,14 +1,14 @@
-From: corbet@lwn.net (Jonathan Corbet)
-Subject: Re: [PATCH RFC 1/5] vringfd syscall
-Date: Mon, 07 Apr 2008 11:54:34 -0600
-Message-ID: <12555.1207590874__10527.012931607$1207714677$gmane$org@vena.lwn.net>
-References: <200804052202.09157.rusty@rustcorp.com.au>
+From: Amit Shah <amit.shah@qumranet.com>
+Subject: Re: [PATCH] use NR_IRQS for irq count
+Date: Wed, 9 Apr 2008 10:13:10 +0530
+Message-ID: <200804091013.11149.amit.shah__46561.1279978932$1207716394$gmane$org@qumranet.com>
+References: <12076742761764-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: Your message of "Sat, 05 Apr 2008 22:02:08 +1000."
-	<200804052202.09157.rusty@rustcorp.com.au>
+In-Reply-To: <12076742761764-git-send-email-gcosta@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,26 +18,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>, virtualization@lists.linux-foundation.org
+To: Glauber Costa <gcosta@redhat.com>
+Cc: kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hey, Rusty,
+* On Tuesday 08 April 2008 22:34:36 Glauber Costa wrote:
+> Instead of artificially limiting irq numbers, use arch provided NR_IRQS
+>
+> Signed-off-by: Glauber Costa <gcosta@redhat.com>
 
-> For virtualization, we've developed virtio_ring for efficient communication.
-> This would also work well for userspace-kernel communication, particularly
-> for things like the tun device.  By using the same ABI, we can join guests
-> to the host kernel trivially.
+Thanks, applied.
 
-I'm *sure* you meant to document that somewhat non-trivial proposed new
-kernel API as soon as you got a moment.  But, since I went to the
-trouble of reverse engineering it, I decided not to wait and to make a
-little unreliable guide of my own.  For those who are curious about how
-vringfd() is meant to work (or about how badly I misunderstood it), the
-info is at:
+Going forward, we're going to use the in-kernel approach for interrupt 
+injection (which already has this change). The irqhook module will stay 
+around for testing / debugging purposes (will be used with -no-kvm-irqchip).
 
-	http://lwn.net/SubscriberLink/276856/8c927025c53ad7ce/
-
-Hopefully it will be helpful,
-
-jon
+Amit.
