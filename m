@@ -1,11 +1,13 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 00/23] ia64/xen domU take 4
-Date: Wed,  9 Apr 2008 13:50:07 +0900
-Message-ID: <12077166301391-git-send-email-yamahata__28943.4227663607$1207717422$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/23] ia64/xen: increase IA64_MAX_RSVD_REGIONS.
+Date: Wed,  9 Apr 2008 13:50:09 +0900
+Message-ID: <12077166303603-git-send-email-yamahata__26210.7557886795$1207717583$gmane$org@valinux.co.jp>
+References: <12077166301391-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <12077166301391-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,87 +21,30 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi. This patchset implements ia64/xen domU support based on
-ia64/pv_ops frame work which was sent as another patchest.
-Please review and comments.
+Xenlinux/ia64 needs to reserve one more region passed from xen hypervisor
+as start info.
 
-This patchset does the followings.
-- Some preparation work. Mainly importing header files to define
-  related structures.
-- Then, define functions related to hypercall which is the way to
-  communicate with Xen hypervisor.
-- Add some helper functions which is necessary to utilize 
-  xen arch generic portion.
-- Next implements the xen instance of pv_ops introducing 
-  pv_info, pv_init_ops, pv_cpu_ops and its assembler counter part,
-  pv_iosapic_ops, pv_irq_ops and, pv_time_ops step by step.
-- Introduce xen machine vector to describe xen platform.
-  By using machine vector, xen domU implementation can be simplified.
-- Lastly update Kconfig to allow paravirtualization support and
-  xen domU support to compile.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ include/asm-ia64/meminit.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-
-The working full source is available from
-http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
-branch: xen-ia64-2008apr08
-
-At this phase, we don't address the following issues.
-Those will be addressed after the first merge.
-- optimization by binary patch
-  In fact, we had the patch to do that, but we intentionally dropped
-  for patch size/readability/cleanness.
-- freeing the unused pages, i.e. pages for unused ivt.S.
-
-Changes from take 3:
-- split the patch set into pv_op part and xen domU part.
-- many clean ups.
-- introduced pv_ops: pv_cpu_ops and pv_time_ops.
-
-Changes from take 2:
-- many clean ups following to comments.
-- clean up:assembly instruction macro.
-- introduced pv_ops: pv_info, pv_init_ops, pv_iosapic_ops, pv_irq_ops.
-
-Changes from take 1:
-Single IVT source code. compile multitimes using assembler macros.
-
-thanks,
-
-Diffstat:
- arch/ia64/Kconfig                  |   31 +++
- arch/ia64/Makefile                 |    2 +
- arch/ia64/kernel/acpi.c            |    5 +
- arch/ia64/kernel/asm-offsets.c     |   27 ++
- arch/ia64/kernel/head.S            |    6 +
- arch/ia64/xen/Kconfig              |   21 ++
- arch/ia64/xen/Makefile             |   22 ++
- arch/ia64/xen/grant-table.c        |  155 +++++++++++
- arch/ia64/xen/hypercall.S          |   91 +++++++
- arch/ia64/xen/hypervisor.c         |   96 +++++++
- arch/ia64/xen/irq_xen.c            |  422 ++++++++++++++++++++++++++++++
- arch/ia64/xen/irq_xen.h            |   34 +++
- arch/ia64/xen/machvec.c            |    4 +
- arch/ia64/xen/time.c               |  165 ++++++++++++
- arch/ia64/xen/time.h               |   23 ++
- arch/ia64/xen/xcom_hcall.c         |  424 ++++++++++++++++++++++++++++++
- arch/ia64/xen/xen_pv_ops.c         |  362 ++++++++++++++++++++++++++
- arch/ia64/xen/xencomm.c            |   95 +++++++
- arch/ia64/xen/xenivt.S             |   57 ++++
- arch/ia64/xen/xensetup.S           |   49 ++++
- include/asm-ia64/machvec.h         |    2 +
- include/asm-ia64/machvec_xen.h     |   22 ++
- include/asm-ia64/meminit.h         |    3 +-
- include/asm-ia64/sync_bitops.h     |   59 +++++
- include/asm-ia64/xen/events.h      |   50 ++++
- include/asm-ia64/xen/grant_table.h |   29 ++
- include/asm-ia64/xen/hypercall.h   |  263 +++++++++++++++++++
- include/asm-ia64/xen/hypervisor.h  |   72 +++++
- include/asm-ia64/xen/inst.h        |  504 ++++++++++++++++++++++++++++++++++++
- include/asm-ia64/xen/interface.h   |  320 +++++++++++++++++++++++
- include/asm-ia64/xen/irq.h         |   44 +++
- include/asm-ia64/xen/minstate.h    |  131 ++++++++++
- include/asm-ia64/xen/page.h        |   65 +++++
- include/asm-ia64/xen/privop.h      |  129 +++++++++
- include/asm-ia64/xen/xcom_hcall.h  |   51 ++++
- include/asm-ia64/xen/xencomm.h     |   33 +++
- 36 files changed, 3867 insertions(+), 1 deletions(-)
+diff --git a/include/asm-ia64/meminit.h b/include/asm-ia64/meminit.h
+index f93308f..8de94e2 100644
+--- a/include/asm-ia64/meminit.h
++++ b/include/asm-ia64/meminit.h
+@@ -18,10 +18,11 @@
+  * 	- crash dumping code reserved region
+  * 	- Kernel memory map built from EFI memory map
+  * 	- ELF core header
++ *	- xen start info if CONFIG_XEN
+  *
+  * More could be added if necessary
+  */
+-#define IA64_MAX_RSVD_REGIONS 8
++#define IA64_MAX_RSVD_REGIONS 9
+ 
+ struct rsvd_region {
+ 	unsigned long start;	/* virtual address of beginning of element */
+-- 
+1.5.3
