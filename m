@@ -1,14 +1,14 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 15/15] ia64/pv_ops: add to hooks, pv_time_ops,
-	for steal time accounting.
-Date: Wed,  9 Apr 2008 13:49:08 +0900
-Message-ID: <1207716549108-git-send-email-yamahata__5615.44653396613$1207718550$gmane$org@valinux.co.jp>
-References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 09/23] ia64/xen: implement arch specific part of xen grant
+	table.
+Date: Wed,  9 Apr 2008 13:50:16 +0900
+Message-ID: <120771663046-git-send-email-yamahata__2767.38570905781$1207718555$gmane$org@valinux.co.jp>
+References: <12077166301391-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1207716548202-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <12077166301391-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,159 +22,226 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce pv_time_ops which adds hook to steal time accounting.
-On virtualized environment, cpus are shared by many guests and
-steal time is the time which is used for other guests.
-On virtualized environtment, streal time should be accounted.
+Xen implements grant tables which is for sharing pages with
+guest domains.
+This patch implements arch specific part of grant table initialization.
+and xen_alloc_vm_area()/xen_free_vm_area() which are helper functions
+for xen grant table.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/paravirt.c |   15 +++++++++++++++
- arch/ia64/kernel/time.c     |   23 +++++++++++++++++++++++
- include/asm-ia64/paravirt.h |   32 ++++++++++++++++++++++++++++++++
- 3 files changed, 70 insertions(+), 0 deletions(-)
+ arch/ia64/xen/Makefile             |    2 +-
+ arch/ia64/xen/grant-table.c        |  155 ++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/xen/grant_table.h |   29 +++++++
+ 3 files changed, 185 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/grant-table.c
+ create mode 100644 include/asm-ia64/xen/grant_table.h
 
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 8e47c3f..433cb9b 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -350,3 +350,18 @@ struct pv_irq_ops pv_irq_ops = {
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index ae08822..eb59563 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -2,4 +2,4 @@
+ # Makefile for Xen components
+ #
  
- 	.resend_irq = ia64_native_resend_irq,
- };
-+
-+/***************************************************************************
-+ * pv_time_ops
-+ * time operations
+-obj-y := hypercall.o xencomm.o xcom_hcall.o
++obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
+diff --git a/arch/ia64/xen/grant-table.c b/arch/ia64/xen/grant-table.c
+new file mode 100644
+index 0000000..777dd9a
+--- /dev/null
++++ b/arch/ia64/xen/grant-table.c
+@@ -0,0 +1,155 @@
++/******************************************************************************
++ * arch/ia64/xen/grant-table.c
++ *
++ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
 + */
 +
-+static int
-+ia64_native_do_steal_accounting(unsigned long *new_itm)
++#include <linux/module.h>
++#include <linux/vmalloc.h>
++#include <linux/mm.h>
++
++#include <xen/interface/xen.h>
++#include <xen/interface/memory.h>
++#include <xen/grant_table.h>
++
++#include <asm/xen/hypervisor.h>
++
++struct vm_struct *xen_alloc_vm_area(unsigned long size)
 +{
++	int order;
++	unsigned long virt;
++	unsigned long nr_pages;
++	struct vm_struct *area;
++
++	order = get_order(size);
++	virt = __get_free_pages(GFP_KERNEL, order);
++	if (virt == 0)
++		goto err0;
++	nr_pages = 1 << order;
++	scrub_pages(virt, nr_pages);
++
++	area = kmalloc(sizeof(*area), GFP_KERNEL);
++	if (area == NULL)
++		goto err1;
++
++	area->flags = VM_IOREMAP;
++	area->addr = (void *)virt;
++	area->size = size;
++	area->pages = NULL;
++	area->nr_pages = nr_pages;
++	area->phys_addr = 0;	/* xenbus_map_ring_valloc uses this field!  */
++
++	return area;
++
++err1:
++	free_pages(virt, order);
++err0:
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(xen_alloc_vm_area);
++
++void xen_free_vm_area(struct vm_struct *area)
++{
++	unsigned int order = get_order(area->size);
++	unsigned long i;
++	unsigned long phys_addr = __pa(area->addr);
++
++	/* This area is used for foreign page mappping.
++	 * So underlying machine page may not be assigned. */
++	for (i = 0; i < (1 << order); i++) {
++		unsigned long ret;
++		unsigned long gpfn = (phys_addr >> PAGE_SHIFT) + i;
++		struct xen_memory_reservation reservation = {
++			.nr_extents   = 1,
++			.address_bits = 0,
++			.extent_order = 0,
++			.domid        = DOMID_SELF
++		};
++		set_xen_guest_handle(reservation.extent_start, &gpfn);
++		ret = HYPERVISOR_memory_op(XENMEM_populate_physmap,
++					   &reservation);
++		BUG_ON(ret != 1);
++	}
++	free_pages((unsigned long)area->addr, order);
++	kfree(area);
++}
++EXPORT_SYMBOL_GPL(xen_free_vm_area);
++
++
++/****************************************************************************
++ * grant table hack
++ * cmd: GNTTABOP_xxx
++ */
++
++int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
++			   unsigned long max_nr_gframes,
++			   struct grant_entry **__shared)
++{
++	*__shared = __va(frames[0] << PAGE_SHIFT);
 +	return 0;
 +}
 +
-+struct pv_time_ops pv_time_ops = {
-+	.do_steal_accounting = ia64_native_do_steal_accounting,
-+};
-diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
-index 17fda52..6fecc47 100644
---- a/arch/ia64/kernel/time.c
-+++ b/arch/ia64/kernel/time.c
-@@ -24,6 +24,7 @@
- #include <asm/machvec.h>
- #include <asm/delay.h>
- #include <asm/hw_irq.h>
-+#include <asm/paravirt.h>
- #include <asm/ptrace.h>
- #include <asm/sal.h>
- #include <asm/sections.h>
-@@ -48,6 +49,15 @@ EXPORT_SYMBOL(last_cli_ip);
- 
- #endif
- 
-+#ifdef CONFIG_PARAVIRT
-+static void
-+paravirt_clocksource_resume(void)
++void arch_gnttab_unmap_shared(struct grant_entry *shared,
++			      unsigned long nr_gframes)
 +{
-+	if (pv_time_ops.clocksource_resume)
-+		pv_time_ops.clocksource_resume();
++	/* nothing */
 +}
-+#endif
 +
- static struct clocksource clocksource_itc = {
- 	.name           = "itc",
- 	.rating         = 350,
-@@ -56,6 +66,9 @@ static struct clocksource clocksource_itc = {
- 	.mult           = 0, /*to be calculated*/
- 	.shift          = 16,
- 	.flags          = CLOCK_SOURCE_IS_CONTINUOUS,
-+#ifdef CONFIG_PARAVIRT
-+	.resume		= paravirt_clocksource_resume,
-+#endif
- };
- static struct clocksource *itc_clocksource;
- 
-@@ -78,6 +91,9 @@ timer_interrupt (int irq, void *dev_id)
- 
- 	profile_tick(CPU_PROFILING);
- 
-+	if (paravirt_do_steal_accounting(&new_itm))
-+		goto skip_process_time_accounting;
++static void
++gnttab_map_grant_ref_pre(struct gnttab_map_grant_ref *uop)
++{
++	uint32_t flags;
 +
- 	while (1) {
- 		update_process_times(user_mode(get_irq_regs()));
- 
-@@ -107,6 +123,8 @@ timer_interrupt (int irq, void *dev_id)
- 		local_irq_disable();
- 	}
- 
-+skip_process_time_accounting:
++	flags = uop->flags;
 +
- 	do {
- 		/*
- 		 * If we're too close to the next clock tick for
-@@ -256,6 +274,11 @@ ia64_init_itm (void)
- 		 */
- 		clocksource_itc.rating = 50;
- 
-+	paravirt_init_missing_ticks_accounting(smp_processor_id());
++	if (flags & GNTMAP_host_map) {
++		if (flags & GNTMAP_application_map) {
++			printk(KERN_DEBUG
++			       "GNTMAP_application_map is not supported yet: "
++			       "flags 0x%x\n", flags);
++			BUG();
++		}
++		if (flags & GNTMAP_contains_pte) {
++			printk(KERN_DEBUG
++			       "GNTMAP_contains_pte is not supported yet: "
++			       "flags 0x%x\n", flags);
++			BUG();
++		}
++	} else if (flags & GNTMAP_device_map) {
++		printk("GNTMAP_device_map is not supported yet 0x%x\n", flags);
++		BUG();	/* not yet. actually this flag is not used. */
++	} else {
++		BUG();
++	}
++}
 +
-+	/* avoid softlock up message when cpu is unplug and plugged again. */
-+	touch_softlockup_watchdog();
++int
++HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count)
++{
++	if (cmd == GNTTABOP_map_grant_ref) {
++		unsigned int i;
++		for (i = 0; i < count; i++) {
++			gnttab_map_grant_ref_pre(
++				(struct gnttab_map_grant_ref *)uop + i);
++		}
++	}
++	return xencomm_hypercall_grant_table_op(cmd, uop, count);
++}
 +
- 	/* Setup the CPU local timer tick */
- 	ia64_cpu_local_tick();
- 
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index 2203e9a..44017c1 100644
---- a/include/asm-ia64/paravirt.h
-+++ b/include/asm-ia64/paravirt.h
-@@ -197,6 +197,35 @@ ia64_resend_irq(unsigned int vector)
- 	pv_irq_ops.resend_irq(vector);
- }
- 
++EXPORT_SYMBOL(HYPERVISOR_grant_table_op);
+diff --git a/include/asm-ia64/xen/grant_table.h b/include/asm-ia64/xen/grant_table.h
+new file mode 100644
+index 0000000..ebdf2ea
+--- /dev/null
++++ b/include/asm-ia64/xen/grant_table.h
+@@ -0,0 +1,29 @@
 +/******************************************************************************
-+ * replacement of time operations.
++ * include/asm-ia64/xen/grant_table.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
 + */
 +
-+extern struct itc_jitter_data_t itc_jitter_data;
-+extern volatile int time_keeper_id;
++#ifndef _ASM_IA64_XEN_GRANT_TABLE_H
++#define _ASM_IA64_XEN_GRANT_TABLE_H
 +
-+struct pv_time_ops {
-+	void (*init_missing_ticks_accounting)(int cpu);
-+	int (*do_steal_accounting)(unsigned long *new_itm);
++struct vm_struct *xen_alloc_vm_area(unsigned long size);
++void xen_free_vm_area(struct vm_struct *area);
 +
-+	void (*clocksource_resume)(void);
-+};
-+
-+extern struct pv_time_ops pv_time_ops;
-+
-+static inline void
-+paravirt_init_missing_ticks_accounting(int cpu)
-+{
-+	if (pv_time_ops.init_missing_ticks_accounting)
-+		pv_time_ops.init_missing_ticks_accounting(cpu);
-+}
-+
-+static inline int
-+paravirt_do_steal_accounting(unsigned long *new_itm)
-+{
-+	return pv_time_ops.do_steal_accounting(new_itm);
-+}
-+
- #endif /* !__ASSEMBLY__ */
- 
- #else
-@@ -212,6 +241,9 @@ ia64_resend_irq(unsigned int vector)
- #define paravirt_arch_setup_nomca()			0
- #define paravirt_post_smp_prepare_boot_cpu()		do { } while (0)
- 
-+#define paravirt_init_missing_ticks_accounting(cpu)	do { } while (0)
-+#define paravirt_do_steal_accounting(new_itm)		0
-+
- #endif /* __ASSEMBLY__ */
- 
- 
++#endif /* _ASM_IA64_XEN_GRANT_TABLE_H */
 -- 
 1.5.3
