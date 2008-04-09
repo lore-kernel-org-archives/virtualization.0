@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 04/15] ia64/pv_ops: introduce pv_info which describes some
-	random info.
-Date: Wed,  9 Apr 2008 13:48:57 +0900
-Message-ID: <12077165491881-git-send-email-yamahata__2025.91431229866$1207717198$gmane$org@valinux.co.jp>
+Subject: [PATCH 06/15] ia64/pv_ops: preparation for paravirtulization of hand
+	written assembly code.
+Date: Wed,  9 Apr 2008 13:48:59 +0900
+Message-ID: <12077165494186-git-send-email-yamahata__19711.6898642436$1207717271$gmane$org@valinux.co.jp>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,145 +22,31 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-introduce pv_info which describes some randome info about
-underlying execution environment.
+Preparation for paravirtualization of hand written assembly code.
+They are paravirtualized by single source code and compiled multi times.
+To tell those files for target (including native), add one defines.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/Makefile   |    2 +
- arch/ia64/kernel/paravirt.c |   41 ++++++++++++++++++++++++++++
- include/asm-ia64/paravirt.h |   62 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 105 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirt.c
- create mode 100644 include/asm-ia64/paravirt.h
+ arch/ia64/kernel/Makefile |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
 diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index 33e5a59..40a10e7 100644
+index 40a10e7..a462669 100644
 --- a/arch/ia64/kernel/Makefile
 +++ b/arch/ia64/kernel/Makefile
-@@ -36,6 +36,8 @@ obj-$(CONFIG_PCI_MSI)		+= msi_ia64.o
- mca_recovery-y			+= mca_drv.o mca_drv_asm.o
- obj-$(CONFIG_IA64_MC_ERR_INJECT)+= err_inject.o
- 
-+obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+@@ -72,3 +72,12 @@ $(obj)/gate-syms.o: $(obj)/gate.lds $(obj)/gate.o FORCE
+ # We must build gate.so before we can assemble it.
+ # Note: kbuild does not track this dependency due to usage of .incbin
+ $(obj)/gate-data.o: $(obj)/gate.so
 +
- obj-$(CONFIG_IA64_ESI)		+= esi.o
- ifneq ($(CONFIG_IA64_ESI),)
- obj-y				+= esi_stub.o	# must be in kernel proper
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-new file mode 100644
-index 0000000..d295ea5
---- /dev/null
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -0,0 +1,41 @@
-+/******************************************************************************
-+ * arch/ia64/kernel/paravirt.c
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *     Yaozu (Eddie) Dong <eddie.dong@intel.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/init.h>
-+
-+#include <linux/compiler.h>
-+#include <linux/io.h>
-+#include <linux/irq.h>
-+#include <linux/types.h>
-+
-+#include <asm/iosapic.h>
-+#include <asm/paravirt.h>
-+
-+/***************************************************************************
-+ * general info
-+ */
-+struct pv_info pv_info = {
-+	.kernel_rpl = 0,
-+	.paravirt_enabled = 0,
-+	.name = "bare hardware"
-+};
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-new file mode 100644
-index 0000000..26b4334
---- /dev/null
-+++ b/include/asm-ia64/paravirt.h
-@@ -0,0 +1,62 @@
-+/******************************************************************************
-+ * include/asm-ia64/paravirt.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+
-+#ifndef __ASM_PARAVIRT_H
-+#define __ASM_PARAVIRT_H
-+
-+#ifdef CONFIG_PARAVIRT_GUEST
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <asm/hw_irq.h>
-+#include <asm/meminit.h>
-+
-+/******************************************************************************
-+ * general info
-+ */
-+struct pv_info {
-+	unsigned int kernel_rpl;
-+	int paravirt_enabled;
-+	const char *name;
-+};
-+
-+extern struct pv_info pv_info;
-+
-+static inline int paravirt_enabled(void)
-+{
-+	return pv_info.paravirt_enabled;
-+}
-+
-+static inline unsigned int get_kernel_rpl(void)
-+{
-+	return pv_info.kernel_rpl;
-+}
-+
-+#endif /* !__ASSEMBLY__ */
-+
-+#else
-+/* fallback for native case */
-+
-+#endif /* CONFIG_PARAVIRT_GUEST */
-+
-+#endif /* __ASM_PARAVIRT_H */
++#
++# native ivt.S and entry.S
++#
++ASM_PARAVIRT_OBJS = ivt.o entry.o
++define paravirtualized_native
++AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_NATIVE
++endef
++$(foreach obj,$(ASM_PARAVIRT_OBJS),$(eval $(call paravirtualized_native,$(obj))))
 -- 
 1.5.3
