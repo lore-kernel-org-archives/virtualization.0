@@ -1,11 +1,14 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 00/15] RFC: ia64/pv_ops take 4
-Date: Wed,  9 Apr 2008 13:48:53 +0900
-Message-ID: <1207716548202-git-send-email-yamahata__28520.4970663928$1207716829$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/15] ia64/pv_ops: preparation: introduce
+	ia64_set_rr0_to_rr4() to make kernel paravirtualization friendly.
+Date: Wed,  9 Apr 2008 13:48:55 +0900
+Message-ID: <1207716548181-git-send-email-yamahata__30498.7326650464$1207716955$gmane$org@valinux.co.jp>
+References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,94 +22,58 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi. This patchset implements ia64/pv_ops support which is the
-framework for virtualization support.
-Please review and comments.
+make kernel paravirtualization friendly by introducing
+ia64_set_rr0_to_rr4().
+ia64/Xen will replace setting rr[0-4] with single hypercall later.
 
-On x86 various ways to support virtualization were proposed, and
-eventually pv_ops won. So on ia64 the pv_ops strategy is appropriate too.
-Later I'll post the patchset which implements xen domU based on
-ia64/pv_ops. Currently only ia64/xen pv_ops implementation exists,
-but I believe ia64/kvm can also obtain benefits from this ia64/pv_ops
-frame work.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ include/asm-ia64/intrinsics.h  |   10 ++++++++++
+ include/asm-ia64/mmu_context.h |    6 +-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-Eddie Dong also has been working on ia64/pv_ops and posted a mail
-requesting for suggestion/comments.
-The corresponding patch is "[10/15] ia64/pv_ops: paravirtualize entry.S"
-As discussed before, ivt.S was paravirtualized by single source and multi
-compile way. But he thinks other way is appropriate for other hand
-written assembly code. Which way is acceptable?
-
-
-This patchset does the followings.
-- some preparation work. Mainly make the kernel virtualization friendly.
-- introduce pv_info which describes the execution environment.
-- introduce macros for hand written assembly code to paravirtualize
-  hand written code to replace sensitive/privileged instructions.
-- introduce various hooks to replace the implementation with
-  paravirtualized.
-  They are defined as function tables called, pv_init_ops, pv_cpu_ops,
-  pv_irq_ops, pv_iosapic_ops and, pv_time_ops.
-  They represent
-    pv_init_ops: hooks for various initialization.
-    pv_cpu_ops: hooks for ia64 intrinsics.
-    pv_irq_ops: hooks for irq related operations.
-    pv_iosapic_ops: hooks for paravirtualized iosapic.
-    pv_time_ops: hooks for steal time accounting
-
-
-The working full source is available from
-http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
-branch: xen-ia64-2008apr08
-
-At this phase, we don't address the following issues.
-Those will be addressed after the first merge.
-- optimization by binary patch
-  In fact, we had the patch to do that, but we intentionally dropped
-  for patch size/readability/cleanness.
-- freeing the unused pages, i.e. pages for unused ivt.S.
-
-Changes from take 3:
-- split the patch set into pv_op part and xen domU part.
-- many clean ups.
-- introduced pv_ops: pv_cpu_ops and pv_time_ops.
-
-Changes from take 2:
-- many clean ups following to comments.
-- clean up:assembly instruction macro.
-- introduced pv_ops: pv_info, pv_init_ops, pv_iosapic_ops, pv_irq_ops.
-
-Changes from take 1:
-Single IVT source code. compile multitimes using assembler macros.
-
-thanks,
-
-Diffstat:
-
- arch/ia64/kernel/Makefile          |   11 +
- arch/ia64/kernel/entry.S           |  107 +++++++----
- arch/ia64/kernel/iosapic.c         |   45 +++--
- arch/ia64/kernel/irq_ia64.c        |   19 ++-
- arch/ia64/kernel/ivt.S             |  223 +++++++++++-----------
- arch/ia64/kernel/minstate.h        |   13 +-
- arch/ia64/kernel/paravirt.c        |  367 ++++++++++++++++++++++++++++++++++++
- arch/ia64/kernel/paravirt_inst.h   |   29 +++
- arch/ia64/kernel/paravirtentry.S   |   60 ++++++
- arch/ia64/kernel/setup.c           |   10 +
- arch/ia64/kernel/smpboot.c         |    2 +
- arch/ia64/kernel/time.c            |   23 +++
- include/asm-ia64/Kbuild            |    2 +-
- include/asm-ia64/gcc_intrin.h      |   24 ++--
- include/asm-ia64/hw_irq.h          |   23 ++-
- include/asm-ia64/intel_intrin.h    |   41 ++--
- include/asm-ia64/intrinsics.h      |   55 ++++++
- include/asm-ia64/iosapic.h         |   18 ++-
- include/asm-ia64/irq.h             |   10 +-
- include/asm-ia64/mmu_context.h     |    6 +-
- include/asm-ia64/native/inst.h     |  180 ++++++++++++++++++
- include/asm-ia64/paravirt.h        |  252 +++++++++++++++++++++++++
- include/asm-ia64/paravirt_irq.h    |   49 +++++
- include/asm-ia64/paravirt_privop.h |  114 +++++++++++
- include/asm-ia64/smp.h             |    2 +
- include/asm-ia64/system.h          |    4 +-
- 26 files changed, 1464 insertions(+), 225 deletions(-)
+diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
+index f1135b5..72f0383 100644
+--- a/include/asm-ia64/intrinsics.h
++++ b/include/asm-ia64/intrinsics.h
+@@ -18,6 +18,15 @@
+ # include <asm/gcc_intrin.h>
+ #endif
+ 
++#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
++do {								\
++	ia64_set_rr(0x0000000000000000UL, (val0));		\
++	ia64_set_rr(0x2000000000000000UL, (val1));		\
++	ia64_set_rr(0x4000000000000000UL, (val2));		\
++	ia64_set_rr(0x6000000000000000UL, (val3));		\
++	ia64_set_rr(0x8000000000000000UL, (val4));		\
++} while (0)
++
+ /*
+  * Force an unresolved reference if someone tries to use
+  * ia64_fetch_and_add() with a bad value.
+@@ -183,4 +192,5 @@ extern long ia64_cmpxchg_called_with_bad_pointer (void);
+ #endif /* !CONFIG_IA64_DEBUG_CMPXCHG */
+ 
+ #endif
++
+ #endif /* _ASM_IA64_INTRINSICS_H */
+diff --git a/include/asm-ia64/mmu_context.h b/include/asm-ia64/mmu_context.h
+index cef2400..040bc87 100644
+--- a/include/asm-ia64/mmu_context.h
++++ b/include/asm-ia64/mmu_context.h
+@@ -152,11 +152,7 @@ reload_context (nv_mm_context_t context)
+ #  endif
+ #endif
+ 
+-	ia64_set_rr(0x0000000000000000UL, rr0);
+-	ia64_set_rr(0x2000000000000000UL, rr1);
+-	ia64_set_rr(0x4000000000000000UL, rr2);
+-	ia64_set_rr(0x6000000000000000UL, rr3);
+-	ia64_set_rr(0x8000000000000000UL, rr4);
++	ia64_set_rr0_to_rr4(rr0, rr1, rr2, rr3, rr4);
+ 	ia64_srlz_i();			/* srlz.i implies srlz.d */
+ }
+ 
+-- 
+1.5.3
