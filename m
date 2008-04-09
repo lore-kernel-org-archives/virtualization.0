@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 02/15] ia64/pv_ops: preparation: introduce
-	ia64_set_rr0_to_rr4() to make kernel paravirtualization friendly.
-Date: Wed,  9 Apr 2008 13:48:55 +0900
-Message-ID: <1207716548181-git-send-email-yamahata__30498.7326650464$1207716955$gmane$org@valinux.co.jp>
+Subject: [PATCH 01/15] ia64: preparation: remove extern in irq_ia64.c
+Date: Wed,  9 Apr 2008 13:48:54 +0900
+Message-ID: <12077165482297-git-send-email-yamahata__14095.1896472417$1207717081$gmane$org@valinux.co.jp>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,58 +21,47 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-make kernel paravirtualization friendly by introducing
-ia64_set_rr0_to_rr4().
-ia64/Xen will replace setting rr[0-4] with single hypercall later.
+remove extern declaration of handle_IPI() in irq_ia64.c.
+Instead, declare it in asm-ia64/smp.h.
+Later handle_IPI() will be referenced from another file.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/intrinsics.h  |   10 ++++++++++
- include/asm-ia64/mmu_context.h |    6 +-----
- 2 files changed, 11 insertions(+), 5 deletions(-)
+ arch/ia64/kernel/irq_ia64.c |    1 -
+ include/asm-ia64/smp.h      |    2 ++
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
-index f1135b5..72f0383 100644
---- a/include/asm-ia64/intrinsics.h
-+++ b/include/asm-ia64/intrinsics.h
-@@ -18,6 +18,15 @@
- # include <asm/gcc_intrin.h>
- #endif
- 
-+#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
-+do {								\
-+	ia64_set_rr(0x0000000000000000UL, (val0));		\
-+	ia64_set_rr(0x2000000000000000UL, (val1));		\
-+	ia64_set_rr(0x4000000000000000UL, (val2));		\
-+	ia64_set_rr(0x6000000000000000UL, (val3));		\
-+	ia64_set_rr(0x8000000000000000UL, (val4));		\
-+} while (0)
-+
- /*
-  * Force an unresolved reference if someone tries to use
-  * ia64_fetch_and_add() with a bad value.
-@@ -183,4 +192,5 @@ extern long ia64_cmpxchg_called_with_bad_pointer (void);
- #endif /* !CONFIG_IA64_DEBUG_CMPXCHG */
- 
- #endif
-+
- #endif /* _ASM_IA64_INTRINSICS_H */
-diff --git a/include/asm-ia64/mmu_context.h b/include/asm-ia64/mmu_context.h
-index cef2400..040bc87 100644
---- a/include/asm-ia64/mmu_context.h
-+++ b/include/asm-ia64/mmu_context.h
-@@ -152,11 +152,7 @@ reload_context (nv_mm_context_t context)
- #  endif
- #endif
- 
--	ia64_set_rr(0x0000000000000000UL, rr0);
--	ia64_set_rr(0x2000000000000000UL, rr1);
--	ia64_set_rr(0x4000000000000000UL, rr2);
--	ia64_set_rr(0x6000000000000000UL, rr3);
--	ia64_set_rr(0x8000000000000000UL, rr4);
-+	ia64_set_rr0_to_rr4(rr0, rr1, rr2, rr3, rr4);
- 	ia64_srlz_i();			/* srlz.i implies srlz.d */
+diff --git a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
+index d8be23f..711635d 100644
+--- a/arch/ia64/kernel/irq_ia64.c
++++ b/arch/ia64/kernel/irq_ia64.c
+@@ -600,7 +600,6 @@ static irqreturn_t dummy_handler (int irq, void *dev_id)
+ {
+ 	BUG();
  }
+-extern irqreturn_t handle_IPI (int irq, void *dev_id);
  
+ static struct irqaction ipi_irqaction = {
+ 	.handler =	handle_IPI,
+diff --git a/include/asm-ia64/smp.h b/include/asm-ia64/smp.h
+index 4fa733d..0a8435f 100644
+--- a/include/asm-ia64/smp.h
++++ b/include/asm-ia64/smp.h
+@@ -15,6 +15,7 @@
+ #include <linux/kernel.h>
+ #include <linux/cpumask.h>
+ #include <linux/bitops.h>
++#include <linux/irqreturn.h>
+ 
+ #include <asm/io.h>
+ #include <asm/param.h>
+@@ -120,6 +121,7 @@ extern void __init smp_build_cpu_map(void);
+ extern void __init init_smp_config (void);
+ extern void smp_do_timer (struct pt_regs *regs);
+ 
++extern irqreturn_t handle_IPI(int irq, void *dev_id);
+ extern void smp_send_reschedule (int cpu);
+ extern void lock_ipi_calllock(void);
+ extern void unlock_ipi_calllock(void);
 -- 
 1.5.3
