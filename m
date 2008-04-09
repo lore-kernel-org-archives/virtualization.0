@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 13/15] ia64/pv_ops: add hooks, pv_iosapic_ops,
-	to paravirtualize iosapic.
-Date: Wed,  9 Apr 2008 13:49:06 +0900
-Message-ID: <12077165494047-git-send-email-yamahata__43103.0089421712$1207717291$gmane$org@valinux.co.jp>
+Subject: [PATCH 08/15] ia64/pv_ops: paravirtualize minstate.h.
+Date: Wed,  9 Apr 2008 13:49:01 +0900
+Message-ID: <12077165494039-git-send-email-yamahata__32163.1440580406$1207717291$gmane$org@valinux.co.jp>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,215 +21,108 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-add hooks to paravirtualize iosapic which is a real hardware resource.
-On virtualized environment it may be replaced something virtualized
-friendly.
-Define pv_iosapic_ops and add the hooks.
+paravirtualize minstate.h which are hand written assembly code.
+They include sensitive or performance critical privileged
+instructions. So that they are appropriate for paravirtualization.
 
+Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/iosapic.c  |   45 +++++++++++++++++++++++++++---------------
- arch/ia64/kernel/paravirt.c |   25 +++++++++++++++++++++++
- include/asm-ia64/iosapic.h  |   18 +++++++++++++++-
- include/asm-ia64/paravirt.h |   40 ++++++++++++++++++++++++++++++++++++++
- 4 files changed, 110 insertions(+), 18 deletions(-)
+ arch/ia64/kernel/minstate.h      |   13 +++++++------
+ arch/ia64/kernel/paravirt_inst.h |   29 +++++++++++++++++++++++++++++
+ include/asm-ia64/native/inst.h   |    2 ++
+ 3 files changed, 38 insertions(+), 6 deletions(-)
+ create mode 100644 arch/ia64/kernel/paravirt_inst.h
 
-diff --git a/arch/ia64/kernel/iosapic.c b/arch/ia64/kernel/iosapic.c
-index 082c31d..587196d 100644
---- a/arch/ia64/kernel/iosapic.c
-+++ b/arch/ia64/kernel/iosapic.c
-@@ -587,6 +587,15 @@ static inline int irq_is_shared (int irq)
- 	return (iosapic_intr_info[irq].count > 1);
- }
+diff --git a/arch/ia64/kernel/minstate.h b/arch/ia64/kernel/minstate.h
+index c9ac8ba..f00ca70 100644
+--- a/arch/ia64/kernel/minstate.h
++++ b/arch/ia64/kernel/minstate.h
+@@ -2,6 +2,7 @@
+ #include <asm/cache.h>
  
-+struct irq_chip*
-+ia64_native_iosapic_get_irq_chip(unsigned long trigger)
-+{
-+	if (trigger == IOSAPIC_EDGE)
-+		return &irq_type_iosapic_edge;
-+	else
-+		return &irq_type_iosapic_level;
-+}
-+
- static int
- register_intr (unsigned int gsi, int irq, unsigned char delivery,
- 	       unsigned long polarity, unsigned long trigger)
-@@ -637,13 +646,10 @@ register_intr (unsigned int gsi, int irq, unsigned char delivery,
- 	iosapic_intr_info[irq].dmode    = delivery;
- 	iosapic_intr_info[irq].trigger  = trigger;
+ #include "entry.h"
++#include "paravirt_inst.h"
  
--	if (trigger == IOSAPIC_EDGE)
--		irq_type = &irq_type_iosapic_edge;
--	else
--		irq_type = &irq_type_iosapic_level;
-+	irq_type = iosapic_get_irq_chip(trigger);
+ /*
+  * DO_SAVE_MIN switches to the kernel stacks (if necessary) and saves
+@@ -28,16 +29,16 @@
+  * Note that psr.ic is NOT turned on by this macro.  This is so that
+  * we can pass interruption state as arguments to a handler.
+  */
+-#define DO_SAVE_MIN(COVER,SAVE_IFS,EXTRA)							\
++#define IA64_NATIVE_DO_SAVE_MIN(__COVER,SAVE_IFS,EXTRA)						\
+ 	mov r16=IA64_KR(CURRENT);	/* M */							\
+ 	mov r27=ar.rsc;			/* M */							\
+ 	mov r20=r1;			/* A */							\
+ 	mov r25=ar.unat;		/* M */							\
+-	mov r29=cr.ipsr;		/* M */							\
++	MOV_FROM_IPSR(p0,r29);		/* M */							\
+ 	mov r26=ar.pfs;			/* I */							\
+-	mov r28=cr.iip;			/* M */							\
++	MOV_FROM_IIP(r28);		/* M */							\
+ 	mov r21=ar.fpsr;		/* M */							\
+-	COVER;				/* B;; (or nothing) */					\
++	__COVER;			/* B;; (or nothing) */					\
+ 	;;											\
+ 	adds r16=IA64_TASK_THREAD_ON_USTACK_OFFSET,r16;						\
+ 	;;											\
+@@ -192,6 +193,6 @@
+ 	st8 [r25]=r10;      	/* ar.ssd */	\
+ 	;;
  
- 	idesc = irq_desc + irq;
--	if (idesc->chip != irq_type) {
-+	if (irq_type != NULL && idesc->chip != irq_type) {
- 		if (idesc->chip != &no_irq_type)
- 			printk(KERN_WARNING
- 			       "%s: changing vector %d from %s to %s\n",
-@@ -976,6 +982,22 @@ iosapic_override_isa_irq (unsigned int isa_irq, unsigned int gsi,
- }
- 
- void __init
-+ia64_native_iosapic_pcat_compat_init(void)
-+{
-+	if (pcat_compat) {
-+		/*
-+		 * Disable the compatibility mode interrupts (8259 style),
-+		 * needs IN/OUT support enabled.
-+		 */
-+		printk(KERN_INFO
-+		       "%s: Disabling PC-AT compatible 8259 interrupts\n",
-+		       __func__);
-+		outb(0xff, 0xA1);
-+		outb(0xff, 0x21);
-+	}
-+}
-+
-+void __init
- iosapic_system_init (int system_pcat_compat)
- {
- 	int irq;
-@@ -989,17 +1011,8 @@ iosapic_system_init (int system_pcat_compat)
- 	}
- 
- 	pcat_compat = system_pcat_compat;
--	if (pcat_compat) {
--		/*
--		 * Disable the compatibility mode interrupts (8259 style),
--		 * needs IN/OUT support enabled.
--		 */
--		printk(KERN_INFO
--		       "%s: Disabling PC-AT compatible 8259 interrupts\n",
--		       __func__);
--		outb(0xff, 0xA1);
--		outb(0xff, 0x21);
--	}
-+	if (pcat_compat)
-+		iosapic_pcat_compat_init();
- }
- 
- static inline int
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 0b57a8d..4c54319 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -310,3 +310,28 @@ paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch)
- 		cpu_asm_switch->work_processed_syscall;
- 	paravirt_leave_kernel_targ = cpu_asm_switch->leave_kernel;
- }
-+
-+/***************************************************************************
-+ * pv_iosapic_ops
-+ * iosapic read/write hooks.
+-#define SAVE_MIN_WITH_COVER	DO_SAVE_MIN(cover, mov r30=cr.ifs,)
+-#define SAVE_MIN_WITH_COVER_R19	DO_SAVE_MIN(cover, mov r30=cr.ifs, mov r15=r19)
++#define SAVE_MIN_WITH_COVER	DO_SAVE_MIN(COVER, mov r30=cr.ifs,)
++#define SAVE_MIN_WITH_COVER_R19	DO_SAVE_MIN(COVER, mov r30=cr.ifs, mov r15=r19)
+ #define SAVE_MIN		DO_SAVE_MIN(     , mov r30=r0, )
+diff --git a/arch/ia64/kernel/paravirt_inst.h b/arch/ia64/kernel/paravirt_inst.h
+new file mode 100644
+index 0000000..5cad6fb
+--- /dev/null
++++ b/arch/ia64/kernel/paravirt_inst.h
+@@ -0,0 +1,29 @@
++/******************************************************************************
++ * linux/arch/ia64/xen/paravirt_inst.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
 + */
 +
-+static unsigned int
-+ia64_native_iosapic_read(char __iomem *iosapic, unsigned int reg)
-+{
-+	return __ia64_native_iosapic_read(iosapic, reg);
-+}
-+
-+static void
-+ia64_native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
-+{
-+	__ia64_native_iosapic_write(iosapic, reg, val);
-+}
-+
-+struct pv_iosapic_ops pv_iosapic_ops = {
-+	.pcat_compat_init = ia64_native_iosapic_pcat_compat_init,
-+	.get_irq_chip = ia64_native_iosapic_get_irq_chip,
-+
-+	.__read = ia64_native_iosapic_read,
-+	.__write = ia64_native_iosapic_write,
-+};
-diff --git a/include/asm-ia64/iosapic.h b/include/asm-ia64/iosapic.h
-index a3a4288..b9c102e 100644
---- a/include/asm-ia64/iosapic.h
-+++ b/include/asm-ia64/iosapic.h
-@@ -55,13 +55,27 @@
- 
- #define NR_IOSAPICS			256
- 
--static inline unsigned int __iosapic_read(char __iomem *iosapic, unsigned int reg)
-+#ifdef CONFIG_PARAVIRT_GUEST
-+#include <asm/paravirt.h>
++#ifdef __IA64_ASM_PARAVIRTUALIZED_XEN
++#include <asm/xen/inst.h>
++#include <asm/xen/minstate.h>
 +#else
-+#define iosapic_pcat_compat_init	ia64_native_iosapic_pcat_compat_init
-+#define __iosapic_read			__ia64_native_iosapic_read
-+#define __iosapic_write			__ia64_native_iosapic_write
-+#define iosapic_get_irq_chip		ia64_native_iosapic_get_irq_chip
++#include <asm/native/inst.h>
 +#endif
 +
-+extern void __init ia64_native_iosapic_pcat_compat_init(void);
-+extern struct irq_chip *ia64_native_iosapic_get_irq_chip(unsigned long trigger);
-+
-+static inline unsigned int
-+__ia64_native_iosapic_read(char __iomem *iosapic, unsigned int reg)
- {
- 	writel(reg, iosapic + IOSAPIC_REG_SELECT);
- 	return readl(iosapic + IOSAPIC_WINDOW);
- }
+diff --git a/include/asm-ia64/native/inst.h b/include/asm-ia64/native/inst.h
+index 295fde3..c167b7d 100644
+--- a/include/asm-ia64/native/inst.h
++++ b/include/asm-ia64/native/inst.h
+@@ -20,6 +20,8 @@
+  *
+  */
  
--static inline void __iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
-+static inline void
-+__ia64_native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
- {
- 	writel(reg, iosapic + IOSAPIC_REG_SELECT);
- 	writel(val, iosapic + IOSAPIC_WINDOW);
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index 8778e8b..48887a4 100644
---- a/include/asm-ia64/paravirt.h
-+++ b/include/asm-ia64/paravirt.h
-@@ -109,6 +109,46 @@ static inline void paravirt_post_smp_prepare_boot_cpu(void)
- 		pv_init_ops.post_smp_prepare_boot_cpu();
- }
- 
-+/******************************************************************************
-+ * replacement of iosapic operations.
-+ */
++#define DO_SAVE_MIN		IA64_NATIVE_DO_SAVE_MIN
 +
-+struct pv_iosapic_ops {
-+	void (*pcat_compat_init)(void);
-+
-+	struct irq_chip *(*get_irq_chip)(unsigned long trigger);
-+
-+	unsigned int (*__read)(char __iomem *iosapic, unsigned int reg);
-+	void (*__write)(char __iomem *iosapic, unsigned int reg, u32 val);
-+};
-+
-+extern struct pv_iosapic_ops pv_iosapic_ops;
-+
-+static inline void
-+iosapic_pcat_compat_init(void)
-+{
-+	if (pv_iosapic_ops.pcat_compat_init)
-+		pv_iosapic_ops.pcat_compat_init();
-+}
-+
-+static inline struct irq_chip*
-+iosapic_get_irq_chip(unsigned long trigger)
-+{
-+	return pv_iosapic_ops.get_irq_chip(trigger);
-+}
-+
-+static inline unsigned int
-+__iosapic_read(char __iomem *iosapic, unsigned int reg)
-+{
-+	return pv_iosapic_ops.__read(iosapic, reg);
-+}
-+
-+static inline void
-+__iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
-+{
-+	return pv_iosapic_ops.__write(iosapic, reg, val);
-+}
-+
- #endif /* !__ASSEMBLY__ */
- 
- #else
+ #ifdef CONFIG_PARAVIRT_GUEST_ASM_CLOBBER_CHECK
+ # define PARAVIRT_POISON	0xdeadbeefbaadf00d
+ # define CLOBBER(clob)				\
 -- 
 1.5.3
