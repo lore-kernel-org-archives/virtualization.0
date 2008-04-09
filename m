@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 10/23] ia64/xen: add definitions necessary for xen event
-	channel.
-Date: Wed,  9 Apr 2008 13:50:17 +0900
-Message-ID: <12077166301093-git-send-email-yamahata__14682.6022341431$1207717700$gmane$org@valinux.co.jp>
+Subject: [PATCH 05/23] ia64/xen: define helper functions for xen related
+	address conversion.
+Date: Wed,  9 Apr 2008 13:50:12 +0900
+Message-ID: <12077166302402-git-send-email-yamahata__28626.6867573888$1207717773$gmane$org@valinux.co.jp>
 References: <12077166301391-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,23 +22,25 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen paravirtualizes interrupt as event channel.
-This patch defines arch specific part of xen event channel.
+Xen needs some address conversions between pseudo physical
+address (guest phsyical address), guest machine address
+(real machine address) and dma address.
+Define helper functions for those address conversion.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/xen/events.h |   50 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 50 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/events.h
+ include/asm-ia64/xen/page.h |   65 +++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 65 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/page.h
 
-diff --git a/include/asm-ia64/xen/events.h b/include/asm-ia64/xen/events.h
+diff --git a/include/asm-ia64/xen/page.h b/include/asm-ia64/xen/page.h
 new file mode 100644
-index 0000000..42bb0b5
+index 0000000..c3c18f9
 --- /dev/null
-+++ b/include/asm-ia64/xen/events.h
-@@ -0,0 +1,50 @@
++++ b/include/asm-ia64/xen/page.h
+@@ -0,0 +1,65 @@
 +/******************************************************************************
-+ * include/asm-ia64/xen/events.h
++ * include/asm-ia64/xen/page.h
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -58,34 +60,49 @@ index 0000000..42bb0b5
 + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + *
 + */
-+#ifndef _ASM_IA64_XEN_EVENTS_H
-+#define _ASM_IA64_XEN_EVENTS_H
 +
-+enum ipi_vector {
-+	XEN_RESCHEDULE_VECTOR,
-+	XEN_IPI_VECTOR,
-+	XEN_CMCP_VECTOR,
-+	XEN_CPEP_VECTOR,
++#ifndef _ASM_IA64_XEN_PAGE_H
++#define _ASM_IA64_XEN_PAGE_H
 +
-+	XEN_NR_IPIS,
-+};
++#define INVALID_P2M_ENTRY	(~0UL)
 +
-+static inline int xen_irqs_disabled(struct pt_regs *regs)
++static inline unsigned long mfn_to_pfn(unsigned long mfn)
 +{
-+	return !(ia64_psr(regs)->i);
++	return mfn;
 +}
 +
-+static inline void xen_do_IRQ(int irq, struct pt_regs *regs)
++static inline unsigned long pfn_to_mfn(unsigned long pfn)
 +{
-+	struct pt_regs *old_regs;
-+	old_regs = set_irq_regs(regs);
-+	irq_enter();
-+	__do_IRQ(irq);
-+	irq_exit();
-+	set_irq_regs(old_regs);
++	return pfn;
 +}
-+#define irq_ctx_init(cpu)	do { } while (0)
 +
-+#endif /* _ASM_IA64_XEN_EVENTS_H */
++#define phys_to_machine_mapping_valid(_x)	(1)
++
++static inline void *mfn_to_virt(unsigned long mfn)
++{
++	return __va(mfn << PAGE_SHIFT);
++}
++
++static inline unsigned long virt_to_mfn(void *virt)
++{
++	return __pa(virt) >> PAGE_SHIFT;
++}
++
++/* for tpmfront.c */
++static inline unsigned long virt_to_machine(void *virt)
++{
++	return __pa(virt);
++}
++
++static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
++{
++	/* nothing */
++}
++
++#define pte_mfn(_x)	pte_pfn(_x)
++#define mfn_pte(_x, _y)	__pte_ma(0)		/* unmodified use */
++#define __pte_ma(_x)	((pte_t) {(_x)})        /* unmodified use */
++
++#endif /* _ASM_IA64_XEN_PAGE_H */
 -- 
 1.5.3
