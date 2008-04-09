@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 07/15] ia64/pv_ops: define paravirtualized instructions for
-	native.
-Date: Wed,  9 Apr 2008 13:49:00 +0900
-Message-ID: <12077165493913-git-send-email-yamahata__1414.99321111969$1207717279$gmane$org@valinux.co.jp>
+Subject: [PATCH 11/15] ia64/pv_ops: paravirtualize NR_IRQS
+Date: Wed,  9 Apr 2008 13:49:04 +0900
+Message-ID: <1207716549755-git-send-email-yamahata__26367.0652908788$1207717285$gmane$org@valinux.co.jp>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,24 +21,48 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-pv_cpu_asm_ops: define paravirtualized introduce for native execution
-environment.
+Make NR_IRQ overridable by each pv instances.
+Pv instance may need each own number of irqs so that
+NR_IRQS should be the maximum number of nr_irqs each
+pv instances need.
 
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/native/inst.h |  170 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 170 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/native/inst.h
+ include/asm-ia64/irq.h          |   10 ++++++-
+ include/asm-ia64/paravirt_irq.h |   49 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 57 insertions(+), 2 deletions(-)
+ create mode 100644 include/asm-ia64/paravirt_irq.h
 
-diff --git a/include/asm-ia64/native/inst.h b/include/asm-ia64/native/inst.h
+diff --git a/include/asm-ia64/irq.h b/include/asm-ia64/irq.h
+index a66d268..0463427 100644
+--- a/include/asm-ia64/irq.h
++++ b/include/asm-ia64/irq.h
+@@ -17,9 +17,15 @@
+ #define NR_VECTORS	256
+ 
+ #if (NR_VECTORS + 32 * NR_CPUS) < 1024
+-#define NR_IRQS (NR_VECTORS + 32 * NR_CPUS)
++#define IA64_NATIVE_NR_IRQS (NR_VECTORS + 32 * NR_CPUS)
+ #else
+-#define NR_IRQS 1024
++#define IA64_NATIVE_NR_IRQS 1024
++#endif
++
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt_irq.h>
++#else
++#define NR_IRQS IA64_NATIVE_NR_IRQS
+ #endif
+ 
+ static __inline__ int
+diff --git a/include/asm-ia64/paravirt_irq.h b/include/asm-ia64/paravirt_irq.h
 new file mode 100644
-index 0000000..295fde3
+index 0000000..7dedf2a
 --- /dev/null
-+++ b/include/asm-ia64/native/inst.h
-@@ -0,0 +1,170 @@
++++ b/include/asm-ia64/paravirt_irq.h
+@@ -0,0 +1,49 @@
 +/******************************************************************************
-+ * include/asm-ia64/native/inst.h
++ * include/asm-ia64/paravirt_irq.h
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -60,153 +83,32 @@ index 0000000..295fde3
 + *
 + */
 +
-+#ifdef CONFIG_PARAVIRT_GUEST_ASM_CLOBBER_CHECK
-+# define PARAVIRT_POISON	0xdeadbeefbaadf00d
-+# define CLOBBER(clob)				\
-+	;;					\
-+	movl clob = PARAVIRT_POISON;		\
-+	;;
-+#else
-+# define CLOBBER(clob)		/* nothing */
++#ifndef __ASM_PARAVIRT_IRQ_H
++#define __ASM_PARAVIRT_IRQ_H
++
++#ifdef CONFIG_PARAVIRT
++
++/* Determine the maximal NR_IRQ which each pv instances require.
++ * i.e. NR_IRQS = max(IA64_NATIVE_NR_IRQS, XEN_NR_IRQS, ...)
++ */
++
++#define NR_IRQS 1
++
++#if IA64_NATIVE_NR_IRQS > NR_IRQS
++#undef NR_IRQS
++#define NR_IRQS IA64_NATIVE_NR_IRQS
 +#endif
 +
-+#define MOV_FROM_IFA(reg)	\
-+	mov reg = cr.ifa
++#ifdef CONFIG_XEN
++#include <asm/xen/irq.h>
++#if XEN_NR_IRQS > NR_IRQS
++#undef NR_IRQS
++#define NR_IRQS XEN_NR_IRQS
++#endif
++#endif /* CONFIG_XEN */
 +
-+#define MOV_FROM_ITIR(reg)	\
-+	mov reg = cr.itir
++#endif /* CONFIG_PARAVIRT */
 +
-+#define MOV_FROM_ISR(reg)	\
-+	mov reg = cr.isr
-+
-+#define MOV_FROM_IHA(reg)	\
-+	mov reg = cr.iha
-+
-+#define MOV_FROM_IPSR(pred, reg)	\
-+(pred)	mov reg = cr.ipsr
-+
-+#define MOV_FROM_IIM(reg)	\
-+	mov reg = cr.iim
-+
-+#define MOV_FROM_IIP(reg)	\
-+	mov reg = cr.iip
-+
-+#define MOV_FROM_IVR(reg, clob)	\
-+	mov reg = cr.ivr	\
-+	CLOBBER(clob)
-+
-+#define MOV_FROM_PSR(pred, reg, clob)	\
-+(pred)	mov reg = psr			\
-+	CLOBBER(clob)
-+
-+#define MOV_TO_IFA(reg, clob)	\
-+	mov cr.ifa = reg	\
-+	CLOBBER(clob)
-+
-+#define MOV_TO_ITIR(pred, reg, clob)	\
-+(pred)	mov cr.itir = reg		\
-+	CLOBBER(clob)
-+
-+#define MOV_TO_IHA(pred, reg, clob)	\
-+(pred)	mov cr.iha = reg		\
-+	CLOBBER(clob)
-+
-+#define MOV_TO_IPSR(reg, clob)	\
-+	mov cr.ipsr = reg	\
-+	CLOBBER(clob)
-+
-+#define MOV_TO_IFS(pred, reg, clob)	\
-+(pred)	mov cr.ifs = reg		\
-+	CLOBBER(clob)
-+
-+#define MOV_TO_IIP(reg, clob)	\
-+	mov cr.iip = reg	\
-+	CLOBBER(clob)
-+
-+#define MOV_TO_KR(kr, reg, clob0, clob1)	\
-+	mov IA64_KR(kr) = reg			\
-+	CLOBBER(clob0)				\
-+	CLOBBER(clob1)
-+
-+#define ITC_I(pred, reg, clob)	\
-+(pred)	itc.i reg		\
-+	CLOBBER(clob)
-+
-+#define ITC_D(pred, reg, clob)	\
-+(pred)	itc.d reg		\
-+	CLOBBER(clob)
-+
-+#define ITC_I_AND_D(pred_i, pred_d, reg, clob)	\
-+(pred_i) itc.i reg;				\
-+(pred_d) itc.d reg				\
-+	CLOBBER(clob)
-+
-+#define THASH(pred, reg0, reg1, clob)		\
-+(pred)	thash reg0 = reg1			\
-+	CLOBBER(clob)
-+
-+#define SSM_PSR_IC_AND_DEFAULT_BITS(clob0, clob1)			\
-+	ssm psr.ic | PSR_DEFAULT_BITS					\
-+	CLOBBER(clob0)							\
-+	CLOBBER(clob1)							\
-+	;;								\
-+	srlz.i /* guarantee that interruption collectin is on */	\
-+	;;
-+
-+#define SSM_PSR_IC_AND_SRLZ_D(clob0, clob1)	\
-+	ssm psr.ic				\
-+	CLOBBER(clob0)				\
-+	CLOBBER(clob1)				\
-+	;;					\
-+	srlz.d
-+
-+#define RSM_PSR_IC(clob)	\
-+	rsm psr.ic		\
-+	CLOBBER(clob)
-+
-+#define SSM_PSR_I(pred, clob)	\
-+(pred)	ssm psr.i		\
-+	CLOBBER(clob)
-+
-+#define RSM_PSR_I(pred, clob0, clob1)	\
-+(pred)	rsm psr.i			\
-+	CLOBBER(clob0)			\
-+	CLOBBER(clob1)
-+
-+#define RSM_PSR_I_IC(clob0, clob1, clob2)	\
-+	rsm psr.i | psr.ic			\
-+	CLOBBER(clob0)				\
-+	CLOBBER(clob1)				\
-+	CLOBBER(clob2)
-+
-+#define RSM_PSR_DT		\
-+	rsm psr.dt
-+
-+#define RSM_PSR_DT_AND_SRLZ_I	\
-+	rsm psr.dt		\
-+	;;			\
-+	srlz.i
-+
-+#define SSM_PSR_DT_AND_SRLZ_I	\
-+	ssm psr.dt		\
-+	;;			\
-+	srlz.i
-+
-+#define BSW_0(clob0, clob1, clob2)	\
-+	bsw.0				\
-+	CLOBBER(clob0)			\
-+	CLOBBER(clob1)			\
-+	CLOBBER(clob2)
-+
-+#define BSW_1(clob0, clob1)	\
-+	bsw.1			\
-+	CLOBBER(clob0)		\
-+	CLOBBER(clob1)
-+
-+#define COVER	\
-+	cover
-+
-+#define RFI	\
-+	rfi
++#endif /* __ASM_PARAVIRT_IRQ_H */
 -- 
 1.5.3
