@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 07/23] ia64/xen: implement the arch specific part of xencomm.
-Date: Wed,  9 Apr 2008 13:50:14 +0900
-Message-ID: <12077166302641-git-send-email-yamahata__25128.5038226799$1207717881$gmane$org@valinux.co.jp>
+Subject: [PATCH 13/23] ia64/pv_ops/xen: define xen pv_cpu_ops.
+Date: Wed,  9 Apr 2008 13:50:20 +0900
+Message-ID: <12077166303849-git-send-email-yamahata__46537.2742656202$1207717886$gmane$org@valinux.co.jp>
 References: <12077166301391-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,174 +18,147 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On ia64/xen, pointer argument for the hypercall is passed
-by pseudo physical address (guest phsysical address.)
-So it is necessary to convert virtual address into pseudo physical
-address rigth before issuing hypercall. The frame work is called
-xencomm. This patch implements arch specific part.
+define xen pv_cpu_ops which implementes xen paravirtualized
+privileged instructions.
 
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile         |    2 +-
- arch/ia64/xen/xencomm.c        |   95 ++++++++++++++++++++++++++++++++++++++++
- include/asm-ia64/xen/xencomm.h |   33 ++++++++++++++
- 3 files changed, 129 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/xencomm.c
- create mode 100644 include/asm-ia64/xen/xencomm.h
+ arch/ia64/xen/xen_pv_ops.c |  114 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 114 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index c200704..ad0c9f7 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -2,4 +2,4 @@
- # Makefile for Xen components
- #
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 01260a0..aa73942 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -161,6 +161,119 @@ static const struct pv_init_ops xen_init_ops __initdata = {
+ };
  
--obj-y := hypercall.o
-+obj-y := hypercall.o xencomm.o
-diff --git a/arch/ia64/xen/xencomm.c b/arch/ia64/xen/xencomm.c
-new file mode 100644
-index 0000000..659d98f
---- /dev/null
-+++ b/arch/ia64/xen/xencomm.c
-@@ -0,0 +1,95 @@
-+/*
-+ * Copyright (C) 2006 Hollis Blanchard <hollisb@us.ibm.com>, IBM Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ /***************************************************************************
++ * pv_cpu_ops
++ * intrinsics hooks.
 + */
 +
-+#include <linux/mm.h>
-+
-+#ifdef HAVE_XEN_PLATFORM_COMPAT_H
-+#include <xen/platform-compat.h>
-+#endif
-+
-+static unsigned long kernel_start_pa;
-+
-+void
-+xencomm_initialize(void)
++static void xen_setreg(int regnum, unsigned long val)
 +{
-+	kernel_start_pa = KERNEL_START - ia64_tpa(KERNEL_START);
++	switch (regnum) {
++	case _IA64_REG_AR_KR0 ... _IA64_REG_AR_KR7:
++		xen_set_kr(regnum - _IA64_REG_AR_KR0, val);
++		break;
++#ifdef CONFIG_IA32_SUPPORT
++	case _IA64_REG_AR_EFLAG:
++		xen_set_eflag(val);
++		break;
++#endif
++	case _IA64_REG_CR_TPR:
++		xen_set_tpr(val);
++		break;
++	case _IA64_REG_CR_ITM:
++		xen_set_itm(val);
++		break;
++	case _IA64_REG_CR_EOI:
++		xen_eoi(val);
++		break;
++	default:
++		ia64_native_setreg_func(regnum, val);
++		break;
++	}
 +}
 +
-+/* Translate virtual address to physical address.  */
-+unsigned long
-+xencomm_vtop(unsigned long vaddr)
++static unsigned long xen_getreg(int regnum)
 +{
-+	struct page *page;
-+	struct vm_area_struct *vma;
++	unsigned long res;
 +
-+	if (vaddr == 0)
-+		return 0;
-+
-+#ifdef __ia64__
-+	if (REGION_NUMBER(vaddr) == 5) {
-+		pgd_t *pgd;
-+		pud_t *pud;
-+		pmd_t *pmd;
-+		pte_t *ptep;
-+
-+		/* On ia64, TASK_SIZE refers to current.  It is not initialized
-+		   during boot.
-+		   Furthermore the kernel is relocatable and __pa() doesn't
-+		   work on  addresses.  */
-+		if (vaddr >= KERNEL_START
-+		    && vaddr < (KERNEL_START + KERNEL_TR_PAGE_SIZE))
-+			return vaddr - kernel_start_pa;
-+
-+		/* In kernel area -- virtually mapped.  */
-+		pgd = pgd_offset_k(vaddr);
-+		if (pgd_none(*pgd) || pgd_bad(*pgd))
-+			return ~0UL;
-+
-+		pud = pud_offset(pgd, vaddr);
-+		if (pud_none(*pud) || pud_bad(*pud))
-+			return ~0UL;
-+
-+		pmd = pmd_offset(pud, vaddr);
-+		if (pmd_none(*pmd) || pmd_bad(*pmd))
-+			return ~0UL;
-+
-+		ptep = pte_offset_kernel(pmd, vaddr);
-+		if (!ptep)
-+			return ~0UL;
-+
-+		return (pte_val(*ptep) & _PFN_MASK) | (vaddr & ~PAGE_MASK);
-+	}
++	switch (regnum) {
++	case _IA64_REG_PSR:
++		res = xen_get_psr();
++		break;
++#ifdef CONFIG_IA32_SUPPORT
++	case _IA64_REG_AR_EFLAG:
++		res = xen_get_eflag();
++		break;
 +#endif
-+
-+	if (vaddr > TASK_SIZE) {
-+		/* kernel address */
-+		return __pa(vaddr);
++	case _IA64_REG_CR_IVR:
++		res = xen_get_ivr();
++		break;
++	case _IA64_REG_CR_TPR:
++		res = xen_get_tpr();
++		break;
++	default:
++		res = ia64_native_getreg_func(regnum);
++		break;
 +	}
-+
-+	/* XXX double-check (lack of) locking */
-+	vma = find_extend_vma(current->mm, vaddr);
-+	if (!vma)
-+		return ~0UL;
-+
-+	/* We assume the page is modified.  */
-+	page = follow_page(vma, vaddr, FOLL_WRITE | FOLL_TOUCH);
-+	if (!page)
-+		return ~0UL;
-+
-+	return (page_to_pfn(page) << PAGE_SHIFT) | (vaddr & ~PAGE_MASK);
++	return res;
 +}
-diff --git a/include/asm-ia64/xen/xencomm.h b/include/asm-ia64/xen/xencomm.h
-new file mode 100644
-index 0000000..e95db51
---- /dev/null
-+++ b/include/asm-ia64/xen/xencomm.h
-@@ -0,0 +1,33 @@
-+/*
-+ * Copyright (C) 2006 Hollis Blanchard <hollisb@us.ibm.com>, IBM Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-+ */
 +
-+#ifndef _ASM_IA64_XEN_XENCOMM_H
-+#define _ASM_IA64_XEN_XENCOMM_H
++/* turning on interrupts is a bit more complicated.. write to the
++ * memory-mapped virtual psr.i bit first (to avoid race condition),
++ * then if any interrupts were pending, we have to execute a hyperprivop
++ * to ensure the pending interrupt gets delivered; else we're done! */
++static void
++xen_ssm_i(void)
++{
++	int old = xen_get_virtual_psr_i();
++	xen_set_virtual_psr_i(1);
++	barrier();
++	if (!old && xen_get_virtual_pend())
++		xen_hyper_ssm_i();
++}
 +
-+#define is_kernel_addr(x)					\
-+	((PAGE_OFFSET <= (x) &&					\
-+	  (x) < (PAGE_OFFSET + (1UL << IA64_MAX_PHYS_BITS))) ||	\
-+	 (KERNEL_START <= (x) &&				\
-+	  (x) < KERNEL_START + KERNEL_TR_PAGE_SIZE))
++/* turning off interrupts can be paravirtualized simply by writing
++ * to a memory-mapped virtual psr.i bit (implemented as a 16-bit bool) */
++static void
++xen_rsm_i(void)
++{
++	xen_set_virtual_psr_i(0);
++	barrier();
++}
 +
-+/* Must be called before any hypercall.  */
-+extern void xencomm_initialize(void);
++static unsigned long
++xen_get_psr_i(void)
++{
++	return xen_get_virtual_psr_i() ? IA64_PSR_I : 0;
++}
 +
-+#include <xen/xencomm.h>
++static void
++xen_intrin_local_irq_restore(unsigned long mask)
++{
++	if (mask & IA64_PSR_I)
++		xen_ssm_i();
++	else
++		xen_rsm_i();
++}
 +
-+#endif /* _ASM_IA64_XEN_XENCOMM_H */
++static const struct pv_cpu_ops xen_cpu_ops __initdata = {
++	.fc		= xen_fc,
++	.thash		= xen_thash,
++	.get_cpuid	= xen_get_cpuid,
++	.get_pmd	= xen_get_pmd,
++	.getreg		= xen_getreg,
++	.setreg		= xen_setreg,
++	.ptcga		= xen_ptcga,
++	.get_rr		= xen_get_rr,
++	.set_rr		= xen_set_rr,
++	.set_rr0_to_rr4	= xen_set_rr0_to_rr4,
++	.ssm_i		= xen_ssm_i,
++	.rsm_i		= xen_rsm_i,
++	.get_psr_i	= xen_get_psr_i,
++	.intrin_local_irq_restore
++			= xen_intrin_local_irq_restore,
++};
++
++/***************************************************************************
+  * pv_ops initialization
+  */
+ 
+@@ -170,4 +283,5 @@ xen_setup_pv_ops(void)
+ 	xen_info_init();
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
++	pv_cpu_ops = xen_cpu_ops;
+ }
 -- 
 1.5.3
