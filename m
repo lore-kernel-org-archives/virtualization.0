@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 01/15] ia64: preparation: remove extern in irq_ia64.c
-Date: Wed,  9 Apr 2008 13:48:54 +0900
-Message-ID: <12077165482297-git-send-email-yamahata__14095.1896472417$1207717081$gmane$org@valinux.co.jp>
+Subject: [PATCH 04/15] ia64/pv_ops: introduce pv_info which describes some
+	random info.
+Date: Wed,  9 Apr 2008 13:48:57 +0900
+Message-ID: <12077165491881-git-send-email-yamahata__2025.91431229866$1207717198$gmane$org@valinux.co.jp>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,47 +22,145 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-remove extern declaration of handle_IPI() in irq_ia64.c.
-Instead, declare it in asm-ia64/smp.h.
-Later handle_IPI() will be referenced from another file.
+introduce pv_info which describes some randome info about
+underlying execution environment.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/irq_ia64.c |    1 -
- include/asm-ia64/smp.h      |    2 ++
- 2 files changed, 2 insertions(+), 1 deletions(-)
+ arch/ia64/kernel/Makefile   |    2 +
+ arch/ia64/kernel/paravirt.c |   41 ++++++++++++++++++++++++++++
+ include/asm-ia64/paravirt.h |   62 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 105 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/kernel/paravirt.c
+ create mode 100644 include/asm-ia64/paravirt.h
 
-diff --git a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
-index d8be23f..711635d 100644
---- a/arch/ia64/kernel/irq_ia64.c
-+++ b/arch/ia64/kernel/irq_ia64.c
-@@ -600,7 +600,6 @@ static irqreturn_t dummy_handler (int irq, void *dev_id)
- {
- 	BUG();
- }
--extern irqreturn_t handle_IPI (int irq, void *dev_id);
+diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+index 33e5a59..40a10e7 100644
+--- a/arch/ia64/kernel/Makefile
++++ b/arch/ia64/kernel/Makefile
+@@ -36,6 +36,8 @@ obj-$(CONFIG_PCI_MSI)		+= msi_ia64.o
+ mca_recovery-y			+= mca_drv.o mca_drv_asm.o
+ obj-$(CONFIG_IA64_MC_ERR_INJECT)+= err_inject.o
  
- static struct irqaction ipi_irqaction = {
- 	.handler =	handle_IPI,
-diff --git a/include/asm-ia64/smp.h b/include/asm-ia64/smp.h
-index 4fa733d..0a8435f 100644
---- a/include/asm-ia64/smp.h
-+++ b/include/asm-ia64/smp.h
-@@ -15,6 +15,7 @@
- #include <linux/kernel.h>
- #include <linux/cpumask.h>
- #include <linux/bitops.h>
-+#include <linux/irqreturn.h>
- 
- #include <asm/io.h>
- #include <asm/param.h>
-@@ -120,6 +121,7 @@ extern void __init smp_build_cpu_map(void);
- extern void __init init_smp_config (void);
- extern void smp_do_timer (struct pt_regs *regs);
- 
-+extern irqreturn_t handle_IPI(int irq, void *dev_id);
- extern void smp_send_reschedule (int cpu);
- extern void lock_ipi_calllock(void);
- extern void unlock_ipi_calllock(void);
++obj-$(CONFIG_PARAVIRT)		+= paravirt.o
++
+ obj-$(CONFIG_IA64_ESI)		+= esi.o
+ ifneq ($(CONFIG_IA64_ESI),)
+ obj-y				+= esi_stub.o	# must be in kernel proper
+diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
+new file mode 100644
+index 0000000..d295ea5
+--- /dev/null
++++ b/arch/ia64/kernel/paravirt.c
+@@ -0,0 +1,41 @@
++/******************************************************************************
++ * arch/ia64/kernel/paravirt.c
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *     Yaozu (Eddie) Dong <eddie.dong@intel.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <linux/init.h>
++
++#include <linux/compiler.h>
++#include <linux/io.h>
++#include <linux/irq.h>
++#include <linux/types.h>
++
++#include <asm/iosapic.h>
++#include <asm/paravirt.h>
++
++/***************************************************************************
++ * general info
++ */
++struct pv_info pv_info = {
++	.kernel_rpl = 0,
++	.paravirt_enabled = 0,
++	.name = "bare hardware"
++};
+diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
+new file mode 100644
+index 0000000..26b4334
+--- /dev/null
++++ b/include/asm-ia64/paravirt.h
+@@ -0,0 +1,62 @@
++/******************************************************************************
++ * include/asm-ia64/paravirt.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++
++#ifndef __ASM_PARAVIRT_H
++#define __ASM_PARAVIRT_H
++
++#ifdef CONFIG_PARAVIRT_GUEST
++
++#ifndef __ASSEMBLY__
++
++#include <asm/hw_irq.h>
++#include <asm/meminit.h>
++
++/******************************************************************************
++ * general info
++ */
++struct pv_info {
++	unsigned int kernel_rpl;
++	int paravirt_enabled;
++	const char *name;
++};
++
++extern struct pv_info pv_info;
++
++static inline int paravirt_enabled(void)
++{
++	return pv_info.paravirt_enabled;
++}
++
++static inline unsigned int get_kernel_rpl(void)
++{
++	return pv_info.kernel_rpl;
++}
++
++#endif /* !__ASSEMBLY__ */
++
++#else
++/* fallback for native case */
++
++#endif /* CONFIG_PARAVIRT_GUEST */
++
++#endif /* __ASM_PARAVIRT_H */
 -- 
 1.5.3
