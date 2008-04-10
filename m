@@ -1,11 +1,15 @@
 From: Amit Shah <amit.shah@qumranet.com>
-Subject: PCI Passthrough support for KVM
-Date: Thu, 10 Apr 2008 14:39:17 +0530
-Message-ID: <41536.9837232449$1207818742@news.gmane.org>
+Subject: Re: [PATCH] use NR_IRQS for irq count
+Date: Thu, 10 Apr 2008 14:41:21 +0530
+Message-ID: <200804101441.21914.amit.shah__16357.1554505781$1207818813$gmane$org@qumranet.com>
+References: <12076742761764-git-send-email-gcosta@redhat.com>
+	<200804091013.11149.amit.shah@qumranet.com>
+	<47FCB25E.1070606@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <47FCB25E.1070606@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,27 +20,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel@lists.sourceforge.net
-Cc: chrisw@redhat.com, allen.m.kay@intel.com, gcosta@redhat.com, virtualization@lists.linux-foundation.org, BENAMI@il.ibm.com
+To: Glauber Costa <gcosta@redhat.com>
+Cc: kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patchset introduces PCI passthrough support for KVM.
+* On Wednesday 09 Apr 2008 17:41:10 Glauber Costa wrote:
+> Amit Shah wrote:
+> > * On Tuesday 08 April 2008 22:34:36 Glauber Costa wrote:
+> >> Instead of artificially limiting irq numbers, use arch provided NR_IRQS
+> >>
+> >> Signed-off-by: Glauber Costa <gcosta@redhat.com>
+> >
+> > Thanks, applied.
+> >
+> > Going forward, we're going to use the in-kernel approach for interrupt
+> > injection (which already has this change). The irqhook module will stay
+> > around for testing / debugging purposes (will be used with
+> > -no-kvm-irqchip).
+> >
+> > Amit.
+>
+> Is it already in your tree?
 
-This has been tested with an Ethernet device. The device is
-seen in the guest and interrupts are generated. However, no
-data transfer can take place unless pvdma or reserved-ram
-is used. The patches for pvdma will be available shortly.
-
-Sharing of interrupt line for the PCI device on the host side
-will cause slowness (and / or some glitches). Also, proper
-locking isn't in place yet. Single VMs exploiting this feature
-run well though.
-
-There also is a git repository for you to explore:
-
-git-pull git://git.kernel.org/pub/scm/linux/kernel/git/amit/kvm.git
-git-pull git://git.kernel.org/pub/scm/linux/kernel/git/amit/kvm-userspace.git
-
-Comments, feedback welcome.
-
-Amit.
+Yes, it's in the new tree I just sent the link to.
