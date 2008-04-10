@@ -1,16 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC 3/5] tun: vringfd receive support.
-Date: Thu, 10 Apr 2008 15:44:17 +1000
-Message-ID: <200804101544.17736.rusty__12789.5991936841$1207806440$gmane$org@rustcorp.com.au>
-References: <200804052202.09157.rusty@rustcorp.com.au>
-	<200804052205.43824.rusty@rustcorp.com.au>
-	<47FBCC3B.7080104@qualcomm.com>
+From: Amit Shah <amit.shah@qumranet.com>
+Subject: [PATCH 1/2] KVM: Expose get_eoi_gsi() for IRQ acking by PCI
+	passthrough devices
+Date: Thu, 10 Apr 2008 11:48:52 +0300
+Message-ID: <1207817334-31775-2-git-send-email-amit.shah__32093.2837239981$1207817541$gmane$org@qumranet.com>
+References: <1207817334-31775-1-git-send-email-amit.shah@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <47FBCC3B.7080104@qualcomm.com>
-Content-Disposition: inline
+In-Reply-To: <1207817334-31775-1-git-send-email-amit.shah@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,51 +18,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Max Krasnyansky <maxk@qualcomm.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kvm-devel@lists.sourceforge.net
+Cc: chrisw@redhat.com, allen.m.kay@intel.com, gcosta@redhat.com, virtualization@lists.linux-foundation.org, BENAMI@il.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 09 April 2008 05:49:15 Max Krasnyansky wrote:
-> Rusty Russell wrote:
-> > This patch modifies tun to allow a vringfd to specify the receive
-> > buffer.  Because we can't copy to userspace in bh context, we queue
-> > like normal then use the "pull" hook to actually do the copy.
-> >
-> > More thought needs to be put into the possible races with ring
-> > registration and a simultaneous close, for example (see FIXME).
-> >
-> > We use struct virtio_net_hdr prepended to packets in the ring to allow
-> > userspace to receive GSO packets in future (at the moment, the tun
-> > driver doesn't tell the stack it can handle them, so these cases are
-> > never taken).
->
-> In general the code looks good. The only thing I could not convince myself
-> in is whether having generic ring buffer makes sense or not.
-> At least the TUN driver would be more efficient if it had its own simple
-> ring implementation. Less indirection, fewer callbacks, fewer if()s, etc.
-> TUN already has the file descriptor and having two additional fds for rx
-> and tx ring is a waste (think of a VPN server that has to have a bunch of
-> TUN fds). Also as I mentioned before Jamal and I wanted to expose some of
-> the SKB fields through TUN device. With the rx/tx rings the natural way of
-> doing that would be the ring descriptor itself. It can of course be done
-> the same way we copy proto info (PI) and GSO stuff before the packet but
-> that means more copy_to_user() calls and yet more checks.
->
-> So. What am I missing ? Why do we need generic ring for the TUN ? I looked
-> at the lguest code a bit and it seems that we need a bunch of network
-> specific code anyway. The cool thing is that you can now mmap the rings
-> into the guest directly but the same thing can be done with TUN specific
-> rings.
+Signed-off-by: Amit Shah <amit.shah@qumranet.com>
+---
+ virt/kvm/ioapic.c |    2 +-
+ virt/kvm/ioapic.h |    1 +
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-I started modifying tun to do this directly, but it ended up with a whole heap 
-of code just for the rings, and a lot of current code (eg. read, write, poll) 
-ended up inside an 'if (tun->rings) ... else {'.  Having a natural poll() 
-interface for the rings made more sense, so being their own fds fell out 
-naturally.
-
-I decided to float this version because it does minimal damage to tun, and I 
-know that other people have wanted rings before: I'd like to know if this is 
-likely to be generic enough for them.
-
-Thanks!
-Rusty
+diff --git a/virt/kvm/ioapic.c b/virt/kvm/ioapic.c
+index 4232fd7..c5e776a 100644
+--- a/virt/kvm/ioapic.c
++++ b/virt/kvm/ioapic.c
+@@ -268,7 +268,7 @@ void kvm_ioapic_set_irq(struct kvm_ioapic *ioapic, int irq, int level)
+ 	}
+ }
+ 
+-static int get_eoi_gsi(struct kvm_ioapic *ioapic, int vector)
++int get_eoi_gsi(struct kvm_ioapic *ioapic, int vector)
+ {
+ 	int i;
+ 
+diff --git a/virt/kvm/ioapic.h b/virt/kvm/ioapic.h
+index 7f16675..d112a88 100644
+--- a/virt/kvm/ioapic.h
++++ b/virt/kvm/ioapic.h
+@@ -91,5 +91,6 @@ void kvm_ioapic_update_eoi(struct kvm *kvm, int vector);
+ int kvm_ioapic_init(struct kvm *kvm);
+ void kvm_ioapic_set_irq(struct kvm_ioapic *ioapic, int irq, int level);
+ void kvm_ioapic_reset(struct kvm_ioapic *ioapic);
++int get_eoi_gsi(struct kvm_ioapic *ioapic, int vector);
+ 
+ #endif
+-- 
+1.4.4.2
