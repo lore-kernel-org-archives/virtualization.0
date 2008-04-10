@@ -1,173 +1,70 @@
-From: Markus Armbruster <armbru@redhat.com>
-Subject: [PATCH] xen: Enable Xen console by default in domU
-Date: Thu, 10 Apr 2008 17:46:39 +0200
-Message-ID: <87d4oxvhk0.fsf@pike.pond.sub.org>
-References: <87hcehshyc.fsf@pike.pond.sub.org>
+From: Max Krasnyanskiy <maxk@qualcomm.com>
+Subject: Re: [PATCH RFC 3/5] tun: vringfd receive support.
+Date: Thu, 10 Apr 2008 10:02:49 -0700
+Message-ID: <47FE4839.6020904__1656.35905364088$1207847290$gmane$org@qualcomm.com>
+References: <200804052202.09157.rusty@rustcorp.com.au>	
+	<200804052204.28518.rusty@rustcorp.com.au>	
+	<200804052205.43824.rusty@rustcorp.com.au>
+	<47FBCC3B.7080104@qualcomm.com>
+	<1207745195.13196.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: linux-kernel@vger.kernel.org
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, virtualization@lists.osdl.org, mingo@redhat.com, adaplas@pol.net
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1207745195.13196.10.camel@localhost.localdomain>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: dor.laor@qumranet.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Without console= arguments on the kernel command line, the first
-console to register becomes enabled and the preferred console (the one
-behind /dev/console).  This is tty (assuming CONFIG_VT_CONSOLE is
-enabled, which it commonly is).
+Dor Laor wrote:
+> On Tue, 2008-04-08 at 12:49 -0700, Max Krasnyansky wrote:
+>> Rusty Russell wrote:
+>>> This patch modifies tun to allow a vringfd to specify the receive
+>>> buffer.  Because we can't copy to userspace in bh context, we queue
+>>> like normal then use the "pull" hook to actually do the copy.
+>>>
+>>> More thought needs to be put into the possible races with ring
+>>> registration and a simultaneous close, for example (see FIXME).
+>>>
+>>> We use struct virtio_net_hdr prepended to packets in the ring to allow
+>>> userspace to receive GSO packets in future (at the moment, the tun
+>>> driver doesn't tell the stack it can handle them, so these cases are
+>>> never taken).
+>> In general the code looks good. The only thing I could not convince myself in
+>> is whether having generic ring buffer makes sense or not.
+>> At least the TUN driver would be more efficient if it had its own simple ring
+>>  implementation. Less indirection, fewer callbacks, fewer if()s, etc. TUN
+>> already has the file descriptor and having two additional fds for rx and tx
+>> ring is a waste (think of a VPN server that has to have a bunch of TUN fds).
+>> Also as I mentioned before Jamal and I wanted to expose some of the SKB fields
+>> through TUN device. With the rx/tx rings the natural way of doing that would
+>> be the ring descriptor itself. It can of course be done the same way we copy
+>> proto info (PI) and GSO stuff before the packet but that means more
+>> copy_to_user() calls and yet more checks.
+>>
+>> So. What am I missing ? Why do we need generic ring for the TUN ? I looked at
+>> the lguest code a bit and it seems that we need a bunch of network specific
+>> code anyway. The cool thing is that you can now mmap the rings into the guest
+>>  directly but the same thing can be done with TUN specific rings.
+>>
+> 
+> The idea was to use the same virtio ring that the guests use.
+> The thing with TUN specific ring is that the guests are the one
+> allocating the rings within their memory space and the opposite makes
+> life very complex.
 
-This is okay as long tty is a useful console.  But unless we have the
-PV framebuffer, and it is enabled for this domain, tty0 in domU is
-merely a dummy.  In that case, we want the preferred console to be the
-Xen console hvc0, and we want it without having to fiddle with the
-kernel command line.
+We can do the same thing with TUN rings. I mean have them allocated in the 
+guest space. With that we'd still have all of the advantages that I listed 
+above. ie We'd have ring descriptors that carry packet info, less indirection, 
+etc.
 
-Even with PV framebuffer enabled, we still want to enable the Xen
-console as well.
-
-Problem: when tty registers, we can't yet know whether the PVFB is
-enabled.  By the time we can know (xenstore is up), the console setup
-game is over.
-
-Enable the Xen console hvc by default, and make it the preferred
-console.  Change the preferred console to tty when PVFB probes
-successfully, unless we've been given console kernel parameters.
-
-Signed-off-by: Markus Armbruster <armbru@redhat.com>
----
-The previous version of this patch had the PVFB change the preferred
-console *always*.  That's wrong, because it blithely overwrites any
-preferred console the user might have set up with console kernel
-parameters.  Unfortunately, I couldn't see how to fix that cleanly
-without messing with printk.c.  If you can think of a better way, let
-me know.
-
- arch/x86/xen/enlighten.c    |    6 ++++++
- drivers/video/xen-fbfront.c |   25 +++++++++++++++++++++++++
- include/linux/console.h     |    2 ++
- kernel/printk.c             |    2 ++
- 4 files changed, 35 insertions(+), 0 deletions(-)
-
-diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
-index 27ee26a..87d235c 100644
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -25,6 +25,7 @@
- #include <linux/mm.h>
- #include <linux/page-flags.h>
- #include <linux/highmem.h>
-+#include <linux/console.h>
- 
- #include <xen/interface/xen.h>
- #include <xen/interface/physdev.h>
-@@ -1228,6 +1229,11 @@ asmlinkage void __init xen_start_kernel(void)
- 		? __pa(xen_start_info->mod_start) : 0;
- 	boot_params.hdr.ramdisk_size = xen_start_info->mod_len;
- 
-+	if (!is_initial_xendomain()) {
-+		add_preferred_console("tty", 0, NULL);
-+		add_preferred_console("hvc", 0, NULL);
-+	}
-+
- 	/* Start the world */
- 	start_kernel();
- }
-diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
-index 619a6f8..4e10876 100644
---- a/drivers/video/xen-fbfront.c
-+++ b/drivers/video/xen-fbfront.c
-@@ -18,6 +18,7 @@
-  * frame buffer.
-  */
- 
-+#include <linux/console.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/fb.h>
-@@ -48,6 +49,7 @@ struct xenfb_info {
- 
- static u32 xenfb_mem_len = XENFB_WIDTH * XENFB_HEIGHT * XENFB_DEPTH / 8;
- 
-+static void xenfb_make_preferred_console(void);
- static int xenfb_remove(struct xenbus_device *);
- static void xenfb_init_shared_page(struct xenfb_info *);
- static int xenfb_connect_backend(struct xenbus_device *, struct xenfb_info *);
-@@ -348,6 +350,7 @@ static int __devinit xenfb_probe(struct xenbus_device *dev,
- 	if (ret < 0)
- 		goto error;
- 
-+	xenfb_make_preferred_console();
- 	return 0;
- 
-  error_nomem:
-@@ -358,6 +361,28 @@ static int __devinit xenfb_probe(struct xenbus_device *dev,
- 	return ret;
- }
- 
-+static __devinit void
-+xenfb_make_preferred_console(void)
-+{
-+	struct console *c;
-+
-+	if (console_set_on_cmdline)
-+		return;
-+
-+	acquire_console_sem();
-+	for (c = console_drivers; c; c = c->next) {
-+		if (!strcmp(c->name, "tty") && c->index == 0)
-+			break;
-+	}
-+	release_console_sem();
-+	if (c) {
-+		unregister_console(c);
-+		c->flags |= CON_CONSDEV;
-+		c->flags &= ~CON_PRINTBUFFER; /* don't print again */
-+		register_console(c);
-+	}
-+}
-+
- static int xenfb_resume(struct xenbus_device *dev)
- {
- 	struct xenfb_info *info = dev->dev.driver_data;
-diff --git a/include/linux/console.h b/include/linux/console.h
-index a5f88a6..7f51fa8 100644
---- a/include/linux/console.h
-+++ b/include/linux/console.h
-@@ -107,6 +107,8 @@ struct console {
- 	struct	 console *next;
- };
- 
-+extern int console_set_on_cmdline;
-+
- extern int add_preferred_console(char *name, int idx, char *options);
- extern int update_console_cmdline(char *name, int idx, char *name_new, int idx_new, char *options);
- extern void register_console(struct console *);
-diff --git a/kernel/printk.c b/kernel/printk.c
-index c46a20a..c07bfc1 100644
---- a/kernel/printk.c
-+++ b/kernel/printk.c
-@@ -118,6 +118,7 @@ struct console_cmdline
- static struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
- static int selected_console = -1;
- static int preferred_console = -1;
-+int console_set_on_cmdline;
- 
- /* Flag: console code may call schedule() */
- static int console_may_schedule;
-@@ -829,6 +830,7 @@ static int __init console_setup(char *str)
- 	*s = 0;
- 
- 	add_preferred_console(buf, idx, options);
-+	console_set_on_cmdline = 1;
- 	return 1;
- }
- __setup("console=", console_setup);
--- 
-1.5.3.3
+Max
