@@ -1,87 +1,102 @@
-From: Max Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: [PATCH RFC 3/5] tun: vringfd receive support.
-Date: Thu, 10 Apr 2008 10:18:52 -0700
-Message-ID: <47FE4BFC.6000705__34868.9397368163$1207848183$gmane$org@qualcomm.com>
-References: <200804052202.09157.rusty@rustcorp.com.au>
-	<200804052205.43824.rusty@rustcorp.com.au>
-	<47FBCC3B.7080104@qualcomm.com>
-	<200804101544.17736.rusty@rustcorp.com.au>
+From: Mark McLoughlin <markmc@redhat.com>
+Subject: Re: [PATCH] xen: Enable Xen console by default in domU
+Date: Fri, 11 Apr 2008 09:52:25 +0100
+Message-ID: <1207903945.26445.4.camel@muff>
+References: <87hcehshyc.fsf@pike.pond.sub.org>
+	 <87d4oxvhk0.fsf@pike.pond.sub.org>
+Reply-To: Mark McLoughlin <markmc@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804101544.17736.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759531AbYDKIxQ@vger.kernel.org>
+In-Reply-To: <87d4oxvhk0.fsf@pike.pond.sub.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Markus Armbruster <armbru@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, adaplas@pol.net, Jeremy Fitzhardinge <jeremy@goop.org>, mingo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Wednesday 09 April 2008 05:49:15 Max Krasnyansky wrote:
->> Rusty Russell wrote:
->>> This patch modifies tun to allow a vringfd to specify the receive
->>> buffer.  Because we can't copy to userspace in bh context, we queue
->>> like normal then use the "pull" hook to actually do the copy.
->>>
->>> More thought needs to be put into the possible races with ring
->>> registration and a simultaneous close, for example (see FIXME).
->>>
->>> We use struct virtio_net_hdr prepended to packets in the ring to allow
->>> userspace to receive GSO packets in future (at the moment, the tun
->>> driver doesn't tell the stack it can handle them, so these cases are
->>> never taken).
->> In general the code looks good. The only thing I could not convince myself
->> in is whether having generic ring buffer makes sense or not.
->> At least the TUN driver would be more efficient if it had its own simple
->> ring implementation. Less indirection, fewer callbacks, fewer if()s, etc.
->> TUN already has the file descriptor and having two additional fds for rx
->> and tx ring is a waste (think of a VPN server that has to have a bunch of
->> TUN fds). Also as I mentioned before Jamal and I wanted to expose some of
->> the SKB fields through TUN device. With the rx/tx rings the natural way of
->> doing that would be the ring descriptor itself. It can of course be done
->> the same way we copy proto info (PI) and GSO stuff before the packet but
->> that means more copy_to_user() calls and yet more checks.
->>
->> So. What am I missing ? Why do we need generic ring for the TUN ? I looked
->> at the lguest code a bit and it seems that we need a bunch of network
->> specific code anyway. The cool thing is that you can now mmap the rings
->> into the guest directly but the same thing can be done with TUN specific
->> rings.
+On Thu, 2008-04-10 at 17:46 +0200, Markus Armbruster wrote:
+...
+> Problem: when tty registers, we can't yet know whether the PVFB is
+> enabled.  By the time we can know (xenstore is up), the console setup
+> game is over.
 > 
-> I started modifying tun to do this directly, but it ended up with a whole heap 
-> of code just for the rings, and a lot of current code (eg. read, write, poll) 
-> ended up inside an 'if (tun->rings) ... else {'.  Having a natural poll() 
-> interface for the rings made more sense, so being their own fds fell out 
-> naturally.
-Hmm, the version that I sent you awhile ago (remember I sent you an attachment 
-with prototype of the new tun driver and user space code) was not that bad in 
-that area. It mean it did not touch existing read()/write() path. The 
-difference was that it allocated the rings and the data buffer in the kernel 
-and mapped into the user-space. Which is not what you guys need but that's a 
-separate thing.
+> Enable the Xen console hvc by default, and make it the preferred
+> console.  Change the preferred console to tty when PVFB probes
+> successfully, unless we've been given console kernel parameters.
+...
+> The previous version of this patch had the PVFB change the preferred
+> console *always*.  That's wrong, because it blithely overwrites any
+> preferred console the user might have set up with console kernel
+> parameters.  Unfortunately, I couldn't see how to fix that cleanly
+> without messing with printk.c.  If you can think of a better way, let
+> me know.
+...
+> --- a/drivers/video/xen-fbfront.c
+> +++ b/drivers/video/xen-fbfront.c
 
-The fd thing could be an issue. As I mentioned the example would be a VPN 
-server (OpenVPN, etc) with a bunch of client connection (typically tun per 
-connection).
+> @@ -358,6 +361,28 @@ static int __devinit xenfb_probe(struct xenbus_device *dev,
+>  	return ret;
+>  }
+>  
+> +static __devinit void
+> +xenfb_make_preferred_console(void)
+> +{
+> +	struct console *c;
+> +
+> +	if (console_set_on_cmdline)
+> +		return;
+> +
+> +	acquire_console_sem();
+> +	for (c = console_drivers; c; c = c->next) {
+> +		if (!strcmp(c->name, "tty") && c->index == 0)
+> +			break;
+> +	}
 
-> I decided to float this version because it does minimal damage to tun, and I
-> know that other people have wanted rings before: I'd like to know if this is
-> likely to be generic enough for them.
-I see.
+How about adding a new console flag so that e.g. you could do:
 
-I'll try to spend some time on this in a near future and take a crack at the 
-version with the TUN specific rings. Although I said that many times now and 
-it may not happen in the near enough future :). In the mean time if your 
-current version helps you guys a lot I do not mind us putting it in. We can 
-always add another mode or something that uses internal rings and gradually 
-obsolete old read()/write() and generic rings.
+        if (!strcmp(c->name, "tty") && c->index == 0 &&
+            !(c->flags & CON_SET_ON_CMDLINE))
+                break;
 
-Max
+> +	release_console_sem();
+> +	if (c) {
+> +		unregister_console(c);
+> +		c->flags |= CON_CONSDEV;
+> +		c->flags &= ~CON_PRINTBUFFER; /* don't print again */
+> +		register_console(c);
+> +	}
+> +}
+> +
+...
+> --- a/include/linux/console.h
+> +++ b/include/linux/console.h
+> @@ -107,6 +107,8 @@ struct console {
+>  	struct	 console *next;
+>  };
+>  
+> +extern int console_set_on_cmdline;
+> +
+>  extern int add_preferred_console(char *name, int idx, char *options);
+>  extern int update_console_cmdline(char *name, int idx, char *name_new, int idx_new, char *options);
+>  extern void register_console(struct console *);
+> diff --git a/kernel/printk.c b/kernel/printk.c
+> index c46a20a..c07bfc1 100644
+> --- a/kernel/printk.c
+> +++ b/kernel/printk.c
+> @@ -118,6 +118,7 @@ struct console_cmdline
+>  static struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
+>  static int selected_console = -1;
+>  static int preferred_console = -1;
+> +int console_set_on_cmdline;
+>  
+>  /* Flag: console code may call schedule() */
+>  static int console_may_schedule;
+> @@ -829,6 +830,7 @@ static int __init console_setup(char *str)
+>  	*s = 0;
+>  
+>  	add_preferred_console(buf, idx, options);
+> +	console_set_on_cmdline = 1;
+>  	return 1;
+>  }
+>  __setup("console=", console_setup);
