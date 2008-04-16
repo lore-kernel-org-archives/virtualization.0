@@ -1,14 +1,16 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
+From: Hollis Blanchard <hollisb@us.ibm.com>
 Subject: Re: [PATCH] add virtio disk geometry feature
-Date: Wed, 16 Apr 2008 16:32:30 -0500
-Message-ID: <4806706E.10701__21121.3651499294$1208381801$gmane$org@us.ibm.com>
+Date: Wed, 16 Apr 2008 16:57:24 -0500
+Message-ID: <200804161657.24454.hollisb__48784.6817858101$1208383327$gmane$org@us.ibm.com>
 References: <1208372197-20815-1-git-send-email-ryanh@us.ibm.com>
 	<200804170715.55041.rusty@rustcorp.com.au>
+	<4806706E.10701@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804170715.55041.rusty@rustcorp.com.au>
+In-Reply-To: <4806706E.10701@us.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,78 +20,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Hollis Blanchard <hollisb@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Thursday 17 April 2008 04:56:37 Ryan Harper wrote:
->   
->> From: Ryan Harper <ryanh@us.ibm.com>
->>
->> Rather than faking up some geometry, allow the backend to push the disk
->> geometry via virtio pci config option.  Keep the old geo code around for
->> compatibility.
->>     
->
-> Hi Ryan,
->
->    Looks good! Some brief review below.  Mainly just "how I would have done
-> things" stuff.  BTW, does this help in real life?  I assume something in
-> userspace wants it?
->   
-
-Boot loaders (like grub) query the geometry from the kernel to figure 
-out how to setup the stage1/stage2.  We've seen strange issues with grub 
-thinking it has crazy geometries when installed on a virtio disk (as 
-opposed to booting from virtio with an existing disk).
-
-Ryan: have you tested a hardy install with your patches?  Does it help 
-when installing to virtio?  I could pretty reliably reproduce the 
-strangeness with a 20GB disk image FWIW.
-
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -157,10 +157,25 @@ static int virtblk_ioctl(struct inode *i
->  /* We provide getgeo only to please some old bootloader/partitioning tools */
->  static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
->  {
-> -	/* some standard values, similar to sd */
-> -	geo->heads = 1 << 6;
-> -	geo->sectors = 1 << 5;
-> -	geo->cylinders = get_capacity(bd->bd_disk) >> 11;
-> +	struct virtio_blk *vblk = bd->bd_disk->private_data;
-> +	struct virtio_blk_geometry vgeo;
-> +	int err;
-> +
-> +	/* see if the host passed in geometry config */
-> +	err = virtio_config_val(vblk->vdev, VIRTIO_BLK_F_GEOMETRY,
-> +				offsetof(struct virtio_blk_config, geometry),
-> +				&vgeo);
-> +
-> +	if (!err) {
-> +		geo->heads = vgeo.heads;
-> +		geo->sectors = vgeo.sectors;
-> +		geo->cylinders = vgeo.cylinders;
-> +	} else {
-> +		/* some standard values, similar to sd */
-> +		geo->heads = 1 << 6;
-> +		geo->sectors = 1 << 5;
-> +		geo->cylinders = get_capacity(bd->bd_disk) >> 11;
-> +	}
->  	return 0;
->  }
->   
-
-You're probably breaking PPC since the values in the config space are in 
-little endian format.  virtio_config_val does automagic endianness 
-conversion if the size is 2, 4, or 8.  In this case, the structure size 
-is 4 so the endianness conversion will do the wrong thing.
-
-Magic endianness conversion based on read size is looking pretty evil to 
-me... Perhaps we need explicit *_val[8,16,32,64]?
-
-Regards,
-
-Anthony Liguori
+T24gV2VkbmVzZGF5IDE2IEFwcmlsIDIwMDggMTY6MzI6MzAgQW50aG9ueSBMaWd1b3JpIHdyb3Rl
+Ogo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jIGIvZHJpdmVycy9i
+bG9jay92aXJ0aW9fYmxrLmMKPiA+IC0tLSBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4g
+PiArKysgYi9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+ID4gQEAgLTE1NywxMCArMTU3LDI1
+IEBAIHN0YXRpYyBpbnQgdmlydGJsa19pb2N0bChzdHJ1Y3QgaW5vZGUgKmkKPiA+IMKgLyogV2Ug
+cHJvdmlkZSBnZXRnZW8gb25seSB0byBwbGVhc2Ugc29tZSBvbGQgYm9vdGxvYWRlci9wYXJ0aXRp
+b25pbmcgCnRvb2xzICovCj4gPiDCoHN0YXRpYyBpbnQgdmlydGJsa19nZXRnZW8oc3RydWN0IGJs
+b2NrX2RldmljZSAqYmQsIHN0cnVjdCBoZF9nZW9tZXRyeSAKKmdlbykKPiA+IMKgewo+ID4gLcKg
+wqDCoMKgwqAvKiBzb21lIHN0YW5kYXJkIHZhbHVlcywgc2ltaWxhciB0byBzZCAqLwo+ID4gLcKg
+wqDCoMKgwqBnZW8tPmhlYWRzID0gMSA8PCA2Owo+ID4gLcKgwqDCoMKgwqBnZW8tPnNlY3RvcnMg
+PSAxIDw8IDU7Cj4gPiAtwqDCoMKgwqDCoGdlby0+Y3lsaW5kZXJzID0gZ2V0X2NhcGFjaXR5KGJk
+LT5iZF9kaXNrKSA+PiAxMTsKPiA+ICvCoMKgwqDCoMKgc3RydWN0IHZpcnRpb19ibGsgKnZibGsg
+PSBiZC0+YmRfZGlzay0+cHJpdmF0ZV9kYXRhOwo+ID4gK8KgwqDCoMKgwqBzdHJ1Y3QgdmlydGlv
+X2Jsa19nZW9tZXRyeSB2Z2VvOwo+ID4gK8KgwqDCoMKgwqBpbnQgZXJyOwo+ID4gKwo+ID4gK8Kg
+wqDCoMKgwqAvKiBzZWUgaWYgdGhlIGhvc3QgcGFzc2VkIGluIGdlb21ldHJ5IGNvbmZpZyAqLwo+
+ID4gK8KgwqDCoMKgwqBlcnIgPSB2aXJ0aW9fY29uZmlnX3ZhbCh2YmxrLT52ZGV2LCBWSVJUSU9f
+QkxLX0ZfR0VPTUVUUlksCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoG9mZnNldG9mKHN0cnVjdCB2aXJ0aW9fYmxrX2NvbmZpZywg
+Cmdlb21ldHJ5KSwKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgJnZnZW8pOwo+ID4gKwo+ID4gK8KgwqDCoMKgwqBpZiAoIWVycikg
+ewo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZ2VvLT5oZWFkcyA9IHZnZW8uaGVhZHM7
+Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBnZW8tPnNlY3RvcnMgPSB2Z2VvLnNlY3Rv
+cnM7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBnZW8tPmN5bGluZGVycyA9IHZnZW8u
+Y3lsaW5kZXJzOwo+ID4gK8KgwqDCoMKgwqB9IGVsc2Ugewo+ID4gK8KgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgLyogc29tZSBzdGFuZGFyZCB2YWx1ZXMsIHNpbWlsYXIgdG8gc2QgKi8KPiA+ICvC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGdlby0+aGVhZHMgPSAxIDw8IDY7Cj4gPiArwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqBnZW8tPnNlY3RvcnMgPSAxIDw8IDU7Cj4gPiArwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqBnZW8tPmN5bGluZGVycyA9IGdldF9jYXBhY2l0eShiZC0+YmRfZGlz
+aykgPj4gMTE7Cj4gPiArwqDCoMKgwqDCoH0KPiA+IMKgwqDCoMKgwqDCoHJldHVybiAwOwo+ID4g
+wqB9Cj4gPiDCoCAKPiAKPiBZb3UncmUgcHJvYmFibHkgYnJlYWtpbmcgUFBDIHNpbmNlIHRoZSB2
+YWx1ZXMgaW4gdGhlIGNvbmZpZyBzcGFjZSBhcmUgaW4gCj4gbGl0dGxlIGVuZGlhbiBmb3JtYXQu
+IMKgdmlydGlvX2NvbmZpZ192YWwgZG9lcyBhdXRvbWFnaWMgZW5kaWFubmVzcyAKPiBjb252ZXJz
+aW9uIGlmIHRoZSBzaXplIGlzIDIsIDQsIG9yIDguIMKgSW4gdGhpcyBjYXNlLCB0aGUgc3RydWN0
+dXJlIHNpemUgCj4gaXMgNCBzbyB0aGUgZW5kaWFubmVzcyBjb252ZXJzaW9uIHdpbGwgZG8gdGhl
+IHdyb25nIHRoaW5nLgoKR29vZCBjYXRjaDsgYnl0ZS1zd2FwcGluZyBhbiBlbnRpcmUgc3RydWN0
+dXJlIGlzIGEgdGVycmlibGUgdGVycmlibGUgaWRlYS4KCj4gTWFnaWMgZW5kaWFubmVzcyBjb252
+ZXJzaW9uIGJhc2VkIG9uIHJlYWQgc2l6ZSBpcyBsb29raW5nIHByZXR0eSBldmlsIHRvIAo+IG1l
+Li4uIFBlcmhhcHMgd2UgbmVlZCBleHBsaWNpdCAqX3ZhbFs4LDE2LDMyLDY0XT8KCkltcGxpY2l0
+IGJ5dGVzd2FwcGluZyBiYXNlZCBvbiBhY2Nlc3Mgc2l6ZSBpcyB0aGUgc3RhbmRhcmQgd2F5IG9m
+IGltcGxlbWVudGluZyAKYWNjZXNzb3JzLgoKSW4gdGhpcyBjYXNlLCByZWFkaW5nIGVhY2ggc3Ry
+dWN0dXJlIG1lbWJlciBpbmRpdmlkdWFsbHkgd2lsbCBkbyB0aGUgcmlnaHQgCmltcGxpY2l0IHN3
+YXBwaW5nLCByYXRoZXIgdGhhbiB0cnlpbmcgdG8gbG9hZCB0aGUgd2hvbGUgdGhpbmcgYXMgYSBz
+aW5nbGUgCmFjY2Vzcy4KCi0tIApIb2xsaXMgQmxhbmNoYXJkCklCTSBMaW51eCBUZWNobm9sb2d5
+IENlbnRlcgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
