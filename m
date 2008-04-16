@@ -1,13 +1,11 @@
-From: Glauber de Oliveira Costa <gcosta@redhat.com>
-Subject: Re: [PATCH] kvm: move kvmclock initialization inside kvm_guest_init
-Date: Wed, 16 Apr 2008 14:29:33 -0300
-Message-ID: <4806377D.7070807__37581.5999032513$1208369285$gmane$org@redhat.com>
-References: <12083651781498-git-send-email-gcosta@redhat.com>
+From: Ryan Harper <ryanh@us.ibm.com>
+Subject: [PATCH] add virtio disk geometry feature
+Date: Wed, 16 Apr 2008 13:56:37 -0500
+Message-ID: <1208372197-20815-1-git-send-email-ryanh@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12083651781498-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,71 +15,78 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel@lists.sourceforge.net
-Cc: anthony@codemonkey.ws, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber Costa wrote:
-> It makes no sense for the clock initialization to be
-> hanging around in setup_32.c when we have a generic kvm guest
-> initialization function available. So, we move kvmclock_init()
-> inside such a function, leading to a cleaner code.
->
-> Signed-off-by: Glauber Costa <gcosta@redhat.com>
-> ---
->  arch/x86/kernel/kvm.c      |    2 ++
->  arch/x86/kernel/setup_32.c |    4 ----
->  include/linux/kvm_para.h   |    5 +++++
->  3 files changed, 7 insertions(+), 4 deletions(-)
->
-> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-> index d9121f9..5cad368 100644
-> --- a/arch/x86/kernel/kvm.c
-> +++ b/arch/x86/kernel/kvm.c
-> @@ -210,6 +210,8 @@ static void paravirt_ops_setup(void)
->  	pv_info.name = "KVM";
->  	pv_info.paravirt_enabled = 1;
->  
-> +	kvmclock_init();
-> +
->  	if (kvm_para_has_feature(KVM_FEATURE_NOP_IO_DELAY))
->  		pv_cpu_ops.io_delay = kvm_io_delay;
->  
-> diff --git a/arch/x86/kernel/setup_32.c b/arch/x86/kernel/setup_32.c
-> index 65f3a23..029350c 100644
-> --- a/arch/x86/kernel/setup_32.c
-> +++ b/arch/x86/kernel/setup_32.c
-> @@ -771,10 +771,6 @@ void __init setup_arch(char **cmdline_p)
->  
->  	max_low_pfn = setup_memory();
->  
-> -#ifdef CONFIG_KVM_CLOCK
-> -	kvmclock_init();
-> -#endif
-> -
->  #ifdef CONFIG_VMI
->  	/*
->  	 * Must be after max_low_pfn is determined, and before kernel
-> diff --git a/include/linux/kvm_para.h b/include/linux/kvm_para.h
-> index 3ddce03..c5e662c 100644
-> --- a/include/linux/kvm_para.h
-> +++ b/include/linux/kvm_para.h
-> @@ -28,6 +28,11 @@ void __init kvm_guest_init(void);
->  #else
->  #define kvm_guest_init() do { } while (0)
->  #endif
-> +#ifdef CONFIG_KVM_CLOCK
-> +void kvmclock_init(void);
-> +#else
-> +#define kvmclock_init() do { } while (0)
-> +#endif
->  
->  static inline int kvm_para_has_feature(unsigned int feature)
->  {
->   
+From: Ryan Harper <ryanh@us.ibm.com>
 
-Forget about it. Marelo just screamed to me (and somehow I heard it), 
-that this create a bogus dependency between clock and the mmu functions. 
-Duh.
+Rather than faking up some geometry, allow the backend to push the disk
+geometry via virtio pci config option.  Keep the old geo code around for
+compatibility.
 
-I'll resend a better version
+Signed-off-by: Ryan Harper <ryanh@us.ibm.com>
+Reviewed-by: Anthony Liguori <aliguori@us.ibm.com>
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 0cfbe8c..1d2142a 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -157,10 +157,28 @@ static int virtblk_ioctl(struct inode *inode, struct file *filp,
+ /* We provide getgeo only to please some old bootloader/partitioning tools */
+ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+ {
+-	/* some standard values, similar to sd */
+-	geo->heads = 1 << 6;
+-	geo->sectors = 1 << 5;
+-	geo->cylinders = get_capacity(bd->bd_disk) >> 11;
++	struct virtio_blk *vblk = bd->bd_disk->private_data;
++	int err = 0;
++
++	/* see if the host passed in geometry config */
++	err = virtio_config_val(vblk->vdev, VIRTIO_BLK_F_GEOMETRY,
++				offsetof(struct virtio_blk_config, cylinders),
++				&geo->cylinders);
++	
++	/* if host sets geo flag, all 3 values must be present */
++	if (!err) {
++		__virtio_config_val(vblk->vdev,
++				offsetof(struct virtio_blk_config, heads),
++				&geo->heads);
++		__virtio_config_val(vblk->vdev,
++				offsetof(struct virtio_blk_config, sectors),
++				&geo->sectors);
++	} else {
++		/* some standard values, similar to sd */
++		geo->heads = 1 << 6;
++		geo->sectors = 1 << 5;
++		geo->cylinders = get_capacity(bd->bd_disk) >> 11;
++	}
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/virtio_blk.h b/include/linux/virtio_blk.h
+index bca0b10..142c496 100644
+--- a/include/linux/virtio_blk.h
++++ b/include/linux/virtio_blk.h
+@@ -9,6 +9,7 @@
+ #define VIRTIO_BLK_F_BARRIER	0	/* Does host support barriers? */
+ #define VIRTIO_BLK_F_SIZE_MAX	1	/* Indicates maximum segment size */
+ #define VIRTIO_BLK_F_SEG_MAX	2	/* Indicates maximum # of segments */
++#define VIRTIO_BLK_F_GEOMETRY	4	/* Legacy geometry available  */
+ 
+ struct virtio_blk_config
+ {
+@@ -18,6 +19,12 @@ struct virtio_blk_config
+ 	__le32 size_max;
+ 	/* The maximum number of segments (if VIRTIO_BLK_F_SEG_MAX) */
+ 	__le32 seg_max;
++	/* cylinders of the device (if VIRTIO_BLK_F_GEOMETRY) */
++	__le16 cylinders;
++	/* heads of the device (if VIRTIO_BLK_F_GEOMETRY) */
++	__u8 heads;
++	/* sectors of the device (if VIRTIO_BLK_F_GEOMETRY) */
++	__u8 sectors;
+ } __attribute__((packed));
+ 
+ /* These two define direction. */
