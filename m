@@ -1,16 +1,11 @@
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Subject: Re: [PATCH] add virtio disk geometry feature
-Date: Wed, 16 Apr 2008 16:57:24 -0500
-Message-ID: <200804161657.24454.hollisb__48784.6817858101$1208383327$gmane$org@us.ibm.com>
-References: <1208372197-20815-1-git-send-email-ryanh@us.ibm.com>
-	<200804170715.55041.rusty@rustcorp.com.au>
-	<4806706E.10701@us.ibm.com>
+From: Avi Kivity <avi@qumranet.com>
+Subject: [Reminder] Call for Presentations: KVM Forum 2008
+Date: Thu, 17 Apr 2008 17:02:02 +0300
+Message-ID: <4807585A.1060306__21922.6232301027$1208442061$gmane$org@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4806706E.10701@us.ibm.com>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,54 +15,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: kvm-devel <kvm-devel@lists.sourceforge.net>, kvm-ia64-devel@lists.sourceforge.net, kvm-ppc-devel <kvm-ppc-devel@lists.sourceforge.net>, virtualization <virtualiza>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkbmVzZGF5IDE2IEFwcmlsIDIwMDggMTY6MzI6MzAgQW50aG9ueSBMaWd1b3JpIHdyb3Rl
-Ogo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jIGIvZHJpdmVycy9i
-bG9jay92aXJ0aW9fYmxrLmMKPiA+IC0tLSBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4g
-PiArKysgYi9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+ID4gQEAgLTE1NywxMCArMTU3LDI1
-IEBAIHN0YXRpYyBpbnQgdmlydGJsa19pb2N0bChzdHJ1Y3QgaW5vZGUgKmkKPiA+IMKgLyogV2Ug
-cHJvdmlkZSBnZXRnZW8gb25seSB0byBwbGVhc2Ugc29tZSBvbGQgYm9vdGxvYWRlci9wYXJ0aXRp
-b25pbmcgCnRvb2xzICovCj4gPiDCoHN0YXRpYyBpbnQgdmlydGJsa19nZXRnZW8oc3RydWN0IGJs
-b2NrX2RldmljZSAqYmQsIHN0cnVjdCBoZF9nZW9tZXRyeSAKKmdlbykKPiA+IMKgewo+ID4gLcKg
-wqDCoMKgwqAvKiBzb21lIHN0YW5kYXJkIHZhbHVlcywgc2ltaWxhciB0byBzZCAqLwo+ID4gLcKg
-wqDCoMKgwqBnZW8tPmhlYWRzID0gMSA8PCA2Owo+ID4gLcKgwqDCoMKgwqBnZW8tPnNlY3RvcnMg
-PSAxIDw8IDU7Cj4gPiAtwqDCoMKgwqDCoGdlby0+Y3lsaW5kZXJzID0gZ2V0X2NhcGFjaXR5KGJk
-LT5iZF9kaXNrKSA+PiAxMTsKPiA+ICvCoMKgwqDCoMKgc3RydWN0IHZpcnRpb19ibGsgKnZibGsg
-PSBiZC0+YmRfZGlzay0+cHJpdmF0ZV9kYXRhOwo+ID4gK8KgwqDCoMKgwqBzdHJ1Y3QgdmlydGlv
-X2Jsa19nZW9tZXRyeSB2Z2VvOwo+ID4gK8KgwqDCoMKgwqBpbnQgZXJyOwo+ID4gKwo+ID4gK8Kg
-wqDCoMKgwqAvKiBzZWUgaWYgdGhlIGhvc3QgcGFzc2VkIGluIGdlb21ldHJ5IGNvbmZpZyAqLwo+
-ID4gK8KgwqDCoMKgwqBlcnIgPSB2aXJ0aW9fY29uZmlnX3ZhbCh2YmxrLT52ZGV2LCBWSVJUSU9f
-QkxLX0ZfR0VPTUVUUlksCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoG9mZnNldG9mKHN0cnVjdCB2aXJ0aW9fYmxrX2NvbmZpZywg
-Cmdlb21ldHJ5KSwKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgJnZnZW8pOwo+ID4gKwo+ID4gK8KgwqDCoMKgwqBpZiAoIWVycikg
-ewo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZ2VvLT5oZWFkcyA9IHZnZW8uaGVhZHM7
-Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBnZW8tPnNlY3RvcnMgPSB2Z2VvLnNlY3Rv
-cnM7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBnZW8tPmN5bGluZGVycyA9IHZnZW8u
-Y3lsaW5kZXJzOwo+ID4gK8KgwqDCoMKgwqB9IGVsc2Ugewo+ID4gK8KgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgLyogc29tZSBzdGFuZGFyZCB2YWx1ZXMsIHNpbWlsYXIgdG8gc2QgKi8KPiA+ICvC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGdlby0+aGVhZHMgPSAxIDw8IDY7Cj4gPiArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqBnZW8tPnNlY3RvcnMgPSAxIDw8IDU7Cj4gPiArwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqBnZW8tPmN5bGluZGVycyA9IGdldF9jYXBhY2l0eShiZC0+YmRfZGlz
-aykgPj4gMTE7Cj4gPiArwqDCoMKgwqDCoH0KPiA+IMKgwqDCoMKgwqDCoHJldHVybiAwOwo+ID4g
-wqB9Cj4gPiDCoCAKPiAKPiBZb3UncmUgcHJvYmFibHkgYnJlYWtpbmcgUFBDIHNpbmNlIHRoZSB2
-YWx1ZXMgaW4gdGhlIGNvbmZpZyBzcGFjZSBhcmUgaW4gCj4gbGl0dGxlIGVuZGlhbiBmb3JtYXQu
-IMKgdmlydGlvX2NvbmZpZ192YWwgZG9lcyBhdXRvbWFnaWMgZW5kaWFubmVzcyAKPiBjb252ZXJz
-aW9uIGlmIHRoZSBzaXplIGlzIDIsIDQsIG9yIDguIMKgSW4gdGhpcyBjYXNlLCB0aGUgc3RydWN0
-dXJlIHNpemUgCj4gaXMgNCBzbyB0aGUgZW5kaWFubmVzcyBjb252ZXJzaW9uIHdpbGwgZG8gdGhl
-IHdyb25nIHRoaW5nLgoKR29vZCBjYXRjaDsgYnl0ZS1zd2FwcGluZyBhbiBlbnRpcmUgc3RydWN0
-dXJlIGlzIGEgdGVycmlibGUgdGVycmlibGUgaWRlYS4KCj4gTWFnaWMgZW5kaWFubmVzcyBjb252
-ZXJzaW9uIGJhc2VkIG9uIHJlYWQgc2l6ZSBpcyBsb29raW5nIHByZXR0eSBldmlsIHRvIAo+IG1l
-Li4uIFBlcmhhcHMgd2UgbmVlZCBleHBsaWNpdCAqX3ZhbFs4LDE2LDMyLDY0XT8KCkltcGxpY2l0
-IGJ5dGVzd2FwcGluZyBiYXNlZCBvbiBhY2Nlc3Mgc2l6ZSBpcyB0aGUgc3RhbmRhcmQgd2F5IG9m
-IGltcGxlbWVudGluZyAKYWNjZXNzb3JzLgoKSW4gdGhpcyBjYXNlLCByZWFkaW5nIGVhY2ggc3Ry
-dWN0dXJlIG1lbWJlciBpbmRpdmlkdWFsbHkgd2lsbCBkbyB0aGUgcmlnaHQgCmltcGxpY2l0IHN3
-YXBwaW5nLCByYXRoZXIgdGhhbiB0cnlpbmcgdG8gbG9hZCB0aGUgd2hvbGUgdGhpbmcgYXMgYSBz
-aW5nbGUgCmFjY2Vzcy4KCi0tIApIb2xsaXMgQmxhbmNoYXJkCklCTSBMaW51eCBUZWNobm9sb2d5
-IENlbnRlcgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+[Note: KVM Forum registration is now open at
+http://kforum.qumranet.com/KVMForum/about_kvmforum.php]
+
+This is the Call for Presentations for the second annual KVM Developer's
+Forum, to be held on June 10-13, 2008, in Napa, California, USA [1].  We
+are looking for presentations on KVM development, quality assurance,
+management, security, interoperability, architecture support, and
+interesting use cases.  Presentations are 50 minutes in length; there
+are also 25-minute mini-presentation slots available.
+
+KVM Forum presentations are an excellent way to inform the KVM
+development community about your work, and to gather valuable feedback
+about your approach.
+
+Please send your presentation proposal to the KVM Forum 2008 Content
+Committee at kf2008-cfp@qumranet.com by April 20th.
+
+KVM Forum 2008 Content Committee:
+Dor Laor
+Anthony Liguori
+Avi Kivity
+
+[1] http://kforum.qumranet.com/KVMForum/about_kvmforum.php
+
+-- 
+Any sufficiently difficult bug is indistinguishable from a feature.
