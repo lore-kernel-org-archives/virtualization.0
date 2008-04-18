@@ -1,16 +1,12 @@
-From: Ryan Harper <ryanh@us.ibm.com>
-Subject: Re: [PATCH] add virtio disk geometry feature
-Date: Thu, 17 Apr 2008 09:37:38 -0500
-Message-ID: <20080417143738.GE17938__30400.8074258038$1208444165$gmane$org@us.ibm.com>
-References: <1208372197-20815-1-git-send-email-ryanh@us.ibm.com>
-	<200804170715.55041.rusty@rustcorp.com.au>
-	<4806706E.10701@us.ibm.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [0/6] [NET]: virtio SG/TSO patches
+Date: Fri, 18 Apr 2008 11:12:57 +0800
+Message-ID: <20080418031257.GA17993@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4806706E.10701@us.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,44 +16,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Hollis Blanchard <hollisb@us.ibm.com>, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Anthony Liguori <aliguori@us.ibm.com> [2008-04-16 16:33]:
-> Rusty Russell wrote:
-> >On Thursday 17 April 2008 04:56:37 Ryan Harper wrote:
-> >  
-> >>From: Ryan Harper <ryanh@us.ibm.com>
-> >>
-> >>Rather than faking up some geometry, allow the backend to push the disk
-> >>geometry via virtio pci config option.  Keep the old geo code around for
-> >>compatibility.
-> >>    
-> >
-> >Hi Ryan,
-> >
-> >   Looks good! Some brief review below.  Mainly just "how I would have done
-> >things" stuff.  BTW, does this help in real life?  I assume something in
-> >userspace wants it?
-> >  
-> 
-> Boot loaders (like grub) query the geometry from the kernel to figure 
-> out how to setup the stage1/stage2.  We've seen strange issues with grub 
-> thinking it has crazy geometries when installed on a virtio disk (as 
-> opposed to booting from virtio with an existing disk).
-> 
-> Ryan: have you tested a hardy install with your patches?  Does it help 
-> when installing to virtio?  I could pretty reliably reproduce the 
-> strangeness with a 20GB disk image FWIW.
+Hi:
 
-I had tested out hardy with a 10G disk and saw nothing out of the
-ordinary.  Disk size was the expected value and grub had no issues with
-it.
+Here are the patches I used for testing KVM with virtio-net using
+TSO.  There are three patches for the tun device which are basically
+Rusty's patches with the mmap turned into copying (for correctness).
+Two patches are for the virtio-net frontend, one required to support
+receiving SG/TSO, and the other useful for testing SG per se.  The
+other patch is to the KVM backend to make all this work.  It isn't
+the prettiest or the smartest solution but it was the easiest :)
 
+Cheers,
 -- 
-Ryan Harper
-Software Engineer; Linux Technology Center
-IBM Corp., Austin, Tx
-(512) 838-9253   T/L: 678-9253
-ryanh@us.ibm.com
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
