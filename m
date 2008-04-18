@@ -1,16 +1,16 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 5/5] tun: vringfd xmit support.
-Date: Fri, 18 Apr 2008 04:31:20 -0700
-Message-ID: <20080418043120.ff78eab5.akpm@linux-foundation.org>
+Subject: Re: [PATCH 2/5] /dev/vring: simple userspace-kernel ringbuffer
+	interface.
+Date: Fri, 18 Apr 2008 04:18:46 -0700
+Message-ID: <20080418041846.db15150b.akpm__13387.306375853$1208615272$gmane$org@linux-foundation.org>
 References: <200804181433.48488.rusty@rustcorp.com.au>
-	<200804181441.10499.rusty@rustcorp.com.au>
-	<200804181442.17251.rusty@rustcorp.com.au>
-	<200804181443.24812.rusty@rustcorp.com.au>
+	<200804181435.21214.rusty@rustcorp.com.au>
+	<200804181439.49051.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804181443.24812.rusty@rustcorp.com.au>
+In-Reply-To: <200804181439.49051.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,98 +24,224 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 18 Apr 2008 14:43:24 +1000 Rusty Russell <rusty@rustcorp.com.au> wrote:
+On Fri, 18 Apr 2008 14:39:48 +1000 Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-> This patch modifies tun to allow a vringfd to specify the send
-> buffer.  The user does a write to push out packets from the buffer.
+> virtio introduced a ring structure ABI for guest-host communications
+> (currently used by lguest and kvm).  Using this same ABI, we can
+> create a nice fd version.
 > 
-> Again we use the 'struct virtio_net_hdr' to allow userspace to send
-> GSO packets.  In this case, it can hint how much to copy, and the
-> other pages will be made into skb fragments.
-> 
+> This is useful for efficiently passing packets to and from the tun,
+> for example.
 > 
 > ...
 >
-> +/* We don't consolidate consecutive iovecs, so huge iovecs can break here.
-> + * Users will learn not to do that. */
-> +static int get_user_skb_frags(const struct iovec *iv, size_t len,
-> +			      struct skb_frag_struct *f)
+> +static int vring_mmap(struct file *filp, struct vm_area_struct *vma)
 > +{
-> +	unsigned int i, j, num_pg = 0;
+> +	unsigned long size, num_descs;
+> +	struct vring_info *vr = filp->private_data;
 > +	int err;
-> +	struct page *pages[MAX_SKB_FRAGS];
 > +
-> +	down_read(&current->mm->mmap_sem);
-> +	while (len) {
-> +		int n, npages;
-> +		unsigned long base, len;
-> +		base = (unsigned long)iv->iov_base;
-> +		len = (unsigned long)iv->iov_len;
+> +	/* We overload mmap's offset to hold the ring number. */
+> +	num_descs = vma->vm_pgoff;
 > +
-> +		if (len == 0) {
-> +			iv++;
-> +			continue;
-> +		}
+> +	/* Must be a power of two, and limit indices to a u16. */
+> +	if (!num_descs || (num_descs & (num_descs-1)) || num_descs > 65536)
+
+We have an is_power_of_2().
+
+> +		return -EINVAL;
 > +
-> +		/* How many pages will this take? */
-> +		npages = 1 + (base + len - 1)/PAGE_SIZE - base/PAGE_SIZE;
-
-Brain hurts.  I hope you got that right.
-
-> +		if (unlikely(num_pg + npages > MAX_SKB_FRAGS)) {
-> +			err = -ENOSPC;
-> +			goto fail;
-> +		}
-> +		n = get_user_pages(current, current->mm, base, npages,
-> +				   0, 0, pages, NULL);
-
-What is the maximum numbet of pages which an unpriviliged user can
-concurrently pin with this code?
-
-> +		if (unlikely(n < 0)) {
-> +			err = n;
-> +			goto fail;
-> +		}
+> +	/* mmap size must be what we expect for such a ring. */
+> +	size = vma->vm_end - vma->vm_start;
+> +	if (size != ALIGN(vring_size(num_descs, PAGE_SIZE), PAGE_SIZE))
+> +		return -EINVAL;
 > +
-> +		/* Transfer pages to the frag array */
-> +		for (j = 0; j < n; j++) {
-> +			f[num_pg].page = pages[j];
-> +			if (j == 0) {
-> +				f[num_pg].page_offset = offset_in_page(base);
-> +				f[num_pg].size = min(len, PAGE_SIZE -
-> +						     f[num_pg].page_offset);
-> +			} else {
-> +				f[num_pg].page_offset = 0;
-> +				f[num_pg].size = min(len, PAGE_SIZE);
-> +			}
-> +			len -= f[num_pg].size;
-> +			base += f[num_pg].size;
-> +			num_pg++;
-> +		}
-
-This loop is a fancy way of doing
-
-		num_pg = n;
-
-> +		if (unlikely(n != npages)) {
-> +			err = -EFAULT;
-> +			goto fail;
-> +		}
-
-why not do this immediately after running get_user_pages()?
-
+> +	/* We only let them map this in one place. */
+> +	mutex_lock(&vr->lock);
+> +	if (vr->ring.num != 0) {
+> +		err = -EBUSY;
+> +		goto unlock;
 > +	}
-> +	up_read(&current->mm->mmap_sem);
-> +	return num_pg;
 > +
-> +fail:
-> +	for (i = 0; i < num_pg; i++)
-> +		put_page(f[i].page);
-
-release_pages() could be a tad more efficient, but it's only error-path.
-
-> +	up_read(&current->mm->mmap_sem);
+> +	vring_init(&vr->ring, num_descs, (void *)vma->vm_start, PAGE_SIZE);
+> +
+> +	vr->mask = num_descs - 1;
+> +	err = 0;
+> +
+> +unlock:
+> +	mutex_unlock(&vr->lock);
 > +	return err;
 > +}
+>
+> ...
+>
+> +/**
+> + * vring_get - check out a vring file descriptor
+> + * @filp: the file structure to attach to (eg. from fget()).
+> + *
+> + * Userspace opens /dev/vring and mmaps it, then hands that fd to the
+> + * kernel subsystem it wants to communicate with.  That subsystem uses
+> + * this routine and vring_set_ops() to attach to it.
+> + *
+> + * This simply checks that it really is a vring fd (otherwise it
+> + * returns NULL), the other routine checks that it's not already
+> + * attached.
+> + */
+
+hm, I don't understand the big picture here yet.
+
+Isn't this kinda-sorta like what a relayfs file does?  The oprofile
+buffers?  etc?  Nothing in common at all, no hope?
+
+> +struct vring_info *vring_get(struct file *filp)
+> +{
+> +	/* Must be one of ours. */
+> +	if (filp->f_op != &vring_fops)
+> +		return NULL;
 > +
->  
+> +	return filp->private_data;
+> +}
+> +EXPORT_SYMBOL_GPL(vring_get);
+> +
+> +/**
+> + * vring_set_ops - attach operations to a vring file descriptor.
+> + * @vr: the vring_info returned from vring_get.
+> + * @ops: the operations to attach.
+> + * @ops_data: the argument to the ops callbacks.
+> + *
+> + * This is called after vring_get(): the reason for the two-part
+> + * process is that the ops can be called before vring_set_ops returns
+> + * (we don't do locking), so you really need to set things up before
+> + * this call.
+> + *
+> + * This simply checks that the ring is not already attached to something,
+> + * then sets the ops.
+> + */
+> +int vring_set_ops(struct vring_info *vr,
+> +		  const struct vring_ops *ops, void *ops_data)
+> +{
+> +	int err;
+> +
+> +	mutex_lock(&vr->lock);
+> +	if (vr->ops) {
+> +		err = -EBUSY;
+> +		goto unlock;
+> +	}
+> +
+> +	/* We don't lock, so make sure we get this in the right order. */
+> +	vr->ops_data = ops_data;
+> +	wmb();
+> +	vr->ops = ops;
+> +
+> +	err = 0;
+> +unlock:
+> +	mutex_unlock(&vr->lock);
+> +	local_irq_enable();
+
+what's this doing here?
+
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(vring_set_ops);
+> +
+> +/**
+> + * vring_unset_ops - remove operations to a vring file descriptor.
+> + * @vr: the vring_info previously successfully vring_set_ops'd
+> + */
+> +void vring_unset_ops(struct vring_info *vr)
+> +{
+> +	BUG_ON(!vr->ops);
+> +	mutex_lock(&vr->lock);
+> +	vr->ops = NULL;
+> +	mutex_unlock(&vr->lock);
+> +}
+> +EXPORT_SYMBOL_GPL(vring_unset_ops);
+
+Isn't this just vring_set_ops(vr, NULL, NULL)?
+
+> +static struct miscdevice vring_dev = {
+> +	.minor = MISC_DYNAMIC_MINOR,
+> +	.name = KBUILD_MODNAME,
+> +	.fops = &vring_fops,
+> +};
+> +
+> +static int __init init(void)
+> +{
+> +	return misc_register(&vring_dev);
+> +}
+> +
+> +static void __exit fini(void)
+> +{
+> +	misc_deregister(&vring_dev);
+> +}
+> +
+> +module_init(init);
+> +module_exit(fini);
+> diff -r b2d9869d338f include/linux/vring.h
+> --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
+> +++ b/include/linux/vring.h	Fri Apr 18 13:35:16 2008 +1000
+> @@ -0,0 +1,58 @@
+> +/* Ring-buffer file descriptor implementation.
+> + *
+> + *  Copyright 2008 Rusty Russell IBM Corporation
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License as published by
+> + *  the Free Software Foundation; either version 2 of the License, or
+> + *  (at your option) any later version.
+> + *
+> + *  This program is distributed in the hope that it will be useful,
+> + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + *  GNU General Public License for more details.
+> + *
+> + *  You should have received a copy of the GNU General Public License
+> + *  along with this program; if not, write to the Free Software
+> + *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+> + */
+
+ponders #include <copyright.h>
+
+> +#ifndef _LINUX_VRING_H
+> +#define _LINUX_VRING_H
+> +
+> +/**
+> + * vring_ops - operations for a vring fd.
+> + * @needs_pull: more data is pending, need to call pull.
+> + * @pull: callback when read() is called to report used buffers.
+> + * @push: callback when write() is called to notify of added buffers.
+> + *
+> + * Any of these callbacks can be NULL, if you don't need them.
+> + */
+> +struct vring_ops {
+> +	bool (*needs_pull)(void *ops_data);
+> +
+> +	/* Returns 0 or negative errno. */
+> +	int (*pull)(void *ops_data);
+> +
+> +	/* Returns 0 or negative errno. */
+> +	int (*push)(void *ops_data);
+> +};
+> +
+> +struct file;
+> +
+> +struct vring_info *vring_get(struct file *filp);
+> +int vring_set_ops(struct vring_info *,
+> +		  const struct vring_ops *ops, void *ops_data);
+
+the first arg to vring_set_ops() lost its name.
+
+> +void vring_unset_ops(struct vring_info *vr);
+> +struct iovec;
+> +
+> +/* Returns an error, or 0 (no buffers), or an id for vring_used_buffer() */
+> +int vring_get_buffer(struct vring_info *vr,
+> +		     struct iovec *in_iov,
+> +		     unsigned int *num_in, unsigned long *in_len,
+> +		     struct iovec *out_iov,
+> +		     unsigned int *num_out, unsigned long *out_len);
+> +
+> +void vring_used_buffer(struct vring_info *vr, int id, u32 len);
+> +
+> +void vring_wake(struct vring_info *vr);
+> +#endif /* _LINUX_VRING_H */
