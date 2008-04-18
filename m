@@ -1,17 +1,19 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 2/5] /dev/vring: simple userspace-kernel ringbuffer
-	interface.
-Date: Fri, 18 Apr 2008 11:59:59 -0700
-Message-ID: <20080418115959.6b8fdfa7.akpm@linux-foundation.org>
+From: "pradeep singh rautela" <rautelap@gmail.com>
+Subject: Re: [PATCH 5/5] tun: vringfd xmit support.
+Date: Fri, 18 Apr 2008 23:31:29 +0530
+Message-ID: <6bc632150804181101i701f220an20dddf54389be273@mail.gmail.com>
 References: <200804181433.48488.rusty@rustcorp.com.au>
-	<200804181439.49051.rusty@rustcorp.com.au>
-	<20080418041846.db15150b.akpm@linux-foundation.org>
-	<200804190032.39626.rusty@rustcorp.com.au>
+	<200804181441.10499.rusty@rustcorp.com.au>
+	<200804181442.17251.rusty@rustcorp.com.au>
+	<200804181443.24812.rusty@rustcorp.com.au>
+	<6bc632150804180446u29e5dae9h986e1d255e584d21@mail.gmail.com>
+	<2c0942db0804180725h88fa7d1mb8e85e5a8b0aede6@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804190032.39626.rusty@rustcorp.com.au>
+In-Reply-To: <2c0942db0804180725h88fa7d1mb8e85e5a8b0aede6@mail.gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,39 +23,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Ray Lee <ray-lk@madrabbit.org>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 19 Apr 2008 00:32:39 +1000 Rusty Russell <rusty@rustcorp.com.au> wrote:
+On Fri, Apr 18, 2008 at 7:55 PM, Ray Lee <ray-lk@madrabbit.org> wrote:
+> On Fri, Apr 18, 2008 at 4:46 AM, pradeep singh rautela
+>  <rautelap@gmail.com> wrote:
+>  >
+>  > On Fri, Apr 18, 2008 at 10:13 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+> >  >  +               /* How many pages will this take? */
+>  >  >  +               npages = 1 + (base + len - 1)/PAGE_SIZE - base/PAGE_SIZE;
+>  >
+>  >  Hi Rusty,
+>  >  A trivial suggestion, how about
+>  >           npages = 1+(len -1)/PAGE_SIZE ?
+>
+>  That's not the same. In particular, his version accounts for the
+>  fractional page at the beginning, while yours doesn't.
 
-> > Isn't this kinda-sorta like what a relayfs file does?  The oprofile
-> > buffers?  etc?  Nothing in common at all, no hope?
-> 
-> An excellent question, but I thought the modern kernel etiquette was to only 
-> comment on whitespace and formatting, and call it "review"? :)
-> 
-> Yes, kinda-sorta in that it's a ring buffer.  No, in that it's bidir and 
-> consumption can be out-of-order (kind of important for I/O buffers).
-> 
-> But the reason I'm not proposing it as a syscall is that I'm not convinced 
-> it's the One True Solution which everyone should be using.  Time will tell: 
-> it's clearly not tied to tun and it's been generically useful for virtual 
-> I/O, but history has not been kind to new userspace interfaces.
+Oh thanks for correcting me Ray. :)
+>
+>  While it's tempting to use algebra to simplify things, it's not safe
+>  to do so when the expression involves division over the integers. The
+>  only care-free integer math in a computer is subtraction and ++.
 
-This is may be our third high-bandwidth user/kernel interface to transport
-bulk data ("hbukittbd") which was implemented because its predecessors
-weren't quite right.  In a year or two's time someone else will need a
-hbukittbd and will find that the existing three aren't quite right and will
-give us another one.  One day we need to stop doing this ;)
+I stand corrected.
 
-It could be that this person will look at Rusty's hbukittbd and find that
-it _could_ be tweaked to do what he wants, but it's already shipping and
-it's part of the kernel API and hence can't be made to do what he wants.
+Sorry for noise.
 
-So I think it would be good to plonk the proposed interface on the table
-and have a poke at it.  Is it compat-safe?  Is it extensible in a
-backward-compatible fashion?  Are there future-safe changes we should make
-to it?  Can Michael Kerrisk understand, review and document it?  etc.
-
-You know what I'm saying ;)  What is the proposed interface?
+Thanks,
+-- 
+Pradeep Singh Rautela
+http://eagain.wordpress.com
+http://emptydomain.googlepages.com
