@@ -1,46 +1,39 @@
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [PATCH 2/5] /dev/vring: simple userspace-kernel ringbuffer
-	interface.
-Date: Sat, 19 Apr 2008 20:33:22 +0400
-Message-ID: <20080419163322.GA17089__28238.8854226612$1208790574$gmane$org@2ka.mipt.ru>
-References: <200804181433.48488.rusty@rustcorp.com.au>
-	<200804181439.49051.rusty@rustcorp.com.au>
-	<20080419102214.GA21952@2ka.mipt.ru>
-	<200804200205.31508.rusty@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [6/6] [VIRTIO] net: Allow receiving SG packets
+Date: Tue, 22 Apr 2008 05:06:16 +1000
+Message-ID: <200804220506.16887.rusty@rustcorp.com.au>
+References: <20080418031257.GA17993@gondor.apana.org.au> <20080418032142.GD18071@gondor.apana.org.au> <20080418032427.GE18071@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20080418032427.GE18071@gondor.apana.org.au>
 Content-Disposition: inline
-In-Reply-To: <200804200205.31508.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>, virtualization@lists.linux-foundation.org
+Sender: netdev-owner@vger.kernel.org
+To: virtualization@lists.linux-foundation.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, virtualization@lists.osdl.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 20, 2008 at 02:05:31AM +1000, Rusty Russell (rusty@rustcorp.com.au) wrote:
-> > Should this whole function and vring_used_buffer() be protected with
-> > vr->lock mutex?
-> 
-> No; it's up to the caller to make sure that they are serialized.  In the case 
-> of tun that happens naturally.
-> 
-> There are two reasons not to grab the lock.  It turns out that if we tried to 
-> lock here, we'd deadlock, since the callbacks are called under the lock.  
-> Secondly, it's possible to implement an atomic vring_used_buffer variant, 
-> which could fail: this would avoid using the thread most of the time.
+On Friday 18 April 2008 13:24:27 Herbert Xu wrote:
+> Finally this patch lets virtio_net receive GSO packets in addition
+> to sending them.
+...
+>  static void try_fill_recv(struct virtnet_info *vi)
+>  {
+>  	struct sk_buff *skb;
+> -	struct scatterlist sg[1+MAX_SKB_FRAGS];
+> +	struct scatterlist sg[2+MAX_SKB_FRAGS];
+>  	int num, err;
 
-Yep, I decided that too. But it limits its usage to tun only or any
-other system where only single thread picks up results, so no generic
-userspace ring buffers?
+I'm not sure what the right number is here.  Say worst case is header which 
+goes over a page boundary then MAX_SKB_FRAGS in the skb, but for some reason 
+that already has a +2:
 
--- 
-	Evgeniy Polyakov
+/* To allow 64K frame to be packed as single skb without frag_list */
+#define MAX_SKB_FRAGS (65536/PAGE_SIZE + 2)
+
+Unless someone explains, I'll change the xmit sg to 2+MAX_SKB_FRAGS as well.
+
+Thanks,
+Rusty.
