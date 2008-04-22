@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 3/3] ia64/pv_ops: preparation: introduce ia64_get_psr_i() to
-	make kernel paravirtualization friendly.
-Date: Tue, 22 Apr 2008 15:42:21 +0900
-Message-ID: <12088465413705-git-send-email-yamahata__27476.9114483663$1208847277$gmane$org@valinux.co.jp>
+Subject: [PATCH 2/3] [RESEND] ia64/pv_ops: preparation: introduce
+	ia64_set_rr0_to_rr4() to make kernel paravirtualization friendly.
+Date: Tue, 22 Apr 2008 15:42:20 +0900
+Message-ID: <12088465413678-git-send-email-yamahata__10810.9186905951$1208847400$gmane$org@valinux.co.jp>
 References: <12088465413472-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,60 +22,52 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-__local_irq_save() and local_save_flags() are used to mask interruptions.
-They read all psr bits that requres whole bit emulation.
-On the other hand, reading only psr.i, the single bit, can be virtualized
-cheaply.
+make kernel paravirtualization friendly by introducing
+ia64_set_rr0_to_rr4().
+ia64/Xen will replace setting rr[0-4] with single hypercall later.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/intrinsics.h |    2 ++
- include/asm-ia64/system.h     |   10 ++++++++--
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ include/asm-ia64/intrinsics.h  |    9 +++++++++
+ include/asm-ia64/mmu_context.h |    6 +-----
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
-index 9b83f8f..a3b9689 100644
+index f1135b5..9b83f8f 100644
 --- a/include/asm-ia64/intrinsics.h
 +++ b/include/asm-ia64/intrinsics.h
-@@ -18,6 +18,8 @@
+@@ -18,6 +18,15 @@
  # include <asm/gcc_intrin.h>
  #endif
  
-+#define ia64_get_psr_i()	(ia64_getreg(_IA64_REG_PSR) & IA64_PSR_I)
++#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
++do {								\
++	ia64_set_rr(0x0000000000000000UL, (val0));		\
++	ia64_set_rr(0x2000000000000000UL, (val1));		\
++	ia64_set_rr(0x4000000000000000UL, (val2));		\
++	ia64_set_rr(0x6000000000000000UL, (val3));		\
++	ia64_set_rr(0x8000000000000000UL, (val4));		\
++} while (0)
 +
- #define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
- do {								\
- 	ia64_set_rr(0x0000000000000000UL, (val0));		\
-diff --git a/include/asm-ia64/system.h b/include/asm-ia64/system.h
-index dff8128..bcc2483 100644
---- a/include/asm-ia64/system.h
-+++ b/include/asm-ia64/system.h
-@@ -122,10 +122,16 @@ extern struct ia64_boot_param {
-  *   write a floating-point register right before reading the PSR
-  *   and that writes to PSR.mfl
-  */
-+#ifdef CONFIG_PARAVIRT
-+#define __local_save_flags()	ia64_get_psr_i()
-+#else
-+#define __local_save_flags()	ia64_getreg(_IA64_REG_PSR)
-+#endif
-+
- #define __local_irq_save(x)			\
- do {						\
- 	ia64_stop();				\
--	(x) = ia64_getreg(_IA64_REG_PSR);	\
-+	(x) = __local_save_flags();		\
- 	ia64_stop();				\
- 	ia64_rsm(IA64_PSR_I);			\
- } while (0)
-@@ -173,7 +179,7 @@ do {								\
- #endif /* !CONFIG_IA64_DEBUG_IRQ */
+ /*
+  * Force an unresolved reference if someone tries to use
+  * ia64_fetch_and_add() with a bad value.
+diff --git a/include/asm-ia64/mmu_context.h b/include/asm-ia64/mmu_context.h
+index cef2400..040bc87 100644
+--- a/include/asm-ia64/mmu_context.h
++++ b/include/asm-ia64/mmu_context.h
+@@ -152,11 +152,7 @@ reload_context (nv_mm_context_t context)
+ #  endif
+ #endif
  
- #define local_irq_enable()	({ ia64_stop(); ia64_ssm(IA64_PSR_I); ia64_srlz_d(); })
--#define local_save_flags(flags)	({ ia64_stop(); (flags) = ia64_getreg(_IA64_REG_PSR); })
-+#define local_save_flags(flags)	({ ia64_stop(); (flags) = __local_save_flags(); })
+-	ia64_set_rr(0x0000000000000000UL, rr0);
+-	ia64_set_rr(0x2000000000000000UL, rr1);
+-	ia64_set_rr(0x4000000000000000UL, rr2);
+-	ia64_set_rr(0x6000000000000000UL, rr3);
+-	ia64_set_rr(0x8000000000000000UL, rr4);
++	ia64_set_rr0_to_rr4(rr0, rr1, rr2, rr3, rr4);
+ 	ia64_srlz_i();			/* srlz.i implies srlz.d */
+ }
  
- #define irqs_disabled()				\
- ({						\
 -- 
 1.5.3
