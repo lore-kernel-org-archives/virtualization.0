@@ -1,11 +1,14 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: [Deadline Extended] Call for Presentations: KVM Forum 2008
-Date: Tue, 22 Apr 2008 11:52:56 +0300
-Message-ID: <480DA768.5060607__14919.759045779$1208854816$gmane$org@qumranet.com>
+From: Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH 11/15] ia64/pv_ops: paravirtualize NR_IRQS
+Date: 22 Apr 2008 05:08:22 -0400
+Message-ID: <yq08wz6l0jd.fsf__966.032970655029$1208855638$gmane$org@jaguar.mkp.net>
+References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
+	<1207716549755-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1207716549755-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,35 +18,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm-devel <kvm-devel@lists.sourceforge.net>, kvm-ia64-devel@lists.sourceforge.net, kvm-ppc-devel <kvm-ppc-devel@lists.sourceforge.net>, virtualization <virtualiza>
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: eddie.dong@intel.com, xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-[Note: KVM Forum registration is now open at
-http://kforum.qumranet.com/KVMForum/about_kvmforum.php]
 
-[The deadline for submitting presentations has been extended by two 
-weeks, until May 4th]
+> Make NR_IRQ overridable by each pv instances.
+> Pv instance may need each own number of irqs so that
+> NR_IRQS should be the maximum number of nr_irqs each
+> pv instances need.
 
-This is the Call for Presentations for the second annual KVM Developer's
-Forum, to be held on June 10-13, 2008, in Napa, California, USA [1].  We
-are looking for presentations on KVM development, quality assurance,
-management, security, interoperability, architecture support, and
-interesting use cases.  Presentations are 50 minutes in length; there
-are also 25-minute mini-presentation slots available.
+This really looks dodgy.
 
-KVM Forum presentations are an excellent way to inform the KVM
-development community about your work, and to gather valuable feedback
-about your approach.
++#ifdef CONFIG_PARAVIRT
++
++/* Determine the maximal NR_IRQ which each pv instances require.
++ * i.e. NR_IRQS = max(IA64_NATIVE_NR_IRQS, XEN_NR_IRQS, ...)
++ */
++
++#define NR_IRQS 1
++
++#if IA64_NATIVE_NR_IRQS > NR_IRQS
++#undef NR_IRQS
++#define NR_IRQS IA64_NATIVE_NR_IRQS
++#endif
++
++#ifdef CONFIG_XEN
++#include <asm/xen/irq.h>
++#if XEN_NR_IRQS > NR_IRQS
++#undef NR_IRQS
++#define NR_IRQS XEN_NR_IRQS
++#endif
++#endif /* CONFIG_XEN */
 
-Please send your presentation proposal to the KVM Forum 2008 Content
-Committee at kf2008-cfp@qumranet.com by May 4th.
+I don't see why Xen needs special casing here, it really makes the
+code gross. Please use one typedef for this, like PARAVIRT_NR_IRQS or
+something like that, so we don't end up with a KVM special case, an
+LGUEST special case and a Xen special case.
 
-KVM Forum 2008 Content Committee:
-Dor Laor
-Anthony Liguori
-Avi Kivity
-
-[1] http://kforum.qumranet.com/KVMForum/about_kvmforum.php
-
--- 
-Any sufficiently difficult bug is indistinguishable from a feature.
+Cheers,
+Jes
