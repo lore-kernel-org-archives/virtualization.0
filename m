@@ -1,21 +1,15 @@
-From: Jes Sorensen <jes@sgi.com>
-Subject: Re: [PATCH 04/15] ia64/pv_ops: introduce pv_info which describes
-	some random info.
-Date: Tue, 22 Apr 2008 15:55:54 +0200
-Message-ID: <480DEE6A.8050408__34116.7268612937$1208872759$gmane$org@sgi.com>
-References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
-	<12077165491881-git-send-email-yamahata@valinux.co.jp>
-	<yq04p9ul05i.fsf@jaguar.mkp.net>
-	<20080422100219.GG28863%yamahata@valinux.co.jp>
-	<480DBFD2.9060600@sgi.com>
-	<10EA09EFD8728347A513008B6B0DA77A031466E7@pdsmsx411.ccr.corp.intel.com>
-	<480DCC3A.1010007@sgi.com>
-	<10EA09EFD8728347A513008B6B0DA77A0314671D@pdsmsx411.ccr.corp.intel.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [kvm-devel] [RFC PATCH] virtio: change config to guest endian.
+Date: Wed, 23 Apr 2008 00:31:35 +1000
+Message-ID: <200804230031.35760.rusty__25796.8890983195$1208874988$gmane$org@rustcorp.com.au>
+References: <200804221357.34571.rusty@rustcorp.com.au>
+	<480DCA88.4010407@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A0314671D@pdsmsx411.ccr.corp.intel.com>
+In-Reply-To: <480DCA88.4010407@qumranet.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,25 +19,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Dong, Eddie" <eddie.dong@intel.com>
-Cc: Isaku Yamahata <yamahata@valinux.co.jp>, xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Hollis Blanchard <hollisb@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dong, Eddie wrote:
-> My understanding is that code such as IVT table are well tuned and you
-> are really 
-> difficult to pursuade people to replace those privilege resource access
-> instruction
-> to use vdso or something equalvalent such as mov GRx=CRy.  For those C
-> code
-> previlige resource access, like Isaku mentioned, we need to consider
-> native too.
+On Tuesday 22 April 2008 21:22:48 Avi Kivity wrote:
+> > The virtio config space was originally chosen to be little-endian,
+> > because we thought the config might be part of the PCI config space
+> > for virtio_pci.  It's actually a separate mmio region, so that
+> > argument holds little water; as only x86 is currently using the virtio
+> > mechanism, we can change this (but must do so now, before the
+> > impending s390 and ppc merges).
+>
+> This will probably annoy Hollis which has guests that can go both ways.
 
-Hi Eddie,
+Yes, I discussed this with Hollis.  But the virtio rings themselves already 
+have this issue: we don't do any endian conversion on them and assume 
+they're "our" endian in the guest.
 
-I think binary patching of the ivt makes a lot of sense, I am certainly
-not opposed to that. I was more thinking in terms of calls out of the
-regular C code.
+We may still regret not doing *everything* little-endian, but this doesn't 
+make it worse.
 
-Cheers,
-Jes
+Thanks,
+Rusty.
