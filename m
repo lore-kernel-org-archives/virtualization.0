@@ -1,14 +1,11 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [RFC PATCH] virtio: change config to guest endian.
-Date: Tue, 22 Apr 2008 09:44:08 +0200
-Message-ID: <200804220944.08568.borntraeger__9498.18567974052$1208850468$gmane$org@de.ibm.com>
-References: <200804221357.34571.rusty@rustcorp.com.au>
+From: Avi Kivity <avi@qumranet.com>
+Subject: [Deadline Extended] Call for Presentations: KVM Forum 2008
+Date: Tue, 22 Apr 2008 11:52:56 +0300
+Message-ID: <480DA768.5060607__14919.759045779$1208854816$gmane$org@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804221357.34571.rusty@rustcorp.com.au>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,43 +15,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Hollis Blanchard <hollisb@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: kvm-devel <kvm-devel@lists.sourceforge.net>, kvm-ia64-devel@lists.sourceforge.net, kvm-ppc-devel <kvm-ppc-devel@lists.sourceforge.net>, virtualization <virtualiza>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Dienstag, 22. April 2008 schrieb Rusty Russell:
-> [Christian, Hollis, how much is this ABI breakage going to hurt you?]
+[Note: KVM Forum registration is now open at
+http://kforum.qumranet.com/KVMForum/about_kvmforum.php]
 
-It is ok for s390 at the moment. We are still working on making userspace 
-ready and I plan to change the guest<->host for s390 anyway. I try to make 
-these changes for drivers/s390/kvm/kvm_virtio.c before 2.6.26. The main 
-reason is, that we are currently limited to around 80 devices. I am not sure, 
-if I should change the allocation of the virtqueues and descriptors to guest 
-memory as well. 
+[The deadline for submitting presentations has been extended by two 
+weeks, until May 4th]
 
-Back to your patch:
-I have still some ideas about virtio between little endian and big endian 
-systems, but it requires more and different marshalling anyway - even on 
-driver level. No idea yet how to solve that properly.
+This is the Call for Presentations for the second annual KVM Developer's
+Forum, to be held on June 10-13, 2008, in Napa, California, USA [1].  We
+are looking for presentations on KVM development, quality assurance,
+management, security, interoperability, architecture support, and
+interesting use cases.  Presentations are 50 minutes in length; there
+are also 25-minute mini-presentation slots available.
 
-Consider your change
-Acked-by: Christian Bornraeger <borntraeger@de.ibm.com>
-given that you fix the issue below:
+KVM Forum presentations are an excellent way to inform the KVM
+development community about your work, and to gather valuable feedback
+about your approach.
 
-[...]
-> --- a/drivers/virtio/virtio_balloon.c	Sun Apr 20 14:41:02 2008 +1000
-> +++ b/drivers/virtio/virtio_balloon.c	Sun Apr 20 15:07:45 2008 +1000
-> @@ -155,9 +155,9 @@ static inline s64 towards_target(struct 
->  static inline s64 towards_target(struct virtio_balloon *vb)
->  {
->  	u32 v;
-> -	__virtio_config_val(vb->vdev,
-> -			    offsetof(struct virtio_balloon_config, num_pages),
-> -			    &v);
-> +	vb->vdev->config->get(vb->vdev,
-> +			      offsetof(struct virtio_balloon_config, num_pages),
-> +			      &v);
+Please send your presentation proposal to the KVM Forum 2008 Content
+Committee at kf2008-cfp@qumranet.com by May 4th.
 
-this is missing a sizeof(v), no?
+KVM Forum 2008 Content Committee:
+Dor Laor
+Anthony Liguori
+Avi Kivity
 
-Christian
+[1] http://kforum.qumranet.com/KVMForum/about_kvmforum.php
+
+-- 
+Any sufficiently difficult bug is indistinguishable from a feature.
