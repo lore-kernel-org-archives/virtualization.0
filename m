@@ -1,37 +1,41 @@
-From: David Miller <davem@davemloft.net>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Subject: Re: [6/6] [VIRTIO] net: Allow receiving SG packets
-Date: Mon, 21 Apr 2008 13:04:18 -0700 (PDT)
-Message-ID: <20080421.130418.01258045.davem@davemloft.net>
-References: <20080418032142.GD18071@gondor.apana.org.au>
-	<20080418032427.GE18071@gondor.apana.org.au>
-	<200804220506.16887.rusty@rustcorp.com.au>
+Date: Tue, 22 Apr 2008 09:13:55 +0800
+Message-ID: <20080422011354.GB14994@gondor.apana.org.au>
+References: <20080418032142.GD18071@gondor.apana.org.au> <20080418032427.GE18071@gondor.apana.org.au> <200804220506.16887.rusty@rustcorp.com.au> <20080421.130418.01258045.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <200804220506.16887.rusty@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <20080421.130418.01258045.davem@davemloft.net>
 Sender: netdev-owner@vger.kernel.org
-To: rusty@rustcorp.com.au
-Cc: virtualization@lists.linux-foundation.org, herbert@gondor.apana.org.au, virtualization@lists.osdl.org, netdev@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, virtualization@lists.osdl.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-Date: Tue, 22 Apr 2008 05:06:16 +1000
-
-> I'm not sure what the right number is here.  Say worst case is header which 
-> goes over a page boundary then MAX_SKB_FRAGS in the skb, but for some reason 
-> that already has a +2:
+On Mon, Apr 21, 2008 at 01:04:18PM -0700, David Miller wrote:
+> From: Rusty Russell <rusty@rustcorp.com.au>
+> Date: Tue, 22 Apr 2008 05:06:16 +1000
 > 
-> /* To allow 64K frame to be packed as single skb without frag_list */
-> #define MAX_SKB_FRAGS (65536/PAGE_SIZE + 2)
-> 
-> Unless someone explains, I'll change the xmit sg to 2+MAX_SKB_FRAGS as well.
+> > I'm not sure what the right number is here.  Say worst case is header which 
+> > goes over a page boundary then MAX_SKB_FRAGS in the skb, but for some reason 
+> > that already has a +2:
 
-MAX_SKB_FRAGS + 1 is what you ought to need.
+The +2 (i.e., extra +1) is for the virtio GSO header.
+ 
+> skb->data is linear, therefore it's not possible to need
+> more than one scatterlist entry for it.
 
-MAX_SKB_FRAGS is only accounting for the skb frag pages.
-If you want to know how many segments skb->data might
-consume as well, you have to add one.
+Theoretically yes :) But for virtualisation the underlying transport
+may present meta-physically contiguous memory that is physically
+discrete.  So we may actually need to have multiple SG entries for
+skb->data.  However, no current code path should generate packets
+with both long skb->data areas *and* skb page frags so we could
+just drop them if they show up.
 
-skb->data is linear, therefore it's not possible to need
-more than one scatterlist entry for it.
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
