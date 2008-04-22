@@ -1,61 +1,40 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [5/6] [VIRTIO] net: Add ethtool ops for SG/GSO
-Date: Tue, 22 Apr 2008 12:44:47 +1000
-Message-ID: <200804221244.47596.rusty@rustcorp.com.au>
-References: <20080418031257.GA17993@gondor.apana.org.au>
-	<200804220501.46945.rusty@rustcorp.com.au>
-	<20080422011502.GC14994@gondor.apana.org.au>
+Subject: Re: [6/6] [VIRTIO] net: Allow receiving SG packets
+Date: Tue, 22 Apr 2008 12:50:27 +1000
+Message-ID: <200804221250.27909.rusty@rustcorp.com.au>
+References: <20080418032142.GD18071@gondor.apana.org.au> <200804220506.16887.rusty@rustcorp.com.au> <20080421.130418.01258045.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080422011502.GC14994@gondor.apana.org.au>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20080421.130418.01258045.davem@davemloft.net>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: virtualization@lists.linux-foundation.org
+Sender: netdev-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: virtualization@lists.linux-foundation.org, herbert@gondor.apana.org.au, virtualization@lists.osdl.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 22 April 2008 11:15:02 Herbert Xu wrote:
-> On Tue, Apr 22, 2008 at 05:01:46AM +1000, Rusty Russell wrote:
-> > On Friday 18 April 2008 13:21:42 Herbert Xu wrote:
-> > > +static int virtnet_change_mtu(struct net_device *dev, int mtu)
-> > > +{
-> > > +	int max = 65535 - ETH_HLEN;
-> > > +
-> > > +	if (mtu > max)
-> > > +		return -EINVAL;
-> > > +	dev->mtu = mtu;
-> > > +	return 0;
-> > > +}
-> >
-> > Hi Herbert!
-> >
-> >     I removed this part; useful for testing, but we need a feature bit
-> > for MTU size in general.  And to change it on the fly either requires a
-> > reset & re-init, or some protocol (and feature bit!) for renegotiating
-> > MTU.
+On Tuesday 22 April 2008 06:04:18 David Miller wrote:
+> From: Rusty Russell <rusty@rustcorp.com.au>
+> Date: Tue, 22 Apr 2008 05:06:16 +1000
 >
-> BTW Rusty this was just a work-in-progress.  When I submit them I
-> will add sign-offs.
+> > I'm not sure what the right number is here.  Say worst case is header
+> > which goes over a page boundary then MAX_SKB_FRAGS in the skb, but for
+> > some reason that already has a +2:
+> >
+> > /* To allow 64K frame to be packed as single skb without frag_list */
+> > #define MAX_SKB_FRAGS (65536/PAGE_SIZE + 2)
+> >
+> > Unless someone explains, I'll change the xmit sg to 2+MAX_SKB_FRAGS as
+> > well.
+>
+> MAX_SKB_FRAGS + 1 is what you ought to need.
 
-OK.  Meanwhile I stole it for my own testing :)
+Right, and so that's +2 for virtio_net because we have an extra header as  
+Herbert points out.
 
-> However, the MTU part should be fine as long as the other end supports
-> SG.  The operative word in MTU is T :)
-
-I hadn't really thought about it; you're right, MTU is merely a formality.  If 
-the other end has big enough receive buffers, we might as well use them.
-
-I still feel oddly nervous about surprising the other end tho...
+But I was curious as to why the +2 in the MAX_SKB_FRAGS definition?
 
 Thanks,
 Rusty.
