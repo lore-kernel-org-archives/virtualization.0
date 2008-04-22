@@ -1,13 +1,19 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [RFC PATCH] virtio: change config to guest endian.
-Date: Tue, 22 Apr 2008 14:22:48 +0300
-Message-ID: <480DCA88.4010407__5256.18372853405$1208863619$gmane$org@qumranet.com>
-References: <200804221357.34571.rusty@rustcorp.com.au>
+From: Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH 04/15] ia64/pv_ops: introduce pv_info which describes
+	some random info.
+Date: Tue, 22 Apr 2008 13:30:02 +0200
+Message-ID: <480DCC3A.1010007__24150.1548830003$1208864061$gmane$org@sgi.com>
+References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
+	<12077165491881-git-send-email-yamahata@valinux.co.jp>
+	<yq04p9ul05i.fsf@jaguar.mkp.net>
+	<20080422100219.GG28863%yamahata@valinux.co.jp>
+	<480DBFD2.9060600@sgi.com>
+	<10EA09EFD8728347A513008B6B0DA77A031466E7@pdsmsx411.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804221357.34571.rusty@rustcorp.com.au>
+In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A031466E7@pdsmsx411.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,27 +23,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Hollis Blanchard <hollisb@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: "Dong, Eddie" <eddie.dong@intel.com>
+Cc: Isaku Yamahata <yamahata@valinux.co.jp>, xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> [Christian, Hollis, how much is this ABI breakage going to hurt you?]
->
-> A recent proposed feature addition to the virtio block driver revealed
-> some flaws in the API, in particular how easy it is to break big
-> endian machines.
->
-> The virtio config space was originally chosen to be little-endian,
-> because we thought the config might be part of the PCI config space
-> for virtio_pci.  It's actually a separate mmio region, so that
-> argument holds little water; as only x86 is currently using the virtio
-> mechanism, we can change this (but must do so now, before the
-> impending s390 and ppc merges).
->
->   
+Dong, Eddie wrote:
+>> Rather than making these binary patches, why not make them fast
+>> syscalls and using a vdso page. Some of the priviledged instructions
+>> are simply reads and we could have that information in a read-only
+>> data page, so there is no need to do a context switch at all. Others
+>> could benefit from a fast system call that doesn't do a full context
+>> switch. 
+> 
+> The issue is we don't want to change Linux code a lot, otherwise it
+> won't be accepted. If we use same logic with original Linux,
+> but it is using indirect function call now, binary patching could help
+> in performance.
 
-This will probably annoy Hollis which has guests that can go both ways.
+Hi Eddie,
 
--- 
-error compiling committee.c: too many arguments to function
+Sorry but this is a wrong assumption. If the code is correct then there
+is no reason why it will not be accepted. It's far more important to
+avoid ugly clutter that makes the code hard to maintain.
+
+>> It would be nice if we could come up with a generic implementation for
+>> such a vdso style interface that could be shared between
+>> xen/kvm/lguest. 
+>>
+> Introducing a new mechanism to use it to replace Linux code to use them
+> is another different story.
+
+If someone starts doing a fast syscall implementation for hypercalls, it
+is obvious the person(s) will be asked to make it generic on ia64.
+Anything else would be silly, but it would definitely be a good thing to
+do.
+
+Cheers,
+Jes
