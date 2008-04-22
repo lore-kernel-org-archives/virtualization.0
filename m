@@ -1,16 +1,17 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH 11/15] ia64/pv_ops: paravirtualize NR_IRQS
-Date: Tue, 22 Apr 2008 19:11:13 +0900
-Message-ID: <20080422101113.GH28863%yamahata__550.85535063899$1208859373$gmane$org@valinux.co.jp>
+From: Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH 04/15] ia64/pv_ops: introduce pv_info which describes
+	some random info.
+Date: Tue, 22 Apr 2008 12:37:06 +0200
+Message-ID: <480DBFD2.9060600__7541.84223847023$1208860832$gmane$org@sgi.com>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
-	<1207716549755-git-send-email-yamahata@valinux.co.jp>
-	<yq08wz6l0jd.fsf@jaguar.mkp.net>
+	<12077165491881-git-send-email-yamahata@valinux.co.jp>
+	<yq04p9ul05i.fsf@jaguar.mkp.net>
+	<20080422100219.GG28863%yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <yq08wz6l0jd.fsf@jaguar.mkp.net>
+In-Reply-To: <20080422100219.GG28863%yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,60 +21,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jes Sorensen <jes@sgi.com>
+To: Isaku Yamahata <yamahata@valinux.co.jp>
 Cc: eddie.dong@intel.com, xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 22, 2008 at 05:08:22AM -0400, Jes Sorensen wrote:
+Isaku Yamahata wrote:
+> Our justification is as follows.
+> The difference is its scope. pv_ops for virtualization and
+> machine vector is for platform difference.
 > 
-> > Make NR_IRQ overridable by each pv instances.
-> > Pv instance may need each own number of irqs so that
-> > NR_IRQS should be the maximum number of nr_irqs each
-> > pv instances need.
-> 
-> This really looks dodgy.
-> 
-> +#ifdef CONFIG_PARAVIRT
-> +
-> +/* Determine the maximal NR_IRQ which each pv instances require.
-> + * i.e. NR_IRQS = max(IA64_NATIVE_NR_IRQS, XEN_NR_IRQS, ...)
-> + */
-> +
-> +#define NR_IRQS 1
-> +
-> +#if IA64_NATIVE_NR_IRQS > NR_IRQS
-> +#undef NR_IRQS
-> +#define NR_IRQS IA64_NATIVE_NR_IRQS
-> +#endif
-> +
-> +#ifdef CONFIG_XEN
-> +#include <asm/xen/irq.h>
-> +#if XEN_NR_IRQS > NR_IRQS
-> +#undef NR_IRQS
-> +#define NR_IRQS XEN_NR_IRQS
-> +#endif
-> +#endif /* CONFIG_XEN */
-> 
-> I don't see why Xen needs special casing here, it really makes the
-> code gross. Please use one typedef for this, like PARAVIRT_NR_IRQS or
-> something like that, so we don't end up with a KVM special case, an
-> LGUEST special case and a Xen special case.
+> - pv_ops does cover the area which shouldn't belong to machine vector.
+>   For example, ia64 intrinsics paravirtualization.
+>   It shouldn't belong to the machine vector.
+>   It must be initialized very early before platform detection.
 
-I'm willing to introduce something like PARAVIRT_NR_IRQS,
-but I don't see how PARAVIRT_NR_IRQS solves the issues.
-What I want here is to define by cpp
-#define PARAVIRT_NR_IRQS                                                \
-        max(                                                            \
-                IA64_NATIVE_NR_IRQS,                                    \
-                XEN_NR_IRQS,            /* only if CONFIG_XEN */        \
-                LGUSET_NR_IRQS,         /* only if CONFIG_LGUSET */     \
-                KVM_GUEST_NR_IRQS,      /* only if CONFIG_KVM_GUEST */  \
-                MORE_FUTURE_VM_NR_IRQS, /* only if ...*/                \
-                ....    \
-        )
+Hi Isaku,
 
-Probably I'm missing something.
-Could you suggest more concretly? Hopefully (pseudo) code snippet.
+Ok this is a good point.
 
--- 
-yamahata
+> - pv_ops covers some performance critical part (e.g. ia64 intrinsics)
+>   so that in the future they should be optimized with binary patch like x86.
+>   We had the experimental patch to do that, but they are dropped for
+>   the merge. It reduced patch size greatly.
+>   After merging the first patch series, we're planning to optimize
+>   pv_ops with binary patch.
+>   The optimization with binary patch is out of the machine vector scope.
+
+Rather than making these binary patches, why not make them fast syscalls
+and using a vdso page. Some of the priviledged instructions are simply
+reads and we could have that information in a read-only data page, so
+there is no need to do a context switch at all. Others could benefit
+from a fast system call that doesn't do a full context switch.
+
+It would be nice if we could come up with a generic implementation for
+such a vdso style interface that could be shared between xen/kvm/lguest.
+
+
+> - The current pv_ops implements only one for only domU, but in future
+>   pv_ops will support dom0. It means dom0 linux would run with
+>   the underlying machine vector + pv_ops, i.e.
+>   {dig, hpzx1, hpzx1_swiotlb, ...} machine vector + xen pv_ops
+> 
+> Probably some hooks of pv_ops could be replaced with
+> enhancing machine vector. But from the above separating pv_ops from
+> machine vector looks reasonable.
+
+Would it make sense to make the pv_ops pointer part of the machine
+vector?
+
+Cheers,
+Jes
