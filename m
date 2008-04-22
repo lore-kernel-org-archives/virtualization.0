@@ -1,19 +1,16 @@
 From: Jes Sorensen <jes@sgi.com>
-Subject: Re: [PATCH 04/15] ia64/pv_ops: introduce pv_info which describes
-	some random info.
-Date: Tue, 22 Apr 2008 13:30:02 +0200
-Message-ID: <480DCC3A.1010007__24150.1548830003$1208864061$gmane$org@sgi.com>
+Subject: Re: [PATCH 11/15] ia64/pv_ops: paravirtualize NR_IRQS
+Date: Tue, 22 Apr 2008 14:05:59 +0200
+Message-ID: <480DD4A7.9020207__22871.2923395962$1208866177$gmane$org@sgi.com>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
-	<12077165491881-git-send-email-yamahata@valinux.co.jp>
-	<yq04p9ul05i.fsf@jaguar.mkp.net>
-	<20080422100219.GG28863%yamahata@valinux.co.jp>
-	<480DBFD2.9060600@sgi.com>
-	<10EA09EFD8728347A513008B6B0DA77A031466E7@pdsmsx411.ccr.corp.intel.com>
+	<1207716549755-git-send-email-yamahata@valinux.co.jp>
+	<yq08wz6l0jd.fsf@jaguar.mkp.net>
+	<20080422101113.GH28863%yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <10EA09EFD8728347A513008B6B0DA77A031466E7@pdsmsx411.ccr.corp.intel.com>
+In-Reply-To: <20080422101113.GH28863%yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,40 +20,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Dong, Eddie" <eddie.dong@intel.com>
-Cc: Isaku Yamahata <yamahata@valinux.co.jp>, xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: eddie.dong@intel.com, xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dong, Eddie wrote:
->> Rather than making these binary patches, why not make them fast
->> syscalls and using a vdso page. Some of the priviledged instructions
->> are simply reads and we could have that information in a read-only
->> data page, so there is no need to do a context switch at all. Others
->> could benefit from a fast system call that doesn't do a full context
->> switch. 
+Isaku Yamahata wrote:
+> I'm willing to introduce something like PARAVIRT_NR_IRQS,
+> but I don't see how PARAVIRT_NR_IRQS solves the issues.
+> What I want here is to define by cpp
+> #define PARAVIRT_NR_IRQS                                                \
+>         max(                                                            \
+>                 IA64_NATIVE_NR_IRQS,                                    \
+>                 XEN_NR_IRQS,            /* only if CONFIG_XEN */        \
+>                 LGUSET_NR_IRQS,         /* only if CONFIG_LGUSET */     \
+>                 KVM_GUEST_NR_IRQS,      /* only if CONFIG_KVM_GUEST */  \
+>                 MORE_FUTURE_VM_NR_IRQS, /* only if ...*/                \
+>                 ....    \
+>         )
 > 
-> The issue is we don't want to change Linux code a lot, otherwise it
-> won't be accepted. If we use same logic with original Linux,
-> but it is using indirect function call now, binary patching could help
-> in performance.
+> Probably I'm missing something.
+> Could you suggest more concretly? Hopefully (pseudo) code snippet.
 
-Hi Eddie,
-
-Sorry but this is a wrong assumption. If the code is correct then there
-is no reason why it will not be accepted. It's far more important to
-avoid ugly clutter that makes the code hard to maintain.
-
->> It would be nice if we could come up with a generic implementation for
->> such a vdso style interface that could be shared between
->> xen/kvm/lguest. 
->>
-> Introducing a new mechanism to use it to replace Linux code to use them
-> is another different story.
-
-If someone starts doing a fast syscall implementation for hypercalls, it
-is obvious the person(s) will be asked to make it generic on ia64.
-Anything else would be silly, but it would definitely be a good thing to
-do.
+I'd rather have PARAVIRT_NR_IRQ set from Kconfig if possible given that
+all of these are constants anyway. If we cannot do that, then it would
+be better to do the #if FOO_NR_IRQ > PARAVIRT_NR_IRQ in the various
+header files for Xen/KVM/lguest so we don't get the clutter in the main
+makefile.
 
 Cheers,
 Jes
