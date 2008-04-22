@@ -1,14 +1,11 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 2/3] [RESEND] ia64/pv_ops: preparation: introduce
-	ia64_set_rr0_to_rr4() to make kernel paravirtualization friendly.
-Date: Tue, 22 Apr 2008 15:42:20 +0900
-Message-ID: <12088465413678-git-send-email-yamahata__10810.9186905951$1208847400$gmane$org@valinux.co.jp>
-References: <12088465413472-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 0/3] ia64/pv_ops preparation
+Date: Tue, 22 Apr 2008 15:42:18 +0900
+Message-ID: <12088465413472-git-send-email-yamahata__10303.5137094141$1208847514$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12088465413472-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,52 +19,15 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-make kernel paravirtualization friendly by introducing
-ia64_set_rr0_to_rr4().
-ia64/Xen will replace setting rr[0-4] with single hypercall later.
+Hi. This patchset is preparation patches for ia64/pv_ops support.
+They are almost trivial and mainly make kernel paravirtualization friendly.
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- include/asm-ia64/intrinsics.h  |    9 +++++++++
+thanks,
+
+Diffstat:
+ arch/ia64/kernel/irq_ia64.c    |    1 -
+ include/asm-ia64/intrinsics.h  |   11 +++++++++++
  include/asm-ia64/mmu_context.h |    6 +-----
- 2 files changed, 10 insertions(+), 5 deletions(-)
-
-diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
-index f1135b5..9b83f8f 100644
---- a/include/asm-ia64/intrinsics.h
-+++ b/include/asm-ia64/intrinsics.h
-@@ -18,6 +18,15 @@
- # include <asm/gcc_intrin.h>
- #endif
- 
-+#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
-+do {								\
-+	ia64_set_rr(0x0000000000000000UL, (val0));		\
-+	ia64_set_rr(0x2000000000000000UL, (val1));		\
-+	ia64_set_rr(0x4000000000000000UL, (val2));		\
-+	ia64_set_rr(0x6000000000000000UL, (val3));		\
-+	ia64_set_rr(0x8000000000000000UL, (val4));		\
-+} while (0)
-+
- /*
-  * Force an unresolved reference if someone tries to use
-  * ia64_fetch_and_add() with a bad value.
-diff --git a/include/asm-ia64/mmu_context.h b/include/asm-ia64/mmu_context.h
-index cef2400..040bc87 100644
---- a/include/asm-ia64/mmu_context.h
-+++ b/include/asm-ia64/mmu_context.h
-@@ -152,11 +152,7 @@ reload_context (nv_mm_context_t context)
- #  endif
- #endif
- 
--	ia64_set_rr(0x0000000000000000UL, rr0);
--	ia64_set_rr(0x2000000000000000UL, rr1);
--	ia64_set_rr(0x4000000000000000UL, rr2);
--	ia64_set_rr(0x6000000000000000UL, rr3);
--	ia64_set_rr(0x8000000000000000UL, rr4);
-+	ia64_set_rr0_to_rr4(rr0, rr1, rr2, rr3, rr4);
- 	ia64_srlz_i();			/* srlz.i implies srlz.d */
- }
- 
--- 
-1.5.3
+ include/asm-ia64/smp.h         |    2 ++
+ include/asm-ia64/system.h      |   10 ++++++++--
+ 5 files changed, 22 insertions(+), 8 deletions(-)
