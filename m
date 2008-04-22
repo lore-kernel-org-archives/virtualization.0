@@ -1,15 +1,17 @@
-From: Jes Sorensen <jes@sgi.com>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
 Subject: Re: [PATCH 04/15] ia64/pv_ops: introduce pv_info which describes some
 	random info.
-Date: 22 Apr 2008 05:16:41 -0400
-Message-ID: <yq04p9ul05i.fsf__40888.6856436313$1208855921$gmane$org@jaguar.mkp.net>
+Date: Tue, 22 Apr 2008 19:02:19 +0900
+Message-ID: <20080422100219.GG28863%yamahata__31968.9972828657$1208858768$gmane$org@valinux.co.jp>
 References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
 	<12077165491881-git-send-email-yamahata@valinux.co.jp>
+	<yq04p9ul05i.fsf@jaguar.mkp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12077165491881-git-send-email-yamahata@valinux.co.jp>
+Content-Disposition: inline
+In-Reply-To: <yq04p9ul05i.fsf@jaguar.mkp.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,27 +21,65 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
+To: Jes Sorensen <jes@sgi.com>
 Cc: eddie.dong@intel.com, xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->>>>> "Isaku" == Isaku Yamahata <yamahata@valinux.co.jp> writes:
+On Tue, Apr 22, 2008 at 05:16:41AM -0400, Jes Sorensen wrote:
+> >>>>> "Isaku" == Isaku Yamahata <yamahata@valinux.co.jp> writes:
+> 
+> Isaku> introduce pv_info which describes some randome info about
+> Isaku> underlying execution environment.
+> 
+> Hi Isaku,
 
-Isaku> introduce pv_info which describes some randome info about
-Isaku> underlying execution environment.
+Hi. I'm very glad to get reply.
 
-Hi Isaku,
 
-I am missing some of the patches in this series for some reason.
-However, I'd like to open the discussion and ask why you are
-implementing the pv-ops seperately instead of adding them to the
-machine vectors and using the machine vector interface to handle the
-direct implementation?
+> I am missing some of the patches in this series for some reason.
+> However, I'd like to open the discussion and ask why you are
+> implementing the pv-ops seperately instead of adding them to the
+> machine vectors and using the machine vector interface to handle the
+> direct implementation?
+>
+> It seems to me that pvops really are just an advanced level of the
+> ia64 machine vectors and building on top of the interface we already
+> have would make it easier to support different machine types through
+> pvops.
 
-It seems to me that pvops really are just an advanced level of the
-ia64 machine vectors and building on top of the interface we already
-have would make it easier to support different machine types through
-pvops.
+Okay. Your question is quite reasonable and very good one.
+In fact the current xen domU implementation is using both 
+pv_ops and machine vector because it simplifies the code.
+pv_ops somewhat overlaps with machine vector.
 
-Cheers,
-Jes
+Our justification is as follows.
+The difference is its scope. pv_ops for virtualization and
+machine vector is for platform difference.
+
+- pv_ops does cover the area which shouldn't belong to machine vector.
+  For example, ia64 intrinsics paravirtualization.
+  It shouldn't belong to the machine vector.
+  It must be initialized very early before platform detection.
+
+- pv_ops covers some performance critical part (e.g. ia64 intrinsics)
+  so that in the future they should be optimized with binary patch like x86.
+  We had the experimental patch to do that, but they are dropped for
+  the merge. It reduced patch size greatly.
+  After merging the first patch series, we're planning to optimize
+  pv_ops with binary patch.
+  The optimization with binary patch is out of the machine vector scope.
+
+- The current pv_ops implements only one for only domU, but in future
+  pv_ops will support dom0. It means dom0 linux would run with
+  the underlying machine vector + pv_ops, i.e.
+  {dig, hpzx1, hpzx1_swiotlb, ...} machine vector + xen pv_ops
+
+Probably some hooks of pv_ops could be replaced with
+enhancing machine vector. But from the above separating pv_ops from
+machine vector looks reasonable.
+Integrating pv_ops functionality to machine vector would complicate
+the machine vector implementation unnecessary, I think.
+
+thanks,
+-- 
+yamahata
