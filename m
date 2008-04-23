@@ -1,16 +1,11 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [kvm-devel] [RFC PATCH] virtio: change config to guest endian.
-Date: Wed, 23 Apr 2008 14:47:08 +0200
-Message-ID: <200804231447.08196.borntraeger__33036.9680691094$1208955074$gmane$org@de.ibm.com>
-References: <200804221357.34571.rusty@rustcorp.com.au>
-	<200804231255.50248.borntraeger@de.ibm.com>
-	<480F2DD5.7080007@qumranet.com>
+From: Avi Kivity <avi@qumranet.com>
+Subject: [ANNOUNCE] Preliminary KVM Forum 2008 Agenda
+Date: Wed, 23 Apr 2008 16:54:58 +0300
+Message-ID: <480F3FB2.7050303__42020.6817951568$1208959365$gmane$org@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <480F2DD5.7080007@qumranet.com>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,23 +15,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: kvm-devel@lists.sourceforge.net, Hollis Blanchard <hollisb@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: KVM <kvm-devel@lists.sourceforge.net>, kvm-ppc-devel <kvm-ppc-devel@lists.sourceforge.net>, kvm-ia64-devel@lists.sourceforge.net, virtualization <virtualization@l>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Mittwoch, 23. April 2008 schrieb Avi Kivity:
-> >>  #define VIRTIO_CONFIG_S_FAILED		0x80
-> >>
-> >>  #ifdef __KERNEL__
-> >> -struct virtio_device;
-> >> +#include <linux/virtio.h>
-> >>     
-> >
-> > I just realized, that this breaks make headers_check as we dont export 
-> > virtio.h (and we dont want to export it as it relies on scatterlist.h).
-> >
-> >   
-> 
-> It's guarded by a #ifdef __KERNEL__, so it should be alright.
+The preliminary KVM Forum 2008 agenda is now online at
 
-Yes, you are right. Thanks
+   http://kforum.qumranet.com/KVMForum/agenda.php
+
+If you haven't done so already, please register!  There is a big 
+"Register Now" button on the page.  Early bird registration ends May 1.
+
+Note we have a few more sessions in the pipeline; the page will be 
+updated in a few days.
+
+[Speakers: if we've misspelled your name or if you'd like to change your 
+slot, let us know]
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
