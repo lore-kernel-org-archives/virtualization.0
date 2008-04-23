@@ -1,16 +1,18 @@
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Subject: Re: [kvm-devel] [RFC PATCH] virtio: change config to guest endian.
-Date: Tue, 22 Apr 2008 18:53:09 -0500
-Message-ID: <200804221853.10481.hollisb__25458.9907628999$1208908535$gmane$org@us.ibm.com>
-References: <200804221357.34571.rusty@rustcorp.com.au>
-	<200804221708.39452.hollisb@us.ibm.com>
-	<480E62ED.2090004@codemonkey.ws>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: Re: [PATCH 11/15] ia64/pv_ops: paravirtualize NR_IRQS
+Date: Wed, 23 Apr 2008 11:54:14 +0900
+Message-ID: <20080423025414.GA7679%yamahata__44718.0764437237$1208919473$gmane$org@valinux.co.jp>
+References: <1207716548202-git-send-email-yamahata@valinux.co.jp>
+	<1207716549755-git-send-email-yamahata@valinux.co.jp>
+	<yq08wz6l0jd.fsf@jaguar.mkp.net>
+	<20080422101113.GH28863%yamahata@valinux.co.jp>
+	<480DD4A7.9020207@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <480E62ED.2090004@codemonkey.ws>
 Content-Disposition: inline
+In-Reply-To: <480DD4A7.9020207@sgi.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,46 +22,66 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: kvm-ia64-devel@lists.sourceforge.net, kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Jes Sorensen <jes@sgi.com>
+Cc: eddie.dong@intel.com, xen-ia64-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 22 April 2008 17:13:01 Anthony Liguori wrote:
-> Hollis Blanchard wrote:
-> > On Tuesday 22 April 2008 16:05:38 Rusty Russell wrote:
-> >   
-> >> On Wednesday 23 April 2008 06:29:14 Hollis Blanchard wrote:
-> >>     
-> >>> On Tuesday 22 April 2008 09:31:35 Rusty Russell wrote:
-> >>>       
-> >>>> We may still regret not doing *everything* little-endian, but this
-> >>>> doesn't make it worse.
-> >>>>         
-> >>> Hmm, why *don't* we just do everything LE, including the ring?
-> >>>       
-> >> Mainly because when requirements are in doubt, simplicity wins, I think.
-> >>     
+On Tue, Apr 22, 2008 at 02:05:59PM +0200, Jes Sorensen wrote:
+> Isaku Yamahata wrote:
+> >I'm willing to introduce something like PARAVIRT_NR_IRQS,
+> >but I don't see how PARAVIRT_NR_IRQS solves the issues.
+> >What I want here is to define by cpp
+> >#define PARAVIRT_NR_IRQS                                                \
+> >        max(                                                            \
+> >                IA64_NATIVE_NR_IRQS,                                    \
+> >                XEN_NR_IRQS,            /* only if CONFIG_XEN */        \
+> >                LGUSET_NR_IRQS,         /* only if CONFIG_LGUSET */     \
+> >                KVM_GUEST_NR_IRQS,      /* only if CONFIG_KVM_GUEST */  \
+> >                MORE_FUTURE_VM_NR_IRQS, /* only if ...*/                \
+> >                ....    \
+> >        )
 > >
-> > Well, I think the definition of simplicity is up for debate in this 
-> > case... "LE everywhere" is much simpler than "it depends", IMHO.
-> >   
+> >Probably I'm missing something.
+> >Could you suggest more concretly? Hopefully (pseudo) code snippet.
 > 
-> You couldn't use the vringfd direct ring mapping optimization in KVM for 
-> PPC without teaching the kernel to access a vring in LE format.  I'm 
-> pretty sure the later would get rejected on LKML anyway for vringfd as a 
-> generic mechanism.
+> I'd rather have PARAVIRT_NR_IRQ set from Kconfig if possible given that
+> all of these are constants anyway. If we cannot do that, then it would
+> be better to do the #if FOO_NR_IRQ > PARAVIRT_NR_IRQ in the various
+> header files for Xen/KVM/lguest so we don't get the clutter in the main
+> makefile.
 
-(Since the IA64 guys have already implemented BE guests on LE hosts, they 
-should be aware of this discussion too, which is why I've CCed them.)
+Unfotunately Kconfig doesn't support arithmetic comparison.
+So do you want something like the followings?
 
-After a short but torturous whiteboard session, followed by a much longer but 
-less painful discussion, I'm fine with the virtio device config space being 
-BE for PowerPC and LE for x86.
+irq.h:
 
-In the future, we can use a feature bit to indicate that PCI config space 
-contains an explicit endianness flag. (This will be set to BE or LE, *not* 
-to "opposite of normal", because "normal" is also too vague.)
+#if (NR_VECTORS + 32 * NR_CPUS) < 1024
+#define IA64_NATIVE_NR_IRQS (NR_VECTORS + 32 * NR_CPUS)
+#else
+#define IA64_NATIVE_NR_IRQS 1024
+#endif
+
+#define PARAVIRT_NR_IRQS	IA64_NATIVE_NR_IRQS
+/* CAUTION:each asm/xxx/irq.h may redefine PARAVIRT_NR_IRQS */
+#include <asm/xen/irq.h>
+#include <asm/kvm/irq.h>
+#include <asm/foo/irq.h>
+...
+
+#define NR_IRQS			PARAVIRT_NR_IRQS
+
+
+asm/foo/irq.h:
+
+#define FOO_NR_IRQ	...
+
+#ifdef CONFIG_FOO
+#if FOO_NR_IRQS > PARAVIRT_NR_IRQS
+#undef PARAVIRT_NR_IRQS
+#define PARAVIRT_NR_IRQS FOO_NR_IRQS
+#endif
+#endif
+
 
 -- 
-Hollis Blanchard
-IBM Linux Technology Center
+yamahata
