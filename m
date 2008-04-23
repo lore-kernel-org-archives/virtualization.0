@@ -1,12 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC] virtio: export more headers to userspace
-Date: Wed, 23 Apr 2008 12:57:00 +0200
-Message-ID: <200804231257.00427.borntraeger__10553.5335293554$1208948456$gmane$org@de.ibm.com>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-devel] [RFC PATCH] virtio: change config to guest endian.
+Date: Wed, 23 Apr 2008 15:38:45 +0300
+Message-ID: <480F2DD5.7080007__35278.6929499873$1208954798$gmane$org@qumranet.com>
+References: <200804221357.34571.rusty@rustcorp.com.au>
+	<200804231255.50248.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <200804231255.50248.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,40 +18,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: kvm-devel@lists.sourceforge.net, Hollis Blanchard <hollisb@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty,
+Christian Borntraeger wrote:
+> Am Dienstag, 22. April 2008 schrieb Rusty Russell:
+> [...]
+>   
+>> diff -r a098f19a6da5 include/linux/virtio_config.h
+>> --- a/include/linux/virtio_config.h	Sun Apr 20 14:41:02 2008 +1000
+>> +++ b/include/linux/virtio_config.h	Sun Apr 20 15:07:45 2008 +1000
+>> @@ -16,7 +16,7 @@
+>>  #define VIRTIO_CONFIG_S_FAILED		0x80
+>>
+>>  #ifdef __KERNEL__
+>> -struct virtio_device;
+>> +#include <linux/virtio.h>
+>>     
+>
+> I just realized, that this breaks make headers_check as we dont export 
+> virtio.h (and we dont want to export it as it relies on scatterlist.h).
+>
+>   
 
-is there a reason why we dont export the virtio headers for
-9p, balloon, console, pci, and virtio_ring? kvm uses make sync,
-but I think it is still useful to heave these headers exported 
-as they might be useful for other userspace tools.
+It's guarded by a #ifdef __KERNEL__, so it should be alright.
 
-I dont export virtio.h, because it does not seem to have useful 
-information for userspace and it requires scatterlist.h which is 
-also not exported. See also my other mail about your "virtio:
-change config to guest endian." patch.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- include/linux/Kbuild |    5 +++++
- 1 file changed, 5 insertions(+)
-
-Index: kvm/include/linux/Kbuild
-===================================================================
---- kvm.orig/include/linux/Kbuild
-+++ kvm/include/linux/Kbuild
-@@ -346,6 +346,11 @@ unifdef-y += videodev.h
- unifdef-y += virtio_config.h
- unifdef-y += virtio_blk.h
- unifdef-y += virtio_net.h
-+unifdef-y += virtio_9p.h
-+unifdef-y += virtio_balloon.h
-+unifdef-y += virtio_console.h
-+unifdef-y += virtio_pci.h
-+unifdef-y += virtio_ring.h
- unifdef-y += vt.h
- unifdef-y += wait.h
- unifdef-y += wanrouter.h
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
