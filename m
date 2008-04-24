@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/6] virtio: fix tx_ stats in virtio_net
-Date: Wed, 23 Apr 2008 23:56:07 -0500
-Message-ID: <200804241456.07551.rusty__42789.3909313299$1209013257$gmane$org@rustcorp.com.au>
+Subject: [PATCH 3/6] virtio: fix sparse return void-valued expression warnings
+Date: Wed, 23 Apr 2008 23:56:20 -0500
+Message-ID: <200804241456.21088.rusty__47285.9317590066$1209013391$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,27 +17,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Harvey Harrison <harvey.harrison@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Harvey Harrison <harvey.harrison@gmail.com>
 
-get_buf() gives the length written by the other side, which will be
-zero.  We want to add the skb length.
+drivers/virtio/virtio_pci.c:148:2: warning: returning void-valued expression
+drivers/virtio/virtio_pci.c:155:2: warning: returning void-valued expression
 
+Signed-off-by: Harvey Harrison <harvey.harrison@gmail.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/net/virtio_net.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/virtio/virtio_pci.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff -r 51bdbdc4f199 drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c	Thu Apr 10 15:55:52 2008 +1000
-+++ b/drivers/net/virtio_net.c	Mon Apr 14 11:13:45 2008 +1000
-@@ -221,7 +221,7 @@ static void free_old_xmit_skbs(struct vi
- 	while ((skb = vi->svq->vq_ops->get_buf(vi->svq, &len)) != NULL) {
- 		pr_debug("Sent skb %p\n", skb);
- 		__skb_unlink(skb, &vi->send);
--		vi->dev->stats.tx_bytes += len;
-+		vi->dev->stats.tx_bytes += skb->len;
- 		vi->dev->stats.tx_packets++;
- 		kfree_skb(skb);
- 	}
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index c0df924..de102a6 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -145,14 +145,14 @@ static void vp_set_status(struct virtio_device *vdev, u8 
+status)
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	/* We should never be setting status to 0. */
+ 	BUG_ON(status == 0);
+-	return iowrite8(status, vp_dev->ioaddr + VIRTIO_PCI_STATUS);
++	iowrite8(status, vp_dev->ioaddr + VIRTIO_PCI_STATUS);
+ }
+ 
+ static void vp_reset(struct virtio_device *vdev)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	/* 0 status means a reset. */
+-	return iowrite8(0, vp_dev->ioaddr + VIRTIO_PCI_STATUS);
++	iowrite8(0, vp_dev->ioaddr + VIRTIO_PCI_STATUS);
+ }
+ 
+ /* the notify function used when creating a virt queue */
