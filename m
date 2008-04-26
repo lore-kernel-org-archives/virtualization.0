@@ -1,13 +1,14 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 0/3] xen: more portability patches
-Date: Sat, 26 Apr 2008 01:42:16 -0700
-Message-ID: <4812EAE8.5000006__23761.1480094076$1209199460$gmane$org@goop.org>
-References: <12088476062604-git-send-email-yamahata@valinux.co.jp>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 2/2] dm-ioband: I/O bandwidth controller v0.0.4: Document
+Date: Sat, 26 Apr 2008 11:45:35 -0700
+Message-ID: <20080426114535.e19283be.akpm__42835.2467286915$1209235750$gmane$org@linux-foundation.org>
+References: <20080424.201857.183035295.ryov@valinux.co.jp>
+	<20080424.202219.59667073.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12088476062604-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <20080424.202219.59667073.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,22 +18,31 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: xen-devel@lists.xensource.com, Sergey Kononenko <sergk@sergk.org.ua>, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Isaku Yamahata wrote:
-> Hi Jeremy.
-> Here are the 3 patches for ia64/xen support.
-> The first one is just to move manage.c under drivers/xen.
-> This is trivial.
->
-> The second and third ones are for compilation fix on ia64.
-> You may want to postpone those 2 patches to make your merge task
-> easy as you said before.
->   
+On Thu, 24 Apr 2008 20:22:19 +0900 (JST) Ryo Tsuruta <ryov@valinux.co.jp> wrote:
 
-I've put these into my queue.  I'll submit them to Ingo when the merge 
-window settles down.
+> +What's dm-ioband all about?
+> +
+> +     dm-ioband is an I/O bandwidth controller implemented as a device-mapper
+> +   driver. Several jobs using the same physical device have to share the
+> +   bandwidth of the device. dm-ioband gives bandwidth to each job according
+> +   to its weight, which each job can set its own value to.
+> +
+> +     At this time, a job is a group of processes with the same pid or pgrp or
+> +   uid. There is also a plan to make it support cgroup. A job can also be a
+> +   virtual machine such as KVM or Xen.
 
-    J
+Most writes are performed by pdflush, kswapd, etc.  This will lead to large
+inaccuracy.
+
+It isn't trivial to fix.  We'd need deep, long tracking of ownership
+probably all the way up to the pagecache page.  The same infrastructure
+would be needed to make Sergey's "BSD acct: disk I/O accounting" vaguely
+accurate.  Other proposals need it, but I forget what they are.
+
+Much more minor points: when merge-time comes, the patches should have the
+LINUX_VERSION_CODE stuff removed.  And probably all of the many `inline's
+should be removed.
