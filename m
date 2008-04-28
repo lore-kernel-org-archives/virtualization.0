@@ -1,15 +1,15 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [PATCH 2/2] dm-ioband: I/O bandwidth controller v0.0.4: Document
-Date: Mon, 28 Apr 2008 17:06:27 +0900 (JST)
-Message-ID: <20080428.170627.59682428.ryov__26639.2603204169$1209370327$gmane$org@valinux.co.jp>
-References: <20080424.201857.183035295.ryov@valinux.co.jp>
-	<20080424.202219.59667073.ryov@valinux.co.jp>
-	<20080426114535.e19283be.akpm@linux-foundation.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 3/4] virtio: net: Add ethtool ops for SG/GSO
+Date: Tue, 29 Apr 2008 01:19:16 +1000
+Message-ID: <200804290119.17180.rusty__7350.96478970281$1209396324$gmane$org@rustcorp.com.au>
+References: <200804290116.05951.rusty@rustcorp.com.au>
+	<200804290117.45010.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080426114535.e19283be.akpm@linux-foundation.org>
+In-Reply-To: <200804290117.45010.rusty@rustcorp.com.au>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,46 +19,61 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: akpm@linux-foundation.org
-Cc: xen-devel@lists.xensource.com, sergk@sergk.org.ua, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org
+To: virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Date: Fri, 18 Apr 2008 11:21:42 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-> Most writes are performed by pdflush, kswapd, etc.  This will lead to large
-> inaccuracy.
->
-> It isn't trivial to fix.  We'd need deep, long tracking of ownership
-> probably all the way up to the pagecache page.  The same infrastructure
-> would be needed to make Sergey's "BSD acct: disk I/O accounting" vaguely
-> accurate.  Other proposals need it, but I forget what they are.
+This patch adds some basic ethtool operations to virtio_net so
+I could test SG without GSO (which was really useful because TSO
+turned out to be buggy :)
 
-I also realize that some kernel threads such as pdflush perform actual
-writes instead of tasks which originally issued write requests.
-So, taka is developing a blocking I/O tacking down mechanism which is
-based on cgroup memory controller and posted it to LKML:
-http://lwn.net/Articles/273802/
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (remove MTU setting)
+---
+ drivers/net/virtio_net.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-However, the current implementation works well with Xen virtual
-machines, because virtual machine's I/Os are issued from its own kernel
-thread and can be tracked down. Please see a benchmark result of Xen
-virtual machine:
-http://people.valinux.co.jp/~ryov/dm-ioband/benchmark/xen-blktap.html
-
-As for KVM, dm-ioband was also able to track down block I/Os as I
-expected. When dm-ioband is used in virtual machine environment,
-I think even the current implementation will work fairly.
-
-But unfortunately I found KVM still had a performance problem that
-it couldn't handle I/Os efficiently yet, which should be improved.
-I already posted this problem to kvm-devel list:
-http://sourceforge.net/mailarchive/forum.php?thread_name=20080229.210531.226799765.ryov%40valinux.co.jp&forum_name=kvm-devel
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -19,6 +19,7 @@
+ //#define DEBUG
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
++#include <linux/ethtool.h>
+ #include <linux/module.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_net.h>
+@@ -352,6 +353,22 @@ static int virtnet_close(struct net_devi
+ 	return 0;
+ }
  
-> Much more minor points: when merge-time comes, the patches should have the
-> LINUX_VERSION_CODE stuff removed.  And probably all of the many `inline's
-> should be removed.
-
-Thank you for your advice. I'll have these fixes included in the next
-release.
-
-Ryo Tsuruta
++static int virtnet_set_tx_csum(struct net_device *dev, u32 data)
++{
++	struct virtnet_info *vi = netdev_priv(dev);
++	struct virtio_device *vdev = vi->vdev;
++
++	if (data && !virtio_has_feature(vdev, VIRTIO_NET_F_CSUM))
++		return -ENOSYS;
++
++	return ethtool_op_set_tx_hw_csum(dev, data);
++}
++
++static struct ethtool_ops virtnet_ethtool_ops = {
++	.set_tx_csum = virtnet_set_tx_csum,
++	.set_sg = ethtool_op_set_sg,
++};
++
+ static int virtnet_probe(struct virtio_device *vdev)
+ {
+ 	int err;
+@@ -371,6 +389,7 @@ static int virtnet_probe(struct virtio_d
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ 	dev->poll_controller = virtnet_netpoll;
+ #endif
++	SET_ETHTOOL_OPS(dev, &virtnet_ethtool_ops);
+ 	SET_NETDEV_DEV(dev, &vdev->dev);
+ 
+ 	/* Do we support "hardware" checksums? */
