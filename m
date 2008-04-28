@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/4] virtio: wean net driver off NETDEV_TX_BUSY
-Date: Tue, 29 Apr 2008 01:16:05 +1000
-Message-ID: <200804290116.05951.rusty__23558.1903056756$1209396337$gmane$org@rustcorp.com.au>
+Subject: [PATCH 2/4] virtio: finer-grained features for virtio_net
+Date: Tue, 29 Apr 2008 01:17:44 +1000
+Message-ID: <200804290117.45010.rusty__13725.2165157863$1209396351$gmane$org@rustcorp.com.au>
+References: <200804290116.05951.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200804290116.05951.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,110 +22,61 @@ To: virtualization@lists.linux-foundation.org
 Cc: netdev@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Herbert tells me that returning NETDEV_TX_BUSY from hard_start_xmit is
-seen as a poor thing to do; we should cache the packet and stop the queue.
+So, we previously had a 'VIRTIO_NET_F_GSO' bit which meant that 'the
+host can handle csum offload, and any TSO (v4&v6 incl ECN) or UFO
+packets you might want to send.  I thought this was good enough for
+Linux, but it actually isn't, since we don't do UFO in software.
+
+So, add separate feature bits for what the host can handle.  Add
+equivalent ones for the guest to say what it can handle, because LRO
+is coming too (thanks Herbert!).
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/net/virtio_net.c |   58 ++++++++++++++++++++++++++++++++---------------
- 1 file changed, 40 insertions(+), 18 deletions(-)
+ drivers/net/virtio_net.c   |    9 +++++++++
+ include/linux/virtio_net.h |   13 +++++++++++--
+ 2 files changed, 20 insertions(+), 2 deletions(-)
 
-diff -r 26ba2dd67f46 drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c	Tue Apr 22 13:03:07 2008 +1000
-+++ b/drivers/net/virtio_net.c	Thu Apr 24 12:05:24 2008 +1000
-@@ -40,6 +40,9 @@ struct virtnet_info
- 	struct virtqueue *rvq, *svq;
- 	struct net_device *dev;
- 	struct napi_struct napi;
-+
-+	/* The skb we couldn't send because buffers were full. */
-+	struct sk_buff *last_xmit_skb;
- 
- 	/* Number of input buffers, and max we've ever had. */
- 	unsigned int num, max;
-@@ -227,17 +230,16 @@ static void free_old_xmit_skbs(struct vi
- 	}
- }
- 
--static int start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
- {
--	struct virtnet_info *vi = netdev_priv(dev);
--	int num, err;
-+	int num;
- 	struct scatterlist sg[2+MAX_SKB_FRAGS];
- 	struct virtio_net_hdr *hdr;
- 	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
- 
- 	sg_init_table(sg, 2+MAX_SKB_FRAGS);
- 
--	pr_debug("%s: xmit %p " MAC_FMT "\n", dev->name, skb,
-+	pr_debug("%s: xmit %p " MAC_FMT "\n", vi->dev->name, skb,
- 		 dest[0], dest[1], dest[2],
- 		 dest[3], dest[4], dest[5]);
- 
-@@ -272,30 +274,50 @@ static int start_xmit(struct sk_buff *sk
- 
- 	vnet_hdr_to_sg(sg, skb);
- 	num = skb_to_sgvec(skb, sg+1, 0, skb->len) + 1;
--	__skb_queue_head(&vi->send, skb);
-+
-+	return vi->svq->vq_ops->add_buf(vi->svq, sg, num, 0, skb);
-+}
-+
-+static int start_xmit(struct sk_buff *skb, struct net_device *dev)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
- 
- again:
- 	/* Free up any pending old buffers before queueing new ones. */
- 	free_old_xmit_skbs(vi);
--	err = vi->svq->vq_ops->add_buf(vi->svq, sg, num, 0, skb);
--	if (err) {
--		pr_debug("%s: virtio not prepared to send\n", dev->name);
--		netif_stop_queue(dev);
- 
--		/* Activate callback for using skbs: if this returns false it
--		 * means some were used in the meantime. */
--		if (unlikely(!vi->svq->vq_ops->enable_cb(vi->svq))) {
--			vi->svq->vq_ops->disable_cb(vi->svq);
--			netif_start_queue(dev);
--			goto again;
-+	/* If we has a buffer left over from last time, send it now. */
-+	if (vi->last_xmit_skb) {
-+		if (xmit_skb(vi, vi->last_xmit_skb) != 0) {
-+			/* Drop this skb: we only queue one. */
-+			kfree_skb(skb);
-+			goto stop_queue;
+diff -r effa8facedf1 drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c	Tue Apr 22 07:59:24 2008 +1000
++++ b/drivers/net/virtio_net.c	Tue Apr 22 10:31:05 2008 +1000
+@@ -381,6 +381,15 @@ static int virtnet_probe(struct virtio_d
+ 			dev->features |= NETIF_F_TSO | NETIF_F_UFO
+ 				| NETIF_F_TSO_ECN | NETIF_F_TSO6;
  		}
--		__skb_unlink(skb, &vi->send);
-+		vi->last_xmit_skb = NULL;
-+	}
- 
--		return NETDEV_TX_BUSY;
-+	/* Put new one in send queue and do transmit */
-+	__skb_queue_head(&vi->send, skb);
-+	if (xmit_skb(vi, skb) != 0) {
-+		vi->last_xmit_skb = skb;
-+		goto stop_queue;
++		/* Individual feature bits: what can host handle? */
++		if (gso && vdev->config->feature(vdev, VIRTIO_NET_F_HOST_TSO4))
++			dev->features |= NETIF_F_TSO;
++		if (gso && vdev->config->feature(vdev, VIRTIO_NET_F_HOST_TSO6))
++			dev->features |= NETIF_F_TSO6;
++		if (gso && vdev->config->feature(vdev, VIRTIO_NET_F_HOST_ECN))
++			dev->features |= NETIF_F_TSO_ECN;
++		if (gso && vdev->config->feature(vdev, VIRTIO_NET_F_HOST_UFO))
++			dev->features |= NETIF_F_UFO;
  	}
-+done:
- 	vi->svq->vq_ops->kick(vi->svq);
-+	return NETDEV_TX_OK;
  
--	return 0;
-+stop_queue:
-+	pr_debug("%s: virtio not prepared to send\n", dev->name);
-+	netif_stop_queue(dev);
-+
-+	/* Activate callback for using skbs: if this returns false it
-+	 * means some were used in the meantime. */
-+	if (unlikely(!vi->svq->vq_ops->enable_cb(vi->svq))) {
-+		vi->svq->vq_ops->disable_cb(vi->svq);
-+		netif_start_queue(dev);
-+		goto again;
-+	}
-+	goto done;
- }
+ 	/* Configuration may specify what MAC to use.  Otherwise random. */
+diff -r effa8facedf1 include/linux/virtio_net.h
+--- a/include/linux/virtio_net.h	Tue Apr 22 07:59:24 2008 +1000
++++ b/include/linux/virtio_net.h	Tue Apr 22 10:31:05 2008 +1000
+@@ -6,9 +6,18 @@
+ #define VIRTIO_ID_NET	1
  
- #ifdef CONFIG_NET_POLL_CONTROLLER
+ /* The feature bitmap for virtio net */
+-#define VIRTIO_NET_F_CSUM	0	/* Can handle pkts w/ partial csum */
++#define VIRTIO_NET_F_CSUM	0	/* Host handles pkts w/ partial csum */
++#define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial csum */
+ #define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
+-#define VIRTIO_NET_F_GSO	6	/* Can handle pkts w/ any GSO type */
++#define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
++#define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
++#define VIRTIO_NET_F_GUEST_TSO6	8	/* Guest can handle TSOv6 in. */
++#define VIRTIO_NET_F_GUEST_ECN	9	/* Guest can handle TSO[6] w/ ECN in. */
++#define VIRTIO_NET_F_GUEST_UFO	10	/* Guest can handle UFO in. */
++#define VIRTIO_NET_F_HOST_TSO4	11	/* Host can handle TSOv4 in. */
++#define VIRTIO_NET_F_HOST_TSO6	12	/* Host can handle TSOv6 in. */
++#define VIRTIO_NET_F_HOST_ECN	13	/* Host can handle TSO[6] w/ ECN in. */
++#define VIRTIO_NET_F_HOST_UFO	14	/* Host can handle UFO in. */
+ 
+ struct virtio_net_config
+ {
