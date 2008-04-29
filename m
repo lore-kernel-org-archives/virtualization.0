@@ -1,14 +1,11 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 1/4] virtio: wean net driver off NETDEV_TX_BUSY
-Date: Tue, 29 Apr 2008 13:06:16 +0800
-Message-ID: <20080429050616.GA17840__24738.0010122017$1209445703$gmane$org@gondor.apana.org.au>
-References: <200804290116.05951.rusty@rustcorp.com.au>
+From: Amit Shah <amit.shah@qumranet.com>
+Subject: PV DMA for PCI passthrough devices for KVM
+Date: Tue, 29 Apr 2008 13:37:28 +0300
+Message-ID: <1209465451-3758-1-git-send-email-amit.shah__2569.74683511562$1209465626$gmane$org@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200804290116.05951.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,28 +15,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kvm-devel@lists.sourceforge.net
+Cc: chrisw@redhat.com, allen.m.kay@intel.com, linux-kernel@vger.kernel.org, gcosta@redhat.com, virtualization@lists.linux-foundation.org, BENAMI@il.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 29, 2008 at 01:16:05AM +1000, Rusty Russell wrote:
->
-> +	/* If we has a buffer left over from last time, send it now. */
-> +	if (vi->last_xmit_skb) {
-> +		if (xmit_skb(vi, vi->last_xmit_skb) != 0) {
-> +			/* Drop this skb: we only queue one. */
-> +			kfree_skb(skb);
-> +			goto stop_queue;
 
-We should increment the drop counter here.
+This patchset implements PVDMA for handling DMA requests from
+devices assigned to the guest from the host machine.
 
-Otherwise these patches all look good to me.
+They're also available from
 
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+git-pull git://git.kernel.org/pub/scm/linux/kernel/git/amit/kvm.git pvdma
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+These patches are based on my pci-passthrough tree, which is available
+from
+
+git-pull git://git.kernel.org/pub/scm/linux/kernel/git/amit/kvm.git
+
+and the userspace from
+
+git-pull git://git.kernel.org/pub/scm/linux/kernel/git/amit/kvm-userspace.git
+
+The first and the third patch in this series is needed on the guest (with some
+bits from the 2nd as well). The 2nd patch is meant for the host kernel.
+
+Amit.
