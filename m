@@ -1,15 +1,17 @@
 From: Andi Kleen <andi@firstfloor.org>
-Subject: Re: [PATCH] x86 DMA: Handle devices assigned to the guest by the host
-Date: Tue, 29 Apr 2008 15:14:23 +0200
-Message-ID: <87wsmghkgg.fsf__6806.75574481047$1209475220$gmane$org@basil.nowhere.org>
+Subject: Re: [PATCH] KVM PV Guest: Implement paravirtualized DMA
+Date: Tue, 29 Apr 2008 15:31:32 +0200
+Message-ID: <87od7shjnv.fsf__12651.0482783944$1209476475$gmane$org@basil.nowhere.org>
 References: <1209465451-3758-1-git-send-email-amit.shah@qumranet.com>
 	<1209465451-3758-2-git-send-email-amit.shah@qumranet.com>
+	<1209465451-3758-3-git-send-email-amit.shah@qumranet.com>
+	<1209465451-3758-4-git-send-email-amit.shah@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1209465451-3758-2-git-send-email-amit.shah@qumranet.com> (Amit
-	Shah's message of "Tue, 29 Apr 2008 13:37:29 +0300")
+In-Reply-To: <1209465451-3758-4-git-send-email-amit.shah@qumranet.com> (Amit
+	Shah's message of "Tue, 29 Apr 2008 13:37:31 +0300")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,24 +26,37 @@ Cc: chrisw@redhat.com, kvm-devel@lists.sourceforge.net, allen.m.kay@intel.com, l
 List-Id: virtualization@lists.linuxfoundation.org
 
 Amit Shah <amit.shah@qumranet.com> writes:
-> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
-> index 388b113..678cafb 100644
-> --- a/arch/x86/kernel/pci-dma.c
-> +++ b/arch/x86/kernel/pci-dma.c
-> @@ -443,6 +443,17 @@ dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle,
->  		memset(memory, 0, size);
->  		if (!mmu) {
->  			*dma_handle = bus;
-> +			if (unlikely(dma_ops->is_pv_device) &&
-> +			    unlikely(dma_ops->is_pv_device(dev, dev->bus_id))) {
+> +
+> +static struct page *page;
+> +static unsigned long page_gfn;
+Bad variable names
 
-First double unlikely in a condition is useless. Just drop them.
+> +
+> +const struct dma_mapping_ops *orig_dma_ops;
 
-And then ->is_xyz() in a generic vops interface is about as ugly
-and non generic as you can get. dma_alloc_coherent is not performance
-critical, so you should rather change the interface that ->alloc_coherent
-is always called and the other handlers handle the !mmu case correctly.
-In fact they need that already I guess (e.g. on DMAR there is not really
-a nommu case) 
+I suspect real dma ops stacking will need some further thought than
+your simple hacks
+> +
+> +	match = find_matching_pt_dev(&pt_devs_head, &pv_pci_info);
+> +	if (match) {
+> +		r = match->is_pv;
+> +		goto out;
+> +	}
+> +
+> +	memcpy(page_address(page), &pv_pci_info, sizeof(pv_pci_info));
+
+Note that on 32bit page_address() might be not mapped.
+
+
+> +
+> +	npages = get_order(size) + 1;
+
+Are you sure that's correct? It looks quite bogus. order is a 2 logarithm,
+normally npages = 1 << order
+
+if you want  npages from order the correct  need 1 << order
+
+Haven't read further, but to be honest the code doesn't seem to be anywhere
+near merging quality.
 
 -Andi
