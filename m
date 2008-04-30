@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 03/15] ia64/pv_ops: preparation: introduce ia64_get_psr_i() to
-	make kernel paravirtualization friendly.
-Date: Wed, 30 Apr 2008 21:29:16 +0900
-Message-ID: <12095585681310-git-send-email-yamahata__49859.7346399494$1209561702$gmane$org@valinux.co.jp>
+Subject: [PATCH 01/15] ia64: preparation: remove extern in irq_ia64.c
+Date: Wed, 30 Apr 2008 21:29:14 +0900
+Message-ID: <1209558568892-git-send-email-yamahata__1916.32697028599$1209561713$gmane$org@valinux.co.jp>
 References: <12095585682308-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,60 +21,47 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-__local_irq_save() and local_save_flags() are used to mask interruptions.
-They read all psr bits that requres whole bit emulation.
-On the other hand, reading only psr.i, the single bit, can be virtualized
-cheaply.
+remove extern declaration of handle_IPI() in irq_ia64.c.
+Instead, declare it in asm-ia64/smp.h.
+Later handle_IPI() will be referenced from another file.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/intrinsics.h |    2 ++
- include/asm-ia64/system.h     |   10 ++++++++--
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ arch/ia64/kernel/irq_ia64.c |    1 -
+ include/asm-ia64/smp.h      |    2 ++
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
-index 9b83f8f..a3b9689 100644
---- a/include/asm-ia64/intrinsics.h
-+++ b/include/asm-ia64/intrinsics.h
-@@ -18,6 +18,8 @@
- # include <asm/gcc_intrin.h>
- #endif
+diff --git a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
+index 5538471..c48171b 100644
+--- a/arch/ia64/kernel/irq_ia64.c
++++ b/arch/ia64/kernel/irq_ia64.c
+@@ -600,7 +600,6 @@ static irqreturn_t dummy_handler (int irq, void *dev_id)
+ {
+ 	BUG();
+ }
+-extern irqreturn_t handle_IPI (int irq, void *dev_id);
  
-+#define ia64_get_psr_i()	(ia64_getreg(_IA64_REG_PSR) & IA64_PSR_I)
-+
- #define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
- do {								\
- 	ia64_set_rr(0x0000000000000000UL, (val0));		\
-diff --git a/include/asm-ia64/system.h b/include/asm-ia64/system.h
-index 26e250b..ed38c43 100644
---- a/include/asm-ia64/system.h
-+++ b/include/asm-ia64/system.h
-@@ -122,10 +122,16 @@ extern struct ia64_boot_param {
-  *   write a floating-point register right before reading the PSR
-  *   and that writes to PSR.mfl
-  */
-+#ifdef CONFIG_PARAVIRT
-+#define __local_save_flags()	ia64_get_psr_i()
-+#else
-+#define __local_save_flags()	ia64_getreg(_IA64_REG_PSR)
-+#endif
-+
- #define __local_irq_save(x)			\
- do {						\
- 	ia64_stop();				\
--	(x) = ia64_getreg(_IA64_REG_PSR);	\
-+	(x) = __local_save_flags();		\
- 	ia64_stop();				\
- 	ia64_rsm(IA64_PSR_I);			\
- } while (0)
-@@ -173,7 +179,7 @@ do {								\
- #endif /* !CONFIG_IA64_DEBUG_IRQ */
+ static struct irqaction ipi_irqaction = {
+ 	.handler =	handle_IPI,
+diff --git a/include/asm-ia64/smp.h b/include/asm-ia64/smp.h
+index ec5f355..2984e26 100644
+--- a/include/asm-ia64/smp.h
++++ b/include/asm-ia64/smp.h
+@@ -15,6 +15,7 @@
+ #include <linux/kernel.h>
+ #include <linux/cpumask.h>
+ #include <linux/bitops.h>
++#include <linux/irqreturn.h>
  
- #define local_irq_enable()	({ ia64_stop(); ia64_ssm(IA64_PSR_I); ia64_srlz_d(); })
--#define local_save_flags(flags)	({ ia64_stop(); (flags) = ia64_getreg(_IA64_REG_PSR); })
-+#define local_save_flags(flags)	({ ia64_stop(); (flags) = __local_save_flags(); })
+ #include <asm/io.h>
+ #include <asm/param.h>
+@@ -123,6 +124,7 @@ extern void __init smp_build_cpu_map(void);
+ extern void __init init_smp_config (void);
+ extern void smp_do_timer (struct pt_regs *regs);
  
- #define irqs_disabled()				\
- ({						\
++extern irqreturn_t handle_IPI(int irq, void *dev_id);
+ extern void smp_send_reschedule (int cpu);
+ extern void lock_ipi_calllock(void);
+ extern void unlock_ipi_calllock(void);
 -- 
 1.5.3
