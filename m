@@ -1,14 +1,11 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 12/15] ia64/pv_ops: define initialization hooks, pv_init_ops,
-	for paravirtualized environment.
-Date: Wed, 30 Apr 2008 21:29:25 +0900
-Message-ID: <12095585683056-git-send-email-yamahata__22678.1963291161$1209560498$gmane$org@valinux.co.jp>
-References: <12095585682308-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 00/15] ia64/pv_ops take 5
+Date: Wed, 30 Apr 2008 21:29:13 +0900
+Message-ID: <12095585682308-git-send-email-yamahata__30153.6637860865$1209560516$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12095585682308-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,193 +16,100 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define pv_init_ops hooks which represents various initialization
-hooks for paravirtualized environment. and add hooks.
+Hi. This patchset implements ia64/pv_ops support which is the
+framework for virtualization support.
+Now all the comments so far have been addressed, but only a few exceptions.
 
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/kernel/paravirt.c |    7 ++++
- arch/ia64/kernel/setup.c    |   10 ++++++
- arch/ia64/kernel/smpboot.c  |    2 +
- include/asm-ia64/paravirt.h |   70 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 89 insertions(+), 0 deletions(-)
+On x86 various ways to support virtualization were proposed, and
+eventually pv_ops won. So on ia64 the pv_ops strategy is appropriate too.
+Later I'll post the patchset which implements xen domU based on
+ia64/pv_ops. Currently only ia64/xen pv_ops implementation exists,
+but I believe ia64/kvm can also obtain benefits from this ia64/pv_ops
+frame work.
+linux/ia64 has the machine vector interface and another approach might be
+to utilize it. However pv_ops is better for some reasons. Please see
+the thread of the mailing list from
+http://www.spinics.net/lists/linux-ia64/msg05238.html
 
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 7126ea8..5daf659 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -42,6 +42,13 @@ struct pv_info pv_info = {
- };
- 
- /***************************************************************************
-+ * pv_init_ops
-+ * initialization hooks.
-+ */
-+
-+struct pv_init_ops pv_init_ops;
-+
-+/***************************************************************************
-  * pv_cpu_ops
-  * intrinsics hooks.
-  */
-diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
-index 5015ca1..dc1b26b 100644
---- a/arch/ia64/kernel/setup.c
-+++ b/arch/ia64/kernel/setup.c
-@@ -51,6 +51,7 @@
- #include <asm/mca.h>
- #include <asm/meminit.h>
- #include <asm/page.h>
-+#include <asm/paravirt.h>
- #include <asm/patch.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
-@@ -312,6 +313,8 @@ reserve_memory (void)
- 	rsvd_region[n].end   = (unsigned long) ia64_imva(_end);
- 	n++;
- 
-+	n += paravirt_reserve_memory(&rsvd_region[n]);
-+
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (ia64_boot_param->initrd_start) {
- 		rsvd_region[n].start = (unsigned long)__va(ia64_boot_param->initrd_start);
-@@ -490,6 +493,8 @@ setup_arch (char **cmdline_p)
- {
- 	unw_init();
- 
-+	paravirt_arch_setup_early();
-+
- 	ia64_patch_vtop((u64) __start___vtop_patchlist, (u64) __end___vtop_patchlist);
- 
- 	*cmdline_p = __va(ia64_boot_param->command_line);
-@@ -544,6 +549,9 @@ setup_arch (char **cmdline_p)
- 	acpi_boot_init();
- #endif
- 
-+	paravirt_banner();
-+	paravirt_arch_setup_console(cmdline_p);
-+
- #ifdef CONFIG_VT
- 	if (!conswitchp) {
- # if defined(CONFIG_DUMMY_CONSOLE)
-@@ -563,6 +571,8 @@ setup_arch (char **cmdline_p)
- #endif
- 
- 	/* enable IA-64 Machine Check Abort Handling unless disabled */
-+	if (paravirt_arch_setup_nomca())
-+		nomca = 1;
- 	if (!nomca)
- 		ia64_mca_init();
- 
-diff --git a/arch/ia64/kernel/smpboot.c b/arch/ia64/kernel/smpboot.c
-index d7ad42b..933f388 100644
---- a/arch/ia64/kernel/smpboot.c
-+++ b/arch/ia64/kernel/smpboot.c
-@@ -50,6 +50,7 @@
- #include <asm/machvec.h>
- #include <asm/mca.h>
- #include <asm/page.h>
-+#include <asm/paravirt.h>
- #include <asm/pgalloc.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
-@@ -642,6 +643,7 @@ void __devinit smp_prepare_boot_cpu(void)
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	cpu_set(smp_processor_id(), cpu_callin_map);
- 	per_cpu(cpu_state, smp_processor_id()) = CPU_ONLINE;
-+	paravirt_post_smp_prepare_boot_cpu();
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index 26b4334..8778e8b 100644
---- a/include/asm-ia64/paravirt.h
-+++ b/include/asm-ia64/paravirt.h
-@@ -52,11 +52,81 @@ static inline unsigned int get_kernel_rpl(void)
- 	return pv_info.kernel_rpl;
- }
- 
-+/******************************************************************************
-+ * initialization hooks.
-+ */
-+struct rsvd_region;
-+
-+struct pv_init_ops {
-+	void (*banner)(void);
-+
-+	int (*reserve_memory)(struct rsvd_region *region);
-+
-+	void (*arch_setup_early)(void);
-+	void (*arch_setup_console)(char **cmdline_p);
-+	int (*arch_setup_nomca)(void);
-+
-+	void (*post_smp_prepare_boot_cpu)(void);
-+};
-+
-+extern struct pv_init_ops pv_init_ops;
-+
-+static inline void paravirt_banner(void)
-+{
-+	if (pv_init_ops.banner)
-+		pv_init_ops.banner();
-+}
-+
-+static inline int paravirt_reserve_memory(struct rsvd_region *region)
-+{
-+	if (pv_init_ops.reserve_memory)
-+		return pv_init_ops.reserve_memory(region);
-+	return 0;
-+}
-+
-+static inline void paravirt_arch_setup_early(void)
-+{
-+	if (pv_init_ops.arch_setup_early)
-+		pv_init_ops.arch_setup_early();
-+}
-+
-+static inline void paravirt_arch_setup_console(char **cmdline_p)
-+{
-+	if (pv_init_ops.arch_setup_console)
-+		pv_init_ops.arch_setup_console(cmdline_p);
-+}
-+
-+static inline int paravirt_arch_setup_nomca(void)
-+{
-+	if (pv_init_ops.arch_setup_nomca)
-+		return pv_init_ops.arch_setup_nomca();
-+	return 0;
-+}
-+
-+static inline void paravirt_post_smp_prepare_boot_cpu(void)
-+{
-+	if (pv_init_ops.post_smp_prepare_boot_cpu)
-+		pv_init_ops.post_smp_prepare_boot_cpu();
-+}
-+
- #endif /* !__ASSEMBLY__ */
- 
- #else
- /* fallback for native case */
- 
-+#ifndef __ASSEMBLY__
-+
-+#define paravirt_banner()				do { } while (0)
-+#define paravirt_reserve_memory(region)			0
-+
-+#define paravirt_arch_setup_early()			do { } while (0)
-+#define paravirt_arch_setup_console(cmdline_p)		do { } while (0)
-+#define paravirt_arch_setup_nomca()			0
-+#define paravirt_post_smp_prepare_boot_cpu()		do { } while (0)
-+
-+#endif /* __ASSEMBLY__ */
-+
-+
- #endif /* CONFIG_PARAVIRT_GUEST */
- 
- #endif /* __ASM_PARAVIRT_H */
--- 
-1.5.3
+
+This patchset does the followings.
+- some preparation work. Mainly make the kernel virtualization friendly.
+- introduce pv_info which describes the execution environment.
+- introduce macros for hand written assembly code to paravirtualize
+  hand written code to replace sensitive/privileged instructions.
+- introduce various hooks to replace the implementation with
+  paravirtualized.
+  They are defined as function tables called, pv_init_ops, pv_cpu_ops,
+  pv_irq_ops, pv_iosapic_ops and, pv_time_ops.
+  They represent
+    pv_init_ops: hooks for various initialization.
+    pv_cpu_ops: hooks for ia64 intrinsics.
+    pv_irq_ops: hooks for irq related operations.
+    pv_iosapic_ops: hooks for paravirtualized iosapic.
+    pv_time_ops: hooks for steal time accounting
+
+
+The working full source is available from
+http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
+branch: xen-ia64-2008apr30
+
+At this phase, we don't address the following issues.
+Those will be addressed after the first merge.
+- optimization by binary patch
+  In fact, we had the patch to do that, but we intentionally dropped
+  for patch size/readability/cleanness.
+- freeing the unused pages, i.e. pages for unused ivt.S.
+
+Changes from take 4:
+- refined NR_IRQS paravirtualization according to Jes Soresen's comment
+- rebased and fixed the breakage due to the upstream change.
+- fixed various compilation errors.
+
+Changes from take 3:
+- split the patch set into pv_op part and xen domU part.
+- many clean ups.
+- introduced pv_ops: pv_cpu_ops and pv_time_ops.
+
+Changes from take 2:
+- many clean ups following to comments.
+- clean up:assembly instruction macro.
+- introduced pv_ops: pv_info, pv_init_ops, pv_iosapic_ops, pv_irq_ops.
+
+Changes from take 1:
+Single IVT source code. compile multitimes using assembler macros.
+
+thanks,
+
+Diffstat:
+ arch/ia64/Makefile                 |    6 +
+ arch/ia64/kernel/Makefile          |   44 +++++
+ arch/ia64/kernel/entry.S           |  115 +++++++----
+ arch/ia64/kernel/iosapic.c         |   45 +++--
+ arch/ia64/kernel/irq_ia64.c        |   19 ++-
+ arch/ia64/kernel/ivt.S             |  227 +++++++++++-----------
+ arch/ia64/kernel/minstate.h        |   13 +-
+ arch/ia64/kernel/nr-irqs.c         |   24 +++
+ arch/ia64/kernel/paravirt.c        |  369 ++++++++++++++++++++++++++++++++++++
+ arch/ia64/kernel/paravirt_inst.h   |   29 +++
+ arch/ia64/kernel/paravirtentry.S   |   60 ++++++
+ arch/ia64/kernel/setup.c           |   10 +
+ arch/ia64/kernel/smpboot.c         |    2 +
+ arch/ia64/kernel/time.c            |   23 +++
+ include/asm-ia64/Kbuild            |    2 +-
+ include/asm-ia64/gcc_intrin.h      |   24 ++--
+ include/asm-ia64/hw_irq.h          |   23 ++-
+ include/asm-ia64/intel_intrin.h    |   41 ++--
+ include/asm-ia64/intrinsics.h      |   55 ++++++
+ include/asm-ia64/iosapic.h         |   18 ++-
+ include/asm-ia64/irq.h             |    9 +-
+ include/asm-ia64/mmu_context.h     |    6 +-
+ include/asm-ia64/native/inst.h     |  180 ++++++++++++++++++
+ include/asm-ia64/native/irq.h      |   35 ++++
+ include/asm-ia64/paravirt.h        |  252 ++++++++++++++++++++++++
+ include/asm-ia64/paravirt_privop.h |  114 +++++++++++
+ include/asm-ia64/smp.h             |    2 +
+ include/asm-ia64/system.h          |   10 +-
+ 28 files changed, 1520 insertions(+), 237 deletions(-)
