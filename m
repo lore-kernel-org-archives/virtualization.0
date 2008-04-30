@@ -1,13 +1,14 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 21/23] ia64/pv_ops/xen: implement xen pv_time_ops.
-Date: Wed, 30 Apr 2008 21:30:52 +0900
-Message-ID: <12095586541686-git-send-email-yamahata__12355.0666416579$1209560665$gmane$org@valinux.co.jp>
-References: <1209558654694-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 13/15] ia64/pv_ops: add hooks, pv_iosapic_ops,
+	to paravirtualize iosapic.
+Date: Wed, 30 Apr 2008 21:29:26 +0900
+Message-ID: <12095585681973-git-send-email-yamahata__37578.7395671525$1209561092$gmane$org@valinux.co.jp>
+References: <12095585682308-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1209558654694-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <12095585682308-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,254 +19,218 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-implement xen pv_time_ops to account steal time.
+add hooks to paravirtualize iosapic which is a real hardware resource.
+On virtualized environment it may be replaced something virtualized
+friendly.
+Define pv_iosapic_ops and add the hooks.
 
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile     |    2 +-
- arch/ia64/xen/time.c       |  165 ++++++++++++++++++++++++++++++++++++++++++++
- arch/ia64/xen/time.h       |   23 ++++++
- arch/ia64/xen/xen_pv_ops.c |    2 +
- 4 files changed, 191 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/time.c
- create mode 100644 arch/ia64/xen/time.h
+ arch/ia64/kernel/iosapic.c  |   45 +++++++++++++++++++++++++++---------------
+ arch/ia64/kernel/paravirt.c |   25 +++++++++++++++++++++++
+ include/asm-ia64/iosapic.h  |   18 +++++++++++++++-
+ include/asm-ia64/paravirt.h |   40 ++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 110 insertions(+), 18 deletions(-)
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 01c4289..ed31c76 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -3,7 +3,7 @@
- #
- 
- obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
--	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
-+	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
- 
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
- 
-diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
-new file mode 100644
-index 0000000..43d483d
---- /dev/null
-+++ b/arch/ia64/xen/time.c
-@@ -0,0 +1,165 @@
-+/******************************************************************************
-+ * arch/ia64/xen/time.c
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/kernel_stat.h>
-+#include <linux/posix-timers.h>
-+#include <linux/irq.h>
-+#include <linux/clocksource.h>
-+
-+#include <asm/xen/hypervisor.h>
-+
-+#include <xen/interface/vcpu.h>
-+
-+#include "../kernel/fsyscall_gtod_data.h"
-+
-+DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
-+DEFINE_PER_CPU(unsigned long, processed_stolen_time);
-+DEFINE_PER_CPU(unsigned long, processed_blocked_time);
-+
-+/* taken from i386/kernel/time-xen.c */
-+static void xen_init_missing_ticks_accounting(int cpu)
-+{
-+	struct vcpu_register_runstate_memory_area area;
-+	struct vcpu_runstate_info *runstate = &per_cpu(runstate, cpu);
-+	int rc;
-+
-+	memset(runstate, 0, sizeof(*runstate));
-+
-+	area.addr.v = runstate;
-+	rc = HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area, cpu,
-+				&area);
-+	WARN_ON(rc && rc != -ENOSYS);
-+
-+	per_cpu(processed_blocked_time, cpu) = runstate->time[RUNSTATE_blocked];
-+	per_cpu(processed_stolen_time, cpu) = runstate->time[RUNSTATE_runnable]
-+					    + runstate->time[RUNSTATE_offline];
-+}
-+
-+#define NS_PER_TICK (1000000000LL/HZ)
-+
-+static unsigned long
-+consider_steal_time(unsigned long new_itm)
-+{
-+	unsigned long stolen, blocked, sched_time;
-+	unsigned long delta_itm = 0, stolentick = 0;
-+	int cpu = smp_processor_id();
-+	struct vcpu_runstate_info *runstate;
-+	struct task_struct *p = current;
-+
-+	runstate = &per_cpu(runstate, smp_processor_id());
-+
-+	do {
-+		sched_time = runstate->state_entry_time;
-+		mb();
-+		stolen = runstate->time[RUNSTATE_runnable] +
-+			 runstate->time[RUNSTATE_offline] -
-+			 per_cpu(processed_stolen_time, cpu);
-+		blocked = runstate->time[RUNSTATE_blocked] -
-+			  per_cpu(processed_blocked_time, cpu);
-+		mb();
-+	} while (sched_time != runstate->state_entry_time);
-+
-+	/*
-+	 * Check for vcpu migration effect
-+	 * In this case, itc value is reversed.
-+	 * This causes huge stolen value.
-+	 * This function just checks and reject this effect.
-+	 */
-+	if (!time_after_eq(runstate->time[RUNSTATE_blocked],
-+			   per_cpu(processed_blocked_time, cpu)))
-+		blocked = 0;
-+
-+	if (!time_after_eq(runstate->time[RUNSTATE_runnable] +
-+			   runstate->time[RUNSTATE_offline],
-+			   per_cpu(processed_stolen_time, cpu)))
-+		stolen = 0;
-+
-+	if (!time_after(delta_itm + new_itm, ia64_get_itc()))
-+		stolentick = ia64_get_itc() - delta_itm - new_itm;
-+
-+	do_div(stolentick, NS_PER_TICK);
-+	stolentick++;
-+
-+	do_div(stolen, NS_PER_TICK);
-+
-+	if (stolen > stolentick)
-+		stolen = stolentick;
-+
-+	stolentick -= stolen;
-+	do_div(blocked, NS_PER_TICK);
-+
-+	if (blocked > stolentick)
-+		blocked = stolentick;
-+
-+	if (stolen > 0 || blocked > 0) {
-+		account_steal_time(NULL, jiffies_to_cputime(stolen));
-+		account_steal_time(idle_task(cpu), jiffies_to_cputime(blocked));
-+		run_local_timers();
-+
-+		if (rcu_pending(cpu))
-+			rcu_check_callbacks(cpu, user_mode(get_irq_regs()));
-+
-+		scheduler_tick();
-+		run_posix_cpu_timers(p);
-+		delta_itm += local_cpu_data->itm_delta * (stolen + blocked);
-+
-+		if (cpu == time_keeper_id) {
-+			write_seqlock(&xtime_lock);
-+			do_timer(stolen + blocked);
-+			local_cpu_data->itm_next = delta_itm + new_itm;
-+			write_sequnlock(&xtime_lock);
-+		} else {
-+			local_cpu_data->itm_next = delta_itm + new_itm;
-+		}
-+		per_cpu(processed_stolen_time, cpu) += NS_PER_TICK * stolen;
-+		per_cpu(processed_blocked_time, cpu) += NS_PER_TICK * blocked;
-+	}
-+	return delta_itm;
-+}
-+
-+static int xen_do_steal_accounting(unsigned long *new_itm)
-+{
-+	unsigned long delta_itm;
-+	delta_itm = consider_steal_time(*new_itm);
-+	*new_itm += delta_itm;
-+	if (time_after(*new_itm, ia64_get_itc()) && delta_itm)
-+		return 1;
-+
-+	return 0;
-+}
-+
-+static void xen_itc_jitter_data_reset(void)
-+{
-+	u64 lcycle, ret;
-+
-+	do {
-+		lcycle = itc_jitter_data.itc_lastcycle;
-+		ret = cmpxchg(&itc_jitter_data.itc_lastcycle, lcycle, 0);
-+	} while (unlikely(ret != lcycle));
-+}
-+
-+struct pv_time_ops xen_time_ops __initdata = {
-+	.init_missing_ticks_accounting	= xen_init_missing_ticks_accounting,
-+	.do_steal_accounting		= xen_do_steal_accounting,
-+	.clocksource_resume		= xen_itc_jitter_data_reset,
-+};
-diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
-new file mode 100644
-index 0000000..b9c7ec5
---- /dev/null
-+++ b/arch/ia64/xen/time.h
-@@ -0,0 +1,23 @@
-+/******************************************************************************
-+ * arch/ia64/xen/time.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+extern struct pv_time_ops xen_time_ops __initdata;
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index bfaf42b..482711d 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -30,6 +30,7 @@
- #include <asm/xen/privop.h>
- 
- #include "irq_xen.h"
-+#include "time.h"
- 
- /***************************************************************************
-  * general info
-@@ -355,6 +356,7 @@ xen_setup_pv_ops(void)
- 	pv_cpu_ops = xen_cpu_ops;
- 	pv_iosapic_ops = xen_iosapic_ops;
- 	pv_irq_ops = xen_irq_ops;
-+	pv_time_ops = xen_time_ops;
- 
- 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+diff --git a/arch/ia64/kernel/iosapic.c b/arch/ia64/kernel/iosapic.c
+index 082c31d..587196d 100644
+--- a/arch/ia64/kernel/iosapic.c
++++ b/arch/ia64/kernel/iosapic.c
+@@ -587,6 +587,15 @@ static inline int irq_is_shared (int irq)
+ 	return (iosapic_intr_info[irq].count > 1);
  }
+ 
++struct irq_chip*
++ia64_native_iosapic_get_irq_chip(unsigned long trigger)
++{
++	if (trigger == IOSAPIC_EDGE)
++		return &irq_type_iosapic_edge;
++	else
++		return &irq_type_iosapic_level;
++}
++
+ static int
+ register_intr (unsigned int gsi, int irq, unsigned char delivery,
+ 	       unsigned long polarity, unsigned long trigger)
+@@ -637,13 +646,10 @@ register_intr (unsigned int gsi, int irq, unsigned char delivery,
+ 	iosapic_intr_info[irq].dmode    = delivery;
+ 	iosapic_intr_info[irq].trigger  = trigger;
+ 
+-	if (trigger == IOSAPIC_EDGE)
+-		irq_type = &irq_type_iosapic_edge;
+-	else
+-		irq_type = &irq_type_iosapic_level;
++	irq_type = iosapic_get_irq_chip(trigger);
+ 
+ 	idesc = irq_desc + irq;
+-	if (idesc->chip != irq_type) {
++	if (irq_type != NULL && idesc->chip != irq_type) {
+ 		if (idesc->chip != &no_irq_type)
+ 			printk(KERN_WARNING
+ 			       "%s: changing vector %d from %s to %s\n",
+@@ -976,6 +982,22 @@ iosapic_override_isa_irq (unsigned int isa_irq, unsigned int gsi,
+ }
+ 
+ void __init
++ia64_native_iosapic_pcat_compat_init(void)
++{
++	if (pcat_compat) {
++		/*
++		 * Disable the compatibility mode interrupts (8259 style),
++		 * needs IN/OUT support enabled.
++		 */
++		printk(KERN_INFO
++		       "%s: Disabling PC-AT compatible 8259 interrupts\n",
++		       __func__);
++		outb(0xff, 0xA1);
++		outb(0xff, 0x21);
++	}
++}
++
++void __init
+ iosapic_system_init (int system_pcat_compat)
+ {
+ 	int irq;
+@@ -989,17 +1011,8 @@ iosapic_system_init (int system_pcat_compat)
+ 	}
+ 
+ 	pcat_compat = system_pcat_compat;
+-	if (pcat_compat) {
+-		/*
+-		 * Disable the compatibility mode interrupts (8259 style),
+-		 * needs IN/OUT support enabled.
+-		 */
+-		printk(KERN_INFO
+-		       "%s: Disabling PC-AT compatible 8259 interrupts\n",
+-		       __func__);
+-		outb(0xff, 0xA1);
+-		outb(0xff, 0x21);
+-	}
++	if (pcat_compat)
++		iosapic_pcat_compat_init();
+ }
+ 
+ static inline int
+diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
+index 5daf659..65c211b 100644
+--- a/arch/ia64/kernel/paravirt.c
++++ b/arch/ia64/kernel/paravirt.c
+@@ -312,3 +312,28 @@ paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch)
+ 		cpu_asm_switch->work_processed_syscall;
+ 	paravirt_leave_kernel_targ = cpu_asm_switch->leave_kernel;
+ }
++
++/***************************************************************************
++ * pv_iosapic_ops
++ * iosapic read/write hooks.
++ */
++
++static unsigned int
++ia64_native_iosapic_read(char __iomem *iosapic, unsigned int reg)
++{
++	return __ia64_native_iosapic_read(iosapic, reg);
++}
++
++static void
++ia64_native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++{
++	__ia64_native_iosapic_write(iosapic, reg, val);
++}
++
++struct pv_iosapic_ops pv_iosapic_ops = {
++	.pcat_compat_init = ia64_native_iosapic_pcat_compat_init,
++	.get_irq_chip = ia64_native_iosapic_get_irq_chip,
++
++	.__read = ia64_native_iosapic_read,
++	.__write = ia64_native_iosapic_write,
++};
+diff --git a/include/asm-ia64/iosapic.h b/include/asm-ia64/iosapic.h
+index a3a4288..b9c102e 100644
+--- a/include/asm-ia64/iosapic.h
++++ b/include/asm-ia64/iosapic.h
+@@ -55,13 +55,27 @@
+ 
+ #define NR_IOSAPICS			256
+ 
+-static inline unsigned int __iosapic_read(char __iomem *iosapic, unsigned int reg)
++#ifdef CONFIG_PARAVIRT_GUEST
++#include <asm/paravirt.h>
++#else
++#define iosapic_pcat_compat_init	ia64_native_iosapic_pcat_compat_init
++#define __iosapic_read			__ia64_native_iosapic_read
++#define __iosapic_write			__ia64_native_iosapic_write
++#define iosapic_get_irq_chip		ia64_native_iosapic_get_irq_chip
++#endif
++
++extern void __init ia64_native_iosapic_pcat_compat_init(void);
++extern struct irq_chip *ia64_native_iosapic_get_irq_chip(unsigned long trigger);
++
++static inline unsigned int
++__ia64_native_iosapic_read(char __iomem *iosapic, unsigned int reg)
+ {
+ 	writel(reg, iosapic + IOSAPIC_REG_SELECT);
+ 	return readl(iosapic + IOSAPIC_WINDOW);
+ }
+ 
+-static inline void __iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++static inline void
++__ia64_native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
+ {
+ 	writel(reg, iosapic + IOSAPIC_REG_SELECT);
+ 	writel(val, iosapic + IOSAPIC_WINDOW);
+diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
+index 8778e8b..48887a4 100644
+--- a/include/asm-ia64/paravirt.h
++++ b/include/asm-ia64/paravirt.h
+@@ -109,6 +109,46 @@ static inline void paravirt_post_smp_prepare_boot_cpu(void)
+ 		pv_init_ops.post_smp_prepare_boot_cpu();
+ }
+ 
++/******************************************************************************
++ * replacement of iosapic operations.
++ */
++
++struct pv_iosapic_ops {
++	void (*pcat_compat_init)(void);
++
++	struct irq_chip *(*get_irq_chip)(unsigned long trigger);
++
++	unsigned int (*__read)(char __iomem *iosapic, unsigned int reg);
++	void (*__write)(char __iomem *iosapic, unsigned int reg, u32 val);
++};
++
++extern struct pv_iosapic_ops pv_iosapic_ops;
++
++static inline void
++iosapic_pcat_compat_init(void)
++{
++	if (pv_iosapic_ops.pcat_compat_init)
++		pv_iosapic_ops.pcat_compat_init();
++}
++
++static inline struct irq_chip*
++iosapic_get_irq_chip(unsigned long trigger)
++{
++	return pv_iosapic_ops.get_irq_chip(trigger);
++}
++
++static inline unsigned int
++__iosapic_read(char __iomem *iosapic, unsigned int reg)
++{
++	return pv_iosapic_ops.__read(iosapic, reg);
++}
++
++static inline void
++__iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++{
++	return pv_iosapic_ops.__write(iosapic, reg, val);
++}
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ #else
 -- 
 1.5.3
