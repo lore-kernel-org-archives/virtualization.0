@@ -1,14 +1,11 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 05/23] ia64/xen: define helper functions for xen related
-	address conversion.
-Date: Wed, 30 Apr 2008 21:30:36 +0900
-Message-ID: <1209558654780-git-send-email-yamahata__8261.53741586513$1209561721$gmane$org@valinux.co.jp>
-References: <1209558654694-git-send-email-yamahata@valinux.co.jp>
+From: Glauber Costa <gcosta@redhat.com>
+Subject: [PATCH] make setup_secondary_clock definition dependent on local apic
+Date: Wed, 30 Apr 2008 12:39:05 -0300
+Message-ID: <12095699453538-git-send-email-gcosta__45851.3278434568$1209570483$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1209558654694-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,91 +15,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
+To: kvm-devel@lists.sourceforge.net
+Cc: Glauber Costa <gcosta@redhat.com>, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen needs some address conversions between pseudo physical
-address (guest phsyical address), guest machine address
-(real machine address) and dma address.
-Define helper functions for those address conversion.
+since the pv_apic_ops are only present if CONFIG_X86_LOCAL_APIC is compiled
+in, kvmclock failed to build without this option. This patch fixes this
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+Signed-off-by: Glauber Costa <gcosta@redhat.com>
 ---
- include/asm-ia64/xen/page.h |   65 +++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 65 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/page.h
+ arch/x86/kernel/kvmclock.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/include/asm-ia64/xen/page.h b/include/asm-ia64/xen/page.h
-new file mode 100644
-index 0000000..c3c18f9
---- /dev/null
-+++ b/include/asm-ia64/xen/page.h
-@@ -0,0 +1,65 @@
-+/******************************************************************************
-+ * include/asm-ia64/xen/page.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef _ASM_IA64_XEN_PAGE_H
-+#define _ASM_IA64_XEN_PAGE_H
-+
-+#define INVALID_P2M_ENTRY	(~0UL)
-+
-+static inline unsigned long mfn_to_pfn(unsigned long mfn)
-+{
-+	return mfn;
-+}
-+
-+static inline unsigned long pfn_to_mfn(unsigned long pfn)
-+{
-+	return pfn;
-+}
-+
-+#define phys_to_machine_mapping_valid(_x)	(1)
-+
-+static inline void *mfn_to_virt(unsigned long mfn)
-+{
-+	return __va(mfn << PAGE_SHIFT);
-+}
-+
-+static inline unsigned long virt_to_mfn(void *virt)
-+{
-+	return __pa(virt) >> PAGE_SHIFT;
-+}
-+
-+/* for tpmfront.c */
-+static inline unsigned long virt_to_machine(void *virt)
-+{
-+	return __pa(virt);
-+}
-+
-+static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
-+{
-+	/* nothing */
-+}
-+
-+#define pte_mfn(_x)	pte_pfn(_x)
-+#define mfn_pte(_x, _y)	__pte_ma(0)		/* unmodified use */
-+#define __pte_ma(_x)	((pte_t) {(_x)})        /* unmodified use */
-+
-+#endif /* _ASM_IA64_XEN_PAGE_H */
+diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+index ddee040..4bc1be5 100644
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -133,6 +133,7 @@ static int kvm_register_clock(void)
+ 	return native_write_msr_safe(MSR_KVM_SYSTEM_TIME, low, high);
+ }
+ 
++#ifdef CONFIG_X86_LOCAL_APIC
+ static void kvm_setup_secondary_clock(void)
+ {
+ 	/*
+@@ -143,6 +144,7 @@ static void kvm_setup_secondary_clock(void)
+ 	/* ok, done with our trickery, call native */
+ 	setup_secondary_APIC_clock();
+ }
++#endif
+ 
+ /*
+  * After the clock is registered, the host will keep writing to the
+@@ -177,7 +179,9 @@ void __init kvmclock_init(void)
+ 		pv_time_ops.get_wallclock = kvm_get_wallclock;
+ 		pv_time_ops.set_wallclock = kvm_set_wallclock;
+ 		pv_time_ops.sched_clock = kvm_clock_read;
++#ifdef CONFIG_X86_LOCAL_APIC
+ 		pv_apic_ops.setup_secondary_clock = kvm_setup_secondary_clock;
++#endif
+ 		machine_ops.shutdown  = kvm_shutdown;
+ #ifdef CONFIG_KEXEC
+ 		machine_ops.crash_shutdown  = kvm_crash_shutdown;
 -- 
-1.5.3
+1.5.0.6
