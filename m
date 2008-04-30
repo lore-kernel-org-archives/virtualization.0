@@ -1,14 +1,13 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 13/15] ia64/pv_ops: add hooks, pv_iosapic_ops,
-	to paravirtualize iosapic.
-Date: Wed, 30 Apr 2008 21:29:26 +0900
-Message-ID: <12095585681973-git-send-email-yamahata__37578.7395671525$1209561092$gmane$org@valinux.co.jp>
-References: <12095585682308-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 18/23] ia64/pv_ops/xen: implement xen pv_iosapic_ops.
+Date: Wed, 30 Apr 2008 21:30:49 +0900
+Message-ID: <12095586541654-git-send-email-yamahata__46189.4854357981$1209561346$gmane$org@valinux.co.jp>
+References: <1209558654694-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12095585682308-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <1209558654694-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,215 +21,83 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-add hooks to paravirtualize iosapic which is a real hardware resource.
-On virtualized environment it may be replaced something virtualized
-friendly.
-Define pv_iosapic_ops and add the hooks.
+implement xen pv_iosapic_ops for xen paravirtualized
+iosapic.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/iosapic.c  |   45 +++++++++++++++++++++++++++---------------
- arch/ia64/kernel/paravirt.c |   25 +++++++++++++++++++++++
- include/asm-ia64/iosapic.h  |   18 +++++++++++++++-
- include/asm-ia64/paravirt.h |   40 ++++++++++++++++++++++++++++++++++++++
- 4 files changed, 110 insertions(+), 18 deletions(-)
+ arch/ia64/xen/xen_pv_ops.c |   52 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 52 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/kernel/iosapic.c b/arch/ia64/kernel/iosapic.c
-index 082c31d..587196d 100644
---- a/arch/ia64/kernel/iosapic.c
-+++ b/arch/ia64/kernel/iosapic.c
-@@ -587,6 +587,15 @@ static inline int irq_is_shared (int irq)
- 	return (iosapic_intr_info[irq].count > 1);
- }
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index e483d47..97c882a 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -290,6 +290,57 @@ const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
+ };
  
-+struct irq_chip*
-+ia64_native_iosapic_get_irq_chip(unsigned long trigger)
-+{
-+	if (trigger == IOSAPIC_EDGE)
-+		return &irq_type_iosapic_edge;
-+	else
-+		return &irq_type_iosapic_level;
-+}
-+
- static int
- register_intr (unsigned int gsi, int irq, unsigned char delivery,
- 	       unsigned long polarity, unsigned long trigger)
-@@ -637,13 +646,10 @@ register_intr (unsigned int gsi, int irq, unsigned char delivery,
- 	iosapic_intr_info[irq].dmode    = delivery;
- 	iosapic_intr_info[irq].trigger  = trigger;
- 
--	if (trigger == IOSAPIC_EDGE)
--		irq_type = &irq_type_iosapic_edge;
--	else
--		irq_type = &irq_type_iosapic_level;
-+	irq_type = iosapic_get_irq_chip(trigger);
- 
- 	idesc = irq_desc + irq;
--	if (idesc->chip != irq_type) {
-+	if (irq_type != NULL && idesc->chip != irq_type) {
- 		if (idesc->chip != &no_irq_type)
- 			printk(KERN_WARNING
- 			       "%s: changing vector %d from %s to %s\n",
-@@ -976,6 +982,22 @@ iosapic_override_isa_irq (unsigned int isa_irq, unsigned int gsi,
- }
- 
- void __init
-+ia64_native_iosapic_pcat_compat_init(void)
-+{
-+	if (pcat_compat) {
-+		/*
-+		 * Disable the compatibility mode interrupts (8259 style),
-+		 * needs IN/OUT support enabled.
-+		 */
-+		printk(KERN_INFO
-+		       "%s: Disabling PC-AT compatible 8259 interrupts\n",
-+		       __func__);
-+		outb(0xff, 0xA1);
-+		outb(0xff, 0x21);
-+	}
-+}
-+
-+void __init
- iosapic_system_init (int system_pcat_compat)
- {
- 	int irq;
-@@ -989,17 +1011,8 @@ iosapic_system_init (int system_pcat_compat)
- 	}
- 
- 	pcat_compat = system_pcat_compat;
--	if (pcat_compat) {
--		/*
--		 * Disable the compatibility mode interrupts (8259 style),
--		 * needs IN/OUT support enabled.
--		 */
--		printk(KERN_INFO
--		       "%s: Disabling PC-AT compatible 8259 interrupts\n",
--		       __func__);
--		outb(0xff, 0xA1);
--		outb(0xff, 0x21);
--	}
-+	if (pcat_compat)
-+		iosapic_pcat_compat_init();
- }
- 
- static inline int
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 5daf659..65c211b 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -312,3 +312,28 @@ paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch)
- 		cpu_asm_switch->work_processed_syscall;
- 	paravirt_leave_kernel_targ = cpu_asm_switch->leave_kernel;
- }
-+
-+/***************************************************************************
+ /***************************************************************************
 + * pv_iosapic_ops
 + * iosapic read/write hooks.
 + */
++static void
++xen_pcat_compat_init(void)
++{
++	/* nothing */
++}
++
++static struct irq_chip*
++xen_iosapic_get_irq_chip(unsigned long trigger)
++{
++	return NULL;
++}
 +
 +static unsigned int
-+ia64_native_iosapic_read(char __iomem *iosapic, unsigned int reg)
++xen_iosapic_read(char __iomem *iosapic, unsigned int reg)
 +{
-+	return __ia64_native_iosapic_read(iosapic, reg);
++	struct physdev_apic apic_op;
++	int ret;
++
++	apic_op.apic_physbase = (unsigned long)iosapic -
++					__IA64_UNCACHED_OFFSET;
++	apic_op.reg = reg;
++	ret = HYPERVISOR_physdev_op(PHYSDEVOP_apic_read, &apic_op);
++	if (ret)
++		return ret;
++	return apic_op.value;
 +}
 +
 +static void
-+ia64_native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
 +{
-+	__ia64_native_iosapic_write(iosapic, reg, val);
++	struct physdev_apic apic_op;
++
++	apic_op.apic_physbase = (unsigned long)iosapic -
++					__IA64_UNCACHED_OFFSET;
++	apic_op.reg = reg;
++	apic_op.value = val;
++	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
 +}
 +
-+struct pv_iosapic_ops pv_iosapic_ops = {
-+	.pcat_compat_init = ia64_native_iosapic_pcat_compat_init,
-+	.get_irq_chip = ia64_native_iosapic_get_irq_chip,
++static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
++	.pcat_compat_init = xen_pcat_compat_init,
++	.get_irq_chip = xen_iosapic_get_irq_chip,
 +
-+	.__read = ia64_native_iosapic_read,
-+	.__write = ia64_native_iosapic_write,
-+};
-diff --git a/include/asm-ia64/iosapic.h b/include/asm-ia64/iosapic.h
-index a3a4288..b9c102e 100644
---- a/include/asm-ia64/iosapic.h
-+++ b/include/asm-ia64/iosapic.h
-@@ -55,13 +55,27 @@
- 
- #define NR_IOSAPICS			256
- 
--static inline unsigned int __iosapic_read(char __iomem *iosapic, unsigned int reg)
-+#ifdef CONFIG_PARAVIRT_GUEST
-+#include <asm/paravirt.h>
-+#else
-+#define iosapic_pcat_compat_init	ia64_native_iosapic_pcat_compat_init
-+#define __iosapic_read			__ia64_native_iosapic_read
-+#define __iosapic_write			__ia64_native_iosapic_write
-+#define iosapic_get_irq_chip		ia64_native_iosapic_get_irq_chip
-+#endif
-+
-+extern void __init ia64_native_iosapic_pcat_compat_init(void);
-+extern struct irq_chip *ia64_native_iosapic_get_irq_chip(unsigned long trigger);
-+
-+static inline unsigned int
-+__ia64_native_iosapic_read(char __iomem *iosapic, unsigned int reg)
- {
- 	writel(reg, iosapic + IOSAPIC_REG_SELECT);
- 	return readl(iosapic + IOSAPIC_WINDOW);
- }
- 
--static inline void __iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
-+static inline void
-+__ia64_native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
- {
- 	writel(reg, iosapic + IOSAPIC_REG_SELECT);
- 	writel(val, iosapic + IOSAPIC_WINDOW);
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index 8778e8b..48887a4 100644
---- a/include/asm-ia64/paravirt.h
-+++ b/include/asm-ia64/paravirt.h
-@@ -109,6 +109,46 @@ static inline void paravirt_post_smp_prepare_boot_cpu(void)
- 		pv_init_ops.post_smp_prepare_boot_cpu();
- }
- 
-+/******************************************************************************
-+ * replacement of iosapic operations.
-+ */
-+
-+struct pv_iosapic_ops {
-+	void (*pcat_compat_init)(void);
-+
-+	struct irq_chip *(*get_irq_chip)(unsigned long trigger);
-+
-+	unsigned int (*__read)(char __iomem *iosapic, unsigned int reg);
-+	void (*__write)(char __iomem *iosapic, unsigned int reg, u32 val);
++	.__read = xen_iosapic_read,
++	.__write = xen_iosapic_write,
 +};
 +
-+extern struct pv_iosapic_ops pv_iosapic_ops;
-+
-+static inline void
-+iosapic_pcat_compat_init(void)
-+{
-+	if (pv_iosapic_ops.pcat_compat_init)
-+		pv_iosapic_ops.pcat_compat_init();
-+}
-+
-+static inline struct irq_chip*
-+iosapic_get_irq_chip(unsigned long trigger)
-+{
-+	return pv_iosapic_ops.get_irq_chip(trigger);
-+}
-+
-+static inline unsigned int
-+__iosapic_read(char __iomem *iosapic, unsigned int reg)
-+{
-+	return pv_iosapic_ops.__read(iosapic, reg);
-+}
-+
-+static inline void
-+__iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
-+{
-+	return pv_iosapic_ops.__write(iosapic, reg, val);
-+}
-+
- #endif /* !__ASSEMBLY__ */
++/***************************************************************************
+  * pv_ops initialization
+  */
  
- #else
+@@ -300,6 +351,7 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_cpu_ops = xen_cpu_ops;
++	pv_iosapic_ops = xen_iosapic_ops;
+ 
+ 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+ }
 -- 
 1.5.3
