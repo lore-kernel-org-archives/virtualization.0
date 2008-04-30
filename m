@@ -1,13 +1,14 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 08/15] ia64/pv_ops: paravirtualize minstate.h.
-Date: Wed, 30 Apr 2008 21:29:21 +0900
-Message-ID: <12095585683403-git-send-email-yamahata__33961.2704854973$1209559168$gmane$org@valinux.co.jp>
-References: <12095585682308-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 11/23] ia64/xen: detect xen environment and do minimal
+	initialization.
+Date: Wed, 30 Apr 2008 21:30:42 +0900
+Message-ID: <12095586542127-git-send-email-yamahata__8380.61562176353$1209559309$gmane$org@valinux.co.jp>
+References: <1209558654694-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12095585682308-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <1209558654694-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,69 +22,59 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize minstate.h which are hand written assembly code.
-They include sensitive or performance critical privileged
-instructions. So that they are appropriate for paravirtualization.
+Add a hook for xen detection and initialization. It detects
+xen environment and does minimal initialization.
+For now xen is detected by checking psr.cpl != 0.
+It's ok for now, but more abstraction would be needed later like x86.
+Presumably extending booting protocol (i.e. extending struct ia64_boot_param)
+or multi entry points depending on hypervisor would be necessary.
 
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/minstate.h      |   13 +++++++------
- arch/ia64/kernel/paravirt_inst.h |   29 +++++++++++++++++++++++++++++
- include/asm-ia64/native/inst.h   |    2 ++
- 3 files changed, 38 insertions(+), 6 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirt_inst.h
+ arch/ia64/kernel/head.S    |    6 ++++
+ arch/ia64/xen/Makefile     |    3 +-
+ arch/ia64/xen/xen_pv_ops.c |   65 ++++++++++++++++++++++++++++++++++++++++++++
+ arch/ia64/xen/xensetup.S   |   49 +++++++++++++++++++++++++++++++++
+ 4 files changed, 122 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/xen_pv_ops.c
+ create mode 100644 arch/ia64/xen/xensetup.S
 
-diff --git a/arch/ia64/kernel/minstate.h b/arch/ia64/kernel/minstate.h
-index 7c548ac..9db53cf 100644
---- a/arch/ia64/kernel/minstate.h
-+++ b/arch/ia64/kernel/minstate.h
-@@ -2,6 +2,7 @@
- #include <asm/cache.h>
- 
- #include "entry.h"
-+#include "paravirt_inst.h"
- 
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- /* read ar.itc in advance, and use it before leaving bank 0 */
-@@ -40,16 +41,16 @@
-  * Note that psr.ic is NOT turned on by this macro.  This is so that
-  * we can pass interruption state as arguments to a handler.
-  */
--#define DO_SAVE_MIN(COVER,SAVE_IFS,EXTRA)							\
-+#define IA64_NATIVE_DO_SAVE_MIN(__COVER,SAVE_IFS,EXTRA)						\
- 	mov r16=IA64_KR(CURRENT);	/* M */							\
- 	mov r27=ar.rsc;			/* M */							\
- 	mov r20=r1;			/* A */							\
- 	mov r25=ar.unat;		/* M */							\
--	mov r29=cr.ipsr;		/* M */							\
-+	MOV_FROM_IPSR(p0,r29);		/* M */							\
- 	mov r26=ar.pfs;			/* I */							\
--	mov r28=cr.iip;			/* M */							\
-+	MOV_FROM_IIP(r28);		/* M */							\
- 	mov r21=ar.fpsr;		/* M */							\
--	COVER;				/* B;; (or nothing) */					\
-+	__COVER;			/* B;; (or nothing) */					\
- 	;;											\
- 	adds r16=IA64_TASK_THREAD_ON_USTACK_OFFSET,r16;						\
- 	;;											\
-@@ -206,6 +207,6 @@
- 	st8 [r25]=r10;      	/* ar.ssd */	\
+diff --git a/arch/ia64/kernel/head.S b/arch/ia64/kernel/head.S
+index ddeab4e..39fecfc 100644
+--- a/arch/ia64/kernel/head.S
++++ b/arch/ia64/kernel/head.S
+@@ -367,6 +367,12 @@ start_ap:
  	;;
+ (isBP)	st8 [r2]=r28		// save the address of the boot param area passed by the bootloader
  
--#define SAVE_MIN_WITH_COVER	DO_SAVE_MIN(cover, mov r30=cr.ifs,)
--#define SAVE_MIN_WITH_COVER_R19	DO_SAVE_MIN(cover, mov r30=cr.ifs, mov r15=r19)
-+#define SAVE_MIN_WITH_COVER	DO_SAVE_MIN(COVER, mov r30=cr.ifs,)
-+#define SAVE_MIN_WITH_COVER_R19	DO_SAVE_MIN(COVER, mov r30=cr.ifs, mov r15=r19)
- #define SAVE_MIN		DO_SAVE_MIN(     , mov r30=r0, )
-diff --git a/arch/ia64/kernel/paravirt_inst.h b/arch/ia64/kernel/paravirt_inst.h
++#ifdef CONFIG_XEN
++	//  Note: isBP is used by the subprogram.
++	br.call.sptk.many rp=early_xen_setup
++	;;
++#endif
++
+ #ifdef CONFIG_SMP
+ (isAP)	br.call.sptk.many rp=start_secondary
+ .ret0:
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index eb59563..abc356f 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -2,4 +2,5 @@
+ # Makefile for Xen components
+ #
+ 
+-obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
++obj-y := hypercall.o xensetup.o xen_pv_ops.o \
++	xencomm.o xcom_hcall.o grant-table.o
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
 new file mode 100644
-index 0000000..5cad6fb
+index 0000000..77db214
 --- /dev/null
-+++ b/arch/ia64/kernel/paravirt_inst.h
-@@ -0,0 +1,29 @@
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -0,0 +1,65 @@
 +/******************************************************************************
-+ * linux/arch/ia64/xen/paravirt_inst.h
++ * arch/ia64/xen/xen_pv_ops.c
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -104,25 +95,103 @@ index 0000000..5cad6fb
 + *
 + */
 +
-+#ifdef __IA64_ASM_PARAVIRTUALIZED_XEN
-+#include <asm/xen/inst.h>
-+#include <asm/xen/minstate.h>
-+#else
-+#include <asm/native/inst.h>
-+#endif
++#include <linux/console.h>
++#include <linux/irq.h>
++#include <linux/kernel.h>
++#include <linux/pm.h>
 +
-diff --git a/include/asm-ia64/native/inst.h b/include/asm-ia64/native/inst.h
-index 295fde3..c167b7d 100644
---- a/include/asm-ia64/native/inst.h
-+++ b/include/asm-ia64/native/inst.h
-@@ -20,6 +20,8 @@
-  *
-  */
- 
-+#define DO_SAVE_MIN		IA64_NATIVE_DO_SAVE_MIN
++#include <asm/xen/hypervisor.h>
++#include <asm/xen/xencomm.h>
++#include <asm/xen/privop.h>
 +
- #ifdef CONFIG_PARAVIRT_GUEST_ASM_CLOBBER_CHECK
- # define PARAVIRT_POISON	0xdeadbeefbaadf00d
- # define CLOBBER(clob)				\
++/***************************************************************************
++ * general info
++ */
++static struct pv_info xen_info __initdata = {
++	.kernel_rpl = 2,	/* or 1: determin at runtime */
++	.paravirt_enabled = 1,
++	.name = "Xen/ia64",
++};
++
++#define IA64_RSC_PL_SHIFT	2
++#define IA64_RSC_PL_BIT_SIZE	2
++#define IA64_RSC_PL_MASK	\
++	(((1UL << IA64_RSC_PL_BIT_SIZE) - 1) << IA64_RSC_PL_SHIFT)
++
++static void __init
++xen_info_init(void)
++{
++	/* Xenified Linux/ia64 may run on pl = 1 or 2.
++	 * determin at run time. */
++	unsigned long rsc = ia64_getreg(_IA64_REG_AR_RSC);
++	unsigned int rpl = (rsc & IA64_RSC_PL_MASK) >> IA64_RSC_PL_SHIFT;
++	xen_info.kernel_rpl = rpl;
++}
++
++/***************************************************************************
++ * pv_ops initialization
++ */
++
++void __init
++xen_setup_pv_ops(void)
++{
++	xen_info_init();
++	pv_info = xen_info;
++}
+diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
+new file mode 100644
+index 0000000..43608b2
+--- /dev/null
++++ b/arch/ia64/xen/xensetup.S
+@@ -0,0 +1,49 @@
++/*
++ * Support routines for Xen
++ *
++ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
++ */
++
++#include <asm/processor.h>
++#include <asm/asmmacro.h>
++#include <asm/xen/privop.h>
++
++	.section .data.read_mostly
++	.align 8
++	.global running_on_xen
++running_on_xen:
++	data4 0
++	.previous
++
++#define isBP	p3	// are we the Bootstrap Processor?
++
++	.text
++GLOBAL_ENTRY(early_xen_setup)
++	mov r8=ar.rsc		// Initialized in head.S
++(isBP)	movl r9=running_on_xen;;
++	extr.u r8=r8,2,2;;	// Extract pl fields
++	cmp.eq p7,p0=r8,r0	// p7: !running on xen
++	mov r8=1		// booleanize.
++(p7)	br.ret.sptk.many rp;;
++(isBP)	st4 [r9]=r8
++	movl r10=xen_ivt;;
++
++	mov cr.iva=r10
++
++	/* Set xsi base.  */
++#define FW_HYPERCALL_SET_SHARED_INFO_VA			0x600
++(isBP)	mov r2=FW_HYPERCALL_SET_SHARED_INFO_VA
++(isBP)	movl r28=XSI_BASE;;
++(isBP)	break 0x1000;;
++
++	/* setup pv_ops */
++(isBP)	mov r4=rp
++	;;
++(isBP)	br.call.sptk.many rp=xen_setup_pv_ops
++	;;
++(isBP)	mov rp=r4
++	;;
++
++	br.ret.sptk.many rp
++	;;
++END(early_xen_setup)
 -- 
 1.5.3
