@@ -1,14 +1,13 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 02/15] ia64/pv_ops: preparation: introduce
-	ia64_set_rr0_to_rr4() to make kernel paravirtualization friendly.
-Date: Wed, 30 Apr 2008 21:29:15 +0900
-Message-ID: <12095585683348-git-send-email-yamahata__41862.1493074626$1209560545$gmane$org@valinux.co.jp>
-References: <12095585682308-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 04/23] ia64/xen: define several constants for ia64/xen.
+Date: Wed, 30 Apr 2008 21:30:35 +0900
+Message-ID: <1209558654489-git-send-email-yamahata__23244.6007816636$1209560550$gmane$org@valinux.co.jp>
+References: <1209558654694-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12095585682308-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <1209558654694-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,52 +21,55 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-make kernel paravirtualization friendly by introducing
-ia64_set_rr0_to_rr4().
-ia64/Xen will replace setting rr[0-4] with single hypercall later.
+define several constants for ia64/xen.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/intrinsics.h  |    9 +++++++++
- include/asm-ia64/mmu_context.h |    6 +-----
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ arch/ia64/kernel/asm-offsets.c |   27 +++++++++++++++++++++++++++
+ 1 files changed, 27 insertions(+), 0 deletions(-)
 
-diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
-index f1135b5..9b83f8f 100644
---- a/include/asm-ia64/intrinsics.h
-+++ b/include/asm-ia64/intrinsics.h
-@@ -18,6 +18,15 @@
- # include <asm/gcc_intrin.h>
- #endif
+diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
+index c64a55a..6bd3fc5 100644
+--- a/arch/ia64/kernel/asm-offsets.c
++++ b/arch/ia64/kernel/asm-offsets.c
+@@ -16,6 +16,8 @@
+ #include <asm-ia64/sigcontext.h>
+ #include <asm-ia64/mca.h>
  
-+#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
-+do {								\
-+	ia64_set_rr(0x0000000000000000UL, (val0));		\
-+	ia64_set_rr(0x2000000000000000UL, (val1));		\
-+	ia64_set_rr(0x4000000000000000UL, (val2));		\
-+	ia64_set_rr(0x6000000000000000UL, (val3));		\
-+	ia64_set_rr(0x8000000000000000UL, (val4));		\
-+} while (0)
++#include <asm-ia64/xen/interface.h>
 +
- /*
-  * Force an unresolved reference if someone tries to use
-  * ia64_fetch_and_add() with a bad value.
-diff --git a/include/asm-ia64/mmu_context.h b/include/asm-ia64/mmu_context.h
-index cef2400..040bc87 100644
---- a/include/asm-ia64/mmu_context.h
-+++ b/include/asm-ia64/mmu_context.h
-@@ -152,11 +152,7 @@ reload_context (nv_mm_context_t context)
- #  endif
- #endif
+ #include "../kernel/sigframe.h"
+ #include "../kernel/fsyscall_gtod_data.h"
  
--	ia64_set_rr(0x0000000000000000UL, rr0);
--	ia64_set_rr(0x2000000000000000UL, rr1);
--	ia64_set_rr(0x4000000000000000UL, rr2);
--	ia64_set_rr(0x6000000000000000UL, rr3);
--	ia64_set_rr(0x8000000000000000UL, rr4);
-+	ia64_set_rr0_to_rr4(rr0, rr1, rr2, rr3, rr4);
- 	ia64_srlz_i();			/* srlz.i implies srlz.d */
+@@ -286,4 +288,29 @@ void foo(void)
+ 		offsetof (struct itc_jitter_data_t, itc_jitter));
+ 	DEFINE(IA64_ITC_LASTCYCLE_OFFSET,
+ 		offsetof (struct itc_jitter_data_t, itc_lastcycle));
++
++#ifdef CONFIG_XEN
++	BLANK();
++
++#define DEFINE_MAPPED_REG_OFS(sym, field) \
++	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
++
++	DEFINE_MAPPED_REG_OFS(XSI_PSR_I_ADDR_OFS, interrupt_mask_addr);
++	DEFINE_MAPPED_REG_OFS(XSI_IPSR_OFS, ipsr);
++	DEFINE_MAPPED_REG_OFS(XSI_IIP_OFS, iip);
++	DEFINE_MAPPED_REG_OFS(XSI_IFS_OFS, ifs);
++	DEFINE_MAPPED_REG_OFS(XSI_PRECOVER_IFS_OFS, precover_ifs);
++	DEFINE_MAPPED_REG_OFS(XSI_ISR_OFS, isr);
++	DEFINE_MAPPED_REG_OFS(XSI_IFA_OFS, ifa);
++	DEFINE_MAPPED_REG_OFS(XSI_IIPA_OFS, iipa);
++	DEFINE_MAPPED_REG_OFS(XSI_IIM_OFS, iim);
++	DEFINE_MAPPED_REG_OFS(XSI_IHA_OFS, iha);
++	DEFINE_MAPPED_REG_OFS(XSI_ITIR_OFS, itir);
++	DEFINE_MAPPED_REG_OFS(XSI_PSR_IC_OFS, interrupt_collection_enabled);
++	DEFINE_MAPPED_REG_OFS(XSI_BANKNUM_OFS, banknum);
++	DEFINE_MAPPED_REG_OFS(XSI_BANK0_R16_OFS, bank0_regs[0]);
++	DEFINE_MAPPED_REG_OFS(XSI_BANK1_R16_OFS, bank1_regs[0]);
++	DEFINE_MAPPED_REG_OFS(XSI_B0NATS_OFS, vbnat);
++	DEFINE_MAPPED_REG_OFS(XSI_B1NATS_OFS, vnat);
++#endif /* CONFIG_XEN */
  }
- 
 -- 
 1.5.3
