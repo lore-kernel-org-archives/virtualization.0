@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 10/23] ia64/xen: add definitions necessary for xen event
-	channel.
-Date: Wed, 30 Apr 2008 21:30:41 +0900
-Message-ID: <12095586542063-git-send-email-yamahata__15738.6096347638$1209560636$gmane$org@valinux.co.jp>
+Subject: [PATCH 09/23] ia64/xen: implement arch specific part of xen grant
+	table.
+Date: Wed, 30 Apr 2008 21:30:40 +0900
+Message-ID: <1209558654507-git-send-email-yamahata__46788.9832253151$1209560657$gmane$org@valinux.co.jp>
 References: <1209558654694-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,23 +22,200 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen paravirtualizes interrupt as event channel.
-This patch defines arch specific part of xen event channel.
+Xen implements grant tables which is for sharing pages with
+guest domains.
+This patch implements arch specific part of grant table initialization.
+and xen_alloc_vm_area()/xen_free_vm_area() which are helper functions
+for xen grant table.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/xen/events.h |   50 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 50 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/events.h
+ arch/ia64/xen/Makefile             |    2 +-
+ arch/ia64/xen/grant-table.c        |  155 ++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/xen/grant_table.h |   29 +++++++
+ 3 files changed, 185 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/grant-table.c
+ create mode 100644 include/asm-ia64/xen/grant_table.h
 
-diff --git a/include/asm-ia64/xen/events.h b/include/asm-ia64/xen/events.h
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index ae08822..eb59563 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -2,4 +2,4 @@
+ # Makefile for Xen components
+ #
+ 
+-obj-y := hypercall.o xencomm.o xcom_hcall.o
++obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
+diff --git a/arch/ia64/xen/grant-table.c b/arch/ia64/xen/grant-table.c
 new file mode 100644
-index 0000000..42bb0b5
+index 0000000..777dd9a
 --- /dev/null
-+++ b/include/asm-ia64/xen/events.h
-@@ -0,0 +1,50 @@
++++ b/arch/ia64/xen/grant-table.c
+@@ -0,0 +1,155 @@
 +/******************************************************************************
-+ * include/asm-ia64/xen/events.h
++ * arch/ia64/xen/grant-table.c
++ *
++ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/vmalloc.h>
++#include <linux/mm.h>
++
++#include <xen/interface/xen.h>
++#include <xen/interface/memory.h>
++#include <xen/grant_table.h>
++
++#include <asm/xen/hypervisor.h>
++
++struct vm_struct *xen_alloc_vm_area(unsigned long size)
++{
++	int order;
++	unsigned long virt;
++	unsigned long nr_pages;
++	struct vm_struct *area;
++
++	order = get_order(size);
++	virt = __get_free_pages(GFP_KERNEL, order);
++	if (virt == 0)
++		goto err0;
++	nr_pages = 1 << order;
++	scrub_pages(virt, nr_pages);
++
++	area = kmalloc(sizeof(*area), GFP_KERNEL);
++	if (area == NULL)
++		goto err1;
++
++	area->flags = VM_IOREMAP;
++	area->addr = (void *)virt;
++	area->size = size;
++	area->pages = NULL;
++	area->nr_pages = nr_pages;
++	area->phys_addr = 0;	/* xenbus_map_ring_valloc uses this field!  */
++
++	return area;
++
++err1:
++	free_pages(virt, order);
++err0:
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(xen_alloc_vm_area);
++
++void xen_free_vm_area(struct vm_struct *area)
++{
++	unsigned int order = get_order(area->size);
++	unsigned long i;
++	unsigned long phys_addr = __pa(area->addr);
++
++	/* This area is used for foreign page mappping.
++	 * So underlying machine page may not be assigned. */
++	for (i = 0; i < (1 << order); i++) {
++		unsigned long ret;
++		unsigned long gpfn = (phys_addr >> PAGE_SHIFT) + i;
++		struct xen_memory_reservation reservation = {
++			.nr_extents   = 1,
++			.address_bits = 0,
++			.extent_order = 0,
++			.domid        = DOMID_SELF
++		};
++		set_xen_guest_handle(reservation.extent_start, &gpfn);
++		ret = HYPERVISOR_memory_op(XENMEM_populate_physmap,
++					   &reservation);
++		BUG_ON(ret != 1);
++	}
++	free_pages((unsigned long)area->addr, order);
++	kfree(area);
++}
++EXPORT_SYMBOL_GPL(xen_free_vm_area);
++
++
++/****************************************************************************
++ * grant table hack
++ * cmd: GNTTABOP_xxx
++ */
++
++int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
++			   unsigned long max_nr_gframes,
++			   struct grant_entry **__shared)
++{
++	*__shared = __va(frames[0] << PAGE_SHIFT);
++	return 0;
++}
++
++void arch_gnttab_unmap_shared(struct grant_entry *shared,
++			      unsigned long nr_gframes)
++{
++	/* nothing */
++}
++
++static void
++gnttab_map_grant_ref_pre(struct gnttab_map_grant_ref *uop)
++{
++	uint32_t flags;
++
++	flags = uop->flags;
++
++	if (flags & GNTMAP_host_map) {
++		if (flags & GNTMAP_application_map) {
++			printk(KERN_DEBUG
++			       "GNTMAP_application_map is not supported yet: "
++			       "flags 0x%x\n", flags);
++			BUG();
++		}
++		if (flags & GNTMAP_contains_pte) {
++			printk(KERN_DEBUG
++			       "GNTMAP_contains_pte is not supported yet: "
++			       "flags 0x%x\n", flags);
++			BUG();
++		}
++	} else if (flags & GNTMAP_device_map) {
++		printk("GNTMAP_device_map is not supported yet 0x%x\n", flags);
++		BUG();	/* not yet. actually this flag is not used. */
++	} else {
++		BUG();
++	}
++}
++
++int
++HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count)
++{
++	if (cmd == GNTTABOP_map_grant_ref) {
++		unsigned int i;
++		for (i = 0; i < count; i++) {
++			gnttab_map_grant_ref_pre(
++				(struct gnttab_map_grant_ref *)uop + i);
++		}
++	}
++	return xencomm_hypercall_grant_table_op(cmd, uop, count);
++}
++
++EXPORT_SYMBOL(HYPERVISOR_grant_table_op);
+diff --git a/include/asm-ia64/xen/grant_table.h b/include/asm-ia64/xen/grant_table.h
+new file mode 100644
+index 0000000..ebdf2ea
+--- /dev/null
++++ b/include/asm-ia64/xen/grant_table.h
+@@ -0,0 +1,29 @@
++/******************************************************************************
++ * include/asm-ia64/xen/grant_table.h
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -58,34 +235,13 @@ index 0000000..42bb0b5
 + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + *
 + */
-+#ifndef _ASM_IA64_XEN_EVENTS_H
-+#define _ASM_IA64_XEN_EVENTS_H
 +
-+enum ipi_vector {
-+	XEN_RESCHEDULE_VECTOR,
-+	XEN_IPI_VECTOR,
-+	XEN_CMCP_VECTOR,
-+	XEN_CPEP_VECTOR,
++#ifndef _ASM_IA64_XEN_GRANT_TABLE_H
++#define _ASM_IA64_XEN_GRANT_TABLE_H
 +
-+	XEN_NR_IPIS,
-+};
++struct vm_struct *xen_alloc_vm_area(unsigned long size);
++void xen_free_vm_area(struct vm_struct *area);
 +
-+static inline int xen_irqs_disabled(struct pt_regs *regs)
-+{
-+	return !(ia64_psr(regs)->i);
-+}
-+
-+static inline void xen_do_IRQ(int irq, struct pt_regs *regs)
-+{
-+	struct pt_regs *old_regs;
-+	old_regs = set_irq_regs(regs);
-+	irq_enter();
-+	__do_IRQ(irq);
-+	irq_exit();
-+	set_irq_regs(old_regs);
-+}
-+#define irq_ctx_init(cpu)	do { } while (0)
-+
-+#endif /* _ASM_IA64_XEN_EVENTS_H */
++#endif /* _ASM_IA64_XEN_GRANT_TABLE_H */
 -- 
 1.5.3
