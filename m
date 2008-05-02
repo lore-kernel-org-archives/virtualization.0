@@ -1,11 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio & lguest changes for 2.6.26
-Date: Fri, 2 May 2008 21:54:17 +1000
-Message-ID: <200805022154.18177.rusty__49334.838128607$1209729478$gmane$org@rustcorp.com.au>
+From: Amit Shah <amit.shah@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH 2/2] KVM: Handle interrupts for PCI
+	passthrough devices
+Date: Fri, 2 May 2008 18:35:46 +0530
+Message-ID: <200805021835.47565.amit.shah__42653.2085672536$1209733601$gmane$org@qumranet.com>
+References: <1207817334-31775-1-git-send-email-amit.shah@qumranet.com>
+	<200804222258.40644.amit.shah@qumranet.com>
+	<481AEE65.2010303@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <481AEE65.2010303@qumranet.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,55 +21,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: lguest <lguest@ozlabs.org>, Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Harvey Harrison <harvey.harrison@gmail.com>
+To: Avi Kivity <avi@qumranet.com>
+Cc: chrisw@redhat.com, kvm-devel@lists.sourceforge.net, allen.m.kay@intel.com, virtualization@lists.linux-foundation.org, gcosta@redhat.com, BENAMI@il.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 886c35fbcf6fb2eee15687efc2d64d99b6ad9a4a:
-  Linus Torvalds (1):
-        Merge branch 'for-linus' of git://git.kernel.org/.../ieee1394/linux1394-2.6
+On Friday 02 May 2008 16:05:17 Avi Kivity wrote:
+> Amit Shah wrote:
+> >>> +static irqreturn_t
+> >>> +kvm_pci_pt_dev_intr(int irq, void *dev_id)
+> >>>
+> >>> +{
+> >>> +	struct kvm_pci_pt_dev_list *match;
+> >>> +	struct kvm *kvm = (struct kvm *) dev_id;
+> >>> +
+> >>> +	if (!test_bit(irq, pt_irq_handled))
+> >>> +		return IRQ_NONE;
+> >>> +
+> >>> +	if (test_bit(irq, pt_irq_pending))
+> >>> +		return IRQ_HANDLED;
+> >>
+> >> Will the interrupt not fire immediately after this returns?
+> >
+> > Hmm. This is just an optimisation so that we don't have to look up the
+> > list each time to find out which assigned device it is and (re)injecting
+> > the interrupt. Also we avoid the (TODO) getting/releasing locks which
+> > will be needed for the list lookup.
+> >
+> > Disabling interrupts for PCI devices isn't a good idea even if we don't
+> > support shared interrupts. Any other ideas to avoid this from happening?
+>
+> I don't understand.  These are level-triggered interrupts, so if one
+> fires and you don't disable it, it will fire again and again.
 
-are available in the git repository at:
+Yes, it does.
 
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+> Seems to me the only choice here is to mask the interrupt at the ioapic
+> level, wait until the guest acks the interrupt, then unmask the interrupt.
 
-Christian Borntraeger (1):
-      virtio: export more headers to userspace
+OK; will that create problems if the line is shared?
 
-Harvey Harrison (1):
-      virtio: fix sparse return void-valued expression warnings
+> With the current code, how to the guest interrupt counters and the host
+> interrupt counters compare?
 
-Marcelo Tosatti (1):
-      virtio-blk: fix remove oops
-
-Rusty Russell (11):
-      virtio: ignore corrupted virtqueues rather than spinning.
-      virtio: fix tx_ stats in virtio_net
-      virtio: de-structify virtio_block status byte
-      virtio: fix scatterlist sizing in net driver.
-      virtio: wean net driver off NETDEV_TX_BUSY
-      virtio: finer-grained features for virtio_net
-      virtio: change config to guest endian.
-      virtio: explicit advertisement of driver features
-      lguest: avoid using NR_CPUS as a bounds check.
-      lguest: remove bogus NULL cpu check
-      lguest: make Launcher see device status updates
-
-Ryan Harper (1):
-      virtio: add virtio disk geometry feature
-
- Documentation/lguest/lguest.c   |   62 +++++++++++++++++---------
- drivers/block/virtio_blk.c      |   44 +++++++++++++-----
- drivers/lguest/lguest_device.c  |   68 +++++++++++++++++-----------
- drivers/lguest/lguest_user.c    |    4 +-
- drivers/net/virtio_net.c        |   96 +++++++++++++++++++++++++++-----------
- drivers/virtio/virtio.c         |   38 +++++++++++++++-
- drivers/virtio/virtio_balloon.c |   12 +++--
- drivers/virtio/virtio_pci.c     |   34 +++++++-------
- drivers/virtio/virtio_ring.c    |    5 ++
- include/linux/Kbuild            |    5 ++
- include/linux/virtio.h          |    7 +++
- include/linux/virtio_blk.h      |   14 +++---
- include/linux/virtio_config.h   |   81 ++++++++++++++++++---------------
- include/linux/virtio_net.h      |   13 +++++-
- 14 files changed, 324 insertions(+), 159 deletions(-)
+The guest ticks along fine but the host count is quite huge. You're right in 
+your observations; what I was only suggesting was that disabling a shared 
+interrupt on the host while the guest acks it isn't a good idea.
