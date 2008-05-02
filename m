@@ -1,16 +1,17 @@
-From: Amit Shah <amit.shah@qumranet.com>
-Subject: Re: [PATCH] KVM x86: Handle hypercalls for assigned PCI devices
-Date: Thu, 1 May 2008 18:48:28 +0530
-Message-ID: <200805011848.29363.amit.shah__5442.28295698321$1209648105$gmane$org@qumranet.com>
-References: <1209465451-3758-1-git-send-email-amit.shah@qumranet.com>
-	<48173440.304@redhat.com>
-	<200804292128.52268.amit.shah@qumranet.com>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH 2/2] KVM: Handle interrupts for PCI passthrough
+	devices
+Date: Fri, 02 May 2008 13:35:17 +0300
+Message-ID: <481AEE65.2010303__29791.5842188106$1209724762$gmane$org@qumranet.com>
+References: <1207817334-31775-1-git-send-email-amit.shah@qumranet.com>
+	<1207817334-31775-3-git-send-email-amit.shah@qumranet.com>
+	<4801C60B.3050401@qumranet.com>
+	<200804222258.40644.amit.shah@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200804292128.52268.amit.shah@qumranet.com>
-Content-Disposition: inline
+In-Reply-To: <200804222258.40644.amit.shah@qumranet.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,27 +21,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber Costa <gcosta@redhat.com>
-Cc: chrisw@redhat.com, kvm-devel@lists.sourceforge.net, allen.m.kay@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, BENAMI@il.ibm.com
+To: Amit Shah <amit.shah@qumranet.com>
+Cc: chrisw@redhat.com, kvm-devel@lists.sourceforge.net, allen.m.kay@intel.com, virtualization@lists.linux-foundation.org, gcosta@redhat.com, BENAMI@il.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 29 April 2008 21:28:51 Amit Shah wrote:
-> On Tuesday 29 April 2008 20:14:16 Glauber Costa wrote:
-> > Amit Shah wrote:
-
-> > > +	if (find_pci_pt_dev(&vcpu->kvm->arch.pci_pt_dev_head,
-> > > +			    &pci_pt_info, 0, KVM_PT_SOURCE_ASSIGN))
-> > > +		r++; /* We have assigned the device */
-> > > +
-> > > +	kunmap(host_page);
-> >
-> > better use atomic mappings here.
+Amit Shah wrote:
+>   
+>>> +static irqreturn_t
+>>> +kvm_pci_pt_dev_intr(int irq, void *dev_id)
+>>>       
+>>> +{
+>>> +	struct kvm_pci_pt_dev_list *match;
+>>> +	struct kvm *kvm = (struct kvm *) dev_id;
+>>> +
+>>> +	if (!test_bit(irq, pt_irq_handled))
+>>> +		return IRQ_NONE;
+>>> +
+>>> +	if (test_bit(irq, pt_irq_pending))
+>>> +		return IRQ_HANDLED;
+>>>       
+>> Will the interrupt not fire immediately after this returns?
+>>     
 >
-> We can't use atomic mappings for guest pages. They can be swapped out.
+> Hmm. This is just an optimisation so that we don't have to look up the list 
+> each time to find out which assigned device it is and (re)injecting the 
+> interrupt. Also we avoid the (TODO) getting/releasing locks which will be 
+> needed for the list lookup.
+>
+> Disabling interrupts for PCI devices isn't a good idea even if we don't 
+> support shared interrupts. Any other ideas to avoid this from happening?
+>
+>   
 
-Actually you were right: there's no sleeping call here after doing the 
-mapping. I've updated this call with kmap_atomic.
+I don't understand.  These are level-triggered interrupts, so if one 
+fires and you don't disable it, it will fire again and again.
 
-The other function that uses kmap can't be converted since we continue to map 
-several pages in a loop (depending on the length of the DMA region) and hence 
-can't use kmap_atomic there.
+Seems to me the only choice here is to mask the interrupt at the ioapic 
+level, wait until the guest acks the interrupt, then unmask the interrupt.
+
+With the current code, how to the guest interrupt counters and the host 
+interrupt counters compare?
+
+
+-- 
+I have a truly marvellous patch that fixes the bug which this
+signature is too narrow to contain.
