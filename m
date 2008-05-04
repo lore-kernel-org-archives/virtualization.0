@@ -1,17 +1,14 @@
 From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [kvm-devel] [PATCH 2/2] KVM: Handle interrupts for PCI passthrough
-	devices
-Date: Fri, 02 May 2008 16:16:09 +0300
-Message-ID: <481B1419.8060009__12787.050594534$1209734323$gmane$org@qumranet.com>
-References: <1207817334-31775-1-git-send-email-amit.shah@qumranet.com>
-	<200804222258.40644.amit.shah@qumranet.com>
-	<481AEE65.2010303@qumranet.com>
-	<200805021835.47565.amit.shah@qumranet.com>
+Subject: Re: [PATCH] make setup_secondary_clock definition dependent on local
+	apic
+Date: Sun, 04 May 2008 14:48:55 +0300
+Message-ID: <481DA2A7.6090302__39760.2631048814$1209901874$gmane$org@qumranet.com>
+References: <12095699453538-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805021835.47565.amit.shah@qumranet.com>
+In-Reply-To: <12095699453538-git-send-email-gcosta@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,23 +18,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@qumranet.com>
-Cc: chrisw@redhat.com, kvm-devel@lists.sourceforge.net, allen.m.kay@intel.com, virtualization@lists.linux-foundation.org, gcosta@redhat.com, BENAMI@il.ibm.com
+To: Glauber Costa <gcosta@redhat.com>
+Cc: kvm-devel@lists.sourceforge.net, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah wrote:
->
->> Seems to me the only choice here is to mask the interrupt at the ioapic
->> level, wait until the guest acks the interrupt, then unmask the interrupt.
->>     
->
-> OK; will that create problems if the line is shared?
+Glauber Costa wrote:
+> since the pv_apic_ops are only present if CONFIG_X86_LOCAL_APIC is compiled
+> in, kvmclock failed to build without this option. This patch fixes this
 >
 >   
 
-It will not work with shared interrupts (unless all users of the 
-interrupt are in the same guest).
+Applied, thanks.
 
 -- 
-I have a truly marvellous patch that fixes the bug which this
-signature is too narrow to contain.
+error compiling committee.c: too many arguments to function
