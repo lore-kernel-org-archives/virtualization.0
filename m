@@ -1,40 +1,42 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [patch 0/6] Guest page hinting version 6.
-Date: Tue, 6 May 2008 15:46:12 -0400
-Message-ID: <20080506154612.58cc3070@cuia.bos.redhat.com>
-References: <20080312132132.520833247@de.ibm.com>
-	<Pine.LNX.4.64.0803131627450.17244@blonde.site>
-	<1210087982.31803.32.camel@localhost>
+From: Glauber Costa <gcosta@redhat.com>
+Subject: Re: [kvm-devel] [PATCH] fixup 3dnow! support
+Date: Tue, 06 May 2008 20:08:39 -0300
+Message-ID: <4820E4F7.9000606__2513.91397691823$1210115463$gmane$org@redhat.com>
+References: <12100912622893-git-send-email-gcosta@redhat.com>
+	<6CF4ABCF-B131-41E0-AAFE-2928E01DDAAF@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932449AbYEFTta@vger.kernel.org>
-In-Reply-To: <1210087982.31803.32.camel@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
-To: schwidefsky@de.ibm.com
-Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, nickpiggin@yahoo.com.au, zach@vmware.com, frankeh@watson.ibm.com, rusty@rustcorp.com.au, jeremy@goop.org, andrea@qumranet.com, clameter@sgi.com, a.p.zijlstra@chello.nl
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <6CF4ABCF-B131-41E0-AAFE-2928E01DDAAF@suse.de>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Alexander Graf <agraf@suse.de>
+Cc: kvm-devel <kvm-devel@lists.sourceforge.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 06 May 2008 17:33:02 +0200
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
-> On Thu, 2008-03-13 at 16:57 +0000, Hugh Dickins wrote:
-> > It's very encouraging to see Jeremy and Rusty weighing in.  I hope
-> > Zach will too, and I've added Andrea: their support would count a lot.
-> > You have Nick on the list, good, I've added Christoph and Peter
-> > (if you do resend, linux-mm might prove more useful than linux-kernel).
-> > 
-> > With support from rival virtualizers,
-> > I do think you've a good chance of getting in.
+Alexander Graf wrote:
 > 
-> Traffic on the guest page hinting patches died down again. Until another
-> user shows up I guess that's it for the full version. 
+> On May 6, 2008, at 6:27 PM, Glauber Costa wrote:
+> 
+>> qemu recently added support for 3dnow instructions. Because of
+>> that, 3dnow will be featured among cpuid bits. But this will
+>> break kvm in cpus that don't have those instructions (which includes
+>> my laptop). So we fixup our cpuid before exposing it to the guest.
+> 
+> I actually don't see where the problem is here. As far as I read the 
+> code, the CPUID feature function gets received from the host CPU and 
+> bitwise ANDed with a bunch of features that are known to work. What's 
+> wrong with that approach?
+Probably is that besides that known to work features, there are also 
+features that qemu puts in unconditionally. Among them, 3DNOW.
 
-I suspect one of the problems is that there are too many state transitions
-to have it implemented with a low overhead on anything but S390, and even
-there you need milicoded instructions to handle things.
-
-If the number of transitions can be reduced, page hinting could be useful
-for KVM, too.
-
--- 
-All Rights Reversed
+> But I'm pretty sure Dao can tell us a lot more about this.
+Sure, it would be welcome.
