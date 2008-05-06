@@ -1,215 +1,101 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 0/6] Guest page hinting version 6.
-Date: Tue, 06 May 2008 17:33:02 +0200
-Message-ID: <1210087982.31803.32.camel@localhost>
-References: <20080312132132.520833247@de.ibm.com>
-	 <Pine.LNX.4.64.0803131627450.17244@blonde.site>
-Reply-To: schwidefsky@de.ibm.com
+From: Glauber Costa <gcosta@redhat.com>
+Subject: [PATCH] fixup 3dnow! support
+Date: Tue,  6 May 2008 13:27:42 -0300
+Message-ID: <12100912622893-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764824AbYEFPot@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0803131627450.17244@blonde.site>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, nickpiggin@yahoo.com.au, zach@vmware.com, frankeh@watson.ibm.com, rusty@rustcorp.com.au, jeremy@goop.org, andrea@qumranet.com, clameter@sgi.com, a.p.zijlstra@chello.nl
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: kvm-devel@lists.sourceforge.net
+Cc: Glauber Costa <gcosta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2008-03-13 at 16:57 +0000, Hugh Dickins wrote:
-> It's very encouraging to see Jeremy and Rusty weighing in.  I hope
-> Zach will too, and I've added Andrea: their support would count a lot.
-> You have Nick on the list, good, I've added Christoph and Peter
-> (if you do resend, linux-mm might prove more useful than linux-kernel).
-> 
-> With support from rival virtualizers,
-> I do think you've a good chance of getting in.
+qemu recently added support for 3dnow instructions. Because of
+that, 3dnow will be featured among cpuid bits. But this will
+break kvm in cpus that don't have those instructions (which includes
+my laptop). So we fixup our cpuid before exposing it to the guest.
 
-Traffic on the guest page hinting patches died down again. Until another
-user shows up I guess that's it for the full version. In the meantime I
-push the patch below which is the poor mans version that can be done
-without common code change. It uses the arch_alloc_page/arch_free_page
-hooks to do the stable/unused state transitions. Better than nothing ..
-
--- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
-
+Signed-off-by: Glauber Costa <gcosta@redhat.com>
 ---
-Subject: [PATCH] guest page hinting light
+ arch/x86/kvm/x86.c           |   22 ++++++++++++++++++----
+ include/asm-x86/cpufeature.h |    2 ++
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-Use the existing arch_alloc_page/arch_free_page callbacks to do
-the guest page state transitions between stable and unused.
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
-
- arch/s390/Kconfig          |    7 +++
- arch/s390/mm/Makefile      |    1 
- arch/s390/mm/init.c        |    3 +
- arch/s390/mm/page-states.c |   79 +++++++++++++++++++++++++++++++++++++++++++++
- include/asm-s390/page.h    |   11 ++++++
- include/asm-s390/system.h  |    6 +++
- 6 files changed, 107 insertions(+)
-
-diff -urpN linux-2.6/arch/s390/Kconfig linux-2.6-patched/arch/s390/Kconfig
---- linux-2.6/arch/s390/Kconfig	2008-05-06 17:38:14.000000000 +0200
-+++ linux-2.6-patched/arch/s390/Kconfig	2008-05-06 17:38:28.000000000 +0200
-@@ -430,6 +430,13 @@ config CMM_IUCV
- 	  Select this option to enable the special message interface to
- 	  the cooperative memory management.
- 
-+config PAGE_STATES
-+	bool "Unused page notification"
-+	help
-+	  This enables the notification of unused pages to the
-+	  hypervisor. The ESSA instruction is used to do the states
-+	  changes between a page that has content and the unused state.
-+
- config VIRT_TIMER
- 	bool "Virtual CPU timer support"
- 	help
-diff -urpN linux-2.6/arch/s390/mm/init.c linux-2.6-patched/arch/s390/mm/init.c
---- linux-2.6/arch/s390/mm/init.c	2008-05-06 17:38:14.000000000 +0200
-+++ linux-2.6-patched/arch/s390/mm/init.c	2008-05-06 17:38:28.000000000 +0200
-@@ -126,6 +126,9 @@ void __init mem_init(void)
-         /* clear the zero-page */
-         memset(empty_zero_page, 0, PAGE_SIZE);
- 
-+	/* Setup guest page hinting */
-+	cmma_init();
-+
- 	/* this will put all low memory onto the freelists */
- 	totalram_pages += free_all_bootmem();
- 
-diff -urpN linux-2.6/arch/s390/mm/Makefile linux-2.6-patched/arch/s390/mm/Makefile
---- linux-2.6/arch/s390/mm/Makefile	2008-05-06 17:38:14.000000000 +0200
-+++ linux-2.6-patched/arch/s390/mm/Makefile	2008-05-06 17:38:28.000000000 +0200
-@@ -5,3 +5,4 @@
- obj-y	 := init.o fault.o extmem.o mmap.o vmem.o pgtable.o
- obj-$(CONFIG_CMM) += cmm.o
- obj-$(CONFIG_HUGETLB_PAGE) += hugetlbpage.o
-+obj-$(CONFIG_PAGE_STATES) += page-states.o
-diff -urpN linux-2.6/arch/s390/mm/page-states.c linux-2.6-patched/arch/s390/mm/page-states.c
---- linux-2.6/arch/s390/mm/page-states.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-patched/arch/s390/mm/page-states.c	2008-05-06 17:38:28.000000000 +0200
-@@ -0,0 +1,79 @@
-+/*
-+ * arch/s390/mm/page-states.c
-+ *
-+ * (C) Copyright IBM Corp. 2008
-+ *
-+ * Guest page hinting for unused pages.
-+ *
-+ * Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/types.h>
-+#include <linux/mm.h>
-+#include <linux/init.h>
-+
-+#define ESSA_SET_STABLE		1
-+#define ESSA_SET_UNUSED		2
-+
-+int cmma_flag;
-+
-+static int __init cmma(char *str)
-+{
-+	char *parm;
-+	parm = strstrip(str);
-+	if (strcmp(parm, "yes") == 0 || strcmp(parm, "on") == 0) {
-+		cmma_flag = 1;
-+		return 1;
-+	}
-+	cmma_flag = 0;
-+	if (strcmp(parm, "no") == 0 || strcmp(parm, "off") == 0)
-+		return 1;
-+	return 0;
-+}
-+
-+__setup("cmma=", cmma);
-+
-+void __init cmma_init(void)
-+{
-+	register unsigned long tmp asm("0") = 0;
-+	register int rc asm("1") = -ENOSYS;
-+
-+	if (!cmma_flag)
-+		return;
-+	asm volatile(
-+		"       .insn rrf,0xb9ab0000,%1,%1,0,0\n"
-+		"0:     la      %0,0\n"
-+		"1:\n"
-+		EX_TABLE(0b,1b)
-+		: "+&d" (rc), "+&d" (tmp));
-+	if (rc)
-+		cmma_flag = 0;
-+}
-+
-+void arch_free_page(struct page *page, int order)
-+{
-+	int i, rc;
-+
-+	if (!cmma_flag)
-+		return;
-+	for (i = 0; i < (1 << order); i++)
-+		asm volatile(".insn rrf,0xb9ab0000,%0,%1,%2,0"
-+			     : "=&d" (rc)
-+			     : "a" ((page_to_pfn(page) + i) << PAGE_SHIFT),
-+			       "i" (ESSA_SET_UNUSED));
-+}
-+
-+void arch_alloc_page(struct page *page, int order)
-+{
-+	int i, rc;
-+
-+	if (!cmma_flag)
-+		return;
-+	for (i = 0; i < (1 << order); i++)
-+		asm volatile(".insn rrf,0xb9ab0000,%0,%1,%2,0"
-+			     : "=&d" (rc)
-+			     : "a" ((page_to_pfn(page) + i) << PAGE_SHIFT),
-+			       "i" (ESSA_SET_STABLE));
-+}
-diff -urpN linux-2.6/include/asm-s390/page.h linux-2.6-patched/include/asm-s390/page.h
---- linux-2.6/include/asm-s390/page.h	2008-05-06 17:38:17.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/page.h	2008-05-06 17:38:28.000000000 +0200
-@@ -125,6 +125,17 @@ page_get_storage_key(unsigned long addr)
- 	return skey;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 979f983..e79fcd5 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -919,7 +919,7 @@ static int is_efer_nx(void)
+ 	return efer & EFER_NX;
  }
  
-+#ifdef CONFIG_PAGE_STATES
+-static void cpuid_fix_nx_cap(struct kvm_vcpu *vcpu)
++static void cpuid_fix_caps(struct kvm_vcpu *vcpu)
+ {
+ 	int i;
+ 	struct kvm_cpuid_entry2 *e, *entry;
+@@ -932,6 +932,20 @@ static void cpuid_fix_nx_cap(struct kvm_vcpu *vcpu)
+ 			break;
+ 		}
+ 	}
 +
-+struct page;
-+void arch_free_page(struct page *page, int order);
-+void arch_alloc_page(struct page *page, int order);
++	/* 3DNOWEXT */
++	if (entry && (entry->edx & (1 << 30)) && !cpu_has_3dnowext) {
++		entry->edx &= ~(1 << 30);
++		printk(KERN_INFO "kvm: guest 3DNOWEXT capability removed\n");
++	}
 +
-+#define HAVE_ARCH_FREE_PAGE
-+#define HAVE_ARCH_ALLOC_PAGE
++	/* 3DNOW */
++	if (entry && (entry->edx & (1 << 31)) && !cpu_has_3dnow) {
++		entry->edx &= ~(1 << 31);
++		printk(KERN_INFO "kvm: guest 3DNOW capability removed\n");
++	}
 +
-+#endif
-+
- #endif /* !__ASSEMBLY__ */
++	/* NX */
+ 	if (entry && (entry->edx & (1 << 20)) && !is_efer_nx()) {
+ 		entry->edx &= ~(1 << 20);
+ 		printk(KERN_INFO "kvm: guest NX capability removed\n");
+@@ -970,7 +984,7 @@ static int kvm_vcpu_ioctl_set_cpuid(struct kvm_vcpu *vcpu,
+ 		vcpu->arch.cpuid_entries[i].padding[2] = 0;
+ 	}
+ 	vcpu->arch.cpuid_nent = cpuid->nent;
+-	cpuid_fix_nx_cap(vcpu);
++	cpuid_fix_caps(vcpu);
+ 	r = 0;
  
- /* to align the pointer to the (next) page boundary */
-diff -urpN linux-2.6/include/asm-s390/system.h linux-2.6-patched/include/asm-s390/system.h
---- linux-2.6/include/asm-s390/system.h	2008-05-06 17:38:17.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/system.h	2008-05-06 17:38:28.000000000 +0200
-@@ -116,6 +116,12 @@ extern void pfault_fini(void);
- #define pfault_fini()		do { } while (0)
- #endif /* CONFIG_PFAULT */
+ out_free:
+@@ -1061,8 +1075,8 @@ static void do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
+ 		bit(X86_FEATURE_LM) |
+ #endif
+ 		bit(X86_FEATURE_MMXEXT) |
+-		bit(X86_FEATURE_3DNOWEXT) |
+-		bit(X86_FEATURE_3DNOW);
++		(bit(X86_FEATURE_3DNOWEXT) && cpu_has_3dnowext) |
++		(bit(X86_FEATURE_3DNOW) && cpu_has_3dnow);
+ 	const u32 kvm_supported_word3_x86_features =
+ 		bit(X86_FEATURE_XMM3) | bit(X86_FEATURE_CX16);
+ 	const u32 kvm_supported_word6_x86_features =
+diff --git a/include/asm-x86/cpufeature.h b/include/asm-x86/cpufeature.h
+index 0d609c8..efbc5ce 100644
+--- a/include/asm-x86/cpufeature.h
++++ b/include/asm-x86/cpufeature.h
+@@ -187,6 +187,8 @@ extern const char * const x86_power_flags[32];
+ #define cpu_has_gbpages		boot_cpu_has(X86_FEATURE_GBPAGES)
+ #define cpu_has_arch_perfmon	boot_cpu_has(X86_FEATURE_ARCH_PERFMON)
+ #define cpu_has_pat		boot_cpu_has(X86_FEATURE_PAT)
++#define cpu_has_3dnow		boot_cpu_has(X86_FEATURE_3DNOW)
++#define cpu_has_3dnowext	boot_cpu_has(X86_FEATURE_3DNOWEXT)
  
-+#ifdef CONFIG_PAGE_STATES
-+extern void cmma_init(void);
-+#else
-+#define cmma_init()		do { } while (0)
-+#endif
-+
- #define finish_arch_switch(prev) do {					     \
- 	set_fs(current->thread.mm_segment);				     \
- 	account_vtime(prev);						     \
+ #if defined(CONFIG_X86_INVLPG) || defined(CONFIG_X86_64)
+ # define cpu_has_invlpg		1
+-- 
+1.5.0.6
