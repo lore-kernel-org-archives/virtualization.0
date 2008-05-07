@@ -1,45 +1,45 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 0/6] Guest page hinting version 6.
-Date: Wed, 07 May 2008 09:00:14 +0200
-Message-ID: <1210143614.14130.3.camel@localhost>
-References: <20080312132132.520833247@de.ibm.com>
-	 <Pine.LNX.4.64.0803131627450.17244@blonde.site>
-	 <1210087982.31803.32.camel@localhost>
-	 <20080506154612.58cc3070@cuia.bos.redhat.com>
-	 <1210132187.17107.40.camel@bodhitayantram.eng.vmware.com>
-Reply-To: schwidefsky@de.ibm.com
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [kvm-devel] [PATCH] fixup 3dnow! support
+Date: Wed, 07 May 2008 11:13:01 +0300
+Message-ID: <4821648D.2090706__10994.571229867$1210148151$gmane$org@qumranet.com>
+References: <12100912622893-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764158AbYEGHMu@vger.kernel.org>
-In-Reply-To: <1210132187.17107.40.camel@bodhitayantram.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: Rik van Riel <riel@redhat.com>, Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rusty@rustcorp.com.au, jeremy@goop.org, andrea@qumranet.com, clameter@sgi.com, a.p.zijlstra@chello.nl
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <12100912622893-git-send-email-gcosta@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Glauber Costa <gcosta@redhat.com>
+Cc: kvm-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2008-05-06 at 20:49 -0700, Zachary Amsden wrote:
-> > I suspect one of the problems is that there are too many state transitions
-> > to have it implemented with a low overhead on anything but S390, and even
-> > there you need milicoded instructions to handle things.
-> > 
-> > If the number of transitions can be reduced, page hinting could be useful
-> > for KVM, too.
-> 
-> Spot on Rik, if every transition becomes a hypercall (and a synchronous
-> one at that), it isn't workable for us.  If, on the other hand, you
-> share the state bits between the guest and hypervisor, you need a giant
-> (standalone) bit array for per-page state, which is neither convenient
-> for Linux nor the hypervisor.  I believe s390 has an 'instruction' to
-> migrate the state bits into the hypervisor per-physical-page data
-> without requiring a hypercall.
+Glauber Costa wrote:
+> qemu recently added support for 3dnow instructions. Because of
+> that, 3dnow will be featured among cpuid bits. But this will
+> break kvm in cpus that don't have those instructions (which includes
+> my laptop). So we fixup our cpuid before exposing it to the guest.
+>
+>   
 
-That is why we invented the millicoded ESSA instruction on s390. We had
-an emulation of the instruction to test things. It worked but was
-awfully slow.
+I've already fixed this in userspace.
+
+In general I don't like silently modifying cpuid options in the kernel, 
+since that means we cannot be confident as to what the cpuid the guest 
+sees actually is, and so we can't be sure that migration will succeed.  
+Instead, the preferred path is to query what cpuid bits the host 
+support, pass that to the management app in order to compute the 
+greatest common subset, and tell the kernel to use that set.
+
+nx is handled differently due to compatibility issues.  In time we can 
+remove the special handling.
 
 -- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
+error compiling committee.c: too many arguments to function
