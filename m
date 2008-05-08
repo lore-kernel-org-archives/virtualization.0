@@ -1,8 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 2/4] Make xen use the generic paravirt
-	clocksource code.
-Date: Thu,  8 May 2008 13:48:33 +0200
-Message-ID: <1210247315-20472-3-git-send-email-kraxel@redhat.com>
+Subject: [PATCH 4/4] kvm/guest: fix paravirt clocksource to be
+	compartible with xen.
+Date: Thu,  8 May 2008 13:48:35 +0200
+Message-ID: <1210247315-20472-5-git-send-email-kraxel@redhat.com>
 References: <1210247315-20472-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,186 +19,197 @@ List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
 Sender: kvm-devel-bounces@lists.sourceforge.net
 Errors-To: kvm-devel-bounces@lists.sourceforge.net
 To: virtualization@lists.osdl.org, kvm-devel@lists.sourceforge.net
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Gerd Hoffmann <kraxel@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch switches the xen paravirt clock over to use the
-generic paravirt clock code.
+This patch switches the kvm clocksource code over to use the
+paravirt clock helpers, thereby making it compatible with xen.
 
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- arch/x86/xen/Kconfig |    1 +
- arch/x86/xen/time.c  |  110 +++++---------------------------------------------
- 2 files changed, 12 insertions(+), 99 deletions(-)
+ arch/x86/Kconfig           |    1 +
+ arch/x86/kernel/kvmclock.c |   84 ++++++++++++++++---------------------------
+ 2 files changed, 32 insertions(+), 53 deletions(-)
 
-diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
-index 2e641be..3a4f16a 100644
---- a/arch/x86/xen/Kconfig
-+++ b/arch/x86/xen/Kconfig
-@@ -5,6 +5,7 @@
- config XEN
- 	bool "Xen guest support"
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index b12e188..30feb9f 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -388,6 +388,7 @@ config VMI
+ config KVM_CLOCK
+ 	bool "KVM paravirtualized clock"
  	select PARAVIRT
 +	select PARAVIRT_CLOCK
- 	depends on X86_32
- 	depends on X86_CMPXCHG && X86_TSC && !(X86_VISWS || X86_VOYAGER)
+ 	depends on !(X86_VISWS || X86_VOYAGER)
  	help
-diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
-index c39e1a5..3d5f945 100644
---- a/arch/x86/xen/time.c
-+++ b/arch/x86/xen/time.c
-@@ -13,6 +13,7 @@
- #include <linux/clockchips.h>
- #include <linux/kernel_stat.h>
+ 	  Turning on this option will allow you to run a paravirtualized clock
+diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+index 4bc1be5..1c63f75 100644
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -18,6 +18,7 @@
  
+ #include <linux/clocksource.h>
+ #include <linux/kvm_para.h>
 +#include <asm/pvclock.h>
- #include <asm/xen/hypervisor.h>
- #include <asm/xen/hypercall.h>
+ #include <asm/arch_hooks.h>
+ #include <asm/msr.h>
+ #include <asm/apic.h>
+@@ -37,17 +38,9 @@ early_param("no-kvmclock", parse_no_kvmclock);
  
-@@ -30,17 +31,6 @@
- 
- static cycle_t xen_clocksource_read(void);
- 
--/* These are perodically updated in shared_info, and then copied here. */
--struct shadow_time_info {
--	u64 tsc_timestamp;     /* TSC at last update of time vals.  */
--	u64 system_timestamp;  /* Time, in nanosecs, since boot.    */
--	u32 tsc_to_nsec_mul;
--	int tsc_shift;
--	u32 version;
--};
+ /* The hypervisor will put information about time periodically here */
+ static DEFINE_PER_CPU_SHARED_ALIGNED(struct kvm_vcpu_time_info, hv_clock);
+-#define get_clock(cpu, field) per_cpu(hv_clock, cpu).field
 -
--static DEFINE_PER_CPU(struct shadow_time_info, shadow_time);
--
- /* runstate info updated by Xen */
- static DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
- 
-@@ -230,95 +220,14 @@ unsigned long xen_cpu_khz(void)
- 	return xen_khz;
- }
- 
--/*
-- * Reads a consistent set of time-base values from Xen, into a shadow data
-- * area.
-- */
--static unsigned get_time_values_from_xen(void)
+-static inline u64 kvm_get_delta(u64 last_tsc)
 -{
--	struct vcpu_time_info   *src;
--	struct shadow_time_info *dst;
--
--	/* src is shared memory with the hypervisor, so we need to
--	   make sure we get a consistent snapshot, even in the face of
--	   being preempted. */
--	src = &__get_cpu_var(xen_vcpu)->time;
--	dst = &__get_cpu_var(shadow_time);
--
--	do {
--		dst->version = src->version;
--		rmb();		/* fetch version before data */
--		dst->tsc_timestamp     = src->tsc_timestamp;
--		dst->system_timestamp  = src->system_time;
--		dst->tsc_to_nsec_mul   = src->tsc_to_system_mul;
--		dst->tsc_shift         = src->tsc_shift;
--		rmb();		/* test version after fetching data */
--	} while ((src->version & 1) | (dst->version ^ src->version));
--
--	return dst->version;
+-	int cpu = smp_processor_id();
+-	u64 delta = native_read_tsc() - last_tsc;
+-	return (delta * get_clock(cpu, tsc_to_system_mul)) >> KVM_SCALE;
 -}
--
--/*
-- * Scale a 64-bit delta by scaling and multiplying by a 32-bit fraction,
-- * yielding a 64-bit result.
-- */
--static inline u64 scale_delta(u64 delta, u32 mul_frac, int shift)
--{
--	u64 product;
--#ifdef __i386__
--	u32 tmp1, tmp2;
--#endif
--
--	if (shift < 0)
--		delta >>= -shift;
--	else
--		delta <<= shift;
--
--#ifdef __i386__
--	__asm__ (
--		"mul  %5       ; "
--		"mov  %4,%%eax ; "
--		"mov  %%edx,%4 ; "
--		"mul  %5       ; "
--		"xor  %5,%5    ; "
--		"add  %4,%%eax ; "
--		"adc  %5,%%edx ; "
--		: "=A" (product), "=r" (tmp1), "=r" (tmp2)
--		: "a" ((u32)delta), "1" ((u32)(delta >> 32)), "2" (mul_frac) );
--#elif __x86_64__
--	__asm__ (
--		"mul %%rdx ; shrd $32,%%rdx,%%rax"
--		: "=a" (product) : "0" (delta), "d" ((u64)mul_frac) );
--#else
--#error implement me!
--#endif
--
--	return product;
--}
--
--static u64 get_nsec_offset(struct shadow_time_info *shadow)
--{
--	u64 now, delta;
--	now = native_read_tsc();
--	delta = now - shadow->tsc_timestamp;
--	return scale_delta(delta, shadow->tsc_to_nsec_mul, shadow->tsc_shift);
--}
--
- static cycle_t xen_clocksource_read(void)
+ 
+ static struct kvm_wall_clock wall_clock;
+-static cycle_t kvm_clock_read(void);
++
+ /*
+  * The wallclock is the time of day when we booted. Since then, some time may
+  * have elapsed since the hypervisor wrote the data. So we try to account for
+@@ -55,35 +48,19 @@ static cycle_t kvm_clock_read(void);
+  */
+ unsigned long kvm_get_wallclock(void)
  {
--	struct shadow_time_info *shadow = &get_cpu_var(shadow_time);
-+        struct vcpu_time_info *src;
- 	cycle_t ret;
--	unsigned version;
--
--	do {
--		version = get_time_values_from_xen();
--		barrier();
--		ret = shadow->system_timestamp + get_nsec_offset(shadow);
--		barrier();
--	} while (version != __get_cpu_var(xen_vcpu)->time.version);
--
--	put_cpu_var(shadow_time);
- 
-+	src = &get_cpu_var(xen_vcpu)->time;
-+	ret = pvclock_clocksource_read((void*)src);
-+	put_cpu_var(xen_vcpu);
- 	return ret;
- }
- 
-@@ -349,9 +258,14 @@ static void xen_read_wallclock(struct timespec *ts)
- 
- unsigned long xen_get_wallclock(void)
- {
-+	const struct shared_info *s = HYPERVISOR_shared_info;
-+	struct kvm_wall_clock *wall_clock = (void*)&(s->wc_version);
-+        struct vcpu_time_info *vcpu_time;
+-	u32 wc_sec, wc_nsec;
+-	u64 delta;
++	struct kvm_vcpu_time_info *vcpu_time;
  	struct timespec ts;
+-	int version, nsec;
+ 	int low, high;
  
--	xen_read_wallclock(&ts);
-+	vcpu_time = &get_cpu_var(xen_vcpu)->time;
-+	pvclock_read_wallclock(wall_clock, (void*)vcpu_time, &ts);
-+	put_cpu_var(xen_vcpu);
+ 	low = (int)__pa(&wall_clock);
+ 	high = ((u64)__pa(&wall_clock) >> 32);
++	native_write_msr(MSR_KVM_WALL_CLOCK, low, high);
  
- 	return ts.tv_sec;
+-	delta = kvm_clock_read();
++	vcpu_time = &get_cpu_var(hv_clock);
++	pvclock_read_wallclock(&wall_clock, vcpu_time, &ts);
++	put_cpu_var(hv_clock);
+ 
+-	native_write_msr(MSR_KVM_WALL_CLOCK, low, high);
+-	do {
+-		version = wall_clock.wc_version;
+-		rmb();
+-		wc_sec = wall_clock.wc_sec;
+-		wc_nsec = wall_clock.wc_nsec;
+-		rmb();
+-	} while ((wall_clock.wc_version != version) || (version & 1));
+-
+-	delta = kvm_clock_read() - delta;
+-	delta += wc_nsec;
+-	nsec = do_div(delta, NSEC_PER_SEC);
+-	set_normalized_timespec(&ts, wc_sec + delta, nsec);
+-	/*
+-	 * Of all mechanisms of time adjustment I've tested, this one
+-	 * was the champion!
+-	 */
+-	return ts.tv_sec + 1;
++	return ts.tv_sec;
  }
-@@ -576,8 +490,6 @@ __init void xen_time_init(void)
+ 
+ int kvm_set_wallclock(unsigned long now)
+@@ -91,28 +68,17 @@ int kvm_set_wallclock(unsigned long now)
+ 	return 0;
+ }
+ 
+-/*
+- * This is our read_clock function. The host puts an tsc timestamp each time
+- * it updates a new time. Without the tsc adjustment, we can have a situation
+- * in which a vcpu starts to run earlier (smaller system_time), but probes
+- * time later (compared to another vcpu), leading to backwards time
+- */
+ static cycle_t kvm_clock_read(void)
+ {
+-	u64 last_tsc, now;
+-	int cpu;
++	struct kvm_vcpu_time_info *src;
++	cycle_t ret;
+ 
+-	preempt_disable();
+-	cpu = smp_processor_id();
+-
+-	last_tsc = get_clock(cpu, tsc_timestamp);
+-	now = get_clock(cpu, system_time);
+-
+-	now += kvm_get_delta(last_tsc);
+-	preempt_enable();
+-
+-	return now;
++	src = &get_cpu_var(hv_clock);
++	ret = pvclock_clocksource_read(src);
++	put_cpu_var(hv_clock);
++	return ret;
+ }
++
+ static struct clocksource kvm_clock = {
+ 	.name = "kvm-clock",
+ 	.read = kvm_clock_read,
+@@ -123,13 +89,14 @@ static struct clocksource kvm_clock = {
+ 	.flags = CLOCK_SOURCE_IS_CONTINUOUS,
+ };
+ 
+-static int kvm_register_clock(void)
++static int kvm_register_clock(char *txt)
  {
  	int cpu = smp_processor_id();
- 
--	get_time_values_from_xen();
+ 	int low, high;
+ 	low = (int)__pa(&per_cpu(hv_clock, cpu)) | 1;
+ 	high = ((u64)__pa(&per_cpu(hv_clock, cpu)) >> 32);
 -
- 	clocksource_register(&xen_clocksource);
++	printk(KERN_INFO "kvm-clock: cpu %d, msr %x:%x, %s\n",
++	       cpu, high, low, txt);
+ 	return native_write_msr_safe(MSR_KVM_SYSTEM_TIME, low, high);
+ }
  
- 	if (HYPERVISOR_vcpu_op(VCPUOP_stop_periodic_timer, cpu, NULL) == 0) {
+@@ -140,12 +107,20 @@ static void kvm_setup_secondary_clock(void)
+ 	 * Now that the first cpu already had this clocksource initialized,
+ 	 * we shouldn't fail.
+ 	 */
+-	WARN_ON(kvm_register_clock());
++	WARN_ON(kvm_register_clock("secondary cpu clock"));
+ 	/* ok, done with our trickery, call native */
+ 	setup_secondary_APIC_clock();
+ }
+ #endif
+ 
++#ifdef CONFIG_SMP
++void __init kvm_smp_prepare_boot_cpu(void)
++{
++	WARN_ON(kvm_register_clock("primary cpu clock"));
++	native_smp_prepare_boot_cpu();
++}
++#endif
++
+ /*
+  * After the clock is registered, the host will keep writing to the
+  * registered memory location. If the guest happens to shutdown, this memory
+@@ -174,7 +149,7 @@ void __init kvmclock_init(void)
+ 		return;
+ 
+ 	if (kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)) {
+-		if (kvm_register_clock())
++		if (kvm_register_clock("boot clock"))
+ 			return;
+ 		pv_time_ops.get_wallclock = kvm_get_wallclock;
+ 		pv_time_ops.set_wallclock = kvm_set_wallclock;
+@@ -182,6 +157,9 @@ void __init kvmclock_init(void)
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 		pv_apic_ops.setup_secondary_clock = kvm_setup_secondary_clock;
+ #endif
++#ifdef CONFIG_SMP
++		smp_ops.smp_prepare_boot_cpu = kvm_smp_prepare_boot_cpu;
++#endif
+ 		machine_ops.shutdown  = kvm_shutdown;
+ #ifdef CONFIG_KEXEC
+ 		machine_ops.crash_shutdown  = kvm_crash_shutdown;
 -- 
 1.5.4.1
 
