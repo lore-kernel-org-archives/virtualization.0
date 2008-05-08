@@ -1,16 +1,12 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH/RFC] stop_machine: make stop_machine_run more
-	virtualization friendly
-Date: Thu, 08 May 2008 15:58:32 +0100
-Message-ID: <48231518.9010209__42641.4319932975$1210260076$gmane$org@goop.org>
-References: <200805081520.38310.borntraeger@de.ibm.com>
-	<48230137.9090705@goop.org>
-	<200805081641.20572.borntraeger@de.ibm.com>
+From: "Nicolas Daneau" <nicolas.daneau@gmail.com>
+Subject: qemu/kvm: support for pci passthrough
+Date: Thu, 8 May 2008 12:03:08 +0200
+Message-ID: <a518fa500805080303p1efcba0y383ec711fe2f68f8@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805081641.20572.borntraeger@de.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,24 +16,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm-devel@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christian Borntraeger wrote:
-> I really like 64 guest cpus as a good testcase for all kind of things. 
->   
+Hi,
 
-Sure, I do the same kind of thing.
+I saw there was an active discussion about pci passthrough support in
+KVM. I'm not a Dev, only a sys admin that need this support. As i saw
+on the KVM home page that this feature is plan for 2H2008 in the
+roadmap, I wondered if you already have a more precise time frame for
+this release? Xen already have this feature but for the rest i prfer
+KVM. As this is a key point for the final decsion (we have a Digium
+TDM11B FXO/FXS pci card for an Asterisk VM), i'm waiting for an update
+about this feature.
 
->> I think x86 (at least) is now using ticket locks, which is fair.  Which 
->> kernel are you seeing this problem on?
->>     
->
-> Sorry, forgot to mention. Its kvm.git from 2 days ago on s390.
->   
+Thanks for your answer
 
-And on s390 cpu_relax yields the vcpu?  That's not common behaviour 
-across architectures.
-
-    J
+-- 
+Nicolas Daneau
+   Rue Maurice Bertrand 543
+   5300 Landenne
+   Belgium
+   0486/69.01.65
