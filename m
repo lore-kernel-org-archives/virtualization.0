@@ -1,221 +1,81 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 4/4] kvm/guest: fix paravirt clocksource to be
-	compartible with xen.
-Date: Thu,  8 May 2008 13:48:35 +0200
-Message-ID: <1210247315-20472-5-git-send-email-kraxel@redhat.com>
-References: <1210247315-20472-1-git-send-email-kraxel@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH/RFC] stop_machine: make stop_machine_run more virtualization
+	friendly
+Date: Thu, 8 May 2008 15:20:38 +0200
+Message-ID: <200805081520.38310.borntraeger__6114.78430587358$1210253171$gmane$org@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-devel-bounces@lists.sourceforge.net>
-In-Reply-To: <1210247315-20472-1-git-send-email-kraxel@redhat.com>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
-List-Post: <mailto:kvm-devel@lists.sourceforge.net>
-List-Help: <mailto:kvm-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
-	<mailto:kvm-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: kvm-devel-bounces@lists.sourceforge.net
-Errors-To: kvm-devel-bounces@lists.sourceforge.net
-To: virtualization@lists.osdl.org, kvm-devel@lists.sourceforge.net
-Cc: Gerd Hoffmann <kraxel@redhat.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm-devel@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch switches the kvm clocksource code over to use the
-paravirt clock helpers, thereby making it compatible with xen.
+On kvm I have seen some rare hangs in stop_machine when I used more guest
+cpus than hosts cpus. e.g. 32 guest cpus on 1 host cpu triggered the
+hang quite often. I could also reproduce the problem on a 4 way z/VM host with 
+a 64 way guest.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+It turned out that the guest was consuming all available cpus mostly for
+spinning on scheduler locks like rq->lock. This is expected as the threads are 
+calling yield all the time. 
+The problem is now, that the host scheduling decisings together with the guest 
+scheduling decisions and spinlocks not being fair managed to create an 
+interesting scenario similar to a live lock. (Sometimes the hang resolved 
+itself after some minutes)
+
+Changing stop_machine to yield the cpu to the hypervisor when yielding inside 
+the guest fixed the problem for me. While I am not completely happy with this 
+patch, I think it causes no harm and it really improves the situation for me.
+
+I used cpu_relax for yielding to the hypervisor, does that work on all 
+architectures?
+
+p.s.: If you want to reproduce the problem, cpu hotplug and kprobes use 
+stop_machine_run and both triggered the problem after some retries. 
+
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+CC: Ingo Molnar <mingo@elte.hu>
+CC: Rusty Russell <rusty@rustcorp.com.au>
+
 ---
- arch/x86/Kconfig           |    1 +
- arch/x86/kernel/kvmclock.c |   84 ++++++++++++++++---------------------------
- 2 files changed, 32 insertions(+), 53 deletions(-)
+ kernel/stop_machine.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index b12e188..30feb9f 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -388,6 +388,7 @@ config VMI
- config KVM_CLOCK
- 	bool "KVM paravirtualized clock"
- 	select PARAVIRT
-+	select PARAVIRT_CLOCK
- 	depends on !(X86_VISWS || X86_VOYAGER)
- 	help
- 	  Turning on this option will allow you to run a paravirtualized clock
-diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-index 4bc1be5..1c63f75 100644
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -18,6 +18,7 @@
+Index: kvm/kernel/stop_machine.c
+===================================================================
+--- kvm.orig/kernel/stop_machine.c
++++ kvm/kernel/stop_machine.c
+@@ -62,8 +62,7 @@ static int stopmachine(void *cpu)
+ 		 * help our sisters onto their CPUs. */
+ 		if (!prepared && !irqs_disabled)
+ 			yield();
+-		else
+-			cpu_relax();
++		cpu_relax();
+ 	}
  
- #include <linux/clocksource.h>
- #include <linux/kvm_para.h>
-+#include <asm/pvclock.h>
- #include <asm/arch_hooks.h>
- #include <asm/msr.h>
- #include <asm/apic.h>
-@@ -37,17 +38,9 @@ early_param("no-kvmclock", parse_no_kvmclock);
+ 	/* Ack: we are exiting. */
+@@ -106,8 +105,10 @@ static int stop_machine(void)
+ 	}
  
- /* The hypervisor will put information about time periodically here */
- static DEFINE_PER_CPU_SHARED_ALIGNED(struct kvm_vcpu_time_info, hv_clock);
--#define get_clock(cpu, field) per_cpu(hv_clock, cpu).field
--
--static inline u64 kvm_get_delta(u64 last_tsc)
--{
--	int cpu = smp_processor_id();
--	u64 delta = native_read_tsc() - last_tsc;
--	return (delta * get_clock(cpu, tsc_to_system_mul)) >> KVM_SCALE;
--}
+ 	/* Wait for them all to come to life. */
+-	while (atomic_read(&stopmachine_thread_ack) != stopmachine_num_threads)
++	while (atomic_read(&stopmachine_thread_ack) != stopmachine_num_threads) {
+ 		yield();
++		cpu_relax();
++	}
  
- static struct kvm_wall_clock wall_clock;
--static cycle_t kvm_clock_read(void);
-+
- /*
-  * The wallclock is the time of day when we booted. Since then, some time may
-  * have elapsed since the hypervisor wrote the data. So we try to account for
-@@ -55,35 +48,19 @@ static cycle_t kvm_clock_read(void);
-  */
- unsigned long kvm_get_wallclock(void)
- {
--	u32 wc_sec, wc_nsec;
--	u64 delta;
-+	struct kvm_vcpu_time_info *vcpu_time;
- 	struct timespec ts;
--	int version, nsec;
- 	int low, high;
- 
- 	low = (int)__pa(&wall_clock);
- 	high = ((u64)__pa(&wall_clock) >> 32);
-+	native_write_msr(MSR_KVM_WALL_CLOCK, low, high);
- 
--	delta = kvm_clock_read();
-+	vcpu_time = &get_cpu_var(hv_clock);
-+	pvclock_read_wallclock(&wall_clock, vcpu_time, &ts);
-+	put_cpu_var(hv_clock);
- 
--	native_write_msr(MSR_KVM_WALL_CLOCK, low, high);
--	do {
--		version = wall_clock.wc_version;
--		rmb();
--		wc_sec = wall_clock.wc_sec;
--		wc_nsec = wall_clock.wc_nsec;
--		rmb();
--	} while ((wall_clock.wc_version != version) || (version & 1));
--
--	delta = kvm_clock_read() - delta;
--	delta += wc_nsec;
--	nsec = do_div(delta, NSEC_PER_SEC);
--	set_normalized_timespec(&ts, wc_sec + delta, nsec);
--	/*
--	 * Of all mechanisms of time adjustment I've tested, this one
--	 * was the champion!
--	 */
--	return ts.tv_sec + 1;
-+	return ts.tv_sec;
- }
- 
- int kvm_set_wallclock(unsigned long now)
-@@ -91,28 +68,17 @@ int kvm_set_wallclock(unsigned long now)
- 	return 0;
- }
- 
--/*
-- * This is our read_clock function. The host puts an tsc timestamp each time
-- * it updates a new time. Without the tsc adjustment, we can have a situation
-- * in which a vcpu starts to run earlier (smaller system_time), but probes
-- * time later (compared to another vcpu), leading to backwards time
-- */
- static cycle_t kvm_clock_read(void)
- {
--	u64 last_tsc, now;
--	int cpu;
-+	struct kvm_vcpu_time_info *src;
-+	cycle_t ret;
- 
--	preempt_disable();
--	cpu = smp_processor_id();
--
--	last_tsc = get_clock(cpu, tsc_timestamp);
--	now = get_clock(cpu, system_time);
--
--	now += kvm_get_delta(last_tsc);
--	preempt_enable();
--
--	return now;
-+	src = &get_cpu_var(hv_clock);
-+	ret = pvclock_clocksource_read(src);
-+	put_cpu_var(hv_clock);
-+	return ret;
- }
-+
- static struct clocksource kvm_clock = {
- 	.name = "kvm-clock",
- 	.read = kvm_clock_read,
-@@ -123,13 +89,14 @@ static struct clocksource kvm_clock = {
- 	.flags = CLOCK_SOURCE_IS_CONTINUOUS,
- };
- 
--static int kvm_register_clock(void)
-+static int kvm_register_clock(char *txt)
- {
- 	int cpu = smp_processor_id();
- 	int low, high;
- 	low = (int)__pa(&per_cpu(hv_clock, cpu)) | 1;
- 	high = ((u64)__pa(&per_cpu(hv_clock, cpu)) >> 32);
--
-+	printk(KERN_INFO "kvm-clock: cpu %d, msr %x:%x, %s\n",
-+	       cpu, high, low, txt);
- 	return native_write_msr_safe(MSR_KVM_SYSTEM_TIME, low, high);
- }
- 
-@@ -140,12 +107,20 @@ static void kvm_setup_secondary_clock(void)
- 	 * Now that the first cpu already had this clocksource initialized,
- 	 * we shouldn't fail.
- 	 */
--	WARN_ON(kvm_register_clock());
-+	WARN_ON(kvm_register_clock("secondary cpu clock"));
- 	/* ok, done with our trickery, call native */
- 	setup_secondary_APIC_clock();
- }
- #endif
- 
-+#ifdef CONFIG_SMP
-+void __init kvm_smp_prepare_boot_cpu(void)
-+{
-+	WARN_ON(kvm_register_clock("primary cpu clock"));
-+	native_smp_prepare_boot_cpu();
-+}
-+#endif
-+
- /*
-  * After the clock is registered, the host will keep writing to the
-  * registered memory location. If the guest happens to shutdown, this memory
-@@ -174,7 +149,7 @@ void __init kvmclock_init(void)
- 		return;
- 
- 	if (kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)) {
--		if (kvm_register_clock())
-+		if (kvm_register_clock("boot clock"))
- 			return;
- 		pv_time_ops.get_wallclock = kvm_get_wallclock;
- 		pv_time_ops.set_wallclock = kvm_set_wallclock;
-@@ -182,6 +157,9 @@ void __init kvmclock_init(void)
- #ifdef CONFIG_X86_LOCAL_APIC
- 		pv_apic_ops.setup_secondary_clock = kvm_setup_secondary_clock;
- #endif
-+#ifdef CONFIG_SMP
-+		smp_ops.smp_prepare_boot_cpu = kvm_smp_prepare_boot_cpu;
-+#endif
- 		machine_ops.shutdown  = kvm_shutdown;
- #ifdef CONFIG_KEXEC
- 		machine_ops.crash_shutdown  = kvm_crash_shutdown;
--- 
-1.5.4.1
-
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by the 2008 JavaOne(SM) Conference 
-Don't miss this year's exciting event. There's still time to save $100. 
-Use priority code J8TL2D2. 
-http://ad.doubleclick.net/clk;198757673;13503038;p?http://java.sun.com/javaone
+ 	/* If some failed, kill them all. */
+ 	if (ret < 0) {
