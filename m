@@ -1,40 +1,38 @@
-From: Dor Laor <dor.laor@qumranet.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: Virt RNG?
-Date: Thu, 15 May 2008 23:26:18 +0300
-Message-ID: <1210883178.24261.914.camel@localhost.localdomain>
-References: <482C8595.5030509@garzik.org>  <482C94AF.2010202@goop.org>
-Reply-To: dor.laor@qumranet.com
+Date: Thu, 15 May 2008 22:31:56 +0200
+Message-ID: <200805152231.56967.borntraeger@de.ibm.com>
+References: <482C8595.5030509@garzik.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762370AbYEOUa1@vger.kernel.org>
-In-Reply-To: <482C94AF.2010202@goop.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762832AbYEOUcb@vger.kernel.org>
+In-Reply-To: <482C8595.5030509@garzik.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Jeff Garzik <jeff@garzik.org>, virtualization@lists.osdl.org, LKML <linux-kernel@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>, jeremy@xensource.com, Herbert Xu <herbert@gondor.apana.org.au>, Avi Kivity <avi@qumranet.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On Thu, 2008-05-15 at 20:53 +0100, Jeremy Fitzhardinge wrote:
-> Jeff Garzik wrote:
-> > Has anyone yet written a "hw" RNG module for virt, that reads the host's 
-> > random number pool?
-> >
-> > All this talk[1] about IRQF_SAMPLE_RANDOM in network drivers reminds me 
-> > that virt guest instances should be grabbing random numbers from the 
-> > host, especially if the host has a hardware RNG.
+Am Donnerstag, 15. Mai 2008 schrieb Jeff Garzik:
+> Has anyone yet written a "hw" RNG module for virt, that reads the host's 
+> random number pool?
 > 
-> It was actually one of the first device types proposed for what would 
-> become virtio, but as far as I know there has been no work on such a 
-> device.  It certainly makes lots of sense.
-> 
+> All this talk[1] about IRQF_SAMPLE_RANDOM in network drivers reminds me 
+> that virt guest instances should be grabbing random numbers from the 
+> host, especially if the host has a hardware RNG.
 
-There was a virtio-rng device:
-http://www.mail-archive.com/virtualization@lists.linux-foundation.org/msg02902.html
+Yes, there was a drivers/char/hw_random/virtio-rng.c in Rusty's lguest 
+repository. 
+http://www.mail-archive.com/virtualization%40lists.linux-foundation.org/msg02902.html
 
-Need to search what happened to it in Rusty's queues.
->     J
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
+I have tested this driver with this fix
+https://lists.linux-foundation.org/pipermail/virtualization/2008-January/009737.html
+and it worked.
+As it transfers only 4 byte per hypercall it is not mindblowingly fast, but I 
+guess it is fast enough.
+
+Dont know why it never hit mainline.
+
+Christian
