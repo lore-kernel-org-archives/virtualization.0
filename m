@@ -1,40 +1,39 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_net: free transmit skbs in a timer
-Date: Fri, 16 May 2008 09:25:17 +1000
-Message-ID: <200805160925.18087.rusty__30393.3061114096$1210894819$gmane$org@rustcorp.com.au>
-References: <1209565906-9019-1-git-send-email-markmc@redhat.com>
-	<1210865380.16012.15.camel@muff> <482C579F.4030509@qumranet.com>
+Subject: Re: Virt RNG?
+Date: Fri, 16 May 2008 09:43:08 +1000
+Message-ID: <200805160943.08788.rusty@rustcorp.com.au>
+References: <482C8595.5030509@garzik.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <482C579F.4030509@qumranet.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762044AbYEOXng@vger.kernel.org>
+In-Reply-To: <482C8595.5030509@garzik.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeff Garzik <jeff@garzik.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, jeremy@xensource.com, Herbert Xu <herbert@gondor.apana.org.au>, Avi Kivity <avi@qumranet.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 16 May 2008 01:32:47 Avi Kivity wrote:
-> Mark McLoughlin wrote:
-> > I think Rusty is speaking from the POV of the guest driver - i.e. that
-> > virtio_net should never disable notifications on the xmit queue using
-> > disable_cb()?
-> >
-> > Sounds like you think agree, but that the host side should throttle the
-> > rate of xmit notifications?
+On Friday 16 May 2008 04:48:53 Jeff Garzik wrote:
+> Has anyone yet written a "hw" RNG module for virt, that reads the host's
+> random number pool?
 >
-> Yes.
+> All this talk[1] about IRQF_SAMPLE_RANDOM in network drivers reminds me
+> that virt guest instances should be grabbing random numbers from the
+> host, especially if the host has a hardware RNG.
 
-But performance is going to suck in the meantime, as currently our host 
-doesn't do this.
+Yes, I prepared one earlier.  I was a little surprised to see that hwrng 
+drivers don't contribute in any way to the entropy pool though, but now
+reading the thread I find out about rngd (not installed on my Ubuntu system, 
+but available at least).
 
+One could argue that virtual rng should try to feed the kernel rng directly, 
+with or without entropy credit.
+
+Anyway, since there's interest, I'll drag virtio_rng from the bottom of the 
+queue, apply Christian's fix (which I somehow missed before, sorry 
+Christian), and re-post.
+
+Thanks,
 Rusty.
