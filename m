@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/2] virtio: hardware random device
-Date: Fri, 16 May 2008 15:31:44 +1000
-Message-ID: <200805161531.44725.rusty__18881.3484194272$1210916049$gmane$org@rustcorp.com.au>
+Subject: [PATCH 2/2] lguest: virtio-rng support
+Date: Fri, 16 May 2008 15:39:59 +1000
+Message-ID: <200805161539.59739.rusty__14098.7524799586$1210916528$gmane$org@rustcorp.com.au>
 References: <482C8595.5030509@garzik.org>
 	<200805160943.08788.rusty@rustcorp.com.au>
+	<200805161531.44725.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805160943.08788.rusty@rustcorp.com.au>
+In-Reply-To: <200805161531.44725.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,212 +24,140 @@ To: virtualization@lists.linux-foundation.org
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, "H. Anvin" <hpa@zytor.com>, Herbert Xu <herbert@gondor.apana.org.au>, Jeff Garzik <jeff@garzik.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 16 May 2008 09:43:08 Rusty Russell wrote:
-> Anyway, since there's interest, I'll drag virtio_rng from the bottom of the
-> queue, apply Christian's fix (which I somehow missed before, sorry
-> Christian), and re-post.
-
-Actually, I didn't miss it.  But I've polished the driver a little more,
-here are the patches.
-
-===
-virtio: An entropy device, as suggested by hpa.
-
-Note that by itself, having a "hardware" random generator does very
-little: you should probably run "rngd" in your guest to feed this into
-the kernel entropy pool.
+This is a simple patch to add support for the virtio "hardware random
+generator" to lguest.  It gets about 1.2 MB/sec reading from /dev/hwrng
+in the guest.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/char/hw_random/Kconfig      |   10 ++
- drivers/char/hw_random/Makefile     |    1 
- drivers/char/hw_random/virtio-rng.c |  143 ++++++++++++++++++++++++++++++++++++
- include/linux/virtio_rng.h          |    8 ++
- 4 files changed, 162 insertions(+)
+ Documentation/lguest/lguest.c |   90 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 90 insertions(+)
 
-diff --git a/drivers/char/hw_random/Kconfig b/drivers/char/hw_random/Kconfig
---- a/drivers/char/hw_random/Kconfig
-+++ b/drivers/char/hw_random/Kconfig
-@@ -112,3 +112,13 @@ config HW_RANDOM_PASEMI
+diff --git a/Documentation/lguest/lguest.c b/Documentation/lguest/lguest.c
+--- a/Documentation/lguest/lguest.c
++++ b/Documentation/lguest/lguest.c
+@@ -41,6 +41,7 @@
+ #include "linux/virtio_net.h"
+ #include "linux/virtio_blk.h"
+ #include "linux/virtio_console.h"
++#include "linux/virtio_rng.h"
+ #include "linux/virtio_ring.h"
+ #include "asm-x86/bootparam.h"
+ /*L:110 We can ignore the 39 include files we need for this program, but I do
+@@ -195,6 +196,33 @@ static void *_convert(struct iovec *iov,
+ #define le16_to_cpu(v16) (v16)
+ #define le32_to_cpu(v32) (v32)
+ #define le64_to_cpu(v64) (v64)
++
++/* Is this iovec empty? */
++static bool iov_empty(const struct iovec iov[], unsigned int num_iov)
++{
++	unsigned int i;
++
++	for (i = 0; i < num_iov; i++)
++		if (iov[i].iov_len)
++			return false;
++	return true;
++}
++
++/* Take len bytes from the front of this iovec. */
++static void iov_consume(struct iovec iov[], unsigned num_iov, unsigned len)
++{
++	unsigned int i;
++
++	for (i = 0; i < num_iov; i++) {
++		unsigned int used;
++
++		used = iov[i].iov_len < len ? iov[i].iov_len : len;
++		iov[i].iov_base += used;
++		iov[i].iov_len -= used;
++		len -= used;
++	}
++	assert(len == 0);
++}
  
- 	  If unsure, say Y.
- 
-+config HW_RANDOM_VIRTIO
-+	tristate "VirtIO Random Number Generator support"
-+	depends on HW_RANDOM && VIRTIO
-+	---help---
-+	  This driver provides kernel-side support for the virtual Random Number
-+	  Generator hardware.
+ /* The device virtqueue descriptors are followed by feature bitmasks. */
+ static u8 *get_feature_bits(struct device *dev)
+@@ -1613,6 +1641,64 @@ static void setup_block_file(const char 
+ 	verbose("device %u: virtblock %llu sectors\n",
+ 		devices.device_num, le64_to_cpu(conf.capacity));
+ }
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called virtio-rng.  If unsure, say N.
-+
-diff --git a/drivers/char/hw_random/Makefile b/drivers/char/hw_random/Makefile
---- a/drivers/char/hw_random/Makefile
-+++ b/drivers/char/hw_random/Makefile
-@@ -11,3 +11,4 @@ obj-$(CONFIG_HW_RANDOM_IXP4XX) += ixp4xx
- obj-$(CONFIG_HW_RANDOM_IXP4XX) += ixp4xx-rng.o
- obj-$(CONFIG_HW_RANDOM_OMAP) += omap-rng.o
- obj-$(CONFIG_HW_RANDOM_PASEMI) += pasemi-rng.o
-+obj-$(CONFIG_HW_RANDOM_VIRTIO) += virtio-rng.o
-diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -0,0 +1,143 @@
-+/*
-+ * Randomness driver for virtio
-+ *  Copyright (C) 2007, 2008 Rusty Russell IBM Corporation
++/* Our random number generator device reads from /dev/urandom into the Guest's
++ * input buffers.  The usual case is that the Guest doesn't want random numbers
++ * and so has no buffers although /dev/urandom is still readable, whereas
++ * console is the reverse.
 + *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-+ */
-+#include <linux/err.h>
-+#include <linux/hw_random.h>
-+#include <linux/scatterlist.h>
-+#include <linux/spinlock.h>
-+#include <linux/virtio.h>
-+#include <linux/virtio_rng.h>
-+
-+/* The host will fill any buffer we give it with sweet, sweet randomness.  We
-+ * give it 64 bytes at a time, and the hwrng framework takes it 4 bytes at a
-+ * time. */
-+static struct virtqueue *vq;
-+static u32 random_data[16];
-+static unsigned int data_left;
-+static DECLARE_COMPLETION(have_data);
-+
-+static void random_recv_done(struct virtqueue *vq)
++ * The same logic applies, however. */
++static bool handle_rng_input(int fd, struct device *dev)
 +{
 +	int len;
++	unsigned int head, in_num, out_num, totlen = 0;
++	struct iovec iov[dev->vq->vring.num];
 +
-+	/* We never get spurious callbacks. */
-+	if (!vq->vq_ops->get_buf(vq, &len))
-+		BUG();
++	/* First we need a buffer from the Guests's virtqueue. */
++	head = get_vq_desc(dev->vq, iov, &out_num, &in_num);
 +
-+	data_left = len / sizeof(random_data[0]);
-+	complete(&have_data);
-+}
++	/* If they're not ready for input, stop listening to this file
++	 * descriptor.  We'll start again once they add an input buffer. */
++	if (head == dev->vq->vring.num)
++		return false;
 +
-+static void register_buffer(void)
-+{
-+	struct scatterlist sg;
++	if (out_num)
++		errx(1, "Output buffers in rng?");
 +
-+	sg_init_one(&sg, &random_data, sizeof(random_data));
-+	/* There should always be room for one buffer. */
-+	if (vq->vq_ops->add_buf(vq, &sg, 0, 1, &random_data) != 0)
-+		BUG();
-+	vq->vq_ops->kick(vq);
-+}
-+
-+/* At least we don't udelay() in a loop like some other drivers. */
-+static int virtio_data_present(struct hwrng *rng, int wait)
-+{
-+	if (data_left)
-+		return 1;
-+
-+	if (!wait)
-+		return 0;
-+
-+	wait_for_completion(&have_data);
-+	return 1;
-+}
-+
-+/* virtio_data_present() must have succeeded before this is called. */
-+static int virtio_data_read(struct hwrng *rng, u32 *data)
-+{
-+	BUG_ON(!data_left);
-+
-+	*data = random_data[--data_left];
-+
-+	if (!data_left) {
-+		init_completion(&have_data);
-+		register_buffer();
-+	}
-+	return sizeof(*data);
-+}
-+
-+static struct hwrng virtio_hwrng = {
-+	.name = "virtio",
-+	.data_present = virtio_data_present,
-+	.data_read = virtio_data_read,
-+};
-+
-+static int virtrng_probe(struct virtio_device *vdev)
-+{
-+	int err;
-+
-+	/* We expect a single virtqueue. */
-+	vq = vdev->config->find_vq(vdev, 0, random_recv_done);
-+	if (IS_ERR(vq))
-+		return PTR_ERR(vq);
-+
-+	err = hwrng_register(&virtio_hwrng);
-+	if (err) {
-+		vdev->config->del_vq(vq);
-+		return err;
++	/* This is why we convert to iovecs: the readv() call uses them, and so
++	 * it reads straight into the Guest's buffer.  We loop to make sure we
++	 * fill it. */
++	while (!iov_empty(iov, in_num)) {
++		len = readv(dev->fd, iov, in_num);
++		if (len <= 0)
++			err(1, "Read from /dev/urandom gave %i", len);
++		iov_consume(iov, in_num, len);
++		totlen += len;
 +	}
 +
-+	register_buffer();
-+	return 0;
++	/* Tell the Guest about the new input. */
++	add_used_and_trigger(fd, dev->vq, head, totlen);
++
++	/* Everything went OK! */
++	return true;
 +}
 +
-+static void virtrng_remove(struct virtio_device *vdev)
++/* And this creates a "hardware" random number device for the Guest. */
++static void setup_rng(void)
 +{
-+	vdev->config->reset(vdev);
-+	hwrng_unregister(&virtio_hwrng);
-+	vdev->config->del_vq(vq);
++	struct device *dev;
++	int fd;
++
++	fd = open_or_die("/dev/urandom", O_RDONLY);
++
++	/* The device responds to return from I/O thread. */
++	dev = new_device("rng", VIRTIO_ID_RNG, fd, handle_rng_input);
++
++	/* The device has one virtqueue, where the Guest places inbufs. */
++	add_virtqueue(dev, VIRTQUEUE_NUM, enable_fd);
++
++	verbose("device %u: rng\n", devices.device_num++);
 +}
-+
-+static struct virtio_device_id id_table[] = {
-+	{ VIRTIO_ID_RNG, VIRTIO_DEV_ANY_ID },
-+	{ 0 },
-+};
-+
-+static struct virtio_driver virtio_rng = {
-+	.driver.name =	KBUILD_MODNAME,
-+	.driver.owner =	THIS_MODULE,
-+	.id_table =	id_table,
-+	.probe =	virtrng_probe,
-+	.remove =	__devexit_p(virtrng_remove),
-+};
-+
-+static int __init init(void)
-+{
-+	return register_virtio_driver(&virtio_rng);
-+}
-+
-+static void __exit fini(void)
-+{
-+	unregister_virtio_driver(&virtio_rng);
-+}
-+module_init(init);
-+module_exit(fini);
-+
-+MODULE_DEVICE_TABLE(virtio, id_table);
-+MODULE_DESCRIPTION("Virtio random number driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/virtio_rng.h b/include/linux/virtio_rng.h
-new file mode 100644
---- /dev/null
-+++ b/include/linux/virtio_rng.h
-@@ -0,0 +1,8 @@
-+#ifndef _LINUX_VIRTIO_RNG_H
-+#define _LINUX_VIRTIO_RNG_H
-+#include <linux/virtio_config.h>
-+
-+/* The ID for virtio_rng */
-+#define VIRTIO_ID_RNG	4
-+
-+#endif /* _LINUX_VIRTIO_RNG_H */
+ /* That's the end of device setup. */
+ 
+ /*L:230 Reboot is pretty easy: clean up and exec() the Launcher afresh. */
+@@ -1683,6 +1769,7 @@ static struct option opts[] = {
+ 	{ "verbose", 0, NULL, 'v' },
+ 	{ "tunnet", 1, NULL, 't' },
+ 	{ "block", 1, NULL, 'b' },
++	{ "rng", 0, NULL, 'r' },
+ 	{ "initrd", 1, NULL, 'i' },
+ 	{ NULL },
+ };
+@@ -1756,6 +1843,9 @@ int main(int argc, char *argv[])
+ 			break;
+ 		case 'b':
+ 			setup_block_file(optarg);
++			break;
++		case 'r':
++			setup_rng();
+ 			break;
+ 		case 'i':
+ 			initrd_name = optarg;
