@@ -1,14 +1,11 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/4] kvm/host: fix paravirt clocksource to be
-	compatible with xen.
-Date: Fri, 16 May 2008 10:01:24 +0200
-Message-ID: <1210924885-5353-4-git-send-email-kraxel@redhat.com>
-References: <1210924885-5353-1-git-send-email-kraxel@redhat.com>
+Subject: [PATCH 0/4] paravirt clock source patches, #3
+Date: Fri, 16 May 2008 10:01:21 +0200
+Message-ID: <1210924885-5353-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-devel-bounces@lists.sourceforge.net>
-In-Reply-To: <1210924885-5353-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
 	<mailto:kvm-devel-request@lists.sourceforge.net?subject=unsubscribe>
 List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
@@ -22,155 +19,12 @@ To: virtualization@lists.osdl.org, kvm-devel@lists.sourceforge.net
 Cc: Gerd Hoffmann <kraxel@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+paravirt clock source patches, next round, with a bunch of changes
+in the host code according to Avi's review comments and some minor
+code tweaks.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- arch/x86/kvm/x86.c         |   71 ++++++++++++++++++++++++++++++++++++-------
- include/asm-x86/kvm_host.h |    1 +
- 2 files changed, 60 insertions(+), 12 deletions(-)
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index dab3d4f..7f84467 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -493,7 +493,7 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
- {
- 	static int version;
- 	struct kvm_wall_clock wc;
--	struct timespec wc_ts;
-+	struct timespec now, sys, boot;
- 
- 	if (!wall_clock)
- 		return;
-@@ -502,9 +502,18 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
- 
- 	kvm_write_guest(kvm, wall_clock, &version, sizeof(version));
- 
--	wc_ts = current_kernel_time();
--	wc.wc_sec = wc_ts.tv_sec;
--	wc.wc_nsec = wc_ts.tv_nsec;
-+	/*
-+	 * The guest calculates current wall clock time by adding
-+	 * system time (updated by kvm_write_guest_time below) to the
-+	 * wall clock specified here.  guest system time equals host
-+	 * system time for us, thus we must fill in host boot time here.
-+	 */
-+	now = current_kernel_time();
-+	ktime_get_ts(&sys);
-+	boot = ns_to_timespec(timespec_to_ns(&now) - timespec_to_ns(&sys));
-+
-+	wc.wc_sec = boot.tv_sec;
-+	wc.wc_nsec = boot.tv_nsec;
- 	wc.wc_version = version;
- 
- 	kvm_write_guest(kvm, wall_clock, &wc, sizeof(wc));
-@@ -513,6 +522,44 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
- 	kvm_write_guest(kvm, wall_clock, &version, sizeof(version));
- }
- 
-+static uint32_t div_frac(uint32_t dividend, uint32_t divisor)
-+{
-+	uint32_t quotient, remainder;
-+
-+	/* This is NOT what do_div() does ... */
-+	__asm__ ( "divl %4"
-+		  : "=a" (quotient), "=d" (remainder)
-+		  : "0" (0), "1" (dividend), "r" (divisor) );
-+	return quotient;
-+}
-+
-+static void kvm_set_time_scale(uint32_t tsc_khz, struct kvm_vcpu_time_info *hv_clock)
-+{
-+	uint64_t nsecs = 1000000000LL;
-+	int32_t  shift = 0;
-+	uint64_t tps64;
-+	uint32_t tps32;
-+
-+	tps64 = tsc_khz * 1000LL;
-+	while (tps64 > nsecs*2) {
-+		tps64 >>= 1;
-+		shift--;
-+	}
-+
-+	tps32 = (uint32_t)tps64;
-+	while (tps32 <= (uint32_t)nsecs) {
-+		tps32 <<= 1;
-+		shift++;
-+	}
-+
-+	hv_clock->tsc_shift = shift;
-+	hv_clock->tsc_to_system_mul = div_frac(nsecs, tps32);
-+
-+	pr_debug("%s: tsc_khz %u, tsc_shift %d, tsc_mul %u\n",
-+		 __FUNCTION__, tsc_khz, hv_clock->tsc_shift,
-+		 hv_clock->tsc_to_system_mul);
-+}
-+
- static void kvm_write_guest_time(struct kvm_vcpu *v)
- {
- 	struct timespec ts;
-@@ -523,6 +570,11 @@ static void kvm_write_guest_time(struct kvm_vcpu *v)
- 	if ((!vcpu->time_page))
- 		return;
- 
-+	if (unlikely(vcpu->hv_clock_tsc_khz != tsc_khz)) {
-+		kvm_set_time_scale(tsc_khz, &vcpu->hv_clock);
-+		vcpu->hv_clock_tsc_khz = tsc_khz;
-+	}
-+	
- 	/* Keep irq disabled to prevent changes to the clock */
- 	local_irq_save(flags);
- 	kvm_get_msr(v, MSR_IA32_TIME_STAMP_COUNTER,
-@@ -537,21 +589,20 @@ static void kvm_write_guest_time(struct kvm_vcpu *v)
- 	/*
- 	 * The interface expects us to write an even number signaling that the
- 	 * update is finished. Since the guest won't see the intermediate
--	 * state, we just write "2" at the end
-+	 * state, we just increase by 2 at the end.
- 	 */
--	vcpu->hv_clock.version = 2;
-+	vcpu->hv_clock.version += 2;
- 
- 	shared_kaddr = kmap_atomic(vcpu->time_page, KM_USER0);
- 
- 	memcpy(shared_kaddr + vcpu->time_offset, &vcpu->hv_clock,
--		sizeof(vcpu->hv_clock));
-+	       sizeof(vcpu->hv_clock));
- 
- 	kunmap_atomic(shared_kaddr, KM_USER0);
- 
- 	mark_page_dirty(v->kvm, vcpu->time >> PAGE_SHIFT);
- }
- 
--
- int kvm_set_msr_common(struct kvm_vcpu *vcpu, u32 msr, u64 data)
- {
- 	switch (msr) {
-@@ -599,10 +650,6 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, u32 msr, u64 data)
- 		/* ...but clean it before doing the actual write */
- 		vcpu->arch.time_offset = data & ~(PAGE_MASK | 1);
- 
--		vcpu->arch.hv_clock.tsc_to_system_mul =
--					clocksource_khz2mult(tsc_khz, 22);
--		vcpu->arch.hv_clock.tsc_shift = 22;
--
- 		down_read(&current->mm->mmap_sem);
- 		vcpu->arch.time_page =
- 				gfn_to_page(vcpu->kvm, data >> PAGE_SHIFT);
-diff --git a/include/asm-x86/kvm_host.h b/include/asm-x86/kvm_host.h
-index 1466c3f..820eef4 100644
---- a/include/asm-x86/kvm_host.h
-+++ b/include/asm-x86/kvm_host.h
-@@ -283,6 +283,7 @@ struct kvm_vcpu_arch {
- 
- 	gpa_t time;
- 	struct kvm_vcpu_time_info hv_clock;
-+	unsigned int hv_clock_tsc_khz;
- 	unsigned int time_offset;
- 	struct page *time_page;
- };
--- 
-1.5.4.1
+cheers,
+  Gerd
 
 
 -------------------------------------------------------------------------
