@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: [PATCH 2/2] lguest: virtio-rng support
 Date: Fri, 16 May 2008 15:39:59 +1000
-Message-ID: <200805161539.59739.rusty__14098.7524799586$1210916528$gmane$org@rustcorp.com.au>
+Message-ID: <200805161539.59739.rusty__43000.179649289$1210916751$gmane$org@rustcorp.com.au>
 References: <482C8595.5030509@garzik.org>
 	<200805160943.08788.rusty@rustcorp.com.au>
 	<200805161531.44725.rusty@rustcorp.com.au>
