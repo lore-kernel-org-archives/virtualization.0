@@ -1,16 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Avi Kivity <avi@qumranet.com>
 Subject: Re: [PATCH] virtio_net: free transmit skbs in a timer
-Date: Mon, 19 May 2008 00:16:10 +1000
-Message-ID: <200805190016.10823.rusty__31066.2399781451$1211120499$gmane$org@rustcorp.com.au>
+Date: Sun, 18 May 2008 17:27:05 +0300
+Message-ID: <48303CB9.7070406__1248.12601502544$1211121109$gmane$org@qumranet.com>
 References: <1209565906-9019-1-git-send-email-markmc@redhat.com>
 	<200805160925.18087.rusty@rustcorp.com.au>
 	<482FCF45.1050307@qumranet.com>
+	<200805190016.10823.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <482FCF45.1050307@qumranet.com>
-Content-Disposition: inline
+In-Reply-To: <200805190016.10823.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,31 +20,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sunday 18 May 2008 16:40:05 Avi Kivity wrote:
-> Rusty Russell wrote:
-> > On Friday 16 May 2008 01:32:47 Avi Kivity wrote:
-> >> Mark McLoughlin wrote:
-> >>> I think Rusty is speaking from the POV of the guest driver - i.e. that
-> >>> virtio_net should never disable notifications on the xmit queue using
-> >>> disable_cb()?
-> >>>
-> >>> Sounds like you think agree, but that the host side should throttle the
-> >>> rate of xmit notifications?
-> >>
-> >> Yes.
-> >
-> > But performance is going to suck in the meantime, as currently our host
-> > doesn't do this.
->
-> That's what the feature bits are for.
+Rusty Russell wrote:
+> OK.  And since the current situation is that the host doesn't throttle, the 
+> feature bit should be "don't throttle, host is doing it for you", and Mark's 
+> patch should go in...
+>   
 
-OK.  And since the current situation is that the host doesn't throttle, the 
-feature bit should be "don't throttle, host is doing it for you", and Mark's 
-patch should go in...
+Yes.
 
-Cheers,
-Rusty.
+We should have thought of this before, though, especially as Xen does 
+this or something very similar:
+
+> /* Shared ring page */                            \
+> struct __name##_sring {                            \
+>     RING_IDX req_prod, req_event;                    \
+>     RING_IDX rsp_prod, rsp_event;                    \
+>     uint8_t  pad[48];                            \
+>     union __name##_sring_entry ring[1]; /* variable-length */        \
+> };                                    \
+
+req_event and rsp_event allow the other side to indicate when it wants a 
+notification.
+
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
