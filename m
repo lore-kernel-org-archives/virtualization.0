@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 06/17] ia64/pv_ops: add an early setup hook for pv_ops.
-Date: Mon, 19 May 2008 22:13:33 +0900
-Message-ID: <1211202825173-git-send-email-yamahata__32564.1326410279$1211203850$gmane$org@valinux.co.jp>
+Subject: [PATCH 01/17] ia64: preparation: remove extern in irq_ia64.c
+Date: Mon, 19 May 2008 22:13:28 +0900
+Message-ID: <12112028241696-git-send-email-yamahata__36484.7607598223$1211203863$gmane$org@valinux.co.jp>
 References: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,94 +21,47 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds a setup hook in the very early boot sequence
-before start_kernel() to initialize paravirtualization stuff.
-The hook will be set by each pv loader code or by using multi entry point.
+remove extern declaration of handle_IPI() in irq_ia64.c.
+Instead, declare it in asm-ia64/smp.h.
+Later handle_IPI() will be referenced from another file.
 
-Signed-off-by: Qing He <qing.he@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/head.S     |   41 +++++++++++++++++++++++++++++++++++++++++
- include/asm-ia64/paravirt.h |    3 +++
- 2 files changed, 44 insertions(+), 0 deletions(-)
+ arch/ia64/kernel/irq_ia64.c |    1 -
+ include/asm-ia64/smp.h      |    2 ++
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/arch/ia64/kernel/head.S b/arch/ia64/kernel/head.S
-index ddeab4e..db540e5 100644
---- a/arch/ia64/kernel/head.S
-+++ b/arch/ia64/kernel/head.S
-@@ -26,11 +26,14 @@
- #include <asm/mmu_context.h>
- #include <asm/asm-offsets.h>
- #include <asm/pal.h>
-+#include <asm/paravirt.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
- #include <asm/ptrace.h>
- #include <asm/system.h>
- #include <asm/mca_asm.h>
-+#include <linux/init.h>
-+#include <linux/linkage.h>
+diff --git a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
+index 5538471..c48171b 100644
+--- a/arch/ia64/kernel/irq_ia64.c
++++ b/arch/ia64/kernel/irq_ia64.c
+@@ -600,7 +600,6 @@ static irqreturn_t dummy_handler (int irq, void *dev_id)
+ {
+ 	BUG();
+ }
+-extern irqreturn_t handle_IPI (int irq, void *dev_id);
  
- #ifdef CONFIG_HOTPLUG_CPU
- #define SAL_PSR_BITS_TO_SET				\
-@@ -367,6 +370,44 @@ start_ap:
- 	;;
- (isBP)	st8 [r2]=r28		// save the address of the boot param area passed by the bootloader
+ static struct irqaction ipi_irqaction = {
+ 	.handler =	handle_IPI,
+diff --git a/include/asm-ia64/smp.h b/include/asm-ia64/smp.h
+index ec5f355..2984e26 100644
+--- a/include/asm-ia64/smp.h
++++ b/include/asm-ia64/smp.h
+@@ -15,6 +15,7 @@
+ #include <linux/kernel.h>
+ #include <linux/cpumask.h>
+ #include <linux/bitops.h>
++#include <linux/irqreturn.h>
  
-+#ifdef CONFIG_PARAVIRT
-+
-+	movl r14=hypervisor_setup_hooks
-+	movl r15=hypervisor_type
-+	mov r16=num_hypervisor_hooks
-+	;;
-+	ld8 r2=[r15]
-+	;;
-+	cmp.ltu p7,p0=r2,r16	// array size check
-+	shladd r8=r2,3,r14
-+	;;
-+(p7)	ld8 r9=[r8]
-+	;;
-+(p7)	mov b1=r9
-+(p7)	cmp.ne.unc p7,p0=r9,r0	// no actual branch to NULL
-+	;;
-+(p7)	br.call.sptk.many rp=b1
-+
-+	__INITDATA
-+
-+default_setup_hook = 0		// Currently nothing needs to be done.
-+
-+	.weak xen_setup_hook
-+
-+	.global hypervisor_type
-+hypervisor_type:
-+	data8		PARAVIRT_HYPERVISOR_TYPE_DEFAULT
-+
-+	// must have the same order with PARAVIRT_HYPERVISOR_TYPE_xxx
-+
-+hypervisor_setup_hooks:
-+	data8		default_setup_hook
-+	data8		xen_setup_hook
-+num_hypervisor_hooks = (. - hypervisor_setup_hooks) / 8
-+	.previous
-+
-+#endif
-+
- #ifdef CONFIG_SMP
- (isAP)	br.call.sptk.many rp=start_secondary
- .ret0:
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index 26b4334..1032b21 100644
---- a/include/asm-ia64/paravirt.h
-+++ b/include/asm-ia64/paravirt.h
-@@ -26,6 +26,9 @@
+ #include <asm/io.h>
+ #include <asm/param.h>
+@@ -123,6 +124,7 @@ extern void __init smp_build_cpu_map(void);
+ extern void __init init_smp_config (void);
+ extern void smp_do_timer (struct pt_regs *regs);
  
- #ifdef CONFIG_PARAVIRT_GUEST
- 
-+#define PARAVIRT_HYPERVISOR_TYPE_DEFAULT	0
-+#define PARAVIRT_HYPERVISOR_TYPE_XEN		1
-+
- #ifndef __ASSEMBLY__
- 
- #include <asm/hw_irq.h>
++extern irqreturn_t handle_IPI(int irq, void *dev_id);
+ extern void smp_send_reschedule (int cpu);
+ extern void lock_ipi_calllock(void);
+ extern void unlock_ipi_calllock(void);
 -- 
 1.5.3
