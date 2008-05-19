@@ -1,14 +1,11 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 16/17] ia64/pv_ops: add hooks, pv_irq_ops,
-	to paravirtualized irq related operations.
-Date: Mon, 19 May 2008 22:13:43 +0900
-Message-ID: <12112028251082-git-send-email-yamahata__49150.4095415168$1211205097$gmane$org@valinux.co.jp>
-References: <12112028241775-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 00/17] ia64/pv_ops take 6
+Date: Mon, 19 May 2008 22:13:27 +0900
+Message-ID: <12112028241775-git-send-email-yamahata__29428.2705210664$1211205176$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,211 +19,109 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-introduce pv_irq_ops which adds hooks to paravirtualize irq related
-operations.
-On virtualized environment, interruption may be replaced by something
-virtualization friendly. So the irq related operation also may need
-paravirtualization.
-This patch adds necessary hooks to paravirtualize irq related operations.
+Hi. This patchset implements ia64/pv_ops support which is the
+framework for virtualization support.
+Changes from take 5 are rebased to Linux 2.6.26-rc3,
+bug fix ivt.S paravirtualization and multi entry point support.
+I believe these patches can be applied to the linux ia64 repository.
 
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/kernel/irq_ia64.c |   18 +++++++++++----
- arch/ia64/kernel/paravirt.c |   15 +++++++++++++
- include/asm-ia64/hw_irq.h   |   23 +++++++++++++++++---
- include/asm-ia64/paravirt.h |   48 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 95 insertions(+), 9 deletions(-)
+On x86 various ways to support virtualization were proposed, and
+eventually pv_ops won. So on ia64 the pv_ops strategy is appropriate too.
+Later I'll post the patchset which implements xen domU based on
+ia64/pv_ops. Currently only ia64/xen pv_ops implementation exists,
+but I believe ia64/kvm can also obtain benefits from this ia64/pv_ops
+frame work.
+linux/ia64 has the machine vector interface and another approach might be
+to utilize it. However pv_ops is better for some reasons. Please see
+the thread of the mailing list from
+http://www.spinics.net/lists/linux-ia64/msg05238.html
 
-diff --git a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
-index c48171b..28d3d48 100644
---- a/arch/ia64/kernel/irq_ia64.c
-+++ b/arch/ia64/kernel/irq_ia64.c
-@@ -196,7 +196,7 @@ static void clear_irq_vector(int irq)
- }
- 
- int
--assign_irq_vector (int irq)
-+ia64_native_assign_irq_vector (int irq)
- {
- 	unsigned long flags;
- 	int vector, cpu;
-@@ -222,7 +222,7 @@ assign_irq_vector (int irq)
- }
- 
- void
--free_irq_vector (int vector)
-+ia64_native_free_irq_vector (int vector)
- {
- 	if (vector < IA64_FIRST_DEVICE_VECTOR ||
- 	    vector > IA64_LAST_DEVICE_VECTOR)
-@@ -622,7 +622,7 @@ static struct irqaction tlb_irqaction = {
- #endif
- 
- void
--register_percpu_irq (ia64_vector vec, struct irqaction *action)
-+ia64_native_register_percpu_irq (ia64_vector vec, struct irqaction *action)
- {
- 	irq_desc_t *desc;
- 	unsigned int irq;
-@@ -637,13 +637,21 @@ register_percpu_irq (ia64_vector vec, struct irqaction *action)
- }
- 
- void __init
--init_IRQ (void)
-+ia64_native_register_ipi(void)
- {
--	register_percpu_irq(IA64_SPURIOUS_INT_VECTOR, NULL);
- #ifdef CONFIG_SMP
- 	register_percpu_irq(IA64_IPI_VECTOR, &ipi_irqaction);
- 	register_percpu_irq(IA64_IPI_RESCHEDULE, &resched_irqaction);
- 	register_percpu_irq(IA64_IPI_LOCAL_TLB_FLUSH, &tlb_irqaction);
-+#endif
-+}
-+
-+void __init
-+init_IRQ (void)
-+{
-+	ia64_register_ipi();
-+	register_percpu_irq(IA64_SPURIOUS_INT_VECTOR, NULL);
-+#ifdef CONFIG_SMP
- #if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_DIG)
- 	if (vector_domain_type != VECTOR_DOMAIN_NONE) {
- 		BUG_ON(IA64_FIRST_DEVICE_VECTOR != IA64_IRQ_MOVE_VECTOR);
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 65c211b..ba5383b 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -337,3 +337,18 @@ struct pv_iosapic_ops pv_iosapic_ops = {
- 	.__read = ia64_native_iosapic_read,
- 	.__write = ia64_native_iosapic_write,
- };
-+
-+/***************************************************************************
-+ * pv_irq_ops
-+ * irq operations
-+ */
-+
-+struct pv_irq_ops pv_irq_ops = {
-+	.register_ipi = ia64_native_register_ipi,
-+
-+	.assign_irq_vector = ia64_native_assign_irq_vector,
-+	.free_irq_vector = ia64_native_free_irq_vector,
-+	.register_percpu_irq = ia64_native_register_percpu_irq,
-+
-+	.resend_irq = ia64_native_resend_irq,
-+};
-diff --git a/include/asm-ia64/hw_irq.h b/include/asm-ia64/hw_irq.h
-index 76366dc..5c99cbc 100644
---- a/include/asm-ia64/hw_irq.h
-+++ b/include/asm-ia64/hw_irq.h
-@@ -15,7 +15,11 @@
- #include <asm/ptrace.h>
- #include <asm/smp.h>
- 
-+#ifndef CONFIG_PARAVIRT
- typedef u8 ia64_vector;
-+#else
-+typedef u16 ia64_vector;
-+#endif
- 
- /*
-  * 0 special
-@@ -104,13 +108,24 @@ DECLARE_PER_CPU(int[IA64_NUM_VECTORS], vector_irq);
- 
- extern struct hw_interrupt_type irq_type_ia64_lsapic;	/* CPU-internal interrupt controller */
- 
-+#ifdef CONFIG_PARAVIRT_GUEST
-+#include <asm/paravirt.h>
-+#else
-+#define ia64_register_ipi	ia64_native_register_ipi
-+#define assign_irq_vector	ia64_native_assign_irq_vector
-+#define free_irq_vector		ia64_native_free_irq_vector
-+#define register_percpu_irq	ia64_native_register_percpu_irq
-+#define ia64_resend_irq		ia64_native_resend_irq
-+#endif
-+
-+extern void ia64_native_register_ipi(void);
- extern int bind_irq_vector(int irq, int vector, cpumask_t domain);
--extern int assign_irq_vector (int irq);	/* allocate a free vector */
--extern void free_irq_vector (int vector);
-+extern int ia64_native_assign_irq_vector (int irq);	/* allocate a free vector */
-+extern void ia64_native_free_irq_vector (int vector);
- extern int reserve_irq_vector (int vector);
- extern void __setup_vector_irq(int cpu);
- extern void ia64_send_ipi (int cpu, int vector, int delivery_mode, int redirect);
--extern void register_percpu_irq (ia64_vector vec, struct irqaction *action);
-+extern void ia64_native_register_percpu_irq (ia64_vector vec, struct irqaction *action);
- extern int check_irq_used (int irq);
- extern void destroy_and_reserve_irq (unsigned int irq);
- 
-@@ -122,7 +137,7 @@ static inline int irq_prepare_move(int irq, int cpu) { return 0; }
- static inline void irq_complete_move(unsigned int irq) {}
- #endif
- 
--static inline void ia64_resend_irq(unsigned int vector)
-+static inline void ia64_native_resend_irq(unsigned int vector)
- {
- 	platform_send_ipi(smp_processor_id(), vector, IA64_IPI_DM_INT, 0);
- }
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index 3a40f62..ee15646 100644
---- a/include/asm-ia64/paravirt.h
-+++ b/include/asm-ia64/paravirt.h
-@@ -152,6 +152,54 @@ __iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
- 	return pv_iosapic_ops.__write(iosapic, reg, val);
- }
- 
-+/******************************************************************************
-+ * replacement of irq operations.
-+ */
-+
-+struct pv_irq_ops {
-+	void (*register_ipi)(void);
-+
-+	int (*assign_irq_vector)(int irq);
-+	void (*free_irq_vector)(int vector);
-+
-+	void (*register_percpu_irq)(ia64_vector vec,
-+				    struct irqaction *action);
-+
-+	void (*resend_irq)(unsigned int vector);
-+};
-+
-+extern struct pv_irq_ops pv_irq_ops;
-+
-+static inline void
-+ia64_register_ipi(void)
-+{
-+	pv_irq_ops.register_ipi();
-+}
-+
-+static inline int
-+assign_irq_vector(int irq)
-+{
-+	return pv_irq_ops.assign_irq_vector(irq);
-+}
-+
-+static inline void
-+free_irq_vector(int vector)
-+{
-+	return pv_irq_ops.free_irq_vector(vector);
-+}
-+
-+static inline void
-+register_percpu_irq(ia64_vector vec, struct irqaction *action)
-+{
-+	pv_irq_ops.register_percpu_irq(vec, action);
-+}
-+
-+static inline void
-+ia64_resend_irq(unsigned int vector)
-+{
-+	pv_irq_ops.resend_irq(vector);
-+}
-+
- #endif /* !__ASSEMBLY__ */
- 
- #else
--- 
-1.5.3
+
+This patchset does the followings.
+- some preparation work. Mainly make the kernel virtualization friendly.
+- introduce multi entry point support.
+- introduce pv_info which describes the execution environment.
+- introduce macros for hand written assembly code to paravirtualize
+  hand written code to replace sensitive/privileged instructions.
+- introduce various hooks to replace the implementation with
+  paravirtualized.
+  They are defined as function tables called, pv_init_ops, pv_cpu_ops,
+  pv_irq_ops, pv_iosapic_ops and, pv_time_ops.
+  They represent
+    pv_init_ops: hooks for various initialization.
+    pv_cpu_ops: hooks for ia64 intrinsics.
+    pv_irq_ops: hooks for irq related operations.
+    pv_iosapic_ops: hooks for paravirtualized iosapic.
+    pv_time_ops: hooks for steal time accounting
+
+
+The working full source is available from
+http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
+branch: xen-ia64-2008may19
+
+At this phase, we don't address the following issues.
+Those will be addressed after the first merge.
+- optimization by binary patch
+  In fact, we had the patch to do that, but we intentionally dropped
+  for patch size/readability/cleanness.
+- freeing the unused pages, i.e. pages for unused ivt.S.
+
+Changes from take 5:
+- rebased to Linux 2.6.26-rc3
+- fix ivt.S paravirtualization.
+  One instruction was wrongly paravirtualized.
+  It wasn't revealed with Xen HVM domain so far, but with real hw
+- multi entry point support.
+- revised changelog to add CCs.
+
+Changes from take 4:
+- refined NR_IRQS paravirtualization according to Jes Soresen's comment
+- rebased and fixed the breakage due to the upstream change.
+- fixed various compilation errors.
+
+Changes from take 3:
+- split the patch set into pv_op part and xen domU part.
+- many clean ups.
+- introduced pv_ops: pv_cpu_ops and pv_time_ops.
+
+Changes from take 2:
+- many clean ups following to comments.
+- clean up:assembly instruction macro.
+- introduced pv_ops: pv_info, pv_init_ops, pv_iosapic_ops, pv_irq_ops.
+
+Changes from take 1:
+Single IVT source code. compile multitimes using assembler macros.
+
+thanks,
+
+ arch/ia64/Makefile                 |    6 +
+ arch/ia64/kernel/Makefile          |   44 +++++
+ arch/ia64/kernel/entry.S           |  115 +++++++----
+ arch/ia64/kernel/head.S            |   41 ++++
+ arch/ia64/kernel/iosapic.c         |   45 +++--
+ arch/ia64/kernel/irq_ia64.c        |   19 ++-
+ arch/ia64/kernel/ivt.S             |  249 ++++++++++++------------
+ arch/ia64/kernel/minstate.h        |   13 +-
+ arch/ia64/kernel/nr-irqs.c         |   24 +++
+ arch/ia64/kernel/paravirt.c        |  369 ++++++++++++++++++++++++++++++++++++
+ arch/ia64/kernel/paravirt_inst.h   |   29 +++
+ arch/ia64/kernel/paravirtentry.S   |   60 ++++++
+ arch/ia64/kernel/setup.c           |   10 +
+ arch/ia64/kernel/smpboot.c         |    2 +
+ arch/ia64/kernel/time.c            |   23 +++
+ arch/ia64/kernel/vmlinux.lds.S     |    1 -
+ include/asm-ia64/Kbuild            |    2 +-
+ include/asm-ia64/gcc_intrin.h      |   24 ++--
+ include/asm-ia64/hw_irq.h          |   23 ++-
+ include/asm-ia64/intel_intrin.h    |   41 ++--
+ include/asm-ia64/intrinsics.h      |   55 ++++++
+ include/asm-ia64/iosapic.h         |   18 ++-
+ include/asm-ia64/irq.h             |    9 +-
+ include/asm-ia64/mmu_context.h     |    6 +-
+ include/asm-ia64/native/inst.h     |  175 +++++++++++++++++
+ include/asm-ia64/native/irq.h      |   35 ++++
+ include/asm-ia64/paravirt.h        |  255 +++++++++++++++++++++++++
+ include/asm-ia64/paravirt_privop.h |  114 +++++++++++
+ include/asm-ia64/smp.h             |    2 +
+ include/asm-ia64/system.h          |   11 +-
+ 30 files changed, 1567 insertions(+), 253 deletions(-)
