@@ -1,16 +1,14 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH] virtio_net: free transmit skbs in a timer
-Date: Mon, 19 May 2008 16:26:15 +0300
-Message-ID: <48317FF7.1020707@qumranet.com>
-References: <1209565906-9019-1-git-send-email-markmc@redhat.com>
-	<200805191152.28409.rusty@rustcorp.com.au>
-	<483155D4.2090700@qumranet.com>
-	<200805192221.52072.rusty@rustcorp.com.au>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 09/17] ia64/pv_ops: define paravirtualized instructions for
+	native.
+Date: Mon, 19 May 2008 22:13:36 +0900
+Message-ID: <12112028254014-git-send-email-yamahata__33971.7609495439$1211205044$gmane$org@valinux.co.jp>
+References: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805192221.52072.rusty@rustcorp.com.au>
+In-Reply-To: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,61 +18,191 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, Keith Owens <kaos@ocs.com.au>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
->>>
->>> Well, we do have such a thing, in the ring suppression flags.
->>>       
->> Can you point me at this?
->>     
->
-> Ah, sorry, I misunderstood.  No, we don't have a threshold like this, we
-> have an all-or-nothing flag in each direction.
->
->   
+pv_cpu_asm_ops: define paravirtualized introduce for native execution
+environment.
 
-Please point me anyway?
+Cc: Keith Owens <kaos@ocs.com.au>
+Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ include/asm-ia64/native/inst.h |  165 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 165 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/native/inst.h
 
-> We have the ability to add new fields to the rings.  I've put it on my
-> TODO to benchmark what this does.  It may or may not help.  In this case,
-> notification when there are no more packets in xmit ring would be
-> sufficient.  We already kick the host when we fill a ring even if
-> it says it doesn't need it, perhaps this would be symmetry.
->   
-
-Notification on ring full is too late with smp.  You need to warn the 
-other side in advance.
-
-The reason I'm interested in adjustable thresholds is that you can then 
-to tx mitigation without (usually) suffering the worst-case latency when 
-you aren't streaming or streaming slower than what you tuned for.
-
->   
->>>   Note that DaveM
->>> is talking about moving network tx queue into the net drivers themselves,
->>> which will make them much more efficient (ie. drain entire queue before
->>> kick), which may again change the balance of what the Right Thing is.
->>>       
->> That depends on whether Linux knows whether more packets are coming.
->>     
->
-> The current problem is that hard_start_xmit gets called with a packet, and 
-> has no idea if there are more in the tx queue.  By having the driver control
-> the queue, it can at least tell that.
->   
-
-Yes, definitely an improvement, esp. for sendfile().
-
-> The question remains whether this will be sufficient for tx mitigation.  A
-> program may be about to write more to the socket, and we can't know that.
-> But it can hardly hurt.
->
->   
-
-Right.
-
+diff --git a/include/asm-ia64/native/inst.h b/include/asm-ia64/native/inst.h
+new file mode 100644
+index 0000000..2a50b70
+--- /dev/null
++++ b/include/asm-ia64/native/inst.h
+@@ -0,0 +1,165 @@
++/******************************************************************************
++ * include/asm-ia64/native/inst.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifdef CONFIG_PARAVIRT_GUEST_ASM_CLOBBER_CHECK
++# define PARAVIRT_POISON	0xdeadbeefbaadf00d
++# define CLOBBER(clob)				\
++	;;					\
++	movl clob = PARAVIRT_POISON;		\
++	;;
++#else
++# define CLOBBER(clob)		/* nothing */
++#endif
++
++#define MOV_FROM_IFA(reg)	\
++	mov reg = cr.ifa
++
++#define MOV_FROM_ITIR(reg)	\
++	mov reg = cr.itir
++
++#define MOV_FROM_ISR(reg)	\
++	mov reg = cr.isr
++
++#define MOV_FROM_IHA(reg)	\
++	mov reg = cr.iha
++
++#define MOV_FROM_IPSR(pred, reg)	\
++(pred)	mov reg = cr.ipsr
++
++#define MOV_FROM_IIM(reg)	\
++	mov reg = cr.iim
++
++#define MOV_FROM_IIP(reg)	\
++	mov reg = cr.iip
++
++#define MOV_FROM_IVR(reg, clob)	\
++	mov reg = cr.ivr	\
++	CLOBBER(clob)
++
++#define MOV_FROM_PSR(pred, reg, clob)	\
++(pred)	mov reg = psr			\
++	CLOBBER(clob)
++
++#define MOV_TO_IFA(reg, clob)	\
++	mov cr.ifa = reg	\
++	CLOBBER(clob)
++
++#define MOV_TO_ITIR(pred, reg, clob)	\
++(pred)	mov cr.itir = reg		\
++	CLOBBER(clob)
++
++#define MOV_TO_IHA(pred, reg, clob)	\
++(pred)	mov cr.iha = reg		\
++	CLOBBER(clob)
++
++#define MOV_TO_IPSR(pred, reg, clob)		\
++(pred)	mov cr.ipsr = reg			\
++	CLOBBER(clob)
++
++#define MOV_TO_IFS(pred, reg, clob)	\
++(pred)	mov cr.ifs = reg		\
++	CLOBBER(clob)
++
++#define MOV_TO_IIP(reg, clob)	\
++	mov cr.iip = reg	\
++	CLOBBER(clob)
++
++#define MOV_TO_KR(kr, reg, clob0, clob1)	\
++	mov IA64_KR(kr) = reg			\
++	CLOBBER(clob0)				\
++	CLOBBER(clob1)
++
++#define ITC_I(pred, reg, clob)	\
++(pred)	itc.i reg		\
++	CLOBBER(clob)
++
++#define ITC_D(pred, reg, clob)	\
++(pred)	itc.d reg		\
++	CLOBBER(clob)
++
++#define ITC_I_AND_D(pred_i, pred_d, reg, clob)	\
++(pred_i) itc.i reg;				\
++(pred_d) itc.d reg				\
++	CLOBBER(clob)
++
++#define THASH(pred, reg0, reg1, clob)		\
++(pred)	thash reg0 = reg1			\
++	CLOBBER(clob)
++
++#define SSM_PSR_IC_AND_DEFAULT_BITS_AND_SRLZ_I(clob0, clob1)		\
++	ssm psr.ic | PSR_DEFAULT_BITS					\
++	CLOBBER(clob0)							\
++	CLOBBER(clob1)							\
++	;;								\
++	srlz.i /* guarantee that interruption collectin is on */	\
++	;;
++
++#define SSM_PSR_IC_AND_SRLZ_D(clob0, clob1)	\
++	ssm psr.ic				\
++	CLOBBER(clob0)				\
++	CLOBBER(clob1)				\
++	;;					\
++	srlz.d
++
++#define RSM_PSR_IC(clob)	\
++	rsm psr.ic		\
++	CLOBBER(clob)
++
++#define SSM_PSR_I(pred, pred_clob, clob)	\
++(pred)	ssm psr.i				\
++	CLOBBER(clob)
++
++#define RSM_PSR_I(pred, clob0, clob1)	\
++(pred)	rsm psr.i			\
++	CLOBBER(clob0)			\
++	CLOBBER(clob1)
++
++#define RSM_PSR_I_IC(clob0, clob1, clob2)	\
++	rsm psr.i | psr.ic			\
++	CLOBBER(clob0)				\
++	CLOBBER(clob1)				\
++	CLOBBER(clob2)
++
++#define RSM_PSR_DT		\
++	rsm psr.dt
++
++#define SSM_PSR_DT_AND_SRLZ_I	\
++	ssm psr.dt		\
++	;;			\
++	srlz.i
++
++#define BSW_0(clob0, clob1, clob2)	\
++	bsw.0				\
++	CLOBBER(clob0)			\
++	CLOBBER(clob1)			\
++	CLOBBER(clob2)
++
++#define BSW_1(clob0, clob1)	\
++	bsw.1			\
++	CLOBBER(clob0)		\
++	CLOBBER(clob1)
++
++#define COVER	\
++	cover
++
++#define RFI	\
++	rfi
 -- 
-error compiling committee.c: too many arguments to function
+1.5.3
