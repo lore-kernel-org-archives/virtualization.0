@@ -1,16 +1,16 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 2/2] lguest: virtio-rng support
-Date: Mon, 19 May 2008 10:45:23 +0100
-Message-ID: <48314C33.7010604__23354.9742064953$1211190473$gmane$org@goop.org>
-References: <482C8595.5030509@garzik.org>
-	<200805191905.11452.rusty@rustcorp.com.au>
-	<48314419.4080606@goop.org>
-	<200805191928.13043.rusty@rustcorp.com.au>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH] virtio_net: free transmit skbs in a timer
+Date: Mon, 19 May 2008 13:26:28 +0300
+Message-ID: <483155D4.2090700__38224.0556682975$1211192943$gmane$org@qumranet.com>
+References: <1209565906-9019-1-git-send-email-markmc@redhat.com>
+	<200805190016.10823.rusty@rustcorp.com.au>
+	<48303CB9.7070406@qumranet.com>
+	<200805191152.28409.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805191928.13043.rusty@rustcorp.com.au>
+In-Reply-To: <200805191152.28409.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,29 +21,37 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Theodore Tso <tytso@mit.edu>, Herbert Xu <herbert@gondor.apana.org.au>, Jeff Garzik <jeff@garzik.org>, Matt Mackall <mpm@selenic.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Johannes Berg <johannes@sipsolutions.net>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Rusty Russell wrote:
-> Unfortunately not.  Hardware randomness devices export /dev/hwrng, and it's up 
-> to userspace to feed that into /dev/random (or not).  That's usually done by 
-> rngd, which at least on my system, assumes 1 bit of entropy per bit of data 
-> from /dev/hwrng by default.
+>> We should have thought of this before, though, especially as Xen does
+>>
+>> this or something very similar:
+>>     
+>>> /* Shared ring page */                            \
+>>> struct __name##_sring {                            \
+>>>     RING_IDX req_prod, req_event;                    \
+>>>     RING_IDX rsp_prod, rsp_event;                    \
+>>>     uint8_t  pad[48];                            \
+>>>     union __name##_sring_entry ring[1]; /* variable-length */        \
+>>> };                                    \
+>>>       
+>> req_event and rsp_event allow the other side to indicate when it wants a
+>> notification.
+>>     
 >
-> I was a little surprised that this decision was exported to userspace, but if 
-> you're not prepared to unconditionally trust hw rngs, it makes sense to palm 
-> it off.
+> Well, we do have such a thing, in the ring suppression flags.
 
-Yeah, that's a bit of a pity.  Hardware rngs can often generate really 
-crappy randomness, which needs tons of processing to remove noise like 
-50/60hz hum, etc.
+Can you point me at this?
 
->   We could write a boutique device for virtualization which *did* feed 
-> directly, but that would be a little gauche.
+>   Note that DaveM 
+> is talking about moving network tx queue into the net drivers themselves, 
+> which will make them much more efficient (ie. drain entire queue before 
+> kick), which may again change the balance of what the Right Thing is.
 >   
 
-Well, yes, we can certainly do any amount of processing we like to the 
-stuff provided to guests, so that the 1:1 bits/entropy ratio is as true 
-as we can make it.
+That depends on whether Linux knows whether more packets are coming.
 
-    J
+-- 
+error compiling committee.c: too many arguments to function
