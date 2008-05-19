@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 17/23] ia64/pv_ops/xen: paravirtualize entry.S for ia64/xen.
-Date: Tue, 20 May 2008 08:08:04 +0900
-Message-ID: <12112384912532-git-send-email-yamahata__25344.2805297256$1211240703$gmane$org@valinux.co.jp>
+Subject: [PATCH 16/23] ia64/pv_ops/xen: paravirtualize ivt.S for xen.
+Date: Tue, 20 May 2008 08:08:03 +0900
+Message-ID: <12112384913552-git-send-email-yamahata__35794.9071134955$1211240712$gmane$org@valinux.co.jp>
 References: <12112384902859-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,80 +21,115 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize entry.S for ia64/xen by multi compile.
+paravirtualize ivt.S for xen by multi compile.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile      |    2 +-
- arch/ia64/xen/xen_pv_ops.c  |   18 ++++++++++++++++++
- include/asm-ia64/xen/inst.h |    8 ++++++++
- 3 files changed, 27 insertions(+), 1 deletions(-)
+ arch/ia64/xen/Makefile      |   16 +++++++++++-
+ arch/ia64/xen/xenivt.S      |   57 +++++++++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/xen/inst.h |    1 +
+ 3 files changed, 73 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/xenivt.S
 
 diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 5c87e4a..9b77e8a 100644
+index 7cb4247..5c87e4a 100644
 --- a/arch/ia64/xen/Makefile
 +++ b/arch/ia64/xen/Makefile
-@@ -8,7 +8,7 @@ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o \
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+@@ -2,5 +2,19 @@
+ # Makefile for Xen components
+ #
  
- # xen multi compile
--ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S
-+ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
- ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
- obj-y += $(ASM_PARAVIRT_OBJS)
- define paravirtualized_xen
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index aa73942..e483d47 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -273,6 +273,22 @@ static const struct pv_cpu_ops xen_cpu_ops __initdata = {
- 			= xen_intrin_local_irq_restore,
- };
- 
-+/******************************************************************************
-+ * replacement of hand written assembly codes.
+-obj-y := hypercall.o xensetup.o xen_pv_ops.o \
++obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o \
+ 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
++
++AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
++
++# xen multi compile
++ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S
++ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
++obj-y += $(ASM_PARAVIRT_OBJS)
++define paravirtualized_xen
++AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_XEN
++endef
++$(foreach o,$(ASM_PARAVIRT_OBJS),$(eval $(call paravirtualized_xen,$(o))))
++
++$(obj)/xen-%.o: $(src)/../kernel/%.S FORCE
++	$(call if_changed_dep,as_o_S)
+diff --git a/arch/ia64/xen/xenivt.S b/arch/ia64/xen/xenivt.S
+new file mode 100644
+index 0000000..9e322ea
+--- /dev/null
++++ b/arch/ia64/xen/xenivt.S
+@@ -0,0 +1,57 @@
++/*
++ * arch/ia64/xen/ivt.S
++ *
++ * Copyright (C) 2005 Hewlett-Packard Co
++ *	Dan Magenheimer <dan.magenheimer@hp.com>
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *                    pv_ops.
 + */
 +
-+extern char xen_switch_to;
-+extern char xen_leave_syscall;
-+extern char xen_work_processed_syscall;
-+extern char xen_leave_kernel;
++#include <asm/asmmacro.h>
++#include <asm/kregs.h>
++#include <asm/pgtable.h>
 +
-+const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
-+	.switch_to		= (unsigned long)&xen_switch_to,
-+	.leave_syscall		= (unsigned long)&xen_leave_syscall,
-+	.work_processed_syscall	= (unsigned long)&xen_work_processed_syscall,
-+	.leave_kernel		= (unsigned long)&xen_leave_kernel,
-+};
++#include "../kernel/minstate.h"
 +
- /***************************************************************************
-  * pv_ops initialization
-  */
-@@ -284,4 +300,6 @@ xen_setup_pv_ops(void)
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
- 	pv_cpu_ops = xen_cpu_ops;
++	.section .text,"ax"
++GLOBAL_ENTRY(xen_event_callback)
++	mov r31=pr		// prepare to save predicates
++	;;
++	SAVE_MIN_WITH_COVER	// uses r31; defines r2 and r3
++	;;
++	movl r3=XSI_PSR_IC
++	mov r14=1
++	;;
++	st4 [r3]=r14
++	;;
++	adds r3=8,r2		// set up second base pointer for SAVE_REST
++	srlz.i			// ensure everybody knows psr.ic is back on
++	;;
++	SAVE_REST
++	;;
++1:
++	alloc r14=ar.pfs,0,0,1,0 // must be first in an insn group
++	add out0=16,sp		// pass pointer to pt_regs as first arg
++	;;
++	br.call.sptk.many b0=xen_evtchn_do_upcall
++	;;
++	movl r20=XSI_PSR_I_ADDR
++	;;
++	ld8 r20=[r20]
++	;;
++	adds r20=-1,r20		// vcpu_info->evtchn_upcall_pending
++	;;
++	ld1 r20=[r20]
++	;;
++	cmp.ne p6,p0=r20,r0	// if there are pending events,
++	(p6) br.spnt.few 1b	// call evtchn_do_upcall again.
++	br.sptk.many xen_leave_kernel	// we know ia64_leave_kernel is
++					// paravirtualized as xen_leave_kernel
++END(xen_event_callback)
 +
-+	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
- }
++GLOBAL_ENTRY(xen_bsw1)
++	XEN_BSW_1(r14)
++	br.ret.sptk.many b0
++END(xen_bsw1)
 diff --git a/include/asm-ia64/xen/inst.h b/include/asm-ia64/xen/inst.h
-index e1e4435..9015bd3 100644
+index 93bceae..e1e4435 100644
 --- a/include/asm-ia64/xen/inst.h
 +++ b/include/asm-ia64/xen/inst.h
-@@ -25,6 +25,14 @@
- #define ia64_ivt				xen_ivt
+@@ -22,6 +22,7 @@
+ 
+ #include <asm/xen/privop.h>
+ 
++#define ia64_ivt				xen_ivt
  #define DO_SAVE_MIN				XEN_DO_SAVE_MIN
  
-+#define __paravirt_switch_to			xen_switch_to
-+#define __paravirt_leave_syscall		xen_leave_syscall
-+#define __paravirt_work_processed_syscall	xen_work_processed_syscall
-+#define __paravirt_leave_kernel			xen_leave_kernel
-+#define __paravirt_pending_syscall_end		xen_work_pending_syscall_end
-+#define __paravirt_work_processed_syscall_target \
-+						xen_work_processed_syscall
-+
  #define MOV_FROM_IFA(reg)	\
- 	movl reg = XSI_IFA;	\
- 	;;			\
 -- 
 1.5.3
