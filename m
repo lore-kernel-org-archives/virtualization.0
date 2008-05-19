@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 18/23] ia64/pv_ops/xen: implement xen pv_iosapic_ops.
-Date: Tue, 20 May 2008 08:08:05 +0900
-Message-ID: <1211238491767-git-send-email-yamahata__5384.57403094998$1211241009$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/23] ia64/xen: increase IA64_MAX_RSVD_REGIONS.
+Date: Tue, 20 May 2008 08:07:49 +0900
+Message-ID: <1211238491830-git-send-email-yamahata__10758.0002899796$1211241026$gmane$org@valinux.co.jp>
 References: <12112384902859-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,86 +18,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
+Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Robin Holt <holt@sgi.com>, xen-ia64-devel@lists.xensource.com, Bjorn Helgaas <bjorn.helgaas@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-implement xen pv_iosapic_ops for xen paravirtualized
-iosapic.
+Xenlinux/ia64 needs to reserve one more region passed from xen hypervisor
+as start info.
 
+Cc: Robin Holt <holt@sgi.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/xen_pv_ops.c |   52 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 52 insertions(+), 0 deletions(-)
+ include/asm-ia64/meminit.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index e483d47..97c882a 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -290,6 +290,57 @@ const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
- };
- 
- /***************************************************************************
-+ * pv_iosapic_ops
-+ * iosapic read/write hooks.
-+ */
-+static void
-+xen_pcat_compat_init(void)
-+{
-+	/* nothing */
-+}
-+
-+static struct irq_chip*
-+xen_iosapic_get_irq_chip(unsigned long trigger)
-+{
-+	return NULL;
-+}
-+
-+static unsigned int
-+xen_iosapic_read(char __iomem *iosapic, unsigned int reg)
-+{
-+	struct physdev_apic apic_op;
-+	int ret;
-+
-+	apic_op.apic_physbase = (unsigned long)iosapic -
-+					__IA64_UNCACHED_OFFSET;
-+	apic_op.reg = reg;
-+	ret = HYPERVISOR_physdev_op(PHYSDEVOP_apic_read, &apic_op);
-+	if (ret)
-+		return ret;
-+	return apic_op.value;
-+}
-+
-+static void
-+xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
-+{
-+	struct physdev_apic apic_op;
-+
-+	apic_op.apic_physbase = (unsigned long)iosapic -
-+					__IA64_UNCACHED_OFFSET;
-+	apic_op.reg = reg;
-+	apic_op.value = val;
-+	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
-+}
-+
-+static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
-+	.pcat_compat_init = xen_pcat_compat_init,
-+	.get_irq_chip = xen_iosapic_get_irq_chip,
-+
-+	.__read = xen_iosapic_read,
-+	.__write = xen_iosapic_write,
-+};
-+
-+/***************************************************************************
-  * pv_ops initialization
+diff --git a/include/asm-ia64/meminit.h b/include/asm-ia64/meminit.h
+index 7245a57..6bc96ee 100644
+--- a/include/asm-ia64/meminit.h
++++ b/include/asm-ia64/meminit.h
+@@ -18,10 +18,11 @@
+  * 	- crash dumping code reserved region
+  * 	- Kernel memory map built from EFI memory map
+  * 	- ELF core header
++ *	- xen start info if CONFIG_XEN
+  *
+  * More could be added if necessary
   */
+-#define IA64_MAX_RSVD_REGIONS 8
++#define IA64_MAX_RSVD_REGIONS 9
  
-@@ -300,6 +351,7 @@ xen_setup_pv_ops(void)
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
- 	pv_cpu_ops = xen_cpu_ops;
-+	pv_iosapic_ops = xen_iosapic_ops;
- 
- 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
- }
+ struct rsvd_region {
+ 	unsigned long start;	/* virtual address of beginning of element */
 -- 
 1.5.3
