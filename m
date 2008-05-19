@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 17/17] ia64/pv_ops: add to hooks, pv_time_ops,
-	for steal time accounting.
-Date: Mon, 19 May 2008 22:13:44 +0900
-Message-ID: <1211202825584-git-send-email-yamahata__42703.1445703053$1211203844$gmane$org@valinux.co.jp>
+Subject: [PATCH 06/17] ia64/pv_ops: add an early setup hook for pv_ops.
+Date: Mon, 19 May 2008 22:13:33 +0900
+Message-ID: <1211202825173-git-send-email-yamahata__32564.1326410279$1211203850$gmane$org@valinux.co.jp>
 References: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,159 +21,94 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce pv_time_ops which adds hook to steal time accounting.
-On virtualized environment, cpus are shared by many guests and
-steal time is the time which is used for other guests.
-On virtualized environtment, streal time should be accounted.
+This patch adds a setup hook in the very early boot sequence
+before start_kernel() to initialize paravirtualization stuff.
+The hook will be set by each pv loader code or by using multi entry point.
 
+Signed-off-by: Qing He <qing.he@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/paravirt.c |   15 +++++++++++++++
- arch/ia64/kernel/time.c     |   23 +++++++++++++++++++++++
- include/asm-ia64/paravirt.h |   32 ++++++++++++++++++++++++++++++++
- 3 files changed, 70 insertions(+), 0 deletions(-)
+ arch/ia64/kernel/head.S     |   41 +++++++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/paravirt.h |    3 +++
+ 2 files changed, 44 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index ba5383b..afaf5b9 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -352,3 +352,18 @@ struct pv_irq_ops pv_irq_ops = {
- 
- 	.resend_irq = ia64_native_resend_irq,
- };
-+
-+/***************************************************************************
-+ * pv_time_ops
-+ * time operations
-+ */
-+
-+static int
-+ia64_native_do_steal_accounting(unsigned long *new_itm)
-+{
-+	return 0;
-+}
-+
-+struct pv_time_ops pv_time_ops = {
-+	.do_steal_accounting = ia64_native_do_steal_accounting,
-+};
-diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
-index 8c73643..046ca89 100644
---- a/arch/ia64/kernel/time.c
-+++ b/arch/ia64/kernel/time.c
-@@ -24,6 +24,7 @@
- #include <asm/machvec.h>
- #include <asm/delay.h>
- #include <asm/hw_irq.h>
+diff --git a/arch/ia64/kernel/head.S b/arch/ia64/kernel/head.S
+index ddeab4e..db540e5 100644
+--- a/arch/ia64/kernel/head.S
++++ b/arch/ia64/kernel/head.S
+@@ -26,11 +26,14 @@
+ #include <asm/mmu_context.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/pal.h>
 +#include <asm/paravirt.h>
+ #include <asm/pgtable.h>
+ #include <asm/processor.h>
  #include <asm/ptrace.h>
- #include <asm/sal.h>
- #include <asm/sections.h>
-@@ -48,6 +49,15 @@ EXPORT_SYMBOL(last_cli_ip);
+ #include <asm/system.h>
+ #include <asm/mca_asm.h>
++#include <linux/init.h>
++#include <linux/linkage.h>
  
- #endif
+ #ifdef CONFIG_HOTPLUG_CPU
+ #define SAL_PSR_BITS_TO_SET				\
+@@ -367,6 +370,44 @@ start_ap:
+ 	;;
+ (isBP)	st8 [r2]=r28		// save the address of the boot param area passed by the bootloader
  
 +#ifdef CONFIG_PARAVIRT
-+static void
-+paravirt_clocksource_resume(void)
-+{
-+	if (pv_time_ops.clocksource_resume)
-+		pv_time_ops.clocksource_resume();
-+}
++
++	movl r14=hypervisor_setup_hooks
++	movl r15=hypervisor_type
++	mov r16=num_hypervisor_hooks
++	;;
++	ld8 r2=[r15]
++	;;
++	cmp.ltu p7,p0=r2,r16	// array size check
++	shladd r8=r2,3,r14
++	;;
++(p7)	ld8 r9=[r8]
++	;;
++(p7)	mov b1=r9
++(p7)	cmp.ne.unc p7,p0=r9,r0	// no actual branch to NULL
++	;;
++(p7)	br.call.sptk.many rp=b1
++
++	__INITDATA
++
++default_setup_hook = 0		// Currently nothing needs to be done.
++
++	.weak xen_setup_hook
++
++	.global hypervisor_type
++hypervisor_type:
++	data8		PARAVIRT_HYPERVISOR_TYPE_DEFAULT
++
++	// must have the same order with PARAVIRT_HYPERVISOR_TYPE_xxx
++
++hypervisor_setup_hooks:
++	data8		default_setup_hook
++	data8		xen_setup_hook
++num_hypervisor_hooks = (. - hypervisor_setup_hooks) / 8
++	.previous
++
 +#endif
 +
- static struct clocksource clocksource_itc = {
- 	.name           = "itc",
- 	.rating         = 350,
-@@ -56,6 +66,9 @@ static struct clocksource clocksource_itc = {
- 	.mult           = 0, /*to be calculated*/
- 	.shift          = 16,
- 	.flags          = CLOCK_SOURCE_IS_CONTINUOUS,
-+#ifdef CONFIG_PARAVIRT
-+	.resume		= paravirt_clocksource_resume,
-+#endif
- };
- static struct clocksource *itc_clocksource;
- 
-@@ -156,6 +169,9 @@ timer_interrupt (int irq, void *dev_id)
- 
- 	profile_tick(CPU_PROFILING);
- 
-+	if (paravirt_do_steal_accounting(&new_itm))
-+		goto skip_process_time_accounting;
-+
- 	while (1) {
- 		update_process_times(user_mode(get_irq_regs()));
- 
-@@ -185,6 +201,8 @@ timer_interrupt (int irq, void *dev_id)
- 		local_irq_disable();
- 	}
- 
-+skip_process_time_accounting:
-+
- 	do {
- 		/*
- 		 * If we're too close to the next clock tick for
-@@ -334,6 +352,11 @@ ia64_init_itm (void)
- 		 */
- 		clocksource_itc.rating = 50;
- 
-+	paravirt_init_missing_ticks_accounting(smp_processor_id());
-+
-+	/* avoid softlock up message when cpu is unplug and plugged again. */
-+	touch_softlockup_watchdog();
-+
- 	/* Setup the CPU local timer tick */
- 	ia64_cpu_local_tick();
- 
+ #ifdef CONFIG_SMP
+ (isAP)	br.call.sptk.many rp=start_secondary
+ .ret0:
 diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index ee15646..1b4df12 100644
+index 26b4334..1032b21 100644
 --- a/include/asm-ia64/paravirt.h
 +++ b/include/asm-ia64/paravirt.h
-@@ -200,6 +200,35 @@ ia64_resend_irq(unsigned int vector)
- 	pv_irq_ops.resend_irq(vector);
- }
+@@ -26,6 +26,9 @@
  
-+/******************************************************************************
-+ * replacement of time operations.
-+ */
-+
-+extern struct itc_jitter_data_t itc_jitter_data;
-+extern volatile int time_keeper_id;
-+
-+struct pv_time_ops {
-+	void (*init_missing_ticks_accounting)(int cpu);
-+	int (*do_steal_accounting)(unsigned long *new_itm);
-+
-+	void (*clocksource_resume)(void);
-+};
-+
-+extern struct pv_time_ops pv_time_ops;
-+
-+static inline void
-+paravirt_init_missing_ticks_accounting(int cpu)
-+{
-+	if (pv_time_ops.init_missing_ticks_accounting)
-+		pv_time_ops.init_missing_ticks_accounting(cpu);
-+}
-+
-+static inline int
-+paravirt_do_steal_accounting(unsigned long *new_itm)
-+{
-+	return pv_time_ops.do_steal_accounting(new_itm);
-+}
-+
- #endif /* !__ASSEMBLY__ */
+ #ifdef CONFIG_PARAVIRT_GUEST
  
- #else
-@@ -215,6 +244,9 @@ ia64_resend_irq(unsigned int vector)
- #define paravirt_arch_setup_nomca()			0
- #define paravirt_post_smp_prepare_boot_cpu()		do { } while (0)
- 
-+#define paravirt_init_missing_ticks_accounting(cpu)	do { } while (0)
-+#define paravirt_do_steal_accounting(new_itm)		0
++#define PARAVIRT_HYPERVISOR_TYPE_DEFAULT	0
++#define PARAVIRT_HYPERVISOR_TYPE_XEN		1
 +
- #endif /* __ASSEMBLY__ */
+ #ifndef __ASSEMBLY__
  
- 
+ #include <asm/hw_irq.h>
 -- 
 1.5.3
