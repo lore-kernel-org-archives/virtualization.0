@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 12/23] ia64/pv_ops/xen: define xen pv_init_ops for various xen
-	initialization.
-Date: Tue, 20 May 2008 08:07:59 +0900
-Message-ID: <12112384912067-git-send-email-yamahata__10282.7250412249$1211241306$gmane$org@valinux.co.jp>
+Subject: [PATCH 03/23] ia64/xen: introduce definitions necessary for ia64/xen
+	hypercalls.
+Date: Tue, 20 May 2008 08:07:50 +0900
+Message-ID: <12112384913136-git-send-email-yamahata__49954.1068835699$1211241337$gmane$org@valinux.co.jp>
 References: <12112384902859-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,286 +19,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
+Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Robin Holt <holt@sgi.com>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch implements xen version of pv_init_ops to do various
-xen initialization.
+import include/asm-ia64/xen/interface.h to introduce introduce
+definitions necessary for ia64/xen hypercalls.
+They are basic structures to communicate with xen hypervisor.
 
-Signed-off-by: Akio Takebe <takebe_akio@jp.fujitsu.com>
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
+Cc: Robin Holt <holt@sgi.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile            |    2 +-
- arch/ia64/xen/hypervisor.c        |   96 ++++++++++++++++++++++++++++++++
- arch/ia64/xen/xen_pv_ops.c        |  108 +++++++++++++++++++++++++++++++++++++
- include/asm-ia64/xen/hypervisor.h |   72 ++++++++++++++++++++++++
- 4 files changed, 277 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/hypervisor.c
- create mode 100644 include/asm-ia64/xen/hypervisor.h
+ include/asm-ia64/xen/interface.h |  320 ++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 320 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/interface.h
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index abc356f..7cb4247 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -3,4 +3,4 @@
- #
- 
- obj-y := hypercall.o xensetup.o xen_pv_ops.o \
--	xencomm.o xcom_hcall.o grant-table.o
-+	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
-diff --git a/arch/ia64/xen/hypervisor.c b/arch/ia64/xen/hypervisor.c
+diff --git a/include/asm-ia64/xen/interface.h b/include/asm-ia64/xen/interface.h
 new file mode 100644
-index 0000000..b48595e
+index 0000000..c0770a4
 --- /dev/null
-+++ b/arch/ia64/xen/hypervisor.c
-@@ -0,0 +1,96 @@
++++ b/include/asm-ia64/xen/interface.h
+@@ -0,0 +1,320 @@
 +/******************************************************************************
-+ * arch/ia64/xen/hypervisor.c
++ * arch-ia64/hypervisor-if.h
 + *
-+ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/efi.h>
-+#include <asm/xen/hypervisor.h>
-+#include <asm/xen/privop.h>
-+
-+#include "irq_xen.h"
-+
-+struct shared_info *HYPERVISOR_shared_info __read_mostly =
-+	(struct shared_info *)XSI_BASE;
-+EXPORT_SYMBOL(HYPERVISOR_shared_info);
-+
-+DEFINE_PER_CPU(struct vcpu_info *, xen_vcpu);
-+
-+struct start_info *xen_start_info;
-+EXPORT_SYMBOL(xen_start_info);
-+
-+EXPORT_SYMBOL(running_on_xen);
-+
-+EXPORT_SYMBOL(__hypercall);
-+
-+/* Stolen from arch/x86/xen/enlighten.c */
-+/*
-+ * Flag to determine whether vcpu info placement is available on all
-+ * VCPUs.  We assume it is to start with, and then set it to zero on
-+ * the first failure.  This is because it can succeed on some VCPUs
-+ * and not others, since it can involve hypervisor memory allocation,
-+ * or because the guest failed to guarantee all the appropriate
-+ * constraints on all VCPUs (ie buffer can't cross a page boundary).
-+ *
-+ * Note that any particular CPU may be using a placed vcpu structure,
-+ * but we can only optimise if the all are.
-+ *
-+ * 0: not available, 1: available
-+ */
-+
-+static void __init xen_vcpu_setup(int cpu)
-+{
-+	/*
-+	 * WARNING:
-+	 * before changing MAX_VIRT_CPUS,
-+	 * check that shared_info fits on a page
-+	 */
-+	BUILD_BUG_ON(sizeof(struct shared_info) > PAGE_SIZE);
-+	per_cpu(xen_vcpu, cpu) = &HYPERVISOR_shared_info->vcpu_info[cpu];
-+}
-+
-+void __init xen_setup_vcpu_info_placement(void)
-+{
-+	int cpu;
-+
-+	for_each_possible_cpu(cpu)
-+		xen_vcpu_setup(cpu);
-+}
-+
-+void __cpuinit
-+xen_cpu_init(void)
-+{
-+	xen_smp_intr_init();
-+}
-+
-+/**************************************************************************
-+ * opt feature
-+ */
-+void
-+xen_ia64_enable_opt_feature(void)
-+{
-+	/* Enable region 7 identity map optimizations in Xen */
-+	struct xen_ia64_opt_feature optf;
-+
-+	optf.cmd = XEN_IA64_OPTF_IDENT_MAP_REG7;
-+	optf.on = XEN_IA64_OPTF_ON;
-+	optf.pgprot = pgprot_val(PAGE_KERNEL);
-+	optf.key = 0;	/* No key on linux. */
-+	HYPERVISOR_opt_feature(&optf);
-+}
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index 77db214..01260a0 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -54,6 +54,113 @@ xen_info_init(void)
- }
- 
- /***************************************************************************
-+ * pv_init_ops
-+ * initialization hooks.
-+ */
-+
-+static void
-+xen_panic_hypercall(struct unw_frame_info *info, void *arg)
-+{
-+	current->thread.ksp = (__u64)info->sw - 16;
-+	HYPERVISOR_shutdown(SHUTDOWN_crash);
-+	/* we're never actually going to get here... */
-+}
-+
-+static int
-+xen_panic_event(struct notifier_block *this, unsigned long event, void *ptr)
-+{
-+	unw_init_running(xen_panic_hypercall, NULL);
-+	/* we're never actually going to get here... */
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block xen_panic_block = {
-+	xen_panic_event, NULL, 0 /* try to go last */
-+};
-+
-+static void xen_pm_power_off(void)
-+{
-+	local_irq_disable();
-+	HYPERVISOR_shutdown(SHUTDOWN_poweroff);
-+}
-+
-+static void __init
-+xen_banner(void)
-+{
-+	printk(KERN_INFO
-+	       "Running on Xen! pl = %d start_info_pfn=0x%lx nr_pages=%ld "
-+	       "flags=0x%x\n",
-+	       xen_info.kernel_rpl,
-+	       HYPERVISOR_shared_info->arch.start_info_pfn,
-+	       xen_start_info->nr_pages, xen_start_info->flags);
-+}
-+
-+static int __init
-+xen_reserve_memory(struct rsvd_region *region)
-+{
-+	region->start = (unsigned long)__va(
-+		(HYPERVISOR_shared_info->arch.start_info_pfn << PAGE_SHIFT));
-+	region->end   = region->start + PAGE_SIZE;
-+	return 1;
-+}
-+
-+static void __init
-+xen_arch_setup_early(void)
-+{
-+	struct shared_info *s;
-+	BUG_ON(!is_running_on_xen());
-+
-+	s = HYPERVISOR_shared_info;
-+	xen_start_info = __va(s->arch.start_info_pfn << PAGE_SHIFT);
-+
-+	/* Must be done before any hypercall.  */
-+	xencomm_initialize();
-+
-+	xen_setup_features();
-+	/* Register a call for panic conditions. */
-+	atomic_notifier_chain_register(&panic_notifier_list,
-+				       &xen_panic_block);
-+	pm_power_off = xen_pm_power_off;
-+
-+	xen_ia64_enable_opt_feature();
-+}
-+
-+static void __init
-+xen_arch_setup_console(char **cmdline_p)
-+{
-+	/* use hvc_xen */
-+	add_preferred_console("hvc", 0, NULL);
-+
-+#if !defined(CONFIG_VT) || !defined(CONFIG_DUMMY_CONSOLE)
-+	conswitchp = NULL;
-+#endif
-+}
-+
-+static int __init
-+xen_arch_setup_nomca(void)
-+{
-+	return 1;
-+}
-+
-+static void __init
-+xen_post_smp_prepare_boot_cpu(void)
-+{
-+	xen_setup_vcpu_info_placement();
-+}
-+
-+static const struct pv_init_ops xen_init_ops __initdata = {
-+	.banner = xen_banner,
-+
-+	.reserve_memory = xen_reserve_memory,
-+
-+	.arch_setup_early = xen_arch_setup_early,
-+	.arch_setup_console = xen_arch_setup_console,
-+	.arch_setup_nomca = xen_arch_setup_nomca,
-+
-+	.post_smp_prepare_boot_cpu = xen_post_smp_prepare_boot_cpu,
-+};
-+
-+/***************************************************************************
-  * pv_ops initialization
-  */
- 
-@@ -62,4 +169,5 @@ xen_setup_pv_ops(void)
- {
- 	xen_info_init();
- 	pv_info = xen_info;
-+	pv_init_ops = xen_init_ops;
- }
-diff --git a/include/asm-ia64/xen/hypervisor.h b/include/asm-ia64/xen/hypervisor.h
-new file mode 100644
-index 0000000..a7527c2
---- /dev/null
-+++ b/include/asm-ia64/xen/hypervisor.h
-@@ -0,0 +1,72 @@
-+/******************************************************************************
-+ * hypervisor.h
-+ *
-+ * Linux-specific hypervisor handling.
-+ *
-+ * Copyright (c) 2002-2004, K A Fraser
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
++ * Guest OS interface to IA64 Xen.
 + *
 + * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
 + *
 + * The above copyright notice and this permission notice shall be included in
 + * all copies or substantial portions of the Software.
@@ -308,49 +60,305 @@ index 0000000..a7527c2
 + * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 + * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 + * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
 + */
 +
-+#ifndef _ASM_IA64_XEN_HYPERVISOR_H
-+#define _ASM_IA64_XEN_HYPERVISOR_H
++#ifndef _ASM_IA64_XEN_INTERFACE_H
++#define _ASM_IA64_XEN_INTERFACE_H
 +
-+#ifdef CONFIG_XEN
++#define __DEFINE_GUEST_HANDLE(name, type) \
++    typedef struct { type *p; } __guest_handle_ ## name
 +
-+#include <linux/init.h>
-+#include <xen/interface/xen.h>
-+#include <xen/interface/version.h>	/* to compile feature.c */
-+#include <xen/features.h>		/* to comiple xen-netfront.c */
-+#include <asm/xen/hypercall.h>
++#define DEFINE_GUEST_HANDLE_STRUCT(name) \
++    __DEFINE_GUEST_HANDLE(name, struct name)
++#define DEFINE_GUEST_HANDLE(name)       __DEFINE_GUEST_HANDLE(name, name)
++#define GUEST_HANDLE(name)              __guest_handle_ ## name
++#define GUEST_HANDLE_64(name)           GUEST_HANDLE(name)
++#define set_xen_guest_handle(hnd, val)  do { (hnd).p = val; } while (0)
 +
-+/* running_on_xen is set before executing any C code by early_xen_setup */
-+extern const int running_on_xen;
-+# define is_running_on_xen()			(running_on_xen)
++#ifndef __ASSEMBLY__
++/* Guest handles for primitive C types. */
++__DEFINE_GUEST_HANDLE(uchar, unsigned char);
++__DEFINE_GUEST_HANDLE(uint,  unsigned int);
++__DEFINE_GUEST_HANDLE(ulong, unsigned long);
++__DEFINE_GUEST_HANDLE(u64,   unsigned long);
++DEFINE_GUEST_HANDLE(char);
++DEFINE_GUEST_HANDLE(int);
++DEFINE_GUEST_HANDLE(long);
++DEFINE_GUEST_HANDLE(void);
 +
-+extern struct shared_info *HYPERVISOR_shared_info;
-+extern struct start_info *xen_start_info;
-+
-+void __init xen_setup_vcpu_info_placement(void);
-+void force_evtchn_callback(void);
-+
-+/* for drivers/xen/balloon/balloon.c */
-+#ifdef CONFIG_XEN_SCRUB_PAGES
-+#define scrub_pages(_p, _n) memset((void *)(_p), 0, (_n) << PAGE_SHIFT)
-+#else
-+#define scrub_pages(_p, _n) ((void)0)
++typedef unsigned long xen_pfn_t;
++DEFINE_GUEST_HANDLE(xen_pfn_t);
++#define PRI_xen_pfn "lx"
 +#endif
 +
-+/* For setup_arch() in arch/ia64/kernel/setup.c */
-+void xen_ia64_enable_opt_feature(void);
++/* Arch specific VIRQs definition */
++#define VIRQ_ITC        VIRQ_ARCH_0 /* V. Virtual itc timer */
++#define VIRQ_MCA_CMC    VIRQ_ARCH_1 /* MCA cmc interrupt */
++#define VIRQ_MCA_CPE    VIRQ_ARCH_2 /* MCA cpe interrupt */
 +
-+#else /* CONFIG_XEN */
++/* Maximum number of virtual CPUs in multi-processor guests. */
++/* keep sizeof(struct shared_page) <= PAGE_SIZE.
++ * this is checked in arch/ia64/xen/hypervisor.c. */
++#define MAX_VIRT_CPUS 64
 +
-+#define is_running_on_xen()			(0)
++#ifndef __ASSEMBLY__
 +
-+#endif
++#define INVALID_MFN             (~0UL)
 +
-+#define is_initial_xendomain()			(0)
++union vac {
++    unsigned long value;
++    struct {
++        int a_int:1;
++        int a_from_int_cr:1;
++        int a_to_int_cr:1;
++        int a_from_psr:1;
++        int a_from_cpuid:1;
++        int a_cover:1;
++        int a_bsw:1;
++        long reserved:57;
++    };
++};
 +
-+#endif /* _ASM_IA64_XEN_HYPERVISOR_H */
++union vdc {
++    unsigned long value;
++    struct {
++        int d_vmsw:1;
++        int d_extint:1;
++        int d_ibr_dbr:1;
++        int d_pmc:1;
++        int d_to_pmd:1;
++        int d_itm:1;
++        long reserved:58;
++    };
++};
++
++struct mapped_regs {
++    union vac   vac;
++    union vdc   vdc;
++    unsigned long  virt_env_vaddr;
++    unsigned long  reserved1[29];
++    unsigned long  vhpi;
++    unsigned long  reserved2[95];
++    union {
++        unsigned long  vgr[16];
++        unsigned long bank1_regs[16]; /* bank1 regs (r16-r31) when bank0 active */
++    };
++    union {
++        unsigned long  vbgr[16];
++        unsigned long bank0_regs[16]; /* bank0 regs (r16-r31) when bank1 active */
++    };
++    unsigned long  vnat;
++    unsigned long  vbnat;
++    unsigned long  vcpuid[5];
++    unsigned long  reserved3[11];
++    unsigned long  vpsr;
++    unsigned long  vpr;
++    unsigned long  reserved4[76];
++    union {
++        unsigned long  vcr[128];
++        struct {
++            unsigned long dcr;          /* CR0 */
++            unsigned long itm;
++            unsigned long iva;
++            unsigned long rsv1[5];
++            unsigned long pta;          /* CR8 */
++            unsigned long rsv2[7];
++            unsigned long ipsr;         /* CR16 */
++            unsigned long isr;
++            unsigned long rsv3;
++            unsigned long iip;
++            unsigned long ifa;
++            unsigned long itir;
++            unsigned long iipa;
++            unsigned long ifs;
++            unsigned long iim;          /* CR24 */
++            unsigned long iha;
++            unsigned long rsv4[38];
++            unsigned long lid;          /* CR64 */
++            unsigned long ivr;
++            unsigned long tpr;
++            unsigned long eoi;
++            unsigned long irr[4];
++            unsigned long itv;          /* CR72 */
++            unsigned long pmv;
++            unsigned long cmcv;
++            unsigned long rsv5[5];
++            unsigned long lrr0;         /* CR80 */
++            unsigned long lrr1;
++            unsigned long rsv6[46];
++        };
++    };
++    union {
++        unsigned long  reserved5[128];
++        struct {
++            unsigned long precover_ifs;
++            unsigned long unat;         /* not sure if this is needed until
++                                           NaT arch is done */
++            int interrupt_collection_enabled;   /* virtual psr.ic */
++            /* virtual interrupt deliverable flag is evtchn_upcall_mask in
++             * shared info area now. interrupt_mask_addr is the address
++             * of evtchn_upcall_mask for current vcpu
++             */
++            unsigned char *interrupt_mask_addr;
++            int pending_interruption;
++            unsigned char vpsr_pp;
++            unsigned char vpsr_dfh;
++            unsigned char hpsr_dfh;
++            unsigned char hpsr_mfh;
++            unsigned long reserved5_1[4];
++            int metaphysical_mode;      /* 1 = use metaphys mapping
++                                           0 = use virtual */
++            int banknum;                /* 0 or 1, which virtual register
++                                           bank is active */
++            unsigned long rrs[8];       /* region registers */
++            unsigned long krs[8];       /* kernel registers */
++            unsigned long tmp[16];      /* temp registers
++                                           (e.g. for hyperprivops) */
++        };
++    };
++};
++
++struct arch_vcpu_info {
++    /* nothing */
++};
++
++/*
++ * This structure is used for magic page in domain pseudo physical address
++ * space and the result of XENMEM_machine_memory_map.
++ * As the XENMEM_machine_memory_map result,
++ * xen_memory_map::nr_entries indicates the size in bytes
++ * including struct xen_ia64_memmap_info. Not the number of entries.
++ */
++struct xen_ia64_memmap_info {
++    uint64_t efi_memmap_size;       /* size of EFI memory map */
++    uint64_t efi_memdesc_size;      /* size of an EFI memory map descriptor */
++    uint32_t efi_memdesc_version;   /* memory descriptor version */
++    void *memdesc[0];               /* array of efi_memory_desc_t */
++};
++
++struct arch_shared_info {
++    /* PFN of the start_info page.  */
++    unsigned long start_info_pfn;
++
++    /* Interrupt vector for event channel.  */
++    int evtchn_vector;
++
++    /* PFN of memmap_info page */
++    unsigned int memmap_info_num_pages; /* currently only = 1 case is
++                                           supported. */
++    unsigned long memmap_info_pfn;
++
++    uint64_t pad[31];
++};
++
++struct xen_callback {
++    unsigned long ip;
++};
++
++#endif /* !__ASSEMBLY__ */
++
++/* Size of the shared_info area (this is not related to page size).  */
++#define XSI_SHIFT			14
++#define XSI_SIZE			(1 << XSI_SHIFT)
++/* Log size of mapped_regs area (64 KB - only 4KB is used).  */
++#define XMAPPEDREGS_SHIFT		12
++#define XMAPPEDREGS_SIZE		(1 << XMAPPEDREGS_SHIFT)
++/* Offset of XASI (Xen arch shared info) wrt XSI_BASE.  */
++#define XMAPPEDREGS_OFS			XSI_SIZE
++
++/* Hyperprivops.  */
++#define HYPERPRIVOP_START		0x1
++#define HYPERPRIVOP_RFI			(HYPERPRIVOP_START + 0x0)
++#define HYPERPRIVOP_RSM_DT		(HYPERPRIVOP_START + 0x1)
++#define HYPERPRIVOP_SSM_DT		(HYPERPRIVOP_START + 0x2)
++#define HYPERPRIVOP_COVER		(HYPERPRIVOP_START + 0x3)
++#define HYPERPRIVOP_ITC_D		(HYPERPRIVOP_START + 0x4)
++#define HYPERPRIVOP_ITC_I		(HYPERPRIVOP_START + 0x5)
++#define HYPERPRIVOP_SSM_I		(HYPERPRIVOP_START + 0x6)
++#define HYPERPRIVOP_GET_IVR		(HYPERPRIVOP_START + 0x7)
++#define HYPERPRIVOP_GET_TPR		(HYPERPRIVOP_START + 0x8)
++#define HYPERPRIVOP_SET_TPR		(HYPERPRIVOP_START + 0x9)
++#define HYPERPRIVOP_EOI			(HYPERPRIVOP_START + 0xa)
++#define HYPERPRIVOP_SET_ITM		(HYPERPRIVOP_START + 0xb)
++#define HYPERPRIVOP_THASH		(HYPERPRIVOP_START + 0xc)
++#define HYPERPRIVOP_PTC_GA		(HYPERPRIVOP_START + 0xd)
++#define HYPERPRIVOP_ITR_D		(HYPERPRIVOP_START + 0xe)
++#define HYPERPRIVOP_GET_RR		(HYPERPRIVOP_START + 0xf)
++#define HYPERPRIVOP_SET_RR		(HYPERPRIVOP_START + 0x10)
++#define HYPERPRIVOP_SET_KR		(HYPERPRIVOP_START + 0x11)
++#define HYPERPRIVOP_FC			(HYPERPRIVOP_START + 0x12)
++#define HYPERPRIVOP_GET_CPUID		(HYPERPRIVOP_START + 0x13)
++#define HYPERPRIVOP_GET_PMD		(HYPERPRIVOP_START + 0x14)
++#define HYPERPRIVOP_GET_EFLAG		(HYPERPRIVOP_START + 0x15)
++#define HYPERPRIVOP_SET_EFLAG		(HYPERPRIVOP_START + 0x16)
++#define HYPERPRIVOP_RSM_BE		(HYPERPRIVOP_START + 0x17)
++#define HYPERPRIVOP_GET_PSR		(HYPERPRIVOP_START + 0x18)
++#define HYPERPRIVOP_SET_RR0_TO_RR4	(HYPERPRIVOP_START + 0x19)
++#define HYPERPRIVOP_MAX			(0x1a)
++
++/* Fast and light hypercalls.  */
++#define __HYPERVISOR_ia64_fast_eoi	__HYPERVISOR_arch_1
++
++/* Xencomm macros.  */
++#define XENCOMM_INLINE_MASK 0xf800000000000000UL
++#define XENCOMM_INLINE_FLAG 0x8000000000000000UL
++
++#ifndef __ASSEMBLY__
++
++/*
++ * Optimization features.
++ * The hypervisor may do some special optimizations for guests. This hypercall
++ * can be used to switch on/of these special optimizations.
++ */
++#define __HYPERVISOR_opt_feature	0x700UL
++
++#define XEN_IA64_OPTF_OFF	0x0
++#define XEN_IA64_OPTF_ON	0x1
++
++/*
++ * If this feature is switched on, the hypervisor inserts the
++ * tlb entries without calling the guests traphandler.
++ * This is useful in guests using region 7 for identity mapping
++ * like the linux kernel does.
++ */
++#define XEN_IA64_OPTF_IDENT_MAP_REG7    1
++
++/* Identity mapping of region 4 addresses in HVM. */
++#define XEN_IA64_OPTF_IDENT_MAP_REG4    2
++
++/* Identity mapping of region 5 addresses in HVM. */
++#define XEN_IA64_OPTF_IDENT_MAP_REG5    3
++
++#define XEN_IA64_OPTF_IDENT_MAP_NOT_SET  (0)
++
++struct xen_ia64_opt_feature {
++	unsigned long cmd;		/* Which feature */
++	unsigned char on;		/* Switch feature on/off */
++	union {
++		struct {
++				/* The page protection bit mask of the pte.
++				 * This will be or'ed with the pte. */
++			unsigned long pgprot;
++			unsigned long key;	/* A protection key for itir. */
++		};
++	};
++};
++
++#endif /* __ASSEMBLY__ */
++
++#endif /* _ASM_IA64_XEN_INTERFACE_H */
++
++/*
++ * Local variables:
++ * mode: C
++ * c-set-style: "BSD"
++ * c-basic-offset: 4
++ * tab-width: 4
++ * indent-tabs-mode: nil
++ * End:
++ */
 -- 
 1.5.3
