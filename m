@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 02/17] ia64/pv_ops: preparation: move the constants,
-	LOAD_OFFSET, to a header file.
-Date: Mon, 19 May 2008 22:13:29 +0900
-Message-ID: <12112028253631-git-send-email-yamahata__12699.6572049849$1211203870$gmane$org@valinux.co.jp>
+Subject: [PATCH 03/17] ia64/pv_ops: preparation: introduce
+	ia64_set_rr0_to_rr4() to make kernel paravirtualization friendly.
+Date: Mon, 19 May 2008 22:13:30 +0900
+Message-ID: <12112028251288-git-send-email-yamahata__36422.4300058142$1211203876$gmane$org@valinux.co.jp>
 References: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,47 +22,52 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Move the LOAD_OFFSET definition from vmlinux.lds.S into system.h.
-On paravirtualized environments, it is necessary to detect the
-execution environment. One of the solutions is the multi entry point.
-The multi entry point allows a boot loader to start the kernel execution
-from the entry point which is different from the ELF entry point.
-The non standard entry point will defined as the specialized elf note
-which contains the LMA of the entry point symbol.
-The constant, LOAD_OFFSET, is necessary to calculate the symbol's LMA.
-Move the definition into the public header file to make it available
-to the multi entry point support.
+make kernel paravirtualization friendly by introducing
+ia64_set_rr0_to_rr4().
+ia64/Xen will replace setting rr[0-4] with single hypercall later.
 
-Cc: "He, Qing" <qing.he@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/vmlinux.lds.S |    1 -
- include/asm-ia64/system.h      |    1 +
- 2 files changed, 1 insertions(+), 1 deletions(-)
+ include/asm-ia64/intrinsics.h  |    9 +++++++++
+ include/asm-ia64/mmu_context.h |    6 +-----
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index 80622ac..98dcd9c 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -4,7 +4,6 @@
- #include <asm/system.h>
- #include <asm/pgtable.h>
+diff --git a/include/asm-ia64/intrinsics.h b/include/asm-ia64/intrinsics.h
+index f1135b5..9b83f8f 100644
+--- a/include/asm-ia64/intrinsics.h
++++ b/include/asm-ia64/intrinsics.h
+@@ -18,6 +18,15 @@
+ # include <asm/gcc_intrin.h>
+ #endif
  
--#define LOAD_OFFSET	(KERNEL_START - KERNEL_TR_PAGE_SIZE)
- #include <asm-generic/vmlinux.lds.h>
++#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
++do {								\
++	ia64_set_rr(0x0000000000000000UL, (val0));		\
++	ia64_set_rr(0x2000000000000000UL, (val1));		\
++	ia64_set_rr(0x4000000000000000UL, (val2));		\
++	ia64_set_rr(0x6000000000000000UL, (val3));		\
++	ia64_set_rr(0x8000000000000000UL, (val4));		\
++} while (0)
++
+ /*
+  * Force an unresolved reference if someone tries to use
+  * ia64_fetch_and_add() with a bad value.
+diff --git a/include/asm-ia64/mmu_context.h b/include/asm-ia64/mmu_context.h
+index cef2400..040bc87 100644
+--- a/include/asm-ia64/mmu_context.h
++++ b/include/asm-ia64/mmu_context.h
+@@ -152,11 +152,7 @@ reload_context (nv_mm_context_t context)
+ #  endif
+ #endif
  
- #define IVT_TEXT							\
-diff --git a/include/asm-ia64/system.h b/include/asm-ia64/system.h
-index 26e250b..0db8c98 100644
---- a/include/asm-ia64/system.h
-+++ b/include/asm-ia64/system.h
-@@ -26,6 +26,7 @@
-  */
- #define KERNEL_START		 (GATE_ADDR+__IA64_UL_CONST(0x100000000))
- #define PERCPU_ADDR		(-PERCPU_PAGE_SIZE)
-+#define LOAD_OFFSET		(KERNEL_START - KERNEL_TR_PAGE_SIZE)
- 
- #ifndef __ASSEMBLY__
+-	ia64_set_rr(0x0000000000000000UL, rr0);
+-	ia64_set_rr(0x2000000000000000UL, rr1);
+-	ia64_set_rr(0x4000000000000000UL, rr2);
+-	ia64_set_rr(0x6000000000000000UL, rr3);
+-	ia64_set_rr(0x8000000000000000UL, rr4);
++	ia64_set_rr0_to_rr4(rr0, rr1, rr2, rr3, rr4);
+ 	ia64_srlz_i();			/* srlz.i implies srlz.d */
+ }
  
 -- 
 1.5.3
