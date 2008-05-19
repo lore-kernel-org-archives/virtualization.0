@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 14/17] ia64/pv_ops: define initialization hooks, pv_init_ops,
-	for paravirtualized environment.
-Date: Mon, 19 May 2008 22:13:41 +0900
-Message-ID: <12112028252465-git-send-email-yamahata__4626.76863321594$1211203835$gmane$org@valinux.co.jp>
+Subject: [PATCH 17/17] ia64/pv_ops: add to hooks, pv_time_ops,
+	for steal time accounting.
+Date: Mon, 19 May 2008 22:13:44 +0900
+Message-ID: <1211202825584-git-send-email-yamahata__42703.1445703053$1211203844$gmane$org@valinux.co.jp>
 References: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,193 +19,162 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define pv_init_ops hooks which represents various initialization
-hooks for paravirtualized environment. and add hooks.
+Introduce pv_time_ops which adds hook to steal time accounting.
+On virtualized environment, cpus are shared by many guests and
+steal time is the time which is used for other guests.
+On virtualized environtment, streal time should be accounted.
 
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/paravirt.c |    7 ++++
- arch/ia64/kernel/setup.c    |   10 ++++++
- arch/ia64/kernel/smpboot.c  |    2 +
- include/asm-ia64/paravirt.h |   70 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 89 insertions(+), 0 deletions(-)
+ arch/ia64/kernel/paravirt.c |   15 +++++++++++++++
+ arch/ia64/kernel/time.c     |   23 +++++++++++++++++++++++
+ include/asm-ia64/paravirt.h |   32 ++++++++++++++++++++++++++++++++
+ 3 files changed, 70 insertions(+), 0 deletions(-)
 
 diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 7126ea8..5daf659 100644
+index ba5383b..afaf5b9 100644
 --- a/arch/ia64/kernel/paravirt.c
 +++ b/arch/ia64/kernel/paravirt.c
-@@ -42,6 +42,13 @@ struct pv_info pv_info = {
- };
+@@ -352,3 +352,18 @@ struct pv_irq_ops pv_irq_ops = {
  
- /***************************************************************************
-+ * pv_init_ops
-+ * initialization hooks.
-+ */
-+
-+struct pv_init_ops pv_init_ops;
+ 	.resend_irq = ia64_native_resend_irq,
+ };
 +
 +/***************************************************************************
-  * pv_cpu_ops
-  * intrinsics hooks.
-  */
-diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
-index e9596cd..9173add 100644
---- a/arch/ia64/kernel/setup.c
-+++ b/arch/ia64/kernel/setup.c
-@@ -51,6 +51,7 @@
- #include <asm/mca.h>
- #include <asm/meminit.h>
- #include <asm/page.h>
-+#include <asm/paravirt.h>
- #include <asm/patch.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
-@@ -341,6 +342,8 @@ reserve_memory (void)
- 	rsvd_region[n].end   = (unsigned long) ia64_imva(_end);
- 	n++;
- 
-+	n += paravirt_reserve_memory(&rsvd_region[n]);
++ * pv_time_ops
++ * time operations
++ */
 +
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (ia64_boot_param->initrd_start) {
- 		rsvd_region[n].start = (unsigned long)__va(ia64_boot_param->initrd_start);
-@@ -519,6 +522,8 @@ setup_arch (char **cmdline_p)
- {
- 	unw_init();
- 
-+	paravirt_arch_setup_early();
++static int
++ia64_native_do_steal_accounting(unsigned long *new_itm)
++{
++	return 0;
++}
 +
- 	ia64_patch_vtop((u64) __start___vtop_patchlist, (u64) __end___vtop_patchlist);
- 
- 	*cmdline_p = __va(ia64_boot_param->command_line);
-@@ -573,6 +578,9 @@ setup_arch (char **cmdline_p)
- 	acpi_boot_init();
- #endif
- 
-+	paravirt_banner();
-+	paravirt_arch_setup_console(cmdline_p);
-+
- #ifdef CONFIG_VT
- 	if (!conswitchp) {
- # if defined(CONFIG_DUMMY_CONSOLE)
-@@ -592,6 +600,8 @@ setup_arch (char **cmdline_p)
- #endif
- 
- 	/* enable IA-64 Machine Check Abort Handling unless disabled */
-+	if (paravirt_arch_setup_nomca())
-+		nomca = 1;
- 	if (!nomca)
- 		ia64_mca_init();
- 
-diff --git a/arch/ia64/kernel/smpboot.c b/arch/ia64/kernel/smpboot.c
-index d7ad42b..933f388 100644
---- a/arch/ia64/kernel/smpboot.c
-+++ b/arch/ia64/kernel/smpboot.c
-@@ -50,6 +50,7 @@
++struct pv_time_ops pv_time_ops = {
++	.do_steal_accounting = ia64_native_do_steal_accounting,
++};
+diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
+index 8c73643..046ca89 100644
+--- a/arch/ia64/kernel/time.c
++++ b/arch/ia64/kernel/time.c
+@@ -24,6 +24,7 @@
  #include <asm/machvec.h>
- #include <asm/mca.h>
- #include <asm/page.h>
+ #include <asm/delay.h>
+ #include <asm/hw_irq.h>
 +#include <asm/paravirt.h>
- #include <asm/pgalloc.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
-@@ -642,6 +643,7 @@ void __devinit smp_prepare_boot_cpu(void)
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	cpu_set(smp_processor_id(), cpu_callin_map);
- 	per_cpu(cpu_state, smp_processor_id()) = CPU_ONLINE;
-+	paravirt_post_smp_prepare_boot_cpu();
- }
+ #include <asm/ptrace.h>
+ #include <asm/sal.h>
+ #include <asm/sections.h>
+@@ -48,6 +49,15 @@ EXPORT_SYMBOL(last_cli_ip);
  
- #ifdef CONFIG_HOTPLUG_CPU
+ #endif
+ 
++#ifdef CONFIG_PARAVIRT
++static void
++paravirt_clocksource_resume(void)
++{
++	if (pv_time_ops.clocksource_resume)
++		pv_time_ops.clocksource_resume();
++}
++#endif
++
+ static struct clocksource clocksource_itc = {
+ 	.name           = "itc",
+ 	.rating         = 350,
+@@ -56,6 +66,9 @@ static struct clocksource clocksource_itc = {
+ 	.mult           = 0, /*to be calculated*/
+ 	.shift          = 16,
+ 	.flags          = CLOCK_SOURCE_IS_CONTINUOUS,
++#ifdef CONFIG_PARAVIRT
++	.resume		= paravirt_clocksource_resume,
++#endif
+ };
+ static struct clocksource *itc_clocksource;
+ 
+@@ -156,6 +169,9 @@ timer_interrupt (int irq, void *dev_id)
+ 
+ 	profile_tick(CPU_PROFILING);
+ 
++	if (paravirt_do_steal_accounting(&new_itm))
++		goto skip_process_time_accounting;
++
+ 	while (1) {
+ 		update_process_times(user_mode(get_irq_regs()));
+ 
+@@ -185,6 +201,8 @@ timer_interrupt (int irq, void *dev_id)
+ 		local_irq_disable();
+ 	}
+ 
++skip_process_time_accounting:
++
+ 	do {
+ 		/*
+ 		 * If we're too close to the next clock tick for
+@@ -334,6 +352,11 @@ ia64_init_itm (void)
+ 		 */
+ 		clocksource_itc.rating = 50;
+ 
++	paravirt_init_missing_ticks_accounting(smp_processor_id());
++
++	/* avoid softlock up message when cpu is unplug and plugged again. */
++	touch_softlockup_watchdog();
++
+ 	/* Setup the CPU local timer tick */
+ 	ia64_cpu_local_tick();
+ 
 diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-index 1032b21..84d74c3 100644
+index ee15646..1b4df12 100644
 --- a/include/asm-ia64/paravirt.h
 +++ b/include/asm-ia64/paravirt.h
-@@ -55,11 +55,81 @@ static inline unsigned int get_kernel_rpl(void)
- 	return pv_info.kernel_rpl;
+@@ -200,6 +200,35 @@ ia64_resend_irq(unsigned int vector)
+ 	pv_irq_ops.resend_irq(vector);
  }
  
 +/******************************************************************************
-+ * initialization hooks.
++ * replacement of time operations.
 + */
-+struct rsvd_region;
 +
-+struct pv_init_ops {
-+	void (*banner)(void);
++extern struct itc_jitter_data_t itc_jitter_data;
++extern volatile int time_keeper_id;
 +
-+	int (*reserve_memory)(struct rsvd_region *region);
++struct pv_time_ops {
++	void (*init_missing_ticks_accounting)(int cpu);
++	int (*do_steal_accounting)(unsigned long *new_itm);
 +
-+	void (*arch_setup_early)(void);
-+	void (*arch_setup_console)(char **cmdline_p);
-+	int (*arch_setup_nomca)(void);
-+
-+	void (*post_smp_prepare_boot_cpu)(void);
++	void (*clocksource_resume)(void);
 +};
 +
-+extern struct pv_init_ops pv_init_ops;
++extern struct pv_time_ops pv_time_ops;
 +
-+static inline void paravirt_banner(void)
++static inline void
++paravirt_init_missing_ticks_accounting(int cpu)
 +{
-+	if (pv_init_ops.banner)
-+		pv_init_ops.banner();
++	if (pv_time_ops.init_missing_ticks_accounting)
++		pv_time_ops.init_missing_ticks_accounting(cpu);
 +}
 +
-+static inline int paravirt_reserve_memory(struct rsvd_region *region)
++static inline int
++paravirt_do_steal_accounting(unsigned long *new_itm)
 +{
-+	if (pv_init_ops.reserve_memory)
-+		return pv_init_ops.reserve_memory(region);
-+	return 0;
-+}
-+
-+static inline void paravirt_arch_setup_early(void)
-+{
-+	if (pv_init_ops.arch_setup_early)
-+		pv_init_ops.arch_setup_early();
-+}
-+
-+static inline void paravirt_arch_setup_console(char **cmdline_p)
-+{
-+	if (pv_init_ops.arch_setup_console)
-+		pv_init_ops.arch_setup_console(cmdline_p);
-+}
-+
-+static inline int paravirt_arch_setup_nomca(void)
-+{
-+	if (pv_init_ops.arch_setup_nomca)
-+		return pv_init_ops.arch_setup_nomca();
-+	return 0;
-+}
-+
-+static inline void paravirt_post_smp_prepare_boot_cpu(void)
-+{
-+	if (pv_init_ops.post_smp_prepare_boot_cpu)
-+		pv_init_ops.post_smp_prepare_boot_cpu();
++	return pv_time_ops.do_steal_accounting(new_itm);
 +}
 +
  #endif /* !__ASSEMBLY__ */
  
  #else
- /* fallback for native case */
+@@ -215,6 +244,9 @@ ia64_resend_irq(unsigned int vector)
+ #define paravirt_arch_setup_nomca()			0
+ #define paravirt_post_smp_prepare_boot_cpu()		do { } while (0)
  
-+#ifndef __ASSEMBLY__
++#define paravirt_init_missing_ticks_accounting(cpu)	do { } while (0)
++#define paravirt_do_steal_accounting(new_itm)		0
 +
-+#define paravirt_banner()				do { } while (0)
-+#define paravirt_reserve_memory(region)			0
-+
-+#define paravirt_arch_setup_early()			do { } while (0)
-+#define paravirt_arch_setup_console(cmdline_p)		do { } while (0)
-+#define paravirt_arch_setup_nomca()			0
-+#define paravirt_post_smp_prepare_boot_cpu()		do { } while (0)
-+
-+#endif /* __ASSEMBLY__ */
-+
-+
- #endif /* CONFIG_PARAVIRT_GUEST */
+ #endif /* __ASSEMBLY__ */
  
- #endif /* __ASM_PARAVIRT_H */
+ 
 -- 
 1.5.3
