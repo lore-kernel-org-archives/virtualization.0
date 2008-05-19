@@ -1,14 +1,16 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 05/17] ia64/pv_ops: introduce pv_info which describes some
-	random info.
-Date: Mon, 19 May 2008 22:13:32 +0900
-Message-ID: <12112028251117-git-send-email-yamahata__40315.2313935154$1211203885$gmane$org@valinux.co.jp>
-References: <12112028241775-git-send-email-yamahata@valinux.co.jp>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH] virtio_net: free transmit skbs in a timer
+Date: Mon, 19 May 2008 16:26:15 +0300
+Message-ID: <48317FF7.1020707@qumranet.com>
+References: <1209565906-9019-1-git-send-email-markmc@redhat.com>
+	<200805191152.28409.rusty@rustcorp.com.au>
+	<483155D4.2090700@qumranet.com>
+	<200805192221.52072.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12112028241775-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <200805192221.52072.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,150 +20,61 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, Jes Sorensen <jes@sgi.com>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-introduce pv_info which describes some randome info about
-underlying execution environment.
+Rusty Russell wrote:
+>>>
+>>> Well, we do have such a thing, in the ring suppression flags.
+>>>       
+>> Can you point me at this?
+>>     
+>
+> Ah, sorry, I misunderstood.  No, we don't have a threshold like this, we
+> have an all-or-nothing flag in each direction.
+>
+>   
 
-Cc: Jes Sorensen <jes@sgi.com>
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/kernel/Makefile   |    2 +
- arch/ia64/kernel/paravirt.c |   41 ++++++++++++++++++++++++++++
- include/asm-ia64/paravirt.h |   62 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 105 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/kernel/paravirt.c
- create mode 100644 include/asm-ia64/paravirt.h
+Please point me anyway?
 
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index 13fd10e..10a4ddb 100644
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -36,6 +36,8 @@ obj-$(CONFIG_PCI_MSI)		+= msi_ia64.o
- mca_recovery-y			+= mca_drv.o mca_drv_asm.o
- obj-$(CONFIG_IA64_MC_ERR_INJECT)+= err_inject.o
- 
-+obj-$(CONFIG_PARAVIRT)		+= paravirt.o
-+
- obj-$(CONFIG_IA64_ESI)		+= esi.o
- ifneq ($(CONFIG_IA64_ESI),)
- obj-y				+= esi_stub.o	# must be in kernel proper
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-new file mode 100644
-index 0000000..d295ea5
---- /dev/null
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -0,0 +1,41 @@
-+/******************************************************************************
-+ * arch/ia64/kernel/paravirt.c
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *     Yaozu (Eddie) Dong <eddie.dong@intel.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/init.h>
-+
-+#include <linux/compiler.h>
-+#include <linux/io.h>
-+#include <linux/irq.h>
-+#include <linux/types.h>
-+
-+#include <asm/iosapic.h>
-+#include <asm/paravirt.h>
-+
-+/***************************************************************************
-+ * general info
-+ */
-+struct pv_info pv_info = {
-+	.kernel_rpl = 0,
-+	.paravirt_enabled = 0,
-+	.name = "bare hardware"
-+};
-diff --git a/include/asm-ia64/paravirt.h b/include/asm-ia64/paravirt.h
-new file mode 100644
-index 0000000..26b4334
---- /dev/null
-+++ b/include/asm-ia64/paravirt.h
-@@ -0,0 +1,62 @@
-+/******************************************************************************
-+ * include/asm-ia64/paravirt.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+
-+#ifndef __ASM_PARAVIRT_H
-+#define __ASM_PARAVIRT_H
-+
-+#ifdef CONFIG_PARAVIRT_GUEST
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <asm/hw_irq.h>
-+#include <asm/meminit.h>
-+
-+/******************************************************************************
-+ * general info
-+ */
-+struct pv_info {
-+	unsigned int kernel_rpl;
-+	int paravirt_enabled;
-+	const char *name;
-+};
-+
-+extern struct pv_info pv_info;
-+
-+static inline int paravirt_enabled(void)
-+{
-+	return pv_info.paravirt_enabled;
-+}
-+
-+static inline unsigned int get_kernel_rpl(void)
-+{
-+	return pv_info.kernel_rpl;
-+}
-+
-+#endif /* !__ASSEMBLY__ */
-+
-+#else
-+/* fallback for native case */
-+
-+#endif /* CONFIG_PARAVIRT_GUEST */
-+
-+#endif /* __ASM_PARAVIRT_H */
+> We have the ability to add new fields to the rings.  I've put it on my
+> TODO to benchmark what this does.  It may or may not help.  In this case,
+> notification when there are no more packets in xmit ring would be
+> sufficient.  We already kick the host when we fill a ring even if
+> it says it doesn't need it, perhaps this would be symmetry.
+>   
+
+Notification on ring full is too late with smp.  You need to warn the 
+other side in advance.
+
+The reason I'm interested in adjustable thresholds is that you can then 
+to tx mitigation without (usually) suffering the worst-case latency when 
+you aren't streaming or streaming slower than what you tuned for.
+
+>   
+>>>   Note that DaveM
+>>> is talking about moving network tx queue into the net drivers themselves,
+>>> which will make them much more efficient (ie. drain entire queue before
+>>> kick), which may again change the balance of what the Right Thing is.
+>>>       
+>> That depends on whether Linux knows whether more packets are coming.
+>>     
+>
+> The current problem is that hard_start_xmit gets called with a packet, and 
+> has no idea if there are more in the tx queue.  By having the driver control
+> the queue, it can at least tell that.
+>   
+
+Yes, definitely an improvement, esp. for sendfile().
+
+> The question remains whether this will be sufficient for tx mitigation.  A
+> program may be about to write more to the socket, and we can't know that.
+> But it can hardly hurt.
+>
+>   
+
+Right.
+
 -- 
-1.5.3
+error compiling committee.c: too many arguments to function
