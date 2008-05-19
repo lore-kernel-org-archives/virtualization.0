@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 22/23] ia64/xen: define xen machine vector for domU.
-Date: Tue, 20 May 2008 08:08:09 +0900
-Message-ID: <12112384923812-git-send-email-yamahata__5252.54226890883$1211240575$gmane$org@valinux.co.jp>
+Subject: [PATCH 17/23] ia64/pv_ops/xen: paravirtualize entry.S for ia64/xen.
+Date: Tue, 20 May 2008 08:08:04 +0900
+Message-ID: <12112384912532-git-send-email-yamahata__25344.2805297256$1211240703$gmane$org@valinux.co.jp>
 References: <12112384902859-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,128 +21,80 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define xen machine vector for domU.
+paravirtualize entry.S for ia64/xen by multi compile.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/Makefile             |    2 ++
- arch/ia64/kernel/acpi.c        |    5 +++++
- arch/ia64/xen/Makefile         |    2 ++
- arch/ia64/xen/machvec.c        |    4 ++++
- include/asm-ia64/machvec.h     |    2 ++
- include/asm-ia64/machvec_xen.h |   22 ++++++++++++++++++++++
- 6 files changed, 37 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/xen/machvec.c
- create mode 100644 include/asm-ia64/machvec_xen.h
+ arch/ia64/xen/Makefile      |    2 +-
+ arch/ia64/xen/xen_pv_ops.c  |   18 ++++++++++++++++++
+ include/asm-ia64/xen/inst.h |    8 ++++++++
+ 3 files changed, 27 insertions(+), 1 deletions(-)
 
-diff --git a/arch/ia64/Makefile b/arch/ia64/Makefile
-index 3b9c8ca..60aaaaf 100644
---- a/arch/ia64/Makefile
-+++ b/arch/ia64/Makefile
-@@ -56,8 +56,10 @@ core-$(CONFIG_IA64_DIG) 	+= arch/ia64/dig/
- core-$(CONFIG_IA64_GENERIC) 	+= arch/ia64/dig/
- core-$(CONFIG_IA64_HP_ZX1)	+= arch/ia64/dig/
- core-$(CONFIG_IA64_HP_ZX1_SWIOTLB) += arch/ia64/dig/
-+core-$(CONFIG_IA64_XEN)		+= arch/ia64/dig/
- core-$(CONFIG_IA64_SGI_SN2)	+= arch/ia64/sn/
- core-$(CONFIG_KVM) 		+= arch/ia64/kvm/
-+core-$(CONFIG_XEN)		+= arch/ia64/xen/
- 
- drivers-$(CONFIG_PCI)		+= arch/ia64/pci/
- drivers-$(CONFIG_IA64_HP_SIM)	+= arch/ia64/hp/sim/
-diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
-index 853d1f1..f16be17 100644
---- a/arch/ia64/kernel/acpi.c
-+++ b/arch/ia64/kernel/acpi.c
-@@ -52,6 +52,7 @@
- #include <asm/numa.h>
- #include <asm/sal.h>
- #include <asm/cyclone.h>
-+#include <asm/xen/hypervisor.h>
- 
- #define BAD_MADT_ENTRY(entry, end) (                                        \
- 		(!entry) || (unsigned long)entry + sizeof(*entry) > end ||  \
-@@ -121,6 +122,8 @@ acpi_get_sysname(void)
- 			return "uv";
- 		else
- 			return "sn2";
-+	} else if (is_running_on_xen() && !strcmp(hdr->oem_id, "XEN")) {
-+		return "xen";
- 	}
- 
- 	return "dig";
-@@ -137,6 +140,8 @@ acpi_get_sysname(void)
- 	return "uv";
- # elif defined (CONFIG_IA64_DIG)
- 	return "dig";
-+# elif defined (CONFIG_IA64_XEN)
-+	return "xen";
- # else
- #	error Unknown platform.  Fix acpi.c.
- # endif
 diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index ed31c76..972d085 100644
+index 5c87e4a..9b77e8a 100644
 --- a/arch/ia64/xen/Makefile
 +++ b/arch/ia64/xen/Makefile
-@@ -5,6 +5,8 @@
- obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
- 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
- 
-+obj-$(CONFIG_IA64_GENERIC) += machvec.o
-+
+@@ -8,7 +8,7 @@ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o \
  AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
  
  # xen multi compile
-diff --git a/arch/ia64/xen/machvec.c b/arch/ia64/xen/machvec.c
-new file mode 100644
-index 0000000..4ad588a
---- /dev/null
-+++ b/arch/ia64/xen/machvec.c
-@@ -0,0 +1,4 @@
-+#define MACHVEC_PLATFORM_NAME           xen
-+#define MACHVEC_PLATFORM_HEADER         <asm/machvec_xen.h>
-+#include <asm/machvec_init.h>
-+
-diff --git a/include/asm-ia64/machvec.h b/include/asm-ia64/machvec.h
-index 0721a5e..d724342 100644
---- a/include/asm-ia64/machvec.h
-+++ b/include/asm-ia64/machvec.h
-@@ -128,6 +128,8 @@ extern void machvec_tlb_migrate_finish (struct mm_struct *);
- #  include <asm/machvec_sn2.h>
- # elif defined (CONFIG_IA64_SGI_UV)
- #  include <asm/machvec_uv.h>
-+# elif defined (CONFIG_IA64_XEN)
-+#  include <asm/machvec_xen.h>
- # elif defined (CONFIG_IA64_GENERIC)
+-ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S
++ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
+ ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
+ obj-y += $(ASM_PARAVIRT_OBJS)
+ define paravirtualized_xen
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index aa73942..e483d47 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -273,6 +273,22 @@ static const struct pv_cpu_ops xen_cpu_ops __initdata = {
+ 			= xen_intrin_local_irq_restore,
+ };
  
- # ifdef MACHVEC_PLATFORM_HEADER
-diff --git a/include/asm-ia64/machvec_xen.h b/include/asm-ia64/machvec_xen.h
-new file mode 100644
-index 0000000..55f9228
---- /dev/null
-+++ b/include/asm-ia64/machvec_xen.h
-@@ -0,0 +1,22 @@
-+#ifndef _ASM_IA64_MACHVEC_XEN_h
-+#define _ASM_IA64_MACHVEC_XEN_h
-+
-+extern ia64_mv_setup_t			dig_setup;
-+extern ia64_mv_cpu_init_t		xen_cpu_init;
-+extern ia64_mv_irq_init_t		xen_irq_init;
-+extern ia64_mv_send_ipi_t		xen_platform_send_ipi;
-+
-+/*
-+ * This stuff has dual use!
-+ *
-+ * For a generic kernel, the macros are used to initialize the
-+ * platform's machvec structure.  When compiling a non-generic kernel,
-+ * the macros are used directly.
++/******************************************************************************
++ * replacement of hand written assembly codes.
 + */
-+#define platform_name				"xen"
-+#define platform_setup				dig_setup
-+#define platform_cpu_init			xen_cpu_init
-+#define platform_irq_init			xen_irq_init
-+#define platform_send_ipi			xen_platform_send_ipi
 +
-+#endif /* _ASM_IA64_MACHVEC_XEN_h */
++extern char xen_switch_to;
++extern char xen_leave_syscall;
++extern char xen_work_processed_syscall;
++extern char xen_leave_kernel;
++
++const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
++	.switch_to		= (unsigned long)&xen_switch_to,
++	.leave_syscall		= (unsigned long)&xen_leave_syscall,
++	.work_processed_syscall	= (unsigned long)&xen_work_processed_syscall,
++	.leave_kernel		= (unsigned long)&xen_leave_kernel,
++};
++
+ /***************************************************************************
+  * pv_ops initialization
+  */
+@@ -284,4 +300,6 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_cpu_ops = xen_cpu_ops;
++
++	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+ }
+diff --git a/include/asm-ia64/xen/inst.h b/include/asm-ia64/xen/inst.h
+index e1e4435..9015bd3 100644
+--- a/include/asm-ia64/xen/inst.h
++++ b/include/asm-ia64/xen/inst.h
+@@ -25,6 +25,14 @@
+ #define ia64_ivt				xen_ivt
+ #define DO_SAVE_MIN				XEN_DO_SAVE_MIN
+ 
++#define __paravirt_switch_to			xen_switch_to
++#define __paravirt_leave_syscall		xen_leave_syscall
++#define __paravirt_work_processed_syscall	xen_work_processed_syscall
++#define __paravirt_leave_kernel			xen_leave_kernel
++#define __paravirt_pending_syscall_end		xen_work_pending_syscall_end
++#define __paravirt_work_processed_syscall_target \
++						xen_work_processed_syscall
++
+ #define MOV_FROM_IFA(reg)	\
+ 	movl reg = XSI_IFA;	\
+ 	;;			\
 -- 
 1.5.3
