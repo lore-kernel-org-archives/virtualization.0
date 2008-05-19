@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 23/23] ia64/pv_ops: update Kconfig for paravirtualized guest
-	and xen.
-Date: Tue, 20 May 2008 08:08:10 +0900
-Message-ID: <12112384923339-git-send-email-yamahata__3574.50287924639$1211240975$gmane$org@valinux.co.jp>
+Subject: [PATCH 18/23] ia64/pv_ops/xen: implement xen pv_iosapic_ops.
+Date: Tue, 20 May 2008 08:08:05 +0900
+Message-ID: <1211238491767-git-send-email-yamahata__5384.57403094998$1211241009$gmane$org@valinux.co.jp>
 References: <12112384902859-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,104 +18,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-introduce CONFIG_PARAVIRT_GUEST, CONFIG_PARAVIRT for
-paravirtualized guest.
-introduce CONFING_XEN, CONFIG_IA64_XEN for xen.
+implement xen pv_iosapic_ops for xen paravirtualized
+iosapic.
 
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/Kconfig     |   32 ++++++++++++++++++++++++++++++++
- arch/ia64/xen/Kconfig |   21 +++++++++++++++++++++
- 2 files changed, 53 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/xen/Kconfig
+ arch/ia64/xen/xen_pv_ops.c |   52 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 52 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-index 16be414..1b5053f 100644
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -116,6 +116,33 @@ config AUDIT_ARCH
- 	bool
- 	default y
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index e483d47..97c882a 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -290,6 +290,57 @@ const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
+ };
  
-+menuconfig PARAVIRT_GUEST
-+	bool "Paravirtualized guest support"
-+	help
-+	  Say Y here to get to see options related to running Linux under
-+	  various hypervisors.  This option alone does not add any kernel code.
+ /***************************************************************************
++ * pv_iosapic_ops
++ * iosapic read/write hooks.
++ */
++static void
++xen_pcat_compat_init(void)
++{
++	/* nothing */
++}
 +
-+	  If you say N, all options in this submenu will be skipped and disabled.
++static struct irq_chip*
++xen_iosapic_get_irq_chip(unsigned long trigger)
++{
++	return NULL;
++}
 +
-+if PARAVIRT_GUEST
++static unsigned int
++xen_iosapic_read(char __iomem *iosapic, unsigned int reg)
++{
++	struct physdev_apic apic_op;
++	int ret;
 +
-+config PARAVIRT
-+	bool "Enable paravirtualization code"
-+	depends on PARAVIRT_GUEST
-+	default y
-+	bool
-+	default y
-+	help
-+	  This changes the kernel so it can modify itself when it is run
-+	  under a hypervisor, potentially improving performance significantly
-+	  over full virtualization.  However, when run without a hypervisor
-+	  the kernel is theoretically slower and slightly larger.
++	apic_op.apic_physbase = (unsigned long)iosapic -
++					__IA64_UNCACHED_OFFSET;
++	apic_op.reg = reg;
++	ret = HYPERVISOR_physdev_op(PHYSDEVOP_apic_read, &apic_op);
++	if (ret)
++		return ret;
++	return apic_op.value;
++}
 +
++static void
++xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++{
++	struct physdev_apic apic_op;
 +
-+source "arch/ia64/xen/Kconfig"
++	apic_op.apic_physbase = (unsigned long)iosapic -
++					__IA64_UNCACHED_OFFSET;
++	apic_op.reg = reg;
++	apic_op.value = val;
++	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
++}
 +
-+endif
++static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
++	.pcat_compat_init = xen_pcat_compat_init,
++	.get_irq_chip = xen_iosapic_get_irq_chip,
 +
- choice
- 	prompt "System type"
- 	default IA64_GENERIC
-@@ -137,6 +164,7 @@ config IA64_GENERIC
- 	  SGI-SN2		For SGI Altix systems
- 	  SGI-UV		For SGI UV systems
- 	  Ski-simulator		For the HP simulator <http://www.hpl.hp.com/research/linux/ski/>
-+	  Xen-domU		For xen domU system
++	.__read = xen_iosapic_read,
++	.__write = xen_iosapic_write,
++};
++
++/***************************************************************************
+  * pv_ops initialization
+  */
  
- 	  If you don't know what to do, choose "generic".
+@@ -300,6 +351,7 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_cpu_ops = xen_cpu_ops;
++	pv_iosapic_ops = xen_iosapic_ops;
  
-@@ -187,6 +215,10 @@ config IA64_HP_SIM
- 	bool "Ski-simulator"
- 	select SWIOTLB
- 
-+config IA64_XEN
-+	bool "Xen guest"
-+	depends on XEN
-+
- endchoice
- 
- choice
-diff --git a/arch/ia64/xen/Kconfig b/arch/ia64/xen/Kconfig
-new file mode 100644
-index 0000000..d525fbb
---- /dev/null
-+++ b/arch/ia64/xen/Kconfig
-@@ -0,0 +1,21 @@
-+#
-+# This Kconfig describes xen/ia64 options
-+#
-+
-+config XEN
-+	bool "Xen hypervisor support"
-+	default y
-+	depends on PARAVIRT && MCKINLEY && IA64_PAGE_SIZE_16KB && EXPERIMENTAL
-+	select XEN_XENCOMM
-+	select NO_IDLE_HZ
-+	help
-+	  Enable Xen hypervisor support.  Resulting kernel runs
-+	  both as a guest OS on Xen and natively on hardware.
-+
-+config XEN_XENCOMM
-+	depends on XEN
-+	bool
-+
-+config NO_IDLE_HZ
-+	depends on XEN
-+	bool
+ 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+ }
 -- 
 1.5.3
