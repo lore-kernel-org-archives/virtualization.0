@@ -1,14 +1,11 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 00/15] ia64/pv_ops take 5
-Date: Mon, 19 May 2008 08:46:14 +0100
-Message-ID: <48313046.6030602__10492.7900749773$1211183317$gmane$org@goop.org>
-References: <12095585682308-git-send-email-yamahata@valinux.co.jp>	<1FE6DD409037234FAB833C420AA843EC015B26C6@orsmsx424.amr.corp.intel.com>
-	<20080519015224.GA13212%yamahata@valinux.co.jp>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.0.0: Introduction
+Date: Mon, 19 May 2008 17:22:38 +0900 (JST)
+Message-ID: <20080519.172238.193709851.ryov__38143.9357217916$1211185708$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080519015224.GA13212%yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,24 +15,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>, "Dong,
-	Eddie" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org, xen-ia64-devel@lists.xensource.com
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
+Cc: agk@sourceware.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Isaku Yamahata wrote:
-> Yes, I also really want such a tool and I've thought of it.
-> I want to prevent people from accidently breaking paravirtualization
-> and only a way to do so would be by enforcing.
-> I think it can be easily achived by CPP macro trick.
-> At worst a simple .s (or .o) parser.
->   
+Hi everyone,
 
-For what its worth, this hasn't been a problem on x86 at all.  All the 
-"interesting" instructions are used via macros/inline functions, and 
-there have been no instances (that I know of, at least) of naked ones 
-appearing anywhere.  And all the gatekeeper maintainers are definitely 
-aware of the paravirt constraints, so I don't think any would make it 
-past review.
+This is dm-ioband version 1.0.0 release.
 
-    J
+Dm-ioband is an I/O bandwidth controller implemented as a device-mapper
+driver, which gives specified bandwidth to each job running on the same
+physical device.
+
+- Can be applied to the kernel 2.6.26-rc2-mm1.
+- Changes from 0.0.4 (24th April):
+    - Performance tuning
+      - A new bandwidth control policy is added. This policy controls
+        bandwidth based on the number of I/O sectors instead of the
+	number of I/O requests.
+	I think it would be useful for some applications such as video
+	streaming or when you want to use high-end storages.
+       - Control read and write requests separately. So even if a
+         write I/O queue in an elevator is full, read I/O requests
+	 won't be blocked.
+      - More accurate bandwidth control.
+    - Code cleanups. Remove the "LINUX_VERSION_CODE" and "inline" stuff.
+    - Fix panic on "dmsetup suspend."
+
+For more details, please refer to:
+http://people.valinux.co.jp/~ryov/dm-ioband/
+
+Thanks,
+Ryo Tsuruta
