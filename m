@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 11/23] ia64/pv_ops/xen: elf note based xen startup.
-Date: Tue, 20 May 2008 08:07:58 +0900
-Message-ID: <12112384912436-git-send-email-yamahata__26510.3884194561$1211240177$gmane$org@valinux.co.jp>
+Subject: [PATCH 22/23] ia64/xen: define xen machine vector for domU.
+Date: Tue, 20 May 2008 08:08:09 +0900
+Message-ID: <12112384923812-git-send-email-yamahata__5252.54226890883$1211240575$gmane$org@valinux.co.jp>
 References: <12112384902859-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,192 +21,128 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch enables elf note based xen startup for IA-64, which gives the
-kernel an early hint for running on xen like x86 case.
-In order to avoid the multi entry point, presumably extending booting
-protocol(i.e. extending struct ia64_boot_param) would be necessary.
-It probably means that elilo also needs modification.
+define xen machine vector for domU.
 
-Signed-off-by: Qing He <qing.he@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile     |    3 +-
- arch/ia64/xen/xen_pv_ops.c |   65 ++++++++++++++++++++++++++++++++++
- arch/ia64/xen/xensetup.S   |   83 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 150 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/xen_pv_ops.c
- create mode 100644 arch/ia64/xen/xensetup.S
+ arch/ia64/Makefile             |    2 ++
+ arch/ia64/kernel/acpi.c        |    5 +++++
+ arch/ia64/xen/Makefile         |    2 ++
+ arch/ia64/xen/machvec.c        |    4 ++++
+ include/asm-ia64/machvec.h     |    2 ++
+ include/asm-ia64/machvec_xen.h |   22 ++++++++++++++++++++++
+ 6 files changed, 37 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/xen/machvec.c
+ create mode 100644 include/asm-ia64/machvec_xen.h
 
+diff --git a/arch/ia64/Makefile b/arch/ia64/Makefile
+index 3b9c8ca..60aaaaf 100644
+--- a/arch/ia64/Makefile
++++ b/arch/ia64/Makefile
+@@ -56,8 +56,10 @@ core-$(CONFIG_IA64_DIG) 	+= arch/ia64/dig/
+ core-$(CONFIG_IA64_GENERIC) 	+= arch/ia64/dig/
+ core-$(CONFIG_IA64_HP_ZX1)	+= arch/ia64/dig/
+ core-$(CONFIG_IA64_HP_ZX1_SWIOTLB) += arch/ia64/dig/
++core-$(CONFIG_IA64_XEN)		+= arch/ia64/dig/
+ core-$(CONFIG_IA64_SGI_SN2)	+= arch/ia64/sn/
+ core-$(CONFIG_KVM) 		+= arch/ia64/kvm/
++core-$(CONFIG_XEN)		+= arch/ia64/xen/
+ 
+ drivers-$(CONFIG_PCI)		+= arch/ia64/pci/
+ drivers-$(CONFIG_IA64_HP_SIM)	+= arch/ia64/hp/sim/
+diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
+index 853d1f1..f16be17 100644
+--- a/arch/ia64/kernel/acpi.c
++++ b/arch/ia64/kernel/acpi.c
+@@ -52,6 +52,7 @@
+ #include <asm/numa.h>
+ #include <asm/sal.h>
+ #include <asm/cyclone.h>
++#include <asm/xen/hypervisor.h>
+ 
+ #define BAD_MADT_ENTRY(entry, end) (                                        \
+ 		(!entry) || (unsigned long)entry + sizeof(*entry) > end ||  \
+@@ -121,6 +122,8 @@ acpi_get_sysname(void)
+ 			return "uv";
+ 		else
+ 			return "sn2";
++	} else if (is_running_on_xen() && !strcmp(hdr->oem_id, "XEN")) {
++		return "xen";
+ 	}
+ 
+ 	return "dig";
+@@ -137,6 +140,8 @@ acpi_get_sysname(void)
+ 	return "uv";
+ # elif defined (CONFIG_IA64_DIG)
+ 	return "dig";
++# elif defined (CONFIG_IA64_XEN)
++	return "xen";
+ # else
+ #	error Unknown platform.  Fix acpi.c.
+ # endif
 diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index eb59563..abc356f 100644
+index ed31c76..972d085 100644
 --- a/arch/ia64/xen/Makefile
 +++ b/arch/ia64/xen/Makefile
-@@ -2,4 +2,5 @@
- # Makefile for Xen components
- #
+@@ -5,6 +5,8 @@
+ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
+ 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
  
--obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
-+obj-y := hypercall.o xensetup.o xen_pv_ops.o \
-+	xencomm.o xcom_hcall.o grant-table.o
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
++obj-$(CONFIG_IA64_GENERIC) += machvec.o
++
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+ 
+ # xen multi compile
+diff --git a/arch/ia64/xen/machvec.c b/arch/ia64/xen/machvec.c
 new file mode 100644
-index 0000000..77db214
+index 0000000..4ad588a
 --- /dev/null
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -0,0 +1,65 @@
-+/******************************************************************************
-+ * arch/ia64/xen/xen_pv_ops.c
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
++++ b/arch/ia64/xen/machvec.c
+@@ -0,0 +1,4 @@
++#define MACHVEC_PLATFORM_NAME           xen
++#define MACHVEC_PLATFORM_HEADER         <asm/machvec_xen.h>
++#include <asm/machvec_init.h>
 +
-+#include <linux/console.h>
-+#include <linux/irq.h>
-+#include <linux/kernel.h>
-+#include <linux/pm.h>
-+
-+#include <asm/xen/hypervisor.h>
-+#include <asm/xen/xencomm.h>
-+#include <asm/xen/privop.h>
-+
-+/***************************************************************************
-+ * general info
-+ */
-+static struct pv_info xen_info __initdata = {
-+	.kernel_rpl = 2,	/* or 1: determin at runtime */
-+	.paravirt_enabled = 1,
-+	.name = "Xen/ia64",
-+};
-+
-+#define IA64_RSC_PL_SHIFT	2
-+#define IA64_RSC_PL_BIT_SIZE	2
-+#define IA64_RSC_PL_MASK	\
-+	(((1UL << IA64_RSC_PL_BIT_SIZE) - 1) << IA64_RSC_PL_SHIFT)
-+
-+static void __init
-+xen_info_init(void)
-+{
-+	/* Xenified Linux/ia64 may run on pl = 1 or 2.
-+	 * determin at run time. */
-+	unsigned long rsc = ia64_getreg(_IA64_REG_AR_RSC);
-+	unsigned int rpl = (rsc & IA64_RSC_PL_MASK) >> IA64_RSC_PL_SHIFT;
-+	xen_info.kernel_rpl = rpl;
-+}
-+
-+/***************************************************************************
-+ * pv_ops initialization
-+ */
-+
-+void __init
-+xen_setup_pv_ops(void)
-+{
-+	xen_info_init();
-+	pv_info = xen_info;
-+}
-diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
+diff --git a/include/asm-ia64/machvec.h b/include/asm-ia64/machvec.h
+index 0721a5e..d724342 100644
+--- a/include/asm-ia64/machvec.h
++++ b/include/asm-ia64/machvec.h
+@@ -128,6 +128,8 @@ extern void machvec_tlb_migrate_finish (struct mm_struct *);
+ #  include <asm/machvec_sn2.h>
+ # elif defined (CONFIG_IA64_SGI_UV)
+ #  include <asm/machvec_uv.h>
++# elif defined (CONFIG_IA64_XEN)
++#  include <asm/machvec_xen.h>
+ # elif defined (CONFIG_IA64_GENERIC)
+ 
+ # ifdef MACHVEC_PLATFORM_HEADER
+diff --git a/include/asm-ia64/machvec_xen.h b/include/asm-ia64/machvec_xen.h
 new file mode 100644
-index 0000000..7d71333
+index 0000000..55f9228
 --- /dev/null
-+++ b/arch/ia64/xen/xensetup.S
-@@ -0,0 +1,83 @@
++++ b/include/asm-ia64/machvec_xen.h
+@@ -0,0 +1,22 @@
++#ifndef _ASM_IA64_MACHVEC_XEN_h
++#define _ASM_IA64_MACHVEC_XEN_h
++
++extern ia64_mv_setup_t			dig_setup;
++extern ia64_mv_cpu_init_t		xen_cpu_init;
++extern ia64_mv_irq_init_t		xen_irq_init;
++extern ia64_mv_send_ipi_t		xen_platform_send_ipi;
++
 +/*
-+ * Support routines for Xen
++ * This stuff has dual use!
 + *
-+ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
++ * For a generic kernel, the macros are used to initialize the
++ * platform's machvec structure.  When compiling a non-generic kernel,
++ * the macros are used directly.
 + */
++#define platform_name				"xen"
++#define platform_setup				dig_setup
++#define platform_cpu_init			xen_cpu_init
++#define platform_irq_init			xen_irq_init
++#define platform_send_ipi			xen_platform_send_ipi
 +
-+#include <asm/processor.h>
-+#include <asm/asmmacro.h>
-+#include <asm/pgtable.h>
-+#include <asm/system.h>
-+#include <asm/paravirt.h>
-+#include <asm/xen/privop.h>
-+#include <linux/elfnote.h>
-+#include <linux/init.h>
-+#include <xen/interface/elfnote.h>
-+
-+	.section .data.read_mostly
-+	.align 8
-+	.global running_on_xen
-+running_on_xen:
-+	data4 0
-+	.previous
-+
-+	__INIT
-+ENTRY(startup_xen)
-+	// Calculate load offset.
-+	// The constant, LOAD_OFFSET, can't be used because the boot
-+	// loader doesn't always load to the LMA specified by the vmlinux.lds.
-+	mov r9=ip	// must be the first instruction to make sure
-+			// that r9 = the physical address of startup_xen.
-+			// Usually r9 = startup_xen - LOAD_OFFSET
-+	movl r8=startup_xen
-+	;;
-+	sub r9=r9,r8	// Usually r9 = -LOAD_OFFSET.
-+
-+	mov r10=PARAVIRT_HYPERVISOR_TYPE_XEN
-+	movl r11=_start
-+	;;
-+	add r11=r11,r9
-+	movl r8=hypervisor_type
-+	;;
-+	add r8=r8,r9
-+	mov b0=r11
-+	;;
-+	st8 [r8]=r10
-+	br.cond.sptk.many b0
-+	;;
-+END(startup_xen)
-+
-+	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,	.asciz "linux")
-+	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,	.asciz "2.6")
-+	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,	.asciz "xen-3.0")
-+	ELFNOTE(Xen, XEN_ELFNOTE_ENTRY,		data8.ua startup_xen - LOAD_OFFSET)
-+
-+#define isBP	p3	// are we the Bootstrap Processor?
-+
-+	.text
-+
-+GLOBAL_ENTRY(xen_setup_hook)
-+	mov r8=1		// booleanize.
-+(isBP)	movl r9=running_on_xen;;
-+(isBP)	st4 [r9]=r8
-+	movl r10=xen_ivt;;
-+
-+	mov cr.iva=r10
-+
-+	/* Set xsi base.  */
-+#define FW_HYPERCALL_SET_SHARED_INFO_VA			0x600
-+(isBP)	mov r2=FW_HYPERCALL_SET_SHARED_INFO_VA
-+(isBP)	movl r28=XSI_BASE;;
-+(isBP)	break 0x1000;;
-+
-+	/* setup pv_ops */
-+(isBP)	mov r4=rp
-+	;;
-+(isBP)	br.call.sptk.many rp=xen_setup_pv_ops
-+	;;
-+(isBP)	mov rp=r4
-+	;;
-+
-+	br.ret.sptk.many rp
-+	;;
-+END(xen_setup_hook)
++#endif /* _ASM_IA64_MACHVEC_XEN_h */
 -- 
 1.5.3
