@@ -1,13 +1,14 @@
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: [PATCH 4/4] BIO tracking take2
-Date: Tue, 20 May 2008 21:04:05 +0900 (JST)
-Message-ID: <20080520.210405.107683253.taka__35958.5347855047$1211285758$gmane$org@valinux.co.jp>
-References: <20080520.205949.127764004.taka@valinux.co.jp>
+From: "Luck, Tony" <tony.luck@intel.com>
+Subject: RE: [PATCH 00/17] ia64/pv_ops take 6
+Date: Tue, 20 May 2008 14:59:49 -0700
+Message-ID: <1FE6DD409037234FAB833C420AA843EC0162EBE6__2178.88042466274$1211321298$gmane$org@orsmsx424.amr.corp.intel.com>
+References: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080520.205949.127764004.taka@valinux.co.jp>
+Content-class: urn:content-classes:message
+In-Reply-To: <12112028241775-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,46 +18,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, agk@sourceware.org
+To: Isaku Yamahata <yamahata@valinux.co.jp>, linux-ia64@vger.kernel.org
+Cc: xen-ia64-devel@lists.xensource.com, "Dong, Eddie" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+> Hi. This patchset implements ia64/pv_ops support which is the
+> framework for virtualization support.
+> Changes from take 5 are rebased to Linux 2.6.26-rc3,
+> bug fix ivt.S paravirtualization and multi entry point support.
+> I believe these patches can be applied to the linux ia64 repository.
 
-With this patch, dm-ioband can work with the bio cgroup.
+Ok.  This series of 17 patches applied, and I can boot the
+resulting kernel as a native binary.  I'll run it for another
+day or two, if nothinstrange happens I'll add these to my
+"test" tree so they'll go to -mm and linux-next for more general
+testing.
 
-
-Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
-
-
-diff -dupr linux-2.6.26-rc2.cg2/drivers/md/dm-ioband-type.c linux-2.6.26-rc2/drivers/md/dm-ioband-type.c
---- linux-2.6.26-rc2.cg2/drivers/md/dm-ioband-type.c	2008-05-19 13:51:23.000000000 +0900
-+++ linux-2.6.26-rc2/drivers/md/dm-ioband-type.c	2008-05-19 18:40:10.000000000 +0900
-@@ -6,6 +6,7 @@
-  * This file is released under the GPL.
-  */
- #include <linux/bio.h>
-+#include <linux/biocontrol.h>
- #include "dm.h"
- #include "dm-bio-list.h"
- #include "dm-ioband.h"
-@@ -53,13 +54,13 @@ static int ioband_node(struct bio *bio)
- 
- static int ioband_cgroup(struct bio *bio)
- {
--  /*
--   * This function should return the ID of the cgroup which issued "bio".
--   * The ID of the cgroup which the current process belongs to won't be
--   * suitable ID for this purpose, since some BIOs will be handled by kernel
--   * threads like aio or pdflush on behalf of the process requesting the BIOs.
--   */
--	return 0;	/* not implemented yet */
-+	struct io_context *ioc = get_bio_cgroup_iocontext(bio);
-+	int id = 0;
-+	if (ioc) {
-+		id = ioc->id;
-+		put_io_context(ioc);
-+	}
-+	return id;
- }
- 
- struct group_type dm_ioband_group_type[] = {
+-Tony
