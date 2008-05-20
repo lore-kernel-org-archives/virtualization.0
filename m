@@ -1,13 +1,16 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 21/23] ia64/pv_ops/xen: implement xen pv_time_ops.
-Date: Tue, 20 May 2008 08:08:08 +0900
-Message-ID: <12112384923990-git-send-email-yamahata__41653.819793328$1211241360$gmane$org@valinux.co.jp>
-References: <12112384902859-git-send-email-yamahata@valinux.co.jp>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio_net: free transmit skbs in a timer
+Date: Tue, 20 May 2008 11:37:59 +1000
+Message-ID: <200805201138.00435.rusty__24274.9334466227$1211258347$gmane$org@rustcorp.com.au>
+References: <1209565906-9019-1-git-send-email-markmc@redhat.com>
+	<200805192221.52072.rusty@rustcorp.com.au>
+	<48317FF7.1020707@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12112384902859-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <48317FF7.1020707@qumranet.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,256 +20,69 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
+To: Avi Kivity <avi@qumranet.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-implement xen pv_time_ops to account steal time.
+On Monday 19 May 2008 23:26:15 Avi Kivity wrote:
+> Rusty Russell wrote:
+> >>> Well, we do have such a thing, in the ring suppression flags.
+> >>
+> >> Can you point me at this?
+> >
+> > Ah, sorry, I misunderstood.  No, we don't have a threshold like this, we
+> > have an all-or-nothing flag in each direction.
+>
+> Please point me anyway?
 
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/xen/Makefile     |    2 +-
- arch/ia64/xen/time.c       |  165 ++++++++++++++++++++++++++++++++++++++++++++
- arch/ia64/xen/time.h       |   23 ++++++
- arch/ia64/xen/xen_pv_ops.c |    2 +
- 4 files changed, 191 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/time.c
- create mode 100644 arch/ia64/xen/time.h
+Sure, linux/virtio_ring.h:
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 01c4289..ed31c76 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -3,7 +3,7 @@
- #
- 
- obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
--	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
-+	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
- 
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
- 
-diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
-new file mode 100644
-index 0000000..43d483d
---- /dev/null
-+++ b/arch/ia64/xen/time.c
-@@ -0,0 +1,165 @@
-+/******************************************************************************
-+ * arch/ia64/xen/time.c
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/kernel_stat.h>
-+#include <linux/posix-timers.h>
-+#include <linux/irq.h>
-+#include <linux/clocksource.h>
-+
-+#include <asm/xen/hypervisor.h>
-+
-+#include <xen/interface/vcpu.h>
-+
-+#include "../kernel/fsyscall_gtod_data.h"
-+
-+DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
-+DEFINE_PER_CPU(unsigned long, processed_stolen_time);
-+DEFINE_PER_CPU(unsigned long, processed_blocked_time);
-+
-+/* taken from i386/kernel/time-xen.c */
-+static void xen_init_missing_ticks_accounting(int cpu)
-+{
-+	struct vcpu_register_runstate_memory_area area;
-+	struct vcpu_runstate_info *runstate = &per_cpu(runstate, cpu);
-+	int rc;
-+
-+	memset(runstate, 0, sizeof(*runstate));
-+
-+	area.addr.v = runstate;
-+	rc = HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area, cpu,
-+				&area);
-+	WARN_ON(rc && rc != -ENOSYS);
-+
-+	per_cpu(processed_blocked_time, cpu) = runstate->time[RUNSTATE_blocked];
-+	per_cpu(processed_stolen_time, cpu) = runstate->time[RUNSTATE_runnable]
-+					    + runstate->time[RUNSTATE_offline];
-+}
-+
-+#define NS_PER_TICK (1000000000LL/HZ)
-+
-+static unsigned long
-+consider_steal_time(unsigned long new_itm)
-+{
-+	unsigned long stolen, blocked, sched_time;
-+	unsigned long delta_itm = 0, stolentick = 0;
-+	int cpu = smp_processor_id();
-+	struct vcpu_runstate_info *runstate;
-+	struct task_struct *p = current;
-+
-+	runstate = &per_cpu(runstate, smp_processor_id());
-+
-+	do {
-+		sched_time = runstate->state_entry_time;
-+		mb();
-+		stolen = runstate->time[RUNSTATE_runnable] +
-+			 runstate->time[RUNSTATE_offline] -
-+			 per_cpu(processed_stolen_time, cpu);
-+		blocked = runstate->time[RUNSTATE_blocked] -
-+			  per_cpu(processed_blocked_time, cpu);
-+		mb();
-+	} while (sched_time != runstate->state_entry_time);
-+
-+	/*
-+	 * Check for vcpu migration effect
-+	 * In this case, itc value is reversed.
-+	 * This causes huge stolen value.
-+	 * This function just checks and reject this effect.
-+	 */
-+	if (!time_after_eq(runstate->time[RUNSTATE_blocked],
-+			   per_cpu(processed_blocked_time, cpu)))
-+		blocked = 0;
-+
-+	if (!time_after_eq(runstate->time[RUNSTATE_runnable] +
-+			   runstate->time[RUNSTATE_offline],
-+			   per_cpu(processed_stolen_time, cpu)))
-+		stolen = 0;
-+
-+	if (!time_after(delta_itm + new_itm, ia64_get_itc()))
-+		stolentick = ia64_get_itc() - delta_itm - new_itm;
-+
-+	do_div(stolentick, NS_PER_TICK);
-+	stolentick++;
-+
-+	do_div(stolen, NS_PER_TICK);
-+
-+	if (stolen > stolentick)
-+		stolen = stolentick;
-+
-+	stolentick -= stolen;
-+	do_div(blocked, NS_PER_TICK);
-+
-+	if (blocked > stolentick)
-+		blocked = stolentick;
-+
-+	if (stolen > 0 || blocked > 0) {
-+		account_steal_time(NULL, jiffies_to_cputime(stolen));
-+		account_steal_time(idle_task(cpu), jiffies_to_cputime(blocked));
-+		run_local_timers();
-+
-+		if (rcu_pending(cpu))
-+			rcu_check_callbacks(cpu, user_mode(get_irq_regs()));
-+
-+		scheduler_tick();
-+		run_posix_cpu_timers(p);
-+		delta_itm += local_cpu_data->itm_delta * (stolen + blocked);
-+
-+		if (cpu == time_keeper_id) {
-+			write_seqlock(&xtime_lock);
-+			do_timer(stolen + blocked);
-+			local_cpu_data->itm_next = delta_itm + new_itm;
-+			write_sequnlock(&xtime_lock);
-+		} else {
-+			local_cpu_data->itm_next = delta_itm + new_itm;
-+		}
-+		per_cpu(processed_stolen_time, cpu) += NS_PER_TICK * stolen;
-+		per_cpu(processed_blocked_time, cpu) += NS_PER_TICK * blocked;
-+	}
-+	return delta_itm;
-+}
-+
-+static int xen_do_steal_accounting(unsigned long *new_itm)
-+{
-+	unsigned long delta_itm;
-+	delta_itm = consider_steal_time(*new_itm);
-+	*new_itm += delta_itm;
-+	if (time_after(*new_itm, ia64_get_itc()) && delta_itm)
-+		return 1;
-+
-+	return 0;
-+}
-+
-+static void xen_itc_jitter_data_reset(void)
-+{
-+	u64 lcycle, ret;
-+
-+	do {
-+		lcycle = itc_jitter_data.itc_lastcycle;
-+		ret = cmpxchg(&itc_jitter_data.itc_lastcycle, lcycle, 0);
-+	} while (unlikely(ret != lcycle));
-+}
-+
-+struct pv_time_ops xen_time_ops __initdata = {
-+	.init_missing_ticks_accounting	= xen_init_missing_ticks_accounting,
-+	.do_steal_accounting		= xen_do_steal_accounting,
-+	.clocksource_resume		= xen_itc_jitter_data_reset,
-+};
-diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
-new file mode 100644
-index 0000000..b9c7ec5
---- /dev/null
-+++ b/arch/ia64/xen/time.h
-@@ -0,0 +1,23 @@
-+/******************************************************************************
-+ * arch/ia64/xen/time.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+extern struct pv_time_ops xen_time_ops __initdata;
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index bfaf42b..482711d 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -30,6 +30,7 @@
- #include <asm/xen/privop.h>
- 
- #include "irq_xen.h"
-+#include "time.h"
- 
- /***************************************************************************
-  * general info
-@@ -355,6 +356,7 @@ xen_setup_pv_ops(void)
- 	pv_cpu_ops = xen_cpu_ops;
- 	pv_iosapic_ops = xen_iosapic_ops;
- 	pv_irq_ops = xen_irq_ops;
-+	pv_time_ops = xen_time_ops;
- 
- 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
- }
--- 
-1.5.3
+/* The Host uses this in used->flags to advise the Guest: don't kick me when
+ * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
+ * will still kick if it's out of buffers. */
+#define VRING_USED_F_NO_NOTIFY  1
+/* The Guest uses this in avail->flags to advise the Host: don't interrupt me
+ * when you consume a buffer.  It's unreliable, so it's simply an
+ * optimization.  */
+#define VRING_AVAIL_F_NO_INTERRUPT      1
+
+> > We have the ability to add new fields to the rings.  I've put it on my
+> > TODO to benchmark what this does.  It may or may not help.  In this case,
+> > notification when there are no more packets in xmit ring would be
+> > sufficient.  We already kick the host when we fill a ring even if
+> > it says it doesn't need it, perhaps this would be symmetry.
+>
+> Notification on ring full is too late with smp.  You need to warn the
+> other side in advance.
+
+No, you misunderstand; this is not a performance issue.  On xmit, the driver 
+cleans up any old used packets before trying to send anyway.  So it doesn't 
+care when xmit packets are used, and suppresses the 'used' interrupt on the 
+xmit virtqueue.  Only if the xmit ring is full does it enable the xmit-used 
+notification.  This is optimal.
+
+The issue is that we *do* actually care when xmit packets are used: we're 
+supposed to free them in a timely manner and if the packet flow stops, we 
+don't.  By always sending a used interrupt when *all* packets are used, we 
+would cover this case quite nicely without impacting the normal case of 
+packet flow.
+
+> The reason I'm interested in adjustable thresholds is that you can then
+> to tx mitigation without (usually) suffering the worst-case latency when
+> you aren't streaming or streaming slower than what you tuned for.
+
+Right, this would be a threshold that the host would set, approx. "when you've 
+put this many packets in the xmit ring, tell me" (the opposite direction of 
+the discussion above).  Currently we will kick the host on the first packet, 
+and qemu will suppress the notifications based on some timer and we'll notify 
+it anyway if the ring fills (which is suboptimal).  With this technique the 
+host could double the threshold up to some maximum percentage of the ring.
+
+While I like the Xen scheme, we can do the same thing from within the guest 
+with the existing scheme using an internal threshold.  We are always allowed 
+to send "spurious" notifications to the host, so it can't break anything.
+
+Added to TODO.
+
+Thanks,
+Rusty.
