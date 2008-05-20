@@ -1,16 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_net: free transmit skbs in a timer
-Date: Tue, 20 May 2008 11:37:59 +1000
-Message-ID: <200805201138.00435.rusty__24274.9334466227$1211258347$gmane$org@rustcorp.com.au>
-References: <1209565906-9019-1-git-send-email-markmc@redhat.com>
-	<200805192221.52072.rusty@rustcorp.com.au>
-	<48317FF7.1020707@qumranet.com>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: [PATCH O/4] BIO tracking take2
+Date: Tue, 20 May 2008 20:59:49 +0900 (JST)
+Message-ID: <20080520.205949.127764004.taka__46131.7285932184$1211285039$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48317FF7.1020707@qumranet.com>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,69 +15,80 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, agk@sourceware.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Monday 19 May 2008 23:26:15 Avi Kivity wrote:
-> Rusty Russell wrote:
-> >>> Well, we do have such a thing, in the ring suppression flags.
-> >>
-> >> Can you point me at this?
-> >
-> > Ah, sorry, I misunderstood.  No, we don't have a threshold like this, we
-> > have an all-or-nothing flag in each direction.
->
-> Please point me anyway?
+Hi all,
 
-Sure, linux/virtio_ring.h:
+With this series of patches, you can determine the owners of any
+type of I/Os. I ported the previous version to linux-2.6.26-rc2-mm1.
+This makes dm-ioband -- I/O bandwidth controller -- be able to control
+the Block I/O bandwidths even when it accepts delayed write requests.
+Dm-ioband can find the owner cgroup of each request.
+It is also possible that OpenVz team and NEC Uchida-san team working on
+the CFQ scheduler use this functionality to control asynchronous I/Os
+with a little enhancement.
 
-/* The Host uses this in used->flags to advise the Guest: don't kick me when
- * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
- * will still kick if it's out of buffers. */
-#define VRING_USED_F_NO_NOTIFY  1
-/* The Guest uses this in avail->flags to advise the Host: don't interrupt me
- * when you consume a buffer.  It's unreliable, so it's simply an
- * optimization.  */
-#define VRING_AVAIL_F_NO_INTERRUPT      1
+You have to apply the patch dm-ioband v1.0.0 before applying this series
+of patches, which can be found at:
+http://people.valinux.co.jp/~ryov/dm-ioband 
 
-> > We have the ability to add new fields to the rings.  I've put it on my
-> > TODO to benchmark what this does.  It may or may not help.  In this case,
-> > notification when there are no more packets in xmit ring would be
-> > sufficient.  We already kick the host when we fill a ring even if
-> > it says it doesn't need it, perhaps this would be symmetry.
->
-> Notification on ring full is too late with smp.  You need to warn the
-> other side in advance.
+And you have to select the following config options when compiling kernel:
+  CONFIG_CGROUPS=y
+  CONFIG_CGROUP_BIO=y
+And I recommend you should also select the options for cgroup memory
+subsystem, because it makes it possible to give some I/O bandwidth
+and some memory to a certain cgroup to control delayed write requests
+and the processes in the cgroup will be able to make pages dirty only
+inside the cgroup even when the given bandwidth is narrow.
+  CONFIG_RESOURCE_COUNTERS=y
+  CONFIG_CGROUP_MEM_RES_CTLR=y
 
-No, you misunderstand; this is not a performance issue.  On xmit, the driver 
-cleans up any old used packets before trying to send anyway.  So it doesn't 
-care when xmit packets are used, and suppresses the 'used' interrupt on the 
-xmit virtqueue.  Only if the xmit ring is full does it enable the xmit-used 
-notification.  This is optimal.
+This code is based on some part of the memory subsystem of cgroup
+and I think the accuracy and overhead of the subsystem can't be ignored
+at this time, so we need to keep tuning it up.
 
-The issue is that we *do* actually care when xmit packets are used: we're 
-supposed to free them in a timely manner and if the packet flow stops, we 
-don't.  By always sending a used interrupt when *all* packets are used, we 
-would cover this case quite nicely without impacting the normal case of 
-packet flow.
 
-> The reason I'm interested in adjustable thresholds is that you can then
-> to tx mitigation without (usually) suffering the worst-case latency when
-> you aren't streaming or streaming slower than what you tuned for.
+ --------------------------------------------------------
 
-Right, this would be a threshold that the host would set, approx. "when you've 
-put this many packets in the xmit ring, tell me" (the opposite direction of 
-the discussion above).  Currently we will kick the host on the first packet, 
-and qemu will suppress the notifications based on some timer and we'll notify 
-it anyway if the ring fills (which is suboptimal).  With this technique the 
-host could double the threshold up to some maximum percentage of the ring.
+The following shows how to use dm-ioband with cgroups.
+Please assume that you want make two cgroups, which we call "bio cgroup"
+here, to track down block I/Os and assign them to ioband device "ioband1".
 
-While I like the Xen scheme, we can do the same thing from within the guest 
-with the existing scheme using an internal threshold.  We are always allowed 
-to send "spurious" notifications to the host, so it can't break anything.
+First, mount the bio cgroup filesystem.
 
-Added to TODO.
+ # mount -t cgroup -o bio none /cgroup/bio
 
-Thanks,
-Rusty.
+Then, make new bio cgroups and put some processes in them.
+
+ # mkdir /cgroup/bio/bgroup1
+ # mkdir /cgroup/bio/bgroup2
+ # echo 1234 > /cgroup/bio/bgroup1/tasks
+ # echo 5678 > /cgroup/bio/bgroup1/tasks
+
+Now, check the ID of each bio cgroup which is just created.
+
+ # cat /cgroup/bio/bgroup1/bio.id
+   1
+ # cat /cgroup/bio/bgroup2/bio.id
+   2
+
+Finally, attach the cgroups to "ioband1" and assign them weights.
+
+ # dmsetup message ioband1 0 type cgroup
+ # dmsetup message ioband1 0 attach 1
+ # dmsetup message ioband1 0 attach 2
+ # dmsetup message ioband1 0 weight 1:30
+ # dmsetup message ioband1 0 weight 2:60
+
+You can also make use of the dm-ioband administration tool if you want.
+The tool will be found here:
+http://people.valinux.co.jp/~kaizuka/dm-ioband/iobandctl/manual.html
+You can set up the device with the tool as follows.
+In this case, you don't need to know the IDs of the cgroups.
+
+ # iobandctl.py group /dev/mapper/ioband1 cgroup /cgroup/bio/bgroup1:30 /cgroup/bio/bgroup2:60
+
+
+Thank you,
+Hirokazu Takahashi.
