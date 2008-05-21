@@ -1,11 +1,14 @@
-From: Chris Lalancette <clalance@redhat.com>
-Subject: [Fwd: [PATCH]: Fix silly output for virtio devices in
-	/proc/interrupts]
-Date: Wed, 21 May 2008 15:13:05 +0200
-Message-ID: <48341FE1.4070305@redhat.com>
+From: Gerald Pfeifer <gp@novell.com>
+Subject: Re: [PATCH 2/2] ia64/pv_ops: documentation on ia64/pv_ops
+Date: Wed, 21 May 2008 15:28:57 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0805211200100.3196__35592.5191347071$1211381037$gmane$org@enan.fvgr>
+References: <1FE6DD409037234FAB833C420AA843EC0162EBE6@orsmsx424.amr.corp.intel.com>
+	<1211355072669-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------040708000001020808090105"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1211355072669-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,131 +18,130 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, tony.luck@intel.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------040708000001020808090105
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Wed, 21 May 2008, Isaku Yamahata wrote:
+> Documentation on ia64/pv_ops which describes its strategy and 
+> implementation.
 
-(sent to the kvm list erroneously)
+I hope you do not mind if I make some minor suggestions on how to
+improve this nice documentation?
 
---------------040708000001020808090105
-Content-Type: message/rfc822;
- name="[PATCH]: Fix silly output for virtio devices in /proc/interrupts.eml"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename*0="[PATCH]: Fix silly output for virtio devices in /proc/interr";
- filename*1="upts.eml"
+> +On the other hand there are several IA64 virtualization technologies like
+> +kvm/IA64, xen/IA64 and many other academic IA64 hypervisors so that it is
+> +good to add virtualization support on Linux/IA64.
 
-Return-Path: <kvm-owner@vger.kernel.org>
-Received: from pobox.corp.redhat.com ([unix socket])
-	 by pobox.corp.redhat.com (Cyrus v2.2.12-Invoca-RPM-2.2.12-8.1.RHEL4) with LMTPA;
-	 Wed, 21 May 2008 08:53:09 -0400
-X-Sieve: CMU Sieve 2.2
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4LCr9pa007833;
-	Wed, 21 May 2008 08:53:09 -0400
-Received: from mx3.redhat.com (mx3.redhat.com [172.16.48.32])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4LCr86u022734;
-	Wed, 21 May 2008 08:53:08 -0400
-Received: from vger.kernel.org (vger.kernel.org [209.132.176.167])
-	by mx3.redhat.com (8.13.8/8.13.8) with ESMTP id m4LCqckW008405;
-	Wed, 21 May 2008 08:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753675AbYEUMwy (ORCPT <rfc822;mtosatti@redhat.com> + 6 others);
-	Wed, 21 May 2008 08:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755027AbYEUMwy
-	(ORCPT <rfc822;kvm-outgoing>); Wed, 21 May 2008 08:52:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34331 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753675AbYEUMwx (ORCPT <rfc822;kvm@vger.kernel.org>);
-	Wed, 21 May 2008 08:52:53 -0400
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m4LCqqGC000655
-	for <kvm@vger.kernel.org>; Wed, 21 May 2008 08:52:52 -0400
-Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [10.11.255.20])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4LCqpNC022234
-	for <kvm@vger.kernel.org>; Wed, 21 May 2008 08:52:51 -0400
-Received: from localhost.localdomain (sebastian-int.corp.redhat.com [172.16.52.221])
-	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4LCqnXX007705
-	for <kvm@vger.kernel.org>; Wed, 21 May 2008 08:52:51 -0400
-Message-ID: <48341AE1.5000803@redhat.com>
-Date: Wed, 21 May 2008 14:51:45 +0200
-From: Chris Lalancette <clalance@redhat.com>
-User-Agent: Thunderbird 2.0.0.14 (X11/20080501)
-MIME-Version: 1.0
-To: kvm@vger.kernel.org
-Subject: [PATCH]: Fix silly output for virtio devices in /proc/interrupts
-Content-Type: multipart/mixed;
- boundary="------------070404080508030207080503"
-X-Scanned-By: MIMEDefang 2.58 on 172.16.52.254
-X-Scanned-By: MIMEDefang 2.63 on 172.16.48.32
-X-Scanned-By: MIMEDefang 2.58 on 172.16.52.254
-Sender: kvm-owner@vger.kernel.org
-Precedence: bulk
-List-ID: <kvm.vger.kernel.org>
-X-Mailing-List: kvm@vger.kernel.org
-X-RedHat-Spam-Score: -2.001 
+How about making this "On the other hand, now that there are also several
+....good to add generic virtualization infrastructure to Linux/IA64" or
+something alone these lines?
 
-This is a multi-part message in MIME format.
---------------070404080508030207080503
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+> +It allows each hypervisors to override operations which is important for
 
-register_virtio_device() is doing something silly by overwriting what the caller
-put into .bus_id.  This causes the interrupt line for all virtio devices to show
-up as "0", "1", etc. in /proc/interrupts.  The attached patch fixes it.
+"hypervisor" (singular) and "which are" (plural)
 
-Signed-off-by: Chris Lalancette <clalance@redhat.com>
+> +hypervisors at API level. And it allows single kernel binary to run on
+> +all supported execution environments including native machine.
 
---------------070404080508030207080503
-Content-Type: text/x-patch;
- name="virtio-blk-fix-proc-interrupts.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="virtio-blk-fix-proc-interrupts.patch"
+Here I suggest to say "a single kernel binary".
 
-commit cb97605728fc1d7a15ddc6ab689e8bcd23871133
-Author: Chris Lalancette <clalance@redhat.com>
-Date:   Thu May 15 09:04:55 2008 -0400
+> +Essentially paravirt_ops is the set of table of function pointers and
+> +operations correspond to from low level sensitive instructions to high
+> +level functionalities in various area.
 
-    register_virtio_device was doing something silly, in that it was overwriting
-    what the calling driver stuck into .bus_id" for the name.  This caused
-    problems in the output of /proc/interrupts, since when you request_irq(),
-    it doesn't actually copy the devname you pass in but just stores a pointer
-    to the data.  The fix is to just not have register_virtio_device do anything
-    with the bus_id, and assume the higher level driver set it up properly.
+I am afraid this sentence does not completely translate.  Could this be 
+written as "...is a set of function pointers and operations corresponding 
+to low level sensitive instructions and high level functionalities in
+various areas"?
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 138a7f0..1556ac2 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -128,7 +128,6 @@ int register_virtio_device(struct virtio_device *dev)
- 	int err;
- 
- 	dev->dev.bus = &virtio_bus;
--	sprintf(dev->dev.bus_id, "%u", dev->index);
- 
- 	/* We always start by resetting the device, in case a previous
- 	 * driver messed it up.  This also tests that code path a little. */
+> +... It is because some operations corresponds to very low
+> +level so that indirect call overhead isn't neglectable.
 
---------------070404080508030207080503--
---
-To unsubscribe from this list: send the line "unsubscribe kvm" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+How about making this "Some of these operations are very performance 
+sensitive and indirect call overhead is not neglible".
 
---------------040708000001020808090105
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> +- simple indirect call
+> +  The operations correspond to high level functionality so that the
+> +  overhead of indirect call isn't very important.
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---------------040708000001020808090105--
+Here, and in the other cases, we may want to consider saying "these
+operations".
+
+> +  Usually the operations correspond to low level instructions so that
+> +  they are called so frequent and performance critical. So the
+> +  overhead is very important.
+
+How about "...instructions.  They are called frequently and performance
+critical"?
+
+> +We can replace some implementations very easily defining new machine
+> +vector. 
+
+"a new machine vector"
+
+> +- virtualization support needs wider support then machine vector does.
+
+"than"
+
+> +  Probably the calling overhead might not very large compared to the 
+> +  emulation overhead of virtualization. However on native case, the
+> +  overhead should be eliminated completely.
+
+I believe a "be" may be missing from the first sentence, and we may
+want to say "in the native case".
+
+> +Possibly it might be better to move some function pointers from
+> +paravirt_ops to machine vector. In fact xen domU case both pv_ops and
+> +machine vector are utilized.
+
+How about making this "In fact, the Xen domU cases utilizes both
+pv_ops and machine vector"?
+
+> +Because of the architecture difference between ia64 and x86, the
+> +resulted set of functions is very different from x86 pv_ops.
+
+"resulting"
+
+> +They are not very performance critical part so that simple C indirect
+> +function call is accepted.
+
+I believe we can omit "part" here, and perhaps use "acceptable" instead
+of "accepted".
+
+> +    A structure describes the execution environment.
+
+Here and in the following entries I recommend saying "This structure
+describes..." or just "This describes...".
+
+> +- a set of indirect calls which needs optimization
+
+"need"
+
+> +Currently this class functions correspond to a subset of IA64
+> +intrinsics.
+
+"class of functions"
+
+> +using gcc extended inline assembly code.
+
+Wearing my GCC hat, "GCC" (all uppercase) is the preferred spelling,
+but this is a most minor nit indeed.
+
+> +For maintenance purpose, the taken approach for .S files is single
+> +source code and compile multi times with different macros definitios.
+
+"multiple", "definitions"
+
+> +Probably initialized in head.S using multi entry point or other trick.
+
+Have you considered using "or some other trick here"?
+
+Thanks again for taking the time to write all this up, and I do hope my
+comments appear useful!
+
+Gerald
+-- 
+Dr. Gerald Pfeifer            E gp@novell.com      SUSE Linux Products GmbH
+Director Inbound Product Mgmt  T +49(911)74053-0    HRB 16746 (AG Nuremberg)
+openSUSE/SUSE Linux Enterprise  F +49(911)74053-483  GF: Markus Rex
