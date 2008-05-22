@@ -1,15 +1,16 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 1/5] xen: Enable console tty by default in domU if it's
-	not a dummy
-Date: Wed, 21 May 2008 17:26:13 -0700
-Message-ID: <20080521172613.18eb24c4.akpm__42407.5716561221$1211416175$gmane$org@linux-foundation.org>
-References: <87d4ngm4s4.fsf@pike.pond.sub.org>
-	<878wy4m4px.fsf@pike.pond.sub.org>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: Re: [PATCH 2/2] ia64/pv_ops: documentation on ia64/pv_ops
+Date: Thu, 22 May 2008 11:27:43 +0900
+Message-ID: <20080522022743.GC922%yamahata__25090.8543392599$1211423401$gmane$org@valinux.co.jp>
+References: <1FE6DD409037234FAB833C420AA843EC0162EBE6@orsmsx424.amr.corp.intel.com>
+	<1211355072669-git-send-email-yamahata@valinux.co.jp>
+	<alpine.LNX.1.10.0805211200100.3196@enan.fvgr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <878wy4m4px.fsf@pike.pond.sub.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.1.10.0805211200100.3196@enan.fvgr>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,37 +20,177 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Markus Armbruster <armbru@redhat.com>
-Cc: xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, adaplas@gmail.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, plc@novell.com, linux-input@vger.kernel.org
+To: Gerald Pfeifer <gp@novell.com>
+Cc: xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, tony.luck@intel.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 21 May 2008 10:38:50 +0200
-Markus Armbruster <armbru@redhat.com> wrote:
+On Wed, May 21, 2008 at 03:28:57PM +0200, Gerald Pfeifer wrote:
+> On Wed, 21 May 2008, Isaku Yamahata wrote:
+> > Documentation on ia64/pv_ops which describes its strategy and 
+> > implementation.
+> 
+> I hope you do not mind if I make some minor suggestions on how to
+> improve this nice documentation?
 
-> Without console= arguments on the kernel command line, the first
-> console to register becomes enabled and the preferred console (the one
-> behind /dev/console).  This is normally tty (assuming
-> CONFIG_VT_CONSOLE is enabled, which it commonly is).
-> 
-> This is okay as long tty is a useful console.  But unless we have the
-> PV framebuffer, and it is enabled for this domain, tty0 in domU is
-> merely a dummy.  In that case, we want the preferred console to be the
-> Xen console hvc0, and we want it without having to fiddle with the
-> kernel command line.  Commit b8c2d3dfbc117dff26058fbac316b8acfc2cb5f7
-> did that for us.
-> 
-> Since we now have the PV framebuffer, we want to enable and prefer tty
-> again, but only when PVFB is enabled.  But even then we still want to
-> enable the Xen console as well.
-> 
-> Problem: when tty registers, we can't yet know whether the PVFB is
-> enabled.  By the time we can know (xenstore is up), the console setup
-> game is over.
-> 
-> Solution: enable console tty by default, but keep hvc as the preferred
-> console.  Change the preferred console to tty when PVFB probes
-> successfully, unless we've been given console kernel parameters.
+Thank you very much for fixing my bad english.
+Here is the updated one.
 
-What a stunningly good changelog - I'd buy the tee-shirt.
+From 549c9ed78e671432bc084e7c8829c0400c42518a Mon Sep 17 00:00:00 2001
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Date: Wed, 21 May 2008 16:05:24 +0900
+Subject: [PATCH] ia64/pv_ops: documentation on ia64/pv_ops
 
-Ack on the non-xen bits.
+Documentation on ia64/pv_ops which describes its strategy and implementation.
+
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: Gerald Pfeifer <gp@novell.com>
+---
+ Documentation/ia64/paravirt_ops.txt |  137 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 137 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/ia64/paravirt_ops.txt
+
+diff --git a/Documentation/ia64/paravirt_ops.txt b/Documentation/ia64/paravirt_ops.txt
+new file mode 100644
+index 0000000..39ded02
+--- /dev/null
++++ b/Documentation/ia64/paravirt_ops.txt
+@@ -0,0 +1,137 @@
++Paravirt_ops on IA64
++====================
++                          21 May 2008, Isaku Yamahata <yamahata@valinux.co.jp>
++
++
++Introduction
++------------
++The aim of this documentation is to help with maintainability and/or to
++encourage people to use paravirt_ops/IA64.
++
++paravirt_ops (pv_ops in short) is a way for virtualization support of
++Linux kernel on x86. Several ways for virtualization support were
++proposed, paravirt_ops is the winner.
++On the other hand, now there are also several IA64 virtualization
++technologies like kvm/IA64, xen/IA64 and many other academic IA64
++hypervisors so that it is good to add generic virtualization
++infrastructure on Linux/IA64.
++
++
++What is paravirt_ops?
++---------------------
++It has been developed on x86 as virtualization support via API, not ABI.
++It allows each hypervisor to override operations which are important for
++hypervisors at API level. And it allows a single kernel binary to run on
++all supported execution environments including native machine.
++Essentially paravirt_ops is a set of function pointers which represent
++operations corresponding to low level sensitive instructions and high
++level functionalities in various area. But one significant difference
++from usual function pointer table is that it allows optimization with
++binary patch. It is because some of these operations are very
++performance sensitive and indirect call overhead is not negligible.
++With binary patch, indirect C function call can be transformed into
++direct C function call or in-place execution to eliminate the overhead.
++
++Thus, operations of paravirt_ops are classified into three categories.
++- simple indirect call
++  These operations correspond to high level functionality so that the
++  overhead of indirect call isn't very important.
++
++- indirect call which allows optimization with binary patch
++  Usually these operations correspond to low level instructions. They
++  are called frequently and performance critical. So the overhead is
++  very important.
++
++- a set of macros for hand written assembly code
++  Hand written assembly codes (.S files) also need paravirtualization
++  because they include sensitive instructions or some of code paths in
++  them are very performance critical.
++
++
++The relation to the IA64 machine vector
++---------------------------------------
++Linux/IA64 has the IA64 machine vector functionality which allows the
++kernel to switch implementations (e.g. initialization, ipi, dma api...)
++depending on executing platform.
++We can replace some implementations very easily defining a new machine
++vector. Thus another approach for virtualization support would be
++enhancing the machine vector functionality.
++But paravirt_ops approach was taken because
++- virtualization support needs wider support than machine vector does.
++  e.g. low level instruction paravirtualization. It must be
++       initialized very early before platform detection.
++
++- virtualization support needs more functionality like binary patch.
++  Probably the calling overhead might not be very large compared to the
++  emulation overhead of virtualization. However in the native case, the
++  overhead should be eliminated completely.
++  A single kernel binary should run on each environment including native,
++  and the overhead of paravirt_ops on native environment should be as
++  small as possible.
++
++- for full virtualization technology, e.g. KVM/IA64 or
++  Xen/IA64 HVM domain, the result would be
++  (the emulated platform machine vector. probably dig) + (pv_ops).
++  This means that the virtualization support layer should be under
++  the machine vector layer.
++
++Possibly it might be better to move some function pointers from
++paravirt_ops to machine vector. In fact, Xen domU case utilizes both
++pv_ops and machine vector.
++
++
++IA64 paravirt_ops
++-----------------
++In this section, the concrete paravirt_ops will be discussed.
++Because of the architecture difference between ia64 and x86, the
++resulting set of functions is very different from x86 pv_ops.
++
++- C function pointer tables
++They are not very performance critical so that simple C indirect
++function call is acceptable. The following structures are defined at
++this moment. For details see linux/include/asm-ia64/paravirt.h
++  - struct pv_info
++    This structure describes the execution environment.
++  - struct pv_init_ops
++    This structure describes the various initialization hooks.
++  - struct pv_iosapic_ops
++    This structure describes hooks to iosapic operations.
++  - struct pv_irq_ops
++    This structure describes hooks to irq related operations
++  - struct pv_time_op
++    This structure describes hooks to steal time accounting.
++
++- a set of indirect calls which need optimization
++Currently this class of functions correspond to a subset of IA64
++intrinsics. At this moment the optimization with binary patch isn't
++implemented yet.
++struct pv_cpu_op is defined. For details see
++linux/include/asm-ia64/paravirt_privop.h
++Mostly they correspond to ia64 intrinsics 1-to-1.
++Caveat: Now they are defined as C indirect function pointers, but in
++order to support binary patch optimization, they will be changed
++using GCC extended inline assembly code.
++
++- a set of macros for hand written assembly code (.S files)
++For maintenance purpose, the taken approach for .S files is single
++source code and compile multiple times with different macros definitions.
++Each pv_ops instance must define those macros to compile.
++The important thing here is that sensitive, but non-privileged
++instructions must be paravirtualized and that some privileged
++instructions also need paravirtualization for reasonable performance.
++Developers who modify .S files must be aware of that. At this moment
++an easy checker is implemented to detect paravirtualization breakage.
++But it doesn't cover all the cases.
++
++Sometimes this set of macros is called pv_cpu_asm_op. But there is no
++corresponding structure in the source code.
++Those macros mostly 1:1 correspond to a subset of privileged
++instructions. See linux/include/asm-ia64/native/inst.h.
++And some functions written in assembly also need to be overrided so
++that each pv_ops instance have to define some macros. Again see
++linux/include/asm-ia64/native/inst.h.
++
++
++Those structures must be initialized very early before start_kernel.
++Probably initialized in head.S using multi entry point or some other trick.
++For native case implementation see linux/arch/ia64/kernel/paravirt.c.
+-- 
+1.5.3
