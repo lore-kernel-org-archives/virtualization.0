@@ -1,17 +1,15 @@
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: [Fwd: [PATCH]: Fix crash in virtio_blk during modprobe ; rmmod  ;
-	modprobe]
-Date: Thu, 22 May 2008 14:07:01 +0200
-Message-ID: <20080522120700.GF7712__30712.5653409914$1211458175$gmane$org@kernel.dk>
-References: <48341FC7.4060600@redhat.com>
-	<200805222133.01686.rusty@rustcorp.com.au>
-	<20080522113517.GC7712@kernel.dk> <483560FB.4040500@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Fwd: [PATCH]: Fix silly output for virtio devices in
+	/proc/interrupts]
+Date: Thu, 22 May 2008 22:38:57 +1000
+Message-ID: <200805222238.58166.rusty__12524.3348455571$1211460114$gmane$org@rustcorp.com.au>
+References: <48341FE1.4070305@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <48341FE1.4070305@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <483560FB.4040500@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,39 +20,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Chris Lalancette <clalance@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 22 2008, Chris Lalancette wrote:
-> Jens Axboe wrote:
-> > On Thu, May 22 2008, Rusty Russell wrote:
-> >> On Wednesday 21 May 2008 23:12:39 Chris Lalancette wrote:
-> >>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> >>> index 4962e62..c678ac5 100644
-> >>> --- a/drivers/block/virtio_blk.c
-> >>> +++ b/drivers/block/virtio_blk.c
-> >>> @@ -294,6 +294,7 @@ static void virtblk_remove(struct virtio_device *vdev)
-> >>>         vdev->config->reset(vdev);
-> >>>  
-> >>>         blk_cleanup_queue(vblk->disk->queue);
-> >>> +       del_gendisk(vblk->disk);
-> >>>         put_disk(vblk->disk);
-> >>>         unregister_blkdev(major, "virtblk");
-> >>>         mempool_destroy(vblk->pool);
-> >> Thanks Chris, it seems reasonable and I'm sure it works (kinda hard to
-> >> test here, it's my root block dev).  Other drivers seem to do
-> >> blk_cleanup_queue() *after* del_gendisk: does it matter?
-> >>
-> >> Jens CC'd: he's gentle with my dumb questions...  Rusty.
-> > 
-> > del_gendisk() can generate IO, so it would seem safer to do that
-> > _before_ putting the queue reference :-)
-> > 
-> 
-> Ah, good to know.  Out of curiousity, why would del_gendisk() generate
-> additional I/O?
-
-It does invalidate+sync.
-
--- 
-Jens Axboe
+T24gV2VkbmVzZGF5IDIxIE1heSAyMDA4IDIzOjEzOjA1IENocmlzIExhbGFuY2V0dGUgd3JvdGU6
+Cj4gQXV0aG9yOiBDaHJpcyBMYWxhbmNldHRlIDxjbGFsYW5jZUByZWRoYXQuY29tPgo+IERhdGU6
+IMKgIFRodSBNYXkgMTUgMDk6MDQ6NTUgMjAwOCAtMDQwMAo+Cj4gwqAgwqAgcmVnaXN0ZXJfdmly
+dGlvX2RldmljZSB3YXMgZG9pbmcgc29tZXRoaW5nIHNpbGx5LCBpbiB0aGF0IGl0IHdhcwo+IG92
+ZXJ3cml0aW5nIHdoYXQgdGhlIGNhbGxpbmcgZHJpdmVyIHN0dWNrIGludG8gLmJ1c19pZCIgZm9y
+IHRoZSBuYW1lLiDCoFRoaXMKPiBjYXVzZWQgcHJvYmxlbXMgaW4gdGhlIG91dHB1dCBvZiAvcHJv
+Yy9pbnRlcnJ1cHRzLCBzaW5jZSB3aGVuIHlvdQo+IHJlcXVlc3RfaXJxKCksIGl0IGRvZXNuJ3Qg
+YWN0dWFsbHkgY29weSB0aGUgZGV2bmFtZSB5b3UgcGFzcyBpbiBidXQganVzdAo+IHN0b3JlcyBh
+IHBvaW50ZXIgdG8gdGhlIGRhdGEuIMKgVGhlIGZpeCBpcyB0byBqdXN0IG5vdCBoYXZlCj4gcmVn
+aXN0ZXJfdmlydGlvX2RldmljZSBkbyBhbnl0aGluZyB3aXRoIHRoZSBidXNfaWQsIGFuZCBhc3N1
+bWUgdGhlIGhpZ2hlcgo+IGxldmVsIGRyaXZlciBzZXQgaXQgdXAgcHJvcGVybHkuCgpPSywgYnV0
+IG9ubHkgb25lIGhpZ2hlci1sZXZlbCBkcml2ZXIgd2lsbCBzZXQgaXQgdXAgcHJvcGVybHk6IGt2
+bS4gIE5laXRoZXIKbGd1ZXN0IG5vciBzLzM5MCBkbyB0aGlzLCBhbmQgYXMgYSByZXN1bHQsIHRo
+ZXkgZmFpbCB0byByZWdpc3RlciAqYW55KgpkZXZpY2VzLgoKVGhlIGZvbGxvd2luZyBwYXRjaCBz
+aG91bGQgZml4IGl0IGZvciBzLzM5MCAoaXQncyBpZGVudGljYWwgdG8gdGhlIGxndWVzdApwYXRj
+aCksIGJ1dCB3b3VsZCBwcmVmZXIgdGVzdGluZyAoUy8zOTAtZXJzIGNjJ2QpLgoKPT09CnZpcnRp
+bzogUy8zOTAgc2V0IG5hbWUgb2YgdmlydGlvIGRldmljZXMgZGlyZWN0bHkuCgpDaHJpcyBoYXMg
+YSBwYXRjaCAnRml4IHNpbGx5IG91dHB1dCBmb3IgdmlydGlvIGRldmljZXMgaW4gL3Byb2MvaW50
+ZXJydXB0cycKd2hpY2ggcmVxdWlyZXMgY2FsbGVycyB0byB0aGUgdmlydGlvIGRyaXZlciBpbmZy
+YXN0cnVjdHVyZSB0byBzZXQgdGhlIGJ1c19pZHMKdGhlbXNlbHZlcy4gIFRoaXMgZG9lcyB0aGF0
+IGZvciBzLzM5MC4KClNpZ25lZC1vZmYtYnk6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3Jw
+LmNvbS5hdT4KQ2M6IENocmlzdGlhbiBCb3JudHJhZWdlciA8Ym9ybnRyYWVnZXJAZGUuaWJtLmNv
+bT4KQ2M6IE1hcnRpbiBTY2h3aWRlZnNreSA8c2Nod2lkZWZza3lAZGUuaWJtLmNvbT4KQ2M6IENh
+cnN0ZW4gT3R0ZSA8Y290dGVAZGUuaWJtLmNvbT4KQ2M6IEhlaWtvIENhcnN0ZW5zIDxoZWlrby5j
+YXJzdGVuc0BkZS5pYm0uY29tPgpDYzogQ2hyaXMgTGFsYW5jZXR0ZSA8Y2xhbGFuY2VAcmVkaGF0
+LmNvbT4KLS0tCiBkcml2ZXJzL3MzOTAva3ZtL2t2bV92aXJ0aW8uYyB8ICAgIDIgKysKIDEgZmls
+ZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykKCmRpZmYgLXIgYzkwM2VmNmIzOTFmIGRyaXZlcnMv
+czM5MC9rdm0va3ZtX3ZpcnRpby5jCi0tLSBhL2RyaXZlcnMvczM5MC9rdm0va3ZtX3ZpcnRpby5j
+CVRodSBNYXkgMjIgMjI6MzE6MzEgMjAwOCArMTAwMAorKysgYi9kcml2ZXJzL3MzOTAva3ZtL2t2
+bV92aXJ0aW8uYwlUaHUgTWF5IDIyIDIyOjMyOjU1IDIwMDggKzEwMDAKQEAgLTI2NSw2ICsyNjUs
+OCBAQCBzdGF0aWMgdm9pZCBhZGRfa3ZtX2RldmljZShzdHJ1Y3Qga3ZtX2RlCiAKIAlrZGV2LT52
+ZGV2LmRldi5wYXJlbnQgPSAma3ZtX3Jvb3Q7CiAJa2Rldi0+dmRldi5pbmRleCA9IGRldl9pbmRl
+eCsrOworCXNucHJpbnRmKGtkZXYtPnZkZXYuZGV2LmJ1c19pZCwgQlVTX0lEX1NJWkUsICJ2aXJ0
+aW8lZCIsCisJCSBrZGV2LT52ZGV2LmluZGV4KTsKIAlrZGV2LT52ZGV2LmlkLmRldmljZSA9IGQt
+PnR5cGU7CiAJa2Rldi0+dmRldi5jb25maWcgPSAma3ZtX3ZxX2NvbmZpZ3NwYWNlX29wczsKIAlr
+ZGV2LT5kZXNjID0gZDsKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
