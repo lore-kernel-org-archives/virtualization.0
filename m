@@ -1,164 +1,99 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH] x86/paravirt: add pte_flags to just get pte flags
-Date: Fri, 23 May 2008 14:19:59 +0100
-Message-ID: <4836C47F.1090100@goop.org>
+Subject: [PATCH 0 of 4] mm+paravirt+xen: add pte
+	read-modify-write abstraction
+Date: Fri, 23 May 2008 15:20:48 +0100
+Message-ID: <patchbomb.1211552448@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753443AbYEWNUl@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>
+Cc: Zachary Amsden <zach@vmware.com>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add pte_flags() to extract the flags from a pte.  This is a special
-case of pte_val() which is only guaranteed to return the pte's flags
-correctly; the page number may be corrupted or missing.
+Hi all,
 
-The intent is to allow paravirt implementations to return pte flags
-without having to do any translation of the page number (most notably,
-Xen).
+This little series adds a new transaction-like abstraction for doing
+RMW updates to a pte, hooks it into paravirt_ops, and then makes use
+of it in Xen.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
----
- arch/x86/kernel/paravirt.c |    1 +
- arch/x86/xen/enlighten.c   |    1 +
- drivers/lguest/lg.h        |    1 -
- include/asm-x86/page.h     |    1 +
- include/asm-x86/paravirt.h |   15 +++++++++++++++
- include/asm-x86/pgtable.h  |   16 ++++++++--------
- 6 files changed, 26 insertions(+), 9 deletions(-)
+The basic problem is that mprotect is very slow under Xen (up to 50x
+slower than native), primarily because of the
 
-===================================================================
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -406,6 +406,7 @@
- #endif /* PAGETABLE_LEVELS >= 3 */
- 
- 	.pte_val = native_pte_val,
-+	.pte_flags = native_pte_val,
- 	.pgd_val = native_pgd_val,
- 
- 	.make_pte = native_make_pte,
-===================================================================
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -1102,6 +1102,7 @@
- 	.set_pmd = xen_set_pmd,
- 
- 	.pte_val = xen_pte_val,
-+	.pte_flags = native_pte_val,
- 	.pgd_val = xen_pgd_val,
- 
- 	.make_pte = xen_make_pte,
-===================================================================
---- a/drivers/lguest/lg.h
-+++ b/drivers/lguest/lg.h
-@@ -136,7 +136,6 @@
-  * first step in the migration to the kernel types.  pte_pfn is already defined
-  * in the kernel. */
- #define pgd_flags(x)	(pgd_val(x) & ~PAGE_MASK)
--#define pte_flags(x)	(pte_val(x) & ~PAGE_MASK)
- #define pgd_pfn(x)	(pgd_val(x) >> PAGE_SHIFT)
- 
- /* interrupts_and_traps.c: */
-===================================================================
---- a/include/asm-x86/page.h
-+++ b/include/asm-x86/page.h
-@@ -164,6 +164,7 @@
- #endif
- 
- #define pte_val(x)	native_pte_val(x)
-+#define pte_flags(x)	native_pte_val(x)
- #define __pte(x)	native_make_pte(x)
- 
- #endif	/* CONFIG_PARAVIRT */
-===================================================================
---- a/include/asm-x86/paravirt.h
-+++ b/include/asm-x86/paravirt.h
-@@ -240,6 +240,7 @@
- 				 unsigned long addr, pte_t *ptep);
- 
- 	pteval_t (*pte_val)(pte_t);
-+	pteval_t (*pte_flags)(pte_t);
- 	pte_t (*make_pte)(pteval_t pte);
- 
- 	pgdval_t (*pgd_val)(pgd_t);
-@@ -997,6 +998,20 @@
- 	return ret;
- }
- 
-+static inline pteval_t pte_flags(pte_t pte)
-+{
-+	pteval_t ret;
-+
-+	if (sizeof(pteval_t) > sizeof(long))
-+		ret = PVOP_CALL2(pteval_t, pv_mmu_ops.pte_flags,
-+				 pte.pte, (u64)pte.pte >> 32);
-+	else
-+		ret = PVOP_CALL1(pteval_t, pv_mmu_ops.pte_flags,
-+				 pte.pte);
-+
-+	return ret;
-+}
-+
- static inline pgd_t __pgd(pgdval_t val)
- {
- 	pgdval_t ret;
-===================================================================
---- a/include/asm-x86/pgtable.h
-+++ b/include/asm-x86/pgtable.h
-@@ -163,37 +163,37 @@
-  */
- static inline int pte_dirty(pte_t pte)
- {
--	return pte_val(pte) & _PAGE_DIRTY;
-+	return pte_flags(pte) & _PAGE_DIRTY;
- }
- 
- static inline int pte_young(pte_t pte)
- {
--	return pte_val(pte) & _PAGE_ACCESSED;
-+	return pte_flags(pte) & _PAGE_ACCESSED;
- }
- 
- static inline int pte_write(pte_t pte)
- {
--	return pte_val(pte) & _PAGE_RW;
-+	return pte_flags(pte) & _PAGE_RW;
- }
- 
- static inline int pte_file(pte_t pte)
- {
--	return pte_val(pte) & _PAGE_FILE;
-+	return pte_flags(pte) & _PAGE_FILE;
- }
- 
- static inline int pte_huge(pte_t pte)
- {
--	return pte_val(pte) & _PAGE_PSE;
-+	return pte_flags(pte) & _PAGE_PSE;
- }
- 
- static inline int pte_global(pte_t pte)
- {
--	return pte_val(pte) & _PAGE_GLOBAL;
-+	return pte_flags(pte) & _PAGE_GLOBAL;
- }
- 
- static inline int pte_exec(pte_t pte)
- {
--	return !(pte_val(pte) & _PAGE_NX);
-+	return !(pte_flags(pte) & _PAGE_NX);
- }
- 
- static inline int pte_special(pte_t pte)
-@@ -304,7 +304,7 @@
- 	return __pgprot(preservebits | addbits);
- }
- 
--#define pte_pgprot(x) __pgprot(pte_val(x) & ~PTE_MASK)
-+#define pte_pgprot(x) __pgprot(pte_flags(x) & ~PTE_MASK)
- 
- #define canon_pgprot(p) __pgprot(pgprot_val(p) & __supported_pte_mask)
- 
+	ptent = ptep_get_and_clear(mm, addr, pte);
+	ptent = pte_modify(ptent, newprot);
+	/* ... */
+	set_pte_at(mm, addr, pte, ptent);
+
+sequence in mm/mprotect.c:change_pte_range().
+
+This is bad for Xen for two reasons:
+
+  1: ptep_get_and_clear() ends up being a xchg on the pte.  Since the
+     pte page is read-only (as it must be, because Xen needs to
+     control all pte updates), this traps into Xen, which then
+     emulates the instruction.  Trapping into the instruction emulator
+     is inherently fairly expensive.  And,
+
+  2: because ptep_get_and_clear has atomic-fetch-and-update semantics,
+     it's impossible to implement in a way which can be batched to amortize
+     the cost of faulting into the hypervisor.
+
+This series adds the pte_rmw_start() and pte_rmw_commit() operations,
+which change this sequence to:
+
+	ptent = pte_rmw_start(mm, addr, pte);
+	ptent = pte_modify(ptent, newprot);
+	/* ... */
+	pte_rmw_commit(mm, addr, pte, ptent);
+
+Which looks very familiar.  And, indeed, when compiled without
+CONFIG_PARAVIRT (or on a non-x86 architecture), it will end up doing
+precisely the same thing as before.
+
+However, the effective semantics are a bit different.  pte_rmw_start()
+means "I'm reading this pte with the intention of updating it; please
+don't lose any hardware pte changes in the meantime".  And
+pte_rmw_commit() means "Here's a new value for the pte, but make sure
+you don't lose any hardware changes".
+
+The default implementation achieves these semantics by making
+pte_rmw_start() set the pte to non-present, which prevents any async
+hardware changes to the pte.  The pte_rmw_commit() can then just write
+the new value into place without having to worry about preserving any
+changes, because it knows there are none.
+
+Xen implements pte_rmw_start() as a simple read of the pte.  This
+leaves the pte unchanged in memory, and the hardware may make
+asynchronous changes to it.  It implements pte_rmw_commit() using a
+hypercall which preserves the state of the Access/Dirty bits to update
+the pte.  This allows the whole change_pte_range() loop to be run
+without any synchronous unbatched traps into the hypervisor.  With
+this change in place, an mprotect microbenchmark goes from being 50x
+worse than native to around 7x, which is acceptible.
+
+I believe that other virtualization systems, whether they use direct
+paging like Xen, or a shadow pagetable scheme (vmi, kvm, lguest), can
+make use of this interface to improve the performance.
+
+Unfortunately (or fortunately) there aren't very many other areas of
+the kernel which can really take advantage of this.  There's only a
+couple of other instances of ptep_get_and_clear() in mm/, and they're
+being used in a similar way; but I don't think they're very
+performance critical (though zap_pte_range might be interesting).
+
+In general, mprotect is rarely a performance bottleneck.  But some
+debugging libraries (such as electric fence) and garbage collectors
+can be very heavy users of mprotect, and this change could materially
+benefit them.
+
+Thanks,
+	J
