@@ -1,159 +1,219 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 3 of 4] xen: implement pte_rmw_start/commit
-Date: Fri, 23 May 2008 15:20:51 +0100
-Message-ID: <68c53281433b439c3664.1211552451@localhost>
+Subject: [PATCH 4 of 4] xen: add mechanism to extend existing multicalls
+Date: Fri, 23 May 2008 15:20:52 +0100
+Message-ID: <b52f4df953d9a78886cb.1211552452@localhost>
 References: <patchbomb.1211552448@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758289AbYEWO0u@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757243AbYEWO1I@vger.kernel.org>
 In-Reply-To: <patchbomb.1211552448@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Ingo Molnar <mingo@elte.hu>
 Cc: LKML <linux-kernel@vger.kernel.org>, xen-devel <xen-devel@lists.xensource.com>, Thomas Gleixner <tglx@linutronix.de>, Hugh Dickins <hugh@veritas.com>, Zachary Amsden <zach@vmware.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen has a pte update function which will update a pte while preserving
-its accessed and dirty bits.  This means that pte_rmw_start() can be
-implemented as a simple read of the pte value.  The hardware may
-update the pte in the meantime, but pte_rmw_commit() updates it while
-preserving any changes that may have happened in the meantime.
+Some Xen hypercalls accept an array of operations to work on.  In
+general this is because its more efficient for the hypercall to the
+work all at once rather than as separate hypercalls (even batched as a
+multicall).
 
-The updates in pte_rmw_commit() are batched if we're currently in lazy
-mmu mode.
+This patch adds a mechanism (xen_mc_extend_args()) to allocate more
+argument space to the last-issued multicall, in order to extend its
+argument list.
 
-The mmu_update hypercall can take a batch of updates to perform, but
-this code doesn't make particular use of that feature, in favour of
-using generic multicall batching to get them all into the hypervisor.
-
-The net effect of this is that each mprotect pte update turns from two
-expensive trap-and-emulate faults into they hypervisor into a single
-hypercall whose cost is amortized in a batched multicall.
+The user of this mechanism is xen/mmu.c, which uses it to extend the
+args array of mmu_update.  This is particularly valuable when doing
+the update for a large mprotect, which goes via pte_rmw_commit(), but
+it also manages to batch updates to pgd/pmds as well.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- arch/x86/xen/enlighten.c         |   13 ++++++++++---
- arch/x86/xen/mmu.c               |   21 +++++++++++++++++++++
- arch/x86/xen/mmu.h               |    4 ++++
- include/xen/interface/features.h |    3 +++
- include/xen/interface/xen.h      |    9 +++++++--
- 5 files changed, 45 insertions(+), 5 deletions(-)
+ arch/x86/xen/mmu.c        |   56 ++++++++++++++++++++++++++++-----------------
+ arch/x86/xen/multicalls.c |   40 +++++++++++++++++++++++++++-----
+ arch/x86/xen/multicalls.h |   12 +++++++++
+ 3 files changed, 81 insertions(+), 27 deletions(-)
 
-diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -140,7 +140,9 @@
- {
- 	printk(KERN_INFO "Booting paravirtualized kernel on %s\n",
- 	       pv_info.name);
--	printk(KERN_INFO "Hypervisor signature: %s\n", xen_start_info->magic);
-+	printk(KERN_INFO "Hypervisor signature: %s%s\n",
-+	       xen_start_info->magic,
-+	       xen_feature(XENFEAT_mmu_pt_update_preserve_ad) ? " (preserve-AD)" : "");
- }
- 
- static void xen_cpuid(unsigned int *ax, unsigned int *bx,
-@@ -1208,6 +1210,8 @@
- 
- 	BUG_ON(memcmp(xen_start_info->magic, "xen-3", 5) != 0);
- 
-+	xen_setup_features();
-+
- 	/* Install Xen paravirt ops */
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
-@@ -1217,13 +1221,16 @@
- 	pv_apic_ops = xen_apic_ops;
- 	pv_mmu_ops = xen_mmu_ops;
- 
-+	if (xen_feature(XENFEAT_mmu_pt_update_preserve_ad)) {
-+		pv_mmu_ops.pte_rmw_start = xen_pte_rmw_start;
-+		pv_mmu_ops.pte_rmw_commit = xen_pte_rmw_commit;
-+	}
-+
- 	machine_ops = xen_machine_ops;
- 
- #ifdef CONFIG_SMP
- 	smp_ops = xen_smp_ops;
- #endif
--
--	xen_setup_features();
- 
- 	/* Get mfn list */
- 	if (!xen_feature(XENFEAT_auto_translated_physmap))
 diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
 --- a/arch/x86/xen/mmu.c
 +++ b/arch/x86/xen/mmu.c
-@@ -300,6 +300,27 @@
- out:
- 	if (mm == &init_mm)
- 		preempt_enable();
-+}
-+
-+pte_t xen_pte_rmw_start(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
-+{
-+	/* Just return the pte as-is.  We preserve the bits on commit */
-+	return *ptep;
-+}
-+
-+void xen_pte_rmw_commit(struct mm_struct *mm, unsigned long addr,
-+			pte_t *ptep, pte_t pte)
-+{
-+	struct multicall_space mcs;
-+	struct mmu_update *u;
-+
-+	mcs = xen_mc_entry(sizeof(*u));
-+	u = mcs.args;
-+	u->ptr = virt_to_machine(ptep).maddr | MMU_PT_UPDATE_PRESERVE_AD;
-+	u->val = pte_val_ma(pte);
-+	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
+@@ -220,19 +220,35 @@
+ 		BUG();
  }
  
- pteval_t xen_pte_val(pte_t pte)
-diff --git a/arch/x86/xen/mmu.h b/arch/x86/xen/mmu.h
---- a/arch/x86/xen/mmu.h
-+++ b/arch/x86/xen/mmu.h
-@@ -52,4 +52,8 @@
- void xen_pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
- void xen_pmd_clear(pmd_t *pmdp);
+-
+-void xen_set_pmd(pmd_t *ptr, pmd_t val)
++static void extend_mmu_update(const struct mmu_update *update)
+ {
+ 	struct multicall_space mcs;
+ 	struct mmu_update *u;
  
-+pte_t xen_pte_rmw_start(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
-+void  xen_pte_rmw_commit(struct mm_struct *mm, unsigned long addr,
-+			 pte_t *ptep, pte_t pte);
++	mcs = xen_mc_extend_args(__HYPERVISOR_mmu_update, sizeof(*u));
 +
- #endif	/* _XEN_MMU_H */
-diff --git a/include/xen/interface/features.h b/include/xen/interface/features.h
---- a/include/xen/interface/features.h
-+++ b/include/xen/interface/features.h
-@@ -38,6 +38,9 @@
-  */
- #define XENFEAT_pae_pgdir_above_4gb        4
- 
-+/* x86: Does this Xen host support the MMU_PT_UPDATE_PRESERVE_AD hypercall? */
-+#define XENFEAT_mmu_pt_update_preserve_ad  5
++	if (mcs.mc != NULL)
++		mcs.mc->args[1]++;
++	else {
++		mcs = __xen_mc_entry(sizeof(*u));
++		MULTI_mmu_update(mcs.mc, mcs.args, 1, NULL, DOMID_SELF);
++	}
 +
- #define XENFEAT_NR_SUBMAPS 1
++	u = mcs.args;
++	*u = *update;
++}
++
++void xen_set_pmd(pmd_t *ptr, pmd_t val)
++{
++	struct mmu_update u;
++
+ 	preempt_disable();
  
- #endif /* __XEN_PUBLIC_FEATURES_H__ */
-diff --git a/include/xen/interface/xen.h b/include/xen/interface/xen.h
---- a/include/xen/interface/xen.h
-+++ b/include/xen/interface/xen.h
-@@ -113,9 +113,14 @@
-  * ptr[:2]  -- Machine address within the frame whose mapping to modify.
-  *             The frame must belong to the FD, if one is specified.
-  * val      -- Value to write into the mapping entry.
+-	mcs = xen_mc_entry(sizeof(*u));
+-	u = mcs.args;
+-	u->ptr = virt_to_machine(ptr).maddr;
+-	u->val = pmd_val_ma(val);
+-	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++	xen_mc_batch();
++
++	u.ptr = virt_to_machine(ptr).maddr;
++	u.val = pmd_val_ma(val);
++	extend_mmu_update(&u);
+ 
+ 	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ 
+@@ -311,14 +327,13 @@
+ void xen_pte_rmw_commit(struct mm_struct *mm, unsigned long addr,
+ 			pte_t *ptep, pte_t pte)
+ {
+-	struct multicall_space mcs;
+-	struct mmu_update *u;
++	struct mmu_update u;
+ 
+-	mcs = xen_mc_entry(sizeof(*u));
+-	u = mcs.args;
+-	u->ptr = virt_to_machine(ptep).maddr | MMU_PT_UPDATE_PRESERVE_AD;
+-	u->val = pte_val_ma(pte);
+-	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++	xen_mc_batch();
++
++	u.ptr = virt_to_machine(ptep).maddr | MMU_PT_UPDATE_PRESERVE_AD;
++	u.val = pte_val_ma(pte);
++	extend_mmu_update(&u);
+ 
+ 	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ }
+@@ -369,16 +384,15 @@
+ 
+ void xen_set_pud(pud_t *ptr, pud_t val)
+ {
+-	struct multicall_space mcs;
+-	struct mmu_update *u;
++	struct mmu_update u;
+ 
+ 	preempt_disable();
+ 
+-	mcs = xen_mc_entry(sizeof(*u));
+-	u = mcs.args;
+-	u->ptr = virt_to_machine(ptr).maddr;
+-	u->val = pud_val_ma(val);
+-	MULTI_mmu_update(mcs.mc, u, 1, NULL, DOMID_SELF);
++	xen_mc_batch();
++
++	u.ptr = virt_to_machine(ptr).maddr;
++	u.val = pud_val_ma(val);
++	extend_mmu_update(&u);
+ 
+ 	xen_mc_issue(PARAVIRT_LAZY_MMU);
+ 
+diff --git a/arch/x86/xen/multicalls.c b/arch/x86/xen/multicalls.c
+--- a/arch/x86/xen/multicalls.c
++++ b/arch/x86/xen/multicalls.c
+@@ -29,14 +29,14 @@
+ #define MC_DEBUG	1
+ 
+ #define MC_BATCH	32
+-#define MC_ARGS		(MC_BATCH * 16 / sizeof(u64))
++#define MC_ARGS		(MC_BATCH * 16)
+ 
+ struct mc_buffer {
+ 	struct multicall_entry entries[MC_BATCH];
+ #if MC_DEBUG
+ 	struct multicall_entry debug[MC_BATCH];
+ #endif
+-	u64 args[MC_ARGS];
++	unsigned char args[MC_ARGS];
+ 	struct callback {
+ 		void (*fn)(void *);
+ 		void *data;
+@@ -107,20 +107,48 @@
+ {
+ 	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
+ 	struct multicall_space ret;
+-	unsigned argspace = (args + sizeof(u64) - 1) / sizeof(u64);
++	unsigned argidx = roundup(b->argidx, sizeof(u64));
+ 
+ 	BUG_ON(preemptible());
+-	BUG_ON(argspace > MC_ARGS);
++	BUG_ON(b->argidx > MC_ARGS);
+ 
+ 	if (b->mcidx == MC_BATCH ||
+-	    (b->argidx + argspace) > MC_ARGS)
++	    (argidx + args) > MC_ARGS) {
+ 		xen_mc_flush();
++		argidx = roundup(b->argidx, sizeof(u64));
++	}
+ 
+ 	ret.mc = &b->entries[b->mcidx];
+ 	b->mcidx++;
++	ret.args = &b->args[argidx];
++	b->argidx = argidx + args;
++
++	BUG_ON(b->argidx > MC_ARGS);
++	return ret;
++}
++
++struct multicall_space xen_mc_extend_args(unsigned long op, size_t size)
++{
++	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
++	struct multicall_space ret = { NULL, NULL };
++
++	BUG_ON(preemptible());
++	BUG_ON(b->argidx > MC_ARGS);
++
++	if (b->mcidx == 0)
++		return ret;
++
++	if (b->entries[b->mcidx - 1].op != op)
++		return ret;
++
++	if ((b->argidx + size) > MC_ARGS)
++		return ret;
++
++	ret.mc = &b->entries[b->mcidx - 1];
+ 	ret.args = &b->args[b->argidx];
+-	b->argidx += argspace;
++	b->argidx += size;
+ 
++	BUG_ON(b->argidx > MC_ARGS);
+ 	return ret;
+ }
+ 
+diff --git a/arch/x86/xen/multicalls.h b/arch/x86/xen/multicalls.h
+--- a/arch/x86/xen/multicalls.h
++++ b/arch/x86/xen/multicalls.h
+@@ -45,4 +45,16 @@
+ /* Set up a callback to be called when the current batch is flushed */
+ void xen_mc_callback(void (*fn)(void *), void *data);
+ 
++/*
++ * Try to extend the arguments of the previous multicall command.  The
++ * previous command's op must match.  If it does, then it attempts to
++ * extend the argument space allocated to the multicall entry by
++ * arg_size bytes.
 + *
-+ * ptr[1:0] == MMU_PT_UPDATE_PRESERVE_AD:
-+ * As MMU_NORMAL_PT_UPDATE above, but A/D bits currently in the PTE are ORed
-+ * with those in @val.
-  */
--#define MMU_NORMAL_PT_UPDATE     0 /* checked '*ptr = val'. ptr is MA.       */
--#define MMU_MACHPHYS_UPDATE      1 /* ptr = MA of frame to modify entry for  */
-+#define MMU_NORMAL_PT_UPDATE      0 /* checked '*ptr = val'. ptr is MA.       */
-+#define MMU_MACHPHYS_UPDATE       1 /* ptr = MA of frame to modify entry for  */
-+#define MMU_PT_UPDATE_PRESERVE_AD 2 /* atomically: *ptr = val | (*ptr&(A|D)) */
- 
- /*
-  * MMU EXTENDED OPERATIONS
++ * The returned multicall_space will return with mc pointing to the
++ * command on success, or NULL on failure, and args pointing to the
++ * newly allocated space.
++ */
++struct multicall_space xen_mc_extend_args(unsigned long op, size_t arg_size);
++
+ #endif /* _XEN_MULTICALLS_H */
