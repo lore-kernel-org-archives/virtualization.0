@@ -1,16 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Fwd: [PATCH]: Fix silly output for virtio devices in
-	/proc/interrupts]
-Date: Fri, 23 May 2008 12:43:10 +1000
-Message-ID: <200805231243.10584.rusty__44451.7777571038$1211510732$gmane$org@rustcorp.com.au>
-References: <48341FE1.4070305@redhat.com>
-	<200805222238.58166.rusty@rustcorp.com.au>
-	<4835EC94.8080508@codemonkey.ws>
+Subject: [PATCH 1/3] virtio: bus_id for devices should contain 'virtio'
+Date: Thu, 22 May 2008 21:47:50 -0500
+Message-ID: <200805231247.50751.rusty__27683.725502766$1211510999$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4835EC94.8080508@codemonkey.ws>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,43 +16,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Carsten Otte <cotte@de.ibm.com>, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Anthony Liguori <anthony@codemonkey.ws>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 23 May 2008 07:58:44 Anthony Liguori wrote:
-> Rusty Russell wrote:
-> > On Wednesday 21 May 2008 23:13:05 Chris Lalancette wrote:
-> >> Author: Chris Lalancette <clalance@redhat.com>
-> >> Date:   Thu May 15 09:04:55 2008 -0400
-> >>
-> >>     register_virtio_device was doing something silly, in that it was
-> >> overwriting what the calling driver stuck into .bus_id" for the name. 
-> >> This caused problems in the output of /proc/interrupts, since when you
-> >> request_irq(), it doesn't actually copy the devname you pass in but just
-> >> stores a pointer to the data.  The fix is to just not have
-> >> register_virtio_device do anything with the bus_id, and assume the
-> >> higher level driver set it up properly.
-> >
-> > OK, but only one higher-level driver will set it up properly: kvm. 
-> > Neither lguest nor s/390 do this, and as a result, they fail to register
-> > *any* devices.
-> >
-> > The following patch should fix it for s/390 (it's identical to the lguest
-> > patch), but would prefer testing (S/390-ers cc'd).
->
-> It may actually be better for virtio to set this up.  The problem is
-> that if you have multiple transports that are registering virtio
-> devices, it's impossible at the transport level to guarantee uniqueness
-> while still using the "virtio%d" naming.  Except the current scheme is
-> no good, we'd have to push the dev_index into virtio too.
+Chris Lalancette <clalance@redhat.com> points out that virtio.c sets all device
+names to '0', '1', etc, which looks silly in /proc/interrupts.  We change this
+from '%d' to 'virtio%d'.
 
-That's true.  OK, let's hoist the index counter into common code instead.  The 
-alternative is to use different busid namings for each transport, and that 
-seems like too much confusion: sysfs will tell you where it comes from if you 
-really need to know.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Carsten Otte <cotte@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Chris Lalancette <clalance@redhat.com>
+Cc: Anthony Liguori <anthony@codemonkey.ws>
+---
+ drivers/virtio/virtio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Patch series coming.
-
-Thanks,
-Rusty.
+diff -r 2f0d0ce2adbf drivers/virtio/virtio.c
+--- a/drivers/virtio/virtio.c	Fri May 23 11:55:02 2008 +1000
++++ b/drivers/virtio/virtio.c	Fri May 23 12:23:39 2008 +1000
+@@ -166,7 +169,7 @@ int register_virtio_device(struct virtio
+ 	int err;
+ 
+ 	dev->dev.bus = &virtio_bus;
+-	sprintf(dev->dev.bus_id, "%u", dev->index);
++	sprintf(dev->dev.bus_id, "virtio%u", dev->index);
+ 
+ 	/* We always start by resetting the device, in case a previous
+ 	 * driver messed it up.  This also tests that code path a little. */
