@@ -1,11 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/3] virtio: fix virtio_net xmit of freed skb bug
-Date: Mon, 26 May 2008 17:42:42 +1000
-Message-ID: <200805261742.43215.rusty__34334.6989168369$1211787915$gmane$org@rustcorp.com.au>
+Subject: [PATCH 2/3] virtio: fix delayed xmit of packet and freeing of old
+	packets.
+Date: Mon, 26 May 2008 17:48:13 +1000
+Message-ID: <200805261748.13449.rusty__37907.6671823443$1211788232$gmane$org@rustcorp.com.au>
+References: <200805261742.43215.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200805261742.43215.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,49 +23,68 @@ To: Jeff Garzik <jeff@garzik.org>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we fail to transmit a packet, we assume the queue is full and put
-the skb into last_xmit_skb.  However, if more space frees up before we
-xmit it, we loop, and the result can be transmitting the same skb twice.
+Because we cache the last failed-to-xmit packet, if there are no
+packets queued behind that one we may never send it (reproduced here
+as TCP stalls, "cured" by an outgoing ping).
 
-Fix is simple: set skb to NULL if we've used it in some way, and check
-before sending.
-
+Cc: Mark McLoughlin <markmc@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/net/virtio_net.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/net/virtio_net.c |   22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff -r 564237b31993 drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c	Mon May 19 12:22:00 2008 +1000
-+++ b/drivers/net/virtio_net.c	Mon May 19 12:24:58 2008 +1000
-@@ -287,21 +287,25 @@ again:
- 	free_old_xmit_skbs(vi);
+diff -r 1d1ff03de434 drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c	Mon May 26 11:03:26 2008 +1000
++++ b/drivers/net/virtio_net.c	Mon May 26 16:37:20 2008 +1000
+@@ -47,6 +47,9 @@ struct virtnet_info
+ 	/* Number of input buffers, and max we've ever had. */
+ 	unsigned int num, max;
  
- 	/* If we has a buffer left over from last time, send it now. */
--	if (vi->last_xmit_skb) {
-+	if (unlikely(vi->last_xmit_skb)) {
- 		if (xmit_skb(vi, vi->last_xmit_skb) != 0) {
- 			/* Drop this skb: we only queue one. */
- 			vi->dev->stats.tx_dropped++;
- 			kfree_skb(skb);
-+			skb = NULL;
- 			goto stop_queue;
- 		}
- 		vi->last_xmit_skb = NULL;
- 	}
++	/* For cleaning up after transmission. */
++	struct tasklet_struct tasklet;
++
+ 	/* Receive & send queues. */
+ 	struct sk_buff_head recv;
+ 	struct sk_buff_head send;
+@@ -68,8 +71,13 @@ static void skb_xmit_done(struct virtque
  
- 	/* Put new one in send queue and do transmit */
--	__skb_queue_head(&vi->send, skb);
--	if (xmit_skb(vi, skb) != 0) {
--		vi->last_xmit_skb = skb;
--		goto stop_queue;
-+	if (likely(skb)) {
-+		__skb_queue_head(&vi->send, skb);
-+		if (xmit_skb(vi, skb) != 0) {
-+			vi->last_xmit_skb = skb;
-+			skb = NULL;
-+			goto stop_queue;
-+		}
- 	}
- done:
- 	vi->svq->vq_ops->kick(vi->svq);
+ 	/* Suppress further interrupts. */
+ 	svq->vq_ops->disable_cb(svq);
++
+ 	/* We were waiting for more output buffers. */
+ 	netif_wake_queue(vi->dev);
++
++	/* Make sure we re-xmit last_xmit_skb: if there are no more packets
++	 * queued, start_xmit won't be called. */
++	tasklet_schedule(&vi->tasklet);
+ }
+ 
+ static void receive_skb(struct net_device *dev, struct sk_buff *skb,
+@@ -278,6 +286,18 @@ static int xmit_skb(struct virtnet_info 
+ 	return vi->svq->vq_ops->add_buf(vi->svq, sg, num, 0, skb);
+ }
+ 
++static void xmit_tasklet(unsigned long data)
++{
++	struct virtnet_info *vi = (void *)data;
++
++	netif_tx_lock_bh(vi->dev);
++	if (vi->last_xmit_skb && xmit_skb(vi, vi->last_xmit_skb) == 0) {
++		vi->svq->vq_ops->kick(vi->svq);
++		vi->last_xmit_skb = NULL;
++	}
++	netif_tx_unlock_bh(vi->dev);
++}
++
+ static int start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+@@ -432,6 +452,8 @@ static int virtnet_probe(struct virtio_d
+ 	skb_queue_head_init(&vi->recv);
+ 	skb_queue_head_init(&vi->send);
+ 
++	tasklet_init(&vi->tasklet, xmit_tasklet, (unsigned long)vi);
++
+ 	err = register_netdev(dev);
+ 	if (err) {
+ 		pr_debug("virtio_net: registering device failed\n");
