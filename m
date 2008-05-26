@@ -1,30 +1,37 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 0 of 4] mm+paravirt+xen: add pte read-modify-write abstraction
-Date: Sat, 24 May 2008 21:44:25 +0100
-Message-ID: <48387E29.50103@goop.org>
-References: <patchbomb.1211552448@localhost> <alpine.LFD.1.10.0805231133130.3081@woody.linux-foundation.org> <48372C2F.1090704@goop.org> <alpine.LFD.1.10.0805241022210.3081@woody.linux-foundation.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: kvm-lite, lguest64: status?
+Date: Mon, 26 May 2008 11:09:00 +1000
+Message-ID: <200805261109.01065.rusty@rustcorp.com.au>
+References: <4836C2C7.4010903@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761952AbYEXUpK@vger.kernel.org>
-In-Reply-To: <alpine.LFD.1.10.0805241022210.3081@woody.linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>, xen-devel <xen-devel@lists.xensource.com>, Thomas Gleixner <tglx@linutronix.de>, Hugh Dickins <hugh@veritas.com>, Zachary Amsden <zach@vmware.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Peter Zijlstra <a.p.zijlstra@chello.nl>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4836C2C7.4010903@redhat.com>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Linus Torvalds wrote:
-> On Fri, 23 May 2008, Jeremy Fitzhardinge wrote:
->   
->> Well, you could use it to update the page and protection bits while preserving
->> the AD bits, but I don't think that's very useful.
->>     
+On Friday 23 May 2008 23:12:39 Gerd Hoffmann wrote:
+>   Hi,
 >
-> It's not that it's not "very useful" - it's that it would be TOTALLY 
-> WRONG.
->   
+> Just a quick question:  What is the status of the two projects in
+> $subject?  Havn't heared anything for a while for both ...
 
-Sorry, I was using ironic understatement.  I meant "...while preserving 
-the AD bits, but I think that would be totally fucking stupid".
+Hi Gerd,
 
-    J
+    lguest64 I'll punt to Glauber.  For kvm-lite, frankly there wasn't enough 
+interest, and I wasn't going to continue it by myself: IBM certainly (and 
+correctly) sees virtio as more important.
+
+Cheers,
+Rusty.
