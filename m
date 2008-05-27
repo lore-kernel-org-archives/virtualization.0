@@ -1,13 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio_net: another race with virtio_net and enable_cb
-Date: Tue, 27 May 2008 12:36:00 +1000
-Message-ID: <200805271236.00439.rusty__39639.1564085663$1211855897$gmane$org@rustcorp.com.au>
-References: <200805261129.27718.borntraeger@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] virtio_rng: dont use vmalloced addresses for virtio
+Date: Tue, 27 May 2008 08:31:14 +0200
+Message-ID: <200805270831.14721.borntraeger__49922.1450686038$1211870098$gmane$org@de.ibm.com>
+References: <200805261625.28419.borntraeger@de.ibm.com>
+	<200805271126.46194.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805261129.27718.borntraeger@de.ibm.com>
+In-Reply-To: <200805271126.46194.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,43 +19,13 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Monday 26 May 2008 19:29:27 Christian Borntraeger wrote:
-> Hello Rusty,
+Am Dienstag, 27. Mai 2008 schrieb Rusty Russell:
+> Constant in two places, I've moved to a #define.
+[...]
+> And added cleanup on register_virtio_driver fail (a tiny leak. but still).
 
-Hi Christian,
-
-    As always, you post an interesting bug!
-
->         /* Out of packets? */
->         if (received < budget) {
->                 netif_rx_complete(vi->dev, napi);
->                 if (unlikely(!vi->rvq->vq_ops->enable_cb(vi->rvq))
->                     && napi_schedule_prep(napi)) {
->                         vi->rvq->vq_ops->disable_cb(vi->rvq);
->                         __netif_rx_schedule(vi->dev, napi);
->                         goto again;
->                 }
->         }
-
-Yes, clearly if napi_schedule_prep() fails (ie. another poll is scheduled), we 
-don't disable callbacks, and another poll will be run with callbacks enabled, 
-triggering this bug.  It can only happen if the enable_cb succeeds (no new 
-work) then a new packet arrives before napi_schedule_prep().
-
-You should be able to verify that you are hitting this window by putting a 
-printk in the !enable_cb && !napi_schedule_prep case.
-
-Now, we can't do an unconditional disable_cb(), as it won't prevent this race, 
-and would make it worse if it ran after the other poll's enable_cb() and left 
-us without a callback to wake us up.  We could do a disable_cb() at the top 
-of virtnet_poll, but I certainly don't want to write the comment explaining 
-why.
-
-So your fix is correct and sensible.  Applied.
-
-Thanks!
-Rusty.
+looks good. Thanks
