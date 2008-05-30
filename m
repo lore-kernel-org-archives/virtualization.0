@@ -1,14 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 3/3] virtio: use callback on empty in virtio_net
-Date: Fri, 30 May 2008 15:14:17 +1000
-Message-ID: <200805301514.17937.rusty__25053.3451013782$1212124800$gmane$org@rustcorp.com.au>
-References: <200805301512.07802.rusty@rustcorp.com.au>
-	<200805301513.17802.rusty@rustcorp.com.au>
+Subject: [PULL] virtio & lguest fixes (and new virtio_rng driver)
+Date: Fri, 30 May 2008 15:21:14 +1000
+Message-ID: <200805301521.15243.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805301513.17802.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,112 +16,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_net uses a timer to free old transmitted packets, rather than
-leaving callbacks enabled all the time.  If the host promises to
-always notify us when the transmit ring is empty, we can free packets
-at that point and avoid the timer.
+The following changes since commit 0a2ce2ffc358da96792d514c1024b72c52be9cc1:
+  David Howells (1):
+        Fix FRV minimum slab/kmalloc alignment
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/net/virtio_net.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+are available in the git repository at:
 
-diff -r 95a02f0e0e21 drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c	Tue May 27 12:45:17 2008 +1000
-+++ b/drivers/net/virtio_net.c	Tue May 27 15:53:41 2008 +1000
-@@ -44,6 +44,7 @@ struct virtnet_info
- 	/* The skb we couldn't send because buffers were full. */
- 	struct sk_buff *last_xmit_skb;
- 
-+	/* If we need to free in a timer, this is it. */
- 	struct timer_list xmit_free_timer;
- 
- 	/* Number of input buffers, and max we've ever had. */
-@@ -51,6 +52,7 @@ struct virtnet_info
- 
- 	/* For cleaning up after transmission. */
- 	struct tasklet_struct tasklet;
-+	bool free_in_tasklet;
- 
- 	/* Receive & send queues. */
- 	struct sk_buff_head recv;
-@@ -74,7 +76,7 @@ static void skb_xmit_done(struct virtque
- 	/* Suppress further interrupts. */
- 	svq->vq_ops->disable_cb(svq);
- 
--	/* We were waiting for more output buffers. */
-+	/* We were probably waiting for more output buffers. */
- 	netif_wake_queue(vi->dev);
- 
- 	/* Make sure we re-xmit last_xmit_skb: if there are no more packets
-@@ -240,6 +242,8 @@ static void free_old_xmit_skbs(struct vi
- 	}
- }
- 
-+/* If the virtio transport doesn't always notify us when all in-flight packets
-+ * are consumed, we fall back to using this function on a timer to free them. */
- static void xmit_free(unsigned long data)
- {
- 	struct virtnet_info *vi = (void *)data;
-@@ -300,7 +304,7 @@ static int xmit_skb(struct virtnet_info 
- 	num = skb_to_sgvec(skb, sg+1, 0, skb->len) + 1;
- 
- 	err = vi->svq->vq_ops->add_buf(vi->svq, sg, num, 0, skb);
--	if (!err)
-+	if (!err && !vi->free_in_tasklet)
- 		mod_timer(&vi->xmit_free_timer, jiffies + (HZ/10));
- 
- 	return err;
-@@ -315,6 +319,8 @@ static void xmit_tasklet(unsigned long d
- 		vi->svq->vq_ops->kick(vi->svq);
- 		vi->last_xmit_skb = NULL;
- 	}
-+	if (vi->free_in_tasklet)
-+		free_old_xmit_skbs(vi);
- 	netif_tx_unlock_bh(vi->dev);
- }
- 
-@@ -455,6 +461,10 @@ static int virtnet_probe(struct virtio_d
- 	vi->vdev = vdev;
- 	vdev->priv = vi;
- 
-+	/* If they give us a callback when all buffers are done, we don't need
-+	 * the timer. */
-+	vi->free_in_tasklet = virtio_has_feature(vdev,VIRTIO_F_NOTIFY_ON_EMPTY);
-+
- 	/* We expect two virtqueues, receive then send. */
- 	vi->rvq = vdev->config->find_vq(vdev, 0, skb_recv_done);
- 	if (IS_ERR(vi->rvq)) {
-@@ -474,7 +487,8 @@ static int virtnet_probe(struct virtio_d
- 
- 	tasklet_init(&vi->tasklet, xmit_tasklet, (unsigned long)vi);
- 
--	setup_timer(&vi->xmit_free_timer, xmit_free, (unsigned long)vi);
-+	if (!vi->free_in_tasklet)
-+		setup_timer(&vi->xmit_free_timer, xmit_free, (unsigned long)vi);
- 
- 	err = register_netdev(dev);
- 	if (err) {
-@@ -513,7 +527,8 @@ static void virtnet_remove(struct virtio
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
- 
--	del_timer_sync(&vi->xmit_free_timer);
-+	if (!vi->free_in_tasklet)
-+		del_timer_sync(&vi->xmit_free_timer);
- 
- 	/* Free our skbs in send and recv queues, if any. */
- 	while ((skb = __skb_dequeue(&vi->recv)) != NULL) {
-@@ -538,7 +553,7 @@ static unsigned int features[] = {
- static unsigned int features[] = {
- 	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
- 	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6,
--	VIRTIO_NET_F_HOST_ECN,
-+	VIRTIO_NET_F_HOST_ECN, VIRTIO_F_NOTIFY_ON_EMPTY,
- };
- 
- static struct virtio_driver virtio_net = {
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+
+Chris Lalancette (1):
+      Fix crash in virtio_blk during modprobe ; rmmod ; modprobe
+
+Christian Borntraeger (4):
+      virtio_blk: allow read-only disks
+      virtio_net: another race with virtio_net and enable_cb
+      virtio_config: fix len calculation of config elements
+      virtio_blk: fix endianess annotations
+
+Rusty Russell (8):
+      lguest: use ioremap_cache, not ioremap
+      virtio: bus_id for devices should contain 'virtio'
+      virtio: virtio_pci should not set bus_id.
+      virtio: set device index in common code.
+      lguest: fix ugly <NULL> in /proc/interrupts
+      virtio: An entropy device, as suggested by hpa.
+      virtio: force callback on empty.
+      lguest: notify on empty
+
+ Documentation/lguest/lguest.c       |   12 ++-
+ arch/x86/lguest/boot.c              |    5 +-
+ drivers/block/virtio_blk.c          |    7 ++-
+ drivers/char/hw_random/Kconfig      |    9 ++
+ drivers/char/hw_random/Makefile     |    1 +
+ drivers/char/hw_random/virtio-rng.c |  155 +++++++++++++++++++++++++++++++++++
+ drivers/lguest/lguest_device.c      |   25 ++----
+ drivers/s390/kvm/kvm_virtio.c       |   18 ++---
+ drivers/virtio/virtio.c             |    8 ++-
+ drivers/virtio/virtio_pci.c         |    7 --
+ drivers/virtio/virtio_ring.c        |    8 --
+ include/linux/virtio_blk.h          |    9 +-
+ include/linux/virtio_config.h       |    6 +-
+ include/linux/virtio_rng.h          |    8 ++
+ 14 files changed, 225 insertions(+), 53 deletions(-)
+ create mode 100644 drivers/char/hw_random/virtio-rng.c
+ create mode 100644 include/linux/virtio_rng.h
