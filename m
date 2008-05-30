@@ -1,18 +1,16 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [3/6] [TUN]: Fix GSO mapping
-Date: Thu, 29 May 2008 20:38:30 +1000
-Message-ID: <20080529103830.GA19601@gondor.apana.org.au>
-References: <20080418031257.GA17993@gondor.apana.org.au>
-	<20080418031444.GA18041@gondor.apana.org.au>
-	<20080418031554.GA18071@gondor.apana.org.au>
-	<20080418031722.GB18071@gondor.apana.org.au>
-	<1212057171.21998.2.camel@muff>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio_config: fix len calculation of config elements
+Date: Fri, 30 May 2008 13:18:04 +1000
+Message-ID: <200805301318.05287.rusty__21401.2564080351$1212117618$gmane$org@rustcorp.com.au>
+References: <200805271105.00077.borntraeger@de.ibm.com>
+	<20080529083004.GQ25504@kernel.dk>
+	<200805291108.01604.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200805291108.01604.borntraeger@de.ibm.com>
 Content-Disposition: inline
-In-Reply-To: <1212057171.21998.2.camel@muff>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,21 +20,13 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: virtualization@lists.osdl.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 29, 2008 at 11:32:51AM +0100, Mark McLoughlin wrote:
-> 
-> Subject: [PATCH 1/1] tun: Do not use kmap_atomic() since memcpy_fromiovec() can sleep
-> 
-> Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+On Thursday 29 May 2008 19:08:01 Christian Borntraeger wrote:
+> v is a pointer, to we have to use sizeof(*v) instead of sizeof(v).
 
-Good catch!
+How embarassing.  Applied, thanks.
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Rusty.
