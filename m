@@ -1,15 +1,12 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v2] virtio_blk: check for hardsector size from host
-Date: Fri, 30 May 2008 13:41:45 +1000
-Message-ID: <200805301341.46175.rusty__49052.8797651224$1212119038$gmane$org@rustcorp.com.au>
-References: <200805271105.00077.borntraeger@de.ibm.com>
-	<20080529083004.GQ25504@kernel.dk>
-	<200805291108.26375.borntraeger@de.ibm.com>
+Subject: [PATCH 1/3] virtio: VIRTIO_F_NOTIFY_ON_EMPTY to force callback on
+	empty
+Date: Fri, 30 May 2008 15:12:07 +1000
+Message-ID: <200805301512.07802.rusty__46536.560150753$1212124556$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805291108.26375.borntraeger@de.ibm.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,23 +17,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Jens Axboe <jens.axboe@oracle.com>
+To: netdev@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 29 May 2008 19:08:26 Christian Borntraeger wrote:
-> Currently virtio_blk assumes a 512 byte hard sector size. This can cause
-> trouble / performance issues if the backing has a different block size
-> (like a file on an ext3 file system formatted with 4k block size or a
-> dasd).
->
-> Lets add a feature flag that tells the guest to use a different hard sector
-> size than 512 byte.
->
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+virtio allows drivers to suppress callbacks (ie. interrupts) for
+efficiency (no locking, it's just an optimization).
 
-Thanks.  I've queued this for next kernel (the other two will go 
-striaght-away).
+There's a similar mechanism for the host to suppress notifications
+coming from the guest: in that case, we ignore the suppression if the
+ring is completely full.
 
-Cheers,
-Rusty.
+It turns out that life is simpler if the host similarly ignores
+callback suppression when the ring is completely empty: the network
+driver wants to free up old packets in a timely manner, and otherwise
+has to use a timer to poll.
+
+We have to remove the code which ignores interrupts when the driver
+has disabled them (again, it had no locking and hence was unreliable
+anyway).
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/virtio/virtio_ring.c  |    7 -------
+ include/linux/virtio_config.h |    4 ++++
+ 2 files changed, 4 insertions(+), 7 deletions(-)
+
+diff -r 95a02f0e0e21 drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c	Tue May 27 12:45:17 2008 +1000
++++ b/drivers/virtio/virtio_ring.c	Tue May 27 15:53:41 2008 +1000
+@@ -253,13 +253,6 @@ irqreturn_t vring_interrupt(int irq, voi
+ 	if (unlikely(vq->broken))
+ 		return IRQ_HANDLED;
+ 
+-	/* Other side may have missed us turning off the interrupt,
+-	 * but we should preserve disable semantic for virtio users. */
+-	if (unlikely(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
+-		pr_debug("virtqueue interrupt after disable for %p\n", vq);
+-		return IRQ_HANDLED;
+-	}
+-
+ 	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
+ 	if (vq->vq.callback)
+ 		vq->vq.callback(&vq->vq);
+diff -r 95a02f0e0e21 include/linux/virtio_config.h
+--- a/include/linux/virtio_config.h	Tue May 27 12:45:17 2008 +1000
++++ b/include/linux/virtio_config.h	Tue May 27 15:53:41 2008 +1000
+@@ -14,6 +14,10 @@
+ #define VIRTIO_CONFIG_S_DRIVER_OK	4
+ /* We've given up on this device. */
+ #define VIRTIO_CONFIG_S_FAILED		0x80
++
++/* Do we get callbacks when the ring is completely used, even if we've
++ * suppressed them? */
++#define VIRTIO_F_NOTIFY_ON_EMPTY	24
+ 
+ #ifdef __KERNEL__
+ #include <linux/virtio.h>
