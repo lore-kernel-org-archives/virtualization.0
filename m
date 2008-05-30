@@ -1,11 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio & lguest fixes (and new virtio_rng driver)
-Date: Fri, 30 May 2008 15:21:14 +1000
-Message-ID: <200805301521.15243.rusty@rustcorp.com.au>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 1/3] virtio: VIRTIO_F_NOTIFY_ON_EMPTY to force callback on
+	empty
+Date: Fri, 30 May 2008 10:59:48 +0200
+Message-ID: <200805301059.48462.borntraeger@de.ibm.com>
+References: <200805301512.07802.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200805301512.07802.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,51 +19,61 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 0a2ce2ffc358da96792d514c1024b72c52be9cc1:
-  David Howells (1):
-        Fix FRV minimum slab/kmalloc alignment
+Am Freitag, 30. Mai 2008 schrieb Rusty Russell:
+> It turns out that life is simpler if the host similarly ignores
+> callback suppression when the ring is completely empty: the network
+> driver wants to free up old packets in a timely manner, and otherwise
+> has to use a timer to poll.
+> 
+> We have to remove the code which ignores interrupts when the driver
+> has disabled them (again, it had no locking and hence was unreliable
+> anyway).
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> ---
+>  drivers/virtio/virtio_ring.c  |    7 -------
+>  include/linux/virtio_config.h |    4 ++++
+>  2 files changed, 4 insertions(+), 7 deletions(-)
+> 
+> diff -r 95a02f0e0e21 drivers/virtio/virtio_ring.c
+> --- a/drivers/virtio/virtio_ring.c	Tue May 27 12:45:17 2008 +1000
+> +++ b/drivers/virtio/virtio_ring.c	Tue May 27 15:53:41 2008 +1000
+> @@ -253,13 +253,6 @@ irqreturn_t vring_interrupt(int irq, voi
+>  	if (unlikely(vq->broken))
+>  		return IRQ_HANDLED;
+> 
+> -	/* Other side may have missed us turning off the interrupt,
+> -	 * but we should preserve disable semantic for virtio users. */
+> -	if (unlikely(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
+> -		pr_debug("virtqueue interrupt after disable for %p\n", vq);
+> -		return IRQ_HANDLED;
+> -	}
+> -
+>  	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
+>  	if (vq->vq.callback)
+>  		vq->vq.callback(&vq->vq);
 
-are available in the git repository at:
+that part makes sense.
 
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+> diff -r 95a02f0e0e21 include/linux/virtio_config.h
+> --- a/include/linux/virtio_config.h	Tue May 27 12:45:17 2008 +1000
+> +++ b/include/linux/virtio_config.h	Tue May 27 15:53:41 2008 +1000
+> @@ -14,6 +14,10 @@
+>  #define VIRTIO_CONFIG_S_DRIVER_OK	4
+>  /* We've given up on this device. */
+>  #define VIRTIO_CONFIG_S_FAILED		0x80
+> +
+> +/* Do we get callbacks when the ring is completely used, even if we've
+> + * suppressed them? */
+> +#define VIRTIO_F_NOTIFY_ON_EMPTY	24
 
-Chris Lalancette (1):
-      Fix crash in virtio_blk during modprobe ; rmmod ; modprobe
+24?
 
-Christian Borntraeger (4):
-      virtio_blk: allow read-only disks
-      virtio_net: another race with virtio_net and enable_cb
-      virtio_config: fix len calculation of config elements
-      virtio_blk: fix endianess annotations
+Does that mean the first 24 bits are driver owned and 24-31 are for the
+common virtio code?
 
-Rusty Russell (8):
-      lguest: use ioremap_cache, not ioremap
-      virtio: bus_id for devices should contain 'virtio'
-      virtio: virtio_pci should not set bus_id.
-      virtio: set device index in common code.
-      lguest: fix ugly <NULL> in /proc/interrupts
-      virtio: An entropy device, as suggested by hpa.
-      virtio: force callback on empty.
-      lguest: notify on empty
-
- Documentation/lguest/lguest.c       |   12 ++-
- arch/x86/lguest/boot.c              |    5 +-
- drivers/block/virtio_blk.c          |    7 ++-
- drivers/char/hw_random/Kconfig      |    9 ++
- drivers/char/hw_random/Makefile     |    1 +
- drivers/char/hw_random/virtio-rng.c |  155 +++++++++++++++++++++++++++++++++++
- drivers/lguest/lguest_device.c      |   25 ++----
- drivers/s390/kvm/kvm_virtio.c       |   18 ++---
- drivers/virtio/virtio.c             |    8 ++-
- drivers/virtio/virtio_pci.c         |    7 --
- drivers/virtio/virtio_ring.c        |    8 --
- include/linux/virtio_blk.h          |    9 +-
- include/linux/virtio_config.h       |    6 +-
- include/linux/virtio_rng.h          |    8 ++
- 14 files changed, 225 insertions(+), 53 deletions(-)
- create mode 100644 drivers/char/hw_random/virtio-rng.c
- create mode 100644 include/linux/virtio_rng.h
+Christian
