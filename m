@@ -1,9 +1,10 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Xen/paravirt_ops page on Xen wiki
-Date: Fri, 30 May 2008 12:10:51 +0100
-Message-ID: <483FE0BB.4080300@goop.org>
+Subject: [PATCH 0 of 4] mm+paravirt+xen: add pte
+	read-modify-write abstraction (take 2)
+Date: Sat, 31 May 2008 01:04:28 +0100
+Message-ID: <patchbomb.1212192268@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
@@ -14,16 +15,89 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: Xen-devel <xen-devel@lists.xensource.com>, xen-users@lists.xensource.com
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I've added a Xen/paravirt_ops page to the Xen wiki.  This is intended to 
-let people know the current status, give them a guide on how to use the 
-Xen support in current Linux kernels, and (ideally) start contributing 
-to its ongoing development, with testing, debugging and patches.
+Hi all,
 
-http://wiki.xensource.com/xenwiki/XenParavirtOps
+[ Change since last post: change name to ptep_modify_prot_, on the
+  grounds that it isn't really a general pte-modification interface. ]
+
+This little series adds a new transaction-like abstraction for doing
+RMW updates to a pte, hooks it into paravirt_ops, and then makes use
+of it in Xen.
+
+The basic problem is that mprotect is very slow under Xen (up to 50x
+slower than native), primarily because of the
+
+	ptent = ptep_get_and_clear(mm, addr, pte);
+	ptent = pte_modify(ptent, newprot);
+	/* ... */
+	set_pte_at(mm, addr, pte, ptent);
+
+sequence in mm/mprotect.c:change_pte_range().
+
+This is bad for Xen for two reasons:
+
+  1: ptep_get_and_clear() ends up being a xchg on the pte.  Since the
+     pte page is read-only (as it must be, because Xen needs to
+     control all pte updates), this traps into Xen, which then
+     emulates the instruction.  Trapping into the instruction emulator
+     is inherently expensive.  And,
+
+  2: because ptep_get_and_clear has atomic-fetch-and-update semantics,
+     it's impossible to implement in a way which can be batched to
+     amortize the cost of trapping into the hypervisor.
+
+This series adds the ptep_modify_prot_start() and
+ptep_modify_prot_commit() operations, which change this sequence to:
+
+	ptent = ptep_modify_prot_start(mm, addr, pte);
+	ptent = pte_modify(ptent, newprot);
+	/* ... */
+	ptep_modify_prot_commit(mm, addr, pte, ptent);
+
+Which looks very familiar.  And, indeed, when compiled without
+CONFIG_PARAVIRT (or on a non-x86 architecture), it will end up doing
+precisely the same thing as before.
+
+However, the effective semantics are a bit different.
+ptep_modify_prot_start() means "I'm reading this pte with the
+intention of updating it; please don't lose any hardware pte changes
+in the meantime".  And ptep_modify_prot_commit() means "Here's a new
+value for the pte, but make sure you don't lose any hardware changes".
+
+The default implementation achieves these semantics by making
+ptep_modify_prot_start() set the pte to non-present, which prevents
+any async hardware changes to the pte.  The ptep_modify_prot_commit()
+can then just write the new value into place without having to worry
+about preserving any changes, because it knows there are none.
+
+Xen implements ptep_modify_prot_start() as a simple read of the pte.
+This leaves the pte unchanged in memory, and the hardware may make
+asynchronous changes to it.  It implements ptep_modify_prot_commit()
+using a batched hypercall which preserves the state of the
+Access/Dirty bits when updating the pte.  This allows the whole
+change_pte_range() loop to be run without any synchronous unbatched
+traps into the hypervisor.  With this change in place, an mprotect
+microbenchmark goes from being 50x worse than native to around 7x,
+which is acceptible.
+
+I believe that other virtualization systems, whether they use direct
+paging like Xen, or a shadow pagetable scheme (vmi, kvm, lguest), can
+make use of this interface to improve the performance.
+
+Unfortunately (or fortunately) there aren't very many other areas of
+the kernel which can really take advantage of this.  There's only a
+couple of other instances of ptep_get_and_clear() in mm/, and they're
+being used in a similar way; but I don't think they're very
+performance critical (though zap_pte_range might be interesting).
+
+In general, mprotect is rarely a performance bottleneck.  But some
+debugging libraries (such as electric fence) and garbage collectors
+can be very heavy users of mprotect, and this change could materially
+benefit them.
 
 Thanks,
-    J
+	J
