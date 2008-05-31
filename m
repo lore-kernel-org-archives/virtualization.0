@@ -1,154 +1,105 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH 1 of 4] mm: add a ptep_modify_prot transaction abstraction
-Date: Sat, 31 May 2008 01:04:29 +0100
-Message-ID: <4deead25e96efc8ca783.1212192269@localhost>
+Subject: [PATCH 2 of 4] paravirt: add hooks for
+	ptep_modify_prot_start/commit
+Date: Sat, 31 May 2008 01:04:30 +0100
+Message-ID: <5bed0127be5f509fd686.1212192270@localhost>
 References: <patchbomb.1212192268@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756510AbYEaANq@vger.kernel.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
 In-Reply-To: <patchbomb.1212192268@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
 To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, xen-devel <xen-devel@lists.xensource.com>, Thomas Gleixner <tglx@linutronix.de>, Hugh Dickins <hugh@veritas.com>, Zachary Amsden <zach@vmware.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds an API for doing read-modify-write updates to a pte's
-protection bits which may race against hardware updates to the pte.
-After reading the pte, the hardware may asynchonously set the accessed
-or dirty bits on a pte, which would be lost when writing back the
-modified pte value.
-
-The existing technique to handle this race is to use
-ptep_get_and_clear() atomically fetch the old pte value and clear it
-in memory.  This has the effect of marking the pte as non-present,
-which will prevent the hardware from updating its state.  When the new
-value is written back, the pte will be present again, and the hardware
-can resume updating the access/dirty flags.
-
-When running in a virtualized environment, pagetable updates are
-relatively expensive, since they generally involve some trap into the
-hypervisor.  To mitigate the cost of these updates, we tend to batch
-them.
-
-However, because of the atomic nature of ptep_get_and_clear(), it is
-inherently non-batchable.  This new interface allows batching by
-giving the underlying implementation enough information to open a
-transaction between the read and write phases:
-
-ptep_modify_prot_start() returns the current pte value, and puts the
-  pte entry into a state where either the hardware will not update the
-  pte, or if it does, the updates will be preserved on commit.
-
-ptep_modify_prot_commit() writes back the updated pte, makes sure that
-  any hardware updates made since ptep_modify_prot_start() are
-  preserved.
-
-ptep_modify_prot_start() and _commit() must be exactly paired, and
-used while holding the appropriate pte lock.  They do not protect
-against other software updates of the pte in any way.
-
-The current implementations of ptep_modify_prot_start and _commit are
-functionally unchanged from before: _start() uses ptep_get_and_clear()
-fetch the pte and zero the entry, preventing any hardware updates.
-_commit() simply writes the new pte value back knowing that the
-hardware has not updated the pte in the meantime.
-
-The only current user of this interface is mprotect
+This patch adds paravirt-ops hooks in pv_mmu_ops for ptep_modify_prot_start and
+ptep_modify_prot_commit.  This allows the hypervisor-specific backends to
+implement these in some more efficient way.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 ---
- include/asm-generic/pgtable.h |   53 +++++++++++++++++++++++++++++++++++++++++
- mm/mprotect.c                 |   10 +++----
- 2 files changed, 57 insertions(+), 6 deletions(-)
+ arch/x86/kernel/paravirt.c |    3 +++
+ arch/x86/xen/enlighten.c   |    3 +++
+ include/asm-x86/paravirt.h |   28 ++++++++++++++++++++++++++++
+ 3 files changed, 34 insertions(+)
 
-diff --git a/include/asm-generic/pgtable.h b/include/asm-generic/pgtable.h
---- a/include/asm-generic/pgtable.h
-+++ b/include/asm-generic/pgtable.h
-@@ -197,6 +197,59 @@
- }
- #endif /* CONFIG_MMU */
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -383,6 +383,9 @@
+ 	.pte_update = paravirt_nop,
+ 	.pte_update_defer = paravirt_nop,
  
-+static inline pte_t __ptep_modify_prot_start(struct mm_struct *mm,
-+					     unsigned long addr,
-+					     pte_t *ptep)
-+{
-+	/* Get the current pte state, but zero it out to make it
-+	   non-present, preventing the hardware from asynchronously
-+	   updating it. */
-+	return ptep_get_and_clear(mm, addr, ptep);
-+}
++	.ptep_modify_prot_start = __ptep_modify_prot_start,
++	.ptep_modify_prot_commit = __ptep_modify_prot_commit,
 +
-+static inline void __ptep_modify_prot_commit(struct mm_struct *mm,
-+					     unsigned long addr,
-+					     pte_t *ptep, pte_t pte)
-+{
-+	/* The pte is non-present, so there's no hardware state to
-+	   preserve. */
-+	set_pte_at(mm, addr, ptep, pte);
-+}
+ #ifdef CONFIG_HIGHPTE
+ 	.kmap_atomic_pte = kmap_atomic,
+ #endif
+diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -1103,6 +1103,9 @@
+ 	.set_pte_at = xen_set_pte_at,
+ 	.set_pmd = xen_set_pmd,
+ 
++	.ptep_modify_prot_start = __ptep_modify_prot_start,
++	.ptep_modify_prot_commit = __ptep_modify_prot_commit,
 +
-+#ifndef __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
-+/*
-+ * Start a pte protection read-modify-write transaction, which
-+ * protects against asynchronous hardware modifications to the pte.
-+ * The intention is not to prevent the hardware from making pte
-+ * updates, but to prevent any updates it may make from being lost.
-+ *
-+ * This does not protect against other software modifications of the
-+ * pte; the appropriate pte lock must be held over the transation.
-+ *
-+ * Note that this interface is intended to be batchable, meaning that
-+ * ptep_modify_prot_commit may not actually update the pte, but merely
-+ * queue the update to be done at some later time.  The update must be
-+ * actually committed before the pte lock is released, however.
-+ */
-+static inline pte_t ptep_modify_prot_start(struct mm_struct *mm,
-+					   unsigned long addr,
+ 	.pte_val = xen_pte_val,
+ 	.pte_flags = native_pte_val,
+ 	.pgd_val = xen_pgd_val,
+diff --git a/include/asm-x86/paravirt.h b/include/asm-x86/paravirt.h
+--- a/include/asm-x86/paravirt.h
++++ b/include/asm-x86/paravirt.h
+@@ -238,6 +238,11 @@
+ 			   pte_t *ptep);
+ 	void (*pte_update_defer)(struct mm_struct *mm,
+ 				 unsigned long addr, pte_t *ptep);
++
++	pte_t (*ptep_modify_prot_start)(struct mm_struct *mm, unsigned long addr,
++					pte_t *ptep);
++	void (*ptep_modify_prot_commit)(struct mm_struct *mm, unsigned long addr,
++					pte_t *ptep, pte_t pte);
+ 
+ 	pteval_t (*pte_val)(pte_t);
+ 	pteval_t (*pte_flags)(pte_t);
+@@ -1040,6 +1045,29 @@
+ 	return ret;
+ }
+ 
++#define  __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
++static inline pte_t ptep_modify_prot_start(struct mm_struct *mm, unsigned long addr,
 +					   pte_t *ptep)
 +{
-+	return __ptep_modify_prot_start(mm, addr, ptep);
++	pteval_t ret;
++
++	ret = PVOP_CALL3(pteval_t, pv_mmu_ops.ptep_modify_prot_start,
++			 mm, addr, ptep);
++
++	return (pte_t) { .pte = ret };
 +}
 +
-+/*
-+ * Commit an update to a pte, leaving any hardware-controlled bits in
-+ * the PTE unmodified.
-+ */
-+static inline void ptep_modify_prot_commit(struct mm_struct *mm,
-+					   unsigned long addr,
++static inline void ptep_modify_prot_commit(struct mm_struct *mm, unsigned long addr,
 +					   pte_t *ptep, pte_t pte)
 +{
-+	__ptep_modify_prot_commit(mm, addr, ptep, pte);
++	if (sizeof(pteval_t) > sizeof(long))
++		/* 5 arg words */
++		pv_mmu_ops.ptep_modify_prot_commit(mm, addr, ptep, pte);
++	else
++		PVOP_VCALL4(pv_mmu_ops.ptep_modify_prot_commit,
++			    mm, addr, ptep, pte.pte);
 +}
-+#endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
 +
- /*
-  * A facility to provide lazy MMU batching.  This allows PTE updates and
-  * page invalidations to be delayed until a call to leave lazy MMU mode
-diff --git a/mm/mprotect.c b/mm/mprotect.c
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -47,19 +47,17 @@
- 		if (pte_present(oldpte)) {
- 			pte_t ptent;
- 
--			/* Avoid an SMP race with hardware updated dirty/clean
--			 * bits by wiping the pte and then setting the new pte
--			 * into place.
--			 */
--			ptent = ptep_get_and_clear(mm, addr, pte);
-+			ptent = ptep_modify_prot_start(mm, addr, pte);
- 			ptent = pte_modify(ptent, newprot);
-+
- 			/*
- 			 * Avoid taking write faults for pages we know to be
- 			 * dirty.
- 			 */
- 			if (dirty_accountable && pte_dirty(ptent))
- 				ptent = pte_mkwrite(ptent);
--			set_pte_at(mm, addr, pte, ptent);
-+
-+			ptep_modify_prot_commit(mm, addr, pte, ptent);
- #ifdef CONFIG_MIGRATION
- 		} else if (!pte_file(oldpte)) {
- 			swp_entry_t entry = pte_to_swp_entry(oldpte);
+ static inline void set_pte(pte_t *ptep, pte_t pte)
+ {
+ 	if (sizeof(pteval_t) > sizeof(long))
