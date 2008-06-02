@@ -1,37 +1,33 @@
-From: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH 1/3] virtio: fix virtio_net xmit of freed skb bug
-Date: Fri, 30 May 2008 22:12:40 -0400
-Message-ID: <4840B418.5060607__3281.86607589505$1212200087$gmane$org@garzik.org>
-References: <200805261742.43215.rusty@rustcorp.com.au>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 2 of 4] paravirt: add hooks for
+	ptep_modify_prot_start/commit
+Date: Mon, 2 Jun 2008 13:12:49 +0200
+Message-ID: <20080602111249.GA18586@elte.hu>
+References: <patchbomb.1212192268@localhost>
+	<5bed0127be5f509fd686.1212192270@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200805261742.43215.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Disposition: inline
+In-Reply-To: <5bed0127be5f509fd686.1212192270@localhost>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> If we fail to transmit a packet, we assume the queue is full and put
-> the skb into last_xmit_skb.  However, if more space frees up before we
-> xmit it, we loop, and the result can be transmitting the same skb twice.
-> 
-> Fix is simple: set skb to NULL if we've used it in some way, and check
-> before sending.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> ---
->  drivers/net/virtio_net.c |   14 +++++++++-----
->  1 file changed, 9 insertions(+), 5 deletions(-)
 
-applied 1-2 (#3 was already applied)
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+
+> +#define  __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
+
+please turn this into CONFIG_ARCH_HAS_PTEP_MODIFY_PROT_TRANSACTION 
+instead.
+
+	Ingo
