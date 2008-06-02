@@ -1,15 +1,16 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot
-	transaction abstraction
-Date: Mon, 2 Jun 2008 13:13:39 +0200
-Message-ID: <20080602111339.GB18586@elte.hu>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 2 of 4] paravirt: add hooks
+	for	ptep_modify_prot_start/commit
+Date: Mon, 02 Jun 2008 12:57:00 +0100
+Message-ID: <4843E00C.1080407@goop.org>
 References: <patchbomb.1212192268@localhost>
-	<4deead25e96efc8ca783.1212192269@localhost>
+	<5bed0127be5f509fd686.1212192270@localhost>
+	<20080602111249.GA18586@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline
-In-Reply-To: <4deead25e96efc8ca783.1212192269@localhost>
+In-Reply-To: <20080602111249.GA18586@elte.hu>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -18,23 +19,23 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Ingo Molnar wrote:
+> * Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>
+>   
+>> +#define  __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
+>>     
+>
+> please turn this into CONFIG_ARCH_HAS_PTEP_MODIFY_PROT_TRANSACTION 
+> instead.
 
-* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+The __HAVE_ARCH_ form is consistent with all the other conditional 
+things in asm/pgtable.h, like __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS, 
+__HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG, etc.  I don't think adding 
+CONFIG_ARCH_HAS_ for this one case is a good idea.
 
-> +	/* Get the current pte state, but zero it out to make it
-> +	   non-present, preventing the hardware from asynchronously
-> +	   updating it. */
-
-please use standard and consistent comment style, similar to:
-
-> +/*
-> + * Start a pte protection read-modify-write transaction, which
-> + * protects against asynchronous hardware modifications to the pte.
-> + * The intention is not to prevent the hardware from making pte
-> + * updates, but to prevent any updates it may make from being lost.
-
-	Ingo
+    J
