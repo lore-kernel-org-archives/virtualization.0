@@ -1,25 +1,16 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: [PATCH 0/5] paravirt clock source patches, #4
-Date: Tue, 03 Jun 2008 15:46:21 +0200
-Message-ID: <48454B2D.5050406@redhat.com>
-References: <1212498439-1283-1-git-send-email-kraxel@redhat.com>
-	<48454A38.4090907@goop.org>
+Date: Tue, 03 Jun 2008 15:49:25 +0200
+Message-ID: <48454BE5.1010007@redhat.com>
+References: <1212498439-1283-1-git-send-email-kraxel@redhat.com> <48454A38.4090907@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <48454A38.4090907@goop.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: kvm-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: virtualization@lists.osdl.org
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Jeremy Fitzhardinge wrote:
@@ -31,9 +22,15 @@ Jeremy Fitzhardinge wrote:
 >> there.
 > 
 > This all looks pretty good.  How do you want this to get into the kernel?
-> 
->    J
 
+[ note: fixed up kvm list address: s/-owner// ]
+
+Good question.  The kvm patches have dependencies on not-yet merged
+bits, so they have to go through the kvm queue.  The first two can also
+go through Ingos x86 tree I guess.
+
+cheers,
+  Gerd
 
 -- 
 http://kraxel.fedorapeople.org/xenner/
