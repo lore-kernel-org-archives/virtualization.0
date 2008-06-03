@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/5] Make kvm host use the paravirt clocksource structs.
-Date: Tue,  3 Jun 2008 16:17:31 +0200
-Message-ID: <1212502653-4521-4-git-send-email-kraxel@redhat.com>
+Subject: [PATCH 4/5] Make kvm guest use the paravirt clocksource structs and functions.
+Date: Tue,  3 Jun 2008 16:17:32 +0200
+Message-ID: <1212502653-4521-5-git-send-email-kraxel@redhat.com>
 References: <1212502653-4521-1-git-send-email-kraxel@redhat.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1212502653-4521-1-git-send-email-kraxel@redhat.com>
@@ -10,163 +10,203 @@ To: kvm@vger.kernel.org, virtualization@lists.osdl.org
 Cc: Gerd Hoffmann <kraxel@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch updates the kvm host code to use the pvclock structs.
-It also makes the paravirt clock compatible with Xen.
+This patch updates the kvm host code to use the pvclock structs
+and functions, thereby making it compatible with Xen.
+
+The patch also fixes an initialization bug: on SMP systems the
+per-cpu has two different locations early at boot and after CPU
+bringup.  kvmclock must take that in account when registering the
+physical address within the host.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- arch/x86/kvm/x86.c         |   75 ++++++++++++++++++++++++++++++++++++-------
- include/asm-x86/kvm_host.h |    4 ++-
- 2 files changed, 65 insertions(+), 14 deletions(-)
+ arch/x86/Kconfig           |    1 +
+ arch/x86/kernel/kvmclock.c |   91 ++++++++++++++++---------------------------
+ 2 files changed, 35 insertions(+), 57 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 77fb2bd..7a62860 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -499,8 +499,8 @@ static int do_set_msr(struct kvm_vcpu *vcpu, unsigned index, u64 *data)
- static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 5fc46c1..b631288 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -383,6 +383,7 @@ config VMI
+ config KVM_CLOCK
+ 	bool "KVM paravirtualized clock"
+ 	select PARAVIRT
++	select PARAVIRT_CLOCK
+ 	depends on !(X86_VISWS || X86_VOYAGER)
+ 	help
+ 	  Turning on this option will allow you to run a paravirtualized clock
+diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+index 08a3098..927f0c5 100644
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -18,6 +18,7 @@
+ 
+ #include <linux/clocksource.h>
+ #include <linux/kvm_para.h>
++#include <asm/pvclock.h>
+ #include <asm/arch_hooks.h>
+ #include <asm/msr.h>
+ #include <asm/apic.h>
+@@ -36,18 +37,9 @@ static int parse_no_kvmclock(char *arg)
+ early_param("no-kvmclock", parse_no_kvmclock);
+ 
+ /* The hypervisor will put information about time periodically here */
+-static DEFINE_PER_CPU_SHARED_ALIGNED(struct kvm_vcpu_time_info, hv_clock);
+-#define get_clock(cpu, field) per_cpu(hv_clock, cpu).field
++static DEFINE_PER_CPU_SHARED_ALIGNED(struct pvclock_vcpu_time_info, hv_clock);
++static struct pvclock_wall_clock wall_clock;
+ 
+-static inline u64 kvm_get_delta(u64 last_tsc)
+-{
+-	int cpu = smp_processor_id();
+-	u64 delta = native_read_tsc() - last_tsc;
+-	return (delta * get_clock(cpu, tsc_to_system_mul)) >> KVM_SCALE;
+-}
+-
+-static struct kvm_wall_clock wall_clock;
+-static cycle_t kvm_clock_read(void);
+ /*
+  * The wallclock is the time of day when we booted. Since then, some time may
+  * have elapsed since the hypervisor wrote the data. So we try to account for
+@@ -55,64 +47,37 @@ static cycle_t kvm_clock_read(void);
+  */
+ static unsigned long kvm_get_wallclock(void)
  {
- 	static int version;
--	struct kvm_wall_clock wc;
--	struct timespec wc_ts;
-+	struct pvclock_wall_clock wc;
-+	struct timespec now, sys, boot;
+-	u32 wc_sec, wc_nsec;
+-	u64 delta;
++	struct pvclock_vcpu_time_info *vcpu_time;
+ 	struct timespec ts;
+-	int version, nsec;
+ 	int low, high;
  
- 	if (!wall_clock)
- 		return;
-@@ -509,10 +509,19 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
- 
- 	kvm_write_guest(kvm, wall_clock, &version, sizeof(version));
- 
--	wc_ts = current_kernel_time();
--	wc.wc_sec = wc_ts.tv_sec;
--	wc.wc_nsec = wc_ts.tv_nsec;
--	wc.wc_version = version;
-+	/*
-+	 * The guest calculates current wall clock time by adding
-+	 * system time (updated by kvm_write_guest_time below) to the
-+	 * wall clock specified here.  guest system time equals host
-+	 * system time for us, thus we must fill in host boot time here.
-+	 */
-+	now = current_kernel_time();
-+	ktime_get_ts(&sys);
-+	boot = ns_to_timespec(timespec_to_ns(&now) - timespec_to_ns(&sys));
+ 	low = (int)__pa(&wall_clock);
+ 	high = ((u64)__pa(&wall_clock) >> 32);
+-
+-	delta = kvm_clock_read();
+-
+ 	native_write_msr(MSR_KVM_WALL_CLOCK, low, high);
+-	do {
+-		version = wall_clock.wc_version;
+-		rmb();
+-		wc_sec = wall_clock.wc_sec;
+-		wc_nsec = wall_clock.wc_nsec;
+-		rmb();
+-	} while ((wall_clock.wc_version != version) || (version & 1));
+-
+-	delta = kvm_clock_read() - delta;
+-	delta += wc_nsec;
+-	nsec = do_div(delta, NSEC_PER_SEC);
+-	set_normalized_timespec(&ts, wc_sec + delta, nsec);
+-	/*
+-	 * Of all mechanisms of time adjustment I've tested, this one
+-	 * was the champion!
+-	 */
+-	return ts.tv_sec + 1;
 +
-+	wc.sec = boot.tv_sec;
-+	wc.nsec = boot.tv_nsec;
-+	wc.version = version;
- 
- 	kvm_write_guest(kvm, wall_clock, &wc, sizeof(wc));
- 
-@@ -520,6 +529,45 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
- 	kvm_write_guest(kvm, wall_clock, &version, sizeof(version));
++	vcpu_time = &get_cpu_var(hv_clock);
++	pvclock_read_wallclock(&wall_clock, vcpu_time, &ts);
++	put_cpu_var(hv_clock);
++	
++	return ts.tv_sec;
  }
  
-+static uint32_t div_frac(uint32_t dividend, uint32_t divisor)
-+{
-+	uint32_t quotient, remainder;
-+
-+	/* Don't try to replace with do_div(), this one calculates
-+	 * "(dividend << 32) / divisor" */
-+	__asm__ ( "divl %4"
-+		  : "=a" (quotient), "=d" (remainder)
-+		  : "0" (0), "1" (dividend), "r" (divisor) );
-+	return quotient;
-+}
-+
-+static void kvm_set_time_scale(uint32_t tsc_khz, struct pvclock_vcpu_time_info *hv_clock)
-+{
-+	uint64_t nsecs = 1000000000LL;
-+	int32_t  shift = 0;
-+	uint64_t tps64;
-+	uint32_t tps32;
-+
-+	tps64 = tsc_khz * 1000LL;
-+	while (tps64 > nsecs*2) {
-+		tps64 >>= 1;
-+		shift--;
-+	}
-+
-+	tps32 = (uint32_t)tps64;
-+	while (tps32 <= (uint32_t)nsecs) {
-+		tps32 <<= 1;
-+		shift++;
-+	}
-+
-+	hv_clock->tsc_shift = shift;
-+	hv_clock->tsc_to_system_mul = div_frac(nsecs, tps32);
-+
-+	pr_debug("%s: tsc_khz %u, tsc_shift %d, tsc_mul %u\n",
-+		 __FUNCTION__, tsc_khz, hv_clock->tsc_shift,
-+		 hv_clock->tsc_to_system_mul);
-+}
-+
- static void kvm_write_guest_time(struct kvm_vcpu *v)
+ static int kvm_set_wallclock(unsigned long now)
  {
- 	struct timespec ts;
-@@ -530,6 +578,11 @@ static void kvm_write_guest_time(struct kvm_vcpu *v)
- 	if ((!vcpu->time_page))
+-	return 0;
++	return -1;
+ }
+ 
+-/*
+- * This is our read_clock function. The host puts an tsc timestamp each time
+- * it updates a new time. Without the tsc adjustment, we can have a situation
+- * in which a vcpu starts to run earlier (smaller system_time), but probes
+- * time later (compared to another vcpu), leading to backwards time
+- */
+ static cycle_t kvm_clock_read(void)
+ {
+-	u64 last_tsc, now;
+-	int cpu;
+-
+-	preempt_disable();
+-	cpu = smp_processor_id();
+-
+-	last_tsc = get_clock(cpu, tsc_timestamp);
+-	now = get_clock(cpu, system_time);
++	struct pvclock_vcpu_time_info *src;
++	cycle_t ret;
+ 
+-	now += kvm_get_delta(last_tsc);
+-	preempt_enable();
+-
+-	return now;
++	src = &get_cpu_var(hv_clock);
++	ret = pvclock_clocksource_read(src);
++	put_cpu_var(hv_clock);
++	return ret;
+ }
++
+ static struct clocksource kvm_clock = {
+ 	.name = "kvm-clock",
+ 	.read = kvm_clock_read,
+@@ -123,13 +88,14 @@ static struct clocksource kvm_clock = {
+ 	.flags = CLOCK_SOURCE_IS_CONTINUOUS,
+ };
+ 
+-static int kvm_register_clock(void)
++static int kvm_register_clock(char *txt)
+ {
+ 	int cpu = smp_processor_id();
+ 	int low, high;
+ 	low = (int)__pa(&per_cpu(hv_clock, cpu)) | 1;
+ 	high = ((u64)__pa(&per_cpu(hv_clock, cpu)) >> 32);
+-
++	printk(KERN_INFO "kvm-clock: cpu %d, msr %x:%x, %s\n",
++	       cpu, high, low, txt);
+ 	return native_write_msr_safe(MSR_KVM_SYSTEM_TIME, low, high);
+ }
+ 
+@@ -140,12 +106,20 @@ static void kvm_setup_secondary_clock(void)
+ 	 * Now that the first cpu already had this clocksource initialized,
+ 	 * we shouldn't fail.
+ 	 */
+-	WARN_ON(kvm_register_clock());
++	WARN_ON(kvm_register_clock("secondary cpu clock"));
+ 	/* ok, done with our trickery, call native */
+ 	setup_secondary_APIC_clock();
+ }
+ #endif
+ 
++#ifdef CONFIG_SMP
++void __init kvm_smp_prepare_boot_cpu(void)
++{
++	WARN_ON(kvm_register_clock("primary cpu clock"));
++	native_smp_prepare_boot_cpu();
++}
++#endif
++
+ /*
+  * After the clock is registered, the host will keep writing to the
+  * registered memory location. If the guest happens to shutdown, this memory
+@@ -174,7 +148,7 @@ void __init kvmclock_init(void)
  		return;
  
-+	if (unlikely(vcpu->hv_clock_tsc_khz != tsc_khz)) {
-+		kvm_set_time_scale(tsc_khz, &vcpu->hv_clock);
-+		vcpu->hv_clock_tsc_khz = tsc_khz;
-+	}
-+	
- 	/* Keep irq disabled to prevent changes to the clock */
- 	local_irq_save(flags);
- 	kvm_get_msr(v, MSR_IA32_TIME_STAMP_COUNTER,
-@@ -544,14 +597,14 @@ static void kvm_write_guest_time(struct kvm_vcpu *v)
- 	/*
- 	 * The interface expects us to write an even number signaling that the
- 	 * update is finished. Since the guest won't see the intermediate
--	 * state, we just write "2" at the end
-+	 * state, we just increase by 2 at the end.
- 	 */
--	vcpu->hv_clock.version = 2;
-+	vcpu->hv_clock.version += 2;
- 
- 	shared_kaddr = kmap_atomic(vcpu->time_page, KM_USER0);
- 
- 	memcpy(shared_kaddr + vcpu->time_offset, &vcpu->hv_clock,
--		sizeof(vcpu->hv_clock));
-+	       sizeof(vcpu->hv_clock));
- 
- 	kunmap_atomic(shared_kaddr, KM_USER0);
- 
-@@ -639,10 +692,6 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, u32 msr, u64 data)
- 		/* ...but clean it before doing the actual write */
- 		vcpu->arch.time_offset = data & ~(PAGE_MASK | 1);
- 
--		vcpu->arch.hv_clock.tsc_to_system_mul =
--					clocksource_khz2mult(tsc_khz, 22);
--		vcpu->arch.hv_clock.tsc_shift = 22;
--
- 		down_read(&current->mm->mmap_sem);
- 		vcpu->arch.time_page =
- 				gfn_to_page(vcpu->kvm, data >> PAGE_SHIFT);
-diff --git a/include/asm-x86/kvm_host.h b/include/asm-x86/kvm_host.h
-index cd50380..459461c 100644
---- a/include/asm-x86/kvm_host.h
-+++ b/include/asm-x86/kvm_host.h
-@@ -18,6 +18,7 @@
- #include <linux/kvm_para.h>
- #include <linux/kvm_types.h>
- 
-+#include <asm/pvclock-abi.h>
- #include <asm/desc.h>
- 
- #define KVM_MAX_VCPUS 16
-@@ -285,7 +286,8 @@ struct kvm_vcpu_arch {
- 	struct x86_emulate_ctxt emulate_ctxt;
- 
- 	gpa_t time;
--	struct kvm_vcpu_time_info hv_clock;
-+	struct pvclock_vcpu_time_info hv_clock;
-+	unsigned int hv_clock_tsc_khz;
- 	unsigned int time_offset;
- 	struct page *time_page;
- 
+ 	if (kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)) {
+-		if (kvm_register_clock())
++		if (kvm_register_clock("boot clock"))
+ 			return;
+ 		pv_time_ops.get_wallclock = kvm_get_wallclock;
+ 		pv_time_ops.set_wallclock = kvm_set_wallclock;
+@@ -182,6 +156,9 @@ void __init kvmclock_init(void)
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 		pv_apic_ops.setup_secondary_clock = kvm_setup_secondary_clock;
+ #endif
++#ifdef CONFIG_SMP
++		smp_ops.smp_prepare_boot_cpu = kvm_smp_prepare_boot_cpu;
++#endif
+ 		machine_ops.shutdown  = kvm_shutdown;
+ #ifdef CONFIG_KEXEC
+ 		machine_ops.crash_shutdown  = kvm_crash_shutdown;
 -- 
 1.5.4.1
 
