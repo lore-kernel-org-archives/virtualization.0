@@ -1,430 +1,181 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [RFC 1/3] hvc_console: rework setup to replace irq functions with callbacks (not word wrapped)
-Date: Tue, 3 Jun 2008 14:49:14 +0200
-Message-ID: <200806031449.14385.borntraeger@de.ibm.com>
-References: <200806031444.21945.borntraeger@de.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 3/5] Make kvm host use the paravirt clocksource structs.
+Date: Tue,  3 Jun 2008 15:07:17 +0200
+Message-ID: <1212498439-1283-4-git-send-email-kraxel@redhat.com>
+References: <1212498439-1283-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755188AbYFCMte@vger.kernel.org>
-In-Reply-To: <200806031444.21945.borntraeger@de.ibm.com>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linux PPC devel <linuxppc-dev@ozlabs.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1212498439-1283-1-git-send-email-kraxel@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: kvm-owner@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch tries to change hvc_console to not use request_irq/free_irq if
-the backend does not use irqs. This allows virtio_console to use hvc_console
-without having a linker reference to request_irq/free_irq.
+This patch updates the kvm host code to use the pvclock structs.
+It also makes the paravirt clock compatible with Xen.
 
-The irq specific code is moved to hvc_irq.c and selected by the drivers that
-use irqs (System p, System i, XEN).
-
-I replaced "irq" with the opaque name "data". The request_irq and free_irq
-calls are replaced with notifier_add and notifier_del. I have also changed
-the code a bit to call the notifier_add and notifier_del inside the spinlock
-area as the callbacks are found via hp->ops.
-
-Feedback is appreciated.
- 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>
-CC: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-CC: Virtualization Mailing List <virtualization@lists.osdl.org>
-CC: Linux PPC devel <linuxppc-dev@ozlabs.org>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/char/Kconfig       |    8 ++++
- drivers/char/Makefile      |    1 
- drivers/char/hvc_console.c |   80 ++++++++++-----------------------------------
- drivers/char/hvc_console.h |   34 ++++++++++++++++---
- drivers/char/hvc_irq.c     |   37 ++++++++++++++++++++
- drivers/char/hvc_iseries.c |    2 +
- drivers/char/hvc_vio.c     |    2 +
- drivers/char/hvc_xen.c     |    2 +
- 8 files changed, 100 insertions(+), 66 deletions(-)
+ arch/x86/kvm/x86.c         |   75 ++++++++++++++++++++++++++++++++++++-------
+ include/asm-x86/kvm_host.h |    4 ++-
+ 2 files changed, 65 insertions(+), 14 deletions(-)
 
-Index: kvm/drivers/char/Kconfig
-===================================================================
---- kvm.orig/drivers/char/Kconfig
-+++ kvm/drivers/char/Kconfig
-@@ -588,11 +588,17 @@ config HVC_DRIVER
- 	  It will automatically be selected if one of the back-end console drivers
- 	  is selected.
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 77fb2bd..7a62860 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -499,8 +499,8 @@ static int do_set_msr(struct kvm_vcpu *vcpu, unsigned index, u64 *data)
+ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
+ {
+ 	static int version;
+-	struct kvm_wall_clock wc;
+-	struct timespec wc_ts;
++	struct pvclock_wall_clock wc;
++	struct timespec now, sys, boot;
  
-+config HVC_IRQ
-+	bool
-+	help
-+	  Infrastructure for using the IRQ code for HVC console.
-+	  It will automatically be selected by the drivers that need it.
+ 	if (!wall_clock)
+ 		return;
+@@ -509,10 +509,19 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
  
- config HVC_CONSOLE
- 	bool "pSeries Hypervisor Virtual Console support"
- 	depends on PPC_PSERIES
- 	select HVC_DRIVER
-+	select HVC_IRQ
- 	help
- 	  pSeries machines when partitioned support a hypervisor virtual
- 	  console. This driver allows each pSeries partition to have a console
-@@ -603,6 +609,7 @@ config HVC_ISERIES
- 	depends on PPC_ISERIES
- 	default y
- 	select HVC_DRIVER
-+	select HVC_IRQ
- 	help
- 	  iSeries machines support a hypervisor virtual console.
+ 	kvm_write_guest(kvm, wall_clock, &version, sizeof(version));
  
-@@ -624,6 +631,7 @@ config HVC_XEN
- 	bool "Xen Hypervisor Console support"
- 	depends on XEN
- 	select HVC_DRIVER
-+	select HVC_IRQ
- 	default y
- 	help
- 	  Xen virtual console device driver
-Index: kvm/drivers/char/Makefile
-===================================================================
---- kvm.orig/drivers/char/Makefile
-+++ kvm/drivers/char/Makefile
-@@ -48,6 +48,7 @@ obj-$(CONFIG_HVC_ISERIES)	+= hvc_iseries
- obj-$(CONFIG_HVC_RTAS)		+= hvc_rtas.o
- obj-$(CONFIG_HVC_BEAT)		+= hvc_beat.o
- obj-$(CONFIG_HVC_DRIVER)	+= hvc_console.o
-+obj-$(CONFIG_HVC_IRQ)		+= hvc_irq.o
- obj-$(CONFIG_HVC_XEN)		+= hvc_xen.o
- obj-$(CONFIG_VIRTIO_CONSOLE)	+= virtio_console.o
- obj-$(CONFIG_RAW_DRIVER)	+= raw.o
-Index: kvm/drivers/char/hvc_console.c
-===================================================================
---- kvm.orig/drivers/char/hvc_console.c
-+++ kvm/drivers/char/hvc_console.c
-@@ -75,23 +75,6 @@ static int hvc_init(void);
- static int sysrq_pressed;
- #endif
+-	wc_ts = current_kernel_time();
+-	wc.wc_sec = wc_ts.tv_sec;
+-	wc.wc_nsec = wc_ts.tv_nsec;
+-	wc.wc_version = version;
++	/*
++	 * The guest calculates current wall clock time by adding
++	 * system time (updated by kvm_write_guest_time below) to the
++	 * wall clock specified here.  guest system time equals host
++	 * system time for us, thus we must fill in host boot time here.
++	 */
++	now = current_kernel_time();
++	ktime_get_ts(&sys);
++	boot = ns_to_timespec(timespec_to_ns(&now) - timespec_to_ns(&sys));
++
++	wc.sec = boot.tv_sec;
++	wc.nsec = boot.tv_nsec;
++	wc.version = version;
  
--struct hvc_struct {
--	spinlock_t lock;
--	int index;
--	struct tty_struct *tty;
--	unsigned int count;
--	int do_wakeup;
--	char *outbuf;
--	int outbuf_size;
--	int n_outbuf;
--	uint32_t vtermno;
--	struct hv_ops *ops;
--	int irq_requested;
--	int irq;
--	struct list_head next;
--	struct kref kref; /* ref count & hvc_struct lifetime */
--};
--
- /* dynamic list of hvc_struct instances */
- static LIST_HEAD(hvc_structs);
+ 	kvm_write_guest(kvm, wall_clock, &wc, sizeof(wc));
  
-@@ -300,26 +283,12 @@ int hvc_instantiate(uint32_t vtermno, in
+@@ -520,6 +529,45 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
+ 	kvm_write_guest(kvm, wall_clock, &version, sizeof(version));
  }
  
- /* Wake the sleeping khvcd */
--static void hvc_kick(void)
-+void hvc_kick(void)
- {
- 	hvc_kicked = 1;
- 	wake_up_process(hvc_task);
- }
- 
--static int hvc_poll(struct hvc_struct *hp);
--
--/*
-- * NOTE: This API isn't used if the console adapter doesn't support interrupts.
-- * In this case the console is poll driven.
-- */
--static irqreturn_t hvc_handle_interrupt(int irq, void *dev_instance)
--{
--	/* if hvc_poll request a repoll, then kick the hvcd thread */
--	if (hvc_poll(dev_instance))
--		hvc_kick();
--	return IRQ_HANDLED;
--}
--
- static void hvc_unthrottle(struct tty_struct *tty)
- {
- 	hvc_kick();
-@@ -333,7 +302,6 @@ static int hvc_open(struct tty_struct *t
- {
- 	struct hvc_struct *hp;
- 	unsigned long flags;
--	int irq = 0;
- 	int rc = 0;
- 
- 	/* Auto increments kref reference if found. */
-@@ -352,18 +320,15 @@ static int hvc_open(struct tty_struct *t
- 	tty->low_latency = 1; /* Makes flushes to ldisc synchronous. */
- 
- 	hp->tty = tty;
--	/* Save for request_irq outside of spin_lock. */
--	irq = hp->irq;
--	if (irq)
--		hp->irq_requested = 1;
++static uint32_t div_frac(uint32_t dividend, uint32_t divisor)
++{
++	uint32_t quotient, remainder;
 +
-+	if (hp->ops->notifier_add)
-+		rc = hp->ops->notifier_add(hp, hp->data);
- 
- 	spin_unlock_irqrestore(&hp->lock, flags);
--	/* check error, fallback to non-irq */
--	if (irq)
--		rc = request_irq(irq, hvc_handle_interrupt, IRQF_DISABLED, "hvc_console", hp);
++	/* Don't try to replace with do_div(), this one calculates
++	 * "(dividend << 32) / divisor" */
++	__asm__ ( "divl %4"
++		  : "=a" (quotient), "=d" (remainder)
++		  : "0" (0), "1" (dividend), "r" (divisor) );
++	return quotient;
++}
 +
++static void kvm_set_time_scale(uint32_t tsc_khz, struct pvclock_vcpu_time_info *hv_clock)
++{
++	uint64_t nsecs = 1000000000LL;
++	int32_t  shift = 0;
++	uint64_t tps64;
++	uint32_t tps32;
++
++	tps64 = tsc_khz * 1000LL;
++	while (tps64 > nsecs*2) {
++		tps64 >>= 1;
++		shift--;
++	}
++
++	tps32 = (uint32_t)tps64;
++	while (tps32 <= (uint32_t)nsecs) {
++		tps32 <<= 1;
++		shift++;
++	}
++
++	hv_clock->tsc_shift = shift;
++	hv_clock->tsc_to_system_mul = div_frac(nsecs, tps32);
++
++	pr_debug("%s: tsc_khz %u, tsc_shift %d, tsc_mul %u\n",
++		 __FUNCTION__, tsc_khz, hv_clock->tsc_shift,
++		 hv_clock->tsc_to_system_mul);
++}
++
+ static void kvm_write_guest_time(struct kvm_vcpu *v)
+ {
+ 	struct timespec ts;
+@@ -530,6 +578,11 @@ static void kvm_write_guest_time(struct kvm_vcpu *v)
+ 	if ((!vcpu->time_page))
+ 		return;
  
++	if (unlikely(vcpu->hv_clock_tsc_khz != tsc_khz)) {
++		kvm_set_time_scale(tsc_khz, &vcpu->hv_clock);
++		vcpu->hv_clock_tsc_khz = tsc_khz;
++	}
++	
+ 	/* Keep irq disabled to prevent changes to the clock */
+ 	local_irq_save(flags);
+ 	kvm_get_msr(v, MSR_IA32_TIME_STAMP_COUNTER,
+@@ -544,14 +597,14 @@ static void kvm_write_guest_time(struct kvm_vcpu *v)
  	/*
--	 * If the request_irq() fails and we return an error.  The tty layer
-+	 * If the notifier fails we return an error.  The tty layer
- 	 * will call hvc_close() after a failed open but we don't want to clean
- 	 * up there so we'll clean up here and clear out the previously set
- 	 * tty fields and return the kref reference.
-@@ -371,7 +336,6 @@ static int hvc_open(struct tty_struct *t
- 	if (rc) {
- 		spin_lock_irqsave(&hp->lock, flags);
- 		hp->tty = NULL;
--		hp->irq_requested = 0;
- 		spin_unlock_irqrestore(&hp->lock, flags);
- 		tty->driver_data = NULL;
- 		kref_put(&hp->kref, destroy_hvc_struct);
-@@ -386,7 +350,6 @@ static int hvc_open(struct tty_struct *t
- static void hvc_close(struct tty_struct *tty, struct file * filp)
- {
- 	struct hvc_struct *hp;
--	int irq = 0;
- 	unsigned long flags;
- 
- 	if (tty_hung_up_p(filp))
-@@ -404,9 +367,8 @@ static void hvc_close(struct tty_struct 
- 	spin_lock_irqsave(&hp->lock, flags);
- 
- 	if (--hp->count == 0) {
--		if (hp->irq_requested)
--			irq = hp->irq;
--		hp->irq_requested = 0;
-+		if (hp->ops->notifier_del)
-+			hp->ops->notifier_del(hp, hp->data);
- 
- 		/* We are done with the tty pointer now. */
- 		hp->tty = NULL;
-@@ -418,10 +380,6 @@ static void hvc_close(struct tty_struct 
- 		 * waking periodically to check chars_in_buffer().
- 		 */
- 		tty_wait_until_sent(tty, HVC_CLOSE_WAIT);
--
--		if (irq)
--			free_irq(irq, hp);
--
- 	} else {
- 		if (hp->count < 0)
- 			printk(KERN_ERR "hvc_close %X: oops, count is %d\n",
-@@ -436,7 +394,6 @@ static void hvc_hangup(struct tty_struct
- {
- 	struct hvc_struct *hp = tty->driver_data;
- 	unsigned long flags;
--	int irq = 0;
- 	int temp_open_count;
- 
- 	if (!hp)
-@@ -458,13 +415,12 @@ static void hvc_hangup(struct tty_struct
- 	hp->count = 0;
- 	hp->n_outbuf = 0;
- 	hp->tty = NULL;
--	if (hp->irq_requested)
--		/* Saved for use outside of spin_lock. */
--		irq = hp->irq;
--	hp->irq_requested = 0;
-+
-+	if (hp->ops->notifier_del)
-+			hp->ops->notifier_del(hp, hp->data);
-+
- 	spin_unlock_irqrestore(&hp->lock, flags);
--	if (irq)
--		free_irq(irq, hp);
-+
- 	while(temp_open_count) {
- 		--temp_open_count;
- 		kref_put(&hp->kref, destroy_hvc_struct);
-@@ -575,7 +531,7 @@ static u32 timeout = MIN_TIMEOUT;
- #define HVC_POLL_READ	0x00000001
- #define HVC_POLL_WRITE	0x00000002
- 
--static int hvc_poll(struct hvc_struct *hp)
-+int hvc_poll(struct hvc_struct *hp)
- {
- 	struct tty_struct *tty;
- 	int i, n, poll_mask = 0;
-@@ -602,10 +558,10 @@ static int hvc_poll(struct hvc_struct *h
- 	if (test_bit(TTY_THROTTLED, &tty->flags))
- 		goto throttled;
- 
--	/* If we aren't interrupt driven and aren't throttled, we always
-+	/* If we aren't notifier driven and aren't throttled, we always
- 	 * request a reschedule
+ 	 * The interface expects us to write an even number signaling that the
+ 	 * update is finished. Since the guest won't see the intermediate
+-	 * state, we just write "2" at the end
++	 * state, we just increase by 2 at the end.
  	 */
--	if (hp->irq == 0)
-+	if (!hp->ops->notifier_add)
- 		poll_mask |= HVC_POLL_READ;
+-	vcpu->hv_clock.version = 2;
++	vcpu->hv_clock.version += 2;
  
- 	/* Read data if any */
-@@ -739,7 +695,7 @@ static const struct tty_operations hvc_o
- 	.chars_in_buffer = hvc_chars_in_buffer,
- };
+ 	shared_kaddr = kmap_atomic(vcpu->time_page, KM_USER0);
  
--struct hvc_struct __devinit *hvc_alloc(uint32_t vtermno, int irq,
-+struct hvc_struct __devinit *hvc_alloc(uint32_t vtermno, int data,
- 					struct hv_ops *ops, int outbuf_size)
- {
- 	struct hvc_struct *hp;
-@@ -760,7 +716,7 @@ struct hvc_struct __devinit *hvc_alloc(u
- 	memset(hp, 0x00, sizeof(*hp));
+ 	memcpy(shared_kaddr + vcpu->time_offset, &vcpu->hv_clock,
+-		sizeof(vcpu->hv_clock));
++	       sizeof(vcpu->hv_clock));
  
- 	hp->vtermno = vtermno;
--	hp->irq = irq;
-+	hp->data = data;
- 	hp->ops = ops;
- 	hp->outbuf_size = outbuf_size;
- 	hp->outbuf = &((char *)hp)[ALIGN(sizeof(*hp), sizeof(long))];
-Index: kvm/drivers/char/hvc_console.h
-===================================================================
---- kvm.orig/drivers/char/hvc_console.h
-+++ kvm/drivers/char/hvc_console.h
-@@ -42,22 +42,48 @@
-  */
- #define HVC_ALLOC_TTY_ADAPTERS	8
+ 	kunmap_atomic(shared_kaddr, KM_USER0);
  
-+struct hvc_struct {
-+	spinlock_t lock;
-+	int index;
-+	struct tty_struct *tty;
-+	unsigned int count;
-+	int do_wakeup;
-+	char *outbuf;
-+	int outbuf_size;
-+	int n_outbuf;
-+	uint32_t vtermno;
-+	struct hv_ops *ops;
-+	int data;
-+	struct list_head next;
-+	struct kref kref; /* ref count & hvc_struct lifetime */
-+};
+@@ -639,10 +692,6 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, u32 msr, u64 data)
+ 		/* ...but clean it before doing the actual write */
+ 		vcpu->arch.time_offset = data & ~(PAGE_MASK | 1);
  
- /* implemented by a low level driver */
- struct hv_ops {
- 	int (*get_chars)(uint32_t vtermno, char *buf, int count);
- 	int (*put_chars)(uint32_t vtermno, const char *buf, int count);
--};
+-		vcpu->arch.hv_clock.tsc_to_system_mul =
+-					clocksource_khz2mult(tsc_khz, 22);
+-		vcpu->arch.hv_clock.tsc_shift = 22;
+-
+ 		down_read(&current->mm->mmap_sem);
+ 		vcpu->arch.time_page =
+ 				gfn_to_page(vcpu->kvm, data >> PAGE_SHIFT);
+diff --git a/include/asm-x86/kvm_host.h b/include/asm-x86/kvm_host.h
+index cd50380..459461c 100644
+--- a/include/asm-x86/kvm_host.h
++++ b/include/asm-x86/kvm_host.h
+@@ -18,6 +18,7 @@
+ #include <linux/kvm_para.h>
+ #include <linux/kvm_types.h>
  
--struct hvc_struct;
-+	/* Callbacks for notification. Called in open and close */
-+	int (*notifier_add)(struct hvc_struct *hp, int data);
-+	void (*notifier_del)(struct hvc_struct *hp, int data);
-+};
++#include <asm/pvclock-abi.h>
+ #include <asm/desc.h>
  
- /* Register a vterm and a slot index for use as a console (console_init) */
- extern int hvc_instantiate(uint32_t vtermno, int index, struct hv_ops *ops);
+ #define KVM_MAX_VCPUS 16
+@@ -285,7 +286,8 @@ struct kvm_vcpu_arch {
+ 	struct x86_emulate_ctxt emulate_ctxt;
  
- /* register a vterm for hvc tty operation (module_init or hotplug add) */
--extern struct hvc_struct * __devinit hvc_alloc(uint32_t vtermno, int irq,
-+extern struct hvc_struct * __devinit hvc_alloc(uint32_t vtermno, int data,
- 				struct hv_ops *ops, int outbuf_size);
--/* remove a vterm from hvc tty operation (modele_exit or hotplug remove) */
-+/* remove a vterm from hvc tty operation (module_exit or hotplug remove) */
- extern int __devexit hvc_remove(struct hvc_struct *hp);
+ 	gpa_t time;
+-	struct kvm_vcpu_time_info hv_clock;
++	struct pvclock_vcpu_time_info hv_clock;
++	unsigned int hv_clock_tsc_khz;
+ 	unsigned int time_offset;
+ 	struct page *time_page;
  
-+/* data available */
-+int hvc_poll(struct hvc_struct *hp);
-+void hvc_kick(void);
-+
-+#ifdef CONFIG_HVC_IRQ
-+/* default notifier for irq based notification */
-+extern int notifier_add_irq(struct hvc_struct *hp, int irq);
-+extern void notifier_del_irq(struct hvc_struct *hp, int irq);
-+#endif
- #endif // HVC_CONSOLE_H
-Index: kvm/drivers/char/hvc_irq.c
-===================================================================
---- /dev/null
-+++ kvm/drivers/char/hvc_irq.c
-@@ -0,0 +1,37 @@
-+/*
-+ * Copyright IBM Corp. 2001,2008
-+ *
-+ * This file contains the IRQ specific code for hvc_console
-+ *
-+ */
-+
-+#include <linux/interrupt.h>
-+
-+#include "hvc_console.h"
-+
-+static irqreturn_t hvc_handle_interrupt(int irq, void *dev_instance)
-+{
-+	/* if hvc_poll request a repoll, then kick the hvcd thread */
-+	if (hvc_poll(dev_instance))
-+		hvc_kick();
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * For IRQ based systems these callbacks can be used
-+ */
-+int notifier_add_irq(struct hvc_struct *hp, int irq)
-+{
-+	if (!irq)
-+		return 0;
-+	return request_irq(irq, hvc_handle_interrupt, IRQF_DISABLED,
-+			   "hvc_console", hp);
-+}
-+
-+void notifier_del_irq(struct hvc_struct *hp, int irq)
-+{
-+	if (!irq)
-+		return;
-+	free_irq(irq, hp);
-+}
-+
-Index: kvm/drivers/char/hvc_iseries.c
-===================================================================
---- kvm.orig/drivers/char/hvc_iseries.c
-+++ kvm/drivers/char/hvc_iseries.c
-@@ -200,6 +200,8 @@ done:
- static struct hv_ops hvc_get_put_ops = {
- 	.get_chars = get_chars,
- 	.put_chars = put_chars,
-+	.notifier_add = notifier_add_irq,
-+	.notifier_del = notifier_del_irq,
- };
- 
- static int __devinit hvc_vio_probe(struct vio_dev *vdev,
-Index: kvm/drivers/char/hvc_vio.c
-===================================================================
---- kvm.orig/drivers/char/hvc_vio.c
-+++ kvm/drivers/char/hvc_vio.c
-@@ -80,6 +80,8 @@ static int filtered_get_chars(uint32_t v
- static struct hv_ops hvc_get_put_ops = {
- 	.get_chars = filtered_get_chars,
- 	.put_chars = hvc_put_chars,
-+	.notifier_add = notifier_add_irq,
-+	.notifier_del = notifier_del_irq,
- };
- 
- static int __devinit hvc_vio_probe(struct vio_dev *vdev,
-Index: kvm/drivers/char/hvc_xen.c
-===================================================================
---- kvm.orig/drivers/char/hvc_xen.c
-+++ kvm/drivers/char/hvc_xen.c
-@@ -95,6 +95,8 @@ static int read_console(uint32_t vtermno
- static struct hv_ops hvc_ops = {
- 	.get_chars = read_console,
- 	.put_chars = write_console,
-+	.notifier_add = notifier_add_irq,
-+	.notifier_del = notifier_del_irq,
- };
- 
- static int __init xen_init(void)
+-- 
+1.5.4.1
