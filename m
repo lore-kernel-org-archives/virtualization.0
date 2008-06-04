@@ -1,16 +1,17 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC 1/3] hvc_console: rework setup to replace irq functions
-	with callbacks (not word wrapped)
-Date: Wed, 04 Jun 2008 19:06:42 +1000
-Message-ID: <1212570402.9496.72.camel@pasglop>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [RFC 1/3] hvc_console: rework setup to replace irq functions with
+	callbacks
+Date: Wed, 4 Jun 2008 13:15:42 +0200
+Message-ID: <200806041315.42593.borntraeger@de.ibm.com>
 References: <200806031444.21945.borntraeger@de.ibm.com>
-	<200806031449.14385.borntraeger@de.ibm.com>
-Reply-To: benh@kernel.crashing.org
+	<200806031445.22561.borntraeger@de.ibm.com>
+	<200806041013.40692.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <200806031449.14385.borntraeger@de.ibm.com>
+In-Reply-To: <200806041013.40692.rusty@rustcorp.com.au>
+Content-Disposition: inline
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -20,29 +21,19 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
 Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
 Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Linux PPC devel <linuxppc-dev@ozlabs.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linux PPC devel <linuxppc-dev@ozlabs.org>, Jeremy Fitzhardinge <jeremy@goop.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2008-06-03 at 14:49 +0200, Christian Borntraeger wrote:
-> This patch tries to change hvc_console to not use request_irq/free_irq if
-> the backend does not use irqs. This allows virtio_console to use hvc_console
-> without having a linker reference to request_irq/free_irq.
-> 
-> The irq specific code is moved to hvc_irq.c and selected by the drivers that
-> use irqs (System p, System i, XEN).
-> 
-> I replaced "irq" with the opaque name "data". The request_irq and free_irq
-> calls are replaced with notifier_add and notifier_del. I have also changed
-> the code a bit to call the notifier_add and notifier_del inside the spinlock
-> area as the callbacks are found via hp->ops.
-> 
-> Feedback is appreciated.
+Am Mittwoch, 4. Juni 2008 schrieb Rusty Russell:
+> Two questions.  Is it possible to make the timer backoff a third kind of 
+> notifier?
 
-I haven't looked at the patch proper but I agree with the basic
-premises. We routinely use hvc_console for things that don't have an
-irq. In fact, David even did a backend hooking up to udbg which is
-useful when bringing up weird stuffs :-)
+I can try. The timer handling code is sprinkled a bit in hvc_console but it 
+should be possible.
 
-Cheers,
-Ben.
+> And is it possible to make the dependency static, rather than  
+> dynamic, or does someone need two options at runtime?
+
+Not sure. Some drivers pass get the irq number from another component. If the 
+number is 0, the console is poll driven, otherwise irq driven.
