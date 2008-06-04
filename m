@@ -1,39 +1,48 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [RFC 1/3] hvc_console: rework setup to replace irq functions with
-	callbacks
-Date: Wed, 4 Jun 2008 13:15:42 +0200
-Message-ID: <200806041315.42593.borntraeger@de.ibm.com>
-References: <200806031444.21945.borntraeger@de.ibm.com>
-	<200806031445.22561.borntraeger@de.ibm.com>
-	<200806041013.40692.rusty@rustcorp.com.au>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 0/5] paravirt clock source patches, #4
+Date: Wed, 04 Jun 2008 17:01:23 +0300
+Message-ID: <4846A033.7030007@qumranet.com>
+References: <1212498439-1283-1-git-send-email-kraxel@redhat.com> <48454A38.4090907@goop.org> <48454BE5.1010007@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <200806041013.40692.rusty@rustcorp.com.au>
-Content-Disposition: inline
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux PPC devel <linuxppc-dev@ozlabs.org>, Jeremy Fitzhardinge <jeremy@goop.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <48454BE5.1010007@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, kvm@vger.kernel.org, virtualization@lists.osdl.org, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Mittwoch, 4. Juni 2008 schrieb Rusty Russell:
-> Two questions.  Is it possible to make the timer backoff a third kind of 
-> notifier?
+Gerd Hoffmann wrote:
+> Jeremy Fitzhardinge wrote:
+>   
+>> Gerd Hoffmann wrote:
+>>     
+>>> paravirt clock source patches, next round.
+>>>
+>>> There is now a pvclock-abi.h file with the structs and some longish
+>>> comments in it and everybody is switched over to use the stuff in
+>>> there.
+>>>       
+>> This all looks pretty good.  How do you want this to get into the kernel?
+>>     
+>
+> [ note: fixed up kvm list address: s/-owner// ]
+>
+> Good question.  The kvm patches have dependencies on not-yet merged
+> bits, so they have to go through the kvm queue.  The first two can also
+> go through Ingos x86 tree I guess.
+>
+>   
 
-I can try. The timer handling code is sprinkled a bit in hvc_console but it 
-should be possible.
+Alternativey, if Ingo acks, I'll send all five through kvm.git.
 
-> And is it possible to make the dependency static, rather than  
-> dynamic, or does someone need two options at runtime?
+Note the kvm specific patches need to be backported as we want them for 
+2.6.26.  I can do that.
 
-Not sure. Some drivers pass get the irq number from another component. If the 
-number is 0, the console is poll driven, otherwise irq driven.
+(Ingo: said patches are in 
+http://thread.gmane.org/gmane.comp.emulators.kvm.devel/18149)
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+
