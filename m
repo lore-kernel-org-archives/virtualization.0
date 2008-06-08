@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: [PATCH 4/4] virtio: use callback on empty in virtio_net
 Date: Sun, 8 Jun 2008 20:51:55 +1000
-Message-ID: <200806082051.56269.rusty__18165.4716180221$1212922582$gmane$org@rustcorp.com.au>
+Message-ID: <200806082051.56269.rusty__47638.4184127257$1212922584$gmane$org@rustcorp.com.au>
 References: <200806082049.00641.rusty@rustcorp.com.au>
 	<200806082050.00149.rusty@rustcorp.com.au>
 	<200806082050.56535.rusty@rustcorp.com.au>
