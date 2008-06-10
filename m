@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 01/27] ia64: move function declaration,
-	ia64_cpu_local_tick() from .c to .h
-Date: Tue, 10 Jun 2008 16:46:57 +0900
-Message-ID: <12130840431680-git-send-email-yamahata__17164.7134040997$1213084623$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/27] ia64/xen: introduce synch bitops which is necessary for
+	ia64/xen support.
+Date: Tue, 10 Jun 2008 16:46:58 +0900
+Message-ID: <1213084043534-git-send-email-yamahata__33941.9087082662$1213084747$gmane$org@valinux.co.jp>
 References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,41 +19,81 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
+Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Robin Holt <holt@sgi.com>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-eliminate the function declaration ia64_cpu_local_tick() in
-process.c by defining in asm-ia64/timex.h
-The same function will be used in a different .c file later.
+define sync bitops which is necessary for ia64/xen.
 
+Cc: Robin Holt <holt@sgi.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/process.c |    1 -
- include/asm-ia64/timex.h   |    2 ++
- 2 files changed, 2 insertions(+), 1 deletions(-)
+ include/asm-ia64/sync_bitops.h |   57 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 57 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/sync_bitops.h
 
-diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
-index a3a34b4..1fbd9b8 100644
---- a/arch/ia64/kernel/process.c
-+++ b/arch/ia64/kernel/process.c
-@@ -247,7 +247,6 @@ default_idle (void)
- /* We don't actually take CPU down, just spin without interrupts. */
- static inline void play_dead(void)
- {
--	extern void ia64_cpu_local_tick (void);
- 	unsigned int this_cpu = smp_processor_id();
- 
- 	/* Ack it */
-diff --git a/include/asm-ia64/timex.h b/include/asm-ia64/timex.h
-index 05a6baf..4e03cfe 100644
---- a/include/asm-ia64/timex.h
-+++ b/include/asm-ia64/timex.h
-@@ -39,4 +39,6 @@ get_cycles (void)
- 	return ret;
- }
- 
-+extern void ia64_cpu_local_tick (void);
+diff --git a/include/asm-ia64/sync_bitops.h b/include/asm-ia64/sync_bitops.h
+new file mode 100644
+index 0000000..27dc777
+--- /dev/null
++++ b/include/asm-ia64/sync_bitops.h
+@@ -0,0 +1,57 @@
++#ifndef _ASM_IA64_SYNC_BITOPS_H
++#define _ASM_IA64_SYNC_BITOPS_H
 +
- #endif /* _ASM_IA64_TIMEX_H */
++/*
++ * Copyright 1992, Linus Torvalds.
++ * Heavily modified to provide guaranteed strong synchronisation
++ * when communicating with Xen or other guest OSes running on other CPUs.
++ */
++
++static inline void sync_set_bit(int nr, volatile void *addr)
++{
++	set_bit(nr, addr);
++}
++
++static inline void sync_clear_bit(int nr, volatile void *addr)
++{
++	clear_bit(nr, addr);
++}
++
++static inline void sync_change_bit(int nr, volatile void *addr)
++{
++	change_bit(nr, addr);
++}
++
++static inline int sync_test_and_set_bit(int nr, volatile void *addr)
++{
++	return test_and_set_bit(nr, addr);
++}
++
++static inline int sync_test_and_clear_bit(int nr, volatile void *addr)
++{
++	return test_and_clear_bit(nr, addr);
++}
++
++static inline int sync_test_and_change_bit(int nr, volatile void *addr)
++{
++	return test_and_change_bit(nr, addr);
++}
++
++static inline int sync_const_test_bit(int nr, const volatile void *addr)
++{
++	return test_bit(nr, addr);
++}
++
++static inline int sync_var_test_bit(int nr, volatile void *addr)
++{
++	return test_bit(nr, addr);
++}
++
++#define sync_cmpxchg(ptr, old, new) cmpxchg_acq((ptr), (old), (new))
++
++#define sync_test_bit(nr,addr)			\
++	(__builtin_constant_p(nr) ?		\
++	 sync_const_test_bit((nr), (addr)) :	\
++	 sync_var_test_bit((nr), (addr)))
++
++#endif /* _ASM_IA64_SYNC_BITOPS_H */
 -- 
 1.5.3
