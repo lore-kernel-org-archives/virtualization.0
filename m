@@ -1,14 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 3/4] virtio: virtio_net free transmit skbs in a timer
-Date: Sun, 8 Jun 2008 20:50:56 +1000
-Message-ID: <200806082050.56535.rusty__16162.4959590428$1212922587$gmane$org@rustcorp.com.au>
-References: <200806082049.00641.rusty@rustcorp.com.au>
-	<200806082050.00149.rusty@rustcorp.com.au>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH] xen: Use wmb instead of rmb in xen_evtchn_do_upcall().
+Date: Tue, 10 Jun 2008 16:35:32 +0900
+Message-ID: <20080610073532.GG24381%yamahata__22852.3299949758$1213083464$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200806082050.00149.rusty@rustcorp.com.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,105 +16,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Garzik <jeff@garzik.org>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jeremy@goop.org
+Cc: xen-ia64-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Samuel Thibault <samuel.thibault@eu.citrix.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mark McLoughlin <markmc@redhat.com>
+This patch is ported one from 534:77db69c38249 of linux-2.6.18-xen.hg.
+Use wmb instead of rmb to enforce ordering between
+evtchn_upcall_pending and evtchn_pending_sel stores
+in xen_evtchn_do_upcall().
 
-virtio_net currently only frees old transmit skbs just
-before queueing new ones. If the queue is full, it then
-enables interrupts and waits for notification that more
-work has been performed.
-
-However, a side-effect of this scheme is that there are
-always xmit skbs left dangling when no new packets are
-sent, against the Documentation/networking/driver.txt
-guideline:
-
-  "... it is not allowed for your TX mitigation scheme
-   to let TX packets "hang out" in the TX ring unreclaimed
-   forever if no new TX packets are sent."
-
-Add a timer to ensure that any time we queue new TX
-skbs, we will shortly free them again.
-
-This fixes an easily reproduced hang at shutdown where
-iptables attempts to unload nf_conntrack and nf_conntrack
-waits for an skb it is tracking to be freed, but virtio_net
-never frees it.
-
-Signed-off-by: Mark McLoughlin <markmc@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Samuel Thibault <samuel.thibault@eu.citrix.com>
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- drivers/net/virtio_net.c |   28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+ drivers/xen/events.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -43,6 +43,8 @@ struct virtnet_info
+diff --git a/drivers/xen/events.c b/drivers/xen/events.c
+index 73d78dc..332dd63 100644
+--- a/drivers/xen/events.c
++++ b/drivers/xen/events.c
+@@ -529,7 +529,7 @@ void xen_evtchn_do_upcall(struct pt_regs *regs)
  
- 	/* The skb we couldn't send because buffers were full. */
- 	struct sk_buff *last_xmit_skb;
-+
-+	struct timer_list xmit_free_timer;
- 
- 	/* Number of input buffers, and max we've ever had. */
- 	unsigned int num, max;
-@@ -238,9 +240,23 @@ static void free_old_xmit_skbs(struct vi
- 	}
- }
- 
-+static void xmit_free(unsigned long data)
-+{
-+	struct virtnet_info *vi = (void *)data;
-+
-+	netif_tx_lock(vi->dev);
-+
-+	free_old_xmit_skbs(vi);
-+
-+	if (!skb_queue_empty(&vi->send))
-+		mod_timer(&vi->xmit_free_timer, jiffies + (HZ/10));
-+
-+	netif_tx_unlock(vi->dev);
-+}
-+
- static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
- {
--	int num;
-+	int num, err;
- 	struct scatterlist sg[2+MAX_SKB_FRAGS];
- 	struct virtio_net_hdr *hdr;
- 	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
-@@ -283,7 +299,11 @@ static int xmit_skb(struct virtnet_info 
- 	vnet_hdr_to_sg(sg, skb);
- 	num = skb_to_sgvec(skb, sg+1, 0, skb->len) + 1;
- 
--	return vi->svq->vq_ops->add_buf(vi->svq, sg, num, 0, skb);
-+	err = vi->svq->vq_ops->add_buf(vi->svq, sg, num, 0, skb);
-+	if (!err)
-+		mod_timer(&vi->xmit_free_timer, jiffies + (HZ/10));
-+
-+	return err;
- }
- 
- static void xmit_tasklet(unsigned long data)
-@@ -452,6 +472,8 @@ static int virtnet_probe(struct virtio_d
- 
- 	tasklet_init(&vi->tasklet, xmit_tasklet, (unsigned long)vi);
- 
-+	setup_timer(&vi->xmit_free_timer, xmit_free, (unsigned long)vi);
-+
- 	err = register_netdev(dev);
- 	if (err) {
- 		pr_debug("virtio_net: registering device failed\n");
-@@ -488,6 +510,8 @@ static void virtnet_remove(struct virtio
- 
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
-+
-+	del_timer_sync(&vi->xmit_free_timer);
- 
- 	/* Free our skbs in send and recv queues, if any. */
- 	while ((skb = __skb_dequeue(&vi->recv)) != NULL) {
+ #ifndef CONFIG_X86 /* No need for a barrier -- XCHG is a barrier on x86. */
+ 		/* Clear master flag /before/ clearing selector flag. */
+-		rmb();
++		wmb();
+ #endif
+ 		pending_words = xchg(&vcpu_info->evtchn_pending_sel, 0);
+ 		while (pending_words != 0) {
+-- 
+1.5.3
