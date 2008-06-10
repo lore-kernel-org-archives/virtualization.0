@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 06/27] ia64/xen: define NET_SKB_NET to 18 if xen.
-Date: Tue, 10 Jun 2008 16:47:02 +0900
-Message-ID: <12130840432829-git-send-email-yamahata__36213.4187053472$1213084988$gmane$org@valinux.co.jp>
+Subject: [PATCH 05/27] ia64/xen: define several constants for ia64/xen.
+Date: Tue, 10 Jun 2008 16:47:01 +0900
+Message-ID: <12130840432828-git-send-email-yamahata__41655.7514611215$1213085056$gmane$org@valinux.co.jp>
 References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,44 +18,58 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-ia64@vger.kernel.org
-Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Kouya SHIMURA <kouya@jp.fujitsu.com>, xen-ia64-devel@lists.xensource.com
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On native ia64 NET_SKB_NET isn't necessary to define.
-However on xen it needs to be slightly larger. (More specifically
-it's xen-netfront.c requirement.)
-It causes annoying kernel unalgned access message and
-network layer troubles.
-Resolve it by increasing NET_SKB_NET from the default value 16 to 18.
+define several constants for ia64/xen.
 
-Cc: Kouya SHIMURA <kouya@jp.fujitsu.com>
-Cc: Akio Takebe <takebe_akio@jp.fujitsu.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/asm-offsets.c |   11 +++++++++++
- 1 files changed, 11 insertions(+), 0 deletions(-)
+ arch/ia64/kernel/asm-offsets.c |   27 +++++++++++++++++++++++++++
+ 1 files changed, 27 insertions(+), 0 deletions(-)
 
 diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
-index 6bd3fc5..6a8d95e 100644
+index c64a55a..6bd3fc5 100644
 --- a/arch/ia64/kernel/asm-offsets.c
 +++ b/arch/ia64/kernel/asm-offsets.c
-@@ -292,6 +292,17 @@ void foo(void)
- #ifdef CONFIG_XEN
- 	BLANK();
+@@ -16,6 +16,8 @@
+ #include <asm-ia64/sigcontext.h>
+ #include <asm-ia64/mca.h>
  
-+	{
-+		union __net_skb_pad
-+		{
-+			/* default NET_SKB_PAD (= 16) + NET_IP_ALIGN (= 2) */
-+			char xen_pad[16 + 2];
-+		};
-+		COMMENT("On xen NET_SKB_PAD needs to be");
-+		COMMENT(" default NET_SKB_PAD (= 16) + NET_IP_ALIGN (= 2)");
-+		DEFINE(NET_SKB_PAD, sizeof(union __net_skb_pad));
-+	}
++#include <asm-ia64/xen/interface.h>
 +
- #define DEFINE_MAPPED_REG_OFS(sym, field) \
- 	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
+ #include "../kernel/sigframe.h"
+ #include "../kernel/fsyscall_gtod_data.h"
  
+@@ -286,4 +288,29 @@ void foo(void)
+ 		offsetof (struct itc_jitter_data_t, itc_jitter));
+ 	DEFINE(IA64_ITC_LASTCYCLE_OFFSET,
+ 		offsetof (struct itc_jitter_data_t, itc_lastcycle));
++
++#ifdef CONFIG_XEN
++	BLANK();
++
++#define DEFINE_MAPPED_REG_OFS(sym, field) \
++	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
++
++	DEFINE_MAPPED_REG_OFS(XSI_PSR_I_ADDR_OFS, interrupt_mask_addr);
++	DEFINE_MAPPED_REG_OFS(XSI_IPSR_OFS, ipsr);
++	DEFINE_MAPPED_REG_OFS(XSI_IIP_OFS, iip);
++	DEFINE_MAPPED_REG_OFS(XSI_IFS_OFS, ifs);
++	DEFINE_MAPPED_REG_OFS(XSI_PRECOVER_IFS_OFS, precover_ifs);
++	DEFINE_MAPPED_REG_OFS(XSI_ISR_OFS, isr);
++	DEFINE_MAPPED_REG_OFS(XSI_IFA_OFS, ifa);
++	DEFINE_MAPPED_REG_OFS(XSI_IIPA_OFS, iipa);
++	DEFINE_MAPPED_REG_OFS(XSI_IIM_OFS, iim);
++	DEFINE_MAPPED_REG_OFS(XSI_IHA_OFS, iha);
++	DEFINE_MAPPED_REG_OFS(XSI_ITIR_OFS, itir);
++	DEFINE_MAPPED_REG_OFS(XSI_PSR_IC_OFS, interrupt_collection_enabled);
++	DEFINE_MAPPED_REG_OFS(XSI_BANKNUM_OFS, banknum);
++	DEFINE_MAPPED_REG_OFS(XSI_BANK0_R16_OFS, bank0_regs[0]);
++	DEFINE_MAPPED_REG_OFS(XSI_BANK1_R16_OFS, bank1_regs[0]);
++	DEFINE_MAPPED_REG_OFS(XSI_B0NATS_OFS, vbnat);
++	DEFINE_MAPPED_REG_OFS(XSI_B1NATS_OFS, vnat);
++#endif /* CONFIG_XEN */
+ }
 -- 
 1.5.3
