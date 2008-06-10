@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 07/27] ia64/xen: define helper functions for xen related
-	address conversion.
-Date: Tue, 10 Jun 2008 16:47:03 +0900
-Message-ID: <12130840432544-git-send-email-yamahata__19426.4832106002$1213085176$gmane$org@valinux.co.jp>
+Subject: [PATCH 13/27] ia64/pv_ops/xen: elf note based xen startup.
+Date: Tue, 10 Jun 2008 16:47:09 +0900
+Message-ID: <12130840443459-git-send-email-yamahata__11548.4888003722$1213085251$gmane$org@valinux.co.jp>
 References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,26 +21,41 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen needs some address conversions between pseudo physical
-address (guest phsyical address), guest machine address
-(real machine address) and dma address.
-Define helper functions for those address conversion.
+This patch enables elf note based xen startup for IA-64, which gives the
+kernel an early hint for running on xen like x86 case.
+In order to avoid the multi entry point, presumably extending booting
+protocol(i.e. extending struct ia64_boot_param) would be necessary.
+It probably means that elilo also needs modification.
 
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Signed-off-by: Qing He <qing.he@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/xen/page.h |   65 +++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 65 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/page.h
+ arch/ia64/xen/Makefile     |    3 +-
+ arch/ia64/xen/xen_pv_ops.c |   65 ++++++++++++++++++++++++++++++++++
+ arch/ia64/xen/xensetup.S   |   83 ++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 150 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/xen_pv_ops.c
+ create mode 100644 arch/ia64/xen/xensetup.S
 
-diff --git a/include/asm-ia64/xen/page.h b/include/asm-ia64/xen/page.h
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index eb59563..abc356f 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -2,4 +2,5 @@
+ # Makefile for Xen components
+ #
+ 
+-obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
++obj-y := hypercall.o xensetup.o xen_pv_ops.o \
++	xencomm.o xcom_hcall.o grant-table.o
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
 new file mode 100644
-index 0000000..c3c18f9
+index 0000000..77db214
 --- /dev/null
-+++ b/include/asm-ia64/xen/page.h
++++ b/arch/ia64/xen/xen_pv_ops.c
 @@ -0,0 +1,65 @@
 +/******************************************************************************
-+ * include/asm-ia64/xen/page.h
++ * arch/ia64/xen/xen_pv_ops.c
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -62,48 +76,137 @@ index 0000000..c3c18f9
 + *
 + */
 +
-+#ifndef _ASM_IA64_XEN_PAGE_H
-+#define _ASM_IA64_XEN_PAGE_H
++#include <linux/console.h>
++#include <linux/irq.h>
++#include <linux/kernel.h>
++#include <linux/pm.h>
 +
-+#define INVALID_P2M_ENTRY	(~0UL)
++#include <asm/xen/hypervisor.h>
++#include <asm/xen/xencomm.h>
++#include <asm/xen/privop.h>
 +
-+static inline unsigned long mfn_to_pfn(unsigned long mfn)
++/***************************************************************************
++ * general info
++ */
++static struct pv_info xen_info __initdata = {
++	.kernel_rpl = 2,	/* or 1: determin at runtime */
++	.paravirt_enabled = 1,
++	.name = "Xen/ia64",
++};
++
++#define IA64_RSC_PL_SHIFT	2
++#define IA64_RSC_PL_BIT_SIZE	2
++#define IA64_RSC_PL_MASK	\
++	(((1UL << IA64_RSC_PL_BIT_SIZE) - 1) << IA64_RSC_PL_SHIFT)
++
++static void __init
++xen_info_init(void)
 +{
-+	return mfn;
++	/* Xenified Linux/ia64 may run on pl = 1 or 2.
++	 * determin at run time. */
++	unsigned long rsc = ia64_getreg(_IA64_REG_AR_RSC);
++	unsigned int rpl = (rsc & IA64_RSC_PL_MASK) >> IA64_RSC_PL_SHIFT;
++	xen_info.kernel_rpl = rpl;
 +}
 +
-+static inline unsigned long pfn_to_mfn(unsigned long pfn)
++/***************************************************************************
++ * pv_ops initialization
++ */
++
++void __init
++xen_setup_pv_ops(void)
 +{
-+	return pfn;
++	xen_info_init();
++	pv_info = xen_info;
 +}
+diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
+new file mode 100644
+index 0000000..7d71333
+--- /dev/null
++++ b/arch/ia64/xen/xensetup.S
+@@ -0,0 +1,83 @@
++/*
++ * Support routines for Xen
++ *
++ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
++ */
 +
-+#define phys_to_machine_mapping_valid(_x)	(1)
++#include <asm/processor.h>
++#include <asm/asmmacro.h>
++#include <asm/pgtable.h>
++#include <asm/system.h>
++#include <asm/paravirt.h>
++#include <asm/xen/privop.h>
++#include <linux/elfnote.h>
++#include <linux/init.h>
++#include <xen/interface/elfnote.h>
 +
-+static inline void *mfn_to_virt(unsigned long mfn)
-+{
-+	return __va(mfn << PAGE_SHIFT);
-+}
++	.section .data.read_mostly
++	.align 8
++	.global running_on_xen
++running_on_xen:
++	data4 0
++	.previous
 +
-+static inline unsigned long virt_to_mfn(void *virt)
-+{
-+	return __pa(virt) >> PAGE_SHIFT;
-+}
++	__INIT
++ENTRY(startup_xen)
++	// Calculate load offset.
++	// The constant, LOAD_OFFSET, can't be used because the boot
++	// loader doesn't always load to the LMA specified by the vmlinux.lds.
++	mov r9=ip	// must be the first instruction to make sure
++			// that r9 = the physical address of startup_xen.
++			// Usually r9 = startup_xen - LOAD_OFFSET
++	movl r8=startup_xen
++	;;
++	sub r9=r9,r8	// Usually r9 = -LOAD_OFFSET.
 +
-+/* for tpmfront.c */
-+static inline unsigned long virt_to_machine(void *virt)
-+{
-+	return __pa(virt);
-+}
++	mov r10=PARAVIRT_HYPERVISOR_TYPE_XEN
++	movl r11=_start
++	;;
++	add r11=r11,r9
++	movl r8=hypervisor_type
++	;;
++	add r8=r8,r9
++	mov b0=r11
++	;;
++	st8 [r8]=r10
++	br.cond.sptk.many b0
++	;;
++END(startup_xen)
 +
-+static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
-+{
-+	/* nothing */
-+}
++	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,	.asciz "linux")
++	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,	.asciz "2.6")
++	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,	.asciz "xen-3.0")
++	ELFNOTE(Xen, XEN_ELFNOTE_ENTRY,		data8.ua startup_xen - LOAD_OFFSET)
 +
-+#define pte_mfn(_x)	pte_pfn(_x)
-+#define mfn_pte(_x, _y)	__pte_ma(0)		/* unmodified use */
-+#define __pte_ma(_x)	((pte_t) {(_x)})        /* unmodified use */
++#define isBP	p3	// are we the Bootstrap Processor?
 +
-+#endif /* _ASM_IA64_XEN_PAGE_H */
++	.text
++
++GLOBAL_ENTRY(xen_setup_hook)
++	mov r8=1		// booleanize.
++(isBP)	movl r9=running_on_xen;;
++(isBP)	st4 [r9]=r8
++	movl r10=xen_ivt;;
++
++	mov cr.iva=r10
++
++	/* Set xsi base.  */
++#define FW_HYPERCALL_SET_SHARED_INFO_VA			0x600
++(isBP)	mov r2=FW_HYPERCALL_SET_SHARED_INFO_VA
++(isBP)	movl r28=XSI_BASE;;
++(isBP)	break 0x1000;;
++
++	/* setup pv_ops */
++(isBP)	mov r4=rp
++	;;
++(isBP)	br.call.sptk.many rp=xen_setup_pv_ops
++	;;
++(isBP)	mov rp=r4
++	;;
++
++	br.ret.sptk.many rp
++	;;
++END(xen_setup_hook)
 -- 
 1.5.3
