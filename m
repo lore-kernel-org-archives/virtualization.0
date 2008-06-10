@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 15/27] ia64/pv_ops/xen: define xen pv_cpu_ops.
-Date: Tue, 10 Jun 2008 16:47:11 +0900
-Message-ID: <12130840442268-git-send-email-yamahata__5776.51788848943$1213086030$gmane$org@valinux.co.jp>
+Subject: [PATCH 18/27] ia64/pv_ops/xen: paravirtualize ivt.S for xen.
+Date: Tue, 10 Jun 2008 16:47:14 +0900
+Message-ID: <1213084044920-git-send-email-yamahata__32477.8877934024$1213086041$gmane$org@valinux.co.jp>
 References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,144 +21,110 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define xen pv_cpu_ops which implementes xen paravirtualized
-privileged instructions.
+paravirtualize ivt.S for xen by multi compile.
 
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/xen_pv_ops.c |  114 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 114 insertions(+), 0 deletions(-)
+ arch/ia64/xen/Makefile      |   16 ++++++++++++-
+ arch/ia64/xen/xenivt.S      |   52 +++++++++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/xen/inst.h |    1 +
+ 3 files changed, 68 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/xenivt.S
 
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index 433af1a..b84286b 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -163,6 +163,119 @@ static const struct pv_init_ops xen_init_ops __initdata = {
- };
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index 7cb4247..5c87e4a 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -2,5 +2,19 @@
+ # Makefile for Xen components
+ #
  
- /***************************************************************************
-+ * pv_cpu_ops
-+ * intrinsics hooks.
+-obj-y := hypercall.o xensetup.o xen_pv_ops.o \
++obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o \
+ 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
++
++AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
++
++# xen multi compile
++ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S
++ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
++obj-y += $(ASM_PARAVIRT_OBJS)
++define paravirtualized_xen
++AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_XEN
++endef
++$(foreach o,$(ASM_PARAVIRT_OBJS),$(eval $(call paravirtualized_xen,$(o))))
++
++$(obj)/xen-%.o: $(src)/../kernel/%.S FORCE
++	$(call if_changed_dep,as_o_S)
+diff --git a/arch/ia64/xen/xenivt.S b/arch/ia64/xen/xenivt.S
+new file mode 100644
+index 0000000..3e71d50
+--- /dev/null
++++ b/arch/ia64/xen/xenivt.S
+@@ -0,0 +1,52 @@
++/*
++ * arch/ia64/xen/ivt.S
++ *
++ * Copyright (C) 2005 Hewlett-Packard Co
++ *	Dan Magenheimer <dan.magenheimer@hp.com>
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *                    pv_ops.
 + */
 +
-+static void xen_setreg(int regnum, unsigned long val)
-+{
-+	switch (regnum) {
-+	case _IA64_REG_AR_KR0 ... _IA64_REG_AR_KR7:
-+		xen_set_kr(regnum - _IA64_REG_AR_KR0, val);
-+		break;
-+#ifdef CONFIG_IA32_SUPPORT
-+	case _IA64_REG_AR_EFLAG:
-+		xen_set_eflag(val);
-+		break;
-+#endif
-+	case _IA64_REG_CR_TPR:
-+		xen_set_tpr(val);
-+		break;
-+	case _IA64_REG_CR_ITM:
-+		xen_set_itm(val);
-+		break;
-+	case _IA64_REG_CR_EOI:
-+		xen_eoi(val);
-+		break;
-+	default:
-+		ia64_native_setreg_func(regnum, val);
-+		break;
-+	}
-+}
++#include <asm/asmmacro.h>
++#include <asm/kregs.h>
++#include <asm/pgtable.h>
 +
-+static unsigned long xen_getreg(int regnum)
-+{
-+	unsigned long res;
++#include "../kernel/minstate.h"
 +
-+	switch (regnum) {
-+	case _IA64_REG_PSR:
-+		res = xen_get_psr();
-+		break;
-+#ifdef CONFIG_IA32_SUPPORT
-+	case _IA64_REG_AR_EFLAG:
-+		res = xen_get_eflag();
-+		break;
-+#endif
-+	case _IA64_REG_CR_IVR:
-+		res = xen_get_ivr();
-+		break;
-+	case _IA64_REG_CR_TPR:
-+		res = xen_get_tpr();
-+		break;
-+	default:
-+		res = ia64_native_getreg_func(regnum);
-+		break;
-+	}
-+	return res;
-+}
-+
-+/* turning on interrupts is a bit more complicated.. write to the
-+ * memory-mapped virtual psr.i bit first (to avoid race condition),
-+ * then if any interrupts were pending, we have to execute a hyperprivop
-+ * to ensure the pending interrupt gets delivered; else we're done! */
-+static void
-+xen_ssm_i(void)
-+{
-+	int old = xen_get_virtual_psr_i();
-+	xen_set_virtual_psr_i(1);
-+	barrier();
-+	if (!old && xen_get_virtual_pend())
-+		xen_hyper_ssm_i();
-+}
-+
-+/* turning off interrupts can be paravirtualized simply by writing
-+ * to a memory-mapped virtual psr.i bit (implemented as a 16-bit bool) */
-+static void
-+xen_rsm_i(void)
-+{
-+	xen_set_virtual_psr_i(0);
-+	barrier();
-+}
-+
-+static unsigned long
-+xen_get_psr_i(void)
-+{
-+	return xen_get_virtual_psr_i() ? IA64_PSR_I : 0;
-+}
-+
-+static void
-+xen_intrin_local_irq_restore(unsigned long mask)
-+{
-+	if (mask & IA64_PSR_I)
-+		xen_ssm_i();
-+	else
-+		xen_rsm_i();
-+}
-+
-+static const struct pv_cpu_ops xen_cpu_ops __initdata = {
-+	.fc		= xen_fc,
-+	.thash		= xen_thash,
-+	.get_cpuid	= xen_get_cpuid,
-+	.get_pmd	= xen_get_pmd,
-+	.getreg		= xen_getreg,
-+	.setreg		= xen_setreg,
-+	.ptcga		= xen_ptcga,
-+	.get_rr		= xen_get_rr,
-+	.set_rr		= xen_set_rr,
-+	.set_rr0_to_rr4	= xen_set_rr0_to_rr4,
-+	.ssm_i		= xen_ssm_i,
-+	.rsm_i		= xen_rsm_i,
-+	.get_psr_i	= xen_get_psr_i,
-+	.intrin_local_irq_restore
-+			= xen_intrin_local_irq_restore,
-+};
-+
-+/***************************************************************************
-  * pv_ops initialization
-  */
++	.section .text,"ax"
++GLOBAL_ENTRY(xen_event_callback)
++	mov r31=pr		// prepare to save predicates
++	;;
++	SAVE_MIN_WITH_COVER	// uses r31; defines r2 and r3
++	;;
++	movl r3=XSI_PSR_IC
++	mov r14=1
++	;;
++	st4 [r3]=r14
++	;;
++	adds r3=8,r2		// set up second base pointer for SAVE_REST
++	srlz.i			// ensure everybody knows psr.ic is back on
++	;;
++	SAVE_REST
++	;;
++1:
++	alloc r14=ar.pfs,0,0,1,0 // must be first in an insn group
++	add out0=16,sp		// pass pointer to pt_regs as first arg
++	;;
++	br.call.sptk.many b0=xen_evtchn_do_upcall
++	;;
++	movl r20=XSI_PSR_I_ADDR
++	;;
++	ld8 r20=[r20]
++	;;
++	adds r20=-1,r20		// vcpu_info->evtchn_upcall_pending
++	;;
++	ld1 r20=[r20]
++	;;
++	cmp.ne p6,p0=r20,r0	// if there are pending events,
++	(p6) br.spnt.few 1b	// call evtchn_do_upcall again.
++	br.sptk.many xen_leave_kernel	// we know ia64_leave_kernel is
++					// paravirtualized as xen_leave_kernel
++END(xen_event_callback)
+diff --git a/include/asm-ia64/xen/inst.h b/include/asm-ia64/xen/inst.h
+index f62e0b6..ed5ebeb 100644
+--- a/include/asm-ia64/xen/inst.h
++++ b/include/asm-ia64/xen/inst.h
+@@ -22,6 +22,7 @@
  
-@@ -172,4 +285,5 @@ xen_setup_pv_ops(void)
- 	xen_info_init();
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
-+	pv_cpu_ops = xen_cpu_ops;
- }
+ #include <asm/xen/privop.h>
+ 
++#define ia64_ivt				xen_ivt
+ #define DO_SAVE_MIN				XEN_DO_SAVE_MIN
+ 
+ #define MOV_FROM_IFA(reg)	\
 -- 
 1.5.3
