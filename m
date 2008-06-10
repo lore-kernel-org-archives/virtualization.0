@@ -1,16 +1,13 @@
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] xen: Use wmb instead of rmb in xen_evtchn_do_upcall().
-Date: Tue, 10 Jun 2008 18:15:53 +1000
-Message-ID: <200806101815.53729.nickpiggin__31307.4017678902$1213108956$gmane$org@yahoo.com.au>
-References: <20080610073532.GG24381%yamahata@valinux.co.jp>
-	<200806101741.39871.nickpiggin@yahoo.com.au>
-	<484E33F1.5000503@goop.org>
+From: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH 1/4] virtio_net: Fix skb->csum_start computation
+Date: Tue, 10 Jun 2008 18:21:42 -0400
+Message-ID: <484EFE76.1080309__17081.6507576548$1213136622$gmane$org@garzik.org>
+References: <200806082049.00641.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <484E33F1.5000503@goop.org>
-Content-Disposition: inline
+In-Reply-To: <200806082049.00641.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,53 +17,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Isaku Yamahata <yamahata@valinux.co.jp>, Keir Fraser <Keir.Fraser@eu.citrix.com>, Samuel Thibault <samuel.thibault@eu.citrix.com>, xen-ia64-devel@lists.xensource.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 10 June 2008 17:57, Jeremy Fitzhardinge wrote:
-> Nick Piggin wrote:
-> > On Tuesday 10 June 2008 17:35, Isaku Yamahata wrote:
-> >> This patch is ported one from 534:77db69c38249 of linux-2.6.18-xen.hg.
-> >> Use wmb instead of rmb to enforce ordering between
-> >> evtchn_upcall_pending and evtchn_pending_sel stores
-> >> in xen_evtchn_do_upcall().
-> >
-> > There are a whole load of places in the kernel that should be using
-> > smp_ variants of memory barriers. This seemed to me like one of them,
-> > but I could be wrong.
->
-> No, it needs to be an unconditional barrier.  This is synchronizing with
-> the hypervisor - even if the kernel is compiled UP, the SMP hypervisor
-> may be testing/setting the events pending bits from another (physical) cpu.
+Rusty Russell wrote:
+> From: Mark McLoughlin <markmc@redhat.com>
+> 
+> hdr->csum_start is the offset from the start of the ethernet
+> header to the transport layer checksum field. skb->csum_start
+> is the offset from skb->head.
+> 
+> skb_partial_csum_set() assumes that skb->data points to the
+> ethernet header - i.e. it computes skb->csum_start by adding
+> the headroom to hdr->csum_start.
+> 
+> Since eth_type_trans() skb_pull()s the ethernet header,
+> skb_partial_csum_set() should be called before
+> eth_type_trans().
+> 
+> (Without this patch, GSO packets from a guest to the world outside the
+> host are corrupted).
+> 
+> Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+> Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> ---
+>  drivers/net/virtio_net.c |    8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
 
-OK. What you *really* want is smp_*mb_even_if_compiled_for_UP() ;)
-That is, a small set of primitives that are compiled with CONFIG_SMP
-(and given some xxx_ prefix to distinguish).
-
-IO barriers are probably the best thing you can use for the moment.
-
-
-> > Also, if you do that can you get rid of the ifdef? If it really *really*
-> > mattered, we could introduce smp_mb before/after xchg... but if you
-> > use smp_wmb anyway then it definitely does not matter because that is a
-> > noop on x86.
->
-> Yes, I'd like to lose the #ifdef.  Unfortunately I think putting a
-> "lock; addl $0,0(%%esp)" style barrier had a measurable negative
-> performance impact, but I may be thinking of something else.  I don't
-> know how expensive sfence is.
->
-> The alternative is to make ia64's xchg a barrier (or to add a barrier
-> variant of it).  It seems like a wart to have a cross-architecture
-> function like xchg(), but then have different architectures differ in
-> important details like barrier-ness.
-
-Well, no you have to be careful. Because even if we did ask for ia64's
-xchg to be a full barrier, you wouldn't get the right behaviour on UP
-because it would be free to optimise that away -- those kinds of barriers
-referred to in all those primitives are defined for cacheable memory and
-CPU-to-CPU only...
-
-I guess under the circumstances, leaving the ifdef there is probably
-reasonable.
+applied 1-4
