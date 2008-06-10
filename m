@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 17/27] ia64/pv_ops/xen: paravirtualize DO_SAVE_MIN for xen.
-Date: Tue, 10 Jun 2008 16:47:13 +0900
-Message-ID: <12130840441382-git-send-email-yamahata__29803.6719709218$1213086084$gmane$org@valinux.co.jp>
+Subject: [PATCH 14/27] ia64/pv_ops/xen: define xen pv_init_ops for various xen
+	initialization.
+Date: Tue, 10 Jun 2008 16:47:10 +0900
+Message-ID: <12130840444151-git-send-email-yamahata__30951.6818648719$1213086094$gmane$org@valinux.co.jp>
 References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,171 +19,343 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
+Cc: eddie.dong@intel.com, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize DO_SAVE_MIN in minstate.h for xen.
+This patch implements xen version of pv_init_ops to do various
+xen initialization.
+This patch includes ia64 counter part of
+9e124fe16ff24746d6de5a2ad685266d7bce0e08 and
+83abc70a4c6e306f4c1672e25884322f797e4fcb for xen early printk support.
 
+Signed-off-by: Akio Takebe <takebe_akio@jp.fujitsu.com>
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/xen/inst.h     |    2 +
- include/asm-ia64/xen/minstate.h |  134 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 136 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/minstate.h
+ arch/ia64/xen/Makefile            |    2 +-
+ arch/ia64/xen/hypervisor.c        |   96 ++++++++++++++++++++++++++++++++
+ arch/ia64/xen/xen_pv_ops.c        |  110 +++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/xen/hypervisor.h |   72 ++++++++++++++++++++++++
+ 4 files changed, 279 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/hypervisor.c
+ create mode 100644 include/asm-ia64/xen/hypervisor.h
 
-diff --git a/include/asm-ia64/xen/inst.h b/include/asm-ia64/xen/inst.h
-index 4298e17..f62e0b6 100644
---- a/include/asm-ia64/xen/inst.h
-+++ b/include/asm-ia64/xen/inst.h
-@@ -22,6 +22,8 @@
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index abc356f..7cb4247 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -3,4 +3,4 @@
+ #
  
- #include <asm/xen/privop.h>
- 
-+#define DO_SAVE_MIN				XEN_DO_SAVE_MIN
-+
- #define MOV_FROM_IFA(reg)	\
- 	movl reg = XSI_IFA;	\
- 	;;			\
-diff --git a/include/asm-ia64/xen/minstate.h b/include/asm-ia64/xen/minstate.h
+ obj-y := hypercall.o xensetup.o xen_pv_ops.o \
+-	xencomm.o xcom_hcall.o grant-table.o
++	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
+diff --git a/arch/ia64/xen/hypervisor.c b/arch/ia64/xen/hypervisor.c
 new file mode 100644
-index 0000000..4d92d9b
+index 0000000..b48595e
 --- /dev/null
-+++ b/include/asm-ia64/xen/minstate.h
-@@ -0,0 +1,134 @@
-+/*
-+ * DO_SAVE_MIN switches to the kernel stacks (if necessary) and saves
-+ * the minimum state necessary that allows us to turn psr.ic back
-+ * on.
++++ b/arch/ia64/xen/hypervisor.c
+@@ -0,0 +1,96 @@
++/******************************************************************************
++ * arch/ia64/xen/hypervisor.c
 + *
-+ * Assumed state upon entry:
-+ *	psr.ic: off
-+ *	r31:	contains saved predicates (pr)
++ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
 + *
-+ * Upon exit, the state is as follows:
-+ *	psr.ic: off
-+ *	 r2 = points to &pt_regs.r16
-+ *	 r8 = contents of ar.ccv
-+ *	 r9 = contents of ar.csd
-+ *	r10 = contents of ar.ssd
-+ *	r11 = FPSR_DEFAULT
-+ *	r12 = kernel sp (kernel virtual address)
-+ *	r13 = points to current task_struct (kernel virtual address)
-+ *	p15 = TRUE if psr.i is set in cr.ipsr
-+ *	predicate registers (other than p2, p3, and p15), b6, r3, r14, r15:
-+ *		preserved
-+ * CONFIG_XEN note: p6/p7 are not preserved
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
 + *
-+ * Note that psr.ic is NOT turned on by this macro.  This is so that
-+ * we can pass interruption state as arguments to a handler.
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
 + */
-+#define XEN_DO_SAVE_MIN(__COVER,SAVE_IFS,EXTRA,WORKAROUND)					\
-+	mov r16=IA64_KR(CURRENT);	/* M */							\
-+	mov r27=ar.rsc;			/* M */							\
-+	mov r20=r1;			/* A */							\
-+	mov r25=ar.unat;		/* M */							\
-+	MOV_FROM_IPSR(p0,r29);		/* M */							\
-+	MOV_FROM_IIP(r28);		/* M */							\
-+	mov r21=ar.fpsr;		/* M */							\
-+	mov r26=ar.pfs;			/* I */							\
-+	__COVER;			/* B;; (or nothing) */					\
-+	adds r16=IA64_TASK_THREAD_ON_USTACK_OFFSET,r16;						\
-+	;;											\
-+	ld1 r17=[r16];				/* load current->thread.on_ustack flag */	\
-+	st1 [r16]=r0;				/* clear current->thread.on_ustack flag */	\
-+	adds r1=-IA64_TASK_THREAD_ON_USTACK_OFFSET,r16						\
-+	/* switch from user to kernel RBS: */							\
-+	;;											\
-+	invala;				/* M */							\
-+	/* SAVE_IFS;*/ /* see xen special handling below */					\
-+	cmp.eq pKStk,pUStk=r0,r17;		/* are we in kernel mode already? */		\
-+	;;											\
-+(pUStk)	mov ar.rsc=0;		/* set enforced lazy mode, pl 0, little-endian, loadrs=0 */	\
-+	;;											\
-+(pUStk)	mov.m r24=ar.rnat;									\
-+(pUStk)	addl r22=IA64_RBS_OFFSET,r1;			/* compute base of RBS */		\
-+(pKStk) mov r1=sp;					/* get sp  */				\
-+	;;											\
-+(pUStk) lfetch.fault.excl.nt1 [r22];								\
-+(pUStk)	addl r1=IA64_STK_OFFSET-IA64_PT_REGS_SIZE,r1;	/* compute base of memory stack */	\
-+(pUStk)	mov r23=ar.bspstore;				/* save ar.bspstore */			\
-+	;;											\
-+(pUStk)	mov ar.bspstore=r22;				/* switch to kernel RBS */		\
-+(pKStk) addl r1=-IA64_PT_REGS_SIZE,r1;			/* if in kernel mode, use sp (r12) */	\
-+	;;											\
-+(pUStk)	mov r18=ar.bsp;										\
-+(pUStk)	mov ar.rsc=0x3;		/* set eager mode, pl 0, little-endian, loadrs=0 */		\
-+	adds r17=2*L1_CACHE_BYTES,r1;		/* really: biggest cache-line size */		\
-+	adds r16=PT(CR_IPSR),r1;								\
-+	;;											\
-+	lfetch.fault.excl.nt1 [r17],L1_CACHE_BYTES;						\
-+	st8 [r16]=r29;		/* save cr.ipsr */						\
-+	;;											\
-+	lfetch.fault.excl.nt1 [r17];								\
-+	tbit.nz p15,p0=r29,IA64_PSR_I_BIT;							\
-+	mov r29=b0										\
-+	;;											\
-+	WORKAROUND;										\
-+	adds r16=PT(R8),r1;	/* initialize first base pointer */				\
-+	adds r17=PT(R9),r1;	/* initialize second base pointer */				\
-+(pKStk)	mov r18=r0;		/* make sure r18 isn't NaT */					\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r8,16;								\
-+.mem.offset 8,0; st8.spill [r17]=r9,16;								\
-+        ;;											\
-+.mem.offset 0,0; st8.spill [r16]=r10,24;							\
-+	movl r8=XSI_PRECOVER_IFS;								\
-+.mem.offset 8,0; st8.spill [r17]=r11,24;							\
-+        ;;											\
-+	/* xen special handling for possibly lazy cover */					\
-+	/* SAVE_MIN case in dispatch_ia32_handler: mov r30=r0 */				\
-+	ld8 r30=[r8];										\
-+(pUStk)	sub r18=r18,r22;	/* r18=RSE.ndirty*8 */						\
-+	st8 [r16]=r28,16;	/* save cr.iip */						\
-+	;;											\
-+	st8 [r17]=r30,16;	/* save cr.ifs */						\
-+	mov r8=ar.ccv;										\
-+	mov r9=ar.csd;										\
-+	mov r10=ar.ssd;										\
-+	movl r11=FPSR_DEFAULT;   /* L-unit */							\
-+	;;											\
-+	st8 [r16]=r25,16;	/* save ar.unat */						\
-+	st8 [r17]=r26,16;	/* save ar.pfs */						\
-+	shl r18=r18,16;		/* compute ar.rsc to be used for "loadrs" */			\
-+	;;											\
-+	st8 [r16]=r27,16;	/* save ar.rsc */						\
-+(pUStk)	st8 [r17]=r24,16;	/* save ar.rnat */						\
-+(pKStk)	adds r17=16,r17;	/* skip over ar_rnat field */					\
-+	;;			/* avoid RAW on r16 & r17 */					\
-+(pUStk)	st8 [r16]=r23,16;	/* save ar.bspstore */						\
-+	st8 [r17]=r31,16;	/* save predicates */						\
-+(pKStk)	adds r16=16,r16;	/* skip over ar_bspstore field */				\
-+	;;											\
-+	st8 [r16]=r29,16;	/* save b0 */							\
-+	st8 [r17]=r18,16;	/* save ar.rsc value for "loadrs" */				\
-+	cmp.eq pNonSys,pSys=r0,r0	/* initialize pSys=0, pNonSys=1 */			\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r20,16;	/* save original r1 */				\
-+.mem.offset 8,0; st8.spill [r17]=r12,16;							\
-+	adds r12=-16,r1;	/* switch to kernel memory stack (with 16 bytes of scratch) */	\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r13,16;							\
-+.mem.offset 8,0; st8.spill [r17]=r21,16;	/* save ar.fpsr */				\
-+	mov r13=IA64_KR(CURRENT);	/* establish `current' */				\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r15,16;							\
-+.mem.offset 8,0; st8.spill [r17]=r14,16;							\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r2,16;								\
-+.mem.offset 8,0; st8.spill [r17]=r3,16;								\
-+	ACCOUNT_GET_STAMP									\
-+	adds r2=IA64_PT_REGS_R16_OFFSET,r1;							\
-+	;;											\
-+	EXTRA;											\
-+	movl r1=__gp;		/* establish kernel global pointer */				\
-+	;;											\
-+	ACCOUNT_SYS_ENTER									\
-+	BSW_1(r3,r14);	/* switch back to bank 1 (must be last in insn group) */		\
-+	;;
++
++#include <linux/efi.h>
++#include <asm/xen/hypervisor.h>
++#include <asm/xen/privop.h>
++
++#include "irq_xen.h"
++
++struct shared_info *HYPERVISOR_shared_info __read_mostly =
++	(struct shared_info *)XSI_BASE;
++EXPORT_SYMBOL(HYPERVISOR_shared_info);
++
++DEFINE_PER_CPU(struct vcpu_info *, xen_vcpu);
++
++struct start_info *xen_start_info;
++EXPORT_SYMBOL(xen_start_info);
++
++EXPORT_SYMBOL(running_on_xen);
++
++EXPORT_SYMBOL(__hypercall);
++
++/* Stolen from arch/x86/xen/enlighten.c */
++/*
++ * Flag to determine whether vcpu info placement is available on all
++ * VCPUs.  We assume it is to start with, and then set it to zero on
++ * the first failure.  This is because it can succeed on some VCPUs
++ * and not others, since it can involve hypervisor memory allocation,
++ * or because the guest failed to guarantee all the appropriate
++ * constraints on all VCPUs (ie buffer can't cross a page boundary).
++ *
++ * Note that any particular CPU may be using a placed vcpu structure,
++ * but we can only optimise if the all are.
++ *
++ * 0: not available, 1: available
++ */
++
++static void __init xen_vcpu_setup(int cpu)
++{
++	/*
++	 * WARNING:
++	 * before changing MAX_VIRT_CPUS,
++	 * check that shared_info fits on a page
++	 */
++	BUILD_BUG_ON(sizeof(struct shared_info) > PAGE_SIZE);
++	per_cpu(xen_vcpu, cpu) = &HYPERVISOR_shared_info->vcpu_info[cpu];
++}
++
++void __init xen_setup_vcpu_info_placement(void)
++{
++	int cpu;
++
++	for_each_possible_cpu(cpu)
++		xen_vcpu_setup(cpu);
++}
++
++void __cpuinit
++xen_cpu_init(void)
++{
++	xen_smp_intr_init();
++}
++
++/**************************************************************************
++ * opt feature
++ */
++void
++xen_ia64_enable_opt_feature(void)
++{
++	/* Enable region 7 identity map optimizations in Xen */
++	struct xen_ia64_opt_feature optf;
++
++	optf.cmd = XEN_IA64_OPTF_IDENT_MAP_REG7;
++	optf.on = XEN_IA64_OPTF_ON;
++	optf.pgprot = pgprot_val(PAGE_KERNEL);
++	optf.key = 0;	/* No key on linux. */
++	HYPERVISOR_opt_feature(&optf);
++}
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 77db214..433af1a 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -54,6 +54,115 @@ xen_info_init(void)
+ }
+ 
+ /***************************************************************************
++ * pv_init_ops
++ * initialization hooks.
++ */
++
++static void
++xen_panic_hypercall(struct unw_frame_info *info, void *arg)
++{
++	current->thread.ksp = (__u64)info->sw - 16;
++	HYPERVISOR_shutdown(SHUTDOWN_crash);
++	/* we're never actually going to get here... */
++}
++
++static int
++xen_panic_event(struct notifier_block *this, unsigned long event, void *ptr)
++{
++	unw_init_running(xen_panic_hypercall, NULL);
++	/* we're never actually going to get here... */
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block xen_panic_block = {
++	xen_panic_event, NULL, 0 /* try to go last */
++};
++
++static void xen_pm_power_off(void)
++{
++	local_irq_disable();
++	HYPERVISOR_shutdown(SHUTDOWN_poweroff);
++}
++
++static void __init
++xen_banner(void)
++{
++	printk(KERN_INFO
++	       "Running on Xen! pl = %d start_info_pfn=0x%lx nr_pages=%ld "
++	       "flags=0x%x\n",
++	       xen_info.kernel_rpl,
++	       HYPERVISOR_shared_info->arch.start_info_pfn,
++	       xen_start_info->nr_pages, xen_start_info->flags);
++}
++
++static int __init
++xen_reserve_memory(struct rsvd_region *region)
++{
++	region->start = (unsigned long)__va(
++		(HYPERVISOR_shared_info->arch.start_info_pfn << PAGE_SHIFT));
++	region->end   = region->start + PAGE_SIZE;
++	return 1;
++}
++
++static void __init
++xen_arch_setup_early(void)
++{
++	struct shared_info *s;
++	BUG_ON(!is_running_on_xen());
++
++	s = HYPERVISOR_shared_info;
++	xen_start_info = __va(s->arch.start_info_pfn << PAGE_SHIFT);
++
++	/* Must be done before any hypercall.  */
++	xencomm_initialize();
++
++	xen_setup_features();
++	/* Register a call for panic conditions. */
++	atomic_notifier_chain_register(&panic_notifier_list,
++				       &xen_panic_block);
++	pm_power_off = xen_pm_power_off;
++
++	xen_ia64_enable_opt_feature();
++}
++
++static void __init
++xen_arch_setup_console(char **cmdline_p)
++{
++	add_preferred_console("xenboot", 0, NULL);
++	add_preferred_console("tty", 0, NULL);
++	/* use hvc_xen */
++	add_preferred_console("hvc", 0, NULL);
++
++#if !defined(CONFIG_VT) || !defined(CONFIG_DUMMY_CONSOLE)
++	conswitchp = NULL;
++#endif
++}
++
++static int __init
++xen_arch_setup_nomca(void)
++{
++	return 1;
++}
++
++static void __init
++xen_post_smp_prepare_boot_cpu(void)
++{
++	xen_setup_vcpu_info_placement();
++}
++
++static const struct pv_init_ops xen_init_ops __initdata = {
++	.banner = xen_banner,
++
++	.reserve_memory = xen_reserve_memory,
++
++	.arch_setup_early = xen_arch_setup_early,
++	.arch_setup_console = xen_arch_setup_console,
++	.arch_setup_nomca = xen_arch_setup_nomca,
++
++	.post_smp_prepare_boot_cpu = xen_post_smp_prepare_boot_cpu,
++};
++
++/***************************************************************************
+  * pv_ops initialization
+  */
+ 
+@@ -62,4 +171,5 @@ xen_setup_pv_ops(void)
+ {
+ 	xen_info_init();
+ 	pv_info = xen_info;
++	pv_init_ops = xen_init_ops;
+ }
+diff --git a/include/asm-ia64/xen/hypervisor.h b/include/asm-ia64/xen/hypervisor.h
+new file mode 100644
+index 0000000..a7527c2
+--- /dev/null
++++ b/include/asm-ia64/xen/hypervisor.h
+@@ -0,0 +1,72 @@
++/******************************************************************************
++ * hypervisor.h
++ *
++ * Linux-specific hypervisor handling.
++ *
++ * Copyright (c) 2002-2004, K A Fraser
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#ifndef _ASM_IA64_XEN_HYPERVISOR_H
++#define _ASM_IA64_XEN_HYPERVISOR_H
++
++#ifdef CONFIG_XEN
++
++#include <linux/init.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/version.h>	/* to compile feature.c */
++#include <xen/features.h>		/* to comiple xen-netfront.c */
++#include <asm/xen/hypercall.h>
++
++/* running_on_xen is set before executing any C code by early_xen_setup */
++extern const int running_on_xen;
++# define is_running_on_xen()			(running_on_xen)
++
++extern struct shared_info *HYPERVISOR_shared_info;
++extern struct start_info *xen_start_info;
++
++void __init xen_setup_vcpu_info_placement(void);
++void force_evtchn_callback(void);
++
++/* for drivers/xen/balloon/balloon.c */
++#ifdef CONFIG_XEN_SCRUB_PAGES
++#define scrub_pages(_p, _n) memset((void *)(_p), 0, (_n) << PAGE_SHIFT)
++#else
++#define scrub_pages(_p, _n) ((void)0)
++#endif
++
++/* For setup_arch() in arch/ia64/kernel/setup.c */
++void xen_ia64_enable_opt_feature(void);
++
++#else /* CONFIG_XEN */
++
++#define is_running_on_xen()			(0)
++
++#endif
++
++#define is_initial_xendomain()			(0)
++
++#endif /* _ASM_IA64_XEN_HYPERVISOR_H */
 -- 
 1.5.3
