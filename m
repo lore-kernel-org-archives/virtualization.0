@@ -1,15 +1,14 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH] xen: Use wmb instead of rmb in xen_evtchn_do_upcall().
-Date: Tue, 10 Jun 2008 17:01:43 +0900
-Message-ID: <20080610080143.GJ24381%yamahata__26030.8091449135$1213085420$gmane$org@valinux.co.jp>
-References: <20080610073532.GG24381%yamahata@valinux.co.jp>
-	<200806101741.39871.nickpiggin@yahoo.com.au>
+Subject: [PATCH 26/27] ia64/pv_ops: update Kconfig for paravirtualized guest
+	and xen.
+Date: Tue, 10 Jun 2008 16:47:22 +0900
+Message-ID: <1213084044647-git-send-email-yamahata__7574.37736397168$1213086005$gmane$org@valinux.co.jp>
+References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <200806101741.39871.nickpiggin@yahoo.com.au>
+In-Reply-To: <12130840433561-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,63 +18,110 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: xen-ia64-devel@lists.xensource.com, linux-kernel@vger.kernel.org, Samuel Thibault <samuel.thibault@eu.citrix.com>, virtualization@lists.linux-foundation.org
+To: linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 10, 2008 at 05:41:39PM +1000, Nick Piggin wrote:
-> On Tuesday 10 June 2008 17:35, Isaku Yamahata wrote:
-> > This patch is ported one from 534:77db69c38249 of linux-2.6.18-xen.hg.
-> > Use wmb instead of rmb to enforce ordering between
-> > evtchn_upcall_pending and evtchn_pending_sel stores
-> > in xen_evtchn_do_upcall().
-> 
-> There are a whole load of places in the kernel that should be using
-> smp_ variants of memory barriers. This seemed to me like one of them,
-> but I could be wrong.
+introduce CONFIG_PARAVIRT_GUEST, CONFIG_PARAVIRT for
+paravirtualized guest.
+introduce CONFING_XEN, CONFIG_IA64_XEN for xen.
 
-Thank you for your comment.
-Non smp_ version is intentionally used.
-Because here the synchronization is done between other guest kernel
-which might be running on another physical cpu. So non smp version is
-really necessary even if this kernel is build for UP.
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/Kconfig     |   32 ++++++++++++++++++++++++++++++++
+ arch/ia64/xen/Kconfig |   26 ++++++++++++++++++++++++++
+ 2 files changed, 58 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/xen/Kconfig
 
-
-> Also, if you do that can you get rid of the ifdef? If it really *really*
-> mattered, we could introduce smp_mb before/after xchg... but if you
-> use smp_wmb anyway then it definitely does not matter because that is a
-> noop on x86.
-
-To be honest, I don't know whether the overhead of mb here matters
-on x86 or not. I'm wondering Jeremy might have an idea.
-
-
->
-> 
-> Thanks,
-> Nick
-> 
-> >
->  Cc: Samuel Thibault <samuel.thibault@eu.citrix.com>
-> > Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-> > ---
-> >  drivers/xen/events.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> >
-> > diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-> > index 73d78dc..332dd63 100644
-> > --- a/drivers/xen/events.c
-> > +++ b/drivers/xen/events.c
-> > @@ -529,7 +529,7 @@ void xen_evtchn_do_upcall(struct pt_regs *regs)
-> >
-> >  #ifndef CONFIG_X86 /* No need for a barrier -- XCHG is a barrier on x86.
-> > */ /* Clear master flag /before/ clearing selector flag. */
-> > -		rmb();
-> > +		wmb();
-> >  #endif
-> >  		pending_words = xchg(&vcpu_info->evtchn_pending_sel, 0);
-> >  		while (pending_words != 0) {
-> 
-
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index 16be414..1b5053f 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -116,6 +116,33 @@ config AUDIT_ARCH
+ 	bool
+ 	default y
+ 
++menuconfig PARAVIRT_GUEST
++	bool "Paravirtualized guest support"
++	help
++	  Say Y here to get to see options related to running Linux under
++	  various hypervisors.  This option alone does not add any kernel code.
++
++	  If you say N, all options in this submenu will be skipped and disabled.
++
++if PARAVIRT_GUEST
++
++config PARAVIRT
++	bool "Enable paravirtualization code"
++	depends on PARAVIRT_GUEST
++	default y
++	bool
++	default y
++	help
++	  This changes the kernel so it can modify itself when it is run
++	  under a hypervisor, potentially improving performance significantly
++	  over full virtualization.  However, when run without a hypervisor
++	  the kernel is theoretically slower and slightly larger.
++
++
++source "arch/ia64/xen/Kconfig"
++
++endif
++
+ choice
+ 	prompt "System type"
+ 	default IA64_GENERIC
+@@ -137,6 +164,7 @@ config IA64_GENERIC
+ 	  SGI-SN2		For SGI Altix systems
+ 	  SGI-UV		For SGI UV systems
+ 	  Ski-simulator		For the HP simulator <http://www.hpl.hp.com/research/linux/ski/>
++	  Xen-domU		For xen domU system
+ 
+ 	  If you don't know what to do, choose "generic".
+ 
+@@ -187,6 +215,10 @@ config IA64_HP_SIM
+ 	bool "Ski-simulator"
+ 	select SWIOTLB
+ 
++config IA64_XEN
++	bool "Xen guest"
++	depends on XEN
++
+ endchoice
+ 
+ choice
+diff --git a/arch/ia64/xen/Kconfig b/arch/ia64/xen/Kconfig
+new file mode 100644
+index 0000000..f1683a2
+--- /dev/null
++++ b/arch/ia64/xen/Kconfig
+@@ -0,0 +1,26 @@
++#
++# This Kconfig describes xen/ia64 options
++#
++
++config XEN
++	bool "Xen hypervisor support"
++	default y
++	depends on PARAVIRT && MCKINLEY && IA64_PAGE_SIZE_16KB && EXPERIMENTAL
++	select XEN_XENCOMM
++	select NO_IDLE_HZ
++
++	# those are required to save/restore.
++	select ARCH_SUSPEND_POSSIBLE
++	select SUSPEND
++	select PM_SLEEP
++	help
++	  Enable Xen hypervisor support.  Resulting kernel runs
++	  both as a guest OS on Xen and natively on hardware.
++
++config XEN_XENCOMM
++	depends on XEN
++	bool
++
++config NO_IDLE_HZ
++	depends on XEN
++	bool
 -- 
-yamahata
+1.5.3
