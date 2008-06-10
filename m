@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 11/27] ia64/xen: implement arch specific part of xen grant
-	table.
-Date: Tue, 10 Jun 2008 16:47:07 +0900
-Message-ID: <12130840433465-git-send-email-yamahata__49117.1247013428$1213086082$gmane$org@valinux.co.jp>
+Subject: [PATCH 17/27] ia64/pv_ops/xen: paravirtualize DO_SAVE_MIN for xen.
+Date: Tue, 10 Jun 2008 16:47:13 +0900
+Message-ID: <12130840441382-git-send-email-yamahata__29803.6719709218$1213086084$gmane$org@valinux.co.jp>
 References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,226 +21,168 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, eddie.dong@intel.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen implements grant tables which is for sharing pages with
-guest domains.
-This patch implements arch specific part of grant table initialization.
-and xen_alloc_vm_area()/xen_free_vm_area() which are helper functions
-for xen grant table.
+paravirtualize DO_SAVE_MIN in minstate.h for xen.
 
+Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile             |    2 +-
- arch/ia64/xen/grant-table.c        |  155 ++++++++++++++++++++++++++++++++++++
- include/asm-ia64/xen/grant_table.h |   29 +++++++
- 3 files changed, 185 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/grant-table.c
- create mode 100644 include/asm-ia64/xen/grant_table.h
+ include/asm-ia64/xen/inst.h     |    2 +
+ include/asm-ia64/xen/minstate.h |  134 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 136 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/minstate.h
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index ae08822..eb59563 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -2,4 +2,4 @@
- # Makefile for Xen components
- #
+diff --git a/include/asm-ia64/xen/inst.h b/include/asm-ia64/xen/inst.h
+index 4298e17..f62e0b6 100644
+--- a/include/asm-ia64/xen/inst.h
++++ b/include/asm-ia64/xen/inst.h
+@@ -22,6 +22,8 @@
  
--obj-y := hypercall.o xencomm.o xcom_hcall.o
-+obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
-diff --git a/arch/ia64/xen/grant-table.c b/arch/ia64/xen/grant-table.c
+ #include <asm/xen/privop.h>
+ 
++#define DO_SAVE_MIN				XEN_DO_SAVE_MIN
++
+ #define MOV_FROM_IFA(reg)	\
+ 	movl reg = XSI_IFA;	\
+ 	;;			\
+diff --git a/include/asm-ia64/xen/minstate.h b/include/asm-ia64/xen/minstate.h
 new file mode 100644
-index 0000000..777dd9a
+index 0000000..4d92d9b
 --- /dev/null
-+++ b/arch/ia64/xen/grant-table.c
-@@ -0,0 +1,155 @@
-+/******************************************************************************
-+ * arch/ia64/xen/grant-table.c
++++ b/include/asm-ia64/xen/minstate.h
+@@ -0,0 +1,134 @@
++/*
++ * DO_SAVE_MIN switches to the kernel stacks (if necessary) and saves
++ * the minimum state necessary that allows us to turn psr.ic back
++ * on.
 + *
-+ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
++ * Assumed state upon entry:
++ *	psr.ic: off
++ *	r31:	contains saved predicates (pr)
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ * Upon exit, the state is as follows:
++ *	psr.ic: off
++ *	 r2 = points to &pt_regs.r16
++ *	 r8 = contents of ar.ccv
++ *	 r9 = contents of ar.csd
++ *	r10 = contents of ar.ssd
++ *	r11 = FPSR_DEFAULT
++ *	r12 = kernel sp (kernel virtual address)
++ *	r13 = points to current task_struct (kernel virtual address)
++ *	p15 = TRUE if psr.i is set in cr.ipsr
++ *	predicate registers (other than p2, p3, and p15), b6, r3, r14, r15:
++ *		preserved
++ * CONFIG_XEN note: p6/p7 are not preserved
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
++ * Note that psr.ic is NOT turned on by this macro.  This is so that
++ * we can pass interruption state as arguments to a handler.
 + */
-+
-+#include <linux/module.h>
-+#include <linux/vmalloc.h>
-+#include <linux/mm.h>
-+
-+#include <xen/interface/xen.h>
-+#include <xen/interface/memory.h>
-+#include <xen/grant_table.h>
-+
-+#include <asm/xen/hypervisor.h>
-+
-+struct vm_struct *xen_alloc_vm_area(unsigned long size)
-+{
-+	int order;
-+	unsigned long virt;
-+	unsigned long nr_pages;
-+	struct vm_struct *area;
-+
-+	order = get_order(size);
-+	virt = __get_free_pages(GFP_KERNEL, order);
-+	if (virt == 0)
-+		goto err0;
-+	nr_pages = 1 << order;
-+	scrub_pages(virt, nr_pages);
-+
-+	area = kmalloc(sizeof(*area), GFP_KERNEL);
-+	if (area == NULL)
-+		goto err1;
-+
-+	area->flags = VM_IOREMAP;
-+	area->addr = (void *)virt;
-+	area->size = size;
-+	area->pages = NULL;
-+	area->nr_pages = nr_pages;
-+	area->phys_addr = 0;	/* xenbus_map_ring_valloc uses this field!  */
-+
-+	return area;
-+
-+err1:
-+	free_pages(virt, order);
-+err0:
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(xen_alloc_vm_area);
-+
-+void xen_free_vm_area(struct vm_struct *area)
-+{
-+	unsigned int order = get_order(area->size);
-+	unsigned long i;
-+	unsigned long phys_addr = __pa(area->addr);
-+
-+	/* This area is used for foreign page mappping.
-+	 * So underlying machine page may not be assigned. */
-+	for (i = 0; i < (1 << order); i++) {
-+		unsigned long ret;
-+		unsigned long gpfn = (phys_addr >> PAGE_SHIFT) + i;
-+		struct xen_memory_reservation reservation = {
-+			.nr_extents   = 1,
-+			.address_bits = 0,
-+			.extent_order = 0,
-+			.domid        = DOMID_SELF
-+		};
-+		set_xen_guest_handle(reservation.extent_start, &gpfn);
-+		ret = HYPERVISOR_memory_op(XENMEM_populate_physmap,
-+					   &reservation);
-+		BUG_ON(ret != 1);
-+	}
-+	free_pages((unsigned long)area->addr, order);
-+	kfree(area);
-+}
-+EXPORT_SYMBOL_GPL(xen_free_vm_area);
-+
-+
-+/****************************************************************************
-+ * grant table hack
-+ * cmd: GNTTABOP_xxx
-+ */
-+
-+int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
-+			   unsigned long max_nr_gframes,
-+			   struct grant_entry **__shared)
-+{
-+	*__shared = __va(frames[0] << PAGE_SHIFT);
-+	return 0;
-+}
-+
-+void arch_gnttab_unmap_shared(struct grant_entry *shared,
-+			      unsigned long nr_gframes)
-+{
-+	/* nothing */
-+}
-+
-+static void
-+gnttab_map_grant_ref_pre(struct gnttab_map_grant_ref *uop)
-+{
-+	uint32_t flags;
-+
-+	flags = uop->flags;
-+
-+	if (flags & GNTMAP_host_map) {
-+		if (flags & GNTMAP_application_map) {
-+			printk(KERN_DEBUG
-+			       "GNTMAP_application_map is not supported yet: "
-+			       "flags 0x%x\n", flags);
-+			BUG();
-+		}
-+		if (flags & GNTMAP_contains_pte) {
-+			printk(KERN_DEBUG
-+			       "GNTMAP_contains_pte is not supported yet: "
-+			       "flags 0x%x\n", flags);
-+			BUG();
-+		}
-+	} else if (flags & GNTMAP_device_map) {
-+		printk("GNTMAP_device_map is not supported yet 0x%x\n", flags);
-+		BUG();	/* not yet. actually this flag is not used. */
-+	} else {
-+		BUG();
-+	}
-+}
-+
-+int
-+HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count)
-+{
-+	if (cmd == GNTTABOP_map_grant_ref) {
-+		unsigned int i;
-+		for (i = 0; i < count; i++) {
-+			gnttab_map_grant_ref_pre(
-+				(struct gnttab_map_grant_ref *)uop + i);
-+		}
-+	}
-+	return xencomm_hypercall_grant_table_op(cmd, uop, count);
-+}
-+
-+EXPORT_SYMBOL(HYPERVISOR_grant_table_op);
-diff --git a/include/asm-ia64/xen/grant_table.h b/include/asm-ia64/xen/grant_table.h
-new file mode 100644
-index 0000000..ebdf2ea
---- /dev/null
-+++ b/include/asm-ia64/xen/grant_table.h
-@@ -0,0 +1,29 @@
-+/******************************************************************************
-+ * include/asm-ia64/xen/grant_table.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef _ASM_IA64_XEN_GRANT_TABLE_H
-+#define _ASM_IA64_XEN_GRANT_TABLE_H
-+
-+struct vm_struct *xen_alloc_vm_area(unsigned long size);
-+void xen_free_vm_area(struct vm_struct *area);
-+
-+#endif /* _ASM_IA64_XEN_GRANT_TABLE_H */
++#define XEN_DO_SAVE_MIN(__COVER,SAVE_IFS,EXTRA,WORKAROUND)					\
++	mov r16=IA64_KR(CURRENT);	/* M */							\
++	mov r27=ar.rsc;			/* M */							\
++	mov r20=r1;			/* A */							\
++	mov r25=ar.unat;		/* M */							\
++	MOV_FROM_IPSR(p0,r29);		/* M */							\
++	MOV_FROM_IIP(r28);		/* M */							\
++	mov r21=ar.fpsr;		/* M */							\
++	mov r26=ar.pfs;			/* I */							\
++	__COVER;			/* B;; (or nothing) */					\
++	adds r16=IA64_TASK_THREAD_ON_USTACK_OFFSET,r16;						\
++	;;											\
++	ld1 r17=[r16];				/* load current->thread.on_ustack flag */	\
++	st1 [r16]=r0;				/* clear current->thread.on_ustack flag */	\
++	adds r1=-IA64_TASK_THREAD_ON_USTACK_OFFSET,r16						\
++	/* switch from user to kernel RBS: */							\
++	;;											\
++	invala;				/* M */							\
++	/* SAVE_IFS;*/ /* see xen special handling below */					\
++	cmp.eq pKStk,pUStk=r0,r17;		/* are we in kernel mode already? */		\
++	;;											\
++(pUStk)	mov ar.rsc=0;		/* set enforced lazy mode, pl 0, little-endian, loadrs=0 */	\
++	;;											\
++(pUStk)	mov.m r24=ar.rnat;									\
++(pUStk)	addl r22=IA64_RBS_OFFSET,r1;			/* compute base of RBS */		\
++(pKStk) mov r1=sp;					/* get sp  */				\
++	;;											\
++(pUStk) lfetch.fault.excl.nt1 [r22];								\
++(pUStk)	addl r1=IA64_STK_OFFSET-IA64_PT_REGS_SIZE,r1;	/* compute base of memory stack */	\
++(pUStk)	mov r23=ar.bspstore;				/* save ar.bspstore */			\
++	;;											\
++(pUStk)	mov ar.bspstore=r22;				/* switch to kernel RBS */		\
++(pKStk) addl r1=-IA64_PT_REGS_SIZE,r1;			/* if in kernel mode, use sp (r12) */	\
++	;;											\
++(pUStk)	mov r18=ar.bsp;										\
++(pUStk)	mov ar.rsc=0x3;		/* set eager mode, pl 0, little-endian, loadrs=0 */		\
++	adds r17=2*L1_CACHE_BYTES,r1;		/* really: biggest cache-line size */		\
++	adds r16=PT(CR_IPSR),r1;								\
++	;;											\
++	lfetch.fault.excl.nt1 [r17],L1_CACHE_BYTES;						\
++	st8 [r16]=r29;		/* save cr.ipsr */						\
++	;;											\
++	lfetch.fault.excl.nt1 [r17];								\
++	tbit.nz p15,p0=r29,IA64_PSR_I_BIT;							\
++	mov r29=b0										\
++	;;											\
++	WORKAROUND;										\
++	adds r16=PT(R8),r1;	/* initialize first base pointer */				\
++	adds r17=PT(R9),r1;	/* initialize second base pointer */				\
++(pKStk)	mov r18=r0;		/* make sure r18 isn't NaT */					\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r8,16;								\
++.mem.offset 8,0; st8.spill [r17]=r9,16;								\
++        ;;											\
++.mem.offset 0,0; st8.spill [r16]=r10,24;							\
++	movl r8=XSI_PRECOVER_IFS;								\
++.mem.offset 8,0; st8.spill [r17]=r11,24;							\
++        ;;											\
++	/* xen special handling for possibly lazy cover */					\
++	/* SAVE_MIN case in dispatch_ia32_handler: mov r30=r0 */				\
++	ld8 r30=[r8];										\
++(pUStk)	sub r18=r18,r22;	/* r18=RSE.ndirty*8 */						\
++	st8 [r16]=r28,16;	/* save cr.iip */						\
++	;;											\
++	st8 [r17]=r30,16;	/* save cr.ifs */						\
++	mov r8=ar.ccv;										\
++	mov r9=ar.csd;										\
++	mov r10=ar.ssd;										\
++	movl r11=FPSR_DEFAULT;   /* L-unit */							\
++	;;											\
++	st8 [r16]=r25,16;	/* save ar.unat */						\
++	st8 [r17]=r26,16;	/* save ar.pfs */						\
++	shl r18=r18,16;		/* compute ar.rsc to be used for "loadrs" */			\
++	;;											\
++	st8 [r16]=r27,16;	/* save ar.rsc */						\
++(pUStk)	st8 [r17]=r24,16;	/* save ar.rnat */						\
++(pKStk)	adds r17=16,r17;	/* skip over ar_rnat field */					\
++	;;			/* avoid RAW on r16 & r17 */					\
++(pUStk)	st8 [r16]=r23,16;	/* save ar.bspstore */						\
++	st8 [r17]=r31,16;	/* save predicates */						\
++(pKStk)	adds r16=16,r16;	/* skip over ar_bspstore field */				\
++	;;											\
++	st8 [r16]=r29,16;	/* save b0 */							\
++	st8 [r17]=r18,16;	/* save ar.rsc value for "loadrs" */				\
++	cmp.eq pNonSys,pSys=r0,r0	/* initialize pSys=0, pNonSys=1 */			\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r20,16;	/* save original r1 */				\
++.mem.offset 8,0; st8.spill [r17]=r12,16;							\
++	adds r12=-16,r1;	/* switch to kernel memory stack (with 16 bytes of scratch) */	\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r13,16;							\
++.mem.offset 8,0; st8.spill [r17]=r21,16;	/* save ar.fpsr */				\
++	mov r13=IA64_KR(CURRENT);	/* establish `current' */				\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r15,16;							\
++.mem.offset 8,0; st8.spill [r17]=r14,16;							\
++	;;											\
++.mem.offset 0,0; st8.spill [r16]=r2,16;								\
++.mem.offset 8,0; st8.spill [r17]=r3,16;								\
++	ACCOUNT_GET_STAMP									\
++	adds r2=IA64_PT_REGS_R16_OFFSET,r1;							\
++	;;											\
++	EXTRA;											\
++	movl r1=__gp;		/* establish kernel global pointer */				\
++	;;											\
++	ACCOUNT_SYS_ENTER									\
++	BSW_1(r3,r14);	/* switch back to bank 1 (must be last in insn group) */		\
++	;;
 -- 
 1.5.3
