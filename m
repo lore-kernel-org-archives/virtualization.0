@@ -1,55 +1,29 @@
-From: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH 1/3] virtio: fix virtio_net xmit of freed skb bug
-Date: Fri, 13 Jun 2008 15:57:02 -0400
-Message-ID: <4852D10E.40001__42465.9597142183$1213387277$gmane$org@garzik.org>
-References: <200805261742.43215.rusty@rustcorp.com.au>	
-	<1211886386.3637.48.camel@muff>
-	<200805291634.18224.rusty@rustcorp.com.au>
-	<1213366440.9507.0.camel@muff>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: linux-next: Tree for June 13 (XEN)
+Date: Fri, 13 Jun 2008 23:16:40 +0100
+Message-ID: <4852F1C8.7060904@goop.org>
+References: <20080613232214.394fd6fd.sfr@canb.auug.org.au> <20080613101316.1c228fe7.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1213366440.9507.0.camel@muff>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20080613101316.1c228fe7.randy.dunlap@oracle.com>
+Sender: linux-next-owner@vger.kernel.org
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, chrisw@sous-sol.org, virtualization@lists.osdl.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Mark McLoughlin wrote:
-> On Thu, 2008-05-29 at 16:34 +1000, Rusty Russell wrote:
->> On Tuesday 27 May 2008 21:06:26 Mark McLoughlin wrote:
->>> On Mon, 2008-05-26 at 17:42 +1000, Rusty Russell wrote:
->>>> If we fail to transmit a packet, we assume the queue is full and put
->>>> the skb into last_xmit_skb.  However, if more space frees up before we
->>>> xmit it, we loop, and the result can be transmitting the same skb twice.
->>>>
->>>> Fix is simple: set skb to NULL if we've used it in some way, and check
->>>> before sending.
->> Great! It's a corner case, but it's no more complicated to do it your way.
->>
->> Minor mod, I find it clearer to have the vi->last_xmit_skb = NULL; under
->> the branch:
->>
->> Subject: [PATCH] virtio_net: Delay dropping tx skbs
->> Date: Tue, 27 May 2008 12:06:26 +0100
->> From: Mark McLoughlin <markmc@redhat.com>
->>
->> Currently we drop the skb in start_xmit() if we have a
->> queued buffer and fail to transmit it.
->>
->> However, if we delay dropping it until we've stopped the
->> queue and enabled the tx notification callback, then there
->> is a chance space might become available for it.
-> 
-> Hmm, we lost this one somewhere along the way ...
+Randy Dunlap wrote:
+> next-20080613 on x86_32 has lots of xen build errors like this:
+>
+> linux-next-20080613/arch/x86/xen/mmu.c: In function 'drop_mm_ref':
+> linux-next-20080613/arch/x86/xen/mmu.c:759: error: implicit declaration of function 'xen_smp_call_function_mask'
+> make[2]: *** [arch/x86/xen/mmu.o] Error 1
+>
+>   
 
-can someone resend?
+Ooh, first time I've seen that.  Sounds like Jens' patches are missing 
+the appropriate update there (though it's certainly had it in the past).
+
+    J
+
