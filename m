@@ -1,17 +1,16 @@
-From: "Glauber Costa" <glommer@gmail.com>
-Subject: Re: [PATCH] Do not calculate linear rip in emulation failure report
-Date: Fri, 13 Jun 2008 16:51:29 -0300
-Message-ID: <5d6222a80806131251q12fbbff0rc90a133722acf2d7__43215.2271307588$1213386887$gmane$org@mail.gmail.com>
-References: <1213105613-8571-1-git-send-email-gcosta@redhat.com>
-	<52d4a3890806131033g56ec2bc0o43442d2c290401f2@mail.gmail.com>
-	<5d6222a80806131037u245c66ev902fadaa6d5c4605@mail.gmail.com>
-	<4852CE93.9020104@qumranet.com>
+From: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH 1/3] virtio: fix virtio_net xmit of freed skb bug
+Date: Fri, 13 Jun 2008 15:57:02 -0400
+Message-ID: <4852D10E.40001__42465.9597142183$1213387277$gmane$org@garzik.org>
+References: <200805261742.43215.rusty@rustcorp.com.au>	
+	<1211886386.3637.48.camel@muff>
+	<200805291634.18224.rusty@rustcorp.com.au>
+	<1213366440.9507.0.camel@muff>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4852CE93.9020104@qumranet.com>
-Content-Disposition: inline
+In-Reply-To: <1213366440.9507.0.camel@muff>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,63 +20,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Glauber Costa <gcosta@redhat.com>
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 13, 2008 at 4:46 PM, Avi Kivity <avi@qumranet.com> wrote:
-> Glauber Costa wrote:
+Mark McLoughlin wrote:
+> On Thu, 2008-05-29 at 16:34 +1000, Rusty Russell wrote:
+>> On Tuesday 27 May 2008 21:06:26 Mark McLoughlin wrote:
+>>> On Mon, 2008-05-26 at 17:42 +1000, Rusty Russell wrote:
+>>>> If we fail to transmit a packet, we assume the queue is full and put
+>>>> the skb into last_xmit_skb.  However, if more space frees up before we
+>>>> xmit it, we loop, and the result can be transmitting the same skb twice.
 >>>>
->>>>       unsigned long rip = vcpu->arch.rip;
->>>>       unsigned long rip_linear;
->>>>
->>>> -       rip_linear = rip + get_segment_base(vcpu, VCPU_SREG_CS);
->>>> -
->>>>       if (reported)
->>>>               return;
->>>>
->>>> +       rip_linear = rip + get_segment_base(vcpu, VCPU_SREG_CS);
->>>> +
->>>>       emulator_read_std(rip_linear, (void *)opcodes, 4, vcpu);
->>>>
->>>>       printk(KERN_ERR "emulation failed (%s) rip %lx %02x %02x %02x
->>>> %02x\n",
->>>> --
->>>> 1.5.4.5
->>>>
->>>
->>> Why return immediately? Shouldn't we report on failure whenever it
->>> occurs (i.e. by rather removing the if condition)?
->>>
->>>
+>>>> Fix is simple: set skb to NULL if we've used it in some way, and check
+>>>> before sending.
+>> Great! It's a corner case, but it's no more complicated to do it your way.
 >>
->> the kernel ring buffer would be full very quickly, and this is not a
->> strong enough reason to do that ;-)
->> Most of the messages would be the same.
+>> Minor mod, I find it clearer to have the vi->last_xmit_skb = NULL; under
+>> the branch:
 >>
->> What I do think would be useful, and even planned to do (just have
->> more priority things waiting), is to move
->> the checking field to the vcpu struct. With the current setup, if you
->> kill your guest, set things up again, and run it,
->> you won't see any messages, even if it fails.
+>> Subject: [PATCH] virtio_net: Delay dropping tx skbs
+>> Date: Tue, 27 May 2008 12:06:26 +0100
+>> From: Mark McLoughlin <markmc@redhat.com>
 >>
->> So the warning should really be once in the lifetime of the virtual
->> machine, not once in the lifetime of the kvm module.
+>> Currently we drop the skb in start_xmit() if we have a
+>> queued buffer and fail to transmit it.
 >>
->>
->>
->
-> I've changed it to use printk_ratelimit().
+>> However, if we delay dropping it until we've stopped the
+>> queue and enabled the tx notification callback, then there
+>> is a chance space might become available for it.
+> 
+> Hmm, we lost this one somewhere along the way ...
 
-I've tested this option here before sending out the patch, since it
-would address all issues.
-
-But in error cases, it still seemed to generate too many messages.
-
-
--- 
-Glauber  Costa.
-"Free as in Freedom"
-http://glommer.net
-
-"The less confident you are, the more serious you have to act."
+can someone resend?
