@@ -1,65 +1,56 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] mm: fix comment formatting in
-	asm-generic/pgtable.h:__ptep_modify_prot_
-Date: Fri, 13 Jun 2008 09:18:00 +0200
-Message-ID: <20080613071800.GA11976@elte.hu>
-References: <patchbomb.1212192268@localhost> <20080602111339.GB18586@elte.hu>
-	<4843EF6A.20305@goop.org>
-	<200806030946.00434.rusty@rustcorp.com.au>
+From: Mark McLoughlin <markmc@redhat.com>
+Subject: Re: [PATCH 1/3] virtio: fix virtio_net xmit of freed skb bug
+Date: Fri, 13 Jun 2008 15:14:00 +0100
+Message-ID: <1213366440.9507.0.camel__9327.06084936417$1213367152$gmane$org@muff>
+References: <200805261742.43215.rusty@rustcorp.com.au>
+	<1211886386.3637.48.camel@muff>
+	<200805291634.18224.rusty@rustcorp.com.au>
+Reply-To: Mark McLoughlin <markmc@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
-Content-Disposition: inline
-In-Reply-To: <200806030946.00434.rusty@rustcorp.com.au>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200805291634.18224.rusty@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-* Rusty Russell <rusty@rustcorp.com.au> wrote:
-
-> > -	/* Get the current pte state, but zero it out to make it
-> > -	   non-present, preventing the hardware from asynchronously
-> > -	   updating it. */
-> > +	/*
-> > +	 * Get the current pte state, but zero it out to make it
-> > +	 * non-present, preventing the hardware from asynchronously
-> > +	 * updating it.
-> > +	 */
+On Thu, 2008-05-29 at 16:34 +1000, Rusty Russell wrote:
+> On Tuesday 27 May 2008 21:06:26 Mark McLoughlin wrote:
+> > On Mon, 2008-05-26 at 17:42 +1000, Rusty Russell wrote:
+> > > If we fail to transmit a packet, we assume the queue is full and put
+> > > the skb into last_xmit_skb.  However, if more space frees up before we
+> > > xmit it, we loop, and the result can be transmitting the same skb twice.
+> > >
+> > > Fix is simple: set skb to NULL if we've used it in some way, and check
+> > > before sending.
 > 
-> Since there is debate over whether winged comments are a feature, I'm 
-> not sure this can be termed a "fix".
+> Great! It's a corner case, but it's no more complicated to do it your way.
+> 
+> Minor mod, I find it clearer to have the vi->last_xmit_skb = NULL; under
+> the branch:
+> 
+> Subject: [PATCH] virtio_net: Delay dropping tx skbs
+> Date: Tue, 27 May 2008 12:06:26 +0100
+> From: Mark McLoughlin <markmc@redhat.com>
+> 
+> Currently we drop the skb in start_xmit() if we have a
+> queued buffer and fail to transmit it.
+> 
+> However, if we delay dropping it until we've stopped the
+> queue and enabled the tx notification callback, then there
+> is a chance space might become available for it.
 
-Well, if you compare the two variants above Jeremy's solution looks 
-visually more pleasing, so yes it is an improvement and a fix.
+Hmm, we lost this one somewhere along the way ...
 
-( And it's even very obvious in this case, the vertical line gives a
-  clear delineation of the information and separates it from the code
-  sections. )
-
-Also, according to Documentation/CodingStyle:
-
-| The preferred style for long (multi-line) comments is:
-|
-|        /*
-|         * This is the preferred style for multi-line
-|         * comments in the Linux kernel source code.
-|         * Please use it consistently.
-|         *
-|         * Description:  A column of asterisks on the left side,
-|         * with beginning and ending almost-blank lines.
-|         */
-
-arch/x86 and include/asm-x86 follows that rule. (And we'd follow it even 
-if the issue was typographically debatable [which it isnt] because 
-consistency is visual rule #0 )
-
-	Ingo
+Cheers,
+Mark.
