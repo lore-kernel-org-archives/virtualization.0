@@ -1,29 +1,44 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: linux-next: Tree for June 13 (XEN)
-Date: Fri, 13 Jun 2008 23:16:40 +0100
-Message-ID: <4852F1C8.7060904@goop.org>
-References: <20080613232214.394fd6fd.sfr@canb.auug.org.au> <20080613101316.1c228fe7.randy.dunlap@oracle.com>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH] Do not calculate linear rip in emulation failure report
+Date: Sat, 14 Jun 2008 05:14:36 +0300
+Message-ID: <4853298C.7090109__32751.878820318$1213409880$gmane$org@qumranet.com>
+References: <1213105613-8571-1-git-send-email-gcosta@redhat.com>	
+	<52d4a3890806131033g56ec2bc0o43442d2c290401f2@mail.gmail.com>	
+	<5d6222a80806131037u245c66ev902fadaa6d5c4605@mail.gmail.com>	
+	<4852CE93.9020104@qumranet.com>
+	<5d6222a80806131251q12fbbff0rc90a133722acf2d7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20080613101316.1c228fe7.randy.dunlap@oracle.com>
-Sender: linux-next-owner@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, chrisw@sous-sol.org, virtualization@lists.osdl.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <5d6222a80806131251q12fbbff0rc90a133722acf2d7@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Glauber Costa <glommer@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Glauber Costa <gcosta@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Randy Dunlap wrote:
-> next-20080613 on x86_32 has lots of xen build errors like this:
+Glauber Costa wrote:
+>>
+>> I've changed it to use printk_ratelimit().
+>>     
 >
-> linux-next-20080613/arch/x86/xen/mmu.c: In function 'drop_mm_ref':
-> linux-next-20080613/arch/x86/xen/mmu.c:759: error: implicit declaration of function 'xen_smp_call_function_mask'
-> make[2]: *** [arch/x86/xen/mmu.o] Error 1
+> I've tested this option here before sending out the patch, since it
+> would address all issues.
+>
+> But in error cases, it still seemed to generate too many messages.
 >
 >   
 
-Ooh, first time I've seen that.  Sounds like Jens' patches are missing 
-the appropriate update there (though it's certainly had it in the past).
+Isn't that a bug in printk_ratelimit(), then?
 
-    J
-
+-- 
+I have a truly marvellous patch that fixes the bug which this
+signature is too narrow to contain.
