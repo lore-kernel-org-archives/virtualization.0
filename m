@@ -1,13 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/2] virtio: Use bus_type probe and remove methods
-Date: Sat, 14 Jun 2008 14:02:26 +1000
-Message-ID: <200806141402.27175.rusty__31175.6679475822$1213416288$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH 2/2] virtio: Complete feature negotation before updating
+	status
+Date: Sat, 14 Jun 2008 14:13:08 +1000
+Message-ID: <200806141413.09036.rusty__21738.0531285473$1213417011$gmane$org@rustcorp.com.au>
 References: <1213361201-10854-1-git-send-email-markmc@redhat.com>
+	<1213361201-10854-2-git-send-email-markmc@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1213361201-10854-1-git-send-email-markmc@redhat.com>
+In-Reply-To: <1213361201-10854-2-git-send-email-markmc@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,14 +24,15 @@ To: Mark McLoughlin <markmc@redhat.com>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 13 June 2008 22:46:40 Mark McLoughlin wrote:
-> Hook up to the probe() and remove() methods in bus_type
-> rather than device_driver. The latter has been preferred
-> since 2.6.16.
+On Friday 13 June 2008 22:46:41 Mark McLoughlin wrote:
+> lguest (in rusty's use-tun-ringfd patch) assumes that the
+> guest has updated its feature bits before setting its status
+> to VIRTIO_CONFIG_S_DRIVER_OK.
 >
-> Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+> That's pretty reasonable, so let's make it so.
 
-Thanks, applied.
+Applied.  That's a bug, I'll send to Linus immediately (I screwed up in the 
+feature changes which are new in this kernel).
 
-Cheers,
+Thanks for catching this,
 Rusty.
