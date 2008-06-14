@@ -1,62 +1,50 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/3] virtio: fix virtio_net xmit of freed skb bug
-Date: Sat, 14 Jun 2008 17:39:33 +1000
-Message-ID: <200806141739.34341.rusty__10892.9305723452$1213429316$gmane$org@rustcorp.com.au>
-References: <200805261742.43215.rusty@rustcorp.com.au>
-	<200805291634.18224.rusty@rustcorp.com.au>
-	<1213366440.9507.0.camel@muff>
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: linux-next: Tree for June 13 (XEN)
+Date: Sat, 14 Jun 2008 22:31:10 +0200
+Message-ID: <20080614203109.GH20851@kernel.dk>
+References: <20080613232214.394fd6fd.sfr@canb.auug.org.au> <20080613101316.1c228fe7.randy.dunlap@oracle.com> <4852F1C8.7060904@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1213366440.9507.0.camel@muff>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, virtualization@lists.linux-foundation.org
+In-Reply-To: <4852F1C8.7060904@goop.org>
+Sender: linux-next-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Stephen Rothwell <sfr@canb.auug.org.au>, chrisw@sous-sol.org, virtualization@lists.osdl.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Saturday 14 June 2008 00:14:00 Mark McLoughlin wrote:
-> On Thu, 2008-05-29 at 16:34 +1000, Rusty Russell wrote:
-> > On Tuesday 27 May 2008 21:06:26 Mark McLoughlin wrote:
-> > > On Mon, 2008-05-26 at 17:42 +1000, Rusty Russell wrote:
-> > > > If we fail to transmit a packet, we assume the queue is full and put
-> > > > the skb into last_xmit_skb.  However, if more space frees up before
-> > > > we xmit it, we loop, and the result can be transmitting the same skb
-> > > > twice.
-> > > >
-> > > > Fix is simple: set skb to NULL if we've used it in some way, and
-> > > > check before sending.
+On Fri, Jun 13 2008, Jeremy Fitzhardinge wrote:
+> Randy Dunlap wrote:
+> >next-20080613 on x86_32 has lots of xen build errors like this:
 > >
-> > Great! It's a corner case, but it's no more complicated to do it your
-> > way.
+> >linux-next-20080613/arch/x86/xen/mmu.c: In function 'drop_mm_ref':
+> >linux-next-20080613/arch/x86/xen/mmu.c:759: error: implicit declaration of 
+> >function 'xen_smp_call_function_mask'
+> >make[2]: *** [arch/x86/xen/mmu.o] Error 1
 > >
-> > Minor mod, I find it clearer to have the vi->last_xmit_skb = NULL; under
-> > the branch:
-> >
-> > Subject: [PATCH] virtio_net: Delay dropping tx skbs
-> > Date: Tue, 27 May 2008 12:06:26 +0100
-> > From: Mark McLoughlin <markmc@redhat.com>
-> >
-> > Currently we drop the skb in start_xmit() if we have a
-> > queued buffer and fail to transmit it.
-> >
-> > However, if we delay dropping it until we've stopped the
-> > queue and enabled the tx notification callback, then there
-> > is a chance space might become available for it.
->
-> Hmm, we lost this one somewhere along the way ...
+> >  
+> 
+> Ooh, first time I've seen that.  Sounds like Jens' patches are missing 
+> the appropriate update there (though it's certainly had it in the past).
 
-Good catch.  Looks like it got folded, but pre-folded version got merged.  
-Sorry, I've restored it to my series.
+Hmm, will this work or do we need to force xen smp_ops for this one? I
+wonder if this is new code and was missed, or what happened in this
+case.
 
-Thanks,
-Rusty.
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index 3525ef5..8baef77 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -569,7 +569,7 @@ static void drop_mm_ref(struct mm_struct *mm)
+ 	}
+ 
+ 	if (!cpus_empty(mask))
+-		xen_smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
++		smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
+ }
+ #else
+ static void drop_mm_ref(struct mm_struct *mm)
+
+-- 
+Jens Axboe
+
