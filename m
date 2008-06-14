@@ -1,19 +1,16 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH] Do not calculate linear rip in emulation failure report
-Date: Sat, 14 Jun 2008 08:01:58 +0300
-Message-ID: <485350C6.8010601__38996.3297792294$1213419860$gmane$org@qumranet.com>
-References: <1213105613-8571-1-git-send-email-gcosta@redhat.com>	
-	<52d4a3890806131033g56ec2bc0o43442d2c290401f2@mail.gmail.com>	
-	<5d6222a80806131037u245c66ev902fadaa6d5c4605@mail.gmail.com>	
-	<4852CE93.9020104@qumranet.com>	
-	<5d6222a80806131251q12fbbff0rc90a133722acf2d7@mail.gmail.com>	
-	<4853298C.7090109@qumranet.com>
-	<5d6222a80806132043x621ec290sbfd42e33e06843b5@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/3] virtio: fix virtio_net xmit of freed skb bug
+Date: Sat, 14 Jun 2008 17:39:33 +1000
+Message-ID: <200806141739.34341.rusty__10892.9305723452$1213429316$gmane$org@rustcorp.com.au>
+References: <200805261742.43215.rusty@rustcorp.com.au>
+	<200805291634.18224.rusty@rustcorp.com.au>
+	<1213366440.9507.0.camel@muff>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5d6222a80806132043x621ec290sbfd42e33e06843b5@mail.gmail.com>
+In-Reply-To: <1213366440.9507.0.camel@muff>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,20 +20,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber Costa <glommer@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Glauber Costa <gcosta@redhat.com>
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber Costa wrote:
-> I don't think so. It wasn't enough messages to DoS the system.
-> Just enough messages to annoy me.
->   
+On Saturday 14 June 2008 00:14:00 Mark McLoughlin wrote:
+> On Thu, 2008-05-29 at 16:34 +1000, Rusty Russell wrote:
+> > On Tuesday 27 May 2008 21:06:26 Mark McLoughlin wrote:
+> > > On Mon, 2008-05-26 at 17:42 +1000, Rusty Russell wrote:
+> > > > If we fail to transmit a packet, we assume the queue is full and put
+> > > > the skb into last_xmit_skb.  However, if more space frees up before
+> > > > we xmit it, we loop, and the result can be transmitting the same skb
+> > > > twice.
+> > > >
+> > > > Fix is simple: set skb to NULL if we've used it in some way, and
+> > > > check before sending.
+> >
+> > Great! It's a corner case, but it's no more complicated to do it your
+> > way.
+> >
+> > Minor mod, I find it clearer to have the vi->last_xmit_skb = NULL; under
+> > the branch:
+> >
+> > Subject: [PATCH] virtio_net: Delay dropping tx skbs
+> > Date: Tue, 27 May 2008 12:06:26 +0100
+> > From: Mark McLoughlin <markmc@redhat.com>
+> >
+> > Currently we drop the skb in start_xmit() if we have a
+> > queued buffer and fail to transmit it.
+> >
+> > However, if we delay dropping it until we've stopped the
+> > queue and enabled the tx notification callback, then there
+> > is a chance space might become available for it.
+>
+> Hmm, we lost this one somewhere along the way ...
 
-If emulation failure messages annoy you, I'm sure you can think of a way 
-of removing them other than tampering with kvm_report_emulation_failure().
+Good catch.  Looks like it got folded, but pre-folded version got merged.  
+Sorry, I've restored it to my series.
 
-
-
--- 
-I have a truly marvellous patch that fixes the bug which this
-signature is too narrow to contain.
+Thanks,
+Rusty.
