@@ -1,61 +1,51 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: linux-next: Tree for June 13 (XEN)
-Date: Sun, 15 Jun 2008 07:11:16 +0100
-Message-ID: <4854B284.7030709@goop.org>
-References: <20080613232214.394fd6fd.sfr@canb.auug.org.au> <20080613101316.1c228fe7.randy.dunlap@oracle.com> <4852F1C8.7060904@goop.org> <20080614203109.GH20851@kernel.dk>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: Complete feature negotation before updating status
+Date: Sun, 15 Jun 2008 23:20:50 +1000
+Message-ID: <200806152320.51100.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20080614203109.GH20851@kernel.dk>
-Sender: linux-next-owner@vger.kernel.org
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Stephen Rothwell <sfr@canb.auug.org.au>, chrisw@sous-sol.org, virtualization@lists.osdl.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark McLoughlin <markmc@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jens Axboe wrote:
-> On Fri, Jun 13 2008, Jeremy Fitzhardinge wrote:
->   
->> Randy Dunlap wrote:
->>     
->>> next-20080613 on x86_32 has lots of xen build errors like this:
->>>
->>> linux-next-20080613/arch/x86/xen/mmu.c: In function 'drop_mm_ref':
->>> linux-next-20080613/arch/x86/xen/mmu.c:759: error: implicit declaration of 
->>> function 'xen_smp_call_function_mask'
->>> make[2]: *** [arch/x86/xen/mmu.o] Error 1
->>>
->>>  
->>>       
->> Ooh, first time I've seen that.  Sounds like Jens' patches are missing 
->> the appropriate update there (though it's certainly had it in the past).
->>     
->
-> Hmm, will this work or do we need to force xen smp_ops for this one? I
-> wonder if this is new code and was missed, or what happened in this
-> case.
->   
+From: Mark McLoughlin <markmc@redhat.com>
 
-Yes, using smp_call_function_mask is perfectly OK.  The old code was 
-just a micro-optimisation.  I'm pretty sure this chunk was in one of 
-your patchsets (or perhaps I sent it to you at some point).
+lguest (in rusty's use-tun-ringfd patch) assumes that the
+guest has updated its feature bits before setting its status
+to VIRTIO_CONFIG_S_DRIVER_OK.
 
-> diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-> index 3525ef5..8baef77 100644
-> --- a/arch/x86/xen/mmu.c
-> +++ b/arch/x86/xen/mmu.c
-> @@ -569,7 +569,7 @@ static void drop_mm_ref(struct mm_struct *mm)
->  	}
->  
->  	if (!cpus_empty(mask))
-> -		xen_smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
-> +		smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
->  }
->  #else
->  static void drop_mm_ref(struct mm_struct *mm)
->
->   
+That's pretty reasonable, so let's make it so.
 
-Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/virtio/virtio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    J
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index ab0aca7..fc85cba 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -117,9 +117,9 @@ static int virtio_dev_probe(struct device *_d)
+ 	if (err)
+ 		add_status(dev, VIRTIO_CONFIG_S_FAILED);
+ 	else {
+-		add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
+ 		/* They should never have set feature bits beyond 32 */
+ 		dev->config->set_features(dev, dev->features[0]);
++		add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
+ 	}
+ 	return err;
+ }
