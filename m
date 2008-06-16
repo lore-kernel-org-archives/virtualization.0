@@ -1,78 +1,70 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot
-	transaction abstraction
-Date: Mon, 16 Jun 2008 20:49:50 +0200
-Message-ID: <20080616184949.GA14182@elte.hu>
-References: <b020e42384197b824320.1213615800@localhost>
-	<alpine.LFD.1.10.0806161028080.2949@woody.linux-foundation.org>
-	<Pine.LNX.4.64.0806161906490.19564@blonde.site>
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: linux-next: Tree for June 13 (XEN)
+Date: Mon, 16 Jun 2008 21:30:57 +0200
+Message-ID: <20080616193057.GA20851@kernel.dk>
+References: <20080613232214.394fd6fd.sfr@canb.auug.org.au> <20080613101316.1c228fe7.randy.dunlap@oracle.com> <4852F1C8.7060904@goop.org> <20080614203109.GH20851@kernel.dk> <4854B284.7030709@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
+Return-path: <linux-next-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0806161906490.19564@blonde.site>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>, Virtualization Mailing List <virtualization@lists.osdl.org>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.or>
+In-Reply-To: <4854B284.7030709@goop.org>
+Sender: linux-next-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Stephen Rothwell <sfr@canb.auug.org.au>, chrisw@sous-sol.org, virtualization@lists.osdl.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-* Hugh Dickins <hugh@veritas.com> wrote:
-
-> On Mon, 16 Jun 2008, Linus Torvalds wrote:
-> > On Mon, 16 Jun 2008, Jeremy Fitzhardinge wrote:
-> > >
-> > > ptep_modify_prot_start() returns the current pte value, and puts the
-> > >   pte entry into a state where either the hardware will not update the
-> > >   pte, or if it does, the updates will be preserved on commit.
-> > > 
-> > > ptep_modify_prot_commit() writes back the updated pte, makes sure that
-> > >   any hardware updates made since ptep_modify_prot_start() are
-> > >   preserved.
-> > 
-> > Ok, I'm fine with this now that it's renamed to be clearly about just 
-> > protection bits.
-> > 
-> > So 
-> > 
-> > 	Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+On Sun, Jun 15 2008, Jeremy Fitzhardinge wrote:
+> Jens Axboe wrote:
+> >On Fri, Jun 13 2008, Jeremy Fitzhardinge wrote:
+> >  
+> >>Randy Dunlap wrote:
+> >>    
+> >>>next-20080613 on x86_32 has lots of xen build errors like this:
+> >>>
+> >>>linux-next-20080613/arch/x86/xen/mmu.c: In function 'drop_mm_ref':
+> >>>linux-next-20080613/arch/x86/xen/mmu.c:759: error: implicit declaration 
+> >>>of function 'xen_smp_call_function_mask'
+> >>>make[2]: *** [arch/x86/xen/mmu.o] Error 1
+> >>>
+> >>> 
+> >>>      
+> >>Ooh, first time I've seen that.  Sounds like Jens' patches are missing 
+> >>the appropriate update there (though it's certainly had it in the past).
+> >>    
+> >
+> >Hmm, will this work or do we need to force xen smp_ops for this one? I
+> >wonder if this is new code and was missed, or what happened in this
+> >case.
+> >  
 > 
-> And seems very reasonable (and exceptionally well described) to me too.
+> Yes, using smp_call_function_mask is perfectly OK.  The old code was 
+> just a micro-optimisation.  I'm pretty sure this chunk was in one of 
+> your patchsets (or perhaps I sent it to you at some point).
+
+Hmm yes, not sure myself to be honest, but I think you are right.
+
+> >diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+> >index 3525ef5..8baef77 100644
+> >--- a/arch/x86/xen/mmu.c
+> >+++ b/arch/x86/xen/mmu.c
+> >@@ -569,7 +569,7 @@ static void drop_mm_ref(struct mm_struct *mm)
+> > 	}
+> > 
+> > 	if (!cpus_empty(mask))
+> >-		xen_smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
+> >+		smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
+> > }
+> > #else
+> > static void drop_mm_ref(struct mm_struct *mm)
+> >
+> >  
 > 
-> 	Acked-by: Hugh Dickins <hugh@veritas.com>
+> Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-thanks guys, i've added the Acked-by's and added a new -tip topic for 
-this.
+Thanks, I just folded it in with the existing patch to avoid breakage.
+That one doesn't have an ack from you though, so if you have done a full
+review of the x86 bits, I'd appreciate an ack on those from you :-)
 
-The dependencies are a bit tricky and the changes contain mm/ and 
-include/asm-generic/ bits so lets try a new Git trick here to keep it 
-all tidy and disciplined for v2.6.27 merging.
+-- 
+Jens Axboe
 
-So i've created a new tip/mm/xen topic branch (the 85th -tip topic 
-branch ;-), which is COW-ed off the current tip/x86/xen topic branch [on 
-which branch these changes have some dependencies], and added these 4 
-changes to that. The tip/x86/xen (append-only-) topic will continue to 
-advance as usual, and we likely wont have dependencies on the stuff in 
-tip/mm/xen. (if there will be such dependencies we can handle that too)
-
-In v2.6.27 we can then offer up the two branches separately for upstream 
-merge, and tip/x86/xen will still only have x86 and xen changes, not any 
-mm changes. (Obviously tip/mm/xen will be offered after tip/x86/xen has 
-gone upstream - so that it will only contain these 4 patches ontop of 
-already-upstream changes)
-
-it will all be auto-merged into linux-next so there this internal 
-structure is not visible, all the changes are available for wide testing 
-of course.
-
-i've added these mm/ changes to auto-core-next (not auto-x86-next), if 
-that is fine by Andrew.
-
-	Ingo
