@@ -1,72 +1,103 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] virtio_net: Fix skb->csum_start computation (2.6.24, 2.6.25)
-Date: Mon, 16 Jun 2008 14:41:41 +1000
-Message-ID: <200806161441.41993.rusty@rustcorp.com.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH 0 of 4] mm+paravirt+xen: add pte
+	read-modify-write abstraction (take 2)
+Date: Mon, 16 Jun 2008 04:29:59 -0700
+Message-ID: <patchbomb.1213615799@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stable@kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mark McLoughlin <markmc@redhat.com>
+Hi all,
 
-hdr->csum_start is the offset from the start of the ethernet
-header to the transport layer checksum field. skb->csum_start
-is the offset from skb->head.
+[ Change since last post: change name to ptep_modify_prot_, on the
+  grounds that it isn't really a general pte-modification interface. ]
 
-skb_partial_csum_set() assumes that skb->data points to the
-ethernet header - i.e. it computes skb->csum_start by adding
-the headroom to hdr->csum_start.
+This little series adds a new transaction-like abstraction for doing
+RMW updates to a pte, hooks it into paravirt_ops, and then makes use
+of it in Xen.
 
-Since eth_type_trans() skb_pull()s the ethernet header,
-skb_partial_csum_set() should be called before
-eth_type_trans().
+The basic problem is that mprotect is very slow under Xen (up to 50x
+slower than native), primarily because of the
 
-(Without this patch, GSO packets from a guest to the world outside the
-host are corrupted).
+	ptent = ptep_get_and_clear(mm, addr, pte);
+	ptent = pte_modify(ptent, newprot);
+	/* ... */
+	set_pte_at(mm, addr, pte, ptent);
 
-Signed-off-by: Mark McLoughlin <markmc@redhat.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/net/virtio_net.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+sequence in mm/mprotect.c:change_pte_range().
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 50e6e59..503486f 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -86,9 +86,7 @@ static void receive_skb(struct net_device *dev, struct sk_buff *skb,
- 	BUG_ON(len > MAX_PACKET_LEN);
- 
- 	skb_trim(skb, len);
--	skb->protocol = eth_type_trans(skb, dev);
--	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
--		 ntohs(skb->protocol), skb->len, skb->pkt_type);
-+
- 	dev->stats.rx_bytes += skb->len;
- 	dev->stats.rx_packets++;
- 
-@@ -98,6 +96,10 @@ static void receive_skb(struct net_device *dev, struct sk_buff *skb,
- 			goto frame_err;
- 	}
- 
-+	skb->protocol = eth_type_trans(skb, dev);
-+	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
-+		 ntohs(skb->protocol), skb->len, skb->pkt_type);
-+
- 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
- 		pr_debug("GSO!\n");
- 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+This is bad for Xen for two reasons:
+
+  1: ptep_get_and_clear() ends up being a xchg on the pte.  Since the
+     pte page is read-only (as it must be, because Xen needs to
+     control all pte updates), this traps into Xen, which then
+     emulates the instruction.  Trapping into the instruction emulator
+     is inherently expensive.  And,
+
+  2: because ptep_get_and_clear has atomic-fetch-and-update semantics,
+     it's impossible to implement in a way which can be batched to
+     amortize the cost of trapping into the hypervisor.
+
+This series adds the ptep_modify_prot_start() and
+ptep_modify_prot_commit() operations, which change this sequence to:
+
+	ptent = ptep_modify_prot_start(mm, addr, pte);
+	ptent = pte_modify(ptent, newprot);
+	/* ... */
+	ptep_modify_prot_commit(mm, addr, pte, ptent);
+
+Which looks very familiar.  And, indeed, when compiled without
+CONFIG_PARAVIRT (or on a non-x86 architecture), it will end up doing
+precisely the same thing as before.
+
+However, the effective semantics are a bit different.
+ptep_modify_prot_start() means "I'm reading this pte with the
+intention of updating it; please don't lose any hardware pte changes
+in the meantime".  And ptep_modify_prot_commit() means "Here's a new
+value for the pte, but make sure you don't lose any hardware changes".
+
+The default implementation achieves these semantics by making
+ptep_modify_prot_start() set the pte to non-present, which prevents
+any async hardware changes to the pte.  The ptep_modify_prot_commit()
+can then just write the new value into place without having to worry
+about preserving any changes, because it knows there are none.
+
+Xen implements ptep_modify_prot_start() as a simple read of the pte.
+This leaves the pte unchanged in memory, and the hardware may make
+asynchronous changes to it.  It implements ptep_modify_prot_commit()
+using a batched hypercall which preserves the state of the
+Access/Dirty bits when updating the pte.  This allows the whole
+change_pte_range() loop to be run without any synchronous unbatched
+traps into the hypervisor.  With this change in place, an mprotect
+microbenchmark goes from being 50x worse than native to around 7x,
+which is acceptible.
+
+I believe that other virtualization systems, whether they use direct
+paging like Xen, or a shadow pagetable scheme (vmi, kvm, lguest), can
+make use of this interface to improve the performance.
+
+Unfortunately (or fortunately) there aren't very many other areas of
+the kernel which can really take advantage of this.  There's only a
+couple of other instances of ptep_get_and_clear() in mm/, and they're
+being used in a similar way; but I don't think they're very
+performance critical (though zap_pte_range might be interesting).
+
+In general, mprotect is rarely a performance bottleneck.  But some
+debugging libraries (such as electric fence) and garbage collectors
+can be very heavy users of mprotect, and this change could materially
+benefit them.
+
+Thanks,
+	J
