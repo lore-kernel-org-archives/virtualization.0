@@ -1,70 +1,51 @@
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: linux-next: Tree for June 13 (XEN)
-Date: Mon, 16 Jun 2008 21:30:57 +0200
-Message-ID: <20080616193057.GA20851@kernel.dk>
-References: <20080613232214.394fd6fd.sfr@canb.auug.org.au> <20080613101316.1c228fe7.randy.dunlap@oracle.com> <4852F1C8.7060904@goop.org> <20080614203109.GH20851@kernel.dk> <4854B284.7030709@goop.org>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [stable] [PATCH] virtio_net: Fix skb->csum_start computation
+	(2.6.24, 2.6.25)
+Date: Mon, 16 Jun 2008 12:38:45 -0700
+Message-ID: <20080616193845.GA3804@kroah.com>
+References: <200806161441.41993.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-next-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4854B284.7030709@goop.org>
-Sender: linux-next-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Stephen Rothwell <sfr@canb.auug.org.au>, chrisw@sous-sol.org, virtualization@lists.osdl.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200806161441.41993.rusty@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: stable@kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jun 15 2008, Jeremy Fitzhardinge wrote:
-> Jens Axboe wrote:
-> >On Fri, Jun 13 2008, Jeremy Fitzhardinge wrote:
-> >  
-> >>Randy Dunlap wrote:
-> >>    
-> >>>next-20080613 on x86_32 has lots of xen build errors like this:
-> >>>
-> >>>linux-next-20080613/arch/x86/xen/mmu.c: In function 'drop_mm_ref':
-> >>>linux-next-20080613/arch/x86/xen/mmu.c:759: error: implicit declaration 
-> >>>of function 'xen_smp_call_function_mask'
-> >>>make[2]: *** [arch/x86/xen/mmu.o] Error 1
-> >>>
-> >>> 
-> >>>      
-> >>Ooh, first time I've seen that.  Sounds like Jens' patches are missing 
-> >>the appropriate update there (though it's certainly had it in the past).
-> >>    
-> >
-> >Hmm, will this work or do we need to force xen smp_ops for this one? I
-> >wonder if this is new code and was missed, or what happened in this
-> >case.
-> >  
+On Mon, Jun 16, 2008 at 02:41:41PM +1000, Rusty Russell wrote:
+> From: Mark McLoughlin <markmc@redhat.com>
 > 
-> Yes, using smp_call_function_mask is perfectly OK.  The old code was 
-> just a micro-optimisation.  I'm pretty sure this chunk was in one of 
-> your patchsets (or perhaps I sent it to you at some point).
-
-Hmm yes, not sure myself to be honest, but I think you are right.
-
-> >diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-> >index 3525ef5..8baef77 100644
-> >--- a/arch/x86/xen/mmu.c
-> >+++ b/arch/x86/xen/mmu.c
-> >@@ -569,7 +569,7 @@ static void drop_mm_ref(struct mm_struct *mm)
-> > 	}
-> > 
-> > 	if (!cpus_empty(mask))
-> >-		xen_smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
-> >+		smp_call_function_mask(mask, drop_other_mm_ref, mm, 1);
-> > }
-> > #else
-> > static void drop_mm_ref(struct mm_struct *mm)
-> >
-> >  
+> hdr->csum_start is the offset from the start of the ethernet
+> header to the transport layer checksum field. skb->csum_start
+> is the offset from skb->head.
 > 
-> Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+> skb_partial_csum_set() assumes that skb->data points to the
+> ethernet header - i.e. it computes skb->csum_start by adding
+> the headroom to hdr->csum_start.
+> 
+> Since eth_type_trans() skb_pull()s the ethernet header,
+> skb_partial_csum_set() should be called before
+> eth_type_trans().
+> 
+> (Without this patch, GSO packets from a guest to the world outside the
+> host are corrupted).
 
-Thanks, I just folded it in with the existing patch to avoid breakage.
-That one doesn't have an ack from you though, so if you have done a full
-review of the x86 bits, I'd appreciate an ack on those from you :-)
+Is this in Linus's tree already?  If so, what is the commit id.
 
--- 
-Jens Axboe
+If not, we need a good reason to be able to take it into the -stable
+tree (note that 2.6.24 isn't being maintained anymore...)
 
+thanks,
+
+greg k-h
