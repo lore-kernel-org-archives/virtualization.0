@@ -1,37 +1,24 @@
-From: "Luck, Tony" <tony.luck@intel.com>
-Subject: RE: [PATCH 26/27] ia64/pv_ops: update Kconfig for paravirtualized
-	guest and xen.
-Date: Wed, 18 Jun 2008 15:13:13 -0700
-Message-ID: <57C9024A16AD2D4C97DC78E552063EA306213776__44901.7674466178$1213827317$gmane$org@orsmsx505.amr.corp.intel.com>
-References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
-	<1213084044647-git-send-email-yamahata@valinux.co.jp>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot transaction
+	abstraction
+Date: Thu, 19 Jun 2008 09:23:23 +1000
+Message-ID: <1213831403.8011.24.camel@pasglop>
+References: <b020e42384197b824320.1213615800@localhost>
+Reply-To: benh@kernel.crashing.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1213084044647-git-send-email-yamahata@valinux.co.jp>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>
-Cc: "xen-ia64-devel@lists.xensource.com" <xen-ia64-devel@lists.xensource.com>, "Dong, Eddie" <eddie.dong@intel.com>, Alex Williamson <alex.williamson@hp.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756155AbYFRXcQ@vger.kernel.org>
+In-Reply-To: <b020e42384197b824320.1213615800@localhost>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, xen-devel <xen-devel@lists.xensource.com>, Thomas Gleixner <tglx@linutronix.de>, Hugh Dickins <hugh@veritas.com>, Zachary Amsden <zach@vmware.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> introduce CONFIG_PARAVIRT_GUEST, CONFIG_PARAVIRT for
-> paravirtualized guest.
-> introduce CONFING_XEN, CONFIG_IA64_XEN for xen.
+On Mon, 2008-06-16 at 04:30 -0700, Jeremy Fitzhardinge wrote:
+> 
+> The only current user of this interface is mprotect
 
-s/CONFING_XEN/CONFIG_XEN/
+Do you plan to use it with fork ultimately ?
 
-Would it make sense to rename CONFIG_IA64_XEN to be
-CONFIG_IA64_XEN_GUEST?  The comments you add to
-arch/ia64/Kconfig say that this is what it means.
-
--Tony
+Ben.
