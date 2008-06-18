@@ -1,56 +1,41 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] virtio: don't always force a notification when ring is full
-Date: Thu, 19 Jun 2008 09:40:56 +1000
-Message-ID: <200806190940.57083.rusty@rustcorp.com.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot
+	transaction	abstraction
+Date: Wed, 18 Jun 2008 16:59:05 -0700
+Message-ID: <4859A149.9090004@goop.org>
+References: <b020e42384197b824320.1213615800@localhost>
+	<1213831403.8011.24.camel@pasglop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <1213831403.8011.24.camel@pasglop>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: benh@kernel.crashing.org
+Cc: Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We force notification when the ring is full, even if the host has
-indicated it doesn't want to know.  This seemed like a good idea at
-the time: if we fill the transmit ring, we should tell the host
-immediately.
+Benjamin Herrenschmidt wrote:
+> On Mon, 2008-06-16 at 04:30 -0700, Jeremy Fitzhardinge wrote:
+>   
+>> The only current user of this interface is mprotect
+>>     
+>
+> Do you plan to use it with fork ultimately ?
+>   
 
-Unfortunately this logic also applies to the receiving ring, which is
-refilled constantly.  We should introduce real notification thesholds
-to replace this logic.  Meanwhile, removing the logic altogether breaks
-the heuristics which KVM uses, so we use a hack: only notify if there are
-outgoing parts of the new buffer.
+Good point, I'd overlooked that.  I guess that means using it in 
+ptep_set_wrprotect().
 
-It even makes a difference with lguest's crappy network implementation:
-	1GB guest->host before: 30.0844
-	1GB guest->host after: 27.6167
+At present the x86 ptep_set_wrprotect() just uses clear_bit on the pte, 
+which is a locked cycle.  Is that significantly cheaper than an xchg + 
+set?  (Same number of locked operations...)
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff -r 89bf4894cc36 drivers/virtio/virtio_ring.c
---- a/drivers/virtio/virtio_ring.c	Mon Jun 16 14:31:30 2008 +1000
-+++ b/drivers/virtio/virtio_ring.c	Wed Jun 18 16:15:49 2008 +1000
-@@ -87,8 +87,11 @@ static int vring_add_buf(struct virtqueu
- 	if (vq->num_free < out + in) {
- 		pr_debug("Can't add buf len %i - avail = %i\n",
- 			 out + in, vq->num_free);
--		/* We notify *even if* VRING_USED_F_NO_NOTIFY is set here. */
--		vq->notify(&vq->vq);
-+		/* FIXME: for historical reasons, we force a notify here if
-+		 * there are outgoing parts to the buffer.  Presumably the
-+		 * host should service the ring ASAP. */
-+		if (out)
-+			vq->notify(&vq->vq);
- 		END_USE(vq);
- 		return -ENOSPC;
- 	}
+    J
