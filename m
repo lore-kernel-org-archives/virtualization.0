@@ -1,24 +1,56 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot transaction
-	abstraction
-Date: Thu, 19 Jun 2008 09:23:23 +1000
-Message-ID: <1213831403.8011.24.camel@pasglop>
-References: <b020e42384197b824320.1213615800@localhost>
-Reply-To: benh@kernel.crashing.org
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: don't always force a notification when ring is full
+Date: Thu, 19 Jun 2008 09:40:56 +1000
+Message-ID: <200806190940.57083.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756155AbYFRXcQ@vger.kernel.org>
-In-Reply-To: <b020e42384197b824320.1213615800@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, xen-devel <xen-devel@lists.xensource.com>, Thomas Gleixner <tglx@linutronix.de>, Hugh Dickins <hugh@veritas.com>, Zachary Amsden <zach@vmware.com>, kvm-devel <kvm-devel@lists.sourceforge.net>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Linus Torvalds <torvalds@linux-foundation.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2008-06-16 at 04:30 -0700, Jeremy Fitzhardinge wrote:
-> 
-> The only current user of this interface is mprotect
+We force notification when the ring is full, even if the host has
+indicated it doesn't want to know.  This seemed like a good idea at
+the time: if we fill the transmit ring, we should tell the host
+immediately.
 
-Do you plan to use it with fork ultimately ?
+Unfortunately this logic also applies to the receiving ring, which is
+refilled constantly.  We should introduce real notification thesholds
+to replace this logic.  Meanwhile, removing the logic altogether breaks
+the heuristics which KVM uses, so we use a hack: only notify if there are
+outgoing parts of the new buffer.
 
-Ben.
+It even makes a difference with lguest's crappy network implementation:
+	1GB guest->host before: 30.0844
+	1GB guest->host after: 27.6167
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff -r 89bf4894cc36 drivers/virtio/virtio_ring.c
+--- a/drivers/virtio/virtio_ring.c	Mon Jun 16 14:31:30 2008 +1000
++++ b/drivers/virtio/virtio_ring.c	Wed Jun 18 16:15:49 2008 +1000
+@@ -87,8 +87,11 @@ static int vring_add_buf(struct virtqueu
+ 	if (vq->num_free < out + in) {
+ 		pr_debug("Can't add buf len %i - avail = %i\n",
+ 			 out + in, vq->num_free);
+-		/* We notify *even if* VRING_USED_F_NO_NOTIFY is set here. */
+-		vq->notify(&vq->vq);
++		/* FIXME: for historical reasons, we force a notify here if
++		 * there are outgoing parts to the buffer.  Presumably the
++		 * host should service the ring ASAP. */
++		if (out)
++			vq->notify(&vq->vq);
+ 		END_USE(vq);
+ 		return -ENOSPC;
+ 	}
