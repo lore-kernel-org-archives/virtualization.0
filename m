@@ -1,48 +1,56 @@
-From: "Luck, Tony" <tony.luck@intel.com>
-Subject: RE: [PATCH 09/27] ia64/xen: implement the arch specific part of
-	xencomm.
-Date: Thu, 19 Jun 2008 10:15:09 -0700
-Message-ID: <57C9024A16AD2D4C97DC78E552063EA306213BE8__33918.7784157277$1213895946$gmane$org@orsmsx505.amr.corp.intel.com>
-References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
-	<12130840434082-git-send-email-yamahata@valinux.co.jp>
-	<57C9024A16AD2D4C97DC78E552063EA30621364B@orsmsx505.amr.corp.intel.com>
-	<20080619121622.GQ11378%yamahata@valinux.co.jp>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 1 of 4] mm: add a
+	ptep_modify_prot	transaction	abstraction
+Date: Thu, 19 Jun 2008 10:57:00 -0700
+Message-ID: <485A9DEC.8010406@goop.org>
+References: <b020e42384197b824320.1213615800@localhost>	
+	<1213831403.8011.24.camel@pasglop> <4859A149.9090004@goop.org>	
+	<4859A528.1010107@goop.org>	
+	<alpine.LFD.1.10.0806181723400.2907@woody.linux-foundation.org>	
+	<1213835971.8011.54.camel@pasglop> <4859E8AF.30306@goop.org>
+	<1213860031.8011.65.camel@pasglop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080619121622.GQ11378%yamahata@valinux.co.jp>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: "Dong, Eddie" <eddie.dong@intel.com>, "xen-ia64-devel@lists.xensource.com" <xen-ia64-devel@lists.xensource.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Alex Williamson <alex.williamson@hp.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Return-path: <xen-devel-bounces@lists.xensource.com>
+In-Reply-To: <1213860031.8011.65.camel@pasglop>
+List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: benh@kernel.crashing.org
+Cc: xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
->> +#define is_kernel_addr(x)                                      \
->> +       ((PAGE_OFFSET <= (x) &&                                 \
->> +         (x) < (PAGE_OFFSET + (1UL << IA64_MAX_PHYS_BITS))) || \
->> +        (KERNEL_START <= (x) &&                                \
->> +         (x) < KERNEL_START + KERNEL_TR_PAGE_SIZE))
+Benjamin Herrenschmidt wrote:
+>> Which architecture are you interested in?  If it isn't x86, you can 
+>> probably get anything past Linus ;)
 >>
->> Misleading name.  What does it consider a "kernel_addr"? Just
->> region 7 (up to physical address limit) and the piece of region
->> 5 that is mapped by itr[0]/dtr[0].  Preferebly pick a better name
->> or add a comment here saying what this is testing for.
+>> I'll do some measurements to see what effect the batchable 
+>> ptep_set_wrprotect() has on native.  If it's significant, I'll propose 
+>> making it conditional on CONFIG_PARAVIRT.
+>>     
 >
-> How about xencomm_is_phys_contiguous()?
-> Renaming it requires patches to drivers/xen/xencomm.c.
-> If okay, I'll also send the patch to common files.
+> Oh, I mostly think about powerpc, I just wondered if I could re-use
+> your new stuff in that context. Mostly idle thoughts at this stage, I
+> haven't looked seriously.
+>   
 
-That sounds a bit more meaningful ... except that such a function
-would also require a "size" (or "end") parameter. It makes
-no sense to ask whether a solitary address is contiguous.
+There are general-purpose hooks in the common code which architectures 
+can implement however they like.  In x86-land we hook them up to pvops, 
+but you can handle them however you want.
 
--Tony
+> I have an old patch set to batch forks (and mprotect etc...) TLB
+> invalidations (which is what I really want to batch on powerpc, more
+> than the actual PTE changes) that involves subtle changes to the
+> batching mechanisms etc...
+>   
+
+Do you mean setting up batches of per-page tlb shootdowns rather than 
+going a global tlb flush at the end?
+
+    J
