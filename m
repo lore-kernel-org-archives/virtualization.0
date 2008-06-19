@@ -1,69 +1,36 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH] virtio: don't always force a notification when ring is
-	full
-Date: Wed, 18 Jun 2008 19:40:26 -0500
-Message-ID: <4859AAFA.9000808@us.ibm.com>
-References: <200806190940.57083.rusty@rustcorp.com.au>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot transaction
+ abstraction
+Date: Wed, 18 Jun 2008 17:49:51 -0700 (PDT)
+Message-ID: <alpine.LFD.1.10.0806181743390.2907@woody.linux-foundation.org>
+References: <b020e42384197b824320.1213615800@localhost> <1213831403.8011.24.camel@pasglop> <4859A149.9090004@goop.org> <4859A528.1010107@goop.org> <alpine.LFD.1.10.0806181723400.2907@woody.linux-foundation.org> <4859AA47.2020903@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200806190940.57083.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757412AbYFSAvX@vger.kernel.org>
+In-Reply-To: <4859AA47.2020903@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: benh@kernel.crashing.org, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> We force notification when the ring is full, even if the host has
-> indicated it doesn't want to know.  This seemed like a good idea at
-> the time: if we fill the transmit ring, we should tell the host
-> immediately.
+
+
+On Wed, 18 Jun 2008, Jeremy Fitzhardinge wrote:
 >
-> Unfortunately this logic also applies to the receiving ring, which is
-> refilled constantly.  We should introduce real notification thesholds
-> to replace this logic.  Meanwhile, removing the logic altogether breaks
-> the heuristics which KVM uses, so we use a hack: only notify if there are
-> outgoing parts of the new buffer.
->
-> It even makes a difference with lguest's crappy network implementation:
-> 	1GB guest->host before: 30.0844
-> 	1GB guest->host after: 27.6167
->   
+> It's not cmpxchg, just xchg. 
+> In other words, is:
+> 
+> 	lock btr $_PAGE_BIT_RW, (%rbx)
 
-A little ugly, but no more performance regression in KVM, so
+Well, we can actually do it as
 
-Acked-by: Anthony Liguori <aliguori@us.ibm.com>
+	lock andl $~_PAGE_RW,(%rbx)
 
-Regards,
+although we haven't bothered (I've wanted several times to make 
+clear_bit() do that, but have never gotten around to it - mainly because 
+old gcc versions didn't work with __builtin_constant_p() in inline 
+functions - so you have to do the macro from hell)
 
-Anthony Liguori
+And yes, the "lock andl" should be noticeably faster than the xchgl.
 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
->
-> diff -r 89bf4894cc36 drivers/virtio/virtio_ring.c
-> --- a/drivers/virtio/virtio_ring.c	Mon Jun 16 14:31:30 2008 +1000
-> +++ b/drivers/virtio/virtio_ring.c	Wed Jun 18 16:15:49 2008 +1000
-> @@ -87,8 +87,11 @@ static int vring_add_buf(struct virtqueu
->  	if (vq->num_free < out + in) {
->  		pr_debug("Can't add buf len %i - avail = %i\n",
->  			 out + in, vq->num_free);
-> -		/* We notify *even if* VRING_USED_F_NO_NOTIFY is set here. */
-> -		vq->notify(&vq->vq);
-> +		/* FIXME: for historical reasons, we force a notify here if
-> +		 * there are outgoing parts to the buffer.  Presumably the
-> +		 * host should service the ring ASAP. */
-> +		if (out)
-> +			vq->notify(&vq->vq);
->  		END_USE(vq);
->  		return -ENOSPC;
->  	}
->   
+			Linus
