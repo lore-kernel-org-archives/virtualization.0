@@ -1,56 +1,84 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 1 of 4] mm: add a
-	ptep_modify_prot	transaction	abstraction
-Date: Thu, 19 Jun 2008 10:57:00 -0700
-Message-ID: <485A9DEC.8010406@goop.org>
-References: <b020e42384197b824320.1213615800@localhost>	
-	<1213831403.8011.24.camel@pasglop> <4859A149.9090004@goop.org>	
-	<4859A528.1010107@goop.org>	
-	<alpine.LFD.1.10.0806181723400.2907@woody.linux-foundation.org>	
-	<1213835971.8011.54.camel@pasglop> <4859E8AF.30306@goop.org>
-	<1213860031.8011.65.camel@pasglop>
+From: Greg KH <gregkh@suse.de>
+Subject: [patch 05/15] virtio_net: Fix skb->csum_start computation
+Date: Thu, 19 Jun 2008 14:29:50 -0700
+Message-ID: <20080619212950.GF20267__14819.7982031435$1213911503$gmane$org@suse.de>
+References: <20080619211313.834170620@mini.kroah.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <1213860031.8011.65.camel@pasglop>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: benh@kernel.crashing.org
-Cc: xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline;
+	filename="virtio_net-fix-skb-csum_start-computation.patch"
+In-Reply-To: <20080619212621.GA20267@suse.de>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Mark McLoughlin <markmc@redhat.com>, Theodore Ts'o <tytso@mit.edu>, Zwane Mwaikambo <zwane@arm.linux.org.uk>, Justin Forbes <jmforbes@linuxtx.org>, Domenico Andreoli <cavokz@gmail.com>, Chris Wedgwood <reviews@ml.cw.f00f.org>, virtualization@lists.linux-foundation.org, Michael Krufky <mkrufky@linuxtv.org>, alan@lxorguk.ukuu.org.uk, Chuck Ebbert <cebbert@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>, akpm@linux-foundation.org, torvalds@linux-foundation.org, Willy Tarreau <w@1wt.eu>, Rodrigo Rubira Branco <rbranco@la.checkpoint.com>, Herbert Xu <herbert@gondor.apana.org.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Benjamin Herrenschmidt wrote:
->> Which architecture are you interested in?  If it isn't x86, you can 
->> probably get anything past Linus ;)
->>
->> I'll do some measurements to see what effect the batchable 
->> ptep_set_wrprotect() has on native.  If it's significant, I'll propose 
->> making it conditional on CONFIG_PARAVIRT.
->>     
->
-> Oh, I mostly think about powerpc, I just wondered if I could re-use
-> your new stuff in that context. Mostly idle thoughts at this stage, I
-> haven't looked seriously.
->   
 
-There are general-purpose hooks in the common code which architectures 
-can implement however they like.  In x86-land we hook them up to pvops, 
-but you can handle them however you want.
+2.6.25-stable review patch.  If anyone has any objections, please let us
+know.
 
-> I have an old patch set to batch forks (and mprotect etc...) TLB
-> invalidations (which is what I really want to batch on powerpc, more
-> than the actual PTE changes) that involves subtle changes to the
-> batching mechanisms etc...
->   
+------------------
+From: Mark McLoughlin <markmc@redhat.com>
 
-Do you mean setting up batches of per-page tlb shootdowns rather than 
-going a global tlb flush at the end?
+commit 23cde76d801246a702e7a84c3fe3d655b35c89a1 upstream.
 
-    J
+hdr->csum_start is the offset from the start of the ethernet
+header to the transport layer checksum field. skb->csum_start
+is the offset from skb->head.
+
+skb_partial_csum_set() assumes that skb->data points to the
+ethernet header - i.e. it computes skb->csum_start by adding
+the headroom to hdr->csum_start.
+
+Since eth_type_trans() skb_pull()s the ethernet header,
+skb_partial_csum_set() should be called before
+eth_type_trans().
+
+(Without this patch, GSO packets from a guest to the world outside the
+host are corrupted).
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ drivers/net/virtio_net.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -83,9 +83,7 @@ static void receive_skb(struct net_devic
+ 	BUG_ON(len > MAX_PACKET_LEN);
+ 
+ 	skb_trim(skb, len);
+-	skb->protocol = eth_type_trans(skb, dev);
+-	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
+-		 ntohs(skb->protocol), skb->len, skb->pkt_type);
++
+ 	dev->stats.rx_bytes += skb->len;
+ 	dev->stats.rx_packets++;
+ 
+@@ -95,6 +93,10 @@ static void receive_skb(struct net_devic
+ 			goto frame_err;
+ 	}
+ 
++	skb->protocol = eth_type_trans(skb, dev);
++	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
++		 ntohs(skb->protocol), skb->len, skb->pkt_type);
++
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		pr_debug("GSO!\n");
+ 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+
+-- 
