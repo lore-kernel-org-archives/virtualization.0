@@ -1,62 +1,45 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: linux-next: Tree for June 18 (XEN build error)
-Date: Thu, 19 Jun 2008 15:54:51 +1000
-Message-ID: <20080619155451.0a4ea6f8.sfr@canb.auug.org.au>
-References: <20080618175753.2a519b71.sfr@canb.auug.org.au>
-	<20080618124331.04e27900.randy.dunlap@oracle.com>
-	<4859E9B8.9040406@goop.org>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot
+	transaction	abstraction
+Date: Thu, 19 Jun 2008 17:20:31 +1000
+Message-ID: <1213860031.8011.65.camel@pasglop>
+References: <b020e42384197b824320.1213615800@localhost>
+	 <1213831403.8011.24.camel@pasglop> <4859A149.9090004@goop.org>
+	 <4859A528.1010107@goop.org>
+	 <alpine.LFD.1.10.0806181723400.2907@woody.linux-foundation.org>
+	 <1213835971.8011.54.camel@pasglop>  <4859E8AF.30306@goop.org>
+Reply-To: benh@kernel.crashing.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__19_Jun_2008_15_54_51_+1000_oPcnqRUAr122._Oi"
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <4859E9B8.9040406@goop.org>
-Sender: linux-next-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757548AbYFSHWx@vger.kernel.org>
+In-Reply-To: <4859E8AF.30306@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, jeremy@xensource.com, chrisw@sous-sol.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
---Signature=_Thu__19_Jun_2008_15_54_51_+1000_oPcnqRUAr122._Oi
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 18 Jun 2008 22:08:08 -0700 Jeremy Fitzhardinge <jeremy@goop.org> wr=
-ote:
->
-> Randy Dunlap wrote:
-> > linux-next-20080618/drivers/xen/manage.c: In function 'xen_suspend':
-> > linux-next-20080618/drivers/xen/manage.c:66: error: too few arguments t=
-o function 'device_power_up'
-> > linux-next-20080618/drivers/xen/manage.c: In function 'do_suspend':
-> > linux-next-20080618/drivers/xen/manage.c:115: error: too few arguments =
-to function 'device_resume'
-> > make[3]: *** [drivers/xen/manage.o] Error 1
-> >  =20
->=20
-> What argument(s) do device_power_up() and device_resume() want now?
+> Which architecture are you interested in?  If it isn't x86, you can 
+> probably get anything past Linus ;)
+> 
+> I'll do some measurements to see what effect the batchable 
+> ptep_set_wrprotect() has on native.  If it's significant, I'll propose 
+> making it conditional on CONFIG_PARAVIRT.
 
-In today's linux-next:
+Oh, I mostly think about powerpc, I just wondered if I could re-use
+your new stuff in that context. Mostly idle thoughts at this stage, I
+haven't looked seriously.
 
-void device_power_up(pm_message_t state)
-void device_resume(pm_message_t state)
+I have an old patch set to batch forks (and mprotect etc...) TLB
+invalidations (which is what I really want to batch on powerpc, more
+than the actual PTE changes) that involves subtle changes to the
+batching mechanisms etc... but it has issues and would need to be
+reworked before merging.
 
-If someone can give me a patch, I can carry it in linux-next ...
+It's something that's been in the back of my mind or the bottom of my
+TODO list for some time, but I never quite found the bandwidth to go
+back to it.
 
---=20
 Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Thu__19_Jun_2008_15_54_51_+1000_oPcnqRUAr122._Oi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkhZ9KsACgkQTgG2atn1QN+fYACeKC7yV15vkutEIZbGUn5uH56D
-NpQAn0zV2NMklMGbyv5bqFkhEyJzA4SC
-=+VnH
------END PGP SIGNATURE-----
-
---Signature=_Thu__19_Jun_2008_15_54_51_+1000_oPcnqRUAr122._Oi--
+Ben.
