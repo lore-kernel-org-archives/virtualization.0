@@ -1,45 +1,42 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot
-	transaction	abstraction
-Date: Thu, 19 Jun 2008 17:20:31 +1000
-Message-ID: <1213860031.8011.65.camel@pasglop>
-References: <b020e42384197b824320.1213615800@localhost>
-	 <1213831403.8011.24.camel@pasglop> <4859A149.9090004@goop.org>
-	 <4859A528.1010107@goop.org>
-	 <alpine.LFD.1.10.0806181723400.2907@woody.linux-foundation.org>
-	 <1213835971.8011.54.camel@pasglop>  <4859E8AF.30306@goop.org>
-Reply-To: benh@kernel.crashing.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] virtio: don't always force a notification when ring is
+	full
+Date: Thu, 19 Jun 2008 10:14:34 +0200
+Message-ID: <200806191014.34741.borntraeger@de.ibm.com>
+References: <200806190940.57083.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757548AbYFSHWx@vger.kernel.org>
-In-Reply-To: <4859E8AF.30306@goop.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200806190940.57083.rusty@rustcorp.com.au>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-> Which architecture are you interested in?  If it isn't x86, you can 
-> probably get anything past Linus ;)
+Am Donnerstag, 19. Juni 2008 schrieb Rusty Russell:
+> We force notification when the ring is full, even if the host has
+> indicated it doesn't want to know.  This seemed like a good idea at
+> the time: if we fill the transmit ring, we should tell the host
+> immediately.
 > 
-> I'll do some measurements to see what effect the batchable 
-> ptep_set_wrprotect() has on native.  If it's significant, I'll propose 
-> making it conditional on CONFIG_PARAVIRT.
+> Unfortunately this logic also applies to the receiving ring, which is
+> refilled constantly.  We should introduce real notification thesholds
+> to replace this logic.  Meanwhile, removing the logic altogether breaks
+> the heuristics which KVM uses, so we use a hack: only notify if there are
+> outgoing parts of the new buffer.
 
-Oh, I mostly think about powerpc, I just wondered if I could re-use
-your new stuff in that context. Mostly idle thoughts at this stage, I
-haven't looked seriously.
 
-I have an old patch set to batch forks (and mprotect etc...) TLB
-invalidations (which is what I really want to batch on powerpc, more
-than the actual PTE changes) that involves subtle changes to the
-batching mechanisms etc... but it has issues and would need to be
-reworked before merging.
+I did not yet finish the VIRTIO_F_NOTIFY_ON_EMPTY implementation for s390, so 
+I cant tell for sure if it makes a difference.
 
-It's something that's been in the back of my mind or the bottom of my
-TODO list for some time, but I never quite found the bandwidth to go
-back to it.
-
-Cheers,
-Ben.
+Nevertheless, the patch looks good to me.
