@@ -1,24 +1,16 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot
 	transaction abstraction
-Date: Fri, 20 Jun 2008 13:16:00 -0700
-Message-ID: <485C1000.8020806@goop.org>
-References: <alpine.LFD.1.10.0806181723400.2907@woody.linux-foundation.org>
-	<4859AA47.2020903@goop.org>
-	<alpine.LFD.1.10.0806181743390.2907@woody.linux-foundation.org>
-	<alpine.LFD.1.10.0806182050470.2907@woody.linux-foundation.org>
-	<20080619115832.GM15228@elte.hu>
-	<alpine.LFD.1.10.0806190928100.2907@woody.linux-foundation.org>
-	<20080619164708.GA32190@elte.hu>
-	<20080620101028.GA23664@elte.hu> <485BFFC4.3070902@goop.org>
-	<alpine.LFD.1.10.0806201211560.3167@woody.linux-foundation.org>
-	<20080620195620.GA20183@elte.hu>
-	<alpine.LFD.1.10.0806201302350.3167@woody.linux-foundation.org>
+Date: Fri, 20 Jun 2008 13:22:22 -0700
+Message-ID: <485C117E.8070706@goop.org>
+References: <alpine.LFD.1.10.0806181723400.2907@woody.linux-foundation.org>	<4859AA47.2020903@goop.org>	<alpine.LFD.1.10.0806181743390.2907@woody.linux-foundation.org>	<alpine.LFD.1.10.0806182050470.2907@woody.linux-foundation.org>	<20080619115832.GM15228@elte.hu>	<alpine.LFD.1.10.0806190928100.2907@woody.linux-foundation.org>	<20080619164708.GA32190@elte.hu>	<20080620101028.GA23664@elte.hu>
+	<485BFFC4.3070902@goop.org>	<alpine.LFD.1.10.0806201211560.3167@woody.linux-foundation.org>	<20080620195620.GA20183@elte.hu>	<alpine.LFD.1.10.0806201302350.3167@woody.linux-foundation.org>
+	<485C1000.8020806@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <alpine.LFD.1.10.0806201302350.3167@woody.linux-foundation.org>
+In-Reply-To: <485C1000.8020806@goop.org>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -31,22 +23,36 @@ To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, benh@kernel.crashing.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Linus Torvalds wrote:
-> On Fri, 20 Jun 2008, Ingo Molnar wrote:
+Jeremy Fitzhardinge wrote:
+> Linus Torvalds wrote:
 >   
->> okay - Jeremy, could you try the fix below? (or tip/master, i just 
->> pushed this out)
+>> On Fri, 20 Jun 2008, Ingo Molnar wrote:
+>>   
+>>     
+>>> okay - Jeremy, could you try the fix below? (or tip/master, i just 
+>>> pushed this out)
+>>>     
+>>>       
+>> Actually, don't try that one.
+>>
+>> It needs to be a _byte_ registers, so "ir" was wrong. You need "iq".
+>>   
 >>     
 >
-> Actually, don't try that one.
+> Doesn't work, unfortunately:
+> {standard input}:20511: Error: Incorrect register `%eax' used with `b' 
+> suffix
 >
-> It needs to be a _byte_ registers, so "ir" was wrong. You need "iq".
+>         lock; orb %eax,1(%rdi)  # tmp64,
 >   
 
-Doesn't work, unfortunately:
-{standard input}:20511: Error: Incorrect register `%eax' used with `b' 
-suffix
+This does work:
 
-        lock; orb %eax,1(%rdi)  # tmp64,
+                asm volatile(LOCK_PREFIX "orb %1,%0"
+                        : CONST_MASK_ADDR(nr, addr)
+                        : "iq" ((u8)CONST_MASK(nr))
+                        : "memory");
+
+(ie, explicitly casting the mask to u8)
 
     J
