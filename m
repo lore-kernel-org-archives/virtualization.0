@@ -1,15 +1,19 @@
-From: Greg KH <gregkh@suse.de>
-Subject: [patch 05/15] virtio_net: Fix skb->csum_start computation
-Date: Thu, 19 Jun 2008 14:29:50 -0700
-Message-ID: <20080619212950.GF20267__14819.7982031435$1213911503$gmane$org@suse.de>
-References: <20080619211313.834170620@mini.kroah.org>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: Re: [PATCH 09/27] ia64/xen: implement the arch specific part of
+	xencomm.
+Date: Fri, 20 Jun 2008 11:03:56 +0900
+Message-ID: <20080620020356.GA16478%yamahata__28199.5822595947$1213927592$gmane$org@valinux.co.jp>
+References: <12130840433561-git-send-email-yamahata@valinux.co.jp>
+	<12130840434082-git-send-email-yamahata@valinux.co.jp>
+	<57C9024A16AD2D4C97DC78E552063EA30621364B@orsmsx505.amr.corp.intel.com>
+	<20080619121622.GQ11378%yamahata@valinux.co.jp>
+	<57C9024A16AD2D4C97DC78E552063EA306213BE8@orsmsx505.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename="virtio_net-fix-skb-csum_start-computation.patch"
-In-Reply-To: <20080619212621.GA20267@suse.de>
+Content-Disposition: inline
+In-Reply-To: <57C9024A16AD2D4C97DC78E552063EA306213BE8@orsmsx505.amr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,66 +23,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Mark McLoughlin <markmc@redhat.com>, Theodore Ts'o <tytso@mit.edu>, Zwane Mwaikambo <zwane@arm.linux.org.uk>, Justin Forbes <jmforbes@linuxtx.org>, Domenico Andreoli <cavokz@gmail.com>, Chris Wedgwood <reviews@ml.cw.f00f.org>, virtualization@lists.linux-foundation.org, Michael Krufky <mkrufky@linuxtv.org>, alan@lxorguk.ukuu.org.uk, Chuck Ebbert <cebbert@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>, akpm@linux-foundation.org, torvalds@linux-foundation.org, Willy Tarreau <w@1wt.eu>, Rodrigo Rubira Branco <rbranco@la.checkpoint.com>, Herbert Xu <herbert@gondor.apana.org.au>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: "Dong, Eddie" <eddie.dong@intel.com>, "xen-ia64-devel@lists.xensource.com" <xen-ia64-devel@lists.xensource.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Alex Williamson <alex.williamson@hp.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Jun 19, 2008 at 10:15:09AM -0700, Luck, Tony wrote:
+> >> +#define is_kernel_addr(x)                                      \
+> >> +       ((PAGE_OFFSET <= (x) &&                                 \
+> >> +         (x) < (PAGE_OFFSET + (1UL << IA64_MAX_PHYS_BITS))) || \
+> >> +        (KERNEL_START <= (x) &&                                \
+> >> +         (x) < KERNEL_START + KERNEL_TR_PAGE_SIZE))
+> >>
+> >> Misleading name.  What does it consider a "kernel_addr"? Just
+> >> region 7 (up to physical address limit) and the piece of region
+> >> 5 that is mapped by itr[0]/dtr[0].  Preferebly pick a better name
+> >> or add a comment here saying what this is testing for.
+> >
+> > How about xencomm_is_phys_contiguous()?
+> > Renaming it requires patches to drivers/xen/xencomm.c.
+> > If okay, I'll also send the patch to common files.
+> 
+> That sounds a bit more meaningful ... except that such a function
+> would also require a "size" (or "end") parameter. It makes
+> no sense to ask whether a solitary address is contiguous.
 
-2.6.25-stable review patch.  If anyone has any objections, please let us
-know.
-
-------------------
-From: Mark McLoughlin <markmc@redhat.com>
-
-commit 23cde76d801246a702e7a84c3fe3d655b35c89a1 upstream.
-
-hdr->csum_start is the offset from the start of the ethernet
-header to the transport layer checksum field. skb->csum_start
-is the offset from skb->head.
-
-skb_partial_csum_set() assumes that skb->data points to the
-ethernet header - i.e. it computes skb->csum_start by adding
-the headroom to hdr->csum_start.
-
-Since eth_type_trans() skb_pull()s the ethernet header,
-skb_partial_csum_set() should be called before
-eth_type_trans().
-
-(Without this patch, GSO packets from a guest to the world outside the
-host are corrupted).
-
-Signed-off-by: Mark McLoughlin <markmc@redhat.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/net/virtio_net.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -83,9 +83,7 @@ static void receive_skb(struct net_devic
- 	BUG_ON(len > MAX_PACKET_LEN);
- 
- 	skb_trim(skb, len);
--	skb->protocol = eth_type_trans(skb, dev);
--	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
--		 ntohs(skb->protocol), skb->len, skb->pkt_type);
-+
- 	dev->stats.rx_bytes += skb->len;
- 	dev->stats.rx_packets++;
- 
-@@ -95,6 +93,10 @@ static void receive_skb(struct net_devic
- 			goto frame_err;
- 	}
- 
-+	skb->protocol = eth_type_trans(skb, dev);
-+	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
-+		 ntohs(skb->protocol), skb->len, skb->pkt_type);
-+
- 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
- 		pr_debug("GSO!\n");
- 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+Strictly that's right. But for a contiguous region in virutal address
+which is used for a variable, it is sufficient to check only its
+pointer addresses.
 
 -- 
+yamahata
