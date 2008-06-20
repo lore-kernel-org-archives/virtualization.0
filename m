@@ -1,130 +1,127 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [RFC 2/3 v2] virtio_console: use virtqueue notification for hvc_console
-Date: Fri, 20 Jun 2008 15:24:15 +0200
-Message-ID: <200806201524.15478.borntraeger@de.ibm.com>
+Subject: [RFC 3/3 v2] s390: use virtio_console for KVM on s390
+Date: Fri, 20 Jun 2008 15:24:18 +0200
+Message-ID: <200806201524.18953.borntraeger@de.ibm.com>
 References: <200806031444.21945.borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756817AbYFTNYx@vger.kernel.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
 In-Reply-To: <200806031444.21945.borntraeger@de.ibm.com>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
 To: Linux PPC devel <linuxppc-dev@ozlabs.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Jeremy Fitzhardinge <jeremy@goop.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Yajin <zyj001et@gmail.com>
+Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch exploits the new notifier callbacks of the hvc_console. We can
-use the virtio callbacks instead of the polling code. 
-
-I also added a small Kconfig change that allows the user to specify the 
-virtio console in menuconfig. 
+This patch enables virtio_console as the default console on kvm for
+s390. We currently use the same notify hack as lguest for early
+console output. I will try to address this for lguest and s390 later.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/char/Kconfig          |    6 +++++-
- drivers/char/virtio_console.c |   40 +++++++++++++++++++++++++++++++++-------
- 2 files changed, 38 insertions(+), 8 deletions(-)
+ arch/s390/Kconfig             |    1 +
+ arch/s390/kernel/setup.c      |    4 +++-
+ drivers/s390/kvm/kvm_virtio.c |   20 ++++++++++++++++++++
+ include/asm-s390/kvm_virtio.h |   10 ++++++++++
+ 4 files changed, 34 insertions(+), 1 deletion(-)
 
-Index: kvm/drivers/char/Kconfig
+Index: kvm/arch/s390/Kconfig
 ===================================================================
---- kvm.orig/drivers/char/Kconfig
-+++ kvm/drivers/char/Kconfig
-@@ -634,8 +634,12 @@ config HVC_XEN
- 	  Xen virtual console device driver
- 
- config VIRTIO_CONSOLE
--	bool
-+	bool "Virtio console"
-+	depends on VIRTIO
- 	select HVC_DRIVER
-+	help
-+	  Virtio console for use with lguest and other hypervisors.
-+
- 
- config HVCS
- 	tristate "IBM Hypervisor Virtual Console Server support"
-Index: kvm/drivers/char/virtio_console.c
+--- kvm.orig/arch/s390/Kconfig
++++ kvm/arch/s390/Kconfig
+@@ -544,6 +544,7 @@ bool "s390 guest support (EXPERIMENTAL)"
+ 	depends on 64BIT && EXPERIMENTAL
+ 	select VIRTIO
+ 	select VIRTIO_RING
++	select VIRTIO_CONSOLE
+ 	help
+ 	  Select this option if you want to run the kernel under s390 linux
+ endmenu
+Index: kvm/arch/s390/kernel/setup.c
 ===================================================================
---- kvm.orig/drivers/char/virtio_console.c
-+++ kvm/drivers/char/virtio_console.c
-@@ -46,6 +46,9 @@ static char *in, *inbuf;
- /* The operations for our console. */
- static struct hv_ops virtio_cons;
+--- kvm.orig/arch/s390/kernel/setup.c
++++ kvm/arch/s390/kernel/setup.c
+@@ -54,6 +54,7 @@
+ #include <asm/sections.h>
+ #include <asm/ebcdic.h>
+ #include <asm/compat.h>
++#include <asm/kvm_virtio.h>
  
-+/* The hvc device */
-+static struct hvc_struct *hvc;
-+
- /*D:310 The put_chars() callback is pretty straightforward.
-  *
-  * We turn the characters into a scatter-gather list, add it to the output
-@@ -134,6 +137,27 @@ int __init virtio_cons_early_init(int (*
- 	return hvc_instantiate(0, 0, &virtio_cons);
+ long psw_kernel_bits	= (PSW_BASE_BITS | PSW_MASK_DAT | PSW_ASC_PRIMARY |
+ 			   PSW_MASK_MCHECK | PSW_DEFAULT_KEY);
+@@ -799,7 +800,8 @@ setup_arch(char **cmdline_p)
+ 		printk("We are running under VM (64 bit mode)\n");
+ 	else if (MACHINE_IS_KVM) {
+ 		printk("We are running under KVM (64 bit mode)\n");
+-		add_preferred_console("ttyS", 1, NULL);
++		add_preferred_console("hvc", 0, NULL);
++		s390_virtio_console_init();
+ 	} else
+ 		printk("We are running native (64 bit mode)\n");
+ #endif /* CONFIG_64BIT */
+Index: kvm/drivers/s390/kvm/kvm_virtio.c
+===================================================================
+--- kvm.orig/drivers/s390/kvm/kvm_virtio.c
++++ kvm/drivers/s390/kvm/kvm_virtio.c
+@@ -15,6 +15,7 @@
+ #include <linux/err.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_config.h>
++#include <linux/virtio_console.h>
+ #include <linux/interrupt.h>
+ #include <linux/virtio_ring.h>
+ #include <linux/pfn.h>
+@@ -333,6 +334,25 @@ static int __init kvm_devices_init(void)
+ 	return 0;
  }
  
-+/*
-+ * we support only one console, the hvc struct is a global var
-+ * There is no need to do anything
-+ */
-+static int notifier_add_vio(struct hvc_struct *hp, int data)
++/* code for early console output with virtio_console */
++static __init int early_put_chars(u32 vtermno, const char *buf, int count)
 +{
-+	hp->irq_requested = 1;
-+	return 0;
++	char scratch[17];
++	unsigned int len = count;
++
++	if (len > sizeof(scratch) - 1)
++		len = sizeof(scratch) - 1;
++	scratch[len] = '\0';
++	memcpy(scratch, buf, len);
++	kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, __pa(scratch));
++	return len;
 +}
 +
-+static void notifier_del_vio(struct hvc_struct *hp, int data)
++void s390_virtio_console_init(void)
 +{
-+	hp->irq_requested = 0;
++	virtio_cons_early_init(early_put_chars);
 +}
 +
-+static void hvc_handle_input(struct virtqueue *vq)
+ /*
+  * We do this after core stuff, but before the drivers.
+  */
+Index: kvm/include/asm-s390/kvm_virtio.h
+===================================================================
+--- kvm.orig/include/asm-s390/kvm_virtio.h
++++ kvm/include/asm-s390/kvm_virtio.h
+@@ -50,4 +50,14 @@ struct kvm_vqconfig {
+ #define KVM_S390_VIRTIO_RESET		1
+ #define KVM_S390_VIRTIO_SET_STATUS	2
+ 
++#ifdef __KERNEL__
++/* early virtio console setup */
++#ifdef CONFIG_VIRTIO_CONSOLE
++extern void s390_virtio_console_init(void);
++#else
++static inline void s390_virtio_console_init(void)
 +{
-+	if (hvc_poll(hvc))
-+		hvc_kick();
 +}
-+
- /*D:370 Once we're further in boot, we get probed like any other virtio device.
-  * At this stage we set up the output virtqueue.
-  *
-@@ -144,7 +168,6 @@ int __init virtio_cons_early_init(int (*
- static int __devinit virtcons_probe(struct virtio_device *dev)
- {
- 	int err;
--	struct hvc_struct *hvc;
- 
- 	vdev = dev;
- 
-@@ -158,7 +181,7 @@ static int __devinit virtcons_probe(stru
- 	/* Find the input queue. */
- 	/* FIXME: This is why we want to wean off hvc: we do nothing
- 	 * when input comes in. */
--	in_vq = vdev->config->find_vq(vdev, 0, NULL);
-+	in_vq = vdev->config->find_vq(vdev, 0, hvc_handle_input);
- 	if (IS_ERR(in_vq)) {
- 		err = PTR_ERR(in_vq);
- 		goto free;
-@@ -173,15 +196,18 @@ static int __devinit virtcons_probe(stru
- 	/* Start using the new console output. */
- 	virtio_cons.get_chars = get_chars;
- 	virtio_cons.put_chars = put_chars;
-+	virtio_cons.notifier_add = notifier_add_vio;
-+	virtio_cons.notifier_del = notifier_del_vio;
- 
- 	/* The first argument of hvc_alloc() is the virtual console number, so
--	 * we use zero.  The second argument is the interrupt number; we
--	 * currently leave this as zero: it would be better not to use the
--	 * hvc mechanism and fix this (FIXME!).
-+	 * we use zero.  The second argument is the parameter for the
-+	 * notification mechanism (like irq number). We currently leave this
-+	 * as zero, virtqueues have implicit notifications.
- 	 *
- 	 * The third argument is a "struct hv_ops" containing the put_chars()
--	 * and get_chars() pointers.  The final argument is the output buffer
--	 * size: we can do any size, so we put PAGE_SIZE here. */
-+	 * get_chars(), notifier_add() and notifier_del() pointers.
-+	 * The final argument is the output buffer size: we can do any size,
-+	 * so we put PAGE_SIZE here. */
- 	hvc = hvc_alloc(0, 0, &virtio_cons, PAGE_SIZE);
- 	if (IS_ERR(hvc)) {
- 		err = PTR_ERR(hvc);
++#endif /* CONFIG_VIRTIO_CONSOLE */
++#endif /* __KERNEL__ */
+ #endif
