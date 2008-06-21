@@ -1,16 +1,21 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot
 	transaction abstraction
-Date: Fri, 20 Jun 2008 13:22:22 -0700
-Message-ID: <485C117E.8070706@goop.org>
-References: <alpine.LFD.1.10.0806181723400.2907@woody.linux-foundation.org>	<4859AA47.2020903@goop.org>	<alpine.LFD.1.10.0806181743390.2907@woody.linux-foundation.org>	<alpine.LFD.1.10.0806182050470.2907@woody.linux-foundation.org>	<20080619115832.GM15228@elte.hu>	<alpine.LFD.1.10.0806190928100.2907@woody.linux-foundation.org>	<20080619164708.GA32190@elte.hu>	<20080620101028.GA23664@elte.hu>
-	<485BFFC4.3070902@goop.org>	<alpine.LFD.1.10.0806201211560.3167@woody.linux-foundation.org>	<20080620195620.GA20183@elte.hu>	<alpine.LFD.1.10.0806201302350.3167@woody.linux-foundation.org>
-	<485C1000.8020806@goop.org>
+Date: Sat, 21 Jun 2008 08:06:36 +0200
+Message-ID: <20080621060635.GA26422@elte.hu>
+References: <20080619115832.GM15228@elte.hu>
+	<alpine.LFD.1.10.0806190928100.2907@woody.linux-foundation.org>
+	<20080619164708.GA32190@elte.hu>
+	<20080620101028.GA23664@elte.hu> <485BFFC4.3070902@goop.org>
+	<alpine.LFD.1.10.0806201211560.3167@woody.linux-foundation.org>
+	<20080620195620.GA20183@elte.hu>
+	<alpine.LFD.1.10.0806201302350.3167@woody.linux-foundation.org>
+	<485C1000.8020806@goop.org> <485C117E.8070706@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <xen-devel-bounces@lists.xensource.com>
-In-Reply-To: <485C1000.8020806@goop.org>
+Content-Disposition: inline
+In-Reply-To: <485C117E.8070706@goop.org>
 List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xensource.com>
@@ -19,40 +24,42 @@ List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
 	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
 Sender: xen-devel-bounces@lists.xensource.com
 Errors-To: xen-devel-bounces@lists.xensource.com
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, benh@kernel.crashing.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, benh@kernel.crashing.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Linus Torvalds wrote:
->   
->> On Fri, 20 Jun 2008, Ingo Molnar wrote:
+
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+
+> Jeremy Fitzhardinge wrote:
+>> Linus Torvalds wrote:
 >>   
->>     
->>> okay - Jeremy, could you try the fix below? (or tip/master, i just 
->>> pushed this out)
->>>     
+>>> On Fri, 20 Jun 2008, Ingo Molnar wrote:
 >>>       
->> Actually, don't try that one.
+>>>> okay - Jeremy, could you try the fix below? (or tip/master, i just  
+>>>> pushed this out)
+>>>>           
+>>> Actually, don't try that one.
+>>>
+>>> It needs to be a _byte_ registers, so "ir" was wrong. You need "iq".
+>>>       
 >>
->> It needs to be a _byte_ registers, so "ir" was wrong. You need "iq".
+>> Doesn't work, unfortunately:
+>> {standard input}:20511: Error: Incorrect register `%eax' used with `b'  
+>> suffix
+>>
+>>         lock; orb %eax,1(%rdi)  # tmp64,
 >>   
->>     
 >
-> Doesn't work, unfortunately:
-> {standard input}:20511: Error: Incorrect register `%eax' used with `b' 
-> suffix
+> This does work:
 >
->         lock; orb %eax,1(%rdi)  # tmp64,
->   
+>                asm volatile(LOCK_PREFIX "orb %1,%0"
+>                        : CONST_MASK_ADDR(nr, addr)
+>                        : "iq" ((u8)CONST_MASK(nr))
+>                        : "memory");
+>
+> (ie, explicitly casting the mask to u8)
 
-This does work:
+ok, i've pushed out the fix with this.
 
-                asm volatile(LOCK_PREFIX "orb %1,%0"
-                        : CONST_MASK_ADDR(nr, addr)
-                        : "iq" ((u8)CONST_MASK(nr))
-                        : "memory");
-
-(ie, explicitly casting the mask to u8)
-
-    J
+	Ingo
