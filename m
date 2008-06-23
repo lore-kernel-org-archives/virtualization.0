@@ -1,65 +1,36 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1 of 4] mm: add a ptep_modify_prot
-	transaction abstraction
-Date: Sat, 21 Jun 2008 08:06:36 +0200
-Message-ID: <20080621060635.GA26422@elte.hu>
-References: <20080619115832.GM15228@elte.hu>
-	<alpine.LFD.1.10.0806190928100.2907@woody.linux-foundation.org>
-	<20080619164708.GA32190@elte.hu>
-	<20080620101028.GA23664@elte.hu> <485BFFC4.3070902@goop.org>
-	<alpine.LFD.1.10.0806201211560.3167@woody.linux-foundation.org>
-	<20080620195620.GA20183@elte.hu>
-	<alpine.LFD.1.10.0806201302350.3167@woody.linux-foundation.org>
-	<485C1000.8020806@goop.org> <485C117E.8070706@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC 3/3 v2] s390: use virtio_console for KVM on s390
+Date: Mon, 23 Jun 2008 13:04:00 +1000
+Message-ID: <200806231304.01109.rusty@rustcorp.com.au>
+References: <200806031444.21945.borntraeger@de.ibm.com>
+	<200806201524.18953.borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <200806201524.18953.borntraeger@de.ibm.com>
 Content-Disposition: inline
-In-Reply-To: <485C117E.8070706@goop.org>
-List-Unsubscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, kvm-devel <kvm-devel@lists.sourceforge.net>, benh@kernel.crashing.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Hugh Dickins <hugh@veritas.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Linux PPC devel <linuxppc-dev@ozlabs.org>, Jeremy Fitzhardinge <jeremy@goop.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-
-> Jeremy Fitzhardinge wrote:
->> Linus Torvalds wrote:
->>   
->>> On Fri, 20 Jun 2008, Ingo Molnar wrote:
->>>       
->>>> okay - Jeremy, could you try the fix below? (or tip/master, i just  
->>>> pushed this out)
->>>>           
->>> Actually, don't try that one.
->>>
->>> It needs to be a _byte_ registers, so "ir" was wrong. You need "iq".
->>>       
->>
->> Doesn't work, unfortunately:
->> {standard input}:20511: Error: Incorrect register `%eax' used with `b'  
->> suffix
->>
->>         lock; orb %eax,1(%rdi)  # tmp64,
->>   
+On Friday 20 June 2008 23:24:18 Christian Borntraeger wrote:
+> This patch enables virtio_console as the default console on kvm for
+> s390. We currently use the same notify hack as lguest for early
+> console output. I will try to address this for lguest and s390 later.
 >
-> This does work:
->
->                asm volatile(LOCK_PREFIX "orb %1,%0"
->                        : CONST_MASK_ADDR(nr, addr)
->                        : "iq" ((u8)CONST_MASK(nr))
->                        : "memory");
->
-> (ie, explicitly casting the mask to u8)
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-ok, i've pushed out the fix with this.
+Thanks, applied all three.
 
-	Ingo
+Cheers,
+Rusty.
