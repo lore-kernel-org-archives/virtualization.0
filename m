@@ -1,36 +1,35 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC 3/3 v2] s390: use virtio_console for KVM on s390
-Date: Mon, 23 Jun 2008 13:04:00 +1000
-Message-ID: <200806231304.01109.rusty@rustcorp.com.au>
-References: <200806031444.21945.borntraeger@de.ibm.com>
-	<200806201524.18953.borntraeger@de.ibm.com>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 0/5] paravirt clock source patches, #5
+Date: Mon, 23 Jun 2008 11:08:49 +0300
+Message-ID: <485F5A11.1000303@qumranet.com>
+References: <1212502653-4521-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <200806201524.18953.borntraeger@de.ibm.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Linux PPC devel <linuxppc-dev@ozlabs.org>, Jeremy Fitzhardinge <jeremy@goop.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1212502653-4521-1-git-send-email-kraxel@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, kvm@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 20 June 2008 23:24:18 Christian Borntraeger wrote:
-> This patch enables virtio_console as the default console on kvm for
-> s390. We currently use the same notify hack as lguest for early
-> console output. I will try to address this for lguest and s390 later.
+Gerd Hoffmann wrote:
+> paravirt clock source patches, next round.
 >
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> There is now a pvclock-abi.h file with the structs and some longish
+> comments in it and everybody is switched over to use the stuff in
+> there.
+>
+> Some minor tweaks after super-fast review by Jeremy.
+>
+> The queue is on top of the kvm git tree.  The first two patches should
+> have no kvm dependencies and should apply to linus tree just fine.
+>
+>   
 
-Thanks, applied all three.
+Jeremy, can you ack the Xen bits for 2.6.26?
 
-Cheers,
-Rusty.
+
+-- 
+error compiling committee.c: too many arguments to function
+
