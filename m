@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: [PATCH 4/4] lguest: Use GSO/IFF_VNET_HDR extensions on tun/tap
 Date: Thu, 26 Jun 2008 00:32:12 +1000
-Message-ID: <200806260032.12359.rusty__46755.7742762894$1214404667$gmane$org@rustcorp.com.au>
+Message-ID: <200806260032.12359.rusty__49598.5514986843$1214405972$gmane$org@rustcorp.com.au>
 References: <200806260028.07883.rusty@rustcorp.com.au>
 	<200806260029.40267.rusty@rustcorp.com.au>
 	<200806260030.38293.rusty@rustcorp.com.au>
