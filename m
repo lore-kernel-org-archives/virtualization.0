@@ -1,14 +1,16 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 4/4] lguest: Use GSO/IFF_VNET_HDR extensions on tun/tap
-Date: Wed, 25 Jun 2008 14:07:18 -0500
-Message-ID: <48629766.4040905__20669.8114089251$1214421021$gmane$org@codemonkey.ws>
-References: <200806260028.07883.rusty@rustcorp.com.au>	<200806260029.40267.rusty@rustcorp.com.au>	<200806260030.38293.rusty@rustcorp.com.au>
+Date: Thu, 26 Jun 2008 14:40:43 +1000
+Message-ID: <200806261440.43984.rusty__23047.6328790703$1214455385$gmane$org@rustcorp.com.au>
+References: <200806260028.07883.rusty@rustcorp.com.au>
 	<200806260032.12359.rusty__46755.7742762894$1214404667$gmane$org@rustcorp.com.au>
+	<48629766.4040905@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200806260032.12359.rusty__46755.7742762894$1214404667$gmane$org@rustcorp.com.au>
+In-Reply-To: <48629766.4040905@codemonkey.ws>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,29 +20,88 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Anthony Liguori <anthony@codemonkey.ws>
 Cc: markmc@redhat.com, virtualization@lists.linux-foundation.org, Herbert Xu <herbert@gondor.apana.org.au>, Max Krasnyansky <maxk@qualcomm.com>, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> @@ -1563,6 +1561,16 @@ static void setup_tun_net(char *arg)
->  	/* Tell Guest what MAC address to use. */
->  	add_feature(dev, VIRTIO_NET_F_MAC);
->  	add_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY);
-> +	/* Expect Guest to handle everything except UFO */
-> +	add_feature(dev, VIRTIO_NET_F_CSUM);
+On Thursday 26 June 2008 05:07:18 Anthony Liguori wrote:
+> Rusty Russell wrote:
+> > @@ -1563,6 +1561,16 @@ static void setup_tun_net(char *arg)
+> >  	/* Tell Guest what MAC address to use. */
+> >  	add_feature(dev, VIRTIO_NET_F_MAC);
+> >  	add_feature(dev, VIRTIO_F_NOTIFY_ON_EMPTY);
+> > +	/* Expect Guest to handle everything except UFO */
+> > +	add_feature(dev, VIRTIO_NET_F_CSUM);
+>
+> You're setting this feature twice.
 
-You're setting this feature twice.
+Hmm, not in the version here?
 
-> +	add_feature(dev, VIRTIO_NET_F_GUEST_CSUM);
+> > +	add_feature(dev, VIRTIO_NET_F_GUEST_CSUM);
+>
+> You set this feature, but I never see the virtio-net driver acknowledge
+> the feature.  Curiously, my implementation with KVM is struggling
+> because UDP packet checksums are not correct so the DHCP client is
+> ignoring them.  If I disable CSUM offload, things it works fine (using
+> the virtio-net header).  The problem is only host=>guest, guest=>host is
+> fine.
 
-You set this feature, but I never see the virtio-net driver acknowledge 
-the feature.  Curiously, my implementation with KVM is struggling 
-because UDP packet checksums are not correct so the DHCP client is 
-ignoring them.  If I disable CSUM offload, things it works fine (using 
-the virtio-net header).  The problem is only host=>guest, guest=>host is 
-fine.
+OK, found this: wrong args to skb_partial_csum_set.  It was found by Mark 
+McLoughlin before, I just lost the fix when I extracted this into a separate 
+patch.  I chose to move the call to skb_partial_csum_set(), rather than use 
+his fix (which assumed a tap not tun device).
 
-Regards,
+Here's two fixes on top of previous patch:
 
-Anthony Liguori
+diff -u b/drivers/net/tun.c b/drivers/net/tun.c
+--- b/drivers/net/tun.c	Thu Jun 26 00:21:59 2008 +1000
++++ b/drivers/net/tun.c	Thu Jun 26 14:35:03 2008 +1000
+@@ -298,11 +298,11 @@
+ 		if ((len -= sizeof(gso)) > count)
+ 			return -EINVAL;
+ 
+-		if (gso.hdr_len > len)
+-			return -EINVAL;
+-
+ 		if (memcpy_fromiovec((void *)&gso, iv, sizeof(gso)))
+ 			return -EFAULT;
++
++		if (gso.hdr_len > len)
++			return -EINVAL;
+ 	}
+ 
+ 	if ((tun->flags & TUN_TYPE_MASK) == TUN_TAP_DEV) {
+@@ -324,6 +324,16 @@
+ 		return -EFAULT;
+ 	}
+ 
++	if (gso.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
++		if (!skb_partial_csum_set(skb, gso.csum_start,
++					  gso.csum_offset)) {
++			tun->dev->stats.rx_dropped++;
++			kfree_skb(skb);
++			return -EINVAL;
++		}
++	} else if (tun->flags & TUN_NOCHECKSUM)
++		skb->ip_summed = CHECKSUM_UNNECESSARY;
++
+ 	switch (tun->flags & TUN_TYPE_MASK) {
+ 	case TUN_TUN_DEV:
+ 		skb_reset_mac_header(skb);
+@@ -335,16 +345,6 @@
+ 		break;
+ 	};
+ 
+-	if (gso.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+-		if (!skb_partial_csum_set(skb, gso.csum_start,
+-					  gso.csum_offset)) {
+-			tun->dev->stats.rx_dropped++;
+-			kfree_skb(skb);
+-			return -EINVAL;
+-		}
+-	} else if (tun->flags & TUN_NOCHECKSUM)
+-		skb->ip_summed = CHECKSUM_UNNECESSARY;
+-
+ 	if (gso.gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		pr_debug("GSO!\n");
+ 		switch (gso.gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
