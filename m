@@ -1,101 +1,57 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 4/4] lguest: Use GSO/IFF_VNET_HDR extensions on tun/tap
-Date: Fri, 27 Jun 2008 13:50:44 +1000
-Message-ID: <200806271350.44608.rusty__36843.1145944216$1214538791$gmane$org@rustcorp.com.au>
-References: <200806260028.07883.rusty@rustcorp.com.au>
-	<200806261440.43984.rusty@rustcorp.com.au>
-	<4863DCF9.20100@codemonkey.ws>
+Subject: Re: [RFC 1/3 v2] hvc_console: rework setup to replace irq functions with callbacks
+Date: Fri, 27 Jun 2008 15:27:51 +1000
+Message-ID: <200806271527.52321.rusty@rustcorp.com.au>
+References: <200806031444.21945.borntraeger@de.ibm.com> <200806201524.08237.borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4863DCF9.20100@codemonkey.ws>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755737AbYF0F2M@vger.kernel.org>
+In-Reply-To: <200806201524.08237.borntraeger@de.ibm.com>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: markmc@redhat.com, virtualization@lists.linux-foundation.org, Herbert Xu <herbert@gondor.apana.org.au>, Max Krasnyansky <maxk@qualcomm.com>, netdev@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Linux PPC devel <linuxppc-dev@ozlabs.org>, Jeremy Fitzhardinge <jeremy@goop.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Yajin <zyj001et@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 27 June 2008 04:16:25 Anthony Liguori wrote:
-> Rusty Russell wrote:
-> > On Thursday 26 June 2008 05:07:18 Anthony Liguori wrote:
-> >> Rusty Russell wrote:
-> >>> +	add_feature(dev, VIRTIO_NET_F_GUEST_CSUM);
-> >>
-> >> You set this feature, but I never see the virtio-net driver acknowledge
-> >> the feature.
->
-> I still don't see GUEST_CSUM ever get referenced in virtio_net.c.
-> What's the intention of this feature bit?  Could I be missing a
-> virtio_net patch?  I'm using the latest bits in Linus' tree.
+On Friday 20 June 2008 23:24:08 Christian Borntraeger wrote:
+> I also kept hvc_struct defined in hvc_console.h so that hvc_irq.c can
+> access the irq_requested element.
 
-It says that the guest can does csum offload.  It's not advertised in the 
-current Linus tree (it got snuck in by Mark after the large-packets patches 
-still sitting in my tree).  It should be tho, since the driver can handle it.  
-See patch at end.
+Added this fix:
 
-> >>   Curiously, my implementation with KVM is struggling
-> >> because UDP packet checksums are not correct so the DHCP client is
-> >> ignoring them.  If I disable CSUM offload, things it works fine (using
-> >> the virtio-net header).  The problem is only host=>guest, guest=>host is
-> >> fine.
-> >
-> > OK, found this: wrong args to skb_partial_csum_set.  It was found by Mark
-> > McLoughlin before, I just lost the fix when I extracted this into a
-> > separate patch.  I chose to move the call to skb_partial_csum_set(),
-> > rather than use his fix (which assumed a tap not tun device).
->
-> This still doesn't fix the problem.  I can manually assign an IP address
-> and even do netperf runs but I cannot get a dhcp address (dhclient is
-> picky about the udp csum).
+=46ix compile of hvc_rtas.c
 
-I'll retest this when I'm back home with my machines.  Perhaps it's something 
-to do with the csum issue.
+Moving the struct definition out to the header had bad effect under one
+ppc64 config that I tried:
 
-> Also, when I exit KVM, QEMU zombies and I notice:
->
-> Message from syslogd@squirrel at Jun 26 13:02:07 ...
->  kernel: unregister_netdevice: waiting for tap0 to become free. Usage
-> count = 3
+drivers/char/hvc_console.h:59: error: field =E2=80=98kref=E2=80=99 has =
+incomplete type
 
-That seems odd; there is a leak in the vringfd interface which I know about, 
-but this looks like a GSO packet from the tun device is sticking around 
-somehow.
+So move the include of kref.h too.
 
-Cheers,
-Rusty.
-
-Subject: virtio_net: Set VIRTIO_NET_F_GUEST_CSUM feature
-Date: Fri, 13 Jun 2008 14:27:34 +0100
-From: Mark McLoughlin <markmc@redhat.com>
-
-We can handle receiving partial csums, so set the
-appropriate feature bit.
-
-Signed-off-by: Mark McLoughlin <markmc@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/net/virtio_net.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -550,7 +550,8 @@ static struct virtio_device_id id_table[
- };
- 
- static unsigned int features[] = {
--	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
-+	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,
-+	VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
- 	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6,
- 	VIRTIO_NET_F_HOST_ECN, VIRTIO_F_NOTIFY_ON_EMPTY,
- };
+diff -r f382d8f562a8 drivers/char/hvc_console.c
+--- a/drivers/char/hvc_console.c	Fri Jun 27 15:17:49 2008 +1000
++++ b/drivers/char/hvc_console.c	Fri Jun 27 15:24:15 2008 +1000
+@@ -27,7 +27,6 @@
+ #include <linux/init.h>
+ #include <linux/kbd_kern.h>
+ #include <linux/kernel.h>
+-#include <linux/kref.h>
+ #include <linux/kthread.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+diff -r f382d8f562a8 drivers/char/hvc_console.h
+--- a/drivers/char/hvc_console.h	Fri Jun 27 15:17:49 2008 +1000
++++ b/drivers/char/hvc_console.h	Fri Jun 27 15:24:15 2008 +1000
+@@ -26,6 +26,7 @@
+=20
+ #ifndef HVC_CONSOLE_H
+ #define HVC_CONSOLE_H
++#include <linux/kref.h>
+=20
+ /*
+  * This is the max number of console adapters that can/will be found a=
+s
