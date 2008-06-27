@@ -1,50 +1,56 @@
 From: Amit Shah <amit.shah@qumranet.com>
-Subject: [PATCH 2/4] KVM: Introduce a callback routine for IOAPIC ack handling
-Date: Fri, 27 Jun 2008 15:55:03 +0300
-Message-ID: <1214571305-20701-3-git-send-email-amit.shah@qumranet.com>
+Subject: [PATCH 1/4] KVM: Introduce kvm_set_irq to inject interrupts in guests
+Date: Fri, 27 Jun 2008 15:55:02 +0300
+Message-ID: <1214571305-20701-2-git-send-email-amit.shah@qumranet.com>
 References: <1214571305-20701-1-git-send-email-amit.shah@qumranet.com>
- <1214571305-20701-2-git-send-email-amit.shah@qumranet.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1214571305-20701-2-git-send-email-amit.shah@qumranet.com>
+In-Reply-To: <1214571305-20701-1-git-send-email-amit.shah@qumranet.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
 Cc: muli@il.ibm.com, benami@il.ibm.com, allen.m.kay@intel.com, chrisw@redhat.com, weidong.han@intel.com, avi@qumranet.com, virtualization@lists.osdl.org, Amit Shah <amit.shah@qumranet.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This will be useful for acking irqs of assigned devices
+This function injects an interrupt into the guest given the kvm struct,
+the (guest) irq number and the interrupt level.
 
 Signed-off-by: Amit Shah <amit.shah@qumranet.com>
 ---
- virt/kvm/ioapic.c |    3 +++
- virt/kvm/ioapic.h |    1 +
- 2 files changed, 4 insertions(+), 0 deletions(-)
+ arch/x86/kvm/irq.c |   11 +++++++++++
+ arch/x86/kvm/irq.h |    2 ++
+ 2 files changed, 13 insertions(+), 0 deletions(-)
 
-diff --git a/virt/kvm/ioapic.c b/virt/kvm/ioapic.c
-index 9d02136..6d99a35 100644
---- a/virt/kvm/ioapic.c
-+++ b/virt/kvm/ioapic.c
-@@ -295,6 +295,9 @@ static void __kvm_ioapic_update_eoi(struct kvm_ioapic *ioapic, int gsi)
- 	ent->fields.remote_irr = 0;
- 	if (!ent->fields.mask && (ioapic->irr & (1 << gsi)))
- 		ioapic_deliver(ioapic, gsi);
-+
-+	if (ioapic->ack_notifier)
-+		ioapic->ack_notifier(ioapic->kvm, gsi);
+diff --git a/arch/x86/kvm/irq.c b/arch/x86/kvm/irq.c
+index 76d736b..0d9e552 100644
+--- a/arch/x86/kvm/irq.c
++++ b/arch/x86/kvm/irq.c
+@@ -100,3 +100,14 @@ void __kvm_migrate_timers(struct kvm_vcpu *vcpu)
+ 	__kvm_migrate_apic_timer(vcpu);
+ 	__kvm_migrate_pit_timer(vcpu);
  }
++
++/* This should be called with the kvm->lock mutex held */
++void kvm_set_irq(struct kvm *kvm, int irq, int level)
++{
++	/* Not possible to detect if the guest uses the PIC or the
++	 * IOAPIC.  So set the bit in both. The guest will ignore
++	 * writes to the unused one.
++	 */
++	kvm_ioapic_set_irq(kvm->arch.vioapic, irq, level);
++	kvm_pic_set_irq(pic_irqchip(kvm), irq, level);
++}
+diff --git a/arch/x86/kvm/irq.h b/arch/x86/kvm/irq.h
+index 2a15be2..ba4e3bf 100644
+--- a/arch/x86/kvm/irq.h
++++ b/arch/x86/kvm/irq.h
+@@ -80,6 +80,8 @@ static inline int irqchip_in_kernel(struct kvm *kvm)
  
- void kvm_ioapic_update_eoi(struct kvm *kvm, int vector)
-diff --git a/virt/kvm/ioapic.h b/virt/kvm/ioapic.h
-index 7f16675..a42743f 100644
---- a/virt/kvm/ioapic.h
-+++ b/virt/kvm/ioapic.h
-@@ -58,6 +58,7 @@ struct kvm_ioapic {
- 	} redirtbl[IOAPIC_NUM_PINS];
- 	struct kvm_io_device dev;
- 	struct kvm *kvm;
-+	void (*ack_notifier)(void *opaque, int irq);
- };
+ void kvm_pic_reset(struct kvm_kpic_state *s);
  
- #ifdef DEBUG
++void kvm_set_irq(struct kvm *kvm, int irq, int level);
++
+ void kvm_timer_intr_post(struct kvm_vcpu *vcpu, int vec);
+ void kvm_inject_pending_timer_irqs(struct kvm_vcpu *vcpu);
+ void kvm_inject_apic_timer_irqs(struct kvm_vcpu *vcpu);
 -- 
 1.5.4.3
 
