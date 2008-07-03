@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] ia64/xen: define several constants for ia64/xen.
-Date: Thu,  3 Jul 2008 15:54:42 +0900
-Message-ID: <12150681052197-git-send-email-yamahata__38298.8378093161$1215068772$gmane$org@valinux.co.jp>
+Subject: [PATCH] ia64/xen: reserve "break" numbers used for xen hypercalls.
+Date: Thu,  3 Jul 2008 15:54:38 +0900
+Message-ID: <12150681051013-git-send-email-yamahata__25388.4233105511$1215068870$gmane$org@valinux.co.jp>
 References: <1215068105921-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,58 +18,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, "Luck,
+	Tony" <tony.luck@intel.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define several constants for ia64/xen.
+reserve "break" numbers used for xen hypercalls to avoid
+reuse for something else.
 
+Cc: "Luck, Tony" <tony.luck@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/asm-offsets.c |   27 +++++++++++++++++++++++++++
- 1 files changed, 27 insertions(+), 0 deletions(-)
+ include/asm-ia64/break.h |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
-index c64a55a..6bd3fc5 100644
---- a/arch/ia64/kernel/asm-offsets.c
-+++ b/arch/ia64/kernel/asm-offsets.c
-@@ -16,6 +16,8 @@
- #include <asm-ia64/sigcontext.h>
- #include <asm-ia64/mca.h>
+diff --git a/include/asm-ia64/break.h b/include/asm-ia64/break.h
+index f034020..e90c40e 100644
+--- a/include/asm-ia64/break.h
++++ b/include/asm-ia64/break.h
+@@ -20,4 +20,13 @@
+  */
+ #define __IA64_BREAK_SYSCALL		0x100000
  
-+#include <asm-ia64/xen/interface.h>
++/*
++ * Xen specific break numbers:
++ */
++#define __IA64_XEN_HYPERCALL		0x1000
++/* [__IA64_XEN_HYPERPRIVOP_START, __IA64_XEN_HYPERPRIVOP_MAX] is used
++   for xen hyperprivops */
++#define __IA64_XEN_HYPERPRIVOP_START	0x1
++#define __IA64_XEN_HYPERPRIVOP_MAX	0x1a
 +
- #include "../kernel/sigframe.h"
- #include "../kernel/fsyscall_gtod_data.h"
- 
-@@ -286,4 +288,29 @@ void foo(void)
- 		offsetof (struct itc_jitter_data_t, itc_jitter));
- 	DEFINE(IA64_ITC_LASTCYCLE_OFFSET,
- 		offsetof (struct itc_jitter_data_t, itc_lastcycle));
-+
-+#ifdef CONFIG_XEN
-+	BLANK();
-+
-+#define DEFINE_MAPPED_REG_OFS(sym, field) \
-+	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
-+
-+	DEFINE_MAPPED_REG_OFS(XSI_PSR_I_ADDR_OFS, interrupt_mask_addr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IPSR_OFS, ipsr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIP_OFS, iip);
-+	DEFINE_MAPPED_REG_OFS(XSI_IFS_OFS, ifs);
-+	DEFINE_MAPPED_REG_OFS(XSI_PRECOVER_IFS_OFS, precover_ifs);
-+	DEFINE_MAPPED_REG_OFS(XSI_ISR_OFS, isr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IFA_OFS, ifa);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIPA_OFS, iipa);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIM_OFS, iim);
-+	DEFINE_MAPPED_REG_OFS(XSI_IHA_OFS, iha);
-+	DEFINE_MAPPED_REG_OFS(XSI_ITIR_OFS, itir);
-+	DEFINE_MAPPED_REG_OFS(XSI_PSR_IC_OFS, interrupt_collection_enabled);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANKNUM_OFS, banknum);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANK0_R16_OFS, bank0_regs[0]);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANK1_R16_OFS, bank1_regs[0]);
-+	DEFINE_MAPPED_REG_OFS(XSI_B0NATS_OFS, vbnat);
-+	DEFINE_MAPPED_REG_OFS(XSI_B1NATS_OFS, vnat);
-+#endif /* CONFIG_XEN */
- }
+ #endif /* _ASM_IA64_BREAK_H */
 -- 
 1.5.3
