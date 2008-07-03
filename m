@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] ia64/pv_ops/xen: elf note based xen startup.
-Date: Thu,  3 Jul 2008 15:54:50 +0900
-Message-ID: <12150681062197-git-send-email-yamahata__32552.0257968039$1215070685$gmane$org@valinux.co.jp>
+Subject: [PATCH] ia64/xen: implement the arch specific part of xencomm.
+Date: Thu,  3 Jul 2008 15:54:46 +0900
+Message-ID: <1215068106141-git-send-email-yamahata__38493.7664996416$1215070693$gmane$org@valinux.co.jp>
 References: <1215068105921-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,47 +18,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, "Luck,
+	Tony" <tony.luck@intel.com>, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch enables elf note based xen startup for IA-64, which gives the
-kernel an early hint for running on xen like x86 case.
-In order to avoid the multi entry point, presumably extending booting
-protocol(i.e. extending struct ia64_boot_param) would be necessary.
-It probably means that elilo also needs modification.
+On ia64/xen, pointer argument for the hypercall is passed
+by pseudo physical address (guest physical address.)
+So it is necessary to convert virtual address into pseudo physical
+address right before issuing hypercall. The frame work is called
+xencomm. This patch implements arch specific part.
 
-Signed-off-by: Qing He <qing.he@intel.com>
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- arch/ia64/xen/Makefile     |    3 +-
- arch/ia64/xen/xen_pv_ops.c |   65 ++++++++++++++++++++++++++++++++++
- arch/ia64/xen/xensetup.S   |   83 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 150 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/xen_pv_ops.c
- create mode 100644 arch/ia64/xen/xensetup.S
+ arch/ia64/xen/Makefile         |    2 +-
+ arch/ia64/xen/xencomm.c        |   94 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/xen/xencomm.h |   41 +++++++++++++++++
+ 3 files changed, 136 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/xencomm.c
+ create mode 100644 include/asm-ia64/xen/xencomm.h
 
 diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index eb59563..abc356f 100644
+index c200704..ad0c9f7 100644
 --- a/arch/ia64/xen/Makefile
 +++ b/arch/ia64/xen/Makefile
-@@ -2,4 +2,5 @@
+@@ -2,4 +2,4 @@
  # Makefile for Xen components
  #
  
--obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
-+obj-y := hypercall.o xensetup.o xen_pv_ops.o \
-+	xencomm.o xcom_hcall.o grant-table.o
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+-obj-y := hypercall.o
++obj-y := hypercall.o xencomm.o
+diff --git a/arch/ia64/xen/xencomm.c b/arch/ia64/xen/xencomm.c
 new file mode 100644
-index 0000000..77db214
+index 0000000..2a57058
 --- /dev/null
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -0,0 +1,65 @@
-+/******************************************************************************
-+ * arch/ia64/xen/xen_pv_ops.c
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
++++ b/arch/ia64/xen/xencomm.c
+@@ -0,0 +1,94 @@
++/*
++ * Copyright (C) 2006 Hollis Blanchard <hollisb@us.ibm.com>, IBM Corporation
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -72,141 +70,131 @@ index 0000000..77db214
 + *
 + * You should have received a copy of the GNU General Public License
 + * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 + */
 +
-+#include <linux/console.h>
-+#include <linux/irq.h>
-+#include <linux/kernel.h>
-+#include <linux/pm.h>
++#include <linux/mm.h>
 +
-+#include <asm/xen/hypervisor.h>
-+#include <asm/xen/xencomm.h>
-+#include <asm/xen/privop.h>
++static unsigned long kernel_virtual_offset;
 +
-+/***************************************************************************
-+ * general info
-+ */
-+static struct pv_info xen_info __initdata = {
-+	.kernel_rpl = 2,	/* or 1: determin at runtime */
-+	.paravirt_enabled = 1,
-+	.name = "Xen/ia64",
-+};
-+
-+#define IA64_RSC_PL_SHIFT	2
-+#define IA64_RSC_PL_BIT_SIZE	2
-+#define IA64_RSC_PL_MASK	\
-+	(((1UL << IA64_RSC_PL_BIT_SIZE) - 1) << IA64_RSC_PL_SHIFT)
-+
-+static void __init
-+xen_info_init(void)
++void
++xencomm_initialize(void)
 +{
-+	/* Xenified Linux/ia64 may run on pl = 1 or 2.
-+	 * determin at run time. */
-+	unsigned long rsc = ia64_getreg(_IA64_REG_AR_RSC);
-+	unsigned int rpl = (rsc & IA64_RSC_PL_MASK) >> IA64_RSC_PL_SHIFT;
-+	xen_info.kernel_rpl = rpl;
++	kernel_virtual_offset = KERNEL_START - ia64_tpa(KERNEL_START);
 +}
 +
-+/***************************************************************************
-+ * pv_ops initialization
-+ */
-+
-+void __init
-+xen_setup_pv_ops(void)
++/* Translate virtual address to physical address.  */
++unsigned long
++xencomm_vtop(unsigned long vaddr)
 +{
-+	xen_info_init();
-+	pv_info = xen_info;
++	struct page *page;
++	struct vm_area_struct *vma;
++
++	if (vaddr == 0)
++		return 0;
++
++	if (REGION_NUMBER(vaddr) == 5) {
++		pgd_t *pgd;
++		pud_t *pud;
++		pmd_t *pmd;
++		pte_t *ptep;
++
++		/* On ia64, TASK_SIZE refers to current.  It is not initialized
++		   during boot.
++		   Furthermore the kernel is relocatable and __pa() doesn't
++		   work on  addresses.  */
++		if (vaddr >= KERNEL_START
++		    && vaddr < (KERNEL_START + KERNEL_TR_PAGE_SIZE))
++			return vaddr - kernel_virtual_offset;
++
++		/* In kernel area -- virtually mapped.  */
++		pgd = pgd_offset_k(vaddr);
++		if (pgd_none(*pgd) || pgd_bad(*pgd))
++			return ~0UL;
++
++		pud = pud_offset(pgd, vaddr);
++		if (pud_none(*pud) || pud_bad(*pud))
++			return ~0UL;
++
++		pmd = pmd_offset(pud, vaddr);
++		if (pmd_none(*pmd) || pmd_bad(*pmd))
++			return ~0UL;
++
++		ptep = pte_offset_kernel(pmd, vaddr);
++		if (!ptep)
++			return ~0UL;
++
++		return (pte_val(*ptep) & _PFN_MASK) | (vaddr & ~PAGE_MASK);
++	}
++
++	if (vaddr > TASK_SIZE) {
++		/* percpu variables */
++		if (REGION_NUMBER(vaddr) == 7 &&
++		    REGION_OFFSET(vaddr) >= (1ULL << IA64_MAX_PHYS_BITS))
++			ia64_tpa(vaddr);
++
++		/* kernel address */
++		return __pa(vaddr);
++	}
++
++	/* XXX double-check (lack of) locking */
++	vma = find_extend_vma(current->mm, vaddr);
++	if (!vma)
++		return ~0UL;
++
++	/* We assume the page is modified.  */
++	page = follow_page(vma, vaddr, FOLL_WRITE | FOLL_TOUCH);
++	if (!page)
++		return ~0UL;
++
++	return (page_to_pfn(page) << PAGE_SHIFT) | (vaddr & ~PAGE_MASK);
 +}
-diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
+diff --git a/include/asm-ia64/xen/xencomm.h b/include/asm-ia64/xen/xencomm.h
 new file mode 100644
-index 0000000..7d71333
+index 0000000..28732cd
 --- /dev/null
-+++ b/arch/ia64/xen/xensetup.S
-@@ -0,0 +1,83 @@
++++ b/include/asm-ia64/xen/xencomm.h
+@@ -0,0 +1,41 @@
 +/*
-+ * Support routines for Xen
++ * Copyright (C) 2006 Hollis Blanchard <hollisb@us.ibm.com>, IBM Corporation
 + *
-+ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 + */
 +
-+#include <asm/processor.h>
-+#include <asm/asmmacro.h>
++#ifndef _ASM_IA64_XEN_XENCOMM_H
++#define _ASM_IA64_XEN_XENCOMM_H
++
++#include <xen/xencomm.h>
 +#include <asm/pgtable.h>
-+#include <asm/system.h>
-+#include <asm/paravirt.h>
-+#include <asm/xen/privop.h>
-+#include <linux/elfnote.h>
-+#include <linux/init.h>
-+#include <xen/interface/elfnote.h>
 +
-+	.section .data.read_mostly
-+	.align 8
-+	.global running_on_xen
-+running_on_xen:
-+	data4 0
-+	.previous
++/* Must be called before any hypercall.  */
++extern void xencomm_initialize(void);
 +
-+	__INIT
-+ENTRY(startup_xen)
-+	// Calculate load offset.
-+	// The constant, LOAD_OFFSET, can't be used because the boot
-+	// loader doesn't always load to the LMA specified by the vmlinux.lds.
-+	mov r9=ip	// must be the first instruction to make sure
-+			// that r9 = the physical address of startup_xen.
-+			// Usually r9 = startup_xen - LOAD_OFFSET
-+	movl r8=startup_xen
-+	;;
-+	sub r9=r9,r8	// Usually r9 = -LOAD_OFFSET.
++/* Check if virtual contiguity means physical contiguity
++ * where the passed address is a pointer value in virtual address.
++ * On ia64, identity mapping area in region 7 or the piece of region 5
++ * that is mapped by itr[IA64_TR_KERNEL]/dtr[IA64_TR_KERNEL]
++ */
++static inline int xencomm_is_phys_contiguous(unsigned long addr)
++{
++	return (PAGE_OFFSET <= addr &&
++		addr < (PAGE_OFFSET + (1UL << IA64_MAX_PHYS_BITS))) ||
++		(KERNEL_START <= addr &&
++		 addr < KERNEL_START + KERNEL_TR_PAGE_SIZE);
++}
 +
-+	mov r10=PARAVIRT_HYPERVISOR_TYPE_XEN
-+	movl r11=_start
-+	;;
-+	add r11=r11,r9
-+	movl r8=hypervisor_type
-+	;;
-+	add r8=r8,r9
-+	mov b0=r11
-+	;;
-+	st8 [r8]=r10
-+	br.cond.sptk.many b0
-+	;;
-+END(startup_xen)
-+
-+	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,	.asciz "linux")
-+	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,	.asciz "2.6")
-+	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,	.asciz "xen-3.0")
-+	ELFNOTE(Xen, XEN_ELFNOTE_ENTRY,		data8.ua startup_xen - LOAD_OFFSET)
-+
-+#define isBP	p3	// are we the Bootstrap Processor?
-+
-+	.text
-+
-+GLOBAL_ENTRY(xen_setup_hook)
-+	mov r8=1		// booleanize.
-+(isBP)	movl r9=running_on_xen;;
-+(isBP)	st4 [r9]=r8
-+	movl r10=xen_ivt;;
-+
-+	mov cr.iva=r10
-+
-+	/* Set xsi base.  */
-+#define FW_HYPERCALL_SET_SHARED_INFO_VA			0x600
-+(isBP)	mov r2=FW_HYPERCALL_SET_SHARED_INFO_VA
-+(isBP)	movl r28=XSI_BASE;;
-+(isBP)	break 0x1000;;
-+
-+	/* setup pv_ops */
-+(isBP)	mov r4=rp
-+	;;
-+(isBP)	br.call.sptk.many rp=xen_setup_pv_ops
-+	;;
-+(isBP)	mov rp=r4
-+	;;
-+
-+	br.ret.sptk.many rp
-+	;;
-+END(xen_setup_hook)
++#endif /* _ASM_IA64_XEN_XENCOMM_H */
 -- 
 1.5.3
