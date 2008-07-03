@@ -1,16 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: 2.6.26-rc8 pv_ops causes Unhandled invalid opcode fault/trap
-Date: Thu, 03 Jul 2008 14:04:03 -0700
-Message-ID: <486D3EC3.1010303__20301.7215397724$1215119301$gmane$org@goop.org>
-References: <486CE463.3070002@theshore.net>
-	<486CF3F7.3030309@goop.org>	<486CF789.7030700@theshore.net>
-	<486D0DA6.7010901@goop.org>	<486D197A.7040808@theshore.net>
-	<486D2AED.4020407@goop.org> <486D38D5.5000901@theshore.net>
+Subject: Re: [PATCH] xen: compilation fix for ia64 support.
+Date: Thu, 03 Jul 2008 14:51:03 -0700
+Message-ID: <486D49C7.5070702__42877.2823572674$1215121999$gmane$org@goop.org>
+References: <20080703070952.GB15683%yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <486D38D5.5000901@theshore.net>
+In-Reply-To: <20080703070952.GB15683%yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,27 +17,23 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Christopher S. Aker" <caker@theshore.net>
-Cc: Xen-devel <xen-devel@lists.xensource.com>, virtualization@lists.linux-foundation.org
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Christopher S. Aker wrote:
-> Jeremy Fitzhardinge wrote:
->   
->>> Although, looking at it again, I did miss this line:
->>>
->>> (XEN) mm.c:645:d341 Non-privileged (341) attempt to map I/O space 
->>> 000d2e50
->>>       
->> Good, that's what I was hoping to see.  (Well, actually not that 
->> *particular* message, which is strange, but some explanatory message at 
->> least.)
->>     
->
-> FWIW, I just tried 2.6.26-rc1 and it booted fine.  I can narrow it down 
-> further if that'd be useful to you.
+Isaku Yamahata wrote:
+> don't include asm/pvclock-abi.h directly, but asm/xen/pvclock-abi.h
+> At this moment linux ia64 won't accept asm/pvclock-abi.h because
+> there's no user of it.
+
+Huh?  Is this a ia64 maintainer policy?  Aren't you about to start using it?
+
+>  Instead make it include asm/xen/pvclock-abi.h
+> and create asm-x86/xen/pvclock-abi.h which includes asm-x86/pvclock-abi.h.
 >   
 
-Yes, please.
+I'm not very keen on crufting up asm-x86/xen/ for the ia64 code.  
+Couldn't you have an asm-ia64/xen/pvclock-abi.h which includes 
+<asm-x86/pvclock-abi.h>?
 
     J
