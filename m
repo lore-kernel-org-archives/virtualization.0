@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] ia64/xen: implement arch specific part of xen grant table.
-Date: Thu,  3 Jul 2008 15:54:48 +0900
-Message-ID: <12150681061191-git-send-email-yamahata__20614.6562858068$1215070668$gmane$org@valinux.co.jp>
+Subject: [PATCH] ia64/pv_ops/xen: paravirtualize entry.S for ia64/xen.
+Date: Thu,  3 Jul 2008 15:54:56 +0900
+Message-ID: <1215068106705-git-send-email-yamahata__49564.6706819118$1215070668$gmane$org@valinux.co.jp>
 References: <1215068105921-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,226 +21,80 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen implements grant tables which is for sharing pages with
-guest domains.
-This patch implements arch specific part of grant table initialization.
-and xen_alloc_vm_area()/xen_free_vm_area() which are helper functions
-for xen grant table.
+paravirtualize entry.S for ia64/xen by multi compile.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile             |    2 +-
- arch/ia64/xen/grant-table.c        |  155 ++++++++++++++++++++++++++++++++++++
- include/asm-ia64/xen/grant_table.h |   29 +++++++
- 3 files changed, 185 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/grant-table.c
- create mode 100644 include/asm-ia64/xen/grant_table.h
+ arch/ia64/xen/Makefile      |    2 +-
+ arch/ia64/xen/xen_pv_ops.c  |   18 ++++++++++++++++++
+ include/asm-ia64/xen/inst.h |    8 ++++++++
+ 3 files changed, 27 insertions(+), 1 deletions(-)
 
 diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index ae08822..eb59563 100644
+index 5c87e4a..9b77e8a 100644
 --- a/arch/ia64/xen/Makefile
 +++ b/arch/ia64/xen/Makefile
-@@ -2,4 +2,4 @@
- # Makefile for Xen components
- #
+@@ -8,7 +8,7 @@ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o \
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
  
--obj-y := hypercall.o xencomm.o xcom_hcall.o
-+obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
-diff --git a/arch/ia64/xen/grant-table.c b/arch/ia64/xen/grant-table.c
-new file mode 100644
-index 0000000..777dd9a
---- /dev/null
-+++ b/arch/ia64/xen/grant-table.c
-@@ -0,0 +1,155 @@
+ # xen multi compile
+-ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S
++ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
+ ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
+ obj-y += $(ASM_PARAVIRT_OBJS)
+ define paravirtualized_xen
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index b84286b..1ba4617 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -275,6 +275,22 @@ static const struct pv_cpu_ops xen_cpu_ops __initdata = {
+ 			= xen_intrin_local_irq_restore,
+ };
+ 
 +/******************************************************************************
-+ * arch/ia64/xen/grant-table.c
-+ *
-+ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
++ * replacement of hand written assembly codes.
 + */
 +
-+#include <linux/module.h>
-+#include <linux/vmalloc.h>
-+#include <linux/mm.h>
++extern char xen_switch_to;
++extern char xen_leave_syscall;
++extern char xen_work_processed_syscall;
++extern char xen_leave_kernel;
 +
-+#include <xen/interface/xen.h>
-+#include <xen/interface/memory.h>
-+#include <xen/grant_table.h>
++const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
++	.switch_to		= (unsigned long)&xen_switch_to,
++	.leave_syscall		= (unsigned long)&xen_leave_syscall,
++	.work_processed_syscall	= (unsigned long)&xen_work_processed_syscall,
++	.leave_kernel		= (unsigned long)&xen_leave_kernel,
++};
 +
-+#include <asm/xen/hypervisor.h>
+ /***************************************************************************
+  * pv_ops initialization
+  */
+@@ -286,4 +302,6 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_cpu_ops = xen_cpu_ops;
 +
-+struct vm_struct *xen_alloc_vm_area(unsigned long size)
-+{
-+	int order;
-+	unsigned long virt;
-+	unsigned long nr_pages;
-+	struct vm_struct *area;
++	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+ }
+diff --git a/include/asm-ia64/xen/inst.h b/include/asm-ia64/xen/inst.h
+index ed5ebeb..f4e1085 100644
+--- a/include/asm-ia64/xen/inst.h
++++ b/include/asm-ia64/xen/inst.h
+@@ -25,6 +25,14 @@
+ #define ia64_ivt				xen_ivt
+ #define DO_SAVE_MIN				XEN_DO_SAVE_MIN
+ 
++#define __paravirt_switch_to			xen_switch_to
++#define __paravirt_leave_syscall		xen_leave_syscall
++#define __paravirt_work_processed_syscall	xen_work_processed_syscall
++#define __paravirt_leave_kernel			xen_leave_kernel
++#define __paravirt_pending_syscall_end		xen_work_pending_syscall_end
++#define __paravirt_work_processed_syscall_target \
++						xen_work_processed_syscall
 +
-+	order = get_order(size);
-+	virt = __get_free_pages(GFP_KERNEL, order);
-+	if (virt == 0)
-+		goto err0;
-+	nr_pages = 1 << order;
-+	scrub_pages(virt, nr_pages);
-+
-+	area = kmalloc(sizeof(*area), GFP_KERNEL);
-+	if (area == NULL)
-+		goto err1;
-+
-+	area->flags = VM_IOREMAP;
-+	area->addr = (void *)virt;
-+	area->size = size;
-+	area->pages = NULL;
-+	area->nr_pages = nr_pages;
-+	area->phys_addr = 0;	/* xenbus_map_ring_valloc uses this field!  */
-+
-+	return area;
-+
-+err1:
-+	free_pages(virt, order);
-+err0:
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(xen_alloc_vm_area);
-+
-+void xen_free_vm_area(struct vm_struct *area)
-+{
-+	unsigned int order = get_order(area->size);
-+	unsigned long i;
-+	unsigned long phys_addr = __pa(area->addr);
-+
-+	/* This area is used for foreign page mappping.
-+	 * So underlying machine page may not be assigned. */
-+	for (i = 0; i < (1 << order); i++) {
-+		unsigned long ret;
-+		unsigned long gpfn = (phys_addr >> PAGE_SHIFT) + i;
-+		struct xen_memory_reservation reservation = {
-+			.nr_extents   = 1,
-+			.address_bits = 0,
-+			.extent_order = 0,
-+			.domid        = DOMID_SELF
-+		};
-+		set_xen_guest_handle(reservation.extent_start, &gpfn);
-+		ret = HYPERVISOR_memory_op(XENMEM_populate_physmap,
-+					   &reservation);
-+		BUG_ON(ret != 1);
-+	}
-+	free_pages((unsigned long)area->addr, order);
-+	kfree(area);
-+}
-+EXPORT_SYMBOL_GPL(xen_free_vm_area);
-+
-+
-+/****************************************************************************
-+ * grant table hack
-+ * cmd: GNTTABOP_xxx
-+ */
-+
-+int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
-+			   unsigned long max_nr_gframes,
-+			   struct grant_entry **__shared)
-+{
-+	*__shared = __va(frames[0] << PAGE_SHIFT);
-+	return 0;
-+}
-+
-+void arch_gnttab_unmap_shared(struct grant_entry *shared,
-+			      unsigned long nr_gframes)
-+{
-+	/* nothing */
-+}
-+
-+static void
-+gnttab_map_grant_ref_pre(struct gnttab_map_grant_ref *uop)
-+{
-+	uint32_t flags;
-+
-+	flags = uop->flags;
-+
-+	if (flags & GNTMAP_host_map) {
-+		if (flags & GNTMAP_application_map) {
-+			printk(KERN_DEBUG
-+			       "GNTMAP_application_map is not supported yet: "
-+			       "flags 0x%x\n", flags);
-+			BUG();
-+		}
-+		if (flags & GNTMAP_contains_pte) {
-+			printk(KERN_DEBUG
-+			       "GNTMAP_contains_pte is not supported yet: "
-+			       "flags 0x%x\n", flags);
-+			BUG();
-+		}
-+	} else if (flags & GNTMAP_device_map) {
-+		printk("GNTMAP_device_map is not supported yet 0x%x\n", flags);
-+		BUG();	/* not yet. actually this flag is not used. */
-+	} else {
-+		BUG();
-+	}
-+}
-+
-+int
-+HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count)
-+{
-+	if (cmd == GNTTABOP_map_grant_ref) {
-+		unsigned int i;
-+		for (i = 0; i < count; i++) {
-+			gnttab_map_grant_ref_pre(
-+				(struct gnttab_map_grant_ref *)uop + i);
-+		}
-+	}
-+	return xencomm_hypercall_grant_table_op(cmd, uop, count);
-+}
-+
-+EXPORT_SYMBOL(HYPERVISOR_grant_table_op);
-diff --git a/include/asm-ia64/xen/grant_table.h b/include/asm-ia64/xen/grant_table.h
-new file mode 100644
-index 0000000..ebdf2ea
---- /dev/null
-+++ b/include/asm-ia64/xen/grant_table.h
-@@ -0,0 +1,29 @@
-+/******************************************************************************
-+ * include/asm-ia64/xen/grant_table.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#ifndef _ASM_IA64_XEN_GRANT_TABLE_H
-+#define _ASM_IA64_XEN_GRANT_TABLE_H
-+
-+struct vm_struct *xen_alloc_vm_area(unsigned long size);
-+void xen_free_vm_area(struct vm_struct *area);
-+
-+#endif /* _ASM_IA64_XEN_GRANT_TABLE_H */
+ #define MOV_FROM_IFA(reg)	\
+ 	movl reg = XSI_IFA;	\
+ 	;;			\
 -- 
 1.5.3
