@@ -1,13 +1,13 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] xen: portability clean up and some minor clean up for
-	xencomm.c
-Date: Thu, 3 Jul 2008 16:12:09 +0900
-Message-ID: <20080703071209.GD15683%yamahata__30057.4187226177$1215069580$gmane$org@valinux.co.jp>
+Subject: [PATCH] ia64/pv_ops/xen: define the nubmer of irqs which xen needs.
+Date: Thu,  3 Jul 2008 15:54:58 +0900
+Message-ID: <12150681064081-git-send-email-yamahata__36530.6112020791$1215070034$gmane$org@valinux.co.jp>
+References: <1215068105921-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1215068105921-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,79 +17,81 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jeremy@goop.org
-Cc: xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Luck,
-	Tony" <tony.luck@intel.com>, xen-ia64-devel@lists.xensource.com
+To: linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-clean up of xencomm.c. is_phys_contiguous() is arch dependent
-function that depends on how virtual memory are laid out.
-So split out the function into arch specific code.
+define include/asm-ia64/xen/irq.h to define the number of
+irqs which xen needs.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- drivers/xen/xencomm.c |   23 ++++-------------------
- 1 files changed, 4 insertions(+), 19 deletions(-)
+ arch/ia64/kernel/nr-irqs.c |    1 +
+ include/asm-ia64/xen/irq.h |   44 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 45 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/irq.h
 
-diff --git a/drivers/xen/xencomm.c b/drivers/xen/xencomm.c
-index 797cb4e..a240b2c 100644
---- a/drivers/xen/xencomm.c
-+++ b/drivers/xen/xencomm.c
-@@ -23,13 +23,7 @@
- #include <asm/page.h>
- #include <xen/xencomm.h>
- #include <xen/interface/xen.h>
--#ifdef __ia64__
--#include <asm/xen/xencomm.h>	/* for is_kern_addr() */
--#endif
--
--#ifdef HAVE_XEN_PLATFORM_COMPAT_H
--#include <xen/platform-compat.h>
--#endif
-+#include <asm/xen/xencomm.h>	/* for xencomm_is_phys_contiguous() */
+diff --git a/arch/ia64/kernel/nr-irqs.c b/arch/ia64/kernel/nr-irqs.c
+index 1ae0491..bf89a8f 100644
+--- a/arch/ia64/kernel/nr-irqs.c
++++ b/arch/ia64/kernel/nr-irqs.c
+@@ -10,6 +10,7 @@
+ #include <linux/kbuild.h>
+ #include <linux/threads.h>
+ #include <asm-ia64/native/irq.h>
++#include <asm-ia64/xen/irq.h>
  
- static int xencomm_init(struct xencomm_desc *desc,
- 			void *buffer, unsigned long bytes)
-@@ -157,20 +151,11 @@ static int xencomm_create(void *buffer, unsigned long bytes,
- 	return 0;
- }
- 
--/* check if memory address is within VMALLOC region  */
--static int is_phys_contiguous(unsigned long addr)
--{
--	if (!is_kernel_addr(addr))
--		return 0;
--
--	return (addr < VMALLOC_START) || (addr >= VMALLOC_END);
--}
--
- static struct xencomm_handle *xencomm_create_inline(void *ptr)
+ void foo(void)
  {
- 	unsigned long paddr;
- 
--	BUG_ON(!is_phys_contiguous((unsigned long)ptr));
-+	BUG_ON(!xencomm_is_phys_contiguous((unsigned long)ptr));
- 
- 	paddr = (unsigned long)xencomm_pa(ptr);
- 	BUG_ON(paddr & XENCOMM_INLINE_FLAG);
-@@ -202,7 +187,7 @@ struct xencomm_handle *xencomm_map(void *ptr, unsigned long bytes)
- 	int rc;
- 	struct xencomm_desc *desc;
- 
--	if (is_phys_contiguous((unsigned long)ptr))
-+	if (xencomm_is_phys_contiguous((unsigned long)ptr))
- 		return xencomm_create_inline(ptr);
- 
- 	rc = xencomm_create(ptr, bytes, &desc, GFP_KERNEL);
-@@ -219,7 +204,7 @@ struct xencomm_handle *__xencomm_map_no_alloc(void *ptr, unsigned long bytes,
- 	int rc;
- 	struct xencomm_desc *desc = NULL;
- 
--	if (is_phys_contiguous((unsigned long)ptr))
-+	if (xencomm_is_phys_contiguous((unsigned long)ptr))
- 		return xencomm_create_inline(ptr);
- 
- 	rc = xencomm_create_mini(ptr, bytes, xc_desc,
+diff --git a/include/asm-ia64/xen/irq.h b/include/asm-ia64/xen/irq.h
+new file mode 100644
+index 0000000..3a5a15c
+--- /dev/null
++++ b/include/asm-ia64/xen/irq.h
+@@ -0,0 +1,44 @@
++/******************************************************************************
++ * include/asm-ia64/xen/irq.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifndef _ASM_IA64_XEN_IRQ_H
++#define _ASM_IA64_XEN_IRQ_H
++
++/*
++ * The flat IRQ space is divided into two regions:
++ *  1. A one-to-one mapping of real physical IRQs. This space is only used
++ *     if we have physical device-access privilege. This region is at the
++ *     start of the IRQ space so that existing device drivers do not need
++ *     to be modified to translate physical IRQ numbers into our IRQ space.
++ *  3. A dynamic mapping of inter-domain and Xen-sourced virtual IRQs. These
++ *     are bound using the provided bind/unbind functions.
++ */
++
++#define XEN_PIRQ_BASE		0
++#define XEN_NR_PIRQS		256
++
++#define XEN_DYNIRQ_BASE		(XEN_PIRQ_BASE + XEN_NR_PIRQS)
++#define XEN_NR_DYNIRQS		(NR_CPUS * 8)
++
++#define XEN_NR_IRQS		(XEN_NR_PIRQS + XEN_NR_DYNIRQS)
++
++#endif /* _ASM_IA64_XEN_IRQ_H */
 -- 
 1.5.3
