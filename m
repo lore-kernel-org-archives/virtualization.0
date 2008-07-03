@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] ia64/xen: add a neccessary header file to copmle
-	include/xen/interface/xen.h
-Date: Thu,  3 Jul 2008 15:54:43 +0900
-Message-ID: <12150681052496-git-send-email-yamahata__17601.9005979926$1215068364$gmane$org@valinux.co.jp>
+Subject: [PATCH] ia64: move function declaration,
+	ia64_cpu_local_tick() from .c to .h
+Date: Thu,  3 Jul 2008 15:54:37 +0900
+Message-ID: <12150681053484-git-send-email-yamahata__1425.15832926637$1215068466$gmane$org@valinux.co.jp>
 References: <1215068105921-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,63 +22,38 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Create include/asm-ia64/xen/pvclock-abi.h to compile.
+eliminate the function declaration ia64_cpu_local_tick() in
+process.c by defining in asm-ia64/timex.h
+The same function will be used in a different .c file later.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/xen/pvclock-abi.h |   44 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 44 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/pvclock-abi.h
+ arch/ia64/kernel/process.c |    1 -
+ include/asm-ia64/timex.h   |    2 ++
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/include/asm-ia64/xen/pvclock-abi.h b/include/asm-ia64/xen/pvclock-abi.h
-new file mode 100644
-index 0000000..0dcf3b4
---- /dev/null
-+++ b/include/asm-ia64/xen/pvclock-abi.h
-@@ -0,0 +1,44 @@
-+/* This file is stolen from include/asm-x86/pvclock-abi.h */
+diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
+index a3a34b4..1fbd9b8 100644
+--- a/arch/ia64/kernel/process.c
++++ b/arch/ia64/kernel/process.c
+@@ -247,7 +247,6 @@ default_idle (void)
+ /* We don't actually take CPU down, just spin without interrupts. */
+ static inline void play_dead(void)
+ {
+-	extern void ia64_cpu_local_tick (void);
+ 	unsigned int this_cpu = smp_processor_id();
+ 
+ 	/* Ack it */
+diff --git a/include/asm-ia64/timex.h b/include/asm-ia64/timex.h
+index 05a6baf..4e03cfe 100644
+--- a/include/asm-ia64/timex.h
++++ b/include/asm-ia64/timex.h
+@@ -39,4 +39,6 @@ get_cycles (void)
+ 	return ret;
+ }
+ 
++extern void ia64_cpu_local_tick (void);
 +
-+#ifndef _ASM_IA64_XEN_PVCLOCK_ABI_H_
-+#define _ASM_IA64_XEN_PVCLOCK_ABI_H_
-+#ifndef __ASSEMBLY__
-+
-+/*
-+ * These structs MUST NOT be changed.
-+ * They are the ABI between hypervisor and guest OS.
-+ * Both Xen and KVM are using this.
-+ *
-+* pvclock_vcpu_time_info holds the system time and the tsc timestamp
-+ * of the last update. So the guest can use the tsc delta to get a
-+ * more precise system time.  There is one per virtual cpu.
-+ *
-+ * pvclock_wall_clock references the point in time when the system
-+ * time was zero (usually boot time), thus the guest calculates the
-+ * current wall clock by adding the system time.
-+ *
-+ * Protocol for the "version" fields is: hypervisor raises it (making
-+ * it uneven) before it starts updating the fields and raises it again
-+ * (making it even) when it is done.  Thus the guest can make sure the
-+ * time values it got are consistent by checking the version before
-+ * and after reading them.
-+ */
-+
-+struct pvclock_vcpu_time_info {
-+	u32   version;
-+	u32   pad0;
-+	u64   tsc_timestamp;
-+	u64   system_time;
-+	u32   tsc_to_system_mul;
-+	s8    tsc_shift;
-+	u8    pad[3];
-+} __attribute__((__packed__)); /* 32 bytes */
-+
-+struct pvclock_wall_clock {
-+	u32   version;
-+	u32   sec;
-+	u32   nsec;
-+} __attribute__((__packed__));
-+
-+#endif /* __ASSEMBLY__ */
-+#endif /* _ASM_IA64_XEN_PVCLOCK_ABI_H_ */
+ #endif /* _ASM_IA64_TIMEX_H */
 -- 
 1.5.3
