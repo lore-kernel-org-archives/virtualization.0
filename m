@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] xen: compilation fix for ia64 support.
-Date: Thu, 3 Jul 2008 16:09:52 +0900
-Message-ID: <20080703070952.GB15683%yamahata__4985.22179336778$1215069573$gmane$org@valinux.co.jp>
+Subject: [PATCH] xen: remove load_cr3() from manage.c for ia64 support.
+Date: Thu, 3 Jul 2008 16:10:53 +0900
+Message-ID: <20080703071053.GC15683%yamahata__46565.9550544389$1215069578$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,42 +20,25 @@ To: jeremy@goop.org
 Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-don't include asm/pvclock-abi.h directly, but asm/xen/pvclock-abi.h
-At this moment linux ia64 won't accept asm/pvclock-abi.h because
-there's no user of it. Instead make it include asm/xen/pvclock-abi.h
-and create asm-x86/xen/pvclock-abi.h which includes asm-x86/pvclock-abi.h.
+remove load_cr3() from manage.c. It is unncessary and x86 dependent.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-x86/xen/pvclock-abi.h |    6 ++++++
- include/xen/interface/xen.h       |    2 +-
- 2 files changed, 7 insertions(+), 1 deletions(-)
- create mode 100644 include/asm-x86/xen/pvclock-abi.h
+ drivers/xen/manage.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-diff --git a/include/asm-x86/xen/pvclock-abi.h b/include/asm-x86/xen/pvclock-abi.h
-new file mode 100644
-index 0000000..a4476db
---- /dev/null
-+++ b/include/asm-x86/xen/pvclock-abi.h
-@@ -0,0 +1,6 @@
-+#ifndef __XEN_PVCLOCK_ABI_H
-+#define __XEN_PVCLOCK_ABI_H
-+
-+#include <asm-x86/pvclock-abi.h>
-+
-+#endif /* __XEN_PVCLOCK_ABI_H */
-diff --git a/include/xen/interface/xen.h b/include/xen/interface/xen.h
-index 2befa3e..c36888b 100644
---- a/include/xen/interface/xen.h
-+++ b/include/xen/interface/xen.h
-@@ -10,7 +10,7 @@
- #define __XEN_PUBLIC_XEN_H__
+diff --git a/drivers/xen/manage.c b/drivers/xen/manage.c
+index 2bb268e..e8db90c 100644
+--- a/drivers/xen/manage.c
++++ b/drivers/xen/manage.c
+@@ -39,8 +39,6 @@ static int xen_suspend(void *data)
  
- #include <asm/xen/interface.h>
--#include <asm/pvclock-abi.h>
-+#include <asm/xen/pvclock-abi.h>
+ 	BUG_ON(!irqs_disabled());
  
- /*
-  * XEN "SYSTEM CALLS" (a.k.a. HYPERCALLS).
+-	load_cr3(swapper_pg_dir);
+-
+ 	err = device_power_down(PMSG_SUSPEND);
+ 	if (err) {
+ 		printk(KERN_ERR "xen_suspend: device_power_down failed: %d\n",
 -- 
 1.5.3
