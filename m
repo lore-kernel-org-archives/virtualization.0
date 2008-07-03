@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] ia64/xen: increase IA64_MAX_RSVD_REGIONS.
-Date: Thu,  3 Jul 2008 15:54:40 +0900
-Message-ID: <1215068105810-git-send-email-yamahata__37500.2075605609$1215068988$gmane$org@valinux.co.jp>
+Subject: [PATCH] ia64/xen: define helper functions for xen related address
+	conversion.
+Date: Thu,  3 Jul 2008 15:54:44 +0900
+Message-ID: <1215068105923-git-send-email-yamahata__16899.8174406171$1215069038$gmane$org@valinux.co.jp>
 References: <1215068105921-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,35 +19,91 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, Bjorn Helgaas <bjorn.helgaas@hp.com>, xen-ia64-devel@lists.xensource.com, Robin Holt <holt@sgi.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xenlinux/ia64 needs to reserve one more region passed from xen hypervisor
-as start info.
+Xen needs some address conversions between pseudo physical
+address (guest phsyical address), guest machine address
+(real machine address) and dma address.
+Define helper functions for those address conversion.
 
-Cc: Robin Holt <holt@sgi.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/meminit.h |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ include/asm-ia64/xen/page.h |   65 +++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 65 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-ia64/xen/page.h
 
-diff --git a/include/asm-ia64/meminit.h b/include/asm-ia64/meminit.h
-index 7245a57..6bc96ee 100644
---- a/include/asm-ia64/meminit.h
-+++ b/include/asm-ia64/meminit.h
-@@ -18,10 +18,11 @@
-  * 	- crash dumping code reserved region
-  * 	- Kernel memory map built from EFI memory map
-  * 	- ELF core header
-+ *	- xen start info if CONFIG_XEN
-  *
-  * More could be added if necessary
-  */
--#define IA64_MAX_RSVD_REGIONS 8
-+#define IA64_MAX_RSVD_REGIONS 9
- 
- struct rsvd_region {
- 	unsigned long start;	/* virtual address of beginning of element */
+diff --git a/include/asm-ia64/xen/page.h b/include/asm-ia64/xen/page.h
+new file mode 100644
+index 0000000..c3c18f9
+--- /dev/null
++++ b/include/asm-ia64/xen/page.h
+@@ -0,0 +1,65 @@
++/******************************************************************************
++ * include/asm-ia64/xen/page.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifndef _ASM_IA64_XEN_PAGE_H
++#define _ASM_IA64_XEN_PAGE_H
++
++#define INVALID_P2M_ENTRY	(~0UL)
++
++static inline unsigned long mfn_to_pfn(unsigned long mfn)
++{
++	return mfn;
++}
++
++static inline unsigned long pfn_to_mfn(unsigned long pfn)
++{
++	return pfn;
++}
++
++#define phys_to_machine_mapping_valid(_x)	(1)
++
++static inline void *mfn_to_virt(unsigned long mfn)
++{
++	return __va(mfn << PAGE_SHIFT);
++}
++
++static inline unsigned long virt_to_mfn(void *virt)
++{
++	return __pa(virt) >> PAGE_SHIFT;
++}
++
++/* for tpmfront.c */
++static inline unsigned long virt_to_machine(void *virt)
++{
++	return __pa(virt);
++}
++
++static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
++{
++	/* nothing */
++}
++
++#define pte_mfn(_x)	pte_pfn(_x)
++#define mfn_pte(_x, _y)	__pte_ma(0)		/* unmodified use */
++#define __pte_ma(_x)	((pte_t) {(_x)})        /* unmodified use */
++
++#endif /* _ASM_IA64_XEN_PAGE_H */
 -- 
 1.5.3
