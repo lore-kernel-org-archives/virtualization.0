@@ -1,13 +1,12 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] ia64/pv_ops/xen: paravirtualize ivt.S for xen.
-Date: Thu,  3 Jul 2008 15:54:55 +0900
-Message-ID: <12150681062794-git-send-email-yamahata__12296.7732641429$1215069549$gmane$org@valinux.co.jp>
-References: <1215068105921-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH] xen/netfront: Avoid unaligned accesses to IP datagrams.
+Date: Thu, 3 Jul 2008 16:06:28 +0900
+Message-ID: <20080703070628.GA15683%yamahata__39498.5696454116$1215069563$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1215068105921-git-send-email-yamahata@valinux.co.jp>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,114 +16,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: jeremy@goop.org
+Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize ivt.S for xen by multi compile.
+Align ip header to a 16 byte boundary.
+This patch eliminates noisy warnings on IA64.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile      |   16 ++++++++++++-
- arch/ia64/xen/xenivt.S      |   52 +++++++++++++++++++++++++++++++++++++++++++
- include/asm-ia64/xen/inst.h |    1 +
- 3 files changed, 68 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/xenivt.S
+ drivers/net/xen-netfront.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 7cb4247..5c87e4a 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -2,5 +2,19 @@
- # Makefile for Xen components
- #
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 44aed80..2724688 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -239,11 +239,14 @@ static void xennet_alloc_rx_buffers(struct net_device *dev)
+ 	 */
+ 	batch_target = np->rx_target - (req_prod - np->rx.rsp_cons);
+ 	for (i = skb_queue_len(&np->rx_batch); i < batch_target; i++) {
+-		skb = __netdev_alloc_skb(dev, RX_COPY_THRESHOLD,
++		skb = __netdev_alloc_skb(dev, RX_COPY_THRESHOLD + NET_IP_ALIGN,
+ 					 GFP_ATOMIC | __GFP_NOWARN);
+ 		if (unlikely(!skb))
+ 			goto no_skb;
  
--obj-y := hypercall.o xensetup.o xen_pv_ops.o \
-+obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o \
- 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
++		/* Align ip header to a 16 bytes boundary */
++		skb_reserve(skb, NET_IP_ALIGN);
 +
-+AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
-+
-+# xen multi compile
-+ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S
-+ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
-+obj-y += $(ASM_PARAVIRT_OBJS)
-+define paravirtualized_xen
-+AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_XEN
-+endef
-+$(foreach o,$(ASM_PARAVIRT_OBJS),$(eval $(call paravirtualized_xen,$(o))))
-+
-+$(obj)/xen-%.o: $(src)/../kernel/%.S FORCE
-+	$(call if_changed_dep,as_o_S)
-diff --git a/arch/ia64/xen/xenivt.S b/arch/ia64/xen/xenivt.S
-new file mode 100644
-index 0000000..3e71d50
---- /dev/null
-+++ b/arch/ia64/xen/xenivt.S
-@@ -0,0 +1,52 @@
-+/*
-+ * arch/ia64/xen/ivt.S
-+ *
-+ * Copyright (C) 2005 Hewlett-Packard Co
-+ *	Dan Magenheimer <dan.magenheimer@hp.com>
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *                    pv_ops.
-+ */
-+
-+#include <asm/asmmacro.h>
-+#include <asm/kregs.h>
-+#include <asm/pgtable.h>
-+
-+#include "../kernel/minstate.h"
-+
-+	.section .text,"ax"
-+GLOBAL_ENTRY(xen_event_callback)
-+	mov r31=pr		// prepare to save predicates
-+	;;
-+	SAVE_MIN_WITH_COVER	// uses r31; defines r2 and r3
-+	;;
-+	movl r3=XSI_PSR_IC
-+	mov r14=1
-+	;;
-+	st4 [r3]=r14
-+	;;
-+	adds r3=8,r2		// set up second base pointer for SAVE_REST
-+	srlz.i			// ensure everybody knows psr.ic is back on
-+	;;
-+	SAVE_REST
-+	;;
-+1:
-+	alloc r14=ar.pfs,0,0,1,0 // must be first in an insn group
-+	add out0=16,sp		// pass pointer to pt_regs as first arg
-+	;;
-+	br.call.sptk.many b0=xen_evtchn_do_upcall
-+	;;
-+	movl r20=XSI_PSR_I_ADDR
-+	;;
-+	ld8 r20=[r20]
-+	;;
-+	adds r20=-1,r20		// vcpu_info->evtchn_upcall_pending
-+	;;
-+	ld1 r20=[r20]
-+	;;
-+	cmp.ne p6,p0=r20,r0	// if there are pending events,
-+	(p6) br.spnt.few 1b	// call evtchn_do_upcall again.
-+	br.sptk.many xen_leave_kernel	// we know ia64_leave_kernel is
-+					// paravirtualized as xen_leave_kernel
-+END(xen_event_callback)
-diff --git a/include/asm-ia64/xen/inst.h b/include/asm-ia64/xen/inst.h
-index f62e0b6..ed5ebeb 100644
---- a/include/asm-ia64/xen/inst.h
-+++ b/include/asm-ia64/xen/inst.h
-@@ -22,6 +22,7 @@
- 
- #include <asm/xen/privop.h>
- 
-+#define ia64_ivt				xen_ivt
- #define DO_SAVE_MIN				XEN_DO_SAVE_MIN
- 
- #define MOV_FROM_IFA(reg)	\
+ 		page = alloc_page(GFP_ATOMIC | __GFP_NOWARN);
+ 		if (!page) {
+ 			kfree_skb(skb);
 -- 
 1.5.3
+
+
+-- 
+yamahata
