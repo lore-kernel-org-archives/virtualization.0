@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] ia64/pv_ops/xen: define the nubmer of irqs which xen needs.
-Date: Thu,  3 Jul 2008 15:54:58 +0900
-Message-ID: <12150681064081-git-send-email-yamahata__36530.6112020791$1215070034$gmane$org@valinux.co.jp>
+Subject: [PATCH] ia64/xen: preliminary support for save/restore.
+Date: Thu,  3 Jul 2008 15:55:02 +0900
+Message-ID: <12150681061107-git-send-email-yamahata__21640.3360631832$1215070307$gmane$org@valinux.co.jp>
 References: <1215068105921-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,77 +21,146 @@ To: linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define include/asm-ia64/xen/irq.h to define the number of
-irqs which xen needs.
+preliminary support for save/restore.
+Although Save/restore isn't fully working yet, this patch is necessary
+to compile.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/nr-irqs.c |    1 +
- include/asm-ia64/xen/irq.h |   44 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 45 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/xen/irq.h
+ arch/ia64/xen/Makefile              |    2 +-
+ arch/ia64/xen/{time.h => suspend.c} |   40 +++++++++++++++++++++++++++++++++-
+ arch/ia64/xen/time.c                |   33 ++++++++++++++++++++++++++++
+ arch/ia64/xen/time.h                |    1 +
+ 4 files changed, 73 insertions(+), 3 deletions(-)
+ copy arch/ia64/xen/{time.h => suspend.c} (66%)
 
-diff --git a/arch/ia64/kernel/nr-irqs.c b/arch/ia64/kernel/nr-irqs.c
-index 1ae0491..bf89a8f 100644
---- a/arch/ia64/kernel/nr-irqs.c
-+++ b/arch/ia64/kernel/nr-irqs.c
-@@ -10,6 +10,7 @@
- #include <linux/kbuild.h>
- #include <linux/threads.h>
- #include <asm-ia64/native/irq.h>
-+#include <asm-ia64/xen/irq.h>
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index 972d085..0ad0224 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -3,7 +3,7 @@
+ #
  
- void foo(void)
- {
-diff --git a/include/asm-ia64/xen/irq.h b/include/asm-ia64/xen/irq.h
-new file mode 100644
-index 0000000..3a5a15c
---- /dev/null
-+++ b/include/asm-ia64/xen/irq.h
-@@ -0,0 +1,44 @@
-+/******************************************************************************
-+ * include/asm-ia64/xen/irq.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
+ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
+-	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
++	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o suspend.o
+ 
+ obj-$(CONFIG_IA64_GENERIC) += machvec.o
+ 
+diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/suspend.c
+similarity index 66%
+copy from arch/ia64/xen/time.h
+copy to arch/ia64/xen/suspend.c
+index b9c7ec5..b4ce6b6 100644
+--- a/arch/ia64/xen/time.h
++++ b/arch/ia64/xen/suspend.c
+@@ -1,5 +1,5 @@
+ /******************************************************************************
+- * arch/ia64/xen/time.h
++ * arch/ia64/xen/suspend.c
+  *
+  * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
+  *                    VA Linux Systems Japan K.K.
+@@ -18,6 +18,42 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  *
++ * suspend/resume
+  */
+ 
+-extern struct pv_time_ops xen_time_ops __initdata;
++#include <xen/xen-ops.h>
++#include <asm/xen/hypervisor.h>
++#include "time.h"
 +
-+#ifndef _ASM_IA64_XEN_IRQ_H
-+#define _ASM_IA64_XEN_IRQ_H
++void
++xen_mm_pin_all(void)
++{
++	/* nothing */
++}
 +
-+/*
-+ * The flat IRQ space is divided into two regions:
-+ *  1. A one-to-one mapping of real physical IRQs. This space is only used
-+ *     if we have physical device-access privilege. This region is at the
-+ *     start of the IRQ space so that existing device drivers do not need
-+ *     to be modified to translate physical IRQ numbers into our IRQ space.
-+ *  3. A dynamic mapping of inter-domain and Xen-sourced virtual IRQs. These
-+ *     are bound using the provided bind/unbind functions.
-+ */
++void
++xen_mm_unpin_all(void)
++{
++	/* nothing */
++}
 +
-+#define XEN_PIRQ_BASE		0
-+#define XEN_NR_PIRQS		256
++void
++xen_pre_suspend()
++{
++	/* nothing */
++}
 +
-+#define XEN_DYNIRQ_BASE		(XEN_PIRQ_BASE + XEN_NR_PIRQS)
-+#define XEN_NR_DYNIRQS		(NR_CPUS * 8)
++void
++xen_post_suspend(int suspend_cancelled)
++{
++	if (suspend_cancelled)
++		return;
 +
-+#define XEN_NR_IRQS		(XEN_NR_PIRQS + XEN_NR_DYNIRQS)
++	xen_ia64_enable_opt_feature();
++	/* add more if necessary */
++}
 +
-+#endif /* _ASM_IA64_XEN_IRQ_H */
++void xen_arch_resume(void)
++{
++	xen_timer_resume_on_aps();
++}
+diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
+index 3414f1e..81a61e8 100644
+--- a/arch/ia64/xen/time.c
++++ b/arch/ia64/xen/time.c
+@@ -26,6 +26,8 @@
+ #include <linux/irq.h>
+ #include <linux/clocksource.h>
+ 
++#include <asm/timex.h>
++
+ #include <asm/xen/hypervisor.h>
+ 
+ #include <xen/interface/vcpu.h>
+@@ -163,3 +165,34 @@ struct pv_time_ops xen_time_ops __initdata = {
+ 	.do_steal_accounting		= xen_do_steal_accounting,
+ 	.clocksource_resume		= xen_itc_jitter_data_reset,
+ };
++
++/* Called after suspend, to resume time.  */
++static void xen_local_tick_resume(void)
++{
++	/* Just trigger a tick.  */
++	ia64_cpu_local_tick();
++	touch_softlockup_watchdog();
++}
++
++void
++xen_timer_resume(void)
++{
++	unsigned int cpu;
++
++	xen_local_tick_resume();
++
++	for_each_online_cpu(cpu)
++		xen_init_missing_ticks_accounting(cpu);
++}
++
++static void ia64_cpu_local_tick_fn(void *unused)
++{
++	xen_local_tick_resume();
++	xen_init_missing_ticks_accounting(smp_processor_id());
++}
++
++void
++xen_timer_resume_on_aps(void)
++{
++	smp_call_function(&ia64_cpu_local_tick_fn, NULL, 0, 1);
++}
+diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
+index b9c7ec5..f98d7e1 100644
+--- a/arch/ia64/xen/time.h
++++ b/arch/ia64/xen/time.h
+@@ -21,3 +21,4 @@
+  */
+ 
+ extern struct pv_time_ops xen_time_ops __initdata;
++void xen_timer_resume_on_aps(void);
 -- 
 1.5.3
