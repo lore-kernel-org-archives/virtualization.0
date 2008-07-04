@@ -1,15 +1,11 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH] xen: compilation fix for ia64 support.
-Date: Fri, 4 Jul 2008 11:41:09 +0900
-Message-ID: <20080704024109.GE17895%yamahata__29170.1065063991$1215139398$gmane$org@valinux.co.jp>
-References: <20080703070952.GB15683%yamahata@valinux.co.jp>
-	<486D49C7.5070702@goop.org>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.2.0: Introduction
+Date: Fri, 04 Jul 2008 12:40:38 +0900 (JST)
+Message-ID: <20080704.124038.193696173.ryov__7666.05375470153$1215142977$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <486D49C7.5070702@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,68 +15,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, "Luck, Tony" <tony.luck@intel.com>
-Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
+Cc: agk@sourceware.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 03, 2008 at 02:51:03PM -0700, Jeremy Fitzhardinge wrote:
-> Isaku Yamahata wrote:
-> >don't include asm/pvclock-abi.h directly, but asm/xen/pvclock-abi.h
-> >At this moment linux ia64 won't accept asm/pvclock-abi.h because
-> >there's no user of it.
-> 
-> Huh?  Is this a ia64 maintainer policy?  Aren't you about to start using it?
+Hi everyone,
 
-Ah sorry, that was only what I expected. I haven't asked the maintainer yet.
-I'm asking now.
+This is the dm-ioband version 1.2.0 release.
 
+Dm-ioband is an I/O bandwidth controller implemented as a device-mapper
+driver, which gives specified bandwidth to each job running on the same
+physical device.
 
-> > Instead make it include asm/xen/pvclock-abi.h
-> >and create asm-x86/xen/pvclock-abi.h which includes asm-x86/pvclock-abi.h.
-> >  
-> 
-> I'm not very keen on crufting up asm-x86/xen/ for the ia64 code.  
-> Couldn't you have an asm-ia64/xen/pvclock-abi.h which includes 
-> <asm-x86/pvclock-abi.h>?
+- Can be applied to the kernel 2.6.26-rc5-mm3.
+- Changes from 1.1.0 (posted on June 2, 2008):
+  - Dynamic policy switching
+    A user can change the bandwidth control policy while the dm-ioband
+    device is active. It is useful when the dm-ioband device is used
+    as a root device.
+  - I/O smoothing take #1
+    This feature makes I/O requests of each group issued smoothly.
+    Once a certain group has used up its tokens, all I/O requests to
+    the group will be blocked until all the other groups used up theirs.
+    This feature is to minimize this blocking time.
+    We are now testing on the 2nd step and we will release it soon,
+    which will improve the smoothness significantly.
+  - Replace simple_strtol() with strict_strtol().
+  - Fix I/O errors encountered after "dmsetup resume."
 
-I'm file with that. In fact I don't have strong opinion here
-as long as the linux ia64 maintainer, Tony, is fine.
-
-Tony, what do you think about the following patch?
-- path
-  asm-ia64/pvclock-abi.h versus asm-ia64/xen/pvclock-abi.h
-- including asm-x86/pvclock-abi.h
-
-From fa958c98713f193eeab2cbe9bab1676059b850a3 Mon Sep 17 00:00:00 2001
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Date: Fri, 4 Jul 2008 11:29:33 +0900
-Subject: [PATCH] ia64/xen: add a neccessary header file to copmle include/xen/interface/xen.h
-
-Create include/asm-ia64/pvclock-abi.h to compile which includes
-include/asm-x86/pvclock-abi.h because ia64/xen uses same struture.
-Hopefully include/asm-x86/pvclock-abi.h would be moved to somewhere
-more generic.
-
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- include/asm-ia64/pvclock-abi.h |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
- create mode 100644 include/asm-ia64/pvclock-abi.h
-
-diff --git a/include/asm-ia64/pvclock-abi.h b/include/asm-ia64/pvclock-abi.h
-new file mode 100644
-index 0000000..1c34d11
---- /dev/null
-+++ b/include/asm-ia64/pvclock-abi.h
-@@ -0,0 +1,5 @@
-+/*
-+ * use same streucute to x86's
-+ * Hopefully asm-x86/pvclock-abi.h would be moved to somewhere more generic.
-+ */
-+#include <asm-x86/pvclock-abi.h>
--- 
-1.5.3
-
-
--- 
-yamahata
+Thanks,
+Ryo Tsuruta
+Linux Block I/O Bandwidth Control Project
+http://people.valinux.co.jp/~ryov/bwctl/
