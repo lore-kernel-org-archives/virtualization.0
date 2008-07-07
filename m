@@ -1,14 +1,11 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH RFC 2/4] paravirt: introduce a "lock-byte" spinlock
-	implementation
-Date: Mon, 07 Jul 2008 12:07:51 -0700
-Message-ID: <20080707190838.502036239__34677.3398844109$1215458494$gmane$org@goop.org>
-References: <20080707190749.299430659@goop.org>
+Subject: [PATCH RFC 0/4] Paravirtual spinlocks
+Date: Mon, 07 Jul 2008 12:07:49 -0700
+Message-ID: <20080707190749.299430659__10347.8175159127$1215458499$gmane$org@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=paravirt-byte-spinlock.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,137 +16,75 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Jens Axboe <axboe@kernel.dk>, Xen devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Christoph Lameter <clameter@linux-foundation.org>, Petr Tesarik <ptesarik@suse.cz>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Thomas Friebel <thomas.friebel@amd.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Ingo Molnar <mingo@elte.hu>
+Cc: Jens Axboe <axboe@kernel.dk>, Xen devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Christoph Lameter <clameter@linux-foundation.org>, Petr Tesarik <ptesarik@suse.cz>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Thomas Friebel <thomas.friebel@amd.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement a version of the old spinlock algorithm, in which everyone
-spins waiting for a lock byte.  In order to be compatible with the
-ticket-lock's use of a zero initializer, this uses the convention of
-'0' for unlocked and '1' for locked.
+At the most recent Xen Summit, Thomas Friebel presented a paper
+("Preventing Guests from Spinning Around",
+http://xen.org/files/xensummitboston08/LHP.pdf) investigating the
+interactions between spinlocks and virtual machines.  Specifically, he
+looked at what happens when a lock-holding VCPU gets involuntarily
+preempted.
 
-This algorithm is much better than ticket locks in a virtual
-envionment, because it doesn't interact badly with the vcpu scheduler.
-If there are multiple vcpus spinning on a lock and the lock is
-released, the next vcpu to be scheduled will take the lock, rather
-than cycling around until the next ticketed vcpu gets it.
+The obvious first order effect is that while the VCPU is not running,
+the effective critical region time goes from being microseconds to
+milliseconds, until it gets scheduled again.  This increases the
+chance that there will be be contention, and the contending VCPU will
+waste time spinning.
 
-To use this, you must call paravirt_use_bytelocks() very early, before
-any spinlocks have been taken.
+This is a measurable effect, but not terribly serious.  After all,
+since Linux tends to hold locks for very short periods of time,
+the likelihood of being preempted while holding a lock is low.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Thomas Friebel <thomas.friebel@amd.com>
----
- arch/x86/kernel/paravirt.c |    9 ++++++
- include/asm-x86/paravirt.h |    2 +
- include/asm-x86/spinlock.h |   65 +++++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 75 insertions(+), 1 deletion(-)
+The real eye-opener is the secondary effects specific to ticket locks.
 
-===================================================================
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -269,6 +269,15 @@
- 	return __get_cpu_var(paravirt_lazy_mode);
- }
- 
-+void __init paravirt_use_bytelocks(void)
-+{
-+	pv_lock_ops.spin_is_locked = __byte_spin_is_locked;
-+	pv_lock_ops.spin_is_contended = __byte_spin_is_contended;
-+	pv_lock_ops.spin_lock = __byte_spin_lock;
-+	pv_lock_ops.spin_trylock = __byte_spin_trylock;
-+	pv_lock_ops.spin_unlock = __byte_spin_unlock;
-+}
-+
- struct pv_info pv_info = {
- 	.name = "bare hardware",
- 	.paravirt_enabled = 0,
-===================================================================
---- a/include/asm-x86/paravirt.h
-+++ b/include/asm-x86/paravirt.h
-@@ -1388,6 +1388,8 @@
- void _paravirt_nop(void);
- #define paravirt_nop	((void *)_paravirt_nop)
- 
-+void paravirt_use_bytelocks(void);
-+
- static inline int __raw_spin_is_locked(struct raw_spinlock *lock)
- {
- 	return PVOP_CALL1(int, pv_lock_ops.spin_is_locked, lock);
-===================================================================
---- a/include/asm-x86/spinlock.h
-+++ b/include/asm-x86/spinlock.h
-@@ -184,7 +184,70 @@
- 
- #define __raw_spin_lock_flags(lock, flags) __raw_spin_lock(lock)
- 
--#ifndef CONFIG_PARAVIRT
-+#ifdef CONFIG_PARAVIRT
-+/*
-+ * Define virtualization-friendly old-style lock byte lock, for use in
-+ * pv_lock_ops if desired.
-+ *
-+ * This differs from the pre-2.6.24 spinlock by always using xchgb
-+ * rather than decb to take the lock; this allows it to use a
-+ * zero-initialized lock structure.  It also maintains a 1-byte
-+ * contention counter, so that we can implement
-+ * __byte_spin_is_contended.
-+ */
-+struct __byte_spinlock {
-+	s8 lock;
-+	s8 spinners;
-+};
-+
-+static inline int __byte_spin_is_locked(raw_spinlock_t *lock)
-+{
-+	struct __byte_spinlock *bl = (struct __byte_spinlock *)lock;
-+	return bl->lock != 0;
-+}
-+
-+static inline int __byte_spin_is_contended(raw_spinlock_t *lock)
-+{
-+	struct __byte_spinlock *bl = (struct __byte_spinlock *)lock;
-+	return bl->spinners != 0;
-+}
-+
-+static inline void __byte_spin_lock(raw_spinlock_t *lock)
-+{
-+	struct __byte_spinlock *bl = (struct __byte_spinlock *)lock;
-+	s8 val = 1;
-+
-+	asm("1: xchgb %1, %0\n"
-+	    "   test %1,%1\n"
-+	    "   jz 3f\n"
-+	    "   " LOCK_PREFIX "incb %2\n"
-+	    "2: rep;nop\n"
-+	    "   cmpb $1, %0\n"
-+	    "   je 2b\n"
-+	    "   " LOCK_PREFIX "decb %2\n"
-+	    "   jmp 1b\n"
-+	    "3:"
-+	    : "+m" (bl->lock), "+q" (val), "+m" (bl->spinners): : "memory");
-+}
-+
-+static inline int __byte_spin_trylock(raw_spinlock_t *lock)
-+{
-+	struct __byte_spinlock *bl = (struct __byte_spinlock *)lock;
-+	u8 old = 1;
-+
-+	asm("xchgb %1,%0"
-+	    : "+m" (bl->lock), "+q" (old) : : "memory");
-+
-+	return old == 0;
-+}
-+
-+static inline void __byte_spin_unlock(raw_spinlock_t *lock)
-+{
-+	struct __byte_spinlock *bl = (struct __byte_spinlock *)lock;
-+	smp_wmb();
-+	bl->lock = 0;
-+}
-+#else  /* !CONFIG_PARAVIRT */
- static inline int __raw_spin_is_locked(raw_spinlock_t *lock)
- {
- 	return __ticket_spin_is_locked(lock);
+Clearly ticket locks suffer the same problem as all spinlocks.  But
+when the lock holder releases the lock, the real fun begins.
 
+By design, ticket locks are strictly fair, by imposing a FIFO order
+lock holders.  The micro-architectural effect of this is that the
+lock cache line will bounce around between the contending CPUs until
+it finds the next in line, who then takes the lock and carries on.
+
+When running in a virtual machine, a similar effect happens at the
+VCPU level.  If all the contending VCPUs are not currently running on
+real CPUs, then VCPU scheduler will run some random subset of them.
+If it isn't a given VCPUs turn to take the lock, it will spin, burning
+a VCPU timeslice.  Eventually the next-in-line will get scheduled,
+take the lock, release it, and the remaining contending VCPUs will
+repeat the process until the next in line is scheduled.
+
+This means that the effective contention time of the lock is not
+merely the time if takes the original lock-holder to take and release
+the lock - including any preemption it may suffer - but the
+spin-scheduling storm that follows to schedule the right VCPU to next
+take the lock.  This could happen if the original contention was not
+as a result of preemption, but just normal spinlock level contention.
+
+One of the results Thomas presents is a kernbench run which normally
+takes less than a minute going for 45 minutes, with 99+% spent in
+ticket lock contention.  I've reproduced similar results.
+
+This series has:
+ - a paravirt_ops spinlock interface, which defaults to the standard
+   ticket lock algorithm,
+ - a second spinlock implementation based on the pre-ticket-lock
+   "lock-byte" algorithm,
+ - And a Xen-specific spinlock algorithm which voluntarily preempts a
+   VCPU if it spins for too long. [FOR REFERENCE ONLY: will not apply
+   to a current git tree.]
+
+When running on native hardware, the overhead of enabling
+CONFIG_PARAVIRT is an extra direct call/return on the lock/unlock
+paths; the paravirt-ops patching machinery eliminates any indirect
+calls.  With a small amount of restructuring, this overhead could be
+eliminated (by making spin_lock()/unlock() inline functions,
+containing calls to __raw_spin_lock/unlock).
+
+My experiments show that using a Xen-specific lock helps guest
+performance a bit (reduction in elapsed and system time in a kernbench
+run), but most significantly, reduces overall physical CPU consumption
+by 10%, and so increases overall system scalability.
+
+   J
 -- 
