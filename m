@@ -1,13 +1,13 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH RFC 4/4] xen: implement Xen-specific spinlocks
-Date: Mon, 07 Jul 2008 12:07:53 -0700
-Message-ID: <20080707190838.710151521@goop.org>
+Subject: [PATCH RFC 1/4] x86/paravirt: add hooks for spinlock operations
+Date: Mon, 07 Jul 2008 12:07:50 -0700
+Message-ID: <20080707190838.399905143__22014.6566666246$1215458489$gmane$org@goop.org>
 References: <20080707190749.299430659@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=xen-pv-spinlocks.patch
+Content-Disposition: inline; filename=paravirt-spinlocks.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,325 +21,301 @@ To: Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: Jens Axboe <axboe@kernel.dk>, Xen devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Christoph Lameter <clameter@linux-foundation.org>, Petr Tesarik <ptesarik@suse.cz>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Thomas Friebel <thomas.friebel@amd.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The standard ticket spinlocks are very expensive in a virtual
-environment, because their performance depends on Xen's scheduler
-giving vcpus time in the order that they're supposed to take the
-spinlock.
+Ticket spinlocks have absolutely ghastly worst-case performance
+characteristics in a virtual environment.  If there is any contention
+for physical CPUs (ie, there are more runnable vcpus than cpus), then
+ticket locks can cause the system to end up spending 90+% of its time
+spinning.
 
-This implements a Xen-specific spinlock, which should be much more
-efficient.
+The problem is that (v)cpus waiting on a ticket spinlock will be
+granted access to the lock in strict order they got their tickets.  If
+the hypervisor scheduler doesn't give the vcpus time in that order,
+they will burn timeslices waiting for the scheduler to give the right
+vcpu some time.  In the worst case it could take O(n^2) vcpu scheduler
+timeslices for everyone waiting on the lock to get it, not counting
+new cpus trying to take the lock while the log-jam is sorted out.
 
-The fast-path is essentially the old Linux-x86 locks, using a single
-lock byte.  The locker decrements the byte; if the result is 0, then
-they have the lock.  If the lock is negative, then locker must spin
-until the lock is positive again.
+These hooks allow a paravirt backend to replace the spinlock
+implementation.
 
-When there's contention, the locker spin for 2^16[*] iterations waiting
-to get the lock.  If it fails to get the lock in that time, it adds
-itself to the contention count in the lock and blocks on a per-cpu
-event channel.
+At the very least, this could revert the implementation back to the
+old lock algorithm, which allows the next scheduled vcpu to take the
+lock, and has basically fairly good performance.
 
-When unlocking the spinlock, the locker looks to see if there's anyone
-blocked waiting for the lock by checking for a non-zero waiter count.
-If there's a waiter, it traverses the per-cpu "lock_spinners"
-variable, which contains which lock each CPU is waiting on.  It picks
-one CPU waiting on the lock and sends it an event to wake it up.
+It also allows the spinlocks to take advantages of the hypervisor
+features to make locks more efficient (spin and block, for example).
 
-This allows efficient fast-path spinlock operation, while allowing
-spinning vcpus to give up their processor time while waiting for a
-contended lock.
+The cost to native execution is an extra direct call when using a
+spinlock function.  There's no overhead if CONFIG_PARAVIRT is turned
+off.
 
-[*] 2^16 iterations is threshold at which 98% locks have been taken
-according to Thomas Friebel's Xen Summit talk "Preventing Guests from
-Spinning Around".  Therefore, we'd expect the lock and unlock slow
-paths will only be entered 2% of the time.
+The lock structure is fixed at a single "unsigned int", initialized to
+zero, but the spinlock implementation can use it as it wishes.
+
+Thanks to Thomas Friebel's Xen Summit talk "Preventing Guests from
+Spinning Around" for pointing out this problem.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: Thomas Friebel <thomas.friebel@amd.com>
 ---
- arch/x86/xen/smp.c           |  172 +++++++++++++++++++++++++++++++++++++++++-
- drivers/xen/events.c         |   27 ++++++
- include/asm-x86/xen/events.h |    1 
- include/xen/events.h         |    7 +
- 4 files changed, 206 insertions(+), 1 deletion(-)
+ arch/x86/kernel/paravirt.c       |   10 ++++++
+ include/asm-x86/paravirt.h       |   37 +++++++++++++++++++++++++
+ include/asm-x86/spinlock.h       |   55 +++++++++++++++++++++++++++-----------
+ include/asm-x86/spinlock_types.h |    2 -
+ 4 files changed, 88 insertions(+), 16 deletions(-)
 
 ===================================================================
---- a/arch/x86/xen/smp.c
-+++ b/arch/x86/xen/smp.c
-@@ -15,6 +15,7 @@
-  * This does not handle HOTPLUG_CPU yet.
-  */
- #include <linux/sched.h>
-+#include <linux/kernel_stat.h>
- #include <linux/err.h>
- #include <linux/smp.h>
- 
-@@ -34,6 +35,8 @@
- 
- #include "xen-ops.h"
- #include "mmu.h"
-+
-+static void __cpuinit xen_init_lock_cpu(int cpu);
- 
- cpumask_t xen_cpu_initialized_map;
- 
-@@ -179,6 +182,8 @@
- {
- 	unsigned cpu;
- 
-+	xen_init_lock_cpu(0);
-+
- 	smp_store_cpu_info(0);
- 	cpu_data(0).x86_max_cores = 1;
- 	set_cpu_sibling_map(0);
-@@ -301,6 +306,7 @@
- 	clear_tsk_thread_flag(idle, TIF_FORK);
- #endif
- 	xen_setup_timer(cpu);
-+	xen_init_lock_cpu(cpu);
- 
- 	per_cpu(cpu_state, cpu) = CPU_UP_PREPARE;
- 
-@@ -413,6 +419,170 @@
- 	return IRQ_HANDLED;
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -123,6 +123,7 @@
+ 		.pv_irq_ops = pv_irq_ops,
+ 		.pv_apic_ops = pv_apic_ops,
+ 		.pv_mmu_ops = pv_mmu_ops,
++		.pv_lock_ops = pv_lock_ops,
+ 	};
+ 	return *((void **)&tmpl + type);
  }
+@@ -445,6 +446,15 @@
+ 	.set_fixmap = native_set_fixmap,
+ };
  
-+struct xen_spinlock {
-+	unsigned char lock;		/* 0 -> free; 1 -> locked */
-+	unsigned short spinners;	/* count of waiting cpus */
++struct pv_lock_ops pv_lock_ops = {
++	.spin_is_locked = __ticket_spin_is_locked,
++	.spin_is_contended = __ticket_spin_is_contended,
++
++	.spin_lock = __ticket_spin_lock,
++	.spin_trylock = __ticket_spin_trylock,
++	.spin_unlock = __ticket_spin_unlock,
 +};
 +
-+static int xen_spin_is_locked(struct raw_spinlock *lock)
-+{
-+	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
-+
-+	return xl->lock != 0;
-+}
-+
-+static int xen_spin_is_contended(struct raw_spinlock *lock)
-+{
-+	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
-+
-+	/* Not strictly true; this is only the count of contended
-+	   lock-takers entering the slow path. */
-+	return xl->spinners != 0;
-+}
-+
-+static int xen_spin_trylock(struct raw_spinlock *lock)
-+{
-+	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
-+	u8 old = 1;
-+
-+	asm("xchgb %b0,%1"
-+	    : "+q" (old), "+m" (xl->lock) : : "memory");
-+
-+	return old == 0;
-+}
-+
-+static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
-+static DEFINE_PER_CPU(struct xen_spinlock *, lock_spinners);
-+
-+static inline void spinning_lock(struct xen_spinlock *xl)
-+{
-+	__get_cpu_var(lock_spinners) = xl;
-+	wmb();			/* set lock of interest before count */
-+	asm(LOCK_PREFIX " incw %0"
-+	    : "+m" (xl->spinners) : : "memory");
-+}
-+
-+static inline void unspinning_lock(struct xen_spinlock *xl)
-+{
-+	asm(LOCK_PREFIX " decw %0"
-+	    : "+m" (xl->spinners) : : "memory");
-+	wmb();			/* decrement count before clearing lock */
-+	__get_cpu_var(lock_spinners) = NULL;
-+}
-+
-+static noinline int xen_spin_lock_slow(struct raw_spinlock *lock)
-+{
-+	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
-+	int irq = __get_cpu_var(lock_kicker_irq);
-+	int ret;
-+
-+	/* If kicker interrupts not initialized yet, just spin */
-+	if (irq == -1)
-+		return 0;
-+
-+	/* announce we're spinning */
-+	spinning_lock(xl);
-+
-+	/* clear pending */
-+	xen_clear_irq_pending(irq);
-+
-+	/* check again make sure it didn't become free while
-+	   we weren't looking  */
-+	ret = xen_spin_trylock(lock);
-+	if (ret)
-+		goto out;
-+
-+	/* block until irq becomes pending */
-+	xen_poll_irq(irq);
-+	kstat_this_cpu.irqs[irq]++;
-+
-+out:
-+	unspinning_lock(xl);
-+	return ret;
-+}
-+
-+static void xen_spin_lock(struct raw_spinlock *lock)
-+{
-+	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
-+	int timeout;
-+	u8 oldval;
-+
-+	do {
-+		timeout = 1 << 10;
-+
-+		asm("1: xchgb %1,%0\n"
-+		    "   testb %1,%1\n"
-+		    "   jz 3f\n"
-+		    "2: rep;nop\n"
-+		    "   cmpb $0,%0\n"
-+		    "   je 1b\n"
-+		    "   dec %2\n"
-+		    "   jnz 2b\n"
-+		    "3:\n"
-+		    : "+m" (xl->lock), "=q" (oldval), "+r" (timeout)
-+		    : "1" (1)
-+		    : "memory");
-+
-+	} while (unlikely(oldval != 0 && !xen_spin_lock_slow(lock)));
-+}
-+
-+static noinline void xen_spin_unlock_slow(struct xen_spinlock *xl)
-+{
-+	int cpu;
-+
-+	for_each_online_cpu(cpu) {
-+		/* XXX should mix up next cpu selection */
-+		if (per_cpu(lock_spinners, cpu) == xl) {
-+			xen_send_IPI_one(cpu, XEN_SPIN_UNLOCK_VECTOR);
-+			break;
-+		}
-+	}
-+}
-+
-+static void xen_spin_unlock(struct raw_spinlock *lock)
-+{
-+	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
-+
-+	smp_wmb();		/* make sure no writes get moved after unlock */
-+	xl->lock = 0;		/* release lock */
-+
-+	/* make sure unlock happens before kick */
-+	barrier();
-+
-+	if (unlikely(xl->spinners))
-+		xen_spin_unlock_slow(xl);
-+}
-+
-+static __cpuinit void xen_init_lock_cpu(int cpu)
-+{
-+	int irq;
-+	const char *name;
-+
-+	name = kasprintf(GFP_KERNEL, "spinlock%d", cpu);
-+	irq = bind_ipi_to_irqhandler(XEN_SPIN_UNLOCK_VECTOR,
-+				     cpu,
-+				     xen_reschedule_interrupt,
-+				     IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
-+				     name,
-+				     NULL);
-+
-+	if (irq >= 0) {
-+		disable_irq(irq); /* make sure it's never delivered */
-+		per_cpu(lock_kicker_irq, cpu) = irq;
-+	}
-+
-+	printk("cpu %d spinlock event irq %d\n", cpu, irq);
-+}
-+
-+static void __init xen_init_spinlocks(void)
-+{
-+	pv_lock_ops.spin_is_locked = xen_spin_is_locked;
-+	pv_lock_ops.spin_is_contended = xen_spin_is_contended;
-+	pv_lock_ops.spin_lock = xen_spin_lock;
-+	pv_lock_ops.spin_trylock = xen_spin_trylock;
-+	pv_lock_ops.spin_unlock = xen_spin_unlock;
-+}
-+
- static const struct smp_ops xen_smp_ops __initdata = {
- 	.smp_prepare_boot_cpu = xen_smp_prepare_boot_cpu,
- 	.smp_prepare_cpus = xen_smp_prepare_cpus,
-@@ -430,5 +600,5 @@
- {
- 	smp_ops = xen_smp_ops;
- 	xen_fill_possible_map();
--	paravirt_use_bytelocks();
-+	xen_init_spinlocks();
- }
+ EXPORT_SYMBOL_GPL(pv_time_ops);
+ EXPORT_SYMBOL    (pv_cpu_ops);
+ EXPORT_SYMBOL    (pv_mmu_ops);
 ===================================================================
---- a/drivers/xen/events.c
-+++ b/drivers/xen/events.c
-@@ -741,6 +741,33 @@
- 	}
- }
- 
-+/* Clear an irq's pending state, in preparation for polling on it */
-+void xen_clear_irq_pending(int irq)
-+{
-+	int evtchn = evtchn_from_irq(irq);
-+
-+	if (VALID_EVTCHN(evtchn))
-+		clear_evtchn(evtchn);
-+}
-+
-+/* Poll waiting for an irq to become pending.  In the usual case, the
-+   irq will be disabled so it won't deliver an interrupt. */
-+void xen_poll_irq(int irq)
-+{
-+	evtchn_port_t evtchn = evtchn_from_irq(irq);
-+
-+	if (VALID_EVTCHN(evtchn)) {
-+		struct sched_poll poll;
-+
-+		poll.nr_ports = 1;
-+		poll.timeout = 0;
-+		poll.ports = &evtchn;
-+
-+		if (HYPERVISOR_sched_op(SCHEDOP_poll, &poll) != 0)
-+			BUG();
-+	}
-+}
-+
- void xen_irq_resume(void)
- {
- 	unsigned int cpu, irq, evtchn;
-===================================================================
---- a/include/asm-x86/xen/events.h
-+++ b/include/asm-x86/xen/events.h
-@@ -5,6 +5,7 @@
- 	XEN_RESCHEDULE_VECTOR,
- 	XEN_CALL_FUNCTION_VECTOR,
- 	XEN_CALL_FUNCTION_SINGLE_VECTOR,
-+	XEN_SPIN_UNLOCK_VECTOR,
- 
- 	XEN_NR_IPIS,
+--- a/include/asm-x86/paravirt.h
++++ b/include/asm-x86/paravirt.h
+@@ -329,6 +329,15 @@
+ 			   unsigned long phys, pgprot_t flags);
  };
-===================================================================
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -45,4 +45,11 @@
- extern void xen_irq_resume(void);
- extern void xen_evtchn_do_upcall(struct pt_regs *regs);
  
-+/* Clear an irq's pending state, in preparation for polling on it */
-+void xen_clear_irq_pending(int irq);
++struct raw_spinlock;
++struct pv_lock_ops {
++	int (*spin_is_locked)(struct raw_spinlock *lock);
++	int (*spin_is_contended)(struct raw_spinlock *lock);
++	void (*spin_lock)(struct raw_spinlock *lock);
++	int (*spin_trylock)(struct raw_spinlock *lock);
++	void (*spin_unlock)(struct raw_spinlock *lock);
++};
 +
-+/* Poll waiting for an irq to become pending.  In the usual case, the
-+   irq will be disabled so it won't deliver an interrupt. */
-+void xen_poll_irq(int irq);
+ /* This contains all the paravirt structures: we get a convenient
+  * number for each function using the offset which we use to indicate
+  * what to patch. */
+@@ -339,6 +348,7 @@
+ 	struct pv_irq_ops pv_irq_ops;
+ 	struct pv_apic_ops pv_apic_ops;
+ 	struct pv_mmu_ops pv_mmu_ops;
++	struct pv_lock_ops pv_lock_ops;
+ };
+ 
+ extern struct pv_info pv_info;
+@@ -348,6 +358,7 @@
+ extern struct pv_irq_ops pv_irq_ops;
+ extern struct pv_apic_ops pv_apic_ops;
+ extern struct pv_mmu_ops pv_mmu_ops;
++extern struct pv_lock_ops pv_lock_ops;
+ 
+ #define PARAVIRT_PATCH(x)					\
+ 	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
+@@ -1377,6 +1388,31 @@
+ void _paravirt_nop(void);
+ #define paravirt_nop	((void *)_paravirt_nop)
+ 
++static inline int __raw_spin_is_locked(struct raw_spinlock *lock)
++{
++	return PVOP_CALL1(int, pv_lock_ops.spin_is_locked, lock);
++}
 +
- #endif	/* _XEN_EVENTS_H */
++static inline int __raw_spin_is_contended(struct raw_spinlock *lock)
++{
++	return PVOP_CALL1(int, pv_lock_ops.spin_is_contended, lock);
++}
++
++static __always_inline void __raw_spin_lock(struct raw_spinlock *lock)
++{
++	return PVOP_VCALL1(pv_lock_ops.spin_lock, lock);
++}
++
++static __always_inline int __raw_spin_trylock(struct raw_spinlock *lock)
++{
++	return PVOP_CALL1(int, pv_lock_ops.spin_trylock, lock);
++}
++
++static __always_inline void __raw_spin_unlock(struct raw_spinlock *lock)
++{
++	return PVOP_VCALL1(pv_lock_ops.spin_unlock, lock);
++}
++
+ /* These all sit in the .parainstructions section to tell us what to patch. */
+ struct paravirt_patch_site {
+ 	u8 *instr; 		/* original instructions */
+@@ -1461,6 +1497,7 @@
+ 	return f;
+ }
+ 
++
+ /* Make sure as little as possible of this mess escapes. */
+ #undef PARAVIRT_CALL
+ #undef __PVOP_CALL
+===================================================================
+--- a/include/asm-x86/spinlock.h
++++ b/include/asm-x86/spinlock.h
+@@ -6,7 +6,7 @@
+ #include <asm/page.h>
+ #include <asm/processor.h>
+ #include <linux/compiler.h>
+-
++#include <asm/paravirt.h>
+ /*
+  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+  *
+@@ -54,21 +54,21 @@
+  * much between them in performance though, especially as locks are out of line.
+  */
+ #if (NR_CPUS < 256)
+-static inline int __raw_spin_is_locked(raw_spinlock_t *lock)
++static inline int __ticket_spin_is_locked(raw_spinlock_t *lock)
+ {
+ 	int tmp = ACCESS_ONCE(lock->slock);
+ 
+ 	return (((tmp >> 8) & 0xff) != (tmp & 0xff));
+ }
+ 
+-static inline int __raw_spin_is_contended(raw_spinlock_t *lock)
++static inline int __ticket_spin_is_contended(raw_spinlock_t *lock)
+ {
+ 	int tmp = ACCESS_ONCE(lock->slock);
+ 
+ 	return (((tmp >> 8) & 0xff) - (tmp & 0xff)) > 1;
+ }
+ 
+-static __always_inline void __raw_spin_lock(raw_spinlock_t *lock)
++static __always_inline void __ticket_spin_lock(raw_spinlock_t *lock)
+ {
+ 	short inc = 0x0100;
+ 
+@@ -87,9 +87,7 @@
+ 		: "memory", "cc");
+ }
+ 
+-#define __raw_spin_lock_flags(lock, flags) __raw_spin_lock(lock)
+-
+-static __always_inline int __raw_spin_trylock(raw_spinlock_t *lock)
++static __always_inline int __ticket_spin_trylock(raw_spinlock_t *lock)
+ {
+ 	int tmp;
+ 	short new;
+@@ -110,7 +108,7 @@
+ 	return tmp;
+ }
+ 
+-static __always_inline void __raw_spin_unlock(raw_spinlock_t *lock)
++static __always_inline void __ticket_spin_unlock(raw_spinlock_t *lock)
+ {
+ 	asm volatile(UNLOCK_LOCK_PREFIX "incb %0"
+ 		     : "+m" (lock->slock)
+@@ -118,21 +116,21 @@
+ 		     : "memory", "cc");
+ }
+ #else
+-static inline int __raw_spin_is_locked(raw_spinlock_t *lock)
++static inline int __ticket_spin_is_locked(raw_spinlock_t *lock)
+ {
+ 	int tmp = ACCESS_ONCE(lock->slock);
+ 
+ 	return (((tmp >> 16) & 0xffff) != (tmp & 0xffff));
+ }
+ 
+-static inline int __raw_spin_is_contended(raw_spinlock_t *lock)
++static inline int __ticket_spin_is_contended(raw_spinlock_t *lock)
+ {
+ 	int tmp = ACCESS_ONCE(lock->slock);
+ 
+ 	return (((tmp >> 16) & 0xffff) - (tmp & 0xffff)) > 1;
+ }
+ 
+-static __always_inline void __raw_spin_lock(raw_spinlock_t *lock)
++static __always_inline void __ticket_spin_lock(raw_spinlock_t *lock)
+ {
+ 	int inc = 0x00010000;
+ 	int tmp;
+@@ -153,9 +151,7 @@
+ 		     : "memory", "cc");
+ }
+ 
+-#define __raw_spin_lock_flags(lock, flags) __raw_spin_lock(lock)
+-
+-static __always_inline int __raw_spin_trylock(raw_spinlock_t *lock)
++static __always_inline int __ticket_spin_trylock(raw_spinlock_t *lock)
+ {
+ 	int tmp;
+ 	int new;
+@@ -177,7 +173,7 @@
+ 	return tmp;
+ }
+ 
+-static __always_inline void __raw_spin_unlock(raw_spinlock_t *lock)
++static __always_inline void __ticket_spin_unlock(raw_spinlock_t *lock)
+ {
+ 	asm volatile(UNLOCK_LOCK_PREFIX "incw %0"
+ 		     : "+m" (lock->slock)
+@@ -185,6 +181,35 @@
+ 		     : "memory", "cc");
+ }
+ #endif
++
++#define __raw_spin_lock_flags(lock, flags) __raw_spin_lock(lock)
++
++#ifndef CONFIG_PARAVIRT
++static inline int __raw_spin_is_locked(raw_spinlock_t *lock)
++{
++	return __ticket_spin_is_locked(lock);
++}
++
++static inline int __raw_spin_is_contended(raw_spinlock_t *lock)
++{
++	return __ticket_spin_is_contended(lock);
++}
++
++static __always_inline void __raw_spin_lock(raw_spinlock_t *lock)
++{
++	__ticket_spin_lock(lock);
++}
++
++static __always_inline int __raw_spin_trylock(raw_spinlock_t *lock)
++{
++	return __ticket_spin_trylock(lock);
++}
++
++static __always_inline void __raw_spin_unlock(raw_spinlock_t *lock)
++{
++	__ticket_spin_unlock(lock);
++}
++#endif	/* CONFIG_PARAVIRT */
+ 
+ static inline void __raw_spin_unlock_wait(raw_spinlock_t *lock)
+ {
+===================================================================
+--- a/include/asm-x86/spinlock_types.h
++++ b/include/asm-x86/spinlock_types.h
+@@ -5,7 +5,7 @@
+ # error "please don't include this file directly"
+ #endif
+ 
+-typedef struct {
++typedef struct raw_spinlock {
+ 	unsigned int slock;
+ } raw_spinlock_t;
+ 
 
 -- 
