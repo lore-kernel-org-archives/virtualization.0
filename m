@@ -1,257 +1,359 @@
-From: Ben-Ami Yassour <benami@il.ibm.com>
-Subject: Re: [PATCH 2/4] KVM: Introduce a callback routine for IOAPIC ack
-	handling
-Date: Tue, 08 Jul 2008 13:34:43 +0300
-Message-ID: <1215513283.31546.133.camel@cluwyn.haifa.ibm.com>
-References: <1214571305-20701-1-git-send-email-amit.shah@qumranet.com>
-	 <1214571305-20701-2-git-send-email-amit.shah@qumranet.com>
-	 <1214571305-20701-3-git-send-email-amit.shah@qumranet.com>
-	 <4871EB36.5030003@qumranet.com>
+From: Johannes Weiner <hannes@saeurebad.de>
+Subject: Re: [PATCH RFC 4/4] xen: implement Xen-specific spinlocks
+Date: Tue, 08 Jul 2008 08:37:33 +0200
+Message-ID: <87tzf0q3te.fsf__36271.4243507527$1215529904$gmane$org@saeurebad.de>
+References: <20080707190749.299430659@goop.org>
+	<20080707190838.710151521@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <4871EB36.5030003@qumranet.com>
-Sender: kvm-owner@vger.kernel.org
-To: Avi Kivity <avi@qumranet.com>
-Cc: Amit Shah <amit.shah@qumranet.com>, kvm@vger.kernel.org, Muli Ben-Yehuda <muli@il.ibm.com>, allen.m.kay@intel.com, chrisw@redhat.com, weidong.han@intel.com, virtualization@lists.osdl.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20080707190838.710151521@goop.org> (Jeremy Fitzhardinge's
+	message of "Mon, 07 Jul 2008 12:07:53 -0700")
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Nick Piggin <nickpiggin@yahoo.com.au>, Xen devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Christoph Lameter <clameter@linux-foundation.org>, Petr Tesarik <ptesarik@suse.cz>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Thomas Friebel <thomas.friebel@amd.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2008-07-07 at 13:08 +0300, Avi Kivity wrote:
-> Amit Shah wrote:
-> > This will be useful for acking irqs of assigned devices
-> >
-> >   
-> 
-> And also for improving time drift tracking.
-> 
-> Please make this more generic by having a list of callbacks.  There 
-> could also be just one list, rather than one for the ioapic and one for 
-> the pic as implemented now.
-> 
-> It may also make sense to filter the irq number before calling the 
-> callback rather than relying on the callback to ignore uninteresting irqs.
-> 
-Avi,
+Hi,
 
-Did you mean something like the patch below?
-How should we protect list accesses, should it be a new lock or an existing one?
+Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
-Regards,
-Ben
+> The standard ticket spinlocks are very expensive in a virtual
+> environment, because their performance depends on Xen's scheduler
+> giving vcpus time in the order that they're supposed to take the
+> spinlock.
+>
+> This implements a Xen-specific spinlock, which should be much more
+> efficient.
+>
+> The fast-path is essentially the old Linux-x86 locks, using a single
+> lock byte.  The locker decrements the byte; if the result is 0, then
+> they have the lock.  If the lock is negative, then locker must spin
+> until the lock is positive again.
+>
+> When there's contention, the locker spin for 2^16[*] iterations waiting
+> to get the lock.  If it fails to get the lock in that time, it adds
+> itself to the contention count in the lock and blocks on a per-cpu
+> event channel.
+>
+> When unlocking the spinlock, the locker looks to see if there's anyone
+> blocked waiting for the lock by checking for a non-zero waiter count.
+> If there's a waiter, it traverses the per-cpu "lock_spinners"
+> variable, which contains which lock each CPU is waiting on.  It picks
+> one CPU waiting on the lock and sends it an event to wake it up.
+>
+> This allows efficient fast-path spinlock operation, while allowing
+> spinning vcpus to give up their processor time while waiting for a
+> contended lock.
+>
+> [*] 2^16 iterations is threshold at which 98% locks have been taken
+> according to Thomas Friebel's Xen Summit talk "Preventing Guests from
+> Spinning Around".  Therefore, we'd expect the lock and unlock slow
+> paths will only be entered 2% of the time.
+>
+> Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+> Cc: Thomas Friebel <thomas.friebel@amd.com>
+> ---
+>  arch/x86/xen/smp.c           |  172 +++++++++++++++++++++++++++++++++++++++++-
+>  drivers/xen/events.c         |   27 ++++++
+>  include/asm-x86/xen/events.h |    1 
+>  include/xen/events.h         |    7 +
+>  4 files changed, 206 insertions(+), 1 deletion(-)
+>
+> ===================================================================
+> --- a/arch/x86/xen/smp.c
+> +++ b/arch/x86/xen/smp.c
+> @@ -15,6 +15,7 @@
+>   * This does not handle HOTPLUG_CPU yet.
+>   */
+>  #include <linux/sched.h>
+> +#include <linux/kernel_stat.h>
+>  #include <linux/err.h>
+>  #include <linux/smp.h>
+>  
+> @@ -34,6 +35,8 @@
+>  
+>  #include "xen-ops.h"
+>  #include "mmu.h"
+> +
+> +static void __cpuinit xen_init_lock_cpu(int cpu);
+>  
+>  cpumask_t xen_cpu_initialized_map;
+>  
+> @@ -179,6 +182,8 @@
+>  {
+>  	unsigned cpu;
+>  
+> +	xen_init_lock_cpu(0);
+> +
+>  	smp_store_cpu_info(0);
+>  	cpu_data(0).x86_max_cores = 1;
+>  	set_cpu_sibling_map(0);
+> @@ -301,6 +306,7 @@
+>  	clear_tsk_thread_flag(idle, TIF_FORK);
+>  #endif
+>  	xen_setup_timer(cpu);
+> +	xen_init_lock_cpu(cpu);
+>  
+>  	per_cpu(cpu_state, cpu) = CPU_UP_PREPARE;
+>  
+> @@ -413,6 +419,170 @@
+>  	return IRQ_HANDLED;
+>  }
+>  
+> +struct xen_spinlock {
+> +	unsigned char lock;		/* 0 -> free; 1 -> locked */
+> +	unsigned short spinners;	/* count of waiting cpus */
+> +};
+> +
+> +static int xen_spin_is_locked(struct raw_spinlock *lock)
+> +{
+> +	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
+> +
+> +	return xl->lock != 0;
+> +}
+> +
+> +static int xen_spin_is_contended(struct raw_spinlock *lock)
+> +{
+> +	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
+> +
+> +	/* Not strictly true; this is only the count of contended
+> +	   lock-takers entering the slow path. */
+> +	return xl->spinners != 0;
+> +}
+> +
+> +static int xen_spin_trylock(struct raw_spinlock *lock)
+> +{
+> +	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
+> +	u8 old = 1;
+> +
+> +	asm("xchgb %b0,%1"
+> +	    : "+q" (old), "+m" (xl->lock) : : "memory");
+> +
+> +	return old == 0;
+> +}
+> +
+> +static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
+> +static DEFINE_PER_CPU(struct xen_spinlock *, lock_spinners);
 
-From 102013bdd75e8141027e461ae5834138f561a3c3 Mon Sep 17 00:00:00 2001
-From: Ben-Ami Yassour <benami@il.ibm.com>
-Date: Tue, 8 Jul 2008 13:30:01 +0300
-Subject: [PATCH] KVM: interrupt ack notifier list
+The plural is a bit misleading, as this is a single pointer per CPU.
 
-API to get notification when a guest acks an interrupt.
+> +static inline void spinning_lock(struct xen_spinlock *xl)
+> +{
+> +	__get_cpu_var(lock_spinners) = xl;
+> +	wmb();			/* set lock of interest before count */
+> +	asm(LOCK_PREFIX " incw %0"
+> +	    : "+m" (xl->spinners) : : "memory");
+> +}
+> +
+> +static inline void unspinning_lock(struct xen_spinlock *xl)
+> +{
+> +	asm(LOCK_PREFIX " decw %0"
+> +	    : "+m" (xl->spinners) : : "memory");
+> +	wmb();			/* decrement count before clearing lock */
+> +	__get_cpu_var(lock_spinners) = NULL;
+> +}
+> +
+> +static noinline int xen_spin_lock_slow(struct raw_spinlock *lock)
+> +{
+> +	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
+> +	int irq = __get_cpu_var(lock_kicker_irq);
+> +	int ret;
+> +
+> +	/* If kicker interrupts not initialized yet, just spin */
+> +	if (irq == -1)
+> +		return 0;
+> +
+> +	/* announce we're spinning */
+> +	spinning_lock(xl);
+> +
+> +	/* clear pending */
+> +	xen_clear_irq_pending(irq);
+> +
+> +	/* check again make sure it didn't become free while
+> +	   we weren't looking  */
+> +	ret = xen_spin_trylock(lock);
+> +	if (ret)
+> +		goto out;
+> +
+> +	/* block until irq becomes pending */
+> +	xen_poll_irq(irq);
+> +	kstat_this_cpu.irqs[irq]++;
+> +
+> +out:
+> +	unspinning_lock(xl);
+> +	return ret;
+> +}
+> +
+> +static void xen_spin_lock(struct raw_spinlock *lock)
+> +{
+> +	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
+> +	int timeout;
+> +	u8 oldval;
+> +
+> +	do {
+> +		timeout = 1 << 10;
+> +
+> +		asm("1: xchgb %1,%0\n"
+> +		    "   testb %1,%1\n"
+> +		    "   jz 3f\n"
+> +		    "2: rep;nop\n"
+> +		    "   cmpb $0,%0\n"
+> +		    "   je 1b\n"
+> +		    "   dec %2\n"
+> +		    "   jnz 2b\n"
+> +		    "3:\n"
+> +		    : "+m" (xl->lock), "=q" (oldval), "+r" (timeout)
+> +		    : "1" (1)
+> +		    : "memory");
+> +
+> +	} while (unlikely(oldval != 0 && !xen_spin_lock_slow(lock)));
+> +}
+> +
+> +static noinline void xen_spin_unlock_slow(struct xen_spinlock *xl)
+> +{
+> +	int cpu;
+> +
+> +	for_each_online_cpu(cpu) {
 
-Signed-off-by: Ben-Ami Yassour <benami@il.ibm.com>
----
- arch/x86/kvm/i8259.c       |    4 ++-
- arch/x86/kvm/irq.c         |    2 +-
- arch/x86/kvm/irq.h         |    2 +-
- arch/x86/kvm/x86.c         |   84 ++++++++++++++++++++++++++++++++++++++++++++
- include/asm-x86/kvm_host.h |   10 +++++
- 5 files changed, 99 insertions(+), 3 deletions(-)
+Would it be feasible to have a bitmap for the spinning CPUs in order to
+do a for_each_spinning_cpu() here instead?  Or is setting a bit in
+spinning_lock() and unsetting it in unspinning_lock() more overhead than
+going over all CPUs here?
 
-diff --git a/arch/x86/kvm/i8259.c b/arch/x86/kvm/i8259.c
-index 5857f59..9160343 100644
---- a/arch/x86/kvm/i8259.c
-+++ b/arch/x86/kvm/i8259.c
-@@ -151,9 +151,10 @@ static inline void pic_intack(struct kvm_kpic_state *s, int irq)
- 		s->irr &= ~(1 << irq);
- }
- 
--int kvm_pic_read_irq(struct kvm_pic *s)
-+int kvm_pic_read_irq(struct kvm *kvm)
- {
- 	int irq, irq2, intno;
-+	struct kvm_pic *s = pic_irqchip(kvm);
- 
- 	irq = pic_get_irq(&s->pics[0]);
- 	if (irq >= 0) {
-@@ -178,6 +179,7 @@ int kvm_pic_read_irq(struct kvm_pic *s)
- 		irq = 7;
- 		intno = s->pics[0].irq_base + irq;
- 	}
-+	notify_interrupt_ack(kvm, irq);
- 	pic_update_irq(s);
- 
- 	return intno;
-diff --git a/arch/x86/kvm/irq.c b/arch/x86/kvm/irq.c
-index 76d736b..cf29c02 100644
---- a/arch/x86/kvm/irq.c
-+++ b/arch/x86/kvm/irq.c
-@@ -72,7 +72,7 @@ int kvm_cpu_get_interrupt(struct kvm_vcpu *v)
- 		if (kvm_apic_accept_pic_intr(v)) {
- 			s = pic_irqchip(v->kvm);
- 			s->output = 0;		/* PIC */
--			vector = kvm_pic_read_irq(s);
-+			vector = kvm_pic_read_irq(v->kvm);
- 		}
- 	}
- 	return vector;
-diff --git a/arch/x86/kvm/irq.h b/arch/x86/kvm/irq.h
-index 2a15be2..7657654 100644
---- a/arch/x86/kvm/irq.h
-+++ b/arch/x86/kvm/irq.h
-@@ -65,7 +65,7 @@ struct kvm_pic {
- 
- struct kvm_pic *kvm_create_pic(struct kvm *kvm);
- void kvm_pic_set_irq(void *opaque, int irq, int level);
--int kvm_pic_read_irq(struct kvm_pic *s);
-+int kvm_pic_read_irq(struct kvm *kvm);
- void kvm_pic_update_irq(struct kvm_pic *s);
- 
- static inline struct kvm_pic *pic_irqchip(struct kvm *kvm)
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 5a83c3b..6d33f00 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -199,6 +199,88 @@ static void __queue_exception(struct kvm_vcpu *vcpu)
- 				     vcpu->arch.exception.error_code);
- }
- 
-+void notify_interrupt_ack(struct kvm *kvm, int irq)
-+{
-+	struct list_head *ptr;
-+	struct interrupt_ack_notifier *notifier;
-+
-+	list_for_each(ptr, &kvm->arch.interrupt_ack_notifier) {
-+		notifier = list_entry(ptr, struct interrupt_ack_notifier, list);
-+		if (irq == notifier->irq)
-+			notifier->callback(notifier->opaque, irq);
-+	}
-+}
-+
-+static int
-+register_interrupt_ack_notifier(struct kvm *kvm,
-+				int irq,
-+				void (*callback)(void *opaque, int irq),
-+				void *opaque)
-+{
-+	struct interrupt_ack_notifier *notifier;
-+	
-+	notifier = kzalloc(sizeof(struct interrupt_ack_notifier), GFP_KERNEL);
-+	if (notifier == NULL) {
-+		printk(KERN_INFO "%s: Couldn't allocate memory\n", __func__);
-+		return -ENOMEM;
-+	}
-+	
-+	notifier->callback = callback;
-+	notifier->opaque = opaque;
-+	notifier->irq = irq;
-+	list_add(&notifier->list, &kvm->arch.interrupt_ack_notifier);
-+
-+	return 0;
-+}
-+
-+static struct interrupt_ack_notifier *
-+find_interrupt_ack_notifier(struct kvm *kvm,
-+			    int irq,
-+			    void (*callback)(void *opaque, int irq),
-+			    void *opaque)
-+{
-+	struct list_head *ptr;
-+	struct interrupt_ack_notifier *notifier;
-+
-+	list_for_each(ptr, &kvm->arch.interrupt_ack_notifier) {
-+		notifier = list_entry(ptr, struct interrupt_ack_notifier, list);
-+		if ((irq == notifier->irq) &&
-+		    (callback == notifier->callback) &&
-+		    (opaque == notifier->opaque)) {
-+			return notifier;
-+		}
-+	}
-+	return NULL;
-+}
-+
-+static void
-+unregister_interrupt_ack_notifier(struct kvm *kvm,
-+					     int irq,
-+					     void (*callback)(void *opaque, int irq),
-+					     void *opaque)
-+{
-+	struct interrupt_ack_notifier *notifier;
-+
-+	notifier = find_interrupt_ack_notifier(kvm, irq, callback, opaque);
-+	if (notifier) {
-+		list_del(&notifier->list);
-+		kfree(notifier);
-+	}
-+}
-+
-+static void free_interrupt_ack_notifier_list(struct kvm *kvm)
-+{
-+	struct list_head *ptr, *ptr2;
-+	struct interrupt_ack_notifier *notifier;
-+
-+	list_for_each_safe(ptr, ptr2, &kvm->arch.interrupt_ack_notifier) {
-+		notifier = list_entry(ptr,
-+				      struct interrupt_ack_notifier, list);
-+		list_del(&notifier->list);
-+		kfree(notifier);
-+	}
-+}
-+
- /*
-  * Load the pae pdptrs.  Return true is they are all valid.
-  */
-@@ -3946,6 +4028,7 @@ struct  kvm *kvm_arch_create_vm(void)
- 		return ERR_PTR(-ENOMEM);
- 
- 	INIT_LIST_HEAD(&kvm->arch.active_mmu_pages);
-+	INIT_LIST_HEAD(&kvm->arch.interrupt_ack_notifier);
- 
- 	return kvm;
- }
-@@ -3981,6 +4064,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
- 	kvm_free_pit(kvm);
- 	kfree(kvm->arch.vpic);
- 	kfree(kvm->arch.vioapic);
-+	free_interrupt_ack_notifier_list(kvm);
- 	kvm_free_vcpus(kvm);
- 	kvm_free_physmem(kvm);
- 	if (kvm->arch.apic_access_page)
-diff --git a/include/asm-x86/kvm_host.h b/include/asm-x86/kvm_host.h
-index 9391e57..fe35b15 100644
---- a/include/asm-x86/kvm_host.h
-+++ b/include/asm-x86/kvm_host.h
-@@ -302,6 +302,13 @@ struct kvm_vcpu_arch {
- 	u64 mtrr[0x100];
- };
- 
-+struct interrupt_ack_notifier {
-+	struct list_head list;
-+	int irq;
-+	void (*callback)(void *opaque, int irq);
-+	void *opaque;
-+};
-+
- struct kvm_mem_alias {
- 	gfn_t base_gfn;
- 	unsigned long npages;
-@@ -339,6 +346,7 @@ struct kvm_arch{
- 	struct dmar_domain *intel_iommu_domain;
- 	struct kvm_pic *vpic;
- 	struct kvm_ioapic *vioapic;
-+	struct list_head interrupt_ack_notifier;	
- 	struct kvm_pit *vpit;
- 
- 	int round_robin_prev_vcpu;
-@@ -582,6 +590,8 @@ void kvm_enable_tdp(void);
- int load_pdptrs(struct kvm_vcpu *vcpu, unsigned long cr3);
- int complete_pio(struct kvm_vcpu *vcpu);
- 
-+void notify_interrupt_ack(struct kvm *kvm, int irq);
-+
- static inline struct kvm_mmu_page *page_header(hpa_t shadow_page)
- {
- 	struct page *page = pfn_to_page(shadow_page >> PAGE_SHIFT);
--- 
-1.5.5.1
+> +		/* XXX should mix up next cpu selection */
+> +		if (per_cpu(lock_spinners, cpu) == xl) {
+> +			xen_send_IPI_one(cpu, XEN_SPIN_UNLOCK_VECTOR);
+> +			break;
+> +		}
+> +	}
+> +}
+> +
+> +static void xen_spin_unlock(struct raw_spinlock *lock)
+> +{
+> +	struct xen_spinlock *xl = (struct xen_spinlock *)lock;
+> +
+> +	smp_wmb();		/* make sure no writes get moved after unlock */
+> +	xl->lock = 0;		/* release lock */
+> +
+> +	/* make sure unlock happens before kick */
+> +	barrier();
+> +
+> +	if (unlikely(xl->spinners))
+> +		xen_spin_unlock_slow(xl);
+> +}
+> +
+> +static __cpuinit void xen_init_lock_cpu(int cpu)
+> +{
+> +	int irq;
+> +	const char *name;
+> +
+> +	name = kasprintf(GFP_KERNEL, "spinlock%d", cpu);
+> +	irq = bind_ipi_to_irqhandler(XEN_SPIN_UNLOCK_VECTOR,
+> +				     cpu,
+> +				     xen_reschedule_interrupt,
+> +				     IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
+> +				     name,
+> +				     NULL);
+> +
+> +	if (irq >= 0) {
+> +		disable_irq(irq); /* make sure it's never delivered */
+> +		per_cpu(lock_kicker_irq, cpu) = irq;
+> +	}
+> +
+> +	printk("cpu %d spinlock event irq %d\n", cpu, irq);
+> +}
+> +
+> +static void __init xen_init_spinlocks(void)
+> +{
+> +	pv_lock_ops.spin_is_locked = xen_spin_is_locked;
+> +	pv_lock_ops.spin_is_contended = xen_spin_is_contended;
+> +	pv_lock_ops.spin_lock = xen_spin_lock;
+> +	pv_lock_ops.spin_trylock = xen_spin_trylock;
+> +	pv_lock_ops.spin_unlock = xen_spin_unlock;
+> +}
+> +
+>  static const struct smp_ops xen_smp_ops __initdata = {
+>  	.smp_prepare_boot_cpu = xen_smp_prepare_boot_cpu,
+>  	.smp_prepare_cpus = xen_smp_prepare_cpus,
+> @@ -430,5 +600,5 @@
+>  {
+>  	smp_ops = xen_smp_ops;
+>  	xen_fill_possible_map();
+> -	paravirt_use_bytelocks();
+> +	xen_init_spinlocks();
+>  }
+> ===================================================================
+> --- a/drivers/xen/events.c
+> +++ b/drivers/xen/events.c
+> @@ -741,6 +741,33 @@
+>  	}
+>  }
+>  
+> +/* Clear an irq's pending state, in preparation for polling on it */
+> +void xen_clear_irq_pending(int irq)
+> +{
+> +	int evtchn = evtchn_from_irq(irq);
+> +
+> +	if (VALID_EVTCHN(evtchn))
+> +		clear_evtchn(evtchn);
+> +}
+> +
+> +/* Poll waiting for an irq to become pending.  In the usual case, the
+> +   irq will be disabled so it won't deliver an interrupt. */
+> +void xen_poll_irq(int irq)
+> +{
+> +	evtchn_port_t evtchn = evtchn_from_irq(irq);
+> +
+> +	if (VALID_EVTCHN(evtchn)) {
+> +		struct sched_poll poll;
+> +
+> +		poll.nr_ports = 1;
+> +		poll.timeout = 0;
+> +		poll.ports = &evtchn;
+> +
+> +		if (HYPERVISOR_sched_op(SCHEDOP_poll, &poll) != 0)
+> +			BUG();
+> +	}
+> +}
+> +
+>  void xen_irq_resume(void)
+>  {
+>  	unsigned int cpu, irq, evtchn;
+> ===================================================================
+> --- a/include/asm-x86/xen/events.h
+> +++ b/include/asm-x86/xen/events.h
+> @@ -5,6 +5,7 @@
+>  	XEN_RESCHEDULE_VECTOR,
+>  	XEN_CALL_FUNCTION_VECTOR,
+>  	XEN_CALL_FUNCTION_SINGLE_VECTOR,
+> +	XEN_SPIN_UNLOCK_VECTOR,
+>  
+>  	XEN_NR_IPIS,
+>  };
+> ===================================================================
+> --- a/include/xen/events.h
+> +++ b/include/xen/events.h
+> @@ -45,4 +45,11 @@
+>  extern void xen_irq_resume(void);
+>  extern void xen_evtchn_do_upcall(struct pt_regs *regs);
+>  
+> +/* Clear an irq's pending state, in preparation for polling on it */
+> +void xen_clear_irq_pending(int irq);
+> +
+> +/* Poll waiting for an irq to become pending.  In the usual case, the
+> +   irq will be disabled so it won't deliver an interrupt. */
+> +void xen_poll_irq(int irq);
+> +
+>  #endif	/* _XEN_EVENTS_H */
 
-
-
+	Hannes
