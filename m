@@ -1,16 +1,14 @@
-From: Johannes Weiner <hannes@saeurebad.de>
-Subject: Re: [PATCH RFC 4/4] xen: implement Xen-specific spinlocks
-Date: Tue, 08 Jul 2008 09:30:00 +0200
-Message-ID: <87lk0cq1dz.fsf__17656.057913746$1215530083$gmane$org@saeurebad.de>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH RFC 0/4] Paravirtual spinlocks
+Date: Wed, 9 Jul 2008 14:28:52 +0200
+Message-ID: <20080709122852.GA30579__37726.8644668677$1215606799$gmane$org@elte.hu>
 References: <20080707190749.299430659@goop.org>
-	<20080707190838.710151521@goop.org> <87tzf0q3te.fsf@saeurebad.de>
-	<48731409.9070304@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48731409.9070304@goop.org> (Jeremy Fitzhardinge's message of
-	"Tue, 08 Jul 2008 00:15:21 -0700")
+Content-Disposition: inline
+In-Reply-To: <20080707190749.299430659@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,45 +19,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Nick Piggin <nickpiggin@yahoo.com.au>, Xen devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Christoph Lameter <clameter@linux-foundation.org>, Petr Tesarik <ptesarik@suse.cz>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Thomas Friebel <thomas.friebel@amd.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Ingo Molnar <mingo@elte.hu>
+Cc: Jens Axboe <axboe@kernel.dk>, Nick Piggin <nickpiggin@yahoo.com.au>, Xen devel <xen-devel@lists.xensource.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Christoph Lameter <clameter@linux-foundation.org>, Petr Tesarik <ptesarik@suse.cz>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Thomas Friebel <thomas.friebel@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
 
-Jeremy Fitzhardinge <jeremy@goop.org> writes:
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> Johannes Weiner wrote:
->>> +static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
->>> +static DEFINE_PER_CPU(struct xen_spinlock *, lock_spinners);
->>>     
->>
->> The plural is a bit misleading, as this is a single pointer per CPU.
->>   
->
-> Yeah.  And it's wrong because it's specifically *not* spinning, but
-> blocking.
+> My experiments show that using a Xen-specific lock helps guest 
+> performance a bit (reduction in elapsed and system time in a kernbench 
+> run), but most significantly, reduces overall physical CPU consumption 
+> by 10%, and so increases overall system scalability.
 
-I thought of it as `virtually spinning', so had no problems with the
-naming itself :)
+that's rather impressive and looks nice, considering the fairly low 
+impact.
 
->>> +static noinline void xen_spin_unlock_slow(struct xen_spinlock *xl)
->>> +{
->>> +	int cpu;
->>> +
->>> +	for_each_online_cpu(cpu) {
->>>     
->>
->> Would it be feasible to have a bitmap for the spinning CPUs in order to
->> do a for_each_spinning_cpu() here instead?  Or is setting a bit in
->> spinning_lock() and unsetting it in unspinning_lock() more overhead than
->> going over all CPUs here?
->>   
->
-> Not worthwhile, I think.  This is a very rare path: it will only
-> happen if 1) there's lock contention, that 2) wasn't resolved within
-> the timeout.  In practice, this gets called a few thousand times per
-> cpu over a kernbench, which is nothing.
+as there were no fundamental objections in this thread i've created a 
+tip/x86/paravirt-spinlocks topic branch for these patches and started 
+testing them.
 
-Okay, I agree.
+i based the topic branch on tip/xen-64bit, so you should be able to get 
+the latest code by doing:
 
-	Hannes
+  git-merge tip/x86/paravirt-spinlocks
+
+on tip/master.
+
+	Ingo
