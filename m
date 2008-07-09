@@ -1,8 +1,7 @@
 From: Ingo Molnar <mingo@elte.hu>
-Subject: [patch] x86: paravirt spinlocks, modular build fix  (was: Re:
-	[PATCH RFC 0/4] Paravirtual spinlocks)
-Date: Wed, 9 Jul 2008 14:39:05 +0200
-Message-ID: <20080709123905.GA16340__42889.9083439775$1215607379$gmane$org@elte.hu>
+Subject: Re: [PATCH RFC 0/4] Paravirtual spinlocks
+Date: Wed, 9 Jul 2008 15:33:58 +0200
+Message-ID: <20080709133358.GA7005__31377.0918445245$1215610583$gmane$org@elte.hu>
 References: <20080707190749.299430659@goop.org>
 	<20080709122852.GA30579@elte.hu>
 Mime-Version: 1.0
@@ -25,35 +24,41 @@ Cc: Jens Axboe <axboe@kernel.dk>, Nick Piggin <nickpiggin@yahoo.com.au>, Xen dev
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-another small fixlet.
+the patches caused a boot hang with this config:
+
+ http://redhat.com/~mingo/misc/config-Wed_Jul__9_14_47_04_CEST_2008.bad
+
+i have bisected it down to:
+
+  commit e17b58c2e85bc2ad2afc07fb8d898017c2b75ed1
+  Author: Jeremy Fitzhardinge <jeremy@goop.org>
+  Date:   Mon Jul 7 12:07:53 2008 -0700
+
+      xen: implement Xen-specific spinlocks
+
+i.e. applying that patch alone causes the hang. The hang happens in the 
+ftrace self-test:
+
+  initcall utsname_sysctl_init+0x0/0x19 returned 0 after 0 msecs
+  calling  init_sched_switch_trace+0x0/0x4c
+  Testing tracer sched_switch: PASSED
+  initcall init_sched_switch_trace+0x0/0x4c returned 0 after 167 msecs
+  calling  init_function_trace+0x0/0x12
+  Testing tracer ftrace: 
+  [hard hang]
+
+it should have continued like this:
+
+  Testing tracer ftrace: PASSED
+  initcall init_function_trace+0x0/0x12 returned 0 after 198 msecs
+  calling  init_irqsoff_tracer+0x0/0x14
+  Testing tracer irqsoff: PASSED
+  initcall init_irqsoff_tracer+0x0/0x14 returned 0 after 3 msecs
+  calling  init_mmio_trace+0x0/0x12
+  initcall init_mmio_trace+0x0/0x12 returned 0 after 0 msecs
+
+note: ftrace is a user of raw spinlocks. Another speciality of the 
+config is that it has paravirt enabled (obviously), and that it also has 
+lock debugging enabled.
 
 	Ingo
-
------------------>
-commit 0ea0f032767f41fb0a9586ab6acb5c1408ef16c5
-Author: Ingo Molnar <mingo@elte.hu>
-Date:   Wed Jul 9 14:39:15 2008 +0200
-
-    x86: paravirt spinlocks, modular build fix
-    
-    fix:
-    
-      MODPOST 408 modules
-    ERROR: "pv_lock_ops" [net/dccp/dccp.ko] undefined!
-    ERROR: "pv_lock_ops" [fs/jbd2/jbd2.ko] undefined!
-    ERROR: "pv_lock_ops" [drivers/media/common/saa7146_vv.ko] undefined!
-    
-    Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 6aa8aed..3edfd7a 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -472,6 +472,7 @@ struct pv_lock_ops pv_lock_ops = {
- 	.spin_unlock = __ticket_spin_unlock,
- #endif
- };
-+EXPORT_SYMBOL_GPL(pv_lock_ops);
- 
- EXPORT_SYMBOL_GPL(pv_time_ops);
- EXPORT_SYMBOL    (pv_cpu_ops);
