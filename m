@@ -1,15 +1,16 @@
-From: "Shaun Jackman" <sjackman@gmail.com>
+From: Max Krasnyansky <maxk@qualcomm.com>
 Subject: Re: Multicast and receive filtering in TUN/TAP
-Date: Thu, 10 Jul 2008 14:38:23 -0700
-Message-ID: <7f45d9390807101438q785232f1sfec7fcc580683d0f__18413.2739356302$1215726051$gmane$org@mail.gmail.com>
+Date: Thu, 10 Jul 2008 19:20:07 -0700
+Message-ID: <4876C357.3030708__17338.2131768905$1215742934$gmane$org@qualcomm.com>
 References: <4875428F.4080704@qualcomm.com>
-Reply-To: Shaun Jackman <sjackman@gmail.com>
+	<200807101029.17121.borntraeger@de.ibm.com>
+	<48763F94.7050507@qualcomm.com>
+	<200807102223.40717.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4875428F.4080704@qualcomm.com>
-Content-Disposition: inline
+In-Reply-To: <200807102223.40717.borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,91 +20,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Max Krasnyansky <maxk@qualcomm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Brian Braunstein <linuxkernel@bristyle.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: netdev@vger.kernel.org, Brian Braunstein <linuxkernel@bristyle.com>, Shaun Jackman <sjackman@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Max,
 
-The original patch implemented receive multicast filtering by
-emulating the implementation used by many physical Ethernet
-interfaces: hashing the multicast address. TUN emulates two network
-cards (and communication via the virtual link between them), the guest
-and the host, or the character device and the network device, so there
-are two receive filters: chr_filter and net_filter. I implemented the
-filtering at the character device using chr_filter in tun_chr_readv,
-and left filtering at the network device for someone else to
-implement.
 
-I'm not sure what you mean by TX filtering. Multicast filtering is
-implemented uniquely at the receiver. There are, however, two
-receivers: the character device and the network device.
+Christian Borntraeger wrote:
+> Am Donnerstag, 10. Juli 2008 schrieb Max Krasnyansky:
+>>> Thing is, we are heading towards virtio. 
+>> Even for Windows ?
+> 
+> Its possible:
+> http://marc.info/?l=kvm&m=121075389300722&w=2
+Nice.
+btw Is there something similar for the display driver ? vmware has one.
 
-I believe Brian's patch was mistaken. Two entirely distinct Ethernet
-addresses are required: one for the character device and one for the
-network device, or put another way, one for the virtual Ethernet
-interface at the guest and one for the virtual Ethernet interface at
-the host. For the same reason, there are two distinct multicast
-filters.
+>>> Unfortunately, virtio_net currently  does not offer a method to register 
+> multicast addresses.
+>> I haven't looked at the virtio stuff much, I was assuming that the host side
+>> of it is still the TUN driver. Is it not ?
+> 
+> Yes, the host side is still tun/tap. The problem is that qemu doesnt know 
+> which multicast addresses are used inside the guest.
+Ah, now I see what you meant by virtio_net does not do multicast. I guess it
+should trivial to add. Rusty will clarify it I guess.
 
-Looking over the original patch, I believe I see a bug in tun_net_mclist:
-memset(tun->chr_filter, 0, sizeof tun->chr_filter);
-should be
-memset(tun->net_filter, 0, sizeof tun->net_filter);
-
-Cheers,
-Shaun
-
-On Wed, Jul 9, 2008 at 3:58 PM, Max Krasnyansky <maxk@qualcomm.com> wrote:
-> Yesterday while fixing xoff stuckiness issue in the TUN/TAP driver I got a
-> chance to look into the multicast filtering code in there. And immediately
-> realized how terribly broken & confusing it is. The patch was originally
-> done by Shaun (CC'ed) and went in without any proper ACK from me, Dave or
-> Jeff.
-> Here is the original ref
->        http://marc.info/?l=linux-netdev&m=110490502102308&w=2
->
-> I'm not going to dive into too much details on what's wrong with the current
-> code. The main issues are that it mixes RX and TX filtering which are
-> orthogonal, and it reuses ioctl names and stuff for manipulating TX filter
-> state as if it was a normal RX multicast state.
-> Later on Brian's patch added insult to the injury
->        http://git.kernel.org/?p=linux/kernel/git/\
->                torvalds/linux-2.6.git;\
->                a=commit;h=36226a8ded46b89a94f9de5976f554bb5e02d84c
-> Brian missed the point of the original patch (not his fault, as I said the
-> original patch was not the best) that the separate address introduced by the
-> MC patch was used for filtering _TX_ packets. It had nothing to do with the
-> HW addr of the local network interface.
->
-> The problem is that MC stuff is now even more broken and ioctls that were
-> used originally now mean something different. So my first thinking was to
-> just rip the MC stuff out because it's broken and probably nobody uses it
-> (given that we got no complains after Brian's patch broke it completely).
-> But then I realized that if done properly it might be very useful for
-> virtualization.
->
-> ---
->
-> So the first question is are there any users out there that ever used the
-> original patch. Shaun, any insight ? How did you intend to use it ?
->
-> ---
->
-> The second question is do you guys think that QEMU/KVM/LGUEST/etc would
-> benefit if receive filtering was done by the host OS. Here is a specific
-> example of what I'm talking about.
-> We can do what qemu/hw/e1000.c:receive_filter() does in the _host_ context
-> (that function currently runs in the guest context). By looking at libvirt,
-> typical QEMU based setup is that you have a single bridge and all the TAPs
-> from different VMs are hooked up to that bridge. What that means is that if
-> one VM is getting MC traffic or when the bridge sees MACADDR that is not in
-> its tables the packets get delivered to all the VMs. ie We have to wake all
-> of the up only to so that they could drop that packet. Instead, we could
-> setup filters in the host's side of the TAP device.
-> Does that sound like something useful for QEMU/KVM ?
-> If yes we can talk about the API. If not then I'll just nuke it.
->
-> Thanx
-> Max
->
+Max
