@@ -1,16 +1,12 @@
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: Multicast and receive filtering in TUN/TAP
-Date: Fri, 11 Jul 2008 01:01:58 -0700
-Message-ID: <48771376.4020401__45691.6990144693$1215763632$gmane$org@qualcomm.com>
-References: <4875428F.4080704@qualcomm.com>
-	<200807102223.40717.borntraeger@de.ibm.com>
-	<4876C357.3030708@qualcomm.com>
-	<200807111701.39070.rusty@rustcorp.com.au>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Subject: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.3.0:
+	Introduction
+Date: Fri, 11 Jul 2008 20:14:11 +0900 (JST)
+Message-ID: <20080711.201411.193712771.ryov__9340.86359707198$1215775279$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200807111701.39070.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,25 +16,57 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Brian Braunstein <linuxkernel@bristyle.com>, Shaun Jackman <sjackman@gmail.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
+Cc: agk@sourceware.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> On Friday 11 July 2008 12:20:07 Max Krasnyansky wrote:
->>>> I haven't looked at the virtio stuff much, I was assuming that the host
->>>> side of it is still the TUN driver. Is it not ?
->>> Yes, the host side is still tun/tap. The problem is that qemu doesnt know
->>> which multicast addresses are used inside the guest.
->> Ah, now I see what you meant by virtio_net does not do multicast. I guess
->> it should trivial to add. Rusty will clarify it I guess.
-> 
-> Yes, it could certainly be added; that's what feature bits are for :)
+Hi everyone,
 
-Sounds good.
-I'll send the patch that lets you guys setup tx filters on the TAP devices.
-Hypervisors will then need to translate rx filters set by the guest OS into
-TAP tx filters. I'm thinking of doing it just like E1000 for example. 14 exact
-filters and the rest is hashed.
+This is the dm-ioband version 1.3.0 release.
 
-Max
+Dm-ioband is an I/O bandwidth controller implemented as a device-mapper
+driver, which gives specified bandwidth to each job running on the same
+physical device.
+
+- Can be applied to the kernel 2.6.26-rc5-mm3.
+- Changes from 1.2.0 (posted on Jul 4, 2008):
+  - I/O smoothing take #2
+    This feature makes I/O requests of each group issued smoothly.
+    Once a certain group has used up its tokens, all I/O requests to
+    the group will be blocked until all the other groups used up
+    theirs. This feature is to minimize this blocking time and to
+    issue I/O requests at a constant rate according to the weight,
+    without decreasing throughput.
+    We have tested various ideas to achieve this feature and we have
+    chosen the most effective ways as follows:
+      - Shorten the epoch period of dm-ioband, each of which every
+        ioband group will get new tokens. On the other hand, the
+        leftover tokens for the past few epochs can be taken over to
+        the next epoch so that it can keep the fairness between the
+        groups even when the I/O loads of some groups are changing.
+      - Make a new epoch immediately when a group with large weight
+        used up its tokens even though there remain a lot of in-flight
+        I/Os.
+        To gain the throughput, dm-ioband will recharge tokens to all
+        the groups without waiting their I/O completion if possible.
+      - Make the I/O requests which user process have just made
+        be handled ahead of the blocked I/O requests, since it
+        would make sense that you assume the groups which issued
+        these blocked I/O requests will have small weights.
+      - Make the number of I/O requests which can be queued in dm-ioband
+        smaller, so it will prevents all the I/O request of each
+	group from being issued at the same time when a new epoch
+	gets made.
+- TODO
+  - Implementing cgroup support for dm-ioband is in progress. This
+    feature makes it be able to handle asynchronous I/O requests properly.
+
+I added a new benchmark result on the dm-ioband webpage. This result
+shows that dm-ioband can control a bandwidth even when an unbalanced
+I/O load is applied.
+http://people.valinux.co.jp/~ryov/dm-ioband/benchmark/partition3.html
+
+Thanks,
+Ryo Tsuruta
+Linux Block I/O Bandwidth Control Project
+http://people.valinux.co.jp/~ryov/bwctl/
