@@ -1,13 +1,16 @@
-From: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] virtio_net: Set VIRTIO_NET_F_GUEST_CSUM feature
-Date: Fri, 11 Jul 2008 01:22:22 -0400
-Message-ID: <4876EE0E.1000400__7097.19889932803$1215754783$gmane$org@garzik.org>
-References: <200807081710.42530.rusty@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Multicast and receive filtering in TUN/TAP
+Date: Fri, 11 Jul 2008 17:01:38 +1000
+Message-ID: <200807111701.39070.rusty@rustcorp.com.au>
+References: <4875428F.4080704@qualcomm.com>
+	<200807102223.40717.borntraeger@de.ibm.com>
+	<4876C357.3030708@qualcomm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200807081710.42530.rusty@rustcorp.com.au>
+In-Reply-To: <4876C357.3030708@qualcomm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,36 +20,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Brian Braunstein <linuxkernel@bristyle.com>, Shaun Jackman <sjackman@gmail.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> From: Mark McLoughlin <markmc@redhat.com>
-> 
-> We can handle receiving partial csums, so set the
-> appropriate feature bit.
-> 
-> Signed-off-by: Mark McLoughlin <markmc@redhat.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> ---
->  drivers/net/virtio_net.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -550,7 +550,8 @@ static struct virtio_device_id id_table[
->  };
->  
->  static unsigned int features[] = {
-> -	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
-> +	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,
-> +	VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
->  	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6,
->  	VIRTIO_NET_F_HOST_ECN, VIRTIO_F_NOTIFY_ON_EMPTY,
->  };
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
+On Friday 11 July 2008 12:20:07 Max Krasnyansky wrote:
+> >> I haven't looked at the virtio stuff much, I was assuming that the host
+> >> side of it is still the TUN driver. Is it not ?
+> >
+> > Yes, the host side is still tun/tap. The problem is that qemu doesnt know
+> > which multicast addresses are used inside the guest.
+>
+> Ah, now I see what you meant by virtio_net does not do multicast. I guess
+> it should trivial to add. Rusty will clarify it I guess.
 
-applied
+Yes, it could certainly be added; that's what feature bits are for :)
+
+Cheers,
+Rusty.
