@@ -1,13 +1,11 @@
-From: "Brian Braunstein" <brian@bristyle.com>
-Subject: Re: Multicast and receive filtering in TUN/TAP
-Date: Thu, 10 Jul 2008 19:32:16 -0700
-Message-ID: <480487c50807101932u7b4020a8qb31227a85f79c187@mail.gmail.com>
-References: <4875428F.4080704@qualcomm.com>
-	<7f45d9390807101438q785232f1sfec7fcc580683d0f@mail.gmail.com>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: [PATCH] tun: Fix/rewrite packet filtering logic
+Date: Sat, 12 Jul 2008 01:52:54 -0700
+Message-ID: <1215852774-23974-1-git-send-email-maxk@qualcomm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5795712262500604639=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <7f45d9390807101438q785232f1sfec7fcc580683d0f@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -15,250 +13,564 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Shaun Jackman <sjackman@gmail.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Brian Braunstein <linuxkernel@bristyle.com>, virtualization@lists.linux-foundation.org, Max Krasnyansky <maxk@qualcomm.com>, netdev@vger.kernel.org
+To: davem@davemloft.net, rusty@rustcorp.com.au, jeff@garzik.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, Max Krasnyansky <maxk@qualcomm.com>, linuxkernel@bristyle.com, sjackman@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============5795712262500604639==
-Content-Type: multipart/alternative;
-	boundary="----=_Part_19321_6728402.1215743536998"
+Please see the following thread to get some context on this
+	http://marc.info/?l=linux-netdev&m=121564433018903&w=2
 
-------=_Part_19321_6728402.1215743536998
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Basically the issue is that current multi-cast filtering stuff in
+the TUN/TAP driver is seriously broken.
+Original patch went in without proper review and ACK. It was broken and
+confusing to start with and subsequent patches broke it completely.
+To give you an idea of what's broken here are some of the issues:
 
-Sorry that I was confused here and it seems I am still confused.
+- Very confusing comments throughout the code that imply that the
+character device is a network interface in its own right, and that packets
+are passed between the two nics. Which is completely wrong.
 
-I was thinking that for any one instance of a TAP interface, there should be
-only 1 MAC address, since there is only 1 network interface, since the
-character device is not a network interface but rather the interface for the
-application to send and receive on that virtual network interface.
+- Wrong set of ioctls is used for setting up filters. They look like
+shortcuts for manipulating state of the tun/tap network interface but
+in reality manipulate the state of the TX filter.
 
-For the MC stuff, I have to admit I haven't looked into it much, but it
-seems like the basic operation of setting the MAC address of the network
-interface should be supported, and it seems like an ioctl called
-SIOCSIFHWADDR should Set the InterFace HardWare ADDRess.  Sorry if I was
-wrong about this.  It might be good to add a comment to SIOCSIFHWADDR that
-says "This does not actually set the network interface hardware address,
-this is for multicast filtering" or whatever it actually is suppose to do.
-Or perhaps create a new ioctl that has something about multicast filtering
-in the name, and leave SIOCSIFHWADDR doing what it is doing now.
+- ioctls that were originally used for setting address of the the TX filter
+got "fixed" and now set the address of the network interface itself. Which
+made filter totaly useless.
 
-brian
+- Filtering is done too late. Instead of filtering early on, to avoid
+unnecessary wakeups, filtering is done in the read() call.
 
+The list goes on and on :)
 
-On Thu, Jul 10, 2008 at 2:38 PM, Shaun Jackman <sjackman@gmail.com> wrote:
+So the patch cleans all that up. It introduces simple and clean interface for
+setting up TX filters (TUNSETTXFILTER + tun_filter spec) and does filtering
+before enqueuing the packets.
 
-> Hi Max,
->
-> The original patch implemented receive multicast filtering by
-> emulating the implementation used by many physical Ethernet
-> interfaces: hashing the multicast address. TUN emulates two network
-> cards (and communication via the virtual link between them), the guest
-> and the host, or the character device and the network device, so there
-> are two receive filters: chr_filter and net_filter. I implemented the
-> filtering at the character device using chr_filter in tun_chr_readv,
-> and left filtering at the network device for someone else to
-> implement.
->
-> I'm not sure what you mean by TX filtering. Multicast filtering is
-> implemented uniquely at the receiver. There are, however, two
-> receivers: the character device and the network device.
->
-> I believe Brian's patch was mistaken. Two entirely distinct Ethernet
-> addresses are required: one for the character device and one for the
-> network device, or put another way, one for the virtual Ethernet
-> interface at the guest and one for the virtual Ethernet interface at
-> the host. For the same reason, there are two distinct multicast
-> filters.
->
+TX filtering is useful in the scenarios where TAP is part of a bridge, in
+which case it gets all broadcast, multicast and potentially other packets when
+the bridge is learning. So for example Ethernet tunnelling app may want to
+setup TX filters to avoid tunnelling multicast traffic. QEMU and other
+hypervisors can push RX filtering that is currently done in the guest into the
+host context therefore saving wakeups and unnecessary data transfer.
 
->
-> Looking over the original patch, I believe I see a bug in tun_net_mclist:
-> memset(tun->chr_filter, 0, sizeof tun->chr_filter);
-> should be
-> memset(tun->net_filter, 0, sizeof tun->net_filter);
->
-> Cheers,
-> Shaun
->
-> On Wed, Jul 9, 2008 at 3:58 PM, Max Krasnyansky <maxk@qualcomm.com> wrote:
-> > Yesterday while fixing xoff stuckiness issue in the TUN/TAP driver I got
-> a
-> > chance to look into the multicast filtering code in there. And
-> immediately
-> > realized how terribly broken & confusing it is. The patch was originally
-> > done by Shaun (CC'ed) and went in without any proper ACK from me, Dave or
-> > Jeff.
-> > Here is the original ref
-> >        http://marc.info/?l=linux-netdev&m=110490502102308&w=2
-> >
-> > I'm not going to dive into too much details on what's wrong with the
-> current
-> > code. The main issues are that it mixes RX and TX filtering which are
-> > orthogonal, and it reuses ioctl names and stuff for manipulating TX
-> filter
-> > state as if it was a normal RX multicast state.
-> > Later on Brian's patch added insult to the injury
-> >        http://git.kernel.org/?p=linux/kernel/git/\<http://git.kernel.org/?p=linux/kernel/git/%5C>
-> >                torvalds/linux-2.6.git;\
-> >                a=commit;h=36226a8ded46b89a94f9de5976f554bb5e02d84c
-> > Brian missed the point of the original patch (not his fault, as I said
-> the
-> > original patch was not the best) that the separate address introduced by
-> the
-> > MC patch was used for filtering _TX_ packets. It had nothing to do with
-> the
-> > HW addr of the local network interface.
-> >
-> > The problem is that MC stuff is now even more broken and ioctls that were
-> > used originally now mean something different. So my first thinking was to
-> > just rip the MC stuff out because it's broken and probably nobody uses it
-> > (given that we got no complains after Brian's patch broke it completely).
-> > But then I realized that if done properly it might be very useful for
-> > virtualization.
-> >
-> > ---
-> >
-> > So the first question is are there any users out there that ever used the
-> > original patch. Shaun, any insight ? How did you intend to use it ?
-> >
-> > ---
-> >
-> > The second question is do you guys think that QEMU/KVM/LGUEST/etc would
-> > benefit if receive filtering was done by the host OS. Here is a specific
-> > example of what I'm talking about.
-> > We can do what qemu/hw/e1000.c:receive_filter() does in the _host_
-> context
-> > (that function currently runs in the guest context). By looking at
-> libvirt,
-> > typical QEMU based setup is that you have a single bridge and all the
-> TAPs
-> > from different VMs are hooked up to that bridge. What that means is that
-> if
-> > one VM is getting MC traffic or when the bridge sees MACADDR that is not
-> in
-> > its tables the packets get delivered to all the VMs. ie We have to wake
-> all
-> > of the up only to so that they could drop that packet. Instead, we could
-> > setup filters in the host's side of the TAP device.
-> > Does that sound like something useful for QEMU/KVM ?
-> > If yes we can talk about the API. If not then I'll just nuke it.
-> >
-> > Thanx
-> > Max
-> >
->
+This is on top of the latest and greatest :). Assuming virt folks are ok with
+the API this should go into 2.6.27.
 
-------=_Part_19321_6728402.1215743536998
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Signed-off-by: Max Krasnyansky <maxk@qualcomm.com>
+---
+ drivers/net/tun.c      |  316 +++++++++++++++++++++++-------------------------
+ include/linux/if_tun.h |   24 +++-
+ 2 files changed, 174 insertions(+), 166 deletions(-)
 
-Sorry that I was confused here and it seems I am still confused.<br><br>I was thinking that for any one instance of a TAP interface, there should be only 1 MAC address, since there is only 1 network interface, since the character device is not a network interface but rather the interface for the application to send and receive on that virtual network interface.<br>
-<br>For the MC stuff, I have to admit I haven&#39;t looked into it much, but it seems like the basic operation of setting the MAC address of the network interface should be supported, and it seems like an ioctl called SIOCSIFHWADDR should Set the InterFace
-HardWare ADDRess.&nbsp; Sorry if I was wrong about this.&nbsp; It might be good to add a comment to SIOCSIFHWADDR that says &quot;This does not actually set the network interface hardware address, this is for multicast filtering&quot; or whatever it actually is suppose to do.&nbsp; Or perhaps create a new ioctl that has something about multicast filtering in the name, and leave SIOCSIFHWADDR doing what it is doing now.<br>
-<br>brian<br><br><br>On Thu, Jul 10, 2008 at 2:38 PM, Shaun Jackman &lt;<a href="mailto:sjackman@gmail.com">sjackman@gmail.com</a>&gt; wrote:<br><div class="gmail_quote"><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-Hi Max,<br>
-<br>
-The original patch implemented receive multicast filtering by<br>
-emulating the implementation used by many physical Ethernet<br>
-interfaces: hashing the multicast address. TUN emulates two network<br>
-cards (and communication via the virtual link between them), the guest<br>
-and the host, or the character device and the network device, so there<br>
-are two receive filters: chr_filter and net_filter. I implemented the<br>
-filtering at the character device using chr_filter in tun_chr_readv,<br>
-and left filtering at the network device for someone else to<br>
-implement.<br>
-<br>
-I&#39;m not sure what you mean by TX filtering. Multicast filtering is<br>
-implemented uniquely at the receiver. There are, however, two<br>
-receivers: the character device and the network device.<br>
-<br>
-I believe Brian&#39;s patch was mistaken. Two entirely distinct Ethernet<br>
-addresses are required: one for the character device and one for the<br>
-network device, or put another way, one for the virtual Ethernet<br>
-interface at the guest and one for the virtual Ethernet interface at<br>
-the host. For the same reason, there are two distinct multicast<br>
-filters.<br></blockquote><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><br>
-<br>
-Looking over the original patch, I believe I see a bug in tun_net_mclist:<br>
-memset(tun-&gt;chr_filter, 0, sizeof tun-&gt;chr_filter);<br>
-should be<br>
-memset(tun-&gt;net_filter, 0, sizeof tun-&gt;net_filter);<br>
-<br>
-Cheers,<br>
-<font color="#888888">Shaun<br>
-</font><div><div></div><div class="Wj3C7c"><br>
-On Wed, Jul 9, 2008 at 3:58 PM, Max Krasnyansky &lt;<a href="mailto:maxk@qualcomm.com">maxk@qualcomm.com</a>&gt; wrote:<br>
-&gt; Yesterday while fixing xoff stuckiness issue in the TUN/TAP driver I got a<br>
-&gt; chance to look into the multicast filtering code in there. And immediately<br>
-&gt; realized how terribly broken &amp; confusing it is. The patch was originally<br>
-&gt; done by Shaun (CC&#39;ed) and went in without any proper ACK from me, Dave or<br>
-&gt; Jeff.<br>
-&gt; Here is the original ref<br>
-&gt; &nbsp; &nbsp; &nbsp; &nbsp;<a href="http://marc.info/?l=linux-netdev&amp;m=110490502102308&amp;w=2" target="_blank">http://marc.info/?l=linux-netdev&amp;m=110490502102308&amp;w=2</a><br>
-&gt;<br>
-&gt; I&#39;m not going to dive into too much details on what&#39;s wrong with the current<br>
-&gt; code. The main issues are that it mixes RX and TX filtering which are<br>
-&gt; orthogonal, and it reuses ioctl names and stuff for manipulating TX filter<br>
-&gt; state as if it was a normal RX multicast state.<br>
-&gt; Later on Brian&#39;s patch added insult to the injury<br>
-&gt; &nbsp; &nbsp; &nbsp; &nbsp;<a href="http://git.kernel.org/?p=linux/kernel/git/%5C" target="_blank">http://git.kernel.org/?p=linux/kernel/git/\</a><br>
-&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;torvalds/linux-2.6.git;\<br>
-&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;a=commit;h=36226a8ded46b89a94f9de5976f554bb5e02d84c<br>
-&gt; Brian missed the point of the original patch (not his fault, as I said the<br>
-&gt; original patch was not the best) that the separate address introduced by the<br>
-&gt; MC patch was used for filtering _TX_ packets. It had nothing to do with the<br>
-&gt; HW addr of the local network interface.<br>
-&gt;<br>
-&gt; The problem is that MC stuff is now even more broken and ioctls that were<br>
-&gt; used originally now mean something different. So my first thinking was to<br>
-&gt; just rip the MC stuff out because it&#39;s broken and probably nobody uses it<br>
-&gt; (given that we got no complains after Brian&#39;s patch broke it completely).<br>
-&gt; But then I realized that if done properly it might be very useful for<br>
-&gt; virtualization.<br>
-&gt;<br>
-&gt; ---<br>
-&gt;<br>
-&gt; So the first question is are there any users out there that ever used the<br>
-&gt; original patch. Shaun, any insight ? How did you intend to use it ?<br>
-&gt;<br>
-&gt; ---<br>
-&gt;<br>
-&gt; The second question is do you guys think that QEMU/KVM/LGUEST/etc would<br>
-&gt; benefit if receive filtering was done by the host OS. Here is a specific<br>
-&gt; example of what I&#39;m talking about.<br>
-&gt; We can do what qemu/hw/e1000.c:receive_filter() does in the _host_ context<br>
-&gt; (that function currently runs in the guest context). By looking at libvirt,<br>
-&gt; typical QEMU based setup is that you have a single bridge and all the TAPs<br>
-&gt; from different VMs are hooked up to that bridge. What that means is that if<br>
-&gt; one VM is getting MC traffic or when the bridge sees MACADDR that is not in<br>
-&gt; its tables the packets get delivered to all the VMs. ie We have to wake all<br>
-&gt; of the up only to so that they could drop that packet. Instead, we could<br>
-&gt; setup filters in the host&#39;s side of the TAP device.<br>
-&gt; Does that sound like something useful for QEMU/KVM ?<br>
-&gt; If yes we can talk about the API. If not then I&#39;ll just nuke it.<br>
-&gt;<br>
-&gt; Thanx<br>
-&gt; Max<br>
-&gt;<br>
-</div></div></blockquote></div><br>
-
-------=_Part_19321_6728402.1215743536998--
-
---===============5795712262500604639==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============5795712262500604639==--
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index 2693f88..901551c 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -18,15 +18,11 @@
+ /*
+  *  Changes:
+  *
+- *  Brian Braunstein <linuxkernel@bristyle.com> 2007/03/23
+- *    Fixed hw address handling.  Now net_device.dev_addr is kept consistent
+- *    with tun.dev_addr when the address is set by this module.
+- *
+  *  Mike Kershaw <dragorn@kismetwireless.net> 2005/08/14
+  *    Add TUNSETLINK ioctl to set the link encapsulation
+  *
+  *  Mark Smith <markzzzsmith@yahoo.com.au>
+- *   Use random_ether_addr() for tap MAC address.
++ *    Use random_ether_addr() for tap MAC address.
+  *
+  *  Harald Roelle <harald.roelle@ifi.lmu.de>  2004/04/20
+  *    Fixes in packet dropping, queue length setting and queue wakeup.
+@@ -83,9 +79,16 @@ static int debug;
+ #define DBG1( a... )
+ #endif
+ 
++#define FLT_EXACT_COUNT 8
++struct tap_filter {
++	unsigned int    count;    /* Number of addrs. Zero means disabled */
++	u32             mask[2];  /* Mask of the hashed addrs */
++	unsigned char	addr[FLT_EXACT_COUNT][ETH_ALEN];
++};
++
+ struct tun_struct {
+ 	struct list_head        list;
+-	unsigned long 		flags;
++	unsigned int 		flags;
+ 	int			attached;
+ 	uid_t			owner;
+ 	gid_t			group;
+@@ -94,19 +97,119 @@ struct tun_struct {
+ 	struct sk_buff_head	readq;
+ 
+ 	struct net_device	*dev;
++	struct fasync_struct	*fasync;
+ 
+-	struct fasync_struct    *fasync;
+-
+-	unsigned long if_flags;
+-	u8 dev_addr[ETH_ALEN];
+-	u32 chr_filter[2];
+-	u32 net_filter[2];
++	struct tap_filter       txflt;
+ 
+ #ifdef TUN_DEBUG
+ 	int debug;
+ #endif
+ };
+ 
++/* TAP filterting */
++static void addr_hash_set(u32 *mask, const u8 *addr)
++{
++	int n = ether_crc(ETH_ALEN, addr) >> 26;
++	mask[n >> 5] |= (1 << (n & 31));
++}
++
++static unsigned int addr_hash_test(const u32 *mask, const u8 *addr)
++{
++	int n = ether_crc(ETH_ALEN, addr) >> 26;
++	return mask[n >> 5] & (1 << (n & 31));
++}
++
++static int update_filter(struct tap_filter *filter, void __user *arg)
++{
++	struct { u8 u[ETH_ALEN]; } *addr;
++	struct tun_filter uf;
++	int err, alen, n, nexact;
++
++	if (copy_from_user(&uf, arg, sizeof(uf)))
++		return -EFAULT;
++
++	if (!uf.count) {
++		/* Disabled */
++		filter->count = 0;
++		return 0;
++	}
++
++	alen = ETH_ALEN * uf.count;
++	addr = kmalloc(alen, GFP_KERNEL);
++	if (!addr)
++		return -ENOMEM;
++
++	if (copy_from_user(addr, arg + sizeof(uf), alen)) {
++		err = -EFAULT;
++		goto done;
++	}
++
++	/* The filter is updated without holding any locks. Which is
++	 * perfectly safe. We disable it first and in the worst
++	 * case we'll accept a few undesired packets. */
++	filter->count = 0;
++	wmb();
++
++	/* Use first set of addresses as an exact filter */
++	for (n = 0; n < uf.count && n < FLT_EXACT_COUNT; n++)
++		memcpy(filter->addr[n], addr[n].u, ETH_ALEN);
++
++	nexact = n;
++
++	/* The rest is hashed */
++	memset(filter->mask, 0, sizeof(filter->mask));
++	for (; n < uf.count; n++)
++		addr_hash_set(filter->mask, addr[n].u);
++
++	/* For ALLMULTI just set the mask to all ones.
++	 * This overrides the mask populated above. */
++	if ((uf.flags & TUN_FLT_ALLMULTI))
++		memset(filter->mask, ~0, sizeof(filter->mask));
++
++	/* Now enable the filter */
++	wmb();
++	filter->count = nexact;
++
++	/* Return the number of exact filters */
++	err = nexact;
++
++done:
++	kfree(addr);
++	return err;
++}
++
++/* Returns: 0 - drop, !=0 - accept */
++static int run_filter(struct tap_filter *filter, const struct sk_buff *skb)
++{
++	/* Cannot use eth_hdr(skb) here because skb_mac_hdr() is incorrect
++	 * at this point. */
++	struct ethhdr *eh = (struct ethhdr *) skb->data;
++	int i;
++
++	/* Exact match */
++	for (i = 0; i < filter->count; i++)
++		if (!compare_ether_addr(eh->h_dest, filter->addr[i]))
++			return 1;
++
++	/* Inexact match (multicast only) */
++	if (is_multicast_ether_addr(eh->h_dest))
++		return addr_hash_test(filter->mask, eh->h_dest);
++
++	return 0;
++}
++
++/*
++ * Checks whether the packet is accepted or not.
++ * Returns: 0 - drop, !=0 - accept
++ */
++static int check_filter(struct tap_filter *filter, const struct sk_buff *skb)
++{
++	if (!filter->count)
++		return 1;
++
++	return run_filter(filter, skb);
++}
++
+ /* Network device part of the driver */
+ 
+ static unsigned int tun_net_id;
+@@ -141,7 +244,12 @@ static int tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (!tun->attached)
+ 		goto drop;
+ 
+-	/* Packet dropping */
++	/* Drop if the filter does not like it.
++	 * This is a noop if the filter is disabled.
++	 * Filter can be enabled only for the TAP devices. */
++	if (!check_filter(&tun->txflt, skb))
++		goto drop;
++
+ 	if (skb_queue_len(&tun->readq) >= dev->tx_queue_len) {
+ 		if (!(tun->flags & TUN_ONE_QUEUE)) {
+ 			/* Normal queueing mode. */
+@@ -158,7 +266,7 @@ static int tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		}
+ 	}
+ 
+-	/* Queue packet */
++	/* Enqueue packet */
+ 	skb_queue_tail(&tun->readq, skb);
+ 	dev->trans_start = jiffies;
+ 
+@@ -174,41 +282,14 @@ drop:
+ 	return 0;
+ }
+ 
+-/** Add the specified Ethernet address to this multicast filter. */
+-static void
+-add_multi(u32* filter, const u8* addr)
+-{
+-	int bit_nr = ether_crc(ETH_ALEN, addr) >> 26;
+-	filter[bit_nr >> 5] |= 1 << (bit_nr & 31);
+-}
+-
+-/** Remove the specified Ethernet addres from this multicast filter. */
+-static void
+-del_multi(u32* filter, const u8* addr)
++static void tun_net_mclist(struct net_device *dev)
+ {
+-	int bit_nr = ether_crc(ETH_ALEN, addr) >> 26;
+-	filter[bit_nr >> 5] &= ~(1 << (bit_nr & 31));
+-}
+-
+-/** Update the list of multicast groups to which the network device belongs.
+- * This list is used to filter packets being sent from the character device to
+- * the network device. */
+-static void
+-tun_net_mclist(struct net_device *dev)
+-{
+-	struct tun_struct *tun = netdev_priv(dev);
+-	const struct dev_mc_list *mclist;
+-	int i;
+-	DECLARE_MAC_BUF(mac);
+-	DBG(KERN_DEBUG "%s: tun_net_mclist: mc_count %d\n",
+-			dev->name, dev->mc_count);
+-	memset(tun->chr_filter, 0, sizeof tun->chr_filter);
+-	for (i = 0, mclist = dev->mc_list; i < dev->mc_count && mclist != NULL;
+-			i++, mclist = mclist->next) {
+-		add_multi(tun->net_filter, mclist->dmi_addr);
+-		DBG(KERN_DEBUG "%s: tun_net_mclist: %s\n",
+-		    dev->name, print_mac(mac, mclist->dmi_addr));
+-	}
++	/*
++	 * This callback is supposed to deal with mc filter in
++	 * _rx_ path and has nothing to do with the _tx_ path.
++	 * In rx path we always accept everything userspace gives us.
++	 */
++	return;
+ }
+ 
+ #define MIN_MTU 68
+@@ -244,13 +325,11 @@ static void tun_net_init(struct net_device *dev)
+ 
+ 	case TUN_TAP_DEV:
+ 		/* Ethernet TAP Device */
+-		dev->set_multicast_list = tun_net_mclist;
+-
+ 		ether_setup(dev);
+-		dev->change_mtu = tun_net_change_mtu;
++		dev->change_mtu         = tun_net_change_mtu;
++		dev->set_multicast_list = tun_net_mclist;
+ 
+-		/* random address already created for us by tun_set_iff, use it */
+-		memcpy(dev->dev_addr, tun->dev_addr, min(sizeof(tun->dev_addr), sizeof(dev->dev_addr)) );
++		random_ether_addr(dev->dev_addr);
+ 
+ 		dev->tx_queue_len = TUN_READQ_SIZE;  /* We prefer our own queue length */
+ 		break;
+@@ -486,7 +565,6 @@ static ssize_t tun_chr_aio_read(struct kiocb *iocb, const struct iovec *iv,
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	struct sk_buff *skb;
+ 	ssize_t len, ret = 0;
+-	DECLARE_MAC_BUF(mac);
+ 
+ 	if (!tun)
+ 		return -EBADFD;
+@@ -499,10 +577,6 @@ static ssize_t tun_chr_aio_read(struct kiocb *iocb, const struct iovec *iv,
+ 
+ 	add_wait_queue(&tun->read_wait, &wait);
+ 	while (len) {
+-		const u8 ones[ ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+-		u8 addr[ ETH_ALEN];
+-		int bit_nr;
+-
+ 		current->state = TASK_INTERRUPTIBLE;
+ 
+ 		/* Read frames from the queue */
+@@ -522,36 +596,9 @@ static ssize_t tun_chr_aio_read(struct kiocb *iocb, const struct iovec *iv,
+ 		}
+ 		netif_wake_queue(tun->dev);
+ 
+-		/** Decide whether to accept this packet. This code is designed to
+-		 * behave identically to an Ethernet interface. Accept the packet if
+-		 * - we are promiscuous.
+-		 * - the packet is addressed to us.
+-		 * - the packet is broadcast.
+-		 * - the packet is multicast and
+-		 *   - we are multicast promiscous.
+-		 *   - we belong to the multicast group.
+-		 */
+-		skb_copy_from_linear_data(skb, addr, min_t(size_t, sizeof addr,
+-								   skb->len));
+-		bit_nr = ether_crc(sizeof addr, addr) >> 26;
+-		if ((tun->if_flags & IFF_PROMISC) ||
+-				memcmp(addr, tun->dev_addr, sizeof addr) == 0 ||
+-				memcmp(addr, ones, sizeof addr) == 0 ||
+-				(((addr[0] == 1 && addr[1] == 0 && addr[2] == 0x5e) ||
+-				  (addr[0] == 0x33 && addr[1] == 0x33)) &&
+-				 ((tun->if_flags & IFF_ALLMULTI) ||
+-				  (tun->chr_filter[bit_nr >> 5] & (1 << (bit_nr & 31)))))) {
+-			DBG(KERN_DEBUG "%s: tun_chr_readv: accepted: %s\n",
+-					tun->dev->name, print_mac(mac, addr));
+-			ret = tun_put_user(tun, skb, (struct iovec *) iv, len);
+-			kfree_skb(skb);
+-			break;
+-		} else {
+-			DBG(KERN_DEBUG "%s: tun_chr_readv: rejected: %s\n",
+-					tun->dev->name, print_mac(mac, addr));
+-			kfree_skb(skb);
+-			continue;
+-		}
++		ret = tun_put_user(tun, skb, (struct iovec *) iv, len);
++		kfree_skb(skb);
++		break;
+ 	}
+ 
+ 	current->state = TASK_RUNNING;
+@@ -647,12 +694,7 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
+ 		tun = netdev_priv(dev);
+ 		tun->dev = dev;
+ 		tun->flags = flags;
+-		/* Be promiscuous by default to maintain previous behaviour. */
+-		tun->if_flags = IFF_PROMISC;
+-		/* Generate random Ethernet address. */
+-		*(__be16 *)tun->dev_addr = htons(0x00FF);
+-		get_random_bytes(tun->dev_addr + sizeof(u16), 4);
+-		memset(tun->chr_filter, 0, sizeof tun->chr_filter);
++		tun->txflt.count = 0;
+ 
+ 		tun_net_init(dev);
+ 
+@@ -751,6 +793,7 @@ static int tun_chr_ioctl(struct inode *inode, struct file *file,
+ 	struct tun_struct *tun = file->private_data;
+ 	void __user* argp = (void __user*)arg;
+ 	struct ifreq ifr;
++	int ret;
+ 	DECLARE_MAC_BUF(mac);
+ 
+ 	if (cmd == TUNSETIFF || _IOC_TYPE(cmd) == 0x89)
+@@ -826,9 +869,6 @@ static int tun_chr_ioctl(struct inode *inode, struct file *file,
+ 		break;
+ 
+ 	case TUNSETLINK:
+-	{
+-		int ret;
+-
+ 		/* Only allow setting the type when the interface is down */
+ 		rtnl_lock();
+ 		if (tun->dev->flags & IFF_UP) {
+@@ -842,94 +882,44 @@ static int tun_chr_ioctl(struct inode *inode, struct file *file,
+ 		}
+ 		rtnl_unlock();
+ 		return ret;
+-	}
+ 
+ #ifdef TUN_DEBUG
+ 	case TUNSETDEBUG:
+ 		tun->debug = arg;
+ 		break;
+ #endif
+-
+ 	case TUNSETOFFLOAD:
+-	{
+-		int ret;
+ 		rtnl_lock();
+ 		ret = set_offload(tun->dev, arg);
+ 		rtnl_unlock();
+ 		return ret;
+-	}
+ 
+-	case SIOCGIFFLAGS:
+-		ifr.ifr_flags = tun->if_flags;
+-		if (copy_to_user( argp, &ifr, sizeof ifr))
+-			return -EFAULT;
+-		return 0;
+-
+-	case SIOCSIFFLAGS:
+-		/** Set the character device's interface flags. Currently only
+-		 * IFF_PROMISC and IFF_ALLMULTI are used. */
+-		tun->if_flags = ifr.ifr_flags;
+-		DBG(KERN_INFO "%s: interface flags 0x%lx\n",
+-				tun->dev->name, tun->if_flags);
+-		return 0;
++	case TUNSETTXFILTER:
++		/* Can be set only for TAPs */
++		if ((tun->flags & TUN_TYPE_MASK) != TUN_TAP_DEV)
++			return -EINVAL;
++		rtnl_lock();
++		ret = update_filter(&tun->txflt, (void *) __user arg);
++		rtnl_unlock();
++		return ret;
+ 
+ 	case SIOCGIFHWADDR:
+-		/* Note: the actual net device's address may be different */
+-		memcpy(ifr.ifr_hwaddr.sa_data, tun->dev_addr,
+-				min(sizeof ifr.ifr_hwaddr.sa_data, sizeof tun->dev_addr));
+-		if (copy_to_user( argp, &ifr, sizeof ifr))
++		/* Get hw addres */
++		memcpy(ifr.ifr_hwaddr.sa_data, tun->dev->dev_addr, ETH_ALEN);
++		ifr.ifr_hwaddr.sa_family = tun->dev->type;
++		if (copy_to_user(argp, &ifr, sizeof ifr))
+ 			return -EFAULT;
+ 		return 0;
+ 
+ 	case SIOCSIFHWADDR:
+-	{
+-		/* try to set the actual net device's hw address */
+-		int ret;
++		/* Set hw address */
++		DBG(KERN_DEBUG "%s: set hw address: %s\n",
++			tun->dev->name, print_mac(mac, ifr.ifr_hwaddr.sa_data));
+ 
+ 		rtnl_lock();
+ 		ret = dev_set_mac_address(tun->dev, &ifr.ifr_hwaddr);
+ 		rtnl_unlock();
+-
+-		if (ret == 0) {
+-			/** Set the character device's hardware address. This is used when
+-			 * filtering packets being sent from the network device to the character
+-			 * device. */
+-			memcpy(tun->dev_addr, ifr.ifr_hwaddr.sa_data,
+-					min(sizeof ifr.ifr_hwaddr.sa_data, sizeof tun->dev_addr));
+-			DBG(KERN_DEBUG "%s: set hardware address: %x:%x:%x:%x:%x:%x\n",
+-					tun->dev->name,
+-					tun->dev_addr[0], tun->dev_addr[1], tun->dev_addr[2],
+-					tun->dev_addr[3], tun->dev_addr[4], tun->dev_addr[5]);
+-		}
+-
+-		return  ret;
+-	}
+-
+-	case SIOCADDMULTI:
+-		/** Add the specified group to the character device's multicast filter
+-		 * list. */
+-		rtnl_lock();
+-		netif_tx_lock_bh(tun->dev);
+-		add_multi(tun->chr_filter, ifr.ifr_hwaddr.sa_data);
+-		netif_tx_unlock_bh(tun->dev);
+-		rtnl_unlock();
+-
+-		DBG(KERN_DEBUG "%s: add multi: %s\n",
+-		    tun->dev->name, print_mac(mac, ifr.ifr_hwaddr.sa_data));
+-		return 0;
+-
+-	case SIOCDELMULTI:
+-		/** Remove the specified group from the character device's multicast
+-		 * filter list. */
+-		rtnl_lock();
+-		netif_tx_lock_bh(tun->dev);
+-		del_multi(tun->chr_filter, ifr.ifr_hwaddr.sa_data);
+-		netif_tx_unlock_bh(tun->dev);
+-		rtnl_unlock();
+-
+-		DBG(KERN_DEBUG "%s: del multi: %s\n",
+-		    tun->dev->name, print_mac(mac, ifr.ifr_hwaddr.sa_data));
+-		return 0;
++		return ret;
+ 
+ 	default:
+ 		return -EINVAL;
+diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
+index 563fae5..4c6307a 100644
+--- a/include/linux/if_tun.h
++++ b/include/linux/if_tun.h
+@@ -17,6 +17,7 @@
+ #define __IF_TUN_H
+ 
+ #include <linux/types.h>
++#include <linux/if_ether.h>
+ 
+ /* Read queue size */
+ #define TUN_READQ_SIZE	500
+@@ -42,7 +43,8 @@
+ #define TUNSETLINK    _IOW('T', 205, int)
+ #define TUNSETGROUP   _IOW('T', 206, int)
+ #define TUNGETFEATURES _IOR('T', 207, unsigned int)
+-#define TUNSETOFFLOAD _IOW('T', 208, unsigned int)
++#define TUNSETOFFLOAD  _IOW('T', 208, unsigned int)
++#define TUNSETTXFILTER _IOW('T', 209, unsigned int)
+ 
+ /* TUNSETIFF ifr flags */
+ #define IFF_TUN		0x0001
+@@ -57,10 +59,26 @@
+ #define TUN_F_TSO6	0x04	/* I can handle TSO for IPv6 packets */
+ #define TUN_F_TSO_ECN	0x08	/* I can handle TSO with ECN bits. */
+ 
++/* Protocol info prepended to the packets (when IFF_NO_PI is not set) */
++#define TUN_PKT_STRIP	0x0001
+ struct tun_pi {
+-	unsigned short flags;
++	__u16  flags;
+ 	__be16 proto;
+ };
+-#define TUN_PKT_STRIP	0x0001
++
++/*
++ * Filter spec (used for SETXXFILTER ioctls)
++ * This stuff is applicable only to the TAP (Ethernet) devices.
++ * If the count is zero the filter is disabled and the driver accepts
++ * all packets (promisc mode).
++ * If the filter is enabled in order to accept broadcast packets
++ * broadcast addr must be explicitly included in the addr list.
++ */
++#define TUN_FLT_ALLMULTI 0x0001 /* Accept all multicast packets */
++struct tun_filter {
++	__u16  flags; /* TUN_FLT_ flags see above */
++	__u16  count; /* Number of addresses */
++	__u8   addr[0][ETH_ALEN];
++};
+ 
+ #endif /* __IF_TUN_H */
+-- 
+1.5.5.1
