@@ -1,15 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] stopmachine: add stopmachine_timeout
-Date: Tue, 15 Jul 2008 18:09:59 +1000
-Message-ID: <200807151810.00365.rusty__38573.3846146197$1216109942$gmane$org@rustcorp.com.au>
-References: <487B05CE.1050508@jp.fujitsu.com>
-	<20080714212026.GA6705@osiris.boeblingen.de.ibm.com>
-	<487C0A76.8060401@qualcomm.com>
+Subject: Re: [PATCH 4/5] virtio net: Allow receiving SG packets
+Date: Tue, 15 Jul 2008 18:25:04 +1000
+Message-ID: <200807151825.04627.rusty__22825.8999916308$1216110488$gmane$org@rustcorp.com.au>
+References: <200807151341.39337.rusty@rustcorp.com.au>
+	<20080715035209.GB2657@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <487C0A76.8060401@qualcomm.com>
+In-Reply-To: <20080715035209.GB2657@gondor.apana.org.au>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,38 +19,137 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Max Krasnyansky <maxk@qualcomm.com>
-Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 15 July 2008 12:24:54 Max Krasnyansky wrote:
-> Heiko Carstens wrote:
-> > On Mon, Jul 14, 2008 at 11:56:18AM -0700, Jeremy Fitzhardinge wrote:
-> > This is asking for trouble... a config option to disable this would be
-> > nice. But as I don't know which problem this patch originally addresses
-> > it might be that this is needed anyway. So lets see why we need it first.
+On Tuesday 15 July 2008 13:52:09 Herbert Xu wrote:
+> On Mon, Jul 14, 2008 at 10:41:38PM -0500, Rusty Russell wrote:
+> > +	/* If we can receive ANY GSO packets, we must allocate large ones. */
+> > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4)
+> > +	    || virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6)
+> > +	    || virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN))
+> > +		dev->features |= NETIF_F_LRO;
 >
-> How about this. We'll make this a sysctl, as Rusty already did, and set the
-> default to 0 which means "never timeout". That way crazy people like me who
-> care about this scenario can enable this feature.
+> We don't want to do this because LRO implies joining packets
+> together in an irreversible way which is not what this is about.
+>
+> Case in point we're now disabling LRO for devices that are
+> forwarding packets which is totally unnecessary for virtio.
 
-Indeed, this was my thought too.  s390 can initialize it to zero somewhere in 
-their boot code.
+Oops.  I grepped for LRO when I did this and found nothing.
 
-> btw Rusty, I just had this "why didn't I think of that" moments. This is
-> actually another way of handling my workload. I mean it certainly does not
-> fix the root case of the problems and we still need other things that we
-> talked about (non-blocking module delete, lock-free module insertion, etc)
-> but at least in the mean time it avoids wedging the machines for good.
-> btw I'd like that timeout in milliseconds. I think 5 seconds is way tooooo
-> long :).
+How's this one?
 
-We can make it ms, sure.  200ms should be plenty of time: worst I ever saw was 
-150ms, and that was some weird Power box doing crazy stuff.  I wouldn't be 
-surprised if you'd never see 1ms on your hardware.
+Subject: virtio net: Allow receiving SG packets
+Date: Fri, 18 Apr 2008 11:24:27 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-The ipi idea would handle your case a little more nicely, too, but that's 
-probably not going to hit this merge window.
+Finally this patch lets virtio_net receive GSO packets in addition
+to sending them.  This can definitely be optimised for the non-GSO
+case.  For comparison the Xen approach stores one page in each skb
+and uses subsequent skb's pages to construct an SG skb instead of
+preallocating the maximum amount of pages per skb.
 
-Cheers,
-Rusty.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (added feature bits)
+---
+ drivers/net/virtio_net.c |   41 ++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 36 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -55,6 +55,9 @@ struct virtnet_info
+ 	struct tasklet_struct tasklet;
+ 	bool free_in_tasklet;
+ 
++	/* I like... big packets and I cannot lie! */
++	bool big_packets;
++
+ 	/* Receive & send queues. */
+ 	struct sk_buff_head recv;
+ 	struct sk_buff_head send;
+@@ -89,6 +92,7 @@ static void receive_skb(struct net_devic
+ 			unsigned len)
+ {
+ 	struct virtio_net_hdr *hdr = skb_vnet_hdr(skb);
++	int err;
+ 
+ 	if (unlikely(len < sizeof(struct virtio_net_hdr) + ETH_HLEN)) {
+ 		pr_debug("%s: short packet %i\n", dev->name, len);
+@@ -96,10 +100,14 @@ static void receive_skb(struct net_devic
+ 		goto drop;
+ 	}
+ 	len -= sizeof(struct virtio_net_hdr);
+-	BUG_ON(len > MAX_PACKET_LEN);
+ 
+-	skb_trim(skb, len);
+-
++	err = pskb_trim(skb, len);
++	if (err) {
++		pr_debug("%s: pskb_trim failed %i %d\n", dev->name, len, err);
++		dev->stats.rx_dropped++;
++		goto drop;
++	}
++	skb->truesize += skb->data_len;
+ 	dev->stats.rx_bytes += skb->len;
+ 	dev->stats.rx_packets++;
+ 
+@@ -161,7 +169,7 @@ static void try_fill_recv(struct virtnet
+ {
+ 	struct sk_buff *skb;
+ 	struct scatterlist sg[2+MAX_SKB_FRAGS];
+-	int num, err;
++	int num, err, i;
+ 
+ 	sg_init_table(sg, 2+MAX_SKB_FRAGS);
+ 	for (;;) {
+@@ -171,6 +179,24 @@ static void try_fill_recv(struct virtnet
+ 
+ 		skb_put(skb, MAX_PACKET_LEN);
+ 		vnet_hdr_to_sg(sg, skb);
++
++		if (vi->big_packets) {
++			for (i = 0; i < MAX_SKB_FRAGS; i++) {
++				skb_frag_t *f = &skb_shinfo(skb)->frags[i];
++				f->page = alloc_page(GFP_ATOMIC);
++				if (!f->page)
++					break;
++
++				f->page_offset = 0;
++				f->size = PAGE_SIZE;
++
++				skb->data_len += PAGE_SIZE;
++				skb->len += PAGE_SIZE;
++
++				skb_shinfo(skb)->nr_frags++;
++			}
++		}
++
+ 		num = skb_to_sgvec(skb, sg+1, 0, skb->len) + 1;
+ 		skb_queue_head(&vi->recv, skb);
+ 
+@@ -485,6 +511,12 @@ static int virtnet_probe(struct virtio_d
+ 	 * the timer. */
+ 	vi->free_in_tasklet = virtio_has_feature(vdev,VIRTIO_F_NOTIFY_ON_EMPTY);
+ 
++	/* If we can receive ANY GSO packets, we must allocate large ones. */
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4)
++	    || virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6)
++	    || virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN))
++		vi->big_packets = true;
++
+ 	/* We expect two virtqueues, receive then send. */
+ 	vi->rvq = vdev->config->find_vq(vdev, 0, skb_recv_done);
+ 	if (IS_ERR(vi->rvq)) {
+@@ -571,7 +603,9 @@ static unsigned int features[] = {
+ 	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,
+ 	VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
+ 	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6,
+-	VIRTIO_NET_F_HOST_ECN, VIRTIO_F_NOTIFY_ON_EMPTY,
++	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6,
++	VIRTIO_NET_F_GUEST_ECN, /* We don't yet handle UFO input. */
++	VIRTIO_F_NOTIFY_ON_EMPTY,
+ };
+ 
+ static struct virtio_driver virtio_net = {
