@@ -1,44 +1,55 @@
-From: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH] x86: let 32bit use apic_ops too - fix
-Date: Tue, 15 Jul 2008 12:24:41 -0700
-Message-ID: <1216149881.6620.197.camel@bodhitayantram.eng.vmware.com>
-References: <1216147130.6620.184.camel@bodhitayantram.eng.vmware.com>
-	 <20080715185123.GA31445@linux-os.sc.intel.com>
-	 <86802c440807151222o541514c5n33c4179b84457637@mail.gmail.com>
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: [PATCH] stopmachine: add stopmachine_timeout
+Date: Tue, 15 Jul 2008 11:24:52 +0900
+Message-ID: <487C0A74.4070903__709.753044839267$1216162145$gmane$org@jp.fujitsu.com>
+References: <487B05CE.1050508@jp.fujitsu.com>
+	<200807141351.25092.borntraeger@de.ibm.com>
+	<200807142234.40700.rusty@rustcorp.com.au>
+	<487BA152.1070102@goop.org>
+	<20080714212026.GA6705@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762262AbYGOTZv@vger.kernel.org>
-In-Reply-To: <86802c440807151222o541514c5n33c4179b84457637@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yinghai Lu <yhlu.kernel@gmail.com>
-Cc: Suresh Siddha <suresh.b.siddha@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@sous-sol.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization <virtualization@lists.osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20080714212026.GA6705@osiris.boeblingen.de.ibm.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2008-07-15 at 12:22 -0700, Yinghai Lu wrote:
-> On Tue, Jul 15, 2008 at 11:51 AM, Suresh Siddha
-> <suresh.b.siddha@intel.com> wrote:
-> > On Tue, Jul 15, 2008 at 11:38:50AM -0700, Zachary Amsden wrote:
-> >>
-> >> Nacked-by: Zachary Amsden <zach@vmware.com>
-> >>
-> >> What are you doing here and why aren't you cc-ing the maintainers?
-> >
-> > Sorry. I was about to bring you into the loop.
-> >
-> > Yinghai posted 32bit native apic_ops(similar to my 64bit apic ops patch, which
-> > is different from pv_apic_ops) which is in tip/x86/x2apic and proposed a fix
-> > for VMI case aswell.
-> >
-> > Based on my understanding, tip/x86/x2apic git commit
-> > 94a8c3c2437c8946f1b6c8e0b2c560a7db8ed3c6 is wrong and it should be fixed with
-> > something like
-> > http://marc.info/?l=linux-kernel&m=121614328831237&w=2
-> >
-> > Can you please check and Ack/Nack this fix?
+Heiko Carstens wrote:
+> Hmm.. probably a stupid question: but what could happen that a real cpu
+> (not virtual) becomes unresponsive so that it won't schedule a MAX_RT_PRIO-1
+> prioritized task for 5 seconds?
+
+The original problem (once I heard and easily reproduced) was there was an
+another MAX_RT_PRIO-1 task and the task was spinning in itself by a bug.
+(Now this would not be a problem since RLIMIT_RTTIME will work for it, but
+ I cannot deny that there are some situations which cannot set the limit.)
+
+However there would be more possible problem in the world, ex. assume that
+a routine work with interrupt (and also preemption) disabled have an issue
+of scalability so it takes long time on huge machine then stop_machine will
+stop whole system such long time.  You can assume a driver's bug.  Now the
+stop_machine is good tool to escalate a partial problem to global suddenly.
+
+>> So I think monotonic wallclock time actually makes the most sense here.
 > 
-> how about xen pv with icr related?
+> This is asking for trouble... a config option to disable this would be
+> nice. But as I don't know which problem this patch originally addresses
+> it might be that this is needed anyway. So lets see why we need it first.
 
-Xen doesn't have an APIC; they should be fine as is I think.
+I'm not good at VM etc., but I think user doesn't care who holds a cpu,
+whether other guest or actual buggy software or space alien or so.
+The important thing here is return control to user if timeout.
 
-Zach
+Thanks,
+H.Seto
