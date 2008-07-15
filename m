@@ -1,17 +1,11 @@
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Subject: Re: [PATCH] stopmachine: add stopmachine_timeout
-Date: Tue, 15 Jul 2008 11:24:52 +0900
-Message-ID: <487C0A74.4070903__709.753044839267$1216162145$gmane$org@jp.fujitsu.com>
-References: <487B05CE.1050508@jp.fujitsu.com>
-	<200807141351.25092.borntraeger@de.ibm.com>
-	<200807142234.40700.rusty@rustcorp.com.au>
-	<487BA152.1070102@goop.org>
-	<20080714212026.GA6705@osiris.boeblingen.de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 2/5] virtio: fix virtio_net xmit of freed skb bug
+Date: Mon, 14 Jul 2008 22:40:00 -0500
+Message-ID: <20080715034003.467E7DDEF3__31090.4481368654$1216162210$gmane$org@ozlabs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080714212026.GA6705@osiris.boeblingen.de.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,35 +15,102 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Jeff Garzik <jeff@garzik.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Heiko Carstens wrote:
-> Hmm.. probably a stupid question: but what could happen that a real cpu
-> (not virtual) becomes unresponsive so that it won't schedule a MAX_RT_PRIO-1
-> prioritized task for 5 seconds?
+[PATCH] virtio_net: Delay dropping tx skbs
+Cc: Mark McLoughlin <markmc@redhat.com>,
+ virtualization@lists.linux-foundation.org,
+ netdev@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200807151340.00446.rusty@rustcorp.com.au>
 
-The original problem (once I heard and easily reproduced) was there was an
-another MAX_RT_PRIO-1 task and the task was spinning in itself by a bug.
-(Now this would not be a problem since RLIMIT_RTTIME will work for it, but
- I cannot deny that there are some situations which cannot set the limit.)
+From: Mark McLoughlin <markmc@redhat.com>
 
-However there would be more possible problem in the world, ex. assume that
-a routine work with interrupt (and also preemption) disabled have an issue
-of scalability so it takes long time on huge machine then stop_machine will
-stop whole system such long time.  You can assume a driver's bug.  Now the
-stop_machine is good tool to escalate a partial problem to global suddenly.
-
->> So I think monotonic wallclock time actually makes the most sense here.
+On Mon, 2008-05-26 at 17:42 +1000, Rusty Russell wrote:
+> If we fail to transmit a packet, we assume the queue is full and put
+> the skb into last_xmit_skb.  However, if more space frees up before we
+> xmit it, we loop, and the result can be transmitting the same skb twice.
 > 
-> This is asking for trouble... a config option to disable this would be
-> nice. But as I don't know which problem this patch originally addresses
-> it might be that this is needed anyway. So lets see why we need it first.
+> Fix is simple: set skb to NULL if we've used it in some way, and check
+> before sending.
+...
+> diff -r 564237b31993 drivers/net/virtio_net.c
+> --- a/drivers/net/virtio_net.c	Mon May 19 12:22:00 2008 +1000
+> +++ b/drivers/net/virtio_net.c	Mon May 19 12:24:58 2008 +1000
+> @@ -287,21 +287,25 @@ again:
+>  	free_old_xmit_skbs(vi);
+>  
+>  	/* If we has a buffer left over from last time, send it now. */
+> -	if (vi->last_xmit_skb) {
+> +	if (unlikely(vi->last_xmit_skb)) {
+>  		if (xmit_skb(vi, vi->last_xmit_skb) != 0) {
+>  			/* Drop this skb: we only queue one. */
+>  			vi->dev->stats.tx_dropped++;
+>  			kfree_skb(skb);
+> +			skb = NULL;
+>  			goto stop_queue;
+>  		}
+>  		vi->last_xmit_skb = NULL;
 
-I'm not good at VM etc., but I think user doesn't care who holds a cpu,
-whether other guest or actual buggy software or space alien or so.
-The important thing here is return control to user if timeout.
+With this, may drop an skb and then later in the function discover that
+we could have sent it after all. Poor wee skb :)
 
-Thanks,
-H.Seto
+How about the incremental patch below?
+
+Cheers,
+Mark.
+
+
+Currently we drop the skb in start_xmit() if we have a
+queued buffer and fail to transmit it.
+
+However, if we delay dropping it until we've stopped the
+queue and enabled the tx notification callback, then there
+is a chance space might become available for it.
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/net/virtio_net.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d50f4fe..30af05c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -287,16 +287,11 @@ again:
+ 	free_old_xmit_skbs(vi);
+ 
+ 	/* If we has a buffer left over from last time, send it now. */
+-	if (unlikely(vi->last_xmit_skb)) {
+-		if (xmit_skb(vi, vi->last_xmit_skb) != 0) {
+-			/* Drop this skb: we only queue one. */
+-			vi->dev->stats.tx_dropped++;
+-			kfree_skb(skb);
+-			skb = NULL;
+-			goto stop_queue;
+-		}
+-		vi->last_xmit_skb = NULL;
+-	}
++	if (unlikely(vi->last_xmit_skb) &&
++	    xmit_skb(vi, vi->last_xmit_skb) != 0)
++		goto stop_queue;
++
++	vi->last_xmit_skb = NULL;
+ 
+ 	/* Put new one in send queue and do transmit */
+ 	if (likely(skb)) {
+@@ -322,6 +317,11 @@ stop_queue:
+ 		netif_start_queue(dev);
+ 		goto again;
+ 	}
++	if (skb) {
++		/* Drop this skb: we only queue one. */
++		vi->dev->stats.tx_dropped++;
++		kfree_skb(skb);
++	}
+ 	goto done;
+ }
