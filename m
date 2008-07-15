@@ -1,18 +1,12 @@
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [PATCH] stopmachine: add stopmachine_timeout
-Date: Mon, 14 Jul 2008 19:37:55 -0700
-Message-ID: <487C0D83.8050106@qualcomm.com>
-References: <487B05CE.1050508@jp.fujitsu.com>
-	<200807141351.25092.borntraeger@de.ibm.com>
-	<200807142234.40700.rusty@rustcorp.com.au>
-	<487BA152.1070102@goop.org>
-	<20080714212026.GA6705@osiris.boeblingen.de.ibm.com>
-	<487C0A74.4070903@jp.fujitsu.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 1/5] virtio_net: Set VIRTIO_NET_F_GUEST_CSUM feature
+Date: Tue, 15 Jul 2008 13:35:48 +1000
+Message-ID: <200807151335.48600.rusty__9580.25701479546$1216093080$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <487C0A74.4070903@jp.fujitsu.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,31 +16,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+(I know you already have this, but included for completeness)
 
+From: Mark McLoughlin <markmc@redhat.com>
 
-Hidetoshi Seto wrote:
-> Heiko Carstens wrote:
->> Hmm.. probably a stupid question: but what could happen that a real cpu
->> (not virtual) becomes unresponsive so that it won't schedule a MAX_RT_PRIO-1
->> prioritized task for 5 seconds?
-> 
-> The original problem (once I heard and easily reproduced) was there was an
-> another MAX_RT_PRIO-1 task and the task was spinning in itself by a bug.
-> (Now this would not be a problem since RLIMIT_RTTIME will work for it, but
-> I cannot deny that there are some situations which cannot set the limit.)
-Yep. As I described in the prev email in my case it's a legitimate thing. Some
-of the CPU cores are running wireless basestation schedulers and the deadlines
-are way too tight for them to sleep (it's "cpu as a dedicated engine" kind of
-thing, they are properly isolated and stuff).
+We can handle receiving partial csums, so set the
+appropriate feature bit.
 
-In this case actually RT limit is the first thing that I disable :).
-I'd rather have stop_machine fail and tell the user that something is wrong.
-In which case they can simply stop the basestation app that is running when
-convinient. ie It give control back to the user rather than wedging the box or
-killing the app.
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/net/virtio_net.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Max
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -550,7 +550,8 @@ static struct virtio_device_id id_table[
+ };
+ 
+ static unsigned int features[] = {
+-	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
++	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,
++	VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
+ 	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6,
+ 	VIRTIO_NET_F_HOST_ECN, VIRTIO_F_NOTIFY_ON_EMPTY,
+ };
