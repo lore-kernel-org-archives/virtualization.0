@@ -1,14 +1,19 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] tun: Fix/rewrite packet filtering logic
-Date: Mon, 14 Jul 2008 22:17:46 -0700 (PDT)
-Message-ID: <20080714.221746.140661906.davem__22.2610695802317$1216099187$gmane$org@davemloft.net>
-References: <1215852774-23974-1-git-send-email-maxk@qualcomm.com>
-	<20080714.221602.232989530.davem@davemloft.net>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] stopmachine: add stopmachine_timeout
+Date: Tue, 15 Jul 2008 08:09:24 +0200
+Message-ID: <20080715060923.GA4669__18818.7538100921$1216102358$gmane$org@osiris.boeblingen.de.ibm.com>
+References: <487B05CE.1050508@jp.fujitsu.com>
+	<200807141351.25092.borntraeger@de.ibm.com>
+	<200807142234.40700.rusty@rustcorp.com.au>
+	<487BA152.1070102@goop.org>
+	<20080714212026.GA6705@osiris.boeblingen.de.ibm.com>
+	<487C0A76.8060401@qualcomm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080714.221602.232989530.davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <487C0A76.8060401@qualcomm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,14 +23,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: maxk@qualcomm.com
-Cc: jeff@garzik.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, linuxkernel@bristyle.com, sjackman@gmail.com
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: linux-kernel@vger.kernel.org, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: David Miller <davem@davemloft.net>
-Date: Mon, 14 Jul 2008 22:16:02 -0700 (PDT)
+> >> So I think monotonic wallclock time actually makes the most sense here.
+> > 
+> > This is asking for trouble... a config option to disable this would be
+> > nice. But as I don't know which problem this patch originally addresses
+> > it might be that this is needed anyway. So lets see why we need it first.
+> How about this. We'll make this a sysctl, as Rusty already did, and set the
+> default to 0 which means "never timeout". That way crazy people like me who
+> care about this scenario can enable this feature.
 
-> It doesn't apply cleanly to net-next-2.6, as I just tried to
-> stick this into my tree.
-
-Ignore this, I did something stupid.
+Yes, sounds like that should work for everyone and no additional config
+option as well. Sounds good to me.
