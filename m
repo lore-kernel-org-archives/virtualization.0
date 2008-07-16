@@ -1,16 +1,15 @@
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Subject: Re: [PATCH] stopmachine: add stopmachine_timeout v3
-Date: Wed, 16 Jul 2008 17:12:42 +0900
-Message-ID: <487DAD7A.8080407__40907.7474302196$1216196274$gmane$org@jp.fujitsu.com>
-References: <487B05CE.1050508@jp.fujitsu.com>	
-	<487D78A3.6050105@jp.fujitsu.com> <487D93CD.1000007@qualcomm.com>	
-	<487D96A2.10904@jp.fujitsu.com> <487D9A8B.5020005@jp.fujitsu.com>
-	<1216193615.5232.11.camel@twins>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] stopmachine: add stopmachine_timeout
+Date: Wed, 16 Jul 2008 11:15:55 +0200
+Message-ID: <200807161115.55214.borntraeger__37024.4919010021$1216200003$gmane$org@de.ibm.com>
+References: <487B05CE.1050508@jp.fujitsu.com> <487C0A76.8060401@qualcomm.com>
+	<200807151810.00365.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1216193615.5232.11.camel@twins>
+In-Reply-To: <200807151810.00365.rusty@rustcorp.com.au>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,24 +19,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Max Krasnyansky <maxk@qualcomm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>, virtualization@lists.linux-foundation.org, Max Krasnyansky <maxk@qualcomm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Peter Zijlstra wrote:
-> I really don't like this, it means the system is really screwed up and
-> doesn't deserve to continue.
+Am Dienstag, 15. Juli 2008 schrieb Rusty Russell:
+> > btw Rusty, I just had this "why didn't I think of that" moments. This is
+> > actually another way of handling my workload. I mean it certainly does not
+> > fix the root case of the problems and we still need other things that we
+> > talked about (non-blocking module delete, lock-free module insertion, etc)
+> > but at least in the mean time it avoids wedging the machines for good.
+> > btw I'd like that timeout in milliseconds. I think 5 seconds is way tooooo
+> > long :).
+> 
+> We can make it ms, sure.  200ms should be plenty of time: worst I ever saw 
+was 
+> 150ms, and that was some weird Power box doing crazy stuff.  I wouldn't be 
+> surprised if you'd never see 1ms on your hardware.
 
-It can be said that after timeout we just back to previous state, where
-machine already limp(=partially screwed up), but have some degree of
-performance.  We might be able to do some recovery, such as killing
-process, restart or reset of subsystem and so on.  Even if a CPU get
-stuck, it might be possible to continue its service with remaining
-CPUs, ex. assume there are 1024 CPUs total.
-(I wish if we were able to force-reset such unstable CPU in future...)
-
-I agree that there are much amount of situation where this feature is
-not acceptable.  But there would be others.
-
-Thanks,
-H.Seto
+I disagree that 5 seconds is to long :-). I even think having it default to 0 
+is the safest option for virtualized environments. What if the host is paging 
+like hell and the vcpu cannot run due to a missing page? In that case 200ms 
+can be an incredible short amount of time. If the timeout triggers, 
+stop_machine_run fails, but everything would work fine - it just takes 
+longer.
