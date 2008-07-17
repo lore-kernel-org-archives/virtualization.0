@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 24/29] ia64/pv_ops/xen: implement xen pv_time_ops.
-Date: Thu, 17 Jul 2008 11:10:56 +0900
-Message-ID: <12162606623288-git-send-email-yamahata__566.055233548646$1216263986$gmane$org@valinux.co.jp>
+Subject: [PATCH 28/29] ia64/xen: a recipe for using xen/ia64 with pv_ops.
+Date: Thu, 17 Jul 2008 11:11:00 +0900
+Message-ID: <12162606622231-git-send-email-yamahata__16619.8059953333$1216263988$gmane$org@valinux.co.jp>
 References: <12162606614068-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,255 +18,206 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-implement xen pv_time_ops to account steal time.
+Recipe for useing xen/ia64 with pv_ops domU.
 
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+Signed-off-by: Akio Takebe <takebe_akio@jp.fujitsu.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile     |    2 +-
- arch/ia64/xen/time.c       |  165 ++++++++++++++++++++++++++++++++++++++++++++
- arch/ia64/xen/time.h       |   23 ++++++
- arch/ia64/xen/xen_pv_ops.c |    2 +
- 4 files changed, 191 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/time.c
- create mode 100644 arch/ia64/xen/time.h
+ Documentation/ia64/xen.txt |  183 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 183 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/ia64/xen.txt
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 01c4289..ed31c76 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -3,7 +3,7 @@
- #
- 
- obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
--	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
-+	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
- 
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
- 
-diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
+diff --git a/Documentation/ia64/xen.txt b/Documentation/ia64/xen.txt
 new file mode 100644
-index 0000000..3414f1e
+index 0000000..a5c6993
 --- /dev/null
-+++ b/arch/ia64/xen/time.c
-@@ -0,0 +1,165 @@
-+/******************************************************************************
-+ * arch/ia64/xen/time.c
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
++++ b/Documentation/ia64/xen.txt
+@@ -0,0 +1,183 @@
++       Recipe for getting/building/running Xen/ia64 with pv_ops
++       --------------------------------------------------------
 +
-+#include <linux/delay.h>
-+#include <linux/kernel_stat.h>
-+#include <linux/posix-timers.h>
-+#include <linux/irq.h>
-+#include <linux/clocksource.h>
++This recipe discribes how to get xen-ia64 source and build it,
++and run domU with pv_ops.
 +
-+#include <asm/xen/hypervisor.h>
++===========
++Requirement
++===========
 +
-+#include <xen/interface/vcpu.h>
++  - python
++  - mercurial
++    it (aka "hg") is a open-source source code
++    management software. See the below.
++    http://www.selenic.com/mercurial/wiki/
++  - git
++  - bridge-utils
 +
-+#include "../kernel/fsyscall_gtod_data.h"
++=================================
++Getting and Building Xen and Dom0
++=================================
 +
-+DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
-+DEFINE_PER_CPU(unsigned long, processed_stolen_time);
-+DEFINE_PER_CPU(unsigned long, processed_blocked_time);
++  My enviroment is;
++    Machine  : Tiger4
++    Domain0 OS  : RHEL5
++    DomainU OS  : RHEL5
 +
-+/* taken from i386/kernel/time-xen.c */
-+static void xen_init_missing_ticks_accounting(int cpu)
-+{
-+	struct vcpu_register_runstate_memory_area area;
-+	struct vcpu_runstate_info *runstate = &per_cpu(runstate, cpu);
-+	int rc;
++ 1. Download source
++    # hg clone http://xenbits.xensource.com/ext/ia64/xen-unstable.hg
++    # cd xen-unstable.hg
++    # hg clone http://xenbits.xensource.com/ext/ia64/linux-2.6.18-xen.hg
 +
-+	memset(runstate, 0, sizeof(*runstate));
++ 2. # make world
 +
-+	area.addr.v = runstate;
-+	rc = HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area, cpu,
-+				&area);
-+	WARN_ON(rc && rc != -ENOSYS);
++ 3. # make install-tools
 +
-+	per_cpu(processed_blocked_time, cpu) = runstate->time[RUNSTATE_blocked];
-+	per_cpu(processed_stolen_time, cpu) = runstate->time[RUNSTATE_runnable]
-+					    + runstate->time[RUNSTATE_offline];
-+}
++ 4. copy kernels and xen
++    # cp xen/xen.gz /boot/efi/efi/redhat/
++    # cp build-linux-2.6.18-xen_ia64/vmlinux.gz \
++      /boot/efi/efi/redhat/vmlinuz-2.6.18.8-xen
 +
-+#define NS_PER_TICK (1000000000LL/HZ)
++ 5. make initrd for Dom0/DomU
++    # make -C linux-2.6.18-xen.hg ARCH=ia64 modules_install \
++      O=$(/bin/pwd)/build-linux-2.6.18-xen_ia64
++    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6.18.8-xen.img \
++      2.6.18.8-xen --builtin mptspi --builtin mptbase \
++      --builtin mptscsih --builtin uhci-hcd --builtin ohci-hcd \
++      --builtin ehci-hcd
 +
-+static unsigned long
-+consider_steal_time(unsigned long new_itm)
-+{
-+	unsigned long stolen, blocked, sched_time;
-+	unsigned long delta_itm = 0, stolentick = 0;
-+	int cpu = smp_processor_id();
-+	struct vcpu_runstate_info *runstate;
-+	struct task_struct *p = current;
++================================
++Making a disk image for guest OS
++================================
 +
-+	runstate = &per_cpu(runstate, smp_processor_id());
++ 1. make file
++    # dd if=/dev/zero of=/root/rhel5.img bs=1M seek=4096 count=0
++    # mke2fs -F -j /root/rhel5.img
++    # mount -o loop /root/rhel5.img /mnt
++    # cp -ax /{dev,var,etc,usr,bin,sbin,lib} /mnt
++    # mkdir /mnt/{root,proc,sys,home,tmp}
 +
-+	do {
-+		sched_time = runstate->state_entry_time;
-+		mb();
-+		stolen = runstate->time[RUNSTATE_runnable] +
-+			 runstate->time[RUNSTATE_offline] -
-+			 per_cpu(processed_stolen_time, cpu);
-+		blocked = runstate->time[RUNSTATE_blocked] -
-+			  per_cpu(processed_blocked_time, cpu);
-+		mb();
-+	} while (sched_time != runstate->state_entry_time);
++    Note: You may miss some device files. If so, please create them
++    with mknod. Or you can use tar intead of cp.
 +
-+	/*
-+	 * Check for vcpu migration effect
-+	 * In this case, itc value is reversed.
-+	 * This causes huge stolen value.
-+	 * This function just checks and reject this effect.
-+	 */
-+	if (!time_after_eq(runstate->time[RUNSTATE_blocked],
-+			   per_cpu(processed_blocked_time, cpu)))
-+		blocked = 0;
++ 2. modify DomU's fstab
++    # vi /mnt/etc/fstab
++       /dev/xvda1  /            ext3    defaults        1 1
++       none        /dev/pts     devpts  gid=5,mode=620  0 0
++       none        /dev/shm     tmpfs   defaults        0 0
++       none        /proc        proc    defaults        0 0
++       none        /sys         sysfs   defaults        0 0
 +
-+	if (!time_after_eq(runstate->time[RUNSTATE_runnable] +
-+			   runstate->time[RUNSTATE_offline],
-+			   per_cpu(processed_stolen_time, cpu)))
-+		stolen = 0;
++ 3. modify inittab
++    set runlevel to 3 to avoid X trying to start
++    # vi /mnt/etc/inittab
++       id:3:initdefault:
++    Start a getty on the hvc0 console
++       X0:2345:respawn:/sbin/mingetty hvc0
++    tty1-6 mingetty can be commented out
 +
-+	if (!time_after(delta_itm + new_itm, ia64_get_itc()))
-+		stolentick = ia64_get_itc() - new_itm;
++ 4. add hvc0 into /etc/securetty
++    # vi /mnt/etc/securetty (add hvc0)
 +
-+	do_div(stolentick, NS_PER_TICK);
-+	stolentick++;
++ 5. umount
++    # umount /mnt
 +
-+	do_div(stolen, NS_PER_TICK);
++FYI, virt-manager can also make a disk image for guest OS.
++It's GUI tools and easy to make it.
 +
-+	if (stolen > stolentick)
-+		stolen = stolentick;
++==================
++Boot Xen & Domain0
++==================
 +
-+	stolentick -= stolen;
-+	do_div(blocked, NS_PER_TICK);
++ 1. replace elilo
++    elilo of RHEL5 can boot Xen and Dom0.
++    If you use old elilo (e.g RHEL4), please download from the below
++    http://elilo.sourceforge.net/cgi-bin/blosxom
++    and copy into /boot/efi/efi/redhat/
++    # cp elilo-3.6-ia64.efi /boot/efi/efi/redhat/elilo.efi
 +
-+	if (blocked > stolentick)
-+		blocked = stolentick;
++ 2. modify elilo.conf (like the below)
++    # vi /boot/efi/efi/redhat/elilo.conf
++     prompt
++     timeout=20
++     default=xen
++     relocatable
 +
-+	if (stolen > 0 || blocked > 0) {
-+		account_steal_time(NULL, jiffies_to_cputime(stolen));
-+		account_steal_time(idle_task(cpu), jiffies_to_cputime(blocked));
-+		run_local_timers();
++     image=vmlinuz-2.6.18.8-xen
++             label=xen
++             vmm=xen.gz
++             initrd=initrd-2.6.18.8-xen.img
++             read-only
++             append=" -- rhgb root=/dev/sda2"
 +
-+		if (rcu_pending(cpu))
-+			rcu_check_callbacks(cpu, user_mode(get_irq_regs()));
++The append options before "--" are for xen hypervisor,
++the options after "--" are for dom0.
 +
-+		scheduler_tick();
-+		run_posix_cpu_timers(p);
-+		delta_itm += local_cpu_data->itm_delta * (stolen + blocked);
++FYI, your machine may need console options like
++"com1=19200,8n1 console=vga,com1". For example,
++append="com1=19200,8n1 console=vga,com1 -- rhgb console=tty0 \
++console=ttyS0 root=/dev/sda2"
 +
-+		if (cpu == time_keeper_id) {
-+			write_seqlock(&xtime_lock);
-+			do_timer(stolen + blocked);
-+			local_cpu_data->itm_next = delta_itm + new_itm;
-+			write_sequnlock(&xtime_lock);
-+		} else {
-+			local_cpu_data->itm_next = delta_itm + new_itm;
-+		}
-+		per_cpu(processed_stolen_time, cpu) += NS_PER_TICK * stolen;
-+		per_cpu(processed_blocked_time, cpu) += NS_PER_TICK * blocked;
-+	}
-+	return delta_itm;
-+}
++=====================================
++Getting and Building domU with pv_ops
++=====================================
 +
-+static int xen_do_steal_accounting(unsigned long *new_itm)
-+{
-+	unsigned long delta_itm;
-+	delta_itm = consider_steal_time(*new_itm);
-+	*new_itm += delta_itm;
-+	if (time_after(*new_itm, ia64_get_itc()) && delta_itm)
-+		return 1;
++ 1. get pv_ops tree
++    # git clone http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
 +
-+	return 0;
-+}
++ 2. git branch (if necessary)
++    # cd linux-2.6-xen-ia64/
++    # git checkout -b your_branch origin/xen-ia64-domu-minimal-2008may19
++    (Note: The current branch is xen-ia64-domu-minimal-2008may19.
++    But you would find the new branch. You can see with
++    "git branch -r" to get the branch lists.
++    http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
++    is also available. The tree is based on
++    git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6 test)
 +
-+static void xen_itc_jitter_data_reset(void)
-+{
-+	u64 lcycle, ret;
 +
-+	do {
-+		lcycle = itc_jitter_data.itc_lastcycle;
-+		ret = cmpxchg(&itc_jitter_data.itc_lastcycle, lcycle, 0);
-+	} while (unlikely(ret != lcycle));
-+}
++ 3. copy .config for pv_ops of domU
++    # cp arch/ia64/configs/xen_domu_wip_defconfig .config
 +
-+struct pv_time_ops xen_time_ops __initdata = {
-+	.init_missing_ticks_accounting	= xen_init_missing_ticks_accounting,
-+	.do_steal_accounting		= xen_do_steal_accounting,
-+	.clocksource_resume		= xen_itc_jitter_data_reset,
-+};
-diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
-new file mode 100644
-index 0000000..b9c7ec5
---- /dev/null
-+++ b/arch/ia64/xen/time.h
-@@ -0,0 +1,23 @@
-+/******************************************************************************
-+ * arch/ia64/xen/time.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
++ 4. make kernel with pv_ops
++    # make oldconfig
++    # make
 +
-+extern struct pv_time_ops xen_time_ops __initdata;
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index 0ac166c..5f83036 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -30,6 +30,7 @@
- #include <asm/xen/privop.h>
- 
- #include "irq_xen.h"
-+#include "time.h"
- 
- /***************************************************************************
-  * general info
-@@ -357,6 +358,7 @@ xen_setup_pv_ops(void)
- 	pv_cpu_ops = xen_cpu_ops;
- 	pv_iosapic_ops = xen_iosapic_ops;
- 	pv_irq_ops = xen_irq_ops;
-+	pv_time_ops = xen_time_ops;
- 
- 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
- }
++ 5. install the kernel and initrd
++    # cp vmlinux.gz /boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU
++    # make modules_install
++    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img \
++      2.6.26-rc3xen-ia64-08941-g1b12161 --builtin mptspi \
++      --builtin mptbase --builtin mptscsih --builtin uhci-hcd \
++      --builtin ohci-hcd --builtin ehci-hcd
++
++========================
++Boot DomainU with pv_ops
++========================
++
++ 1. make config of DomU
++   # vi /etc/xen/rhel5
++     kernel = "/boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU"
++     ramdisk = "/boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img"
++     vcpus = 1
++     memory = 512
++     name = "rhel5"
++     disk = [ 'file:/root/rhel5.img,xvda1,w' ]
++     root = "/dev/xvda1 ro"
++     extra= "rhgb console=hvc0"
++
++ 2. After boot xen and dom0, start xend
++   # /etc/init.d/xend start
++   ( In the debugging case, # XEND_DEBUG=1 xend trace_start )
++
++ 3. start domU
++   # xm create -c rhel5
++
++=========
++Reference
++=========
++- Wiki of Xen/IA64 upstream merge
++  http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
++
++Witten by Akio Takebe <takebe_akio@jp.fujitsu.com> on 28 May 2008
 -- 
 1.5.3
