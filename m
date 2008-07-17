@@ -1,13 +1,16 @@
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [PATCH] stopmachine: add stopmachine_timeout v4
-Date: Thu, 17 Jul 2008 00:09:49 -0700
-Message-ID: <487EF03D.9090401__6112.35485780544$1216278803$gmane$org@qualcomm.com>
-References: <487B05CE.1050508@jp.fujitsu.com> <487EE2DB.7090205@jp.fujitsu.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 24/29] ia64/pv_ops/xen: implement xen pv_time_ops.
+Date: Thu, 17 Jul 2008 07:21:37 -0700
+Message-ID: <487F5571.5000803__21376.9368514933$1216304742$gmane$org@goop.org>
+References: <12162606614068-git-send-email-yamahata@valinux.co.jp>
+	<12162606623288-git-send-email-yamahata@valinux.co.jp>
+	<487EDC6C.5000407@goop.org>
+	<20080717061127.GF25137%yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <487EE2DB.7090205@jp.fujitsu.com>
+In-Reply-To: <20080717061127.GF25137%yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,42 +20,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: xen-ia64-devel@lists.xensource.com, tony.luck@intel.com, linux-ia64@vger.kernel.org, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hidetoshi Seto wrote:
-> If stop_machine() invoked while one of onlined cpu is locked up
-> by some reason, stop_machine cannot finish its work because the
-> locked cpu cannot stop.  This means all other healthy cpus
-> will be blocked infinitely by one dead cpu.
-> 
-> This patch allows stop_machine to return -EBUSY with some printk
-> messages if any of stop_machine's threads cannot start running on
-> its target cpu in time.  You can enable this timeout via sysctl.
-> 
-> v4:
->  - move extern into linux/stop_machine.h and add include of the
->    header to kernel/sysctl.c.  Now stopmachine_timeout is available
->    only on smp.
-> 
-> v3:
->  - set stopmachine_timeout default to 0 (= never timeout)
-> 
-> v2:
->  - remove fix for warning since it will be fixed upcoming typesafe
->    patches
->  - make stopmachine_timeout from secs to msecs
->  - allow disabling timeout by setting the stopmachine_timeout to 0
-> 
-> Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-> ---
->  include/linux/stop_machine.h |    3 ++
->  kernel/stop_machine.c        |   54 +++++++++++++++++++++++++++++++++++++++--
->  kernel/sysctl.c              |   12 +++++++++
->  3 files changed, 66 insertions(+), 3 deletions(-)
+Isaku Yamahata wrote:
+> I had explained about that.
+> I had considered that option. However my conclusion is not share 
+> he implementation because xen/ia64 timer interrupt isn't
+> paravirtualized with VCPUOP_xxx hypercall. But xen/ia64 emulates
+> ar.itm register. (ar.itm is interval time match register which triggers
+> interrupt when interval time counter becomes same value)
+>
+> Since timer interruption is virtualized differently on xen/ia64,
+> the different implementation is a natural consequence.
 
-Looks good to me.
-Ack.
+OK, that means the clockevent and clocksource part would be different.  
+But the runstate accounting should still be the same, no?
 
-Max
+    J
