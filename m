@@ -1,15 +1,14 @@
-From: Akio Takebe <takebe_akio@jp.fujitsu.com>
-Subject: Re: [PATCH 13/29] ia64/xen: add definitions necessary for xen
-	eventchannel.
-Date: Thu, 17 Jul 2008 12:27:56 +0900
-Message-ID: <97C8E7BD1AA462takebe_akio__27658.8739864112$1216265441$gmane$org@jp.fujitsu.com>
-References: <12162606614068-git-send-email-yamahata@valinux.co.jp>
-	<12162606623812-git-send-email-yamahata@valinux.co.jp>
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: [PATCH] stopmachine: add stopmachine_timeout v2
+Date: Thu, 17 Jul 2008 12:40:14 +0900
+Message-ID: <487EBF1E.5030109__21445.6201218583$1216266147$gmane$org@jp.fujitsu.com>
+References: <487B05CE.1050508@jp.fujitsu.com>
+	<487D78A3.6050105@jp.fujitsu.com> <487DC943.5060202@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12162606623812-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <487DC943.5060202@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,25 +18,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>, tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, xen-ia64-devel@lists.xensource.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Max Krasnyansky <maxk@qualcomm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Isaku
+Jeremy Fitzhardinge wrote:
+> Hidetoshi Seto wrote:
+>> +#ifdef CONFIG_STOP_MACHINE
+>> +extern unsigned long stopmachine_timeout;
+>> +#endif
+> 
+> No externs in C files. Put it in an appropriate header.
 
-I have a trivial comment.
+sysctl.c already has many externs... but I can fix at least
+the above.
 
->+enum ipi_vector {
->+	XEN_RESCHEDULE_VECTOR,
->+	XEN_IPI_VECTOR,
->+	XEN_CMCP_VECTOR,
->+	XEN_CPEP_VECTOR,
->+
->+	XEN_NR_IPIS,
->+};
->+
-Don't need empty line.
+> I'll do a proper review soon.
 
-Best Regards,
+Is it better to postpone v4 until your comment comes?
 
-Akio Takebe
+Thanks,
+H.Seto
