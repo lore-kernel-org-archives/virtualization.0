@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 02/29] ia64/xen: reserve "break" numbers used for xen
-	hypercalls.
-Date: Thu, 17 Jul 2008 11:10:34 +0900
-Message-ID: <1216260662682-git-send-email-yamahata__35745.8557970405$1216262488$gmane$org@valinux.co.jp>
+Subject: [PATCH 01/29] ia64: move function declaration,
+	ia64_cpu_local_tick() from .c to .h
+Date: Thu, 17 Jul 2008 11:10:33 +0900
+Message-ID: <1216260662371-git-send-email-yamahata__5443.24858715317$1216262498$gmane$org@valinux.co.jp>
 References: <12162606614068-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,37 +18,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, "Luck,
-	Tony" <tony.luck@intel.com>, virtualization@lists.linux-foundation.org
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-reserve "break" numbers used for xen hypercalls to avoid
-reuse for something else.
+eliminate the function declaration ia64_cpu_local_tick() in
+process.c by defining in asm-ia64/timex.h
+The same function will be used in a different .c file later.
 
-Cc: "Luck, Tony" <tony.luck@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- include/asm-ia64/break.h |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
+ arch/ia64/kernel/process.c |    1 -
+ include/asm-ia64/timex.h   |    2 ++
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/include/asm-ia64/break.h b/include/asm-ia64/break.h
-index f034020..e90c40e 100644
---- a/include/asm-ia64/break.h
-+++ b/include/asm-ia64/break.h
-@@ -20,4 +20,13 @@
-  */
- #define __IA64_BREAK_SYSCALL		0x100000
+diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
+index a3a34b4..1fbd9b8 100644
+--- a/arch/ia64/kernel/process.c
++++ b/arch/ia64/kernel/process.c
+@@ -247,7 +247,6 @@ default_idle (void)
+ /* We don't actually take CPU down, just spin without interrupts. */
+ static inline void play_dead(void)
+ {
+-	extern void ia64_cpu_local_tick (void);
+ 	unsigned int this_cpu = smp_processor_id();
  
-+/*
-+ * Xen specific break numbers:
-+ */
-+#define __IA64_XEN_HYPERCALL		0x1000
-+/* [__IA64_XEN_HYPERPRIVOP_START, __IA64_XEN_HYPERPRIVOP_MAX] is used
-+   for xen hyperprivops */
-+#define __IA64_XEN_HYPERPRIVOP_START	0x1
-+#define __IA64_XEN_HYPERPRIVOP_MAX	0x1a
+ 	/* Ack it */
+diff --git a/include/asm-ia64/timex.h b/include/asm-ia64/timex.h
+index 05a6baf..4e03cfe 100644
+--- a/include/asm-ia64/timex.h
++++ b/include/asm-ia64/timex.h
+@@ -39,4 +39,6 @@ get_cycles (void)
+ 	return ret;
+ }
+ 
++extern void ia64_cpu_local_tick (void);
 +
- #endif /* _ASM_IA64_BREAK_H */
+ #endif /* _ASM_IA64_TIMEX_H */
 -- 
 1.5.3
