@@ -1,41 +1,56 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 24/29] ia64/pv_ops/xen: implement xen pv_time_ops.
-Date: Thu, 17 Jul 2008 07:21:37 -0700
-Message-ID: <487F5571.5000803__21376.9368514933$1216304742$gmane$org@goop.org>
-References: <12162606614068-git-send-email-yamahata@valinux.co.jp>
-	<12162606623288-git-send-email-yamahata@valinux.co.jp>
-	<487EDC6C.5000407@goop.org>
-	<20080717061127.GF25137%yamahata@valinux.co.jp>
+From: Ben-Ami Yassour <benami@il.ibm.com>
+Subject: Re: [PATCH 2/4] KVM: Introduce a callback routine for IOAPIC ack
+	handling
+Date: Thu, 17 Jul 2008 19:56:35 +0300
+Message-ID: <1216313795.31546.342.camel@cluwyn.haifa.ibm.com>
+References: <1214571305-20701-1-git-send-email-amit.shah@qumranet.com>
+	 <1214571305-20701-2-git-send-email-amit.shah@qumranet.com>
+	 <1214571305-20701-3-git-send-email-amit.shah@qumranet.com>
+	 <4871EB36.5030003@qumranet.com>
+	 <1215513283.31546.133.camel@cluwyn.haifa.ibm.com>
+	 <48761558.3070703@qumranet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080717061127.GF25137%yamahata@valinux.co.jp>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: xen-ia64-devel@lists.xensource.com, tony.luck@intel.com, linux-ia64@vger.kernel.org, Alex Williamson <alex.williamson@hp.com>, virtualization@lists.linux-foundation.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <48761558.3070703@qumranet.com>
+Sender: kvm-owner@vger.kernel.org
+To: Avi Kivity <avi@qumranet.com>
+Cc: Amit Shah <amit.shah@qumranet.com>, kvm@vger.kernel.org, Muli Ben-Yehuda <muli@il.ibm.com>, allen.m.kay@intel.com, chrisw@redhat.com, weidong.han@intel.com, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Isaku Yamahata wrote:
-> I had explained about that.
-> I had considered that option. However my conclusion is not share 
-> he implementation because xen/ia64 timer interrupt isn't
-> paravirtualized with VCPUOP_xxx hypercall. But xen/ia64 emulates
-> ar.itm register. (ar.itm is interval time match register which triggers
-> interrupt when interval time counter becomes same value)
->
-> Since timer interruption is virtualized differently on xen/ia64,
-> the different implementation is a natural consequence.
+On Thu, 2008-07-10 at 16:57 +0300, Avi Kivity wrote:
+> Ben-Ami Yassour wrote:
+> > On Mon, 2008-07-07 at 13:08 +0300, Avi Kivity wrote:
+> >   
+> >> Amit Shah wrote:
+> >>     
+> >>> This will be useful for acking irqs of assigned devices
+> >>>
+> >>>   
+> >>>       
+> >> And also for improving time drift tracking.
+> >>
+> >> Please make this more generic by having a list of callbacks.  There 
+> >> could also be just one list, rather than one for the ioapic and one for 
+> >> the pic as implemented now.
+> >>
+> >> It may also make sense to filter the irq number before calling the 
+> >> callback rather than relying on the callback to ignore uninteresting irqs.
+> >>
+> >>     
+> > Avi,
+> >
+> > Did you mean something like the patch below?
+> >   
+> 
+> I did, and have something very similar queued.
 
-OK, that means the clockevent and clocksource part would be different.  
-But the runstate accounting should still be the same, no?
+The notification list might help simplify the assigned device code.
+Are you planning to merge the patch you have queued, or should I use the
+one that I sent you?
 
-    J
+Thanks,
+Ben
+
+
