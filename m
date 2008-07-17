@@ -1,15 +1,15 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 10/29] ia64/xen: implement the arch specific part
-	of	xencomm.
-Date: Wed, 16 Jul 2008 22:39:03 -0700
-Message-ID: <487EDAF7.8060000__40334.7453604967$1216273287$gmane$org@goop.org>
-References: <12162606614068-git-send-email-yamahata@valinux.co.jp>	<12162606621561-git-send-email-yamahata@valinux.co.jp>
-	<96C8E7BCC74EB0takebe_akio@jp.fujitsu.com>
+Subject: Re: [PATCH 07/29] ia64/xen: add a neccessary header file to copmle
+	include/xen/interface/xen.h
+Date: Wed, 16 Jul 2008 22:43:21 -0700
+Message-ID: <487EDBF9.8050305__14959.4812341549$1216273538$gmane$org@goop.org>
+References: <12162606614068-git-send-email-yamahata@valinux.co.jp>
+	<1216260662692-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <96C8E7BCC74EB0takebe_akio@jp.fujitsu.com>
+In-Reply-To: <1216260662692-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,93 +19,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Akio Takebe <takebe_akio@jp.fujitsu.com>
-Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org, Isaku Yamahata <yamahata@valinux.co.jp>, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Akio Takebe wrote:
-> Hi, Isaku
->
-> Thank you for your work.
-> one small comment.
->
->   
->> On ia64/xen, pointer argument for the hypercall is passed
->> by pseudo physical address (guest physical address.)
->> So it is necessary to convert virtual address into pseudo physical
->> address right before issuing hypercall. The frame work is called
->> xencomm. This patch implements arch specific part.
->>
->> Signed-off-by: Alex Williamson <alex.williamson@hp.com>
->> Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
->> Cc: "Luck, Tony" <tony.luck@intel.com>
->> ---
->> arch/ia64/xen/Makefile         |    2 +-
->> arch/ia64/xen/xencomm.c        |   94 ++++++++++++++++++++++++++++++++++++++
->> ++
->> include/asm-ia64/xen/xencomm.h |   41 +++++++++++++++++
->> 3 files changed, 136 insertions(+), 1 deletions(-)
->> create mode 100644 arch/ia64/xen/xencomm.c
->> create mode 100644 include/asm-ia64/xen/xencomm.h
->>
->> diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
->> index c200704..ad0c9f7 100644
->> --- a/arch/ia64/xen/Makefile
->> +++ b/arch/ia64/xen/Makefile
->> @@ -2,4 +2,4 @@
->> # Makefile for Xen components
->> #
->>
->> -obj-y := hypercall.o
->> +obj-y := hypercall.o xencomm.o
->> diff --git a/arch/ia64/xen/xencomm.c b/arch/ia64/xen/xencomm.c
->> new file mode 100644
->> index 0000000..2a57058
->> --- /dev/null
->> +++ b/arch/ia64/xen/xencomm.c
->> @@ -0,0 +1,94 @@
->> +/*
->> + * Copyright (C) 2006 Hollis Blanchard <hollisb@us.ibm.com>, IBM Corporation
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License as published by
->> + * the Free Software Foundation; either version 2 of the License, or
->> + * (at your option) any later version.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License for more details.
->> + *
->> + * You should have received a copy of the GNU General Public License
->> + * along with this program; if not, write to the Free Software
->> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
->> + */
->> +
->> +#include <linux/mm.h>
->> +
->> +static unsigned long kernel_virtual_offset;
->> +
->> +void
->> +xencomm_initialize(void)
->> +{
->> +	kernel_virtual_offset = KERNEL_START - ia64_tpa(KERNEL_START);
->> +}
->> +
->> +/* Translate virtual address to physical address.  */
->> +unsigned long
->> +xencomm_vtop(unsigned long vaddr)
->> +{
->> +	struct page *page;
->> +	struct vm_area_struct *vma;
->> +
->> +	if (vaddr == 0)
->> +		return 0;
->> +
->>     
-> It should be "return 0UL";
+Isaku Yamahata wrote:
+> Create include/asm-ia64/pvclock-abi.h to compile which includes
+> include/asm-x86/pvclock-abi.h because ia64/xen uses same structure.
+> Hopefully include/asm-x86/pvclock-abi.h would be moved to somewhere
+> more generic.
 >   
 
-Not necessary.
+Could you fix the patch title spelling ("necessary", "compile")?  The 
+misspelled words are hard to search for.
+
+> Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+> ---
+>  include/asm-ia64/pvclock-abi.h |    5 +++++
+>  1 files changed, 5 insertions(+), 0 deletions(-)
+>  create mode 100644 include/asm-ia64/pvclock-abi.h
+>
+> diff --git a/include/asm-ia64/pvclock-abi.h b/include/asm-ia64/pvclock-abi.h
+> new file mode 100644
+> index 0000000..1c34d11
+> --- /dev/null
+> +++ b/include/asm-ia64/pvclock-abi.h
+> @@ -0,0 +1,5 @@
+> +/*
+> + * use same streucute to x86's
+>   
+"structure"?
 
     J
