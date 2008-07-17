@@ -1,15 +1,15 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] stopmachine: add stopmachine_timeout v2
-Date: Wed, 16 Jul 2008 22:37:15 -0700
-Message-ID: <487EDA8B.1050203__10831.0301592157$1216273179$gmane$org@goop.org>
-References: <487B05CE.1050508@jp.fujitsu.com>
-	<487D78A3.6050105@jp.fujitsu.com> <487DC943.5060202@goop.org>
-	<487EBF1E.5030109@jp.fujitsu.com>
+Subject: Re: [PATCH 13/29] ia64/xen: add definitions necessary for
+	xen	eventchannel.
+Date: Wed, 16 Jul 2008 22:38:37 -0700
+Message-ID: <487EDADD.70804__21236.2177241177$1216273260$gmane$org@goop.org>
+References: <12162606614068-git-send-email-yamahata@valinux.co.jp>	<12162606623812-git-send-email-yamahata@valinux.co.jp>
+	<97C8E7BD1AA462takebe_akio@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <487EBF1E.5030109@jp.fujitsu.com>
+In-Reply-To: <97C8E7BD1AA462takebe_akio@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,23 +19,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Max Krasnyansky <maxk@qualcomm.com>
+To: Akio Takebe <takebe_akio@jp.fujitsu.com>
+Cc: xen-ia64-devel@lists.xensource.com, Isaku Yamahata <yamahata@valinux.co.jp>, tony.luck@intel.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hidetoshi Seto wrote:
-> sysctl.c already has many externs... but I can fix at least
-> the above.
->   
-
-Yeah, but it's an ugly pattern we'd rather not encourage.
-
->> I'll do a proper review soon.
+Akio Takebe wrote:
+>> +enum ipi_vector {
+>> +	XEN_RESCHEDULE_VECTOR,
+>> +	XEN_IPI_VECTOR,
+>> +	XEN_CMCP_VECTOR,
+>> +	XEN_CPEP_VECTOR,
+>> +
+>> +	XEN_NR_IPIS,
+>> +};
+>> +
 >>     
->
-> Is it better to postpone v4 until your comment comes?
+> Don't need empty line.
 >   
 
-No.
+It's preferred style.  XEN_NR_IPIS is the end sentinel, and nothing 
+should be added after it.
 
-J
+    J
