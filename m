@@ -1,13 +1,15 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 28/29] ia64/xen: a recipe for using xen/ia64 with pv_ops.
-Date: Thu, 17 Jul 2008 11:11:00 +0900
-Message-ID: <12162606622231-git-send-email-yamahata__16619.8059953333$1216263988$gmane$org@valinux.co.jp>
+From: Akio Takebe <takebe_akio@jp.fujitsu.com>
+Subject: Re: [PATCH 10/29] ia64/xen: implement the arch specific part of
+	xencomm.
+Date: Thu, 17 Jul 2008 12:25:36 +0900
+Message-ID: <96C8E7BCC74EB0takebe_akio__5731.74617388776$1216265311$gmane$org@jp.fujitsu.com>
 References: <12162606614068-git-send-email-yamahata@valinux.co.jp>
+	<12162606621561-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <12162606614068-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <12162606621561-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,207 +19,89 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: Isaku Yamahata <yamahata@valinux.co.jp>, linux-ia64@vger.kernel.org
+Cc: "Luck, Tony" <tony.luck@intel.com>, virtualization@lists.linux-foundation.org, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Recipe for useing xen/ia64 with pv_ops domU.
+Hi, Isaku
 
-Signed-off-by: Akio Takebe <takebe_akio@jp.fujitsu.com>
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- Documentation/ia64/xen.txt |  183 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 183 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/ia64/xen.txt
+Thank you for your work.
+one small comment.
 
-diff --git a/Documentation/ia64/xen.txt b/Documentation/ia64/xen.txt
-new file mode 100644
-index 0000000..a5c6993
---- /dev/null
-+++ b/Documentation/ia64/xen.txt
-@@ -0,0 +1,183 @@
-+       Recipe for getting/building/running Xen/ia64 with pv_ops
-+       --------------------------------------------------------
-+
-+This recipe discribes how to get xen-ia64 source and build it,
-+and run domU with pv_ops.
-+
-+===========
-+Requirement
-+===========
-+
-+  - python
-+  - mercurial
-+    it (aka "hg") is a open-source source code
-+    management software. See the below.
-+    http://www.selenic.com/mercurial/wiki/
-+  - git
-+  - bridge-utils
-+
-+=================================
-+Getting and Building Xen and Dom0
-+=================================
-+
-+  My enviroment is;
-+    Machine  : Tiger4
-+    Domain0 OS  : RHEL5
-+    DomainU OS  : RHEL5
-+
-+ 1. Download source
-+    # hg clone http://xenbits.xensource.com/ext/ia64/xen-unstable.hg
-+    # cd xen-unstable.hg
-+    # hg clone http://xenbits.xensource.com/ext/ia64/linux-2.6.18-xen.hg
-+
-+ 2. # make world
-+
-+ 3. # make install-tools
-+
-+ 4. copy kernels and xen
-+    # cp xen/xen.gz /boot/efi/efi/redhat/
-+    # cp build-linux-2.6.18-xen_ia64/vmlinux.gz \
-+      /boot/efi/efi/redhat/vmlinuz-2.6.18.8-xen
-+
-+ 5. make initrd for Dom0/DomU
-+    # make -C linux-2.6.18-xen.hg ARCH=ia64 modules_install \
-+      O=$(/bin/pwd)/build-linux-2.6.18-xen_ia64
-+    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6.18.8-xen.img \
-+      2.6.18.8-xen --builtin mptspi --builtin mptbase \
-+      --builtin mptscsih --builtin uhci-hcd --builtin ohci-hcd \
-+      --builtin ehci-hcd
-+
-+================================
-+Making a disk image for guest OS
-+================================
-+
-+ 1. make file
-+    # dd if=/dev/zero of=/root/rhel5.img bs=1M seek=4096 count=0
-+    # mke2fs -F -j /root/rhel5.img
-+    # mount -o loop /root/rhel5.img /mnt
-+    # cp -ax /{dev,var,etc,usr,bin,sbin,lib} /mnt
-+    # mkdir /mnt/{root,proc,sys,home,tmp}
-+
-+    Note: You may miss some device files. If so, please create them
-+    with mknod. Or you can use tar intead of cp.
-+
-+ 2. modify DomU's fstab
-+    # vi /mnt/etc/fstab
-+       /dev/xvda1  /            ext3    defaults        1 1
-+       none        /dev/pts     devpts  gid=5,mode=620  0 0
-+       none        /dev/shm     tmpfs   defaults        0 0
-+       none        /proc        proc    defaults        0 0
-+       none        /sys         sysfs   defaults        0 0
-+
-+ 3. modify inittab
-+    set runlevel to 3 to avoid X trying to start
-+    # vi /mnt/etc/inittab
-+       id:3:initdefault:
-+    Start a getty on the hvc0 console
-+       X0:2345:respawn:/sbin/mingetty hvc0
-+    tty1-6 mingetty can be commented out
-+
-+ 4. add hvc0 into /etc/securetty
-+    # vi /mnt/etc/securetty (add hvc0)
-+
-+ 5. umount
-+    # umount /mnt
-+
-+FYI, virt-manager can also make a disk image for guest OS.
-+It's GUI tools and easy to make it.
-+
-+==================
-+Boot Xen & Domain0
-+==================
-+
-+ 1. replace elilo
-+    elilo of RHEL5 can boot Xen and Dom0.
-+    If you use old elilo (e.g RHEL4), please download from the below
-+    http://elilo.sourceforge.net/cgi-bin/blosxom
-+    and copy into /boot/efi/efi/redhat/
-+    # cp elilo-3.6-ia64.efi /boot/efi/efi/redhat/elilo.efi
-+
-+ 2. modify elilo.conf (like the below)
-+    # vi /boot/efi/efi/redhat/elilo.conf
-+     prompt
-+     timeout=20
-+     default=xen
-+     relocatable
-+
-+     image=vmlinuz-2.6.18.8-xen
-+             label=xen
-+             vmm=xen.gz
-+             initrd=initrd-2.6.18.8-xen.img
-+             read-only
-+             append=" -- rhgb root=/dev/sda2"
-+
-+The append options before "--" are for xen hypervisor,
-+the options after "--" are for dom0.
-+
-+FYI, your machine may need console options like
-+"com1=19200,8n1 console=vga,com1". For example,
-+append="com1=19200,8n1 console=vga,com1 -- rhgb console=tty0 \
-+console=ttyS0 root=/dev/sda2"
-+
-+=====================================
-+Getting and Building domU with pv_ops
-+=====================================
-+
-+ 1. get pv_ops tree
-+    # git clone http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
-+
-+ 2. git branch (if necessary)
-+    # cd linux-2.6-xen-ia64/
-+    # git checkout -b your_branch origin/xen-ia64-domu-minimal-2008may19
-+    (Note: The current branch is xen-ia64-domu-minimal-2008may19.
-+    But you would find the new branch. You can see with
-+    "git branch -r" to get the branch lists.
-+    http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
-+    is also available. The tree is based on
-+    git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6 test)
-+
-+
-+ 3. copy .config for pv_ops of domU
-+    # cp arch/ia64/configs/xen_domu_wip_defconfig .config
-+
-+ 4. make kernel with pv_ops
-+    # make oldconfig
-+    # make
-+
-+ 5. install the kernel and initrd
-+    # cp vmlinux.gz /boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU
-+    # make modules_install
-+    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img \
-+      2.6.26-rc3xen-ia64-08941-g1b12161 --builtin mptspi \
-+      --builtin mptbase --builtin mptscsih --builtin uhci-hcd \
-+      --builtin ohci-hcd --builtin ehci-hcd
-+
-+========================
-+Boot DomainU with pv_ops
-+========================
-+
-+ 1. make config of DomU
-+   # vi /etc/xen/rhel5
-+     kernel = "/boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU"
-+     ramdisk = "/boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img"
-+     vcpus = 1
-+     memory = 512
-+     name = "rhel5"
-+     disk = [ 'file:/root/rhel5.img,xvda1,w' ]
-+     root = "/dev/xvda1 ro"
-+     extra= "rhgb console=hvc0"
-+
-+ 2. After boot xen and dom0, start xend
-+   # /etc/init.d/xend start
-+   ( In the debugging case, # XEND_DEBUG=1 xend trace_start )
-+
-+ 3. start domU
-+   # xm create -c rhel5
-+
-+=========
-+Reference
-+=========
-+- Wiki of Xen/IA64 upstream merge
-+  http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
-+
-+Witten by Akio Takebe <takebe_akio@jp.fujitsu.com> on 28 May 2008
--- 
-1.5.3
+>On ia64/xen, pointer argument for the hypercall is passed
+>by pseudo physical address (guest physical address.)
+>So it is necessary to convert virtual address into pseudo physical
+>address right before issuing hypercall. The frame work is called
+>xencomm. This patch implements arch specific part.
+>
+>Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+>Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+>Cc: "Luck, Tony" <tony.luck@intel.com>
+>---
+> arch/ia64/xen/Makefile         |    2 +-
+> arch/ia64/xen/xencomm.c        |   94 ++++++++++++++++++++++++++++++++++++++
+>++
+> include/asm-ia64/xen/xencomm.h |   41 +++++++++++++++++
+> 3 files changed, 136 insertions(+), 1 deletions(-)
+> create mode 100644 arch/ia64/xen/xencomm.c
+> create mode 100644 include/asm-ia64/xen/xencomm.h
+>
+>diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+>index c200704..ad0c9f7 100644
+>--- a/arch/ia64/xen/Makefile
+>+++ b/arch/ia64/xen/Makefile
+>@@ -2,4 +2,4 @@
+> # Makefile for Xen components
+> #
+> 
+>-obj-y := hypercall.o
+>+obj-y := hypercall.o xencomm.o
+>diff --git a/arch/ia64/xen/xencomm.c b/arch/ia64/xen/xencomm.c
+>new file mode 100644
+>index 0000000..2a57058
+>--- /dev/null
+>+++ b/arch/ia64/xen/xencomm.c
+>@@ -0,0 +1,94 @@
+>+/*
+>+ * Copyright (C) 2006 Hollis Blanchard <hollisb@us.ibm.com>, IBM Corporation
+>+ *
+>+ * This program is free software; you can redistribute it and/or modify
+>+ * it under the terms of the GNU General Public License as published by
+>+ * the Free Software Foundation; either version 2 of the License, or
+>+ * (at your option) any later version.
+>+ *
+>+ * This program is distributed in the hope that it will be useful,
+>+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>+ * GNU General Public License for more details.
+>+ *
+>+ * You should have received a copy of the GNU General Public License
+>+ * along with this program; if not, write to the Free Software
+>+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+>+ */
+>+
+>+#include <linux/mm.h>
+>+
+>+static unsigned long kernel_virtual_offset;
+>+
+>+void
+>+xencomm_initialize(void)
+>+{
+>+	kernel_virtual_offset = KERNEL_START - ia64_tpa(KERNEL_START);
+>+}
+>+
+>+/* Translate virtual address to physical address.  */
+>+unsigned long
+>+xencomm_vtop(unsigned long vaddr)
+>+{
+>+	struct page *page;
+>+	struct vm_area_struct *vma;
+>+
+>+	if (vaddr == 0)
+>+		return 0;
+>+
+It should be "return 0UL";
+
+Best Regards,
+
+Akio Takebe
