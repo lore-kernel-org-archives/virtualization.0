@@ -1,14 +1,11 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 24/29] ia64/pv_ops/xen: implement xen pv_time_ops.
-Date: Mon, 21 Jul 2008 11:12:27 +0300
-Message-ID: <488444EB.60708__720.56498979709$1216628106$gmane$org@qumranet.com>
-References: <12162606614068-git-send-email-yamahata@valinux.co.jp>	<12162606623288-git-send-email-yamahata@valinux.co.jp>
-	<487EDC6C.5000407@goop.org>
+From: "Christopher S. Aker" <caker@theshore.net>
+Subject: pv_ops - 2.6.26 - unable to handle kernel paging request
+Date: Tue, 22 Jul 2008 09:04:14 -0400
+Message-ID: <4885DACE.30600@theshore.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <487EDC6C.5000407@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,23 +16,54 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org, Isaku Yamahata <yamahata@valinux.co.jp>, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Isaku Yamahata wrote:
->   
->> implement xen pv_time_ops to account steal time.
->>   
->>     
->
-> I think you could just share arch/x86/xen/time.c, couldn't you?  I'd be 
-> happy to accept a patch to move all the shareable bits into 
-> drivers/xen/time.c.
->
->   
-Or maybe, virt/xen/?
+Xen: 3.1.2 (or thereabouts), 64bit
+dom0: 2.6.18.8, pae
+pv-ops, 2.6.26
 
+BUG: unable to handle kernel paging request at 69746174
+IP: [<c015e221>] move_freepages+0x61/0xc0
+*pdpt = 0000000204ed6007
+Oops: 0002 [#1] SMP
+Modules linked in:
 
--- 
-error compiling committee.c: too many arguments to function
+Pid: 6859, comm: sh Not tainted (2.6.26-linode13 #1)
+EIP: 0061:[<c015e221>] EFLAGS: 00010002 CPU: 2
+EIP is at move_freepages+0x61/0xc0
+EAX: 69746174 EBX: 25413325 ECX: c158e038 EDX: 732e316d
+ESI: c158e020 EDI: 00000000 EBP: c158ffe0 ESP: ec2cddf8
+DS: 007b ES: 007b FS: 00d8 GS: 0033 SS: 0069
+Process sh (pid: 6859, ti=ec2cc000 task=ecd3f400 task.ti=ec2cc000)
+Stack: c0630200 00000008 0002c7ff c1588000 c0630200 c158ffe0 c015e2ea 
+00000001
+00000001 00000001 c158f6e0 00000000 c0630200 c015e5d9 c0630a84 00000000
+c0630a84 00000000 00000008 00000000 c1587418 c0630200 00000018 0000001f
+Call Trace:
+[<c015e2ea>] move_freepages_block+0x6a/0x80
+[<c015e5d9>] __rmqueue+0x1a9/0x1e0
+[<c015e651>] rmqueue_bulk+0x41/0x70
+[<c015eae4>] get_page_from_freelist+0x464/0x490
+[<c015ebba>] __alloc_pages_internal+0xaa/0x460
+[<c015ef8f>] __alloc_pages+0xf/0x20
+[<c015f4bf>] __get_free_pages+0xf/0x20
+[<c01c015f>] proc_file_read+0x8f/0x2a0
+[<c01c00d0>] proc_file_read+0x0/0x2a0
+[<c01bb7ca>] proc_reg_read+0x5a/0x90
+[<c01801f1>] vfs_read+0xa1/0x160
+[<c01bb770>] proc_reg_read+0x0/0x90
+[<c0180551>] sys_read+0x41/0x70
+[<c0107256>] syscall_call+0x7/0xb
+=======================
+Code: cb 77 6f 8b 44 24 1c 89 de c1 e0 03 89 44 24 04 eb 07 83 c6 20 39 
+f5 72 59 f6 46 02 04 74 f3 8d 4e 18 8b 56 18 8b 41 04 8b 5e 0c <89> 10 
+89 42 04 8d 04 9b c7 46 18 00 01 10 00 8d 04 43 8b 14 24
+EIP: [<c015e221>] move_freepages+0x61/0xc0 SS:ESP 0069:ec2cddf8
+---[ end trace 628f7b31d5a52105 ]---
+
+Kernel binary is located here:
+
+http://www.theshore.net/~caker/kernels/2.6.26-linode13
+
+-Chris
