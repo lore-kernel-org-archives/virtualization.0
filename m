@@ -1,14 +1,12 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] tun: Fix/rewrite packet filtering logic
-Date: Tue, 22 Jul 2008 21:52:44 -0700 (PDT)
-Message-ID: <20080722.215244.106348290.davem__8273.96279569275$1216788903$gmane$org@davemloft.net>
-References: <20080722.171111.267353608.davem@davemloft.net>
-	<48867BC3.3070506@garzik.org> <4886B76A.6000907@qualcomm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] lguest and virtio patches
+Date: Wed, 23 Jul 2008 17:27:34 +1000
+Message-ID: <200807231727.35138.rusty__27632.5157996782$1216798284$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4886B76A.6000907@qualcomm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,21 +16,96 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: maxk@qualcomm.com
-Cc: jeff@garzik.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, linuxkernel@bristyle.com, sjackman@gmail.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark McLoughlin <markmc@redhat.com>, lguest <lguest@ozlabs.org>, Herbert Xu <herbert@gondor.apana.org.au>, Carsten Otte <cotte@de.ibm.com>, linux-kernel@vger.kernel.org, Johannes Weiner <hannes@saeurebad.de>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Max Krasnyansky <maxk@qualcomm.com>
-Date: Tue, 22 Jul 2008 21:45:30 -0700
+(Note the arch/s390 bit is from virtio console on KVM/s390)
 
-> Jeff Garzik wrote:
-> > David Miller wrote:
-> >> Jeff, I already added this particular patch to the tree
-> >> a week or so ago.
-> > 
-> > Yeah, later on in my queue were the fixes.
-> 
-> I'm not sure I'm following. What fixes ? Are you talking about fixing sparse
-> warnings or something else ?
+The following changes since commit 0988c37c248e824953d95a11412696c348dbca91:
+  Linus Torvalds (1):
+        Merge branch 'x86-fixes-for-linus' of git://git.kernel.org/.../tip/linux-2.6-tip
 
-He's talking about sparse fixes.
+are available in the git repository at:
+
+  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+
+Andrew Morton (1):
+      lguest: use cpu capability accessors
+
+Christian Borntraeger (5):
+      virtio_blk: check for hardsector size from host
+      hvc_console: rework setup to replace irq functions with callbacks
+      virtio_console: use virtqueue notification for hvc_console
+      virtio: console as a config option
+      s390: use virtio_console for KVM on s390
+
+Herbert Xu (2):
+      virtio net: Add ethtool ops for SG/GSO
+      virtio net: Allow receiving SG packets
+
+Johannes Weiner (1):
+      lguest: fix switcher_page leak on unload
+
+Mark McLoughlin (4):
+      virtio: fix virtio_net xmit of freed skb bug
+      lguest: Don't leak /dev/zero fd
+      lguest: Support assigning a MAC address
+      virtio: Use bus_type probe and remove methods
+
+Rusty Russell (19):
+      virtio: Recycle unused recv buffer pages for large skbs in net driver
+      lguest: set max_pfn_mapped, growl loudly at Yinghai Lu
+      lguest: Guest int3 fix
+      lguest: Debugging patch for lguest network performance
+      lguest: fix verbose printing of device features.
+      lguest: virtio-rng support
+      virtio: clarify that ABI is usable by any implementations
+      virtio: don't always force a notification when ring is full
+      lguest: wrap last_avail accesses.
+      lguest: net block unneeded receive queue update notifications
+      lguest: Tell Guest net not to notify us on every packet xmit
+      lguest: Adaptive timeout
+      virtio: Formally reserve bits 28-31 to be 'transport' features.
+      virtio: Rename set_features to finalize_features
+      virtio: Add transport feature handling stub for virtio_ring.
+      lguest: Remove 'network: no dma buffer!' warning
+      lguest: Use GSO/IFF_VNET_HDR extensions on tun/tap
+      lguest: Enlarge virtio rings
+      lguest: turn Waker into a thread, not a process
+
+ Documentation/lguest/lguest.c         |  531 ++++++++++++++++++++++++--------
+ arch/s390/Kconfig                     |    1 +
+ arch/s390/kernel/setup.c              |    4 +-
+ arch/x86/lguest/boot.c                |    3 +
+ drivers/block/virtio_blk.c            |   10 +-
+ drivers/char/Kconfig                  |   11 +-
+ drivers/char/Makefile                 |    1 +
+ drivers/char/hvc_console.c            |   85 ++----
+ drivers/char/hvc_console.h            |   35 ++-
+ drivers/char/hvc_irq.c                |   44 +++
+ drivers/char/hvc_iseries.c            |    2 +
+ drivers/char/hvc_vio.c                |    2 +
+ drivers/char/hvc_xen.c                |    2 +
+ drivers/char/virtio_console.c         |   40 ++-
+ drivers/lguest/core.c                 |    1 +
+ drivers/lguest/interrupts_and_traps.c |   24 +-
+ drivers/lguest/lguest_device.c        |   14 +-
+ drivers/lguest/x86/core.c             |    4 +-
+ drivers/net/virtio_net.c              |  114 ++++++-
+ drivers/s390/kvm/kvm_virtio.c         |   34 ++-
+ drivers/virtio/virtio.c               |   26 +-
+ drivers/virtio/virtio_pci.c           |   13 +-
+ drivers/virtio/virtio_ring.c          |   22 ++-
+ include/asm-s390/kvm_virtio.h         |   10 +
+ include/linux/virtio_9p.h             |    2 +
+ include/linux/virtio_balloon.h        |    2 +
+ include/linux/virtio_blk.h            |    5 +
+ include/linux/virtio_config.h         |   16 +-
+ include/linux/virtio_console.h        |    2 +
+ include/linux/virtio_net.h            |    2 +
+ include/linux/virtio_pci.h            |    5 +-
+ include/linux/virtio_ring.h           |    2 +
+ include/linux/virtio_rng.h            |    2 +
+ 33 files changed, 805 insertions(+), 266 deletions(-)
+ create mode 100644 drivers/char/hvc_irq.c
