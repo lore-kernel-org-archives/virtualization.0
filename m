@@ -1,15 +1,16 @@
-From: "Glauber Costa" <glommer@gmail.com>
-Subject: Re: [PATCH 0/2] Paravirt loops per jiffy calculation
-Date: Wed, 23 Jul 2008 10:35:22 -0300
-Message-ID: <5d6222a80807230635w72cb745bka25af8ded0abec0d__48677.479758817$1216820361$gmane$org@mail.gmail.com>
-References: <1216743328-3213-1-git-send-email-gcosta@redhat.com>
-	<488702EF.7060305@redhat.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 3/4] tun: Allow GSO using virtio_net_hdr
+Date: Thu, 24 Jul 2008 22:20:44 +0800
+Message-ID: <20080724142044.GA8266__13765.6942978085$1216909432$gmane$org@gondor.apana.org.au>
+References: <200806260028.07883.rusty@rustcorp.com.au>
+	<200806260029.40267.rusty@rustcorp.com.au>
+	<200806260030.38293.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <488702EF.7060305@redhat.com>
 Content-Disposition: inline
+In-Reply-To: <200806260030.38293.rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,59 +20,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: aliguori@codemonkey.ws, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Glauber Costa <gcosta@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: markmc@redhat.com, netdev@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 23, 2008 at 7:07 AM, Gerd Hoffmann <kraxel@redhat.com> wrote:
->  Hi,
->
->> Turns out that only implementing a pv get_tsc_khz is not enough, since
->> it will only do the right thing for cpu0, which is not what we desire.
->>
->> So we set preset_lpj. Recall this code is run before arch parameter setup,
->> so if we pass lpj=xx in the command line, it'll still work.
->
-> Hmm, why kvm needs the preset_lpj thing and xen doesn't?
+On Thu, Jun 26, 2008 at 12:30:37AM +1000, Rusty Russell wrote:
+> Add a IFF_VNET_HDR flag.  This uses the same ABI as virtio_net (ie. prepending
+> struct virtio_net_hdr to packets) to indicate GSO and checksum information.
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-I asked myself the same question. But from the snippet in calibrate.c:
+I just noticed that we still allocate a linear skb even when GSO
+is enabled.  Please fix this by allocating page frags where
+necessary.  Otherwise GSO is only going to work before memory
+fragmentation sets in.
 
-        if (preset_lpj) {
-                loops_per_jiffy = preset_lpj;
-                printk(KERN_INFO
-                        "Calibrating delay loop (skipped) preset value.. ");
-        } else if ((smp_processor_id() == 0) && lpj_fine) {
-                loops_per_jiffy = lpj_fine;
-                printk(KERN_INFO
-                        "Calibrating delay loop (skipped), "
-                        "value calculated using timer frequency.. ");
-        } else if ((loops_per_jiffy = calibrate_delay_direct()) != 0) {
-                printk(KERN_INFO
-                        "Calibrating delay using timer specific routine.. ");
+IIRC I'd sent out a patch to the virt mailing list with code
+that did this.
 
-
-The third one is the one we want to skip. The second one, runs only for CPU0.
-calibrate_delay_loop() itself, is called very early from smp_callin,
-and tsc calibration only sets lpj_fine. So I don't see too much of an
-option here.
-
-
-> cheers,
->  Gerd
->
-> --
-> http://kraxel.fedorapeople.org/xenner/
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
-
-
+Thanks,
 -- 
-Glauber Costa.
-"Free as in Freedom"
-http://glommer.net
-
-"The less confident you are, the more serious you have to act."
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
