@@ -1,14 +1,16 @@
-From: Mark McLoughlin <markmc@redhat.com>
-Subject: Re: [PULL] lguest and virtio patches
-Date: Thu, 24 Jul 2008 16:58:53 +0100
-Message-ID: <1216915133.19183.5.camel__46402.3839253516$1216915360$gmane$org@muff>
-References: <200807231727.35138.rusty@rustcorp.com.au>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 3/4] tun: Allow GSO using virtio_net_hdr
+Date: Fri, 25 Jul 2008 09:54:18 +1000
+Message-ID: <200807250954.19120.rusty__16499.2052400068$1216943954$gmane$org@rustcorp.com.au>
+References: <200806260028.07883.rusty@rustcorp.com.au>
+	<200806260030.38293.rusty@rustcorp.com.au>
+	<20080724142044.GA8266@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200807231727.35138.rusty@rustcorp.com.au>
+In-Reply-To: <20080724142044.GA8266@gondor.apana.org.au>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,58 +20,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, lguest <lguest@ozlabs.org>, Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org, Johannes Weiner <hannes@saeurebad.de>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: markmc@redhat.com, netdev@vger.kernel.org, Max Krasnyansky <maxk@qualcomm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAyMDA4LTA3LTIzIGF0IDE3OjI3ICsxMDAwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+
-IChOb3RlIHRoZSBhcmNoL3MzOTAgYml0IGlzIGZyb20gdmlydGlvIGNvbnNvbGUgb24gS1ZNL3Mz
-OTApCj4gCj4gVGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCAwOTg4YzM3YzI0OGU4
-MjQ5NTNkOTVhMTE0MTI2OTZjMzQ4ZGJjYTkxOgo+ICAgTGludXMgVG9ydmFsZHMgKDEpOgo+ICAg
-ICAgICAgTWVyZ2UgYnJhbmNoICd4ODYtZml4ZXMtZm9yLWxpbnVzJyBvZiBnaXQ6Ly9naXQua2Vy
-bmVsLm9yZy8uLi4vdGlwL2xpbnV4LTIuNi10aXAKPiAKPiBhcmUgYXZhaWxhYmxlIGluIHRoZSBn
-aXQgcmVwb3NpdG9yeSBhdDoKPiAKPiAgIHNzaDovL21hc3Rlci5rZXJuZWwub3JnL3B1Yi9zY20v
-bGludXgva2VybmVsL2dpdC9ydXN0eS9saW51eC0yLjYtZm9yLWxpbnVzLmdpdCBtYXN0ZXIKPiAK
-Li4uCj4gUnVzdHkgUnVzc2VsbCAoMTkpOgo+ICAgICAgIHZpcnRpbzogUmVjeWNsZSB1bnVzZWQg
-cmVjdiBidWZmZXIgcGFnZXMgZm9yIGxhcmdlIHNrYnMgaW4gbmV0IGRyaXZlcgo+ICAgICAgIGxn
-dWVzdDogc2V0IG1heF9wZm5fbWFwcGVkLCBncm93bCBsb3VkbHkgYXQgWWluZ2hhaSBMdQo+ICAg
-ICAgIGxndWVzdDogR3Vlc3QgaW50MyBmaXgKPiAgICAgICBsZ3Vlc3Q6IERlYnVnZ2luZyBwYXRj
-aCBmb3IgbGd1ZXN0IG5ldHdvcmsgcGVyZm9ybWFuY2UKPiAgICAgICBsZ3Vlc3Q6IGZpeCB2ZXJi
-b3NlIHByaW50aW5nIG9mIGRldmljZSBmZWF0dXJlcy4KPiAgICAgICBsZ3Vlc3Q6IHZpcnRpby1y
-bmcgc3VwcG9ydAo+ICAgICAgIHZpcnRpbzogY2xhcmlmeSB0aGF0IEFCSSBpcyB1c2FibGUgYnkg
-YW55IGltcGxlbWVudGF0aW9ucwo+ICAgICAgIHZpcnRpbzogZG9uJ3QgYWx3YXlzIGZvcmNlIGEg
-bm90aWZpY2F0aW9uIHdoZW4gcmluZyBpcyBmdWxsCj4gICAgICAgbGd1ZXN0OiB3cmFwIGxhc3Rf
-YXZhaWwgYWNjZXNzZXMuCj4gICAgICAgbGd1ZXN0OiBuZXQgYmxvY2sgdW5uZWVkZWQgcmVjZWl2
-ZSBxdWV1ZSB1cGRhdGUgbm90aWZpY2F0aW9ucwo+ICAgICAgIGxndWVzdDogVGVsbCBHdWVzdCBu
-ZXQgbm90IHRvIG5vdGlmeSB1cyBvbiBldmVyeSBwYWNrZXQgeG1pdAo+ICAgICAgIGxndWVzdDog
-QWRhcHRpdmUgdGltZW91dAo+ICAgICAgIHZpcnRpbzogRm9ybWFsbHkgcmVzZXJ2ZSBiaXRzIDI4
-LTMxIHRvIGJlICd0cmFuc3BvcnQnIGZlYXR1cmVzLgo+ICAgICAgIHZpcnRpbzogUmVuYW1lIHNl
-dF9mZWF0dXJlcyB0byBmaW5hbGl6ZV9mZWF0dXJlcwo+ICAgICAgIHZpcnRpbzogQWRkIHRyYW5z
-cG9ydCBmZWF0dXJlIGhhbmRsaW5nIHN0dWIgZm9yIHZpcnRpb19yaW5nLgoKVGhpcyBsYXN0IG9u
-ZSBpbnRyb2R1Y2VzIGEgY29tcGlsZSBmYWlsdXJlOyBmaXh1cCBwYXRjaCBiZWxvdy4KCkNoZWVy
-cywKTWFyay4KClN1YmplY3Q6IFtQQVRDSF0gdmlydGlvOiBGaXggY29tcGlsZSBlcnJvcgoKSW5j
-bHVkZSB2aXJ0aW9fY29uZmlnLmggdG8gZml4OgoKICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmlu
-Zy5jOiBJbiBmdW5jdGlvbiDigJh2cmluZ190cmFuc3BvcnRfZmVhdHVyZXPigJk6CiAgZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3JpbmcuYzozMzE6IGVycm9yOiDigJhWSVJUSU9fVFJBTlNQT1JUX0Zf
-U1RBUlTigJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCiAgZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3JpbmcuYzozMzE6IGVycm9yOiAoRWFjaCB1bmRlY2xhcmVkIGlkZW50
-aWZpZXIgaXMgcmVwb3J0ZWQgb25seSBvbmNlCiAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jpbmcu
-YzozMzE6IGVycm9yOiBmb3IgZWFjaCBmdW5jdGlvbiBpdCBhcHBlYXJzIGluLikKICBkcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcmluZy5jOjMzMTogZXJyb3I6IOKAmFZJUlRJT19UUkFOU1BPUlRfRl9F
-TkTigJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCiAgbWFrZVsxXTog
-KioqIFtkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5vXSBFcnJvciAxCiAgbWFrZTogKioqIFtk
-cml2ZXJzL3ZpcnRpby9dIEVycm9yIDIKClRoZSBpbmNsdWRlIGlzIGFkZGVkIGJ5IGEgbGF0ZXIg
-cGF0Y2ggaW4gUnVzdHkncyBxdWV1ZQp3aGljaCB3YXNuJ3Qgc3VibWl0dGVkLCBoZW5jZSBpdCBv
-bmx5IGNvbWluZyB0byBsaWdodApub3cuCgpTaWduZWQtb2ZmLWJ5OiBNYXJrIE1jTG91Z2hsaW4g
-PG1hcmttY0ByZWRoYXQuY29tPgotLS0KIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCAg
-ICAxICsKIDEgZmlsZXMgY2hhbmdlZCwgMSBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoK
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcmluZy5jCmluZGV4IGUyNjcxZDUuLjZlYjUzMDMgMTAwNjQ0Ci0tLSBhL2RyaXZl
-cnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jpbmcu
-YwpAQCAtMTgsNiArMTgsNyBAQAogICovCiAjaW5jbHVkZSA8bGludXgvdmlydGlvLmg+CiAjaW5j
-bHVkZSA8bGludXgvdmlydGlvX3JpbmcuaD4KKyNpbmNsdWRlIDxsaW51eC92aXJ0aW9fY29uZmln
-Lmg+CiAjaW5jbHVkZSA8bGludXgvZGV2aWNlLmg+CiAKICNpZmRlZiBERUJVRwotLSAKMS41LjUu
-MQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+On Friday 25 July 2008 00:20:44 Herbert Xu wrote:
+> On Thu, Jun 26, 2008 at 12:30:37AM +1000, Rusty Russell wrote:
+> > Add a IFF_VNET_HDR flag.  This uses the same ABI as virtio_net (ie.
+> > prepending struct virtio_net_hdr to packets) to indicate GSO and checksum
+> > information.
+> >
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>
+> I just noticed that we still allocate a linear skb even when GSO
+> is enabled.  Please fix this by allocating page frags where
+> necessary.  Otherwise GSO is only going to work before memory
+> fragmentation sets in.
+>
+> IIRC I'd sent out a patch to the virt mailing list with code
+> that did this.
+>
+> Thanks,
+
+Hi Herbert,
+
+   Thanks for the reminder.  I have this code in the virtio_net patches which 
+Linus failed to pull.  Will just need to share it with the tun code (maybe a 
+skb_alloc_large() helper).
+
+Cheers,
+Rusty.
