@@ -1,83 +1,69 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio patches
-Date: Fri, 25 Jul 2008 12:08:43 +1000
-Message-ID: <200807251208.44418.rusty@rustcorp.com.au>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: How to get a sense of VM pressure
+Date: Fri, 25 Jul 2008 10:55:36 -0700
+Message-ID: <488A1398.7020004@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mark McLoughlin <markmc@redhat.com>, Herbert Xu <herbert@gondor.apana.org.au>, Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753924AbYGYRzx@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Memory Management List <linux-mm@kvack.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit b5684b83b1e1579bbbc80e703e990c0cccf5892c:
-  Linus Torvalds (1):
-        Merge git://git.kernel.org/.../bart/ide-2.6
+I'm thinking about ways to improve the Xen balloon driver.  This is the 
+driver which allows the guest domain to expand or contract by either 
+asking for more memory from the hypervisor, or giving unneeded memory 
+back.  From the kernel's perspective, it simply looks like a driver 
+which allocates and frees pages; when it allocates memory it gives the 
+underlying physical page back to the hypervisor.  And conversely, when 
+it gets a page from the hypervisor, it glues it under a given pfn and 
+releases that page back to the kernel for reuse.
 
-are available in the git repository at:
+At the moment it's very dumb, and is pure mechanism.  It's told how much 
+memory to target, and it either allocates or frees memory until the 
+target is reached.  Unfortunately, that means if it's asked to shrink to 
+an unreasonably small size, it will do so without question, killing the 
+domain in a thrash-storm in the process.
 
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+There are several problems:
 
-Christian Borntraeger (5):
-      virtio_blk: check for hardsector size from host
-      hvc_console: rework setup to replace irq functions with callbacks
-      virtio_console: use virtqueue notification for hvc_console
-      virtio: console as a config option
-      s390: use virtio_console for KVM on s390
+   1. it doesn't know what a reasonable lower limit is, and
+   2. it doesn't moderate the rate of shrinkage to give the rest of the
+      VM time to adjust to having less memory (by paging out, dropping
+      inactive, etc)
 
-Herbert Xu (2):
-      virtio net: Add ethtool ops for SG/GSO
-      virtio net: Allow receiving SG packets
+And possibly the third point is that the only mechanism it has for 
+applying memory pressure to the system is by allocating memory.  It 
+allocates with (GFP_HIGHUSER | __GFP_NOWARN | __GFP_NORETRY | 
+__GFP_NOMEMALLOC), trying not to steal memory away from things that 
+really need it.  But in practice, it can still easy drive the machine 
+into a massive unrecoverable swap storm.
 
-Mark McLoughlin (2):
-      virtio: fix virtio_net xmit of freed skb bug
-      virtio: Use bus_type probe and remove methods
+So I guess what I need is some measurement of "memory use" which is 
+perhaps akin to a system-wide RSS; a measure of the number of pages 
+being actively used, that if non-resident would cause a large amount of 
+paging.  If you shrink the domain down to that number of pages + some 
+padding (x%?), then the system will run happily in a stable state.  If 
+that number increases, then the system will need new memory soon, to 
+stop it from thrashing.  And if that number goes way below the domain's 
+actual memory allocation, then it has "too much" memory.
 
-Rusty Russell (6):
-      virtio: Recycle unused recv buffer pages for large skbs in net driver
-      virtio: clarify that ABI is usable by any implementations
-      virtio: don't always force a notification when ring is full
-      virtio: Formally reserve bits 28-31 to be 'transport' features.
-      virtio: Rename set_features to finalize_features
-      virtio: Add transport feature handling stub for virtio_ring.
+Is this what "Active" accounts for?  Is Active just active 
+usermode/pagecache pages, or does it also include kernel allocations?  
+Presumably Inactive Clean memory can be freed very easily with little 
+impact on the system, Inactive Dirty memory isn't needed but needs IO to 
+free; is there some way to measure how big each class of memory is?
 
- arch/s390/Kconfig              |    1 +
- arch/s390/kernel/setup.c       |    4 +-
- drivers/block/virtio_blk.c     |   10 +++-
- drivers/char/Kconfig           |   11 ++++-
- drivers/char/Makefile          |    1 +
- drivers/char/hvc_console.c     |   85 ++++++++----------------------
- drivers/char/hvc_console.h     |   35 +++++++++++--
- drivers/char/hvc_irq.c         |   44 +++++++++++++++
- drivers/char/hvc_iseries.c     |    2 +
- drivers/char/hvc_vio.c         |    2 +
- drivers/char/hvc_xen.c         |    2 +
- drivers/char/virtio_console.c  |   40 ++++++++++++---
- drivers/lguest/lguest_device.c |   14 +++--
- drivers/net/virtio_net.c       |  114 +++++++++++++++++++++++++++++++++++-----
- drivers/s390/kvm/kvm_virtio.c  |   34 ++++++++++--
- drivers/virtio/virtio.c        |   26 +++++----
- drivers/virtio/virtio_pci.c    |   13 +++--
- drivers/virtio/virtio_ring.c   |   23 +++++++-
- include/asm-s390/kvm_virtio.h  |   10 ++++
- include/linux/virtio_9p.h      |    2 +
- include/linux/virtio_balloon.h |    2 +
- include/linux/virtio_blk.h     |    5 ++
- include/linux/virtio_config.h  |   16 +++++-
- include/linux/virtio_console.h |    2 +
- include/linux/virtio_net.h     |    2 +
- include/linux/virtio_pci.h     |    5 +-
- include/linux/virtio_ring.h    |    2 +
- include/linux/virtio_rng.h     |    2 +
- 28 files changed, 385 insertions(+), 124 deletions(-)
- create mode 100644 drivers/char/hvc_irq.c
+If you wanted to apply gentle memory pressure on the system to attempt 
+to accelerate freeing memory, how would you go about doing that?  Would 
+simply allocating memory at a controlled rate achieve it?
+
+I guess it also gets more complex when you bring nodes and zones into 
+the picture.  Does it mean that this computation would need to be done 
+per node+zone rather than system-wide?
+
+Or is there some better way to implement all this?
+
+Thanks,
+    J
