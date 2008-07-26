@@ -1,32 +1,37 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: How to get a sense of VM pressure
-Date: Mon, 28 Jul 2008 01:12:41 -0700
-Message-ID: <488D7F79.40102@goop.org>
-References: <488A1398.7020004@goop.org> <1217230570.6331.6.camel@twins>
+From: Huang Weiyi <weiyi.huang@gmail.com>
+Subject: drivers/xen/balloon.c: Removed duplicated include
+Date: Sat, 26 Jul 2008 19:37:59 +0800
+Message-ID: <20080726115509.F23D.WEIYI.HUANG@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754774AbYG1IMx@vger.kernel.org>
-In-Reply-To: <1217230570.6331.6.camel@twins>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Memory Management List <linux-mm@kvack.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: jeremy@xensource.com, chrisw@sous-sol.org
+Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Peter Zijlstra wrote:
-> Have a peek at this:
->
->   http://people.redhat.com/~riel/riel-OLS2006.pdf
->
-> The refault patches have been posted several times, but nobody really
-> tried to use them for your problem.
->   
+Removed duplicated include file <linux/highmem.h> in 
+drivers/xen/balloon.c.
 
-Yep, Rik pointed the paper and patches out to me.  Seems like an 
-interesting approach to play with.  The refaulting measure is nice 
-because it should give a fairly good idea of how much memory you need to 
-add to get the fault rate down below some particular level.  It doesn't 
-help with shrinking, other than telling you you've gone too far, and how 
-much too far, which is definitely useful to know.
+Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
 
-    J
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index d4427cb..afdeac5 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -41,7 +41,6 @@
+ #include <linux/pagemap.h>
+ #include <linux/highmem.h>
+ #include <linux/mutex.h>
+-#include <linux/highmem.h>
+ #include <linux/list.h>
+ #include <linux/sysdev.h>
