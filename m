@@ -1,34 +1,51 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: How to get a sense of VM pressure
-Date: Sun, 27 Jul 2008 16:43:31 +1000
-Message-ID: <200807271643.32338.rusty@rustcorp.com.au>
-References: <488A1398.7020004@goop.org>
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 0/2] Paravirt loops per jiffy calculation
+Date: Sun, 27 Jul 2008 10:59:54 +0300
+Message-ID: <488C2AFA.2030806__8121.03796420178$1217145901$gmane$org@qumranet.com>
+References: <1216743328-3213-1-git-send-email-gcosta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757490AbYG0GoA@vger.kernel.org>
-In-Reply-To: <488A1398.7020004@goop.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.linux-foundation.org
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Memory Management List <linux-mm@kvack.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1216743328-3213-1-git-send-email-gcosta@redhat.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Glauber Costa <gcosta@redhat.com>
+Cc: aliguori@codemonkey.ws, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Saturday 26 July 2008 03:55:36 Jeremy Fitzhardinge wrote:
-> So I guess what I need is some measurement of "memory use" which is
-> perhaps akin to a system-wide RSS; a measure of the number of pages
-> being actively used, that if non-resident would cause a large amount of
-> paging.  If you shrink the domain down to that number of pages + some
-> padding (x%?), then the system will run happily in a stable state.  If
-> that number increases, then the system will need new memory soon, to
-> stop it from thrashing.  And if that number goes way below the domain's
-> actual memory allocation, then it has "too much" memory.
+Glauber Costa wrote:
+> Hey,
+>
+> Over the last weeks, there has been some discussion regarding paravirt
+> lpj calculation for kvm. Here's my shot at that.
+>
+> KVM hypervisor already put the right value in our pvclock structures,
+> as part of the xen compatibility efforts.
+>
+> So the first patch moves the respective xen code to pvclock.c (since
+> we'll be doing the same calculation anyway), while the second, implements
+> functions for kvm that makes use of it.
+>
+> Turns out that only implementing a pv get_tsc_khz is not enough, since
+> it will only do the right thing for cpu0, which is not what we desire.
+>
+> So we set preset_lpj. Recall this code is run before arch parameter setup,
+> so if we pass lpj=xx in the command line, it'll still work.
+>
+> Have a good (paravirtual) time!
+>
+>   
 
-Like everyone, I've thought about this.  The shrinker callbacks seem like a 
-candidate here; have you played with them at all?
+I only have this email out of the patchset.  Please resend.
 
-Some dynamic tension between the shrinker callback and slow feed of pages to 
-the balloon seems like it should work...
 
-Rusty.
+-- 
+error compiling committee.c: too many arguments to function
