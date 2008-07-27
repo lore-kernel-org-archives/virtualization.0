@@ -1,25 +1,34 @@
-From: Dave Hansen <dave@linux.vnet.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: How to get a sense of VM pressure
-Date: Sat, 26 Jul 2008 20:14:12 -0700
-Message-ID: <1217128452.23502.4.camel@nimitz>
+Date: Sun, 27 Jul 2008 16:43:31 +1000
+Message-ID: <200807271643.32338.rusty@rustcorp.com.au>
 References: <488A1398.7020004@goop.org>
-	 <200807261425.26318.nickpiggin@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757540AbYG0DO2@vger.kernel.org>
-In-Reply-To: <200807261425.26318.nickpiggin@yahoo.com.au>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757490AbYG0GoA@vger.kernel.org>
+In-Reply-To: <488A1398.7020004@goop.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Memory Management List <linux-mm@kvack.org>
+To: virtualization@lists.linux-foundation.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Memory Management List <linux-mm@kvack.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2008-07-26 at 14:25 +1000, Nick Piggin wrote:
-> Google I think and maybe IBM (can't remember) is using the proc pagemap
-> interfaces to help with this. Probably it is super secret code that can't
-> be released though -- but it gives you somewhere to look.
+On Saturday 26 July 2008 03:55:36 Jeremy Fitzhardinge wrote:
+> So I guess what I need is some measurement of "memory use" which is
+> perhaps akin to a system-wide RSS; a measure of the number of pages
+> being actively used, that if non-resident would cause a large amount of
+> paging.  If you shrink the domain down to that number of pages + some
+> padding (x%?), then the system will run happily in a stable state.  If
+> that number increases, then the system will need new memory soon, to
+> stop it from thrashing.  And if that number goes way below the domain's
+> actual memory allocation, then it has "too much" memory.
 
-Nobody at IBM that I know. :)  I have other nefarious purposes for it,
-but not for memory pressure.
+Like everyone, I've thought about this.  The shrinker callbacks seem like a 
+candidate here; have you played with them at all?
 
--- Dave
+Some dynamic tension between the shrinker callback and slow feed of pages to 
+the balloon seems like it should work...
+
+Rusty.
