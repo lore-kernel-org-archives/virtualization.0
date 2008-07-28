@@ -1,51 +1,76 @@
-From: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 0/2] Paravirt loops per jiffy calculation
-Date: Sun, 27 Jul 2008 10:59:54 +0300
-Message-ID: <488C2AFA.2030806__8121.03796420178$1217145901$gmane$org@qumranet.com>
-References: <1216743328-3213-1-git-send-email-gcosta@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: How to get a sense of VM pressure
+Date: Mon, 28 Jul 2008 09:36:10 +0200
+Message-ID: <1217230570.6331.6.camel@twins>
+References: <488A1398.7020004@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1216743328-3213-1-git-send-email-gcosta@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Glauber Costa <gcosta@redhat.com>
-Cc: aliguori@codemonkey.ws, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754649AbYG1Hg2@vger.kernel.org>
+In-Reply-To: <488A1398.7020004@goop.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Linux Memory Management List <linux-mm@kvack.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Glauber Costa wrote:
-> Hey,
->
-> Over the last weeks, there has been some discussion regarding paravirt
-> lpj calculation for kvm. Here's my shot at that.
->
-> KVM hypervisor already put the right value in our pvclock structures,
-> as part of the xen compatibility efforts.
->
-> So the first patch moves the respective xen code to pvclock.c (since
-> we'll be doing the same calculation anyway), while the second, implements
-> functions for kvm that makes use of it.
->
-> Turns out that only implementing a pv get_tsc_khz is not enough, since
-> it will only do the right thing for cpu0, which is not what we desire.
->
-> So we set preset_lpj. Recall this code is run before arch parameter setup,
-> so if we pass lpj=xx in the command line, it'll still work.
->
-> Have a good (paravirtual) time!
->
->   
+On Fri, 2008-07-25 at 10:55 -0700, Jeremy Fitzhardinge wrote:
+> I'm thinking about ways to improve the Xen balloon driver.  This is the 
+> driver which allows the guest domain to expand or contract by either 
+> asking for more memory from the hypervisor, or giving unneeded memory 
+> back.  From the kernel's perspective, it simply looks like a driver 
+> which allocates and frees pages; when it allocates memory it gives the 
+> underlying physical page back to the hypervisor.  And conversely, when 
+> it gets a page from the hypervisor, it glues it under a given pfn and 
+> releases that page back to the kernel for reuse.
+> 
+> At the moment it's very dumb, and is pure mechanism.  It's told how much 
+> memory to target, and it either allocates or frees memory until the 
+> target is reached.  Unfortunately, that means if it's asked to shrink to 
+> an unreasonably small size, it will do so without question, killing the 
+> domain in a thrash-storm in the process.
+> 
+> There are several problems:
+> 
+>    1. it doesn't know what a reasonable lower limit is, and
+>    2. it doesn't moderate the rate of shrinkage to give the rest of the
+>       VM time to adjust to having less memory (by paging out, dropping
+>       inactive, etc)
+> 
+> And possibly the third point is that the only mechanism it has for 
+> applying memory pressure to the system is by allocating memory.  It 
+> allocates with (GFP_HIGHUSER | __GFP_NOWARN | __GFP_NORETRY | 
+> __GFP_NOMEMALLOC), trying not to steal memory away from things that 
+> really need it.  But in practice, it can still easy drive the machine 
+> into a massive unrecoverable swap storm.
+> 
+> So I guess what I need is some measurement of "memory use" which is 
+> perhaps akin to a system-wide RSS; a measure of the number of pages 
+> being actively used, that if non-resident would cause a large amount of 
+> paging.  If you shrink the domain down to that number of pages + some 
+> padding (x%?), then the system will run happily in a stable state.  If 
+> that number increases, then the system will need new memory soon, to 
+> stop it from thrashing.  And if that number goes way below the domain's 
+> actual memory allocation, then it has "too much" memory.
+> 
+> Is this what "Active" accounts for?  Is Active just active 
+> usermode/pagecache pages, or does it also include kernel allocations?  
+> Presumably Inactive Clean memory can be freed very easily with little 
+> impact on the system, Inactive Dirty memory isn't needed but needs IO to 
+> free; is there some way to measure how big each class of memory is?
+> 
+> If you wanted to apply gentle memory pressure on the system to attempt 
+> to accelerate freeing memory, how would you go about doing that?  Would 
+> simply allocating memory at a controlled rate achieve it?
+> 
+> I guess it also gets more complex when you bring nodes and zones into 
+> the picture.  Does it mean that this computation would need to be done 
+> per node+zone rather than system-wide?
+> 
+> Or is there some better way to implement all this?
 
-I only have this email out of the patchset.  Please resend.
+Have a peek at this:
 
+  http://people.redhat.com/~riel/riel-OLS2006.pdf
 
--- 
-error compiling committee.c: too many arguments to function
+The refault patches have been posted several times, but nobody really
+tried to use them for your problem.
