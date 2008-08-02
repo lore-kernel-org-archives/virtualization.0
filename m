@@ -1,62 +1,70 @@
-From: "Daniel P. Berrange" <berrange@redhat.com>
-Subject: Re: Re: [Xen-devel] State of Xen in upstream Linux
-Date: Fri, 1 Aug 2008 09:34:53 +0100
-Message-ID: <20080801083453.GB23993@redhat.com>
-References: <48910C99.10606@goop.org> <20080731090845.GH23888@redhat.com>
-	<ed123fa30807311054p4965f43bod78dafa6626c9c2d@mail.gmail.com>
-Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 10/10] drivers/net/xen-netfront.c: Use DIV_ROUND_UP
+Date: Sat, 2 Aug 2008 17:16:36 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0808021715500.20095@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-users-bounces@lists.xensource.com>
-Content-Disposition: inline
-In-Reply-To: <ed123fa30807311054p4965f43bod78dafa6626c9c2d@mail.gmail.com>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-users>,
-	<mailto:xen-users-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-users@lists.xensource.com>
-List-Help: <mailto:xen-users-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-users>,
-	<mailto:xen-users-request@lists.xensource.com?subject=subscribe>
-Sender: xen-users-bounces@lists.xensource.com
-Errors-To: xen-users-bounces@lists.xensource.com
-To: Grant McWilliams <grantmasterflash@gmail.com>
-Cc: Virtualization Mailing List <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Xen-devel <xen-devel@lists.xensource.com>, xen-users@lists.xensource.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: jeremy@xensource.com, chrisw@sous-sol.org, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.orgkerne
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 31, 2008 at 10:54:38AM -0700, Grant McWilliams wrote:
-> >
-> >
-> > > Fedora 9's kernel-xen package has been based on the mainline kernel from
-> > > the outset, but it is still packaged as a separate kernel.  kernel-xen
-> > > has been dropped from rawhide (what will become Fedora 10), and all Xen
-> > > support - both 32 and 64 bit - has been rolled into the main kernel
-> > > package.
-> >
-> 
-> Does this mean in the future all Fedora kernels will be Xen kernels? Is this
-> wise? If I try to run VirtualBox on a Xen kernel the machine will reboot. If
-> the Vbox module is loaded at runtime it will reboot forever. Yes, I know
-> it's a Vbox issue but what about KVM. Can we run KVM on a Xen kernel?
+From: Julia Lawall <julia@diku.dk>
 
-The way paravirt_ops works is that the single kernel image has built in
-support for a number of hypervisors, as well as, bare metal. When it boots
-one of the first things the kernel does it probe to find what its running
-on. It then switches in the various Xen, KVM or VMWare specific functions
-as required for that platform, or continues running as bare metal. The
-Fedora kernels have Xen, KVM and VMI support enabled by default now as
-of Fedora 10 (VMI is 32-bit only). Basically it should 'just work' and
-do the right thing out of the box.
+The kernel.h macro DIV_ROUND_UP performs the computation (((n) + (d) - 1) /
+(d)) but is perhaps more readable.
 
-VirtualBox is using out of tree kernel modules so all bets are off as to
-whether it works on any particular kernel. If virtualbox is important to
-you, then encourage their developers to get the functionality they need
-into the mainline kernel because that's the only way it'll be supportable
-long term. We can't guarentee that it won't break in a future Fedora 
-kernel update as long as it is out of tree.
+An extract of the semantic patch that makes this change is as follows:
+(http://www.emn.fr/x-info/coccinelle/)
 
-Regards,
-Daniel
--- 
-|: Red Hat, Engineering, London   -o-   http://people.redhat.com/berrange/ :|
-|: http://libvirt.org  -o-  http://virt-manager.org  -o-  http://ovirt.org :|
-|: http://autobuild.org       -o-         http://search.cpan.org/~danberr/ :|
-|: GnuPG: 7D3B9505  -o-  F3C9 553F A1DA 4AC2 5648 23C1 B3DF F742 7D3B 9505 :|
+// <smpl>
+@haskernel@
+@@
+
+#include <linux/kernel.h>
+
+@depends on haskernel@
+expression n,d;
+@@
+
+(
+- (n + d - 1) / d
++ DIV_ROUND_UP(n,d)
+|
+- (n + (d - 1)) / d
++ DIV_ROUND_UP(n,d)
+)
+
+@depends on haskernel@
+expression n,d;
+@@
+
+- DIV_ROUND_UP((n),d)
++ DIV_ROUND_UP(n,d)
+
+@depends on haskernel@
+expression n,d;
+@@
+
+- DIV_ROUND_UP(n,(d))
++ DIV_ROUND_UP(n,d)
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
+---
+ drivers/net/xen-netfront.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff -u -p a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -471,7 +471,7 @@ static int xennet_start_xmit(struct sk_b
+ 	unsigned int offset = offset_in_page(data);
+ 	unsigned int len = skb_headlen(skb);
+ 
+-	frags += (offset + len + PAGE_SIZE - 1) / PAGE_SIZE;
++	frags += DIV_ROUND_UP(offset + len, PAGE_SIZE);
+ 	if (unlikely(frags > MAX_SKB_FRAGS + 1)) {
+ 		printk(KERN_ALERT "xennet: skb rides the rocket: %d frags\n",
+ 		       frags);
