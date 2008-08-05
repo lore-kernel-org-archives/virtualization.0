@@ -1,15 +1,16 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
+From: "Paul Menage" <menage@google.com>
 Subject: Re: Too many I/O controller patches
-Date: Tue, 05 Aug 2008 22:17:17 +0900 (JST)
-Message-ID: <20080805.221717.112609710.ryov__37644.5881942802$1217942399$gmane$org@valinux.co.jp>
-References: <489748E6.5080106@gmail.com>
-	<000901c8f6a5$fe64ba30$fb2e2e90$@jp.nec.com>
-	<48981D3B.2020701@gmail.com>
+Date: Mon, 4 Aug 2008 22:55:31 -0700
+Message-ID: <6599ad830808042255y59215481l5463d4dca9fb2001__6919.35473955727$1217947327$gmane$org@mail.gmail.com>
+References: <20080804.175126.193692178.ryov@valinux.co.jp>
+	<1217870433.20260.101.camel@nimitz> <489748E6.5080106@gmail.com>
+	<1217876521.20260.123.camel@nimitz> <48976A2A.9060600@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48981D3B.2020701@gmail.com>
+In-Reply-To: <48976A2A.9060600@gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,54 +21,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: righi.andrea@gmail.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dave@linux.vnet.ibm.com, vtaras@openvz.org, dm-devel@redhat.com, agk@sourceware.org, virtualization@lists.linux-foundation.org, ngupta@google.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, Dave Hansen <dave@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Andrea, Satoshi and all,
+On Mon, Aug 4, 2008 at 1:44 PM, Andrea Righi <righi.andrea@gmail.com> wrote:
+>
+> A safer approach IMHO is to force the tasks to wait synchronously on
+> each operation that directly or indirectly generates i/o.
+>
+> In particular the solution used by the io-throttle controller to limit
+> the dirty-ratio in memory is to impose a sleep via
+> schedule_timeout_killable() in balance_dirty_pages() when a generic
+> process exceeds the limits defined for the belonging cgroup.
+>
+> Limiting read operations is a lot more easy, because they're always
+> synchronized with i/o requests.
 
-Thanks for giving a chance to discuss.
+I think that you're conflating two issues:
 
-> Mr. Andrew gave a advice "Should discuss about design more and more"
-> to me.
-> And, in Containers Mini-summit (and Linux Symposium 2008 in Ottawa),
-> Paul said that a necessary to us is to decide a requirement first.
-> So, we must discuss requirement and design.
+- controlling how much dirty memory a cgroup can have at any given
+time (since dirty memory is much harder/slower to reclaim than clean
+memory)
 
-We've implemented dm-ioband and bio-cgroup to meet the following requirements:
-    * Assign some bandwidth to each group on the same device.
-      A group is a set of processes, which may be a cgroup.
-    * Assign some bandwidth to each partition on the same device.
-      It can work with the process group based bandwidth control.
-        ex) With this feature, you can assign 40% of the bandwidth of a
-	    disk to /root and 60% of them to /usr.
-    * It can work with virtual machines such as Xen and KVM.
-      I/O requests issued from virtual machines have to be controlled.
-    * It should work any type of I/O scheduler, including ones which
-      will be released in the future.
-    * Support multiple devices which share the same bandwidth such as
-      raid disks and LVM.   
-    * Handle asynchronous I/O requests such as AIO request and delayed 
-      write requests.
-        - This can be done with bio-cgroup, which uses the page-tracking
-	  mechanism the cgroup memory controller has.
-    * Control dirty page ratio.
-        - This can be done with the cgroup memory controller in the near
-	  feature. It would be great that you can also use other features
-	  the memory controller is going to have with dm-ioband.
-    * Make it easy to enhance.
-        - The current implementation of dm-ioband has an interface to
-	  add a new policy to control I/O requests. You can easily add
-	  I/O throttling policy if you want.
-    * Fine grained bandwidth control.
-    * Keep I/O throughput.
-    * Make it scalable.
-    * It should work correctly if the I/O load is quite high,
-      even when the io-request queue of a certain disk is overflowed.
+- controlling how much effect a cgroup can have on a given I/O device.
 
-> Ryo, do you have other documentation besides the info reported in the
-> dm-ioband website?
+By controlling the rate at which a task can generate dirty pages,
+you're not really limiting either of these. I think you'd have to set
+your I/O limits artificially low to prevent a case of a process
+writing a large data file and then doing fsync() on it, which would
+then hit the disk with the entire file at once, and blow away any QoS
+guarantees for other groups.
 
-I don't have any documentation besides in the website.
+As Dave suggested, I think it would make more sense to have your
+page-dirtying throttle points hook into the memory controller instead,
+and allow the memory controller to track/limit dirty pages for a
+cgroup, and potentially do throttling as part of that.
 
-Thanks,
-Ryo Tsuruta
+Paul
