@@ -1,16 +1,14 @@
 From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [PATCH 4/7] bio-cgroup: Split the cgroup memory subsystem into
-	two parts
-Date: Tue, 05 Aug 2008 19:35:51 +0900 (JST)
-Message-ID: <20080805.193551.14286210.taka__26832.5768680826$1217932678$gmane$org@valinux.co.jp>
-References: <20080804.175707.104036289.ryov@valinux.co.jp>
-	<20080804.175748.189722512.ryov@valinux.co.jp>
-	<48982A9D.2000803@gmail.com>
+Subject: Re: Too many I/O controller patches
+Date: Tue, 05 Aug 2008 21:01:50 +0900 (JST)
+Message-ID: <20080805.210150.91309965.taka__29196.773217018$1217938077$gmane$org@valinux.co.jp>
+References: <1217870433.20260.101.camel@nimitz> <489748E6.5080106@gmail.com>
+	<000901c8f6a5$fe64ba30$fb2e2e90$@jp.nec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48982A9D.2000803@gmail.com>
+In-Reply-To: <000901c8f6a5$fe64ba30$fb2e2e90$@jp.nec.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,55 +18,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: righi.andrea@gmail.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org
+To: s-uchida@ap.jp.nec.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dave@linux.vnet.ibm.com, vtaras@openvz.org, dm-devel@redhat.com, agk@sourceware.org, virtualization@lists.linux-foundation.org, ngupta@google.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Andrea,
+Hi,
 
-> you can remove some ifdefs doing:
+> I think that OOM problems caused by memory/cache systems.
+> So, it will be better that I/O controller created out of these problems
+> first, although a lateness of the I/O device would be related.
+> If these problem can be resolved, its technique should be applied into 
+> normal I/O control as well as cgroups.
 
-I think you don't have to care about this much, since one of the following
-patches removes most of these ifdefs.
+Yes, this is one of the problems linux kernel still has, which should
+be solved.
 
-> #ifdef CONFIG_CGROUP_MEM_RES_CTLR
-> 	if (likely(!memcg)) {
-> 		rcu_read_lock();
-> 		mem = mem_cgroup_from_task(rcu_dereference(mm->owner));
-> 		/*
-> 		 * For every charge from the cgroup, increment reference count
-> 		 */
-> 		css_get(&mem->css);
-> 		rcu_read_unlock();
-> 	} else {
-> 		mem = memcg;
-> 		css_get(&memcg->css);
-> 	}
-> 	while (res_counter_charge(&mem->res, PAGE_SIZE)) {
-> 		if (!(gfp_mask & __GFP_WAIT))
-> 			goto out;
+But I believe this should be done in the linux memory management layer
+including the cgroup memory controller, which has to work correctly
+on any type of device with various access speeds.
+
+I think it's better that I/O controllers should only focus on flow of
+I/O requests. This approach will keep the implementation of linux
+kernel simple.
+
+> Buffered write I/O is also related with cache system.
+> We must consider this problem as I/O control.
+> I don't have a good way which can resolve this problems.
 > 
-> 		if (try_to_free_mem_cgroup_pages(mem, gfp_mask))
-> 			continue;
-> 
-> 		/*
-> 		 * try_to_free_mem_cgroup_pages() might not give us a full
-> 		 * picture of reclaim. Some pages are reclaimed and might be
-> 		 * moved to swap cache or just unmapped from the cgroup.
-> 		 * Check the limit again to see if the reclaim reduced the
-> 		 * current usage of the cgroup before giving up
-> 		 */
-> 		if (res_counter_check_under_limit(&mem->res))
-> 			continue;
-> 
-> 		if (!nr_retries--) {
-> 			mem_cgroup_out_of_memory(mem, gfp_mask);
-> 			goto out;
-> 		}
-> 	}
-> 	pc->mem_cgroup = mem;
-> #endif /* CONFIG_CGROUP_MEM_RES_CTLR */
-> _______________________________________________
-> Containers mailing list
-> Containers@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/containers
+
+Thank you,
+Hirokazu Takahashi.
