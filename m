@@ -1,16 +1,17 @@
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
+From: Dave Hansen <dave@linux.vnet.ibm.com>
 Subject: Re: RFC: I/O bandwidth controller
-Date: Wed, 06 Aug 2008 15:41:32 +0900
-Message-ID: <1218004892.3950.12.camel__46263.6696095162$1218034120$gmane$org@sebastian.kern.oss.ntt.co.jp>
+Date: Wed, 06 Aug 2008 08:48:08 -0700
+Message-ID: <1218037688.10907.85.camel__31413.8920665302$1218038039$gmane$org@nimitz>
 References: <20080804.175126.193692178.ryov@valinux.co.jp>
 	<1217870433.20260.101.camel@nimitz>
 	<1217985189.3154.57.camel@sebastian.kern.oss.ntt.co.jp>
 	<20080806.151824.104049463.ryov@valinux.co.jp>
+	<1218004892.3950.12.camel@sebastian.kern.oss.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080806.151824.104049463.ryov@valinux.co.jp>
+In-Reply-To: <1218004892.3950.12.camel@sebastian.kern.oss.ntt.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,73 +21,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryo Tsuruta <ryov@valinux.co.jp>
-Cc: taka@valinux.co.jp, xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dave@linux.vnet.ibm.com, dm-devel@redhat.com, agk@sourceware.org, virtualization@lists.linux-foundation.org, ngupta@google.com, righi.andrea@gmail.com
+To: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
+Cc: xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, ngupta@google.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2008-08-06 at 15:18 +0900, Ryo Tsuruta wrote:
-> Hi Fernando,
-> 
-> > This RFC ended up being a bit longer than I had originally intended, but
-> > hopefully it will serve as the start of a fruitful discussion.
-> 
-> Thanks a lot for posting the RFC.
-> 
-> > *** Goals
-> >   1. Cgroups-aware I/O scheduling (being able to define arbitrary
-> > groupings of processes and treat each group as a single scheduling
-> > entity).
-> >   2. Being able to perform I/O bandwidth control independently on each
-> > device.
-> >   3. I/O bandwidth shaping.
-> >   4. Scheduler-independent I/O bandwidth control.
-> >   5. Usable with stacking devices (md, dm and other devices of that
-> > ilk).
-> >   6. I/O tracking (handle buffered and asynchronous I/O properly).
-> >
-> > The list of goals above is not exhaustive and it is also likely to
-> > contain some not-so-nice-to-have features so your feedback would be
-> > appreciated.
-> 
-> I'd like to add the following item to the goals.
-> 
->   7. Selectable from multiple bandwidth control policy (proportion,
->      maximum rate limiting, ...) like I/O scheduler.
-Yep, makes sense.
+On Wed, 2008-08-06 at 15:41 +0900, Fernando Luis V=E1zquez Cao wrote:
+> > I agree with your plan.
+> > We keep bio-cgroup improving and porting to the latest kernel.
+> Having more users of bio-cgroup would probably help to get it merged, so
+> we'll certainly send patches as soon as we get our cfq prototype in
+> shape.
 
-> > *** How to move on
-> > 
-> > As discussed before, it probably makes sense to have both a block layer
-> > I/O controller and a elevator-based one, and they could certainly
-> > cohabitate. As discussed before, all of them need I/O tracking
-> > capabilities so I would like to suggest the plan below to get things
-> > started:
-> > 
-> >   - Improve the I/O tracking patches (see (6) above) until they are in
-> > mergeable shape.
-> >   - Fix CFQ and AS to use the new I/O tracking functionality to show its
-> > benefits. If the performance impact is acceptable this should suffice to
-> > convince the respective maintainer and get the I/O tracking patches
-> > merged.
-> >   - Implement a block layer resource controller. dm-ioband is a working
-> > solution and feature rich but its dependency on the dm infrastructure is
-> > likely to find opposition (the dm layer does not handle barriers
-> > properly and the maximum size of I/O requests can be limited in some
-> > cases). In such a case, we could either try to build a standalone
-> > resource controller based on dm-ioband (which would probably hook into
-> > generic_make_request) or try to come up with something new.
-> >   - If the I/O tracking patches make it into the kernel we could move on
-> > and try to get the Cgroup extensions to CFQ and AS mentioned before (see
-> > (1), (2), and (3) above for details) merged.
-> >   - Delegate the task of controlling the rate at which a task can
-> > generate dirty pages to the memory controller.
-> 
-> I agree with your plan.
-> We keep bio-cgroup improving and porting to the latest kernel.
-Having more users of bio-cgroup would probably help to get it merged, so
-we'll certainly send patches as soon as we get our cfq prototype in
-shape.
+I'm confused.  Are these two of the competing controllers?  Or are the
+complementary in some way?
 
-Regards,
-
-Fernando
+-- Dave
