@@ -1,14 +1,16 @@
 From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: Too many I/O controller patches
-Date: Wed, 06 Aug 2008 15:48:21 +0900 (JST)
-Message-ID: <20080806.154821.119848423.taka__29874.6114866391$1218005662$gmane$org@valinux.co.jp>
-References: <48981D3B.2020701@gmail.com> <1217953218.10907.25.camel@nimitz>
-	<20080806114425.c0e9b24f.kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [PATCH 4/7] bio-cgroup: Split the cgroup memory subsystem into
+	two parts
+Date: Wed, 06 Aug 2008 20:43:39 +0900 (JST)
+Message-ID: <20080806.204339.76736223.taka__36243.714442435$1218023437$gmane$org@valinux.co.jp>
+References: <20080804.175707.104036289.ryov@valinux.co.jp>
+	<20080804.175748.189722512.ryov@valinux.co.jp>
+	<20080806165421.f76edd47.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080806114425.c0e9b24f.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20080806165421.f76edd47.kamezawa.hiroyu@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,56 +21,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kamezawa.hiroyu@jp.fujitsu.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dave@linux.vnet.ibm.com, vtaras@openvz.org, dm-devel@redhat.com, agk@sourceware.org, virtualization@lists.linux-foundation.org, ngupta@google.com, righi.andrea@gmail.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, 
+Hi,
 
-> > > > Buffered write I/O is also related with cache system.
-> > > > We must consider this problem as I/O control.
-> > > 
-> > > Agree. At least, maybe we should consider if an IO controller could be
-> > > a valid solution also for these problems.
+> > This patch splits the cgroup memory subsystem into two parts.
+> > One is for tracking pages to find out the owners. The other is
+> > for controlling how much amount of memory should be assigned to
+> > each cgroup.
 > > 
-> > Isn't this one of the core points that we keep going back and forth
-> > over?  It seems like people are arguing in circles over this:
+> > With this patch, you can use the page tracking mechanism even if
+> > the memory subsystem is off.
 > > 
-> > Do we:
-> > 	1. control potential memory usage by throttling I/O
-> > or
-> > 	2. Throttle I/O when memory is full
+> > Based on 2.6.27-rc1-mm1
+> > Signed-off-by: Ryo Tsuruta <ryov@valinux.co.jp>
+> > Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
 > > 
-> > I might lean toward (1) if we didn't already have a memory controller.
-> > But, we have one, and it works.  Also, we *already* do (2) in the
-> > kernel, so it would seem to graft well onto existing mechanisms that we
-> > have.
-> > 
-> > I/O controllers should not worry about memory.  
-> I agree here ;)
 > 
-> >They're going to have a hard enough time getting the I/O part right. :)
-> > 
-> memcg have more problems now ;( 
+> Plese CC me or Balbir or Pavel (See Maintainer list) when you try this ;)
 > 
-> Only a difficult thing to limit dirty-ratio in memcg is how-to-count dirty
-> pages. If I/O controller's hook helps, it's good.
+> After this patch, the total structure is
 > 
-> My small concern is "What happens if we throttole I/O bandwidth too small
-> under some memcg." In such cgroup, we may see more OOMs because I/O will
-> not finish in time.
+>  page <-> page_cgroup <-> bio_cgroup.
+>  (multiple bio_cgroup can be attached to page_cgroup)
+>
+> Does this pointer chain will add
+>   - significant performance regression or
+>   - new race condtions 
+> ?
 
-I/O controllers are just supposed to emulate slow device from the point
-of view of the processes in a certain cgroup or something. I think
-the memory management layer and the memory controller are the ones
-which should be able to handle these, which might be as slow as
-floppy disks though.
+I don't think it will cause significant performance loss, because
+the link between a page and a page_cgroup has already existed, which
+the memory resource controller prepared. Bio_cgroup uses this as it is,
+and does nothing about this.
 
-> A system admin have to find some way to avoid this.
-> 
-> But please do I/O control first. Dirty-page control is related but different
-> layer's problem, I think.
+And the link between page_cgroup and bio_cgroup isn't protected
+by any additional spin-locks, since the associated bio_cgroup is
+guaranteed to exist as long as the bio_cgroup owns pages.
 
-Yup.
+I've just noticed that most of overhead comes from the spin-locks
+when reclaiming the pages inside mem_cgroups and the spin-locks to
+protect the links between pages and page_cgroups.
+The latter overhead comes from the policy your team has chosen
+that page_cgroup structures are allocated on demand. I still feel
+this approach doesn't make any sense because linux kernel tries to
+make use of most of the pages as far as it can, so most of them
+have to be assigned its related page_cgroup. It would make us happy
+if page_cgroups are allocated at the booting time.
 
-Thanks,
-Hirokazu Takahashi.
+> For example, adding a simple function.
+> ==
+> int get_page_io_id(struct page *)
+>  - returns a I/O cgroup ID for this page. If ID is not found, -1 is returned.
+>    ID is not guaranteed to be valid value. (ID can be obsolete)
+> ==
+> And just storing cgroup ID to page_cgroup at page allocation.
+> Then, making bio_cgroup independent from page_cgroup and 
+> get ID if avialble and avoid too much pointer walking.
+
+I don't think there are any diffrences between a poiter and ID.
+I think this ID is just a encoded version of the pointer.
+
+> Thanks,
+> -Kame
