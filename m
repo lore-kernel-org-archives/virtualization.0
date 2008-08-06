@@ -1,16 +1,18 @@
-From: Dave Hansen <dave@linux.vnet.ibm.com>
+From: Balbir Singh <balbir@linux.vnet.ibm.com>
 Subject: Re: Too many I/O controller patches
-Date: Tue, 05 Aug 2008 09:25:37 -0700
-Message-ID: <1217953537.10907.30.camel__16639.5082175315$1217953702$gmane$org@nimitz>
+Date: Wed, 06 Aug 2008 09:00:07 +0530
+Message-ID: <48991ABF.906__5338.56650949946$1217993560$gmane$org@linux.vnet.ibm.com>
 References: <20080804.175126.193692178.ryov@valinux.co.jp>
 	<1217870433.20260.101.camel@nimitz> <489748E6.5080106@gmail.com>
-	<1217876521.20260.123.camel@nimitz> <48976A2A.9060600@gmail.com>
-	<6599ad830808042255y59215481l5463d4dca9fb2001@mail.gmail.com>
+	<000901c8f6a5$fe64ba30$fb2e2e90$@jp.nec.com>
+	<48981D3B.2020701@gmail.com> <1217953218.10907.25.camel@nimitz>
+	<20080806114425.c0e9b24f.kamezawa.hiroyu@jp.fujitsu.com>
+Reply-To: balbir@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <6599ad830808042255y59215481l5463d4dca9fb2001@mail.gmail.com>
+In-Reply-To: <20080806114425.c0e9b24f.kamezawa.hiroyu@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,23 +22,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Menage <menage@google.com>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, righi.andrea@gmail.com
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vtaras@openvz.org, dm-devel@redhat.com, agk@sourceware.org, Dave Hansen <dave@linux.vnet.ibm.com>, ngupta@google.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2008-08-04 at 22:55 -0700, Paul Menage wrote:
-> 
-> As Dave suggested, I think it would make more sense to have your
-> page-dirtying throttle points hook into the memory controller instead,
-> and allow the memory controller to track/limit dirty pages for a
-> cgroup, and potentially do throttling as part of that.
-
-Yeah, I'm sure we're going to have to get to setting the dirty ratio
-        
-        $ cat /proc/sys/vm/dirty_ratio
-        40
-
-on a per-container basis at *some* point.  We might as well do it
-earlier rather than later.
-
--- Dave
+S0FNRVpBV0EgSGlyb3l1a2kgd3JvdGU6Cj4gT24gVHVlLCAwNSBBdWcgMjAwOCAwOToyMDoxOCAt
+MDcwMAo+IERhdmUgSGFuc2VuIDxkYXZlQGxpbnV4LnZuZXQuaWJtLmNvbT4gd3JvdGU6Cj4gCj4+
+IE9uIFR1ZSwgMjAwOC0wOC0wNSBhdCAxMToyOCArMDIwMCwgQW5kcmVhIFJpZ2hpIHdyb3RlOgo+
+Pj4+IEJ1ZmZlcmVkIHdyaXRlIEkvTyBpcyBhbHNvIHJlbGF0ZWQgd2l0aCBjYWNoZSBzeXN0ZW0u
+Cj4+Pj4gV2UgbXVzdCBjb25zaWRlciB0aGlzIHByb2JsZW0gYXMgSS9PIGNvbnRyb2wuCj4+PiBB
+Z3JlZS4gQXQgbGVhc3QsIG1heWJlIHdlIHNob3VsZCBjb25zaWRlciBpZiBhbiBJTyBjb250cm9s
+bGVyIGNvdWxkIGJlCj4+PiBhIHZhbGlkIHNvbHV0aW9uIGFsc28gZm9yIHRoZXNlIHByb2JsZW1z
+Lgo+PiBJc24ndCB0aGlzIG9uZSBvZiB0aGUgY29yZSBwb2ludHMgdGhhdCB3ZSBrZWVwIGdvaW5n
+IGJhY2sgYW5kIGZvcnRoCj4+IG92ZXI/ICDvu79JdCBzZWVtcyBsaWtlIHBlb3BsZSBhcmUgYXJn
+dWluZyBpbiBjaXJjbGVzIG92ZXIgdGhpczoKPj4KPj4gRG8gd2U6Cj4+IAkxLiBjb250cm9sIHBv
+dGVudGlhbCBtZW1vcnkgdXNhZ2UgYnkgdGhyb3R0bGluZyBJL08KPj4gb3IKPj4gCTIuIFRocm90
+dGxlIEkvTyB3aGVuIG1lbW9yeSBpcyBmdWxsCj4+Cj4+IEkgbWlnaHQgbGVhbiB0b3dhcmQgKDEp
+IGlmIHdlIGRpZG4ndCBhbHJlYWR5IGhhdmUgYSBtZW1vcnkgY29udHJvbGxlci4KPj4gQnV0LCB3
+ZSBoYXZlIG9uZSwgYW5kIGl0IHdvcmtzLiAgQWxzbywgd2UgKmFscmVhZHkqIGRvICgyKSBpbiB0
+aGUKPj4ga2VybmVsLCBzbyBpdCB3b3VsZCBzZWVtIHRvIGdyYWZ0IHdlbGwgb250byBleGlzdGlu
+ZyBtZWNoYW5pc21zIHRoYXQgd2UKPj4gaGF2ZS4KPj4KPj4gSS9PIGNvbnRyb2xsZXJzIHNob3Vs
+ZCBub3Qgd29ycnkgYWJvdXQgbWVtb3J5LiAgCj4gSSBhZ3JlZSBoZXJlIDspCj4gCj4+IFRoZXkn
+cmUgZ29pbmcgdG8gaGF2ZSBhIGhhcmQgZW5vdWdoIHRpbWUgZ2V0dGluZyB0aGUgSS9PIHBhcnQg
+cmlnaHQuIDopCj4+Cj4gbWVtY2cgaGF2ZSBtb3JlIHByb2JsZW1zIG5vdyA7KCAKPiAKPiBPbmx5
+IGEgZGlmZmljdWx0IHRoaW5nIHRvIGxpbWl0IGRpcnR5LXJhdGlvIGluIG1lbWNnIGlzIGhvdy10
+by1jb3VudCBkaXJ0eQo+IHBhZ2VzLiBJZiBJL08gY29udHJvbGxlcidzIGhvb2sgaGVscHMsIGl0
+J3MgZ29vZC4KPiAKPiBNeSBzbWFsbCBjb25jZXJuIGlzICJXaGF0IGhhcHBlbnMgaWYgd2UgdGhy
+b3R0b2xlIEkvTyBiYW5kd2lkdGggdG9vIHNtYWxsCj4gdW5kZXIgc29tZSBtZW1jZy4iIEluIHN1
+Y2ggY2dyb3VwLCB3ZSBtYXkgc2VlIG1vcmUgT09NcyBiZWNhdXNlIEkvTyB3aWxsCj4gbm90IGZp
+bmlzaCBpbiB0aW1lLgo+IEEgc3lzdGVtIGFkbWluIGhhdmUgdG8gZmluZCBzb21lIHdheSB0byBh
+dm9pZCB0aGlzLgo+IAo+IEJ1dCBwbGVhc2UgZG8gSS9PIGNvbnRyb2wgZmlyc3QuIERpcnR5LXBh
+Z2UgY29udHJvbCBpcyByZWxhdGVkIGJ1dCBkaWZmZXJlbnQKPiBsYXllcidzIHByb2JsZW0sIEkg
+dGhpbmsuCgpZZXMsIHBsZWFzZSBzb2x2ZSB0aGUgSS9PIGNvbnRyb2wgcHJvYmxlbSBmaXJzdC4K
+Ci0tIAoJV2FybSBSZWdhcmRzLAoJQmFsYmlyIFNpbmdoCglMaW51eCBUZWNobm9sb2d5IENlbnRl
+cgoJSUJNLCBJU1RMCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
