@@ -1,17 +1,16 @@
-From: kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: Re: [PATCH 4/7] bio-cgroup: Split the cgroup memory subsystem
-	into two parts
-Date: Wed, 6 Aug 2008 22:45:43 +0900 (JST)
-Message-ID: <16255819.1218030343593.kamezawa.hiroyu__37280.3711485632$1218034119$gmane$org@jp.fujitsu.com>
-References: <20080806.204339.76736223.taka@valinux.co.jp>
-	<20080804.175707.104036289.ryov@valinux.co.jp>
-	<20080804.175748.189722512.ryov@valinux.co.jp>
-	<20080806165421.f76edd47.kamezawa.hiroyu@jp.fujitsu.com>
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
+Subject: Re: RFC: I/O bandwidth controller
+Date: Wed, 06 Aug 2008 15:41:32 +0900
+Message-ID: <1218004892.3950.12.camel__46263.6696095162$1218034120$gmane$org@sebastian.kern.oss.ntt.co.jp>
+References: <20080804.175126.193692178.ryov@valinux.co.jp>
+	<1217870433.20260.101.camel@nimitz>
+	<1217985189.3154.57.camel@sebastian.kern.oss.ntt.co.jp>
+	<20080806.151824.104049463.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080806.204339.76736223.taka@valinux.co.jp>
+In-Reply-To: <20080806.151824.104049463.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,95 +20,73 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, kamezawa.hiroyu@jp.fujitsu.com
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: taka@valinux.co.jp, xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dave@linux.vnet.ibm.com, dm-devel@redhat.com, agk@sourceware.org, virtualization@lists.linux-foundation.org, ngupta@google.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
------ Original Message -----
->> > This patch splits the cgroup memory subsystem into two parts.
->> > One is for tracking pages to find out the owners. The other is
->> > for controlling how much amount of memory should be assigned to
->> > each cgroup.
->> > 
->> > With this patch, you can use the page tracking mechanism even if
->> > the memory subsystem is off.
->> > 
->> > Based on 2.6.27-rc1-mm1
->> > Signed-off-by: Ryo Tsuruta <ryov@valinux.co.jp>
->> > Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
->> > 
->> 
->> Plese CC me or Balbir or Pavel (See Maintainer list) when you try this ;)
->> 
->> After this patch, the total structure is
->> 
->>  page <-> page_cgroup <-> bio_cgroup.
->>  (multiple bio_cgroup can be attached to page_cgroup)
->>
->> Does this pointer chain will add
->>   - significant performance regression or
->>   - new race condtions 
->> ?
->
->I don't think it will cause significant performance loss, because
->the link between a page and a page_cgroup has already existed, which
->the memory resource controller prepared. Bio_cgroup uses this as it is,
->and does nothing about this.
->
->And the link between page_cgroup and bio_cgroup isn't protected
->by any additional spin-locks, since the associated bio_cgroup is
->guaranteed to exist as long as the bio_cgroup owns pages.
->
-Hmm, I think page_cgroup's cost is visible when
-1. a page is changed to be in-use state. (fault or radixt-tree-insert)
-2. a page is changed to be out-of-use state (fault or radixt-tree-removal)
-3. memcg hit its limit or global LRU reclaim runs.
+On Wed, 2008-08-06 at 15:18 +0900, Ryo Tsuruta wrote:
+> Hi Fernando,
+> 
+> > This RFC ended up being a bit longer than I had originally intended, but
+> > hopefully it will serve as the start of a fruitful discussion.
+> 
+> Thanks a lot for posting the RFC.
+> 
+> > *** Goals
+> >   1. Cgroups-aware I/O scheduling (being able to define arbitrary
+> > groupings of processes and treat each group as a single scheduling
+> > entity).
+> >   2. Being able to perform I/O bandwidth control independently on each
+> > device.
+> >   3. I/O bandwidth shaping.
+> >   4. Scheduler-independent I/O bandwidth control.
+> >   5. Usable with stacking devices (md, dm and other devices of that
+> > ilk).
+> >   6. I/O tracking (handle buffered and asynchronous I/O properly).
+> >
+> > The list of goals above is not exhaustive and it is also likely to
+> > contain some not-so-nice-to-have features so your feedback would be
+> > appreciated.
+> 
+> I'd like to add the following item to the goals.
+> 
+>   7. Selectable from multiple bandwidth control policy (proportion,
+>      maximum rate limiting, ...) like I/O scheduler.
+Yep, makes sense.
 
-"1" and "2" can be catched as 5% loss of exec throuput. 
-"3" is not measured (because LRU walk itself is heavy.)
+> > *** How to move on
+> > 
+> > As discussed before, it probably makes sense to have both a block layer
+> > I/O controller and a elevator-based one, and they could certainly
+> > cohabitate. As discussed before, all of them need I/O tracking
+> > capabilities so I would like to suggest the plan below to get things
+> > started:
+> > 
+> >   - Improve the I/O tracking patches (see (6) above) until they are in
+> > mergeable shape.
+> >   - Fix CFQ and AS to use the new I/O tracking functionality to show its
+> > benefits. If the performance impact is acceptable this should suffice to
+> > convince the respective maintainer and get the I/O tracking patches
+> > merged.
+> >   - Implement a block layer resource controller. dm-ioband is a working
+> > solution and feature rich but its dependency on the dm infrastructure is
+> > likely to find opposition (the dm layer does not handle barriers
+> > properly and the maximum size of I/O requests can be limited in some
+> > cases). In such a case, we could either try to build a standalone
+> > resource controller based on dm-ioband (which would probably hook into
+> > generic_make_request) or try to come up with something new.
+> >   - If the I/O tracking patches make it into the kernel we could move on
+> > and try to get the Cgroup extensions to CFQ and AS mentioned before (see
+> > (1), (2), and (3) above for details) merged.
+> >   - Delegate the task of controlling the rate at which a task can
+> > generate dirty pages to the memory controller.
+> 
+> I agree with your plan.
+> We keep bio-cgroup improving and porting to the latest kernel.
+Having more users of bio-cgroup would probably help to get it merged, so
+we'll certainly send patches as soon as we get our cfq prototype in
+shape.
 
-What new chances to access page_cgroup you'll add ?
-I'll have to take into account them.
+Regards,
 
->I've just noticed that most of overhead comes from the spin-locks
->when reclaiming the pages inside mem_cgroups and the spin-locks to
->protect the links between pages and page_cgroups.
-Overhead between page <-> page_cgroup lock is cannot be catched by
-lock_stat now.Do you have numbers ?
-But ok, there are too many locks ;(
-
->The latter overhead comes from the policy your team has chosen
->that page_cgroup structures are allocated on demand. I still feel
->this approach doesn't make any sense because linux kernel tries to
->make use of most of the pages as far as it can, so most of them
->have to be assigned its related page_cgroup. It would make us happy
->if page_cgroups are allocated at the booting time.
->
-Now, multi-sizer-page-cache is discussed for a long time. If it's our
-direction, on-demand page_cgroup make sense.
-
-
->> For example, adding a simple function.
->> ==
->> int get_page_io_id(struct page *)
->>  - returns a I/O cgroup ID for this page. If ID is not found, -1 is returne
-d.
->>    ID is not guaranteed to be valid value. (ID can be obsolete)
->> ==
->> And just storing cgroup ID to page_cgroup at page allocation.
->> Then, making bio_cgroup independent from page_cgroup and 
->> get ID if avialble and avoid too much pointer walking.
->
->I don't think there are any diffrences between a poiter and ID.
->I think this ID is just a encoded version of the pointer.
->
-ID can be obsolete, pointer is not. memory cgroup has to take care of
-bio cgroup's race condition ? (About race conditions, it's already complicated
-enough)
-
-To be honest, I think adding a new (4 or 8 bytes) page struct and record infor
-mation of bio-control is more straightforward approach. Buy as you might
-think, "there is no room"
-
-Thanks,
--Kame
+Fernando
