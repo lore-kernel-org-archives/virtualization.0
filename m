@@ -1,18 +1,15 @@
-From: Balbir Singh <balbir@linux.vnet.ibm.com>
-Subject: Re: Too many I/O controller patches
-Date: Wed, 06 Aug 2008 09:00:07 +0530
-Message-ID: <48991ABF.906__5338.56650949946$1217993560$gmane$org@linux.vnet.ibm.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: RFC: I/O bandwidth controller
+Date: Wed, 06 Aug 2008 15:18:24 +0900 (JST)
+Message-ID: <20080806.151824.104049463.ryov__34769.3470576361$1218003790$gmane$org@valinux.co.jp>
 References: <20080804.175126.193692178.ryov@valinux.co.jp>
-	<1217870433.20260.101.camel@nimitz> <489748E6.5080106@gmail.com>
-	<000901c8f6a5$fe64ba30$fb2e2e90$@jp.nec.com>
-	<48981D3B.2020701@gmail.com> <1217953218.10907.25.camel@nimitz>
-	<20080806114425.c0e9b24f.kamezawa.hiroyu@jp.fujitsu.com>
-Reply-To: balbir@linux.vnet.ibm.com
+	<1217870433.20260.101.camel@nimitz>
+	<1217985189.3154.57.camel@sebastian.kern.oss.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080806114425.c0e9b24f.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1217985189.3154.57.camel@sebastian.kern.oss.ntt.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,40 +19,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vtaras@openvz.org, dm-devel@redhat.com, agk@sourceware.org, Dave Hansen <dave@linux.vnet.ibm.com>, ngupta@google.com, righi.andrea@gmail.com
+To: fernando@oss.ntt.co.jp
+Cc: taka@valinux.co.jp, xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dave@linux.vnet.ibm.com, dm-devel@redhat.com, agk@sourceware.org, virtualization@lists.linux-foundation.org, ngupta@google.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-S0FNRVpBV0EgSGlyb3l1a2kgd3JvdGU6Cj4gT24gVHVlLCAwNSBBdWcgMjAwOCAwOToyMDoxOCAt
-MDcwMAo+IERhdmUgSGFuc2VuIDxkYXZlQGxpbnV4LnZuZXQuaWJtLmNvbT4gd3JvdGU6Cj4gCj4+
-IE9uIFR1ZSwgMjAwOC0wOC0wNSBhdCAxMToyOCArMDIwMCwgQW5kcmVhIFJpZ2hpIHdyb3RlOgo+
-Pj4+IEJ1ZmZlcmVkIHdyaXRlIEkvTyBpcyBhbHNvIHJlbGF0ZWQgd2l0aCBjYWNoZSBzeXN0ZW0u
-Cj4+Pj4gV2UgbXVzdCBjb25zaWRlciB0aGlzIHByb2JsZW0gYXMgSS9PIGNvbnRyb2wuCj4+PiBB
-Z3JlZS4gQXQgbGVhc3QsIG1heWJlIHdlIHNob3VsZCBjb25zaWRlciBpZiBhbiBJTyBjb250cm9s
-bGVyIGNvdWxkIGJlCj4+PiBhIHZhbGlkIHNvbHV0aW9uIGFsc28gZm9yIHRoZXNlIHByb2JsZW1z
-Lgo+PiBJc24ndCB0aGlzIG9uZSBvZiB0aGUgY29yZSBwb2ludHMgdGhhdCB3ZSBrZWVwIGdvaW5n
-IGJhY2sgYW5kIGZvcnRoCj4+IG92ZXI/ICDvu79JdCBzZWVtcyBsaWtlIHBlb3BsZSBhcmUgYXJn
-dWluZyBpbiBjaXJjbGVzIG92ZXIgdGhpczoKPj4KPj4gRG8gd2U6Cj4+IAkxLiBjb250cm9sIHBv
-dGVudGlhbCBtZW1vcnkgdXNhZ2UgYnkgdGhyb3R0bGluZyBJL08KPj4gb3IKPj4gCTIuIFRocm90
-dGxlIEkvTyB3aGVuIG1lbW9yeSBpcyBmdWxsCj4+Cj4+IEkgbWlnaHQgbGVhbiB0b3dhcmQgKDEp
-IGlmIHdlIGRpZG4ndCBhbHJlYWR5IGhhdmUgYSBtZW1vcnkgY29udHJvbGxlci4KPj4gQnV0LCB3
-ZSBoYXZlIG9uZSwgYW5kIGl0IHdvcmtzLiAgQWxzbywgd2UgKmFscmVhZHkqIGRvICgyKSBpbiB0
-aGUKPj4ga2VybmVsLCBzbyBpdCB3b3VsZCBzZWVtIHRvIGdyYWZ0IHdlbGwgb250byBleGlzdGlu
-ZyBtZWNoYW5pc21zIHRoYXQgd2UKPj4gaGF2ZS4KPj4KPj4gSS9PIGNvbnRyb2xsZXJzIHNob3Vs
-ZCBub3Qgd29ycnkgYWJvdXQgbWVtb3J5LiAgCj4gSSBhZ3JlZSBoZXJlIDspCj4gCj4+IFRoZXkn
-cmUgZ29pbmcgdG8gaGF2ZSBhIGhhcmQgZW5vdWdoIHRpbWUgZ2V0dGluZyB0aGUgSS9PIHBhcnQg
-cmlnaHQuIDopCj4+Cj4gbWVtY2cgaGF2ZSBtb3JlIHByb2JsZW1zIG5vdyA7KCAKPiAKPiBPbmx5
-IGEgZGlmZmljdWx0IHRoaW5nIHRvIGxpbWl0IGRpcnR5LXJhdGlvIGluIG1lbWNnIGlzIGhvdy10
-by1jb3VudCBkaXJ0eQo+IHBhZ2VzLiBJZiBJL08gY29udHJvbGxlcidzIGhvb2sgaGVscHMsIGl0
-J3MgZ29vZC4KPiAKPiBNeSBzbWFsbCBjb25jZXJuIGlzICJXaGF0IGhhcHBlbnMgaWYgd2UgdGhy
-b3R0b2xlIEkvTyBiYW5kd2lkdGggdG9vIHNtYWxsCj4gdW5kZXIgc29tZSBtZW1jZy4iIEluIHN1
-Y2ggY2dyb3VwLCB3ZSBtYXkgc2VlIG1vcmUgT09NcyBiZWNhdXNlIEkvTyB3aWxsCj4gbm90IGZp
-bmlzaCBpbiB0aW1lLgo+IEEgc3lzdGVtIGFkbWluIGhhdmUgdG8gZmluZCBzb21lIHdheSB0byBh
-dm9pZCB0aGlzLgo+IAo+IEJ1dCBwbGVhc2UgZG8gSS9PIGNvbnRyb2wgZmlyc3QuIERpcnR5LXBh
-Z2UgY29udHJvbCBpcyByZWxhdGVkIGJ1dCBkaWZmZXJlbnQKPiBsYXllcidzIHByb2JsZW0sIEkg
-dGhpbmsuCgpZZXMsIHBsZWFzZSBzb2x2ZSB0aGUgSS9PIGNvbnRyb2wgcHJvYmxlbSBmaXJzdC4K
-Ci0tIAoJV2FybSBSZWdhcmRzLAoJQmFsYmlyIFNpbmdoCglMaW51eCBUZWNobm9sb2d5IENlbnRl
-cgoJSUJNLCBJU1RMCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Fernando,
+
+> This RFC ended up being a bit longer than I had originally intended, but
+> hopefully it will serve as the start of a fruitful discussion.
+
+Thanks a lot for posting the RFC.
+
+> *** Goals
+>   1. Cgroups-aware I/O scheduling (being able to define arbitrary
+> groupings of processes and treat each group as a single scheduling
+> entity).
+>   2. Being able to perform I/O bandwidth control independently on each
+> device.
+>   3. I/O bandwidth shaping.
+>   4. Scheduler-independent I/O bandwidth control.
+>   5. Usable with stacking devices (md, dm and other devices of that
+> ilk).
+>   6. I/O tracking (handle buffered and asynchronous I/O properly).
+>
+> The list of goals above is not exhaustive and it is also likely to
+> contain some not-so-nice-to-have features so your feedback would be
+> appreciated.
+
+I'd like to add the following item to the goals.
+
+  7. Selectable from multiple bandwidth control policy (proportion,
+     maximum rate limiting, ...) like I/O scheduler.
+
+> *** How to move on
+> 
+> As discussed before, it probably makes sense to have both a block layer
+> I/O controller and a elevator-based one, and they could certainly
+> cohabitate. As discussed before, all of them need I/O tracking
+> capabilities so I would like to suggest the plan below to get things
+> started:
+> 
+>   - Improve the I/O tracking patches (see (6) above) until they are in
+> mergeable shape.
+>   - Fix CFQ and AS to use the new I/O tracking functionality to show its
+> benefits. If the performance impact is acceptable this should suffice to
+> convince the respective maintainer and get the I/O tracking patches
+> merged.
+>   - Implement a block layer resource controller. dm-ioband is a working
+> solution and feature rich but its dependency on the dm infrastructure is
+> likely to find opposition (the dm layer does not handle barriers
+> properly and the maximum size of I/O requests can be limited in some
+> cases). In such a case, we could either try to build a standalone
+> resource controller based on dm-ioband (which would probably hook into
+> generic_make_request) or try to come up with something new.
+>   - If the I/O tracking patches make it into the kernel we could move on
+> and try to get the Cgroup extensions to CFQ and AS mentioned before (see
+> (1), (2), and (3) above for details) merged.
+>   - Delegate the task of controlling the rate at which a task can
+> generate dirty pages to the memory controller.
+
+I agree with your plan.
+We keep bio-cgroup improving and porting to the latest kernel.
+
+Thanks,
+Ryo Tsuruta
