@@ -1,18 +1,16 @@
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
-Subject: Re: RFC: I/O bandwidth controller
-Date: Thu, 07 Aug 2008 13:38:15 +0900
-Message-ID: <1218083895.3803.202.camel__8128.04530510238$1218084288$gmane$org@sebastian.kern.oss.ntt.co.jp>
-References: <20080804.175126.193692178.ryov@valinux.co.jp>
-	<1217870433.20260.101.camel@nimitz>
-	<1217985189.3154.57.camel@sebastian.kern.oss.ntt.co.jp>
-	<20080806.151824.104049463.ryov@valinux.co.jp>
-	<1218004892.3950.12.camel@sebastian.kern.oss.ntt.co.jp>
-	<1218037688.10907.85.camel@nimitz>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: [PATCH 4/7] bio-cgroup: Split the cgroup memory subsystem into
+	two parts
+Date: Thu, 07 Aug 2008 16:25:12 +0900 (JST)
+Message-ID: <20080807.162512.22162413.taka__1242.07869307629$1218094072$gmane$org@valinux.co.jp>
+References: <20080804.175748.189722512.ryov@valinux.co.jp>
+	<20080806165421.f76edd47.kamezawa.hiroyu@jp.fujitsu.com>
+	<16255819.1218030343593.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1218037688.10907.85.camel@nimitz>
+In-Reply-To: <16255819.1218030343593.kamezawa.hiroyu@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,38 +20,124 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Hansen <dave@linux.vnet.ibm.com>
-Cc: xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, ngupta@google.com, righi.andrea@gmail.com
+To: kamezawa.hiroyu@jp.fujitsu.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, Balbir Singh <balbir@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAyMDA4LTA4LTA2IGF0IDA4OjQ4IC0wNzAwLCBEYXZlIEhhbnNlbiB3cm90ZToKPiBP
-biBXZWQsIDIwMDgtMDgtMDYgYXQgMTU6NDEgKzA5MDAsIEZlcm5hbmRvIEx1aXMgVsOhenF1ZXog
-Q2FvIHdyb3RlOgo+ID4gPiBJIGFncmVlIHdpdGggeW91ciBwbGFuLgo+ID4gPiBXZSBrZWVwIGJp
-by1jZ3JvdXAgaW1wcm92aW5nIGFuZCBwb3J0aW5nIHRvIHRoZSBsYXRlc3Qga2VybmVsLgo+ID4g
-SGF2aW5nIG1vcmUgdXNlcnMgb2YgYmlvLWNncm91cCB3b3VsZCBwcm9iYWJseSBoZWxwIHRvIGdl
-dCBpdCBtZXJnZWQsIHNvCj4gPiB3ZSdsbCBjZXJ0YWlubHkgc2VuZCBwYXRjaGVzIGFzIHNvb24g
-YXMgd2UgZ2V0IG91ciBjZnEgcHJvdG90eXBlIGluCj4gPiBzaGFwZS4KPiAKPiBJJ20gY29uZnVz
-ZWQuICBBcmUgdGhlc2UgdHdvIG9mIHRoZSBjb21wZXRpbmcgY29udHJvbGxlcnM/ICBPciBhcmUg
-dGhlCj4gY29tcGxlbWVudGFyeSBpbiBzb21lIHdheT8KU29ycnksIEkgZGlkIG5vdCBleHBsYWlu
-IG15c2VsZiBjb3JyZWN0bHkuIEkgd2FzIG5vdCByZWZlcnJpbmcgdG8gYSBuZXcKSU8gX2NvbnRy
-b2xsZXJfLCBJIHdhcyBqdXN0IHRyeWluZyB0byBzYXkgdGhhdCB0aGUgdHJhZGl0aW9uYWwgSU8K
-X3NjaGVkdWxlcnNfIGFscmVhZHkgcHJlc2VudCBpbiB0aGUgbWFpbnN0cmVhbSBrZXJuZWwgd291
-bGQgYmVuZWZpdCBmcm9tCnByb3BlciBJTyB0cmFja2luZyB0b28uIEFzIGFuIGV4YW1wbGUsIHRo
-ZSBjdXJyZW50IGltcGxlbWVudGF0aW9uIG9mIENGUQphc3N1bWVzIHRoYXQgYWxsIElPIGlzIGdl
-bmVyYXRlZCBpbiB0aGUgSU8gY29udGV4dCBvZiB0aGUgY3VycmVudCB0YXNrLAp3aGljaCBpbiBv
-bmx5IHRydWUgaW4gdGhlIHN5bmNocm9ub3VzIHBhdGguIFRoaXMgcmVuZGVycyBDRlEgYWxtb3N0
-CnVudXNhYmxlIGZvciBjb250cm9sbGluZyBvZiBhc3luY2hyb25vdXMgYW5kIGJ1ZmZlcmVkIElP
-LiBPZiBjb3Vyc2UgQ0ZRCmlzIG5vdCB0byBibGFtZSBoZXJlLCBzaW5jZSBpdCBoYXMgbm8gd2F5
-IHRvIHRlbGwgd2hvIHRoZSByZWFsCm9yaWdpbmF0b3Igb2YgdGhlIElPIHdhcyAoQ0ZRIGp1c3Qg
-c2VlcyBJTyByZXF1ZXN0cyBjb21pbmcgZnJvbSBwZGZsdXNoCmFuZCBvdGhlciBrZXJuZWwgdGhy
-ZWFkcykuCgpIb3dldmVyLCBvbmNlIHdlIGhhdmUgYSB3b3JraW5nIElPIHRyYWNraW5nIGluZnJh
-c3RydWN0dXJlIGluIHBsYWNlLCB0aGUKZXhpc3RpbmcgSU8gX3NjaGVkdWxlcnNfIGNvdWxkIGJl
-IG1vZGlmaWVkIHNvIHRoYXQgdGhleSB1c2UgaXQgdG8KZGV0ZXJtaW5lIHRoZSByZWFsIG93bmVy
-L29yaWdpbmF0b3Igb2YgYXN5bmNocm9ub3VzIGFuZCBidWZmZXJlZCBJTy4KVGhpcyBjYW4gYmUg
-ZG9uZSB3aXRob3V0IHR1cm5pbmcgSU8gc2NoZWR1bGVycyBpbnRvIElPIHJlc291cmNlCmNvbnRy
-b2xsZXJzLiBJZiB3ZSBjYW4gZGVtb25zdHJhdGUgdGhhdCBhIElPIHRyYWNraW5nIGluZnJhc3Ry
-dWN0dXJlCndvdWxkIGFsc28gYmUgYmVuZWZpY2lhbCBvdXRzaWRlIHRoZSBjZ3JvdXBzIGFyZW5h
-LCBpdCBzaG91bGQgYmUgZWFzaWVyCnRvIGdldCBpdCBtZXJnZWQuCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi,
+
+> >> > This patch splits the cgroup memory subsystem into two parts.
+> >> > One is for tracking pages to find out the owners. The other is
+> >> > for controlling how much amount of memory should be assigned to
+> >> > each cgroup.
+> >> > 
+> >> > With this patch, you can use the page tracking mechanism even if
+> >> > the memory subsystem is off.
+> >> > 
+> >> > Based on 2.6.27-rc1-mm1
+> >> > Signed-off-by: Ryo Tsuruta <ryov@valinux.co.jp>
+> >> > Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
+> >> > 
+> >> 
+> >> Plese CC me or Balbir or Pavel (See Maintainer list) when you try this ;)
+> >> 
+> >> After this patch, the total structure is
+> >> 
+> >>  page <-> page_cgroup <-> bio_cgroup.
+> >>  (multiple bio_cgroup can be attached to page_cgroup)
+> >>
+> >> Does this pointer chain will add
+> >>   - significant performance regression or
+> >>   - new race condtions 
+> >> ?
+> >
+> >I don't think it will cause significant performance loss, because
+> >the link between a page and a page_cgroup has already existed, which
+> >the memory resource controller prepared. Bio_cgroup uses this as it is,
+> >and does nothing about this.
+> >
+> >And the link between page_cgroup and bio_cgroup isn't protected
+> >by any additional spin-locks, since the associated bio_cgroup is
+> >guaranteed to exist as long as the bio_cgroup owns pages.
+> >
+> Hmm, I think page_cgroup's cost is visible when
+> 1. a page is changed to be in-use state. (fault or radixt-tree-insert)
+> 2. a page is changed to be out-of-use state (fault or radixt-tree-removal)
+> 3. memcg hit its limit or global LRU reclaim runs.
+> "1" and "2" can be catched as 5% loss of exec throuput. 
+> "3" is not measured (because LRU walk itself is heavy.)
+> 
+> What new chances to access page_cgroup you'll add ?
+> I'll have to take into account them.
+
+I haven't add any at this moment, but I thinks some people may want
+to move some pages in page-cache from one cgroup to another cgroup.
+When that time comes, I'll try to make the cost minimized that
+I will probably only update the link between a page_cgroup and
+a bio_cgroup and leave the others untouched.
+
+> >I've just noticed that most of overhead comes from the spin-locks
+> >when reclaiming the pages inside mem_cgroups and the spin-locks to
+> >protect the links between pages and page_cgroups.
+> Overhead between page <-> page_cgroup lock is cannot be catched by
+> lock_stat now.Do you have numbers ?
+> But ok, there are too many locks ;(
+
+The problem is that every time the lock is held, the associated
+cache line is flushed.
+
+> >The latter overhead comes from the policy your team has chosen
+> >that page_cgroup structures are allocated on demand. I still feel
+> >this approach doesn't make any sense because linux kernel tries to
+> >make use of most of the pages as far as it can, so most of them
+> >have to be assigned its related page_cgroup. It would make us happy
+> >if page_cgroups are allocated at the booting time.
+> >
+> Now, multi-sizer-page-cache is discussed for a long time. If it's our
+> direction, on-demand page_cgroup make sense.
+
+I don't think I can agree to this.
+When multi-sized-page-cache is introduced, some data structures will be
+allocated to manage multi-sized-pages. I think page_cgroups should be
+allocated at the same time. This approach will make things simple.
+
+It seems like the on-demand allocation approach leads not only
+overhead but complexity and a lot of race conditions.
+If you allocate page_cgroups when allocating page structures,
+You can get rid of most of the locks and you don't have to care about
+allocation error of page_cgroups anymore.
+
+And it will also give us flexibility that memcg related data can be
+referred/updated inside critical sections.
+
+> >> For example, adding a simple function.
+> >> ==
+> >> int get_page_io_id(struct page *)
+> >>  - returns a I/O cgroup ID for this page. If ID is not found, -1 is returne
+> d.
+> >>    ID is not guaranteed to be valid value. (ID can be obsolete)
+> >> ==
+> >> And just storing cgroup ID to page_cgroup at page allocation.
+> >> Then, making bio_cgroup independent from page_cgroup and 
+> >> get ID if avialble and avoid too much pointer walking.
+> >
+> >I don't think there are any diffrences between a poiter and ID.
+> >I think this ID is just a encoded version of the pointer.
+> >
+> ID can be obsolete, pointer is not. memory cgroup has to take care of
+> bio cgroup's race condition ? (About race conditions, it's already complicated
+> enough)
+
+Bio-cgroup just expects that the call-backs bio-cgroup prepares are called
+when the status of a page_cgroup get changed.
+
+> To be honest, I think adding a new (4 or 8 bytes) page struct and record infor
+> mation of bio-control is more straightforward approach. Buy as you might
+> think, "there is no room"
+
+But only if everyone allows me to add some new members into "struct page."
+I think the same thing goes with memcg you're working on.
+
+
+Thank you,
+Hirokazu Takahashi.
