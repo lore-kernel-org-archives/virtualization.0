@@ -1,17 +1,15 @@
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
-Subject: Re: RFC: I/O bandwidth controller (was Re: Too many I/O controller
-	patches)
-Date: Thu, 07 Aug 2008 22:59:38 +0900
-Message-ID: <1218117578.11703.81.camel__43156.626149039$1218117726$gmane$org@sebastian.kern.oss.ntt.co.jp>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: RFC: I/O bandwidth controller
+Date: Fri, 08 Aug 2008 15:21:19 +0900 (JST)
+Message-ID: <20080808.152119.43521725.taka__22059.0374935002$1218176803$gmane$org@valinux.co.jp>
 References: <20080804.175126.193692178.ryov@valinux.co.jp>
 	<1217870433.20260.101.camel@nimitz>
 	<1217985189.3154.57.camel@sebastian.kern.oss.ntt.co.jp>
-	<489AA83F.1040306@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <489AA83F.1040306@gmail.com>
+In-Reply-To: <1217985189.3154.57.camel@sebastian.kern.oss.ntt.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,121 +19,84 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: righi.andrea@gmail.com
-Cc: taka@valinux.co.jp, xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Dave Hansen <dave@linux.vnet.ibm.com>, dm-devel@redhat.com, agk@sourceware.org, virtualization@lists.linux-foundation.org, ngupta@google.com
+To: fernando@oss.ntt.co.jp
+Cc: xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dave@linux.vnet.ibm.com, dm-devel@redhat.com, agk@sourceware.org, virtualization@lists.linux-foundation.org, ngupta@google.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgQW5kcmVhIQoKT24gVGh1LCAyMDA4LTA4LTA3IGF0IDA5OjQ2ICswMjAwLCBBbmRyZWEgUmln
-aGkgd3JvdGU6IAo+IEZlcm5hbmRvIEx1aXMgVsOhenF1ZXogQ2FvIHdyb3RlOgo+ID4gVGhpcyBS
-RkMgZW5kZWQgdXAgYmVpbmcgYSBiaXQgbG9uZ2VyIHRoYW4gSSBoYWQgb3JpZ2luYWxseSBpbnRl
-bmRlZCwgYnV0Cj4gPiBob3BlZnVsbHkgaXQgd2lsbCBzZXJ2ZSBhcyB0aGUgc3RhcnQgb2YgYSBm
-cnVpdGZ1bCBkaXNjdXNzaW9uLgo+IAo+IFRoYW5rcyBmb3IgcG9zdGluZyB0aGlzIGRldGFpbGVk
-IFJGQyEgQSBmZXcgY29tbWVudHMgYmVsb3cuCj4gCj4gPiBBcyB5b3UgcG9pbnRlZCBvdXQsIGl0
-IHNlZW1zIHRoYXQgdGhlcmUgaXMgbm90IG11Y2ggY29uc2Vuc3VzIGJ1aWxkaW5nCj4gPiBnb2lu
-ZyBvbiwgYnV0IHRoYXQgZG9lcyBub3QgbWVhbiB0aGVyZSBpcyBhIGxhY2sgb2YgaW50ZXJlc3Qu
-IFRvIGdldCB0aGUKPiA+IGJhbGwgcm9sbGluZyBpdCBpcyBwcm9iYWJseSBhIGdvb2QgaWRlYSB0
-byBjbGFyaWZ5IHRoZSBzdGF0ZSBvZiB0aGluZ3MKPiA+IGFuZCB0cnkgdG8gZXN0YWJsaXNoIHdo
-YXQgd2UgYXJlIHRyeWluZyB0byBhY2NvbXBsaXNoLgo+ID4gCj4gPiAqKiogU3RhdGUgb2YgdGhp
-bmdzIGluIHRoZSBtYWluc3RyZWFtIGtlcm5lbDxCUj4KPiA+IFRoZSBrZXJuZWwgaGFzIGhhZCBz
-b21ld2hhdCBhZGF2YW5jZWQgSS9PIGNvbnRyb2wgY2FwYWJpbGl0aWVzIGZvciBxdWl0ZQo+ID4g
-c29tZSB0aW1lIG5vdzogQ0ZRLiBCdXQgdGhlIGN1cnJlbnQgQ0ZRIGhhcyBzb21lIHByb2JsZW1z
-Ogo+ID4gICAtIEkvTyBwcmlvcml0eSBjYW4gYmUgc2V0IGJ5IFBJRCwgUEdSUCwgb3IgVUlELCBi
-dXQuLi4KPiA+ICAgLSAuLi5hbGwgdGhlIHByb2Nlc3NlcyB0aGF0IGZhbGwgd2l0aGluIHRoZSBz
-YW1lIGNsYXNzL3ByaW9yaXR5IGFyZQo+ID4gc2NoZWR1bGVkIHRvZ2V0aGVyIGFuZCBhcmJpdHJh
-cnkgZ3JvdXBpbmcgYXJlIG5vdCBwb3NzaWJsZS4KPiA+ICAgLSBCdWZmZXJlZCBJL08gaXMgbm90
-IGhhbmRsZWQgcHJvcGVybHkuCj4gPiAgIC0gQ0ZRJ3MgSU8gcHJpb3JpdHkgaXMgYW4gYXR0cmli
-dXRlIG9mIGEgcHJvY2VzcyB0aGF0IGFmZmVjdHMgYWxsCj4gPiBkZXZpY2VzIGl0IHNlbmRzIEkv
-TyByZXF1ZXN0cyB0by4gSW4gb3RoZXIgd29yZHMsIHdpdGggdGhlIGN1cnJlbnQKPiA+IGltcGxl
-bWVudGF0aW9uIGl0IGlzIG5vdCBwb3NzaWJsZSB0byBhc3NpZ24gcGVyLWRldmljZSBJTyBwcmlv
-cml0aWVzIHRvCj4gPiBhIHRhc2suCj4gPiAKPiA+ICoqKiBHb2Fscwo+ID4gICAxLiBDZ3JvdXBz
-LWF3YXJlIEkvTyBzY2hlZHVsaW5nIChiZWluZyBhYmxlIHRvIGRlZmluZSBhcmJpdHJhcnkKPiA+
-IGdyb3VwaW5ncyBvZiBwcm9jZXNzZXMgYW5kIHRyZWF0IGVhY2ggZ3JvdXAgYXMgYSBzaW5nbGUg
-c2NoZWR1bGluZwo+ID4gZW50aXR5KS4KPiA+ICAgMi4gQmVpbmcgYWJsZSB0byBwZXJmb3JtIEkv
-TyBiYW5kd2lkdGggY29udHJvbCBpbmRlcGVuZGVudGx5IG9uIGVhY2gKPiA+IGRldmljZS4KPiA+
-ICAgMy4gSS9PIGJhbmR3aWR0aCBzaGFwaW5nLgo+ID4gICA0LiBTY2hlZHVsZXItaW5kZXBlbmRl
-bnQgSS9PIGJhbmR3aWR0aCBjb250cm9sLgo+ID4gICA1LiBVc2FibGUgd2l0aCBzdGFja2luZyBk
-ZXZpY2VzIChtZCwgZG0gYW5kIG90aGVyIGRldmljZXMgb2YgdGhhdAo+ID4gaWxrKS4KPiA+ICAg
-Ni4gSS9PIHRyYWNraW5nIChoYW5kbGUgYnVmZmVyZWQgYW5kIGFzeW5jaHJvbm91cyBJL08gcHJv
-cGVybHkpLgo+IAo+IFRoZSBzYW1lIGFib3ZlIGFsc28gZm9yIElPIG9wZXJhdGlvbnMvc2VjIChi
-YW5kd2lkdGggaW50ZW5kZWQgbm90IG9ubHkKPiBpbiB0ZXJtcyBvZiBieXRlcy9zZWMpLCBwbHVz
-Ogo+IAo+IDcuIE9wdGltYWwgYmFuZHdpZHRoIHVzYWdlOiBhbGxvdyB0byBleGNlZWQgdGhlIElP
-IGxpbWl0cyB0byB0YWtlCj4gYWR2YW50YWdlIG9mIGZyZWUvdW51c2VkIElPIHJlc291cmNlcyAo
-aS5lLiBhbGxvdyAiYnVyc3RzIiB3aGVuIHRoZQo+IHdob2xlIHBoeXNpY2FsIGJhbmR3aWR0aCBm
-b3IgYSBibG9jayBkZXZpY2UgaXMgbm90IGZ1bGx5IHVzZWQgYW5kIHRoZW4KPiAidGhyb3R0bGUi
-IGFnYWluIHdoZW4gSU8gZnJvbSB1bmxpbWl0ZWQgY2dyb3VwcyBjb21lcyBpbnRvIHBsYWNlKQo+
-IAo+IDguICJmYWlyIHRocm90dGxpbmciOiBhdm9pZCB0byB0aHJvdHRsZSBhbHdheXMgdGhlIHNh
-bWUgdGFzayB3aXRoaW4gYQo+IGNncm91cCwgYnV0IHRyeSB0byBkaXN0cmlidXRlIHRoZSB0aHJv
-dHRsaW5nIGFtb25nIGFsbCB0aGUgdGFza3MKPiBiZWxvbmdpbmcgdG8gdGhlIHRocm90dGxlIGNn
-cm91cAoKVGhhbmsgeW91IGZvciB0aGUgaWRlYXMhCgpCeSB0aGUgd2F5LCBwb2ludCAiMy4iIGFi
-b3ZlIChJL08gYmFuZHdpZHRoIHNoYXBpbmcpIHJlZmVycyB0byBJTwpzY2hlZHVsaW5nIGFsZ29y
-aXRobXMgaW4gZ2VuZXJhbC4gV2hlbiBJIHdyb3RlIHRoZSBSRkMgSSB0aG91Z2h0IHRoYXQKb25j
-ZSB3ZSBoYXZlIHRoZSBJTyB0cmFja2luZyBhbmQgYWNjb3VudGluZyBtZWNoYW5pc21zIGluIHBs
-YWNlIGNob29zaW5nCmFuZCBpbXBsZW1lbnRpbmcgYW4gYWxnb3JpdGhtIChmYWlyIHRocm90dGxp
-bmcsIHByb3BvcnRpb25hbCBiYW5kd2lkdGgKc2NoZWR1bGluZywgZXRjKSB3b3VsZCBiZSBlYXN5
-IGluIGNvbXBhcmlzb24sIGFuZCB0aGF0IGlzIHRoZSByZWFzb24gYQpsaXN0IHdhcyBub3QgaW5j
-bHVkZWQuCgpPbmNlIEkgZ2V0IG1vcmUgZmVlZGJhY2sgZnJvbSBhbGwgb2YgeW91IEkgd2lsbCBy
-ZXNlbmQgYSBtb3JlIGRldGFpbGVkClJGQyB0aGF0IHdpbGwgaW5jbHVkZSB5b3VyIHN1Z2dlc3Rp
-b25zLgoKPiA+IDEuICYgMi4tIENncm91cHMtYXdhcmUgSS9PIHNjaGVkdWxpbmcgKGJlaW5nIGFi
-bGUgdG8gZGVmaW5lIGFyYml0cmFyeQo+ID4gZ3JvdXBpbmdzIG9mIHByb2Nlc3NlcyBhbmQgdHJl
-YXQgZWFjaCBncm91cCBhcyBhIHNpbmdsZSBzY2hlZHVsaW5nCj4gPiBpZGVudGl0eSkKPiA+IAo+
-ID4gV2Ugb2J2aW91c2x5IG5lZWQgdGhpcyBiZWNhdXNlIG91ciBmaW5hbCBnb2FsIGlzIHRvIGJl
-IGFibGUgdG8gY29udHJvbAo+ID4gdGhlIElPIGdlbmVyYXRlZCBieSBhIExpbnV4IGNvbnRhaW5l
-ci4gVGhlIGdvb2QgbmV3cyBpcyB0aGF0IHdlIGFscmVhZHkKPiA+IGhhdmUgdGhlIGNncm91cHMg
-aW5mcmFzdHJ1Y3R1cmUgc28sIHJlZ2FyZGluZyB0aGlzIHByb2JsZW0sIHdlIHdvdWxkCj4gPiBq
-dXN0IGhhdmUgdG8gdHJhbnNmb3JtIG91ciBJL08gYmFuZHdpZHRoIGNvbnRyb2xsZXIgaW50byBh
-IGNncm91cAo+ID4gc3Vic3lzdGVtLgo+ID4gCj4gPiBUaGlzIHNlZW1zIHRvIGJlIHRoZSBlYXNp
-ZXN0IHBhcnQsIGJ1dCB0aGUgY3VycmVudCBjZ3JvdXBzCj4gPiBpbmZyYXN0cnVjdHVyZSBoYXMg
-c29tZSBsaW1pdGF0aW9ucyB3aGVuIGl0IGNvbWVzIHRvIGRlYWxpbmcgd2l0aCBibG9jawo+ID4g
-ZGV2aWNlczogaW1wb3NzaWJpbGl0eSBvZiBjcmVhdGluZy9yZW1vdmluZyBjZXJ0YWluIGNvbnRy
-b2wgc3RydWN0dXJlcwo+ID4gZHluYW1pY2FsbHkgYW5kIGhhcmRjb2Rpbmcgb2Ygc3Vic3lzdGVt
-cyAoaS5lLiByZXNvdXJjZSBjb250cm9sbGVycykuCj4gPiBUaGlzIG1ha2VzIGl0IGRpZmZpY3Vs
-dCB0byBoYW5kbGUgYmxvY2sgZGV2aWNlcyB0aGF0IGNhbiBiZSBob3RwbHVnZ2VkCj4gPiBhbmQg
-Z28gYXdheSBhdCBhbnkgdGltZSAodGhpcyBhcHBsaWVzIG5vdCBvbmx5IHRvIHVzYiBzdG9yYWdl
-IGJ1dCBhbHNvCj4gPiB0byBzb21lIFNBVEEgYW5kIFNDU0kgZGV2aWNlcykuIFRvIGNvcGUgd2l0
-aCB0aGlzIHNpdHVhdGlvbiBwcm9wZXJseSB3ZQo+ID4gd291bGQgbmVlZCBob3RwbHVnIHN1cHBv
-cnQgaW4gY2dyb3VwcywgYnV0LCBhcyBzdWdnZXN0ZWQgYmVmb3JlIGFuZAo+ID4gZGlzY3Vzc2Vk
-IGluIHRoZSBwYXN0IChzZWUgKDApIGJlbG93KSwgdGhlcmUgYXJlIHNvbWUgbGltaXRhdGlvbnMu
-Cj4gPiAKPiA+IEV2ZW4gaW4gdGhlIG5vbi1ob3RwbHVnIGNhc2UgaXQgd291bGQgYmUgbmljZSBp
-ZiB3ZSBjb3VsZCB0cmVhdCBlYWNoCj4gPiBibG9jayBJL08gZGV2aWNlIGFzIGFuIGluZGVwZW5k
-ZW50IHJlc291cmNlLCB3aGljaCBtZWFucyB3ZSBjb3VsZCBkbwo+ID4gdGhpbmdzIGxpa2UgYWxs
-b2NhdGluZyBJL08gYmFuZHdpZHRoIG9uIGEgcGVyLWRldmljZSBiYXNpcy4gQXMgbG9uZyBhcwo+
-ID4gcGVyZm9ybWFuY2UgaXMgbm90IGNvbXByb21pc2VkIHRvbyBtdWNoLCBhZGRpbmcgc29tZSBr
-aW5kIG9mIGJhc2ljCj4gPiBob3RwbHVnIHN1cHBvcnQgdG8gY2dyb3VwcyBpcyBwcm9iYWJseSB3
-b3J0aCBpdC4KPiA+Cj4gPiAoMCkgaHR0cDovL2xrbWwub3JnL2xrbWwvMjAwOC81LzIxLzEyCj4g
-Cj4gV2hhdCBhYm91dCB1c2luZyBtYWpvcixtaW5vciBudW1iZXJzIHRvIGlkZW50aWZ5IGVhY2gg
-ZGV2aWNlIGFuZCBhY2NvdW50Cj4gSU8gc3RhdGlzdGljcz8gSWYgYSBkZXZpY2UgaXMgdW5wbHVn
-Z2VkIHdlIGNvdWxkIHJlc2V0IElPIHN0YXRpc3RpY3MKPiBhbmQvb3IgcmVtb3ZlIElPIGxpbWl0
-YXRpb25zIGZvciB0aGF0IGRldmljZSBmcm9tIHVzZXJzcGFjZSAoaS5lLiBieSBhCj4gZGVhbW9u
-KSwgYnV0IHBsdWdnaW4vdW5wbHVnZ2luZyB0aGUgZGV2aWNlIHdvdWxkIG5vdCBiZSBibG9ja2Vk
-L2FmZmVjdGVkCj4gaW4gYW55IGNhc2UuIE9yIGFtIEkgb3ZlcnNpbXBsaWZ5aW5nIHRoZSBwcm9i
-bGVtPwpJZiBhIHJlc291cmNlIHdlIHdhbnQgdG8gY29udHJvbCAoYSBibG9jayBkZXZpY2UgaW4g
-dGhpcyBjYXNlKSBpcwpob3QtcGx1Z2dlZC91bnBsdWdnZWQgdGhlIGNvcnJlc3BvbmRpbmcgY2dy
-b3VwLXJlbGF0ZWQgc3RydWN0dXJlcyBpbnNpZGUKdGhlIGtlcm5lbCBuZWVkIHRvIGJlIGFsbG9j
-YXRlZC9mcmVlZCBkeW5hbWljYWxseSwgcmVzcGVjdGl2ZWx5LiBUaGUKcHJvYmxlbSBpcyB0aGF0
-IHRoaXMgaXMgbm90IGFsd2F5cyBwb3NzaWJsZS4gRm9yIGV4YW1wbGUsIHdpdGggdGhlCmN1cnJl
-bnQgaW1wbGVtZW50YXRpb24gb2YgY2dyb3VwcyBpdCBpcyBub3QgcG9zc2libGUgdG8gdHJlYXQg
-ZWFjaCBibG9jawpkZXZpY2UgYXMgYSBkaWZmZXJlbnQgY2dyb3VwIHN1YnN5dGVtL3Jlc291cmNl
-IGNvbnRyb2xsZWQsIGJlY2F1c2UKc3Vic3lzdGVtcyBhcmUgY3JlYXRlZCBhdCBjb21waWxlIHRp
-bWUuCgo+ID4gMy4gJiA0LiAmIDUuIC0gSS9PIGJhbmR3aWR0aCBzaGFwaW5nICYgR2VuZXJhbCBk
-ZXNpZ24gYXNwZWN0cwo+ID4gCj4gPiBUaGUgaW1wbGVtZW50YXRpb24gb2YgYW4gSS9PIHNjaGVk
-dWxpbmcgYWxnb3JpdGhtIGlzIHRvIGEgY2VydGFpbiBleHRlbnQKPiA+IGluZmx1ZW5jZWQgYnkg
-d2hhdCB3ZSBhcmUgdHJ5aW5nIHRvIGFjaGlldmUgaW4gdGVybXMgb2YgSS9PIGJhbmR3aWR0aAo+
-ID4gc2hhcGluZywgYnV0LCBhcyBkaXNjdXNzZWQgYmVsb3csIHRoZSByZXF1aXJlZCBhY2N1cmFj
-eSBjYW4gZGV0ZXJtaW5lCj4gPiB0aGUgbGF5ZXIgd2hlcmUgdGhlIEkvTyBjb250cm9sbGVyIGhh
-cyB0byByZXNpZGUuIE9mZiB0aGUgdG9wIG9mIG15Cj4gPiBoZWFkLCB0aGVyZSBhcmUgdGhyZWUg
-YmFzaWMgb3BlcmF0aW9ucyB3ZSBtYXkgd2FudCBwZXJmb3JtOgo+ID4gICAtIEkvTyBuaWNlIHBy
-aW9yaXRpemF0aW9uOiBpb25pY2UtbGlrZSBhcHByb2FjaC4KPiA+ICAgLSBQcm9wb3J0aW9uYWwg
-YmFuZHdpZHRoIHNjaGVkdWxpbmc6IGVhY2ggcHJvY2Vzcy9ncm91cCBvZiBwcm9jZXNzZXMKPiA+
-IGhhcyBhIHdlaWdodCB0aGF0IGRldGVybWluZXMgdGhlIHNoYXJlIG9mIGJhbmR3aWR0aCB0aGV5
-IHJlY2VpdmUuCj4gPiAgIC0gSS9PIGxpbWl0aW5nOiBzZXQgYW4gdXBwZXIgbGltaXQgdG8gdGhl
-IGJhbmR3aWR0aCBhIGdyb3VwIG9mIHRhc2tzCj4gPiBjYW4gdXNlLgo+IAo+IFVzZSBhIGRlYWRs
-aW5lLWJhc2VkIElPIHNjaGVkdWxpbmcgY291bGQgYmUgYW4gaW50ZXJlc3RpbmcgcGF0aCB0byBi
-ZQo+IGV4cGxvcmVkIGFzIHdlbGwsIElNSE8sIHRvIHRyeSB0byBndWFyYW50ZWUgcGVyLWNncm91
-cCBtaW5pbXVtIGJhbmR3aWR0aAo+IHJlcXVpcmVtZW50cy4KUGxlYXNlIG5vdGUgdGhhdCB0aGUg
-b25seSB0aGluZyB3ZSBjYW4gZG8gaXMgdG8gZ3VhcmFudGVlIG1pbmltdW0KYmFuZHdpZHRoIHJl
-cXVpcmVtZW50IHdoZW4gdGhlcmUgaXMgY29udGVudGlvbiBmb3IgYW4gSU8gcmVzb3VyY2UsIHdo
-aWNoCmlzIHByZWNpc2VseSB3aGF0IGEgcHJvcG9ydGlvbmFsIGJhbmR3aWR0aCBzY2hlZHVsZXIg
-ZG9lcy4gQW4gSSBtaXNzaW5nCnNvbWV0aGluZz8KCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi, Fernando,
+
+It's a good work!
+
+> *** How to move on
+> 
+> As discussed before, it probably makes sense to have both a block layer
+> I/O controller and a elevator-based one, and they could certainly
+> cohabitate. As discussed before, all of them need I/O tracking
+> capabilities so I would like to suggest the plan below to get things
+> started:
+> 
+>   - Improve the I/O tracking patches (see (6) above) until they are in
+> mergeable shape.
+
+The current implementation of bio-cgroup is quite basic that a certain
+page is owned by the cgroup that allocated the page, that is the same
+way as the memory controller does. In most of cases this is enough and
+it helps minimize the overhead. 
+
+I think you many want to add some feature to change the owner of a page.
+It will be ok we implement it step by step. I know there will be some
+tradeoff between the overhead and the accuracy to track pages.
+
+We also try to reduce the overhead of the tracking, whose code comes
+from the memory controller though. We all should help the memory
+controller team do this.
+
+>   - Fix CFQ and AS to use the new I/O tracking functionality to show its
+> benefits. If the performance impact is acceptable this should suffice to
+> convince the respective maintainer and get the I/O tracking patches
+> merged.
+
+Yes.
+
+>   - Implement a block layer resource controller. dm-ioband is a working
+> solution and feature rich but its dependency on the dm infrastructure is
+> likely to find opposition (the dm layer does not handle barriers
+> properly and the maximum size of I/O requests can be limited in some
+> cases). In such a case, we could either try to build a standalone
+> resource controller based on dm-ioband (which would probably hook into
+> generic_make_request) or try to come up with something new.
+
+I doubt about the maximum size of I/O requests problem. You can't avoid
+this problem as far as you use device mapper modules with such a bad
+manner, even if the controller is implemented as a stand-alone controller.
+There is no limitation if you only use dm-ioband without any other device
+mapper modules.
+
+And I think the device mapper team just started designing barriers support.
+I guess it won't take long. Right, Alasdair?
+We should know it is logically impossible to support barriers on some
+types of device mapper modules such as LVM. You can't avoid the barrier
+problem when you use this kind of multiple devices even if you implement
+the controller in the block layer.
+
+But I think a stand-alone implementation will have a merit that it
+makes it easier to setup the configuration rather than dm-ioband.
+From this point of view, it would be good that you move the algorithm
+of dm-ioband into the block layer.
+On the other hand, we should know it will make it impossible to use
+the dm infrastructure from the controller, though it isn't so rich.
+
+>   - If the I/O tracking patches make it into the kernel we could move on
+> and try to get the Cgroup extensions to CFQ and AS mentioned before (see
+> (1), (2), and (3) above for details) merged.
+>   - Delegate the task of controlling the rate at which a task can
+> generate dirty pages to the memory controller.
+> 
+> This RFC is somewhat vague but my feeling is that we build some
+> consensus on the goals and basic design aspects before delving into
+> implementation details.
+> 
+> I would appreciate your comments and feedback.
+> 
+> - Fernando
+> 
