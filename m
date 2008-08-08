@@ -1,15 +1,12 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [PATCH 6/7] bio-cgroup: Implement the bio-cgroup
-Date: Fri, 08 Aug 2008 17:30:45 +0900 (JST)
-Message-ID: <20080808.173045.112614776.ryov__13393.6373088092$1218184622$gmane$org@valinux.co.jp>
-References: <20080804.175934.112619046.ryov@valinux.co.jp>
-	<20080804.180022.183027902.ryov@valinux.co.jp>
-	<489BF14D.6050009@oss.ntt.co.jp>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: export virtio_rng.h
+Date: Fri, 8 Aug 2008 11:15:07 +0200
+Message-ID: <200808081115.07411.borntraeger__5767.69976546547$1218187202$gmane$org@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <489BF14D.6050009@oss.ntt.co.jp>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,43 +16,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: yoshikawa.takuya@oss.ntt.co.jp
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Yoshikawa-san,
+Hello Rusty,
 
-> > +static void bio_cgroup_move_task(struct cgroup_subsys *ss,
-> > +				struct cgroup *cont,
-> > +				struct cgroup *old_cont,
-> > +				struct task_struct *p)
-> > +{
-> > +	struct mm_struct *mm;
-> > +	struct bio_cgroup *biog, *old_biog;
-> > +
-> > +	if (bio_cgroup_disabled())
-> > +		return;
-> > +
-> > +	mm = get_task_mm(p);
-> > +	if (mm == NULL)
-> > +		return;
-> > +
-> > +	biog = cgroup_bio(cont);
-> > +	old_biog = cgroup_bio(old_cont);
-> > +
-> > +	mmput(mm);
-> > +	return;
-> > +}
-> 
-> Is this function fully implemented?
+The entropy device was added after we exported all virtio headers. This
+patch adds virtio_rng.h to the exportable userspace headers.
 
-This function can be more simplified, there is some unnecessary code 
-from old version.
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-> I tried to put a process into a group by writing to
-> "/cgroup/bio/BGROUP/tasks" but failed.
+---
+ include/linux/Kbuild |    1 +
+ 1 file changed, 1 insertion(+)
 
-Could you tell me what you actually did? I will try the same thing.
-
---
-Ryo Tsuruta <ryov@valinux.co.jp>
+Index: linux-2.6/include/linux/Kbuild
+===================================================================
+--- linux-2.6.orig/include/linux/Kbuild
++++ linux-2.6/include/linux/Kbuild
+@@ -356,6 +356,7 @@ unifdef-y += virtio_balloon.h
+ unifdef-y += virtio_console.h
+ unifdef-y += virtio_pci.h
+ unifdef-y += virtio_ring.h
++unifdef-y += virtio_rng.h
+ unifdef-y += vt.h
+ unifdef-y += wait.h
+ unifdef-y += wanrouter.h
