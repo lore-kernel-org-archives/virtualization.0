@@ -1,15 +1,15 @@
-From: "Daniel P. Berrange" <berrange@redhat.com>
-Subject: Re: Announcing: Open OVF project source code availibility
-Date: Tue, 12 Aug 2008 15:46:56 +0100
-Message-ID: <20080812144656.GQ13067__24961.3522472375$1218552701$gmane$org@redhat.com>
-References: <20080812143432.GA8431@silverwood.ncultra.org>
-Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
+From: James.Smart@Emulex.Com
+Subject: RE: RFC: I/O bandwidth controller
+Date: Tue, 12 Aug 2008 11:03:24 -0400
+Message-ID: <D1D4C3FF75F9354393DB8314DF43DEF2E7F7ED__25739.6087902181$1218554300$gmane$org@xbl3.emulex.com>
+References: <1218117578.11703.81.camel@sebastian.kern.oss.ntt.co.jp><48A0A689.40908@gmail.com>	<loom.20080812T071504-212@post.gmane.org><20080812.201025.57762305.taka@valinux.co.jp><48A18854.9020000@gmail.com>
+	<48A18B1F.6080000@gmail.com>
+	<1218549276.4456.100.camel@sebastian.kern.oss.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20080812143432.GA8431@silverwood.ncultra.org>
+content-class: urn:content-classes:message
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,30 +19,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Mike D. Day" <ncmike@us.ibm.com>
-Cc: smoser@us.ibm.com, xen-devel@lists.xensource.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: fernando@oss.ntt.co.jp, righi.andrea@gmail.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, dm-devel@redhat.com, agk@sourceware.org, baramsori72@gmail.com, dave@linux.vnet.ibm.com, ngupta@google.com, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 12, 2008 at 10:34:33AM -0400, Mike D. Day wrote:
-> Announcing the open-ovf project and source code availibility.
-> 
-> Hi folks, we are announcing the availibility of source code for the
-> open-ovf project. 
+Fernando Luis V=E1zquez Cao wrote:
+> > BTW as I said in a previous email, an interesting path to =
 
-Why was the Eclipse Public License chosen ?  This license is not
-compatible with the GPL[1], so no GPL licensed app can make use of
-this code :-( For example it makes it impossible to use this code to
-assist in supporting OVF in virt-manager, virt-install or virt-image
+> be explored
+> > IMHO could be to think in terms of IO time. So, look at the =
 
-  http://en.wikipedia.org/wiki/Eclipse_Public_License
+> time an IO
+> > request is issued to the drive, look at the time the =
 
-  "The EPL 1.0 is not compatible with the GPL, and a work created by
-   combining a work licensed under the GPL with a work licensed under
-   the EPL cannot be lawfully distributed."
+> request is served,
+> > evaluate the difference and charge the consumed IO time to the
+> > appropriate cgroup. Then dispatch IO requests in function of the
+> > consumed IO time debts / credits, using for example a token-bucket
+> > strategy. And probably the best place to implement the IO time
+> > accounting is the elevator.
+> Please note that the seek time for a specific IO request is strongly
+> correlated with the IO requests that preceded it, which means that the
+> owner of that request is not the only one to blame if it =
 
-Daniel
--- 
-|: Red Hat, Engineering, London   -o-   http://people.redhat.com/berrange/ :|
-|: http://libvirt.org  -o-  http://virt-manager.org  -o-  http://ovirt.org :|
-|: http://autobuild.org       -o-         http://search.cpan.org/~danberr/ :|
-|: GnuPG: 7D3B9505  -o-  F3C9 553F A1DA 4AC2 5648 23C1 B3DF F742 7D3B 9505 :|
+> takes too long
+> to process it. In other words, with the algorithm you propose =
+
+> we may end
+> up charging the wrong guy.
+
+I assume all of these discussions are focused on simple storage - disks
+direct attached to a single server - and are not targeted at SANs with
+arrays, multi-initiator accesses, and fabric/network impacts. True ? =
+
+Such algorithms can be seriously off-base in these latter configurations.
+
+-- james s
