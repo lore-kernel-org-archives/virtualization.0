@@ -1,7 +1,7 @@
 From: "Zhao, Yu" <yu.zhao@intel.com>
-Subject: SR-IOV: patches are available for Linux kernel [1/4]
-Date: Tue, 12 Aug 2008 16:42:55 +0800
-Message-ID: <7A25B56E4BE99C4283EB931CD1A40E110164BC89__9356.32798723436$1218530864$gmane$org@pdsmsx414.ccr.corp.intel.com>
+Subject: SR-IOV: patches are available for Linux kernel [2/4]
+Date: Tue, 12 Aug 2008 16:43:43 +0800
+Message-ID: <7A25B56E4BE99C4283EB931CD1A40E110164BC8C__25945.5654457726$1218531115$gmane$org@pdsmsx414.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,225 +16,225 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: "Zhao, Yu" <yu.zhao@intel.com>, kvm@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-[PATCH 1/4] PCI: export pci_read_base and add pci_update_base
+[PATCH 2/4] PCI: support ARI capability
 
-Export pci_read_base; add pci_update_base to for PCI BAR update.
+Support Alternative Routing-ID Interpretation (ARI), which increases the number of functions that can be supported by a PCIe endpoint. SR-IOV depends on ARI.
+
+PCI-SIG ARI specification can be found at http://www.pcisig.com/specifications/pciexpress/specifications/ECN-alt-rid-interpretation-070604.pdf
 
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 Signed-off-by:  Eddie Dong <eddie.dong@intel.com>
 
 ---
- drivers/pci/probe.c     |   25 ++++++++--------
- drivers/pci/setup-res.c |   74 +++++++++++++++++++++++++++--------------------
- include/linux/pci.h     |   12 ++++++++
- 3 files changed, 67 insertions(+), 44 deletions(-)
+ drivers/pci/Kconfig      |    7 +++++
+ drivers/pci/Makefile     |    2 +
+ drivers/pci/ari.c        |   70 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/pci/probe.c      |    3 ++
+ include/linux/pci.h      |   29 +++++++++++++++++++
+ include/linux/pci_regs.h |   14 +++++++++
+ 6 files changed, 125 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index e1ca425..f43cc46 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -50,3 +50,10 @@ config HT_IRQ
+ 	   This allows native hypertransport devices to use interrupts.
+ 
+ 	   If unsure say Y.
++
++config PCI_ARI
++	bool "PCI ARI support"
++	depends on PCI
++	default n
++	help
++	  This enables PCI Alternative Routing-ID Interpretation.
+diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
+index 7d63f8c..96f2767 100644
+--- a/drivers/pci/Makefile
++++ b/drivers/pci/Makefile
+@@ -53,3 +53,5 @@ obj-$(CONFIG_PCI_SYSCALL) += syscall.o
+ ifeq ($(CONFIG_PCI_DEBUG),y)
+ EXTRA_CFLAGS += -DDEBUG
+ endif
++
++obj-$(CONFIG_PCI_ARI) += ari.o
+diff --git a/drivers/pci/ari.c b/drivers/pci/ari.c
+new file mode 100644
+index 0000000..e6dae1d
+--- /dev/null
++++ b/drivers/pci/ari.c
+@@ -0,0 +1,70 @@
++/*
++ * drivers/pci/ari.c
++ *
++ * Copyright (C) 2008 Intel Corporation, Yu Zhao <yu.zhao@intel.com>
++ *
++ * PCI Express Alternative Routing-ID Interpretation capability support.
++ */
++
++#include <linux/pci.h>
++
++#include "pci.h"
++
++/**
++ * pci_ari_enable_fwd - enable ARI forwarding
++ * @dev: PCI device
++ */
++void pci_ari_enable_fwd(struct pci_dev *dev)
++{
++	int pos;
++	u32 cap;
++	u16 ctrl;
++
++	if (dev->pcie_type != PCI_EXP_TYPE_ROOT_PORT &&
++	    dev->pcie_type != PCI_EXP_TYPE_DOWNSTREAM)
++		return;
++
++	pos = pci_find_capability(dev, PCI_CAP_ID_EXP);
++	if (!pos)
++		return;
++
++	pci_read_config_dword(dev, pos + PCI_EXP_DEVCAP2, &cap);
++
++	if (!(cap & PCI_EXP_DEVCAP2_ARI))
++		return;
++
++	dev->ari_enabled = 1;
++	dev_info(&dev->dev, "ARI forwarding enabled.\n");
++	pci_read_config_word(dev, pos + PCI_EXP_DEVCTL2, &ctrl);
++	if (ctrl & PCI_EXP_DEVCTL2_ARI)
++		return;
++
++	ctrl |= PCI_EXP_DEVCTL2_ARI;
++	pci_write_config_word(dev, pos + PCI_EXP_DEVCTL2, ctrl);
++}
++EXPORT_SYMBOL_GPL(pci_ari_enable_fwd);
++
++/**
++ * pci_ari_next_fn - find next function number
++ * @dev: PCI device
++ *
++ * Returns function number, and 0 if there are no higher numbered
++ * functions; returns negative on failure.
++ */
++int pci_ari_next_fn(struct pci_dev *dev)
++{
++	int pos;
++	u16 cap;
++
++	if (dev->pcie_type != PCI_EXP_TYPE_ENDPOINT)
++		return -EINVAL;
++
++	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
++	if (!pos)
++		return -EIO;
++
++	pci_read_config_word(dev, pos + PCI_ARI_CAP, &cap);
++
++	return PCI_ARI_CAP_NFN(cap);
++}
++EXPORT_SYMBOL_GPL(pci_ari_next_fn);
 diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 7098dfb..d030996 100644
+index d030996..e8506fe 100644
 --- a/drivers/pci/probe.c
 +++ b/drivers/pci/probe.c
-@@ -181,13 +181,6 @@ static u64 pci_size(u64 base, u64 maxbas
- 	return size;
- }
+@@ -1032,6 +1032,9 @@ int pci_scan_slot(struct pci_bus *bus, i
+ 	int func, nr = 0;
+ 	int scan_all_fns;
  
--enum pci_bar_type {
--	pci_bar_unknown,	/* Standard PCI BAR probe */
--	pci_bar_io,		/* An io port BAR */
--	pci_bar_mem32,		/* A 32-bit memory BAR */
--	pci_bar_mem64,		/* A 64-bit memory BAR */
--};
--
- static inline enum pci_bar_type decode_bar(struct resource *res, u32 bar)
- {
- 	if ((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO) {
-@@ -202,11 +195,18 @@ static inline enum pci_bar_type decode_b
- 	return pci_bar_mem32;
- }
- 
--/*
-- * If the type is not unknown, we assume that the lowest bit is 'enable'.
-+/**
-+ * pci_read_base - read a PCI BAR
-+ * @dev: PCI device
-+ * @type: type of BAR
-+ * @res: resource buffer to be filled in
-+ * @pos: BAR position in config space
-+ *
-  * Returns 1 if the BAR was 64-bit and 0 if it was 32-bit.
-+ *
-+ * If the type is not unknown, we assume that the lowest bit is 'enable'.
-  */
--static int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
-+int pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
- 			struct resource *res, unsigned int pos)
- {
- 	u32 l, sz, mask;
-@@ -299,6 +299,7 @@ static int __pci_read_base(struct pci_de
- 	res->flags = 0;
- 	goto out;
- }
-+EXPORT_SYMBOL_GPL(pci_read_base);
- 
- static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
- {
-@@ -307,7 +308,7 @@ static void pci_read_bases(struct pci_de
- 	for (pos = 0; pos < howmany; pos++) {
- 		struct resource *res = &dev->resource[pos];
- 		reg = PCI_BASE_ADDRESS_0 + (pos << 2);
--		pos += __pci_read_base(dev, pci_bar_unknown, res, reg);
-+		pos += pci_read_base(dev, pci_bar_unknown, res, reg);
- 	}
- 
- 	if (rom) {
-@@ -316,7 +317,7 @@ static void pci_read_bases(struct pci_de
- 		res->flags = IORESOURCE_MEM | IORESOURCE_PREFETCH |
- 				IORESOURCE_READONLY | IORESOURCE_CACHEABLE |
- 				IORESOURCE_SIZEALIGN;
--		__pci_read_base(dev, pci_bar_mem32, res, rom);
-+		pci_read_base(dev, pci_bar_mem32, res, rom);
- 	}
- }
- 
-diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
-index 1a5fc83..059de16 100644
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -26,11 +26,20 @@ #include <linux/slab.h>
- #include "pci.h"
- 
- 
--void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno)
-+/**
-+ * pci_update_base - update a PCI BAR
-+ * @dev: PCI device
-+ * @type: type of BAR
-+ * @res: resource info used to update BAR
-+ * @pos: BAR position in config space
-+ *
-+ * If the type is not unknown, we assume that the lowest bit is 'enable'.
-+ */
-+void pci_update_base(struct pci_dev *dev, enum pci_bar_type type,
-+			struct resource *res, unsigned int pos)
- {
- 	struct pci_bus_region region;
- 	u32 new, check, mask;
--	int reg;
- 
- 	/*
- 	 * Ignore resources for unimplemented BARs and unused resource slots
-@@ -49,56 +58,57 @@ void pci_update_resource(struct pci_dev 
- 
- 	pcibios_resource_to_bus(dev, &region, res);
- 
--	dev_dbg(&dev->dev, "BAR %d: got res [%#llx-%#llx] bus [%#llx-%#llx] "
--		"flags %#lx\n", resno,
--		 (unsigned long long)res->start,
--		 (unsigned long long)res->end,
--		 (unsigned long long)region.start,
--		 (unsigned long long)region.end,
--		 (unsigned long)res->flags);
-+	dev_dbg(&dev->dev, "BAR at %d: got res [%#llx-%#llx] bus [%#llx-%#llx] "
-+		"flags %#lx\n", pos, (unsigned long long)res->start,
-+		(unsigned long long)res->end, (unsigned long long)region.start,
-+		(unsigned long long)region.end, (unsigned long)res->flags);
- 
- 	new = region.start | (res->flags & PCI_REGION_FLAG_MASK);
-+	if (type != pci_bar_unknown)
-+		new |= PCI_ROM_ADDRESS_ENABLE;
++	if (bus->self)
++		pci_ari_enable_fwd(bus->self);
 +
- 	if (res->flags & IORESOURCE_IO)
- 		mask = (u32)PCI_BASE_ADDRESS_IO_MASK;
- 	else
- 		mask = (u32)PCI_BASE_ADDRESS_MEM_MASK;
+ 	scan_all_fns = pcibios_scan_all_fns(bus, devfn);
  
--	if (resno < 6) {
--		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
--	} else if (resno == PCI_ROM_RESOURCE) {
--		if (!(res->flags & IORESOURCE_ROM_ENABLE))
--			return;
--		new |= PCI_ROM_ADDRESS_ENABLE;
--		reg = dev->rom_base_reg;
--	} else {
--		/* Hmm, non-standard resource. */
--	
--		return;		/* kill uninitialised var warning */
--	}
--
--	pci_write_config_dword(dev, reg, new);
--	pci_read_config_dword(dev, reg, &check);
-+	pci_write_config_dword(dev, pos, new);
-+	pci_read_config_dword(dev, pos, &check);
- 
- 	if ((new ^ check) & mask) {
--		dev_err(&dev->dev, "BAR %d: error updating (%#08x != %#08x)\n",
--			resno, new, check);
-+		dev_err(&dev->dev, "BAR at %d: error updating "
-+			"(%#08x != %#08x)\n", pos, new, check);
- 	}
- 
- 	if ((new & (PCI_BASE_ADDRESS_SPACE|PCI_BASE_ADDRESS_MEM_TYPE_MASK)) ==
- 	    (PCI_BASE_ADDRESS_SPACE_MEMORY|PCI_BASE_ADDRESS_MEM_TYPE_64)) {
- 		new = region.start >> 16 >> 16;
--		pci_write_config_dword(dev, reg + 4, new);
--		pci_read_config_dword(dev, reg + 4, &check);
-+		pci_write_config_dword(dev, pos + 4, new);
-+		pci_read_config_dword(dev, pos + 4, &check);
- 		if (check != new) {
--			dev_err(&dev->dev, "BAR %d: error updating "
--			       "(high %#08x != %#08x)\n", resno, new, check);
-+			dev_err(&dev->dev, "BAR at %d: error updating "
-+			       "(high %#08x != %#08x)\n", pos, new, check);
- 		}
- 	}
- 	res->flags &= ~IORESOURCE_UNSET;
--	dev_dbg(&dev->dev, "BAR %d: moved to bus [%#llx-%#llx] flags %#lx\n",
--		resno, (unsigned long long)region.start,
-+	dev_dbg(&dev->dev, "BAR at %d: moved to bus [%#llx-%#llx] flags %#lx\n",
-+		pos, (unsigned long long)region.start,
- 		(unsigned long long)region.end, res->flags);
- }
-+EXPORT_SYMBOL_GPL(pci_update_base);
-+
-+void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno)
-+{
-+	if (resno < 6) {
-+		pci_update_base(dev, pci_bar_unknown, res,
-+			       PCI_BASE_ADDRESS_0 + 4 * resno);
-+	} else if (resno == PCI_ROM_RESOURCE) {
-+		if (!(res->flags & IORESOURCE_ROM_ENABLE))
-+			return;
-+		pci_update_base(dev, pci_bar_mem32, res, dev->rom_base_reg);
-+	} else
-+		dev_err(&dev->dev, "Invalid BAR resource #%d\n", resno);
-+}
- 
- int pci_claim_resource(struct pci_dev *dev, int resource)
- {
+ 	for (func = 0; func < 8; func++, devfn++) {
 diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 825be38..9ea3a1d 100644
+index 9ea3a1d..110779a 100644
 --- a/include/linux/pci.h
 +++ b/include/linux/pci.h
-@@ -312,6 +312,18 @@ struct pci_bus {
- #define pci_bus_b(n)	list_entry(n, struct pci_bus, node)
- #define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
+@@ -214,6 +214,7 @@ #endif
+ 	unsigned int	broken_parity_status:1;	/* Device generates false positive parity */
+ 	unsigned int 	msi_enabled:1;
+ 	unsigned int	msix_enabled:1;
++	unsigned int	ari_enabled:1;	/* ARI forwarding on bridge */
+ 	unsigned int	is_managed:1;
+ 	unsigned int	is_pcie:1;
+ 	pci_dev_flags_t dev_flags;
+@@ -1125,5 +1126,33 @@ static inline void pci_mmcfg_early_init(
+ static inline void pci_mmcfg_late_init(void) { }
+ #endif
  
-+enum pci_bar_type {
-+	pci_bar_unknown,	/* Standard PCI BAR probe */
-+	pci_bar_io,		/* An io port BAR */
-+	pci_bar_mem32,		/* A 32-bit memory BAR */
-+	pci_bar_mem64,		/* A 64-bit memory BAR */
-+};
++#ifdef CONFIG_PCI_ARI
++/**
++ * pci_ari_fwd_enabled - query ARI forwarding status
++ * @dev: PCI device
++ *
++ * Returns 1 if ARI forwarding is enabled, and 0 if it's not
++ * enabled; returns negative on failure.
++ */
++static inline int pci_ari_fwd_enabled(struct pci_dev *dev)
++{
++	return dev->ari_enabled;
++}
++extern void pci_ari_enable_fwd(struct pci_dev *dev);
++extern int pci_ari_next_fn(struct pci_dev *dev);
++#else
++static inline int pci_ari_fwd_enabled(struct pci_dev *dev)
++{
++	return -EIO;
++}
++static inline void pci_ari_enable_fwd(struct pci_dev *dev)
++{
++}
++static inline int pci_ari_next_fn(struct pci_dev *dev)
++{
++	return -EIO;
++}
++#endif
 +
-+int pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
-+			struct resource *res, unsigned int reg);
-+void pci_update_base(struct pci_dev *dev, enum pci_bar_type type,
-+			struct resource *res, unsigned int reg);
-+
- /*
-  * Error values that may be returned by PCI functions.
-  */
+ #endif /* __KERNEL__ */
+ #endif /* LINUX_PCI_H */
+diff --git a/include/linux/pci_regs.h b/include/linux/pci_regs.h
+index 450684f..eb6686b 100644
+--- a/include/linux/pci_regs.h
++++ b/include/linux/pci_regs.h
+@@ -419,6 +419,10 @@ #define  PCI_EXP_RTCTL_PMEIE	0x08	/* PME
+ #define  PCI_EXP_RTCTL_CRSSVE	0x10	/* CRS Software Visibility Enable */
+ #define PCI_EXP_RTCAP		30	/* Root Capabilities */
+ #define PCI_EXP_RTSTA		32	/* Root Status */
++#define PCI_EXP_DEVCAP2		36	/* Device Capabilities 2 */
++#define  PCI_EXP_DEVCAP2_ARI	0x20	/* Alternative Routing-ID */
++#define PCI_EXP_DEVCTL2		40	/* Device Control 2 */
++#define  PCI_EXP_DEVCTL2_ARI	0x20	/* Alternative Routing-ID */
+ 
+ /* Extended Capabilities (PCI-X 2.0 and Express) */
+ #define PCI_EXT_CAP_ID(header)		(header & 0x0000ffff)
+@@ -429,6 +433,7 @@ #define PCI_EXT_CAP_ID_ERR	1
+ #define PCI_EXT_CAP_ID_VC	2
+ #define PCI_EXT_CAP_ID_DSN	3
+ #define PCI_EXT_CAP_ID_PWR	4
++#define PCI_EXT_CAP_ID_ARI	14
+ 
+ /* Advanced Error Reporting */
+ #define PCI_ERR_UNCOR_STATUS	4	/* Uncorrectable Error Status */
+@@ -536,5 +541,14 @@ #define HT_CAPTYPE_ERROR_RETRY	0xC0	/* R
+ #define HT_CAPTYPE_GEN3		0xD0	/* Generation 3 hypertransport configuration */
+ #define HT_CAPTYPE_PM		0xE0	/* Hypertransport powermanagement configuration */
+ 
++/* Alternative Routing-ID Interpretation */
++#define PCI_ARI_CAP		0x04	/* ARI Capability Register */
++#define  PCI_ARI_CAP_MFVC	0x0001	/* MFVC Function Groups Capability */
++#define  PCI_ARI_CAP_ACS	0x0002	/* ACS Function Groups Capability */
++#define  PCI_ARI_CAP_NFN(x)	(((x) >> 8) & 0xff) /* Next Function Number */
++#define PCI_ARI_CTRL		0x06	/* ARI Control Register */
++#define  PCI_ARI_CTRL_MFVC	0x0001	/* MFVC Function Groups Enable */
++#define  PCI_ARI_CTRL_ACS	0x0002	/* ACS Function Groups Enable */
++#define  PCI_ARI_CTRL_FG(x)	(((x) >> 4) & 7) /* Function Group */
+ 
+ #endif /* LINUX_PCI_REGS_H */
 -- 
 1.4.2.1
