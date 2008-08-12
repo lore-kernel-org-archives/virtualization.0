@@ -1,17 +1,18 @@
-From: "Daniel P. Berrange" <berrange@redhat.com>
+From: Mike Day <ncmike@ncultra.org>
 Subject: Re: Announcing: Open OVF project source code availibility
-Date: Tue, 12 Aug 2008 16:42:36 +0100
-Message-ID: <20080812154236.GS13067__35685.4473743171$1218555940$gmane$org@redhat.com>
+Date: Tue, 12 Aug 2008 12:59:11 -0400
+Message-ID: <20080812165911.GB8457__49119.6097959348$1218560506$gmane$org@silverwood.ncultra.org>
 References: <20080812143432.GA8431@silverwood.ncultra.org>
 	<20080812144656.GQ13067@redhat.com>
 	<20080812152634.GA8457@silverwood.ncultra.org>
-Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
+	<20080812154236.GS13067@redhat.com>
+Reply-To: ncmike@ncultra.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20080812152634.GA8457@silverwood.ncultra.org>
+In-Reply-To: <20080812154236.GS13067@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,47 +22,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Day <ncmike@ncultra.org>
-Cc: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, smoser@us.ibm.com
+To: "Daniel P. Berrange" <berrange@redhat.com>
+Cc: xen-devel@lists.xensource.com, smoser@us.ibm.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 12, 2008 at 11:26:34AM -0400, Mike Day wrote:
-> On 12/08/08 15:46 +0100, Daniel P. Berrange wrote:
-> > 
-> > Why was the Eclipse Public License chosen ?  This license is not
-> > compatible with the GPL[1], so no GPL licensed app can make use of
-> > this code :-( For example it makes it impossible to use this code to
-> > assist in supporting OVF in virt-manager, virt-install or virt-image
-> > 
-> >   http://en.wikipedia.org/wiki/Eclipse_Public_License
-> > 
-> >   "The EPL 1.0 is not compatible with the GPL, and a work created by
-> >    combining a work licensed under the GPL with a work licensed under
-> >    the EPL cannot be lawfully distributed."
-> > 
+On 12/08/08 16:42 +0100, Daniel P. Berrange wrote:
+
+
+> > For runtime integration, we are planning on implementing an XML-RPC
+> > interface into and out of the ovf library, which will allow any other
+> > runtime code to interact with it. 
 > 
-> As a file format, the output from open-ovf can be used by any
-> code of any license. That is, any code can consume an OVF file.
+> It is the runtime integration I was refering to. The open-ovf tools
+> are all python. So is virt-manage/install/image. If these tools were
+> under a license that were compatible with usage from a GPL  licensed
+> app, then I could simply call into the OVF APIs. Building an XML-RPC
+> interface just to call into functions for manipulating OVF files is
+> rather overkill. 
 
-Yep, that's not what I'm concerned with.
+Perhaps locally, but certainly not overkill for remote access. Local
+access to XML-RPC via the loopback is still pretty efficient within
+the realm of interpreted languages. And the original OVA environment
+specification requires a remote API. (The DMTF did not adopt the
+environment services in its standard.) For example, a software
+appliance running in a guest needs to query the OVF daemon for
+information about its hosting hypervisor. This is best done by remote
+procedure calls.
+ 
+> But perhaps you don't intend to maintain the python libraries as an
+> official 'public' API for other apps to use ?
 
-> For runtime integration, we are planning on implementing an XML-RPC
-> interface into and out of the ovf library, which will allow any other
-> runtime code to interact with it. 
+We hope to establish remote APIs for use by guests at
+runtime. Whatever else comes about is up to the community.
 
-It is the runtime integration I was refering to. The open-ovf tools
-are all python. So is virt-manage/install/image. If these tools were
-under a license that were compatible with usage from a GPL  licensed
-app, then I could simply call into the OVF APIs. Building an XML-RPC
-interface just to call into functions for manipulating OVF files is
-rather overkill. 
-
-But perhaps you don't intend to maintain the python libraries as an
-official 'public' API for other apps to use ?
-
-Daniel
+Mike
 -- 
-|: Red Hat, Engineering, London   -o-   http://people.redhat.com/berrange/ :|
-|: http://libvirt.org  -o-  http://virt-manager.org  -o-  http://ovirt.org :|
-|: http://autobuild.org       -o-         http://search.cpan.org/~danberr/ :|
-|: GnuPG: 7D3B9505  -o-  F3C9 553F A1DA 4AC2 5648 23C1 B3DF F742 7D3B 9505 :|
+Mike Day
+http://www.ncultra.org
+AIM: ncmikeday |  Yahoo IM: ultra.runner
+PGP key: http://www.ncultra.org/ncmike/pubkey.asc
