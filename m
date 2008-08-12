@@ -1,15 +1,16 @@
-From: James.Smart@Emulex.Com
-Subject: RE: RFC: I/O bandwidth controller
-Date: Tue, 12 Aug 2008 11:03:24 -0400
-Message-ID: <D1D4C3FF75F9354393DB8314DF43DEF2E7F7ED__25739.6087902181$1218554300$gmane$org@xbl3.emulex.com>
-References: <1218117578.11703.81.camel@sebastian.kern.oss.ntt.co.jp><48A0A689.40908@gmail.com>	<loom.20080812T071504-212@post.gmane.org><20080812.201025.57762305.taka@valinux.co.jp><48A18854.9020000@gmail.com>
-	<48A18B1F.6080000@gmail.com>
-	<1218549276.4456.100.camel@sebastian.kern.oss.ntt.co.jp>
+From: Mike Day <ncmike@ncultra.org>
+Subject: Re: Announcing: Open OVF project source code availibility
+Date: Tue, 12 Aug 2008 11:26:34 -0400
+Message-ID: <20080812152634.GA8457__39437.6320219182$1218555137$gmane$org@silverwood.ncultra.org>
+References: <20080812143432.GA8431@silverwood.ncultra.org>
+	<20080812144656.GQ13067@redhat.com>
+Reply-To: ncmike@ncultra.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-content-class: urn:content-classes:message
+Content-Disposition: inline
+In-Reply-To: <20080812144656.GQ13067@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,39 +20,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: fernando@oss.ntt.co.jp, righi.andrea@gmail.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, dm-devel@redhat.com, agk@sourceware.org, baramsori72@gmail.com, dave@linux.vnet.ibm.com, ngupta@google.com, balbir@linux.vnet.ibm.com
+To: "Daniel P. Berrange" <berrange@redhat.com>
+Cc: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, smoser@us.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fernando Luis V=E1zquez Cao wrote:
-> > BTW as I said in a previous email, an interesting path to =
+On 12/08/08 15:46 +0100, Daniel P. Berrange wrote:
+> 
+> Why was the Eclipse Public License chosen ?  This license is not
+> compatible with the GPL[1], so no GPL licensed app can make use of
+> this code :-( For example it makes it impossible to use this code to
+> assist in supporting OVF in virt-manager, virt-install or virt-image
+> 
+>   http://en.wikipedia.org/wiki/Eclipse_Public_License
+> 
+>   "The EPL 1.0 is not compatible with the GPL, and a work created by
+>    combining a work licensed under the GPL with a work licensed under
+>    the EPL cannot be lawfully distributed."
+> 
 
-> be explored
-> > IMHO could be to think in terms of IO time. So, look at the =
+As a file format, the output from open-ovf can be used by any
+code of any license. That is, any code can consume an OVF file.
 
-> time an IO
-> > request is issued to the drive, look at the time the =
+For runtime integration, we are planning on implementing an XML-RPC
+interface into and out of the ovf library, which will allow any other
+runtime code to interact with it. 
 
-> request is served,
-> > evaluate the difference and charge the consumed IO time to the
-> > appropriate cgroup. Then dispatch IO requests in function of the
-> > consumed IO time debts / credits, using for example a token-bucket
-> > strategy. And probably the best place to implement the IO time
-> > accounting is the elevator.
-> Please note that the seek time for a specific IO request is strongly
-> correlated with the IO requests that preceded it, which means that the
-> owner of that request is not the only one to blame if it =
+Mike
 
-> takes too long
-> to process it. In other words, with the algorithm you propose =
 
-> we may end
-> up charging the wrong guy.
-
-I assume all of these discussions are focused on simple storage - disks
-direct attached to a single server - and are not targeted at SANs with
-arrays, multi-initiator accesses, and fabric/network impacts. True ? =
-
-Such algorithms can be seriously off-base in these latter configurations.
-
--- james s
+-- 
+Mike Day
+http://www.ncultra.org
+AIM: ncmikeday |  Yahoo IM: ultra.runner
+PGP key: http://www.ncultra.org/ncmike/pubkey.asc
