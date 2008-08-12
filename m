@@ -1,16 +1,12 @@
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
-Subject: Re: RFC: I/O bandwidth controller
-Date: Tue, 12 Aug 2008 14:35:23 +0900
-Message-ID: <1218519323.3964.0.camel__5334.82086980275$1218519474$gmane$org@sebastian.kern.oss.ntt.co.jp>
-References: <1217985189.3154.57.camel@sebastian.kern.oss.ntt.co.jp>
-	<4899D464.1070506@linux.vnet.ibm.com>
-	<1218078075.3803.149.camel@sebastian.kern.oss.ntt.co.jp>
-	<20080808.203944.29203232.taka@valinux.co.jp>
+From: "Zhao, Yu" <yu.zhao@intel.com>
+Subject: SR-IOV: patches are available for Linux kernel
+Date: Tue, 12 Aug 2008 16:32:14 +0800
+Message-ID: <7A25B56E4BE99C4283EB931CD1A40E110164BC6E__41985.022268682$1218530217$gmane$org@pdsmsx414.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080808.203944.29203232.taka@valinux.co.jp>
+Content-class: urn:content-classes:message
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,31 +16,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, righi.andrea@gmail.com, agk@sourceware.org, dave@linux.vnet.ibm.com, ngupta@google.com, balbir@linux.vnet.ibm.com
+To: kvm@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2008-08-08 at 20:39 +0900, Hirokazu Takahashi wrote:
-> Hi,
-> 
-> > > Would you like to split up IO into read and write IO. We know that read can be
-> > > very latency sensitive when compared to writes. Should we consider them
-> > > separately in the RFC?
-> > Oops, I somehow ended up leaving your first question unanswered. Sorry.
-> > 
-> > I do not think we should consider them separately, as long as there is a
-> > proper IO tracking infrastructure in place. As you mentioned, reads can
-> > be very latecy sensitive, but the read case could be treated as an
-> > special case IO controller/IO tracking subsystem. There certainly are
-> > optimization opportunities. For example, in the synchronous I/O patch ww
-> > could mark bios with the iocontext of the current task, because it will
-> > happen to be originator of that IO. By effectively caching the ownership
-> > information in the bio we can avoid all the accesses to struct page,
-> > page_cgroup, etc, and reads would definitively benefit from that. 
-> 
-> FYI, we should also take special care of pages being reclaimed, the free
-> memory of the cgroup these pages belong to may be really low.
-> Dm-ioband is doing this.
-Thank you for the heads-up.
+Greetings,
 
-- Fernando
+Patches to support Single Root I/O Virtualization (SR-IOV) capability are available for the Linux 2.6 development tree.
+
+KVM and Xen supports will come soon!
+
+---
+
+Single Root I/O Virtualization (SR-IOV) capability defined by PCI-SIG is intended to enable multiple system software to share PCI hardware resources. PCI device that supports this capability can be extended to one Physical Functions plus multiple Virtual Functions. Physical Function, which could be considered as the "real" PCI device, reflects the hardware instance and manages all physical resources. Virtual Functions are associated with a Physical Function and shares physical resources with the Physical Function. Software can control allocation of Virtual Functions via registers encapsulated in the capability.
+
+Following patches add SR-IOV capability support to the Linux kernel. With these patches, people can turn a PCI device with the capability into multiple ones from software perspective.
+
+[PATCH 1/4] PCI: export pci_read_base and add pci_update_base
+[PATCH 2/4] PCI: support ARI capability
+[PATCH 3/4] PCI: support SR-IOV capability
+[PATCH 4/4] PCI: document SR-IOV
+
+SR-IOV specification can be found at http://www.pcisig.com/members/downloads/specifications/iov/sr-iov1.0_11Sep07.pdf
