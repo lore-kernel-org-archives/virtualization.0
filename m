@@ -1,12 +1,15 @@
-From: "Zhao, Yu" <yu.zhao@intel.com>
-Subject: SR-IOV: patches are available for Linux kernel [4/4]
-Date: Tue, 12 Aug 2008 16:46:39 +0800
-Message-ID: <7A25B56E4BE99C4283EB931CD1A40E110164BC9B__11425.5016939298$1218531198$gmane$org@pdsmsx414.ccr.corp.intel.com>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: RFC: I/O bandwidth controller
+Date: Tue, 12 Aug 2008 20:10:25 +0900 (JST)
+Message-ID: <20080812.201025.57762305.taka__29598.0561095805$1218539809$gmane$org@valinux.co.jp>
+References: <1218117578.11703.81.camel@sebastian.kern.oss.ntt.co.jp>
+	<48A0A689.40908@gmail.com>
+	<loom.20080812T071504-212@post.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
+In-Reply-To: <loom.20080812T071504-212@post.gmane.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,228 +19,123 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: baramsori72@gmail.com
+Cc: xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, righi.andrea@gmail.com, agk@sourceware.org, dave@linux.vnet.ibm.com, ngupta@google.com, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-[PATCH 4/4] PCI: document SR-IOV
-
-SR-IOV Documentation.
-
-Signed-off-by: Yu Zhao <yu.zhao@intel.com>
-Signed-off-by:  Eddie Dong <eddie.dong@intel.com>
-
----
- Documentation/ABI/testing/sysfs-bus-pci |   13 ++
- Documentation/PCI/00-INDEX              |    2 
- Documentation/PCI/pci-iov-howto.txt     |  170 +++++++++++++++++++++++++++++++
- 3 files changed, 185 insertions(+), 0 deletions(-)
-
-diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
-index ceddcff..9ada27b 100644
---- a/Documentation/ABI/testing/sysfs-bus-pci
-+++ b/Documentation/ABI/testing/sysfs-bus-pci
-@@ -9,3 +9,16 @@ Description:
- 		that some devices may have malformatted data.  If the
- 		underlying VPD has a writable section then the
- 		corresponding section of this file will be writable.
-+
-+What:		/sys/bus/pci/devices/.../iov
-+Date:		August 2008
-+Contact:	Yu Zhao <yu.zhao@intel.com>
-+Description:
-+		This file will appear when SR-IOV capability is enabled
-+		by the device driver if supported. It holds number of
-+		available Virtual Functions and Bus, Device, Function
-+		number and status of these Virtual Functions that belong
-+		to this device (Physical Function). This file can be
-+		written using same format as what can be read out, to
-+		change the number of available Virtual Functions and to
-+		enable or disable a Virtual Functions.
-diff --git a/Documentation/PCI/00-INDEX b/Documentation/PCI/00-INDEX
-index 49f4394..8f8ee17 100644
---- a/Documentation/PCI/00-INDEX
-+++ b/Documentation/PCI/00-INDEX
-@@ -10,3 +10,5 @@ pci.txt
- 	- info on the PCI subsystem for device driver authors
- pcieaer-howto.txt
- 	- the PCI Express Advanced Error Reporting Driver Guide HOWTO
-+pci-iov-howto.txt
-+	- PCI Express Single Root I/O Virtualization HOWTO
-diff --git a/Documentation/PCI/pci-iov-howto.txt b/Documentation/PCI/pci-iov-howto.txt
-new file mode 100644
-index 0000000..2d7ae64
---- /dev/null
-+++ b/Documentation/PCI/pci-iov-howto.txt
-@@ -0,0 +1,170 @@
-+		PCI Express Single Root I/O Virtualization HOWTO
-+			Copyright (C) 2008 Intel Corporation
-+			    Yu Zhao <yu.zhao@intel.com>
-+
-+
-+1. Overview
-+
-+1.1 What is SR-IOV
-+
-+SR-IOV is PCI Express Extended Capability, which makes one physical device
-+becomes multiple virtual devices. The physical device is referred as Physical
-+Function while the virtual devices are refereed as Virtual Functions.
-+Allocation of Virtual Functions can be dynamically controlled by Physical
-+Function via registers encapsulated in the capability. By default, this
-+feature is not enabled and the Physical Function behaves as traditional PCIe
-+device. Once it's turned on, each Virtual Function's PCI configuration space
-+can be accessed by its own Bus, Device and Function Number (Routing ID). And
-+each Virtual Function also has PCI Memory Space, which is used to map its
-+register set. Virtual Function device driver operates on the register set so
-+it can be functional and appear as a real existing PCI device.
-+
-+1.2 What is ARI
-+
-+Alternative Routing-ID Interpretation allows a PCI Express Endpoint to use
-+its device number field as part of function number. Traditionally, an
-+Endpoint can only have 8 functions, and the device number of all Endpoints
-+is zero. With ARI enabled, an Endpoint can have up to 256 functions. ARI is
-+managed via a ARI Forwarding bit in the Device Capabilities 2 register of
-+the PCI Express Capability on the Root Port or the Downstream Port and a new
-+ARI Capability on the Endpoint.
-+
-+
-+2. User Guide
-+
-+2.1 How can I manage SR-IOV
-+
-+SR-IOV can be managed by reading or writing /sys/bus/pci/devices/.../iov.
-+Legal operations on this file include:
-+	- Read: will get number of available VFs and a list of them.
-+	- Write: bb:dd.f={1|0} will enable or disable a VF.
-+	- Write: NumVFs=N will change number of available VFs.
-+
-+2.2 How can I use Virtual Functions
-+
-+Virtual Functions can be treated as hot-plugged PCI devices in the kernel,
-+so they should be able to work in the same way as real PCI devices.
-+NOTE: Virtual Function device driver must be loaded to make it work.
-+
-+
-+3. Developer Guide
-+
-+3.1 SR-IOV APIs
-+
-+To enable SR-IOV, Physical Function device driver needs to call:
-+	int pci_iov_enable(struct pci_dev *dev, int nvfs,
-+				int (*cb)(struct pci_dev *, int, int))
-+NOTE: this function sleeps 2 seconds waiting on hardware transaction
-+completion according to SR-IOV specification.
-+
-+To disable SR-IOV, Physical Function device driver needs to call:
-+	void pci_iov_disable(struct pci_dev *dev)
-+NOTE: this function sleeps 1 second waiting on hardware transaction
-+completion according to SR-IOV specification.
-+
-+Following function can be used to query maximum number of Virtual Functions
-+that a Physical Function can support:
-+	int pci_iov_max_virtfn(struct pci_dev *dev)
-+
-+Following function can be used to retrieve parameter of a Virtual Function:
-+	const char *pci_iov_virtfn_param(struct pci_dev *dev, int vfid)
-+
-+3.2 Usage example
-+
-+Following piece of codes illustrates the usage of APIs above.
-+
-+static int callback(struct pci_dev *dev, int event, int arg)
-+{
-+	int err;
-+	const char *param;
-+
-+	switch (event) {
-+	case PCI_IOV_VF_ENA:	/* request to enable a VF */
-+		param = pci_iov_virtfn_param(dev, arg);
-+		...
-+		break;
-+	case PCI_IOV_VF_DIS:	/* a VF is disabled */
-+		/*
-+		 * reclaim hardware resource if needed
-+		 */
-+		break;
-+	case PCI_IOV_VF_PAR:	/* VF parameter changed */
-+		param = pci_iov_virtfn_param(dev, arg);
-+		...
-+		break;
-+	case PCI_IOV_VF_NUM:	/* request to change NumVFs */
-+		/*
-+		 * adjust hardware resources if needed
-+		 * NOTE: arg is the new requested NumVFs
-+		 */
-+		break;
-+	case PCI_IOV_VF_ERR:	/* error occurred */
-+		/*
-+		 * error handling
-+		 * NOTE: arg is the error code
-+		 */
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return err;
-+}
-+
-+static int __devinit dev_probe(struct pci_dev *dev,
-+				const struct pci_device_id *id)
-+{
-+	int err, nvfs;
-+
-+	...
-+
-+	nvfs = pci_iov_max_virtfn(dev);
-+	if (nvfs <= 0)
-+		return -ENODEV;
-+
-+	err = pci_iov_enable(dev, nvfs, callback);
-+	if (err)
-+		return err;
-+
-+	...
-+}
-+
-+static void __devexit dev_remove(struct pci_dev *dev)
-+{
-+	...
-+
-+	pci_iov_disable(dev);
-+
-+	...
-+}
-+
-+#ifdef CONFIG_PM
-+static int dev_suspend(struct pci_dev *dev, pm_message_t state)
-+{
-+	...
-+
-+	pci_iov_disable(dev);
-+
-+	...
-+}
-+
-+static int dev_resume(struct pci_dev *dev)
-+{
-+	...
-+
-+	pci_iov_enable(dev, nvfs, callback);
-+
-+	...
-+}
-+#endif
-+
-+static struct pci_driver dev_driver = {
-+	.name =		"SR-IOV PF driver",
-+	.id_table =	dev_id_table,
-+	.probe =	dev_probe,
-+	.remove =	__devexit_p(dev_remove),
-+#ifdef CONFIG_PM
-+	.suspend =	dev_suspend,
-+	.resume =	dev_resume,
-+#endif
-+};
--- 
-1.4.2.1
+SGksDQoNCj4gPiBGZXJuYW5kbyBMdWlzIFbDoXpxdWV6IENhbyB3cm90ZToNCj4gPiA+Pj4gVGhp
+cyBzZWVtcyB0byBiZSB0aGUgZWFzaWVzdCBwYXJ0LCBidXQgdGhlIGN1cnJlbnQgY2dyb3Vwcw0K
+PiA+ID4+PiBpbmZyYXN0cnVjdHVyZSBoYXMgc29tZSBsaW1pdGF0aW9ucyB3aGVuIGl0IGNvbWVz
+IHRvIGRlYWxpbmcgd2l0aCBibG9jaw0KPiA+ID4+PiBkZXZpY2VzOiBpbXBvc3NpYmlsaXR5IG9m
+IGNyZWF0aW5nL3JlbW92aW5nIGNlcnRhaW4gY29udHJvbCBzdHJ1Y3R1cmVzDQo+ID4gPj4+IGR5
+bmFtaWNhbGx5IGFuZCBoYXJkY29kaW5nIG9mIHN1YnN5c3RlbXMgKGkuZS4gcmVzb3VyY2UgY29u
+dHJvbGxlcnMpLg0KPiA+ID4+PiBUaGlzIG1ha2VzIGl0IGRpZmZpY3VsdCB0byBoYW5kbGUgYmxv
+Y2sgZGV2aWNlcyB0aGF0IGNhbiBiZSBob3RwbHVnZ2VkDQo+ID4gPj4+IGFuZCBnbyBhd2F5IGF0
+IGFueSB0aW1lICh0aGlzIGFwcGxpZXMgbm90IG9ubHkgdG8gdXNiIHN0b3JhZ2UgYnV0IGFsc28N
+Cj4gPiA+Pj4gdG8gc29tZSBTQVRBIGFuZCBTQ1NJIGRldmljZXMpLiBUbyBjb3BlIHdpdGggdGhp
+cyBzaXR1YXRpb24gcHJvcGVybHkgd2UNCj4gPiA+Pj4gd291bGQgbmVlZCBob3RwbHVnIHN1cHBv
+cnQgaW4gY2dyb3VwcywgYnV0LCBhcyBzdWdnZXN0ZWQgYmVmb3JlIGFuZA0KPiA+ID4+PiBkaXNj
+dXNzZWQgaW4gdGhlIHBhc3QgKHNlZSAoMCkgYmVsb3cpLCB0aGVyZSBhcmUgc29tZSBsaW1pdGF0
+aW9ucy4NCj4gPiA+Pj4NCj4gPiA+Pj4gRXZlbiBpbiB0aGUgbm9uLWhvdHBsdWcgY2FzZSBpdCB3
+b3VsZCBiZSBuaWNlIGlmIHdlIGNvdWxkIHRyZWF0IGVhY2gNCj4gPiA+Pj4gYmxvY2sgSS9PIGRl
+dmljZSBhcyBhbiBpbmRlcGVuZGVudCByZXNvdXJjZSwgd2hpY2ggbWVhbnMgd2UgY291bGQgZG8N
+Cj4gPiA+Pj4gdGhpbmdzIGxpa2UgYWxsb2NhdGluZyBJL08gYmFuZHdpZHRoIG9uIGEgcGVyLWRl
+dmljZSBiYXNpcy4gQXMgbG9uZyBhcw0KPiA+ID4+PiBwZXJmb3JtYW5jZSBpcyBub3QgY29tcHJv
+bWlzZWQgdG9vIG11Y2gsIGFkZGluZyBzb21lIGtpbmQgb2YgYmFzaWMNCj4gPiA+Pj4gaG90cGx1
+ZyBzdXBwb3J0IHRvIGNncm91cHMgaXMgcHJvYmFibHkgd29ydGggaXQuDQo+ID4gPj4+DQo+ID4g
+Pj4+ICgwKSBodHRwOi8vbGttbC5vcmcvbGttbC8yMDA4LzUvMjEvMTINCj4gPiA+PiBXaGF0IGFi
+b3V0IHVzaW5nIG1ham9yLG1pbm9yIG51bWJlcnMgdG8gaWRlbnRpZnkgZWFjaCBkZXZpY2UgYW5k
+IGFjY291bnQNCj4gPiA+PiBJTyBzdGF0aXN0aWNzPyBJZiBhIGRldmljZSBpcyB1bnBsdWdnZWQg
+d2UgY291bGQgcmVzZXQgSU8gc3RhdGlzdGljcw0KPiA+ID4+IGFuZC9vciByZW1vdmUgSU8gbGlt
+aXRhdGlvbnMgZm9yIHRoYXQgZGV2aWNlIGZyb20gdXNlcnNwYWNlIChpLmUuIGJ5IGENCj4gPiA+
+PiBkZWFtb24pLCBidXQgcGx1Z2dpbi91bnBsdWdnaW5nIHRoZSBkZXZpY2Ugd291bGQgbm90IGJl
+IGJsb2NrZWQvYWZmZWN0ZWQNCj4gPiA+PiBpbiBhbnkgY2FzZS4gT3IgYW0gSSBvdmVyc2ltcGxp
+ZnlpbmcgdGhlIHByb2JsZW0/DQo+ID4gPiBJZiBhIHJlc291cmNlIHdlIHdhbnQgdG8gY29udHJv
+bCAoYSBibG9jayBkZXZpY2UgaW4gdGhpcyBjYXNlKSBpcw0KPiA+ID4gaG90LXBsdWdnZWQvdW5w
+bHVnZ2VkIHRoZSBjb3JyZXNwb25kaW5nIGNncm91cC1yZWxhdGVkIHN0cnVjdHVyZXMgaW5zaWRl
+DQo+ID4gPiB0aGUga2VybmVsIG5lZWQgdG8gYmUgYWxsb2NhdGVkL2ZyZWVkIGR5bmFtaWNhbGx5
+LCByZXNwZWN0aXZlbHkuIFRoZQ0KPiA+ID4gcHJvYmxlbSBpcyB0aGF0IHRoaXMgaXMgbm90IGFs
+d2F5cyBwb3NzaWJsZS4gRm9yIGV4YW1wbGUsIHdpdGggdGhlDQo+ID4gPiBjdXJyZW50IGltcGxl
+bWVudGF0aW9uIG9mIGNncm91cHMgaXQgaXMgbm90IHBvc3NpYmxlIHRvIHRyZWF0IGVhY2ggYmxv
+Y2sNCj4gPiA+IGRldmljZSBhcyBhIGRpZmZlcmVudCBjZ3JvdXAgc3Vic3l0ZW0vcmVzb3VyY2Ug
+Y29udHJvbGxlZCwgYmVjYXVzZQ0KPiA+ID4gc3Vic3lzdGVtcyBhcmUgY3JlYXRlZCBhdCBjb21w
+aWxlIHRpbWUuDQo+ID4gDQo+ID4gVGhlIHdob2xlIHN1YnN5c3RlbSBpcyBjcmVhdGVkIGF0IGNv
+bXBpbGUgdGltZSwgYnV0IGNvbnRyb2xsZXIgZGF0YQ0KPiA+IHN0cnVjdHVyZXMgYXJlIGFsbG9j
+YXRlZCBkeW5hbWljYWxseSAoaS5lLiBzZWUgc3RydWN0IG1lbV9jZ3JvdXAgZm9yDQo+ID4gbWVt
+b3J5IGNvbnRyb2xsZXIpLiBTbywgaWRlbnRpZnlpbmcgZWFjaCBkZXZpY2Ugd2l0aCBhIG5hbWUs
+IG9yIGEga2V5DQo+ID4gbGlrZSBtYWpvcixtaW5vciwgaW5zdGVhZCBvZiBhIHJlZmVyZW5jZS9w
+b2ludGVyIHRvIGEgc3RydWN0IGNvdWxkIGhlbHANCj4gPiB0byBoYW5kbGUgdGhpcyBpbiB1c2Vy
+c3BhY2UuIEkgbWVhbiwgaWYgYSBkZXZpY2UgaXMgdW5wbHVnZ2VkIGENCj4gPiB1c2Vyc3BhY2Ug
+ZGFlbW9uIGNhbiBqdXN0IGhhbmRsZSB0aGUgZXZlbnQgYW5kIGRlbGV0ZSB0aGUgY29udHJvbGxl
+cg0KPiA+IGRhdGEgc3RydWN0dXJlcyBhbGxvY2F0ZWQgZm9yIHRoaXMgZGV2aWNlLCBhc3luY2hy
+b25vdXNseSwgdmlhDQo+ID4gdXNlcnNwYWNlLT5rZXJuZWwgaW50ZXJmYWNlLiBBbmQgd2l0aG91
+dCBob2xkaW5nIGEgcmVmZXJlbmNlIHRvIHRoYXQNCj4gPiBwYXJ0aWN1bGFyIGJsb2NrIGRldmlj
+ZSBpbiB0aGUga2VybmVsLiBBbnl3YXksIGltcGxlbWVudGluZyBhIGdlbmVyaWMNCj4gPiBpbnRl
+cmZhY2UgdGhhdCB3b3VsZCBhbGxvdyB0byBkZWZpbmUgaG9va3MgZm9yIGhvdC1wbHVnZ2FibGUg
+ZGV2aWNlcyAob3INCj4gPiBzaW1pbGFyIGV2ZW50cykgaW4gY2dyb3VwcyB3b3VsZCBiZSBpbnRl
+cmVzdGluZy4NCj4gPiANCj4gPiA+Pj4gMy4gJiA0LiAmIDUuIC0gSS9PIGJhbmR3aWR0aCBzaGFw
+aW5nICYgR2VuZXJhbCBkZXNpZ24gYXNwZWN0cw0KPiA+ID4+Pg0KPiA+ID4+PiBUaGUgaW1wbGVt
+ZW50YXRpb24gb2YgYW4gSS9PIHNjaGVkdWxpbmcgYWxnb3JpdGhtIGlzIHRvIGEgY2VydGFpbiBl
+eHRlbnQNCj4gPiA+Pj4gaW5mbHVlbmNlZCBieSB3aGF0IHdlIGFyZSB0cnlpbmcgdG8gYWNoaWV2
+ZSBpbiB0ZXJtcyBvZiBJL08gYmFuZHdpZHRoDQo+ID4gPj4+IHNoYXBpbmcsIGJ1dCwgYXMgZGlz
+Y3Vzc2VkIGJlbG93LCB0aGUgcmVxdWlyZWQgYWNjdXJhY3kgY2FuIGRldGVybWluZQ0KPiA+ID4+
+PiB0aGUgbGF5ZXIgd2hlcmUgdGhlIEkvTyBjb250cm9sbGVyIGhhcyB0byByZXNpZGUuIE9mZiB0
+aGUgdG9wIG9mIG15DQo+ID4gPj4+IGhlYWQsIHRoZXJlIGFyZSB0aHJlZSBiYXNpYyBvcGVyYXRp
+b25zIHdlIG1heSB3YW50IHBlcmZvcm06DQo+ID4gPj4+ICAgLSBJL08gbmljZSBwcmlvcml0aXph
+dGlvbjogaW9uaWNlLWxpa2UgYXBwcm9hY2guDQo+ID4gPj4+ICAgLSBQcm9wb3J0aW9uYWwgYmFu
+ZHdpZHRoIHNjaGVkdWxpbmc6IGVhY2ggcHJvY2Vzcy9ncm91cCBvZiBwcm9jZXNzZXMNCj4gPiA+
+Pj4gaGFzIGEgd2VpZ2h0IHRoYXQgZGV0ZXJtaW5lcyB0aGUgc2hhcmUgb2YgYmFuZHdpZHRoIHRo
+ZXkgcmVjZWl2ZS4NCj4gPiA+Pj4gICAtIEkvTyBsaW1pdGluZzogc2V0IGFuIHVwcGVyIGxpbWl0
+IHRvIHRoZSBiYW5kd2lkdGggYSBncm91cCBvZiB0YXNrcw0KPiA+ID4+PiBjYW4gdXNlLg0KPiA+
+ID4+IFVzZSBhIGRlYWRsaW5lLWJhc2VkIElPIHNjaGVkdWxpbmcgY291bGQgYmUgYW4gaW50ZXJl
+c3RpbmcgcGF0aCB0byBiZQ0KPiA+ID4+IGV4cGxvcmVkIGFzIHdlbGwsIElNSE8sIHRvIHRyeSB0
+byBndWFyYW50ZWUgcGVyLWNncm91cCBtaW5pbXVtIGJhbmR3aWR0aA0KPiA+ID4+IHJlcXVpcmVt
+ZW50cy4NCj4gPiA+IFBsZWFzZSBub3RlIHRoYXQgdGhlIG9ubHkgdGhpbmcgd2UgY2FuIGRvIGlz
+IHRvIGd1YXJhbnRlZSBtaW5pbXVtDQo+ID4gPiBiYW5kd2lkdGggcmVxdWlyZW1lbnQgd2hlbiB0
+aGVyZSBpcyBjb250ZW50aW9uIGZvciBhbiBJTyByZXNvdXJjZSwgd2hpY2gNCj4gPiA+IGlzIHBy
+ZWNpc2VseSB3aGF0IGEgcHJvcG9ydGlvbmFsIGJhbmR3aWR0aCBzY2hlZHVsZXIgZG9lcy4gQW4g
+SSBtaXNzaW5nDQo+ID4gPiBzb21ldGhpbmc/DQo+ID4gDQo+ID4gQ29ycmVjdC4gUHJvcG9ydGlv
+bmFsIGJhbmR3aWR0aCBhdXRvbWF0aWNhbGx5IGFsbG93cyB0byBndWFyYW50ZWUgbWluDQo+ID4g
+cmVxdWlyZW1lbnRzIChpbnN0ZWFkIG9mIElPIGxpbWl0aW5nIGFwcHJvYWNoLCB0aGF0IG5lZWRz
+IGFkZGl0aW9uYWwNCj4gPiBtZWNoYW5pc21zIHRvIGFjaGl2ZSB0aGlzKS4NCj4gPiANCj4gPiBJ
+biBhbnkgY2FzZSB0aGVyZSdzIG5vIGd1YXJhbnRlZSBmb3IgYSBjZ3JvdXAvYXBwbGljYXRpb24g
+dG8gc3VzdGFpbg0KPiA+IGkuZS4gMTBNQi9zIG9uIGEgY2VydGFpbiBkZXZpY2UsIGJ1dCB0aGlz
+IGlzIGEgaGFyZCBwcm9ibGVtIGFueXdheSwgYW5kDQo+ID4gdGhlIGJlc3Qgd2UgY2FuIGRvIGlz
+IHRvIHRyeSB0byBzYXRpc2Z5ICJzb2Z0IiBjb25zdHJhaW50cy4NCj4gDQo+IEkgdGhpbmsgZ3Vh
+cmFudGVlaW5nIHRoZSBtaW5pbXVtIEkvTyBiYW5kd2lkdGggaXMgdmVyeSBpbXBvcnRhbnQuIElu
+IHRoZSANCj4gYnVzaW5lc3Mgc2l0ZSwgZXNwZWNpYWxseSBpbiBzdHJlYW1pbmcgc2VydmljZSBz
+eXN0ZW0sIGFkbWluaXN0cmF0b3IgcmVxdWlyZXMgDQo+IHRoZSBmdW5jdGlvbmFsaXR5IHRvIHNh
+dGlzZnkgUW9TIG9yIHBlcmZvcm1hbmNlIG9mIHRoZWlyIHNlcnZpY2UuIA0KPiBPZiBjb3Vyc2Us
+IElPIHRocm90dGxpbmcgaXMgaW1wb3J0YW50LCBidXQsIHBlcnNvbmFsbHksIEkgdGhpbmsgZ3Vh
+cmFudGVlaW5nIA0KPiB0aGUgbWluaW11bSBiYW5kd2lkdGggaXMgbW9yZSBpbXBvcnRhbnQgdGhh
+biBsaW1pdGF0aW9uIG9mIG1heGltdW0gYmFuZHdpZHRoIA0KPiB0byBzYXRpc2Z5IHRoZSByZXF1
+aXJlbWVudCBpbiByZWFsIGJ1c2luZXNzIHNpdGVzLg0KPiBBbmQgSSBrbm93IEFuZHJlYeKAmXMg
+aW8tdGhyb3R0bGUgcGF0Y2ggc3VwcG9ydHMgdGhlIGxhdHRlciBjYXNlIHdlbGwgYW5kIGl0IGlz
+IA0KPiB2ZXJ5IHN0YWJsZS4gDQo+IEJ1dCwgdGhlIGZpcnN0IGNhc2UoZ3VhcmFudGVlIHRoZSBt
+aW5pbXVtIGJhbmR3aWR0aCkgaXMgbm90IHN1cHBvcnRlZCBpbiBhbnkgDQo+IHBhdGNoZXMuDQo+
+IElzIHRoZXJlIGFueSBwbGFucyB0byBzdXBwb3J0IGl0PyBhbmQgSXMgdGhlcmUgYW55IHByb2Js
+ZW1zIGluIGltcGxlbWVudGluZyBpdD8NCj4gSSB0aGluayBpZiBJTyBjb250cm9sbGVyIGNhbiBz
+dXBwb3J0IGd1YXJhbnRlZWluZyB0aGUgbWluaW11bSBiYW5kd2lkdGggYW5kIA0KPiB3b3JrLWNv
+bnNlcnZpbmcgbW9kZSBzaW11bHRhbmVvdXNseSwgaXQgbW9yZSBlYXNpbHkgc2F0aXNmaWVzIHRo
+ZSByZXF1aXJlbWVudCANCj4gb2YgdGhlIGJ1c2luZXNzIHNpdGVzLg0KPiBBZGRpdGlvbmFsbHks
+IEkgZGlkbuKAmXQgdW5kZXJzdGFuZCDigJxQcm9wb3J0aW9uYWwgYmFuZHdpZHRoIGF1dG9tYXRp
+Y2FsbHkgYWxsb3dzIA0KPiB0byBndWFyYW50ZWUgbWluDQo+IHJlcXVpcmVtZW50c+KAnSBhbmQg
+4oCcc29mdCBjb25zdHJhaW50c+KAnS4NCj4gQ2FuIHlvdSBnaXZlIG1lIGEgYWR2aWNlIGFib3V0
+IHRoaXMgPyANCj4gVGhhbmtzIGluIGFkdmFuY2UuDQo+IA0KPiBEb25nLUphZSBLYW5nDQoNCkkg
+dGhpbmsgdGhpcyBpcyB3aGF0IGRtLWlvYmFuZCBkb2VzLg0KDQpMZXQncyBzYXkgeW91IG1ha2Ug
+dHdvIGdyb3VwcyBzaGFyZSB0aGUgc2FtZSBkaXNrLCBhbmQgZ2l2ZSB0aGVtDQo3MCUgb2YgdGhl
+IGJhbmR3aWR0aCB0aGUgZGlzayBwaHlzaWNhbGx5IGhhcyBhbmQgMzAlIHJlc3BlY3RpdmVseS4N
+ClRoaXMgbWVhbnMgdGhlIGZvcm1lciBncm91cCBpcyBhbG1vc3QgZ3VhcmFudGVlZCB0byBiZSBh
+YmxlIHRvIHVzZQ0KNzAlIG9mIHRoZSBiYW5kd2lkdGggZXZlbiB3aGVuIHRoZSBsYXR0ZXIgb25l
+IGlzIGlzc3VpbmcgcXVpdGUNCmEgbG90IG9mIEkvTyByZXF1ZXN0cy4NCg0KWWVzLCBJIGtub3cg
+dGhlcmUgZXhpc3QgaGVhZCBzZWVrIGxhZ3Mgd2l0aCB0cmFkaXRpb25hbCBtYWduZXRpYyBkaXNr
+cywNCnNvIGl0J3MgaW1wb3J0YW50IHRvIGltcHJvdmUgdGhlIGFsZ29yaXRobSB0byByZWR1Y2Ug
+dGhpcyBvdmVyaGVhZC4NCg0KQW5kIEkgdGhpbmsgaXQgaXMgYWxzbyBwb3NzaWJsZSB0byBhZGQg
+YSBuZXcgc2NoZWR1bGluZyBwb2xpY3kgdG8NCmd1YXJhbnRlZSB0aGUgbWluaW11bSBiYW5kd2lk
+dGguIEl0IG1pZ2h0IGJlIGNvb2wgaWYgc29tZSBncm91cCBjYW4NCnVzZSBndXJhbnRlZWQgYmFu
+ZHdpZHRocyBhbmQgdGhlIG90aGVyIHNoYXJlIHRoZSByZXN0IG9uIHByb3BvcnRpb25hbA0KYmFu
+ZHdpZHRoIHBvbGljeS4NCg0KVGhhbmtzLA0KSGlyb2thenUgVGFrYWhhc2hpLg0KX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
