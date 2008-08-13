@@ -1,16 +1,21 @@
-From: "=?EUC-KR?B?sK21v8Dn?=" <baramsori72@gmail.com>
+From: Andrea Righi <righi.andrea@gmail.com>
 Subject: Re: RFC: I/O bandwidth controller
-Date: Wed, 13 Aug 2008 15:23:00 +0900
-Message-ID: <2891419e0808122323l5dad8ff7q81cf666e8c814620__42650.073421146$1218639842$gmane$org@mail.gmail.com>
-References: <1218117578.11703.81.camel@sebastian.kern.oss.ntt.co.jp>
-	<48A0A689.40908@gmail.com> <loom.20080812T071504-212@post.gmane.org>
-	<20080812.201025.57762305.taka@valinux.co.jp>
+Date: Wed, 13 Aug 2008 19:56:12 +0200
+Message-ID: <48A3203C.6090104__2499.06875328652$1218650370$gmane$org@gmail.com>
+References: <1218117578.11703.81.camel@sebastian.kern.oss.ntt.co.jp>	
+	<48A0A689.40908@gmail.com>
+	<loom.20080812T071504-212@post.gmane.org>	
+	<20080812.201025.57762305.taka@valinux.co.jp>	
+	<48A18854.9020000@gmail.com> <48A18B1F.6080000@gmail.com>	
+	<1218549276.4456.100.camel@sebastian.kern.oss.ntt.co.jp>	
+	<48A1F62E.4090202@gmail.com>
+	<2891419e0808130047o702c9174tf36a4316ed247497@mail.gmail.com>
+Reply-To: righi.andrea@gmail.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080812.201025.57762305.taka@valinux.co.jp>
-Content-Disposition: inline
+In-Reply-To: <2891419e0808130047o702c9174tf36a4316ed247497@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,171 +25,211 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: xen-devel@lists.xensource.com, uchida@ap.jp.nec.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, righi.andrea@gmail.com, agk@sourceware.org, dave@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
+To: Dong-Jae Kang <baramsori72@gmail.com>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, ranjitm@google.com, dm-devel@redhat.com, agk@sourceware.org, dave@linux.vnet.ibm.com, ngupta@google.com, =?windows-1252?Q?Fernando_Luis_V=E1zquez_Cao?= <fernando@oss.ntt.co.jp>, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Takahashi-san,
-Thank you for your comments
-
+Dong-Jae Kang wrote:
 > Hi,
->
->> > Fernando Luis V=E1zquez Cao wrote:
->> > >>> This seems to be the easiest part, but the current cgroups
->> > >>> infrastructure has some limitations when it comes to dealing with =
-block
->> > >>> devices: impossibility of creating/removing certain control struct=
-ures
->> > >>> dynamically and hardcoding of subsystems (i.e. resource controller=
-s).
->> > >>> This makes it difficult to handle block devices that can be hotplu=
-gged
->> > >>> and go away at any time (this applies not only to usb storage but =
-also
->> > >>> to some SATA and SCSI devices). To cope with this situation proper=
-ly we
->> > >>> would need hotplug support in cgroups, but, as suggested before and
->> > >>> discussed in the past (see (0) below), there are some limitations.
->> > >>>
->> > >>> Even in the non-hotplug case it would be nice if we could treat ea=
-ch
->> > >>> block I/O device as an independent resource, which means we could =
-do
->> > >>> things like allocating I/O bandwidth on a per-device basis. As lon=
-g as
->> > >>> performance is not compromised too much, adding some kind of basic
->> > >>> hotplug support to cgroups is probably worth it.
->> > >>>
->> > >>> (0) http://lkml.org/lkml/2008/5/21/12
->> > >> What about using major,minor numbers to identify each device and ac=
-count
->> > >> IO statistics? If a device is unplugged we could reset IO statistics
->> > >> and/or remove IO limitations for that device from userspace (i.e. b=
-y a
->> > >> deamon), but pluggin/unplugging the device would not be blocked/aff=
-ected
->> > >> in any case. Or am I oversimplifying the problem?
->> > > If a resource we want to control (a block device in this case) is
->> > > hot-plugged/unplugged the corresponding cgroup-related structures in=
-side
->> > > the kernel need to be allocated/freed dynamically, respectively. The
->> > > problem is that this is not always possible. For example, with the
->> > > current implementation of cgroups it is not possible to treat each b=
-lock
->> > > device as a different cgroup subsytem/resource controlled, because
->> > > subsystems are created at compile time.
->> >
->> > The whole subsystem is created at compile time, but controller data
->> > structures are allocated dynamically (i.e. see struct mem_cgroup for
->> > memory controller). So, identifying each device with a name, or a key
->> > like major,minor, instead of a reference/pointer to a struct could help
->> > to handle this in userspace. I mean, if a device is unplugged a
->> > userspace daemon can just handle the event and delete the controller
->> > data structures allocated for this device, asynchronously, via
->> > userspace->kernel interface. And without holding a reference to that
->> > particular block device in the kernel. Anyway, implementing a generic
->> > interface that would allow to define hooks for hot-pluggable devices (=
-or
->> > similar events) in cgroups would be interesting.
->> >
->> > >>> 3. & 4. & 5. - I/O bandwidth shaping & General design aspects
->> > >>>
->> > >>> The implementation of an I/O scheduling algorithm is to a certain =
-extent
->> > >>> influenced by what we are trying to achieve in terms of I/O bandwi=
-dth
->> > >>> shaping, but, as discussed below, the required accuracy can determ=
-ine
->> > >>> the layer where the I/O controller has to reside. Off the top of my
->> > >>> head, there are three basic operations we may want perform:
->> > >>>   - I/O nice prioritization: ionice-like approach.
->> > >>>   - Proportional bandwidth scheduling: each process/group of proce=
-sses
->> > >>> has a weight that determines the share of bandwidth they receive.
->> > >>>   - I/O limiting: set an upper limit to the bandwidth a group of t=
-asks
->> > >>> can use.
->> > >> Use a deadline-based IO scheduling could be an interesting path to =
-be
->> > >> explored as well, IMHO, to try to guarantee per-cgroup minimum band=
-width
->> > >> requirements.
->> > > Please note that the only thing we can do is to guarantee minimum
->> > > bandwidth requirement when there is contention for an IO resource, w=
-hich
->> > > is precisely what a proportional bandwidth scheduler does. An I miss=
-ing
->> > > something?
->> >
->> > Correct. Proportional bandwidth automatically allows to guarantee min
->> > requirements (instead of IO limiting approach, that needs additional
->> > mechanisms to achive this).
->> >
->> > In any case there's no guarantee for a cgroup/application to sustain
->> > i.e. 10MB/s on a certain device, but this is a hard problem anyway, and
->> > the best we can do is to try to satisfy "soft" constraints.
+> =
+
+> 2008/8/13 Andrea Righi <righi.andrea@gmail.com>:
+>> Fernando Luis V=E1zquez Cao wrote:
+>>> On Tue, 2008-08-12 at 22:29 +0900, Andrea Righi wrote:
+>>>> Andrea Righi wrote:
+>>>>> Hirokazu Takahashi wrote:
+>>>>>>>>>>> 3. & 4. & 5. - I/O bandwidth shaping & General design aspects
+>>>>>>>>>>>
+>>>>>>>>>>> The implementation of an I/O scheduling algorithm is to a certa=
+in extent
+>>>>>>>>>>> influenced by what we are trying to achieve in terms of I/O ban=
+dwidth
+>>>>>>>>>>> shaping, but, as discussed below, the required accuracy can det=
+ermine
+>>>>>>>>>>> the layer where the I/O controller has to reside. Off the top o=
+f my
+>>>>>>>>>>> head, there are three basic operations we may want perform:
+>>>>>>>>>>>   - I/O nice prioritization: ionice-like approach.
+>>>>>>>>>>>   - Proportional bandwidth scheduling: each process/group of pr=
+ocesses
+>>>>>>>>>>> has a weight that determines the share of bandwidth they receiv=
+e.
+>>>>>>>>>>>   - I/O limiting: set an upper limit to the bandwidth a group o=
+f tasks
+>>>>>>>>>>> can use.
+>>>>>>>>>> Use a deadline-based IO scheduling could be an interesting path =
+to be
+>>>>>>>>>> explored as well, IMHO, to try to guarantee per-cgroup minimum b=
+andwidth
+>>>>>>>>>> requirements.
+>>>>>>>>> Please note that the only thing we can do is to guarantee minimum
+>>>>>>>>> bandwidth requirement when there is contention for an IO resource=
+, which
+>>>>>>>>> is precisely what a proportional bandwidth scheduler does. An I m=
+issing
+>>>>>>>>> something?
+>>>>>>>> Correct. Proportional bandwidth automatically allows to guarantee =
+min
+>>>>>>>> requirements (instead of IO limiting approach, that needs addition=
+al
+>>>>>>>> mechanisms to achive this).
+>>>>>>>>
+>>>>>>>> In any case there's no guarantee for a cgroup/application to susta=
+in
+>>>>>>>> i.e. 10MB/s on a certain device, but this is a hard problem anyway=
+, and
+>>>>>>>> the best we can do is to try to satisfy "soft" constraints.
+>>>>>>> I think guaranteeing the minimum I/O bandwidth is very important. I=
+n the
+>>>>>>> business site, especially in streaming service system, administrato=
+r requires
+>>>>>>> the functionality to satisfy QoS or performance of their service.
+>>>>>>> Of course, IO throttling is important, but, personally, I think gua=
+ranteeing
+>>>>>>> the minimum bandwidth is more important than limitation of maximum =
+bandwidth
+>>>>>>> to satisfy the requirement in real business sites.
+>>>>>>> And I know Andrea's io-throttle patch supports the latter case well=
+ and it is
+>>>>>>> very stable.
+>>>>>>> But, the first case(guarantee the minimum bandwidth) is not support=
+ed in any
+>>>>>>> patches.
+>>>>>>> Is there any plans to support it? and Is there any problems in impl=
+ementing it?
+>>>>>>> I think if IO controller can support guaranteeing the minimum bandw=
+idth and
+>>>>>>> work-conserving mode simultaneously, it more easily satisfies the r=
+equirement
+>>>>>>> of the business sites.
+>>>>>>> Additionally, I didn't understand "Proportional bandwidth automatic=
+ally allows
+>>>>>>> to guarantee min
+>>>>>>> requirements" and "soft constraints".
+>>>>>>> Can you give me a advice about this ?
+>>>>>>> Thanks in advance.
+>>>>>>>
+>>>>>>> Dong-Jae Kang
+>>>>>> I think this is what dm-ioband does.
+>>>>>>
+>>>>>> Let's say you make two groups share the same disk, and give them
+>>>>>> 70% of the bandwidth the disk physically has and 30% respectively.
+>>>>>> This means the former group is almost guaranteed to be able to use
+>>>>>> 70% of the bandwidth even when the latter one is issuing quite
+>>>>>> a lot of I/O requests.
+>>>>>>
+>>>>>> Yes, I know there exist head seek lags with traditional magnetic dis=
+ks,
+>>>>>> so it's important to improve the algorithm to reduce this overhead.
+>>>>>>
+>>>>>> And I think it is also possible to add a new scheduling policy to
+>>>>>> guarantee the minimum bandwidth. It might be cool if some group can
+>>>>>> use guranteed bandwidths and the other share the rest on proportional
+>>>>>> bandwidth policy.
+>>>>>>
+>>>>>> Thanks,
+>>>>>> Hirokazu Takahashi.
+>>>>> With IO limiting approach minimum requirements are supposed to be
+>>>>> guaranteed if the user configures a generic block device so that the =
+sum
+>>>>> of the limits doesn't exceed the total IO bandwidth of that device. B=
+ut,
+>>>>> in principle, there's nothing in "throttling" that guarantees "fairne=
+ss"
+>>>>> among different cgroups doing IO on the same block devices, that means
+>>>>> there's nothing to guarantee minimum requirements (and this is the
+>>>>> reason because I liked the Satoshi's CFQ-cgroup approach together with
+>>>>> io-throttle).
+>>>>>
+>>>>> A more complicated issue is how to evaluate the total IO bandwidth of=
+ a
+>>>>> generic device. We can use some kind of averaging/prediction, but
+>>>>> basically it would be inaccurate due to the mechanic of disks (head
+>>>>> seeks, but also caching, buffering mechanisms implemented directly in=
+to
+>>>>> the device, etc.). It's a hard problem. And the same problem exists a=
+lso
+>>>>> for proportional bandwidth as well, in terms of IO rate predictabilit=
+y I
+>>>>> mean.
+>>>> BTW as I said in a previous email, an interesting path to be explored
+>>>> IMHO could be to think in terms of IO time. So, look at the time an IO
+>>>> request is issued to the drive, look at the time the request is served,
+>>>> evaluate the difference and charge the consumed IO time to the
+>>>> appropriate cgroup. Then dispatch IO requests in function of the
+>>>> consumed IO time debts / credits, using for example a token-bucket
+>>>> strategy. And probably the best place to implement the IO time
+>>>> accounting is the elevator.
+>>> Please note that the seek time for a specific IO request is strongly
+>>> correlated with the IO requests that preceded it, which means that the
+>>> owner of that request is not the only one to blame if it takes too long
+>>> to process it. In other words, with the algorithm you propose we may end
+>>> up charging the wrong guy.
+>> mmh.. yes. The only scenario I can imagine where this solution is not
+>> fair is when there're a lot of guys always requesting the same near
+>> blocks and a single guy looking for a single distant block (supposing
+>> disk seeks are more expensive than read/write ops).
 >>
->> I think guaranteeing the minimum I/O bandwidth is very important. In the
->> business site, especially in streaming service system, administrator req=
-uires
->> the functionality to satisfy QoS or performance of their service.
->> Of course, IO throttling is important, but, personally, I think guarante=
-eing
->> the minimum bandwidth is more important than limitation of maximum bandw=
-idth
->> to satisfy the requirement in real business sites.
->> And I know Andrea's io-throttle patch supports the latter case well and =
-it is
->> very stable.
->> But, the first case(guarantee the minimum bandwidth) is not supported in=
- any
->> patches.
->> Is there any plans to support it? and Is there any problems in implement=
-ing it?
->> I think if IO controller can support guaranteeing the minimum bandwidth =
-and
->> work-conserving mode simultaneously, it more easily satisfies the requir=
-ement
->> of the business sites.
->> Additionally, I didn't understand "Proportional bandwidth automatically =
-allows
->> to guarantee min
->> requirements" and "soft constraints".
->> Can you give me a advice about this ?
->> Thanks in advance.
+>> In this case it would be fair to charge a huge amount only to the guy
+>> requesting the single distant block and distribute the cost of the seek
+>> to move back the head equally among the other guys. Using the algorighm
+>> I proposed, instead, both the single "bad" guy and the first "good" guy
+>> that moves back the disk head would spend a large sum of IO credits.
 >>
->> Dong-Jae Kang
->
-> I think this is what dm-ioband does.
->
-> Let's say you make two groups share the same disk, and give them
-> 70% of the bandwidth the disk physically has and 30% respectively.
-> This means the former group is almost guaranteed to be able to use
-> 70% of the bandwidth even when the latter one is issuing quite
-> a lot of I/O requests.
->
-> Yes, I know there exist head seek lags with traditional magnetic disks,
-> so it's important to improve the algorithm to reduce this overhead.
->
+> =
 
-In previous my posting, what I mean was absolute guaranteeing for
-minimum bandwidth, regardless of disk seek time, I/O type(sequential,
-random, or mixed =85) of process.
-I also basically prefer proportional share depending on priority or
-weight and I think it is meaningful, such like as dm-ioband, 2-layer
-CFQ(satoshi) and 2-Layer CFQ(vasily).
-But, additionally in that situation, I think absolute guaranteeing of
-the minimum bandwidth will be required and several related companies
-want it to be supported. Because proportional share has inaccuracy of
-performance predictability, as Andrea mentioned before.
-So, to complement the point, IMHO, I think so.
+> I have a question about your description.
+> In I/O controlling, how do you think about the meaning of "fair" among cg=
+roups ?
 
-> And I think it is also possible to add a new scheduling policy to
-> guarantee the minimum bandwidth. It might be cool if some group can
-> use guranteed bandwidths and the other share the rest on proportional
-> bandwidth policy.
+Good question, thanks!
 
-Yes, I agree with you. This was what I intend to say
-Thank you,
+fair =3D equally distribute the IO cost and throttling among cgroups,
+instead of equal distribution among processes, and equally among the
+processes belonging to the same cgroup.
 
-Dong-Jae Kang
+In the previous scenario the process that moves back the disk head
+wouldn't be charged for the whole IO cost. It's the belonging cgroup
+that would be charged instead. So, the accounting is perfectly fair from
+this point of view, because the cgroup credits are shared among the
+processes within the cgroup.
+
+The IO controller instead should be able to apply throttling in a "fair"
+way, that means, when the credits are over it should distribute the
+throttling time equally among the processes within the cgroup, i.e.
+imposing a total_time_to_sleep/N to each process (where N is the number
+of processes into the cgroup) or, even better, distribute the
+total_time_to_sleep as a function of the previously generated task's IO,
+looking at the IO taskstats for example (/proc/PID/io). But this is
+another problem anyway.
+
+So, it seems I used a bad example, sorry.
+
+> These days I was confused about it.
+> IMHO, if they have a same access time and same access opportunity for
+> disk I/O regardless of their I/O style(sequential / random / mixed /
+> =85), I think it is fare.
+> Of course, in this fair situation, the cgroups with same priority or
+> weight can have a different I/O bandwidth. but, I think it will be in
+> reasonable range.
+> So, if other cgroups with fast I/O was sacrificed for the cgroup with
+> too late I/O to equaliz the I/O quantity, it can be considered
+> "unfair" for the cgroup with fast I/O
+> Do I have something wrong about the "fair" concept?
+> This is just my opinion :)
+> I welcome and appreciate for other opinions and comments about this
+> =
+
+> PS)
+> Andrea, this question is not related to the io-controller
+> But, I just wonder your another project, network io-throttle, is going
+> on now? My colleague has researched the similar project and he is try
+> to implement another one. And i am also interested in net
+> io-controller. Thank you
+
+For net-io-controller there's a better solution than mine, have a look
+at this:
+
+http://lkml.org/lkml/2008/7/24/455
+
+-Andrea
