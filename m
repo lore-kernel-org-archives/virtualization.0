@@ -1,21 +1,13 @@
-From: Andrea Righi <righi.andrea@gmail.com>
-Subject: Re: RFC: I/O bandwidth controller
-Date: Wed, 13 Aug 2008 19:56:12 +0200
-Message-ID: <48A3203C.6090104__2499.06875328652$1218650370$gmane$org@gmail.com>
-References: <1218117578.11703.81.camel@sebastian.kern.oss.ntt.co.jp>	
-	<48A0A689.40908@gmail.com>
-	<loom.20080812T071504-212@post.gmane.org>	
-	<20080812.201025.57762305.taka@valinux.co.jp>	
-	<48A18854.9020000@gmail.com> <48A18B1F.6080000@gmail.com>	
-	<1218549276.4456.100.camel@sebastian.kern.oss.ntt.co.jp>	
-	<48A1F62E.4090202@gmail.com>
-	<2891419e0808130047o702c9174tf36a4316ed247497@mail.gmail.com>
-Reply-To: righi.andrea@gmail.com
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: SR-IOV: patches are available for Linux kernel [4/4]
+Date: Wed, 13 Aug 2008 13:09:16 -0700
+Message-ID: <20080813130916.3bf3bc0c.randy.dunlap__30730.1182220273$1218659493$gmane$org@oracle.com>
+References: <7A25B56E4BE99C4283EB931CD1A40E110164BC9B@pdsmsx414.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2891419e0808130047o702c9174tf36a4316ed247497@mail.gmail.com>
+In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E110164BC9B@pdsmsx414.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,211 +17,160 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dong-Jae Kang <baramsori72@gmail.com>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, ranjitm@google.com, dm-devel@redhat.com, agk@sourceware.org, dave@linux.vnet.ibm.com, ngupta@google.com, =?windows-1252?Q?Fernando_Luis_V=E1zquez_Cao?= <fernando@oss.ntt.co.jp>, balbir@linux.vnet.ibm.com
+To: "Zhao, Yu" <yu.zhao@intel.com>
+Cc: gregkh <greg@kroah.com>, xen-devel@lists.xensource.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dong-Jae Kang wrote:
-> Hi,
-> =
+On Tue, 12 Aug 2008 16:46:39 +0800 Zhao, Yu wrote:
 
-> 2008/8/13 Andrea Righi <righi.andrea@gmail.com>:
->> Fernando Luis V=E1zquez Cao wrote:
->>> On Tue, 2008-08-12 at 22:29 +0900, Andrea Righi wrote:
->>>> Andrea Righi wrote:
->>>>> Hirokazu Takahashi wrote:
->>>>>>>>>>> 3. & 4. & 5. - I/O bandwidth shaping & General design aspects
->>>>>>>>>>>
->>>>>>>>>>> The implementation of an I/O scheduling algorithm is to a certa=
-in extent
->>>>>>>>>>> influenced by what we are trying to achieve in terms of I/O ban=
-dwidth
->>>>>>>>>>> shaping, but, as discussed below, the required accuracy can det=
-ermine
->>>>>>>>>>> the layer where the I/O controller has to reside. Off the top o=
-f my
->>>>>>>>>>> head, there are three basic operations we may want perform:
->>>>>>>>>>>   - I/O nice prioritization: ionice-like approach.
->>>>>>>>>>>   - Proportional bandwidth scheduling: each process/group of pr=
-ocesses
->>>>>>>>>>> has a weight that determines the share of bandwidth they receiv=
-e.
->>>>>>>>>>>   - I/O limiting: set an upper limit to the bandwidth a group o=
-f tasks
->>>>>>>>>>> can use.
->>>>>>>>>> Use a deadline-based IO scheduling could be an interesting path =
-to be
->>>>>>>>>> explored as well, IMHO, to try to guarantee per-cgroup minimum b=
-andwidth
->>>>>>>>>> requirements.
->>>>>>>>> Please note that the only thing we can do is to guarantee minimum
->>>>>>>>> bandwidth requirement when there is contention for an IO resource=
-, which
->>>>>>>>> is precisely what a proportional bandwidth scheduler does. An I m=
-issing
->>>>>>>>> something?
->>>>>>>> Correct. Proportional bandwidth automatically allows to guarantee =
-min
->>>>>>>> requirements (instead of IO limiting approach, that needs addition=
-al
->>>>>>>> mechanisms to achive this).
->>>>>>>>
->>>>>>>> In any case there's no guarantee for a cgroup/application to susta=
-in
->>>>>>>> i.e. 10MB/s on a certain device, but this is a hard problem anyway=
-, and
->>>>>>>> the best we can do is to try to satisfy "soft" constraints.
->>>>>>> I think guaranteeing the minimum I/O bandwidth is very important. I=
-n the
->>>>>>> business site, especially in streaming service system, administrato=
-r requires
->>>>>>> the functionality to satisfy QoS or performance of their service.
->>>>>>> Of course, IO throttling is important, but, personally, I think gua=
-ranteeing
->>>>>>> the minimum bandwidth is more important than limitation of maximum =
-bandwidth
->>>>>>> to satisfy the requirement in real business sites.
->>>>>>> And I know Andrea's io-throttle patch supports the latter case well=
- and it is
->>>>>>> very stable.
->>>>>>> But, the first case(guarantee the minimum bandwidth) is not support=
-ed in any
->>>>>>> patches.
->>>>>>> Is there any plans to support it? and Is there any problems in impl=
-ementing it?
->>>>>>> I think if IO controller can support guaranteeing the minimum bandw=
-idth and
->>>>>>> work-conserving mode simultaneously, it more easily satisfies the r=
-equirement
->>>>>>> of the business sites.
->>>>>>> Additionally, I didn't understand "Proportional bandwidth automatic=
-ally allows
->>>>>>> to guarantee min
->>>>>>> requirements" and "soft constraints".
->>>>>>> Can you give me a advice about this ?
->>>>>>> Thanks in advance.
->>>>>>>
->>>>>>> Dong-Jae Kang
->>>>>> I think this is what dm-ioband does.
->>>>>>
->>>>>> Let's say you make two groups share the same disk, and give them
->>>>>> 70% of the bandwidth the disk physically has and 30% respectively.
->>>>>> This means the former group is almost guaranteed to be able to use
->>>>>> 70% of the bandwidth even when the latter one is issuing quite
->>>>>> a lot of I/O requests.
->>>>>>
->>>>>> Yes, I know there exist head seek lags with traditional magnetic dis=
-ks,
->>>>>> so it's important to improve the algorithm to reduce this overhead.
->>>>>>
->>>>>> And I think it is also possible to add a new scheduling policy to
->>>>>> guarantee the minimum bandwidth. It might be cool if some group can
->>>>>> use guranteed bandwidths and the other share the rest on proportional
->>>>>> bandwidth policy.
->>>>>>
->>>>>> Thanks,
->>>>>> Hirokazu Takahashi.
->>>>> With IO limiting approach minimum requirements are supposed to be
->>>>> guaranteed if the user configures a generic block device so that the =
-sum
->>>>> of the limits doesn't exceed the total IO bandwidth of that device. B=
-ut,
->>>>> in principle, there's nothing in "throttling" that guarantees "fairne=
-ss"
->>>>> among different cgroups doing IO on the same block devices, that means
->>>>> there's nothing to guarantee minimum requirements (and this is the
->>>>> reason because I liked the Satoshi's CFQ-cgroup approach together with
->>>>> io-throttle).
->>>>>
->>>>> A more complicated issue is how to evaluate the total IO bandwidth of=
- a
->>>>> generic device. We can use some kind of averaging/prediction, but
->>>>> basically it would be inaccurate due to the mechanic of disks (head
->>>>> seeks, but also caching, buffering mechanisms implemented directly in=
-to
->>>>> the device, etc.). It's a hard problem. And the same problem exists a=
-lso
->>>>> for proportional bandwidth as well, in terms of IO rate predictabilit=
-y I
->>>>> mean.
->>>> BTW as I said in a previous email, an interesting path to be explored
->>>> IMHO could be to think in terms of IO time. So, look at the time an IO
->>>> request is issued to the drive, look at the time the request is served,
->>>> evaluate the difference and charge the consumed IO time to the
->>>> appropriate cgroup. Then dispatch IO requests in function of the
->>>> consumed IO time debts / credits, using for example a token-bucket
->>>> strategy. And probably the best place to implement the IO time
->>>> accounting is the elevator.
->>> Please note that the seek time for a specific IO request is strongly
->>> correlated with the IO requests that preceded it, which means that the
->>> owner of that request is not the only one to blame if it takes too long
->>> to process it. In other words, with the algorithm you propose we may end
->>> up charging the wrong guy.
->> mmh.. yes. The only scenario I can imagine where this solution is not
->> fair is when there're a lot of guys always requesting the same near
->> blocks and a single guy looking for a single distant block (supposing
->> disk seeks are more expensive than read/write ops).
->>
->> In this case it would be fair to charge a huge amount only to the guy
->> requesting the single distant block and distribute the cost of the seek
->> to move back the head equally among the other guys. Using the algorighm
->> I proposed, instead, both the single "bad" guy and the first "good" guy
->> that moves back the disk head would spend a large sum of IO credits.
->>
-> =
+> [PATCH 4/4] PCI: document SR-IOV
+> 
+> SR-IOV Documentation.
+> 
+> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
+> Signed-off-by:  Eddie Dong <eddie.dong@intel.com>
+> 
+> ---
+>  Documentation/ABI/testing/sysfs-bus-pci |   13 ++
+>  Documentation/PCI/00-INDEX              |    2 
+>  Documentation/PCI/pci-iov-howto.txt     |  170 +++++++++++++++++++++++++++++++
+>  3 files changed, 185 insertions(+), 0 deletions(-)
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
+> index ceddcff..9ada27b 100644
+> --- a/Documentation/ABI/testing/sysfs-bus-pci
+> +++ b/Documentation/ABI/testing/sysfs-bus-pci
+> @@ -9,3 +9,16 @@ Description:
+>  		that some devices may have malformatted data.  If the
+>  		underlying VPD has a writable section then the
+>  		corresponding section of this file will be writable.
+> +
+> +What:		/sys/bus/pci/devices/.../iov
+> +Date:		August 2008
+> +Contact:	Yu Zhao <yu.zhao@intel.com>
+> +Description:
+> +		This file will appear when SR-IOV capability is enabled
+> +		by the device driver if supported. It holds number of
+> +		available Virtual Functions and Bus, Device, Function
+> +		number and status of these Virtual Functions that belong
+> +		to this device (Physical Function). This file can be
 
-> I have a question about your description.
-> In I/O controlling, how do you think about the meaning of "fair" among cg=
-roups ?
+This one file contains available VFs, Bus:dev:Func number, and status?
+Sounds like a misuse (abuse) of sysfs "one value per file" mantra, but I'll
+read below to see how it's done.
 
-Good question, thanks!
+[added GregKH to cc: list]
 
-fair =3D equally distribute the IO cost and throttling among cgroups,
-instead of equal distribution among processes, and equally among the
-processes belonging to the same cgroup.
 
-In the previous scenario the process that moves back the disk head
-wouldn't be charged for the whole IO cost. It's the belonging cgroup
-that would be charged instead. So, the accounting is perfectly fair from
-this point of view, because the cgroup credits are shared among the
-processes within the cgroup.
+> +		written using same format as what can be read out, to
+> +		change the number of available Virtual Functions and to
+> +		enable or disable a Virtual Functions.
 
-The IO controller instead should be able to apply throttling in a "fair"
-way, that means, when the credits are over it should distribute the
-throttling time equally among the processes within the cgroup, i.e.
-imposing a total_time_to_sleep/N to each process (where N is the number
-of processes into the cgroup) or, even better, distribute the
-total_time_to_sleep as a function of the previously generated task's IO,
-looking at the IO taskstats for example (/proc/PID/io). But this is
-another problem anyway.
+> diff --git a/Documentation/PCI/pci-iov-howto.txt b/Documentation/PCI/pci-iov-howto.txt
+> new file mode 100644
+> index 0000000..2d7ae64
+> --- /dev/null
+> +++ b/Documentation/PCI/pci-iov-howto.txt
+> @@ -0,0 +1,170 @@
+> +		PCI Express Single Root I/O Virtualization HOWTO
+> +			Copyright (C) 2008 Intel Corporation
+> +			    Yu Zhao <yu.zhao@intel.com>
+> +
+> +
+> +1. Overview
+> +
+> +1.1 What is SR-IOV
+> +
+> +SR-IOV is PCI Express Extended Capability, which makes one physical device
 
-So, it seems I used a bad example, sorry.
+   SR-IOV is a PCI Express Extended Capability which makes one physical device
 
-> These days I was confused about it.
-> IMHO, if they have a same access time and same access opportunity for
-> disk I/O regardless of their I/O style(sequential / random / mixed /
-> =85), I think it is fare.
-> Of course, in this fair situation, the cgroups with same priority or
-> weight can have a different I/O bandwidth. but, I think it will be in
-> reasonable range.
-> So, if other cgroups with fast I/O was sacrificed for the cgroup with
-> too late I/O to equaliz the I/O quantity, it can be considered
-> "unfair" for the cgroup with fast I/O
-> Do I have something wrong about the "fair" concept?
-> This is just my opinion :)
-> I welcome and appreciate for other opinions and comments about this
-> =
+> +becomes multiple virtual devices. The physical device is referred as Physical
 
-> PS)
-> Andrea, this question is not related to the io-controller
-> But, I just wonder your another project, network io-throttle, is going
-> on now? My colleague has researched the similar project and he is try
-> to implement another one. And i am also interested in net
-> io-controller. Thank you
+   become | appear as | function as multiple virtual devices.
+                                     The physical device is referred to as the Physical
 
-For net-io-controller there's a better solution than mine, have a look
-at this:
+> +Function while the virtual devices are refereed as Virtual Functions.
 
-http://lkml.org/lkml/2008/7/24/455
+                                          referred to as Virtual Functions.
 
--Andrea
+> +Allocation of Virtual Functions can be dynamically controlled by Physical
+> +Function via registers encapsulated in the capability. By default, this
+> +feature is not enabled and the Physical Function behaves as traditional PCIe
+> +device. Once it's turned on, each Virtual Function's PCI configuration space
+> +can be accessed by its own Bus, Device and Function Number (Routing ID). And
+> +each Virtual Function also has PCI Memory Space, which is used to map its
+> +register set. Virtual Function device driver operates on the register set so
+> +it can be functional and appear as a real existing PCI device.
+> +
+> +1.2 What is ARI
+> +
+> +Alternative Routing-ID Interpretation allows a PCI Express Endpoint to use
+> +its device number field as part of function number. Traditionally, an
+> +Endpoint can only have 8 functions, and the device number of all Endpoints
+> +is zero. With ARI enabled, an Endpoint can have up to 256 functions. ARI is
+> +managed via a ARI Forwarding bit in the Device Capabilities 2 register of
+
+   managed via the ARI Forwarding bit
+
+> +the PCI Express Capability on the Root Port or the Downstream Port and a new
+> +ARI Capability on the Endpoint.
+> +
+> +
+> +2. User Guide
+> +
+> +2.1 How can I manage SR-IOV
+> +
+> +SR-IOV can be managed by reading or writing /sys/bus/pci/devices/.../iov.
+> +Legal operations on this file include:
+> +	- Read: will get number of available VFs and a list of them.
+> +	- Write: bb:dd.f={1|0} will enable or disable a VF.
+> +	- Write: NumVFs=N will change number of available VFs.
+> +
+> +2.2 How can I use Virtual Functions
+> +
+> +Virtual Functions can be treated as hot-plugged PCI devices in the kernel,
+> +so they should be able to work in the same way as real PCI devices.
+> +NOTE: Virtual Function device driver must be loaded to make it work.
+> +
+> +
+> +3. Developer Guide
+> +
+> +3.1 SR-IOV APIs
+> +
+> +To enable SR-IOV, Physical Function device driver needs to call:
+> +	int pci_iov_enable(struct pci_dev *dev, int nvfs,
+> +				int (*cb)(struct pci_dev *, int, int))
+> +NOTE: this function sleeps 2 seconds waiting on hardware transaction
+> +completion according to SR-IOV specification.
+> +
+> +To disable SR-IOV, Physical Function device driver needs to call:
+> +	void pci_iov_disable(struct pci_dev *dev)
+> +NOTE: this function sleeps 1 second waiting on hardware transaction
+> +completion according to SR-IOV specification.
+> +
+> +Following function can be used to query maximum number of Virtual Functions
+> +that a Physical Function can support:
+> +	int pci_iov_max_virtfn(struct pci_dev *dev)
+> +
+> +Following function can be used to retrieve parameter of a Virtual Function:
+> +	const char *pci_iov_virtfn_param(struct pci_dev *dev, int vfid)
+> +
+> +3.2 Usage example
+> +
+> +Following piece of codes illustrates the usage of APIs above.
+
+   Following pieces of code illustrate the usage of APIs above.
+{or}
+   Following piece of code illustrates the usage of APIs above.
+
+> +
+> +static int callback(struct pci_dev *dev, int event, int arg)
+> +{
+
+
+
+---
+~Randy
+Linux Plumbers Conference, 17-19 September 2008, Portland, Oregon USA
+http://linuxplumbersconf.org/
