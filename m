@@ -1,46 +1,123 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] stop_machine: wean Xen off stop_machine_run
-Date: Tue, 12 Aug 2008 22:57:33 -0700
-Message-ID: <48A277CD.3060300__15015.9129560508$1218607233$gmane$org@goop.org>
-References: <200808131552.18942.rusty@rustcorp.com.au>
+From: Mark McLoughlin <markmc@redhat.com>
+Subject: [PATCH 1/1] tun: TUNGETIFF interface to query name and flags
+Date: Wed, 13 Aug 2008 15:30:16 +0100
+Message-ID: <1218637816.29159.31.camel@muff>
+Reply-To: Mark McLoughlin <markmc@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200808131552.18942.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>, Max Krasnyansky <maxk@qualcomm.com>
+Cc: netdev <netdev@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> This is the last use of (the deprecated) stop_machine_run in the tree.
->   
+Rusty/Max,
 
-OK, thanks.
+While adding support to KVM for IFF_VNET_HDR it became apparent that we
+need some way of querying a file descriptor for whether IFF_VNET_HDR has
+been set.
 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
->   
-Acked-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+Basically, some apps like libvirt open the tap fd, connect the interface
+to the appropriate bridge and pass the fd to kvm via the command line. 
 
-> diff -r 332ec042cb4d drivers/xen/manage.c
-> --- a/drivers/xen/manage.c	Wed Aug 13 10:48:27 2008 +1000
-> +++ b/drivers/xen/manage.c	Wed Aug 13 15:50:02 2008 +1000
-> @@ -102,7 +102,7 @@ static void do_suspend(void)
->  	/* XXX use normal device tree? */
->  	xenbus_suspend();
->  
-> -	err = stop_machine_run(xen_suspend, &cancelled, 0);
-> +	err = stop_machine(xen_suspend, &cancelled, &cpumask_of_cpu(0));
->  	if (err) {
->  		printk(KERN_ERR "failed to start xen_suspend: %d\n", err);
->  		goto out;
->   
+So, those apps need to set IFF_VNET_HDR and KVM needs to be able to
+detect that and handle it correctly.
+
+A very simple approach is attached; I did consider doing a TUNGETFLAGS
+that would return tun->flags, but I think it's nicer to have a companion
+to TUNGETIFF since it also allows one to query the interface name from
+the file descriptor.
+
+Cheers,
+Mark.
+
+Subject: [PATCH 1/1] tun: TUNGETIFF interface to query name and flags
+
+Add a TUNGETIFF interface so that userspace can query a
+tun/tap descriptor for its name and flags.
+
+This is needed because it is common for one app to create
+a tap interface, exec another app and pass it the file
+descriptor for the interface. Without TUNGETIFF the spawned
+app has no way of detecting wheter the interface has e.g.
+IFF_VNET_HDR set.
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ drivers/net/tun.c      |   39 +++++++++++++++++++++++++++++++++++++++
+ include/linux/if_tun.h |    1 +
+ 2 files changed, 40 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index e6bbc63..95931a5 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -748,6 +748,36 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
+ 	return err;
+ }
+ 
++static int tun_get_iff(struct net *net, struct file *file, struct ifreq *ifr)
++{
++	struct tun_struct *tun = file->private_data;
++
++	if (!tun)
++		return -EBADFD;
++
++	DBG(KERN_INFO "%s: tun_get_iff\n", tun->dev->name);
++
++	strcpy(ifr->ifr_name, tun->dev->name);
++
++	ifr->ifr_flags = 0;
++
++	if (ifr->ifr_flags & TUN_TUN_DEV)
++		ifr->ifr_flags |= IFF_TUN;
++	else
++		ifr->ifr_flags |= IFF_TAP;
++
++	if (tun->flags & TUN_NO_PI)
++		ifr->ifr_flags |= IFF_NO_PI;
++
++	if (tun->flags & TUN_ONE_QUEUE)
++		ifr->ifr_flags |= IFF_ONE_QUEUE;
++
++	if (tun->flags & TUN_VNET_HDR)
++		ifr->ifr_flags |= IFF_VNET_HDR;
++
++	return 0;
++}
++
+ /* This is like a cut-down ethtool ops, except done via tun fd so no
+  * privs required. */
+ static int set_offload(struct net_device *dev, unsigned long arg)
+@@ -833,6 +863,15 @@ static int tun_chr_ioctl(struct inode *inode, struct file *file,
+ 	DBG(KERN_INFO "%s: tun_chr_ioctl cmd %d\n", tun->dev->name, cmd);
+ 
+ 	switch (cmd) {
++	case TUNGETIFF:
++		ret = tun_get_iff(current->nsproxy->net_ns, file, &ifr);
++		if (ret)
++			return ret;
++
++		if (copy_to_user(argp, &ifr, sizeof(ifr)))
++			return -EFAULT;
++		break;
++
+ 	case TUNSETNOCSUM:
+ 		/* Disable/Enable checksum */
+ 		if (arg)
+diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
+index 4c6307a..8529f57 100644
+--- a/include/linux/if_tun.h
++++ b/include/linux/if_tun.h
+@@ -45,6 +45,7 @@
+ #define TUNGETFEATURES _IOR('T', 207, unsigned int)
+ #define TUNSETOFFLOAD  _IOW('T', 208, unsigned int)
+ #define TUNSETTXFILTER _IOW('T', 209, unsigned int)
++#define TUNGETIFF      _IOR('T', 210, unsigned int)
+ 
+ /* TUNSETIFF ifr flags */
+ #define IFF_TUN		0x0001
+-- 
+1.5.4.1
+
