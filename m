@@ -1,72 +1,27 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: SR-IOV: patches are available for Linux kernel [4/4]
-Date: Wed, 13 Aug 2008 16:46:20 -0700
-Message-ID: <20080813234620.GB32154__7056.20817975632$1218671859$gmane$org@kroah.com>
-References: <7A25B56E4BE99C4283EB931CD1A40E110164BC9B@pdsmsx414.ccr.corp.intel.com>
-	<20080813130916.3bf3bc0c.randy.dunlap@oracle.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/1] tun: TUNGETIFF interface to query name and flags
+Date: Thu, 14 Aug 2008 11:58:57 +1000
+Message-ID: <200808141158.57879.rusty@rustcorp.com.au>
+References: <1218637816.29159.31.camel@muff>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1218637816.29159.31.camel@muff>
 Content-Disposition: inline
-In-Reply-To: <20080813130916.3bf3bc0c.randy.dunlap@oracle.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: xen-devel@lists.xensource.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: netdev-owner@vger.kernel.org
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: Max Krasnyansky <maxk@qualcomm.com>, netdev <netdev@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 13, 2008 at 01:09:16PM -0700, Randy Dunlap wrote:
-> On Tue, 12 Aug 2008 16:46:39 +0800 Zhao, Yu wrote:
-> 
-> > [PATCH 4/4] PCI: document SR-IOV
-> > 
-> > SR-IOV Documentation.
-> > 
-> > Signed-off-by: Yu Zhao <yu.zhao@intel.com>
-> > Signed-off-by:  Eddie Dong <eddie.dong@intel.com>
-> > 
-> > ---
-> >  Documentation/ABI/testing/sysfs-bus-pci |   13 ++
-> >  Documentation/PCI/00-INDEX              |    2 
-> >  Documentation/PCI/pci-iov-howto.txt     |  170 +++++++++++++++++++++++++++++++
-> >  3 files changed, 185 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
-> > index ceddcff..9ada27b 100644
-> > --- a/Documentation/ABI/testing/sysfs-bus-pci
-> > +++ b/Documentation/ABI/testing/sysfs-bus-pci
-> > @@ -9,3 +9,16 @@ Description:
-> >  		that some devices may have malformatted data.  If the
-> >  		underlying VPD has a writable section then the
-> >  		corresponding section of this file will be writable.
-> > +
-> > +What:		/sys/bus/pci/devices/.../iov
-> > +Date:		August 2008
-> > +Contact:	Yu Zhao <yu.zhao@intel.com>
-> > +Description:
-> > +		This file will appear when SR-IOV capability is enabled
-> > +		by the device driver if supported. It holds number of
-> > +		available Virtual Functions and Bus, Device, Function
-> > +		number and status of these Virtual Functions that belong
-> > +		to this device (Physical Function). This file can be
-> 
-> This one file contains available VFs, Bus:dev:Func number, and status?
-> Sounds like a misuse (abuse) of sysfs "one value per file" mantra, but I'll
-> read below to see how it's done.
-> 
-> [added GregKH to cc: list]
+On Thursday 14 August 2008 00:30:16 Mark McLoughlin wrote:
+> A very simple approach is attached; I did consider doing a TUNGETFLAGS
+> that would return tun->flags, but I think it's nicer to have a companion
+> to TUNGETIFF since it also allows one to query the interface name from
+> the file descriptor.
 
-I agree, why not just display the device tree of available devices like
-all other busses do?
+This seems really sensible to me.
 
-thanks,
-
-greg k-h
+If Max acks it, I'd say Dave should merge it.
+Rusty.
