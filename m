@@ -1,17 +1,17 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: SR-IOV: patches are available for Linux kernel [4/4]
-Date: Thu, 14 Aug 2008 05:12:45 -0700
-Message-ID: <20080814121245.GB31927__32493.5957360596$1218717582$gmane$org@kroah.com>
-References: <7A25B56E4BE99C4283EB931CD1A40E110164BC9B@pdsmsx414.ccr.corp.intel.com>
-	<20080813130916.3bf3bc0c.randy.dunlap@oracle.com>
-	<20080813234620.GB32154@kroah.com>
-	<7A25B56E4BE99C4283EB931CD1A40E1101686518@pdsmsx414.ccr.corp.intel.com>
+From: David Collier-Brown <davecb@sun.com>
+Subject: Re: RFC: I/O bandwidth controller
+Date: Thu, 14 Aug 2008 07:18:13 -0400
+Message-ID: <48A41475.4070108__36486.6173630164$1218727345$gmane$org@sun.com>
+References: <1218117578.11703.81.camel@sebastian.kern.oss.ntt.co.jp>
+	<48A0A689.40908@gmail.com> <loom.20080812T071504-212@post.gmane.org>
+	<20080812.201025.57762305.taka@valinux.co.jp>
+	<48A18854.9020000@gmail.com>
+Reply-To: davecb@sun.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E1101686518@pdsmsx414.ccr.corp.intel.com>
+In-reply-to: <48A18854.9020000@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,69 +21,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhao, Yu" <yu.zhao@intel.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, xen-devel@lists.xensource.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: righi.andrea@gmail.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, dm-devel@redhat.com, agk@sourceware.org, baramsori72@gmail.com, dave@linux.vnet.ibm.com, ngupta@google.com, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 14, 2008 at 03:50:26PM +0800, Zhao, Yu wrote:
-> On Thursday, August 14, 2008 7:46 AM, Greg KH <mailto:greg@kroah.com> wrote:
-> > On Wed, Aug 13, 2008 at 01:09:16PM -0700, Randy Dunlap wrote:
-> >> On Tue, 12 Aug 2008 16:46:39 +0800 Zhao, Yu wrote:
-> >> 
-> >>> [PATCH 4/4] PCI: document SR-IOV
-> >>> 
-> >>> SR-IOV Documentation.
-> >>> 
-> >>> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
-> >>> Signed-off-by:  Eddie Dong <eddie.dong@intel.com>
-> >>> 
-> >>> ---
-> >>>  Documentation/ABI/testing/sysfs-bus-pci |   13 ++
-> >>>  Documentation/PCI/00-INDEX              |    2
-> >>>  Documentation/PCI/pci-iov-howto.txt     |  170
-> > +++++++++++++++++++++++++++++++
-> >>>  3 files changed, 185 insertions(+), 0 deletions(-)
-> >>> 
-> >>> diff --git a/Documentation/ABI/testing/sysfs-bus-pci
-> > b/Documentation/ABI/testing/sysfs-bus-pci
-> >>> index ceddcff..9ada27b 100644
-> >>> --- a/Documentation/ABI/testing/sysfs-bus-pci
-> >>> +++ b/Documentation/ABI/testing/sysfs-bus-pci
-> >>> @@ -9,3 +9,16 @@ Description:
-> >>>  		that some devices may have malformatted data.  If the
-> >>>  		underlying VPD has a writable section then the
-> >>>  		corresponding section of this file will be writable. +
-> >>> +What:		/sys/bus/pci/devices/.../iov
-> >>> +Date:		August 2008
-> >>> +Contact:	Yu Zhao <yu.zhao@intel.com>
-> >>> +Description:
-> >>> +		This file will appear when SR-IOV capability is enabled
-> >>> +		by the device driver if supported. It holds number of
-> >>> +		available Virtual Functions and Bus, Device, Function
-> >>> +		number and status of these Virtual Functions that belong
-> >>> +		to this device (Physical Function). This file can be
-> >> 
-> >> This one file contains available VFs, Bus:dev:Func number, and
-> >> status? Sounds like a misuse (abuse) of sysfs "one value per file"
-> >> mantra, but I'll read below to see how it's done.
-> >> 
-> >> [added GregKH to cc: list]
-> > 
-> > I agree, why not just display the device tree of available devices
-> > like all other busses do? 
-> > 
-> 
-> Thanks for the comments. 
-> 
-> Will separate this file to
-> /sys/bus/pci/devices/.../iov/{NumVFs,VF1,VF2,...}. The NumVFs file
-> contains number of available VFs, and each VF file contains
-> "bus:dev.func=status". Sounds better?
+Andrea Righi wrote:
+> A more complicated issue is how to evaluate the total IO bandwidth of a
+> generic device. We can use some kind of averaging/prediction, but
+> basically it would be inaccurate due to the mechanic of disks (head
+> seeks, but also caching, buffering mechanisms implemented directly into
+> the device, etc.). It's a hard problem. And the same problem exists also
+> for proportional bandwidth as well, in terms of IO rate predictability I
+> mean.
 
-That sounds better yes.
+  Actually it's a little-known easy problem.
 
-Please use a 'struct device' for this as well, not a "raw" kobject.
+  The capacity planning community does it all the time, but then describes
+it in terms that are only interesting (intelligible?) to an enthusiastic
+amateur mathematician (;-))
 
-thanks,
+  One finds the point, called N*, at which the throughput flattens
+out and and the response time starts to grow without bounds, and
+calls that level the maximum.
 
-greg k-h
+  In practice, one does an easier variant.  One sets a response-time 
+limit and throttles *everyone* proportionally when th disk starts to 
+regularly degrade beyond the limit.  Interestingly, because we're 
+slowing the application to prevent slowing the disks, the value we 
+pick needn't be terribly precise.  It also doesn't require any pre-
+knowledge about the disks.
+
+  Send me a note if you want to discuss this in more detail.
+
+--dave
+-- 
+David Collier-Brown            | Always do right. This will gratify
+Sun Microsystems, Toronto      | some people and astonish the rest
+davecb@sun.com                 |                      -- Mark Twain
+cell: (647) 833-9377, bridge: (877) 385-4099 code: 506 9191#
