@@ -1,14 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_balloon: fix towards_target when deflating balloon
-Date: Tue, 19 Aug 2008 11:22:54 +1000
-Message-ID: <200808191122.54845.rusty@rustcorp.com.au>
-References: <1219097731-1224-1-git-send-email-aliguori@us.ibm.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [PATCH 4/7] bio-cgroup: Split the cgroup memory subsystem into
+	two parts
+Date: Tue, 19 Aug 2008 12:28:11 +0900 (JST)
+Message-ID: <20080819.122811.59660409.ryov__31704.8430712477$1219116853$gmane$org@valinux.co.jp>
+References: <20080812.213449.104039151.ryov@valinux.co.jp>
+	<20080812.213533.189720227.ryov@valinux.co.jp>
+	<20080818103938.8b4e8bfa.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1219097731-1224-1-git-send-email-aliguori@us.ibm.com>
-Content-Disposition: inline
+In-Reply-To: <20080818103938.8b4e8bfa.kamezawa.hiroyu@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,22 +20,20 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kamezawa.hiroyu@jp.fujitsu.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, xemul@openvz.org, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday 19 August 2008 08:15:31 Anthony Liguori wrote:
-> -	return v - vb->num_pages;
-> +	if (v < vb->num_pages)
-> +		return -(s64)(vb->num_pages - v);
-> +	else
-> +		return v - vb->num_pages;
+Hi Kamezawa-san,
 
-With all due respect, WTF?
+> I'm now writing remove-lock-page-cgroup patches. it works well.
+> please wait for a while...
 
-Did you mean:
+I'm looking forward to those patches.
 
-	return (s64)v - vb->num_pages;
+By the way, I'm glad if memory-cgroup has a feature which can make a
+page_cgroup move between cgroups with small overhead. It makes
+bio-cgroup improve the accuracy of tracking down pages.
 
-I'm really amazed this bug got this far though...
-Rusty.
+Thanks,
+Ryo Tsuruta
