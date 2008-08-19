@@ -1,16 +1,15 @@
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [PATCH 4/7] bio-cgroup: Split the cgroup memory subsystem into
-	two parts
-Date: Tue, 19 Aug 2008 21:46:35 +0900 (JST)
-Message-ID: <20080819.214635.70071441.taka__11276.3923978948$1219150378$gmane$org@valinux.co.jp>
-References: <20080818103938.8b4e8bfa.kamezawa.hiroyu@jp.fujitsu.com>
-	<20080819.122811.59660409.ryov@valinux.co.jp>
-	<48AA4594.1000908@linux.vnet.ibm.com>
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
+Subject: Re: RFC: Attaching threads to cgroups is OK?
+Date: Tue, 19 Aug 2008 21:52:14 +0900
+Message-ID: <1219150334.14590.12.camel__5561.18971803716$1219150468$gmane$org@sebastian.kern.oss.ntt.co.jp>
+References: <48AAA296.8050802@oss.ntt.co.jp>
+	<20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
+	<48AABC31.7070207@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48AA4594.1000908@linux.vnet.ibm.com>
+In-Reply-To: <48AABC31.7070207@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,32 +20,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: balbir@linux.vnet.ibm.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, fernando@oss.ntt.co.jp, kamezawa.hiroyu@jp.fujitsu.com, xemul@openvz.org
+Cc: "menage@google.com" <menage@google.com>, containers@lists.linux-foundation.org, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Hi Balbir, Kamezawa-san!
 
-> >> I'm now writing remove-lock-page-cgroup patches. it works well.
-> >> please wait for a while...
-> > 
-> > I'm looking forward to those patches.
-> > 
-> > By the way, I'm glad if memory-cgroup has a feature which can make a
-> > page_cgroup move between cgroups with small overhead. It makes
-> > bio-cgroup improve the accuracy of tracking down pages.
+On Tue, 2008-08-19 at 17:57 +0530, Balbir Singh wrote:
+> >> Tsuruta-san, how about your bio-cgroup's tracking concerning this?
+> >> If we want to use your tracking functions for each threads seperately, 
+> >> there seems to be a problem.
+> >> ===cf. mm_get_bio_cgroup()===================
+> >>            owner
+> >> mm_struct ----> task_struct ----> bio_cgroup
+> >> =============================================
+> >> In my understanding, the mm_struct of a thread is same as its parent's.
+> >> So, even if we attach the TIDs of some threads to different cgroups the 
+> >> tracking always returns the same bio_cgroup -- its parent's group.
+> >> Do you have some policy about in which case we can use your tracking?
+> >>
+> > It's will be resitriction when io-controller reuse information of the owner
+> > of memory. But if it's very clear who issues I/O (by tracking read/write
+> > syscall), we may have chance to record the issuer of I/O to page_cgroup
+> > struct. 
 > 
-> Page movement can be a very expensive operation and is proportional to the size
-> of the control group. I think movement should be an optional feature, if we ever
-> add it.
+> We already do some tracking (at dirty time, IIRC) for task IO accounting. For
+> the memory controller, tasks are virtually grouped by the mm_struct.
+Thank you for your comments and the links.
 
-Yes, we should avoid moving pages as far as it is balanced fairly well
-between groups.
+When it comes to io-tracking such mm_struct-based grouping might not
+desirable. If everyone agrees, we could try to decouple bio cgroup from
+that memory controller-specific bits.
 
-But I want to move pages between bio-cgoups in case it started charging
-quite a few I/O requests to a wrong bio-cgroup. I think it will be okay
-if pages moves between bio-cgroups, but they don't need to move between
-memory cgroups. I know the latter is really heavy and the effect seems
-to be so limited.
-
-Thanks,
-Hirokazu Takahashi.
+ - Fernando
