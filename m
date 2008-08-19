@@ -1,15 +1,16 @@
-From: Balbir Singh <balbir@linux.vnet.ibm.com>
-Subject: Re: RFC: Attaching threads to cgroups is OK?
-Date: Tue, 19 Aug 2008 17:57:29 +0530
-Message-ID: <48AABC31.7070207__15140.533357817$1219149168$gmane$org@linux.vnet.ibm.com>
-References: <48AAA296.8050802@oss.ntt.co.jp>
-	<20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
-Reply-To: balbir@linux.vnet.ibm.com
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: [PATCH 4/7] bio-cgroup: Split the cgroup memory subsystem into
+	two parts
+Date: Tue, 19 Aug 2008 21:46:35 +0900 (JST)
+Message-ID: <20080819.214635.70071441.taka__11276.3923978948$1219150378$gmane$org@valinux.co.jp>
+References: <20080818103938.8b4e8bfa.kamezawa.hiroyu@jp.fujitsu.com>
+	<20080819.122811.59660409.ryov@valinux.co.jp>
+	<48AA4594.1000908@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <48AA4594.1000908@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,67 +20,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: "menage@google.com" <menage@google.com>, fernando@oss.ntt.co.jp, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
+To: balbir@linux.vnet.ibm.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, fernando@oss.ntt.co.jp, kamezawa.hiroyu@jp.fujitsu.com, xemul@openvz.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-KAMEZAWA Hiroyuki wrote:
-> On Tue, 19 Aug 2008 19:38:14 +0900
-> Takuya Yoshikawa <yoshikawa.takuya@oss.ntt.co.jp> wrote:
-> 
->> Hi everyone,
->>
->> I have a question about cgroup's policy concerning the treatment of 
->> threads. Please consider that we want to attach an application which has 
->> some threads already to a certain cgroup. If we echo the pid of this 
->> application to the "tasks" file connected to this cgroup the threads 
->> belonging to this application will NOT be moved to the new group. Is it 
->> right? If so, is it OK?
->>
-> Added Paul and Balbir to CC:.
-> 
-> I think it is OK ...means it works as designed
-> (now, see below about future.)
-> 
->> I mean, in the current implementation, threads created before the 
->> attachement of the parent process are not treated eaqually to those 
->> created after.
->>
->> Could you tell me if you know something about the rules of attachement 
->> of pid, or tid, to cgroups? -- what ID is OK to write to "tasks" file 
->> and what we can expect as a result?
->>
-> 
-> Any PID is ok for "tasks". IIRC, Paul proposed "procs" file, which support
-> moving all threads of the same PIDs.
-> This mail from Paul explains some : http://lwn.net/Articles/289930/
-> 
+Hi,
 
-Yes, this was also discussed at the containers mini-summit
-
-Please see
-http://groups.google.com/group/fa.linux.kernel/browse_thread/thread/ccb5e818209af143
-
+> >> I'm now writing remove-lock-page-cgroup patches. it works well.
+> >> please wait for a while...
+> > 
+> > I'm looking forward to those patches.
+> > 
+> > By the way, I'm glad if memory-cgroup has a feature which can make a
+> > page_cgroup move between cgroups with small overhead. It makes
+> > bio-cgroup improve the accuracy of tracking down pages.
 > 
->> Tsuruta-san, how about your bio-cgroup's tracking concerning this?
->> If we want to use your tracking functions for each threads seperately, 
->> there seems to be a problem.
->> ===cf. mm_get_bio_cgroup()===================
->>            owner
->> mm_struct ----> task_struct ----> bio_cgroup
->> =============================================
->> In my understanding, the mm_struct of a thread is same as its parent's.
->> So, even if we attach the TIDs of some threads to different cgroups the 
->> tracking always returns the same bio_cgroup -- its parent's group.
->> Do you have some policy about in which case we can use your tracking?
->>
-> It's will be resitriction when io-controller reuse information of the owner
-> of memory. But if it's very clear who issues I/O (by tracking read/write
-> syscall), we may have chance to record the issuer of I/O to page_cgroup
-> struct. 
+> Page movement can be a very expensive operation and is proportional to the size
+> of the control group. I think movement should be an optional feature, if we ever
+> add it.
 
-We already do some tracking (at dirty time, IIRC) for task IO accounting. For
-the memory controller, tasks are virtually grouped by the mm_struct.
+Yes, we should avoid moving pages as far as it is balanced fairly well
+between groups.
 
--- 
-	Balbir
+But I want to move pages between bio-cgoups in case it started charging
+quite a few I/O requests to a wrong bio-cgroup. I think it will be okay
+if pages moves between bio-cgroups, but they don't need to move between
+memory cgroups. I know the latter is really heavy and the effect seems
+to be so limited.
+
+Thanks,
+Hirokazu Takahashi.
