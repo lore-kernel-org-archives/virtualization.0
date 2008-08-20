@@ -1,18 +1,16 @@
-From: Balbir Singh <balbir@linux.vnet.ibm.com>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
 Subject: Re: [PATCH 4/7] bio-cgroup: Split the cgroup memory subsystem into
 	two parts
-Date: Tue, 19 Aug 2008 19:18:49 +0530
-Message-ID: <48AACF41.5090905__40311.831495683$1219154176$gmane$org@linux.vnet.ibm.com>
-References: <20080818103938.8b4e8bfa.kamezawa.hiroyu@jp.fujitsu.com>
-	<20080819.122811.59660409.ryov@valinux.co.jp>
-	<48AA4594.1000908@linux.vnet.ibm.com>
+Date: Wed, 20 Aug 2008 14:47:36 +0900 (JST)
+Message-ID: <20080820.144736.16128062.taka__10365.5602470555$1219211436$gmane$org@valinux.co.jp>
+References: <48AA4594.1000908@linux.vnet.ibm.com>
 	<20080819.214635.70071441.taka@valinux.co.jp>
-Reply-To: balbir@linux.vnet.ibm.com
+	<48AACF41.5090905@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080819.214635.70071441.taka@valinux.co.jp>
+In-Reply-To: <48AACF41.5090905@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,35 +20,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hirokazu Takahashi <taka@valinux.co.jp>
+To: balbir@linux.vnet.ibm.com
 Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, fernando@oss.ntt.co.jp, kamezawa.hiroyu@jp.fujitsu.com, xemul@openvz.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hirokazu Takahashi wrote:
-> Hi,
-> 
->>>> I'm now writing remove-lock-page-cgroup patches. it works well.
->>>> please wait for a while...
->>> I'm looking forward to those patches.
->>>
->>> By the way, I'm glad if memory-cgroup has a feature which can make a
->>> page_cgroup move between cgroups with small overhead. It makes
->>> bio-cgroup improve the accuracy of tracking down pages.
->> Page movement can be a very expensive operation and is proportional to the size
->> of the control group. I think movement should be an optional feature, if we ever
->> add it.
-> 
-> Yes, we should avoid moving pages as far as it is balanced fairly well
-> between groups.
-> 
-> But I want to move pages between bio-cgoups in case it started charging
-> quite a few I/O requests to a wrong bio-cgroup. I think it will be okay
-> if pages moves between bio-cgroups, but they don't need to move between
-> memory cgroups. I know the latter is really heavy and the effect seems
-> to be so limited.
+Hi,
 
-I was under the impression that you wanted memory-cgroup to provide the page
-movement feature. That is not on the TODO list for us now.
+> >>>> I'm now writing remove-lock-page-cgroup patches. it works well.
+> >>>> please wait for a while...
+> >>> I'm looking forward to those patches.
+> >>>
+> >>> By the way, I'm glad if memory-cgroup has a feature which can make a
+> >>> page_cgroup move between cgroups with small overhead. It makes
+> >>> bio-cgroup improve the accuracy of tracking down pages.
+> >> Page movement can be a very expensive operation and is proportional to the size
+> >> of the control group. I think movement should be an optional feature, if we ever
+> >> add it.
+> > 
+> > Yes, we should avoid moving pages as far as it is balanced fairly well
+> > between groups.
+> > 
+> > But I want to move pages between bio-cgoups in case it started charging
+> > quite a few I/O requests to a wrong bio-cgroup. I think it will be okay
+> > if pages moves between bio-cgroups, but they don't need to move between
+> > memory cgroups. I know the latter is really heavy and the effect seems
+> > to be so limited.
+> 
+> I was under the impression that you wanted memory-cgroup to provide the page
+> movement feature. That is not on the TODO list for us now.
 
--- 
-	Balbir
+I think it's practically enough to implement this feature only on
+bio-cgroup side and leave the memory controller untouched.
+This kind of requests will happen only when making pages dirty.
+
+Of cousrse I'd be happier if you put it on your list to implement
+this as a generic feature.
+
+Thanks,
+Hirokazu Takahsahi.
