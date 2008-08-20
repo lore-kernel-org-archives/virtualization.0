@@ -1,16 +1,14 @@
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
 Subject: Re: RFC: Attaching threads to cgroups is OK?
-Date: Wed, 20 Aug 2008 17:43:34 +0900
-Message-ID: <20080820174334.a566a775.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
-	<48AABC31.7070207@linux.vnet.ibm.com>
-	<1219150334.14590.12.camel@sebastian.kern.oss.ntt.co.jp>
-	<20080820.161247.64324924.taka@valinux.co.jp>
+Date: Wed, 20 Aug 2008 20:48:32 +0900 (JST)
+Message-ID: <20080820.204832.131207708.taka__3816.12374117157$1219233071$gmane$org@valinux.co.jp>
+References: <48AAA296.8050802@oss.ntt.co.jp>
+	<20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080820.161247.64324924.taka@valinux.co.jp>
+In-Reply-To: <20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,24 +18,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: containers@lists.linux-foundation.org, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com, menage@google.com, virtualization@lists.linux-foundation.org
+To: kamezawa.hiroyu@jp.fujitsu.com
+Cc: fernando@oss.ntt.co.jp, virtualization@lists.linux-foundation.org, menage@google.com, containers@lists.linux-foundation.org, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 20 Aug 2008 16:12:47 +0900 (JST)
-Hirokazu Takahashi <taka@valinux.co.jp> wrote:
+Hi,
 
->  - I think this kind of thread application should control its I/O requests
->    inside of the application. I guess it seems to quite difficult to
->    determine which thread is doing what kind of job in the application.
->    We can just leave this issue to these type of applications, can we?
->    I guess most of this kind of applications must have been well designed
->    already.
-> 
-I agree. (it's better to postpone this.)
+> > Tsuruta-san, how about your bio-cgroup's tracking concerning this?
+> > If we want to use your tracking functions for each threads seperately, 
+> > there seems to be a problem.
+> > ===cf. mm_get_bio_cgroup()===================
+> >            owner
+> > mm_struct ----> task_struct ----> bio_cgroup
+> > =============================================
+> > In my understanding, the mm_struct of a thread is same as its parent's.
+> > So, even if we attach the TIDs of some threads to different cgroups the 
+> > tracking always returns the same bio_cgroup -- its parent's group.
+> > Do you have some policy about in which case we can use your tracking?
+> > 
+> It's will be resitriction when io-controller reuse information of the owner
+> of memory. But if it's very clear who issues I/O (by tracking read/write
+> syscall), we may have chance to record the issuer of I/O to page_cgroup
+> struct. 
 
-But maybe cpuset (HPC) applications uses per-thread cgroup attachment.
-So, I can't say there is no trouble even if we ignore threads.
+This might be slightly different topic though,
+I've been thinking where we should add hooks to track I/O reqeust.
+I think the following set of hooks is enough whether we are going to
+support thread based cgroup or not.
 
-Thanks,
--Kame
+  Hook-1: called when allocating a page, where the memory controller
+	  already have a hoook.
+  Hook-2: called when making a page in page-cache dirty.
+
+For anonymous pages, Hook-1 is enough to track any type of I/O request.
+For pages in page-cache, Hook-1 is also enough for read I/O because
+the I/O is issued just once right after allocting the page.
+For write I/O requests to pages in page-cache, Hook-1 will be okay
+in most cases but sometimes process in another cgroup may write
+the pages. In this case, Hook-2 is needed to keep accurate to track
+I/O requests.
+
+So, it won't be hard to make bio-cgroup accurate for I/O request
+tracking.
+
+I'm off untill 28th, thank you,
+Hirokazu Takahashi.
