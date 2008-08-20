@@ -1,15 +1,15 @@
-From: Takuya Yoshikawa <yoshikawa.takuya@oss.ntt.co.jp>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
 Subject: Re: RFC: Attaching threads to cgroups is OK?
-Date: Wed, 20 Aug 2008 14:52:38 +0900
-Message-ID: <48ABB126.8000606__18041.2469352179$1219211598$gmane$org@oss.ntt.co.jp>
-References: <48AAA296.8050802@oss.ntt.co.jp>
-	<20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
+Date: Wed, 20 Aug 2008 16:12:47 +0900 (JST)
+Message-ID: <20080820.161247.64324924.taka__18034.0666593567$1219216530$gmane$org@valinux.co.jp>
+References: <20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
 	<48AABC31.7070207@linux.vnet.ibm.com>
+	<1219150334.14590.12.camel@sebastian.kern.oss.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48AABC31.7070207@linux.vnet.ibm.com>
+In-Reply-To: <1219150334.14590.12.camel@sebastian.kern.oss.ntt.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,68 +19,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: balbir@linux.vnet.ibm.com
-Cc: "menage@google.com" <menage@google.com>, fernando@oss.ntt.co.jp, containers@lists.linux-foundation.org, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, virtualization@lists.linux-foundation.org
+To: fernando@oss.ntt.co.jp
+Cc: menage@google.com, virtualization@lists.linux-foundation.org, containers@lists.linux-foundation.org, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thank you for comments and links!
+Hi Fernando!
 
-Balbir Singh wrote:
-> KAMEZAWA Hiroyuki wrote:
->>> I mean, in the current implementation, threads created before the 
->>> attachement of the parent process are not treated eaqually to those 
->>> created after.
->>>
->>> Could you tell me if you know something about the rules of attachement 
->>> of pid, or tid, to cgroups? -- what ID is OK to write to "tasks" file 
->>> and what we can expect as a result?
->>>
->> Any PID is ok for "tasks". IIRC, Paul proposed "procs" file, which support
->> moving all threads of the same PIDs.
->> This mail from Paul explains some : http://lwn.net/Articles/289930/
->>
+> Hi Balbir, Kamezawa-san!
 > 
-> Yes, this was also discussed at the containers mini-summit
+> On Tue, 2008-08-19 at 17:57 +0530, Balbir Singh wrote:
+> > >> Tsuruta-san, how about your bio-cgroup's tracking concerning this?
+> > >> If we want to use your tracking functions for each threads seperately, 
+> > >> there seems to be a problem.
+> > >> ===cf. mm_get_bio_cgroup()===================
+> > >>            owner
+> > >> mm_struct ----> task_struct ----> bio_cgroup
+> > >> =============================================
+> > >> In my understanding, the mm_struct of a thread is same as its parent's.
+> > >> So, even if we attach the TIDs of some threads to different cgroups the 
+> > >> tracking always returns the same bio_cgroup -- its parent's group.
+> > >> Do you have some policy about in which case we can use your tracking?
+> > >>
+> > > It's will be resitriction when io-controller reuse information of the owner
+> > > of memory. But if it's very clear who issues I/O (by tracking read/write
+> > > syscall), we may have chance to record the issuer of I/O to page_cgroup
+> > > struct. 
+> > 
+> > We already do some tracking (at dirty time, IIRC) for task IO accounting. For
+> > the memory controller, tasks are virtually grouped by the mm_struct.
+> Thank you for your comments and the links.
 > 
-> Please see
-> http://groups.google.com/group/fa.linux.kernel/browse_thread/thread/ccb5e818209af143
-> 
+> When it comes to io-tracking such mm_struct-based grouping might not
+> desirable. If everyone agrees, we could try to decouple bio cgroup from
+> that memory controller-specific bits.
 
-I read the discussions and understood the reasons.
+From the technical point of view, it will be possible, but I'm not sure
+if it is so useful. I guess it might be overkill.
 
->>> Tsuruta-san, how about your bio-cgroup's tracking concerning this?
->>> If we want to use your tracking functions for each threads seperately, 
->>> there seems to be a problem.
->>> ===cf. mm_get_bio_cgroup()===================
->>>            owner
->>> mm_struct ----> task_struct ----> bio_cgroup
->>> =============================================
->>> In my understanding, the mm_struct of a thread is same as its parent's.
->>> So, even if we attach the TIDs of some threads to different cgroups the 
->>> tracking always returns the same bio_cgroup -- its parent's group.
->>> Do you have some policy about in which case we can use your tracking?
->>>
->> It's will be resitriction when io-controller reuse information of the owner
->> of memory. But if it's very clear who issues I/O (by tracking read/write
->> syscall), we may have chance to record the issuer of I/O to page_cgroup
->> struct. 
-> 
-> We already do some tracking (at dirty time, IIRC) for task IO accounting. For
-> the memory controller, tasks are virtually grouped by the mm_struct.
-> 
+I have designed the io-tracking mechanism of bio-cgroup based on
+the memory controller because:
 
-I understand that controlling threads with their parent through the 
-common mm_struct is useful and in some sense reasonable. But the 
-following situation seems to me little bit confusing.
+ - I wanted reuse the existing code for the first step as far as I could.
+   And I also think it's a good policy to make things generic so other
+   functions can use it.
 
-TWO POSSIBLE WAYS OF CONTROL -- after the parent process was moved
-===================================================================
-NEW group: [parent process]----> COMMON mm_struct
-                              |
-OLD group: [threads]---------+
+ - bio-cgroup should be used with the cgroup memory controller
+   to controll delayed write requests. Without the memory controller,
+   a bio-group may eat up lots of pages and turn them dirty.
+   I don't want to imagine what would happens if this bio-group is
+   assigned a low priority for I/O.
+   If bio-cgroup may cause some trouble without the memory controller,
+   I think it won't be so useful to design a new io-tracking mechanism.
 
-Threads can be
-1. grouped by OLD group
-2. (virtually) grouped by mm_struct
-    --> same as grouped by NEW group
-===================================================================
+ - I think this kind of thread application should control its I/O requests
+   inside of the application. I guess it seems to quite difficult to
+   determine which thread is doing what kind of job in the application.
+   We can just leave this issue to these type of applications, can we?
+   I guess most of this kind of applications must have been well designed
+   already.
+
+What do you think if we just leave it as it is and keep the code simple?
+
+
+Thanks,
+Hirokazu Takahashi.
