@@ -1,17 +1,17 @@
-From: Balbir Singh <balbir@linux.vnet.ibm.com>
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
 Subject: Re: RFC: Attaching threads to cgroups is OK?
-Date: Thu, 21 Aug 2008 09:02:04 +0530
-Message-ID: <48ACE1B4.8010000__32690.2234497995$1219289782$gmane$org@linux.vnet.ibm.com>
+Date: Thu, 21 Aug 2008 14:25:06 +0900
+Message-ID: <1219296306.28324.82.camel__24181.2033266344$1219296445$gmane$org@sebastian.kern.oss.ntt.co.jp>
 References: <48AAA296.8050802@oss.ntt.co.jp>
 	<20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
 	<20080820.204832.131207708.taka@valinux.co.jp>
 	<1219288081.28324.30.camel@sebastian.kern.oss.ntt.co.jp>
-Reply-To: balbir@linux.vnet.ibm.com
+	<48ACE1B4.8010000@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1219288081.28324.30.camel@sebastian.kern.oss.ntt.co.jp>
+In-Reply-To: <48ACE1B4.8010000@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,75 +21,80 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Fernando_Luis_V=E1zquez_Cao?= <fernando@oss.ntt.co.jp>
+To: balbir@linux.vnet.ibm.com
 Cc: Hirokazu Takahashi <taka@valinux.co.jp>, containers@lists.linux-foundation.org, menage@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fernando Luis V=E1zquez Cao wrote:
-> On Wed, 2008-08-20 at 20:48 +0900, Hirokazu Takahashi wrote:
->> Hi,
->>
->>>> Tsuruta-san, how about your bio-cgroup's tracking concerning this?
->>>> If we want to use your tracking functions for each threads seperately, =
-
->>>> there seems to be a problem.
->>>> =3D=3D=3Dcf. mm_get_bio_cgroup()=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D
->>>>            owner
->>>> mm_struct ----> task_struct ----> bio_cgroup
->>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->>>> In my understanding, the mm_struct of a thread is same as its parent's.
->>>> So, even if we attach the TIDs of some threads to different cgroups th=
-e =
-
->>>> tracking always returns the same bio_cgroup -- its parent's group.
->>>> Do you have some policy about in which case we can use your tracking?
->>>>
->>> It's will be resitriction when io-controller reuse information of the o=
-wner
->>> of memory. But if it's very clear who issues I/O (by tracking read/write
->>> syscall), we may have chance to record the issuer of I/O to page_cgroup
->>> struct. =
-
->> This might be slightly different topic though,
->> I've been thinking where we should add hooks to track I/O reqeust.
->> I think the following set of hooks is enough whether we are going to
->> support thread based cgroup or not.
->>
->>   Hook-1: called when allocating a page, where the memory controller
->> 	  already have a hoook.
->>   Hook-2: called when making a page in page-cache dirty.
->>
->> For anonymous pages, Hook-1 is enough to track any type of I/O request.
->> For pages in page-cache, Hook-1 is also enough for read I/O because
->> the I/O is issued just once right after allocting the page.
->> For write I/O requests to pages in page-cache, Hook-1 will be okay
->> in most cases but sometimes process in another cgroup may write
->> the pages. In this case, Hook-2 is needed to keep accurate to track
->> I/O requests.
-> =
-
-> This relative simplicity is what prompted me to say that we probably
-> should try to disentangle the io tracking functionality from the memory
-> controller a bit more (of course we still should reuse as much as we can
-> from it). The rationale for this is that the existing I/O scheduler
-> would benefit from proper io tracking capabilities too, so it'd be nice
-> if we could have them even in non-cgroup-capable kernels.
-> =
-
-
-Hook 2 referred to in the mail above exist today in the form of task IO acc=
-ounting.
-
-> As an aside, when the IO context of a certain IO operation is known
-> (synchronous IO comes to mind) I think it should be cashed in the
-> resulting bio so that we can do without the expensive accesses to
-> bio_cgroup once it enters the block layer.
-
-Will this give you everything you need for accounting and control (from the
-block layer?)
-
--- =
-
-	Balbir
+SGkgQmFsYmlyLAoKT24gVGh1LCAyMDA4LTA4LTIxIGF0IDA5OjAyICswNTMwLCBCYWxiaXIgU2lu
+Z2ggd3JvdGU6Cj4gRmVybmFuZG8gTHVpcyBWw6F6cXVleiBDYW8gd3JvdGU6Cj4gPiBPbiBXZWQs
+IDIwMDgtMDgtMjAgYXQgMjA6NDggKzA5MDAsIEhpcm9rYXp1IFRha2FoYXNoaSB3cm90ZToKPiA+
+PiBIaSwKPiA+Pgo+ID4+Pj4gVHN1cnV0YS1zYW4sIGhvdyBhYm91dCB5b3VyIGJpby1jZ3JvdXAn
+cyB0cmFja2luZyBjb25jZXJuaW5nIHRoaXM/Cj4gPj4+PiBJZiB3ZSB3YW50IHRvIHVzZSB5b3Vy
+IHRyYWNraW5nIGZ1bmN0aW9ucyBmb3IgZWFjaCB0aHJlYWRzIHNlcGVyYXRlbHksIAo+ID4+Pj4g
+dGhlcmUgc2VlbXMgdG8gYmUgYSBwcm9ibGVtLgo+ID4+Pj4gPT09Y2YuIG1tX2dldF9iaW9fY2dy
+b3VwKCk9PT09PT09PT09PT09PT09PT09Cj4gPj4+PiAgICAgICAgICAgIG93bmVyCj4gPj4+PiBt
+bV9zdHJ1Y3QgLS0tLT4gdGFza19zdHJ1Y3QgLS0tLT4gYmlvX2Nncm91cAo+ID4+Pj4gPT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Cj4gPj4+PiBJbiBteSB1bmRl
+cnN0YW5kaW5nLCB0aGUgbW1fc3RydWN0IG9mIGEgdGhyZWFkIGlzIHNhbWUgYXMgaXRzIHBhcmVu
+dCdzLgo+ID4+Pj4gU28sIGV2ZW4gaWYgd2UgYXR0YWNoIHRoZSBUSURzIG9mIHNvbWUgdGhyZWFk
+cyB0byBkaWZmZXJlbnQgY2dyb3VwcyB0aGUgCj4gPj4+PiB0cmFja2luZyBhbHdheXMgcmV0dXJu
+cyB0aGUgc2FtZSBiaW9fY2dyb3VwIC0tIGl0cyBwYXJlbnQncyBncm91cC4KPiA+Pj4+IERvIHlv
+dSBoYXZlIHNvbWUgcG9saWN5IGFib3V0IGluIHdoaWNoIGNhc2Ugd2UgY2FuIHVzZSB5b3VyIHRy
+YWNraW5nPwo+ID4+Pj4KPiA+Pj4gSXQncyB3aWxsIGJlIHJlc2l0cmljdGlvbiB3aGVuIGlvLWNv
+bnRyb2xsZXIgcmV1c2UgaW5mb3JtYXRpb24gb2YgdGhlIG93bmVyCj4gPj4+IG9mIG1lbW9yeS4g
+QnV0IGlmIGl0J3MgdmVyeSBjbGVhciB3aG8gaXNzdWVzIEkvTyAoYnkgdHJhY2tpbmcgcmVhZC93
+cml0ZQo+ID4+PiBzeXNjYWxsKSwgd2UgbWF5IGhhdmUgY2hhbmNlIHRvIHJlY29yZCB0aGUgaXNz
+dWVyIG9mIEkvTyB0byBwYWdlX2Nncm91cAo+ID4+PiBzdHJ1Y3QuIAo+ID4+IFRoaXMgbWlnaHQg
+YmUgc2xpZ2h0bHkgZGlmZmVyZW50IHRvcGljIHRob3VnaCwKPiA+PiBJJ3ZlIGJlZW4gdGhpbmtp
+bmcgd2hlcmUgd2Ugc2hvdWxkIGFkZCBob29rcyB0byB0cmFjayBJL08gcmVxZXVzdC4KPiA+PiBJ
+IHRoaW5rIHRoZSBmb2xsb3dpbmcgc2V0IG9mIGhvb2tzIGlzIGVub3VnaCB3aGV0aGVyIHdlIGFy
+ZSBnb2luZyB0bwo+ID4+IHN1cHBvcnQgdGhyZWFkIGJhc2VkIGNncm91cCBvciBub3QuCj4gPj4K
+PiA+PiAgIEhvb2stMTogY2FsbGVkIHdoZW4gYWxsb2NhdGluZyBhIHBhZ2UsIHdoZXJlIHRoZSBt
+ZW1vcnkgY29udHJvbGxlcgo+ID4+IAkgIGFscmVhZHkgaGF2ZSBhIGhvb29rLgo+ID4+ICAgSG9v
+ay0yOiBjYWxsZWQgd2hlbiBtYWtpbmcgYSBwYWdlIGluIHBhZ2UtY2FjaGUgZGlydHkuCj4gPj4K
+PiA+PiBGb3IgYW5vbnltb3VzIHBhZ2VzLCBIb29rLTEgaXMgZW5vdWdoIHRvIHRyYWNrIGFueSB0
+eXBlIG9mIEkvTyByZXF1ZXN0Lgo+ID4+IEZvciBwYWdlcyBpbiBwYWdlLWNhY2hlLCBIb29rLTEg
+aXMgYWxzbyBlbm91Z2ggZm9yIHJlYWQgSS9PIGJlY2F1c2UKPiA+PiB0aGUgSS9PIGlzIGlzc3Vl
+ZCBqdXN0IG9uY2UgcmlnaHQgYWZ0ZXIgYWxsb2N0aW5nIHRoZSBwYWdlLgo+ID4+IEZvciB3cml0
+ZSBJL08gcmVxdWVzdHMgdG8gcGFnZXMgaW4gcGFnZS1jYWNoZSwgSG9vay0xIHdpbGwgYmUgb2th
+eQo+ID4+IGluIG1vc3QgY2FzZXMgYnV0IHNvbWV0aW1lcyBwcm9jZXNzIGluIGFub3RoZXIgY2dy
+b3VwIG1heSB3cml0ZQo+ID4+IHRoZSBwYWdlcy4gSW4gdGhpcyBjYXNlLCBIb29rLTIgaXMgbmVl
+ZGVkIHRvIGtlZXAgYWNjdXJhdGUgdG8gdHJhY2sKPiA+PiBJL08gcmVxdWVzdHMuCj4gPiAKPiA+
+IFRoaXMgcmVsYXRpdmUgc2ltcGxpY2l0eSBpcyB3aGF0IHByb21wdGVkIG1lIHRvIHNheSB0aGF0
+IHdlIHByb2JhYmx5Cj4gPiBzaG91bGQgdHJ5IHRvIGRpc2VudGFuZ2xlIHRoZSBpbyB0cmFja2lu
+ZyBmdW5jdGlvbmFsaXR5IGZyb20gdGhlIG1lbW9yeQo+ID4gY29udHJvbGxlciBhIGJpdCBtb3Jl
+IChvZiBjb3Vyc2Ugd2Ugc3RpbGwgc2hvdWxkIHJldXNlIGFzIG11Y2ggYXMgd2UgY2FuCj4gPiBm
+cm9tIGl0KS4gVGhlIHJhdGlvbmFsZSBmb3IgdGhpcyBpcyB0aGF0IHRoZSBleGlzdGluZyBJL08g
+c2NoZWR1bGVyCj4gPiB3b3VsZCBiZW5lZml0IGZyb20gcHJvcGVyIGlvIHRyYWNraW5nIGNhcGFi
+aWxpdGllcyB0b28sIHNvIGl0J2QgYmUgbmljZQo+ID4gaWYgd2UgY291bGQgaGF2ZSB0aGVtIGV2
+ZW4gaW4gbm9uLWNncm91cC1jYXBhYmxlIGtlcm5lbHMuCj4gPiAKPiAKPiBIb29rIDIgcmVmZXJy
+ZWQgdG8gaW4gdGhlIG1haWwgYWJvdmUgZXhpc3QgdG9kYXkgaW4gdGhlIGZvcm0gb2YgdGFzayBJ
+TyBhY2NvdW50aW5nLgpZdXAuCgo+ID4gQXMgYW4gYXNpZGUsIHdoZW4gdGhlIElPIGNvbnRleHQg
+b2YgYSBjZXJ0YWluIElPIG9wZXJhdGlvbiBpcyBrbm93bgo+ID4gKHN5bmNocm9ub3VzIElPIGNv
+bWVzIHRvIG1pbmQpIEkgdGhpbmsgaXQgc2hvdWxkIGJlIGNhc2hlZCBpbiB0aGUKPiA+IHJlc3Vs
+dGluZyBiaW8gc28gdGhhdCB3ZSBjYW4gZG8gd2l0aG91dCB0aGUgZXhwZW5zaXZlIGFjY2Vzc2Vz
+IHRvCj4gPiBiaW9fY2dyb3VwIG9uY2UgaXQgZW50ZXJzIHRoZSBibG9jayBsYXllci4KPiAKPiBX
+aWxsIHRoaXMgZ2l2ZSB5b3UgZXZlcnl0aGluZyB5b3UgbmVlZCBmb3IgYWNjb3VudGluZyBhbmQg
+Y29udHJvbCAoZnJvbSB0aGUKPiBibG9jayBsYXllcj8pCgpXZWxsLCBpdCBkZXBlbmRzIG9uIHdo
+YXQgeW91IGFyZSB0cnlpbmcgdG8gYWNoaWV2ZS4KCkN1cnJlbnQgSU8gc2NoZWR1bGVycyBzdWNo
+IGFzIENGUSBvbmx5IGNhcmUgYWJvdXQgdGhlIGlvX2NvbnRleHQgd2hlbgpzY2hlZHVsaW5nIHJl
+cXVlc3RzLiBXaGVuIGEgbmV3IHJlcXVlc3QgY29tZXMgaW4gQ0ZRIGFzc3VtZXMgdGhhdCBpdCB3
+YXMKb3JpZ2luYXRlZCBpbiB0aGUgY29udGV4dCBvZiB0aGUgY3VycmVudCB0YXNrLCB3aGljaCBv
+YnZpb3VzbHkgZG9lcyBub3QKaG9sZCB0cnVlIGZvciBidWZmZXJlZCBJTyBhbmQgYWlvLiBUaGlz
+IHByb2JsZW0gY291bGQgYmUgc29sdmVkIGJ5IHVzaW5nCmJpby1jZ3JvdXAgZm9yIElPIHRyYWNr
+aW5nLCBidXQgYWNjZXNzaW5nIHRoZSBpbyBjb250ZXh0IGluZm9ybWF0aW9uIGlzCnNvbWV3aGF0
+IGV4cGVuc2l2ZTogCgpwYWdlLT5wYWdlX2Nncm91cC0+YmlvX2Nncm91cC0+aW9fY29udGV4dC4K
+CklmIGF0IHRoZSB0aW1lIG9mIGJ1aWxkaW5nIGEgYmlvIHdlIGtub3cgaXRzIGlvIGNvbnRleHQg
+KGkuZS4gdGhlCmNvbnRleHQgb2YgdGhlIHRhc2sgb3IgY2dyb3VwIHRoYXQgZ2VuZXJhdGVkIHRo
+YXQgYmlvKSBJIHRoaW5rIHdlIHNob3VsZApzdG9yZSBpdCBpbiB0aGUgYmlvIGl0c2VsZiwgdG9v
+LiBXaXRoIHRoaXMgc2NoZW1lLCB3aGVuZXZlciB0aGUga2VybmVsCm5lZWRzIHRvIGtub3cgdGhl
+IGlvX2NvbnRleHQgb2YgYSBwYXJ0aWN1bGFyIGJsb2NrIElPIG9wZXJhdGlvbiB0aGUKa2VybmVs
+IHdvdWxkIGZpcnN0IHRyeSB0byByZXRyaWV2ZSBpdHMgaW9fY29udGV4dCBkaXJlY3RseSBmcm9t
+IHRoZSBiaW8sCmFuZCwgaWYgbm90IGF2YWlsYWJsZSB0aGVyZSwgd291bGQgcmVzb3J0IHRvIHRo
+ZSBzbG93IHBhdGggKGFjY2Vzc2luZyBpdAp0aHJvdWdoIGJpb19jZ3JvdXApLiBNeSBndXQgZmVl
+bGluZyBpcyB0aGF0IGVsZXZhdG9yLWJhc2VkIElPIHJlc291cmNlCmNvbnRyb2xsZXJzIHdvdWxk
+IGJlbmVmaXQgZnJvbSBzdWNoIGFuIGFwcHJvYWNoLCB0b28uCgotIEZlcm5hbmRvCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
