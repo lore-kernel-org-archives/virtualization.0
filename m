@@ -1,19 +1,14 @@
-From: Balbir Singh <balbir@linux.vnet.ibm.com>
+From: Takuya Yoshikawa <yoshikawa.takuya@oss.ntt.co.jp>
 Subject: Re: RFC: Attaching threads to cgroups is OK?
-Date: Thu, 21 Aug 2008 15:58:55 +0530
-Message-ID: <48AD4367.9000409__7851.1158623316$1219314701$gmane$org@linux.vnet.ibm.com>
-References: <48AAA296.8050802@oss.ntt.co.jp>
-	<20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>
-	<20080820.204832.131207708.taka@valinux.co.jp>
-	<1219288081.28324.30.camel@sebastian.kern.oss.ntt.co.jp>
-	<48ACE1B4.8010000@linux.vnet.ibm.com>
-	<1219296306.28324.82.camel@sebastian.kern.oss.ntt.co.jp>
-Reply-To: balbir@linux.vnet.ibm.com
+Date: Fri, 22 Aug 2008 10:03:29 +0900
+Message-ID: <48AE1061.3060800__21408.0996731811$1219367067$gmane$org@oss.ntt.co.jp>
+References: <20080819202237.edd75933.kamezawa.hiroyu@jp.fujitsu.com>	<48AABC31.7070207@linux.vnet.ibm.com>	<1219150334.14590.12.camel@sebastian.kern.oss.ntt.co.jp>	<20080820.161247.64324924.taka@valinux.co.jp>
+	<20080820174334.a566a775.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1219296306.28324.82.camel@sebastian.kern.oss.ntt.co.jp>
+In-Reply-To: <20080820174334.a566a775.kamezawa.hiroyu@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,82 +18,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?B?RmVybmFuZG8gTHVpcyBWw6F6cXVleiBDYW8=?= <fernando@oss.ntt.co.jp>
-Cc: Hirokazu Takahashi <taka@valinux.co.jp>, containers@lists.linux-foundation.org, menage@google.com, virtualization@lists.linux-foundation.org
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, menage@google.com, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-RmVybmFuZG8gTHVpcyBWw6F6cXVleiBDYW8gd3JvdGU6Cj4gSGkgQmFsYmlyLAo+IAo+IE9uIFRo
-dSwgMjAwOC0wOC0yMSBhdCAwOTowMiArMDUzMCwgQmFsYmlyIFNpbmdoIHdyb3RlOgo+PiBGZXJu
-YW5kbyBMdWlzIFbDoXpxdWV6IENhbyB3cm90ZToKPj4+IE9uIFdlZCwgMjAwOC0wOC0yMCBhdCAy
-MDo0OCArMDkwMCwgSGlyb2thenUgVGFrYWhhc2hpIHdyb3RlOgo+Pj4+IEhpLAo+Pj4+Cj4+Pj4+
-PiBUc3VydXRhLXNhbiwgaG93IGFib3V0IHlvdXIgYmlvLWNncm91cCdzIHRyYWNraW5nIGNvbmNl
-cm5pbmcgdGhpcz8KPj4+Pj4+IElmIHdlIHdhbnQgdG8gdXNlIHlvdXIgdHJhY2tpbmcgZnVuY3Rp
-b25zIGZvciBlYWNoIHRocmVhZHMgc2VwZXJhdGVseSwgCj4+Pj4+PiB0aGVyZSBzZWVtcyB0byBi
-ZSBhIHByb2JsZW0uCj4+Pj4+PiA9PT1jZi4gbW1fZ2V0X2Jpb19jZ3JvdXAoKT09PT09PT09PT09
-PT09PT09PT0KPj4+Pj4+ICAgICAgICAgICAgb3duZXIKPj4+Pj4+IG1tX3N0cnVjdCAtLS0tPiB0
-YXNrX3N0cnVjdCAtLS0tPiBiaW9fY2dyb3VwCj4+Pj4+PiA9PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT0KPj4+Pj4+IEluIG15IHVuZGVyc3RhbmRpbmcsIHRoZSBt
-bV9zdHJ1Y3Qgb2YgYSB0aHJlYWQgaXMgc2FtZSBhcyBpdHMgcGFyZW50J3MuCj4+Pj4+PiBTbywg
-ZXZlbiBpZiB3ZSBhdHRhY2ggdGhlIFRJRHMgb2Ygc29tZSB0aHJlYWRzIHRvIGRpZmZlcmVudCBj
-Z3JvdXBzIHRoZSAKPj4+Pj4+IHRyYWNraW5nIGFsd2F5cyByZXR1cm5zIHRoZSBzYW1lIGJpb19j
-Z3JvdXAgLS0gaXRzIHBhcmVudCdzIGdyb3VwLgo+Pj4+Pj4gRG8geW91IGhhdmUgc29tZSBwb2xp
-Y3kgYWJvdXQgaW4gd2hpY2ggY2FzZSB3ZSBjYW4gdXNlIHlvdXIgdHJhY2tpbmc/Cj4+Pj4+Pgo+
-Pj4+PiBJdCdzIHdpbGwgYmUgcmVzaXRyaWN0aW9uIHdoZW4gaW8tY29udHJvbGxlciByZXVzZSBp
-bmZvcm1hdGlvbiBvZiB0aGUgb3duZXIKPj4+Pj4gb2YgbWVtb3J5LiBCdXQgaWYgaXQncyB2ZXJ5
-IGNsZWFyIHdobyBpc3N1ZXMgSS9PIChieSB0cmFja2luZyByZWFkL3dyaXRlCj4+Pj4+IHN5c2Nh
-bGwpLCB3ZSBtYXkgaGF2ZSBjaGFuY2UgdG8gcmVjb3JkIHRoZSBpc3N1ZXIgb2YgSS9PIHRvIHBh
-Z2VfY2dyb3VwCj4+Pj4+IHN0cnVjdC4gCj4+Pj4gVGhpcyBtaWdodCBiZSBzbGlnaHRseSBkaWZm
-ZXJlbnQgdG9waWMgdGhvdWdoLAo+Pj4+IEkndmUgYmVlbiB0aGlua2luZyB3aGVyZSB3ZSBzaG91
-bGQgYWRkIGhvb2tzIHRvIHRyYWNrIEkvTyByZXFldXN0Lgo+Pj4+IEkgdGhpbmsgdGhlIGZvbGxv
-d2luZyBzZXQgb2YgaG9va3MgaXMgZW5vdWdoIHdoZXRoZXIgd2UgYXJlIGdvaW5nIHRvCj4+Pj4g
-c3VwcG9ydCB0aHJlYWQgYmFzZWQgY2dyb3VwIG9yIG5vdC4KPj4+Pgo+Pj4+ICAgSG9vay0xOiBj
-YWxsZWQgd2hlbiBhbGxvY2F0aW5nIGEgcGFnZSwgd2hlcmUgdGhlIG1lbW9yeSBjb250cm9sbGVy
-Cj4+Pj4gCSAgYWxyZWFkeSBoYXZlIGEgaG9vb2suCj4+Pj4gICBIb29rLTI6IGNhbGxlZCB3aGVu
-IG1ha2luZyBhIHBhZ2UgaW4gcGFnZS1jYWNoZSBkaXJ0eS4KPj4+Pgo+Pj4+IEZvciBhbm9ueW1v
-dXMgcGFnZXMsIEhvb2stMSBpcyBlbm91Z2ggdG8gdHJhY2sgYW55IHR5cGUgb2YgSS9PIHJlcXVl
-c3QuCj4+Pj4gRm9yIHBhZ2VzIGluIHBhZ2UtY2FjaGUsIEhvb2stMSBpcyBhbHNvIGVub3VnaCBm
-b3IgcmVhZCBJL08gYmVjYXVzZQo+Pj4+IHRoZSBJL08gaXMgaXNzdWVkIGp1c3Qgb25jZSByaWdo
-dCBhZnRlciBhbGxvY3RpbmcgdGhlIHBhZ2UuCj4+Pj4gRm9yIHdyaXRlIEkvTyByZXF1ZXN0cyB0
-byBwYWdlcyBpbiBwYWdlLWNhY2hlLCBIb29rLTEgd2lsbCBiZSBva2F5Cj4+Pj4gaW4gbW9zdCBj
-YXNlcyBidXQgc29tZXRpbWVzIHByb2Nlc3MgaW4gYW5vdGhlciBjZ3JvdXAgbWF5IHdyaXRlCj4+
-Pj4gdGhlIHBhZ2VzLiBJbiB0aGlzIGNhc2UsIEhvb2stMiBpcyBuZWVkZWQgdG8ga2VlcCBhY2N1
-cmF0ZSB0byB0cmFjawo+Pj4+IEkvTyByZXF1ZXN0cy4KPj4+IFRoaXMgcmVsYXRpdmUgc2ltcGxp
-Y2l0eSBpcyB3aGF0IHByb21wdGVkIG1lIHRvIHNheSB0aGF0IHdlIHByb2JhYmx5Cj4+PiBzaG91
-bGQgdHJ5IHRvIGRpc2VudGFuZ2xlIHRoZSBpbyB0cmFja2luZyBmdW5jdGlvbmFsaXR5IGZyb20g
-dGhlIG1lbW9yeQo+Pj4gY29udHJvbGxlciBhIGJpdCBtb3JlIChvZiBjb3Vyc2Ugd2Ugc3RpbGwg
-c2hvdWxkIHJldXNlIGFzIG11Y2ggYXMgd2UgY2FuCj4+PiBmcm9tIGl0KS4gVGhlIHJhdGlvbmFs
-ZSBmb3IgdGhpcyBpcyB0aGF0IHRoZSBleGlzdGluZyBJL08gc2NoZWR1bGVyCj4+PiB3b3VsZCBi
-ZW5lZml0IGZyb20gcHJvcGVyIGlvIHRyYWNraW5nIGNhcGFiaWxpdGllcyB0b28sIHNvIGl0J2Qg
-YmUgbmljZQo+Pj4gaWYgd2UgY291bGQgaGF2ZSB0aGVtIGV2ZW4gaW4gbm9uLWNncm91cC1jYXBh
-YmxlIGtlcm5lbHMuCj4+Pgo+PiBIb29rIDIgcmVmZXJyZWQgdG8gaW4gdGhlIG1haWwgYWJvdmUg
-ZXhpc3QgdG9kYXkgaW4gdGhlIGZvcm0gb2YgdGFzayBJTyBhY2NvdW50aW5nLgo+IFl1cC4KPiAK
-Pj4+IEFzIGFuIGFzaWRlLCB3aGVuIHRoZSBJTyBjb250ZXh0IG9mIGEgY2VydGFpbiBJTyBvcGVy
-YXRpb24gaXMga25vd24KPj4+IChzeW5jaHJvbm91cyBJTyBjb21lcyB0byBtaW5kKSBJIHRoaW5r
-IGl0IHNob3VsZCBiZSBjYXNoZWQgaW4gdGhlCj4+PiByZXN1bHRpbmcgYmlvIHNvIHRoYXQgd2Ug
-Y2FuIGRvIHdpdGhvdXQgdGhlIGV4cGVuc2l2ZSBhY2Nlc3NlcyB0bwo+Pj4gYmlvX2Nncm91cCBv
-bmNlIGl0IGVudGVycyB0aGUgYmxvY2sgbGF5ZXIuCj4+IFdpbGwgdGhpcyBnaXZlIHlvdSBldmVy
-eXRoaW5nIHlvdSBuZWVkIGZvciBhY2NvdW50aW5nIGFuZCBjb250cm9sIChmcm9tIHRoZQo+PiBi
-bG9jayBsYXllcj8pCj4gCj4gV2VsbCwgaXQgZGVwZW5kcyBvbiB3aGF0IHlvdSBhcmUgdHJ5aW5n
-IHRvIGFjaGlldmUuCj4gCj4gQ3VycmVudCBJTyBzY2hlZHVsZXJzIHN1Y2ggYXMgQ0ZRIG9ubHkg
-Y2FyZSBhYm91dCB0aGUgaW9fY29udGV4dCB3aGVuCj4gc2NoZWR1bGluZyByZXF1ZXN0cy4gV2hl
-biBhIG5ldyByZXF1ZXN0IGNvbWVzIGluIENGUSBhc3N1bWVzIHRoYXQgaXQgd2FzCj4gb3JpZ2lu
-YXRlZCBpbiB0aGUgY29udGV4dCBvZiB0aGUgY3VycmVudCB0YXNrLCB3aGljaCBvYnZpb3VzbHkg
-ZG9lcyBub3QKPiBob2xkIHRydWUgZm9yIGJ1ZmZlcmVkIElPIGFuZCBhaW8uIFRoaXMgcHJvYmxl
-bSBjb3VsZCBiZSBzb2x2ZWQgYnkgdXNpbmcKPiBiaW8tY2dyb3VwIGZvciBJTyB0cmFja2luZywg
-YnV0IGFjY2Vzc2luZyB0aGUgaW8gY29udGV4dCBpbmZvcm1hdGlvbiBpcwo+IHNvbWV3aGF0IGV4
-cGVuc2l2ZTogCj4gCj4gcGFnZS0+cGFnZV9jZ3JvdXAtPmJpb19jZ3JvdXAtPmlvX2NvbnRleHQu
-Cj4gCj4gSWYgYXQgdGhlIHRpbWUgb2YgYnVpbGRpbmcgYSBiaW8gd2Uga25vdyBpdHMgaW8gY29u
-dGV4dCAoaS5lLiB0aGUKPiBjb250ZXh0IG9mIHRoZSB0YXNrIG9yIGNncm91cCB0aGF0IGdlbmVy
-YXRlZCB0aGF0IGJpbykgSSB0aGluayB3ZSBzaG91bGQKPiBzdG9yZSBpdCBpbiB0aGUgYmlvIGl0
-c2VsZiwgdG9vLiBXaXRoIHRoaXMgc2NoZW1lLCB3aGVuZXZlciB0aGUga2VybmVsCj4gbmVlZHMg
-dG8ga25vdyB0aGUgaW9fY29udGV4dCBvZiBhIHBhcnRpY3VsYXIgYmxvY2sgSU8gb3BlcmF0aW9u
-IHRoZQo+IGtlcm5lbCB3b3VsZCBmaXJzdCB0cnkgdG8gcmV0cmlldmUgaXRzIGlvX2NvbnRleHQg
-ZGlyZWN0bHkgZnJvbSB0aGUgYmlvLAo+IGFuZCwgaWYgbm90IGF2YWlsYWJsZSB0aGVyZSwgd291
-bGQgcmVzb3J0IHRvIHRoZSBzbG93IHBhdGggKGFjY2Vzc2luZyBpdAo+IHRocm91Z2ggYmlvX2Nn
-cm91cCkuIE15IGd1dCBmZWVsaW5nIGlzIHRoYXQgZWxldmF0b3ItYmFzZWQgSU8gcmVzb3VyY2UK
-PiBjb250cm9sbGVycyB3b3VsZCBiZW5lZml0IGZyb20gc3VjaCBhbiBhcHByb2FjaCwgdG9vLgo+
-IAo+IC0gRmVybmFuZG8KCk9LLCB0aGF0IHNlZW1zIHRvIG1ha2Ugc2Vuc2UuIFRoYW5rcyBmb3Ig
-ZXhwbGFpbmluZy4KCi0tIAoJQmFsYmlyCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Kamezawa-san,
+
+KAMEZAWA Hiroyuki wrote:
+> On Wed, 20 Aug 2008 16:12:47 +0900 (JST)
+> Hirokazu Takahashi <taka@valinux.co.jp> wrote:
+> 
+>>  - I think this kind of thread application should control its I/O requests
+>>    inside of the application. I guess it seems to quite difficult to
+>>    determine which thread is doing what kind of job in the application.
+>>    We can just leave this issue to these type of applications, can we?
+>>    I guess most of this kind of applications must have been well designed
+>>    already.
+>>
+> I agree. (it's better to postpone this.)
+> 
+> But maybe cpuset (HPC) applications uses per-thread cgroup attachment.
+> So, I can't say there is no trouble even if we ignore threads.
+> 
+
+Thank you for details.
+
+I feel that we are near a consensus on this problem. To make clear this 
+not only for developers but also for users what do you think about 
+making documentation and implementing can_attach() to avoid not presumed 
+attachments?
+
+For example,
+1. reject attachments of threads by can_attach(),
+2. explain about what will and will not happen if we attach threads,
+...
+
+Thanks,
+Yoshikawa
