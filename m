@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] xen-netfront: Avoid unaligned accesses to IP header.
-Date: Tue, 26 Aug 2008 14:26:47 +0900
-Message-ID: <20080826052647.GC1496%yamahata__29485.0291721106$1219728530$gmane$org@valinux.co.jp>
+Subject: [PATCH] xen: wrap load_cr3() in manage.c for ia64 support.
+Date: Tue, 26 Aug 2008 14:28:12 +0900
+Message-ID: <20080826052812.GD1496%yamahata__14431.5036050559$1219728615$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,38 +16,61 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Align ip header to a 16 byte boundary to avoid unaligned
-access like other drivers.
-Without this patch, xen-netfront doesn't work well on ia64.
+wrap load_cr3() in manage.c by xen_pre_device_suspend()
+because it is x86 dependent.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- drivers/net/xen-netfront.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ arch/x86/xen/suspend.c |    5 +++++
+ drivers/xen/manage.c   |    3 +--
+ include/xen/xen-ops.h  |    1 +
+ 3 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index 3c3dd40..7416f41 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -239,11 +239,14 @@ static void xennet_alloc_rx_buffers(struct net_device *dev)
- 	 */
- 	batch_target = np->rx_target - (req_prod - np->rx.rsp_cons);
- 	for (i = skb_queue_len(&np->rx_batch); i < batch_target; i++) {
--		skb = __netdev_alloc_skb(dev, RX_COPY_THRESHOLD,
-+		skb = __netdev_alloc_skb(dev, RX_COPY_THRESHOLD + NET_IP_ALIGN,
- 					 GFP_ATOMIC | __GFP_NOWARN);
- 		if (unlikely(!skb))
- 			goto no_skb;
+diff --git a/arch/x86/xen/suspend.c b/arch/x86/xen/suspend.c
+index 2a234db..ac139a2 100644
+--- a/arch/x86/xen/suspend.c
++++ b/arch/x86/xen/suspend.c
+@@ -10,6 +10,11 @@
+ #include "xen-ops.h"
+ #include "mmu.h"
  
-+		/* Align ip header to a 16 bytes boundary */
-+		skb_reserve(skb, NET_IP_ALIGN);
++void xen_pre_device_suspend(void)
++{
++        load_cr3(swapper_pg_dir);
++}
 +
- 		page = alloc_page(GFP_ATOMIC | __GFP_NOWARN);
- 		if (!page) {
- 			kfree_skb(skb);
+ void xen_pre_suspend(void)
+ {
+ 	xen_start_info->store_mfn = mfn_to_pfn(xen_start_info->store_mfn);
+diff --git a/drivers/xen/manage.c b/drivers/xen/manage.c
+index a5bc91a..c7f2953 100644
+--- a/drivers/xen/manage.c
++++ b/drivers/xen/manage.c
+@@ -39,8 +39,7 @@ static int xen_suspend(void *data)
+ 
+ 	BUG_ON(!irqs_disabled());
+ 
+-	load_cr3(swapper_pg_dir);
+-
++	xen_pre_device_suspend();
+ 	err = device_power_down(PMSG_SUSPEND);
+ 	if (err) {
+ 		printk(KERN_ERR "xen_suspend: device_power_down failed: %d\n",
+diff --git a/include/xen/xen-ops.h b/include/xen/xen-ops.h
+index 883a21b..a26db6f 100644
+--- a/include/xen/xen-ops.h
++++ b/include/xen/xen-ops.h
+@@ -5,6 +5,7 @@
+ 
+ DECLARE_PER_CPU(struct vcpu_info *, xen_vcpu);
+ 
++void xen_pre_device_suspend(void);
+ void xen_pre_suspend(void);
+ void xen_post_suspend(int suspend_cancelled);
+ 
 -- 
 1.6.0.rc0.42.g186458
