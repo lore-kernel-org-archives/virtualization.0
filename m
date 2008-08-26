@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 07/30] ia64/xen: add a necessary header file to compile
-	include/xen/interface/xen.h
-Date: Tue, 26 Aug 2008 14:58:19 +0900
-Message-ID: <1219730322-11687-8-git-send-email-yamahata__13637.6113784083$1219730829$gmane$org@valinux.co.jp>
+Subject: [PATCH 08/30] ia64/xen: define helper functions for xen related
+	address conversion.
+Date: Tue, 26 Aug 2008 14:58:20 +0900
+Message-ID: <1219730322-11687-9-git-send-email-yamahata__671.619681134139$1219730830$gmane$org@valinux.co.jp>
 References: <1219730322-11687-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,27 +22,88 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Create include/asm-ia64/pvclock-abi.h to compile which includes
-include/asm-x86/pvclock-abi.h because ia64/xen uses same structure.
-Hopefully include/asm-x86/pvclock-abi.h would be moved to somewhere
-more generic.
+Xen needs some address conversions between pseudo physical
+address (guest phsyical address), guest machine address
+(real machine address) and dma address.
+Define helper functions for those address conversion.
 
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/pvclock-abi.h |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/pvclock-abi.h
+ arch/ia64/include/asm/xen/page.h |   65 ++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 65 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/page.h
 
-diff --git a/arch/ia64/include/asm/pvclock-abi.h b/arch/ia64/include/asm/pvclock-abi.h
+diff --git a/arch/ia64/include/asm/xen/page.h b/arch/ia64/include/asm/xen/page.h
 new file mode 100644
-index 0000000..63cbcca
+index 0000000..03441a7
 --- /dev/null
-+++ b/arch/ia64/include/asm/pvclock-abi.h
-@@ -0,0 +1,5 @@
-+/*
-+ * use same structure to x86's
-+ * Hopefully asm-x86/pvclock-abi.h would be moved to somewhere more generic.
++++ b/arch/ia64/include/asm/xen/page.h
+@@ -0,0 +1,65 @@
++/******************************************************************************
++ * arch/ia64/include/asm/xen/page.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
 + */
-+#include <asm-x86/pvclock-abi.h>
++
++#ifndef _ASM_IA64_XEN_PAGE_H
++#define _ASM_IA64_XEN_PAGE_H
++
++#define INVALID_P2M_ENTRY	(~0UL)
++
++static inline unsigned long mfn_to_pfn(unsigned long mfn)
++{
++	return mfn;
++}
++
++static inline unsigned long pfn_to_mfn(unsigned long pfn)
++{
++	return pfn;
++}
++
++#define phys_to_machine_mapping_valid(_x)	(1)
++
++static inline void *mfn_to_virt(unsigned long mfn)
++{
++	return __va(mfn << PAGE_SHIFT);
++}
++
++static inline unsigned long virt_to_mfn(void *virt)
++{
++	return __pa(virt) >> PAGE_SHIFT;
++}
++
++/* for tpmfront.c */
++static inline unsigned long virt_to_machine(void *virt)
++{
++	return __pa(virt);
++}
++
++static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
++{
++	/* nothing */
++}
++
++#define pte_mfn(_x)	pte_pfn(_x)
++#define mfn_pte(_x, _y)	__pte_ma(0)		/* unmodified use */
++#define __pte_ma(_x)	((pte_t) {(_x)})        /* unmodified use */
++
++#endif /* _ASM_IA64_XEN_PAGE_H */
 -- 
 1.6.0.rc0.42.g186458
