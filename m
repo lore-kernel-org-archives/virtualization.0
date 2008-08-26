@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 08/30] ia64/xen: define helper functions for xen related
-	address conversion.
-Date: Tue, 26 Aug 2008 14:58:20 +0900
-Message-ID: <1219730322-11687-9-git-send-email-yamahata__671.619681134139$1219730830$gmane$org@valinux.co.jp>
+Subject: [PATCH 23/30] ia64/pv_ops/xen: define the nubmer of irqs which xen
+	needs.
+Date: Tue, 26 Aug 2008 14:58:35 +0900
+Message-ID: <1219730322-11687-24-git-send-email-yamahata__41803.3184171238$1219730837$gmane$org@valinux.co.jp>
 References: <1219730322-11687-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,26 +22,24 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen needs some address conversions between pseudo physical
-address (guest phsyical address), guest machine address
-(real machine address) and dma address.
-Define helper functions for those address conversion.
+define arch/ia64/include/asm/xen/irq.h to define the number of
+irqs which xen needs.
 
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/page.h |   65 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 65 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/xen/page.h
+ arch/ia64/include/asm/xen/irq.h |   44 +++++++++++++++++++++++++++++++++++++++
+ arch/ia64/kernel/nr-irqs.c      |    1 +
+ 2 files changed, 45 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/irq.h
 
-diff --git a/arch/ia64/include/asm/xen/page.h b/arch/ia64/include/asm/xen/page.h
+diff --git a/arch/ia64/include/asm/xen/irq.h b/arch/ia64/include/asm/xen/irq.h
 new file mode 100644
-index 0000000..03441a7
+index 0000000..a904509
 --- /dev/null
-+++ b/arch/ia64/include/asm/xen/page.h
-@@ -0,0 +1,65 @@
++++ b/arch/ia64/include/asm/xen/irq.h
+@@ -0,0 +1,44 @@
 +/******************************************************************************
-+ * arch/ia64/include/asm/xen/page.h
++ * arch/ia64/include/asm/xen/irq.h
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -62,48 +60,39 @@ index 0000000..03441a7
 + *
 + */
 +
-+#ifndef _ASM_IA64_XEN_PAGE_H
-+#define _ASM_IA64_XEN_PAGE_H
++#ifndef _ASM_IA64_XEN_IRQ_H
++#define _ASM_IA64_XEN_IRQ_H
 +
-+#define INVALID_P2M_ENTRY	(~0UL)
++/*
++ * The flat IRQ space is divided into two regions:
++ *  1. A one-to-one mapping of real physical IRQs. This space is only used
++ *     if we have physical device-access privilege. This region is at the
++ *     start of the IRQ space so that existing device drivers do not need
++ *     to be modified to translate physical IRQ numbers into our IRQ space.
++ *  3. A dynamic mapping of inter-domain and Xen-sourced virtual IRQs. These
++ *     are bound using the provided bind/unbind functions.
++ */
 +
-+static inline unsigned long mfn_to_pfn(unsigned long mfn)
-+{
-+	return mfn;
-+}
++#define XEN_PIRQ_BASE		0
++#define XEN_NR_PIRQS		256
 +
-+static inline unsigned long pfn_to_mfn(unsigned long pfn)
-+{
-+	return pfn;
-+}
++#define XEN_DYNIRQ_BASE		(XEN_PIRQ_BASE + XEN_NR_PIRQS)
++#define XEN_NR_DYNIRQS		(NR_CPUS * 8)
 +
-+#define phys_to_machine_mapping_valid(_x)	(1)
++#define XEN_NR_IRQS		(XEN_NR_PIRQS + XEN_NR_DYNIRQS)
 +
-+static inline void *mfn_to_virt(unsigned long mfn)
-+{
-+	return __va(mfn << PAGE_SHIFT);
-+}
-+
-+static inline unsigned long virt_to_mfn(void *virt)
-+{
-+	return __pa(virt) >> PAGE_SHIFT;
-+}
-+
-+/* for tpmfront.c */
-+static inline unsigned long virt_to_machine(void *virt)
-+{
-+	return __pa(virt);
-+}
-+
-+static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
-+{
-+	/* nothing */
-+}
-+
-+#define pte_mfn(_x)	pte_pfn(_x)
-+#define mfn_pte(_x, _y)	__pte_ma(0)		/* unmodified use */
-+#define __pte_ma(_x)	((pte_t) {(_x)})        /* unmodified use */
-+
-+#endif /* _ASM_IA64_XEN_PAGE_H */
++#endif /* _ASM_IA64_XEN_IRQ_H */
+diff --git a/arch/ia64/kernel/nr-irqs.c b/arch/ia64/kernel/nr-irqs.c
+index 8273afc..ee56457 100644
+--- a/arch/ia64/kernel/nr-irqs.c
++++ b/arch/ia64/kernel/nr-irqs.c
+@@ -10,6 +10,7 @@
+ #include <linux/kbuild.h>
+ #include <linux/threads.h>
+ #include <asm/native/irq.h>
++#include <asm/xen/irq.h>
+ 
+ void foo(void)
+ {
 -- 
 1.6.0.rc0.42.g186458
