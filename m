@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 14/30] ia64/xen: introduce helper function to identify domain
-	mode.
-Date: Tue, 26 Aug 2008 14:58:26 +0900
-Message-ID: <1219730322-11687-15-git-send-email-yamahata__3055.78074553541$1219732565$gmane$org@valinux.co.jp>
+Subject: [PATCH 13/30] ia64/xen: add definitions necessary for xen event
+	channel.
+Date: Tue, 26 Aug 2008 14:58:25 +0900
+Message-ID: <1219730322-11687-14-git-send-email-yamahata__41786.7765100256$1219732573$gmane$org@valinux.co.jp>
 References: <1219730322-11687-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,98 +22,70 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are four operating modes Xen code may find itself running in:
-- native
-- hvm domain
-- pv dom0
-- pv domU
+Xen paravirtualizes interrupt as event channel.
+This patch defines arch specific part of xen event channel.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/hypervisor.h |   75 ++++++++++++++++++++++++++++++++
- 1 files changed, 75 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/xen/hypervisor.h
+ arch/ia64/include/asm/xen/events.h |   50 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 50 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/events.h
 
-diff --git a/arch/ia64/include/asm/xen/hypervisor.h b/arch/ia64/include/asm/xen/hypervisor.h
+diff --git a/arch/ia64/include/asm/xen/events.h b/arch/ia64/include/asm/xen/events.h
 new file mode 100644
-index 0000000..d1f84e1
+index 0000000..7324878
 --- /dev/null
-+++ b/arch/ia64/include/asm/xen/hypervisor.h
-@@ -0,0 +1,75 @@
++++ b/arch/ia64/include/asm/xen/events.h
+@@ -0,0 +1,50 @@
 +/******************************************************************************
-+ * hypervisor.h
++ * arch/ia64/include/asm/xen/events.h
 + *
-+ * Linux-specific hypervisor handling.
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
 + *
-+ * Copyright (c) 2002-2004, K A Fraser
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
 + *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
 + */
++#ifndef _ASM_IA64_XEN_EVENTS_H
++#define _ASM_IA64_XEN_EVENTS_H
 +
-+#ifndef _ASM_IA64_XEN_HYPERVISOR_H
-+#define _ASM_IA64_XEN_HYPERVISOR_H
++enum ipi_vector {
++	XEN_RESCHEDULE_VECTOR,
++	XEN_IPI_VECTOR,
++	XEN_CMCP_VECTOR,
++	XEN_CPEP_VECTOR,
 +
-+#ifdef CONFIG_XEN
-+
-+#include <linux/init.h>
-+#include <xen/interface/xen.h>
-+#include <xen/interface/version.h>	/* to compile feature.c */
-+#include <xen/features.h>		/* to comiple xen-netfront.c */
-+#include <asm/xen/hypercall.h>
-+
-+/* xen_domain_type is set before executing any C code by early_xen_setup */
-+enum xen_domain_type {
-+	XEN_NATIVE,
-+	XEN_PV_DOMAIN,
-+	XEN_HVM_DOMAIN,
++	XEN_NR_IPIS,
 +};
 +
-+extern enum xen_domain_type xen_domain_type;
++static inline int xen_irqs_disabled(struct pt_regs *regs)
++{
++	return !(ia64_psr(regs)->i);
++}
 +
-+#define xen_domain()		(xen_domain_type != XEN_NATIVE)
-+#define xen_pv_domain()		(xen_domain_type == XEN_PV_DOMAIN)
-+#define xen_initial_domain()	(xen_pv_domain() && \
-+				 (xen_start_info->flags & SIF_INITDOMAIN))
-+#define xen_hvm_domain()	(xen_domain_type == XEN_HVM_DOMAIN)
++static inline void xen_do_IRQ(int irq, struct pt_regs *regs)
++{
++	struct pt_regs *old_regs;
++	old_regs = set_irq_regs(regs);
++	irq_enter();
++	__do_IRQ(irq);
++	irq_exit();
++	set_irq_regs(old_regs);
++}
++#define irq_ctx_init(cpu)	do { } while (0)
 +
-+/* deprecated. remove this */
-+#define is_running_on_xen()	(xen_domain_type == XEN_PV_DOMAIN)
-+
-+extern struct start_info *xen_start_info;
-+
-+#else /* CONFIG_XEN */
-+
-+#define xen_domain()		(0)
-+#define xen_pv_domain()		(0)
-+#define xen_initial_domain()	(0)
-+#define xen_hvm_domain()	(0)
-+#define is_running_on_xen()	(0)	/* deprecated. remove this */
-+#endif
-+
-+#define is_initial_xendomain()	(0)	/* deprecated. remove this */
-+
-+#endif /* _ASM_IA64_XEN_HYPERVISOR_H */
++#endif /* _ASM_IA64_XEN_EVENTS_H */
 -- 
 1.6.0.rc0.42.g186458
