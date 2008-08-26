@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 27/30] ia64/xen: preliminary support for save/restore.
-Date: Tue, 26 Aug 2008 14:58:39 +0900
-Message-ID: <1219730322-11687-28-git-send-email-yamahata__40803.2024316073$1219732023$gmane$org@valinux.co.jp>
+Subject: [PATCH 26/30] ia64/xen: define xen machine vector for domU.
+Date: Tue, 26 Aug 2008 14:58:38 +0900
+Message-ID: <1219730322-11687-27-git-send-email-yamahata__18422.311548102$1219732161$gmane$org@valinux.co.jp>
 References: <1219730322-11687-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,151 +21,130 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-preliminary support for save/restore.
-Although Save/restore isn't fully working yet, this patch is necessary
-to compile.
+define xen machine vector for domU.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- arch/ia64/xen/Makefile              |    2 +-
- arch/ia64/xen/{time.h => suspend.c} |   45 +++++++++++++++++++++++++++++++++-
- arch/ia64/xen/time.c                |   33 +++++++++++++++++++++++++
- arch/ia64/xen/time.h                |    1 +
- 4 files changed, 78 insertions(+), 3 deletions(-)
- copy arch/ia64/xen/{time.h => suspend.c} (64%)
+ arch/ia64/Makefile                  |    2 ++
+ arch/ia64/include/asm/machvec.h     |    2 ++
+ arch/ia64/include/asm/machvec_xen.h |   22 ++++++++++++++++++++++
+ arch/ia64/kernel/acpi.c             |    5 +++++
+ arch/ia64/xen/Makefile              |    2 ++
+ arch/ia64/xen/machvec.c             |    4 ++++
+ 6 files changed, 37 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/machvec_xen.h
+ create mode 100644 arch/ia64/xen/machvec.c
 
+diff --git a/arch/ia64/Makefile b/arch/ia64/Makefile
+index 905d25b..4024250 100644
+--- a/arch/ia64/Makefile
++++ b/arch/ia64/Makefile
+@@ -56,9 +56,11 @@ core-$(CONFIG_IA64_DIG) 	+= arch/ia64/dig/
+ core-$(CONFIG_IA64_GENERIC) 	+= arch/ia64/dig/
+ core-$(CONFIG_IA64_HP_ZX1)	+= arch/ia64/dig/
+ core-$(CONFIG_IA64_HP_ZX1_SWIOTLB) += arch/ia64/dig/
++core-$(CONFIG_IA64_XEN_GUEST)	+= arch/ia64/dig/
+ core-$(CONFIG_IA64_SGI_SN2)	+= arch/ia64/sn/
+ core-$(CONFIG_IA64_SGI_UV)	+= arch/ia64/uv/
+ core-$(CONFIG_KVM) 		+= arch/ia64/kvm/
++core-$(CONFIG_XEN)		+= arch/ia64/xen/
+ 
+ drivers-$(CONFIG_PCI)		+= arch/ia64/pci/
+ drivers-$(CONFIG_IA64_HP_SIM)	+= arch/ia64/hp/sim/
+diff --git a/arch/ia64/include/asm/machvec.h b/arch/ia64/include/asm/machvec.h
+index 2b850cc..de99cb2 100644
+--- a/arch/ia64/include/asm/machvec.h
++++ b/arch/ia64/include/asm/machvec.h
+@@ -128,6 +128,8 @@ extern void machvec_tlb_migrate_finish (struct mm_struct *);
+ #  include <asm/machvec_sn2.h>
+ # elif defined (CONFIG_IA64_SGI_UV)
+ #  include <asm/machvec_uv.h>
++# elif defined (CONFIG_IA64_XEN_GUEST)
++#  include <asm/machvec_xen.h>
+ # elif defined (CONFIG_IA64_GENERIC)
+ 
+ # ifdef MACHVEC_PLATFORM_HEADER
+diff --git a/arch/ia64/include/asm/machvec_xen.h b/arch/ia64/include/asm/machvec_xen.h
+new file mode 100644
+index 0000000..55f9228
+--- /dev/null
++++ b/arch/ia64/include/asm/machvec_xen.h
+@@ -0,0 +1,22 @@
++#ifndef _ASM_IA64_MACHVEC_XEN_h
++#define _ASM_IA64_MACHVEC_XEN_h
++
++extern ia64_mv_setup_t			dig_setup;
++extern ia64_mv_cpu_init_t		xen_cpu_init;
++extern ia64_mv_irq_init_t		xen_irq_init;
++extern ia64_mv_send_ipi_t		xen_platform_send_ipi;
++
++/*
++ * This stuff has dual use!
++ *
++ * For a generic kernel, the macros are used to initialize the
++ * platform's machvec structure.  When compiling a non-generic kernel,
++ * the macros are used directly.
++ */
++#define platform_name				"xen"
++#define platform_setup				dig_setup
++#define platform_cpu_init			xen_cpu_init
++#define platform_irq_init			xen_irq_init
++#define platform_send_ipi			xen_platform_send_ipi
++
++#endif /* _ASM_IA64_MACHVEC_XEN_h */
+diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
+index 5d1eb7e..0093649 100644
+--- a/arch/ia64/kernel/acpi.c
++++ b/arch/ia64/kernel/acpi.c
+@@ -52,6 +52,7 @@
+ #include <asm/numa.h>
+ #include <asm/sal.h>
+ #include <asm/cyclone.h>
++#include <asm/xen/hypervisor.h>
+ 
+ #define BAD_MADT_ENTRY(entry, end) (                                        \
+ 		(!entry) || (unsigned long)entry + sizeof(*entry) > end ||  \
+@@ -121,6 +122,8 @@ acpi_get_sysname(void)
+ 			return "uv";
+ 		else
+ 			return "sn2";
++	} else if (xen_pv_domain() && !strcmp(hdr->oem_id, "XEN")) {
++		return "xen";
+ 	}
+ 
+ 	return "dig";
+@@ -137,6 +140,8 @@ acpi_get_sysname(void)
+ 	return "uv";
+ # elif defined (CONFIG_IA64_DIG)
+ 	return "dig";
++# elif defined (CONFIG_IA64_XEN_GUEST)
++	return "xen";
+ # else
+ #	error Unknown platform.  Fix acpi.c.
+ # endif
 diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 972d085..0ad0224 100644
+index ed31c76..972d085 100644
 --- a/arch/ia64/xen/Makefile
 +++ b/arch/ia64/xen/Makefile
-@@ -3,7 +3,7 @@
- #
- 
+@@ -5,6 +5,8 @@
  obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
--	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
-+	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o suspend.o
+ 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
  
- obj-$(CONFIG_IA64_GENERIC) += machvec.o
++obj-$(CONFIG_IA64_GENERIC) += machvec.o
++
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
  
-diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/suspend.c
-similarity index 64%
-copy from arch/ia64/xen/time.h
-copy to arch/ia64/xen/suspend.c
-index b9c7ec5..fd66b04 100644
---- a/arch/ia64/xen/time.h
-+++ b/arch/ia64/xen/suspend.c
-@@ -1,5 +1,5 @@
- /******************************************************************************
-- * arch/ia64/xen/time.h
-+ * arch/ia64/xen/suspend.c
-  *
-  * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-  *                    VA Linux Systems Japan K.K.
-@@ -18,6 +18,47 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  *
-+ * suspend/resume
-  */
- 
--extern struct pv_time_ops xen_time_ops __initdata;
-+#include <xen/xen-ops.h>
-+#include <asm/xen/hypervisor.h>
-+#include "time.h"
+ # xen multi compile
+diff --git a/arch/ia64/xen/machvec.c b/arch/ia64/xen/machvec.c
+new file mode 100644
+index 0000000..4ad588a
+--- /dev/null
++++ b/arch/ia64/xen/machvec.c
+@@ -0,0 +1,4 @@
++#define MACHVEC_PLATFORM_NAME           xen
++#define MACHVEC_PLATFORM_HEADER         <asm/machvec_xen.h>
++#include <asm/machvec_init.h>
 +
-+void
-+xen_mm_pin_all(void)
-+{
-+	/* nothing */
-+}
-+
-+void
-+xen_mm_unpin_all(void)
-+{
-+	/* nothing */
-+}
-+
-+void xen_pre_device_suspend(void)
-+{
-+	/* nothing */
-+}
-+
-+void
-+xen_pre_suspend()
-+{
-+	/* nothing */
-+}
-+
-+void
-+xen_post_suspend(int suspend_cancelled)
-+{
-+	if (suspend_cancelled)
-+		return;
-+
-+	xen_ia64_enable_opt_feature();
-+	/* add more if necessary */
-+}
-+
-+void xen_arch_resume(void)
-+{
-+	xen_timer_resume_on_aps();
-+}
-diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
-index 3414f1e..5785469 100644
---- a/arch/ia64/xen/time.c
-+++ b/arch/ia64/xen/time.c
-@@ -26,6 +26,8 @@
- #include <linux/irq.h>
- #include <linux/clocksource.h>
- 
-+#include <asm/timex.h>
-+
- #include <asm/xen/hypervisor.h>
- 
- #include <xen/interface/vcpu.h>
-@@ -163,3 +165,34 @@ struct pv_time_ops xen_time_ops __initdata = {
- 	.do_steal_accounting		= xen_do_steal_accounting,
- 	.clocksource_resume		= xen_itc_jitter_data_reset,
- };
-+
-+/* Called after suspend, to resume time.  */
-+static void xen_local_tick_resume(void)
-+{
-+	/* Just trigger a tick.  */
-+	ia64_cpu_local_tick();
-+	touch_softlockup_watchdog();
-+}
-+
-+void
-+xen_timer_resume(void)
-+{
-+	unsigned int cpu;
-+
-+	xen_local_tick_resume();
-+
-+	for_each_online_cpu(cpu)
-+		xen_init_missing_ticks_accounting(cpu);
-+}
-+
-+static void ia64_cpu_local_tick_fn(void *unused)
-+{
-+	xen_local_tick_resume();
-+	xen_init_missing_ticks_accounting(smp_processor_id());
-+}
-+
-+void
-+xen_timer_resume_on_aps(void)
-+{
-+	smp_call_function(&ia64_cpu_local_tick_fn, NULL, 1);
-+}
-diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
-index b9c7ec5..f98d7e1 100644
---- a/arch/ia64/xen/time.h
-+++ b/arch/ia64/xen/time.h
-@@ -21,3 +21,4 @@
-  */
- 
- extern struct pv_time_ops xen_time_ops __initdata;
-+void xen_timer_resume_on_aps(void);
 -- 
 1.6.0.rc0.42.g186458
