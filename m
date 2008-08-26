@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 04/30] ia64/xen: increase IA64_MAX_RSVD_REGIONS.
-Date: Tue, 26 Aug 2008 14:58:16 +0900
-Message-ID: <1219730322-11687-5-git-send-email-yamahata__22612.4727786102$1219730380$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/30] ia64/xen: reserve "break" numbers used for xen
+	hypercalls.
+Date: Tue, 26 Aug 2008 14:58:14 +0900
+Message-ID: <1219730322-11687-3-git-send-email-yamahata__40574.2231094793$1219730499$gmane$org@valinux.co.jp>
 References: <1219730322-11687-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,35 +19,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, Bjorn Helgaas <bjorn.helgaas@hp.com>, xen-ia64-devel@lists.xensource.com, Robin Holt <holt@sgi.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xenlinux/ia64 needs to reserve one more region passed from xen hypervisor
-as start info.
+reserve "break" numbers used for xen hypercalls to avoid
+reuse for something else.
 
-Cc: Robin Holt <holt@sgi.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/meminit.h |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ arch/ia64/include/asm/break.h |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/include/asm/meminit.h b/arch/ia64/include/asm/meminit.h
-index 7245a57..6bc96ee 100644
---- a/arch/ia64/include/asm/meminit.h
-+++ b/arch/ia64/include/asm/meminit.h
-@@ -18,10 +18,11 @@
-  * 	- crash dumping code reserved region
-  * 	- Kernel memory map built from EFI memory map
-  * 	- ELF core header
-+ *	- xen start info if CONFIG_XEN
-  *
-  * More could be added if necessary
+diff --git a/arch/ia64/include/asm/break.h b/arch/ia64/include/asm/break.h
+index f034020..e90c40e 100644
+--- a/arch/ia64/include/asm/break.h
++++ b/arch/ia64/include/asm/break.h
+@@ -20,4 +20,13 @@
   */
--#define IA64_MAX_RSVD_REGIONS 8
-+#define IA64_MAX_RSVD_REGIONS 9
+ #define __IA64_BREAK_SYSCALL		0x100000
  
- struct rsvd_region {
- 	unsigned long start;	/* virtual address of beginning of element */
++/*
++ * Xen specific break numbers:
++ */
++#define __IA64_XEN_HYPERCALL		0x1000
++/* [__IA64_XEN_HYPERPRIVOP_START, __IA64_XEN_HYPERPRIVOP_MAX] is used
++   for xen hyperprivops */
++#define __IA64_XEN_HYPERPRIVOP_START	0x1
++#define __IA64_XEN_HYPERPRIVOP_MAX	0x1a
++
+ #endif /* _ASM_IA64_BREAK_H */
 -- 
 1.6.0.rc0.42.g186458
