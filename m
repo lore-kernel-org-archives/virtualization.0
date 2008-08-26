@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] xen: compilation fix of drivers/xen/events.c on IA64
-Date: Tue, 26 Aug 2008 14:23:41 +0900
-Message-ID: <20080826052341.GB1496%yamahata__16362.7894399271$1219728363$gmane$org@valinux.co.jp>
+Subject: [PATCH] xen-netfront: Avoid unaligned accesses to IP header.
+Date: Tue, 26 Aug 2008 14:26:47 +0900
+Message-ID: <20080826052647.GC1496%yamahata__29485.0291721106$1219728530$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,33 +16,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-use set_xen_guest_handle() instead of direct assigning.
-
-> linux-2.6/drivers/xen/events.c: In function 'xen_poll_irq':
-> linux-2.6/drivers/xen/events.c:757: error: incompatible types in assignment
-> make[4]: *** [drivers/xen/events.o] Error 1
+Align ip header to a 16 byte boundary to avoid unaligned
+access like other drivers.
+Without this patch, xen-netfront doesn't work well on ia64.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- drivers/xen/events.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/net/xen-netfront.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-index c3290bc..81e00ee 100644
---- a/drivers/xen/events.c
-+++ b/drivers/xen/events.c
-@@ -772,7 +772,7 @@ void xen_poll_irq(int irq)
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 3c3dd40..7416f41 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -239,11 +239,14 @@ static void xennet_alloc_rx_buffers(struct net_device *dev)
+ 	 */
+ 	batch_target = np->rx_target - (req_prod - np->rx.rsp_cons);
+ 	for (i = skb_queue_len(&np->rx_batch); i < batch_target; i++) {
+-		skb = __netdev_alloc_skb(dev, RX_COPY_THRESHOLD,
++		skb = __netdev_alloc_skb(dev, RX_COPY_THRESHOLD + NET_IP_ALIGN,
+ 					 GFP_ATOMIC | __GFP_NOWARN);
+ 		if (unlikely(!skb))
+ 			goto no_skb;
  
- 		poll.nr_ports = 1;
- 		poll.timeout = 0;
--		poll.ports = &evtchn;
-+		set_xen_guest_handle(poll.ports, &evtchn);
- 
- 		if (HYPERVISOR_sched_op(SCHEDOP_poll, &poll) != 0)
- 			BUG();
++		/* Align ip header to a 16 bytes boundary */
++		skb_reserve(skb, NET_IP_ALIGN);
++
+ 		page = alloc_page(GFP_ATOMIC | __GFP_NOWARN);
+ 		if (!page) {
+ 			kfree_skb(skb);
 -- 
 1.6.0.rc0.42.g186458
