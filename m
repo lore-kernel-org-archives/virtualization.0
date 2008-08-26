@@ -1,7 +1,7 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] lguest comments, virtio fix and final stop_machine_run() remove
-Date: Tue, 26 Aug 2008 00:21:40 +1000
-Message-ID: <200808260021.40455.rusty@rustcorp.com.au>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH] xen: compilation fix of drivers/xen/events.c on IA64
+Date: Tue, 26 Aug 2008 14:23:41 +0900
+Message-ID: <20080826052341.GB1496%yamahata__16362.7894399271$1219728363$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,28 +16,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-ia64-devel@lists.xensource.com, xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 83097aca8567a0bd593534853b71fe0fa9a75d69:
-  Arjan van de Ven (1):
-        Fix oops in acer_wmi driver (acer_wmi_init)
+use set_xen_guest_handle() instead of direct assigning.
 
-are available in the git repository at:
+> linux-2.6/drivers/xen/events.c: In function 'xen_poll_irq':
+> linux-2.6/drivers/xen/events.c:757: error: incompatible types in assignment
+> make[4]: *** [drivers/xen/events.o] Error 1
 
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/rusty/linux-2.6-for-linus.git master
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ drivers/xen/events.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Anthony Liguori (1):
-      virtio_balloon: fix towards_target when deflating balloon
-
-Rusty Russell (3):
-      stop_machine: wean Xen off stop_machine_run
-      stop_machine: Remove deprecated stop_machine_run
-      lguest: update commentry
-
- Documentation/lguest/lguest.c   |    8 ++++++++
- drivers/lguest/lguest_device.c  |    8 ++++++++
- drivers/virtio/virtio_balloon.c |    2 +-
- drivers/xen/manage.c            |    2 +-
- include/linux/stop_machine.h    |   19 +------------------
+diff --git a/drivers/xen/events.c b/drivers/xen/events.c
+index c3290bc..81e00ee 100644
+--- a/drivers/xen/events.c
++++ b/drivers/xen/events.c
+@@ -772,7 +772,7 @@ void xen_poll_irq(int irq)
+ 
+ 		poll.nr_ports = 1;
+ 		poll.timeout = 0;
+-		poll.ports = &evtchn;
++		set_xen_guest_handle(poll.ports, &evtchn);
+ 
+ 		if (HYPERVISOR_sched_op(SCHEDOP_poll, &poll) != 0)
+ 			BUG();
+-- 
+1.6.0.rc0.42.g186458
