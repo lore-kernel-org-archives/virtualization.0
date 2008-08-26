@@ -1,13 +1,14 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH] [RESEND] xen: portability clean up and some minor clean up
-	for xencomm.c
-Date: Tue, 26 Aug 2008 14:31:25 +0900
-Message-ID: <20080826053125.GF1496%yamahata__16008.165133144$1219728809$gmane$org@valinux.co.jp>
+Subject: [PATCH 01/30] ia64: move function declaration,
+	ia64_cpu_local_tick() from .c to .h
+Date: Tue, 26 Aug 2008 14:58:13 +0900
+Message-ID: <1219730322-11687-2-git-send-email-yamahata__15239.0904179358$1219730255$gmane$org@valinux.co.jp>
+References: <1219730322-11687-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1219730322-11687-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,79 +18,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Luck,
-	Tony" <tony.luck@intel.com>, xen-ia64-devel@lists.xensource.com
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-clean up of xencomm.c. is_phys_contiguous() is arch dependent
-function that depends on how virtual memory are laid out.
-So split out the function into arch specific code.
+eliminate the function declaration ia64_cpu_local_tick() in
+process.c by defining in arch/ia64/include/asm/timex.h
+The same function will be used in a different .c file later.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- drivers/xen/xencomm.c |   23 ++++-------------------
- 1 files changed, 4 insertions(+), 19 deletions(-)
+ arch/ia64/include/asm/timex.h |    2 ++
+ arch/ia64/kernel/process.c    |    1 -
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/xen/xencomm.c b/drivers/xen/xencomm.c
-index 797cb4e..a240b2c 100644
---- a/drivers/xen/xencomm.c
-+++ b/drivers/xen/xencomm.c
-@@ -23,13 +23,7 @@
- #include <asm/page.h>
- #include <xen/xencomm.h>
- #include <xen/interface/xen.h>
--#ifdef __ia64__
--#include <asm/xen/xencomm.h>	/* for is_kern_addr() */
--#endif
--
--#ifdef HAVE_XEN_PLATFORM_COMPAT_H
--#include <xen/platform-compat.h>
--#endif
-+#include <asm/xen/xencomm.h>	/* for xencomm_is_phys_contiguous() */
- 
- static int xencomm_init(struct xencomm_desc *desc,
- 			void *buffer, unsigned long bytes)
-@@ -157,20 +151,11 @@ static int xencomm_create(void *buffer, unsigned long bytes,
- 	return 0;
+diff --git a/arch/ia64/include/asm/timex.h b/arch/ia64/include/asm/timex.h
+index 05a6baf..4e03cfe 100644
+--- a/arch/ia64/include/asm/timex.h
++++ b/arch/ia64/include/asm/timex.h
+@@ -39,4 +39,6 @@ get_cycles (void)
+ 	return ret;
  }
  
--/* check if memory address is within VMALLOC region  */
--static int is_phys_contiguous(unsigned long addr)
--{
--	if (!is_kernel_addr(addr))
--		return 0;
--
--	return (addr < VMALLOC_START) || (addr >= VMALLOC_END);
--}
--
- static struct xencomm_handle *xencomm_create_inline(void *ptr)
++extern void ia64_cpu_local_tick (void);
++
+ #endif /* _ASM_IA64_TIMEX_H */
+diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
+index 3ab8373..8de0f46 100644
+--- a/arch/ia64/kernel/process.c
++++ b/arch/ia64/kernel/process.c
+@@ -251,7 +251,6 @@ default_idle (void)
+ /* We don't actually take CPU down, just spin without interrupts. */
+ static inline void play_dead(void)
  {
- 	unsigned long paddr;
+-	extern void ia64_cpu_local_tick (void);
+ 	unsigned int this_cpu = smp_processor_id();
  
--	BUG_ON(!is_phys_contiguous((unsigned long)ptr));
-+	BUG_ON(!xencomm_is_phys_contiguous((unsigned long)ptr));
- 
- 	paddr = (unsigned long)xencomm_pa(ptr);
- 	BUG_ON(paddr & XENCOMM_INLINE_FLAG);
-@@ -202,7 +187,7 @@ struct xencomm_handle *xencomm_map(void *ptr, unsigned long bytes)
- 	int rc;
- 	struct xencomm_desc *desc;
- 
--	if (is_phys_contiguous((unsigned long)ptr))
-+	if (xencomm_is_phys_contiguous((unsigned long)ptr))
- 		return xencomm_create_inline(ptr);
- 
- 	rc = xencomm_create(ptr, bytes, &desc, GFP_KERNEL);
-@@ -219,7 +204,7 @@ struct xencomm_handle *__xencomm_map_no_alloc(void *ptr, unsigned long bytes,
- 	int rc;
- 	struct xencomm_desc *desc = NULL;
- 
--	if (is_phys_contiguous((unsigned long)ptr))
-+	if (xencomm_is_phys_contiguous((unsigned long)ptr))
- 		return xencomm_create_inline(ptr);
- 
- 	rc = xencomm_create_mini(ptr, bytes, xc_desc,
+ 	/* Ack it */
 -- 
 1.6.0.rc0.42.g186458
