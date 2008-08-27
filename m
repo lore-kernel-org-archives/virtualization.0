@@ -1,14 +1,15 @@
-From: Avi Kivity <avi@qumranet.com>
+From: "Eric Van Hensbergen" <ericvh@gmail.com>
 Subject: Re: Virtio File System.
-Date: Wed, 27 Aug 2008 13:59:37 +0300
-Message-ID: <48B53399.1030809__19806.6814257347$1219834921$gmane$org@qumranet.com>
+Date: Wed, 27 Aug 2008 08:19:34 -0500
+Message-ID: <a4e6962a0808270619w26f8a8c7g97dfe6d1af72d0e1__18105.4041757763$1219849932$gmane$org@mail.gmail.com>
 References: <S1752885AbYH0IaB/20080827083001Z+28@vger.kernel.org>
-	<20080827104423.GA2670@scottrix.co.uk>
+	<20080827104423.GA2670@scottrix.co.uk> <48B53399.1030809@qumranet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080827104423.GA2670@scottrix.co.uk>
+In-Reply-To: <48B53399.1030809@qumranet.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,44 +19,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: scott.kvm@scottrix.co.uk
-Cc: kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
+To: kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-scott.kvm@scottrix.co.uk wrote:
+On Wed, Aug 27, 2008 at 5:59 AM, Avi Kivity <avi@qumranet.com> wrote:
 >
-> I am new to this mailing list, so please let me know if I am in the 
-> wrong place or asking questions in a way I shouldn't.
+>> I was wondering if anyone had thought about creating a virtio file system,
 >
-
-Here is fine.  virtualization@lists.linux-foundation.org is also a good 
-place since virtio is not kvm specific.
-
-> I was wondering if anyone had thought about creating a virtio file 
-> system, rather than using a block device and hence a single file on 
-> the host OS as the virtio block device already does, but map file 
-> system calls on the guest OS to file system calls on the host OS 
-> through the virtio interface.  In this way the Guest OS could share 
-> files with the Host OS without needing to use Samba, which from my 
-> current experiences is rather slow.
-
-There was some work using the plan 9 filesystem protocol over virtio.  
-Not sure where that stands.  You could base your work off that.
-
->
-> I have started to play with the idea a little myself, but my biggest 
-> problem is that I have no clue how to write filesystem drives in my 
-> Guest OS, Window XP, or even if it is possible to get a Windows 
-> FileSystem driver to talk directly to a PCI device, or if some kind of 
-> dummy block device would be needed.
+> There was some work using the plan 9 filesystem protocol over virtio.  Not
+> sure where that stands.  You could base your work off that.
 >
 
-It ought to be possible; the Windows smb stack works without a block device.
+There is still work ongoing, but its mostly in short bursts.  Its
+operational under Linux, but I have not tested under the most recent
+kernel/kvm combination.  I presented some initial performance studies
+at KVM Forum -- the slides are available:
+http://kvm.qumranet.com/kvmwiki/KvmForum2008
 
-> My host OS is Linux, Guest OS is Windows XP.  Maybe I should start 
-> with a Linux/Linux setup and get that working first ?
+The client code is already in kernel mainstream, there are patches for
+an in-qemu-server, but they have not been merged yet -- I think you
+can find them in the archives on the KVM mailing list.  I'd be happy
+to answer any questions on the code.  There's plenty of room for
+optimizations on both the client and server side, as well as more
+complete support for the full Linux VFS interface.
 
-That's definitely a good idea.
+>>
+>> I have started to play with the idea a little myself, but my biggest
+>> problem is that I have no clue how to write filesystem drives in my Guest
+>> OS, Window XP, or even if it is possible to get a Windows FileSystem driver
+>> to talk directly to a PCI device, or if some kind of dummy block device
+>> would be needed.
+>>
 
--- 
-error compiling committee.c: too many arguments to function
+Windows is a tougher nut to crack here -- there is actually a 9P
+filesystem driver for Windows (that works over TCP/IP) available from
+Rangboom, but the license terms under which it was developed means
+that it is closed source.  I'm not sure if we could entice Rangboom to
+add virtio support to their existing driver....
+
+         -eric
