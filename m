@@ -1,14 +1,14 @@
 From: Alex Chiang <achiang@hp.com>
-Subject: Re: [PATCH 3/4 v2] PCI: support SR-IOV capability
-Date: Mon, 1 Sep 2008 09:30:20 -0600
-Message-ID: <20080901153020.GD16796__12959.646099671$1220365221$gmane$org@ldl.fc.hp.com>
-References: <7A25B56E4BE99C4283EB931CD1A40E110177EB6F@pdsmsx414.ccr.corp.intel.com>
+Subject: Re: [PATCH 4/4 v2] PCI: document the change
+Date: Mon, 1 Sep 2008 09:42:17 -0600
+Message-ID: <20080901154217.GE16796__27416.2912545309$1220365336$gmane$org@ldl.fc.hp.com>
+References: <7A25B56E4BE99C4283EB931CD1A40E110177EB70@pdsmsx414.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E110177EB6F@pdsmsx414.ccr.corp.intel.com>
+In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E110177EB70@pdsmsx414.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,52 +23,85 @@ Cc: Randy Dunlap <randy.dunlap@oracle.com>, xen-devel@lists.xensource.com, Grant
 List-Id: virtualization@lists.linuxfoundation.org
 
 * Zhao, Yu <yu.zhao@intel.com>:
-> Support SR-IOV capability. By default, this feature is not enabled and the SR-IOV device behaves as traditional PCI device. After it's enabled, each Virtual Function's PCI configuration space can be accessed using its own Bus, Device and Function Number (Routing ID). Each Virtual Function also has PCI Memory Space, which is used to map its own register set.
-> 
-> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
-> Signed-off-by: Eddie Dong <eddie.dong@intel.com>
-> 
-> ---
->  drivers/pci/Kconfig      |   10 +
->  drivers/pci/Makefile     |    2 +
->  drivers/pci/iov.c        |  555 ++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/pci/pci.c        |   14 +-
->  drivers/pci/pci.h        |   44 ++++
->  drivers/pci/probe.c      |    5 +
->  include/linux/pci.h      |   28 +++
->  include/linux/pci_regs.h |   20 ++
->  8 files changed, 677 insertions(+), 1 deletions(-)
->  create mode 100644 drivers/pci/iov.c
-> 
-> diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
-> index f43cc46..0a1fe01 100644
-> --- a/drivers/pci/Kconfig
-> +++ b/drivers/pci/Kconfig
-> @@ -57,3 +57,13 @@ config PCI_ARI
->  	default n
->  	help
->  	  This enables PCI Alternative Routing-ID Interpretation.
+> +1. Overview
 > +
-> +config PCI_IOV
-> +	bool "PCI SR-IOV support"
-> +	depends on PCI && HOTPLUG
-> +	select PCI_MSI
-> +	select PCI_ARI
-> +	select HOTPLUG_PCI
-> +	default n
-> +	help
-> +	  This allows device drivers to enable Single Root I/O Virtualization.
+> +1.1 What is SR-IOV
+> +
+> +Single Root I/O Virtualization (SR-IOV) is a PCI Express Extended
+> +capability which makes one physical device appear as multiple virtual
+> +devices. The physical device is referred to as Physical Function while
+> +the virtual devices are referred to as Virtual Functions. Allocation
+> +of Virtual Functions can be dynamically controlled by Physical Function
+> +via registers encapsulated in the capability. By default, this feature
+> +is not enabled and the Physical Function behaves as traditional PCIe
+> +device. Once it's turned on, each Virtual Function's PCI configuration
+> +space can be accessed by its own Bus, Device and Function Number (Routing
+> +ID). And each Virtual Function also has PCI Memory Space, which is used
+> +to map its register set. Virtual Function device driver operates on the
+> +register set so it can be functional and appear as a real existing PCI
+> +device.
+> +
+> +1.2 What is ARI
+> +
+> +Alternative Routing-ID Interpretation (ARI) allows a PCI Express Endpoint
+> +to use its device number field as part of function number. Traditionally,
+> +an Endpoint can only have 8 functions, and the device number of all
+> +Endpoints is zero. With ARI enabled, an Endpoint can have up to 256
+> +functions by using device number in conjunction with function number to
+> +indicate a function in the device. This is almost transparent to the Linux
+> +kernel because the Linux kernel still can use 8-bit bus number field plus
+> +8-bit devfn number field to locate a function. ARI is managed via the ARI
+> +Forwarding bit in the Device Capabilities 2 register of the PCI Express
+> +Capability on the Root Port or the Downstream Port and a new ARI Capability
+> +on the Endpoint.
+> +
+> +
+> +2. User Guide
+> +
+> +2.1 How can I manage SR-IOV
+> +
+> +If a device supports SR-IOV, then there should be some entires under
+                                                          entries
+> +/sys/bus/pci/slots/. The names of the entires are XXXX:BB:DD.F-iov-NNNN,
+                                         entries
+> +where the first part (XXXX:BB:DD.F) is the domain, bus, device and function
+> +number of the device, and the third part (NNNN) is the index of a Virtual
+> +Function. There are three files under the entry: power, param and address.
 
-I'd like to see this Kconfig help text enhanced too. Telling a
-user that PCI_IOV enables Single Root I/O Virtualization isn't
-that helpful, but explaining what SR-IOV actually gets you _is_
-helpful.
+So are you saying here that you will actually create sysfs files
+named:
 
-	This option allows device drivers to enable Single Root I/O
-	Virtualization.  Each Virtual Function's PCI configuration
-	space can be accessed using its own Bus, Device and Function
-	Number (Routing ID). Each Virtual Function also has PCI Memory
-	Space, which is used to map its own register set.
+	/sys/bus/pci/slots/XXXX:BB:DD.F-iov-NNNN
+
+We just spent some effort cleaning out this directory and getting
+human-readable names in /sys/bus/pci/slots/. The entries created
+there _should_ match the labelling on the physical chassis,
+assuming firmware tells us the right name.
+
+How will these particular slot entries be created? Do the
+individual hotplug drivers create them?
+
+Sorry, I guess I haven't read the patch series, just skimmed the
+documentation. I can go do that before asking any further dumb
+questions, but this little bit of information was a bit
+surprising to me.
+
+> +	- Writing 1 to the "power" will enable the Virtual Function,
+> +	and 0 will disable the Virtual Function; Reading it will get
+> +	status of the Virtual Function.
+> +	- Reading the "address" will get the bus, device and function
+> +	number of the Virtual Function.
+> +	- The "param" is the device specific parameters which may be
+> +	used by the Physical or Virtual Functions drivers.
+> +
+> +2.2 How can I use Virtual Functions
+> +
+> +Virtual Functions is treated as hot-plugged PCI devices in the kernel,
+> +so they should be able to work in the same way as real PCI devices.
+> +NOTE: Virtual Function device driver must be loaded to make it work.
+
+Ok, I'll go read the rest of the patch series; looks like you
+wrote a new virtual function driver.
 
 Thanks.
 
