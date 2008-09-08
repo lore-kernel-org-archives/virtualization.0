@@ -1,15 +1,13 @@
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: RFC: Attaching threads to cgroups is OK?
-Date: Mon, 08 Sep 2008 21:47:53 +0900 (JST)
-Message-ID: <20080908.214753.126548538.taka__9222.53855173967$1220878239$gmane$org@valinux.co.jp>
-References: <20080905.205016.28412219.taka@valinux.co.jp>
-	<20080905.210017.44596963.taka@valinux.co.jp>
-	<20080905153832.GE13742@redhat.com>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: [PATCH 4/4 v2] PCI: document the change
+Date: Mon, 8 Sep 2008 10:08:00 -0700
+Message-ID: <20080908100800.a3f4c6b3.randy.dunlap@oracle.com>
+References: <7A25B56E4BE99C4283EB931CD1A40E110177EB70@pdsmsx414.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080905153832.GE13742@redhat.com>
+In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E110177EB70@pdsmsx414.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,62 +17,109 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vgoyal@redhat.com
-Cc: menage@google.com, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
+To: "Zhao, Yu" <yu.zhao@intel.com>
+Cc: xen-devel@lists.xensource.com, Grant Grundler <grundler@parisc-linux.org>, kvm@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, Greg KH <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Vivek,
+On Mon, 1 Sep 2008 19:21:06 +0800 Zhao, Yu wrote:
 
-> > > > IMHO, optimizing the synchronous path alone would justify the addition
-> > > > of io_context in bio. There is more to this though.
-> > > > 
-> > > > As you point out, it would seem that aio and buffered IO would not
-> > > > benefit from caching the io context in the bio itself, but there are
-> > > > some subtleties here. Let's consider stacking devices and buffered IO,
-> > > > for example. When a bio enters such a device it may get replicated
-> > > > several times and, depending on the topology, some other derivative bios
-> > > > will be created (RAID1 and parity configurations come to mind,
-> > > > respectively). The problem here is that the memory allocated for the
-> > > > newly created bios will be owned by the corresponding dm or md kernel
-> > > > thread, not the originator of the bio we are replicating or calculating
-> > > > the parity bits from.
-> > > 
-> > > I've already tried implementing this feature. Will you take a look
-> > > at the thread whose subject is "I/O context inheritance" in
-> > > http://www.uwsg.iu.edu/hypermail/linux/kernel/0804.2/index.html#2857.
-> > 
-> > When I started to implement this, I would make each bio have two
-> > io_contexts -- per-process io_context which had ionice and
-> > and per-cgroup io_context.
-> > 
+> Complete the hotplug ABI document, and add SR-IOV HOWTO.
 > 
-> Hi Hirokazu,
+> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
+> Signed-off-by: Eddie Dong <eddie.dong@intel.com>
 > 
-> I had a question. Why are we trying to create another io_context or why
-> are we trying to mix up existing io_context (which is per task or per
-> thread group) with cgroups?
-> 
-> To me we just need to know the "cgroup id" to take a specific action with
-> a bio. We don't need whole io_context strucutre. So can't we just use
-> something like, page->page_cgroup->bio_cgroup->cgrou_id or something like
-> that.
-> 
-> What I mean is that the only thing which we seem to require to differentiate
-> between various bio is cgroup id it belongs to and that can be a single
-> "unsigned long" stored at appropriate place. Why are we looking at
-> creating a full io_context structure and trying to share it among all the
-> members of a cgroup?
+> ---
+>  Documentation/ABI/testing/sysfs-bus-pci |   67 ++++++++++++
+>  Documentation/DocBook/kernel-api.tmpl   |    3 +
+>  Documentation/PCI/pci-iov-howto.txt     |  177 +++++++++++++++++++++++++++++++
+>  3 files changed, 247 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/PCI/pci-iov-howto.txt
 
-It is possible if you should only care about dm-ioband.
+> diff --git a/Documentation/PCI/pci-iov-howto.txt b/Documentation/PCI/pci-iov-howto.txt
+> new file mode 100644
+> index 0000000..147e80f
+> --- /dev/null
+> +++ b/Documentation/PCI/pci-iov-howto.txt
+> @@ -0,0 +1,177 @@
+> +		PCI Express Single Root I/O Virtualization HOWTO
+> +			Copyright (C) 2008 Intel Corporation
+> +			    Yu Zhao <yu.zhao@intel.com>
+> +
+> +
+> +1. Overview
+> +
+> +1.1 What is SR-IOV
+> +
 
-I just thought the approach that every cgroup should also have its own
-io_iocontext was more generic, since both types of io_contexts represent
-the contexts of issuers so I think it will be good if these can be
-handled in the same way. I think it will make it easier for other
-functionalities of the kernel to use this feature.
+...
 
-But we may have to think it over again if it has become clear that
-this approach costs a lot.
+> +
+> +1.2 What is ARI
+> +
 
-Thanks
-Hirokazu Takahashi.
+...
+
+> +
+> +
+> +2. User Guide
+> +
+> +2.1 How can I manage SR-IOV
+> +
+> +If a device supports SR-IOV, then there should be some entires under
+
+                                                          entries
+
+> +/sys/bus/pci/slots/. The names of the entires are XXXX:BB:DD.F-iov-NNNN,
+
+                                         entries
+
+> +where the first part (XXXX:BB:DD.F) is the domain, bus, device and function
+> +number of the device, and the third part (NNNN) is the index of a Virtual
+> +Function. There are three files under the entry: power, param and address.
+> +	- Writing 1 to the "power" will enable the Virtual Function,
+> +	and 0 will disable the Virtual Function; Reading it will get
+> +	status of the Virtual Function.
+> +	- Reading the "address" will get the bus, device and function
+> +	number of the Virtual Function.
+> +	- The "param" is the device specific parameters which may be
+> +	used by the Physical or Virtual Functions drivers.
+> +
+> +2.2 How can I use Virtual Functions
+> +
+> +Virtual Functions is treated as hot-plugged PCI devices in the kernel,
+
+                     are
+
+> +so they should be able to work in the same way as real PCI devices.
+> +NOTE: Virtual Function device driver must be loaded to make it work.
+> +
+> +
+> +3. Developer Guide
+> +
+> +3.1 SR-IOV APIs
+> +
+
+...
+
+> +3.2 Usage example
+> +
+
+...
+
+> +
+> +#ifdef CONFIG_PM
+> +/*
+> + * If the device supports the power management, then the SR-IOV
+> + * may be disabled before the adapter goes to sleep, because
+> + * Virtual Functions may not work when the adapter is in the\
+
+drop trailing '\'
+
+> + * power-saving mode.
+> + * The SR-IOV can be enabled again after the adapter wakes up.
+> + */
+
+---
+~Randy
+Linux Plumbers Conference, 17-19 September 2008, Portland, Oregon USA
+http://linuxplumbersconf.org/
