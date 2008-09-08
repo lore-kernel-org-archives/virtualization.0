@@ -1,14 +1,15 @@
-From: Takuya Yoshikawa <yoshikawa.takuya@oss.ntt.co.jp>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
 Subject: Re: RFC: Attaching threads to cgroups is OK?
-Date: Mon, 08 Sep 2008 11:58:51 +0900
-Message-ID: <48C494EB.4080502__37127.3649776869$1220844692$gmane$org@oss.ntt.co.jp>
-References: <20080822185527.GD27964@redhat.com>	<1219660569.16371.161.camel@sebastian.kern.oss.ntt.co.jp>	<20080905.205016.28412219.taka@valinux.co.jp>	<20080905.210017.44596963.taka@valinux.co.jp>
+Date: Mon, 08 Sep 2008 20:52:14 +0900 (JST)
+Message-ID: <20080908.205214.27768173.taka__5422.76782584867$1220874912$gmane$org@valinux.co.jp>
+References: <20080905.210017.44596963.taka@valinux.co.jp>
 	<20080905153832.GE13742@redhat.com>
+	<48C494EB.4080502@oss.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080905153832.GE13742@redhat.com>
+In-Reply-To: <48C494EB.4080502@oss.ntt.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,69 +19,80 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vgoyal@redhat.com
-Cc: containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, menage@google.com, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
+To: yoshikawa.takuya@oss.ntt.co.jp
+Cc: containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, menage@google.com, fernando@oss.ntt.co.jp, vgoyal@redhat.com, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi both,
+Hello,
 
-Fernando is off this week, so may not be able to reply soon, sorry.
-
-Vivek Goyal wrote:
-> On Fri, Sep 05, 2008 at 09:00:17PM +0900, Hirokazu Takahashi wrote:
->> Hi, fernando,
->>
->>>> IMHO, optimizing the synchronous path alone would justify the addition
->>>> of io_context in bio. There is more to this though.
->>>>
->>>> As you point out, it would seem that aio and buffered IO would not
->>>> benefit from caching the io context in the bio itself, but there are
->>>> some subtleties here. Let's consider stacking devices and buffered IO,
->>>> for example. When a bio enters such a device it may get replicated
->>>> several times and, depending on the topology, some other derivative bios
->>>> will be created (RAID1 and parity configurations come to mind,
->>>> respectively). The problem here is that the memory allocated for the
->>>> newly created bios will be owned by the corresponding dm or md kernel
->>>> thread, not the originator of the bio we are replicating or calculating
->>>> the parity bits from.
->>> I've already tried implementing this feature. Will you take a look
->>> at the thread whose subject is "I/O context inheritance" in
->>> http://www.uwsg.iu.edu/hypermail/linux/kernel/0804.2/index.html#2857.
->> When I started to implement this, I would make each bio have two
->> io_contexts -- per-process io_context which had ionice and
->> and per-cgroup io_context.
->>
-
-I am also trying to make bios have pointers to io_contexts and I have a
-question concerning this, very simple one.
-
-Is it OK to think bio->bi_io_context is a cache to find the io_context
-of an appropriate task, an issuer of this bio, which may sometimes not be
-the direct one, e.g. stacking devices case.
-
-If so, is it same if we make bios have pointers to the issuers, tasks or
-cgroups, of them and then find the io_contexts through these?
-
-I sometimes tempted to say "this bio's io_context."
-
+> Hi both,
 > 
-> Hi Hirokazu,
+> Fernando is off this week, so may not be able to reply soon, sorry.
 > 
-> I had a question. Why are we trying to create another io_context or why
-> are we trying to mix up existing io_context (which is per task or per
-> thread group) with cgroups?
+> Vivek Goyal wrote:
+> > On Fri, Sep 05, 2008 at 09:00:17PM +0900, Hirokazu Takahashi wrote:
+> >> Hi, fernando,
+> >>
+> >>>> IMHO, optimizing the synchronous path alone would justify the addition
+> >>>> of io_context in bio. There is more to this though.
+> >>>>
+> >>>> As you point out, it would seem that aio and buffered IO would not
+> >>>> benefit from caching the io context in the bio itself, but there are
+> >>>> some subtleties here. Let's consider stacking devices and buffered IO,
+> >>>> for example. When a bio enters such a device it may get replicated
+> >>>> several times and, depending on the topology, some other derivative bios
+> >>>> will be created (RAID1 and parity configurations come to mind,
+> >>>> respectively). The problem here is that the memory allocated for the
+> >>>> newly created bios will be owned by the corresponding dm or md kernel
+> >>>> thread, not the originator of the bio we are replicating or calculating
+> >>>> the parity bits from.
+> >>> I've already tried implementing this feature. Will you take a look
+> >>> at the thread whose subject is "I/O context inheritance" in
+> >>> http://www.uwsg.iu.edu/hypermail/linux/kernel/0804.2/index.html#2857.
+> >> When I started to implement this, I would make each bio have two
+> >> io_contexts -- per-process io_context which had ionice and
+> >> and per-cgroup io_context.
+> >>
 > 
-> To me we just need to know the "cgroup id" to take a specific action with
-> a bio. We don't need whole io_context strucutre. So can't we just use
-> something like, page->page_cgroup->bio_cgroup->cgrou_id or something like
-> that.
+> I am also trying to make bios have pointers to io_contexts and I have a
+> question concerning this, very simple one.
 > 
-> What I mean is that the only thing which we seem to require to differentiate
-> between various bio is cgroup id it belongs to and that can be a single
-> "unsigned long" stored at appropriate place. Why are we looking at
-> creating a full io_context structure and trying to share it among all the
-> members of a cgroup?
+> Is it OK to think bio->bi_io_context is a cache to find the io_context
+> of an appropriate task, an issuer of this bio, which may sometimes not be
+> the direct one, e.g. stacking devices case.
+> 
+> If so, is it same if we make bios have pointers to the issuers, tasks or
+> cgroups, of them and then find the io_contexts through these?
 
+No, I don't think it is always possible. The issuers may not exist when
+an io-scheduler or other modules start to handle the I/O requests.
+I know you can make linux kernel preserve all the context of the issuers
+until all the I/O requests belonging to them have finished, but it may
+lead waste of resources.
+
+I think this is the reason why io_context was introduced.
+
+> I sometimes tempted to say "this bio's io_context."
 > 
-> Thanks
-> Vivek
+> > 
+> > Hi Hirokazu,
+> > 
+> > I had a question. Why are we trying to create another io_context or why
+> > are we trying to mix up existing io_context (which is per task or per
+> > thread group) with cgroups?
+> > 
+> > To me we just need to know the "cgroup id" to take a specific action with
+> > a bio. We don't need whole io_context strucutre. So can't we just use
+> > something like, page->page_cgroup->bio_cgroup->cgrou_id or something like
+> > that.
+> > 
+> > What I mean is that the only thing which we seem to require to differentiate
+> > between various bio is cgroup id it belongs to and that can be a single
+> > "unsigned long" stored at appropriate place. Why are we looking at
+> > creating a full io_context structure and trying to share it among all the
+> > members of a cgroup?
+> 
+> > 
+> > Thanks
+> > Vivek
+> 
