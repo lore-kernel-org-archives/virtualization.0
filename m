@@ -1,15 +1,16 @@
-From: Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH 2/4 v2] PCI: support ARI capability
-Date: Wed, 10 Sep 2008 14:07:21 -0600
-Message-ID: <20080910200721.GI2772__22458.2676929005$1221077477$gmane$org@parisc-linux.org>
-References: <ada3akjj268.fsf@cisco.com>
-	<7A25B56E4BE99C4283EB931CD1A40E110181CAF7@pdsmsx414.ccr.corp.intel.com>
+From: Alex Chiang <achiang@hp.com>
+Subject: Re: [PATCH 1/4 v2] PCI: introduce new base functions
+Date: Wed, 10 Sep 2008 16:37:11 -0600
+Message-ID: <20080910223711.GA16740__43789.5506657243$1221086544$gmane$org@ldl.fc.hp.com>
+References: <7A25B56E4BE99C4283EB931CD1A40E110177EB6D@pdsmsx414.ccr.corp.intel.com>
+	<20080901161534.GF16796@ldl.fc.hp.com>
+	<7A25B56E4BE99C4283EB931CD1A40E110181CB4E@pdsmsx414.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E110181CAF7@pdsmsx414.ccr.corp.intel.com>
+In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E110181CB4E@pdsmsx414.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,26 +21,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Zhao, Yu" <yu.zhao@intel.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, xen-devel@lists.xensource.com, Grant Grundler <grundler@parisc-linux.org>, Alex Chiang <achiang@hp.com>, linux-pci@vger.kernel.org, Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Greg KH <greg@kroah.com>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, xen-devel@lists.xensource.com, Grant Grundler <grundler@parisc-linux.org>, kvm@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, Greg KH <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 10, 2008 at 03:48:04PM +0800, Zhao, Yu wrote:
-> >I agree with this improvement to the help text.  But a further question
-> >is whether ARI even merits its own user-visible config option.  Is it
-> >worth having yet another choice for users?  When would someone want ARI
-> >but not SR-IOV?
+* Zhao, Yu <yu.zhao@intel.com>:
 > 
-> ARI is an independent PCI Express extended capability. Multi-function devices supporting this capability may use it to track dependency between different functions and assign function group numbers to these functions.
+> It can be PCI_BRIDGE_RESOURCES, because there may be some
+> non-standard resources following PCI_ROM_RESOURCE and before
+> PCI_BRIDGE_RESOURCES.
 > 
-> Another reason to keep this separated with SR-IOV is that after ARI is enabled, PCI Express Endpoint may have non-zero slot number (device number), which is different from traditional PCI Express Endpoint.
+> For example, a standard PCI device has following resources:
+> 	0 - 5   BARs
+> 	6       ROM
+> 	7 - 10  Bridge
+> 
+> After SR-IOV is enabled, it becomes
+> 	0 - 5   standard BARs
+> 	6       Rom
+>      7 - 12  SR-IOV BARs
+> 	13 - 16 Bridge
 
-Let me ask the question slightly differently: Why would someone want to
-turn the capability off?  Is it just to save a few hundred bytes in the
-kernel image, or is there some hardware that won't work?  Or some other
-reason I haven't thought of?
+Ok, makes sense now; was that documented somewhere else, and I
+just missed it?
 
--- 
-Matthew Wilcox				Intel Open Source Technology Centre
-"Bill, look, we understand that you're interested in selling us this
-operating system, but compare it to ours.  We can't possibly take such
-a retrograde step."
+> Same as above, the PCI_BRIDGE_RES_END varies when some features
+> is enabled or disabled.
+
+Ok, I must have missed this documentation too.
+
+> Thank you very much for carefully reviewing these patches. I'd
+> like to invite you to review next version again if it's
+> convenient for you.
+
+Sure, you can Cc me next time too.
+
+Thanks.
+
+/ac
