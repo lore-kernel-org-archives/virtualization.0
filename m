@@ -1,15 +1,11 @@
-From: "Zhao, Yu" <yu.zhao@intel.com>
-Subject: RE: [PATCH 1/4 v2] PCI: introduce new base functions
-Date: Wed, 10 Sep 2008 16:17:18 +0800
-Message-ID: <7A25B56E4BE99C4283EB931CD1A40E110181CB4E__39550.6706358448$1221034872$gmane$org@pdsmsx414.ccr.corp.intel.com>
-References: <7A25B56E4BE99C4283EB931CD1A40E110177EB6D@pdsmsx414.ccr.corp.intel.com>
-	<20080901161534.GF16796@ldl.fc.hp.com>
+From: Takuya Yoshikawa <yoshikawa.takuya@oss.ntt.co.jp>
+Subject: [RFC][PATCH -mm] blktrace: adds ioprio to blktrace
+Date: Wed, 10 Sep 2008 18:21:48 +0900
+Message-ID: <48C791AC.1030305__45426.1833955117$1221038548$gmane$org@oss.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <20080901161534.GF16796@ldl.fc.hp.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,131 +15,196 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex Chiang <achiang@hp.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, xen-devel@lists.xensource.com, Grant Grundler <grundler@parisc-linux.org>, kvm@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, Greg KH <greg@kroah.com>
+To: axboe@kernel.dk
+Cc: containers@lists.linux-foundation.org, fernando@oss.ntt.co.jp, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday, September 02, 2008 12:16 AM, Alex Chiang wrote:
->* Zhao, Yu <yu.zhao@intel.com>:
->> Some basic changes to allocation bus range, MMIO resource for SR-IOV device.
->
->This following comment is a bit confusing:
->> And add new sysfs entry to hotplug core to pass parameter to a
->> slot, which will be used by SR-IOV code.
->
->I was reading this patch, expecting to see a change to the
->hotplug core _API_ taking a param, not just a new sysfs entry.
->
->I would suggest rewording this part of the changelog as:
->
->	Add new sysfs file 'param' to /sys/bus/pci/slots/.../
->	which allows the user to pass a parameter to a slot. This
->	parameter will be used by the SR-IOV code.
->
->More about this new 'param' file below.
->
->>
->
->Please break the 80-column "rule" and make this all one line, to
->help with greppability.
->
->I know the prior version had it broken across two lines too, but
->we can improve it now. :)
+Hi,
 
-Sure, will do this in next version :-)
+The following patch adds ioprio to blktrace.
 
->
->> +			continue;
->> +		}
->> +		child->is_added = 1;
->> +		retval = device_create_file(&child->dev,
->> +					    &dev_attr_cpuaffinity);
->> +		if (retval)
->> +			dev_err(&dev->dev, "Error creating cpuaffinity"
->> +					   " file, continuing...\n");
->
->This one too, please.
->
->> diff --git a/drivers/pci/proc.c b/drivers/pci/proc.c
->> index e1098c3..f6f2a59 100644
->> --- a/drivers/pci/proc.c
->> +++ b/drivers/pci/proc.c
->> @@ -352,15 +352,16 @@ static int show_device(struct seq_file *m, void *v)
->>  			dev->vendor,
->>  			dev->device,
->>  			dev->irq);
->> -	/* Here should be 7 and not PCI_NUM_RESOURCES as we need to preserve
->compatibility */
->> -	for (i=0; i<7; i++) {
->> +
->> +	/* only print standard and ROM resources to preserve compatibility */
->> +	for (i = 0; i <= PCI_ROM_RESOURCE; i++) {
->
->Why not:
->
->	for (i = 0; i < PCI_BRIDGE_RESOURCES; i++) {
->
->Looks like the tradeoff is explicit mention of PCI_ROM_RESOURCE
->vs using a non-standard C idiom (personally, I'm not a huge fan
->of <= in a for loop, but ymmv).
->
->Again, this is a minor nit, feel free to ignore.
+Explanation:
+As you know, I/O schedulers such as cfq use io_contexts of current
+tasks to schedule block I/O. But recently, some are suggesting to
+use more appropriate io_contexts obtained by, for example, doing
+io-tracking, making struct bio have io_context member, etc. I thought
+adding ioprio to blktrace output might be helpful.
 
-It can be PCI_BRIDGE_RESOURCES, because there may be some non-standard resources following PCI_ROM_RESOURCE and before PCI_BRIDGE_RESOURCES.
+Implementation:
+1. I used req_get_ioprio() and [new]bio_get_ioprio() to get ioprio.
+    Currently bio_get_ioprio just returns current->io_context->ioprio.
 
-For example, a standard PCI device has following resources:
-	0 - 5   BARs
-	6       ROM
-	7 - 10  Bridge
 
-After SR-IOV is enabled, it becomes
-	0 - 5   standard BARs
-	6       Rom
-     7 - 12  SR-IOV BARs
-	13 - 16 Bridge
+Appreciate any comments:
+Does this kind of information helpful?
 
->
->> diff --git a/include/linux/pci.h b/include/linux/pci.h
->> index c0e1400..687be00 100644
->> --- a/include/linux/pci.h
->> +++ b/include/linux/pci.h
->> @@ -76,7 +76,29 @@ enum pci_mmap_state {
->>  #define PCI_DMA_FROMDEVICE	2
->>  #define PCI_DMA_NONE		3
->>
->> -#define DEVICE_COUNT_RESOURCE	12
->> +/*
->> + *  For PCI devices, the region numbers are assigned this way:
->> + */
->> +enum {
->> +	/* 0-5	standard PCI regions */
->> +	PCI_STD_RESOURCE,
->> +
->> +	/* expansion ROM */
->> +	PCI_ROM_RESOURCE = 6,
->> +
->> +	/* address space assigned to buses behind the bridge */
->> +#ifndef PCI_BRIDGE_NUM_RES
->> +#define PCI_BRIDGE_NUM_RES 4
->> +#endif
->> +	PCI_BRIDGE_RESOURCES,
->> +	PCI_BRIDGE_RES_END = PCI_BRIDGE_RESOURCES + PCI_BRIDGE_NUM_RES - 1,
->> +
->> +	/* total resources associated with a PCI device */
->> +	PCI_NUM_RESOURCES,
->> +
->> +	/* preserve this for compatibility */
->> +	DEVICE_COUNT_RESOURCE
->> +};
->
->Ouch, this enum makes my head hurt a little. Care to put in a
->comment for PCI_BRIDGE_RES_END, saying that it has a value of 10?
 
-Same as above, the PCI_BRIDGE_RES_END varies when some features is enabled or disabled.
+Thanks,
+Takuya Yoshikawa
 
-Thank you very much for carefully reviewing these patches. I'd like to invite you to review next version again if it's convenient for you.
 
->
->Thanks,
->
->/ac
+
+Example:
+   8,16   0        1     0.000000000  2664  Q   R ioprio=16386 81920 + 8 [tiotest]
+   8,16   0        2     0.000010493  2664  G   R ioprio=16386 81920 + 8 [tiotest]
+   8,16   0        3     0.000013217  2664  P   N ioprio=    0 [tiotest]
+   8,16   0        4     0.000014164  2664  I   R ioprio=    0 81920 + 8 [tiotest]
+   8,16   0        5     0.000019738  2664  U   N ioprio=    0 [tiotest] 2
+   8,16   0        6     0.000026737  2664  D   R ioprio=    0 81920 + 8 [tiotest]
+   8,16   0        7     0.005455128  2670  Q   R ioprio=16389 327680 + 8 [tiotest]
+   8,16   0        8     0.005459912  2670  G   R ioprio=16389 327680 + 8 [tiotest]
+   8,16   0        9     0.005460425  2670  P   N ioprio=    0 [tiotest]
+   8,16   0       10     0.005460703  2670  I   R ioprio=    0 327680 + 8 [tiotest]
+   8,16   0       11     0.005462495  2670  U   N ioprio=    0 [tiotest] 7
+
+
+===
+
+Signed-off-by: Takuya Yoshikawa <yoshikawa.takuya@oss.ntt.co.jp>
+---
+diff -uprN linux-2.6.27-rc5-mm1/block/blktrace.c linux-2.6.27-rc5-mm1-blktrace/block/blktrace.c
+--- linux-2.6.27-rc5-mm1/block/blktrace.c	2008-09-10 19:27:44.000000000 +0900
++++ linux-2.6.27-rc5-mm1-blktrace/block/blktrace.c	2008-09-11 00:44:52.000000000 +0900
+@@ -120,7 +120,8 @@ static u32 ddir_act[2] __read_mostly = {
+   * blk_io_trace structure and places it in a per-cpu subbuffer.
+   */
+  void __blk_add_trace(struct blk_trace *bt, sector_t sector, int bytes,
+-		     int rw, u32 what, int error, int pdu_len, void *pdu_data)
++		     int rw, u32 what, int error, unsigned short ioprio,
++		     int pdu_len, void *pdu_data)
+  {
+  	struct task_struct *tsk = current;
+  	struct blk_io_trace *t;
+@@ -168,6 +169,7 @@ void __blk_add_trace(struct blk_trace *b
+  		t->device = bt->dev;
+  		t->cpu = cpu;
+  		t->error = error;
++		t->ioprio = ioprio;
+  		t->pdu_len = pdu_len;
+
+  		if (pdu_len)
+diff -uprN linux-2.6.27-rc5-mm1/include/linux/bio.h linux-2.6.27-rc5-mm1-blktrace/include/linux/bio.h
+--- linux-2.6.27-rc5-mm1/include/linux/bio.h	2008-09-10 19:27:46.000000000 +0900
++++ linux-2.6.27-rc5-mm1-blktrace/include/linux/bio.h	2008-09-11 00:53:15.000000000 +0900
+@@ -186,6 +186,18 @@ static inline void *bio_data(struct bio
+  }
+
+  /*
++ * TODO: replace this with io-tracking version
++ */
++static inline unsigned short bio_get_ioprio(struct bio *bio)
++{
++	struct task_struct *tsk = current;
++	if (tsk->io_context)
++		return tsk->io_context->ioprio;
++
++	return 0;
++}
++
++/*
+   * will die
+   */
+  #define bio_to_phys(bio)	(page_to_phys(bio_page((bio))) + (unsigned long) bio_offset((bio)))
+diff -uprN linux-2.6.27-rc5-mm1/include/linux/blktrace_api.h linux-2.6.27-rc5-mm1-blktrace/include/linux/blktrace_api.h
+--- linux-2.6.27-rc5-mm1/include/linux/blktrace_api.h	2008-09-10 19:27:46.000000000 +0900
++++ linux-2.6.27-rc5-mm1-blktrace/include/linux/blktrace_api.h	2008-09-11 00:54:35.000000000 +0900
+@@ -103,6 +103,7 @@ struct blk_io_trace {
+  	u32 cpu;		/* on what cpu did it happen */
+  	u16 error;		/* completion error */
+  	u16 pdu_len;		/* length of data after this trace */
++	u16 ioprio;		/* priority of this io */
+  };
+
+  /*
+@@ -153,7 +154,7 @@ struct blk_user_trace_setup {
+  #if defined(CONFIG_BLK_DEV_IO_TRACE)
+  extern int blk_trace_ioctl(struct block_device *, unsigned, char __user *);
+  extern void blk_trace_shutdown(struct request_queue *);
+-extern void __blk_add_trace(struct blk_trace *, sector_t, int, int, u32, int, int, void *);
++extern void __blk_add_trace(struct blk_trace *, sector_t, int, int, u32, int, unsigned short, int, void *);
+  extern int do_blk_trace_setup(struct request_queue *q,
+  	char *name, dev_t dev, struct blk_user_trace_setup *buts);
+  extern void __trace_note_message(struct blk_trace *, const char *fmt, ...);
+@@ -194,6 +195,7 @@ static inline void blk_add_trace_rq(stru
+  {
+  	struct blk_trace *bt = q->blk_trace;
+  	int rw = rq->cmd_flags & 0x03;
++	unsigned short ioprio = req_get_ioprio(rq);
+
+  	if (likely(!bt))
+  		return;
+@@ -203,10 +205,10 @@ static inline void blk_add_trace_rq(stru
+
+  	if (blk_pc_request(rq)) {
+  		what |= BLK_TC_ACT(BLK_TC_PC);
+-		__blk_add_trace(bt, 0, rq->data_len, rw, what, rq->errors, sizeof(rq->cmd), rq->cmd);
++		__blk_add_trace(bt, 0, rq->data_len, rw, what, rq->errors, ioprio, sizeof(rq->cmd), rq->cmd);
+  	} else  {
+  		what |= BLK_TC_ACT(BLK_TC_FS);
+-		__blk_add_trace(bt, rq->hard_sector, rq->hard_nr_sectors << 9, rw, what, rq->errors, 0, NULL);
++		__blk_add_trace(bt, rq->hard_sector, rq->hard_nr_sectors << 9, rw, what, rq->errors, ioprio, 0, NULL);
+  	}
+  }
+
+@@ -224,11 +226,12 @@ static inline void blk_add_trace_bio(str
+  				     u32 what)
+  {
+  	struct blk_trace *bt = q->blk_trace;
++	unsigned short ioprio = bio_get_ioprio(bio);
+
+  	if (likely(!bt))
+  		return;
+
+-	__blk_add_trace(bt, bio->bi_sector, bio->bi_size, bio->bi_rw, what, !bio_flagged(bio, BIO_UPTODATE), 0, NULL);
++	__blk_add_trace(bt, bio->bi_sector, bio->bi_size, bio->bi_rw, what, !bio_flagged(bio, BIO_UPTODATE), ioprio, 0, NULL);
+  }
+
+  /**
+@@ -253,7 +256,7 @@ static inline void blk_add_trace_generic
+  	if (bio)
+  		blk_add_trace_bio(q, bio, what);
+  	else
+-		__blk_add_trace(bt, 0, 0, rw, what, 0, 0, NULL);
++		__blk_add_trace(bt, 0, 0, rw, what, 0, 0, 0, NULL);
+  }
+
+  /**
+@@ -274,14 +277,17 @@ static inline void blk_add_trace_pdu_int
+  {
+  	struct blk_trace *bt = q->blk_trace;
+  	__be64 rpdu = cpu_to_be64(pdu);
++	unsigned short ioprio = 0;
+
+  	if (likely(!bt))
+  		return;
+
+-	if (bio)
+-		__blk_add_trace(bt, bio->bi_sector, bio->bi_size, bio->bi_rw, what, !bio_flagged(bio, BIO_UPTODATE), sizeof(rpdu), &rpdu);
+-	else
+-		__blk_add_trace(bt, 0, 0, 0, what, 0, sizeof(rpdu), &rpdu);
++	if (bio) {
++		ioprio = bio_get_ioprio(bio);
++		__blk_add_trace(bt, bio->bi_sector, bio->bi_size, bio->bi_rw, what, !bio_flagged(bio, BIO_UPTODATE), ioprio, sizeof(rpdu), &rpdu);
++	} else {
++		__blk_add_trace(bt, 0, 0, 0, what, 0, ioprio, sizeof(rpdu), &rpdu);
++	}
+  }
+
+  /**
+@@ -302,6 +308,7 @@ static inline void blk_add_trace_remap(s
+  {
+  	struct blk_trace *bt = q->blk_trace;
+  	struct blk_io_trace_remap r;
++	unsigned short ioprio = bio_get_ioprio(bio);
+
+  	if (likely(!bt))
+  		return;
+@@ -310,7 +317,7 @@ static inline void blk_add_trace_remap(s
+  	r.device_from = cpu_to_be32(bio->bi_bdev->bd_dev);
+  	r.sector = cpu_to_be64(to);
+
+-	__blk_add_trace(bt, from, bio->bi_size, bio->bi_rw, BLK_TA_REMAP, !bio_flagged(bio, BIO_UPTODATE), sizeof(r), &r);
++	__blk_add_trace(bt, from, bio->bi_size, bio->bi_rw, BLK_TA_REMAP, !bio_flagged(bio, BIO_UPTODATE), ioprio, sizeof(r), &r);
+  }
+
+  extern int blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
