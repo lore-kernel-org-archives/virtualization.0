@@ -1,16 +1,16 @@
 From: Alex Chiang <achiang@hp.com>
-Subject: Re: [PATCH 1/4 v2] PCI: introduce new base functions
-Date: Wed, 10 Sep 2008 16:37:11 -0600
-Message-ID: <20080910223711.GA16740__43789.5506657243$1221086544$gmane$org@ldl.fc.hp.com>
-References: <7A25B56E4BE99C4283EB931CD1A40E110177EB6D@pdsmsx414.ccr.corp.intel.com>
-	<20080901161534.GF16796@ldl.fc.hp.com>
-	<7A25B56E4BE99C4283EB931CD1A40E110181CB4E@pdsmsx414.ccr.corp.intel.com>
+Subject: Re: [PATCH 3/4 v2] PCI: support SR-IOV capability
+Date: Wed, 10 Sep 2008 16:41:30 -0600
+Message-ID: <20080910224130.GC16740__31379.1277738803$1221086631$gmane$org@ldl.fc.hp.com>
+References: <7A25B56E4BE99C4283EB931CD1A40E110177EB6F@pdsmsx414.ccr.corp.intel.com>
+	<20080901164104.GG16796@ldl.fc.hp.com>
+	<7A25B56E4BE99C4283EB931CD1A40E110181CB1A@pdsmsx414.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E110181CB4E@pdsmsx414.ccr.corp.intel.com>
+In-Reply-To: <7A25B56E4BE99C4283EB931CD1A40E110181CB1A@pdsmsx414.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,36 +25,26 @@ Cc: Randy Dunlap <randy.dunlap@oracle.com>, xen-devel@lists.xensource.com, Grant
 List-Id: virtualization@lists.linuxfoundation.org
 
 * Zhao, Yu <yu.zhao@intel.com>:
+> On Tuesday, September 02, 2008 12:41 AM, Alex Chiang wrote:
+> >
+> >So, what happens if another hotplug driver is already loaded?
+> >
+> >I don't know the SR-IOV spec well enough to know if you are
+> >allowed to have SR-IOV + some other form of hotplug, like ACPI or
+> >native PCIe.
+> >
+> >Today, pci_hp_register will return -EBUSY.
+> >
+> >If SR-IOV really doesn't have anything to do with hotplug, then
+> >it may be a candidate for directly calling pci_create_slot(). In
+> >that case, 'param' should not be a property of a hotplug slot,
+> >but of a generic PCI slot.
 > 
-> It can be PCI_BRIDGE_RESOURCES, because there may be some
-> non-standard resources following PCI_ROM_RESOURCE and before
-> PCI_BRIDGE_RESOURCES.
-> 
-> For example, a standard PCI device has following resources:
-> 	0 - 5   BARs
-> 	6       ROM
-> 	7 - 10  Bridge
-> 
-> After SR-IOV is enabled, it becomes
-> 	0 - 5   standard BARs
-> 	6       Rom
->      7 - 12  SR-IOV BARs
-> 	13 - 16 Bridge
+> That's correct, SR-IOV really doesn't have anything to do with
+> hotplug. I was just reusing hotplug sysfs as the control
+> interface. Will remove this in next work, and create SR-IOV own
+> sysfs entries under /sys/bus/pci/devices/.../iov/...
 
-Ok, makes sense now; was that documented somewhere else, and I
-just missed it?
-
-> Same as above, the PCI_BRIDGE_RES_END varies when some features
-> is enabled or disabled.
-
-Ok, I must have missed this documentation too.
-
-> Thank you very much for carefully reviewing these patches. I'd
-> like to invite you to review next version again if it's
-> convenient for you.
-
-Sure, you can Cc me next time too.
-
-Thanks.
+That sounds like a much better idea to me, thanks.
 
 /ac
