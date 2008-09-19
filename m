@@ -1,16 +1,17 @@
-From: Vivek Goyal <vgoyal@redhat.com>
+From: Andrea Righi <righi.andrea@gmail.com>
 Subject: Re: dm-ioband + bio-cgroup benchmarks
-Date: Fri, 19 Sep 2008 09:12:04 -0400
-Message-ID: <20080919131204.GB3606__36183.1867056482$1221830547$gmane$org@redhat.com>
+Date: Fri, 19 Sep 2008 22:28:40 +0200
+Message-ID: <48D40B78.6060709__28466.1452788443$1221856277$gmane$org@gmail.com>
 References: <20080918.210418.226794540.ryov@valinux.co.jp>
 	<20080918131554.GB20640@redhat.com>
-	<20080919.151221.49666828.taka@valinux.co.jp>
+	<20080919.202031.86647893.taka@valinux.co.jp>
+	<20080919131019.GA3606@redhat.com>
+Reply-To: righi.andrea@gmail.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20080919.151221.49666828.taka@valinux.co.jp>
+In-Reply-To: <20080919131019.GA3606@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,55 +21,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, jens.axboe@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, righi.andrea@gmail.com, agk@sourceware.org, xemul@openvz.org, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, jens.axboe@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, dm-devel@redhat.com, agk@sourceware.org, xemul@openvz.org, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 19, 2008 at 03:12:21PM +0900, Hirokazu Takahashi wrote:
-> Hi,
+Vivek Goyal wrote:
+> On Fri, Sep 19, 2008 at 08:20:31PM +0900, Hirokazu Takahashi wrote:
+>>> To avoid creation of stacking another device (dm-ioband) on top of every
+>>> device we want to subject to rules, I was thinking of maintaining an
+>>> rb-tree per request queue. Requests will first go into this rb-tree upon
+>>> __make_request() and then will filter down to elevator associated with the
+>>> queue (if there is one). This will provide us the control of releasing
+>>> bio's to elevaor based on policies (proportional weight, max bandwidth
+>>> etc) and no need of stacking additional block device.
+>> I think it's a bit late to control I/O requests there, since process
+>> may be blocked in get_request_wait when the I/O load is high.
+>> Please imagine the situation that cgroups with low bandwidths are
+>> consuming most of "struct request"s while another cgroup with a high
+>> bandwidth is blocked and can't get enough "struct request"s.
+>>
+>> It means cgroups that issues lot of I/O request can win the game.
+>>
 > 
-> > > Hi All,
-> > > 
-> > > I have got excellent results of dm-ioband, that controls the disk I/O
-> > > bandwidth even when it accepts delayed write requests.
-> > > 
-> > > In this time, I ran some benchmarks with a high-end storage. The
-> > > reason was to avoid a performance bottleneck due to mechanical factors
-> > > such as seek time.
-> > > 
-> > > You can see the details of the benchmarks at:
-> > > http://people.valinux.co.jp/~ryov/dm-ioband/hps/
-> > > 
-> > 
-> > Hi Ryo,
-> > 
-> > I had a query about dm-ioband patches. IIUC, dm-ioband patches will break
-> > the notion of process priority in CFQ because now dm-ioband device will
-> > hold the bio and issue these to lower layers later based on which bio's
-> > become ready. Hence actual bio submitting context might be different and
-> > because cfq derives the io_context from current task, it will be broken.
+> Ok, this is a good point. Because number of struct requests are limited
+> and they seem to be allocated on first come first serve basis, so if a
+> cgroup is generating lot of IO, then it might win.
 > 
-> This is completely another problem we have to solve.
-> The CFQ scheduler has really bad assumption that the current process
-> must be the owner. This problem occurs when you use some of device
-> mapper devices or use linux aio.
-> 
-> > To mitigate that problem, we probably need to implement Fernando's
-> > suggestion of putting io_context pointer in bio. 
-> > 
-> > Have you already done something to solve this issue?
-> 
-> Actually, I already have a patch to solve this problem, which make
-> each bio have a pointer to the io_context of the owner process.
-> Would you take a look at the thread whose subject is "I/O context
-> inheritance" in:
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0804.2/index.html#2850
-> 
-> Fernando also knows this.
+> But dm-ioband will face the same issue. Essentially it is also a request
+> queue and it will have limited number of request descriptors. Have you 
+> modified the logic somewhere for allocation of request descriptors to the
+> waiting processes based on their weights? If yes, the logic probably can
+> be implemented here too.
 
-Great. Sure I will have a look at this thread. This is something we shall
-have to implement, irrespective of the fact whether we go for dm-ioband
-approach or an rb-tree per request queue approach.
+Maybe throttling dirty page ratio in memory could help to avoid this problem.
+I mean, if a cgroup is exceeding the i/o limits do ehm... something.. also at
+the balance_dirty_pages() level.
 
-Thanks
-Vivek
+-Andrea
