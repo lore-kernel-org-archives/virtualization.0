@@ -1,14 +1,14 @@
 From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [dm-devel] Re: dm-ioband + bio-cgroup benchmarks
-Date: Fri, 19 Sep 2008 12:34:05 +0900 (JST)
-Message-ID: <20080919.123405.91829935.taka__16074.714533943$1221795399$gmane$org@valinux.co.jp>
-References: <48D267B5.20402@gmail.com> <20080918150634.GH20640@redhat.com>
-	<48D2715A.6060002@gmail.com>
+Subject: Re: dm-ioband + bio-cgroup benchmarks
+Date: Fri, 19 Sep 2008 15:12:21 +0900 (JST)
+Message-ID: <20080919.151221.49666828.taka__42852.2118054845$1221804899$gmane$org@valinux.co.jp>
+References: <20080918.210418.226794540.ryov@valinux.co.jp>
+	<20080918131554.GB20640@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48D2715A.6060002@gmail.com>
+In-Reply-To: <20080918131554.GB20640@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,130 +18,50 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: righi.andrea@gmail.com, dm-devel@redhat.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, agk@sourceware.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, fernando@oss.ntt.co.jp, vgoyal@redhat.com, xemul@openvz.org
+To: vgoyal@redhat.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, jens.axboe@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, righi.andrea@gmail.com, agk@sourceware.org, xemul@openvz.org, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 Hi,
 
-> >> Vivek Goyal wrote:
-> >>> On Thu, Sep 18, 2008 at 09:04:18PM +0900, Ryo Tsuruta wrote:
-> >>>> Hi All,
-> >>>>
-> >>>> I have got excellent results of dm-ioband, that controls the disk I/O
-> >>>> bandwidth even when it accepts delayed write requests.
-> >>>>
-> >>>> In this time, I ran some benchmarks with a high-end storage. The
-> >>>> reason was to avoid a performance bottleneck due to mechanical factors
-> >>>> such as seek time.
-> >>>>
-> >>>> You can see the details of the benchmarks at:
-> >>>> http://people.valinux.co.jp/~ryov/dm-ioband/hps/
-> >>>>
-> >>> Hi Ryo,
-> >>>
-> >>> I had a query about dm-ioband patches. IIUC, dm-ioband patches will break
-> >>> the notion of process priority in CFQ because now dm-ioband device will
-> >>> hold the bio and issue these to lower layers later based on which bio's
-> >>> become ready. Hence actual bio submitting context might be different and
-> >>> because cfq derives the io_context from current task, it will be broken.
-> >>>
-> >>> To mitigate that problem, we probably need to implement Fernando's
-> >>> suggestion of putting io_context pointer in bio. 
-> >>>
-> >>> Have you already done something to solve this issue?
-> >>>
-> >>> Secondly, why do we have to create an additional dm-ioband device for 
-> >>> every device we want to control using rules. This looks little odd
-> >>> atleast to me. Can't we keep it in line with rest of the controllers
-> >>> where task grouping takes place using cgroup and rules are specified in
-> >>> cgroup itself (The way Andrea Righi does for io-throttling patches)?
-> >>>
-> >>> To avoid creation of stacking another device (dm-ioband) on top of every
-> >>> device we want to subject to rules, I was thinking of maintaining an
-> >>> rb-tree per request queue. Requests will first go into this rb-tree upon
-> >>> __make_request() and then will filter down to elevator associated with the
-> >>> queue (if there is one). This will provide us the control of releasing
-> >>> bio's to elevaor based on policies (proportional weight, max bandwidth
-> >>> etc) and no need of stacking additional block device.
-> >>>
-> >>> I am working on some experimental proof of concept patches. It will take
-> >>> some time though.
-> >>>
-> >>> I was thinking of following.
-> >>>
-> >>> - Adopt the Andrea Righi's style of specifying rules for devices and
-> >>>   group the tasks using cgroups.
-> >>>
-> >>> - To begin with, adopt dm-ioband's approach of proportional bandwidth
-> >>>   controller. It makes sense to me limit the bandwidth usage only in
-> >>>   case of contention. If there is really a need to limit max bandwidth,
-> >>>   then probably we can do something to implement additional rules or
-> >>>   implement some policy switcher where user can decide what kind of
-> >>>   policies need to be implemented.
-> >>>
-> >>> - Get rid of dm-ioband and instead buffer requests on an rb-tree on every
-> >>>   request queue which is controlled by some kind of cgroup rules.
-> >>>
-> >>> It would be good to discuss above approach now whether it makes sense or 
-> >>> not. I think it is kind of fusion of io-throttling and dm-ioband patches
-> >>> with additional idea of doing io-control just above elevator on the request
-> >>> queue using an rb-tree.
-> >> Thanks Vivek. All sounds reasonable to me and I think this is be the right way
-> >> to proceed.
-> >>
-> >> I'll try to design and implement your rb-tree per request-queue idea into my
-> >> io-throttle controller, maybe we can reuse it also for a more generic solution.
-> >> Feel free to send me your experimental proof of concept if you want, even if
-> >> it's not yet complete, I can review it, test and contribute.
+> > Hi All,
 > > 
-> > Currently I have taken code from bio-cgroup to implement cgroups and to
-> > provide functionality to associate a bio to a cgroup. I need this to be
-> > able to queue the bio's at right node in the rb-tree and then also to be
-> > able to take a decision when is the right time to release few requests.
+> > I have got excellent results of dm-ioband, that controls the disk I/O
+> > bandwidth even when it accepts delayed write requests.
 > > 
-> > Right now in crude implementation, I am working on making system boot.
-> > Once patches are at least in little bit working shape, I will send it to you
-> > to have a look.
+> > In this time, I ran some benchmarks with a high-end storage. The
+> > reason was to avoid a performance bottleneck due to mechanical factors
+> > such as seek time.
 > > 
-> > Thanks
-> > Vivek
+> > You can see the details of the benchmarks at:
+> > http://people.valinux.co.jp/~ryov/dm-ioband/hps/
+> > 
 > 
-> I wonder... wouldn't be simpler to just use the memory controller
-> to retrieve this information starting from struct page?
+> Hi Ryo,
 > 
-> I mean, following this path (in short, obviously using the appropriate
-> interfaces for locking and referencing the different objects):
+> I had a query about dm-ioband patches. IIUC, dm-ioband patches will break
+> the notion of process priority in CFQ because now dm-ioband device will
+> hold the bio and issue these to lower layers later based on which bio's
+> become ready. Hence actual bio submitting context might be different and
+> because cfq derives the io_context from current task, it will be broken.
+
+This is completely another problem we have to solve.
+The CFQ scheduler has really bad assumption that the current process
+must be the owner. This problem occurs when you use some of device
+mapper devices or use linux aio.
+
+> To mitigate that problem, we probably need to implement Fernando's
+> suggestion of putting io_context pointer in bio. 
 > 
-> cgrp = page->page_cgroup->mem_cgroup->css.cgroup
-> 
-> Once you get the cgrp it's very easy to use the corresponding controller
-> structure.
-> 
-> Actually, this is how I'm doing in cgroup-io-throttle to associate a bio
-> to a cgroup. What other functionalities/advantages bio-cgroup provide in
-> addition to that?
+> Have you already done something to solve this issue?
 
-I've decided to get Ryo to post the accurate dirty-page tracking patch
-for bio-cgroup, which isn't perfect yet though. The memory controller
-never wants to support this tracking because migrating a page between
-memory cgroups is really heavy.
+Actually, I already have a patch to solve this problem, which make
+each bio have a pointer to the io_context of the owner process.
+Would you take a look at the thread whose subject is "I/O context
+inheritance" in:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0804.2/index.html#2850
 
-I also thought enhancing the memory controller would be good enough,
-but a lot of people said they wanted to control memory resource and
-block I/O resource separately.
-So you can create several bio-cgroup in one memory-cgroup,
-or you can use bio-cgroup without memory-cgroup.
+Fernando also knows this.
 
-I also have a plan to implement more acurate tracking mechanism
-on bio-cgroup after the memory cgroup team re-implement the infrastructure,
-which won't be supported by memory-cgroup.
-When a process are moved into another memory cgroup,
-the pages belonging to the process don't move to the new cgroup
-because migrating pages is so heavy. It's hard to find the pages
-from the process and migrating pages may cause some memory pressure.
-I'll implement this feature only on bio-cgroup with minimum overhead
-
-
-Thanks,
+Thank you,
 Hirokazu Takahashi.
