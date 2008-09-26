@@ -1,16 +1,15 @@
 From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [dm-devel] Re: [PATCH 4/8] bio-cgroup: Split the cgroup memory
-	subsystem into two parts
-Date: Thu, 25 Sep 2008 17:46:34 +0900 (JST)
-Message-ID: <20080925.174634.02448435.taka__1534.00727217576$1222332603$gmane$org@valinux.co.jp>
-References: <20080924.191234.104048747.ryov@valinux.co.jp>
-	<20080924.191309.189710495.ryov@valinux.co.jp>
-	<20080925161400.602ddfdb.kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [Xen-devel] Re: [dm-devel] Re: dm-ioband + bio-cgroup benchmarks
+Date: Fri, 26 Sep 2008 19:54:29 +0900 (JST)
+Message-ID: <20080926.195429.46150284.taka__19517.8436268636$1222426641$gmane$org@valinux.co.jp>
+References: <20080919.123405.91829935.taka@valinux.co.jp>
+	<661de9470809240404i62300942o15337ecec335fe22@mail.gmail.com>
+	<661de9470809240407m7f50b6dav897fef3b37295bb2@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080925161400.602ddfdb.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <661de9470809240407m7f50b6dav897fef3b37295bb2@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,49 +19,98 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dm-devel@redhat.com, kamezawa.hiroyu@jp.fujitsu.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, agk@sourceware.org, balbir@linux.vnet.ibm.com, fernando@oss.ntt.co.jp, xemul@openvz.org
+To: balbir@linux.vnet.ibm.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, jens.axboe@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, xemul@openvz.org, fernando@oss.ntt.co.jp, vgoyal@redhat.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 Hi,
 
-> I posted new ones.
->  - http://lkml.org/lkml/2008/9/25/33 
->  (changes in page_cgroup) http://lkml.org/lkml/2008/9/25/56
-> (I'm not sure this gets Ack or Nack. but direction will not change.)
+> >> > > Currently I have taken code from bio-cgroup to implement cgroups and
+> >> > > to
+> >> > > provide functionality to associate a bio to a cgroup. I need this to
+> >> > > be
+> >> > > able to queue the bio's at right node in the rb-tree and then also to
+> >> > > be
+> >> > > able to take a decision when is the right time to release few
+> >> > > requests.
+> >> > >
+> >> > > Right now in crude implementation, I am working on making system boot.
+> >> > > Once patches are at least in little bit working shape, I will send it
+> >> > > to you
+> >> > > to have a look.
+> >> > >
+> >> > > Thanks
+> >> > > Vivek
+> >> >
+> >> > I wonder... wouldn't be simpler to just use the memory controller
+> >> > to retrieve this information starting from struct page?
+> >> >
+> >> > I mean, following this path (in short, obviously using the appropriate
+> >> > interfaces for locking and referencing the different objects):
+> >> >
+> >> > cgrp = page->page_cgroup->mem_cgroup->css.cgroup
+> >> >
+> >> > Once you get the cgrp it's very easy to use the corresponding controller
+> >> > structure.
+> >> >
+> >> > Actually, this is how I'm doing in cgroup-io-throttle to associate a bio
+> >> > to a cgroup. What other functionalities/advantages bio-cgroup provide in
+> >> > addition to that?
+> >>
+> >> I've decided to get Ryo to post the accurate dirty-page tracking patch
+> >> for bio-cgroup, which isn't perfect yet though. The memory controller
+> >> never wants to support this tracking because migrating a page between
+> >> memory cgroups is really heavy.
 > 
-> Then, please tell me if you have new troubles with new ones.
-> Or if you have requests.
-> Major changes are
+> It depends on the migration. The cost is proportional to the number of
+> pages moved. The cost can be brought down (I do have a  design on
+> paper  -- from long long ago), where moving mm's will reduce the cost
+> of migration, but it adds an additional dereference in the common
+> path.
+
+Okay, this will help to track anonymous pages even after processes are
+migrated between memory-cgroups.
+The rest of my concern is pages in the pagecache, which might be
+potentially dirtied by processes in other cgroups. I think bio-cgroups
+should also care this case.
+
+> >> I also thought enhancing the memory controller would be good enough,
+> >> but a lot of people said they wanted to control memory resource and
+> >> block I/O resource separately.
+> >
+> > Yes, ideally we do want that.
+> >
+> >>
+> >> So you can create several bio-cgroup in one memory-cgroup,
+> >> or you can use bio-cgroup without memory-cgroup.
+> >>
+> >> I also have a plan to implement more acurate tracking mechanism
+> >> on bio-cgroup after the memory cgroup team re-implement the
+> >> infrastructure,
+> >> which won't be supported by memory-cgroup.
+> >> When a process are moved into another memory cgroup,
+> >> the pages belonging to the process don't move to the new cgroup
+> >> because migrating pages is so heavy. It's hard to find the pages
+> >> from the process and migrating pages may cause some memory pressure.
+> >> I'll implement this feature only on bio-cgroup with minimum overhead
+> >
 > 
->   - page_cgroup.h is added.
->   - lookup_page_cgroup(struct page*), lock_page_cgroup() etc.. is exported.
->   - All page_cgroup are allocated at boot.
->   - you can use atomic operation to modify page_cgroup->flags.
+> Kamezawa has also wanted the page migration feature and we've agreed
+> to provide a per-cgroup flag to decide to turn migration on/off. I
+> would not mind refactoring memcontrol.c if that can help the IO
+> controller and if you want migration, force the migration flag to on
+> and warn the user if they try to turn it off.
 
-Good new!
+Good news! But I've been wondering whether the IO controller should
+have the same feature.
+Once Kamezawa-san finished to implement the new page_cgroup
+infrastructure which pre-allocates all the memory it needs,
+I think I can minimize the cost migrating pages between bio-cgroup
+since this migration won't cause any page reclaim unlike that of
+memory-cgroup.
 
-> One concern from me to this bio_cgroup is that this increases size of
-> +#ifdef CONFIG_CGROUP_BIO
-> +	struct list_head blist;		/* for bio_cgroup page list */
-> +	struct bio_cgroup *bio_cgroup;
-> +#endif
-> struct page_cgroup...more 24bytes per 4096bytes.
-> Could you reduce this ? I think 8bytes per memcg is reasonable.
-> Can you move lru to bio itself ?
+In this case I might design it only moves pages between bio-cgroups
+while it won't move them between memory-cgroups.
 
-I have a plan on getting rid of the blist after your work is done,
-whose design will depend on that all page_cgroups are preallocated.
-I also think the size of bio_cgroup can be reduced if making bio_cgroup
-contain a bio-cgroup ID instead of the pointer.
-
-Just wait! :)
-
-> This makes page_cgroup to be 64bytes from 40bytes and makes it larger
-> than mem_map....
-> After bio_cgroup, page_cgroup, allocated at boot, size on my 48GB box 
-> will jump up.
-> 480MB -> 760MB.
-> 
-> Thanks,
-> -Kame
+Thanks,
+Hirokazu Takahashi.
