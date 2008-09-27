@@ -1,19 +1,12 @@
-From: Andrea Righi <righi.andrea@gmail.com>
-Subject: Re: dm-ioband + bio-cgroup benchmarks
-Date: Fri, 26 Sep 2008 19:30:26 +0200
-Message-ID: <48DD1C32.60207__17356.3919881873$1222450471$gmane$org@gmail.com>
-References: <20080919131019.GA3606@redhat.com>
-	<20080922.183651.62951479.taka@valinux.co.jp>
-	<20080922143042.GA19222@redhat.com>
-	<20080924.172937.72827863.taka@valinux.co.jp>
-	<20080924140355.GB547@redhat.com> <48DD09AD.2010200@gmail.com>
-	<48DD17A9.9080607@gmail.com>
-Reply-To: righi.andrea@gmail.com
+From: "Zhao, Yu" <yu.zhao@intel.com>
+Subject: [PATCH 1/6 v3] PCI: export some functions and macros
+Date: Sat, 27 Sep 2008 16:27:44 +0800
+Message-ID: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F0__2926.69397681511$1222504208$gmane$org@pdsmsx502.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48DD17A9.9080607@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,110 +16,314 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, jens.axboe@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, dm-devel@redhat.com, agk@sourceware.org, xemul@openvz.org, fernando@oss.ntt.co.jp, balbir@linux.vnet.ibm.com
+To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Alex@smtp1.linux-foundation.org, Grant Grundler <grundler@parisc-linux.org>, Chiang <achiang@hp.com>, Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>, Roland Dreier <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andrea Righi wrote:
-> Andrea Righi wrote:
->> Vivek Goyal wrote:
->> [snip]
->>> Ok, I will give more details of the thought process.
->>>
->>> I was thinking of maintaing an rb-tree per request queue and not an
->>> rb-tree per cgroup. This tree can contain all the bios submitted to that
->>> request queue through __make_request(). Every node in the tree will represent
->>> one cgroup and will contain a list of bios issued from the tasks from that
->>> cgroup.
->>>
->>> Every bio entering the request queue through __make_request() function
->>> first will be queued in one of the nodes in this rb-tree, depending on which
->>> cgroup that bio belongs to.
->>>
->>> Once the bios are buffered in rb-tree, we release these to underlying
->>> elevator depending on the proportionate weight of the nodes/cgroups.
->>>
->>> Some more details which I was trying to implement yesterday.
->>>
->>> There will be one bio_cgroup object per cgroup. This object will contain
->>> many bio_group objects. Each bio_group object will be created for each
->>> request queue where a bio from bio_cgroup is queued. Essentially the idea
->>> is that bios belonging to a cgroup can be on various request queues in the
->>> system. So a single object can not serve the purpose as it can not be on
->>> many rb-trees at the same time.  Hence create one sub object which will keep
->>> track of bios belonging to one cgroup on a particular request queue.
->>>
->>> Each bio_group will contain a list of bios and this bio_group object will
->>> be a node in the rb-tree of request queue. For example. Lets say there are
->>> two request queues in the system q1 and q2 (lets say they belong to /dev/sda
->>> and /dev/sdb). Let say a task t1 in /cgroup/io/test1 is issueing io both
->>> for /dev/sda and /dev/sdb.
->>>
->>> bio_cgroup belonging to /cgroup/io/test1 will have two sub bio_group
->>> objects, say bio_group1 and bio_group2. bio_group1 will be in q1's rb-tree
->>> and bio_group2 will be in q2's rb-tree. bio_group1 will contain a list of
->>> bios issued by task t1 for /dev/sda and bio_group2 will contain a list of
->>> bios issued by task t1 for /dev/sdb. I thought the same can be extended
->>> for stacked devices also.
->>>   
->>> I am still trying to implementing it and hopefully this is doable idea.
->>> I think at the end of the day it will be something very close to dm-ioband
->>> algorithm just that there will be no lvm driver and no notion of separate
->>> dm-ioband device. 
->> Vivek, thanks for the detailed explanation. Only a comment. I guess, if
->> we don't change also the per-process optimizations/improvements made by
->> some IO scheduler, I think we can have undesirable behaviours.
->>
->> For example: CFQ uses the per-process iocontext to improve fairness
->> between *all* the processes in a system. But it doesn't have the concept
->> that there's a cgroup context on-top-of the processes.
->>
->> So, some optimizations made to guarantee fairness among processes could
->> conflict with algorithms implemented at the cgroup layer. And
->> potentially lead to undesirable behaviours.
->>
->> For example an issue I'm experiencing with my cgroup-io-throttle
->> patchset is that a cgroup can consistently increase the IO rate (always
->> respecting the max limits), simply increasing the number of IO worker
->> tasks respect to another cgroup with a lower number of IO workers. This
->> is probably due to the fact the CFQ tries to give the same amount of
->> "IO time" to all the tasks, without considering that they're organized
->> in cgroup.
-> 
-> BTW this is why I proposed to use a single shared iocontext for all the
-> processes running in the same cgroup. Anyway, this is not the best
-> solution, because in this way all the IO requests coming from a cgroup
-> will be queued to the same cfq queue. If I'm not wrong in this way we
-> would implement noop (FIFO) between tasks belonging to the same cgroup
-> and CFQ between cgroups. But, at least for this particular case, we
-> would be able to provide fairness among cgroups.
+Export some functions and move some macros from c file to header file.
 
-Ah! also have a look at this:
+Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>
+Cc: Alex Chiang <achiang@hp.com>
+Cc: Matthew Wilcox <matthew@wil.cx>
+Cc: Roland Dreier <rdreier@cisco.com>
+Cc: Greg KH <greg@kroah.com>
+Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
-http://download.systemimager.org/~arighi/linux/patches/io-throttle/benchmark/graph/effect-of-per-process-cfq-fairness-on-the-cgroup-context.png
+---
+ drivers/pci/pci-sysfs.c |   10 ++++----
+ drivers/pci/pci.c       |    2 +-
+ drivers/pci/pci.h       |   20 ++++++++++++++++++
+ drivers/pci/probe.c     |   50 +++++++++++++++++++++-------------------------
+ drivers/pci/setup-bus.c |    4 +-
+ drivers/pci/setup-res.c |    2 +-
+ include/linux/pci.h     |    4 +-
+ 7 files changed, 54 insertions(+), 38 deletions(-)
 
-The graph highlights the dependency between the IO rate and the number
-of tasks running in a cgroup. For this testcase I've used 2 cgroups:
+diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+index 9c71858..f99160d 100644
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -696,7 +696,7 @@ static struct bin_attribute pci_config_attr = {
+                .name = "config",
+                .mode = S_IRUGO | S_IWUSR,
+        },
+-       .size = 256,
++       .size = PCI_CFG_SPACE_SIZE,
+        .read = pci_read_config,
+        .write = pci_write_config,
+ };
+@@ -706,7 +706,7 @@ static struct bin_attribute pcie_config_attr = {
+                .name = "config",
+                .mode = S_IRUGO | S_IWUSR,
+        },
+-       .size = 4096,
++       .size = PCI_CFG_SPACE_EXP_SIZE,
+        .read = pci_read_config,
+        .write = pci_write_config,
+ };
+@@ -724,7 +724,7 @@ int __must_check pci_create_sysfs_dev_files (struct pci_dev *pdev)
+        if (!sysfs_initialized)
+                return -EACCES;
 
-- cgroup A, with a single task doing IO (large O_DIRECT read stream)
-- cgroup B, with a variable number of tasks ranging from 1 to 16 doing
-  IO in parallel
+-       if (pdev->cfg_size < 4096)
++       if (pdev->cfg_size < PCI_CFG_SPACE_EXP_SIZE)
+                retval = sysfs_create_bin_file(&pdev->dev.kobj, &pci_config_attr);
+        else
+                retval = sysfs_create_bin_file(&pdev->dev.kobj, &pcie_config_attr);
+@@ -795,7 +795,7 @@ err_vpd:
+                kfree(pdev->vpd->attr);
+        }
+ err_config_file:
+-       if (pdev->cfg_size < 4096)
++       if (pdev->cfg_size < PCI_CFG_SPACE_EXP_SIZE)
+                sysfs_remove_bin_file(&pdev->dev.kobj, &pci_config_attr);
+        else
+                sysfs_remove_bin_file(&pdev->dev.kobj, &pcie_config_attr);
+@@ -820,7 +820,7 @@ void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
+                sysfs_remove_bin_file(&pdev->dev.kobj, pdev->vpd->attr);
+                kfree(pdev->vpd->attr);
+        }
+-       if (pdev->cfg_size < 4096)
++       if (pdev->cfg_size < PCI_CFG_SPACE_EXP_SIZE)
+                sysfs_remove_bin_file(&pdev->dev.kobj, &pci_config_attr);
+        else
+                sysfs_remove_bin_file(&pdev->dev.kobj, &pcie_config_attr);
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index c9884bb..259eaff 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -216,7 +216,7 @@ int pci_find_ext_capability(struct pci_dev *dev, int cap)
+        int ttl = 480; /* 3840 bytes, minimum 8 bytes per capability */
+        int pos = 0x100;
 
-If we want to be "fair" the gap of IO performance between the cgroups
-should be close to 0.
+-       if (dev->cfg_size <= 256)
++       if (dev->cfg_size <= PCI_CFG_SPACE_SIZE)
+                return 0;
 
-Using "plain" cfq (red line) the gap of performance increases
-incrementing the number of tasks in a cgroup.
+        if (pci_read_config_dword(dev, pos, &header) != PCIBIOS_SUCCESSFUL)
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index d807cd7..596efa6 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -1,3 +1,9 @@
++#ifndef DRIVERS_PCI_H
++#define DRIVERS_PCI_H
++
++#define PCI_CFG_SPACE_SIZE     256
++#define PCI_CFG_SPACE_EXP_SIZE 4096
++
+ /* Functions internal to the PCI core code */
 
-Using cgroup-io-throttle on top of cfq (green line) the gap of
-performance is lower (the asymptotic curve is due to the bandwidth
-capping provided by cgroup-io-throttle).
+ extern int pci_uevent(struct device *dev, struct kobj_uevent_env *env);
+@@ -144,3 +150,17 @@ struct pci_slot_attribute {
+ };
+ #define to_pci_slot_attr(s) container_of(s, struct pci_slot_attribute, attr)
 
-Using cgroup-io-throttle and a single shared iocontext for each cgroup
-(blue line) the gap of performance is really close to 0.
++enum pci_bar_type {
++       pci_bar_unknown,        /* Standard PCI BAR probe */
++       pci_bar_io,             /* An io port BAR */
++       pci_bar_mem32,          /* A 32-bit memory BAR */
++       pci_bar_mem64,          /* A 64-bit memory BAR */
++       pci_bar_rom,            /* A ROM BAR */
++};
++
++extern int pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
++                               struct resource *res, unsigned int reg);
++extern struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
++                               struct pci_dev *bridge, int busnr);
++
++#endif /* DRIVERS_PCI_H */
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 36698e5..7cdb834 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -14,8 +14,6 @@
 
-Anyway, I repeat, I don't think this is a wonderful solution, it is just
-to highlights this issue and share with you the results of some tests I
-did.
+ #define CARDBUS_LATENCY_TIMER  176     /* secondary latency timer */
+ #define CARDBUS_RESERVE_BUSNR  3
+-#define PCI_CFG_SPACE_SIZE     256
+-#define PCI_CFG_SPACE_EXP_SIZE 4096
 
--Andrea
+ /* Ugh.  Need to stop exporting this to modules. */
+ LIST_HEAD(pci_root_buses);
+@@ -203,13 +201,6 @@ static u64 pci_size(u64 base, u64 maxbase, u64 mask)
+        return size;
+ }
+
+-enum pci_bar_type {
+-       pci_bar_unknown,        /* Standard PCI BAR probe */
+-       pci_bar_io,             /* An io port BAR */
+-       pci_bar_mem32,          /* A 32-bit memory BAR */
+-       pci_bar_mem64,          /* A 64-bit memory BAR */
+-};
+-
+ static inline enum pci_bar_type decode_bar(struct resource *res, u32 bar)
+ {
+        if ((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO) {
+@@ -224,16 +215,21 @@ static inline enum pci_bar_type decode_bar(struct resource *res, u32 bar)
+        return pci_bar_mem32;
+ }
+
+-/*
+- * If the type is not unknown, we assume that the lowest bit is 'enable'.
+- * Returns 1 if the BAR was 64-bit and 0 if it was 32-bit.
++/**
++ * pci_read_base - read a PCI BAR
++ * @dev: the PCI device
++ * @type: type of the BAR
++ * @res: resource buffer to be filled in
++ * @pos: BAR position in the config space
++ *
++ * Returns 1 if the BAR is 64-bit, or 0 if 32-bit.
+  */
+-static int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
++int pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+                        struct resource *res, unsigned int pos)
+ {
+        u32 l, sz, mask;
+
+-       mask = type ? ~PCI_ROM_ADDRESS_ENABLE : ~0;
++       mask = (type == pci_bar_rom) ? ~PCI_ROM_ADDRESS_ENABLE : ~0;
+
+        res->name = pci_name(dev);
+
+@@ -258,7 +254,11 @@ static int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+        if (l == 0xffffffff)
+                l = 0;
+
+-       if (type == pci_bar_unknown) {
++       if (type == pci_bar_rom) {
++               res->flags |= (l & IORESOURCE_ROM_ENABLE);
++               l &= PCI_ROM_ADDRESS_MASK;
++               mask = (u32)PCI_ROM_ADDRESS_MASK;
++       } else {
+                type = decode_bar(res, l);
+                res->flags |= pci_calc_resource_flags(l) | IORESOURCE_SIZEALIGN;
+                if (type == pci_bar_io) {
+@@ -268,10 +268,6 @@ static int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+                        l &= PCI_BASE_ADDRESS_MEM_MASK;
+                        mask = (u32)PCI_BASE_ADDRESS_MEM_MASK;
+                }
+-       } else {
+-               res->flags |= (l & IORESOURCE_ROM_ENABLE);
+-               l &= PCI_ROM_ADDRESS_MASK;
+-               mask = (u32)PCI_ROM_ADDRESS_MASK;
+        }
+
+        if (type == pci_bar_mem64) {
+@@ -335,7 +331,7 @@ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
+        for (pos = 0; pos < howmany; pos++) {
+                struct resource *res = &dev->resource[pos];
+                reg = PCI_BASE_ADDRESS_0 + (pos << 2);
+-               pos += __pci_read_base(dev, pci_bar_unknown, res, reg);
++               pos += pci_read_base(dev, pci_bar_unknown, res, reg);
+        }
+
+        if (rom) {
+@@ -344,7 +340,7 @@ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
+                res->flags = IORESOURCE_MEM | IORESOURCE_PREFETCH |
+                                IORESOURCE_READONLY | IORESOURCE_CACHEABLE |
+                                IORESOURCE_SIZEALIGN;
+-               __pci_read_base(dev, pci_bar_mem32, res, rom);
++               pci_read_base(dev, pci_bar_mem32, res, rom);
+        }
+ }
+
+@@ -366,9 +362,6 @@ void __devinit pci_read_bridge_bases(struct pci_bus *child)
+                        child->resource[i] = child->parent->resource[i - 3];
+        }
+
+-       for(i=0; i<3; i++)
+-               child->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
+-
+        res = child->resource[0];
+        pci_read_config_byte(dev, PCI_IO_BASE, &io_base_lo);
+        pci_read_config_byte(dev, PCI_IO_LIMIT, &io_limit_lo);
+@@ -461,7 +454,7 @@ static struct pci_bus * pci_alloc_bus(void)
+        return b;
+ }
+
+-static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
++struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+                                           struct pci_dev *bridge, int busnr)
+ {
+        struct pci_bus *child;
+@@ -474,12 +467,10 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+        if (!child)
+                return NULL;
+
+-       child->self = bridge;
+        child->parent = parent;
+        child->ops = parent->ops;
+        child->sysdata = parent->sysdata;
+        child->bus_flags = parent->bus_flags;
+-       child->bridge = get_device(&bridge->dev);
+
+        /* initialize some portions of the bus device, but don't register it
+         * now as the parent is not properly set up yet.  This device will get
+@@ -496,6 +487,11 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+        child->primary = parent->secondary;
+        child->subordinate = 0xff;
+
++       if (!bridge)
++               return child;
++
++       child->self = bridge;
++       child->bridge = get_device(&bridge->dev);
+        /* Set up default resource pointers and names.. */
+        for (i = 0; i < 4; i++) {
+                child->resource[i] = &bridge->resource[PCI_BRIDGE_RESOURCES+i];
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 3abbfad..6c78cf8 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -299,7 +299,7 @@ static void pbus_size_io(struct pci_bus *bus)
+
+                        if (r->parent || !(r->flags & IORESOURCE_IO))
+                                continue;
+-                       r_size = r->end - r->start + 1;
++                       r_size = resource_size(r);
+
+                        if (r_size < 0x400)
+                                /* Might be re-aligned for ISA */
+@@ -350,7 +350,7 @@ static int pbus_size_mem(struct pci_bus *bus, unsigned long mask, unsigned long
+
+                        if (r->parent || (r->flags & mask) != type)
+                                continue;
+-                       r_size = r->end - r->start + 1;
++                       r_size = resource_size(r);
+                        /* For bridges size != alignment */
+                        align = resource_alignment(r);
+                        order = __ffs(align) - 20;
+diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+index 1a5fc83..56e4042 100644
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -133,7 +133,7 @@ int pci_assign_resource(struct pci_dev *dev, int resno)
+        resource_size_t size, min, align;
+        int ret;
+
+-       size = res->end - res->start + 1;
++       size = resource_size(res);
+        min = (res->flags & IORESOURCE_IO) ? PCIBIOS_MIN_IO : PCIBIOS_MIN_MEM;
+
+        align = resource_alignment(res);
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 98dc624..cc78be6 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -456,8 +456,8 @@ struct pci_driver {
+
+ /**
+  * PCI_VDEVICE - macro used to describe a specific pci device in short form
+- * @vend: the vendor name
+- * @dev: the 16 bit PCI Device ID
++ * @vendor: the vendor name
++ * @device: the 16 bit PCI Device ID
+  *
+  * This macro is used to create a struct pci_device_id that matches a
+  * specific PCI device.  The subvendor, and subdevice fields will be set
+--
+1.5.6.4
