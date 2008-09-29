@@ -1,14 +1,15 @@
-From: Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH 1/6 v3] PCI: export some functions and macros
-Date: Sat, 27 Sep 2008 06:59:27 -0600
-Message-ID: <20080927125927.GL27204__29986.768650315$1222520542$gmane$org@parisc-linux.org>
-References: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F0@pdsmsx502.ccr.corp.intel.com>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: dm-ioband + bio-cgroup benchmarks
+Date: Mon, 29 Sep 2008 19:40:36 +0900 (JST)
+Message-ID: <20080929.194036.105502812.taka__6530.15280045128$1222685001$gmane$org@valinux.co.jp>
+References: <20080924145331.GD547@redhat.com>
+	<20080926.220418.83079316.taka@valinux.co.jp>
+	<48DD0617.3050403@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F0@pdsmsx502.ccr.corp.intel.com>
+In-Reply-To: <48DD0617.3050403@gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,96 +19,63 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhao, Yu" <yu.zhao@intel.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Grant Grundler <grundler@parisc-linux.org>, Alex Chiang <achiang@hp.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Roland Dreier <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Greg KH <greg@kroah.com>
+To: righi.andrea@gmail.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, jens.axboe@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, xemul@openvz.org, fernando@oss.ntt.co.jp, vgoyal@redhat.com, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Sep 27, 2008 at 04:27:44PM +0800, Zhao, Yu wrote:
-> Export some functions and move some macros from c file to header file.
+Hi,
 
-That's absolutely not everything this patch does.  You need to split
-this into smaller pieces and explain what you're doing and why for each
-of them.
-
-> diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-> index d807cd7..596efa6 100644
-> --- a/drivers/pci/pci.h
-> +++ b/drivers/pci/pci.h
-> @@ -1,3 +1,9 @@
-> +#ifndef DRIVERS_PCI_H
-> +#define DRIVERS_PCI_H
-
-Do we really need header guards on this file?
-
-> -/*
-> - * If the type is not unknown, we assume that the lowest bit is 'enable'.
-> - * Returns 1 if the BAR was 64-bit and 0 if it was 32-bit.
-> +/**
-> + * pci_read_base - read a PCI BAR
-> + * @dev: the PCI device
-> + * @type: type of the BAR
-> + * @res: resource buffer to be filled in
-> + * @pos: BAR position in the config space
-> + *
-> + * Returns 1 if the BAR is 64-bit, or 0 if 32-bit.
->   */
-> -static int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
-> +int pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
-
-The original intent here was to have a pci_read_base() that called
-__pci_read_base() and then did things like translate physical BAR
-addresses to virtual ones.  That patch is in the archives somewhere.
-We ended up not including that patch because my user found out he could
-get the address he wanted from elsewhere.  I'm not sure we want to
-remove the __ at this point.
-
-The eventual goal is to fix up the BARs at this point, but there's
-several architectures that will break if we do this now.  It's on my
-long-term todo list.
-
->                         struct resource *res, unsigned int pos)
->  {
->         u32 l, sz, mask;
+> >>>>> It's possible the algorithm of dm-ioband can be placed in the block layer
+> >>>>> if it is really a big problem.
+> >>>>> But I doubt it can control every control block I/O as we wish since
+> >>>>> the interface the cgroup supports is quite poor.
+> >>>> Had a question regarding cgroup interface. I am assuming that in a system,
+> >>>> one will be using other controllers as well apart from IO-controller.
+> >>>> Other controllers will be using cgroup as a grouping mechanism.
+> >>>> Now coming up with additional grouping mechanism for only io-controller seems
+> >>>> little odd to me. It will make the job of higher level management software
+> >>>> harder.
+> >>>>
+> >>>> Looking at the dm-ioband grouping examples given in patches, I think cases
+> >>>> of grouping based  in pid, pgrp, uid and kvm can be handled by creating right
+> >>>> cgroup and making sure applications are launched/moved into right cgroup by
+> >>>> user space tools. 
+> >>> Grouping in pid, pgrp and uid is not the point, which I've been thinking
+> >>> can be replaced with cgroup once the implementation of bio-cgroup is done.
+> >>>
+> >>> I think problems of cgroup are that they can't support lots of storages
+> >>> and hotplug devices, it just handle them as if they were just one resource.
+> >>> I don't insist the interface of dm-ioband is the best. I just hope the
+> >>> cgroup infrastructure support this kind of resources.
+> >>>
+> >> Sorry, I did not understand fully. Can you please explain in detail what
+> >> kind of situation will not be covered by cgroup interface.
+> > 
+> > From the concept of the cgroup, if you want control several disks
+> > independently, you should make each disk have its own cgroup subsystem,
+> > which only can be defined when compiling the kernel. This is impossible
+> > because every linux box has various number of disks.
 > 
-> -       mask = type ? ~PCI_ROM_ADDRESS_ENABLE : ~0;
-> +       mask = (type == pci_bar_rom) ? ~PCI_ROM_ADDRESS_ENABLE : ~0;
-
-What's going on here?  Why are you adding pci_bar_rom?  For the rom we
-use pci_bar_mem32.  Take a look at, for example, the MCHBAR in the 965
-spec (313053.pdf).  That's something that uses the pci_bar_mem64 type
-and definitely wants to use the PCI_ROM_ADDRESS_ENABLE mask.
-
+> mmh? not true. You can define a single cgroup subsystem that implements
+> the opportune interfaces to apply your type of control, and use many
+> structures allocated dynamically for each controlled object (one for
+> each block device, disk, partition, ... or using any kind of
+> grouping/splitting policy). Actually, this is how cgroup-io-throttle, as
+> well as any other cgroup subsystem, is implemented.
 > 
-> -       if (type == pci_bar_unknown) {
-> +       if (type == pci_bar_rom) {
-> +               res->flags |= (l & IORESOURCE_ROM_ENABLE);
-> +               l &= PCI_ROM_ADDRESS_MASK;
-> +               mask = (u32)PCI_ROM_ADDRESS_MASK;
-> +       } else {
-
-This looks wrong too.
-
->         if (rom) {
-> @@ -344,7 +340,7 @@ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
->                 res->flags = IORESOURCE_MEM | IORESOURCE_PREFETCH |
->                                 IORESOURCE_READONLY | IORESOURCE_CACHEABLE |
->                                 IORESOURCE_SIZEALIGN;
-> -               __pci_read_base(dev, pci_bar_mem32, res, rom);
-> +               pci_read_base(dev, pci_bar_mem32, res, rom);
->         }
-
-And you don't even change the type here ... have you tested this code on
-a system which has a ROM?
-
+> > So you think it may be possible to make each cgroup have lots of control
+> > files for each device as a workaround. But it isn't allowed to add/remove
+> > control files when some devices are hot-added or hot-removed.
 > 
-> -       for(i=0; i<3; i++)
-> -               child->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
-> -
+> Why not a single control file for all the devices?
 
-Er, this is rather important.  Why can you just delete it?
+This is possible but I wonder if this is really the way we should go.
+It looks like you tried implementing another ioctl-like interface
+on the cgroup control file interface. You can do anything you want
+with this interface though.
 
--- 
-Matthew Wilcox				Intel Open Source Technology Centre
-"Bill, look, we understand that you're interested in selling us this
-operating system, but compare it to ours.  We can't possibly take such
-a retrograde step."
+I guess there should be at least some rules to implement this kind of
+ioctl-like interface if they don't want to enhance the cgroup interface, 
+
+Thank you,
+Hirokazu Takahashi.
