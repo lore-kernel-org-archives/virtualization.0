@@ -1,14 +1,16 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [RFC] CPUID usage for interaction between Hypervisors and Linux.
-Date: Wed, 01 Oct 2008 16:03:23 -0500
-Message-ID: <48E3E59B.8060900__20217.0042590753$1222895301$gmane$org@codemonkey.ws>
-References: <1222881242.9381.17.camel@alok-dev1>	<48E3BBC1.2050607__35819.6151479662$1222884502$gmane$org@goop.org>	<48E3D7A0.3000403@codemonkey.ws>
-	<48E3D8A8.604__13396.6479487301$1222891831$gmane$org@goop.org>
+From: Alok Kataria <akataria@vmware.com>
+Subject: Re: [RFC] CPUID usage for interaction between Hypervisors and	Linux.
+Date: Wed, 01 Oct 2008 14:05:53 -0700
+Message-ID: <1222895153.9381.69.camel__31484.2656640851$1222895302$gmane$org@alok-dev1>
+References: <1222881242.9381.17.camel@alok-dev1>
+	<48E3B19D.6060905@zytor.com> <1222882431.9381.23.camel@alok-dev1>
+	<48E3BC21.4080803@goop.org>
+Reply-To: akataria@vmware.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48E3D8A8.604__13396.6479487301$1222891831$gmane$org@goop.org>
+In-Reply-To: <48E3BC21.4080803@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,45 +20,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.osdl.org
-Cc: kvm@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, Dan Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "avi@redhat.com" <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, akataria@vmware.com, Ingo Molnar <mingo@elte.hu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Daniel Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, "avi@redhat.com" <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jeremy Fitzhardinge wrote:
-> Anthony Liguori wrote:
->> Mmm, cpuid bikeshedding :-)
+On Wed, 2008-10-01 at 11:06 -0700, Jeremy Fitzhardinge wrote:
+> Alok Kataria wrote:
+> > Its not a user who has to do anything special here.
+> > There are *intelligent* VM developers out there who can export a
+> > different CPUid interface depending on the guest OS type. And this is
+> > what most of the hypervisors do (not necessarily for CPUID, but for
+> > other things right now).
+> >
 > 
-> My shade of blue is better.
-> 
->>> The space 0x40000000-0x400000ff is reserved for hypervisor usage.
->>>
->>> This region is divided into 16 16-leaf blocks.  Each block has the 
->>> structure:
->>>
->>> 0x400000x0:
->>>     eax: max used leaf within the leaf block (max 0x400000xf)
->> Why even bother with this?  It doesn't seem necessary in your proposal.
-> 
-> It allows someone to incrementally add things to their block in a fairly 
-> orderly way.  But more importantly, its the prevailing idiom, and the 
-> existing and proposed cpuid schemes already do this, so they'd fit in as-is.
+> No, that's always a terrible idea.  Sure, its necessary to deal with
+> some backward-compatibility issues, but we should even consider a new
+> interface which assumes this kind of thing.  We want properly enumerable
+> interfaces.
 
-We just leave eax as zero.  It wouldn't be that upsetting to change this 
-as it would only keep new guests from working on older KVMs.
+The reason we still have to do this is because, Microsoft has already
+defined a CPUID format which is way different than what you or I are
+proposing ( with the current case of 256 leafs being available). And I
+doubt they would change the way they deal with it on their OS. 
+Any proposal that we go with, we will have to export different CPUID
+interface from the hypervisor for the 2 OS in question. 
 
-However, I see little incentive to change anything unless there's 
-something compelling that we would get in return.  Since we're only 
-talking about Linux guests, it's just as easy for us to add things to 
-our paravirt_ops implementation as it would be to add things using this 
-new model.
+So i think this is something that we anyways will have to do and not
+worth binging about in the discussion.
 
-If this was something that other guests were all agreeing to support 
-(even if it was just the BSDs and OpenSolaris), then there may be value 
-to it.  Right now, I see no real value in changing the status quo.
-
-Regards,
-
-Anthony Liguori
-
+--
+Alok
 
 >     J
