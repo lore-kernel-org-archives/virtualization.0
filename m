@@ -1,16 +1,14 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [RFC] CPUID usage for interaction between Hypervisors and Linux.
-Date: Wed, 01 Oct 2008 12:56:34 -0700
-Message-ID: <48E3D5F2.4090708__40972.5138139494$1222891244$gmane$org@goop.org>
-References: <1222881242.9381.17.camel@alok-dev1> <48E3BBC1.2050607@goop.org>
-	<48E3BC47.60900@zytor.com> <48E3BD83.2090801@goop.org>
-	<48E3BE65.2050909@zytor.com> <48E3C32B.3090701@goop.org>
-	<48E3C4C3.1050903@zytor.com>
+Date: Wed, 01 Oct 2008 15:03:44 -0500
+Message-ID: <48E3D7A0.3000403__1878.61186354912$1222891634$gmane$org@codemonkey.ws>
+References: <1222881242.9381.17.camel@alok-dev1>
+	<48E3BBC1.2050607__35819.6151479662$1222884502$gmane$org@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48E3C4C3.1050903@zytor.com>
+In-Reply-To: <48E3BBC1.2050607__35819.6151479662$1222884502$gmane$org@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,38 +18,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: kvm@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, Dan Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "avi@redhat.com" <avi@redhat.com>, akataria@vmware.com, Ingo Molnar <mingo@elte.hu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: kvm@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, Dan Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "avi@redhat.com" <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, akataria@vmware.com, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-H. Peter Anvin wrote:
-> What you'd want, at least, is a standard CPUID identification and 
-> range leaf at the top.  256 leaves is a *lot*, though; I'm not saying 
-> one couldn't run out, but it'd be hard.  Keep in mind that for large 
-> objects there are "counting" CPUID levels, as much as I personally 
-> dislike them, and one could easily argue that if you're doing 
-> something that would require anywhere near 256 leaves you probably are 
-> storing bulk data that belongs elsewhere.
+Jeremy Fitzhardinge wrote:
+> Alok Kataria wrote:
+> 
+> No, we're not getting anywhere.  This is an outright broken idea.  The 
+> space is too small to be able to chop up in this way, and the number of 
+> vendors too large to be able to do it without having a central oversight.
+> 
+> The only way this can work is by having explicit positive identification 
+> of each group of leaves with a signature.  If there's a recognizable 
+> signature, then you can inspect the rest of the group; if not, then you 
+> can't.  That way, you can avoid any leaf usage which doesn't conform to 
+> this model, and you can also simultaneously support multiple hypervisor 
+> ABIs.  It also accommodates existing hypervisor use of this leaf space, 
+> even if they currently use a fixed location within it.
+> 
+> A concrete counter-proposal:
 
-I agree, but it just makes the proposal a bit more brittle.
+Mmm, cpuid bikeshedding :-)
 
-> Of course, if we had some kind of central authority assigning 8-bit 
-> IDs that would be even better, especially since there are tools in the 
-> field which already scan on 64K boundaries.  I don't know, though, how 
-> likely it is that we'll have to deal with 256 hypervisors.
+> The space 0x40000000-0x400000ff is reserved for hypervisor usage.
+> 
+> This region is divided into 16 16-leaf blocks.  Each block has the 
+> structure:
+> 
+> 0x400000x0:
+>     eax: max used leaf within the leaf block (max 0x400000xf)
 
-I'm assuming that the likelihood of getting all possible vendors - 
-current and future - to agree to a scheme like this is pretty small.  We 
-need to come up with something that will work well when there are 
-non-cooperative parties to deal with.
+Why even bother with this?  It doesn't seem necessary in your proposal.
 
-> I agree completely, of course (except that "what hypervisor is this" 
-> still has limited usage, especially when it comes to dealing with bug 
-> workarounds.  Similar to the way we use CPU vendor IDs and stepping 
-> numbers for physical CPUs.)
+Regards,
 
-I guess.  Its certainly useful to be able to identify the hypervisor for 
-bug reporting and just general status information.  But making 
-functional changes on that basis should be a last resort.
-
-    J
+Anthony Liguori
