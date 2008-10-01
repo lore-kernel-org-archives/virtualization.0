@@ -1,14 +1,14 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [RFC] CPUID usage for interaction between Hypervisors and	Linux.
-Date: Wed, 01 Oct 2008 11:06:25 -0700
-Message-ID: <48E3BC21.4080803__40760.6006636799$1222884555$gmane$org@goop.org>
-References: <1222881242.9381.17.camel@alok-dev1>	 <48E3B19D.6060905@zytor.com>
-	<1222882431.9381.23.camel@alok-dev1>
+Subject: Re: [RFC] CPUID usage for interaction between Hypervisors and Linux.
+Date: Wed, 01 Oct 2008 11:12:19 -0700
+Message-ID: <48E3BD83.2090801__37061.516106087$1222885000$gmane$org@goop.org>
+References: <1222881242.9381.17.camel@alok-dev1> <48E3BBC1.2050607@goop.org>
+	<48E3BC47.60900@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1222882431.9381.23.camel@alok-dev1>
+In-Reply-To: <48E3BC47.60900@zytor.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,21 +18,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: akataria@vmware.com
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Daniel Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, "avi@redhat.com" <avi@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: kvm@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, Dan Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "avi@redhat.com" <avi@redhat.com>, akataria@vmware.com, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Alok Kataria wrote:
-> Its not a user who has to do anything special here.
-> There are *intelligent* VM developers out there who can export a
-> different CPUid interface depending on the guest OS type. And this is
-> what most of the hypervisors do (not necessarily for CPUID, but for
-> other things right now).
->   
+H. Peter Anvin wrote:
+> Jeremy Fitzhardinge wrote:
+>>
+>> No, we're not getting anywhere.  This is an outright broken idea.  
+>> The space is too small to be able to chop up in this way, and the 
+>> number of vendors too large to be able to do it without having a 
+>> central oversight.
+>>
+>
+> I suspect we can get a larger number space if we ask Intel & AMD.  In 
+> fact, I think we should request that the entire 0x40xxxxxx numberspace 
+> is assigned to virtualization *anyway*.
 
-No, that's always a terrible idea.  Sure, its necessary to deal with 
-some backward-compatibility issues, but we should even consider a new 
-interface which assumes this kind of thing.  We want properly enumerable 
-interfaces.
+Yes, that would be good.  In that case I'd revise my proposal to back 
+each leaf block 256 leaves instead of 16.  But it still needs to be a 
+proper enumeration with signatures, rather than assigning fixed points 
+in that space to specific interfaces.
 
     J
