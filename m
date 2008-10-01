@@ -1,7 +1,7 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [RFC] CPUID usage for interaction between Hypervisors and Linux.
 Date: Wed, 01 Oct 2008 16:03:23 -0500
-Message-ID: <48E3E59B.8060900__49675.1763429076$1222895291$gmane$org@codemonkey.ws>
+Message-ID: <48E3E59B.8060900__20217.0042590753$1222895301$gmane$org@codemonkey.ws>
 References: <1222881242.9381.17.camel@alok-dev1>	<48E3BBC1.2050607__35819.6151479662$1222884502$gmane$org@goop.org>	<48E3D7A0.3000403@codemonkey.ws>
 	<48E3D8A8.604__13396.6479487301$1222891831$gmane$org@goop.org>
 Mime-Version: 1.0
@@ -18,7 +18,7 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
+To: virtualization@lists.osdl.org
 Cc: kvm@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, Dan Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "avi@redhat.com" <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, akataria@vmware.com, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
