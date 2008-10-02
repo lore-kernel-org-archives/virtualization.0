@@ -1,16 +1,14 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [RFC] CPUID usage for interaction between Hypervisors and	Linux.
-Date: Thu, 02 Oct 2008 14:29:00 +0300
-Message-ID: <48E4B07C.60605__6747.57074234567$1222959087$gmane$org@redhat.com>
-References: <1222881242.9381.17.camel@alok-dev1> <48E3BBC1.2050607@goop.org>
-	<1222894878.9381.63.camel@alok-dev1>
-	<48E3E8DE.1080602@goop.org> <48E3ECD1.30809@codemonkey.ws>
-	<20081001214338.GD634@sequoia.sous-sol.org>
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: [PATCH 3/6 v3] PCI: support ARI capability
+Date: Thu, 2 Oct 2008 09:03:15 -0700
+Message-ID: <200810020903.16385.jbarnes__33766.824034001$1222963591$gmane$org@virtuousgeek.org>
+References: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F3@pdsmsx502.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081001214338.GD634@sequoia.sous-sol.org>
+In-Reply-To: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F3@pdsmsx502.ccr.corp.intel.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,24 +18,71 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: the arch/x86 maintainers <x86@kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Daniel Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Anthony Liguori <anthony@codemonkey.ws>, "H. Peter Anvin" <hpa@zytor.com>, akataria@vmware.com, Ingo Molnar <mingo@elte.hu>
+To: "Zhao, Yu" <yu.zhao@intel.com>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Grant Grundler <grundler@parisc-linux.org>, Alex Chiang <achiang@hp.com>, Matthew Wilcox <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Roland Dreier <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Greg KH <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chris Wright wrote:
-> * Anthony Liguori (anthony@codemonkey.ws) wrote:
->   
->> And arguably, storing TSC frequency in CPUID is a terrible interface  
->> because the TSC frequency can change any time a guest is entered.  It  
->>     
+On Saturday, September 27, 2008 1:28 am Zhao, Yu wrote:
+> Add Alternative Routing-ID Interpretation (ARI) support.
 >
-> True for older hardware, newer hardware should fix this.  I guess the
-> point is, the are numbers that are easy to measure incorrectly in guest.
-> Doesn't justify the whole thing..
->   
+> Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
+> Cc: Randy Dunlap <randy.dunlap@oracle.com>
+> Cc: Grant Grundler <grundler@parisc-linux.org>
+> Cc: Alex Chiang <achiang@hp.com>
+> Cc: Matthew Wilcox <matthew@wil.cx>
+> Cc: Roland Dreier <rdreier@cisco.com>
+> Cc: Greg KH <greg@kroah.com>
+> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
+>
+> ---
+>  drivers/pci/pci.c        |   31 +++++++++++++++++++++++++++++++
+>  drivers/pci/pci.h        |   12 ++++++++++++
+>  drivers/pci/probe.c      |    3 +++
+>  include/linux/pci.h      |    1 +
+>  include/linux/pci_regs.h |   14 ++++++++++++++
+>  5 files changed, 61 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index 400d3b3..fe9efc4 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -1260,6 +1260,37 @@ void pci_pm_init(struct pci_dev *dev)
+>         }
+>  }
+>
+> +/**
+> + * pci_ari_init - turn on ARI forwarding if it's supported
+> + * @dev: the PCI device
+> + */
+> +void pci_ari_init(struct pci_dev *dev)
+> +{
+> +       int pos;
+> +       u32 cap;
+> +       u16 ctrl;
+> +
+> +       if (!dev->is_pcie || (dev->pcie_type != PCI_EXP_TYPE_ROOT_PORT &&
+> +                               dev->pcie_type != PCI_EXP_TYPE_DOWNSTREAM))
+> +               return;
+> +
+> +       pos = pci_find_capability(dev, PCI_CAP_ID_EXP);
+> +       if (!pos)
+> +               return;
+> +
+> +       pci_read_config_dword(dev, pos + PCI_EXP_DEVCAP2, &cap);
+> +
+> +       if (!(cap & PCI_EXP_DEVCAP2_ARI))
+> +               return;
+> +
+> +       pci_read_config_word(dev, pos + PCI_EXP_DEVCTL2, &ctrl);
+> +       ctrl |= PCI_EXP_DEVCTL2_ARI;
+> +       pci_write_config_word(dev, pos + PCI_EXP_DEVCTL2, ctrl);
+> +
+> +       dev->ari_enabled = 1;
+> +       dev_info(&dev->dev, "ARI forwarding enabled.\n");
+> +}
+> +
 
-It's not fixed for newer hardware.  Larger systems still have multiple 
-tsc frequencies.
+Maybe we should be consistent with the other APIs and call it pci_enable_ari 
+(like we do for wake & msi).  Looks pretty good otherwise.
 
--- 
-error compiling committee.c: too many arguments to function
+Jesse
