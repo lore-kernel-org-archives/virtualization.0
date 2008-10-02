@@ -1,16 +1,17 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC] CPUID usage for interaction between Hypervisors	and	Linux.
-Date: Wed, 01 Oct 2008 17:39:22 -0700
-Message-ID: <48E4183A.7090208__30142.280777409$1222908514$gmane$org@zytor.com>
-References: <1222881242.9381.17.camel@alok-dev1> <48E3BBC1.2050607@goop.org>	
-	<1222894878.9381.63.camel@alok-dev1>
-	<48E3E8DE.1080602@goop.org>	 <48E3ECD1.30809@codemonkey.ws>
-	<1222904824.7330.83.camel@bodhitayantram.eng.vmware.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: RE: [RFC] CPUID usage for interaction between Hypervisors	and	Linux.
+Date: Wed, 1 Oct 2008 18:11:11 -0700
+Message-ID: <0B53E02A2965CE4F9ADB38B34501A3A15D927EA4__9041.90562800995$1222910040$gmane$org@orsmsx505.amr.corp.intel.com>
+References: <1222881242.9381.17.camel@alok-dev1>
+	<48E3B19D.6060905@zytor.com> <1222882431.9381.23.camel@alok-dev1>
+	<48E3BC21.4080803@goop.org> <1222895153.9381.69.camel@alok-dev1>
+	<48E3FDD5.7040106@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1222904824.7330.83.camel@bodhitayantram.eng.vmware.com>
+In-Reply-To: <48E3FDD5.7040106@zytor.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,38 +21,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zachary Amsden <zach@vmware.com>
-Cc: the arch/x86 maintainers <x86@kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Daniel Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Anthony Liguori <anthony@codemonkey.ws>, Alok Kataria <akataria@vmware.com>, Ingo Molnar <mingo@elte.hu>, "avi@redhat.com" <avi@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, "akataria@vmware.com" <akataria@vmware.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Daniel Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "avi@redhat.com" <avi@redhat.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-WmFjaGFyeSBBbXNkZW4gd3JvdGU6Cj4gCj4gSnVuLCB5b3Ugd29yayBhdCBJbnRlbC4gIENhbiB5
-b3UgYXNrIGZvciBhIG5ldyBhcmNoaXRlY3R1cmFsbHkgZGVmaW5lZAo+IE1TUiB0aGF0IHJldHVy
-bnMgdGhlIFRTQyBmcmVxdWVuY3k/ICBOb3QgYSB2aXJ0dWFsaXphdGlvbiBzcGVjaWZpYyBNU1Iu
-Cj4gQSByZWFsIE1TUiB0aGF0IHdvdWxkIGV4aXN0IG9uIHBoeXNpY2FsIHByb2Nlc3NvcnMuICBU
-aGUgVFNDIHN0YXJ0ZWQgYXMKPiBhbiBNU1IgYW55d2F5LiAgVGhlcmUgc2hvdWxkIGJlIGFub3Ro
-ZXIgTVNSIHRoYXQgdGVsbHMgdGhlIGZyZXF1ZW5jeS4KPiBJZiBpdCdzIGhhcmQgdG8gZG8gaW4g
-aGFyZHdhcmUsIGl0IGNhbiBiZSBhIHdyaXRlLW9uY2UgTVNSIHRoYXQgZ2V0cwo+IGluaXRpYWxp
-emVkIGJ5IHRoZSBCSU9TLiAgSXQncyByZWFsbHkgYSB2ZXJ5IHNpbXBsZSBzb2x1dGlvbiB0byBh
-IHZlcnkKPiBjb21tb24gcHJvYmxlbS4gIE90aGVyIE1TUnMgYXJlIGRlZGljYXRlZCB0byBidXMg
-c3BlZWQgYW5kIHNvIG9uLCB0aGlzCj4gc2VlbXMgcmVtYXJrYWJseSBzaW1pbGFyLgo+IAoKQWgs
-IGlmIGl0IHdhcyBvbmx5IHRoYXQgc2ltcGxlLiAgVHJhbnNtZXRhIGFjdHVhbGx5IGRpZCB0aGlz
-LCBidXQgaXQncyAKbm90IGFzIHVzZWZ1bCBhcyB5b3UgdGhpbmsuCgpUaGVyZSBhcmUgYXQgbGVh
-c3QgdGhyZWUgY3J5c3RhbHMgaW4gbW9kZXJuIFBDczogb25lIGF0IDMyLjc2OCBrSHogKGZvciAK
-dGhlIFJUQyksIG9uZSBhdCAxNC4zMTgxOCBNSHogKFBJVCwgUE1UTVIgYW5kIEhQRVQpLCBhbmQg
-b25lIGF0IGEgaGlnaGVyIApmcmVxdWVuY3kgKG9mdGVuIDIwMCBNSHouKQoKQWxsIHRoZSBtYWlu
-IGRhdGEgZGlzdHJpYnV0aW9uIGNsb2NrcyBpbiB0aGUgc3lzdGVtIGFyZSBkZXJpdmVkIGZyb20g
-dGhlIAp0aGlyZCwgd2hpY2ggaXMgc3ViamVjdCB0byBzcHJlYWQtc3BlY3RydW0gbW9kdWxhdGlv
-biBkdWUgdG8gUkZJIApjb25jZXJucy4gIFRoZXJlZm9yZSwgcmVseWluZyBvbiB0aGUgKm5vbWlu
-YWwqIGZyZXF1ZW5jeSBvZiB0aGlzIGNsb2NrIAppcyB2YXN0bHkgaW5jb3JyZWN0OyBvZnRlbiBi
-eSBhcyBtdWNoIGFzIDIlLiAgU3ByZWFkLXNwZWN0cnVtIG1vZHVsYXRpb24gCmlzIHN1cHBvc2Vk
-IHRvIHZhcnkgYXJvdW5kIHplcm8gZW5vdWdoIHRoYXQgdGhlIHNwcmVhZGluZyBhdmVyYWdlcyBv
-dXQsIApidXQgdGhlIG9ubHkgd2F5IHRvIGtub3cgd2hhdCB0aGUgY2VudGVyIGZyZXF1ZW5jeSBh
-Y3R1YWxseSBpcyBpcyB0byAKYXZlcmFnZS4gIEZ1cnRoZXJtb3JlLCB0aGlzIGhpZ2gtZnJlcXVl
-bmN5IGNsb2NrIGlzIGdlbmVyYWxseSBub3QgCmNhbGlicmF0ZWQgYW55d2hlcmUgbmVhciBhcyB3
-ZWxsIGFzIHRoZSAxNCBNSHogY2xvY2s7IGluIGdvb2QgZGVzaWducyAKdGhlIDE0IE1IeiBpcyBh
-Y3R1YWxseSBhIFRDWE8gKHRlbXBlcmF0dXJlIGNvbXBlbnNhdGVkIGNyeXN0YWwgCm9zY2lsbGF0
-b3IpLCB3aGljaCBpcyBhY2N1cmF0ZSB0byBzb21ldGhpbmcgbGlrZSDCsTIgcHBtLgoKCS1ocGEK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
-YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
-b3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+On 10/1/2008 3:46:45 PM, H. Peter Anvin wrote:
+> Alok Kataria wrote:
+> > > No, that's always a terrible idea.  Sure, its necessary to deal
+> > > with some backward-compatibility issues, but we should even
+> > > consider a new interface which assumes this kind of thing.  We
+> > > want properly enumerable interfaces.
+> >
+> > The reason we still have to do this is because, Microsoft has
+> > already defined a CPUID format which is way different than what you
+> > or I are proposing ( with the current case of 256 leafs being
+> > available). And I doubt they would change the way they deal with it on their OS.
+> > Any proposal that we go with, we will have to export different CPUID
+> > interface from the hypervisor for the 2 OS in question.
+> >
+> > So i think this is something that we anyways will have to do and not
+> > worth binging about in the discussion.
+>
+> No, that's a good hint that what "you and I" are proposing is utterly
+> broken and exactly underscores what I have been stressing about
+> noncompliant hypervisors.
+>
+> All I have seen out of Microsoft only covers CPUID levels 0x40000000
+> as an vendor identification leaf and 0x40000001 as a "hypervisor
+> identification leaf", but you might have access to other information.
+
+No, it says "Leaf 0x40000001 as hypervisor vendor-neutral interface identification, which determines the semantics of leaves from 0x40000002 through 0x400000FF." The Leaf 0x40000000 returns vendor identifier signature (i.e. hypervisor identification) and the hypervisor CPUID leaf range, as in the proposal.
+
+>
+> This further underscores my belief that using 0x400000xx for anything
+> "standards-based" at all is utterly futile, and that this space should
+> be treated as vendor identification and the rest as vendor-specific.
+> Any hope of creating a standard that's actually usable needs to be
+> outside this space, e.g. in the 0x40SSSSxx space I proposed earlier.
+>
+
+Actually I'm not sure I'm following your logic. Are you saying using that 0x400000xx for anything "standards-based" is utterly futile because Microsoft said "the range is hypervisor vendor-neutral"? Or you were not sure what they meant there. If we are not clear, we can ask them.
+
+
+>         -hpa
+             .
+Jun Nakajima | Intel Open Source Technology Center
