@@ -1,23 +1,22 @@
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: RE: [RFC] CPUID usage for interaction between Hypervisors	and	Linux.
-Date: Tue, 7 Oct 2008 15:30:10 -0700
-Message-ID: <0B53E02A2965CE4F9ADB38B34501A3A15DE4F934__39120.5398053446$1223418917$gmane$org@orsmsx505.amr.corp.intel.com>
-References: <1222881242.9381.17.camel@alok-dev1>
-	<48E3B19D.6060905@zytor.com> <1222882431.9381.23.camel@alok-dev1>
-	<48E3BC21.4080803@goop.org> <1222895153.9381.69.camel@alok-dev1>
-	<48E3FDD5.7040106@zytor.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [RFC] CPUID usage for interaction between Hypervisors	and	Linux.
+Date: Tue, 07 Oct 2008 15:37:13 -0700
+Message-ID: <48EBE499.5000304__2541.51486228711$1223419471$gmane$org@zytor.com>
+References: <1222881242.9381.17.camel@alok-dev1>	 <48E3B19D.6060905@zytor.com>
+	<1222882431.9381.23.camel@alok-dev1>	 <48E3BC21.4080803@goop.org>
+	<1222895153.9381.69.camel@alok-dev1> <48E3FDD5.7040106@zytor.com>
 	<0B53E02A2965CE4F9ADB38B34501A3A15D927EA4@orsmsx505.amr.corp.intel.com>
 	<48E422CA.2010606@zytor.com>
 	<0B53E02A2965CE4F9ADB38B34501A3A15DCBA221@orsmsx505.amr.corp.intel.com>
 	<48E6AB15.8060405@zytor.com>
 	<0B53E02A2965CE4F9ADB38B34501A3A15DCBA325@orsmsx505.amr.corp.intel.com>
 	<48E6BA5B.2090804@zytor.com>
+	<0B53E02A2965CE4F9ADB38B34501A3A15DE4F934@orsmsx505.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48E6BA5B.2090804@zytor.com>
-Content-Language: en-US
+In-Reply-To: <0B53E02A2965CE4F9ADB38B34501A3A15DE4F934@orsmsx505.amr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,28 +26,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
 Cc: the arch/x86 maintainers <x86@kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Daniel Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "akataria@vmware.com" <akataria@vmware.com>, Ingo Molnar <mingo@elte.hu>, "avi@redhat.com" <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/3/2008 5:35:39 PM, H. Peter Anvin wrote:
-> Nakajima, Jun wrote:
-> >
-> > What's the significance of supporting multiple interfaces to the
-> > same guest simultaneously, i.e. _runtime_? We don't want the guests
-> > to run on such a literarily Frankenstein machine. And practically,
-> > such testing/debugging would be good only for Halloween :-).
-> >
->
-> By that notion, EVERY CPU currently shipped is a "Frankenstein" CPU,
-> since at very least they export Intel-derived and AMD-derived interfaces.
->  This is in other words, a ridiculous claim.
+Nakajima, Jun wrote:
+> On 10/3/2008 5:35:39 PM, H. Peter Anvin wrote:
+>> Nakajima, Jun wrote:
+>>> What's the significance of supporting multiple interfaces to the
+>>> same guest simultaneously, i.e. _runtime_? We don't want the guests
+>>> to run on such a literarily Frankenstein machine. And practically,
+>>> such testing/debugging would be good only for Halloween :-).
+>>>
+>> By that notion, EVERY CPU currently shipped is a "Frankenstein" CPU,
+>> since at very least they export Intel-derived and AMD-derived interfaces.
+>>  This is in other words, a ridiculous claim.
+> 
+> The big difference here is that you could create a VM at runtime (by combining the existing interfaces) that did not exist before (or was not tested before). For example, a hypervisor could show hyper-v, osx-v (if any), linux-v, etc., and a guest could create a VM with hyper-v MMU, osx-v interrupt handling, Linux-v timer, etc. And such combinations/variations can grow exponentially.
+> 
+> Or are you suggesting that multiple interfaces be _available_ to guests at runtime but the guest chooses one of them?
+> 
 
-The big difference here is that you could create a VM at runtime (by combining the existing interfaces) that did not exist before (or was not tested before). For example, a hypervisor could show hyper-v, osx-v (if any), linux-v, etc., and a guest could create a VM with hyper-v MMU, osx-v interrupt handling, Linux-v timer, etc. And such combinations/variations can grow exponentially.
+The guest chooses what it wants to use.  We already do this: for 
+example, we use CPUID leaf 0x80000006 preferentially to CPUID leaf 2, 
+simply because it is a better interface.
 
-Or are you suggesting that multiple interfaces be _available_ to guests at runtime but the guest chooses one of them?
+And you're absolutely right that the guest may end up picking and 
+choosing different parts of the interfaces.  That's how it is supposed 
+to work.
 
->         -hpa
->
-             .
-Jun Nakajima | Intel Open Source Technology Center
+	-hpa
