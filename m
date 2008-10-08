@@ -1,7 +1,7 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [RFC] CPUID usage for interaction between Hypervisors	and	Linux.
-Date: Tue, 07 Oct 2008 17:40:14 -0700
-Message-ID: <48EC016E.4040708__35633.9755621322$1223426556$gmane$org@goop.org>
+Date: Tue, 07 Oct 2008 18:09:57 -0700
+Message-ID: <48EC0865.7050400@zytor.com>
 References: <1222881242.9381.17.camel@alok-dev1>	 <48E3B19D.6060905@zytor.com>
 	<1222882431.9381.23.camel@alok-dev1>	 <48E3BC21.4080803@goop.org>
 	<1222895153.9381.69.camel@alok-dev1> <48E3FDD5.7040106@zytor.com>
@@ -12,12 +12,12 @@ References: <1222881242.9381.17.camel@alok-dev1>	 <48E3B19D.6060905@zytor.com>
 	<0B53E02A2965CE4F9ADB38B34501A3A15DCBA325@orsmsx505.amr.corp.intel.com>
 	<48E6BA5B.2090804@zytor.com>
 	<0B53E02A2965CE4F9ADB38B34501A3A15DE4F934@orsmsx505.amr.corp.intel.com>
-	<48EBF396.8000502@goop.org> <48EBF49E.9030803@zytor.com>
+	<48EBE499.5000304@zytor.com> <48EBF4A7.3080704@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48EBF49E.9030803@zytor.com>
+In-Reply-To: <48EBF4A7.3080704@goop.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,72 +27,50 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: the arch/x86 maintainers <x86@kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Daniel Hecht <dhecht@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "avi@redhat.com" <avi@redhat.com>, "akataria@vmware.com" <akataria@vmware.com>, Ingo Molnar <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-H. Peter Anvin wrote:
-> Jeremy Fitzhardinge wrote:
->>>
->>> The big difference here is that you could create a VM at runtime (by 
->>> combining the existing interfaces) that did not exist before (or was 
->>> not tested before). For example, a hypervisor could show hyper-v, 
->>> osx-v (if any), linux-v, etc., and a guest could create a VM with 
->>> hyper-v MMU, osx-v interrupt handling, Linux-v timer, etc. And such 
->>> combinations/variations can grow exponentially.
->>
->> That would be crazy.
->>
->
-> Not necessarily, although the example above is extreme.  Redundant 
-> interfaces is the norm in an evolving platform.
+Jeremy Fitzhardinge wrote:
+> H. Peter Anvin wrote:
+>> And you're absolutely right that the guest may end up picking and 
+>> choosing different parts of the interfaces.  That's how it is supposed 
+>> to work. 
+> 
+> No, that would be a horrible, horrible mistake.  There's no sane way to 
+> implement that; it would mean that the hypervisor would have to have 
+> some kind of state model that incorporates all the ABIs in a consistent 
+> way.  Any guest using multiple ABIs would effectively end up being 
+> dependent on a particular hypervisor via a frankensteinian interface 
+> that no other hypervisor would implement in the same way, even if they 
+> claim to implement the same set of interfaces.
+> 
+> If the hypervisor just needs to deal with one at a time then it can have 
+> relatively simple ABI<->internal state translation.
+> 
+> However, if you have the notion of hypervisor-agnostic or common 
+> interfaces, then you can include those as part of the rest of the ABI 
+> and make it sane (so Xen+common, hyperv+common, etc).
+> 
 
-Sure.  A common feature across all hypervisor-specific ABIs may get 
-subsumed into a generic interface which is equivalent to all the 
-others.  That's fine.  But nobody should expect to be able to mix 
-hyperV's lazy tlb interface with KVM's pv mmu updates and expect to get 
-a working result.
+It depends on what classes of interfaces you're talking about.  I think 
+you and Jun have a bit narrow definition of "ABI" in this context.  This 
+is functionally equivalent to hardware interfaces (after all, that is 
+what the hypervisor ABI *is* as far as the kernel is concerned) -- noone 
+expects, say, a SATA controller that can run in legacy IDE mode to also 
+take AHCI commands at the same time, but the kernel *does* expect that a 
+chipset which exports LAPIC, HPET, PMTMR and TSC clock sources can use 
+all four at the same time.  In the latter case the interfaces are 
+inherently independent and refer to different chunks of hardware which 
+just happen to be related in that they all are related to timing.  In 
+the former case, we're dealing with *one* piece of hardware which can 
+operate in one of two modes.
 
->>> Or are you suggesting that multiple interfaces be _available_ to 
->>> guests at runtime but the guest chooses one of them?
->>
->> Right, that's what I've been suggesting.    I think hypervisors 
->> should be able to offer multiple ABIs to guests, but a guest has to 
->> commit to using one exclusively (ie, once they start to use one then 
->> the others turn themselves off, kill the domain, etc).
->
-> Not inherently.  Of course, there may be interfaces which are 
-> interently or by policy mutually exclusive, but a hypervisor should 
-> only export the interfaces it wants a guest to be able to use.
+For hypervisors, you will end up with cases where you have both types -- 
+for example, KVM will happily use VMware's video interface, but that 
+doesn't mean KVM wants to use VMware's interfaces for storage.  This is 
+exactly how it should be: the extent this kind of mix and match that is 
+possible is a matter of the definition of the individual interfaces 
+themselves, not of the overall architecture.
 
-It should export any interface that it implements fully, but those 
-interfaces may have contradictory or inconsistent semantics which 
-prevent them from being used concurrently.
-
-> This is particularly so with CPUID, which is a *data export* 
-> interface, it doesn't perform any action. 
-
-Well, sure.  There's two distinct issues:
-
-   1. Using cpuid to get information about the kernel's environment.  If
-      the environment is sane, then cpuid is a read-only, side-effect
-      free way of getting information, and any information gathered is
-      fair game.
-   2. One of the pieces of information you can get with cpuid is a
-      discovery of what paravirtual hypercall interfaces the environment
-      supports, which the guest can compare against its list of
-      interfaces that it supports.  If there's some amount of
-      intersection, it can decide to use one of those interfaces.
-
-I'm saying that *in general* a guest should expect to be able to use one 
-and only one of those interfaces.  There will be explicitly defined 
-exceptions to that - such as using generic ABIs in addition to 
-hypervisor specific ABIs - but a guest can't expect to to be able to mix 
-and match.
-
-A tricky issue with selecting an ABI is if two hypervisors end up using 
-exactly the same mechanism for implementing hypercalls (or whatever), so 
-that there needs to be some explicit way for the guest to nominate which 
-interface its actually using...
-
-    J
+	-hpa
