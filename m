@@ -1,15 +1,11 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.7.0:
-	Introduction
-Date: Wed, 08 Oct 2008 19:40:22 +0900 (JST)
-Message-ID: <20081008.194022.226783199.ryov__36290.7412615188$1223462572$gmane$org@valinux.co.jp>
-References: <20081003.143749.193701570.ryov@valinux.co.jp>
-	<2891419e0810080129sb6b35y11362f4bef71c174@mail.gmail.com>
+From: "Venugopal Busireddy" <vbusireddy@nextio.com>
+Subject: [PATCH 1/6 v3] PCI: export some functions and macros
+Date: Wed, 8 Oct 2008 10:25:47 -0500
+Message-ID: <B010E2E84FB1FD4BB9FDB7747D792100FEDF19@ad-1.austin.nextio>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7635201932409947463=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2891419e0810080129sb6b35y11362f4bef71c174@mail.gmail.com>
+Content-class: urn:content-classes:message
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,61 +13,133 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: baramsori72@gmail.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, balbir@linux.vnet.ibm.com, fernando@oss.ntt.co.jp, xemul@openvz.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Dong-Jae,
+This is a multi-part message in MIME format.
 
-Thanks for being intersted in dm-ioband.
+--===============7635201932409947463==
+Content-class: urn:content-classes:message
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C9295A.238D3A97"
 
-> I tested dm-ioband( the latest release, ver 1.7.0 ) IO controller, but
-> I had a strange result from it.
-> I have something wrong in test process?
-> The test process and results are in attached file.
-> Can you check my testing result and give me a helpful advices and comments?
+This is a multi-part message in MIME format.
 
-There are some suggestions for you.
+------_=_NextPart_001_01C9295A.238D3A97
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-1. you have to specify a dm-ioband device at the command line to
-   control bandwidth.
+Hi,
 
-    # tiotest -R -d /dev/mapper/ioband1 -f 300
+Is the SR-IOV support available in the form a patch? Where can I get it
+from?
 
-2. tiotest is not an appropriate tool to see how bandwith is shared
-   among devices, becasue those three tiotests don't finish at the
-   same time, a process which issues I/Os to a device with the highest
-   weight finishes first, so you can't see how bandwidth is shared
-   from the results of each tiotest.
-
-   I use iostat to see the time variation of bandiwdth. The followings
-   are the outputs of iostat just after starting three tiotests on the
-   same setting as yours.
-
-    # iostat -p dm-0 -p dm-1 -p dm-2 1
-    Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
-    dm-0           5430.00         0.00     10860.00          0      10860
-    dm-1          16516.00         0.00     16516.00          0      16516
-    dm-2          32246.00         0.00     32246.00          0      32246
-
-    avg-cpu:  %user   %nice %system %iowait  %steal   %idle
-               0.51    0.00   21.83   76.14    0.00    1.52
-    
-    Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
-    dm-0           5720.00         0.00     11440.00          0      11440
-    dm-1          16138.00         0.00     16138.00          0      16138
-    dm-2          32734.00         0.00     32734.00          0      32734
-    ...
-
-> You can refer the testing tool, tiobench, in
-> http://sourceforge.net/projects/tiobench/
-> Originally, tiobench don't support the direct IO mode testing, so I
-> added the O_DIRECT option to tiobench source code and recompile it to
-> test the Direct IO cases
-
-Could you give me the O_DIRECT patch?
- 
 Thanks,
-Ryo Tsuruta
+
+Venu
+
+
+------_=_NextPart_001_01C9295A.238D3A97
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:"Trebuchet MS";
+	panose-1:2 11 6 3 2 2 2 2 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+p.eMailStyle, li.eMailStyle, div.eMailStyle
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Trebuchet MS";}
+span.EmailStyle18
+	{mso-style-type:personal-compose;
+	font-family:"Trebuchet MS";
+	color:windowtext;
+	font-weight:normal;
+	font-style:normal;
+	text-decoration:none none;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal style=3D'margin-bottom:6.0pt'><font size=3D2 =
+face=3D"Trebuchet MS"><span
+style=3D'font-size:10.0pt;font-family:"Trebuchet =
+MS"'>Hi,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'margin-bottom:6.0pt'><font size=3D2 =
+face=3D"Trebuchet MS"><span
+style=3D'font-size:10.0pt;font-family:"Trebuchet MS"'>Is the SR-IOV =
+support
+available in the form a patch? Where can I get it =
+from?<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'margin-bottom:6.0pt'><font size=3D2 =
+face=3D"Trebuchet MS"><span
+style=3D'font-size:10.0pt;font-family:"Trebuchet =
+MS"'>Thanks,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'margin-bottom:6.0pt'><font size=3D2 =
+face=3D"Trebuchet MS"><span
+style=3D'font-size:10.0pt;font-family:"Trebuchet =
+MS"'>Venu<o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------_=_NextPart_001_01C9295A.238D3A97--
+
+--===============7635201932409947463==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============7635201932409947463==--
