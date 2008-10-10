@@ -1,46 +1,73 @@
-From: "Zhao, Yu" <yu.zhao@intel.com>
-Subject: Re: [PATCH 4/6 v3] PCI: support SR-IOV capability
-Date: Fri, 10 Oct 2008 15:24:49 +0800
-Message-ID: <48EF0341.9040703__40693.6419000433$1223623730$gmane$org@intel.com>
-References: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F4@pdsmsx502.ccr.corp.intel.com>
-	<20080930223851.GC13611@ldl.fc.hp.com>
+From: Mark McLoughlin <markmc@redhat.com>
+Subject: Re: [PATCH 2/2] virtio_net: Improve the recv buffer allocation  
+	scheme
+Date: Fri, 10 Oct 2008 09:30:31 +0100
+Message-ID: <1223627431.3618.41.camel@blaa>
+References: <1223494499-18732-1-git-send-email-markmc@redhat.com>
+	 <1223494499-18732-2-git-send-email-markmc@redhat.com>
+	 <200810091155.59731.rusty@rustcorp.com.au>
+	 <20081009153035.GA21542@gondor.apana.org.au>
+	 <1223574013.13792.23.camel@blaa>  <48EE5AE1.5030002@codemonkey.ws>
+Reply-To: Mark McLoughlin <markmc@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20080930223851.GC13611@ldl.fc.hp.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex Chiang <achiang@hp.com>, "Zhao, Yu" <yu.zhao@intel.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Randy Dunlap <randy.dunlap@oracle.com>, Gra
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <48EE5AE1.5030002@codemonkey.ws>
+Sender: netdev-owner@vger.kernel.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Alex Chiang wrote:
-> Do you want to emit a kobject_uevent here after success?
+On Thu, 2008-10-09 at 14:26 -0500, Anthony Liguori wrote:
+> Mark McLoughlin wrote:
+> > 
+> > Also, including virtio_net_hdr in the data buffer would need another
+> > feature flag. Rightly or wrongly, KVM's implementation requires
+> > virtio_net_hdr to be the first buffer:
+> > 
+> >     if (elem.in_num < 1 || elem.in_sg[0].iov_len != sizeof(*hdr)) {
+> >         fprintf(stderr, "virtio-net header not in first element\n");
+> >         exit(1);
+> >     }
+> > 
+> > i.e. it's part of the ABI ... at least as KVM sees it :-)
 > 
-> Alternatively, have you investigated making these virtual
-> functions into real struct device's? You get a lot of sysfs stuff
-> for free if you do so, including correct place in sysfs hierarchy
-> and uevents, etc.
+> This is actually something that's broken in a nasty way.  Having the 
+> header in the first element is not supposed to be part of the ABI but it 
+> sort of has to be ATM.
+> 
+> If an older version of QEMU were to use a newer kernel, and the newer 
+> kernel had a larger header size, then if we just made the header be the 
+> first X bytes, QEMU has no way of knowing how many bytes that should be. 
+>   Instead, the guest actually has to allocate the virtio-net header in 
+> such a way that it only presents the size depending on the features that 
+> the host supports.  We don't use a simple versioning scheme, so you'd 
+> have to check for a combination of features advertised by the host but 
+> that's not good enough because the host may disable certain features.
+> 
+> Perhaps the header size is whatever the longest element that has been 
+> commonly negotiated?
+> 
+> So that's why this aggressive check is here.  Not to necessarily cement 
+> this into the ABI but as a way to make someone figure out how to 
+> sanitize this all.
 
-The virtual functions are rpresented by 'struct pci_dev', so same as 
-real device, the standard sysfs entries are created by pci_bus_add_device.
+Well, features may be orthogonal but they are still added sequentially
+to the ABI. So, you would have a kind of implicit ABI versioning, while
+still allowing individual selection of features.
 
-> 
-> My major complaints from last round (more documentation,
-> shouldn't be a PCI hotplug driver) have been addressed. I'll let
-> others comment about the other parts of your patch series.
+e.g. if NET_F_FOO adds "int foo" to the header and then NET_F_BAR adds
+"int bar" to the header then if NET_F_FOO is negotiated, the guest
+should only send a header with "foo" and if NET_F_FOO|NET_F_BAR or
+NET_F_BAR is negotiated, then the guest sends a header with both "foo"
+and "bar".
 
-Thanks, Alex.
+Or put it another way, a host or guest may not implement NET_F_FOO but
+knowledge of the "foo" header field is part of the ABI of NET_F_BAR.
+That knowledge would be as simple as knowing that the field exists and
+that it should be ignored if the feature isn't used.
 
-> 
-> Thanks.
-> 
-> /ac
-> 
+Cheers,
+Mark.
+
