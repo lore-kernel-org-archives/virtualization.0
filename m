@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 5/8 v4] PCI: add a new function to map BAR offset
-Date: Tue, 14 Oct 2008 18:57:52 +0800
-Message-ID: <20081014105752.GE1734__42753.725735429$1223986137$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 7/8 v4] PCI: reserve bus range for the SR-IOV device
+Date: Tue, 14 Oct 2008 19:00:23 +0800
+Message-ID: <20081014110023.GG1734__11029.226324945$1223986419$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081014103424.GA1704@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,95 +22,87 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new function to map resource number to base register (offset and type).
+Reserve bus range for SR-IOV at device scanning stage.
 
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/pci.c       |   22 ++++++++++++++++++++++
- drivers/pci/pci.h       |    2 ++
- drivers/pci/setup-res.c |   13 +++++--------
- 3 files changed, 29 insertions(+), 8 deletions(-)
+ drivers/pci/iov.c   |   24 ++++++++++++++++++++++++
+ drivers/pci/pci.h   |    5 +++++
+ drivers/pci/probe.c |    3 +++
+ 3 files changed, 32 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 381e958..3575124 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1909,6 +1909,28 @@ int pci_resource_alignment(struct pci_dev *dev, int resno)
- 	return 0;
+diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
+index 3cf9709..7685c6b 100644
+--- a/drivers/pci/iov.c
++++ b/drivers/pci/iov.c
+@@ -603,6 +603,30 @@ void pci_iov_remove_sysfs(struct pci_dev *dev)
+ 	kfree(iov->ve);
  }
  
 +/**
-+ * pci_resource_bar - get position of the BAR associated with a resource
-+ * @dev: the PCI device
-+ * @resno: the resource number
-+ * @type: the BAR type to be filled in
++ * pci_iov_bus_range - find bus range used by SR-IOV capability
++ * @bus: the PCI bus
 + *
-+ * Returns BAR position in config space, or 0 if the BAR is invalid.
++ * Returns max number of buses (exclude current one) used by Virtual
++ * Functions.
 + */
-+int pci_resource_bar(struct pci_dev *dev, int resno, enum pci_bar_type *type)
++int pci_iov_bus_range(struct pci_bus *bus)
 +{
-+	if (resno < PCI_ROM_RESOURCE) {
-+		*type = pci_bar_unknown;
-+		return PCI_BASE_ADDRESS_0 + 4 * resno;
-+	} else if (resno == PCI_ROM_RESOURCE) {
-+		*type = pci_bar_mem32;
-+		return dev->rom_base_reg;
++	int max = 0;
++	u8 busnr, devfn;
++	struct pci_dev *dev;
++
++	list_for_each_entry(dev, &bus->devices, bus_list) {
++		if (!dev->iov)
++			continue;
++		vf_rid(dev, dev->iov->totalvfs - 1, &busnr, &devfn);
++		if (busnr > max)
++			max = busnr;
 +	}
 +
-+	dev_err(&dev->dev, "BAR: invalid resource #%d\n", resno);
-+	return 0;
++	return max ? max - bus->number : 0;
 +}
 +
- static void __devinit pci_no_domains(void)
+ int pci_iov_resource_align(struct pci_dev *dev, int resno)
  {
- #ifdef CONFIG_PCI_DOMAINS
+ 	if (resno < PCI_IOV_RESOURCES || resno > PCI_IOV_RESOURCES_END)
 diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 720b7d6..e2237ad 100644
+index c66a4bd..71149b5 100644
 --- a/drivers/pci/pci.h
 +++ b/drivers/pci/pci.h
-@@ -162,6 +162,8 @@ extern int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
- extern struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
- 				struct pci_dev *bridge, int busnr);
- extern int pci_resource_alignment(struct pci_dev *dev, int resno);
-+extern int pci_resource_bar(struct pci_dev *dev, int resno,
-+			    enum pci_bar_type *type);
- extern void pci_enable_ari(struct pci_dev *dev);
- /**
-  * pci_ari_enabled - query ARI forwarding status
-diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
-index ecff483..c3585a0 100644
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -31,6 +31,7 @@ void pci_update_resource(struct pci_dev *dev, int resno)
- 	struct pci_bus_region region;
- 	u32 new, check, mask;
- 	int reg;
-+	enum pci_bar_type type;
- 	struct resource *res = dev->resource + resno;
+@@ -206,6 +206,7 @@ void pci_iov_remove_sysfs(struct pci_dev *dev);
+ extern int pci_iov_resource_align(struct pci_dev *dev, int resno);
+ extern int pci_iov_resource_bar(struct pci_dev *dev, int resno,
+ 				enum pci_bar_type *type);
++extern int pci_iov_bus_range(struct pci_bus *bus);
+ #else
+ static inline int pci_iov_init(struct pci_dev *dev)
+ {
+@@ -229,6 +230,10 @@ static inline int pci_iov_resource_bar(struct pci_dev *dev, int resno,
+ {
+ 	return 0;
+ }
++extern inline int pci_iov_bus_range(struct pci_bus *bus)
++{
++	return 0;
++}
+ #endif /* CONFIG_PCI_IOV */
  
+ #endif /* DRIVERS_PCI_H */
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 831d8d0..b11f4b8 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -1129,6 +1129,9 @@ unsigned int __devinit pci_scan_child_bus(struct pci_bus *bus)
+ 	for (devfn = 0; devfn < 0x100; devfn += 8)
+ 		pci_scan_slot(bus, devfn);
+ 
++	/* Reserve buses for SR-IOV capability. */
++	max += pci_iov_bus_range(bus);
++
  	/*
-@@ -64,17 +65,13 @@ void pci_update_resource(struct pci_dev *dev, int resno)
- 	else
- 		mask = (u32)PCI_BASE_ADDRESS_MEM_MASK;
- 
--	if (resno < 6) {
--		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
--	} else if (resno == PCI_ROM_RESOURCE) {
-+	reg = pci_resource_bar(dev, resno, &type);
-+	if (!reg)
-+		return;
-+	if (type != pci_bar_unknown) {
- 		if (!(res->flags & IORESOURCE_ROM_ENABLE))
- 			return;
- 		new |= PCI_ROM_ADDRESS_ENABLE;
--		reg = dev->rom_base_reg;
--	} else {
--		/* Hmm, non-standard resource. */
--	
--		return;		/* kill uninitialised var warning */
- 	}
- 
- 	pci_write_config_dword(dev, reg, new);
+ 	 * After performing arch-dependent fixup of the bus, look behind
+ 	 * all PCI-to-PCI bridges on this bus.
 -- 
 1.5.6.4
