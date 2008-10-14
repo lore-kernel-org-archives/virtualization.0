@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 11/32] ia64/xen: define helper functions for xen hypercalls.
-Date: Tue, 14 Oct 2008 14:51:26 +0900
-Message-ID: <1223963507-28056-12-git-send-email-yamahata__23558.0740533353$1223964864$gmane$org@valinux.co.jp>
+Subject: [PATCH 32/32] ia64/pv_ops: paravirtualized istruction checker.
+Date: Tue, 14 Oct 2008 14:51:47 +0900
+Message-ID: <1223963507-28056-33-git-send-email-yamahata__45685.7681427666$1223965197$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,538 +18,374 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-introduce helper functions for xen hypercalls which
-traps to hypervisor.
+This patch implements a checker to detect instructions which
+should be paravirtualized instead of direct writing raw instruction.
+This patch does rough check so that it doesn't fully cover all cases,
+but it can detects most cases of paravirtualization breakage of hand
+written assembly codes.
 
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/hypercall.h |  265 +++++++++++++++++++++++++++++++++
- arch/ia64/include/asm/xen/privop.h    |  129 ++++++++++++++++
- arch/ia64/xen/Makefile                |    5 +
- arch/ia64/xen/hypercall.S             |   91 +++++++++++
- 4 files changed, 490 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/xen/hypercall.h
- create mode 100644 arch/ia64/include/asm/xen/privop.h
- create mode 100644 arch/ia64/xen/Makefile
- create mode 100644 arch/ia64/xen/hypercall.S
+ arch/ia64/include/asm/native/pvchk_inst.h |  263 +++++++++++++++++++++++++++++
+ arch/ia64/kernel/Makefile                 |   18 ++
+ arch/ia64/kernel/paravirt_inst.h          |    4 +-
+ arch/ia64/scripts/pvcheck.sed             |   32 ++++
+ 4 files changed, 316 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/include/asm/native/pvchk_inst.h
+ create mode 100644 arch/ia64/scripts/pvcheck.sed
 
-diff --git a/arch/ia64/include/asm/xen/hypercall.h b/arch/ia64/include/asm/xen/hypercall.h
+diff --git a/arch/ia64/include/asm/native/pvchk_inst.h b/arch/ia64/include/asm/native/pvchk_inst.h
 new file mode 100644
-index 0000000..96fc623
+index 0000000..b8e6eb1
 --- /dev/null
-+++ b/arch/ia64/include/asm/xen/hypercall.h
-@@ -0,0 +1,265 @@
++++ b/arch/ia64/include/asm/native/pvchk_inst.h
+@@ -0,0 +1,263 @@
++#ifndef _ASM_NATIVE_PVCHK_INST_H
++#define _ASM_NATIVE_PVCHK_INST_H
++
 +/******************************************************************************
-+ * hypercall.h
++ * arch/ia64/include/asm/native/pvchk_inst.h
++ * Checker for paravirtualizations of privileged operations.
 + *
-+ * Linux-specific hypervisor handling.
-+ *
-+ * Copyright (c) 2002-2004, K A Fraser
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
-+ */
-+
-+#ifndef _ASM_IA64_XEN_HYPERCALL_H
-+#define _ASM_IA64_XEN_HYPERCALL_H
-+
-+#include <xen/interface/xen.h>
-+#include <xen/interface/physdev.h>
-+#include <xen/interface/sched.h>
-+#include <asm/xen/xcom_hcall.h>
-+struct xencomm_handle;
-+extern unsigned long __hypercall(unsigned long a1, unsigned long a2,
-+				 unsigned long a3, unsigned long a4,
-+				 unsigned long a5, unsigned long cmd);
-+
-+/*
-+ * Assembler stubs for hyper-calls.
-+ */
-+
-+#define _hypercall0(type, name)					\
-+({								\
-+	long __res;						\
-+	__res = __hypercall(0, 0, 0, 0, 0, __HYPERVISOR_##name);\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall1(type, name, a1)				\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			     0, 0, 0, 0, __HYPERVISOR_##name);	\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall2(type, name, a1, a2)				\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			    (unsigned long)a2,			\
-+			    0, 0, 0, __HYPERVISOR_##name);	\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall3(type, name, a1, a2, a3)			\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			    (unsigned long)a2,			\
-+			    (unsigned long)a3,			\
-+			    0, 0, __HYPERVISOR_##name);		\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall4(type, name, a1, a2, a3, a4)			\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			    (unsigned long)a2,			\
-+			    (unsigned long)a3,			\
-+			    (unsigned long)a4,			\
-+			    0, __HYPERVISOR_##name);		\
-+	(type)__res;						\
-+})
-+
-+#define _hypercall5(type, name, a1, a2, a3, a4, a5)		\
-+({								\
-+	long __res;						\
-+	__res = __hypercall((unsigned long)a1,			\
-+			    (unsigned long)a2,			\
-+			    (unsigned long)a3,			\
-+			    (unsigned long)a4,			\
-+			    (unsigned long)a5,			\
-+			    __HYPERVISOR_##name);		\
-+	(type)__res;						\
-+})
-+
-+
-+static inline int
-+xencomm_arch_hypercall_sched_op(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, sched_op_new, cmd, arg);
-+}
-+
-+static inline long
-+HYPERVISOR_set_timer_op(u64 timeout)
-+{
-+	unsigned long timeout_hi = (unsigned long)(timeout >> 32);
-+	unsigned long timeout_lo = (unsigned long)timeout;
-+	return _hypercall2(long, set_timer_op, timeout_lo, timeout_hi);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_multicall(struct xencomm_handle *call_list,
-+				 int nr_calls)
-+{
-+	return _hypercall2(int, multicall, call_list, nr_calls);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_memory_op(unsigned int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, memory_op, cmd, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_event_channel_op(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, event_channel_op, cmd, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_xen_version(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, xen_version, cmd, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_console_io(int cmd, int count,
-+				  struct xencomm_handle *str)
-+{
-+	return _hypercall3(int, console_io, cmd, count, str);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_physdev_op(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, physdev_op, cmd, arg);
-+}
-+
-+static inline int
-+xencomm_arch_hypercall_grant_table_op(unsigned int cmd,
-+				      struct xencomm_handle *uop,
-+				      unsigned int count)
-+{
-+	return _hypercall3(int, grant_table_op, cmd, uop, count);
-+}
-+
-+int HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count);
-+
-+extern int xencomm_arch_hypercall_suspend(struct xencomm_handle *arg);
-+
-+static inline int
-+xencomm_arch_hypercall_callback_op(int cmd, struct xencomm_handle *arg)
-+{
-+	return _hypercall2(int, callback_op, cmd, arg);
-+}
-+
-+static inline long
-+xencomm_arch_hypercall_vcpu_op(int cmd, int cpu, void *arg)
-+{
-+	return _hypercall3(long, vcpu_op, cmd, cpu, arg);
-+}
-+
-+static inline int
-+HYPERVISOR_physdev_op(int cmd, void *arg)
-+{
-+	switch (cmd) {
-+	case PHYSDEVOP_eoi:
-+		return _hypercall1(int, ia64_fast_eoi,
-+				   ((struct physdev_eoi *)arg)->irq);
-+	default:
-+		return xencomm_hypercall_physdev_op(cmd, arg);
-+	}
-+}
-+
-+static inline long
-+xencomm_arch_hypercall_opt_feature(struct xencomm_handle *arg)
-+{
-+	return _hypercall1(long, opt_feature, arg);
-+}
-+
-+/* for balloon driver */
-+#define HYPERVISOR_update_va_mapping(va, new_val, flags) (0)
-+
-+/* Use xencomm to do hypercalls.  */
-+#define HYPERVISOR_sched_op xencomm_hypercall_sched_op
-+#define HYPERVISOR_event_channel_op xencomm_hypercall_event_channel_op
-+#define HYPERVISOR_callback_op xencomm_hypercall_callback_op
-+#define HYPERVISOR_multicall xencomm_hypercall_multicall
-+#define HYPERVISOR_xen_version xencomm_hypercall_xen_version
-+#define HYPERVISOR_console_io xencomm_hypercall_console_io
-+#define HYPERVISOR_memory_op xencomm_hypercall_memory_op
-+#define HYPERVISOR_suspend xencomm_hypercall_suspend
-+#define HYPERVISOR_vcpu_op xencomm_hypercall_vcpu_op
-+#define HYPERVISOR_opt_feature xencomm_hypercall_opt_feature
-+
-+/* to compile gnttab_copy_grant_page() in drivers/xen/core/gnttab.c */
-+#define HYPERVISOR_mmu_update(req, count, success_count, domid) ({ BUG(); 0; })
-+
-+static inline int
-+HYPERVISOR_shutdown(
-+	unsigned int reason)
-+{
-+	struct sched_shutdown sched_shutdown = {
-+		.reason = reason
-+	};
-+
-+	int rc = HYPERVISOR_sched_op(SCHEDOP_shutdown, &sched_shutdown);
-+
-+	return rc;
-+}
-+
-+/* for netfront.c, netback.c */
-+#define MULTI_UVMFLAGS_INDEX 0 /* XXX any value */
-+
-+static inline void
-+MULTI_update_va_mapping(
-+	struct multicall_entry *mcl, unsigned long va,
-+	pte_t new_val, unsigned long flags)
-+{
-+	mcl->op = __HYPERVISOR_update_va_mapping;
-+	mcl->result = 0;
-+}
-+
-+static inline void
-+MULTI_grant_table_op(struct multicall_entry *mcl, unsigned int cmd,
-+	void *uop, unsigned int count)
-+{
-+	mcl->op = __HYPERVISOR_grant_table_op;
-+	mcl->args[0] = cmd;
-+	mcl->args[1] = (unsigned long)uop;
-+	mcl->args[2] = count;
-+}
-+
-+static inline void
-+MULTI_mmu_update(struct multicall_entry *mcl, struct mmu_update *req,
-+		 int count, int *success_count, domid_t domid)
-+{
-+	mcl->op = __HYPERVISOR_mmu_update;
-+	mcl->args[0] = (unsigned long)req;
-+	mcl->args[1] = count;
-+	mcl->args[2] = (unsigned long)success_count;
-+	mcl->args[3] = domid;
-+}
-+
-+#endif /* _ASM_IA64_XEN_HYPERCALL_H */
-diff --git a/arch/ia64/include/asm/xen/privop.h b/arch/ia64/include/asm/xen/privop.h
-new file mode 100644
-index 0000000..71ec754
---- /dev/null
-+++ b/arch/ia64/include/asm/xen/privop.h
-@@ -0,0 +1,129 @@
-+#ifndef _ASM_IA64_XEN_PRIVOP_H
-+#define _ASM_IA64_XEN_PRIVOP_H
-+
-+/*
 + * Copyright (C) 2005 Hewlett-Packard Co
-+ *	Dan Magenheimer <dan.magenheimer@hp.com>
++ *      Dan Magenheimer <dan.magenheimer@hp.com>
 + *
-+ * Paravirtualizations of privileged operations for Xen/ia64
-+ *
-+ *
-+ * inline privop and paravirt_alt support
-+ * Copyright (c) 2007 Isaku Yamahata <yamahata at valinux co jp>
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
 + *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
 + */
 +
-+#ifndef __ASSEMBLY__
-+#include <linux/types.h>		/* arch-ia64.h requires uint64_t */
-+#endif
-+#include <asm/xen/interface.h>
-+
-+/* At 1 MB, before per-cpu space but still addressable using addl instead
-+   of movl. */
-+#define XSI_BASE			0xfffffffffff00000
-+
-+/* Address of mapped regs.  */
-+#define XMAPPEDREGS_BASE		(XSI_BASE + XSI_SIZE)
-+
-+#ifdef __ASSEMBLY__
-+#define XEN_HYPER_RFI			break HYPERPRIVOP_RFI
-+#define XEN_HYPER_RSM_PSR_DT		break HYPERPRIVOP_RSM_DT
-+#define XEN_HYPER_SSM_PSR_DT		break HYPERPRIVOP_SSM_DT
-+#define XEN_HYPER_COVER			break HYPERPRIVOP_COVER
-+#define XEN_HYPER_ITC_D			break HYPERPRIVOP_ITC_D
-+#define XEN_HYPER_ITC_I			break HYPERPRIVOP_ITC_I
-+#define XEN_HYPER_SSM_I			break HYPERPRIVOP_SSM_I
-+#define XEN_HYPER_GET_IVR		break HYPERPRIVOP_GET_IVR
-+#define XEN_HYPER_THASH			break HYPERPRIVOP_THASH
-+#define XEN_HYPER_ITR_D			break HYPERPRIVOP_ITR_D
-+#define XEN_HYPER_SET_KR		break HYPERPRIVOP_SET_KR
-+#define XEN_HYPER_GET_PSR		break HYPERPRIVOP_GET_PSR
-+#define XEN_HYPER_SET_RR0_TO_RR4	break HYPERPRIVOP_SET_RR0_TO_RR4
-+
-+#define XSI_IFS				(XSI_BASE + XSI_IFS_OFS)
-+#define XSI_PRECOVER_IFS		(XSI_BASE + XSI_PRECOVER_IFS_OFS)
-+#define XSI_IFA				(XSI_BASE + XSI_IFA_OFS)
-+#define XSI_ISR				(XSI_BASE + XSI_ISR_OFS)
-+#define XSI_IIM				(XSI_BASE + XSI_IIM_OFS)
-+#define XSI_ITIR			(XSI_BASE + XSI_ITIR_OFS)
-+#define XSI_PSR_I_ADDR			(XSI_BASE + XSI_PSR_I_ADDR_OFS)
-+#define XSI_PSR_IC			(XSI_BASE + XSI_PSR_IC_OFS)
-+#define XSI_IPSR			(XSI_BASE + XSI_IPSR_OFS)
-+#define XSI_IIP				(XSI_BASE + XSI_IIP_OFS)
-+#define XSI_B1NAT			(XSI_BASE + XSI_B1NATS_OFS)
-+#define XSI_BANK1_R16			(XSI_BASE + XSI_BANK1_R16_OFS)
-+#define XSI_BANKNUM			(XSI_BASE + XSI_BANKNUM_OFS)
-+#define XSI_IHA				(XSI_BASE + XSI_IHA_OFS)
-+#endif
-+
-+#ifndef __ASSEMBLY__
-+
-+/************************************************/
-+/* Instructions paravirtualized for correctness */
-+/************************************************/
++/**********************************************
++ * Instructions paravirtualized for correctness
++ **********************************************/
 +
 +/* "fc" and "thash" are privilege-sensitive instructions, meaning they
 + *  may have different semantics depending on whether they are executed
 + *  at PL0 vs PL!=0.  When paravirtualized, these instructions mustn't
-+ *  be allowed to execute directly, lest incorrect semantics result. */
-+extern void xen_fc(unsigned long addr);
-+extern unsigned long xen_thash(unsigned long addr);
++ *  be allowed to execute directly, lest incorrect semantics result.
++ */
++
++#define fc	.error "fc should not be used directly."
++#define thash	.error "thash should not be used directly."
 +
 +/* Note that "ttag" and "cover" are also privilege-sensitive; "ttag"
 + * is not currently used (though it may be in a long-format VHPT system!)
 + * and the semantics of cover only change if psr.ic is off which is very
-+ * rare (and currently non-existent outside of assembly code */
++ * rare (and currently non-existent outside of assembly code
++ */
++#define ttag	.error "ttag should not be used directly."
++#define cover	.error "cover should not be used directly."
 +
 +/* There are also privilege-sensitive registers.  These registers are
-+ * readable at any privilege level but only writable at PL0. */
-+extern unsigned long xen_get_cpuid(int index);
-+extern unsigned long xen_get_pmd(int index);
++ * readable at any privilege level but only writable at PL0.
++ */
++#define cpuid	.error "cpuid should not be used directly."
++#define pmd	.error "pmd should not be used directly."
 +
-+extern unsigned long xen_get_eflag(void);	/* see xen_ia64_getreg */
-+extern void xen_set_eflag(unsigned long);	/* see xen_ia64_setreg */
-+
-+/************************************************/
-+/* Instructions paravirtualized for performance */
-+/************************************************/
-+
-+/* Xen uses memory-mapped virtual privileged registers for access to many
-+ * performance-sensitive privileged registers.  Some, like the processor
-+ * status register (psr), are broken up into multiple memory locations.
-+ * Others, like "pend", are abstractions based on privileged registers.
-+ * "Pend" is guaranteed to be set if reading cr.ivr would return a
-+ * (non-spurious) interrupt. */
-+#define XEN_MAPPEDREGS ((struct mapped_regs *)XMAPPEDREGS_BASE)
-+
-+#define XSI_PSR_I			\
-+	(*XEN_MAPPEDREGS->interrupt_mask_addr)
-+#define xen_get_virtual_psr_i()		\
-+	(!XSI_PSR_I)
-+#define xen_set_virtual_psr_i(_val)	\
-+	({ XSI_PSR_I = (uint8_t)(_val) ? 0 : 1; })
-+#define xen_set_virtual_psr_ic(_val)	\
-+	({ XEN_MAPPEDREGS->interrupt_collection_enabled = _val ? 1 : 0; })
-+#define xen_get_virtual_pend()		\
-+	(*(((uint8_t *)XEN_MAPPEDREGS->interrupt_mask_addr) - 1))
-+
-+/* Although all privileged operations can be left to trap and will
-+ * be properly handled by Xen, some are frequent enough that we use
-+ * hyperprivops for performance. */
-+extern unsigned long xen_get_psr(void);
-+extern unsigned long xen_get_ivr(void);
-+extern unsigned long xen_get_tpr(void);
-+extern void xen_hyper_ssm_i(void);
-+extern void xen_set_itm(unsigned long);
-+extern void xen_set_tpr(unsigned long);
-+extern void xen_eoi(unsigned long);
-+extern unsigned long xen_get_rr(unsigned long index);
-+extern void xen_set_rr(unsigned long index, unsigned long val);
-+extern void xen_set_rr0_to_rr4(unsigned long val0, unsigned long val1,
-+			       unsigned long val2, unsigned long val3,
-+			       unsigned long val4);
-+extern void xen_set_kr(unsigned long index, unsigned long val);
-+extern void xen_ptcga(unsigned long addr, unsigned long size);
-+
-+#endif /* !__ASSEMBLY__ */
-+
-+#endif /* _ASM_IA64_XEN_PRIVOP_H */
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-new file mode 100644
-index 0000000..c200704
---- /dev/null
-+++ b/arch/ia64/xen/Makefile
-@@ -0,0 +1,5 @@
-+#
-+# Makefile for Xen components
-+#
-+
-+obj-y := hypercall.o
-diff --git a/arch/ia64/xen/hypercall.S b/arch/ia64/xen/hypercall.S
-new file mode 100644
-index 0000000..d4ff0b9
---- /dev/null
-+++ b/arch/ia64/xen/hypercall.S
-@@ -0,0 +1,91 @@
 +/*
-+ * Support routines for Xen hypercalls
++ * mov ar.eflag =
++ * mov = ar.eflag
++ */
++
++/**********************************************
++ * Instructions paravirtualized for performance
++ **********************************************/
++/*
++ * Those instructions include '.' which can't be handled by cpp.
++ * or can't be handled by cpp easily.
++ * They are handled by sed instead of cpp.
++ */
++
++/* for .S
++ * itc.i
++ * itc.d
 + *
-+ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
-+ * Copyright (C) 2008 Yaozu (Eddie) Dong <eddie.dong@intel.com>
++ * bsw.0
++ * bsw.1
++ *
++ * ssm psr.ic | PSR_DEFAULT_BITS
++ * ssm psr.ic
++ * rsm psr.ic
++ * ssm psr.i
++ * rsm psr.i
++ * rsm psr.i | psr.ic
++ * rsm psr.dt
++ * ssm psr.dt
++ *
++ * mov = cr.ifa
++ * mov = cr.itir
++ * mov = cr.isr
++ * mov = cr.iha
++ * mov = cr.ipsr
++ * mov = cr.iim
++ * mov = cr.iip
++ * mov = cr.ivr
++ * mov = psr
++ *
++ * mov cr.ifa =
++ * mov cr.itir =
++ * mov cr.iha =
++ * mov cr.ipsr =
++ * mov cr.ifs =
++ * mov cr.iip =
++ * mov cr.kr =
 + */
 +
-+#include <asm/asmmacro.h>
-+#include <asm/intrinsics.h>
-+#include <asm/xen/privop.h>
-+
-+/*
-+ * Hypercalls without parameter.
++/* for intrinsics
++ * ssm psr.i
++ * rsm psr.i
++ * mov = psr
++ * mov = ivr
++ * mov = tpr
++ * mov cr.itm =
++ * mov eoi =
++ * mov rr[] =
++ * mov = rr[]
++ * mov = kr
++ * mov kr =
++ * ptc.ga
 + */
-+#define __HCALL0(name,hcall)		\
-+	GLOBAL_ENTRY(name);		\
-+	break	hcall;			\
-+	br.ret.sptk.many rp;		\
-+	END(name)
 +
-+/*
-+ * Hypercalls with 1 parameter.
-+ */
-+#define __HCALL1(name,hcall)		\
-+	GLOBAL_ENTRY(name);		\
-+	mov r8=r32;			\
-+	break	hcall;			\
-+	br.ret.sptk.many rp;		\
-+	END(name)
++/*************************************************************
++ * define paravirtualized instrcution macros as nop to ingore.
++ * and check whether arguments are appropriate.
++ *************************************************************/
 +
-+/*
-+ * Hypercalls with 2 parameters.
-+ */
-+#define __HCALL2(name,hcall)		\
-+	GLOBAL_ENTRY(name);		\
-+	mov r8=r32;			\
-+	mov r9=r33;			\
-+	break	hcall;			\
-+	br.ret.sptk.many rp;		\
-+	END(name)
-+
-+__HCALL0(xen_get_psr, HYPERPRIVOP_GET_PSR)
-+__HCALL0(xen_get_ivr, HYPERPRIVOP_GET_IVR)
-+__HCALL0(xen_get_tpr, HYPERPRIVOP_GET_TPR)
-+__HCALL0(xen_hyper_ssm_i, HYPERPRIVOP_SSM_I)
-+
-+__HCALL1(xen_set_tpr, HYPERPRIVOP_SET_TPR)
-+__HCALL1(xen_eoi, HYPERPRIVOP_EOI)
-+__HCALL1(xen_thash, HYPERPRIVOP_THASH)
-+__HCALL1(xen_set_itm, HYPERPRIVOP_SET_ITM)
-+__HCALL1(xen_get_rr, HYPERPRIVOP_GET_RR)
-+__HCALL1(xen_fc, HYPERPRIVOP_FC)
-+__HCALL1(xen_get_cpuid, HYPERPRIVOP_GET_CPUID)
-+__HCALL1(xen_get_pmd, HYPERPRIVOP_GET_PMD)
-+
-+__HCALL2(xen_ptcga, HYPERPRIVOP_PTC_GA)
-+__HCALL2(xen_set_rr, HYPERPRIVOP_SET_RR)
-+__HCALL2(xen_set_kr, HYPERPRIVOP_SET_KR)
-+
-+#ifdef CONFIG_IA32_SUPPORT
-+__HCALL1(xen_get_eflag, HYPERPRIVOP_GET_EFLAG)
-+__HCALL1(xen_set_eflag, HYPERPRIVOP_SET_EFLAG)	// refer SDM vol1 3.1.8
-+#endif /* CONFIG_IA32_SUPPORT */
-+
-+GLOBAL_ENTRY(xen_set_rr0_to_rr4)
-+	mov r8=r32
-+	mov r9=r33
-+	mov r10=r34
-+	mov r11=r35
-+	mov r14=r36
-+	XEN_HYPER_SET_RR0_TO_RR4
-+	br.ret.sptk.many rp
++/* check whether reg is a regular register */
++.macro is_rreg_in reg
++	.ifc "\reg", "r0"
++		nop 0
++		.exitm
++	.endif
 +	;;
-+END(xen_set_rr0_to_rr4)
++	mov \reg = r0
++	;;
++.endm
++#define IS_RREG_IN(reg)	is_rreg_in reg ;
 +
-+GLOBAL_ENTRY(xen_send_ipi)
-+	mov r14=r32
-+	mov r15=r33
-+	mov r2=0x400
-+	break 0x1000
++#define IS_RREG_OUT(reg)			\
++	;;					\
++	mov reg = r0				\
 +	;;
-+	br.ret.sptk.many rp
-+	;;
-+END(xen_send_ipi)
 +
-+GLOBAL_ENTRY(__hypercall)
-+	mov r2=r37
-+	break 0x1000
-+	br.ret.sptk.many b0
++#define IS_RREG_CLOB(reg)	IS_RREG_OUT(reg)
++
++/* check whether pred is a predicate register */
++#define IS_PRED_IN(pred)			\
++	;;					\
++	(pred)	nop 0				\
 +	;;
-+END(__hypercall)
++
++#define IS_PRED_OUT(pred)			\
++	;;					\
++	cmp.eq pred, p0 = r0, r0		\
++	;;
++
++#define IS_PRED_CLOB(pred)	IS_PRED_OUT(pred)
++
++
++#define DO_SAVE_MIN(__COVER, SAVE_IFS, EXTRA, WORKAROUND)	\
++	nop 0
++#define MOV_FROM_IFA(reg)			\
++	IS_RREG_OUT(reg)
++#define MOV_FROM_ITIR(reg)			\
++	IS_RREG_OUT(reg)
++#define MOV_FROM_ISR(reg)			\
++	IS_RREG_OUT(reg)
++#define MOV_FROM_IHA(reg)			\
++	IS_RREG_OUT(reg)
++#define MOV_FROM_IPSR(pred, reg)		\
++	IS_PRED_IN(pred)			\
++	IS_RREG_OUT(reg)
++#define MOV_FROM_IIM(reg)			\
++	IS_RREG_OUT(reg)
++#define MOV_FROM_IIP(reg)			\
++	IS_RREG_OUT(reg)
++#define MOV_FROM_IVR(reg, clob)			\
++	IS_RREG_OUT(reg)			\
++	IS_RREG_CLOB(clob)
++#define MOV_FROM_PSR(pred, reg, clob)		\
++	IS_PRED_IN(pred)			\
++	IS_RREG_OUT(reg)			\
++	IS_RREG_CLOB(clob)
++#define MOV_TO_IFA(reg, clob)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define MOV_TO_ITIR(pred, reg, clob)		\
++	IS_PRED_IN(pred)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define MOV_TO_IHA(pred, reg, clob)		\
++	IS_PRED_IN(pred)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define MOV_TO_IPSR(pred, reg, clob)		\
++	IS_PRED_IN(pred)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define MOV_TO_IFS(pred, reg, clob)		\
++	IS_PRED_IN(pred)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define MOV_TO_IIP(reg, clob)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define MOV_TO_KR(kr, reg, clob0, clob1)	\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob0)			\
++	IS_RREG_CLOB(clob1)
++#define ITC_I(pred, reg, clob)			\
++	IS_PRED_IN(pred)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define ITC_D(pred, reg, clob)			\
++	IS_PRED_IN(pred)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define ITC_I_AND_D(pred_i, pred_d, reg, clob)	\
++	IS_PRED_IN(pred_i)			\
++	IS_PRED_IN(pred_d)			\
++	IS_RREG_IN(reg)				\
++	IS_RREG_CLOB(clob)
++#define THASH(pred, reg0, reg1, clob)		\
++	IS_PRED_IN(pred)			\
++	IS_RREG_OUT(reg0)			\
++	IS_RREG_IN(reg1)			\
++	IS_RREG_CLOB(clob)
++#define SSM_PSR_IC_AND_DEFAULT_BITS_AND_SRLZ_I(clob0, clob1)	\
++	IS_RREG_CLOB(clob0)					\
++	IS_RREG_CLOB(clob1)
++#define SSM_PSR_IC_AND_SRLZ_D(clob0, clob1)	\
++	IS_RREG_CLOB(clob0)			\
++	IS_RREG_CLOB(clob1)
++#define RSM_PSR_IC(clob)			\
++	IS_RREG_CLOB(clob)
++#define SSM_PSR_I(pred, pred_clob, clob)	\
++	IS_PRED_IN(pred)			\
++	IS_PRED_CLOB(pred_clob)			\
++	IS_RREG_CLOB(clob)
++#define RSM_PSR_I(pred, clob0, clob1)		\
++	IS_PRED_IN(pred)			\
++	IS_RREG_CLOB(clob0)			\
++	IS_RREG_CLOB(clob1)
++#define RSM_PSR_I_IC(clob0, clob1, clob2)	\
++	IS_RREG_CLOB(clob0)			\
++	IS_RREG_CLOB(clob1)			\
++	IS_RREG_CLOB(clob2)
++#define RSM_PSR_DT				\
++	nop 0
++#define SSM_PSR_DT_AND_SRLZ_I			\
++	nop 0
++#define BSW_0(clob0, clob1, clob2)		\
++	IS_RREG_CLOB(clob0)			\
++	IS_RREG_CLOB(clob1)			\
++	IS_RREG_CLOB(clob2)
++#define BSW_1(clob0, clob1)			\
++	IS_RREG_CLOB(clob0)			\
++	IS_RREG_CLOB(clob1)
++#define COVER					\
++	nop 0
++#define RFI					\
++	br.ret.sptk.many rp /* defining nop causes dependency error */
++
++#endif /* _ASM_NATIVE_PVCHK_INST_H */
+diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+index 87fea11..55e6ca8 100644
+--- a/arch/ia64/kernel/Makefile
++++ b/arch/ia64/kernel/Makefile
+@@ -112,5 +112,23 @@ clean-files += $(objtree)/include/asm-ia64/nr-irqs.h
+ ASM_PARAVIRT_OBJS = ivt.o entry.o
+ define paravirtualized_native
+ AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_NATIVE
++AFLAGS_pvchk-sed-$(1) += -D__IA64_ASM_PARAVIRTUALIZED_PVCHECK
++extra-y += pvchk-$(1)
+ endef
+ $(foreach obj,$(ASM_PARAVIRT_OBJS),$(eval $(call paravirtualized_native,$(obj))))
++
++#
++# Checker for paravirtualizations of privileged operations.
++#
++quiet_cmd_pv_check_sed = PVCHK   $@
++define cmd_pv_check_sed
++	sed -f $(srctree)/arch/$(SRCARCH)/scripts/pvcheck.sed $< > $@
++endef
++
++$(obj)/pvchk-sed-%.s: $(src)/%.S $(srctree)/arch/$(SRCARCH)/scripts/pvcheck.sed FORCE
++	$(call if_changed_dep,as_s_S)
++$(obj)/pvchk-%.s: $(obj)/pvchk-sed-%.s FORCE
++	$(call if_changed,pv_check_sed)
++$(obj)/pvchk-%.o: $(obj)/pvchk-%.s FORCE
++	$(call if_changed,as_o_S)
++.PRECIOUS: $(obj)/pvchk-sed-%.s $(obj)/pvchk-%.s $(obj)/pvchk-%.o
+diff --git a/arch/ia64/kernel/paravirt_inst.h b/arch/ia64/kernel/paravirt_inst.h
+index 5cad6fb..64d6d81 100644
+--- a/arch/ia64/kernel/paravirt_inst.h
++++ b/arch/ia64/kernel/paravirt_inst.h
+@@ -20,7 +20,9 @@
+  *
+  */
+ 
+-#ifdef __IA64_ASM_PARAVIRTUALIZED_XEN
++#ifdef __IA64_ASM_PARAVIRTUALIZED_PVCHECK
++#include <asm/native/pvchk_inst.h>
++#elif defined(__IA64_ASM_PARAVIRTUALIZED_XEN)
+ #include <asm/xen/inst.h>
+ #include <asm/xen/minstate.h>
+ #else
+diff --git a/arch/ia64/scripts/pvcheck.sed b/arch/ia64/scripts/pvcheck.sed
+new file mode 100644
+index 0000000..abdaca7
+--- /dev/null
++++ b/arch/ia64/scripts/pvcheck.sed
+@@ -0,0 +1,32 @@
++#
++# Checker for paravirtualizations of privileged operations.
++#
++s/ssm.*psr\.ic/.warning \"ssm psr.ic should not be used directly\"/g
++s/rsm.*psr\.ic/.warning \"rsm psr.ic should not be used directly\"/g
++s/ssm.*psr\.i/.warning \"ssm psr.i should not be used directly\"/g
++s/rsm.*psr\.i/.warning \"rsm psr.i should not be used directly\"/g
++s/ssm.*psr\.dt/.warning \"ssm psr.dt should not be used directly\"/g
++s/rsm.*psr\.dt/.warning \"rsm psr.dt should not be used directly\"/g
++s/mov.*=.*cr\.ifa/.warning \"cr.ifa should not used directly\"/g
++s/mov.*=.*cr\.itir/.warning \"cr.itir should not used directly\"/g
++s/mov.*=.*cr\.isr/.warning \"cr.isr should not used directly\"/g
++s/mov.*=.*cr\.iha/.warning \"cr.iha should not used directly\"/g
++s/mov.*=.*cr\.ipsr/.warning \"cr.ipsr should not used directly\"/g
++s/mov.*=.*cr\.iim/.warning \"cr.iim should not used directly\"/g
++s/mov.*=.*cr\.iip/.warning \"cr.iip should not used directly\"/g
++s/mov.*=.*cr\.ivr/.warning \"cr.ivr should not used directly\"/g
++s/mov.*=[^\.]*psr/.warning \"psr should not used directly\"/g	# avoid ar.fpsr
++s/mov.*=.*ar\.eflags/.warning \"ar.eflags should not used directly\"/g
++s/mov.*cr\.ifa.*=/.warning \"cr.ifa should not used directly\"/g
++s/mov.*cr\.itir.*=/.warning \"cr.itir should not used directly\"/g
++s/mov.*cr\.iha.*=/.warning \"cr.iha should not used directly\"/g
++s/mov.*cr\.ipsr.*=/.warning \"cr.ipsr should not used directly\"/g
++s/mov.*cr\.ifs.*=/.warning \"cr.ifs should not used directly\"/g
++s/mov.*cr\.iip.*=/.warning \"cr.iip should not used directly\"/g
++s/mov.*cr\.kr.*=/.warning \"cr.kr should not used directly\"/g
++s/mov.*ar\.eflags.*=/.warning \"ar.eflags should not used directly\"/g
++s/itc\.i/.warning \"itc.i should not be used directly.\"/g
++s/itc\.d/.warning \"itc.d should not be used directly.\"/g
++s/bsw\.0/.warning \"bsw.0 should not be used directly.\"/g
++s/bsw\.1/.warning \"bsw.1 should not be used directly.\"/g
++s/ptc\.ga/.warning \"ptc.ga should not be used directly.\"/g
 -- 
 1.6.0.2
