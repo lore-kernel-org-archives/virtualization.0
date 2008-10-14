@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 08/32] ia64/xen: define several constants for ia64/xen.
-Date: Tue, 14 Oct 2008 14:51:23 +0900
-Message-ID: <1223963507-28056-9-git-send-email-yamahata__21482.6579358943$1223968774$gmane$org@valinux.co.jp>
+Subject: [PATCH 16/32] ia64/xen: introduce helper function to identify domain
+	mode.
+Date: Tue, 14 Oct 2008 14:51:31 +0900
+Message-ID: <1223963507-28056-17-git-send-email-yamahata__19761.8702230558$1223968908$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,55 +22,98 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define several constants for ia64/xen.
+There are four operating modes Xen code may find itself running in:
+- native
+- hvm domain
+- pv dom0
+- pv domU
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/asm-offsets.c |   27 +++++++++++++++++++++++++++
- 1 files changed, 27 insertions(+), 0 deletions(-)
+ arch/ia64/include/asm/xen/hypervisor.h |   75 ++++++++++++++++++++++++++++++++
+ 1 files changed, 75 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/hypervisor.h
 
-diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
-index 94c44b1..eaa988b 100644
---- a/arch/ia64/kernel/asm-offsets.c
-+++ b/arch/ia64/kernel/asm-offsets.c
-@@ -16,6 +16,8 @@
- #include <asm/sigcontext.h>
- #include <asm/mca.h>
- 
-+#include <asm/xen/interface.h>
+diff --git a/arch/ia64/include/asm/xen/hypervisor.h b/arch/ia64/include/asm/xen/hypervisor.h
+new file mode 100644
+index 0000000..d1f84e1
+--- /dev/null
++++ b/arch/ia64/include/asm/xen/hypervisor.h
+@@ -0,0 +1,75 @@
++/******************************************************************************
++ * hypervisor.h
++ *
++ * Linux-specific hypervisor handling.
++ *
++ * Copyright (c) 2002-2004, K A Fraser
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
 +
- #include "../kernel/sigframe.h"
- #include "../kernel/fsyscall_gtod_data.h"
- 
-@@ -286,4 +288,29 @@ void foo(void)
- 		offsetof (struct itc_jitter_data_t, itc_jitter));
- 	DEFINE(IA64_ITC_LASTCYCLE_OFFSET,
- 		offsetof (struct itc_jitter_data_t, itc_lastcycle));
++#ifndef _ASM_IA64_XEN_HYPERVISOR_H
++#define _ASM_IA64_XEN_HYPERVISOR_H
 +
 +#ifdef CONFIG_XEN
-+	BLANK();
 +
-+#define DEFINE_MAPPED_REG_OFS(sym, field) \
-+	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
++#include <linux/init.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/version.h>	/* to compile feature.c */
++#include <xen/features.h>		/* to comiple xen-netfront.c */
++#include <asm/xen/hypercall.h>
 +
-+	DEFINE_MAPPED_REG_OFS(XSI_PSR_I_ADDR_OFS, interrupt_mask_addr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IPSR_OFS, ipsr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIP_OFS, iip);
-+	DEFINE_MAPPED_REG_OFS(XSI_IFS_OFS, ifs);
-+	DEFINE_MAPPED_REG_OFS(XSI_PRECOVER_IFS_OFS, precover_ifs);
-+	DEFINE_MAPPED_REG_OFS(XSI_ISR_OFS, isr);
-+	DEFINE_MAPPED_REG_OFS(XSI_IFA_OFS, ifa);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIPA_OFS, iipa);
-+	DEFINE_MAPPED_REG_OFS(XSI_IIM_OFS, iim);
-+	DEFINE_MAPPED_REG_OFS(XSI_IHA_OFS, iha);
-+	DEFINE_MAPPED_REG_OFS(XSI_ITIR_OFS, itir);
-+	DEFINE_MAPPED_REG_OFS(XSI_PSR_IC_OFS, interrupt_collection_enabled);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANKNUM_OFS, banknum);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANK0_R16_OFS, bank0_regs[0]);
-+	DEFINE_MAPPED_REG_OFS(XSI_BANK1_R16_OFS, bank1_regs[0]);
-+	DEFINE_MAPPED_REG_OFS(XSI_B0NATS_OFS, vbnat);
-+	DEFINE_MAPPED_REG_OFS(XSI_B1NATS_OFS, vnat);
-+#endif /* CONFIG_XEN */
- }
++/* xen_domain_type is set before executing any C code by early_xen_setup */
++enum xen_domain_type {
++	XEN_NATIVE,
++	XEN_PV_DOMAIN,
++	XEN_HVM_DOMAIN,
++};
++
++extern enum xen_domain_type xen_domain_type;
++
++#define xen_domain()		(xen_domain_type != XEN_NATIVE)
++#define xen_pv_domain()		(xen_domain_type == XEN_PV_DOMAIN)
++#define xen_initial_domain()	(xen_pv_domain() && \
++				 (xen_start_info->flags & SIF_INITDOMAIN))
++#define xen_hvm_domain()	(xen_domain_type == XEN_HVM_DOMAIN)
++
++/* deprecated. remove this */
++#define is_running_on_xen()	(xen_domain_type == XEN_PV_DOMAIN)
++
++extern struct start_info *xen_start_info;
++
++#else /* CONFIG_XEN */
++
++#define xen_domain()		(0)
++#define xen_pv_domain()		(0)
++#define xen_initial_domain()	(0)
++#define xen_hvm_domain()	(0)
++#define is_running_on_xen()	(0)	/* deprecated. remove this */
++#endif
++
++#define is_initial_xendomain()	(0)	/* deprecated. remove this */
++
++#endif /* _ASM_IA64_XEN_HYPERVISOR_H */
 -- 
 1.6.0.2
