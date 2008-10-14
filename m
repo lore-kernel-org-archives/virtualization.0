@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 06/32] ia64/xen: increase IA64_MAX_RSVD_REGIONS.
-Date: Tue, 14 Oct 2008 14:51:21 +0900
-Message-ID: <1223963507-28056-7-git-send-email-yamahata__5857.19881714812$1223968324$gmane$org@valinux.co.jp>
+Subject: [PATCH 09/32] ia64/xen: add a necessary header file to compile
+	include/xen/interface/xen.h
+Date: Tue, 14 Oct 2008 14:51:24 +0900
+Message-ID: <1223963507-28056-10-git-send-email-yamahata__29514.1438524754$1223968564$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,35 +19,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Robin Holt <holt@sgi.com>, xen-ia64-devel@lists.xensource.com, Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xenlinux/ia64 needs to reserve one more region passed from xen hypervisor
-as start info.
+Create include/asm-ia64/pvclock-abi.h to compile which includes
+include/asm-x86/pvclock-abi.h because ia64/xen uses same structure.
+Hopefully include/asm-x86/pvclock-abi.h would be moved to somewhere
+more generic.
 
-Cc: Robin Holt <holt@sgi.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/meminit.h |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ arch/ia64/include/asm/pvclock-abi.h |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/pvclock-abi.h
 
-diff --git a/arch/ia64/include/asm/meminit.h b/arch/ia64/include/asm/meminit.h
-index 7245a57..6bc96ee 100644
---- a/arch/ia64/include/asm/meminit.h
-+++ b/arch/ia64/include/asm/meminit.h
-@@ -18,10 +18,11 @@
-  * 	- crash dumping code reserved region
-  * 	- Kernel memory map built from EFI memory map
-  * 	- ELF core header
-+ *	- xen start info if CONFIG_XEN
-  *
-  * More could be added if necessary
-  */
--#define IA64_MAX_RSVD_REGIONS 8
-+#define IA64_MAX_RSVD_REGIONS 9
- 
- struct rsvd_region {
- 	unsigned long start;	/* virtual address of beginning of element */
+diff --git a/arch/ia64/include/asm/pvclock-abi.h b/arch/ia64/include/asm/pvclock-abi.h
+new file mode 100644
+index 0000000..63cbcca
+--- /dev/null
++++ b/arch/ia64/include/asm/pvclock-abi.h
+@@ -0,0 +1,5 @@
++/*
++ * use same structure to x86's
++ * Hopefully asm-x86/pvclock-abi.h would be moved to somewhere more generic.
++ */
++#include <asm-x86/pvclock-abi.h>
 -- 
 1.6.0.2
