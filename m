@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 28/32] ia64/xen: define xen machine vector for domU.
-Date: Tue, 14 Oct 2008 14:51:43 +0900
-Message-ID: <1223963507-28056-29-git-send-email-yamahata__43597.56795825$1223967412$gmane$org@valinux.co.jp>
+Subject: [PATCH 31/32] ia64/xen: a recipe for using xen/ia64 with pv_ops.
+Date: Tue, 14 Oct 2008 14:51:46 +0900
+Message-ID: <1223963507-28056-32-git-send-email-yamahata__23231.9034789272$1223967721$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,130 +21,203 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define xen machine vector for domU.
+Recipe for useing xen/ia64 with pv_ops domU.
 
+Signed-off-by: Akio Takebe <takebe_akio@jp.fujitsu.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- arch/ia64/Makefile                  |    2 ++
- arch/ia64/include/asm/machvec.h     |    2 ++
- arch/ia64/include/asm/machvec_xen.h |   22 ++++++++++++++++++++++
- arch/ia64/kernel/acpi.c             |    5 +++++
- arch/ia64/xen/Makefile              |    2 ++
- arch/ia64/xen/machvec.c             |    4 ++++
- 6 files changed, 37 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/machvec_xen.h
- create mode 100644 arch/ia64/xen/machvec.c
+ Documentation/ia64/xen.txt |  183 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 183 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/ia64/xen.txt
 
-diff --git a/arch/ia64/Makefile b/arch/ia64/Makefile
-index 905d25b..4024250 100644
---- a/arch/ia64/Makefile
-+++ b/arch/ia64/Makefile
-@@ -56,9 +56,11 @@ core-$(CONFIG_IA64_DIG) 	+= arch/ia64/dig/
- core-$(CONFIG_IA64_GENERIC) 	+= arch/ia64/dig/
- core-$(CONFIG_IA64_HP_ZX1)	+= arch/ia64/dig/
- core-$(CONFIG_IA64_HP_ZX1_SWIOTLB) += arch/ia64/dig/
-+core-$(CONFIG_IA64_XEN_GUEST)	+= arch/ia64/dig/
- core-$(CONFIG_IA64_SGI_SN2)	+= arch/ia64/sn/
- core-$(CONFIG_IA64_SGI_UV)	+= arch/ia64/uv/
- core-$(CONFIG_KVM) 		+= arch/ia64/kvm/
-+core-$(CONFIG_XEN)		+= arch/ia64/xen/
- 
- drivers-$(CONFIG_PCI)		+= arch/ia64/pci/
- drivers-$(CONFIG_IA64_HP_SIM)	+= arch/ia64/hp/sim/
-diff --git a/arch/ia64/include/asm/machvec.h b/arch/ia64/include/asm/machvec.h
-index 2b850cc..de99cb2 100644
---- a/arch/ia64/include/asm/machvec.h
-+++ b/arch/ia64/include/asm/machvec.h
-@@ -128,6 +128,8 @@ extern void machvec_tlb_migrate_finish (struct mm_struct *);
- #  include <asm/machvec_sn2.h>
- # elif defined (CONFIG_IA64_SGI_UV)
- #  include <asm/machvec_uv.h>
-+# elif defined (CONFIG_IA64_XEN_GUEST)
-+#  include <asm/machvec_xen.h>
- # elif defined (CONFIG_IA64_GENERIC)
- 
- # ifdef MACHVEC_PLATFORM_HEADER
-diff --git a/arch/ia64/include/asm/machvec_xen.h b/arch/ia64/include/asm/machvec_xen.h
+diff --git a/Documentation/ia64/xen.txt b/Documentation/ia64/xen.txt
 new file mode 100644
-index 0000000..55f9228
+index 0000000..a5c6993
 --- /dev/null
-+++ b/arch/ia64/include/asm/machvec_xen.h
-@@ -0,0 +1,22 @@
-+#ifndef _ASM_IA64_MACHVEC_XEN_h
-+#define _ASM_IA64_MACHVEC_XEN_h
++++ b/Documentation/ia64/xen.txt
+@@ -0,0 +1,183 @@
++       Recipe for getting/building/running Xen/ia64 with pv_ops
++       --------------------------------------------------------
 +
-+extern ia64_mv_setup_t			dig_setup;
-+extern ia64_mv_cpu_init_t		xen_cpu_init;
-+extern ia64_mv_irq_init_t		xen_irq_init;
-+extern ia64_mv_send_ipi_t		xen_platform_send_ipi;
++This recipe discribes how to get xen-ia64 source and build it,
++and run domU with pv_ops.
 +
-+/*
-+ * This stuff has dual use!
-+ *
-+ * For a generic kernel, the macros are used to initialize the
-+ * platform's machvec structure.  When compiling a non-generic kernel,
-+ * the macros are used directly.
-+ */
-+#define platform_name				"xen"
-+#define platform_setup				dig_setup
-+#define platform_cpu_init			xen_cpu_init
-+#define platform_irq_init			xen_irq_init
-+#define platform_send_ipi			xen_platform_send_ipi
++===========
++Requirement
++===========
 +
-+#endif /* _ASM_IA64_MACHVEC_XEN_h */
-diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
-index 5d1eb7e..0093649 100644
---- a/arch/ia64/kernel/acpi.c
-+++ b/arch/ia64/kernel/acpi.c
-@@ -52,6 +52,7 @@
- #include <asm/numa.h>
- #include <asm/sal.h>
- #include <asm/cyclone.h>
-+#include <asm/xen/hypervisor.h>
- 
- #define BAD_MADT_ENTRY(entry, end) (                                        \
- 		(!entry) || (unsigned long)entry + sizeof(*entry) > end ||  \
-@@ -121,6 +122,8 @@ acpi_get_sysname(void)
- 			return "uv";
- 		else
- 			return "sn2";
-+	} else if (xen_pv_domain() && !strcmp(hdr->oem_id, "XEN")) {
-+		return "xen";
- 	}
- 
- 	return "dig";
-@@ -137,6 +140,8 @@ acpi_get_sysname(void)
- 	return "uv";
- # elif defined (CONFIG_IA64_DIG)
- 	return "dig";
-+# elif defined (CONFIG_IA64_XEN_GUEST)
-+	return "xen";
- # else
- #	error Unknown platform.  Fix acpi.c.
- # endif
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index ed31c76..972d085 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -5,6 +5,8 @@
- obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
- 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
- 
-+obj-$(CONFIG_IA64_GENERIC) += machvec.o
++  - python
++  - mercurial
++    it (aka "hg") is a open-source source code
++    management software. See the below.
++    http://www.selenic.com/mercurial/wiki/
++  - git
++  - bridge-utils
 +
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
- 
- # xen multi compile
-diff --git a/arch/ia64/xen/machvec.c b/arch/ia64/xen/machvec.c
-new file mode 100644
-index 0000000..4ad588a
---- /dev/null
-+++ b/arch/ia64/xen/machvec.c
-@@ -0,0 +1,4 @@
-+#define MACHVEC_PLATFORM_NAME           xen
-+#define MACHVEC_PLATFORM_HEADER         <asm/machvec_xen.h>
-+#include <asm/machvec_init.h>
++=================================
++Getting and Building Xen and Dom0
++=================================
 +
++  My enviroment is;
++    Machine  : Tiger4
++    Domain0 OS  : RHEL5
++    DomainU OS  : RHEL5
++
++ 1. Download source
++    # hg clone http://xenbits.xensource.com/ext/ia64/xen-unstable.hg
++    # cd xen-unstable.hg
++    # hg clone http://xenbits.xensource.com/ext/ia64/linux-2.6.18-xen.hg
++
++ 2. # make world
++
++ 3. # make install-tools
++
++ 4. copy kernels and xen
++    # cp xen/xen.gz /boot/efi/efi/redhat/
++    # cp build-linux-2.6.18-xen_ia64/vmlinux.gz \
++      /boot/efi/efi/redhat/vmlinuz-2.6.18.8-xen
++
++ 5. make initrd for Dom0/DomU
++    # make -C linux-2.6.18-xen.hg ARCH=ia64 modules_install \
++      O=$(/bin/pwd)/build-linux-2.6.18-xen_ia64
++    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6.18.8-xen.img \
++      2.6.18.8-xen --builtin mptspi --builtin mptbase \
++      --builtin mptscsih --builtin uhci-hcd --builtin ohci-hcd \
++      --builtin ehci-hcd
++
++================================
++Making a disk image for guest OS
++================================
++
++ 1. make file
++    # dd if=/dev/zero of=/root/rhel5.img bs=1M seek=4096 count=0
++    # mke2fs -F -j /root/rhel5.img
++    # mount -o loop /root/rhel5.img /mnt
++    # cp -ax /{dev,var,etc,usr,bin,sbin,lib} /mnt
++    # mkdir /mnt/{root,proc,sys,home,tmp}
++
++    Note: You may miss some device files. If so, please create them
++    with mknod. Or you can use tar intead of cp.
++
++ 2. modify DomU's fstab
++    # vi /mnt/etc/fstab
++       /dev/xvda1  /            ext3    defaults        1 1
++       none        /dev/pts     devpts  gid=5,mode=620  0 0
++       none        /dev/shm     tmpfs   defaults        0 0
++       none        /proc        proc    defaults        0 0
++       none        /sys         sysfs   defaults        0 0
++
++ 3. modify inittab
++    set runlevel to 3 to avoid X trying to start
++    # vi /mnt/etc/inittab
++       id:3:initdefault:
++    Start a getty on the hvc0 console
++       X0:2345:respawn:/sbin/mingetty hvc0
++    tty1-6 mingetty can be commented out
++
++ 4. add hvc0 into /etc/securetty
++    # vi /mnt/etc/securetty (add hvc0)
++
++ 5. umount
++    # umount /mnt
++
++FYI, virt-manager can also make a disk image for guest OS.
++It's GUI tools and easy to make it.
++
++==================
++Boot Xen & Domain0
++==================
++
++ 1. replace elilo
++    elilo of RHEL5 can boot Xen and Dom0.
++    If you use old elilo (e.g RHEL4), please download from the below
++    http://elilo.sourceforge.net/cgi-bin/blosxom
++    and copy into /boot/efi/efi/redhat/
++    # cp elilo-3.6-ia64.efi /boot/efi/efi/redhat/elilo.efi
++
++ 2. modify elilo.conf (like the below)
++    # vi /boot/efi/efi/redhat/elilo.conf
++     prompt
++     timeout=20
++     default=xen
++     relocatable
++
++     image=vmlinuz-2.6.18.8-xen
++             label=xen
++             vmm=xen.gz
++             initrd=initrd-2.6.18.8-xen.img
++             read-only
++             append=" -- rhgb root=/dev/sda2"
++
++The append options before "--" are for xen hypervisor,
++the options after "--" are for dom0.
++
++FYI, your machine may need console options like
++"com1=19200,8n1 console=vga,com1". For example,
++append="com1=19200,8n1 console=vga,com1 -- rhgb console=tty0 \
++console=ttyS0 root=/dev/sda2"
++
++=====================================
++Getting and Building domU with pv_ops
++=====================================
++
++ 1. get pv_ops tree
++    # git clone http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
++
++ 2. git branch (if necessary)
++    # cd linux-2.6-xen-ia64/
++    # git checkout -b your_branch origin/xen-ia64-domu-minimal-2008may19
++    (Note: The current branch is xen-ia64-domu-minimal-2008may19.
++    But you would find the new branch. You can see with
++    "git branch -r" to get the branch lists.
++    http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
++    is also available. The tree is based on
++    git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6 test)
++
++
++ 3. copy .config for pv_ops of domU
++    # cp arch/ia64/configs/xen_domu_wip_defconfig .config
++
++ 4. make kernel with pv_ops
++    # make oldconfig
++    # make
++
++ 5. install the kernel and initrd
++    # cp vmlinux.gz /boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU
++    # make modules_install
++    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img \
++      2.6.26-rc3xen-ia64-08941-g1b12161 --builtin mptspi \
++      --builtin mptbase --builtin mptscsih --builtin uhci-hcd \
++      --builtin ohci-hcd --builtin ehci-hcd
++
++========================
++Boot DomainU with pv_ops
++========================
++
++ 1. make config of DomU
++   # vi /etc/xen/rhel5
++     kernel = "/boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU"
++     ramdisk = "/boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img"
++     vcpus = 1
++     memory = 512
++     name = "rhel5"
++     disk = [ 'file:/root/rhel5.img,xvda1,w' ]
++     root = "/dev/xvda1 ro"
++     extra= "rhgb console=hvc0"
++
++ 2. After boot xen and dom0, start xend
++   # /etc/init.d/xend start
++   ( In the debugging case, # XEND_DEBUG=1 xend trace_start )
++
++ 3. start domU
++   # xm create -c rhel5
++
++=========
++Reference
++=========
++- Wiki of Xen/IA64 upstream merge
++  http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
++
++Witten by Akio Takebe <takebe_akio@jp.fujitsu.com> on 28 May 2008
 -- 
 1.6.0.2
