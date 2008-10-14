@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 19/32] ia64/pv_ops/xen: define xen pv_cpu_ops.
-Date: Tue, 14 Oct 2008 14:51:34 +0900
-Message-ID: <1223963507-28056-20-git-send-email-yamahata__14412.5151950449$1223965311$gmane$org@valinux.co.jp>
+Subject: [PATCH 17/32] ia64/pv_ops/xen: elf note based xen startup.
+Date: Tue, 14 Oct 2008 14:51:32 +0900
+Message-ID: <1223963507-28056-18-git-send-email-yamahata__38926.9515443177$1223965418$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,147 +18,218 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define xen pv_cpu_ops which implementes xen paravirtualized
-privileged instructions.
+This patch enables elf note based xen startup for IA-64, which gives the
+kernel an early hint for running on xen like x86 case.
+In order to avoid the multi entry point, presumably extending booting
+protocol(i.e. extending struct ia64_boot_param) would be necessary.
+It probably means that elilo also needs modification.
 
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
+Signed-off-by: Qing He <qing.he@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/xen_pv_ops.c |  114 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 114 insertions(+), 0 deletions(-)
+ arch/ia64/kernel/asm-offsets.c |    4 ++
+ arch/ia64/xen/Makefile         |    3 +-
+ arch/ia64/xen/xen_pv_ops.c     |   65 +++++++++++++++++++++++++++++++
+ arch/ia64/xen/xensetup.S       |   83 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 154 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/xen_pv_ops.c
+ create mode 100644 arch/ia64/xen/xensetup.S
 
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index fc9d599..c236f04 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -163,6 +163,119 @@ static const struct pv_init_ops xen_init_ops __initdata = {
- };
+diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
+index eaa988b..742dbb1 100644
+--- a/arch/ia64/kernel/asm-offsets.c
++++ b/arch/ia64/kernel/asm-offsets.c
+@@ -17,6 +17,7 @@
+ #include <asm/mca.h>
  
- /***************************************************************************
-+ * pv_cpu_ops
-+ * intrinsics hooks.
+ #include <asm/xen/interface.h>
++#include <asm/xen/hypervisor.h>
+ 
+ #include "../kernel/sigframe.h"
+ #include "../kernel/fsyscall_gtod_data.h"
+@@ -292,6 +293,9 @@ void foo(void)
+ #ifdef CONFIG_XEN
+ 	BLANK();
+ 
++	DEFINE(XEN_NATIVE_ASM, XEN_NATIVE);
++	DEFINE(XEN_PV_DOMAIN_ASM, XEN_PV_DOMAIN);
++
+ #define DEFINE_MAPPED_REG_OFS(sym, field) \
+ 	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
+ 
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index eb59563..abc356f 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -2,4 +2,5 @@
+ # Makefile for Xen components
+ #
+ 
+-obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
++obj-y := hypercall.o xensetup.o xen_pv_ops.o \
++	xencomm.o xcom_hcall.o grant-table.o
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+new file mode 100644
+index 0000000..77db214
+--- /dev/null
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -0,0 +1,65 @@
++/******************************************************************************
++ * arch/ia64/xen/xen_pv_ops.c
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
 + */
 +
-+static void xen_setreg(int regnum, unsigned long val)
-+{
-+	switch (regnum) {
-+	case _IA64_REG_AR_KR0 ... _IA64_REG_AR_KR7:
-+		xen_set_kr(regnum - _IA64_REG_AR_KR0, val);
-+		break;
-+#ifdef CONFIG_IA32_SUPPORT
-+	case _IA64_REG_AR_EFLAG:
-+		xen_set_eflag(val);
-+		break;
-+#endif
-+	case _IA64_REG_CR_TPR:
-+		xen_set_tpr(val);
-+		break;
-+	case _IA64_REG_CR_ITM:
-+		xen_set_itm(val);
-+		break;
-+	case _IA64_REG_CR_EOI:
-+		xen_eoi(val);
-+		break;
-+	default:
-+		ia64_native_setreg_func(regnum, val);
-+		break;
-+	}
-+}
++#include <linux/console.h>
++#include <linux/irq.h>
++#include <linux/kernel.h>
++#include <linux/pm.h>
 +
-+static unsigned long xen_getreg(int regnum)
-+{
-+	unsigned long res;
-+
-+	switch (regnum) {
-+	case _IA64_REG_PSR:
-+		res = xen_get_psr();
-+		break;
-+#ifdef CONFIG_IA32_SUPPORT
-+	case _IA64_REG_AR_EFLAG:
-+		res = xen_get_eflag();
-+		break;
-+#endif
-+	case _IA64_REG_CR_IVR:
-+		res = xen_get_ivr();
-+		break;
-+	case _IA64_REG_CR_TPR:
-+		res = xen_get_tpr();
-+		break;
-+	default:
-+		res = ia64_native_getreg_func(regnum);
-+		break;
-+	}
-+	return res;
-+}
-+
-+/* turning on interrupts is a bit more complicated.. write to the
-+ * memory-mapped virtual psr.i bit first (to avoid race condition),
-+ * then if any interrupts were pending, we have to execute a hyperprivop
-+ * to ensure the pending interrupt gets delivered; else we're done! */
-+static void
-+xen_ssm_i(void)
-+{
-+	int old = xen_get_virtual_psr_i();
-+	xen_set_virtual_psr_i(1);
-+	barrier();
-+	if (!old && xen_get_virtual_pend())
-+		xen_hyper_ssm_i();
-+}
-+
-+/* turning off interrupts can be paravirtualized simply by writing
-+ * to a memory-mapped virtual psr.i bit (implemented as a 16-bit bool) */
-+static void
-+xen_rsm_i(void)
-+{
-+	xen_set_virtual_psr_i(0);
-+	barrier();
-+}
-+
-+static unsigned long
-+xen_get_psr_i(void)
-+{
-+	return xen_get_virtual_psr_i() ? IA64_PSR_I : 0;
-+}
-+
-+static void
-+xen_intrin_local_irq_restore(unsigned long mask)
-+{
-+	if (mask & IA64_PSR_I)
-+		xen_ssm_i();
-+	else
-+		xen_rsm_i();
-+}
-+
-+static const struct pv_cpu_ops xen_cpu_ops __initdata = {
-+	.fc		= xen_fc,
-+	.thash		= xen_thash,
-+	.get_cpuid	= xen_get_cpuid,
-+	.get_pmd	= xen_get_pmd,
-+	.getreg		= xen_getreg,
-+	.setreg		= xen_setreg,
-+	.ptcga		= xen_ptcga,
-+	.get_rr		= xen_get_rr,
-+	.set_rr		= xen_set_rr,
-+	.set_rr0_to_rr4	= xen_set_rr0_to_rr4,
-+	.ssm_i		= xen_ssm_i,
-+	.rsm_i		= xen_rsm_i,
-+	.get_psr_i	= xen_get_psr_i,
-+	.intrin_local_irq_restore
-+			= xen_intrin_local_irq_restore,
-+};
++#include <asm/xen/hypervisor.h>
++#include <asm/xen/xencomm.h>
++#include <asm/xen/privop.h>
 +
 +/***************************************************************************
-  * pv_ops initialization
-  */
- 
-@@ -172,4 +285,5 @@ xen_setup_pv_ops(void)
- 	xen_info_init();
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
-+	pv_cpu_ops = xen_cpu_ops;
- }
++ * general info
++ */
++static struct pv_info xen_info __initdata = {
++	.kernel_rpl = 2,	/* or 1: determin at runtime */
++	.paravirt_enabled = 1,
++	.name = "Xen/ia64",
++};
++
++#define IA64_RSC_PL_SHIFT	2
++#define IA64_RSC_PL_BIT_SIZE	2
++#define IA64_RSC_PL_MASK	\
++	(((1UL << IA64_RSC_PL_BIT_SIZE) - 1) << IA64_RSC_PL_SHIFT)
++
++static void __init
++xen_info_init(void)
++{
++	/* Xenified Linux/ia64 may run on pl = 1 or 2.
++	 * determin at run time. */
++	unsigned long rsc = ia64_getreg(_IA64_REG_AR_RSC);
++	unsigned int rpl = (rsc & IA64_RSC_PL_MASK) >> IA64_RSC_PL_SHIFT;
++	xen_info.kernel_rpl = rpl;
++}
++
++/***************************************************************************
++ * pv_ops initialization
++ */
++
++void __init
++xen_setup_pv_ops(void)
++{
++	xen_info_init();
++	pv_info = xen_info;
++}
+diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
+new file mode 100644
+index 0000000..28fed1f
+--- /dev/null
++++ b/arch/ia64/xen/xensetup.S
+@@ -0,0 +1,83 @@
++/*
++ * Support routines for Xen
++ *
++ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
++ */
++
++#include <asm/processor.h>
++#include <asm/asmmacro.h>
++#include <asm/pgtable.h>
++#include <asm/system.h>
++#include <asm/paravirt.h>
++#include <asm/xen/privop.h>
++#include <linux/elfnote.h>
++#include <linux/init.h>
++#include <xen/interface/elfnote.h>
++
++	.section .data.read_mostly
++	.align 8
++	.global xen_domain_type
++xen_domain_type:
++	data4 XEN_NATIVE_ASM
++	.previous
++
++	__INIT
++ENTRY(startup_xen)
++	// Calculate load offset.
++	// The constant, LOAD_OFFSET, can't be used because the boot
++	// loader doesn't always load to the LMA specified by the vmlinux.lds.
++	mov r9=ip	// must be the first instruction to make sure
++			// that r9 = the physical address of startup_xen.
++			// Usually r9 = startup_xen - LOAD_OFFSET
++	movl r8=startup_xen
++	;;
++	sub r9=r9,r8	// Usually r9 = -LOAD_OFFSET.
++
++	mov r10=PARAVIRT_HYPERVISOR_TYPE_XEN
++	movl r11=_start
++	;;
++	add r11=r11,r9
++	movl r8=hypervisor_type
++	;;
++	add r8=r8,r9
++	mov b0=r11
++	;;
++	st8 [r8]=r10
++	br.cond.sptk.many b0
++	;;
++END(startup_xen)
++
++	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,	.asciz "linux")
++	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,	.asciz "2.6")
++	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,	.asciz "xen-3.0")
++	ELFNOTE(Xen, XEN_ELFNOTE_ENTRY,		data8.ua startup_xen - LOAD_OFFSET)
++
++#define isBP	p3	// are we the Bootstrap Processor?
++
++	.text
++
++GLOBAL_ENTRY(xen_setup_hook)
++	mov r8=XEN_PV_DOMAIN_ASM
++(isBP)	movl r9=xen_domain_type;;
++(isBP)	st4 [r9]=r8
++	movl r10=xen_ivt;;
++
++	mov cr.iva=r10
++
++	/* Set xsi base.  */
++#define FW_HYPERCALL_SET_SHARED_INFO_VA			0x600
++(isBP)	mov r2=FW_HYPERCALL_SET_SHARED_INFO_VA
++(isBP)	movl r28=XSI_BASE;;
++(isBP)	break 0x1000;;
++
++	/* setup pv_ops */
++(isBP)	mov r4=rp
++	;;
++(isBP)	br.call.sptk.many rp=xen_setup_pv_ops
++	;;
++(isBP)	mov rp=r4
++	;;
++
++	br.ret.sptk.many rp
++	;;
++END(xen_setup_hook)
 -- 
 1.6.0.2
