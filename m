@@ -1,44 +1,76 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC 1/3] hvc_console: rework setup to replace irq functions
-	with callbacks
-Date: Mon, 13 Oct 2008 20:52:59 +1100
-Message-ID: <1223891579.8157.251.camel@pasglop>
-References: <200806031444.21945.borntraeger@de.ibm.com>
-	<200810130951.31733.borntraeger@de.ibm.com>
-	<1223886972.8157.241.camel@pasglop>
-	<200810131047.12748.borntraeger@de.ibm.com>
-Reply-To: benh@kernel.crashing.org
+From: "Dong, Eddie" <eddie.dong@intel.com>
+Subject: RE: [PATCH 6/6 v3] PCI: document the change
+Date: Tue, 14 Oct 2008 08:23:34 +0800
+Message-ID: <08DF4D958216244799FC84F3514D70F00235CC69__29316.4703566164$1223944102$gmane$org@pdsmsx415.ccr.corp.intel.com>
+References: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F6@pdsmsx502.ccr.corp.intel.com>
+	<20081001160706.GI13822@parisc-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <200810131047.12748.borntraeger@de.ibm.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, Linux PPC devel <linuxppc-dev@ozlabs.org>, Ingo Molnar <mingo@elte.hu>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <20081001160706.GI13822@parisc-linux.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Matthew Wilcox <matthew@wil.cx>, "Zhao, Yu" <yu.zhao@intel.com>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Grant Grundler <grundler@parisc-linux.org>, Alex Chiang <achiang@hp.com>, linux-pci@vger.kernel.org, Roland Dreier <rdreier@cisco.com>, "Dong,
+	Eddie" <eddie.dong@intel.com>, linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Greg KH <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2008-10-13 at 10:47 +0200, Christian Borntraeger wrote:
-> > I will try. Of course the risk here is that the interrupt happens
-> > after we set hp->tty to NULL, so we probably need to check within the
-> > interrupt handler for a NULL tty. I haven't checked if that's the case
-> > (I'm not in front of the code right now).
+Matthew Wilcox wrote:
+ 
+> Wouldn't it be more useful to have the iov/N directories
+> be a symlink to the actual pci_dev used by the virtual
+> function? 
+
+The main concern here is that a VF may be disabed such as when PF enter
+D3 state or undergo an reset and thus be plug-off, but user won't
+re-configure the VF in case the PF return back to working state.
+
 > 
-> Even the old code (without my patch) was setting hp->tty to NULL before doing 
-> the irq_free, so that should be ok.
+>> +For network device, there are:
+>> +       - /sys/bus/pci/devices/BB:DD.F/iov/N/mac
+>> +       - /sys/bus/pci/devices/BB:DD.F/iov/N/vlan
+>> +               (value update will notify PF driver)
+> 
+> We already have tools to set the MAC and VLAN parameters
+> for network devices.
 
-Yup, just checked, it should be allright as long as it's cleared with
-the spinlock held, which seems to be the case with your patch. I'll test
-your fixup patch tomorrow to see if it clears the lockdep error.
+Do you mean Ethtool? If yes, it is impossible for SR-IOV since the
+configuration has to be done in PF side, rather than VF.
 
-Thanks !
+> 
+> I'm not 100% convinced about this API.  The assumption
+> here is that the driver will do it, but I think it should
+> probably be in the core.  The driver probably wants to be
 
-Ben.
+Our concern is that the PF driver may put an default state when it is
+loaded so that SR-IOV can work without any user level configuration, but
+of course the driver won't dynamically change it.
+Do u mean we remove this ability?
+
+> notified that the PCI core is going to create a virtual
+> function, and would it please prepare to do so, but I'm
+> not convinced this should be triggered by the driver. 
+> How would the driver decide to create a new virtual
+> function?  
+> 
+> 
+> From my reading of the SR-IOV spec, this isn't how it's
+> supposed to work.  The device is supposed to be a fully
+> functional PCI device that on demand can start peeling
+> off virtual functions; it's not supposed to boot up and
+> initialise all its virtual functions at once. 
+
+The spec defines either we enable all VFs or Disable. Per VF enabling is
+not supported.
+Is this what you concern?
+
+Thanks, eddie
