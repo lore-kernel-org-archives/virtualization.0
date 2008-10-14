@@ -1,83 +1,113 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC 1/3] hvc_console: rework setup to replace irq functions
-	with callbacks
-Date: Tue, 14 Oct 2008 11:38:34 +1100
-Message-ID: <1223944714.8157.300.camel@pasglop>
-References: <200806031444.21945.borntraeger@de.ibm.com>
-	 <200806031445.22561.borntraeger@de.ibm.com>
-	 <1223875013.8157.230.camel@pasglop>
-	 <200810130951.31733.borntraeger@de.ibm.com>
-Reply-To: benh@kernel.crashing.org
+From: Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [PATCH 6/6 v3] PCI: document the change
+Date: Mon, 13 Oct 2008 19:08:27 -0600
+Message-ID: <20081014010827.GX25780__13207.8606439338$1223946751$gmane$org@parisc-linux.org>
+References: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F6@pdsmsx502.ccr.corp.intel.com>
+	<20081001160706.GI13822@parisc-linux.org>
+	<08DF4D958216244799FC84F3514D70F00235CC69@pdsmsx415.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761079AbYJNAmW@vger.kernel.org>
-In-Reply-To: <200810130951.31733.borntraeger@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Linux PPC devel <linuxppc-dev@ozlabs.org>, Virtualization Mailing List <virtualization@lists.osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <08DF4D958216244799FC84F3514D70F00235CC69@pdsmsx415.ccr.corp.intel.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Dong, Eddie" <eddie.dong@intel.com>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Grant Grundler <grundler@parisc-linux.org>, Alex Chiang <achiang@hp.com>, linux-pci@vger.kernel.org, Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Greg KH <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Oct 14, 2008 at 08:23:34AM +0800, Dong, Eddie wrote:
+> Matthew Wilcox wrote:
+> > Wouldn't it be more useful to have the iov/N directories
+> > be a symlink to the actual pci_dev used by the virtual
+> > function? 
+> 
+> The main concern here is that a VF may be disabed such as when PF enter
+> D3 state or undergo an reset and thus be plug-off, but user won't
+> re-configure the VF in case the PF return back to working state.
 
-> Hmmm. 
-> Can you try if this patch fixes the lockdep trace?
+If we're relying on the user to reconfigure virtual functions on return
+to D0 from D3, that's a very fragile system.
 
-Yup, the patch fixes it, I'll commit it via the powerpc.git tree if you
-don't have any objection.
+> >> +For network device, there are:
+> >> +       - /sys/bus/pci/devices/BB:DD.F/iov/N/mac
+> >> +       - /sys/bus/pci/devices/BB:DD.F/iov/N/vlan
+> >> +               (value update will notify PF driver)
+> > 
+> > We already have tools to set the MAC and VLAN parameters
+> > for network devices.
+> 
+> Do you mean Ethtool? If yes, it is impossible for SR-IOV since the
+> configuration has to be done in PF side, rather than VF.
 
-Cheers,
-Ben.
+I don't think ethtool has that ability; ip(8) can set mac addresses and
+vconfig(8) sets vlan parameters.
 
-> This would be analog to
-> commit b1b135c8d619cb2c7045d6ee4e48375882518bb5
-> Author: Christian Borntraeger <borntraeger@de.ibm.com>
-> Date:   Thu Aug 7 09:18:34 2008 +0200
+The device driver already has to be aware of SR-IOV.  If it's going to
+support the standard tools (and it damn well ought to), then it should
+call the PF driver to set these kinds of parameters.
+
+> > I'm not 100% convinced about this API.  The assumption
+> > here is that the driver will do it, but I think it should
+> > probably be in the core.  The driver probably wants to be
 > 
->     fix spinlock recursion in hvc_console
+> Our concern is that the PF driver may put an default state when it is
+> loaded so that SR-IOV can work without any user level configuration, but
+> of course the driver won't dynamically change it.
+> Do u mean we remove this ability?
 > 
->     commit 611e097d7707741a336a0677d9d69bec40f29f3d
->     Author: Christian Borntraeger <borntraeger@de.ibm.com>
->     hvc_console: rework setup to replace irq functions with callbacks
->     introduced a spinlock recursion problem.
+> > notified that the PCI core is going to create a virtual
+> > function, and would it please prepare to do so, but I'm
+> > not convinced this should be triggered by the driver. 
+> > How would the driver decide to create a new virtual
+> > function?  
+
+Let me try to explain this a bit better.
+
+The user decides they want a new ethernet virtual function.  In the
+scheme as you have set up:
+
+1. User communicates to ethernet driver "I want a new VF"
+2. Ethernet driver tells PCI core "create new VF".
+
+I propose:
+
+1. User tells PCI core "I want a new VF on PCI device 0000:01:03.0"
+2. PCI core tells driver "User wants a new VF"
+
+My scheme gives us a unified way of creating new VFs, yours requires each
+driver to invent a way for the user to tell them to create a new VF.
+Unless I've misunderstood your code and docs.
+
+> > From my reading of the SR-IOV spec, this isn't how it's
+> > supposed to work.  The device is supposed to be a fully
+> > functional PCI device that on demand can start peeling
+> > off virtual functions; it's not supposed to boot up and
+> > initialise all its virtual functions at once. 
 > 
-> 
-> Signed-off-by: Christian Borntraeger<borntraeger@de.ibm.com>
-> ---
->  drivers/char/hvc_console.c |   10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> Index: linux-2.6/drivers/char/hvc_console.c
-> ===================================================================
-> --- linux-2.6.orig/drivers/char/hvc_console.c
-> +++ linux-2.6/drivers/char/hvc_console.c
-> @@ -367,13 +367,13 @@ static void hvc_close(struct tty_struct 
->  	spin_lock_irqsave(&hp->lock, flags);
->  
->  	if (--hp->count == 0) {
-> -		if (hp->ops->notifier_del)
-> -			hp->ops->notifier_del(hp, hp->data);
-> -
->  		/* We are done with the tty pointer now. */
->  		hp->tty = NULL;
->  		spin_unlock_irqrestore(&hp->lock, flags);
->  
-> +		if (hp->ops->notifier_del)
-> +			hp->ops->notifier_del(hp, hp->data);
-> +
->  		/*
->  		 * Chain calls chars_in_buffer() and returns immediately if
->  		 * there is no buffered data otherwise sleeps on a wait queue
-> @@ -416,11 +416,11 @@ static void hvc_hangup(struct tty_struct
->  	hp->n_outbuf = 0;
->  	hp->tty = NULL;
->  
-> +	spin_unlock_irqrestore(&hp->lock, flags);
-> +
->  	if (hp->ops->notifier_del)
->  			hp->ops->notifier_del(hp, hp->data);
->  
-> -	spin_unlock_irqrestore(&hp->lock, flags);
-> -
->  	while(temp_open_count) {
->  		--temp_open_count;
->  		kref_put(&hp->kref, destroy_hvc_struct);
+> The spec defines either we enable all VFs or Disable. Per VF enabling is
+> not supported.
+> Is this what you concern?
+
+I don't think that's true.  The spec requires you to enable all the
+VFs from 0 to NumVFs, but NumVFs can be lower than TotalVFs.  At least,
+that's how I read it.
+
+But no, that isn't my concern.  My concern is that you've written a
+driver here that seems to be a stub driver.  That doesn't seem to be
+how SR-IOV is supposed to work; it's supposed to be a fully-functional
+driver that has SR-IOV knowledge added to it.
+
+-- 
+Matthew Wilcox				Intel Open Source Technology Centre
+"Bill, look, we understand that you're interested in selling us this
+operating system, but compare it to ours.  We can't possibly take such
+a retrograde step."
