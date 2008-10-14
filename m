@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 10/32] ia64/xen: define helper functions for xen related
-	address conversion.
-Date: Tue, 14 Oct 2008 14:51:25 +0900
-Message-ID: <1223963507-28056-11-git-send-email-yamahata__13745.224561035$1223969013$gmane$org@valinux.co.jp>
+Subject: [PATCH 23/32] ia64/pv_ops/xen: paravirtualize entry.S for ia64/xen.
+Date: Tue, 14 Oct 2008 14:51:38 +0900
+Message-ID: <1223963507-28056-24-git-send-email-yamahata__11944.4232470871$1223969119$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,88 +21,80 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Xen needs some address conversions between pseudo physical
-address (guest phsyical address), guest machine address
-(real machine address) and dma address.
-Define helper functions for those address conversion.
+paravirtualize entry.S for ia64/xen by multi compile.
 
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/page.h |   65 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 65 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/xen/page.h
+ arch/ia64/include/asm/xen/inst.h |    8 ++++++++
+ arch/ia64/xen/Makefile           |    2 +-
+ arch/ia64/xen/xen_pv_ops.c       |   18 ++++++++++++++++++
+ 3 files changed, 27 insertions(+), 1 deletions(-)
 
-diff --git a/arch/ia64/include/asm/xen/page.h b/arch/ia64/include/asm/xen/page.h
-new file mode 100644
-index 0000000..03441a7
---- /dev/null
-+++ b/arch/ia64/include/asm/xen/page.h
-@@ -0,0 +1,65 @@
+diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
+index e6a25c3..19c2ae1 100644
+--- a/arch/ia64/include/asm/xen/inst.h
++++ b/arch/ia64/include/asm/xen/inst.h
+@@ -25,6 +25,14 @@
+ #define ia64_ivt				xen_ivt
+ #define DO_SAVE_MIN				XEN_DO_SAVE_MIN
+ 
++#define __paravirt_switch_to			xen_switch_to
++#define __paravirt_leave_syscall		xen_leave_syscall
++#define __paravirt_work_processed_syscall	xen_work_processed_syscall
++#define __paravirt_leave_kernel			xen_leave_kernel
++#define __paravirt_pending_syscall_end		xen_work_pending_syscall_end
++#define __paravirt_work_processed_syscall_target \
++						xen_work_processed_syscall
++
+ #define MOV_FROM_IFA(reg)	\
+ 	movl reg = XSI_IFA;	\
+ 	;;			\
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index 5c87e4a..9b77e8a 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -8,7 +8,7 @@ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o \
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+ 
+ # xen multi compile
+-ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S
++ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
+ ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
+ obj-y += $(ASM_PARAVIRT_OBJS)
+ define paravirtualized_xen
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index c236f04..5b23cd5 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -275,6 +275,22 @@ static const struct pv_cpu_ops xen_cpu_ops __initdata = {
+ 			= xen_intrin_local_irq_restore,
+ };
+ 
 +/******************************************************************************
-+ * arch/ia64/include/asm/xen/page.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
++ * replacement of hand written assembly codes.
 + */
 +
-+#ifndef _ASM_IA64_XEN_PAGE_H
-+#define _ASM_IA64_XEN_PAGE_H
++extern char xen_switch_to;
++extern char xen_leave_syscall;
++extern char xen_work_processed_syscall;
++extern char xen_leave_kernel;
 +
-+#define INVALID_P2M_ENTRY	(~0UL)
++const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
++	.switch_to		= (unsigned long)&xen_switch_to,
++	.leave_syscall		= (unsigned long)&xen_leave_syscall,
++	.work_processed_syscall	= (unsigned long)&xen_work_processed_syscall,
++	.leave_kernel		= (unsigned long)&xen_leave_kernel,
++};
 +
-+static inline unsigned long mfn_to_pfn(unsigned long mfn)
-+{
-+	return mfn;
-+}
+ /***************************************************************************
+  * pv_ops initialization
+  */
+@@ -286,4 +302,6 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_cpu_ops = xen_cpu_ops;
 +
-+static inline unsigned long pfn_to_mfn(unsigned long pfn)
-+{
-+	return pfn;
-+}
-+
-+#define phys_to_machine_mapping_valid(_x)	(1)
-+
-+static inline void *mfn_to_virt(unsigned long mfn)
-+{
-+	return __va(mfn << PAGE_SHIFT);
-+}
-+
-+static inline unsigned long virt_to_mfn(void *virt)
-+{
-+	return __pa(virt) >> PAGE_SHIFT;
-+}
-+
-+/* for tpmfront.c */
-+static inline unsigned long virt_to_machine(void *virt)
-+{
-+	return __pa(virt);
-+}
-+
-+static inline void set_phys_to_machine(unsigned long pfn, unsigned long mfn)
-+{
-+	/* nothing */
-+}
-+
-+#define pte_mfn(_x)	pte_pfn(_x)
-+#define mfn_pte(_x, _y)	__pte_ma(0)		/* unmodified use */
-+#define __pte_ma(_x)	((pte_t) {(_x)})        /* unmodified use */
-+
-+#endif /* _ASM_IA64_XEN_PAGE_H */
++	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+ }
 -- 
 1.6.0.2
