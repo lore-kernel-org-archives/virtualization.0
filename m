@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 17/32] ia64/pv_ops/xen: elf note based xen startup.
-Date: Tue, 14 Oct 2008 14:51:32 +0900
-Message-ID: <1223963507-28056-18-git-send-email-yamahata__38926.9515443177$1223965418$gmane$org@valinux.co.jp>
+Subject: [PATCH 14/32] ia64/xen: implement arch specific part of xen grant
+	table.
+Date: Tue, 14 Oct 2008 14:51:29 +0900
+Message-ID: <1223963507-28056-15-git-send-email-yamahata__4619.26160282946$1223965553$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,64 +22,29 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch enables elf note based xen startup for IA-64, which gives the
-kernel an early hint for running on xen like x86 case.
-In order to avoid the multi entry point, presumably extending booting
-protocol(i.e. extending struct ia64_boot_param) would be necessary.
-It probably means that elilo also needs modification.
+Xen implements grant tables which is for sharing pages with
+guest domains.
+This patch implements arch specific part of grant table initialization.
+and xen_alloc_vm_area()/xen_free_vm_area() which are helper functions
+for xen grant table.
 
-Signed-off-by: Qing He <qing.he@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/asm-offsets.c |    4 ++
- arch/ia64/xen/Makefile         |    3 +-
- arch/ia64/xen/xen_pv_ops.c     |   65 +++++++++++++++++++++++++++++++
- arch/ia64/xen/xensetup.S       |   83 ++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 154 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/xen_pv_ops.c
- create mode 100644 arch/ia64/xen/xensetup.S
+ arch/ia64/include/asm/xen/grant_table.h |   29 ++++++
+ arch/ia64/xen/Makefile                  |    2 +-
+ arch/ia64/xen/grant-table.c             |  155 +++++++++++++++++++++++++++++++
+ 3 files changed, 185 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/grant_table.h
+ create mode 100644 arch/ia64/xen/grant-table.c
 
-diff --git a/arch/ia64/kernel/asm-offsets.c b/arch/ia64/kernel/asm-offsets.c
-index eaa988b..742dbb1 100644
---- a/arch/ia64/kernel/asm-offsets.c
-+++ b/arch/ia64/kernel/asm-offsets.c
-@@ -17,6 +17,7 @@
- #include <asm/mca.h>
- 
- #include <asm/xen/interface.h>
-+#include <asm/xen/hypervisor.h>
- 
- #include "../kernel/sigframe.h"
- #include "../kernel/fsyscall_gtod_data.h"
-@@ -292,6 +293,9 @@ void foo(void)
- #ifdef CONFIG_XEN
- 	BLANK();
- 
-+	DEFINE(XEN_NATIVE_ASM, XEN_NATIVE);
-+	DEFINE(XEN_PV_DOMAIN_ASM, XEN_PV_DOMAIN);
-+
- #define DEFINE_MAPPED_REG_OFS(sym, field) \
- 	DEFINE(sym, (XMAPPEDREGS_OFS + offsetof(struct mapped_regs, field)))
- 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index eb59563..abc356f 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -2,4 +2,5 @@
- # Makefile for Xen components
- #
- 
--obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
-+obj-y := hypercall.o xensetup.o xen_pv_ops.o \
-+	xencomm.o xcom_hcall.o grant-table.o
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+diff --git a/arch/ia64/include/asm/xen/grant_table.h b/arch/ia64/include/asm/xen/grant_table.h
 new file mode 100644
-index 0000000..77db214
+index 0000000..2b1fae0
 --- /dev/null
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -0,0 +1,65 @@
++++ b/arch/ia64/include/asm/xen/grant_table.h
+@@ -0,0 +1,29 @@
 +/******************************************************************************
-+ * arch/ia64/xen/xen_pv_ops.c
++ * arch/ia64/include/asm/xen/grant_table.h
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -99,137 +65,183 @@ index 0000000..77db214
 + *
 + */
 +
-+#include <linux/console.h>
-+#include <linux/irq.h>
-+#include <linux/kernel.h>
-+#include <linux/pm.h>
++#ifndef _ASM_IA64_XEN_GRANT_TABLE_H
++#define _ASM_IA64_XEN_GRANT_TABLE_H
++
++struct vm_struct *xen_alloc_vm_area(unsigned long size);
++void xen_free_vm_area(struct vm_struct *area);
++
++#endif /* _ASM_IA64_XEN_GRANT_TABLE_H */
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index ae08822..eb59563 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -2,4 +2,4 @@
+ # Makefile for Xen components
+ #
+ 
+-obj-y := hypercall.o xencomm.o xcom_hcall.o
++obj-y := hypercall.o xencomm.o xcom_hcall.o grant-table.o
+diff --git a/arch/ia64/xen/grant-table.c b/arch/ia64/xen/grant-table.c
+new file mode 100644
+index 0000000..777dd9a
+--- /dev/null
++++ b/arch/ia64/xen/grant-table.c
+@@ -0,0 +1,155 @@
++/******************************************************************************
++ * arch/ia64/xen/grant-table.c
++ *
++ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/vmalloc.h>
++#include <linux/mm.h>
++
++#include <xen/interface/xen.h>
++#include <xen/interface/memory.h>
++#include <xen/grant_table.h>
 +
 +#include <asm/xen/hypervisor.h>
-+#include <asm/xen/xencomm.h>
-+#include <asm/xen/privop.h>
 +
-+/***************************************************************************
-+ * general info
-+ */
-+static struct pv_info xen_info __initdata = {
-+	.kernel_rpl = 2,	/* or 1: determin at runtime */
-+	.paravirt_enabled = 1,
-+	.name = "Xen/ia64",
-+};
-+
-+#define IA64_RSC_PL_SHIFT	2
-+#define IA64_RSC_PL_BIT_SIZE	2
-+#define IA64_RSC_PL_MASK	\
-+	(((1UL << IA64_RSC_PL_BIT_SIZE) - 1) << IA64_RSC_PL_SHIFT)
-+
-+static void __init
-+xen_info_init(void)
++struct vm_struct *xen_alloc_vm_area(unsigned long size)
 +{
-+	/* Xenified Linux/ia64 may run on pl = 1 or 2.
-+	 * determin at run time. */
-+	unsigned long rsc = ia64_getreg(_IA64_REG_AR_RSC);
-+	unsigned int rpl = (rsc & IA64_RSC_PL_MASK) >> IA64_RSC_PL_SHIFT;
-+	xen_info.kernel_rpl = rpl;
++	int order;
++	unsigned long virt;
++	unsigned long nr_pages;
++	struct vm_struct *area;
++
++	order = get_order(size);
++	virt = __get_free_pages(GFP_KERNEL, order);
++	if (virt == 0)
++		goto err0;
++	nr_pages = 1 << order;
++	scrub_pages(virt, nr_pages);
++
++	area = kmalloc(sizeof(*area), GFP_KERNEL);
++	if (area == NULL)
++		goto err1;
++
++	area->flags = VM_IOREMAP;
++	area->addr = (void *)virt;
++	area->size = size;
++	area->pages = NULL;
++	area->nr_pages = nr_pages;
++	area->phys_addr = 0;	/* xenbus_map_ring_valloc uses this field!  */
++
++	return area;
++
++err1:
++	free_pages(virt, order);
++err0:
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(xen_alloc_vm_area);
++
++void xen_free_vm_area(struct vm_struct *area)
++{
++	unsigned int order = get_order(area->size);
++	unsigned long i;
++	unsigned long phys_addr = __pa(area->addr);
++
++	/* This area is used for foreign page mappping.
++	 * So underlying machine page may not be assigned. */
++	for (i = 0; i < (1 << order); i++) {
++		unsigned long ret;
++		unsigned long gpfn = (phys_addr >> PAGE_SHIFT) + i;
++		struct xen_memory_reservation reservation = {
++			.nr_extents   = 1,
++			.address_bits = 0,
++			.extent_order = 0,
++			.domid        = DOMID_SELF
++		};
++		set_xen_guest_handle(reservation.extent_start, &gpfn);
++		ret = HYPERVISOR_memory_op(XENMEM_populate_physmap,
++					   &reservation);
++		BUG_ON(ret != 1);
++	}
++	free_pages((unsigned long)area->addr, order);
++	kfree(area);
++}
++EXPORT_SYMBOL_GPL(xen_free_vm_area);
++
++
++/****************************************************************************
++ * grant table hack
++ * cmd: GNTTABOP_xxx
++ */
++
++int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
++			   unsigned long max_nr_gframes,
++			   struct grant_entry **__shared)
++{
++	*__shared = __va(frames[0] << PAGE_SHIFT);
++	return 0;
 +}
 +
-+/***************************************************************************
-+ * pv_ops initialization
-+ */
-+
-+void __init
-+xen_setup_pv_ops(void)
++void arch_gnttab_unmap_shared(struct grant_entry *shared,
++			      unsigned long nr_gframes)
 +{
-+	xen_info_init();
-+	pv_info = xen_info;
++	/* nothing */
 +}
-diff --git a/arch/ia64/xen/xensetup.S b/arch/ia64/xen/xensetup.S
-new file mode 100644
-index 0000000..28fed1f
---- /dev/null
-+++ b/arch/ia64/xen/xensetup.S
-@@ -0,0 +1,83 @@
-+/*
-+ * Support routines for Xen
-+ *
-+ * Copyright (C) 2005 Dan Magenheimer <dan.magenheimer@hp.com>
-+ */
 +
-+#include <asm/processor.h>
-+#include <asm/asmmacro.h>
-+#include <asm/pgtable.h>
-+#include <asm/system.h>
-+#include <asm/paravirt.h>
-+#include <asm/xen/privop.h>
-+#include <linux/elfnote.h>
-+#include <linux/init.h>
-+#include <xen/interface/elfnote.h>
++static void
++gnttab_map_grant_ref_pre(struct gnttab_map_grant_ref *uop)
++{
++	uint32_t flags;
 +
-+	.section .data.read_mostly
-+	.align 8
-+	.global xen_domain_type
-+xen_domain_type:
-+	data4 XEN_NATIVE_ASM
-+	.previous
++	flags = uop->flags;
 +
-+	__INIT
-+ENTRY(startup_xen)
-+	// Calculate load offset.
-+	// The constant, LOAD_OFFSET, can't be used because the boot
-+	// loader doesn't always load to the LMA specified by the vmlinux.lds.
-+	mov r9=ip	// must be the first instruction to make sure
-+			// that r9 = the physical address of startup_xen.
-+			// Usually r9 = startup_xen - LOAD_OFFSET
-+	movl r8=startup_xen
-+	;;
-+	sub r9=r9,r8	// Usually r9 = -LOAD_OFFSET.
++	if (flags & GNTMAP_host_map) {
++		if (flags & GNTMAP_application_map) {
++			printk(KERN_DEBUG
++			       "GNTMAP_application_map is not supported yet: "
++			       "flags 0x%x\n", flags);
++			BUG();
++		}
++		if (flags & GNTMAP_contains_pte) {
++			printk(KERN_DEBUG
++			       "GNTMAP_contains_pte is not supported yet: "
++			       "flags 0x%x\n", flags);
++			BUG();
++		}
++	} else if (flags & GNTMAP_device_map) {
++		printk("GNTMAP_device_map is not supported yet 0x%x\n", flags);
++		BUG();	/* not yet. actually this flag is not used. */
++	} else {
++		BUG();
++	}
++}
 +
-+	mov r10=PARAVIRT_HYPERVISOR_TYPE_XEN
-+	movl r11=_start
-+	;;
-+	add r11=r11,r9
-+	movl r8=hypervisor_type
-+	;;
-+	add r8=r8,r9
-+	mov b0=r11
-+	;;
-+	st8 [r8]=r10
-+	br.cond.sptk.many b0
-+	;;
-+END(startup_xen)
++int
++HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count)
++{
++	if (cmd == GNTTABOP_map_grant_ref) {
++		unsigned int i;
++		for (i = 0; i < count; i++) {
++			gnttab_map_grant_ref_pre(
++				(struct gnttab_map_grant_ref *)uop + i);
++		}
++	}
++	return xencomm_hypercall_grant_table_op(cmd, uop, count);
++}
 +
-+	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,	.asciz "linux")
-+	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,	.asciz "2.6")
-+	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,	.asciz "xen-3.0")
-+	ELFNOTE(Xen, XEN_ELFNOTE_ENTRY,		data8.ua startup_xen - LOAD_OFFSET)
-+
-+#define isBP	p3	// are we the Bootstrap Processor?
-+
-+	.text
-+
-+GLOBAL_ENTRY(xen_setup_hook)
-+	mov r8=XEN_PV_DOMAIN_ASM
-+(isBP)	movl r9=xen_domain_type;;
-+(isBP)	st4 [r9]=r8
-+	movl r10=xen_ivt;;
-+
-+	mov cr.iva=r10
-+
-+	/* Set xsi base.  */
-+#define FW_HYPERCALL_SET_SHARED_INFO_VA			0x600
-+(isBP)	mov r2=FW_HYPERCALL_SET_SHARED_INFO_VA
-+(isBP)	movl r28=XSI_BASE;;
-+(isBP)	break 0x1000;;
-+
-+	/* setup pv_ops */
-+(isBP)	mov r4=rp
-+	;;
-+(isBP)	br.call.sptk.many rp=xen_setup_pv_ops
-+	;;
-+(isBP)	mov rp=r4
-+	;;
-+
-+	br.ret.sptk.many rp
-+	;;
-+END(xen_setup_hook)
++EXPORT_SYMBOL(HYPERVISOR_grant_table_op);
 -- 
 1.6.0.2
