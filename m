@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 20/32] ia64/pv_ops/xen: define xen paravirtualized
-	instructions for hand written assembly code
-Date: Tue, 14 Oct 2008 14:51:35 +0900
-Message-ID: <1223963507-28056-21-git-send-email-yamahata__32946.0373068743$1223968106$gmane$org@valinux.co.jp>
+Subject: [PATCH 18/32] ia64/pv_ops/xen: define xen pv_init_ops for various xen
+	initialization.
+Date: Tue, 14 Oct 2008 14:51:33 +0900
+Message-ID: <1223963507-28056-19-git-send-email-yamahata__10405.569143086$1223968206$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,29 +19,73 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com
+Cc: "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-define xen paravirtualized instructions for hand written assembly code.
+This patch implements xen version of pv_init_ops to do various
+xen initialization.
+This patch also includes ia64 counter part of x86 xen early printk support
+patches.
 
+Signed-off-by: Akio Takebe <takebe_akio@jp.fujitsu.com>
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: Akio Takebe <takebe_akio@jp.fujitsu.com>
 ---
- arch/ia64/include/asm/xen/inst.h |  447 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 447 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/xen/inst.h
+ arch/ia64/include/asm/xen/hypervisor.h |   14 ++++
+ arch/ia64/xen/Makefile                 |    2 +-
+ arch/ia64/xen/hypervisor.c             |   96 ++++++++++++++++++++++++++++
+ arch/ia64/xen/xen_pv_ops.c             |  110 ++++++++++++++++++++++++++++++++
+ 4 files changed, 221 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/hypervisor.c
 
-diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
+diff --git a/arch/ia64/include/asm/xen/hypervisor.h b/arch/ia64/include/asm/xen/hypervisor.h
+index d1f84e1..7a804e8 100644
+--- a/arch/ia64/include/asm/xen/hypervisor.h
++++ b/arch/ia64/include/asm/xen/hypervisor.h
+@@ -59,8 +59,22 @@ extern enum xen_domain_type xen_domain_type;
+ /* deprecated. remove this */
+ #define is_running_on_xen()	(xen_domain_type == XEN_PV_DOMAIN)
+ 
++extern struct shared_info *HYPERVISOR_shared_info;
+ extern struct start_info *xen_start_info;
+ 
++void __init xen_setup_vcpu_info_placement(void);
++void force_evtchn_callback(void);
++
++/* for drivers/xen/balloon/balloon.c */
++#ifdef CONFIG_XEN_SCRUB_PAGES
++#define scrub_pages(_p, _n) memset((void *)(_p), 0, (_n) << PAGE_SHIFT)
++#else
++#define scrub_pages(_p, _n) ((void)0)
++#endif
++
++/* For setup_arch() in arch/ia64/kernel/setup.c */
++void xen_ia64_enable_opt_feature(void);
++
+ #else /* CONFIG_XEN */
+ 
+ #define xen_domain()		(0)
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index abc356f..7cb4247 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -3,4 +3,4 @@
+ #
+ 
+ obj-y := hypercall.o xensetup.o xen_pv_ops.o \
+-	xencomm.o xcom_hcall.o grant-table.o
++	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
+diff --git a/arch/ia64/xen/hypervisor.c b/arch/ia64/xen/hypervisor.c
 new file mode 100644
-index 0000000..03895e9
+index 0000000..cac4d97
 --- /dev/null
-+++ b/arch/ia64/include/asm/xen/inst.h
-@@ -0,0 +1,447 @@
++++ b/arch/ia64/xen/hypervisor.c
+@@ -0,0 +1,96 @@
 +/******************************************************************************
-+ * arch/ia64/include/asm/xen/inst.h
++ * arch/ia64/xen/hypervisor.c
 + *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ * Copyright (c) 2006 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -60,430 +104,205 @@ index 0000000..03895e9
 + *
 + */
 +
++#include <linux/efi.h>
++#include <asm/xen/hypervisor.h>
 +#include <asm/xen/privop.h>
 +
-+#define MOV_FROM_IFA(reg)	\
-+	movl reg = XSI_IFA;	\
-+	;;			\
-+	ld8 reg = [reg]
++#include "irq_xen.h"
 +
-+#define MOV_FROM_ITIR(reg)	\
-+	movl reg = XSI_ITIR;	\
-+	;;			\
-+	ld8 reg = [reg]
++struct shared_info *HYPERVISOR_shared_info __read_mostly =
++	(struct shared_info *)XSI_BASE;
++EXPORT_SYMBOL(HYPERVISOR_shared_info);
 +
-+#define MOV_FROM_ISR(reg)	\
-+	movl reg = XSI_ISR;	\
-+	;;			\
-+	ld8 reg = [reg]
++DEFINE_PER_CPU(struct vcpu_info *, xen_vcpu);
 +
-+#define MOV_FROM_IHA(reg)	\
-+	movl reg = XSI_IHA;	\
-+	;;			\
-+	ld8 reg = [reg]
++struct start_info *xen_start_info;
++EXPORT_SYMBOL(xen_start_info);
 +
-+#define MOV_FROM_IPSR(pred, reg)	\
-+(pred)	movl reg = XSI_IPSR;		\
-+	;;				\
-+(pred)	ld8 reg = [reg]
++EXPORT_SYMBOL(xen_domain_type);
 +
-+#define MOV_FROM_IIM(reg)	\
-+	movl reg = XSI_IIM;	\
-+	;;			\
-+	ld8 reg = [reg]
++EXPORT_SYMBOL(__hypercall);
 +
-+#define MOV_FROM_IIP(reg)	\
-+	movl reg = XSI_IIP;	\
-+	;;			\
-+	ld8 reg = [reg]
++/* Stolen from arch/x86/xen/enlighten.c */
++/*
++ * Flag to determine whether vcpu info placement is available on all
++ * VCPUs.  We assume it is to start with, and then set it to zero on
++ * the first failure.  This is because it can succeed on some VCPUs
++ * and not others, since it can involve hypervisor memory allocation,
++ * or because the guest failed to guarantee all the appropriate
++ * constraints on all VCPUs (ie buffer can't cross a page boundary).
++ *
++ * Note that any particular CPU may be using a placed vcpu structure,
++ * but we can only optimise if the all are.
++ *
++ * 0: not available, 1: available
++ */
 +
-+.macro __MOV_FROM_IVR reg, clob
-+	.ifc "\reg", "r8"
-+		XEN_HYPER_GET_IVR
-+		.exitm
-+	.endif
-+	.ifc "\clob", "r8"
-+		XEN_HYPER_GET_IVR
-+		;;
-+		mov \reg = r8
-+		.exitm
-+	.endif
++static void __init xen_vcpu_setup(int cpu)
++{
++	/*
++	 * WARNING:
++	 * before changing MAX_VIRT_CPUS,
++	 * check that shared_info fits on a page
++	 */
++	BUILD_BUG_ON(sizeof(struct shared_info) > PAGE_SIZE);
++	per_cpu(xen_vcpu, cpu) = &HYPERVISOR_shared_info->vcpu_info[cpu];
++}
 +
-+	mov \clob = r8
-+	;;
-+	XEN_HYPER_GET_IVR
-+	;;
-+	mov \reg = r8
-+	;;
-+	mov r8 = \clob
-+.endm
-+#define MOV_FROM_IVR(reg, clob)	__MOV_FROM_IVR reg, clob
++void __init xen_setup_vcpu_info_placement(void)
++{
++	int cpu;
 +
-+.macro __MOV_FROM_PSR pred, reg, clob
-+	.ifc "\reg", "r8"
-+		(\pred)	XEN_HYPER_GET_PSR;
-+		.exitm
-+	.endif
-+	.ifc "\clob", "r8"
-+		(\pred)	XEN_HYPER_GET_PSR
-+		;;
-+		(\pred)	mov \reg = r8
-+		.exitm
-+	.endif
++	for_each_possible_cpu(cpu)
++		xen_vcpu_setup(cpu);
++}
 +
-+	(\pred)	mov \clob = r8
-+	(\pred)	XEN_HYPER_GET_PSR
-+	;;
-+	(\pred)	mov \reg = r8
-+	(\pred)	mov r8 = \clob
-+.endm
-+#define MOV_FROM_PSR(pred, reg, clob)	__MOV_FROM_PSR pred, reg, clob
++void __cpuinit
++xen_cpu_init(void)
++{
++	xen_smp_intr_init();
++}
 +
++/**************************************************************************
++ * opt feature
++ */
++void
++xen_ia64_enable_opt_feature(void)
++{
++	/* Enable region 7 identity map optimizations in Xen */
++	struct xen_ia64_opt_feature optf;
 +
-+#define MOV_TO_IFA(reg, clob)	\
-+	movl clob = XSI_IFA;	\
-+	;;			\
-+	st8 [clob] = reg	\
++	optf.cmd = XEN_IA64_OPTF_IDENT_MAP_REG7;
++	optf.on = XEN_IA64_OPTF_ON;
++	optf.pgprot = pgprot_val(PAGE_KERNEL);
++	optf.key = 0;	/* No key on linux. */
++	HYPERVISOR_opt_feature(&optf);
++}
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 77db214..fc9d599 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -54,6 +54,115 @@ xen_info_init(void)
+ }
+ 
+ /***************************************************************************
++ * pv_init_ops
++ * initialization hooks.
++ */
 +
-+#define MOV_TO_ITIR(pred, reg, clob)	\
-+(pred)	movl clob = XSI_ITIR;		\
-+	;;				\
-+(pred)	st8 [clob] = reg
++static void
++xen_panic_hypercall(struct unw_frame_info *info, void *arg)
++{
++	current->thread.ksp = (__u64)info->sw - 16;
++	HYPERVISOR_shutdown(SHUTDOWN_crash);
++	/* we're never actually going to get here... */
++}
 +
-+#define MOV_TO_IHA(pred, reg, clob)	\
-+(pred)	movl clob = XSI_IHA;		\
-+	;;				\
-+(pred)	st8 [clob] = reg
++static int
++xen_panic_event(struct notifier_block *this, unsigned long event, void *ptr)
++{
++	unw_init_running(xen_panic_hypercall, NULL);
++	/* we're never actually going to get here... */
++	return NOTIFY_DONE;
++}
 +
-+#define MOV_TO_IPSR(pred, reg, clob)	\
-+(pred)	movl clob = XSI_IPSR;		\
-+	;;				\
-+(pred)	st8 [clob] = reg;		\
-+	;;
++static struct notifier_block xen_panic_block = {
++	xen_panic_event, NULL, 0 /* try to go last */
++};
 +
-+#define MOV_TO_IFS(pred, reg, clob)	\
-+(pred)	movl clob = XSI_IFS;		\
-+	;;				\
-+(pred)	st8 [clob] = reg;		\
-+	;;
++static void xen_pm_power_off(void)
++{
++	local_irq_disable();
++	HYPERVISOR_shutdown(SHUTDOWN_poweroff);
++}
 +
-+#define MOV_TO_IIP(reg, clob)	\
-+	movl clob = XSI_IIP;	\
-+	;;			\
-+	st8 [clob] = reg
++static void __init
++xen_banner(void)
++{
++	printk(KERN_INFO
++	       "Running on Xen! pl = %d start_info_pfn=0x%lx nr_pages=%ld "
++	       "flags=0x%x\n",
++	       xen_info.kernel_rpl,
++	       HYPERVISOR_shared_info->arch.start_info_pfn,
++	       xen_start_info->nr_pages, xen_start_info->flags);
++}
 +
-+.macro ____MOV_TO_KR kr, reg, clob0, clob1
-+	.ifc "\clob0", "r9"
-+		.error "clob0 \clob0 must not be r9"
-+	.endif
-+	.ifc "\clob1", "r8"
-+		.error "clob1 \clob1 must not be r8"
-+	.endif
++static int __init
++xen_reserve_memory(struct rsvd_region *region)
++{
++	region->start = (unsigned long)__va(
++		(HYPERVISOR_shared_info->arch.start_info_pfn << PAGE_SHIFT));
++	region->end   = region->start + PAGE_SIZE;
++	return 1;
++}
 +
-+	.ifnc "\reg", "r9"
-+		.ifnc "\clob1", "r9"
-+			mov \clob1 = r9
-+		.endif
-+		mov r9 = \reg
-+	.endif
-+	.ifnc "\clob0", "r8"
-+		mov \clob0 = r8
-+	.endif
-+	mov r8 = \kr
-+	;;
-+	XEN_HYPER_SET_KR
++static void __init
++xen_arch_setup_early(void)
++{
++	struct shared_info *s;
++	BUG_ON(!xen_pv_domain());
 +
-+	.ifnc "\reg", "r9"
-+		.ifnc "\clob1", "r9"
-+			mov r9 = \clob1
-+		.endif
-+	.endif
-+	.ifnc "\clob0", "r8"
-+		mov r8 = \clob0
-+	.endif
-+.endm
++	s = HYPERVISOR_shared_info;
++	xen_start_info = __va(s->arch.start_info_pfn << PAGE_SHIFT);
 +
-+.macro __MOV_TO_KR kr, reg, clob0, clob1
-+	.ifc "\clob0", "r9"
-+		____MOV_TO_KR \kr, \reg, \clob1, \clob0
-+		.exitm
-+	.endif
-+	.ifc "\clob1", "r8"
-+		____MOV_TO_KR \kr, \reg, \clob1, \clob0
-+		.exitm
-+	.endif
++	/* Must be done before any hypercall.  */
++	xencomm_initialize();
 +
-+	____MOV_TO_KR \kr, \reg, \clob0, \clob1
-+.endm
++	xen_setup_features();
++	/* Register a call for panic conditions. */
++	atomic_notifier_chain_register(&panic_notifier_list,
++				       &xen_panic_block);
++	pm_power_off = xen_pm_power_off;
 +
-+#define MOV_TO_KR(kr, reg, clob0, clob1) \
-+	__MOV_TO_KR IA64_KR_ ## kr, reg, clob0, clob1
++	xen_ia64_enable_opt_feature();
++}
 +
++static void __init
++xen_arch_setup_console(char **cmdline_p)
++{
++	add_preferred_console("xenboot", 0, NULL);
++	add_preferred_console("tty", 0, NULL);
++	/* use hvc_xen */
++	add_preferred_console("hvc", 0, NULL);
 +
-+.macro __ITC_I pred, reg, clob
-+	.ifc "\reg", "r8"
-+		(\pred)	XEN_HYPER_ITC_I
-+		.exitm
-+	.endif
-+	.ifc "\clob", "r8"
-+		(\pred)	mov r8 = \reg
-+		;;
-+		(\pred)	XEN_HYPER_ITC_I
-+		.exitm
-+	.endif
++#if !defined(CONFIG_VT) || !defined(CONFIG_DUMMY_CONSOLE)
++	conswitchp = NULL;
++#endif
++}
 +
-+	(\pred)	mov \clob = r8
-+	(\pred)	mov r8 = \reg
-+	;;
-+	(\pred)	XEN_HYPER_ITC_I
-+	;;
-+	(\pred)	mov r8 = \clob
-+	;;
-+.endm
-+#define ITC_I(pred, reg, clob)	__ITC_I pred, reg, clob
++static int __init
++xen_arch_setup_nomca(void)
++{
++	return 1;
++}
 +
-+.macro __ITC_D pred, reg, clob
-+	.ifc "\reg", "r8"
-+		(\pred)	XEN_HYPER_ITC_D
-+		;;
-+		.exitm
-+	.endif
-+	.ifc "\clob", "r8"
-+		(\pred)	mov r8 = \reg
-+		;;
-+		(\pred)	XEN_HYPER_ITC_D
-+		;;
-+		.exitm
-+	.endif
++static void __init
++xen_post_smp_prepare_boot_cpu(void)
++{
++	xen_setup_vcpu_info_placement();
++}
 +
-+	(\pred)	mov \clob = r8
-+	(\pred)	mov r8 = \reg
-+	;;
-+	(\pred)	XEN_HYPER_ITC_D
-+	;;
-+	(\pred)	mov r8 = \clob
-+	;;
-+.endm
-+#define ITC_D(pred, reg, clob)	__ITC_D pred, reg, clob
++static const struct pv_init_ops xen_init_ops __initdata = {
++	.banner = xen_banner,
 +
-+.macro __ITC_I_AND_D pred_i, pred_d, reg, clob
-+	.ifc "\reg", "r8"
-+		(\pred_i)XEN_HYPER_ITC_I
-+		;;
-+		(\pred_d)XEN_HYPER_ITC_D
-+		;;
-+		.exitm
-+	.endif
-+	.ifc "\clob", "r8"
-+		mov r8 = \reg
-+		;;
-+		(\pred_i)XEN_HYPER_ITC_I
-+		;;
-+		(\pred_d)XEN_HYPER_ITC_D
-+		;;
-+		.exitm
-+	.endif
++	.reserve_memory = xen_reserve_memory,
 +
-+	mov \clob = r8
-+	mov r8 = \reg
-+	;;
-+	(\pred_i)XEN_HYPER_ITC_I
-+	;;
-+	(\pred_d)XEN_HYPER_ITC_D
-+	;;
-+	mov r8 = \clob
-+	;;
-+.endm
-+#define ITC_I_AND_D(pred_i, pred_d, reg, clob) \
-+	__ITC_I_AND_D pred_i, pred_d, reg, clob
++	.arch_setup_early = xen_arch_setup_early,
++	.arch_setup_console = xen_arch_setup_console,
++	.arch_setup_nomca = xen_arch_setup_nomca,
 +
-+.macro __THASH pred, reg0, reg1, clob
-+	.ifc "\reg0", "r8"
-+		(\pred)	mov r8 = \reg1
-+		(\pred)	XEN_HYPER_THASH
-+		.exitm
-+	.endc
-+	.ifc "\reg1", "r8"
-+		(\pred)	XEN_HYPER_THASH
-+		;;
-+		(\pred)	mov \reg0 = r8
-+		;;
-+		.exitm
-+	.endif
-+	.ifc "\clob", "r8"
-+		(\pred)	mov r8 = \reg1
-+		(\pred)	XEN_HYPER_THASH
-+		;;
-+		(\pred)	mov \reg0 = r8
-+		;;
-+		.exitm
-+	.endif
++	.post_smp_prepare_boot_cpu = xen_post_smp_prepare_boot_cpu,
++};
 +
-+	(\pred)	mov \clob = r8
-+	(\pred)	mov r8 = \reg1
-+	(\pred)	XEN_HYPER_THASH
-+	;;
-+	(\pred)	mov \reg0 = r8
-+	(\pred)	mov r8 = \clob
-+	;;
-+.endm
-+#define THASH(pred, reg0, reg1, clob) __THASH pred, reg0, reg1, clob
-+
-+#define SSM_PSR_IC_AND_DEFAULT_BITS_AND_SRLZ_I(clob0, clob1)	\
-+	mov clob0 = 1;						\
-+	movl clob1 = XSI_PSR_IC;				\
-+	;;							\
-+	st4 [clob1] = clob0					\
-+	;;
-+
-+#define SSM_PSR_IC_AND_SRLZ_D(clob0, clob1)	\
-+	;;					\
-+	srlz.d;					\
-+	mov clob1 = 1;				\
-+	movl clob0 = XSI_PSR_IC;		\
-+	;;					\
-+	st4 [clob0] = clob1
-+
-+#define RSM_PSR_IC(clob)	\
-+	movl clob = XSI_PSR_IC;	\
-+	;;			\
-+	st4 [clob] = r0;	\
-+	;;
-+
-+/* pred will be clobbered */
-+#define MASK_TO_PEND_OFS    (-1)
-+#define SSM_PSR_I(pred, pred_clob, clob)				\
-+(pred)	movl clob = XSI_PSR_I_ADDR					\
-+	;;								\
-+(pred)	ld8 clob = [clob]						\
-+	;;								\
-+	/* if (pred) vpsr.i = 1 */					\
-+	/* if (pred) (vcpu->vcpu_info->evtchn_upcall_mask)=0 */		\
-+(pred)	st1 [clob] = r0, MASK_TO_PEND_OFS				\
-+	;;								\
-+	/* if (vcpu->vcpu_info->evtchn_upcall_pending) */		\
-+(pred)	ld1 clob = [clob]						\
-+	;;								\
-+(pred)	cmp.ne.unc pred_clob, p0 = clob, r0				\
-+	;;								\
-+(pred_clob)XEN_HYPER_SSM_I	/* do areal ssm psr.i */
-+
-+#define RSM_PSR_I(pred, clob0, clob1)	\
-+	movl clob0 = XSI_PSR_I_ADDR;	\
-+	mov clob1 = 1;			\
-+	;;				\
-+	ld8 clob0 = [clob0];		\
-+	;;				\
-+(pred)	st1 [clob0] = clob1
-+
-+#define RSM_PSR_I_IC(clob0, clob1, clob2)		\
-+	movl clob0 = XSI_PSR_I_ADDR;			\
-+	movl clob1 = XSI_PSR_IC;			\
-+	;;						\
-+	ld8 clob0 = [clob0];				\
-+	mov clob2 = 1;					\
-+	;;						\
-+	/* note: clears both vpsr.i and vpsr.ic! */	\
-+	st1 [clob0] = clob2;				\
-+	st4 [clob1] = r0;				\
-+	;;
-+
-+#define RSM_PSR_DT		\
-+	XEN_HYPER_RSM_PSR_DT
-+
-+#define SSM_PSR_DT_AND_SRLZ_I	\
-+	XEN_HYPER_SSM_PSR_DT
-+
-+#define BSW_0(clob0, clob1, clob2)			\
-+	;;						\
-+	/* r16-r31 all now hold bank1 values */		\
-+	mov clob2 = ar.unat;				\
-+	movl clob0 = XSI_BANK1_R16;			\
-+	movl clob1 = XSI_BANK1_R16 + 8;			\
-+	;;						\
-+.mem.offset 0, 0; st8.spill [clob0] = r16, 16;		\
-+.mem.offset 8, 0; st8.spill [clob1] = r17, 16;		\
-+	;;						\
-+.mem.offset 0, 0; st8.spill [clob0] = r18, 16;		\
-+.mem.offset 8, 0; st8.spill [clob1] = r19, 16;		\
-+	;;						\
-+.mem.offset 0, 0; st8.spill [clob0] = r20, 16;		\
-+.mem.offset 8, 0; st8.spill [clob1] = r21, 16;		\
-+	;;						\
-+.mem.offset 0, 0; st8.spill [clob0] = r22, 16;		\
-+.mem.offset 8, 0; st8.spill [clob1] = r23, 16;		\
-+	;;						\
-+.mem.offset 0, 0; st8.spill [clob0] = r24, 16;		\
-+.mem.offset 8, 0; st8.spill [clob1] = r25, 16;		\
-+	;;						\
-+.mem.offset 0, 0; st8.spill [clob0] = r26, 16;		\
-+.mem.offset 8, 0; st8.spill [clob1] = r27, 16;		\
-+	;;						\
-+.mem.offset 0, 0; st8.spill [clob0] = r28, 16;		\
-+.mem.offset 8, 0; st8.spill [clob1] = r29, 16;		\
-+	;;						\
-+.mem.offset 0, 0; st8.spill [clob0] = r30, 16;		\
-+.mem.offset 8, 0; st8.spill [clob1] = r31, 16;		\
-+	;;						\
-+	mov clob1 = ar.unat;				\
-+	movl clob0 = XSI_B1NAT;				\
-+	;;						\
-+	st8 [clob0] = clob1;				\
-+	mov ar.unat = clob2;				\
-+	movl clob0 = XSI_BANKNUM;			\
-+	;;						\
-+	st4 [clob0] = r0
-+
-+
-+	/* FIXME: THIS CODE IS NOT NaT SAFE! */
-+#define XEN_BSW_1(clob)			\
-+	mov clob = ar.unat;		\
-+	movl r30 = XSI_B1NAT;		\
-+	;;				\
-+	ld8 r30 = [r30];		\
-+	mov r31 = 1;			\
-+	;;				\
-+	mov ar.unat = r30;		\
-+	movl r30 = XSI_BANKNUM;		\
-+	;;				\
-+	st4 [r30] = r31;		\
-+	movl r30 = XSI_BANK1_R16;	\
-+	movl r31 = XSI_BANK1_R16+8;	\
-+	;;				\
-+	ld8.fill r16 = [r30], 16;	\
-+	ld8.fill r17 = [r31], 16;	\
-+	;;				\
-+	ld8.fill r18 = [r30], 16;	\
-+	ld8.fill r19 = [r31], 16;	\
-+	;;				\
-+	ld8.fill r20 = [r30], 16;	\
-+	ld8.fill r21 = [r31], 16;	\
-+	;;				\
-+	ld8.fill r22 = [r30], 16;	\
-+	ld8.fill r23 = [r31], 16;	\
-+	;;				\
-+	ld8.fill r24 = [r30], 16;	\
-+	ld8.fill r25 = [r31], 16;	\
-+	;;				\
-+	ld8.fill r26 = [r30], 16;	\
-+	ld8.fill r27 = [r31], 16;	\
-+	;;				\
-+	ld8.fill r28 = [r30], 16;	\
-+	ld8.fill r29 = [r31], 16;	\
-+	;;				\
-+	ld8.fill r30 = [r30];		\
-+	ld8.fill r31 = [r31];		\
-+	;;				\
-+	mov ar.unat = clob
-+
-+#define BSW_1(clob0, clob1)	XEN_BSW_1(clob1)
-+
-+
-+#define COVER	\
-+	XEN_HYPER_COVER
-+
-+#define RFI			\
-+	XEN_HYPER_RFI;		\
-+	dv_serialize_data
++/***************************************************************************
+  * pv_ops initialization
+  */
+ 
+@@ -62,4 +171,5 @@ xen_setup_pv_ops(void)
+ {
+ 	xen_info_init();
+ 	pv_info = xen_info;
++	pv_init_ops = xen_init_ops;
+ }
 -- 
 1.6.0.2
