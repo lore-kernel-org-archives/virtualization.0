@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 01/32] ia64/pv_ops: avoid name conflict of get_irq_chip().
-Date: Tue, 14 Oct 2008 14:51:16 +0900
-Message-ID: <1223963507-28056-2-git-send-email-yamahata__4410.97823572836$1223963590$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/32] ia64/pv_ops: update native/inst.h to clobber predicate.
+Date: Tue, 14 Oct 2008 14:51:17 +0900
+Message-ID: <1223963507-28056-3-git-send-email-yamahata__26846.9434966848$1223963834$gmane$org@valinux.co.jp>
 References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,50 +21,41 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The macro get_irq_chip() is defined in linux/include/linux/irq.h
-which cause name conflict with one in linux/arch/ia64/include/asm/paravirt.h.
-rename the latter to __get_irq_chip().
+add CLOBBER_PRED() to clobber predicate register.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/paravirt.h |    4 ++--
- arch/ia64/kernel/paravirt.c      |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/ia64/include/asm/native/inst.h |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/include/asm/paravirt.h b/arch/ia64/include/asm/paravirt.h
-index 660cab0..2bf3636 100644
---- a/arch/ia64/include/asm/paravirt.h
-+++ b/arch/ia64/include/asm/paravirt.h
-@@ -117,7 +117,7 @@ static inline void paravirt_post_smp_prepare_boot_cpu(void)
- struct pv_iosapic_ops {
- 	void (*pcat_compat_init)(void);
+diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
+index c8efbf7..0a1026c 100644
+--- a/arch/ia64/include/asm/native/inst.h
++++ b/arch/ia64/include/asm/native/inst.h
+@@ -36,8 +36,13 @@
+ 	;;					\
+ 	movl clob = PARAVIRT_POISON;		\
+ 	;;
++# define CLOBBER_PRED(pred_clob)		\
++	;;					\
++	cmp.eq pred_clob, p0 = r0, r0		\
++	;;
+ #else
+-# define CLOBBER(clob)		/* nothing */
++# define CLOBBER(clob)			/* nothing */
++# define CLOBBER_PRED(pred_clob)	/* nothing */
+ #endif
  
--	struct irq_chip *(*get_irq_chip)(unsigned long trigger);
-+	struct irq_chip *(*__get_irq_chip)(unsigned long trigger);
+ #define MOV_FROM_IFA(reg)	\
+@@ -136,7 +141,8 @@
  
- 	unsigned int (*__read)(char __iomem *iosapic, unsigned int reg);
- 	void (*__write)(char __iomem *iosapic, unsigned int reg, u32 val);
-@@ -135,7 +135,7 @@ iosapic_pcat_compat_init(void)
- static inline struct irq_chip*
- iosapic_get_irq_chip(unsigned long trigger)
- {
--	return pv_iosapic_ops.get_irq_chip(trigger);
-+	return pv_iosapic_ops.__get_irq_chip(trigger);
- }
+ #define SSM_PSR_I(pred, pred_clob, clob)	\
+ (pred)	ssm psr.i				\
+-	CLOBBER(clob)
++	CLOBBER(clob)				\
++	CLOBBER_PRED(pred_clob)
  
- static inline unsigned int
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index afaf5b9..de35d8e 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -332,7 +332,7 @@ ia64_native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
- 
- struct pv_iosapic_ops pv_iosapic_ops = {
- 	.pcat_compat_init = ia64_native_iosapic_pcat_compat_init,
--	.get_irq_chip = ia64_native_iosapic_get_irq_chip,
-+	.__get_irq_chip = ia64_native_iosapic_get_irq_chip,
- 
- 	.__read = ia64_native_iosapic_read,
- 	.__write = ia64_native_iosapic_write,
+ #define RSM_PSR_I(pred, clob0, clob1)	\
+ (pred)	rsm psr.i			\
 -- 
 1.6.0.2
