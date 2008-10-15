@@ -1,7 +1,7 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
+From: Andrew Biggadike <biggadike@vmware.com>
 Subject: Re: [PATCH][RFC] vmchannel a data channel between host and guest.
-Date: Wed, 15 Oct 2008 10:56:02 -0500
-Message-ID: <48F61292.9020504__37629.5205009685$1224086495$gmane$org@codemonkey.ws>
+Date: Wed, 15 Oct 2008 09:59:36 -0700
+Message-ID: <20081015165936.GA1770__24311.1724187203$1224090234$gmane$org@vmware.com>
 References: <20081012124534.GK11435@redhat.com>
 	<48F39443.4070203@codemonkey.ws>
 	<20081014090540.GB13153@redhat.com> <48F4A3B8.8050603@us.ibm.com>
@@ -14,6 +14,7 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20081015154212.GS11435@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,53 +26,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Gleb Natapov <gleb@redhat.com>
-Cc: Anupam Chanda <anupamc@vmware.com>, Andrew Biggadike <biggadike@vmware.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+Cc: Anupam Chanda <anupamc@vmware.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gleb Natapov wrote:
-> Andrew,
->
+Gleb Natapov <gleb@redhat.com> wrote:
 > On Wed, Oct 15, 2008 at 07:18:52AM -0700, Andrew Biggadike wrote:
->   
->> Gleb Natapov <gleb@redhat.com> wrote:
->>     
->>>> Of course, you should also take a look at VMware's VMCI.  If we're going
->>>> to have a socket interface, if we can have a compatible userspace
->>>> interface, that would probably be a good thing.
->>>>         
->>> I looked at what I could find about VMCI (http://pubs.vmware.com/vmci-sdk/index.html).
->>>       
->> I believe Anthony intended for you to look at the sockets interface to
->> VMCI: http://www.vmware.com/pdf/ws65_s2_vmci_sockets.pdf.
->>
->>     
+> > Gleb Natapov <gleb@redhat.com> wrote:
+> > > > Of course, you should also take a look at VMware's VMCI.  If we're going
+> > > > to have a socket interface, if we can have a compatible userspace
+> > > > interface, that would probably be a good thing.
+> > >
+> > > I looked at what I could find about VMCI (http://pubs.vmware.com/vmci-sdk/index.html).
+> >
+> > I believe Anthony intended for you to look at the sockets interface to
+> > VMCI: http://www.vmware.com/pdf/ws65_s2_vmci_sockets.pdf.
+> >
 > Using VMCI socket requires loading kernel module in a guest and in a host.
 > Is this correct?
->   
+ 
+Yes, any context (in VMCI terms) that wants to allow for VMCI Socket
+endpoints needs both the vmci and the vsock kernel modules loaded.
 
-Note that their addressing scheme uses a CID/port pair.  I think it's 
-interesting and somewhat safe because it basically mirrors an IP/port 
-pair.  That makes it relatively safe because that addressing mechanism 
-is well known (with it's advantages and flaws).  For instance, you need 
-some sort of authority to assign out ports.  It doesn't really help with 
-discovery either.
-
-Another possibility would be to have the address be like sockaddr_un.  
-You could actually have it be file paths.  The effect would be that any 
-VMs that can communicate with each other could have a common namespace.  
-You could extend the analogy and actually create controllable 
-permissions that could be used to control who can talk to who.  You 
-could even create a synthetic filesystem in the guest that could mount 
-this namespace allowing very sophisticated enumeration/permission 
-control.  This is probably the complete opposite end in terms of having 
-a novel interface.
-
-The best solution is probably somewhere between the two.
-
-Regards,
-
-Anthony Liguori
-
-> --
-> 			Gleb.
->   
+In case you're asking because you're going to try it out, note that
+our currently released version of VMCI Sockets (with Workstation 6.5)
+does not yet support SOCK_STREAM on the host, just guests.  That gets
+a lot of people at the moment.
