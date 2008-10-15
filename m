@@ -1,15 +1,17 @@
-From: "Zhao, Yu" <yu.zhao@intel.com>
-Subject: Re: [PATCH 6/8 v4] PCI: support the SR-IOV capability
-Date: Wed, 15 Oct 2008 10:04:31 +0800
-Message-ID: <48F54FAF.7060204__14717.8232939497$1224036609$gmane$org@intel.com>
-References: <20081014103424.GA1704@yzhao12-linux.sh.intel.com>
-	<20081014105928.GF1734@yzhao12-linux.sh.intel.com>
-	<20081014123002.GA15064@parisc-linux.org>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: Re: [PATCH 09/32] ia64/xen: add a necessary header file to compile
+	include/xen/interface/xen.h
+Date: Wed, 15 Oct 2008 12:18:26 +0900
+Message-ID: <20081015031826.GC6061%yamahata__38362.8646763556$1224041056$gmane$org@valinux.co.jp>
+References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
+	<1223963507-28056-10-git-send-email-yamahata@valinux.co.jp>
+	<57C9024A16AD2D4C97DC78E552063EA353274D0A@orsmsx505.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081014123002.GA15064@parisc-linux.org>
+Content-Disposition: inline
+In-Reply-To: <57C9024A16AD2D4C97DC78E552063EA353274D0A@orsmsx505.amr.corp.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,42 +21,109 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: "xen-ia64-devel@lists.xensource.com" <xen-ia64-devel@lists.xensource.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Matthew Wilcox wrote:
-> On Tue, Oct 14, 2008 at 06:59:28PM +0800, Yu Zhao wrote:
->> +++ b/include/linux/pci.h
->> @@ -87,6 +87,12 @@ enum {
->>       /* #6: expansion ROM */
->>       PCI_ROM_RESOURCE,
->>
->> +     /* device specific resources */
->> +#ifdef CONFIG_PCI_IOV
->> +     PCI_IOV_RESOURCES,
->> +     PCI_IOV_RESOURCES_END = PCI_IOV_RESOURCES + PCI_IOV_NUM_BAR - 1,
->> +#endif
->> +
->>       /* address space assigned to buses behind the bridge */
->>  #ifndef PCI_BRIDGE_RES_NUM
->>  #define PCI_BRIDGE_RES_NUM 4
+On Tue, Oct 14, 2008 at 02:46:41PM -0700, Luck, Tony wrote:
+> +++ b/arch/ia64/include/asm/pvclock-abi.h
+> @@ -0,0 +1,5 @@
+> +/*
+> + * use same structure to x86's
+> + * Hopefully asm-x86/pvclock-abi.h would be moved to somewhere more generic.
+> + */
+> +#include <asm-x86/pvclock-abi.h>
 > 
-> Why expand the number of resources in struct pci_dev instead of putting
-> the new resources in struct pci_iov?
-
-Yes, it's supposed to be in the 'struct pci_iov', and the resources used 
-to be there in early version. But later I found all resource related 
-functions such as pci_assign_resource, pdev_sort_resources, 
-pbus_size_mem, etc. assume the resources are bundled with 'struct 
-pci_dev' and address them using their indexes. Encapsulating resources 
-into 'pci_iov' will impact all these functions. And I think we can 
-postpone the change of these functions until the PCIM comes out, if the 
-IOV is the only one who uses non-standard resources.
-
 > 
-> --
-> Matthew Wilcox                          Intel Open Source Technology Centre
-> "Bill, look, we understand that you're interested in selling us this
-> operating system, but compare it to ours.  We can't possibly take such
-> a retrograde step."
+> I will trade out this patch for one that just makes
+> a copy of the x86 include file.  This #include will
+> break if/when x86 moves their include files to
+> arch/x86/include/asm
+
+I see. Then the first version is preferable.
+Here is the one.
+
+From 0dc1a5610d4ea94b535a3a48b25e9b42cd6da5d4 Mon Sep 17 00:00:00 2001
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Date: Fri, 4 Jul 2008 11:29:33 +0900
+Subject: [PATCH]  ia64/xen: add a necessary header file to compile include/xen/interface/xen.h
+
+Create include/asm-ia64/pvclock-abi.h to compile which contains
+the same definitions of include/asm-x86/pvclock-abi.h because ia64/xen
+uses same structure.
+Hopefully include/asm-x86/pvclock-abi.h would be moved to somewhere
+more generic.
+
+Another approach is to include include/asm-x86/pvclock-abi.h
+from include/asm-ia64/pvclock-abi.h. But this would break
+if x86 header files are moved under arch/x86.
+So for now, same definitions are duplicated as suggested by Tony.
+
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: "Luck, Tony" <tony.luck@intel.com>
+---
+ arch/ia64/include/asm/pvclock-abi.h |   48 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 48 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/pvclock-abi.h
+
+diff --git a/arch/ia64/include/asm/pvclock-abi.h b/arch/ia64/include/asm/pvclock-abi.h
+new file mode 100644
+index 0000000..38a7a9e
+--- /dev/null
++++ b/arch/ia64/include/asm/pvclock-abi.h
+@@ -0,0 +1,48 @@
++/*
++ * same structure to x86's
++ * Hopefully asm-x86/pvclock-abi.h would be moved to somewhere more generic.
++ * For now, define same duplicated definitions.
++ */
++
++#ifndef ASM_IA64__PVCLOCK_ABI_H
++#define ASM_IA64__PVCLOCK_ABI_H
++#ifndef __ASSEMBLY__
++
++/*
++ * These structs MUST NOT be changed.
++ * They are the ABI between hypervisor and guest OS.
++ * Both Xen and KVM are using this.
++ *
++ * pvclock_vcpu_time_info holds the system time and the tsc timestamp
++ * of the last update. So the guest can use the tsc delta to get a
++ * more precise system time.  There is one per virtual cpu.
++ *
++ * pvclock_wall_clock references the point in time when the system
++ * time was zero (usually boot time), thus the guest calculates the
++ * current wall clock by adding the system time.
++ *
++ * Protocol for the "version" fields is: hypervisor raises it (making
++ * it uneven) before it starts updating the fields and raises it again
++ * (making it even) when it is done.  Thus the guest can make sure the
++ * time values it got are consistent by checking the version before
++ * and after reading them.
++ */
++
++struct pvclock_vcpu_time_info {
++	u32   version;
++	u32   pad0;
++	u64   tsc_timestamp;
++	u64   system_time;
++	u32   tsc_to_system_mul;
++	s8    tsc_shift;
++	u8    pad[3];
++} __attribute__((__packed__)); /* 32 bytes */
++
++struct pvclock_wall_clock {
++	u32   version;
++	u32   sec;
++	u32   nsec;
++} __attribute__((__packed__));
++
++#endif /* __ASSEMBLY__ */
++#endif /* ASM_IA64__PVCLOCK_ABI_H */
+-- 
+1.6.0.2
+
+
+
+-- 
+yamahata
