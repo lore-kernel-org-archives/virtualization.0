@@ -1,16 +1,15 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 09/32] ia64/xen: add a necessary header file to compile
-	include/xen/interface/xen.h
-Date: Tue, 14 Oct 2008 15:42:46 -0700
-Message-ID: <48F52066.5040604__28237.6034338542$1224024422$gmane$org@goop.org>
-References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
-	<1223963507-28056-10-git-send-email-yamahata@valinux.co.jp>
-	<57C9024A16AD2D4C97DC78E552063EA353274D0A@orsmsx505.amr.corp.intel.com>
+From: "Zhao, Yu" <yu.zhao@intel.com>
+Subject: Re: [PATCH 6/8 v4] PCI: support the SR-IOV capability
+Date: Wed, 15 Oct 2008 10:04:31 +0800
+Message-ID: <48F54FAF.7060204__14717.8232939497$1224036609$gmane$org@intel.com>
+References: <20081014103424.GA1704@yzhao12-linux.sh.intel.com>
+	<20081014105928.GF1734@yzhao12-linux.sh.intel.com>
+	<20081014123002.GA15064@parisc-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <57C9024A16AD2D4C97DC78E552063EA353274D0A@orsmsx505.amr.corp.intel.com>
+In-Reply-To: <20081014123002.GA15064@parisc-linux.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,26 +19,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: Isaku Yamahata <yamahata@valinux.co.jp>, Ingo Molnar <mingo@elte.hu>, "xen-ia64-devel@lists.xensource.com" <xen-ia64-devel@lists.xensource.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Luck, Tony wrote:
-> +++ b/arch/ia64/include/asm/pvclock-abi.h
-> @@ -0,0 +1,5 @@
-> +/*
-> + * use same structure to x86's
-> + * Hopefully asm-x86/pvclock-abi.h would be moved to somewhere more generic.
-> + */
-> +#include <asm-x86/pvclock-abi.h>
->
->
-> I will trade out this patch for one that just makes
-> a copy of the x86 include file.  This #include will
-> break if/when x86 moves their include files to
-> arch/x86/include/asm
->   
+Matthew Wilcox wrote:
+> On Tue, Oct 14, 2008 at 06:59:28PM +0800, Yu Zhao wrote:
+>> +++ b/include/linux/pci.h
+>> @@ -87,6 +87,12 @@ enum {
+>>       /* #6: expansion ROM */
+>>       PCI_ROM_RESOURCE,
+>>
+>> +     /* device specific resources */
+>> +#ifdef CONFIG_PCI_IOV
+>> +     PCI_IOV_RESOURCES,
+>> +     PCI_IOV_RESOURCES_END = PCI_IOV_RESOURCES + PCI_IOV_NUM_BAR - 1,
+>> +#endif
+>> +
+>>       /* address space assigned to buses behind the bridge */
+>>  #ifndef PCI_BRIDGE_RES_NUM
+>>  #define PCI_BRIDGE_RES_NUM 4
+> 
+> Why expand the number of resources in struct pci_dev instead of putting
+> the new resources in struct pci_iov?
 
-I think Ingo is planning it fairly soon.
+Yes, it's supposed to be in the 'struct pci_iov', and the resources used 
+to be there in early version. But later I found all resource related 
+functions such as pci_assign_resource, pdev_sort_resources, 
+pbus_size_mem, etc. assume the resources are bundled with 'struct 
+pci_dev' and address them using their indexes. Encapsulating resources 
+into 'pci_iov' will impact all these functions. And I think we can 
+postpone the change of these functions until the PCIM comes out, if the 
+IOV is the only one who uses non-standard resources.
 
-    J
+> 
+> --
+> Matthew Wilcox                          Intel Open Source Technology Centre
+> "Bill, look, we understand that you're interested in selling us this
+> operating system, but compare it to ours.  We can't possibly take such
+> a retrograde step."
