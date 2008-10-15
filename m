@@ -1,16 +1,18 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: Re: [PATCH 32/32] ia64/pv_ops: paravirtualized istruction checker.
-Date: Wed, 15 Oct 2008 12:22:43 +0900
-Message-ID: <20081015032243.GE6061%yamahata__41457.3560738519$1224041335$gmane$org@valinux.co.jp>
-References: <1223963507-28056-1-git-send-email-yamahata@valinux.co.jp>
-	<1223963507-28056-33-git-send-email-yamahata@valinux.co.jp>
-	<57C9024A16AD2D4C97DC78E552063EA353274D37@orsmsx505.amr.corp.intel.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: [PATCH][RFC] vmchannel a data channel between host and guest.
+Date: Wed, 15 Oct 2008 09:02:30 -0500
+Message-ID: <48F5F7F6.5010208__2371.05776691369$1224079749$gmane$org@codemonkey.ws>
+References: <20081012124534.GK11435@redhat.com>
+	<48F39443.4070203@codemonkey.ws>
+	<20081014090540.GB13153@redhat.com> <48F4A3B8.8050603@us.ibm.com>
+	<20081014175900.GA18344@redhat.com>
+	<48F4E1F3.3050606@codemonkey.ws>
+	<20081015125837.GQ11435@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <57C9024A16AD2D4C97DC78E552063EA353274D37@orsmsx505.amr.corp.intel.com>
+In-Reply-To: <20081015125837.GQ11435@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,95 +22,92 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: "xen-ia64-devel@lists.xensource.com" <xen-ia64-devel@lists.xensource.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Gleb Natapov <gleb@redhat.com>
+Cc: Anupam Chanda <anupamc@vmware.com>, Andrew Biggadike <biggadike@vmware.com>, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 14, 2008 at 02:58:48PM -0700, Luck, Tony wrote:
-> > This patch implements a checker to detect instructions which
-> > should be paravirtualized instead of direct writing raw instruction.
-> > This patch does rough check so that it doesn't fully cover all cases,
-> > but it can detects most cases of paravirtualization breakage of hand
-> > written assembly codes.
-> 
-> There are still some "itc.d" instructions in ivt.S (in the #ifndef
-> CONFIG_SMP code).  This checker caught them ... but the error messages
-> from the build were not as elegant as they might be
-> 
->   AS      arch/ia64/kernel/pvchk-ivt.o
-> arch/ia64/kernel/ivt.S: Assembler messages:
-> arch/ia64/kernel/ivt.S:583: Warning: itc.d should not be used directly.
-> arch/ia64/kernel/ivt.S:583: Error: junk at end of line, first unrecognized character is `r'
-> arch/ia64/kernel/ivt.S:649: Warning: itc.i should not be used directly.
-> arch/ia64/kernel/ivt.S:649: Error: junk at end of line, first unrecognized character is `r'
-> arch/ia64/kernel/ivt.S:701: Warning: itc.d should not be used directly.
-> arch/ia64/kernel/ivt.S:701: Error: junk at end of line, first unrecognized character is `r'
-> make[1]: *** [arch/ia64/kernel/pvchk-ivt.o] Error 1
-> make: *** [arch/ia64/kernel] Error 2
-> 
-> 
-> I'll hold off on applying part32/32 until the CONFIG_SMP=n case
-> is fixed.
-> 
-> -Tony
-> 
+Gleb Natapov wrote:
+> On Tue, Oct 14, 2008 at 01:16:19PM -0500, Anthony Liguori wrote:
+>   
+>> One thing that's been discussed is to use something that looked much  
+>>     
+> Where is has been discussed? Was it on a public mailing list with online
+> archive?
+>   
 
-Here is the patch to fix the CONFIG_SMP=n case.
-BTW with CONFIG_SMP=n, I got the following error so that
-I had to disable kvm.
+Probably?  This subject has been discussed to death in various places 
+(including within the Xen community).
 
-arch/ia64/kvm/vmm.c: In function 'vmm_spin_unlock':
-arch/ia64/kvm/vmm.c:63: error: 'raw_spinlock_t' has no member named 'lock'
+>> like struct sockaddr_un.  As long as the strings were unique, they could  
+>> be in whatever format people wanted.
+>>
+>>     
+> So basically what you are saying is that you want to use string IDs instead of
+> numerical IDs in a hope that the chance of colliding IDs will be smaller? (in the
+> current implementation ID length is 32 bit, so the chances for two services to
+> pick the same ID is small).
+>   
 
+But people don't choose random 32-bit integers and since your 
+implementation only supports channels 0..4 obviously, the intention 
+isn't to choose random integers.  When using integers, it would be 
+necessary to have some sort of authority that assigns out the integers 
+to avoid conflict.  A protocol like this scales better if such an 
+authority isn't necessary.
 
-From 62a9ea7ff351db545e0dd1f44837b51ca7daa12e Mon Sep 17 00:00:00 2001
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Date: Wed, 15 Oct 2008 11:48:39 +0900
-Subject: [PATCH] ia64/pv_ops: fix paraviatualization of ivt.S with CONFIG_SMP=n
+> But why pick constant ID for a service at all? Management software can
+> assign unique IDs for each service during image preparation.
 
-When CONFIG_SMP=n, three instruction in ivt.S were missed to paravirtualize.
-paravirtualize them.
+First, not everyone has "management software".  Even so, it's not the 
+center of the world.  If I want to add a new feature to QEMU that makes 
+use of one of these channels (say Unity/Coherence), does that mean I now 
+have to tell every management tool (libvirt et al) about this interface 
+so they can assign an ID to it?  How does the guest software know what 
+channel to use?  You basically assume yet another host<=>guest 
+communication mechanism to tell the guest software what channel to use.  
+That seems to defeat the purpose.
 
-Cc: "Luck, Tony" <tony.luck@intel.com>
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/kernel/ivt.S |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+>  So one
+> management software will use channel 42 for DnD and 22 for CIM and another
+> will use 13 for DnD and 42 for CIM. All is need is to not hard code
+> channel IDs into agents. You will not be able to move such images from one
+> management software to another easily of cause, but this task is not so easy
+> today too.
+>   
 
-diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
-index 416a952..f675d8e 100644
---- a/arch/ia64/kernel/ivt.S
-+++ b/arch/ia64/kernel/ivt.S
-@@ -580,7 +580,7 @@ ENTRY(dirty_bit)
- 	mov b0=r29				// restore b0
- 	;;
- 	st8 [r17]=r18				// store back updated PTE
--	itc.d r18				// install updated PTE
-+	ITC_D(p0, r18, r16)			// install updated PTE
- #endif
- 	mov pr=r31,-1				// restore pr
- 	RFI
-@@ -646,7 +646,7 @@ ENTRY(iaccess_bit)
- 	mov b0=r29				// restore b0
- 	;;
- 	st8 [r17]=r18				// store back updated PTE
--	itc.i r18				// install updated PTE
-+	ITC_I(p0, r18, r16)			// install updated PTE
- #endif /* !CONFIG_SMP */
- 	mov pr=r31,-1
- 	RFI
-@@ -698,7 +698,7 @@ ENTRY(daccess_bit)
- 	or r18=_PAGE_A,r18			// set the accessed bit
- 	;;
- 	st8 [r17]=r18				// store back updated PTE
--	itc.d r18				// install updated PTE
-+	ITC_D(p0, r18, r16)			// install updated PTE
- #endif
- 	mov b0=r29				// restore b0
- 	mov pr=r31,-1
--- 
-1.6.0.2
+It's so much simpler to just use unique identifiers for each service.  
+Be it UUID, a string in the form of a reverse fqdn or URL, or whatever.
 
+>> Of course, you should also take a look at VMware's VMCI.  If we're going  
+>> to have a socket interface, if we can have a compatible userspace  
+>> interface, that would probably be a good thing.
+>>
+>>     
+> As good as VMware backdoor interface that we chose not to use because we
+> can't control it?
+>   
 
--- 
-yamahata
+I suggested you look at VMCI mainly to see the addressing mechanism.  
+AF_IUCV is something else to look at although there's a lot of legacy 
+there.  I'm not suggesting we be binary compatible with VMCI, but if 
+their addressing mechanism is sufficiently general (like a string), then 
+I see no reason not to use the same addressing mechanism or something 
+similar to it.
+
+>  If you like string IDs better
+> than numerical IDs and you are OK with "lookup by name" way of doing
+> things in VMCI I can easily add channel 0 (will be implemented by qemu
+> itself and thus always present) that will do name to ID mapping.
+>   
+
+It's not a bad idea to have a bootstrap channel.  Do channel exist 
+during the entirely life time of the guest?  Can disconnects/reconnects 
+happen on a channel?  Can a guest listen on a channel?
+
+Certainly, sockets are a pretty well established model so it makes a 
+certain amount of sense to have these things behave like traditional 
+sockets.
+
+Regards,
+
+Anthony Liguori
