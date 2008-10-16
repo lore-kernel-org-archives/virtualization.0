@@ -1,53 +1,60 @@
-From: Andrew Biggadike <biggadike@vmware.com>
-Subject: Re: [PATCH][RFC] vmchannel a data channel between host and guest.
-Date: Wed, 15 Oct 2008 09:59:36 -0700
-Message-ID: <20081015165936.GA1770__24311.1724187203$1224090234$gmane$org@vmware.com>
-References: <20081012124534.GK11435@redhat.com>
-	<48F39443.4070203@codemonkey.ws>
-	<20081014090540.GB13153@redhat.com> <48F4A3B8.8050603@us.ibm.com>
-	<20081014175900.GA18344@redhat.com>
-	<48F4E1F3.3050606@codemonkey.ws>
-	<20081015125837.GQ11435@redhat.com>
-	<20081015141852.GA19554@vmware.com>
-	<20081015154212.GS11435@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/2] virtio_net: Improve the recv buffer allocation scheme
+Date: Thu, 16 Oct 2008 15:43:38 +1100
+Message-ID: <200810161543.39812.rusty@rustcorp.com.au>
+References: <1223494499-18732-1-git-send-email-markmc@redhat.com> <200810091155.59731.rusty@rustcorp.com.au> <20081009153035.GA21542@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20081009153035.GA21542@gondor.apana.org.au>
 Content-Disposition: inline
-In-Reply-To: <20081015154212.GS11435@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: Anupam Chanda <anupamc@vmware.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Anthony Liguori <anthony@codemonkey.ws>
+Sender: netdev-owner@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Mark McLoughlin <markmc@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gleb Natapov <gleb@redhat.com> wrote:
-> On Wed, Oct 15, 2008 at 07:18:52AM -0700, Andrew Biggadike wrote:
-> > Gleb Natapov <gleb@redhat.com> wrote:
-> > > > Of course, you should also take a look at VMware's VMCI.  If we're going
-> > > > to have a socket interface, if we can have a compatible userspace
-> > > > interface, that would probably be a good thing.
-> > >
-> > > I looked at what I could find about VMCI (http://pubs.vmware.com/vmci-sdk/index.html).
-> >
-> > I believe Anthony intended for you to look at the sockets interface to
-> > VMCI: http://www.vmware.com/pdf/ws65_s2_vmci_sockets.pdf.
-> >
-> Using VMCI socket requires loading kernel module in a guest and in a host.
-> Is this correct?
- 
-Yes, any context (in VMCI terms) that wants to allow for VMCI Socket
-endpoints needs both the vmci and the vsock kernel modules loaded.
+On Friday 10 October 2008 02:30:35 Herbert Xu wrote:
+> On Thu, Oct 09, 2008 at 11:55:59AM +1100, Rusty Russell wrote:
+> > Secondly, we can put the virtio_net_hdr at the head of the skb data (this
+> > is also worth considering for xmit I think if we have headroom) and drop
+> > MAX_SKB_FRAGS which contains a gratuitous +2.
+>
+> That's fine but having skb->data in the ring still means two
+> different kinds of memory in there and it sucks when you only
+> have 1500-byte packets.
 
-In case you're asking because you're going to try it out, note that
-our currently released version of VMCI Sockets (with Workstation 6.5)
-does not yet support SOCK_STREAM on the host, just guests.  That gets
-a lot of people at the moment.
+No, you really want to do this for 1500 byte packets since it increases the 
+effective space in the ring.  Unfortunately, Mark points out that kvm assumes 
+the header is standalone: Anthony and I discussed this a while back and 
+decided it *wasn't* a good assumption.
+
+TODO: YA feature bit...
+
+> We need a scheme that handles both 1500-byte packets as well
+> as 64K-byte size ones, and without holding down 16M of memory
+> per guest.
+
+Ah, thanks for that.  It's not so much ring entries, as guest memory you're 
+trying to save.  That makes much more sense.
+
+> > > +		char *p = page_address(skb_shinfo(skb)->frags[0].page);
+> >
+> > ...
+> >
+> > > +		memcpy(hdr, p, sizeof(*hdr));
+> > > +		p += sizeof(*hdr);
+> >
+> > I think you need kmap_atomic() here to access the page.  And yes, that
+> > will effect performance :(
+>
+> No we don't.  kmap would only be necessary for highmem which we
+> did not request.
+
+Good point.  Could you humor me with a comment to that effect?  Prevents me 
+making the same mistake again.
+
+Thanks!
+Rusty.
+PS.  Laptop broke, was MIA for a week.  Working overtime now.
