@@ -1,60 +1,32 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio_net: Improve the recv buffer allocation scheme
-Date: Thu, 16 Oct 2008 15:43:38 +1100
-Message-ID: <200810161543.39812.rusty@rustcorp.com.au>
-References: <1223494499-18732-1-git-send-email-markmc@redhat.com> <200810091155.59731.rusty@rustcorp.com.au> <20081009153035.GA21542@gondor.apana.org.au>
+Subject: Re: [PATCH 1/2] virtio_net: Recycle some more rx buffer pages
+Date: Thu, 16 Oct 2008 16:08:53 +1100
+Message-ID: <200810161608.54017.rusty@rustcorp.com.au>
+References: <> <1223494499-18732-1-git-send-email-markmc@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20081009153035.GA21542@gondor.apana.org.au>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753102AbYJPFLT@vger.kernel.org>
+In-Reply-To: <1223494499-18732-1-git-send-email-markmc@redhat.com>
 Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Mark McLoughlin <markmc@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 10 October 2008 02:30:35 Herbert Xu wrote:
-> On Thu, Oct 09, 2008 at 11:55:59AM +1100, Rusty Russell wrote:
-> > Secondly, we can put the virtio_net_hdr at the head of the skb data (this
-> > is also worth considering for xmit I think if we have headroom) and drop
-> > MAX_SKB_FRAGS which contains a gratuitous +2.
+On Thursday 09 October 2008 06:34:58 Mark McLoughlin wrote:
+> Each time we re-fill the recv queue with buffers, we allocate
+> one too many skbs and free it again when adding fails. We should
+> recycle the pages allocated in this case.
 >
-> That's fine but having skb->data in the ring still means two
-> different kinds of memory in there and it sucks when you only
-> have 1500-byte packets.
+> A previous version of this patch made trim_pages() trim trailing
+> unused pages from skbs with some paged data, but this actually
+> caused a barely measurable slowdown.
 
-No, you really want to do this for 1500 byte packets since it increases the 
-effective space in the ring.  Unfortunately, Mark points out that kvm assumes 
-the header is standalone: Anthony and I discussed this a while back and 
-decided it *wasn't* a good assumption.
+Yes, I noticed a similar effect.  Not quite sure why though.
 
-TODO: YA feature bit...
-
-> We need a scheme that handles both 1500-byte packets as well
-> as 64K-byte size ones, and without holding down 16M of memory
-> per guest.
-
-Ah, thanks for that.  It's not so much ring entries, as guest memory you're 
-trying to save.  That makes much more sense.
-
-> > > +		char *p = page_address(skb_shinfo(skb)->frags[0].page);
-> >
-> > ...
-> >
-> > > +		memcpy(hdr, p, sizeof(*hdr));
-> > > +		p += sizeof(*hdr);
-> >
-> > I think you need kmap_atomic() here to access the page.  And yes, that
-> > will effect performance :(
->
-> No we don't.  kmap would only be necessary for highmem which we
-> did not request.
-
-Good point.  Could you humor me with a comment to that effect?  Prevents me 
-making the same mistake again.
+Applied.
 
 Thanks!
 Rusty.
-PS.  Laptop broke, was MIA for a week.  Working overtime now.
