@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 33/33] ia64/pv_ops: paravirtualized istruction checker.
-Date: Fri, 17 Oct 2008 11:18:13 +0900
-Message-ID: <1224209893-2032-34-git-send-email-yamahata__28039.6878756166$1224211688$gmane$org@valinux.co.jp>
+Subject: [PATCH 28/33] ia64/pv_ops/xen: implement xen pv_time_ops.
+Date: Fri, 17 Oct 2008 11:18:08 +0900
+Message-ID: <1224209893-2032-29-git-send-email-yamahata__3568.45418359644$1224211797$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,41 +18,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, mingo@elte.hu, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch implements a checker to detect instructions which
-should be paravirtualized instead of direct writing raw instruction.
-This patch does rough check so that it doesn't fully cover all cases,
-but it can detects most cases of paravirtualization breakage of hand
-written assembly codes.
+implement xen pv_time_ops to account steal time.
 
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- arch/ia64/include/asm/native/pvchk_inst.h |  263 +++++++++++++++++++++++++++++
- arch/ia64/kernel/Makefile                 |   18 ++
- arch/ia64/kernel/paravirt_inst.h          |    4 +-
- arch/ia64/scripts/pvcheck.sed             |   32 ++++
- 4 files changed, 316 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/include/asm/native/pvchk_inst.h
- create mode 100644 arch/ia64/scripts/pvcheck.sed
+ arch/ia64/xen/Makefile     |    2 +-
+ arch/ia64/xen/time.c       |  180 ++++++++++++++++++++++++++++++++++++++++++++
+ arch/ia64/xen/time.h       |   23 ++++++
+ arch/ia64/xen/xen_pv_ops.c |    2 +
+ 4 files changed, 206 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/xen/time.c
+ create mode 100644 arch/ia64/xen/time.h
 
-diff --git a/arch/ia64/include/asm/native/pvchk_inst.h b/arch/ia64/include/asm/native/pvchk_inst.h
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index 01c4289..ed31c76 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -3,7 +3,7 @@
+ #
+ 
+ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
+-	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
++	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
+ 
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+ 
+diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
 new file mode 100644
-index 0000000..b8e6eb1
+index 0000000..ec168ec
 --- /dev/null
-+++ b/arch/ia64/include/asm/native/pvchk_inst.h
-@@ -0,0 +1,263 @@
-+#ifndef _ASM_NATIVE_PVCHK_INST_H
-+#define _ASM_NATIVE_PVCHK_INST_H
-+
++++ b/arch/ia64/xen/time.c
+@@ -0,0 +1,180 @@
 +/******************************************************************************
-+ * arch/ia64/include/asm/native/pvchk_inst.h
-+ * Checker for paravirtualizations of privileged operations.
-+ *
-+ * Copyright (C) 2005 Hewlett-Packard Co
-+ *      Dan Magenheimer <dan.magenheimer@hp.com>
++ * arch/ia64/xen/time.c
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -73,320 +76,212 @@ index 0000000..b8e6eb1
 + *
 + */
 +
-+/**********************************************
-+ * Instructions paravirtualized for correctness
-+ **********************************************/
++#include <linux/delay.h>
++#include <linux/kernel_stat.h>
++#include <linux/posix-timers.h>
++#include <linux/irq.h>
++#include <linux/clocksource.h>
 +
-+/* "fc" and "thash" are privilege-sensitive instructions, meaning they
-+ *  may have different semantics depending on whether they are executed
-+ *  at PL0 vs PL!=0.  When paravirtualized, these instructions mustn't
-+ *  be allowed to execute directly, lest incorrect semantics result.
-+ */
++#include <asm/xen/hypervisor.h>
 +
-+#define fc	.error "fc should not be used directly."
-+#define thash	.error "thash should not be used directly."
++#include <xen/interface/vcpu.h>
 +
-+/* Note that "ttag" and "cover" are also privilege-sensitive; "ttag"
-+ * is not currently used (though it may be in a long-format VHPT system!)
-+ * and the semantics of cover only change if psr.ic is off which is very
-+ * rare (and currently non-existent outside of assembly code
-+ */
-+#define ttag	.error "ttag should not be used directly."
-+#define cover	.error "cover should not be used directly."
++#include "../kernel/fsyscall_gtod_data.h"
 +
-+/* There are also privilege-sensitive registers.  These registers are
-+ * readable at any privilege level but only writable at PL0.
-+ */
-+#define cpuid	.error "cpuid should not be used directly."
-+#define pmd	.error "pmd should not be used directly."
++DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
++DEFINE_PER_CPU(unsigned long, processed_stolen_time);
++DEFINE_PER_CPU(unsigned long, processed_blocked_time);
++
++/* taken from i386/kernel/time-xen.c */
++static void xen_init_missing_ticks_accounting(int cpu)
++{
++	struct vcpu_register_runstate_memory_area area;
++	struct vcpu_runstate_info *runstate = &per_cpu(runstate, cpu);
++	int rc;
++
++	memset(runstate, 0, sizeof(*runstate));
++
++	area.addr.v = runstate;
++	rc = HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area, cpu,
++				&area);
++	WARN_ON(rc && rc != -ENOSYS);
++
++	per_cpu(processed_blocked_time, cpu) = runstate->time[RUNSTATE_blocked];
++	per_cpu(processed_stolen_time, cpu) = runstate->time[RUNSTATE_runnable]
++					    + runstate->time[RUNSTATE_offline];
++}
 +
 +/*
-+ * mov ar.eflag =
-+ * mov = ar.eflag
++ * Runstate accounting
 + */
++/* stolen from arch/x86/xen/time.c */
++static void get_runstate_snapshot(struct vcpu_runstate_info *res)
++{
++	u64 state_time;
++	struct vcpu_runstate_info *state;
 +
-+/**********************************************
-+ * Instructions paravirtualized for performance
-+ **********************************************/
-+/*
-+ * Those instructions include '.' which can't be handled by cpp.
-+ * or can't be handled by cpp easily.
-+ * They are handled by sed instead of cpp.
-+ */
++	BUG_ON(preemptible());
 +
-+/* for .S
-+ * itc.i
-+ * itc.d
-+ *
-+ * bsw.0
-+ * bsw.1
-+ *
-+ * ssm psr.ic | PSR_DEFAULT_BITS
-+ * ssm psr.ic
-+ * rsm psr.ic
-+ * ssm psr.i
-+ * rsm psr.i
-+ * rsm psr.i | psr.ic
-+ * rsm psr.dt
-+ * ssm psr.dt
-+ *
-+ * mov = cr.ifa
-+ * mov = cr.itir
-+ * mov = cr.isr
-+ * mov = cr.iha
-+ * mov = cr.ipsr
-+ * mov = cr.iim
-+ * mov = cr.iip
-+ * mov = cr.ivr
-+ * mov = psr
-+ *
-+ * mov cr.ifa =
-+ * mov cr.itir =
-+ * mov cr.iha =
-+ * mov cr.ipsr =
-+ * mov cr.ifs =
-+ * mov cr.iip =
-+ * mov cr.kr =
-+ */
++	state = &__get_cpu_var(runstate);
 +
-+/* for intrinsics
-+ * ssm psr.i
-+ * rsm psr.i
-+ * mov = psr
-+ * mov = ivr
-+ * mov = tpr
-+ * mov cr.itm =
-+ * mov eoi =
-+ * mov rr[] =
-+ * mov = rr[]
-+ * mov = kr
-+ * mov kr =
-+ * ptc.ga
-+ */
++	/*
++	 * The runstate info is always updated by the hypervisor on
++	 * the current CPU, so there's no need to use anything
++	 * stronger than a compiler barrier when fetching it.
++	 */
++	do {
++		state_time = state->state_entry_time;
++		rmb();
++		*res = *state;
++		rmb();
++	} while (state->state_entry_time != state_time);
++}
 +
-+/*************************************************************
-+ * define paravirtualized instrcution macros as nop to ingore.
-+ * and check whether arguments are appropriate.
-+ *************************************************************/
++#define NS_PER_TICK (1000000000LL/HZ)
 +
-+/* check whether reg is a regular register */
-+.macro is_rreg_in reg
-+	.ifc "\reg", "r0"
-+		nop 0
-+		.exitm
-+	.endif
-+	;;
-+	mov \reg = r0
-+	;;
-+.endm
-+#define IS_RREG_IN(reg)	is_rreg_in reg ;
++static unsigned long
++consider_steal_time(unsigned long new_itm)
++{
++	unsigned long stolen, blocked;
++	unsigned long delta_itm = 0, stolentick = 0;
++	int cpu = smp_processor_id();
++	struct vcpu_runstate_info runstate;
++	struct task_struct *p = current;
 +
-+#define IS_RREG_OUT(reg)			\
-+	;;					\
-+	mov reg = r0				\
-+	;;
++	get_runstate_snapshot(&runstate);
 +
-+#define IS_RREG_CLOB(reg)	IS_RREG_OUT(reg)
++	/*
++	 * Check for vcpu migration effect
++	 * In this case, itc value is reversed.
++	 * This causes huge stolen value.
++	 * This function just checks and reject this effect.
++	 */
++	if (!time_after_eq(runstate.time[RUNSTATE_blocked],
++			   per_cpu(processed_blocked_time, cpu)))
++		blocked = 0;
 +
-+/* check whether pred is a predicate register */
-+#define IS_PRED_IN(pred)			\
-+	;;					\
-+	(pred)	nop 0				\
-+	;;
++	if (!time_after_eq(runstate.time[RUNSTATE_runnable] +
++			   runstate.time[RUNSTATE_offline],
++			   per_cpu(processed_stolen_time, cpu)))
++		stolen = 0;
 +
-+#define IS_PRED_OUT(pred)			\
-+	;;					\
-+	cmp.eq pred, p0 = r0, r0		\
-+	;;
++	if (!time_after(delta_itm + new_itm, ia64_get_itc()))
++		stolentick = ia64_get_itc() - new_itm;
 +
-+#define IS_PRED_CLOB(pred)	IS_PRED_OUT(pred)
++	do_div(stolentick, NS_PER_TICK);
++	stolentick++;
 +
++	do_div(stolen, NS_PER_TICK);
 +
-+#define DO_SAVE_MIN(__COVER, SAVE_IFS, EXTRA, WORKAROUND)	\
-+	nop 0
-+#define MOV_FROM_IFA(reg)			\
-+	IS_RREG_OUT(reg)
-+#define MOV_FROM_ITIR(reg)			\
-+	IS_RREG_OUT(reg)
-+#define MOV_FROM_ISR(reg)			\
-+	IS_RREG_OUT(reg)
-+#define MOV_FROM_IHA(reg)			\
-+	IS_RREG_OUT(reg)
-+#define MOV_FROM_IPSR(pred, reg)		\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_OUT(reg)
-+#define MOV_FROM_IIM(reg)			\
-+	IS_RREG_OUT(reg)
-+#define MOV_FROM_IIP(reg)			\
-+	IS_RREG_OUT(reg)
-+#define MOV_FROM_IVR(reg, clob)			\
-+	IS_RREG_OUT(reg)			\
-+	IS_RREG_CLOB(clob)
-+#define MOV_FROM_PSR(pred, reg, clob)		\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_OUT(reg)			\
-+	IS_RREG_CLOB(clob)
-+#define MOV_TO_IFA(reg, clob)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define MOV_TO_ITIR(pred, reg, clob)		\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define MOV_TO_IHA(pred, reg, clob)		\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define MOV_TO_IPSR(pred, reg, clob)		\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define MOV_TO_IFS(pred, reg, clob)		\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define MOV_TO_IIP(reg, clob)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define MOV_TO_KR(kr, reg, clob0, clob1)	\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob0)			\
-+	IS_RREG_CLOB(clob1)
-+#define ITC_I(pred, reg, clob)			\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define ITC_D(pred, reg, clob)			\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define ITC_I_AND_D(pred_i, pred_d, reg, clob)	\
-+	IS_PRED_IN(pred_i)			\
-+	IS_PRED_IN(pred_d)			\
-+	IS_RREG_IN(reg)				\
-+	IS_RREG_CLOB(clob)
-+#define THASH(pred, reg0, reg1, clob)		\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_OUT(reg0)			\
-+	IS_RREG_IN(reg1)			\
-+	IS_RREG_CLOB(clob)
-+#define SSM_PSR_IC_AND_DEFAULT_BITS_AND_SRLZ_I(clob0, clob1)	\
-+	IS_RREG_CLOB(clob0)					\
-+	IS_RREG_CLOB(clob1)
-+#define SSM_PSR_IC_AND_SRLZ_D(clob0, clob1)	\
-+	IS_RREG_CLOB(clob0)			\
-+	IS_RREG_CLOB(clob1)
-+#define RSM_PSR_IC(clob)			\
-+	IS_RREG_CLOB(clob)
-+#define SSM_PSR_I(pred, pred_clob, clob)	\
-+	IS_PRED_IN(pred)			\
-+	IS_PRED_CLOB(pred_clob)			\
-+	IS_RREG_CLOB(clob)
-+#define RSM_PSR_I(pred, clob0, clob1)		\
-+	IS_PRED_IN(pred)			\
-+	IS_RREG_CLOB(clob0)			\
-+	IS_RREG_CLOB(clob1)
-+#define RSM_PSR_I_IC(clob0, clob1, clob2)	\
-+	IS_RREG_CLOB(clob0)			\
-+	IS_RREG_CLOB(clob1)			\
-+	IS_RREG_CLOB(clob2)
-+#define RSM_PSR_DT				\
-+	nop 0
-+#define SSM_PSR_DT_AND_SRLZ_I			\
-+	nop 0
-+#define BSW_0(clob0, clob1, clob2)		\
-+	IS_RREG_CLOB(clob0)			\
-+	IS_RREG_CLOB(clob1)			\
-+	IS_RREG_CLOB(clob2)
-+#define BSW_1(clob0, clob1)			\
-+	IS_RREG_CLOB(clob0)			\
-+	IS_RREG_CLOB(clob1)
-+#define COVER					\
-+	nop 0
-+#define RFI					\
-+	br.ret.sptk.many rp /* defining nop causes dependency error */
++	if (stolen > stolentick)
++		stolen = stolentick;
 +
-+#endif /* _ASM_NATIVE_PVCHK_INST_H */
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index 87fea11..55e6ca8 100644
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -112,5 +112,23 @@ clean-files += $(objtree)/include/asm-ia64/nr-irqs.h
- ASM_PARAVIRT_OBJS = ivt.o entry.o
- define paravirtualized_native
- AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_NATIVE
-+AFLAGS_pvchk-sed-$(1) += -D__IA64_ASM_PARAVIRTUALIZED_PVCHECK
-+extra-y += pvchk-$(1)
- endef
- $(foreach obj,$(ASM_PARAVIRT_OBJS),$(eval $(call paravirtualized_native,$(obj))))
++	stolentick -= stolen;
++	do_div(blocked, NS_PER_TICK);
 +
-+#
-+# Checker for paravirtualizations of privileged operations.
-+#
-+quiet_cmd_pv_check_sed = PVCHK   $@
-+define cmd_pv_check_sed
-+	sed -f $(srctree)/arch/$(SRCARCH)/scripts/pvcheck.sed $< > $@
-+endef
++	if (blocked > stolentick)
++		blocked = stolentick;
 +
-+$(obj)/pvchk-sed-%.s: $(src)/%.S $(srctree)/arch/$(SRCARCH)/scripts/pvcheck.sed FORCE
-+	$(call if_changed_dep,as_s_S)
-+$(obj)/pvchk-%.s: $(obj)/pvchk-sed-%.s FORCE
-+	$(call if_changed,pv_check_sed)
-+$(obj)/pvchk-%.o: $(obj)/pvchk-%.s FORCE
-+	$(call if_changed,as_o_S)
-+.PRECIOUS: $(obj)/pvchk-sed-%.s $(obj)/pvchk-%.s $(obj)/pvchk-%.o
-diff --git a/arch/ia64/kernel/paravirt_inst.h b/arch/ia64/kernel/paravirt_inst.h
-index 5cad6fb..64d6d81 100644
---- a/arch/ia64/kernel/paravirt_inst.h
-+++ b/arch/ia64/kernel/paravirt_inst.h
-@@ -20,7 +20,9 @@
-  *
-  */
- 
--#ifdef __IA64_ASM_PARAVIRTUALIZED_XEN
-+#ifdef __IA64_ASM_PARAVIRTUALIZED_PVCHECK
-+#include <asm/native/pvchk_inst.h>
-+#elif defined(__IA64_ASM_PARAVIRTUALIZED_XEN)
- #include <asm/xen/inst.h>
- #include <asm/xen/minstate.h>
- #else
-diff --git a/arch/ia64/scripts/pvcheck.sed b/arch/ia64/scripts/pvcheck.sed
++	if (stolen > 0 || blocked > 0) {
++		account_steal_time(NULL, jiffies_to_cputime(stolen));
++		account_steal_time(idle_task(cpu), jiffies_to_cputime(blocked));
++		run_local_timers();
++
++		if (rcu_pending(cpu))
++			rcu_check_callbacks(cpu, user_mode(get_irq_regs()));
++
++		scheduler_tick();
++		run_posix_cpu_timers(p);
++		delta_itm += local_cpu_data->itm_delta * (stolen + blocked);
++
++		if (cpu == time_keeper_id) {
++			write_seqlock(&xtime_lock);
++			do_timer(stolen + blocked);
++			local_cpu_data->itm_next = delta_itm + new_itm;
++			write_sequnlock(&xtime_lock);
++		} else {
++			local_cpu_data->itm_next = delta_itm + new_itm;
++		}
++		per_cpu(processed_stolen_time, cpu) += NS_PER_TICK * stolen;
++		per_cpu(processed_blocked_time, cpu) += NS_PER_TICK * blocked;
++	}
++	return delta_itm;
++}
++
++static int xen_do_steal_accounting(unsigned long *new_itm)
++{
++	unsigned long delta_itm;
++	delta_itm = consider_steal_time(*new_itm);
++	*new_itm += delta_itm;
++	if (time_after(*new_itm, ia64_get_itc()) && delta_itm)
++		return 1;
++
++	return 0;
++}
++
++static void xen_itc_jitter_data_reset(void)
++{
++	u64 lcycle, ret;
++
++	do {
++		lcycle = itc_jitter_data.itc_lastcycle;
++		ret = cmpxchg(&itc_jitter_data.itc_lastcycle, lcycle, 0);
++	} while (unlikely(ret != lcycle));
++}
++
++struct pv_time_ops xen_time_ops __initdata = {
++	.init_missing_ticks_accounting	= xen_init_missing_ticks_accounting,
++	.do_steal_accounting		= xen_do_steal_accounting,
++	.clocksource_resume		= xen_itc_jitter_data_reset,
++};
+diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
 new file mode 100644
-index 0000000..ba66ac2
+index 0000000..b9c7ec5
 --- /dev/null
-+++ b/arch/ia64/scripts/pvcheck.sed
-@@ -0,0 +1,32 @@
-+#
-+# Checker for paravirtualizations of privileged operations.
-+#
-+s/ssm.*psr\.ic.*/.warning \"ssm psr.ic should not be used directly\"/g
-+s/rsm.*psr\.ic.*/.warning \"rsm psr.ic should not be used directly\"/g
-+s/ssm.*psr\.i.*/.warning \"ssm psr.i should not be used directly\"/g
-+s/rsm.*psr\.i.*/.warning \"rsm psr.i should not be used directly\"/g
-+s/ssm.*psr\.dt.*/.warning \"ssm psr.dt should not be used directly\"/g
-+s/rsm.*psr\.dt.*/.warning \"rsm psr.dt should not be used directly\"/g
-+s/mov.*=.*cr\.ifa/.warning \"cr.ifa should not used directly\"/g
-+s/mov.*=.*cr\.itir/.warning \"cr.itir should not used directly\"/g
-+s/mov.*=.*cr\.isr/.warning \"cr.isr should not used directly\"/g
-+s/mov.*=.*cr\.iha/.warning \"cr.iha should not used directly\"/g
-+s/mov.*=.*cr\.ipsr/.warning \"cr.ipsr should not used directly\"/g
-+s/mov.*=.*cr\.iim/.warning \"cr.iim should not used directly\"/g
-+s/mov.*=.*cr\.iip/.warning \"cr.iip should not used directly\"/g
-+s/mov.*=.*cr\.ivr/.warning \"cr.ivr should not used directly\"/g
-+s/mov.*=[^\.]*psr/.warning \"psr should not used directly\"/g	# avoid ar.fpsr
-+s/mov.*=.*ar\.eflags/.warning \"ar.eflags should not used directly\"/g
-+s/mov.*cr\.ifa.*=.*/.warning \"cr.ifa should not used directly\"/g
-+s/mov.*cr\.itir.*=.*/.warning \"cr.itir should not used directly\"/g
-+s/mov.*cr\.iha.*=.*/.warning \"cr.iha should not used directly\"/g
-+s/mov.*cr\.ipsr.*=.*/.warning \"cr.ipsr should not used directly\"/g
-+s/mov.*cr\.ifs.*=.*/.warning \"cr.ifs should not used directly\"/g
-+s/mov.*cr\.iip.*=.*/.warning \"cr.iip should not used directly\"/g
-+s/mov.*cr\.kr.*=.*/.warning \"cr.kr should not used directly\"/g
-+s/mov.*ar\.eflags.*=.*/.warning \"ar.eflags should not used directly\"/g
-+s/itc\.i.*/.warning \"itc.i should not be used directly.\"/g
-+s/itc\.d.*/.warning \"itc.d should not be used directly.\"/g
-+s/bsw\.0/.warning \"bsw.0 should not be used directly.\"/g
-+s/bsw\.1/.warning \"bsw.1 should not be used directly.\"/g
-+s/ptc\.ga.*/.warning \"ptc.ga should not be used directly.\"/g
++++ b/arch/ia64/xen/time.h
+@@ -0,0 +1,23 @@
++/******************************************************************************
++ * arch/ia64/xen/time.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++extern struct pv_time_ops xen_time_ops __initdata;
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 4fe4e62..04cd123 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -30,6 +30,7 @@
+ #include <asm/xen/privop.h>
+ 
+ #include "irq_xen.h"
++#include "time.h"
+ 
+ /***************************************************************************
+  * general info
+@@ -357,6 +358,7 @@ xen_setup_pv_ops(void)
+ 	pv_cpu_ops = xen_cpu_ops;
+ 	pv_iosapic_ops = xen_iosapic_ops;
+ 	pv_irq_ops = xen_irq_ops;
++	pv_time_ops = xen_time_ops;
+ 
+ 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+ }
 -- 
 1.6.0.2
