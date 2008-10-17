@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 03/33] ia64/pv_ops: update native/inst.h to clobber predicate.
-Date: Fri, 17 Oct 2008 11:17:43 +0900
-Message-ID: <1224209893-2032-4-git-send-email-yamahata__13212.9322774292$1224210268$gmane$org@valinux.co.jp>
+Subject: [PATCH 04/33] ia64: move function declaration,
+	ia64_cpu_local_tick() from .c to .h
+Date: Fri, 17 Oct 2008 11:17:44 +0900
+Message-ID: <1224209893-2032-5-git-send-email-yamahata__13677.4373976097$1224210432$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,41 +22,38 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-add CLOBBER_PRED() to clobber predicate register.
+eliminate the function declaration ia64_cpu_local_tick() in
+process.c by defining in arch/ia64/include/asm/timex.h
+The same function will be used in a different .c file later.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/native/inst.h |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ arch/ia64/include/asm/timex.h |    2 ++
+ arch/ia64/kernel/process.c    |    1 -
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
-index c8efbf7..0a1026c 100644
---- a/arch/ia64/include/asm/native/inst.h
-+++ b/arch/ia64/include/asm/native/inst.h
-@@ -36,8 +36,13 @@
- 	;;					\
- 	movl clob = PARAVIRT_POISON;		\
- 	;;
-+# define CLOBBER_PRED(pred_clob)		\
-+	;;					\
-+	cmp.eq pred_clob, p0 = r0, r0		\
-+	;;
- #else
--# define CLOBBER(clob)		/* nothing */
-+# define CLOBBER(clob)			/* nothing */
-+# define CLOBBER_PRED(pred_clob)	/* nothing */
- #endif
+diff --git a/arch/ia64/include/asm/timex.h b/arch/ia64/include/asm/timex.h
+index 05a6baf..4e03cfe 100644
+--- a/arch/ia64/include/asm/timex.h
++++ b/arch/ia64/include/asm/timex.h
+@@ -39,4 +39,6 @@ get_cycles (void)
+ 	return ret;
+ }
  
- #define MOV_FROM_IFA(reg)	\
-@@ -136,7 +141,8 @@
++extern void ia64_cpu_local_tick (void);
++
+ #endif /* _ASM_IA64_TIMEX_H */
+diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
+index 3ab8373..8de0f46 100644
+--- a/arch/ia64/kernel/process.c
++++ b/arch/ia64/kernel/process.c
+@@ -251,7 +251,6 @@ default_idle (void)
+ /* We don't actually take CPU down, just spin without interrupts. */
+ static inline void play_dead(void)
+ {
+-	extern void ia64_cpu_local_tick (void);
+ 	unsigned int this_cpu = smp_processor_id();
  
- #define SSM_PSR_I(pred, pred_clob, clob)	\
- (pred)	ssm psr.i				\
--	CLOBBER(clob)
-+	CLOBBER(clob)				\
-+	CLOBBER_PRED(pred_clob)
- 
- #define RSM_PSR_I(pred, clob0, clob1)	\
- (pred)	rsm psr.i			\
+ 	/* Ack it */
 -- 
 1.6.0.2
