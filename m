@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 29/33] ia64/xen: define xen machine vector for domU.
-Date: Fri, 17 Oct 2008 11:18:09 +0900
-Message-ID: <1224209893-2032-30-git-send-email-yamahata__33432.8319448561$1224212364$gmane$org@valinux.co.jp>
+Subject: [PATCH 10/33] ia64/xen: add a necessary header file to compile
+	include/xen/interface/xen.h
+Date: Fri, 17 Oct 2008 11:17:50 +0900
+Message-ID: <1224209893-2032-11-git-send-email-yamahata__3654.64658611945$1224212626$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,130 +22,77 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define xen machine vector for domU.
+Create include/asm-ia64/pvclock-abi.h to compile which contains
+the same definitions of include/asm-x86/pvclock-abi.h because ia64/xen
+uses same structure.
+Hopefully include/asm-x86/pvclock-abi.h would be moved to somewhere
+more generic.
+
+Another approach is to include include/asm-x86/pvclock-abi.h
+from include/asm-ia64/pvclock-abi.h. But this would break
+if x86 header files are moved under arch/x86.
+So for now, same definitions are duplicated as suggested by Tony.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- arch/ia64/Makefile                  |    2 ++
- arch/ia64/include/asm/machvec.h     |    2 ++
- arch/ia64/include/asm/machvec_xen.h |   22 ++++++++++++++++++++++
- arch/ia64/kernel/acpi.c             |    5 +++++
- arch/ia64/xen/Makefile              |    2 ++
- arch/ia64/xen/machvec.c             |    4 ++++
- 6 files changed, 37 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/machvec_xen.h
- create mode 100644 arch/ia64/xen/machvec.c
+ arch/ia64/include/asm/pvclock-abi.h |   48 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 48 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/pvclock-abi.h
 
-diff --git a/arch/ia64/Makefile b/arch/ia64/Makefile
-index 905d25b..4024250 100644
---- a/arch/ia64/Makefile
-+++ b/arch/ia64/Makefile
-@@ -56,9 +56,11 @@ core-$(CONFIG_IA64_DIG) 	+= arch/ia64/dig/
- core-$(CONFIG_IA64_GENERIC) 	+= arch/ia64/dig/
- core-$(CONFIG_IA64_HP_ZX1)	+= arch/ia64/dig/
- core-$(CONFIG_IA64_HP_ZX1_SWIOTLB) += arch/ia64/dig/
-+core-$(CONFIG_IA64_XEN_GUEST)	+= arch/ia64/dig/
- core-$(CONFIG_IA64_SGI_SN2)	+= arch/ia64/sn/
- core-$(CONFIG_IA64_SGI_UV)	+= arch/ia64/uv/
- core-$(CONFIG_KVM) 		+= arch/ia64/kvm/
-+core-$(CONFIG_XEN)		+= arch/ia64/xen/
- 
- drivers-$(CONFIG_PCI)		+= arch/ia64/pci/
- drivers-$(CONFIG_IA64_HP_SIM)	+= arch/ia64/hp/sim/
-diff --git a/arch/ia64/include/asm/machvec.h b/arch/ia64/include/asm/machvec.h
-index 2b850cc..de99cb2 100644
---- a/arch/ia64/include/asm/machvec.h
-+++ b/arch/ia64/include/asm/machvec.h
-@@ -128,6 +128,8 @@ extern void machvec_tlb_migrate_finish (struct mm_struct *);
- #  include <asm/machvec_sn2.h>
- # elif defined (CONFIG_IA64_SGI_UV)
- #  include <asm/machvec_uv.h>
-+# elif defined (CONFIG_IA64_XEN_GUEST)
-+#  include <asm/machvec_xen.h>
- # elif defined (CONFIG_IA64_GENERIC)
- 
- # ifdef MACHVEC_PLATFORM_HEADER
-diff --git a/arch/ia64/include/asm/machvec_xen.h b/arch/ia64/include/asm/machvec_xen.h
+diff --git a/arch/ia64/include/asm/pvclock-abi.h b/arch/ia64/include/asm/pvclock-abi.h
 new file mode 100644
-index 0000000..55f9228
+index 0000000..38a7a9e
 --- /dev/null
-+++ b/arch/ia64/include/asm/machvec_xen.h
-@@ -0,0 +1,22 @@
-+#ifndef _ASM_IA64_MACHVEC_XEN_h
-+#define _ASM_IA64_MACHVEC_XEN_h
++++ b/arch/ia64/include/asm/pvclock-abi.h
+@@ -0,0 +1,48 @@
++/*
++ * same structure to x86's
++ * Hopefully asm-x86/pvclock-abi.h would be moved to somewhere more generic.
++ * For now, define same duplicated definitions.
++ */
 +
-+extern ia64_mv_setup_t			dig_setup;
-+extern ia64_mv_cpu_init_t		xen_cpu_init;
-+extern ia64_mv_irq_init_t		xen_irq_init;
-+extern ia64_mv_send_ipi_t		xen_platform_send_ipi;
++#ifndef ASM_IA64__PVCLOCK_ABI_H
++#define ASM_IA64__PVCLOCK_ABI_H
++#ifndef __ASSEMBLY__
 +
 +/*
-+ * This stuff has dual use!
++ * These structs MUST NOT be changed.
++ * They are the ABI between hypervisor and guest OS.
++ * Both Xen and KVM are using this.
 + *
-+ * For a generic kernel, the macros are used to initialize the
-+ * platform's machvec structure.  When compiling a non-generic kernel,
-+ * the macros are used directly.
++ * pvclock_vcpu_time_info holds the system time and the tsc timestamp
++ * of the last update. So the guest can use the tsc delta to get a
++ * more precise system time.  There is one per virtual cpu.
++ *
++ * pvclock_wall_clock references the point in time when the system
++ * time was zero (usually boot time), thus the guest calculates the
++ * current wall clock by adding the system time.
++ *
++ * Protocol for the "version" fields is: hypervisor raises it (making
++ * it uneven) before it starts updating the fields and raises it again
++ * (making it even) when it is done.  Thus the guest can make sure the
++ * time values it got are consistent by checking the version before
++ * and after reading them.
 + */
-+#define platform_name				"xen"
-+#define platform_setup				dig_setup
-+#define platform_cpu_init			xen_cpu_init
-+#define platform_irq_init			xen_irq_init
-+#define platform_send_ipi			xen_platform_send_ipi
 +
-+#endif /* _ASM_IA64_MACHVEC_XEN_h */
-diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
-index 5d1eb7e..0093649 100644
---- a/arch/ia64/kernel/acpi.c
-+++ b/arch/ia64/kernel/acpi.c
-@@ -52,6 +52,7 @@
- #include <asm/numa.h>
- #include <asm/sal.h>
- #include <asm/cyclone.h>
-+#include <asm/xen/hypervisor.h>
- 
- #define BAD_MADT_ENTRY(entry, end) (                                        \
- 		(!entry) || (unsigned long)entry + sizeof(*entry) > end ||  \
-@@ -121,6 +122,8 @@ acpi_get_sysname(void)
- 			return "uv";
- 		else
- 			return "sn2";
-+	} else if (xen_pv_domain() && !strcmp(hdr->oem_id, "XEN")) {
-+		return "xen";
- 	}
- 
- 	return "dig";
-@@ -137,6 +140,8 @@ acpi_get_sysname(void)
- 	return "uv";
- # elif defined (CONFIG_IA64_DIG)
- 	return "dig";
-+# elif defined (CONFIG_IA64_XEN_GUEST)
-+	return "xen";
- # else
- #	error Unknown platform.  Fix acpi.c.
- # endif
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index ed31c76..972d085 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -5,6 +5,8 @@
- obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
- 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
- 
-+obj-$(CONFIG_IA64_GENERIC) += machvec.o
++struct pvclock_vcpu_time_info {
++	u32   version;
++	u32   pad0;
++	u64   tsc_timestamp;
++	u64   system_time;
++	u32   tsc_to_system_mul;
++	s8    tsc_shift;
++	u8    pad[3];
++} __attribute__((__packed__)); /* 32 bytes */
 +
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
- 
- # xen multi compile
-diff --git a/arch/ia64/xen/machvec.c b/arch/ia64/xen/machvec.c
-new file mode 100644
-index 0000000..4ad588a
---- /dev/null
-+++ b/arch/ia64/xen/machvec.c
-@@ -0,0 +1,4 @@
-+#define MACHVEC_PLATFORM_NAME           xen
-+#define MACHVEC_PLATFORM_HEADER         <asm/machvec_xen.h>
-+#include <asm/machvec_init.h>
++struct pvclock_wall_clock {
++	u32   version;
++	u32   sec;
++	u32   nsec;
++} __attribute__((__packed__));
 +
++#endif /* __ASSEMBLY__ */
++#endif /* ASM_IA64__PVCLOCK_ABI_H */
 -- 
 1.6.0.2
