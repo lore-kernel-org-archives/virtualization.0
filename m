@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 32/33] ia64/xen: a recipe for using xen/ia64 with pv_ops.
-Date: Fri, 17 Oct 2008 11:18:12 +0900
-Message-ID: <1224209893-2032-33-git-send-email-yamahata__24379.1003748358$1224211404$gmane$org@valinux.co.jp>
+Subject: [PATCH 17/33] ia64/xen: introduce helper function to identify domain
+	mode.
+Date: Fri, 17 Oct 2008 11:17:57 +0900
+Message-ID: <1224209893-2032-18-git-send-email-yamahata__10681.3232800507$1224211573$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,206 +19,101 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, mingo@elte.hu, xen-ia64-devel@lists.xensource.com
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Recipe for useing xen/ia64 with pv_ops domU.
+There are four operating modes Xen code may find itself running in:
+- native
+- hvm domain
+- pv dom0
+- pv domU
 
-Signed-off-by: Akio Takebe <takebe_akio@jp.fujitsu.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- Documentation/ia64/xen.txt |  183 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 183 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/ia64/xen.txt
+ arch/ia64/include/asm/xen/hypervisor.h |   75 ++++++++++++++++++++++++++++++++
+ 1 files changed, 75 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/hypervisor.h
 
-diff --git a/Documentation/ia64/xen.txt b/Documentation/ia64/xen.txt
+diff --git a/arch/ia64/include/asm/xen/hypervisor.h b/arch/ia64/include/asm/xen/hypervisor.h
 new file mode 100644
-index 0000000..a5c6993
+index 0000000..d1f84e1
 --- /dev/null
-+++ b/Documentation/ia64/xen.txt
-@@ -0,0 +1,183 @@
-+       Recipe for getting/building/running Xen/ia64 with pv_ops
-+       --------------------------------------------------------
++++ b/arch/ia64/include/asm/xen/hypervisor.h
+@@ -0,0 +1,75 @@
++/******************************************************************************
++ * hypervisor.h
++ *
++ * Linux-specific hypervisor handling.
++ *
++ * Copyright (c) 2002-2004, K A Fraser
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
 +
-+This recipe discribes how to get xen-ia64 source and build it,
-+and run domU with pv_ops.
++#ifndef _ASM_IA64_XEN_HYPERVISOR_H
++#define _ASM_IA64_XEN_HYPERVISOR_H
 +
-+===========
-+Requirement
-+===========
++#ifdef CONFIG_XEN
 +
-+  - python
-+  - mercurial
-+    it (aka "hg") is a open-source source code
-+    management software. See the below.
-+    http://www.selenic.com/mercurial/wiki/
-+  - git
-+  - bridge-utils
++#include <linux/init.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/version.h>	/* to compile feature.c */
++#include <xen/features.h>		/* to comiple xen-netfront.c */
++#include <asm/xen/hypercall.h>
 +
-+=================================
-+Getting and Building Xen and Dom0
-+=================================
++/* xen_domain_type is set before executing any C code by early_xen_setup */
++enum xen_domain_type {
++	XEN_NATIVE,
++	XEN_PV_DOMAIN,
++	XEN_HVM_DOMAIN,
++};
 +
-+  My enviroment is;
-+    Machine  : Tiger4
-+    Domain0 OS  : RHEL5
-+    DomainU OS  : RHEL5
++extern enum xen_domain_type xen_domain_type;
 +
-+ 1. Download source
-+    # hg clone http://xenbits.xensource.com/ext/ia64/xen-unstable.hg
-+    # cd xen-unstable.hg
-+    # hg clone http://xenbits.xensource.com/ext/ia64/linux-2.6.18-xen.hg
++#define xen_domain()		(xen_domain_type != XEN_NATIVE)
++#define xen_pv_domain()		(xen_domain_type == XEN_PV_DOMAIN)
++#define xen_initial_domain()	(xen_pv_domain() && \
++				 (xen_start_info->flags & SIF_INITDOMAIN))
++#define xen_hvm_domain()	(xen_domain_type == XEN_HVM_DOMAIN)
 +
-+ 2. # make world
++/* deprecated. remove this */
++#define is_running_on_xen()	(xen_domain_type == XEN_PV_DOMAIN)
 +
-+ 3. # make install-tools
++extern struct start_info *xen_start_info;
 +
-+ 4. copy kernels and xen
-+    # cp xen/xen.gz /boot/efi/efi/redhat/
-+    # cp build-linux-2.6.18-xen_ia64/vmlinux.gz \
-+      /boot/efi/efi/redhat/vmlinuz-2.6.18.8-xen
++#else /* CONFIG_XEN */
 +
-+ 5. make initrd for Dom0/DomU
-+    # make -C linux-2.6.18-xen.hg ARCH=ia64 modules_install \
-+      O=$(/bin/pwd)/build-linux-2.6.18-xen_ia64
-+    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6.18.8-xen.img \
-+      2.6.18.8-xen --builtin mptspi --builtin mptbase \
-+      --builtin mptscsih --builtin uhci-hcd --builtin ohci-hcd \
-+      --builtin ehci-hcd
++#define xen_domain()		(0)
++#define xen_pv_domain()		(0)
++#define xen_initial_domain()	(0)
++#define xen_hvm_domain()	(0)
++#define is_running_on_xen()	(0)	/* deprecated. remove this */
++#endif
 +
-+================================
-+Making a disk image for guest OS
-+================================
++#define is_initial_xendomain()	(0)	/* deprecated. remove this */
 +
-+ 1. make file
-+    # dd if=/dev/zero of=/root/rhel5.img bs=1M seek=4096 count=0
-+    # mke2fs -F -j /root/rhel5.img
-+    # mount -o loop /root/rhel5.img /mnt
-+    # cp -ax /{dev,var,etc,usr,bin,sbin,lib} /mnt
-+    # mkdir /mnt/{root,proc,sys,home,tmp}
-+
-+    Note: You may miss some device files. If so, please create them
-+    with mknod. Or you can use tar intead of cp.
-+
-+ 2. modify DomU's fstab
-+    # vi /mnt/etc/fstab
-+       /dev/xvda1  /            ext3    defaults        1 1
-+       none        /dev/pts     devpts  gid=5,mode=620  0 0
-+       none        /dev/shm     tmpfs   defaults        0 0
-+       none        /proc        proc    defaults        0 0
-+       none        /sys         sysfs   defaults        0 0
-+
-+ 3. modify inittab
-+    set runlevel to 3 to avoid X trying to start
-+    # vi /mnt/etc/inittab
-+       id:3:initdefault:
-+    Start a getty on the hvc0 console
-+       X0:2345:respawn:/sbin/mingetty hvc0
-+    tty1-6 mingetty can be commented out
-+
-+ 4. add hvc0 into /etc/securetty
-+    # vi /mnt/etc/securetty (add hvc0)
-+
-+ 5. umount
-+    # umount /mnt
-+
-+FYI, virt-manager can also make a disk image for guest OS.
-+It's GUI tools and easy to make it.
-+
-+==================
-+Boot Xen & Domain0
-+==================
-+
-+ 1. replace elilo
-+    elilo of RHEL5 can boot Xen and Dom0.
-+    If you use old elilo (e.g RHEL4), please download from the below
-+    http://elilo.sourceforge.net/cgi-bin/blosxom
-+    and copy into /boot/efi/efi/redhat/
-+    # cp elilo-3.6-ia64.efi /boot/efi/efi/redhat/elilo.efi
-+
-+ 2. modify elilo.conf (like the below)
-+    # vi /boot/efi/efi/redhat/elilo.conf
-+     prompt
-+     timeout=20
-+     default=xen
-+     relocatable
-+
-+     image=vmlinuz-2.6.18.8-xen
-+             label=xen
-+             vmm=xen.gz
-+             initrd=initrd-2.6.18.8-xen.img
-+             read-only
-+             append=" -- rhgb root=/dev/sda2"
-+
-+The append options before "--" are for xen hypervisor,
-+the options after "--" are for dom0.
-+
-+FYI, your machine may need console options like
-+"com1=19200,8n1 console=vga,com1". For example,
-+append="com1=19200,8n1 console=vga,com1 -- rhgb console=tty0 \
-+console=ttyS0 root=/dev/sda2"
-+
-+=====================================
-+Getting and Building domU with pv_ops
-+=====================================
-+
-+ 1. get pv_ops tree
-+    # git clone http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
-+
-+ 2. git branch (if necessary)
-+    # cd linux-2.6-xen-ia64/
-+    # git checkout -b your_branch origin/xen-ia64-domu-minimal-2008may19
-+    (Note: The current branch is xen-ia64-domu-minimal-2008may19.
-+    But you would find the new branch. You can see with
-+    "git branch -r" to get the branch lists.
-+    http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
-+    is also available. The tree is based on
-+    git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6 test)
-+
-+
-+ 3. copy .config for pv_ops of domU
-+    # cp arch/ia64/configs/xen_domu_wip_defconfig .config
-+
-+ 4. make kernel with pv_ops
-+    # make oldconfig
-+    # make
-+
-+ 5. install the kernel and initrd
-+    # cp vmlinux.gz /boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU
-+    # make modules_install
-+    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img \
-+      2.6.26-rc3xen-ia64-08941-g1b12161 --builtin mptspi \
-+      --builtin mptbase --builtin mptscsih --builtin uhci-hcd \
-+      --builtin ohci-hcd --builtin ehci-hcd
-+
-+========================
-+Boot DomainU with pv_ops
-+========================
-+
-+ 1. make config of DomU
-+   # vi /etc/xen/rhel5
-+     kernel = "/boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU"
-+     ramdisk = "/boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img"
-+     vcpus = 1
-+     memory = 512
-+     name = "rhel5"
-+     disk = [ 'file:/root/rhel5.img,xvda1,w' ]
-+     root = "/dev/xvda1 ro"
-+     extra= "rhgb console=hvc0"
-+
-+ 2. After boot xen and dom0, start xend
-+   # /etc/init.d/xend start
-+   ( In the debugging case, # XEND_DEBUG=1 xend trace_start )
-+
-+ 3. start domU
-+   # xm create -c rhel5
-+
-+=========
-+Reference
-+=========
-+- Wiki of Xen/IA64 upstream merge
-+  http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
-+
-+Witten by Akio Takebe <takebe_akio@jp.fujitsu.com> on 28 May 2008
++#endif /* _ASM_IA64_XEN_HYPERVISOR_H */
 -- 
 1.6.0.2
