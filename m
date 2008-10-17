@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 23/33] ia64/pv_ops/xen: paravirtualize ivt.S for xen.
-Date: Fri, 17 Oct 2008 11:18:03 +0900
-Message-ID: <1224209893-2032-24-git-send-email-yamahata__32607.0700808943$1224214214$gmane$org@valinux.co.jp>
+Subject: [PATCH 25/33] ia64/pv_ops/xen: implement xen pv_iosapic_ops.
+Date: Fri, 17 Oct 2008 11:18:05 +0900
+Message-ID: <1224209893-2032-26-git-send-email-yamahata__6138.75292842767$1224214311$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,110 +21,83 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize ivt.S for xen by multi compile.
+implement xen pv_iosapic_ops for xen paravirtualized
+iosapic.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/inst.h |    1 +
- arch/ia64/xen/Makefile           |   16 +++++++++++-
- arch/ia64/xen/xenivt.S           |   52 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 68 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/xenivt.S
+ arch/ia64/xen/xen_pv_ops.c |   52 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 52 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
-index 1e92ed0..e6a25c3 100644
---- a/arch/ia64/include/asm/xen/inst.h
-+++ b/arch/ia64/include/asm/xen/inst.h
-@@ -22,6 +22,7 @@
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 5b23cd5..41a6cbf 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -292,6 +292,57 @@ const struct pv_cpu_asm_switch xen_cpu_asm_switch = {
+ };
  
- #include <asm/xen/privop.h>
- 
-+#define ia64_ivt				xen_ivt
- #define DO_SAVE_MIN				XEN_DO_SAVE_MIN
- 
- #define MOV_FROM_IFA(reg)	\
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 7cb4247..5c87e4a 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -2,5 +2,19 @@
- # Makefile for Xen components
- #
- 
--obj-y := hypercall.o xensetup.o xen_pv_ops.o \
-+obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o \
- 	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
-+
-+AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
-+
-+# xen multi compile
-+ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S
-+ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
-+obj-y += $(ASM_PARAVIRT_OBJS)
-+define paravirtualized_xen
-+AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_XEN
-+endef
-+$(foreach o,$(ASM_PARAVIRT_OBJS),$(eval $(call paravirtualized_xen,$(o))))
-+
-+$(obj)/xen-%.o: $(src)/../kernel/%.S FORCE
-+	$(call if_changed_dep,as_o_S)
-diff --git a/arch/ia64/xen/xenivt.S b/arch/ia64/xen/xenivt.S
-new file mode 100644
-index 0000000..3e71d50
---- /dev/null
-+++ b/arch/ia64/xen/xenivt.S
-@@ -0,0 +1,52 @@
-+/*
-+ * arch/ia64/xen/ivt.S
-+ *
-+ * Copyright (C) 2005 Hewlett-Packard Co
-+ *	Dan Magenheimer <dan.magenheimer@hp.com>
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *                    pv_ops.
+ /***************************************************************************
++ * pv_iosapic_ops
++ * iosapic read/write hooks.
 + */
++static void
++xen_pcat_compat_init(void)
++{
++	/* nothing */
++}
 +
-+#include <asm/asmmacro.h>
-+#include <asm/kregs.h>
-+#include <asm/pgtable.h>
++static struct irq_chip*
++xen_iosapic_get_irq_chip(unsigned long trigger)
++{
++	return NULL;
++}
 +
-+#include "../kernel/minstate.h"
++static unsigned int
++xen_iosapic_read(char __iomem *iosapic, unsigned int reg)
++{
++	struct physdev_apic apic_op;
++	int ret;
 +
-+	.section .text,"ax"
-+GLOBAL_ENTRY(xen_event_callback)
-+	mov r31=pr		// prepare to save predicates
-+	;;
-+	SAVE_MIN_WITH_COVER	// uses r31; defines r2 and r3
-+	;;
-+	movl r3=XSI_PSR_IC
-+	mov r14=1
-+	;;
-+	st4 [r3]=r14
-+	;;
-+	adds r3=8,r2		// set up second base pointer for SAVE_REST
-+	srlz.i			// ensure everybody knows psr.ic is back on
-+	;;
-+	SAVE_REST
-+	;;
-+1:
-+	alloc r14=ar.pfs,0,0,1,0 // must be first in an insn group
-+	add out0=16,sp		// pass pointer to pt_regs as first arg
-+	;;
-+	br.call.sptk.many b0=xen_evtchn_do_upcall
-+	;;
-+	movl r20=XSI_PSR_I_ADDR
-+	;;
-+	ld8 r20=[r20]
-+	;;
-+	adds r20=-1,r20		// vcpu_info->evtchn_upcall_pending
-+	;;
-+	ld1 r20=[r20]
-+	;;
-+	cmp.ne p6,p0=r20,r0	// if there are pending events,
-+	(p6) br.spnt.few 1b	// call evtchn_do_upcall again.
-+	br.sptk.many xen_leave_kernel	// we know ia64_leave_kernel is
-+					// paravirtualized as xen_leave_kernel
-+END(xen_event_callback)
++	apic_op.apic_physbase = (unsigned long)iosapic -
++					__IA64_UNCACHED_OFFSET;
++	apic_op.reg = reg;
++	ret = HYPERVISOR_physdev_op(PHYSDEVOP_apic_read, &apic_op);
++	if (ret)
++		return ret;
++	return apic_op.value;
++}
++
++static void
++xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
++{
++	struct physdev_apic apic_op;
++
++	apic_op.apic_physbase = (unsigned long)iosapic -
++					__IA64_UNCACHED_OFFSET;
++	apic_op.reg = reg;
++	apic_op.value = val;
++	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
++}
++
++static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
++	.pcat_compat_init = xen_pcat_compat_init,
++	.__get_irq_chip = xen_iosapic_get_irq_chip,
++
++	.__read = xen_iosapic_read,
++	.__write = xen_iosapic_write,
++};
++
++/***************************************************************************
+  * pv_ops initialization
+  */
+ 
+@@ -302,6 +353,7 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_cpu_ops = xen_cpu_ops;
++	pv_iosapic_ops = xen_iosapic_ops;
+ 
+ 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
+ }
 -- 
 1.6.0.2
