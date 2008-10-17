@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 06/33] ia64/xen: introduce sync bitops which is necessary for
-	ia64/xen support.
-Date: Fri, 17 Oct 2008 11:17:46 +0900
-Message-ID: <1224209893-2032-7-git-send-email-yamahata__20897.584493696$1224210881$gmane$org@valinux.co.jp>
+Subject: [PATCH 30/33] ia64/xen: preliminary support for save/restore.
+Date: Fri, 17 Oct 2008 11:18:10 +0900
+Message-ID: <1224209893-2032-31-git-send-email-yamahata__19332.7444176704$1224211164$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,79 +18,154 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, Robin Holt <holt@sgi.com>, mingo@elte.hu, xen-ia64-devel@lists.xensource.com
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-define sync bitops which is necessary for ia64/xen.
-This bit operation is used to communicate with VMM or other guest kernel
-Even when this kernel is built for UP, VMM might be SMP so that those operation
-must always use atomic operation.
+preliminary support for save/restore.
+Although Save/restore isn't fully working yet, this patch is necessary
+to compile.
 
-Cc: Robin Holt <holt@sgi.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
-Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- arch/ia64/include/asm/sync_bitops.h |   51 +++++++++++++++++++++++++++++++++++
- 1 files changed, 51 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/sync_bitops.h
+ arch/ia64/xen/Makefile              |    2 +-
+ arch/ia64/xen/{time.h => suspend.c} |   45 +++++++++++++++++++++++++++++++++-
+ arch/ia64/xen/time.c                |   33 +++++++++++++++++++++++++
+ arch/ia64/xen/time.h                |    1 +
+ 4 files changed, 78 insertions(+), 3 deletions(-)
+ copy arch/ia64/xen/{time.h => suspend.c} (64%)
 
-diff --git a/arch/ia64/include/asm/sync_bitops.h b/arch/ia64/include/asm/sync_bitops.h
-new file mode 100644
-index 0000000..593c12e
---- /dev/null
-+++ b/arch/ia64/include/asm/sync_bitops.h
-@@ -0,0 +1,51 @@
-+#ifndef _ASM_IA64_SYNC_BITOPS_H
-+#define _ASM_IA64_SYNC_BITOPS_H
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index 972d085..0ad0224 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -3,7 +3,7 @@
+ #
+ 
+ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
+-	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
++	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o suspend.o
+ 
+ obj-$(CONFIG_IA64_GENERIC) += machvec.o
+ 
+diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/suspend.c
+similarity index 64%
+copy from arch/ia64/xen/time.h
+copy to arch/ia64/xen/suspend.c
+index b9c7ec5..fd66b04 100644
+--- a/arch/ia64/xen/time.h
++++ b/arch/ia64/xen/suspend.c
+@@ -1,5 +1,5 @@
+ /******************************************************************************
+- * arch/ia64/xen/time.h
++ * arch/ia64/xen/suspend.c
+  *
+  * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
+  *                    VA Linux Systems Japan K.K.
+@@ -18,6 +18,47 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  *
++ * suspend/resume
+  */
+ 
+-extern struct pv_time_ops xen_time_ops __initdata;
++#include <xen/xen-ops.h>
++#include <asm/xen/hypervisor.h>
++#include "time.h"
 +
-+/*
-+ * Copyright (C) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *
-+ * Based on synch_bitops.h which Dan Magenhaimer wrote.
-+ *
-+ * bit operations which provide guaranteed strong synchronisation
-+ * when communicating with Xen or other guest OSes running on other CPUs.
-+ */
-+
-+static inline void sync_set_bit(int nr, volatile void *addr)
++void
++xen_mm_pin_all(void)
 +{
-+	set_bit(nr, addr);
++	/* nothing */
 +}
 +
-+static inline void sync_clear_bit(int nr, volatile void *addr)
++void
++xen_mm_unpin_all(void)
 +{
-+	clear_bit(nr, addr);
++	/* nothing */
 +}
 +
-+static inline void sync_change_bit(int nr, volatile void *addr)
++void xen_pre_device_suspend(void)
 +{
-+	change_bit(nr, addr);
++	/* nothing */
 +}
 +
-+static inline int sync_test_and_set_bit(int nr, volatile void *addr)
++void
++xen_pre_suspend()
 +{
-+	return test_and_set_bit(nr, addr);
++	/* nothing */
 +}
 +
-+static inline int sync_test_and_clear_bit(int nr, volatile void *addr)
++void
++xen_post_suspend(int suspend_cancelled)
 +{
-+	return test_and_clear_bit(nr, addr);
++	if (suspend_cancelled)
++		return;
++
++	xen_ia64_enable_opt_feature();
++	/* add more if necessary */
 +}
 +
-+static inline int sync_test_and_change_bit(int nr, volatile void *addr)
++void xen_arch_resume(void)
 +{
-+	return test_and_change_bit(nr, addr);
++	xen_timer_resume_on_aps();
++}
+diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
+index ec168ec..d15a94c 100644
+--- a/arch/ia64/xen/time.c
++++ b/arch/ia64/xen/time.c
+@@ -26,6 +26,8 @@
+ #include <linux/irq.h>
+ #include <linux/clocksource.h>
+ 
++#include <asm/timex.h>
++
+ #include <asm/xen/hypervisor.h>
+ 
+ #include <xen/interface/vcpu.h>
+@@ -178,3 +180,34 @@ struct pv_time_ops xen_time_ops __initdata = {
+ 	.do_steal_accounting		= xen_do_steal_accounting,
+ 	.clocksource_resume		= xen_itc_jitter_data_reset,
+ };
++
++/* Called after suspend, to resume time.  */
++static void xen_local_tick_resume(void)
++{
++	/* Just trigger a tick.  */
++	ia64_cpu_local_tick();
++	touch_softlockup_watchdog();
 +}
 +
-+static inline int sync_test_bit(int nr, const volatile void *addr)
++void
++xen_timer_resume(void)
 +{
-+	return test_bit(nr, addr);
++	unsigned int cpu;
++
++	xen_local_tick_resume();
++
++	for_each_online_cpu(cpu)
++		xen_init_missing_ticks_accounting(cpu);
 +}
 +
-+#define sync_cmpxchg(ptr, old, new)				\
-+	((__typeof__(*(ptr)))cmpxchg_acq((ptr), (old), (new)))
++static void ia64_cpu_local_tick_fn(void *unused)
++{
++	xen_local_tick_resume();
++	xen_init_missing_ticks_accounting(smp_processor_id());
++}
 +
-+#endif /* _ASM_IA64_SYNC_BITOPS_H */
++void
++xen_timer_resume_on_aps(void)
++{
++	smp_call_function(&ia64_cpu_local_tick_fn, NULL, 1);
++}
+diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
+index b9c7ec5..f98d7e1 100644
+--- a/arch/ia64/xen/time.h
++++ b/arch/ia64/xen/time.h
+@@ -21,3 +21,4 @@
+  */
+ 
+ extern struct pv_time_ops xen_time_ops __initdata;
++void xen_timer_resume_on_aps(void);
 -- 
 1.6.0.2
