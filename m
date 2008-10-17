@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 30/33] ia64/xen: preliminary support for save/restore.
-Date: Fri, 17 Oct 2008 11:18:10 +0900
-Message-ID: <1224209893-2032-31-git-send-email-yamahata__19332.7444176704$1224211164$gmane$org@valinux.co.jp>
+Subject: [PATCH 32/33] ia64/xen: a recipe for using xen/ia64 with pv_ops.
+Date: Fri, 17 Oct 2008 11:18:12 +0900
+Message-ID: <1224209893-2032-33-git-send-email-yamahata__24379.1003748358$1224211404$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,154 +18,206 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, mingo@elte.hu, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-preliminary support for save/restore.
-Although Save/restore isn't fully working yet, this patch is necessary
-to compile.
+Recipe for useing xen/ia64 with pv_ops domU.
 
+Signed-off-by: Akio Takebe <takebe_akio@jp.fujitsu.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/Makefile              |    2 +-
- arch/ia64/xen/{time.h => suspend.c} |   45 +++++++++++++++++++++++++++++++++-
- arch/ia64/xen/time.c                |   33 +++++++++++++++++++++++++
- arch/ia64/xen/time.h                |    1 +
- 4 files changed, 78 insertions(+), 3 deletions(-)
- copy arch/ia64/xen/{time.h => suspend.c} (64%)
+ Documentation/ia64/xen.txt |  183 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 183 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/ia64/xen.txt
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 972d085..0ad0224 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -3,7 +3,7 @@
- #
- 
- obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
--	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
-+	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o suspend.o
- 
- obj-$(CONFIG_IA64_GENERIC) += machvec.o
- 
-diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/suspend.c
-similarity index 64%
-copy from arch/ia64/xen/time.h
-copy to arch/ia64/xen/suspend.c
-index b9c7ec5..fd66b04 100644
---- a/arch/ia64/xen/time.h
-+++ b/arch/ia64/xen/suspend.c
-@@ -1,5 +1,5 @@
- /******************************************************************************
-- * arch/ia64/xen/time.h
-+ * arch/ia64/xen/suspend.c
-  *
-  * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-  *                    VA Linux Systems Japan K.K.
-@@ -18,6 +18,47 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  *
-+ * suspend/resume
-  */
- 
--extern struct pv_time_ops xen_time_ops __initdata;
-+#include <xen/xen-ops.h>
-+#include <asm/xen/hypervisor.h>
-+#include "time.h"
+diff --git a/Documentation/ia64/xen.txt b/Documentation/ia64/xen.txt
+new file mode 100644
+index 0000000..a5c6993
+--- /dev/null
++++ b/Documentation/ia64/xen.txt
+@@ -0,0 +1,183 @@
++       Recipe for getting/building/running Xen/ia64 with pv_ops
++       --------------------------------------------------------
 +
-+void
-+xen_mm_pin_all(void)
-+{
-+	/* nothing */
-+}
++This recipe discribes how to get xen-ia64 source and build it,
++and run domU with pv_ops.
 +
-+void
-+xen_mm_unpin_all(void)
-+{
-+	/* nothing */
-+}
++===========
++Requirement
++===========
 +
-+void xen_pre_device_suspend(void)
-+{
-+	/* nothing */
-+}
++  - python
++  - mercurial
++    it (aka "hg") is a open-source source code
++    management software. See the below.
++    http://www.selenic.com/mercurial/wiki/
++  - git
++  - bridge-utils
 +
-+void
-+xen_pre_suspend()
-+{
-+	/* nothing */
-+}
++=================================
++Getting and Building Xen and Dom0
++=================================
 +
-+void
-+xen_post_suspend(int suspend_cancelled)
-+{
-+	if (suspend_cancelled)
-+		return;
++  My enviroment is;
++    Machine  : Tiger4
++    Domain0 OS  : RHEL5
++    DomainU OS  : RHEL5
 +
-+	xen_ia64_enable_opt_feature();
-+	/* add more if necessary */
-+}
++ 1. Download source
++    # hg clone http://xenbits.xensource.com/ext/ia64/xen-unstable.hg
++    # cd xen-unstable.hg
++    # hg clone http://xenbits.xensource.com/ext/ia64/linux-2.6.18-xen.hg
 +
-+void xen_arch_resume(void)
-+{
-+	xen_timer_resume_on_aps();
-+}
-diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
-index ec168ec..d15a94c 100644
---- a/arch/ia64/xen/time.c
-+++ b/arch/ia64/xen/time.c
-@@ -26,6 +26,8 @@
- #include <linux/irq.h>
- #include <linux/clocksource.h>
- 
-+#include <asm/timex.h>
++ 2. # make world
 +
- #include <asm/xen/hypervisor.h>
- 
- #include <xen/interface/vcpu.h>
-@@ -178,3 +180,34 @@ struct pv_time_ops xen_time_ops __initdata = {
- 	.do_steal_accounting		= xen_do_steal_accounting,
- 	.clocksource_resume		= xen_itc_jitter_data_reset,
- };
++ 3. # make install-tools
 +
-+/* Called after suspend, to resume time.  */
-+static void xen_local_tick_resume(void)
-+{
-+	/* Just trigger a tick.  */
-+	ia64_cpu_local_tick();
-+	touch_softlockup_watchdog();
-+}
++ 4. copy kernels and xen
++    # cp xen/xen.gz /boot/efi/efi/redhat/
++    # cp build-linux-2.6.18-xen_ia64/vmlinux.gz \
++      /boot/efi/efi/redhat/vmlinuz-2.6.18.8-xen
 +
-+void
-+xen_timer_resume(void)
-+{
-+	unsigned int cpu;
++ 5. make initrd for Dom0/DomU
++    # make -C linux-2.6.18-xen.hg ARCH=ia64 modules_install \
++      O=$(/bin/pwd)/build-linux-2.6.18-xen_ia64
++    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6.18.8-xen.img \
++      2.6.18.8-xen --builtin mptspi --builtin mptbase \
++      --builtin mptscsih --builtin uhci-hcd --builtin ohci-hcd \
++      --builtin ehci-hcd
 +
-+	xen_local_tick_resume();
++================================
++Making a disk image for guest OS
++================================
 +
-+	for_each_online_cpu(cpu)
-+		xen_init_missing_ticks_accounting(cpu);
-+}
++ 1. make file
++    # dd if=/dev/zero of=/root/rhel5.img bs=1M seek=4096 count=0
++    # mke2fs -F -j /root/rhel5.img
++    # mount -o loop /root/rhel5.img /mnt
++    # cp -ax /{dev,var,etc,usr,bin,sbin,lib} /mnt
++    # mkdir /mnt/{root,proc,sys,home,tmp}
 +
-+static void ia64_cpu_local_tick_fn(void *unused)
-+{
-+	xen_local_tick_resume();
-+	xen_init_missing_ticks_accounting(smp_processor_id());
-+}
++    Note: You may miss some device files. If so, please create them
++    with mknod. Or you can use tar intead of cp.
 +
-+void
-+xen_timer_resume_on_aps(void)
-+{
-+	smp_call_function(&ia64_cpu_local_tick_fn, NULL, 1);
-+}
-diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
-index b9c7ec5..f98d7e1 100644
---- a/arch/ia64/xen/time.h
-+++ b/arch/ia64/xen/time.h
-@@ -21,3 +21,4 @@
-  */
- 
- extern struct pv_time_ops xen_time_ops __initdata;
-+void xen_timer_resume_on_aps(void);
++ 2. modify DomU's fstab
++    # vi /mnt/etc/fstab
++       /dev/xvda1  /            ext3    defaults        1 1
++       none        /dev/pts     devpts  gid=5,mode=620  0 0
++       none        /dev/shm     tmpfs   defaults        0 0
++       none        /proc        proc    defaults        0 0
++       none        /sys         sysfs   defaults        0 0
++
++ 3. modify inittab
++    set runlevel to 3 to avoid X trying to start
++    # vi /mnt/etc/inittab
++       id:3:initdefault:
++    Start a getty on the hvc0 console
++       X0:2345:respawn:/sbin/mingetty hvc0
++    tty1-6 mingetty can be commented out
++
++ 4. add hvc0 into /etc/securetty
++    # vi /mnt/etc/securetty (add hvc0)
++
++ 5. umount
++    # umount /mnt
++
++FYI, virt-manager can also make a disk image for guest OS.
++It's GUI tools and easy to make it.
++
++==================
++Boot Xen & Domain0
++==================
++
++ 1. replace elilo
++    elilo of RHEL5 can boot Xen and Dom0.
++    If you use old elilo (e.g RHEL4), please download from the below
++    http://elilo.sourceforge.net/cgi-bin/blosxom
++    and copy into /boot/efi/efi/redhat/
++    # cp elilo-3.6-ia64.efi /boot/efi/efi/redhat/elilo.efi
++
++ 2. modify elilo.conf (like the below)
++    # vi /boot/efi/efi/redhat/elilo.conf
++     prompt
++     timeout=20
++     default=xen
++     relocatable
++
++     image=vmlinuz-2.6.18.8-xen
++             label=xen
++             vmm=xen.gz
++             initrd=initrd-2.6.18.8-xen.img
++             read-only
++             append=" -- rhgb root=/dev/sda2"
++
++The append options before "--" are for xen hypervisor,
++the options after "--" are for dom0.
++
++FYI, your machine may need console options like
++"com1=19200,8n1 console=vga,com1". For example,
++append="com1=19200,8n1 console=vga,com1 -- rhgb console=tty0 \
++console=ttyS0 root=/dev/sda2"
++
++=====================================
++Getting and Building domU with pv_ops
++=====================================
++
++ 1. get pv_ops tree
++    # git clone http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
++
++ 2. git branch (if necessary)
++    # cd linux-2.6-xen-ia64/
++    # git checkout -b your_branch origin/xen-ia64-domu-minimal-2008may19
++    (Note: The current branch is xen-ia64-domu-minimal-2008may19.
++    But you would find the new branch. You can see with
++    "git branch -r" to get the branch lists.
++    http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
++    is also available. The tree is based on
++    git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6 test)
++
++
++ 3. copy .config for pv_ops of domU
++    # cp arch/ia64/configs/xen_domu_wip_defconfig .config
++
++ 4. make kernel with pv_ops
++    # make oldconfig
++    # make
++
++ 5. install the kernel and initrd
++    # cp vmlinux.gz /boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU
++    # make modules_install
++    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img \
++      2.6.26-rc3xen-ia64-08941-g1b12161 --builtin mptspi \
++      --builtin mptbase --builtin mptscsih --builtin uhci-hcd \
++      --builtin ohci-hcd --builtin ehci-hcd
++
++========================
++Boot DomainU with pv_ops
++========================
++
++ 1. make config of DomU
++   # vi /etc/xen/rhel5
++     kernel = "/boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU"
++     ramdisk = "/boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img"
++     vcpus = 1
++     memory = 512
++     name = "rhel5"
++     disk = [ 'file:/root/rhel5.img,xvda1,w' ]
++     root = "/dev/xvda1 ro"
++     extra= "rhgb console=hvc0"
++
++ 2. After boot xen and dom0, start xend
++   # /etc/init.d/xend start
++   ( In the debugging case, # XEND_DEBUG=1 xend trace_start )
++
++ 3. start domU
++   # xm create -c rhel5
++
++=========
++Reference
++=========
++- Wiki of Xen/IA64 upstream merge
++  http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
++
++Witten by Akio Takebe <takebe_akio@jp.fujitsu.com> on 28 May 2008
 -- 
 1.6.0.2
