@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 02/33] ia64/pv_ops: avoid name conflict of get_irq_chip().
-Date: Fri, 17 Oct 2008 11:17:42 +0900
-Message-ID: <1224209893-2032-3-git-send-email-yamahata__35882.2511080236$1224210658$gmane$org@valinux.co.jp>
+Subject: [PATCH 05/33] ia64/xen: reserve "break" numbers used for xen
+	hypercalls.
+Date: Fri, 17 Oct 2008 11:17:45 +0900
+Message-ID: <1224209893-2032-6-git-send-email-yamahata__39783.1597635106$1224210765$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,50 +22,32 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The macro get_irq_chip() is defined in linux/include/linux/irq.h
-which cause name conflict with one in linux/arch/ia64/include/asm/paravirt.h.
-rename the latter to __get_irq_chip().
+reserve "break" numbers used for xen hypercalls to avoid
+reuse for something else.
 
+Cc: "Luck, Tony" <tony.luck@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/paravirt.h |    4 ++--
- arch/ia64/kernel/paravirt.c      |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/ia64/include/asm/break.h |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/include/asm/paravirt.h b/arch/ia64/include/asm/paravirt.h
-index 660cab0..2bf3636 100644
---- a/arch/ia64/include/asm/paravirt.h
-+++ b/arch/ia64/include/asm/paravirt.h
-@@ -117,7 +117,7 @@ static inline void paravirt_post_smp_prepare_boot_cpu(void)
- struct pv_iosapic_ops {
- 	void (*pcat_compat_init)(void);
+diff --git a/arch/ia64/include/asm/break.h b/arch/ia64/include/asm/break.h
+index f034020..e90c40e 100644
+--- a/arch/ia64/include/asm/break.h
++++ b/arch/ia64/include/asm/break.h
+@@ -20,4 +20,13 @@
+  */
+ #define __IA64_BREAK_SYSCALL		0x100000
  
--	struct irq_chip *(*get_irq_chip)(unsigned long trigger);
-+	struct irq_chip *(*__get_irq_chip)(unsigned long trigger);
- 
- 	unsigned int (*__read)(char __iomem *iosapic, unsigned int reg);
- 	void (*__write)(char __iomem *iosapic, unsigned int reg, u32 val);
-@@ -135,7 +135,7 @@ iosapic_pcat_compat_init(void)
- static inline struct irq_chip*
- iosapic_get_irq_chip(unsigned long trigger)
- {
--	return pv_iosapic_ops.get_irq_chip(trigger);
-+	return pv_iosapic_ops.__get_irq_chip(trigger);
- }
- 
- static inline unsigned int
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index afaf5b9..de35d8e 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -332,7 +332,7 @@ ia64_native_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
- 
- struct pv_iosapic_ops pv_iosapic_ops = {
- 	.pcat_compat_init = ia64_native_iosapic_pcat_compat_init,
--	.get_irq_chip = ia64_native_iosapic_get_irq_chip,
-+	.__get_irq_chip = ia64_native_iosapic_get_irq_chip,
- 
- 	.__read = ia64_native_iosapic_read,
- 	.__write = ia64_native_iosapic_write,
++/*
++ * Xen specific break numbers:
++ */
++#define __IA64_XEN_HYPERCALL		0x1000
++/* [__IA64_XEN_HYPERPRIVOP_START, __IA64_XEN_HYPERPRIVOP_MAX] is used
++   for xen hyperprivops */
++#define __IA64_XEN_HYPERPRIVOP_START	0x1
++#define __IA64_XEN_HYPERPRIVOP_MAX	0x1a
++
+ #endif /* _ASM_IA64_BREAK_H */
 -- 
 1.6.0.2
