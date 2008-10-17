@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 20/33] ia64/pv_ops/xen: define xen pv_cpu_ops.
-Date: Fri, 17 Oct 2008 11:18:00 +0900
-Message-ID: <1224209893-2032-21-git-send-email-yamahata__33029.7977933244$1224214757$gmane$org@valinux.co.jp>
+Subject: [PATCH 31/33] ia64/pv_ops: update Kconfig for paravirtualized guest
+	and xen.
+Date: Fri, 17 Oct 2008 11:18:11 +0900
+Message-ID: <1224209893-2032-32-git-send-email-yamahata__26106.8920525306$1224214870$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,147 +19,110 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, mingo@elte.hu, xen-ia64-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, mingo@elte.hu, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-define xen pv_cpu_ops which implementes xen paravirtualized
-privileged instructions.
+introduce CONFIG_PARAVIRT_GUEST, CONFIG_PARAVIRT for
+paravirtualized guest.
+introduce CONFIG_XEN, CONFIG_IA64_XEN_GUEST for xen.
 
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: "Luck, Tony" <tony.luck@intel.com>
 ---
- arch/ia64/xen/xen_pv_ops.c |  114 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 114 insertions(+), 0 deletions(-)
+ arch/ia64/Kconfig     |   32 ++++++++++++++++++++++++++++++++
+ arch/ia64/xen/Kconfig |   26 ++++++++++++++++++++++++++
+ 2 files changed, 58 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/xen/Kconfig
 
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index fc9d599..c236f04 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -163,6 +163,119 @@ static const struct pv_init_ops xen_init_ops __initdata = {
- };
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index 48e496f..34639f1 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -116,6 +116,33 @@ config AUDIT_ARCH
+ 	bool
+ 	default y
  
- /***************************************************************************
-+ * pv_cpu_ops
-+ * intrinsics hooks.
-+ */
++menuconfig PARAVIRT_GUEST
++	bool "Paravirtualized guest support"
++	help
++	  Say Y here to get to see options related to running Linux under
++	  various hypervisors.  This option alone does not add any kernel code.
 +
-+static void xen_setreg(int regnum, unsigned long val)
-+{
-+	switch (regnum) {
-+	case _IA64_REG_AR_KR0 ... _IA64_REG_AR_KR7:
-+		xen_set_kr(regnum - _IA64_REG_AR_KR0, val);
-+		break;
-+#ifdef CONFIG_IA32_SUPPORT
-+	case _IA64_REG_AR_EFLAG:
-+		xen_set_eflag(val);
-+		break;
-+#endif
-+	case _IA64_REG_CR_TPR:
-+		xen_set_tpr(val);
-+		break;
-+	case _IA64_REG_CR_ITM:
-+		xen_set_itm(val);
-+		break;
-+	case _IA64_REG_CR_EOI:
-+		xen_eoi(val);
-+		break;
-+	default:
-+		ia64_native_setreg_func(regnum, val);
-+		break;
-+	}
-+}
++	  If you say N, all options in this submenu will be skipped and disabled.
 +
-+static unsigned long xen_getreg(int regnum)
-+{
-+	unsigned long res;
++if PARAVIRT_GUEST
 +
-+	switch (regnum) {
-+	case _IA64_REG_PSR:
-+		res = xen_get_psr();
-+		break;
-+#ifdef CONFIG_IA32_SUPPORT
-+	case _IA64_REG_AR_EFLAG:
-+		res = xen_get_eflag();
-+		break;
-+#endif
-+	case _IA64_REG_CR_IVR:
-+		res = xen_get_ivr();
-+		break;
-+	case _IA64_REG_CR_TPR:
-+		res = xen_get_tpr();
-+		break;
-+	default:
-+		res = ia64_native_getreg_func(regnum);
-+		break;
-+	}
-+	return res;
-+}
++config PARAVIRT
++	bool "Enable paravirtualization code"
++	depends on PARAVIRT_GUEST
++	default y
++	bool
++	default y
++	help
++	  This changes the kernel so it can modify itself when it is run
++	  under a hypervisor, potentially improving performance significantly
++	  over full virtualization.  However, when run without a hypervisor
++	  the kernel is theoretically slower and slightly larger.
 +
-+/* turning on interrupts is a bit more complicated.. write to the
-+ * memory-mapped virtual psr.i bit first (to avoid race condition),
-+ * then if any interrupts were pending, we have to execute a hyperprivop
-+ * to ensure the pending interrupt gets delivered; else we're done! */
-+static void
-+xen_ssm_i(void)
-+{
-+	int old = xen_get_virtual_psr_i();
-+	xen_set_virtual_psr_i(1);
-+	barrier();
-+	if (!old && xen_get_virtual_pend())
-+		xen_hyper_ssm_i();
-+}
 +
-+/* turning off interrupts can be paravirtualized simply by writing
-+ * to a memory-mapped virtual psr.i bit (implemented as a 16-bit bool) */
-+static void
-+xen_rsm_i(void)
-+{
-+	xen_set_virtual_psr_i(0);
-+	barrier();
-+}
++source "arch/ia64/xen/Kconfig"
 +
-+static unsigned long
-+xen_get_psr_i(void)
-+{
-+	return xen_get_virtual_psr_i() ? IA64_PSR_I : 0;
-+}
++endif
 +
-+static void
-+xen_intrin_local_irq_restore(unsigned long mask)
-+{
-+	if (mask & IA64_PSR_I)
-+		xen_ssm_i();
-+	else
-+		xen_rsm_i();
-+}
-+
-+static const struct pv_cpu_ops xen_cpu_ops __initdata = {
-+	.fc		= xen_fc,
-+	.thash		= xen_thash,
-+	.get_cpuid	= xen_get_cpuid,
-+	.get_pmd	= xen_get_pmd,
-+	.getreg		= xen_getreg,
-+	.setreg		= xen_setreg,
-+	.ptcga		= xen_ptcga,
-+	.get_rr		= xen_get_rr,
-+	.set_rr		= xen_set_rr,
-+	.set_rr0_to_rr4	= xen_set_rr0_to_rr4,
-+	.ssm_i		= xen_ssm_i,
-+	.rsm_i		= xen_rsm_i,
-+	.get_psr_i	= xen_get_psr_i,
-+	.intrin_local_irq_restore
-+			= xen_intrin_local_irq_restore,
-+};
-+
-+/***************************************************************************
-  * pv_ops initialization
-  */
+ choice
+ 	prompt "System type"
+ 	default IA64_GENERIC
+@@ -137,6 +164,7 @@ config IA64_GENERIC
+ 	  SGI-SN2		For SGI Altix systems
+ 	  SGI-UV		For SGI UV systems
+ 	  Ski-simulator		For the HP simulator <http://www.hpl.hp.com/research/linux/ski/>
++	  Xen-domU		For xen domU system
  
-@@ -172,4 +285,5 @@ xen_setup_pv_ops(void)
- 	xen_info_init();
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
-+	pv_cpu_ops = xen_cpu_ops;
- }
+ 	  If you don't know what to do, choose "generic".
+ 
+@@ -187,6 +215,10 @@ config IA64_HP_SIM
+ 	bool "Ski-simulator"
+ 	select SWIOTLB
+ 
++config IA64_XEN_GUEST
++	bool "Xen guest"
++	depends on XEN
++
+ endchoice
+ 
+ choice
+diff --git a/arch/ia64/xen/Kconfig b/arch/ia64/xen/Kconfig
+new file mode 100644
+index 0000000..f1683a2
+--- /dev/null
++++ b/arch/ia64/xen/Kconfig
+@@ -0,0 +1,26 @@
++#
++# This Kconfig describes xen/ia64 options
++#
++
++config XEN
++	bool "Xen hypervisor support"
++	default y
++	depends on PARAVIRT && MCKINLEY && IA64_PAGE_SIZE_16KB && EXPERIMENTAL
++	select XEN_XENCOMM
++	select NO_IDLE_HZ
++
++	# those are required to save/restore.
++	select ARCH_SUSPEND_POSSIBLE
++	select SUSPEND
++	select PM_SLEEP
++	help
++	  Enable Xen hypervisor support.  Resulting kernel runs
++	  both as a guest OS on Xen and natively on hardware.
++
++config XEN_XENCOMM
++	depends on XEN
++	bool
++
++config NO_IDLE_HZ
++	depends on XEN
++	bool
 -- 
 1.6.0.2
