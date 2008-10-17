@@ -1,13 +1,14 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 22/33] ia64/pv_ops/xen: paravirtualize DO_SAVE_MIN for xen.
-Date: Fri, 17 Oct 2008 11:18:02 +0900
-Message-ID: <1224209893-2032-23-git-send-email-yamahata__14568.0310590707$1224215012$gmane$org@valinux.co.jp>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: [PATCH 32/33] ia64/xen: a recipe for using xen/ia64 with pv_ops.
+Date: Thu, 16 Oct 2008 21:45:32 -0700
+Message-ID: <20081016214532.7fa106a2.randy.dunlap__21723.5680706382$1224219010$gmane$org@oracle.com>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
+	<1224209893-2032-33-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <1224209893-2032-33-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,172 +18,217 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, mingo@elte.hu, xen-ia64-devel@lists.xensource.com
+To: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: xen-ia64-devel@lists.xensource.com, mingo@elte.hu, tony.luck@intel.com, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize DO_SAVE_MIN in minstate.h for xen.
+On Fri, 17 Oct 2008 11:18:12 +0900 Isaku Yamahata wrote:
 
-Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+> diff --git a/Documentation/ia64/xen.txt b/Documentation/ia64/xen.txt
+> new file mode 100644
+> index 0000000..a5c6993
+> --- /dev/null
+> +++ b/Documentation/ia64/xen.txt
+> @@ -0,0 +1,183 @@
+> +       Recipe for getting/building/running Xen/ia64 with pv_ops
+> +       --------------------------------------------------------
+> +
+> +This recipe discribes how to get xen-ia64 source and build it,
+
+               describes
+
+> +and run domU with pv_ops.
+> +
+> +===========
+> +Requirement
+
+   Requirements (?)
+
+> +===========
+> +
+> +  - python
+> +  - mercurial
+> +    it (aka "hg") is a open-source source code
+
+                        an
+
+> +    management software. See the below.
+> +    http://www.selenic.com/mercurial/wiki/
+> +  - git
+> +  - bridge-utils
+> +
+> +=================================
+> +Getting and Building Xen and Dom0
+> +=================================
+> +
+> +  My enviroment is;
+
+     My environment is:
+
+> +    Machine  : Tiger4
+> +    Domain0 OS  : RHEL5
+> +    DomainU OS  : RHEL5
+> +
+> + 1. Download source
+> +    # hg clone http://xenbits.xensource.com/ext/ia64/xen-unstable.hg
+> +    # cd xen-unstable.hg
+> +    # hg clone http://xenbits.xensource.com/ext/ia64/linux-2.6.18-xen.hg
+> +
+> + 2. # make world
+> +
+> + 3. # make install-tools
+> +
+> + 4. copy kernels and xen
+> +    # cp xen/xen.gz /boot/efi/efi/redhat/
+> +    # cp build-linux-2.6.18-xen_ia64/vmlinux.gz \
+> +      /boot/efi/efi/redhat/vmlinuz-2.6.18.8-xen
+> +
+> + 5. make initrd for Dom0/DomU
+> +    # make -C linux-2.6.18-xen.hg ARCH=ia64 modules_install \
+> +      O=$(/bin/pwd)/build-linux-2.6.18-xen_ia64
+> +    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6.18.8-xen.img \
+> +      2.6.18.8-xen --builtin mptspi --builtin mptbase \
+> +      --builtin mptscsih --builtin uhci-hcd --builtin ohci-hcd \
+> +      --builtin ehci-hcd
+> +
+> +================================
+> +Making a disk image for guest OS
+> +================================
+> +
+> + 1. make file
+> +    # dd if=/dev/zero of=/root/rhel5.img bs=1M seek=4096 count=0
+> +    # mke2fs -F -j /root/rhel5.img
+> +    # mount -o loop /root/rhel5.img /mnt
+> +    # cp -ax /{dev,var,etc,usr,bin,sbin,lib} /mnt
+> +    # mkdir /mnt/{root,proc,sys,home,tmp}
+> +
+> +    Note: You may miss some device files. If so, please create them
+> +    with mknod. Or you can use tar intead of cp.
+> +
+> + 2. modify DomU's fstab
+> +    # vi /mnt/etc/fstab
+> +       /dev/xvda1  /            ext3    defaults        1 1
+> +       none        /dev/pts     devpts  gid=5,mode=620  0 0
+> +       none        /dev/shm     tmpfs   defaults        0 0
+> +       none        /proc        proc    defaults        0 0
+> +       none        /sys         sysfs   defaults        0 0
+> +
+> + 3. modify inittab
+> +    set runlevel to 3 to avoid X trying to start
+> +    # vi /mnt/etc/inittab
+> +       id:3:initdefault:
+> +    Start a getty on the hvc0 console
+> +       X0:2345:respawn:/sbin/mingetty hvc0
+> +    tty1-6 mingetty can be commented out
+> +
+> + 4. add hvc0 into /etc/securetty
+> +    # vi /mnt/etc/securetty (add hvc0)
+> +
+> + 5. umount
+> +    # umount /mnt
+> +
+> +FYI, virt-manager can also make a disk image for guest OS.
+> +It's GUI tools and easy to make it.
+> +
+> +==================
+> +Boot Xen & Domain0
+> +==================
+> +
+> + 1. replace elilo
+> +    elilo of RHEL5 can boot Xen and Dom0.
+> +    If you use old elilo (e.g RHEL4), please download from the below
+> +    http://elilo.sourceforge.net/cgi-bin/blosxom
+> +    and copy into /boot/efi/efi/redhat/
+> +    # cp elilo-3.6-ia64.efi /boot/efi/efi/redhat/elilo.efi
+> +
+> + 2. modify elilo.conf (like the below)
+> +    # vi /boot/efi/efi/redhat/elilo.conf
+> +     prompt
+> +     timeout=20
+> +     default=xen
+> +     relocatable
+> +
+> +     image=vmlinuz-2.6.18.8-xen
+> +             label=xen
+> +             vmm=xen.gz
+> +             initrd=initrd-2.6.18.8-xen.img
+> +             read-only
+> +             append=" -- rhgb root=/dev/sda2"
+> +
+> +The append options before "--" are for xen hypervisor,
+> +the options after "--" are for dom0.
+> +
+> +FYI, your machine may need console options like
+> +"com1=19200,8n1 console=vga,com1". For example,
+> +append="com1=19200,8n1 console=vga,com1 -- rhgb console=tty0 \
+> +console=ttyS0 root=/dev/sda2"
+> +
+> +=====================================
+> +Getting and Building domU with pv_ops
+> +=====================================
+> +
+> + 1. get pv_ops tree
+> +    # git clone http://people.valinux.co.jp/~yamahata/xen-ia64/linux-2.6-xen-ia64.git/
+> +
+> + 2. git branch (if necessary)
+> +    # cd linux-2.6-xen-ia64/
+> +    # git checkout -b your_branch origin/xen-ia64-domu-minimal-2008may19
+> +    (Note: The current branch is xen-ia64-domu-minimal-2008may19.
+> +    But you would find the new branch. You can see with
+> +    "git branch -r" to get the branch lists.
+> +    http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
+> +    is also available. The tree is based on
+> +    git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6 test)
+> +
+> +
+> + 3. copy .config for pv_ops of domU
+> +    # cp arch/ia64/configs/xen_domu_wip_defconfig .config
+> +
+> + 4. make kernel with pv_ops
+> +    # make oldconfig
+> +    # make
+> +
+> + 5. install the kernel and initrd
+> +    # cp vmlinux.gz /boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU
+> +    # make modules_install
+> +    # mkinitrd -f /boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img \
+> +      2.6.26-rc3xen-ia64-08941-g1b12161 --builtin mptspi \
+> +      --builtin mptbase --builtin mptscsih --builtin uhci-hcd \
+> +      --builtin ohci-hcd --builtin ehci-hcd
+> +
+> +========================
+> +Boot DomainU with pv_ops
+> +========================
+> +
+> + 1. make config of DomU
+> +   # vi /etc/xen/rhel5
+> +     kernel = "/boot/efi/efi/redhat/vmlinuz-2.6-pv_ops-xenU"
+> +     ramdisk = "/boot/efi/efi/redhat/initrd-2.6-pv_ops-xenU.img"
+> +     vcpus = 1
+> +     memory = 512
+> +     name = "rhel5"
+> +     disk = [ 'file:/root/rhel5.img,xvda1,w' ]
+> +     root = "/dev/xvda1 ro"
+> +     extra= "rhgb console=hvc0"
+> +
+> + 2. After boot xen and dom0, start xend
+> +   # /etc/init.d/xend start
+> +   ( In the debugging case, # XEND_DEBUG=1 xend trace_start )
+> +
+> + 3. start domU
+> +   # xm create -c rhel5
+> +
+> +=========
+> +Reference
+> +=========
+> +- Wiki of Xen/IA64 upstream merge
+> +  http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
+> +
+> +Witten by Akio Takebe <takebe_akio@jp.fujitsu.com> on 28 May 2008
+
+   Written
+
+> -- 
+
 ---
- arch/ia64/include/asm/xen/inst.h     |    2 +
- arch/ia64/include/asm/xen/minstate.h |  134 ++++++++++++++++++++++++++++++++++
- 2 files changed, 136 insertions(+), 0 deletions(-)
- create mode 100644 arch/ia64/include/asm/xen/minstate.h
-
-diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
-index 03895e9..1e92ed0 100644
---- a/arch/ia64/include/asm/xen/inst.h
-+++ b/arch/ia64/include/asm/xen/inst.h
-@@ -22,6 +22,8 @@
- 
- #include <asm/xen/privop.h>
- 
-+#define DO_SAVE_MIN				XEN_DO_SAVE_MIN
-+
- #define MOV_FROM_IFA(reg)	\
- 	movl reg = XSI_IFA;	\
- 	;;			\
-diff --git a/arch/ia64/include/asm/xen/minstate.h b/arch/ia64/include/asm/xen/minstate.h
-new file mode 100644
-index 0000000..4d92d9b
---- /dev/null
-+++ b/arch/ia64/include/asm/xen/minstate.h
-@@ -0,0 +1,134 @@
-+/*
-+ * DO_SAVE_MIN switches to the kernel stacks (if necessary) and saves
-+ * the minimum state necessary that allows us to turn psr.ic back
-+ * on.
-+ *
-+ * Assumed state upon entry:
-+ *	psr.ic: off
-+ *	r31:	contains saved predicates (pr)
-+ *
-+ * Upon exit, the state is as follows:
-+ *	psr.ic: off
-+ *	 r2 = points to &pt_regs.r16
-+ *	 r8 = contents of ar.ccv
-+ *	 r9 = contents of ar.csd
-+ *	r10 = contents of ar.ssd
-+ *	r11 = FPSR_DEFAULT
-+ *	r12 = kernel sp (kernel virtual address)
-+ *	r13 = points to current task_struct (kernel virtual address)
-+ *	p15 = TRUE if psr.i is set in cr.ipsr
-+ *	predicate registers (other than p2, p3, and p15), b6, r3, r14, r15:
-+ *		preserved
-+ * CONFIG_XEN note: p6/p7 are not preserved
-+ *
-+ * Note that psr.ic is NOT turned on by this macro.  This is so that
-+ * we can pass interruption state as arguments to a handler.
-+ */
-+#define XEN_DO_SAVE_MIN(__COVER,SAVE_IFS,EXTRA,WORKAROUND)					\
-+	mov r16=IA64_KR(CURRENT);	/* M */							\
-+	mov r27=ar.rsc;			/* M */							\
-+	mov r20=r1;			/* A */							\
-+	mov r25=ar.unat;		/* M */							\
-+	MOV_FROM_IPSR(p0,r29);		/* M */							\
-+	MOV_FROM_IIP(r28);		/* M */							\
-+	mov r21=ar.fpsr;		/* M */							\
-+	mov r26=ar.pfs;			/* I */							\
-+	__COVER;			/* B;; (or nothing) */					\
-+	adds r16=IA64_TASK_THREAD_ON_USTACK_OFFSET,r16;						\
-+	;;											\
-+	ld1 r17=[r16];				/* load current->thread.on_ustack flag */	\
-+	st1 [r16]=r0;				/* clear current->thread.on_ustack flag */	\
-+	adds r1=-IA64_TASK_THREAD_ON_USTACK_OFFSET,r16						\
-+	/* switch from user to kernel RBS: */							\
-+	;;											\
-+	invala;				/* M */							\
-+	/* SAVE_IFS;*/ /* see xen special handling below */					\
-+	cmp.eq pKStk,pUStk=r0,r17;		/* are we in kernel mode already? */		\
-+	;;											\
-+(pUStk)	mov ar.rsc=0;		/* set enforced lazy mode, pl 0, little-endian, loadrs=0 */	\
-+	;;											\
-+(pUStk)	mov.m r24=ar.rnat;									\
-+(pUStk)	addl r22=IA64_RBS_OFFSET,r1;			/* compute base of RBS */		\
-+(pKStk) mov r1=sp;					/* get sp  */				\
-+	;;											\
-+(pUStk) lfetch.fault.excl.nt1 [r22];								\
-+(pUStk)	addl r1=IA64_STK_OFFSET-IA64_PT_REGS_SIZE,r1;	/* compute base of memory stack */	\
-+(pUStk)	mov r23=ar.bspstore;				/* save ar.bspstore */			\
-+	;;											\
-+(pUStk)	mov ar.bspstore=r22;				/* switch to kernel RBS */		\
-+(pKStk) addl r1=-IA64_PT_REGS_SIZE,r1;			/* if in kernel mode, use sp (r12) */	\
-+	;;											\
-+(pUStk)	mov r18=ar.bsp;										\
-+(pUStk)	mov ar.rsc=0x3;		/* set eager mode, pl 0, little-endian, loadrs=0 */		\
-+	adds r17=2*L1_CACHE_BYTES,r1;		/* really: biggest cache-line size */		\
-+	adds r16=PT(CR_IPSR),r1;								\
-+	;;											\
-+	lfetch.fault.excl.nt1 [r17],L1_CACHE_BYTES;						\
-+	st8 [r16]=r29;		/* save cr.ipsr */						\
-+	;;											\
-+	lfetch.fault.excl.nt1 [r17];								\
-+	tbit.nz p15,p0=r29,IA64_PSR_I_BIT;							\
-+	mov r29=b0										\
-+	;;											\
-+	WORKAROUND;										\
-+	adds r16=PT(R8),r1;	/* initialize first base pointer */				\
-+	adds r17=PT(R9),r1;	/* initialize second base pointer */				\
-+(pKStk)	mov r18=r0;		/* make sure r18 isn't NaT */					\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r8,16;								\
-+.mem.offset 8,0; st8.spill [r17]=r9,16;								\
-+        ;;											\
-+.mem.offset 0,0; st8.spill [r16]=r10,24;							\
-+	movl r8=XSI_PRECOVER_IFS;								\
-+.mem.offset 8,0; st8.spill [r17]=r11,24;							\
-+        ;;											\
-+	/* xen special handling for possibly lazy cover */					\
-+	/* SAVE_MIN case in dispatch_ia32_handler: mov r30=r0 */				\
-+	ld8 r30=[r8];										\
-+(pUStk)	sub r18=r18,r22;	/* r18=RSE.ndirty*8 */						\
-+	st8 [r16]=r28,16;	/* save cr.iip */						\
-+	;;											\
-+	st8 [r17]=r30,16;	/* save cr.ifs */						\
-+	mov r8=ar.ccv;										\
-+	mov r9=ar.csd;										\
-+	mov r10=ar.ssd;										\
-+	movl r11=FPSR_DEFAULT;   /* L-unit */							\
-+	;;											\
-+	st8 [r16]=r25,16;	/* save ar.unat */						\
-+	st8 [r17]=r26,16;	/* save ar.pfs */						\
-+	shl r18=r18,16;		/* compute ar.rsc to be used for "loadrs" */			\
-+	;;											\
-+	st8 [r16]=r27,16;	/* save ar.rsc */						\
-+(pUStk)	st8 [r17]=r24,16;	/* save ar.rnat */						\
-+(pKStk)	adds r17=16,r17;	/* skip over ar_rnat field */					\
-+	;;			/* avoid RAW on r16 & r17 */					\
-+(pUStk)	st8 [r16]=r23,16;	/* save ar.bspstore */						\
-+	st8 [r17]=r31,16;	/* save predicates */						\
-+(pKStk)	adds r16=16,r16;	/* skip over ar_bspstore field */				\
-+	;;											\
-+	st8 [r16]=r29,16;	/* save b0 */							\
-+	st8 [r17]=r18,16;	/* save ar.rsc value for "loadrs" */				\
-+	cmp.eq pNonSys,pSys=r0,r0	/* initialize pSys=0, pNonSys=1 */			\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r20,16;	/* save original r1 */				\
-+.mem.offset 8,0; st8.spill [r17]=r12,16;							\
-+	adds r12=-16,r1;	/* switch to kernel memory stack (with 16 bytes of scratch) */	\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r13,16;							\
-+.mem.offset 8,0; st8.spill [r17]=r21,16;	/* save ar.fpsr */				\
-+	mov r13=IA64_KR(CURRENT);	/* establish `current' */				\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r15,16;							\
-+.mem.offset 8,0; st8.spill [r17]=r14,16;							\
-+	;;											\
-+.mem.offset 0,0; st8.spill [r16]=r2,16;								\
-+.mem.offset 8,0; st8.spill [r17]=r3,16;								\
-+	ACCOUNT_GET_STAMP									\
-+	adds r2=IA64_PT_REGS_R16_OFFSET,r1;							\
-+	;;											\
-+	EXTRA;											\
-+	movl r1=__gp;		/* establish kernel global pointer */				\
-+	;;											\
-+	ACCOUNT_SYS_ENTER									\
-+	BSW_1(r3,r14);	/* switch back to bank 1 (must be last in insn group) */		\
-+	;;
--- 
-1.6.0.2
+~Randy
