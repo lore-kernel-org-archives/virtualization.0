@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 28/33] ia64/pv_ops/xen: implement xen pv_time_ops.
-Date: Fri, 17 Oct 2008 11:18:08 +0900
-Message-ID: <1224209893-2032-29-git-send-email-yamahata__3568.45418359644$1224211797$gmane$org@valinux.co.jp>
+Subject: [PATCH 21/33] ia64/pv_ops/xen: define xen paravirtualized
+	instructions for hand written assembly code
+Date: Fri, 17 Oct 2008 11:18:01 +0900
+Message-ID: <1224209893-2032-22-git-send-email-yamahata__46924.5585416958$1224211911$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,44 +19,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, mingo@elte.hu, Alex Williamson <alex.williamson@hp.com>, xen-ia64-devel@lists.xensource.com
+Cc: "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, virtualization@lists.linux-foundation.org, yamahata@valinux.co.jp, mingo@elte.hu, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-implement xen pv_time_ops to account steal time.
+define xen paravirtualized instructions for hand written assembly code.
 
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+Signed-off-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+Cc: Akio Takebe <takebe_akio@jp.fujitsu.com>
 ---
- arch/ia64/xen/Makefile     |    2 +-
- arch/ia64/xen/time.c       |  180 ++++++++++++++++++++++++++++++++++++++++++++
- arch/ia64/xen/time.h       |   23 ++++++
- arch/ia64/xen/xen_pv_ops.c |    2 +
- 4 files changed, 206 insertions(+), 1 deletions(-)
- create mode 100644 arch/ia64/xen/time.c
- create mode 100644 arch/ia64/xen/time.h
+ arch/ia64/include/asm/xen/inst.h |  447 ++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 447 insertions(+), 0 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/inst.h
 
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 01c4289..ed31c76 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -3,7 +3,7 @@
- #
- 
- obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
--	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o
-+	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o
- 
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
- 
-diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
+diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
 new file mode 100644
-index 0000000..ec168ec
+index 0000000..03895e9
 --- /dev/null
-+++ b/arch/ia64/xen/time.c
-@@ -0,0 +1,180 @@
++++ b/arch/ia64/include/asm/xen/inst.h
+@@ -0,0 +1,447 @@
 +/******************************************************************************
-+ * arch/ia64/xen/time.c
++ * arch/ia64/include/asm/xen/inst.h
 + *
 + * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
 + *                    VA Linux Systems Japan K.K.
@@ -76,212 +60,430 @@ index 0000000..ec168ec
 + *
 + */
 +
-+#include <linux/delay.h>
-+#include <linux/kernel_stat.h>
-+#include <linux/posix-timers.h>
-+#include <linux/irq.h>
-+#include <linux/clocksource.h>
++#include <asm/xen/privop.h>
 +
-+#include <asm/xen/hypervisor.h>
++#define MOV_FROM_IFA(reg)	\
++	movl reg = XSI_IFA;	\
++	;;			\
++	ld8 reg = [reg]
 +
-+#include <xen/interface/vcpu.h>
++#define MOV_FROM_ITIR(reg)	\
++	movl reg = XSI_ITIR;	\
++	;;			\
++	ld8 reg = [reg]
 +
-+#include "../kernel/fsyscall_gtod_data.h"
++#define MOV_FROM_ISR(reg)	\
++	movl reg = XSI_ISR;	\
++	;;			\
++	ld8 reg = [reg]
 +
-+DEFINE_PER_CPU(struct vcpu_runstate_info, runstate);
-+DEFINE_PER_CPU(unsigned long, processed_stolen_time);
-+DEFINE_PER_CPU(unsigned long, processed_blocked_time);
++#define MOV_FROM_IHA(reg)	\
++	movl reg = XSI_IHA;	\
++	;;			\
++	ld8 reg = [reg]
 +
-+/* taken from i386/kernel/time-xen.c */
-+static void xen_init_missing_ticks_accounting(int cpu)
-+{
-+	struct vcpu_register_runstate_memory_area area;
-+	struct vcpu_runstate_info *runstate = &per_cpu(runstate, cpu);
-+	int rc;
++#define MOV_FROM_IPSR(pred, reg)	\
++(pred)	movl reg = XSI_IPSR;		\
++	;;				\
++(pred)	ld8 reg = [reg]
 +
-+	memset(runstate, 0, sizeof(*runstate));
++#define MOV_FROM_IIM(reg)	\
++	movl reg = XSI_IIM;	\
++	;;			\
++	ld8 reg = [reg]
 +
-+	area.addr.v = runstate;
-+	rc = HYPERVISOR_vcpu_op(VCPUOP_register_runstate_memory_area, cpu,
-+				&area);
-+	WARN_ON(rc && rc != -ENOSYS);
++#define MOV_FROM_IIP(reg)	\
++	movl reg = XSI_IIP;	\
++	;;			\
++	ld8 reg = [reg]
 +
-+	per_cpu(processed_blocked_time, cpu) = runstate->time[RUNSTATE_blocked];
-+	per_cpu(processed_stolen_time, cpu) = runstate->time[RUNSTATE_runnable]
-+					    + runstate->time[RUNSTATE_offline];
-+}
++.macro __MOV_FROM_IVR reg, clob
++	.ifc "\reg", "r8"
++		XEN_HYPER_GET_IVR
++		.exitm
++	.endif
++	.ifc "\clob", "r8"
++		XEN_HYPER_GET_IVR
++		;;
++		mov \reg = r8
++		.exitm
++	.endif
 +
-+/*
-+ * Runstate accounting
-+ */
-+/* stolen from arch/x86/xen/time.c */
-+static void get_runstate_snapshot(struct vcpu_runstate_info *res)
-+{
-+	u64 state_time;
-+	struct vcpu_runstate_info *state;
++	mov \clob = r8
++	;;
++	XEN_HYPER_GET_IVR
++	;;
++	mov \reg = r8
++	;;
++	mov r8 = \clob
++.endm
++#define MOV_FROM_IVR(reg, clob)	__MOV_FROM_IVR reg, clob
 +
-+	BUG_ON(preemptible());
++.macro __MOV_FROM_PSR pred, reg, clob
++	.ifc "\reg", "r8"
++		(\pred)	XEN_HYPER_GET_PSR;
++		.exitm
++	.endif
++	.ifc "\clob", "r8"
++		(\pred)	XEN_HYPER_GET_PSR
++		;;
++		(\pred)	mov \reg = r8
++		.exitm
++	.endif
 +
-+	state = &__get_cpu_var(runstate);
++	(\pred)	mov \clob = r8
++	(\pred)	XEN_HYPER_GET_PSR
++	;;
++	(\pred)	mov \reg = r8
++	(\pred)	mov r8 = \clob
++.endm
++#define MOV_FROM_PSR(pred, reg, clob)	__MOV_FROM_PSR pred, reg, clob
 +
-+	/*
-+	 * The runstate info is always updated by the hypervisor on
-+	 * the current CPU, so there's no need to use anything
-+	 * stronger than a compiler barrier when fetching it.
-+	 */
-+	do {
-+		state_time = state->state_entry_time;
-+		rmb();
-+		*res = *state;
-+		rmb();
-+	} while (state->state_entry_time != state_time);
-+}
 +
-+#define NS_PER_TICK (1000000000LL/HZ)
++#define MOV_TO_IFA(reg, clob)	\
++	movl clob = XSI_IFA;	\
++	;;			\
++	st8 [clob] = reg	\
 +
-+static unsigned long
-+consider_steal_time(unsigned long new_itm)
-+{
-+	unsigned long stolen, blocked;
-+	unsigned long delta_itm = 0, stolentick = 0;
-+	int cpu = smp_processor_id();
-+	struct vcpu_runstate_info runstate;
-+	struct task_struct *p = current;
++#define MOV_TO_ITIR(pred, reg, clob)	\
++(pred)	movl clob = XSI_ITIR;		\
++	;;				\
++(pred)	st8 [clob] = reg
 +
-+	get_runstate_snapshot(&runstate);
++#define MOV_TO_IHA(pred, reg, clob)	\
++(pred)	movl clob = XSI_IHA;		\
++	;;				\
++(pred)	st8 [clob] = reg
 +
-+	/*
-+	 * Check for vcpu migration effect
-+	 * In this case, itc value is reversed.
-+	 * This causes huge stolen value.
-+	 * This function just checks and reject this effect.
-+	 */
-+	if (!time_after_eq(runstate.time[RUNSTATE_blocked],
-+			   per_cpu(processed_blocked_time, cpu)))
-+		blocked = 0;
++#define MOV_TO_IPSR(pred, reg, clob)	\
++(pred)	movl clob = XSI_IPSR;		\
++	;;				\
++(pred)	st8 [clob] = reg;		\
++	;;
 +
-+	if (!time_after_eq(runstate.time[RUNSTATE_runnable] +
-+			   runstate.time[RUNSTATE_offline],
-+			   per_cpu(processed_stolen_time, cpu)))
-+		stolen = 0;
++#define MOV_TO_IFS(pred, reg, clob)	\
++(pred)	movl clob = XSI_IFS;		\
++	;;				\
++(pred)	st8 [clob] = reg;		\
++	;;
 +
-+	if (!time_after(delta_itm + new_itm, ia64_get_itc()))
-+		stolentick = ia64_get_itc() - new_itm;
++#define MOV_TO_IIP(reg, clob)	\
++	movl clob = XSI_IIP;	\
++	;;			\
++	st8 [clob] = reg
 +
-+	do_div(stolentick, NS_PER_TICK);
-+	stolentick++;
++.macro ____MOV_TO_KR kr, reg, clob0, clob1
++	.ifc "\clob0", "r9"
++		.error "clob0 \clob0 must not be r9"
++	.endif
++	.ifc "\clob1", "r8"
++		.error "clob1 \clob1 must not be r8"
++	.endif
 +
-+	do_div(stolen, NS_PER_TICK);
++	.ifnc "\reg", "r9"
++		.ifnc "\clob1", "r9"
++			mov \clob1 = r9
++		.endif
++		mov r9 = \reg
++	.endif
++	.ifnc "\clob0", "r8"
++		mov \clob0 = r8
++	.endif
++	mov r8 = \kr
++	;;
++	XEN_HYPER_SET_KR
 +
-+	if (stolen > stolentick)
-+		stolen = stolentick;
++	.ifnc "\reg", "r9"
++		.ifnc "\clob1", "r9"
++			mov r9 = \clob1
++		.endif
++	.endif
++	.ifnc "\clob0", "r8"
++		mov r8 = \clob0
++	.endif
++.endm
 +
-+	stolentick -= stolen;
-+	do_div(blocked, NS_PER_TICK);
++.macro __MOV_TO_KR kr, reg, clob0, clob1
++	.ifc "\clob0", "r9"
++		____MOV_TO_KR \kr, \reg, \clob1, \clob0
++		.exitm
++	.endif
++	.ifc "\clob1", "r8"
++		____MOV_TO_KR \kr, \reg, \clob1, \clob0
++		.exitm
++	.endif
 +
-+	if (blocked > stolentick)
-+		blocked = stolentick;
++	____MOV_TO_KR \kr, \reg, \clob0, \clob1
++.endm
 +
-+	if (stolen > 0 || blocked > 0) {
-+		account_steal_time(NULL, jiffies_to_cputime(stolen));
-+		account_steal_time(idle_task(cpu), jiffies_to_cputime(blocked));
-+		run_local_timers();
++#define MOV_TO_KR(kr, reg, clob0, clob1) \
++	__MOV_TO_KR IA64_KR_ ## kr, reg, clob0, clob1
 +
-+		if (rcu_pending(cpu))
-+			rcu_check_callbacks(cpu, user_mode(get_irq_regs()));
 +
-+		scheduler_tick();
-+		run_posix_cpu_timers(p);
-+		delta_itm += local_cpu_data->itm_delta * (stolen + blocked);
++.macro __ITC_I pred, reg, clob
++	.ifc "\reg", "r8"
++		(\pred)	XEN_HYPER_ITC_I
++		.exitm
++	.endif
++	.ifc "\clob", "r8"
++		(\pred)	mov r8 = \reg
++		;;
++		(\pred)	XEN_HYPER_ITC_I
++		.exitm
++	.endif
 +
-+		if (cpu == time_keeper_id) {
-+			write_seqlock(&xtime_lock);
-+			do_timer(stolen + blocked);
-+			local_cpu_data->itm_next = delta_itm + new_itm;
-+			write_sequnlock(&xtime_lock);
-+		} else {
-+			local_cpu_data->itm_next = delta_itm + new_itm;
-+		}
-+		per_cpu(processed_stolen_time, cpu) += NS_PER_TICK * stolen;
-+		per_cpu(processed_blocked_time, cpu) += NS_PER_TICK * blocked;
-+	}
-+	return delta_itm;
-+}
++	(\pred)	mov \clob = r8
++	(\pred)	mov r8 = \reg
++	;;
++	(\pred)	XEN_HYPER_ITC_I
++	;;
++	(\pred)	mov r8 = \clob
++	;;
++.endm
++#define ITC_I(pred, reg, clob)	__ITC_I pred, reg, clob
 +
-+static int xen_do_steal_accounting(unsigned long *new_itm)
-+{
-+	unsigned long delta_itm;
-+	delta_itm = consider_steal_time(*new_itm);
-+	*new_itm += delta_itm;
-+	if (time_after(*new_itm, ia64_get_itc()) && delta_itm)
-+		return 1;
++.macro __ITC_D pred, reg, clob
++	.ifc "\reg", "r8"
++		(\pred)	XEN_HYPER_ITC_D
++		;;
++		.exitm
++	.endif
++	.ifc "\clob", "r8"
++		(\pred)	mov r8 = \reg
++		;;
++		(\pred)	XEN_HYPER_ITC_D
++		;;
++		.exitm
++	.endif
 +
-+	return 0;
-+}
++	(\pred)	mov \clob = r8
++	(\pred)	mov r8 = \reg
++	;;
++	(\pred)	XEN_HYPER_ITC_D
++	;;
++	(\pred)	mov r8 = \clob
++	;;
++.endm
++#define ITC_D(pred, reg, clob)	__ITC_D pred, reg, clob
 +
-+static void xen_itc_jitter_data_reset(void)
-+{
-+	u64 lcycle, ret;
++.macro __ITC_I_AND_D pred_i, pred_d, reg, clob
++	.ifc "\reg", "r8"
++		(\pred_i)XEN_HYPER_ITC_I
++		;;
++		(\pred_d)XEN_HYPER_ITC_D
++		;;
++		.exitm
++	.endif
++	.ifc "\clob", "r8"
++		mov r8 = \reg
++		;;
++		(\pred_i)XEN_HYPER_ITC_I
++		;;
++		(\pred_d)XEN_HYPER_ITC_D
++		;;
++		.exitm
++	.endif
 +
-+	do {
-+		lcycle = itc_jitter_data.itc_lastcycle;
-+		ret = cmpxchg(&itc_jitter_data.itc_lastcycle, lcycle, 0);
-+	} while (unlikely(ret != lcycle));
-+}
++	mov \clob = r8
++	mov r8 = \reg
++	;;
++	(\pred_i)XEN_HYPER_ITC_I
++	;;
++	(\pred_d)XEN_HYPER_ITC_D
++	;;
++	mov r8 = \clob
++	;;
++.endm
++#define ITC_I_AND_D(pred_i, pred_d, reg, clob) \
++	__ITC_I_AND_D pred_i, pred_d, reg, clob
 +
-+struct pv_time_ops xen_time_ops __initdata = {
-+	.init_missing_ticks_accounting	= xen_init_missing_ticks_accounting,
-+	.do_steal_accounting		= xen_do_steal_accounting,
-+	.clocksource_resume		= xen_itc_jitter_data_reset,
-+};
-diff --git a/arch/ia64/xen/time.h b/arch/ia64/xen/time.h
-new file mode 100644
-index 0000000..b9c7ec5
---- /dev/null
-+++ b/arch/ia64/xen/time.h
-@@ -0,0 +1,23 @@
-+/******************************************************************************
-+ * arch/ia64/xen/time.h
-+ *
-+ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
-+ *                    VA Linux Systems Japan K.K.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
++.macro __THASH pred, reg0, reg1, clob
++	.ifc "\reg0", "r8"
++		(\pred)	mov r8 = \reg1
++		(\pred)	XEN_HYPER_THASH
++		.exitm
++	.endc
++	.ifc "\reg1", "r8"
++		(\pred)	XEN_HYPER_THASH
++		;;
++		(\pred)	mov \reg0 = r8
++		;;
++		.exitm
++	.endif
++	.ifc "\clob", "r8"
++		(\pred)	mov r8 = \reg1
++		(\pred)	XEN_HYPER_THASH
++		;;
++		(\pred)	mov \reg0 = r8
++		;;
++		.exitm
++	.endif
 +
-+extern struct pv_time_ops xen_time_ops __initdata;
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index 4fe4e62..04cd123 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -30,6 +30,7 @@
- #include <asm/xen/privop.h>
- 
- #include "irq_xen.h"
-+#include "time.h"
- 
- /***************************************************************************
-  * general info
-@@ -357,6 +358,7 @@ xen_setup_pv_ops(void)
- 	pv_cpu_ops = xen_cpu_ops;
- 	pv_iosapic_ops = xen_iosapic_ops;
- 	pv_irq_ops = xen_irq_ops;
-+	pv_time_ops = xen_time_ops;
- 
- 	paravirt_cpu_asm_init(&xen_cpu_asm_switch);
- }
++	(\pred)	mov \clob = r8
++	(\pred)	mov r8 = \reg1
++	(\pred)	XEN_HYPER_THASH
++	;;
++	(\pred)	mov \reg0 = r8
++	(\pred)	mov r8 = \clob
++	;;
++.endm
++#define THASH(pred, reg0, reg1, clob) __THASH pred, reg0, reg1, clob
++
++#define SSM_PSR_IC_AND_DEFAULT_BITS_AND_SRLZ_I(clob0, clob1)	\
++	mov clob0 = 1;						\
++	movl clob1 = XSI_PSR_IC;				\
++	;;							\
++	st4 [clob1] = clob0					\
++	;;
++
++#define SSM_PSR_IC_AND_SRLZ_D(clob0, clob1)	\
++	;;					\
++	srlz.d;					\
++	mov clob1 = 1;				\
++	movl clob0 = XSI_PSR_IC;		\
++	;;					\
++	st4 [clob0] = clob1
++
++#define RSM_PSR_IC(clob)	\
++	movl clob = XSI_PSR_IC;	\
++	;;			\
++	st4 [clob] = r0;	\
++	;;
++
++/* pred will be clobbered */
++#define MASK_TO_PEND_OFS    (-1)
++#define SSM_PSR_I(pred, pred_clob, clob)				\
++(pred)	movl clob = XSI_PSR_I_ADDR					\
++	;;								\
++(pred)	ld8 clob = [clob]						\
++	;;								\
++	/* if (pred) vpsr.i = 1 */					\
++	/* if (pred) (vcpu->vcpu_info->evtchn_upcall_mask)=0 */		\
++(pred)	st1 [clob] = r0, MASK_TO_PEND_OFS				\
++	;;								\
++	/* if (vcpu->vcpu_info->evtchn_upcall_pending) */		\
++(pred)	ld1 clob = [clob]						\
++	;;								\
++(pred)	cmp.ne.unc pred_clob, p0 = clob, r0				\
++	;;								\
++(pred_clob)XEN_HYPER_SSM_I	/* do areal ssm psr.i */
++
++#define RSM_PSR_I(pred, clob0, clob1)	\
++	movl clob0 = XSI_PSR_I_ADDR;	\
++	mov clob1 = 1;			\
++	;;				\
++	ld8 clob0 = [clob0];		\
++	;;				\
++(pred)	st1 [clob0] = clob1
++
++#define RSM_PSR_I_IC(clob0, clob1, clob2)		\
++	movl clob0 = XSI_PSR_I_ADDR;			\
++	movl clob1 = XSI_PSR_IC;			\
++	;;						\
++	ld8 clob0 = [clob0];				\
++	mov clob2 = 1;					\
++	;;						\
++	/* note: clears both vpsr.i and vpsr.ic! */	\
++	st1 [clob0] = clob2;				\
++	st4 [clob1] = r0;				\
++	;;
++
++#define RSM_PSR_DT		\
++	XEN_HYPER_RSM_PSR_DT
++
++#define SSM_PSR_DT_AND_SRLZ_I	\
++	XEN_HYPER_SSM_PSR_DT
++
++#define BSW_0(clob0, clob1, clob2)			\
++	;;						\
++	/* r16-r31 all now hold bank1 values */		\
++	mov clob2 = ar.unat;				\
++	movl clob0 = XSI_BANK1_R16;			\
++	movl clob1 = XSI_BANK1_R16 + 8;			\
++	;;						\
++.mem.offset 0, 0; st8.spill [clob0] = r16, 16;		\
++.mem.offset 8, 0; st8.spill [clob1] = r17, 16;		\
++	;;						\
++.mem.offset 0, 0; st8.spill [clob0] = r18, 16;		\
++.mem.offset 8, 0; st8.spill [clob1] = r19, 16;		\
++	;;						\
++.mem.offset 0, 0; st8.spill [clob0] = r20, 16;		\
++.mem.offset 8, 0; st8.spill [clob1] = r21, 16;		\
++	;;						\
++.mem.offset 0, 0; st8.spill [clob0] = r22, 16;		\
++.mem.offset 8, 0; st8.spill [clob1] = r23, 16;		\
++	;;						\
++.mem.offset 0, 0; st8.spill [clob0] = r24, 16;		\
++.mem.offset 8, 0; st8.spill [clob1] = r25, 16;		\
++	;;						\
++.mem.offset 0, 0; st8.spill [clob0] = r26, 16;		\
++.mem.offset 8, 0; st8.spill [clob1] = r27, 16;		\
++	;;						\
++.mem.offset 0, 0; st8.spill [clob0] = r28, 16;		\
++.mem.offset 8, 0; st8.spill [clob1] = r29, 16;		\
++	;;						\
++.mem.offset 0, 0; st8.spill [clob0] = r30, 16;		\
++.mem.offset 8, 0; st8.spill [clob1] = r31, 16;		\
++	;;						\
++	mov clob1 = ar.unat;				\
++	movl clob0 = XSI_B1NAT;				\
++	;;						\
++	st8 [clob0] = clob1;				\
++	mov ar.unat = clob2;				\
++	movl clob0 = XSI_BANKNUM;			\
++	;;						\
++	st4 [clob0] = r0
++
++
++	/* FIXME: THIS CODE IS NOT NaT SAFE! */
++#define XEN_BSW_1(clob)			\
++	mov clob = ar.unat;		\
++	movl r30 = XSI_B1NAT;		\
++	;;				\
++	ld8 r30 = [r30];		\
++	mov r31 = 1;			\
++	;;				\
++	mov ar.unat = r30;		\
++	movl r30 = XSI_BANKNUM;		\
++	;;				\
++	st4 [r30] = r31;		\
++	movl r30 = XSI_BANK1_R16;	\
++	movl r31 = XSI_BANK1_R16+8;	\
++	;;				\
++	ld8.fill r16 = [r30], 16;	\
++	ld8.fill r17 = [r31], 16;	\
++	;;				\
++	ld8.fill r18 = [r30], 16;	\
++	ld8.fill r19 = [r31], 16;	\
++	;;				\
++	ld8.fill r20 = [r30], 16;	\
++	ld8.fill r21 = [r31], 16;	\
++	;;				\
++	ld8.fill r22 = [r30], 16;	\
++	ld8.fill r23 = [r31], 16;	\
++	;;				\
++	ld8.fill r24 = [r30], 16;	\
++	ld8.fill r25 = [r31], 16;	\
++	;;				\
++	ld8.fill r26 = [r30], 16;	\
++	ld8.fill r27 = [r31], 16;	\
++	;;				\
++	ld8.fill r28 = [r30], 16;	\
++	ld8.fill r29 = [r31], 16;	\
++	;;				\
++	ld8.fill r30 = [r30];		\
++	ld8.fill r31 = [r31];		\
++	;;				\
++	mov ar.unat = clob
++
++#define BSW_1(clob0, clob1)	XEN_BSW_1(clob1)
++
++
++#define COVER	\
++	XEN_HYPER_COVER
++
++#define RFI			\
++	XEN_HYPER_RFI;		\
++	dv_serialize_data
 -- 
 1.6.0.2
