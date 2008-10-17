@@ -1,21 +1,11 @@
-From: Anirban Chakraborty <anirban.chakraborty@qlogic.com>
-Subject: Re: [PATCH 6/6 v3] PCI: document the change
-Date: Thu, 16 Oct 2008 22:48:56 -0700
-Message-ID: <5F847B2D-D033-4A40-B132-A900E28EB36A__6993.4485633441$1224223107$gmane$org@qlogic.com>
-References: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F6@pdsmsx502.ccr.corp.intel.com>
-	<20081001160706.GI13822@parisc-linux.org>
-	<08DF4D958216244799FC84F3514D70F00235CC69@pdsmsx415.ccr.corp.intel.com>
-	<20081014010827.GX25780@parisc-linux.org>
-	<08DF4D958216244799FC84F3514D70F00235CE27@pdsmsx415.ccr.corp.intel.com>
-	<20081014021435.GA1482@yzhao12-linux.sh.intel.com>
-	<20081014040105.GA25780@parisc-linux.org>
-	<08DF4D958216244799FC84F3514D70F00235CF5E@pdsmsx415.ccr.corp.intel.com>
-	<20081014044626.GB25780@parisc-linux.org>
-Mime-Version: 1.0 (Apple Message framework v929.2)
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.8.0: Introduction
+Date: Fri, 17 Oct 2008 16:09:50 +0900 (JST)
+Message-ID: <20081017.160950.71109894.ryov__37924.229729879$1224227957$gmane$org@valinux.co.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081014044626.GB25780@parisc-linux.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,71 +15,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Grant Grundler <grundler@parisc-linux.org>, Alex Chiang <achiang@hp.com>, linux-pci@vger.kernel.org, Roland Dreier <rdreier@cisco.com>, "Dong,
-	Eddie" <eddie.dong@intel.com>, linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Greg KH <greg@kroah.com>
+To: agk@redhat.com, linux-kernel@vger.kernel.org, dm-devel@redhat.com, containers@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, xen-devel@lis
+Cc: fernando@oss.ntt.co.jp
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Alasdair and all,
 
-On Oct 13, 2008, at 9:46 PM, Matthew Wilcox wrote:
+This is the dm-ioband version 1.8.0 release.
 
-> On Tue, Oct 14, 2008 at 12:18:40PM +0800, Dong, Eddie wrote:
->> Matthew Wilcox wrote:
->>> On Tue, Oct 14, 2008 at 10:14:35AM +0800, Yu Zhao wrote:
->>>> As Eddie said, we have two problems here:
->>>> 1) User has to set device specific parameters of a VF
->>>> when he wants to use this VF with KVM (assign this
->>>> device to KVM guest). In this case,
->>>> VF driver is not loaded in the host environment. So
->>>> operations which
->>>> are implemented as driver callback (e.g.
->>>> set_mac_address()) are not supported.
->>>
->>> I suspect what you want to do is create, then configure
->>> the device in the host, then assign it to the guest.
->>
->> That is not true. Rememver the created VFs will be destroyed no  
->> matter
->> for PF power event or error recovery conducted reset.
->> So what we want is:
->>
->> Config, create, assign, and then deassign and destroy and then
->> recreate...
->
-> Yes, but my point is this all happens in the _host_, not in the  
-> _guest_.
->
->> Sorry can u explain a little bit more? The SR-IOV patch won't define
->> what kind of entries should be created or not, we leave network
->> subsystem to decide what to do. Same for disk subsstem etc.
->
-> No entries should be created.  This needs to be not SR-IOV specific.
+Dm-ioband is an I/O bandwidth controller implemented as a device-mapper
+driver, which gives specified bandwidth to each job running on the same
+physical device.
 
-I think we need to cover both the scenarios here, virtualization and  
-non virtualization. In the absence of virtualization, the VF and PF  
-driver should be identical. In this context, how does the PF driver  
-allocates a VF? Is dynamic allocation of VFs possible, or does it have  
-to allocate all the VFs that the device supports when the PF driver  
-loads? Also, will the probe function be called for the VFs, or does  
-the PF driver handle only the probe for the physical function? In  
-virtualization context things get bit more complex as the the VF  
-driver in guest would like to treat the VF as a physical function but  
-that may not be possible from the device perspective as the control  
-registers may well be shared between VF and PF.
-I would think that the VF allocation is the job of SR PCIM. PCIM may  
-well ask the PF driver to configure a VF upon user request.
+This release is a minor bug fix and confirmed running on the latest
+stable kernel 2.6.27.1.
 
-Thanks much,
-Anirban Chakraborty
+- Can be applied to the kernel 2.6.27.1 and 2.6.27-rc5-mm1.
+- Changes from 1.7.0 (posted on Oct 3, 2008):
+  - Fix a minor bug in io_limit setting that causes dm-ioband to stop
+    issuing I/O requests when a large value is set to io_limit.
 
-> -- 
-> Matthew Wilcox				Intel Open Source Technology Centre
-> "Bill, look, we understand that you're interested in selling us this
-> operating system, but compare it to ours.  We can't possibly take such
-> a retrograde step."
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux- 
-> kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Alasdair, could you please review this patch and give me any comments?
+
+Thanks,
+Ryo Tsuruta
