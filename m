@@ -1,50 +1,66 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio_net: Improve the recv buffer allocation   scheme
-Date: Thu, 16 Oct 2008 20:15:49 +1100
-Message-ID: <200810162015.49654.rusty@rustcorp.com.au>
-References: <1223494499-18732-1-git-send-email-markmc@redhat.com> <1223574013.13792.23.camel@blaa> <48EE5AE1.5030002@codemonkey.ws>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 01/33] ia64/pv_ops: fix paraviatualization of ivt.S with
+	CONFIG_SMP=n
+Date: Fri, 17 Oct 2008 11:17:41 +0900
+Message-ID: <1224209893-2032-2-git-send-email-yamahata__9722.65743553198$1224209976$gmane$org@valinux.co.jp>
+References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <48EE5AE1.5030002@codemonkey.ws>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-To: virtualization@lists.linux-foundation.org
-Cc: Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 10 October 2008 06:26:25 Anthony Liguori wrote:
-> Mark McLoughlin wrote:
-> > Also, including virtio_net_hdr in the data buffer would need another
-> > feature flag. Rightly or wrongly, KVM's implementation requires
-> > virtio_net_hdr to be the first buffer:
-> >
-> >     if (elem.in_num < 1 || elem.in_sg[0].iov_len != sizeof(*hdr)) {
-> >         fprintf(stderr, "virtio-net header not in first element\n");
-> >         exit(1);
-> >     }
-> >
-> > i.e. it's part of the ABI ... at least as KVM sees it :-)
->
-> This is actually something that's broken in a nasty way.  Having the
-> header in the first element is not supposed to be part of the ABI but it
-> sort of has to be ATM.
->
-> If an older version of QEMU were to use a newer kernel, and the newer
-> kernel had a larger header size, then if we just made the header be the
-> first X bytes, QEMU has no way of knowing how many bytes that should be.
->   Instead, the guest actually has to allocate the virtio-net header in
-> such a way that it only presents the size depending on the features that
-> the host supports.  We don't use a simple versioning scheme, so you'd
-> have to check for a combination of features advertised by the host but
-> that's not good enough because the host may disable certain features.
->
-> Perhaps the header size is whatever the longest element that has been
-> commonly negotiated?
+When CONFIG_SMP=n, three instruction in ivt.S were missed to paravirtualize.
+paravirtualize them.
 
-Yes.  The feature implies the header extension.  Not knowing implies no 
-extension is possible.
+Cc: "Luck, Tony" <tony.luck@intel.com>
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/ivt.S |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Rusty.
+diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
+index 416a952..f675d8e 100644
+--- a/arch/ia64/kernel/ivt.S
++++ b/arch/ia64/kernel/ivt.S
+@@ -580,7 +580,7 @@ ENTRY(dirty_bit)
+ 	mov b0=r29				// restore b0
+ 	;;
+ 	st8 [r17]=r18				// store back updated PTE
+-	itc.d r18				// install updated PTE
++	ITC_D(p0, r18, r16)			// install updated PTE
+ #endif
+ 	mov pr=r31,-1				// restore pr
+ 	RFI
+@@ -646,7 +646,7 @@ ENTRY(iaccess_bit)
+ 	mov b0=r29				// restore b0
+ 	;;
+ 	st8 [r17]=r18				// store back updated PTE
+-	itc.i r18				// install updated PTE
++	ITC_I(p0, r18, r16)			// install updated PTE
+ #endif /* !CONFIG_SMP */
+ 	mov pr=r31,-1
+ 	RFI
+@@ -698,7 +698,7 @@ ENTRY(daccess_bit)
+ 	or r18=_PAGE_A,r18			// set the accessed bit
+ 	;;
+ 	st8 [r17]=r18				// store back updated PTE
+-	itc.d r18				// install updated PTE
++	ITC_D(p0, r18, r16)			// install updated PTE
+ #endif
+ 	mov b0=r29				// restore b0
+ 	mov pr=r31,-1
+-- 
+1.6.0.2
