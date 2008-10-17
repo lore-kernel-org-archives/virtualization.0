@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 01/33] ia64/pv_ops: fix paraviatualization of ivt.S with
-	CONFIG_SMP=n
-Date: Fri, 17 Oct 2008 11:17:41 +0900
-Message-ID: <1224209893-2032-2-git-send-email-yamahata__9722.65743553198$1224209976$gmane$org@valinux.co.jp>
+Subject: [PATCH 03/33] ia64/pv_ops: update native/inst.h to clobber predicate.
+Date: Fri, 17 Oct 2008 11:17:43 +0900
+Message-ID: <1224209893-2032-4-git-send-email-yamahata__13212.9322774292$1224210268$gmane$org@valinux.co.jp>
 References: <1224209893-2032-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,45 +21,41 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When CONFIG_SMP=n, three instruction in ivt.S were missed to paravirtualize.
-paravirtualize them.
+add CLOBBER_PRED() to clobber predicate register.
 
-Cc: "Luck, Tony" <tony.luck@intel.com>
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/ivt.S |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ arch/ia64/include/asm/native/inst.h |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
-index 416a952..f675d8e 100644
---- a/arch/ia64/kernel/ivt.S
-+++ b/arch/ia64/kernel/ivt.S
-@@ -580,7 +580,7 @@ ENTRY(dirty_bit)
- 	mov b0=r29				// restore b0
+diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
+index c8efbf7..0a1026c 100644
+--- a/arch/ia64/include/asm/native/inst.h
++++ b/arch/ia64/include/asm/native/inst.h
+@@ -36,8 +36,13 @@
+ 	;;					\
+ 	movl clob = PARAVIRT_POISON;		\
  	;;
- 	st8 [r17]=r18				// store back updated PTE
--	itc.d r18				// install updated PTE
-+	ITC_D(p0, r18, r16)			// install updated PTE
++# define CLOBBER_PRED(pred_clob)		\
++	;;					\
++	cmp.eq pred_clob, p0 = r0, r0		\
++	;;
+ #else
+-# define CLOBBER(clob)		/* nothing */
++# define CLOBBER(clob)			/* nothing */
++# define CLOBBER_PRED(pred_clob)	/* nothing */
  #endif
- 	mov pr=r31,-1				// restore pr
- 	RFI
-@@ -646,7 +646,7 @@ ENTRY(iaccess_bit)
- 	mov b0=r29				// restore b0
- 	;;
- 	st8 [r17]=r18				// store back updated PTE
--	itc.i r18				// install updated PTE
-+	ITC_I(p0, r18, r16)			// install updated PTE
- #endif /* !CONFIG_SMP */
- 	mov pr=r31,-1
- 	RFI
-@@ -698,7 +698,7 @@ ENTRY(daccess_bit)
- 	or r18=_PAGE_A,r18			// set the accessed bit
- 	;;
- 	st8 [r17]=r18				// store back updated PTE
--	itc.d r18				// install updated PTE
-+	ITC_D(p0, r18, r16)			// install updated PTE
- #endif
- 	mov b0=r29				// restore b0
- 	mov pr=r31,-1
+ 
+ #define MOV_FROM_IFA(reg)	\
+@@ -136,7 +141,8 @@
+ 
+ #define SSM_PSR_I(pred, pred_clob, clob)	\
+ (pred)	ssm psr.i				\
+-	CLOBBER(clob)
++	CLOBBER(clob)				\
++	CLOBBER_PRED(pred_clob)
+ 
+ #define RSM_PSR_I(pred, clob0, clob1)	\
+ (pred)	rsm psr.i			\
 -- 
 1.6.0.2
