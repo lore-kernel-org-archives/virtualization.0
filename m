@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 11/13] ia64/pv_ops: move down __kernel_syscall_via_epc.
-Date: Mon, 20 Oct 2008 12:55:13 +0900
-Message-ID: <1224474915-17171-12-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 06/13] ia64/pv_ops: paravirtualize mov = ar.itc.
+Date: Mon, 20 Oct 2008 12:55:08 +0900
+Message-ID: <1224474915-17171-7-git-send-email-yamahata__34572.8759574287$1224487024$gmane$org@valinux.co.jp>
 References: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,199 +21,88 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Move down __kernel_syscall_via_epc to the end of the page.
-We want to paravirtualize only __kernel_syscall_via_epc because
-it includes privileged instructions. Its paravirtualization increases
-its symbols size.
-
-On the other hand, each paravirtualized gate must have e symbols of
-same value and size to native's because the page is mapped to GATE_ADDR
-and GATE_ADDR + PERCPU_PAGE_SIZE and vmlinux is linked to those symbols.
-Later to have the same symbol size, we pads NOPs at the end of
-__kernel_syscall_via_epc. Move it after other functions to keep
-symbols of other functions have same values and sizes.
+paravirtualize mov reg = ar.itc.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/gate.S |  162 +++++++++++++++++++++++-----------------------
- 1 files changed, 81 insertions(+), 81 deletions(-)
+ arch/ia64/include/asm/native/inst.h |    5 +++++
+ arch/ia64/kernel/entry.S            |    4 ++--
+ arch/ia64/kernel/fsys.S             |    4 ++--
+ arch/ia64/kernel/ivt.S              |    2 +-
+ 4 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/ia64/kernel/gate.S b/arch/ia64/kernel/gate.S
-index 74b1ccc..c957228 100644
---- a/arch/ia64/kernel/gate.S
-+++ b/arch/ia64/kernel/gate.S
-@@ -48,87 +48,6 @@ GLOBAL_ENTRY(__kernel_syscall_via_break)
- }
- END(__kernel_syscall_via_break)
+diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
+index 5e4e151..ad59fc6 100644
+--- a/arch/ia64/include/asm/native/inst.h
++++ b/arch/ia64/include/asm/native/inst.h
+@@ -77,6 +77,11 @@
+ (pred)	mov reg = psr			\
+ 	CLOBBER(clob)
  
--/*
-- * On entry:
-- *	r11 = saved ar.pfs
-- *	r15 = system call #
-- *	b0  = saved return address
-- *	b6  = return address
-- * On exit:
-- *	r11 = saved ar.pfs
-- *	r15 = system call #
-- *	b0  = saved return address
-- *	all other "scratch" registers:	undefined
-- *	all "preserved" registers:	same as on entry
-- */
--
--GLOBAL_ENTRY(__kernel_syscall_via_epc)
--	.prologue
--	.altrp b6
--	.body
--{
--	/*
--	 * Note: the kernel cannot assume that the first two instructions in this
--	 * bundle get executed.  The remaining code must be safe even if
--	 * they do not get executed.
--	 */
--	adds r17=-1024,r15			// A
--	mov r10=0				// A    default to successful syscall execution
--	epc					// B	causes split-issue
--}
--	;;
--	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
--	LOAD_FSYSCALL_TABLE(r14)		// X
--	;;
--	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
--	shladd r18=r17,3,r14			// A
--	mov r19=NR_syscalls-1			// A
--	;;
--	lfetch [r18]				// M0|1
--	mov r29=psr				// M2 (12 cyc)
--	// If r17 is a NaT, p6 will be zero
--	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
--	;;
--	mov r21=ar.fpsr				// M2 (12 cyc)
--	tnat.nz p10,p9=r15			// I0
--	mov.i r26=ar.pfs			// I0 (would stall anyhow due to srlz.d...)
--	;;
--	srlz.d					// M0 (forces split-issue) ensure PSR.BE==0
--(p6)	ld8 r18=[r18]				// M0|1
--	nop.i 0
--	;;
--	nop.m 0
--(p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
--	nop.i 0
--	;;
--(p8)	ssm psr.i
--(p6)	mov b7=r18				// I0
--(p8)	br.dptk.many b7				// B
--
--	mov r27=ar.rsc				// M2 (12 cyc)
--/*
-- * brl.cond doesn't work as intended because the linker would convert this branch
-- * into a branch to a PLT.  Perhaps there will be a way to avoid this with some
-- * future version of the linker.  In the meantime, we just use an indirect branch
-- * instead.
-- */
--#ifdef CONFIG_ITANIUM
--(p6)	add r14=-8,r14				// r14 <- addr of fsys_bubble_down entry
--	;;
--(p6)	ld8 r14=[r14]				// r14 <- fsys_bubble_down
--	;;
--(p6)	mov b7=r14
--(p6)	br.sptk.many b7
--#else
--	BRL_COND_FSYS_BUBBLE_DOWN(p6)
--#endif
--	ssm psr.i
--	mov r10=-1
--(p10)	mov r8=EINVAL
--(p9)	mov r8=ENOSYS
--	FSYS_RETURN
--END(__kernel_syscall_via_epc)
--
- #	define ARG0_OFF		(16 + IA64_SIGFRAME_ARG0_OFFSET)
- #	define ARG1_OFF		(16 + IA64_SIGFRAME_ARG1_OFFSET)
- #	define ARG2_OFF		(16 + IA64_SIGFRAME_ARG2_OFFSET)
-@@ -374,3 +293,84 @@ restore_rbs:
- 	// invala not necessary as that will happen when returning to user-mode
- 	br.cond.sptk back_from_restore_rbs
- END(__kernel_sigtramp)
++#define MOV_FROM_ITC(pred, pred_clob, reg, clob)	\
++(pred)	mov reg = ar.itc				\
++	CLOBBER(clob)					\
++	CLOBBER_PRED(pred_clob)
 +
-+/*
-+ * On entry:
-+ *	r11 = saved ar.pfs
-+ *	r15 = system call #
-+ *	b0  = saved return address
-+ *	b6  = return address
-+ * On exit:
-+ *	r11 = saved ar.pfs
-+ *	r15 = system call #
-+ *	b0  = saved return address
-+ *	all other "scratch" registers:	undefined
-+ *	all "preserved" registers:	same as on entry
-+ */
-+
-+GLOBAL_ENTRY(__kernel_syscall_via_epc)
-+	.prologue
-+	.altrp b6
-+	.body
-+{
-+	/*
-+	 * Note: the kernel cannot assume that the first two instructions in this
-+	 * bundle get executed.  The remaining code must be safe even if
-+	 * they do not get executed.
-+	 */
-+	adds r17=-1024,r15			// A
-+	mov r10=0				// A    default to successful syscall execution
-+	epc					// B	causes split-issue
-+}
-+	;;
-+	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
-+	LOAD_FSYSCALL_TABLE(r14)		// X
-+	;;
-+	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
-+	shladd r18=r17,3,r14			// A
-+	mov r19=NR_syscalls-1			// A
-+	;;
-+	lfetch [r18]				// M0|1
-+	mov r29=psr				// M2 (12 cyc)
-+	// If r17 is a NaT, p6 will be zero
-+	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
-+	;;
-+	mov r21=ar.fpsr				// M2 (12 cyc)
-+	tnat.nz p10,p9=r15			// I0
-+	mov.i r26=ar.pfs			// I0 (would stall anyhow due to srlz.d...)
-+	;;
-+	srlz.d					// M0 (forces split-issue) ensure PSR.BE==0
-+(p6)	ld8 r18=[r18]				// M0|1
-+	nop.i 0
-+	;;
-+	nop.m 0
-+(p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
-+	nop.i 0
-+	;;
-+(p8)	ssm psr.i
-+(p6)	mov b7=r18				// I0
-+(p8)	br.dptk.many b7				// B
-+
-+	mov r27=ar.rsc				// M2 (12 cyc)
-+/*
-+ * brl.cond doesn't work as intended because the linker would convert this branch
-+ * into a branch to a PLT.  Perhaps there will be a way to avoid this with some
-+ * future version of the linker.  In the meantime, we just use an indirect branch
-+ * instead.
-+ */
-+#ifdef CONFIG_ITANIUM
-+(p6)	add r14=-8,r14				// r14 <- addr of fsys_bubble_down entry
-+	;;
-+(p6)	ld8 r14=[r14]				// r14 <- fsys_bubble_down
-+	;;
-+(p6)	mov b7=r14
-+(p6)	br.sptk.many b7
-+#else
-+	BRL_COND_FSYS_BUBBLE_DOWN(p6)
-+#endif
-+	ssm psr.i
-+	mov r10=-1
-+(p10)	mov r8=EINVAL
-+(p9)	mov r8=ENOSYS
-+	FSYS_RETURN
-+END(__kernel_syscall_via_epc)
+ #define MOV_TO_IFA(reg, clob)	\
+ 	mov cr.ifa = reg	\
+ 	CLOBBER(clob)
+diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
+index 7ef0c59..d8462bd 100644
+--- a/arch/ia64/kernel/entry.S
++++ b/arch/ia64/kernel/entry.S
+@@ -734,7 +734,7 @@ GLOBAL_ENTRY(__paravirt_leave_syscall)
+ __paravirt_work_processed_syscall:
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+ 	adds r2=PT(LOADRS)+16,r12
+-(pUStk)	mov.m r22=ar.itc			// fetch time at leave
++	MOV_FROM_ITC(pUStk, p9, r22, r19)	// fetch time at leave
+ 	adds r18=TI_FLAGS+IA64_TASK_SIZE,r13
+ 	;;
+ (p6)	ld4 r31=[r18]				// load current_thread_info()->flags
+@@ -983,7 +983,7 @@ GLOBAL_ENTRY(__paravirt_leave_kernel)
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+ 	.pred.rel.mutex pUStk,pKStk
+ 	MOV_FROM_PSR(pKStk, r22, r29)	// M2 read PSR now that interrupts are disabled
+-(pUStk)	mov.m r22=ar.itc	// M  fetch time at leave
++	MOV_FROM_ITC(pUStk, p9, r22, r29)	// M  fetch time at leave
+ 	nop.i 0
+ 	;;
+ #else
+diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
+index 3544d75..3567d54 100644
+--- a/arch/ia64/kernel/fsys.S
++++ b/arch/ia64/kernel/fsys.S
+@@ -280,7 +280,7 @@ ENTRY(fsys_gettimeofday)
+ (p9)	cmp.eq p13,p0 = 0,r30	// if mmio_ptr, clear p13 jitter control
+ 	;;
+ 	.pred.rel.mutex p8,p9
+-(p8)	mov r2 = ar.itc		// CPU_TIMER. 36 clocks latency!!!
++	MOV_FROM_ITC(p8, p6, r2, r10)	// CPU_TIMER. 36 clocks latency!!!
+ (p9)	ld8 r2 = [r30]		// MMIO_TIMER. Could also have latency issues..
+ (p13)	ld8 r25 = [r19]		// get itc_lastcycle value
+ 	ld8 r9 = [r22],IA64_TIMESPEC_TV_NSEC_OFFSET	// tv_sec
+@@ -684,7 +684,7 @@ GLOBAL_ENTRY(paravirt_fsys_bubble_down)
+ 	;;
+ 	mov ar.rsc=0				// M2   set enforced lazy mode, pl 0, LE, loadrs=0
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+-	mov.m r30=ar.itc			// M    get cycle for accounting
++	MOV_FROM_ITC(p0, p6, r30, r23)		// M    get cycle for accounting
+ #else
+ 	nop.m 0
+ #endif
+diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
+index f675d8e..ec9a5fd 100644
+--- a/arch/ia64/kernel/ivt.S
++++ b/arch/ia64/kernel/ivt.S
+@@ -804,7 +804,7 @@ ENTRY(break_fault)
+ ///////////////////////////////////////////////////////////////////////
+ 	st1 [r16]=r0				// M2|3 clear current->thread.on_ustack flag
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+-	mov.m r30=ar.itc			// M    get cycle for accounting
++	MOV_FROM_ITC(p0, p14, r30, r18)		// M    get cycle for accounting
+ #else
+ 	mov b6=r30				// I0   setup syscall handler branch reg early
+ #endif
 -- 
 1.6.0.2
