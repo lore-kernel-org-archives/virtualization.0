@@ -1,11 +1,13 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 00/13] ia64/pv_ops, xen: more paravirtualization.
-Date: Mon, 20 Oct 2008 12:55:02 +0900
-Message-ID: <1224474915-17171-1-git-send-email-yamahata__18188.7639723302$1224502753$gmane$org@valinux.co.jp>
+Subject: [PATCH 03/13] ia64/pv_ops: paravirtualize fsys.S.
+Date: Mon, 20 Oct 2008 12:55:05 +0900
+Message-ID: <1224474915-17171-4-git-send-email-yamahata__36324.6990637437$1224505447$gmane$org@valinux.co.jp>
+References: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,56 +21,75 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+paravirtualize fsys.S.
 
-This patchset is for more paravirtualization on ia64/pv_ops.
-- paravirtualize fsys call (fsys.S) by multi compile
-- paravirtualize gate page (gate.S) by multi compile
-- support save/restore
-  For this purpose, the followings needs to be paravirtualized
-  - ar.itc instruction 
-  - sched_clock()
-  This is because timer may changed before/after saving/restoring.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/fsys.S |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-For convenience the working full source is available from
-http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
-branch: ia64-pv-ops-2008oct20-xen-ia64-optimized-domu
-
-For the status of this patch series
-http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
-
-thanks,
-
-Diffstat:
- arch/ia64/include/asm/native/inst.h       |   13 ++
- arch/ia64/include/asm/native/patchlist.h  |   38 ++++++
- arch/ia64/include/asm/native/pvchk_inst.h |    8 +
- arch/ia64/include/asm/paravirt.h          |   57 +++++++++
- arch/ia64/include/asm/timex.h             |    1 
- arch/ia64/include/asm/xen/inst.h          |   28 ++++
- arch/ia64/include/asm/xen/interface.h     |    9 +
- arch/ia64/include/asm/xen/minstate.h      |   11 +
- arch/ia64/include/asm/xen/patchlist.h     |   38 ++++++
- arch/ia64/include/asm/xen/privop.h        |    2 
- arch/ia64/kernel/Makefile                 |   36 +-----
- arch/ia64/kernel/Makefile.gate            |   27 ++++
- arch/ia64/kernel/asm-offsets.c            |    2 
- arch/ia64/kernel/entry.S                  |    4 
- arch/ia64/kernel/fsys.S                   |   35 +++--
- arch/ia64/kernel/gate.S                   |  179 +++++++++++++++---------------
- arch/ia64/kernel/gate.lds.S               |   17 +-
- arch/ia64/kernel/head.S                   |    4 
- arch/ia64/kernel/ivt.S                    |    2 
- arch/ia64/kernel/paravirt.c               |    1 
- arch/ia64/kernel/paravirt_patchlist.c     |   78 +++++++++++++
- arch/ia64/kernel/paravirt_patchlist.h     |   28 ++++
- arch/ia64/kernel/patch.c                  |   38 ++++--
- arch/ia64/kernel/time.c                   |   12 ++
- arch/ia64/kernel/vmlinux.lds.S            |    6 +
- arch/ia64/mm/init.c                       |    8 -
- arch/ia64/scripts/pvcheck.sed             |    1 
- arch/ia64/xen/Kconfig                     |    1 
- arch/ia64/xen/Makefile                    |   19 ++-
- arch/ia64/xen/gate-data.S                 |    3 
- arch/ia64/xen/time.c                      |   48 ++++++++
- arch/ia64/xen/xen_pv_ops.c                |  126 ++++++++++++++++++++-
- 32 files changed, 720 insertions(+), 160 deletions(-)
+diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
+index 788319f..3544d75 100644
+--- a/arch/ia64/kernel/fsys.S
++++ b/arch/ia64/kernel/fsys.S
+@@ -419,7 +419,7 @@ EX(.fail_efault, ld8 r14=[r33])			// r14 <- *set
+ 	mov r17=(1 << (SIGKILL - 1)) | (1 << (SIGSTOP - 1))
+ 	;;
+ 
+-	rsm psr.i				// mask interrupt delivery
++	RSM_PSR_I(p0, r18, r19)			// mask interrupt delivery
+ 	mov ar.ccv=0
+ 	andcm r14=r14,r17			// filter out SIGKILL & SIGSTOP
+ 
+@@ -492,7 +492,7 @@ EX(.fail_efault, ld8 r14=[r33])			// r14 <- *set
+ #ifdef CONFIG_SMP
+ 	st4.rel [r31]=r0			// release the lock
+ #endif
+-	ssm psr.i
++	SSM_PSR_I(p0, p9, r31)
+ 	;;
+ 
+ 	srlz.d					// ensure psr.i is set again
+@@ -514,7 +514,7 @@ EX(.fail_efault, (p15) st8 [r34]=r3)
+ #ifdef CONFIG_SMP
+ 	st4.rel [r31]=r0			// release the lock
+ #endif
+-	ssm psr.i
++	SSM_PSR_I(p0, p9, r17)
+ 	;;
+ 	srlz.d
+ 	br.sptk.many fsys_fallback_syscall	// with signal pending, do the heavy-weight syscall
+@@ -522,7 +522,7 @@ EX(.fail_efault, (p15) st8 [r34]=r3)
+ #ifdef CONFIG_SMP
+ .lock_contention:
+ 	/* Rather than spinning here, fall back on doing a heavy-weight syscall.  */
+-	ssm psr.i
++	SSM_PSR_I(p0, p9, r17)
+ 	;;
+ 	srlz.d
+ 	br.sptk.many fsys_fallback_syscall
+@@ -593,11 +593,11 @@ ENTRY(fsys_fallback_syscall)
+ 	adds r17=-1024,r15
+ 	movl r14=sys_call_table
+ 	;;
+-	rsm psr.i
++	RSM_PSR_I(p0, r26, r27)
+ 	shladd r18=r17,3,r14
+ 	;;
+ 	ld8 r18=[r18]				// load normal (heavy-weight) syscall entry-point
+-	mov r29=psr				// read psr (12 cyc load latency)
++	MOV_FROM_PSR(p0, r29, r26)		// read psr (12 cyc load latency)
+ 	mov r27=ar.rsc
+ 	mov r21=ar.fpsr
+ 	mov r26=ar.pfs
+@@ -735,7 +735,7 @@ GLOBAL_ENTRY(paravirt_fsys_bubble_down)
+ 	mov rp=r14				// I0   set the real return addr
+ 	and r3=_TIF_SYSCALL_TRACEAUDIT,r3	// A
+ 	;;
+-	ssm psr.i				// M2   we're on kernel stacks now, reenable irqs
++	SSM_PSR_I(p0, p6, r22)			// M2   we're on kernel stacks now, reenable irqs
+ 	cmp.eq p8,p0=r3,r0			// A
+ (p10)	br.cond.spnt.many ia64_ret_from_syscall	// B    return if bad call-frame or r15 is a NaT
+ 
+-- 
+1.6.0.2
