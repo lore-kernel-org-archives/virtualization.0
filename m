@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 01/13] ia64/pv_ops: add hooks to paravirtualize fsyscall
-	implementation.
-Date: Mon, 20 Oct 2008 12:55:03 +0900
-Message-ID: <1224474915-17171-2-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 12/13] ia64/pv_ops: paravirtualize gate.S.
+Date: Mon, 20 Oct 2008 12:55:14 +0900
+Message-ID: <1224474915-17171-13-git-send-email-yamahata@valinux.co.jp>
 References: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,212 +21,102 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add two hooks, paravirt_get_fsyscall_table() and
-paravirt_get_fsys_bubble_doen() to paravirtualize fsyscall implementation.
-This patch just add the hooks fsyscall and don't paravirtualize it.
+paravirtualize gate.S.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/native/inst.h |    3 +++
- arch/ia64/include/asm/paravirt.h    |   15 +++++++++++++++
- arch/ia64/kernel/Makefile           |    4 ++--
- arch/ia64/kernel/fsys.S             |   17 +++++++++--------
- arch/ia64/kernel/patch.c            |   26 +++++++++++++++++++++++---
- arch/ia64/mm/init.c                 |    2 +-
- 6 files changed, 53 insertions(+), 14 deletions(-)
+ arch/ia64/include/asm/native/inst.h       |    5 +++++
+ arch/ia64/include/asm/native/pvchk_inst.h |    3 +++
+ arch/ia64/kernel/gate.S                   |   17 +++++++++++++----
+ 3 files changed, 21 insertions(+), 4 deletions(-)
 
 diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
-index 0a1026c..5e4e151 100644
+index ad59fc6..d2d46ef 100644
 --- a/arch/ia64/include/asm/native/inst.h
 +++ b/arch/ia64/include/asm/native/inst.h
-@@ -30,6 +30,9 @@
- #define __paravirt_work_processed_syscall_target \
- 						ia64_work_processed_syscall
+@@ -166,6 +166,11 @@
+ #define RSM_PSR_DT		\
+ 	rsm psr.dt
  
-+#define paravirt_fsyscall_table			ia64_native_fsyscall_table
-+#define paravirt_fsys_bubble_down		ia64_native_fsys_bubble_down
++#define RSM_PSR_BE_I(clob0, clob1)	\
++	rsm psr.be | psr.i		\
++	CLOBBER(clob0)			\
++	CLOBBER(clob1)
 +
- #ifdef CONFIG_PARAVIRT_GUEST_ASM_CLOBBER_CHECK
- # define PARAVIRT_POISON	0xdeadbeefbaadf00d
- # define CLOBBER(clob)				\
-diff --git a/arch/ia64/include/asm/paravirt.h b/arch/ia64/include/asm/paravirt.h
-index 2bf3636..56f69f9 100644
---- a/arch/ia64/include/asm/paravirt.h
-+++ b/arch/ia64/include/asm/paravirt.h
-@@ -22,6 +22,21 @@
- #ifndef __ASM_PARAVIRT_H
- #define __ASM_PARAVIRT_H
- 
-+#ifndef __ASSEMBLY__
-+/******************************************************************************
-+ * fsys related addresses
-+ */
-+struct pv_fsys_data {
-+	unsigned long *fsyscall_table;
-+	void *fsys_bubble_down;
-+};
-+
-+extern struct pv_fsys_data pv_fsys_data;
-+
-+unsigned long *paravirt_get_fsyscall_table(void);
-+char *paravirt_get_fsys_bubble_down(void);
-+#endif
-+
- #ifdef CONFIG_PARAVIRT_GUEST
- 
- #define PARAVIRT_HYPERVISOR_TYPE_DEFAULT	0
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index c381ea9..1ab150e 100644
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -111,9 +111,9 @@ include/asm-ia64/nr-irqs.h: arch/$(SRCARCH)/kernel/nr-irqs.s
- clean-files += $(objtree)/include/asm-ia64/nr-irqs.h
- 
- #
--# native ivt.S and entry.S
-+# native ivt.S, entry.S and fsys.S
- #
--ASM_PARAVIRT_OBJS = ivt.o entry.o
-+ASM_PARAVIRT_OBJS = ivt.o entry.o fsys.o
- define paravirtualized_native
- AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_NATIVE
- AFLAGS_pvchk-sed-$(1) += -D__IA64_ASM_PARAVIRTUALIZED_PVCHECK
-diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
-index c1625c7..788319f 100644
---- a/arch/ia64/kernel/fsys.S
-+++ b/arch/ia64/kernel/fsys.S
-@@ -25,6 +25,7 @@
+ #define SSM_PSR_DT_AND_SRLZ_I	\
+ 	ssm psr.dt		\
+ 	;;			\
+diff --git a/arch/ia64/include/asm/native/pvchk_inst.h b/arch/ia64/include/asm/native/pvchk_inst.h
+index 13b289e..8d72962 100644
+--- a/arch/ia64/include/asm/native/pvchk_inst.h
++++ b/arch/ia64/include/asm/native/pvchk_inst.h
+@@ -251,6 +251,9 @@
+ 	IS_RREG_CLOB(clob2)
+ #define RSM_PSR_DT				\
+ 	nop 0
++#define RSM_PSR_BE_I(clob0, clob1)		\
++	IS_RREG_CLOB(clob0)			\
++	IS_RREG_CLOB(clob1)
+ #define SSM_PSR_DT_AND_SRLZ_I			\
+ 	nop 0
+ #define BSW_0(clob0, clob1, clob2)		\
+diff --git a/arch/ia64/kernel/gate.S b/arch/ia64/kernel/gate.S
+index c957228..cf5e0a1 100644
+--- a/arch/ia64/kernel/gate.S
++++ b/arch/ia64/kernel/gate.S
+@@ -13,6 +13,7 @@
+ #include <asm/sigcontext.h>
+ #include <asm/system.h>
  #include <asm/unistd.h>
- 
- #include "entry.h"
 +#include "paravirt_inst.h"
  
  /*
-  * See Documentation/ia64/fsys.txt for details on fsyscalls.
-@@ -602,7 +603,7 @@ ENTRY(fsys_fallback_syscall)
- 	mov r26=ar.pfs
- END(fsys_fallback_syscall)
- 	/* FALL THROUGH */
--GLOBAL_ENTRY(fsys_bubble_down)
-+GLOBAL_ENTRY(paravirt_fsys_bubble_down)
- 	.prologue
- 	.altrp b6
- 	.body
-@@ -640,7 +641,7 @@ GLOBAL_ENTRY(fsys_bubble_down)
- 	 *
- 	 * PSR.BE : already is turned off in __kernel_syscall_via_epc()
- 	 * PSR.AC : don't care (kernel normally turns PSR.AC on)
--	 * PSR.I  : already turned off by the time fsys_bubble_down gets
-+	 * PSR.I  : already turned off by the time paravirt_fsys_bubble_down gets
- 	 *	    invoked
- 	 * PSR.DFL: always 0 (kernel never turns it on)
- 	 * PSR.DFH: don't care --- kernel never touches f32-f127 on its own
-@@ -650,7 +651,7 @@ GLOBAL_ENTRY(fsys_bubble_down)
- 	 * PSR.DB : don't care --- kernel never enables kernel-level
- 	 *	    breakpoints
- 	 * PSR.TB : must be 0 already; if it wasn't zero on entry to
--	 *          __kernel_syscall_via_epc, the branch to fsys_bubble_down
-+	 *          __kernel_syscall_via_epc, the branch to paravirt_fsys_bubble_down
- 	 *          will trigger a taken branch; the taken-trap-handler then
- 	 *          converts the syscall into a break-based system-call.
- 	 */
-@@ -741,14 +742,14 @@ GLOBAL_ENTRY(fsys_bubble_down)
- 	nop.m 0
- (p8)	br.call.sptk.many b6=b6			// B    (ignore return address)
- 	br.cond.spnt ia64_trace_syscall		// B
--END(fsys_bubble_down)
-+END(paravirt_fsys_bubble_down)
- 
- 	.rodata
- 	.align 8
--	.globl fsyscall_table
-+	.globl paravirt_fsyscall_table
- 
--	data8 fsys_bubble_down
--fsyscall_table:
-+	data8 paravirt_fsys_bubble_down
-+paravirt_fsyscall_table:
- 	data8 fsys_ni_syscall
- 	data8 0				// exit			// 1025
- 	data8 0				// read
-@@ -1033,4 +1034,4 @@ fsyscall_table:
- 
- 	// fill in zeros for the remaining entries
- 	.zero:
--	.space fsyscall_table + 8*NR_syscalls - .zero, 0
-+	.space paravirt_fsyscall_table + 8*NR_syscalls - .zero, 0
-diff --git a/arch/ia64/kernel/patch.c b/arch/ia64/kernel/patch.c
-index b83b2c5..02dd977 100644
---- a/arch/ia64/kernel/patch.c
-+++ b/arch/ia64/kernel/patch.c
-@@ -7,6 +7,7 @@
- #include <linux/init.h>
- #include <linux/string.h>
- 
-+#include <asm/paravirt.h>
- #include <asm/patch.h>
- #include <asm/processor.h>
- #include <asm/sections.h>
-@@ -169,16 +170,35 @@ ia64_patch_mckinley_e9 (unsigned long start, unsigned long end)
- 	ia64_srlz_i();
+  * We can't easily refer to symbols inside the kernel.  To avoid full runtime relocation,
+@@ -323,7 +324,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
+ 	epc					// B	causes split-issue
  }
+ 	;;
+-	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
++	RSM_PSR_BE_I(r20, r22)			// M2 (5 cyc to srlz.d)
+ 	LOAD_FSYSCALL_TABLE(r14)		// X
+ 	;;
+ 	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
+@@ -331,7 +332,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
+ 	mov r19=NR_syscalls-1			// A
+ 	;;
+ 	lfetch [r18]				// M0|1
+-	mov r29=psr				// M2 (12 cyc)
++	MOV_FROM_PSR(p0, r29, r8)		// M2 (12 cyc)
+ 	// If r17 is a NaT, p6 will be zero
+ 	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
+ 	;;
+@@ -347,7 +348,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
+ (p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
+ 	nop.i 0
+ 	;;
+-(p8)	ssm psr.i
++	SSM_PSR_I(p8, p14, r25)
+ (p6)	mov b7=r18				// I0
+ (p8)	br.dptk.many b7				// B
  
-+extern unsigned long ia64_native_fsyscall_table[NR_syscalls];
-+extern char ia64_native_fsys_bubble_down[];
-+struct pv_fsys_data pv_fsys_data __initdata = {
-+	.fsyscall_table = (unsigned long *)ia64_native_fsyscall_table,
-+	.fsys_bubble_down = (void *)ia64_native_fsys_bubble_down,
-+};
+@@ -368,9 +369,17 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
+ #else
+ 	BRL_COND_FSYS_BUBBLE_DOWN(p6)
+ #endif
+-	ssm psr.i
++	SSM_PSR_I(p0, p14, r10)
+ 	mov r10=-1
+ (p10)	mov r8=EINVAL
+ (p9)	mov r8=ENOSYS
+ 	FSYS_RETURN
 +
-+unsigned long * __init
-+paravirt_get_fsyscall_table(void)
-+{
-+	return pv_fsys_data.fsyscall_table;
-+}
-+
-+char * __init
-+paravirt_get_fsys_bubble_down(void)
-+{
-+	return pv_fsys_data.fsys_bubble_down;
-+}
-+
- static void __init
- patch_fsyscall_table (unsigned long start, unsigned long end)
- {
--	extern unsigned long fsyscall_table[NR_syscalls];
-+	u64 fsyscall_table = (u64)paravirt_get_fsyscall_table();
- 	s32 *offp = (s32 *) start;
- 	u64 ip;
- 
- 	while (offp < (s32 *) end) {
- 		ip = (u64) ia64_imva((char *) offp + *offp);
--		ia64_patch_imm64(ip, (u64) fsyscall_table);
-+		ia64_patch_imm64(ip, fsyscall_table);
- 		ia64_fc((void *) ip);
- 		++offp;
- 	}
-@@ -189,7 +209,7 @@ patch_fsyscall_table (unsigned long start, unsigned long end)
- static void __init
- patch_brl_fsys_bubble_down (unsigned long start, unsigned long end)
- {
--	extern char fsys_bubble_down[];
-+	u64 fsys_bubble_down = (u64)paravirt_get_fsys_bubble_down();
- 	s32 *offp = (s32 *) start;
- 	u64 ip;
- 
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index f482a90..59e6851 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -667,8 +667,8 @@ mem_init (void)
- 	 * code can tell them apart.
- 	 */
- 	for (i = 0; i < NR_syscalls; ++i) {
--		extern unsigned long fsyscall_table[NR_syscalls];
- 		extern unsigned long sys_call_table[NR_syscalls];
-+		unsigned long *fsyscall_table = paravirt_get_fsyscall_table();
- 
- 		if (!fsyscall_table[i] || nolwsys)
- 			fsyscall_table[i] = sys_call_table[i] | 1;
++#ifdef CONFIG_PARAVIRT
++	/*
++	 * padd to make the size of this symbol constant
++	 * independent of paravirtualization.
++	 */
++	.align PAGE_SIZE / 8
++#endif
+ END(__kernel_syscall_via_epc)
 -- 
 1.6.0.2
