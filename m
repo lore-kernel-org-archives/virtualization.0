@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 06/13] ia64/pv_ops: paravirtualize mov = ar.itc.
-Date: Mon, 20 Oct 2008 12:55:08 +0900
-Message-ID: <1224474915-17171-7-git-send-email-yamahata__34572.8759574287$1224487024$gmane$org@valinux.co.jp>
+Subject: [PATCH 10/13] ia64/pv_ops/xen: define xen specific gate page.
+Date: Mon, 20 Oct 2008 12:55:12 +0900
+Message-ID: <1224474915-17171-11-git-send-email-yamahata__30938.3860942491$1224487437$gmane$org@valinux.co.jp>
 References: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,88 +21,170 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize mov reg = ar.itc.
+define xen specific gate page.
+At this phase bits in the gate page is same to native.
+At the next phase, it will be paravirtualized.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/native/inst.h |    5 +++++
- arch/ia64/kernel/entry.S            |    4 ++--
- arch/ia64/kernel/fsys.S             |    4 ++--
- arch/ia64/kernel/ivt.S              |    2 +-
- 4 files changed, 10 insertions(+), 5 deletions(-)
+ arch/ia64/include/asm/xen/patchlist.h |   38 +++++++++++++++++++++++++++++++++
+ arch/ia64/kernel/vmlinux.lds.S        |    6 +++++
+ arch/ia64/xen/Makefile                |   16 +++++++++++++-
+ arch/ia64/xen/gate-data.S             |    3 ++
+ arch/ia64/xen/xen_pv_ops.c            |   32 +++++++++++++++++++++++++++
+ 5 files changed, 94 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/patchlist.h
+ create mode 100644 arch/ia64/xen/gate-data.S
 
-diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
-index 5e4e151..ad59fc6 100644
---- a/arch/ia64/include/asm/native/inst.h
-+++ b/arch/ia64/include/asm/native/inst.h
-@@ -77,6 +77,11 @@
- (pred)	mov reg = psr			\
- 	CLOBBER(clob)
- 
-+#define MOV_FROM_ITC(pred, pred_clob, reg, clob)	\
-+(pred)	mov reg = ar.itc				\
-+	CLOBBER(clob)					\
-+	CLOBBER_PRED(pred_clob)
+diff --git a/arch/ia64/include/asm/xen/patchlist.h b/arch/ia64/include/asm/xen/patchlist.h
+new file mode 100644
+index 0000000..eae944e
+--- /dev/null
++++ b/arch/ia64/include/asm/xen/patchlist.h
+@@ -0,0 +1,38 @@
++/******************************************************************************
++ * arch/ia64/include/asm/xen/patchlist.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
 +
- #define MOV_TO_IFA(reg, clob)	\
- 	mov cr.ifa = reg	\
- 	CLOBBER(clob)
-diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
-index 7ef0c59..d8462bd 100644
---- a/arch/ia64/kernel/entry.S
-+++ b/arch/ia64/kernel/entry.S
-@@ -734,7 +734,7 @@ GLOBAL_ENTRY(__paravirt_leave_syscall)
- __paravirt_work_processed_syscall:
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	adds r2=PT(LOADRS)+16,r12
--(pUStk)	mov.m r22=ar.itc			// fetch time at leave
-+	MOV_FROM_ITC(pUStk, p9, r22, r19)	// fetch time at leave
- 	adds r18=TI_FLAGS+IA64_TASK_SIZE,r13
- 	;;
- (p6)	ld4 r31=[r18]				// load current_thread_info()->flags
-@@ -983,7 +983,7 @@ GLOBAL_ENTRY(__paravirt_leave_kernel)
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	.pred.rel.mutex pUStk,pKStk
- 	MOV_FROM_PSR(pKStk, r22, r29)	// M2 read PSR now that interrupts are disabled
--(pUStk)	mov.m r22=ar.itc	// M  fetch time at leave
-+	MOV_FROM_ITC(pUStk, p9, r22, r29)	// M  fetch time at leave
- 	nop.i 0
- 	;;
- #else
-diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
-index 3544d75..3567d54 100644
---- a/arch/ia64/kernel/fsys.S
-+++ b/arch/ia64/kernel/fsys.S
-@@ -280,7 +280,7 @@ ENTRY(fsys_gettimeofday)
- (p9)	cmp.eq p13,p0 = 0,r30	// if mmio_ptr, clear p13 jitter control
- 	;;
- 	.pred.rel.mutex p8,p9
--(p8)	mov r2 = ar.itc		// CPU_TIMER. 36 clocks latency!!!
-+	MOV_FROM_ITC(p8, p6, r2, r10)	// CPU_TIMER. 36 clocks latency!!!
- (p9)	ld8 r2 = [r30]		// MMIO_TIMER. Could also have latency issues..
- (p13)	ld8 r25 = [r19]		// get itc_lastcycle value
- 	ld8 r9 = [r22],IA64_TIMESPEC_TV_NSEC_OFFSET	// tv_sec
-@@ -684,7 +684,7 @@ GLOBAL_ENTRY(paravirt_fsys_bubble_down)
- 	;;
- 	mov ar.rsc=0				// M2   set enforced lazy mode, pl 0, LE, loadrs=0
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	mov.m r30=ar.itc			// M    get cycle for accounting
-+	MOV_FROM_ITC(p0, p6, r30, r23)		// M    get cycle for accounting
- #else
- 	nop.m 0
- #endif
-diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
-index f675d8e..ec9a5fd 100644
---- a/arch/ia64/kernel/ivt.S
-+++ b/arch/ia64/kernel/ivt.S
-@@ -804,7 +804,7 @@ ENTRY(break_fault)
- ///////////////////////////////////////////////////////////////////////
- 	st1 [r16]=r0				// M2|3 clear current->thread.on_ustack flag
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	mov.m r30=ar.itc			// M    get cycle for accounting
-+	MOV_FROM_ITC(p0, p14, r30, r18)		// M    get cycle for accounting
- #else
- 	mov b6=r30				// I0   setup syscall handler branch reg early
- #endif
++#define __paravirt_start_gate_fsyscall_patchlist		\
++	__xen_start_gate_fsyscall_patchlist
++#define __paravirt_end_gate_fsyscall_patchlist			\
++	__xen_end_gate_fsyscall_patchlist
++#define __paravirt_start_gate_brl_fsys_bubble_down_patchlist	\
++	__xen_start_gate_brl_fsys_bubble_down_patchlist
++#define __paravirt_end_gate_brl_fsys_bubble_down_patchlist	\
++	__xen_end_gate_brl_fsys_bubble_down_patchlist
++#define __paravirt_start_gate_vtop_patchlist			\
++	__xen_start_gate_vtop_patchlist
++#define __paravirt_end_gate_vtop_patchlist			\
++	__xen_end_gate_vtop_patchlist
++#define __paravirt_start_gate_mckinley_e9_patchlist		\
++	__xen_start_gate_mckinley_e9_patchlist
++#define __paravirt_end_gate_mckinley_e9_patchlist		\
++	__xen_end_gate_mckinley_e9_patchlist
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index 10a7d47..92ae7e8 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -201,6 +201,12 @@ SECTIONS
+ 	  __start_gate_section = .;
+ 	  *(.data.gate)
+ 	  __stop_gate_section = .;
++#ifdef CONFIG_XEN
++	  . = ALIGN(PAGE_SIZE);
++	  __xen_start_gate_section = .;
++	  *(.data.gate.xen)
++	  __xen_stop_gate_section = .;
++#endif
+ 	}
+   . = ALIGN(PAGE_SIZE);		/* make sure the gate page doesn't expose
+   				 * kernel data
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index b4ca2e6..94f0d8e 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -3,10 +3,24 @@
+ #
+ 
+ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
+-	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o suspend.o
++	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o suspend.o \
++	 gate-data.o
+ 
+ obj-$(CONFIG_IA64_GENERIC) += machvec.o
+ 
++# The gate DSO image is built using a special linker script.
++include $(srctree)/arch/ia64/kernel/Makefile.gate
++
++# tell compiled for xen
++CPPFLAGS_gate.lds += -D__IA64_GATE_PARAVIRTUALIZED_XEN
++
++# use same file of native.
++$(obj)/gate.o: $(src)/../kernel/gate.S FORCE
++	$(call if_changed_dep,as_o_S)
++$(obj)/gate.lds: $(src)/../kernel/gate.lds.S FORCE
++	$(call if_changed_dep,cpp_lds_S)
++
++
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+ 
+ # xen multi compile
+diff --git a/arch/ia64/xen/gate-data.S b/arch/ia64/xen/gate-data.S
+new file mode 100644
+index 0000000..7d4830a
+--- /dev/null
++++ b/arch/ia64/xen/gate-data.S
+@@ -0,0 +1,3 @@
++	.section .data.gate.xen, "aw"
++
++	.incbin "arch/ia64/xen/gate.so"
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 2515d8f..f53b48c 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -179,6 +179,37 @@ struct pv_fsys_data xen_fsys_data __initdata = {
+ };
+ 
+ /***************************************************************************
++ * pv_patchdata
++ * patchdata addresses
++ */
++
++#define DECLARE(name)							\
++	extern unsigned long __xen_start_gate_##name##_patchlist[];	\
++	extern unsigned long __xen_end_gate_##name##_patchlist[]
++
++DECLARE(fsyscall);
++DECLARE(brl_fsys_bubble_down);
++DECLARE(vtop);
++DECLARE(mckinley_e9);
++
++extern unsigned long __xen_start_gate_section[];
++
++#define ASSIGN(name)							\
++	.start_##name##_patchlist =					\
++		(unsigned long)__xen_start_gate_##name##_patchlist,	\
++	.end_##name##_patchlist =					\
++		(unsigned long)__xen_end_gate_##name##_patchlist
++
++static struct pv_patchdata xen_patchdata __initdata = {
++	ASSIGN(fsyscall),
++	ASSIGN(brl_fsys_bubble_down),
++	ASSIGN(vtop),
++	ASSIGN(mckinley_e9),
++
++	.gate_section = (void*)__xen_start_gate_section,
++};
++
++/***************************************************************************
+  * pv_cpu_ops
+  * intrinsics hooks.
+  */
+@@ -447,6 +478,7 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_fsys_data = xen_fsys_data;
++	pv_patchdata = xen_patchdata;
+ 	pv_cpu_ops = xen_cpu_ops;
+ 	pv_iosapic_ops = xen_iosapic_ops;
+ 	pv_irq_ops = xen_irq_ops;
 -- 
 1.6.0.2
