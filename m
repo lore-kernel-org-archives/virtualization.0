@@ -1,15 +1,14 @@
-From: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH 8/8 v4] PCI: document the changes
-Date: Sat, 18 Oct 2008 00:54:41 +0200
-Message-ID: <20081017225440.GA1467__10577.4406729781$1224285810$gmane$org@ucw.cz>
-References: <20081014103424.GA1704@yzhao12-linux.sh.intel.com>
-	<20081014110157.GH1734@yzhao12-linux.sh.intel.com>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 04/13] ia64/pv_ops/pvchecker: support mov = ar.itc
+	paravirtualization
+Date: Mon, 20 Oct 2008 12:55:06 +0900
+Message-ID: <1224474915-17171-5-git-send-email-yamahata@valinux.co.jp>
+References: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20081014110157.GH1734@yzhao12-linux.sh.intel.com>
+In-Reply-To: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,45 +18,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yu Zhao <yu.zhao@intel.com>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi!
+add suport for mov = ar.itc to pvchecker.
 
-> Create how-to for SR-IOV user and device driver developer.
-> 
-> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/include/asm/native/pvchk_inst.h |    5 +++++
+ arch/ia64/scripts/pvcheck.sed             |    1 +
+ 2 files changed, 6 insertions(+), 0 deletions(-)
 
-> +1.1 What is SR-IOV
-> +
-> +Single Root I/O Virtualization (SR-IOV) is a PCI Express Extended
-> +capability which makes one physical device appear as multiple virtual
-> +devices. The physical device is referred to as Physical Function while
-> +the virtual devices are referred to as Virtual Functions. Allocation
-> +of Virtual Functions can be dynamically controlled by Physical Function
-> +via registers encapsulated in the capability. By default, this feature
-> +is not enabled and the Physical Function behaves as traditional PCIe
-> +device. Once it's turned on, each Virtual Function's PCI configuration
-> +space can be accessed by its own Bus, Device and Function Number (Routing
-> +ID). And each Virtual Function also has PCI Memory Space, which is
-> used
-
-Ok, why is this optional? If intel cares about virtualization, it
-should enable this by default. I dont see why this should be
-configurable.
-
-> +#ifdef CONFIG_PM
-> +/*
-> + * If Physical Function supports the power management, then the
-> + * SR-IOV needs to be disabled before the adapter goes to sleep,
-> + * because Virtual Functions will not work when the adapter is in
-> + * the power-saving mode.
-> + * The SR-IOV can be enabled again after the adapter wakes up.
-> + */
-
-How beatiful :-(.
-
+diff --git a/arch/ia64/include/asm/native/pvchk_inst.h b/arch/ia64/include/asm/native/pvchk_inst.h
+index b8e6eb1..13b289e 100644
+--- a/arch/ia64/include/asm/native/pvchk_inst.h
++++ b/arch/ia64/include/asm/native/pvchk_inst.h
+@@ -180,6 +180,11 @@
+ 	IS_PRED_IN(pred)			\
+ 	IS_RREG_OUT(reg)			\
+ 	IS_RREG_CLOB(clob)
++#define MOV_FROM_ITC(pred, pred_clob, reg, clob)	\
++	IS_PRED_IN(pred)				\
++	IS_PRED_CLOB(pred_clob)				\
++	IS_RREG_OUT(reg)				\
++	IS_RREG_CLOB(clob)
+ #define MOV_TO_IFA(reg, clob)			\
+ 	IS_RREG_IN(reg)				\
+ 	IS_RREG_CLOB(clob)
+diff --git a/arch/ia64/scripts/pvcheck.sed b/arch/ia64/scripts/pvcheck.sed
+index ba66ac2..e59809a 100644
+--- a/arch/ia64/scripts/pvcheck.sed
++++ b/arch/ia64/scripts/pvcheck.sed
+@@ -17,6 +17,7 @@ s/mov.*=.*cr\.iip/.warning \"cr.iip should not used directly\"/g
+ s/mov.*=.*cr\.ivr/.warning \"cr.ivr should not used directly\"/g
+ s/mov.*=[^\.]*psr/.warning \"psr should not used directly\"/g	# avoid ar.fpsr
+ s/mov.*=.*ar\.eflags/.warning \"ar.eflags should not used directly\"/g
++s/mov.*=.*ar\.itc.*/.warning \"ar.itc should not used directly\"/g
+ s/mov.*cr\.ifa.*=.*/.warning \"cr.ifa should not used directly\"/g
+ s/mov.*cr\.itir.*=.*/.warning \"cr.itir should not used directly\"/g
+ s/mov.*cr\.iha.*=.*/.warning \"cr.iha should not used directly\"/g
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.6.0.2
