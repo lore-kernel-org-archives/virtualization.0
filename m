@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 02/13] ia64/pv_ops/xen: preliminary to paravirtualizing fsys.S
-	for xen.
-Date: Mon, 20 Oct 2008 12:55:04 +0900
-Message-ID: <1224474915-17171-3-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 13/13] ia64/pv_ops/xen/gate.S: xen gate page paravirtualization
+Date: Mon, 20 Oct 2008 12:55:15 +0900
+Message-ID: <1224474915-17171-14-git-send-email-yamahata@valinux.co.jp>
 References: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,83 +21,40 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a preliminary patch to paravirtualizing fsys.S.
-compile fsys.S twice one for native and one for xen, and switch
-them at run tine.
-Later fsys.S will be paravirtualized.
+xen gate page paravirtualization
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/inst.h |    3 +++
- arch/ia64/xen/Makefile           |    2 +-
- arch/ia64/xen/xen_pv_ops.c       |   14 ++++++++++++++
- 3 files changed, 18 insertions(+), 1 deletions(-)
+ arch/ia64/include/asm/xen/inst.h |    4 ++++
+ arch/ia64/xen/Makefile           |    1 +
+ 2 files changed, 5 insertions(+), 0 deletions(-)
 
 diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
-index 19c2ae1..e8e01b2 100644
+index 90537dc..c53a476 100644
 --- a/arch/ia64/include/asm/xen/inst.h
 +++ b/arch/ia64/include/asm/xen/inst.h
-@@ -33,6 +33,9 @@
- #define __paravirt_work_processed_syscall_target \
- 						xen_work_processed_syscall
+@@ -386,6 +386,10 @@
+ #define RSM_PSR_DT		\
+ 	XEN_HYPER_RSM_PSR_DT
  
-+#define paravirt_fsyscall_table			xen_fsyscall_table
-+#define paravirt_fsys_bubble_down		xen_fsys_bubble_down
++#define RSM_PSR_BE_I(clob0, clob1)	\
++	RSM_PSR_I(p0, clob0, clob1);	\
++	rum psr.be
 +
- #define MOV_FROM_IFA(reg)	\
- 	movl reg = XSI_IFA;	\
- 	;;			\
+ #define SSM_PSR_DT_AND_SRLZ_I	\
+ 	XEN_HYPER_SSM_PSR_DT
+ 
 diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 0ad0224..b4ca2e6 100644
+index 94f0d8e..e6f4a0a 100644
 --- a/arch/ia64/xen/Makefile
 +++ b/arch/ia64/xen/Makefile
-@@ -10,7 +10,7 @@ obj-$(CONFIG_IA64_GENERIC) += machvec.o
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+@@ -13,6 +13,7 @@ include $(srctree)/arch/ia64/kernel/Makefile.gate
  
- # xen multi compile
--ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
-+ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S fsys.S
- ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
- obj-y += $(ASM_PARAVIRT_OBJS)
- define paravirtualized_xen
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index 04cd123..17eed4f 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -24,6 +24,7 @@
- #include <linux/irq.h>
- #include <linux/kernel.h>
- #include <linux/pm.h>
-+#include <linux/unistd.h>
+ # tell compiled for xen
+ CPPFLAGS_gate.lds += -D__IA64_GATE_PARAVIRTUALIZED_XEN
++AFLAGS_gate.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN -D__IA64_GATE_PARAVIRTUALIZED_XEN
  
- #include <asm/xen/hypervisor.h>
- #include <asm/xen/xencomm.h>
-@@ -166,6 +167,18 @@ static const struct pv_init_ops xen_init_ops __initdata = {
- };
- 
- /***************************************************************************
-+ * pv_fsys_data
-+ * addresses for fsys
-+ */
-+
-+extern unsigned long xen_fsyscall_table[NR_syscalls];
-+extern char xen_fsys_bubble_down[];
-+struct pv_fsys_data xen_fsys_data __initdata = {
-+	.fsyscall_table = (unsigned long *)xen_fsyscall_table,
-+	.fsys_bubble_down = (void *)xen_fsys_bubble_down,
-+};
-+
-+/***************************************************************************
-  * pv_cpu_ops
-  * intrinsics hooks.
-  */
-@@ -355,6 +368,7 @@ xen_setup_pv_ops(void)
- 	xen_info_init();
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
-+	pv_fsys_data = xen_fsys_data;
- 	pv_cpu_ops = xen_cpu_ops;
- 	pv_iosapic_ops = xen_iosapic_ops;
- 	pv_irq_ops = xen_irq_ops;
+ # use same file of native.
+ $(obj)/gate.o: $(src)/../kernel/gate.S FORCE
 -- 
 1.6.0.2
