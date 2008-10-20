@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 12/13] ia64/pv_ops: paravirtualize gate.S.
-Date: Mon, 20 Oct 2008 12:55:14 +0900
-Message-ID: <1224474915-17171-13-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 02/13] ia64/pv_ops/xen: preliminary to paravirtualizing fsys.S
+	for xen.
+Date: Mon, 20 Oct 2008 12:55:04 +0900
+Message-ID: <1224474915-17171-3-git-send-email-yamahata@valinux.co.jp>
 References: <1224474915-17171-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,102 +22,83 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, mingo@elte.hu, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize gate.S.
+This is a preliminary patch to paravirtualizing fsys.S.
+compile fsys.S twice one for native and one for xen, and switch
+them at run tine.
+Later fsys.S will be paravirtualized.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/native/inst.h       |    5 +++++
- arch/ia64/include/asm/native/pvchk_inst.h |    3 +++
- arch/ia64/kernel/gate.S                   |   17 +++++++++++++----
- 3 files changed, 21 insertions(+), 4 deletions(-)
+ arch/ia64/include/asm/xen/inst.h |    3 +++
+ arch/ia64/xen/Makefile           |    2 +-
+ arch/ia64/xen/xen_pv_ops.c       |   14 ++++++++++++++
+ 3 files changed, 18 insertions(+), 1 deletions(-)
 
-diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
-index ad59fc6..d2d46ef 100644
---- a/arch/ia64/include/asm/native/inst.h
-+++ b/arch/ia64/include/asm/native/inst.h
-@@ -166,6 +166,11 @@
- #define RSM_PSR_DT		\
- 	rsm psr.dt
+diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
+index 19c2ae1..e8e01b2 100644
+--- a/arch/ia64/include/asm/xen/inst.h
++++ b/arch/ia64/include/asm/xen/inst.h
+@@ -33,6 +33,9 @@
+ #define __paravirt_work_processed_syscall_target \
+ 						xen_work_processed_syscall
  
-+#define RSM_PSR_BE_I(clob0, clob1)	\
-+	rsm psr.be | psr.i		\
-+	CLOBBER(clob0)			\
-+	CLOBBER(clob1)
++#define paravirt_fsyscall_table			xen_fsyscall_table
++#define paravirt_fsys_bubble_down		xen_fsys_bubble_down
 +
- #define SSM_PSR_DT_AND_SRLZ_I	\
- 	ssm psr.dt		\
+ #define MOV_FROM_IFA(reg)	\
+ 	movl reg = XSI_IFA;	\
  	;;			\
-diff --git a/arch/ia64/include/asm/native/pvchk_inst.h b/arch/ia64/include/asm/native/pvchk_inst.h
-index 13b289e..8d72962 100644
---- a/arch/ia64/include/asm/native/pvchk_inst.h
-+++ b/arch/ia64/include/asm/native/pvchk_inst.h
-@@ -251,6 +251,9 @@
- 	IS_RREG_CLOB(clob2)
- #define RSM_PSR_DT				\
- 	nop 0
-+#define RSM_PSR_BE_I(clob0, clob1)		\
-+	IS_RREG_CLOB(clob0)			\
-+	IS_RREG_CLOB(clob1)
- #define SSM_PSR_DT_AND_SRLZ_I			\
- 	nop 0
- #define BSW_0(clob0, clob1, clob2)		\
-diff --git a/arch/ia64/kernel/gate.S b/arch/ia64/kernel/gate.S
-index c957228..cf5e0a1 100644
---- a/arch/ia64/kernel/gate.S
-+++ b/arch/ia64/kernel/gate.S
-@@ -13,6 +13,7 @@
- #include <asm/sigcontext.h>
- #include <asm/system.h>
- #include <asm/unistd.h>
-+#include "paravirt_inst.h"
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index 0ad0224..b4ca2e6 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -10,7 +10,7 @@ obj-$(CONFIG_IA64_GENERIC) += machvec.o
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
  
- /*
-  * We can't easily refer to symbols inside the kernel.  To avoid full runtime relocation,
-@@ -323,7 +324,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
- 	epc					// B	causes split-issue
- }
- 	;;
--	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
-+	RSM_PSR_BE_I(r20, r22)			// M2 (5 cyc to srlz.d)
- 	LOAD_FSYSCALL_TABLE(r14)		// X
- 	;;
- 	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
-@@ -331,7 +332,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
- 	mov r19=NR_syscalls-1			// A
- 	;;
- 	lfetch [r18]				// M0|1
--	mov r29=psr				// M2 (12 cyc)
-+	MOV_FROM_PSR(p0, r29, r8)		// M2 (12 cyc)
- 	// If r17 is a NaT, p6 will be zero
- 	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
- 	;;
-@@ -347,7 +348,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
- (p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
- 	nop.i 0
- 	;;
--(p8)	ssm psr.i
-+	SSM_PSR_I(p8, p14, r25)
- (p6)	mov b7=r18				// I0
- (p8)	br.dptk.many b7				// B
+ # xen multi compile
+-ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
++ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S fsys.S
+ ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
+ obj-y += $(ASM_PARAVIRT_OBJS)
+ define paravirtualized_xen
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 04cd123..17eed4f 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -24,6 +24,7 @@
+ #include <linux/irq.h>
+ #include <linux/kernel.h>
+ #include <linux/pm.h>
++#include <linux/unistd.h>
  
-@@ -368,9 +369,17 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
- #else
- 	BRL_COND_FSYS_BUBBLE_DOWN(p6)
- #endif
--	ssm psr.i
-+	SSM_PSR_I(p0, p14, r10)
- 	mov r10=-1
- (p10)	mov r8=EINVAL
- (p9)	mov r8=ENOSYS
- 	FSYS_RETURN
+ #include <asm/xen/hypervisor.h>
+ #include <asm/xen/xencomm.h>
+@@ -166,6 +167,18 @@ static const struct pv_init_ops xen_init_ops __initdata = {
+ };
+ 
+ /***************************************************************************
++ * pv_fsys_data
++ * addresses for fsys
++ */
 +
-+#ifdef CONFIG_PARAVIRT
-+	/*
-+	 * padd to make the size of this symbol constant
-+	 * independent of paravirtualization.
-+	 */
-+	.align PAGE_SIZE / 8
-+#endif
- END(__kernel_syscall_via_epc)
++extern unsigned long xen_fsyscall_table[NR_syscalls];
++extern char xen_fsys_bubble_down[];
++struct pv_fsys_data xen_fsys_data __initdata = {
++	.fsyscall_table = (unsigned long *)xen_fsyscall_table,
++	.fsys_bubble_down = (void *)xen_fsys_bubble_down,
++};
++
++/***************************************************************************
+  * pv_cpu_ops
+  * intrinsics hooks.
+  */
+@@ -355,6 +368,7 @@ xen_setup_pv_ops(void)
+ 	xen_info_init();
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
++	pv_fsys_data = xen_fsys_data;
+ 	pv_cpu_ops = xen_cpu_ops;
+ 	pv_iosapic_ops = xen_iosapic_ops;
+ 	pv_irq_ops = xen_irq_ops;
 -- 
 1.6.0.2
