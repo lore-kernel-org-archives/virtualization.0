@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 9/15 v5] PCI: add boot option to align MMIO resource
-Date: Tue, 21 Oct 2008 19:50:34 +0800
-Message-ID: <20081021115034.GJ3185__39562.2857999571$1224594757$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 10/15 v5] PCI: cleanup pci_bus_add_devices()
+Date: Tue, 21 Oct 2008 19:51:05 +0800
+Message-ID: <20081021115105.GK3185__8463.77504426545$1224594992$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081021114056.GA3185@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,13 +22,8 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds boot option to align MMIO resource for a device.
-The alignment is a bigger value between the PAGE_SIZE and the
-resource size.
-
-The boot option can be used as:
-pci=align-mmio=0000:01:02.3;04:05.6
-'0000:01:02.3' and '04:05.6' are domain, bus, device and function numbers.
+This cleanup makes pci_bus_add_devices() easier to be read.
+And it checks if a bus has been added before removing it.
 
 Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
 Cc: Randy Dunlap <randy.dunlap@oracle.com>
@@ -40,133 +35,111 @@ Cc: Greg KH <greg@kroah.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- arch/x86/pci/common.c |   37 +++++++++++++++++++++++++++++++++++++
- drivers/pci/pci.c     |   20 ++++++++++++++++++--
- include/linux/pci.h   |    1 +
- 3 files changed, 56 insertions(+), 2 deletions(-)
+ drivers/pci/bus.c    |   56 +++++++++++++++++++++++++------------------------
+ drivers/pci/remove.c |    2 +
+ 2 files changed, 31 insertions(+), 27 deletions(-)
 
-diff --git a/arch/x86/pci/common.c b/arch/x86/pci/common.c
-index 0774a67..c1821e3 100644
---- a/arch/x86/pci/common.c
-+++ b/arch/x86/pci/common.c
-@@ -139,6 +139,7 @@ static void __devinit pcibios_fixup_device_resources(struct pci_dev *dev)
- 
- static char *pci_assign_pio;
- static char *pci_assign_mmio;
-+static char *pci_align_mmio;
- 
- static int pcibios_bus_resource_needs_fixup(struct pci_bus *bus)
- {
-@@ -190,6 +191,36 @@ static void __devinit pcibios_fixup_bus_resources(struct pci_bus *bus)
- 	}
- }
- 
-+int pcibios_resource_alignment(struct pci_dev *dev, int resno)
-+{
-+	int domain, busnr, slot, func;
-+	char *str = pci_align_mmio;
-+
-+	if (dev->resource[resno].flags & IORESOURCE_IO)
-+		return 0;
-+
-+	while (str && *str) {
-+		if (sscanf(str, "%04x:%02x:%02x.%d",
-+				&domain, &busnr, &slot, &func) != 4) {
-+			if (sscanf(str, "%02x:%02x.%d",
-+					&busnr, &slot, &func) != 3)
-+				break;
-+			domain = 0;
-+		}
-+
-+		if (pci_domain_nr(dev->bus) == domain &&
-+		    dev->bus->number == busnr &&
-+		    dev->devfn == PCI_DEVFN(slot, func))
-+			return PAGE_SIZE;
-+
-+		str = strchr(str, ';');
-+		if (str)
-+			str++;
-+	}
-+
-+	return 0;
-+}
-+
- int pcibios_resource_needs_fixup(struct pci_dev *dev, int resno)
- {
- 	struct pci_bus *bus;
-@@ -198,6 +229,9 @@ int pcibios_resource_needs_fixup(struct pci_dev *dev, int resno)
- 		if (pcibios_bus_resource_needs_fixup(bus))
- 			return 1;
- 
-+	if (pcibios_resource_alignment(dev, resno))
-+			return 1;
-+
- 	return 0;
- }
- 
-@@ -590,6 +624,9 @@ char * __devinit  pcibios_setup(char *str)
- 	} else if (!strncmp(str, "assign-mmio=", 12)) {
- 		pci_assign_mmio = str + 12;
- 		return NULL;
-+	} else if (!strncmp(str, "align-mmio=", 11)) {
-+		pci_align_mmio = str + 11;
-+		return NULL;
- 	}
- 	return str;
- }
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index b02167a..11ecd6f 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1015,6 +1015,20 @@ int __attribute__ ((weak)) pcibios_set_pcie_reset_state(struct pci_dev *dev,
+diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
+index 999cc40..7a21602 100644
+--- a/drivers/pci/bus.c
++++ b/drivers/pci/bus.c
+@@ -71,7 +71,7 @@ pci_bus_alloc_resource(struct pci_bus *bus, struct resource *res,
  }
  
  /**
-+ * pcibios_resource_alignment - get resource alignment requirement
-+ * @dev: the PCI device
-+ * @resno: resource number
-+ *
-+ * Queries the resource alignment from PCI low level code. Returns positive
-+ * if there is alignment requirement of the resource, or 0 otherwise.
-+ */
-+int __attribute__ ((weak)) pcibios_resource_alignment(struct pci_dev *dev,
-+						      int resno)
-+{
-+	return 0;
-+}
-+
-+/**
-  * pci_set_pcie_reset_state - set reset state for device dev
-  * @dev: the PCI-E device reset
-  * @state: Reset state to enter into
-@@ -1913,12 +1927,14 @@ int pci_select_bars(struct pci_dev *dev, unsigned long flags)
-  */
- int pci_resource_alignment(struct pci_dev *dev, int resno)
+- * add a single device
++ * pci_bus_add_device - add a single device
+  * @dev: device to add
+  *
+  * This adds a single pci device to the global
+@@ -105,7 +105,7 @@ int pci_bus_add_device(struct pci_dev *dev)
+ void pci_bus_add_devices(struct pci_bus *bus)
  {
--	resource_size_t align;
-+	resource_size_t align, bios_align;
- 	struct resource *res = dev->resource + resno;
+ 	struct pci_dev *dev;
+-	struct pci_bus *child_bus;
++	struct pci_bus *child;
+ 	int retval;
  
-+	bios_align = pcibios_resource_alignment(dev, resno);
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+@@ -120,39 +120,41 @@ void pci_bus_add_devices(struct pci_bus *bus)
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+ 		BUG_ON(!dev->is_added);
+ 
++		child = dev->subordinate;
+ 		/*
+ 		 * If there is an unattached subordinate bus, attach
+ 		 * it and then scan for unattached PCI devices.
+ 		 */
+-		if (dev->subordinate) {
+-		       if (list_empty(&dev->subordinate->node)) {
+-			       down_write(&pci_bus_sem);
+-			       list_add_tail(&dev->subordinate->node,
+-					       &dev->bus->children);
+-			       up_write(&pci_bus_sem);
+-			}
+-			pci_bus_add_devices(dev->subordinate);
+-
+-			/* register the bus with sysfs as the parent is now
+-			 * properly registered. */
+-			child_bus = dev->subordinate;
+-			if (child_bus->is_added)
+-				continue;
+-			child_bus->dev.parent = child_bus->bridge;
+-			retval = device_register(&child_bus->dev);
+-			if (retval)
+-				dev_err(&dev->dev, "Error registering pci_bus,"
+-					" continuing...\n");
+-			else {
+-				child_bus->is_added = 1;
+-				retval = device_create_file(&child_bus->dev,
+-							&dev_attr_cpuaffinity);
+-			}
++		if (!child)
++			continue;
++		if (list_empty(&child->node)) {
++			down_write(&pci_bus_sem);
++			list_add_tail(&child->node,
++						&dev->bus->children);
++			up_write(&pci_bus_sem);
++		}
++		pci_bus_add_devices(child);
 +
- 	align = resource_alignment(res);
- 	if (align)
--		return align;
-+		return align > bios_align ? align : bios_align;
++		/*
++		 * register the bus with sysfs as the parent is now
++		 * properly registered.
++		 */
++		if (child->is_added)
++			continue;
++		child->dev.parent = child->bridge;
++		retval = device_register(&child->dev);
++		if (retval)
++			dev_err(&dev->dev, "Error registering pci_bus,"
++				" continuing...\n");
++		else {
++			child->is_added = 1;
++			retval = device_create_file(&child->dev,
++						&dev_attr_cpuaffinity);
+ 			if (retval)
+ 				dev_err(&dev->dev, "Error creating cpuaffinity"
+ 					" file, continuing...\n");
  
- 	dev_err(&dev->dev, "alignment: invalid resource #%d\n", resno);
- 	return 0;
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 2ada2b6..6ac69af 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1121,6 +1121,7 @@ int pcibios_add_platform_entries(struct pci_dev *dev);
- void pcibios_disable_device(struct pci_dev *dev);
- int pcibios_set_pcie_reset_state(struct pci_dev *dev,
- 				 enum pcie_reset_state state);
-+int pcibios_resource_alignment(struct pci_dev *dev, int resno);
- 
- #ifdef CONFIG_PCI_MMCONFIG
- extern void __init pci_mmcfg_early_init(void);
+-			retval = device_create_file(&child_bus->dev,
++			retval = device_create_file(&child->dev,
+ 						&dev_attr_cpulistaffinity);
+ 			if (retval)
+ 				dev_err(&dev->dev,
+diff --git a/drivers/pci/remove.c b/drivers/pci/remove.c
+index 042e089..bfa0869 100644
+--- a/drivers/pci/remove.c
++++ b/drivers/pci/remove.c
+@@ -72,6 +72,8 @@ void pci_remove_bus(struct pci_bus *pci_bus)
+ 	list_del(&pci_bus->node);
+ 	up_write(&pci_bus_sem);
+ 	pci_remove_legacy_files(pci_bus);
++	if (!pci_bus->is_added)
++		return;
+ 	device_remove_file(&pci_bus->dev, &dev_attr_cpuaffinity);
+ 	device_remove_file(&pci_bus->dev, &dev_attr_cpulistaffinity);
+ 	device_unregister(&pci_bus->dev);
 -- 
 1.5.6.4
