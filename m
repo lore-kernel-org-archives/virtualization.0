@@ -1,14 +1,14 @@
-From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 15/15 v5] PCI: document the new PCI boot parameters
-Date: Tue, 21 Oct 2008 19:54:29 +0800
-Message-ID: <20081021115429.GP3185__41935.6129285463$1224595721$gmane$org@yzhao12-linux.sh.intel.com>
-References: <20081021114056.GA3185@yzhao12-linux.sh.intel.com>
+From: Chen Zumeng <zumeng.chen@windriver.com>
+Subject: Re: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.8.0:
+	Introduction
+Date: Tue, 21 Oct 2008 19:10:36 +0800
+Message-ID: <48FDB8AC.9020707__40360.4712606922$1224602629$gmane$org@windriver.com>
+References: <20081017.160950.71109894.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20081021114056.GA3185@yzhao12-linux.sh.intel.com>
+In-Reply-To: <20081017.160950.71109894.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,36 +18,79 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, fernando@oss.ntt.co.jp, agk@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Complete document for the new PCI boot parameters.
+Hi, Ryo Tsuruta
 
+I applied your patches(both) into the latest kernel(27), and dm-ioband
+looks work well(other than schedule_timeout in alloc_ioband_device);
+But I think you are the author of bio_tracking, so it is high
+appreciated if you can give your comments and advices for potential
+difference between 27-rc5-mm1 and 2.6.27 to me.
+
+And our test team want to test bio_tracking as your benchmark reports,
+so would you please send me your test codes? Thanks in advance.
+
+Regards,
+Zumeng
+
+P.S. The following are my changes to avoid schedule_timeout:
+
+
+diff --git a/drivers/md/dm-ioband-ctl.c b/drivers/md/dm-ioband-ctl.c
+index a792620..643ca4e 100644
+--- a/drivers/md/dm-ioband-ctl.c
++++ b/drivers/md/dm-ioband-ctl.c
+@@ -100,6 +100,7 @@ static struct ioband_device 
+*alloc_ioband_device(char *name,
+                         return dp;
+                 }
+         }
++       spin_unlock_irqrestore(&ioband_devicelist_lock, flags);
+
+         /*
+          * Prepare its own workqueue as generic_make_request() may
+@@ -133,9 +134,11 @@ static struct ioband_device 
+*alloc_ioband_device(char *name,
+         init_waitqueue_head(&new->g_waitq);
+         init_waitqueue_head(&new->g_waitq_suspend);
+         init_waitqueue_head(&new->g_waitq_flush);
+-       list_add_tail(&new->g_list, &ioband_device_list);
+
++       spin_lock_irqsave(&ioband_devicelist_lock, flags);
++       list_add_tail(&new->g_list, &ioband_device_list);
+         spin_unlock_irqrestore(&ioband_devicelist_lock, flags);
++
+         return new;
+  }
 ---
- Documentation/kernel-parameters.txt |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index 53ba7c7..5482ae0 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -1677,6 +1677,16 @@ and is between 256 and 4096 characters. It is defined in the file
- 		cbmemsize=nn[KMG]	The fixed amount of bus space which is
- 				reserved for the CardBus bridge's memory
- 				window. The default value is 64 megabytes.
-+		assign-mmio=[dddd:]bb	[X86] reassign memory resources of all
-+				devices under bus [dddd:]bb (dddd is the domain
-+				number and bb is the bus number).
-+		assign-pio=[dddd:]bb	[X86] reassign io port resources of all
-+				devices under bus [dddd:]bb (dddd is the domain
-+				number and bb is the bus number).
-+		align-mmio=[dddd:]bb:dd.f  [X86] relocate memory resources of a
-+				device with minimum PAGE_SIZE alignment (dddd
-+				is the domain number and bb, dd and f is the
-+				bus, device and function number).
- 
- 	pcie_aspm=	[PCIE] Forcibly enable or disable PCIe Active State Power
- 			Management.
--- 
-1.5.6.4
+Ryo Tsuruta wrote:
+> Hi Alasdair and all,
+> 
+> This is the dm-ioband version 1.8.0 release.
+> 
+> Dm-ioband is an I/O bandwidth controller implemented as a device-mapper
+> driver, which gives specified bandwidth to each job running on the same
+> physical device.
+> 
+> This release is a minor bug fix and confirmed running on the latest
+> stable kernel 2.6.27.1.
+> 
+> - Can be applied to the kernel 2.6.27.1 and 2.6.27-rc5-mm1.
+> - Changes from 1.7.0 (posted on Oct 3, 2008):
+>   - Fix a minor bug in io_limit setting that causes dm-ioband to stop
+>     issuing I/O requests when a large value is set to io_limit.
+> 
+> Alasdair, could you please review this patch and give me any comments?
+> 
+> Thanks,
+> Ryo Tsuruta
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
