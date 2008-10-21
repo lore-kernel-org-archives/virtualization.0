@@ -1,14 +1,15 @@
-From: Chen Zumeng <zumeng.chen@windriver.com>
-Subject: Re: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.8.0:
-	Introduction
-Date: Tue, 21 Oct 2008 19:10:36 +0800
-Message-ID: <48FDB8AC.9020707__40360.4712606922$1224602629$gmane$org@windriver.com>
-References: <20081017.160950.71109894.ryov@valinux.co.jp>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 12/15 v5] PCI: support the SR-IOV capability
+Date: Tue, 21 Oct 2008 09:50:54 -0700
+Message-ID: <20081021165054.GA24795__44261.4213018262$1224609201$gmane$org@kroah.com>
+References: <20081021114056.GA3185@yzhao12-linux.sh.intel.com>
+	<20081021115308.GM3185@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081017.160950.71109894.ryov@valinux.co.jp>
+Content-Disposition: inline
+In-Reply-To: <20081021115308.GM3185@yzhao12-linux.sh.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,79 +19,105 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryo Tsuruta <ryov@valinux.co.jp>
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, fernando@oss.ntt.co.jp, agk@redhat.com
+To: Yu Zhao <yu.zhao@intel.com>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Ryo Tsuruta
-
-I applied your patches(both) into the latest kernel(27), and dm-ioband
-looks work well(other than schedule_timeout in alloc_ioband_device);
-But I think you are the author of bio_tracking, so it is high
-appreciated if you can give your comments and advices for potential
-difference between 27-rc5-mm1 and 2.6.27 to me.
-
-And our test team want to test bio_tracking as your benchmark reports,
-so would you please send me your test codes? Thanks in advance.
-
-Regards,
-Zumeng
-
-P.S. The following are my changes to avoid schedule_timeout:
-
-
-diff --git a/drivers/md/dm-ioband-ctl.c b/drivers/md/dm-ioband-ctl.c
-index a792620..643ca4e 100644
---- a/drivers/md/dm-ioband-ctl.c
-+++ b/drivers/md/dm-ioband-ctl.c
-@@ -100,6 +100,7 @@ static struct ioband_device 
-*alloc_ioband_device(char *name,
-                         return dp;
-                 }
-         }
-+       spin_unlock_irqrestore(&ioband_devicelist_lock, flags);
-
-         /*
-          * Prepare its own workqueue as generic_make_request() may
-@@ -133,9 +134,11 @@ static struct ioband_device 
-*alloc_ioband_device(char *name,
-         init_waitqueue_head(&new->g_waitq);
-         init_waitqueue_head(&new->g_waitq_suspend);
-         init_waitqueue_head(&new->g_waitq_flush);
--       list_add_tail(&new->g_list, &ioband_device_list);
-
-+       spin_lock_irqsave(&ioband_devicelist_lock, flags);
-+       list_add_tail(&new->g_list, &ioband_device_list);
-         spin_unlock_irqrestore(&ioband_devicelist_lock, flags);
-+
-         return new;
-  }
----
-
-Ryo Tsuruta wrote:
-> Hi Alasdair and all,
+On Tue, Oct 21, 2008 at 07:53:08PM +0800, Yu Zhao wrote:
+> Support Single Root I/O Virtualization (SR-IOV) capability.
 > 
-> This is the dm-ioband version 1.8.0 release.
+> Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
+> Cc: Randy Dunlap <randy.dunlap@oracle.com>
+> Cc: Grant Grundler <grundler@parisc-linux.org>
+> Cc: Alex Chiang <achiang@hp.com>
+> Cc: Matthew Wilcox <matthew@wil.cx>
+> Cc: Roland Dreier <rdreier@cisco.com>
+> Cc: Greg KH <greg@kroah.com>
+> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 > 
-> Dm-ioband is an I/O bandwidth controller implemented as a device-mapper
-> driver, which gives specified bandwidth to each job running on the same
-> physical device.
+> ---
+>  drivers/pci/Kconfig      |   12 +
+>  drivers/pci/Makefile     |    2 +
+>  drivers/pci/iov.c        |  616 ++++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/pci/pci-sysfs.c  |    4 +
+>  drivers/pci/pci.c        |   14 +
+>  drivers/pci/pci.h        |   48 ++++
+>  drivers/pci/probe.c      |    4 +
+>  include/linux/pci.h      |   40 +++
+>  include/linux/pci_regs.h |   21 ++
+>  9 files changed, 761 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/pci/iov.c
 > 
-> This release is a minor bug fix and confirmed running on the latest
-> stable kernel 2.6.27.1.
-> 
-> - Can be applied to the kernel 2.6.27.1 and 2.6.27-rc5-mm1.
-> - Changes from 1.7.0 (posted on Oct 3, 2008):
->   - Fix a minor bug in io_limit setting that causes dm-ioband to stop
->     issuing I/O requests when a large value is set to io_limit.
-> 
-> Alasdair, could you please review this patch and give me any comments?
-> 
-> Thanks,
-> Ryo Tsuruta
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+> index e1ca425..e7c0836 100644
+> --- a/drivers/pci/Kconfig
+> +++ b/drivers/pci/Kconfig
+> @@ -50,3 +50,15 @@ config HT_IRQ
+>  	   This allows native hypertransport devices to use interrupts.
+>  
+>  	   If unsure say Y.
+> +
+> +config PCI_IOV
+> +	bool "PCI SR-IOV support"
+> +	depends on PCI
+> +	select PCI_MSI
+> +	default n
+> +	help
+> +	  This option allows device drivers to enable Single Root I/O
+> +	  Virtualization. Each Virtual Function's PCI configuration
+> +	  space can be accessed using its own Bus, Device and Function
+> +	  Number (Routing ID). Each Virtual Function also has PCI Memory
+> +	  Space, which is used to map its own register set.
+> diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
+> index 4b47f4e..abbfcfa 100644
+> --- a/drivers/pci/Makefile
+> +++ b/drivers/pci/Makefile
+> @@ -55,3 +55,5 @@ obj-$(CONFIG_PCI_SYSCALL) += syscall.o
+>  ifeq ($(CONFIG_PCI_DEBUG),y)
+>  EXTRA_CFLAGS += -DDEBUG
+>  endif
+> +
+> +obj-$(CONFIG_PCI_IOV) += iov.o
+> diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
+> new file mode 100644
+> index 0000000..571a46c
+> --- /dev/null
+> +++ b/drivers/pci/iov.c
+> @@ -0,0 +1,616 @@
+> +/*
+> + * drivers/pci/iov.c
+> + *
+> + * Copyright (C) 2008 Intel Corporation
+> + *
+> + * PCI Express Single Root I/O Virtualization capability support.
+> + */
+> +
+> +#include <linux/ctype.h>
+> +#include <linux/string.h>
+> +#include <linux/pci.h>
+> +#include <linux/delay.h>
+> +#include <asm/page.h>
+> +#include "pci.h"
+> +
+> +
+> +#define iov_config_attr(field)						\
+> +static ssize_t field##_show(struct device *dev,				\
+> +		struct device_attribute *attr, char *buf)		\
+> +{									\
+> +	struct pci_dev *pdev = to_pci_dev(dev);				\
+> +	return sprintf(buf, "%d\n", pdev->iov->field);			\
+> +}
+> +
+> +iov_config_attr(status);
+> +iov_config_attr(totalvfs);
+> +iov_config_attr(initialvfs);
+> +iov_config_attr(numvfs);
+
+As you are adding new sysfs entries, can you also create the proper
+documentation in Documentation/ABI/ so that people can understand how to
+use them?  Yes, I see you added a stand-alone document, but putting it
+in the "standard" format is also necessary.
+
+thanks,
+
+greg k-h
