@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 6/15 v5] PCI: add a new function to map BAR offset
-Date: Tue, 21 Oct 2008 19:48:27 +0800
-Message-ID: <20081021114827.GG3185__33695.1750716709$1224594031$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 7/15 v5] PCI: cleanup pcibios_allocate_resources()
+Date: Tue, 21 Oct 2008 19:48:52 +0800
+Message-ID: <20081021114852.GH3185__45896.9297273599$1224594245$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081021114056.GA3185@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,8 +22,7 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new function to map resource number to base register (offset
-and type).
+This cleanup makes pcibios_allocate_resources() easier to be read.
 
 Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
 Cc: Randy Dunlap <randy.dunlap@oracle.com>
@@ -35,90 +34,57 @@ Cc: Greg KH <greg@kroah.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/pci.c       |   22 ++++++++++++++++++++++
- drivers/pci/pci.h       |    2 ++
- drivers/pci/setup-res.c |   13 +++++--------
- 3 files changed, 29 insertions(+), 8 deletions(-)
+ arch/x86/pci/i386.c |   28 ++++++++++++++--------------
+ 1 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index a9b554e..b02167a 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1924,6 +1924,28 @@ int pci_resource_alignment(struct pci_dev *dev, int resno)
- 	return 0;
- }
- 
-+/**
-+ * pci_resource_bar - get position of the BAR associated with a resource
-+ * @dev: the PCI device
-+ * @resno: the resource number
-+ * @type: the BAR type to be filled in
-+ *
-+ * Returns BAR position in config space, or 0 if the BAR is invalid.
-+ */
-+int pci_resource_bar(struct pci_dev *dev, int resno, enum pci_bar_type *type)
-+{
-+	if (resno < PCI_ROM_RESOURCE) {
-+		*type = pci_bar_unknown;
-+		return PCI_BASE_ADDRESS_0 + 4 * resno;
-+	} else if (resno == PCI_ROM_RESOURCE) {
-+		*type = pci_bar_mem32;
-+		return dev->rom_base_reg;
-+	}
-+
-+	dev_err(&dev->dev, "BAR: invalid resource #%d\n", resno);
-+	return 0;
-+}
-+
- static void __devinit pci_no_domains(void)
+diff --git a/arch/x86/pci/i386.c b/arch/x86/pci/i386.c
+index 844df0c..8729bde 100644
+--- a/arch/x86/pci/i386.c
++++ b/arch/x86/pci/i386.c
+@@ -147,7 +147,7 @@ static void __init pcibios_allocate_bus_resources(struct list_head *bus_list)
+ static void __init pcibios_allocate_resources(int pass)
  {
- #ifdef CONFIG_PCI_DOMAINS
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index baa3d23..d707477 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -167,6 +167,8 @@ enum pci_bar_type {
- extern int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
- 				struct resource *res, unsigned int reg);
- extern int pci_resource_alignment(struct pci_dev *dev, int resno);
-+extern int pci_resource_bar(struct pci_dev *dev, int resno,
-+			    enum pci_bar_type *type);
- extern void pci_enable_ari(struct pci_dev *dev);
- /**
-  * pci_ari_enabled - query ARI forwarding status
-diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
-index 88a9c70..5812f4b 100644
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -31,6 +31,7 @@ void pci_update_resource(struct pci_dev *dev, int resno)
- 	struct pci_bus_region region;
- 	u32 new, check, mask;
- 	int reg;
-+	enum pci_bar_type type;
- 	struct resource *res = dev->resource + resno;
+ 	struct pci_dev *dev = NULL;
+-	int idx, disabled;
++	int idx, enabled;
+ 	u16 command;
+ 	struct resource *r, *pr;
  
- 	/*
-@@ -62,17 +63,13 @@ void pci_update_resource(struct pci_dev *dev, int resno)
- 	else
- 		mask = (u32)PCI_BASE_ADDRESS_MEM_MASK;
- 
--	if (resno < 6) {
--		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
--	} else if (resno == PCI_ROM_RESOURCE) {
-+	reg = pci_resource_bar(dev, resno, &type);
-+	if (!reg)
-+		return;
-+	if (type != pci_bar_unknown) {
- 		if (!(res->flags & IORESOURCE_ROM_ENABLE))
- 			return;
- 		new |= PCI_ROM_ADDRESS_ENABLE;
--		reg = dev->rom_base_reg;
--	} else {
--		/* Hmm, non-standard resource. */
--	
--		return;		/* kill uninitialised var warning */
- 	}
- 
- 	pci_write_config_dword(dev, reg, new);
+@@ -160,22 +160,22 @@ static void __init pcibios_allocate_resources(int pass)
+ 			if (!r->start)		/* Address not assigned at all */
+ 				continue;
+ 			if (r->flags & IORESOURCE_IO)
+-				disabled = !(command & PCI_COMMAND_IO);
++				enabled = command & PCI_COMMAND_IO;
+ 			else
+-				disabled = !(command & PCI_COMMAND_MEMORY);
+-			if (pass == disabled) {
+-				dev_dbg(&dev->dev, "resource %#08llx-%#08llx (f=%lx, d=%d, p=%d)\n",
++				enabled = command & PCI_COMMAND_MEMORY;
++			if (pass == enabled)
++				continue;
++			dev_dbg(&dev->dev, "resource %#08llx-%#08llx (f=%lx, d=%d, p=%d)\n",
+ 					(unsigned long long) r->start,
+ 					(unsigned long long) r->end,
+-					r->flags, disabled, pass);
+-				pr = pci_find_parent_resource(dev, r);
+-				if (!pr || request_resource(pr, r) < 0) {
+-					dev_err(&dev->dev, "BAR %d: can't allocate resource\n", idx);
+-					/* We'll assign a new address later */
+-					r->end -= r->start;
+-					r->start = 0;
+-				}
+-			}
++					r->flags, enabled, pass);
++			pr = pci_find_parent_resource(dev, r);
++			if (pr && !request_resource(pr, r))
++				continue;
++			dev_err(&dev->dev, "BAR %d: can't allocate resource\n", idx);
++			/* We'll assign a new address later */
++			r->end -= r->start;
++			r->start = 0;
+ 		}
+ 		if (!pass) {
+ 			r = &dev->resource[PCI_ROM_RESOURCE];
 -- 
 1.5.6.4
