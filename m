@@ -1,7 +1,8 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 3/15 v5] PCI: export __pci_read_base
-Date: Tue, 21 Oct 2008 19:45:27 +0800
-Message-ID: <20081021114527.GD3185__29438.6401809335$1224593426$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 4/15 v5] PCI: make pci_alloc_child_bus() be able to handle
+	NULL bridge
+Date: Tue, 21 Oct 2008 19:47:35 +0800
+Message-ID: <20081021114735.GE3185__40095.4748657115$1224593642$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081021114056.GA3185@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,7 +23,10 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Export __pci_read_base() so it can be used by whole PCI subsystem.
+Make pci_alloc_child_bus() be able to handle buses without bridge
+devices. Some devices such as SR-IOV devices use more than one bus
+number while there is no explicit bridge devices since they have
+internal routing mechanism.
 
 Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
 Cc: Randy Dunlap <randy.dunlap@oracle.com>
@@ -34,68 +38,37 @@ Cc: Greg KH <greg@kroah.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/pci.h   |    9 +++++++++
- drivers/pci/probe.c |   20 +++++++++-----------
- 2 files changed, 18 insertions(+), 11 deletions(-)
+ drivers/pci/probe.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index b205ab8..fbbc6ad 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -157,6 +157,15 @@ struct pci_slot_attribute {
- };
- #define to_pci_slot_attr(s) container_of(s, struct pci_slot_attribute, attr)
- 
-+enum pci_bar_type {
-+	pci_bar_unknown,	/* Standard PCI BAR probe */
-+	pci_bar_io,		/* An io port BAR */
-+	pci_bar_mem32,		/* A 32-bit memory BAR */
-+	pci_bar_mem64,		/* A 64-bit memory BAR */
-+};
-+
-+extern int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
-+				struct resource *res, unsigned int reg);
- extern void pci_enable_ari(struct pci_dev *dev);
- /**
-  * pci_ari_enabled - query ARI forwarding status
 diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index a52784c..db3e5a7 100644
+index db3e5a7..4b12b58 100644
 --- a/drivers/pci/probe.c
 +++ b/drivers/pci/probe.c
-@@ -135,13 +135,6 @@ static u64 pci_size(u64 base, u64 maxbase, u64 mask)
- 	return size;
- }
+@@ -401,12 +401,10 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+ 	if (!child)
+ 		return NULL;
  
--enum pci_bar_type {
--	pci_bar_unknown,	/* Standard PCI BAR probe */
--	pci_bar_io,		/* An io port BAR */
--	pci_bar_mem32,		/* A 32-bit memory BAR */
--	pci_bar_mem64,		/* A 64-bit memory BAR */
--};
--
- static inline enum pci_bar_type decode_bar(struct resource *res, u32 bar)
- {
- 	if ((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO) {
-@@ -156,11 +149,16 @@ static inline enum pci_bar_type decode_bar(struct resource *res, u32 bar)
- 	return pci_bar_mem32;
- }
+-	child->self = bridge;
+ 	child->parent = parent;
+ 	child->ops = parent->ops;
+ 	child->sysdata = parent->sysdata;
+ 	child->bus_flags = parent->bus_flags;
+-	child->bridge = get_device(&bridge->dev);
  
--/*
-- * If the type is not unknown, we assume that the lowest bit is 'enable'.
-- * Returns 1 if the BAR was 64-bit and 0 if it was 32-bit.
-+/**
-+ * pci_read_base - read a PCI BAR
-+ * @dev: the PCI device
-+ * @type: type of the BAR
-+ * @res: resource buffer to be filled in
-+ * @pos: BAR position in the config space
-+ *
-+ * Returns 1 if the BAR is 64-bit, or 0 if 32-bit.
-  */
--static int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
-+int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
- 			struct resource *res, unsigned int pos)
- {
- 	u32 l, sz, mask;
+ 	/* initialize some portions of the bus device, but don't register it
+ 	 * now as the parent is not properly set up yet.  This device will get
+@@ -423,6 +421,11 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+ 	child->primary = parent->secondary;
+ 	child->subordinate = 0xff;
+ 
++	if (!bridge)
++		return child;
++
++	child->self = bridge;
++	child->bridge = get_device(&bridge->dev);
+ 	/* Set up default resource pointers and names.. */
+ 	for (i = 0; i < PCI_BRIDGE_RES_NUM; i++) {
+ 		child->resource[i] = &bridge->resource[PCI_BRIDGE_RESOURCES+i];
 -- 
 1.5.6.4
