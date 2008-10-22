@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 1/16 v6] PCI: remove unnecessary arg of pci_update_resource()
-Date: Wed, 22 Oct 2008 16:40:11 +0800
-Message-ID: <20081022084011.GA3773__160.309187094931$1224668580$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 6/16 v6] PCI: add a new function to map BAR offset
+Date: Wed, 22 Oct 2008 16:42:18 +0800
+Message-ID: <20081022084218.GF3773__33858.9857718491$1224668720$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,9 +22,8 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This cleanup removes unnecessary argument 'struct resource *res' in
-pci_update_resource(), so it takes same arguments as other companion
-functions (pci_assign_resource(), etc.).
+Add a function to map resource number to corresponding register so
+people can get the offset and type of device specific BARs.
 
 Cc: Alex Chiang <achiang@hp.com>
 Cc: Grant Grundler <grundler@parisc-linux.org>
@@ -37,74 +36,90 @@ Cc: Roland Dreier <rdreier@cisco.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/pci.c       |    4 ++--
- drivers/pci/setup-res.c |    7 ++++---
- include/linux/pci.h     |    2 +-
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/pci/pci.c       |   22 ++++++++++++++++++++++
+ drivers/pci/pci.h       |    2 ++
+ drivers/pci/setup-res.c |   13 +++++--------
+ 3 files changed, 29 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 4db261e..ae62f01 100644
+index a9b554e..b02167a 100644
 --- a/drivers/pci/pci.c
 +++ b/drivers/pci/pci.c
-@@ -376,8 +376,8 @@ pci_restore_bars(struct pci_dev *dev)
- 		return;
- 	}
- 
--	for (i = 0; i < numres; i ++)
--		pci_update_resource(dev, &dev->resource[i], i);
-+	for (i = 0; i < numres; i++)
-+		pci_update_resource(dev, i);
+@@ -1924,6 +1924,28 @@ int pci_resource_alignment(struct pci_dev *dev, int resno)
+ 	return 0;
  }
  
- static struct pci_platform_pm_ops *pci_platform_pm;
++/**
++ * pci_resource_bar - get position of the BAR associated with a resource
++ * @dev: the PCI device
++ * @resno: the resource number
++ * @type: the BAR type to be filled in
++ *
++ * Returns BAR position in config space, or 0 if the BAR is invalid.
++ */
++int pci_resource_bar(struct pci_dev *dev, int resno, enum pci_bar_type *type)
++{
++	if (resno < PCI_ROM_RESOURCE) {
++		*type = pci_bar_unknown;
++		return PCI_BASE_ADDRESS_0 + 4 * resno;
++	} else if (resno == PCI_ROM_RESOURCE) {
++		*type = pci_bar_mem32;
++		return dev->rom_base_reg;
++	}
++
++	dev_err(&dev->dev, "BAR: invalid resource #%d\n", resno);
++	return 0;
++}
++
+ static void __devinit pci_no_domains(void)
+ {
+ #ifdef CONFIG_PCI_DOMAINS
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index baa3d23..d707477 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -167,6 +167,8 @@ enum pci_bar_type {
+ extern int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 				struct resource *res, unsigned int reg);
+ extern int pci_resource_alignment(struct pci_dev *dev, int resno);
++extern int pci_resource_bar(struct pci_dev *dev, int resno,
++			    enum pci_bar_type *type);
+ extern void pci_enable_ari(struct pci_dev *dev);
+ /**
+  * pci_ari_enabled - query ARI forwarding status
 diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
-index 2dbd96c..b7ca679 100644
+index 88a9c70..5812f4b 100644
 --- a/drivers/pci/setup-res.c
 +++ b/drivers/pci/setup-res.c
-@@ -26,11 +26,12 @@
- #include "pci.h"
- 
- 
--void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno)
-+void pci_update_resource(struct pci_dev *dev, int resno)
- {
+@@ -31,6 +31,7 @@ void pci_update_resource(struct pci_dev *dev, int resno)
  	struct pci_bus_region region;
  	u32 new, check, mask;
  	int reg;
-+	struct resource *res = dev->resource + resno;
++	enum pci_bar_type type;
+ 	struct resource *res = dev->resource + resno;
  
  	/*
- 	 * Ignore resources for unimplemented BARs and unused resource slots
-@@ -162,7 +163,7 @@ int pci_assign_resource(struct pci_dev *dev, int resno)
- 	} else {
- 		res->flags &= ~IORESOURCE_STARTALIGN;
- 		if (resno < PCI_BRIDGE_RESOURCES)
--			pci_update_resource(dev, res, resno);
-+			pci_update_resource(dev, resno);
+@@ -62,17 +63,13 @@ void pci_update_resource(struct pci_dev *dev, int resno)
+ 	else
+ 		mask = (u32)PCI_BASE_ADDRESS_MEM_MASK;
+ 
+-	if (resno < 6) {
+-		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
+-	} else if (resno == PCI_ROM_RESOURCE) {
++	reg = pci_resource_bar(dev, resno, &type);
++	if (!reg)
++		return;
++	if (type != pci_bar_unknown) {
+ 		if (!(res->flags & IORESOURCE_ROM_ENABLE))
+ 			return;
+ 		new |= PCI_ROM_ADDRESS_ENABLE;
+-		reg = dev->rom_base_reg;
+-	} else {
+-		/* Hmm, non-standard resource. */
+-	
+-		return;		/* kill uninitialised var warning */
  	}
  
- 	return ret;
-@@ -197,7 +198,7 @@ int pci_assign_resource_fixed(struct pci_dev *dev, int resno)
- 		dev_err(&dev->dev, "BAR %d: can't allocate %s resource %pR\n",
- 			resno, res->flags & IORESOURCE_IO ? "I/O" : "mem", res);
- 	} else if (resno < PCI_BRIDGE_RESOURCES) {
--		pci_update_resource(dev, res, resno);
-+		pci_update_resource(dev, resno);
- 	}
- 
- 	return ret;
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 085187b..43e1fc1 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -626,7 +626,7 @@ int pcix_get_mmrbc(struct pci_dev *dev);
- int pcix_set_mmrbc(struct pci_dev *dev, int mmrbc);
- int pcie_get_readrq(struct pci_dev *dev);
- int pcie_set_readrq(struct pci_dev *dev, int rq);
--void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno);
-+void pci_update_resource(struct pci_dev *dev, int resno);
- int __must_check pci_assign_resource(struct pci_dev *dev, int i);
- int pci_select_bars(struct pci_dev *dev, unsigned long flags);
- 
+ 	pci_write_config_dword(dev, reg, new);
 -- 
 1.5.6.4
