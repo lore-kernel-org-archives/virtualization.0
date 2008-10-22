@@ -1,16 +1,12 @@
-From: Yu Zhao <yu.zhao@uniscape.net>
-Subject: Re: [PATCH 2/16 v6] PCI: define PCI resource names in an 'enum'
-Date: Wed, 22 Oct 2008 22:53:59 +0800
-Message-ID: <48FF3E87.4090407@uniscape.net>
-References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
-	<200810220824.21356.bjorn.helgaas@hp.com>
-	<48FF3C48.9060809@uniscape.net>
-	<200810220851.13413.bjorn.helgaas@hp.com>
+From: Mark McLoughlin <markmc@redhat.com>
+Subject: [PATCH] virtio_net: hook up the set-tso ethtool op
+Date: Wed, 22 Oct 2008 16:32:26 +0100
+Message-ID: <1224689546.30669.4.camel__17799.3999947377$1224689854$gmane$org@blaa>
+Reply-To: Mark McLoughlin <markmc@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200810220851.13413.bjorn.helgaas@hp.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,65 +16,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, "mingo@elte.hu" <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev <netdev@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Bjorn Helgaas wrote:
-> On Wednesday 22 October 2008 08:44:24 am Yu Zhao wrote:
->> Bjorn Helgaas wrote:
->>> On Wednesday 22 October 2008 02:40:41 am Yu Zhao wrote:
->>>> This patch moves all definitions of the PCI resource names to an 'enum',
->>>> and also replaces some hard-coded resource variables with symbol
->>>> names. This change eases introduction of device specific resources.
->>> Thanks for removing a bunch of magic numbers from the code.
->>>
->>>>  static void
->>>>  pci_restore_bars(struct pci_dev *dev)
->>>>  {
->>>> -	int i, numres;
->>>> -
->>>> -	switch (dev->hdr_type) {
->>>> -	case PCI_HEADER_TYPE_NORMAL:
->>>> -		numres = 6;
->>>> -		break;
->>>> -	case PCI_HEADER_TYPE_BRIDGE:
->>>> -		numres = 2;
->>>> -		break;
->>>> -	case PCI_HEADER_TYPE_CARDBUS:
->>>> -		numres = 1;
->>>> -		break;
->>>> -	default:
->>>> -		/* Should never get here, but just in case... */
->>>> -		return;
->>>> -	}
->>>> +	int i;
->>>>  
->>>> -	for (i = 0; i < numres; i++)
->>>> +	for (i = 0; i < PCI_BRIDGE_RESOURCES; i++)
->>>>  		pci_update_resource(dev, i);
->>>>  }
->>> The behavior of this function used to depend on dev->hdr_type.  Now
->>> we don't look at hdr_type at all, so we do the same thing for all
->>> devices.
->>>
->>> For example, for a CardBus device, we used to call pci_update_resource()
->>> only for BAR 0; now we call it for BARs 0-6.
->>>
->>> Maybe this is safe, but I can't tell from the patch, so I think you
->>> should explain *why* it's safe in the changelog.
->> It's safe because pci_update_resource() will ignore unused resources. 
->> E.g., for a Cardbus, only BAR 0 is used and its 'flags' is set, then 
->> pci_update_resource() only updates it. BAR 1-6 are ignored since their 
->> 'flags' are 0.
->>
->> I'll put more explanation in the changelog.
-> 
-> This is a logically separate change from merely substituting enum
-> names for magic numbers, so you might even consider splitting it
-> into a separate patch.  Better bisection and all that, you know :-)
+Seems like an oversight that we have set-tx-csum and set-sg hooked
+up, but not set-tso.
 
-Will do.
+Also leads to the strange situation that if you e.g. disable tx-csum,
+then tso doesn't get disabled.
 
-Thanks,
-Yu
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ drivers/net/virtio_net.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index cca6435..79b59cc 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -612,6 +612,7 @@ static int virtnet_set_tx_csum(struct net_device *dev, u32 data)
+ static struct ethtool_ops virtnet_ethtool_ops = {
+ 	.set_tx_csum = virtnet_set_tx_csum,
+ 	.set_sg = ethtool_op_set_sg,
++	.set_tso = ethtool_op_set_tso,
+ };
+ 
+ static int virtnet_probe(struct virtio_device *vdev)
+-- 
+1.6.0.1
