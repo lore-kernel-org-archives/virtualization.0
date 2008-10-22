@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 9/16 v6] PCI: add boot option to align MMIO resources
-Date: Wed, 22 Oct 2008 16:43:24 +0800
-Message-ID: <20081022084324.GI3773__45082.8494890176$1224669101$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 11/16 v6] PCI: split a new function from pci_bus_add_devices()
+Date: Wed, 22 Oct 2008 16:44:05 +0800
+Message-ID: <20081022084405.GK3773__43435.0143805661$1224669306$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,14 +22,9 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds boot option to align MMIO resource for a device.
-The alignment is a bigger value between the PAGE_SIZE and the
-resource size.
-
-The boot option can be used as:
-	pci=align-mmio=0000:01:02.3
-'[0000:]01:02.3' is the domain, bus, device and function number
-of the device.
+This patch splits a new function from pci_bus_add_devices(). The new
+function can be used to register PCI bus to the device core and create
+its sysfs entries.
 
 Cc: Alex Chiang <achiang@hp.com>
 Cc: Grant Grundler <grundler@parisc-linux.org>
@@ -42,133 +37,87 @@ Cc: Roland Dreier <rdreier@cisco.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- arch/x86/pci/common.c |   37 +++++++++++++++++++++++++++++++++++++
- drivers/pci/pci.c     |   20 ++++++++++++++++++--
- include/linux/pci.h   |    1 +
- 3 files changed, 56 insertions(+), 2 deletions(-)
+ drivers/pci/bus.c   |   47 ++++++++++++++++++++++++++++-------------------
+ include/linux/pci.h |    1 +
+ 2 files changed, 29 insertions(+), 19 deletions(-)
 
-diff --git a/arch/x86/pci/common.c b/arch/x86/pci/common.c
-index 06e1ce0..3c5d230 100644
---- a/arch/x86/pci/common.c
-+++ b/arch/x86/pci/common.c
-@@ -139,6 +139,7 @@ static void __devinit pcibios_fixup_device_resources(struct pci_dev *dev)
- 
- static char *pci_assign_pio;
- static char *pci_assign_mmio;
-+static char *pci_align_mmio;
- 
- static int pcibios_bus_resource_needs_fixup(struct pci_bus *bus)
- {
-@@ -192,6 +193,36 @@ static void __devinit pcibios_fixup_bus_resources(struct pci_bus *bus)
- 	}
- }
- 
-+int pcibios_resource_alignment(struct pci_dev *dev, int resno)
-+{
-+	int domain, busnr, slot, func;
-+	char *str = pci_align_mmio;
-+
-+	if (dev->resource[resno].flags & IORESOURCE_IO)
-+		return 0;
-+
-+	while (str && *str) {
-+		if (sscanf(str, "%04x:%02x:%02x.%d",
-+				&domain, &busnr, &slot, &func) != 4) {
-+			if (sscanf(str, "%02x:%02x.%d",
-+					&busnr, &slot, &func) != 3)
-+				break;
-+			domain = 0;
-+		}
-+
-+		if (pci_domain_nr(dev->bus) == domain &&
-+		    dev->bus->number == busnr &&
-+		    dev->devfn == PCI_DEVFN(slot, func))
-+			return PAGE_SIZE;
-+
-+		str = strchr(str, ';');
-+		if (str)
-+			str++;
-+	}
-+
-+	return 0;
-+}
-+
- int pcibios_resource_needs_fixup(struct pci_dev *dev, int resno)
- {
- 	struct pci_bus *bus;
-@@ -200,6 +231,9 @@ int pcibios_resource_needs_fixup(struct pci_dev *dev, int resno)
- 		if (pcibios_bus_resource_needs_fixup(bus))
- 			return 1;
- 
-+	if (pcibios_resource_alignment(dev, resno))
-+			return 1;
-+
- 	return 0;
- }
- 
-@@ -592,6 +626,9 @@ char * __devinit  pcibios_setup(char *str)
- 	} else if (!strncmp(str, "assign-mmio=", 12)) {
- 		pci_assign_mmio = str + 12;
- 		return NULL;
-+	} else if (!strncmp(str, "align-mmio=", 11)) {
-+		pci_align_mmio = str + 11;
-+		return NULL;
- 	}
- 	return str;
- }
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index b02167a..11ecd6f 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1015,6 +1015,20 @@ int __attribute__ ((weak)) pcibios_set_pcie_reset_state(struct pci_dev *dev,
+diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
+index 7a21602..1713c35 100644
+--- a/drivers/pci/bus.c
++++ b/drivers/pci/bus.c
+@@ -91,6 +91,32 @@ int pci_bus_add_device(struct pci_dev *dev)
  }
  
  /**
-+ * pcibios_resource_alignment - get resource alignment requirement
-+ * @dev: the PCI device
-+ * @resno: resource number
++ * pci_bus_add_child - add a child bus
++ * @bus: bus to add
 + *
-+ * Queries the resource alignment from PCI low level code. Returns positive
-+ * if there is alignment requirement of the resource, or 0 otherwise.
++ * This adds sysfs entries for a single bus
 + */
-+int __attribute__ ((weak)) pcibios_resource_alignment(struct pci_dev *dev,
-+						      int resno)
++int pci_bus_add_child(struct pci_bus *bus)
 +{
-+	return 0;
++	int retval;
++
++	if (bus->bridge)
++		bus->dev.parent = bus->bridge;
++
++	retval = device_register(&bus->dev);
++	if (retval)
++		return retval;
++
++	bus->is_added = 1;
++
++	retval = device_create_file(&bus->dev, &dev_attr_cpuaffinity);
++	if (retval)
++		return retval;
++
++	return device_create_file(&bus->dev, &dev_attr_cpulistaffinity);
 +}
 +
 +/**
-  * pci_set_pcie_reset_state - set reset state for device dev
-  * @dev: the PCI-E device reset
-  * @state: Reset state to enter into
-@@ -1913,12 +1927,14 @@ int pci_select_bars(struct pci_dev *dev, unsigned long flags)
-  */
- int pci_resource_alignment(struct pci_dev *dev, int resno)
- {
--	resource_size_t align;
-+	resource_size_t align, bios_align;
- 	struct resource *res = dev->resource + resno;
+  * pci_bus_add_devices - insert newly discovered PCI devices
+  * @bus: bus to check for new devices
+  *
+@@ -141,26 +167,9 @@ void pci_bus_add_devices(struct pci_bus *bus)
+ 		 */
+ 		if (child->is_added)
+ 			continue;
+-		child->dev.parent = child->bridge;
+-		retval = device_register(&child->dev);
++		retval = pci_bus_add_child(child);
+ 		if (retval)
+-			dev_err(&dev->dev, "Error registering pci_bus,"
+-				" continuing...\n");
+-		else {
+-			child->is_added = 1;
+-			retval = device_create_file(&child->dev,
+-						&dev_attr_cpuaffinity);
+-			if (retval)
+-				dev_err(&dev->dev, "Error creating cpuaffinity"
+-					" file, continuing...\n");
+-
+-			retval = device_create_file(&child->dev,
+-						&dev_attr_cpulistaffinity);
+-			if (retval)
+-				dev_err(&dev->dev,
+-					"Error creating cpulistaffinity"
+-					" file, continuing...\n");
+-		}
++			dev_err(&dev->dev, "Error adding bus, continuing\n");
+ 	}
+ }
  
-+	bios_align = pcibios_resource_alignment(dev, resno);
-+
- 	align = resource_alignment(res);
- 	if (align)
--		return align;
-+		return align > bios_align ? align : bios_align;
- 
- 	dev_err(&dev->dev, "alignment: invalid resource #%d\n", resno);
- 	return 0;
 diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 2ada2b6..6ac69af 100644
+index 6ac69af..80d88f8 100644
 --- a/include/linux/pci.h
 +++ b/include/linux/pci.h
-@@ -1121,6 +1121,7 @@ int pcibios_add_platform_entries(struct pci_dev *dev);
- void pcibios_disable_device(struct pci_dev *dev);
- int pcibios_set_pcie_reset_state(struct pci_dev *dev,
- 				 enum pcie_reset_state state);
-+int pcibios_resource_alignment(struct pci_dev *dev, int resno);
- 
- #ifdef CONFIG_PCI_MMCONFIG
- extern void __init pci_mmcfg_early_init(void);
+@@ -528,6 +528,7 @@ struct pci_dev *pci_scan_single_device(struct pci_bus *bus, int devfn);
+ void pci_device_add(struct pci_dev *dev, struct pci_bus *bus);
+ unsigned int pci_scan_child_bus(struct pci_bus *bus);
+ int __must_check pci_bus_add_device(struct pci_dev *dev);
++int pci_bus_add_child(struct pci_bus *bus);
+ void pci_read_bridge_bases(struct pci_bus *child);
+ struct resource *pci_find_parent_resource(const struct pci_dev *dev,
+ 					  struct resource *res);
 -- 
 1.5.6.4
