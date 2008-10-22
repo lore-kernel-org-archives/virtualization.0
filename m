@@ -1,15 +1,15 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.8.0:
-	Introduction
-Date: Wed, 22 Oct 2008 19:38:31 +0900 (JST)
-Message-ID: <20081022.193831.193716981.ryov__29934.5622690909$1224672061$gmane$org@valinux.co.jp>
-References: <20081017.160950.71109894.ryov@valinux.co.jp>
-	<48FDB8AC.9020707@windriver.com>
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH 2/16 v6] PCI: define PCI resource names in an 'enum'
+Date: Wed, 22 Oct 2008 08:24:19 -0600
+Message-ID: <200810220824.21356.bjorn.helgaas__46677.1594052718$1224686143$gmane$org@hp.com>
+References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
+	<20081022084041.GB3773@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <48FDB8AC.9020707@windriver.com>
+In-Reply-To: <20081022084041.GB3773@yzhao12-linux.sh.intel.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,25 +19,72 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: zumeng.chen@windriver.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, fernando@oss.ntt.co.jp, agk@redhat.com
+To: Yu Zhao <yu.zhao@intel.com>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Chen,
+On Wednesday 22 October 2008 02:40:41 am Yu Zhao wrote:
+> This patch moves all definitions of the PCI resource names to an 'enum',
+> and also replaces some hard-coded resource variables with symbol
+> names. This change eases introduction of device specific resources.
 
-> I applied your patches(both) into the latest kernel(27), and dm-ioband
-> looks work well(other than schedule_timeout in alloc_ioband_device);
-> But I think you are the author of bio_tracking, so it is high
-> appreciated if you can give your comments and advices for potential
-> difference between 27-rc5-mm1 and 2.6.27 to me.
+Thanks for removing a bunch of magic numbers from the code.
 
-There is no major difference between both version, but I have no time
-to port and test bio-cgroup to/on 2.6.27.
+>  static void
+>  pci_restore_bars(struct pci_dev *dev)
+>  {
+> -	int i, numres;
+> -
+> -	switch (dev->hdr_type) {
+> -	case PCI_HEADER_TYPE_NORMAL:
+> -		numres = 6;
+> -		break;
+> -	case PCI_HEADER_TYPE_BRIDGE:
+> -		numres = 2;
+> -		break;
+> -	case PCI_HEADER_TYPE_CARDBUS:
+> -		numres = 1;
+> -		break;
+> -	default:
+> -		/* Should never get here, but just in case... */
+> -		return;
+> -	}
+> +	int i;
+>  
+> -	for (i = 0; i < numres; i++)
+> +	for (i = 0; i < PCI_BRIDGE_RESOURCES; i++)
+>  		pci_update_resource(dev, i);
+>  }
 
-Kamezawa-san said
-> the newest mmotm has the newest *big* change. enjoy it ;)
+The behavior of this function used to depend on dev->hdr_type.  Now
+we don't look at hdr_type at all, so we do the same thing for all
+devices.
 
-The next bio-cgroup patch will be based on this newest change.
+For example, for a CardBus device, we used to call pci_update_resource()
+only for BAR 0; now we call it for BARs 0-6.
 
-Thanks,
-Ryo Tsuruta
+Maybe this is safe, but I can't tell from the patch, so I think you
+should explain *why* it's safe in the changelog.
+
+> +/*
+> + *  For PCI devices, the region numbers are assigned this way:
+> + */
+> +enum {
+> +	/* #0-5: standard PCI regions */
+> +	PCI_STD_RESOURCES,
+> +	PCI_STD_RESOURCES_END = 5,
+> +
+> +	/* #6: expansion ROM */
+> +	PCI_ROM_RESOURCE,
+> +
+> +	/* address space assigned to buses behind the bridge */
+> +#ifndef PCI_BRIDGE_RES_NUM
+> +#define PCI_BRIDGE_RES_NUM 4
+> +#endif
+> +	PCI_BRIDGE_RESOURCES,
+> +	PCI_BRIDGE_RES_END = PCI_BRIDGE_RESOURCES + PCI_BRIDGE_RES_NUM - 1,
+
+Since you used "PCI_STD_RESOURCES_END" above, maybe you should use
+"PCI_BRIDGE_RESOURCES_END" instead of "PCI_BRIDGE_RES_END".
+
+Bjorn
