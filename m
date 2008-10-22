@@ -1,12 +1,14 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
-Date: Wed, 22 Oct 2008 16:38:09 +0800
-Message-ID: <20081022083809.GA3757__9223.48918761617$1224668268$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 2/16 v6] PCI: define PCI resource names in an 'enum'
+Date: Wed, 22 Oct 2008 16:40:41 +0800
+Message-ID: <20081022084041.GB3773__14726.4386447661$1224668400$gmane$org@yzhao12-linux.sh.intel.com>
+References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,57 +18,173 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-pci@vger.kernel.org
-Cc: randy.dunlap@oracle.com, grundler@parisc-linux.org, achiang@hp.com, matthew@wil.cx, greg@kroah.com, rdreier@cisco.com, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mingo@elte.hu
+To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Greetings,
+This patch moves all definitions of the PCI resource names to an 'enum',
+and also replaces some hard-coded resource variables with symbol
+names. This change eases introduction of device specific resources.
 
-Following patches are intended to support SR-IOV capability in the
-Linux kernel. With these patches, people can turn a PCI device with
-the capability into multiple ones from software perspective, which
-will benefit KVM and achieve other purposes such as QoS, security,
-and etc.
-
-Changes from v5 to v6:
-1, update ABI document to include SR-IOV sysfs entries (Greg KH)
-2, fix two coding style problems (Ingo Molnar)
-
----
-
-[PATCH 1/16 v6] PCI: remove unnecessary arg of pci_update_resource()
-[PATCH 2/16 v6] PCI: define PCI resource names in an 'enum'
-[PATCH 3/16 v6] PCI: export __pci_read_base
-[PATCH 4/16 v6] PCI: make pci_alloc_child_bus() be able to handle NULL bridge
-[PATCH 5/16 v6] PCI: add a wrapper for resource_alignment()
-[PATCH 6/16 v6] PCI: add a new function to map BAR offset
-[PATCH 7/16 v6] PCI: cleanup pcibios_allocate_resources()
-[PATCH 8/16 v6] PCI: add boot options to reassign resources
-[PATCH 9/16 v6] PCI: add boot option to align MMIO resources
-[PATCH 10/16 v6] PCI: cleanup pci_bus_add_devices()
-[PATCH 11/16 v6] PCI: split a new function from pci_bus_add_devices()
-[PATCH 12/16 v6] PCI: support the SR-IOV capability
-[PATCH 13/16 v6] PCI: reserve bus range for SR-IOV device
-[PATCH 14/16 v6] PCI: document for SR-IOV user and developer
-[PATCH 15/16 v6] PCI: document the SR-IOV sysfs entries
-[PATCH 16/16 v6] PCI: document the new PCI boot parameters
+Cc: Alex Chiang <achiang@hp.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>
+Cc: Greg KH <greg@kroah.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: Matthew Wilcox <matthew@wil.cx>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Roland Dreier <rdreier@cisco.com>
+Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
+ drivers/pci/pci-sysfs.c |    4 +++-
+ drivers/pci/pci.c       |   19 ++-----------------
+ drivers/pci/probe.c     |    2 +-
+ drivers/pci/proc.c      |    7 ++++---
+ include/linux/pci.h     |   37 ++++++++++++++++++++++++-------------
+ 5 files changed, 34 insertions(+), 35 deletions(-)
 
-Single Root I/O Virtualization (SR-IOV) capability defined by PCI-SIG
-is intended to enable multiple system software to share PCI hardware
-resources.  PCI device that supports this capability can be extended
-to one Physical Functions plus multiple Virtual Functions. Physical
-Function, which could be considered as the "real" PCI device, reflects
-the hardware instance and manages all physical resources. Virtual
-Functions are associated with a Physical Function and shares physical
-resources with the Physical Function.Software can control allocation of
-Virtual Functions via registers encapsulated in the capability structure.
-
-SR-IOV specification can be found at
-http://www.pcisig.com/members/downloads/specifications/iov/sr-iov1.0_11Sep07.pdf
-
-Devices that support SR-IOV are available from following vendors:
-http://download.intel.com/design/network/ProdBrf/320025.pdf
-http://www.netxen.com/products/chipsolutions/NX3031.html
-http://www.neterion.com/products/x3100.html
+diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+index 110022d..5c456ab 100644
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -101,11 +101,13 @@ resource_show(struct device * dev, struct device_attribute *attr, char * buf)
+ 	struct pci_dev * pci_dev = to_pci_dev(dev);
+ 	char * str = buf;
+ 	int i;
+-	int max = 7;
++	int max;
+ 	resource_size_t start, end;
+ 
+ 	if (pci_dev->subordinate)
+ 		max = DEVICE_COUNT_RESOURCE;
++	else
++		max = PCI_BRIDGE_RESOURCES;
+ 
+ 	for (i = 0; i < max; i++) {
+ 		struct resource *res =  &pci_dev->resource[i];
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index ae62f01..40284dc 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -359,24 +359,9 @@ pci_find_parent_resource(const struct pci_dev *dev, struct resource *res)
+ static void
+ pci_restore_bars(struct pci_dev *dev)
+ {
+-	int i, numres;
+-
+-	switch (dev->hdr_type) {
+-	case PCI_HEADER_TYPE_NORMAL:
+-		numres = 6;
+-		break;
+-	case PCI_HEADER_TYPE_BRIDGE:
+-		numres = 2;
+-		break;
+-	case PCI_HEADER_TYPE_CARDBUS:
+-		numres = 1;
+-		break;
+-	default:
+-		/* Should never get here, but just in case... */
+-		return;
+-	}
++	int i;
+ 
+-	for (i = 0; i < numres; i++)
++	for (i = 0; i < PCI_BRIDGE_RESOURCES; i++)
+ 		pci_update_resource(dev, i);
+ }
+ 
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index aaaf0a1..a52784c 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -426,7 +426,7 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+ 	child->subordinate = 0xff;
+ 
+ 	/* Set up default resource pointers and names.. */
+-	for (i = 0; i < 4; i++) {
++	for (i = 0; i < PCI_BRIDGE_RES_NUM; i++) {
+ 		child->resource[i] = &bridge->resource[PCI_BRIDGE_RESOURCES+i];
+ 		child->resource[i]->name = child->name;
+ 	}
+diff --git a/drivers/pci/proc.c b/drivers/pci/proc.c
+index e1098c3..f6f2a59 100644
+--- a/drivers/pci/proc.c
++++ b/drivers/pci/proc.c
+@@ -352,15 +352,16 @@ static int show_device(struct seq_file *m, void *v)
+ 			dev->vendor,
+ 			dev->device,
+ 			dev->irq);
+-	/* Here should be 7 and not PCI_NUM_RESOURCES as we need to preserve compatibility */
+-	for (i=0; i<7; i++) {
++
++	/* only print standard and ROM resources to preserve compatibility */
++	for (i = 0; i <= PCI_ROM_RESOURCE; i++) {
+ 		resource_size_t start, end;
+ 		pci_resource_to_user(dev, i, &dev->resource[i], &start, &end);
+ 		seq_printf(m, "\t%16llx",
+ 			(unsigned long long)(start |
+ 			(dev->resource[i].flags & PCI_REGION_FLAG_MASK)));
+ 	}
+-	for (i=0; i<7; i++) {
++	for (i = 0; i <= PCI_ROM_RESOURCE; i++) {
+ 		resource_size_t start, end;
+ 		pci_resource_to_user(dev, i, &dev->resource[i], &start, &end);
+ 		seq_printf(m, "\t%16llx",
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 43e1fc1..2ada2b6 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -76,7 +76,30 @@ enum pci_mmap_state {
+ #define PCI_DMA_FROMDEVICE	2
+ #define PCI_DMA_NONE		3
+ 
+-#define DEVICE_COUNT_RESOURCE	12
++/*
++ *  For PCI devices, the region numbers are assigned this way:
++ */
++enum {
++	/* #0-5: standard PCI regions */
++	PCI_STD_RESOURCES,
++	PCI_STD_RESOURCES_END = 5,
++
++	/* #6: expansion ROM */
++	PCI_ROM_RESOURCE,
++
++	/* address space assigned to buses behind the bridge */
++#ifndef PCI_BRIDGE_RES_NUM
++#define PCI_BRIDGE_RES_NUM 4
++#endif
++	PCI_BRIDGE_RESOURCES,
++	PCI_BRIDGE_RES_END = PCI_BRIDGE_RESOURCES + PCI_BRIDGE_RES_NUM - 1,
++
++	/* total resources associated with a PCI device */
++	PCI_NUM_RESOURCES,
++
++	/* preserve this for compatibility */
++	DEVICE_COUNT_RESOURCE
++};
+ 
+ typedef int __bitwise pci_power_t;
+ 
+@@ -262,18 +285,6 @@ static inline void pci_add_saved_cap(struct pci_dev *pci_dev,
+ 	hlist_add_head(&new_cap->next, &pci_dev->saved_cap_space);
+ }
+ 
+-/*
+- *  For PCI devices, the region numbers are assigned this way:
+- *
+- *	0-5	standard PCI regions
+- *	6	expansion ROM
+- *	7-10	bridges: address space assigned to buses behind the bridge
+- */
+-
+-#define PCI_ROM_RESOURCE	6
+-#define PCI_BRIDGE_RESOURCES	7
+-#define PCI_NUM_RESOURCES	11
+-
+ #ifndef PCI_BUS_NUM_RESOURCES
+ #define PCI_BUS_NUM_RESOURCES	16
+ #endif
+-- 
+1.5.6.4
