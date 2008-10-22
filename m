@@ -1,15 +1,15 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 8/15 v5] PCI: add boot options to reassign resources
-Date: Wed, 22 Oct 2008 09:19:09 +0200
-Message-ID: <20081022071909.GB27637__24458.6002700546$1224660121$gmane$org@elte.hu>
-References: <20081021114056.GA3185@yzhao12-linux.sh.intel.com>
-	<20081021114959.GI3185@yzhao12-linux.sh.intel.com>
+From: Chen Zumeng <zumeng.chen@windriver.com>
+Subject: Re: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.8.0:
+	Introduction
+Date: Wed, 22 Oct 2008 15:55:15 +0800
+Message-ID: <48FEDC63.308__13356.7442688674$1224662448$gmane$org@windriver.com>
+References: <20081017.160950.71109894.ryov@valinux.co.jp>
+	<48FDB8AC.9020707@windriver.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20081021114959.GI3185@yzhao12-linux.sh.intel.com>
+In-Reply-To: <48FDB8AC.9020707@windriver.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,37 +19,85 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yu Zhao <yu.zhao@intel.com>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, Yinghai Lu <yinghai@kernel.org>
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, fernando@oss.ntt.co.jp, Bruce Ashfield <bruce.ashfield@windriver.com>, Haotian Zhang <haotian.zhang@windriver.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Chen Zumeng wrote:
+> Hi, Ryo Tsuruta
+> 
+> And our test team want to test bio_tracking as your benchmark reports,
+> so would you please send me your test codes? Thanks in advance.
+Hi Ryo Tsuruta,
 
-* Yu Zhao <yu.zhao@intel.com> wrote:
+I wonder if you received last email, so I reply this email to ask
+for your bio_tracking test codes to generate your benchmark reports
+as shown in your website. Thanks in advance :)
 
-> +static char *pci_assign_pio;
-> +static char *pci_assign_mmio;
+Regards,
+Zumeng
+> 
+> Regards,
+> Zumeng
+> 
+> P.S. The following are my changes to avoid schedule_timeout:
+> 
+> 
+> diff --git a/drivers/md/dm-ioband-ctl.c b/drivers/md/dm-ioband-ctl.c
+> index a792620..643ca4e 100644
+> --- a/drivers/md/dm-ioband-ctl.c
+> +++ b/drivers/md/dm-ioband-ctl.c
+> @@ -100,6 +100,7 @@ static struct ioband_device 
+> *alloc_ioband_device(char *name,
+>                         return dp;
+>                 }
+>         }
+> +       spin_unlock_irqrestore(&ioband_devicelist_lock, flags);
+> 
+>         /*
+>          * Prepare its own workqueue as generic_make_request() may
+> @@ -133,9 +134,11 @@ static struct ioband_device 
+> *alloc_ioband_device(char *name,
+>         init_waitqueue_head(&new->g_waitq);
+>         init_waitqueue_head(&new->g_waitq_suspend);
+>         init_waitqueue_head(&new->g_waitq_flush);
+> -       list_add_tail(&new->g_list, &ioband_device_list);
+> 
+> +       spin_lock_irqsave(&ioband_devicelist_lock, flags);
+> +       list_add_tail(&new->g_list, &ioband_device_list);
+>         spin_unlock_irqrestore(&ioband_devicelist_lock, flags);
 > +
-> +static int pcibios_bus_resource_needs_fixup(struct pci_bus *bus)
-> +{
-> +	int i;
-> +	int type = 0;
-> +	int domain, busnr;
-> +
-> +	if (!bus->self)
-> +		return 0;
-> +
-> +	for (i = 0; i < 2; i++) {
-> +		char *str = i ? pci_assign_pio : pci_assign_mmio;
-> +		while (str && *str) {
-
-please put a newline after local variable defitions.
-
-> +	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
-> +		struct resource *res = bus->resource[i];
-> +		if (!res)
-
-ditto.
-
-nice debug feature!
-
-	Ingo
+>         return new;
+>  }
+> ---
+> 
+> Ryo Tsuruta wrote:
+>> Hi Alasdair and all,
+>>
+>> This is the dm-ioband version 1.8.0 release.
+>>
+>> Dm-ioband is an I/O bandwidth controller implemented as a device-mapper
+>> driver, which gives specified bandwidth to each job running on the same
+>> physical device.
+>>
+>> This release is a minor bug fix and confirmed running on the latest
+>> stable kernel 2.6.27.1.
+>>
+>> - Can be applied to the kernel 2.6.27.1 and 2.6.27-rc5-mm1.
+>> - Changes from 1.7.0 (posted on Oct 3, 2008):
+>>   - Fix a minor bug in io_limit setting that causes dm-ioband to stop
+>>     issuing I/O requests when a large value is set to io_limit.
+>>
+>> Alasdair, could you please review this patch and give me any comments?
+>>
+>> Thanks,
+>> Ryo Tsuruta
+>> -- 
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+> 
+> 
