@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 11/16 v6] PCI: split a new function from pci_bus_add_devices()
-Date: Wed, 22 Oct 2008 16:44:05 +0800
-Message-ID: <20081022084405.GK3773__43435.0143805661$1224669306$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 10/16 v6] PCI: cleanup pci_bus_add_devices()
+Date: Wed, 22 Oct 2008 16:43:46 +0800
+Message-ID: <20081022084346.GJ3773__19387.3112010353$1224669312$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,9 +22,7 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch splits a new function from pci_bus_add_devices(). The new
-function can be used to register PCI bus to the device core and create
-its sysfs entries.
+This cleanup makes pci_bus_add_devices() easier to read.
 
 Cc: Alex Chiang <achiang@hp.com>
 Cc: Grant Grundler <grundler@parisc-linux.org>
@@ -37,87 +35,111 @@ Cc: Roland Dreier <rdreier@cisco.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/bus.c   |   47 ++++++++++++++++++++++++++++-------------------
- include/linux/pci.h |    1 +
- 2 files changed, 29 insertions(+), 19 deletions(-)
+ drivers/pci/bus.c    |   56 +++++++++++++++++++++++++------------------------
+ drivers/pci/remove.c |    2 +
+ 2 files changed, 31 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
-index 7a21602..1713c35 100644
+index 999cc40..7a21602 100644
 --- a/drivers/pci/bus.c
 +++ b/drivers/pci/bus.c
-@@ -91,6 +91,32 @@ int pci_bus_add_device(struct pci_dev *dev)
+@@ -71,7 +71,7 @@ pci_bus_alloc_resource(struct pci_bus *bus, struct resource *res,
  }
  
  /**
-+ * pci_bus_add_child - add a child bus
-+ * @bus: bus to add
-+ *
-+ * This adds sysfs entries for a single bus
-+ */
-+int pci_bus_add_child(struct pci_bus *bus)
-+{
-+	int retval;
-+
-+	if (bus->bridge)
-+		bus->dev.parent = bus->bridge;
-+
-+	retval = device_register(&bus->dev);
-+	if (retval)
-+		return retval;
-+
-+	bus->is_added = 1;
-+
-+	retval = device_create_file(&bus->dev, &dev_attr_cpuaffinity);
-+	if (retval)
-+		return retval;
-+
-+	return device_create_file(&bus->dev, &dev_attr_cpulistaffinity);
-+}
-+
-+/**
-  * pci_bus_add_devices - insert newly discovered PCI devices
-  * @bus: bus to check for new devices
+- * add a single device
++ * pci_bus_add_device - add a single device
+  * @dev: device to add
   *
-@@ -141,26 +167,9 @@ void pci_bus_add_devices(struct pci_bus *bus)
- 		 */
- 		if (child->is_added)
- 			continue;
--		child->dev.parent = child->bridge;
--		retval = device_register(&child->dev);
-+		retval = pci_bus_add_child(child);
- 		if (retval)
--			dev_err(&dev->dev, "Error registering pci_bus,"
--				" continuing...\n");
--		else {
--			child->is_added = 1;
--			retval = device_create_file(&child->dev,
--						&dev_attr_cpuaffinity);
--			if (retval)
--				dev_err(&dev->dev, "Error creating cpuaffinity"
--					" file, continuing...\n");
--
--			retval = device_create_file(&child->dev,
--						&dev_attr_cpulistaffinity);
--			if (retval)
--				dev_err(&dev->dev,
--					"Error creating cpulistaffinity"
--					" file, continuing...\n");
--		}
-+			dev_err(&dev->dev, "Error adding bus, continuing\n");
- 	}
- }
+  * This adds a single pci device to the global
+@@ -105,7 +105,7 @@ int pci_bus_add_device(struct pci_dev *dev)
+ void pci_bus_add_devices(struct pci_bus *bus)
+ {
+ 	struct pci_dev *dev;
+-	struct pci_bus *child_bus;
++	struct pci_bus *child;
+ 	int retval;
  
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 6ac69af..80d88f8 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -528,6 +528,7 @@ struct pci_dev *pci_scan_single_device(struct pci_bus *bus, int devfn);
- void pci_device_add(struct pci_dev *dev, struct pci_bus *bus);
- unsigned int pci_scan_child_bus(struct pci_bus *bus);
- int __must_check pci_bus_add_device(struct pci_dev *dev);
-+int pci_bus_add_child(struct pci_bus *bus);
- void pci_read_bridge_bases(struct pci_bus *child);
- struct resource *pci_find_parent_resource(const struct pci_dev *dev,
- 					  struct resource *res);
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+@@ -120,39 +120,41 @@ void pci_bus_add_devices(struct pci_bus *bus)
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+ 		BUG_ON(!dev->is_added);
+ 
++		child = dev->subordinate;
+ 		/*
+ 		 * If there is an unattached subordinate bus, attach
+ 		 * it and then scan for unattached PCI devices.
+ 		 */
+-		if (dev->subordinate) {
+-		       if (list_empty(&dev->subordinate->node)) {
+-			       down_write(&pci_bus_sem);
+-			       list_add_tail(&dev->subordinate->node,
+-					       &dev->bus->children);
+-			       up_write(&pci_bus_sem);
+-			}
+-			pci_bus_add_devices(dev->subordinate);
+-
+-			/* register the bus with sysfs as the parent is now
+-			 * properly registered. */
+-			child_bus = dev->subordinate;
+-			if (child_bus->is_added)
+-				continue;
+-			child_bus->dev.parent = child_bus->bridge;
+-			retval = device_register(&child_bus->dev);
+-			if (retval)
+-				dev_err(&dev->dev, "Error registering pci_bus,"
+-					" continuing...\n");
+-			else {
+-				child_bus->is_added = 1;
+-				retval = device_create_file(&child_bus->dev,
+-							&dev_attr_cpuaffinity);
+-			}
++		if (!child)
++			continue;
++		if (list_empty(&child->node)) {
++			down_write(&pci_bus_sem);
++			list_add_tail(&child->node,
++						&dev->bus->children);
++			up_write(&pci_bus_sem);
++		}
++		pci_bus_add_devices(child);
++
++		/*
++		 * register the bus with sysfs as the parent is now
++		 * properly registered.
++		 */
++		if (child->is_added)
++			continue;
++		child->dev.parent = child->bridge;
++		retval = device_register(&child->dev);
++		if (retval)
++			dev_err(&dev->dev, "Error registering pci_bus,"
++				" continuing...\n");
++		else {
++			child->is_added = 1;
++			retval = device_create_file(&child->dev,
++						&dev_attr_cpuaffinity);
+ 			if (retval)
+ 				dev_err(&dev->dev, "Error creating cpuaffinity"
+ 					" file, continuing...\n");
+ 
+-			retval = device_create_file(&child_bus->dev,
++			retval = device_create_file(&child->dev,
+ 						&dev_attr_cpulistaffinity);
+ 			if (retval)
+ 				dev_err(&dev->dev,
+diff --git a/drivers/pci/remove.c b/drivers/pci/remove.c
+index 042e089..bfa0869 100644
+--- a/drivers/pci/remove.c
++++ b/drivers/pci/remove.c
+@@ -72,6 +72,8 @@ void pci_remove_bus(struct pci_bus *pci_bus)
+ 	list_del(&pci_bus->node);
+ 	up_write(&pci_bus_sem);
+ 	pci_remove_legacy_files(pci_bus);
++	if (!pci_bus->is_added)
++		return;
+ 	device_remove_file(&pci_bus->dev, &dev_attr_cpuaffinity);
+ 	device_remove_file(&pci_bus->dev, &dev_attr_cpulistaffinity);
+ 	device_unregister(&pci_bus->dev);
 -- 
 1.5.6.4
