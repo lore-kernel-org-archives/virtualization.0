@@ -1,7 +1,8 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 5/16 v6] PCI: add a wrapper for resource_alignment()
-Date: Wed, 22 Oct 2008 16:41:48 +0800
-Message-ID: <20081022084148.GE3773__49521.9695535072$1224668728$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 4/16 v6] PCI: make pci_alloc_child_bus() be able to handle
+	NULL bridge
+Date: Wed, 22 Oct 2008 16:41:24 +0800
+Message-ID: <20081022084124.GD3773__19958.3151065328$1224668742$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,8 +23,10 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a wrapper for resource_alignment() so it can handle device specific
-resource alignment.
+Make pci_alloc_child_bus() be able to allocate buses without bridge
+devices. Some SR-IOV devices can occupy more than one bus number,
+but there is no explicit bridges because that have internal routing
+mechanism.
 
 Cc: Alex Chiang <achiang@hp.com>
 Cc: Grant Grundler <grundler@parisc-linux.org>
@@ -36,108 +39,37 @@ Cc: Roland Dreier <rdreier@cisco.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/pci.c       |   20 ++++++++++++++++++++
- drivers/pci/pci.h       |    1 +
- drivers/pci/setup-bus.c |    4 ++--
- drivers/pci/setup-res.c |    7 ++++---
- 4 files changed, 27 insertions(+), 5 deletions(-)
+ drivers/pci/probe.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 40284dc..a9b554e 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1904,6 +1904,26 @@ int pci_select_bars(struct pci_dev *dev, unsigned long flags)
- 	return bars;
- }
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index db3e5a7..4b12b58 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -401,12 +401,10 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+ 	if (!child)
+ 		return NULL;
  
-+/**
-+ * pci_resource_alignment - get a PCI BAR resource alignment
-+ * @dev: the PCI device
-+ * @resno: the resource number
-+ *
-+ * Returns alignment size on success, or 0 on error.
-+ */
-+int pci_resource_alignment(struct pci_dev *dev, int resno)
-+{
-+	resource_size_t align;
-+	struct resource *res = dev->resource + resno;
+-	child->self = bridge;
+ 	child->parent = parent;
+ 	child->ops = parent->ops;
+ 	child->sysdata = parent->sysdata;
+ 	child->bus_flags = parent->bus_flags;
+-	child->bridge = get_device(&bridge->dev);
+ 
+ 	/* initialize some portions of the bus device, but don't register it
+ 	 * now as the parent is not properly set up yet.  This device will get
+@@ -423,6 +421,11 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+ 	child->primary = parent->secondary;
+ 	child->subordinate = 0xff;
+ 
++	if (!bridge)
++		return child;
 +
-+	align = resource_alignment(res);
-+	if (align)
-+		return align;
-+
-+	dev_err(&dev->dev, "alignment: invalid resource #%d\n", resno);
-+	return 0;
-+}
-+
- static void __devinit pci_no_domains(void)
- {
- #ifdef CONFIG_PCI_DOMAINS
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index fbbc6ad..baa3d23 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -166,6 +166,7 @@ enum pci_bar_type {
- 
- extern int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
- 				struct resource *res, unsigned int reg);
-+extern int pci_resource_alignment(struct pci_dev *dev, int resno);
- extern void pci_enable_ari(struct pci_dev *dev);
- /**
-  * pci_ari_enabled - query ARI forwarding status
-diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
-index ea979f2..90a9c0a 100644
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -25,6 +25,7 @@
- #include <linux/ioport.h>
- #include <linux/cache.h>
- #include <linux/slab.h>
-+#include "pci.h"
- 
- 
- static void pbus_assign_resources_sorted(struct pci_bus *bus)
-@@ -351,8 +352,7 @@ static int pbus_size_mem(struct pci_bus *bus, unsigned long mask, unsigned long
- 			if (r->parent || (r->flags & mask) != type)
- 				continue;
- 			r_size = resource_size(r);
--			/* For bridges size != alignment */
--			align = resource_alignment(r);
-+			align = pci_resource_alignment(dev, i);
- 			order = __ffs(align) - 20;
- 			if (order > 11) {
- 				dev_warn(&dev->dev, "BAR %d bad alignment %llx: "
-diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
-index b7ca679..88a9c70 100644
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -133,7 +133,7 @@ int pci_assign_resource(struct pci_dev *dev, int resno)
- 	size = resource_size(res);
- 	min = (res->flags & IORESOURCE_IO) ? PCIBIOS_MIN_IO : PCIBIOS_MIN_MEM;
- 
--	align = resource_alignment(res);
-+	align = pci_resource_alignment(dev, resno);
- 	if (!align) {
- 		dev_err(&dev->dev, "BAR %d: can't allocate resource (bogus "
- 			"alignment) %pR flags %#lx\n",
-@@ -224,7 +224,7 @@ void pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
- 		if (!(r->flags) || r->parent)
- 			continue;
- 
--		r_align = resource_alignment(r);
-+		r_align = pci_resource_alignment(dev, i);
- 		if (!r_align) {
- 			dev_warn(&dev->dev, "BAR %d: bogus alignment "
- 				"%pR flags %#lx\n",
-@@ -236,7 +236,8 @@ void pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
- 			struct resource_list *ln = list->next;
- 
- 			if (ln)
--				align = resource_alignment(ln->res);
-+				align = pci_resource_alignment(ln->dev,
-+						ln->res - ln->dev->resource);
- 
- 			if (r_align > align) {
- 				tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
++	child->self = bridge;
++	child->bridge = get_device(&bridge->dev);
+ 	/* Set up default resource pointers and names.. */
+ 	for (i = 0; i < PCI_BRIDGE_RES_NUM; i++) {
+ 		child->resource[i] = &bridge->resource[PCI_BRIDGE_RESOURCES+i];
 -- 
 1.5.6.4
