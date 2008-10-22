@@ -1,15 +1,15 @@
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH 8/16 v6] PCI: add boot options to reassign resources
-Date: Wed, 22 Oct 2008 08:35:34 -0600
-Message-ID: <200810220835.35866.bjorn.helgaas__4021.2367465303$1224686292$gmane$org@hp.com>
+From: Yu Zhao <yu.zhao@uniscape.net>
+Subject: Re: [PATCH 2/16 v6] PCI: define PCI resource names in an 'enum'
+Date: Wed, 22 Oct 2008 22:44:24 +0800
+Message-ID: <48FF3C48.9060809@uniscape.net>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
-	<20081022084303.GH3773@yzhao12-linux.sh.intel.com>
+	<20081022084041.GB3773@yzhao12-linux.sh.intel.com>
+	<200810220824.21356.bjorn.helgaas@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081022084303.GH3773@yzhao12-linux.sh.intel.com>
-Content-Disposition: inline
+In-Reply-To: <200810220824.21356.bjorn.helgaas@hp.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,169 +19,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yu Zhao <yu.zhao@intel.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 22 October 2008 02:43:03 am Yu Zhao wrote:
-> This patch adds boot options so user can reassign device resources
-> of all devices under a bus.
+Bjorn Helgaas wrote:
+> On Wednesday 22 October 2008 02:40:41 am Yu Zhao wrote:
+>> This patch moves all definitions of the PCI resource names to an 'enum',
+>> and also replaces some hard-coded resource variables with symbol
+>> names. This change eases introduction of device specific resources.
 > 
-> The boot options can be used as:
-> 	pci=assign-mmio=0000:01,assign-pio=0000:02
-> '[dddd:]bb' is the domain and bus number.
-
-I think this example is incorrect because you look for ";" to
-separate options, not ",".
-
-Bjorn
-
-> Cc: Alex Chiang <achiang@hp.com>
-> Cc: Grant Grundler <grundler@parisc-linux.org>
-> Cc: Greg KH <greg@kroah.com>
-> Cc: Ingo Molnar <mingo@elte.hu>
-> Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
-> Cc: Matthew Wilcox <matthew@wil.cx>
-> Cc: Randy Dunlap <randy.dunlap@oracle.com>
-> Cc: Roland Dreier <rdreier@cisco.com>
-> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
+> Thanks for removing a bunch of magic numbers from the code.
 > 
-> ---
->  arch/x86/pci/common.c |   73 +++++++++++++++++++++++++++++++++++++++++++++++++
->  arch/x86/pci/i386.c   |   10 ++++---
->  arch/x86/pci/pci.h    |    3 ++
->  3 files changed, 82 insertions(+), 4 deletions(-)
+>>  static void
+>>  pci_restore_bars(struct pci_dev *dev)
+>>  {
+>> -	int i, numres;
+>> -
+>> -	switch (dev->hdr_type) {
+>> -	case PCI_HEADER_TYPE_NORMAL:
+>> -		numres = 6;
+>> -		break;
+>> -	case PCI_HEADER_TYPE_BRIDGE:
+>> -		numres = 2;
+>> -		break;
+>> -	case PCI_HEADER_TYPE_CARDBUS:
+>> -		numres = 1;
+>> -		break;
+>> -	default:
+>> -		/* Should never get here, but just in case... */
+>> -		return;
+>> -	}
+>> +	int i;
+>>  
+>> -	for (i = 0; i < numres; i++)
+>> +	for (i = 0; i < PCI_BRIDGE_RESOURCES; i++)
+>>  		pci_update_resource(dev, i);
+>>  }
 > 
-> diff --git a/arch/x86/pci/common.c b/arch/x86/pci/common.c
-> index b67732b..06e1ce0 100644
-> --- a/arch/x86/pci/common.c
-> +++ b/arch/x86/pci/common.c
-> @@ -137,6 +137,72 @@ static void __devinit pcibios_fixup_device_resources(struct pci_dev *dev)
->  	}
->  }
->  
-> +static char *pci_assign_pio;
-> +static char *pci_assign_mmio;
-> +
-> +static int pcibios_bus_resource_needs_fixup(struct pci_bus *bus)
-> +{
-> +	int i;
-> +	int type = 0;
-> +	int domain, busnr;
-> +
-> +	if (!bus->self)
-> +		return 0;
-> +
-> +	for (i = 0; i < 2; i++) {
-> +		char *str = i ? pci_assign_pio : pci_assign_mmio;
-> +
-> +		while (str && *str) {
-> +			if (sscanf(str, "%04x:%02x", &domain, &busnr) != 2) {
-> +				if (sscanf(str, "%02x", &busnr) != 1)
-> +					break;
-> +				domain = 0;
-> +			}
-> +
-> +			if (pci_domain_nr(bus) == domain &&
-> +			    bus->number == busnr) {
-> +				type |= i ? IORESOURCE_IO : IORESOURCE_MEM;
-> +				break;
-> +			}
-> +
-> +			str = strchr(str, ';');
-> +			if (str)
-> +				str++;
-> +		}
-> +	}
-> +
-> +	return type;
-> +}
-> +
-> +static void __devinit pcibios_fixup_bus_resources(struct pci_bus *bus)
-> +{
-> +	int i;
-> +	int type = pcibios_bus_resource_needs_fixup(bus);
-> +
-> +	if (!type)
-> +		return;
-> +
-> +	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
-> +		struct resource *res = bus->resource[i];
-> +
-> +		if (!res)
-> +			continue;
-> +		if (res->flags & type)
-> +			res->flags = 0;
-> +	}
-> +}
-> +
-> +int pcibios_resource_needs_fixup(struct pci_dev *dev, int resno)
-> +{
-> +	struct pci_bus *bus;
-> +
-> +	for (bus = dev->bus; bus && bus != pci_root_bus; bus = bus->parent)
-> +		if (pcibios_bus_resource_needs_fixup(bus))
-> +			return 1;
-> +
-> +	return 0;
-> +}
-> +
->  /*
->   *  Called after each bus is probed, but before its children
->   *  are examined.
-> @@ -147,6 +213,7 @@ void __devinit  pcibios_fixup_bus(struct pci_bus *b)
->  	struct pci_dev *dev;
->  
->  	pci_read_bridge_bases(b);
-> +	pcibios_fixup_bus_resources(b);
->  	list_for_each_entry(dev, &b->devices, bus_list)
->  		pcibios_fixup_device_resources(dev);
->  }
-> @@ -519,6 +586,12 @@ char * __devinit  pcibios_setup(char *str)
->  	} else if (!strcmp(str, "skip_isa_align")) {
->  		pci_probe |= PCI_CAN_SKIP_ISA_ALIGN;
->  		return NULL;
-> +	} else if (!strncmp(str, "assign-pio=", 11)) {
-> +		pci_assign_pio = str + 11;
-> +		return NULL;
-> +	} else if (!strncmp(str, "assign-mmio=", 12)) {
-> +		pci_assign_mmio = str + 12;
-> +		return NULL;
->  	}
->  	return str;
->  }
-> diff --git a/arch/x86/pci/i386.c b/arch/x86/pci/i386.c
-> index 8729bde..ea82a5b 100644
-> --- a/arch/x86/pci/i386.c
-> +++ b/arch/x86/pci/i386.c
-> @@ -169,10 +169,12 @@ static void __init pcibios_allocate_resources(int pass)
->  					(unsigned long long) r->start,
->  					(unsigned long long) r->end,
->  					r->flags, enabled, pass);
-> -			pr = pci_find_parent_resource(dev, r);
-> -			if (pr && !request_resource(pr, r))
-> -				continue;
-> -			dev_err(&dev->dev, "BAR %d: can't allocate resource\n", idx);
-> +			if (!pcibios_resource_needs_fixup(dev, idx)) {
-> +				pr = pci_find_parent_resource(dev, r);
-> +				if (pr && !request_resource(pr, r))
-> +					continue;
-> +				dev_err(&dev->dev, "BAR %d: can't allocate resource\n", idx);
-> +			}
->  			/* We'll assign a new address later */
->  			r->end -= r->start;
->  			r->start = 0;
-> diff --git a/arch/x86/pci/pci.h b/arch/x86/pci/pci.h
-> index 15b9cf6..f22737d 100644
-> --- a/arch/x86/pci/pci.h
-> +++ b/arch/x86/pci/pci.h
-> @@ -117,6 +117,9 @@ extern int __init pcibios_init(void);
->  extern int __init pci_mmcfg_arch_init(void);
->  extern void __init pci_mmcfg_arch_free(void);
->  
-> +/* pci-common.c */
-> +extern int pcibios_resource_needs_fixup(struct pci_dev *dev, int resno);
-> +
->  /*
->   * AMD Fam10h CPUs are buggy, and cannot access MMIO config space
->   * on their northbrige except through the * %eax register. As such, you MUST
+> The behavior of this function used to depend on dev->hdr_type.  Now
+> we don't look at hdr_type at all, so we do the same thing for all
+> devices.
+> 
+> For example, for a CardBus device, we used to call pci_update_resource()
+> only for BAR 0; now we call it for BARs 0-6.
+> 
+> Maybe this is safe, but I can't tell from the patch, so I think you
+> should explain *why* it's safe in the changelog.
+
+It's safe because pci_update_resource() will ignore unused resources. 
+E.g., for a Cardbus, only BAR 0 is used and its 'flags' is set, then 
+pci_update_resource() only updates it. BAR 1-6 are ignored since their 
+'flags' are 0.
+
+I'll put more explanation in the changelog.
+
+Thanks,
+Yu
