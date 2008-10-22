@@ -1,8 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 4/16 v6] PCI: make pci_alloc_child_bus() be able to handle
-	NULL bridge
-Date: Wed, 22 Oct 2008 16:41:24 +0800
-Message-ID: <20081022084124.GD3773__19958.3151065328$1224668742$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 7/16 v6] PCI: cleanup pcibios_allocate_resources()
+Date: Wed, 22 Oct 2008 16:42:41 +0800
+Message-ID: <20081022084241.GG3773__9366.79769442907$1224668797$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,10 +22,7 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make pci_alloc_child_bus() be able to allocate buses without bridge
-devices. Some SR-IOV devices can occupy more than one bus number,
-but there is no explicit bridges because that have internal routing
-mechanism.
+This cleanup makes pcibios_allocate_resources() easier to read.
 
 Cc: Alex Chiang <achiang@hp.com>
 Cc: Grant Grundler <grundler@parisc-linux.org>
@@ -39,37 +35,57 @@ Cc: Roland Dreier <rdreier@cisco.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/probe.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/pci/i386.c |   28 ++++++++++++++--------------
+ 1 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index db3e5a7..4b12b58 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -401,12 +401,10 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
- 	if (!child)
- 		return NULL;
+diff --git a/arch/x86/pci/i386.c b/arch/x86/pci/i386.c
+index 844df0c..8729bde 100644
+--- a/arch/x86/pci/i386.c
++++ b/arch/x86/pci/i386.c
+@@ -147,7 +147,7 @@ static void __init pcibios_allocate_bus_resources(struct list_head *bus_list)
+ static void __init pcibios_allocate_resources(int pass)
+ {
+ 	struct pci_dev *dev = NULL;
+-	int idx, disabled;
++	int idx, enabled;
+ 	u16 command;
+ 	struct resource *r, *pr;
  
--	child->self = bridge;
- 	child->parent = parent;
- 	child->ops = parent->ops;
- 	child->sysdata = parent->sysdata;
- 	child->bus_flags = parent->bus_flags;
--	child->bridge = get_device(&bridge->dev);
- 
- 	/* initialize some portions of the bus device, but don't register it
- 	 * now as the parent is not properly set up yet.  This device will get
-@@ -423,6 +421,11 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
- 	child->primary = parent->secondary;
- 	child->subordinate = 0xff;
- 
-+	if (!bridge)
-+		return child;
-+
-+	child->self = bridge;
-+	child->bridge = get_device(&bridge->dev);
- 	/* Set up default resource pointers and names.. */
- 	for (i = 0; i < PCI_BRIDGE_RES_NUM; i++) {
- 		child->resource[i] = &bridge->resource[PCI_BRIDGE_RESOURCES+i];
+@@ -160,22 +160,22 @@ static void __init pcibios_allocate_resources(int pass)
+ 			if (!r->start)		/* Address not assigned at all */
+ 				continue;
+ 			if (r->flags & IORESOURCE_IO)
+-				disabled = !(command & PCI_COMMAND_IO);
++				enabled = command & PCI_COMMAND_IO;
+ 			else
+-				disabled = !(command & PCI_COMMAND_MEMORY);
+-			if (pass == disabled) {
+-				dev_dbg(&dev->dev, "resource %#08llx-%#08llx (f=%lx, d=%d, p=%d)\n",
++				enabled = command & PCI_COMMAND_MEMORY;
++			if (pass == enabled)
++				continue;
++			dev_dbg(&dev->dev, "resource %#08llx-%#08llx (f=%lx, d=%d, p=%d)\n",
+ 					(unsigned long long) r->start,
+ 					(unsigned long long) r->end,
+-					r->flags, disabled, pass);
+-				pr = pci_find_parent_resource(dev, r);
+-				if (!pr || request_resource(pr, r) < 0) {
+-					dev_err(&dev->dev, "BAR %d: can't allocate resource\n", idx);
+-					/* We'll assign a new address later */
+-					r->end -= r->start;
+-					r->start = 0;
+-				}
+-			}
++					r->flags, enabled, pass);
++			pr = pci_find_parent_resource(dev, r);
++			if (pr && !request_resource(pr, r))
++				continue;
++			dev_err(&dev->dev, "BAR %d: can't allocate resource\n", idx);
++			/* We'll assign a new address later */
++			r->end -= r->start;
++			r->start = 0;
+ 		}
+ 		if (!pass) {
+ 			r = &dev->resource[PCI_ROM_RESOURCE];
 -- 
 1.5.6.4
