@@ -1,14 +1,14 @@
 From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH 2/16 v6] PCI: define PCI resource names in an 'enum'
-Date: Wed, 22 Oct 2008 08:24:19 -0600
-Message-ID: <200810220824.21356.bjorn.helgaas__46677.1594052718$1224686143$gmane$org@hp.com>
+Subject: Re: [PATCH 16/16 v6] PCI: document the new PCI boot parameters
+Date: Wed, 22 Oct 2008 08:27:32 -0600
+Message-ID: <200810220827.33758.bjorn.helgaas__35715.2702090845$1224686194$gmane$org@hp.com>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
-	<20081022084041.GB3773@yzhao12-linux.sh.intel.com>
+	<20081022084531.GP3773@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081022084041.GB3773@yzhao12-linux.sh.intel.com>
+In-Reply-To: <20081022084531.GP3773@yzhao12-linux.sh.intel.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,68 +23,48 @@ To: Yu Zhao <yu.zhao@intel.com>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 22 October 2008 02:40:41 am Yu Zhao wrote:
-> This patch moves all definitions of the PCI resource names to an 'enum',
-> and also replaces some hard-coded resource variables with symbol
-> names. This change eases introduction of device specific resources.
-
-Thanks for removing a bunch of magic numbers from the code.
-
->  static void
->  pci_restore_bars(struct pci_dev *dev)
->  {
-> -	int i, numres;
-> -
-> -	switch (dev->hdr_type) {
-> -	case PCI_HEADER_TYPE_NORMAL:
-> -		numres = 6;
-> -		break;
-> -	case PCI_HEADER_TYPE_BRIDGE:
-> -		numres = 2;
-> -		break;
-> -	case PCI_HEADER_TYPE_CARDBUS:
-> -		numres = 1;
-> -		break;
-> -	default:
-> -		/* Should never get here, but just in case... */
-> -		return;
-> -	}
-> +	int i;
+On Wednesday 22 October 2008 02:45:31 am Yu Zhao wrote:
+> Document the new PCI[x86] boot parameters.
+> 
+> Cc: Alex Chiang <achiang@hp.com>
+> Cc: Grant Grundler <grundler@parisc-linux.org>
+> Cc: Greg KH <greg@kroah.com>
+> Cc: Ingo Molnar <mingo@elte.hu>
+> Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
+> Cc: Matthew Wilcox <matthew@wil.cx>
+> Cc: Randy Dunlap <randy.dunlap@oracle.com>
+> Cc: Roland Dreier <rdreier@cisco.com>
+> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
+> 
+> ---
+>  Documentation/kernel-parameters.txt |   10 ++++++++++
+>  1 files changed, 10 insertions(+), 0 deletions(-)
+> 
+> diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+> index 53ba7c7..5482ae0 100644
+> --- a/Documentation/kernel-parameters.txt
+> +++ b/Documentation/kernel-parameters.txt
+> @@ -1677,6 +1677,16 @@ and is between 256 and 4096 characters. It is defined in the file
+>  		cbmemsize=nn[KMG]	The fixed amount of bus space which is
+>  				reserved for the CardBus bridge's memory
+>  				window. The default value is 64 megabytes.
+> +		assign-mmio=[dddd:]bb	[X86] reassign memory resources of all
+> +				devices under bus [dddd:]bb (dddd is the domain
+> +				number and bb is the bus number).
+> +		assign-pio=[dddd:]bb	[X86] reassign io port resources of all
+> +				devices under bus [dddd:]bb (dddd is the domain
+> +				number and bb is the bus number).
+> +		align-mmio=[dddd:]bb:dd.f  [X86] relocate memory resources of a
+> +				device to minimum PAGE_SIZE alignment (dddd is
+> +				the domain number and bb, dd and f is the bus,
+> +				device and function number).
 >  
-> -	for (i = 0; i < numres; i++)
-> +	for (i = 0; i < PCI_BRIDGE_RESOURCES; i++)
->  		pci_update_resource(dev, i);
->  }
+>  	pcie_aspm=	[PCIE] Forcibly enable or disable PCIe Active State Power
+>  			Management.
 
-The behavior of this function used to depend on dev->hdr_type.  Now
-we don't look at hdr_type at all, so we do the same thing for all
-devices.
-
-For example, for a CardBus device, we used to call pci_update_resource()
-only for BAR 0; now we call it for BARs 0-6.
-
-Maybe this is safe, but I can't tell from the patch, so I think you
-should explain *why* it's safe in the changelog.
-
-> +/*
-> + *  For PCI devices, the region numbers are assigned this way:
-> + */
-> +enum {
-> +	/* #0-5: standard PCI regions */
-> +	PCI_STD_RESOURCES,
-> +	PCI_STD_RESOURCES_END = 5,
-> +
-> +	/* #6: expansion ROM */
-> +	PCI_ROM_RESOURCE,
-> +
-> +	/* address space assigned to buses behind the bridge */
-> +#ifndef PCI_BRIDGE_RES_NUM
-> +#define PCI_BRIDGE_RES_NUM 4
-> +#endif
-> +	PCI_BRIDGE_RESOURCES,
-> +	PCI_BRIDGE_RES_END = PCI_BRIDGE_RESOURCES + PCI_BRIDGE_RES_NUM - 1,
-
-Since you used "PCI_STD_RESOURCES_END" above, maybe you should use
-"PCI_BRIDGE_RESOURCES_END" instead of "PCI_BRIDGE_RES_END".
+I think it's nicer to have the documentation change included in the
+patch that implements the change.  For example, I think this and
+patch 9/16 "add boot option to align ..." should be folded into
+a single patch.  And similarly for the other documentation patches.
 
 Bjorn
