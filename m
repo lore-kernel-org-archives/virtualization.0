@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 3/16 v6] PCI: export __pci_read_base
-Date: Wed, 22 Oct 2008 16:41:02 +0800
-Message-ID: <20081022084102.GC3773__33683.1268891276$1224668723$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 5/16 v6] PCI: add a wrapper for resource_alignment()
+Date: Wed, 22 Oct 2008 16:41:48 +0800
+Message-ID: <20081022084148.GE3773__49521.9695535072$1224668728$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,7 +22,8 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Export __pci_read_base() so it can be used by whole PCI subsystem.
+Add a wrapper for resource_alignment() so it can handle device specific
+resource alignment.
 
 Cc: Alex Chiang <achiang@hp.com>
 Cc: Grant Grundler <grundler@parisc-linux.org>
@@ -35,68 +36,108 @@ Cc: Roland Dreier <rdreier@cisco.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/pci.h   |    9 +++++++++
- drivers/pci/probe.c |   20 +++++++++-----------
- 2 files changed, 18 insertions(+), 11 deletions(-)
+ drivers/pci/pci.c       |   20 ++++++++++++++++++++
+ drivers/pci/pci.h       |    1 +
+ drivers/pci/setup-bus.c |    4 ++--
+ drivers/pci/setup-res.c |    7 ++++---
+ 4 files changed, 27 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 40284dc..a9b554e 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1904,6 +1904,26 @@ int pci_select_bars(struct pci_dev *dev, unsigned long flags)
+ 	return bars;
+ }
+ 
++/**
++ * pci_resource_alignment - get a PCI BAR resource alignment
++ * @dev: the PCI device
++ * @resno: the resource number
++ *
++ * Returns alignment size on success, or 0 on error.
++ */
++int pci_resource_alignment(struct pci_dev *dev, int resno)
++{
++	resource_size_t align;
++	struct resource *res = dev->resource + resno;
++
++	align = resource_alignment(res);
++	if (align)
++		return align;
++
++	dev_err(&dev->dev, "alignment: invalid resource #%d\n", resno);
++	return 0;
++}
++
+ static void __devinit pci_no_domains(void)
+ {
+ #ifdef CONFIG_PCI_DOMAINS
 diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index b205ab8..fbbc6ad 100644
+index fbbc6ad..baa3d23 100644
 --- a/drivers/pci/pci.h
 +++ b/drivers/pci/pci.h
-@@ -157,6 +157,15 @@ struct pci_slot_attribute {
- };
- #define to_pci_slot_attr(s) container_of(s, struct pci_slot_attribute, attr)
+@@ -166,6 +166,7 @@ enum pci_bar_type {
  
-+enum pci_bar_type {
-+	pci_bar_unknown,	/* Standard PCI BAR probe */
-+	pci_bar_io,		/* An io port BAR */
-+	pci_bar_mem32,		/* A 32-bit memory BAR */
-+	pci_bar_mem64,		/* A 64-bit memory BAR */
-+};
-+
-+extern int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
-+				struct resource *res, unsigned int reg);
+ extern int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 				struct resource *res, unsigned int reg);
++extern int pci_resource_alignment(struct pci_dev *dev, int resno);
  extern void pci_enable_ari(struct pci_dev *dev);
  /**
   * pci_ari_enabled - query ARI forwarding status
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index a52784c..db3e5a7 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -135,13 +135,6 @@ static u64 pci_size(u64 base, u64 maxbase, u64 mask)
- 	return size;
- }
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index ea979f2..90a9c0a 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -25,6 +25,7 @@
+ #include <linux/ioport.h>
+ #include <linux/cache.h>
+ #include <linux/slab.h>
++#include "pci.h"
  
--enum pci_bar_type {
--	pci_bar_unknown,	/* Standard PCI BAR probe */
--	pci_bar_io,		/* An io port BAR */
--	pci_bar_mem32,		/* A 32-bit memory BAR */
--	pci_bar_mem64,		/* A 64-bit memory BAR */
--};
--
- static inline enum pci_bar_type decode_bar(struct resource *res, u32 bar)
- {
- 	if ((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO) {
-@@ -156,11 +149,16 @@ static inline enum pci_bar_type decode_bar(struct resource *res, u32 bar)
- 	return pci_bar_mem32;
- }
  
--/*
-- * If the type is not unknown, we assume that the lowest bit is 'enable'.
-- * Returns 1 if the BAR was 64-bit and 0 if it was 32-bit.
-+/**
-+ * pci_read_base - read a PCI BAR
-+ * @dev: the PCI device
-+ * @type: type of the BAR
-+ * @res: resource buffer to be filled in
-+ * @pos: BAR position in the config space
-+ *
-+ * Returns 1 if the BAR is 64-bit, or 0 if 32-bit.
-  */
--static int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
-+int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
- 			struct resource *res, unsigned int pos)
- {
- 	u32 l, sz, mask;
+ static void pbus_assign_resources_sorted(struct pci_bus *bus)
+@@ -351,8 +352,7 @@ static int pbus_size_mem(struct pci_bus *bus, unsigned long mask, unsigned long
+ 			if (r->parent || (r->flags & mask) != type)
+ 				continue;
+ 			r_size = resource_size(r);
+-			/* For bridges size != alignment */
+-			align = resource_alignment(r);
++			align = pci_resource_alignment(dev, i);
+ 			order = __ffs(align) - 20;
+ 			if (order > 11) {
+ 				dev_warn(&dev->dev, "BAR %d bad alignment %llx: "
+diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+index b7ca679..88a9c70 100644
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -133,7 +133,7 @@ int pci_assign_resource(struct pci_dev *dev, int resno)
+ 	size = resource_size(res);
+ 	min = (res->flags & IORESOURCE_IO) ? PCIBIOS_MIN_IO : PCIBIOS_MIN_MEM;
+ 
+-	align = resource_alignment(res);
++	align = pci_resource_alignment(dev, resno);
+ 	if (!align) {
+ 		dev_err(&dev->dev, "BAR %d: can't allocate resource (bogus "
+ 			"alignment) %pR flags %#lx\n",
+@@ -224,7 +224,7 @@ void pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
+ 		if (!(r->flags) || r->parent)
+ 			continue;
+ 
+-		r_align = resource_alignment(r);
++		r_align = pci_resource_alignment(dev, i);
+ 		if (!r_align) {
+ 			dev_warn(&dev->dev, "BAR %d: bogus alignment "
+ 				"%pR flags %#lx\n",
+@@ -236,7 +236,8 @@ void pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
+ 			struct resource_list *ln = list->next;
+ 
+ 			if (ln)
+-				align = resource_alignment(ln->res);
++				align = pci_resource_alignment(ln->dev,
++						ln->res - ln->dev->resource);
+ 
+ 			if (r_align > align) {
+ 				tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
 -- 
 1.5.6.4
