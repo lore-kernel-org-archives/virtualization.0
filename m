@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 13/16 v6] PCI: reserve bus range for SR-IOV device
-Date: Wed, 22 Oct 2008 16:44:38 +0800
-Message-ID: <20081022084438.GM3773__28021.0347533741$1224669362$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 15/16 v6] PCI: document the SR-IOV sysfs entries
+Date: Wed, 22 Oct 2008 16:45:15 +0800
+Message-ID: <20081022084515.GO3773__34490.8014908016$1224669374$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,7 +22,7 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Reserve bus range for SR-IOV at device scanning stage.
+Document the SR-IOV sysfs entries.
 
 Cc: Alex Chiang <achiang@hp.com>
 Cc: Grant Grundler <grundler@parisc-linux.org>
@@ -35,82 +35,49 @@ Cc: Roland Dreier <rdreier@cisco.com>
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/iov.c   |   24 ++++++++++++++++++++++++
- drivers/pci/pci.h   |    5 +++++
- drivers/pci/probe.c |    3 +++
- 3 files changed, 32 insertions(+), 0 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-pci |   33 +++++++++++++++++++++++++++++++
+ 1 files changed, 33 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
-index dd299aa..c86bd54 100644
---- a/drivers/pci/iov.c
-+++ b/drivers/pci/iov.c
-@@ -498,6 +498,30 @@ int pci_iov_resource_bar(struct pci_dev *dev, int resno,
- }
- 
- /**
-+ * pci_iov_bus_range - find bus range used by SR-IOV capability
-+ * @bus: the PCI bus
-+ *
-+ * Returns max number of buses (exclude current one) used by Virtual
-+ * Functions.
-+ */
-+int pci_iov_bus_range(struct pci_bus *bus)
-+{
-+	int max = 0;
-+	u8 busnr, devfn;
-+	struct pci_dev *dev;
+diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
+index ceddcff..41cce8f 100644
+--- a/Documentation/ABI/testing/sysfs-bus-pci
++++ b/Documentation/ABI/testing/sysfs-bus-pci
+@@ -9,3 +9,36 @@ Description:
+ 		that some devices may have malformatted data.  If the
+ 		underlying VPD has a writable section then the
+ 		corresponding section of this file will be writable.
 +
-+	list_for_each_entry(dev, &bus->devices, bus_list) {
-+		if (!dev->iov)
-+			continue;
-+		vf_rid(dev, dev->iov->totalvfs - 1, &busnr, &devfn);
-+		if (busnr > max)
-+			max = busnr;
-+	}
++What:		/sys/bus/pci/devices/.../iov/enable
++Date:		October 2008
++Contact:	Yu Zhao <yu.zhao@intel.com>
++Description:
++		This file appears when a device has the SR-IOV capability.
++		It holds the status of the capability, and could be written
++		(0/1) to disable and enable the capability if the PF driver
++		supports this operation.
 +
-+	return max ? max - bus->number : 0;
-+}
++What:		/sys/bus/pci/devices/.../iov/initialvfs
++Date:		October 2008
++Contact:	Yu Zhao <yu.zhao@intel.com>
++Description:
++		This file appears when a device has the SR-IOV capability.
++		It holds the number of initial Virtual Functions (read-only).
 +
-+/**
-  * pci_iov_register - register SR-IOV service
-  * @dev: the PCI device
-  * @callback: callback function for SR-IOV events
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 7735d92..5206ae7 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -204,6 +204,7 @@ void pci_iov_remove_sysfs(struct pci_dev *dev);
- extern int pci_iov_resource_align(struct pci_dev *dev, int resno);
- extern int pci_iov_resource_bar(struct pci_dev *dev, int resno,
- 				enum pci_bar_type *type);
-+extern int pci_iov_bus_range(struct pci_bus *bus);
- #else
- static inline int pci_iov_init(struct pci_dev *dev)
- {
-@@ -227,6 +228,10 @@ static inline int pci_iov_resource_bar(struct pci_dev *dev, int resno,
- {
- 	return 0;
- }
-+extern inline int pci_iov_bus_range(struct pci_bus *bus)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_PCI_IOV */
- 
- #endif /* DRIVERS_PCI_H */
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 18ce9c0..50a1380 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -1068,6 +1068,9 @@ unsigned int __devinit pci_scan_child_bus(struct pci_bus *bus)
- 	for (devfn = 0; devfn < 0x100; devfn += 8)
- 		pci_scan_slot(bus, devfn);
- 
-+	/* Reserve buses for SR-IOV capability. */
-+	max += pci_iov_bus_range(bus);
++What:		/sys/bus/pci/devices/.../iov/totalvfs
++Date:		October 2008
++Contact:	Yu Zhao <yu.zhao@intel.com>
++Description:
++		This file appears when a device has the SR-IOV capability.
++		It holds the number of total Virtual Functions (read-only).
 +
- 	/*
- 	 * After performing arch-dependent fixup of the bus, look behind
- 	 * all PCI-to-PCI bridges on this bus.
++
++What:		/sys/bus/pci/devices/.../iov/numvfs
++Date:		October 2008
++Contact:	Yu Zhao <yu.zhao@intel.com>
++Description:
++		This file appears when a device has the SR-IOV capability.
++		It holds the number of available Virtual Functions, and
++		could be written (1 ~ InitialVFs) to change the number if
++		the PF driver supports this operation.
 -- 
 1.5.6.4
