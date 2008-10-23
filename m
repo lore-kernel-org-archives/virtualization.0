@@ -1,16 +1,16 @@
-From: Yu Zhao <yu.zhao@intel.com>
-Subject: Re: [PATCH 7/16 v6] PCI: cleanup pcibios_allocate_resources()
-Date: Thu, 23 Oct 2008 14:50:57 +0800
-Message-ID: <20081023065057.GA4340__37374.3876269602$1224748225$gmane$org@yzhao12-linux.sh.intel.com>
-References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
-	<20081022084241.GG3773@yzhao12-linux.sh.intel.com>
-	<86802c440810230010redfbbe7oaf94bf2077ccdcdf@mail.gmail.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [PATCH 0/2] dm-ioband: I/O bandwidth controller v1.8.0:
+	Introduction
+Date: Thu, 23 Oct 2008 20:28:51 +0900 (JST)
+Message-ID: <20081023.202851.112594221.ryov__25977.1788878881$1224761623$gmane$org@valinux.co.jp>
+References: <48FEDC63.308@windriver.com>
+	<20081022.170536.193712541.ryov@valinux.co.jp>
+	<1224756158.8286.36.camel@pek-hzhang-d1>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <86802c440810230010redfbbe7oaf94bf2077ccdcdf@mail.gmail.com>
+In-Reply-To: <1224756158.8286.36.camel@pek-hzhang-d1>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,45 +20,29 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yinghai Lu <yinghai@kernel.org>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, "mingo@elte.hu" <mingo@elte.hu>
+To: haotian.zhang@windriver.com
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, fernando@oss.ntt.co.jp, bruce.ashfield@windriver.com, zumeng.chen@windriver.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 23, 2008 at 03:10:26PM +0800, Yinghai Lu wrote:
-> On Wed, Oct 22, 2008 at 1:42 AM, Yu Zhao <yu.zhao@intel.com> wrote:
-> > diff --git a/arch/x86/pci/i386.c b/arch/x86/pci/i386.c
-> > index 844df0c..8729bde 100644
-> > --- a/arch/x86/pci/i386.c
-> > +++ b/arch/x86/pci/i386.c
-> > @@ -147,7 +147,7 @@ static void __init pcibios_allocate_bus_resources(struct list_head *bus_list)
-> >  static void __init pcibios_allocate_resources(int pass)
-> >  {
-> >        struct pci_dev *dev = NULL;
-> > -       int idx, disabled;
-> > +       int idx, enabled;
-> >        u16 command;
-> >        struct resource *r, *pr;
-> >
-> > @@ -160,22 +160,22 @@ static void __init pcibios_allocate_resources(int pass)
-> >                        if (!r->start)          /* Address not assigned at all */
-> >                                continue;
-> >                        if (r->flags & IORESOURCE_IO)
-> > -                               disabled = !(command & PCI_COMMAND_IO);
-> > +                               enabled = command & PCI_COMMAND_IO;
-> >                        else
-> > -                               disabled = !(command & PCI_COMMAND_MEMORY);
-> > -                       if (pass == disabled) {
-> > -                               dev_dbg(&dev->dev, "resource %#08llx-%#08llx (f=%lx, d=%d, p=%d)\n",
-> > +                               enabled = command & PCI_COMMAND_MEMORY;
-> > +                       if (pass == enabled)
-> > +                               continue;
-> 
-> it seems you change the flow here for MMIO
-> because PCI_COMMAND_MEMORY is 2.
-> 
-> YH
+Hi Haotian,
 
-Nice finding! Will change it back to 'disable' next version.
+> The results are almost the same. I can not see any change of Direct I/O
+> performance for this bio-cgroup kernel feature with dm-ioband support!
+> 
+> Does the methord to caculate throughout should be the Rate of xdd.linux
+> output? 
+> Dose my testing approach should be correct? If not, please help me point
+> out.
+
+Could you try to run the xdd programs simultaneously?
+dm-ioband controls bandwidth while I/O requests are issued
+simultaneously from processes which belong to different cgroup.
+If I/O requests are only issued from processes which belong to one
+cgroup, the processes can use the whole bandwidth.
+
+The following URL is an example of how bandwidth is shared to I/O
+load change.
+http://people.valinux.co.jp/~ryov/dm-ioband/benchmark/partition1.html
 
 Thanks,
-Yu
+Ryo Tsuruta
