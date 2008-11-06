@@ -1,16 +1,18 @@
-From: Nauman Rafique <nauman@google.com>
-Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Thu, 6 Nov 2008 15:07:57 -0800
-Message-ID: <e98e18940811061507t3e19183byf2b8b291458ba81b__14716.6915507571$1226014769$gmane$org@mail.gmail.com>
-References: <20081106153022.215696930@redhat.com>
-	<1225986593.7803.4688.camel@twins> <20081106160154.GA7461@redhat.com>
-	<1225988173.7803.4723.camel@twins> <20081106163957.GB7461@redhat.com>
-	<1225990327.7803.4776.camel@twins> <20081106170830.GD7461@redhat.com>
+From: Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
+Date: Thu, 6 Nov 2008 15:54:06 -0800
+Message-ID: <20081106235406.GB30790__5942.22575095973$1226016054$gmane$org@sequoia.sous-sol.org>
+References: <20081106154351.GA30459@kroah.com>
+	<894107.30288.qm@web45108.mail.sp1.yahoo.com>
+	<20081106164919.GA4099@kroah.com>
+	<20081106174741.GC11773@parisc-linux.org>
+	<20081106175308.GA17027@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081106170830.GD7461@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20081106175308.GA17027@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,150 +22,71 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: Mike Waychison <mikew@google.com>, menage@google.com, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, Jeff Moyer <jmoyer@redhat.com>, "dpshah@google.com" <dpshah@google.com>, jens.axboe@oracle.com, rohitseth@google.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Andrea Righi <righi.andrea@gmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: randy.dunlap@oracle.com, Chris Wright <chrisw@sous-sol.org>, grundler@parisc-linux.org, achiang@hp.com, Matthew Wilcox <matthew@wil.cx>, linux-pci@vger.kernel.org, rdreier@cisco.com, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-It seems that approaches with two level scheduling (DM-IOBand or this
-patch set on top and another scheduler at elevator) will have the
-possibility of undesirable interactions (see "issues" listed at the
-end of the second patch). For example, a request submitted as RT might
-get delayed at higher layers, even if cfq at elevator level is doing
-the right thing.
+* Greg KH (greg@kroah.com) wrote:
+> On Thu, Nov 06, 2008 at 10:47:41AM -0700, Matthew Wilcox wrote:
+> > On Thu, Nov 06, 2008 at 08:49:19AM -0800, Greg KH wrote:
+> > > On Thu, Nov 06, 2008 at 08:41:53AM -0800, H L wrote:
+> > > > I have not modified any existing drivers, but instead I threw together
+> > > > a bare-bones module enabling me to make a call to pci_iov_register()
+> > > > and then poke at an SR-IOV adapter's /sys entries for which no driver
+> > > > was loaded.
+> > > > 
+> > > > It appears from my perusal thus far that drivers using these new
+> > > > SR-IOV patches will require modification; i.e. the driver associated
+> > > > with the Physical Function (PF) will be required to make the
+> > > > pci_iov_register() call along with the requisite notify() function.
+> > > > Essentially this suggests to me a model for the PF driver to perform
+> > > > any "global actions" or setup on behalf of VFs before enabling them
+> > > > after which VF drivers could be associated.
+> > > 
+> > > Where would the VF drivers have to be associated?  On the "pci_dev"
+> > > level or on a higher one?
+> > > 
+> > > Will all drivers that want to bind to a "VF" device need to be
+> > > rewritten?
+> > 
+> > The current model being implemented by my colleagues has separate
+> > drivers for the PF (aka native) and VF devices.  I don't personally
+> > believe this is the correct path, but I'm reserving judgement until I
+> > see some code.
+> 
+> Hm, I would like to see that code before we can properly evaluate this
+> interface.  Especially as they are all tightly tied together.
+> 
+> > I don't think we really know what the One True Usage model is for VF
+> > devices.  Chris Wright has some ideas, I have some ideas and Yu Zhao has
+> > some ideas.  I bet there's other people who have other ideas too.
+> 
+> I'd love to hear those ideas.
 
-Moreover, if the requests in the higher level scheduler are dispatched
-as soon as they come, there would be no queuing at the higher layers,
-unless the request queue at the lower level fills up and causes a
-backlog. And in the absence of queuing, any work-conserving scheduler
-would behave as a no-op scheduler.
+First there's the question of how to represent the VF on the host.
+Ideally (IMO) this would show up as a normal interface so that normal tools
+can configure the interface.  This is not exactly how the first round of
+patches were designed.
 
-These issues motivate to take a second look into two level scheduling.
-The main motivations for two level scheduling seem to be:
-(1) Support bandwidth division across multiple devices for RAID and LVMs.
-(2) Divide bandwidth between different cgroups without modifying each
-of the existing schedulers (and without replicating the code).
+Second there's the question of reserving the BDF on the host such that
+we don't have two drivers (one in the host and one in a guest) trying to
+drive the same device (an issue that shows up for device assignment as
+well as VF assignment).
 
-One possible approach to handle (1) is to keep track of bandwidth
-utilized by each cgroup in a per cgroup data structure (instead of a
-per cgroup per device data structure) and use that information to make
-scheduling decisions within the elevator level schedulers. Such  a
-patch can be made flag-disabled if co-ordination across different
-device schedulers is not required.
+Third there's the question of whether the VF can be used in the host at
+all.
 
-And (2) can probably be handled by having one scheduler support
-different modes. For example, one possible mode is "propotional
-division between crgroups + no-op between threads of a cgroup" or "cfq
-between cgroups + cfq between threads of a cgroup". That would also
-help avoid combinations which might not work e.g RT request issue
-mentioned earlier in this email. And this unified scheduler can re-use
-code from all the existing patches.
+Fourth there's the question of whether the VF and PF drivers are the
+same or separate.
 
-Thanks.
---
-Nauman
+The typical usecase is assigning the VF to the guest directly, so
+there's only enough functionality in the host side to allocate a VF,
+configure it, and assign it (and propagate AER).  This is with separate
+PF and VF driver.
 
-On Thu, Nov 6, 2008 at 9:08 AM, Vivek Goyal <vgoyal@redhat.com> wrote:
-> On Thu, Nov 06, 2008 at 05:52:07PM +0100, Peter Zijlstra wrote:
->> On Thu, 2008-11-06 at 11:39 -0500, Vivek Goyal wrote:
->> > On Thu, Nov 06, 2008 at 05:16:13PM +0100, Peter Zijlstra wrote:
->> > > On Thu, 2008-11-06 at 11:01 -0500, Vivek Goyal wrote:
->> > >
->> > > > > Does this still require I use dm, or does it also work on regular block
->> > > > > devices? Patch 4/4 isn't quite clear on this.
->> > > >
->> > > > No. You don't have to use dm. It will simply work on regular devices. We
->> > > > shall have to put few lines of code for it to work on devices which don't
->> > > > make use of standard __make_request() function and provide their own
->> > > > make_request function.
->> > > >
->> > > > Hence for example, I have put that few lines of code so that it can work
->> > > > with dm device. I shall have to do something similar for md too.
->> > > >
->> > > > Though, I am not very sure why do I need to do IO control on higher level
->> > > > devices. Will it be sufficient if we just control only bottom most
->> > > > physical block devices?
->> > > >
->> > > > Anyway, this approach should work at any level.
->> > >
->> > > Nice, although I would think only doing the higher level devices makes
->> > > more sense than only doing the leafs.
->> > >
->> >
->> > I thought that we should be doing any kind of resource management only at
->> > the level where there is actual contention for the resources.So in this case
->> > looks like only bottom most devices are slow and don't have infinite bandwidth
->> > hence the contention.(I am not taking into account the contention at
->> > bus level or contention at interconnect level for external storage,
->> > assuming interconnect is not the bottleneck).
->> >
->> > For example, lets say there is one linear device mapper device dm-0 on
->> > top of physical devices sda and sdb. Assuming two tasks in two different
->> > cgroups are reading two different files from deivce dm-0. Now if these
->> > files both fall on same physical device (either sda or sdb), then they
->> > will be contending for resources. But if files being read are on different
->> > physical deivces then practically there is no device contention (Even on
->> > the surface it might look like that dm-0 is being contended for). So if
->> > files are on different physical devices, IO controller will not know it.
->> > He will simply dispatch one group at a time and other device might remain
->> > idle.
->> >
->> > Keeping that in mind I thought we will be able to make use of full
->> > available bandwidth if we do IO control only at bottom most device. Doing
->> > it at higher layer has potential of not making use of full available bandwidth.
->> >
->> > > Is there any reason we cannot merge this with the regular io-scheduler
->> > > interface? afaik the only problem with doing group scheduling in the
->> > > io-schedulers is the stacked devices issue.
->> >
->> > I think we should be able to merge it with regular io schedulers. Apart
->> > from stacked device issue, people also mentioned that it is so closely
->> > tied to IO schedulers that we will end up doing four implementations for
->> > four schedulers and that is not very good from maintenance perspective.
->> >
->> > But I will spend more time in finding out if there is a common ground
->> > between schedulers so that a lot of common IO control code can be used
->> > in all the schedulers.
->> >
->> > >
->> > > Could we make the io-schedulers aware of this hierarchy?
->> >
->> > You mean IO schedulers knowing that there is somebody above them doing
->> > proportional weight dispatching of bios? If yes, how would that help?
->>
->> Well, take the slightly more elaborate example or a raid[56] setup. This
->> will need to sometimes issue multiple leaf level ios to satisfy one top
->> level io.
->>
->> How are you going to attribute this fairly?
->>
->
-> I think in this case, definition of fair allocation will be little
-> different. We will do fair allocation only at the leaf nodes where
-> there is actual contention, irrespective of higher level setup.
->
-> So if higher level block device issues multiple ios to satisfy one top
-> level io, we will actually do the bandwidth allocation only on
-> those multiple ios because that's the real IO contending for disk
-> bandwidth.  And if these multiple ios are going to different physical
-> devices, then contention management will take place on those devices.
->
-> IOW, we will not worry about providing fairness at bios submitted to
-> higher level devices. We will just pitch in for contention management
-> only when request from various cgroups are contending for physical
-> device at bottom most layers. Isn't if fair?
->
-> Thanks
-> Vivek
->
->> I don't think the issue of bandwidth availability like above will really
->> be an issue, if your stripe is set up symmetrically, the contention
->> should average out to both (all) disks in equal measures.
->>
->> The only real issue I can see is with linear volumes, but those are
->> stupid anyway - non of the gains but all the risks.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+As Anthony mentioned, we are interested in allowing the host to use the
+VF.  This could be useful for containers as well as dedicating a VF (a
+set of device resources) to a guest w/out passing it through.
+
+thanks,
+-chris
