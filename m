@@ -1,15 +1,11 @@
 From: vgoyal@redhat.com
-Subject: [patch 4/4] io controller: Put IO controller to use in device mapper
-	and standard make_request() function
-Date: Thu, 06 Nov 2008 10:30:26 -0500
-Message-ID: <20081106153135.944900461__33528.7087633789$1225986151$gmane$org@redhat.com>
-References: <20081106153022.215696930@redhat.com>
+Subject: [patch 0/4] [RFC] Another proportional weight IO controller
+Date: Thu, 06 Nov 2008 10:30:22 -0500
+Message-ID: <20081106153022.215696930__3054.24727635018$1225986562$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=bio-cgroup-tweak-make-request-functions.patch
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,80 +19,32 @@ To: linux-kernel@vger.kernel.org, containers@lists.linux-foundation.org, virtual
 Cc: Rik van Riel <riel@redhat.com>, Peter Zijlstra <peterz@infradead.org>, fernando@oss.ntt.co.jp, Jeff Moyer <jmoyer@redhat.com>, menage@google.com, ngupta@google.com, Andrew Morton <akpm@linux-foundation.org>, balbir@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi,
 
-o Tweak standard make_request() function and also the device mapper make
-  request functions to enable use of IO controller.
+If you are not already tired of so many io controller implementations, here
+is another one.
 
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+This is a very eary very crude implementation to get early feedback to see
+if this approach makes any sense or not.
 
-Index: linux17/drivers/md/dm.c
-===================================================================
---- linux17.orig/drivers/md/dm.c	2008-11-05 18:12:42.000000000 -0500
-+++ linux17/drivers/md/dm.c	2008-11-06 09:16:32.000000000 -0500
-@@ -22,6 +22,7 @@
- #include <linux/hdreg.h>
- #include <linux/blktrace_api.h>
- #include <linux/smp_lock.h>
-+#include <linux/biocontrol.h>
- 
- #define DM_MSG_PREFIX "core"
- 
-@@ -885,6 +886,7 @@ static int dm_request(struct request_que
- 	int r = -EIO;
- 	int rw = bio_data_dir(bio);
- 	struct mapped_device *md = q->queuedata;
-+	int ret;
- 
- 	/*
- 	 * There is no use in forwarding any barrier request since we can't
-@@ -895,6 +897,13 @@ static int dm_request(struct request_que
- 		return 0;
- 	}
- 
-+	if (!bio_cgroup_disabled() && blk_queue_bio_group_enabled(q)) {
-+		ret = bio_group_controller(q, bio);
-+		if (ret)
-+			/* Either bio got buffered for bio_endio() done */
-+			return 0;
-+	}
-+
- 	down_read(&md->io_lock);
- 
- 	disk_stat_inc(dm_disk(md), ios[rw]);
-@@ -1081,6 +1090,10 @@ static struct mapped_device *alloc_dev(i
- 	md->queue->unplug_fn = dm_unplug_all;
- 	blk_queue_merge_bvec(md->queue, dm_merge_bvec);
- 
-+	/* Initialize queue spin lock */
-+	md->queue->queue_lock = &md->queue->__queue_lock;
-+	spin_lock_init(md->queue->queue_lock);
-+
- 	md->io_pool = mempool_create_slab_pool(MIN_IOS, _io_cache);
- 	if (!md->io_pool)
- 		goto bad_io_pool;
-Index: linux17/block/blk-core.c
-===================================================================
---- linux17.orig/block/blk-core.c	2008-11-06 09:14:20.000000000 -0500
-+++ linux17/block/blk-core.c	2008-11-06 09:16:32.000000000 -0500
-@@ -1117,10 +1117,18 @@ static int __make_request(struct request
- 	int el_ret, nr_sectors, barrier, err;
- 	const unsigned short prio = bio_prio(bio);
- 	const int sync = bio_sync(bio);
--	int rw_flags;
-+	int rw_flags, ret;
- 
- 	nr_sectors = bio_sectors(bio);
- 
-+	if (!bio_cgroup_disabled() && blk_queue_bio_group_enabled(q)) {
-+		ret = bio_group_controller(q, bio);
-+		if (ret) {
-+			/* Either bio got buffered for bio_endio() done */
-+			return 0;
-+		}
-+	}
-+
- 	/*
- 	 * low level driver can indicate that it wants pages above a
- 	 * certain limit bounced to low memory (ie for highmem, or even
+This controller is a proportional weight IO controller primarily
+based on/inspired by dm-ioband. One of the things I personally found little
+odd about dm-ioband was need of a dm-ioband device for every device we want
+to control.  I thought that probably we can make this control per request
+queue and get rid of device mapper driver. This should make configuration
+aspect easy.
+
+I have picked up quite some amount of code from dm-ioband especially for
+biocgroup implementation.
+
+I have done very basic testing and that is running 2-3 dd commands in different
+cgroups on x86_64. Wanted to throw out the code early to get some feedback.
+
+More details about the design and how to are in documentation patch.
+
+Your comments are welcome.
+
+Thanks
+Vivek
 
 -- 
