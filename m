@@ -1,21 +1,15 @@
-From: "MinChan Kim" <minchan.kim@gmail.com>
-Subject: Re: [Question] power management related with cgroup based resource
-	management
-Date: Mon, 27 Oct 2008 11:34:34 +0900
-Message-ID: <28c262360810261934g12aa6f15mbd133d39eb57b683__24381.2006120153$1225119306$gmane$org@mail.gmail.com>
-References: <2891419e0810201954q57087fc8ufcaa0e42f3ca99e2@mail.gmail.com>
-	<4901B5C2.9070108@linux.vnet.ibm.com>
-	<2891419e0810240524u746b731cjcbd127fa4204bd4d@mail.gmail.com>
-	<20081024232503.GA20140@srcf.ucam.org>
-	<2891419e0810250105j3e210df0pa3ba9665bd35313a@mail.gmail.com>
-	<6599ad830810250843u10f65917x3388276211e90316@mail.gmail.com>
-	<2891419e0810260054p777a0602ndb4242628a7503d2@mail.gmail.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 16/16 v6] PCI: document the new PCI boot parameters
+Date: Wed, 5 Nov 2008 20:32:35 -0800
+Message-ID: <20081106043235.GA30292__2703.58145139671$1225946223$gmane$org@kroah.com>
+References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
+	<20081022084531.GP3773@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2891419e0810260054p777a0602ndb4242628a7503d2@mail.gmail.com>
 Content-Disposition: inline
+In-Reply-To: <20081022084531.GP3773@yzhao12-linux.sh.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -25,66 +19,55 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dong-Jae Kang <baramsori72@gmail.com>
-Cc: corsetproject@googlegroups.com, xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, Paul Menage <menage@google.com>, Matthew Garrett <mjg@redhat.com>, Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com>, balbir@linux.vnet.ibm.com
+To: Yu Zhao <yu.zhao@intel.com>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Dong-Jae.
+On Wed, Oct 22, 2008 at 04:45:31PM +0800, Yu Zhao wrote:
+> Document the new PCI[x86] boot parameters.
+> 
+> Cc: Alex Chiang <achiang@hp.com>
+> Cc: Grant Grundler <grundler@parisc-linux.org>
+> Cc: Greg KH <greg@kroah.com>
+> Cc: Ingo Molnar <mingo@elte.hu>
+> Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
+> Cc: Matthew Wilcox <matthew@wil.cx>
+> Cc: Randy Dunlap <randy.dunlap@oracle.com>
+> Cc: Roland Dreier <rdreier@cisco.com>
+> Signed-off-by: Yu Zhao <yu.zhao@intel.com>
+> 
+> ---
+>  Documentation/kernel-parameters.txt |   10 ++++++++++
+>  1 files changed, 10 insertions(+), 0 deletions(-)
+> 
+> diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+> index 53ba7c7..5482ae0 100644
+> --- a/Documentation/kernel-parameters.txt
+> +++ b/Documentation/kernel-parameters.txt
+> @@ -1677,6 +1677,16 @@ and is between 256 and 4096 characters. It is defined in the file
+>  		cbmemsize=nn[KMG]	The fixed amount of bus space which is
+>  				reserved for the CardBus bridge's memory
+>  				window. The default value is 64 megabytes.
+> +		assign-mmio=[dddd:]bb	[X86] reassign memory resources of all
+> +				devices under bus [dddd:]bb (dddd is the domain
+> +				number and bb is the bus number).
+> +		assign-pio=[dddd:]bb	[X86] reassign io port resources of all
+> +				devices under bus [dddd:]bb (dddd is the domain
+> +				number and bb is the bus number).
+> +		align-mmio=[dddd:]bb:dd.f  [X86] relocate memory resources of a
+> +				device to minimum PAGE_SIZE alignment (dddd is
+> +				the domain number and bb, dd and f is the bus,
+> +				device and function number).
 
+This seems like a big problem.  How are we going to know to add these
+command line options for devices we haven't even seen/known about yet?
 
-> In some aspect, your opinion is right.
-> Existing controller(ex. disk IO controllers) can be run on new HW
-> devices(ex. SSD), existing block layer and so on.
->
-> but, what I mean is that such controllers can support more performance
-> if the controllers are rewrited with reconsideration of the features
-> of new HW devices. in other words, what I mean can be optimization of
-> controllers for new devices
-> For example,
-> In case of SSD, current IO scheduler layer is needed ? although i can
-> not sure about it ^^
-> or process sleep is needed after throwing the IO requests to storage ?
-> the role of page cache in SSD or NVRAM is less important than in
-> normal HDD and ....
+How do we know the bus ids aren't going to change between boots (hint,
+they are, pci bus ids change all the time...)
 
-What you mention is already included in 2.6.28 merge window.
-I think we can use this feature on NVRAM, too.
+We need to be able to do this kind of thing dynamically, not fixed at
+boot time, which seems way to early to even know about this, right?
 
-http://lwn.net/Articles/303270/
+thanks,
 
-
-> I heard that many research centers in comanies and universities have
-> studied about smiliar research
-> of course, it can be OS itself, device drivers, block layer, file
-> systems and memory management
->
-> Under this trend,
-> I just wonder whether the trend can be reflected to cgroup  based
-> controllers or not.
-> and whether it is meaningful or not?
-> How do you think about this?
-> My opinion may be some humble ^^
-
-I think it's not cgroup controller's role but each subsystem's one.
-As you can see above article, Many mainline guys try to improve
-performance in each subsystems.
-
-Do you have a scenario or idea how to use cgroup frame work to manage
-devices like NVRAM, SSD ??
-
-> Thank you
-> --
-> Best Regards,
-> Dong-Jae Kang
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
--- 
-Kinds regards,
-MinChan Kim
+greg k-h
