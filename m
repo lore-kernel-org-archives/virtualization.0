@@ -1,18 +1,17 @@
-From: Simon Horman <horms@verge.net.au>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
-Date: Fri, 7 Nov 2008 09:24:08 +1100
-Message-ID: <20081106222405.GA9409__32884.2950672426$1226010399$gmane$org@verge.net.au>
+Date: Thu, 06 Nov 2008 16:38:40 -0600
+Message-ID: <491371F0.7020805__35968.3299706832$1226011396$gmane$org@codemonkey.ws>
 References: <20081106154351.GA30459@kroah.com>
 	<894107.30288.qm@web45108.mail.sp1.yahoo.com>
 	<20081106164919.GA4099@kroah.com>
-	<20081106174741.GC11773@parisc-linux.org>
-	<20081106175308.GA17027@kroah.com>
+	<0199E0D51A61344794750DC57738F58E5E26F996C4@GVW1118EXC.americas.hpqcorp.net>
+	<20081106183630.GD11773@parisc-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20081106175308.GA17027@kroah.com>
+In-Reply-To: <20081106183630.GD11773@parisc-linux.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,68 +21,56 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>
-Cc: randy.dunlap@oracle.com, Chris Wright <chrisw@sous-sol.org>, grundler@parisc-linux.org, achiang@hp.com, Matthew Wilcox <matthew@wil.cx>, linux-pci@vger.kernel.org, rdreier@cisco.com, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mingo@elte.hu
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "Chiang,
+	Alexander" <achiang@hp.com>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 06, 2008 at 09:53:08AM -0800, Greg KH wrote:
-> On Thu, Nov 06, 2008 at 10:47:41AM -0700, Matthew Wilcox wrote:
-> > On Thu, Nov 06, 2008 at 08:49:19AM -0800, Greg KH wrote:
-> > > On Thu, Nov 06, 2008 at 08:41:53AM -0800, H L wrote:
-> > > > I have not modified any existing drivers, but instead I threw together
-> > > > a bare-bones module enabling me to make a call to pci_iov_register()
-> > > > and then poke at an SR-IOV adapter's /sys entries for which no driver
-> > > > was loaded.
-> > > > 
-> > > > It appears from my perusal thus far that drivers using these new
-> > > > SR-IOV patches will require modification; i.e. the driver associated
-> > > > with the Physical Function (PF) will be required to make the
-> > > > pci_iov_register() call along with the requisite notify() function.
-> > > > Essentially this suggests to me a model for the PF driver to perform
-> > > > any "global actions" or setup on behalf of VFs before enabling them
-> > > > after which VF drivers could be associated.
-> > > 
-> > > Where would the VF drivers have to be associated?  On the "pci_dev"
-> > > level or on a higher one?
-> > > 
-> > > Will all drivers that want to bind to a "VF" device need to be
-> > > rewritten?
-> > 
-> > The current model being implemented by my colleagues has separate
-> > drivers for the PF (aka native) and VF devices.  I don't personally
-> > believe this is the correct path, but I'm reserving judgement until I
-> > see some code.
-> 
-> Hm, I would like to see that code before we can properly evaluate this
-> interface.  Especially as they are all tightly tied together.
-> 
-> > I don't think we really know what the One True Usage model is for VF
-> > devices.  Chris Wright has some ideas, I have some ideas and Yu Zhao has
-> > some ideas.  I bet there's other people who have other ideas too.
-> 
-> I'd love to hear those ideas.
-> 
-> Rumor has it, there is some Xen code floating around to support this
-> already, is that true?
+Matthew Wilcox wrote:
+> [Anna, can you fix your word-wrapping please?  Your lines appear to be
+> infinitely long which is most unpleasant to reply to]
+>
+> On Thu, Nov 06, 2008 at 05:38:16PM +0000, Fischer, Anna wrote:
+>   
+>>> Where would the VF drivers have to be associated?  On the "pci_dev"
+>>> level or on a higher one?
+>>>       
+>> A VF appears to the Linux OS as a standard (full, additional) PCI
+>> device. The driver is associated in the same way as for a normal PCI
+>> device. Ideally, you would use SR-IOV devices on a virtualized system,
+>> for example, using Xen. A VF can then be assigned to a guest domain as
+>> a full PCI device.
+>>     
+>
+> It's not clear thats the right solution.  If the VF devices are _only_
+> going to be used by the guest, then arguably, we don't want to create
+> pci_devs for them in the host.  (I think it _is_ the right answer, but I
+> want to make it clear there's multiple opinions on this).
+>   
 
-Xen patches were posted to xen-devel by Yu Zhao on the 29th of September [1].
-Unfortunately the only responses that I can find are a) that the patches
-were mangled and b) they seem to include changes (by others) that have
-been merged into Linux. I have confirmed that both of these concerns
-are valid.
+The VFs shouldn't be limited to being used by the guest.
 
-I have not yet examined the difference, if any, in the approach taken by Yu
-to SR-IOV in Linux and Xen. Unfortunately comparison is less than trivial
-due to the gaping gap in kernel versions between Linux-Xen (2.6.18.8) and
-Linux itself.
+SR-IOV is actually an incredibly painful thing.  You need to have a VF 
+driver in the guest, do hardware pass through, have a PV driver stub in 
+the guest that's hypervisor specific (a VF is not usable on it's own), 
+have a device specific backend in the VMM, and if you want to do live 
+migration, have another PV driver in the guest that you can do teaming 
+with.  Just a mess.
 
-One approach that I was considering in order to familiarise myself with the
-code was to backport the v6 Linux patches (this thread) to Linux-Xen. I made a
-start on that, but again due to kernel version differences it is non-trivial.
+What we would rather do in KVM, is have the VFs appear in the host as 
+standard network devices.  We would then like to back our existing PV 
+driver to this VF directly bypassing the host networking stack.  A key 
+feature here is being able to fill the VF's receive queue with guest 
+memory instead of host kernel memory so that you can get zero-copy 
+receive traffic.  This will perform just as well as doing passthrough 
+(at least) and avoid all that ugliness of dealing with SR-IOV in the guest.
 
-[1] http://lists.xensource.com/archives/html/xen-devel/2008-09/msg00923.html
+This eliminates all of the mess of various drivers in the guest and all 
+the associated baggage of doing hardware passthrough.
 
--- 
-Simon Horman
-  VA Linux Systems Japan K.K., Sydney, Australia Satellite Office
-  H: www.vergenet.net/~horms/             W: www.valinux.co.jp/en
+So IMHO, having VFs be usable in the host is absolutely critical because 
+I think it's the only reasonable usage model.
+
+Regards,
+
+Anthony Liguori
