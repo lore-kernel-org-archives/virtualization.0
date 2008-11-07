@@ -1,17 +1,15 @@
-From: Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH 16/16 v6] PCI: document the new PCI boot parameters
-Date: Thu, 6 Nov 2008 21:17:22 -0700
-Message-ID: <20081107041721.GB15439__15198.0032133453$1226031590$gmane$org@parisc-linux.org>
-References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
-	<20081022084531.GP3773@yzhao12-linux.sh.intel.com>
-	<20081106043235.GA30292@kroah.com> <4913AA03.5060807@intel.com>
-	<20081107025032.GA12824@kroah.com> <4913B8A5.5010806@intel.com>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: [patch 2/4] io controller: biocgroup implementation
+Date: Fri, 07 Nov 2008 13:19:49 +0900 (JST)
+Message-ID: <20081107.131949.106618398.taka__17408.7167055861$1226031740$gmane$org@valinux.co.jp>
+References: <20081106153022.215696930@redhat.com>
+	<20081106153135.790621895@redhat.com>
+	<20081107115030.7ccf3f07.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4913B8A5.5010806@intel.com>
+In-Reply-To: <20081107115030.7ccf3f07.kamezawa.hiroyu@jp.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,38 +19,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhao, Yu" <yu.zhao@intel.com>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
+To: kamezawa.hiroyu@jp.fujitsu.com
+Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, vgoyal@redhat.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 07, 2008 at 11:40:21AM +0800, Zhao, Yu wrote:
-> Greg KH wrote:
-> >We've thought about this in the past, and even Microsoft said it was
-> >going to happen for Vista, but they realized in the end, like we did a
-> >few years previously, that it would require full support of all PCI
-> >drivers as well (if you rebalance stuff that is already bound to a
-> >driver.)  So they dropped it.
-> >
-> >When would you want to do this kind of rebalancing?  Before any PCI
-> >driver is bound to any devices?  Or afterwards?
-> 
-> I guess if we want the rebalance dynamic, then we should have it full -- 
-> the rebalance would be functional even after the driver is loaded.
-> 
-> But in most cases, there will be problem when we unload driver from a 
-> hard disk controller, etc. We can mount root on a ramdisk and do the 
-> rebalance there, but it's complicated for a real user.
-> 
-> So looks like doing rebalancing before any driver is bound to any device 
-> is also a nice idea, if user can get a shell to do rebalance before 
-> built-in PCI driver grabs device.
+Hi,
 
-Can we use the suspend/resume code to do this?  Some drivers (sym2 for
-one) would definitely need to rerun some of their init code to cope with
-a BAR address changing.
+I'm going to release a new version of bio_cgroup soon, which doesn't
+have "struct list_head blist" anymore and whose overhead is minimized.
 
--- 
-Matthew Wilcox				Intel Open Source Technology Centre
-"Bill, look, we understand that you're interested in selling us this
-operating system, but compare it to ours.  We can't possibly take such
-a retrograde step."
+> > o biocgroup functionality.
+> > o Implemented new controller "bio"
+> > o Most of it picked from dm-ioband biocgroup implementation patches.
+> > 
+> page_cgroup implementation is changed and most of this patch needs rework.
+> please see the latest one. (I think most of new characteristics are useful
+> for you.)
+> 
+> One comment from me is
+> ==
+> > +struct page_cgroup {
+> > +	struct list_head lru;		/* per cgroup LRU list */
+> > +	struct page *page;
+> > +	struct mem_cgroup *mem_cgroup;
+> > +	int flags;
+> > +#ifdef CONFIG_CGROUP_BIO
+> > +	struct list_head blist;		/* for bio_cgroup page list */
+> > +	struct bio_cgroup *bio_cgroup;
+> > +#endif
+> > +};
+> ==
+> 
+> this blist is too bad. please keep this object small...
+> 
+> Maybe dm-ioband people will post his own new one. just making use of it is an idea.
+> 
+> Thanks,
+> -Kame
+> 
+> 
