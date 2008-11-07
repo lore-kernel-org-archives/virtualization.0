@@ -1,16 +1,19 @@
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [patch 3/4] io controller: Core IO controller implementation logic
-Date: Fri, 7 Nov 2008 09:50:36 -0500
-Message-ID: <20081107145036.GF21884__37278.9025809199$1226069837$gmane$org@redhat.com>
-References: <20081106153022.215696930@redhat.com>
-	<20081106153135.869625751@redhat.com>
-	<20081107122145.69500cd3.kamezawa.hiroyu@jp.fujitsu.com>
+From: Andi Kleen <andi@firstfloor.org>
+Subject: Re: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
+Date: Fri, 07 Nov 2008 16:21:33 +0100
+Message-ID: <87d4h7pnnm.fsf__4937.77150190926$1226071173$gmane$org@basil.nowhere.org>
+References: <20081106154351.GA30459@kroah.com>
+	<894107.30288.qm@web45108.mail.sp1.yahoo.com>
+	<20081106164919.GA4099@kroah.com>
+	<0199E0D51A61344794750DC57738F58E5E26F996C4@GVW1118EXC.americas.hpqcorp.net>
+	<20081106183630.GD11773@parisc-linux.org>
+	<491371F0.7020805@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20081107122145.69500cd3.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <491371F0.7020805@codemonkey.ws> (Anthony Liguori's message of
+	"Thu, 06 Nov 2008 16:38:40 -0600")
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,43 +23,30 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: menage@google.com, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, Jeff Moyer <jmoyer@redhat.com>, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Andrea Righi <righi.andrea@gmail.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "Chiang,
+	Alexander" <achiang@hp.com>, Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 07, 2008 at 12:21:45PM +0900, KAMEZAWA Hiroyuki wrote:
-> On Thu, 06 Nov 2008 10:30:25 -0500
-> vgoyal@redhat.com wrote:
-> 
-> > 
-> > o Core IO controller implementation
-> > 
-> > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-> > 
-> 
-> 2 comments after a quick look.
-> 
->  - I don't recommend generic work queue. More stacked dependency between "work"
->    is not good. (I think disk-driver uses "work" for their jobs.)
+Anthony Liguori <anthony@codemonkey.ws> writes:
+>
+> What we would rather do in KVM, is have the VFs appear in the host as
+> standard network devices.  We would then like to back our existing PV
+> driver to this VF directly bypassing the host networking stack.  A key
+> feature here is being able to fill the VF's receive queue with guest
+> memory instead of host kernel memory so that you can get zero-copy
+> receive traffic.  This will perform just as well as doing passthrough
+> (at least) and avoid all that ugliness of dealing with SR-IOV in the
+> guest.
 
-Sorry, I did not get this. Are you recommending that don't create a new
-work queue, instead use existing work queue (say kblockd) to submit the bios
-here?
+But you shift a lot of ugliness into the host network stack again.
+Not sure that is a good trade off.
 
-I will look into it. I was little worried about a kblockd being overworked
-in case of too many logical devices enabling IO controller.
+Also it would always require context switches and I believe one
+of the reasons for the PV/VF model is very low latency IO and having
+heavyweight switches to the host and back would be against that.
 
-> 
->  - It seems this bio-cgroup can queue the bio to infinite. Then, a process can submit
->    io unitl cause OOM.
->    (IIUC, Dirty bit of the page is cleared at submitting I/O. 
->     Then dirty_ratio can't help us.)
->    please add "wait for congestion by sleeping" code in bio-cgroup.
+-Andi
 
-Yes, you are right. I need to put some kind of control on max number of
-bios I can queue on a cgroup and after crossing the limit, I should put
-the submitting task to sleep. (Something like request descriptor kind of
-flow control implememented by elevators).
-
-Thanks
-Vivek
+-- 
+ak@linux.intel.com
