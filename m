@@ -1,20 +1,18 @@
 From: Yu Zhao <yu.zhao@uniscape.net>
 Subject: Re: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
-Date: Fri, 07 Nov 2008 23:17:40 +0800
-Message-ID: <49145C14.1050409__31868.8451349319$1226071634$gmane$org@uniscape.net>
+Date: Sat, 08 Nov 2008 00:01:43 +0800
+Message-ID: <49146667.6060901__38313.8699610301$1226074041$gmane$org@uniscape.net>
 References: <20081106154351.GA30459@kroah.com>
 	<894107.30288.qm@web45108.mail.sp1.yahoo.com>
 	<20081106164919.GA4099@kroah.com>
 	<0199E0D51A61344794750DC57738F58E5E26F996C4@GVW1118EXC.americas.hpqcorp.net>
 	<20081106183630.GD11773@parisc-linux.org>
 	<491371F0.7020805@codemonkey.ws>
-	<20081106225854.GA15439@parisc-linux.org>
-	<20081107061952.GF3860@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081107061952.GF3860@kroah.com>
+In-Reply-To: <491371F0.7020805@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,54 +22,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>
+To: Anthony Liguori <anthony@codemonkey.ws>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "Chiang,
-	Alexander" <achiang@hp.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, Leonid.Grossman@neterion.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, eddie.dong@intel.com, keir.fraser@eu.citrix.com, Anthony Liguori <anthony@codemonkey.ws>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>, avi@redhat.com
+	Alexander" <achiang@hp.com>, Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-While we are arguing what the software model the SR-IOV should be, let 
-me ask two simple questions first:
+Anthony Liguori wrote:
+> Matthew Wilcox wrote:
+>> [Anna, can you fix your word-wrapping please?  Your lines appear to be
+>> infinitely long which is most unpleasant to reply to]
+>>
+>> On Thu, Nov 06, 2008 at 05:38:16PM +0000, Fischer, Anna wrote:
+>>  
+>>>> Where would the VF drivers have to be associated?  On the "pci_dev"
+>>>> level or on a higher one?
+>>>>       
+>>> A VF appears to the Linux OS as a standard (full, additional) PCI
+>>> device. The driver is associated in the same way as for a normal PCI
+>>> device. Ideally, you would use SR-IOV devices on a virtualized system,
+>>> for example, using Xen. A VF can then be assigned to a guest domain as
+>>> a full PCI device.
+>>>     
+>>
+>> It's not clear thats the right solution.  If the VF devices are _only_
+>> going to be used by the guest, then arguably, we don't want to create
+>> pci_devs for them in the host.  (I think it _is_ the right answer, but I
+>> want to make it clear there's multiple opinions on this).
+>>   
+> 
+> The VFs shouldn't be limited to being used by the guest.
 
-1, What does the SR-IOV looks like?
-2, Why do we need to support it?
+Yes, VF driver running in the host is supported :-)
 
-I'm sure people have different understandings from their own view 
-points. No one is wrong, but, please don't make thing complicated and 
-don't ignore user requirements.
+> 
+> SR-IOV is actually an incredibly painful thing.  You need to have a VF 
+> driver in the guest, do hardware pass through, have a PV driver stub in 
+> the guest that's hypervisor specific (a VF is not usable on it's own), 
+> have a device specific backend in the VMM, and if you want to do live 
+> migration, have another PV driver in the guest that you can do teaming 
+> with.  Just a mess.
 
-PCI SIG and hardware vendors create such thing intending to make 
-hardware resource in one PCI device be shared from different software 
-instances -- I guess all of us agree with this. No doubt PF is real 
-function in the PCI device, but VF is different? No, it also has its own 
-Bus, Device and Function numbers, and PCI configuration space and Memory 
-Space (MMIO). To be more detailed, it can response to and initiate PCI 
-Transaction Layer Protocol packets, which means it can do everything a 
-PF can in PCI level. From these obvious behaviors, we can conclude PCI 
-SIG model VF as a normal PCI device function, even it's not standalone.
+Actually not so mess. VF driver can be a plain PCI device driver and 
+doesn't require any backend in the VMM, or hypervisor specific 
+knowledge, if the hardware is properly designed. In this case PF driver 
+controls hardware resource allocation for VFs and VF driver can work 
+without any communication to PF driver or VMM.
 
-As you know the Linux kernel is the base of various virtual machine 
-monitors such as KVM, Xen, OpenVZ and VServer. We need SR-IOV support in 
-the kernel because mostly it helps high-end users (IT departments, HPC, 
-etc.) to share limited hardware resources among hundreds or even 
-thousands virtual machines and hence reduce the cost. How can we make 
-these virtual machine monitors utilize the advantage of SR-IOV without 
-spending too much effort meanwhile remaining architectural correctness? 
-I believe making VF represent as much closer as a normal PCI device 
-(struct pci_dev) is the best way in current situation, because this is 
-not only what the hardware designers expect us to do but also the usage 
-model that KVM, Xen and other VMMs have already supported.
+> 
+> What we would rather do in KVM, is have the VFs appear in the host as 
+> standard network devices.  We would then like to back our existing PV 
+> driver to this VF directly bypassing the host networking stack.  A key 
+> feature here is being able to fill the VF's receive queue with guest 
+> memory instead of host kernel memory so that you can get zero-copy 
+> receive traffic.  This will perform just as well as doing passthrough 
+> (at least) and avoid all that ugliness of dealing with SR-IOV in the guest.
 
-I agree that API in the SR-IOV pacth is arguable and the concerns such 
-as lack of PF driver, etc. are also valid. But I personally think these 
-stuff are not essential problems to me and other SR-IOV driver 
-developers. People can refine things but don't want to recreate things 
-in another totally different way especially that way doesn't bring them 
-obvious benefits.
+If the hardware supports both SR-IOV and IOMMU, I wouldn't suggest 
+people to do so, because they will get better performance by directly 
+assigning VF to the guest.
 
-As I can see that we are now reaching a point that a decision must be 
-made, I know this is such difficult thing in an open and free community 
-but fortunately we have a lot of talented and experienced people here. 
-So let's make it happen, and keep our loyal users happy!
+However, lots of low-end machines don't have SR-IOV and IOMMU support. 
+They may have multi queue NIC, which uses built-in L2 switch to dispense 
+packets to different DMA queue according to MAC address. They definitely 
+can benefit a lot if there is software support for the DMA queue hooking 
+virtio-net backend as you suggested.
 
-Thanks,
-Yu
+> 
+> This eliminates all of the mess of various drivers in the guest and all 
+> the associated baggage of doing hardware passthrough.
+> 
+> So IMHO, having VFs be usable in the host is absolutely critical because 
+> I think it's the only reasonable usage model.
+
+Please don't worry, we have take this usage model as well as container 
+model into account when designing SR-IOV framework for the kernel.
+
+> 
+> Regards,
+> 
+> Anthony Liguori
+> -- 
+> To unsubscribe from this list: send the line "unsubscribe linux-pci" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
