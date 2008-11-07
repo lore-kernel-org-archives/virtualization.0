@@ -1,15 +1,19 @@
 From: Greg KH <greg@kroah.com>
 Subject: Re: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
-Date: Thu, 6 Nov 2008 22:07:07 -0800
-Message-ID: <20081107060707.GA3860__44262.2260227383$1226039553$gmane$org@kroah.com>
-References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
-	<20081106044828.GA30417@kroah.com> <4913CFBC.4040203@intel.com>
+Date: Thu, 6 Nov 2008 22:10:07 -0800
+Message-ID: <20081107061007.GB3860__29454.8690588728$1226039681$gmane$org@kroah.com>
+References: <20081106154351.GA30459@kroah.com>
+	<894107.30288.qm@web45108.mail.sp1.yahoo.com>
+	<20081106164919.GA4099@kroah.com>
+	<20081106174741.GC11773@parisc-linux.org>
+	<20081106175308.GA17027@kroah.com>
+	<20081106235406.GB30790@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4913CFBC.4040203@intel.com>
+In-Reply-To: <20081106235406.GB30790@sequoia.sous-sol.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,41 +23,76 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhao, Yu" <yu.zhao@intel.com>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: randy.dunlap@oracle.com, grundler@parisc-linux.org, achiang@hp.com, Matthew Wilcox <matthew@wil.cx>, linux-pci@vger.kernel.org, rdreier@cisco.com, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 07, 2008 at 01:18:52PM +0800, Zhao, Yu wrote:
-> Greg KH wrote:
->> On Wed, Oct 22, 2008 at 04:38:09PM +0800, Yu Zhao wrote:
->>> Greetings,
->>>
->>> Following patches are intended to support SR-IOV capability in the
->>> Linux kernel. With these patches, people can turn a PCI device with
->>> the capability into multiple ones from software perspective, which
->>> will benefit KVM and achieve other purposes such as QoS, security,
->>> and etc.
->> Is there any actual users of this API around yet?  How was it tested as
->> there is no hardware to test on?  Which drivers are going to have to be
->> rewritten to take advantage of this new interface?
->
-> Yes, the API is used by Intel, HP, NextIO and some other anonymous 
-> companies as they rise questions and send me feedback. I haven't seen their 
-> works but I guess some of drivers using SR-IOV API are going to be released 
-> soon.
+On Thu, Nov 06, 2008 at 03:54:06PM -0800, Chris Wright wrote:
+> * Greg KH (greg@kroah.com) wrote:
+> > On Thu, Nov 06, 2008 at 10:47:41AM -0700, Matthew Wilcox wrote:
+> > > On Thu, Nov 06, 2008 at 08:49:19AM -0800, Greg KH wrote:
+> > > > On Thu, Nov 06, 2008 at 08:41:53AM -0800, H L wrote:
+> > > > > I have not modified any existing drivers, but instead I threw together
+> > > > > a bare-bones module enabling me to make a call to pci_iov_register()
+> > > > > and then poke at an SR-IOV adapter's /sys entries for which no driver
+> > > > > was loaded.
+> > > > > 
+> > > > > It appears from my perusal thus far that drivers using these new
+> > > > > SR-IOV patches will require modification; i.e. the driver associated
+> > > > > with the Physical Function (PF) will be required to make the
+> > > > > pci_iov_register() call along with the requisite notify() function.
+> > > > > Essentially this suggests to me a model for the PF driver to perform
+> > > > > any "global actions" or setup on behalf of VFs before enabling them
+> > > > > after which VF drivers could be associated.
+> > > > 
+> > > > Where would the VF drivers have to be associated?  On the "pci_dev"
+> > > > level or on a higher one?
+> > > > 
+> > > > Will all drivers that want to bind to a "VF" device need to be
+> > > > rewritten?
+> > > 
+> > > The current model being implemented by my colleagues has separate
+> > > drivers for the PF (aka native) and VF devices.  I don't personally
+> > > believe this is the correct path, but I'm reserving judgement until I
+> > > see some code.
+> > 
+> > Hm, I would like to see that code before we can properly evaluate this
+> > interface.  Especially as they are all tightly tied together.
+> > 
+> > > I don't think we really know what the One True Usage model is for VF
+> > > devices.  Chris Wright has some ideas, I have some ideas and Yu Zhao has
+> > > some ideas.  I bet there's other people who have other ideas too.
+> > 
+> > I'd love to hear those ideas.
+> 
+> First there's the question of how to represent the VF on the host.
+> Ideally (IMO) this would show up as a normal interface so that normal tools
+> can configure the interface.  This is not exactly how the first round of
+> patches were designed.
+> 
+> Second there's the question of reserving the BDF on the host such that
+> we don't have two drivers (one in the host and one in a guest) trying to
+> drive the same device (an issue that shows up for device assignment as
+> well as VF assignment).
+> 
+> Third there's the question of whether the VF can be used in the host at
+> all.
+> 
+> Fourth there's the question of whether the VF and PF drivers are the
+> same or separate.
+> 
+> The typical usecase is assigning the VF to the guest directly, so
+> there's only enough functionality in the host side to allocate a VF,
+> configure it, and assign it (and propagate AER).  This is with separate
+> PF and VF driver.
+> 
+> As Anthony mentioned, we are interested in allowing the host to use the
+> VF.  This could be useful for containers as well as dedicating a VF (a
+> set of device resources) to a guest w/out passing it through.
 
-Well, we can't merge infrastructure without seeing the users of that
-infrastructure, right?
-
-> My test was done with Intel 82576 Gigabit Ethernet Controller. The product 
-> brief is at http://download.intel.com/design/network/ProdBrf/320025.pdf and 
-> the spec is available at 
-> http://download.intel.com/design/network/datashts/82576_Datasheet_v2p1.pdf
-
-Cool, do you have that driver we can see?
-
-How does it interact and handle the kvm and xen issues that have been
-posted?
+All of this looks great.  So, with all of these questions, how does the
+current code pertain to these issues?  It seems like we have a long way
+to go...
 
 thanks,
 
