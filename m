@@ -1,17 +1,15 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Fri, 07 Nov 2008 11:31:44 +0100
-Message-ID: <1226053904.7803.5856.camel__46661.4712997854$1226054012$gmane$org@twins>
-References: <20081106153022.215696930@redhat.com>
-	<1225986593.7803.4688.camel@twins> <20081106160154.GA7461@redhat.com>
-	<1225988173.7803.4723.camel@twins> <20081106163957.GB7461@redhat.com>
-	<1225990327.7803.4776.camel@twins> <491321ED.5010103@redhat.com>
-	<1225991487.7803.4801.camel@twins>  <20081107004131.GD2373@disturbed>
+From: Yu Zhao <yu.zhao@uniscape.net>
+Subject: Re: git repository for SR-IOV development?
+Date: Fri, 07 Nov 2008 21:09:20 +0800
+Message-ID: <49143E00.30003__21418.5859812007$1226063762$gmane$org@uniscape.net>
+References: <20081106165914.GA13476@kroah.com>
+	<104014.9320.qm@web45110.mail.sp1.yahoo.com>
+	<20081107015844.GA11884@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081107004131.GD2373@disturbed>
+In-Reply-To: <20081107015844.GA11884@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,33 +19,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Chinner <david@fromorbit.com>
-Cc: menage@google.com, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, Jeff Moyer <jmoyer@redhat.com>, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Vivek Goyal <vgoyal@redhat.com>, Andrea Righi <righi.andrea@gmail.com>
+To: H L <swdevyid@yahoo.com>
+Cc: randy.dunlap@oracle.com, Xen-devel List <xen-devel@lists.xensource.com>, grundler@parisc-linux.org, achiang@hp.com, matthew@wil.cx, Greg KH <greg@kroah.com>, rdreier@cisco.com, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org, mingo@elte.hu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2008-11-07 at 11:41 +1100, Dave Chinner wrote:
-> On Thu, Nov 06, 2008 at 06:11:27PM +0100, Peter Zijlstra wrote:
-> > On Thu, 2008-11-06 at 11:57 -0500, Rik van Riel wrote:
-> > > Peter Zijlstra wrote:
-> > > 
-> > > > The only real issue I can see is with linear volumes, but those are
-> > > > stupid anyway - non of the gains but all the risks.
-> > > 
-> > > Linear volumes may well be the most common ones.
-> > > 
-> > > People start out with the filesystems at a certain size,
-> > > increasing onto a second (new) disk later, when more space
-> > > is required.
-> > 
-> > Are they aware of how risky linear volumes are? I would discourage
-> > anyone from using them.
+Hello Lance,
+
+Thanks for your interest in SR-IOV. As Greg said we can't have a git 
+tree for the change, but you are welcome to ask any question here and I 
+also will keep you informed if there is any update on the SR-IOV patches.
+
+Thanks,
+Yu
+
+Greg KH wrote:
+> On Thu, Nov 06, 2008 at 11:58:25AM -0800, H L wrote:
+>> --- On Thu, 11/6/08, Greg KH <greg@kroah.com> wrote:
+>>
+>>> On Thu, Nov 06, 2008 at 08:51:09AM -0800, H L wrote:
+>>>> Has anyone initiated or given consideration to the
+>>> creation of a git
+>>>> repository (say, on kernel.org) for SR-IOV
+>>> development?
+>>>
+>>> Why?  It's only a few patches, right?  Why would it
+>>> need a whole new git
+>>> tree?
+>>
+>> So as to minimize the time and effort patching a kernel, especially if
+>> the tree (and/or hash level) against which the patches were created
+>> fails to be specified on a mailing-list.  Plus, there appears to be
+>> questions raised on how, precisely, the implementation should
+>> ultimately be modeled and especially given that, who knows at this
+>> point what number of patches will ultimately be submitted?  I know
+>> I've built the "7-patch" one (painfully, by the way), and I'm aware
+>> there's another 15-patch set out there which I've not yet examined.
 > 
-> In what way are they risky?
-
-You loose all your data when one disk dies, so your mtbf decreases with
-the number of disks in your linear span.
-
-And you get non of the benefits from having multiple disks, like extra
-speed from striping, or redundancy from raid.
-
-Therefore I say that linear volumes are the absolute worst choice.
+> It's a mere 7 or 15 patches, you don't need a whole git tree for
+> something small like that.
+> 
+> Especially as there only seems to be one developer doing real work...
+> 
+> thanks,
+> 
+> greg k-h
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-pci" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
