@@ -1,16 +1,18 @@
-From: "KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [patch 3/4] io controller: Core IO controller implementationlogic
-Date: Sat, 8 Nov 2008 11:35:48 +0900 (JST)
-Message-ID: <36332.10.75.179.62.1226111748.squirrel__2678.99440737001$1226111904$gmane$org@webmail-b.css.fujitsu.com>
-References: <20081106153022.215696930@redhat.com>
-	<20081106153135.869625751@redhat.com>
-	<20081107122145.69500cd3.kamezawa.hiroyu@jp.fujitsu.com>
-	<20081107145036.GF21884@redhat.com>
+From: Yu Zhao <yu.zhao@uniscape.net>
+Subject: Re: [PATCH 16/16 v6] PCI: document the new PCI boot parameters
+Date: Sat, 08 Nov 2008 13:00:29 +0800
+Message-ID: <49151CED.8060507__29017.4485337504$1226120763$gmane$org@uniscape.net>
+References: <20081106043235.GA30292@kroah.com> <4913AA03.5060807@intel.com>
+	<20081107025032.GA12824@kroah.com> <4913B8A5.5010806@intel.com>
+	<20081107061603.GC3860@kroah.com> <4913F34A.8020805@intel.com>
+	<20081107080222.GA6284@kroah.com> <4913F97E.7030408@intel.com>
+	<20081107082432.GA6601@kroah.com> <4913FDE3.8050804@intel.com>
+	<20081107185325.GE2320@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081107145036.GF21884@redhat.com>
+In-Reply-To: <20081107185325.GE2320@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,39 +22,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: menage@google.com, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, Jeff Moyer <jmoyer@redhat.com>, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Andrea Righi <righi.andrea@gmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Vivek Goyal said:
-> On Fri, Nov 07, 2008 at 12:21:45PM +0900, KAMEZAWA Hiroyuki wrote:
->> On Thu, 06 Nov 2008 10:30:25 -0500
->> vgoyal@redhat.com wrote:
->>
->> >
->> > o Core IO controller implementation
->> >
->> > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
->> >
->>
->> 2 comments after a quick look.
->>
->>  - I don't recommend generic work queue. More stacked dependency between
->> "work"
->>    is not good. (I think disk-driver uses "work" for their jobs.)
->
-> Sorry, I did not get this. Are you recommending that don't create a new
-> work queue, instead use existing work queue (say kblockd) to submit the
-> bios
-> here?
->
-Ah, no, recomending new-original its own workqueue. I'm sorry that it seems
-I missed something at reading your patch.
-(other person may have other opinion, here;)
+Greg KH wrote:
+> On Fri, Nov 07, 2008 at 04:35:47PM +0800, Zhao, Yu wrote:
+>> Greg KH wrote:
+>>> On Fri, Nov 07, 2008 at 04:17:02PM +0800, Zhao, Yu wrote:
+>>>>> Well, to do it "correctly" you are going to have to tell the driver to
+>>>>> shut itself down, and reinitialize itself.
+>>>>> Turns out, that doesn't really work for disk and network devices without
+>>>>> dropping the connection (well, network devices should be fine probably).
+>>>>> So you just can't do this, sorry.  That's why the BIOS handles all of
+>>>>> these issues in a PCI hotplug system.
+>>>>> How does the hardware people think we are going to handle this in the
+>>>>> OS?  It's not something that any operating system can do, is it part of
+>>>>> the IOV PCI spec somewhere?
+>>>> No, it's not part of the PCI IOV spec.
+>>>>
+>>>> I just want the IOV (and whole PCI subsystem) have more flexibility on 
+>>>> various BIOSes. So can we reconsider about resource rebalance as boot 
+>>>> option, or should we forget about this idea?
+>>> As you have proposed it, the boot option will not work at all, so I
+>>> think we need to forget about it.  Especially if it is not really
+>>> needed.
+>> I guess at least one thing would work if people don't want to boot twice: 
+>> give the bus number 0 as rebalance starting point, then all system 
+>> resources would be reshuffled :-)
+> 
+> Hm, but don't we do that today with our basic resource reservation logic
+> at boot time?  What would be different about this kind of proposal?
 
-> I will look into it. I was little worried about a kblockd being overworked
-> in case of too many logical devices enabling IO controller.
->
+The generic PCI core can do this but this feature is kind of disabled by 
+low level PCI code in x86. The low level code tries to reserve resource 
+according to configuration from BIOS. If the BIOS is wrong, the 
+allocation would fail and the generic PCI core couldn't repair it 
+because the bridge resources may have been allocated by the PCI low 
+level and the PCI core can't expand them to find enough resource for the 
+subordinates.
 
-Thanks,
--Kame
+The proposal is to disable x86 PCI low level to allocation resources 
+according to BIOS so PCI core can fully control the resource allocation. 
+The PCI core takes all resources from BARs it knows into account and 
+configure the resource windows on the bridges according to its own 
+calculation.
+
+Regards,
+Yu
