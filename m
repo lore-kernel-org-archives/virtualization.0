@@ -1,17 +1,18 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: Re: [PATCH 16/16 v6] PCI: document the new PCI boot parameters
-Date: Sun, 9 Nov 2008 15:34:33 +0100
-Message-ID: <C6F54356-3132-4888-8565-5368DECD2206__28624.3882649162$1226241427$gmane$org@suse.de>
-References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
-	<20081022084531.GP3773@yzhao12-linux.sh.intel.com>
-	<20081106043235.GA30292@kroah.com> <4913AA03.5060807@intel.com>
-	<20081107025032.GA12824@kroah.com> <4913B8A5.5010806@intel.com>
-	<20081107061603.GC3860@kroah.com> <20081109141909.GA2458@ucw.cz>
-Mime-Version: 1.0 (Apple Message framework v929.2)
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
+Date: Sun, 9 Nov 2008 11:25:05 -0800
+Message-ID: <20081109192505.GA3091__16697.0030208633$1226259067$gmane$org@kroah.com>
+References: <20081106154351.GA30459@kroah.com>
+	<894107.30288.qm@web45108.mail.sp1.yahoo.com>
+	<20081106164919.GA4099@kroah.com>
+	<0199E0D51A61344794750DC57738F58E5E26F996C4@GVW1118EXC.americas.hpqcorp.net>
+	<20081106180354.GA17429@kroah.com> <4916DB16.2040709@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081109141909.GA2458@ucw.cz>
+Content-Disposition: inline
+In-Reply-To: <4916DB16.2040709@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,52 +22,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pavel Machek <pavel@suse.cz>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
+To: Avi Kivity <avi@redhat.com>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "Chiang,
+	Alexander" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>>>> If we do resource rebalance after system is up, do you think  
->>>>> there is any
->>>>> side effect or impact to other subsystem other than PCI (e.g.  
->>>>> MTRR)?
->>>> I don't think so.
->>>>> I haven't had much thinking on the dynamical resource rebalance.  
->>>>> If you
->>>>> have any idea about this, can you please suggest?
->>>> Yeah, it's going to be hard :)
->>>> We've thought about this in the past, and even Microsoft said it  
->>>> was
->>>> going to happen for Vista, but they realized in the end, like we  
->>>> did a
->>>> few years previously, that it would require full support of all PCI
->>>> drivers as well (if you rebalance stuff that is already bound to a
->>>> driver.)  So they dropped it.
->>>> When would you want to do this kind of rebalancing?  Before any PCI
->>>> driver is bound to any devices?  Or afterwards?
->>>
->>> I guess if we want the rebalance dynamic, then we should have it  
->>> full --
->>> the rebalance would be functional even after the driver is loaded.
->>>
->>> But in most cases, there will be problem when we unload driver  
->>> from a hard
->>> disk controller, etc. We can mount root on a ramdisk and do the  
->>> rebalance
->>> there, but it's complicated for a real user.
->>>
->>> So looks like doing rebalancing before any driver is bound to any  
->>> device is
->>> also a nice idea, if user can get a shell to do rebalance before  
->>> built-in
->>> PCI driver grabs device.
+On Sun, Nov 09, 2008 at 02:44:06PM +0200, Avi Kivity wrote:
+> Greg KH wrote:
+>> It's that "second" part that I'm worried about.  How is that going to
+>> happen?  Do you have any patches that show this kind of "assignment"?
 >>
->> That's not going to work, it needs to happen before any PCI device is
->> bound, which is before init runs.
+>>   
 >
-> We could run shell from early initrd... And PCI is not required for
-> initrd, right?
+> For kvm, this is in 2.6.28-rc.
 
-You can't be sure of that - compile your ATA driver =y and you'll  
-definitely end up using PCI.
+Where?  I just looked and couldn't find anything, but odds are I was
+looking in the wrong place :(
 
-Alex
+> Note there are two ways to assign a device to a guest:
+>
+> - run the VF driver in the guest: this has the advantage of best 
+> performance, but requires pinning all guest memory, makes live migration a 
+> tricky proposition, and ties the guest to the underlying hardware.
+
+Is this what you would prefer for kvm?
+
+> - run the VF driver in the host, and use virtio to connect the guest to the 
+> host: allows paging the guest and allows straightforward live migration, 
+> but reduces performance, and hides any features not exposed by virtio from 
+> the guest.
+
+thanks,
+
+greg k-h
