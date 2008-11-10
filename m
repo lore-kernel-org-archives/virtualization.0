@@ -1,18 +1,16 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
-Date: Sun, 09 Nov 2008 21:37:20 +0200
-Message-ID: <49173BF0.5050506@redhat.com>
-References: <20081106154351.GA30459@kroah.com>
-	<894107.30288.qm@web45108.mail.sp1.yahoo.com>
-	<20081106164919.GA4099@kroah.com>
-	<0199E0D51A61344794750DC57738F58E5E26F996C4@GVW1118EXC.americas.hpqcorp.net>
-	<20081106180354.GA17429@kroah.com>
-	<4916DB16.2040709@redhat.com> <20081109192505.GA3091@kroah.com>
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: [patch 1/4] io controller: documentation
+Date: Mon, 10 Nov 2008 08:44:07 -0500
+Message-ID: <20081110134407.GA26956__22921.4150844657$1226324943$gmane$org@redhat.com>
+References: <20081106153022.215696930@redhat.com>
+	<20081106153135.743458085@redhat.com>
+	<4917A116.7040603@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081109192505.GA3091@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <4917A116.7040603@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,56 +20,39 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "Chiang,
-	Alexander" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
+To: Li Zefan <lizf@cn.fujitsu.com>
+Cc: menage@google.com, Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Hirokazu Takahashi <taka@valinux.co.jp>, Jeff Moyer <jmoyer@redhat.com>, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Andrea Righi <righi.andrea@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Greg KH wrote:
-> On Sun, Nov 09, 2008 at 02:44:06PM +0200, Avi Kivity wrote:
->   
->> Greg KH wrote:
->>     
->>> It's that "second" part that I'm worried about.  How is that going to
->>> happen?  Do you have any patches that show this kind of "assignment"?
->>>
->>>   
->>>       
->> For kvm, this is in 2.6.28-rc.
->>     
->
-> Where?  I just looked and couldn't find anything, but odds are I was
-> looking in the wrong place :(
->
->   
+On Mon, Nov 10, 2008 at 10:48:54AM +0800, Li Zefan wrote:
+> Hi, Vivek
+> 
+> Thanks for your work. :)
+> 
+> A question below.
+> 
+> > +For example, assume there are two cgroups A and B with weights 1024 and 2048
+> > +in the system. Tasks in two cgroups A and B are doing IO to two disks sda and
+> > +sdb in the system. A user has enabled IO control on both sda and sdb. Now on
+> > +both sda and sdb, tasks in cgroup B will get to use 2/3 of disk BW and
+> > +tasks in cgroup A will get to use 1/3 of disk bandwidth, only in case of
+> > +contention. If tasks in any of the groups stop doing IO to a particular disk,
+> > +task in other group will get to use full disk BW for that duration.
+> > +
+> 
+> So in this example, I can't assign 1/3 of sda's disk BW while 2/3 of sdb's
+> disk BW to A. Am I right?
 
-arch/x86/kvm/vtd.c: iommu integration (allows assigning the device's 
-memory resources)
-virt/kvm/irq*: interrupt redirection (allows assigning the device's 
-interrupt resources)
+Hi,
 
-the rest (pci config space, pio redirection) are in userspace.
+Yes you are right. Currently policies are global and not per disk. So in 
+above example, cgroup A will get 1/3 of disk BW both on sda and sdb. And
+one can not configure in such a manner so that A gets 1/3 of BW on sda and
+2/3 of BW on sdb.
 
->> Note there are two ways to assign a device to a guest:
->>
->> - run the VF driver in the guest: this has the advantage of best 
->> performance, but requires pinning all guest memory, makes live migration a 
->> tricky proposition, and ties the guest to the underlying hardware.
->>     
->
-> Is this what you would prefer for kvm?
->
->   
+I think assigning cgroup weights per disk should be doable but personally
+I think it makes configuration complex and I am not sure if it really a
+very useful feature.
 
-It's not my personal preference, but it is a supported configuration.  
-For some use cases it is the only one that makes sense.
-
-Again, VF-in-guest and VF-in-host both have their places.  And since 
-Linux can be both guest and host, it's best if the VF driver knows 
-nothing about SR-IOV; it's just a pci driver.  The PF driver should 
-emulate anything that SR-IOV does not provide (like missing pci config 
-space).
-
--- 
-I have a truly marvellous patch that fixes the bug which this
-signature is too narrow to contain.
+Thanks
+Vivek
