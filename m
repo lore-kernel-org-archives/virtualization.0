@@ -1,15 +1,18 @@
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [dm-devel] Re: [PATCH 0/8] I/O bandwidth controller and BIO
-	tracking
-Date: Thu, 13 Nov 2008 16:26:23 +0900 (JST)
-Message-ID: <20081113.162623.74628639.taka__33705.9971098371$1226561347$gmane$org@valinux.co.jp>
-References: <20081113.121019.104237699577193919.ryov@valinux.co.jp>
-	<20081113153019.cc50d42c.kamezawa.hiroyu@jp.fujitsu.com>
+From: Yu Zhao <yu.zhao@intel.com>
+Subject: Re: [PATCH 15/16 v6] PCI: document the SR-IOV sysfs entries
+Date: Thu, 13 Nov 2008 14:50:24 +0800
+Message-ID: <20081113065024.GA3038__32004.3867607184$1226562572$gmane$org@yzhao12-linux.sh.intel.com>
+References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
+	<20081022084515.GO3773@yzhao12-linux.sh.intel.com>
+	<20081106043318.GB30292@kroah.com>
+	<20081106044613.GA30397@kroah.com> <4913AF89.2050504@intel.com>
+	<20081107031837.GB30003@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081113153019.cc50d42c.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Disposition: inline
+In-Reply-To: <20081107031837.GB30003@kroah.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,219 +22,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kamezawa.hiroyu@jp.fujitsu.com
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, lizf@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, menage@google.com, balbir@linux.vnet.ibm.com, fernando@oss.ntt.co.jp, xemul@openvz.org
+To: Greg KH <greg@kroah.com>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Kamezawa-san,
-
-> > Hi everyone,
-> > 
-> > This is a new release of dm-ioband and bio-cgroup. With this release,
-> > the overhead of bio-cgroup is significantly reduced and the accuracy
-> > of block I/O tracking is much improved. These patches are for
-> > 2.6.28-rc2-mm1.
-> > 
+On Fri, Nov 07, 2008 at 11:18:37AM +0800, Greg KH wrote:
+> On Fri, Nov 07, 2008 at 11:01:29AM +0800, Zhao, Yu wrote:
+> > Greg KH wrote:
+> >> On Wed, Nov 05, 2008 at 08:33:18PM -0800, Greg KH wrote:
+> >>> On Wed, Oct 22, 2008 at 04:45:15PM +0800, Yu Zhao wrote:
+> >>>>  Documentation/ABI/testing/sysfs-bus-pci |   33 
+> >>>> +++++++++++++++++++++++++++++++
+> >>>>  1 files changed, 33 insertions(+), 0 deletions(-)
+> >>>>
+> >>>> diff --git a/Documentation/ABI/testing/sysfs-bus-pci 
+> >>>> b/Documentation/ABI/testing/sysfs-bus-pci
+> >>>> index ceddcff..41cce8f 100644
+> >>>> --- a/Documentation/ABI/testing/sysfs-bus-pci
+> >>>> +++ b/Documentation/ABI/testing/sysfs-bus-pci
+> >>>> @@ -9,3 +9,36 @@ Description:
+> >>>>  		that some devices may have malformatted data.  If the
+> >>>>  		underlying VPD has a writable section then the
+> >>>>  		corresponding section of this file will be writable.
+> >>>> +
+> >>>> +What:		/sys/bus/pci/devices/.../iov/enable
+> >>> Are you sure this is still the correct location with your change to
+> >>> struct device?
+> >> Nevermind, this is correct.
+> >> But the bigger problem is that userspace doesn't know when these
+> >> attributes show up.  So tools like udev and HAL and others can't look
+> >> for them as they never get notified, and they don't even know if they
+> >> should be looking for them or not.
+> >> Is there any way to tie these attributes to the "main" pci device so
+> >> that they get created before the device is announced to the world?
+> >> Doing that would solve this issue.
+> >> thanks,
+> >> greg k-h
+> >
+> > Currently PCI subsystem has /sys/.../{vendor,device,...} bundled to the 
+> > main PCI device (I suppose this means the entries are created by 
+> > 'device_add')
+> >
+> > And after the PCI device is announced, 
+> > /sys/.../{config,resourceX,rom,vpd,iov,...} get created depending on if 
+> > these features are supported.
 > 
-> >From my point of view, a way to record bio_cgroup_id to page_cgroup is quite neat
-> and nice.
+> And that's a bug.  Let's not continue to make the same bug here as well.
 > 
-> My concern is "bio_cgroup_id". It's provided only for bio_cgroup.
-> In this summer, I tried to add swap_cgroup_id only for mem+swap controller but
-> commenters said "please provide "id and lookup" in cgroup layer, it should be useful."
-> And I agree them. (and postponed it ;)
+> > Making dynamic entries tie to the main PCI device would require PCI 
+> > subsystem to allocate different 'bus_type' for the devices, right?
+> 
+> No, it would just mean they need to be all added before the device is
+> fully registered with the driver core.
 
-Yup, that sounds really good.
+I looked into the PCI and driver core code again, but didn't figured out how
+to do it.
 
-> Could you try "id" in cgroup layer ? How do you think, Paul and others ?
+A 'pci_dev' is added by pci_bus_add_device() via device_add(), which creates
+sysfs entries according to 'dev_attrs' in the 'pci_bus_type'. If we want those
+dynamic entries to appear before the uevent is triggered, we have to bundle
+them into the 'dev_attrs'. Is this right way for the dynamic entries? Or I
+missed something?
 
-It seems to easy to implement this feature since what I need to do is
-move the code from bio-group to there.
-Okay, I'll start it if Paul agrees with this approach.
-
-> That's my only concern and if I/O controller people decides to live with
-> this bio tracking infrastracture,
-> ==
->    page -> page_cgroup -> bio_cgroup_id
-> ==
-> I have no objections. And enqueue necessary changes to my queue.
-
-It would be nice if you can include the following patch, which just makes
-the page_cgroup infrastructure can be compiled in even when the cgroup
-memory controller is compiled out.
-
-> Thanks,
-> -Kame
-
-Thank you,
-Hirokazu Takahashi.
-
- ---------------------------
-
-This patch makes the page_cgroup framework be able to be used even if
-the compile option of the cgroup memory controller is off.
-So bio-cgroup can use this framework without the memory controller.
-
-Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
-
-diff -dupr linux-2.6.28-rc2.bc0/include/linux/memcontrol.h linux-2.6.28-rc2/include/linux/memcontrol.h
---- linux-2.6.28-rc2.bc0/include/linux/memcontrol.h	2008-11-10 18:31:34.000000000 +0900
-+++ linux-2.6.28-rc2/include/linux/memcontrol.h	2008-11-11 13:51:42.000000000 +0900
-@@ -27,6 +27,9 @@ struct mm_struct;
- 
- #ifdef CONFIG_CGROUP_MEM_RES_CTLR
- 
-+extern void __init_mem_page_cgroup(struct page_cgroup *pc);
-+#define  mem_cgroup_disabled() mem_cgroup_subsys.disabled
-+
- extern int mem_cgroup_newpage_charge(struct page *page, struct mm_struct *mm,
- 				gfp_t gfp_mask);
- /* for swap handling */
-@@ -81,6 +84,15 @@ extern long mem_cgroup_calc_reclaim(stru
- #else /* CONFIG_CGROUP_MEM_RES_CTLR */
- struct mem_cgroup;
- 
-+static inline void __init_mem_page_cgroup(struct page_cgroup *pc)
-+{
-+}
-+
-+static inline int mem_cgroup_disabled(void)
-+{
-+	return 1;
-+}
-+
- static inline int mem_cgroup_newpage_charge(struct page *page,
- 					struct mm_struct *mm, gfp_t gfp_mask)
- {
-diff -dupr linux-2.6.28-rc2.bc0/include/linux/mmzone.h linux-2.6.28-rc2/include/linux/mmzone.h
---- linux-2.6.28-rc2.bc0/include/linux/mmzone.h	2008-11-10 18:50:50.000000000 +0900
-+++ linux-2.6.28-rc2/include/linux/mmzone.h	2008-11-11 13:51:42.000000000 +0900
-@@ -603,7 +603,7 @@ typedef struct pglist_data {
- 	int nr_zones;
- #ifdef CONFIG_FLAT_NODE_MEM_MAP	/* means !SPARSEMEM */
- 	struct page *node_mem_map;
--#ifdef CONFIG_CGROUP_MEM_RES_CTLR
-+#ifdef CONFIG_CGROUP_PAGE
- 	struct page_cgroup *node_page_cgroup;
- #endif
- #endif
-@@ -952,7 +952,7 @@ struct mem_section {
- 
- 	/* See declaration of similar field in struct zone */
- 	unsigned long *pageblock_flags;
--#ifdef CONFIG_CGROUP_MEM_RES_CTLR
-+#ifdef CONFIG_CGROUP_PAGE
- 	/*
- 	 * If !SPARSEMEM, pgdat doesn't have page_cgroup pointer. We use
- 	 * section. (see memcontrol.h/page_cgroup.h about this.)
-diff -dupr linux-2.6.28-rc2.bc0/include/linux/page_cgroup.h linux-2.6.28-rc2/include/linux/page_cgroup.h
---- linux-2.6.28-rc2.bc0/include/linux/page_cgroup.h	2008-11-10 19:29:00.000000000 +0900
-+++ linux-2.6.28-rc2/include/linux/page_cgroup.h	2008-11-11 14:46:47.000000000 +0900
-@@ -1,7 +1,7 @@
- #ifndef __LINUX_PAGE_CGROUP_H
- #define __LINUX_PAGE_CGROUP_H
- 
--#ifdef CONFIG_CGROUP_MEM_RES_CTLR
-+#ifdef CONFIG_CGROUP_PAGE
- #include <linux/bit_spinlock.h>
- /*
-  * Page Cgroup can be considered as an extended mem_map.
-@@ -12,9 +12,11 @@
-  */
- struct page_cgroup {
- 	unsigned long flags;
--	struct mem_cgroup *mem_cgroup;
- 	struct page *page;
-+#ifdef CONFIG_CGROUP_MEM_RES_CTLR
-+	struct mem_cgroup *mem_cgroup;
- 	struct list_head lru;		/* per cgroup LRU list */
-+#endif
- };
- 
- void __init pgdat_page_cgroup_init(struct pglist_data *pgdat);
-@@ -88,7 +90,7 @@ static inline void unlock_page_cgroup(st
- 	bit_spin_unlock(PCG_LOCK, &pc->flags);
- }
- 
--#else /* CONFIG_CGROUP_MEM_RES_CTLR */
-+#else /* CONFIG_CGROUP_PAGE */
- struct page_cgroup;
- 
- static inline void pgdat_page_cgroup_init(struct pglist_data *pgdat)
-diff -dupr linux-2.6.28-rc2.bc0/init/Kconfig linux-2.6.28-rc2/init/Kconfig
---- linux-2.6.28-rc2.bc0/init/Kconfig	2008-11-10 18:31:34.000000000 +0900
-+++ linux-2.6.28-rc2/init/Kconfig	2008-11-11 14:46:47.000000000 +0900
-@@ -425,6 +425,10 @@ config CGROUP_MEM_RES_CTLR
- 	  This config option also selects MM_OWNER config option, which
- 	  could in turn add some fork/exit overhead.
- 
-+config CGROUP_PAGE
-+	def_bool y
-+	depends on CGROUP_MEM_RES_CTLR
-+
- config MM_OWNER
- 	bool
- 
-diff -dupr linux-2.6.28-rc2.bc0/mm/Makefile linux-2.6.28-rc2/mm/Makefile
---- linux-2.6.28-rc2.bc0/mm/Makefile	2008-11-10 18:31:34.000000000 +0900
-+++ linux-2.6.28-rc2/mm/Makefile	2008-11-11 14:46:47.000000000 +0900
-@@ -34,5 +34,6 @@ obj-$(CONFIG_FS_XIP) += filemap_xip.o
- obj-$(CONFIG_MIGRATION) += migrate.o
- obj-$(CONFIG_SMP) += allocpercpu.o cpu_alloc.o
- obj-$(CONFIG_QUICKLIST) += quicklist.o
--obj-$(CONFIG_CGROUP_MEM_RES_CTLR) += memcontrol.o page_cgroup.o
-+obj-$(CONFIG_CGROUP_MEM_RES_CTLR) += memcontrol.o
-+obj-$(CONFIG_CGROUP_PAGE) += page_cgroup.o
- obj-$(CONFIG_KMEMTRACE) += kmemtrace.o
-diff -dupr linux-2.6.28-rc2.bc0/mm/memcontrol.c linux-2.6.28-rc2/mm/memcontrol.c
---- linux-2.6.28-rc2.bc0/mm/memcontrol.c	2008-11-10 18:31:34.000000000 +0900
-+++ linux-2.6.28-rc2/mm/memcontrol.c	2008-11-11 14:48:17.000000000 +0900
-@@ -157,6 +157,11 @@ pcg_default_flags[NR_CHARGE_TYPE] = {
- 	0, /* FORCE */
- };
- 
-+void __meminit __init_mem_page_cgroup(struct page_cgroup *pc)
-+{
-+	pc->mem_cgroup = NULL;
-+}
-+
- /*
-  * Always modified under lru lock. Then, not necessary to preempt_disable()
-  */
-diff -dupr linux-2.6.28-rc2.bc0/mm/page_cgroup.c linux-2.6.28-rc2/mm/page_cgroup.c
---- linux-2.6.28-rc2.bc0/mm/page_cgroup.c	2008-11-10 18:31:34.000000000 +0900
-+++ linux-2.6.28-rc2/mm/page_cgroup.c	2008-11-11 14:46:47.000000000 +0900
-@@ -8,13 +8,14 @@
- #include <linux/memory.h>
- #include <linux/vmalloc.h>
- #include <linux/cgroup.h>
-+#include <linux/memcontrol.h>
- 
- static void __meminit
- __init_page_cgroup(struct page_cgroup *pc, unsigned long pfn)
- {
- 	pc->flags = 0;
--	pc->mem_cgroup = NULL;
- 	pc->page = pfn_to_page(pfn);
-+	__init_mem_page_cgroup(pc);
- }
- static unsigned long total_usage;
- 
-@@ -69,7 +70,7 @@ void __init page_cgroup_init(void)
- 
- 	int nid, fail;
- 
--	if (mem_cgroup_subsys.disabled)
-+	if (mem_cgroup_disabled())
- 		return;
- 
- 	for_each_online_node(nid)  {
-@@ -229,7 +230,7 @@ void __init page_cgroup_init(void)
- 	unsigned long pfn;
- 	int fail = 0;
- 
--	if (mem_cgroup_subsys.disabled)
-+	if (mem_cgroup_disabled())
- 		return;
- 
- 	for (pfn = 0; !fail && pfn < max_pfn; pfn += PAGES_PER_SECTION) {
+Thanks,
+Yu
