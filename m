@@ -1,14 +1,15 @@
-From: Yu Zhao <yu.zhao@uniscape.net>
-Subject: Re: [PATCH 6/6 v3] PCI: document the change
-Date: Sat, 15 Nov 2008 20:38:55 +0800
-Message-ID: <491EC2DF.2070704__25247.0306506895$1226752937$gmane$org@uniscape.net>
-References: <D8078B8B3B09934AA9F8F2D5FB3F28CE088751B5F6@pdsmsx502.ccr.corp.intel.com>
-	<20081001160706.GI13822@parisc-linux.org>
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: [PATCH 6/8] bio-cgroup: The body of bio-cgroup
+Date: Sun, 16 Nov 2008 20:46:09 +0900 (JST)
+Message-ID: <20081116.204609.65892670.taka__2680.06211049414$1226836357$gmane$org@valinux.co.jp>
+References: <20081113.121357.75173118738921642.ryov@valinux.co.jp>
+	<20081113.121433.632868945383117577.ryov@valinux.co.jp>
+	<491D2251.7010702@oss.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081001160706.GI13822@parisc-linux.org>
+In-Reply-To: <491D2251.7010702@oss.ntt.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,24 +19,163 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Grant Grundler <grundler@parisc-linux.org>, Alex Chiang <achiang@hp.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Roland Dreier <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Greg KH <greg@kroah.com>
+To: yoshikawa.takuya@oss.ntt.co.jp
+Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, balbir@linux.vnet.ibm.com, fernando@oss.ntt.co.jp, xemul@openvz.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Matthew Wilcox wrote:
-> On Sat, Sep 27, 2008 at 04:28:45PM +0800, Zhao, Yu wrote:
->> +To register SR-IOV service, Physical Function device driver needs to call:
->> +       int pci_iov_register(struct pci_dev *dev,
->> +               int (*notify)(struct pci_dev *, u32), char **entries)
+Hi,
+
+As you pointed out, cgroup iocontext stuff isn't well designed yet
+since the current implementation of dm-iband doesn't need it.
+I'd like to leave the iocontext stuff to you I/O scheduler guys
+if you want to implement the bio-cgroup infrastructure to handle iocotexts
+as the I/O schedulers expect.
+
+> Hi,
 > 
-> I think a better interface would put the 'notify' into the struct
-> pci_driver.  That would make 'notify' a bad name .... how about
-> 'virtual'?  There's also no documentation for the second parameter to
-> 'notify'.
+> Ryo Tsuruta wrote:
+> >  
+> > +void init_io_context(struct io_context *ioc)
+> > +{
+> > +	atomic_set(&ioc->refcount, 1);
+> > +	atomic_set(&ioc->nr_tasks, 1);
+> > +	spin_lock_init(&ioc->lock);
+> > +	ioc->ioprio_changed = 0;
+> > +	ioc->ioprio = 0;
+> > +	ioc->last_waited = jiffies; /* doesn't matter... */
+> > +	ioc->nr_batch_requests = 0; /* because this is 0 */
+> > +	ioc->aic = NULL;
+> > +	INIT_RADIX_TREE(&ioc->radix_root, GFP_ATOMIC | __GFP_HIGH);
+> > +	INIT_HLIST_HEAD(&ioc->cic_list);
+> > +	ioc->ioc_data = NULL;
+> > +}
+> > +
+> >  struct io_context *alloc_io_context(gfp_t gfp_flags, int node)
+> >  {
+> >  	struct io_context *ret;
+> >  
+> >  	ret = kmem_cache_alloc_node(iocontext_cachep, gfp_flags, node);
+> > -	if (ret) {
+> > -		atomic_set(&ret->refcount, 1);
+> > -		atomic_set(&ret->nr_tasks, 1);
+> > -		spin_lock_init(&ret->lock);
+> > -		ret->ioprio_changed = 0;
+> > -		ret->ioprio = 0;
+> > -		ret->last_waited = jiffies; /* doesn't matter... */
+> > -		ret->nr_batch_requests = 0; /* because this is 0 */
+> > -		ret->aic = NULL;
+> > -		INIT_RADIX_TREE(&ret->radix_root, GFP_ATOMIC | __GFP_HIGH);
+> > -		INIT_HLIST_HEAD(&ret->cic_list);
+> > -		ret->ioc_data = NULL;
+> > -	}
+> > +	if (ret)
+> > +		init_io_context(ret);
+> >  
+> >  	return ret;
+> >  }
+> 
+> 
+> > +
+> > +/* Create a new bio-cgroup. */
+> > +static struct cgroup_subsys_state *
+> > +bio_cgroup_create(struct cgroup_subsys *ss, struct cgroup *cgrp)
+> > +{
+> > +	struct bio_cgroup *biog;
+> > +	struct io_context *ioc;
+> > +	int ret;
+> > +
+> > +	if (!cgrp->parent) {
+> > +		biog = &default_bio_cgroup;
+> > +		init_io_context(biog->io_context);
+> > +		/* Increment the referrence count not to be released ever. */
+> > +		atomic_inc(&biog->io_context->refcount);
+> > +		idr_init(&bio_cgroup_id);
+> > +		return &biog->css;
+> > +	}
+> > +
+> > +	biog = kzalloc(sizeof(*biog), GFP_KERNEL);
+> > +	ioc = alloc_io_context(GFP_KERNEL, -1);
+> > +	if (!ioc || !biog) {
+> > +		ret = -ENOMEM;
+> > +		goto out_err;
+> > +	}
+> > +	biog->io_context = ioc;
+> 
+> If I understand correctly io_contexts allocated by alloc_io_context() should
+> be owned by some tasks. In this case, the newly created io_context has no
+> owner though biog->io_context->nr_tasks == 1. With the cfq scheduler this may
+> cause some problems especially when cic_free_func() is called because
+> cfq_exit_io_context() would never be called. Am I wrong?
 
-Yes, putting the callback function to the 'pci_driver' is better. Looks 
-like the 'virtual' is not very descriptive (and it's a adj. while other 
-callbacks are verb). Any other candidates?
+I think iocontext allocated for a certain cgroup should be owned by the
+cgroup itself, whose code isn't implemented yet. I think you need to
+enhance it a bit if the owner is a cgroup.
 
-Thanks,
-Yu
+> > +retry:
+> > +	if (!idr_pre_get(&bio_cgroup_id, GFP_KERNEL)) {
+> > +		ret = -EAGAIN;
+> > +		goto out_err;
+> > +	}
+> > +	spin_lock_irq(&bio_cgroup_idr_lock);
+> > +	ret = idr_get_new_above(&bio_cgroup_id, (void *)biog, 1, &biog->id);
+> > +	spin_unlock_irq(&bio_cgroup_idr_lock);
+> > +	if (ret == -EAGAIN)
+> > +		goto retry;
+> > +	else if (ret)
+> > +		goto out_err;
+> > +
+> > +	return &biog->css;
+> > +out_err:
+> > +	if (biog)
+> > +		kfree(biog);
+> > +	if (ioc)
+> > +		put_io_context(ioc);
+> > +	return ERR_PTR(ret);
+> > +}
+> > +
+> > +/* Delete the bio-cgroup. */
+> > +static void bio_cgroup_destroy(struct cgroup_subsys *ss, struct cgroup *cgrp)
+> > +{
+> > +	struct bio_cgroup *biog = cgroup_bio(cgrp);
+> > +
+> > +	put_io_context(biog->io_context);
+> 
+> Here, I suspects what will happen under the following condition:
+> biog->io_context->refcount: 1 --> 0
+> biog->io_context->nr_tasks: 1 --> 1
+> ==> cfq_dtor() will be called but cfq_exit() has not be called yet.
+> 
+> > +
+> > +	spin_lock_irq(&bio_cgroup_idr_lock);
+> > +	idr_remove(&bio_cgroup_id, biog->id);
+> > +	spin_unlock_irq(&bio_cgroup_idr_lock);
+> > +
+> > +	kfree(biog);
+> > +}
+> > +
+> 
+> > +
+> > +/* Determine the iocontext of the bio-cgroup that issued a given bio. */
+> > +struct io_context *get_bio_cgroup_iocontext(struct bio *bio)
+> > +{
+> > +	struct bio_cgroup *biog = NULL;
+> > +	struct io_context *ioc;
+> > +	int	id = 0;
+> > +
+> > +	id = get_bio_cgroup_id(bio);
+> > +	if (id)
+> > +		biog = find_bio_cgroup(id);
+> > +	if (!biog)
+> > +		biog = &default_bio_cgroup;
+> > +	ioc = biog->io_context;	/* default io_context for this cgroup */
+> > +	atomic_inc(&ioc->refcount);
+> > +	return ioc;
+> > +}
+> > +EXPORT_SYMBOL(get_bio_cgroup_iocontext);
+> 
+> 
+> Thanks,
+> Takuya Yoshikawa
+
+Thank you,
+Hirokazu Takahashi.
