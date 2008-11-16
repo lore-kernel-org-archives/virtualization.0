@@ -1,15 +1,15 @@
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [PATCH 6/8] bio-cgroup: The body of bio-cgroup
-Date: Sun, 16 Nov 2008 20:46:09 +0900 (JST)
-Message-ID: <20081116.204609.65892670.taka__2680.06211049414$1226836357$gmane$org@valinux.co.jp>
-References: <20081113.121357.75173118738921642.ryov@valinux.co.jp>
-	<20081113.121433.632868945383117577.ryov@valinux.co.jp>
-	<491D2251.7010702@oss.ntt.co.jp>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH 0/16 v6] PCI: Linux kernel SR-IOV support
+Date: Sun, 16 Nov 2008 18:04:55 +0200
+Message-ID: <492044A7.3080107__11706.7920313731$1226851713$gmane$org@redhat.com>
+References: <20081106154351.GA30459@kroah.com>	<894107.30288.qm@web45108.mail.sp1.yahoo.com>	<20081106164919.GA4099@kroah.com>	<0199E0D51A61344794750DC57738F58E5E26F996C4@GVW1118EXC.americas.hpqcorp.net>	<20081106183630.GD11773@parisc-linux.org>	<491371F0.7020805@codemonkey.ws>
+	<87d4h7pnnm.fsf__4937.77150190926$1226071173$gmane$org@basil.nowhere.org>
+	<491B5B97.2000407@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <491D2251.7010702@oss.ntt.co.jp>
+In-Reply-To: <491B5B97.2000407@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,163 +19,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: yoshikawa.takuya@oss.ntt.co.jp
-Cc: xen-devel@lists.xensource.com, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, agk@sourceware.org, balbir@linux.vnet.ibm.com, fernando@oss.ntt.co.jp, xemul@openvz.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "Chiang,
+	Alexander" <achiang@hp.com>, Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Anthony Liguori wrote:
+> I don't think it's established that PV/VF will have less latency than 
+> using virtio-net.  virtio-net requires a world switch to send a group 
+> of packets.  The cost of this (if it stays in kernel) is only a few 
+> thousand cycles on the most modern processors.
+>
+> Using VT-d means that for every DMA fetch that misses in the IOTLB, 
+> you potentially have to do four memory fetches to main memory.  There 
+> will be additional packet latency using VT-d compared to native, it's 
+> just not known how much at this time.
 
-As you pointed out, cgroup iocontext stuff isn't well designed yet
-since the current implementation of dm-iband doesn't need it.
-I'd like to leave the iocontext stuff to you I/O scheduler guys
-if you want to implement the bio-cgroup infrastructure to handle iocotexts
-as the I/O schedulers expect.
+If the IOTLB has intermediate TLB entries like the processor, we're 
+talking just one or two fetches.  That's a lot less than the cacheline 
+bouncing that virtio and kvm interrupt injection incur right now.
 
-> Hi,
-> 
-> Ryo Tsuruta wrote:
-> >  
-> > +void init_io_context(struct io_context *ioc)
-> > +{
-> > +	atomic_set(&ioc->refcount, 1);
-> > +	atomic_set(&ioc->nr_tasks, 1);
-> > +	spin_lock_init(&ioc->lock);
-> > +	ioc->ioprio_changed = 0;
-> > +	ioc->ioprio = 0;
-> > +	ioc->last_waited = jiffies; /* doesn't matter... */
-> > +	ioc->nr_batch_requests = 0; /* because this is 0 */
-> > +	ioc->aic = NULL;
-> > +	INIT_RADIX_TREE(&ioc->radix_root, GFP_ATOMIC | __GFP_HIGH);
-> > +	INIT_HLIST_HEAD(&ioc->cic_list);
-> > +	ioc->ioc_data = NULL;
-> > +}
-> > +
-> >  struct io_context *alloc_io_context(gfp_t gfp_flags, int node)
-> >  {
-> >  	struct io_context *ret;
-> >  
-> >  	ret = kmem_cache_alloc_node(iocontext_cachep, gfp_flags, node);
-> > -	if (ret) {
-> > -		atomic_set(&ret->refcount, 1);
-> > -		atomic_set(&ret->nr_tasks, 1);
-> > -		spin_lock_init(&ret->lock);
-> > -		ret->ioprio_changed = 0;
-> > -		ret->ioprio = 0;
-> > -		ret->last_waited = jiffies; /* doesn't matter... */
-> > -		ret->nr_batch_requests = 0; /* because this is 0 */
-> > -		ret->aic = NULL;
-> > -		INIT_RADIX_TREE(&ret->radix_root, GFP_ATOMIC | __GFP_HIGH);
-> > -		INIT_HLIST_HEAD(&ret->cic_list);
-> > -		ret->ioc_data = NULL;
-> > -	}
-> > +	if (ret)
-> > +		init_io_context(ret);
-> >  
-> >  	return ret;
-> >  }
-> 
-> 
-> > +
-> > +/* Create a new bio-cgroup. */
-> > +static struct cgroup_subsys_state *
-> > +bio_cgroup_create(struct cgroup_subsys *ss, struct cgroup *cgrp)
-> > +{
-> > +	struct bio_cgroup *biog;
-> > +	struct io_context *ioc;
-> > +	int ret;
-> > +
-> > +	if (!cgrp->parent) {
-> > +		biog = &default_bio_cgroup;
-> > +		init_io_context(biog->io_context);
-> > +		/* Increment the referrence count not to be released ever. */
-> > +		atomic_inc(&biog->io_context->refcount);
-> > +		idr_init(&bio_cgroup_id);
-> > +		return &biog->css;
-> > +	}
-> > +
-> > +	biog = kzalloc(sizeof(*biog), GFP_KERNEL);
-> > +	ioc = alloc_io_context(GFP_KERNEL, -1);
-> > +	if (!ioc || !biog) {
-> > +		ret = -ENOMEM;
-> > +		goto out_err;
-> > +	}
-> > +	biog->io_context = ioc;
-> 
-> If I understand correctly io_contexts allocated by alloc_io_context() should
-> be owned by some tasks. In this case, the newly created io_context has no
-> owner though biog->io_context->nr_tasks == 1. With the cfq scheduler this may
-> cause some problems especially when cic_free_func() is called because
-> cfq_exit_io_context() would never be called. Am I wrong?
-
-I think iocontext allocated for a certain cgroup should be owned by the
-cgroup itself, whose code isn't implemented yet. I think you need to
-enhance it a bit if the owner is a cgroup.
-
-> > +retry:
-> > +	if (!idr_pre_get(&bio_cgroup_id, GFP_KERNEL)) {
-> > +		ret = -EAGAIN;
-> > +		goto out_err;
-> > +	}
-> > +	spin_lock_irq(&bio_cgroup_idr_lock);
-> > +	ret = idr_get_new_above(&bio_cgroup_id, (void *)biog, 1, &biog->id);
-> > +	spin_unlock_irq(&bio_cgroup_idr_lock);
-> > +	if (ret == -EAGAIN)
-> > +		goto retry;
-> > +	else if (ret)
-> > +		goto out_err;
-> > +
-> > +	return &biog->css;
-> > +out_err:
-> > +	if (biog)
-> > +		kfree(biog);
-> > +	if (ioc)
-> > +		put_io_context(ioc);
-> > +	return ERR_PTR(ret);
-> > +}
-> > +
-> > +/* Delete the bio-cgroup. */
-> > +static void bio_cgroup_destroy(struct cgroup_subsys *ss, struct cgroup *cgrp)
-> > +{
-> > +	struct bio_cgroup *biog = cgroup_bio(cgrp);
-> > +
-> > +	put_io_context(biog->io_context);
-> 
-> Here, I suspects what will happen under the following condition:
-> biog->io_context->refcount: 1 --> 0
-> biog->io_context->nr_tasks: 1 --> 1
-> ==> cfq_dtor() will be called but cfq_exit() has not be called yet.
-> 
-> > +
-> > +	spin_lock_irq(&bio_cgroup_idr_lock);
-> > +	idr_remove(&bio_cgroup_id, biog->id);
-> > +	spin_unlock_irq(&bio_cgroup_idr_lock);
-> > +
-> > +	kfree(biog);
-> > +}
-> > +
-> 
-> > +
-> > +/* Determine the iocontext of the bio-cgroup that issued a given bio. */
-> > +struct io_context *get_bio_cgroup_iocontext(struct bio *bio)
-> > +{
-> > +	struct bio_cgroup *biog = NULL;
-> > +	struct io_context *ioc;
-> > +	int	id = 0;
-> > +
-> > +	id = get_bio_cgroup_id(bio);
-> > +	if (id)
-> > +		biog = find_bio_cgroup(id);
-> > +	if (!biog)
-> > +		biog = &default_bio_cgroup;
-> > +	ioc = biog->io_context;	/* default io_context for this cgroup */
-> > +	atomic_inc(&ioc->refcount);
-> > +	return ioc;
-> > +}
-> > +EXPORT_SYMBOL(get_bio_cgroup_iocontext);
-> 
-> 
-> Thanks,
-> Takuya Yoshikawa
-
-Thank you,
-Hirokazu Takahashi.
+-- 
+error compiling committee.c: too many arguments to function
