@@ -1,23 +1,15 @@
-From: Fabio Checconi <fchecconi@gmail.com>
-Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Tue, 18 Nov 2008 22:14:42 +0100
-Message-ID: <20081118211442.GG15268__11348.0750391775$1227042951$gmane$org@gandalf.sssup.it>
-References: <af41c7c40811131457w472e4a86tb5344cc1d3d366fb@mail.gmail.com>
-	<20081114160525.GE24624@redhat.com>
-	<e98e18940811141444u5947b806v27fac453ed1e8a5@mail.gmail.com>
-	<20081117142309.GA15564@redhat.com>
-	<4922224A.5030502@cn.fujitsu.com>
-	<e98e18940811172101na345b6bh5c73f9e657aac5a7@mail.gmail.com>
-	<20081118120508.GD15268@gandalf.sssup.it>
-	<20081118140751.GA4283@redhat.com>
-	<20081118144139.GE15268@gandalf.sssup.it>
-	<20081118191208.GJ26308@kernel.dk>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 2/2] kvm-s390: implement config_changed for virtio on s390
+Date: Tue, 18 Nov 2008 22:44:13 +0100
+Message-ID: <200811182244.14079.borntraeger__5751.26165426827$1227044817$gmane$org@de.ibm.com>
+References: <200811181245.03931.borntraeger@de.ibm.com>
+	<200811181247.41739.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200811181247.41739.borntraeger@de.ibm.com>
 Content-Disposition: inline
-In-Reply-To: <20081118191208.GJ26308@kernel.dk>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,92 +19,93 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, Li Zefan <lizf@cn.fujitsu.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, Divyesh Shah <dpshah@google.com>, Nauman Rafique <nauman@google.com>, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Vivek Goyal <vgoyal@redhat.com>, righi.andrea@gmail.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Carsten Otte <cotte@de.ibm.com>, lguest@ozlabs.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Jens Axboe <jens.axboe@oracle.com>
-> Date: Tue, Nov 18, 2008 08:12:08PM +0100
->
-> On Tue, Nov 18 2008, Fabio Checconi wrote:
-> > BFQ started from CFQ, extending it in the way you correctly describe,
-> > so it is indeed very similar.  There are also some minor changes to
-> > locking, cic handling, hw_tag detection and to the CIC_SEEKY heuristic.
-> > 
-...
-> My preferred approach here would be, in order or TODO:
-> 
-> - Create and test the smallish patches for seekiness, hw_tag checking,
->   and so on for CFQ.
-> - Create and test a WF2Q+ service dispatching patch for CFQ.
-> 
-> and if there are leftovers after that, we could even conditionally
-> enable some of those if appropriate. I think the WF2Q+ is quite cool and
-> could be easily usable as the default, so it's definitely a viable
-> alternative.
-> 
-> My main goal here is basically avoiding addition of Yet Another IO
-> scheduler, especially one that is so closely tied to CFQ already.
-> 
-> I'll start things off by splitting cfq into a few files similar to what
-> bfq has done, as I think it makes a lot of sense. Fabio, if you could
-> create patches for the small behavioural changes you made, we can
-> discuss and hopefully merge those next.
-> 
+Hmpf. There was a thinko. Overloading the LSB of the token address does not 
+work with old kernels and new userspace on 64bit. My test did not trigger 
+because I only tested with virtio_console and my userspace checks for the 
+feature bit. 
 
-Ok, I can do that, I need just a little bit of time to organize
-the work.
+Can you replace the kvm-s390 patch with this one?
+It basically moves the "is a config change bit" from LC_PFAULT_INTPARM to 
+LC_EXT_PARAMS. The content of both defined locations can be defined by the 
+transport. On 31bit both locations are identical.
 
-About these small (some of them are really small) changes, a mixed list
-of things that they will touch and/or things that I'd like to have clear
-before starting to write the patches (maybe we can start another thread
-for them):
+This gives us:
+64bit:
+LC_PFAULT_INTPARM	0x11b8	(8Byte)	token
+LC_EXT_PARAMS		0x80	(4Byte) unused->changebit
+LSB of token is not overloaded, change is compatible.
 
-  - In cfq_exit_single_io_context() and in changed_ioprio(), cic->key
-    is dereferenced without holding any lock.  As I reported in [1]
-    this seems to be a problem when an exit() races with a cfq_exit_queue()
-    and in a few other cases.  In BFQ we used a somehow involved
-    mechanism to avoid that, abusing rcu (of course we'll have to wait
-    the patch to talk about it :) ), but given my lack of understanding
-    of some parts of the block layer, I'd be interested in knowing if
-    the race is possible and/or if there is something more involved
-    going on that can cause the same effects.
+31bit:
+LC_PFAULT_INTPARM	0x80	(4Byte) token + changebit
+LC_EXT_PARAMS		0x80	(4byte) token + changebit
+LSB of token is overloaded, but 31bit transport does not exist yet.
+No need to worry about compatibility.
 
-  - set_task_ioprio() in fs/ioprio.c doesn't seem to have a write
-    memory barrier to pair with the dependent read one in
-    cfq_get_io_context().
+-
 
-  - CFQ_MIN_TT is 2ms, this can result, depending on the value of
-    HZ in timeouts of one jiffy, that may expire too early, so we are
-    just wasting time and do not actually wait for the task to present
-    its new request.  Dealing with seeky traffic we've seen a lot of
-    early timeouts due to one jiffy timers expiring too early, is
-    it worth fixing or can we live with that?
+[PATCH 2/2] kvm-s390: implement config_changed for virtio on s390
 
-  - To detect hw tagging in BFQ we consider a sample valid iff the
-    number of requests that the scheduler could have dispatched (given
-    by cfqd->rb_queued + cfqd->rq_in_driver, i.e., the ones still into
-    the scheduler plus the ones into the driver) is higher than the
-    CFQ_HW_QUEUE_MIN threshold.  This obviously caused no problems
-    during testing, but the way CFQ uses now seems a little bit
-    strange.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-  - Initially, cic->last_request_pos is zero, so the sdist charged
-    to a task for its first seek depends on the position on the disk
-    that is accessed first, independently from its seekiness.  Even
-    if there is a cap on that value, we choose to not charge the first
-    seek to processes; that resulted in less wrong predictions for
-    purely sequential loads.
+This patch implements config_changed for the s390 virtio transport.
 
-  - From my understanding, with shared I/O contexts, two different
-    tasks may concurrently lookup for a cfqd into the same ioc.
-    This may result in cfq_drop_dead_cic() being called two times
-    for the same cic.  Am I missing something that prevents that from
-    happening?
+We use the least significant bit of the interrupt parameter field
+to decide, if this interrupt should call the virtio virtqueue callback
+or the config_changed callback.
 
-Regarding the code splitup, do you think you'll go for the CFS(BFQ) way,
-using a single compilation unit and including the .c files, or a layout
-with different compilation units (like the ll_rw_blk.c splitup)?
+This method is compatible with old host and guest code. Old 64 bit guests
+will not check the bit and trigger a harmless additional vring_interrupt
+call. Old host code will never set this bit, this is also safe.
+
+This patch also takes care of a potential future 31 bit virtio transport
+for s390. On 31 bit _LC_PFAULT_INTPARM and __LC_EXT_PARAMS are identical.
+We exploit the alignment of the token and fold the change bit into the
+lsb of the token itself.
 
 
-[1]: http://lkml.org/lkml/2008/8/18/119
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ drivers/s390/kvm/kvm_virtio.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+Index: kvm/drivers/s390/kvm/kvm_virtio.c
+===================================================================
+--- kvm.orig/drivers/s390/kvm/kvm_virtio.c
++++ kvm/drivers/s390/kvm/kvm_virtio.c
+@@ -295,13 +295,29 @@ static void scan_devices(void)
+  */
+ static void kvm_extint_handler(u16 code)
+ {
+-	void *data = (void *) *(long *) __LC_PFAULT_INTPARM;
+-	u16 subcode = S390_lowcore.cpu_addr;
++	struct virtqueue *vq;
++	u16 subcode;
++	int config_changed;
+ 
++ 	subcode = S390_lowcore.cpu_addr;
+ 	if ((subcode & 0xff00) != VIRTIO_SUBCODE_64)
+ 		return;
+ 
+-	vring_interrupt(0, data);
++	/* The LSB might be overloaded, we have to mask it */
++	vq = (struct virtqueue *) ((*(long *) __LC_PFAULT_INTPARM) & ~1UL);
++
++	/* We use the LSB of extparam, to decide, if this interrupt is a config
++	 * change or a "standard" interrupt */
++	config_changed =  (*(int *)  __LC_EXT_PARAMS & 1);
++
++	if (config_changed) {
++		struct virtio_driver *drv;
++		drv = container_of(vq->vdev->dev.driver,
++				   struct virtio_driver, driver);
++		if (drv->config_changed)
++			drv->config_changed(vq->vdev);
++	} else
++		vring_interrupt(0, vq);
+ }
+ 
+ /*
