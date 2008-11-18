@@ -1,14 +1,23 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/2] kvm-s390: implement config_changed for virtio on s390
-Date: Tue, 18 Nov 2008 12:47:41 +0100
-Message-ID: <200811181247.41739.borntraeger__622.384544885968$1227009013$gmane$org@de.ibm.com>
-References: <200811181245.03931.borntraeger@de.ibm.com>
+From: Fabio Checconi <fchecconi@gmail.com>
+Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
+Date: Tue, 18 Nov 2008 13:05:08 +0100
+Message-ID: <20081118120508.GD15268__43382.8327958055$1227009876$gmane$org@gandalf.sssup.it>
+References: <20081113.180558.519459540419535699.ryov@valinux.co.jp>
+	<20081113155834.GE7542@redhat.com>
+	<af41c7c40811131041t1b8491b6la5574ebe75f89000@mail.gmail.com>
+	<20081113214642.GG7542@redhat.com>
+	<af41c7c40811131457w472e4a86tb5344cc1d3d366fb@mail.gmail.com>
+	<20081114160525.GE24624@redhat.com>
+	<e98e18940811141444u5947b806v27fac453ed1e8a5@mail.gmail.com>
+	<20081117142309.GA15564@redhat.com>
+	<4922224A.5030502@cn.fujitsu.com>
+	<e98e18940811172101na345b6bh5c73f9e657aac5a7@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200811181245.03931.borntraeger@de.ibm.com>
 Content-Disposition: inline
+In-Reply-To: <e98e18940811172101na345b6bh5c73f9e657aac5a7@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,66 +27,82 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, lguest@ozlabs.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Nauman Rafique <nauman@google.com>
+Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, Li Zefan <lizf@cn.fujitsu.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, Divyesh Shah <dpshah@google.com>, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Vivek Goyal <vgoyal@redhat.com>, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi,
+
+> From: Nauman Rafique <nauman@google.com>
+> Date: Mon, Nov 17, 2008 09:01:48PM -0800
+>
+> If we start with bfq patches, this is how plan would look like:
+> 
+> 1 Start with BFQ take 2.
+> 2 Do the following to support proportional division:
+>  a) Expose the per device weight interface to user, instead of calculating
+>  from priority.
+>  b) Add support for disk time budgets, besides sector budget that is currently
+>  available (configurable option). (Fabio: Do you think we can just emulate
+> that using the existing code?). Another approach would be to give time slices
+> just like CFQ (discussing?)
+
+  it should be possible without altering the code.  The slices can be
+assigned in the time domain using big values for max_budget.  The logic
+is: each process is assigned a budget (in the range [max_budget/2, max_budget],
+choosen from the feedback mechanism, driven in __bfq_bfqq_recalc_budget()),
+and if it does not complete it in timeout_sync milliseconds, it is
+charged a fixed amount of sectors of service.
+
+Using big values for max_budget (where big means greater than two
+times the number of sectors the hard drive can transfer in timeout_sync
+milliseconds) makes the budgets always to time out, so the disk time
+is scheduled in slices of timeout_sync.
+
+However this is just a temporary workaround to do some basic testing.
+
+Modifying the scheduler to support time slices instead of sector
+budgets would indeed simplify the code; I think that the drawback
+would be being too unfair in the service domain.  Of course we
+have to consider how much is important to be fair in the service
+domain, and how much added complexity/new code can we accept for it.
+
+[ Better service domain fairness is one of the main reasons why
+  we started working on bfq, so, talking for me and Paolo it _is_
+  important :) ]
+
+I have to think a little bit on how it would be possible to support
+an option for time-only budgets, coexisting with the current behavior,
+but I think it can be done.
 
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+> 4 Do the following to support the goals of 2 level schedulers:
+>  a) Limit the request descriptors allocated to each cgroup by adding
+>  functionality to elv_may_queue()
+>  b) Add support for putting an absolute limit on IO consumed by a
+>  cgroup. Such support is provided by Andrea
+>  Righi's patches too.
+>  c) Add support (configurable option) to keep track of total disk
+> time/sectors/count
+>  consumed at each device, and factor that into scheduling decision
+>  (more discussion needed here)
+> 6 Incorporate an IO tracking approach which re-uses memory resource
+> controller code but is not dependent on it (may be biocgroup patches from
+> dm-ioband can be used here directly)
+> 7 Start an offline email thread to keep track of progress on the above
+> goals.
+> 
+> BFQ's support for hierarchy of cgroups means that its close to where
+> we want to get. Any comments on what approach looks better?
+> 
 
-This patch implements config_changed for the s390 virtio transport.
+The main problems with this approach (as with the cfq-based ones) in
+my opinion are:
+  - the request descriptor allocation problem Divyesh talked about,
+  - the impossibility of respecting different weights, resulting from
+    the interlock problem with synchronous requests Vivek talked about
+    [ in cfq/bfq this can happen when idling is disabled, e.g., for
+      SSDs, or when using NCQ ],
 
-We use the least significant bit of the interrupt parameter field
-to decide, if this interrupt should call the virtio virtqueue callback
-or the config_changed callback.
-
-This method is compatible with old host and guest code. Old 64 bit guests
-will not check the bit and trigger a harmless additional vring_interrupt
-call. Old host code will never set this bit, this is also safe.
-
-I dont know if we will implement 31bit guest support, but this interface 
-is also 31-bit safe
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- drivers/s390/kvm/kvm_virtio.c |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
-
-Index: kvm/drivers/s390/kvm/kvm_virtio.c
-===================================================================
---- kvm.orig/drivers/s390/kvm/kvm_virtio.c
-+++ kvm/drivers/s390/kvm/kvm_virtio.c
-@@ -295,13 +295,29 @@ static void scan_devices(void)
-  */
- static void kvm_extint_handler(u16 code)
- {
--	void *data = (void *) *(long *) __LC_PFAULT_INTPARM;
--	u16 subcode = S390_lowcore.cpu_addr;
-+	struct virtqueue *vq;
-+	u16 subcode;
-+	int config_changed;
- 
-+ 	subcode = S390_lowcore.cpu_addr;
- 	if ((subcode & 0xff00) != VIRTIO_SUBCODE_64)
- 		return;
- 
--	vring_interrupt(0, data);
-+	/* The LSB is overloaded, we have to mask it */
-+	vq = (struct virtqueue *) ((*(long *) __LC_PFAULT_INTPARM) & ~1UL);
-+
-+	/* We use the LSB of extparam, to decide, if this interrupt is a config
-+	 * change or a "standard" interrupt */
-+	config_changed =  (*(long *)  __LC_PFAULT_INTPARM & 1);
-+
-+	if (config_changed) {
-+		struct virtio_driver *drv;
-+		drv = container_of(vq->vdev->dev.driver,
-+				   struct virtio_driver, driver);
-+		if (drv->config_changed)
-+			drv->config_changed(vq->vdev);
-+	} else
-+		vring_interrupt(0, vq);
- }
- 
- /*
+but I think that correctly addressing your points 4.a) and 4.b) should
+solve them.
