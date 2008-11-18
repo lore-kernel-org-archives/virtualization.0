@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/2] virtio_console: support console resizing
-Date: Tue, 18 Nov 2008 12:47:04 +0100
-Message-ID: <200811181247.04906.borntraeger__20696.3999932215$1227008974$gmane$org@de.ibm.com>
+Subject: [PATCH 2/2] kvm-s390: implement config_changed for virtio on s390
+Date: Tue, 18 Nov 2008 12:47:41 +0100
+Message-ID: <200811181247.41739.borntraeger__622.384544885968$1227009013$gmane$org@de.ibm.com>
 References: <200811181245.03931.borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,98 +26,58 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-this patch uses the new hvc callback hvc_resize to set the window site 
-which allows to change the tty size of hvc_console via a hvc_resize 
-function.
+This patch implements config_changed for the s390 virtio transport.
 
-I have added a new feature bit VIRTIO_CONSOLE_F_SIZE. The driver will 
-change the window size on tty open and via the config_changed callback
-of the transport. Currently lguest and kvm_s390 have not implemented this
-callback, but the callback can be implemented at a later point in time.
+We use the least significant bit of the interrupt parameter field
+to decide, if this interrupt should call the virtio virtqueue callback
+or the config_changed callback.
+
+This method is compatible with old host and guest code. Old 64 bit guests
+will not check the bit and trigger a harmless additional vring_interrupt
+call. Old host code will never set this bit, this is also safe.
+
+I dont know if we will implement 31bit guest support, but this interface 
+is also 31-bit safe
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/char/virtio_console.c  |   30 +++++++++++++++++++++++++++++-
- include/linux/virtio_console.h |   11 +++++++++++
- 2 files changed, 40 insertions(+), 1 deletion(-)
+ drivers/s390/kvm/kvm_virtio.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-Index: kvm/drivers/char/virtio_console.c
+Index: kvm/drivers/s390/kvm/kvm_virtio.c
 ===================================================================
---- kvm.orig/drivers/char/virtio_console.c
-+++ kvm/drivers/char/virtio_console.c
-@@ -138,12 +138,33 @@ int __init virtio_cons_early_init(int (*
+--- kvm.orig/drivers/s390/kvm/kvm_virtio.c
++++ kvm/drivers/s390/kvm/kvm_virtio.c
+@@ -295,13 +295,29 @@ static void scan_devices(void)
+  */
+ static void kvm_extint_handler(u16 code)
+ {
+-	void *data = (void *) *(long *) __LC_PFAULT_INTPARM;
+-	u16 subcode = S390_lowcore.cpu_addr;
++	struct virtqueue *vq;
++	u16 subcode;
++	int config_changed;
+ 
++ 	subcode = S390_lowcore.cpu_addr;
+ 	if ((subcode & 0xff00) != VIRTIO_SUBCODE_64)
+ 		return;
+ 
+-	vring_interrupt(0, data);
++	/* The LSB is overloaded, we have to mask it */
++	vq = (struct virtqueue *) ((*(long *) __LC_PFAULT_INTPARM) & ~1UL);
++
++	/* We use the LSB of extparam, to decide, if this interrupt is a config
++	 * change or a "standard" interrupt */
++	config_changed =  (*(long *)  __LC_PFAULT_INTPARM & 1);
++
++	if (config_changed) {
++		struct virtio_driver *drv;
++		drv = container_of(vq->vdev->dev.driver,
++				   struct virtio_driver, driver);
++		if (drv->config_changed)
++			drv->config_changed(vq->vdev);
++	} else
++		vring_interrupt(0, vq);
  }
  
  /*
-+ * virtio console configuration. This supports:
-+ * - console resize
-+ */
-+static void virtcons_apply_config(struct virtio_device *dev)
-+{
-+	struct winsize ws;
-+
-+	if (virtio_has_feature(dev, VIRTIO_CONSOLE_F_SIZE)) {
-+		dev->config->get(dev,
-+				 offsetof(struct virtio_console_config, cols),
-+				 &ws.ws_col, sizeof(u16));
-+		dev->config->get(dev,
-+				 offsetof(struct virtio_console_config, rows),
-+				 &ws.ws_row, sizeof(u16));
-+		hvc_resize(hvc, ws);
-+	}
-+}
-+
-+/*
-  * we support only one console, the hvc struct is a global var
-- * There is no need to do anything
-+ * We set the configuration at this point, since we now have a tty
-  */
- static int notifier_add_vio(struct hvc_struct *hp, int data)
- {
- 	hp->irq_requested = 1;
-+	virtcons_apply_config(vdev);
-+
- 	return 0;
- }
- 
-@@ -234,11 +255,18 @@ static struct virtio_device_id id_table[
- 	{ 0 },
- };
- 
-+static unsigned int features[] = {
-+	VIRTIO_CONSOLE_F_SIZE,
-+};
-+
- static struct virtio_driver virtio_console = {
-+	.feature_table = features,
-+	.feature_table_size = ARRAY_SIZE(features),
- 	.driver.name =	KBUILD_MODNAME,
- 	.driver.owner =	THIS_MODULE,
- 	.id_table =	id_table,
- 	.probe =	virtcons_probe,
-+	.config_changed = virtcons_apply_config,
- };
- 
- static int __init init(void)
-Index: kvm/include/linux/virtio_console.h
-===================================================================
---- kvm.orig/include/linux/virtio_console.h
-+++ kvm/include/linux/virtio_console.h
-@@ -7,6 +7,17 @@
- /* The ID for virtio console */
- #define VIRTIO_ID_CONSOLE	3
- 
-+/* Feature bits */
-+#define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
-+
-+struct virtio_console_config {
-+	/* colums of the screens */
-+	__u16 cols;
-+	/* rows of the screens */
-+	__u16 rows;
-+} __attribute__((packed));
-+
-+
- #ifdef __KERNEL__
- int __init virtio_cons_early_init(int (*put_chars)(u32, const char *, int));
- #endif /* __KERNEL__ */
