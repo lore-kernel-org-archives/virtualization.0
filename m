@@ -1,14 +1,19 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 2/2] kvm-s390: implement config_changed for virtio on s390
-Date: Tue, 18 Nov 2008 22:44:13 +0100
-Message-ID: <200811182244.14079.borntraeger__5751.26165426827$1227044817$gmane$org@de.ibm.com>
-References: <200811181245.03931.borntraeger@de.ibm.com>
-	<200811181247.41739.borntraeger@de.ibm.com>
+From: "Kay Sievers" <kay.sievers@vrfy.org>
+Subject: Re: [PATCH 15/16 v6] PCI: document the SR-IOV sysfs entries
+Date: Tue, 18 Nov 2008 17:49:05 +0100
+Message-ID: <ac3eb2510811180849g7cb2f9d2n8603d02ca130b01c__21529.6917631806$1227045971$gmane$org@mail.gmail.com>
+References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
+	<20081022084515.GO3773@yzhao12-linux.sh.intel.com>
+	<20081106043318.GB30292@kroah.com> <20081106044613.GA30397@kroah.com>
+	<4913AF89.2050504@intel.com> <20081107031837.GB30003@kroah.com>
+	<20081113065024.GA3038@yzhao12-linux.sh.intel.com>
+	<20081114005538.GA21161@kroah.com>
+	<20081117080949.GA5247@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200811181247.41739.borntraeger@de.ibm.com>
+In-Reply-To: <20081117080949.GA5247@yzhao12-linux.sh.intel.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,93 +24,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Carsten Otte <cotte@de.ibm.com>, lguest@ozlabs.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Yu Zhao <yu.zhao@intel.com>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hmpf. There was a thinko. Overloading the LSB of the token address does not 
-work with old kernels and new userspace on 64bit. My test did not trigger 
-because I only tested with virtio_console and my userspace checks for the 
-feature bit. 
+On Mon, Nov 17, 2008 at 09:09, Yu Zhao <yu.zhao@intel.com> wrote:
+> On Fri, Nov 14, 2008 at 08:55:38AM +0800, Greg KH wrote:
 
-Can you replace the kvm-s390 patch with this one?
-It basically moves the "is a config change bit" from LC_PFAULT_INTPARM to 
-LC_EXT_PARAMS. The content of both defined locations can be defined by the 
-transport. On 31bit both locations are identical.
+>> There are also "conditional" attributes, which get only displayed if
+>> some kind of condition is met, I think you want to use those.
+>
+> The problem is the sysfs directory of the PCI device is created by the
+> kobject_add() in the device_add() as follows. And the static entries
+> bundled with the 'pci_bus_type' are created by the bus_add_device().
+> Between the kobject_add() and the kobject_uevent(), we don't have any
+> other choice to add the dynamic entries.
+>
+> In device_add():
+>
+>        error = kobject_add(&dev->kobj, dev->kobj.parent, "%s", dev->bus_id);
+>        ...
+>        error = bus_add_device(dev);
+>        ...
+>        kobject_uevent(&dev->kobj, KOBJ_ADD);
+>
+>
+> So looks like the only way is to make the dynamic entries bundled with
+> the 'pci_bus_type', which means they would become static no matter the
+> device supports the entries (i.e. corresponding capabilities) or not.
 
-This gives us:
-64bit:
-LC_PFAULT_INTPARM	0x11b8	(8Byte)	token
-LC_EXT_PARAMS		0x80	(4Byte) unused->changebit
-LSB of token is not overloaded, change is compatible.
+There is device_add_attrs() which is just called between the calls you
+mention above. Like Greg said, it can add groups, and groups have an
+is_visible() callback, which can be used to conditionally create
+attributes out of of predefined list.
 
-31bit:
-LC_PFAULT_INTPARM	0x80	(4Byte) token + changebit
-LC_EXT_PARAMS		0x80	(4byte) token + changebit
-LSB of token is overloaded, but 31bit transport does not exist yet.
-No need to worry about compatibility.
-
--
-
-[PATCH 2/2] kvm-s390: implement config_changed for virtio on s390
-
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-
-This patch implements config_changed for the s390 virtio transport.
-
-We use the least significant bit of the interrupt parameter field
-to decide, if this interrupt should call the virtio virtqueue callback
-or the config_changed callback.
-
-This method is compatible with old host and guest code. Old 64 bit guests
-will not check the bit and trigger a harmless additional vring_interrupt
-call. Old host code will never set this bit, this is also safe.
-
-This patch also takes care of a potential future 31 bit virtio transport
-for s390. On 31 bit _LC_PFAULT_INTPARM and __LC_EXT_PARAMS are identical.
-We exploit the alignment of the token and fold the change bit into the
-lsb of the token itself.
-
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- drivers/s390/kvm/kvm_virtio.c |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
-
-Index: kvm/drivers/s390/kvm/kvm_virtio.c
-===================================================================
---- kvm.orig/drivers/s390/kvm/kvm_virtio.c
-+++ kvm/drivers/s390/kvm/kvm_virtio.c
-@@ -295,13 +295,29 @@ static void scan_devices(void)
-  */
- static void kvm_extint_handler(u16 code)
- {
--	void *data = (void *) *(long *) __LC_PFAULT_INTPARM;
--	u16 subcode = S390_lowcore.cpu_addr;
-+	struct virtqueue *vq;
-+	u16 subcode;
-+	int config_changed;
- 
-+ 	subcode = S390_lowcore.cpu_addr;
- 	if ((subcode & 0xff00) != VIRTIO_SUBCODE_64)
- 		return;
- 
--	vring_interrupt(0, data);
-+	/* The LSB might be overloaded, we have to mask it */
-+	vq = (struct virtqueue *) ((*(long *) __LC_PFAULT_INTPARM) & ~1UL);
-+
-+	/* We use the LSB of extparam, to decide, if this interrupt is a config
-+	 * change or a "standard" interrupt */
-+	config_changed =  (*(int *)  __LC_EXT_PARAMS & 1);
-+
-+	if (config_changed) {
-+		struct virtio_driver *drv;
-+		drv = container_of(vq->vdev->dev.driver,
-+				   struct virtio_driver, driver);
-+		if (drv->config_changed)
-+			drv->config_changed(vq->vdev);
-+	} else
-+		vring_interrupt(0, vq);
- }
- 
- /*
+Kay
