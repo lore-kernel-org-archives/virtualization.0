@@ -1,16 +1,23 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] kvm-s390: implement config_changed for virtio on s390
-Date: Wed, 19 Nov 2008 10:53:36 +1030
-Message-ID: <200811191053.36885.rusty__41595.0243747377$1227054374$gmane$org@rustcorp.com.au>
-References: <200811181245.03931.borntraeger@de.ibm.com>
-	<200811181247.41739.borntraeger@de.ibm.com>
-	<200811182244.14079.borntraeger@de.ibm.com>
+From: Fabio Checconi <fchecconi@gmail.com>
+Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
+Date: Wed, 19 Nov 2008 11:17:01 +0100
+Message-ID: <20081119101701.GA20915__35654.8230899081$1227089781$gmane$org@gandalf.sssup.it>
+References: <e98e18940811141444u5947b806v27fac453ed1e8a5@mail.gmail.com>
+	<20081117142309.GA15564@redhat.com>
+	<4922224A.5030502@cn.fujitsu.com>
+	<e98e18940811172101na345b6bh5c73f9e657aac5a7@mail.gmail.com>
+	<20081118120508.GD15268@gandalf.sssup.it>
+	<20081118140751.GA4283@redhat.com>
+	<20081118144139.GE15268@gandalf.sssup.it>
+	<20081118191208.GJ26308@kernel.dk>
+	<20081118211442.GG15268@gandalf.sssup.it>
+	<4923716A.5090104@gelato.unsw.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200811182244.14079.borntraeger@de.ibm.com>
 Content-Disposition: inline
+In-Reply-To: <4923716A.5090104@gelato.unsw.edu.au>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,14 +27,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, lguest@ozlabs.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Aaron Carroll <aaronc@gelato.unsw.edu.au>
+Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, Jens Axboe <jens.axboe@oracle.com>, Li Zefan <lizf@cn.fujitsu.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, Divyesh Shah <dpshah@google.com>, Nauman Rafique <nauman@google.com>, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Vivek Goyal <vgoyal@redhat.com>, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 19 November 2008 08:14:13 Christian Borntraeger wrote:
-> Can you replace the kvm-s390 patch with this one?
+> From: Aaron Carroll <aaronc@gelato.unsw.edu.au>
+> Date: Wed, Nov 19, 2008 12:52:42PM +1100
+>
+> Fabio Checconi wrote:
+> >   - To detect hw tagging in BFQ we consider a sample valid iff the
+> >     number of requests that the scheduler could have dispatched (given
+> >     by cfqd->rb_queued + cfqd->rq_in_driver, i.e., the ones still into
+> >     the scheduler plus the ones into the driver) is higher than the
+> >     CFQ_HW_QUEUE_MIN threshold.  This obviously caused no problems
+> >     during testing, but the way CFQ uses now seems a little bit
+> >     strange.
+> 
+> BFQ's tag detection logic is broken in the same way that CFQ's used to
+> be.  Explanation is in this patch:
+> 
 
-Done.  I hadn't pushed out the other one to linux-next yet anyway.
+If you look at bfq_update_hw_tag(), the logic introduced by the patch
+you mention is still there; BFQ starts with ->hw_tag = 1, and updates it
+every 32 valid samples.  What changed WRT your patch, apart from the
+number of samples, is that the condition for a sample to be valid is:
 
-Cheers,
-Rusty.
+  bfqd->rq_in_driver + bfqd->queued >= 5
+
+while in your patch it is:
+
+  cfqd->rq_queued > 5 || cfqd->rq_in_driver > 5
+
+We preferred the first one because that sum better reflects the number
+of requests that could have been dispatched, and I don't think that this
+is wrong.
+
+There is a problem, but it's not within the tag detection logic itself.
+From some quick experiments, what happens is that when a process starts,
+CFQ considers it seeky (*), BFQ doesn't.  As a side effect BFQ does not
+always dispatch enough requests to correctly detect tagging.
+
+At the first seek you cannot tell if the process is going to bee seeky
+or not, and we have chosen to consider it sequential because it improved
+fairness in some sequential workloads (the CIC_SEEKY heuristic is used
+also to determine the idle_window length in [bc]fq_arm_slice_timer()).
+
+Anyway, we're dealing with heuristics, and they tend to favor some
+workload over other ones.  If recovering this thoughput loss is more
+important than a transient unfairness due to short idling windows assigned
+to sequential processes when they start, I've no problems in switching
+the CIC_SEEKY logic to consider a process seeky when it starts.
+
+Thank you for testing and for pointing out this issue, we missed it
+in our testing.
+
+
+(*) to be correct, the initial classification depends on the position
+    of the first accessed sector.
