@@ -1,23 +1,23 @@
-From: Fabio Checconi <fchecconi@gmail.com>
+From: Jens Axboe <jens.axboe@oracle.com>
 Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Wed, 19 Nov 2008 12:06:55 +0100
-Message-ID: <20081119110655.GC20915__26845.1069402092$1227092767$gmane$org@gandalf.sssup.it>
-References: <20081117142309.GA15564@redhat.com>
+Date: Wed, 19 Nov 2008 15:24:46 +0100
+Message-ID: <20081119142446.GH26308__1779.79506920583$1227105145$gmane$org@kernel.dk>
+References: <20081114160525.GE24624@redhat.com>
+	<e98e18940811141444u5947b806v27fac453ed1e8a5@mail.gmail.com>
+	<20081117142309.GA15564@redhat.com>
 	<4922224A.5030502@cn.fujitsu.com>
 	<e98e18940811172101na345b6bh5c73f9e657aac5a7@mail.gmail.com>
 	<20081118120508.GD15268@gandalf.sssup.it>
 	<20081118140751.GA4283@redhat.com>
 	<20081118144139.GE15268@gandalf.sssup.it>
 	<20081118191208.GJ26308@kernel.dk>
-	<20081118211442.GG15268@gandalf.sssup.it>
-	<4923716A.5090104@gelato.unsw.edu.au>
-	<20081119101701.GA20915@gandalf.sssup.it>
+	<e98e18940811181507t6b1473act2efa23df21dab270@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20081119101701.GA20915@gandalf.sssup.it>
+In-Reply-To: <e98e18940811181507t6b1473act2efa23df21dab270@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,91 +27,109 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Aaron Carroll <aaronc@gelato.unsw.edu.au>
-Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, Jens Axboe <jens.axboe@oracle.com>, Li Zefan <lizf@cn.fujitsu.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, Divyesh Shah <dpshah@google.com>, Nauman Rafique <nauman@google.com>, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Vivek Goyal <vgoyal@redhat.com>, righi.andrea@gmail.com
+To: Nauman Rafique <nauman@google.com>
+Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, jmoyer@redhat.com, containers@lists.linux-foundation.org, Li Zefan <lizf@cn.fujitsu.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, peterz@infradead.org, Fabio Checconi <fchecconi@gmail.com>, Divyesh Shah <dpshah@google.com>, paolo.valente@unimore.it, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, Vivek Goyal <vgoyal@redhat.com>, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Fabio Checconi <fchecconi@gmail.com>
-> Date: Wed, Nov 19, 2008 11:17:01AM +0100
->
-> > From: Aaron Carroll <aaronc@gelato.unsw.edu.au>
-> > Date: Wed, Nov 19, 2008 12:52:42PM +1100
+On Tue, Nov 18 2008, Nauman Rafique wrote:
+> On Tue, Nov 18, 2008 at 11:12 AM, Jens Axboe <jens.axboe@oracle.com> wrote:
+> > On Tue, Nov 18 2008, Fabio Checconi wrote:
+> >> > From: Vivek Goyal <vgoyal@redhat.com>
+> >> > Date: Tue, Nov 18, 2008 09:07:51AM -0500
+> >> >
+> >> > On Tue, Nov 18, 2008 at 01:05:08PM +0100, Fabio Checconi wrote:
+> >> ...
+> >> > > I have to think a little bit on how it would be possible to support
+> >> > > an option for time-only budgets, coexisting with the current behavior,
+> >> > > but I think it can be done.
+> >> > >
+> >> >
+> >> > IIUC, bfq and cfq are different in following manner.
+> >> >
+> >> > a. BFQ employs WF2Q+ for fairness and CFQ employes weighted round robin.
+> >> > b. BFQ uses the budget (sector count) as notion of service and CFQ uses
+> >> >    time slices.
+> >> > c. BFQ supports hierarchical fair queuing and CFQ does not.
+> >> >
+> >> > We are looking forward for implementation of point C. Fabio seems to
+> >> > thinking of supporting time slice as a service (B). It seems like
+> >> > convergence of CFQ and BFQ except the point A (WF2Q+ vs weighted round
+> >> > robin).
+> >> >
+> >> > It looks like WF2Q+ provides tighter service bound and bfq guys mention
+> >> > that they have been able to ensure throughput while ensuring tighter
+> >> > bounds. If that's the case, does that mean BFQ is a replacement for CFQ
+> >> > down the line?
+> >> >
+> >>
+> >> BFQ started from CFQ, extending it in the way you correctly describe,
+> >> so it is indeed very similar.  There are also some minor changes to
+> >> locking, cic handling, hw_tag detection and to the CIC_SEEKY heuristic.
+> >>
+> >> The two schedulers share similar goals, and in my opinion BFQ can be
+> >> considered, in the long term, a CFQ replacement; *but* before talking
+> >> about replacing CFQ we have to consider that:
+> >>
+> >>   - it *needs* review and testing; we've done our best, but for sure
+> >>     it's not enough; review and testing are never enough;
+> >>   - the service domain fairness, which was one of our objectives, requires
+> >>     some extra complexity; the mechanisms we used and the design choices
+> >>     we've made may not fit all the needs, or may not be as generic as the
+> >>     simpler CFQ's ones;
+> >>   - CFQ has years of history behind and has been tuned for a wider
+> >>     variety of environments than the ones we've been able to test.
+> >>
+> >> If time-based fairness is considered more robust and the loss of
+> >> service-domain fairness is not a problem, then the two schedulers can
+> >> be made even more similar.
 > >
-> > Fabio Checconi wrote:
-> > >   - To detect hw tagging in BFQ we consider a sample valid iff the
-> > >     number of requests that the scheduler could have dispatched (given
-> > >     by cfqd->rb_queued + cfqd->rq_in_driver, i.e., the ones still into
-> > >     the scheduler plus the ones into the driver) is higher than the
-> > >     CFQ_HW_QUEUE_MIN threshold.  This obviously caused no problems
-> > >     during testing, but the way CFQ uses now seems a little bit
-> > >     strange.
-> > 
-> > BFQ's tag detection logic is broken in the same way that CFQ's used to
-> > be.  Explanation is in this patch:
-> > 
+> > My preferred approach here would be, in order or TODO:
+> >
+> > - Create and test the smallish patches for seekiness, hw_tag checking,
+> >  and so on for CFQ.
+> > - Create and test a WF2Q+ service dispatching patch for CFQ.
+> >
+> > and if there are leftovers after that, we could even conditionally
+> > enable some of those if appropriate. I think the WF2Q+ is quite cool and
+> > could be easily usable as the default, so it's definitely a viable
+> > alternative.
 > 
-> If you look at bfq_update_hw_tag(), the logic introduced by the patch
-> you mention is still there; BFQ starts with ->hw_tag = 1, and updates it
-> every 32 valid samples.  What changed WRT your patch, apart from the
-> number of samples, is that the condition for a sample to be valid is:
-> 
->   bfqd->rq_in_driver + bfqd->queued >= 5
-> 
-> while in your patch it is:
-> 
->   cfqd->rq_queued > 5 || cfqd->rq_in_driver > 5
-> 
-> We preferred the first one because that sum better reflects the number
-> of requests that could have been dispatched, and I don't think that this
-> is wrong.
-> 
-> There is a problem, but it's not within the tag detection logic itself.
-> From some quick experiments, what happens is that when a process starts,
-> CFQ considers it seeky (*), BFQ doesn't.  As a side effect BFQ does not
-> always dispatch enough requests to correctly detect tagging.
-> 
-> At the first seek you cannot tell if the process is going to bee seeky
-> or not, and we have chosen to consider it sequential because it improved
-> fairness in some sequential workloads (the CIC_SEEKY heuristic is used
-> also to determine the idle_window length in [bc]fq_arm_slice_timer()).
-> 
-> Anyway, we're dealing with heuristics, and they tend to favor some
-> workload over other ones.  If recovering this thoughput loss is more
-> important than a transient unfairness due to short idling windows assigned
-> to sequential processes when they start, I've no problems in switching
-> the CIC_SEEKY logic to consider a process seeky when it starts.
-> 
-> Thank you for testing and for pointing out this issue, we missed it
-> in our testing.
-> 
-> 
-> (*) to be correct, the initial classification depends on the position
->     of the first accessed sector.
+> 1 Merge BFQ into CFQ (Jens and Fabio). I am assuming that this would
+> result in time slices being scheduled using WF2Q+
 
-Sorry, I forgot the patch...  This seems to solve the problem with
-your workload here, does it work for you?
+Yep, at least that is my preference.
 
-[ The magic number would not appear in a definitive fix... ]
+> 2 Do the following to support proportional division:
+>  a) Expose the per device weight interface to user, instead of calculating
+>  from priority.
+>  b) Add support for scheduling bandwidth among a hierarchy of cgroups
+> (besides threads)
+> 3 Do the following to support the goals of 2 level schedulers:
+>  a) Limit the request descriptors allocated to each cgroup by adding
+>  functionality to elv_may_queue()
+>  b) Add support for putting an absolute limit on IO consumed by a
+>  cgroup. Such support is provided by Andrea
+>  Righi's patches too.
+>  c) Add support (configurable option) to keep track of total disk
+> time/sectors/count
+>  consumed at each device, and factor that into scheduling decision
+>  (more discussion needed here)
+> 6 Incorporate an IO tracking approach which can allow tracking cgroups
+> for asynchronous reads/writes.
+> 7 Start an offline email thread to keep track of progress on the above
+> goals.
+> 
+> Jens, what is your opinion everything beyond (1) in the above list?
+> 
+> It would be great if work on (1) and (2)-(7) can happen in parallel so
+> that we can see "proportional division of IO bandwidth to cgroups" in
+> tree sooner than later.
 
+Sounds feasible, I'd like to see the cgroups approach get more traction.
+My primary concern is just that I don't want to merge it into specific
+IO schedulers. As you mention, we can hook into the may queue logic for
+that subset of the problem, that avoids touching the io scheduler. If we
+can get this supported 'generically', then I'd be happy to help out.
 
----
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 83e90e9..e9b010f 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -1322,10 +1322,12 @@ static void bfq_update_io_seektime(struct bfq_data *bfqd,
- 
- 	/*
- 	 * Don't allow the seek distance to get too large from the
--	 * odd fragment, pagein, etc.
-+	 * odd fragment, pagein, etc.  The first request is not
-+	 * really a seek, but we consider a cic seeky on creation
-+	 * to make the hw_tag detection logic work better.
- 	 */
--	if (cic->seek_samples == 0) /* first request, not really a seek */
--		sdist = 0;
-+	if (cic->seek_samples == 0)
-+		sdist = 8 * 1024 + 1;
- 	else if (cic->seek_samples <= 60) /* second&third seek */
- 		sdist = min(sdist, (cic->seek_mean * 4) + 2*1024*1024);
- 	else
+-- 
+Jens Axboe
