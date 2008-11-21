@@ -1,23 +1,12 @@
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Fri, 21 Nov 2008 10:22:23 -0500
-Message-ID: <20081121152223.GE3111__25630.81182675$1227281226$gmane$org@redhat.com>
-References: <20081118144139.GE15268@gandalf.sssup.it>
-	<20081118191208.GJ26308@kernel.dk>
-	<e98e18940811181507t6b1473act2efa23df21dab270@mail.gmail.com>
-	<20081119142446.GH26308@kernel.dk>
-	<af41c7c40811191612v5db13ae7n3cfe537beb6a157c@mail.gmail.com>
-	<20081120081640.GE26308@kernel.dk>
-	<20081120134058.GA29306@redhat.com>
-	<e98e18940811201154l6fb0499x24da39812fb2aa7e@mail.gmail.com>
-	<20081120211536.GG29306@redhat.com>
-	<e98e18940811201442s787a346em4ada30bcb1badfe6@mail.gmail.com>
+From: Yu Zhao <yu.zhao@intel.com>
+Subject: [PATCH 0/13 v7] PCI: Linux kernel SR-IOV support
+Date: Sat, 22 Nov 2008 02:36:05 +0800
+Message-ID: <20081121183605.GA7810__41531.8958963782$1227296212$gmane$org@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <e98e18940811201442s787a346em4ada30bcb1badfe6@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,106 +16,72 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nauman Rafique <nauman@google.com>
-Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, jmoyer@redhat.com, paolo.valente@unimore.it, containers@lists.linux-foundation.org, Li Zefan <lizf@cn.fujitsu.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, peterz@infradead.org, Fabio Checconi <fchecconi@gmail.com>, Divyesh Shah <dpshah@google.com>, Jens Axboe <jens.axboe@oracle.com>, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, righi.andrea@gmail.com
+To: linux-pci@vger.kernel.org
+Cc: randy.dunlap@oracle.com, grundler@parisc-linux.org, achiang@hp.com, matthew@wil.cx, greg@kroah.com, rdreier@cisco.com, linux-kernel@vger.kernel.org, jbarnes@virtuousgeek.org, virtualization@lists.linux-foundation.org, horms@verge.net.au, kvm@vger.kernel.org, mingo@elte.hu, yinghai@kernel.org, bjorn.helgaas@hp.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 20, 2008 at 02:42:38PM -0800, Nauman Rafique wrote:
+Greetings,
 
-[..]
-> >> It seems that we have a solution if we can figure out a way to share
-> >> cgroup code between different schedulers. I am thinking how other
-> >> schedulers (AS, Deadline, No-op) would use cgroups. Will they have
-> >> proportional division between requests from different cgroups? And use
-> >> their own policy (e.g deadline scheduling) within a cgroup? How about
-> >> if we have both threads and cgroups at a particular level? I think
-> >> putting all threads in a default cgroup seems like a reasonable choice
-> >> in this case.
-> >>
-> >> Here is a high level design that comes to mind.
-> >>
-> >> Put proportional division code and state in common code. Each level of
-> >> the hierarchy which has more than one cgroup would have some state
-> >> maintained in common code. At leaf level of hiearchy, we can have a
-> >> cgroup specific scheduler (created when a cgroup is created). We can
-> >> choose a different scheduler for each cgroup (we can have a no-op for
-> >> one cgroup while cfq for another).
-> >
-> > I am not sure that I understand the different scheduler for each cgroup
-> > aspect of it. What's the need? It makes things even more complicated I
-> > think.
-> 
-> With the design I had in my mind, it seemed like that would come for
-> free. But if it does not, I completely agree with you that its not as
-> important.
-> 
-> >
-> > But moving proportional division code out of particular scheduler and make
-> > it common makes sense.
-> >
-> > Looking at BFQ, I was thinking that we can just keep large part of the
-> > code. This common code can think of everything as scheduling entity. This
-> > scheduling entity (SE) will be defined by underlying scheduler depending on
-> > how queue management is done by underlying scheduler. So for CFQ, at
-> > each level, an SE can be either task or group. For the schedulers which
-> > don't maintain separate queues for tasks, it will simply be group at all
-> > levels.
-> 
-> So the structure of hierarchy would be dependent on the underlying scheduler?
-> 
+Following patches are intended to support SR-IOV capability in the
+Linux kernel. With these patches, people can turn a PCI device with
+the capability into multiple ones from software perspective, which
+will benefit KVM and achieve other purposes such as QoS, security,
+and etc.
 
-Kind of. In fact it will depend on cgroup hierarchy and dependent on
-underlying scheduler.
+The Physical Function and Virtual Function drivers using the SR-IOV
+APIs will come soon!
 
-> >
-> > We probably can employ B-WFQ2+ to provide hierarchical fairness between
-> > secheduling entities of this tree. Common layer will do the scheduling of
-> > entities (without knowing what is contained inside) and underlying scheduler
-> > will take care of dispatching the requests from the scheduled entity.
-> > (It could be a task queue for CFQ or a group queue for other schedulers).
-> >
-> > The tricky part would be how to abstract it in a clean way. It should lead
-> > to reduced code in CFQ/BFQ because B-WFQ2+ logic will be put into a
-> > common layer (for large part).
-> 
-> How about this plan:
-> 1 Start with CFQ patched with some BFQ like patches (This is what we
-> will have if Jens takes some of Fabio's patches). This will have no
-> cgroup related logic (correct me if I am wrong).
-> 2 Repeat proportional scheduling logic for cgroups in the common
-> layer, without touching the code produced in step 1. That means that
-> we will have WF2Q+ used for scheduling cgroup time slices proportional
-> to weight in the common code. If CFQ (step 1 output) is used as
-> scheduler, WF2Q+ would be used there too, but to schedule time slices
-> (in proportion to priorities?) between different threads. Common code
-> logic will be completely oblivious of the actual scheduler used
-> (patched CFQ, Deadline, AS etc).
+Major changes from v6 to v7:
+1, remove boot-time resource rebalancing support. (Greg KH)
+2, emit uevent upon the PF driver is loaded. (Greg KH)
+3, put SR-IOV callback function into the 'pci_driver'. (Matthew Wilcox)
+4, register SR-IOV service at the PF loading stage.
+5, remove unnecessary APIs (pci_iov_enable/disable).
 
-I think once you start using WF2Q+ in common layer, CFQ will have to get
-rid of that code. (Remember in case of CFQ, we will have a tree which
-has got both task and groups as Scheduling Entity). So common layer code
-can select the next entity to be dispatched base on WFQ2+ and then 
-CFQ will decide which request to dispatch with-in that scheduling entity.
+---
 
-So may be we can start with bfq and try to break the code in two pieces.
-One common code and one scheduler specific code. Then try to make use
-of common code in deadline or anticipatory to see if things work fine. If,
-that works, then we can get to CFQ to make use of common code. By that
-time CFQ should have Fabio's changes. I think that will include WF2Q+
-algorithm also (At least to provide faireness among taks, and not the
-hierarchical thing). Once common layer WF2Q+ works well, we can get rid
-of WF2Q+ from CFQ and try to complete the picture.
+[PATCH 1/13 v7] PCI: enhance pci_ari_enabled()
+[PATCH 2/13 v7] PCI: remove unnecessary arg of pci_update_resource()
+[PATCH 3/13 v7] PCI: define PCI resource names in an 'enum'
+[PATCH 4/13 v7] PCI: remove unnecessary condition check in pci_restore_bars()
+[PATCH 5/13 v7] PCI: export __pci_read_base()
+[PATCH 6/13 v7] PCI: make pci_alloc_child_bus() be able to handle NULL bridge
+[PATCH 7/13 v7] PCI: add a new function to map BAR offset
+[PATCH 8/13 v7] PCI: cleanup pci_bus_add_devices()
+[PATCH 9/13 v7] PCI: split a new function from pci_bus_add_devices()
+[PATCH 10/13 v7] PCI: support the SR-IOV capability
+[PATCH 11/13 v7] PCI: reserve bus range for SR-IOV device
+[PATCH 12/13 v7] PCI: document the SR-IOV sysfs entries
+[PATCH 13/13 v7] PCI: document for SR-IOV user and developer
 
-> cgroup tracking has to be implemented as part of step 2. The good
-> thing is that step 2 can proceed independent of step 1, as the output
-> of step 1 will have the same interface as the existing CFQ scheduler.
-> 
+Cc: Alex Chiang <achiang@hp.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>
+Cc: Greg KH <greg@kroah.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: Matthew Wilcox <matthew@wil.cx>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Roland Dreier <rdreier@cisco.com>
+Cc: Simon Horman <horms@verge.net.au>
+Cc: Yinghai Lu <yinghai@kernel.org>
 
-Agreed. any kind of tracking based on bio and not the task context shall
-have to be done later, once we have come up with common layer code.
+---
 
-These are very vague high level ideas. Devil lies in details. :-) I will
-get started to see how feasible the common layer code idea is.
+Single Root I/O Virtualization (SR-IOV) capability defined by PCI-SIG
+is intended to enable multiple system software to share PCI hardware
+resources.  PCI device that supports this capability can be extended
+to one Physical Functions plus multiple Virtual Functions. Physical
+Function, which could be considered as the "real" PCI device, reflects
+the hardware instance and manages all physical resources. Virtual
+Functions are associated with a Physical Function and shares physical
+resources with the Physical Function.Software can control allocation of
+Virtual Functions via registers encapsulated in the capability structure.
 
-Thanks
-Vivek
+SR-IOV specification can be found at
+http://www.pcisig.com/members/downloads/specifications/iov/sr-iov1.0_11Sep07.pdf
+
+Devices that support SR-IOV are available from following vendors:
+http://download.intel.com/design/network/ProdBrf/320025.pdf
+http://www.netxen.com/products/chipsolutions/NX3031.html
+http://www.neterion.com/products/x3100.html
