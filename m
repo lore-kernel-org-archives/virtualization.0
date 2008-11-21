@@ -1,7 +1,7 @@
 From: Yu Zhao <yu.zhao@intel.com>
-Subject: [PATCH 1/13 v7] PCI: enhance pci_ari_enabled()
-Date: Sat, 22 Nov 2008 02:38:21 +0800
-Message-ID: <20081121183821.GB7810__38029.8608834439$1227296387$gmane$org@yzhao12-linux.sh.intel.com>
+Subject: [PATCH 2/13 v7] PCI: remove unnecessary arg of pci_update_resource()
+Date: Sat, 22 Nov 2008 02:38:52 +0800
+Message-ID: <20081121183852.GC7810__45311.6055498414$1227296398$gmane$org@yzhao12-linux.sh.intel.com>
 References: <20081121183605.GA7810@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,38 +22,81 @@ To: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, "greg@kroah.com" <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "horms@verge.net.au" <horms@verge.net.au>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>, "yinghai@kernel.org" <yinghai@kernel.org>, "bjorn.helgaas@hp.com" <bjorn.helgaas@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Change parameter of pci_ari_enabled() from 'pci_dev' to 'pci_bus'.
-
-ARI forwarding on the bridge mostly concerns the subordinate devices
-rather than the bridge itself. So this change will make the function
-easier to use.
+This cleanup removes unnecessary argument 'struct resource *res' in
+pci_update_resource(), so it takes same arguments as other companion
+functions (pci_assign_resource(), etc.).
 
 Signed-off-by: Yu Zhao <yu.zhao@intel.com>
 
 ---
- drivers/pci/pci.h |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/pci/pci.c       |    4 ++--
+ drivers/pci/setup-res.c |    7 ++++---
+ include/linux/pci.h     |    2 +-
+ 3 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 9de87e9..1449884 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -162,13 +162,13 @@ struct pci_slot_attribute {
- extern void pci_enable_ari(struct pci_dev *dev);
- /**
-  * pci_ari_enabled - query ARI forwarding status
-- * @dev: the PCI device
-+ * @bus: the PCI bus
-  *
-  * Returns 1 if ARI forwarding is enabled, or 0 if not enabled;
-  */
--static inline int pci_ari_enabled(struct pci_dev *dev)
-+static inline int pci_ari_enabled(struct pci_bus *bus)
- {
--	return dev->ari_enabled;
-+	return bus->self && bus->self->ari_enabled;
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 21f2ac6..c408be8 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -377,8 +377,8 @@ pci_restore_bars(struct pci_dev *dev)
+ 		return;
+ 	}
+ 
+-	for (i = 0; i < numres; i ++)
+-		pci_update_resource(dev, &dev->resource[i], i);
++	for (i = 0; i < numres; i++)
++		pci_update_resource(dev, i);
  }
  
- #endif /* DRIVERS_PCI_H */
+ static struct pci_platform_pm_ops *pci_platform_pm;
+diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+index 2dbd96c..b7ca679 100644
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -26,11 +26,12 @@
+ #include "pci.h"
+ 
+ 
+-void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno)
++void pci_update_resource(struct pci_dev *dev, int resno)
+ {
+ 	struct pci_bus_region region;
+ 	u32 new, check, mask;
+ 	int reg;
++	struct resource *res = dev->resource + resno;
+ 
+ 	/*
+ 	 * Ignore resources for unimplemented BARs and unused resource slots
+@@ -162,7 +163,7 @@ int pci_assign_resource(struct pci_dev *dev, int resno)
+ 	} else {
+ 		res->flags &= ~IORESOURCE_STARTALIGN;
+ 		if (resno < PCI_BRIDGE_RESOURCES)
+-			pci_update_resource(dev, res, resno);
++			pci_update_resource(dev, resno);
+ 	}
+ 
+ 	return ret;
+@@ -197,7 +198,7 @@ int pci_assign_resource_fixed(struct pci_dev *dev, int resno)
+ 		dev_err(&dev->dev, "BAR %d: can't allocate %s resource %pR\n",
+ 			resno, res->flags & IORESOURCE_IO ? "I/O" : "mem", res);
+ 	} else if (resno < PCI_BRIDGE_RESOURCES) {
+-		pci_update_resource(dev, res, resno);
++		pci_update_resource(dev, resno);
+ 	}
+ 
+ 	return ret;
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index feb4657..7e7ff03 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -642,7 +642,7 @@ int pcie_get_readrq(struct pci_dev *dev);
+ int pcie_set_readrq(struct pci_dev *dev, int rq);
+ int pci_reset_function(struct pci_dev *dev);
+ int pci_execute_reset_function(struct pci_dev *dev);
+-void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno);
++void pci_update_resource(struct pci_dev *dev, int resno);
+ int __must_check pci_assign_resource(struct pci_dev *dev, int i);
+ int pci_select_bars(struct pci_dev *dev, unsigned long flags);
+ 
 -- 
 1.5.6.4
