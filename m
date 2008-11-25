@@ -1,14 +1,17 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 3/5] ia64/pv_ops/bp/module: support binary patching for kernel
-	module.
-Date: Tue, 25 Nov 2008 22:03:53 +0900
-Message-ID: <1227618235-3890-4-git-send-email-yamahata__7645.67006049237$1227618750$gmane$org@valinux.co.jp>
-References: <1227618235-3890-1-git-send-email-yamahata@valinux.co.jp>
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
+Date: Tue, 25 Nov 2008 11:27:20 -0500
+Message-ID: <20081125162720.GH341__30259.8889022649$1227630780$gmane$org@redhat.com>
+References: <20081113221304.GH7542@redhat.com>
+	<20081120.182053.220301508585579959.ryov@valinux.co.jp>
+	<20081120134701.GB29306@redhat.com>
+	<20081125.113359.623571555980951312.ryov@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1227618235-3890-1-git-send-email-yamahata@valinux.co.jp>
+Content-Disposition: inline
+In-Reply-To: <20081125.113359.623571555980951312.ryov@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,84 +21,59 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: Ryo Tsuruta <ryov@valinux.co.jp>
+Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, fchecconi@gmail.com, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-support binary patching for kernel module.
+On Tue, Nov 25, 2008 at 11:33:59AM +0900, Ryo Tsuruta wrote:
+> Hi Vivek,
+> 
+> > > > Ryo, do you still want to stick to two level scheduling? Given the problem
+> > > > of it breaking down underlying scheduler's assumptions, probably it makes
+> > > > more sense to the IO control at each individual IO scheduler.
+> > > 
+> > > I don't want to stick to it. I'm considering implementing dm-ioband's
+> > > algorithm into the block I/O layer experimentally.
+> > 
+> > Thanks Ryo. Implementing a control at block layer sounds like another
+> > 2 level scheduling. We will still have the issue of breaking underlying
+> > CFQ and other schedulers. How to plan to resolve that conflict.
+> 
+> I think there is no conflict against I/O schedulers.
+> Could you expain to me about the conflict?
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/include/asm/module.h |    6 ++++++
- arch/ia64/kernel/module.c      |   32 ++++++++++++++++++++++++++++++++
- 2 files changed, 38 insertions(+), 0 deletions(-)
+Because we do the buffering at higher level scheduler and mostly release
+the buffered bios in the FIFO order, it might break the underlying IO
+schedulers. Generally it is the decision of IO scheduler to determine in
+what order to release buffered bios.
 
-diff --git a/arch/ia64/include/asm/module.h b/arch/ia64/include/asm/module.h
-index d2da61e..908eaef 100644
---- a/arch/ia64/include/asm/module.h
-+++ b/arch/ia64/include/asm/module.h
-@@ -16,6 +16,12 @@ struct mod_arch_specific {
- 	struct elf64_shdr *got;		/* global offset table */
- 	struct elf64_shdr *opd;		/* official procedure descriptors */
- 	struct elf64_shdr *unwind;	/* unwind-table section */
-+#ifdef CONFIG_PARAVIRT
-+	struct elf64_shdr *paravirt_bundles;
-+					/* paravirt_alt_bundle_patch table */
-+	struct elf64_shdr *paravirt_insts;
-+					/* paravirt_alt_inst_patch table */
-+#endif
- 	unsigned long gp;		/* global-pointer for module */
- 
- 	void *core_unw_table;		/* core unwind-table cookie returned by unwinder */
-diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
-index aaa7d90..34fe425 100644
---- a/arch/ia64/kernel/module.c
-+++ b/arch/ia64/kernel/module.c
-@@ -446,6 +446,14 @@ module_frob_arch_sections (Elf_Ehdr *ehdr, Elf_Shdr *sechdrs, char *secstrings,
- 			mod->arch.opd = s;
- 		else if (strcmp(".IA_64.unwind", secstrings + s->sh_name) == 0)
- 			mod->arch.unwind = s;
-+#ifdef CONFIG_PARAVIRT
-+		else if (strcmp(".paravirt_bundles",
-+				secstrings + s->sh_name) == 0)
-+			mod->arch.paravirt_bundles = s;
-+		else if (strcmp(".paravirt_insts",
-+				secstrings + s->sh_name) == 0)
-+			mod->arch.paravirt_insts = s;
-+#endif
- 
- 	if (!mod->arch.core_plt || !mod->arch.init_plt || !mod->arch.got || !mod->arch.opd) {
- 		printk(KERN_ERR "%s: sections missing\n", mod->name);
-@@ -921,6 +929,30 @@ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mo
- 	DEBUGP("%s: init: entry=%p\n", __func__, mod->init);
- 	if (mod->arch.unwind)
- 		register_unwind_table(mod);
-+#ifdef CONFIG_PARAVIRT
-+        if (mod->arch.paravirt_bundles) {
-+                struct paravirt_patch_site_bundle *start =
-+                        (struct paravirt_patch_site_bundle *)
-+                        mod->arch.paravirt_bundles->sh_addr;
-+                struct paravirt_patch_site_bundle *end =
-+                        (struct paravirt_patch_site_bundle *)
-+                        (mod->arch.paravirt_bundles->sh_addr +
-+                         mod->arch.paravirt_bundles->sh_size);
-+
-+                paravirt_patch_apply_bundle(start, end);
-+        }
-+        if (mod->arch.paravirt_insts) {
-+                struct paravirt_patch_site_inst *start =
-+                        (struct paravirt_patch_site_inst *)
-+                        mod->arch.paravirt_insts->sh_addr;
-+                struct paravirt_patch_site_inst *end =
-+                        (struct paravirt_patch_site_inst *)
-+                        (mod->arch.paravirt_insts->sh_addr +
-+                         mod->arch.paravirt_insts->sh_size);
-+
-+                paravirt_patch_apply_inst(start, end);
-+        }
-+#endif
- 	return 0;
- }
- 
--- 
-1.6.0.2
+For example, If there is one task of io priority 0 in a cgroup and rest of
+the tasks are of io prio 7. All the tasks belong to best effort class. If
+tasks of lower priority (7) do lot of IO, then due to buffering there is
+a chance that IO from lower prio tasks is seen by CFQ first and io from
+higher prio task is not seen by cfq for quite some time hence that task
+not getting it fair share with in the cgroup. Similiar situations can
+arise with RT tasks also.
+
+> 
+> > What do you think about the solution at IO scheduler level (like BFQ) or
+> > may be little above that where one can try some code sharing among IO
+> > schedulers? 
+> 
+> I would like to support any type of block device even if I/Os issued
+> to the underlying device doesn't go through IO scheduler. Dm-ioband
+> can be made use of for the devices such as loop device.
+> 
+
+What do you mean by that IO issued to underlying device does not go
+through IO scheduler? loop device will be associated with a file and
+IO will ultimately go to the IO scheduler which is serving those file
+blocks?
+
+What's the use case scenario of doing IO control at loop device?
+Ultimately the resource contention will take place on actual underlying
+physical device where the file blocks are. Will doing the resource control
+there not solve the issue for you?
+
+Thanks
+Vivek
