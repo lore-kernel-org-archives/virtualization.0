@@ -1,15 +1,14 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Wed, 26 Nov 2008 21:47:07 +0900 (JST)
-Message-ID: <20081126.214707.653026525707335397.ryov__36521.7780847617$1227703797$gmane$org@valinux.co.jp>
-References: <20081120134701.GB29306@redhat.com>
-	<20081125.113359.623571555980951312.ryov@valinux.co.jp>
-	<20081125162720.GH341@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: Host<->guest channel interface advice needed
+Date: Wed, 26 Nov 2008 14:02:57 +0100
+Message-ID: <200811261402.58033.arnd__17563.6068256155$1227704828$gmane$org@arndb.de>
+References: <20081126123919.GC3521@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081125162720.GH341@redhat.com>
+In-Reply-To: <20081126123919.GC3521@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,76 +18,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vgoyal@redhat.com
-Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, fchecconi@gmail.com, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, righi.andrea@gmail.com
+To: Gleb Natapov <gleb@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Vivek,
+On Wednesday 26 November 2008, Gleb Natapov wrote:
+> The interfaces that are being considered are netlink socket (only datagram
+> semantics, linux specific), new socket family or character device with
+> different minor number for each channel. Which one better suits for
+> the purpose? =A0Is there other kind of interface to consider? New socket
+> family looks like a good choice, but it would be nice to hear other
+> opinions before starting to work on it.
 
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Tue, 25 Nov 2008 11:27:20 -0500
+I think a socket and a pty both look reasonable here, but one important
+aspect IMHO is that you only need a new kernel driver for the guest, if
+you just use the regular pty support or Unix domain sockets in the host.
 
-> On Tue, Nov 25, 2008 at 11:33:59AM +0900, Ryo Tsuruta wrote:
-> > Hi Vivek,
-> > 
-> > > > > Ryo, do you still want to stick to two level scheduling? Given the problem
-> > > > > of it breaking down underlying scheduler's assumptions, probably it makes
-> > > > > more sense to the IO control at each individual IO scheduler.
-> > > > 
-> > > > I don't want to stick to it. I'm considering implementing dm-ioband's
-> > > > algorithm into the block I/O layer experimentally.
-> > > 
-> > > Thanks Ryo. Implementing a control at block layer sounds like another
-> > > 2 level scheduling. We will still have the issue of breaking underlying
-> > > CFQ and other schedulers. How to plan to resolve that conflict.
-> > 
-> > I think there is no conflict against I/O schedulers.
-> > Could you expain to me about the conflict?
-> 
-> Because we do the buffering at higher level scheduler and mostly release
-> the buffered bios in the FIFO order, it might break the underlying IO
-> schedulers. Generally it is the decision of IO scheduler to determine in
-> what order to release buffered bios.
-> 
-> For example, If there is one task of io priority 0 in a cgroup and rest of
-> the tasks are of io prio 7. All the tasks belong to best effort class. If
-> tasks of lower priority (7) do lot of IO, then due to buffering there is
-> a chance that IO from lower prio tasks is seen by CFQ first and io from
-> higher prio task is not seen by cfq for quite some time hence that task
-> not getting it fair share with in the cgroup. Similiar situations can
-> arise with RT tasks also.
+Obviously, there needs to be some control over permissions, as a guest
+most not be able to just open any socket or pty of the host, so a
+reasonable approach might be that the guest can only create a socket
+or pty that can be opened by the host, but not vice versa. Alternatively,
+you create the socket/pty in host userspace and then allow passing that
+down into the guest, which creates a virtio device from it.
 
-Thanks for your explanation. 
-I think that the same thing occurs without the higher level scheduler,
-because all the tasks issuing I/Os are blocked while the underlying
-device's request queue is full before those I/Os are sent to the I/O
-scheduler.
-
-> > > What do you think about the solution at IO scheduler level (like BFQ) or
-> > > may be little above that where one can try some code sharing among IO
-> > > schedulers? 
-> > 
-> > I would like to support any type of block device even if I/Os issued
-> > to the underlying device doesn't go through IO scheduler. Dm-ioband
-> > can be made use of for the devices such as loop device.
-> > 
-> 
-> What do you mean by that IO issued to underlying device does not go
-> through IO scheduler? loop device will be associated with a file and
-> IO will ultimately go to the IO scheduler which is serving those file
-> blocks?
-
-How about if the files is on an NFS-mounted file system?
-
-> What's the use case scenario of doing IO control at loop device?
-> Ultimately the resource contention will take place on actual underlying
-> physical device where the file blocks are. Will doing the resource control
-> there not solve the issue for you?
-
-I don't come up with any use case, but I would like to make the
-resource controller more flexible. Actually, a certain block device
-that I'm using does not use the I/O scheduler.
-
-Thanks,
-Ryo Tsuruta
+	Arnd <><
