@@ -1,18 +1,14 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [SR-IOV driver example 2/3] PF driver: integrate with SR-IOV core
-Date: Wed, 26 Nov 2008 11:55:11 -0800
-Message-ID: <20081126195511.GA2386__47961.9051483043$1227729558$gmane$org@kroah.com>
+From: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [SR-IOV driver example 0/3] introduction
+Date: Wed, 26 Nov 2008 15:14:48 -0500
+Message-ID: <492DAE38.3050809__42494.4029692144$1227730657$gmane$org@garzik.org>
 References: <20081121183605.GA7810@yzhao12-linux.sh.intel.com>
 	<20081126140303.GA13641@yzhao12-linux.sh.intel.com>
-	<20081126142156.GB13668@yzhao12-linux.sh.intel.com>
-	<20081126165859.GA28251@kroah.com>
-	<0B53E02A2965CE4F9ADB38B34501A3A167E8BD7F@orsmsx505.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <0B53E02A2965CE4F9ADB38B34501A3A167E8BD7F@orsmsx505.amr.corp.intel.com>
+In-Reply-To: <20081126140303.GA13641@yzhao12-linux.sh.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,73 +18,32 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Yu Zhao <yu.zhao@intel.com>
+Cc: xen-devel@lists.xensource.com, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "greg@kroah.com" <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 26, 2008 at 11:27:10AM -0800, Nakajima, Jun wrote:
-> On 11/26/2008 8:58:59 AM, Greg KH wrote:
-> > On Wed, Nov 26, 2008 at 10:21:56PM +0800, Yu Zhao wrote:
-> > > This patch integrates the IGB driver with the SR-IOV core. It shows
-> > > how the SR-IOV API is used to support the capability. Obviously
-> > > people does not need to put much effort to integrate the PF driver
-> > > with SR-IOV core. All SR-IOV standard stuff are handled by SR-IOV
-> > > core and PF driver once it gets the necessary information (i.e.
-> > > number of Virtual
-> > > Functions) from the callback function.
-> > >
-> > > ---
-> > >  drivers/net/igb/igb_main.c |   30 ++++++++++++++++++++++++++++++
-> > >  1 files changed, 30 insertions(+), 0 deletions(-)
-> > >
-> > > diff --git a/drivers/net/igb/igb_main.c b/drivers/net/igb/igb_main.c
-> > > index bc063d4..b8c7dc6 100644
-> > > --- a/drivers/net/igb/igb_main.c
-> > > +++ b/drivers/net/igb/igb_main.c
-> > > @@ -139,6 +139,7 @@ void igb_set_mc_list_pools(struct igb_adapter *,
-> > > struct e1000_hw *, int, u16);  static int igb_vmm_control(struct
-> > > igb_adapter *, bool);  static int igb_set_vf_mac(struct net_device
-> > > *, int, u8*);  static void igb_mbox_handler(struct igb_adapter *);
-> > > +static int igb_virtual(struct pci_dev *, int);
-> > >  #endif
-> > >
-> > >  static int igb_suspend(struct pci_dev *, pm_message_t); @@ -184,6
-> > > +185,9 @@ static struct pci_driver igb_driver = {  #endif
-> > >     .shutdown = igb_shutdown,
-> > >     .err_handler = &igb_err_handler,
-> > > +#ifdef CONFIG_PCI_IOV
-> > > +   .virtual = igb_virtual
-> > > +#endif
-> >
-> > #ifdef should not be needed, right?
-> >
+Yu Zhao wrote:
+> SR-IOV drivers of Intel 82576 NIC are available. There are two parts
+> of the drivers: Physical Function driver and Virtual Function driver.
+> The PF driver is based on the IGB driver and is used to control PF to
+> allocate hardware specific resources and interface with the SR-IOV core.
+> The VF driver is a new NIC driver that is same as the traditional PCI
+> device driver. It works in both the host and the guest (Xen and KVM)
+> environment.
 > 
-> Good point. I think this is because the driver is expected to build on
-> older kernels also,
-
-That should not be an issue for patches that are being submitted, right?
-
-And if this is the case, shouldn't it be called out in the changelog
-entry?
-
-> but the problem is that the driver (and probably others) is broken
-> unless the kernel is built with CONFIG_PCI_IOV because of the
-> following hunk, for example.
+> These two drivers are testing versions and they are *only* intended to
+> show how to use SR-IOV API.
 > 
-> However, we don't want to use #ifdef for the (*virtual) field in the
-> header. One option would be to define a constant like the following
-> along with those changes.
-> #define PCI_DEV_IOV
+> Intel 82576 NIC specification can be found at:
+> http://download.intel.com/design/network/datashts/82576_Datasheet_v2p1.pdf
 > 
-> Any better idea?
+> [SR-IOV driver example 1/3] PF driver: allocate hardware specific resource
+> [SR-IOV driver example 2/3] PF driver: integrate with SR-IOV core
+> [SR-IOV driver example 3/3] VF driver tar ball
 
-Just always declare it in your driver, which will be added _after_ this
-field gets added to the kernel tree as well.  It's not a big deal, just
-an ordering of patches issue.
+Please copy netdev@vger.kernel.org on all network-related patches.  This 
+is where the network developers live, and all patches on this list are 
+automatically archived for review and handling at 
+http://patchwork.ozlabs.org/project/netdev/list/
 
-Because remember, don't add #ifdefs to drivers, they should not be
-needed at all.
-
-thanks,
-
-greg k-h
+	Jeff
