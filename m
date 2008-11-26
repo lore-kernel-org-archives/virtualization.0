@@ -1,17 +1,16 @@
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Wed, 26 Nov 2008 11:08:05 -0500
-Message-ID: <20081126160805.GE27826__15347.3247461536$1227715984$gmane$org@redhat.com>
-References: <20081120134701.GB29306@redhat.com>
-	<20081125.113359.623571555980951312.ryov@valinux.co.jp>
-	<20081125162720.GH341@redhat.com>
-	<20081126.214707.653026525707335397.ryov@valinux.co.jp>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [SR-IOV driver example 2/3] PF driver: integrate with SR-IOV core
+Date: Wed, 26 Nov 2008 08:58:59 -0800
+Message-ID: <20081126165859.GA28251__21623.8120374785$1227719036$gmane$org@kroah.com>
+References: <20081121183605.GA7810@yzhao12-linux.sh.intel.com>
+	<20081126140303.GA13641@yzhao12-linux.sh.intel.com>
+	<20081126142156.GB13668@yzhao12-linux.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20081126.214707.653026525707335397.ryov@valinux.co.jp>
+In-Reply-To: <20081126142156.GB13668@yzhao12-linux.sh.intel.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,94 +20,93 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryo Tsuruta <ryov@valinux.co.jp>
-Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, fchecconi@gmail.com, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, righi.andrea@gmail.com
+To: Yu Zhao <yu.zhao@intel.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 26, 2008 at 09:47:07PM +0900, Ryo Tsuruta wrote:
-> Hi Vivek,
+On Wed, Nov 26, 2008 at 10:21:56PM +0800, Yu Zhao wrote:
+> This patch integrates the IGB driver with the SR-IOV core. It shows how
+> the SR-IOV API is used to support the capability. Obviously people does
+> not need to put much effort to integrate the PF driver with SR-IOV core.
+> All SR-IOV standard stuff are handled by SR-IOV core and PF driver only
+> concerns the device specific resource allocation and deallocation once it
+> gets the necessary information (i.e. number of Virtual Functions) from
+> the callback function.
 > 
-> From: Vivek Goyal <vgoyal@redhat.com>
-> Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-> Date: Tue, 25 Nov 2008 11:27:20 -0500
+> ---
+>  drivers/net/igb/igb_main.c |   30 ++++++++++++++++++++++++++++++
+>  1 files changed, 30 insertions(+), 0 deletions(-)
 > 
-> > On Tue, Nov 25, 2008 at 11:33:59AM +0900, Ryo Tsuruta wrote:
-> > > Hi Vivek,
-> > > 
-> > > > > > Ryo, do you still want to stick to two level scheduling? Given the problem
-> > > > > > of it breaking down underlying scheduler's assumptions, probably it makes
-> > > > > > more sense to the IO control at each individual IO scheduler.
-> > > > > 
-> > > > > I don't want to stick to it. I'm considering implementing dm-ioband's
-> > > > > algorithm into the block I/O layer experimentally.
-> > > > 
-> > > > Thanks Ryo. Implementing a control at block layer sounds like another
-> > > > 2 level scheduling. We will still have the issue of breaking underlying
-> > > > CFQ and other schedulers. How to plan to resolve that conflict.
-> > > 
-> > > I think there is no conflict against I/O schedulers.
-> > > Could you expain to me about the conflict?
-> > 
-> > Because we do the buffering at higher level scheduler and mostly release
-> > the buffered bios in the FIFO order, it might break the underlying IO
-> > schedulers. Generally it is the decision of IO scheduler to determine in
-> > what order to release buffered bios.
-> > 
-> > For example, If there is one task of io priority 0 in a cgroup and rest of
-> > the tasks are of io prio 7. All the tasks belong to best effort class. If
-> > tasks of lower priority (7) do lot of IO, then due to buffering there is
-> > a chance that IO from lower prio tasks is seen by CFQ first and io from
-> > higher prio task is not seen by cfq for quite some time hence that task
-> > not getting it fair share with in the cgroup. Similiar situations can
-> > arise with RT tasks also.
-> 
-> Thanks for your explanation. 
-> I think that the same thing occurs without the higher level scheduler,
-> because all the tasks issuing I/Os are blocked while the underlying
-> device's request queue is full before those I/Os are sent to the I/O
-> scheduler.
-> 
+> diff --git a/drivers/net/igb/igb_main.c b/drivers/net/igb/igb_main.c
+> index bc063d4..b8c7dc6 100644
+> --- a/drivers/net/igb/igb_main.c
+> +++ b/drivers/net/igb/igb_main.c
+> @@ -139,6 +139,7 @@ void igb_set_mc_list_pools(struct igb_adapter *, struct e1000_hw *, int, u16);
+>  static int igb_vmm_control(struct igb_adapter *, bool);
+>  static int igb_set_vf_mac(struct net_device *, int, u8*);
+>  static void igb_mbox_handler(struct igb_adapter *);
+> +static int igb_virtual(struct pci_dev *, int);
+>  #endif
+>  
+>  static int igb_suspend(struct pci_dev *, pm_message_t);
+> @@ -184,6 +185,9 @@ static struct pci_driver igb_driver = {
+>  #endif
+>  	.shutdown = igb_shutdown,
+>  	.err_handler = &igb_err_handler,
+> +#ifdef CONFIG_PCI_IOV
+> +	.virtual = igb_virtual
+> +#endif
 
-True and this issue was pointed out by Divyesh. I think we shall have to
-fix this by allocating the request descriptors in proportion to their
-share. One possible way is to make use of elv_may_queue() to determine
-if we can allocate furhter request descriptors or not. 
+#ifdef should not be needed, right?
 
-> > > > What do you think about the solution at IO scheduler level (like BFQ) or
-> > > > may be little above that where one can try some code sharing among IO
-> > > > schedulers? 
-> > > 
-> > > I would like to support any type of block device even if I/Os issued
-> > > to the underlying device doesn't go through IO scheduler. Dm-ioband
-> > > can be made use of for the devices such as loop device.
-> > > 
-> > 
-> > What do you mean by that IO issued to underlying device does not go
-> > through IO scheduler? loop device will be associated with a file and
-> > IO will ultimately go to the IO scheduler which is serving those file
-> > blocks?
-> 
-> How about if the files is on an NFS-mounted file system?
-> 
+>  };
+>  
+>  static int global_quad_port_a; /* global quad port a indication */
+> @@ -5107,6 +5111,32 @@ void igb_set_mc_list_pools(struct igb_adapter *adapter,
+>  	reg_data |= (1 << 25);
+>  	wr32(E1000_VMOLR(pool), reg_data);
+>  }
+> +
+> +static	int
+> +igb_virtual(struct pci_dev *pdev, int nr_virtfn)
+> +{
+> +	unsigned char my_mac_addr[6] = {0x00, 0xDE, 0xAD, 0xBE, 0xEF, 0xFF};
+> +	struct net_device *netdev = pci_get_drvdata(pdev);
+> +	struct igb_adapter *adapter = netdev_priv(netdev);
+> +	int i;
+> +
+> +	if (nr_virtfn > 7)
+> +		return -EINVAL;
 
-Interesting. So on the surface it looks like contention for disk but it
-is more the contention for network and contention for disk on NFS server.
+Why the check for 7?  Is that the max virtual functions for this card?
+Shouldn't that be a define somewhere so it's easier to fix in future
+versions of this hardware?  :)
 
-True that leaf node IO control will not help here as IO is not going to
-leaf node at all. We can make the situation better by doing resource 
-control on network IO though.
+> +
+> +	if (nr_virtfn) {
+> +		for (i = 0; i < nr_virtfn; i++) {
+> +			printk(KERN_INFO "SR-IOV: VF %d is enabled\n", i);
 
-> > What's the use case scenario of doing IO control at loop device?
-> > Ultimately the resource contention will take place on actual underlying
-> > physical device where the file blocks are. Will doing the resource control
-> > there not solve the issue for you?
-> 
-> I don't come up with any use case, but I would like to make the
-> resource controller more flexible. Actually, a certain block device
-> that I'm using does not use the I/O scheduler.
+Use dev_info() please, that shows the exact pci device and driver that
+emitted the message.
 
-Isn't it equivalent to using No-op? If yes, then it should not be an
-issue?
+> +			my_mac_addr[5] = (unsigned char)i;
+> +			igb_set_vf_mac(netdev, i, my_mac_addr);
+> +			igb_set_vf_vmolr(adapter, i);
+> +		}
+> +	} else
+> +		printk(KERN_INFO "SR-IOV is disabled\n");
 
-Thanks
-Vivek
+Is that really true?  (oh, use dev_info as well.)  What happens if you
+had called this with "5" and then later with "0", you never destroyed
+those existing virtual functions, yet the code does:
+
+> +	adapter->vfs_allocated_count = nr_virtfn;
+
+Which makes the driver think they are not present.  What happens when
+the driver later goes to shut down?  Are those resources freed up
+properly?
+
+thanks,
+
+greg k-h
