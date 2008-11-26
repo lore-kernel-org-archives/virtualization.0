@@ -1,22 +1,17 @@
 From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
 Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Wed, 26 Nov 2008 15:40:18 +0900
-Message-ID: <1227681618.12997.163.camel__48436.5396820523$1227681986$gmane$org@sebastian.kern.oss.ntt.co.jp>
-References: <4922224A.5030502@cn.fujitsu.com>
-	<e98e18940811172101na345b6bh5c73f9e657aac5a7@mail.gmail.com>
-	<20081118120508.GD15268@gandalf.sssup.it>
-	<20081118140751.GA4283@redhat.com>
-	<20081118144139.GE15268@gandalf.sssup.it>
-	<20081118191208.GJ26308@kernel.dk>
-	<e98e18940811181507t6b1473act2efa23df21dab270@mail.gmail.com>
-	<20081119142446.GH26308@kernel.dk>
-	<af41c7c40811191612v5db13ae7n3cfe537beb6a157c@mail.gmail.com>
-	<20081120081640.GE26308@kernel.dk> <20081120134058.GA29306@redhat.com>
+Date: Wed, 26 Nov 2008 20:55:04 +0900
+Message-ID: <1227700504.12997.398.camel__28135.326508391$1227700647$gmane$org@sebastian.kern.oss.ntt.co.jp>
+References: <20081113221304.GH7542@redhat.com>
+	<20081120.182053.220301508585579959.ryov@valinux.co.jp>
+	<20081120134701.GB29306@redhat.com>
+	<20081125.113359.623571555980951312.ryov@valinux.co.jp>
+	<20081125162720.GH341@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081120134058.GA29306@redhat.com>
+In-Reply-To: <20081125162720.GH341@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -27,98 +22,101 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Vivek Goyal <vgoyal@redhat.com>
-Cc: menage@google.com, riel@redhat.com, jmoyer@redhat.com, paolo.valente@unimore.it, containers@lists.linux-foundation.org, Jens Axboe <jens.axboe@oracle.com>, Li Zefan <lizf@cn.fujitsu.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, peterz@infradead.org, Fabio Checconi <fchecconi@gmail.com>, Divyesh Shah <dpshah@google.com>, Nauman Rafique <nauman@google.com>, balbir@linux.vnet.ibm.com, ngupta@google.com, akpm@linux-foundation.org, righi.andrea@gmail.com
+Cc: menage@google.com, riel@redhat.com, fchecconi@gmail.com, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, akpm@linux-foundation.org, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2008-11-20 at 08:40 -0500, Vivek Goyal wrote:
-> > The dm approach has some merrits, the major one being that it'll fit
-> > directly into existing setups that use dm and can be controlled with
-> > familiar tools. That is a bonus. The draw back is partially the same -
-> > it'll require dm. So it's still not a fit-all approach, unfortunately.
-> > 
-> > So I'd prefer an approach that doesn't force you to use dm.
-> 
-> Hi Jens,
-> 
-> My patches met the goal of not using the dm for every device one wants
-> to control.
-> 
-> Having said that, few things come to mind.
-> 
-> - In what cases do we need to control the higher level logical devices
->   like dm. It looks like real contention for resources is at leaf nodes.
->   Hence any kind of resource management/fair queueing should probably be
->   done at leaf nodes and not at higher level logical nodes.
-
-The problem with stacking devices is that we do not know how the IO
-going through the leaf nodes contributes to the aggregate throughput
-seen by the application/cgroup that generated it, which is what end
-users care about.
-
-The block device could be a plain old sata device, a loop device, a
-stacking device, a SSD, you name it, but their topologies and the fact
-that some of them do not even use an elevator should be transparent to
-the user.
-
-If you wanted to do resource management at the leaf nodes some kind of
-topology information should be passed down to the elevators controlling
-the underlying devices, which in turn would need to work cooperatively.
-
->   If that makes sense, then probably we don't need to control dm device
->   and we don't need such higher level solutions.
-
-For the reasons stated above the two level scheduling approach seems
-cleaner to me.
-
-> - Any kind of 2 level scheduler solution has the potential to break the
->   underlying IO scheduler. Higher level solution requires buffering of
->   bios and controlled release of bios to lower layers. This control breaks
->   the assumptions of lower layer IO scheduler which knows in what order
->   bios should be dispatched to device to meet the semantics exported by
->   the IO scheduler.
-
-Please notice that the such an IO controller would only get in the way
-of the elevator in case of contention for the device. What is more,
-depending on the workload it turns out that buffering at higher layers
-in a per-cgroup or per-task basis, like dm-band does, may actually
-increase the aggregate throughput (I think that the dm-band team
-observed this behavior too). The reason seems to be that bios buffered
-in such way tend to be highly correlated and thus very likely to get
-merged when released to the elevator.
-
-> - 2nd level scheduler does not keep track of tasks but task groups lets
->   every group dispatch fair share. This has got little semantic problem in
->   the sense that tasks and groups in root cgroup will not be considered at
->   same level. "root" will be considered one group at same level with all
->   child group hence competing with them for resources.
-> 
->   This looks little odd. Considering tasks and groups same level kind of
->   makes more sense. cpu scheduler also consideres tasks and groups at same
->   level and deviation from that probably is not very good.
-> 
->   Considering tasks and groups at same level will matter only if IO
->   scheduler maintains separate queue for the task, like CFQ. Because
->   in that case IO scheduler tries to provide fairness among various task
->   queues. Some schedulers like noop don't have any notion of separate
->   task queues and fairness among them. In that case probably we don't
->   have a choice but to assume root group competing with child groups.
-
-If deemed necessary this case could be handled too, but it does not look
-like a show-stopper.
-
-> Keeping above points in mind, probably two level scheduling is not a
-> very good idea. If putting the code in a particular IO scheduler is a
-> concern we can probably explore ways regarding how we can maximize the
-> sharing of cgroup code among IO schedulers.
-
-As discussed above, I still think that the two level scheduling approach
-makes more sense. Regarding the sharing of cgroup code among IO
-schedulers I am all for it. If we consider that elevators should only
-care about maximizing usage of the underlying devices, implementing
-other non-hardware-dependent scheduling disciplines (that prioritize
-according to the task or cgroup that generated the IO, for example) at
-higher layers so that we can reuse code makes a lot of sense.
-
-Thanks,
-
-Fernando
+T24gVHVlLCAyMDA4LTExLTI1IGF0IDExOjI3IC0wNTAwLCBWaXZlayBHb3lhbCB3cm90ZToKPiBP
+biBUdWUsIE5vdiAyNSwgMjAwOCBhdCAxMTozMzo1OUFNICswOTAwLCBSeW8gVHN1cnV0YSB3cm90
+ZToKPiA+IEhpIFZpdmVrLAo+ID4gCj4gPiA+ID4gPiBSeW8sIGRvIHlvdSBzdGlsbCB3YW50IHRv
+IHN0aWNrIHRvIHR3byBsZXZlbCBzY2hlZHVsaW5nPyBHaXZlbiB0aGUgcHJvYmxlbQo+ID4gPiA+
+ID4gb2YgaXQgYnJlYWtpbmcgZG93biB1bmRlcmx5aW5nIHNjaGVkdWxlcidzIGFzc3VtcHRpb25z
+LCBwcm9iYWJseSBpdCBtYWtlcwo+ID4gPiA+ID4gbW9yZSBzZW5zZSB0byB0aGUgSU8gY29udHJv
+bCBhdCBlYWNoIGluZGl2aWR1YWwgSU8gc2NoZWR1bGVyLgo+ID4gPiA+IAo+ID4gPiA+IEkgZG9u
+J3Qgd2FudCB0byBzdGljayB0byBpdC4gSSdtIGNvbnNpZGVyaW5nIGltcGxlbWVudGluZyBkbS1p
+b2JhbmQncwo+ID4gPiA+IGFsZ29yaXRobSBpbnRvIHRoZSBibG9jayBJL08gbGF5ZXIgZXhwZXJp
+bWVudGFsbHkuCj4gPiA+IAo+ID4gPiBUaGFua3MgUnlvLiBJbXBsZW1lbnRpbmcgYSBjb250cm9s
+IGF0IGJsb2NrIGxheWVyIHNvdW5kcyBsaWtlIGFub3RoZXIKPiA+ID4gMiBsZXZlbCBzY2hlZHVs
+aW5nLiBXZSB3aWxsIHN0aWxsIGhhdmUgdGhlIGlzc3VlIG9mIGJyZWFraW5nIHVuZGVybHlpbmcK
+PiA+ID4gQ0ZRIGFuZCBvdGhlciBzY2hlZHVsZXJzLiBIb3cgdG8gcGxhbiB0byByZXNvbHZlIHRo
+YXQgY29uZmxpY3QuCj4gPiAKPiA+IEkgdGhpbmsgdGhlcmUgaXMgbm8gY29uZmxpY3QgYWdhaW5z
+dCBJL08gc2NoZWR1bGVycy4KPiA+IENvdWxkIHlvdSBleHBhaW4gdG8gbWUgYWJvdXQgdGhlIGNv
+bmZsaWN0Pwo+IAo+IEJlY2F1c2Ugd2UgZG8gdGhlIGJ1ZmZlcmluZyBhdCBoaWdoZXIgbGV2ZWwg
+c2NoZWR1bGVyIGFuZCBtb3N0bHkgcmVsZWFzZQo+IHRoZSBidWZmZXJlZCBiaW9zIGluIHRoZSBG
+SUZPIG9yZGVyLCBpdCBtaWdodCBicmVhayB0aGUgdW5kZXJseWluZyBJTwo+IHNjaGVkdWxlcnMu
+IEdlbmVyYWxseSBpdCBpcyB0aGUgZGVjaXNpb24gb2YgSU8gc2NoZWR1bGVyIHRvIGRldGVybWlu
+ZSBpbgo+IHdoYXQgb3JkZXIgdG8gcmVsZWFzZSBidWZmZXJlZCBiaW9zLgoKSXQgY291bGQgYmUg
+YXJndWVkIHRoYXQgdGhlIElPIHNjaGVkdWxlcidzIHByaW1hcnkgZ29hbCBpcyB0byBtYXhpbWl6
+ZQp1c2FnZSBvZiB0aGUgdW5kZXJseWluZyBkZXZpY2UgYWNjb3JkaW5nIHRvIGl0cyBwaHlzaWNh
+bApjaGFyYWN0ZXJpc3RpY3MuIEZvciBoYXJkIGRpc2tzIHRoaXMgbWF5IGltcGx5IG1pbmltaXpp
+bmcgdGltZSB3YXN0ZWQgYnkKc2Vla3M7IG90aGVyIHR5cGVzIG9mIGRldmljZXMsIHN1Y2ggYXMg
+U1NEcywgbWF5IGltcG9zZSBkaWZmZXJlbnQKcmVxdWlyZW1lbnRzLiBUaGlzIGlzIHNvbWV0aGlu
+ZyB0aGF0IGNsZWFybHkgYmVsb25ncyBpbiB0aGUgZWxldmF0b3IuIE9uCnRoZSBvdGhlciBoYW5k
+LCBpdCBjb3VsZCBiZSBhcmd1ZWQgdGhhdCBvdGhlciBub24taGFyZHdhcmUtcmVsYXRlZApzY2hl
+ZHVsaW5nIGRpc2NpcGxpbmVzIHdvdWxkIGZpdCBiZXR0ZXIgaW4gaGlnaGVyIGxheWVycy4KClRo
+YXQgc2FpZCwgYXMgeW91IHBvaW50ZWQgb3V0IHN1Y2ggc2VwYXJhdGlvbiBjb3VsZCBpbXBhY3Qg
+cGVyZm9ybWFuY2UsCnNvIHdlIHdpbGwgcHJvYmFibHkgbmVlZCB0byBpbXBsZW1lbnQgYSBmZWVk
+YmFjayBtZWNoYW5pc20gYmV0d2VlbiB0aGUKZWxldmF0b3IsIHdoaWNoIGNvdWxkIGNvbGxlY3Qg
+c3RhdGlzdGljcyBhbmQgcHJvdmlkZSBoaW50cywgYW5kIHRoZQp1cHBlciBsYXllcnMuIFRoZSBl
+bGV2YXRvciBBUEkgbG9va3MgbGlrZSBhIGdvb2QgY2FuZGlkYXRlIGZvciB0aGlzLAp0aG91Z2gg
+bmV3IGZ1bmN0aW9ucyBtaWdodCBiZSBuZWVkZWQuCgo+IEZvciBleGFtcGxlLCBJZiB0aGVyZSBp
+cyBvbmUgdGFzayBvZiBpbyBwcmlvcml0eSAwIGluIGEgY2dyb3VwIGFuZCByZXN0IG9mCj4gdGhl
+IHRhc2tzIGFyZSBvZiBpbyBwcmlvIDcuIEFsbCB0aGUgdGFza3MgYmVsb25nIHRvIGJlc3QgZWZm
+b3J0IGNsYXNzLiBJZgo+IHRhc2tzIG9mIGxvd2VyIHByaW9yaXR5ICg3KSBkbyBsb3Qgb2YgSU8s
+IHRoZW4gZHVlIHRvIGJ1ZmZlcmluZyB0aGVyZSBpcwo+IGEgY2hhbmNlIHRoYXQgSU8gZnJvbSBs
+b3dlciBwcmlvIHRhc2tzIGlzIHNlZW4gYnkgQ0ZRIGZpcnN0IGFuZCBpbyBmcm9tCj4gaGlnaGVy
+IHByaW8gdGFzayBpcyBub3Qgc2VlbiBieSBjZnEgZm9yIHF1aXRlIHNvbWUgdGltZSBoZW5jZSB0
+aGF0IHRhc2sKPiBub3QgZ2V0dGluZyBpdCBmYWlyIHNoYXJlIHdpdGggaW4gdGhlIGNncm91cC4g
+U2ltaWxpYXIgc2l0dWF0aW9ucyBjYW4KPiBhcmlzZSB3aXRoIFJUIHRhc2tzIGFsc28uCgpXZWxs
+LCB0aGlzIGlzc3VlIGlzIG5vdCBpbnRyaW5zaWMgdG8gZG0tYmFuZCBhbmQgc2ltaWxhciBzb2x1
+dGlvbnMuIEluCnRoZSBzY2VuYXJpbyB5b3UgcG9pbnQgb3V0IHRoZSBwcm9ibGVtIGlzIHRoYXQg
+dGhlIGVsZXZhdG9yIGFuZCB0aGUgSU8KY29udHJvbGxlciBhcmUgbm90IGNvb3BlcmF0aW5nLiBU
+aGUgc2FtZSBjb3VsZCBoYXBwZW4gZXZlbiBpZiB3ZQppbXBsZW1lbnRlZCBldmVyeXRoaW5nIGF0
+IHRoZSBlbGV2YXRvciBsYXllciAob3IgYSBsaXR0bGUgYWJvdmUpOiBnZXQKaGllcmFyY2hpY2Fs
+IHNjaGVkdWxpbmcgd3JvbmcgYW5kIHlvdSBhcmUgbGlrZWx5IHRvIGhhdmUgYSByb3VnaCByaWRl
+LgoKQkZRIGRlYWxzIHdpdGggaGllcmFyY2hpY2FsIHNjaGVkdWxpbmcgYXQganVzdCBvbmUgbGF5
+ZXIgd2hpY2ggbWFrZXMKdGhpbmdzIGVhc2llci4gQkZRIGNob3NlIHRoZSBlbGV2YXRvciBsYXll
+ciwgYnV0IGEgc2ltaWxhciBzY2hlZHVsaW5nCmRpc2NpcGxpbmUgY291bGQgYmUgaW1wbGVtZW50
+ZWQgaGlnaGVyIGluIHRoZSBibG9jayBsYXllciB0b28uIFRoZSBIVwpzcGVjaWZpYy1iaXRzIHdl
+IGNhbm5vdCB0YWtlIG91dCB0aGUgZWxldmF0b3IsIGJ1dCB3aGVuIGl0IGNvbWVzIHRvCnRhc2sv
+Y2dyb3VwIGJhc2VkIHNjaGVkdWxpbmcgdGhlcmUgYXJlIG1vcmUgcG9zc2liaWxpdGllcywgd2hp
+Y2gKaW5jbHVkZXMgdGhlIG1pZGRsZS13YXkgYXBwcm9hY2ggd2UgYXJlIGRpc2N1c3Npbmc6IHR3
+byBsZXZlbApzY2hlZHVsaW5nLgoKVGhlIHR3byBsZXZlbCBtb2RlbCBpcyBub3QgYmFkIHBlciBz
+ZSwgd2UganVzdCBuZWVkIHRvIGdldCB0aGUgdHdvCmxldmVscyB0byB3b3JrIGluIHVuaXNvbiBh
+bmQgZm9yIHRoYXQgd2Ugd2lsbCBjZXJ0YWlubHkgbmVlZCB0byBtYWtlCmNoYW5nZXMgdG8gdGhl
+IGV4aXN0aW5nIGVsZXZhdG9ycy4KCj4gPiA+IFdoYXQgZG8geW91IHRoaW5rIGFib3V0IHRoZSBz
+b2x1dGlvbiBhdCBJTyBzY2hlZHVsZXIgbGV2ZWwgKGxpa2UgQkZRKSBvcgo+ID4gPiBtYXkgYmUg
+bGl0dGxlIGFib3ZlIHRoYXQgd2hlcmUgb25lIGNhbiB0cnkgc29tZSBjb2RlIHNoYXJpbmcgYW1v
+bmcgSU8KPiA+ID4gc2NoZWR1bGVycz8gCj4gPiAKPiA+IEkgd291bGQgbGlrZSB0byBzdXBwb3J0
+IGFueSB0eXBlIG9mIGJsb2NrIGRldmljZSBldmVuIGlmIEkvT3MgaXNzdWVkCj4gPiB0byB0aGUg
+dW5kZXJseWluZyBkZXZpY2UgZG9lc24ndCBnbyB0aHJvdWdoIElPIHNjaGVkdWxlci4gRG0taW9i
+YW5kCj4gPiBjYW4gYmUgbWFkZSB1c2Ugb2YgZm9yIHRoZSBkZXZpY2VzIHN1Y2ggYXMgbG9vcCBk
+ZXZpY2UuCj4gCj4gV2hhdCBkbyB5b3UgbWVhbiBieSB0aGF0IElPIGlzc3VlZCB0byB1bmRlcmx5
+aW5nIGRldmljZSBkb2VzIG5vdCBnbwo+IHRocm91Z2ggSU8gc2NoZWR1bGVyPyBsb29wIGRldmlj
+ZSB3aWxsIGJlIGFzc29jaWF0ZWQgd2l0aCBhIGZpbGUgYW5kCj4gSU8gd2lsbCB1bHRpbWF0ZWx5
+IGdvIHRvIHRoZSBJTyBzY2hlZHVsZXIgd2hpY2ggaXMgc2VydmluZyB0aG9zZSBmaWxlCj4gYmxv
+Y2tzPwoKSSB0aGluayB0aGF0IFRzdXJ1dGEtc2FuJ3MgcG9pbnQgaXMgdGhhdCB0aGUgbG9vcCBk
+ZXZpY2UgZHJpdmVyIHVzZXMgaXRzCm93biBtYWtlX3JlcXVlc3RfZm4gd2hpY2ggbWVhbnMgdGhh
+dCBiaW9zIGVudGVyaW5nIGEgbG9vcCBkZXZpY2UgZG8gbm90Cm5lY2Vzc2FyaWx5IGdvIHRocm91
+Z2ggYSBJTyBzY2hlZHVsZXIgYWZ0ZXIgdGhhdC4KCldlIHdpbGwgYWx3YXlzIGZpbmQgb3Vyc2Vs
+dmVzIGluIHRoaXMgc2l0dWF0aW9uIHdoZW4gdHJ5aW5nIHRvIG1hbmFnZQpkZXZpY2VzIHRoYXQg
+cHJvdmlkZSB0aGVpciBvd24gbWFrZV9yZXF1ZXN0X2ZuLCB0aGUgcmVhc29uIGJlaW5nIHRoYXQK
+aXRzIGJlaGF2aW9yIGlzIGRyaXZlciBhbmQgY29uZmlndXJhdGlvbiBkZXBlbmRlbnQ6IGluIHRo
+ZSBsb29wIGRldmljZQpjYXNlIHdoZXRoZXIgd2UgZ28gdGhyb3VnaCBhIElPIHNjaGVkdWxlciBv
+ciBub3QgZGVwZW5kcyBvbiB3aGF0IGhhcwpiZWVuIGF0dGFjaGVkIHRvIGl0OyBpbiBzdGFja2lu
+ZyBkZXZpY2UgY29uZmlndXJhdGlvbnMgdGhlIGVmZmVjdCB0aGF0CnRoZSBJTyBzY2hlZHVsaW5n
+IGF0IG9uZSBvZiB0aGUgZGV2aWNlcyB0aGF0IGNvbnN0aXR1dGUgdGhlIG11bHRpLWRldmljZQp3
+aWxsIGhhdmUgaW4gdGhlIGFnZ3JlZ2F0ZSB0aHJvdWdocHV0IGRlcGVuZHMgb24gdGhlIHRvcG9s
+b2d5LgoKVGhlIG9ubHkgd2F5IEkgY2FuIHRoaW5rIG9mIHRvIGFkZHJlc3MgYWxsIGNhc2VzIGlu
+IGEgc2FuZSB3YXkgaXMKY29udHJvbGxpbmcgdGhlIGVudHJ5IHBvaW50IHRvIHRoZSBibG9jayBs
+YXllciwgd2hpY2ggaXMgcHJlY2lzZWx5IHdoYXQKZG0tYmFuZCBkb2VzLgoKVGhlIHByb2JsZW0g
+d2l0aCBkbS1iYW5kIGlzIHRoYXQgaXQgcmVsaWVzIG9uIHRoZSBkbSBpbmZyYXN0cnVjdHVyZS4g
+SW4KbXkgb3BpbmlvbiwgaWYgd2UgY291bGQgcmVtb3ZlIHRoYXQgZGVwZW5kZW5jeSBpdCB3b3Vs
+ZCBiZSBhIGh1Z2Ugc3RlcAppbiB0aGUgcmlnaHQgZGlyZWN0aW9uLgoKPiBXaGF0J3MgdGhlIHVz
+ZSBjYXNlIHNjZW5hcmlvIG9mIGRvaW5nIElPIGNvbnRyb2wgYXQgbG9vcCBkZXZpY2U/CgpNeSBn
+dWVzcyBpcyB2aXJ0dWFsaXplZCBtYWNoaW5lcyB1c2luZyBpbWFnZXMgZXhwb3J0ZWQgYXMgbG9v
+cCBkZXZpY2VzIMOgCmxhIFhlbidzIGJsa3RhcCAoYmxrdGFwJ3MgaW1wbGVtZW50YXRpb24gaXMg
+cXVpdGUgZGlmZmVyZW50IGZyb20gTGludXgnCmxvb3AgZGV2aWNlLCB0aG91Z2gpLgoKVGhhbmtz
+LAoKRmVybmFuZG8KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
