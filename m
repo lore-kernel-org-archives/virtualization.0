@@ -1,17 +1,22 @@
-From: Nauman Rafique <nauman@google.com>
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
 Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Tue, 25 Nov 2008 14:38:49 -0800
-Message-ID: <e98e18940811251438v245f79aegfdc92bee737af64c__21321.6280717917$1227655306$gmane$org@mail.gmail.com>
-References: <20081113221304.GH7542@redhat.com>
-	<20081120.182053.220301508585579959.ryov@valinux.co.jp>
-	<20081120134701.GB29306@redhat.com>
-	<20081125.113359.623571555980951312.ryov@valinux.co.jp>
-	<20081125162720.GH341@redhat.com>
+Date: Wed, 26 Nov 2008 15:40:18 +0900
+Message-ID: <1227681618.12997.163.camel__48436.5396820523$1227681986$gmane$org@sebastian.kern.oss.ntt.co.jp>
+References: <4922224A.5030502@cn.fujitsu.com>
+	<e98e18940811172101na345b6bh5c73f9e657aac5a7@mail.gmail.com>
+	<20081118120508.GD15268@gandalf.sssup.it>
+	<20081118140751.GA4283@redhat.com>
+	<20081118144139.GE15268@gandalf.sssup.it>
+	<20081118191208.GJ26308@kernel.dk>
+	<e98e18940811181507t6b1473act2efa23df21dab270@mail.gmail.com>
+	<20081119142446.GH26308@kernel.dk>
+	<af41c7c40811191612v5db13ae7n3cfe537beb6a157c@mail.gmail.com>
+	<20081120081640.GE26308@kernel.dk> <20081120134058.GA29306@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081125162720.GH341@redhat.com>
+In-Reply-To: <20081120134058.GA29306@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,71 +27,98 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Vivek Goyal <vgoyal@redhat.com>
-Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, fchecconi@gmail.com, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, righi.andrea@gmail.com
+Cc: menage@google.com, riel@redhat.com, jmoyer@redhat.com, paolo.valente@unimore.it, containers@lists.linux-foundation.org, Jens Axboe <jens.axboe@oracle.com>, Li Zefan <lizf@cn.fujitsu.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, peterz@infradead.org, Fabio Checconi <fchecconi@gmail.com>, Divyesh Shah <dpshah@google.com>, Nauman Rafique <nauman@google.com>, balbir@linux.vnet.ibm.com, ngupta@google.com, akpm@linux-foundation.org, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 25, 2008 at 8:27 AM, Vivek Goyal <vgoyal@redhat.com> wrote:
-> On Tue, Nov 25, 2008 at 11:33:59AM +0900, Ryo Tsuruta wrote:
->> Hi Vivek,
->>
->> > > > Ryo, do you still want to stick to two level scheduling? Given the problem
->> > > > of it breaking down underlying scheduler's assumptions, probably it makes
->> > > > more sense to the IO control at each individual IO scheduler.
->> > >
->> > > I don't want to stick to it. I'm considering implementing dm-ioband's
->> > > algorithm into the block I/O layer experimentally.
->> >
->> > Thanks Ryo. Implementing a control at block layer sounds like another
->> > 2 level scheduling. We will still have the issue of breaking underlying
->> > CFQ and other schedulers. How to plan to resolve that conflict.
->>
->> I think there is no conflict against I/O schedulers.
->> Could you expain to me about the conflict?
->
-> Because we do the buffering at higher level scheduler and mostly release
-> the buffered bios in the FIFO order, it might break the underlying IO
-> schedulers. Generally it is the decision of IO scheduler to determine in
-> what order to release buffered bios.
->
-> For example, If there is one task of io priority 0 in a cgroup and rest of
-> the tasks are of io prio 7. All the tasks belong to best effort class. If
-> tasks of lower priority (7) do lot of IO, then due to buffering there is
-> a chance that IO from lower prio tasks is seen by CFQ first and io from
-> higher prio task is not seen by cfq for quite some time hence that task
-> not getting it fair share with in the cgroup. Similiar situations can
-> arise with RT tasks also.
+On Thu, 2008-11-20 at 08:40 -0500, Vivek Goyal wrote:
+> > The dm approach has some merrits, the major one being that it'll fit
+> > directly into existing setups that use dm and can be controlled with
+> > familiar tools. That is a bonus. The draw back is partially the same -
+> > it'll require dm. So it's still not a fit-all approach, unfortunately.
+> > 
+> > So I'd prefer an approach that doesn't force you to use dm.
+> 
+> Hi Jens,
+> 
+> My patches met the goal of not using the dm for every device one wants
+> to control.
+> 
+> Having said that, few things come to mind.
+> 
+> - In what cases do we need to control the higher level logical devices
+>   like dm. It looks like real contention for resources is at leaf nodes.
+>   Hence any kind of resource management/fair queueing should probably be
+>   done at leaf nodes and not at higher level logical nodes.
 
-Wouldn't even anticipation algorithms break if buffering is done at
-higher level? Our anticipation algorithms are tuned to model task's
-behavior. If IOs get buffer at a higher layer, all bets are off about
-anticipation.
+The problem with stacking devices is that we do not know how the IO
+going through the leaf nodes contributes to the aggregate throughput
+seen by the application/cgroup that generated it, which is what end
+users care about.
 
->
->>
->> > What do you think about the solution at IO scheduler level (like BFQ) or
->> > may be little above that where one can try some code sharing among IO
->> > schedulers?
->>
->> I would like to support any type of block device even if I/Os issued
->> to the underlying device doesn't go through IO scheduler. Dm-ioband
->> can be made use of for the devices such as loop device.
->>
->
-> What do you mean by that IO issued to underlying device does not go
-> through IO scheduler? loop device will be associated with a file and
-> IO will ultimately go to the IO scheduler which is serving those file
-> blocks?
->
-> What's the use case scenario of doing IO control at loop device?
-> Ultimately the resource contention will take place on actual underlying
-> physical device where the file blocks are. Will doing the resource control
-> there not solve the issue for you?
->
-> Thanks
-> Vivek
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+The block device could be a plain old sata device, a loop device, a
+stacking device, a SSD, you name it, but their topologies and the fact
+that some of them do not even use an elevator should be transparent to
+the user.
+
+If you wanted to do resource management at the leaf nodes some kind of
+topology information should be passed down to the elevators controlling
+the underlying devices, which in turn would need to work cooperatively.
+
+>   If that makes sense, then probably we don't need to control dm device
+>   and we don't need such higher level solutions.
+
+For the reasons stated above the two level scheduling approach seems
+cleaner to me.
+
+> - Any kind of 2 level scheduler solution has the potential to break the
+>   underlying IO scheduler. Higher level solution requires buffering of
+>   bios and controlled release of bios to lower layers. This control breaks
+>   the assumptions of lower layer IO scheduler which knows in what order
+>   bios should be dispatched to device to meet the semantics exported by
+>   the IO scheduler.
+
+Please notice that the such an IO controller would only get in the way
+of the elevator in case of contention for the device. What is more,
+depending on the workload it turns out that buffering at higher layers
+in a per-cgroup or per-task basis, like dm-band does, may actually
+increase the aggregate throughput (I think that the dm-band team
+observed this behavior too). The reason seems to be that bios buffered
+in such way tend to be highly correlated and thus very likely to get
+merged when released to the elevator.
+
+> - 2nd level scheduler does not keep track of tasks but task groups lets
+>   every group dispatch fair share. This has got little semantic problem in
+>   the sense that tasks and groups in root cgroup will not be considered at
+>   same level. "root" will be considered one group at same level with all
+>   child group hence competing with them for resources.
+> 
+>   This looks little odd. Considering tasks and groups same level kind of
+>   makes more sense. cpu scheduler also consideres tasks and groups at same
+>   level and deviation from that probably is not very good.
+> 
+>   Considering tasks and groups at same level will matter only if IO
+>   scheduler maintains separate queue for the task, like CFQ. Because
+>   in that case IO scheduler tries to provide fairness among various task
+>   queues. Some schedulers like noop don't have any notion of separate
+>   task queues and fairness among them. In that case probably we don't
+>   have a choice but to assume root group competing with child groups.
+
+If deemed necessary this case could be handled too, but it does not look
+like a show-stopper.
+
+> Keeping above points in mind, probably two level scheduling is not a
+> very good idea. If putting the code in a particular IO scheduler is a
+> concern we can probably explore ways regarding how we can maximize the
+> sharing of cgroup code among IO schedulers.
+
+As discussed above, I still think that the two level scheduling approach
+makes more sense. Regarding the sharing of cgroup code among IO
+schedulers I am all for it. If we consider that elevators should only
+care about maximizing usage of the underlying devices, implementing
+other non-hardware-dependent scheduling disciplines (that prioritize
+according to the task or cgroup that generated the IO, for example) at
+higher layers so that we can reuse code makes a lot of sense.
+
+Thanks,
+
+Fernando
