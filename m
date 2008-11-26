@@ -1,15 +1,12 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: Host<->guest channel interface advice needed
-Date: Wed, 26 Nov 2008 15:20:06 +0200
-Message-ID: <20081126132006.GD3521__1359.47520980171$1227705819$gmane$org@redhat.com>
-References: <20081126123919.GC3521@redhat.com>
-	<20081126130701.GB8921@ioremap.net>
+From: Mark McLoughlin <markmc@redhat.com>
+Subject: [PATCH] virtio_net: large tx MTU support
+Date: Wed, 26 Nov 2008 13:58:11 +0000
+Message-ID: <1227707891.9579.44.camel__17608.5637569942$1227708203$gmane$org@blaa>
+Reply-To: Mark McLoughlin <markmc@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20081126130701.GB8921@ioremap.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,28 +16,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Evgeniy Polyakov <zbr@ioremap.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev <netdev@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 26, 2008 at 04:07:01PM +0300, Evgeniy Polyakov wrote:
-> On Wed, Nov 26, 2008 at 02:39:19PM +0200, Gleb Natapov (gleb@redhat.com) wrote:
-> > The interfaces that are being considered are netlink socket (only datagram
-> > semantics, linux specific), new socket family or character device with
-> > different minor number for each channel. Which one better suits for
-> > the purpose?  Is there other kind of interface to consider? New socket
-> > family looks like a good choice, but it would be nice to hear other
-> > opinions before starting to work on it.
-> 
-> What about X (or whatever else) protocol running over host-guest network
-> device, which are in the kernel already?
-> 
-I should have mentioned that in my original mail. We don't want to
-use IP stack for communication between host and guest for variety of
-reasons. User of the VM may interfere with our communication by mis
-configuring firewall for instance (and he/she may even not be aware
-that an OS running inside a VM). We also want be able to communicate
-with agent inside a guest even when guest's network is not yet configured.
+We don't really have a max tx packet size limit, so allow configuring
+the device with up to 64k tx MTU.
 
---
-			Gleb.
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ drivers/net/virtio_net.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e6b5d6e..71ca29c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -613,6 +613,17 @@ static struct ethtool_ops virtnet_ethtool_ops = {
+ 	.set_tso = ethtool_op_set_tso,
+ };
+ 
++#define MIN_MTU 68
++#define MAX_MTU 65535
++
++static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
++{
++	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
++		return -EINVAL;
++	dev->mtu = new_mtu;
++	return 0;
++}
++
+ static int virtnet_probe(struct virtio_device *vdev)
+ {
+ 	int err;
+@@ -628,6 +639,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	dev->open = virtnet_open;
+ 	dev->stop = virtnet_close;
+ 	dev->hard_start_xmit = start_xmit;
++	dev->change_mtu = virtnet_change_mtu;
+ 	dev->features = NETIF_F_HIGHDMA;
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ 	dev->poll_controller = virtnet_netpoll;
+-- 
+1.6.0.3
