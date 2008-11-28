@@ -1,17 +1,15 @@
-From: Mark McLoughlin <markmc@redhat.com>
-Subject: Re: [PATCH] virtio_net: large tx MTU support
-Date: Fri, 28 Nov 2008 09:29:55 +0000
-Message-ID: <1227864595.3643.13.camel__36330.8700886138$1227864948$gmane$org@blaa>
-References: <1227707891.9579.44.camel@blaa>
-	<200811272300.58151.rusty@rustcorp.com.au>
-	<1227794225.24571.36.camel@blaa>
-	<200811281052.33474.rusty@rustcorp.com.au>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
+Date: Fri, 28 Nov 2008 22:33:30 +0900 (JST)
+Message-ID: <20081128.223330.623571555980968757.ryov__4137.36843406713$1227879375$gmane$org@valinux.co.jp>
+References: <20081125162720.GH341@redhat.com>
+	<20081126.214707.653026525707335397.ryov@valinux.co.jp>
+	<20081126160805.GE27826@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200811281052.33474.rusty@rustcorp.com.au>
+In-Reply-To: <20081126160805.GE27826@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,50 +19,48 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev <netdev@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, virtualization <virtualization@lists.linux-foundation.org>
+To: vgoyal@redhat.com
+Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, fchecconi@gmail.com, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2008-11-28 at 10:52 +1030, Rusty Russell wrote:
-> On Friday 28 November 2008 00:27:05 Mark McLoughlin wrote:
-> > Hi Rusty,
-> >
-> > On Thu, 2008-11-27 at 23:00 +1030, Rusty Russell wrote:
-> > > On Thursday 27 November 2008 00:28:11 Mark McLoughlin wrote:
-> > > > We don't really have a max tx packet size limit, so allow configuring
-> > > > the device with up to 64k tx MTU.
-> > >
-> > > Hi Mark,
-> > >
-> > > Just one comment: maybe we should be conservative and maybe limit to 1500
-> > > if the host doesn't offer any of the GSO or MRG_RXBUF features?
-> >
-> > That was actually what I was going to do until I thought about it a bit
-> > more and discussed it with Herbert.
-> >
-> > The virtio_net MTU only affects the transmit path, so there shouldn't be
-> > any issue with a host that doesn't support those features.
+Hi Vivek,
+
+> > Thanks for your explanation. 
+> > I think that the same thing occurs without the higher level scheduler,
+> > because all the tasks issuing I/Os are blocked while the underlying
+> > device's request queue is full before those I/Os are sent to the I/O
+> > scheduler.
+> > 
 > 
-> Not quite what I meant.
+> True and this issue was pointed out by Divyesh. I think we shall have to
+> fix this by allocating the request descriptors in proportion to their
+> share. One possible way is to make use of elv_may_queue() to determine
+> if we can allocate furhter request descriptors or not. 
 
-Well, you did mention MRG_RXBUF :-)
+At the fist glance, elv_may_queue() seemed to be useful for the purpose
+as you mentioned. But I've noticed there are some problems after I
+investigated the code more.
 
-> A minimal host can reasonably expect ethernet-fitting packets.  If it
-> supports GSO of course it must handle larger ones.
+ 1. Every I/O controller must have its own decision algorithm that
+    which I/O requests should be block or not, whose algorithm will be
+    similar to that of dm-ioband. It would be a hassle to implement it
+    in all the I/O controllers.
 
-I think this is orthogonal to GSO - e.g. a host may support GSO even if
-it can only physically transmit 1500 byte frames.
+ 2. When an I/O is completed, one of the slots in the request queue
+    become available, then one of the processes being blocked get awakened
+    in fifo manner. This won't be the best one in most cases and
+    you have to make this process sleep again and you may want to
+    wake up another one. It's inefficient.
 
-MTU configuration is commonly a trial and error thing, so we're better
-off allowing larger MTU sizes in cases where the host might not support
-it rather than disallowing it in cases where the host can support it.
+ 3. In elv_may_queue(), we can't determine which process issues an I/O.
+    You have no choice but to make any kind of process sleep even if
+    it's a kernel thread such as kswapd or pdflush. What do you think
+    is going to happen after that?
+    It may be possible to modify the code not to block kernel threads,
+    but I don't think you can control delayed-write I/Os.
 
-> Otherwise we should add YA feature bit or even a max-mtu field.
+If you want to solve these problems, I think you are going to implement
+the algorithm there whose code is very similar to that of dm-ioband.
 
-If e.g. we allowed physical device assignment via virtio, then the MTU
-would be limited to the MTU supported by the physical device. In that
-case it might make sense to add a max-mtu field or similar, but IMHO
-it's fine to allow larger MTU sizes in the mean time.
-
-Cheers,
-Mark.
+Thanks,
+Ryo Tsuruta
