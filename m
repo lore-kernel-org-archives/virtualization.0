@@ -1,16 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_net: large tx MTU support
-Date: Fri, 28 Nov 2008 10:52:33 +1030
-Message-ID: <200811281052.33474.rusty__13021.133587654$1227832004$gmane$org@rustcorp.com.au>
-References: <1227707891.9579.44.camel@blaa>
-	<200811272300.58151.rusty@rustcorp.com.au>
-	<1227794225.24571.36.camel@blaa>
+From: Ryo Tsuruta <ryov@valinux.co.jp>
+Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
+Date: Fri, 28 Nov 2008 12:09:54 +0900 (JST)
+Message-ID: <20081128.120954.1024833258536769313.ryov__3209.45236967436$1227842159$gmane$org@valinux.co.jp>
+References: <20081126.214707.653026525707335397.ryov@valinux.co.jp>
+	<20081126160805.GE27826@redhat.com>
+	<1227775382.7443.43.camel@sebastian.kern.oss.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1227794225.24571.36.camel@blaa>
-Content-Disposition: inline
+In-Reply-To: <1227775382.7443.43.camel@sebastian.kern.oss.ntt.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,69 +19,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: netdev <netdev@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, virtualization <virtualization@lists.linux-foundation.org>
+To: fernando@oss.ntt.co.jp
+Cc: menage@google.com, riel@redhat.com, fchecconi@gmail.com, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, akpm@linux-foundation.org, vgoyal@redhat.com, righi.andrea@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 28 November 2008 00:27:05 Mark McLoughlin wrote:
-> Hi Rusty,
->
-> On Thu, 2008-11-27 at 23:00 +1030, Rusty Russell wrote:
-> > On Thursday 27 November 2008 00:28:11 Mark McLoughlin wrote:
-> > > We don't really have a max tx packet size limit, so allow configuring
-> > > the device with up to 64k tx MTU.
-> >
-> > Hi Mark,
-> >
-> > Just one comment: maybe we should be conservative and maybe limit to 1500
-> > if the host doesn't offer any of the GSO or MRG_RXBUF features?
->
-> That was actually what I was going to do until I thought about it a bit
-> more and discussed it with Herbert.
->
-> The virtio_net MTU only affects the transmit path, so there shouldn't be
-> any issue with a host that doesn't support those features.
+Hi,
 
-Not quite what I meant.  A minimal host can reasonably expect ethernet-fitting
-packets.  If it supports GSO of course it must handle larger ones.  Otherwise
-we should add YA feature bit or even a max-mtu field.
+> > > I don't come up with any use case, but I would like to make the
+> > > resource controller more flexible. Actually, a certain block device
+> > > that I'm using does not use the I/O scheduler.
+> > 
+> > Isn't it equivalent to using No-op? If yes, then it should not be an
+> > issue?
+> 
+> No, it is not equivalent. When using devices drivers that provide their
+> own make_request_fn() (check for devices that invoke
+> blk_queue_make_request() at initialization time) bios entering the block
+> layer can go directly to the device driver and from there to the device.
 
-So, I was thinking something like this over your patch (I also removed the
-used-once MAX and MIN definitions; I dislike gratuitous indirection):
+As Fernando said, that device driver invokes blk_queue_make_request(),
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -480,26 +480,24 @@ static struct ethtool_ops virtnet_ethtoo
- 	.set_sg = ethtool_op_set_sg,
- };
- 
--#define MIN_MTU 68
--#define MAX_MTU 65535
--
- static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int max_mtu;
- 
--	/* Only allow a large MTU if we know we have a chance
--	 * of also supporting that MTU on the receive side. */
--	if (vi->mergeable_rx_bufs || vi->big_packets)
--		max_mtu = MAX_MTU;
-+	/* A host which can handle GSO must handle large packets. */
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GSO)
-+	    || virtio_has_feature(vi->vdev, VIRTIO_NET_F_HOST_TSO4)
-+	    || virtio_has_feature(vi->vdev, VIRTIO_NET_F_HOST_TSO6)
-+	    || virtio_has_feature(vi->vdev, VIRTIO_NET_F_HOST_UFO))
-+		max_mtu = 65535;
- 	else
- 		max_mtu = ETH_DATA_LEN;
- 
--	if (new_mtu < MIN_MTU || new_mtu > max_mtu)
-+	if (new_mtu < 68 || new_mtu > max_mtu)
- 		return -EINVAL;
- 
- 	dev->mtu = new_mtu;
--
- 	return 0;
- }
+Thanks,
+Ryo Tsuruta
