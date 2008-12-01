@@ -1,15 +1,14 @@
-From: Ryo Tsuruta <ryov@valinux.co.jp>
-Subject: Re: [patch 0/4] [RFC] Another proportional weight IO controller
-Date: Fri, 28 Nov 2008 22:33:30 +0900 (JST)
-Message-ID: <20081128.223330.623571555980968757.ryov__4137.36843406713$1227879375$gmane$org@valinux.co.jp>
-References: <20081125162720.GH341@redhat.com>
-	<20081126.214707.653026525707335397.ryov@valinux.co.jp>
-	<20081126160805.GE27826@redhat.com>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: Re: [PATCH 0/5] ia64/pv_ops, xen: binary patch optimization
+Date: Mon, 1 Dec 2008 11:37:15 +0900
+Message-ID: <20081201023715.GG27531%yamahata__2096.13246047429$1228099198$gmane$org@valinux.co.jp>
+References: <1227618235-3890-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081126160805.GE27826@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1227618235-3890-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,48 +18,67 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vgoyal@redhat.com
-Cc: menage@google.com, riel@redhat.com, akpm@linux-foundation.org, fchecconi@gmail.com, peterz@infradead.org, paolo.valente@unimore.it, containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, taka@valinux.co.jp, jmoyer@redhat.com, jens.axboe@oracle.com, balbir@linux.vnet.ibm.com, ngupta@google.com, fernando@oss.ntt.co.jp, righi.andrea@gmail.com
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Vivek,
+Hi Tony.
 
-> > Thanks for your explanation. 
-> > I think that the same thing occurs without the higher level scheduler,
-> > because all the tasks issuing I/Os are blocked while the underlying
-> > device's request queue is full before those I/Os are sent to the I/O
-> > scheduler.
-> > 
+I'd like to merge those patches and the other xen domU optimization
+patches at the next merge window. i.e. for 2.6.29.
+What do you think?
+I think that they are just enhancements of the already merged patches
+or ia64 porting from x86 paravirt techniques and that their
+quality is enough for merge. Although people want some twist,
+I believe they would be minor.
+
+thanks,
+
+On Tue, Nov 25, 2008 at 10:03:50PM +0900, Isaku Yamahata wrote:
+> This patch set is for binary patch optimization for paravirt_ops.
+> The binary patch optimization is important on native case because
+> the paravirt_ops overhead can be reduced by converting indirect 
+> call into in-place execution or direct call.
 > 
-> True and this issue was pointed out by Divyesh. I think we shall have to
-> fix this by allocating the request descriptors in proportion to their
-> share. One possible way is to make use of elv_may_queue() to determine
-> if we can allocate furhter request descriptors or not. 
+> 
+> The first patch imports helper functions which themselves doesn't interesting
+> things.
+> The second patch replaces the indirect function calls with a special
+> call written in gcc extended inline asm and introduces native methods.
+> The third patch introduces binary patch for kernel modules.
+> The forth patch suppress false positive warnings which were caused by
+> the previous patches.
+> The last patch implements xen methods.
+> 
+> 
+> For convenience the working full source is available from
+> http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
+> branch: ia64-pv-ops-2008nov25-xen-ia64-optimized-domu-binary-patch
+> 
+> For the status of this patch series
+> http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
+> 
+> thanks,
+> 
+> Diffstat:
+>  arch/ia64/include/asm/intrinsics.h      |    6 +-
+>  arch/ia64/include/asm/module.h          |    6 +
+>  arch/ia64/include/asm/paravirt.h        |    8 +
+>  arch/ia64/include/asm/paravirt_patch.h  |  143 +++++++
+>  arch/ia64/include/asm/paravirt_privop.h |  347 ++++++++++++++++-
+>  arch/ia64/include/asm/xen/privop.h      |    4 +
+>  arch/ia64/kernel/Makefile               |    3 +-
+>  arch/ia64/kernel/efi.c                  |    1 +
+>  arch/ia64/kernel/module.c               |   32 ++
+>  arch/ia64/kernel/paravirt.c             |  520 ++++++++++++++++++++++++-
+>  arch/ia64/kernel/paravirt_patch.c       |  509 +++++++++++++++++++++++
+>  arch/ia64/kernel/paravirtentry.S        |  101 ++++-
+>  arch/ia64/kernel/setup.c                |    1 +
+>  arch/ia64/kernel/vmlinux.lds.S          |   24 ++
+>  arch/ia64/kvm/vtlb.c                    |    2 +
+>  arch/ia64/xen/hypercall.S               |    2 +
+>  arch/ia64/xen/xen_pv_ops.c              |  667 +++++++++++++++++++++++++++++++
+>  17 files changed, 2351 insertions(+), 25 deletions(-)
 
-At the fist glance, elv_may_queue() seemed to be useful for the purpose
-as you mentioned. But I've noticed there are some problems after I
-investigated the code more.
-
- 1. Every I/O controller must have its own decision algorithm that
-    which I/O requests should be block or not, whose algorithm will be
-    similar to that of dm-ioband. It would be a hassle to implement it
-    in all the I/O controllers.
-
- 2. When an I/O is completed, one of the slots in the request queue
-    become available, then one of the processes being blocked get awakened
-    in fifo manner. This won't be the best one in most cases and
-    you have to make this process sleep again and you may want to
-    wake up another one. It's inefficient.
-
- 3. In elv_may_queue(), we can't determine which process issues an I/O.
-    You have no choice but to make any kind of process sleep even if
-    it's a kernel thread such as kswapd or pdflush. What do you think
-    is going to happen after that?
-    It may be possible to modify the code not to block kernel threads,
-    but I don't think you can control delayed-write I/Os.
-
-If you want to solve these problems, I think you are going to implement
-the algorithm there whose code is very similar to that of dm-ioband.
-
-Thanks,
-Ryo Tsuruta
+-- 
+yamahata
