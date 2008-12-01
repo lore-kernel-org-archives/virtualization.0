@@ -1,16 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_net: large tx MTU support
-Date: Mon, 1 Dec 2008 14:32:10 +1030
-Message-ID: <200812011432.10486.rusty__8533.89081680707$1228104285$gmane$org@rustcorp.com.au>
-References: <1227707891.9579.44.camel@blaa>
-	<200811281052.33474.rusty@rustcorp.com.au>
-	<1227864595.3643.13.camel@blaa>
+From: Yu Zhao <yu.zhao@intel.com>
+Subject: Re: [SR-IOV driver example 0/3] introduction
+Date: Tue, 2 Dec 2008 00:39:15 +0800
+Message-ID: <20081201163914.GA1464__34217.6528102302$1228135060$gmane$org@yzhao12-linux.sh.intel.com>
+References: <20081121183605.GA7810@yzhao12-linux.sh.intel.com>
+	<20081126140303.GA13641@yzhao12-linux.sh.intel.com>
+	<492DAE38.3050809@garzik.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1227864595.3643.13.camel@blaa>
 Content-Disposition: inline
+In-Reply-To: <492DAE38.3050809@garzik.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,65 +20,36 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: netdev <netdev@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, virtualization <virtualization@lists.linux-foundation.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "matthew@wil.cx" <matthew@wil.cx>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "greg@kroah.com" <greg@kroah.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 28 November 2008 19:59:55 Mark McLoughlin wrote:
-> On Fri, 2008-11-28 at 10:52 +1030, Rusty Russell wrote:
-> > On Friday 28 November 2008 00:27:05 Mark McLoughlin wrote:
-> > > Hi Rusty,
-> > >
-> > > On Thu, 2008-11-27 at 23:00 +1030, Rusty Russell wrote:
-> > > > On Thursday 27 November 2008 00:28:11 Mark McLoughlin wrote:
-> > > > > We don't really have a max tx packet size limit, so allow
-> > > > > configuring the device with up to 64k tx MTU.
-> > > >
-> > > > Hi Mark,
-> > > >
-> > > > Just one comment: maybe we should be conservative and maybe limit to
-> > > > 1500 if the host doesn't offer any of the GSO or MRG_RXBUF features?
-> > >
-> > > That was actually what I was going to do until I thought about it a bit
-> > > more and discussed it with Herbert.
-> > >
-> > > The virtio_net MTU only affects the transmit path, so there shouldn't
-> > > be any issue with a host that doesn't support those features.
-> >
-> > Not quite what I meant.
->
-> Well, you did mention MRG_RXBUF :-)
+On Thu, Nov 27, 2008 at 04:14:48AM +0800, Jeff Garzik wrote:
+> Yu Zhao wrote:
+> > SR-IOV drivers of Intel 82576 NIC are available. There are two parts
+> > of the drivers: Physical Function driver and Virtual Function driver.
+> > The PF driver is based on the IGB driver and is used to control PF to
+> > allocate hardware specific resources and interface with the SR-IOV core.
+> > The VF driver is a new NIC driver that is same as the traditional PCI
+> > device driver. It works in both the host and the guest (Xen and KVM)
+> > environment.
+> > 
+> > These two drivers are testing versions and they are *only* intended to
+> > show how to use SR-IOV API.
+> > 
+> > Intel 82576 NIC specification can be found at:
+> > http://download.intel.com/design/network/datashts/82576_Datasheet_v2p1.pdf
+> > 
+> > [SR-IOV driver example 1/3] PF driver: allocate hardware specific resource
+> > [SR-IOV driver example 2/3] PF driver: integrate with SR-IOV core
+> > [SR-IOV driver example 3/3] VF driver tar ball
+> 
+> Please copy netdev@vger.kernel.org on all network-related patches.  This 
+> is where the network developers live, and all patches on this list are 
+> automatically archived for review and handling at 
+> http://patchwork.ozlabs.org/project/netdev/list/
 
-Yeah, but you should know by now not to listen to me!
+Will do.
 
-> > A minimal host can reasonably expect ethernet-fitting packets.  If it
-> > supports GSO of course it must handle larger ones.
->
-> I think this is orthogonal to GSO - e.g. a host may support GSO even if
-> it can only physically transmit 1500 byte frames.
-
-Sure, but we know at least it can take large packets in some respect.
-
-> MTU configuration is commonly a trial and error thing, so we're better
-> off allowing larger MTU sizes in cases where the host might not support
-> it rather than disallowing it in cases where the host can support it.
-
-We're changing the driver behaviour; we *should* add a feature bit.  The only 
-counter-argument to this is that all the existing hosts we know of allow the 
-behaviour we're specifying.
-
-(Grovelling through an old qemu here it seems to be true, and old tun/tap 
-would take anything).
-
-> If e.g. we allowed physical device assignment via virtio, then the MTU
-> would be limited to the MTU supported by the physical device. In that
-> case it might make sense to add a max-mtu field or similar, but IMHO
-> it's fine to allow larger MTU sizes in the mean time.
-
-OK, I'm swayed.  Only because the user has to make a conscious decision to up 
-the MTU; and if they choose wrong, networking won't work.
-
-I've applied your original patch.
-
-Thanks!
-Rusty.
+Thanks,
+Yu
