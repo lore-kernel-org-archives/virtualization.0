@@ -1,15 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 2/6] virtio: add register_virtio_root_device()
-Date: Thu, 11 Dec 2008 13:59:24 +0100
-Message-ID: <20081211135924.4394cc56__727.372922892933$1229000678$gmane$org@gondolin>
-References: <1228931096.5384.63.camel@blaa>
-	<1228931139-12956-1-git-send-email-markmc@redhat.com>
-	<1228931139-12956-2-git-send-email-markmc@redhat.com>
+From: H L <swdevyid@yahoo.com>
+Subject: Re: [PATCH 16/16 v6] PCI: document the new PCI boot parameters
+Date: Thu, 11 Dec 2008 07:39:20 -0800 (PST)
+Message-ID: <772646.16040.qm__21618.0548457944$1229010170$gmane$org@web45116.mail.sp1.yahoo.com>
+References: <20081211043340.GA9783@colo.lackof.org>
+Reply-To: swdevyid@yahoo.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1228931139-12956-2-git-send-email-markmc@redhat.com>
+In-Reply-To: <20081211043340.GA9783@colo.lackof.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,154 +18,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Mark McLoughlin <markmc@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Yu Zhao <yu.zhao@intel.com>, Grant Grundler <grundler@parisc-linux.org>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "achiang@hp.com" <achiang@hp.com>, Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 10 Dec 2008 17:45:35 +0000,
-Mark McLoughlin <markmc@redhat.com> wrote:
+--- On Wed, 12/10/08, Grant Grundler <grundler@parisc-linux.org> wrote:
 
-> Add a function to allocate a root device object to group the
-> devices from a given virtio implementation.
+> Date: Wednesday, December 10, 2008, 10:33 PM
+> On Thu, Dec 11, 2008 at 09:43:13AM +0800, Yu Zhao wrote:
+> ...
+> > I believe this is the only problem that preclude us
+> having the run-time
+> > resource rebalance. And I'm not sure how much
+> effort we can fix it. Any
+> > comments?
 > 
-> Also add a 'module' sysfs symlink to allow so that userspace
-> can generically determine which virtio implementation a
-> device is associated with. This will be used by Fedora
-> mkinitrd to generically determine e.g. that virtio_pci is
-> needed to mount a given root filesystem.
-
-Nothing about this is really virtio-specific (just as
-s390_root_dev_register() is not really s390-specific), and a 'module'
-symlink doesn't really hurt in a generic implementation, even if it is
-unneeded. I'm voting to put this in some generic, always built-in code
-(or have the users select it) so we could also use it from s390.
-
+> Figure out the right sequence for driver resume so the
+> probe function
+> can call resume as well?
 > 
-> Signed-off-by: Mark McLoughlin <markmc@redhat.com>
-> ---
->  drivers/virtio/virtio.c |   71 +++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/virtio.h  |   10 ++++++
->  2 files changed, 81 insertions(+), 0 deletions(-)
+> Document the change and then start modifying drivers
+> one-by-one.
+> API changes are alot of work.
 > 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 018c070..61e6597 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -1,6 +1,7 @@
->  #include <linux/virtio.h>
->  #include <linux/spinlock.h>
->  #include <linux/virtio_config.h>
-> +#include <linux/err.h>
-> 
->  /* Unique numbering for virtio devices. */
->  static unsigned int dev_index;
-> @@ -200,6 +201,76 @@ void unregister_virtio_device(struct virtio_device *dev)
->  }
->  EXPORT_SYMBOL_GPL(unregister_virtio_device);
-> 
-> +/* A root device for virtio devices from a given backend.  This makes them
-> + * appear as /sys/devices/{name}/0,1,2 not /sys/devices/0,1,2. It also allows
-> + * us to have a /sys/devices/{name}/module symlink to the backend module. */
-> +struct virtio_root_device
-> +{
-> +	struct device dev;
-> +	struct module *owner;
-> +};
-> +
-> +static struct virtio_root_device *to_virtio_root(struct device *dev)
-> +{
-> +        return container_of(dev, struct virtio_root_device, dev);
-> +}
-> +
-> +static void release_virtio_root_device(struct device *dev)
-> +{
-> +	struct virtio_root_device *root = to_virtio_root(dev);
-> +	if (root->owner)
-> +		sysfs_remove_link(&root->dev.kobj, "module");
-> +	kfree(root);
-> +}
+> grant
+> --
 
-Can this code be a module? If yes, move the release callback to a
-build-in as there are races with release-functions in modules.
 
-> +
-> +struct device *__register_virtio_root_device(const char *name,
-> +					     struct module *owner)
-> +{
-> +	struct virtio_root_device *root;
-> +	int err = -ENOMEM;
-> +
-> +	root = kzalloc(sizeof(struct virtio_root_device), GFP_KERNEL);
-> +	if (!root)
-> +		goto out;
-> +
-> +	err = dev_set_name(&root->dev, name);
-> +	if (err)
-> +		goto free_root;
-> +
-> +	err = device_register(&root->dev);
-> +	if (err)
-> +		goto free_root;
-> +
-> +	root->dev.parent  = NULL;
-> +	root->dev.release = release_virtio_root_device;
+I've been lurking awaiting to see such a discussion.  Alerting the PCI drivers that their resources have been changed from underneath them by extending the suspend/resume model, or perhaps (heresy?) adding a new callback entry point specifically for instructing PCI drivers to re-read their BARs, etc. would be a step in the right direction to enable this whole re-balancing work; well, granted root/paging devs bound to PCI devs could be tricky.  It seems entirely natural (to me) that Microsoft would shudder at the amount of work and verification of all drivers to do this, but the Linux community's attitude seems to embrace sweeping changes ;-).
 
-You must set ->release before calling device_register(), and setting
-the parent is unneeded.
-
-> +
-> +	if (owner) {
-> +		struct module_kobject *mk = &owner->mkobj;
-> +
-> +		err = sysfs_create_link(&root->dev.kobj, &mk->kobj, "module");
-> +                if (err) {
-> +			device_unregister(&root->dev);
-> +			return ERR_PTR(err);
-> +		}
-> +
-> +		root->owner = owner;
-> +	}
-> +
-> +	return &root->dev;
-> +
-> +free_root:
-> +	kfree(root);
-
-You need to call device_put() if you called device_register().
-
-> +out:
-> +	return ERR_PTR(err);
-> +}
-> +EXPORT_SYMBOL_GPL(__register_virtio_root_device);
-> +
-> +void unregister_virtio_root_device(struct device *root)
-> +{
-> +	device_unregister(root);
-> +}
-> +EXPORT_SYMBOL_GPL(unregister_virtio_root_device);
-> +
->  static int virtio_init(void)
->  {
->  	if (bus_register(&virtio_bus) != 0)
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index 06005fa..66e6c67 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -93,6 +93,16 @@ struct virtio_device
->  int register_virtio_device(struct virtio_device *dev);
->  void unregister_virtio_device(struct virtio_device *dev);
-> 
-> +/* A root device is a dummy device used to group virtio devices from each
-> + * implementation. */
-> +struct device *__register_virtio_root_device(const char *name,
-> +					     struct module *owner);
-> +static inline struct device *register_virtio_root_device(const char *name)
-> +{
-> +	return __register_virtio_root_device(name, THIS_MODULE);
-> +}
-> +void unregister_virtio_root_device(struct device *root);
-> +
->  /**
->   * virtio_driver - operations for a virtio I/O driver
->   * @driver: underlying device driver (populate name and owner).
-> -- 
-> 1.5.4.3
+--
+LH
