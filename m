@@ -1,22 +1,18 @@
-From: "Kay Sievers" <kay.sievers@vrfy.org>
-Subject: Re: [PATCH 0/6] Clean up virtio device object handling [was Re:
-	[PATCH] virtio: make PCI devices take a virtio_pci module ref]
-Date: Wed, 10 Dec 2008 19:07:28 +0100
-Message-ID: <ac3eb2510812101007h4e244bf3p44e6eee47193e556__31609.6936040141$1228932618$gmane$org@mail.gmail.com>
-References: <1228394671.3732.77.camel@blaa> <1228489626.3858.37.camel@blaa>
-	<200812071852.08962.rusty@rustcorp.com.au>
-	<1228741409.3609.32.camel@blaa> <493D334D.6050004@us.ibm.com>
-	<1228840890.26198.25.camel@blaa>
-	<ac3eb2510812091016u944d6c9je6ac8470127e5115@mail.gmail.com>
-	<1228902558.5384.19.camel@blaa>
-	<ac3eb2510812100402v58f792e3k6ebd6607495a13bf@mail.gmail.com>
-	<1228931096.5384.63.camel@blaa>
+From: Yu Zhao <yu.zhao@intel.com>
+Subject: Re: [PATCH 16/16 v6] PCI: document the new PCI boot parameters
+Date: Thu, 11 Dec 2008 09:43:13 +0800
+Message-ID: <20081211014313.GA4947__79.5416454367981$1228959985$gmane$org@yzhao12-linux.sh.intel.com>
+References: <20081022083809.GA3757@yzhao12-linux.sh.intel.com>
+	<20081022084531.GP3773@yzhao12-linux.sh.intel.com>
+	<20081106043235.GA30292@kroah.com> <4913AA03.5060807@intel.com>
+	<20081107025032.GA12824@kroah.com> <4913B8A5.5010806@intel.com>
+	<20081107041721.GB15439@parisc-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1228931096.5384.63.camel@blaa>
 Content-Disposition: inline
+In-Reply-To: <20081107041721.GB15439@parisc-linux.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,140 +22,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Anthony Liguori <aliguori@us.ibm.com>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 10, 2008 at 18:44, Mark McLoughlin <markmc@redhat.com> wrote:
-> (Moved from kvm@vger to virtualization@linux-foundation, changed
-> subject, cleaned up cc list)
-> On Wed, 2008-12-10 at 13:02 +0100, Kay Sievers wrote:
->> On Wed, Dec 10, 2008 at 10:49, Mark McLoughlin <markmc@redhat.com> wrote:
->> > On Tue, 2008-12-09 at 19:16 +0100, Kay Sievers wrote:
->> >> On Tue, Dec 9, 2008 at 17:41, Mark McLoughlin <markmc@redhat.com> wrote:
->> >> > On Mon, 2008-12-08 at 08:46 -0600, Anthony Liguori wrote:
->> >> >> Mark McLoughlin wrote:
->> >> >> > On Sun, 2008-12-07 at 18:52 +1030, Rusty Russell wrote:
->> >> >> >> On Saturday 06 December 2008 01:37:06 Mark McLoughlin wrote:
->> >> >> >>
->> >> >> >>> Another example of a lack of an explicit dependency causing problems is
->> >> >> >>> Fedora's mkinitrd having this hack:
->> >> >> >>>
->> >> >> >>>     if echo $PWD | grep -q /virtio-pci/ ; then
->> >> >> >>>         findmodule virtio_pci
->> >> >> >>>     fi
->> >> >> >>>
->> >> >> >>> which basically says "if this is a virtio device, don't forget to
->> >> >> >>> include virtio_pci in the initrd too!". Now, mkinitrd is full of hacks,
->> >> >> >>> but this is a particularly unusual one.
->> >> >> >>>
->> >> >> >> Um, I don't know what this does, sorry.
->> >> >> >>
->> >> >> >> I have no idea how Fedora chooses what to put in an initrd; I can't think
->> >> >> >> of a sensible way of deciding what goes in and what doesn't other than
->> >> >> >> lists and heuristics.
->> >> >> >>
->> >> >> >
->> >> >> > Fedora's mkinitrd creates an initrd suitable to boot the machine you run
->> >> >> > mkinitrd on, rather than creating an initrd suitable to boot any
->> >> >> > machine.
->> >> >> >
->> >> >> > So, it goes "ah, / is mounted from /dev/vda, we need to include
->> >> >> > virtio_blk and it's dependencies". It does that in a generic way that
->> >> >> > works well for most setups:
->> >> >> >
->> >> >> >   1) Find the device name (e.g. vda) below /sys/block
->> >> >> >
->> >> >> >   2) Follow the 'device' link to e.g. /sys/devices/virtio-pci/virtio1
->> >> >> >
->> >> >> >   3) Find the module need for this through either 'modalias' or the
->> >> >> >      'driver/module' symlink
->> >> >> >
->> >> >> >   4) Use modprobe to list any dependencies of that module
->> >> >> >
->> >> >> > Clearly, virtio-pci won't be pulled in by any of this so we've added a
->> >> >> > hack to say "oh, it's a virtio device, let's include virtio_pci just in
->> >> >> > case".
->> >> >> >
->> >> >> > It's not even the case that mkinitrd needs to know how to include the
->> >> >> > the module for the bus, because in our case that's virtio.ko ... we've
->> >> >> > pretty effectively hidden the the bus *implementation* from userspace.
->> >> >> >
->> >> >> > I don't think this is worth wasting too much time fixing, that's why I'm
->> >> >> > thinking we should just make virtio_pci built-in by default with
->> >> >> > CONFIG_KVM_GUEST.
->> >> >> >
->> >> >>
->> >> >> What if we have multiple virtio transports?
->> >> >
->> >> > I don't think that's so much an an issue (just build in any transport
->> >> > supported by KVM), but rather that you might build a non-pv_ops kernel
->> >> > to run on QEMU which would benefit from using virtio drivers ...
->> >> >
->> >> >>   Is there a way that we can
->> >> >> expose the relationship with virtio-blk and virtio-pci in sysfs?  We
->> >> >> have a struct device for the PCI device, it's just a matter of making
->> >> >> the link visible.
->> >> >
->> >> > It feels a bit like busy work to generalise this since only virtio_pci
->> >> > can be built as a module, but here's a patch.
->> >> >
->> >> > The mkinitrd hack turns into:
->> >> >
->> >> >        # Handle finding virtio bus implementations
->> >> >        if [ -L ./virtio_module ] ; then
->> >> >            findmodule $(basename $(readlink ./virtio_module))
->> >> >        else if echo $PWD | grep -q /virtio-pci/ ; then
->> >> >            findmodule virtio_pci
->> >> >        fi; fi
->> >> >
->> >> > [PATCH] virtio: add a 'virtio_module' sysfs symlink
->> >>
->> >> Doesn't the device have a "driver" link already? If yes, the driver it
->> >> points to should have a "module" link.
->> >
->> > The virtio bus is an abstraction that has several different backend
->> > implementations - currently virtio-pci, lguest and kvm-s390.
->> >
->> > So yes, the driver/module link gives us the device driver, but the
->> > virtio_module link is to the virtio bus driver (aka implementation,
->> > transport, backend, ...):
->> >
->> >  $> basename $(readlink virtio_module)
->> >  virtio_pci
->> >  $> basename $(readlink driver/module)
->> >  virtio_net
->>
->> I see. But why not just call it "module", like we do in all other
->> places, when it points to /sys/module/.
->>
->> To find dependent modules, you would walk up the chain of parents, and
->> include everything that is found by looking for "driver/module" and
->> "module" links?
->>
->> Wouldn't that make it completely generic, without any virtio specific hacks?
->
-> Yeah, that sounds much better - a minor detail is that it'd be better to
-> hang the symlink off each virtio implementation's root object rather
-> than off each device.
+On Fri, Nov 07, 2008 at 12:17:22PM +0800, Matthew Wilcox wrote:
+> On Fri, Nov 07, 2008 at 11:40:21AM +0800, Zhao, Yu wrote:
+> > Greg KH wrote:
+> > >We've thought about this in the past, and even Microsoft said it was
+> > >going to happen for Vista, but they realized in the end, like we did a
+> > >few years previously, that it would require full support of all PCI
+> > >drivers as well (if you rebalance stuff that is already bound to a
+> > >driver.)  So they dropped it.
+> > >
+> > >When would you want to do this kind of rebalancing?  Before any PCI
+> > >driver is bound to any devices?  Or afterwards?
+> > 
+> > I guess if we want the rebalance dynamic, then we should have it full -- 
+> > the rebalance would be functional even after the driver is loaded.
+> > 
+> > But in most cases, there will be problem when we unload driver from a 
+> > hard disk controller, etc. We can mount root on a ramdisk and do the 
+> > rebalance there, but it's complicated for a real user.
+> > 
+> > So looks like doing rebalancing before any driver is bound to any device 
+> > is also a nice idea, if user can get a shell to do rebalance before 
+> > built-in PCI driver grabs device.
+> 
+> Can we use the suspend/resume code to do this?  Some drivers (sym2 for
+> one) would definitely need to rerun some of their init code to cope with
+> a BAR address changing.
 
-Sounds good, if the devices below can never be from different modules
-at the same time.
+Yes, that is what I was thinking. But after some grep on the PCI device
+drivers, I feel frustrated because all those drivers only do 'ioremap'
+once at the 'probe' stage.
 
-> To that end, I've hacked up register_virtio_root_device() which fixes
-> the fact that we statically allocate root objects and gives us a sane
-> place to add this generic symlink.
+I believe this is the only problem that preclude us having the run-time
+resource rebalance. And I'm not sure how much effort we can fix it. Any
+comments?
 
-Fine.
 
-> It might make sense to add this to the core, though - e.g.
-> device_register_root() - and that would also allow us use the same
-> approach as module_add_driver() to add the module symlink for built-in
-> modules.
-
-Sure, I see no problem moving that over when things work out as expected.
-
-Looks all fine from a short look over it. Also thanks for converting
-to allocated struct device, and the bus_id conversion.
-
-Kay
+Thanks,
+Yu
