@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 01/15] ia64: remove warnings.
-Date: Fri, 12 Dec 2008 15:38:50 +0900
-Message-ID: <1229063944-27462-2-git-send-email-yamahata__4003.45917228169$1229064039$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/15] __initdata and const cannot be always a happy pair,
+	as gcc-4.3.3 gives
+Date: Fri, 12 Dec 2008 15:38:51 +0900
+Message-ID: <1229063944-27462-3-git-send-email-yamahata__48763.9755047441$1229064278$gmane$org@valinux.co.jp>
 References: <1229063944-27462-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,77 +19,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: Takashi Iwai <tiwai@suse.de>, yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-this patch removes the following warnings.
+  arch/ia64/xen/xen_pv_ops.c:156: error: xen_init_ops causes a section type conflict
+  arch/ia64/xen/xen_pv_ops.c:340: error: xen_iosapic_ops causes a section type conflict
 
->   CC      arch/ia64/kernel/patch.o
-> /linux-2.6/arch/ia64/kernel/patch.c: In function 'ia64_patch_vtop':
-> /linux-2.6/arch/ia64/kernel/patch.c:112: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
-> /linux-2.6/arch/ia64/kernel/patch.c: In function 'ia64_patch_rse':
-> /linux-2.6/arch/ia64/kernel/patch.c:135: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
-> /linux-2.6/arch/ia64/kernel/patch.c: In function 'ia64_patch_mckinley_e9':
-> /linux-2.6/arch/ia64/kernel/patch.c:166: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
-> /linux-2.6/arch/ia64/kernel/patch.c:166: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
-> /linux-2.6/arch/ia64/kernel/patch.c: In function 'patch_fsyscall_table':
-> /linux-2.6/arch/ia64/kernel/patch.c:202: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
-> /linux-2.6/arch/ia64/kernel/patch.c: In function 'patch_brl_fsys_bubble_down':
-> /linux-2.6/arch/ia64/kernel/patch.c:220: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
+This patch simply removes const from data with __initdata.
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 ---
- arch/ia64/kernel/patch.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ arch/ia64/xen/xen_pv_ops.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/ia64/kernel/patch.c b/arch/ia64/kernel/patch.c
-index b83b2c5..5660069 100644
---- a/arch/ia64/kernel/patch.c
-+++ b/arch/ia64/kernel/patch.c
-@@ -108,7 +108,7 @@ ia64_patch_vtop (unsigned long start, unsigned long end)
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 04cd123..5d491d9 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -153,7 +153,7 @@ xen_post_smp_prepare_boot_cpu(void)
+ 	xen_setup_vcpu_info_placement();
+ }
  
- 		/* replace virtual address with corresponding physical address: */
- 		ia64_patch_imm64(ip, ia64_tpa(get_imm64(ip)));
--		ia64_fc((void *) ip);
-+		ia64_fc(ip);
- 		++offp;
- 	}
- 	ia64_sync_i();
-@@ -131,7 +131,7 @@ ia64_patch_rse (unsigned long start, unsigned long end)
+-static const struct pv_init_ops xen_init_ops __initdata = {
++static struct pv_init_ops xen_init_ops __initdata = {
+ 	.banner = xen_banner,
  
- 		b = (u64 *)(ip & -16);
- 		b[1] &= ~0xf800000L;
--		ia64_fc((void *) ip);
-+		ia64_fc(ip);
- 		++offp;
- 	}
- 	ia64_sync_i();
-@@ -162,7 +162,7 @@ ia64_patch_mckinley_e9 (unsigned long start, unsigned long end)
- 		wp[1] = 0x0084006880000200UL;
- 		wp[2] = 0x0000000100000000UL; /* nop.m 0; nop.i 0; nop.i 0 */
- 		wp[3] = 0x0004000000000200UL;
--		ia64_fc(wp); ia64_fc(wp + 2);
-+		ia64_fc((unsigned long)wp); ia64_fc((unsigned long)(wp + 2));
- 		++offp;
- 	}
- 	ia64_sync_i();
-@@ -179,7 +179,7 @@ patch_fsyscall_table (unsigned long start, unsigned long end)
- 	while (offp < (s32 *) end) {
- 		ip = (u64) ia64_imva((char *) offp + *offp);
- 		ia64_patch_imm64(ip, (u64) fsyscall_table);
--		ia64_fc((void *) ip);
-+		ia64_fc(ip);
- 		++offp;
- 	}
- 	ia64_sync_i();
-@@ -197,7 +197,7 @@ patch_brl_fsys_bubble_down (unsigned long start, unsigned long end)
- 		ip = (u64) offp + *offp;
- 		ia64_patch_imm60((u64) ia64_imva((void *) ip),
- 				 (u64) (fsys_bubble_down - (ip & -16)) / 16);
--		ia64_fc((void *) ip);
-+		ia64_fc(ip);
- 		++offp;
- 	}
- 	ia64_sync_i();
+ 	.reserve_memory = xen_reserve_memory,
+@@ -260,7 +260,7 @@ xen_intrin_local_irq_restore(unsigned long mask)
+ 		xen_rsm_i();
+ }
+ 
+-static const struct pv_cpu_ops xen_cpu_ops __initdata = {
++static struct pv_cpu_ops xen_cpu_ops __initdata = {
+ 	.fc		= xen_fc,
+ 	.thash		= xen_thash,
+ 	.get_cpuid	= xen_get_cpuid,
+@@ -337,7 +337,7 @@ xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
+ 	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
+ }
+ 
+-static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
++static struct pv_iosapic_ops xen_iosapic_ops __initdata = {
+ 	.pcat_compat_init = xen_pcat_compat_init,
+ 	.__get_irq_chip = xen_iosapic_get_irq_chip,
+ 
 -- 
 1.6.0.2
