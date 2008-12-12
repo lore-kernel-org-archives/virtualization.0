@@ -1,8 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 02/15] __initdata and const cannot be always a happy pair,
-	as gcc-4.3.3 gives
-Date: Fri, 12 Dec 2008 15:38:51 +0900
-Message-ID: <1229063944-27462-3-git-send-email-yamahata__48763.9755047441$1229064278$gmane$org@valinux.co.jp>
+Subject: [PATCH 04/15] ia64/pv_ops/xen: preliminary to paravirtualizing fsys.S
+	for xen.
+Date: Fri, 12 Dec 2008 15:38:53 +0900
+Message-ID: <1229063944-27462-5-git-send-email-yamahata__3830.34213814444$1229064282$gmane$org@valinux.co.jp>
 References: <1229063944-27462-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,49 +19,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: Takashi Iwai <tiwai@suse.de>, yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  arch/ia64/xen/xen_pv_ops.c:156: error: xen_init_ops causes a section type conflict
-  arch/ia64/xen/xen_pv_ops.c:340: error: xen_iosapic_ops causes a section type conflict
+This is a preliminary patch to paravirtualizing fsys.S.
+compile fsys.S twice one for native and one for xen, and switch
+them at run tine.
+Later fsys.S will be paravirtualized.
 
-This patch simply removes const from data with __initdata.
-
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/xen/xen_pv_ops.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ arch/ia64/include/asm/xen/inst.h |    3 +++
+ arch/ia64/xen/Makefile           |    2 +-
+ arch/ia64/xen/xen_pv_ops.c       |   14 ++++++++++++++
+ 3 files changed, 18 insertions(+), 1 deletions(-)
 
+diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
+index 19c2ae1..e8e01b2 100644
+--- a/arch/ia64/include/asm/xen/inst.h
++++ b/arch/ia64/include/asm/xen/inst.h
+@@ -33,6 +33,9 @@
+ #define __paravirt_work_processed_syscall_target \
+ 						xen_work_processed_syscall
+ 
++#define paravirt_fsyscall_table			xen_fsyscall_table
++#define paravirt_fsys_bubble_down		xen_fsys_bubble_down
++
+ #define MOV_FROM_IFA(reg)	\
+ 	movl reg = XSI_IFA;	\
+ 	;;			\
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index 0ad0224..b4ca2e6 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -10,7 +10,7 @@ obj-$(CONFIG_IA64_GENERIC) += machvec.o
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+ 
+ # xen multi compile
+-ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
++ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S fsys.S
+ ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
+ obj-y += $(ASM_PARAVIRT_OBJS)
+ define paravirtualized_xen
 diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index 04cd123..5d491d9 100644
+index 5d491d9..46b418a 100644
 --- a/arch/ia64/xen/xen_pv_ops.c
 +++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -153,7 +153,7 @@ xen_post_smp_prepare_boot_cpu(void)
- 	xen_setup_vcpu_info_placement();
- }
+@@ -24,6 +24,7 @@
+ #include <linux/irq.h>
+ #include <linux/kernel.h>
+ #include <linux/pm.h>
++#include <linux/unistd.h>
  
--static const struct pv_init_ops xen_init_ops __initdata = {
-+static struct pv_init_ops xen_init_ops __initdata = {
- 	.banner = xen_banner,
+ #include <asm/xen/hypervisor.h>
+ #include <asm/xen/xencomm.h>
+@@ -166,6 +167,18 @@ static struct pv_init_ops xen_init_ops __initdata = {
+ };
  
- 	.reserve_memory = xen_reserve_memory,
-@@ -260,7 +260,7 @@ xen_intrin_local_irq_restore(unsigned long mask)
- 		xen_rsm_i();
- }
- 
--static const struct pv_cpu_ops xen_cpu_ops __initdata = {
-+static struct pv_cpu_ops xen_cpu_ops __initdata = {
- 	.fc		= xen_fc,
- 	.thash		= xen_thash,
- 	.get_cpuid	= xen_get_cpuid,
-@@ -337,7 +337,7 @@ xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
- 	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
- }
- 
--static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
-+static struct pv_iosapic_ops xen_iosapic_ops __initdata = {
- 	.pcat_compat_init = xen_pcat_compat_init,
- 	.__get_irq_chip = xen_iosapic_get_irq_chip,
- 
+ /***************************************************************************
++ * pv_fsys_data
++ * addresses for fsys
++ */
++
++extern unsigned long xen_fsyscall_table[NR_syscalls];
++extern char xen_fsys_bubble_down[];
++struct pv_fsys_data xen_fsys_data __initdata = {
++	.fsyscall_table = (unsigned long *)xen_fsyscall_table,
++	.fsys_bubble_down = (void *)xen_fsys_bubble_down,
++};
++
++/***************************************************************************
+  * pv_cpu_ops
+  * intrinsics hooks.
+  */
+@@ -355,6 +368,7 @@ xen_setup_pv_ops(void)
+ 	xen_info_init();
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
++	pv_fsys_data = xen_fsys_data;
+ 	pv_cpu_ops = xen_cpu_ops;
+ 	pv_iosapic_ops = xen_iosapic_ops;
+ 	pv_irq_ops = xen_irq_ops;
 -- 
 1.6.0.2
