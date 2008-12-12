@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 07/15] ia64/pv_ops: paravirtualize mov = ar.itc.
-Date: Fri, 12 Dec 2008 15:38:56 +0900
-Message-ID: <1229063944-27462-8-git-send-email-yamahata__33644.7035581388$1229064299$gmane$org@valinux.co.jp>
+Subject: [PATCH 10/15] ia64/pv_ops/xen/pv_time_ops: implement sched_clock.
+Date: Fri, 12 Dec 2008 15:38:59 +0900
+Message-ID: <1229063944-27462-11-git-send-email-yamahata__40870.0890643106$1229064300$gmane$org@valinux.co.jp>
 References: <1229063944-27462-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,88 +21,88 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize mov reg = ar.itc.
+paravirtualize sched_clock.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/native/inst.h |    5 +++++
- arch/ia64/kernel/entry.S            |    4 ++--
- arch/ia64/kernel/fsys.S             |    4 ++--
- arch/ia64/kernel/ivt.S              |    2 +-
- 4 files changed, 10 insertions(+), 5 deletions(-)
+ arch/ia64/xen/Kconfig |    1 +
+ arch/ia64/xen/time.c  |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 49 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
-index 5e4e151..ad59fc6 100644
---- a/arch/ia64/include/asm/native/inst.h
-+++ b/arch/ia64/include/asm/native/inst.h
-@@ -77,6 +77,11 @@
- (pred)	mov reg = psr			\
- 	CLOBBER(clob)
+diff --git a/arch/ia64/xen/Kconfig b/arch/ia64/xen/Kconfig
+index f1683a2..48839da 100644
+--- a/arch/ia64/xen/Kconfig
++++ b/arch/ia64/xen/Kconfig
+@@ -8,6 +8,7 @@ config XEN
+ 	depends on PARAVIRT && MCKINLEY && IA64_PAGE_SIZE_16KB && EXPERIMENTAL
+ 	select XEN_XENCOMM
+ 	select NO_IDLE_HZ
++	select HAVE_UNSTABLE_SCHED_CLOCK
  
-+#define MOV_FROM_ITC(pred, pred_clob, reg, clob)	\
-+(pred)	mov reg = ar.itc				\
-+	CLOBBER(clob)					\
-+	CLOBBER_PRED(pred_clob)
+ 	# those are required to save/restore.
+ 	select ARCH_SUSPEND_POSSIBLE
+diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
+index d15a94c..c85d319 100644
+--- a/arch/ia64/xen/time.c
++++ b/arch/ia64/xen/time.c
+@@ -175,10 +175,58 @@ static void xen_itc_jitter_data_reset(void)
+ 	} while (unlikely(ret != lcycle));
+ }
+ 
++/* based on xen_sched_clock() in arch/x86/xen/time.c. */
++/*
++ * This relies on HAVE_UNSTABLE_SCHED_CLOCK. If it can't be defined,
++ * something similar logic should be implemented here.
++ */
++/*
++ * Xen sched_clock implementation.  Returns the number of unstolen
++ * nanoseconds, which is nanoseconds the VCPU spent in RUNNING+BLOCKED
++ * states.
++ */
++static unsigned long long xen_sched_clock(void)
++{
++	struct vcpu_runstate_info runstate;
 +
- #define MOV_TO_IFA(reg, clob)	\
- 	mov cr.ifa = reg	\
- 	CLOBBER(clob)
-diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
-index d435f4a..c5709c6 100644
---- a/arch/ia64/kernel/entry.S
-+++ b/arch/ia64/kernel/entry.S
-@@ -735,7 +735,7 @@ GLOBAL_ENTRY(__paravirt_leave_syscall)
- __paravirt_work_processed_syscall:
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	adds r2=PT(LOADRS)+16,r12
--(pUStk)	mov.m r22=ar.itc			// fetch time at leave
-+	MOV_FROM_ITC(pUStk, p9, r22, r19)	// fetch time at leave
- 	adds r18=TI_FLAGS+IA64_TASK_SIZE,r13
- 	;;
- (p6)	ld4 r31=[r18]				// load current_thread_info()->flags
-@@ -984,7 +984,7 @@ GLOBAL_ENTRY(__paravirt_leave_kernel)
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	.pred.rel.mutex pUStk,pKStk
- 	MOV_FROM_PSR(pKStk, r22, r29)	// M2 read PSR now that interrupts are disabled
--(pUStk)	mov.m r22=ar.itc	// M  fetch time at leave
-+	MOV_FROM_ITC(pUStk, p9, r22, r29)	// M  fetch time at leave
- 	nop.i 0
- 	;;
- #else
-diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
-index 3544d75..3567d54 100644
---- a/arch/ia64/kernel/fsys.S
-+++ b/arch/ia64/kernel/fsys.S
-@@ -280,7 +280,7 @@ ENTRY(fsys_gettimeofday)
- (p9)	cmp.eq p13,p0 = 0,r30	// if mmio_ptr, clear p13 jitter control
- 	;;
- 	.pred.rel.mutex p8,p9
--(p8)	mov r2 = ar.itc		// CPU_TIMER. 36 clocks latency!!!
-+	MOV_FROM_ITC(p8, p6, r2, r10)	// CPU_TIMER. 36 clocks latency!!!
- (p9)	ld8 r2 = [r30]		// MMIO_TIMER. Could also have latency issues..
- (p13)	ld8 r25 = [r19]		// get itc_lastcycle value
- 	ld8 r9 = [r22],IA64_TIMESPEC_TV_NSEC_OFFSET	// tv_sec
-@@ -684,7 +684,7 @@ GLOBAL_ENTRY(paravirt_fsys_bubble_down)
- 	;;
- 	mov ar.rsc=0				// M2   set enforced lazy mode, pl 0, LE, loadrs=0
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	mov.m r30=ar.itc			// M    get cycle for accounting
-+	MOV_FROM_ITC(p0, p6, r30, r23)		// M    get cycle for accounting
- #else
- 	nop.m 0
- #endif
-diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
-index f675d8e..ec9a5fd 100644
---- a/arch/ia64/kernel/ivt.S
-+++ b/arch/ia64/kernel/ivt.S
-@@ -804,7 +804,7 @@ ENTRY(break_fault)
- ///////////////////////////////////////////////////////////////////////
- 	st1 [r16]=r0				// M2|3 clear current->thread.on_ustack flag
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	mov.m r30=ar.itc			// M    get cycle for accounting
-+	MOV_FROM_ITC(p0, p14, r30, r18)		// M    get cycle for accounting
- #else
- 	mov b6=r30				// I0   setup syscall handler branch reg early
- #endif
++	unsigned long long now;
++	unsigned long long offset;
++	unsigned long long ret;
++
++	/*
++	 * Ideally sched_clock should be called on a per-cpu basis
++	 * anyway, so preempt should already be disabled, but that's
++	 * not current practice at the moment.
++	 */
++	preempt_disable();
++
++	/*
++	 * both ia64_native_sched_clock() and xen's runstate are
++	 * based on mAR.ITC. So difference of them makes sense.
++	 */
++	now = ia64_native_sched_clock();
++
++	get_runstate_snapshot(&runstate);
++
++	WARN_ON(runstate.state != RUNSTATE_running);
++
++	offset = 0;
++	if (now > runstate.state_entry_time)
++		offset = now - runstate.state_entry_time;
++	ret = runstate.time[RUNSTATE_blocked] +
++		runstate.time[RUNSTATE_running] +
++		offset;
++
++	preempt_enable();
++
++	return ret;
++}
++
+ struct pv_time_ops xen_time_ops __initdata = {
+ 	.init_missing_ticks_accounting	= xen_init_missing_ticks_accounting,
+ 	.do_steal_accounting		= xen_do_steal_accounting,
+ 	.clocksource_resume		= xen_itc_jitter_data_reset,
++	.sched_clock			= xen_sched_clock,
+ };
+ 
+ /* Called after suspend, to resume time.  */
 -- 
 1.6.0.2
