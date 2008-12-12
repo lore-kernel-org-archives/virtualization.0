@@ -1,15 +1,14 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 Subject: Re: [PATCH 4/4] s390: remove s390_root_dev_*()
-Date: Fri, 12 Dec 2008 10:45:16 +0100
-Message-ID: <1229075116.28887.4.camel__39201.7820188359$1229075239$gmane$org@localhost>
+Date: Fri, 12 Dec 2008 10:45:55 +0100
+Message-ID: <20081212104555.055361f5__13127.7526299984$1229075277$gmane$org@gondolin>
 References: <1229012203.7968.79.camel@blaa>
 	<1229012216-4211-1-git-send-email-markmc@redhat.com>
 	<1229012216-4211-2-git-send-email-markmc@redhat.com>
 	<1229012216-4211-3-git-send-email-markmc@redhat.com>
 	<1229012216-4211-4-git-send-email-markmc@redhat.com>
-	<20081211180025.045b9b4a@gondolin> <20081212102951.01446f22@gondolin>
-	<1229074546.4041.8.camel@blaa>
-Reply-To: schwidefsky@de.ibm.com
+	<20081211180025.045b9b4a@gondolin>
+	<20081212102951.01446f22@gondolin> <1229074546.4041.8.camel@blaa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,10 +24,12 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Mark McLoughlin <markmc@redhat.com>
-Cc: linux-s390@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>, Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: linux-s390@vger.kernel.org, Anthony Liguori <aliguori@us.ibm.com>, Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2008-12-12 at 09:35 +0000, Mark McLoughlin wrote:
+On Fri, 12 Dec 2008 09:35:46 +0000,
+Mark McLoughlin <markmc@redhat.com> wrote:
+
 > From: Mark McLoughlin <markmc@redhat.com>
 > Subject: [PATCH] s390: remove s390_root_dev_*()
 > 
@@ -38,10 +39,4 @@ On Fri, 2008-12-12 at 09:35 +0000, Mark McLoughlin wrote:
 > 
 > Signed-off-by: Mark McLoughlin <markmc@redhat.com>
 
-I can carry the patch in my patch queue. Thanks.
-
--- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
