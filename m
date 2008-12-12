@@ -1,11 +1,13 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 00/15] ia64/pv_ops, xen: more paravirtualization. TAKE 3
-Date: Fri, 12 Dec 2008 15:38:49 +0900
-Message-ID: <1229063944-27462-1-git-send-email-yamahata__17308.616548735$1229063898$gmane$org@valinux.co.jp>
+Subject: [PATCH 01/15] ia64: remove warnings.
+Date: Fri, 12 Dec 2008 15:38:50 +0900
+Message-ID: <1229063944-27462-2-git-send-email-yamahata__4003.45917228169$1229064039$gmane$org@valinux.co.jp>
+References: <1229063944-27462-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1229063944-27462-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,71 +21,74 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+this patch removes the following warnings.
 
-This patch set is intended for the next merge window. They are just
-enhancements of the already merged patches or ia64 porting from x86
-paravirt techniques and that their quality is enough for merge.
+>   CC      arch/ia64/kernel/patch.o
+> /linux-2.6/arch/ia64/kernel/patch.c: In function 'ia64_patch_vtop':
+> /linux-2.6/arch/ia64/kernel/patch.c:112: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
+> /linux-2.6/arch/ia64/kernel/patch.c: In function 'ia64_patch_rse':
+> /linux-2.6/arch/ia64/kernel/patch.c:135: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
+> /linux-2.6/arch/ia64/kernel/patch.c: In function 'ia64_patch_mckinley_e9':
+> /linux-2.6/arch/ia64/kernel/patch.c:166: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
+> /linux-2.6/arch/ia64/kernel/patch.c:166: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
+> /linux-2.6/arch/ia64/kernel/patch.c: In function 'patch_fsyscall_table':
+> /linux-2.6/arch/ia64/kernel/patch.c:202: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
+> /linux-2.6/arch/ia64/kernel/patch.c: In function 'patch_brl_fsys_bubble_down':
+> /linux-2.6/arch/ia64/kernel/patch.c:220: warning: passing argument 1 of 'paravirt_fc' makes integer from pointer without a cast
 
-This patch set is for more paravirtualization on ia64/xen domU.
-This patch set does
-- remove existing warnings
-- paravirtualize fsys call (fsys.S) by multi compile
-- paravirtualize gate page (gate.S) by multi compile
-- support save/restore
-  For this purpose, the followings needs to be paravirtualized
-  - ar.itc instruction 
-  - sched_clock()
-  This is because timer may changed before/after saving/restoring.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/patch.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-For convenience the working full source is available from
-http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
-branch: ia64-pv-ops-2008dec12-xen-ia64-optimized-domu
-
-For the status of this patch series
-http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
-
-thanks,
-
-Changes from take2
-- two patches to remove warnings.
-- rebased to 2.6.28-rc8
-
-Changes from take 1
-- refreshed to 2.6.28-rc6
-  no essential change.
-
-
-Diffstat:
- arch/ia64/include/asm/native/inst.h       |   13 ++
- arch/ia64/include/asm/native/patchlist.h  |   38 +++++++
- arch/ia64/include/asm/native/pvchk_inst.h |    8 ++
- arch/ia64/include/asm/paravirt.h          |   57 ++++++++++
- arch/ia64/include/asm/timex.h             |    1 +
- arch/ia64/include/asm/xen/inst.h          |   24 ++++
- arch/ia64/include/asm/xen/interface.h     |    9 ++
- arch/ia64/include/asm/xen/minstate.h      |   11 ++-
- arch/ia64/include/asm/xen/patchlist.h     |   38 +++++++
- arch/ia64/include/asm/xen/privop.h        |    2 +
- arch/ia64/kernel/Makefile                 |   36 +-----
- arch/ia64/kernel/Makefile.gate            |   27 +++++
- arch/ia64/kernel/asm-offsets.c            |    2 +
- arch/ia64/kernel/entry.S                  |    4 +-
- arch/ia64/kernel/fsys.S                   |   35 +++---
- arch/ia64/kernel/gate.S                   |  171 +++++++++++++++--------------
- arch/ia64/kernel/gate.lds.S               |   17 ++--
- arch/ia64/kernel/head.S                   |    4 +-
- arch/ia64/kernel/ivt.S                    |    2 +-
- arch/ia64/kernel/paravirt.c               |    1 +
- arch/ia64/kernel/paravirt_patchlist.c     |   78 +++++++++++++
- arch/ia64/kernel/paravirt_patchlist.h     |   28 +++++
- arch/ia64/kernel/patch.c                  |   48 ++++++---
- arch/ia64/kernel/time.c                   |   12 ++
- arch/ia64/kernel/vmlinux.lds.S            |    6 +
- arch/ia64/mm/init.c                       |    8 +-
- arch/ia64/scripts/pvcheck.sed             |    1 +
- arch/ia64/xen/Kconfig                     |    1 +
- arch/ia64/xen/Makefile                    |   18 +++-
- arch/ia64/xen/gate-data.S                 |    3 +
- arch/ia64/xen/time.c                      |   48 ++++++++
- arch/ia64/xen/xen_pv_ops.c                |  132 +++++++++++++++++++++-
- 32 files changed, 719 insertions(+), 164 deletions(-)
+diff --git a/arch/ia64/kernel/patch.c b/arch/ia64/kernel/patch.c
+index b83b2c5..5660069 100644
+--- a/arch/ia64/kernel/patch.c
++++ b/arch/ia64/kernel/patch.c
+@@ -108,7 +108,7 @@ ia64_patch_vtop (unsigned long start, unsigned long end)
+ 
+ 		/* replace virtual address with corresponding physical address: */
+ 		ia64_patch_imm64(ip, ia64_tpa(get_imm64(ip)));
+-		ia64_fc((void *) ip);
++		ia64_fc(ip);
+ 		++offp;
+ 	}
+ 	ia64_sync_i();
+@@ -131,7 +131,7 @@ ia64_patch_rse (unsigned long start, unsigned long end)
+ 
+ 		b = (u64 *)(ip & -16);
+ 		b[1] &= ~0xf800000L;
+-		ia64_fc((void *) ip);
++		ia64_fc(ip);
+ 		++offp;
+ 	}
+ 	ia64_sync_i();
+@@ -162,7 +162,7 @@ ia64_patch_mckinley_e9 (unsigned long start, unsigned long end)
+ 		wp[1] = 0x0084006880000200UL;
+ 		wp[2] = 0x0000000100000000UL; /* nop.m 0; nop.i 0; nop.i 0 */
+ 		wp[3] = 0x0004000000000200UL;
+-		ia64_fc(wp); ia64_fc(wp + 2);
++		ia64_fc((unsigned long)wp); ia64_fc((unsigned long)(wp + 2));
+ 		++offp;
+ 	}
+ 	ia64_sync_i();
+@@ -179,7 +179,7 @@ patch_fsyscall_table (unsigned long start, unsigned long end)
+ 	while (offp < (s32 *) end) {
+ 		ip = (u64) ia64_imva((char *) offp + *offp);
+ 		ia64_patch_imm64(ip, (u64) fsyscall_table);
+-		ia64_fc((void *) ip);
++		ia64_fc(ip);
+ 		++offp;
+ 	}
+ 	ia64_sync_i();
+@@ -197,7 +197,7 @@ patch_brl_fsys_bubble_down (unsigned long start, unsigned long end)
+ 		ip = (u64) offp + *offp;
+ 		ia64_patch_imm60((u64) ia64_imva((void *) ip),
+ 				 (u64) (fsys_bubble_down - (ip & -16)) / 16);
+-		ia64_fc((void *) ip);
++		ia64_fc(ip);
+ 		++offp;
+ 	}
+ 	ia64_sync_i();
+-- 
+1.6.0.2
