@@ -1,16 +1,11 @@
-From: Mark McLoughlin <markmc@redhat.com>
-Subject: Re: [PATCH 1/4] driver core: add root_device_register()
-Date: Thu, 11 Dec 2008 18:23:27 +0000
-Message-ID: <1229019807.7968.87.camel__14136.6362375722$1229020129$gmane$org@blaa>
-References: <1229012203.7968.79.camel@blaa>
-	<1229012216-4211-1-git-send-email-markmc@redhat.com>
-	<20081211175604.511fc6ae@gondolin>
-Reply-To: Mark McLoughlin <markmc@redhat.com>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 00/15] ia64/pv_ops, xen: more paravirtualization. TAKE 3
+Date: Fri, 12 Dec 2008 15:38:49 +0900
+Message-ID: <1229063944-27462-1-git-send-email-yamahata__17308.616548735$1229063898$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081211175604.511fc6ae@gondolin>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,145 +15,75 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@suse.de>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add support for allocating root device objects which group
-device objects under /sys/devices directories.
 
-Also add a sysfs 'module' symlink which points to the owner
-of the root device object. This symlink will be used in virtio
-to allow userspace to determine which virtio bus implementation
-a given device is associated with.
+This patch set is intended for the next merge window. They are just
+enhancements of the already merged patches or ia64 porting from x86
+paravirt techniques and that their quality is enough for merge.
 
-[Includes suggestions from Cornelia Huck]
+This patch set is for more paravirtualization on ia64/xen domU.
+This patch set does
+- remove existing warnings
+- paravirtualize fsys call (fsys.S) by multi compile
+- paravirtualize gate page (gate.S) by multi compile
+- support save/restore
+  For this purpose, the followings needs to be paravirtualized
+  - ar.itc instruction 
+  - sched_clock()
+  This is because timer may changed before/after saving/restoring.
 
-Signed-off-by: Mark McLoughlin <markmc@redhat.com>
----
- drivers/base/core.c    |   87 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/device.h |   11 ++++++
- 2 files changed, 98 insertions(+), 0 deletions(-)
+For convenience the working full source is available from
+http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
+branch: ia64-pv-ops-2008dec12-xen-ia64-optimized-domu
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 8c2cc26..20e5825 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1196,6 +1196,93 @@ EXPORT_SYMBOL_GPL(put_device);
- EXPORT_SYMBOL_GPL(device_create_file);
- EXPORT_SYMBOL_GPL(device_remove_file);
- 
-+struct root_device
-+{
-+	struct device dev;
-+	struct module *owner;
-+};
-+
-+static void root_device_release(struct device *dev)
-+{
-+	kfree(dev);
-+}
-+
-+/**
-+ * __root_device_register - allocate and register a root device
-+ * @name: root device name
-+ * @owner: owner module of the root device, usually THIS_MODULE
-+ *
-+ * This function allocates a root device and registers it
-+ * using device_register(). In order to free the returned
-+ * device, use root_device_unregister().
-+ *
-+ * Root devices are dummy devices which allow other devices
-+ * to be grouped under /sys/devices. Use this function to
-+ * allocate a root device and then use it as the parent of
-+ * any device which should appear under /sys/devices/{name}
-+ *
-+ * The /sys/devices/{name} directory will also contain a
-+ * 'module' symlink which points to the @owner directory
-+ * in sysfs.
-+ *
-+ * Note: You probably want to use root_device_register().
-+ */
-+struct device *__root_device_register(const char *name, struct module *owner)
-+{
-+	struct root_device *root;
-+	int err = -ENOMEM;
-+
-+	root = kzalloc(sizeof(struct root_device), GFP_KERNEL);
-+	if (!root)
-+		return ERR_PTR(err);
-+
-+	err = dev_set_name(&root->dev, name);
-+	if (err) {
-+		kfree(root);
-+		return ERR_PTR(err);
-+	}
-+
-+	root->dev.release = root_device_release;
-+
-+	err = device_register(&root->dev);
-+	if (err) {
-+		put_device(&root->dev);
-+		return ERR_PTR(err);
-+	}
-+
-+	if (owner) {
-+		struct module_kobject *mk = &owner->mkobj;
-+
-+		err = sysfs_create_link(&root->dev.kobj, &mk->kobj, "module");
-+		if (err) {
-+			device_unregister(&root->dev);
-+			return ERR_PTR(err);
-+		}
-+		root->owner = owner;
-+	}
-+
-+	return &root->dev;
-+}
-+EXPORT_SYMBOL_GPL(__root_device_register);
-+
-+/**
-+ * root_device_unregister - unregister and free a root device
-+ * @root: device going away.
-+ *
-+ * This function unregisters and cleans up a device that was created by
-+ * root_device_register().
-+ */
-+void root_device_unregister(struct device *dev)
-+{
-+	struct root_device *root = container_of(dev, struct root_device, dev);
-+
-+	if (root->owner)
-+		sysfs_remove_link(&root->dev.kobj, "module");
-+
-+	device_unregister(dev);
-+}
-+EXPORT_SYMBOL_GPL(root_device_unregister);
-+
- 
- static void device_create_release(struct device *dev)
- {
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 1a3686d..9e02980 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -483,6 +483,17 @@ extern int device_rename(struct device *dev, char *new_name);
- extern int device_move(struct device *dev, struct device *new_parent);
- 
- /*
-+ * Root device objects for grouping under /sys/devices
-+ */
-+extern struct device *__root_device_register(const char *name,
-+					     struct module *owner);
-+static inline struct device *root_device_register(const char *name)
-+{
-+	return __root_device_register(name, THIS_MODULE);
-+}
-+extern void root_device_unregister(struct device *root);
-+
-+/*
-  * Manual binding of a device to driver. See drivers/base/bus.c
-  * for information on use.
-  */
--- 
-1.5.4.3
+For the status of this patch series
+http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
+
+thanks,
+
+Changes from take2
+- two patches to remove warnings.
+- rebased to 2.6.28-rc8
+
+Changes from take 1
+- refreshed to 2.6.28-rc6
+  no essential change.
+
+
+Diffstat:
+ arch/ia64/include/asm/native/inst.h       |   13 ++
+ arch/ia64/include/asm/native/patchlist.h  |   38 +++++++
+ arch/ia64/include/asm/native/pvchk_inst.h |    8 ++
+ arch/ia64/include/asm/paravirt.h          |   57 ++++++++++
+ arch/ia64/include/asm/timex.h             |    1 +
+ arch/ia64/include/asm/xen/inst.h          |   24 ++++
+ arch/ia64/include/asm/xen/interface.h     |    9 ++
+ arch/ia64/include/asm/xen/minstate.h      |   11 ++-
+ arch/ia64/include/asm/xen/patchlist.h     |   38 +++++++
+ arch/ia64/include/asm/xen/privop.h        |    2 +
+ arch/ia64/kernel/Makefile                 |   36 +-----
+ arch/ia64/kernel/Makefile.gate            |   27 +++++
+ arch/ia64/kernel/asm-offsets.c            |    2 +
+ arch/ia64/kernel/entry.S                  |    4 +-
+ arch/ia64/kernel/fsys.S                   |   35 +++---
+ arch/ia64/kernel/gate.S                   |  171 +++++++++++++++--------------
+ arch/ia64/kernel/gate.lds.S               |   17 ++--
+ arch/ia64/kernel/head.S                   |    4 +-
+ arch/ia64/kernel/ivt.S                    |    2 +-
+ arch/ia64/kernel/paravirt.c               |    1 +
+ arch/ia64/kernel/paravirt_patchlist.c     |   78 +++++++++++++
+ arch/ia64/kernel/paravirt_patchlist.h     |   28 +++++
+ arch/ia64/kernel/patch.c                  |   48 ++++++---
+ arch/ia64/kernel/time.c                   |   12 ++
+ arch/ia64/kernel/vmlinux.lds.S            |    6 +
+ arch/ia64/mm/init.c                       |    8 +-
+ arch/ia64/scripts/pvcheck.sed             |    1 +
+ arch/ia64/xen/Kconfig                     |    1 +
+ arch/ia64/xen/Makefile                    |   18 +++-
+ arch/ia64/xen/gate-data.S                 |    3 +
+ arch/ia64/xen/time.c                      |   48 ++++++++
+ arch/ia64/xen/xen_pv_ops.c                |  132 +++++++++++++++++++++-
+ 32 files changed, 719 insertions(+), 164 deletions(-)
