@@ -1,16 +1,16 @@
-From: "Itamar Heim" <iheim@redhat.com>
-Subject: RE: [PATCH] AF_VMCHANNEL address family for
-	guest<->host	communication.
-Date: Mon, 15 Dec 2008 13:26:52 -0500 (EST)
-Message-ID: <039a01c95ee3$07e7f900$17b7eb00$__21528.1357909136$1229367853$gmane$org@com>
-References: <20081214115054.4066.14557.stgit@dhcp-1-237.tlv.redhat.com>	<20081214.224436.55256593.davem@davemloft.net>
-	<4946717F.2090809@codemonkey.ws> <494697D4.6080300@goop.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] AF_VMCHANNEL address family for guest<->host
+	communication.
+Date: Mon, 15 Dec 2008 11:43:15 -0800 (PST)
+Message-ID: <20081215.114315.165733593.davem__44316.2363292233$1229370395$gmane$org@davemloft.net>
+References: <20081214115054.4066.14557.stgit@dhcp-1-237.tlv.redhat.com>
+	<20081214.224436.55256593.davem@davemloft.net>
+	<4946717F.2090809@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <494697D4.6080300@goop.org>
-Content-Language: en-us
+In-Reply-To: <4946717F.2090809@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,24 +20,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Jeremy Fitzhardinge' <jeremy@goop.org>, 'Anthony Liguori' <anthony@codemonkey.ws>
-Cc: netdev@vger.kernel.org, 'David Miller' <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: anthony@codemonkey.ws
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> -----Original Message-----
-> From: kvm-owner@vger.kernel.org [mailto:kvm-owner@vger.kernel.org] On
-> Behalf Of Jeremy Fitzhardinge
- 
-> The trouble is that it presumes that the host and guest (or whoever the
-> endpoints are) are on the same physical machine and will remain that
-> way.  Given that live migration is a feature that people seem to like,
-> then you'd end up needing to transport this protocol over a real network
-> anyway - and at that point you may as well use proper TCP/IP.   The
-> alternative is to say either "if you use this feature you can't migrate,
-> and you can only resume on the same host", or "you can use this feature,
-> and we'll work out a global namespace and proxy it over TCP for you".
-> Neither seems very satisfactory.
-[IH] when migrating a guest to another host, migration takes care of
-closing/opening of the VMChannel on the target host. The VMChannel is
-local to the hypervisor, not accessible via network. Migration is not an
-issue requiring the VMChannel to use TCP/IP.
+From: Anthony Liguori <anthony@codemonkey.ws>
+Date: Mon, 15 Dec 2008 09:02:23 -0600
+
+> There is already an AF_IUCV for s390.
+
+This is a scarecrow and irrelevant to this discussion.
+
+And this is exactly why I asked that any arguments in this thread
+avoid talking about virtualization technology and why it's "special."
+
+This proposed patch here is asking to add new infrastructure for
+hypervisor facilities that will be _ADDED_ and for which we have
+complete control over.
+
+Whereas the S390 folks have to deal with existing infrastructure which
+is largely outside of their control.  So if they implement access
+mechanisms for that, it's fine.
+
+I would be doing the same thing if I added a protocol socket layer for
+accessing the Niagara hypervisor virtualization channels.
