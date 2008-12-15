@@ -1,16 +1,15 @@
-From: David Miller <davem@davemloft.net>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [PATCH] AF_VMCHANNEL address family for guest<->host
 	communication.
-Date: Mon, 15 Dec 2008 00:27:28 -0800 (PST)
-Message-ID: <20081215.002728.112665573.davem__24320.7481260926$1229329765$gmane$org@davemloft.net>
+Date: Mon, 15 Dec 2008 09:02:23 -0600
+Message-ID: <4946717F.2090809__32089.8634418429$1229353490$gmane$org@codemonkey.ws>
 References: <20081214115054.4066.14557.stgit@dhcp-1-237.tlv.redhat.com>
 	<20081214.224436.55256593.davem@davemloft.net>
-	<20081215074819.GV5555@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081215074819.GV5555@redhat.com>
+In-Reply-To: <20081214.224436.55256593.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -20,48 +19,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: gleb@redhat.com
+To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Gleb Natapov <gleb@redhat.com>
-Date: Mon, 15 Dec 2008 09:48:19 +0200
-
-> On Sun, Dec 14, 2008 at 10:44:36PM -0800, David Miller wrote:
-> > You guys really need to rethink this.  Either a stream protocol is a
-> > workable solution to your problem, or it isn't.
+David Miller wrote:
+> From: Gleb Natapov <gleb@redhat.com>
+> Date: Sun, 14 Dec 2008 13:50:55 +0200
 >
-> Stream protocol is workable solution for us, but we need it out of band
-> in regard to networking and as much zero config as possible. If we will
-> use networking how can it be done without additional configuration (and
-> reconfiguration can be required after migration BTW)
+>   
+>> It is undesirable to use TCP/IP for this purpose since network
+>> connectivity may not exist between host and guest and if it exists the
+>> traffic can be not routable between host and guest for security reasons
+>> or TCP/IP traffic can be firewalled (by mistake) by unsuspecting VM user.
+>>     
+>
+> I don't really accept this argument, sorry.
+>   
 
-You miss the whole point and you also missed the part where I said
-(and the one part of my comments you conveniently did NOT quote):
+I couldn't agree more.  That doesn't mean I don't think this isn't 
+valuable though.
 
---------------------
-And don't bring up any "virtualization is special because..."
-arguments into your reply because virtualization has nothing to do
-with my objections stated above.
---------------------
+Each of these sockets are going to be connected to a backend (to 
+implement guest<=>copy/paste for instance).  We want to implement those 
+backends in userspace and preferably in QEMU.
 
-What part of that do you not understand?  Don't give me this
-junk about zero config, it's not a plausible argument against
-anything I said.
+Using some raw protocol over ethernet means you don't have reliability.  
+If you use a protocol to get reliability (like TCP), you now have to 
+implement a full TCP/IP stack in userspace or get the host kernel 
+involved.  I'd rather not get the host kernel involved from a security 
+perspective.
 
-You want to impose a new burdon onto the kernel in the form of a whole
-new socket layer.  When existing ones can solve any communications
-problem.
+An inherently reliable socket transport solves the above problem while 
+keeping things simple.  Note, this is not a new concept.  There is 
+already an AF_IUCV for s390.  VMware is also developing an AF_VMCI 
+socket family.
 
-Performance is not a good argument because we have (repeatedly) made
-TCP/IP go fast in just about any environment.
+Regards,
 
-If you have a configuration problem, you can solve it in userspace in
-a number of different ways.  Building on top of things we have and the
-user need not know anything about that.
-
-I would even be OK with features such as "permanent" links or special
-attributes for devices or IP addresses that by default prevent
-tampering and filtering by things like netfilter.
-
-But not this new thing that duplicates existing functionality, no way.
+Anthony Liguori
