@@ -1,19 +1,19 @@
 From: Evgeniy Polyakov <zbr@ioremap.net>
-Subject: Re: [PATCH] AF_VMCHANNEL address family for guest<->host
-	communication.
-Date: Tue, 16 Dec 2008 02:45:11 +0300
-Message-ID: <20081215234511.GA24579__29131.0198991143$1229386200$gmane$org@ioremap.net>
-References: <4946717F.2090809@codemonkey.ws>
-	<20081215.114315.165733593.davem@davemloft.net>
-	<4946C1AA.4080404@codemonkey.ws>
-	<20081215.142918.190909950.davem@davemloft.net>
-	<4946E1BA.80206@codemonkey.ws>
+Subject: Re: [PATCH] AF_VMCHANNEL address family
+	for	guest<->host	communication.
+Date: Tue, 16 Dec 2008 02:52:53 +0300
+Message-ID: <20081215235253.GB24579__8785.94450555301$1229386309$gmane$org@ioremap.net>
+References: <20081214115054.4066.14557.stgit@dhcp-1-237.tlv.redhat.com>
+	<20081214.224436.55256593.davem@davemloft.net>
+	<4946717F.2090809@codemonkey.ws> <494697D4.6080300@goop.org>
+	<4946A5E0.5080303@codemonkey.ws> <4946DF97.7070600@goop.org>
+	<4946E36D.8060503@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <4946E1BA.80206@codemonkey.ws>
+In-Reply-To: <4946E36D.8060503@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -24,43 +24,28 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Anthony.
-
-On Mon, Dec 15, 2008 at 05:01:14PM -0600, Anthony Liguori (anthony@codemonkey.ws) wrote:
-> Yes, and I went down the road of using a dedicated network device and 
-> using raw ethernet as the protocol.  The thing that killed that was the 
-> fact that it's not reliable.  You need something like TCP to add 
-> reliability.
+On Mon, Dec 15, 2008 at 05:08:29PM -0600, Anthony Liguori (anthony@codemonkey.ws) wrote:
+> The KVM model is that a guest is a process.  Any IO operations original 
+> from the process (QEMU).  The advantage to this is that you get very 
+> good security because you can use things like SELinux and simply treat 
+> the QEMU process as you would the guest.  In fact, in general, I think 
+> we want to assume that QEMU is guest code from a security perspective.
 > 
-> But that's a lot of work and a bit backwards.  Use a unreliable 
-> transport but use TCP on top of it to get reliability.  Our link 
-> (virtio) is inherently reliable so why not just expose a reliable 
-> interface to userspace?
+> By passing up the network traffic to the host kernel, we now face a 
+> problem when we try to get the data back.  We could setup a tun device 
+> to send traffic to the kernel but then the rest of the system can see 
+> that traffic too.  If that traffic is sensitive, it's potentially unsafe.
 
-I removed original mail and did not check archive, but doesn't rx/tx
-queues of the virtio device have limited size? I do hope they have,
-which means that either your network drops packets or blocks.
+You can even use unix sockets in this case, and each socket will be
+named as virtio channels names. IIRC tun/tap devices can be virtualizen
+with recent kernels, which also solves all problems of shared access.
 
-
-Having dedicated preconfigured network device is essentially the same as
-having this special socket option: guests which do not have this (either
-network or vchannel socket) will not be able to communicate with the
-host, so there is no difference. Except that usual network will just
-work out of the box (and especially you will like it when there will be
-no need to hack on X to support new network media).
-
-Another approach is to implement that virtio backend with netlink based
-userspace interface (like using connector or genetlink). This does not
-differ too much from what you have with special socket family, but at
-least it does not duplicate existing functionality of
-userspace-kernelspace communications.
-
-But IMO having special network device or running your protocol over
-existing virtio network device is a cleaner solution both from technical
-and convenience points of view.
+There are plenty of ways to implement this kind of functionality instead
+of developing some new protocol, which is effectively a duplication of
+what already exists in the kernel.
 
 -- 
 	Evgeniy Polyakov
