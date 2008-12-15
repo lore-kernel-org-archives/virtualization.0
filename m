@@ -1,18 +1,15 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
 Subject: Re: [PATCH] AF_VMCHANNEL address family for guest<->host
 	communication.
-Date: Mon, 15 Dec 2008 15:13:16 -0800
-Message-ID: <20081215151316.7523c43d__9903.13401348448$1229383081$gmane$org@extreme>
-References: <4946717F.2090809@codemonkey.ws>
-	<20081215.114315.165733593.davem@davemloft.net>
-	<4946C1AA.4080404@codemonkey.ws>
-	<20081215.142918.190909950.davem@davemloft.net>
-	<4946E1BA.80206@codemonkey.ws>
+Date: Mon, 15 Dec 2008 17:17:43 -0600
+Message-ID: <4946E597.6070308__23270.1019304388$1229385244$gmane$org@codemonkey.ws>
+References: <4946C1AA.4080404@codemonkey.ws>	<20081215.142918.190909950.davem@davemloft.net>	<4946E1BA.80206@codemonkey.ws>
+	<20081215.151044.262451532.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4946E1BA.80206@codemonkey.ws>
+In-Reply-To: <20081215.151044.262451532.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -22,61 +19,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 15 Dec 2008 17:01:14 -0600
-Anthony Liguori <anthony@codemonkey.ws> wrote:
+David Miller wrote:
+> From: Anthony Liguori <anthony@codemonkey.ws>
+> Date: Mon, 15 Dec 2008 17:01:14 -0600
+>
+>   
+>> No, TCP falls under the not simple category because it requires the
+>> backend to have access to a TCP/IP stack.
+>>     
+>
+> I'm at a loss for words if you need TCP in the hypervisor, if that's
+> what you're implying here.
+>   
 
-> David Miller wrote:
-> > From: Anthony Liguori <anthony@codemonkey.ws>
-> > Date: Mon, 15 Dec 2008 14:44:26 -0600
-> >
-> >   
-> >> We want this communication mechanism to be simple and reliable as we
-> >> want to implement the backends drivers in the host userspace with
-> >> minimum mess.
-> >>     
-> >
-> > One implication of your statement here is that TCP is unreliable.
-> > That's absolutely not true.
-> >   
-> 
-> No, TCP falls under the not simple category because it requires the 
-> backend to have access to a TCP/IP stack.
-> 
-> >> Within the guest, we need the interface to be always available and
-> >> we need an addressing scheme that is hypervisor specific.  Yes, we
-> >> can build this all on top of TCP/IP.  We could even build it on top
-> >> of a serial port.  Both have their down-sides wrt reliability and
-> >> complexity.
-> >>     
-> >
-> > I don't know of any zero-copy through the hypervisor mechanisms for
-> > serial ports, but I know we do that with the various virtualization
-> > network devices.
-> >   
-> 
-> Yes, and I went down the road of using a dedicated network device and 
-> using raw ethernet as the protocol.  The thing that killed that was the 
-> fact that it's not reliable.  You need something like TCP to add 
-> reliability.
-> 
-> But that's a lot of work and a bit backwards.  Use a unreliable 
-> transport but use TCP on top of it to get reliability.  Our link 
-> (virtio) is inherently reliable so why not just expose a reliable 
-> interface to userspace?
-> 
-> >> Do you have another recommendation?
-> >>     
-> >
-> > I don't have to make alternative recommendations until you can
-> > show that what we have can't solve the problem acceptably, and
-> > TCP emphatically can.
-> >   
-> 
-> It can solve the problem but I don't think it's the best way to solve 
-> the problem mainly because the complexity it demands on the backend.
+No.  KVM is not a traditional "hypervisor".  It's more of a userspace 
+accelerator for emulators.
 
-"Those who don't understand TCP are doomed to reimplement it, badly."
+QEMU, a system emulator, calls in to the Linux kernel whenever it needs 
+to run guest code.  Linux returns to QEMU whenever the guest has done an 
+MMIO operation or something of that nature.  In this way, all of our 
+device emulation (including paravirtual backends) are implemented in the 
+host userspace in the QEMU process.
+
+If we used TCP, we don't have a useful TCP/IP stack in QEMU, so we'd 
+have to inject that traffic into the host Linux instance, and then 
+receive the traffic in QEMU.  Besides being indirect, it has some nasty 
+security implications that I outlined in my response to Jeremy's last note.
+
+Regards,
+
+Anthony Liguori
+
+> You only need it in the guest and the host, which you already have,
+> in the Linux kernel.  Just transport that over virtio or whatever
+> and be done with it.
+>   
