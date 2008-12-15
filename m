@@ -1,15 +1,16 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [PATCH] AF_VMCHANNEL address family for guest<->host
-	communication.
-Date: Mon, 15 Dec 2008 14:44:26 -0600
-Message-ID: <4946C1AA.4080404__196.880827616219$1229374064$gmane$org@codemonkey.ws>
-References: <20081214115054.4066.14557.stgit@dhcp-1-237.tlv.redhat.com>	<20081214.224436.55256593.davem@davemloft.net>	<4946717F.2090809@codemonkey.ws>
-	<20081215.114315.165733593.davem@davemloft.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/4] virtio: do not statically allocate root device
+Date: Tue, 16 Dec 2008 08:57:47 +1030
+Message-ID: <200812160857.48321.rusty__2420.54940104044$1229380208$gmane$org@rustcorp.com.au>
+References: <20081212190730.GB2950@kroah.com>
+	<1229345909-27229-1-git-send-email-markmc@redhat.com>
+	<1229345909-27229-2-git-send-email-markmc@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20081215.114315.165733593.davem@davemloft.net>
+In-Reply-To: <1229345909-27229-2-git-send-email-markmc@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,63 +20,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Mark McLoughlin <markmc@redhat.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-David Miller wrote:
-> From: Anthony Liguori <anthony@codemonkey.ws>
-> Date: Mon, 15 Dec 2008 09:02:23 -0600
->
->   
->> There is already an AF_IUCV for s390.
->>     
->
-> This is a scarecrow and irrelevant to this discussion.
->
-> And this is exactly why I asked that any arguments in this thread
-> avoid talking about virtualization technology and why it's "special."
->   
+On Monday 15 December 2008 23:28:27 Mark McLoughlin wrote:
+> We shouldn't be statically allocating the root device object,
+> so dynamically allocate it using root_device_register()
+> instead.
 
-You cannot completely avoid talking about virtualization here.  I agree 
-that an argument based on, "we need it for virtualization", why?, 
-"virtualization!" is not sufficient.
+This and 3/4 which would normally go through me:
 
-You still didn't address my earlier question though.
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 
-What we need is a mechanism for implementing paravirtual device drivers 
-in userspace.  On a modern Linux system, a lot of important things are 
-done in userspace (mostly around X) so having some code in the guest's 
-userspace is important.
-
-We want this communication mechanism to be simple and reliable as we 
-want to implement the backends drivers in the host userspace with 
-minimum mess.
-
-Within the guest, we need the interface to be always available and we 
-need an addressing scheme that is hypervisor specific.  Yes, we can 
-build this all on top of TCP/IP.  We could even build it on top of a 
-serial port.  Both have their down-sides wrt reliability and complexity.
-
-The most natural userspace interface that meets all of these 
-requirements would appear to be a new socket family.  We could also use 
-another userspace interface (netlink was originally proposed, a chardev 
-is possible, or a virtual file system).
-
-Do you have another recommendation?
-
-Regards,
-
-Anthony Liguori
-
-> This proposed patch here is asking to add new infrastructure for
-> hypervisor facilities that will be _ADDED_ and for which we have
-> complete control over.
->
-> Whereas the S390 folks have to deal with existing infrastructure which
-> is largely outside of their control.  So if they implement access
-> mechanisms for that, it's fine.
->
-> I would be doing the same thing if I added a protocol socket layer for
-> accessing the Niagara hypervisor virtualization channels.
->   
+Thanks Greg,
+Rusty.
