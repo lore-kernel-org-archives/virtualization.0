@@ -1,19 +1,20 @@
-From: Gleb Natapov <gleb@redhat.com>
+From: Evgeniy Polyakov <zbr@ioremap.net>
 Subject: Re: [PATCH] AF_VMCHANNEL address family for guest<->host
 	communication.
-Date: Tue, 16 Dec 2008 08:57:27 +0200
-Message-ID: <20081216065727.GD13794__46702.3243000314$1229410882$gmane$org@redhat.com>
+Date: Wed, 17 Dec 2008 00:25:32 +0300
+Message-ID: <20081216212532.GA15360__4371.94003393433$1229462860$gmane$org@ioremap.net>
 References: <4946717F.2090809@codemonkey.ws>
 	<20081215.114315.165733593.davem@davemloft.net>
 	<4946C1AA.4080404@codemonkey.ws>
 	<20081215.142918.190909950.davem@davemloft.net>
 	<4946E1BA.80206@codemonkey.ws> <20081215234511.GA24579@ioremap.net>
+	<20081216065727.GD13794@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20081215234511.GA24579@ioremap.net>
+In-Reply-To: <20081216065727.GD13794@redhat.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -23,39 +24,27 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Evgeniy Polyakov <zbr@ioremap.net>
+To: Gleb Natapov <gleb@redhat.com>
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, David Miller <davem@davemloft.net>, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 16, 2008 at 02:45:11AM +0300, Evgeniy Polyakov wrote:
-> Hi Anthony.
-> 
-> On Mon, Dec 15, 2008 at 05:01:14PM -0600, Anthony Liguori (anthony@codemonkey.ws) wrote:
-> > Yes, and I went down the road of using a dedicated network device and 
-> > using raw ethernet as the protocol.  The thing that killed that was the 
-> > fact that it's not reliable.  You need something like TCP to add 
-> > reliability.
+On Tue, Dec 16, 2008 at 08:57:27AM +0200, Gleb Natapov (gleb@redhat.com) wrote:
+> > Another approach is to implement that virtio backend with netlink based
+> > userspace interface (like using connector or genetlink). This does not
+> > differ too much from what you have with special socket family, but at
+> > least it does not duplicate existing functionality of
+> > userspace-kernelspace communications.
 > > 
-> > But that's a lot of work and a bit backwards.  Use a unreliable 
-> > transport but use TCP on top of it to get reliability.  Our link 
-> > (virtio) is inherently reliable so why not just expose a reliable 
-> > interface to userspace?
-> 
-> I removed original mail and did not check archive, but doesn't rx/tx
-> queues of the virtio device have limited size? I do hope they have,
-> which means that either your network drops packets or blocks.
-> 
-It blocks.
+> I implemented vmchannel using connector initially (the downside is that
+> message can be dropped). Is this more expectable for upstream? The
+> implementation was 300 lines of code.
 
-> Another approach is to implement that virtio backend with netlink based
-> userspace interface (like using connector or genetlink). This does not
-> differ too much from what you have with special socket family, but at
-> least it does not duplicate existing functionality of
-> userspace-kernelspace communications.
-> 
-I implemented vmchannel using connector initially (the downside is that
-message can be dropped). Is this more expectable for upstream? The
-implementation was 300 lines of code.
+Hard to tell, it depends on implementation. But if things are good, I
+have no objections as connector maintainer :)
 
---
-			Gleb.
+Messages in connector in particular and netlink in general are only
+dropped, when receiving buffer is full (or when there is no memory), you
+can tune buffer size to match virtual queue size or vice versa.
+
+-- 
+	Evgeniy Polyakov
