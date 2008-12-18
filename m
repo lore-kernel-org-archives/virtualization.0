@@ -1,22 +1,17 @@
-From: Evgeniy Polyakov <zbr@ioremap.net>
-Subject: Re: [PATCH] AF_VMCHANNEL address family for guest<->host
-	communication.
-Date: Thu, 18 Dec 2008 15:30:02 +0300
-Message-ID: <20081218123002.GA5087__1777.37889248437$1229603661$gmane$org@ioremap.net>
-References: <4946717F.2090809@codemonkey.ws>
-	<20081215.114315.165733593.davem@davemloft.net>
-	<4946C1AA.4080404@codemonkey.ws>
-	<20081215.142918.190909950.davem@davemloft.net>
-	<4946E1BA.80206@codemonkey.ws> <20081215234511.GA24579@ioremap.net>
-	<20081216065727.GD13794@redhat.com>
-	<20081216212532.GA15360@ioremap.net>
-	<20081217143146.GA20505@redhat.com>
+From: "Rose, Gregory V" <gregory.v.rose@intel.com>
+Subject: RE: [PATCH 0/13 v7] PCI: Linux kernel SR-IOV support
+Date: Thu, 18 Dec 2008 14:42:38 -0800
+Message-ID: <43F901BD926A4E43B106BF17856F07554B582F35__49122.435207437$1229640295$gmane$org@orsmsx508.amr.corp.intel.com>
+References: <20081121183605.GA7810@yzhao12-linux.sh.intel.com>
+	<200812171051.36645.jbarnes@virtuousgeek.org>
+	<43F901BD926A4E43B106BF17856F07554B525A02@orsmsx508.amr.corp.intel.com>
+	<200812171142.56170.jbarnes@virtuousgeek.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20081217143146.GA20505@redhat.com>
+In-Reply-To: <200812171142.56170.jbarnes@virtuousgeek.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -26,21 +21,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, David Miller <davem@davemloft.net>, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, Jike Song <albcamus@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "horms@verge.net.au" <horms@verge.net.au>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "yinghai@kernel.org" <yinghai@kernel.org>, "bjorn.helgaas@hp.com" <bjorn.helgaas@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Gleb.
+Jesse Barnes wrote:
+> 
+> Hm, that's not the answer I was hoping for. :)  (Was looking for,
+> "Yeah we just need this bits queued and we'll send an update for
+> e1000 right away." :) 
+> 
+> I really don't want the SR-IOV stuff to sit out another merge cycle
+> though... Arg.
 
-On Wed, Dec 17, 2008 at 04:31:46PM +0200, Gleb Natapov (gleb@redhat.com) wrote:
-> Here it is. Sorry it is not in a patch format yet, but it gives
-> general idea how it looks. The problem with connector is that 
-> we need different IDX for different channels and there is no way
-> to dynamically allocate them.
+We will have drivers that support these API's posted to the 
+lists within two or three days.  These drivers are RFC only 
+and not to be pushed upstream.  More non-Xen testing needs to 
+happen with the 82576 HW.
 
-Looks very good. Especially liked how you used idx.val pairs to register
-multiple users. Please add some comment in connector header on how you
-use it and feel free to add my ack if needed.
-
--- 
-	Evgeniy Polyakov
+- Greg
