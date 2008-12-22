@@ -1,11 +1,13 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 00/15] ia64/pv_ops, xen: more paravirtualization. TAKE 4
-Date: Mon, 22 Dec 2008 14:50:07 +0900
-Message-ID: <1229925022-31365-1-git-send-email-yamahata__26873.4198216864$1229925755$gmane$org@valinux.co.jp>
+Subject: [PATCH 13/15] ia64/pv_ops: move down __kernel_syscall_via_epc.
+Date: Mon, 22 Dec 2008 14:50:20 +0900
+Message-ID: <1229925022-31365-14-git-send-email-yamahata__39022.3678121858$1229925764$gmane$org@valinux.co.jp>
+References: <1229925022-31365-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1229925022-31365-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,74 +21,199 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Move down __kernel_syscall_via_epc to the end of the page.
+We want to paravirtualize only __kernel_syscall_via_epc because
+it includes privileged instructions. Its paravirtualization increases
+its symbols size.
 
-This patch set is intended for the next merge window. They are just
-enhancements of the already merged patches or ia64 porting from x86
-paravirt techniques and that their quality is enough for merge.
+On the other hand, each paravirtualized gate must have e symbols of
+same value and size to native's because the page is mapped to GATE_ADDR
+and GATE_ADDR + PERCPU_PAGE_SIZE and vmlinux is linked to those symbols.
+Later to have the same symbol size, we pads NOPs at the end of
+__kernel_syscall_via_epc. Move it after other functions to keep
+symbols of other functions have same values and sizes.
 
-This patch set is for more paravirtualization on ia64/xen domU.
-This patch set does
-- remove existing warnings
-- paravirtualize fsys call (fsys.S) by multi compile
-- paravirtualize gate page (gate.S) by multi compile
-- support save/restore
-  For this purpose, the followings needs to be paravirtualized
-  - ar.itc instruction 
-  - sched_clock()
-  This is because timer may changed before/after saving/restoring.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/gate.S |  162 +++++++++++++++++++++++-----------------------
+ 1 files changed, 81 insertions(+), 81 deletions(-)
 
-For convenience the working full source is available from
-http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
-branch: ia64-pv-ops-2008dec22-xen-ia64-optimized-domu
-
-For the status of this patch series
-http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
-
-thanks,
-
-Changes from take 3
-- removed trivial compilation error depending on .config
-
-Changes from take 2
-- two patches to remove warnings.
-- rebased to 2.6.28-rc8
-
-Changes from take 1
-- refreshed to 2.6.28-rc6
-  no essential change.
-
-
-Diffstat:
- arch/ia64/include/asm/native/inst.h       |   13 ++
- arch/ia64/include/asm/native/patchlist.h  |   38 +++++++
- arch/ia64/include/asm/native/pvchk_inst.h |    8 ++
- arch/ia64/include/asm/paravirt.h          |   57 ++++++++++
- arch/ia64/include/asm/timex.h             |    1 +
- arch/ia64/include/asm/xen/inst.h          |   28 +++++
- arch/ia64/include/asm/xen/interface.h     |    9 ++
- arch/ia64/include/asm/xen/minstate.h      |   11 ++-
- arch/ia64/include/asm/xen/patchlist.h     |   38 +++++++
- arch/ia64/include/asm/xen/privop.h        |    2 +
- arch/ia64/kernel/Makefile                 |   36 +-----
- arch/ia64/kernel/Makefile.gate            |   27 +++++
- arch/ia64/kernel/asm-offsets.c            |    2 +
- arch/ia64/kernel/entry.S                  |    4 +-
- arch/ia64/kernel/fsys.S                   |   35 +++---
- arch/ia64/kernel/gate.S                   |  171 +++++++++++++++--------------
- arch/ia64/kernel/gate.lds.S               |   17 ++--
- arch/ia64/kernel/head.S                   |   10 ++-
- arch/ia64/kernel/ivt.S                    |    2 +-
- arch/ia64/kernel/paravirt.c               |    1 +
- arch/ia64/kernel/paravirt_patchlist.c     |   79 +++++++++++++
- arch/ia64/kernel/paravirt_patchlist.h     |   28 +++++
- arch/ia64/kernel/patch.c                  |   48 ++++++---
- arch/ia64/kernel/time.c                   |    9 ++
- arch/ia64/kernel/vmlinux.lds.S            |    6 +
- arch/ia64/mm/init.c                       |    9 +-
- arch/ia64/scripts/pvcheck.sed             |    1 +
- arch/ia64/xen/Kconfig                     |    1 +
- arch/ia64/xen/Makefile                    |   19 +++-
- arch/ia64/xen/gate-data.S                 |    3 +
- arch/ia64/xen/time.c                      |   48 ++++++++
- arch/ia64/xen/xen_pv_ops.c                |  132 +++++++++++++++++++++-
- 32 files changed, 729 insertions(+), 164 deletions(-)
+diff --git a/arch/ia64/kernel/gate.S b/arch/ia64/kernel/gate.S
+index 74b1ccc..c957228 100644
+--- a/arch/ia64/kernel/gate.S
++++ b/arch/ia64/kernel/gate.S
+@@ -48,87 +48,6 @@ GLOBAL_ENTRY(__kernel_syscall_via_break)
+ }
+ END(__kernel_syscall_via_break)
+ 
+-/*
+- * On entry:
+- *	r11 = saved ar.pfs
+- *	r15 = system call #
+- *	b0  = saved return address
+- *	b6  = return address
+- * On exit:
+- *	r11 = saved ar.pfs
+- *	r15 = system call #
+- *	b0  = saved return address
+- *	all other "scratch" registers:	undefined
+- *	all "preserved" registers:	same as on entry
+- */
+-
+-GLOBAL_ENTRY(__kernel_syscall_via_epc)
+-	.prologue
+-	.altrp b6
+-	.body
+-{
+-	/*
+-	 * Note: the kernel cannot assume that the first two instructions in this
+-	 * bundle get executed.  The remaining code must be safe even if
+-	 * they do not get executed.
+-	 */
+-	adds r17=-1024,r15			// A
+-	mov r10=0				// A    default to successful syscall execution
+-	epc					// B	causes split-issue
+-}
+-	;;
+-	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
+-	LOAD_FSYSCALL_TABLE(r14)		// X
+-	;;
+-	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
+-	shladd r18=r17,3,r14			// A
+-	mov r19=NR_syscalls-1			// A
+-	;;
+-	lfetch [r18]				// M0|1
+-	mov r29=psr				// M2 (12 cyc)
+-	// If r17 is a NaT, p6 will be zero
+-	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
+-	;;
+-	mov r21=ar.fpsr				// M2 (12 cyc)
+-	tnat.nz p10,p9=r15			// I0
+-	mov.i r26=ar.pfs			// I0 (would stall anyhow due to srlz.d...)
+-	;;
+-	srlz.d					// M0 (forces split-issue) ensure PSR.BE==0
+-(p6)	ld8 r18=[r18]				// M0|1
+-	nop.i 0
+-	;;
+-	nop.m 0
+-(p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
+-	nop.i 0
+-	;;
+-(p8)	ssm psr.i
+-(p6)	mov b7=r18				// I0
+-(p8)	br.dptk.many b7				// B
+-
+-	mov r27=ar.rsc				// M2 (12 cyc)
+-/*
+- * brl.cond doesn't work as intended because the linker would convert this branch
+- * into a branch to a PLT.  Perhaps there will be a way to avoid this with some
+- * future version of the linker.  In the meantime, we just use an indirect branch
+- * instead.
+- */
+-#ifdef CONFIG_ITANIUM
+-(p6)	add r14=-8,r14				// r14 <- addr of fsys_bubble_down entry
+-	;;
+-(p6)	ld8 r14=[r14]				// r14 <- fsys_bubble_down
+-	;;
+-(p6)	mov b7=r14
+-(p6)	br.sptk.many b7
+-#else
+-	BRL_COND_FSYS_BUBBLE_DOWN(p6)
+-#endif
+-	ssm psr.i
+-	mov r10=-1
+-(p10)	mov r8=EINVAL
+-(p9)	mov r8=ENOSYS
+-	FSYS_RETURN
+-END(__kernel_syscall_via_epc)
+-
+ #	define ARG0_OFF		(16 + IA64_SIGFRAME_ARG0_OFFSET)
+ #	define ARG1_OFF		(16 + IA64_SIGFRAME_ARG1_OFFSET)
+ #	define ARG2_OFF		(16 + IA64_SIGFRAME_ARG2_OFFSET)
+@@ -374,3 +293,84 @@ restore_rbs:
+ 	// invala not necessary as that will happen when returning to user-mode
+ 	br.cond.sptk back_from_restore_rbs
+ END(__kernel_sigtramp)
++
++/*
++ * On entry:
++ *	r11 = saved ar.pfs
++ *	r15 = system call #
++ *	b0  = saved return address
++ *	b6  = return address
++ * On exit:
++ *	r11 = saved ar.pfs
++ *	r15 = system call #
++ *	b0  = saved return address
++ *	all other "scratch" registers:	undefined
++ *	all "preserved" registers:	same as on entry
++ */
++
++GLOBAL_ENTRY(__kernel_syscall_via_epc)
++	.prologue
++	.altrp b6
++	.body
++{
++	/*
++	 * Note: the kernel cannot assume that the first two instructions in this
++	 * bundle get executed.  The remaining code must be safe even if
++	 * they do not get executed.
++	 */
++	adds r17=-1024,r15			// A
++	mov r10=0				// A    default to successful syscall execution
++	epc					// B	causes split-issue
++}
++	;;
++	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
++	LOAD_FSYSCALL_TABLE(r14)		// X
++	;;
++	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
++	shladd r18=r17,3,r14			// A
++	mov r19=NR_syscalls-1			// A
++	;;
++	lfetch [r18]				// M0|1
++	mov r29=psr				// M2 (12 cyc)
++	// If r17 is a NaT, p6 will be zero
++	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
++	;;
++	mov r21=ar.fpsr				// M2 (12 cyc)
++	tnat.nz p10,p9=r15			// I0
++	mov.i r26=ar.pfs			// I0 (would stall anyhow due to srlz.d...)
++	;;
++	srlz.d					// M0 (forces split-issue) ensure PSR.BE==0
++(p6)	ld8 r18=[r18]				// M0|1
++	nop.i 0
++	;;
++	nop.m 0
++(p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
++	nop.i 0
++	;;
++(p8)	ssm psr.i
++(p6)	mov b7=r18				// I0
++(p8)	br.dptk.many b7				// B
++
++	mov r27=ar.rsc				// M2 (12 cyc)
++/*
++ * brl.cond doesn't work as intended because the linker would convert this branch
++ * into a branch to a PLT.  Perhaps there will be a way to avoid this with some
++ * future version of the linker.  In the meantime, we just use an indirect branch
++ * instead.
++ */
++#ifdef CONFIG_ITANIUM
++(p6)	add r14=-8,r14				// r14 <- addr of fsys_bubble_down entry
++	;;
++(p6)	ld8 r14=[r14]				// r14 <- fsys_bubble_down
++	;;
++(p6)	mov b7=r14
++(p6)	br.sptk.many b7
++#else
++	BRL_COND_FSYS_BUBBLE_DOWN(p6)
++#endif
++	ssm psr.i
++	mov r10=-1
++(p10)	mov r8=EINVAL
++(p9)	mov r8=ENOSYS
++	FSYS_RETURN
++END(__kernel_syscall_via_epc)
+-- 
+1.6.0.2
