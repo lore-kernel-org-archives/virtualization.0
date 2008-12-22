@@ -1,7 +1,8 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 14/15] ia64/pv_ops: paravirtualize gate.S.
-Date: Mon, 22 Dec 2008 14:50:21 +0900
-Message-ID: <1229925022-31365-15-git-send-email-yamahata__45928.5156488933$1229925766$gmane$org@valinux.co.jp>
+Subject: [PATCH 02/15] __initdata and const cannot be always a happy pair,
+	as gcc-4.3.3 gives
+Date: Mon, 22 Dec 2008 14:50:09 +0900
+Message-ID: <1229925022-31365-3-git-send-email-yamahata__16658.4488972605$1229925767$gmane$org@valinux.co.jp>
 References: <1229925022-31365-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,105 +19,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: Takashi Iwai <tiwai@suse.de>, yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize gate.S.
+  arch/ia64/xen/xen_pv_ops.c:156: error: xen_init_ops causes a section type conflict
+  arch/ia64/xen/xen_pv_ops.c:340: error: xen_iosapic_ops causes a section type conflict
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+This patch simply removes const from data with __initdata.
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 ---
- arch/ia64/include/asm/native/inst.h       |    5 +++++
- arch/ia64/include/asm/native/pvchk_inst.h |    3 +++
- arch/ia64/kernel/gate.S                   |   17 +++++++++++++----
- 3 files changed, 21 insertions(+), 4 deletions(-)
+ arch/ia64/xen/xen_pv_ops.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
-index ad59fc6..d2d46ef 100644
---- a/arch/ia64/include/asm/native/inst.h
-+++ b/arch/ia64/include/asm/native/inst.h
-@@ -166,6 +166,11 @@
- #define RSM_PSR_DT		\
- 	rsm psr.dt
- 
-+#define RSM_PSR_BE_I(clob0, clob1)	\
-+	rsm psr.be | psr.i		\
-+	CLOBBER(clob0)			\
-+	CLOBBER(clob1)
-+
- #define SSM_PSR_DT_AND_SRLZ_I	\
- 	ssm psr.dt		\
- 	;;			\
-diff --git a/arch/ia64/include/asm/native/pvchk_inst.h b/arch/ia64/include/asm/native/pvchk_inst.h
-index 13b289e..8d72962 100644
---- a/arch/ia64/include/asm/native/pvchk_inst.h
-+++ b/arch/ia64/include/asm/native/pvchk_inst.h
-@@ -251,6 +251,9 @@
- 	IS_RREG_CLOB(clob2)
- #define RSM_PSR_DT				\
- 	nop 0
-+#define RSM_PSR_BE_I(clob0, clob1)		\
-+	IS_RREG_CLOB(clob0)			\
-+	IS_RREG_CLOB(clob1)
- #define SSM_PSR_DT_AND_SRLZ_I			\
- 	nop 0
- #define BSW_0(clob0, clob1, clob2)		\
-diff --git a/arch/ia64/kernel/gate.S b/arch/ia64/kernel/gate.S
-index c957228..cf5e0a1 100644
---- a/arch/ia64/kernel/gate.S
-+++ b/arch/ia64/kernel/gate.S
-@@ -13,6 +13,7 @@
- #include <asm/sigcontext.h>
- #include <asm/system.h>
- #include <asm/unistd.h>
-+#include "paravirt_inst.h"
- 
- /*
-  * We can't easily refer to symbols inside the kernel.  To avoid full runtime relocation,
-@@ -323,7 +324,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
- 	epc					// B	causes split-issue
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index 04cd123..5d491d9 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -153,7 +153,7 @@ xen_post_smp_prepare_boot_cpu(void)
+ 	xen_setup_vcpu_info_placement();
  }
- 	;;
--	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
-+	RSM_PSR_BE_I(r20, r22)			// M2 (5 cyc to srlz.d)
- 	LOAD_FSYSCALL_TABLE(r14)		// X
- 	;;
- 	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
-@@ -331,7 +332,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
- 	mov r19=NR_syscalls-1			// A
- 	;;
- 	lfetch [r18]				// M0|1
--	mov r29=psr				// M2 (12 cyc)
-+	MOV_FROM_PSR(p0, r29, r8)		// M2 (12 cyc)
- 	// If r17 is a NaT, p6 will be zero
- 	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
- 	;;
-@@ -347,7 +348,7 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
- (p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
- 	nop.i 0
- 	;;
--(p8)	ssm psr.i
-+	SSM_PSR_I(p8, p14, r25)
- (p6)	mov b7=r18				// I0
- (p8)	br.dptk.many b7				// B
  
-@@ -368,9 +369,17 @@ GLOBAL_ENTRY(__kernel_syscall_via_epc)
- #else
- 	BRL_COND_FSYS_BUBBLE_DOWN(p6)
- #endif
--	ssm psr.i
-+	SSM_PSR_I(p0, p14, r10)
- 	mov r10=-1
- (p10)	mov r8=EINVAL
- (p9)	mov r8=ENOSYS
- 	FSYS_RETURN
-+
-+#ifdef CONFIG_PARAVIRT
-+	/*
-+	 * padd to make the size of this symbol constant
-+	 * independent of paravirtualization.
-+	 */
-+	.align PAGE_SIZE / 8
-+#endif
- END(__kernel_syscall_via_epc)
+-static const struct pv_init_ops xen_init_ops __initdata = {
++static struct pv_init_ops xen_init_ops __initdata = {
+ 	.banner = xen_banner,
+ 
+ 	.reserve_memory = xen_reserve_memory,
+@@ -260,7 +260,7 @@ xen_intrin_local_irq_restore(unsigned long mask)
+ 		xen_rsm_i();
+ }
+ 
+-static const struct pv_cpu_ops xen_cpu_ops __initdata = {
++static struct pv_cpu_ops xen_cpu_ops __initdata = {
+ 	.fc		= xen_fc,
+ 	.thash		= xen_thash,
+ 	.get_cpuid	= xen_get_cpuid,
+@@ -337,7 +337,7 @@ xen_iosapic_write(char __iomem *iosapic, unsigned int reg, u32 val)
+ 	HYPERVISOR_physdev_op(PHYSDEVOP_apic_write, &apic_op);
+ }
+ 
+-static const struct pv_iosapic_ops xen_iosapic_ops __initdata = {
++static struct pv_iosapic_ops xen_iosapic_ops __initdata = {
+ 	.pcat_compat_init = xen_pcat_compat_init,
+ 	.__get_irq_chip = xen_iosapic_get_irq_chip,
+ 
 -- 
 1.6.0.2
