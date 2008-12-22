@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 04/15] ia64/pv_ops/xen: preliminary to paravirtualizing fsys.S
-	for xen.
-Date: Mon, 22 Dec 2008 14:50:11 +0900
-Message-ID: <1229925022-31365-5-git-send-email-yamahata__11453.2582847916$1229925662$gmane$org@valinux.co.jp>
+Subject: [PATCH 10/15] ia64/pv_ops/xen/pv_time_ops: implement sched_clock.
+Date: Mon, 22 Dec 2008 14:50:17 +0900
+Message-ID: <1229925022-31365-11-git-send-email-yamahata__37977.6021153249$1229925738$gmane$org@valinux.co.jp>
 References: <1229925022-31365-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,83 +21,88 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a preliminary patch to paravirtualizing fsys.S.
-compile fsys.S twice one for native and one for xen, and switch
-them at run tine.
-Later fsys.S will be paravirtualized.
+paravirtualize sched_clock.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/inst.h |    3 +++
- arch/ia64/xen/Makefile           |    2 +-
- arch/ia64/xen/xen_pv_ops.c       |   14 ++++++++++++++
- 3 files changed, 18 insertions(+), 1 deletions(-)
+ arch/ia64/xen/Kconfig |    1 +
+ arch/ia64/xen/time.c  |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 49 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
-index 19c2ae1..e8e01b2 100644
---- a/arch/ia64/include/asm/xen/inst.h
-+++ b/arch/ia64/include/asm/xen/inst.h
-@@ -33,6 +33,9 @@
- #define __paravirt_work_processed_syscall_target \
- 						xen_work_processed_syscall
+diff --git a/arch/ia64/xen/Kconfig b/arch/ia64/xen/Kconfig
+index f1683a2..48839da 100644
+--- a/arch/ia64/xen/Kconfig
++++ b/arch/ia64/xen/Kconfig
+@@ -8,6 +8,7 @@ config XEN
+ 	depends on PARAVIRT && MCKINLEY && IA64_PAGE_SIZE_16KB && EXPERIMENTAL
+ 	select XEN_XENCOMM
+ 	select NO_IDLE_HZ
++	select HAVE_UNSTABLE_SCHED_CLOCK
  
-+#define paravirt_fsyscall_table			xen_fsyscall_table
-+#define paravirt_fsys_bubble_down		xen_fsys_bubble_down
+ 	# those are required to save/restore.
+ 	select ARCH_SUSPEND_POSSIBLE
+diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
+index d15a94c..c85d319 100644
+--- a/arch/ia64/xen/time.c
++++ b/arch/ia64/xen/time.c
+@@ -175,10 +175,58 @@ static void xen_itc_jitter_data_reset(void)
+ 	} while (unlikely(ret != lcycle));
+ }
+ 
++/* based on xen_sched_clock() in arch/x86/xen/time.c. */
++/*
++ * This relies on HAVE_UNSTABLE_SCHED_CLOCK. If it can't be defined,
++ * something similar logic should be implemented here.
++ */
++/*
++ * Xen sched_clock implementation.  Returns the number of unstolen
++ * nanoseconds, which is nanoseconds the VCPU spent in RUNNING+BLOCKED
++ * states.
++ */
++static unsigned long long xen_sched_clock(void)
++{
++	struct vcpu_runstate_info runstate;
 +
- #define MOV_FROM_IFA(reg)	\
- 	movl reg = XSI_IFA;	\
- 	;;			\
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 0ad0224..b4ca2e6 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -10,7 +10,7 @@ obj-$(CONFIG_IA64_GENERIC) += machvec.o
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
- 
- # xen multi compile
--ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
-+ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S fsys.S
- ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
- obj-y += $(ASM_PARAVIRT_OBJS)
- define paravirtualized_xen
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index 5d491d9..46b418a 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -24,6 +24,7 @@
- #include <linux/irq.h>
- #include <linux/kernel.h>
- #include <linux/pm.h>
-+#include <linux/unistd.h>
- 
- #include <asm/xen/hypervisor.h>
- #include <asm/xen/xencomm.h>
-@@ -166,6 +167,18 @@ static struct pv_init_ops xen_init_ops __initdata = {
++	unsigned long long now;
++	unsigned long long offset;
++	unsigned long long ret;
++
++	/*
++	 * Ideally sched_clock should be called on a per-cpu basis
++	 * anyway, so preempt should already be disabled, but that's
++	 * not current practice at the moment.
++	 */
++	preempt_disable();
++
++	/*
++	 * both ia64_native_sched_clock() and xen's runstate are
++	 * based on mAR.ITC. So difference of them makes sense.
++	 */
++	now = ia64_native_sched_clock();
++
++	get_runstate_snapshot(&runstate);
++
++	WARN_ON(runstate.state != RUNSTATE_running);
++
++	offset = 0;
++	if (now > runstate.state_entry_time)
++		offset = now - runstate.state_entry_time;
++	ret = runstate.time[RUNSTATE_blocked] +
++		runstate.time[RUNSTATE_running] +
++		offset;
++
++	preempt_enable();
++
++	return ret;
++}
++
+ struct pv_time_ops xen_time_ops __initdata = {
+ 	.init_missing_ticks_accounting	= xen_init_missing_ticks_accounting,
+ 	.do_steal_accounting		= xen_do_steal_accounting,
+ 	.clocksource_resume		= xen_itc_jitter_data_reset,
++	.sched_clock			= xen_sched_clock,
  };
  
- /***************************************************************************
-+ * pv_fsys_data
-+ * addresses for fsys
-+ */
-+
-+extern unsigned long xen_fsyscall_table[NR_syscalls];
-+extern char xen_fsys_bubble_down[];
-+struct pv_fsys_data xen_fsys_data __initdata = {
-+	.fsyscall_table = (unsigned long *)xen_fsyscall_table,
-+	.fsys_bubble_down = (void *)xen_fsys_bubble_down,
-+};
-+
-+/***************************************************************************
-  * pv_cpu_ops
-  * intrinsics hooks.
-  */
-@@ -355,6 +368,7 @@ xen_setup_pv_ops(void)
- 	xen_info_init();
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
-+	pv_fsys_data = xen_fsys_data;
- 	pv_cpu_ops = xen_cpu_ops;
- 	pv_iosapic_ops = xen_iosapic_ops;
- 	pv_irq_ops = xen_irq_ops;
+ /* Called after suspend, to resume time.  */
 -- 
 1.6.0.2
