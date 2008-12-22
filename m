@@ -1,14 +1,18 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 3/5] ia64/pv_ops/bp/module: support binary patching for kernel
-	module.
-Date: Mon, 22 Dec 2008 14:51:13 +0900
-Message-ID: <1229925075-31465-4-git-send-email-yamahata__6272.87992178953$1229926093$gmane$org@valinux.co.jp>
-References: <1229925075-31465-1-git-send-email-yamahata@valinux.co.jp>
+From: Mark McLoughlin <markmc@redhat.com>
+Subject: Re: [PATCH 2/3] virtio: indirect ring entries
+	(VIRTIO_RING_F_INDIRECT_DESC)
+Date: Mon, 22 Dec 2008 10:17:21 +0000
+Message-ID: <1229941041.19474.2.camel__13513.3863114335$1229941201$gmane$org@localhost.localdomain>
+References: <1229620222-22216-1-git-send-email-markmc@redhat.com>
+	<1229620222-22216-2-git-send-email-markmc@redhat.com>
+	<1229620222-22216-3-git-send-email-markmc@redhat.com>
+	<200812201238.07510.ioe-lkml@rameria.de>
+Reply-To: Mark McLoughlin <markmc@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1229925075-31465-1-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <200812201238.07510.ioe-lkml@rameria.de>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -18,84 +22,43 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: Avi Kivity <avi@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-support binary patching for kernel module.
+Hi Ingo,
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/include/asm/module.h |    6 ++++++
- arch/ia64/kernel/module.c      |   32 ++++++++++++++++++++++++++++++++
- 2 files changed, 38 insertions(+), 0 deletions(-)
+On Sat, 2008-12-20 at 12:38 +0100, Ingo Oeser wrote:
+> Hi Mark,
+> 
+> On Thursday 18 December 2008, Mark McLoughlin wrote:
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index 5777196..2330c4b 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -70,6 +73,55 @@ struct vring_virtqueue
+> >  
+> >  #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
+> >  
+> > +/* Set up an indirect table of descriptors and add it to the queue. */
+> > +static int vring_add_indirect(struct vring_virtqueue *vq,
+> > +			      struct scatterlist sg[],
+> > +			      unsigned int out,
+> > +			      unsigned int in)
+> > +{
+> > +	struct vring_desc *desc;
+> > +	unsigned head;
+> > +	int i;
+> > +
+> > +	desc = kmalloc((out + in) * sizeof(struct vring_desc), GFP_ATOMIC);
+> 
+> kmalloc() returns ZERO_SIZE_PTR, if (out + in) == 0
 
-diff --git a/arch/ia64/include/asm/module.h b/arch/ia64/include/asm/module.h
-index d2da61e..908eaef 100644
---- a/arch/ia64/include/asm/module.h
-+++ b/arch/ia64/include/asm/module.h
-@@ -16,6 +16,12 @@ struct mod_arch_specific {
- 	struct elf64_shdr *got;		/* global offset table */
- 	struct elf64_shdr *opd;		/* official procedure descriptors */
- 	struct elf64_shdr *unwind;	/* unwind-table section */
-+#ifdef CONFIG_PARAVIRT
-+	struct elf64_shdr *paravirt_bundles;
-+					/* paravirt_alt_bundle_patch table */
-+	struct elf64_shdr *paravirt_insts;
-+					/* paravirt_alt_inst_patch table */
-+#endif
- 	unsigned long gp;		/* global-pointer for module */
- 
- 	void *core_unw_table;		/* core unwind-table cookie returned by unwinder */
-diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
-index aaa7d90..34fe425 100644
---- a/arch/ia64/kernel/module.c
-+++ b/arch/ia64/kernel/module.c
-@@ -446,6 +446,14 @@ module_frob_arch_sections (Elf_Ehdr *ehdr, Elf_Shdr *sechdrs, char *secstrings,
- 			mod->arch.opd = s;
- 		else if (strcmp(".IA_64.unwind", secstrings + s->sh_name) == 0)
- 			mod->arch.unwind = s;
-+#ifdef CONFIG_PARAVIRT
-+		else if (strcmp(".paravirt_bundles",
-+				secstrings + s->sh_name) == 0)
-+			mod->arch.paravirt_bundles = s;
-+		else if (strcmp(".paravirt_insts",
-+				secstrings + s->sh_name) == 0)
-+			mod->arch.paravirt_insts = s;
-+#endif
- 
- 	if (!mod->arch.core_plt || !mod->arch.init_plt || !mod->arch.got || !mod->arch.opd) {
- 		printk(KERN_ERR "%s: sections missing\n", mod->name);
-@@ -921,6 +929,30 @@ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mo
- 	DEBUGP("%s: init: entry=%p\n", __func__, mod->init);
- 	if (mod->arch.unwind)
- 		register_unwind_table(mod);
-+#ifdef CONFIG_PARAVIRT
-+        if (mod->arch.paravirt_bundles) {
-+                struct paravirt_patch_site_bundle *start =
-+                        (struct paravirt_patch_site_bundle *)
-+                        mod->arch.paravirt_bundles->sh_addr;
-+                struct paravirt_patch_site_bundle *end =
-+                        (struct paravirt_patch_site_bundle *)
-+                        (mod->arch.paravirt_bundles->sh_addr +
-+                         mod->arch.paravirt_bundles->sh_size);
-+
-+                paravirt_patch_apply_bundle(start, end);
-+        }
-+        if (mod->arch.paravirt_insts) {
-+                struct paravirt_patch_site_inst *start =
-+                        (struct paravirt_patch_site_inst *)
-+                        mod->arch.paravirt_insts->sh_addr;
-+                struct paravirt_patch_site_inst *end =
-+                        (struct paravirt_patch_site_inst *)
-+                        (mod->arch.paravirt_insts->sh_addr +
-+                         mod->arch.paravirt_insts->sh_size);
-+
-+                paravirt_patch_apply_inst(start, end);
-+        }
-+#endif
- 	return 0;
- }
- 
--- 
-1.6.0.2
+vring_add_buf() has:
+
+  BUG_ON(out + in == 0)
+
+I should just add that here too before the kmalloc() call.
+
+Thanks,
+Mark.
