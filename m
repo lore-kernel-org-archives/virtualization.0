@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 05/15] ia64/pv_ops: paravirtualize fsys.S.
-Date: Mon, 22 Dec 2008 14:50:12 +0900
-Message-ID: <1229925022-31365-6-git-send-email-yamahata__18884.1823990971$1229925191$gmane$org@valinux.co.jp>
+Subject: [PATCH 07/15] ia64/pv_ops: paravirtualize mov = ar.itc.
+Date: Mon, 22 Dec 2008 14:50:14 +0900
+Message-ID: <1229925022-31365-8-git-send-email-yamahata__19104.8147077256$1229925422$gmane$org@valinux.co.jp>
 References: <1229925022-31365-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,75 +21,88 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize fsys.S.
+paravirtualize mov reg = ar.itc.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/kernel/fsys.S |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+ arch/ia64/include/asm/native/inst.h |    5 +++++
+ arch/ia64/kernel/entry.S            |    4 ++--
+ arch/ia64/kernel/fsys.S             |    4 ++--
+ arch/ia64/kernel/ivt.S              |    2 +-
+ 4 files changed, 10 insertions(+), 5 deletions(-)
 
+diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
+index 5e4e151..ad59fc6 100644
+--- a/arch/ia64/include/asm/native/inst.h
++++ b/arch/ia64/include/asm/native/inst.h
+@@ -77,6 +77,11 @@
+ (pred)	mov reg = psr			\
+ 	CLOBBER(clob)
+ 
++#define MOV_FROM_ITC(pred, pred_clob, reg, clob)	\
++(pred)	mov reg = ar.itc				\
++	CLOBBER(clob)					\
++	CLOBBER_PRED(pred_clob)
++
+ #define MOV_TO_IFA(reg, clob)	\
+ 	mov cr.ifa = reg	\
+ 	CLOBBER(clob)
+diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
+index d435f4a..c5709c6 100644
+--- a/arch/ia64/kernel/entry.S
++++ b/arch/ia64/kernel/entry.S
+@@ -735,7 +735,7 @@ GLOBAL_ENTRY(__paravirt_leave_syscall)
+ __paravirt_work_processed_syscall:
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+ 	adds r2=PT(LOADRS)+16,r12
+-(pUStk)	mov.m r22=ar.itc			// fetch time at leave
++	MOV_FROM_ITC(pUStk, p9, r22, r19)	// fetch time at leave
+ 	adds r18=TI_FLAGS+IA64_TASK_SIZE,r13
+ 	;;
+ (p6)	ld4 r31=[r18]				// load current_thread_info()->flags
+@@ -984,7 +984,7 @@ GLOBAL_ENTRY(__paravirt_leave_kernel)
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+ 	.pred.rel.mutex pUStk,pKStk
+ 	MOV_FROM_PSR(pKStk, r22, r29)	// M2 read PSR now that interrupts are disabled
+-(pUStk)	mov.m r22=ar.itc	// M  fetch time at leave
++	MOV_FROM_ITC(pUStk, p9, r22, r29)	// M  fetch time at leave
+ 	nop.i 0
+ 	;;
+ #else
 diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
-index 788319f..3544d75 100644
+index 3544d75..3567d54 100644
 --- a/arch/ia64/kernel/fsys.S
 +++ b/arch/ia64/kernel/fsys.S
-@@ -419,7 +419,7 @@ EX(.fail_efault, ld8 r14=[r33])			// r14 <- *set
- 	mov r17=(1 << (SIGKILL - 1)) | (1 << (SIGSTOP - 1))
+@@ -280,7 +280,7 @@ ENTRY(fsys_gettimeofday)
+ (p9)	cmp.eq p13,p0 = 0,r30	// if mmio_ptr, clear p13 jitter control
  	;;
- 
--	rsm psr.i				// mask interrupt delivery
-+	RSM_PSR_I(p0, r18, r19)			// mask interrupt delivery
- 	mov ar.ccv=0
- 	andcm r14=r14,r17			// filter out SIGKILL & SIGSTOP
- 
-@@ -492,7 +492,7 @@ EX(.fail_efault, ld8 r14=[r33])			// r14 <- *set
- #ifdef CONFIG_SMP
- 	st4.rel [r31]=r0			// release the lock
+ 	.pred.rel.mutex p8,p9
+-(p8)	mov r2 = ar.itc		// CPU_TIMER. 36 clocks latency!!!
++	MOV_FROM_ITC(p8, p6, r2, r10)	// CPU_TIMER. 36 clocks latency!!!
+ (p9)	ld8 r2 = [r30]		// MMIO_TIMER. Could also have latency issues..
+ (p13)	ld8 r25 = [r19]		// get itc_lastcycle value
+ 	ld8 r9 = [r22],IA64_TIMESPEC_TV_NSEC_OFFSET	// tv_sec
+@@ -684,7 +684,7 @@ GLOBAL_ENTRY(paravirt_fsys_bubble_down)
+ 	;;
+ 	mov ar.rsc=0				// M2   set enforced lazy mode, pl 0, LE, loadrs=0
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+-	mov.m r30=ar.itc			// M    get cycle for accounting
++	MOV_FROM_ITC(p0, p6, r30, r23)		// M    get cycle for accounting
+ #else
+ 	nop.m 0
  #endif
--	ssm psr.i
-+	SSM_PSR_I(p0, p9, r31)
- 	;;
- 
- 	srlz.d					// ensure psr.i is set again
-@@ -514,7 +514,7 @@ EX(.fail_efault, (p15) st8 [r34]=r3)
- #ifdef CONFIG_SMP
- 	st4.rel [r31]=r0			// release the lock
+diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
+index f675d8e..ec9a5fd 100644
+--- a/arch/ia64/kernel/ivt.S
++++ b/arch/ia64/kernel/ivt.S
+@@ -804,7 +804,7 @@ ENTRY(break_fault)
+ ///////////////////////////////////////////////////////////////////////
+ 	st1 [r16]=r0				// M2|3 clear current->thread.on_ustack flag
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+-	mov.m r30=ar.itc			// M    get cycle for accounting
++	MOV_FROM_ITC(p0, p14, r30, r18)		// M    get cycle for accounting
+ #else
+ 	mov b6=r30				// I0   setup syscall handler branch reg early
  #endif
--	ssm psr.i
-+	SSM_PSR_I(p0, p9, r17)
- 	;;
- 	srlz.d
- 	br.sptk.many fsys_fallback_syscall	// with signal pending, do the heavy-weight syscall
-@@ -522,7 +522,7 @@ EX(.fail_efault, (p15) st8 [r34]=r3)
- #ifdef CONFIG_SMP
- .lock_contention:
- 	/* Rather than spinning here, fall back on doing a heavy-weight syscall.  */
--	ssm psr.i
-+	SSM_PSR_I(p0, p9, r17)
- 	;;
- 	srlz.d
- 	br.sptk.many fsys_fallback_syscall
-@@ -593,11 +593,11 @@ ENTRY(fsys_fallback_syscall)
- 	adds r17=-1024,r15
- 	movl r14=sys_call_table
- 	;;
--	rsm psr.i
-+	RSM_PSR_I(p0, r26, r27)
- 	shladd r18=r17,3,r14
- 	;;
- 	ld8 r18=[r18]				// load normal (heavy-weight) syscall entry-point
--	mov r29=psr				// read psr (12 cyc load latency)
-+	MOV_FROM_PSR(p0, r29, r26)		// read psr (12 cyc load latency)
- 	mov r27=ar.rsc
- 	mov r21=ar.fpsr
- 	mov r26=ar.pfs
-@@ -735,7 +735,7 @@ GLOBAL_ENTRY(paravirt_fsys_bubble_down)
- 	mov rp=r14				// I0   set the real return addr
- 	and r3=_TIF_SYSCALL_TRACEAUDIT,r3	// A
- 	;;
--	ssm psr.i				// M2   we're on kernel stacks now, reenable irqs
-+	SSM_PSR_I(p0, p6, r22)			// M2   we're on kernel stacks now, reenable irqs
- 	cmp.eq p8,p0=r3,r0			// A
- (p10)	br.cond.spnt.many ia64_ret_from_syscall	// B    return if bad call-frame or r15 is a NaT
- 
 -- 
 1.6.0.2
