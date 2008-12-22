@@ -1,17 +1,14 @@
-From: "Rose, Gregory V" <gregory.v.rose@intel.com>
-Subject: RE: [PATCH 0/13 v7] PCI: Linux kernel SR-IOV support
-Date: Thu, 18 Dec 2008 14:42:38 -0800
-Message-ID: <43F901BD926A4E43B106BF17856F07554B582F35__49122.435207437$1229640295$gmane$org@orsmsx508.amr.corp.intel.com>
-References: <20081121183605.GA7810@yzhao12-linux.sh.intel.com>
-	<200812171051.36645.jbarnes@virtuousgeek.org>
-	<43F901BD926A4E43B106BF17856F07554B525A02@orsmsx508.amr.corp.intel.com>
-	<200812171142.56170.jbarnes@virtuousgeek.org>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 06/15] ia64/pv_ops/pvchecker: support mov = ar.itc
+	paravirtualization
+Date: Mon, 22 Dec 2008 14:50:13 +0900
+Message-ID: <1229925022-31365-7-git-send-email-yamahata__34772.7332766683$1229924943$gmane$org@valinux.co.jp>
+References: <1229925022-31365-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200812171142.56170.jbarnes@virtuousgeek.org>
-Content-Language: en-US
+In-Reply-To: <1229925022-31365-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,22 +18,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: "randy.dunlap@oracle.com" <randy.dunlap@oracle.com>, "grundler@parisc-linux.org" <grundler@parisc-linux.org>, "achiang@hp.com" <achiang@hp.com>, "matthew@wil.cx" <matthew@wil.cx>, Greg KH <greg@kroah.com>, "rdreier@cisco.com" <rdreier@cisco.com>, Jike Song <albcamus@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "horms@verge.net.au" <horms@verge.net.au>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mingo@elte.hu" <mingo@elte.hu>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "yinghai@kernel.org" <yinghai@kernel.org>, "bjorn.helgaas@hp.com" <bjorn.helgaas@hp.com>
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jesse Barnes wrote:
-> 
-> Hm, that's not the answer I was hoping for. :)  (Was looking for,
-> "Yeah we just need this bits queued and we'll send an update for
-> e1000 right away." :) 
-> 
-> I really don't want the SR-IOV stuff to sit out another merge cycle
-> though... Arg.
+add suport for mov = ar.itc to pvchecker.
 
-We will have drivers that support these API's posted to the 
-lists within two or three days.  These drivers are RFC only 
-and not to be pushed upstream.  More non-Xen testing needs to 
-happen with the 82576 HW.
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/include/asm/native/pvchk_inst.h |    5 +++++
+ arch/ia64/scripts/pvcheck.sed             |    1 +
+ 2 files changed, 6 insertions(+), 0 deletions(-)
 
-- Greg
+diff --git a/arch/ia64/include/asm/native/pvchk_inst.h b/arch/ia64/include/asm/native/pvchk_inst.h
+index b8e6eb1..13b289e 100644
+--- a/arch/ia64/include/asm/native/pvchk_inst.h
++++ b/arch/ia64/include/asm/native/pvchk_inst.h
+@@ -180,6 +180,11 @@
+ 	IS_PRED_IN(pred)			\
+ 	IS_RREG_OUT(reg)			\
+ 	IS_RREG_CLOB(clob)
++#define MOV_FROM_ITC(pred, pred_clob, reg, clob)	\
++	IS_PRED_IN(pred)				\
++	IS_PRED_CLOB(pred_clob)				\
++	IS_RREG_OUT(reg)				\
++	IS_RREG_CLOB(clob)
+ #define MOV_TO_IFA(reg, clob)			\
+ 	IS_RREG_IN(reg)				\
+ 	IS_RREG_CLOB(clob)
+diff --git a/arch/ia64/scripts/pvcheck.sed b/arch/ia64/scripts/pvcheck.sed
+index ba66ac2..e59809a 100644
+--- a/arch/ia64/scripts/pvcheck.sed
++++ b/arch/ia64/scripts/pvcheck.sed
+@@ -17,6 +17,7 @@ s/mov.*=.*cr\.iip/.warning \"cr.iip should not used directly\"/g
+ s/mov.*=.*cr\.ivr/.warning \"cr.ivr should not used directly\"/g
+ s/mov.*=[^\.]*psr/.warning \"psr should not used directly\"/g	# avoid ar.fpsr
+ s/mov.*=.*ar\.eflags/.warning \"ar.eflags should not used directly\"/g
++s/mov.*=.*ar\.itc.*/.warning \"ar.itc should not used directly\"/g
+ s/mov.*cr\.ifa.*=.*/.warning \"cr.ifa should not used directly\"/g
+ s/mov.*cr\.itir.*=.*/.warning \"cr.itir should not used directly\"/g
+ s/mov.*cr\.iha.*=.*/.warning \"cr.iha should not used directly\"/g
+-- 
+1.6.0.2
