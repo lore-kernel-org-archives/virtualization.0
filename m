@@ -1,46 +1,90 @@
-From: Yinghai Lu <yinghai@kernel.org>
-Subject: Re: [PATCH 1/5] cpumask: update irq_desc to use cpumask_var_t
-Date: Thu, 08 Jan 2009 11:31:58 -0800
-Message-ID: <496654AE.50600@kernel.org>
-References: <20090107195832.265117000@polaris-admin.engr.sgi.com>	 <20090107195832.465094000@polaris-admin.engr.sgi.com> <86802c440901071227n2d110757ye1bd12e689502ebc@mail.gmail.com> <49652D92.8020105@sgi.com> <49656FCF.9090602@kernel.org> <49661F8B.5070103@sgi.com>
+From: Mike Travis <travis@sgi.com>
+Subject: [PULL]: tip/cpus4096 updates
+Date: Thu, 08 Jan 2009 20:17:29 -0800
+Message-ID: <4966CFD9.4040602@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758818AbZAHTdl@vger.kernel.org>
-In-Reply-To: <49661F8B.5070103@sgi.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755281AbZAIERv@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mike Travis <travis@sgi.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@xensource.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, oprofile-list@lists.sf.net, linux-net-drivers@solarflare.com, S390 <linux-s390@vger.kernel.org>, linux390@de.ibm.com, virtualization@lists.osdl.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Mike Travis wrote:
-> Yinghai Lu wrote:
-> ...
->>> Or am I missing your point?
->> static void init_copy_one_irq_desc(int irq, struct irq_desc *old_desc,
->>                  struct irq_desc *desc, int cpu)
->> {
->>         memcpy(desc, old_desc, sizeof(struct irq_desc));
->>
->>
->> will overwrite new_desc->affinity and pending_mask
->>
->> YH
-> 
-> Yup, apparently I was missing your point (banging on head once more).
-> 
-> Thanks for spotting this!
-> 
-> Ingo - what's the state of tip/cpus4096?  Shall I push this as an
-> append patch, or redo the original so bisectability works.
-> 
-> Also, Yinghai - would you know of a straight forward way to test
-> the irq migration?   I have taken cpus offline and back online
-> but wasn't sure if any irq's were being moved off of cpu 0 which
-> cannot be taken offline.
+Hi Ingo,
 
-use echo "mask" > /proc/irq/xxx/smp_affinity to change affinity
+Please pull a few more cpus4096 changes.  Most are fairly lightweight with the
+biggest change being to use cpumask_var_t's for the domain and pending_mask
+cpumask's in irq_desc.
 
-and check /proc/interrupts and in /sys/log/messages i will said allocate new irq desc on some other node/cpu.
+It also deals with this cpu_evtchn_mask bss space bump:
 
-YH
+    65536  +2031616   2097152 +3100%  cpu_evtchn_mask(.bss)
+
+Everything merges into tip/master cleanly.
+
+Thanks!
+Mike
+
+The following changes since commit 36c401a44abcc389a00f9cd14892c9cf9bf0780d:
+  Ingo Molnar (1):
+        [IA64] fix typo in cpumask_of_pcibus()
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/travis/linux-2.6-cpus4096-for-ingo.git master
+
+Mike Travis (9):
+      cpumask: update irq_desc to use cpumask_var_t
+      cpumask: fix bug in use cpumask_var_t in irq_desc
+      SGI UV cpumask: use static temp cpumask in flush_tlb
+      x86: cleanup remaining cpumask_t code in mce_amd_64.c
+      x86: cleanup remaining cpumask_t code in microcode_core.c
+      x86: reduce stack usage in init_intel_cacheinfo
+      cpumask: use cpumask_var_t in dcdbas.c
+      cpumask: reduce stack usage in find_lowest_rq
+      Xen: reduce memory required for cpu_evtchn_mask
+
+Rusty Russell (5):
+      cpumask: Use topology_core_cpumask()/topology_thread_cpumask()
+      cpumask: convert misc driver functions
+      cpumask: convert drivers/net/sfc
+      cpumask: convert other misc kernel functions
+      x86: change flush_tlb_others to take a const struct cpumask *. FIXME: REVIEW
+
+ Documentation/cputopology.txt           |    6 +-
+ arch/x86/include/asm/paravirt.h         |    8 ++-
+ arch/x86/include/asm/tlbflush.h         |    8 ++--
+ arch/x86/include/asm/uv/uv_bau.h        |    3 +-
+ arch/x86/kernel/cpu/intel_cacheinfo.c   |   63 ++++++++++++++++-------
+ arch/x86/kernel/cpu/mcheck/mce_amd_64.c |   21 +++++---
+ arch/x86/kernel/io_apic.c               |   20 ++++----
+ arch/x86/kernel/irq_32.c                |    2 +-
+ arch/x86/kernel/irq_64.c                |    2 +-
+ arch/x86/kernel/microcode_core.c        |   74 ++++++++++++++++----------
+ arch/x86/kernel/tlb_32.c                |   67 ++++++++++--------------
+ arch/x86/kernel/tlb_64.c                |   62 ++++++++++++----------
+ arch/x86/kernel/tlb_uv.c                |   16 +++---
+ arch/x86/xen/enlighten.c                |   31 ++++-------
+ drivers/base/cpu.c                      |    2 +-
+ drivers/base/topology.c                 |   33 ++++++------
+ drivers/firmware/dcdbas.c               |   12 +++--
+ drivers/misc/sgi-xp/xpc_main.c          |    2 +-
+ drivers/net/sfc/efx.c                   |   17 ++++--
+ drivers/oprofile/buffer_sync.c          |   22 +++++++--
+ drivers/oprofile/buffer_sync.h          |    4 ++
+ drivers/oprofile/oprof.c                |    9 +++-
+ drivers/xen/events.c                    |   25 +++++++---
+ drivers/xen/manage.c                    |    2 +-
+ include/linux/irq.h                     |   86 +++++++++++++++++++++++++++++-
+ include/linux/topology.h                |    6 ++
+ kernel/irq/chip.c                       |    5 ++-
+ kernel/irq/handle.c                     |   20 +++----
+ kernel/irq/manage.c                     |   12 ++--
+ kernel/irq/migration.c                  |   12 ++--
+ kernel/irq/numa_migrate.c               |   19 ++++++-
+ kernel/irq/proc.c                       |    4 +-
+ kernel/sched_rt.c                       |   36 ++++++++-----
+ lib/smp_processor_id.c                  |    2 +-
+ net/iucv/iucv.c                         |   28 +++++++----
+ 35 files changed, 471 insertions(+), 270 deletions(-)
