@@ -1,105 +1,63 @@
-From: "C. Craig Ross" <ccr@linuxfoundation.org>
-Subject: Collaboration Summit Meeting Space
-Date: Fri, 9 Jan 2009 14:57:56 -0500
-Message-ID: <fb0caef70901091157j53580750mf0dc3275cff1bba8@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 3/5] cpumask: convert misc driver functions
+Date: Sat, 10 Jan 2009 21:27:36 +1030
+Message-ID: <200901102127.38503.rusty@rustcorp.com.au>
+References: <20090107195832.265117000@polaris-admin.engr.sgi.com> <20090107195832.733912000@polaris-admin.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5598487251178576110=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@linuxfoundation.org
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755682AbZAJK6G@vger.kernel.org>
+In-Reply-To: <20090107195832.733912000@polaris-admin.engr.sgi.com>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mike Travis <travis@sgi.com>
+Cc: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org, Dean Nelson <dcn@sgi.com>, Robert Richter <robert.richter@amd.com>, oprofile-list@lists.sf.net, Jeremy Fitzhardinge <jeremy@xensource.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Ursula Braun <ursula.braun@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============5598487251178576110==
-Content-Type: multipart/alternative;
-	boundary="----=_Part_166107_2024866.1231531076874"
+On Thursday 08 January 2009 06:28:35 Mike Travis wrote:
+> From: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> Impact: use new cpumask API.
+> 
+> Convert misc driver functions to use struct cpumask.
+...
+> @@ -593,15 +592,20 @@ static int __cpuinit iucv_cpu_notify(str
+>  		break;
+>  	case CPU_DOWN_PREPARE:
+>  	case CPU_DOWN_PREPARE_FROZEN:
+> -		cpumask = iucv_buffer_cpumask;
+> -		cpu_clear(cpu, cpumask);
+> -		if (cpus_empty(cpumask))
+> +		if (!alloc_cpumask_var(&cpumask, GFP_KERNEL))
+> +			return NOTIFY_BAD;
+> +		cpumask_copy(cpumask, &iucv_buffer_cpumask);
+> +		cpumask_clear_cpu(cpu, cpumask);
+> +		if (cpumask_empty(cpumask)) {
+>  			/* Can't offline last IUCV enabled cpu. */
+> +			free_cpumask_var(cpumask);
+>  			return NOTIFY_BAD;
+> +		}
+>  		smp_call_function_single(cpu, iucv_retrieve_cpu, NULL, 1);
+>  		if (cpus_empty(iucv_irq_cpumask))
+>  			smp_call_function_single(first_cpu(iucv_buffer_cpumask),
+>  						 iucv_allow_cpu, NULL, 1);
+> +		free_cpumask_var(cpumask);
+>  		break;
 
-------=_Part_166107_2024866.1231531076874
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Minor nit: this can be done better, actually:
 
-Hello and Happy New Year.
-
-
-The 2009 Collaboration Summit (April 8-10, 2009, San Francisco, CA) is
-
-coming up quickly and we have already started preparing the schedule.
-
-It is very important for LF to provide a venue for our workgroups to meet
-
-so workgroup leads should submit your request as soon as possible.  Please
-
-keep in mind that there are no guarantees as space is limited.
-
-
-If your workgroup is planning on meeting at the Collaboration Summit please
-
-email me with the following information:
-
-
-1. How many attendees for your workgroup session?
-
-2. How much time will you need (N hours, 1/2 day or 1 day)?
-
-3. Are there any technical requirements (projector, etc.)?
-
-
-If you have any questions please don't hesitate to contact me.  Thank you.
-
+@@ -596,9 +594,7 @@ static int __cpuinit iucv_cpu_notify(str
+ 	case CPU_DOWN_PREPARE_FROZEN:
+ 		if (!iucv_path_table)
+ 			break;
+-		cpumask = iucv_buffer_cpumask;
+-		cpu_clear(cpu, cpumask);
+-		if (cpus_empty(cpumask))
++		if (cpumask_any_but(&iucv_buffer_cpumask, cpu) >= nr_cpu_ids)
+ 			/* Can't offline last IUCV enabled cpu. */
+ 			return NOTIFY_BAD;
+ 		smp_call_function_single(cpu, iucv_retrieve_cpu, NULL, 1);
 
 Cheers,
-
-
-C.
-
--- 
-C. Craig Ross
-Community Relations Manager
-The Linux Foundation
-+1 613 220 8998
-http://www.linuxfoundation.org/
-
-------=_Part_166107_2024866.1231531076874
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">Hello and Happy New Year.</p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); min-height: 15px; ">
-<br></p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">The 2009 Collaboration Summit (April 8-10, 2009, San Francisco, CA) is&nbsp;</p>
-<p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">coming up quickly&nbsp;and we have&nbsp;already started preparing the schedule.</p>
-<p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">It is very important&nbsp;for LF to provide&nbsp;a venue for our workgroups to meet</p>
-<p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">so workgroup leads should submit your request as soon as possible.&nbsp;&nbsp;Please</p>
-<p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">keep in mind that there are no guarantees as space is limited.</p>
-<p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); min-height: 15px; "><br></p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">
-If your workgroup is planning on meeting at the Collaboration Summit please</p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">
-email me with the following information:</p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); min-height: 15px; "><br>
-</p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">1. How many attendees for your workgroup session?</p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">
-2. How much time will you need (N hours, 1/2 day or 1 day)?</p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">3. Are there any technical requirements (projector, etc.)?</p>
-<p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); min-height: 15px; "><br></p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">
-If you have any questions please don&#39;t hesitate to contact me. &nbsp;Thank you.</p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); min-height: 15px; ">
-<br></p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">Cheers,</p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); min-height: 15px; ">
-<br></p><p style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font: normal normal normal 13px/normal Arial; color: rgb(51, 51, 51); ">C.</p><br>-- <br>C. Craig Ross<br>Community Relations Manager<br>
-The Linux Foundation<br>+1 613 220 8998<br><a href="http://www.linuxfoundation.org/">http://www.linuxfoundation.org/</a><br><br>
-
-------=_Part_166107_2024866.1231531076874--
-
---===============5598487251178576110==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============5598487251178576110==--
+Rusty.
