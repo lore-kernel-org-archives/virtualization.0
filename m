@@ -1,15 +1,13 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PULL]: tip/cpus4096 updates
-Date: Sun, 11 Jan 2009 03:57:21 +0100
-Message-ID: <20090111025721.GF7077@elte.hu>
-References: <4966CFD9.4040602@sgi.com> <20090111025340.GE7077@elte.hu>
-	<49695FA5.2020903@sgi.com>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH] ia64, xen: compilation fix caused by
+	79741dd35713ff4f6fd0eafd59fa94e8a4ba922d
+Date: Thu, 15 Jan 2009 15:16:55 +0900
+Message-ID: <20090115061655.GM1565%yamahata__33898.7135481604$1232000348$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <49695FA5.2020903@sgi.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,32 +17,41 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Travis <travis@sgi.com>
-Cc: S390 <linux-s390@vger.kernel.org>, linux-net-drivers@solarflare.com, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.osdl.org, oprofile-list@lists.sf.net, linux390@de.ibm.com
+To: linux-ia64@vger.kernel.org, tony.luck@intel.com
+Cc: schwidefsky@de.ibm.com, virtualization@linuxfoundation.org, xen-ia64-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+This patch fixes the following errors caused by
+79741dd35713ff4f6fd0eafd59fa94e8a4ba922d which changed
+the prototypes of account_steal_time() and account_idle_time().
 
-* Mike Travis <travis@sgi.com> wrote:
+>   CC      arch/ia64/xen/time.o
+> arch/ia64/xen/time.c: In function 'consider_steal_time':
+> arch/ia64/xen/time.c:132: warning: passing argument 1 of 'account_steal_time' makes integer from pointer without a cast
+> arch/ia64/xen/time.c:132: error: too many arguments to function 'account_steal_time'
+> arch/ia64/xen/time.c:133: warning: passing argument 1 of 'account_steal_time' makes integer from pointer without a cast
+> arch/ia64/xen/time.c:133: error: too many arguments to function 'account_steal_time'
 
-> Ingo Molnar wrote:
-> > * Mike Travis <travis@sgi.com> wrote:
-> > 
-> >> are available in the git repository at:
-> >>
-> >>   git://git.kernel.org/pub/scm/linux/kernel/git/travis/linux-2.6-cpus4096-for-ingo.git 
-> >>   master
-> > 
-> > hm, when i tried to pull it, i got:
-> > 
-> > fatal: Couldn't find remote ref master
-> > 
-> > 	Ingo
-> 
-> Because I'm redoing it.  It will be there momentarily (working on last 
-> change you requested now.)
-> 
-> (You said do it the "easiest for me" way... ;-)
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/xen/time.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-okay :)
-
-	Ingo
+diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
+index c85d319..fb83326 100644
+--- a/arch/ia64/xen/time.c
++++ b/arch/ia64/xen/time.c
+@@ -129,8 +129,8 @@ consider_steal_time(unsigned long new_itm)
+ 		blocked = stolentick;
+ 
+ 	if (stolen > 0 || blocked > 0) {
+-		account_steal_time(NULL, jiffies_to_cputime(stolen));
+-		account_steal_time(idle_task(cpu), jiffies_to_cputime(blocked));
++		account_steal_ticks(stolen);
++		account_idle_ticks(blocked);
+ 		run_local_timers();
+ 
+ 		if (rcu_pending(cpu))
+-- 
+1.6.0.2
