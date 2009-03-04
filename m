@@ -1,14 +1,13 @@
-From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 03/15] ia64/pv_ops: add hooks to paravirtualize fsyscall
-	implementation.
-Date: Wed,  4 Mar 2009 21:05:34 +0900
-Message-ID: <1236168346-29788-4-git-send-email-yamahata__11866.6312926964$1236170938$gmane$org@valinux.co.jp>
-References: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
+From: PICT PUNE <kvm.smartshare@gmail.com>
+Subject: Re: Help - KVM TODO_NOV2008_Sharing Memory between guests
+Date: Wed, 4 Mar 2009 19:42:44 +0530
+Message-ID: <b20fe0330903040612m784b273ew7bca3c8ad087990a@mail.gmail.com>
+References: <b20fe0330902210535p1efb68bcv282853c5f4f08f3b@mail.gmail.com>
+	<49A549F1.8000901@redhat.com> <49A566AC.3010208@codemonkey.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4895571767546436847=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <49A566AC.3010208@codemonkey.ws>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -16,226 +15,141 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Avi Kivity <avi@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add two hooks, paravirt_get_fsyscall_table() and
-paravirt_get_fsys_bubble_doen() to paravirtualize fsyscall implementation.
-This patch just add the hooks fsyscall and don't paravirtualize it.
+--===============4895571767546436847==
+Content-Type: multipart/alternative; boundary=0016e64b076a41e84304644ba523
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/include/asm/native/inst.h |    3 +++
- arch/ia64/include/asm/paravirt.h    |   15 +++++++++++++++
- arch/ia64/kernel/Makefile           |    4 ++--
- arch/ia64/kernel/fsys.S             |   17 +++++++++--------
- arch/ia64/kernel/patch.c            |   26 +++++++++++++++++++++++---
- arch/ia64/mm/init.c                 |    3 ++-
- 6 files changed, 54 insertions(+), 14 deletions(-)
+--0016e64b076a41e84304644ba523
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
-index 0a1026c..5e4e151 100644
---- a/arch/ia64/include/asm/native/inst.h
-+++ b/arch/ia64/include/asm/native/inst.h
-@@ -30,6 +30,9 @@
- #define __paravirt_work_processed_syscall_target \
- 						ia64_work_processed_syscall
- 
-+#define paravirt_fsyscall_table			ia64_native_fsyscall_table
-+#define paravirt_fsys_bubble_down		ia64_native_fsys_bubble_down
-+
- #ifdef CONFIG_PARAVIRT_GUEST_ASM_CLOBBER_CHECK
- # define PARAVIRT_POISON	0xdeadbeefbaadf00d
- # define CLOBBER(clob)				\
-diff --git a/arch/ia64/include/asm/paravirt.h b/arch/ia64/include/asm/paravirt.h
-index 2bf3636..56f69f9 100644
---- a/arch/ia64/include/asm/paravirt.h
-+++ b/arch/ia64/include/asm/paravirt.h
-@@ -22,6 +22,21 @@
- #ifndef __ASM_PARAVIRT_H
- #define __ASM_PARAVIRT_H
- 
-+#ifndef __ASSEMBLY__
-+/******************************************************************************
-+ * fsys related addresses
-+ */
-+struct pv_fsys_data {
-+	unsigned long *fsyscall_table;
-+	void *fsys_bubble_down;
-+};
-+
-+extern struct pv_fsys_data pv_fsys_data;
-+
-+unsigned long *paravirt_get_fsyscall_table(void);
-+char *paravirt_get_fsys_bubble_down(void);
-+#endif
-+
- #ifdef CONFIG_PARAVIRT_GUEST
- 
- #define PARAVIRT_HYPERVISOR_TYPE_DEFAULT	0
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index c381ea9..1ab150e 100644
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -111,9 +111,9 @@ include/asm-ia64/nr-irqs.h: arch/$(SRCARCH)/kernel/nr-irqs.s
- clean-files += $(objtree)/include/asm-ia64/nr-irqs.h
- 
- #
--# native ivt.S and entry.S
-+# native ivt.S, entry.S and fsys.S
- #
--ASM_PARAVIRT_OBJS = ivt.o entry.o
-+ASM_PARAVIRT_OBJS = ivt.o entry.o fsys.o
- define paravirtualized_native
- AFLAGS_$(1) += -D__IA64_ASM_PARAVIRTUALIZED_NATIVE
- AFLAGS_pvchk-sed-$(1) += -D__IA64_ASM_PARAVIRTUALIZED_PVCHECK
-diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
-index c1625c7..788319f 100644
---- a/arch/ia64/kernel/fsys.S
-+++ b/arch/ia64/kernel/fsys.S
-@@ -25,6 +25,7 @@
- #include <asm/unistd.h>
- 
- #include "entry.h"
-+#include "paravirt_inst.h"
- 
- /*
-  * See Documentation/ia64/fsys.txt for details on fsyscalls.
-@@ -602,7 +603,7 @@ ENTRY(fsys_fallback_syscall)
- 	mov r26=ar.pfs
- END(fsys_fallback_syscall)
- 	/* FALL THROUGH */
--GLOBAL_ENTRY(fsys_bubble_down)
-+GLOBAL_ENTRY(paravirt_fsys_bubble_down)
- 	.prologue
- 	.altrp b6
- 	.body
-@@ -640,7 +641,7 @@ GLOBAL_ENTRY(fsys_bubble_down)
- 	 *
- 	 * PSR.BE : already is turned off in __kernel_syscall_via_epc()
- 	 * PSR.AC : don't care (kernel normally turns PSR.AC on)
--	 * PSR.I  : already turned off by the time fsys_bubble_down gets
-+	 * PSR.I  : already turned off by the time paravirt_fsys_bubble_down gets
- 	 *	    invoked
- 	 * PSR.DFL: always 0 (kernel never turns it on)
- 	 * PSR.DFH: don't care --- kernel never touches f32-f127 on its own
-@@ -650,7 +651,7 @@ GLOBAL_ENTRY(fsys_bubble_down)
- 	 * PSR.DB : don't care --- kernel never enables kernel-level
- 	 *	    breakpoints
- 	 * PSR.TB : must be 0 already; if it wasn't zero on entry to
--	 *          __kernel_syscall_via_epc, the branch to fsys_bubble_down
-+	 *          __kernel_syscall_via_epc, the branch to paravirt_fsys_bubble_down
- 	 *          will trigger a taken branch; the taken-trap-handler then
- 	 *          converts the syscall into a break-based system-call.
- 	 */
-@@ -741,14 +742,14 @@ GLOBAL_ENTRY(fsys_bubble_down)
- 	nop.m 0
- (p8)	br.call.sptk.many b6=b6			// B    (ignore return address)
- 	br.cond.spnt ia64_trace_syscall		// B
--END(fsys_bubble_down)
-+END(paravirt_fsys_bubble_down)
- 
- 	.rodata
- 	.align 8
--	.globl fsyscall_table
-+	.globl paravirt_fsyscall_table
- 
--	data8 fsys_bubble_down
--fsyscall_table:
-+	data8 paravirt_fsys_bubble_down
-+paravirt_fsyscall_table:
- 	data8 fsys_ni_syscall
- 	data8 0				// exit			// 1025
- 	data8 0				// read
-@@ -1033,4 +1034,4 @@ fsyscall_table:
- 
- 	// fill in zeros for the remaining entries
- 	.zero:
--	.space fsyscall_table + 8*NR_syscalls - .zero, 0
-+	.space paravirt_fsyscall_table + 8*NR_syscalls - .zero, 0
-diff --git a/arch/ia64/kernel/patch.c b/arch/ia64/kernel/patch.c
-index 5660069..c88f530 100644
---- a/arch/ia64/kernel/patch.c
-+++ b/arch/ia64/kernel/patch.c
-@@ -7,6 +7,7 @@
- #include <linux/init.h>
- #include <linux/string.h>
- 
-+#include <asm/paravirt.h>
- #include <asm/patch.h>
- #include <asm/processor.h>
- #include <asm/sections.h>
-@@ -169,16 +170,35 @@ ia64_patch_mckinley_e9 (unsigned long start, unsigned long end)
- 	ia64_srlz_i();
- }
- 
-+extern unsigned long ia64_native_fsyscall_table[NR_syscalls];
-+extern char ia64_native_fsys_bubble_down[];
-+struct pv_fsys_data pv_fsys_data __initdata = {
-+	.fsyscall_table = (unsigned long *)ia64_native_fsyscall_table,
-+	.fsys_bubble_down = (void *)ia64_native_fsys_bubble_down,
-+};
-+
-+unsigned long * __init
-+paravirt_get_fsyscall_table(void)
-+{
-+	return pv_fsys_data.fsyscall_table;
-+}
-+
-+char * __init
-+paravirt_get_fsys_bubble_down(void)
-+{
-+	return pv_fsys_data.fsys_bubble_down;
-+}
-+
- static void __init
- patch_fsyscall_table (unsigned long start, unsigned long end)
- {
--	extern unsigned long fsyscall_table[NR_syscalls];
-+	u64 fsyscall_table = (u64)paravirt_get_fsyscall_table();
- 	s32 *offp = (s32 *) start;
- 	u64 ip;
- 
- 	while (offp < (s32 *) end) {
- 		ip = (u64) ia64_imva((char *) offp + *offp);
--		ia64_patch_imm64(ip, (u64) fsyscall_table);
-+		ia64_patch_imm64(ip, fsyscall_table);
- 		ia64_fc(ip);
- 		++offp;
- 	}
-@@ -189,7 +209,7 @@ patch_fsyscall_table (unsigned long start, unsigned long end)
- static void __init
- patch_brl_fsys_bubble_down (unsigned long start, unsigned long end)
- {
--	extern char fsys_bubble_down[];
-+	u64 fsys_bubble_down = (u64)paravirt_get_fsys_bubble_down();
- 	s32 *offp = (s32 *) start;
- 	u64 ip;
- 
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index 56e1290..c9bc5b3 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -35,6 +35,7 @@
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
- #include <asm/mca.h>
-+#include <asm/paravirt.h>
- 
- DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
- 
-@@ -667,8 +668,8 @@ mem_init (void)
- 	 * code can tell them apart.
- 	 */
- 	for (i = 0; i < NR_syscalls; ++i) {
--		extern unsigned long fsyscall_table[NR_syscalls];
- 		extern unsigned long sys_call_table[NR_syscalls];
-+		unsigned long *fsyscall_table = paravirt_get_fsyscall_table();
- 
- 		if (!fsyscall_table[i] || nolwsys)
- 			fsyscall_table[i] = sys_call_table[i] | 1;
--- 
-1.6.0.2
+On Wed, Feb 25, 2009 at 9:11 PM, Anthony Liguori <anthony@codemonkey.ws>wrote:
+
+> Avi Kivity wrote:
+>
+>> PICT PUNE wrote:
+>>
+>>> In reference to the November 2008 todo list on Qumranet Website
+>>>
+>>> we are a group of college students working on this todo:
+>>>
+>>> *Add a qemu interface for sharing memory between guests. Using a pci
+>>> device to expose the shared memory is probably a good starting point.
+>>> *
+>>> Can anyone suggest us some starting point or a possible approach for the
+>>> same...
+>>>
+>>
+>> Write a PCI device that exposes a BAR containing RAM.  Implement the RAM
+>> by mapping a shared memory segment or a file.  Write a guest driver to use
+>> this shared RAM.
+>>
+>>
+> Or implement a virtio device that can advertise available shared memory
+> segments.  Have guest allocate its own memory to send to host that becomes
+> the shared memory segment.
+>
+> Expose shared memory mappings via a virtual file system (similar to
+> hugetlbfs or ramfs).
+>
+> Using PCI BARs implies static shared memory mappings.  For a long running
+> VM, you're likely to want to support dynamic shared memory mappings.
+>
+> Also exposing a simple signaling mechanism with this too would allow for
+> shared ring queues to be implemented in userspace between guests.
+>
+> Regards,
+>
+> Anthony Liguori
+>
+
+Hello Mr. Avi Kivity  and Mr. Anthony Liguori
+
+Thanks for your early reply. We expecting the same approach. We are in
+process of making clusters of free memory  and reserve these memory as a
+fake PCI device for the guest  OS. this device will be then passed using PCI
+passthrough  to the guest from the host. Can you please help us in faking
+the free memory cluster as a PCI device. Thanking in anticipation.
+
+
+Regards,
+
+PICT Pune BE Students
+
+--0016e64b076a41e84304644ba523
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<br><br><div class=3D"gmail_quote">On Wed, Feb 25, 2009 at 9:11 PM, Anthony=
+ Liguori <span dir=3D"ltr">&lt;<a href=3D"mailto:anthony@codemonkey.ws">ant=
+hony@codemonkey.ws</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quot=
+e" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt =
+0.8ex; padding-left: 1ex;">
+<div class=3D"im">Avi Kivity wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
+204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+PICT PUNE wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
+204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+In reference to the November 2008 todo list on Qumranet Website<br>
+<br>
+we are a group of college students working on this todo:<br>
+<br>
+*Add a qemu interface for sharing memory between guests. Using a pci device=
+ to expose the shared memory is probably a good starting point.<br>
+*<br>
+Can anyone suggest us some starting point or a possible approach for the sa=
+me...<br>
+</blockquote>
+<br>
+Write a PCI device that exposes a BAR containing RAM. =A0Implement the RAM =
+by mapping a shared memory segment or a file. =A0Write a guest driver to us=
+e this shared RAM.<br>
+<br>
+</blockquote>
+<br></div>
+Or implement a virtio device that can advertise available shared memory seg=
+ments. =A0Have guest allocate its own memory to send to host that becomes t=
+he shared memory segment.<br>
+<br>
+Expose shared memory mappings via a virtual file system (similar to hugetlb=
+fs or ramfs).<br>
+<br>
+Using PCI BARs implies static shared memory mappings. =A0For a long running=
+ VM, you&#39;re likely to want to support dynamic shared memory mappings.<b=
+r>
+<br>
+Also exposing a simple signaling mechanism with this too would allow for sh=
+ared ring queues to be implemented in userspace between guests.<br>
+<br>
+Regards,<br><font color=3D"#888888">
+<br>
+Anthony Liguori<br>
+</font></blockquote><div><br>Hello Mr. Avi Kivity=A0 and Mr. Anthony Liguor=
+i<br><br>Thanks for your early reply. We expecting the same approach. We ar=
+e in process of making clusters of free memory=A0 and reserve these memory =
+as a fake PCI device for the guest=A0 OS. this device will be then passed u=
+sing PCI passthrough=A0 to the guest from the host. Can you please help us =
+in faking the free memory cluster as a PCI device. Thanking in anticipation=
+.<br>
+<br><br>Regards,<br><br>PICT Pune BE Students<br></div></div><br>
+
+--0016e64b076a41e84304644ba523--
+
+--===============4895571767546436847==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/virtualization
+--===============4895571767546436847==--
