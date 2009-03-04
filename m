@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 09/15] ia64/pv_ops/pv_time_ops: add sched_clock hook.
-Date: Wed,  4 Mar 2009 21:05:40 +0900
-Message-ID: <1236168346-29788-10-git-send-email-yamahata__42515.6348770999$1236170396$gmane$org@valinux.co.jp>
+Subject: [PATCH 12/15] ia64/pv_ops/xen: define xen specific gate page.
+Date: Wed,  4 Mar 2009 21:05:43 +0900
+Message-ID: <1236168346-29788-13-git-send-email-yamahata__32002.3450338796$1236170432$gmane$org@valinux.co.jp>
 References: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,113 +21,170 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-add sched_clock() hook to paravirtualize sched_clock().
-ia64 sched_clock() is based on ar.itc which isn't stable
-on virtualized environment because vcpu may move around on
-pcpus. So it needs paravirtualization.
+define xen specific gate page.
+At this phase bits in the gate page is same to native.
+At the next phase, it will be paravirtualized.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/paravirt.h |    7 +++++++
- arch/ia64/include/asm/timex.h    |    1 +
- arch/ia64/kernel/head.S          |   10 ++++++++--
- arch/ia64/kernel/paravirt.c      |    1 +
- arch/ia64/kernel/time.c          |    9 +++++++++
- 5 files changed, 26 insertions(+), 2 deletions(-)
+ arch/ia64/include/asm/xen/patchlist.h |   38 +++++++++++++++++++++++++++++++++
+ arch/ia64/kernel/vmlinux.lds.S        |    6 +++++
+ arch/ia64/xen/Makefile                |   16 +++++++++++++-
+ arch/ia64/xen/gate-data.S             |    3 ++
+ arch/ia64/xen/xen_pv_ops.c            |   32 +++++++++++++++++++++++++++
+ 5 files changed, 94 insertions(+), 1 deletions(-)
+ create mode 100644 arch/ia64/include/asm/xen/patchlist.h
+ create mode 100644 arch/ia64/xen/gate-data.S
 
-diff --git a/arch/ia64/include/asm/paravirt.h b/arch/ia64/include/asm/paravirt.h
-index 56f69f9..a73e77a 100644
---- a/arch/ia64/include/asm/paravirt.h
-+++ b/arch/ia64/include/asm/paravirt.h
-@@ -225,6 +225,8 @@ struct pv_time_ops {
- 	int (*do_steal_accounting)(unsigned long *new_itm);
- 
- 	void (*clocksource_resume)(void);
+diff --git a/arch/ia64/include/asm/xen/patchlist.h b/arch/ia64/include/asm/xen/patchlist.h
+new file mode 100644
+index 0000000..eae944e
+--- /dev/null
++++ b/arch/ia64/include/asm/xen/patchlist.h
+@@ -0,0 +1,38 @@
++/******************************************************************************
++ * arch/ia64/include/asm/xen/patchlist.h
++ *
++ * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
++ *                    VA Linux Systems Japan K.K.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
 +
-+	unsigned long long (*sched_clock)(void);
++#define __paravirt_start_gate_fsyscall_patchlist		\
++	__xen_start_gate_fsyscall_patchlist
++#define __paravirt_end_gate_fsyscall_patchlist			\
++	__xen_end_gate_fsyscall_patchlist
++#define __paravirt_start_gate_brl_fsys_bubble_down_patchlist	\
++	__xen_start_gate_brl_fsys_bubble_down_patchlist
++#define __paravirt_end_gate_brl_fsys_bubble_down_patchlist	\
++	__xen_end_gate_brl_fsys_bubble_down_patchlist
++#define __paravirt_start_gate_vtop_patchlist			\
++	__xen_start_gate_vtop_patchlist
++#define __paravirt_end_gate_vtop_patchlist			\
++	__xen_end_gate_vtop_patchlist
++#define __paravirt_start_gate_mckinley_e9_patchlist		\
++	__xen_start_gate_mckinley_e9_patchlist
++#define __paravirt_end_gate_mckinley_e9_patchlist		\
++	__xen_end_gate_mckinley_e9_patchlist
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index 10a7d47..92ae7e8 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -201,6 +201,12 @@ SECTIONS
+ 	  __start_gate_section = .;
+ 	  *(.data.gate)
+ 	  __stop_gate_section = .;
++#ifdef CONFIG_XEN
++	  . = ALIGN(PAGE_SIZE);
++	  __xen_start_gate_section = .;
++	  *(.data.gate.xen)
++	  __xen_stop_gate_section = .;
++#endif
+ 	}
+   . = ALIGN(PAGE_SIZE);		/* make sure the gate page doesn't expose
+   				 * kernel data
+diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
+index b4ca2e6..94f0d8e 100644
+--- a/arch/ia64/xen/Makefile
++++ b/arch/ia64/xen/Makefile
+@@ -3,10 +3,24 @@
+ #
+ 
+ obj-y := hypercall.o xenivt.o xensetup.o xen_pv_ops.o irq_xen.o \
+-	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o suspend.o
++	 hypervisor.o xencomm.o xcom_hcall.o grant-table.o time.o suspend.o \
++	 gate-data.o
+ 
+ obj-$(CONFIG_IA64_GENERIC) += machvec.o
+ 
++# The gate DSO image is built using a special linker script.
++include $(srctree)/arch/ia64/kernel/Makefile.gate
++
++# tell compiled for xen
++CPPFLAGS_gate.lds += -D__IA64_GATE_PARAVIRTUALIZED_XEN
++
++# use same file of native.
++$(obj)/gate.o: $(src)/../kernel/gate.S FORCE
++	$(call if_changed_dep,as_o_S)
++$(obj)/gate.lds: $(src)/../kernel/gate.lds.S FORCE
++	$(call if_changed_dep,cpp_lds_S)
++
++
+ AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+ 
+ # xen multi compile
+diff --git a/arch/ia64/xen/gate-data.S b/arch/ia64/xen/gate-data.S
+new file mode 100644
+index 0000000..7d4830a
+--- /dev/null
++++ b/arch/ia64/xen/gate-data.S
+@@ -0,0 +1,3 @@
++	.section .data.gate.xen, "aw"
++
++	.incbin "arch/ia64/xen/gate.so"
+diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
+index d913361..bdf1acb 100644
+--- a/arch/ia64/xen/xen_pv_ops.c
++++ b/arch/ia64/xen/xen_pv_ops.c
+@@ -179,6 +179,37 @@ struct pv_fsys_data xen_fsys_data __initdata = {
  };
  
- extern struct pv_time_ops pv_time_ops;
-@@ -242,6 +244,11 @@ paravirt_do_steal_accounting(unsigned long *new_itm)
- 	return pv_time_ops.do_steal_accounting(new_itm);
- }
- 
-+static inline unsigned long long paravirt_sched_clock(void)
-+{
-+	return pv_time_ops.sched_clock();
-+}
+ /***************************************************************************
++ * pv_patchdata
++ * patchdata addresses
++ */
 +
- #endif /* !__ASSEMBLY__ */
- 
- #else
-diff --git a/arch/ia64/include/asm/timex.h b/arch/ia64/include/asm/timex.h
-index 4e03cfe..86c7db8 100644
---- a/arch/ia64/include/asm/timex.h
-+++ b/arch/ia64/include/asm/timex.h
-@@ -40,5 +40,6 @@ get_cycles (void)
- }
- 
- extern void ia64_cpu_local_tick (void);
-+extern unsigned long long ia64_native_sched_clock (void);
- 
- #endif /* _ASM_IA64_TIMEX_H */
-diff --git a/arch/ia64/kernel/head.S b/arch/ia64/kernel/head.S
-index 59301c4..23f846d 100644
---- a/arch/ia64/kernel/head.S
-+++ b/arch/ia64/kernel/head.S
-@@ -1050,7 +1050,7 @@ END(ia64_delay_loop)
-  * except that the multiplication and the shift are done with 128-bit
-  * intermediate precision so that we can produce a full 64-bit result.
++#define DECLARE(name)							\
++	extern unsigned long __xen_start_gate_##name##_patchlist[];	\
++	extern unsigned long __xen_end_gate_##name##_patchlist[]
++
++DECLARE(fsyscall);
++DECLARE(brl_fsys_bubble_down);
++DECLARE(vtop);
++DECLARE(mckinley_e9);
++
++extern unsigned long __xen_start_gate_section[];
++
++#define ASSIGN(name)							\
++	.start_##name##_patchlist =					\
++		(unsigned long)__xen_start_gate_##name##_patchlist,	\
++	.end_##name##_patchlist =					\
++		(unsigned long)__xen_end_gate_##name##_patchlist
++
++static struct pv_patchdata xen_patchdata __initdata = {
++	ASSIGN(fsyscall),
++	ASSIGN(brl_fsys_bubble_down),
++	ASSIGN(vtop),
++	ASSIGN(mckinley_e9),
++
++	.gate_section = (void*)__xen_start_gate_section,
++};
++
++/***************************************************************************
+  * pv_cpu_ops
+  * intrinsics hooks.
   */
--GLOBAL_ENTRY(sched_clock)
-+GLOBAL_ENTRY(ia64_native_sched_clock)
- 	addl r8=THIS_CPU(cpu_info) + IA64_CPUINFO_NSEC_PER_CYC_OFFSET,r0
- 	mov.m r9=ar.itc		// fetch cycle-counter				(35 cyc)
- 	;;
-@@ -1066,7 +1066,13 @@ GLOBAL_ENTRY(sched_clock)
- 	;;
- 	shrp r8=r9,r8,IA64_NSEC_PER_CYC_SHIFT
- 	br.ret.sptk.many rp
--END(sched_clock)
-+END(ia64_native_sched_clock)
-+#ifndef CONFIG_PARAVIRT
-+	//unsigned long long
-+	//sched_clock(void) __attribute__((alias("ia64_native_sched_clock")));
-+	.global sched_clock
-+sched_clock = ia64_native_sched_clock
-+#endif
- 
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- GLOBAL_ENTRY(cycle_to_cputime)
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 9f14c16..6bc33a6 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -366,4 +366,5 @@ ia64_native_do_steal_accounting(unsigned long *new_itm)
- 
- struct pv_time_ops pv_time_ops = {
- 	.do_steal_accounting = ia64_native_do_steal_accounting,
-+	.sched_clock = ia64_native_sched_clock,
- };
-diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
-index f0ebb34..c323c7b 100644
---- a/arch/ia64/kernel/time.c
-+++ b/arch/ia64/kernel/time.c
-@@ -50,6 +50,15 @@ EXPORT_SYMBOL(last_cli_ip);
- #endif
- 
- #ifdef CONFIG_PARAVIRT
-+/* We need to define a real function for sched_clock, to override the
-+   weak default version */
-+unsigned long long sched_clock(void)
-+{
-+        return paravirt_sched_clock();
-+}
-+#endif
-+
-+#ifdef CONFIG_PARAVIRT
- static void
- paravirt_clocksource_resume(void)
- {
+@@ -447,6 +478,7 @@ xen_setup_pv_ops(void)
+ 	pv_info = xen_info;
+ 	pv_init_ops = xen_init_ops;
+ 	pv_fsys_data = xen_fsys_data;
++	pv_patchdata = xen_patchdata;
+ 	pv_cpu_ops = xen_cpu_ops;
+ 	pv_iosapic_ops = xen_iosapic_ops;
+ 	pv_irq_ops = xen_irq_ops;
 -- 
 1.6.0.2
