@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 06/15] ia64/pv_ops/pvchecker: support mov = ar.itc
-	paravirtualization
-Date: Wed,  4 Mar 2009 21:05:37 +0900
-Message-ID: <1236168346-29788-7-git-send-email-yamahata__12686.040721792$1236168662$gmane$org@valinux.co.jp>
+Subject: [PATCH 10/15] ia64/pv_ops/xen/pv_time_ops: implement sched_clock.
+Date: Wed,  4 Mar 2009 21:05:41 +0900
+Message-ID: <1236168346-29788-11-git-send-email-yamahata__47307.9155003235$1236168757$gmane$org@valinux.co.jp>
 References: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,41 +21,75 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-add suport for mov = ar.itc to pvchecker.
+paravirtualize sched_clock.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/native/pvchk_inst.h |    5 +++++
- arch/ia64/scripts/pvcheck.sed             |    1 +
- 2 files changed, 6 insertions(+), 0 deletions(-)
+ arch/ia64/xen/time.c |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 48 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/include/asm/native/pvchk_inst.h b/arch/ia64/include/asm/native/pvchk_inst.h
-index b8e6eb1..13b289e 100644
---- a/arch/ia64/include/asm/native/pvchk_inst.h
-+++ b/arch/ia64/include/asm/native/pvchk_inst.h
-@@ -180,6 +180,11 @@
- 	IS_PRED_IN(pred)			\
- 	IS_RREG_OUT(reg)			\
- 	IS_RREG_CLOB(clob)
-+#define MOV_FROM_ITC(pred, pred_clob, reg, clob)	\
-+	IS_PRED_IN(pred)				\
-+	IS_PRED_CLOB(pred_clob)				\
-+	IS_RREG_OUT(reg)				\
-+	IS_RREG_CLOB(clob)
- #define MOV_TO_IFA(reg, clob)			\
- 	IS_RREG_IN(reg)				\
- 	IS_RREG_CLOB(clob)
-diff --git a/arch/ia64/scripts/pvcheck.sed b/arch/ia64/scripts/pvcheck.sed
-index ba66ac2..e59809a 100644
---- a/arch/ia64/scripts/pvcheck.sed
-+++ b/arch/ia64/scripts/pvcheck.sed
-@@ -17,6 +17,7 @@ s/mov.*=.*cr\.iip/.warning \"cr.iip should not used directly\"/g
- s/mov.*=.*cr\.ivr/.warning \"cr.ivr should not used directly\"/g
- s/mov.*=[^\.]*psr/.warning \"psr should not used directly\"/g	# avoid ar.fpsr
- s/mov.*=.*ar\.eflags/.warning \"ar.eflags should not used directly\"/g
-+s/mov.*=.*ar\.itc.*/.warning \"ar.itc should not used directly\"/g
- s/mov.*cr\.ifa.*=.*/.warning \"cr.ifa should not used directly\"/g
- s/mov.*cr\.itir.*=.*/.warning \"cr.itir should not used directly\"/g
- s/mov.*cr\.iha.*=.*/.warning \"cr.iha should not used directly\"/g
+diff --git a/arch/ia64/xen/time.c b/arch/ia64/xen/time.c
+index 68d6204..fb83326 100644
+--- a/arch/ia64/xen/time.c
++++ b/arch/ia64/xen/time.c
+@@ -175,10 +175,58 @@ static void xen_itc_jitter_data_reset(void)
+ 	} while (unlikely(ret != lcycle));
+ }
+ 
++/* based on xen_sched_clock() in arch/x86/xen/time.c. */
++/*
++ * This relies on HAVE_UNSTABLE_SCHED_CLOCK. If it can't be defined,
++ * something similar logic should be implemented here.
++ */
++/*
++ * Xen sched_clock implementation.  Returns the number of unstolen
++ * nanoseconds, which is nanoseconds the VCPU spent in RUNNING+BLOCKED
++ * states.
++ */
++static unsigned long long xen_sched_clock(void)
++{
++	struct vcpu_runstate_info runstate;
++
++	unsigned long long now;
++	unsigned long long offset;
++	unsigned long long ret;
++
++	/*
++	 * Ideally sched_clock should be called on a per-cpu basis
++	 * anyway, so preempt should already be disabled, but that's
++	 * not current practice at the moment.
++	 */
++	preempt_disable();
++
++	/*
++	 * both ia64_native_sched_clock() and xen's runstate are
++	 * based on mAR.ITC. So difference of them makes sense.
++	 */
++	now = ia64_native_sched_clock();
++
++	get_runstate_snapshot(&runstate);
++
++	WARN_ON(runstate.state != RUNSTATE_running);
++
++	offset = 0;
++	if (now > runstate.state_entry_time)
++		offset = now - runstate.state_entry_time;
++	ret = runstate.time[RUNSTATE_blocked] +
++		runstate.time[RUNSTATE_running] +
++		offset;
++
++	preempt_enable();
++
++	return ret;
++}
++
+ struct pv_time_ops xen_time_ops __initdata = {
+ 	.init_missing_ticks_accounting	= xen_init_missing_ticks_accounting,
+ 	.do_steal_accounting		= xen_do_steal_accounting,
+ 	.clocksource_resume		= xen_itc_jitter_data_reset,
++	.sched_clock			= xen_sched_clock,
+ };
+ 
+ /* Called after suspend, to resume time.  */
 -- 
 1.6.0.2
