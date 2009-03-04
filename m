@@ -1,13 +1,14 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 02/15] ia64/xen: short-circuit tests for dom0
-Date: Wed,  4 Mar 2009 21:05:33 +0900
-Message-ID: <1236168346-29788-3-git-send-email-yamahata__35284.1497086503$1236170715$gmane$org@valinux.co.jp>
-References: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 4/5] ia64/pv_ops/binary patch: define
+	paravirt_dv_serialize_data() and suppress false positive warning.
+Date: Wed,  4 Mar 2009 21:06:54 +0900
+Message-ID: <1236168415-29863-5-git-send-email-yamahata__4654.61379285461$1236170779$gmane$org@valinux.co.jp>
+References: <1236168415-29863-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
+In-Reply-To: <1236168415-29863-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,84 +22,64 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch is ia64 counter part of clean up of the xen predicates.
+define paravirt_dv_serialize_data() and insert it to suppress
+false positive warnings.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/hypervisor.h |   39 ++++++++++++++-----------------
- 1 files changed, 18 insertions(+), 21 deletions(-)
+ arch/ia64/include/asm/paravirt_privop.h |    6 ++++++
+ arch/ia64/kernel/efi.c                  |    1 +
+ arch/ia64/kvm/vtlb.c                    |    2 ++
+ 3 files changed, 9 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ia64/include/asm/xen/hypervisor.h b/arch/ia64/include/asm/xen/hypervisor.h
-index 7a804e8..e425227 100644
---- a/arch/ia64/include/asm/xen/hypervisor.h
-+++ b/arch/ia64/include/asm/xen/hypervisor.h
-@@ -33,9 +33,6 @@
- #ifndef _ASM_IA64_XEN_HYPERVISOR_H
- #define _ASM_IA64_XEN_HYPERVISOR_H
+diff --git a/arch/ia64/include/asm/paravirt_privop.h b/arch/ia64/include/asm/paravirt_privop.h
+index 76d6a69..4e40e62 100644
+--- a/arch/ia64/include/asm/paravirt_privop.h
++++ b/arch/ia64/include/asm/paravirt_privop.h
+@@ -118,6 +118,12 @@ void paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch);
  
--#ifdef CONFIG_XEN
--
--#include <linux/init.h>
- #include <xen/interface/xen.h>
- #include <xen/interface/version.h>	/* to compile feature.c */
- #include <xen/features.h>		/* to comiple xen-netfront.c */
-@@ -43,22 +40,32 @@
+ #endif /* CONFIG_PARAVIRT */
  
- /* xen_domain_type is set before executing any C code by early_xen_setup */
- enum xen_domain_type {
--	XEN_NATIVE,
--	XEN_PV_DOMAIN,
--	XEN_HVM_DOMAIN,
-+	XEN_NATIVE,	/* running on bare hardware */
-+	XEN_PV_DOMAIN,	/* running in a PV domain */
-+	XEN_HVM_DOMAIN,	/* running in a Xen hvm domain*/
- };
- 
-+#ifdef CONFIG_XEN
- extern enum xen_domain_type xen_domain_type;
++#if defined(CONFIG_PARAVIRT) && defined(ASM_SUPPORTED)
++#define paravirt_dv_serialize_data()	ia64_dv_serialize_data()
 +#else
-+#define xen_domain_type		XEN_NATIVE
++#define paravirt_dv_serialize_data()	/* nothing */
 +#endif
- 
- #define xen_domain()		(xen_domain_type != XEN_NATIVE)
--#define xen_pv_domain()		(xen_domain_type == XEN_PV_DOMAIN)
--#define xen_initial_domain()	(xen_pv_domain() && \
-+#define xen_pv_domain()		(xen_domain() &&			\
-+				 xen_domain_type == XEN_PV_DOMAIN)
-+#define xen_hvm_domain()	(xen_domain() &&			\
-+				 xen_domain_type == XEN_HVM_DOMAIN)
 +
-+#ifdef CONFIG_XEN_DOM0
-+#define xen_initial_domain()	(xen_pv_domain() &&			\
- 				 (xen_start_info->flags & SIF_INITDOMAIN))
--#define xen_hvm_domain()	(xen_domain_type == XEN_HVM_DOMAIN)
-+#else
-+#define xen_initial_domain()	(0)
-+#endif
+ /* these routines utilize privilege-sensitive or performance-sensitive
+  * privileged instructions so the code must be replaced with
+  * paravirtualized versions */
+diff --git a/arch/ia64/kernel/efi.c b/arch/ia64/kernel/efi.c
+index efaff15..7ef80e8 100644
+--- a/arch/ia64/kernel/efi.c
++++ b/arch/ia64/kernel/efi.c
+@@ -456,6 +456,7 @@ efi_map_pal_code (void)
+ 		 GRANULEROUNDDOWN((unsigned long) pal_vaddr),
+ 		 pte_val(pfn_pte(__pa(pal_vaddr) >> PAGE_SHIFT, PAGE_KERNEL)),
+ 		 IA64_GRANULE_SHIFT);
++	paravirt_dv_serialize_data();
+ 	ia64_set_psr(psr);		/* restore psr */
+ }
  
--/* deprecated. remove this */
--#define is_running_on_xen()	(xen_domain_type == XEN_PV_DOMAIN)
+diff --git a/arch/ia64/kvm/vtlb.c b/arch/ia64/kvm/vtlb.c
+index 6b6307a..1de4dbd 100644
+--- a/arch/ia64/kvm/vtlb.c
++++ b/arch/ia64/kvm/vtlb.c
+@@ -210,6 +210,7 @@ void thash_vhpt_insert(struct kvm_vcpu *v, u64 pte, u64 itir, u64 va, int type)
+ 		phy_pte  &= ~PAGE_FLAGS_RV_MASK;
+ 		psr = ia64_clear_ic();
+ 		ia64_itc(type, va, phy_pte, itir_ps(itir));
++		paravirt_dv_serialize_data();
+ 		ia64_set_psr(psr);
+ 	}
  
-+#ifdef CONFIG_XEN
- extern struct shared_info *HYPERVISOR_shared_info;
- extern struct start_info *xen_start_info;
- 
-@@ -74,16 +81,6 @@ void force_evtchn_callback(void);
- 
- /* For setup_arch() in arch/ia64/kernel/setup.c */
- void xen_ia64_enable_opt_feature(void);
--
--#else /* CONFIG_XEN */
--
--#define xen_domain()		(0)
--#define xen_pv_domain()		(0)
--#define xen_initial_domain()	(0)
--#define xen_hvm_domain()	(0)
--#define is_running_on_xen()	(0)	/* deprecated. remove this */
- #endif
- 
--#define is_initial_xendomain()	(0)	/* deprecated. remove this */
--
- #endif /* _ASM_IA64_XEN_HYPERVISOR_H */
+@@ -464,6 +465,7 @@ int thash_purge_and_insert(struct kvm_vcpu *v, u64 pte, u64 itir,
+ 		phy_pte  &= ~PAGE_FLAGS_RV_MASK;
+ 		psr = ia64_clear_ic();
+ 		ia64_itc(type, ifa, phy_pte, ps);
++		paravirt_dv_serialize_data();
+ 		ia64_set_psr(psr);
+ 	}
+ 	if (!(pte&VTLB_PTE_IO))
 -- 
 1.6.0.2
