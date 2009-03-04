@@ -1,13 +1,11 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 07/15] ia64/pv_ops: paravirtualize mov = ar.itc.
-Date: Wed,  4 Mar 2009 21:05:38 +0900
-Message-ID: <1236168346-29788-8-git-send-email-yamahata__39004.9454094425$1236170484$gmane$org@valinux.co.jp>
-References: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
+Subject: [PATCH 00/15] ia64/pv_ops, xen: more paravirtualization. TAKE 5
+Date: Wed,  4 Mar 2009 21:05:31 +0900
+Message-ID: <1236168346-29788-1-git-send-email-yamahata__18386.7934895263$1236170561$gmane$org@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -21,88 +19,78 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-paravirtualize mov reg = ar.itc.
+This patch set is for the next merge window.
+They are just enhancements of the already merged patches or ia64
+porting from x86 paravirt techniques and that their quality is enough
+for merge.
 
-Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
----
- arch/ia64/include/asm/native/inst.h |    5 +++++
- arch/ia64/kernel/entry.S            |    4 ++--
- arch/ia64/kernel/fsys.S             |    4 ++--
- arch/ia64/kernel/ivt.S              |    2 +-
- 4 files changed, 10 insertions(+), 5 deletions(-)
+This patch set is for more paravirtualization on ia64/xen domU.
+This patch set does
+- remove existing warnings
+- paravirtualize fsys call (fsys.S) by multi compile
+- paravirtualize gate page (gate.S) by multi compile
+- support save/restore
+  For this purpose, the followings needs to be paravirtualized
+  - ar.itc instruction 
+  - sched_clock()
+  This is because timer may changed before/after saving/restoring.
 
-diff --git a/arch/ia64/include/asm/native/inst.h b/arch/ia64/include/asm/native/inst.h
-index 5e4e151..ad59fc6 100644
---- a/arch/ia64/include/asm/native/inst.h
-+++ b/arch/ia64/include/asm/native/inst.h
-@@ -77,6 +77,11 @@
- (pred)	mov reg = psr			\
- 	CLOBBER(clob)
- 
-+#define MOV_FROM_ITC(pred, pred_clob, reg, clob)	\
-+(pred)	mov reg = ar.itc				\
-+	CLOBBER(clob)					\
-+	CLOBBER_PRED(pred_clob)
-+
- #define MOV_TO_IFA(reg, clob)	\
- 	mov cr.ifa = reg	\
- 	CLOBBER(clob)
-diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
-index e5341e2..ccfdeee 100644
---- a/arch/ia64/kernel/entry.S
-+++ b/arch/ia64/kernel/entry.S
-@@ -735,7 +735,7 @@ GLOBAL_ENTRY(__paravirt_leave_syscall)
- __paravirt_work_processed_syscall:
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	adds r2=PT(LOADRS)+16,r12
--(pUStk)	mov.m r22=ar.itc			// fetch time at leave
-+	MOV_FROM_ITC(pUStk, p9, r22, r19)	// fetch time at leave
- 	adds r18=TI_FLAGS+IA64_TASK_SIZE,r13
- 	;;
- (p6)	ld4 r31=[r18]				// load current_thread_info()->flags
-@@ -984,7 +984,7 @@ GLOBAL_ENTRY(__paravirt_leave_kernel)
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- 	.pred.rel.mutex pUStk,pKStk
- 	MOV_FROM_PSR(pKStk, r22, r29)	// M2 read PSR now that interrupts are disabled
--(pUStk)	mov.m r22=ar.itc	// M  fetch time at leave
-+	MOV_FROM_ITC(pUStk, p9, r22, r29)	// M  fetch time at leave
- 	nop.i 0
- 	;;
- #else
-diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
-index 3544d75..3567d54 100644
---- a/arch/ia64/kernel/fsys.S
-+++ b/arch/ia64/kernel/fsys.S
-@@ -280,7 +280,7 @@ ENTRY(fsys_gettimeofday)
- (p9)	cmp.eq p13,p0 = 0,r30	// if mmio_ptr, clear p13 jitter control
- 	;;
- 	.pred.rel.mutex p8,p9
--(p8)	mov r2 = ar.itc		// CPU_TIMER. 36 clocks latency!!!
-+	MOV_FROM_ITC(p8, p6, r2, r10)	// CPU_TIMER. 36 clocks latency!!!
- (p9)	ld8 r2 = [r30]		// MMIO_TIMER. Could also have latency issues..
- (p13)	ld8 r25 = [r19]		// get itc_lastcycle value
- 	ld8 r9 = [r22],IA64_TIMESPEC_TV_NSEC_OFFSET	// tv_sec
-@@ -684,7 +684,7 @@ GLOBAL_ENTRY(paravirt_fsys_bubble_down)
- 	;;
- 	mov ar.rsc=0				// M2   set enforced lazy mode, pl 0, LE, loadrs=0
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	mov.m r30=ar.itc			// M    get cycle for accounting
-+	MOV_FROM_ITC(p0, p6, r30, r23)		// M    get cycle for accounting
- #else
- 	nop.m 0
- #endif
-diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
-index f675d8e..ec9a5fd 100644
---- a/arch/ia64/kernel/ivt.S
-+++ b/arch/ia64/kernel/ivt.S
-@@ -804,7 +804,7 @@ ENTRY(break_fault)
- ///////////////////////////////////////////////////////////////////////
- 	st1 [r16]=r0				// M2|3 clear current->thread.on_ustack flag
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	mov.m r30=ar.itc			// M    get cycle for accounting
-+	MOV_FROM_ITC(p0, p14, r30, r18)		// M    get cycle for accounting
- #else
- 	mov b6=r30				// I0   setup syscall handler branch reg early
- #endif
--- 
-1.6.0.2
+For convenience the working full source is available from
+http://people.valinux.co.jp/~yamahata/xen-ia64/for_eagl/linux-2.6-ia64-pv-ops.git/
+branch: ia64-pv-ops-2009mar03-xen-ia64-optimized-domu
+
+For the status of this patch series
+http://wiki.xensource.com/xenwiki/XenIA64/UpstreamMerge
+
+thanks,
+
+Changes from take 4
+- dropped already merged patch.
+- add two clean up patches.
+
+Changes from take 3
+- removed trivial compilation error depending on .config
+
+Changes from take 2
+- two patches to remove warnings.
+- rebased to 2.6.28-rc8
+
+Changes from take 1
+- refreshed to 2.6.28-rc6
+  no essential change.
+
+
+Diffstat:
+ arch/ia64/include/asm/native/inst.h       |   13 ++
+ arch/ia64/include/asm/native/patchlist.h  |   38 +++++++
+ arch/ia64/include/asm/native/pvchk_inst.h |    8 ++
+ arch/ia64/include/asm/paravirt.h          |   57 ++++++++++
+ arch/ia64/include/asm/timex.h             |    1 +
+ arch/ia64/include/asm/xen/hypervisor.h    |   39 +++----
+ arch/ia64/include/asm/xen/inst.h          |   28 +++++
+ arch/ia64/include/asm/xen/interface.h     |    9 ++
+ arch/ia64/include/asm/xen/minstate.h      |   11 ++-
+ arch/ia64/include/asm/xen/patchlist.h     |   38 +++++++
+ arch/ia64/include/asm/xen/privop.h        |    2 +
+ arch/ia64/kernel/Makefile                 |   36 +-----
+ arch/ia64/kernel/Makefile.gate            |   27 +++++
+ arch/ia64/kernel/asm-offsets.c            |    2 +
+ arch/ia64/kernel/entry.S                  |    4 +-
+ arch/ia64/kernel/fsys.S                   |   35 +++---
+ arch/ia64/kernel/gate.S                   |  171 +++++++++++++++--------------
+ arch/ia64/kernel/gate.lds.S               |   17 ++--
+ arch/ia64/kernel/head.S                   |   10 ++-
+ arch/ia64/kernel/ivt.S                    |    2 +-
+ arch/ia64/kernel/paravirt.c               |    1 +
+ arch/ia64/kernel/paravirt_patchlist.c     |   79 +++++++++++++
+ arch/ia64/kernel/paravirt_patchlist.h     |   28 +++++
+ arch/ia64/kernel/patch.c                  |   38 +++++--
+ arch/ia64/kernel/time.c                   |    9 ++
+ arch/ia64/kernel/vmlinux.lds.S            |    6 +
+ arch/ia64/mm/init.c                       |    9 +-
+ arch/ia64/scripts/pvcheck.sed             |    1 +
+ arch/ia64/xen/Makefile                    |   19 +++-
+ arch/ia64/xen/gate-data.S                 |    3 +
+ arch/ia64/xen/time.c                      |   48 ++++++++
+ arch/ia64/xen/xen_pv_ops.c                |  128 +++++++++++++++++++++-
+ 32 files changed, 739 insertions(+), 178 deletions(-)
