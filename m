@@ -1,7 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 15/15] ia64/pv_ops/xen/gate.S: xen gate page paravirtualization
-Date: Wed,  4 Mar 2009 21:05:46 +0900
-Message-ID: <1236168346-29788-16-git-send-email-yamahata__4840.83507112718$1236170270$gmane$org@valinux.co.jp>
+Subject: [PATCH 09/15] ia64/pv_ops/pv_time_ops: add sched_clock hook.
+Date: Wed,  4 Mar 2009 21:05:40 +0900
+Message-ID: <1236168346-29788-10-git-send-email-yamahata__42515.6348770999$1236170396$gmane$org@valinux.co.jp>
 References: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,40 +21,113 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-xen gate page paravirtualization
+add sched_clock() hook to paravirtualize sched_clock().
+ia64 sched_clock() is based on ar.itc which isn't stable
+on virtualized environment because vcpu may move around on
+pcpus. So it needs paravirtualization.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/inst.h |    4 ++++
- arch/ia64/xen/Makefile           |    1 +
- 2 files changed, 5 insertions(+), 0 deletions(-)
+ arch/ia64/include/asm/paravirt.h |    7 +++++++
+ arch/ia64/include/asm/timex.h    |    1 +
+ arch/ia64/kernel/head.S          |   10 ++++++++--
+ arch/ia64/kernel/paravirt.c      |    1 +
+ arch/ia64/kernel/time.c          |    9 +++++++++
+ 5 files changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
-index 90537dc..c53a476 100644
---- a/arch/ia64/include/asm/xen/inst.h
-+++ b/arch/ia64/include/asm/xen/inst.h
-@@ -386,6 +386,10 @@
- #define RSM_PSR_DT		\
- 	XEN_HYPER_RSM_PSR_DT
+diff --git a/arch/ia64/include/asm/paravirt.h b/arch/ia64/include/asm/paravirt.h
+index 56f69f9..a73e77a 100644
+--- a/arch/ia64/include/asm/paravirt.h
++++ b/arch/ia64/include/asm/paravirt.h
+@@ -225,6 +225,8 @@ struct pv_time_ops {
+ 	int (*do_steal_accounting)(unsigned long *new_itm);
  
-+#define RSM_PSR_BE_I(clob0, clob1)	\
-+	RSM_PSR_I(p0, clob0, clob1);	\
-+	rum psr.be
+ 	void (*clocksource_resume)(void);
 +
- #define SSM_PSR_DT_AND_SRLZ_I	\
- 	XEN_HYPER_SSM_PSR_DT
++	unsigned long long (*sched_clock)(void);
+ };
  
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 94f0d8e..e6f4a0a 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -13,6 +13,7 @@ include $(srctree)/arch/ia64/kernel/Makefile.gate
+ extern struct pv_time_ops pv_time_ops;
+@@ -242,6 +244,11 @@ paravirt_do_steal_accounting(unsigned long *new_itm)
+ 	return pv_time_ops.do_steal_accounting(new_itm);
+ }
  
- # tell compiled for xen
- CPPFLAGS_gate.lds += -D__IA64_GATE_PARAVIRTUALIZED_XEN
-+AFLAGS_gate.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN -D__IA64_GATE_PARAVIRTUALIZED_XEN
++static inline unsigned long long paravirt_sched_clock(void)
++{
++	return pv_time_ops.sched_clock();
++}
++
+ #endif /* !__ASSEMBLY__ */
  
- # use same file of native.
- $(obj)/gate.o: $(src)/../kernel/gate.S FORCE
+ #else
+diff --git a/arch/ia64/include/asm/timex.h b/arch/ia64/include/asm/timex.h
+index 4e03cfe..86c7db8 100644
+--- a/arch/ia64/include/asm/timex.h
++++ b/arch/ia64/include/asm/timex.h
+@@ -40,5 +40,6 @@ get_cycles (void)
+ }
+ 
+ extern void ia64_cpu_local_tick (void);
++extern unsigned long long ia64_native_sched_clock (void);
+ 
+ #endif /* _ASM_IA64_TIMEX_H */
+diff --git a/arch/ia64/kernel/head.S b/arch/ia64/kernel/head.S
+index 59301c4..23f846d 100644
+--- a/arch/ia64/kernel/head.S
++++ b/arch/ia64/kernel/head.S
+@@ -1050,7 +1050,7 @@ END(ia64_delay_loop)
+  * except that the multiplication and the shift are done with 128-bit
+  * intermediate precision so that we can produce a full 64-bit result.
+  */
+-GLOBAL_ENTRY(sched_clock)
++GLOBAL_ENTRY(ia64_native_sched_clock)
+ 	addl r8=THIS_CPU(cpu_info) + IA64_CPUINFO_NSEC_PER_CYC_OFFSET,r0
+ 	mov.m r9=ar.itc		// fetch cycle-counter				(35 cyc)
+ 	;;
+@@ -1066,7 +1066,13 @@ GLOBAL_ENTRY(sched_clock)
+ 	;;
+ 	shrp r8=r9,r8,IA64_NSEC_PER_CYC_SHIFT
+ 	br.ret.sptk.many rp
+-END(sched_clock)
++END(ia64_native_sched_clock)
++#ifndef CONFIG_PARAVIRT
++	//unsigned long long
++	//sched_clock(void) __attribute__((alias("ia64_native_sched_clock")));
++	.global sched_clock
++sched_clock = ia64_native_sched_clock
++#endif
+ 
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING
+ GLOBAL_ENTRY(cycle_to_cputime)
+diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
+index 9f14c16..6bc33a6 100644
+--- a/arch/ia64/kernel/paravirt.c
++++ b/arch/ia64/kernel/paravirt.c
+@@ -366,4 +366,5 @@ ia64_native_do_steal_accounting(unsigned long *new_itm)
+ 
+ struct pv_time_ops pv_time_ops = {
+ 	.do_steal_accounting = ia64_native_do_steal_accounting,
++	.sched_clock = ia64_native_sched_clock,
+ };
+diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
+index f0ebb34..c323c7b 100644
+--- a/arch/ia64/kernel/time.c
++++ b/arch/ia64/kernel/time.c
+@@ -50,6 +50,15 @@ EXPORT_SYMBOL(last_cli_ip);
+ #endif
+ 
+ #ifdef CONFIG_PARAVIRT
++/* We need to define a real function for sched_clock, to override the
++   weak default version */
++unsigned long long sched_clock(void)
++{
++        return paravirt_sched_clock();
++}
++#endif
++
++#ifdef CONFIG_PARAVIRT
+ static void
+ paravirt_clocksource_resume(void)
+ {
 -- 
 1.6.0.2
