@@ -1,8 +1,7 @@
 From: Isaku Yamahata <yamahata@valinux.co.jp>
-Subject: [PATCH 04/15] ia64/pv_ops/xen: preliminary to paravirtualizing fsys.S
-	for xen.
-Date: Wed,  4 Mar 2009 21:05:35 +0900
-Message-ID: <1236168346-29788-5-git-send-email-yamahata__28454.5525013984$1236168761$gmane$org@valinux.co.jp>
+Subject: [PATCH 05/15] ia64/pv_ops: paravirtualize fsys.S.
+Date: Wed,  4 Mar 2009 21:05:36 +0900
+Message-ID: <1236168346-29788-6-git-send-email-yamahata__47441.8593491011$1236168779$gmane$org@valinux.co.jp>
 References: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,83 +21,75 @@ To: tony.luck@intel.com, linux-ia64@vger.kernel.org
 Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a preliminary patch to paravirtualizing fsys.S.
-compile fsys.S twice one for native and one for xen, and switch
-them at run tine.
-Later fsys.S will be paravirtualized.
+paravirtualize fsys.S.
 
 Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
 ---
- arch/ia64/include/asm/xen/inst.h |    3 +++
- arch/ia64/xen/Makefile           |    2 +-
- arch/ia64/xen/xen_pv_ops.c       |   14 ++++++++++++++
- 3 files changed, 18 insertions(+), 1 deletions(-)
+ arch/ia64/kernel/fsys.S |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/ia64/include/asm/xen/inst.h b/arch/ia64/include/asm/xen/inst.h
-index 19c2ae1..e8e01b2 100644
---- a/arch/ia64/include/asm/xen/inst.h
-+++ b/arch/ia64/include/asm/xen/inst.h
-@@ -33,6 +33,9 @@
- #define __paravirt_work_processed_syscall_target \
- 						xen_work_processed_syscall
+diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
+index 788319f..3544d75 100644
+--- a/arch/ia64/kernel/fsys.S
++++ b/arch/ia64/kernel/fsys.S
+@@ -419,7 +419,7 @@ EX(.fail_efault, ld8 r14=[r33])			// r14 <- *set
+ 	mov r17=(1 << (SIGKILL - 1)) | (1 << (SIGSTOP - 1))
+ 	;;
  
-+#define paravirt_fsyscall_table			xen_fsyscall_table
-+#define paravirt_fsys_bubble_down		xen_fsys_bubble_down
-+
- #define MOV_FROM_IFA(reg)	\
- 	movl reg = XSI_IFA;	\
- 	;;			\
-diff --git a/arch/ia64/xen/Makefile b/arch/ia64/xen/Makefile
-index 0ad0224..b4ca2e6 100644
---- a/arch/ia64/xen/Makefile
-+++ b/arch/ia64/xen/Makefile
-@@ -10,7 +10,7 @@ obj-$(CONFIG_IA64_GENERIC) += machvec.o
- AFLAGS_xenivt.o += -D__IA64_ASM_PARAVIRTUALIZED_XEN
+-	rsm psr.i				// mask interrupt delivery
++	RSM_PSR_I(p0, r18, r19)			// mask interrupt delivery
+ 	mov ar.ccv=0
+ 	andcm r14=r14,r17			// filter out SIGKILL & SIGSTOP
  
- # xen multi compile
--ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S
-+ASM_PARAVIRT_MULTI_COMPILE_SRCS = ivt.S entry.S fsys.S
- ASM_PARAVIRT_OBJS = $(addprefix xen-,$(ASM_PARAVIRT_MULTI_COMPILE_SRCS:.S=.o))
- obj-y += $(ASM_PARAVIRT_OBJS)
- define paravirtualized_xen
-diff --git a/arch/ia64/xen/xen_pv_ops.c b/arch/ia64/xen/xen_pv_ops.c
-index fa3b967..fe72308 100644
---- a/arch/ia64/xen/xen_pv_ops.c
-+++ b/arch/ia64/xen/xen_pv_ops.c
-@@ -24,6 +24,7 @@
- #include <linux/irq.h>
- #include <linux/kernel.h>
- #include <linux/pm.h>
-+#include <linux/unistd.h>
+@@ -492,7 +492,7 @@ EX(.fail_efault, ld8 r14=[r33])			// r14 <- *set
+ #ifdef CONFIG_SMP
+ 	st4.rel [r31]=r0			// release the lock
+ #endif
+-	ssm psr.i
++	SSM_PSR_I(p0, p9, r31)
+ 	;;
  
- #include <asm/xen/hypervisor.h>
- #include <asm/xen/xencomm.h>
-@@ -166,6 +167,18 @@ static const struct pv_init_ops xen_init_ops __initconst = {
- };
+ 	srlz.d					// ensure psr.i is set again
+@@ -514,7 +514,7 @@ EX(.fail_efault, (p15) st8 [r34]=r3)
+ #ifdef CONFIG_SMP
+ 	st4.rel [r31]=r0			// release the lock
+ #endif
+-	ssm psr.i
++	SSM_PSR_I(p0, p9, r17)
+ 	;;
+ 	srlz.d
+ 	br.sptk.many fsys_fallback_syscall	// with signal pending, do the heavy-weight syscall
+@@ -522,7 +522,7 @@ EX(.fail_efault, (p15) st8 [r34]=r3)
+ #ifdef CONFIG_SMP
+ .lock_contention:
+ 	/* Rather than spinning here, fall back on doing a heavy-weight syscall.  */
+-	ssm psr.i
++	SSM_PSR_I(p0, p9, r17)
+ 	;;
+ 	srlz.d
+ 	br.sptk.many fsys_fallback_syscall
+@@ -593,11 +593,11 @@ ENTRY(fsys_fallback_syscall)
+ 	adds r17=-1024,r15
+ 	movl r14=sys_call_table
+ 	;;
+-	rsm psr.i
++	RSM_PSR_I(p0, r26, r27)
+ 	shladd r18=r17,3,r14
+ 	;;
+ 	ld8 r18=[r18]				// load normal (heavy-weight) syscall entry-point
+-	mov r29=psr				// read psr (12 cyc load latency)
++	MOV_FROM_PSR(p0, r29, r26)		// read psr (12 cyc load latency)
+ 	mov r27=ar.rsc
+ 	mov r21=ar.fpsr
+ 	mov r26=ar.pfs
+@@ -735,7 +735,7 @@ GLOBAL_ENTRY(paravirt_fsys_bubble_down)
+ 	mov rp=r14				// I0   set the real return addr
+ 	and r3=_TIF_SYSCALL_TRACEAUDIT,r3	// A
+ 	;;
+-	ssm psr.i				// M2   we're on kernel stacks now, reenable irqs
++	SSM_PSR_I(p0, p6, r22)			// M2   we're on kernel stacks now, reenable irqs
+ 	cmp.eq p8,p0=r3,r0			// A
+ (p10)	br.cond.spnt.many ia64_ret_from_syscall	// B    return if bad call-frame or r15 is a NaT
  
- /***************************************************************************
-+ * pv_fsys_data
-+ * addresses for fsys
-+ */
-+
-+extern unsigned long xen_fsyscall_table[NR_syscalls];
-+extern char xen_fsys_bubble_down[];
-+struct pv_fsys_data xen_fsys_data __initdata = {
-+	.fsyscall_table = (unsigned long *)xen_fsyscall_table,
-+	.fsys_bubble_down = (void *)xen_fsys_bubble_down,
-+};
-+
-+/***************************************************************************
-  * pv_cpu_ops
-  * intrinsics hooks.
-  */
-@@ -355,6 +368,7 @@ xen_setup_pv_ops(void)
- 	xen_info_init();
- 	pv_info = xen_info;
- 	pv_init_ops = xen_init_ops;
-+	pv_fsys_data = xen_fsys_data;
- 	pv_cpu_ops = xen_cpu_ops;
- 	pv_iosapic_ops = xen_iosapic_ops;
- 	pv_irq_ops = xen_irq_ops;
 -- 
 1.6.0.2
