@@ -1,11 +1,13 @@
-From: Patrick Archibal <bugpb60@hotmail.com>
-Subject: Device Drivers in xen, looking also for a white book about how xen
-	works exactly
-Date: Sat, 28 Feb 2009 19:54:07 +0000
-Message-ID: <COL103-W59467031B71F1DC083C226ABAB0@phx.gbl>
+From: Isaku Yamahata <yamahata@valinux.co.jp>
+Subject: [PATCH 13/15] ia64/pv_ops: move down __kernel_syscall_via_epc.
+Date: Wed,  4 Mar 2009 21:05:44 +0900
+Message-ID: <1236168346-29788-14-git-send-email-yamahata__18677.8453564786$1236168298$gmane$org@valinux.co.jp>
+References: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3011792839897572685=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1236168346-29788-1-git-send-email-yamahata@valinux.co.jp>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -13,200 +15,205 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Mime-version: 1.0
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: tony.luck@intel.com, linux-ia64@vger.kernel.org
+Cc: yamahata@valinux.co.jp, xen-ia64-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============3011792839897572685==
-Content-Type: multipart/alternative;
-	boundary="_bc784c74-dbd0-49b5-838d-a1b772453ccc_"
+Move down __kernel_syscall_via_epc to the end of the page.
+We want to paravirtualize only __kernel_syscall_via_epc because
+it includes privileged instructions. Its paravirtualization increases
+its symbols size.
 
---_bc784c74-dbd0-49b5-838d-a1b772453ccc_
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+On the other hand, each paravirtualized gate must have e symbols of
+same value and size to native's because the page is mapped to GATE_ADDR
+and GATE_ADDR + PERCPU_PAGE_SIZE and vmlinux is linked to those symbols.
+Later to have the same symbol size, we pads NOPs at the end of
+__kernel_syscall_via_epc. Move it after other functions to keep
+symbols of other functions have same values and sizes.
 
+Signed-off-by: Isaku Yamahata <yamahata@valinux.co.jp>
+---
+ arch/ia64/kernel/gate.S |  162 +++++++++++++++++++++++-----------------------
+ 1 files changed, 81 insertions(+), 81 deletions(-)
 
-Hello=2C
-
-=20
-
-I'm reading an excellent documentation about virtualisation in embedded sys=
-tem.
-
- (available on open kernel labs site)
-
-=20
-
-I have read these things : (It talks about managing drivers in a virtualiza=
-tion system)
-
-=20
-
-"A straight virtualization approach can accomodate this by running the devi=
-ce the device driver inside the VMM. This requires porting all drivers to t=
-he hypervisor environnement =2C with no reuse of guest os driver"
-
-=20
-
-A much better approach is to share a single driver between multiple vms=2C =
-without including it in the hypervisor. This requires that ecah participati=
-ng subsytem has a device modem for which it has a device driver. Typically=
-=2C the real device driver is contained in one of the participating system=
-=2C but a better  (safer) solution is to separate it out into in own subsys=
-tem"
-
-=20
-
-I want to know how it works on xen.
-
-I think that :
-
-=20
-
- All drivers are in the hypervisor=2C when a guest requires to use a device=
-=2C  guest uses drivers which has been rewriten for xen in order to contact=
- the hypervisor. Then=2C the hypervisor which has all real drivers (not mod=
-ified) call the real device ?
-
-=20
-
-or that :
-
-The real device driver is contained in the dom0 system=2C the dom0 manage d=
-river for all domU.=20
-
-=20
-
-I have three questions :
-
-=20
-
-1 -  Which is the good scenario ? (if one is good ) :o)
-
-2 - If drivers for guests are rewritten to call hypervisor or dom0 instead =
-of the device directly=2C who devellops driver ?
-
-(xen devellopers ? or developper for kernel mainline)
-
-3- Which is the real utility of dom0 system ? (just I/O and administration =
-of virtual machines) =20
-
-=20
-
-Last question=2C is someone have find a good white paper or doc which expla=
-ins how xen works ?=20
-
-(and where i can find probably answers for my questions ??)
-
-=20
-
-Thanks for all this details.
-
-Best regards
-
-=20
-
-Patrick Archibal
-
-=20
-
-=20
-
-=20
-
-_________________________________________________________________
-In=E9dit ! Des Emotic=F4nes D=E9jant=E9es! Installez les dans votre Messeng=
-er !=20
-http://www.ilovemessenger.fr/Emoticones/EmoticonesDejantees.aspx=
-
---_bc784c74-dbd0-49b5-838d-a1b772453ccc_
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<style>
-.hmmessage P
-{
-margin:0px=3B
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt=3B
-font-family:Verdana
-}
-</style>
-</head>
-<body class=3D'hmmessage'>
-Hello=2C<BR>
-&nbsp=3B<BR>
-I'm reading an excellent documentation about virtualisation in embedded sys=
-tem.<BR>
-&nbsp=3B(available on open kernel labs site)<BR>
-&nbsp=3B<BR>
-I have read these things : (It talks about managing drivers in a virtualiza=
-tion system)<BR>
-&nbsp=3B<BR>
-"A straight virtualization approach can accomodate this by running the devi=
-ce the device driver inside the VMM. This requires porting all drivers to t=
-he hypervisor environnement =2C with no reuse of guest os driver"<BR>
-&nbsp=3B<BR>
-A much better approach is to share a single driver between multiple vms=2C =
-without including it in the hypervisor. This requires that ecah participati=
-ng subsytem has a device modem for which it has a device driver. Typically=
-=2C the real device driver is contained in one of the participating system=
-=2C but a better&nbsp=3B (safer) solution is to separate it out into in own=
- subsystem"<BR>
-&nbsp=3B<BR>
-I want to know how it works on xen.<BR>
-I think that :<BR>
-&nbsp=3B<BR>
-&nbsp=3BAll drivers are in the hypervisor=2C when a guest requires to use a=
- device=2C&nbsp=3B&nbsp=3Bguest uses drivers which has been rewriten for&nb=
-sp=3Bxen&nbsp=3Bin order to contact the hypervisor. Then=2C the hypervisor =
-which has all real drivers (not modified)&nbsp=3Bcall the real device ?<BR>
-&nbsp=3B<BR>
-or that :<BR>
-The real device driver is contained in the dom0&nbsp=3Bsystem=2C the dom0 m=
-anage driver for all domU.&nbsp=3B<BR>
-&nbsp=3B<BR>
-I have three questions :<BR>
-&nbsp=3B<BR>
-1 - &nbsp=3BWhich is the good scenario ? (if one is good ) :o)<BR>
-2 - If drivers for guests are rewritten to call hypervisor or dom0&nbsp=3Bi=
-nstead of the device directly=2C who devellops driver ?<BR>
-(xen devellopers ? or developper for kernel mainline)<BR>
-3- Which is the real utility of dom0 system ? (just I/O and administration =
-of virtual machines) &nbsp=3B<BR>
-&nbsp=3B<BR>
-Last question=2C is someone have find a good white paper or doc which expla=
-ins how xen works ? <BR>
-(and where i can find probably answers for my questions&nbsp=3B??)<BR>
-&nbsp=3B<BR>
-Thanks for all this details.<BR>
-Best regards<BR>
-&nbsp=3B<BR>
-Patrick Archibal<BR>
-&nbsp=3B<BR>
-&nbsp=3B<BR>
-&nbsp=3B<BR><br /><hr />Souhaitez vous =A0=AB=A0=EAtre au bureau sans y =EA=
-tre=A0=BB=A0? <a href=3D'http://www.microsoft.com/france/windows/bts/defaul=
-t.mspx' target=3D'_new'>Oui je le veux !</a></body>
-</html>=
-
---_bc784c74-dbd0-49b5-838d-a1b772453ccc_--
-
---===============3011792839897572685==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/virtualization
---===============3011792839897572685==--
+diff --git a/arch/ia64/kernel/gate.S b/arch/ia64/kernel/gate.S
+index 74b1ccc..c957228 100644
+--- a/arch/ia64/kernel/gate.S
++++ b/arch/ia64/kernel/gate.S
+@@ -48,87 +48,6 @@ GLOBAL_ENTRY(__kernel_syscall_via_break)
+ }
+ END(__kernel_syscall_via_break)
+ 
+-/*
+- * On entry:
+- *	r11 = saved ar.pfs
+- *	r15 = system call #
+- *	b0  = saved return address
+- *	b6  = return address
+- * On exit:
+- *	r11 = saved ar.pfs
+- *	r15 = system call #
+- *	b0  = saved return address
+- *	all other "scratch" registers:	undefined
+- *	all "preserved" registers:	same as on entry
+- */
+-
+-GLOBAL_ENTRY(__kernel_syscall_via_epc)
+-	.prologue
+-	.altrp b6
+-	.body
+-{
+-	/*
+-	 * Note: the kernel cannot assume that the first two instructions in this
+-	 * bundle get executed.  The remaining code must be safe even if
+-	 * they do not get executed.
+-	 */
+-	adds r17=-1024,r15			// A
+-	mov r10=0				// A    default to successful syscall execution
+-	epc					// B	causes split-issue
+-}
+-	;;
+-	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
+-	LOAD_FSYSCALL_TABLE(r14)		// X
+-	;;
+-	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
+-	shladd r18=r17,3,r14			// A
+-	mov r19=NR_syscalls-1			// A
+-	;;
+-	lfetch [r18]				// M0|1
+-	mov r29=psr				// M2 (12 cyc)
+-	// If r17 is a NaT, p6 will be zero
+-	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
+-	;;
+-	mov r21=ar.fpsr				// M2 (12 cyc)
+-	tnat.nz p10,p9=r15			// I0
+-	mov.i r26=ar.pfs			// I0 (would stall anyhow due to srlz.d...)
+-	;;
+-	srlz.d					// M0 (forces split-issue) ensure PSR.BE==0
+-(p6)	ld8 r18=[r18]				// M0|1
+-	nop.i 0
+-	;;
+-	nop.m 0
+-(p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
+-	nop.i 0
+-	;;
+-(p8)	ssm psr.i
+-(p6)	mov b7=r18				// I0
+-(p8)	br.dptk.many b7				// B
+-
+-	mov r27=ar.rsc				// M2 (12 cyc)
+-/*
+- * brl.cond doesn't work as intended because the linker would convert this branch
+- * into a branch to a PLT.  Perhaps there will be a way to avoid this with some
+- * future version of the linker.  In the meantime, we just use an indirect branch
+- * instead.
+- */
+-#ifdef CONFIG_ITANIUM
+-(p6)	add r14=-8,r14				// r14 <- addr of fsys_bubble_down entry
+-	;;
+-(p6)	ld8 r14=[r14]				// r14 <- fsys_bubble_down
+-	;;
+-(p6)	mov b7=r14
+-(p6)	br.sptk.many b7
+-#else
+-	BRL_COND_FSYS_BUBBLE_DOWN(p6)
+-#endif
+-	ssm psr.i
+-	mov r10=-1
+-(p10)	mov r8=EINVAL
+-(p9)	mov r8=ENOSYS
+-	FSYS_RETURN
+-END(__kernel_syscall_via_epc)
+-
+ #	define ARG0_OFF		(16 + IA64_SIGFRAME_ARG0_OFFSET)
+ #	define ARG1_OFF		(16 + IA64_SIGFRAME_ARG1_OFFSET)
+ #	define ARG2_OFF		(16 + IA64_SIGFRAME_ARG2_OFFSET)
+@@ -374,3 +293,84 @@ restore_rbs:
+ 	// invala not necessary as that will happen when returning to user-mode
+ 	br.cond.sptk back_from_restore_rbs
+ END(__kernel_sigtramp)
++
++/*
++ * On entry:
++ *	r11 = saved ar.pfs
++ *	r15 = system call #
++ *	b0  = saved return address
++ *	b6  = return address
++ * On exit:
++ *	r11 = saved ar.pfs
++ *	r15 = system call #
++ *	b0  = saved return address
++ *	all other "scratch" registers:	undefined
++ *	all "preserved" registers:	same as on entry
++ */
++
++GLOBAL_ENTRY(__kernel_syscall_via_epc)
++	.prologue
++	.altrp b6
++	.body
++{
++	/*
++	 * Note: the kernel cannot assume that the first two instructions in this
++	 * bundle get executed.  The remaining code must be safe even if
++	 * they do not get executed.
++	 */
++	adds r17=-1024,r15			// A
++	mov r10=0				// A    default to successful syscall execution
++	epc					// B	causes split-issue
++}
++	;;
++	rsm psr.be | psr.i			// M2 (5 cyc to srlz.d)
++	LOAD_FSYSCALL_TABLE(r14)		// X
++	;;
++	mov r16=IA64_KR(CURRENT)		// M2 (12 cyc)
++	shladd r18=r17,3,r14			// A
++	mov r19=NR_syscalls-1			// A
++	;;
++	lfetch [r18]				// M0|1
++	mov r29=psr				// M2 (12 cyc)
++	// If r17 is a NaT, p6 will be zero
++	cmp.geu p6,p7=r19,r17			// A    (sysnr > 0 && sysnr < 1024+NR_syscalls)?
++	;;
++	mov r21=ar.fpsr				// M2 (12 cyc)
++	tnat.nz p10,p9=r15			// I0
++	mov.i r26=ar.pfs			// I0 (would stall anyhow due to srlz.d...)
++	;;
++	srlz.d					// M0 (forces split-issue) ensure PSR.BE==0
++(p6)	ld8 r18=[r18]				// M0|1
++	nop.i 0
++	;;
++	nop.m 0
++(p6)	tbit.z.unc p8,p0=r18,0			// I0 (dual-issues with "mov b7=r18"!)
++	nop.i 0
++	;;
++(p8)	ssm psr.i
++(p6)	mov b7=r18				// I0
++(p8)	br.dptk.many b7				// B
++
++	mov r27=ar.rsc				// M2 (12 cyc)
++/*
++ * brl.cond doesn't work as intended because the linker would convert this branch
++ * into a branch to a PLT.  Perhaps there will be a way to avoid this with some
++ * future version of the linker.  In the meantime, we just use an indirect branch
++ * instead.
++ */
++#ifdef CONFIG_ITANIUM
++(p6)	add r14=-8,r14				// r14 <- addr of fsys_bubble_down entry
++	;;
++(p6)	ld8 r14=[r14]				// r14 <- fsys_bubble_down
++	;;
++(p6)	mov b7=r14
++(p6)	br.sptk.many b7
++#else
++	BRL_COND_FSYS_BUBBLE_DOWN(p6)
++#endif
++	ssm psr.i
++	mov r10=-1
++(p10)	mov r8=EINVAL
++(p9)	mov r8=ENOSYS
++	FSYS_RETURN
++END(__kernel_syscall_via_epc)
+-- 
+1.6.0.2
