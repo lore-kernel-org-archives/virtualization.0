@@ -1,15 +1,15 @@
-From: Alok Kataria <akataria@vmware.com>
-Subject: Re: Process accounting in interrupt diabled cases
-Date: Sat, 07 Mar 2009 00:59:33 -0800
-Message-ID: <1236416374.23222.52.camel__10505.8798370466$1236416512$gmane$org@alok-dev1>
-References: <1236380615.4637.67.camel@alok-dev1> <49B1C1D1.4070603@goop.org>
-	<1236387583.4558.22.camel@alok-dev1>  <49B1CD54.8070805@goop.org>
-Reply-To: akataria@vmware.com
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: Help - KVM TODO_NOV2008_Sharing Memory between guests
+Date: Sun, 08 Mar 2009 16:21:14 +0200
+Message-ID: <49B3D45A.8030200@redhat.com>
+References: <b20fe0330902210535p1efb68bcv282853c5f4f08f3b@mail.gmail.com>	
+	<49A549F1.8000901@redhat.com> <49A566AC.3010208@codemonkey.ws>
+	<b20fe0330903040612m784b273ew7bca3c8ad087990a@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <49B1CD54.8070805@goop.org>
+In-Reply-To: <b20fe0330903040612m784b273ew7bca3c8ad087990a@mail.gmail.com>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -19,140 +19,76 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: PICT PUNE <kvm.smartshare@gmail.com>
+Cc: Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2009-03-06 at 17:26 -0800, Jeremy Fitzhardinge wrote:
-> Alok Kataria wrote:
-> > I don't know if their are instances when interrupts are actually
-> > disabled for such a long time in the kernel , but I don't see a reason
-> > why this might not be happening currently, i.e. do we have a way to
-> > detect such cases. 
-> > I noticed this problem ( with process accounting) only when testing my
-> > stolen time theory below, in which i had intentionally disabled
-> > interrupts for long. 
-> >
-> > So, in case of buggy code which disables interrupt for long, this could
-> > affect process accounting and could result in the stolen time being
-> > reported incorrectly ( considering the stolen time idea mentioned below
-> > is okay).
-> >   
-> 
-> Does it matter how long interrupts are actually disabled.  Tickless is 
-> definitely the preferred mode of operation for any virtual guest, so 
-> time accounting is independent from when the actual timer interrupts 
-> occur; its quite possible we'll see no interrupts for a long time 
-> indeed.
+PICT PUNE wrote:
+>
+>
+> On Wed, Feb 25, 2009 at 9:11 PM, Anthony Liguori 
+> <anthony@codemonkey.ws <mailto:anthony@codemonkey.ws>> wrote:
+>
+>     Avi Kivity wrote:
+>
+>         PICT PUNE wrote:
+>
+>             In reference to the November 2008 todo list on Qumranet
+>             Website
+>
+>             we are a group of college students working on this todo:
+>
+>             *Add a qemu interface for sharing memory between guests.
+>             Using a pci device to expose the shared memory is probably
+>             a good starting point.
+>             *
+>             Can anyone suggest us some starting point or a possible
+>             approach for the same...
+>
+>
+>         Write a PCI device that exposes a BAR containing RAM.
+>          Implement the RAM by mapping a shared memory segment or a
+>         file.  Write a guest driver to use this shared RAM.
+>
+>
+>     Or implement a virtio device that can advertise available shared
+>     memory segments.  Have guest allocate its own memory to send to
+>     host that becomes the shared memory segment.
+>
+>     Expose shared memory mappings via a virtual file system (similar
+>     to hugetlbfs or ramfs).
+>
+>     Using PCI BARs implies static shared memory mappings.  For a long
+>     running VM, you're likely to want to support dynamic shared memory
+>     mappings.
+>
+>     Also exposing a simple signaling mechanism with this too would
+>     allow for shared ring queues to be implemented in userspace
+>     between guests.
+>
+>     Regards,
+>
+>     Anthony Liguori
+>
+>
+> Hello Mr. Avi Kivity  and Mr. Anthony Liguori
+>
+> Thanks for your early reply. We expecting the same approach.
 
-Yes that's alright, all that time when vcpu was idle and scheduled out
-will anyways be accounted as idle time, as mentioned in my earlier mail
-( and if my understanding is not wrong) this is handled by
-tick_nohz_restart_sched_tick.
+There were two approaches outlined above.  Which one do you mean?
 
-But i was talking about a case, where we have this code
-	local_irq_disable()
-	some_work()
-	local_irq_enable()
+> We are in process of making clusters of free memory  and reserve these 
+> memory as a fake PCI device for the guest  OS. this device will be 
+> then passed using PCI passthrough  to the guest from the host.
 
-If this some_work() executed for say 2 ticks, shouldn't the process
-executing this be accounted 2 ticks of system time ? According to my
-understanding, we will account a single tick for this, right ? 
+PCI passthrough does not make much sense in this context, is this what 
+you meant?
 
-I agree that this "some_work" is wrong to start with and it shouldn't
-keep interrupts disabled for so long, but i am considering this case
-just to understand if process_accounting needs any changes for this
-case.
+> Can you please help us in faking the free memory cluster as a PCI 
+> device. Thanking in anticipation.
+>
 
->   If we accrue unstolen time to a task when we actually context 
-> switch then the accounting will all work out, no?
+I suggest reading the code of framebuffer devices such as vga.c.
 
-But getting the unstolen time is a problem, and I want to try and see if
-this unstolen time can be calculated without querying the hypervisor.
-
-> 
-> >>> I stumbled across this while trying to find a solution to figure out the
-> >>> amount of stolen time from Linux, when it is running under a hypervisor.
-> >>> One of the solutions could be to ask the hypervisor directly for this
-> >>> info, but in my quest to find a generic solution I think the below would
-> >>> work too.
-> >>> The total process time accounted by the system on a cpu ( system, idle,
-> >>> wait and etc) when deducted from the amount TSC counter has advanced
-> >>> since boot, should give us this info about the cputime stolen from the
-> >>> kernel
-> >>>       
-> >> You're assuming that the tsc is always going to be advancing at a 
-> >> constant rate in wallclock time?  Is that a good assumption?  Does 
-> >> VMWare virtualize the tsc to make this valid?  If something's going to 
-> >> the effort of virtualizing tsc, how do you know they're not also 
-> >> excluding stolen time?
-> >>     
-> >
-> >
-> > Yes, TSC is the correct thing atleast for VMware over here. But my idea
-> > is not to advocate using TSC here, if it doesn't work for Xen we could
-> > use something else which gives a notion of Total_time there, a parvirt
-> > call to read that can be done. I don't know what that would be for XEN,
-> > but you would know better, please suggest if there is already a paravirt
-> > call which gets that value for XEN ? 
-> >   
-> 
-> Yes, Xen already accounts stolen time in its timer interrupt handler.
-
-Yep I did look at that code earlier, and that's how we can do it for VMI
-too, (actually it was there in VMI in 2.6.21 but we removed it during
-the NO_HZ merge). I am trying to see if we could do this for the non-VMI
-case i.e for the native kernel case. 
-> 
-> But more significantly it uses unstolen time as the timebase for 
-> sched_clock() so that the scheduler will only credit a task for the 
-> actual amount of time it spends executing, rather than a full wallclock 
-> timeslice.
-
-That's a good point, that means we might have to change the
-native_sched_clock definition too to return this (rdtsc - stolen time)
-value.
-
-> 
-> >> What timebase is the kernel using to measure idle, system, wait, ...?  
-> >> Presumably something that doesn't include stolen time.  In that case 
-> >> this just comes down to "PCPU_STOLEN = TOTAL_TIME - PCPU_UNSTOLEN_TIME", 
-> >> where you're proposing that TOTAL_TIME is the tsc.
-> >>     
-> >
-> > Again not proposing to use tsc, please suggest what works for Xen. 
-> > And about the PCU_UNSTOLEN_TIME, i am proposing it could be a summation
-> > of all the fields in kstat_cpu.cpustat except the steal value.
-> >   
-> 
-> No, I'm not advocating anything in particular; I'm trying to understand 
-> your proposal.
-> 
-> You're positing two timebases: one which measures wallclock time (that 
-> could be the tsc in VMWare's case), and another which measures unstolen 
-> time, so you can tell how long a cpu has spent actually running 
-> something.  What's your proposal for the unstolen clock?  How does the 
-> kernel measure unstolen time?  It can't measure it with the tsc, because 
-> that would include any stolen time in the measurement.
-> 
-I am saying that we should have just one timebase, one which measures
-wallclock time. I am thinking that we can calculate the unstolen time
-rather than asking the hypervisor. 
-As mentioned earlier
-
-UNSTOLEN time on a cpu  = summation of kstat_cpu().cpustat variables
-                          (except the steal time variable)
-
-So we can easily get the stolen_time as...
-stolen_time from a cpu = wallclock_time - Unstolen_time.
-
-> Also, I'm not sure it makes sense to distinguish between vcpu idle time 
-> and stolen time.  If a vcpu is idle/blocked, how can you steal time from 
-> it?  It's only stolen time if it wants to run but can't.
-
-The vcpu idle time will be accounted correctly as idle time with
-tick_nohz_restart_sched_tick. So I don't think we would be confusing it
-ever as stolen time atleast in the NO_HZ case.
-
-Thanks,
-Alok
+-- 
+error compiling committee.c: too many arguments to function
