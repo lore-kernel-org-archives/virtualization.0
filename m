@@ -1,113 +1,74 @@
-From: Christopher Clark <christopher.w.clark@gmail.com>
-Subject: Re: Device Drivers in xen, looking also for a white book about how
-	xen works exactly
-Date: Wed, 18 Mar 2009 11:40:02 -0700
-Message-ID: <eab087540903181140r2999c99ci13260782237f2479@mail.gmail.com>
-References: <COL103-W59467031B71F1DC083C226ABAB0@phx.gbl>
+From: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
+Subject: [PATCH 2/5] lguest: wire up pte_update/pte_update_defer
+Date: Fri, 27 Mar 2009 10:22:02 +1030
+Message-ID: <200903271022.03020.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <COL103-W59467031B71F1DC083C226ABAB0@phx.gbl>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Patrick Archibal <bugpb60@hotmail.com>
-Cc: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://ozlabs.org/mailman/options/lguest>,
+	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/lguest>
+List-Post: <mailto:lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+List-Help: <mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/lguest>,
+	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=subscribe>
+Sender: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Cc: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Ingo Molnar <mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jeremy-8XJ3FbD+ij9l57MIdRCFDg@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Patrick
 
-Consider reading this:
+Impact: intermittent guest segv/crash fix
 
-http://www.amazon.com/Definitive-Hypervisor-Prentice-Software-Development/d=
-p/013234971X/ref=3Dpd_sim_b_1
+I've been seeing random guest bad address crashes and segmentation faults:
+bisect led to 4f98a2fee8 (vmscan: split LRU lists into anon & file sets),
+but that's a red herring.
 
-To your questions:
+It turns out that lguest never hooked up the pte_update/pte_update_defer
+calls, so our ptes were not always in sync.  After the vmscan commit, the
+bug became reproducible; now a fsck in a 64MB guest causes reproducible
+pagetable corruption.
 
-1. Real device drivers run in dom0.
-Dom0 also runs the backend drivers that support the guest drivers in
-paravirtualized domUs, and runs the emulation of virtual devices
-presented to HVM domUs.
+Signed-off-by: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
+Cc: jeremy-8XJ3FbD+ij9l57MIdRCFDg@public.gmane.org
+Cc: virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org
+Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+---
+ arch/x86/lguest/boot.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-2. Guest drivers are largely written by the xen community for
-paravirtualized ports of guest OSes.
-
-3. Dom0 currently provides real device drivers and infrastucture to
-support running both PV and HVM guest domUs.
-
-Again, please consider reading that book.
-
-Christopher
-
-On Sat, Feb 28, 2009 at 12:54 PM, Patrick Archibal <bugpb60@hotmail.com> wr=
-ote:
-> Hello,
->
-> I'm reading an excellent documentation about virtualisation in embedded
-> system.
->  (available on open kernel labs site)
->
-> I have read these things : (It talks about managing drivers in a
-> virtualization system)
->
-> "A straight virtualization approach can accomodate this by running the
-> device the device driver inside the VMM. This requires porting all drivers
-> to the hypervisor environnement , with no reuse of guest os driver"
->
-> A much better approach is to share a single driver between multiple vms,
-> without including it in the hypervisor. This requires that ecah
-> participating subsytem has a device modem for which it has a device drive=
-r.
-> Typically, the real device driver is contained in one of the participating
-> system, but a better  (safer) solution is to separate it out into in own
-> subsystem"
->
-> I want to know how it works on xen.
-> I think that :
->
->  All drivers are in the hypervisor, when a guest requires to use a
-> device,  guest uses drivers which has been rewriten for xen in order to
-> contact the hypervisor. Then, the hypervisor which has all real drivers (=
-not
-> modified) call the real device ?
->
-> or that :
-> The real device driver is contained in the dom0 system, the dom0 manage
-> driver for all domU.
->
-> I have three questions :
->
-> 1 -  Which is the good scenario ? (if one is good ) :o)
-> 2 - If drivers for guests are rewritten to call hypervisor or dom0 instead
-> of the device directly, who devellops driver ?
-> (xen devellopers ? or developper for kernel mainline)
-> 3- Which is the real utility of dom0 system ? (just I/O and administration
-> of virtual machines)
->
-> Last question, is someone have find a good white paper or doc which expla=
-ins
-> how xen works ?
-> (and where i can find probably answers for my questions ??)
->
-> Thanks for all this details.
-> Best regards
->
-> Patrick Archibal
->
->
->
->
-> ________________________________
-> Souhaitez vous  =AB =EAtre au bureau sans y =EAtre =BB ? Oui je le veux !
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
->
+diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
+index 65f0b8a..c3bdf0b 100644
+--- a/arch/x86/lguest/boot.c
++++ b/arch/x86/lguest/boot.c
+@@ -475,11 +480,17 @@ static void lguest_write_cr4(unsigned long val)
+  * into a process' address space.  We set the entry then tell the Host the
+  * toplevel and address this corresponds to.  The Guest uses one pagetable per
+  * process, so we need to tell the Host which one we're changing (mm->pgd). */
++static void lguest_pte_update(struct mm_struct *mm, unsigned long addr,
++			       pte_t *ptep)
++{
++	lazy_hcall(LHCALL_SET_PTE, __pa(mm->pgd), addr, ptep->pte_low);
++}
++
+ static void lguest_set_pte_at(struct mm_struct *mm, unsigned long addr,
+ 			      pte_t *ptep, pte_t pteval)
+ {
+ 	*ptep = pteval;
+-	lazy_hcall(LHCALL_SET_PTE, __pa(mm->pgd), addr, pteval.pte_low);
++	lguest_pte_update(mm, addr, ptep);
+ }
+ 
+ /* The Guest calls this to set a top-level entry.  Again, we set the entry then
+@@ -1018,6 +1046,8 @@ __init void lguest_init(void)
+ 	pv_mmu_ops.read_cr3 = lguest_read_cr3;
+ 	pv_mmu_ops.lazy_mode.enter = paravirt_enter_lazy_mmu;
+ 	pv_mmu_ops.lazy_mode.leave = lguest_leave_lazy_mode;
++	pv_mmu_ops.pte_update = lguest_pte_update;
++	pv_mmu_ops.pte_update_defer = lguest_pte_update;
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	/* apic read/write intercepts */
