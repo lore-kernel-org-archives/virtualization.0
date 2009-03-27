@@ -1,13 +1,15 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 3/5] lguest: avoid accidental recycling of pgdir pages
-Date: Thu, 26 Mar 2009 17:17:32 -0700
-Message-ID: <49CC1B1C.3080102@goop.org>
+Date: Fri, 27 Mar 2009 11:54:20 +1030
+Message-ID: <200903271154.22450.rusty__42827.7710023851$1238117230$gmane$org@rustcorp.com.au>
 References: <200903271022.28863.rusty@rustcorp.com.au>
+	<49CC1B1C.3080102@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200903271022.28863.rusty@rustcorp.com.au>
+In-Reply-To: <49CC1B1C.3080102@goop.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
@@ -17,123 +19,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualizat
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: lguest@ozlabs.org, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> Impact: potential bugfix
->
-> In theory, the kernel could reuse the same page as pgdir for a new process
-> while the hypervisor keeps it cached.  This would have undesirable results.
->   
+On Friday 27 March 2009 10:47:32 Jeremy Fitzhardinge wrote:
+> Rusty Russell wrote:
+> > Impact: potential bugfix
+> >
+> > In theory, the kernel could reuse the same page as pgdir for a new process
+> > while the hypervisor keeps it cached.  This would have undesirable results.
+> >   
+> 
+> You can't just do this in tlb flush?
 
-You can't just do this in tlb flush?
+I don't think so.  The problem is that lguest tracks 4 toplevels, using random
+replacement.  This cache is indexed by cr3 value.
 
-    J
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> ---
->  arch/x86/include/asm/lguest_hcall.h |    1 +
->  arch/x86/lguest/boot.c              |    8 ++++++++
->  drivers/lguest/hypercalls.c         |    3 +++
->  drivers/lguest/lg.h                 |    1 +
->  drivers/lguest/page_tables.c        |   16 ++++++++++++++++
->  5 files changed, 29 insertions(+)
->
-> diff --git a/drivers/lguest/hypercalls.c b/drivers/lguest/hypercalls.c
-> index 54d66f0..a160894 100644
-> --- a/drivers/lguest/hypercalls.c
-> +++ b/drivers/lguest/hypercalls.c
-> @@ -92,6 +92,9 @@ static void do_hcall(struct lg_cpu *cpu, struct hcall_args *args)
->  	case LHCALL_NOTIFY:
->  		cpu->pending_notify = args->arg1;
->  		break;
-> +	case LHCALL_INVALIDATE_PGTABLE:
-> +		invalidate_pagetable(cpu, args->arg1);
-> +		break;
->  	default:
->  		/* It should be an architecture-specific hypercall. */
->  		if (lguest_arch_do_hcall(cpu, args))
-> diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
-> index 65f0b8a..c3bdf0b 100644
-> --- a/arch/x86/lguest/boot.c
-> +++ b/arch/x86/lguest/boot.c
-> @@ -540,6 +551,13 @@ static void lguest_flush_tlb_kernel(void)
->  	lazy_hcall(LHCALL_FLUSH_TLB, 1, 0, 0);
->  }
->  
-> +/* This routine is called when a process exits, and we're throwing away the
-> + * page table. */
-> +static void lguest_pgd_free(struct mm_struct *mm, pgd_t *pgd)
-> +{
-> +	lazy_hcall(LHCALL_INVALIDATE_PGTABLE, __pa(pgd), 0, 0);
-> +}
-> +
->  /*
->   * The Unadvanced Programmable Interrupt Controller.
->   *
-> @@ -1018,6 +1046,7 @@ __init void lguest_init(void)
->  	pv_mmu_ops.lazy_mode.leave = lguest_leave_lazy_mode;
->  	pv_mmu_ops.pte_update = lguest_pte_update;
->  	pv_mmu_ops.pte_update_defer = lguest_pte_update;
-> +	pv_mmu_ops.pgd_free = lguest_pgd_free;
->  
->  #ifdef CONFIG_X86_LOCAL_APIC
->  	/* apic read/write intercepts */
-> diff --git a/drivers/lguest/lg.h b/drivers/lguest/lg.h
-> index 5faefea..363c231 100644
-> --- a/drivers/lguest/lg.h
-> +++ b/drivers/lguest/lg.h
-> @@ -174,6 +174,7 @@ void guest_set_pte(struct lg_cpu *cpu, unsigned long gpgdir,
->  		   unsigned long vaddr, pte_t val);
->  void map_switcher_in_guest(struct lg_cpu *cpu, struct lguest_pages *pages);
->  int demand_page(struct lg_cpu *cpu, unsigned long cr2, int errcode);
-> +void invalidate_pagetable(struct lg_cpu *cpu, unsigned long pgtable);
->  void pin_page(struct lg_cpu *cpu, unsigned long vaddr);
->  unsigned long guest_pa(struct lg_cpu *cpu, unsigned long vaddr);
->  void page_table_guest_data_init(struct lg_cpu *cpu);
-> diff --git a/drivers/lguest/page_tables.c b/drivers/lguest/page_tables.c
-> index 81d0c60..fd3e1f5 100644
-> --- a/drivers/lguest/page_tables.c
-> +++ b/drivers/lguest/page_tables.c
-> @@ -448,6 +571,22 @@ void guest_new_pagetable(struct lg_cpu *cpu, unsigned long pgtable)
->  		pin_stack_pages(cpu);
->  }
->  
-> +/* The Guest tells us when a page is no longer being used as a pagetable.
-> + * Without this there can be a subtle bug where the same page gets re-used
-> + * for a different process, and we think it's the same one as the one we have
-> + * in our little pgdir cache. */
-> +void invalidate_pagetable(struct lg_cpu *cpu, unsigned long pgtable)
-> +{
-> +	unsigned int pgdir = find_pgdir(cpu->lg, pgtable);
-> +
-> +	if (pgdir != ARRAY_SIZE(cpu->lg->pgdirs)) {
-> +		if (pgdir == cpu->cpu_pgd)
-> +			kill_guest(cpu, "Attempt to invalidate in-use pgdir");
-> +		/* We set it to an invalid value. */
-> +		cpu->lg->pgdirs[pgdir].gpgdir = -1UL;
-> +	}
-> +}
-> +
->  /*H:470 Finally, a routine which throws away everything: all PGD entries in all
->   * the shadow page tables, including the Guest's kernel mappings.  This is used
->   * when we destroy the Guest. */
-> diff --git a/arch/x86/include/asm/lguest_hcall.h b/arch/x86/include/asm/lguest_hcall.h
-> index 8f034ba..3e200ea 100644
-> --- a/arch/x86/include/asm/lguest_hcall.h
-> +++ b/arch/x86/include/asm/lguest_hcall.h
-> @@ -17,6 +17,7 @@
->  #define LHCALL_SET_PMD		15
->  #define LHCALL_LOAD_TLS		16
->  #define LHCALL_NOTIFY		17
-> +#define LHCALL_INVALIDATE_PGTABLE 18
->  
->  #define LGUEST_TRAP_ENTRY 0x1F
->  
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/virtualization
->   
+Lguest assumes it's told about all pte removals or changes, but simple
+additions get faulted in.  If a pgdir page gets reused we'll potentially have
+stale values from its previous life as a pgdir, no?
+
+Now, I haven't *seen* this happen...
+Rusty.
