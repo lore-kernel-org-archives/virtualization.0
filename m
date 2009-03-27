@@ -1,7 +1,7 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [PATCH 3/5] lguest: avoid accidental recycling of pgdir pages
-Date: Fri, 27 Mar 2009 09:28:12 -0700
-Message-ID: <49CCFE9C.6060702__8419.88390679962$1238171562$gmane$org@goop.org>
+Date: Fri, 27 Mar 2009 09:33:04 -0700
+Message-ID: <49CCFFC0.1020904__24268.4306264438$1238171830$gmane$org@goop.org>
 References: <200903271022.28863.rusty@rustcorp.com.au>
 	<49CC1B1C.3080102@goop.org>
 	<200903271154.22450.rusty@rustcorp.com.au>
@@ -24,21 +24,10 @@ Cc: lguest@ozlabs.org, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.
 List-Id: virtualization@lists.linuxfoundation.org
 
 Rusty Russell wrote:
->> You can't just do this in tlb flush?
->>     
->
-> I don't think so.  The problem is that lguest tracks 4 toplevels, using random
-> replacement.  This cache is indexed by cr3 value.
->
-> Lguest assumes it's told about all pte removals or changes, but simple
-> additions get faulted in.  If a pgdir page gets reused we'll potentially have
-> stale values from its previous life as a pgdir, no?
+> Now, I haven't *seen* this happen...
 >   
 
-Yes, but when you get a tlb flush hypercall, couldn't you also look up 
-the corresponding shadow pte and zap it so that it will get repopulated 
-next time around?  And a full tlb flush would just zap the entire 
-shadow.  After all, the shadow pagetable is just a glorified 
-software-managed tlb...
+Oh, maybe its because you already zap the shadows on tlb flush, and the 
+kernel is careful to tlb flush every pagetable page before freeing...
 
     J
