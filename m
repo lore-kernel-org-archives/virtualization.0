@@ -1,50 +1,39 @@
-From: Rik van Riel <riel@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [patch 0/6] Guest page hinting version 7.
-Date: Fri, 27 Mar 2009 20:06:03 -0400
-Message-ID: <49CD69EB.6000000@redhat.com>
-References: <20090327150905.819861420@de.ibm.com> <1238195024.8286.562.camel@nimitz>
+Date: Sat, 28 Mar 2009 17:05:28 +1030
+Message-ID: <200903281705.29798.rusty@rustcorp.com.au>
+References: <20090327150905.819861420@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1238195024.8286.562.camel@nimitz>
+In-Reply-To: <20090327150905.819861420@de.ibm.com>
+Content-Disposition: inline
 Sender: owner-linux-mm@kvack.org
-To: Dave Hansen <dave@linux.vnet.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, frankeh@watson.ibm.com, akpm@osdl.org, nickpiggin@yahoo.com.au, hugh@veritas.com
+To: virtualization@lists.linux-foundation.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, riel@redhat.com, hugh@veritas.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dave Hansen wrote:
-> On Fri, 2009-03-27 at 16:09 +0100, Martin Schwidefsky wrote:
->> If the host picks one of the
->> pages the guest can recreate, the host can throw it away instead of writing
->> it to the paging device. Simple and elegant.
+On Saturday 28 March 2009 01:39:05 Martin Schwidefsky wrote:
+> Greetings,
+> the circus is back in town -- another version of the guest page hinting
+> patches. The patches differ from version 6 only in the kernel version,
+> they apply against 2.6.29. My short sniff test showed that the code
+> is still working as expected.
 > 
-> Heh, simple and elegant for the hypervisor.  But I'm not sure I'm going
-> to call *anything* that requires a new CPU instruction elegant. ;)
+> To recap (you can skip this if you read the boiler plate of the last
+> version of the patches):
+> The main benefit for guest page hinting vs. the ballooner is that there
+> is no need for a monitor that keeps track of the memory usage of all the
+> guests, a complex algorithm that calculates the working set sizes and for
+> the calls into the guest kernel to control the size of the balloons.
 
-I am convinced that it could be done with a guest-writable
-"bitmap", with 2 bits per page.  That would make this scheme
-useful for KVM, too.
+I thought you weren't convinced of the concrete benefits over ballooning,
+or am I misremembering?
 
-> I don't see any description of it in there any more, but I thought this
-> entire patch set was to get rid of the idiotic triple I/Os in the
-> following scenario:
-
-> I don't see that mentioned at all in the current description.
-> Simplifying the hypervisor is hard to get behind, but cutting system I/O
-> by 2/3 is a much nicer benefit for 1200 lines of invasive code. ;)
-
-Cutting down on a fair bit of IO is absolutely worth
-1200 lines of fairly well isolated code.
-
-> Can we persuade the hypervisor to tell us which pages it decided to page
-> out and just skip those when we're scanning the LRU?
-
-The easiest "notification" points are in the page fault
-handler and the page cache lookup code.
-
--- 
-All rights reversed.
+Thanks,
+Rusty.
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
