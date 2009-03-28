@@ -1,42 +1,39 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 0/6] Guest page hinting version 7.
-Date: Sat, 28 Mar 2009 17:05:28 +1030
-Message-ID: <200903281705.29798.rusty@rustcorp.com.au>
-References: <20090327150905.819861420@de.ibm.com>
+Subject: Re: [PATCH 3/5] lguest: avoid accidental recycling of pgdir pages
+Date: Sat, 28 Mar 2009 17:07:22 +1030
+Message-ID: <200903281707.22688.rusty__8899.28719630024$1238222785$gmane$org@rustcorp.com.au>
+References: <200903271022.28863.rusty@rustcorp.com.au>
+	<200903271154.22450.rusty@rustcorp.com.au>
+	<49CCFFC0.1020904@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20090327150905.819861420@de.ibm.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <49CCFFC0.1020904@goop.org>
 Content-Disposition: inline
-Sender: owner-linux-mm@kvack.org
-To: virtualization@lists.linux-foundation.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, riel@redhat.com, hugh@veritas.com
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: lguest@ozlabs.org, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Saturday 28 March 2009 01:39:05 Martin Schwidefsky wrote:
-> Greetings,
-> the circus is back in town -- another version of the guest page hinting
-> patches. The patches differ from version 6 only in the kernel version,
-> they apply against 2.6.29. My short sniff test showed that the code
-> is still working as expected.
+On Saturday 28 March 2009 03:03:04 Jeremy Fitzhardinge wrote:
+> Rusty Russell wrote:
+> > Now, I haven't *seen* this happen...
+> >   
 > 
-> To recap (you can skip this if you read the boiler plate of the last
-> version of the patches):
-> The main benefit for guest page hinting vs. the ballooner is that there
-> is no need for a monitor that keeps track of the memory usage of all the
-> guests, a complex algorithm that calculates the working set sizes and for
-> the calls into the guest kernel to control the size of the balloons.
+> Oh, maybe its because you already zap the shadows on tlb flush, and the 
+> kernel is careful to tlb flush every pagetable page before freeing...
 
-I thought you weren't convinced of the concrete benefits over ballooning,
-or am I misremembering?
+OK, you've convinced me.  I'll drop this patch.  It was as I was looking for
+the inconsistent pte values that I thought of this issue.
 
-Thanks,
+Thanks!
 Rusty.
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
