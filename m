@@ -1,49 +1,58 @@
-From: Rik van Riel <riel@redhat.com>
+From: Dave Hansen <dave@linux.vnet.ibm.com>
 Subject: Re: [patch 0/6] Guest page hinting version 7.
-Date: Sun, 29 Mar 2009 10:38:51 -0400
-Message-ID: <49CF87FB.4030608@redhat.com>
-References: <20090327150905.819861420@de.ibm.com>	<1238195024.8286.562.camel@nimitz>	<49CD69EB.6000000@redhat.com> <20090329162024.687196ab@skybase>
+Date: Mon, 30 Mar 2009 08:54:55 -0700
+Message-ID: <1238428495.8286.638.camel@nimitz>
+References: <20090327150905.819861420@de.ibm.com>
+	 <1238195024.8286.562.camel@nimitz>  <20090329161253.3faffdeb@skybase>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20090329162024.687196ab@skybase>
+In-Reply-To: <20090329161253.3faffdeb@skybase>
 Sender: owner-linux-mm@kvack.org
 To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Dave Hansen <dave@linux.vnet.ibm.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, frankeh@watson.ibm.com, akpm@osdl.org, nickpiggin@yahoo.com.au, hugh@veritas.com
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, frankeh@watson.ibm.com, akpm@osdl.org, nickpiggin@yahoo.com.au, hugh@veritas.com, riel@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Martin Schwidefsky wrote:
-> On Fri, 27 Mar 2009 20:06:03 -0400
-> Rik van Riel <riel@redhat.com> wrote:
+On Sun, 2009-03-29 at 16:12 +0200, Martin Schwidefsky wrote:
+> > Can we persuade the hypervisor to tell us which pages it decided to page
+> > out and just skip those when we're scanning the LRU?
 > 
->> Dave Hansen wrote:
->>> On Fri, 2009-03-27 at 16:09 +0100, Martin Schwidefsky wrote:
->>>> If the host picks one of the
->>>> pages the guest can recreate, the host can throw it away instead of writing
->>>> it to the paging device. Simple and elegant.
->>> Heh, simple and elegant for the hypervisor.  But I'm not sure I'm going
->>> to call *anything* that requires a new CPU instruction elegant. ;)
->> I am convinced that it could be done with a guest-writable
->> "bitmap", with 2 bits per page.  That would make this scheme
->> useful for KVM, too.
-> 
-> This was our initial approach before we came up with the milli-code
-> instruction. The reason we did not use a bitmap was to prevent the
-> guest to change the host state (4 guest states U/S/V/P and 3 host
-> states r/p/z). With the full set of states you'd need 4 bits. And the
-> hosts need to have a "master" copy of the host bits, one the guest
-> cannot change, otherwise you get into trouble.
+> One principle of the whole approach is that the hypervisor does not
+> call into an otherwise idle guest. The cost of schedulung the virtual
+> cpu is just too high. So we would a means to store the information where
+> the guest can pick it up when it happens to do LRU. I don't think that
+> this will work out.
 
-KVM already has the info from the host bits somewhere else,
-which is needed to be able to actually find the physical
-pages used by a guest.
+I didn't mean for it to actively notify the guest.  Perhaps, as Rik
+said, have a bitmap where the host can set or clear bit for the guest to
+see.
 
-That leaves just the guest states, so a compare-and-swap may
-work for non-s390.
+As the guest is scanning the LRU, it checks the structure (or makes an
+hcall or whatever) and sees that the hypervisor has already taken care
+of the page.  It skips these pages in the first round of scanning.
 
--- 
-All rights reversed.
+I do see what you're saying about this saving the page-*out* operation
+on the hypervisor side.  It can simply toss out pages instead of paging
+them itself.  That's a pretty advanced optimization, though.  What would
+this code look like if we didn't optimize to that level?
+
+It also occurs to me that the hypervisor could be doing a lot of this
+internally.  This whole scheme is about telling the hypervisor about
+pages that we (the kernel) know we can regenerate.  The hypervisor
+should know a lot of that information, too.  We ask it to populate a
+page with stuff from virtual I/O devices or write a page out to those
+devices.  The page remains volatile until something from the guest
+writes to it.  The hypervisor could keep a record of how to recreate the
+page as long as it remains volatile and clean.
+
+That wouldn't cover things like page cache from network filesystems,
+though.  
+
+This patch does look like the full monty but I have to wonder what other
+partial approaches are out there.  
+
+-- Dave
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
