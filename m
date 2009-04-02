@@ -1,47 +1,38 @@
-From: Simon Holm =?ISO-8859-1?Q?Th=F8gersen?= <odie@cs.aau.dk>
-Subject: Re: [Lguest] [PATCH 4/5] lguest: use KVM hypercalls
-Date: Thu, 02 Apr 2009 23:55:24 +0200
-Message-ID: <1238709324.5823.8.camel@odie.local>
+From: Matias Zabaljauregui <zabaljauregui-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 4/5] lguest: use KVM hypercalls
+Date: Thu, 02 Apr 2009 20:37:28 -0300
+Message-ID: <1238715448.29787.6.camel@zetabook>
 References: <200903271022.38244.rusty@rustcorp.com.au>
+	<1238709324.5823.8.camel@odie.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <200903271022.38244.rusty@rustcorp.com.au>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.osdl.org, lguest@ozlabs.org, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, Matias Zabaljauregui <zabaljaureguiatgmail.com@ozlabs.org>
+Return-path: <lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1238709324.5823.8.camel-78RDdhuQolGs1BDpvl8NfQ@public.gmane.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/lguest>,
+	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/lguest>
+List-Post: <mailto:lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+List-Help: <mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/lguest>,
+	<mailto:lguest-request-mnsaURCQ41sdnm+yROfE0A@public.gmane.org?subject=subscribe>
+Sender: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Errors-To: lguest-bounces+glkvl-lguest=m.gmane.org-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: Simon Holm =?ISO-8859-1?Q?Th=F8gersen?= <odie-t5LvXY1cjzpaa/9Udqfwiw@public.gmane.org>
+Cc: lguest-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matias Zabaljauregui <zabaljaureguiatgmail.com-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, virtualization-qjLDD68F18O7TbgM5vRIOg@public.gmane.org, Ingo Molnar <mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-ZnJlLCAyNyAwMyAyMDA5IGtsLiAxMDoyMiArMTAzMCwgc2tyZXYgUnVzdHkgUnVzc2VsbDoKPiBG
-cm9tOiBNYXRpYXMgWmFiYWxqYXVyZWd1aSA8emFiYWxqYXVyZWd1aUBnbWFpbC5jb20+Cj4gCj4g
-SW1wYWN0OiBjbGVhbnVwCj4gCj4gVGhpcyBwYXRjaCBhbGxvdyB1cyB0byB1c2UgS1ZNIGh5cGVy
-Y2FsbHMKClNvbWV0aGluZyBoYXMgYnJva2VuIGluIHJlbGF0aW9uIHRvIHRoaXMgY2hhbmdlLiBJ
-J20gbm90IHN1cmUgaXQgaXMgdGhpcwpjaGFuZ2UgaXRzZWxmIG9yIG9uZSBmb2xsb3dpbmcsIGJ1
-dCBJIGdldCB0aGUgZm9sbG93aW5nIGVycm9yIHdoZW4gdXNpbmcKbGd1ZXN0OgoKbGd1ZXN0OiB1
-bmhhbmRsZWQgdHJhcCA2IGF0IDB4NDE4NzI2ICgweDApCgo+ICtzdGF0aWMgYm9vbCBpc19oeXBl
-cmNhbGwoc3RydWN0IGxnX2NwdSAqY3B1KQo+ICt7Cj4gKwl1OCBpbnNuWzNdOwo+ICsKPiArCS8q
-IFRoaXMgbXVzdCBiZSB0aGUgR3Vlc3Qga2VybmVsIHRyeWluZyB0byBkbyBzb21ldGhpbmcuCj4g
-KwkgKiBUaGUgYm90dG9tIHR3byBiaXRzIG9mIHRoZSBDUyBzZWdtZW50IHJlZ2lzdGVyIGFyZSB0
-aGUgcHJpdmlsZWdlCj4gKwkgKiBsZXZlbC4gKi8KPiArCWlmICgoY3B1LT5yZWdzLT5jcyAmIDMp
-ICE9IEdVRVNUX1BMKQo+ICsJCXJldHVybiBmYWxzZTsKPiArCj4gKwkvKiBJcyBpdCBhIHZtY2Fs
-bD8gKi8KPiArCV9fbGdyZWFkKGNwdSwgaW5zbiwgZ3Vlc3RfcGEoY3B1LCBjcHUtPnJlZ3MtPmVp
-cCksIHNpemVvZihpbnNuKSk7CgpJJ3ZlIHB1dCBhIHByaW50ayBmb3IgaW5zbiBoZXJlIHRoYXQg
-c2hvd3MgdXAgdHdpY2UuIFRoZSBmaXJzdCB0aW1lIGluc24KaG9sZHMgdGhlIHZhbHVlcyBiZWxv
-dywgYW5kIHRoZSBzZWNvbmQgdGltZSBpdCBob2xkcyB0aGUgdmFsdWVzIHRoYXQgYXJlCnBhdGNo
-ZWQgaW4gYnkgcmV3cml0ZV9oeXBlcmNhbGwuCgo+ICsJcmV0dXJuIGluc25bMF0gPT0gMHgwZiAm
-JiBpbnNuWzFdID09IDB4MDEgJiYgaW5zblsyXSA9PSAweGMxOwo+ICt9CgpJJ2xsIGludmVzdGln
-YXRlIGZ1cnRoZXIgdG9tb3Jyb3csIHVubGVzcyBzb21lb25lIGlzIGFscmVhZHkgb24gdG9wIG9m
-CnRoaXMuIE15IGtlcm5lbCBpcyAyLjYuMjktMDcxMDAtZzgzM2JiMzAgYnR3LgoKClNpbW9uIEhv
-bG0gVGjDuGdlcnNlbgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+T24gVGh1LCAyMDA5LTA0LTAyIGF0IDIzOjU1ICswMjAwLCBTaW1vbiBIb2xtIFRow7hnZXJzZW4g
+d3JvdGU6Cj4gZnJlLCAyNyAwMyAyMDA5IGtsLiAxMDoyMiArMTAzMCwgc2tyZXYgUnVzdHkgUnVz
+c2VsbDoKPiA+IEZyb206IE1hdGlhcyBaYWJhbGphdXJlZ3VpIDx6YWJhbGphdXJlZ3VpQGdtYWls
+LmNvbT4KPiA+IAo+ID4gSW1wYWN0OiBjbGVhbnVwCj4gPiAKPiA+IFRoaXMgcGF0Y2ggYWxsb3cg
+dXMgdG8gdXNlIEtWTSBoeXBlcmNhbGxzCj4gCj4gU29tZXRoaW5nIGhhcyBicm9rZW4gaW4gcmVs
+YXRpb24gdG8gdGhpcyBjaGFuZ2UuIEknbSBub3Qgc3VyZSBpdCBpcyB0aGlzCj4gY2hhbmdlIGl0
+c2VsZiBvciBvbmUgZm9sbG93aW5nLCBidXQgSSBnZXQgdGhlIGZvbGxvd2luZyBlcnJvciB3aGVu
+IHVzaW5nCj4gbGd1ZXN0Ogo+IAo+IGxndWVzdDogdW5oYW5kbGVkIHRyYXAgNiBhdCAweDQxODcy
+NiAoMHgwKQoKCkhpLCBjb3VsZCB5b3UgcGxlYXNlIGF0dGFjaCB5b3VyIGNvbmZpZz8gCmFyZSB5
+b3UgdXNpbmcgdGhlIHNhbWUga2VybmVsIGZvciBndWVzdCBhbmQgaG9zdD8KCkkganVzdCB0ZXN0
+ZWQgaXQgd2l0aCAyLjYuMjktMDcxMDAtZzgzM2JiMzAgIGFuZCB3b3JrcyBPSyBmb3IgbWUuCgp0
+aGFua3MKTWF0aWFzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpMZ3Vlc3QgbWFpbGluZyBsaXN0CkxndWVzdEBvemxhYnMub3JnCmh0dHBzOi8vb3psYWJz
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xndWVzdAo=
