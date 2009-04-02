@@ -1,75 +1,55 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [patch 0/6] Guest page hinting version 7.
-Date: Thu, 02 Apr 2009 16:05:22 -0400
-Message-ID: <49D51A82.8090908@redhat.com>
-References: <20090327150905.819861420@de.ibm.com> <20090402175249.3c4a6d59@skybase> <49D50CB7.2050705@redhat.com> <200904030622.30935.nickpiggin@yahoo.com.au>
+From: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
+Subject: Re: 2.6.29 git, resume from ram broken on thinkpad
+Date: Thu, 2 Apr 2009 22:12:05 +0200
+Message-ID: <200904022212.06118.a.miskiewicz@gmail.com>
+References: <200904011155.20751.a.miskiewicz@gmail.com> <20090401210054.GS18394@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <200904030622.30935.nickpiggin@yahoo.com.au>
-Sender: owner-linux-mm@kvack.org
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, frankeh@watson.ibm.com, hugh@veritas.com
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932760AbZDBUMX@vger.kernel.org>
+In-Reply-To: <20090401210054.GS18394@sequoia.sous-sol.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, Mike Travis <travis@sgi.com>, Jeremy Fitzhardinge <jeremy@xensource.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Yinghai Lu <yhlu.kernel@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Nick Piggin wrote:
-> On Friday 03 April 2009 06:06:31 Rik van Riel wrote:
->   
->> Ballooning has a simpler mechanism, but relies on an
->> as-of-yet undiscovered policy.
->>
->> Having experienced a zillion VM corner cases over the
->> last decade and a bit, I think I prefer a complex mechanism
->> over complex (or worse, unknown!) policy any day.
->>     
+On Wednesday 01 of April 2009, Chris Wright wrote:
+> * Arkadiusz Miskiewicz (a.miskiewicz@gmail.com) wrote:
+> > and this as bad commit:
+> >
+> > 7f7ace0cda64c99599c23785f8979a072e118058 is first bad commit
 >
-> I disagree with it being so clear cut. Volatile pagecache policy is completely
-> out of the control of the Linux VM. Wheras ballooning does have to make some
-> tradeoff between guests, but the actual reclaim will be driven by the guests.
-> Neither way is perfect, but it's not like the hypervisor reclaim is foolproof
-> against making a bad tradeoff between guests.
->   
-I guess we could try to figure out a simple and robust policy
-for ballooning.  If we can come up with a policy which nobody
-can shoot holes in by just discussing it, it may be worth
-implementing and benchmarking.
+> Does it make any difference if you roll fwd a couple commits to:
+>
+> 802bf931f2688ad125b73db597ce63cc842fb27a
+>
+> That fixes a possible problem with the cpumask change and interrupt
+> migration.
 
-Maybe something based on the host passing memory pressure
-on to the guests, and the guests having their own memory
-pressure push back to the host.
+Will test.
 
-I'l start by telling you the best auto-ballooning policy idea
-I have come up with so far, and the (major?) hole in it.
+>
+> And to be clear, one commit earlier works?
+>
+> fae3e7fba4c664b3a15f2cf15ac439e8d754afc2
 
-Basically, the host needs the memory pressure notification,
-where the VM will notify the guests when memory is running
-low (and something could soon be swapped).  At that point,
-each guest which receives the signal will try to free some
-memory and return it to the host.
+Sort of, I got werid things with this commit... after initial suspend a=
+nd=20
+resume it started suspending and resuming in a loop without need for an=
+y=20
+intervention  on my part (so I didn't have to touch for it to start res=
+uming).=20
+=2E.. but if it resumed and I started using keyboard it stopped suspend=
+ing.
 
-Each guest can have the reverse in its own pageout code.
-Once memory pressure grows to a certain point (eg. when
-the guest is about to swap something out), it could reclaim
-a few pages from the host.
+32b838b8cfa269d688889b3213e7ee37ee901f72 behaves the same way.
 
-If all the guests behave themselves, this could work.
+Any ranges or commits to test/bisect?
 
-However, even with just reasonably behaving guests,
-differences between the VMs in each guest could lead
-to unbalanced reclaiming, penalizing better behaving
-guests.
+> thanks,
+> -chris
 
-If one guest is behaving badly, it could really impact
-the other guests.
-
-Can you think of improvements to this idea?
-
-Can you think of another balloon policy that does
-not have nasty corner cases?
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+--=20
+Arkadiusz Mi=C5=9Bkiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/
