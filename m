@@ -1,45 +1,47 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.29 git, resume from ram broken on thinkpad
-Date: Thu, 2 Apr 2009 23:28:00 +0200
-Message-ID: <200904022328.02088.rjw@sisk.pl>
-References: <200904011155.20751.a.miskiewicz@gmail.com> <200904022300.01707.rjw@sisk.pl> <20090402210451.GA4076@elte.hu>
+From: Simon Holm =?ISO-8859-1?Q?Th=F8gersen?= <odie@cs.aau.dk>
+Subject: Re: [Lguest] [PATCH 4/5] lguest: use KVM hypercalls
+Date: Thu, 02 Apr 2009 23:55:24 +0200
+Message-ID: <1238709324.5823.8.camel@odie.local>
+References: <200903271022.38244.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759093AbZDBV2V@vger.kernel.org>
-In-Reply-To: <20090402210451.GA4076@elte.hu>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@sous-sol.org>, Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>, linux-kernel@vger.kernel.org, Mike Travis <travis@sgi.com>, Jeremy Fitzhardinge <jeremy@xensource.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Yinghai Lu <yhlu.kernel@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <200903271022.38244.rusty@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.osdl.org, lguest@ozlabs.org, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, Matias Zabaljauregui <zabaljaureguiatgmail.com@ozlabs.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday 02 April 2009, Ingo Molnar wrote:
-> 
-> * Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> 
-> > On Thursday 02 April 2009, Chris Wright wrote:
-> > > * Rafael J. Wysocki (rjw@sisk.pl) wrote:
-> > > > Sorry for the misunderstanding, I thought the breakage might be introduced
-> > > > between 15f7176eb1cccec0a332541285ee752b935c1c85 and
-> > > > 0a0c5168df270a50e3518e4f12bddb31f8f5f38f, so I thought it would be a good
-> > > > idea to verify if 0a0c5168df270a50e3518e4f12bddb31f8f5f38f fails too.
-> > > 
-> > > Ah, sure.  It fails too (both test_suspend=mem and regular suspend/resume).
-> > 
-> > Having looked at the commit the Arek's bisect turned up I don't 
-> > think it's likely to have caused this problem to appear.
-> > 
-> > It seems that the regression had been introduced before the PM and 
-> > PCI updates went it, so I bet it's one of the x86 changes.  Ingo, 
-> > are there any commits obviously worth testing?
-> 
-> i lost context - a list/range of commits to check would be nice.
-
-So far we know that d54b3538b0bfb31351d02d1669d4a978d2abfc5f is good
-(according to Arek) and 0a0c5168df270a50e3518e4f12bddb31f8f5f38f (that doesn't
-introduce functional changes) is already bad (according to Chris).
-
-Thanks,
-Rafael
+ZnJlLCAyNyAwMyAyMDA5IGtsLiAxMDoyMiArMTAzMCwgc2tyZXYgUnVzdHkgUnVzc2VsbDoKPiBG
+cm9tOiBNYXRpYXMgWmFiYWxqYXVyZWd1aSA8emFiYWxqYXVyZWd1aUBnbWFpbC5jb20+Cj4gCj4g
+SW1wYWN0OiBjbGVhbnVwCj4gCj4gVGhpcyBwYXRjaCBhbGxvdyB1cyB0byB1c2UgS1ZNIGh5cGVy
+Y2FsbHMKClNvbWV0aGluZyBoYXMgYnJva2VuIGluIHJlbGF0aW9uIHRvIHRoaXMgY2hhbmdlLiBJ
+J20gbm90IHN1cmUgaXQgaXMgdGhpcwpjaGFuZ2UgaXRzZWxmIG9yIG9uZSBmb2xsb3dpbmcsIGJ1
+dCBJIGdldCB0aGUgZm9sbG93aW5nIGVycm9yIHdoZW4gdXNpbmcKbGd1ZXN0OgoKbGd1ZXN0OiB1
+bmhhbmRsZWQgdHJhcCA2IGF0IDB4NDE4NzI2ICgweDApCgo+ICtzdGF0aWMgYm9vbCBpc19oeXBl
+cmNhbGwoc3RydWN0IGxnX2NwdSAqY3B1KQo+ICt7Cj4gKwl1OCBpbnNuWzNdOwo+ICsKPiArCS8q
+IFRoaXMgbXVzdCBiZSB0aGUgR3Vlc3Qga2VybmVsIHRyeWluZyB0byBkbyBzb21ldGhpbmcuCj4g
+KwkgKiBUaGUgYm90dG9tIHR3byBiaXRzIG9mIHRoZSBDUyBzZWdtZW50IHJlZ2lzdGVyIGFyZSB0
+aGUgcHJpdmlsZWdlCj4gKwkgKiBsZXZlbC4gKi8KPiArCWlmICgoY3B1LT5yZWdzLT5jcyAmIDMp
+ICE9IEdVRVNUX1BMKQo+ICsJCXJldHVybiBmYWxzZTsKPiArCj4gKwkvKiBJcyBpdCBhIHZtY2Fs
+bD8gKi8KPiArCV9fbGdyZWFkKGNwdSwgaW5zbiwgZ3Vlc3RfcGEoY3B1LCBjcHUtPnJlZ3MtPmVp
+cCksIHNpemVvZihpbnNuKSk7CgpJJ3ZlIHB1dCBhIHByaW50ayBmb3IgaW5zbiBoZXJlIHRoYXQg
+c2hvd3MgdXAgdHdpY2UuIFRoZSBmaXJzdCB0aW1lIGluc24KaG9sZHMgdGhlIHZhbHVlcyBiZWxv
+dywgYW5kIHRoZSBzZWNvbmQgdGltZSBpdCBob2xkcyB0aGUgdmFsdWVzIHRoYXQgYXJlCnBhdGNo
+ZWQgaW4gYnkgcmV3cml0ZV9oeXBlcmNhbGwuCgo+ICsJcmV0dXJuIGluc25bMF0gPT0gMHgwZiAm
+JiBpbnNuWzFdID09IDB4MDEgJiYgaW5zblsyXSA9PSAweGMxOwo+ICt9CgpJJ2xsIGludmVzdGln
+YXRlIGZ1cnRoZXIgdG9tb3Jyb3csIHVubGVzcyBzb21lb25lIGlzIGFscmVhZHkgb24gdG9wIG9m
+CnRoaXMuIE15IGtlcm5lbCBpcyAyLjYuMjktMDcxMDAtZzgzM2JiMzAgYnR3LgoKClNpbW9uIEhv
+bG0gVGjDuGdlcnNlbgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
