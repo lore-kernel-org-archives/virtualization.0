@@ -1,34 +1,59 @@
-From: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: 2.6.29 git, resume from ram broken on thinkpad
-Date: Wed, 1 Apr 2009 16:06:37 -0700
-Message-ID: <20090401230637.GW18394@sequoia.sous-sol.org>
-References: <200904011155.20751.a.miskiewicz@gmail.com>
-	<200904012349.10919.rjw@sisk.pl>
-	<20090401221433.GV18394@sequoia.sous-sol.org>
-	<200904020023.58363.rjw@sisk.pl>
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch 0/6] Guest page hinting version 7.
+Date: Thu, 2 Apr 2009 22:32:00 +1100
+Message-ID: <200904022232.02185.nickpiggin@yahoo.com.au>
+References: <20090327150905.819861420@de.ibm.com> <200903281705.29798.rusty@rustcorp.com.au> <20090329162336.7c0700e9@skybase>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <20090329162336.7c0700e9@skybase>
 Content-Disposition: inline
-In-Reply-To: <200904020023.58363.rjw@sisk.pl>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: xen-devel@lists.xensource.com, Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>, linux-kernel@vger.kernel.org, Mike Travis <travis@sgi.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Yinghai Lu <yhlu.kernel@gmail.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Sender: owner-linux-mm@kvack.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, frankeh@watson.ibm.com, riel@redhat.com, hugh@veritas.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Rafael J. Wysocki (rjw@sisk.pl) wrote:
-> Sorry for the misunderstanding, I thought the breakage might be introduced
-> between 15f7176eb1cccec0a332541285ee752b935c1c85 and
-> 0a0c5168df270a50e3518e4f12bddb31f8f5f38f, so I thought it would be a good
-> idea to verify if 0a0c5168df270a50e3518e4f12bddb31f8f5f38f fails too.
+On Monday 30 March 2009 01:23:36 Martin Schwidefsky wrote:
+> On Sat, 28 Mar 2009 17:05:28 +1030
+>
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > On Saturday 28 March 2009 01:39:05 Martin Schwidefsky wrote:
+> > > Greetings,
+> > > the circus is back in town -- another version of the guest page hinting
+> > > patches. The patches differ from version 6 only in the kernel version,
+> > > they apply against 2.6.29. My short sniff test showed that the code
+> > > is still working as expected.
+> > >
+> > > To recap (you can skip this if you read the boiler plate of the last
+> > > version of the patches):
+> > > The main benefit for guest page hinting vs. the ballooner is that there
+> > > is no need for a monitor that keeps track of the memory usage of all
+> > > the guests, a complex algorithm that calculates the working set sizes
+> > > and for the calls into the guest kernel to control the size of the
+> > > balloons.
+> >
+> > I thought you weren't convinced of the concrete benefits over ballooning,
+> > or am I misremembering?
+>
+> The performance test I have seen so far show that the benefits of
+> ballooning vs. guest page hinting are about the same. I am still
+> convinced that the guest page hinting is the way to go because you do
+> not need an external monitor. Calculating the working set size for a
+> guest is a challenge. With guest page hinting there is no need for a
+> working set size calculation.
 
-Ah, sure.  It fails too (both test_suspend=mem and regular suspend/resume).
+Sounds backwards to me. If the benefits are the same, then having
+complexity in an external monitor (which, by the way, shares many
+problems and goals of single-kernel resource/workload management),
+rather than putting a huge chunk of crap in the guest kernel's core
+mm code.
+
+I still think this needs much more justification.
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
