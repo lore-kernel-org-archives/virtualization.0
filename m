@@ -1,46 +1,80 @@
-From: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
-Subject: Re: 2.6.29 git, resume from ram broken on thinkpad
-Date: Fri, 3 Apr 2009 08:47:19 +0200
-Message-ID: <200904030847.19674.a.miskiewicz@gmail.com>
-References: <200904011155.20751.a.miskiewicz@gmail.com> <200904030222.57469.a.miskiewicz@gmail.com> <20090403003523.GK18394@sequoia.sous-sol.org>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 0/6] Guest page hinting version 7.
+Date: Fri, 3 Apr 2009 10:49:13 +0200
+Message-ID: <20090403104913.29c62082@skybase>
+References: <20090327150905.819861420@de.ibm.com>
+	<200903281705.29798.rusty@rustcorp.com.au>
+	<20090329162336.7c0700e9@skybase>
+	<200904022232.02185.nickpiggin@yahoo.com.au>
+	<20090402175249.3c4a6d59@skybase>
+	<49D50CB7.2050705@redhat.com>
+	<49D518E9.1090001@goop.org>
+	<49D51CA9.6090601@redhat.com>
+	<49D5215D.6050503@goop.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760140AbZDCGrk@vger.kernel.org>
-In-Reply-To: <20090403003523.GK18394@sequoia.sous-sol.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, Mike Travis <travis@sgi.com>, Jeremy Fitzhardinge <jeremy@xensource.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Yinghai Lu <yhlu.kernel@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <49D5215D.6050503@goop.org>
+Sender: owner-linux-mm@kvack.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Rik van Riel <riel@redhat.com>, akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>, frankeh@watson.ibm.com, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, hugh@veritas.com, Xen-devel <xen-devel@lists.xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 03 of April 2009, Chris Wright wrote:
-> * Arkadiusz Miskiewicz (a.miskiewicz@gmail.com) wrote:
-> > What about 9ea09af3bd3090e8349ca2899ca2011bd94cda85 ?
+On Thu, 02 Apr 2009 13:34:37 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+
+> Rik van Riel wrote:
+> > Jeremy Fitzhardinge wrote:
+> >> The more complex host policy decisions of how to balance overall 
+> >> memory use system-wide are much in the same for both mechanisms.
+> > Not at all.  Page hinting is just an optimization to host swapping, where
+> > IO can be avoided on many of the pages that hit the end of the LRU.
 > >
-> > stop_machine: introduce stop_machine_create/destroy.
->
-> That is later fixed in a0e280e0f33f6c859a235fb69a875ed8f3420388.
->
-> Can you please verify if 2.6.29 works for you?=20
+> > No decisions have to be made at all about balancing memory use
+> > between guests, it just happens through regular host LRU aging.
+> 
+> When the host pages out a page belonging to guest A, then its making a 
+> policy decision on how large guest A should be compared to B.  If the 
+> policy is a global LRU on all guest pages, then that's still a policy on 
+> guest sizes: the target size is a function of its working set, assuming 
+> that the working set is well modelled by LRU.  I imagine that if the 
+> guest and host are both managing their pages with an LRU-like algorithm 
+> you'll get some nasty interactions, which page hinting tries to alleviate.
 
-I think that the guilty part is=20
-CONFIG_CC_STACKPROTECTOR_ALL=3Dy
-CONFIG_CC_STACKPROTECTOR=3Dy
+This is the basic idea of guest page hinting. Let the host memory
+manager make it decision based on the data it has. That includes page
+age determined with a global LRU list, page age determined with a
+per-guest LRU list, i/o rates of the guests, all kind of policy which
+guest should have how much memory. The page hinting comes into play
+AFTER the decision has been made which page to evict. Only then the host
+should look at the volatile vs. stable page state and decide what has
+to be done with the page. If it is volatile the host can throw the page
+away because the guest can recreate it with LESS effort. That is the
+optimization.
 
-Disabling stackprotector makes problem go away (and my build of final 2=
-=2E6.29=20
-had it disabled while later builds got it enabled at some moment).
+> > Automatic ballooning requires that something on the host figures
+> > out how much memory each guest needs and sizes the guests
+> > appropriately.  All the proposed policies for that which I have
+> > seen have some nasty corner cases or are simply very limited
+> > in scope.
+> 
+> Well, you could apply something equivalent to a global LRU: ask for more 
+> pages from guests who have the most unused pages.  (I'm not saying that 
+> its necessarily a useful policy.)
 
-(gcc 4.3.3 here)
+But with page hinting you don't have to even ask. Just take the pages
+if you need them. The guest already told you that you can have them by
+setting the unused state.
 
-> Your bisects are all
-> going way back to 2.6.29-rc1.
->
-> thanks,
-> -chris
+-- 
+blue skies,
+   Martin.
 
+"Reality continues to ruin my life." - Calvin.
 
---=20
-Arkadiusz Mi=C5=9Bkiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
