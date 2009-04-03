@@ -1,31 +1,19 @@
-From: Ingo Molnar <mingo@elte.hu>
+From: Chris Wright <chrisw@sous-sol.org>
 Subject: Re: 2.6.29 git, resume from ram broken on thinkpad
-Date: Fri, 3 Apr 2009 19:32:56 +0200
-Message-ID: <20090403173256.GA6295@elte.hu>
-References: <200904011155.20751.a.miskiewicz@gmail.com>
-	<200904030222.57469.a.miskiewicz@gmail.com>
-	<20090403003523.GK18394@sequoia.sous-sol.org>
-	<200904030847.19674.a.miskiewicz@gmail.com>
+Date: Fri, 3 Apr 2009 10:36:31 -0700
+Message-ID: <20090403173631.GA27148@sequoia.sous-sol.org>
+References: <200904011155.20751.a.miskiewicz@gmail.com> <200904030222.57469.a.miskiewicz@gmail.com> <20090403003523.GK18394@sequoia.sous-sol.org> <200904030847.19674.a.miskiewicz@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <xen-devel-bounces@lists.xensource.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933348AbZDCRhv@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <200904030847.19674.a.miskiewicz@gmail.com>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>, Tejun Heo <tj@kernel.org>, Arjan van de Ven <arjan@infradead.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@xensource.com>, linux-kernel@vger.kernel.org, Mike Travis <travis@sgi.com>, Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org, Yinghai Lu <yhlu.kernel@gmail.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, Mike Travis <travis@sgi.com>, Jeremy Fitzhardinge <jeremy@xensource.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>, virtualization@lists.osdl.org, xen-devel@lists.xensource.com, Yinghai Lu <yhlu.kernel@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-* Arkadiusz Miskiewicz <a.miskiewicz@gmail.com> wrote:
-
+* Arkadiusz Miskiewicz (a.miskiewicz@gmail.com) wrote:
 > On Friday 03 of April 2009, Chris Wright wrote:
 > > * Arkadiusz Miskiewicz (a.miskiewicz@gmail.com) wrote:
 > > > What about 9ea09af3bd3090e8349ca2899ca2011bd94cda85 ?
@@ -40,20 +28,32 @@ List-Id: virtualization@lists.linuxfoundation.org
 > CONFIG_CC_STACKPROTECTOR_ALL=y
 > CONFIG_CC_STACKPROTECTOR=y
 
-aha!!
+Indeed, I think you're right.  In fact...this should fix it:
 
-> Disabling stackprotector makes problem go away (and my build of 
-> final 2.6.29 had it disabled while later builds got it enabled at 
-> some moment).
+From:  Joseph Cihula <joseph.cihula@intel.com>
 
-Thanks a ton for that info. Could you try:
+The __restore_processor_state() fn restores %gs on resume from S3.  As
+such, it cannot be protected by the stack-protector guard since %gs will
+not be correct on function entry.
 
-   http://people.redhat.com/mingo/tip.git/README
+There are only a few other fns in this file and it should not negatively
+impact kernel security that they will also have the stack-protector
+guard removed (and so it's not worth moving them to another file).
 
-with stack-protector re-enabled please? This fix:
+Without this change, S3 resume on a kernel built with
+CONFIG_CC_STACKPROTECTOR_ALL=y will fail.
 
-  1f23b77: x86: disable stack-protector for __restore_processor_state()
+Signed-off-by:  Joseph Cihula <joseph.cihula@intel.com>
 
-might do the trick!
-
-	Ingo
+--- ../linux.trees.git/arch/x86/power/Makefile	2009-03-29 
+12:12:13.000000000 -0700
++++ arch/x86/power/Makefile	2009-03-30 12:21:19.000000000 -0700
+@@ -1,2 +1,7 @@
++# __restore_processor_state() restores %gs after S3 resume and so 
+should not
++# itself be stack-protected
++nostackp := $(call cc-option, -fno-stack-protector)
++CFLAGS_cpu_$(BITS).o	:= $(nostackp)
++
+obj-$(CONFIG_PM_SLEEP)		+= cpu_$(BITS).o
+obj-$(CONFIG_HIBERNATION)	+= hibernate_$(BITS).o hibernate_asm_$(BITS).o
